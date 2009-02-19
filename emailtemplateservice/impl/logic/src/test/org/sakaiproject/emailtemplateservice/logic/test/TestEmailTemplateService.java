@@ -82,7 +82,7 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 
 
 	public void testGetTemplatebyId() {
-		EmailTemplate t1 =this.emailTemplateService.getEmailTemplateById(new Long(1));
+		EmailTemplate t1 =this.emailTemplateService.getEmailTemplateById(Long.valueOf(1));
 		assertNotNull(t1);
 		assertEquals(t1.getKey(), KEY_1);
 		
