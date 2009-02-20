@@ -2092,14 +2092,29 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 			else if (notiOption.equals(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DIGEST))
 			{
+				// just send plain/text version for now
+				String digestMsgBody = getPlainTextNotificationMessage(s);
+				
 				// digest the message to each user
 				for (Iterator iReceivers = finalReceivers.iterator(); iReceivers.hasNext();)
 				{
 					User user = (User) iReceivers.next();
-					DigestService.digest(user.getId(), getSubject(), messageBody);
+					DigestService.digest(user.getId(), getSubject(), digestMsgBody);
 				}
 			}
 		}
+	}
+	
+	/**
+	 * get only the plain text of notification message
+	 * @param s
+	 * @return
+	 */
+	protected String getPlainTextNotificationMessage(AssignmentSubmission s)
+	{
+		StringBuilder message = new StringBuilder();
+		message.append(plainTextContent(s));
+		return message.toString();
 	}
 
 	/**
