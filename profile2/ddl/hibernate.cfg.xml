@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+		"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+		"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!-- these mapping resource paths must point to your hibernate template files (.hbm.xml),
+            this should be the classpath location (typically after the src directory) -->
+        	<mapping resource="uk/ac/lancs/e_science/profile2/hbm/ProfileStatus.hbm.xml" />
+	        <mapping resource="uk/ac/lancs/e_science/profile2/hbm/ProfilePrivacy.hbm.xml" />
+	       	<mapping resource="uk/ac/lancs/e_science/profile2/hbm/ProfileFriend.hbm.xml" />
+	       	<mapping resource="uk/ac/lancs/e_science/profile2/hbm/ProfileImage.hbm.xml" />
+	       	<mapping resource="uk/ac/lancs/e_science/profile2/hbm/SakaiPersonMeta.hbm.xml" />
+	       	<mapping resource="uk/ac/lancs/e_science/profile2/hbm/ProfilePreferences.hbm.xml" />
+    </session-factory>
+</hibernate-configuration>
