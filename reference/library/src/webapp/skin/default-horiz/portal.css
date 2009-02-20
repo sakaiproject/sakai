@@ -565,7 +565,7 @@ below they are contextually defined depending on the column as an example,as you
 .portletTitle .action a{
 	background: url(images/help.gif) center right no-repeat;
 	text-align: left;
-	padding:0 1em;
+	padding:0;
 	text-decoration: none !important;
 	width:1em;
 	height:1.5em;
