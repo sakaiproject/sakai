@@ -588,7 +588,7 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
 
     protected String[] split(String source, String splitter) {
         // hold the results as we find them
-        Vector rv = new Vector();
+        Vector<String> rv = new Vector<String>();
         int last = 0;
         int next = 0;
         do {

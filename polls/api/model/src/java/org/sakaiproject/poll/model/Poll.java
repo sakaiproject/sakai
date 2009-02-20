@@ -76,8 +76,8 @@ public class Poll implements Entity  {
         this.voteClose = cal.getTime();
         this.displayResult = "open";
 
-		this.options = new ArrayList();
-		this.votes = new ArrayList();
+		this.options = new ArrayList<Option>();
+		this.votes = new ArrayList<Vote>();
     }
 
     /**
