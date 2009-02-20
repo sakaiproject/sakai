@@ -457,7 +457,7 @@ function showNotif(item, button,formName)
 	{
 		var browserType;
 		if (document.all) {browserType = "ie"}
-		if (window.navigator.userAgent.toLowerCase().match("gecko")) {browserType= "gecko"}
+		if (window.navigator.userAgent.toLowerCase().match("gecko") || window.navigator.userAgent.toLowerCase().match("opera") ) {browserType= "gecko"}
 		if (browserType == "gecko" )
 			document.showItem = eval('document.getElementById(item)');
 		else if (browserType == "ie")
