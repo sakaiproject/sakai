@@ -428,7 +428,12 @@ public abstract class WidgetTabTemplate extends Panel {
 	}
 	
 	public boolean isRole(String role) {
-		return roles.contains(role);
+		for(Role r : roles) {
+			if(r.getId().equals(role)) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	private PrefsData getPrefsdata() {

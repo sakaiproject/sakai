@@ -129,8 +129,8 @@ public class ReportXMLReader extends AbstractObjectReader {
         
         
         // display chart and/or table?
-        ReportParams params = report.getReportDefinition().getReportParams();
-        /*boolean showChart = ReportManager.HOW_PRESENTATION_BOTH.equals(params.getHowPresentationMode())
+        /*ReportParams params = report.getReportDefinition().getReportParams();
+        boolean showChart = ReportManager.HOW_PRESENTATION_BOTH.equals(params.getHowPresentationMode())
 				|| ReportManager.HOW_PRESENTATION_CHART.equals(params.getHowPresentationMode());
         boolean showTable = ReportManager.HOW_PRESENTATION_BOTH.equals(params.getHowPresentationMode())
 				|| ReportManager.HOW_PRESENTATION_TABLE.equals(params.getHowPresentationMode());*/

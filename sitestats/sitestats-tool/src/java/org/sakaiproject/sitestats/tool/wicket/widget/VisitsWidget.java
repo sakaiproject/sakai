@@ -240,7 +240,7 @@ public class VisitsWidget extends Panel {
 			public String getSecondValue() {
 				int totalUsersInSite = getSiteUsers().size();
 				int totalEnrUsersWithVisits = Integer.parseInt(getValue());
-				double percentage = totalUsersInSite==0 ? 0 : round(100 * totalEnrUsersWithVisits / totalUsersInSite, 0);
+				double percentage = totalUsersInSite==0 ? 0 : round(100 * totalEnrUsersWithVisits / (double) totalUsersInSite, 0);
 				return String.valueOf((int) percentage) + '%';
 			}
 			@Override
@@ -300,7 +300,7 @@ public class VisitsWidget extends Panel {
 			public String getSecondValue() {
 				int totalUsersInSite = getSiteUsers().size();
 				int totalEnrUsersWithoutVisits = Integer.parseInt(getValue());
-				double percentage = totalUsersInSite==0 ? 0 : round(100 * totalEnrUsersWithoutVisits / totalUsersInSite, 0);
+				double percentage = totalUsersInSite==0 ? 0 : round(100 * totalEnrUsersWithoutVisits / (double) totalUsersInSite, 0);
 				return String.valueOf((int) percentage) + '%';
 			}
 			@Override

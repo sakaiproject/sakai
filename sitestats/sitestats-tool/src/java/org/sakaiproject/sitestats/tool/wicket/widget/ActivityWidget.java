@@ -162,7 +162,7 @@ public class ActivityWidget extends Panel {
 			
 			@Override
 			public String getSecondValue() {
-				double percentage = totalActivity==0 ? 0 : round(100 * totalToolActivity / totalActivity, 0);
+				double percentage = totalActivity==0 ? 0 : round(100 * totalToolActivity / (double) totalActivity, 0);
 				return String.valueOf((int) percentage) + '%';
 			}
 			
@@ -286,7 +286,7 @@ public class ActivityWidget extends Panel {
 			
 			@Override
 			public String getSecondValue() {
-				double percentage = totalActivity==0 ? 0 : round(100 * totalUserActivity / totalActivity, 0);
+				double percentage = totalActivity==0 ? 0 : round(100 * totalUserActivity / (double) totalActivity, 0);
 				return String.valueOf((int) percentage) + '%';
 			}
 			
@@ -509,7 +509,6 @@ public class ActivityWidget extends Panel {
 			public ReportDef getChartReportDefinition() {
 				String dateFilter = getDateFilter();
 				String roleFilter = getRoleFilter();
-				String toolFilter = getToolFilter();
 				
 				ReportDef r = new ReportDef();
 				r.setSiteId(siteId);

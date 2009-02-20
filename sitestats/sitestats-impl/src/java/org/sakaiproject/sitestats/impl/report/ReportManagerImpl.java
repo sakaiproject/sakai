@@ -307,10 +307,8 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				}
 			}else{
 				List<String> eventIds = params.getWhatEventIds();
-				if(eventIds == null) {
-					rpp.events = eventIds;
-				}else{
-					rpp.events.addAll(params.getWhatEventIds());
+				if(eventIds != null) {
+					rpp.events.addAll(eventIds);
 				}
 			}
 
@@ -1471,7 +1469,10 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			if(o instanceof KeyReportDefList) {
 				KeyReportDefList u = (KeyReportDefList) o;
 				return 
-					((siteId == null && u.siteId == null) || siteId.equals(u.siteId)) 
+					(
+						(siteId == null && u.siteId == null) 
+						|| (siteId != null && siteId.equals(u.siteId))
+					) 
 					&& includedPredefined==u.includedPredefined 
 					&& includeHidden==u.includeHidden;
 			}

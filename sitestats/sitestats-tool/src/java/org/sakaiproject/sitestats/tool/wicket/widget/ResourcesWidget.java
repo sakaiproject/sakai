@@ -157,7 +157,7 @@ public class ResourcesWidget extends Panel {
 			
 			@Override
 			public String getSecondValue() {
-				double percentage = getTotalFiles()==0 ? 0 : round(100 * totalDistinctFileReads / getTotalFiles(), 0);
+				double percentage = getTotalFiles()==0 ? 0 : round(100 * totalDistinctFileReads / (double) getTotalFiles(), 0);
 				return String.valueOf((int) percentage) + '%';
 			}
 			

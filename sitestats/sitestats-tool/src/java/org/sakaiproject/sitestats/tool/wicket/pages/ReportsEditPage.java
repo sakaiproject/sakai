@@ -1348,7 +1348,7 @@ public class ReportsEditPage extends BasePage {
 					if(option == null){
 						throw new WicketRuntimeException(
 								"submitted http post value ["
-										+ paths.toString()
+										+ Arrays.toString(paths)
 										+ "] for SelectOption component ["
 										+ getPath()
 										+ "] contains an illegal relative path element ["

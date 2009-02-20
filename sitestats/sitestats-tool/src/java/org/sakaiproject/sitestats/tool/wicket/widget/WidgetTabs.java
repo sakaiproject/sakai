@@ -27,7 +27,7 @@ public class WidgetTabs extends Panel implements IAjaxIndicatorAware {
 	}
 
 	public WidgetTabs(String id, List<AbstractTab> tabs, int selectedTab) {
-		super(id, new Model(new Integer(-1)));
+		super(id, new Model(Integer.valueOf(-1)));
 		setOutputMarkupId(true);
 		setVersioned(false);
 		this.setTabs(tabs);
@@ -85,7 +85,7 @@ public class WidgetTabs extends Panel implements IAjaxIndicatorAware {
 		if(selectedTab < 0 || selectedTab >= tabs.size()){
 			throw new IndexOutOfBoundsException();
 		}
-		setModelObject(new Integer(selectedTab));
+		setModelObject(Integer.valueOf(selectedTab));
 		AbstractTab tab = getTabs().get(selectedTab);
 		WebMarkupContainer tabContents = null;
 		if(showTabContents) {

@@ -59,8 +59,9 @@ public class EventRegistryTree extends Panel {
 		return true;
 	}
 
-	private class Rows extends ListView {
-		private String		currentToolId		= null;
+	private static class Rows extends ListView {
+		private static final long	serialVersionUID	= 1L;
+		private String				currentToolId		= null;
 		/**
 		 * Construct.
 		 * @param name name of the component

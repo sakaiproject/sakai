@@ -3107,12 +3107,12 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				event.append(className);
 				ref.append('/');
 				ref.append(className);
+				ref.append('/');
 				try{
 					Object id = object.getClass().getMethod("getId", (Class[]) null).invoke(object, (Object[]) null);
-					ref.append('/');
 					ref.append(id);
 				}catch(Exception e) {
-					// do nothing, there is no getId() method on object argument
+					ref.append(object);
 				}
 			}
 		}

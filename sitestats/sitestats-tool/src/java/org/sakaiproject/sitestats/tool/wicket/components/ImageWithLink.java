@@ -21,7 +21,7 @@ public class ImageWithLink extends Panel {
 		super(id);
 		setRenderBodyOnly(false);
 		boolean exists = (lnkTarget != null && lnkLabel != null && lnkUrl != null);
-		ExternalLink lnk = new ExternalLink("link", lnkUrl, lnkLabel);
+		ExternalLink lnk = null;
 		if(exists) {
 			add( new ExternalImage("image", imgUrl).setVisible(imgUrl != null) );
 			lnk = new ExternalLink("link", lnkUrl, lnkLabel);
