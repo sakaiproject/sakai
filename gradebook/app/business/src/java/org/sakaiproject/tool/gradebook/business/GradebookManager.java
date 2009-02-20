@@ -541,6 +541,19 @@ public interface GradebookManager {
     /**
      * 
      * @param gradebookId
+     * @param assignmentSort
+     * @param assignAscending
+     * @param categorySort
+     * @param categoryAscending
+     * @return a list consisting of Assignments, Categories, and Course Grade for
+     * the given gradebookId with stats populated. List consists of Assignments, then Categories, then CG
+     */
+    public List getAssignmentsCategoriesAndCourseGradeWithStats(Long gradebookId, 
+            String assignmentSort, boolean assignAscending, String categorySort, boolean categoryAscending);
+    
+    /**
+     * 
+     * @param gradebookId
      * @return list of categories with populated assignmentList
      */ 
     public List getCategoriesWithAssignments(Long gradebookId) ;

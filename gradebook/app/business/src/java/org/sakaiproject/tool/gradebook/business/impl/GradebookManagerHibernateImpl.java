@@ -1477,11 +1477,28 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
      */
     public List getAssignmentsWithStats(final Long gradebookId, final String sortBy, final boolean ascending) {
         Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
-        List assignments = getAssignments(gradebookId);
         List<AssignmentGradeRecord> gradeRecords = getAllAssignmentGradeRecords(gradebookId, studentUids);
+        List assignments = getAssignmentsWithStats(gradebookId, sortBy, ascending, gradeRecords);
+        return assignments;
+    }
+    
+    /**
+     * 
+     * @param gradebookId
+     * @param sortBy
+     * @param ascending
+     * @param gradeRecords - use {@link #getAllAssignmentGradeRecords(Long, Collection)}
+     * @return a list of all assignments with stats populated. this method is
+     * helpful to eliminate repeated calls to {@link #getAllAssignmentGradeRecords(Long, Collection)}
+     * if you have already retrieved them
+     */
+    private List getAssignmentsWithStats(final Long gradebookId, final String sortBy, 
+            final boolean ascending, List<AssignmentGradeRecord> gradeRecords) {
+
+        List assignments = getAssignments(gradebookId);
         for (Iterator iter = assignments.iterator(); iter.hasNext(); ) {
-        	Assignment assignment = (Assignment)iter.next();
-        	assignment.calculateStatistics(gradeRecords);
+            Assignment assignment = (Assignment)iter.next();
+            assignment.calculateStatistics(gradeRecords);
         }
         sortAssignments(assignments, sortBy, ascending);
         return assignments;
@@ -2335,72 +2352,122 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	
     }
     
+    public List getAssignmentsCategoriesAndCourseGradeWithStats(Long gradebookId, 
+            String assignmentSort, boolean assignAscending, String categorySort, boolean categoryAscending) {
+        List catAssignCGList = new ArrayList();
+        
+        Set<String> allStudentUids = getAllStudentUids(getGradebookUid(gradebookId));
+        List<AssignmentGradeRecord> gradeRecords = getAllAssignmentGradeRecords(gradebookId, allStudentUids);
+        
+        if (assignmentSort == null) {
+            assignmentSort = Assignment.DEFAULT_SORT;
+        }
+        
+        List<Assignment> allAssignments = getAssignmentsWithStats(gradebookId, assignmentSort, assignAscending, gradeRecords);
+
+        // this method also returns the course grade
+        List categoriesPlusCG = getCategoriesWithStats(gradebookId, assignmentSort, 
+                assignAscending, categorySort, categoryAscending, gradeRecords, allAssignments);
+        
+        // we will add assignments, then categories, then course grade (which is included in cate list)
+        if (allAssignments != null) {
+            catAssignCGList.addAll(allAssignments);
+        }
+        
+        if (categoriesPlusCG != null) {
+            catAssignCGList.addAll(categoriesPlusCG);
+        }
+        
+        return catAssignCGList;
+    }
+    
+    /**
+     * 
+     * @param gradebookId
+     * @param assignmentSort
+     * @param assignAscending
+     * @param categorySort
+     * @param categoryAscending
+     * @param gradeRecs
+     * @param assignmentsWithStats
+     * @return a list of the Categories with stats populated plus the Course Grade.
+     * this method is useful if you have already retrieved all grade recs and
+     * all assignments with stats to avoid repeated calls
+     */
+    private List getCategoriesWithStats(Long gradebookId, String assignmentSort, boolean assignAscending, 
+            String categorySort, boolean categoryAscending, List<AssignmentGradeRecord> gradeRecs,
+            List<Assignment> assignmentsWithStats) {
+        List categories = getCategories(gradebookId);
+
+        Map cateMap = new HashMap();
+        for (Iterator iter = assignmentsWithStats.iterator(); iter.hasNext(); )
+        {
+            Assignment assign = (Assignment) iter.next();
+            if(assign != null)
+            {
+            	// the assigns already have stats calculated
+                //assign.calculateStatistics(gradeRecs);
+
+                if(assign.getCategory() != null && cateMap.get(assign.getCategory().getId()) == null)
+                {
+                    List assignList = new ArrayList();
+                    assignList.add(assign);
+                    cateMap.put(assign.getCategory().getId(), assignList);
+                }
+                else
+                {
+                    if(assign.getCategory() != null)
+                    {
+                        List assignList = (List) cateMap.get(assign.getCategory().getId());
+                        assignList.add(assign);
+                        cateMap.put(assign.getCategory().getId(),assignList);
+                    }
+                }
+            }
+        }
+        
+        for (Iterator iter = categories.iterator(); iter.hasNext(); )
+        {
+            Category cate = (Category) iter.next();
+            if(cate != null && cateMap.get(cate.getId()) != null)
+            {
+                cate.calculateStatistics((List) cateMap.get(cate.getId()));
+                cate.setAssignmentList((List)cateMap.get(cate.getId()));
+            }
+        }
+        
+        if(categorySort != null)
+            sortCategories(categories, categorySort, categoryAscending);
+        else
+            sortCategories(categories, Category.SORT_BY_NAME, categoryAscending);
+
+        Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
+        CourseGrade courseGrade = getCourseGrade(gradebookId);
+        Map gradeRecordMap = new HashMap();
+        addToGradeRecordMap(gradeRecordMap, gradeRecs);
+        //      List<CourseGradeRecord> courseGradeRecords = getPointsEarnedCourseGradeRecords(courseGrade, studentUids, releasedAssignments, gradeRecordMap);
+        List<CourseGradeRecord> courseGradeRecords = getPointsEarnedCourseGradeRecords(courseGrade, studentUids, assignmentsWithStats, gradeRecordMap);
+        courseGrade.calculateStatistics(courseGradeRecords, studentUids.size());
+
+        categories.add(courseGrade);
+
+        return categories;
+    }
+    
     public List getCategoriesWithStats(Long gradebookId, String assignmentSort, boolean assignAscending, String categorySort, boolean categoryAscending) {
     	List categories = getCategories(gradebookId);
     	Set allStudentUids = getAllStudentUids(getGradebookUid(gradebookId));
     	List allAssignments;
-    	if(assignmentSort != null)
-    		allAssignments = getAssignmentsWithStats(gradebookId, assignmentSort, assignAscending);
-    	else
-    		allAssignments = getAssignmentsWithStats(gradebookId, Assignment.DEFAULT_SORT, assignAscending);
     	
-//    	List releasedAssignments = new ArrayList();
-    	List gradeRecords = getAllAssignmentGradeRecords(gradebookId, allStudentUids);
-    	Map cateMap = new HashMap();
-    	for (Iterator iter = allAssignments.iterator(); iter.hasNext(); )
-    	{
-    		Assignment assign = (Assignment) iter.next();
-    		if(assign != null)
-    		{
-//    			if(assign.isReleased())
-//    			{
-    				assign.calculateStatistics(gradeRecords);
-//    				releasedAssignments.add(assign);
-//    			}
-    			if(assign.getCategory() != null && cateMap.get(assign.getCategory().getId()) == null)
-    			{
-    				List assignList = new ArrayList();
-    				assignList.add(assign);
-    				cateMap.put(assign.getCategory().getId(), assignList);
-    			}
-    			else
-    			{
-    				if(assign.getCategory() != null)
-    				{
-    					List assignList = (List) cateMap.get(assign.getCategory().getId());
-    					assignList.add(assign);
-    					cateMap.put(assign.getCategory().getId(),assignList);
-    				}
-    			}
-    		}
+    	if (assignmentSort == null) {
+    	    assignmentSort = Assignment.DEFAULT_SORT;
     	}
     	
-  		for (Iterator iter = categories.iterator(); iter.hasNext(); )
-    	{
-    		Category cate = (Category) iter.next();
-    		if(cate != null && cateMap.get(cate.getId()) != null)
-    		{
-    			cate.calculateStatistics((List) cateMap.get(cate.getId()));
-    			cate.setAssignmentList((List)cateMap.get(cate.getId()));
-    		}
-    	}
-  		
-  		if(categorySort != null)
-  			sortCategories(categories, categorySort, categoryAscending);
-  		else
-  			sortCategories(categories, Category.SORT_BY_NAME, categoryAscending);
-  			
-      Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
-      CourseGrade courseGrade = getCourseGrade(gradebookId);
-      Map gradeRecordMap = new HashMap();
-      addToGradeRecordMap(gradeRecordMap, gradeRecords);
-//      List<CourseGradeRecord> courseGradeRecords = getPointsEarnedCourseGradeRecords(courseGrade, studentUids, releasedAssignments, gradeRecordMap);
-      List<CourseGradeRecord> courseGradeRecords = getPointsEarnedCourseGradeRecords(courseGrade, studentUids, allAssignments, gradeRecordMap);
-      courseGrade.calculateStatistics(courseGradeRecords, studentUids.size());
-
-      categories.add(courseGrade);
-  		
-  		return categories;
+        List gradeRecords = getAllAssignmentGradeRecords(gradebookId, allStudentUids);
+    	allAssignments = getAssignmentsWithStats(gradebookId, assignmentSort, assignAscending, gradeRecords);
+    	
+    	return getCategoriesWithStats(gradebookId, assignmentSort, assignAscending, 
+    	        categorySort, categoryAscending, gradeRecords, allAssignments);
     }
 
     private void sortCategories(List categories, String sortBy, boolean ascending) 

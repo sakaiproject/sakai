@@ -3381,4 +3381,299 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 			e.printStackTrace();
 		}
 	}
+	
+	public void testGetAssignmentsCategoriesAndCourseGradeWithStats() throws Exception{
+        Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
+        Assignment assign = gradebookManager.getAssignment(assgn1Long);
+        Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
+
+        persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+        integrationSupport.createCourse(persistentGradebook.getUid(), persistentGradebook.getUid(), false, false, false);
+        gradebookManager.updateGradebook(persistentGradebook);
+        assign.setPointsPossible(new Double(5));
+        gradebookManager.updateAssignment(assign);
+        List categories = gradebookManager.getCategories(persistentGradebook.getId());
+        Category cate = gradebookManager.getCategory(assign.getCategory().getId());
+        List assignments = gradebookManager.getAssignments(persistentGradebook.getId());
+
+        List gradeRecords = generateGradeRecords(assign, 5);
+        List gradeRecords2 = generateGradeRecords(assign2, 5);
+        for(int i=0; i<gradeRecords2.size(); i++)
+        {
+            gradeRecords.add(gradeRecords2.get(i));
+        }
+
+        List uid = new ArrayList();
+        uid.add("studentId1");
+        uid.add("studentId2");
+        uid.add("studentId3");
+        uid.add("studentId4");
+        uid.add("studentId5");
+        Map studentIdMap = new HashMap();
+        studentIdMap.put("studentId1", new Double(1.0));
+        studentIdMap.put("studentId2", new Double(2.0));
+        studentIdMap.put("studentId3", new Double(3.0));
+        studentIdMap.put("studentId4", new Double(4.0));
+        studentIdMap.put("studentId5", new Double(5.0));
+
+        addUsersEnrollments(persistentGradebook, uid);
+        List catsAssignsAndCG = gradebookManager.getAssignmentsCategoriesAndCourseGradeWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+
+        // there should be 4 assignments, 2 categories, then 1 CG
+
+        // Check the assignments
+        for(int i=0; i<4; i++)
+        {
+            Assignment as = (Assignment) catsAssignsAndCG.get(i);
+            if(as.getMean() != null)
+            {
+                Assert.assertTrue(new BigDecimal(as.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+                    new BigDecimal(((1.0 + 2 + 3 + 4 + 5) / as.getPointsPossible().doubleValue() / 5.0) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+                Assert.assertTrue(new BigDecimal(as.getAverageTotal()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+                    new BigDecimal((1.0 + 2 + 3 + 4 + 5) / 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+            }
+
+        }
+        
+        // check the categories
+        Category cat0 = (Category)catsAssignsAndCG.get(4);
+        Assert.assertTrue(new BigDecimal(cat0.getAverageTotalPoints()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal(5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        Assert.assertTrue(new BigDecimal(cat0.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal((1.0 + 2 + 3 + 4 + 5) / 5.0 ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        Assert.assertTrue(new BigDecimal(cat0.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal((1.0+ 2 + 3+ 4 +5.0) / 5.0 / 5.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+
+        Category cat1 = (Category)catsAssignsAndCG.get(5);
+        Assert.assertTrue(new BigDecimal(cat1.getAverageTotalPoints()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal(10.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        Assert.assertTrue(new BigDecimal(cat1.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal((1.0 + 2 + 3 + 4 + 5) / 5.0 ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        Assert.assertTrue(new BigDecimal(cat1.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal((1.0+ 2 + 3+ 4 +5.0) / 5.0 / 10.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+
+        
+        CourseGrade cg = (CourseGrade) catsAssignsAndCG.get(catsAssignsAndCG.size() - 1);
+        Assert.assertTrue(new BigDecimal(cg.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal(((1.0 + 2 + 3 + 4 + 5) * 0.4 / 5.0 / 5.0 + (1.0 + 2 + 3 + 4 + 5) * 0.6 / 10.0 / 5.0 ) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        Assert.assertTrue(new BigDecimal(cg.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal(((1.0 + 2 + 3 + 4 + 5 + 1.0 + 2 + 3 + 4 + 5) / 5.0 )).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        
+        persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
+        gradebookManager.updateGradebook(persistentGradebook);
+        catsAssignsAndCG = gradebookManager.getAssignmentsCategoriesAndCourseGradeWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+        cg = (CourseGrade) catsAssignsAndCG.get(catsAssignsAndCG.size() - 1);
+        Assert.assertTrue(new BigDecimal(cg.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal(((1.0 + 2 + 3 + 4 + 5 + 1.0 + 2 + 3 + 4 + 5) / 15.0 / 5.0 ) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        
+        persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+        gradebookManager.updateGradebook(persistentGradebook);
+        catsAssignsAndCG = gradebookManager.getAssignmentsCategoriesAndCourseGradeWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+        cg = (CourseGrade) catsAssignsAndCG.get(catsAssignsAndCG.size() - 1);
+        Assert.assertTrue(new BigDecimal(cg.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal(((1.0 + 2 + 3 + 4 + 5 + 1.0 + 2 + 3 + 4 + 5) / 15.0 / 5.0 ) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        
+        //test for setting studentId1's assignment1 to null
+        for(int i=0; i<gradeRecords.size(); i++)
+        {
+            AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords.get(i);
+            if(agr.getAssignment().getId().equals(assgn1Long) && agr.getStudentId().equals("studentId1"))
+                agr.setPointsEarned(null);
+        }
+        gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_POINTS);
+        persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+        gradebookManager.updateGradebook(persistentGradebook);
+        catsAssignsAndCG = gradebookManager.getAssignmentsCategoriesAndCourseGradeWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+        // assignments
+        for(int i=0; i<4; i++)
+        {
+            Assignment as = (Assignment) catsAssignsAndCG.get(i);
+            if(as.getMean() != null && !as.getId().equals(assgn1Long))
+            {
+                Assert.assertTrue(new BigDecimal(as.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+                    new BigDecimal(((1.0 + 2 + 3 + 4 + 5) / as.getPointsPossible().doubleValue() / 5.0) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+                Assert.assertTrue(new BigDecimal(as.getAverageTotal()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+                    new BigDecimal((1.0 + 2 + 3 + 4 + 5) / 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+            }
+            else if(as.getMean() != null)
+            {
+                Assert.assertTrue(new BigDecimal(as.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+                    new BigDecimal(((2.0 + 3 + 4 + 5) / as.getPointsPossible().doubleValue() / 4.0) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+                Assert.assertTrue(new BigDecimal(as.getAverageTotal()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+                    new BigDecimal((2.0 + 3 + 4 + 5) / 4.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+            }
+        }
+
+        // categories
+        cat0 = (Category)catsAssignsAndCG.get(4);
+        Assert.assertEquals(new BigDecimal(cat0.getAverageTotalPoints()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(), 
+            new BigDecimal(5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        Assert.assertEquals(new BigDecimal(cat0.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(), 
+            new BigDecimal((2.0 + 3 + 4 + 5) / 4.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        Assert.assertEquals(new BigDecimal(cat0.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(), 
+            new BigDecimal((2 + 3+ 4 +5.0) / 5.0 / 4.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+
+
+        cat1 = (Category)catsAssignsAndCG.get(5);
+        Assert.assertTrue(new BigDecimal(cat1.getAverageTotalPoints()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal(10.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        Assert.assertTrue(new BigDecimal(cat1.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal((1.0 + 2.0 + 3 + 4 + 5) / 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        Assert.assertTrue(new BigDecimal(cat1.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal((1.0+ 2 + 3+ 4 +5.0) / 5.0 / 10.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+
+        cg = (CourseGrade) catsAssignsAndCG.get(catsAssignsAndCG.size() - 1);
+        Assert.assertTrue(new BigDecimal(cg.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal(((1.0/10.0) + (2.0/5.0*0.4 + 2.0/10.0*0.6) + (3.0/5.0*0.4 + 3.0/10.0*0.6) + (4.0/5.0*0.4 + 4.0/10.0*0.6) + (5.0/5.0*0.4 + 5.0/10.0*0.6)) *100.0/ 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+
+        persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
+        gradebookManager.updateGradebook(persistentGradebook);
+        catsAssignsAndCG = gradebookManager.getAssignmentsCategoriesAndCourseGradeWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+        cg = (CourseGrade) catsAssignsAndCG.get(catsAssignsAndCG.size() - 1);
+        Assert.assertTrue(new BigDecimal(cg.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal(((1.0/10.0) + (4.0/15.0) + (6.0/15.0) + (8.0/15.0) + (10.0/15.0)) *100.0/ 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        Assert.assertTrue(new BigDecimal(cg.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal(((2 + 3 + 4 + 5 + 1.0 + 2 + 3 + 4 + 5) / 5.0 )).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+
+        persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+        gradebookManager.updateGradebook(persistentGradebook);
+        catsAssignsAndCG = gradebookManager.getAssignmentsCategoriesAndCourseGradeWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+        cg = (CourseGrade) catsAssignsAndCG.get(catsAssignsAndCG.size() - 1);
+        Assert.assertEquals(new BigDecimal(cg.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(), 
+            new BigDecimal(((1.0/10.0) + (4.0/15.0) + (6.0/15.0) + (8.0/15.0) + (10.0/15.0)) *100.0/ 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        Assert.assertEquals(new BigDecimal(cg.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(),
+            new BigDecimal(((2 + 3 + 4 + 5 + 1.0 + 2 + 3 + 4 + 5) / 5.0 )).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        
+        //test for setting studentId1's assignment3 to null - studentId1 doesn't have any scores now
+        for(int i=0; i<gradeRecords.size(); i++)
+        {
+            AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords.get(i);
+            if(agr.getAssignment().getId().equals(assgn3Long) && agr.getStudentId().equals("studentId1"))
+                agr.setPointsEarned(null);
+        }
+        gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_POINTS);
+        persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+        gradebookManager.updateGradebook(persistentGradebook);
+        catsAssignsAndCG = gradebookManager.getAssignmentsCategoriesAndCourseGradeWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+        
+        // Assignments
+        for(int i=0; i<4; i++)
+        {
+            Assignment as = (Assignment) catsAssignsAndCG.get(i);
+            if(as.getMean() != null && !as.getId().equals(assgn1Long) && !as.getId().equals(assgn3Long))
+            {
+                Assert.assertTrue(new BigDecimal(as.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+                    new BigDecimal(((1.0 + 2 + 3 + 4 + 5) / as.getPointsPossible().doubleValue() / 5.0) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+                Assert.assertTrue(new BigDecimal(as.getAverageTotal()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+                    new BigDecimal((1.0 + 2 + 3 + 4 + 5) / 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+            }
+            else if(as.getMean() != null)
+            {
+                Assert.assertTrue(new BigDecimal(as.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+                    new BigDecimal(((2.0 + 3 + 4 + 5) / as.getPointsPossible().doubleValue() / 4.0) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+                Assert.assertTrue(new BigDecimal(as.getAverageTotal()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+                    new BigDecimal((2.0 + 3 + 4 + 5) / 4.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+            }
+        }
+        
+        // Categories
+        cat0 = (Category)catsAssignsAndCG.get(4);
+        Assert.assertEquals(new BigDecimal(cat0.getAverageTotalPoints()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(), 
+            new BigDecimal(5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        Assert.assertEquals(new BigDecimal(cat0.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(), 
+            new BigDecimal((2.0 + 3 + 4 + 5) / 4.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        Assert.assertEquals(new BigDecimal(cat0.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(),
+            new BigDecimal((2 + 3+ 4 +5.0) / 5.0 / 4.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+
+
+        cat1 = (Category)catsAssignsAndCG.get(5);
+        Assert.assertEquals(new BigDecimal(cat1.getAverageTotalPoints()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(), 
+            new BigDecimal(10.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        Assert.assertEquals(new BigDecimal(cat1.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(), 
+            new BigDecimal((2.0 + 3 + 4 + 5) / 4.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        Assert.assertEquals(new BigDecimal(cat1.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(), 
+            new BigDecimal((2 + 3+ 4 +5.0) / 4.0 / 10.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+
+        // Course Grade
+        cg = (CourseGrade) catsAssignsAndCG.get(catsAssignsAndCG.size() - 1);
+        Assert.assertTrue(new BigDecimal(cg.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal(((2.0/5.0*0.4 + 2.0/10.0*0.6) + (3.0/5.0*0.4 + 3.0/10.0*0.6) + (4.0/5.0*0.4 + 4.0/10.0*0.6) + (5.0/5.0*0.4 + 5.0/10.0*0.6)) *100.0/ 4.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        Assert.assertTrue(new BigDecimal(cg.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal(((2 + 3 + 4 + 5 + 2.0 + 3 + 4 + 5) / 4.0 )).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+
+        persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
+        gradebookManager.updateGradebook(persistentGradebook);
+        catsAssignsAndCG = gradebookManager.getAssignmentsCategoriesAndCourseGradeWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+        cg = (CourseGrade) catsAssignsAndCG.get(catsAssignsAndCG.size() - 1);
+        Assert.assertTrue(new BigDecimal(cg.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal(((4.0/15.0) + (6.0/15.0) + (8.0/15.0) + (10.0/15.0)) *100.0/ 4.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        Assert.assertTrue(new BigDecimal(cg.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal(((2 + 3 + 4 + 5 + 2.0 + 3 + 4 + 5) / 4.0 )).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+
+        persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+        gradebookManager.updateGradebook(persistentGradebook);
+        catsAssignsAndCG = gradebookManager.getAssignmentsCategoriesAndCourseGradeWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+        cg = (CourseGrade) catsAssignsAndCG.get(catsAssignsAndCG.size() - 1);
+        Assert.assertTrue(new BigDecimal(cg.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal(((4.0/15.0) + (6.0/15.0) + (8.0/15.0) + (10.0/15.0)) *100.0/ 4.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        Assert.assertTrue(new BigDecimal(cg.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal(((2 + 3 + 4 + 5 + 2.0 + 3 + 4 + 5) / 4.0 )).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+
+
+        //test for non-released assignment
+        Category cateWithNonRleased = (Category)catsAssignsAndCG.get(4);
+        gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cateWithNonRleased.getId(), 
+                cateWithNonRleased.getName() + "_assignment_non_released", new Double(10.0), new Date(), new Boolean(false), new Boolean(false));
+        catsAssignsAndCG = gradebookManager.getAssignmentsCategoriesAndCourseGradeWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+
+        cg = (CourseGrade) catsAssignsAndCG.get(catsAssignsAndCG.size() - 1);
+        Assert.assertEquals(new BigDecimal(cg.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(), 
+            new BigDecimal(((4.0/15.0) + (6.0/15.0) + (8.0/15.0) + (10.0/15.0)) *100.0/ 4.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        Assert.assertEquals(new BigDecimal(cg.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(), 
+            new BigDecimal(((2 + 3 + 4 + 5 + 2.0 + 3 + 4 + 5) / 4.0 )).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        
+        //test for setting one assignment to be not included in course grade
+        assign.setNotCounted(true);
+        gradebookManager.updateAssignment(assign);
+        persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+        gradebookManager.updateGradebook(persistentGradebook);
+        catsAssignsAndCG = gradebookManager.getAssignmentsCategoriesAndCourseGradeWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+
+        cat0 = (Category) catsAssignsAndCG.get(5);
+        Assert.assertTrue(cat0.getAverageTotalPoints() == null);
+        Assert.assertTrue(cat0.getAverageScore() == null);
+        Assert.assertTrue(cat0.getMean() == null);
+        
+        cat1 = (Category) catsAssignsAndCG.get(6);
+        Assert.assertEquals(new BigDecimal(cat1.getAverageTotalPoints()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(), 
+            new BigDecimal(10.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        Assert.assertEquals(new BigDecimal(cat1.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(), 
+            new BigDecimal((2.0 + 3 + 4 + 5) / 4.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        Assert.assertEquals(new BigDecimal(cat1.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(), 
+            new BigDecimal((2 + 3+ 4 +5.0) / 4.0 / 10.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+   
+        //add another assignment to cat0 for test 
+        Long assignAddedId = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cat0.getId(), 
+                cat0.getName() + "_assignment_added", new Double(10.0), new Date(), new Boolean(false), new Boolean(true));
+        generateGradeRecords(gradebookManager.getAssignment(assignAddedId), 5);
+        
+        catsAssignsAndCG = gradebookManager.getAssignmentsCategoriesAndCourseGradeWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+        
+        cat0 = (Category) catsAssignsAndCG.get(6);
+        Assert.assertTrue(new BigDecimal(cat0.getAverageTotalPoints()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal(10.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        Assert.assertTrue(new BigDecimal(cat0.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal((1.0 + 2.0 + 3 + 4 + 5) / 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        Assert.assertTrue(new BigDecimal(cat0.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal((1.0 + 2 + 3+ 4 +5.0) / 10.0 / 5.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+
+        cat1 = (Category) catsAssignsAndCG.get(7);
+        Assert.assertTrue(new BigDecimal(cat1.getAverageTotalPoints()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal(10.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        Assert.assertTrue(new BigDecimal(cat1.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal((2.0 + 3 + 4 + 5) / 4.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+        Assert.assertTrue(new BigDecimal(cat1.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+            new BigDecimal((2 + 3+ 4 +5.0) / 4.0 / 10.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+   
+    }
 }
