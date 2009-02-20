@@ -3111,7 +3111,7 @@ public class AssignmentAction extends PagedResourceActionII
 							}
 
 							// need to update only when there is at least one submission
-							if (m.size()>0)
+							if (!m.isEmpty())
 							{
 								if (associateGradebookAssignment != null)
 								{
@@ -3123,16 +3123,14 @@ public class AssignmentAction extends PagedResourceActionII
 									else if (isAssignmentDefined)
 									{
 										// the associated assignment is internal one, update records one by one
-										submissions = AssignmentService.getSubmissions(a).iterator();
-										while (submissions.hasNext())
+										Iterator mKeys = m.keySet().iterator();
+										while (mKeys.hasNext())
 										{
-											AssignmentSubmission aSubmission = (AssignmentSubmission) submissions.next();
-											User[] submitters = aSubmission.getSubmitters();
-											if (submitters != null && submitters.length > 0)
+											String submitterId = (String) mKeys.next();
+											String grade = StringUtil.trimToNull(displayGrade(state, (String) m.get(submitterId)));
+											if (grade != null)
 											{
-												String submitterId = submitters[0].getId();
-												String gradeString = StringUtil.trimToNull(aSubmission.getGrade());
-												g.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitterId, displayGrade(state,gradeString), "");
+												g.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitterId, grade, "");
 											}
 										}
 									}
@@ -5022,6 +5020,8 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		// whether this is an editing which changes non-electronic assignment to any other type?
 		boolean bool_change_from_non_electronic = false;
+		// whether this is an editing which changes non-point graded assignment to point graded assignment?
+		boolean bool_change_from_non_point = false;
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
@@ -5032,6 +5032,7 @@ public class AssignmentAction extends PagedResourceActionII
 			AssignmentEdit a = getAssignmentEdit(state, assignmentId);
 			
 			bool_change_from_non_electronic = change_from_non_electronic(state, assignmentId, assignmentContentId, ac);
+			bool_change_from_non_point = change_from_non_point(state, assignmentId, assignmentContentId, ac);
 
 			// put the names and values into vm file
 			String title = (String) state.getAttribute(NEW_ASSIGNMENT_TITLE);
@@ -5135,9 +5136,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 				if (post)
 				{
-					if (bool_change_from_non_electronic)
+					// either situation, we need to update the submission grade
+					if (bool_change_from_non_electronic || bool_change_from_non_point)
 					{
-						// not non_electronic type any more
 						List submissions = AssignmentService.getSubmissions(a);
 						if (submissions != null && submissions.size() >0)
 						{
@@ -5148,8 +5149,19 @@ public class AssignmentAction extends PagedResourceActionII
 								try
 								{
 									AssignmentSubmissionEdit sEdit = AssignmentService.editSubmission(s.getReference());
-									sEdit.setSubmitted(false);
-									sEdit.setTimeSubmitted(null);
+									if (bool_change_from_non_electronic)
+									{
+										sEdit.setSubmitted(false);
+										sEdit.setTimeSubmitted(null);
+									}
+									else if (bool_change_from_non_point)
+									{
+										// set the grade to be empty for now
+										sEdit.setGrade("");
+										sEdit.setGraded(false);
+										sEdit.setGradeReleased(false);
+										sEdit.setReturned(false);
+									}
 									AssignmentService.commitEdit(sEdit);
 								}
 								catch (Exception e)
@@ -5377,6 +5389,25 @@ public class AssignmentAction extends PagedResourceActionII
 					&& ((Integer) state.getAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE)).intValue() != Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
 			{
 				// changing from non-electronic type
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * 
+	 */
+	private boolean change_from_non_point(SessionState state, String assignmentId, String assignmentContentId, AssignmentContentEdit ac) 
+	{
+		// whether this is an editing which changes non point_grade type to point grade type?
+		if (StringUtil.trimToNull(assignmentId) != null && StringUtil.trimToNull(assignmentContentId) != null)
+		{
+			// editing
+			if (ac.getTypeOfGrade() != Assignment.SCORE_GRADE_TYPE
+					&& ((Integer) state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE)).intValue() == Assignment.SCORE_GRADE_TYPE)
+			{
+				// changing from non-point grade type to point grade type?
 				return true;
 			}
 		}
@@ -9945,8 +9976,9 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 					catch (NumberFormatException e)
 					{
+						// alert
 						alertInvalidPoint(state, grade);
-						M_log.warn(this + ":displayGrade " + e.getMessage());
+						M_log.warn(this + ":displayGrade cannot parse grade into integer grade = " + grade + e.getMessage());
 					}
 				}
 			}
