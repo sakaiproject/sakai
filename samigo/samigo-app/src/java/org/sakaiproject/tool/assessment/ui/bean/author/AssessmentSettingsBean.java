@@ -620,7 +620,7 @@ public class AssessmentSettingsBean
     if (targetSelected != null){
       for (int i = 0; i < targetSelected.length; i++) {
         String user = targetSelected[i];
-        if (!releaseTo.equals(""))
+        if (!"".equals(releaseTo))
           releaseTo = releaseTo + ", " + user;
         else
           releaseTo = user;
@@ -910,12 +910,12 @@ public class AssessmentSettingsBean
 		  String key = (String) entry.getKey();
 		  Object o = entry.getValue();
 
-		  if ((key.equals("ASSESSMENT_AUTHORS")) ||
-				  (key.equals("ASSESSMENT_KEYWORDS")) ||
-				  (key.equals("ASSESSMENT_OBJECTIVES")) ||
-				  (key.equals("ASSESSMENT_RUBRICS")) ||
-				  (key.equals("ASSESSMENT_BGCOLOR")) ||
-				  (key.equals("ASSESSMENT_BGIMAGE")));
+		  if (("ASSESSMENT_AUTHORS".equals(key)) ||
+				  ("ASSESSMENT_KEYWORDS".equals(key)) ||
+				  ("ASSESSMENT_OBJECTIVES".equals(key)) ||
+				  ("ASSESSMENT_RUBRICS".equals(key)) ||
+				  ("ASSESSMENT_BGCOLOR".equals(key)) ||
+				  ("ASSESSMENT_BGIMAGE".equals(key)));
 		  else{
 			  h.put(key, o);
 		  }
@@ -1308,7 +1308,7 @@ public class AssessmentSettingsBean
    	SelectItem[] target = new SelectItem[numSelections];
     while (iter.hasNext()){
 	    String t = (String)iter.next();
-	    if (t.equals("Anonymous Users")) {
+	    if ("Anonymous Users".equals(t)) {
 	  	  ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
 	  	  target[0] = new SelectItem(t, rb.getString("anonymous_users"));
 	    }

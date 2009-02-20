@@ -215,66 +215,71 @@ public class ItemAddListener
     itemauthorbean.setItemTypeString("");
   }
     
-	
-    public void checkMC(boolean isSingleSelect){
-	ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
-	ItemBean item =itemauthorbean.getCurrentItem();
-        boolean correct=false;
-        int countAnswerText=0;
-        //String[] choiceLabels= {"A", "B", "C", "D", "E", "F","G", "H","I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
-	int indexLabel= 0;
-	//   List label = new List();
-	Iterator iter = item.getMultipleChoiceAnswers().iterator();
-        boolean missingchoices=false;
-        String missingLabel="";
-        String txt="";
-        String label="";
-	FacesContext context=FacesContext.getCurrentInstance();
-        int corrsize = item.getMultipleChoiceAnswers().size();
-	String[] corrChoices = new String[corrsize];
-        int counter=0;
-        boolean isCorrectChoice = false;
-	if(item.getMultipleChoiceAnswers()!=null){
-	    while (iter.hasNext()) {
-		AnswerBean answerbean = (AnswerBean) iter.next();
-                String answerTxt=ContextUtil.stringWYSIWYG(answerbean.getText());
- 		//  if(answerTxt.replaceAll("<.*?>", "").trim().equals(""))        
-        // SAK-6050
-		if(answerTxt.toLowerCase().replaceAll("<^[^(img)]*?>", "").trim().equals("")) {
-                    answerbean.setText("");
-		}
-		
-		label = answerbean.getLabel();
-                txt=answerbean.getText();
-		  
-		corrChoices[counter]=label;
-		isCorrectChoice = isCorrectChoice(item,label);
-		if(isCorrectChoice && ((txt==null) ||(txt.equals("")))){          
-            error=true;
-		    String empty_correct_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","empty_correct_error");
-		    context.addMessage(null,new FacesMessage(empty_correct_err+label));
 
-		}
-		
-		if ((txt!=null)&& (!txt.equals(""))) {
-			countAnswerText++;
-			if(isCorrectChoice){
-			    correct=true;
-			    counter++;
-			}
-	        
-			if(!label.equals(AnswerBean.getChoiceLabels()[indexLabel])){
-			    missingchoices= true;
-			    if( missingLabel.equals(""))
-				missingLabel=missingLabel+" "+AnswerBean.getChoiceLabels()[indexLabel];
-			    else
-				missingLabel=missingLabel+", "+AnswerBean.getChoiceLabels()[indexLabel];           
-			    indexLabel++;
-			}
-			indexLabel++;
-		}
-	    } // end of while
+  public void checkMC(boolean isSingleSelect){
+	  ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
+	  ItemBean item =itemauthorbean.getCurrentItem();
+	  boolean correct=false;
+	  int countAnswerText=0;
+	  //String[] choiceLabels= {"A", "B", "C", "D", "E", "F","G", "H","I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
+	  int indexLabel= 0;
+	  //   List label = new List();
+	  Iterator iter = item.getMultipleChoiceAnswers().iterator();
+	  boolean missingchoices=false;
+
+	  StringBuilder missingLabelbuf = new StringBuilder();
+
+
+	  //String missingLabel="";
+	  String txt="";
+	  String label="";
+	  FacesContext context=FacesContext.getCurrentInstance();
+	  int corrsize = item.getMultipleChoiceAnswers().size();
+	  String[] corrChoices = new String[corrsize];
+	  int counter=0;
+	  boolean isCorrectChoice = false;
+	  if(item.getMultipleChoiceAnswers()!=null){
+		  while (iter.hasNext()) {
+			  AnswerBean answerbean = (AnswerBean) iter.next();
+			  String answerTxt=ContextUtil.stringWYSIWYG(answerbean.getText());
+			  //  if(answerTxt.replaceAll("<.*?>", "").trim().equals(""))        
+			  // SAK-6050
+			  if(answerTxt.toLowerCase().replaceAll("<^[^(img)]*?>", "").trim().equals("")) {
+				  answerbean.setText("");
+			  }
+
+			  label = answerbean.getLabel();
+			  txt=answerbean.getText();
+
+			  corrChoices[counter]=label;
+			  isCorrectChoice = isCorrectChoice(item,label);
+			  if(isCorrectChoice && ((txt==null) ||(txt.equals("")))){          
+				  error=true;
+				  String empty_correct_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","empty_correct_error");
+				  context.addMessage(null,new FacesMessage(empty_correct_err+label));
+
+			  }
+
+			  if ((txt!=null)&& (!txt.equals(""))) {
+				  countAnswerText++;
+				  if(isCorrectChoice){
+					  correct=true;
+					  counter++;
+				  }
+
+				  if(!label.equals(AnswerBean.getChoiceLabels()[indexLabel])){
+					  missingchoices= true;
+					  if( "".equals(missingLabelbuf.toString()))
+						  missingLabelbuf.append(" "+AnswerBean.getChoiceLabels()[indexLabel]);
+					  else
+						  missingLabelbuf.append(", "+AnswerBean.getChoiceLabels()[indexLabel]);           
+					  indexLabel++;
+				  }
+				  indexLabel++;
+			  }
+		  } // end of while
 	    
+	    String missingLabel = missingLabelbuf.toString();
 	    // Fixed for 7208
 	    // Following the above logic, at this point, no matter the last choice (lable is corrChoices[counter])
 	    // is a correct answer or not, it will be the last value in array corrChoice[].

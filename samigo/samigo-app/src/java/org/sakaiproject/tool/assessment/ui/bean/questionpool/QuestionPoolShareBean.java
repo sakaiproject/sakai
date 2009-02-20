@@ -152,7 +152,7 @@ public class QuestionPoolShareBean implements Serializable
   		String ascending = ContextUtil.lookupParam("ascending");
   		String list = ContextUtil.lookupParam("list");
   		
-  		if (list.equals("agentsWithAccess")) {
+  		if ("agentsWithAccess".equals(list)) {
   			this.setSortPropertyWith(sortString);
   	  		this.setSortAscendingWith((Boolean.valueOf(ascending)).booleanValue());
   			

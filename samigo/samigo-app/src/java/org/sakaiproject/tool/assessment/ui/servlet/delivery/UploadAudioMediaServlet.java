@@ -392,7 +392,7 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
                          String mediaLocation, ItemGradingData itemGrading,
                         String saveToDb, String duration){
     boolean SAVETODB = false;
-    if (saveToDb.equals("true"))
+    if ("true".equals(saveToDb))
       SAVETODB = true;
 
     log.debug("****4. saveMedia, saveToDB"+SAVETODB);

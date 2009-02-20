@@ -98,7 +98,7 @@ public class MatchingBean
     // Fixed for SAK-5535
     // If we don't reset published answer id to null, the previous selected value will remain in the bean
     // That is, the "select" selection in dropdown will never be set
-    if (newresp.equals("0")) {
+    if ("0".equals(newresp)) {
     	data.setPublishedAnswerId(null);
     }
     Iterator iter = itemText.getAnswerSet().iterator();

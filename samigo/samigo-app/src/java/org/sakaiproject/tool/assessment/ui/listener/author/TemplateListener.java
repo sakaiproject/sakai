@@ -104,7 +104,7 @@ public class TemplateListener extends TemplateBaseListener
 
      bs = new BeanSort(templates, sortProperty);
      if (templates != null)
-     if (sortProperty.equals("lastModified"))
+     if ("lastModified".equals(sortProperty))
      {
        bs.toDateSort();
      }

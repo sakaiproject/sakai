@@ -127,7 +127,7 @@ public class SamigoEmailService {
 			InternetAddress[] toIA = { new InternetAddress(toEmailAddress, toName) };
 			msg.setRecipients(Message.RecipientType.TO, toIA);
 
-			if (ccMe.equals("yes")) {
+			if ("yes".equals(ccMe)) {
 				InternetAddress[] ccIA = { new InternetAddress(fromEmailAddress, fromName) };
 				msg.setRecipients(Message.RecipientType.CC, ccIA);
 			}

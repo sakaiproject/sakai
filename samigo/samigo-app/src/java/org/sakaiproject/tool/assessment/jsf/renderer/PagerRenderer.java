@@ -263,19 +263,19 @@ public class PagerRenderer
     {
       first = 0;
     }
-    else if (response.equals("<"))
+    else if ("<".equals(response))
     {
       first -= pagesize;
     }
-    else if (response.equals(">"))
+    else if (">".equals(response))
     {
       first += pagesize;
     }
-    else if (response.equals("<<"))
+    else if ("<<".equals(response))
     {
       first -= pagesize * showpages;
     }
-    else if (response.equals(">>"))
+    else if (">>".equals(response))
     {
       first += pagesize * showpages;
     }

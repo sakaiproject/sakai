@@ -156,7 +156,7 @@ public class TemplateUpdateListener
       String templateIdString =  templateBean.getIdString();
       AssessmentService delegate = new AssessmentService();
       AssessmentBaseIfc template = null;
-      if (templateIdString.equals("0"))
+      if ("0".equals(templateIdString))
       {
         template = new AssessmentTemplateData();
         template.setAssessmentBaseId(new Long(0));
@@ -294,7 +294,7 @@ public class TemplateUpdateListener
         (templateBean.getFeedbackComponent_Statistics());
 
       //log.info("templateId = " + templateIdString);
-      if (templateIdString.equals("0")) // New template
+      if ("0".equals(templateIdString)) // New template
       {
         template.setCreatedBy(AgentFacade.getAgentString());
         template.setCreatedDate(new Date());

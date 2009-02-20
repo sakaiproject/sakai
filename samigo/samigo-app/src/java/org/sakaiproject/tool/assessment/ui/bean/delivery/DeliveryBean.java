@@ -1296,7 +1296,7 @@ public class DeliveryBean
     SubmitToGradingActionListener listener = new SubmitToGradingActionListener();
     // We don't need to call completeItemGradingData to create new ItemGradingData for linear access
     // because each ItemGradingData is created when it is viewed/answered 
-    if (!navigation.equals("1")) {
+    if (!"1".equals(navigation)) {
     	listener.completeItemGradingData();
     }
 
@@ -1645,7 +1645,7 @@ public class DeliveryBean
       }
 
       // #3. results="" => no security checking required
-      if (results.equals(""))
+      if ("".equals(results))
       {
         // in post 2.1, clicking at Begin Assessment takes users to the
         // 1st question.
@@ -2542,7 +2542,7 @@ public class DeliveryBean
 	   if (partsContents.size() == 1) {
 		   String size = ((SectionContentsBean) partsContents.get(0)).getItemContentsSize();
 		   log.debug("ItemContentsSize = " + size);
-		   if (size.equals("1")) {
+		   if ("1".equals(size)) {
 			   log.debug("isMoreThanOneQuestion set to false");
 			   isMoreThanOneQuestion = false;
 		   }

@@ -84,15 +84,15 @@ public class SortPublishedAssessmentListener
     	return returnType;
     }
     else {
-    	if(sort.equals("releaseTo"))
+    	if("releaseTo".equals(sort))
     	{
     		returnType = PublishedAssessmentFacadeQueries.PUB_RELEASETO;
     	}
-    	else if (sort.equals("startDate"))
+    	else if ("startDate".equals(sort))
     	{
     		returnType = PublishedAssessmentFacadeQueries.PUB_STARTDATE;
     	}
-    	else if (sort.equals("dueDate"))
+    	else if ("dueDate".equals(sort))
     	{
     		returnType = PublishedAssessmentFacadeQueries.PUB_DUEDATE;
     	}

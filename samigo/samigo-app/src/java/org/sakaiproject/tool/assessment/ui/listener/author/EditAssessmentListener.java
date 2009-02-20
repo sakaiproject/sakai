@@ -71,10 +71,10 @@ public class EditAssessmentListener
 	AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
     String editType = ContextUtil.lookupParam("editType");
     if (editType != null) {
-    	if (editType.equals("pendingAssessment")) {
+    	if ("pendingAssessment".equals(editType)) {
     		setPropertiesForAssessment(author);
     	}
-    	else if (editType.equals("publishedAssessment")) {
+    	else if ("publishedAssessment".equals(editType)) {
     		setPropertiesForPublishedAssessment(author);
     	}
     	else {

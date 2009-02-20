@@ -367,7 +367,7 @@ public class TemplateBean implements Serializable
    */
   public String getQuestionNumbering()
   {
-    if (questionNumbering.equals("0"))
+    if ("0".equals(questionNumbering))
       return "1";
     return checker(questionNumbering, "1");
   }
@@ -492,7 +492,7 @@ public class TemplateBean implements Serializable
    */
   public String getAutoSave()
   {
-    if (autoSave.equals("0"))
+    if ("0".equals(autoSave))
       return "1";
     return checker(autoSave, "1");
   }
@@ -514,7 +514,7 @@ public class TemplateBean implements Serializable
    */
   public String getLateHandling()
   {
-    if (lateHandling.equals("0"))
+    if ("0".equals(lateHandling))
       return "1";
     return checker(lateHandling, "1");
   }
@@ -532,7 +532,7 @@ public class TemplateBean implements Serializable
    */
   public String getFeedbackType()
   {
-    if (feedbackType.equals("0"))
+    if ("0".equals(feedbackType))
       return "1";
     return checker(feedbackType, "1");
   }
@@ -550,7 +550,7 @@ public class TemplateBean implements Serializable
    */
   public String getFeedbackAuthoring()
   {
-    if (feedbackAuthoring.equals("0"))
+    if ("0".equals(feedbackAuthoring))
       return "1";
     return checker(feedbackAuthoring, "1");
   }
@@ -751,7 +751,7 @@ public class TemplateBean implements Serializable
    */
   public String getAnonymousGrading()
   {
-    if (anonymousGrading.equals("0"))
+    if ("0".equals(anonymousGrading))
       return "1";
     return checker(anonymousGrading, "1");
   }
@@ -773,7 +773,7 @@ public class TemplateBean implements Serializable
    */
   public String getToGradebook()
   {
-    if (toGradebook.equals("0"))
+    if ("0".equals(toGradebook))
       return "1";
     return checker(toGradebook, "1");
   }
@@ -795,7 +795,7 @@ public class TemplateBean implements Serializable
    */
   public String getRecordedScore()
   {
-    if (recordedScore.equals("0"))
+    if ("0".equals(recordedScore))
       return "1";
     return checker(recordedScore, "1");
   }

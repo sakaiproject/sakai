@@ -92,7 +92,7 @@ public class HistogramListener
                                "histogramScores");
     String publishedId = totalBean.getPublishedId();
 
-    if (publishedId.equals("0"))
+    if ("0".equals(publishedId))
     {
 	publishedId = (String) ContextUtil.lookupParam("publishedId");
     }
@@ -453,10 +453,12 @@ public class HistogramListener
 
 			  // below - gopalrc Dec 2007
 			  HashMap numberOfStudentsWithZeroAnswersForQuestion = new HashMap();
-			  Iterator itemScoreKeys = itemScores.keySet().iterator();
-			  while (itemScoreKeys.hasNext()) {
-				  Long itemId = (Long) itemScoreKeys.next();
-				  ArrayList scoresPerItem = (ArrayList) itemScores.get(itemId);
+			  
+			  for (Iterator it = itemScores.entrySet().iterator(); it.hasNext();) {
+				  Map.Entry entry = (Map.Entry) it.next();
+				  Long itemId = (Long) entry.getKey();
+				  ArrayList scoresPerItem = (ArrayList) entry.getValue();
+
 				  int numStudentsWithZeroAnswers = 0;
 				  Iterator scoresPerItemIter = scoresPerItem.iterator();
 				  while (scoresPerItemIter.hasNext()) {
@@ -1924,7 +1926,7 @@ public class HistogramListener
     totalBean.setPublishedId(publishedId);
     //String publishedId = totalBean.getPublishedId();
 
-    if (publishedId.equals("0"))
+    if ("0".equals(publishedId))
     {
     	publishedId = (String) ContextUtil.lookupParam("publishedId");
     }

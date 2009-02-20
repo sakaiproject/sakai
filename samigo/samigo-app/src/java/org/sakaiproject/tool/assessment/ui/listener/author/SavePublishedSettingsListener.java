@@ -102,7 +102,7 @@ implements ActionListener
 		boolean retractNow = false;
 		String id = ae.getComponent().getId();
 		// Check if the action is clicking the the "Retract" button on Assessment Retract Confirmation button
-		if (id.equals("retract")) {
+		if ("retract".equals(id)) {
 			retractNow = true;
 		}
 
@@ -278,7 +278,7 @@ implements ActionListener
 		// set Assessment Orgainzation
 		if (assessmentSettings.getItemNavigation()!=null ) {
 			String nav = assessmentSettings.getItemNavigation();
-			if (nav.equals("1")) {
+			if ("1".equals(nav)) {
 				assessmentSettings.setAssessmentFormat("1");
 			}
 			control.setItemNavigation(new Integer(nav));

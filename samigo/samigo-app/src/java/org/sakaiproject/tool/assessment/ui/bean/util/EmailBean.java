@@ -308,7 +308,7 @@ public class EmailBean implements Serializable {
 				subject, message);
 		String result = samigoEmailService.send();
 		
-		if (result.equals("send")) {
+		if ("send".equals(result)) {
 			String msgSent = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","sent_email_confirmation");
 			FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(msgSent));
 			EventTrackingService.post(EventTrackingService.newEvent("sam.email", "Email sent ok: toName=" + toName + ", toEmail=" + toEmailAddress, true));       

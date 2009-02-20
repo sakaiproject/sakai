@@ -1208,7 +1208,7 @@ public class DeliveryActionListener
               {
                 addition = Integer.toString(j++) + ":";
               }
-              if (key.equals(""))
+              if ("".equals(key))
               {
                 key += addition + answer.getLabel();
               }
@@ -1240,7 +1240,7 @@ public class DeliveryActionListener
           }
           if (item.getTypeId().equals(TypeIfc.FILL_IN_BLANK)||item.getTypeId().equals(TypeIfc.FILL_IN_NUMERIC))
           {
-            if (key.equals(""))
+            if ("".equals(key))
             {
               key += answer.getText();
             }

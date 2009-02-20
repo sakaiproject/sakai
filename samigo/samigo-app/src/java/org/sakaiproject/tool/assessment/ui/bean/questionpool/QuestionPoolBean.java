@@ -194,7 +194,7 @@ public class QuestionPoolBean implements Serializable
   {
         BeanSort sort = new BeanSort(sortedList, sortProperty);
 
-        if (sortProperty.equals("lastModified"))
+        if ("lastModified".equals(sortProperty))
         {
          sort.toDateSort();
         }
@@ -229,10 +229,10 @@ public class QuestionPoolBean implements Serializable
 	  // it is comparing. That includes more than just the properties that we're
 	  // interested in. One of them requires a database transaction.  So
 	  // optimize the sort on title, which is the one that is almost always used.
-	  if (sortProperty.equals("title")) {
+	  if ("title".equals(sortProperty)) {
 		  Collections.sort(sortedList, new titleComparator());
 	  } else {
-		  if (sortProperty.equals("lastModified"))
+		  if ("lastModified".equals(sortProperty))
 		  {
 			  sort.toDateSort();
 		  }

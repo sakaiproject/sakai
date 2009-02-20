@@ -1092,14 +1092,20 @@ public class ItemHelper12Impl extends ItemHelperBase
     	  for (int i = 0; i < finalArray.size(); i++)
     	  {
     		  Map currentEntry = (Map) finalArray.get(i);
-    		  Set entrySet = currentEntry.keySet();
-    		  Iterator entrykeys = entrySet.iterator();
-    		  while (entrykeys.hasNext())
-    		  {
-    			  compareResponse = (String[]) entrykeys.next();
+    		  
+    		  for (Iterator it2 = currentEntry.entrySet().iterator(); it2.hasNext();) {
+            	  Map.Entry entry2 = (Map.Entry) it2.next();
+            	  compareResponse = (String[]) entry2.getKey();
+            	  
+            	  
+    		  //Set entrySet = currentEntry.keySet();
+    		  //Iterator entrykeys = entrySet.iterator();
+    		  //while (entrykeys.hasNext())
+    		  //{
+    			  //compareResponse = (String[]) entrykeys.next();
     			  if (Arrays.equals(responses, compareResponse))
     			  {
-    				  idList = (ArrayList) currentEntry.get(compareResponse);
+    				  idList = (ArrayList) entry2.getValue(); 
     				  idList.add(respIdent);
     				  newElement = false;
     			  }

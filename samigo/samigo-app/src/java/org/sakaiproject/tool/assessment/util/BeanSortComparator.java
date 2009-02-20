@@ -83,7 +83,7 @@ public class BeanSortComparator
     result = subCompare(s1, s2);
     
     // If students have the same last name, then we need to compare their first name
-    if (result == 0 && propertyName.equals("lastName")) {
+    if (result == 0 && "lastName".equals(propertyName)) {
     	String firstName1 = (String) m1.get("firstName");
         String firstName2 = (String) m2.get("firstName");
         result = subCompare(firstName1, firstName2);

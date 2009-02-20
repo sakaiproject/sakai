@@ -556,14 +556,14 @@ public class QuestionScoreListener implements ActionListener,
 						}
 					}
 
-					if (bean.getTypeId().equals("4")) {
+					if ("4".equals(bean.getTypeId())) {
 						if (rb == null) { 	 
 			        		rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
 			        	}
-						if (answerText.equals("true")) {
+						if ("true".equals(answerText)) {
 							answerText = rb.getString("true_msg");
 						}
-						else if (answerText.equals("false")) {
+						else if ("false".equals(answerText)) {
 							answerText = rb.getString("false_msg");
 						}
 					}

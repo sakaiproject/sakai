@@ -2074,7 +2074,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    	   if (isFinFib && maintext.indexOf("No Answer") >= 0 && count == 1) {
 	    		   maintext = "No Answer";
 	    	   }
-	    	   else if (maintext.equals("")) {
+	    	   else if ("".equals(maintext)) {
 	    		   maintext = "No Answer";
 	    	   }
 

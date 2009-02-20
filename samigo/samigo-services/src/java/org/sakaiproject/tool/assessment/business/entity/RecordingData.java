@@ -164,7 +164,7 @@ private static Log log = LogFactory.getLog(RecordingData.class);
 
     // @todo: determine what is the best default target directory to use
     // for file system uploads
-    if(File.separator.equals("/"))
+    if("/".equals(File.separator))
     {
       dir = "/tmp";
     }

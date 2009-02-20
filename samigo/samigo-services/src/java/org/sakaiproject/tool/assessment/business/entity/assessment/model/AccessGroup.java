@@ -161,7 +161,7 @@ public class AccessGroup implements Serializable
     try
     {
       this.releaseMonth = releaseMonth;
-      if(releaseMonth.equals("--"))
+      if("--".equals(releaseMonth))
       {
         releaseDate = null;
       }
@@ -202,7 +202,7 @@ public class AccessGroup implements Serializable
     try
     {
       this.releaseDay = releaseDay;
-      if(releaseDay.equals("--"))
+      if("--".equals(releaseDay))
       {
         releaseDate = null;
       }
@@ -243,7 +243,7 @@ public class AccessGroup implements Serializable
     try
     {
       this.releaseYear = releaseYear;
-      if(releaseYear.equals("--"))
+      if("--".equals(releaseYear))
       {
         releaseDate = null;
       }
@@ -271,7 +271,7 @@ public class AccessGroup implements Serializable
    */
   public String getReleaseHour()
   {
-    if(releaseHour.equals("00"))
+    if("00".equals(releaseHour))
     {
       return "12";
     }
@@ -290,7 +290,7 @@ public class AccessGroup implements Serializable
   {
     try
     {
-      if(preleaseHour.equals("12"))
+      if("12".equals(preleaseHour))
       {
         preleaseHour = "00";
       }
@@ -528,7 +528,7 @@ public class AccessGroup implements Serializable
     try
     {
       this.retractMonth = retractMonth;
-      if(retractMonth.equals("--"))
+      if("--".equals(retractMonth))
       {
         retractDate = null;
       }
@@ -569,7 +569,7 @@ public class AccessGroup implements Serializable
     try
     {
       this.retractDay = retractDay;
-      if(retractDay.equals("--"))
+      if("--".equals(retractDay))
       {
         retractDate = null;
       }
@@ -610,7 +610,7 @@ public class AccessGroup implements Serializable
     try
     {
       this.retractYear = retractYear;
-      if(retractYear.equals("--"))
+      if("--".equals(retractYear))
       {
         retractDate = null;
       }
@@ -844,7 +844,7 @@ public class AccessGroup implements Serializable
     try
     {
       this.dueMonth = dueMonth;
-      if(dueMonth.equals("--"))
+      if("--".equals(dueMonth))
       {
         dueDate = null;
       }
@@ -885,7 +885,7 @@ public class AccessGroup implements Serializable
     try
     {
       this.dueDay = dueDay;
-      if(dueDay.equals("--"))
+      if("--".equals(dueDay))
       {
         dueDate = null;
       }
@@ -926,7 +926,7 @@ public class AccessGroup implements Serializable
     try
     {
       this.dueYear = dueYear;
-      if(dueYear.equals("--"))
+      if("--".equals(dueYear))
       {
         dueDate = null;
       }
@@ -1306,8 +1306,8 @@ public class AccessGroup implements Serializable
   public void trySetReleaseDate()
   {
     if(
-      (releaseDate == null) && ! releaseDay.equals("--") &&
-        ! releaseMonth.equals("--") && ! releaseYear.equals("--"))
+      (releaseDate == null) && ! "--".equals(releaseDay) &&
+        ! "--".equals(releaseMonth) && ! "--".equals(releaseYear))
     {
       releaseDate = Calendar.getInstance();
       setReleaseDay(releaseDay);
@@ -1325,8 +1325,8 @@ public class AccessGroup implements Serializable
   public void trySetRetractDate()
   {
     if(
-      (retractDate == null) && ! retractDay.equals("--") &&
-        ! retractMonth.equals("--") && ! retractYear.equals("--"))
+      (retractDate == null) && ! "--".equals(retractDay) &&
+        ! "--".equals(retractMonth) && ! "--".equals(retractYear))
     {
       retractDate = Calendar.getInstance();
       setRetractDay(retractDay);
@@ -1344,8 +1344,8 @@ public class AccessGroup implements Serializable
   public void trySetDueDate()
   {
     if(
-      (dueDate == null) && ! dueDay.equals("--") && ! dueMonth.equals("--") &&
-        ! dueYear.equals("--"))
+      (dueDate == null) && ! "--".equals(dueDay) && ! "--".equals(dueMonth) &&
+        ! "--".equals(dueYear))
     {
       dueDate = Calendar.getInstance();
       setDueDay(dueDay);

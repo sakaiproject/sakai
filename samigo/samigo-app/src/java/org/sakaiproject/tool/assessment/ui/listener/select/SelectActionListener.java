@@ -376,23 +376,23 @@ public class SelectActionListener
     String returnType = "assessmentTitle";
     if (sort != null)
     {
-     if (sort.equals("raw"))
+     if ("raw".equals(sort))
      {
 	returnType = "raw";
      }
-     else if (sort.equals("grade"))
+     else if ("grade".equals(sort))
      {
         returnType = "grade";
      }
-     else if (sort.equals("time"))
+     else if ("time".equals(sort))
      {
         returnType = "subTime";
      }
-     else if (sort.equals("submitted"))
+     else if ("submitted".equals(sort))
      {
         returnType = "submissionDate";
      }
-     else if (sort.equals("feedbackDate"))
+     else if ("feedbackDate".equals(sort))
      {
         returnType = "feedbackDate";
      }
@@ -604,7 +604,7 @@ public class SelectActionListener
     AssessmentFeedbackIfc f= (AssessmentFeedbackIfc)feedbackHash.get(a.getPublishedAssessmentId());
     if (f!=null){
       if ( (Boolean.TRUE).equals(f.getShowStudentScore()) &&
-          hasFeedback.equals("true"))
+    		  "true".equals(hasFeedback))
         showScore = "true";
     }
     return showScore;

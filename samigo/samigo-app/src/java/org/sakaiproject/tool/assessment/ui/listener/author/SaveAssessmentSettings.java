@@ -124,7 +124,7 @@ public class SaveAssessmentSettings
     // c. set Assessment Orgainzation
     if (assessmentSettings.getItemNavigation()!=null ) {
     	String nav = assessmentSettings.getItemNavigation();
-    	if (nav.equals("1")) {
+    	if ("1".equals(nav)) {
     		assessmentSettings.setAssessmentFormat("1");
     	}
     	control.setItemNavigation(new Integer(nav));
@@ -226,7 +226,7 @@ public class SaveAssessmentSettings
     // Otherwise, do nothing
     if (assessmentSettings.getToDefaultGradebook() != null ) {
     	String firstTargetSelected = assessmentSettings.getFirstTargetSelected();
-    	if (firstTargetSelected.equals("Anonymous Users")) {
+    	if ("Anonymous Users".equals(firstTargetSelected)) {
     		evaluation.setToGradeBook("2");
     	}
     	else {
@@ -373,7 +373,7 @@ public class SaveAssessmentSettings
 	   }
 	   
 	   // if it is an number, it has to between 0 - 255
-	   if (!s.equals("*")) {
+	   if (!"*".equals(s)) {
 		   int num = Integer.parseInt(s);	   
 		   if ( num > 255 || num < 0) {
 			   return false;

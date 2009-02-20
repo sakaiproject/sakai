@@ -135,7 +135,7 @@ private static Log log = LogFactory.getLog(QuestionPoolTreeImpl.class);
             next = (QuestionPoolData) siblings.next();
             if (poolMap != null) {
             	// Add at 0 because we want a reverse list.
-            	if (sortString.equals("lastModified")){
+            	if ("lastModified".equals(sortString)){
             		ids.add(0, ((QuestionPoolFacade) poolMap.get(next.getQuestionPoolId().toString())).getQuestionPoolId());
             	}
             	// Add to the end of list if not sorted by lastModified.
@@ -603,7 +603,7 @@ private static Log log = LogFactory.getLog(QuestionPoolTreeImpl.class);
 
         BeanSort sort = new BeanSort(sortedList, sortProperty);
 
-        if (sortProperty.equals("lastModified"))
+        if ("lastModified".equals(sortProperty))
         {
          sort.toDateSort();
         }
@@ -628,7 +628,7 @@ private static Log log = LogFactory.getLog(QuestionPoolTreeImpl.class);
             next = (QuestionPoolData) siblings.next();
             if (next != null) {
             	// Add at 0 because we want a reverse list.
-            	if (sortProperty.equals("lastModified")){
+            	if ("lastModified".equals(sortProperty)){
             		ids.add(0, ((QuestionPoolFacade) poolMap.get(next.getQuestionPoolId().toString())).getQuestionPoolId());
             	}
             	else {

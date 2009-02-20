@@ -305,7 +305,7 @@ public class SavePartListener
 
   private SectionFacade getOrAddSection(AssessmentService assessmentService, String assessmentId, String sectionId) {
 	  SectionFacade section;
-	  if (sectionId.equals("")){
+	  if ("".equals(sectionId)){
 		  section = assessmentService.addSection(assessmentId);
 		  sectionId = section.getSectionId().toString();
 	  }

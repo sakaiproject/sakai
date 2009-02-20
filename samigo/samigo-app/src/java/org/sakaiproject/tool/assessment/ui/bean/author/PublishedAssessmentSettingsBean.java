@@ -821,7 +821,7 @@ public class PublishedAssessmentSettingsBean
 		  Map.Entry entry = (Map.Entry) it.next();
 		  String key = (String) entry.getKey();
 		  Object o = entry.getValue();
-		  if ((key.equals("ASSESSMENT_AUTHORS")))
+		  if (("ASSESSMENT_AUTHORS".equals(key)))
 			  ;
 		  else {
 			  h.put(key, o);

@@ -94,7 +94,7 @@ public class ImportService {
 					}
 				}
 				else {
-					if(!zipName.equals("imsmanifest.xml")) {
+					if(!"imsmanifest.xml".equals(zipName)) {
 						qtiFilename = zipName;
 					}
 				}
