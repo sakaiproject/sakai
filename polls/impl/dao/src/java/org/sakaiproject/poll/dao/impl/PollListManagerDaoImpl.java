@@ -243,7 +243,7 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
     public boolean deletePoll(Poll t) throws PermissionException {
         if (!pollCanDelete(t))
             throw new PermissionException(UserDirectoryService.getCurrentUser().getId(),
-                    "poll.delete", "poll." + t.getId().toString());
+                    "poll.delete", "poll." + t.getId());
 
         try {
             getHibernateTemplate().delete(t);
