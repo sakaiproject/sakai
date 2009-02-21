@@ -282,9 +282,8 @@ public class AuthzQueriesFacade
    * @param functionId
    */
   public void removeAuthorizationByQualifierAndFunction(String qualifierId, String functionId) {
-	    String query="select a from AuthorizationData a where a.qualifierId="+qualifierId;
-	    String clause=" and a.functionId='" + functionId + "'";
-	    List l = getHibernateTemplate().find(query+clause);
+	    String query="select a from AuthorizationData a where a.qualifierId=? and a.functionId=?";
+	    List l = getHibernateTemplate().find(query, new String[]{qualifierId, functionId});
 	    getHibernateTemplate().deleteAll(l);
   }
   
@@ -296,11 +295,8 @@ public class AuthzQueriesFacade
    * @param qualifierId
    */
   public void removeAuthorizationByAgentQualifierAndFunction(String agentId, String qualifierId, String functionId) {
-	    String query="select a from AuthorizationData a where a.qualifierId="+qualifierId;
-	    // String query="from AuthorizationData a where a.qualifierId="+qualifierId;
-	    String clause=" and a.agentIdString='" + agentId + "'";
-	    clause+=" and a.functionId='" + functionId + "'";
-	    List l = getHibernateTemplate().find(query+clause);
+	    String query="select a from AuthorizationData a where a.qualifierId=? and a.agentIdString=? and a.functionId=?";
+	    List l = getHibernateTemplate().find(query, new String[]{qualifierId, agentId, functionId,});
 	    if (l != null && l.size() > 0) {
 	    	getHibernateTemplate().deleteAll(l);
 	    }
@@ -321,16 +317,15 @@ public class AuthzQueriesFacade
   }
 
   public List getAuthorizationByAgentAndFunction(String agentId, String functionId) {
-    String query = "select a from AuthorizationData a where a.agentIdString='"+ agentId +
-        "' and a.functionId='"+functionId+"'";
+    String query = "select a from AuthorizationData a where a.agentIdString=? and a.functionId=?";
     //System.out.println("query="+query);
-    return getHibernateTemplate().find(query);
+    return getHibernateTemplate().find(query, new String[]{agentId, functionId});
   }
 
   public List getAuthorizationByFunctionAndQualifier(String functionId, String qualifierId) {
   return getHibernateTemplate().find(
-        "select a from AuthorizationData a where a.functionId='"+ functionId +
-        "' and a.qualifierId='"+qualifierId+"'");
+		"select a from AuthorizationData a where a.functionId=?"+
+		" and a.qualifierId=?",new String[]{functionId,qualifierId});
   }
 
   public boolean checkMembership(String siteId) {
