@@ -333,7 +333,7 @@ public class SaveAssessmentSettings
 			  //    if (map.get(label)!=null){
 			  //    value = (String) map.get(label).toString();
 
-			  Object valueo = (String) entry.getValue();
+			  Object valueo = (String) entry.getValue().toString();
 			  if (valueo !=null) {
 				  value = valueo.toString();
 			  }
