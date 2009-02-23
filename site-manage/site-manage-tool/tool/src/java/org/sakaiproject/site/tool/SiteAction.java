@@ -691,7 +691,7 @@ public class SiteAction extends PagedResourceActionII {
 				catch (Throwable t)
 				{
 
-					M_log.warn(this + ": getHomeToolIds cannot find site " + templateSiteId + t.getMessage());
+					M_log.debug(this + ": getHomeToolIds cannot find site " + templateSiteId + t.getMessage());
 					// use the fall-back, user template site
 					try
 					{
@@ -700,7 +700,7 @@ public class SiteAction extends PagedResourceActionII {
 					}
 					catch (Throwable tt)
 					{
-						M_log.warn(this + ": getHomeToolIds cannot find site " + templateSiteId + tt.getMessage());
+						M_log.debug(this + ": getHomeToolIds cannot find site " + templateSiteId + tt.getMessage());
 					}
 				}
 			}
@@ -720,7 +720,7 @@ public class SiteAction extends PagedResourceActionII {
 					}
 					catch (Throwable t)
 					{
-						M_log.warn(this + ": getHomeToolIds cannot find site " + templateSiteId + t.getMessage());
+						M_log.debug(this + ": getHomeToolIds cannot find site " + templateSiteId + t.getMessage());
 					
 						// thrid: if cannot find template site with the site type, use the default template
 						templateSiteId = SiteService.SITE_TEMPLATE;
@@ -730,7 +730,7 @@ public class SiteAction extends PagedResourceActionII {
 						}
 						catch (Throwable tt)
 						{
-							M_log.warn(this + ": getHomeToolIds cannot find site " + templateSiteId + tt.getMessage());
+							M_log.debug(this + ": getHomeToolIds cannot find site " + templateSiteId + tt.getMessage());
 						}			
 					}
 				}
