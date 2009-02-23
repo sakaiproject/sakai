@@ -57,6 +57,8 @@ private static Log log = LogFactory.getLog(PersonBean.class);
   private String anonymousId;
  
   public PersonBean(){}
+  {
+  }
 
   public String getAgentString()
   {

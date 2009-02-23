@@ -161,9 +161,11 @@
   </listener>
 
   <!-- OKI OSID -->
+<!--
   <listener>
     <listener-class>org.sakaiproject.tool.assessment.settings.OkiOsidConfigListener</listener-class>
   </listener>
+-->
 
   <!-- *******************************************************************  -->
 
