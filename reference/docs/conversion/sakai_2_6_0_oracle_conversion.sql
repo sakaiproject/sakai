@@ -348,7 +348,7 @@ drop table PERMISSIONS_SRC_TEMP;
         ANSWER_STRING varchar2(255),
         FILL_IN_BLANK number(1,0),
         ORDER_NUM number(10,0),
-        QUESTION_ID number(19,0),
+        QUESTION_ID varchar2(99),
         primary key (ID)
     );
 
@@ -359,7 +359,7 @@ drop table PERMISSIONS_SRC_TEMP;
         MULTIPLE_ANSWERS number(1,0),
         ORDER_NUM number(10,0),
         IS_CURRENT varchar2(255),
-        SITETYPE_ID number(19,0),
+        SITETYPE_ID varchar2(99),
         primary key (ID)
     );
 

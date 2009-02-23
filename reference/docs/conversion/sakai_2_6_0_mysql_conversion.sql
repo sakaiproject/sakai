@@ -353,7 +353,7 @@ drop table PERMISSIONS_SRC_TEMP;
         ANSWER_STRING varchar(255),
         FILL_IN_BLANK bit,
         ORDER_NUM integer,
-        QUESTION_ID bigint,
+        QUESTION_ID varchar(99),
         primary key (ID)
     );
 
@@ -364,7 +364,7 @@ drop table PERMISSIONS_SRC_TEMP;
         MULTIPLE_ANSWERS bit,
         ORDER_NUM integer,
         IS_CURRENT varchar(255),
-        SITETYPE_ID bigint,
+        SITETYPE_ID varchar(99),
         primary key (ID)
     ) comment='This table stores site setup questions';
 
