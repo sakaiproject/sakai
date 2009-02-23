@@ -28,6 +28,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.fop.apps.Driver;
 import org.apache.fop.messaging.MessageHandler;
+import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
@@ -141,16 +143,30 @@ public class SiteParticipantProviderImpl implements SiteParticipantProvider {
 			public void handleAccess(HttpServletRequest req, HttpServletResponse res, Reference ref,
 					Collection copyrightAcceptedRefs) throws EntityPermissionException, EntityNotDefinedException
 			{
-		
-				if (SessionManager.getCurrentSessionUserId() == null)
+				// get the user id
+				String userId = SessionManager.getCurrentSessionUserId();
+				// get the site id
+				String siteId = ref.getId();
+				
+				if (userId == null)
 				{
 					// fail the request, user not logged in yet.
+					M_log.warn(this + " HttpAccess for printing participant of site id =" + siteId + " without user loggin. ");
 				}
 				else
 				{
-					String siteId = ref.getId();
-					// for logged in user, print pdf
-					print_participant(siteId);
+					String siteReference = SiteService.siteReference(siteId);
+					// check whether the user has permission to view the site roster or is super user
+					if (AuthzGroupService.isAllowed(userId, SiteService.SECURE_VIEW_ROSTER, siteReference) || SecurityService.isSuperUser())
+					{
+						print_participant(siteId);
+					}
+					else
+					{
+						M_log.warn(this + " HttpAccess for printing participant of site id =" + siteId + " with user id = " + userId + ": user does not have permission to view roster. " );
+						// throw permission error if user cannot view site roster
+						throw new EntityPermissionException(userId, SiteService.SECURE_VIEW_ROSTER, siteReference);
+					}
 				}
 			}
 		};
