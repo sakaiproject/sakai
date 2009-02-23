@@ -747,7 +747,9 @@ public class SiteAction extends PagedResourceActionII {
 						// found home page, add all tool ids to return value
 						for(ToolConfiguration tConfiguration : (List<ToolConfiguration>) page.getTools())
 						{
-							rv.add(tConfiguration.getToolId());
+							String toolId = tConfiguration.getToolId();
+							if (ToolManager.getTool(toolId) != null)
+								rv.add(toolId);
 						}
 						break;
 					}
@@ -9097,7 +9099,7 @@ public class SiteAction extends PagedResourceActionII {
 		List pageToolList = page.getTools();
 
 		// if no tools on the page, return false
-		if (pageToolList == null || pageToolList.size() == 0) {
+		if (pageToolList == null) {
 			return null;
 		}
 
