@@ -455,10 +455,10 @@ implements ActionListener
 					List list = null;
 
 					if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)){
-						list = gradingService.getHighestSubmittedAssessmentGradingList(assessment.getPublishedAssessmentId());
+						list = gradingService.getHighestSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
 					}
 					else {
-						list = gradingService.getLastSubmittedAssessmentGradingList(assessment.getPublishedAssessmentId());
+						list = gradingService.getLastSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
 					}
 
 					//ArrayList list = gradingService.getAllSubmissions(assessment.getPublishedAssessmentId().toString());

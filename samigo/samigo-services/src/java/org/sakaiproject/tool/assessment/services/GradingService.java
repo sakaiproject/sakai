@@ -140,13 +140,13 @@ public class GradingService
     return results;
   }
   
-  public List getHighestSubmittedAssessmentGradingList(Long publishedId)
+  public List getHighestSubmittedOrGradedAssessmentGradingList(Long publishedId)
   {
     ArrayList results = null;
     try {
       results =
         new ArrayList(PersistenceService.getInstance().
-           getAssessmentGradingFacadeQueries().getHighestSubmittedAssessmentGradingList(publishedId));
+           getAssessmentGradingFacadeQueries().getHighestSubmittedOrGradedAssessmentGradingList(publishedId));
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -173,6 +173,19 @@ public class GradingService
       results = 
     	  PersistenceService.getInstance().
            getAssessmentGradingFacadeQueries().getLastSubmittedAssessmentGradingList(publishedId);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return results;
+  }
+  
+  public List getLastSubmittedOrGradedAssessmentGradingList(Long publishedId)
+  {
+    List results = null;
+    try {
+      results = 
+    	  PersistenceService.getInstance().
+           getAssessmentGradingFacadeQueries().getLastSubmittedOrGradedAssessmentGradingList(publishedId);
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -253,11 +266,11 @@ public class GradingService
     List l = null;
     // get the list of highest score
     if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)){
-      l = getHighestSubmittedAssessmentGradingList(publishedAssessmentId);
+      l = getHighestSubmittedOrGradedAssessmentGradingList(publishedAssessmentId);
     }
     // get the list of last score
     else {
-      l = getLastSubmittedAssessmentGradingList(publishedAssessmentId);
+      l = getLastSubmittedOrGradedAssessmentGradingList(publishedAssessmentId);
     }
     return new ArrayList(l);
   }

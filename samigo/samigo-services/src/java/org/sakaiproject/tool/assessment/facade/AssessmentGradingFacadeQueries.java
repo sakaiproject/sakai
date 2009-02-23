@@ -1132,6 +1132,33 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    return l;
   }  
   
+  public List getLastSubmittedOrGradedAssessmentGradingList(final Long publishedAssessmentId){
+	    final String query = "from AssessmentGradingData a where a.publishedAssessmentId=? and (a.forGrade=? or (a.forGrade=? and a.status=?)) order by a.agentId asc, a.submittedDate desc";
+
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery(query);
+	    		q.setLong(0, publishedAssessmentId.longValue());
+	    		q.setBoolean(1, true);
+	    		q.setBoolean(2, false);
+	    		q.setInteger(3, AssessmentGradingIfc.NO_SUBMISSION.intValue());
+	    		return q.list();
+	    	};
+	    };
+	    List assessmentGradings = getHibernateTemplate().executeFind(hcb);
+
+	    ArrayList l = new ArrayList();
+	    String currentAgent="";
+	    for (int i=0; i<assessmentGradings.size(); i++){
+	      AssessmentGradingData g = (AssessmentGradingData)assessmentGradings.get(i);
+	      if (!currentAgent.equals(g.getAgentId())){
+	        l.add(g);
+	        currentAgent = g.getAgentId();
+	      }
+	    }
+	    return l;
+  }
+  
   public List getHighestAssessmentGradingList(final Long publishedAssessmentId){
     final String query = "from AssessmentGradingData a where a.publishedAssessmentId=? order by a.agentId asc, a.finalScore desc";
 
@@ -1161,7 +1188,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
   
-  public List getHighestSubmittedAssessmentGradingList(final Long publishedAssessmentId){
+  public List getHighestSubmittedOrGradedAssessmentGradingList(final Long publishedAssessmentId){
 	    final String query = "from AssessmentGradingData a where a.publishedAssessmentId=? and (a.forGrade=? or (a.forGrade=? and a.status=?)) order by a.agentId asc, a.finalScore desc";
 
 	    final HibernateCallback hcb = new HibernateCallback(){
