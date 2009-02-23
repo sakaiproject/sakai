@@ -103,6 +103,7 @@ public class MyInfoDisplay extends Panel {
 			}
 						
 		};
+		editButton.add(new Label("editButtonLabel", new ResourceModel("button.edit")));
 		editButton.setOutputMarkupId(true);
 		add(editButton);
 		

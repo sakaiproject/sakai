@@ -101,7 +101,7 @@ public class MyContactDisplay extends Panel {
 		
 		
 		//edit button
-		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton", new ResourceModel("button.edit")) {
+		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton") {
 			public void onClick(AjaxRequestTarget target) {
 				Component newPanel = new MyContactEdit(id, userProfile);
 				newPanel.setOutputMarkupId(true);
@@ -114,6 +114,7 @@ public class MyContactDisplay extends Panel {
 			}
 						
 		};
+		editButton.add(new Label("editButtonLabel", new ResourceModel("button.edit")));
 		editButton.setOutputMarkupId(true);
 		add(editButton);
 		

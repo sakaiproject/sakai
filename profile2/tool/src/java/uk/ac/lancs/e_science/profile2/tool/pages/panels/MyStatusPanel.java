@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.behavior.StringHeaderContributor;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -165,7 +166,8 @@ public class MyStatusPanel extends Panel {
         
         
         //submit button
-		AjaxButton submitButton = new AjaxButton("submit") {
+		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.sayit"), form) {
+
 			private static final long serialVersionUID = 1L;
 
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
