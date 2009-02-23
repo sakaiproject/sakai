@@ -3230,6 +3230,9 @@ public class DiscussionForumTool
 			  allowedToGradeItem = false;
 			  selGBItemRestricted = true;
 		  }
+		  
+		  // mark this message as read
+		  messageManager.markMessageReadForUser(selectedTopic.getTopic().getId(), selectedMessage.getMessage().getId(), true);
 	  }
 	  catch(Exception e) 
 	  { 
