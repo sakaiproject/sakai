@@ -1570,7 +1570,7 @@ public class ItemAddListener
         }
       }
       else if (i == (tokens.length - 1)) {
-        String[] lastpart = tokens[i].split("\\}");
+        String[] lastpart = tokens[i].split("\\}"); 
         String answer = FormattedText.convertFormattedTextToPlaintext(lastpart[0].replaceAll("&lt;.*?&gt;", ""));
         list.add(answer);
       }
@@ -1709,8 +1709,6 @@ public class ItemAddListener
     // all answer sets have to be identical, case insensitive
 
      String entiretext = bean.getItemText();
-     //String fibtext = 
-     entiretext.replaceAll("[\\{][^\\}]*[\\}]", "{}");
 
 Object[] fibanswers = getFIBanswers(entiretext).toArray();
       List blanklist = new  ArrayList();
