@@ -36,7 +36,10 @@ public class BasicSqlServiceSqlHSql extends BasicSqlServiceSqlDefault
 	 */
 	public boolean getRecordAlreadyExists(SQLException ex)
 	{
-		return ex.getErrorCode() == -104;
+		// From HSQLDB src/org/hsqldb/resources/sql-error-messages.properties 
+		//009=23000 Violation of unique index $$: duplicate value(s) for column(s) $$
+		//104=23000 Violation of unique constraint $$: duplicate value(s) for column(s) $$
+		return ex.getErrorCode() == -104 || ex.getErrorCode() == -9;
 	}
 
 	/**
