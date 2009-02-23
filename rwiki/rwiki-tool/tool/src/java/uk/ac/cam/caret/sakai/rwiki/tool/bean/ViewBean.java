@@ -644,7 +644,7 @@ public class ViewBean
 	}
 
 	public boolean getDisplayHtmlEditor() {
-		return ServerConfigurationService.getBoolean("wiki.wysiwyg", false);
+		return ServerConfigurationService.getBoolean("wiki.wysiwyg", true);
 	}
 
 }
