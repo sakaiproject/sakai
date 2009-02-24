@@ -1,0 +1,167 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="scheduleOverview"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>aray_ru</value>
+		</property>
+		<property name="name">
+			<value>Календарь: Обзор </value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/aray_ru.html</value>
+		</property>
+		<property name="defaultForTool">
+			<value>sakai.schedule</value>
+		</property>
+	</bean>
+	<bean id="scheduleSummary"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>avaz_ru</value>
+		</property>
+		<property name="name">
+			<value>Сокращенная версия</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/avaz_ru.html</value>
+		</property>
+		<property name="defaultForTool">
+			<value>sakai.summary.calendar</value>
+		</property>
+	</bean>
+	<bean id="addActivity"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>aqyn_ru</value>
+		</property>
+		<property name="name">
+			<value>Создание, редактирование и удаление событий</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/aqyn_ru.html</value>
+		</property>
+	</bean>
+	<bean id="addActivityAttachment"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>argn_ru</value>
+		</property>
+		<property name="name">
+			<value>Добавление приложения к событию</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/argn_ru.html</value>
+		</property>
+	</bean>
+	<bean id="viewSchedule"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>aqzh_ru</value>
+		</property>
+		<property name="name">
+			<value>Просмотр информации о событии</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/aqzh_ru.html</value>
+		</property>
+	</bean>
+
+	<bean id="changeScheduleView"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>aqyp_ru</value>
+		</property>
+		<property name="name">
+			<value>Изменение внешнего вида</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/aqyp_ru.html</value>
+		</property>
+	</bean>
+
+	<bean id="addCalendarFields"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>aqzc_ru</value>
+		</property>
+		<property name="name">
+			<value>Добавление и удаление полей</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/aqzc_ru.html</value>
+		</property>
+	</bean>
+
+	<bean id="printCalendar"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>arfe_ru</value>
+		</property>
+		<property name="name">
+			<value>Печать календаря</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/arfe_ru.html</value>
+		</property>
+	</bean>
+
+	<bean id="mergeCalendar"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>aqyl_ru</value>
+		</property>
+		<property name="name">
+			<value>Объединение календарей с разных сайтов</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/aqyl_ru.html</value>
+		</property>
+	</bean>
+	
+	<bean id="importCalendar"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>argo_ru</value>
+		</property>
+		<property name="name">
+			<value>Импорт календаря</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/argo_ru.html</value>
+		</property>
+	</bean>
+
+
+	<bean id="org.sakaiproject.api.app.help.TableOfContents"
+		class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+		<property name="name">
+			<value>root</value>
+		</property>
+		<property name="categories">
+			<list>
+				<bean id="scheduleCategory"
+					class="org.sakaiproject.component.app.help.model.CategoryBean">
+					<property name="name">
+						<value>Расписание</value>
+					</property>
+					<property name="resources">
+						<list>
+							<ref bean="scheduleOverview" />
+							<ref bean="scheduleSummary" />
+							<ref bean="addActivity" />
+							<ref bean="addActivityAttachment" />
+							<ref bean="viewSchedule" />
+							<ref bean="addCalendarFields" />
+							<ref bean="changeScheduleView" />
+							<ref bean="printCalendar" />
+							<ref bean="mergeCalendar" />
+							<ref bean="importCalendar" />
+						</list>
+					</property>
+				</bean>
+			</list>
+		</property>
+	</bean>
+</beans>
