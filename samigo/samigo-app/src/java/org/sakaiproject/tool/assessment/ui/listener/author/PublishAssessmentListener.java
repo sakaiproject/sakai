@@ -23,9 +23,9 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-//import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -68,19 +68,21 @@ public class PublishAssessmentListener
 
 
   private static Log log = LogFactory.getLog(PublishAssessmentListener.class);
-  //private static ContextUtil cu;
+
   private static final GradebookServiceHelper gbsHelper =
       IntegrationContextFactory.getInstance().getGradebookServiceHelper();
   private static final boolean integrated =
       IntegrationContextFactory.getInstance().isIntegrated();
-  private static Boolean repeatedPublish = Boolean.FALSE;
+  private static final Lock repeatedPublishLock = new ReentrantLock();
+  private static boolean repeatedPublish = false;
 
   public PublishAssessmentListener() {
   }
 
   public void processAction(ActionEvent ae) throws AbortProcessingException {
-  	synchronized(repeatedPublish)
-		{
+	  repeatedPublishLock.lock();
+	  try {
+
   		//FacesContext context = FacesContext.getCurrentInstance();
   		
   		UIComponent eventSource = (UIComponent) ae.getSource();
@@ -88,11 +90,11 @@ public class PublishAssessmentListener
   		String buttonValue = (String) vb.getExpressionString(); 
   		if(buttonValue.endsWith(".button_unique_save_and_publish}"))
   		{
-  			repeatedPublish = Boolean.FALSE;
+  			repeatedPublish = false;
   			return;
   		}
   		
-  		if(!repeatedPublish.booleanValue())
+  		if(!repeatedPublish)
   		{
   			//Map reqMap = context.getExternalContext().getRequestMap();
   			//Map requestParams = context.getExternalContext().getRequestParameterMap();
@@ -120,8 +122,11 @@ public class PublishAssessmentListener
   			authorActionListener.prepareAssessmentsList(author, assessmentService, gradingService, publishedAssessmentService);
   			
   			
-  			repeatedPublish = Boolean.TRUE;
+  			repeatedPublish = true;
   		}
+		} finally{
+			repeatedPublishLock.unlock();
+
 		}
   }
 
