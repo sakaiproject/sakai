@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <bean id="sectionInfoOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>asxi_ru</value>
+        </property>
+        <property name="name">
+            <value>Группы: обзор </value>
+        </property>
+        <property name="location">
+            <value>/sakai_sections/asxi_ru.html</value>
+        </property>
+		<property name="defaultForTool"><value>sakai.sections</value></property>
+    </bean>
+    <bean id="sectionsAndGroups" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>asyh_ru</value>
+        </property>
+        <property name="name">
+            <value>Различия между группами и блоками пользователей</value>
+        </property>
+        <property name="location">
+            <value>/sakai_sections/asyh_ru.html</value>
+        </property>
+    </bean>
+    <bean id="createEditDeleteSection" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>asxy_ru</value>
+        </property>
+        <property name="name">
+            <value>Создание, изменение и удаление групп </value>
+        </property>
+        <property name="location">
+            <value>/sakai_sections/asxy_ru.html</value>
+        </property>
+    </bean>
+    <bean id="addMembers" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>asyl_ru</value>
+        </property>
+        <property name="name">
+            <value>Добавление участников в группу </value>
+        </property>
+        <property name="location">
+            <value>/sakai_sections/asyl_ru.html</value>
+        </property>
+    </bean>
+    <bean id="addTeachingAssistants" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>asym_ru</value>
+        </property>
+        <property name="name">
+            <value>Добавление помощника преподавателя </value>
+        </property>
+        <property name="location">
+            <value>/sakai_sections/asym_ru.html</value>
+        </property>
+    </bean>
+
+    
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+        <property name="name">
+            <value>root</value>
+        </property>
+        <property name="categories">
+            <list>
+                <bean id="sectionCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+                    <property name="name">
+                        <value>Группы</value>
+                    </property>
+                    <property name="resources">
+                        <list>
+                            <ref bean="sectionInfoOverview"/>
+                            <ref bean="sectionsAndGroups"/>
+                            <ref bean="createEditDeleteSection"/>
+                            <ref bean="addMembers"/>
+                            <ref bean="addTeachingAssistants"/>
+                        </list>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+</beans>
