@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="sitesToolOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardy_ru</value></property>
+      <property name="name"><value>Сайты: обзор</value></property>
+      <property name="location"><value>/sakai_sites/ardy_ru.html</value></property>
+      <property name="defaultForTool"><value>sakai.sites.tool</value></property>
+   </bean>
+   
+   <bean id="addSite" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzp_ru</value></property>
+      <property name="name"><value>Добавление, изменение и удаление сайтов</value></property>
+      <property name="location"><value>/sakai_sites/aqzp_ru.html</value></property>
+   </bean>
+   
+   <bean id="addPages" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzi_ru</value></property>
+      <property name="name"><value>Добавление, изменение и удаление страниц сайта</value></property>
+      <property name="location"><value>/sakai_sites/aqzi_ru.html</value></property>
+   </bean>
+   
+   <bean id="addTools" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzf_ru</value></property>
+      <property name="name"><value>Добавление, изменение и удаление инструментов</value></property>
+      <property name="location"><value>/sakai_sites/aqzf_ru.html</value></property>
+   </bean>
+   
+   
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="sitesToolCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Сайты</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="sitesToolOverview"/>
+					 <ref bean="addSite"/>
+					 <ref bean="addPages"/>
+					 <ref bean="addTools"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
