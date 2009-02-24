@@ -385,3 +385,5 @@ INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('mercury', 'mercury-810', 'filter-ty
 INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('mercury', 'mercury-810', 'display-user', 'true' );
 INSERT INTO SAKAI_SITE_PAGE VALUES('mercury-900', 'mercury', 'Email Archive', '0', 9, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-910', 'mercury-900', 'mercury', 'sakai.mailbox', 1, 'Email Archive', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('mercury-1000', 'mercury', 'Site Info', '0', 10, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-1010', 'mercury-1000', 'mercury', 'sakai.siteinfo', 1, 'Site Info', NULL );
