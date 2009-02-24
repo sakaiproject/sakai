@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="worksiteOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqyv_ru</value></property>
+      <property name="name"><value>Главная/ Информация о сайте: обзор</value></property>
+      <property name="location"><value>/sakai_iframe_site/aqyv_ru.html</value></property>
+      <property name="defaultForTool"><value>sakai.iframe.site</value></property>
+   </bean>
+   
+   <bean id="changeWorksiteInfo" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzs_ru</value></property>
+      <property name="name"><value>Размер окна информации о сайте</value></property>
+      <property name="location"><value>/sakai_iframe_site/aqzs_ru.html</value></property>
+   </bean>
+
+    <bean id="addWorksiteInfo" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcl_ru</value></property>
+      <property name="name"><value>Добавление информации о сайте</value></property>
+      <property name="location"><value>/sakai_iframe_site/arcl_ru.html</value></property>
+   </bean>
+   
+<!--    <bean id="requestProjectSite" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>request_project_site</value></property>
+      <property name="name"><value>Request Project Site</value></property>
+      <property name="location"><value>/sakai-help-tool/helpDocs/aqbe.html</value></property>
+   </bean>
+   
+   <bean id="courseProjectSite" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>course_project_site</value></property>
+      <property name="name"><value>Course Site and Project Site</value></property>
+      <property name="location"><value>/sakai-help-tool/helpDocs/aqbd.html</value></property>
+   </bean> -->
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="worksiteInfoCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Информация о сайте</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="worksiteOverview"/>
+                     <ref bean="changeWorksiteInfo"/>
+                     <ref bean="addWorksiteInfo"/>
+                   <!--   <ref bean="requestProjectSite"/> -->
+                   <!--   <ref bean="courseProjectSite"/> -->
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>

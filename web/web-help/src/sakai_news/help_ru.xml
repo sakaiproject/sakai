@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+   <bean id="newsOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcf_ru</value></property>
+      <property name="name"><value>Новости: обзор</value></property>
+      <property name="location"><value>/sakai_news/arcf_ru.html</value></property>
+      <property name="defaultForTool"><value>sakai.news</value></property>
+   </bean>
+   
+   <bean id="setupNews" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>areh_ru</value></property>
+      <property name="name"><value>Добавление, изменение и удаление страницы новостей</value></property>
+      <property name="location"><value>/sakai_news/areh_ru.html</value></property>
+   </bean>
+    
+       <bean id="viewNewsFeed" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arak_ru</value></property>
+      <property name="name"><value>Просмотр страницы новостей</value></property>
+      <property name="location"><value>/sakai_news/arak_ru.html</value></property>
+   </bean>
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="newsCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Новости</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="newsOverview"/>
+					 <ref bean="setupNews"/>
+                     <ref bean="viewNewsFeed"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
