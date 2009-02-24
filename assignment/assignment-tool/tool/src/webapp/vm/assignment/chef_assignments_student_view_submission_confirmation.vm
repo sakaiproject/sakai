@@ -86,42 +86,47 @@
 			#else
 			 $tlang.getString('confirm.savesubmission.include') 
 			#end
-		</h4>			
-		## submission text
-		#if ($!submit_text)
-			<div class="textPanel indnt2">
-				$!submit_text
-				##$validator.escapeHtmlFormattedText($!submit_text)
-			</div>
-		#else
-			<p class="indnt2 instruction">
-				#if ($!submitted)
-					$tlang.getString('confirm.submission.notext')
-				#else
-					$tlang.getString('confirm.savesubmission.notext')	
-				#end
-			</p>	
-		#end
-		<h4>
-			#if ($!submitted)
-				$tlang.getString('confirm.submission.attachments')
-			#else
-				$tlang.getString('confirm.savesubmission.attachments')
-			#end		
 		</h4>
-		#set ($size = 0)
-		#set ($props = false)
-		#foreach ($attachment in $!submit_attachments) 
-			#set ($props = $attachment.Properties) 
-			#if ($!props)
-				#set ($size = $size + 1)
+		## only show the following section if text submission is allowed			
+		#if (!$!attachmentSubmissionOnly)
+			## submission text
+			#if ($!submit_text)
+				<div class="textPanel indnt2">
+					$!submit_text
+					##$validator.escapeHtmlFormattedText($!submit_text)
+				</div>
+			#else
+				<p class="indnt2 instruction">
+					#if ($!submitted)
+						$tlang.getString('confirm.submission.notext')
+					#else
+						$tlang.getString('confirm.savesubmission.notext')	
+					#end
+				</p>	
 			#end
-		#end 
-		#if ($size == 0)
-			 $tlang.getString("gen.noatt")
-		#else
-			<ul class="attachList indnt2">
+		#end
+		## only show the following if attachment submission is allowed
+		#if (!$textSubmissionOnly)
+			<h4>
+				#if ($!submitted)
+					$tlang.getString('confirm.submission.attachments')
+				#else
+					$tlang.getString('confirm.savesubmission.attachments')
+				#end		
+			</h4>
+			#set ($size = 0)
+			#set ($props = false)
 			#foreach ($attachment in $!submit_attachments) 
+				#set ($props = $attachment.Properties) 
+				#if ($!props)
+					#set ($size = $size + 1)
+				#end
+			#end 
+			#if ($size == 0)
+			 $tlang.getString("gen.noatt")
+			#else
+				<ul class="attachList indnt2">
+				#foreach ($attachment in $!submit_attachments) 
 					#set ($props = false)
 					#set ($props = $attachment.Properties) 
 					#if ($!props)
@@ -132,7 +137,8 @@
 						</li>
 					#end
 				#end
-			</ul>
+				</ul>
+			#end
 		#end	
 		<p class="act">
 			<input type="submit" accesskey="x" name="eventSubmit_doConfirm_assignment_submission" value="$tlang.getString('gen.backtolist')"  class="active" />

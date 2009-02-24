@@ -101,9 +101,10 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.ContentTypeImageService;
+import org.sakaiproject.content.api.ResourceType;
+import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -1127,6 +1128,27 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			Assignment currentAssignment = AssignmentService.getAssignment(currentAssignmentReference);
 			context.put("assignment_title", currentAssignment.getTitle());
+			
+			// differenciate submission type
+			int submissionType = currentAssignment.getContent().getTypeOfSubmission();
+			if (submissionType == Assignment.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION || submissionType == Assignment.SINGLE_ATTACHMENT_SUBMISSION)
+			{
+				context.put("attachmentSubmissionOnly", Boolean.TRUE);
+			}
+			else
+			{
+				context.put("attachmentSubmissionOnly", Boolean.FALSE);
+			}
+			if (submissionType == Assignment.TEXT_ONLY_ASSIGNMENT_SUBMISSION)
+			{
+				context.put("textSubmissionOnly", Boolean.TRUE);
+			}
+			else
+			{
+				context.put("textSubmissionOnly", Boolean.FALSE);
+			}
+			
+			
 			AssignmentSubmission s = AssignmentService.getSubmission(currentAssignment.getReference(), user);
 			if (s != null)
 			{
@@ -4040,6 +4062,11 @@ public class AssignmentAction extends PagedResourceActionII
 					{
 						addAlert(state, rb.getString("youmust2"));
 					}
+				}
+				else if (submissionType == Assignment.SINGLE_ATTACHMENT_SUBMISSION)
+				{
+					// dealing with single file uplaod
+					doAttachUpload(data);
 				}
 			}
 	
@@ -8206,6 +8233,7 @@ public class AssignmentAction extends PagedResourceActionII
 		n.put(new Integer(2), rb.getString("attaonly"));
 		n.put(new Integer(3), rb.getString("inlinatt"));
 		n.put(new Integer(4), rb.getString("nonelec"));
+		n.put(new Integer(5), rb.getString("singleatt"));
 		return n;
 
 	} // submissionTypeTable
@@ -11501,4 +11529,154 @@ public class AssignmentAction extends PagedResourceActionII
 		// make sure the options are exposed in UI 
 		state.setAttribute(SHOW_ALLOW_RESUBMISSION, Boolean.TRUE);
 	}
+	
+	/**
+	 * upload a signle file into Attachment area.
+	 * @param data
+	 */
+	public void doAttachUpload(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		ParameterParser params = data.getParameters ();
+
+		ResourceTypeRegistry registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+		
+		String max_file_size_mb = ServerConfigurationService.getString("content.upload.max", "1");
+		long max_bytes = 1024L * 1024L;
+		try
+		{
+			max_bytes = Long.parseLong(max_file_size_mb) * 1024L * 1024L;
+		}
+		catch(Exception e)
+		{
+			// if unable to parse an integer from the value
+			// in the properties file, use 1 MB as a default
+			max_file_size_mb = "1";
+			max_bytes = 1024L * 1024L;
+		}
+
+		FileItem fileitem = null;
+		try
+		{
+			fileitem = params.getFileItem("upload");
+		}
+		catch(Exception e)
+		{
+
+		}
+		if(fileitem == null)
+		{
+			// "The user submitted a file to upload but it was too big!"
+			addAlert(state, rb.getFormattedMessage("size.exceeded", new Object[]{ max_file_size_mb }));
+			//addAlert(state, hrb.getString("size") + " " + max_file_size_mb + "MB " + hrb.getString("exceeded2"));
+		}
+		else if (fileitem.getFileName() == null || fileitem.getFileName().length() == 0)
+		{
+			addAlert(state, rb.getString("choosefile7"));
+		}
+		else if (fileitem.getFileName().length() > 0)
+		{
+			String filename = Validator.getFileName(fileitem.getFileName());
+			byte[] bytes = fileitem.get();
+			String contentType = fileitem.getContentType();
+
+			if(bytes.length >= max_bytes)
+			{
+				addAlert(state, rb.getFormattedMessage("size.exceeded", new Object[]{ max_file_size_mb }));
+				// addAlert(state, hrb.getString("size") + " " + max_file_size_mb + "MB " + hrb.getString("exceeded2"));
+			}
+			else if(bytes.length > 0)
+			{
+				// we just want the file name part - strip off any drive and path stuff
+				String name = Validator.getFileName(filename);
+				String resourceId = Validator.escapeResourceName(name);
+
+				// make a set of properties to add for the new resource
+				ResourcePropertiesEdit props = m_contentHostingService.newResourceProperties();
+				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+				props.addProperty(ResourceProperties.PROP_DESCRIPTION, filename);
+
+				// make an attachment resource for this URL
+				try
+				{
+					String siteId = ToolManager.getCurrentPlacement().getContext();
+
+					String toolName = "Assignment";
+					
+					// add attachment
+					enableSecurityAdvisor();
+					ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, toolName, contentType, bytes, props);
+					disableSecurityAdvisors();
+					
+					// construct the state variable for attachment list
+					List attachments = EntityManager.newReferenceList();
+					try
+					{
+						Reference ref = EntityManager.newReference(m_contentHostingService.getReference(attachment.getId()));
+						attachments.add(ref);
+					}
+					catch(Exception ee)
+					{
+						M_log.warn(this + "doAttachUpload cannot find reference for " + attachment.getId() + ee.getMessage());
+					}
+					state.setAttribute(ATTACHMENTS, attachments);
+				}
+				catch (PermissionException e)
+				{
+					addAlert(state, rb.getString("notpermis4"));
+				}
+				catch(RuntimeException e)
+				{
+					if(m_contentHostingService.ID_LENGTH_EXCEPTION.equals(e.getMessage()))
+					{
+						// couldn't we just truncate the resource-id instead of rejecting the upload?
+						addAlert(state, rb.getFormattedMessage("alert.toolong", new String[]{name}));
+					}
+					else
+					{
+						M_log.debug(this + ".doAttachupload ***** Runtime Exception ***** " + e.getMessage());
+						addAlert(state, rb.getString("failed"));
+					}
+				}
+
+				catch(Exception ignore)
+				{
+					// other exceptions should be caught earlier
+					M_log.debug(this + ".doAttachupload ***** Unknown Exception ***** " + ignore.getMessage());
+				}
+			}
+			else
+			{
+				addAlert(state, rb.getString("choosefile7"));
+			}
+		}
+
+
+	}	// doAttachupload
+	
+    /**
+     * remove all security advisors
+     */
+    protected void disableSecurityAdvisors()
+    {
+    	// remove all security advisors
+    	SecurityService.clearAdvisors();
+    }
+
+    /**
+     * Establish a security advisor to allow the "embedded" azg work to occur
+     * with no need for additional security permissions.
+     */
+    protected void enableSecurityAdvisor()
+    {
+      // put in a security advisor so we can create citationAdmin site without need
+      // of further permissions
+      SecurityService.pushAdvisor(new SecurityAdvisor() {
+        public SecurityAdvice isAllowed(String userId, String function, String reference)
+        {
+          return SecurityAdvice.ALLOWED;
+        }
+      });
+    }
 }	

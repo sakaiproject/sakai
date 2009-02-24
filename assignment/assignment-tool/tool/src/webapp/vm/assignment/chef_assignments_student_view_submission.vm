@@ -100,6 +100,7 @@
 			## ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION = 2;
 			## TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION = 3;
 			## NON_ELECTRONIC_ASSIGNMENT_SUBMISSION = 4;
+			## SINGLE_ATTACHMENT_SUBMISSION = 5
 			<p class="instruction">
 				#if (($submissionType==1) || ($submissionType==3))
 					 $tlang.getString("stuviewsubm.asshasnot")
@@ -384,7 +385,7 @@
 				<input type="submit" accesskey="x" name="eventSubmit_doCancel_show_submission" value="$tlang.getString('gen.don')" />
 			</form>
 		#else
-	<form name="addSubmissionForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
+	<form name="addSubmissionForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;" enctype="multipart/form-data">
 		<input type="hidden" name="eventSubmit_doRead_add_submission_form" value="x" />
 		<input type="hidden" name="option" value="cancel" />
 		<input type="hidden" name="assignmentId" value="$assignment.Reference" />
@@ -512,6 +513,17 @@
 										/>
 									#end
 					</p>
+				#end
+				
+				## for single file upload case
+				#if ($submissionType==5)
+					<div class="highlightPanel">
+						<p class="shorttext">
+							<label for="upload">$tlang.getString("att.upl")</label>
+							<input type="file" name="upload" id="upload" class="upload" />
+							<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
+						</p>	
+			 	</div>
 				#end
 				#if ($returned && $!timeReturned && ($!timeSubmitted && $!timeReturned && $!timeReturned.after($!timeSubmitted) || !$!timeSubmitted))
 					#if (($!submission.FeedbackComment) && ($submission.FeedbackComment.trim().length()>0))
@@ -669,6 +681,8 @@
 								value="$!name"
 								onclick="document.addSubmissionForm.onsubmit();showNotif('submitnotif','post','addSubmissionForm'); document.addSubmissionForm.option.value='post'; document.addSubmissionForm.submit(); return false;"
 							/>
+					## for single file upload case, no need for preview or save draft
+					#if ($submissionType!=5)
 							<input
 								class="disableme" 
 								type="button" 
@@ -687,6 +701,7 @@
 								value="$tlang.getString("gen.savdra")"
 								onclick="document.addSubmissionForm.onsubmit();showNotif('submitnotif','save','addSubmissionForm');document.addSubmissionForm.option.value='save'; document.addSubmissionForm.submit(); return false;"
 							/>
+							#end
 							<input 
 								class="disableme"
 								type="button" 
