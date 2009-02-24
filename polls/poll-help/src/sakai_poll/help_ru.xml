@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <bean id="pollOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>poll_ru</value>
+        </property>
+        <property name="name">
+            <value>Опросы: Обзор</value>
+        </property>
+        <property name="location">
+            <value>/sakai_poll/poll_ru.html</value>
+        </property>
+		<property name="defaultForTool">
+			<value>sakai.poll</value>
+		</property>
+    </bean>
+  
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+        <property name="name">
+            <value>root</value>
+        </property>
+        <property name="categories">
+            <list>
+                <bean id="pollCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+                    <property name="name">
+                        <value>Опросы</value>
+                    </property>
+                    <property name="resources">
+                        <list>
+                            <ref bean="pollOverview"/>
+                        </list>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+</beans>
