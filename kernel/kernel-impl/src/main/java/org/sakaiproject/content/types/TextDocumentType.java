@@ -44,6 +44,7 @@ import org.sakaiproject.content.types.FileUploadType.FileUploadDeleteAction;
 import org.sakaiproject.content.types.FileUploadType.FileUploadDuplicateAction;
 import org.sakaiproject.content.types.FileUploadType.FileUploadMoveAction;
 import org.sakaiproject.content.types.FileUploadType.FileUploadReviseAction;
+import org.sakaiproject.content.util.BaseInteractionAction;
 import org.sakaiproject.content.util.BaseResourceType;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -162,7 +163,7 @@ public class TextDocumentType extends BaseResourceType
 
 		public String initializeAction(Reference reference) 
 		{
-			return null;
+			return BaseInteractionAction.getInitializationId(reference.getReference(), this.getTypeId(), this.getId());
 		}
 	}
 
@@ -460,7 +461,7 @@ public class TextDocumentType extends BaseResourceType
 
 		public String initializeAction(Reference reference) 
 		{
-			return null;
+			return BaseInteractionAction.getInitializationId(reference.getReference(), this.getTypeId(), this.getId());
 			
 		}
 
@@ -727,7 +728,7 @@ public class TextDocumentType extends BaseResourceType
 
 		public String initializeAction(Reference reference) 
 		{
-			return null;
+			return  BaseInteractionAction.getInitializationId(reference.getReference(), this.getTypeId(), this.getId());
 		}
 
 	}
@@ -789,8 +790,7 @@ public class TextDocumentType extends BaseResourceType
 
 		public String initializeAction(Reference reference) 
 		{
-			// TODO Auto-generated method stub
-			return null;
+			return BaseInteractionAction.getInitializationId(reference.getReference(), this.getTypeId(), this.getId());
 		}
 
 	}

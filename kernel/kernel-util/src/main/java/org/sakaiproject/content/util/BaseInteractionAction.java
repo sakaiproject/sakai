@@ -77,8 +77,28 @@ public class BaseInteractionAction extends BaseResourceAction implements Interac
     * @return
     */
    public String initializeAction(Reference reference) {
-      return null;
+      return getInitializationId(reference.getReference(), this.getTypeId(), this.getId());
    }
+
+   /**
+    * Construct a m initialization id for an action
+    * @param refStr
+    * @param typeId
+    * @param actionId
+    * @return
+    */
+	public static String getInitializationId(String refStr, String typeId, String actionId) 
+	{
+		StringBuilder buf = new StringBuilder();
+		
+		buf.append(refStr);
+		buf.append("?type=");
+		buf.append(typeId);
+		buf.append("&action=");
+		buf.append(actionId);
+		
+		return  buf.toString();
+	}
 
    /**
     * ResourcesAction calls this method after completion of its portion of the action.
