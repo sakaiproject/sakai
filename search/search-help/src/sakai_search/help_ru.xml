@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="searchContent1" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>search_content1_ru</value>
+    </property>
+    <property name="name">
+      <value>Поиск: обзор</value>
+    </property>
+    <property name="location">
+      <value>/sakai_search/overview_ru.htm</value>
+    </property>
+    <property name="defaultForTool"><value>sakai.search</value></property>
+
+  </bean>
+  <bean id="searchContent2" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>search_content2_ru</value>
+    </property>
+    <property name="name">
+      <value>Простой поиск</value>
+    </property>
+    <property name="location">
+      <value>/sakai_search/basic_search_ru.htm</value>
+    </property>
+  </bean>
+  <bean id="searchContent3" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>search_content3_ru</value>
+    </property>
+    <property name="name">
+      <value>Расширенный поиск</value>
+    </property>
+    <property name="location">
+      <value>/sakai_search/advanced_search_ru.htm</value>
+    </property>
+  </bean>
+  <bean id="searchContent4" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>search_content4_ru</value>
+    </property>
+    <property name="name">
+      <value>Администрирование</value>
+    </property>
+    <property name="location">
+      <value>/sakai_search/administration_ru.htm</value>
+    </property>
+  </bean>
+  <bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+    <property name="name">
+      <value>root</value>
+    </property>
+    <property name="categories">
+      <list>
+        <bean id="search1" class="org.sakaiproject.component.app.help.model.CategoryBean">
+          <property name="name">
+            <value>Поиск</value>
+          </property>
+          <property name="resources">
+            <list>
+              <ref bean="searchContent1"/>
+              <ref bean="searchContent2"/>
+              <ref bean="searchContent3"/>
+              <ref bean="searchContent4"/>
+            </list>
+          </property>
+        </bean>
+      </list>
+    </property>
+  </bean>
+</beans>
