@@ -1,0 +1,173 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <bean id="mcOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>asax_ru</value>
+        </property>
+        <property name="name">
+            <value>Обсуждения: Обзор </value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/asax_ru.html</value>
+        </property>
+		<property name="defaultForTool">
+			<value>sakai.forums</value>
+		</property>
+    </bean>
+    <bean id="mcCreateForumTopic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>asci_ru</value>
+        </property>
+        <property name="name">
+            <value>Создание новых форумов и новых тем</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/asci_ru.html</value>
+        </property>
+    </bean>
+<!--    <bean id="mcCreateModeratedForum" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>avar</value>
+        </property>
+        <property name="name">
+            <value>Create a moderated forum</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/avar.html</value>
+        </property>
+    </bean>
+    <bean id="mcChangeOrder" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>ausz</value>
+        </property>
+        <property name="name">
+            <value>Change the order of forums and topics</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/ausz.html</value>
+        </property>
+    </bean>
+    <bean id="mcPermissions" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>atdt</value>
+        </property>
+        <property name="name">
+            <value>Control access to Forums</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/atdt.html</value>
+        </property>
+    </bean>
+    <bean id="mcRevise" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>atdk</value>
+        </property>
+        <property name="name">
+            <value>Revise or delete a forum or topic</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/atdk.html</value>
+        </property>
+    </bean>
+    <bean id="mcDeleteMessage" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>auul</value>
+        </property>
+        <property name="name">
+            <value>Delete a forum message</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/auul.html</value>
+        </property>
+    </bean>
+    <bean id="mcView" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>asbe</value>
+        </property>
+        <property name="name">
+            <value>View Forums</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/asbe.html</value>
+        </property>
+    </bean>
+    <bean id="mcPost" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>asyy</value>
+        </property>
+        <property name="name">
+            <value>Post and respond to Forum messages</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/asyy.html</value>
+        </property>
+    </bean> -->
+    <bean id="mcGrade" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>augf_ru</value>
+        </property>
+        <property name="name">
+            <value>Оценка сообщений</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/augf_ru.html</value>
+        </property>
+    </bean>
+<!--    <bean id="mcStats" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>avai</value>
+        </property>
+        <property name="name">
+            <value>Participation Statistics</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/avai.html</value>
+        </property>
+    </bean>
+    <bean id="mcNotification" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>auut</value>
+        </property>
+        <property name="name">
+            <value>Message notifications</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/auut.html</value>
+        </property>
+	<property name="defaultForTool">
+		<value>sakai.synoptic.messagecenter</value>
+	</property>
+    </bean> -->
+    
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+        <property name="name">
+            <value>root</value>
+        </property>
+        <property name="categories">
+            <list>
+                <bean id="forumsCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+                    <property name="name">
+                        <value>Обсуждения</value>
+                    </property>
+                    <property name="resources">
+                        <list>
+                            <ref bean="mcOverview"/>
+                            <ref bean="mcCreateForumTopic"/>
+                            <!-- <ref bean="mcCreateModeratedForum"/>
+                            <ref bean="mcChangeOrder"/>
+                            <ref bean="mcPermissions"/>
+                            <ref bean="mcRevise"/>
+                            <ref bean="mcDeleteMessage"/>
+                            <ref bean="mcView"/>
+                            <ref bean="mcPost"/> -->
+                            <ref bean="mcGrade" />
+                            <!-- <ref bean="mcStats" />
+                            <ref bean="mcNotification" /> -->
+                        </list>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+</beans>
