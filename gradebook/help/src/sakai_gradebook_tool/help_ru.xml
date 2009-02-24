@@ -1,0 +1,215 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <bean id="gradebookOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>arap_ru</value>
+        </property>
+        <property name="name">
+            <value>"Зачетная книжка": обзор</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/arap_ru.html</value>
+        </property>
+		<property name="defaultForTool"><value>sakai.gradebook.tool</value></property>
+    </bean>
+    <bean id="gradebookAddItem" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>aran_ru</value>
+        </property>
+        <property name="name">
+            <value>Создание, изменение и удаление заданий</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/aran_ru.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookItemDetails" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>aras_ru</value>
+        </property>
+        <property name="name">
+            <value>Просмотр деталей задания в "Зачётной книжке"</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/aras_ru.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookEnteringScores" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>araj_ru</value>
+        </property>
+        <property name="name">
+            <value>Ввод и редактирование оценок</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/araj_ru.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookComment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>auus_ru</value>
+        </property>
+        <property name="name">
+            <value>Комментирование оценок</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/auus_ru.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookUploadingScores" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>aukf_ru</value>
+        </property>
+        <property name="name">
+            <value>Импорт оценок из электронной таблицы</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/aukf_ru.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookImportExisting" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>avdo_ru</value>
+        </property>
+        <property name="name">
+            <value>Импортирование оценок в задания</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/avdo_ru.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookSorting" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>arby_ru</value>
+        </property>
+        <property name="name">
+            <value>Сортировка таблиц в "Зачётной книжке"</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/arby_ru.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookFeedbackOptions" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>arah_ru</value>
+        </property>
+        <property name="name">
+            <value>Выдача оценок студентам</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/arah_ru.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookRoster" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>aqzg_ru</value>
+        </property>
+        <property name="name">
+            <value>Просмотр и экспорт оценок студентов</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/aqzg_ru.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookExportScores" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>aqzt_ru</value>
+        </property>
+        <property name="name">
+            <value>Экспорт оценок из "Зачетной книжки"</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/aqzt_ru.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookCourseGradeOverride" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>arbv_ru</value>
+        </property>
+        <property name="name">
+            <value>Анннулирование автоматически выставленной оценки</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/arbv_ru.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookCumulativeScores" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>asbw_ru</value>
+        </property>
+        <property name="name">
+            <value>Просмотр оценок за курс</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/asbw_ru.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookCategories" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>avdp_ru</value>
+        </property>
+        <property name="name">
+            <value>Использование категорий и весов оценок</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/avdp_ru.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookCalculation" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>awpx_ru</value>
+        </property>
+        <property name="name">
+            <value>Как категории и веса влияют на подсчет оценки</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/awpx_ru.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookEntryTypeScale" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>atfl_ru</value>
+        </property>
+        <property name="name">
+            <value>Изменение единиц, типа и шкалы оценок</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/atfl_ru.html</value>
+        </property>
+    </bean>
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+        <property name="name">
+            <value>root</value>
+        </property>
+        <property name="categories">
+            <list>
+                <bean id="gradebookCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+                    <property name="name">
+                        <value>Зачетная книжка</value>
+                    </property>
+                    <property name="resources">
+                        <list>
+                            <ref bean="gradebookOverview"/>
+                            <ref bean="gradebookAddItem"/>
+                            <ref bean="gradebookItemDetails"/>
+                            <ref bean="gradebookEnteringScores"/>
+                            <ref bean="gradebookComment"/>
+                            <ref bean="gradebookUploadingScores"/>
+                            <ref bean="gradebookImportExisting"/>
+                            <ref bean="gradebookSorting"/>
+                            <ref bean="gradebookRoster"/>
+                            <ref bean="gradebookCumulativeScores"/>
+                            <ref bean="gradebookCourseGradeOverride"/>
+                            <ref bean="gradebookFeedbackOptions"/>
+                            <ref bean="gradebookExportScores"/>
+                            <ref bean="gradebookCategories"/>
+                            <ref bean="gradebookCalculation"/>
+                            <ref bean="gradebookEntryTypeScale"/>
+                        </list>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+</beans>
