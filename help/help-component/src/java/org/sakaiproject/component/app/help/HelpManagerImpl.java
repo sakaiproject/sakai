@@ -1113,6 +1113,20 @@ public List getActiveContexts(Map session)
     setTableOfContents(externalToc);
   }
 
+   /**
+	 ** @return Locale based on its string representation (language_region)
+    **/
+	private Locale getLocaleFromString(String localeString)
+	{
+		String[] locValues = localeString.trim().split("_");
+		if (locValues.length > 1)
+			return new Locale(locValues[0], locValues[1]); // language, country
+		else if (locValues.length == 1)
+			return new Locale(locValues[0]); // just language
+		else
+			return Locale.getDefault();
+	}
+
   /**
    * Adds help for a specific locale
    * @param path
@@ -1120,17 +1134,34 @@ public List getActiveContexts(Map session)
    */
   private void addToolHelp(String path, String locale)
   {
-    // Get localized help file
-	String file;
-	if (locale.equals(DEFAULT_LOCALE)) {
-		file = HELP_BASENAME + ".xml";
-	}
-	else {
-		file = HELP_BASENAME + "_" + locale + ".xml";
-	}
-	String classpathUrl = path + "/" + file;
-    URL urlResource = getClass().getResource(classpathUrl);
-
+    URL urlResource = null;
+    String classpathUrl = null;
+    
+    // find default help file
+    if ( locale.equals(DEFAULT_LOCALE) ) {
+       classpathUrl = path + File.separator + HELP_BASENAME + ".xml";
+       urlResource = getClass().getResource(classpathUrl);
+    }
+    
+    // find localized help file
+    else {
+       classpathUrl = path + File.separator + HELP_BASENAME + "_" + locale + ".xml";
+       urlResource = getClass().getResource(classpathUrl);
+       
+       // If language/region help file not found, look for language-only help file
+       if ( urlResource == null ) {
+          Locale nextLocale = getLocaleFromString(locale);
+          classpathUrl = path + File.separator + HELP_BASENAME + "_" + nextLocale.getLanguage() + ".xml";
+          urlResource = getClass().getResource(classpathUrl);
+       }
+       
+       // If language-only help file not found, look for default help file
+       if ( urlResource == null ) {
+          classpathUrl = path + File.separator + HELP_BASENAME + ".xml";
+          urlResource = getClass().getResource(classpathUrl);
+       }
+    }
+     
     // Url exists?
     if (urlResource != null)
     {
