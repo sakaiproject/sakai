@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="assignmentOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardn_ru</value></property>
+      <property name="name"><value>Задания: обзор</value></property>
+      <property name="location"><value>/sakai_assignment_grades/ardn_ru.html</value></property>
+      <property name="defaultForTool"><value>sakai.assignment</value></property>
+   </bean>
+
+   <bean id="createAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>arbs_ru</value></property>
+      <property name="name"><value>Добавление, изменение и удаление задания</value></property>
+      <property name="location"><value>/sakai_assignment_grades/arbs_ru.html</value></property>
+   </bean>
+   
+   <bean id="gradingAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arda_ru</value></property>
+      <property name="name"><value>Оценка задания и просмотр статуса работы</value></property>
+      <property name="location"><value>/sakai_assignment_grades/arda_ru.html</value></property>
+   </bean>
+    
+   <bean id="reviseAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzj_ru</value></property>
+      <property name="name"><value>Просмотр внешнего вида заданий</value></property>
+      <property name="location"><value>/sakai_assignment_grades/aqzj_ru.html</value></property>
+   </bean>  
+   <bean id="returnAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardd_ru</value></property>
+      <property name="name"><value>Возврат работы студенту</value></property>
+      <property name="location"><value>/sakai_assignment_grades/ardd_ru.html</value></property>
+   </bean>   
+   <bean id="resubmitAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcy_ru</value></property>
+      <property name="name"><value>Пересдача заданий</value></property>
+      <property name="location"><value>/sakai_assignment_grades/arcy_ru.html</value></property>
+   </bean>   
+   <bean id="exportAssignmentGrade" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcd_ru</value></property>
+      <property name="name"><value>Экспорт оценок</value></property>
+      <property name="location"><value>/sakai_assignment_grades/arcd_ru.html</value></property>
+   </bean>   
+   <bean id="readAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aren_ru</value></property>
+      <property name="name"><value>Чтение или загрузка работ</value></property>
+      <property name="location"><value>/sakai_assignment_grades/aren_ru.html</value></property>
+   </bean>  
+   <bean id="duplicateAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardj_ru</value></property>
+      <property name="name"><value>Дублирование задания</value></property>
+      <property name="location"><value>/sakai_assignment_grades/ardj_ru.html</value></property>
+   </bean>   
+   <bean id="submitAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbm_ru</value></property>
+      <property name="name"><value>Выполнение и сдача задания</value></property>
+      <property name="location"><value>/sakai_assignment_grades/arbm_ru.html</value></property>
+   </bean>   
+   <bean id="postAssignment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbk_ru</value></property>
+      <property name="name"><value>Отправка задания, сохраненного как черновик</value></property>
+      <property name="location"><value>/sakai_assignment_grades/arbk_ru.html</value></property>
+   </bean>   
+   <bean id="assignmentHonorPledge" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbi_ru</value></property>
+      <property name="name"><value>Подтверждение самостоятельной работы</value></property>
+      <property name="location"><value>/sakai_assignment_grades/arbi_ru.html</value></property>
+   </bean>   
+   <bean id="checkAssignmentGrade" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbg_ru</value></property>
+      <property name="name"><value>Просмотр оценки за выполненное задание</value></property>
+      <property name="location"><value>/sakai_assignment_grades/arbg_ru.html</value></property>
+   </bean>
+   <bean id="assignmentGbMethods" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>avnd_ru</value></property>
+      <property name="name"><value>Связывание задания с зачетной книжкой</value></property>
+      <property name="location"><value>/sakai_assignment_grades/avnd_ru.html</value></property>
+   </bean>
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="assignmentCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Задания</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="assignmentOverview"/>
+                     <ref bean="createAssignment"/>
+                     <ref bean="assignmentGbMethods"/>
+					 <ref bean="gradingAssignment"/>
+                     			 <ref bean="reviseAssignment"/>					 
+					 <ref bean="returnAssignment"/>
+					 <ref bean="resubmitAssignment"/>
+					 <ref bean="exportAssignmentGrade"/>
+					 <ref bean="readAssignment"/>
+					 <ref bean="duplicateAssignment"/>
+					 <ref bean="submitAssignment"/>
+					 <ref bean="postAssignment"/>
+					 <ref bean="assignmentHonorPledge"/>
+					 <ref bean="checkAssignmentGrade"/>
+                     
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
