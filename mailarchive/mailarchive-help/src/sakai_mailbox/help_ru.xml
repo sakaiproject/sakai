@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="emailArchiveOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardh_ru</value></property>
+      <property name="name"><value>Архив электронной почты: обзор</value></property>
+      <property name="location"><value>/sakai_mailbox/ardh_ru.html</value></property>
+      <property name="defaultForTool"><value>sakai.mailbox</value></property>
+   </bean>
+
+   <bean id="customizeEmailArchive" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>ares_ru</value></property>
+      <property name="name"><value>Настройка "Архива электронной почты"</value></property>
+      <property name="location"><value>/sakai_mailbox/ares_ru.html</value></property>
+   </bean>
+
+      <bean id="readEmailArchive" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>argm_ru</value></property>
+      <property name="name"><value>Чтение писем</value></property>
+      <property name="location"><value>/sakai_mailbox/argm_ru.html</value></property>
+   </bean>
+   
+   <bean id="sendMail" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arew_ru</value></property>
+      <property name="name"><value>Отправка писем участникам сайта</value></property>
+      <property name="location"><value>/sakai_mailbox/arew_ru.html</value></property>
+   </bean>
+
+   <bean id="controlEmail" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aree_ru</value></property>
+      <property name="name"><value>Права доступа к отправке писем</value></property>
+      <property name="location"><value>/sakai_mailbox/aree_ru.html</value></property>
+   </bean>
+   
+   <bean id="manageEmail" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arem_ru</value></property>
+      <property name="name"><value>Отправка и получение писем</value></property>
+      <property name="location"><value>/sakai_mailbox/arem_ru.html</value></property>
+   </bean>
+   
+    <bean id="searchMessages" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcp_ru</value></property>
+      <property name="name"><value>Поиск писем</value></property>
+      <property name="location"><value>/sakai_mailbox/arcp_ru.html</value></property>
+   </bean>
+   
+   <bean id="createEmailArchive" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardl_ru</value></property>
+      <property name="name"><value>Добавление инструмента "Архив электронной почты"</value></property>
+      <property name="location"><value>/sakai_mailbox/ardl_ru.html</value></property>
+   </bean>
+   
+   <bean id="deleteMessage" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcn_ru</value></property>
+      <property name="name"><value>Удаление писем</value></property>
+      <property name="location"><value>/sakai_mailbox/arcn_ru.html</value></property>
+   </bean>
+   
+   <!-- <bean id="messageFormatting" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>araq_ru</value></property>
+      <property name="name"><value>Email Message Formatting and Attachments</value></property>
+      <property name="location"><value>/sakai_mailbox/araq_ru.html</value></property>
+   </bean> -->
+   
+   <bean id="controlDisplayedNumber" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arck_ru</value></property>
+      <property name="name"><value>Число отображаемых сообщений</value></property>
+      <property name="location"><value>/sakai_mailbox/arck_ru.html</value></property>
+   </bean>
+   
+   <bean id="setEmailAlias" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardz_ru</value></property>
+      <property name="name"><value>Адрес архива электронной почты сайта</value></property>
+      <property name="location"><value>/sakai_mailbox/ardz_ru.html</value></property>
+   </bean>
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="emailArchiveCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Архив электронной почты</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="emailArchiveOverview"/>
+                     <ref bean="customizeEmailArchive"/>
+                     <ref bean="readEmailArchive"/>
+                     <ref bean="sendMail"/>
+                     <ref bean="controlEmail"/>
+                     <ref bean="manageEmail"/>
+                     <ref bean="searchMessages"/>
+                     <ref bean="createEmailArchive"/>
+                     <ref bean="deleteMessage"/>
+                     <!-- <ref bean="messageFormatting"/> -->
+                     <ref bean="controlDisplayedNumber"/>
+                     <ref bean="setEmailAlias"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
