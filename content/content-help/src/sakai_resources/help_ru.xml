@@ -1,0 +1,198 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+   <bean id="resourceIndex" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arfs_ru</value></property>
+      <property name="name"><value>Ресурсы</value></property>
+      <property name="location"><value>/sakai_resources/arfs_ru.html</value></property>
+      <property name="defaultForTool"><value>sakai.resources</value></property>      
+   </bean>
+
+   <bean id="resourceOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>area_ru</value></property>
+      <property name="name"><value>Ресурсы: обзор</value></property>
+      <property name="location"><value>/sakai_resources/area_ru.html</value></property>
+   </bean>
+
+   <bean id="usingFolders" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>avbw_ru</value></property>
+      <property name="name"><value>Работа с папками</value></property>
+      <property name="location"><value>/sakai_resources/avbw_ru.html</value></property>
+   </bean>
+
+   <bean id="usingFiles" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>avby_ru</value></property>
+      <property name="name"><value>Работа с файлами</value></property>
+      <property name="location"><value>/sakai_resources/avby_ru.html</value></property>
+   </bean>
+
+   <bean id="usingLinks" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>avbz_ru</value></property>
+      <property name="name"><value>Работа со ссылками</value></property>
+      <property name="location"><value>/sakai_resources/avbz_ru.html</value></property>
+   </bean>
+
+   <bean id="usingHtml" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>avcb_ru</value></property>
+      <property name="name"><value>Работа с HTML-страницами</value></property>
+      <property name="location"><value>/sakai_resources/avcb_ru.html</value></property>
+   </bean>
+
+   <bean id="usingText" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>avcc_ru</value></property>
+      <property name="name"><value>Работа с текстовыми документами</value></property>
+      <property name="location"><value>/sakai_resources/avcc_ru.html</value></property>
+   </bean>
+
+   <bean id="usingCitation" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>avcd_ru</value></property>
+      <property name="name"><value>Работа со спиками литературы</value></property>
+      <property name="location"><value>/sakai_resources/avcd_ru.html</value></property>
+   </bean>
+
+   <bean id="makePublic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>atkh_ru</value></property>
+      <property name="name"><value>Установка публичного доступа</value></property>
+      <property name="location"><value>/sakai_resources/atkh_ru.html</value></property>
+   </bean>
+
+   <bean id="findURL" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>auen_ru</value></property>
+      <property name="name"><value>Определние URL</value></property>
+      <property name="location"><value>/sakai_resources/auen_ru.html</value></property>
+   </bean>
+
+   <bean id="moveResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arex_ru</value></property>
+      <property name="name"><value>Перемещение</value></property>
+      <property name="location"><value>/sakai_resources/arex_ru.html</value></property>
+   </bean>
+
+   <bean id="viewResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbe_ru</value></property>
+      <property name="name"><value>Просмотр/открытие</value></property>
+      <property name="location"><value>/sakai_resources/arbe_ru.html</value></property>
+   </bean>
+
+   <bean id="copyResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqyf_ru</value></property>
+      <property name="name"><value>Копирование</value></property>
+      <property name="location"><value>/sakai_resources/aqyf_ru.html</value></property>
+   </bean>
+
+   <bean id="renameResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arsl_ru</value></property>
+      <property name="name"><value>Переименование</value></property>
+      <property name="location"><value>/sakai_resources/arsl_ru.html</value></property>
+   </bean>
+
+   <bean id="deleteResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>avcg_ru</value></property>
+      <property name="name"><value>Удаление</value></property>
+      <property name="location"><value>/sakai_resources/avcg_ru.html</value></property>
+   </bean>
+
+   <bean id="sortResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aukb_ru</value></property>
+      <property name="name"><value>Изменение последовательности</value></property>
+      <property name="location"><value>/sakai_resources/aukb_ru.html</value></property>
+   </bean>
+    
+   <bean id="itemDetails" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arfd_ru</value></property>
+      <property name="name"><value>Просмотр информации</value></property>
+      <property name="location"><value>/sakai_resources/arfd_ru.html</value></property>
+   </bean>
+
+   <bean id="groupFolders" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aude_ru</value></property>
+      <property name="name"><value>Создание папок для блоков участников</value></property>
+      <property name="location"><value>/sakai_resources/aude_ru.html</value></property>
+   </bean>
+
+   <bean id="changePermissions" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>audh_ru</value></property>
+      <property name="name"><value>Изменение прав доступа к папке</value></property>
+      <property name="location"><value>/sakai_resources/audh_ru.html</value></property>
+   </bean>
+
+   <bean id="unHide" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>auta_ru</value></property>
+      <property name="name"><value>Отмена даты окончания</value></property>
+      <property name="location"><value>/sakai_resources/auta_ru.html</value></property>
+   </bean>
+
+   <bean id="unsupportedChars" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>auze_ru</value></property>
+      <property name="name"><value>Неподдерживаемые символы</value></property>
+      <property name="location"><value>/sakai_resources/auze_ru.html</value></property>
+   </bean>
+
+   <bean id="webDavOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqyy_ru</value></property>
+      <property name="name"><value>WebDAV: обзор</value></property>
+      <property name="location"><value>/sakai_resources/aqyy_ru.html</value></property>
+   </bean>
+
+   <bean id="winxpAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>araf_ru</value></property>
+      <property name="name"><value>WebDAV в Windows XP или Vista</value></property>
+      <property name="location"><value>/sakai_resources/araf_ru.html</value></property>
+   </bean>
+
+   <bean id="macAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqyi_ru</value></property>
+      <property name="name"><value>WebDAV в Mac OS X</value></property>
+      <property name="location"><value>/sakai_resources/aqyi_ru.html</value></property>
+   </bean>
+
+   <bean id="siteId" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>atla_ru</value></property>
+      <property name="name"><value>Определение ID сайта</value></property>
+      <property name="location"><value>/sakai_resources/atla_ru.html</value></property>
+   </bean>
+   
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="resourceCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Ресурсы</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="resourceIndex"/>
+                     <ref bean="resourceOverview"/>
+                     <ref bean="viewResource"/>
+                     <ref bean="itemDetails"/>
+                     <ref bean="usingFolders"/>
+                     <ref bean="usingFiles"/>
+                     <ref bean="usingLinks"/>
+                     <ref bean="usingHtml"/>
+                     <ref bean="usingText"/>
+                     <ref bean="usingCitation"/>
+                     <ref bean="makePublic"/>
+                     <ref bean="findURL"/>
+                     <ref bean="moveResource"/>
+                     <ref bean="copyResource"/>
+                     <ref bean="renameResource"/>
+                     <ref bean="deleteResource"/>
+                     <ref bean="sortResource"/>
+                     <ref bean="groupFolders"/>
+                     <ref bean="changePermissions"/>
+                     <ref bean="unHide"/>
+                     <ref bean="unsupportedChars"/>
+                     <ref bean="webDavOverview"/>
+                     <ref bean="winxpAccess"/>
+                     <ref bean="macAccess"/>
+                     <ref bean="siteId"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>

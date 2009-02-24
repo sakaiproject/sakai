@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="dropBoxOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arfc_ru</value></property>
+      <property name="name"><value>Обмен файлами: обзор</value></property>
+      <property name="location"><value>/sakai_dropbox/arfc_ru.html</value></property>
+      <property name="defaultForTool"><value>sakai.dropbox</value></property>
+   </bean>
+   
+   <bean id="addDropboxFolder" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzb_ru</value></property>
+      <property name="name"><value>Добавление, редактирование и удаление папок</value></property>
+      <property name="location"><value>/sakai_dropbox/aqzb_ru.html</value></property>
+   </bean>
+   
+   <bean id="addDropboxItem" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqyu_ru</value></property>
+      <property name="name"><value>Добавление, редактирование и удаление файлов</value></property>
+      <property name="location"><value>/sakai_dropbox/aqyu_ru.html</value></property>
+   </bean>
+   
+   <bean id="reviseDropbox" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzl_ru</value></property>
+      <property name="name"><value>Изменение информации</value></property>
+      <property name="location"><value>/sakai_dropbox/aqzl_ru.html</value></property>
+   </bean>
+   
+   <bean id="viewDropbox" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzd_ru</value></property>
+      <property name="name"><value>Просмотр папок обмена файлами </value></property>
+      <property name="location"><value>/sakai_dropbox/aqzd_ru.html</value></property>
+   </bean>
+   
+   <bean id="copyDropbox" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardv_ru</value></property>
+      <property name="name"><value>Перемещение объектов в другую папку</value></property>
+      <property name="location"><value>/sakai_dropbox/ardv_ru.html</value></property>
+   </bean>
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="dropBoxCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Обмен файлами</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="dropBoxOverview"/>
+					<ref bean="addDropboxFolder"/>
+					<ref bean="addDropboxItem"/>
+					<ref bean="reviseDropbox"/>
+					<ref bean="viewDropbox"/>
+					<ref bean="copyDropbox"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
