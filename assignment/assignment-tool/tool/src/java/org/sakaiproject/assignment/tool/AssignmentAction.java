@@ -3125,7 +3125,7 @@ public class AssignmentAction extends PagedResourceActionII
 									User[] submitters = aSubmission.getSubmitters();
 									if (submitters != null && submitters.length > 0) {
 										String submitterId = submitters[0].getId();
-										String gradeString = StringUtil.trimToNull(aSubmission.getGrade());
+										String gradeString = StringUtil.trimToNull(aSubmission.getGrade(false));
 										Double grade = gradeString != null ? Double.valueOf(displayGrade(state,gradeString)) : null;
 										m.put(submitterId, grade);
 									}
@@ -3171,7 +3171,7 @@ public class AssignmentAction extends PagedResourceActionII
 								AssignmentSubmission aSubmission = (AssignmentSubmission) AssignmentService
 										.getSubmission(submissionRef);
 								User[] submitters = aSubmission.getSubmitters();
-								String gradeString = displayGrade(state, StringUtil.trimToNull(aSubmission.getGrade()));
+								String gradeString = displayGrade(state, StringUtil.trimToNull(aSubmission.getGrade(false)));
 								if (submitters != null && submitters.length > 0)
 								{
 									if (associateGradebookAssignment != null)

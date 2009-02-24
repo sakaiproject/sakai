@@ -172,6 +172,13 @@ public interface AssignmentSubmission extends Entity
 	 * @return The Submission's grade..
 	 */
 	public String getGrade();
+	
+	/**
+	 * Access the submission grade, if overrideWithGradebookValue is true, the value inside Gradebook is returned. Otherwise, the grade stored inside Assignment side is returned
+	 * @param overrideWithGradebookValue
+	 * @return
+	 */
+	public String getGrade(boolean overrideWithGradebookValue);
 
 	/**
 	 * Access the grade recieved. When points-type, format it to one decimal place

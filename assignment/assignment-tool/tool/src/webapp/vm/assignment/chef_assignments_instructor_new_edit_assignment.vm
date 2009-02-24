@@ -525,10 +525,10 @@ $(document).ready(function() {
 						#foreach ($aAssignment in $!gradebookAssignments)
 							#if ($aAssignment.isExternallyMaintained())
 								## for external assignment
-								<option  value="$aAssignment.getExternalId()" #if($!associateGradebookAssignment.equals($aAssignment.getExternalId()))selected="selected"#end)>$aAssignment.Name</option>
+								<option  value="$validator.escapeHtml($aAssignment.getExternalId())" #if($!associateGradebookAssignment.equals($aAssignment.getExternalId()))selected="selected"#end)>$aAssignment.Name</option>
 							#else
 								## for internal assignment
-								<option  value="$aAssignment.Name" #if($!associateGradebookAssignment.equals($aAssignment.Name))selected="selected"#end)>$aAssignment.Name</option>
+								<option  value="$validator.escapeHtml($aAssignment.Name)" #if($!associateGradebookAssignment.equals($aAssignment.Name))selected="selected"#end)>$aAssignment.Name</option>
 							#end
 						#end
 					</select>

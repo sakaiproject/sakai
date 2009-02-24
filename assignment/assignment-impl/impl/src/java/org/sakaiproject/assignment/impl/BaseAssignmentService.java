@@ -75,6 +75,7 @@ import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
@@ -8792,29 +8793,50 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public String getGrade()
 		{
-			Assignment m = getAssignment();
-			String gAssignmentName = StringUtil.trimToNull(m.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
-			if (gAssignmentName != null)
+			return getGrade(true);
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		public String getGrade(boolean overrideWithGradebookValue)
+		{
+			if (!overrideWithGradebookValue)
 			{
-				GradebookService g = (GradebookService)  ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-				String gradebookUid = m.getContext();
-				if (g.isGradebookDefined(gradebookUid) && g.isAssignmentDefined(gradebookUid, gAssignmentName))
+				// use assignment submission grade
+				return m_grade;
+			}
+			else
+			{
+				// use grade from associated Gradebook
+				Assignment m = getAssignment();
+				String gAssignmentName = StringUtil.trimToNull(m.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+				if (gAssignmentName != null)
 				{
-					org.sakaiproject.service.gradebook.shared.Assignment gAssignment = g.getAssignment(gradebookUid, gAssignmentName);
-					Map studentMap = g.getViewableStudentsForItemForCurrentUser(gradebookUid, gAssignment.getId());
-					String userId = (String) m_submitters.get(0);
-					if (studentMap.containsKey(userId))
+					enableSecurityAdvisor();
+					
+					GradebookService g = (GradebookService)  ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+					String gradebookUid = m.getContext();
+					if (g.isGradebookDefined(gradebookUid) && g.isAssignmentDefined(gradebookUid, gAssignmentName))
 					{
-						// return student score from Gradebook
-						try
+						org.sakaiproject.service.gradebook.shared.Assignment gAssignment = g.getAssignment(gradebookUid, gAssignmentName);
+						Map studentMap = g.getViewableStudentsForItemForCurrentUser(gradebookUid, gAssignment.getId());
+						String userId = (String) m_submitters.get(0);
+						if (studentMap.containsKey(userId))
 						{
-							return g.getAssignmentScoreString(gradebookUid, gAssignmentName, userId);
-						}
-						catch (Exception e)
-						{
-							M_log.warn(this + " BaseAssignmentSubmission getGrade getAssignmentScoreString from GradebookService " + e.getMessage() + " context=" + m_context + " assignment id=" + m_assignment + " userId=" + userId + " gAssignmentName=" + gAssignmentName); 
+							// return student score from Gradebook
+							try
+							{
+								return g.getAssignmentScoreString(gradebookUid, gAssignmentName, userId);
+							}
+							catch (Exception e)
+							{
+								M_log.warn(this + " BaseAssignmentSubmission getGrade getAssignmentScoreString from GradebookService " + e.getMessage() + " context=" + m_context + " assignment id=" + m_assignment + " userId=" + userId + " gAssignmentName=" + gAssignmentName); 
+							}
 						}
 					}
+					
+					disableSecurityAdvisors();
 				}
 			}
 			return m_grade;
@@ -11201,13 +11223,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			if(cleanup == true)
 			{
-				SecurityService.pushAdvisor(new SecurityAdvisor() 
-				{
-					public SecurityAdvice isAllowed(String userId, String function, String reference)       
-					{    
-						return SecurityAdvice.ALLOWED;       
-					} 
-				});
+				enableSecurityAdvisor();
 
 				String toSiteId = toContext;
 				Iterator assignmentsIter = getAssignmentsForContext(toSiteId);
@@ -11250,7 +11266,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 		finally
 		{
-			SecurityService.popAdvisor();
+			enableSecurityAdvisor();
 		}
 	}
 
@@ -11307,6 +11323,31 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		return body;
 	}
+	
+    /**
+     * remove all security advisors
+     */
+    protected void disableSecurityAdvisors()
+    {
+    	// remove all security advisors
+    	SecurityService.clearAdvisors();
+    }
+
+    /**
+     * Establish a security advisor to allow the "embedded" azg work to occur
+     * with no need for additional security permissions.
+     */
+    protected void enableSecurityAdvisor()
+    {
+      // put in a security advisor so we can create citationAdmin site without need
+      // of further permissions
+      SecurityService.pushAdvisor(new SecurityAdvisor() {
+        public SecurityAdvice isAllowed(String userId, String function, String reference)
+        {
+          return SecurityAdvice.ALLOWED;
+        }
+      });
+    }
 
 } // BaseAssignmentService
 
