@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="permissionsOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arax_ru</value></property>
+      <property name="name"><value>Права доступа и роли: Обзор</value></property>
+      <property name="location"><value>/sakai_permissions/arax_ru.html</value></property>
+      <property name="defaultForTool"><value>sakai.permissions</value></property>      
+   </bean>
+   
+   <bean id="siteInfoChangeRoles" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arfb_ru</value></property>
+      <property name="name"><value>Изменение ролей участников</value></property>
+      <property name="location"><value>/sakai_permissions/arfb_ru.html</value></property>
+   </bean>
+   
+   <bean id="worksiteSetupChangeRoles" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardq_ru</value></property>
+      <property name="name"><value>Изменение ролей в "Моих сайтах"</value></property>
+      <property name="location"><value>/sakai_permissions/ardq_ru.html</value></property>
+   </bean>
+   
+   <bean id="participantRoles" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbu_ru</value></property>
+      <property name="name"><value>Роли участников</value></property>
+      <property name="location"><value>/sakai_permissions/arbu_ru.html</value></property>
+   </bean>
+   
+   <bean id="permissionsRolesTools" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>armh_ru</value></property>
+      <property name="name"><value>Права доступа, роли и инструменты</value></property>
+      <property name="location"><value>/sakai_permissions/armh_ru.html</value></property>
+   </bean>
+   
+   <bean id="worksiteSetupAddParticipants" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqyo_ru</value></property>
+      <property name="name"><value>Добавление, изменение, удаление участников через "Мои сайты"</value></property>
+      <property name="location"><value>/sakai_permissions/aqyo_ru.html</value></property>
+   </bean>
+   
+   <bean id="addParticipants" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arav_ru</value></property>
+      <property name="name"><value>Добавление, изменение, удаление участников</value></property>
+      <property name="location"><value>/sakai_permissions/arav_ru.html</value></property>
+   </bean>
+   
+   <bean id="siteInfoControlAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arci_ru</value></property>
+      <property name="name"><value>Настройки доступа к сайту</value></property>
+      <property name="location"><value>/sakai_permissions/arci_ru.html</value></property>
+   </bean>
+   
+   <bean id="createWorksites" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzr_ru</value></property>
+      <property name="name"><value>Создание/добавление, изменение и удаление сайтов</value></property>
+      <property name="location"><value>/sakai_permissions/aqzr_ru.html</value></property>
+   </bean>
+   
+   <bean id="worksiteSetupControlAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzw_ru</value></property>
+      <property name="name"><value>Настройки доступа к сайту через "Мои сайты"</value></property>
+      <property name="location"><value>/sakai_permissions/aqzw_ru.html</value></property>
+   </bean>
+   
+   <bean id="changePermissions" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardk_ru</value></property>
+      <property name="name"><value>Изменение прав доступа в инструменте</value></property>
+      <property name="location"><value>/sakai_permissions/ardk_ru.html</value></property>
+   </bean>
+   
+   <bean id="permissionsRelationships" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbp_ru</value></property>
+      <property name="name"><value>Типы, регламенты, роли и права доступа</value></property>
+      <property name="location"><value>/sakai_permissions/arbp_ru.html</value></property>
+   </bean>
+         
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="permissionsCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Права доступа и роли</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="permissionsOverview"/>
+                     <ref bean="siteInfoChangeRoles"/>
+                     <ref bean="worksiteSetupChangeRoles"/>
+					 <ref bean="participantRoles"/>
+					 <ref bean="permissionsRolesTools"/>
+					 <ref bean="worksiteSetupAddParticipants"/>
+					 <ref bean="addParticipants"/>
+					 <ref bean="siteInfoControlAccess"/>
+					 <ref bean="createWorksites"/>
+					 <ref bean="worksiteSetupControlAccess"/>
+					 <ref bean="changePermissions"/>
+					 <ref bean="permissionsRelationships"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>

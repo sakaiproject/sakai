@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="courseSitesOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardt_ru</value></property>
+      <property name="name"><value>Сайты курсов и сайты проектов: обзор</value></property>
+      <property name="location"><value>/sakai_course_sites/ardt_ru.html</value></property>
+      <property name="defaultForTool"><value>sakai.course.sites</value></property>      
+   </bean>
+   
+   <bean id="createWorksites" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzr_ru</value></property>
+      <property name="name"><value>Создание изменение и удаление сайтов</value></property>
+      <property name="location"><value>/sakai_course_sites/aqzr_ru.html</value></property>
+   </bean>
+   
+   <bean id="addParticipants" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqyo_ru</value></property>
+      <property name="name"><value>Добавление, изменение и удаление участников</value></property>
+      <property name="location"><value>/sakai_course_sites/aqyo_ru.html</value></property>
+   </bean>
+
+   <bean id="controlAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzw_ru</value></property>
+      <property name="name"><value>Настройки доступа к сайту</value></property>
+      <property name="location"><value>/sakai_course_sites/aqzw_ru.html</value></property>
+   </bean>
+   
+   <bean id="publishSite" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arad_ru</value></property>
+      <property name="name"><value>Публикация сайта</value></property>
+      <property name="location"><value>/sakai_course_sites/arad_ru.html</value></property>
+   </bean>
+    
+   <bean id="navigation" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzm_ru</value></property>
+      <property name="name"><value>Навигация на сайте</value></property>
+      <property name="location"><value>/sakai_course_sites/aqzm_ru.html</value></property>
+   </bean>
+  
+   <bean id="resetButton" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzn_ru</value></property>
+      <property name="name"><value>Кнопка "Обновить"</value></property>
+      <property name="location"><value>/sakai_course_sites/aqzn_ru.html</value></property>
+   </bean>
+   
+   <bean id="reviewProfile" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ards_ru</value></property>
+      <property name="name"><value>Проверка профиля</value></property>
+      <property name="location"><value>/sakai_course_sites/ards_ru.html</value></property>
+   </bean>
+         
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="courseSitesCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Сайты курсов и проектов</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="courseSitesOverview"/>
+                     <ref bean="createWorksites"/>
+                     <ref bean="addParticipants"/>
+                      <ref bean="controlAccess"/>
+                      <ref bean="publishSite"/>
+                     <ref bean="navigation"/>
+					 <ref bean="resetButton"/>
+					 <ref bean="reviewProfile"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>

@@ -1,0 +1,187 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="workspaceOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzy_ru</value></property>
+      <property name="name"><value>Мой сайт: Обзор</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/aqzy_ru.html</value></property>
+      <property name="defaultForTool"><value>sakai.iframe.myworkspace</value></property>
+   </bean>
+   
+   <bean id="customizeTabs" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arox_ru</value></property>
+      <property name="name"><value>Линейка сайтов</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arox_ru.html</value></property>
+   </bean>
+   
+   <bean id="changeNotificationPreferences" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzv_ru</value></property>
+      <property name="name"><value>Изменение настроек извещений </value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/aqzv_ru.html</value></property>
+   </bean>
+   
+   <bean id="addTools" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbj_ru</value></property>
+      <property name="name"><value>Добавление, изменение или удаление инструментов на "Моем сайте"</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arbj_ru.html</value></property>
+   </bean>
+   
+   <bean id="searchUserProfile" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardb_ru</value></property>
+      <property name="name"><value>Поиск пользователя по профилю</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/ardb_ru.html</value></property>
+   </bean>
+   
+   <bean id="setMOD" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcw_ru</value></property>
+      <property name="name"><value>Настройка инструмента "Новость дня" </value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arcw_ru.html</value></property>
+   </bean>
+   
+   <bean id="clickBackButton" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbc_ru</value></property>
+      <property name="name"><value>Кнопка "Назад"</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arbc_ru.html</value></property>
+   </bean>
+   
+   <bean id="modifyProfile" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqze_ru</value></property>
+      <property name="name"><value>Изменение профиля</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/aqze_ru.html</value></property>
+      <property name="defaultForTool"><value>sakai.profile</value></property>
+   </bean>
+   
+   <bean id="changeWorkspace" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arei_ru</value></property>
+      <property name="name"><value>Информация о моем сайте</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arei_ru.html</value></property>
+   </bean>
+   
+   <bean id="membershipOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arel_ru</value></property>
+      <property name="name"><value>Членство: обзор</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arel_ru.html</value></property>
+      <property name="defaultForTool"><value>sakai.membership</value></property>
+   </bean>
+   
+   <bean id="joinSites" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcj_ru</value></property>
+      <property name="name"><value>Участие и прекращение участия на сайтах</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arcj_ru.html</value></property>
+   </bean>
+   
+   <!-- <bean id="worksiteSetupOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arer_ru</value></property>
+      <property name="name"><value>Worksite Setup Overview</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arer_ru.html</value></property>
+      <property name="defaultForTool"><value>sakai.sitesetup</value></property>
+   </bean> -->
+   
+   <bean id="worksiteSetupAddParticipants" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqyo_ru</value></property>
+      <property name="name"><value>Добавление, изменение ролей и статуса, удаление участников</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/aqyo_ru.html</value></property>
+   </bean>
+   
+   <bean id="worksiteSetupControlAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzw_ru</value></property>
+      <property name="name"><value>Настройки доступа к сайту</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/aqzw_ru.html</value></property>
+   </bean>
+   
+   <bean id="worksiteSetupTextDescription" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzk_ru</value></property>
+      <property name="name"><value>Добавление описания сайта</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/aqzk_ru.html</value></property>
+   </bean>
+   
+   <bean id="worksiteSetupPublish" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arad_ru</value></property>
+      <property name="name"><value>Изменение статуса сайта в "Моих сайтах"</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arad_ru.html</value></property>
+   </bean>
+   
+   <bean id="worksiteSetupChangeRoles" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardq_ru</value></property>
+      <property name="name"><value>Изменение ролей участников в "Моих сайтах"</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/ardq_ru.html</value></property>
+   </bean>
+   
+   <bean id="worksiteSetupEditInfo" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aret_ru</value></property>
+      <property name="name"><value>Изменение информации о сайте в "Моих сайтах"</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/aret_ru.html</value></property>
+   </bean>
+   
+   <bean id="preferencesOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arce_ru</value></property>
+      <property name="name"><value>Мои настройки: Обзор </value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arce_ru.html</value></property>
+      <property name="defaultForTool"><value>sakai.preferences</value></property>
+   </bean>
+
+   <bean id="privacyStatus" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ausi_ru</value></property>
+      <property name="name"><value>Изменение статуса приватности </value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/ausi_ru.html</value></property>
+   </bean>
+   
+   <bean id="whichBrowser" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>asxg_ru</value></property>
+      <property name="name"><value>Поддерживающие браузеры</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/asxg_ru.html</value></property>
+   </bean>
+   
+   <bean id="pastingFF" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>atzb_ru</value></property>
+      <property name="name"><value>Вставка текста в Firefox</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/atzb_ru.html</value></property>
+   </bean>
+   
+   <bean id="optionsAttach" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aupf_ru</value></property>
+      <property name="name"><value>Настройки добавления приложений </value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/aupf_ru.html</value></property>
+   </bean>
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="workspaceCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Мой сайт</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="workspaceOverview"/>
+                     <ref bean="clickBackButton"/>
+                     <ref bean="modifyProfile"/>
+                     <ref bean="searchUserProfile"/>
+                     <ref bean="setMOD"/>
+                     <ref bean="changeWorkspace"/>
+                     <ref bean="membershipOverview"/>
+                     <ref bean="joinSites"/>
+                     <!-- <ref bean="worksiteSetupOverview"/> -->
+                     <ref bean="addTools"/>
+                     <ref bean="worksiteSetupAddParticipants"/>
+                     <ref bean="worksiteSetupControlAccess"/>
+                     <ref bean="worksiteSetupTextDescription"/>
+                     <ref bean="worksiteSetupPublish"/>
+                     <ref bean="worksiteSetupChangeRoles"/>
+                     <ref bean="worksiteSetupEditInfo"/>
+                     <ref bean="preferencesOverview"/>
+                     <ref bean="changeNotificationPreferences"/>
+                     <ref bean="customizeTabs"/>
+                     <ref bean="privacyStatus"/>
+                     <ref bean="whichBrowser"/>
+                     <ref bean="pastingFF"/>
+                     <ref bean="optionsAttach"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+       </property>
+    </bean>
+</beans>
+

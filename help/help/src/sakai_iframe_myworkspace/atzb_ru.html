@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head>
+<title>Проблемы, связанные с вставкой текста в текстовом поле &quot;FCKeditor&quot; в браузере Firefox</title>
+<style type="text/css"></style>
+<link type="text/css" href="/library/skin/tool_base.css" media="all" rel="stylesheet" />
+<link type="text/css" href="/library/skin/default/tool.css" media="all" rel="stylesheet" /></head>
+<body>
+<div class="helpBody">
+<h2>Проблемы, связанные с вставкой текста в  текстовом поле &quot;FCKeditor&quot; 
+в браузере Firefox</h2>
+<p> Текущие настройки безопасности в браузере  Firefox могут мешать использованию вставки текста в текстовом поле FCK, когда вы нажимаете правую кнопку мыши и выбираете  <strong><code>Вставить</code></strong>. Ранние версии браузера Firefox не позмоляют использовать также и <code>Ctrl-v</code> для вставки.  Чтобы решить эту проблему:</p>
+
+<ul>
+  <li>В меню  <strong><code>Правка</code></strong> выберите<strong><code> Вставить</code></strong>.
+
+<br />
+<br />
+</li>
+  <li>Нажмите <code>Ctrl-v</code>. Если это не работает, установите последнюю версию Firefox.
+
+<br />
+<br /> </li>
+  <li>Измените настройки безопасности таким образом, чтобы  Firefox не мешал вставке текста нажатием правой кнопки мыши. Чтобы сделать это в Windows XP:
+<br />
+<br />
+<ol>
+  <li>Закройте все окна  Firefox.  
+<br />
+<br /></li>
+  <li>Перейдите в папку, указанную ниже, где  <code>username</code> - это ваше имя пользователя на вашем компьютере в вашей системе Windows, а <code>ProfileName</code> - это либо полное имя, либо последовательность символов, после которой идет ".default": <span class="example">C:\Documents and Settings\username\Application Data\Mozilla\Firefox\Profiles\ProfileName</span></li>
+  <li>Используя текстовый редактор, создайте новый файл под названием <code>user.js</code> в этой папке.
+
+    <p><strong>Внимание:</strong> Убедитесь, что текстовый редактор  <strong>не добавляет </strong>разширение <code>.txt</code> к имени файла. Файл должен иметь разширение <code>.js</code>. </p>
+</li>
+  <li>В этом файле, введите следующее: 
+
+<span class="example">  user_pref("capability.policy.policynames", "allowclipboard");
+  user_pref("capability.policy.allowclipboard.sites", "https://www.samplesite.com");
+  user_pref("capability.policy.allowclipboard.Clipboard.cutcopy", "allAccess");
+  user_pref("capability.policy.allowclipboard.Clipboard.paste", "allAccess");</span>
+
+<p>Замените <code>https://www.samplesite.com</code> названием сайта, на котором нужно разрешить вставку текста. </p>
+
+
+
+
+</li>
+  <li>Перезапустите Firefox.
+</li>
+</ol>
+
+</li></ul>
+
+
+</div>
+</body></html>

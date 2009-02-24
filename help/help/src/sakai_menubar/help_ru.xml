@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="menubarOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcc_ru</value></property>
+      <property name="name"><value>Линейка инструментов: обзор </value></property>
+      <property name="location"><value>/sakai_menubar/arcc_ru.html</value></property>
+      <property name="defaultForTool"><value>sakai.menubar</value></property>      
+   </bean>
+   
+   <bean id="addTools" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardx_ru</value></property>
+      <property name="name"><value>Добавление, изменение и удаление инструментов</value></property>
+      <property name="location"><value>/sakai_menubar/ardx_ru.html</value></property>
+   </bean>
+   
+   <bean id="worksiteSetupAddTools" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arxx_ru</value></property>
+      <property name="name"><value>Добавление инструментов через «Мои сайты»</value></property>
+      <property name="location"><value>/sakai_menubar/arbj_ru.html</value></property>
+   </bean>
+         
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="menubarCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Линейка инструментов</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="menubarOverview"/>
+                     <ref bean="addTools"/>
+                     <ref bean="worksiteSetupAddTools"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
