@@ -21,6 +21,8 @@
 
 package org.sakaiproject.search.mock;
 
+import java.util.List;
+
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
@@ -109,6 +111,10 @@ public class MockSessionManager implements SessionManager
 	public Session startSession(String id)
 	{
 		return new MockSession();
+	}
+
+	public List<Session> getSessions() {
+		return null;
 	}
 
 }
