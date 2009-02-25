@@ -21,6 +21,8 @@
 
 package org.sakaiproject.tool.api;
 
+import java.util.List;
+
 /**
  * <p>
  * SessionManager keeps track of Sakai-wide and Tool placement specific user sessions, modeled on the HttpSession of the Servlet API.
@@ -38,6 +40,13 @@ public interface SessionManager
 	 */
 	Session getSession(String sessionId);
 
+	/**
+	 * Get all current sessions.
+	 * 
+	 * @return List of sessions.
+	 */
+	List<Session> getSessions();
+	
 	/**
 	 * Start a new session.
 	 * 

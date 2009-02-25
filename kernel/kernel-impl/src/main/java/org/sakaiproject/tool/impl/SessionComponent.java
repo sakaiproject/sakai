@@ -21,20 +21,14 @@
 
 package org.sakaiproject.tool.impl;
 
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionBindingEvent;
-import javax.servlet.http.HttpSessionBindingListener;
-import javax.servlet.http.HttpSessionContext;
+import com.google.common.collect.Lists;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,18 +38,14 @@ import org.springframework.util.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.tool.api.ContextSession;
 import org.sakaiproject.tool.api.NonPortableSession;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionAttributeListener;
-import org.sakaiproject.tool.api.SessionBindingEvent;
-import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.SessionStore;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.util.IteratorEnumeration;
 
 /**
  * <p>
@@ -68,7 +58,7 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 	private static Log M_log = LogFactory.getLog(SessionComponent.class);
 
 	/** The sessions - keyed by session id. */
-	protected Map m_sessions = new ConcurrentHashMap();
+	protected Map<String, Session> m_sessions = new ConcurrentHashMap<String, Session>();
 	
 	/**
 	 * The expected time sessions may be ready for expiration.  This is only an optimization
@@ -226,6 +216,10 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 		return s;
 	}
 	
+	public List<Session> getSessions() {
+	   return Lists.newArrayList(m_sessions.values());
+	}
+
 	public void remove(String sessionId) {
 		m_sessions.remove(sessionId);
 		expirationTimeSuggestionMap.remove(sessionId);
@@ -286,7 +280,7 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 		Session s = new MySession(this,id,threadLocalManager(),idManager(),this,sessionListener,m_defaultInactiveInterval,nPS,currentTime);
 
 		// Place session into the main Session Storage, capture any old id
-		Session old = (Session) m_sessions.put(s.getId(), s);
+		Session old = m_sessions.put(s.getId(), s);
 		
 		// Place an entry in the expirationTimeSuggestionMap that corresponds to the entry in m_sessions
 		expirationTimeSuggestionMap.put(id, currentTime);
@@ -387,11 +381,11 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 	 */
 	public int getActiveUserCount(int secs)
 	{
-		Set activeusers = new HashSet(m_sessions.size());
+		Set<String> activeusers = new HashSet<String>(m_sessions.size());
 
 		long now = System.currentTimeMillis();
 
-		for (Iterator i = m_sessions.values().iterator(); i.hasNext();)
+		for (Iterator<Session> i = m_sessions.values().iterator(); i.hasNext();)
 		{
 			MySession s = (MySession) i.next();
 
