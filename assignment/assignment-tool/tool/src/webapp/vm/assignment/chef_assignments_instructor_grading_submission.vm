@@ -589,15 +589,12 @@ function handleEnterKeyPress(ev)
 								$tlang.getString("allow.resubmit.number")
 							</label>
 							<select name="$name_allowResubmitNumber" id="allowResubmitNumber" onchange="if (document.getElementById('allowResubmitNumber').value!=0 && document.getElementById('closeTime') !=null){document.getElementById('closeTime').style.display = 'block';}else {document.getElementById('closeTime').style.display = 'none';}">
-								#foreach ($i in [-1..10])
+								#foreach ($i in [0..10])
 									<option value="$i" #if($i==$!value_allowResubmitNumber)selected="selected"#end>
-										#if($i==-1)
-											$tlang.getString("allow.resubmit.number.unlimited")
-										#else
-											$i
-										#end
+										$i
 									</option>
 								#end
+								<option value="-1" #if($!value_allowResubmitNumber == -1)selected="selected"#end>$tlang.getString("allow.resubmit.number.unlimited")</option>
 							</select>
 						</p>
 						<p class="shorttext" id="allowResubmitTime" style="$!resubmitStyle">
