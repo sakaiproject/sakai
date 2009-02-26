@@ -73,7 +73,8 @@
 		     </p>
 		    </li>
 
-			#if ( $viewBean.getDisplayHtmlEditor())
+			#if ($viewBean.getDisplayHtmlEditor())
+			<script>setWysiwyg(true);</script>
 		    <li id="editFck" class="tabHeadOff" >
 	  		  <p class="tabhead" title="${rlb.jsp_edit_fckeditor}" >
 		       <a href="#" onClick="hideSidebar('none');selectTabs('autosaveTab','tabOn','tabOff','previewTab','tabOn','tabOff','editTab','tabOn','tabOff','editTabFCK','tabOff','tabOn','autosave','tabHeadOn','tabHeadOff','preview','tabHeadOn','tabHeadOff','edit','tabHeadOn','tabHeadOff','editFck','tabHeadOff','tabHeadOn'); wikiToFCK(); return false;" >
@@ -81,6 +82,8 @@
 		       </a>
 		     </p>
 		    </li>
+		    #else
+		    <script>setWysiwyg(false);</script>
 		    #end
 
 		    <li id="preview" class="tabHeadOff"  >

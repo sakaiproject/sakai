@@ -34,6 +34,15 @@ var calledFromFck=false;
 // Variable used to activate the tool init behaviour
 var pageInit=true;
 
+//Variable for wysiwyg mode
+var wysiwyg=false;
+
+//set wysiwyg mode or not
+function setWysiwyg(bool)
+{
+	wysiwyg=bool;
+}
+
 // Remove uncompatible and unnecessary markup from a server-generated HTML content
 function cleanHTML(inputString)
 {
@@ -356,26 +365,30 @@ function saveTempContent(editorType)
 
 function isContentSynchro(editorType)
 {
-	// has modifications been made to wikiText?
-	if(editorType=="wiki")
+	isSynchro=true;
+	// synchro occur only if wysiwyg tab is displayed
+	if (wysiwyg)
 	{
-		var newContent = document.getElementById('content').value;
-		if (tempWikiContent==newContent) 
-			isSynchro=true;
-		else 
-			isSynchro=false;
-	}
-	// has modifications been made to FCK Text?
-	else if(editorType=="fck")
-	{
-		var oEditor = FCKeditorAPI.GetInstance('contentFck');
-		var newContent=oEditor.GetHTML();
-		if (tempFCKContent==newContent) 
-			isSynchro=true;
-		else 
-			isSynchro=false;
-	}
-	
+		// has modifications been made to wikiText?
+		if(editorType=="wiki")
+		{
+			var newContent = document.getElementById('content').value;
+			if (tempWikiContent==newContent) 
+				isSynchro=true;
+			else 
+				isSynchro=false;
+		}
+		// has modifications been made to FCK Text?
+		else if(editorType=="fck")
+		{
+			var oEditor = FCKeditorAPI.GetInstance('contentFck');
+			var newContent=oEditor.GetHTML();
+			if (tempFCKContent==newContent) 
+				isSynchro=true;
+			else 
+				isSynchro=false;
+		}
+	}	
 	return isSynchro;
 }
 
