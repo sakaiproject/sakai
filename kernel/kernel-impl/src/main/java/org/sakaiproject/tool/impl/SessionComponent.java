@@ -21,14 +21,13 @@
 
 package org.sakaiproject.tool.impl;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import com.google.common.collect.Lists;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -217,7 +216,7 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 	}
 	
 	public List<Session> getSessions() {
-	   return Lists.newArrayList(m_sessions.values());
+	   return new ArrayList<Session>(m_sessions.values());
 	}
 
 	public void remove(String sessionId) {
