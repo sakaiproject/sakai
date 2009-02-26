@@ -3752,10 +3752,10 @@ public class AssignmentAction extends PagedResourceActionII
 				sEdit.setTimeReturned(null);
 			}
 
+			ResourcePropertiesEdit pEdit = sEdit.getPropertiesEdit();
 			if (state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null)
 			{
 				// get resubmit number
-				ResourcePropertiesEdit pEdit = sEdit.getPropertiesEdit();
 				pEdit.addProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, (String) state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER));
 			
 				if (state.getAttribute(ALLOW_RESUBMIT_CLOSEYEAR) != null)
@@ -3768,6 +3768,12 @@ public class AssignmentAction extends PagedResourceActionII
 				{
 					pEdit.removeProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
 				}
+			}
+			else
+			{
+				// clean resubmission property
+				pEdit.removeProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
+				pEdit.removeProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
 			}
 
 			// the instructor comment
@@ -7701,10 +7707,17 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		
 		// allow resubmit number and due time
-		if (params.getString(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null)
+		if (params.getString("tempAllowResToggle") != null)
 		{
-			// read in allowResubmit params 
-			readAllowResubmitParams(params, state);
+			if (params.getString(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null)
+			{
+				// read in allowResubmit params 
+				readAllowResubmitParams(params, state);
+			}
+		}
+		else
+		{
+			resetAllowResubmitParams(state);
 		}
 		
 		if (state.getAttribute(STATE_MESSAGE) == null)
@@ -7784,6 +7797,7 @@ public class AssignmentAction extends PagedResourceActionII
 		state.removeAttribute(ALLOW_RESUBMIT_CLOSEMIN);
 		state.removeAttribute(ALLOW_RESUBMIT_CLOSEAMPM);
 		state.removeAttribute(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
+		state.removeAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
 	}
 
 	/**
