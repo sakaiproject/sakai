@@ -29,7 +29,7 @@
 		  		#else
 		  			 #if (${page.ispopup})
 						<li>
-							<a class="${page.menuClass}" href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
+							<a class="${page.menuClass}" href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageId}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
 							<span>${page.pageTitle}</span>
 							</a>
 						</li>
