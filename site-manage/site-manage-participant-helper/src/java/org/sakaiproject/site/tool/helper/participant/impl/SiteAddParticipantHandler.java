@@ -124,6 +124,10 @@ public class SiteAddParticipantHandler {
 		this.emailNotiChoice = emailNotiChoice;
 	}
 
+        /** realm for the site **/
+        public AuthzGroup realm = null;
+        public String siteId = null;
+
 	/** the role set for the site **/
 	public List<Role> roles = new Vector<Role>();
 	public List<Role> getRoles()
@@ -175,7 +179,7 @@ public class SiteAddParticipantHandler {
      */
     public void init() {
         if (site == null) {
-            String siteId = null;
+            siteId = null;
             try {
                 siteId = sessionManager.getCurrentToolSession()
                         .getAttribute(HELPER_ID + ".siteId").toString();
@@ -190,7 +194,7 @@ public class SiteAddParticipantHandler {
             
             try {    
                 site = siteService.getSite(siteId);
-                AuthzGroup realm = authzGroupService.getAuthzGroup(siteService.siteReference(siteId));
+                realm = authzGroupService.getAuthzGroup(siteService.siteReference(siteId));
                 for(Iterator i = realm.getRoles().iterator(); i.hasNext();)
                 { 
                 	Role r = (Role) i.next();
@@ -266,7 +270,7 @@ public class SiteAddParticipantHandler {
     public String processCancel() {
         ToolSession session = sessionManager.getCurrentToolSession();
         session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
-        
+        resetTargettedMessageList();
         reset();
 
         return "done";
@@ -319,6 +323,16 @@ public class SiteAddParticipantHandler {
     	else
     	{
     		resetTargettedMessageList();
+
+	        // if user doesn't have full rights, don't let him add one with site update
+	    	if (!authzGroupService.allowUpdate("/site/" + siteId)) {
+		    Role r = realm.getRole(sameRoleChoice);
+		    if (r != null && r.isAllowed("site.upd")) {
+			targettedMessageList.addMessage(new TargettedMessage("java.roleperm", new Object[] { sameRoleChoice }, TargettedMessage.SEVERITY_ERROR));
+			return null;
+		    }
+		}
+
 	    	if (userRoleEntries != null)
 			{
 				for (UserRoleEntry entry:userRoleEntries)
@@ -336,7 +350,7 @@ public class SiteAddParticipantHandler {
      * @return
      */
     public String processSameRoleBack() {
-
+    	resetTargettedMessageList();
         return "back";
     }
     
@@ -345,7 +359,20 @@ public class SiteAddParticipantHandler {
      * @return
      */
     public String processDifferentRoleContinue() {
-
+	
+		resetTargettedMessageList();
+		if (!authzGroupService.allowUpdate("/site/" + siteId)) {
+		    Set<String> roles = new HashSet<String>();
+		    for (UserRoleEntry entry : userRoleEntries)
+		    	roles.add(entry.role);
+		    for (String rolename: roles) {
+				Role r = realm.getRole(rolename);
+				if (r != null && r.isAllowed("site.upd")) {
+				    targettedMessageList.addMessage(new TargettedMessage("java.roleperm", new Object[] { rolename }, TargettedMessage.SEVERITY_ERROR));
+				    return null;
+				}
+		    }
+		}
         return "continue";
     }
     
@@ -354,7 +381,7 @@ public class SiteAddParticipantHandler {
      * @return
      */
     public String processDifferentRoleBack() {
-
+    	resetTargettedMessageList();
         return "back";
     }
     
@@ -372,7 +399,7 @@ public class SiteAddParticipantHandler {
      * @return
      */
     public String processEmailNotiBack() {
-
+    	resetTargettedMessageList();
     	if (roleChoice.equals("sameRole"))
     	{
     		return "backSameRole";
@@ -407,9 +434,23 @@ public class SiteAddParticipantHandler {
 				String realmId = site.getReference();
 				try {
 					AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realmId);
+					boolean allowUpdate = authzGroupService.allowUpdate(realmId);
+					Set<String>okRoles = new HashSet<String>();
 					for (UserRoleEntry entry: userRoleEntries) {
 						String eId = entry.userEId;
 						String role =entry.role;
+						// this check should never trigger, as we check it earlier
+						// however I'm worried about users manually calling this page directly
+						if (!allowUpdate && !okRoles.contains(role)) {
+						    Role r = realmEdit.getRole(role);
+						    if (r != null && r.isAllowed("site.upd")) {
+							targettedMessageList.addMessage(new TargettedMessage("java.roleperm",
+					                 new Object[] { role }, 
+						          TargettedMessage.SEVERITY_ERROR));
+							continue;
+						    }
+						    okRoles.add(role);
+						}
 
 						try {
 							User user = UserDirectoryService.getUserByEid(eId);
@@ -564,7 +605,7 @@ public class SiteAddParticipantHandler {
      * @return
      */
     public String processConfirmBack() {
-
+    	resetTargettedMessageList();
         return "back";
     }
     

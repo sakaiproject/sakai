@@ -6403,7 +6403,6 @@ public class SiteAction extends PagedResourceActionII {
 				|| SiteService.allowUpdateSiteMembership(s.getId())) {
 			try {
 				AuthzGroup realmEdit = AuthzGroupService.getAuthzGroup(realmId);
-
 				// does the site has maintain type user(s) before updating
 				// participants?
 				String maintainRoleString = realmEdit.getMaintainRole();
@@ -6412,6 +6411,10 @@ public class SiteAction extends PagedResourceActionII {
 
 				// update participant roles
 				List participants = collectionToList((Collection) state.getAttribute(STATE_PARTICIPANT_LIST));
+
+				// list of roles being added or removed
+				HashSet<String>roles = new HashSet<String>();
+
 				// remove all roles and then add back those that were checked
 				for (int i = 0; i < participants.size(); i++) {
 					String id = null;
@@ -6424,6 +6427,12 @@ public class SiteAction extends PagedResourceActionII {
 						// get the newly assigned role
 						String inputRoleField = "role" + id;
 						String roleId = params.getString(inputRoleField);
+						String oldRoleId = participant.getRole();
+						// save any roles changed for permission check
+						if (!roleId.equals(oldRoleId)) {
+						    roles.add(roleId);
+						    roles.add(oldRoleId);
+						}
 
 						// only change roles when they are different than before
 						if (roleId != null) {
@@ -6456,11 +6465,27 @@ public class SiteAction extends PagedResourceActionII {
 						String rId = (String) removals.get(i);
 						try {
 							User user = UserDirectoryService.getUser(rId);
+							// save role for permission check
+							roles.add(realmEdit.getUserRole(user.getId()).getId());
 							realmEdit.removeMember(user.getId());
 						} catch (UserNotDefinedException e) {
 							M_log.warn(this + ".doUpdate_participant: IdUnusedException " + rId + ". ", e);
 						}
 					}
+				}
+
+				// if user doesn't have update, don't let them add
+				// or remove any role with site.upd in it.
+
+				if (!AuthzGroupService.allowUpdate(realmId)) {
+				    // see if any changed have site.upd
+				    for (String rolename: roles) {
+					Role role = realmEdit.getRole(rolename);
+					if (role != null && role.isAllowed("site.upd")) {
+					    addAlert(state, rb.getFormattedMessage("java.roleperm", new Object[]{rolename}));
+					    return;
+					}
+				    }
 				}
 
 				if (hadMaintainUser
