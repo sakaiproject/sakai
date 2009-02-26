@@ -95,7 +95,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		
 		
 		//do we need to load data?
-		Map<String, String> replacementValues = new HashMap<String, String>();
+		/*Map<String, String> replacementValues = new HashMap<String, String>();
 		if (emailTemplateService.getRenderedTemplateForUser(this.NOTIFY_ADDED_PARTICIPANT, "/user/admin", replacementValues) == null) 
 			loadAddedParticipantMail();
 		else 
@@ -112,7 +112,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 			else 
 				M_log.info("templates for " + NOTIFY_NEW_USER + " exist");
 			
-		}
+		}*/
 	}
 	
 	public void notifyAddedParticipant(boolean newNonOfficialAccount,
