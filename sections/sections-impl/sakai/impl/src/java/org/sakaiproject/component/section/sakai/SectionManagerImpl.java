@@ -156,7 +156,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		// In that case, we flip the formerly "provided" users to be non-provided so they stay in the section.
 		if("false".equals(siteProps.getProperty(CourseImpl.EXTERNALLY_MAINTAINED))) {
 			if(log.isDebugEnabled()) log.debug("SiteAdvisor " + this.getClass().getCanonicalName() + " stripping provider IDs from all sections in site " + site.getTitle() + ".  The site is internally managed.");
-			for(Iterator iter = site.getGroups().iterator(); iter.hasNext();) {
+			for(Iterator iter = getSiteGroups(site).iterator(); iter.hasNext();) {
 				Group group = (Group)iter.next();
 				if(group.getProviderGroupId() == null) {
 					// This wasn't provided, so skip it
@@ -175,7 +175,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 			}
 		} else {
 			// This is an externally managed site, so remove any groups without a category and without a providerId
-			for(Iterator<Group> iter = site.getGroups().iterator(); iter.hasNext();) {
+			for(Iterator<Group> iter = getSiteGroups(site).iterator(); iter.hasNext();) {
 				Group group = iter.next();
 				ResourceProperties props = group.getProperties();
 				if(group.getProviderGroupId() == null && (props != null &&
@@ -262,8 +262,9 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		
 		// Remove any formerly provided sections that are no longer in the list of provider ids,
 		// and sync existing sections if they are still listed in the provider ids.
-		if(site.getGroups() != null) {
-			for(Iterator<Group> iter = site.getGroups().iterator(); iter.hasNext();) {
+		Collection<Group> groups = getSiteGroups(site);
+		if(groups != null) {
+			for(Iterator<Group> iter = groups.iterator(); iter.hasNext();) {
 				Group group = iter.next();
 				String providerId = group.getProviderGroupId();
 				if(providerId == null) {
@@ -358,7 +359,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		List<CourseSection> sectionList = new ArrayList<CourseSection>();
 		Collection sections;
 		try {
-			sections = getSite(siteContext).getGroups();
+			sections = getSiteGroups(getSite(siteContext));
 		} catch (IdUnusedException e) {
 			log.error("No site with id = " + siteContext);
 			return new ArrayList<CourseSection>();
@@ -383,7 +384,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		List<CourseSection> sectionList = new ArrayList<CourseSection>();
 		Collection sections;
 		try {
-			sections = getSite(siteContext).getGroups();
+			sections = getSiteGroups(getSite(siteContext));
 		} catch (IdUnusedException e) {
 			log.error("No site with id = " + siteContext);
 			return new ArrayList<CourseSection>();
@@ -411,7 +412,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		List<String> sectionList = new ArrayList<String>();
 		Collection sections;
 		try {
-			sections = getSite(siteContext).getGroups();
+			sections = getSiteGroups(getSite(siteContext));
 		} catch (IdUnusedException e) {
 			log.error("No site with id = " + siteContext);
 			return sectionList;
@@ -1033,7 +1034,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 			log.error("Unable to find site " + siteContext);
 			return;
 		}
-		Collection groups = site.getGroups();
+		Collection groups = getSiteGroups(site);
 		for(Iterator iter = groups.iterator(); iter.hasNext();) {
 			// Drop the user from this section if they are enrolled
 			Group group= (Group)iter.next();
@@ -1042,8 +1043,13 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 			if(section.getCategory() == null) {
 				continue;
 			}
-			if(section.getCategory().equals(category)) {
-				group.removeMember(studentUid);
+			if(section.getCategory().equals(category)) {				
+				// Sakai's current site service code will mark the group as changed
+				// even if the specified user is not a member, resulting in many
+				// unnecessary (and possibly unintended) updates.
+				if (group.getMember(studentUid) != null) {
+					group.removeMember(studentUid);
+				}
 			}
 		}
 		try {
@@ -1060,16 +1066,31 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 	
 	protected static final String GRP_PREFIX = "section_grp_";
 	protected Group findGroup(String learningContextUuid) {
-		
 		if(log.isDebugEnabled()) log.debug("findGroup called for " + learningContextUuid);
-				
-		Group grp = (Group)threadLocalManager.get(GRP_PREFIX + learningContextUuid);
+		Group grp = getGroupInCache(learningContextUuid);
 		if(grp == null) {
 			if(log.isDebugEnabled()) log.debug("Looking up group " + learningContextUuid + " from the site service");
 			grp = siteService().findGroup(learningContextUuid);
-			threadLocalManager.set(GRP_PREFIX + learningContextUuid, grp);
+			Site site = grp.getContainingSite();
+			
+			// Make sure there aren't multiple copies of the same sites and groups in the
+			// cache.
+			String siteId = site.getId();
+			Site cachedSite = getSiteInCache(siteId);
+			if (cachedSite != null) {
+				grp = cachedSite.getGroup(learningContextUuid);
+			} else {
+				setSiteInCache(siteId, site);
+			}
+			setGroupInCache(learningContextUuid, grp);
 		}
 		return grp;
+	}
+	protected Group getGroupInCache(String learningContextUuid) {
+		return (Group)threadLocalManager.get(GRP_PREFIX + learningContextUuid);
+	}
+	protected void setGroupInCache(String learningContextUuid, Group grp) {
+		threadLocalManager.set(GRP_PREFIX + learningContextUuid, grp);
 	}
 	
 	protected void clearGroup(String learningContextUuid) {
@@ -1078,13 +1099,26 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 	
 	protected static final String SITE_PREFIX = "section_site_";
 	protected Site getSite(String siteId) throws IdUnusedException {
-		Site site = (Site)threadLocalManager.get(SITE_PREFIX + siteId);
+		Site site = getSiteInCache(siteId);
 		if(site == null) {
 			if(log.isDebugEnabled()) log.debug("Looking up site " + siteId + " from the site service");
 			site = siteService().getSite(siteId);
-			threadLocalManager.set(SITE_PREFIX + siteId, site);
+			setSiteInCache(siteId, site);
 		}
 		return site;
+	}
+	protected Collection<Group> getSiteGroups(Site site) {
+		Collection<Group> groups = site.getGroups();
+		for(Group group : groups) {
+			setGroupInCache(group.getId(), group);
+		}
+		return groups;
+	}
+	protected Site getSiteInCache(String siteId) {
+		return (Site)threadLocalManager.get(SITE_PREFIX + siteId);
+	}
+	protected void setSiteInCache(String siteId, Site site) {
+		threadLocalManager.set(SITE_PREFIX + siteId, site);
 	}
 
 	protected void clearSite(String learningContextUuid) {
