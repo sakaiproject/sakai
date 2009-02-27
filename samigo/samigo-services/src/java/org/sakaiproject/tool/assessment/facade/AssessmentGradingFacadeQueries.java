@@ -2091,12 +2091,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    		   }
 	    	   } // inner for - answers
 
-    		   // gopalrc - Dec 2007
-	    	   if (itemScore < 0.0f) {
-	    		   itemScore = 0.0f;
-	    	   }
     		   updateSectionScore(sectionItems, sectionScores, grade.getPublishedItemId(), itemScore);
-	    	   
 	    	   
 	    	   if (isFinFib && maintext.indexOf("No Answer") >= 0 && count == 1) {
 	    		   maintext = "No Answer";
