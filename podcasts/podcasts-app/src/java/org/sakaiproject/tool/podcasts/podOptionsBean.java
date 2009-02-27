@@ -37,7 +37,8 @@ public class podOptionsBean {
   private PodcastService podcastService;
   
   /** Used to access message bundle */
-  private static ResourceLoader rb;
+  // no need for lazy initialization here since its not called in any init() and just on demand in the podcasts tool
+  private static ResourceLoader rb = new ResourceLoader(FacesContext.getCurrentInstance().getApplication().getMessageBundle());
 
   private static final int PUBLIC = 0;
   private static final int SITE = 1;
@@ -46,8 +47,8 @@ public class podOptionsBean {
   private static final String CHANGE_TO_SITE = "option_change_confirm";
   
   private SelectItem [] displayItems = new SelectItem [] {
-    new SelectItem(new Integer(PUBLIC), getMessageString(OPTIONS_PUBLIC)),
-    new SelectItem(new Integer(SITE), getMessageString(OPTIONS_SITE))
+    new SelectItem(new Integer(PUBLIC), rb.getString(OPTIONS_PUBLIC)),
+    new SelectItem(new Integer(SITE), rb.getString(OPTIONS_SITE))
   };
   
   public podOptionsBean() {
@@ -95,23 +96,6 @@ public class podOptionsBean {
 	}
 
 	/**
-	 * Returns the message pulled from the MessageBundle using
-	 * the name passed in
-	 * 
-	 * @param key 
-	 * 			The name in the MessageBundle for the message wanted
-	 * @return String
-	 * 			The string that is the value of the message
-	 */
-	private String getMessageString(String key) {
-		if (rb == null) {
-	          String bundle = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
-	          rb = new ResourceLoader(bundle);
-		}
-		return rb.getString(key);
-	}
-
-	/**
 	 * @param podcastService The podcastService to set.
 	 */
 	public void setPodcastService(PodcastService podcastService) {
@@ -125,7 +109,7 @@ public class podOptionsBean {
 	 */
 	private void setErrorMessage(String alertMsg) {
 		FacesContext.getCurrentInstance().addMessage(null,
-				new FacesMessage("Alert: " + getMessageString(alertMsg)));
+				new FacesMessage("Alert: " + rb.getString(alertMsg)));
 	}
 
 }
