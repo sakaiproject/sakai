@@ -929,7 +929,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             String key = "no-cache";
             if (params.containsKey(key)) {
                 try {
-                    noCache = ((Boolean) params.get(key)).booleanValue();
+                    noCache = Boolean.parseBoolean(params.get(key).toString());
                 } catch (Exception e) {
                     // in case the value is not there or null
                     noCache = false;
