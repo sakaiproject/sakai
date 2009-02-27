@@ -1441,6 +1441,7 @@ public class SiteAction extends PagedResourceActionII {
 			 * buildContextForTemplate chef_site-newSiteInformation.vm
 			 * 
 			 */
+			context.put("displaySiteAlias", Boolean.valueOf(displaySiteAlias()));
 			context.put("siteTypes", state.getAttribute(STATE_SITE_TYPES));
 			String siteType = (String) state.getAttribute(STATE_SITE_TYPE);
 			context.put("type", siteType);
@@ -11302,7 +11303,7 @@ public class SiteAction extends PagedResourceActionII {
 	}
 
 	public boolean displaySiteAlias() {
-		if (ServerConfigurationService.getBoolean("wsetup.disable.siteAlias", true)) {
+		if (ServerConfigurationService.getBoolean("wsetup.disable.siteAlias", false)) {
 			return false;
 		}
 		return true;
