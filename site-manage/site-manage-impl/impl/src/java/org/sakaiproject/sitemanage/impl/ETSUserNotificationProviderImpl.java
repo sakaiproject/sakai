@@ -95,7 +95,21 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		
 		
 		//do we need to load data?
-		/*Map<String, String> replacementValues = new HashMap<String, String>();
+		Map<String, String> replacementValues = new HashMap<String, String>();
+		
+		// put placeholders for replacement values 
+		replacementValues.put("userName", "");
+        replacementValues.put("userEid", "");
+        replacementValues.put("localSakaiName", "");
+        replacementValues.put("currentUserName", "");
+        replacementValues.put("currentUserDisplayName", "");
+        replacementValues.put("localSakaiURL", "");
+        replacementValues.put("siteName", "");
+        replacementValues.put("productionSiteName", "");
+        replacementValues.put("newNonOfficialAccount", "");
+        replacementValues.put("newPassword", "");
+        replacementValues.put("productionSiteName", "");
+        
 		if (emailTemplateService.getRenderedTemplateForUser(this.NOTIFY_ADDED_PARTICIPANT, "/user/admin", replacementValues) == null) 
 			loadAddedParticipantMail();
 		else 
@@ -112,7 +126,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 			else 
 				M_log.info("templates for " + NOTIFY_NEW_USER + " exist");
 			
-		}*/
+		}
 	}
 	
 	public void notifyAddedParticipant(boolean newNonOfficialAccount,
@@ -212,6 +226,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 	            replacementValues.put("localSakaiName",serverConfigurationService.getString(
 	    				"ui.service", ""));
 	            replacementValues.put("currentUserName",userDirectoryService.getCurrentUser().getDisplayName());
+	            replacementValues.put("userEid", userDirectoryService.getCurrentUser().getEid());
 	            replacementValues.put("localSakaiUrl", serverConfigurationService.getPortalUrl());
 	            replacementValues.put("newPassword",newUserPassword);
 	            replacementValues.put("siteName", siteTitle);
