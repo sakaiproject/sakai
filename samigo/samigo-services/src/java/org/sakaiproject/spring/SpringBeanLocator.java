@@ -36,11 +36,11 @@ public class SpringBeanLocator
   {
     //if (instance != null)
     //{
-      return instance;
+    //  return instance;
     //}
     //else
     //{
-    //  return new SpringBeanLocator();
+      return new SpringBeanLocator();
     //}
   }
 
