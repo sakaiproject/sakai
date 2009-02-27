@@ -279,7 +279,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
           }
         }
 
-        if (itemId.equals(new Long(0))) {
+        if (itemId.equals( Long.valueOf(0))) {
           criteria.add(disjunction);
           //criteria.add(Expression.isNotNull("submittedDate"));
         }
@@ -531,7 +531,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     Iterator iter = list.iterator();
     while (iter.hasNext()){
       PublishedAssessmentData o = (PublishedAssessmentData)iter.next();
-      h.put(o.getPublishedAssessmentId(), new Integer(o.getSubmissionSize()));
+      h.put(o.getPublishedAssessmentId(), Integer.valueOf(o.getSubmissionSize()));
     }
     return h;
   }
@@ -1480,8 +1480,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  };
 		  List list = getHibernateTemplate().executeFind(hcb);
 		  if ( list.size() == 0) {
-			  position.add(new Integer(0));
-			  position.add(new Integer(0));
+			  position.add(Integer.valueOf(0));
+			  position.add(Integer.valueOf(0));
 		  }
 		  else {
 			  Integer sequence = (Integer) list.get(0);
@@ -1501,14 +1501,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 			  log.debug("sequence = " + sequence);
 			  log.debug("count = " + count);
 			  position.add(sequence);
-			  position.add(new Integer(count));
+			  position.add(Integer.valueOf(count));
 		  }
 		  return position;
 	  } 
 	  catch (Exception e) {
 		  e.printStackTrace();
-		  position.add(new Integer(0));
-		  position.add(new Integer(0));
+		  position.add(Integer.valueOf(0));
+		  position.add(Integer.valueOf(0));
 		  return position;
 	  }
   }
@@ -1555,7 +1555,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
   public Long getTypeId(final Long itemGradingId) {
-	  Long typeId = new Long(-1);
+	  Long typeId = Long.valueOf(-1);
 
 	    final HibernateCallback hcb = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -2152,7 +2152,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  HashMap itemsForSection = (HashMap) entry.getValue();
 
 		  if (itemsForSection.get(publishedItemId)!=null) {
-			  Float score = new Float( ((Float)sectionScores.get(sectionSequence)).floatValue() + itemScore);
+			  Float score = Float.valueOf( ((Float)sectionScores.get(sectionSequence)).floatValue() + itemScore);
 			  sectionScores.put(sectionSequence, score); 
 		  }
 	  }

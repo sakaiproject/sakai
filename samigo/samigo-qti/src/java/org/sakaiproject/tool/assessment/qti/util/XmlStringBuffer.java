@@ -210,6 +210,8 @@ public class XmlStringBuffer
    * @throws JDOMException  =
    * @throws IOException
    */
+  
+  /*
   private final org.jdom.Document parseContentToJDOM()
     throws JDOMException, IOException
   {
@@ -238,7 +240,8 @@ public class XmlStringBuffer
 
     return result;
   }
-
+*/
+  
   /**
    * parse the content
    *

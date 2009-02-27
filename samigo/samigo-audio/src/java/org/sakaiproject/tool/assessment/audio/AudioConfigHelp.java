@@ -52,32 +52,17 @@
 package org.sakaiproject.tool.assessment.audio;
 
 import java.io.Serializable;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import java.util.ResourceBundle;
-import java.util.Locale;
+import java.util.ResourceBundle; 
 
 public class AudioConfigHelp
   implements Serializable
 {
-  static ResourceBundle res = AudioUtil.getInstance().getResourceBundle();
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+static ResourceBundle res = AudioUtil.getInstance().getResourceBundle();
   private static String message;
   private static String about;
   private boolean configHardware;

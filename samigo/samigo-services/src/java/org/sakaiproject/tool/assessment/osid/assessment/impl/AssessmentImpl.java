@@ -41,6 +41,7 @@ import java.util.ArrayList;
 public class AssessmentImpl implements Serializable, Assessment {
 	private static final long serialVersionUID = 7526471155622776147L;
 	private Id id;
+
 	private String displayName;
 	private String description;
 	private String topic;
@@ -54,6 +55,11 @@ public class AssessmentImpl implements Serializable, Assessment {
   public Id getId(){
     return this.id;
   }
+  
+  public void setId(Id id) {
+	this.id = id;
+  }
+
 
   public String getDisplayName(){
     return this.displayName;

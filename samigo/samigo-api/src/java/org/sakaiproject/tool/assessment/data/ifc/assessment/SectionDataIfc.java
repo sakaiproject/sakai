@@ -34,12 +34,12 @@ public interface SectionDataIfc
     extends java.io.Serializable{
 
   public static String AUTHOR_TYPE= "AUTHOR_TYPE";  // author questions one at a time, or random draw from qpool.
-  public static Integer QUESTIONS_AUTHORED_ONE_BY_ONE= new Integer(1);
-  public static Integer RANDOM_DRAW_FROM_QUESTIONPOOL= new Integer(2);
+  public static Integer QUESTIONS_AUTHORED_ONE_BY_ONE= Integer.valueOf(1);
+  public static Integer RANDOM_DRAW_FROM_QUESTIONPOOL= Integer.valueOf(2);
 
   public static String QUESTIONS_ORDERING = "QUESTIONS_ORDERING"; // question ordering within a part
-  public static Integer AS_LISTED_ON_ASSESSMENT_PAGE= new Integer(1);
-  public static Integer RANDOM_WITHIN_PART= new Integer(2);
+  public static Integer AS_LISTED_ON_ASSESSMENT_PAGE= Integer.valueOf(1);
+  public static Integer RANDOM_WITHIN_PART= Integer.valueOf(2);
   public static String POOLID_FOR_RANDOM_DRAW = "POOLID_FOR_RANDOM_DRAW";
   public static String POOLNAME_FOR_RANDOM_DRAW = "POOLNAME_FOR_RANDOM_DRAW";
   public static String NUM_QUESTIONS_DRAWN = "NUM_QUESTIONS_DRAWN";

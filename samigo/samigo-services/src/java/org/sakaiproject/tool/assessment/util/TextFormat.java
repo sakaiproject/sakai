@@ -251,15 +251,8 @@ public class TextFormat
         returnText.replace(
           temp, temp + 2, "<img src='" + iconPath + "wink.gif'/>");
       }
-
-      if(returnText != null)
-      {
         return returnText.toString();
-      }
-      else
-      {
-        return "";
-      }
+
     }
     else
     {

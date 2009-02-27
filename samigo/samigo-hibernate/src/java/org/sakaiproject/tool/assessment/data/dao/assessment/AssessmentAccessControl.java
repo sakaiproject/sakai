@@ -50,34 +50,34 @@ public class AssessmentAccessControl
 	 */
 	private static final long serialVersionUID = 8330416434678491916L;
 // flag it when no editing on the property is desire
-  public static final Integer NO_EDIT = new Integer(-1);
+  public static final Integer NO_EDIT = Integer.valueOf(-1);
   // timedAssessment
-  public static final Integer TIMED_ASSESSMENT = new Integer(1);
-  public static final Integer DO_NOT_TIMED_ASSESSMENT = new Integer(0);
+  public static final Integer TIMED_ASSESSMENT = Integer.valueOf(1);
+  public static final Integer DO_NOT_TIMED_ASSESSMENT = Integer.valueOf(0);
   // autoSubmit
-  public static final Integer AUTO_SUBMIT = new Integer(1);
-  public static final Integer DO_NOT_AUTO_SUBMIT = new Integer(0);
+  public static final Integer AUTO_SUBMIT = Integer.valueOf(1);
+  public static final Integer DO_NOT_AUTO_SUBMIT = Integer.valueOf(0);
   // autoSave
-  public static final Integer SAVE_ON_CLICK = new Integer(1);
-  public static final Integer AUTO_SAVE = new Integer(2);
+  public static final Integer SAVE_ON_CLICK = Integer.valueOf(1);
+  public static final Integer AUTO_SAVE = Integer.valueOf(2);
   // itemNavigation
-  public static final Integer LINEAR_ACCESS = new Integer(1);
-  public static final Integer RANDOM_ACCESS = new Integer(2);
+  public static final Integer LINEAR_ACCESS = Integer.valueOf(1);
+  public static final Integer RANDOM_ACCESS = Integer.valueOf(2);
   // assessmentFormat
-  public static final Integer BY_QUESTION = new Integer(1);
-  public static final Integer BY_PART = new Integer(2);
-  public static final Integer BY_ASSESSMENT = new Integer(3);
+  public static final Integer BY_QUESTION = Integer.valueOf(1);
+  public static final Integer BY_PART = Integer.valueOf(2);
+  public static final Integer BY_ASSESSMENT = Integer.valueOf(3);
   // itemNumbering
-  public static final Integer CONTINUOUS_NUMBERING = new Integer(1);
-  public static final Integer RESTART_NUMBERING_BY_PART = new Integer(2);
+  public static final Integer CONTINUOUS_NUMBERING = Integer.valueOf(1);
+  public static final Integer RESTART_NUMBERING_BY_PART = Integer.valueOf(2);
   // markForReview
-  public static final Integer MARK_FOR_REVIEW = new Integer(1);
-  public static final Integer NOT_MARK_FOR_REVIEW = new Integer(0);
+  public static final Integer MARK_FOR_REVIEW = Integer.valueOf(1);
+  public static final Integer NOT_MARK_FOR_REVIEW = Integer.valueOf(0);
   // submissionsAllowed
-  public static final Integer UNLIMITED_SUBMISSIONS_ALLOWED = new Integer(9999);
+  public static final Integer UNLIMITED_SUBMISSIONS_ALLOWED = Integer.valueOf(9999);
   // lateHandling
-  public static final Integer ACCEPT_LATE_SUBMISSION = new Integer(1);
-  public static final Integer NOT_ACCEPT_LATE_SUBMISSION = new Integer(2);
+  public static final Integer ACCEPT_LATE_SUBMISSION = Integer.valueOf(1);
+  public static final Integer NOT_ACCEPT_LATE_SUBMISSION = Integer.valueOf(2);
 
   private Long id;
 
@@ -111,7 +111,7 @@ public class AssessmentAccessControl
    */
   public AssessmentAccessControl()
   {
-    this.submissionsAllowed = new Integer(9999); // =  no limit
+    this.submissionsAllowed = Integer.valueOf(9999); // =  no limit
     this.submissionsSaved = new Integer(1); // no. of copy
   }
 

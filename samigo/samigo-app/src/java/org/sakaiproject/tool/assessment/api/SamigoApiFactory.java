@@ -49,7 +49,7 @@ import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServ
 public abstract class SamigoApiFactory
 {
   private static Log log = LogFactory.getLog(SamigoApiFactory.class);
-  private static SamigoApiFactory instance;
+  private static SamigoApiFactory instance = null;
 
   /**
    * Static method returning an implementation instance of this factory.

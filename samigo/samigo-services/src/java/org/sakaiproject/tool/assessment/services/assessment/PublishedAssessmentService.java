@@ -468,7 +468,7 @@ public class PublishedAssessmentService extends AssessmentService{
       ArrayList itemArray = section.getItemArray();
       for (int j=0;j<itemArray.size(); j++){
         ItemDataIfc item = (ItemDataIfc)itemArray.get(j);
-        if (item.getTypeId().equals(new Long(8))) // FIB question
+        if (item.getTypeId().equals( Long.valueOf(8))) // FIB question
           map.put(item.getItemId(), item);
       }
     }
@@ -483,7 +483,7 @@ public class PublishedAssessmentService extends AssessmentService{
 	      ArrayList itemArray = section.getItemArray();
 	      for (int j=0;j<itemArray.size(); j++){
 	        ItemDataIfc item = (ItemDataIfc)itemArray.get(j);
-	        if (item.getTypeId().equals(new Long(11))) // FIN question
+	        if (item.getTypeId().equals( Long.valueOf(11))) // FIN question
 	          map.put(item.getItemId(), item);
 	      }
 	    }
@@ -498,7 +498,7 @@ public class PublishedAssessmentService extends AssessmentService{
       ArrayList itemArray = section.getItemArray();
       for (int j=0;j<itemArray.size(); j++){
         ItemDataIfc item = (ItemDataIfc)itemArray.get(j);
-        if (item.getTypeId().equals(new Long(2))) // MCMR question
+        if (item.getTypeId().equals( Long.valueOf(2))) // MCMR question
           map.put(item.getItemId(), item);
       }
     }

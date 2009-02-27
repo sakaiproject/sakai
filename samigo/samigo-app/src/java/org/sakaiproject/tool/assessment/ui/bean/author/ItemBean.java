@@ -927,7 +927,7 @@ public class ItemBean
 	int defaultlength = 4;
 	for (int i=0; i<defaultlength; i++){
 		AnswerBean answerbean = new AnswerBean();
-       		answerbean.setSequence(new Long(i+1));
+       		answerbean.setSequence( Long.valueOf(i+1));
        		answerbean.setLabel(AnswerBean.getChoiceLabels()[i]);
                 
       		list.add(answerbean);
@@ -995,7 +995,7 @@ public class ItemBean
            if (newlength<=26){
               for (int i=currentsize; i<newlength; i++){
                   AnswerBean answerbean = new AnswerBean();
-                  answerbean.setSequence(new Long(i+1));
+                  answerbean.setSequence( Long.valueOf(i+1));
                   answerbean.setLabel(AnswerBean.getChoiceLabels()[i]);
                   list.add(answerbean);
 

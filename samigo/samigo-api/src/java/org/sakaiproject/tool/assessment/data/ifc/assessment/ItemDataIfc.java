@@ -32,8 +32,8 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 
 public interface ItemDataIfc extends java.io.Serializable {
 
-  public static Integer ACTIVE_STATUS = new Integer(1);
-  public static Integer INACTIVE_STATUS = new Integer(0);
+  public static Integer ACTIVE_STATUS = Integer.valueOf(1);
+  public static Integer INACTIVE_STATUS = Integer.valueOf(0);
 
   Long getItemId();
 

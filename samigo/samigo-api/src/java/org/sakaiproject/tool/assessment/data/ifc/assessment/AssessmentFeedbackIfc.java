@@ -27,14 +27,14 @@ public interface AssessmentFeedbackIfc
     extends java.io.Serializable
 {
 
-  public static Integer IMMEDIATE_FEEDBACK = new Integer(1);
-  public static Integer FEEDBACK_BY_DATE = new Integer(2);
-  public static Integer NO_FEEDBACK = new Integer(3);
-  public static Integer FEEDBACK_ON_SUBMISSION = new Integer(4);
+  public static Integer IMMEDIATE_FEEDBACK = Integer.valueOf(1);
+  public static Integer FEEDBACK_BY_DATE = Integer.valueOf(2);
+  public static Integer NO_FEEDBACK = Integer.valueOf(3);
+  public static Integer FEEDBACK_ON_SUBMISSION = Integer.valueOf(4);
 
-  public static Integer QUESTIONLEVEL_FEEDBACK = new Integer(1);
-  public static Integer SECTIONLEVEL_FEEDBACK = new Integer(2);
-  public static Integer BOTH_FEEDBACK = new Integer(3);
+  public static Integer QUESTIONLEVEL_FEEDBACK = Integer.valueOf(1);
+  public static Integer SECTIONLEVEL_FEEDBACK = Integer.valueOf(2);
+  public static Integer BOTH_FEEDBACK = Integer.valueOf(3);
 
   Long getId();
 

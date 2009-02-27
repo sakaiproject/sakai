@@ -221,14 +221,14 @@ public class PublishedItemData
 
   public Float getDiscount() {
 	  if (this.discount==null){
-		  this.discount=new Float(0);
+		  this.discount= Float.valueOf(0);
 	  }
 	  return this.discount;
   }
 
   public void setDiscount(Float discount) {
 	  if (discount==null){
-		  discount=new Float(0);
+		  discount =Float.valueOf(0);
 	  }
 	  this.discount = discount;
   }
@@ -350,7 +350,7 @@ public class PublishedItemData
     if (this.itemTextSet == null) {
       this.itemTextSet = new HashSet();
     }
-    Long sequence = new Long(this.itemTextSet.size()+1);
+    Long sequence =  Long.valueOf(this.itemTextSet.size()+1);
     PublishedItemText itemText = new PublishedItemText(this, sequence, text, answerSet);
     this.itemTextSet.add(itemText);
   }

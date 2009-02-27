@@ -36,7 +36,7 @@ public class AssessmentGradingComparatorByScoreAndUniqueIdentifier implements
 		AssessmentGradingData assessmentGrading0 = (AssessmentGradingData) arg0;
 		AssessmentGradingData assessmentGrading1 = (AssessmentGradingData) arg1;
 		
-		Float zero = new Float(0);
+		Float zero =  Float.valueOf(0);
 		Float score0 = assessmentGrading0.getFinalScore() == null ? zero : assessmentGrading0.getFinalScore();
 		Float score1 = assessmentGrading1.getFinalScore() == null ? zero : assessmentGrading1.getFinalScore();
 		

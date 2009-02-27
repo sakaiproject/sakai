@@ -194,14 +194,14 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 
 	public Long addTemplate() {
 		AssessmentTemplateData assessmentTemplate = new AssessmentTemplateData(
-				new Long(0), "title", "description", "comments",
-				TypeD.HOMEWORK, new Integer(1), new Integer(1), new Integer(1),
-				new Integer(1), "1", new Date(), "1", new Date());
-		AssessmentAccessControl s = new AssessmentAccessControl(new Integer(0),
-				new Integer(0), new Integer(0), new Integer(0), new Integer(0),
-				new Integer(0), new Integer(0), new Integer(0), new Date(),
-				new Date(), new Date(), new Date(), new Date(), new Integer(1),
-				new Integer(1), new Integer(1), "Thanks for submitting",
+			 Long.valueOf(0), "title", "description", "comments",
+				TypeD.HOMEWORK, Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1),
+				Integer.valueOf(1), "1", new Date(), "1", new Date());
+		AssessmentAccessControl s = new AssessmentAccessControl(Integer.valueOf(0),
+				Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0),
+				Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0), new Date(),
+				new Date(), new Date(), new Date(), new Date(), Integer.valueOf(1),
+				Integer.valueOf(1), Integer.valueOf(1), "Thanks for submitting",
 				"anonymous");
 		s.setAssessmentBase(assessmentTemplate);
 		assessmentTemplate
@@ -247,13 +247,13 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		AssessmentData assessment = new AssessmentData(new Long(0),
 				"assessment title", "assessment description",
 				"assessment acomments", assessmentTemplateId, TypeD.HOMEWORK,
-				new Integer(1), new Integer(1), new Integer(1), new Integer(1),
+				Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1),
 				"1", new Date(), "1", new Date());
-		AssessmentAccessControl s = new AssessmentAccessControl(new Integer(1),
-				new Integer(1), new Integer(1), new Integer(1), new Integer(1),
-				new Integer(1), new Integer(1), new Integer(1), new Date(),
-				new Date(), new Date(), new Date(), new Date(), new Integer(1),
-				new Integer(1), new Integer(1), "Thanks for submitting",
+		AssessmentAccessControl s = new AssessmentAccessControl(Integer.valueOf(1),
+				Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1),
+				Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1), new Date(),
+				new Date(), new Date(), new Date(), new Date(), Integer.valueOf(1),
+				Integer.valueOf(1), Integer.valueOf(1), "Thanks for submitting",
 				"anonymous");
 
 		s.setAssessmentBase(assessment);
@@ -1012,7 +1012,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		// #2 section has no default name - per Marc's new mockup
 
 		SectionData section = new SectionData(null,
-				new Integer(sectionSet.size() + 1), // NEXT section
+				Integer.valueOf(sectionSet.size() + 1), // NEXT section
 				"", "", TypeD.DEFAULT_SECTION, SectionData.ACTIVE_STATUS,
 				AgentFacade.getAgentString(), new Date(), AgentFacade
 						.getAgentString(), new Date());
@@ -1074,7 +1074,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			for (int i = 0; i < sections.size(); i++) {
 				SectionData s = (SectionData) sections.get(i);
 				if (!(s.getSectionId()).equals(section.getSectionId())) {
-					s.setSequence(new Integer(count++));
+					s.setSequence(Integer.valueOf(count++));
 					set.add(s);
 				}
 			}
@@ -1164,7 +1164,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		for (int i = 0; i < list.size(); i++) {
 			ItemDataIfc a = (ItemDataIfc) list.get(i);
 			a.setSection(destSection);
-			a.setSequence(new Integer(++itemNum));
+			a.setSequence(Integer.valueOf(++itemNum));
 			set.add(a);
 		}
 		destSection.setItemSet(set);

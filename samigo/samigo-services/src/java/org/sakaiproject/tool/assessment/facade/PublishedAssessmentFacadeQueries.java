@@ -646,7 +646,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				.find(
 						"from PublishedAssessmentData as p where p.assessmentId=? order by p.createdDate desc",
 						assessmentId);
-		Long publishedId = new Long(0);
+		Long publishedId =  Long.valueOf(0);
 		if (!list.isEmpty()) {
 			PublishedAssessmentData f = (PublishedAssessmentData) list.get(0);
 			publishedId = f.getPublishedAssessmentId();
@@ -1563,7 +1563,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		HashMap h = new HashMap();
 		for (int i = 0; i < l.size(); i++) {
 			AssessmentGradingData d = (AssessmentGradingData) l.get(i);
-			h.put(d.getPublishedAssessmentId(), new Integer(d
+			h.put(d.getPublishedAssessmentId(),  Integer.valueOf(d
 					.getTotalSubmitted()));
 			log.debug("pId=" + d.getPublishedAssessmentId() + " submitted="
 					+ d.getTotalSubmitted());
@@ -1576,7 +1576,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		HashMap h = new HashMap();
 		for (int i = 0; i < l.size(); i++) {
 			AssessmentGradingData d = (AssessmentGradingData) l.get(i);
-			h.put(d.getPublishedAssessmentId(), new Integer(d
+			h.put(d.getPublishedAssessmentId(),  Integer.valueOf(d
 					.getTotalSubmitted()));
 			log.debug("pId=" + d.getPublishedAssessmentId() + " submitted="
 					+ d.getTotalSubmitted());
@@ -2535,7 +2535,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		// #2 section has no default name - per Marc's new mockup
 		PublishedSectionData section = new PublishedSectionData(
 				null,
-				new Integer(sectionSet.size() + 1), // NEXT section
+				 Integer.valueOf(sectionSet.size() + 1), // NEXT section
 				"", "", TypeD.DEFAULT_SECTION, SectionData.ACTIVE_STATUS,
 				AgentFacade.getAgentString(), new Date(), AgentFacade
 						.getAgentString(), new Date());

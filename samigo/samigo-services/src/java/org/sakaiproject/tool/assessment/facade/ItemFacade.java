@@ -775,7 +775,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
     if (this.data.getItemTextSet() == null) {
       this.data.setItemTextSet(new HashSet());
     }
-    Long sequence = new Long(this.data.getItemTextSet().size()+1);
+    Long sequence = Long.valueOf(this.data.getItemTextSet().size()+1);
     ItemText itemText = new ItemText((ItemData)this.data, sequence,
                                      text, answerSet);
     this.data.getItemTextSet().add(itemText);

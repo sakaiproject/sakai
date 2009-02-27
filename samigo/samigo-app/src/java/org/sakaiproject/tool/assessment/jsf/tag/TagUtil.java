@@ -318,7 +318,7 @@ public class TagUtil
     }
     else
     {
-      return new Boolean(expression);
+      return  Boolean.valueOf(expression);
     }
   }
 

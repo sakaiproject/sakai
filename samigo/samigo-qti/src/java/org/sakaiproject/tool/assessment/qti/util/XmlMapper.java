@@ -221,6 +221,8 @@ public class XmlMapper
    *
    * @return text value of node
    */
+  
+  /*
   private static String textValue(Node nd)
   {
     
@@ -240,6 +242,8 @@ public class XmlMapper
     String text = textbuf.toString();
     return text;
   }
+  
+  */
 
   /**
    * If there is a type attribute for the element node, return its value,

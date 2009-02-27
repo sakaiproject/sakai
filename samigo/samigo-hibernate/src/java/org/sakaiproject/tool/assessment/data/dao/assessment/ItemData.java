@@ -27,7 +27,7 @@ public class ItemData
   static Category errorLogger = Category.getInstance("errorLogger");
 
   private static final long serialVersionUID = 7526471155622776147L;
-  public static final Long ADMIN = new Long(34);
+  public static final Long ADMIN = Long.valueOf(34);
 
   private Long itemId;
   private String itemIdString;
@@ -291,14 +291,14 @@ public class ItemData
 
   public Float getDiscount() {
 	  if (this.discount==null){
-		  this.discount=new Float(0);
+		  this.discount=Float.valueOf(0);
 	  }
 	  return this.discount;
   }
 
   public void setDiscount(Float discount) {
 	  if (discount==null){
-		  discount=new Float(0);
+		  discount=Float.valueOf(0);
 	  }
 	  this.discount = discount;
   }
@@ -316,7 +316,7 @@ public class ItemData
   }
 
   public void setHasRationale(Boolean hasRationale) {
-	  if (hasRationale == null) this.hasRationale = new Boolean(false);
+	  if (hasRationale == null) this.hasRationale = Boolean.valueOf(false);
 	  else this.hasRationale = hasRationale;
   }
 
@@ -421,7 +421,7 @@ public class ItemData
     if (this.itemTextSet == null) {
       this.itemTextSet = new HashSet();
     }
-    Long sequence = new Long(this.itemTextSet.size()+1);
+    Long sequence =Long.valueOf(this.itemTextSet.size()+1);
     ItemText itemText = new ItemText(this, sequence, text, answerSet);
     this.itemTextSet.add(itemText);
   }

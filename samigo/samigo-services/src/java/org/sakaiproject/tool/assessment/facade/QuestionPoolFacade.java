@@ -51,14 +51,14 @@ public class QuestionPoolFacade
   private static Log log = LogFactory.getLog(QuestionPoolFacade.class);
   private static final long serialVersionUID = 7526471155622776147L;
 
-  public static final Long ACCESS_DENIED = new Long(30);
-  public static final Long READ_ONLY = new Long(31);
-  public static final Long READ_COPY = new Long(32);
-  public static final Long READ_WRITE = new Long(33);
-  public static final Long ADMIN = new Long(34);
-  public static final Long DEFAULT_TYPEID = new Long(0);
-  public static final Long DEFAULT_INTELLECTUAL_PROPERTYID = new Long(0);
-  public static final Long ROOT_POOL = new Long(0);
+  public static final Long ACCESS_DENIED =  Long.valueOf(30);
+  public static final Long READ_ONLY = Long.valueOf(31);
+  public static final Long READ_COPY = Long.valueOf(32);
+  public static final Long READ_WRITE = Long.valueOf(33);
+  public static final Long ADMIN = Long.valueOf(34);
+  public static final Long DEFAULT_TYPEID = Long.valueOf(0);
+  public static final Long DEFAULT_INTELLECTUAL_PROPERTYID = Long.valueOf(0);
+  public static final Long ROOT_POOL = Long.valueOf(0);
 
   private QuestionPool questionPool;
   // We have 2 sets of properties:
@@ -785,7 +785,7 @@ public class QuestionPoolFacade
 
   public Integer getQuestionSize()
   {
-    return new Integer(items.size());
+    return  Integer.valueOf(items.size());
   }
 
   public void setSubPoolSize(Integer subPoolSize)

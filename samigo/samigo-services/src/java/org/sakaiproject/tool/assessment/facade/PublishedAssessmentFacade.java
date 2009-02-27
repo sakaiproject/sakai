@@ -49,9 +49,9 @@ public class PublishedAssessmentFacade
 {
   private static final long serialVersionUID = 7526471155622776147L;
   private static Log log = LogFactory.getLog(PublishedAssessmentFacade.class);
-  public static final Integer ACTIVE_STATUS = new Integer(1);
-  public static final Integer INACTIVE_STATUS = new Integer(0);
-  public static final Integer ANY_STATUS = new Integer(2);
+  public static final Integer ACTIVE_STATUS =  Integer.valueOf(1);
+  public static final Integer INACTIVE_STATUS = Integer.valueOf(0);
+  public static final Integer ANY_STATUS = Integer.valueOf(2);
   private PublishedAssessmentIfc data;
   private AssessmentFacade assessment;
   private Long publishedAssessmentId;
@@ -185,7 +185,7 @@ public class PublishedAssessmentFacade
 		else
 			this.unlimitedSubmissions = Boolean.TRUE;
 		if (submissionsAllowed == null)
-			this.submissionsAllowed = new Integer(0);
+			this.submissionsAllowed = Integer.valueOf(0);
 		else
 			this.submissionsAllowed = submissionsAllowed;
 		this.scoringType = scoringType;
@@ -669,7 +669,7 @@ public class PublishedAssessmentFacade
         total= total + item.getScore().floatValue();
       }
     }
-    return new Float(total);
+    return  Float.valueOf(total);
   }
 
   public PublishedAssessmentFacade clonePublishedAssessment(){

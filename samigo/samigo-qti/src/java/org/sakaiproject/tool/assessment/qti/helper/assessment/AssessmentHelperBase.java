@@ -327,7 +327,7 @@ public abstract class AssessmentHelperBase
     assessmentXml.setFieldentry("AUTO_SUBMIT", qtiBooleanString(autoSubmit));
 
     // getTimedAssessment() does not always tell us
-    if (timeLimit != null && timeLimit != new Integer(0))
+    if (timeLimit != null && timeLimit !=  Integer.valueOf(0))
     {
       setDuration(timeLimit, assessmentXml);
     }

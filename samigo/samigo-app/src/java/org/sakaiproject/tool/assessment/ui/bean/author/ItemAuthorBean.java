@@ -987,7 +987,7 @@ public class ItemAuthorBean
 		  ItemFacade  itemfacade = (ItemFacade) iter.next();
 		  Integer itemfacadeseq = itemfacade.getSequence();
 		  if (itemfacadeseq.compareTo(currSeq) > 0 ){
-			  itemfacade.setSequence(new Integer(itemfacadeseq.intValue()-1) );
+			  itemfacade.setSequence( Integer.valueOf(itemfacadeseq.intValue()-1) );
 			  delegate.saveItem(itemfacade);
 		  }
 	  }
@@ -1008,7 +1008,7 @@ public class ItemAuthorBean
         ItemService delegate = new ItemService();
         String itemId= ContextUtil.lookupParam("itemid");
 
-        ItemFacade itemf = delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
+        ItemFacade itemf = delegate.getItem( Long.valueOf(itemId), AgentFacade.getAgentString());
         setItemToDelete(itemf);
 
         return "removeQuestion";

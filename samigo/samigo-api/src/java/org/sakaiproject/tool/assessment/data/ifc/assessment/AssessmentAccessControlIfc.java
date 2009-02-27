@@ -34,36 +34,36 @@ public interface AssessmentAccessControlIfc
     extends java.io.Serializable
 {
   // flag it when no editing on the property is desire
-  public static Integer NO_EDIT = new Integer(-1);
+  public static Integer NO_EDIT = Integer.valueOf(-1);
   // timedAssessment
-  public static Integer TIMED_ASSESSMENT = new Integer(1);
-  public static Integer DO_NOT_TIMED_ASSESSMENT = new Integer(0);
+  public static Integer TIMED_ASSESSMENT = Integer.valueOf(1);
+  public static Integer DO_NOT_TIMED_ASSESSMENT = Integer.valueOf(0);
   // autoSubmit
-  public static Integer AUTO_SUBMIT = new Integer(1);
-  public static Integer DO_NOT_AUTO_SUBMIT = new Integer(0);
+  public static Integer AUTO_SUBMIT = Integer.valueOf(1);
+  public static Integer DO_NOT_AUTO_SUBMIT = Integer.valueOf(0);
   // autoSave
-  public static Integer SAVE_ON_CLICK = new Integer(1);
-  public static Integer AUTO_SAVE = new Integer(2);
+  public static Integer SAVE_ON_CLICK = Integer.valueOf(1);
+  public static Integer AUTO_SAVE = Integer.valueOf(2);
   // itemNavigation
-  public static Integer LINEAR_ACCESS = new Integer(1);
-  public static Integer RANDOM_ACCESS = new Integer(2);
+  public static Integer LINEAR_ACCESS = Integer.valueOf(1);
+  public static Integer RANDOM_ACCESS = Integer.valueOf(2);
   // assessmentFormat
-  public static Integer BY_QUESTION = new Integer(1);
-  public static Integer BY_PART = new Integer(2);
-  public static Integer BY_ASSESSMENT = new Integer(3);
+  public static Integer BY_QUESTION = Integer.valueOf(1);
+  public static Integer BY_PART = Integer.valueOf(2);
+  public static Integer BY_ASSESSMENT = Integer.valueOf(3);
   // itemNumbering
-  public static Integer CONTINUOUS_NUMBERING = new Integer(1);
-  public static Integer RESTART_NUMBERING_BY_PART = new Integer(2);
+  public static Integer CONTINUOUS_NUMBERING = Integer.valueOf(1);
+  public static Integer RESTART_NUMBERING_BY_PART = Integer.valueOf(2);
   //markForReview
-  public static final Integer MARK_FOR_REVIEW = new Integer(1);
-  public static final Integer NOT_MARK_FOR_REVIEW = new Integer(0);
+  public static final Integer MARK_FOR_REVIEW = Integer.valueOf(1);
+  public static final Integer NOT_MARK_FOR_REVIEW = Integer.valueOf(0);
   // submissionsAllowed
-  public static Integer UNLIMITED_SUBMISSIONS_ALLOWED = new Integer(9999);
-  public static Integer UNLIMITED_SUBMISSIONS = new Integer(1);
-  public static Integer LIMITED_SUBMISSIONS = new Integer(0);
+  public static Integer UNLIMITED_SUBMISSIONS_ALLOWED = Integer.valueOf(9999);
+  public static Integer UNLIMITED_SUBMISSIONS = Integer.valueOf(1);
+  public static Integer LIMITED_SUBMISSIONS = Integer.valueOf(0);
   // lateHandling
-  public static Integer ACCEPT_LATE_SUBMISSION = new Integer(1);
-  public static Integer NOT_ACCEPT_LATE_SUBMISSION = new Integer(2);
+  public static Integer ACCEPT_LATE_SUBMISSION = Integer.valueOf(1);
+  public static Integer NOT_ACCEPT_LATE_SUBMISSION = Integer.valueOf(2);
   
   // gopalrc - group release
   public static String RELEASE_TO_SELECTED_GROUPS = "Selected Groups";

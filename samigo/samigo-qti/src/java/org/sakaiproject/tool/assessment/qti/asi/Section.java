@@ -171,6 +171,8 @@ public class Section extends ASIBaseClass
    *
    * @return return arraylist of items
    */
+  
+  /*
   private ArrayList selectItems()
   {
     log.debug("selectItems()");
@@ -208,7 +210,7 @@ public class Section extends ASIBaseClass
 
     return items;
   }
-
+*/
 
   /**
    * get all items
@@ -241,6 +243,7 @@ public class Section extends ASIBaseClass
    *
    * @param items list of items
    */
+  /*
   private void orderItems(ArrayList items)
   {
     if (log.isDebugEnabled())
@@ -275,7 +278,7 @@ public class Section extends ASIBaseClass
 
     addItems(items);
   }
-
+*/
   /**
    * Add item list to this section document.
    *

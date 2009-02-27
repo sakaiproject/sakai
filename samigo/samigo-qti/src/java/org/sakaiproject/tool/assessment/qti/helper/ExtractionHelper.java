@@ -746,7 +746,7 @@ public class ExtractionHelper
         }
         long millisecondsDuration = tiso.getDuration();
         int seconds = (int) millisecondsDuration /1000;
-        control.setTimeLimit(new Integer(seconds));
+        control.setTimeLimit( Integer.valueOf(seconds));
         if (seconds !=0)
         {
           control.setTimedAssessment(AssessmentAccessControl.TIMED_ASSESSMENT);
@@ -754,7 +754,7 @@ public class ExtractionHelper
         }
         else
         {
-          control.setTimeLimit(new Integer(0));
+          control.setTimeLimit(Integer.valueOf(0));
           control.setTimedAssessment(AssessmentAccessControl.
                                      DO_NOT_TIMED_ASSESSMENT);
         }
@@ -762,14 +762,14 @@ public class ExtractionHelper
       catch (Iso8601FormatException ex)
       {
         log.warn("Can't format assessment duration. " + ex);
-        control.setTimeLimit(new Integer(0));
+        control.setTimeLimit(Integer.valueOf(0));
         control.setTimedAssessment(AssessmentAccessControl.
                                    DO_NOT_TIMED_ASSESSMENT);
       }
     }
     else
     {
-      control.setTimeLimit(new Integer(0));
+      control.setTimeLimit(Integer.valueOf(0));
       control.setTimedAssessment(AssessmentAccessControl.
                                  DO_NOT_TIMED_ASSESSMENT);
     }
@@ -1307,28 +1307,28 @@ public class ExtractionHelper
     item.setInstruction( (String) itemMap.get("instruction"));
     if (notNullOrEmpty(score))
     {
-      item.setScore(new Float(score));
+      item.setScore( Float.valueOf(score));
     }
     else {
-    	item.setScore(new Float(0));
+    	item.setScore(Float.valueOf(0));
     }
     
     if (notNullOrEmpty(discount))
     {
-    	item.setDiscount(new Float(discount));
+    	item.setDiscount(Float.valueOf(discount));
     }
     else {
-    	item.setDiscount(new Float(0));
+    	item.setDiscount(Float.valueOf(0));
     }
 
     item.setHint( (String) itemMap.get("hint"));
     if (notNullOrEmpty(hasRationale))
     {
-      item.setHasRationale(new Boolean(hasRationale));
+      item.setHasRationale( Boolean.valueOf(hasRationale));
     }
     if (notNullOrEmpty(status))
     {
-      item.setStatus(new Integer(status));
+      item.setStatus( Integer.valueOf(status));
     }
     item.setCreatedBy(createdBy);
     try
@@ -1407,6 +1407,7 @@ public class ExtractionHelper
    * @param item
    * @param itemMap
    */
+  /*
   private void addAnswerFeedback(Answer answer, String value)
   {
     HashSet answerFeedbackSet = new HashSet();
@@ -1415,7 +1416,7 @@ public class ExtractionHelper
                                              value));
     answer.setAnswerFeedbackSet(answerFeedbackSet);
   }
-
+*/
   /**
    * @param item
    * @param itemMap
@@ -1439,7 +1440,7 @@ public class ExtractionHelper
 
       itemText.setText(makeFCKAttachment(text));
       itemText.setItem(item.getData());
-      itemText.setSequence(new Long(i + 1));
+      itemText.setSequence( Long.valueOf(i + 1));
       List answerList = new ArrayList();
       List aList = (List) itemMap.get("itemAnswer");
       answerList = aList == null ? answerList : aList;
@@ -1492,15 +1493,15 @@ public class ExtractionHelper
           score = getCorrectScore(item, 1);
           discount = getCorrectDiscount(item);
           log.debug("setting answer" + label + " score to:" + score);
-          answer.setScore(new Float(score));
+          answer.setScore( Float.valueOf(score));
           log.debug("setting answer " + label + " discount to:" + discount);
-          answer.setDiscount(new Float(discount));
+          answer.setDiscount(Float.valueOf(discount));
 
           answer.setText(makeFCKAttachment(answerText));
           answer.setItemText(itemText);
           answer.setItem(item.getData());
           int sequence = a + 1;
-          answer.setSequence(new Long(sequence));
+          answer.setSequence( Long.valueOf(sequence));
           // prepare answer feedback - daisyf added this on 2/21/05
           // need to check if this works for question type other than
           // MC
@@ -1641,7 +1642,7 @@ public class ExtractionHelper
     log.debug("itemTextString="+itemTextString);
     itemText.setText(makeFCKAttachment(itemTextString));
     itemText.setItem(item.getData());
-    itemText.setSequence(new Long(0));
+    itemText.setSequence( Long.valueOf(0));
     HashSet answerSet = new HashSet();
     char answerLabel = 'A';
     for (int a = 0; a < answerList.size(); a++)
@@ -1668,14 +1669,14 @@ public class ExtractionHelper
 //        float score = getCorrectScore(item, answerList.size());
 
         log.debug("setting answer " + label + " score to:" + score);
-        answer.setScore(new Float(score));
+        answer.setScore( Float.valueOf(score));
         
         log.debug("setting answer " + label + " discount to:" + discount);
-        answer.setDiscount(new Float(discount));
+        answer.setDiscount( Float.valueOf(discount));
         
         answer.setItem(item.getData());
         int sequence = a + 1;
-        answer.setSequence(new Long(sequence));
+        answer.setSequence( Long.valueOf(sequence));
         HashSet set = new HashSet();
         if (answerFeedbackList != null)
         {
@@ -1787,7 +1788,7 @@ public class ExtractionHelper
       ItemText sourceItemText = new ItemText();
       sourceItemText.setText(makeFCKAttachment(sourceText));
       sourceItemText.setItem(item.getData());
-      sourceItemText.setSequence(new Long(i + 1));
+      sourceItemText.setSequence( Long.valueOf(i + 1));
 
       // find the matching answer (target)
       HashSet targetSet = new HashSet();

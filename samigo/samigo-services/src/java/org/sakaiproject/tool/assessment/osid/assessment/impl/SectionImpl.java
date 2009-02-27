@@ -38,11 +38,16 @@ import org.sakaiproject.tool.assessment.facade.ItemFacade;
 
 public class SectionImpl implements Section {
   private Id id;
-  private String displayName;
+
+
+private String displayName;
   private String description;
   private Serializable data;
   private Type sectionType;
-  private Set itemSet;
+
+
+
+private Set itemSet;
 
   public Set getItemSet() {
 	return itemSet;
@@ -58,6 +63,10 @@ public SectionImpl() {
   public Id getId() {
     return id;
   }
+
+  public void setId(Id id) {
+		this.id = id;
+	}
 
   public String getDisplayName() {
     return displayName;
@@ -99,6 +108,9 @@ public SectionImpl() {
     return sectionType;
   }
 
+  public void setSectionType(Type sectionType) {
+		this.sectionType = sectionType;
+	}
   public PropertiesIterator getProperties() throws AssessmentException{
     throw new AssessmentException(AssessmentException.UNIMPLEMENTED);
   }
@@ -138,7 +150,7 @@ public SectionImpl() {
     for(int i = 0; i < itemArray.length; i++)
     {
       ItemFacade item = (ItemFacade) itemArray[i];
-      item.setSequence(new Integer(i));
+      item.setSequence( Integer.valueOf(i));
     }
   }
 

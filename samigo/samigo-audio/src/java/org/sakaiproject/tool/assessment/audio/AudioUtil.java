@@ -9,7 +9,7 @@ public class AudioUtil {
 
 	private static final String RESOURCE_NAME = "AudioResources";
 
-	private static AudioUtil INSTANCE;
+	private static AudioUtil INSTANCE= null;
 
 	private String localeLanguage;
 

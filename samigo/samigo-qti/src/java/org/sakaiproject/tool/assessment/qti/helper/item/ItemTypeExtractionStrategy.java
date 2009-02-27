@@ -41,7 +41,7 @@ import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
 public class ItemTypeExtractionStrategy
 {
   private static Log log = LogFactory.getLog(ItemTypeExtractionStrategy.class);
-  private static final Long DEFAULT_TYPE = new Long(2);
+  private static final Long DEFAULT_TYPE =  Long.valueOf(2);
 
 
   /**
@@ -266,7 +266,7 @@ public class ItemTypeExtractionStrategy
     {
       if (typeString.trim().equalsIgnoreCase(typeArray[i]))
       {
-        type = new Long(i);
+        type =  Long.valueOf(i);
         break;
       }
     }

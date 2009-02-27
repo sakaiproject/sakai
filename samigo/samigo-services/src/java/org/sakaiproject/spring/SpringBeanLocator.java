@@ -34,14 +34,14 @@ public class SpringBeanLocator
 
   public static SpringBeanLocator getInstance()
   {
-    if (instance != null)
-    {
+    //if (instance != null)
+    //{
       return instance;
-    }
-    else
-    {
-      return new SpringBeanLocator();
-    }
+    //}
+    //else
+    //{
+    //  return new SpringBeanLocator();
+    //}
   }
 
   /**

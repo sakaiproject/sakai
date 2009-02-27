@@ -41,7 +41,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.ServerConfigurati
 public abstract class IntegrationContextFactory
 {
   private static Log log = LogFactory.getLog(IntegrationContextFactory.class);
-  private static IntegrationContextFactory instance;
+  private static IntegrationContextFactory instance=null;
 
   /**
    * Static method returning an implementation instance of this factory.

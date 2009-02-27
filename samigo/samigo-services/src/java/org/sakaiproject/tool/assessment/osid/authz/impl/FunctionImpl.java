@@ -27,7 +27,8 @@ import org.osid.shared.Type;
 
 public class FunctionImpl implements Function {
   private Id id;
-  private String referenceName;
+
+private String referenceName;
   private String description;
   private Type functionType;
   private Id qualifierHierarchyId;
@@ -44,6 +45,11 @@ public class FunctionImpl implements Function {
   public Id getId(){
     return id;
   }
+  
+  public void setId(Id id) {
+		this.id = id;
+	}
+  
   public String getReferenceName() {
     return referenceName;
   }

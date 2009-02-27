@@ -208,4 +208,8 @@ public class QuestionPoolImpl
     return parentPool;
   }
 
+public void setParentPool(QuestionPool parentPool) {
+	this.parentPool = parentPool;
+}
+
 }

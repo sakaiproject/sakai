@@ -105,10 +105,7 @@ private Id id;
 
   public boolean isParent() {
     boolean returnValue = false;
-    //ArrayList a = new ArrayList();
-    if (childrenIter == null) {
-    	return returnValue;
-    }
+ 
     while (childrenIter.hasNextQualifier()){
       Id i = (Id)childrenIter.nextQualifier();
       if (i.equals(this.id)){

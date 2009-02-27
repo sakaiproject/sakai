@@ -193,7 +193,7 @@ public class PublishedAssessmentData
 		else
 			this.unlimitedSubmissions = Boolean.TRUE;
 		if (submissionsAllowed == null)
-			this.submissionsAllowed = new Integer(0);
+			this.submissionsAllowed =  Integer.valueOf(0);
 		else
 			this.submissionsAllowed = submissionsAllowed;
 	}
@@ -255,7 +255,7 @@ public class PublishedAssessmentData
     else
       this.unlimitedSubmissions = Boolean.TRUE;
     if (submissionsAllowed == null)
-      this.submissionsAllowed = new Integer(0);
+      this.submissionsAllowed =  Integer.valueOf(0);
     else
       this.submissionsAllowed = submissionsAllowed;
     this.scoringType = scoringType;
@@ -680,7 +680,7 @@ public class PublishedAssessmentData
         total= total + item.getScore().floatValue();
       }
     }
-    return new Float(total);
+    return  Float.valueOf(total);
   }
 
   public Set getAssessmentAttachmentSet() {

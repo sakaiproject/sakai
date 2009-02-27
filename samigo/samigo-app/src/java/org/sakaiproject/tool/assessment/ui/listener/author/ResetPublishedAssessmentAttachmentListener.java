@@ -27,7 +27,7 @@ public class ResetPublishedAssessmentAttachmentListener implements ActionListene
 		Long assessmentId = publishedAssessmentSettingsBean.getAssessmentId();
 		log.debug("***assessmentId=" + assessmentId);
 		ResetAssessmentAttachmentListener resetAssessmentAttachmentListener = new ResetAssessmentAttachmentListener();
-		if (assessmentId != null && !("").equals(assessmentId)) {
+		if (assessmentId != null) {
 			AssessmentIfc assessment = (AssessmentIfc) assessmentService.getAssessment(assessmentId);
 			resetAssessmentAttachmentListener.resetAssessmentAttachment(assessment.getAssessmentAttachmentList(),
 					assessmentService);

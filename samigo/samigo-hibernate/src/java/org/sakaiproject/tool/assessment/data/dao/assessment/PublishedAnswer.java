@@ -157,14 +157,14 @@ public class PublishedAnswer
 
   public Float getDiscount() {
 	  if (this.discount==null){
-		  this.discount=new Float(0);
+		  this.discount= Float.valueOf(0);
 	  }
 	  return this.discount;
   }
 
   public void setDiscount(Float discount) {
 	  if (discount==null){
-		  discount=new Float(0);
+		  discount= Float.valueOf(0);
 	  }
 	  this.discount = discount;
   }

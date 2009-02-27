@@ -85,7 +85,7 @@ public class Iso8601TimeInterval
     }
 
     this.iso8601TimeInterval = iso8601TimeInterval;
-    this.duration = new Long(parseLong(iso8601TimeInterval));
+    this.duration =  Long.valueOf(parseLong(iso8601TimeInterval));
   }
 
   /**
@@ -100,7 +100,7 @@ public class Iso8601TimeInterval
       log.debug("new Iso8601TimeInterval(long " + ms + ")");
     }
 
-    this.duration = new Long(ms);
+    this.duration =  Long.valueOf(ms);
   }
 
   /**
@@ -374,12 +374,12 @@ public class Iso8601TimeInterval
       if(negative)
       {
         sb.append(-weeks);
-        this.weeks = new Integer(-weeks);
+        this.weeks =  Integer.valueOf(-weeks);
       }
       else
       {
         sb.append(weeks);
-        this.weeks = new Integer(weeks);
+        this.weeks =  Integer.valueOf(weeks);
       }
 
       sb.append("W");
@@ -390,12 +390,12 @@ public class Iso8601TimeInterval
       if(negative)
       {
         sb.append(-days);
-        this.days = new Integer(-days);
+        this.days = Integer.valueOf(-days);
       }
       else
       {
         sb.append(days);
-        this.days = new Integer(days);
+        this.days = Integer.valueOf(days);
       }
 
       sb.append("D");
@@ -409,12 +409,12 @@ public class Iso8601TimeInterval
         if(negative)
         {
           sb.append(-hours);
-          this.hours = new Integer(-hours);
+          this.hours = Integer.valueOf(-hours);
         }
         else
         {
           sb.append(hours);
-          this.hours = new Integer(hours);
+          this.hours = Integer.valueOf(hours);
         }
 
         sb.append("H");
@@ -425,12 +425,12 @@ public class Iso8601TimeInterval
         if(negative)
         {
           sb.append(-minutes);
-          this.minutes = new Integer(-minutes);
+          this.minutes = Integer.valueOf(-minutes);
         }
         else
         {
           sb.append(minutes);
-          this.minutes = new Integer(minutes);
+          this.minutes = Integer.valueOf(minutes);
         }
 
         sb.append("M");
@@ -441,12 +441,12 @@ public class Iso8601TimeInterval
         if(negative)
         {
           sb.append(-seconds);
-          this.seconds = new Integer(-seconds);
+          this.seconds = Integer.valueOf(-seconds);
         }
         else
         {
           sb.append(seconds);
-          this.seconds = new Integer(seconds);
+          this.seconds = Integer.valueOf(seconds);
         }
 
         sb.append("S");

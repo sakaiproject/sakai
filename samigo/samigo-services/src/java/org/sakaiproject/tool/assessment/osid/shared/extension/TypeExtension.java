@@ -24,9 +24,14 @@ package org.sakaiproject.tool.assessment.osid.shared.extension;
 import org.osid.shared.Type;
 
 public class TypeExtension extends Type {
-  private String typeId;
+  //private String typeId;
 
-  public TypeExtension(String authority, String domain, String keyword)
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+public TypeExtension(String authority, String domain, String keyword)
   {
     super(authority, domain, keyword);
   }

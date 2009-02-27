@@ -104,7 +104,7 @@ private Long mediaId;
   {
     setMimeType(mimeType);
     setMedia(media);
-    setFileSize(new Long(media.length));
+    setFileSize( Long.valueOf(media.length));
   }
 
   public Long getMediaId()

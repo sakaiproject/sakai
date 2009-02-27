@@ -143,7 +143,7 @@ public class PublishedItemFacade extends ItemFacade implements Serializable, Ite
 	    if (this.data.getItemTextSet() == null) {
 	      this.data.setItemTextSet(new HashSet());
 	    }
-	    Long sequence = new Long(this.data.getItemTextSet().size()+1);
+	    Long sequence =  Long.valueOf(this.data.getItemTextSet().size()+1);
 	    PublishedItemText itemText = new PublishedItemText((PublishedItemData)this.data, sequence,
 	                                     text, answerSet);
 	    this.data.getItemTextSet().add(itemText);

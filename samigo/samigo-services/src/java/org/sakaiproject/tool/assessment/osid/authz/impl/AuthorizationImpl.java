@@ -38,45 +38,48 @@ import org.osid.shared.Id;
  */
 
 public class AuthorizationImpl implements Authorization {
-  private Id agentId;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private Id agentId;
   private Function function;
   private Qualifier qualifier;
   private long effectiveDate;
   private long expirationDate;
   private Id modifiedBy;
   private long modifiedDate;
-  private boolean isExplicit;
-  private boolean isActiveNow;
+  //private boolean isExplicit;
 
   public AuthorizationImpl() {
   }
 
   public Id getAgentId() {
-    return null;
+    return agentId;
   }
 
   public Function getFunction() {
-    return null;
+    return function;
   }
 
   public Qualifier getQualifier() {
-    return null;
+    return qualifier;
   }
 
   public long getEffectiveDate() {
-    return 0L;
+    return effectiveDate;
   }
 
   public long getExpirationDate() {
-    return 0L;
+    return expirationDate;
   }
 
   public Id getModifiedBy() {
-    return null;
+    return modifiedBy;
   }
 
   public long getModifiedDate() {
-    return 0L;
+    return modifiedDate;
   }
 
 

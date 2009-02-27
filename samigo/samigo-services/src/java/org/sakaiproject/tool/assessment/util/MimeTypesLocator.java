@@ -32,11 +32,8 @@ public class MimeTypesLocator{
   private static MimetypesFileTypeMap map = null;
 
   public static MimeTypesLocator getInstance(){
-    if (instance != null)
-      return instance;
-    else
-      return new MimeTypesLocator();
-  }
+       return instance;
+   }
 
   public static void setMimetypesFileTypeMap(MimetypesFileTypeMap map){
     MimeTypesLocator.map = map;

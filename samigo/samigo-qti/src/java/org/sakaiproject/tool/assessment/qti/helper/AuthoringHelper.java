@@ -525,7 +525,7 @@ public class AuthoringHelper
       assessment.setLastModifiedBy(me);
       assessment.setLastModifiedDate(assessment.getCreatedDate());
       assessment.setTypeId(TypeIfc.QUIZ);
-      assessment.setStatus(new Integer(1));
+      assessment.setStatus( Integer.valueOf(1));
       // set comments
       String comments = (String) assessmentMap.get("comments");
       assessment.setComments(comments);

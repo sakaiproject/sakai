@@ -151,7 +151,7 @@ public class QuestionPoolFacadeQueries
     	Iterator i1 = getSubPoolSizes(agentId).iterator();
     	while (i1.hasNext()) {
     		Object[]result = (Object [])i1.next();
-    		counts.put(new Long(((BigInteger)result[0]).longValue()),new Integer(((BigInteger)result[1]).intValue()));
+    		counts.put( Long.valueOf(((BigInteger)result[0]).longValue()), Integer.valueOf(((BigInteger)result[1]).intValue()));
     	}    	
 
     	Iterator j = poolList.iterator();
@@ -164,7 +164,7 @@ public class QuestionPoolFacadeQueries
     		// lookup number of subpools for this pool in our handy hash table
     		Integer subPoolSize = (Integer)counts.get(new Long(qpp.getQuestionPoolId()));
     		if (subPoolSize == null)
-    			qpp.setSubPoolSize(new Integer(0));
+    			qpp.setSubPoolSize( Integer.valueOf(0));
     		else
     			qpp.setSubPoolSize(subPoolSize);
 
@@ -193,7 +193,7 @@ public class QuestionPoolFacadeQueries
 			  //populateQuestionPoolItemDatas(qpp);
 
 			  // I do this call, after it did in populateQuestionPoolItemData, to recover the number of subpools that will be show in the root of pools.
-			  qpp.setSubPoolSize(new Integer(getSubPoolSize(qpp.getQuestionPoolId())));
+			  qpp.setSubPoolSize( Integer.valueOf(getSubPoolSize(qpp.getQuestionPoolId())));
 
 			  qpList.add(getQuestionPool(qpp));
 		  }
@@ -337,7 +337,7 @@ public class QuestionPoolFacadeQueries
 	    		log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: origValueV is null ");
 	    		origValueV = new Vector();
 	    	}
-	    	origValueV.add(new Integer(i));
+	    	origValueV.add( Integer.valueOf(i));
 	    	hp.put(text, origValueV);
 	    }
     
@@ -472,7 +472,7 @@ public class QuestionPoolFacadeQueries
           itemArrayList.add(itemData_0);
         }
         qpp.setQuestions(itemArrayList);
-        qpp.setSubPoolSize(new Integer(getSubPoolSize(qpp.getQuestionPoolId())));
+        qpp.setSubPoolSize( Integer.valueOf(getSubPoolSize(qpp.getQuestionPoolId())));
       }
     }
     catch (Exception e) {
@@ -884,8 +884,7 @@ public class QuestionPoolFacadeQueries
         }
         
         // add a QuestionPoolAccessData record for all users who are sharing the subpool
-        final long parentPoolId = new
-        Long(qpp.getParentPoolId().longValue());
+        final long parentPoolId = qpp.getParentPoolId();
         final String ownerId = qpp.getOwnerId();
 
         if (parentPoolId != 0) {
@@ -1129,7 +1128,7 @@ public class QuestionPoolFacadeQueries
 
       QuestionPoolFacade newPool = (QuestionPoolFacade) oldPool.clone();
       newPool.setParentPoolId(destId);
-      newPool.setQuestionPoolId(new Long(0));
+      newPool.setQuestionPoolId( Long.valueOf(0));
 
       // If Pools in same trees,
       if (!haveCommonRoot) {

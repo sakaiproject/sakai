@@ -98,7 +98,7 @@ public class SessionUtil {
          * (ensure setSessionTimeout is called only once at beginning of assessment)
          */
         int interval = DEFAULT_APP_INTERVAL_VAL;
-        if (session != null && session.getAttribute(EXTERNAL_APP_INTERVAL) == null)
+        if (session.getAttribute(EXTERNAL_APP_INTERVAL) == null)
         {
           if (delivery != null && delivery.getHasTimeLimit())
           {

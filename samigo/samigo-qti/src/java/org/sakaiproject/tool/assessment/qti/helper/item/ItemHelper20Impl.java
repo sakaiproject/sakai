@@ -78,7 +78,7 @@ public class ItemHelper20Impl extends ItemHelperBase
     // normalize if null
     if (score == null)
     {
-      score = new Float(0);
+      score =  Float.valueOf(0);
     }
     // set the responseElse baseValue, if it exists
     String xPath =
@@ -103,7 +103,7 @@ public class ItemHelper20Impl extends ItemHelperBase
     // normalize if null
     if (score == null)
     {
-      score = new Float(0);
+      score =  Float.valueOf(0);
     }
     // first, set the outcomeDeclaration defaultValue, if it exists
     String xPath =

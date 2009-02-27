@@ -640,11 +640,11 @@ public class GradingService
           totalAutoScore += i.getAutoScore().floatValue();
       }
 
-      adata.setTotalAutoScore(new Float(totalAutoScore));
-      if (Float.compare((totalAutoScore+totalOverrideScore),new Float("0").floatValue())<0){
-    	  adata.setFinalScore(new Float("0"));
+      adata.setTotalAutoScore( Float.valueOf(totalAutoScore));
+      if (Float.compare((totalAutoScore+totalOverrideScore),Float.valueOf("0").floatValue())<0){
+    	  adata.setFinalScore(Float.valueOf("0"));
       }else{
-    	  adata.setFinalScore(new Float(totalAutoScore+totalOverrideScore));
+    	  adata.setFinalScore(Float.valueOf(totalAutoScore+totalOverrideScore));
       }
       saveOrUpdateAssessmentGrading(adata);
       if (scoreDifference != 0){
@@ -740,18 +740,18 @@ public class GradingService
         itemGrading.setAssessmentGradingId(data.getAssessmentGradingId());
         //itemGrading.setSubmittedDate(new Date());
         itemGrading.setAgentId(agent);
-        itemGrading.setOverrideScore(new Float(0));
+        itemGrading.setOverrideScore(Float.valueOf(0));
         // note that totalItems & fibAnswersMap would be modified by the following method
         autoScore = getScoreByQuestionType(itemGrading, item, itemType, publishedItemTextHash, 
                                totalItems, fibAnswersMap, publishedAnswerHash, regrade);
         log.debug("**!regrade, autoScore="+autoScore);
         if (!(TypeIfc.MULTIPLE_CORRECT).equals(itemType))
-          totalItems.put(itemId, new Float(autoScore));
+          totalItems.put(itemId, Float.valueOf(autoScore));
         
         if (regrade && TypeIfc.AUDIO_RECORDING.equals(itemType))
         	itemGrading.setAttemptsRemaining(item.getTriesAllowed());
 	
-        itemGrading.setAutoScore(new Float(autoScore));
+        itemGrading.setAutoScore(Float.valueOf(autoScore));
       }
 
       log.debug("****x3. "+(new Date()).getTime());
@@ -791,9 +791,9 @@ public class GradingService
       data.setTotalAutoScore(new Float(totalAutoScore));
       //log.debug("**#1 total AutoScore"+totalAutoScore);
       if (Float.compare((totalAutoScore + data.getTotalOverrideScore().floatValue()),new Float("0").floatValue())<0){
-    	  data.setFinalScore( new Float("0"));
+    	  data.setFinalScore( Float.valueOf("0"));
       }else{
-    	  data.setFinalScore(new Float(totalAutoScore + data.getTotalOverrideScore().floatValue()));
+    	  data.setFinalScore(Float.valueOf(totalAutoScore + data.getTotalOverrideScore().floatValue()));
       }
       log.debug("****x6. "+(new Date()).getTime());
     } catch (GradebookServiceException ge) {
@@ -1431,9 +1431,9 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     else
       data.setIsLate(new Boolean(false));
     if (data.getForGrade().booleanValue())
-      data.setStatus(new Integer(1));
+      data.setStatus( Integer.valueOf(1));
     
-    data.setTotalOverrideScore(new Float(0));
+    data.setTotalOverrideScore(Float.valueOf(0));
   }
 
   public void deleteAll(Collection c)
@@ -1462,11 +1462,11 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
         }
         float oldAutoScore = adata.getTotalAutoScore().floatValue();
         float scoreDifference = totalAutoScore - oldAutoScore;
-        adata.setTotalAutoScore(new Float(totalAutoScore));
-        if (Float.compare((totalAutoScore+totalOverrideScore),new Float("0").floatValue())<0){
-        	adata.setFinalScore(new Float("0"));
+        adata.setTotalAutoScore(Float.valueOf(totalAutoScore));
+        if (Float.compare((totalAutoScore+totalOverrideScore),Float.valueOf("0").floatValue())<0){
+        	adata.setFinalScore(Float.valueOf("0"));
         }else{
-        	adata.setFinalScore(new Float(totalAutoScore+totalOverrideScore));
+        	adata.setFinalScore(Float.valueOf(totalAutoScore+totalOverrideScore));
         }
         saveOrUpdateAssessmentGrading(adata);
         if (scoreDifference != 0){

@@ -40,21 +40,33 @@ public class ItemImpl implements Serializable, org.osid.assessment.Item {
   private static final long serialVersionUID = 7526471155622776147L;
 
   private Id id;
-  private String displayName;
+
+
+private String displayName;
   private String description;
   private Serializable data;
   private Type itemType;
 
-  public ItemImpl(){}
+
+
+public ItemImpl(){}
 
   public Id getId(){
     return this.id;
   }
 
+  public void setId(Id id) {
+		this.id = id;
+  }
+  
   public Type getItemType(){
     return this.itemType;
   }
 
+  public void setItemType(Type itemType) {
+		this.itemType = itemType;
+	}
+  
   public String getDisplayName(){
     return this.displayName;
   }

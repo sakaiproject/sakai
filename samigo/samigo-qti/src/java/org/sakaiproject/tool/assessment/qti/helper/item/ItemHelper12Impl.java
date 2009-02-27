@@ -68,8 +68,8 @@ public class ItemHelper12Impl extends ItemHelperBase
   protected String[] itemTypes = AuthoringConstantStrings.itemTypes;
   private AuthoringXml authoringXml;
   private List allIdents;
-  private Float currentMaxScore = new Float(0);
-  private Float currentMinScore = new Float(0);
+  private Float currentMaxScore =  Float.valueOf(0);
+  private Float currentMinScore = Float.valueOf(0);
   private float currentPerItemScore = 0;
   private float currentPerItemDiscount = 0;
 
@@ -109,7 +109,7 @@ public class ItemHelper12Impl extends ItemHelperBase
     String xPath = "item/resprocessing/outcomes/decvar/@maxvalue";
     if (score == null)
     {
-      score = new Float(0);
+      score = Float.valueOf(0);
     }
     currentMaxScore = score;
     updateItemXml(itemXml, xPath, "" + score.toString());
@@ -125,7 +125,7 @@ public class ItemHelper12Impl extends ItemHelperBase
 	  String xPath = "item/resprocessing/outcomes/decvar/@minvalue";
 	  if (discount == null)
 	  {
-		  discount = new Float(0);
+		  discount = Float.valueOf(0);
 	  }
 	  currentMinScore = discount;
 	  updateItemXml(itemXml, xPath, "" + discount.toString());
@@ -493,7 +493,7 @@ public class ItemHelper12Impl extends ItemHelperBase
               itemXml.add(xpath, "material/mattext");
               String newXpath =
                 xpath + "/material[" +
-                (new Integer(i + 1).toString() + "]/mattext");
+                (Integer.toString(i + 1) + "]/mattext");
 
               updateItemXml(itemXml, newXpath, mattext);
             }
@@ -797,7 +797,7 @@ public class ItemHelper12Impl extends ItemHelperBase
               itemXml.add(xpath, "material/mattext");
               String newXpath =
                 xpath + "/material[" +
-                (new Integer(i + 1).toString() + "]/mattext");
+                ( Integer.toString(i + 1) + "]/mattext");
 
               updateItemXml(itemXml, newXpath, mattext);
             }
@@ -1134,6 +1134,8 @@ public class ItemHelper12Impl extends ItemHelperBase
    * @param points
    * @return
    */
+  
+  /*
   private Item addFIBRespconditions(Item itemXml, List idsAndResponses,
                                     List allIdents,
                                     boolean isMutuallyExclusive, String points)
@@ -1193,6 +1195,7 @@ public class ItemHelper12Impl extends ItemHelperBase
 		return itemXml;
 	}
   
+  */
   /**
    * Special FIN processing.
    * @param itemXml
@@ -1202,7 +1205,7 @@ public class ItemHelper12Impl extends ItemHelperBase
    * @param points
    * @return
    */
-
+/*
   
   private Item addFINRespconditions(Item itemXml, List idsAndResponses,
 			List allIdents, boolean isMutuallyExclusive, String points) {
@@ -1253,7 +1256,7 @@ public class ItemHelper12Impl extends ItemHelperBase
 		}
 		return itemXml;
 	}
-  
+  */
   
   /**
    *  Get list of form:
@@ -1345,6 +1348,8 @@ public class ItemHelper12Impl extends ItemHelperBase
   }
   
   
+  /*
+  
   private static String[] getPossibleCorrectResponses(String inputStr)
   {
     String patternStr = ",";
@@ -1357,6 +1362,8 @@ public class ItemHelper12Impl extends ItemHelperBase
 
     return responses;
   }
+  
+  */
 
   /**
    * Set the item text.
@@ -1771,6 +1778,8 @@ public class ItemHelper12Impl extends ItemHelperBase
    * @param feedbackIdent
    * @param responseNo
    */
+  
+  /*
   private void addMatchingItemfeedback(
     Item itemXml, String feedbackIdent, String responseNo)
   {
@@ -1798,7 +1807,8 @@ public class ItemHelper12Impl extends ItemHelperBase
     xpath = xpath + "/@imagetype";
     updateItemXml(itemXml, xpath, "text/html");
   }
-
+*/
+  
   /**
    * Add matching response condition.
    * @param itemXml

@@ -90,12 +90,12 @@ public class SectionFacadeQueries  extends HibernateDaoSupport implements Sectio
       AssessmentBaseData assessment = (AssessmentBaseData) getHibernateTemplate().load(AssessmentBaseData.class, assessmentId);
       //section.setAssessmentId(assessmentId);
       section.setAssessment((AssessmentData)assessment);
-      section.setDuration(new Integer(30));
-      section.setSequence(new Integer(1));
+      section.setDuration( Integer.valueOf(30));
+      section.setSequence(Integer.valueOf(1));
       section.setTitle("section title");
       section.setDescription("section description");
       section.setTypeId(TypeFacade.DEFAULT_SECTION);
-      section.setStatus(new Integer(1));
+      section.setStatus(Integer.valueOf(1));
       section.setCreatedBy("1");
       section.setCreatedDate(new Date());
       section.setLastModifiedBy("1");

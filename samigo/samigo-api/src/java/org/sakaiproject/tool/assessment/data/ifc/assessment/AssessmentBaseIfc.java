@@ -31,10 +31,10 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 public interface AssessmentBaseIfc
     extends java.io.Serializable{
 
-  public static Integer ACTIVE_STATUS = new Integer(1);
-  public static Integer INACTIVE_STATUS = new Integer(0);
-  public static Integer DEAD_STATUS = new Integer(2);
-  public static Integer RETRACT_FOR_EDIT_STATUS = new Integer(3);
+  public static Integer ACTIVE_STATUS = Integer.valueOf(1);
+  public static Integer INACTIVE_STATUS = Integer.valueOf(0);
+  public static Integer DEAD_STATUS = Integer.valueOf(2);
+  public static Integer RETRACT_FOR_EDIT_STATUS = Integer.valueOf(3);
   public static String METADATAQUESTIONS_ISINSTRUCTOREDITABLE = "metadataQuestions_isInstructorEditable";
   public static String HASMETADATAFORQUESTIONS= "hasMetaDataForQuestions";
   public static String SHOWFEEDBACKAUTHORING= "showFeedbackAuthoring";

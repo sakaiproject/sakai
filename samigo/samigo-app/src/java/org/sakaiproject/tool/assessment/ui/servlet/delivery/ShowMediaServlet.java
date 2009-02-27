@@ -112,7 +112,7 @@ private static Log log = LogFactory.getLog(ShowMediaServlet.class);
     // If we display them in line, the previleage has been checked during rendering
     // For SAK-6294, we want to display audio player in line. So we set isAudio to true above
     // and skip the privilege checking
-    boolean hasPrivilege = agentIdString !=null && mediaData != null &&
+    boolean hasPrivilege = agentIdString !=null &&
     	(agentIdString.equals(mediaData.getCreatedBy()) // user is creator
     	 || canGrade(req, res, agentIdString, currentSiteId));
     if (hasPrivilege || isAudio) {
@@ -168,11 +168,13 @@ private static Log log = LogFactory.getLog(ShowMediaServlet.class);
     	  
     	  buf_outputStream = new BufferedOutputStream(outputStream);
         int i=0;
-        while ((i=buf_inputStream.read()) != -1){
+        if (buf_inputStream != null)  {
+        while ( (i=buf_inputStream.read()) != -1){
             //System.out.print(i);
             buf_outputStream.write(i);
             count++;
           }
+        }
         log.debug("**** mediaLocation="+mediaLocation);
         res.setContentLength(count);
         res.flushBuffer();

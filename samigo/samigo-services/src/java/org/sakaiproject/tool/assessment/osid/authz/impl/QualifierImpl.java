@@ -30,7 +30,8 @@ import java.util.ArrayList;
 
 public class QualifierImpl implements Qualifier {
   private Id id;
-  private QualifierIterator childrenIter;
+
+private QualifierIterator childrenIter;
   public QualifierIterator getChildrenIter() {
 	return childrenIter;
 }
@@ -40,19 +41,30 @@ public void setChildrenIter(QualifierIterator childrenIter) {
 }
 private QualifierIterator parentIter;
   private String referenceName;
-  private String description;
+
+private String description;
   private Type qualifierType;
 
-  public QualifierImpl() {
+
+
+public QualifierImpl() {
   }
 
   public Id getId() throws org.osid.authorization.AuthorizationException {
     return id;
   }
 
+  public void setId(Id id) {
+		this.id = id;
+  }
+  
   public String getReferenceName() throws org.osid.authorization.AuthorizationException {
     return referenceName;
   }
+  
+  public void setReferenceName(String referenceName) {
+		this.referenceName = referenceName;
+	}
 
   public String getDescription() throws org.osid.authorization.AuthorizationException {
     return description;
@@ -75,6 +87,10 @@ private QualifierIterator parentIter;
     return qualifierType;
   }
 
+  public void setQualifierType(Type qualifierType) {
+		this.qualifierType = qualifierType;
+	}
+  
   public void updateDescription(String parm1) throws org.osid.authorization.AuthorizationException {
     this.description = parm1;
   }
