@@ -769,7 +769,7 @@ public class GradingService
         float eachItemScore = ((Float) totalItems.get(itemId)).floatValue();
         if((eachItemScore < 0) && !((TypeIfc.MULTIPLE_CHOICE).equals(itemType2)||(TypeIfc.TRUE_FALSE).equals(itemType2)))
         {
-        	itemGrading.setAutoScore(new Float(0));
+        	itemGrading.setAutoScore( Float.valueOf(0));
         }
       }
       log.debug("****x4. "+(new Date()).getTime());
@@ -788,7 +788,7 @@ public class GradingService
       // whole assessment.
       Set fullItemGradingSet = getItemGradingSet(data.getAssessmentGradingId().toString());
       float totalAutoScore = getTotalAutoScore(fullItemGradingSet);
-      data.setTotalAutoScore(new Float(totalAutoScore));
+      data.setTotalAutoScore( Float.valueOf(totalAutoScore));
       //log.debug("**#1 total AutoScore"+totalAutoScore);
       if (Float.compare((totalAutoScore + data.getTotalOverrideScore().floatValue()),new Float("0").floatValue())<0){
     	  data.setFinalScore( Float.valueOf("0"));
@@ -871,7 +871,7 @@ public class GradingService
               //overridescore
               if (itemGrading.getOverrideScore() != null)
                 autoScore += itemGrading.getOverrideScore().floatValue();
-	      totalItems.put(itemId, new Float(autoScore));
+	      totalItems.put(itemId,  Float.valueOf(autoScore));
               break;
       case 2: // MC Multiple Correct
               ItemTextIfc itemText = (ItemTextIfc) publishedItemTextHash.get(itemGrading.getPublishedItemTextId());
@@ -894,7 +894,7 @@ public class GradingService
               if (itemGrading.getOverrideScore() != null)
                 autoScore += itemGrading.getOverrideScore().floatValue();
               if (!totalItems.containsKey(itemId)){
-                totalItems.put(itemId, new Float(autoScore));
+                totalItems.put(itemId,  Float.valueOf(autoScore));
                 //log.debug("****0. first answer score = "+autoScore);
               }
               else{
@@ -903,7 +903,7 @@ public class GradingService
                 //log.debug("****2. this answer score = "+autoScore);
                 accumelateScore += autoScore;
                 //log.debug("****3. add 1+2 score = "+accumelateScore);
-                totalItems.put(itemId, new Float(accumelateScore));
+                totalItems.put(itemId,  Float.valueOf(accumelateScore));
                 //log.debug("****4. what did we put in = "+((Float)totalItems.get(itemId)).floatValue());
               }
               break;
@@ -917,11 +917,11 @@ public class GradingService
                 autoScore += itemGrading.getOverrideScore().floatValue();
 
               if (!totalItems.containsKey(itemId))
-                totalItems.put(itemId, new Float(autoScore));
+                totalItems.put(itemId,  Float.valueOf(autoScore));
               else {
                 accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
                 accumelateScore += autoScore;
-                totalItems.put(itemId, new Float(accumelateScore));
+                totalItems.put(itemId,  Float.valueOf(accumelateScore));
               }
               break;
 
@@ -932,11 +932,11 @@ public class GradingService
                 autoScore += itemGrading.getOverrideScore().floatValue();
 
               if (!totalItems.containsKey(itemId))
-                totalItems.put(itemId, new Float(autoScore));
+                totalItems.put(itemId, Float.valueOf(autoScore));
               else {
                 accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
                 accumelateScore += autoScore;
-                totalItems.put(itemId, new Float(accumelateScore));
+                totalItems.put(itemId, Float.valueOf(accumelateScore));
               }
               break;
       case 11: // FIN
@@ -946,11 +946,11 @@ public class GradingService
             autoScore += itemGrading.getOverrideScore().floatValue();
 
           if (!totalItems.containsKey(itemId))
-            totalItems.put(itemId, new Float(autoScore));
+            totalItems.put(itemId, Float.valueOf(autoScore));
           else {
             accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
             accumelateScore += autoScore;
-            totalItems.put(itemId, new Float(accumelateScore));
+            totalItems.put(itemId, Float.valueOf(accumelateScore));
           }
           break;
 
@@ -964,11 +964,11 @@ public class GradingService
               if (itemGrading.getOverrideScore() != null)
                 autoScore += itemGrading.getOverrideScore().floatValue();
               if (!totalItems.containsKey(itemId))
-                totalItems.put(itemId, new Float(autoScore));
+                totalItems.put(itemId, Float.valueOf(autoScore));
               else {
                 accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
                 accumelateScore += autoScore;
-                totalItems.put(itemId, new Float(accumelateScore));
+                totalItems.put(itemId, Float.valueOf(accumelateScore));
               }
               break;
     }

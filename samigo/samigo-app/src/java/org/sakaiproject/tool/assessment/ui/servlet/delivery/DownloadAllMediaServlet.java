@@ -94,7 +94,7 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
     String currentSiteId="";
     String assessmentName = "";
     
-    PublishedAssessmentIfc pub = gradingService.getPublishedAssessmentByPublishedItemId(publishedItemId.toString()); 
+    PublishedAssessmentIfc pub = gradingService.getPublishedAssessmentByPublishedItemId(publishedItemId); 
     if (pub != null){
     	assessmentName = pub.getTitle();
     	PublishedAssessmentService service = new PublishedAssessmentService();

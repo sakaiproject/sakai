@@ -420,7 +420,7 @@ public class ItemContentsBean implements Serializable {
 	 */
 	public void setNumber(int number) {
 		this.number = number;
-		this.itemData.setSequence(new Integer(number));
+		this.itemData.setSequence( Integer.valueOf(number));
 	}
 
 	/**

@@ -484,7 +484,7 @@ public class ItemAddListener
       if ( (bean.getItemId() != null) && (!bean.getItemId().equals("0"))) {
         update = true;
         // if modify ,itemid shouldn't be null , or 0.
-        Long oldId = new Long(bean.getItemId());
+        Long oldId = Long.valueOf(bean.getItemId());
         if (isPendingOrPool) {
         	delegate.deleteItemContent(oldId, AgentFacade.getAgentString());
         }
@@ -498,13 +498,13 @@ public class ItemAddListener
      		item = new PublishedItemFacade();
      	}
       }
-      item.setScore(new Float(bean.getItemScore()));
+      item.setScore(Float.valueOf(bean.getItemScore()));
       item.setDiscount(Float.valueOf(bean.getItemDiscount()));
       item.setHint("");
 
       item.setStatus(ItemDataIfc.ACTIVE_STATUS);
 
-      item.setTypeId(new Long(bean.getItemType()));
+      item.setTypeId(Long.valueOf(bean.getItemType()));
 
       item.setCreatedBy(AgentFacade.getAgentString());
       item.setCreatedDate(new Date());
@@ -525,12 +525,12 @@ public class ItemAddListener
 
       // update maxNumAttempts for audio
       if (bean.getNumAttempts() != null) {
-        item.setTriesAllowed(new Integer(bean.getNumAttempts()));
+        item.setTriesAllowed(Integer.valueOf(bean.getNumAttempts()));
       }
 
       // save timeallowed for audio recording
       if (bean.getTimeAllowed() != null) {
-        item.setDuration(new Integer(bean.getTimeAllowed()));
+        item.setDuration(Integer.valueOf(bean.getTimeAllowed()));
       }
 
       if (update && !isPendingOrPool) {
@@ -593,9 +593,9 @@ public class ItemAddListener
         QuestionPoolService qpdelegate = new QuestionPoolService();
 
         if (!qpdelegate.hasItem(item.getItemIdString(),
-                                new Long(itemauthor.getQpoolId()))) {
+        		Long.valueOf(itemauthor.getQpoolId()))) {
           qpdelegate.addItemToPool(item.getItemIdString(),
-                                   new Long(itemauthor.getQpoolId()));
+                                   Long.valueOf(itemauthor.getQpoolId()));
 
         }
 
@@ -664,7 +664,7 @@ public class ItemAddListener
 		(!bean.getOrigSection().equals(bean.getSelectedSection()))) {
                 // if reassigned to different section
               Integer oldSeq = item.getSequence();
-              item.setSequence(new Integer(section.getItemSet().size() + 1));
+              item.setSequence( Integer.valueOf(section.getItemSet().size() + 1));
 
               // reorder the sequences of items in the OrigSection
     	      SectionFacade origsect= assessdelegate.getSection(bean.getOrigSection());
@@ -683,19 +683,19 @@ public class ItemAddListener
                 || !section.getSequence().toString().equals(itemauthor.getInsertToSection())) {
               // if adding to the end
               if (section.getItemSet() != null) {
-            	  item.setSequence(new Integer(section.getItemSet().size() + 1));
+            	  item.setSequence(Integer.valueOf(section.getItemSet().size() + 1));
               }
               else {
 	 	// this is a new part, not saved yet 
-		item.setSequence(new Integer(1));
+		item.setSequence(Integer.valueOf(1));
               }
             }
             else {
               // if inserting or a question
               String insertPos = itemauthor.getInsertPosition();
-              shiftSequences(delegate, section, new Integer(insertPos));
-              int insertPosInt = (new Integer(insertPos)).intValue() + 1;
-              item.setSequence(new Integer(insertPosInt));
+              shiftSequences(delegate, section, Integer.valueOf(insertPos));
+              int insertPosInt = (Integer.valueOf(insertPos)).intValue() + 1;
+              item.setSequence(Integer.valueOf(insertPosInt));
               // reset InsertPosition
               itemauthor.setInsertPosition("");
             }
@@ -718,7 +718,7 @@ public class ItemAddListener
 	// removed the old pool-item mappings
           if ( (bean.getOrigPool() != null) && (!bean.getOrigPool().equals(""))) {
             qpdelegate.removeQuestionFromPool(item.getItemIdString(),
-                                              new Long(bean.getOrigPool()));
+            		Long.valueOf(bean.getOrigPool()));
           }
 
         // if assign to pool, add the item to the pool
@@ -730,9 +730,9 @@ public class ItemAddListener
           // now the item is already in p2. and if you want to edit the original item in the assessment, and reassign it to p2, you will get a duplicate error. 
 
           if (!qpdelegate.hasItem(item.getItemIdString(),
-                                new Long(bean.getSelectedPool()))) {
+                                 Long.valueOf(bean.getSelectedPool()))) {
             qpdelegate.addItemToPool(item.getItemIdString(),
-                                   new Long(bean.getSelectedPool()));
+            					Long.valueOf(bean.getSelectedPool()));
           }
         }
 
@@ -788,7 +788,7 @@ public class ItemAddListener
 					answer = new Answer(choicetext, stripPtags(answerbean
 							.getMatch()), answerbean.getSequence(), AnswerBean
 							.getChoiceLabels()[answerbean.getSequence()
-							.intValue() - 1], Boolean.TRUE, null, new Float(
+							.intValue() - 1], Boolean.TRUE, null, Float.valueOf(
 							bean.getItemScore()), Float.valueOf(bean.getItemDiscount()));
 
 					// only add feedback for correct pairs
@@ -805,7 +805,7 @@ public class ItemAddListener
 					answer = new Answer(choicetext, stripPtags(answerbean
 							.getMatch()), answerbean.getSequence(), AnswerBean
 							.getChoiceLabels()[answerbean.getSequence()
-							.intValue() - 1], Boolean.FALSE, null, new Float(
+							.intValue() - 1], Boolean.FALSE, null,  Float.valueOf(
 							bean.getItemScore()), Float.valueOf(bean.getItemDiscount()));
 				}
 
@@ -842,7 +842,7 @@ public class ItemAddListener
 		// ///////////////////////////////////////////////////////////
 		ItemText text1 = new ItemText();
 		text1.setItem(item.getData());
-		text1.setSequence(new Long(1));
+		text1.setSequence(Long.valueOf(1));
 		text1.setText(bean.getItemText());
 		
 		// ///////////////////////////////////////////////////////////
@@ -865,12 +865,12 @@ public class ItemAddListener
 					// labels are like a, b, c, or i, ii, iii, in multiple
 					// choice type
 
-					newanswer = new Answer(text1, theanswer, new Long(i + 1),
-							"", Boolean.TRUE, null, new Float(bean
+					newanswer = new Answer(text1, theanswer, Long.valueOf(i + 1),
+							"", Boolean.TRUE, null, Float.valueOf(bean
 									.getItemScore()), Float.valueOf(bean.getItemDiscount()));
 				} else {
-					newanswer = new Answer(text1, theanswer, new Long(i + 1),
-							"", Boolean.FALSE, null, new Float(bean
+					newanswer = new Answer(text1, theanswer, Long.valueOf(i + 1),
+							"", Boolean.FALSE, null, Float.valueOf(bean
 									.getItemScore()), Float.valueOf(bean.getItemDiscount()));
 				}
 				answerSet1.add(newanswer);
@@ -890,8 +890,8 @@ public class ItemAddListener
 
 			// label is null because we don't use labels in essay questions
 			// theanswer is the model answer used as a sample for student
-			Answer modelanswer = new Answer(text1, theanswer, new Long(1),
-					null, Boolean.TRUE, null, new Float(bean.getItemScore()), Float.valueOf(bean.getItemDiscount()));
+			Answer modelanswer = new Answer(text1, theanswer, Long.valueOf(1),
+					null, Boolean.TRUE, null, Float.valueOf(bean.getItemScore()), Float.valueOf(bean.getItemDiscount()));
 
 			HashSet answerFeedbackSet1 = new HashSet();
 
@@ -910,8 +910,8 @@ public class ItemAddListener
 			String[] choices = getSurveyChoices(scalename);
 
 			for (int i = 0; i < choices.length; i++) {
-				Answer answer1 = new Answer(text1, choices[i], new Long(i + 1),
-						null, null, null, new Float(bean.getItemScore()), Float.valueOf(bean.getItemDiscount()));
+				Answer answer1 = new Answer(text1, choices[i], Long.valueOf(i + 1),
+						null, null, null, Float.valueOf(bean.getItemScore()), Float.valueOf(bean.getItemDiscount()));
 				answerSet1.add(answer1);
 			}
 			text1.setAnswerSet(answerSet1);
@@ -929,9 +929,9 @@ public class ItemAddListener
 			Object[] fibanswers = getFIBanswers(entiretext).toArray();
 			for (int i = 0; i < fibanswers.length; i++) {
 				String oneanswer = (String) fibanswers[i];
-				Answer answer1 = new Answer(text1, oneanswer, new Long(i + 1),
+				Answer answer1 = new Answer(text1, oneanswer, Long.valueOf(i + 1),
 						null, Boolean.TRUE, null,
-						new Float(bean.getItemScore()), Float.valueOf(bean.getItemDiscount()));
+						Float.valueOf(bean.getItemScore()), Float.valueOf(bean.getItemDiscount()));
 				answerSet1.add(answer1);
 			}
 
@@ -949,9 +949,9 @@ public class ItemAddListener
 			Object[] finanswers = getFINanswers(entiretext).toArray();
 			for (int i = 0; i < finanswers.length; i++) {
 				String oneanswer = (String) finanswers[i];
-				Answer answer1 = new Answer(text1, oneanswer, new Long(i + 1),
+				Answer answer1 = new Answer(text1, oneanswer, Long.valueOf(i + 1),
 						null, Boolean.TRUE, null,
-						new Float(bean.getItemScore()), Float.valueOf(bean.getItemDiscount()));
+						Float.valueOf(bean.getItemScore()), Float.valueOf(bean.getItemDiscount()));
 				answerSet1.add(answer1);
 			}
 
@@ -975,12 +975,12 @@ public class ItemAddListener
 					answer = new Answer(text1,
 							stripPtags(answerbean.getText()), answerbean
 									.getSequence(), answerbean.getLabel(),
-							Boolean.TRUE, null, new Float(bean.getItemScore()), Float.valueOf(bean.getItemDiscount()));
+							Boolean.TRUE, null, Float.valueOf(bean.getItemScore()), Float.valueOf(bean.getItemDiscount()));
 				} else {
 					answer = new Answer(text1,
 							stripPtags(answerbean.getText()), answerbean
 									.getSequence(), answerbean.getLabel(),
-							Boolean.FALSE, null, new Float(bean.getItemScore()), Float.valueOf(bean.getItemDiscount()));
+							Boolean.FALSE, null, Float.valueOf(bean.getItemScore()), Float.valueOf(bean.getItemDiscount()));
 				}
 				HashSet answerFeedbackSet1 = new HashSet();
 				answerFeedbackSet1.add(new AnswerFeedback(answer,
@@ -1113,8 +1113,8 @@ public class ItemAddListener
 		  delegate.deleteSet(answerSet);
 		  
 		  for (int i = 0; i < choices.length; i++) {
-			  AnswerIfc answer = new PublishedAnswer(text, choices[i], new Long(i + 1),
-					null, null, null, new Float(bean.getItemScore()), Float.valueOf(bean.getItemDiscount()));
+			  AnswerIfc answer = new PublishedAnswer(text, choices[i], Long.valueOf(i + 1),
+					null, null, null, Float.valueOf(bean.getItemScore()), Float.valueOf(bean.getItemDiscount()));
 			  answerSet.add(answer);
 		  }
 		  text.setAnswerSet(answerSet);
@@ -1160,8 +1160,8 @@ public class ItemAddListener
 				for (int j = answerSet.size(); j < newAnswersSize; j++) {
 					String oneanswer = (String) answers[j];
 					AnswerIfc answer = new PublishedAnswer(text, oneanswer,
-							new Long(j + 1), null, Boolean.TRUE, null,
-							new Float(bean.getItemScore()), Float.valueOf(bean.getItemDiscount()));
+							Long.valueOf(j + 1), null, Boolean.TRUE, null,
+							Float.valueOf(bean.getItemScore()), Float.valueOf(bean.getItemDiscount()));
 					answerSet.add(answer);
 				}
 			}
@@ -1231,12 +1231,12 @@ public class ItemAddListener
 					if (isCorrectChoice(bean, answerBean.getLabel().trim())) {
 						answer = new PublishedAnswer(text, oneAnswer,
 							Long.valueOf(j), oneLabel, Boolean.TRUE, null,
-							new Float(bean.getItemScore()), Float.valueOf(bean.getItemDiscount()));
+							Float.valueOf(bean.getItemScore()), Float.valueOf(bean.getItemDiscount()));
 					}
 					else {
 						answer = new PublishedAnswer(text, oneAnswer,
 								Long.valueOf(j), oneLabel, Boolean.FALSE, null,
-								new Float(bean.getItemScore()), Float.valueOf(bean.getItemDiscount()));
+								Float.valueOf(bean.getItemScore()), Float.valueOf(bean.getItemDiscount()));
 					}
 					HashSet answerFeedbackSet = new HashSet();
 				    answerFeedbackSet.add(new PublishedAnswerFeedback(answer,
@@ -1666,7 +1666,7 @@ public class ItemAddListener
       ItemFacade itemfacade = (ItemFacade) iter.next();
       Integer itemfacadeseq = itemfacade.getSequence();
       if (itemfacadeseq.compareTo(currSeq) > 0) {
-        itemfacade.setSequence(new Integer(itemfacadeseq.intValue() + 1));
+        itemfacade.setSequence(Integer.valueOf(itemfacadeseq.intValue() + 1));
         delegate.saveItem(itemfacade);
       }
     }
@@ -1684,7 +1684,7 @@ public class ItemAddListener
         ItemFacade  itemfacade = (ItemFacade) iter.next();
         Integer itemfacadeseq = itemfacade.getSequence();
         if (itemfacadeseq.compareTo(currSeq) > 0 ){
-          itemfacade.setSequence(new Integer(itemfacadeseq.intValue()-1) );
+          itemfacade.setSequence( Integer.valueOf(itemfacadeseq.intValue()-1) );
           delegate.saveItem(itemfacade);
         }
       }

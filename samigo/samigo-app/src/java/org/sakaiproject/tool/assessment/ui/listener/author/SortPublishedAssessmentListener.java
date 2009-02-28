@@ -128,6 +128,7 @@ public class SortPublishedAssessmentListener
 
   }
   
+  /*
   private void setSubmissionSize(ArrayList list, HashMap map) {
 	  for (int i = 0; i < list.size(); i++) {
 	      PublishedAssessmentFacade p = (PublishedAssessmentFacade) list.get(i);
@@ -137,5 +138,5 @@ public class SortPublishedAssessmentListener
 	      }
 	  }
   }
-
+*/
 }

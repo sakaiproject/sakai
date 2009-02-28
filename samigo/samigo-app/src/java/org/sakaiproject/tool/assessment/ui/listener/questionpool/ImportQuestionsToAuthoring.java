@@ -99,10 +99,10 @@ public class ImportQuestionsToAuthoring implements ActionListener
       while(iter.hasNext())
       {
         itemId = (String) iter.next();
-        ItemFacade poolitemfacade= delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
+        ItemFacade poolitemfacade= delegate.getItem(Long.valueOf(itemId), AgentFacade.getAgentString());
 
         ItemData clonedItem = delegate.cloneItem(poolitemfacade.getData());
-        clonedItem.setItemId(new Long(0));
+        clonedItem.setItemId(Long.valueOf(0));
         clonedItem.setItemIdString("0");
         itemfacade = new ItemFacade(clonedItem);
 
@@ -119,7 +119,7 @@ public class ImportQuestionsToAuthoring implements ActionListener
         	  }
           }
           else {
-        	  section = sectiondelegate.getSection(new Long(qpoolbean.getSelectedSection()), AgentFacade.getAgentString());
+        	  section = sectiondelegate.getSection(Long.valueOf(qpoolbean.getSelectedSection()), AgentFacade.getAgentString());
           }
 
         if (section!=null) {
@@ -133,11 +133,11 @@ public class ImportQuestionsToAuthoring implements ActionListener
               else {
             	  // if adding to the end
             	  if (section.getItemSet() != null) {
-            		  itemfacade.setSequence(new Integer(section.getItemSet().size() + 1));
+            		  itemfacade.setSequence(Integer.valueOf(section.getItemSet().size() + 1));
             	  }
             	  else {
             		  // this is a new part 
-            		  itemfacade.setSequence(new Integer(1));
+            		  itemfacade.setSequence(Integer.valueOf(1));
             	  }
               }
            }
@@ -145,10 +145,10 @@ public class ImportQuestionsToAuthoring implements ActionListener
                 // if inserting or a question
                 String insertPos = itemauthor.getInsertPosition();
                 ItemAddListener itemAddListener = new ItemAddListener();
-                int insertPosIntvalue = new Integer(insertPos).intValue() + itempos;
-                itemAddListener.shiftSequences(delegate, section, new Integer(insertPosIntvalue));
+                int insertPosIntvalue = Integer.valueOf(insertPos).intValue() + itempos;
+                itemAddListener.shiftSequences(delegate, section, Integer.valueOf(insertPosIntvalue));
                 int insertPosInt= insertPosIntvalue + 1 ;
-                itemfacade.setSequence(new Integer(insertPosInt));
+                itemfacade.setSequence(Integer.valueOf(insertPosInt));
            }
 
 

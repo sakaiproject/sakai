@@ -48,7 +48,7 @@ import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFa
 
 public class GradingSectionAwareServiceImpl implements GradingSectionAwareServiceAPI
 {
-  private static Log log = LogFactory.getLog(GradingServiceImpl.class);
+  //private static Log log = LogFactory.getLog(GradingServiceImpl.class);
   private static final SectionAwareServiceHelper helper =
     IntegrationContextFactory.getInstance().getSectionAwareServiceHelper();
 

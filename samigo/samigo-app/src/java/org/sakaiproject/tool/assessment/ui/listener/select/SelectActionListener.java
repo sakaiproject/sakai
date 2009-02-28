@@ -629,7 +629,7 @@ public class SelectActionListener
 	    	return p.getSubmissionsAllowed();
 	    else {
 	    	log.debug("The published assessment is not valid");
-	    	return new Integer(-1);
+	    	return Integer.valueOf(-1);
 	    }
   }
   

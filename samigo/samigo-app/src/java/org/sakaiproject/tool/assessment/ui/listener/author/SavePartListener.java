@@ -193,7 +193,7 @@ public class SavePartListener
           section.addSectionMetaData(SectionDataIfc.POOLID_FOR_RANDOM_DRAW, sectionBean.getSelectedPool());
           String poolname = "";
           QuestionPoolService qpservice = new QuestionPoolService();
-          QuestionPoolFacade poolfacade = qpservice.getPool(new Long(sectionBean.getSelectedPool()), AgentFacade.getAgentString());
+          QuestionPoolFacade poolfacade = qpservice.getPool(Long.valueOf(sectionBean.getSelectedPool()), AgentFacade.getAgentString());
           if (poolfacade!=null) {
             poolname = poolfacade.getTitle();
           }
@@ -228,7 +228,7 @@ public class SavePartListener
     	  hasRandomPartDiscount = true;
     	  discount = new Float(requestedDiscount);
       }      
-      ArrayList itemlist = qpservice.getAllItems(new Long(sectionBean.getSelectedPool()) );
+      ArrayList itemlist = qpservice.getAllItems(Long.valueOf(sectionBean.getSelectedPool()) );
       int i = 0;
       Iterator iter = itemlist.iterator();
       while(iter.hasNext())
@@ -237,7 +237,7 @@ public class SavePartListener
     	  //copy item so we can have it in more than one assessment
     	  item = qpservice.copyItemFacade2(item);
     	  item.setSection(section);
-    	  item.setSequence(new Integer(i+1));
+    	  item.setSequence(Integer.valueOf(i+1));
     	  if (hasRandomPartScore || hasRandomPartDiscount) {
     		  if (hasRandomPartScore) item.setScore(score);
     		  long itemTypeId = item.getTypeId().longValue();
@@ -322,7 +322,7 @@ public class SavePartListener
     
      QuestionPoolService qpservice = new QuestionPoolService();
 
-     ArrayList itemlist = qpservice.getAllItems(new Long(sectionBean.getSelectedPool()) );
+     ArrayList itemlist = qpservice.getAllItems(Long.valueOf(sectionBean.getSelectedPool()) );
      int itemcount = itemlist.size();
      String itemcountString=" "+Integer.toString(itemcount);
 

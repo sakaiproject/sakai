@@ -477,9 +477,9 @@ public class SubmitToGradingActionListener implements ActionListener {
 		adata.setItemGradingSet(itemGradingHash);
 		adata.setAttemptDate(new Date());
 		adata.setIsLate(Boolean.FALSE);
-		adata.setStatus(new Integer(0));
-		adata.setTotalOverrideScore(new Float(0));
-		adata.setTimeElapsed(new Integer("0"));
+		adata.setStatus(Integer.valueOf(0));
+		adata.setTotalOverrideScore(Float.valueOf(0));
+		adata.setTimeElapsed(Integer.valueOf("0"));
 		return adata;
 	}
 
@@ -747,9 +747,9 @@ public class SubmitToGradingActionListener implements ActionListener {
 
 				Collections.shuffle(itemArrayList,  new Random(seed));
 
-				Integer numberToBeDrawn = new Integer(0);
+				Integer numberToBeDrawn = Integer.valueOf(0);
 				if (publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
-					numberToBeDrawn= new Integer(publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+					numberToBeDrawn= Integer.valueOf(publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
 				}
 
 				int samplesize = numberToBeDrawn.intValue();

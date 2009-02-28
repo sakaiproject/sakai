@@ -383,7 +383,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
 
     ItemText text2 = new ItemText();
     text2.setItem(item);
-    text2.setSequence(new Long(2));
+    text2.setSequence( Long.valueOf(2));
     text2.setText("chicken has");
     HashSet answerSet2 = new HashSet();
     answerSet2.add(new Answer(text2, "2 legs", Long.valueOf(1), "i",
@@ -397,15 +397,15 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
 
     ItemText text3 = new ItemText();
     text3.setItem(item);
-    text3.setSequence(new Long(3));
+    text3.setSequence(Long.valueOf(3));
     text3.setText("baby has");
     HashSet answerSet3 = new HashSet();
-    answerSet3.add(new Answer(text3, "2 legs", new Long(1), "i",
-    		Boolean.FALSE, null, new Float(0), new Float(0)));
-    answerSet3.add(new Answer(text3, "3 legs", new Long(2), "ii",
-    		Boolean.FALSE, null, new Float(0), new Float(0)));
-    answerSet3.add(new Answer(text3, "4 legs", new Long(3), "iii",
-    		Boolean.TRUE, null, new Float(5), new Float(0)));
+    answerSet3.add(new Answer(text3, "2 legs", Long.valueOf(1), "i",
+    		Boolean.FALSE, null,  Float.valueOf(0), Float.valueOf(0)));
+    answerSet3.add(new Answer(text3, "3 legs", Long.valueOf(2), "ii",
+    		Boolean.FALSE, null, Float.valueOf(0), Float.valueOf(0)));
+    answerSet3.add(new Answer(text3, "4 legs", Long.valueOf(3), "iii",
+    		Boolean.TRUE, null, Float.valueOf(5), Float.valueOf(0)));
     text3.setAnswerSet(answerSet3);
     textSet.add(text3);
     return textSet;

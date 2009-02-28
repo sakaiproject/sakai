@@ -550,8 +550,8 @@ public class AuthoringHelper
         section.setLastModifiedBy(me);
         section.setLastModifiedDate(assessment.getCreatedDate());
         section.setTypeId(TypeIfc.DEFAULT_SECTION);
-        section.setStatus(new Integer(1));
-        section.setSequence(new Integer(sec + 1));
+        section.setStatus( Integer.valueOf(1));
+        section.setSequence(Integer.valueOf(sec + 1));
         
         List itemList = exHelper.getItemXmlList(sectionXml);
         for (int itm = 0; itm < itemList.size(); itm++) // for each item

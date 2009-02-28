@@ -254,9 +254,9 @@ public class PublishedAssessmentSettingsBean
           setTimeLimitDisplay(timeLimit.intValue());
         else 
             resetTimeLimitDisplay();
-        if ((new Integer(1)).equals(accessControl.getTimedAssessment()))
+        if (( Integer.valueOf(1)).equals(accessControl.getTimedAssessment()))
           this.timedAssessment = true;
-        if ((new Integer(1)).equals(accessControl.getAutoSubmit())) {
+        if ((Integer.valueOf(1)).equals(accessControl.getAutoSubmit())) {
           this.autoSubmit = true;
         }
         else {
@@ -542,7 +542,7 @@ public class PublishedAssessmentSettingsBean
   }
 
   public Integer getTimeLimit() {
-    return new Integer(timedHours.intValue()*3600
+    return Integer.valueOf(timedHours.intValue()*3600
         + timedMinutes.intValue()*60
         + timedSeconds.intValue());
   }
@@ -849,15 +849,15 @@ public class PublishedAssessmentSettingsBean
   }
 
   public void setTimeLimitDisplay(int time){
-    this.timedHours=new Integer(time/60/60);
-    this.timedMinutes = new Integer((time/60)%60);
-    this.timedSeconds = new Integer(time % 60);
+    this.timedHours=Integer.valueOf(time/60/60);
+    this.timedMinutes = Integer.valueOf((time/60)%60);
+    this.timedSeconds = Integer.valueOf(time % 60);
   }
 
   public void resetTimeLimitDisplay(){
-	    this.timedHours=new Integer(0);
-	    this.timedMinutes = new Integer(0);
-	    this.timedSeconds = new Integer(0);
+	    this.timedHours=Integer.valueOf(0);
+	    this.timedMinutes = Integer.valueOf(0);
+	    this.timedSeconds = Integer.valueOf(0);
   }
   
   // followings are set of SelectItem[] used in authorSettings.jsp
@@ -884,25 +884,25 @@ public class PublishedAssessmentSettingsBean
   static{
     months = new ArrayList();
     for (int i=1; i<=12; i++){
-      months.add(new SelectItem(new Integer(i)));
+      months.add(new SelectItem(Integer.valueOf(i)));
     }
     days = new ArrayList();
     for (int i=1; i<32; i++){
-      days.add(new SelectItem(new Integer(i)));
+      days.add(new SelectItem(Integer.valueOf(i)));
     }
     hours = new SelectItem[24];
     for (int i=0; i<24; i++){
       if (i < 10)
-        hours[i] = new SelectItem(new Integer(i),"0"+i);
+        hours[i] = new SelectItem(Integer.valueOf(i),"0"+i);
       else
-        hours[i] = new SelectItem(new Integer(i),i+"");
+        hours[i] = new SelectItem(Integer.valueOf(i),i+"");
     }
     mins = new SelectItem[60];
     for (int i=0; i<60; i++){
       if (i < 10)
-        mins[i] = new SelectItem(new Integer(i),"0"+i);
+        mins[i] = new SelectItem(Integer.valueOf(i),"0"+i);
       else
-        mins[i] = new SelectItem(new Integer(i),i+"");
+        mins[i] = new SelectItem(Integer.valueOf(i),i+"");
     }
   }
 

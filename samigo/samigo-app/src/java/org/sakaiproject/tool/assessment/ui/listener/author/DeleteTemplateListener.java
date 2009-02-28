@@ -47,7 +47,7 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 
 public class DeleteTemplateListener extends TemplateBaseListener implements ActionListener
 {
-  boolean isTemplate = true;
+  //boolean isTemplate = true;
   //private static Log log = LogFactory.getLog(DeleteTemplateListener.class);
 
   public void processAction(ActionEvent ae) throws AbortProcessingException

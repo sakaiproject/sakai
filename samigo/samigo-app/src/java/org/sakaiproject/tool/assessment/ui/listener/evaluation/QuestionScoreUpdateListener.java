@@ -126,7 +126,7 @@ public class QuestionScoreUpdateListener
           ItemGradingData data = (ItemGradingData) obj;
 
           // check if there is differnce in score, if so, update. Otherwise, do nothing
-          float newAutoScore = (new Float(ar.getTotalAutoScore())).floatValue() / (float) datas.size();
+          float newAutoScore = (Float.valueOf(ar.getTotalAutoScore())).floatValue() / (float) datas.size();
           String newComments = ContextUtil.processFormattedText(log, ar.getComments());
           ar.setComments(newComments);
           if (newComments!=null) {
@@ -154,7 +154,7 @@ public class QuestionScoreUpdateListener
           logString.append(data.getItemGradingId());
           
           if (newAutoScore != oldAutoScore){
-        	data.setAutoScore(new Float(newAutoScore));
+        	data.setAutoScore(Float.valueOf(newAutoScore));
         	logString.append(", newAutoScore=");
             logString.append(newAutoScore);
             logString.append(", oldAutoScore=");

@@ -77,10 +77,10 @@ public class ReorderQuestionsListener implements ValueChangeListener
     if (itemId !=null) {
       // somehow ae.getOldValue() keeps the old value, thus we get itemId==null
     ItemService delegate = new ItemService();
-    ItemFacade itemf = delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
+    ItemFacade itemf = delegate.getItem(Long.valueOf(itemId), AgentFacade.getAgentString());
 
     SectionFacade  sectFacade = (SectionFacade) itemf.getSection();
-    reorderSequences(sectFacade, new Integer(oldPos), new Integer(newPos));
+    reorderSequences(sectFacade, Integer.valueOf(oldPos), Integer.valueOf(newPos));
 
    // goto editAssessment.jsp, so reset assessmentBean
     AssessmentService assessdelegate = new AssessmentService();
@@ -108,11 +108,11 @@ public class ReorderQuestionsListener implements ValueChangeListener
       ItemFacade  itemfacade = (ItemFacade) iter.next();
       Integer itemfacadeseq = itemfacade.getSequence();
       if ( (oldPos.compareTo(newPos) < 0) &&  (itemfacadeseq.compareTo(oldPos) > 0) && (itemfacadeseq.compareTo(newPos) <= 0)  ){
-        itemfacade.setSequence(new Integer(itemfacadeseq.intValue()-1) );
+        itemfacade.setSequence(Integer.valueOf(itemfacadeseq.intValue()-1) );
         delegate.saveItem(itemfacade);
       }
       if ( (oldPos.compareTo(newPos) > 0) &&  (itemfacadeseq.compareTo(newPos) >= 0) && (itemfacadeseq.compareTo(oldPos) < 0)  ){
-        itemfacade.setSequence(new Integer(itemfacadeseq.intValue()+1) );
+        itemfacade.setSequence(Integer.valueOf(itemfacadeseq.intValue()+1) );
         delegate.saveItem(itemfacade);
       }
       if ( itemfacadeseq.compareTo(oldPos) == 0) {

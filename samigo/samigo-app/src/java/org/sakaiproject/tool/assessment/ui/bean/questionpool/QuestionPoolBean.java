@@ -1457,7 +1457,7 @@ public String getAddOrEdit()
 
   public String copyPool(){
 
-      Long sourceId = new Long(0);
+      Long sourceId =  Long.valueOf(0);
       String destId= "";
       boolean isUnique=true;
 

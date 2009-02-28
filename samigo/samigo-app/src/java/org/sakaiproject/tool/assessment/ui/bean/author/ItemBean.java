@@ -1054,7 +1054,7 @@ public class ItemBean
 				currentindex = currentindex + 1;
 				// reset sequence and labels , shift the seq/labels after a
 				// choice is deleted
-				answerbean.setSequence(new Long(currentindex));
+				answerbean.setSequence( Long.valueOf(currentindex));
 				answerbean.setLabel(AnswerBean.getChoiceLabels()[currentindex - 1]);
 			}
 			
@@ -1095,7 +1095,7 @@ public class ItemBean
 				currentindex = currentindex + 1;
 				// reset sequence and labels , shift the seq/labels after a
 				// choice is deleted
-				answerbean.setSequence(new Long(currentindex));
+				answerbean.setSequence( Long.valueOf(currentindex));
 				answerbean.setLabel(AnswerBean.getChoiceLabels()[currentindex - 1]);
 			}
 			
@@ -1150,7 +1150,7 @@ public class ItemBean
     // get existing list
     ArrayList list = getMatchItemBeanList();
     MatchItemBean currpair = this.getCurrentMatchPair();
-    if (!currpair.getSequence().equals(new Long(-1))) {
+    if (!currpair.getSequence().equals( Long.valueOf(-1))) {
       // for modify
       int seqno =  currpair.getSequence().intValue()-1;
       MatchItemBean newpair= (MatchItemBean)  this.getMatchItemBeanList().get(seqno);
@@ -1169,7 +1169,7 @@ public class ItemBean
       newpair.setCorrMatchFeedback(currpair.getCorrMatchFeedback());
       newpair.setIncorrMatchFeedback(currpair.getIncorrMatchFeedback());
       newpair.setIsCorrect(Boolean.TRUE);
-      newpair.setSequence(new Long(list.size()+1));
+      newpair.setSequence( Long.valueOf(list.size()+1));
 
     list.add(newpair);
     }
@@ -1198,7 +1198,7 @@ public class ItemBean
   public String editMatchPair() {
 
 	String seqnostr = ContextUtil.lookupParam("sequence");
-     int seqno = new Integer(seqnostr).intValue()-1;
+     int seqno =  Integer.valueOf(seqnostr).intValue()-1;
     // get currentmatchpair by sequence.
 
     MatchItemBean pairForEdit= (MatchItemBean) this.getMatchItemBeanList().get(seqno);
@@ -1211,7 +1211,7 @@ public class ItemBean
   public String removeMatchPair() {
 
 	String seqnostr = ContextUtil.lookupParam("sequence");
-     int seqno = new Integer(seqnostr).intValue()-1;
+     int seqno = Integer.valueOf(seqnostr).intValue()-1;
     // get currentmatchpair by sequence.
 
     this.getMatchItemBeanList().remove(seqno);
@@ -1221,7 +1221,7 @@ public class ItemBean
     while(iter.hasNext())
     {
       MatchItemBean apair = (MatchItemBean) iter.next();
-      apair.setSequence(new Long(i));
+      apair.setSequence( Long.valueOf(i));
       i++;
     }
 

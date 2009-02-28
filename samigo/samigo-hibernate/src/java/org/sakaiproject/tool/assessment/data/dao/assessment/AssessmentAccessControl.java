@@ -112,7 +112,7 @@ public class AssessmentAccessControl
   public AssessmentAccessControl()
   {
     this.submissionsAllowed = Integer.valueOf(9999); // =  no limit
-    this.submissionsSaved = new Integer(1); // no. of copy
+    this.submissionsSaved =  Integer.valueOf(1); // no. of copy
   }
 
   public AssessmentAccessControl(Integer submissionsAllowed, Integer submissionsSaved,

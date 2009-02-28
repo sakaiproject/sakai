@@ -365,7 +365,7 @@ public class SettingsDeliveryBean implements Serializable
     setFeedbackDate(control.getFeedbackDate());
     Integer format = control.getAssessmentFormat();
     if (format == null)
-      format = new Integer(1);
+      format =  Integer.valueOf(1);
     setFormatByAssessment(control.BY_ASSESSMENT.equals(format));
     setFormatByPart(control.BY_PART.equals(format));
     setFormatByQuestion(control.BY_QUESTION.equals(format));

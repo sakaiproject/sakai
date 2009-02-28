@@ -144,7 +144,7 @@ public class StudentScoreUpdateListener
               data.setSubmittedDate(null);
               data.setAgentId(bean.getStudentId());
             }
-            float newAutoScore = (new Float(question.getExactPoints()).floatValue() / (float) gradingarray.size());
+            float newAutoScore = (question.getExactPoints() / (float) gradingarray.size());
             float oldAutoScore = 0;
             if (data.getAutoScore() !=null) {
               oldAutoScore=data.getAutoScore().floatValue();

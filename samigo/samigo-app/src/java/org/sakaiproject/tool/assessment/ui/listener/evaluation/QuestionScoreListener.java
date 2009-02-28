@@ -432,7 +432,7 @@ public class QuestionScoreListener implements ActionListener,
 					.iterator();
 					while (iter3.hasNext()) {
 						ItemDataIfc idata = (ItemDataIfc) iter3.next();
-						if (idata.getItemId().equals(new Long(itemId)))
+						if (idata.getItemId().equals(Long.valueOf(itemId)))
 							score = idata.getScore().floatValue();
 					}
 				}
@@ -455,7 +455,7 @@ public class QuestionScoreListener implements ActionListener,
 				// for short answer/ essey question, if there is a model short
 				// answer for this question
 				// set haveModelShortAnswer to true
-				if (item.getTypeId().equals(new Long(5))) {
+				if (item.getTypeId().equals(Long.valueOf(5))) {
 					Iterator iterator = publishedAnswerHash.values().iterator();
 					while (iterator.hasNext()) {
 						PublishedAnswer publishedAnswer = (PublishedAnswer) iterator
@@ -654,12 +654,12 @@ public class QuestionScoreListener implements ActionListener,
 						results.setAnswer(results.getAnswer() + "<br/>"
 								+ answerText);
 						if (gdata.getAutoScore() != null) {
-							results.setTotalAutoScore(Float.toString((new Float(
+							results.setTotalAutoScore(Float.toString((Float.valueOf(
 								results.getExactTotalAutoScore())).floatValue()
 								+ gdata.getAutoScore().floatValue()));
 						}
 						else {
-							results.setTotalAutoScore(Float.toString((new Float(
+							results.setTotalAutoScore(Float.toString((Float.valueOf(
 									results.getExactTotalAutoScore())).floatValue()));
 						}
 					} else {
@@ -732,7 +732,7 @@ public class QuestionScoreListener implements ActionListener,
 			bean.setAgents(agents);
 			bean.setAllAgents(agents);
 			bean
-					.setTotalPeople(new Integer(bean.getAgents().size())
+					.setTotalPeople(Integer.valueOf(bean.getAgents().size())
 							.toString());
 		}
 
@@ -787,7 +787,7 @@ public class QuestionScoreListener implements ActionListener,
 			int maxDurationAllowed = item.getDuration().intValue();
 			for (int i = 0; i < mediaList.size(); i++) {
 				MediaIfc m = (MediaIfc) mediaList.get(i);
-				float duration = (new Float(m.getDuration())).floatValue();
+				float duration = (Float.valueOf(m.getDuration())).floatValue();
 				if (duration > maxDurationAllowed) {
 					m.setDurationIsOver(true);
 					m.setTimeAllowed(String.valueOf(maxDurationAllowed));

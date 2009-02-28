@@ -1872,7 +1872,7 @@ public class DeliveryBean
       itemGradingData.setPublishedItemTextId(itemText.getId());
       itemGradingData.setSubmittedDate(new Date());
       itemGradingData.setAgentId(agent);
-      itemGradingData.setOverrideScore(new Float(0));
+      itemGradingData.setOverrideScore( Float.valueOf(0));
     }
     itemGradingData.setAutoScore(Float.valueOf(0));
     setAssessmentGrading(adata);
@@ -1928,18 +1928,18 @@ public class DeliveryBean
     if (SAVETODB)
     { // put the byte[] in
       mediaData = new MediaData(itemGradingData, mediaByte,
-                                new Long(mediaByte.length + ""),
+                                Long.valueOf(mediaByte.length + ""),
                                 mimeType, "description", null,
-                                updatedFilename, false, false, new Integer(1),
+                                updatedFilename, false, false,  Integer.valueOf(1),
                                 agent, new Date(),
                                 agent, new Date(), null);
     }
     else
     { // put the location in
       mediaData = new MediaData(itemGradingData, null,
-                                new Long(mediaByte.length + ""),
+    		  					Long.valueOf(mediaByte.length + ""),
                                 mimeType, "description", mediaLocation,
-                                updatedFilename, false, false, new Integer(1),
+                                updatedFilename, false, false, Integer.valueOf(1),
                                 agent, new Date(),
                                 agent, new Date(), null);
 
@@ -2414,7 +2414,7 @@ public class DeliveryBean
 	        // later time, we need to account for the time taht he used before
 	        int timeTakenBefore = timedAG.getTimeLimit() - timedAG.getTimeLeft(); // in sec
 	        //log.debug("***time passed afer saving answer to DB="+timeElapsed+timeTakenBefore);
-	        adata.setTimeElapsed(new Integer(timeElapsed+timeTakenBefore));
+	        adata.setTimeElapsed( Integer.valueOf(timeElapsed+timeTakenBefore));
 	        GradingService gradingService = new GradingService();
 	        gradingService.saveOrUpdateAssessmentGrading(adata);
 	        setTimeElapse(adata.getTimeElapsed().toString());
@@ -2436,7 +2436,7 @@ public class DeliveryBean
 		        // later time, we need to account for the time taht he used before
 		        int timeTakenBefore = Math.round(timedAG.getTimeLimit() - timedAG.getTimeLeft()); // in sec
 		        //log.debug("***time passed afer saving answer to DB="+timeElapsed+timeTakenBefore);
-		        adata.setTimeElapsed(new Integer(timeElapsed+timeTakenBefore));
+		        adata.setTimeElapsed(Integer.valueOf(timeElapsed+timeTakenBefore));
 		        GradingService gradingService = new GradingService();
 		        gradingService.saveOrUpdateAssessmentGradingOnly(adata);
 		        setTimeElapse(adata.getTimeElapsed().toString());
@@ -2457,7 +2457,7 @@ public class DeliveryBean
   {
     this.timeElapseAfterFileUpload = timeElapseAfterFileUpload;
     if (timeElapseAfterFileUpload!=null && !("").equals(timeElapseAfterFileUpload))
-      setTimeElapseAfterFileUploadFloat((new Float(timeElapseAfterFileUpload)).floatValue());
+      setTimeElapseAfterFileUploadFloat(( Float.valueOf(timeElapseAfterFileUpload)).floatValue());
   }
 
   private float timeElapseFloat=0;

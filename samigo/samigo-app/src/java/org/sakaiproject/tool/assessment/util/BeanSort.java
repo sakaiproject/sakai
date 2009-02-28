@@ -35,7 +35,7 @@ public class BeanSort
 {
   private Collection collection;
   private String property;
-  private BeanSortComparator bsc;
+  //private BeanSortComparator bsc;
   private boolean string = true;
   private boolean numeric = false;
   private boolean date = false;

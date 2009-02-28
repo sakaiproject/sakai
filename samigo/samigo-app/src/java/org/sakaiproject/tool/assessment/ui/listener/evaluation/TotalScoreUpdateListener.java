@@ -111,22 +111,22 @@ public class TotalScoreUpdateListener
       while (iter.hasNext())
       {
         AgentResults agentResults = (AgentResults) iter.next();
-        float newScore = new Float(agentResults.getTotalAutoScore()).floatValue() +
-                     new Float(agentResults.getTotalOverrideScore()).floatValue();
+        float newScore = Float.valueOf(agentResults.getTotalAutoScore()).floatValue() +
+                     Float.valueOf(agentResults.getTotalOverrideScore()).floatValue();
 
         boolean update = needUpdate(agentResults, map);
         if (update){
         	log.debug("update is true");
             AssessmentGradingData data = new AssessmentGradingData();
-          if (!agentResults.getAssessmentGradingId().equals(new Long(-1)) ) {
+          if (!agentResults.getAssessmentGradingId().equals(Long.valueOf(-1)) ) {
 	        // these are students who have submitted for grades.
             // Add up new score
             agentResults.setFinalScore(newScore+"");
             BeanUtils.copyProperties(data, agentResults);
     	    data.setPublishedAssessmentId(bean.getPublishedAssessment().getPublishedAssessmentId());
-            data.setTotalAutoScore(new Float(agentResults.getTotalAutoScore()));
-            data.setTotalOverrideScore(new Float(agentResults.getTotalOverrideScore()));
-            data.setFinalScore(new Float(agentResults.getFinalScore()));
+            data.setTotalAutoScore(Float.valueOf(agentResults.getTotalAutoScore()));
+            data.setTotalOverrideScore(Float.valueOf(agentResults.getTotalOverrideScore()));
+            data.setFinalScore(Float.valueOf(agentResults.getFinalScore()));
             data.setIsLate(agentResults.getIsLate());
             data.setComments(agentResults.getComments());
             data.setGradedBy(AgentFacade.getAgentString());
@@ -141,16 +141,16 @@ public class TotalScoreUpdateListener
 
             data.setAgentId(agentResults.getIdString());
   	        data.setForGrade(Boolean.FALSE);
-	        //data.setStatus(new Integer(1));
+	        //data.setStatus(Integer.valueOf(1));
             data.setIsLate(Boolean.FALSE);
    	        data.setItemGradingSet(new HashSet());
     	    data.setPublishedAssessmentId(bean.getPublishedAssessment().getPublishedAssessmentId());
 	        // tell hibernate this is a new record
-    	    data.setAssessmentGradingId(new Long(0));
+    	    data.setAssessmentGradingId(Long.valueOf(0));
             data.setSubmittedDate(null);
-            data.setTotalAutoScore(new Float(agentResults.getTotalAutoScore()));
-            data.setTotalOverrideScore(new Float(agentResults.getTotalOverrideScore()));
-            data.setFinalScore(new Float(agentResults.getFinalScore()));
+            data.setTotalAutoScore(Float.valueOf(agentResults.getTotalAutoScore()));
+            data.setTotalOverrideScore(Float.valueOf(agentResults.getTotalOverrideScore()));
+            data.setFinalScore(Float.valueOf(agentResults.getFinalScore()));
             data.setComments(agentResults.getComments());
             data.setGradedBy(AgentFacade.getAgentString());
             data.setGradedDate(new Date());
@@ -192,7 +192,7 @@ public class TotalScoreUpdateListener
     float totalAutoScore = 0; 
     if (agentResults.getTotalAutoScore()!=null && !("").equals(agentResults.getTotalAutoScore())){
       try{
-        totalAutoScore = new Float(agentResults.getTotalAutoScore()).floatValue();
+        totalAutoScore = Float.valueOf(agentResults.getTotalAutoScore()).floatValue();
       }
       catch (NumberFormatException e){
         totalAutoScore = 0;
@@ -202,7 +202,7 @@ public class TotalScoreUpdateListener
     float totalOverrideScore = 0; 
     if (agentResults.getTotalOverrideScore()!=null && !("").equals(agentResults.getTotalOverrideScore())){
       try{
-        totalOverrideScore = new Float(agentResults.getTotalOverrideScore()).floatValue();
+        totalOverrideScore = Float.valueOf(agentResults.getTotalOverrideScore()).floatValue();
       }
       catch (NumberFormatException e){
         totalOverrideScore = 0;
@@ -243,7 +243,7 @@ public class TotalScoreUpdateListener
     else{ //students hasn't submitted the assessment  
       boolean noOverrideScore =  false;
       boolean noComment =  false;
-      if ((new Float(0)).equals(new Float(agentResults.getTotalOverrideScore().trim())))
+      if ((Float.valueOf(0)).equals(Float.valueOf(agentResults.getTotalOverrideScore().trim())))
         noOverrideScore = true;
       if ("".equals(agentResults.getComments().trim()))
         noComment = true;

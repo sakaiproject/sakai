@@ -881,7 +881,7 @@ public class ExtractionHelper
     }
     else
     {
-      control.setLateHandling(new Integer(1));
+      control.setLateHandling(Integer.valueOf(1));
 
     }
 
@@ -1845,7 +1845,7 @@ public class ExtractionHelper
         target.setText(makeFCKAttachment(targetString));
         target.setItemText(sourceItemText);
         target.setItem(item.getData());
-        target.setSequence(new Long(a + 1));
+        target.setSequence( Long.valueOf(a + 1));
 
         // correct answer and score
         // manual authoring disregards the number of partial answers
@@ -1866,8 +1866,8 @@ public class ExtractionHelper
           target.setIsCorrect(Boolean.FALSE);
         }
         log.debug("setting answer " + a + " score to:" + score);
-        target.setScore(new Float(score));
-        target.setDiscount(new Float(discount));
+        target.setScore( Float.valueOf(score));
+        target.setDiscount(Float.valueOf(discount));
 
         if (answerFeedbackList != null)
         {

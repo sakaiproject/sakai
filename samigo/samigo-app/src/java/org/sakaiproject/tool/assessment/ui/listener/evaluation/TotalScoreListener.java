@@ -589,7 +589,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       results.setComments(FormattedText.unEscapeHtml(gdata.getComments()));
 
       Iterator i3 = gdata.getItemGradingSet().iterator();
-      Long typeId = new Long(-1);
+      Long typeId = Long.valueOf(-1);
       boolean autoGrade = true;
       // Go through all itemGrading data, if there is at least one cannot be auto graded,
       // ie, file upload, short answer/essay, or audio question,
@@ -791,7 +791,7 @@ log.debug("testing agent getEid agent.geteid = " + agent.getEidString());
       results.setAgentEid(agent.getEidString());
       results.setRole((String)userRoles.get(studentid));
       // use -1 to indicate this is an unsubmitted agent
-      results.setAssessmentGradingId(new Long(-1));
+      results.setAssessmentGradingId(Long.valueOf(-1));
       results.setTotalAutoScore("0");
       results.setTotalOverrideScore("0");
       results.setSubmittedDate(null);

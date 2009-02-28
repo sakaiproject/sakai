@@ -276,7 +276,7 @@ public class TextFormat
         "indexOfIgnoreCase(String " + str + ", String " + searchString + ")");
     }
 
-    return new Integer(str.toUpperCase().indexOf(searchString.toUpperCase()));
+    return Integer.valueOf(str.toUpperCase().indexOf(searchString.toUpperCase()));
   }
 
   /**

@@ -59,6 +59,7 @@ public class SectionFacadeQueries  extends HibernateDaoSupport implements Sectio
     return new IdImpl(id);
   }
 
+  /*
   public static void main(String[] args) throws DataFacadeException {
     SectionFacadeQueriesAPI instance = new SectionFacadeQueries ();
     // add an assessmentTemplate
@@ -77,13 +78,16 @@ public class SectionFacadeQueries  extends HibernateDaoSupport implements Sectio
     }
     System.exit(0);
   }
-
+ 
+  
+  
   public static void print(SectionFacade section) {
     //log.debug("**sectionId #" + section.getId());
     //log.debug("**Section Title = " + section.getTitle());
     //log.debug("**Item = " + section.getItemSet());
   }
 
+  
   public Long addSection(Long assessmentId) {
     // take default submission model
     SectionData section = new SectionData();
@@ -107,8 +111,9 @@ public class SectionFacadeQueries  extends HibernateDaoSupport implements Sectio
 
       getHibernateTemplate().save(section);
     return section.getSectionId();
-  }
-
+  } 
+  
+  
   public void remove(Long sectionId) {
       SectionFacade section = (SectionFacade) getHibernateTemplate().load(SectionData.class, sectionId);
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
@@ -124,6 +129,7 @@ public class SectionFacadeQueries  extends HibernateDaoSupport implements Sectio
     }
   }
 
+*/
   public SectionFacade get(Long sectionId) {
       SectionData section = (SectionData) getHibernateTemplate().load(SectionData.class, sectionId);
       return new SectionFacade(section);

@@ -159,7 +159,7 @@ public class TemplateUpdateListener
       if ("0".equals(templateIdString))
       {
         template = new AssessmentTemplateData();
-        template.setAssessmentBaseId(new Long(0));
+        template.setAssessmentBaseId(Long.valueOf(0));
         AssessmentAccessControl aac = new AssessmentAccessControl();
         template.setAssessmentAccessControl(aac);
         aac.setAssessmentBase(template);
@@ -173,11 +173,11 @@ public class TemplateUpdateListener
 
         // Dunno what these are for, but it won't work without them.
         template.setStatus(AssessmentTemplateIfc.ACTIVE_STATUS);
-        template.setParentId(new Long(0));
+        template.setParentId(Long.valueOf(0));
         template.setComments("comments");
-        template.setInstructorNotification(new Integer(1));
-        template.setTesteeNotification(new Integer(1));
-        template.setMultipartAllowed(new Integer(1));
+        template.setInstructorNotification(Integer.valueOf(1));
+        template.setTesteeNotification(Integer.valueOf(1));
+        template.setMultipartAllowed(Integer.valueOf(1));
       }
       else
       {
@@ -199,16 +199,16 @@ public class TemplateUpdateListener
         template.setAssessmentAccessControl(aac);
         aac.setAssessmentBase(template);
       }
-      aac.setItemNavigation(new Integer(templateBean.getItemAccessType()));
-      aac.setAssessmentFormat(new Integer(templateBean.getDisplayChunking()));
-      aac.setItemNumbering(new Integer(templateBean.getQuestionNumbering()));
+      aac.setItemNavigation(Integer.valueOf(templateBean.getItemAccessType()));
+      aac.setAssessmentFormat(Integer.valueOf(templateBean.getDisplayChunking()));
+      aac.setItemNumbering(Integer.valueOf(templateBean.getQuestionNumbering()));
       if (templateBean.getMarkForReview() != null && templateBean.getMarkForReview().equals(Boolean.TRUE)) {
     	  aac.setMarkForReview(Integer.valueOf(1));
       }
       else {
     	  aac.setMarkForReview(Integer.valueOf(0));
       }
-      aac.setSubmissionsSaved(new Integer(templateBean.getSubmissionModel()));
+      aac.setSubmissionsSaved(Integer.valueOf(templateBean.getSubmissionModel()));
       
       if (templateBean.getValueMap().get("submissionModel_isInstructorEditable") != null && ((Boolean) templateBean.getValueMap().get("submissionModel_isInstructorEditable")).booleanValue()) {
     	  if (templateBean.getSubmissionModel().equals(AssessmentAccessControlIfc.UNLIMITED_SUBMISSIONS.toString()))
@@ -217,7 +217,7 @@ public class TemplateUpdateListener
     		  aac.setUnlimitedSubmissions(Boolean.TRUE);
     	  }
     	  else{
-    		  aac.setSubmissionsAllowed(new Integer(templateBean.getSubmissionNumber()));
+    		  aac.setSubmissionsAllowed(Integer.valueOf(templateBean.getSubmissionNumber()));
     		  aac.setUnlimitedSubmissions(Boolean.FALSE);
     	  }
       }
@@ -225,7 +225,7 @@ public class TemplateUpdateListener
 		  aac.setSubmissionsAllowed(null);
 		  aac.setUnlimitedSubmissions(Boolean.TRUE);
       }
-      aac.setLateHandling(new Integer(templateBean.getLateHandling()));
+      aac.setLateHandling(Integer.valueOf(templateBean.getLateHandling()));
       
       if (templateBean.getValueMap().get("automaticSubmission_isInstructorEditable") == null) {
     	  templateBean.setValue("automaticSubmission_isInstructorEditable", "false");
@@ -248,9 +248,9 @@ public class TemplateUpdateListener
       }
       model.setAssessmentBase(template);
       model.setAnonymousGrading
-        (new Integer(templateBean.getAnonymousGrading()));
+        (Integer.valueOf(templateBean.getAnonymousGrading()));
       model.setToGradeBook(templateBean.getToGradebook());
-      model.setScoringType(new Integer(templateBean.getRecordedScore()));
+      model.setScoringType(Integer.valueOf(templateBean.getRecordedScore()));
 
       // Assessment Feedback
       AssessmentFeedbackIfc feedback = template.getAssessmentFeedback();
@@ -260,8 +260,8 @@ public class TemplateUpdateListener
         feedback.setAssessmentBase(template);
         template.setAssessmentFeedback(feedback);
       }
-      feedback.setFeedbackDelivery(new Integer(templateBean.getFeedbackType()));
-      feedback.setFeedbackAuthoring(new Integer(templateBean.getFeedbackAuthoring()));
+      feedback.setFeedbackDelivery(Integer.valueOf(templateBean.getFeedbackType()));
+      feedback.setFeedbackAuthoring(Integer.valueOf(templateBean.getFeedbackAuthoring()));
 
       Boolean canEditFeedbackComponent=(Boolean)templateBean.getValue("feedbackComponents_isInstructorEditable");
       // SAK-3573: looks like at some point the "feedbackComponents_isInstructorEditable" were being used
@@ -270,9 +270,9 @@ public class TemplateUpdateListener
       // 2) "EditComponent" was always set to 1 instead of being updated
       // correctly to provide backward compatibility to old data. -daisyf
       if (canEditFeedbackComponent.booleanValue())
-	  feedback.setEditComponents(new Integer("1"));
+	  feedback.setEditComponents(Integer.valueOf("1"));
       else
-	  feedback.setEditComponents(new Integer("0"));
+	  feedback.setEditComponents(Integer.valueOf("0"));
 
       feedback.setShowQuestionText
         (templateBean.getFeedbackComponent_QuestionText());

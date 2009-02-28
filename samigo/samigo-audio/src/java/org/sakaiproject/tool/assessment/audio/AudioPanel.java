@@ -204,7 +204,7 @@ public class AudioPanel
   public void stateChanged(ChangeEvent e)
   {
     close();
-    System.gc();
+    //System.gc();			
     index = tabPane.getSelectedIndex();
     open();
   }

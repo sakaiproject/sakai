@@ -506,7 +506,7 @@ public class ItemHelper12Impl extends ItemHelperBase
               itemXml.add(xpath, "response_str/render_fib");
               String newXpath =
                 xpath + "/response_str[" +
-                (new Integer(i + 1).toString() + "]");
+                ( Integer.toString(i + 1) + "]");
 
               itemXml.addAttribute(newXpath, "ident");
               String ident = "FIB0" + i;
@@ -626,6 +626,8 @@ public class ItemHelper12Impl extends ItemHelperBase
    * @param response
    * @return
    */
+  
+  /*
   private Item addFIBRespconditionMutuallyExclusive(Item itemXml,
     String responseCondNo,
     ArrayList respIdents, String points, String response)
@@ -674,12 +676,14 @@ public class ItemHelper12Impl extends ItemHelperBase
     return itemXml;
   }
 
+*/
   /**
    * Special FIB processing.
    * @param itemXml
    * @param responseCondNo
    * @return
    */
+  /*
   private Item addFIBRespconditionCorrectFeedback(
     Item itemXml, String responseCondNo)
   {
@@ -718,13 +722,15 @@ public class ItemHelper12Impl extends ItemHelperBase
       itemXml, respCond + "/displayfeedback/@linkrefid", "Correct");
     return itemXml;
   }
-
+*/
   /**
    * Special FIB processing.
    * @param itemXml
    * @param responseCondNo
    * @return
    */
+  
+  /*
   private Item addFIBRespconditionInCorrectFeedback(
     Item itemXml, String responseCondNo)
   {
@@ -750,6 +756,7 @@ public class ItemHelper12Impl extends ItemHelperBase
       itemXml, respCond + "/displayfeedback/@linkrefid", "InCorrect");
     return itemXml;
   }
+  */
 
 //////////////////////////////////////////////////////////////////////////////
   // Numeric Response
@@ -810,7 +817,7 @@ public class ItemHelper12Impl extends ItemHelperBase
               itemXml.add(xpath, "response_str/render_fin");
               String newXpath =
                 xpath + "/response_str[" +
-                (new Integer(i + 1).toString() + "]");
+                ( Integer.toString(i + 1) + "]");
 
               itemXml.addAttribute(newXpath, "ident");
               String ident = "FIN0" + i;
@@ -931,6 +938,7 @@ public class ItemHelper12Impl extends ItemHelperBase
    * @param response
    * @return
    */
+  /*
   private Item addFINRespconditionMutuallyExclusive(Item itemXml,
     String responseCondNo,
     ArrayList respIdents, String points, String response)
@@ -978,13 +986,14 @@ public class ItemHelper12Impl extends ItemHelperBase
 
     return itemXml;
   }
-
+*/
   /**
    * Special FIN processing.
    * @param itemXml
    * @param responseCondNo
    * @return
    */
+  /*
   private Item addFINRespconditionCorrectFeedback(
     Item itemXml, String responseCondNo)
   {
@@ -1023,13 +1032,14 @@ public class ItemHelper12Impl extends ItemHelperBase
       itemXml, respCond + "/displayfeedback/@linkrefid", "Correct");
     return itemXml;
   }
-
+*/
   /**
    * Special FIN processing.
    * @param itemXml
    * @param responseCondNo
    * @return
    */
+  /*
   private Item addFINRespconditionInCorrectFeedback(
     Item itemXml, String responseCondNo)
   {
@@ -1057,7 +1067,7 @@ public class ItemHelper12Impl extends ItemHelperBase
   }
   
   
-  
+  */
   
   
   
@@ -1068,6 +1078,8 @@ public class ItemHelper12Impl extends ItemHelperBase
    * @param idsAndResponses
    * @return
    */
+  
+  /*
   private ArrayList getSimilarCorrectAnswerIDs(List idsAndResponses)
   {
     String[] compareResponse = null;
@@ -1124,7 +1136,7 @@ public class ItemHelper12Impl extends ItemHelperBase
     }
     return finalArray;
   }
-
+*/
   /**
    * Special FIB processing.
    * @param itemXml

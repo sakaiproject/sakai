@@ -100,6 +100,7 @@ public class AudioRecorderApplet extends JApplet {
 				demo = new AudioPanel(media, params));
 	}
 
+	/*
 	private void initAppletParams() {
 		AudioRecorderParams params = this.params;
 	}
@@ -107,7 +108,7 @@ public class AudioRecorderApplet extends JApplet {
 	// Component initialization
 	private void jbInit() throws Exception {
 	}
-
+*/
 	// Start the applet
 	public void start() {
 	}

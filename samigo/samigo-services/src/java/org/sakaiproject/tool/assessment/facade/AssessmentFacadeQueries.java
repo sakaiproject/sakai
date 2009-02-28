@@ -244,7 +244,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 
 	public Long addAssessment(Long assessmentTemplateId) {
 
-		AssessmentData assessment = new AssessmentData(new Long(0),
+		AssessmentData assessment = new AssessmentData( Long.valueOf(0),
 				"assessment title", "assessment description",
 				"assessment acomments", assessmentTemplateId, TypeD.HOMEWORK,
 				Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1),

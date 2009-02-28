@@ -127,7 +127,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
 	static ResourceBundle res;
 
 
-	final int bufSize = 16384;
+	final static int bufSize = 16384;
 
 	FormatControls formatControls = null;
 
@@ -442,11 +442,13 @@ public class AudioRecorder extends JPanel implements ActionListener,
 		}
 	}
 
+	/*
 	private void resetAttempts(int attempts0) {
 		if (attempts0 > 0) {
 			rtextField.setText("" + attempts0);
 		}
 	}
+	*/
 
 	public JPanel getFormatControlsPanel() {
 		return formatControls;

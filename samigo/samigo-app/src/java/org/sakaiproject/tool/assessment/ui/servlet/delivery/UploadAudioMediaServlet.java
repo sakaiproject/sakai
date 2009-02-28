@@ -375,9 +375,9 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
       itemGrading.setPublishedItemId(item.getItemId());
       itemGrading.setPublishedItemTextId(itemText.getId());
       itemGrading.setAgentId(agentId);
-      itemGrading.setOverrideScore(new Float(0));
+      itemGrading.setOverrideScore(Float.valueOf(0));
       itemGrading.setSubmittedDate(new Date());
-      itemGrading.setAttemptsRemaining(new Integer(attemptsRemaining));
+      itemGrading.setAttemptsRemaining(Integer.valueOf(attemptsRemaining));
       itemGrading.setLastDuration(duration);
       gradingService.saveItemGrading(itemGrading);
     }
@@ -408,18 +408,18 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
     if (SAVETODB)
     { // put the byte[] in
       mediaData = new MediaData(itemGrading, mediaByte,
-                                new Long(mediaByte.length + ""),
+                                Long.valueOf(mediaByte.length + ""),
                                 mimeType, "description", null,
-                                media.getName(), false, false, new Integer(1),
+                                media.getName(), false, false, Integer.valueOf(1),
                                 agent, new Date(),
                                 agent, new Date(), duration);
     }
     else
     { // put the location in
       mediaData = new MediaData(itemGrading, null,
-                                new Long(mediaByte.length + ""),
+                                Long.valueOf(mediaByte.length + ""),
                                 mimeType, "description", mediaLocation,
-                                media.getName(), false, false, new Integer(1),
+                                media.getName(), false, false, Integer.valueOf(1),
                                 agent, new Date(),
                                 agent, new Date(), duration);
 
@@ -428,7 +428,7 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
     log.debug("mediaId=" + mediaId);
 
     // 2. store mediaId in itemGradingRecord.answerText
-    itemGrading.setAttemptsRemaining(new Integer(attemptsRemaining));
+    itemGrading.setAttemptsRemaining(Integer.valueOf(attemptsRemaining));
     itemGrading.setSubmittedDate(new Date());
     itemGrading.setAnswerText(mediaId + "");
     itemGrading.setAutoScore(Float.valueOf(0));

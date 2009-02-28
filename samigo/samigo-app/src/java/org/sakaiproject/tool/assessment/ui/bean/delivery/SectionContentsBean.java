@@ -332,7 +332,7 @@ private String text;
     this.questionNumbers = new ArrayList();
     for (int i = 1; i <= this.itemContents.size(); i++)
     {
-      this.questionNumbers.add(new SelectItem(new Integer(i)));
+      this.questionNumbers.add(new SelectItem( Integer.valueOf(i)));
     }
   }
 
@@ -411,8 +411,8 @@ private String text;
         if (section.getSectionMetaDataByLabel(SectionDataIfc.
                                               POOLNAME_FOR_RANDOM_DRAW) != null)
         {
-          String poolname = new String(section.getSectionMetaDataByLabel(
-            SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW));
+          String poolname = section.getSectionMetaDataByLabel(
+            SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW);
           setPoolNameToBeDrawn(poolname);
         }
       }

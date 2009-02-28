@@ -23,7 +23,7 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.delivery;
 
-import javax.faces.context.FacesContext;
+
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -32,21 +32,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import java.util.Date;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil; 
 
 /**
- * <p>Title: Samigo</p>
- * <p>Purpose:  this module handles the beginning of the assessment
- * <p>Description: Sakai Assessment Manager</p>
- * @author Ed Smiley
  * @version $Id: UpdateTimerTOCListener.java 694 2005-07-20 04:56:48Z daisyf@stanford.edu $
  */
 
 public class UpdateTimerFromTOCListener implements ActionListener
 {
-  private static Log log = LogFactory.getLog(UpdateTimerListener.class);
-  private static ContextUtil cu;
+  //private static Log log = LogFactory.getLog(UpdateTimerListener.class);
+  //private static ContextUtil cu;
 
   /**
    * ACTION.

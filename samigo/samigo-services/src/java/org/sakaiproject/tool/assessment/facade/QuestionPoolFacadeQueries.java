@@ -162,7 +162,7 @@ public class QuestionPoolFacadeQueries
     		// - daisy, 10/04/04
     		// populateQuestionPoolItemDatas(qpp);
     		// lookup number of subpools for this pool in our handy hash table
-    		Integer subPoolSize = (Integer)counts.get(new Long(qpp.getQuestionPoolId()));
+    		Integer subPoolSize = (Integer)counts.get( Long.valueOf(qpp.getQuestionPoolId()));
     		if (subPoolSize == null)
     			qpp.setSubPoolSize( Integer.valueOf(0));
     		else
@@ -891,7 +891,7 @@ public class QuestionPoolFacadeQueries
         	List<QuestionPoolAccessData> listSubpool = new ArrayList();
         	try {
         		listSubpool = getHibernateTemplate().find("from QuestionPoolAccessData as qpa where qpa.questionPoolId=? and qpa.agentId<>?", 
-        				new Object[] {new Long(parentPoolId), ownerId});
+        				new Object[] { Long.valueOf(parentPoolId), ownerId});
         	} catch (Exception e1) {
         		log.warn("problem finding pool: "+e1.getMessage());
         	}

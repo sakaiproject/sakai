@@ -290,7 +290,7 @@ public class HistogramListener
 			  boolean hasRandompart = false;
 			  boolean isRandompart = false;
 
-			  HashMap itemScoresMap = delegate.getItemScores(new Long(publishedId), new Long(0), which);
+			  HashMap itemScoresMap = delegate.getItemScores(Long.valueOf(publishedId), Long.valueOf(0), which);
 			  HashMap itemScores = new HashMap();
 			  			  
 			  if (totalScores.getReleaseToAnonymous()) {
@@ -328,14 +328,14 @@ public class HistogramListener
 				  String authortype = section
 				  .getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
 				  if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL
-						  .equals(new Integer(authortype))) {
+						  .equals(Integer.valueOf(authortype))) {
 					  hasRandompart = true;
 					  isRandompart = true;
 				  } else {
 					  isRandompart = false;
 				  }
 				  if (section.getSequence() == null)
-					  section.setSequence(new Integer(secseq++));
+					  section.setSequence(Integer.valueOf(secseq++));
 				  String title = rb.getString("p") + " "
 				  + section.getSequence().toString();
 				  title += ", " + rb.getString("q") + " ";
@@ -354,7 +354,7 @@ public class HistogramListener
 					  //String type = delegate.getTextForId(item.getTypeId());
 					  String type = getType(item.getTypeId().intValue());
 					  if (item.getSequence() == null)
-						  item.setSequence(new Integer(seq++));
+						  item.setSequence(Integer.valueOf(seq++));
 
 					  questionScores.setPartNumber( section.getSequence().toString());
 					  questionScores.setQuestionNumber( item.getSequence().toString());
@@ -467,7 +467,7 @@ public class HistogramListener
 						  numStudentsWithZeroAnswers++;
 					  }
 				  }
-				  numberOfStudentsWithZeroAnswersForQuestion.put(itemId, new Integer(numStudentsWithZeroAnswers));
+				  numberOfStudentsWithZeroAnswersForQuestion.put(itemId, Integer.valueOf(numStudentsWithZeroAnswers));
 			  }
 			  int maxNumOfAnswers = 0;
 			  ArrayList detailedStatistics = new ArrayList();
@@ -669,7 +669,7 @@ public class HistogramListener
 		while (iter.hasNext()) {
 			AnswerIfc answer = (AnswerIfc) iter.next();
 			texts.put(answer.getId(), answer);
-			results.put(answer.getId(), new Integer(0));
+			results.put(answer.getId(), Integer.valueOf(0));
 			sequenceMap.put(answer.getSequence(), answer.getId());
 		}
 		iter = scores.iterator();
@@ -691,7 +691,7 @@ public class HistogramListener
 					log.warn("No results for " + answer.getId());
 				}
 				if (num == null)
-					num = new Integer(0);
+					num = Integer.valueOf(0);
 
 				ArrayList studentResponseList = (ArrayList) numStudentRespondedMap
 						.get(data.getAssessmentGradingId());
@@ -707,15 +707,15 @@ public class HistogramListener
 						|| (qbean.getQuestionType().equals("11"))) {
 					// for fib we only count the number of correct responses
 					Float autoscore = data.getAutoScore();
-					if (!(new Float(0)).equals(autoscore)) {
-						results.put(answer.getId(), new Integer(
+					if (!(Float.valueOf(0)).equals(autoscore)) {
+						results.put(answer.getId(), Integer.valueOf(
 								num.intValue() + 1));
 					}
 				} else {
 					// for mc, we count the number of all responses
 					results
 							.put(answer.getId(),
-									new Integer(num.intValue() + 1));
+									Integer.valueOf(num.intValue() + 1));
 				}
 			}
 		}
@@ -784,7 +784,7 @@ public class HistogramListener
 					// will not work if the question is worth 0 points.
 					// will need to verify each answer individually.
 					Float autoscore = item.getAutoScore();
-					if ((new Float(0)).equals(autoscore)) {
+					if ((Float.valueOf(0)).equals(autoscore)) {
 						hasIncorrect = true;
 						break;
 					}
@@ -867,7 +867,7 @@ public class HistogramListener
 	 * answers.iterator(); HashMap results = new HashMap(); HashMap
 	 * numStudentRespondedMap= new HashMap(); while (iter.hasNext()) { AnswerIfc
 	 * answer = (AnswerIfc) iter.next(); texts.put(answer.getId(), answer);
-	 * results.put(answer.getId(), new Integer(0)); } iter = scores.iterator();
+	 * results.put(answer.getId(), Integer.valueOf(0)); } iter = scores.iterator();
 	 * while (iter.hasNext()) { ItemGradingData data = (ItemGradingData)
 	 * iter.next(); AnswerIfc answer = (AnswerIfc)
 	 * publishedAnswerHash.get(data.getPublishedAnswerId()); if (answer != null) {
@@ -877,7 +877,7 @@ public class HistogramListener
 	 * results.get(answer.getId());
 	 * 
 	 *  } catch (Exception e) { log.warn("No results for " + answer.getId()); }
-	 * if (num == null) num = new Integer(0);
+	 * if (num == null) num = Integer.valueOf(0);
 	 * 
 	 * ArrayList studentResponseList =
 	 * (ArrayList)numStudentRespondedMap.get(data.getAssessmentGradingId()); if
@@ -888,9 +888,9 @@ public class HistogramListener
 	 * now update one if (qbean.getQuestionType().equals("11")) { // for fib we
 	 * only count the number of correct responses Float autoscore =
 	 * data.getAutoScore(); if (!(new Float(0)).equals(autoscore)) {
-	 * results.put(answer.getId(), new Integer(num.intValue() + 1)); } } else { //
+	 * results.put(answer.getId(), Integer.valueOf(num.intValue() + 1)); } } else { //
 	 * for mc, we count the number of all responses results.put(answer.getId(),
-	 * new Integer(num.intValue() + 1)); } } } HistogramBarBean[] bars = new
+	 * Integer.valueOf(num.intValue() + 1)); } } } HistogramBarBean[] bars = new
 	 * HistogramBarBean[results.keySet().size()]; int[] numarray = new
 	 * int[results.keySet().size()]; iter = results.keySet().iterator(); int i =
 	 * 0; int responses = 0; int correctresponses = 0; while (iter.hasNext()) {
@@ -966,7 +966,7 @@ public class HistogramListener
 		while (iter.hasNext()) {
 			AnswerIfc answer = (AnswerIfc) iter.next();
 			texts.put(answer.getId(), answer);
-			results.put(answer.getId(), new Integer(0));
+			results.put(answer.getId(), Integer.valueOf(0));
 			sequenceMap.put(answer.getSequence(), answer.getId());
 		}
 
@@ -993,13 +993,13 @@ public class HistogramListener
 					e.printStackTrace();
 				}
 				if (num == null)
-					num = new Integer(0);
+					num = Integer.valueOf(0);
 
 				// we found a response, and got the existing num , now update
 				// one
 				// check here for the other bug about non-autograded items
 				// having 1 even with no responses
-				results.put(answer.getId(), new Integer(num.intValue() + 1));
+				results.put(answer.getId(), Integer.valueOf(num.intValue() + 1));
 				
 				
 				// gopalrc - Nov 2007
@@ -1107,7 +1107,7 @@ public class HistogramListener
     {
       ItemTextIfc label = (ItemTextIfc) iter.next();
       texts.put(label.getId(), label);
-      results.put(label.getId(), new Integer(0));
+      results.put(label.getId(), Integer.valueOf(0));
       sequenceMap.put(label.getSequence(), label.getId());
     }
     iter = scores.iterator();
@@ -1122,7 +1122,7 @@ public class HistogramListener
       {
         Integer num = (Integer) results.get(text.getId());
         if (num == null)
-          num = new Integer(0);
+          num = Integer.valueOf(0);
 
 
         ArrayList studentResponseList = (ArrayList)numStudentRespondedMap.get(data.getAssessmentGradingId());
@@ -1135,7 +1135,7 @@ public class HistogramListener
         if (answer.getIsCorrect() != null && answer.getIsCorrect().booleanValue())
         // only store correct responses in the results
         {
-          results.put(text.getId(), new Integer(num.intValue() + 1));
+          results.put(text.getId(), Integer.valueOf(num.intValue() + 1));
         }
       }
     }
@@ -1335,7 +1335,7 @@ public class HistogramListener
         if (((ItemGradingData) data).getOverrideScore() != null)
           overrideScore =
             ((ItemGradingData) data).getOverrideScore().floatValue();
-        floats.add(new Float(autoScore + overrideScore));
+        floats.add(Float.valueOf(autoScore + overrideScore));
       }
     }
 
@@ -1361,9 +1361,9 @@ public class HistogramListener
     int[] numStudents = calNumStudents(scores, min, max, interval);
    
     statMap.put("maxScore", castingNum(max,2));
-    statMap.put("interval", new Integer(interval));
-    statMap.put("numResponses", new Integer(scoreList.size()));
-    // statMap.put("numResponses", new Integer(scores.length));
+    statMap.put("interval", Integer.valueOf(interval));
+    statMap.put("numResponses", Integer.valueOf(scoreList.size()));
+    // statMap.put("numResponses", Integer.valueOf(scores.length));
 
     statMap.put("totalScore",castingNum(total,2));
     statMap.put("mean", castingNum(mean,2));
@@ -1378,7 +1378,7 @@ public class HistogramListener
     //statMap.put("columnHeight", calColumnHeight(numStudents));
     statMap.put("columnHeight", calColumnHeight(numStudents,scoreList.size()));
   
-    statMap.put("arrayLength", new Integer(numStudents.length));
+    statMap.put("arrayLength", Integer.valueOf(numStudents.length));
     statMap.put(
       "range",
       castingNum(scores[0],2) + " - " +

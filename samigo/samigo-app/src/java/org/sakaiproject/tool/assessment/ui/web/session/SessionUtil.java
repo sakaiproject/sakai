@@ -117,7 +117,7 @@ public class SessionUtil {
             log.debug("begin_assessment: Setting session " + session.getId() + " inactive interval= " + interval + " seconds");
           }
           /** store current interval value */
-          session.setAttribute(EXTERNAL_APP_INTERVAL, new Integer(session.getMaxInactiveInterval()));
+          session.setAttribute(EXTERNAL_APP_INTERVAL, Integer.valueOf(session.getMaxInactiveInterval()));
           session.setMaxInactiveInterval(interval + INTERVAL_BUFFER);
         }
       }

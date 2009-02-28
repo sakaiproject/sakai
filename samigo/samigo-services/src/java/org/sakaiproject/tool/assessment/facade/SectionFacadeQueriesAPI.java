@@ -34,9 +34,9 @@ public interface SectionFacadeQueriesAPI
 
   public IdImpl getId(long id);
 
-  public Long addSection(Long assessmentId);
+  //public Long addSection(Long assessmentId);
 
-  public void remove(Long sectionId);
+  //public void remove(Long sectionId);
 
   public SectionFacade get(Long sectionId);
 

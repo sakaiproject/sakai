@@ -42,7 +42,7 @@ public class MatchItemBean implements Serializable {
 
   public MatchItemBean() {
 	// sequence = -1 for new items
-	sequence = new Long(-1);
+	sequence =  Long.valueOf(-1);
 	sequenceStr = "-1";
   }
 /*

@@ -414,9 +414,9 @@ public class DeliveryActionListener
           ContextUtil.lookupParam("questionnumber") != null &&
           !ContextUtil.lookupParam("questionnumber").trim().equals(""))
     {
-        delivery.setPartIndex(new Integer
+        delivery.setPartIndex(Integer.valueOf
                 (ContextUtil.lookupParam("partnumber")).intValue() - 1);
-        delivery.setQuestionIndex(new Integer
+        delivery.setQuestionIndex(Integer.valueOf
                 (ContextUtil.lookupParam("questionnumber")).intValue() - 1);
     }
   }
@@ -1952,7 +1952,7 @@ public class DeliveryActionListener
 
     // We're going to overload itemGradingHash with the sequence in case
     // renumbering is turned off.
-    itemGradingHash.put("sequence", new Long(0));
+    itemGradingHash.put("sequence", Long.valueOf(0));
     long items = 0;
     int sequenceno = 1;
     Iterator i1 = publishedAssessment.getSectionArraySorted().iterator();
@@ -1977,10 +1977,10 @@ public class DeliveryActionListener
         items = items + 1; // bug 464
         ItemDataIfc item = (ItemDataIfc) i2.next();
         itemGradingHash.put("sequence" + item.getItemId().toString(),
-                     new Integer(sequenceno++));
+                     Integer.valueOf(sequenceno++));
       }
     }
-    itemGradingHash.put("items", new Long(items));
+    itemGradingHash.put("items", Long.valueOf(items));
   }
 
   private void setGraderComment(DeliveryBean delivery){
@@ -2086,7 +2086,7 @@ public class DeliveryActionListener
         // later time, we need to account for the time taht he used before
         int timeTakenBefore = Math.round(timedAG.getTimeLimit() - timedAG.getTimeLeft()); // in sec
         //log.debug("***time passed before reload next page="+timeElapsed+timeTakenBefore);
-	    ag.setTimeElapsed(new Integer(timeElapsed+timeTakenBefore));
+	    ag.setTimeElapsed(Integer.valueOf(timeElapsed+timeTakenBefore));
 
 	    // not sure why isLate lost its value, so setting it again here
 	    ag.setIsLate(Boolean.FALSE);
@@ -2103,9 +2103,9 @@ public class DeliveryActionListener
     adata.setForGrade(Boolean.FALSE);
     adata.setAttemptDate(new Date());
     adata.setIsLate(Boolean.FALSE);
-    adata.setStatus(new Integer(0));
-    adata.setTotalOverrideScore(new Float(0));
-    adata.setTimeElapsed(new Integer("0"));
+    adata.setStatus(Integer.valueOf(0));
+    adata.setTotalOverrideScore(Float.valueOf(0));
+    adata.setTimeElapsed(Integer.valueOf("0"));
     GradingService gradingService = new GradingService();
     gradingService.saveOrUpdateAssessmentGrading(adata);
     return adata;
@@ -2132,7 +2132,7 @@ public class DeliveryActionListener
       Collections.shuffle(list,  new Random(seed));
 
       if (part.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
-        numberToBeDrawn= new Integer(part.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+        numberToBeDrawn= Integer.valueOf(part.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
       }
 
       int samplesize = 0;

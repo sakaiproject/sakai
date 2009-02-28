@@ -94,14 +94,14 @@ public class SubmitTimedAssessmentThread extends TimerTask
           GradingService service = new GradingService();
           AssessmentGradingData ag = service.load(timedAG.getAssessmentGradingId().toString());
           ag.setForGrade(Boolean.TRUE);
-          ag.setTimeElapsed(new Integer(timedAG.getTimeLimit()));
+          ag.setTimeElapsed(Integer.valueOf(timedAG.getTimeLimit()));
           ag.setStatus(AssessmentGradingIfc.AUTO_GRADED); // this will change status 0 -> 1
           ag.setIsLate(islate(ag.getPublishedAssessmentId()));
           ag.setSubmittedDate(new Date());
           // SAK-7302, users taking a timed assessment may exit without completing the assessment
           // set these two scores to 0 instaed of null
-    	  if (ag.getFinalScore() == null) ag.setFinalScore(new Float("0"));
-    	  if (ag.getTotalAutoScore() == null) ag.setTotalAutoScore(new Float("0"));
+    	  if (ag.getFinalScore() == null) ag.setFinalScore(Float.valueOf("0"));
+    	  if (ag.getTotalAutoScore() == null) ag.setTotalAutoScore(Float.valueOf("0"));
     	  SubmitToGradingActionListener listener = new SubmitToGradingActionListener();
     	  listener.completeItemGradingData(ag);
           service.saveOrUpdateAssessmentGrading(ag);
