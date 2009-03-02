@@ -91,6 +91,18 @@ public class SiteAddParticipantHandler {
 		this.nonOfficialAccountParticipant = nonOfficialAccountParticipant;
 	}
 	
+	// for eids inside this list, don't look them up as email ids
+	public List<String> officialAccountEidOnly = new Vector<String>();
+	public List<String> getOfficialAccountEidOnly()
+	{
+		return officialAccountEidOnly;
+	}
+	public void setOfficialAccountEidOnly(List<String> officialAccountEidOnly)
+	{
+		this.officialAccountEidOnly = officialAccountEidOnly;
+	}
+	
+	
 	/*whether the role choice is for same role or different role */
 	public String roleChoice = "sameRole";
 	
@@ -651,26 +663,66 @@ public class SiteAddParticipantHandler {
 					// automatically add nonOfficialAccount account
 					Participant participant = new Participant();
 					User u = null;
-					try {
-						// look for user based on eid first
-						u = UserDirectoryService.getUserByEid(officialAccount);
-					} catch (UserNotDefinedException e) {
-						M_log.warn(this + ".checkAddParticipant: " + officialAccount + " " + messageLocator.getMessage("java.username") + " ");
+					String eidsForAllMatches = "";
+					String eidsForAllMatchesAlert = "";
+					
+					if (officialAccount.indexOf(at) == -1)
+					{
+						// is not of email format, then look up by eid only
+						try {
+							// look for user based on eid first
+							u = UserDirectoryService.getUserByEid(officialAccount);
+						} catch (UserNotDefinedException e) {
+							M_log.debug(this + ".checkAddParticipant: " + officialAccount + " " + messageLocator.getMessage("java.username") + " ");
+						}
+					}
+					else
+					{
+						// is email. Need to lookup by both eid and email address
+						try {
+							// look for user based on eid first
+							u = UserDirectoryService.getUserByEid(officialAccount);
+						} catch (UserNotDefinedException e) {
+							M_log.debug(this + ".checkAddParticipant: " + officialAccount + " " + messageLocator.getMessage("java.username") + " ");
+						}
+						
 						//Changed user lookup to satisfy BSP-1010 (jholtzman)
 						// continue to look for the user by their email address
-						Collection<User> usersWithEmail = UserDirectoryService.findUsersByEmail(officialAccount);
-						if(usersWithEmail != null) {
-							if(usersWithEmail.size() == 0) {
-								// If the collection is empty, we didn't find any users with this email address
-								M_log.info("Unable to find users with email " + officialAccount);
-							} else if (usersWithEmail.size() == 1) {
-								// We found one user with this email address.  Use it.
-								u = (User)usersWithEmail.iterator().next();
-							} else if (usersWithEmail.size() > 1) {
-								// If we have multiple users with this email address, pick one and log this error condition
-								// TODO Should we not pick a user?  Throw an exception?
-								M_log.warn("Found multiple user with email " + officialAccount);
-								u = (User)usersWithEmail.iterator().next();
+						// if the email address is not marked as eid only
+						if (!officialAccountEidOnly.contains(officialAccount))
+						{
+							Collection<User> usersWithEmail = UserDirectoryService.findUsersByEmail(officialAccount);
+							
+							if(usersWithEmail != null) {
+								if(usersWithEmail.size() == 0) {
+									// If the collection is empty, we didn't find any users with this email address
+									M_log.debug("Unable to find users with email " + officialAccount);
+								} else if (usersWithEmail.size() == 1 && u == null) {
+									// We found one user with this email address.  Use it.
+									u = (User)usersWithEmail.iterator().next();
+								} else if (!usersWithEmail.isEmpty()) {
+									// If we have multiple users with this email address, expand the list with all matching user's eids and let the instructor choose from them
+									M_log.debug("Found multiple user with email " + officialAccount);
+									
+									// multiple matches
+									for (User user : usersWithEmail)
+									{
+										String eid = user.getEid();
+										eidsForAllMatches += eid + "\n";
+										eidsForAllMatchesAlert += eid + ", ";
+										
+										// this is to mark the eid so that it won't be used again for email lookup in the future
+										officialAccountEidOnly.add(eid);
+									}
+									
+									// update ui input
+									updateOfficialAccountParticipant(officialAccount, u, eidsForAllMatches);
+									
+									// show alert message
+									targettedMessageList.addMessage(new TargettedMessage("java.username.multiple", 
+											new Object[] { officialAccount, eidsForAllMatchesAlert }, 
+							                TargettedMessage.SEVERITY_ERROR));
+								}
 							}
 						}
 					}
@@ -695,7 +747,7 @@ public class SiteAddParticipantHandler {
 							userRoleEntries.add(new UserRoleEntry(u.getEid(), ""));
 						}
 					}
-					else
+					else if (eidsForAllMatches.length() == 0)
 					{
 						// not valid user
 						targettedMessageList.addMessage(new TargettedMessage("java.username",
@@ -910,6 +962,7 @@ public class SiteAddParticipantHandler {
 	private void reset()
 	{
 		officialAccountParticipant = null;
+		officialAccountEidOnly = new Vector<String>();
 		nonOfficialAccountParticipant = null;
 		roleChoice = "sameRole";
 		sameRoleChoice = null;
@@ -919,6 +972,25 @@ public class SiteAddParticipantHandler {
 
 	public void setNotiProvider(UserNotificationProvider notiProvider) {
 		this.notiProvider = notiProvider;
+	}
+	
+	/**
+	 * This is to update the handler's officialAccountParticipant attribute when encountering multiple users with same email address.
+	 * The visual result is that the official account list will be expanded to include eids from all matches
+	 * 
+	 * @param officialAccount
+	 * @param u
+	 */
+	protected void updateOfficialAccountParticipant(String officialAccount, User u, String eidsForAllMatches)
+	{
+		
+		if (u != null && !eidsForAllMatches.contains(u.getEid()))
+		{
+			eidsForAllMatches = u.getEid() + "\n" + eidsForAllMatches;
+		}
+		
+		// replace the original official account entry with eids from all matches.
+		officialAccountParticipant = officialAccountParticipant.replaceAll(officialAccount, eidsForAllMatches);
 	}
 }
 
