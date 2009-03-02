@@ -529,7 +529,7 @@ public class ItemHelper12Impl extends ItemHelperBase
               itemXml.addAttribute(newXpath, "columns");
               updateItemXml(
                 itemXml, newXpath + "/@columns",
-                (new Integer(respStr.length() + 5).toString()));
+                (  Integer.toString(respStr.length() + 5)));
 
               itemXml.addAttribute(newXpath, "rows");
               updateItemXml(itemXml, newXpath + "/@rows", "1");
@@ -840,7 +840,7 @@ public class ItemHelper12Impl extends ItemHelperBase
               itemXml.addAttribute(newXpath, "columns");
               updateItemXml(
                 itemXml, newXpath + "/@columns",
-                (new Integer(respStr.length() + 5).toString()));
+                (  Integer.toString(respStr.length() + 5)));
 
               itemXml.addAttribute(newXpath, "rows");
               updateItemXml(itemXml, newXpath + "/@rows", "1");

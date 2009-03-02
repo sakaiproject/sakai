@@ -217,6 +217,7 @@ public class Section extends ASIBaseClass
    *
    * @return list of items
    */
+  /*
   private List getAllItems()
   {
     log.debug("getAllItems()");
@@ -226,10 +227,11 @@ public class Section extends ASIBaseClass
     return this.selectNodes(xpath);
   }
 
-
+*/
   /**
    * remove items
    */
+  /*
   private void removeItems()
   {
     log.debug("removeItems()");
@@ -237,7 +239,7 @@ public class Section extends ASIBaseClass
     String xpath = basePath + "/" + QTIConstantStrings.ITEM;
     this.removeElement(xpath);
   }
-
+*/
   /**
    * order items
    *

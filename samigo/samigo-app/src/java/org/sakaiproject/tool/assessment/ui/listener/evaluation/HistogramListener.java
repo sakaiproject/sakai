@@ -1664,7 +1664,7 @@ public class HistogramListener
    * @return array of range text strings for each interval
    */
   
-  
+  /*
   private static String[] calRange(String[] answers, String[] choices)
   {
     String[] range = new String[choices.length];
@@ -1693,6 +1693,7 @@ public class HistogramListener
 
     return range;
   }
+  */
 
   /**
    * Calculate range strings for each interval.

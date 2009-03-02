@@ -588,7 +588,7 @@ public class AuthoringHelper
           item.setLastModifiedDate(assessment.getCreatedDate());
           item.setStatus(ItemDataIfc.ACTIVE_STATUS);
           // assign the next sequence number
-          item.setSequence(new Integer(itm + 1));
+          item.setSequence(  Integer.valueOf(itm + 1));
           // add item to section
           item.setSection(section); // one to many
           // update metadata with PARTID

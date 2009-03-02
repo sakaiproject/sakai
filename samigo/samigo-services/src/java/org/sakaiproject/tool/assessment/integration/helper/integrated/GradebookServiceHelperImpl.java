@@ -263,7 +263,7 @@ public void removeExternalAssessment(String gradebookUId,
     }
     g.updateExternalAssessmentScore(gradebookUId,
       ag.getPublishedAssessmentId().toString(),
-      ag.getAgentId(), new Double(ag.getFinalScore().doubleValue()));
+      ag.getAgentId(),  Double.valueOf(ag.getFinalScore().doubleValue()));
     if (testErrorHandling){
       throw new Exception("Encountered an error in update ExternalAssessmentScore.");
     }

@@ -1429,7 +1429,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
           pub.getAssessmentAccessControl().getDueDate().before(new Date()))
           data.setIsLate(Boolean.TRUE);
     else
-      data.setIsLate(new Boolean(false));
+      data.setIsLate( Boolean.valueOf(false));
     if (data.getForGrade().booleanValue())
       data.setStatus( Integer.valueOf(1));
     
