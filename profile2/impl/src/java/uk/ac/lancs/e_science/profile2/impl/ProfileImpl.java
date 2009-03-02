@@ -1424,9 +1424,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	
     	//add more cases here as need progresses
     	
-    	    	
-    	//uncaught rule, return false
-    	log.info("Profile.isEmailEnabledForThisMessageType. False for userId: " + userId + ", messageType: " + messageType);
+    	//no notification for this message type, return false 	
+    	log.debug("Profile.isEmailEnabledForThisMessageType. False for userId: " + userId + ", messageType: " + messageType);
 
     	return false;
 		

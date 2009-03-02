@@ -462,7 +462,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		ToolConfiguration toolConfig = getFirstInstanceOfTool(siteId, ProfileUtilityManager.TOOL_ID);
 		if(toolConfig == null) {
 			//if the user doesn't have the profile2 tool installed in their My Workspace,
-			log.warn("SakaiProxy.getDirectUrlToUserProfile() failed to find sakai.profile2 installed in My Workspace for  userId: " + userId);
+			log.warn("SakaiProxy.getDirectUrlToUserProfile() failed to find " + ProfileUtilityManager.TOOL_ID + " installed in My Workspace for userId: " + userId);
 			
 			//just return a link to their My Workspace
 			StringBuilder url = new StringBuilder();

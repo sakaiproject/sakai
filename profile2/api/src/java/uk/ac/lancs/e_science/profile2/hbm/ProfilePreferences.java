@@ -9,11 +9,12 @@ public class ProfilePreferences implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private String userUuid;
-	private int email;
+	private boolean requestEmailEnabled;
+	private boolean confirmEmailEnabled;
 	private boolean twitterEnabled;
 	private String twitterUsername;
-	private String twitterPasswordEncrypted;
-	private String twitterPasswordDecrypted;
+	private String twitterPasswordEncrypted; //this is persisted
+	private String twitterPasswordDecrypted; //this is used for display
 
 	
 	/** 
@@ -25,9 +26,10 @@ public class ProfilePreferences implements Serializable {
 	/**
 	 * Basic constructor for creating default records
 	 */
-	public ProfilePreferences(String userUuid, int email, boolean twitterEnabled){
+	public ProfilePreferences(String userUuid, boolean requestEmailEnabled, boolean confirmEmailEnabled, boolean twitterEnabled){
 		this.userUuid=userUuid;
-		this.email=email;
+		this.requestEmailEnabled=requestEmailEnabled;
+		this.confirmEmailEnabled=confirmEmailEnabled;
 		this.twitterEnabled=twitterEnabled;
 	}
 	
@@ -41,13 +43,20 @@ public class ProfilePreferences implements Serializable {
 		this.userUuid = userUuid;
 	}
 
-	public int getEmail() {
-		return email;
+	public void setRequestEmailEnabled(boolean requestEmailEnabled) {
+		this.requestEmailEnabled = requestEmailEnabled;
 	}
 
+	public boolean isRequestEmailEnabled() {
+		return requestEmailEnabled;
+	}
 
-	public void setEmail(int email) {
-		this.email = email;
+	public void setConfirmEmailEnabled(boolean confirmEmailEnabled) {
+		this.confirmEmailEnabled = confirmEmailEnabled;
+	}
+
+	public boolean isConfirmEmailEnabled() {
+		return confirmEmailEnabled;
 	}
 
 	public boolean isTwitterEnabled() {
@@ -61,7 +70,6 @@ public class ProfilePreferences implements Serializable {
 	public String getTwitterUsername() {
 		return twitterUsername;
 	}
-
 
 	public void setTwitterUsername(String twitterUsername) {
 		this.twitterUsername = twitterUsername;
@@ -109,6 +117,6 @@ public class ProfilePreferences implements Serializable {
 		this.twitterPasswordFeedback = twitterPasswordFeedback;
 	}
 
-
+	
 	
 }

@@ -25,21 +25,33 @@
 	            <form wicket:id="form" class="profileForm">
 									
 					<!-- Email notifications -->
-					<span class="formSectionHeading" wicket:id="emailSectionHeading">[email notification]</span>
-					<span class="toolTip" wicket:id="emailToolTip">[emailToolTip]</span>
+					<div class="formSectionHeading" wicket:id="emailSectionHeading">[email notifications]</div>
+					<div class="formSectionText" wicket:id="emailSectionText">[send me email when]</div>
 					
-					<table class="profileContent">
-						<tr wicket:id="emailContainer">
-							<td class="label" wicket:id="emailLabel">[emailLabel]</td>
-							<td class="content"><select wicket:id="email"></select></td>
+					<table class="preferencesContent">
+						<tr>
+							<td>&nbsp;</td>
+							<td class="item">On</td>
+							<td class="item">Off</td>
+						</tr>
+						<tr wicket:id="requestEmailEnabled">
+							<td class="label" wicket:id="requestsLabel">[requestsLabel]</td>
+							<td class="item"><input type="radio" wicket:id="requestsOn" /></td>
+							<td class="item"><input type="radio" wicket:id="requestsOff" /></td>
+						</tr>
+						<tr wicket:id="confirmEmailEnabled">
+							<td class="label" wicket:id="confirmsLabel">[confirmsLabel]</td>
+							<td class="item"><input type="radio" wicket:id="confirmsOn" /></td>
+							<td class="item"><input type="radio" wicket:id="confirmsOff" /></td>
 						</tr>
 					</table>
 					
 					
 					<!-- Twitter integration -->
-					<span class="formSectionHeading" wicket:id="twitterSectionHeading">[twitter integration]</span>
-					<span class="toolTip" wicket:id="twitterToolTip">[twitterToolTip]</span>
-					<table class="profileContent">
+					<div class="formSectionHeading" wicket:id="twitterSectionHeading">[twitter integration]</div>
+					<div class="formSectionText" wicket:id="twitterSectionText">[twitterSectionText]</div>
+					
+					<table class="preferencesContent">
 						<tr wicket:id="twitterEnabledContainer">
 							<td class="label" wicket:id="twitterEnabledLabel">[twitterEnabledLabel]</td>
 							<td class="content"><input wicket:id="twitterEnabled" type="checkbox"></input></td>

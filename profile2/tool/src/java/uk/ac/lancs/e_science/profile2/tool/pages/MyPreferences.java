@@ -1,22 +1,20 @@
 package uk.ac.lancs.e_science.profile2.tool.pages;
 
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
+import org.apache.wicket.markup.html.form.Radio;
+import org.apache.wicket.markup.html.form.RadioGroup;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
@@ -26,8 +24,6 @@ import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfilePreferencesNotDefinedException;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePreferences;
 import uk.ac.lancs.e_science.profile2.tool.components.EnablingCheckBox;
-import uk.ac.lancs.e_science.profile2.tool.components.HashMapChoiceRenderer;
-import uk.ac.lancs.e_science.profile2.tool.components.IconWithClueTip;
 
 
 public class MyPreferences extends BasePage {
@@ -43,6 +39,9 @@ public class MyPreferences extends BasePage {
 		//get the preferences object for this user from the database
 		profilePreferences = profile.getPreferencesRecordForUser(userId);
 		
+		//get email address for this user
+		String emailAddress = sakaiProxy.getUserEmail(userId);
+		
 		//if null, create one
 		if(profilePreferences == null) {
 			profilePreferences = profile.createDefaultPreferencesRecord(userId);
@@ -56,7 +55,7 @@ public class MyPreferences extends BasePage {
 			sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PREFERENCES_NEW, userId, true);
 			
 		}
-		
+				
 		Label heading = new Label("heading", new ResourceModel("heading.preferences"));
 		add(heading);
 		
@@ -74,44 +73,43 @@ public class MyPreferences extends BasePage {
 		Form form = new Form("form", preferencesModel);
 		form.setOutputMarkupId(true);
 		
-		//setup LinkedHashMap of email options
-		final LinkedHashMap<String, String> emailSettings = new LinkedHashMap<String, String>();
-		emailSettings.put("0", new StringResourceModel("email.option.all", this,null).getString());
-		emailSettings.put("1", new StringResourceModel("email.option.requestsonly", this,null).getString());
-		emailSettings.put("2", new StringResourceModel("email.option.confirmonly", this,null).getString());
-		emailSettings.put("3", new StringResourceModel("email.option.none", this,null).getString());
-		
-		
-		//model that wraps our email options
-		IModel emailSettingsModel = new Model() {
-			public Object getObject() {
-				 return new ArrayList(emailSettings.keySet()); //via proxy
-			} 
-		};
 	
 		//email settings
 		form.add(new Label("emailSectionHeading", new ResourceModel("heading.section.email")));
-		//tooltip
-		form.add(new IconWithClueTip("emailToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.preferences.email.tooltip")));
+		form.add(new Label("emailSectionText", new StringResourceModel("preferences.email.message", null, new Object[] { emailAddress })).setEscapeModelStrings(false));
+	
+		//request emails
+		final RadioGroup emailRequests = new RadioGroup("requestEmailEnabled", new PropertyModel(preferencesModel, "requestEmailEnabled"));
+		emailRequests.add(new Radio("requestsOn", new Model(new Boolean(true))));
+		emailRequests.add(new Radio("requestsOff", new Model(new Boolean(false))));
+		emailRequests.add(new Label("requestsLabel", new ResourceModel("preferences.email.requests")));
+		form.add(emailRequests);
 		
-		WebMarkupContainer emailContainer = new WebMarkupContainer("emailContainer");
-		emailContainer.add(new Label("emailLabel", new ResourceModel("preferences.email")));
-		DropDownChoice emailChoice = new DropDownChoice("email", emailSettingsModel, new HashMapChoiceRenderer(emailSettings));             
-		emailContainer.add(emailChoice);
-		form.add(emailContainer);
 		//updater
-		emailChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		emailRequests.add(new AjaxFormChoiceComponentUpdatingBehavior() {
+            protected void onUpdate(AjaxRequestTarget target) {
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
+		
+		//confirm emails
+		final RadioGroup emailConfirms = new RadioGroup("confirmEmailEnabled", new PropertyModel(preferencesModel, "confirmEmailEnabled"));
+		emailConfirms.add(new Radio("confirmsOn", new Model(new Boolean(true))));
+		emailConfirms.add(new Radio("confirmsOff", new Model(new Boolean(false))));
+		emailConfirms.add(new Label("confirmsLabel", new ResourceModel("preferences.email.confirms")));
+		form.add(emailConfirms);
+		
+		//updater
+		emailConfirms.add(new AjaxFormChoiceComponentUpdatingBehavior() {
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
         
-		
 		//twitter settings
 		form.add(new Label("twitterSectionHeading", new ResourceModel("heading.section.twitter")));
-		//tooltip
-		form.add(new IconWithClueTip("twitterToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.preferences.twitter.tooltip")));
-		
+		form.add(new Label("twitterSectionText", new ResourceModel("preferences.twitter.message")));
+
 		//username
 		WebMarkupContainer twitterUsernameContainer = new WebMarkupContainer("twitterUsernameContainer");
 		twitterUsernameContainer.add(new Label("twitterUsernameLabel", new ResourceModel("twitter.username")));
@@ -198,21 +196,23 @@ public class MyPreferences extends BasePage {
 			twitterPassword.setRequired(false);
 		}
 		
-		
 		//submit button
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.save.settings"), form) {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				
 				//get the backing model
 				ProfilePreferences profilePreferences = (ProfilePreferences) form.getModelObject();
-
+				
+				formFeedback.setModel(new ResourceModel("success.preferences.save.ok"));
+				formFeedback.add(new AttributeModifier("class", true, new Model("success")));
+				
 				//special case. if twitterEnabled is disabled, make sure the fields are cleared
-				//else validate ourselves
 				if(!profilePreferences.isTwitterEnabled()) {
 					profilePreferences.setTwitterUsername(null);
 					profilePreferences.setTwitterPasswordDecrypted(null);
 				} 
 				
+				//validate twitter fields since this is a special form (needs checkbox to set the fields)
 				if(profilePreferences.isTwitterEnabled()) {
 					twitterUsername.validate();
 					twitterPassword.validate();
@@ -225,7 +225,6 @@ public class MyPreferences extends BasePage {
 					
 					//password is encrypted before its saved, automatically
 				}
-						
 				
 				if(profile.savePreferencesRecord(profilePreferences)) {
 					log.info("Saved ProfilePreferences for: " + profilePreferences.getUserUuid());
@@ -240,6 +239,7 @@ public class MyPreferences extends BasePage {
 					formFeedback.setModel(new ResourceModel("error.preferences.save.failed"));
 					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));	
 				}	
+				
 				
 				target.addComponent(formFeedback);
             }

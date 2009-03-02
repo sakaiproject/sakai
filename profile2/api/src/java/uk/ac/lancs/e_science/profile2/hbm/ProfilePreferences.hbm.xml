@@ -12,7 +12,11 @@
 	    	<generator class="assigned" />
 	    </id>
 		
-		<property name="email" column="EMAIL" not-null="true" />
+		<!--  whilst the following set of email properties make this less normalised,
+		each setting is discrete and required and no other calcs need be done on them as a group so its ok
+		they are also set by default if no record exists. -->
+		<property name="requestEmailEnabled" column="EMAIL_REQUEST" not-null="true" />
+		<property name="confirmEmailEnabled" column="EMAIL_CONFIRM" not-null="true" />		
 		<property name="twitterEnabled" column="TWITTER_ENABLED" not-null="true"/>
 	    <property name="twitterUsername" column="TWITTER_USERNAME" not-null="false" />
 		<property name="twitterPasswordEncrypted" column="TWITTER_PASSWORD" not-null="false" />

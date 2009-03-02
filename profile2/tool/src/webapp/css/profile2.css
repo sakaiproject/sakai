@@ -290,15 +290,21 @@ h2 {
 
 
 
-/* profile information sections */
-.profileContent{
+/* profile and preferences information sections */
+.profileContent, preferencesContent{
 	padding-top: 2px;
 	padding-bottom: 2px;
 	font-size: 90%;
 	border: none;
 }
 
-.profileContent .label {
+.preferencesContent {
+	margin-top: 6px;
+	margin-bottom: 12px;
+}
+
+.profileContent .label,
+.preferencesContent .label {
 	width: 120px;
 	float: left;
 	color: #5D5D5D;
@@ -307,12 +313,25 @@ h2 {
 	font-weight: normal;
 }
 
-.profileContent .content {
+.preferencesContent .label {
+	width: 170px;
+}
+
+.profileContent .content,
+.preferencesContent .content {
 	padding-left: 2px;
 	/*padding-right: 40px;*/
 }
 
-.profileContent .toolTip {
+.preferencesContent .item  {
+	padding-left: 4px;
+	padding-right: 4px;
+	text-align: center;
+	font-size: 80%;
+}
+
+.profileContent .toolTip,
+.preferencesContent .toolTip {
 	padding-left: 8px;
 	vertical-align: top;
 	/*padding-right: 40px;*/
@@ -418,7 +437,15 @@ h2 {
 .formSectionHeading {
 	font-weight: bold;
 	padding-left: 0;
-	margin-top: 12px;
+	padding-top: 2px;
+}
+
+.formSectionText {
+	font-weight: normal;
+	font-size: 0.9em;
+	padding-left: 2px;
+	margin-top: 4px;
+	font-style: italic;	
 }
 
 
