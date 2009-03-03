@@ -339,9 +339,9 @@
   </servlet-mapping>
 
   <!-- BEGIN APACHE AXIS SECTION-->
+  <!-- 
 
   <servlet>
-   	<!--  Ordering change required - PAFH 9/7/2006 -->
     <display-name>Apache-Axis Servlet</display-name>
     <servlet-name>AxisServlet</servlet-name>
     <servlet-class>
@@ -350,7 +350,6 @@
   </servlet>
 
   <servlet>
-   	<!--  Ordering change required - PAFH 9/7/2006 -->
     <display-name>Axis Admin Servlet</display-name>
     <servlet-name>AdminServlet</servlet-name>
     <servlet-class>
@@ -360,7 +359,6 @@
   </servlet>
 
   <servlet>
-   	<!--  Ordering change required - PAFH 9/7/2006 -->
     <display-name>SOAPMonitorService</display-name>
     <servlet-name>SOAPMonitorService</servlet-name>
     <servlet-class>
@@ -393,6 +391,7 @@
     <url-pattern>/SOAPMonitor</url-pattern>
   </servlet-mapping>
 
+-->
  
   <!-- BEGIN SAMIGO JSF SECTION-->
 
