@@ -660,24 +660,28 @@ h2 {
 .profile_pageLinks a:visited {
     background-position: center left;
     background-repeat: no-repeat;
-    padding-left:18px;
+    padding-left: 18px;
 }
 
-#profileLink {
+.profileIcon {
 	background-image: url(/library/image/silk/vcard.png);
 }
-#friendsLink {
+.friendsIcon {
 	background-image: url(/library/image/silk/group.png);
 }
-#searchLink {
+.requestsIcon {
+	background-image: url(/library/image/silk/user_add.png);
+}
+.searchIcon {
 	background-image: url(/library/image/silk/magnifier.png);
 }
-#privacyLink {
+.privacyIcon {
 	background-image: url(/library/image/silk/lock.png);
 }
-#preferencesLink {
+.preferencesIcon {
 	background-image: url(/library/image/silk/cog.png);
 }
+
 
 
 
@@ -688,13 +692,20 @@ h2 {
 }
 
 
+/* heading for pages and items */
 .itemHeader {
-	font-size: 100%;
+	background-position: center left;
+    background-repeat: no-repeat;
+	font-size: 1.1em;
 	font-weight: bold;
 	border-bottom: thin solid #5D5D5D;
 	margin-bottom: 8px;
+	padding-bottom: 3px;
+	padding-left: 19px;
 	width: 500px;
 }
+
+
 
 .resultsHeader {
 	font-weight: normal;
