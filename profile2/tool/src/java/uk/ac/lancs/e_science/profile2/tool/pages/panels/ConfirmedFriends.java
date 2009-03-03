@@ -52,9 +52,7 @@ public class ConfirmedFriends extends Panel {
 		final String userY = sakaiProxy.getCurrentUserId();
 		
 		//get our list of confirmed friends as an IDataProvider
-		//this provider takes care of cleaning the list so what we return is always safe to print
-		//ie the privacy settings for each user is already taken care of
-		ConfirmedFriendsDataProvider provider = new ConfirmedFriendsDataProvider(userX, userY);
+		ConfirmedFriendsDataProvider provider = new ConfirmedFriendsDataProvider(userX);
 		
 		//init number of friends
 		numConfirmedFriends = provider.size();
@@ -101,7 +99,7 @@ public class ConfirmedFriends extends Panel {
 		add(noFriendsContainer);
 		*/
 		
-		
+	
 		
 		//container which wraps list
 		final WebMarkupContainer confirmedFriendsContainer = new WebMarkupContainer("confirmedFriendsContainer");
@@ -116,10 +114,29 @@ public class ConfirmedFriends extends Panel {
 		    	//get friendId
 		    	final String friendId = (String)item.getModelObject();
 		    			    	
-		    	//setup basic values
+		    	//setup values
 		    	String displayName = sakaiProxy.getUserDisplayName(friendId);
-		    	final byte[] photo = profile.getCurrentProfileImageForUser(friendId, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
-		    			    	
+		    	final byte[] photo;
+		    	boolean friend;
+		    	
+		    	
+		    	//get friend status
+		    	if(userX.equals(userY)) {
+		    		friend = true; //viewing own list of confirmed fiends so must be a friend
+		    	} else {
+		    		friend = profile.isUserXFriendOfUserY(userY, friendId); //other person viewing, check if they are friends
+		    	}
+	    		
+		    	//is profile image allowed to be viewed by this user/friend?
+				final boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(friendId, userY, friend);
+				
+		    	if(isProfileImageAllowed) {
+		    		photo = profile.getCurrentProfileImageForUser(friendId, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
+		    	} else {
+		    		photo = null;
+		    	}
+		    	
+		    	
 		    	//photo/default photo
 		    	if(photo != null && photo.length > 0){
 		    		

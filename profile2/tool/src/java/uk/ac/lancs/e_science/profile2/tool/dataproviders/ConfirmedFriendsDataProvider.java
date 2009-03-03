@@ -39,18 +39,13 @@ public class ConfirmedFriendsDataProvider implements IDataProvider, Serializable
 	private transient List<String> friends = new ArrayList<String>();
 	private transient Profile profile;
 	
-	public ConfirmedFriendsDataProvider(final String userX, final String userY) {
+	public ConfirmedFriendsDataProvider(final String userId) {
 		
 		//get Profile
 		profile = ProfileApplication.get().getProfile();
 		
-		//if users are the same, they are viewing own friend list so get list of visible friends
-		//if users are different, userY is viewing userX's friend list
-		if(userX.equals(userY)) {
-			friends = profile.getVisibleFriendsOfUser(userX);
-		} else {
-			friends = profile.getFriendsOfUserXVisibleByUserY(userX, userY);
-		}
+		//get list of friends for user
+		friends = profile.getConfirmedFriendUserIdsForUser(userId);
 		
 		//TODO sort list here - need comparator etc
 	}

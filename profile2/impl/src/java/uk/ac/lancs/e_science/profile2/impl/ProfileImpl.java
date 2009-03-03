@@ -292,8 +292,6 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	
-	
-	
 	/**
  	 * {@inheritDoc}
  	 */
@@ -667,7 +665,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		//see ProfilePrivacy for this constructor and what it all means
 		ProfilePrivacy profilePrivacy = new ProfilePrivacy(
 				userId,
-				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_PROFILE,
+				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_PROFILEIMAGE,
 				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_BASICINFO,
 				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_CONTACTINFO,
 				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_PERSONALINFO,
@@ -851,65 +849,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		return false;
 	}
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public List<String> getFriendsOfUserXVisibleByUserY(final String userX, final String userY) {
 		
-		//get userX friend list
-		List<String> userXFriends = new ArrayList<String>(getConfirmedFriendUserIdsForUser(userX));
-		
-		//get userX friend list
-		List<String> userYFriends = new ArrayList<String>(getConfirmedFriendUserIdsForUser(userY));
-		
-		//setup return list
-		List<String> returnList = new ArrayList<String>();
-		
-		//iterate over first list
-		for(Iterator<String> i = userXFriends.iterator(); i.hasNext();){
-			String userXFriend = (String)i.next();
-			boolean friend = false;
-			
-			//if in list, userY and this particular person are also friends
-			if(userYFriends.contains(userXFriend)) {
-				friend = true;
-			}
-			
-			//if profile is visible, add them to the list that is to be returned
-			if(isUserXProfileVisibleByUserY(userXFriend, userY, friend)) {
-				returnList.add(userXFriend);
-			}
-			
-		}
-		
-		return returnList;
-	}
-
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public List<String> getVisibleFriendsOfUser(final String userId) {
-		
-		//get friend list
-		List<String> userFriends = new ArrayList<String>(getConfirmedFriendUserIdsForUser(userId));
-		
-		//setup return list
-		List<String> returnList = new ArrayList<String>();
-		
-		//iterate over friends list to see if they are visible
-		for(Iterator<String> i = userFriends.iterator(); i.hasNext();){
-			String friendId = (String)i.next();
-			
-			//if profile is visible, add them to the list that is to be returned
-			if(isUserXProfileVisibleByUserY(friendId, userId, true)) {
-				returnList.add(friendId);
-			}
-			
-		}
-		
-		return returnList;
-	}
 	
 	
 	/**
@@ -932,10 +872,12 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	}
     	
     	//if restricted to only self, not allowed
+    	/* DEPRECATED via PRFL-24 when the privacy settings were relaxed
     	if(profilePrivacy.getSearch() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYME) {
     		log.debug("SEARCH VISIBILITY for " + userX + ": only me");
     		return false;
     	}
+    	*/
     	
     	//if friend and set to friends only
     	if(friend && profilePrivacy.getSearch() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
@@ -967,7 +909,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	/**
  	 * {@inheritDoc}
  	 */
-	public boolean isUserXProfileVisibleByUserY(String userX, String userY, boolean friend) {
+	public boolean isUserXProfileImageVisibleByUserY(String userX, String userY, boolean friend) {
 		
 		
 		//get privacy record for this user
@@ -975,7 +917,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	
     	//if none, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
-    		return ProfilePrivacyManager.DEFAULT_PROFILE_VISIBILITY;
+    		return ProfilePrivacyManager.DEFAULT_PROFILEIMAGE_VISIBILITY;
     	}
     	
     	//if userX is userY, they ARE allowed to view their own picture!
@@ -984,27 +926,29 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	}
     	
     	//if restricted to only self, not allowed
+    	/* DEPRECATED via PRFL-24 when the privacy settings were relaxed
     	if(profilePrivacy.getProfile() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYME) {
     		return false;
     	}
+    	*/
     	
     	//if user is friend and friends are allowed
-    	if(friend && profilePrivacy.getProfile() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    	if(friend && profilePrivacy.getProfileImage() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
     		return true;
     	}
     	
     	//if not friend and set to friends only
-    	if(!friend && profilePrivacy.getProfile() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    	if(!friend && profilePrivacy.getProfileImage() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
     		return false;
     	}
     	
     	//if everyone is allowed
-    	if(profilePrivacy.getProfile() == ProfilePrivacyManager.PRIVACY_OPTION_EVERYONE) {
+    	if(profilePrivacy.getProfileImage() == ProfilePrivacyManager.PRIVACY_OPTION_EVERYONE) {
     		return true;
     	}
     	
     	//uncaught rule, return false
-    	log.error("Profile.isUserProfileVisibleByCurrentUser. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);
+    	log.error("Profile.isUserProfileImageVisibleByCurrentUser. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);
 
     	return false;
 	}
@@ -1660,8 +1604,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 				continue; 
 			}
 			
-			//is profile/ photo visible to this user
-			boolean profileAllowed = isUserXProfileVisibleByUserY(userUuid, userId, friend);
+			//is profile photo visible to this user
+			boolean profileImageAllowed = isUserXProfileImageVisibleByUserY(userUuid, userId, friend);
 			
 			//is profile/ photo visible to this user
 			boolean friendsListVisible = isUserXFriendsListVisibleByUserY(userUuid, userId, friend);
@@ -1670,7 +1614,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			SearchResult searchResult = new SearchResult(
 					userUuid,
 					friend,
-					profileAllowed,
+					profileImageAllowed,
 					friendsListVisible,
 					friendRequestToThisPerson,
 					friendRequestFromThisPerson

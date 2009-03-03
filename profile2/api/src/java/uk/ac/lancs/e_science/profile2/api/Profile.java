@@ -72,14 +72,13 @@ public interface Profile {
 	 * @param userId		uuid of the user to retrieve the list of friends for
 	 */
 	public List<String> getConfirmedFriendUserIdsForUser(final String userId);
-	
+		
 	/**
-	 * Similar to getConfirmedFriendUserIdsForUser but returns an int of the count of results
-	 * 
-	 * @param userId		uuid of the user to retrieve the list of friends for
+	 * get total number of confirmed friends (used by FriendsFeed to get total, not just the number in the grid)
+	 * @param userId of person to get count of froiends for
+	 * @return
 	 */
 	public int countConfirmedFriendUserIdsForUser(final String userId);
-	
 	
 	/**
 	 * Make a request for friendId to be a friend of userId
@@ -276,35 +275,7 @@ public interface Profile {
 	 */
 	public boolean isUserXFriendOfUserY(String userX, String userY);
 	
-	
-	/**
-	 * Get a list of confirmed friends for userX, that is visible by userY, depending on the individual 
-	 * privacy settings of each friend
-	 * 
-	 * - First Calls getConfirmedFriendUserIdsForUser() for userX first,
-	 * - Then determines if each person in that list is visible by userY by getting list of userX's friends
-	 * 		via (getConfirmedFriendUserIdsForUser) and checking each person in the first list against
-	 * 		the second list. This determines friend status.
-	 * - Then checks privacy status of each person. If all ok, add to the final list that is returned.
-	 * 
-	 * @param userX		uuid of the user to retrieve the list of friends for
-	 * @param userY		uuid of the user viewing the list
-	 */
-	public List<String> getFriendsOfUserXVisibleByUserY(final String userX, final String userY);
-	
-	/**
-	 * Get a list of confirmed friends for a given user, that are visible by that user 
-	 * (depending on their privacy settings)
-	 * 
-	 * - First Calls getConfirmedFriendUserIdsForUser() for userId first,
-	 * - Then checks privacy status of each person. If all ok, add to the final list that is returned.
-	 * 
-	 * @param userId		uuid of the user to retrieve the list of friends for
-	 */
-	public List<String> getVisibleFriendsOfUser(final String userId);
-	
-	
-	
+
 	
 	/**
 	 * Should this user show up in searches by the given user?
@@ -323,8 +294,8 @@ public interface Profile {
 	
 	
 	/**
-	 * Has the user allowed viewing of their profile (including image) by the given user?
-	 * ie have they restricted it to only me or friends etc
+	 * Has the user allowed viewing of their profile image by the given user?
+	 * ie have they restricted it to only friends? Or can everyone see it.
 	 * 
 	 * @param userX			the uuid of the user we are querying
 	 * @param userY			current user uuid
@@ -335,7 +306,7 @@ public interface Profile {
 	 * been determined, but it is in now in case later we allow blocking/opening up of info to specific users.
 	 * 
 	 */
-	public boolean isUserXProfileVisibleByUserY(String userX, String userY, boolean friend);
+	public boolean isUserXProfileImageVisibleByUserY(String userX, String userY, boolean friend);
 	
 	
 	/**

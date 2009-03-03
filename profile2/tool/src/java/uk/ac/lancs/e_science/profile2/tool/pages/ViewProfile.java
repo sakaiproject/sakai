@@ -78,12 +78,14 @@ public class ViewProfile extends BasePage {
 		}
 		
 		
-		//is this user allowed to view this person's profile?
-		boolean isProfileAllowed = profile.isUserXProfileVisibleByUserY(userUuid, currentUserId, friend);
+		//is this user allowed to view this person's profile image?
+		boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(userUuid, currentUserId, friend);
 		
+		/* DEPRECATED via PRFL-24 when privacy was relaxed
 		if(!isProfileAllowed) {
 			throw new ProfileIllegalAccessException("User: " + currentUserId + " is not allowed to view profile for: " + userUuid);
 		}
+		*/
 		
 		//holds number of profile containers that are visible
 		int visibleContainerCount = 0;
@@ -106,7 +108,9 @@ public class ViewProfile extends BasePage {
 		
 		
 		/* PROFILE IMAGE */
-		profileImageBytes = profile.getCurrentProfileImageForUser(userUuid, ProfileImageManager.PROFILE_IMAGE_MAIN);
+		if(isProfileImageAllowed) {
+			profileImageBytes = profile.getCurrentProfileImageForUser(userUuid, ProfileImageManager.PROFILE_IMAGE_MAIN);
+		}
 
 		//use profile bytes or add default image if none
 		if(profileImageBytes != null && profileImageBytes.length > 0){

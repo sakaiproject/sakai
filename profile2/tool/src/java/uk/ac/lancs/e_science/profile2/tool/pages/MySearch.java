@@ -185,10 +185,10 @@ public class MySearch extends BasePage {
 		    	String displayName = sakaiProxy.getUserDisplayName(userUuid);
 		    	final byte[] photo;
 		    		
-		    	//is profile and profile image allowed to be viewed by this user/friend?
-				final boolean isProfileAllowed = searchResult.isProfileAllowed();
+		    	//is profile image allowed to be viewed by this user/friend?
+				final boolean isProfileImageAllowed = searchResult.isProfileImageAllowed();
 				
-		    	if(isProfileAllowed) {
+		    	if(isProfileImageAllowed) {
 		    		photo = profile.getCurrentProfileImageForUser(userUuid, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
 		    	} else {
 		    		photo = null;
@@ -232,11 +232,13 @@ public class MySearch extends BasePage {
 					
 				};
 				
+				/* DEPRECATED, we always link now because of PRFL-24 
 				if(isProfileAllowed) {
 					profileLink.setModel(new Model(userUuid));
 				} else {
 					profileLink.setEnabled(false);
 				}
+				*/
 
 				profileLink.add(new Label("result-name", displayName));
 		    	item.add(profileLink);

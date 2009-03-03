@@ -78,19 +78,30 @@ public class MyPrivacy extends BasePage {
 		
 		
 		
-		//setup LinkedHashMap of privacy options
-		final LinkedHashMap<String, String> privacySettings = new LinkedHashMap<String, String>();
-		privacySettings.put("0", new StringResourceModel("privacy.option.everyone", this,null).getString());
-		privacySettings.put("1", new StringResourceModel("privacy.option.onlyfriends", this,null).getString());
-		privacySettings.put("2", new StringResourceModel("privacy.option.onlyme", this,null).getString());
+		//setup LinkedHashMap of privacy options for strict things
+		final LinkedHashMap<String, String> privacySettingsStrict = new LinkedHashMap<String, String>();
+		privacySettingsStrict.put("0", new StringResourceModel("privacy.option.everyone", this,null).getString());
+		privacySettingsStrict.put("1", new StringResourceModel("privacy.option.onlyfriends", this,null).getString());
+		privacySettingsStrict.put("2", new StringResourceModel("privacy.option.onlyme", this,null).getString());
 		
 		//model that wraps our options
-		IModel dropDownModel = new Model() {
+		IModel dropDownModelStrict = new Model() {
 			public Object getObject() {
-				 return new ArrayList(privacySettings.keySet()); //via proxy
+				 return new ArrayList(privacySettingsStrict.keySet()); //via proxy
 			} 
 		};
 		
+		//setup LinkedHashMap of privacy options for more relaxed things
+		final LinkedHashMap<String, String> privacySettingsRelaxed = new LinkedHashMap<String, String>();
+		privacySettingsRelaxed.put("0", new StringResourceModel("privacy.option.everyone", this,null).getString());
+		privacySettingsRelaxed.put("1", new StringResourceModel("privacy.option.onlyfriends", this,null).getString());
+		
+		//model that wraps our options
+		IModel dropDownModelRelaxed = new Model() {
+			public Object getObject() {
+				 return new ArrayList(privacySettingsRelaxed.keySet()); //via proxy
+			} 
+		};
 		
 		//when using DDC with a compoundPropertyModel we use this constructor: DDC<T>(String,IModel<List<T>>,IChoiceRenderer<T>)
 		//and the ID of the DDC field maps to the field in the CompoundPropertyModel
@@ -98,16 +109,16 @@ public class MyPrivacy extends BasePage {
 		//the AjaxFormComponentUpdatingBehavior is to allow the DDC and checkboxes to fadeaway any error/success message
 		//that might be visible since the form has changed and it needs to be submitted again for it to take effect
 		
-		//profile privacy
-		WebMarkupContainer profileContainer = new WebMarkupContainer("profileContainer");
-		profileContainer.add(new Label("profileLabel", new ResourceModel("privacy.profile")));
-		DropDownChoice profileChoice = new DropDownChoice("profile", dropDownModel, new HashMapChoiceRenderer(privacySettings));             
-		profileContainer.add(profileChoice);
+		//profile image privacy
+		WebMarkupContainer profileImageContainer = new WebMarkupContainer("profileImageContainer");
+		profileImageContainer.add(new Label("profileImageLabel", new ResourceModel("privacy.profileimage")));
+		DropDownChoice profileImageChoice = new DropDownChoice("profile", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));             
+		profileImageContainer.add(profileImageChoice);
 		//tooltip
-		profileContainer.add(new IconWithClueTip("profileToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.profile.tooltip")));
-		form.add(profileContainer);
+		profileImageContainer.add(new IconWithClueTip("profileImageToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.profileimage.tooltip")));
+		form.add(profileImageContainer);
 		//updater
-		profileChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+		profileImageChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
@@ -118,7 +129,7 @@ public class MyPrivacy extends BasePage {
 		//basicInfo privacy
 		WebMarkupContainer basicInfoContainer = new WebMarkupContainer("basicInfoContainer");
 		basicInfoContainer.add(new Label("basicInfoLabel", new ResourceModel("privacy.basicinfo")));
-		DropDownChoice basicInfoChoice = new DropDownChoice("basicInfo", dropDownModel, new HashMapChoiceRenderer(privacySettings));
+		DropDownChoice basicInfoChoice = new DropDownChoice("basicInfo", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
 		basicInfoContainer.add(basicInfoChoice);
 		//tooltip
 		basicInfoContainer.add(new IconWithClueTip("basicInfoToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.basicinfo.tooltip")));
@@ -133,7 +144,7 @@ public class MyPrivacy extends BasePage {
 		//contactInfo privacy
 		WebMarkupContainer contactInfoContainer = new WebMarkupContainer("contactInfoContainer");
 		contactInfoContainer.add(new Label("contactInfoLabel", new ResourceModel("privacy.contactinfo")));
-		DropDownChoice contactInfoChoice = new DropDownChoice("contactInfo", dropDownModel, new HashMapChoiceRenderer(privacySettings));
+		DropDownChoice contactInfoChoice = new DropDownChoice("contactInfo", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
 		contactInfoContainer.add(contactInfoChoice);
 		//tooltip
 		contactInfoContainer.add(new IconWithClueTip("contactInfoToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.contactinfo.tooltip")));
@@ -148,7 +159,7 @@ public class MyPrivacy extends BasePage {
 		//personalInfo privacy
 		WebMarkupContainer personalInfoContainer = new WebMarkupContainer("personalInfoContainer");
 		personalInfoContainer.add(new Label("personalInfoLabel", new ResourceModel("privacy.personalinfo")));
-		DropDownChoice personalInfoChoice = new DropDownChoice("personalInfo", dropDownModel, new HashMapChoiceRenderer(privacySettings));
+		DropDownChoice personalInfoChoice = new DropDownChoice("personalInfo", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
 		personalInfoContainer.add(personalInfoChoice);
 		//tooltip
 		personalInfoContainer.add(new IconWithClueTip("personalInfoToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.personalinfo.tooltip")));
@@ -178,7 +189,7 @@ public class MyPrivacy extends BasePage {
 		//search privacy
 		WebMarkupContainer searchContainer = new WebMarkupContainer("searchContainer");
 		searchContainer.add(new Label("searchLabel", new ResourceModel("privacy.search")));
-		DropDownChoice searchChoice = new DropDownChoice("search", dropDownModel, new HashMapChoiceRenderer(privacySettings));
+		DropDownChoice searchChoice = new DropDownChoice("search", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));
 		searchContainer.add(searchChoice);
 		//tooltip
 		searchContainer.add(new IconWithClueTip("searchToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.search.tooltip")));
@@ -194,7 +205,7 @@ public class MyPrivacy extends BasePage {
 		//search privacy
 		WebMarkupContainer myFriendsContainer = new WebMarkupContainer("myFriendsContainer");
 		myFriendsContainer.add(new Label("myFriendsLabel", new ResourceModel("privacy.myfriends")));
-		DropDownChoice myFriendsChoice = new DropDownChoice("myFriends", dropDownModel, new HashMapChoiceRenderer(privacySettings));
+		DropDownChoice myFriendsChoice = new DropDownChoice("myFriends", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
 		myFriendsContainer.add(myFriendsChoice);
 		//tooltip
 		myFriendsContainer.add(new IconWithClueTip("myFriendsToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.myfriends.tooltip")));

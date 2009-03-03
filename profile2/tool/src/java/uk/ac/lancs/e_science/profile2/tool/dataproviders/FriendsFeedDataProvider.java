@@ -21,11 +21,7 @@ import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
  * January 2009
  * 
  * This implementation of Wicket's IDataProvider gets a list of friends of userX
- * that are visible by userY. Since people can set their own privacy settings, we need to check
- * individual user's and their privacy settings before adding each user to the list
- * 
- * This is taken car of in the Profile API method
- * 
+ *  * 
  * 
  */
 
@@ -37,13 +33,13 @@ public class FriendsFeedDataProvider implements IDataProvider, Serializable {
 	private transient List<String> friends = new ArrayList<String>();
 	private transient Profile profile;
 	
-	public FriendsFeedDataProvider(final String userX, final String userY) {
+	public FriendsFeedDataProvider(final String userX) {
 		
 		//get Profile
 		profile = ProfileApplication.get().getProfile();
 		
 		//get all friends of userX visible by userY
-		allFriends = profile.getFriendsOfUserXVisibleByUserY(userX, userY);
+		allFriends = profile.getConfirmedFriendUserIdsForUser(userX);
 		
 		//randomise this list
 		Collections.shuffle(allFriends);

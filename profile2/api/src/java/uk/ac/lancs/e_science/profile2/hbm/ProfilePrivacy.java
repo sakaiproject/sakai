@@ -9,7 +9,7 @@ public class ProfilePrivacy implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private String userUuid;
-	private int profile;
+	private int profileImage;
 	private int basicInfo;
 	private int contactInfo;
 	private int personalInfo;
@@ -26,10 +26,10 @@ public class ProfilePrivacy implements Serializable {
 	/**
 	 * Constructor to allow creation of object in one go (ie for new entries when a profile is first created)
 	 */
-	public ProfilePrivacy(String userUuid, int profile, int basicInfo, int contactInfo, int personalInfo, boolean showBirthYear, int search, int myFriends) {
+	public ProfilePrivacy(String userUuid, int profileImage, int basicInfo, int contactInfo, int personalInfo, boolean showBirthYear, int search, int myFriends) {
 		super();
 		this.userUuid = userUuid;
-		this.profile = profile;
+		this.profileImage = profileImage;
 		this.basicInfo = basicInfo;
 		this.contactInfo = contactInfo;
 		this.personalInfo = personalInfo;
@@ -48,13 +48,13 @@ public class ProfilePrivacy implements Serializable {
 	}
 
 
-	public int getProfile() {
-		return profile;
+	public int getProfileImage() {
+		return profileImage;
 	}
 
 
-	public void setProfile(int profile) {
-		this.profile = profile;
+	public void setProfileImage(int profileImage) {
+		this.profileImage = profileImage;
 	}
 
 

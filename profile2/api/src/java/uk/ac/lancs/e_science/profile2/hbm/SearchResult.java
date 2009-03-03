@@ -26,7 +26,7 @@ public class SearchResult implements Serializable {
 	
 	private String userUuid;
 	private boolean friend;
-	private boolean profileAllowed;
+	private boolean profileImageAllowed;
 	private boolean friendsListVisible;
 	private boolean friendRequestToThisPerson;
 	private boolean friendRequestFromThisPerson;
@@ -34,11 +34,11 @@ public class SearchResult implements Serializable {
 	/* 
 	 * Constructor to create a SearchResult object in one go
 	 */
-	public SearchResult(String userUuid, boolean friend, boolean profileAllowed, boolean friendsListVisible, boolean friendRequestToThisPerson, boolean friendRequestFromThisPerson) {
+	public SearchResult(String userUuid, boolean friend, boolean profileImageAllowed, boolean friendsListVisible, boolean friendRequestToThisPerson, boolean friendRequestFromThisPerson) {
 		super();
 		this.userUuid = userUuid;
 		this.friend = friend;
-		this.profileAllowed = profileAllowed;
+		this.profileImageAllowed = profileImageAllowed;
 		this.friendsListVisible = friendsListVisible;
 		this.friendRequestToThisPerson = friendRequestToThisPerson;
 		this.friendRequestFromThisPerson = friendRequestFromThisPerson;
@@ -56,11 +56,11 @@ public class SearchResult implements Serializable {
 	public void setFriend(boolean friend) {
 		this.friend = friend;
 	}
-	public boolean isProfileAllowed() {
-		return profileAllowed;
+	public boolean isProfileImageAllowed() {
+		return profileImageAllowed;
 	}
-	public void setProfileAllowed(boolean profileAllowed) {
-		this.profileAllowed = profileAllowed;
+	public void setProfileImageAllowed(boolean profileImageAllowed) {
+		this.profileImageAllowed = profileImageAllowed;
 	}
 	public void setFriendsListVisible(boolean friendsListVisible) {
 		this.friendsListVisible = friendsListVisible;

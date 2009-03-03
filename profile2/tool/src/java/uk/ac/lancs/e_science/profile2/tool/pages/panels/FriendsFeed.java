@@ -32,7 +32,7 @@ import uk.ac.lancs.e_science.profile2.tool.pages.ViewProfile;
 /*
  * id = markup id
  * ownerUserId = userId of the page that this friends feed panel is on
- * viewinUserId = userId of the person who is viewing this friends feed panel
+ * viewingUserId = userId of the person who is viewing this friends feed panel
  * 	(this might be the same or might be different if viewing someone else's profile and is passed to the DataProvider to decide)
  * 
  */
@@ -68,7 +68,7 @@ public class FriendsFeed extends Panel {
 		//get our list of friends as an IDataProvider
 		//the FriendDataProvider takes care of the privacy associated with the associated list
 		//so what it returns will always be clean
-		FriendsFeedDataProvider provider = new FriendsFeedDataProvider(ownerUserId, viewingUserId);
+		FriendsFeedDataProvider provider = new FriendsFeedDataProvider(ownerUserId);
 		
 		GridView dataView = new GridView("rows", provider) {
 			
@@ -93,9 +93,28 @@ public class FriendsFeed extends Panel {
 				
 				//setup info
 				String displayName = sakaiProxy.getUserDisplayName(friendId);
-		    	final byte[] imageBytes = profile.getCurrentProfileImageForUser(friendId, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
-			
-		    	//link - the list is already cleaned by FriendsFeedDataProvider so we can safely link without worrying about privacy restrictions
+				final byte[] imageBytes;
+		    	boolean friend;
+		    	
+		    	
+		    	//get friend status
+		    	if(ownerUserId.equals(viewingUserId)) {
+		    		friend = true; //viewing own list of confirmed fiends so must be a friend
+		    	} else {
+		    		friend = profile.isUserXFriendOfUserY(viewingUserId, friendId); //other person viewing, check if they are friends
+		    	}
+	    		
+		    	//is profile image allowed to be viewed by this user/friend?
+				final boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(friendId, viewingUserId, friend);
+				
+		    	if(isProfileImageAllowed) {
+		    		imageBytes = profile.getCurrentProfileImageForUser(friendId, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
+		    	} else {
+		    		imageBytes = null;
+		    	}
+				
+				
+		    	//link to their profile
 		    	AjaxLink friendItem = new AjaxLink("friendsFeedItem") {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {

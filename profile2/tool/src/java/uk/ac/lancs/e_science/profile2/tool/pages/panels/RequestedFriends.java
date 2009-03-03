@@ -92,10 +92,10 @@ public class RequestedFriends extends Panel {
 		    	final byte[] photo;
 	    		
 		    	//is profile and profile image allowed to be viewed by this user?
-		    	//PERHAPS WE SHOULD ALWAYS SHOW PHOTOS WHEN REQUESTS COME THROUGH? but not link profiles unless allowed.
-				final boolean isProfileAllowed = profile.isUserXProfileVisibleByUserY(friendId, userId, false);
+		    	//PERHAPS WE SHOULD ALWAYS SHOW PHOTOS WHEN REQUESTS COME THROUGH?
+				final boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(friendId, userId, false);
 				
-		    	if(isProfileAllowed) {
+		    	if(isProfileImageAllowed) {
 		    		photo = profile.getCurrentProfileImageForUser(friendId, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
 		    	} else {
 		    		photo = null;
