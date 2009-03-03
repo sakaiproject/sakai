@@ -24,6 +24,10 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-api</artifactId>
     </dependency>
+   <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-presence-api</artifactId>
@@ -32,11 +36,6 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-privacy-api</artifactId>
     </dependency>
-<!--org.sakaiprojectsakai-tool-api${sakai.version}-->
-<!--org.sakaiprojectsakai-entity-api${sakai.version}-->
-<!--org.sakaiprojectsakai-event-api${sakai.version}-->
-<!--org.sakaiprojectsakai-user-api${sakai.version}-->
-<!--org.sakaiprojectsakai-db-api${sakai.version}-->
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>

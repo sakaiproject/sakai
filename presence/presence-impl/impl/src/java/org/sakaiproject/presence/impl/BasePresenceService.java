@@ -32,6 +32,7 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.privacy.PrivacyManager;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -72,6 +73,10 @@ public abstract class BasePresenceService implements PresenceService
 	 * @return A new storage object.
 	 */
 	protected abstract Storage newStorage();
+
+	/** The maintenance. */
+	protected Maintenance m_maintenance = null;
+
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Constructors, Dependencies and their setter methods
@@ -183,6 +188,10 @@ public abstract class BasePresenceService implements PresenceService
 		{
 			// storage
 			m_storage = newStorage();
+
+			// start the maintenance thread
+			m_maintenance = new Maintenance();
+			m_maintenance.start();
 
 			M_log.info("init()");
 			
@@ -510,6 +519,37 @@ public abstract class BasePresenceService implements PresenceService
 		}
 	}
 
+	/**
+	 * Check all session presences and remove any expired ones
+	 */
+	protected void checkAllPresenceForExpiration()
+	{
+		List<Session> sessions = m_sessionManager.getSessions();
+		
+		for (Iterator<Session> i = sessions.iterator(); i.hasNext();)
+		{
+			Session session = (Session) i.next();
+			ToolSession ts = session.getToolSession(SESSION_KEY);
+			Enumeration locations = ts.getAttributeNames();
+			while (locations.hasMoreElements())
+			{
+				String location = (String) locations.nextElement();
+
+				Presence p = (Presence) ts.getAttribute(location);
+
+				if (M_log.isDebugEnabled()) M_log.debug("checking expiry of session " + session.getId() + " in location " + location);
+				
+				if (p != null && p.isExpired())
+				{
+					ts.removeAttribute(location);
+				}
+			}
+		
+		}
+
+	}
+
+		
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Storage
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -649,4 +689,102 @@ public abstract class BasePresenceService implements PresenceService
 	{
 		this.notificationService = notificationService;
 	}
+	
+	// Maintenance thread
+	
+	protected class Maintenance implements Runnable
+	{
+		/** My thread running my timeout checker. */
+		protected Thread m_maintenanceChecker = null;
+
+		/** Configuration: how often in seconds to check for expired presence */
+		protected long m_refresh = 15;
+
+		/** Signal to the timeout checker to stop. */
+		protected boolean m_maintenanceCheckerStop = false;
+
+		/**
+		 * Construct.
+		 */
+		public Maintenance()
+		{
+		}
+
+		/**
+		 * Start the maintenance thread.
+		 */
+		public void start()
+		{
+			if (m_maintenanceChecker != null) return;
+
+			m_maintenanceChecker = new Thread(this, "SakaiPresenceService.Maintenance");
+			m_maintenanceChecker.setDaemon(true);
+			m_maintenanceCheckerStop = false;
+			m_maintenanceChecker.start();
+		}
+
+		/**
+		 * Stop the maintenance thread
+		 */
+		public void stop()
+		{
+			if (m_maintenanceChecker != null)
+			{
+				m_maintenanceCheckerStop = true;
+				m_maintenanceChecker.interrupt();
+				try
+				{
+					// wait for it to die
+					m_maintenanceChecker.join();
+				}
+				catch (InterruptedException ignore)
+				{
+				}
+				m_maintenanceChecker = null;
+			}
+
+			// Nothing to do 
+			
+		}
+
+		/**
+		 * Run the maintenance thread. Every REFRESH seconds, check for expired presence
+		 */
+		public void run()
+		{
+			// wait till things are rolling
+			ComponentManager.waitTillConfigured();
+
+			if (M_log.isDebugEnabled()) M_log.debug("run()");
+
+			while (!m_maintenanceCheckerStop)
+			{
+				try
+				{
+					if (M_log.isDebugEnabled()) M_log.debug("checking for expired presence");
+					checkAllPresenceForExpiration();
+
+				}
+				catch (Throwable e)
+				{
+					M_log.warn("exception checking for expired presence: ", e);
+				}
+
+				// cycle every REFRESH seconds
+				if (!m_maintenanceCheckerStop)
+				{
+					try
+					{
+						Thread.sleep(m_refresh * 1000L);
+					}
+					catch (Exception ignore)
+					{
+					}
+				}
+			}
+
+			if (M_log.isDebugEnabled()) M_log.debug("done");
+		}
+	}
+
 }
