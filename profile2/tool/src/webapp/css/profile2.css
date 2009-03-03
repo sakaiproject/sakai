@@ -641,17 +641,44 @@ h2 {
 	font-size: 90%;
 }
 
-
+/* fix this so the image is in the style, NOT in wicket */
 .rssLink {
 	margin: 0;
 	padding: 0;
 	/*float: right;*/
 	display: inline;
+	/*background: url(/library/image/feed.png) center right no-repeat;*/
 }
 
 .rssLink img {
 	vertical-align: middle;
 }
+
+
+/* page navigation links */
+.profile_pageLinks a:link,
+.profile_pageLinks a:visited {
+    background-position: center left;
+    background-repeat: no-repeat;
+    padding-left:18px;
+}
+
+#profileLink {
+	background-image: url(/library/image/silk/vcard.png);
+}
+#friendsLink {
+	background-image: url(/library/image/silk/group.png);
+}
+#searchLink {
+	background-image: url(/library/image/silk/magnifier.png);
+}
+#privacyLink {
+	background-image: url(/library/image/silk/lock.png);
+}
+#preferencesLink {
+	background-image: url(/library/image/silk/cog.png);
+}
+
 
 
 
