@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+    <!-- Create a test data preload bean -->
+    <bean id="org.sakaiproject.sitestats.test.data.FakeDataPreload"
+        class="org.sakaiproject.sitestats.test.data.FakeDataPreload"
+        init-method="init">
+    </bean>
+    
+    <!-- DB access class, for comparing actual with expected results -->
+    <bean id="org.sakaiproject.sitestats.test.DB" parent="sstTxTemplate" class="org.sakaiproject.sitestats.test.DBImpl"/>
+        
+    <!-- [START] Classes that will test others -->
+    <bean id="org.sakaiproject.sitestats.test.StatsUpdateManagerTest"
+        class="org.sakaiproject.sitestats.test.StatsUpdateManagerTest">
+        <property name="statsUpdateManager" ref="org.sakaiproject.sitestats.test.StatsUpdateManager"/>
+        <property name="statsManager" ref="org.sakaiproject.sitestats.test.StatsManager"/>
+        <!--<property name="siteService" ref="org.sakaiproject.mock.service.SiteService"/>-->
+        <property name="eventTrackingService" ref="org.sakaiproject.sitestats.test.mocks.FakeEventTrackingService"/>
+        <property name="db" ref="org.sakaiproject.sitestats.test.DB"/>
+    </bean>
+    <!-- [END] Classes that will test others -->
+    
+    
+    <!-- __________________________________________________________________________________________________________ -->
+
+    
+    <!-- [START] Target classes to test -->
+    <bean id="org.sakaiproject.sitestats.test.StatsUpdateManager" parent="sstTxTemplate"
+        class="org.sakaiproject.sitestats.impl.StatsUpdateManagerImpl"
+        singleton="true" lazy-init="true" init-method="init" destroy-method="destroy">
+                <property name="collectThreadEnabled" value="true"/>
+                <property name="collectThreadUpdateInterval" value="50"/>
+                <property name="collectAdminEvents" value="true" />
+                <property name="collectEventsForSiteWithToolOnly" value="false" />
+                
+                <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+                <property name="statsManager" ref="org.sakaiproject.sitestats.test.StatsManager" />
+                <property name="eventRegistryService" ref="org.sakaiproject.sitestats.test.mocks.FakeEventRegistryService"/>
+                <property name="siteService" ref="org.sakaiproject.mock.service.SiteService"/>
+                <property name="aliasService" ref="org.sakaiproject.sitestats.test.mocks.FakeAliasService"/>
+                <property name="entityManager" ref="org.sakaiproject.sitestats.test.mocks.FakeEntityManager"/>
+                <property name="eventTrackingService" ref="org.sakaiproject.sitestats.test.mocks.FakeEventTrackingService"/>
+                <property name="usageSessionService" ref="org.sakaiproject.sitestats.test.mocks.FakeUsageSessionService" />
+    </bean>
+    
+    <bean id="org.sakaiproject.sitestats.test.StatsManager" parent="sstTxTemplate"
+        class="org.sakaiproject.sitestats.impl.StatsManagerImpl"
+        singleton="true" lazy-init="true" init-method="init" destroy-method="destroy">
+                <property name="chartBackgroundColor" value="#ffffff" />
+                <property name="chartIn3D" value="false" />
+                <property name="chartTransparency" value="1.00f" />
+                <property name="itemLabelsVisible" value="true" />
+                <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+                <property name="eventRegistryService" ref="org.sakaiproject.sitestats.test.mocks.FakeEventRegistryService"/>
+                <property name="userService" ref="org.sakaiproject.mock.service.UserDirectoryService"/>
+                <property name="siteService" ref="org.sakaiproject.mock.service.SiteService"/>
+                <property name="serverConfigurationService" ref="org.sakaiproject.sitestats.test.mocks.FakeServerConfigurationService"/>
+                <property name="toolManager" ref="org.sakaiproject.sitestats.test.mocks.FakeToolManager"/>
+                <property name="memoryService" ref="org.sakaiproject.sitestats.test.mocks.FakeMemoryService" />
+                <property name="sessionManager" ref="org.sakaiproject.sitestats.test.mocks.FakeSessionManager" />
+                <property name="eventTrackingService" ref="org.sakaiproject.sitestats.test.mocks.FakeEventTrackingService"/>                
+    </bean>
+    <!-- [END] Target classes to test -->
+
+</beans>

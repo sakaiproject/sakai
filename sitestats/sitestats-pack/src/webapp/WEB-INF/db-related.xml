@@ -31,27 +31,11 @@
 			</props>
 		</property>
 	</bean>
-	
-	
-	<!-- Hibernate Mappings (.hbm.xml) -->
-	<bean id="org.sakaiproject.sitestats.HibernateMappings"
-		class="org.springframework.beans.factory.config.ListFactoryBean">
-		<property name="sourceList">
-			<list>
-				<value>org/sakaiproject/sitestats/impl/hbm/PrefsImpl.hbm.xml</value>
-				<value>org/sakaiproject/sitestats/impl/hbm/EventStatImpl.hbm.xml</value>
-				<value>org/sakaiproject/sitestats/impl/hbm/ResourceStatImpl.hbm.xml</value>
-				<value>org/sakaiproject/sitestats/impl/hbm/SiteVisitsImpl.hbm.xml</value>
-				<value>org/sakaiproject/sitestats/impl/hbm/SiteActivityImpl.hbm.xml</value>
-				<value>org/sakaiproject/sitestats/impl/hbm/JobRunImpl.hbm.xml</value>
-                <value>org/sakaiproject/sitestats/impl/hbm/ReportDef.hbm.xml</value>
-			</list>
-		</property>
-	</bean>
 
 
 	<!-- Database:  load specific session factory and transaction manager defenitions
 					for internal (Sakai) and external DB. -->
+    <import resource="hbm-db.xml" />
 	<import resource="internal-db.xml" />
 	<import resource="external-db.xml" />
 	

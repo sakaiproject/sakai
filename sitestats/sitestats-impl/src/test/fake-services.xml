@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+    <!-- FAKE Services -->
+    <bean id="org.sakaiproject.mock.service.SiteService" class="org.sakaiproject.mock.service.SiteService"/>
+    <bean id="org.sakaiproject.mock.service.UserDirectoryService" class="org.sakaiproject.mock.service.UserDirectoryService"/>
+    <bean id="org.sakaiproject.sitestats.test.mocks.FakeToolManager" class="org.sakaiproject.sitestats.test.mocks.FakeToolManager"/>
+    <bean id="org.sakaiproject.sitestats.test.mocks.FakeEventRegistryService" class="org.sakaiproject.sitestats.test.mocks.FakeEventRegistryService"/>
+    <bean id="org.sakaiproject.sitestats.test.mocks.FakeAliasService" class="org.sakaiproject.sitestats.test.mocks.FakeAliasService"/>
+    <bean id="org.sakaiproject.sitestats.test.mocks.FakeEntityManager" class="org.sakaiproject.sitestats.test.mocks.FakeEntityManager"/>
+    <bean id="org.sakaiproject.sitestats.test.mocks.FakeEventTrackingService" class="org.sakaiproject.sitestats.test.mocks.FakeEventTrackingService"/>
+    <bean id="org.sakaiproject.sitestats.test.mocks.FakeUsageSessionService" class="org.sakaiproject.sitestats.test.mocks.FakeUsageSessionService"/>
+    <bean id="org.sakaiproject.sitestats.test.mocks.FakeServerConfigurationService" class="org.sakaiproject.sitestats.test.mocks.FakeServerConfigurationService"/>
+    <bean id="org.sakaiproject.sitestats.test.mocks.FakeMemoryService" class="org.sakaiproject.sitestats.test.mocks.FakeMemoryService"/>
+    <bean id="org.sakaiproject.sitestats.test.mocks.FakeSessionManager" class="org.sakaiproject.sitestats.test.mocks.FakeSessionManager"/>
+
+</beans>

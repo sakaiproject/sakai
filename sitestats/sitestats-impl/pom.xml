@@ -168,6 +168,72 @@
       <artifactId>jfreechart</artifactId>
     </dependency>
 
+    
+    <!-- Testing dependencies -->
+    <dependency>
+      <groupId>${sakai.spring.groupId}</groupId>
+      <artifactId>${sakai.spring.mock.artifactId}</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>dom4j</groupId>
+      <artifactId>dom4j</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>jta</groupId>
+      <artifactId>jta</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>cglib</groupId>
+      <artifactId>cglib-nodep</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>${sakai.ehcache.groupId}</groupId>
+      <artifactId>${sakai.ehcache.artifactId}</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.easymock</groupId>
+      <artifactId>easymock</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-mock</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>${sakai.servletapi.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.13</version>
+      <type>jar</type>
+      <scope>test</scope>
+    </dependency>
+    
   </dependencies>
 
   <!-- Build -->
@@ -189,6 +255,36 @@
         </excludes>
       </resource>
     </resources>
+    
+    <!-- Unit testing -->
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <!--
+            By default, the surefire plugin will automatically include all test classes with the following wildcard patterns:
+            "**/Test*.java" - includes all of its subdirectory and all java filenames that start with "Test".
+            "**/*Test.java" - includes all of its subdirectory and all java filenames that end with "Test".
+            "**/*TestCase.java" - includes all of its subdirectory and all java filenames that end with "TestCase".
+        -->
+      </plugin>
+    </plugins>
+    <testResources>
+      <testResource>
+        <directory>src/test</directory>
+        <includes>
+          <include>**/*.xml</include>
+          <include>**/*.properties</include>
+        </includes>
+      </testResource>
+      <testResource>
+        <directory>${basedir}/../sitestats-pack/src/webapp/WEB-INF</directory>
+        <includes>
+          <include>hbm-db.xml</include>
+        </includes>
+      </testResource>
+    </testResources>
+    
   </build>
   
 </project>

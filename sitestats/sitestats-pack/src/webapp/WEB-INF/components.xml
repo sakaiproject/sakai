@@ -59,13 +59,11 @@
 				
 		
 		<!-- Sakai services -->
-		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
 		<property name="eventRegistryService" ref="org.sakaiproject.sitestats.api.event.EventRegistryService"/>
 		<property name="userService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
-		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
 		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>

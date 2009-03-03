@@ -47,7 +47,6 @@ import org.hibernate.criterion.Expression;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
-import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
@@ -81,7 +80,6 @@ import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.impl.event.EventUtil;
 import org.sakaiproject.sitestats.impl.parser.DigesterUtil;
-import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -101,10 +99,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	private Log							LOG										= LogFactory.getLog(StatsManagerImpl.class);
 	
 	/** Spring bean members */
-	private boolean						enableSiteVisits						= org.sakaiproject.component.cover.ServerConfigurationService.getBoolean("display.users.present", false)
-																					|| org.sakaiproject.component.cover.ServerConfigurationService.getBoolean("presence.events.log", false);
-	private boolean                     enableSiteActivity						= org.sakaiproject.component.cover.ServerConfigurationService.getBoolean("enableSiteActivity@org.sakaiproject.sitestats.api.StatsManager", true);
-	private boolean 				    visitsInfoAvailable						= enableSiteVisits; //org.sakaiproject.component.cover.ServerConfigurationService.getBoolean( "display.users.present", true);
+	private Boolean						enableSiteVisits						= null;
+	private Boolean                     enableSiteActivity						= null;
+	private Boolean 				    visitsInfoAvailable						= null;
 	private boolean						enableServerWideStats					= false;
 	private String						chartBackgroundColor					= "white";
 	private boolean						chartIn3D								= true;
@@ -120,12 +117,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	
 	/** Sakai services */
 	private EventRegistryService		M_ers;
-	private SqlService					M_sql;
 	private UserDirectoryService		M_uds;
 	private SiteService					M_ss;
 	private ServerConfigurationService	M_scs;
 	private ToolManager					M_tm;
-	private TimeService					M_ts;
 	private MemoryService				M_ms;
 	private SessionManager				M_sm;
 	private EventTrackingService		M_ets;
@@ -221,10 +216,6 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		this.M_ers = eventRegistryService;
 	}
 
-	public void setSqlService(SqlService sqlService) {
-		this.M_sql = sqlService;
-	}
-
 	public void setUserService(UserDirectoryService userService) {
 		this.M_uds = userService;
 	}
@@ -241,10 +232,6 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		this.M_tm = toolManager;
 	}
 	
-	public void setTimeService(TimeService timeService) {
-		this.M_ts = timeService; 
-	}
-
 	public void setMemoryService(MemoryService memoryService) {
 		this.M_ms = memoryService;
 	}
@@ -262,6 +249,17 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	// Spring init/destroy methods
 	// ################################################################	
 	public void init(){
+		// Set default properties if not set by spring/sakai.properties
+		if(enableSiteVisits == null) {
+			enableSiteVisits = M_scs.getBoolean("display.users.present", false) || M_scs.getBoolean("presence.events.log", false);
+		}
+		if(visitsInfoAvailable == null) {
+			visitsInfoAvailable	= enableSiteVisits;
+		}
+		if(enableSiteActivity == null) {
+			enableSiteActivity = true;
+		}
+		
 		// Checks whether Event.getContext is implemented in Event (from Event API)
 		checkForEventContextSupport();
 		

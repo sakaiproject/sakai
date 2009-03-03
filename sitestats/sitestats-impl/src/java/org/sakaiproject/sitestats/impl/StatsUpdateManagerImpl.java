@@ -45,6 +45,7 @@ import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
@@ -90,7 +91,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	private Thread							collectThread;
 	private List<Event>						collectThreadQueue					= new ArrayList<Event>();
 	private Object							collectThreadSemaphore				= new Object();
-	private boolean							collectThreadRunning				= true;
+	private boolean							collectThreadRunning				= false;
 
 	/** Collect thread queue maps */
 	private Map<String, EventStat>			eventStatMap						= Collections.synchronizedMap(new HashMap<String, EventStat>());
@@ -101,6 +102,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 
 	private List<String>					registeredEvents					= null;
 	private Map<String, ToolInfo>			eventIdToolMap						= null;
+	private boolean							initialized 						= false;
 	
 	private final ReentrantLock				lock								= new ReentrantLock();
 
@@ -111,6 +113,21 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	// ################################################################	
 	public void setCollectThreadEnabled(boolean enabled) {
 		this.collectThreadEnabled = enabled;
+		if(initialized) {
+			if(enabled && !collectThreadRunning) {
+				// start update thread
+				startUpdateThread();
+				
+				// add this as EventInfo observer
+				M_ets.addLocalObserver(this);
+			}else if(!enabled && collectThreadRunning){
+				// remove this as EventInfo observer
+				M_ets.deleteObserver(this);	
+				
+				// stop update thread
+				stopUpdateThread();
+			}
+		}
 	}
 	
 	public boolean isCollectThreadEnabled() {
@@ -177,18 +194,20 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		// get eventId -> ToolInfo map
 		eventIdToolMap = M_ers.getEventIdToolMap();
 		
-		logger.info("init(): - collect thread enabled: " + collectThreadEnabled);
+		StringBuilder buff = new StringBuilder();
+		buff.append("init(): collect thread enabled: ");
+		buff.append(collectThreadEnabled);
 		if(collectThreadEnabled) {
-			logger.info("init(): - collect thread db update interval: " + collectThreadUpdateInterval +" ms");
-			logger.info("init(): - collect administrator events: " + collectAdminEvents);
-			logger.info("init(): - collect events only for sites with SiteStats: " + collectEventsForSiteWithToolOnly);
-			
-			// start update thread
-			startUpdateThread();
-			
-			// add this as EventInfo observer
-			M_ets.addLocalObserver(this);
+			buff.append(", db update interval: ");
+			buff.append(collectThreadUpdateInterval);
+			buff.append(" ms");
 		}
+		buff.append(", collect administrator events: " + collectAdminEvents);
+		buff.append(", collect events only for sites with SiteStats: " + collectEventsForSiteWithToolOnly);			
+		logger.info(buff.toString());
+		
+		initialized = true;
+		setCollectThreadEnabled(collectThreadEnabled);
 	}
 	
 	public void destroy(){
@@ -234,11 +253,24 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		if(events != null) {
 			int eventCount = events.size();
 			if(eventCount > 0) {
+				return collectEvents(events.toArray(new Event[eventCount]));
+			}
+		}
+		return true;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.StatsUpdateManager#collectEvents(org.sakaiproject.event.api.Event[])
+	 */
+	public boolean collectEvents(Event[] events) {
+		if(events != null) {
+			int eventCount = events.length;
+			if(eventCount > 0) {
 				long startTime = System.currentTimeMillis();
-				Iterator<Event> iE = events.iterator();
-				while(iE.hasNext()) {
-					Event e = iE.next();
-					preProcessEvent(e);
+				for(int i=0; i<events.length; i++){
+					if(events[i] != null) {
+						preProcessEvent(events[i]);
+					}
 				}
 				long endTime = System.currentTimeMillis();
 				LOG.debug("Time spent pre-processing " + eventCount + " event(s): " + (endTime-startTime) + " ms");
@@ -249,26 +281,12 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.StatsUpdateManager#collectEvents(org.sakaiproject.event.api.Event[])
-	 */
-	public boolean collectEvents(Event[] events) {
-		int eventCount = events.length;
-		if(eventCount > 0) {
-			long startTime = System.currentTimeMillis();
-			for(int i=0; i<events.length; i++){
-				preProcessEvent(events[i]);
-			}
-			long endTime = System.currentTimeMillis();
-			LOG.debug("Time spent pre-processing " + eventCount + " event(s): " + (endTime-startTime) + " ms");
-			return doUpdateConsolidatedEvents();
-		}
-		return true;
-	}
-	
-	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsUpdateManager#saveJobRun(org.sakaiproject.sitestats.api.JobRun)
 	 */
 	public boolean saveJobRun(final JobRun jobRun){
+		if(jobRun == null) {
+			return false;
+		}
 		Object r = getHibernateTemplate().execute(new HibernateCallback() {			
 			public Object doInHibernate(Session session) throws HibernateException, SQLException {
 				Transaction tx = null;
@@ -342,6 +360,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	/** Update thread: do not call this method! */
 	public void run(){
 		try{
+			LOG.debug("Started statistics update thread");
 			while(collectThreadRunning){
 				// do update job
 				int eventCount = collectThreadQueue.size();
@@ -373,7 +392,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				LOG.debug("Statistics update thread was stoped by an unknown error: restarting...");
 				startUpdateThread();
 			}else
-				LOG.info("Finished statistics update thread");
+				LOG.debug("Finished statistics update thread");
 		}
 	}
 
@@ -416,13 +435,18 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 			
 			// user check
-			if(userId == null) userId = M_uss.getSession(e.getSessionId()).getUserId();
+			if(userId == null) {
+				UsageSession session = M_uss.getSession(e.getSessionId());
+				if(session != null) {
+					userId = session.getUserId();
+				}
+			}
 			if(!isCollectAdminEvents() && ("admin").equals(userId)){
 				return;
 			}if(!M_sm.isShowAnonymousAccessEvents() && ("?").equals(userId)){
 				return;
 			}
-
+			
 			// consolidate event
 			Date date = null;
 			if(e instanceof CustomEventImpl){
@@ -432,17 +456,18 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 			String eventId = e.getEvent();
 			String resourceRef = e.getResource();
+			
 			if(userId == null || eventId == null || resourceRef == null)
 				return;
 			consolidateEvent(date, eventId, resourceRef, userId, siteId);
-		}//else LOG.info("EventInfo ignored:  '"+e.toString()+"' ("+e.toString()+") USER_ID: "+userId);
+		}//else LOG.debug("EventInfo ignored:  '"+e.toString()+"' ("+e.toString()+") USER_ID: "+userId);
 	}
 	
 	private void consolidateEvent(Date date, String eventId, String resourceRef, String userId, String siteId) {
 		if(eventId == null)
 			return;
 		// update		
-		if(registeredEvents.contains(eventId)){	
+		if(registeredEvents.contains(eventId)){
 			// add to eventStatMap
 			String key = userId+siteId+eventId+date;
 			synchronized(eventStatMap){
@@ -811,6 +836,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			Integer uv = 1;
 			try{
 				uv = (Integer) q.uniqueResult();
+			}catch(ClassCastException ex){
+				uv = (int) ((Long) q.uniqueResult()).longValue();
 			}catch(HibernateException ex){
 				try{
 					List visits = q.list();
@@ -912,28 +939,27 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		
 		// get contextId (siteId) from event reference
 		String eventRef = e.getResource();
-		if(eventRef != null) {
+		if(eventRef != null){
 			try{
-				if(StatsManager.SITEVISIT_EVENTID.equals(eventId)) {
-					
+				if(StatsManager.SITEVISIT_EVENTID.equals(eventId)){
 					// presence (site visit) syntax (/presence/SITE_ID-presence)
 					String[] parts = eventRef.split("/");
-					if(parts[2].endsWith(PRESENCE_SUFFIX))
+					if(parts.length > 2 && parts[2].endsWith(PRESENCE_SUFFIX)) {
 						return parts[2].substring(0, parts[2].length() - PRESENCE_SUFFIX_LENGTH);
-									
-				}else {
-	
+					}
+
+				}else{
 					// use <eventParserTip>
 					ToolInfo toolInfo = eventIdToolMap.get(eventId);
 					EventParserTip parserTip = toolInfo.getEventParserTip();
-					if(parserTip != null && parserTip.getFor().equals(StatsManager.PARSERTIP_FOR_CONTEXTID)) {
+					if(parserTip != null && parserTip.getFor().equals(StatsManager.PARSERTIP_FOR_CONTEXTID)){
 						int index = Integer.parseInt(parserTip.getIndex());
 						return eventRef.split(parserTip.getSeparator())[index];
-          }else {
+					}else{
 						LOG.info("<eventParserTip> is mandatory when Event.getContext() is unsupported! Ignoring event: " + eventId);
 						// try with most common syntax (/abc/cde/SITE_ID/...)
-						//return eventRef.split("/")[3];
-          }
+						// return eventRef.split("/")[3];
+					}
 				}
 			}catch(Exception ex){
 				LOG.warn("Unable to parse contextId from event: " + eventId + " | " + eventRef, ex);
@@ -952,9 +978,13 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			try{
 				String alias = siteId;
 				String target = M_as.getTarget(alias);
-				siteId = M_em.newReference(target).getId();
-				LOG.debug(alias + " is an alias targetting site id: "+siteId);
-				site = M_ss.getSite(siteId);
+				if(target != null) {
+					String newSiteId = M_em.newReference(target).getId();
+					LOG.debug(alias + " is an alias targetting site id: "+newSiteId);
+					site = M_ss.getSite(newSiteId);
+				}else{
+					throw new IdUnusedException(siteId);
+				}
 			}catch(IdUnusedException e2){
 				// not a valid site
 				LOG.debug(siteId + " is not a valid site.", e2);
