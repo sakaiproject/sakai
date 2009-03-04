@@ -857,7 +857,15 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   private String getContextSiteId()
   {
     LOG.debug("getContextSiteId()");
-    return ("/site/" + ToolManager.getCurrentPlacement().getContext());
+    return "/site/" + getCurrentContext();
+  }
+  
+  /**
+   * 
+   * @return the current context without the "/site/" prefix
+   */
+  private String getCurrentContext() {
+      return ToolManager.getCurrentPlacement().getContext();
   }
 
   /**
@@ -928,7 +936,17 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       LOG.debug("saveForum(DiscussionForum" + forum + ")");
     }
-    saveForum(forum, false);
+    saveForum(forum, false, getCurrentContext());
+  }
+  
+  public void saveForum(String contextId, DiscussionForum forum) {
+      if (LOG.isDebugEnabled()) LOG.debug("saveForum(String contextId, DiscussionForum forum)");
+      
+      if (contextId == null || forum == null) {
+          throw new IllegalArgumentException("Null contextId or forum passed to saveForum. contextId:" + contextId);
+      }
+      
+      saveForum(forum, forum.getDraft(), contextId);
   }
 
   /*
@@ -942,10 +960,10 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       LOG.debug("saveForumAsDraft(DiscussionForum" + forum + ")");
     }
-    saveForum(forum, true);
+    saveForum(forum, true, getCurrentContext());
   }
 
-  private void saveForum(DiscussionForum forum, boolean draft)
+  private void saveForum(DiscussionForum forum, boolean draft, String contextId)
   {
     if (LOG.isDebugEnabled())
     {
@@ -998,7 +1016,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
     if (saveArea)
     {
-      Area area = getDiscussionForumArea();
+      //Area area = getDiscussionForumArea();
+      String dfType = typeManager.getDiscussionForumType();
+      Area area = areaManager.getAreaByContextIdAndTypeId(contextId, dfType);
       forum.setArea(area);
       forum.setSortIndex(new Integer(0));
       area.addDiscussionForum(forum);
@@ -2120,6 +2140,15 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     LOG.debug("getDiscussionForumsWithTopics()");
     return forumManager.getForumByTypeAndContextWithTopicsAllAttachments(typeManager
         .getDiscussionForumType());
+	}
+	
+	public List getDiscussionForumsWithTopics(String contextId) {
+	    if (LOG.isDebugEnabled()) LOG.debug("getDiscussionForumsWithTopics(String contextId)");
+	    if (contextId == null) {
+	        throw new IllegalArgumentException("Null contextId passed to getDiscussionForumsWithTopics");
+	    }
+	    String dfType = typeManager.getDiscussionForumType();
+	    return forumManager.getForumByTypeAndContextWithTopicsAllAttachments(dfType, contextId);
 	}
 
 	public Map getReadStatusForMessagesWithId(List msgIds, String userId)

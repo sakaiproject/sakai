@@ -199,4 +199,13 @@ public interface MessageForumsForumManager {
 	 * @return
 	 */
 	public BaseForum getForumByIdWithTopicsAttachmentsAndMessages(final Long forumId);
+	
+	/**
+	 * 
+	 * @param typeUuid
+	 * @param contextId
+	 * @return all forums of the given type in the given context with all topics,
+	 * messages, and attachments populated
+	 */
+	public List getForumByTypeAndContextWithTopicsAllAttachments(final String typeUuid, final String contextId);
 }

@@ -228,10 +228,17 @@ public interface DiscussionForumManager
   public DiscussionTopic createTopic(DiscussionForum forum);
 
   /**
+   * Save a forum. If this is a new forum, assumes current context is available.
    * @param forum
    */
   public void saveForum(DiscussionForum forum);
   
+  /**
+   * Saves the given forum object. If forum is new, will be saved in the given contextId
+   * @param contextId
+   * @param forum
+   */
+  public void saveForum(String contextId, DiscussionForum forum);
   
   /**
    * @param forum
@@ -484,4 +491,12 @@ public interface DiscussionForumManager
    * in role swap view this will always be false
    */
   public boolean isForumOwner(DiscussionForum forum);
+  
+  /**
+   * 
+   * @param contextId
+   * @return all discussion forums in the given context with attachments, topics,
+   * and messages populated
+   */
+  public List getDiscussionForumsWithTopics(String contextId);
 }

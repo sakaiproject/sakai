@@ -1005,7 +1005,12 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
             e.printStackTrace();
             LOG.error("could not evict forum: " + forum.getId(), e);
         }
-        Area area = getAreaByContextIdAndTypeId(typeManager.getDiscussionForumType());
+        
+        // re-retrieve the forum with the area populated so we don't have to
+        // rely on "current context"
+        forum = (DiscussionForum)getForumById(true, id);
+        //Area area = getAreaByContextIdAndTypeId(typeManager.getDiscussionForumType());
+        Area area = forum.getArea();
         area.removeDiscussionForum(forum);
         getHibernateTemplate().saveOrUpdate(area);
         //getHibernateTemplate().delete(forum);
@@ -1201,18 +1206,25 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     	
     	return eventMessagePrefix + context + "/" + object.toString() + "/" + getCurrentUser(); 
     }
+    
+    public List getForumByTypeAndContextWithTopicsAllAttachments(final String typeUuid)
+    {
+        return getForumByTypeAndContextWithTopicsAllAttachments(typeUuid, getContextId());
+    }
 
-		public List getForumByTypeAndContextWithTopicsAllAttachments(final String typeUuid)
+		public List getForumByTypeAndContextWithTopicsAllAttachments(final String typeUuid, final String contextId)
 		{
-			if (typeUuid == null) {
-				throw new IllegalArgumentException("Null Argument");
+			if (typeUuid == null || contextId == null) {
+				throw new IllegalArgumentException("Null typeUuid or contextId passed " +
+						"to getForumByTypeAndContextWithTopicsAllAttachments. typeUuid:" + 
+						typeUuid + " contextId:" + contextId);
 			}      
 
 			HibernateCallback hcb = new HibernateCallback() {
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
 					Query q = session.getNamedQuery(QUERY_BY_TYPE_AND_CONTEXT_WITH_ALL_INFO);
 					q.setParameter("typeUuid", typeUuid, Hibernate.STRING);
-					q.setParameter("contextId", getContextId(), Hibernate.STRING);
+					q.setParameter("contextId", contextId, Hibernate.STRING);
 					return q.list();
 				}
 			};
