@@ -172,7 +172,7 @@ public class SakaiProxyImpl implements SakaiProxy {
  	* {@inheritDoc}
  	*/
 	public int getMaxProfilePictureSize() {
-		return serverConfigurationService.getInt("profile.picture.max", ProfileImageManager.MAX_PROFILE_IMAGE_UPLOAD_SIZE);
+		return serverConfigurationService.getInt("profile2.picture.max", ProfileImageManager.MAX_PROFILE_IMAGE_UPLOAD_SIZE);
 	}
 	
 	
@@ -519,7 +519,14 @@ public class SakaiProxyImpl implements SakaiProxy {
  	* {@inheritDoc}
  	*/
 	public boolean isProfileConversionEnabled() {
-		return serverConfigurationService.getBoolean("profile.convert", false);
+		return serverConfigurationService.getBoolean("profile2.convert", false);
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public boolean isTwitterIntegrationEnabledGlobally() {
+		return serverConfigurationService.getBoolean("profile2.integration.twitter.enabled", true);
 	}
 	
 	/**

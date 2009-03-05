@@ -431,10 +431,11 @@ public interface Profile {
 	 *
 	 * @param userId	uuid of the user
 	 */
-	public boolean isTwitterIntegrationEnabled(final String userId);
+	public boolean isTwitterIntegrationEnabledForUser(final String userId);
 	
 	/**
-	 * Send a message to twitter
+	 * Send a message to twitter. 
+	 * Should only be called if twitter integration is enabled globally and for the user.
 	 *
 	 * @param userId	uuid of the user
 	 * @param message	the message

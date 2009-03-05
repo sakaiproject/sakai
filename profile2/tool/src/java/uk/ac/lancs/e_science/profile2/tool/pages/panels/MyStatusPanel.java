@@ -217,7 +217,7 @@ public class MyStatusPanel extends Panel {
 
 	public void updateTwitter(String userId, String message) {
 		
-		if(profile.isTwitterIntegrationEnabled(userId)) {
+		if(profile.isTwitterIntegrationEnabledForUser(userId)) {
 			profile.sendMessageToTwitter(userId, message);
 			
 			//post update event

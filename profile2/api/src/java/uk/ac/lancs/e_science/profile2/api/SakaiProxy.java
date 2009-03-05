@@ -74,7 +74,7 @@ public interface SakaiProxy {
 	public boolean updateSakaiPerson(SakaiPerson sakaiPerson);
 	
 	/**
-	 * Get the maximum filesize that can be uploaded (profile.picture.max=2)
+	 * Get the maximum filesize that can be uploaded (profile2.picture.max=2)
 	 * @return
 	 */
 	public int getMaxProfilePictureSize();
@@ -193,12 +193,24 @@ public interface SakaiProxy {
 	public boolean isAccountUpdateAllowed(String userId);
 	
 	/**
-	 * Is the profile.convert flag set in sakai.properties?
+	 * Is the profile2.convert flag set in sakai.properties?
+	 * If not set, defaults to false
 	 * 
 	 * @return
 	 */
 	public boolean isProfileConversionEnabled();
 	
+	
+	/**
+	 * Is the profile2.integration.twitter.enabled flag set in sakai.properties?
+	 * If not set, defaults to true
+	 * 
+	 * <p>Depending on this setting, the UI will allow a user to input their Twitter settings
+	 * and their status updates will be sent to Twitter</p>
+	 * 
+	 * @return
+	 */
+	public boolean isTwitterIntegrationEnabledGlobally();
 	
 	/**
 	 * 
@@ -208,5 +220,7 @@ public interface SakaiProxy {
 	 * http://bugs.sakaiproject.org/confluence/display/PROFILE/Profile2
 	 */
 	public String getTwitterSource();
+	
+	
 
 }

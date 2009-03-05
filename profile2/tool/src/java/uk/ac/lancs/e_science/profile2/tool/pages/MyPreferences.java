@@ -106,9 +106,14 @@ public class MyPreferences extends BasePage {
             }
         });
         
+		
+		// TWITTER SECTION
+		WebMarkupContainer tc = new WebMarkupContainer("twitterContainer");
+		tc.setOutputMarkupId(true);
+				
 		//twitter settings
-		form.add(new Label("twitterSectionHeading", new ResourceModel("heading.section.twitter")));
-		form.add(new Label("twitterSectionText", new ResourceModel("preferences.twitter.message")));
+		tc.add(new Label("twitterSectionHeading", new ResourceModel("heading.section.twitter")));
+		tc.add(new Label("twitterSectionText", new ResourceModel("preferences.twitter.message")));
 
 		//username
 		WebMarkupContainer twitterUsernameContainer = new WebMarkupContainer("twitterUsernameContainer");
@@ -124,7 +129,7 @@ public class MyPreferences extends BasePage {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
-		form.add(twitterUsernameContainer);
+		tc.add(twitterUsernameContainer);
 
 		
 		//password (already decrypted in the object)
@@ -142,7 +147,7 @@ public class MyPreferences extends BasePage {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
-		form.add(twitterPasswordContainer);
+		tc.add(twitterPasswordContainer);
 
 		
 		//checkbox (needs to update above components)
@@ -175,13 +180,24 @@ public class MyPreferences extends BasePage {
 			}
 		};
 		twitterEnabledContainer.add(twitterEnabled);
-		form.add(twitterEnabledContainer);
+
 		//updater
 		twitterEnabled.add(new AjaxFormComponentUpdatingBehavior("onchange") {
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
+		tc.add(twitterEnabledContainer);
+
+		//check if we can even show the twitter section by checking the sakai property
+		if(!sakaiProxy.isTwitterIntegrationEnabledGlobally()) {
+			profilePreferences.setTwitterEnabled(false); //set the model false to clear data as well (doesnt really need to do this but we do it to keep things in sync)
+			tc.setVisible(false);
+		}
+		
+		
+		//add twitter container
+		form.add(tc);
 		
 		// set initial required/enabled states on the twitter fields
 		if(profilePreferences.isTwitterEnabled()) {

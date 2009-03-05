@@ -48,29 +48,31 @@
 					
 					
 					<!-- Twitter integration -->
-					<div class="formSectionHeading" wicket:id="twitterSectionHeading">[twitter integration]</div>
-					<div class="formSectionText" wicket:id="twitterSectionText">[twitterSectionText]</div>
-					
-					<table class="preferencesContent">
-						<tr wicket:id="twitterEnabledContainer">
-							<td class="label" wicket:id="twitterEnabledLabel">[twitterEnabledLabel]</td>
-							<td class="content"><input wicket:id="twitterEnabled" type="checkbox"></input></td>
-						</tr>
+					<div wicket:id="twitterContainer">
+						<div class="formSectionHeading" wicket:id="twitterSectionHeading">[twitter integration]</div>
+						<div class="formSectionText" wicket:id="twitterSectionText">[twitterSectionText]</div>
 						
-						<tr wicket:id="twitterUsernameContainer">
-							<td class="label" wicket:id="twitterUsernameLabel">[twitterUsername]</td>
-							<td class="content">
-								<input type="text" wicket:id="twitterUsername" class="formInputField"/>
-							</td>
-						</tr>
-						<tr wicket:id="twitterPasswordContainer">
-							<td class="label" wicket:id="twitterPasswordLabel">[twitterUsername]</td>
-							<td class="content">
-								<input type="password" wicket:id="twitterPassword" class="formInputField"/>
-							</td>
-						</tr>
-						
-					</table>
+						<table class="preferencesContent">
+							<tr wicket:id="twitterEnabledContainer">
+								<td class="label" wicket:id="twitterEnabledLabel">[twitterEnabledLabel]</td>
+								<td class="content"><input wicket:id="twitterEnabled" type="checkbox"></input></td>
+							</tr>
+							
+							<tr wicket:id="twitterUsernameContainer">
+								<td class="label" wicket:id="twitterUsernameLabel">[twitterUsername]</td>
+								<td class="content">
+									<input type="text" wicket:id="twitterUsername" class="formInputField"/>
+								</td>
+							</tr>
+							<tr wicket:id="twitterPasswordContainer">
+								<td class="label" wicket:id="twitterPasswordLabel">[twitterUsername]</td>
+								<td class="content">
+									<input type="password" wicket:id="twitterPassword" class="formInputField"/>
+								</td>
+							</tr>
+							
+						</table>
+					</div>
 					
 					<input type="submit" wicket:id="submit" value="Save" />
 			
