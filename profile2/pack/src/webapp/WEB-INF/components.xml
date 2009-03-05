@@ -70,6 +70,7 @@
 	       	<value>uk/ac/lancs/e_science/profile2/hbm/ProfileImage.hbm.xml</value>
 	       	<value>uk/ac/lancs/e_science/profile2/hbm/SakaiPersonMeta.hbm.xml</value>
 	       	<value>uk/ac/lancs/e_science/profile2/hbm/ProfilePreferences.hbm.xml</value>
+	       	<value>uk/ac/lancs/e_science/profile2/hbm/ProfileImageExternal.hbm.xml</value>
 	      </list>
 	    </property>
 
