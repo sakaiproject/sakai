@@ -87,7 +87,7 @@ public class MyPrivacy extends BasePage {
 		//model that wraps our options
 		IModel dropDownModelStrict = new Model() {
 			public Object getObject() {
-				 return new ArrayList(privacySettingsStrict.keySet()); //via proxy
+				 return new ArrayList(privacySettingsStrict.keySet());
 			} 
 		};
 		
@@ -99,7 +99,7 @@ public class MyPrivacy extends BasePage {
 		//model that wraps our options
 		IModel dropDownModelRelaxed = new Model() {
 			public Object getObject() {
-				 return new ArrayList(privacySettingsRelaxed.keySet()); //via proxy
+				 return new ArrayList(privacySettingsRelaxed.keySet());
 			} 
 		};
 		
@@ -112,7 +112,7 @@ public class MyPrivacy extends BasePage {
 		//profile image privacy
 		WebMarkupContainer profileImageContainer = new WebMarkupContainer("profileImageContainer");
 		profileImageContainer.add(new Label("profileImageLabel", new ResourceModel("privacy.profileimage")));
-		DropDownChoice profileImageChoice = new DropDownChoice("profile", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));             
+		DropDownChoice profileImageChoice = new DropDownChoice("profileImage", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));             
 		profileImageContainer.add(profileImageChoice);
 		//tooltip
 		profileImageContainer.add(new IconWithClueTip("profileImageToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.profileimage.tooltip")));

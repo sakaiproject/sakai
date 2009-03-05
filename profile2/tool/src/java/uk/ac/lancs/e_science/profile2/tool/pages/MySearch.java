@@ -224,13 +224,12 @@ public class MySearch extends BasePage {
 						if(userUuid.equals(currentUserUuid)) {
 							setResponsePage(new MyProfile());
 						} else {
-							//gets it from the model because we set the model later
+							//gets userUuid of other user from the link's model
 							setResponsePage(new ViewProfile((String)getModelObject()));
 						}
 					}
-					
-					
 				};
+				profileLink.setModel(new Model(userUuid));
 				
 				/* DEPRECATED, we always link now because of PRFL-24 
 				if(isProfileAllowed) {

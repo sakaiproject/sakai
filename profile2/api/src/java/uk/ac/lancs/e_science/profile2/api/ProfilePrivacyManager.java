@@ -3,7 +3,7 @@ package uk.ac.lancs.e_science.profile2.api;
 
 public class ProfilePrivacyManager {
 
-	//setup the profile privacy values
+	//setup the profile privacy values (2 is only used in strict mode)
 	public static final int PRIVACY_OPTION_EVERYONE = 0; 
 	public static final int PRIVACY_OPTION_ONLYFRIENDS = 1; 
 	public static final int PRIVACY_OPTION_ONLYME = 2; 
