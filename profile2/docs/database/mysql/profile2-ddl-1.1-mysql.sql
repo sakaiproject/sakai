@@ -31,7 +31,7 @@
 
     create table PROFILE_PRIVACY_T (
         USER_UUID varchar(36) not null,
-        PROFILE integer not null,
+        PROFILE_IMAGE integer not null,
         BASIC_INFO integer not null,
         CONTACT_INFO integer not null,
         PERSONAL_INFO integer not null,
