@@ -61,7 +61,7 @@
                     <componentProperties>
                         <configurationfile>hibernate.cfg.xml</configurationfile>
                         <propertyfile>hibernate-hsqldb.properties</propertyfile>
-                        <outputfilename>hsqldb/${project.ddl.name}-${parent.version}.sql</outputfilename>
+                        <outputfilename>hsqldb/${project.ddl.name}-${parent.version}-hsqldb.sql</outputfilename>
                         <drop>false</drop>
                         <create>true</create>
                         <export>false</export>
@@ -86,7 +86,7 @@
                         <configuration>
                             <componentProperties>
                                 <propertyfile>hibernate-mysql.properties</propertyfile>
-                                <outputfilename>mysql/${project.ddl.name}-${parent.version}.sql</outputfilename>
+                                <outputfilename>mysql/${project.ddl.name}-${parent.version}-mysql.sql</outputfilename>
                             </componentProperties>
                         </configuration>
                     </execution>
@@ -99,7 +99,7 @@
                         <configuration>
                             <componentProperties>
                                 <propertyfile>hibernate-oracle.properties</propertyfile>
-                                <outputfilename>oracle/${project.ddl.name}-${parent.version}.sql</outputfilename>
+                                <outputfilename>oracle/${project.ddl.name}-${parent.version}-oracle.sql</outputfilename>
                             </componentProperties>
                         </configuration>
                     </execution>
@@ -112,7 +112,7 @@
                         <configuration>
                             <componentProperties>
                                 <propertyfile>hibernate-db2.properties</propertyfile>
-                                <outputfilename>db2/${project.ddl.name}-${parent.version}.sql</outputfilename>
+                                <outputfilename>db2/${project.ddl.name}-${parent.version}-db2.sql</outputfilename>
                             </componentProperties>
                         </configuration>
                     </execution>
@@ -125,7 +125,7 @@
                         <configuration>
                             <componentProperties>
                                 <propertyfile>hibernate-mssql.properties</propertyfile>
-                                <outputfilename>mssql/${project.ddl.name}-${parent.version}.sql</outputfilename>
+                                <outputfilename>mssql/${project.ddl.name}-${parent.version}-mssql.sql</outputfilename>
                             </componentProperties>
                         </configuration>
                     </execution>
@@ -138,7 +138,7 @@
                         <configuration>
                             <componentProperties>
                                 <propertyfile>hibernate-derby.properties</propertyfile>
-                                <outputfilename>derby/${project.ddl.name}-${parent.version}.sql</outputfilename>
+                                <outputfilename>derby/${project.ddl.name}-${parent.version}-derby.sql</outputfilename>
                             </componentProperties>
                         </configuration>
                     </execution>
@@ -151,7 +151,7 @@
                         <configuration>
                             <componentProperties>
                                 <propertyfile>hibernate-postgres.properties</propertyfile>
-                                <outputfilename>postgres/${project.ddl.name}-${parent.version}.sql</outputfilename>
+                                <outputfilename>postgres/${project.ddl.name}-${parent.version}-postgres.sql</outputfilename>
                             </componentProperties>
                         </configuration>
                     </execution>

@@ -1,36 +1,36 @@
 
     create table PROFILE_FRIENDS_T (
-        ID bigint not null auto_increment,
+        ID bigint not null,
         USER_UUID varchar(36) not null,
         FRIEND_UUID varchar(36) not null,
         RELATIONSHIP integer not null,
-        REQUESTED_DATE datetime not null,
-        CONFIRMED bit not null,
-        CONFIRMED_DATE datetime,
+        REQUESTED_DATE timestamp not null,
+        CONFIRMED smallint not null,
+        CONFIRMED_DATE timestamp,
         primary key (ID)
     );
 
-	create table PROFILE_IMAGES_EXTERNAL_T (
+    create table PROFILE_IMAGES_EXTERNAL_T (
         USER_UUID varchar(36) not null,
-        RESOURCE_MAIN text not null,
-        RESOURCE_THUMB text,
+        RESOURCE_MAIN varchar(4000) not null,
+        RESOURCE_THUMB varchar(4000),
         primary key (USER_UUID)
     );
 
     create table PROFILE_IMAGES_T (
-        ID bigint not null auto_increment,
+        ID bigint not null,
         USER_UUID varchar(36) not null,
         RESOURCE_MAIN varchar(255) not null,
         RESOURCE_THUMB varchar(255) not null,
-        IS_CURRENT bit not null,
+        IS_CURRENT smallint not null,
         primary key (ID)
     );
 
     create table PROFILE_PREFERENCES_T (
         USER_UUID varchar(36) not null,
-        EMAIL_REQUEST bit not null,
-        EMAIL_CONFIRM bit not null,
-        TWITTER_ENABLED bit not null,
+        EMAIL_REQUEST smallint not null,
+        EMAIL_CONFIRM smallint not null,
+        TWITTER_ENABLED smallint not null,
         TWITTER_USERNAME varchar(255),
         TWITTER_PASSWORD varchar(255),
         primary key (USER_UUID)
@@ -42,7 +42,7 @@
         BASIC_INFO integer not null,
         CONTACT_INFO integer not null,
         PERSONAL_INFO integer not null,
-        BIRTH_YEAR bit not null,
+        BIRTH_YEAR smallint not null,
         SEARCH integer not null,
         MY_FRIENDS integer not null,
         primary key (USER_UUID)
@@ -51,14 +51,20 @@
     create table PROFILE_STATUS_T (
         USER_UUID varchar(36) not null,
         MESSAGE varchar(255) not null,
-        DATE_ADDED datetime not null,
+        DATE_ADDED timestamp not null,
         primary key (USER_UUID)
     );
 
     create table SAKAI_PERSON_META_T (
-        ID bigint not null auto_increment,
+        ID bigint not null,
         USER_UUID bigint not null,
         PROPERTY varchar(255) not null,
         VALUE varchar(255) not null,
         primary key (ID)
     );
+
+    create table hibernate_unique_key (
+         next_hi integer 
+    );
+
+    insert into hibernate_unique_key values ( 0 );

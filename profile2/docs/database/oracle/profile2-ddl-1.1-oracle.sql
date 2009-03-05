@@ -10,6 +10,13 @@
         primary key (ID)
     );
 
+ 	create table PROFILE_IMAGES_EXTERNAL_T (
+        USER_UUID varchar2(36) not null,
+        RESOURCE_MAIN varchar2(4000) not null,
+        RESOURCE_THUMB varchar2(4000),
+        primary key (USER_UUID)
+    );
+    
     create table PROFILE_IMAGES_T (
         ID number(19,0) not null,
         USER_UUID varchar2(36) not null,
