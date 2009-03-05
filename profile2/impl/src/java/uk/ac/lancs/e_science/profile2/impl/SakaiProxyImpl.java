@@ -536,7 +536,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return serverConfigurationService.getString("profile2.integration.twitter.source", "profile2");
 	}
 	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public boolean isProfilePictureChangeEnabled() {
+		return serverConfigurationService.getBoolean("profile2.picture.change.enabled", true);
+	}
 	
+
 	
 	
 	

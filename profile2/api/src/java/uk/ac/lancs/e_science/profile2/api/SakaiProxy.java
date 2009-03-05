@@ -196,6 +196,10 @@ public interface SakaiProxy {
 	 * Is the profile2.convert flag set in sakai.properties?
 	 * If not set, defaults to false
 	 * 
+	 * <p>This will convert profiles from the original Profile tool in Sakai, to Profile2 format. 
+	 * Any images that were uploaded via various methods will be placed into Sakai's ContentHostingSystem
+	 * and thumbnails generated for use in various parts of Profile2.</p>
+	 * 
 	 * @return
 	 */
 	public boolean isProfileConversionEnabled();
@@ -206,7 +210,7 @@ public interface SakaiProxy {
 	 * If not set, defaults to true
 	 * 
 	 * <p>Depending on this setting, the UI will allow a user to input their Twitter settings
-	 * and their status updates will be sent to Twitter</p>
+	 * and their status updates will be sent to Twitter.</p>
 	 * 
 	 * @return
 	 */
@@ -220,6 +224,17 @@ public interface SakaiProxy {
 	 * http://bugs.sakaiproject.org/confluence/display/PROFILE/Profile2
 	 */
 	public String getTwitterSource();
+	
+	/**
+	 * Is the profile2.picture.change.enabled flag set in sakai.properties?
+	 * If not set, defaults to true
+	 * 
+	 * <p>Depending on this setting, uses will be able to upload thier own image. 
+	 * This can be useful to disable for institutions which may provide official photos for students.</p>
+	 * 
+	 * @return
+	 */
+	public boolean isProfilePictureChangeEnabled();
 	
 	
 
