@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <bean id="resetPassOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>resetpass_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>重設密碼：概述</value>
+        </property>
+        <property name="location">
+            <value>/sakai_resetpass/restpass_zh_TW.html</value>
+        </property>
+		<property name="defaultForTool">
+			<value>sakai.resetpass</value>
+		</property>
+    </bean>
+  
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+        <property name="name">
+            <value>root</value>
+        </property>
+        <property name="categories">
+            <list>
+                <bean id="restpassCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+                    <property name="name">
+                        <value>重設密碼</value>
+                    </property>
+                    <property name="resources">
+                        <list>
+                            <ref bean="resetPassOverview"/>
+                        </list>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+</beans>
