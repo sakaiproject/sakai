@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="umemOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>umem_overview_zh_TW</value></property>
+      <property name="name"><value>使用者成員資格：概述</value></property>
+      <property name="location"><value>/sakai_usermembership/umem_overview_zh_TW.html</value></property>
+      <property name="defaultForTool"><value>sakai.usermembership</value></property>
+   </bean>
+   
+   <bean id="umemAddTool" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>umem_add_tool_zh_TW</value></property>
+      <property name="name"><value>新增使用者成員資格的工具</value></property>
+      <property name="location"><value>/sakai_usermembership/umem_add_tool_zh_TW.html</value></property>
+      <property name="defaultForTool"><value>sakai.usermembership</value></property>
+   </bean>
+   
+   <bean id="umemGrantAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>umem_grant_access_zh_TW</value></property>
+      <property name="name"><value>准予其他使用者存取工具</value></property>
+      <property name="location"><value>/sakai_usermembership/umem_grant_access_zh_TW.html</value></property>
+      <property name="defaultForTool"><value>sakai.usermembership</value></property>
+   </bean>
+   
+   <bean id="umemUsingTool" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>umem_using_tool_zh_TW</value></property>
+      <property name="name"><value>使用工具</value></property>
+      <property name="location"><value>/sakai_usermembership/umem_using_tool_zh_TW.html</value></property>
+      <property name="defaultForTool"><value>sakai.usermembership</value></property>
+   </bean>
+      
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="umemCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>使用者成員資格</value></property>
+               <property name="resources">
+                  <list>
+                    <ref bean="umemOverview"/>
+                    <ref bean="umemAddTool"/>
+                    <ref bean="umemGrantAccess"/>
+                    <ref bean="umemUsingTool"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
