@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="scheduleOverview"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>aray_zh_TW</value>
+		</property>
+		<property name="name">
+			<value>日程表：概述</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/aray_zh_TW.html</value>
+		</property>
+		<property name="defaultForTool">
+			<value>sakai.schedule</value>
+		</property>
+	</bean>
+	<bean id="scheduleSummary"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>avaz_zh_TW</value>
+		</property>
+		<property name="name">
+			<value>日程表摘要</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/avaz_zh_TW.html</value>
+		</property>
+		<property name="defaultForTool">
+			<value>sakai.summary.calendar</value>
+		</property>
+	</bean>
+	<bean id="addActivity"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>aqyn_zh_TW</value>
+		</property>
+		<property name="name">
+			<value>新增、編輯或刪除日程表項目</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/aqyn_zh_TW.html</value>
+		</property>
+	</bean>
+	<bean id="addActivityAttachment"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>argn_zh_TW</value>
+		</property>
+		<property name="name">
+			<value>新增附件至日程表項目</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/argn_zh_TW.html</value>
+		</property>
+	</bean>
+	<bean id="viewSchedule"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>aqzh_zh_TW</value>
+		</property>
+		<property name="name">
+			<value>檢視行事曆項目的詳細資料</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/aqzh_zh_TW.html</value>
+		</property>
+	</bean>
+
+	<bean id="changeScheduleView"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>aqyp_zh_TW</value>
+		</property>
+		<property name="name">
+			<value>更改行事曆檢視</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/aqyp_zh_TW.html</value>
+		</property>
+	</bean>
+
+	<bean id="addCalendarFields"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>aqzc_zh_TW</value>
+		</property>
+		<property name="name">
+			<value>新增或刪除行事曆欄位</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/aqzc_zh_TW.html</value>
+		</property>
+	</bean>
+
+	<bean id="printCalendar"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>arfe_zh_TW</value>
+		</property>
+		<property name="name">
+			<value>列印行事曆</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/arfe_zh_TW.html</value>
+		</property>
+	</bean>
+
+	<bean id="mergeCalendar"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>aqyl_zh_TW</value>
+		</property>
+		<property name="name">
+			<value>合併行事曆</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/aqyl_zh_TW.html</value>
+		</property>
+	</bean>
+	
+	<bean id="importCalendar"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>argo_zh_TW</value>
+		</property>
+		<property name="name">
+			<value>匯入行事曆</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/argo_zh_TW.html</value>
+		</property>
+	</bean>
+
+
+	<bean id="org.sakaiproject.api.app.help.TableOfContents"
+		class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+		<property name="name">
+			<value>root</value>
+		</property>
+		<property name="categories">
+			<list>
+				<bean id="scheduleCategory"
+					class="org.sakaiproject.component.app.help.model.CategoryBean">
+					<property name="name">
+						<value>日程表</value>
+					</property>
+					<property name="resources">
+						<list>
+							<ref bean="scheduleOverview" />
+							<ref bean="scheduleSummary" />
+							<ref bean="addActivity" />
+							<ref bean="addActivityAttachment" />
+							<ref bean="viewSchedule" />
+							<ref bean="addCalendarFields" />
+							<ref bean="changeScheduleView" />
+							<ref bean="printCalendar" />
+							<ref bean="mergeCalendar" />
+							<ref bean="importCalendar" />
+						</list>
+					</property>
+				</bean>
+			</list>
+		</property>
+	</bean>
+</beans>
