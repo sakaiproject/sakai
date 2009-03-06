@@ -1709,8 +1709,7 @@ public class ItemAddListener
     // all answer sets have to be identical, case insensitive
 
      String entiretext = bean.getItemText();
-     //String fibtext = 
-     entiretext.replaceAll("[\\{][^\\}]*[\\}]", "{}");
+     entiretext = entiretext.replaceAll("[\\{][^\\}]*[\\}]", "{}");
 
 Object[] fibanswers = getFIBanswers(entiretext).toArray();
       List blanklist = new  ArrayList();

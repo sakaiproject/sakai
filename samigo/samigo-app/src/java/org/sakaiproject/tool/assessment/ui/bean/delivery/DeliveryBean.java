@@ -2434,7 +2434,7 @@ public class DeliveryBean
 		        int timeElapsed  = Math.round((float)((new Date()).getTime() - timedAG.getBeginDate().getTime())/1000.0f); //in sec
 		        // this is to cover the scenerio when user took an assessment, Save & Exit, Then returned at a
 		        // later time, we need to account for the time taht he used before
-		        int timeTakenBefore = Math.round(timedAG.getTimeLimit() - timedAG.getTimeLeft()); // in sec
+		        int timeTakenBefore = timedAG.getTimeLimit() - timedAG.getTimeLeft(); // in sec
 		        //log.debug("***time passed afer saving answer to DB="+timeElapsed+timeTakenBefore);
 		        adata.setTimeElapsed(Integer.valueOf(timeElapsed+timeTakenBefore));
 		        GradingService gradingService = new GradingService();

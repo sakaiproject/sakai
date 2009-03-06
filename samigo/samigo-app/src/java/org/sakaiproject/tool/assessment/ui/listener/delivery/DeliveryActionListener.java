@@ -1955,30 +1955,32 @@ public class DeliveryActionListener
     itemGradingHash.put("sequence", Long.valueOf(0));
     long items = 0;
     int sequenceno = 1;
-    Iterator i1 = publishedAssessment.getSectionArraySorted().iterator();
-    while (i1.hasNext())
-    {
-      SectionDataIfc section = (SectionDataIfc) i1.next();
-      Iterator i2 = null;
+    if (publishedAssessment != null && publishedAssessment.getSectionArraySorted() != null) {    	
+    	Iterator i1 = publishedAssessment.getSectionArraySorted().iterator();
+    	while (i1.hasNext())
+    	{
+    		SectionDataIfc section = (SectionDataIfc) i1.next();
+    		Iterator i2 = null;
 
-      ArrayList itemlist = section.getItemArray();
-      long seed = 0;
-      if (delivery.getActionMode()==DeliveryBean.GRADE_ASSESSMENT) {
-        StudentScoresBean studentscorebean = (StudentScoresBean) ContextUtil.lookupBean("studentScores");
-        seed = getSeed(section, delivery, (long) studentscorebean.getStudentId().hashCode());
-      }
-      else {
-        seed = getSeed(section, delivery, (long) AgentFacade.getAgentString().hashCode());
-      }
-      ArrayList sortedlist = getItemArraySortedWithRandom(section, itemlist, seed);
-      i2 = sortedlist.iterator();
+    		ArrayList itemlist = section.getItemArray();
+    		long seed = 0;
+    		if (delivery.getActionMode()==DeliveryBean.GRADE_ASSESSMENT) {
+    			StudentScoresBean studentscorebean = (StudentScoresBean) ContextUtil.lookupBean("studentScores");
+    			seed = getSeed(section, delivery, (long) studentscorebean.getStudentId().hashCode());
+    		}
+    		else {
+    			seed = getSeed(section, delivery, (long) AgentFacade.getAgentString().hashCode());
+    		}
+    		ArrayList sortedlist = getItemArraySortedWithRandom(section, itemlist, seed);
+    		i2 = sortedlist.iterator();
 
-      while (i2.hasNext()) {
-        items = items + 1; // bug 464
-        ItemDataIfc item = (ItemDataIfc) i2.next();
-        itemGradingHash.put("sequence" + item.getItemId().toString(),
-                     Integer.valueOf(sequenceno++));
-      }
+    		while (i2.hasNext()) {
+    			items = items + 1; // bug 464
+    			ItemDataIfc item = (ItemDataIfc) i2.next();
+    			itemGradingHash.put("sequence" + item.getItemId().toString(),
+    					Integer.valueOf(sequenceno++));
+    		}
+    	}
     }
     itemGradingHash.put("items", Long.valueOf(items));
   }
@@ -2071,7 +2073,7 @@ public class DeliveryActionListener
 	    //boolean zeroTimeElapsed = false;
 	    boolean acceptLateSubmission = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(delivery.getPublishedAssessment().getAssessmentAccessControl().getLateHandling());
 	    if (delivery.getDueDate() != null && !acceptLateSubmission) {
-	    	int timeBeforeDue  = Math.round((delivery.getDueDate().getTime() - (new Date()).getTime())/1000); //in sec
+	    	int timeBeforeDue  = Math.round((float)(delivery.getDueDate().getTime() - (new Date()).getTime())/1000.0f); //in sec
 	    	int timeLimit = Integer.parseInt(delivery.getPublishedAssessment().getAssessmentAccessControl().getTimeLimit().toString());
 			if (timeBeforeDue < timeLimit && fromBeginAssessment) {
 				//zeroTimeElapsed = true;
@@ -2081,7 +2083,7 @@ public class DeliveryActionListener
 			}
 	    }
 
-        int timeElapsed  = Math.round(((new Date()).getTime() - timedAG.getBeginDate().getTime())/1000); //in sec
+        int timeElapsed  = Math.round((float)((new Date()).getTime() - timedAG.getBeginDate().getTime())/1000.0f); //in sec
         // this is to cover the scenerio when user took an assessment, Save & Exit, Then returned at a
         // later time, we need to account for the time taht he used before
         int timeTakenBefore = Math.round(timedAG.getTimeLimit() - timedAG.getTimeLeft()); // in sec
