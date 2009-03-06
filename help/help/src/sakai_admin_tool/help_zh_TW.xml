@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="adminToolOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arct_zh_TW</value></property>
+      <property name="name"><value>管理工具：概述</value></property>
+      <property name="location"><value>/sakai_admin_tool/arct_zh_TW.html</value></property>
+      <property name="defaultForTool"><value>sakai.admin.tool</value></property>
+   </bean>
+   
+   <bean id="addUser" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arfa_zh_TW</value></property>
+      <property name="name"><value>新增新使用者</value></property>
+      <property name="location"><value>/sakai_admin_tool/arfa_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="deleteUser" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aref_zh_TW</value></property>
+      <property name="name"><value>刪除使用者</value></property>
+      <property name="location"><value>/sakai_admin_tool/aref_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="resetPassword" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arac_zh_TW</value></property>
+      <property name="name"><value>重設使用者的密碼</value></property>
+      <property name="location"><value>/sakai_admin_tool/arac_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="changeName" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzz_zh_TW</value></property>
+      <property name="name"><value>更改使用者的名稱</value></property>
+      <property name="location"><value>/sakai_admin_tool/aqzz_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="changeAccountType" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzo_zh_TW</value></property>
+      <property name="name"><value>更改使用者的帳戶類型</value></property>
+      <property name="location"><value>/sakai_admin_tool/aqzo_zh_TW.html</value></property>
+   </bean>
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="adminToolCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>管理工具</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="adminToolOverview"/>
+					 <ref bean="addUser"/>
+					 <ref bean="deleteUser"/>
+					 <ref bean="resetPassword"/>
+					 <ref bean="changeName"/>
+					 <ref bean="changeAccountType"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>

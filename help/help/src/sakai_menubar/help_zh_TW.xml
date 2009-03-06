@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="menubarOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcc_zh_TW</value></property>
+      <property name="name"><value>功能表欄概述</value></property>
+      <property name="location"><value>/sakai_menubar/arcc_zh_TW.html</value></property>
+      <property name="defaultForTool"><value>sakai.menubar</value></property>      
+   </bean>
+   
+   <bean id="addTools" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardx_zh_TW</value></property>
+      <property name="name"><value>從功能表欄中新增、編輯或刪除工具</value></property>
+      <property name="location"><value>/sakai_menubar/ardx_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="worksiteSetupAddTools" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arxx_zh_TW</value></property>
+      <property name="name"><value>從工作網站設定新增、編輯或刪除功能表欄中的工具</value></property>
+      <property name="location"><value>/sakai_menubar/arbj_zh_TW.html</value></property>
+   </bean>
+         
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="menubarCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>功能表欄</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="menubarOverview"/>
+                     <ref bean="addTools"/>
+                     <ref bean="worksiteSetupAddTools"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>

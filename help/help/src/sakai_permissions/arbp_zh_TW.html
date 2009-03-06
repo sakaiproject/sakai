@@ -1,0 +1,59 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3c.org/TR/1999/REC-html401-19991224/loose.dtd">
+<HTML lang=zh-TW><HEAD><BASE>
+<META http-equiv=Content-Type content="text/html; charset=utf-8"><TITLE>已存檔：類型、領域、角色和權限</TITLE>
+<STYLE type=text/css>
+		/* Style for specific inline images */
+		
+		/* Style for specific ordered lists */
+		
+		/* Style for specific table cells */
+		</STYLE>
+<LINK media=all href="/library/skin/tool_base.css" type=text/css 
+rel=stylesheet><LINK media=all href="/library/skin/default/tool.css" 
+type=text/css rel=stylesheet>
+<META content="text/html; charset=UTF-8" name=GENERATOR></HEAD>
+<BODY>
+<DIV class=helpBody>
+<H2>已存檔：類型、領域、角色和權限</H2>
+<H3>類型</H3>
+<P>類型是 Sakai 內範圍最廣泛的使用者頭銜。類型可分為管理型或非管理型：</P>
+<UL>
+  <LI><STRONG>管理型：</STRONG>擁有管理帳戶的使用者可存取非管理使用者不能存取的工具（在<A 
+  href="content.hlp?docId=aqzy_zh_TW">我的工作區</A>中）。可透過這些工具，如使用者、領域和網站建立、刪除和常規管理網站、參與者和他們的角色。管理帳戶還擁有其他使用者沒有的特權和權限。例如，可檢視和編輯全部網站。 
+
+  <P>應用程式安裝後，管理帳戶是唯一的一個帳戶，用來建立工作網站。在系統中新增使用者後（使用使用者工具），管理型帳戶可將非管理使用者的使用者類型設定為「已註冊」或「維護」（下文定義），從而授予他們建立新網站的權利。</P>
+  <LI><STRONG>非管理型：</STRONG>非管理帳戶類型主要根據其是否具備建立新網站的權利而定義。有三種預設的非管理帳戶類型： <BR><BR>
+  <UL>
+    <LI><STRONG>已註冊：</STRONG>該類型可建立新網站：當您使用「新建帳戶視窗」建立帳戶時，您所建立的是「已註冊」類型帳戶。 
+    <P><STRONG>註釋：</STRONG>建立網站的權利來自於在 <CODE>!user.template.registered</CODE> 
+    領域中獲得的 <CODE>site.add</CODE> 權限。但是此類使用者帳戶還往往與 <CODE>.auth</CODE>（已授權）和 
+    <CODE>.anon</CODE>（匿名，即未登入）角色相關聯。嚴格來說，是 
+    <CODE>!user.template.registered</CODE> 的 <CODE>.auth</CODE> 角色授予了 
+    <CODE>site.add</CODE> 權限。</P>
+    <LI><STRONG>維護：</STRONG>由於一些舊版原因，這一帳戶類型仍然存在於應用程式中；功能與「已註冊」完全相同。 
+    <P><STRONG>註釋：</STRONG>請勿將「維護」帳戶類型和「維護」角色混淆，您可以向特定網站中的使用者或特定工具授予維護角色。工作網站中的帳戶類型和角色有不同的作用。</P>
+    <LI><STRONG>訪客：</STRONG>預設設定下，此使用者類型無法建立工作網站。</LI></UL></LI></UL>
+<P><STRONG>註釋：</STRONG>網站也可以有類型（例如，課程網站和專案網站），由這一類型決定網站識別的預設角色。例如，課程網站預設將獲得 
+<CODE>!site.template.course</CODE> 角色（即，<CODE>!site.template.course</CODE> 
+領域定義的角色）。</P>
+<P>預設網站角色是「維護」和「存取」，可由管理型使用者更改這一角色。每次運行都可以根據實際情況進行設定，從而向使用者分配不同的角色。其中每個角色在網站中都擁有不同的權利矩陣。</P>
+<H3>領域和角色</H3>
+<P>領域是一個安全許可集，決定了帳戶在網站內的角色。每個網站中角色的權限都是獨特的。透過工作網站的預設範本設定預設設定（例如，課程網站的 
+<CODE>!site.template.course</CODE>，或專案網站的 
+<CODE>!site.template.project</CODE>）。</P>
+<P>對於非管理使用者，建立網站的權利處於某些特定網站的權利範圍之外，由帳戶類型決定（上文「類型」部分已說明）。帳戶類型決定了使用者將擁有哪個領域範本，而領域範本則控制了使用者建立網站的權利，例如：</P>
+<UL>
+  <LI>預設設定下，「已註冊」帳戶類型的領域範本是 <CODE>!user.template.registered</CODE>，其中啟用了 
+  <CODE>site.add</CODE> 權限。因此，任何擁有「已註冊」帳戶類型的使用者都可以建立工作網站。<BR><BR>
+  <LI>預設設定下，「訪客」帳戶類型的領域範本是 <CODE>!user.template.guest</CODE>，其中禁用了 
+  <CODE>site.add</CODE> 權限。因此，任何擁有「訪客」帳戶類型的使用者都無法建立工作網站。 </LI></UL>
+<P>當「已註冊」使用者建立工作網站時，他們將自動成為網站的成員，並且（預設）擁有權限最為全面的角色。透過為新使用者指定角色，網站建立人可控制參與者使用工作網站內工具，和/或與工具交互影響的方式。角色可以是預設角色之一（「維護」和「存取」），或者管理員也可使用領域工具建立新的角色。</P>
+<P>全部使用者在各自的我的工作區分頁中都擁有最廣泛的權限（即，建立、編輯和刪除的權利）。</P>
+<H3>權限</H3>
+<P>一般來說，預設「維護」角色擁有最完整的權限，可在工作網站內執行建立、編輯和刪除操作。預設「存取」角色權限最狹窄，無法建立或刪除每個工具的內容（即，預設設定下，「存取」角色無法將檔案上載至資源，但是可以建立聊天訊息和討論回覆）。</P>
+<P>擁有工作網站編輯權限的角色（例如，預設「維護」角色）可以更改工具的權限，以決定參與者使用工具的方法。</P>
+<P>如需瞭解關於權限的更多資訊，請存取下列地址，參考 Sakaipedia 的權限清單：</P><SPAN class=example><A 
+href="http://bugs.sakaiproject.org/confluence/display/ENC/Permissions+list" 
+target=new>http://bugs.sakaiproject.org/confluence/display/ENC/Permissions+list</A></SPAN> 
+
+<P></P></DIV></BODY></HTML>

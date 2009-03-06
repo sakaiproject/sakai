@@ -1,0 +1,44 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3c.org/TR/1999/REC-html401-19991224/loose.dtd">
+<HTML lang=zh-TW><HEAD><BASE>
+<META http-equiv=Content-Type content="text/html; charset=utf-8"><TITLE>將文字貼上至 Firefox 中的 FCKeditor 時出現的問題</TITLE>
+<STYLE type=text/css>
+		/* Style for specific inline images */
+		
+		/* Style for specific ordered lists */
+		
+		/* Style for specific table cells */
+		</STYLE>
+<LINK media=all href="/library/skin/tool_base.css" type=text/css 
+rel=stylesheet><LINK media=all href="/library/skin/default/tool.css" 
+type=text/css rel=stylesheet>
+<META content="text/html; charset=UTF-8" name=GENERATOR></HEAD>
+<BODY>
+<DIV class=helpBody>
+<H2>將文字貼上至 Firefox 中的 FCKeditor 時出現的問題</H2>
+<P>由於 Firefox 中的某些安全設定，當您嘗試透過按右鍵並選擇<STRONG><CODE>貼上</CODE></STRONG>將文字貼上至 
+FCKeditor 時，可能會出現問題。低版本的 Firefox 不允許使用 <CODE>Ctrl-v</CODE> 
+貼上文字。如需解決這些問題，從下列解決方案中選擇一種：</P>
+<UL>
+  <LI>從<STRONG><CODE>編輯</CODE></STRONG>功能表選擇<STRONG><CODE>貼上</CODE></STRONG>。 
+  <BR><BR>
+  <LI>按 <CODE>Ctrl-v</CODE>。如果問題仍然存在，升級至最新版本的 Firefox。 <BR><BR>
+  <LI>更改安全設定，使得 Firefox 允許透過按右鍵進行貼上操作。如需在 Windows 完成上述操作，請遵循下列說明： <BR><BR>
+  <OL>
+    <LI>關閉全部 Firefox 視窗。<BR><BR>
+    <LI>瀏覽至下列目錄，其中 <CODE>username</CODE> 是您的使用者名，<CODE>ProfileName</CODE> 
+    是您的全名或是帶有 ".default" 尾碼的字串： <SPAN class=example>C:\Documents and 
+    Settings\username\Application 
+    Data\Mozilla\Firefox\Profiles\ProfileName</SPAN> 
+    <LI>使用文字編輯器在該目錄下建立名為 <CODE>user.js</CODE> 的檔案。 
+    <P><STRONG>註釋：</STRONG>確保文字編輯器<STRONG>沒有</STRONG>在檔案名最後新增 <CODE>.txt</CODE> 
+    副檔名。檔案的副檔名必須為 <CODE>.js</CODE>。</P>
+    <LI>在該檔中輸入下列內容： <SPAN 
+    class=example>user_pref("capability.policy.policynames", "allowclipboard"); 
+    user_pref("capability.policy.allowclipboard.sites", 
+    "https://www.samplesite.com"); 
+    user_pref("capability.policy.allowclipboard.Clipboard.cutcopy", 
+    "allAccess"); user_pref("capability.policy.allowclipboard.Clipboard.paste", 
+    "allAccess");</SPAN> 
+    <P>將 <CODE>https://www.samplesite.com</CODE> 
+    替換為您想要允許貼上操作的網站的名稱。<STRONG>請勿</STRONG>使用 <CODE>/</CODE>（斜杠）。 </P>
+    <LI>重啟 Firefox。 </LI></OL></LI></UL></DIV></BODY></HTML>

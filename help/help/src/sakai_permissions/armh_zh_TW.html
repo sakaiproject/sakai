@@ -1,0 +1,1557 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3c.org/TR/1999/REC-html401-19991224/loose.dtd">
+<HTML lang=zh-TW><HEAD><BASE>
+<META http-equiv=Content-Type 
+content="text/html; charset=utf-8"><TITLE>權限、角色和工具</TITLE>
+<STYLE type=text/css>
+		/* Style for specific inline images */
+		
+		/* Style for specific ordered lists */
+		
+		/* Style for specific table cells */
+		</STYLE>
+<LINK media=all href="/library/skin/tool_base.css" type=text/css 
+rel=stylesheet><LINK media=all href="/library/skin/default/tool.css" 
+type=text/css rel=stylesheet>
+<META content="text/html; charset=UTF-8" name=GENERATOR></HEAD>
+<BODY>
+<DIV class=helpBody>
+<H2>權限、角色和工具</H2><A name=top></A><BR><BR>
+<P>下表列出了與 Sakai 中個角色相關聯的預設權限。如需瞭解關於 Sakai 中角色的更多資訊，請參考文件<A 
+href="content.hlp?docId=arbu_zh_TW">參與者角色</A>。</P>
+<TABLE class=noborder cellPadding=10>
+  <COLGROUP>
+  <COL>
+  <COL>
+  <TBODY>
+  <TR vAlign=top>
+    <TD class=noborder align=left>
+      <H3>課程網站</H3>
+      <UL>
+        <LI><A href="#s-aliases">別名</A>
+        <LI><A href="#s-announcements">通告</A>
+        <LI><A href="#s-assignments">作業</A>
+        <LI><A href="#s-calendar">日程表</A>
+        <LI><A href="#s-chat">聊天</A>
+        <LI><A href="#s-content">內容／資源</A>
+        <LI><A href="#s-crud">Crud</A> 
+        <LI><A href="#s-discussion">討論</A>
+        <LI><A href="#s-dropbox">投遞箱</A>
+        <LI><A href="#s-gradebook">成績冊</A>
+        <LI><A href="#s-email">電子郵件存檔</A>
+        <LI><A href="#s-news">新聞</A>
+        <LI><A href="#s-prefs">喜好</A>
+        <LI><A href="#s-profile">個人資料</A>
+        <LI><A href="#s-realms">領域</A>
+        <LI><A href="#s-section">班別資訊</A>
+        <LI><A href="#s-site">網站資訊</A>
+        <LI><A href="#s-syllabus">課程大綱</A>
+        <LI><A href="#s-tests">測驗和小測</A>
+        <LI><A href="#s-user">使用者／我的工作區</A></LI></UL></TD>
+    <TD class=noborder align=left>
+      <H3>專案網站</H3>
+      <UL>
+        <LI><A href="#sp-aliases">別名</A>
+        <LI><A href="#sp-announcements">通告</A>
+        <LI><A href="#sp-assignments">作業</A>
+        <LI><A href="#sp-calendar">日程表</A>
+        <LI><A href="#sp-chat">聊天</A>
+        <LI><A href="#sp-content">內容／資源</A>
+        <LI><A href="#sp-crud">Crud</A> 
+        <LI><A href="#sp-discussion">討論</A>
+        <LI><A href="#sp-dropbox">投遞箱</A>
+        <LI><A href="#sp-gradebook">成績冊</A>
+        <LI><A href="#sp-email">電子郵件存檔</A>
+        <LI><A href="#sp-news">新聞</A>
+        <LI><A href="#sp-prefs">喜好</A>
+        <LI><A href="#sp-profile">個人資料</A>
+        <LI><A href="#sp-realms">領域</A>
+        <LI><A href="#sp-section">班別資訊</A>
+        <LI><A href="#sp-site">網站資訊</A>
+        <LI><A href="#sp-syllabus">課程大綱</A>
+        <LI><A href="#sp-tests">測驗和小測</A>
+        <LI><A href="#sp-user">使用者／我的工作區</A></LI></UL></TD></TR></TBODY></TABLE>
+<TABLE class=kbtable cellPadding=4>
+  <COLGROUP>
+  <COL>
+  <COL>
+  <COL>
+  <COL>
+  <TBODY>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4>
+      <H3>課程網站</H3></TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A name=s-aliases></A><STRONG>別名 
+      &nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A> </STRONG></TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>新增別名</TD>
+    <TD class=kbtd align=left><CODE>alias.add</CODE> </TD>
+    <TD class=kbtd align=left>Â&nbsp;</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除別名</TD>
+    <TD class=kbtd align=left><CODE>alias.del</CODE> </TD>
+    <TD class=kbtd align=left>Â&nbsp;</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>更改/更新別名</TD>
+    <TD class=kbtd align=left><CODE>alias.upd</CODE> </TD>
+    <TD class=kbtd align=left>Â&nbsp;</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A 
+      name=s-announcements></A><STRONG>通告&nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除任何通告</TD>
+    <TD class=kbtd align=left><CODE>annc.delete.any</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>僅刪除您自己的通告</TD>
+    <TD class=kbtd align=left><CODE>annc.delete.own</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立新通告</TD>
+    <TD class=kbtd align=left><CODE>annc.new</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀通告</TD>
+    <TD class=kbtd align=left><CODE>annc.read</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀草稿通告</TD>
+    <TD class=kbtd align=left><CODE>annc.read.drafts</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>修改任何通告</TD>
+    <TD class=kbtd align=left><CODE>annc.revise.any</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>僅修改您自己的通告</TD>
+    <TD class=kbtd align=left><CODE>annc.revise.own</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A 
+      name=s-assignments></A><STRONG>作業&nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除作業</TD>
+    <TD class=kbtd align=left><CODE>asn.delete</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>為作業打分</TD>
+    <TD class=kbtd align=left><CODE>asn.grade</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立新作業</TD>
+    <TD class=kbtd align=left><CODE>asn.new</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀作業</TD>
+    <TD class=kbtd align=left><CODE>asn.read</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>修改作業</TD>
+    <TD class=kbtd align=left><CODE>asn.revise</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>提交作業</TD>
+    <TD class=kbtd align=left><CODE>asn.submit</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A 
+      name=s-calendar></A><STRONG>日程表&nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除行事曆條目</TD>
+    <TD class=kbtd align=left><CODE>calendar.delete</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>匯入行事曆條目</TD>
+    <TD class=kbtd align=left><CODE>calendar.import</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立新行事曆條目</TD>
+    <TD class=kbtd align=left><CODE>calendar.new</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀行事曆條目</TD>
+    <TD class=kbtd align=left><CODE>calendar.read</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>修改行事曆條目</TD>
+    <TD class=kbtd align=left><CODE>calendar.revise</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A 
+      name=s-chat></A><STRONG>聊天&nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除任何聊天條目</TD>
+    <TD class=kbtd align=left><CODE>chat.delete.any</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>僅刪除您自己的聊天條目</TD>
+    <TD class=kbtd align=left><CODE>chat.delete.own</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>發佈新的聊天條目</TD>
+    <TD class=kbtd align=left><CODE>chat.new</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀聊天條目</TD>
+    <TD class=kbtd align=left><CODE>chat.read</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>修改任何聊天條目</TD>
+    <TD class=kbtd align=left><CODE>chat.revise.any</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>僅修改您自己的聊天條目</TD>
+    <TD class=kbtd align=left><CODE>chat.revise.own</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A 
+      name=s-content></A><STRONG>內容/資源&nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除內容</TD>
+    <TD class=kbtd align=left><CODE>content.delete</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立新內容</TD>
+    <TD class=kbtd align=left><CODE>content.new</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀內容</TD>
+    <TD class=kbtd align=left><CODE>content.read</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>修改內容</TD>
+    <TD class=kbtd align=left><CODE>content.revise</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A 
+      name=s-crud></A><STRONG>Crud&nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀 crud 內容</TD>
+    <TD class=kbtd align=left><CODE>crud.create</CODE> </TD>
+    <TD class=kbtd align=left>Â&nbsp;</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除 crud 內容</TD>
+    <TD class=kbtd align=left><CODE>crud.delete</CODE> </TD>
+    <TD class=kbtd align=left>Â&nbsp;</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀 crud 內容</TD>
+    <TD class=kbtd align=left><CODE>crud.read</CODE> </TD>
+    <TD class=kbtd align=left>Â&nbsp;</TD>
+    <TD class=kbtd align=left>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>更新 crud 內容</TD>
+    <TD class=kbtd align=left><CODE>crud.update</CODE> </TD>
+    <TD class=kbtd align=left>Â&nbsp;</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A 
+      name=s-discussion></A><STRONG>討論&nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除任何討論專案（主題/類別）</TD>
+    <TD class=kbtd align=left><CODE>disc.delete.any</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>僅刪除您自己的討論項目</TD>
+    <TD class=kbtd align=left><CODE>disc.delete.own</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立新的討論項目</TD>
+    <TD class=kbtd align=left><CODE>disc.new</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立新的討論主題</TD>
+    <TD class=kbtd align=left><CODE>disc.new.topic</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀討論項目</TD>
+    <TD class=kbtd align=left><CODE>disc.read</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀草稿討論項目</TD>
+    <TD class=kbtd align=left><CODE>disc.read.drafts</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>修改任何討論項目</TD>
+    <TD class=kbtd align=left><CODE>disc.revise.any</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>僅修改您自己的討論項目</TD>
+    <TD class=kbtd align=left><CODE>disc.revise.own</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A 
+      name=s-dropbox></A><STRONG>投遞箱&nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立使用者帳戶時，是否為使用者自動建立投遞箱</TD>
+    <TD class=kbtd align=left><CODE>dropbox.own</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>檢視課程中全部投遞箱的權利</TD>
+    <TD class=kbtd align=left><CODE>dropbox.maintain</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A 
+      name=s-gradebook></A><STRONG>成績冊&nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>僅檢視您自己的分數和成績</TD>
+    <TD class=kbtd align=left><CODE>gradebook.access</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立／編輯成績冊</TD>
+    <TD class=kbtd align=left><CODE>gradebook.maintain</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>編輯成績冊中的作業</TD>
+    <TD class=kbtd align=left><CODE>gradebook.editAssignments</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>為成績冊中的任何項目打分</TD>
+    <TD class=kbtd align=left><CODE>gradebook.gradeAll</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>為班別打分</TD>
+    <TD class=kbtd align=left><CODE>gradebook.gradeSection</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>檢視您的成績</TD>
+    <TD class=kbtd align=left><CODE>gradebook.viewOwnGrades</CODE></TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A 
+      name=s-email></A><STRONG>電子郵件存檔&nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除任何電子郵件</TD>
+    <TD class=kbtd align=left><CODE>mail.delete.any</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>僅刪除您自己的電子郵件</TD>
+    <TD class=kbtd align=left><CODE>mail.delete.own</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立新電子郵件</TD>
+    <TD class=kbtd align=left><CODE>mail.new</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀電子郵件</TD>
+    <TD class=kbtd align=left><CODE>mail.read</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>修改任何電子郵件</TD>
+    <TD class=kbtd align=left><CODE>mail.revise.any</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>僅修改您自己的電子郵件</TD>
+    <TD class=kbtd align=left><CODE>mail.revise.own</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A 
+      name=s-news></A><STRONG>新聞&nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除任何新聞項目</TD>
+    <TD class=kbtd align=left><CODE>news.delete.any</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>僅刪除您自己的新聞項目</TD>
+    <TD class=kbtd align=left><CODE>news.delete.own</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立新的新聞項目</TD>
+    <TD class=kbtd align=left><CODE>news.new</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀新聞項目</TD>
+    <TD class=kbtd align=left><CODE>news.read</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>修改任何新聞項目</TD>
+    <TD class=kbtd align=left><CODE>news.revise.any</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>僅修改您自己的新聞項目</TD>
+    <TD class=kbtd align=left><CODE>news.revise.own</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A name=s-prefs></A><STRONG>喜好 
+      &nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>新增喜好</TD>
+    <TD class=kbtd align=left><CODE>prefs.add</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除喜好</TD>
+    <TD class=kbtd align=left><CODE>prefs.del</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>更新喜好</TD>
+    <TD class=kbtd align=left><CODE>prefs.upd</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A name=s-profile></A><STRONG>個人資料 
+      &nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀個人資料</TD>
+    <TD class=kbtd align=left><CODE>profile.read</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>更新個人資料</TD>
+    <TD class=kbtd align=left><CODE>profile.update</CODE> </TD>
+    <TD class=kbtd align=middle> &lt;</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A name=s-realms></A><STRONG>領域 
+      &nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>新增領域</TD>
+    <TD class=kbtd align=left><CODE>realm.add</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除領域</TD>
+    <TD class=kbtd align=left><CODE>realm.del</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>更新領域</TD>
+    <TD class=kbtd align=left><CODE>realm.upd</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>僅更新您自己的領域</TD>
+    <TD class=kbtd align=left><CODE>realm.upd.own</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=7><A name=s-section></A><STRONG>班別資訊 
+      &nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>擁有該班別講師的角色</TD>
+    <TD class=kbtd align=left><CODE>section.role.instructor</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>擁有該班別學生的角色</TD>
+    <TD class=kbtd align=left><CODE>section.role.student</CODE></TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>擁有該班別助教的角色</TD>
+    <TD class=kbtd align=left><CODE>section.role.ta</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A 
+      name=s-site></A><STRONG>網站資訊&nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>新增網站</TD>
+    <TD class=kbtd align=left><CODE>site.add</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除網站</TD>
+    <TD class=kbtd align=left><CODE>site.del</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>更新網站</TD>
+    <TD class=kbtd align=left><CODE>site.upd</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>檢視網站名冊</TD>
+    <TD class=kbtd align=left><CODE>site.viewRoster</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>從我的工作區檢視已公開的工作網站</TD>
+    <TD class=kbtd align=left><CODE>site.visit</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>從我的工作區檢視未公開的工作網站</TD>
+    <TD class=kbtd align=left><CODE>site.visit.unp</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A name=s-syllabus></A><STRONG>課程大綱 
+      &nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>新增課程大綱</TD>
+    <TD class=kbtd align=left><CODE>syllabus.add</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除課程大綱</TD>
+    <TD class=kbtd align=left><CODE>syllabus.delete</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀課程大綱</TD>
+    <TD class=kbtd align=left><CODE>syllabus.read</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>更新課程大綱</TD>
+    <TD class=kbtd align=left><CODE>syllabus.update</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立課程大綱項目</TD>
+    <TD class=kbtd align=left><CODE>syllabusItem.create</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>獲得課程大綱項目</TD>
+    <TD class=kbtd align=left><CODE>syllabusItem.get</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>儲存課程大綱項目</TD>
+    <TD class=kbtd align=left><CODE>syllabusItem.save</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=7><A name=s-tests></A><STRONG>測驗和小測 
+      &nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立評估</TD>
+    <TD class=kbtd align=left><CODE>assessment.createAssessment</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除任何評估</TD>
+    <TD class=kbtd align=left><CODE>assessment.deleteAssessment.any</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除您所建立的評估</TD>
+    <TD class=kbtd align=left><CODE>assessment.deleteAssessment.own</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>編輯任何評估</TD>
+    <TD class=kbtd align=left><CODE>assessment.editAssessment.any</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>編輯您所建立的評估</TD>
+    <TD class=kbtd align=left><CODE>assessment.editAssessment.own</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>為任何評估打分</TD>
+    <TD class=kbtd align=left><CODE>assessment.gradeAssessment.any</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>為您所建立的評估打分</TD>
+    <TD class=kbtd align=left><CODE>assesssment.gradeAssessment.own</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>公開任何評估</TD>
+    <TD class=kbtd align=left><CODE>assessment.publishAssessment.any</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>公開您所建立的評估</TD>
+    <TD class=kbtd align=left><CODE>assessment.publishAssessment.own</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>複製您所建立的題目集區</TD>
+    <TD class=kbtd align=left><CODE>assessment.questionpool.copy.own</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立題目集區</TD>
+    <TD class=kbtd align=left><CODE>assessment.questionpool.create</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除您所建立的題目集區</TD>
+    <TD class=kbtd 
+    align=left><CODE>assessment.questionpool.delete.own</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>編輯您所建立的題目集區</TD>
+    <TD class=kbtd align=left><CODE>assessment.questionpool.edit.own</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>提交評估以便打分</TD>
+    <TD class=kbtd 
+    align=left><CODE>assessment.submitAssessmentForGrade</CODE></TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>獲得評估</TD>
+    <TD class=kbtd align=left><CODE>assessment.takeAssessment</CODE></TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立評估範本</TD>
+    <TD class=kbtd align=left><CODE>assessment.template.create</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除您所建立的範本</TD>
+    <TD class=kbtd align=left><CODE>assessment.template.delete.own</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>編輯您所建立的範本</TD>
+    <TD class=kbtd align=left><CODE>assessment.template.edit.own</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A name=s-user></A><STRONG>使用者/我的工作區 
+      &nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>新增使用者</TD>
+    <TD class=kbtd align=left><CODE>user.add</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除使用者</TD>
+    <TD class=kbtd align=left><CODE>user.del</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>更新任何使用者</TD>
+    <TD class=kbtd align=left><CODE>user.upd.any</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>僅更新您自己的使用者</TD>
+    <TD class=kbtd align=left><CODE>user.upd.own</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR></TBODY></TABLE><BR><BR>
+<TABLE class=kbtable cellPadding=4>
+  <COLGROUP>
+  <COL>
+  <COL>
+  <COL>
+  <COL>
+  <TBODY>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4>
+      <H3>專案網站</H3></TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A name=sp-aliases></A><STRONG>別名 
+      &nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A> </STRONG></TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>新增別名</TD>
+    <TD class=kbtd align=left><CODE>alias.add</CODE> </TD>
+    <TD class=kbtd align=left>Â&nbsp;</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除別名</TD>
+    <TD class=kbtd align=left><CODE>alias.del</CODE> </TD>
+    <TD class=kbtd align=left>Â&nbsp;</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>更改/更新別名</TD>
+    <TD class=kbtd align=left><CODE>alias.upd</CODE> </TD>
+    <TD class=kbtd align=left>Â&nbsp;</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A 
+      name=sp-announcements></A><STRONG>通告&nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除任何通告</TD>
+    <TD class=kbtd align=left><CODE>annc.delete.any</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>僅刪除您自己的通告</TD>
+    <TD class=kbtd align=left><CODE>annc.delete.own</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立新通告</TD>
+    <TD class=kbtd align=left><CODE>annc.new</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀通告</TD>
+    <TD class=kbtd align=left><CODE>annc.read</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀草稿通告</TD>
+    <TD class=kbtd align=left><CODE>annc.read.drafts</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>修改任何通告</TD>
+    <TD class=kbtd align=left><CODE>annc.revise.any</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>僅修改您自己的通告</TD>
+    <TD class=kbtd align=left><CODE>annc.revise.own</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A 
+      name=sp-assignments></A><STRONG>作業&nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除作業</TD>
+    <TD class=kbtd align=left><CODE>asn.delete</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>為作業打分</TD>
+    <TD class=kbtd align=left><CODE>asn.grade</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立新作業</TD>
+    <TD class=kbtd align=left><CODE>asn.new</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀作業</TD>
+    <TD class=kbtd align=left><CODE>asn.read</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>修改作業</TD>
+    <TD class=kbtd align=left><CODE>asn.revise</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>提交作業</TD>
+    <TD class=kbtd align=left><CODE>asn.submit</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A 
+      name=sp-calendar></A><STRONG>日程表&nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除行事曆條目</TD>
+    <TD class=kbtd align=left><CODE>calendar.delete</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>匯入行事曆條目</TD>
+    <TD class=kbtd align=left><CODE>calendar.import</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立新行事曆條目</TD>
+    <TD class=kbtd align=left><CODE>calendar.new</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀行事曆條目</TD>
+    <TD class=kbtd align=left><CODE>calendar.read</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>修改行事曆條目</TD>
+    <TD class=kbtd align=left><CODE>calendar.revise</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A 
+      name=sp-chat></A><STRONG>聊天&nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除任何聊天條目</TD>
+    <TD class=kbtd align=left><CODE>chat.delete.any</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>僅刪除您自己的聊天條目</TD>
+    <TD class=kbtd align=left><CODE>chat.delete.own</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>發佈新的聊天條目</TD>
+    <TD class=kbtd align=left><CODE>chat.new</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀聊天條目</TD>
+    <TD class=kbtd align=left><CODE>chat.read</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>修改任何聊天條目</TD>
+    <TD class=kbtd align=left><CODE>chat.revise.any</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>僅修改您自己的聊天條目</TD>
+    <TD class=kbtd align=left><CODE>chat.revise.own</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A 
+      name=sp-content></A><STRONG>內容/資源&nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除內容</TD>
+    <TD class=kbtd align=left><CODE>content.delete</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立新內容</TD>
+    <TD class=kbtd align=left><CODE>content.new</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀內容</TD>
+    <TD class=kbtd align=left><CODE>content.read</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>修改內容</TD>
+    <TD class=kbtd align=left><CODE>content.revise</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A 
+      name=sp-crud></A><STRONG>Crud&nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀 crud 內容</TD>
+    <TD class=kbtd align=left><CODE>crud.create</CODE> </TD>
+    <TD class=kbtd align=left>Â&nbsp;</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除 crud 內容</TD>
+    <TD class=kbtd align=left><CODE>crud.delete</CODE> </TD>
+    <TD class=kbtd align=left>Â&nbsp;</TD>
+    <TD class=kbtd align=left>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀 crud 內容</TD>
+    <TD class=kbtd align=left><CODE>crud.read</CODE> </TD>
+    <TD class=kbtd align=left>Â&nbsp;</TD>
+    <TD class=kbtd align=left>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>更新 crud 內容</TD>
+    <TD class=kbtd align=left><CODE>crud.update</CODE> </TD>
+    <TD class=kbtd align=left>Â&nbsp;</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A 
+      name=sp-discussion></A><STRONG>討論&nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除任何討論項目（主題/類別）</TD>
+    <TD class=kbtd align=left><CODE>disc.delete.any</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>僅刪除您自己的討論項目 </TD>
+    <TD class=kbtd align=left><CODE>disc.delete.own</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立新的討論項目</TD>
+    <TD class=kbtd align=left><CODE>disc.new</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立新的討論主題</TD>
+    <TD class=kbtd align=left><CODE>disc.new.topic</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀討論項目</TD>
+    <TD class=kbtd align=left><CODE>disc.read</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀草稿討論項目</TD>
+    <TD class=kbtd align=left><CODE>disc.read.drafts</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>修改任何討論項目</TD>
+    <TD class=kbtd align=left><CODE>disc.revise.any</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>僅修改您自己的討論項目</TD>
+    <TD class=kbtd align=left><CODE>disc.revise.own</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A 
+      name=sp-dropbox></A><STRONG>投遞箱&nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立使用者帳戶時，是否為使用者自動建立投遞箱</TD>
+    <TD class=kbtd align=left><CODE>dropbox.own</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=left>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>檢視課程中全部投遞箱的權利</TD>
+    <TD class=kbtd align=left><CODE>dropbox.maintain</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=7><A 
+      name=sp-gradebook></A><STRONG>成績冊&nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>僅檢視您自己的分數和成績</TD>
+    <TD class=kbtd align=left><CODE>gradebook.access</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立／編輯成績冊</TD>
+    <TD class=kbtd align=left><CODE>gradebook.maintain</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>編輯成績冊中的作業</TD>
+    <TD class=kbtd align=left><CODE>gradebook.editAssignments</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>為成績冊中的任何項目打分</TD>
+    <TD class=kbtd align=left><CODE>gradebook.gradeAll</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>為班別打分</TD>
+    <TD class=kbtd align=left><CODE>gradebook.gradeSection</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>檢視您的成績</TD>
+    <TD class=kbtd align=left><CODE>gradebook.viewOwnGrades</CODE></TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A 
+      name=sp-email></A><STRONG>電子郵件存檔&nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除任何電子郵件</TD>
+    <TD class=kbtd align=left><CODE>mail.delete.any</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>僅刪除您自己的電子郵件</TD>
+    <TD class=kbtd align=left><CODE>mail.delete.own</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立新電子郵件</TD>
+    <TD class=kbtd align=left><CODE>mail.new</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀電子郵件</TD>
+    <TD class=kbtd align=left><CODE>mail.read</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>修改任何電子郵件</TD>
+    <TD class=kbtd align=left><CODE>mail.revise.any</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>僅修改您自己的電子郵件</TD>
+    <TD class=kbtd align=left><CODE>mail.revise.own</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A name=sp-news></A><STRONG>新聞 
+      &nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除任何新聞項目</TD>
+    <TD class=kbtd align=left><CODE>news.delete.any</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>僅刪除您自己的新聞項目</TD>
+    <TD class=kbtd align=left><CODE>news.delete.own</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立新的新聞項目</TD>
+    <TD class=kbtd align=left><CODE>news.new</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀新聞項目</TD>
+    <TD class=kbtd align=left><CODE>news.read</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>修改任何新聞項目</TD>
+    <TD class=kbtd align=left><CODE>news.revise.any</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>僅修改您自己的新聞項目</TD>
+    <TD class=kbtd align=left><CODE>news.revise.own</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A name=sp-prefs></A><STRONG>喜好 
+      &nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>新增喜好</TD>
+    <TD class=kbtd align=left><CODE>prefs.add</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除喜好</TD>
+    <TD class=kbtd align=left><CODE>prefs.del</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>更新喜好</TD>
+    <TD class=kbtd align=left><CODE>prefs.upd</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A name=sp-profile></A><STRONG>個人資料 
+      &nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀個人資料</TD>
+    <TD class=kbtd align=left><CODE>profile.read</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>更新個人資料</TD>
+    <TD class=kbtd align=left><CODE>profile.update</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A name=sp-realms></A><STRONG>領域 
+      &nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>新增領域</TD>
+    <TD class=kbtd align=left><CODE>realm.add</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除領域</TD>
+    <TD class=kbtd align=left><CODE>realm.del</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>更新領域</TD>
+    <TD class=kbtd align=left><CODE>realm.upd</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>僅更新您自己的領域</TD>
+    <TD class=kbtd align=left><CODE>realm.upd.own</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=7><A name=sp-section></A><STRONG>班別資訊 
+      &nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>擁有該班別講師的角色</TD>
+    <TD class=kbtd align=left><CODE>section.role.instructor</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>擁有該班別學生的角色</TD>
+    <TD class=kbtd align=left><CODE>section.role.student</CODE></TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>擁有該班別助教的角色</TD>
+    <TD class=kbtd align=left><CODE>section.role.ta</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A 
+      name=sp-site></A><STRONG>網站資訊&nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>新增網站</TD>
+    <TD class=kbtd align=left><CODE>site.add</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除網站</TD>
+    <TD class=kbtd align=left><CODE>site.del</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>更新網站</TD>
+    <TD class=kbtd align=left><CODE>site.upd</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>檢視網站名冊</TD>
+    <TD class=kbtd align=left><CODE>site.viewRoster</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>從我的工作區檢視已公開的工作網站</TD>
+    <TD class=kbtd align=left><CODE>site.visit</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>從我的工作區檢視未公開的工作網站</TD>
+    <TD class=kbtd align=left><CODE>site.visit.unp</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A name=sp-syllabus></A><STRONG>課程大綱 
+      &nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>新增課程大綱</TD>
+    <TD class=kbtd align=left><CODE>syllabus.add</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除課程大綱</TD>
+    <TD class=kbtd align=left><CODE>syllabus.delete</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>閱讀課程大綱</TD>
+    <TD class=kbtd align=left><CODE>syllabus.read</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>更新課程大綱</TD>
+    <TD class=kbtd align=left><CODE>syllabus.update</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立課程大綱項目</TD>
+    <TD class=kbtd align=left><CODE>syllabusItem.create</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>獲得課程大綱項目</TD>
+    <TD class=kbtd align=left><CODE>syllabusItem.get</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>儲存課程大綱項目</TD>
+    <TD class=kbtd align=left><CODE>syllabusItem.save</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=7><A name=sp-tests></A><STRONG>測驗和小測 
+      &nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立評估</TD>
+    <TD class=kbtd align=left><CODE>assessment.createAssessment</CODE> </TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除任何評估</TD>
+    <TD class=kbtd align=left><CODE>assessment.deleteAssessment.any</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除您所建立的評估</TD>
+    <TD class=kbtd align=left><CODE>assessment.deleteAssessment.own</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>編輯任何評估</TD>
+    <TD class=kbtd align=left><CODE>assessment.editAssessment.any</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>編輯您所建立的評估</TD>
+    <TD class=kbtd align=left><CODE>assessment.editAssessment.own</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>為任何評估打分</TD>
+    <TD class=kbtd align=left><CODE>assessment.gradeAssessment.any</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>為您所建立的評估打分</TD>
+    <TD class=kbtd align=left><CODE>assesssment.gradeAssessment.own</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>公開任何評估</TD>
+    <TD class=kbtd align=left><CODE>assessment.publishAssessment.any</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>公開您所建立的評估</TD>
+    <TD class=kbtd align=left><CODE>assessment.publishAssessment.own</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>複製您所建立的題目集區</TD>
+    <TD class=kbtd align=left><CODE>assessment.questionpool.copy.own</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立題目集區</TD>
+    <TD class=kbtd align=left><CODE>assessment.questionpool.create</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除您所建立的題目集區</TD>
+    <TD class=kbtd 
+    align=left><CODE>assessment.questionpool.delete.own</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>編輯您所建立的題目集區</TD>
+    <TD class=kbtd align=left><CODE>assessment.questionpool.edit.own</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>提交評估以便打分</TD>
+    <TD class=kbtd 
+    align=left><CODE>assessment.submitAssessmentForGrade</CODE></TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>獲得評估</TD>
+    <TD class=kbtd align=left><CODE>assessment.takeAssessment</CODE></TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD>
+    <TD class=kbtd align=middle>X</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>建立評估範本</TD>
+    <TD class=kbtd align=left><CODE>assessment.template.create</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除您所建立的範本</TD>
+    <TD class=kbtd align=left><CODE>assessment.template.delete.own</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp;</TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>編輯您所建立的範本</TD>
+    <TD class=kbtd align=left><CODE>assessment.template.edit.own</CODE></TD>
+    <TD class=kbtd align=middle>X</TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=middle colSpan=4><A 
+      name=sp-user></A><STRONG>使用者/我的工作區 &nbsp;&nbsp;&nbsp;&nbsp;<A 
+      href="#top">返回頂部</A></STRONG> </TD></TR>
+  <TR vAlign=top>
+    <TH class=kbtd align=left>工具／使用</TH>
+    <TH class=kbtd align=left>權限</TH>
+    <TH class=kbtd align=left>維護 </TH>
+    <TH class=kbtd align=left>存取 </TH></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>新增使用者</TD>
+    <TD class=kbtd align=left><CODE>user.add</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>刪除使用者</TD>
+    <TD class=kbtd align=left><CODE>user.del</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>更新任何使用者</TD>
+    <TD class=kbtd align=left><CODE>user.upd.any</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD></TR>
+  <TR vAlign=top>
+    <TD class=kbtd align=left>僅更新您自己的使用者</TD>
+    <TD class=kbtd align=left><CODE>user.upd.own</CODE> </TD>
+    <TD class=kbtd align=middle>Â&nbsp; </TD>
+    <TD class=kbtd align=middle>Â&nbsp; 
+</TD></TR></TBODY></TABLE></DIV></BODY></HTML>

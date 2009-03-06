@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="permissionsOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arax_zh_TW</value></property>
+      <property name="name"><value>權限和角色：概述</value></property>
+      <property name="location"><value>/sakai_permissions/arax_zh_TW.html</value></property>
+      <property name="defaultForTool"><value>sakai.permissions</value></property>      
+   </bean>
+   
+   <bean id="siteInfoChangeRoles" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arfb_zh_TW</value></property>
+      <property name="name"><value>更改參與者角色</value></property>
+      <property name="location"><value>/sakai_permissions/arfb_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="worksiteSetupChangeRoles" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardq_zh_TW</value></property>
+      <property name="name"><value>從工作網站設定更改參與者角色</value></property>
+      <property name="location"><value>/sakai_permissions/ardq_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="participantRoles" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbu_zh_TW</value></property>
+      <property name="name"><value>參與者角色</value></property>
+      <property name="location"><value>/sakai_permissions/arbu_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="permissionsRolesTools" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>armh_zh_TW</value></property>
+      <property name="name"><value>權限、角色和工具</value></property>
+      <property name="location"><value>/sakai_permissions/armh_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="worksiteSetupAddParticipants" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqyo_zh_TW</value></property>
+      <property name="name"><value>在工作網站設定中新增、編輯或刪除參與者</value></property>
+      <property name="location"><value>/sakai_permissions/aqyo_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="addParticipants" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arav_zh_TW</value></property>
+      <property name="name"><value>新增、編輯或刪除參與者</value></property>
+      <property name="location"><value>/sakai_permissions/arav_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="siteInfoControlAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arci_zh_TW</value></property>
+      <property name="name"><value>控制網站存取</value></property>
+      <property name="location"><value>/sakai_permissions/arci_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="createWorksites" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzr_zh_TW</value></property>
+      <property name="name"><value>新建/新增、編輯或刪除工作網站</value></property>
+      <property name="location"><value>/sakai_permissions/aqzr_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="worksiteSetupControlAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzw_zh_TW</value></property>
+      <property name="name"><value>從工作網站設定控制存取</value></property>
+      <property name="location"><value>/sakai_permissions/aqzw_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="changePermissions" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardk_zh_TW</value></property>
+      <property name="name"><value>更改工具的權限</value></property>
+      <property name="location"><value>/sakai_permissions/ardk_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="permissionsRelationships" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbp_zh_TW</value></property>
+      <property name="name"><value>類型、領域、角色和權限的關係</value></property>
+      <property name="location"><value>/sakai_permissions/arbp_zh_TW.html</value></property>
+   </bean>
+         
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="permissionsCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>權限和角色</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="permissionsOverview"/>
+                     <ref bean="siteInfoChangeRoles"/>
+                     <ref bean="worksiteSetupChangeRoles"/>
+					 <ref bean="participantRoles"/>
+					 <ref bean="permissionsRolesTools"/>
+					 <ref bean="worksiteSetupAddParticipants"/>
+					 <ref bean="addParticipants"/>
+					 <ref bean="siteInfoControlAccess"/>
+					 <ref bean="createWorksites"/>
+					 <ref bean="worksiteSetupControlAccess"/>
+					 <ref bean="changePermissions"/>
+					 <ref bean="permissionsRelationships"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
