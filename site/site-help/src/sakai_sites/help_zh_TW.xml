@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="sitesToolOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardy_zh_TW</value></property>
+      <property name="name"><value>網站工具：概述</value></property>
+      <property name="location"><value>/sakai_sites/ardy_zh_TW.html</value></property>
+      <property name="defaultForTool"><value>sakai.sites.tool</value></property>
+   </bean>
+   
+   <bean id="addSite" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzp_zh_TW</value></property>
+      <property name="name"><value>新增、編輯或刪除網站</value></property>
+      <property name="location"><value>/sakai_sites/aqzp_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="addPages" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzi_zh_TW</value></property>
+      <property name="name"><value>新增、編輯或刪除網站頁面</value></property>
+      <property name="location"><value>/sakai_sites/aqzi_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="addTools" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzf_zh_TW</value></property>
+      <property name="name"><value>新增、編輯或刪除網站工具</value></property>
+      <property name="location"><value>/sakai_sites/aqzf_zh_TW.html</value></property>
+   </bean>
+   
+   
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="sitesToolCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>網站</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="sitesToolOverview"/>
+					 <ref bean="addSite"/>
+					 <ref bean="addPages"/>
+					 <ref bean="addTools"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
