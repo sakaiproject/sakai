@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="syllabusOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arch_zh_TW</value></property>
+      <property name="name"><value>課程大綱：概述</value></property>
+      <property name="location"><value>/sakai_syllabus/arch_zh_TW.html</value></property>
+      <property name="defaultForTool"><value>sakai.syllabus</value></property>
+   </bean>
+   
+   <bean id="createSyllabusItem" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbh_zh_TW</value></property>
+      <property name="name"><value>建立／新增／編輯／刪除課程大綱項目</value></property>
+      <property name="location"><value>/sakai_syllabus/arbh_zh_TW.html</value></property>
+      <property name="defaultForTool"><value>sakai.syllabus</value></property>
+   </bean>
+   
+   <bean id="displayWebpage" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arco_zh_TW</value></property>
+      <property name="name"><value>顯示課程大網的網頁</value></property>
+      <property name="location"><value>/sakai_syllabus/arco_zh_TW.html</value></property>
+      <property name="defaultForTool"><value>sakai.syllabus</value></property>
+   </bean>
+   
+   <bean id="createSyllabus" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbf_zh_TW</value></property>
+      <property name="name"><value>建立課程大綱</value></property>
+      <property name="location"><value>/sakai_syllabus/arbf_zh_TW.html</value></property>
+      <property name="defaultForTool"><value>sakai.syllabus</value></property>
+   </bean>
+   
+   <bean id="changeSequence" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqza_zh_TW</value></property>
+      <property name="name"><value>更改課程大綱項目的順序</value></property>
+      <property name="location"><value>/sakai_syllabus/aqza_zh_TW.html</value></property>
+      <property name="defaultForTool"><value>sakai.syllabus</value></property>
+   </bean>
+   
+   <bean id="readSyllabus" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>areq_zh_TW</value></property>
+      <property name="name"><value>閱讀課程大綱</value></property>
+      <property name="location"><value>/sakai_syllabus/areq_zh_TW.html</value></property>
+      <property name="defaultForTool"><value>sakai.syllabus</value></property>
+   </bean>
+   
+   
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="syllabusCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>課程大綱</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="syllabusOverview"/>
+					<ref bean="createSyllabusItem"/>
+					<ref bean="displayWebpage"/>
+					<ref bean="createSyllabus"/>
+					<ref bean="changeSequence"/>
+					<ref bean="readSyllabus"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
