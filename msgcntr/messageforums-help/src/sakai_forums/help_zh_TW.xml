@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <bean id="mcOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>asax_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>論壇：概述</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/asax_zh_TW.html</value>
+        </property>
+		<property name="defaultForTool">
+			<value>sakai.forums</value>
+		</property>
+    </bean>
+    <bean id="mcCreateForumTopic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>asci_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>新建論壇和論壇中的主題</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/asci_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="mcCreateModeratedForum" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>avar_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>管制論壇中的訊息</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/avar_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="mcChangeOrder" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>ausz_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>更改論壇和主題的順序</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/ausz_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="mcPermissions" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>atdt_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>控制論壇存取</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/atdt_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="mcRevise" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>atdk_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>修改或刪除論壇或主題</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/atdk_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="mcDeleteMessage" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>auul_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>刪除論壇訊息</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/auul_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="mcView" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>asbe_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>檢視論壇</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/asbe_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="mcPost" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>asyy_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>發佈和回覆論壇訊息</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/asyy_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="mcGrade" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>augf_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>為論壇中的訊息打分</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/augf_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="mcStats" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>avai_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>參與統計</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/avai_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="mcNotification" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>auut_zh_TW</value>
+        </property>
+        <property name="name">
+		<value>訊息和論壇通知</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/auut_zh_TW.html</value>
+        </property>
+	<property name="defaultForTool">
+		<value>sakai.synoptic.messagecenter</value>
+	</property>
+    </bean>
+    
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+        <property name="name">
+            <value>root</value>
+        </property>
+        <property name="categories">
+            <list>
+                <bean id="forumsCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+                    <property name="name">
+                        <value>論壇</value>
+                    </property>
+                    <property name="resources">
+                        <list>
+                            <ref bean="mcOverview"/>
+                            <ref bean="mcCreateForumTopic"/>
+                            <ref bean="mcCreateModeratedForum"/>
+                            <ref bean="mcChangeOrder"/>
+                            <ref bean="mcPermissions"/>
+                            <ref bean="mcRevise"/>
+                            <ref bean="mcDeleteMessage"/>
+                            <ref bean="mcView"/>
+                            <ref bean="mcPost"/>
+                            <ref bean="mcGrade" />
+                            <ref bean="mcStats" />
+                            <ref bean="mcNotification" />
+                        </list>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+</beans>
