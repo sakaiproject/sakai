@@ -1,0 +1,82 @@
+﻿
+<HTML lang=zh-TW 
+version="-//W3C//DTD HTML 3.2//EN"><HEAD><BASE><TITLE>Wiki 工具</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=UTF-8"><LINK 
+href="/library/skin/tool_base.css" type=text/css rel=stylesheet><LINK 
+href="/library/skin/default/tool.css" type=text/css rel=stylesheet>
+<META content="MSHTML 6.00.6001.18183" name=GENERATOR></HEAD>
+<BODY>
+<DIV class=helpBody>
+<H2>設定權限</H2>
+<P>Wiki 
+有兩種權限層級，即網站層級和頁面層級。網站層級權限是全部頁面的預設權限設定。但是，可更改個別頁面的權限設定。例如，您可以對權限進行更改，使得每個人都可以編輯 
+wiki，但是其中一頁只能由維護者進行更改。 </P>
+<P>在 Wiki 內部有五種權限等級：</P>
+<UL type=disc>
+  <LI>Wiki 讀取（讀取頁面） 
+  <LI>Wiki 建立（建立新頁面；必須啟用該權限才能更新） 
+  <LI>Wiki 更新（編輯頁面） 
+  <LI>Wiki 管理員（更改網站權限） 
+  <LI>Wiki 超級管理員 </LI></UL>
+<P>記住，上述權限等級自上至下串聯，如果您不能讀取頁面，那麼就不能更改頁面，因此如果禁用「讀取」而啟用「更新」即毫無意義。如果啟用「建立」或「更新」，Wiki 
+將假設您同樣需要啟用「讀取」權限。 </P>
+<P>為了能夠更靈活地使用工具，Sakai 角色不會自動映射至 Wiki 角色。</P>
+<P>我們建議採用下列方法，將 Sakai 權限對應至 Wiki 權限。</P>
+<P><I>預設 - 將 Wiki 作為傳統的 wiki 工具使用 </I></P>
+<P>在這些權限設定下，全部使用者都能夠編輯 wiki。從而便於協同起草文件等操作。這是權限的預設設定。</P>
+<TABLE>
+  <TBODY>
+  <TR>
+    <TD>&nbsp;</TD>
+    <TH>讀取</TH>
+    <TH>建立</TH>
+    <TH>更新</TH>
+    <TH>管理員</TH>
+    <TH>超級管理員</TH></TR>
+  <TR>
+    <TH>存取</TH>
+    <TD>是 </TD>
+    <TD>是 </TD>
+    <TD>是 </TD>
+    <TD>&nbsp;</TD>
+    <TD>&nbsp; </TD></TR>
+  <TR>
+    <TH>維護 </TH>
+    <TD>是</TD>
+    <TD>是 </TD>
+    <TD>是 </TD>
+    <TD>是 </TD>
+    <TD>是 </TD></TR></TBODY></TABLE>
+<P><I>將 Wiki 作為簡單的內容管理系統使用</I></P>
+<P>在這些權限設定下，只有維護使用者才能編輯 wiki。存取使用者只能讀取頁面。從而將 Wiki 作為簡單的內容管理系統使用。</P>
+<TABLE>
+  <TBODY>
+  <TR>
+    <TD>&nbsp;</TD>
+    <TH>讀取</TH>
+    <TH>建立</TH>
+    <TH>更新</TH>
+    <TH>管理員</TH>
+    <TH>超級管理員</TH></TR>
+  <TR>
+    <TH>存取</TH>
+    <TD>是 </TD>
+    <TD>&nbsp;</TD>
+    <TD>&nbsp; </TD>
+    <TD>&nbsp;</TD>
+    <TD>&nbsp; </TD></TR>
+  <TR>
+    <TH>維護 </TH>
+    <TD>是</TD>
+    <TD>是 </TD>
+    <TD>是 </TD>
+    <TD>是 </TD>
+    <TD>是 </TD></TR></TBODY></TABLE>
+<H3>頁面層級權限</H3>
+<P>頁面層級權限僅套用於單獨的頁面。例如，您可以對權限進行更改，使得每個人都可以編輯 wiki，但是其中一頁只能由維護者進行更改。</P>
+<P>如需更改頁面層級權限，選擇「資訊」。選中或取消選中權限下方的核取方塊以更改權限設定。由於權限自上至下串聯，因此實際效果可能會與您的想像有所不同。例如，如果某角色啟用「更新」權限，那麼您將無法禁用該角色的「讀取」權限，因為您必須能夠讀取頁面才能對其進行更新。 
+</P>
+<P>「建立」權限不適用於頁面層級的權限，只能在網站層級權限中進行更改、 </P>
+<H3>網站層級權限</H3>
+<P>網站層級權限是全部頁面的預設權限設定。 </P>
+<P>如需更改網站層級權限，選擇「資訊」，然後選擇「編輯網站權限」。選中或取消選中核取方塊以開啟或關閉權限。 </P></DIV></BODY></HTML>

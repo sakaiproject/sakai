@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="wikiContent1" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>wiki_content1_zh_TW</value>
+    </property>
+    <property name="name">
+      <value>Wiki：概述</value>
+    </property>
+    <property name="location">
+      <value>/sakai_rwiki/overview_zh_TW.htm</value>
+    </property>
+    <property name="defaultForTool"><value>sakai.rwiki</value></property>
+
+  </bean>
+  <bean id="wikiContent2" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>wiki_content2_zh_TW</value>
+    </property>
+    <property name="name">
+      <value>檢視頁面</value>
+    </property>
+    <property name="location">
+      <value>/sakai_rwiki/viewing_pages_zh_TW.htm</value>
+    </property>
+  </bean>
+  <bean id="wikiContent3" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>wiki_content3_zh_TW</value>
+    </property>
+    <property name="name">
+      <value>編輯頁面</value>
+    </property>
+    <property name="location">
+      <value>/sakai_rwiki/editing_pages_zh_TW.htm</value>
+    </property>
+  </bean>
+  <bean id="wikiContent4" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>wiki_content4_zh_TW</value>
+    </property>
+    <property name="name">
+      <value>建立新 wiki 頁面</value>
+    </property>
+    <property name="location">
+      <value>/sakai_rwiki/creating_pages_zh_TW.htm</value>
+    </property>
+  </bean>
+  <bean id="wikiContent5" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>wiki_content5_zh_TW</value>
+    </property>
+    <property name="name">
+      <value>新增影像和附件</value>
+    </property>
+    <property name="location">
+      <value>/sakai_rwiki/adding_images_zh_TW.htm</value>
+    </property>
+  </bean>
+  <bean id="wikiContent6" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>wiki_content6_zh_TW</value>
+    </property>
+    <property name="name">
+      <value>檢視頁面資訊</value>
+    </property>
+    <property name="location">
+      <value>/sakai_rwiki/viewing_info_zh_TW.htm</value>
+    </property>
+  </bean>
+  <bean id="wikiContent7" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>wiki_content7_zh_TW</value>
+    </property>
+    <property name="name">
+      <value>檢視頁面記錄</value>
+    </property>
+    <property name="location">
+      <value>/sakai_rwiki/viewing_history_zh_TW.htm</value>
+    </property>
+  </bean>
+  <bean id="wikiContent8" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>wiki_content8_zh_TW</value>
+    </property>
+    <property name="name">
+      <value>設定權限</value>
+    </property>
+    <property name="location">
+      <value>/sakai_rwiki/setting_permissions_zh_TW.htm</value>
+    </property>
+  </bean>
+  <bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+    <property name="name">
+      <value>root</value>
+    </property>
+    <property name="categories">
+      <list>
+        <bean id="wiki1" class="org.sakaiproject.component.app.help.model.CategoryBean">
+          <property name="name">
+            <value>Wiki</value>
+          </property>
+          <property name="resources">
+            <list>
+              <ref bean="wikiContent1"/>
+              <ref bean="wikiContent2"/>
+              <ref bean="wikiContent3"/>
+              <ref bean="wikiContent4"/>
+              <ref bean="wikiContent5"/>
+              <ref bean="wikiContent6"/>
+              <ref bean="wikiContent7"/>
+              <ref bean="wikiContent8"/>
+            </list>
+          </property>
+        </bean>
+      </list>
+    </property>
+  </bean>
+</beans>
