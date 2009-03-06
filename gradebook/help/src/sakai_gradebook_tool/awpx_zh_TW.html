@@ -1,0 +1,255 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3c.org/TR/1999/REC-html401-19991224/loose.dtd">
+<HTML lang=zh-TW><HEAD><BASE>
+<META http-equiv=Content-Type content="text/html; charset=utf-8"><TITLE>類別和權重如何影響成績冊中的成績計算</TITLE>
+<STYLE type=text/css>
+		/* Style for specific inline images */
+		div.image{display: inline;}div.image{display: inline;}div.image{display: inline;}div.image{display: inline;}
+		/* Style for specific ordered lists */
+		
+		/* Style for specific table cells */
+		</STYLE>
+<LINK media=all href="/library/skin/tool_base.css" type=text/css 
+rel=stylesheet><LINK media=all href="/library/skin/default/tool.css" 
+type=text/css rel=stylesheet>
+<META content="text/html; charset=UTF-8" name=GENERATOR></HEAD>
+<BODY>
+<DIV class=helpBody>
+<H2>類別和權重如何影響成績冊中的成績計算</H2>
+<P>根據您設定成績冊方法的不同，成績冊計算課程成績的方式也有所不同。如需瞭解關於設定成績冊的更多資訊，請參考<A 
+href="content.hlp?docId=avdp_zh_TW">使用成績冊中的類別和權重成績</A>。下列示例將幫助您瞭解<STRONG><CODE>成績冊設定</CODE></STRONG>中的不同選擇將如何對計算學生課程成績的方法產生影響。</P><A 
+name=top></A>
+<P>在本頁中，您將瞭解：</P>
+<UL>
+  <LI><A href="#percent">以百分比顯示成績，無類別和權重</A> 
+  <LI><A href="#percentweight">以百分比顯示成績，帶權重類別</A> 
+  <LI><A href="#pointweight">以分數值顯示成績，帶權重類別</A> 
+  <LI><A href="#point">以分數值顯示成績，帶簡單類別，無權重</A> </LI></UL>
+<HR>
+<A name=percent></A>
+<H3>以百分比顯示成績，無類別和權重</H3>
+<P>在本例中，講師已經設定成績冊無類別和權重，並且選擇以百分比方式錄入成績。</P>
+<DIV class="inlineimage image"><IMG class=noborder alt=成績冊表格 
+src="image/a013n.gif"></DIV>
+<P>課程成績計算如下：</P>
+<TABLE class=noborder cellPadding=4>
+  <COLGROUP>
+  <COL>
+  <COL>
+  <COL>
+  <COL>
+  <TBODY>
+  <TR vAlign=top>
+    <TH class=noborder align=left>標題</TH>
+    <TH class=noborder align=left>成績(%)</TH>
+    <TH class=noborder align=left>項目值</TH>
+    <TH class=noborder align=left>分數值成績</TH></TR>
+  <TR vAlign=top>
+    <TD class=noborder align=left>短文</TD>
+    <TD class=noborder align=left>90</TD>
+    <TD class=noborder align=left>45</TD>
+    <TD class=noborder align=left>40.5（45 分的 90%）</TD></TR>
+  <TR vAlign=top>
+    <TD class=noborder align=left>實驗室</TD>
+    <TD class=noborder align=left>80</TD>
+    <TD class=noborder align=left>45</TD>
+    <TD class=noborder align=left>36（45 分的 80%） </TD></TR></TBODY></TABLE>
+<P><STRONG>總計：</STRONG> 90 分</P>
+<P><STRONG>課程成績：</STRONG> 85% [(40.5+36)/90 * 100)]</P><A href="#top">返回頂部</A> 
+<A name=percentweight></A>
+<H3>以分數值顯示成績，帶權重類別</H3>
+<P>在本例中，講師已經設定成績冊帶權重類別，並且選擇以百分比方式錄入成績。</P>
+<DIV class="inlineimage image"><IMG class=noborder alt=成績冊表格 
+src="image/a013o.gif"></DIV>
+<P>課程成績計算如下：</P>
+<H4>類別短文（70% 權重）</H4>
+<TABLE class=noborder cellPadding=4>
+  <COLGROUP>
+  <COL>
+  <COL>
+  <COL>
+  <COL>
+  <COL>
+  <TBODY>
+  <TR vAlign=top>
+    <TH class=noborder align=left>標題</TH>
+    <TH class=noborder align=left>成績 (%)</TH>
+    <TH class=noborder align=left>項目值</TH>
+    <TH class=noborder align=left>類別權重</TH>
+    <TH class=noborder align=left>權重成績 (%)</TH></TR>
+  <TR vAlign=top>
+    <TD class=noborder align=left>短文一</TD>
+    <TD class=noborder align=left>50</TD>
+    <TD class=noborder align=left>50</TD>
+    <TD class=noborder align=left>0.50 [50/(50+30+20)]</TD>
+    <TD class=noborder align=left>25 (50*.50) </TD></TR>
+  <TR vAlign=top>
+    <TD class=noborder align=left>短文二</TD>
+    <TD class=noborder align=left>50</TD>
+    <TD class=noborder align=left>30</TD>
+    <TD class=noborder align=left>0.30 [30/(50+30+20)]</TD>
+    <TD class=noborder align=left>15 (50*.30) </TD></TR>
+  <TR vAlign=top>
+    <TD class=noborder align=left>短文三</TD>
+    <TD class=noborder align=left>50</TD>
+    <TD class=noborder align=left>20</TD>
+    <TD class=noborder align=left>0.20 [20/(50+30+20)]</TD>
+    <TD class=noborder align=left>10 (50*.20) </TD></TR></TBODY></TABLE>
+<P><STRONG>總計﹙短文﹚：</STRONG> 50% (25+15+10)</P>
+<H4>類別實驗（30% 權重）</H4>
+<TABLE class=noborder cellPadding=4>
+  <COLGROUP>
+  <COL>
+  <COL>
+  <COL>
+  <COL>
+  <COL>
+  <TBODY>
+  <TR vAlign=top>
+    <TH class=noborder align=left>標題</TH>
+    <TH class=noborder align=left>成績(%)</TH>
+    <TH class=noborder align=left>項目值</TH>
+    <TH class=noborder align=left>類別權重</TH>
+    <TH class=noborder align=left>權重成績(%) </TH></TR>
+  <TR vAlign=top>
+    <TD class=noborder align=left>實驗一</TD>
+    <TD class=noborder align=left>100</TD>
+    <TD class=noborder align=left>50</TD>
+    <TD class=noborder align=left>0.50 (50/(50+50))</TD>
+    <TD class=noborder align=left>50 (100*.50) </TD></TR>
+  <TR vAlign=top>
+    <TD class=noborder align=left>實驗二</TD>
+    <TD class=noborder align=left>100</TD>
+    <TD class=noborder align=left>50</TD>
+    <TD class=noborder align=left>0.50 (50/(50+50))</TD>
+    <TD class=noborder align=left>50 (100*.50) </TD></TR></TBODY></TABLE>
+<P><STRONG>總計﹙實驗﹚</STRONG> 100% (50+50) </P>
+<P><STRONG>課程總成績﹙短文和實驗﹚：</STRONG> 65%</P>
+<TABLE class=noborder cellPadding=4>
+  <COLGROUP>
+  <COL>
+  <COL>
+  <TBODY>
+  <TR vAlign=top>
+    <TD class=noborder align=left>短文</TD>
+    <TD class=noborder align=left>35% (70%*50%)</TD></TR>
+  <TR vAlign=top>
+    <TD class=noborder align=left>實驗</TD>
+    <TD class=noborder align=left>30% (30%*100%)</TD></TR>
+  <TR vAlign=top>
+    <TD class=noborder align=left>總計</TD>
+    <TD class=noborder align=left>65% (35%+30%)</TD></TR></TBODY></TABLE><A 
+href="#top">返回頂部</A> <A name=pointweight></A>
+<H3>以百分比顯示成績，帶權重類別</H3>
+<P>在本例中，講師已經設定成績冊帶類別和權重，並且選擇以分值方式錄入成績。</P>
+<DIV class="inlineimage image"><IMG class=noborder alt=成績冊表格 
+src="image/a013m.gif"></DIV>
+<P>課程成績計算如下：</P>
+<H4>類別短文（70% 權重）</H4>
+<P>請注意，在短文類別的項目有不同的分數值（按比例權重） 。項目具有較高分數值對成績有較大的影響（例如， 50分的文章比20分的文章有較大的權重） 。</P>
+<TABLE class=noborder cellPadding=4>
+  <COLGROUP>
+  <COL>
+  <COL>
+  <COL>
+  <TBODY>
+  <TR vAlign=top>
+    <TH class=noborder align=left>標題</TH>
+    <TH class=noborder align=left>成績(分數)</TH>
+    <TH class=noborder align=left>項目值</TH></TR>
+  <TR vAlign=top>
+    <TD class=noborder align=left>短文一</TD>
+    <TD class=noborder align=left>45</TD>
+    <TD class=noborder align=left>50</TD></TR>
+  <TR vAlign=top>
+    <TD class=noborder align=left>短文二</TD>
+    <TD class=noborder align=left>18</TD>
+    <TD class=noborder align=left>30</TD></TR>
+  <TR vAlign=top>
+    <TD class=noborder align=left>短文三</TD>
+    <TD class=noborder align=left>15</TD>
+    <TD class=noborder align=left>20</TD></TR>
+  <TR vAlign=top>
+    <TH class=noborder align=left>總計</TH>
+    <TH class=noborder align=left>78</TH>
+    <TH class=noborder align=left>100</TH></TR></TBODY></TABLE>
+<P><STRONG>總計（短文）：</STRONG> 100% (78/100)*100</P>
+<H4>類別實驗（30% 權重）</H4>
+<P>所有項目在實驗類別都有同樣的分數值（平等權重）和平等成績影響力。</P>
+<TABLE class=noborder cellPadding=4>
+  <COLGROUP>
+  <COL>
+  <COL>
+  <COL>
+  <TBODY>
+  <TR vAlign=top>
+    <TH class=noborder align=left>標題</TH>
+    <TH class=noborder align=left>成績（分數值）</TH>
+    <TH class=noborder align=left>項目值</TH></TR>
+  <TR vAlign=top>
+    <TD class=noborder align=left>實驗一</TD>
+    <TD class=noborder align=left>24</TD>
+    <TD class=noborder align=left>30</TD></TR>
+  <TR vAlign=top>
+    <TD class=noborder align=left>實驗二</TD>
+    <TD class=noborder align=left>21</TD>
+    <TD class=noborder align=left>30</TD></TR>
+  <TR vAlign=top>
+    <TD class=noborder align=left>實驗三</TD>
+    <TD class=noborder align=left>19</TD>
+    <TD class=noborder align=left>30</TD></TR>
+  <TR vAlign=top>
+    <TH class=noborder align=left>總計</TH>
+    <TH class=noborder align=left>64</TH>
+    <TH class=noborder align=left>90</TH></TR></TBODY></TABLE>
+<P><STRONG>總計﹙實驗﹚：</STRONG> 71.11% (64/90)*100</P>
+<P><STRONG>課程總成績﹙短文和實驗﹚：</STRONG> 75.93%</P>
+<TABLE class=noborder cellPadding=4>
+  <COLGROUP>
+  <COL>
+  <COL>
+  <TBODY>
+  <TR vAlign=top>
+    <TD class=noborder align=left>短文</TD>
+    <TD class=noborder align=left>54.6% (70%*78%)</TD></TR>
+  <TR vAlign=top>
+    <TD class=noborder align=left>實驗</TD>
+    <TD class=noborder align=left>21.33% (30%*71.11%)</TD></TR>
+  <TR vAlign=top>
+    <TD class=noborder align=left>總計</TD>
+    <TD class=noborder align=left>75.93% (54.6%+21.33%) </TD></TR></TBODY></TABLE><A 
+href="#top">返回頂部</A> <A name=point></A>
+<H3>以分數值顯示成績，帶簡單類別，無權重</H3>
+<P>在本例中，講師已經設定成績冊帶簡單（無權重）類別，並且選擇以分數值方式錄入成績。</P>
+<DIV class="inlineimage image"><IMG class=noborder alt=成績冊表格 
+src="image/a013p.gif"></DIV>
+<P>課程成績計算如下：</P>
+<TABLE class=noborder cellPadding=4>
+  <COLGROUP>
+  <COL>
+  <COL>
+  <COL>
+  <COL>
+  <TBODY>
+  <TR vAlign=top>
+    <TH class=noborder align=left>類別</TH>
+    <TH class=noborder align=left>所得總數﹙分數﹚</TH>
+    <TH class=noborder align=left>總值</TH>
+    <TH class=noborder align=left>平均 (%)</TH></TR>
+  <TR vAlign=top>
+    <TD class=noborder align=left>短文</TD>
+    <TD class=noborder align=left>80 (41+27+12)</TD>
+    <TD class=noborder align=left>90 (45+30+15)</TD>
+    <TD class=noborder align=left>88.88% (80/90)</TD></TR>
+  <TR vAlign=top>
+    <TD class=noborder align=left>實驗</TD>
+    <TD class=noborder align=left>100 (36+55+9)</TD>
+    <TD class=noborder align=left>120 (45+60+15)</TD>
+    <TD class=noborder align=left>83.33% (100/120)</TD></TR>
+  <TR vAlign=top>
+    <TD class=noborder align=left>總計</TD>
+    <TD class=noborder align=left>180</TD>
+    <TD class=noborder align=left>210</TD>
+    <TD class=noborder align=left>85.71% </TD></TR></TBODY></TABLE>
+<P><STRONG>總計：</STRONG> 180 分</P>
+<P><STRONG>課程成績：</STRONG> 85.71% (180/210)</P><A href="#top">返回頂部</A> 
+<BR><BR></DIV></BODY></HTML>

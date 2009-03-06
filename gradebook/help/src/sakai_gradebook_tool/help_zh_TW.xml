@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <bean id="gradebookOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>arap_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>成績冊：概述</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/arap_zh_TW.html</value>
+        </property>
+		<property name="defaultForTool"><value>sakai.gradebook.tool</value></property>
+    </bean>
+    <bean id="gradebookAddItem" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>aran_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>新建/新增、編輯或刪除成績冊項目</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/aran_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookItemDetails" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>aras_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>查看成績冊項目詳細資料</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/aras_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookEnteringScores" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>araj_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>錄入或編輯成績</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/araj_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookComment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>auus_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>為成績新增註解</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/auus_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookUploadingScores" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>aukf_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>從試算表匯入成績冊項目</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/aukf_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookImportExisting" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>avdo_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>將成績匯入現有成績冊項目</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/avdo_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookSorting" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>arby_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>排序成績冊表格</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/arby_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookFeedbackOptions" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>arah_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>使學生可查閱成績</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/arah_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookRoster" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>aqzg_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>檢視和匯出學生成績</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/aqzg_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookExportScores" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>aqzt_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>計算並從成績冊匯出課程成績</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/aqzt_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookCourseGradeOverride" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>arbv_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>覆蓋自動計算的課程成績</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/arbv_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookCumulativeScores" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>asbw_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>檢視課程成績</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/asbw_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookCategories" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>avdp_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>使用成績冊中的類別和權重成績</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/avdp_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookCalculation" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>awpx_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>類別和權重如何影響成績冊中的成績計算</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/awpx_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="gradebookEntryTypeScale" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>atfl_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>更改成績冊中的成績條目、類型和等級</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/atfl_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+        <property name="name">
+            <value>root</value>
+        </property>
+        <property name="categories">
+            <list>
+                <bean id="gradebookCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+                    <property name="name">
+                        <value>成績冊</value>
+                    </property>
+                    <property name="resources">
+                        <list>
+                            <ref bean="gradebookOverview"/>
+                            <ref bean="gradebookAddItem"/>
+                            <ref bean="gradebookItemDetails"/>
+                            <ref bean="gradebookEnteringScores"/>
+                            <ref bean="gradebookComment"/>
+                            <ref bean="gradebookUploadingScores"/>
+                            <ref bean="gradebookImportExisting"/>
+                            <ref bean="gradebookSorting"/>
+                            <ref bean="gradebookRoster"/>
+                            <ref bean="gradebookCumulativeScores"/>
+                            <ref bean="gradebookCourseGradeOverride"/>
+                            <ref bean="gradebookFeedbackOptions"/>
+                            <ref bean="gradebookExportScores"/>
+                            <ref bean="gradebookCategories"/>
+                            <ref bean="gradebookCalculation"/>
+                            <ref bean="gradebookEntryTypeScale"/>
+                        </list>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+</beans>
