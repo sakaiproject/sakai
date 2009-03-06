@@ -10,10 +10,10 @@
         primary key (ID)
     );
 
-	create table PROFILE_IMAGES_EXTERNAL_T (
+    create table PROFILE_IMAGES_EXTERNAL_T (
         USER_UUID varchar(36) not null,
-        RESOURCE_MAIN text not null,
-        RESOURCE_THUMB text,
+        URL_MAIN text not null,
+        URL_THUMB text,
         primary key (USER_UUID)
     );
 
@@ -45,6 +45,7 @@
         BIRTH_YEAR bit not null,
         SEARCH integer not null,
         MY_FRIENDS integer not null,
+        MY_STATUS integer not null,
         primary key (USER_UUID)
     );
 

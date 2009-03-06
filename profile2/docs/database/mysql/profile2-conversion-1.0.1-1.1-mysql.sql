@@ -1,10 +1,7 @@
 /* change Preferences to split out email into different fields that can be controlled individually. */
 
 /* add the new columns, default to false as we update them further down. */
-alter table PROFILE_PREFERENCES_T 
-	add EMAIL_REQUEST bit not null DEFAULT false,
-    add EMAIL_CONFIRM bit not null DEFAULT false
-;
+alter table PROFILE_PREFERENCES_T add EMAIL_REQUEST bit not null DEFAULT false, add EMAIL_CONFIRM bit not null DEFAULT false;
 
 /* update the new columns based on the old data */
 /* if all emails, then both true */
@@ -17,9 +14,7 @@ update PROFILE_PREFERENCES_T set EMAIL_REQUEST=false, EMAIL_CONFIRM=true where E
 update PROFILE_PREFERENCES_T set EMAIL_REQUEST=false, EMAIL_CONFIRM=false where EMAIL=3;
 
 /* now drop the old column */
-alter table PROFILE_PREFERENCES_T 
-	drop COLUMN EMAIL
-;
+alter table PROFILE_PREFERENCES_T drop COLUMN EMAIL;
 
 
 
@@ -29,3 +24,6 @@ alter table PROFILE_PRIVACY_T change PROFILE PROFILE_IMAGE int not null;
 /* update values in profile_image and search, we no longer have 2 as an option (ie only me) */
 update PROFILE_PRIVACY_T set PROFILE_IMAGE=1 where PROFILE_IMAGE>1;
 update PROFILE_PRIVACY_T set SEARCH=1 where SEARCH>1;
+
+/* add my_status column */
+alter table PROFILE_PRIVACY_T add MY_STATUS integer not null default 0;

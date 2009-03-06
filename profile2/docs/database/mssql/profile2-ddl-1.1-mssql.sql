@@ -12,8 +12,8 @@
 
     create table PROFILE_IMAGES_EXTERNAL_T (
         USER_UUID varchar(36) not null,
-        RESOURCE_MAIN varchar(4000) not null,
-        RESOURCE_THUMB varchar(4000) null,
+        URL_MAIN varchar(4000) not null,
+        URL_THUMB varchar(4000) null,
         primary key (USER_UUID)
     );
 
@@ -45,6 +45,7 @@
         BIRTH_YEAR tinyint not null,
         SEARCH int not null,
         MY_FRIENDS int not null,
+        MY_STATUS int not null,
         primary key (USER_UUID)
     );
 
