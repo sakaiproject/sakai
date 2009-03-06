@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="podcastsOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aucy_zh_TW</value></property>
+      <property name="name"><value>播客：概述</value></property>
+      <property name="location"><value>/sakai_podcasts/aucy_zh_TW.html</value></property>
+      <property name="defaultForTool"><value>sakai.podcasts</value></property>
+   </bean>
+   
+   <bean id="editAPodcast" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>audb_zh_TW</value></property>
+      <property name="name"><value>新增、編輯或刪除播客</value></property>
+      <property name="location"><value>/sakai_podcasts/audb_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="downloadSubscribePodcasts" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>audn_zh_TW</value></property>
+      <property name="name"><value>下載或訂閱播客</value></property>
+      <property name="location"><value>/sakai_podcasts/audn_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="editRSSFeedInfo" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>audo_zh_TW</value></property>
+      <property name="name"><value>編輯播客中關於 RSS 摘要的資訊</value></property>
+      <property name="location"><value>/sakai_podcasts/audo_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="manageFeedAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>audp_zh_TW</value></property>
+      <property name="name"><value>管理播客存取</value></property>
+      <property name="location"><value>/sakai_podcasts/audp_zh_TW.html</value></property>
+   </bean>
+      
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="podcastsCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>播客</value></property>
+               <property name="resources">
+                  <list>
+                    <ref bean="podcastsOverview"/>
+					<ref bean="editAPodcast"/>
+					<ref bean="downloadSubscribePodcasts"/>
+					<ref bean="editRSSFeedInfo"/>
+					<ref bean="manageFeedAccess"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
