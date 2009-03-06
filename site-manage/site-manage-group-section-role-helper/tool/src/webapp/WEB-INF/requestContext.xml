@@ -3,9 +3,6 @@
 <beans>
   <bean id="siteId" factory-bean="sakai-Placement"
     factory-method="getContext" />
-
-  <!-- rich text evolver bean def -->
-  <bean id="richTextEvolver" parent="sakaiFCKTextEvolver" />
    
   <bean id="GroupListProducer"
       class="org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf.GroupListProducer">
@@ -20,7 +17,6 @@
       class="org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf.GroupEditProducer">
     <property name="handler" ref="SiteManageGroupSectionRoleHandler" />
     <property name="messageLocator" ref="messageLocator"/>
-    <property name="richTextEvolver" ref="richTextEvolver" />
     <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
     <property name="targettedMessageList" ref="targettedMessageList" />
     <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />

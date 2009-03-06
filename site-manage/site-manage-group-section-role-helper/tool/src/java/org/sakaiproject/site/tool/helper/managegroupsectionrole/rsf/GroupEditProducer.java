@@ -38,7 +38,6 @@ import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
-import uk.org.ponder.rsf.evolvers.TextInputEvolver;
 import uk.org.ponder.rsf.evolvers.FormatAwareDateInputEvolver;
 import uk.org.ponder.rsf.flow.ARIResult;
 import uk.org.ponder.rsf.flow.ActionResultInterceptor;
@@ -68,11 +67,6 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
     public MessageLocator messageLocator;
     public FrameAdjustingProducer frameAdjustingProducer;
     public SiteService siteService = null;
-    
-	private TextInputEvolver richTextEvolver;
-	public void setRichTextEvolver(TextInputEvolver richTextEvolver) {
-				this.richTextEvolver = richTextEvolver;
-	}
 
     public String getViewID() {
         return VIEW_ID;
@@ -142,8 +136,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 		 
 		
 		 UIMessage groupDescrLabel = UIMessage.make(arg0, "group_description_label", "group.description"); 
-		 UIInput groupDescr = UIInput.make(groupForm, "group_description:", "#{SiteManageGroupSectionRoleHandler.description}", groupDescription); 
-		 richTextEvolver.evolveTextInput(groupDescr);
+		 UIInput groupDescr = UIInput.make(groupForm, "group_description", "#{SiteManageGroupSectionRoleHandler.description}", groupDescription); 
 		 UILabelTargetDecorator.targetLabel(groupDescrLabel, groupDescr);
 		 
 		 UIOutput.make(groupForm, "membership_label", messageLocator.getMessage("editgroup.membership"));
