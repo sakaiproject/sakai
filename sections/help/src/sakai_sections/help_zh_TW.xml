@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <bean id="sectionInfoOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>asxi_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>班別資訊：概述</value>
+        </property>
+        <property name="location">
+            <value>/sakai_sections/asxi_zh_TW.html</value>
+        </property>
+		<property name="defaultForTool"><value>sakai.sections</value></property>
+    </bean>
+    <bean id="sectionsAndGroups" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>asyh_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>班別和群組</value>
+        </property>
+        <property name="location">
+            <value>/sakai_sections/asyh_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="createEditDeleteSection" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>asxy_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>建立、編輯或刪除班別</value>
+        </property>
+        <property name="location">
+            <value>/sakai_sections/asxy_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="addMembers" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>asyl_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>向班別新增網站成員</value>
+        </property>
+        <property name="location">
+            <value>/sakai_sections/asyl_zh_TW.html</value>
+        </property>
+    </bean>
+    <bean id="addTeachingAssistants" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>asym_zh_TW</value>
+        </property>
+        <property name="name">
+            <value>向網站新增助教</value>
+        </property>
+        <property name="location">
+            <value>/sakai_sections/asym_zh_TW.html</value>
+        </property>
+    </bean>
+
+    
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+        <property name="name">
+            <value>root</value>
+        </property>
+        <property name="categories">
+            <list>
+                <bean id="sectionCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+                    <property name="name">
+                        <value>班別資訊</value>
+                    </property>
+                    <property name="resources">
+                        <list>
+                            <ref bean="sectionInfoOverview"/>
+                            <ref bean="sectionsAndGroups"/>
+                            <ref bean="createEditDeleteSection"/>
+                            <ref bean="addMembers"/>
+                            <ref bean="addTeachingAssistants"/>
+                        </list>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+</beans>
