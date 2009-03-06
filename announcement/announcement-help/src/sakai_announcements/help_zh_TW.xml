@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="announcementOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <!--<property name="docId"><value>aqyk</value></property>-->
+	  <property name="docId"><value>aqyk_zh_TW</value></property>
+      <property name="name"><value>通告概述</value></property>
+      <property name="location"><value>/sakai_announcements/aqyk_zh_TW.html</value></property>
+      <property name="defaultForTool"><value>sakai.announcements</value></property>
+   </bean>
+
+   <bean id="createAnnouncement" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcr_zh_TW</value></property>
+      <property name="name"><value>建立／編輯／刪除通告</value></property>
+      <property name="location"><value>/sakai_announcements/arcr_zh_TW.html</value></property>
+   </bean>
+   <bean id="postAnnouncement" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbw_zh_TW</value></property>
+      <property name="name"><value>發佈通告</value></property>
+      <property name="location"><value>/sakai_announcements/arbw_zh_TW.html</value></property>
+   </bean>
+   <bean id="reviseAnnouncement" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbd_zh_TW</value></property>
+      <property name="name"><value>閱讀通告</value></property>
+      <property name="location"><value>/sakai_announcements/arbd_zh_TW.html</value></property>
+   </bean>
+   <bean id="deleteAnnouncement" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aram_zh_TW</value></property>
+      <property name="name"><value>設定通告權限</value></property>
+      <property name="location"><value>/sakai_announcements/aram_zh_TW.html</value></property>
+   </bean>
+    <bean id="mergeAnnouncement" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzq_zh_TW</value></property>
+      <property name="name"><value>合併通告</value></property>
+      <property name="location"><value>/sakai_announcements/aqzq_zh_TW.html</value></property>
+   </bean>
+
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="announcementCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>通告</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="announcementOverview"/>
+                     <ref bean="createAnnouncement"/>
+                     <ref bean="postAnnouncement"/>
+                     <ref bean="reviseAnnouncement"/>
+                     <ref bean="deleteAnnouncement"/>
+					 <ref bean="mergeAnnouncement"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
