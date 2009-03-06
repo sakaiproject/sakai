@@ -2815,7 +2815,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	
 	private String fileSizeInKB(int fileSize) {
 		String fileSizeString = "1";
-		int size = Math.round(fileSize / 1024);
+		int size = Math.round((float)fileSize / 1024.0f);
 		if (size > 0) {
 			fileSizeString = size + "";
 		}

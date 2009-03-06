@@ -103,19 +103,6 @@ private Id id;
     data.setDescription(description);
   }
 
-  public boolean isParent() {
-    boolean returnValue = false;
- 
-    while (childrenIter.hasNextQualifier()){
-      Id i = (Id)childrenIter.nextQualifier();
-      if (i.equals(this.id)){
-        returnValue = true;
-        break;
-      }
-    }
-    return returnValue;
-  }
-
   public Type getQualifierType(){
     TypeFacadeQueriesAPI typeFacadeQueries = PersistenceService.getInstance().getTypeFacadeQueries();
     return typeFacadeQueries.getTypeById(new Long(this.data.getQualifierTypeId()));
