@@ -19,6 +19,7 @@
 	    <property name="showBirthYear" column="BIRTH_YEAR" not-null="true" />
 		<property name="search" column="SEARCH" not-null="true" />
 		<property name="myFriends" column="MY_FRIENDS" not-null="true" />
+		<property name="myStatus" column="MY_STATUS" not-null="true" />
 		
   	</class>
 

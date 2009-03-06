@@ -202,7 +202,7 @@ public class MyPrivacy extends BasePage {
         });
 		
 		
-		//search privacy
+		//myFriends privacy
 		WebMarkupContainer myFriendsContainer = new WebMarkupContainer("myFriendsContainer");
 		myFriendsContainer.add(new Label("myFriendsLabel", new ResourceModel("privacy.myfriends")));
 		DropDownChoice myFriendsChoice = new DropDownChoice("myFriends", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
@@ -212,6 +212,21 @@ public class MyPrivacy extends BasePage {
 		form.add(myFriendsContainer);
 		//updater
 		myFriendsChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+            protected void onUpdate(AjaxRequestTarget target) {
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
+		
+		//myStatus privacy
+		WebMarkupContainer myStatusContainer = new WebMarkupContainer("myStatusContainer");
+		myStatusContainer.add(new Label("myStatusLabel", new ResourceModel("privacy.mystatus")));
+		DropDownChoice myStatusChoice = new DropDownChoice("myStatus", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));
+		myStatusContainer.add(myStatusChoice);
+		//tooltip
+		myStatusContainer.add(new IconWithClueTip("myStatusToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.mystatus.tooltip")));
+		form.add(myStatusContainer);
+		//updater
+		myStatusChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
             protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }

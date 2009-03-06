@@ -17,7 +17,7 @@ public class ProfilePrivacyManager {
 	public static final int DEFAULT_PRIVACY_OPTION_PERSONALINFO = PRIVACY_OPTION_EVERYONE; 
 	public static final int DEFAULT_PRIVACY_OPTION_SEARCH = PRIVACY_OPTION_EVERYONE; 
 	public static final int DEFAULT_PRIVACY_OPTION_MYFRIENDS = PRIVACY_OPTION_EVERYONE; 
-
+	public static final int DEFAULT_PRIVACY_OPTION_MYSTATUS = PRIVACY_OPTION_EVERYONE; 
 	
 	//if they have no privacy record, ie have not turned explicitly turned searches on or off
 	public static final boolean DEFAULT_SEARCH_VISIBILITY = true;
@@ -29,6 +29,7 @@ public class ProfilePrivacyManager {
 	public static final boolean DEFAULT_PERSONALINFO_VISIBILITY = true;
 	public static final boolean DEFAULT_MYFRIENDS_VISIBILITY = true;
 	public static final boolean DEFAULT_BIRTHYEAR_VISIBILITY = true;
+	public static final boolean DEFAULT_MYSTATUS_VISIBILITY = true;
 	
 	//if the user doing a search finds themself in the results, should they be included in the results?
 	public static final boolean SELF_SEARCH_VISIBILITY = true;

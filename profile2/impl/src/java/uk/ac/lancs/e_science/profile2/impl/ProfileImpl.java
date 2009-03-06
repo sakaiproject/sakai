@@ -671,7 +671,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_PERSONALINFO,
 				ProfilePrivacyManager.DEFAULT_BIRTHYEAR_VISIBILITY,
 				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_SEARCH,
-				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_MYFRIENDS);
+				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_MYFRIENDS,
+				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_MYSTATUS);
 		
 		//save
 		try {
@@ -1117,6 +1118,48 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	    	
     	//uncaught rule, return false
     	log.error("Profile.isFriendsListVisibleByCurrentUser. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);
+
+    	return false;
+	}
+	
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean isUserXStatusVisibleByUserY(String userX, String userY, boolean friend) {
+		
+		//get privacy record for this user
+    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
+    	
+    	//if none, return whatever the flag is set as by default
+    	if(profilePrivacy == null) {
+    		return ProfilePrivacyManager.DEFAULT_MYSTATUS_VISIBILITY;
+    	}
+    	
+    	//if restricted to only self, not allowed
+    	/* DEPRECATED via PRFL-24 when the privacy settings were relaxed
+    	if(profilePrivacy.getMyStatus() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYME) {
+    		return false;
+    	}
+    	*/
+    	
+    	//if user is friend and friends are allowed
+    	if(friend && profilePrivacy.getMyStatus() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    		return true;
+    	}
+    	
+    	//if not friend and set to friends only
+    	if(!friend && profilePrivacy.getMyStatus() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    		return false;
+    	}
+    	
+    	//if everyone is allowed
+    	if(profilePrivacy.getMyStatus() == ProfilePrivacyManager.PRIVACY_OPTION_EVERYONE) {
+    		return true;
+    	}
+    	    	
+    	//uncaught rule, return false
+    	log.error("Profile.isUserXStatusVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);
 
     	return false;
 	}
