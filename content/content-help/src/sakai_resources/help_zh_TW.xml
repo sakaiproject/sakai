@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+   <bean id="resourceIndex" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arfs_zh_TW</value></property>
+      <property name="name"><value>資源</value></property>
+      <property name="location"><value>/sakai_resources/arfs_zh_TW.html</value></property>
+      <property name="defaultForTool"><value>sakai.resources</value></property>      
+   </bean>
+
+   <bean id="resourceOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>area_zh_TW</value></property>
+      <property name="name"><value>資源：概述</value></property>
+      <property name="location"><value>/sakai_resources/area_zh_TW.html</value></property>
+   </bean>
+
+   <bean id="usingFolders" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>avbw_zh_TW</value></property>
+      <property name="name"><value>操作資源中的資料夾</value></property>
+      <property name="location"><value>/sakai_resources/avbw_zh_TW.html</value></property>
+   </bean>
+
+   <bean id="usingFiles" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>avby_zh_TW</value></property>
+      <property name="name"><value>操作資源中的檔案</value></property>
+      <property name="location"><value>/sakai_resources/avby_zh_TW.html</value></property>
+   </bean>
+
+   <bean id="usingLinks" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>avbz_zh_TW</value></property>
+      <property name="name"><value>操作資源中的網站連結</value></property>
+      <property name="location"><value>/sakai_resources/avbz_zh_TW.html</value></property>
+   </bean>
+
+   <bean id="usingHtml" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>avcb_zh_TW</value></property>
+      <property name="name"><value>操作資源中的 HTML 頁面</value></property>
+      <property name="location"><value>/sakai_resources/avcb_zh_TW.html</value></property>
+   </bean>
+
+   <bean id="usingText" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>avcc_zh_TW</value></property>
+      <property name="name"><value>操作資源中的文字文件</value></property>
+      <property name="location"><value>/sakai_resources/avcc_zh_TW.html</value></property>
+   </bean>
+
+   <bean id="usingCitation" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>avcd_zh_TW</value></property>
+      <property name="name"><value>操作資源中的引文清單</value></property>
+      <property name="location"><value>/sakai_resources/avcd_zh_TW.html</value></property>
+   </bean>
+
+   <bean id="makePublic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>atkh_zh_TW</value></property>
+      <property name="name"><value>公開資源中的項目</value></property>
+      <property name="location"><value>/sakai_resources/atkh_zh_TW.html</value></property>
+   </bean>
+
+   <bean id="findURL" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>auen_zh_TW</value></property>
+      <property name="name"><value>尋找資源項目的 URL</value></property>
+      <property name="location"><value>/sakai_resources/auen_zh_TW.html</value></property>
+   </bean>
+
+   <bean id="moveResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arex_zh_TW</value></property>
+      <property name="name"><value>移動資源中的項目</value></property>
+      <property name="location"><value>/sakai_resources/arex_zh_TW.html</value></property>
+   </bean>
+
+   <bean id="viewResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbe_zh_TW</value></property>
+      <property name="name"><value>瀏覽和開啟資源中的項目</value></property>
+      <property name="location"><value>/sakai_resources/arbe_zh_TW.html</value></property>
+   </bean>
+
+   <bean id="copyResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqyf_zh_TW</value></property>
+      <property name="name"><value>複製資源中的項目</value></property>
+      <property name="location"><value>/sakai_resources/aqyf_zh_TW.html</value></property>
+   </bean>
+
+   <bean id="renameResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arsl_zh_TW</value></property>
+      <property name="name"><value>重命名資源中的檔案</value></property>
+      <property name="location"><value>/sakai_resources/arsl_zh_TW.html</value></property>
+   </bean>
+
+   <bean id="deleteResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>avcg_zh_TW</value></property>
+      <property name="name"><value>刪除資源項目</value></property>
+      <property name="location"><value>/sakai_resources/avcg_zh_TW.html</value></property>
+   </bean>
+
+   <bean id="sortResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aukb_zh_TW</value></property>
+      <property name="name"><value>重新排序資源中的項目</value></property>
+      <property name="location"><value>/sakai_resources/aukb_zh_TW.html</value></property>
+   </bean>
+    
+   <bean id="itemDetails" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arfd_zh_TW</value></property>
+      <property name="name"><value>瀏覽資源中項目的詳細資料</value></property>
+      <property name="location"><value>/sakai_resources/arfd_zh_TW.html</value></property>
+   </bean>
+
+   <bean id="groupFolders" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aude_zh_TW</value></property>
+      <property name="name"><value>使用資源工具建立群組資料夾</value></property>
+      <property name="location"><value>/sakai_resources/aude_zh_TW.html</value></property>
+   </bean>
+
+   <bean id="changePermissions" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>audh_zh_TW</value></property>
+      <property name="name"><value>更改資源中資料夾的權限</value></property>
+      <property name="location"><value>/sakai_resources/audh_zh_TW.html</value></property>
+   </bean>
+
+   <bean id="unHide" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>auta_zh_TW</value></property>
+      <property name="name"><value>取消結束日期使資源項目重新可見</value></property>
+      <property name="location"><value>/sakai_resources/auta_zh_TW.html</value></property>
+   </bean>
+
+   <bean id="unsupportedChars" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>auze_zh_TW</value></property>
+      <property name="name"><value>不支援的字元</value></property>
+      <property name="location"><value>/sakai_resources/auze_zh_TW.html</value></property>
+   </bean>
+
+   <bean id="webDavOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqyy_zh_TW</value></property>
+      <property name="name"><value>WebDAV 概述</value></property>
+      <property name="location"><value>/sakai_resources/aqyy_zh_TW.html</value></property>
+   </bean>
+
+   <bean id="winxpAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>araf_zh_TW</value></property>
+      <property name="name"><value>使用 Windows XP 或 Vista 的 WebDAV 上傳檔案至資源</value></property>
+      <property name="location"><value>/sakai_resources/araf_zh_TW.html</value></property>
+   </bean>
+
+   <bean id="macAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqyi_zh_TW</value></property>
+      <property name="name"><value>使用 Mac OS X 的 WebDAV 上傳檔案至資源</value></property>
+      <property name="location"><value>/sakai_resources/aqyi_zh_TW.html</value></property>
+   </bean>
+
+   <bean id="siteId" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>atla_zh_TW</value></property>
+      <property name="name"><value>尋找網站的網站 ID</value></property>
+      <property name="location"><value>/sakai_resources/atla_zh_TW.html</value></property>
+   </bean>
+   
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="resourceCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>資源</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="resourceIndex"/>
+                     <ref bean="resourceOverview"/>
+                     <ref bean="viewResource"/>
+                     <ref bean="itemDetails"/>
+                     <ref bean="usingFolders"/>
+                     <ref bean="usingFiles"/>
+                     <ref bean="usingLinks"/>
+                     <ref bean="usingHtml"/>
+                     <ref bean="usingText"/>
+                     <ref bean="usingCitation"/>
+                     <ref bean="makePublic"/>
+                     <ref bean="findURL"/>
+                     <ref bean="moveResource"/>
+                     <ref bean="copyResource"/>
+                     <ref bean="renameResource"/>
+                     <ref bean="deleteResource"/>
+                     <ref bean="sortResource"/>
+                     <ref bean="groupFolders"/>
+                     <ref bean="changePermissions"/>
+                     <ref bean="unHide"/>
+                     <ref bean="unsupportedChars"/>
+                     <ref bean="webDavOverview"/>
+                     <ref bean="winxpAccess"/>
+                     <ref bean="macAccess"/>
+                     <ref bean="siteId"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>

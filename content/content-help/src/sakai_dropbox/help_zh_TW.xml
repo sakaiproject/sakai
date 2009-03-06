@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="dropBoxOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arfc_zh_TW</value></property>
+      <property name="name"><value>投遞箱：概述</value></property>
+      <property name="location"><value>/sakai_dropbox/arfc_zh_TW.html</value></property>
+      <property name="defaultForTool"><value>sakai.dropbox</value></property>
+   </bean>
+   
+   <bean id="addDropboxFolder" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzb_zh_TW</value></property>
+      <property name="name"><value>新增、編輯或刪除投遞箱資料夾</value></property>
+      <property name="location"><value>/sakai_dropbox/aqzb_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="addDropboxItem" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqyu_zh_TW</value></property>
+      <property name="name"><value>新增、編輯或刪除投遞箱項目</value></property>
+      <property name="location"><value>/sakai_dropbox/aqyu_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="reviseDropbox" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzl_zh_TW</value></property>
+      <property name="name"><value>修改投遞箱資訊</value></property>
+      <property name="location"><value>/sakai_dropbox/aqzl_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="viewDropbox" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzd_zh_TW</value></property>
+      <property name="name"><value>檢視投㴲箱</value></property>
+      <property name="location"><value>/sakai_dropbox/aqzd_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="copyDropbox" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardv_zh_TW</value></property>
+      <property name="name"><value>複製投㴲箱項目</value></property>
+      <property name="location"><value>/sakai_dropbox/ardv_zh_TW.html</value></property>
+   </bean>
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="dropBoxCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>投遞箱</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="dropBoxOverview"/>
+					<ref bean="addDropboxFolder"/>
+					<ref bean="addDropboxItem"/>
+					<ref bean="reviseDropbox"/>
+					<ref bean="viewDropbox"/>
+					<ref bean="copyDropbox"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
