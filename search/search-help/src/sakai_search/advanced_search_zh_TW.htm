@@ -1,0 +1,135 @@
+﻿
+<HTML lang=zh-TW 
+version="-//W3C//DTD HTML 3.2//EN"><HEAD><BASE><TITLE>進階搜尋</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=UTF-8"><LINK 
+href="/library/skin/tool_base.css" type=text/css rel=stylesheet><LINK 
+href="/library/skin/default/tool.css" type=text/css rel=stylesheet>
+<META content="MSHTML 6.00.6001.18183" name=GENERATOR></HEAD>
+<BODY>
+<DIV class=helpBody>
+<H2>進階搜尋</H2>
+<P>搜尋工具由包含多個子索引的索引驅動。當使用基本搜尋工具時，只使用到其中的 2 
+個索引：<EM>背景</EM>索引和<EM>內容</EM>索引。<EM>內容</EM>索引包含全部內容摘要形式的完整文字索引，並且索引已經存儲和分詞。這表示如果將 
+Word 
+文件上載至資源，那麼這一文件中的文字內容將經過摘錄和索引，但是如果是視訊包，那麼就只會對詮釋資料編排索引。當返回搜尋結果時，將顯示這些內容，並高亮顯示匹配的術語。 
+</P>
+<P><EM>背景</EM>索引提供內容來源的關鍵字索引。也就是包含這些內容的工作網站或課程。當搜尋工具執行基本搜尋時，將自動新增搜尋字串<EM>+content:&lt;currentsiteid&gt;</EM>，其中<CURRENTSITEID> 
+是指執行搜尋的目標背景或網站 ID。可以將其解釋為「<EM>結果必需來自當前網站</EM>」。 </P>
+<P>您可以在任何索引中搜尋字串。例如，如果只需搜尋通告，那麼使用搜尋字串<EM>+tool:announcement 
++content:cowslip</EM>，搜尋結果將只返回包含 cowslip 單詞的通告。 </P>
+<P>索引通常包含下列指定索引。 </P>
+<UL>
+  <LI><B>內容：</B>搜尋文件內容的摘要索引，經分詞和儲存 
+  <LI><B>背景：</B>搜尋文件來源背景的關鍵字索引，經儲存 
+  <LI><B>工具：</B>建立搜尋文件的工具名稱關鍵字索引，經儲存 
+  <LI><B>標題：</B>搜尋文件標題索引，經分詞和儲存 
+  <LI><B>參考：</B>Sakai 實體參考的關鍵字索引，經儲存 </LI></UL>
+<H2>Lucene 搜尋資訊</H2>
+<P>查詢引擎是一種基於 Apache Lucene 的工具。為了便於更好地理解工具，將在下文詳細介紹 Apache Query。如需瞭解更多資訊，請存取 <A 
+href="http://lucene.apache.org/java/2_3_2/queryparsersyntax.html" 
+target=apache>http://lucene.apache.org/java/2_3_2/queryparsersyntax.html</A> 
+</P>
+<H3>術語</H3>
+<P>查詢可以分為術語和運算符號。有兩種類型的術語：單詞術語和短語。 </P>
+<P>簡單術語是指一個單詞，如 「測驗」 或 "hello"。 </P>
+<P>短語是一組單詞，兩邊還帶有雙引號，如 "hello dolly"。 </P>
+<P>可將多個術語透過布林 (Boolean) 運算符號結合起來，構成一個更為複雜的查詢（請參考下文）。 </P>
+<P>註釋：用於建立索引的分析器將被用於查詢字串中的術語和短語。因此選擇一種不會與查詢字串中所使用的術語發生衝突的分析器十分重要。 </P>
+<H3>欄位 </H3>
+<P>Lucene 支援欄位資料。執行搜尋操作時，您可以指定一個欄位，或使用預設欄位。欄位名稱和預設欄位取決於各種不同的執行操作。 </P>
+<P>您可以輸入欄位名稱，然後加上冒號「：」，再輸入您想要尋找的術語，以此搜尋任何欄位。 </P>
+<P>例如，假設 Lucene 索引包含兩個欄位，標題和文字，其中文字是預設欄位。如果您想要尋找標題為 "The Right Way"，並且內容中包含 
+"don't go this way" 文字的文件，那麼您可以輸入： </P>
+<P>title:"The Right Way" AND text:go </P>
+<P>或 </P>
+<P>title:"Do it right" AND right </P>
+<P>由於文字是預設欄位，因此不需要欄位指示符。 </P>
+<P>註釋：由於欄位僅對於跟隨在它之後的術語有效，因此查詢 </P>
+<P>title:Do it right </P>
+<P>只會找到標題欄位中的"Do" 。並且在預設欄位中尋找"it" 和 "right"（此例中的文字欄位）。 </P>
+<H3>術語修改器 </H3>
+<P>Lucene 支援對查詢術語進行修改，從而提供更多的搜尋選項。 </P>
+<H3>萬用字元搜尋 </H3>
+<P>Lucene 支援一個和多個字元萬用字元搜尋。 </P>
+<P>如需執行單個字元萬用字元搜尋，使用"?"符號。 </P>
+<P>如需執行多個字元萬用字元搜尋，使用"*"符號。 </P>
+<P>單個字元萬用字元搜尋操作將搜尋與萬用字元所代表的一個字母相匹配的術語。例如，如需搜尋 "text" 或 "test"，您可以使用搜尋： </P>
+<P>te?t </P>
+<P>多個字元萬用字元搜尋操作將搜尋 0 個或多個字元。例如，如需搜尋 test、tests 或 tester，您可以使用搜尋： </P>
+<P>test* </P>
+<P>您還可以在術語中間使用多個字元萬用字元搜尋。 </P>
+<P>te*t </P>
+<P>註釋：不能將 * 或 ? 符號作為搜尋的第一個字元。 </P>
+<H3>模糊搜尋 </H3>
+<P>Lucene 支援基於 Levenshtein Distance 或 Edit Distance 
+運演算法則的模糊搜尋。如需執行模糊搜尋，在單個單詞術語後面加上顎化符號 "~"。例如，如需搜尋與 "roam" 類似拼寫的術語，可使用模糊搜尋： </P>
+<P>roam~ </P>
+<P>搜尋結果將找到如 foam 和 roams 之類的術語。 </P>
+<P>從 Lucene 1.9 版本開始，還可透過附加（可選）參數設定所需的相似度。相似度值在 0 和 1 之間，該值越靠近 
+1，搜尋到的術語與搜尋內容的匹配度就越高。例如： </P>
+<P>roam~0.8 </P>
+<P>如果未設定該參數，那麼該參數的預設值為 0.5。 </P>
+<H3>鄰近搜尋 </H3>
+<P>Lucene 支援搜尋特定距離範圍內的單詞。如需執行鄰近搜尋，在短語後面加上顎化符號 "~"。例如，如需搜尋文件中兩者之間距離保持在 10 個單詞內的 
+"apache" 和 "jakarta" ，可使用搜尋： </P>
+<P>"jakarta apache"~10 </P>
+<H3>範圍搜尋 </H3>
+<P>可使用範圍查詢尋找文件中欄位值保持在範圍查詢所指定的上限和下限之內的文件。範圍查詢的結果可包括或不包括上限和下限值。按照欄位順序排序。 </P>
+<P>mod_date:[20020101 TO 20030101] </P>
+<P>上述查詢將尋找 mod_date 欄位值保持在 20020101 和 20030101 之間的文件，並且包括上限和下限值（即大於等於 
+20020101，並且小於等於 20030101）。注意，範圍查詢並不僅僅適用於日期欄位。您還可以將範圍查詢套用於非日期欄位： </P>
+<P>title:{Aida TO Carmen} </P>
+<P>上述查詢將尋找標題在 Aida 和 Carmen 之間的文件，但是不包括標題是 Aida 和 Carmen 的文件。 </P>
+<P>用方括號表示包含性範圍查詢。用波形括弧表示排除性範圍查詢。 </P>
+<H3>提升術語 </H3>
+<P>Lucene 根據找到的術語結果，提供匹配文件的相關性級別資訊。如需提升術語，使用脫字符號 
+"^"，並且在您想要搜尋的術語後加上提升因數（數字）。提升因數越高，術語的相關程度就越高。 </P>
+<P>使用提升功能，可透過提升文件中的術語來控制文件的相關性。例如，如果您要搜尋 </P>
+<P>jakarta apache </P>
+<P>並且想要讓術語 "jakarta" 更相關，那麼使用 ^ 符號，並且在術語後輸入提升因數來提升該術語。您可以輸入： </P>
+<P>jakarta^4 apache </P>
+<P>此操作將提高含有術語 jakarta 文件的相關程度。您也可以提升短語術語： </P>
+<P>"jakarta apache"^4 "Apache Lucene" </P>
+<P>預設提升因數是 1。提升因數必需是正數，但是可以小於 1（例如 0.2）。 </P>
+<H3>布林 (Boolean) 運算符號 </H3>
+<P>使用 布林 (Boolean) 運算符號可將術語透過邏輯運算符號結合起來。Lucene 支持 AND、"+"、OR、NOT 或 "-" 布林 
+(Boolean) 運算符號（注意：布林 (Boolean) 運算符號必需全部大寫）。OR </P>
+<P>OR 是預設的連接詞運算符號。這表示如果在兩個術語之間沒有任何 布林 (Boolean) 運算符號，那麼將使用 OR。OR 
+運算符號連接兩個術語，並且搜尋包含其中任一術語的匹配文件。這就好像是使用集合的聯合體一樣。可使用符號 || 代替單詞 OR。 </P>
+<P>如需搜尋包含 "jakarta apache" 或僅包含  "jakarta"的文件，使用查詢： </P>
+<P>"jakarta apache" jakarta </P>
+<P>或 </P>
+<P>"jakarta apache" OR jakarta </P>
+<P>AND </P>
+<P>AND 運算符搜尋在單一文件中的任何位置同時包含符號所連接的兩個術語的文件。這就好像是使用集合的交點一樣。可使用符號 &amp;&amp; 代替單詞 
+AND。 </P>
+<P>如需搜尋包含 "jakarta apache" 和 "Apache Lucene" 的文件，使用查詢： </P>
+<P>"jakarta apache" AND "Apache Lucene" </P>
+<P>+ </P>
+<P>"+" 或必要運算符號要求 "+" 符號後面的術語必需存在于單一文件中。 </P>
+<P>如需搜尋必需包含 "jakarta"，並且可能 "lucene" 包含的文件，使用查詢： </P>
+<P>+jakarta apache </P>
+<P>NOT </P>
+<P>NOT 運算符號排除包含 NOT 後面所跟術語的文件。這就好像是使用集合的差別一樣。可使用符號 ! 代替單詞 NOT。 </P>
+<P>如需搜尋包含 "jakarta apache" ，但是不包含 "Apache Lucene" 的文件，使用查詢： </P>
+<P>"jakarta apache" NOT "Apache Lucene" </P>
+<P>註釋：NOT 運算符號不能只和一個術語同時使用。例如，下列搜尋將不會返回任何結果： </P>
+<P>NOT "jakarta apache" </P>
+<H3>- </H3>
+<P>"-" 或禁止運算符號排除包含 "-" 後面所跟術語的文件。 </P>
+<P>如需搜尋包含 "jakarta apache" ，但是不包含 "Apache Lucene" 的文件，使用查詢： </P>
+<P>"jakarta apache" -"Apache Lucene" </P>
+<H3>分組 </H3>
+<P>Lucene 支援使用圓括號為各項分組，並構成子查詢。如果您想要控制查詢的布林 (boolean) 邏輯，那麼這一功能就十分有用。 </P>
+<P>如需搜尋 "jakarta" 或 "apache" 和 "website"，使用查詢： </P>
+<P>(jakarta OR apache) AND website </P>
+<P>從而不會對運算產生混淆，確保搜尋的文件中必需包含 website，但是 jakarta 或 apache 只要存在其中任意一個即可。 </P>
+<H3>欄位分組 </H3>
+<P>Lucene 支援使用圓括號將多個子句組織到一個欄位中。 </P>
+<P>如需搜尋同時包含單詞 "return" 和短語 "pink panther" 的標題，使用查詢： </P>
+<P>title:(+return +"pink panther") </P>
+<H3>分隔特殊字元 </H3>
+<P>Lucene 支援分隔作為查詢句法一部分的特殊字元。當前特殊字元包括 </P>
+<P>+ - &amp;&amp; || ! ( ) { } [ ] ^ " ~ * ? : \ </P>
+<P>如需分隔這些特殊字元，在字元前新增 \ 。例如，如需搜尋 (1+1):2，使用查詢： </P>
+<P>\(1\+1\)\:2 </P></DIV></BODY></HTML>
