@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="emailArchiveOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardh_zh_TW</value></property>
+      <property name="name"><value>電子郵件存檔：概述</value></property>
+      <property name="location"><value>/sakai_mailbox/ardh_zh_TW.html</value></property>
+      <property name="defaultForTool"><value>sakai.mailbox</value></property>
+   </bean>
+
+   <bean id="customizeEmailArchive" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>ares_zh_TW</value></property>
+      <property name="name"><value>自訂電子郵件存檔</value></property>
+      <property name="location"><value>/sakai_mailbox/ares_zh_TW.html</value></property>
+   </bean>
+
+      <bean id="readEmailArchive" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>argm_zh_TW</value></property>
+      <property name="name"><value>閱讀電子郵件存檔中的郵件</value></property>
+      <property name="location"><value>/sakai_mailbox/argm_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="sendMail" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arew_zh_TW</value></property>
+      <property name="name"><value>向網站參與者傳送郵件</value></property>
+      <property name="location"><value>/sakai_mailbox/arew_zh_TW.html</value></property>
+   </bean>
+
+   <bean id="controlEmail" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aree_zh_TW</value></property>
+      <property name="name"><value>控制傳送電子郵件的使用者</value></property>
+      <property name="location"><value>/sakai_mailbox/aree_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="manageEmail" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arem_zh_TW</value></property>
+      <property name="name"><value>管理電子郵件</value></property>
+      <property name="location"><value>/sakai_mailbox/arem_zh_TW.html</value></property>
+   </bean>
+   
+    <bean id="searchMessages" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcp_zh_TW</value></property>
+      <property name="name"><value>搜尋電子郵件訊息</value></property>
+      <property name="location"><value>/sakai_mailbox/arcp_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="createEmailArchive" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardl_zh_TW</value></property>
+      <property name="name"><value>建立電子郵件存檔</value></property>
+      <property name="location"><value>/sakai_mailbox/ardl_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="deleteMessage" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcn_zh_TW</value></property>
+      <property name="name"><value>刪除電子郵件訊息</value></property>
+      <property name="location"><value>/sakai_mailbox/arcn_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="messageFormatting" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>araq_zh_TW</value></property>
+      <property name="name"><value>電子郵件存檔中的郵件格式和附件</value></property>
+      <property name="location"><value>/sakai_mailbox/araq_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="controlDisplayedNumber" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arck_zh_TW</value></property>
+      <property name="name"><value>控制顯示的電子郵件存檔郵件的數量</value></property>
+      <property name="location"><value>/sakai_mailbox/arck_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="setEmailAlias" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardz_zh_TW</value></property>
+      <property name="name"><value>設定電子郵件存檔別名</value></property>
+      <property name="location"><value>/sakai_mailbox/ardz_zh_TW.html</value></property>
+   </bean>
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="emailArchiveCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>電子郵件存檔</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="emailArchiveOverview"/>
+                     <ref bean="customizeEmailArchive"/>
+                     <ref bean="readEmailArchive"/>
+                     <ref bean="sendMail"/>
+                     <ref bean="controlEmail"/>
+                     <ref bean="manageEmail"/>
+                     <ref bean="searchMessages"/>
+                     <ref bean="createEmailArchive"/>
+                     <ref bean="deleteMessage"/>
+                     <ref bean="messageFormatting"/>
+                     <ref bean="controlDisplayedNumber"/>
+                     <ref bean="setEmailAlias"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
