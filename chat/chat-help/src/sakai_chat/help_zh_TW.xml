@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="chatRoomOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcz_zh_TW</value></property>
+      <property name="name"><value>聊天室：概述</value></property>
+      <property name="location"><value>/sakai_chat/arcz_zh_TW.html</value></property>
+      <property name="defaultForTool"><value>sakai.chat</value></property>
+   </bean>
+
+   <bean id="useChatRoom" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>arcv_zh_TW</value></property>
+         <property name="name"><value>閱讀、發佈或刪除聊天室訊息</value></property>
+         <property name="location"><value>/sakai_chat/arcv_zh_TW.html</value></property>
+   </bean>
+   
+   <bean id="createNewChat" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>ardp_zh_TW</value></property>
+      <property name="name"><value>新增、編輯或刪除聊天室</value></property>
+      <property name="location"><value>/sakai_chat/ardp_zh_TW.html</value></property>
+   </bean>
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="chatRoomCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>聊天室</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="chatRoomOverview"/>
+                     <ref bean="useChatRoom"/>
+                     <ref bean="createNewChat"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
