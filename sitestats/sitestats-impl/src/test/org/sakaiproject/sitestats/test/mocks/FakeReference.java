@@ -10,10 +10,16 @@ import org.sakaiproject.entity.api.ResourceProperties;
 public class FakeReference implements Reference {
 	String ref;
 	String id;
+	FakeResourceProperties rp;
 
 	public FakeReference(String ref, String id) {
 		this.ref = ref;
 		this.id = id;
+		rp = new FakeResourceProperties(
+				ref+"-name", 
+				ref.endsWith("/"), 
+				ref.endsWith("/")? "folder" : "image/png" 
+			);
 	}
 	
 	public void addSiteContextAuthzGroup(Collection arg0) {
@@ -71,8 +77,7 @@ public class FakeReference implements Reference {
 	}
 
 	public ResourceProperties getProperties() {
-		// TODO Auto-generated method stub
-		return null;
+		return rp;
 	}
 
 	public String getReference() {
@@ -90,8 +95,7 @@ public class FakeReference implements Reference {
 	}
 
 	public String getUrl() {
-		// TODO Auto-generated method stub
-		return null;
+		return "http://localhost:8080"+ref;
 	}
 
 	public boolean isKnownType() {

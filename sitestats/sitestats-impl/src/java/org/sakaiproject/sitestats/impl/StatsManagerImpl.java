@@ -45,13 +45,13 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Expression;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.content.cover.ContentHostingService;
-import org.sakaiproject.content.cover.ContentTypeImageService;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentTypeImageService;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
@@ -124,6 +124,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	private MemoryService				M_ms;
 	private SessionManager				M_sm;
 	private EventTrackingService		M_ets;
+	private EntityManager				M_em;
+	private ContentHostingService		M_chs;
+	private ContentTypeImageService		M_ctis;
 	
 	/** Caching */
 	private Cache						cachePrefsData							= null;
@@ -133,7 +136,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	// ################################################################
 	// Spring bean methods
 	// ################################################################
-	public void setEnableSiteVisits(boolean enableSiteVisits) {
+	public void setEnableSiteVisits(Boolean enableSiteVisits) {
 		this.enableSiteVisits = enableSiteVisits;
 	}
 	
@@ -141,7 +144,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		return enableSiteVisits;
 	}
 
-	public void setEnableSiteActivity(boolean enableSiteActivity) {
+	public void setEnableSiteActivity(Boolean enableSiteActivity) {
 		this.enableSiteActivity = enableSiteActivity;
 	}
 
@@ -157,7 +160,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		return enableSiteActivity;
 	}
 	
-	public void setVisitsInfoAvailable(boolean available){
+	public void setVisitsInfoAvailable(Boolean available){
 		this.visitsInfoAvailable = available;
 	}
 	public boolean isVisitsInfoAvailable(){
@@ -243,6 +246,23 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	public void setEventTrackingService(EventTrackingService eventTrackingService) {
 		this.M_ets = eventTrackingService;
 	}
+	
+	public void setEntityManager(EntityManager entityManager) {
+		this.M_em = entityManager;
+	}
+	
+	public void setContentHostingService(ContentHostingService contentHostingService) {
+		this.M_chs = contentHostingService;
+	}
+	
+	public void setContentTypeImageService(ContentTypeImageService contentTypeImageService) {
+		this.M_ctis = contentTypeImageService;
+	}
+	
+	/** This one is needed for unit testing */
+	public void setResourceLoader(ResourceLoader msgs) {
+		this.msgs = msgs;
+	}
 
 	
 	// ################################################################
@@ -250,15 +270,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	// ################################################################	
 	public void init(){
 		// Set default properties if not set by spring/sakai.properties
-		if(enableSiteVisits == null) {
-			enableSiteVisits = M_scs.getBoolean("display.users.present", false) || M_scs.getBoolean("presence.events.log", false);
-		}
-		if(visitsInfoAvailable == null) {
-			visitsInfoAvailable	= enableSiteVisits;
-		}
-		if(enableSiteActivity == null) {
-			enableSiteActivity = true;
-		}
+		setDefaultPropertiesIfNotSet();
 		
 		// Checks whether Event.getContext is implemented in Event (from Event API)
 		checkForEventContextSupport();
@@ -271,6 +283,18 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 							isEventContextSupported+','+enableSiteVisits+','+chartBackgroundColor+','+chartIn3D+','+chartTransparency+','+itemLabelsVisible);
 	}
 	
+	public void setDefaultPropertiesIfNotSet() {
+		if(enableSiteVisits == null) {
+			enableSiteVisits = M_scs.getBoolean("display.users.present", false) || M_scs.getBoolean("presence.events.log", false);
+		}
+		if(visitsInfoAvailable == null) {
+			visitsInfoAvailable	= enableSiteVisits;
+		}
+		if(enableSiteActivity == null) {
+			enableSiteActivity = true;
+		}
+	}
+
 	public void destroy(){
 		M_ets.deleteObserver(this);
 	}
@@ -361,10 +385,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			}
 			if(prefsdata.isListToolEventsOnlyAvailableInSite()){
 				// intersect with tools available in site
-				prefsdata.setToolEventsDef(EventUtil.getIntersectionWithAvailableToolsInSite(prefsdata.getToolEventsDef(), siteId));
+				prefsdata.setToolEventsDef(EventUtil.getIntersectionWithAvailableToolsInSite(M_ss, prefsdata.getToolEventsDef(), siteId));
 			}else{
 				// intersect with tools available in sakai installation
-				prefsdata.setToolEventsDef(EventUtil.getIntersectionWithAvailableToolsInSakaiInstallation(prefsdata.getToolEventsDef()));
+				prefsdata.setToolEventsDef(EventUtil.getIntersectionWithAvailableToolsInSakaiInstallation(M_tm, prefsdata.getToolEventsDef()));
 			}
 
 			prefsdata.setToolEventsDef(EventUtil.addMissingAdditionalToolIds(prefsdata.getToolEventsDef(), M_ers.getEventRegistry()));
@@ -377,9 +401,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	 * @see org.sakaiproject.sitestats.api.StatsManager#setPreferences(java.lang.String, org.sakaiproject.sitestats.api.PrefsData)
 	 */
 	public boolean setPreferences(final String siteId, final PrefsData prefsdata){
-		final String prefsdataStr = prefsdata.toXmlPrefs();
 		if(siteId == null){
 			throw new IllegalArgumentException("Null siteId");
+		}else if(prefsdata == null){
+			throw new IllegalArgumentException("Null preferences");
 		}else{
 			HibernateCallback hcb = new HibernateCallback() {
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -393,7 +418,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 							prefs = new PrefsImpl();
 							prefs.setSiteId(siteId);
 						}
-						prefs.setPrefs(prefsdataStr);
+						prefs.setPrefs(prefsdata.toXmlPrefs());
 						session.saveOrUpdate(prefs);
 						tx.commit();
 						return Boolean.TRUE;
@@ -422,7 +447,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			}
 			return M_ss.getSite(siteId).getUsers();
 		}catch(IdUnusedException e){
-			LOG.warn("Inexistent site for site id: "+siteId, e);
+			LOG.warn("Inexistent site for site id: "+siteId);
 		}
 		return null;
 	}
@@ -460,16 +485,32 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getResourceName(java.lang.String, boolean)
 	 */
 	public String getResourceName(String ref, boolean includeLocationPrefix) {
-		Reference r = EntityManager.newReference(ref);
-		ResourceProperties rp = r.getProperties();
-		if(rp == null){
-			return getResourceName_ManualParse(ref);
+		if(ref == null) {
+			return null;
 		}
-		String name = rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
-		StringBuffer _fileName = new StringBuffer("");
+		String parts[] = ref.split("\\/");
+		Reference r = M_em.newReference(ref);
+		ResourceProperties rp = null;
+		// determine resource name
+		String name = null;
+		if(r != null) {
+			rp = r.getProperties();
+			if(rp != null){
+				// resource exists
+				name = rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+			}else{
+				// resource was deleted
+				if(parts.length >= 2) {
+					name = parts[parts.length - 1];
+				}
+				if("".equals(name) && parts.length >= 3) {
+					name = parts[parts.length - 2];
+				}
+			}
+		}
 		
+		StringBuffer _fileName = new StringBuffer("");		
 		if(includeLocationPrefix) {
-			String parts[] = ref.split("\\/");		
 			if(parts.length >= 4 && parts[2].equals("user")){
 				// My Workspace
 				_fileName.append("[");
@@ -510,7 +551,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 							refU.append(parts[i]);
 							refU.append('/');
 						}
-						Reference rU = EntityManager.newReference(refU.toString());
+						Reference rU = M_em.newReference(refU.toString());
 						ResourceProperties rpU = rU.getProperties();
 						user = rpU.getProperty(ResourceProperties.PROP_DISPLAY_NAME);						
 					}catch(Exception e1){
@@ -532,6 +573,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		return _fileName.toString();		
 	}
 	
+	@Deprecated
 	private String getResourceName_ManualParse(String ref) {
 		if(ref == null) {
 			return null;
@@ -586,8 +628,11 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getResourceImageLibraryRelativePath(java.lang.String)
 	 */
 	public String getResourceImageLibraryRelativePath(String ref){
-		Reference r = EntityManager.newReference(ref);
-		ResourceProperties rp = r.getProperties();
+		Reference r = M_em.newReference(ref);
+		ResourceProperties rp = null;
+		if(r != null) {
+			rp = r.getProperties();
+		}
 		
 		boolean isCollection;
 		if(rp != null){
@@ -604,16 +649,15 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		String imgLink = "";
 		try{
 			if(isCollection)
-				imgLink = ContentTypeImageService.getContentTypeImage("folder");			
+				imgLink = M_ctis.getContentTypeImage("folder");			
 			else if(rp != null){
-				String contentTypePropName = rp.getNamePropContentType();
-				String contentType = rp.getProperty(contentTypePropName);
+				String contentType = rp.getProperty(rp.getNamePropContentType());
 				if(contentType != null)
-					imgLink = ContentTypeImageService.getContentTypeImage(contentType);
+					imgLink = M_ctis.getContentTypeImage(contentType);
 				else{
 					imgLink = "sakai/generic.gif";
 				}
-			}else{;
+			}else{
 				imgLink = "sakai/generic.gif";
 			}
 		}catch(Exception e){
@@ -637,17 +681,21 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		try{
 			String tmp = ref.replaceFirst("/content", "");
 			if(tmp.endsWith("/"))
-				ContentHostingService.checkCollection(tmp);
+				M_chs.checkCollection(tmp);
 			else
-				ContentHostingService.checkResource(tmp);
+				M_chs.checkResource(tmp);
 		}catch(IdUnusedException e){
 			return null;
 		}catch(Exception e){
 			// TypeException or PermissionException
 			// It's OK since it exists
 		}
-		Reference r = EntityManager.newReference(ref);
-		return Validator.escapeHtml(r.getUrl());
+		Reference r = M_em.newReference(ref);
+		if(r != null) {
+			return Validator.escapeHtml(r.getUrl());
+		}else{
+			return null;
+		}
 	}
 
 	

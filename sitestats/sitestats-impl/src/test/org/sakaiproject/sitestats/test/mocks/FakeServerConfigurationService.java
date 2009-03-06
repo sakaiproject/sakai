@@ -1,17 +1,33 @@
 package org.sakaiproject.sitestats.test.mocks;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 
 public class FakeServerConfigurationService implements ServerConfigurationService {
-	private Properties p = new Properties();
+	private Map<String,String> m = new HashMap<String,String>();
 	
 	public FakeServerConfigurationService() {
-		p.put("sitestats.db", "internal");
-		p.put("hibernate.dialect", "org.hibernate.dialect.HSQLDialect");
+		m.put("sitestats.db", "internal");
+		m.put("hibernate.dialect", "org.hibernate.dialect.HSQLDialect");
+	}
+	
+	public void printAll() {
+		System.out.println("-- Start ----------------------------");
+		for(Object key : m.keySet()) {
+			System.out.println("["+key+"] : "+m.get((String) key));
+		}	
+		System.out.println("-- End ------------------------------");
+	}
+	
+	public void setProperty(String key, String value) {
+		m.put(key, value);
+	}
+	
+	public void removeProperty(String key) {
+		m.remove(key);
 	}
 	
 	public String getAccessPath() {
@@ -25,7 +41,7 @@ public class FakeServerConfigurationService implements ServerConfigurationServic
 	}
 
 	public boolean getBoolean(String key, boolean defaultValue) {
-		return Boolean.getBoolean(p.getProperty(key, Boolean.toString(defaultValue)));
+		return Boolean.parseBoolean(getString(key, Boolean.toString(defaultValue)));
 	}
 
 	public List getDefaultTools(String arg0) {
@@ -43,9 +59,8 @@ public class FakeServerConfigurationService implements ServerConfigurationServic
 		return null;
 	}
 
-	public int getInt(String arg0, int arg1) {
-		// TODO Auto-generated method stub
-		return 0;
+	public int getInt(String key, int defaultValue) {
+		return Integer.parseInt(getString(key, Integer.toString(defaultValue)));
 	}
 
 	public String getLoggedOutUrl() {
@@ -88,11 +103,15 @@ public class FakeServerConfigurationService implements ServerConfigurationServic
 	}
 
 	public String getString(String key) {
-		return p.getProperty(key);
+		return m.get(key);
 	}
 
 	public String getString(String key, String defaultValue) {
-		return p.getProperty(key, defaultValue);
+		String v = m.get(key);
+		if(v == null) {
+			v = defaultValue;
+		}
+		return v;
 	}
 
 	public String[] getStrings(String arg0) {

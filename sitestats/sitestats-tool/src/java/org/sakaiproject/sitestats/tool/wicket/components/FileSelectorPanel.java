@@ -30,6 +30,7 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
 import org.sakaiproject.sitestats.tool.wicket.models.CHResourceModel;
+import org.sakaiproject.sitestats.tool.wicket.pages.BasePage;
 
 /**
  * @author Nuno Fernandes
@@ -144,8 +145,7 @@ public class FileSelectorPanel extends Panel {
 
 	@Override
 	public void renderHead(HtmlHeaderContainer container) {
-		//container.getHeaderResponse().renderJavascriptReference("/library/js/jquery.js");
-		container.getHeaderResponse().renderJavascriptReference("/sakai-sitestats-tool/script/jquery-1.3.1.min.js");
+		container.getHeaderResponse().renderJavascriptReference(BasePage.JQUERYSCRIPT);
 		container.getHeaderResponse().renderJavascriptReference("/sakai-sitestats-tool/html/components/jqueryFileTree/jqueryFileTree.js");
 		container.getHeaderResponse().renderCSSReference("/sakai-sitestats-tool/html/components/jqueryFileTree/jqueryFileTree.css");
 		StringBuilder onDomReady = new StringBuilder();

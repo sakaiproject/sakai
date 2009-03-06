@@ -3,6 +3,7 @@ package org.sakaiproject.sitestats.tool.wicket.components;
 import java.util.List;
 
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -12,18 +13,20 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
+import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
 
 
 /**
  * @author Nuno Fernandes
  */
 public class EventRegistryTree extends Panel {
-	private static final long	serialVersionUID	= 1L;
+	private static final long		serialVersionUID	= 1L;
 
-	private WebMarkupContainer	ul					= null;
-	private Rows				rows 				= null;
+	private WebMarkupContainer		ul					= null;
+	private Rows					rows 				= null;
 
 	public EventRegistryTree(String id, List<?> eventRegistry) {
 		this(id, eventRegistry, null);
@@ -60,8 +63,12 @@ public class EventRegistryTree extends Panel {
 	}
 
 	private static class Rows extends ListView {
-		private static final long	serialVersionUID	= 1L;
-		private String				currentToolId		= null;
+		private static final long		serialVersionUID	= 1L;
+		private String					currentToolId		= null;
+		
+		/** Inject Sakai facade */
+		@SpringBean
+		private transient SakaiFacade	facade;
 		/**
 		 * Construct.
 		 * @param name name of the component
@@ -105,7 +112,8 @@ public class EventRegistryTree extends Panel {
 								
 				// image, label, checkbox
 				listItem.add(new ExternalImage("image", "images/silk/icons/application_side_boxes.png"));
-				listItem.add(new Label("label", new Model(ti.getToolName())));
+				String toolName = getFacade().getEventRegistryService().getToolName(ti.getToolId());
+				listItem.add(new Label("label", new Model(toolName)));
 				CheckBox toolCheckBox = new CheckBox("checkbox", new PropertyModel(ti, "selected"));
 				AttributeModifier onclick = new AttributeModifier("onclick", true, new Model("selectUnselectEvents(this); updateToolSelection('#"+toolId+"');"));
 				toolCheckBox.add(onclick);
@@ -124,7 +132,8 @@ public class EventRegistryTree extends Panel {
 				listItem.add(new ExternalImage("navCollapse", "images/line-last.gif"));
 				listItem.add(new ExternalImage("navExpand", "images/nav-plus.gif").setVisible(false));
 				listItem.add(new ExternalImage("image", "images/silk/icons/bullet_feed.png"));
-				listItem.add(new Label("label", new Model(ei.getEventName())));
+				String eventName = getFacade().getEventRegistryService().getEventName(ei.getEventId());
+				listItem.add(new Label("label", new Model(eventName)));
 				CheckBox eventCheckBox = new CheckBox("checkbox", new PropertyModel(ei, "selected"));
 				eventCheckBox.add(new AttributeModifier("onclick", true, new Model("updateToolSelection('#"+currentToolId+"');")));
 				listItem.add(eventCheckBox);
@@ -145,6 +154,13 @@ public class EventRegistryTree extends Panel {
 				nested.setVisible(false);
 				listItem.add(nested);
 			}
+		}
+		
+		private SakaiFacade getFacade() {
+			if(facade == null) {
+				InjectorHolder.getInjector().inject(this);
+			}
+			return facade;
 		}
 	}
 }

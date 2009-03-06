@@ -5,20 +5,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.sitestats.api.parser.EventParserTip;
-import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.util.ResourceLoader;
 
 
 public class ToolInfo implements Serializable {
 	private static final long			serialVersionUID	= 1L;
-	private transient Log				LOG					= LogFactory.getLog(ToolInfo.class);
 	private String						toolId;
 	private List<String>				additionalToolIds;
-	private String						toolName;
 	private List<EventInfo>				eventInfos;
 	private boolean						selected;
 	private EventParserTip				eventParserTip;
@@ -81,52 +74,6 @@ public class ToolInfo implements Serializable {
 				this.additionalToolIds.add(_ids[i].trim());
 		}
 	}
-
-	public String getToolName() {
-		ToolManager M_tm = (ToolManager) ComponentManager.get(ToolManager.class.getName());
-		// main tool id
-		try{
-			toolName = M_tm.getTool(toolId).getTitle();
-		}catch(Exception e){
-			ResourceLoader msgs = new ResourceLoader("Events");
-			try{
-				LOG.info("No sakai tool found for toolId: " + toolId
-						+ " (tool undeployed?). Using bundle (if supplied) in sitestats/sitestats-impl/impl/src/bundle/org/sakaiproject/sitestats/impl/bundle/ for tool name.");
-				toolName = msgs.getString(toolId, toolId);
-			}catch(Exception e1){
-				LOG.info("No translation found for toolId: " + toolId
-						+ " - using toolId as tool name. Please specify it in sitestats/sitestats-impl/impl/src/bundle/org/sakaiproject/sitestats/impl/bundle/");
-				toolName = toolId;
-			}
-		}
-
-		// secondary tool id
-		if(additionalToolIds != null){
-			Iterator<String> i = additionalToolIds.iterator();
-			while (i.hasNext()){
-				String tId = i.next();
-				try{
-					toolName += "/" + M_tm.getTool(tId).getTitle();
-				}catch(Exception e){
-					try{
-						LOG.info("No sakai tool found for (additional) toolId: " + toolId
-								+ " (tool undeployed?). Using bundle (if supplied) in sitestats/sitestats-impl/impl/src/bundle/org/sakaiproject/sitestats/impl/bundle/ for tool name.");
-						ResourceLoader msgs = new ResourceLoader("Events");
-						toolName += "/" + msgs.getString(tId, tId);
-					}catch(Exception e1){
-						LOG.info("No translation found for (additional) toolId: " + toolId
-								+ " - using toolId as tool name. Please specify it in sitestats/sitestats-impl/impl/src/bundle/org/sakaiproject/sitestats/impl/bundle/");
-						toolName += "/" + tId;
-					}
-				}
-			}
-		}
-		return toolName;
-	}
-
-	public void setToolName(String toolName) {
-		this.toolName = toolName;
-	}	
 	
 	@Override
 	public boolean equals(Object arg0) {
@@ -153,7 +100,7 @@ public class ToolInfo implements Serializable {
 	
 	public String toString() {
 		StringBuffer buff = new StringBuffer();
-		buff.append("ToolInfo: "+getToolId()+" ("+getToolName()+") ["+isSelected()+"]");
+		buff.append("ToolInfo: "+getToolId()+" ["+isSelected()+"]");
 		if(additionalToolIds != null) {
 			Iterator<String> i = additionalToolIds.iterator();
 			while(i.hasNext())

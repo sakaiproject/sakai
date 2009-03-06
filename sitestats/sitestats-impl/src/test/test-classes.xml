@@ -17,9 +17,14 @@
     <bean id="org.sakaiproject.sitestats.test.StatsUpdateManagerTest"
         class="org.sakaiproject.sitestats.test.StatsUpdateManagerTest">
         <property name="statsUpdateManager" ref="org.sakaiproject.sitestats.test.StatsUpdateManager"/>
-        <property name="statsManager" ref="org.sakaiproject.sitestats.test.StatsManager"/>
-        <!--<property name="siteService" ref="org.sakaiproject.mock.service.SiteService"/>-->
         <property name="eventTrackingService" ref="org.sakaiproject.sitestats.test.mocks.FakeEventTrackingService"/>
+        <property name="db" ref="org.sakaiproject.sitestats.test.DB"/>
+    </bean>
+    <bean id="org.sakaiproject.sitestats.test.StatsManagerTest"
+        class="org.sakaiproject.sitestats.test.StatsManagerTest">
+        <property name="statsManager" ref="org.sakaiproject.sitestats.test.StatsManager"/>
+        <property name="statsUpdateManager" ref="org.sakaiproject.sitestats.test.StatsUpdateManager"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.sitestats.test.mocks.FakeServerConfigurationService"/>
         <property name="db" ref="org.sakaiproject.sitestats.test.DB"/>
     </bean>
     <!-- [END] Classes that will test others -->
@@ -35,8 +40,7 @@
                 <property name="collectThreadEnabled" value="true"/>
                 <property name="collectThreadUpdateInterval" value="50"/>
                 <property name="collectAdminEvents" value="true" />
-                <property name="collectEventsForSiteWithToolOnly" value="false" />
-                
+                <property name="collectEventsForSiteWithToolOnly" value="false" />                
                 <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
                 <property name="statsManager" ref="org.sakaiproject.sitestats.test.StatsManager" />
                 <property name="eventRegistryService" ref="org.sakaiproject.sitestats.test.mocks.FakeEventRegistryService"/>
@@ -62,7 +66,8 @@
                 <property name="toolManager" ref="org.sakaiproject.sitestats.test.mocks.FakeToolManager"/>
                 <property name="memoryService" ref="org.sakaiproject.sitestats.test.mocks.FakeMemoryService" />
                 <property name="sessionManager" ref="org.sakaiproject.sitestats.test.mocks.FakeSessionManager" />
-                <property name="eventTrackingService" ref="org.sakaiproject.sitestats.test.mocks.FakeEventTrackingService"/>                
+                <property name="eventTrackingService" ref="org.sakaiproject.sitestats.test.mocks.FakeEventTrackingService"/>
+                <property name="entityManager" ref="org.sakaiproject.sitestats.test.mocks.FakeEntityManager"/>                
     </bean>
     <!-- [END] Target classes to test -->
 

@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.sitestats.test.data.FakeData;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
@@ -16,23 +17,43 @@ public class FakeToolManager implements ToolManager {
 
 	Set<Tool> tools = new HashSet<Tool>();
 	Placement currentPlacement;
+	FakeTool dropbox;
+	FakeTool resources;
+	FakeTool chat;
+	FakeTool sitestats;
 
 	public FakeToolManager() {
-		FakeTool dropbox = new FakeTool();
+		dropbox = new FakeTool();
 		dropbox.setId(StatsManager.DROPBOX_TOOLID);
 		dropbox.setTitle("DropBox");
 		tools.add(dropbox);
-		FakeTool resources = new FakeTool();
+		resources = new FakeTool();
 		resources.setId(StatsManager.RESOURCES_TOOLID);
 		resources.setTitle("Resources");
 		tools.add(resources);
-		FakeTool sitestats = new FakeTool();
+		chat = new FakeTool();
+		chat.setId(FakeData.TOOL_CHAT);
+		chat.setTitle("Chat");
+		tools.add(chat);
+		sitestats = new FakeTool();
 		sitestats.setId(StatsManager.SITESTATS_TOOLID);
 		sitestats.setTitle("SiteStats");
 		tools.add(sitestats);
 		
-		FakePlacement placement = new FakePlacement(dropbox, "site-id");
-		currentPlacement = placement;
+		//setDefaultPlacementContext();
+		currentPlacement = new FakePlacement(resources, null);
+	}
+	
+	public void setDefaultPlacementContext(String siteId) {
+		currentPlacement = new FakePlacement(resources, siteId);
+	}
+	
+	public void setDefaultPlacementContext() {
+		currentPlacement = new FakePlacement(resources, FakeData.SITE_A_ID);
+	}
+	
+	public Placement getDefaultPlacementContext() {
+		return currentPlacement;
 	}
 	
 	public Set findTools(Set categories, Set keywords) {

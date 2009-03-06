@@ -13,8 +13,8 @@
     <bean id="org.sakaiproject.sitestats.test.mocks.FakeEntityManager" class="org.sakaiproject.sitestats.test.mocks.FakeEntityManager"/>
     <bean id="org.sakaiproject.sitestats.test.mocks.FakeEventTrackingService" class="org.sakaiproject.sitestats.test.mocks.FakeEventTrackingService"/>
     <bean id="org.sakaiproject.sitestats.test.mocks.FakeUsageSessionService" class="org.sakaiproject.sitestats.test.mocks.FakeUsageSessionService"/>
-    <bean id="org.sakaiproject.sitestats.test.mocks.FakeServerConfigurationService" class="org.sakaiproject.sitestats.test.mocks.FakeServerConfigurationService"/>
+    <bean id="org.sakaiproject.sitestats.test.mocks.FakeServerConfigurationService" class="org.sakaiproject.sitestats.test.mocks.FakeServerConfigurationService" singleton="true"/>
     <bean id="org.sakaiproject.sitestats.test.mocks.FakeMemoryService" class="org.sakaiproject.sitestats.test.mocks.FakeMemoryService"/>
     <bean id="org.sakaiproject.sitestats.test.mocks.FakeSessionManager" class="org.sakaiproject.sitestats.test.mocks.FakeSessionManager"/>
-
+    
 </beans>

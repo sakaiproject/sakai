@@ -49,7 +49,7 @@ public abstract class MaximizedImagePage extends BasePage {
 	@Override
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
-		response.renderJavascriptReference("/library/js/jquery.js");
+		response.renderJavascriptReference(JQUERYSCRIPT);
 		response.renderOnDomReadyJavascript("setMainFrameHeightNoScroll(window.name, 750);");
 	}
 	

@@ -20,6 +20,10 @@ public class FakeData {
 	public final static String					SITE_A_TARGET		= SITE_A_REF;
 	public final static String					SITE_B_ID			= "site-b-id";
 	public final static String					SITE_B_REF			= "/site/site-b-id";
+	
+	// USERs
+	public final static String					USER_A_ID			= "user-a";
+	public final static String					USER_B_ID			= "user-b";
 
 	// TOOLs & EVENTs
 	public final static String					TOOL_CHAT			= "sakai.chat";
@@ -29,6 +33,9 @@ public class FakeData {
 	
 	// EVENT LIST & EVENT MAP
 	public final static List<String>			EVENTIDS			= new ArrayList<String>();
+	public final static List<ToolInfo>			EVENT_REGISTRY		= new ArrayList<ToolInfo>();
+	public final static List<ToolInfo>			EVENT_REGISTRY_RES	= new ArrayList<ToolInfo>();
+	public final static List<ToolInfo>			EVENT_REGISTRY_CHAT	= new ArrayList<ToolInfo>();
 	static{
 		EVENTIDS.add(EVENT_CHATNEW); 
 		EVENTIDS.add(EVENT_CONTENTNEW); 
@@ -40,6 +47,8 @@ public class FakeData {
 		chat.addEvent(new EventInfo(EVENT_CHATNEW));
 		chat.setEventParserTip(new EventParserTip("contextId", "/", "3"));
 		EVENTID_TOOL_MAP.put(EVENT_CHATNEW, chat);
+		EVENT_REGISTRY.add(chat);
+		EVENT_REGISTRY_CHAT.add(chat);
 
 		ToolInfo resources = new ToolInfo(StatsManager.RESOURCES_TOOLID);
 		resources.addEvent(new EventInfo(EVENT_CONTENTNEW));
@@ -47,5 +56,24 @@ public class FakeData {
 		resources.setEventParserTip(new EventParserTip("contextId", "/", "3"));
 		EVENTID_TOOL_MAP.put(EVENT_CONTENTNEW, resources);
 		EVENTID_TOOL_MAP.put(EVENT_CONTENTREV, resources);
+		EVENT_REGISTRY.add(resources);
+		EVENT_REGISTRY_RES.add(resources);
 	}
+
+	// RESOURCEs
+	public final static String					RES_MYWORKSPACE_A	= "/content/user/"+USER_A_ID+"/";
+	public final static String					RES_MYWORKSPACE_B_F	= "/content/user/"+USER_B_ID+"/resource1";
+	public final static String					RES_MYWORKSPACE_NO_F= "/content/user/no_user/resource1";
+	public final static String					RES_ATTACH_SITE		= "/content/attachment/"+SITE_A_ID;
+	public final static String					RES_ATTACH			= "/content/attachment/"+SITE_A_ID+"/Discussion/resource3";
+	public final static String					RES_ATTACH_OLD		= "/content/attachment/"+SITE_A_ID+"/Choose File/resource3";
+	public final static String					RES_ATTACH_OLD2		= "/content/attachment/"+SITE_A_ID+"/Choose File/Assignments/resource3";
+	public final static String					RES_ROOT_SITE_A		= "/content/group/"+SITE_A_ID+"/";
+	public final static String					RES_FILE_SITE_A		= "/content/group/"+SITE_A_ID+"/resource1";
+	public final static String					RES_FOLDER_SITE_A	= "/content/group/"+SITE_A_ID+"/folder/";
+	public final static String					RES_FILE2_SITE_A	= "/content/group/"+SITE_A_ID+"/folder/res2";
+	public final static String					RES_DROPBOX_SITE_A	= "/content/group-user/"+SITE_A_ID+"/";
+	public final static String					RES_DROPBOX_SITE_A_USER_A	= "/content/group-user/"+SITE_A_ID+"/"+USER_A_ID+"/";
+	public final static String					RES_DROPBOX_SITE_A_USER_A_FILE	= "/content/group-user/"+SITE_A_ID+"/"+USER_A_ID+"/resource1";
+	
 }

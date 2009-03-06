@@ -1,7 +1,11 @@
 package org.sakaiproject.sitestats.test.mocks;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
@@ -23,17 +27,28 @@ import org.w3c.dom.Element;
 public class FakeSite implements Site {
 	private String id;
 	private String title;
-	private String toolId;
+	private List<String> toolIds = new ArrayList<String>();
+	private Map<String,SitePage> pages = new HashMap<String,SitePage>();
+	
+	private Time createdTime;
+	private Set<String> users;
+	private Set members;
 
 	public FakeSite(String id) {
-		this.id = id;
-		this.title = id;
+		this(id, new ArrayList<String>());
 	}
 	
 	public FakeSite(String id, String toolId) {
+		this(id, Arrays.asList(toolId));
+	}
+	
+	public FakeSite(String id, List<String> toolIds) {
 		this.id = id;
 		this.title = id;
-		this.toolId = toolId;
+		this.toolIds = toolIds;
+		for(String tId : toolIds) {
+			addPage(tId);
+		}
 	}
 	
 	public Group addGroup() {
@@ -42,8 +57,11 @@ public class FakeSite implements Site {
 	}
 
 	public SitePage addPage() {
-		// TODO Auto-generated method stub
-		return null;
+		return new FakeSitePage(id, null);
+	}
+	
+	public void addPage(String toolId) {
+		pages.put(toolId, new FakeSitePage(id, toolId));
 	}
 
 	public User getCreatedBy() {
@@ -52,8 +70,10 @@ public class FakeSite implements Site {
 	}
 
 	public Time getCreatedTime() {
-		// TODO Auto-generated method stub
-		return null;
+		return createdTime;
+	}
+	public void setCreatedTime(Time time) {
+		createdTime = time;
 	}
 
 	public String getDescription() {
@@ -121,14 +141,12 @@ public class FakeSite implements Site {
 		return null;
 	}
 
-	public SitePage getPage(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
+	public SitePage getPage(String id) {
+		return pages.get(id);
 	}
 
 	public List getPages() {
-		// TODO Auto-generated method stub
-		return null;
+		return new ArrayList(pages.values());
 	}
 
 	public String getShortDescription() {
@@ -145,14 +163,13 @@ public class FakeSite implements Site {
 		return title;
 	}
 
-	public ToolConfiguration getTool(String arg0) {
-		// TODO Auto-generated method stub
+	public ToolConfiguration getTool(String id) {
 		return null;
 	}
 
 	public ToolConfiguration getToolForCommonId(String toolId) {
-		if(toolId != null && this.toolId != null) {
-			return new FakeToolConfiguration();
+		if(toolId != null && toolIds.contains(toolId)) {
+			return new FakeToolConfiguration(toolId);
 		}else{
 			return null;
 		}
@@ -358,8 +375,10 @@ public class FakeSite implements Site {
 	}
 
 	public Set getMembers() {
-		// TODO Auto-generated method stub
-		return null;
+		return members;
+	}
+	public void setMembers(Set members) {
+		this.members = members;
 	}
 
 	public String getProviderGroupId() {
@@ -387,9 +406,11 @@ public class FakeSite implements Site {
 		return null;
 	}
 
-	public Set getUsers() {
-		// TODO Auto-generated method stub
-		return null;
+	public Set<String> getUsers() {
+		return users;
+	}
+	public void setUsers(Set<String> users) {
+		this.users = users;
 	}
 
 	public Set getUsersHasRole(String arg0) {

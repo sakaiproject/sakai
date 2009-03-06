@@ -216,6 +216,11 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.easymock</groupId>
+      <artifactId>easymockclassextension</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-mock</artifactId>
       <scope>test</scope>

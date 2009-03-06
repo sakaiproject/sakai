@@ -153,8 +153,7 @@ public class ReportsEditPage extends BasePage {
 	@Override
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
-		//response.renderJavascriptReference("/library/js/jquery.js");
-		response.renderJavascriptReference("/sakai-sitestats-tool/script/jquery-1.3.1.min.js");
+		response.renderJavascriptReference(JQUERYSCRIPT);
 		response.renderJavascriptReference("/sakai-sitestats-tool/script/reports.js");
 		response.renderJavascriptReference("/sakai-sitestats-tool/script/jquery.ifixpng2.js");
 		StringBuilder onDomReady = new StringBuilder();
@@ -914,7 +913,7 @@ public class ReportsEditPage extends BasePage {
 	@SuppressWarnings("serial")
 	private void addEvents(final RepeatingView rv) {
 		List<ToolInfo> siteTools = getFacade().getEventRegistryService().getEventRegistry(siteId, getPrefsdata().isListToolEventsOnlyAvailableInSite());
-		Collections.sort(siteTools, getToolInfoComparator(collator));
+		Collections.sort(siteTools, getToolInfoComparator(getFacade(), collator));
 		// add events
 		Iterator<ToolInfo> i = siteTools.iterator();
 		while(i.hasNext()){
@@ -933,7 +932,8 @@ public class ReportsEditPage extends BasePage {
 				rv.add(optgroupItem);
 				String toolIconPath = "background-image: url(" + getFacade().getEventRegistryService().getToolIcon(toolInfo.getToolId()) + ");";
 				String style = "background-position:left top; background-repeat:no-repeat; margin-left:3px; padding-left:20px; "+toolIconPath;
-				StylableSelectOptionsGroup group = new StylableSelectOptionsGroup("group", new Model(toolInfo.getToolName()), new Model(style));
+				String toolName = getFacade().getEventRegistryService().getToolName(toolInfo.getToolId());
+				StylableSelectOptionsGroup group = new StylableSelectOptionsGroup("group", new Model(toolName), new Model(style));
 				optgroupItem.add(group);
 				SelectOptions selectOptions = new SelectOptions("selectOptions", events, new IOptionRenderer() {
 					public String getDisplayValue(Object object) {
@@ -1150,10 +1150,12 @@ public class ReportsEditPage extends BasePage {
 		};
 	}
 	
-	public static final Comparator<ToolInfo> getToolInfoComparator(final Collator collator){
+	public static final Comparator<ToolInfo> getToolInfoComparator(final SakaiFacade facade, final Collator collator){
 		return new Comparator<ToolInfo>(){
 			public int compare(ToolInfo o1, ToolInfo o2) {
-				return collator.compare(o1.getToolName(), o2.getToolName());
+				String toolName1 = facade.getEventRegistryService().getToolName(o1.getToolId());
+				String toolName2 = facade.getEventRegistryService().getToolName(o2.getToolId());				
+				return collator.compare(toolName1, toolName2);
 			}		
 		};
 	}

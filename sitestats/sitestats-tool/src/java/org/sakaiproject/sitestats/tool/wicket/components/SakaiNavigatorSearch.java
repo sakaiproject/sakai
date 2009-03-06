@@ -6,6 +6,7 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.sakaiproject.sitestats.tool.wicket.pages.BasePage;
 import org.sakaiproject.sitestats.tool.wicket.providers.SortableSearchableDataProvider;
 
 
@@ -56,7 +57,7 @@ public class SakaiNavigatorSearch extends Panel {
 
 	@Override
 	public void renderHead(HtmlHeaderContainer container) {
-		container.getHeaderResponse().renderJavascriptReference("/library/js/jquery.js");
+		container.getHeaderResponse().renderJavascriptReference(BasePage.JQUERYSCRIPT);
 		super.renderHead(container);
 	}
 

@@ -7,11 +7,11 @@ import java.util.List;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.ToolManager;
 
 public class EventUtil {
 
@@ -37,11 +37,11 @@ public class EventUtil {
 	 * @param siteId The id of the site.
 	 * @return The Event Registry containing events for tools present in site.
 	 */
-	public static List<ToolInfo> getIntersectionWithAvailableToolsInSite(List<ToolInfo> eventRegistrySubset, String siteId) {
+	public static List<ToolInfo> getIntersectionWithAvailableToolsInSite(SiteService M_ss, List<ToolInfo> eventRegistrySubset, String siteId) {
 		List<ToolInfo> intersected = new ArrayList<ToolInfo>();
 		Site site = null;
 		try{
-			site = SiteService.getSite(siteId);
+			site = M_ss.getSite(siteId);
 		}catch(IdUnusedException e){
 			return eventRegistrySubset;
 		}
@@ -76,12 +76,12 @@ public class EventUtil {
 	 * @param siteId The id of the site.
 	 * @return The Event Registry containing events for tools present in (whole) Sakai installation.
 	 */
-	public static List<ToolInfo> getIntersectionWithAvailableToolsInSakaiInstallation(List<ToolInfo> eventRegistrySubset) {
+	public static List<ToolInfo> getIntersectionWithAvailableToolsInSakaiInstallation(ToolManager M_tm, List<ToolInfo> eventRegistrySubset) {
 		List<ToolInfo> intersected = new ArrayList<ToolInfo>();
 	
 		// search the pages
 		List<org.sakaiproject.tool.api.Tool> sakaiTools = new ArrayList<org.sakaiproject.tool.api.Tool>();
-		sakaiTools.addAll(ToolManager.findTools(null, null));
+		sakaiTools.addAll(M_tm.findTools(null, null));
 	
 		// add only tools in both lists
 		Iterator<ToolInfo> iTED = eventRegistrySubset.iterator();

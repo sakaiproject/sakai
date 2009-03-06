@@ -2,15 +2,9 @@ package org.sakaiproject.sitestats.api.event;
 
 import java.io.Serializable;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.cover.ComponentManager;
-
 public class EventInfo implements Serializable {
 	private static final long	serialVersionUID	= 1L;
-	private transient Log		LOG					= LogFactory.getLog(EventInfo.class);
 	private String				eventId;
-	private String				eventName;
 	private boolean				selected;
 	private boolean				anonymous;
 
@@ -24,21 +18,6 @@ public class EventInfo implements Serializable {
 
 	public void setEventId(String eventId) {
 		this.eventId = eventId.trim();
-	}
-
-	public String getEventName() {
-		try{
-			EventRegistryService M_ers = (EventRegistryService) ComponentManager.get(EventRegistryService.class);
-			eventName = M_ers.getEventName(getEventId());
-		}catch(RuntimeException e){
-			eventName = getEventId().trim();
-			LOG.info("No translation found for eventId: " + eventId.trim() + ". Please specify it in sitestats/sitestats-impl/impl/src/bundle/org/sakaiproject/sitestats/impl/bundle/");
-		}
-		return eventName;
-	}
-
-	public void setEventName(String eventName) {
-		this.eventName = eventName;
 	}
 
 	public boolean isSelected() {
@@ -74,7 +53,7 @@ public class EventInfo implements Serializable {
 
 	public String toString() {
 		StringBuffer buff = new StringBuffer();
-		buff.append("	-> EventInfo: "+getEventId()+" ("+getEventName()+") ["+isSelected()+"]\n");
+		buff.append("	-> EventInfo: "+getEventId()+" ["+isSelected()+"]\n");
 		return buff.toString();
 	}
 	

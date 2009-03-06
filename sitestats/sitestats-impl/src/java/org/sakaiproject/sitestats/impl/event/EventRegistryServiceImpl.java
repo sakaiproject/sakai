@@ -134,10 +134,10 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 			return getMergedEventRegistry();
 		}else if(onlyAvailableInSite) {
 			// return the event registry with only tools available in site
-			return EventUtil.getIntersectionWithAvailableToolsInSite(getMergedEventRegistry(), siteId);
+			return EventUtil.getIntersectionWithAvailableToolsInSite(M_ss, getMergedEventRegistry(), siteId);
 		}else{
 			// return the event registry with only tools available in (whole) Sakai
-			return EventUtil.getIntersectionWithAvailableToolsInSakaiInstallation(getMergedEventRegistry());
+			return EventUtil.getIntersectionWithAvailableToolsInSakaiInstallation(M_tm, getMergedEventRegistry());
 		}
 	}
 	
@@ -183,11 +183,21 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 		if(ReportManager.WHAT_EVENTS_ALLTOOLS.equals(toolId)) {
 			return msgs.getString("all");
 		}else{
+			String toolName;
 			try{
-				return M_tm.getTool(toolId).getTitle();
+				toolName = M_tm.getTool(toolId).getTitle();
 			}catch(Exception e){
-				return toolId;
+				try{
+					LOG.debug("No sakai tool found for toolId: " + toolId
+							+ " (tool undeployed?). Using bundle (if supplied) in sitestats/sitestats-impl/impl/src/bundle/org/sakaiproject/sitestats/impl/bundle/ for tool name.");
+					toolName = msgs.getString(toolId, toolId);
+				}catch(Exception e1){
+					LOG.debug("No translation found for toolId: " + toolId
+							+ " - using toolId as tool name. Please specify it in sitestats/sitestats-impl/impl/src/bundle/org/sakaiproject/sitestats/impl/bundle/");
+					toolName = toolId;
+				}
 			}
+			return toolName;
 		}
 	}
 	

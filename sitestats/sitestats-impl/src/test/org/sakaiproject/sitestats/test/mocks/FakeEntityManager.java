@@ -20,8 +20,11 @@ public class FakeEntityManager implements EntityManager {
 	}
 
 	public Reference newReference(String refString) {
-		String[] parts = refString.split("/");
-		return new FakeReference(refString, parts[parts.length-1]);
+		if(refString != null) {
+			String[] parts = refString.split("/");
+			return new FakeReference(refString, parts[parts.length-1]);
+		}
+		return null;
 	}
 
 	public Reference newReference(Reference arg0) {

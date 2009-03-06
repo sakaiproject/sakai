@@ -3,16 +3,23 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.models;
 
+import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.report.ReportManager;
+import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
 
 
 public class EventModel implements IModel {
 	private static final long	serialVersionUID	= 1L;
 	private String				eventId				= "";
 	private String				eventName			= "";
+	
+	/** Inject Sakai facade */
+	@SpringBean
+	private transient SakaiFacade	facade;
 
 	public EventModel(String eventId, String eventName) {
 		this.eventId = eventId;
@@ -21,7 +28,7 @@ public class EventModel implements IModel {
 
 	public EventModel(EventInfo e) {
 		this.eventId = e.getEventId();
-		this.eventName = e.getEventName();
+		this.eventName = getFacade().getEventRegistryService().getEventName(this.eventId);
 	}
 
 	public Object getObject() {
@@ -51,6 +58,13 @@ public class EventModel implements IModel {
 	public void detach() {
 		eventId = null;
 		eventName = null;
+	}
+	
+	private SakaiFacade getFacade() {
+		if(facade == null) {
+			InjectorHolder.getInjector().inject(this);
+		}
+		return facade;
 	}
 
 }

@@ -3,17 +3,24 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.models;
 
+import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.report.ReportManager;
+import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
 
 
 public class ToolModel implements IModel {
-	private static final long	serialVersionUID	= 1L;
+	private static final long		serialVersionUID	= 1L;
+	
+	/** Inject Sakai facade */
+	@SpringBean
+	private transient SakaiFacade	facade;
 
-	private String				toolId				= "";
-	private String				toolName			= "";
+	private String					toolId				= "";
+	private String					toolName			= "";
 
 	public ToolModel(String toolId, String toolName) {
 		this.toolId = toolId;
@@ -22,7 +29,7 @@ public class ToolModel implements IModel {
 	
 	public ToolModel(ToolInfo e) {
 		this.toolId = e.getToolId();
-		this.toolName = e.getToolName();
+		this.toolName = getFacade().getEventRegistryService().getToolName(this.toolId);
 	}
 
 	public Object getObject() {
@@ -52,6 +59,13 @@ public class ToolModel implements IModel {
 	public void detach() {
 		toolId = null;
 		toolName = null;
+	}
+	
+	private SakaiFacade getFacade() {
+		if(facade == null) {
+			InjectorHolder.getInjector().inject(this);
+		}
+		return facade;
 	}
 
 }

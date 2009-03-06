@@ -773,7 +773,7 @@ public class ChartServiceImpl implements ChartService {
 			int decimalPlaces = 1;
 			if(percentage < 0.1)
 				decimalPlaces = 2;
-			String label = s.getTool().getToolName() + " " + round(percentage, decimalPlaces) + "%";
+			String label = M_ers.getToolName(s.getTool().getToolId()) + " " + round(percentage, decimalPlaces) + "%";
 			pieDataSet.setValue(label, percentage );
 		}
 		if(lsac.size() > showMax){

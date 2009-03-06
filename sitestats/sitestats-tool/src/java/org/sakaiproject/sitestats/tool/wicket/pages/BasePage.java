@@ -21,10 +21,11 @@ import org.sakaiproject.util.ResourceLoader;
 public class BasePage extends WebPage implements IHeaderContributor {
 	
 	private static final long		serialVersionUID	= 1L;
-	protected static final String	HEADSCRIPTS			= "/library/js/headscripts.js";
-	protected static final String	COMMONSCRIPT		= "/sakai-sitestats-tool/script/common.js";
-	protected static final String	BODY_ONLOAD_ADDTL	= "setMainFrameHeightNoScroll(window.name, 0, 400)";
-	protected static final String	LAST_PAGE			= "lastSiteStatsPage";
+	public static final String		HEADSCRIPTS			= "/library/js/headscripts.js";
+	public static final String		COMMONSCRIPT		= "/sakai-sitestats-tool/script/common.js";
+	public static final String		JQUERYSCRIPT		= "/sakai-sitestats-tool/script/jquery-1.3.2.min.js";
+	public static final String		BODY_ONLOAD_ADDTL	= "setMainFrameHeightNoScroll(window.name, 0, 400)";
+	public static final String		LAST_PAGE			= "lastSiteStatsPage";
 
 	public BasePage(){
 		// Set Sakai Locale

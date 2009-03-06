@@ -65,7 +65,7 @@ public class ServerWidePage extends BasePage {
 	@Override
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
-		response.renderJavascriptReference("/library/js/jquery.js");
+		response.renderJavascriptReference(JQUERYSCRIPT);
 	}
 	
 	private void renderBody() {

@@ -35,8 +35,7 @@ public class FakeEventRegistryService implements EventRegistryService {
 	}
 
 	public List<ToolInfo> getEventRegistry() {
-		// TODO Auto-generated method stub
-		return null;
+		return FakeData.EVENT_REGISTRY;
 	}
 
 	public List<ToolInfo> getEventRegistry(String siteId, boolean onlyAvailableInSite) {

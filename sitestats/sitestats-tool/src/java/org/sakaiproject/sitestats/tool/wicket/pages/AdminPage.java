@@ -54,7 +54,6 @@ public class AdminPage extends BasePage {
 	@Override
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
-		// response.renderJavascriptReference("/library/js/jquery.js");
 	}
 
 	@SuppressWarnings("serial")

@@ -7,7 +7,11 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Tool;
 
 public class FakeToolConfiguration implements ToolConfiguration {
+	private String commonToolId;
 	
+	public FakeToolConfiguration(String commonToolId) {
+		this.commonToolId = commonToolId;		
+	}
 
 	public SitePage getContainingPage() {
 		// TODO Auto-generated method stub
@@ -90,8 +94,7 @@ public class FakeToolConfiguration implements ToolConfiguration {
 	}
 
 	public String getToolId() {
-		// TODO Auto-generated method stub
-		return null;
+		return commonToolId;
 	}
 
 	public void save() {

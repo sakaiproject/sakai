@@ -51,8 +51,7 @@ public class OverviewPage extends BasePage {
 	@Override
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
-		//response.renderJavascriptReference("/library/js/jquery.js");
-		response.renderJavascriptReference("/sakai-sitestats-tool/script/jquery-1.3.1.min.js");
+		response.renderJavascriptReference(JQUERYSCRIPT);
 		response.renderJavascriptReference("/sakai-sitestats-tool/script/jquery.ifixpng2.js");
 		StringBuilder onDomReady = new StringBuilder();
 		onDomReady.append("jQuery.ifixpng('/sakai-sitestats-tool/images/transparent.gif');");

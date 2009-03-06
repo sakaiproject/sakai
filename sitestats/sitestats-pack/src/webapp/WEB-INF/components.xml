@@ -55,8 +55,7 @@
 			<!-- Show last quartz job run date in tool overview page? 
 				(default: false if collectThreadEnabled@org.sakaiproject.sitestats.api.StatsUpdateManager=true, true otherwise) -->
 			<!-- <property name="lastJobRunDateVisible" value="true" /> -->
-		<!-- /OPTIONS -->
-				
+		<!-- /OPTIONS -->				
 		
 		<!-- Sakai services -->
 		<property name="eventRegistryService" ref="org.sakaiproject.sitestats.api.event.EventRegistryService"/>
@@ -67,6 +66,9 @@
 		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="contentTypeImageService" ref="org.sakaiproject.content.api.ContentTypeImageService"/>
 		<!-- Hibernate related -->
 		<property name="sessionFactory" ref="#{sitestats.db}SitestatsSessionFactory" />
 	</bean>
