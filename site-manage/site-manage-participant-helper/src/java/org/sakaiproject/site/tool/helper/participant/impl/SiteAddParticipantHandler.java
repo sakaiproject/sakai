@@ -517,19 +517,12 @@ public class SiteAddParticipantHandler {
      * @return
      */
     public String processConfirmContinue() {
-
-    	Hashtable<String, String> eIdRoles = new Hashtable<String, String>();
     	
     	for (UserRoleEntry entry:userRoleEntries) {
 			String eId = entry.userEId;
-
-			// role defaults to same role
-			String role = entry.role;
-
+			
 			if (isOfficialAccount(eId)) {
 				// if this is a officialAccount
-				// update the hash table
-				eIdRoles.put(eId, role);
 			} else {
 				// if this is an nonOfficialAccount
 				try {
@@ -584,8 +577,9 @@ public class SiteAddParticipantHandler {
 		// update the not added user list
 		String notAddedOfficialAccounts = "";
 		String notAddedNonOfficialAccounts = "";
-		for (Iterator<String> iEIds = eIdRoles.keySet().iterator(); iEIds.hasNext();) {
-			String iEId = (String) iEIds.next();
+		for (UserRoleEntry entry:userRoleEntries)
+		{
+			String iEId = entry.userEId;
 			if (!addedParticipantEIds.contains(iEId)) {
 				if (isOfficialAccount(iEId)) {
 					// no email in eid
