@@ -10938,20 +10938,30 @@ public class AssignmentAction extends PagedResourceActionII
 									// the submission attachment
 									if (hasSubmissionAttachment)
 									{
-										sEdit.clearSubmittedAttachments();
+										// update the submission attachments with newly added ones from zip file
+										List submittedAttachments = sEdit.getSubmittedAttachments();
 										for (Iterator attachments = w.getSubmissionAttachments().iterator(); attachments.hasNext();)
 										{
-											sEdit.addSubmittedAttachment((Reference) attachments.next());
+											Reference a = (Reference) attachments.next();
+											if (!submittedAttachments.contains(a))
+											{
+												sEdit.addSubmittedAttachment(a);
+											}
 										}
 									}
 									
 									// the feedback attachment
 									if (hasFeedbackAttachment)
 									{
-										sEdit.clearFeedbackAttachments();
+										List feedbackAttachments = sEdit.getFeedbackAttachments();
 										for (Iterator attachments = w.getFeedbackAttachments().iterator(); attachments.hasNext();)
 										{
-											sEdit.addFeedbackAttachment((Reference) attachments.next());
+											// update the feedback attachments with newly added ones from zip file
+											Reference a = (Reference) attachments.next();
+											if (!feedbackAttachments.contains(a))
+											{
+												sEdit.addFeedbackAttachment(a);
+											}
 										}
 									}
 									
