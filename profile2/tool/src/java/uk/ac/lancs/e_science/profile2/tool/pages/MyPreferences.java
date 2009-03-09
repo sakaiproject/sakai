@@ -6,7 +6,7 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -26,7 +26,7 @@ import uk.ac.lancs.e_science.profile2.hbm.ProfilePreferences;
 import uk.ac.lancs.e_science.profile2.tool.components.EnablingCheckBox;
 
 
-public class MyPreferences extends BasePage {
+public class MyPreferences extends BasePage{
 
 	private transient Logger log = Logger.getLogger(MyPreferences.class);
 	private transient ProfilePreferences profilePreferences;
@@ -215,7 +215,7 @@ public class MyPreferences extends BasePage {
 		}
 		
 		//submit button
-		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.save.settings"), form) {
+		IndicatingAjaxButton submitButton = new IndicatingAjaxButton("submit", form) {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				
 				//get the backing model
@@ -286,20 +286,11 @@ public class MyPreferences extends BasePage {
 			
 			
 		};
+		submitButton.setModel(new ResourceModel("button.save.settings"));
 		submitButton.setDefaultFormProcessing(false);
 		form.add(submitButton);
 		
         
-		//cancel button
-		/*
-		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
-            protected void onSubmit(AjaxRequestTarget target, Form form) {
-				setResponsePage(new MyProfile());
-            }
-        };
-        cancelButton.setDefaultFormProcessing(false);
-        form.add(cancelButton);
-		*/
         
         add(form);
         
@@ -308,7 +299,7 @@ public class MyPreferences extends BasePage {
         
 		
 	}
-	
+
 }
 
 

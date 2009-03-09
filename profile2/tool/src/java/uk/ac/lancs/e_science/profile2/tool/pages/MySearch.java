@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -31,7 +31,6 @@ import org.apache.wicket.model.StringResourceModel;
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.hbm.SearchResult;
-import uk.ac.lancs.e_science.profile2.tool.components.AjaxIndicator;
 import uk.ac.lancs.e_science.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import uk.ac.lancs.e_science.profile2.tool.components.FeedbackLabel;
 import uk.ac.lancs.e_science.profile2.tool.components.IconWithClueTip;
@@ -97,11 +96,6 @@ public class MySearch extends BasePage {
         //sbnNameField.add(new ComponentVisualErrorBehavior("onblur", sbnNameFeedback)); //removed for now
         sbnForm.add(sbnNameFeedback);
 		
-		//form indicator - need to use IAjaxIndicatorAware TODO
-		final AjaxIndicator sbnIndicator = new AjaxIndicator("sbnIndicator");
-		sbnIndicator.setOutputMarkupId(true);
-		sbnIndicator.setVisible(false);
-		sbnForm.add(sbnIndicator);
 		
 		/* 
 		 * 
@@ -131,13 +125,6 @@ public class MySearch extends BasePage {
         sbiInterestFeedback.setOutputMarkupId(true);
         //sbnNameField.add(new ComponentVisualErrorBehavior("onblur", sbnNameFeedback)); //removed for now
         sbiForm.add(sbiInterestFeedback);
-		
-		//form indicator - need to use IAjaxIndicatorAware TODO
-		final AjaxIndicator sbiIndicator = new AjaxIndicator("sbiIndicator");
-		sbiIndicator.setOutputMarkupId(true);
-		sbiIndicator.setVisible(false);
-		sbiForm.add(sbiIndicator);
-		
 		
 		
 		
@@ -371,7 +358,7 @@ public class MySearch extends BasePage {
 		 * 
 		 */
 		
-		AjaxFallbackButton sbnSubmitButton = new AjaxFallbackButton("sbnSubmit", new ResourceModel("button.search.byname"), sbnForm) {
+		IndicatingAjaxButton sbnSubmitButton = new IndicatingAjaxButton("sbnSubmit", sbnForm) {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				//need to show the busyindicator here TODO
 
@@ -422,6 +409,7 @@ public class MySearch extends BasePage {
 				
             }
 		};
+		sbnSubmitButton.setModel(new ResourceModel("button.search.byname"));
 		sbnForm.add(sbnSubmitButton);
         add(sbnForm);
         
@@ -433,7 +421,7 @@ public class MySearch extends BasePage {
 		 * 
 		 */
 		
-		AjaxFallbackButton sbiSubmitButton = new AjaxFallbackButton("sbiSubmit", new ResourceModel("button.search.byinterest"), sbiForm) {
+        IndicatingAjaxButton sbiSubmitButton = new IndicatingAjaxButton("sbiSubmit", sbiForm) {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				//need to show the busyindicator here TODO
 
@@ -484,6 +472,7 @@ public class MySearch extends BasePage {
 				
             }
 		};
+		sbiSubmitButton.setModel(new ResourceModel("button.search.byinterest"));
 		sbiForm.add(sbiSubmitButton);
         add(sbiForm);
    	

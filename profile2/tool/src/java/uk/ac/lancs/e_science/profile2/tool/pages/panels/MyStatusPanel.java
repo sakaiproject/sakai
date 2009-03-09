@@ -6,9 +6,8 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.behavior.StringHeaderContributor;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -166,7 +165,7 @@ public class MyStatusPanel extends Panel {
         
         
         //submit button
-		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.sayit"), form) {
+		IndicatingAjaxButton submitButton = new IndicatingAjaxButton("submit", form) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -207,6 +206,7 @@ public class MyStatusPanel extends Panel {
 				
             }
 		};
+		submitButton.setModel(new ResourceModel("button.sayit"));
 		form.add(submitButton);
 		
         //add form

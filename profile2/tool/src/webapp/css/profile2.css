@@ -361,6 +361,10 @@ h2 {
 	margin-top: 20px;
 }
 
+.pageFormButtons {
+	margin-top: 10px;
+}
+
 .profileFormButtons,
 .modalWindowButtons {
 	text-align:center;
@@ -379,6 +383,11 @@ h2 {
 	color:#FFFFFF;
 	*/
 }
+
+.profileFormButtons input[type="submit"],
+.modalWindowButtons input[type="submit"] {
+	color: rgb(34, 119, 221);
+}
 	
 .grayed {
 	background-color:#EEEEEE;
@@ -389,10 +398,7 @@ h2 {
 }
 	
 
-.profileFormButtons input[type="submit"],
-.modalWindowButtons input[type="submit"] {
-	color: rgb(34, 119, 221);
-}
+
 
 .disabled {
 	color: #5D5D5D !important;
@@ -743,6 +749,16 @@ h2 {
 .modalWindowText {
 	margin-top: 5px;
 }
+
+/* style the indicator for form submits that use an IndicatingAjaxButton as the button */
+span.wicket-ajax-indicator img { 
+	padding-left: 2px; 
+	display: inline; 
+	white-space: nowrap; 
+	vertical-align: middle;
+}
+
+
 
 
 
