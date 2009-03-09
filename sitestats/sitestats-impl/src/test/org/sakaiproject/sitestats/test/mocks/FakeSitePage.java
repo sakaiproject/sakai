@@ -37,6 +37,10 @@ public class FakeSitePage implements SitePage {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	public void localizePage() {
+		
+	}
 
 	public Site getContainingSite() {
 		// TODO Auto-generated method stub

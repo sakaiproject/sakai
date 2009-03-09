@@ -102,6 +102,10 @@ public class FakeServerConfigurationService implements ServerConfigurationServic
 		return "http://localhost:8080";
 	}
 
+	public String getRawProperty(String key) {
+		return m.get(key);
+	}
+
 	public String getString(String key) {
 		return m.get(key);
 	}
