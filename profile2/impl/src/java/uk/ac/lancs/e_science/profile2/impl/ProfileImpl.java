@@ -1382,6 +1382,21 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		
 	}
 	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean validateTwitterCredentials(final String twitterUsername, final String twitterPassword) {
+		
+		Twitter twitter = new Twitter(twitterUsername, twitterPassword);
+		
+		if(twitter.verifyCredentials()) {
+			return true;
+		}
+		
+		return false;
+	}
+
+	
 		
 	/**
  	 * {@inheritDoc}

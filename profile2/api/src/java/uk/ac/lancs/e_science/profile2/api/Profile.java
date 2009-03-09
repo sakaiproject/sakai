@@ -448,13 +448,24 @@ public interface Profile {
 	public boolean isTwitterIntegrationEnabledForUser(final String userId);
 	
 	/**
-	 * Send a message to twitter. 
-	 * Should only be called if twitter integration is enabled globally and for the user.
+	 * Send a message to twitter ( runs in a separate thread)
+	 * Should only be called if twitter integration is enabled globally (ie via sakai.properties) and for the user.
+	 * 
+	 * TODO could call validateTwitterCredentials() first perhaps?
 	 *
 	 * @param userId	uuid of the user
 	 * @param message	the message
 	 */
 	public void sendMessageToTwitter(final String userId, final String message);
+	
+	/**
+	 * Validate the Twitter username and password supplied (does NOT run in a separate thread)
+	 *
+	 * @param twitterUsername	twitter username
+	 * @param twitterPassword	twitter password
+	 * @param message	the message
+	 */
+	public boolean validateTwitterCredentials(final String twitterUsername, final String twitterPassword);
 	
 	/**
 	 * Generate a tiny URL for the supplied URL

@@ -164,6 +164,7 @@ public class MyPreferences extends BasePage {
 					twitterUsername.setRequired(true);
 					twitterPassword.setRequired(true);
 					
+					
 				} else {
 					//disable fields
 					twitterUsername.setEnabled(false);
@@ -172,6 +173,7 @@ public class MyPreferences extends BasePage {
 					//make them not required
 					twitterUsername.setRequired(false);
 					twitterPassword.setRequired(false);
+					
 				}
 				
 				//repaint
@@ -222,13 +224,20 @@ public class MyPreferences extends BasePage {
 				formFeedback.setModel(new ResourceModel("success.preferences.save.ok"));
 				formFeedback.add(new AttributeModifier("class", true, new Model("success")));
 				
-				//special case. if twitterEnabled is disabled, make sure the fields are cleared
+				//special case. if twitterEnabled is disabled, make sure the model fields are cleared and the form fields updated as well
 				if(!profilePreferences.isTwitterEnabled()) {
+					//clear data from model
 					profilePreferences.setTwitterUsername(null);
 					profilePreferences.setTwitterPasswordDecrypted(null);
+					//clear input
+					twitterUsername.clearInput();
+					twitterPassword.clearInput();
+					//repaint
+					target.addComponent(twitterUsername);
+					target.addComponent(twitterPassword);
 				} 
 				
-				//validate twitter fields since this is a special form (needs checkbox to set the fields)
+				//validate twitter fields manually since this is a special form (needs checkbox to set the fields)
 				if(profilePreferences.isTwitterEnabled()) {
 					twitterUsername.validate();
 					twitterPassword.validate();
@@ -239,8 +248,22 @@ public class MyPreferences extends BasePage {
 						return;
 					}
 					
-					//password is encrypted before its saved, automatically
+					//PRFL-27 validate actual username/password details with Twitter itself
+					String twitterUsernameEntered = twitterUsername.getModelObjectAsString();
+					String twitterPasswordEntered = twitterPassword.getModelObjectAsString();
+
+					if(!profile.validateTwitterCredentials(twitterUsernameEntered, twitterPasswordEntered)) {
+						formFeedback.setModel(new ResourceModel("error.twitter.details.invalid"));
+						formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));	
+						target.addComponent(formFeedback);
+						return;
+					}
+					
+					
 				}
+				
+				//note that the twitter password is encrypted before its saved and decrypted for display, automatically
+				
 				
 				if(profile.savePreferencesRecord(profilePreferences)) {
 					log.info("Saved ProfilePreferences for: " + profilePreferences.getUserUuid());
@@ -250,11 +273,12 @@ public class MyPreferences extends BasePage {
 					//post update event
 					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PREFERENCES_UPDATE, userId, true);
 					
+					
 				} else {
 					log.info("Couldn't save ProfilePreferences for: " + profilePreferences.getUserUuid());
 					formFeedback.setModel(new ResourceModel("error.preferences.save.failed"));
 					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));	
-				}	
+				}
 				
 				
 				target.addComponent(formFeedback);
