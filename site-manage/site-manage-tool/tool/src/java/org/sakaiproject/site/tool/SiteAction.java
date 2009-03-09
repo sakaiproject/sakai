@@ -1097,6 +1097,42 @@ public class SiteAction extends PagedResourceActionII {
 		return template;
 
 	} // buildMainPanelContext
+	
+	
+	/**
+	 * An inner class that can be initiated to perform Html stripping and trimming of text
+	 */
+	public class SiteTextEditAction
+	{
+
+		/**
+		 * @param formattedText 
+		          The formatted text to convert to plain text and then to trim
+		 * @param maxNumOfChars
+		          The maximum number of characters for the trimmed text.
+		 * @return Ellipse 
+		           A String to represent the ending pattern of the trimmed text
+		 */
+		public String doPlainTextAndLimit(String formattedText, int maxNumOfChars, String ellipse)
+		{
+			if(formattedText.equalsIgnoreCase("<br/>") || formattedText.equalsIgnoreCase("<br>")||
+					formattedText.length()==0 || formattedText.equals(" ") || formattedText.equals("&nbsp;") || formattedText.equals("") || FormattedText.escapeHtml(formattedText,false).equals("&lt;br type=&quot;_moz&quot; /&gt;")){
+
+				return formattedText;
+			}
+
+			StringBuilder sb = new StringBuilder();
+			String text = FormattedText.convertFormattedTextToPlaintext(formattedText);				
+			if(maxNumOfChars>text.length()){
+				maxNumOfChars=text.length();
+			}
+			String trimmedText=text.substring(0, maxNumOfChars);
+			sb.setLength(0);
+			sb.append(trimmedText).append(ellipse);
+			return sb.toString();				
+		}
+	}
+
 
 	/**
 	 * add index into the visited template indices list
@@ -1174,6 +1210,7 @@ public class SiteAction extends PagedResourceActionII {
 		ParameterParser params = data.getParameters();
 		context.put("tlang", rb);
 		context.put("alertMessage", state.getAttribute(STATE_MESSAGE));
+		context.put("siteTextEdit", new SiteTextEditAction());
 		
 		// the last visited template index
 		if (preIndex != null)
