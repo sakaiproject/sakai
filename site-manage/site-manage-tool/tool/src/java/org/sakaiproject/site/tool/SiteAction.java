@@ -2977,6 +2977,14 @@ public class SiteAction extends PagedResourceActionII {
 			}
 
 			context.put("authzGroupService", AuthzGroupService.getInstance());
+			
+			if (selectedSect !=null){
+				context.put("value_uniqname", selectedSect.getAuthorizer());
+			}
+			else {
+				context.put("value_uniqname", "");
+			}
+
 			return (String) getContext(data).get("template") + TEMPLATE[53];
 		}
 		case 54:
@@ -10598,6 +10606,21 @@ public class SiteAction extends PagedResourceActionII {
 			this.eid = section.getEid();
 			this.title = section.getTitle();
 			this.category = section.getCategory();
+			String authorizers = "";
+			if (section.getEnrollmentSet() != null){
+			        Set instructorset = section.getEnrollmentSet().getOfficialInstructors();
+			        List list = new ArrayList(instructorset);
+			        if (list != null) {
+			                for (int i = 0; i < list.size(); i++) {
+			                        if (i == 0) {
+			                                authorizers = (String) list.get(i);
+			                        } else {
+			                                authorizers = authorizers + ", " + list.get(i);
+			                        }
+			                }
+			        }
+			}
+			this.authorizer = authorizers;
 			this.categoryDescription = cms
 					.getSectionCategoryDescription(section.getCategory());
 			if ("01.lct".equals(section.getCategory())) {
