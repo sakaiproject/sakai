@@ -49,15 +49,15 @@
 
 
 	<!-- blogwow! -->
-        <tool
-                toolId="sakai.blogwow"
-                selected="true">
-                <event eventId="blog.blog.created" selected="true"/>
-                <event eventId="blog.entry.saved" selected="true"/>
+    <tool
+        toolId="sakai.blogwow"
+        selected="true">
+        <event eventId="blog.blog.created" selected="true"/>
+        <event eventId="blog.entry.saved" selected="true"/>
 		<event eventId="blog.entry.removed" selected="true"/>
-                <event eventId="blog.comment.added" selected="true"/>
+        <event eventId="blog.comment.added" selected="true"/>
 		<event eventId="blog.comment.removed" selected="true"/>
-        </tool>
+    </tool>
 
 
 	<!-- chat -->
@@ -469,6 +469,15 @@
 		<event eventId="mneme.question.edit" selected="true"/>
 		<event eventId="mneme.question.new" selected="true"/>
 		<event eventId="mneme.review" selected="true"/>
+	</tool>
+	
+	<!-- blogger -->
+	<tool 
+       		toolId="blogger"
+	        selected="true">
+        	<event eventId="blog.post.created" selected="true"/>
+        	<event eventId="blog.post.deleted" selected="true"/>
+	        <eventParserTip for="contextId" separator="/" index="2"/>
 	</tool>
 	
 	
