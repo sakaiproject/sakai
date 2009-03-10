@@ -215,7 +215,6 @@ public abstract class AjaxLazyLoadImage extends Panel {
 
 			@Override
 			protected void respond(AjaxRequestTarget target) {
-				//System.out.println("determineChartSizeBehavior.Responding for "+ getId());
 				// parse desired image size
 				Request req = RequestCycle.get().getRequest();
 				try{
@@ -226,6 +225,9 @@ public abstract class AjaxLazyLoadImage extends Panel {
 				}
 				try{
 					selectedHeight = (int) Float.parseFloat(req.getParameter("height"));
+					if(selectedHeight < 200) {
+						selectedHeight = 200;
+					}
 				}catch(NumberFormatException e){
 					e.printStackTrace();
 					selectedHeight = 200;
