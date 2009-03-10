@@ -4,18 +4,86 @@
 	<li class="firstToolBarItem" role="menuitem" aria-disabled="true"><span class="current">$tlang.getString("mb.cursit")</span></li>
 	<li role="menuitem"><span><a href="#toolLink("$action" "doGoto_joinable")" title="$tlang.getString('mb.joisit')">$tlang.getString('mb.joisit')</a></span></li>
 </ul>
-	
-	<h3>
-		$tlang.getString("mb.cursit") 
-	</h3>                                                                                           
+<script type="text/javascript" src="/library/js/jquery.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+	function setupMessageListener(messageHolder, messageMode){
+    //test to see if there is an actual message (trim whitespace first)
+    var str = $("#" + messageHolder).text();
+    str = jQuery.trim(str);
+    // show if message is there, then hide it
+    if (str != '') {
+        $("#" + messageHolder).fadeIn('slow')
+        $("#" + messageHolder).addClass(messageMode);
+        $("#" + messageHolder).animate({
+            opacity: 1.0
+        }, 5000)
+        $("#" + messageHolder).fadeOut('slow', function(){
+            $("#" + messageHolder).remove();
+        });
+    }
+}
+	    setupMessageListener("messageHolder", "information messageInformation");
+		
+		$('#selunselallid').click(function(){
+            if (this.checked) {
+				$(".listHier td :checkbox").attr('checked','checked')
+				$(".listHier td :checkbox").parent('td').parent('tr').addClass("selectedSelected");
 
-	#if ($alertMessage)<p class="information">$validator.escapeHtml($alertMessage)</p>#end
+            }
+			else{
+				$(".listHier td :checkbox").attr('checked','')
+				$(".listHier tbody tr").removeClass("selectedSelected");
+			}
+
+			});
+		$(".listHier td :checkbox").click(function(){
+		     someChecked = false			
+	            if (this.checked) {
+					$(this).parent("td").parent('tr').addClass("selectedSelected");
+	            }
+				else{
+					$(this).parent("td").parent('tr').removeClass("selectedSelected");
+				}
+		        $('.listHier td :checkbox').each(function(){
+		            if (this.checked) {
+		                someChecked= true
+		            }
+		        });
+  				  if (!someChecked) {
+			            $('#selunselallid').attr('checked','');
+
+			        }
+        });
+	});
+</script>	
+	
+	#if ($alertMessage)
+		<p class="information messageInformation" id="messageHolder">
+			$validator.escapeHtml($alertMessage)
+		</p>
+	#end
+	
+	#if ($unjoinableSites.size() > 0 || $search.length() > 0)
+	<div class="navPanel">
+		<div class="viewNav">
+			<h3 style="margin:0;padding:0">
+				$tlang.getString("mb.cursit") 
+			</h3>                                                                                           
+		</div>
+
+		<div class="searchNav">
+			<form name="searchform" method="post" class="inlineForm" action="#toolForm("$action")">
+			<label for="search" class="skip">$tlang.getString("mb.list.search")</label>
+			<input type="text" size="15" id="search" name="search" value="$validator.escapeHtml($search)" /> 
+			<input type="submit" name="eventSubmit_doSearch" value="$tlang.getString("mb.list.search")" />
+			<input type="submit" name="eventSubmit_doSearch_clear" value="$tlang.getString("mb.list.clear")" />
+			</form> 
+		</div>
+	</div>	
+	#end
 	
 	#if ($unjoinableSites.size()>0)
-		
-		<p class="instruction">
-		$tlang.getString("mb.listunjoin")
-		</p>
 		
 		<div class="navPanel">
 		<div class="listNav">
@@ -83,7 +151,10 @@
 		<form action="#toolForm("$action")" method="post">
 			<table class = "listHier lines" cellspacing="0" summary ="$tlang.getString('joinable.list.summary')">
 				<tr>
-					<th id="worksite">
+					<th id="checkbox" class="screenOnly attach">
+						<input title="$tlang.getString("mb.selectalltitle")" type="checkbox" name="selunselall" id="selunselallid"/>
+					</th>
+					<th id="worksite" class="attach">
 						<a href="#toolLink("$action" "doToggle_sort")" title ="$tlang.getString('list.sortbytitle')"> 
 							$tlang.getString("gen.worksite")
 							#if ($currentSortAsc) 
@@ -95,31 +166,50 @@
 					</th>
 					<th id="description">$tlang.getString("gen.description")</th>
 				</tr>
-				#foreach ($site in $unjoinableSites)
-					<tr>
-						<td headers="worksite" style="white-space:nowrap">
-							<h4><a href="$site.Url" target="_top" title="$tlang.getString('mb.gotosite') $validator.escapeHtml($site.Title)">$validator.escapeHtml($site.Title)</a></h4>
-							#set($siteType=$site.Type)
-							## don't show unjoin link if (1) unjoin is disabled for all sites; (2) unjoin is disabled for current site type
-							#if($disableUnjoinSelection || ($!siteType && $!disableUnjoinSiteTypes.contains($!siteType)))
-								<p class ="shorttext"></p>
-							#else		
-								#if ($SiteService.allowUnjoinSite($site.Id))
-									<div class="itemAction">
-										<a href="#toolLinkParam("$action" "doGoto_unjoinconfirm" "itemReference=$validator.escapeUrl($site.Id)")" title="$tlang.getString('mb.unjoinsite') $validator.escapeHtml($site.Title)">$tlang.getString('mb.unjoin')</a>
-									</div>	
+				<tbody>
+					#set ($rowCount =0)
+					#foreach ($site in $unjoinableSites)
+					#set ($rowCount =$rowCount + 1)
+						<tr>
+							<td headers="checkbox" class="screenOnly attach">
+								## don't show unjoin link if (1) unjoin is disabled for all sites; (2) unjoin is disabled for current site type
+								#if($disableUnjoinSelection || ($!siteType && $!disableUnjoinSiteTypes.contains($!siteType)))
+									<input title="$tlang.getString('mb.unjoin')" type="checkbox" id="check-$rowCount" name="itemReference" value="$validator.escapeUrl($site.Id)" disabled="disabled" />
+									<label for ="check-$rowCount" class="skip">$tlang.getString('mb.unjoin')</label>
+								#else	
+									#if ($SiteService.allowUnjoinSite($site.Id))
+									<input title="$tlang.getString('mb.unjointitle')" type="checkbox" id="check-$rowCount" name="itemReference" value="$validator.escapeUrl($site.Id)" class="joinable"/>
+									<label for ="check-$rowCount" class="skip">$tlang.getString('mb.unjoin')</label>
+									#end
+								#end						
+							</td>	
+	
+							<td headers="worksite" style="white-space:nowrap" class="attach">
+								<h4><a href="$site.Url" target="_top" title="$tlang.getString('mb.gotosite') $validator.escapeHtml($site.Title)">$validator.escapeHtml($site.Title)</a></h4>
+								#set($siteType=$site.Type)
+							</td>
+							<td headers="description">
+								#if ($validator.escapeHtml($site.Description) != '')
+									$!membershipFormattedText.doPlainTextAndLimit($site.Description,65,"....")
 								#end
-							#end
-						</td>
-						<td headers="description">
-							$!site.Description
-						</td>
-					</tr>
-				#end
+					    </td>
+						</tr>
+					#end
+				</tbody>	
 			</table>
-		</form>
+		
+		<p class="act">
+    		<input type="submit" class="active" name="eventSubmit_doGoto_unjoinconfirm" value="$tlang.getString('mb.unjoin')" accesskey="s" />
+    		<input type="reset" name="reset" id="reset" value="$tlang.getString('mb.cancel')"  accesskey="x" />
+		</p>
+
+	  </form>
+	#elseif ($search.length() > 0)
+		<p class="instruction">$tlang.getString('mb.list.nosearchsites')${validator.escapeHtml($search)}$tlang.getString('mb.list.nosearchsites2')</p>
 	#else
 		<p class="instruction">$tlang.getString('mb.list.nomembs')</p>
-	#end
-</div>	
+	#end	
+</div>
+
+
 

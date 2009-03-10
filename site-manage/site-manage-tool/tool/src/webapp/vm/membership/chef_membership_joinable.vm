@@ -5,30 +5,34 @@
 		<li role="menuitem" aria-disabled="true"><span class="current">$tlang.getString("mb.joisit")</span></li>		
 	</ul>
 	
-	<h3>
-		$tlang.getString("mb.joinable")
-	</h3>
 	## join/unjoin action info normally is the only value of "alertMessage"
 	#if ($alertMessage)<p class="information">$validator.escapeHtml($alertMessage)</p>#end
 	
 
-	#if ($openSites.size() > 0 || $search.length() > 0)
 	<div class="navPanel">
+		<div class="viewNav">
+			<h3 style="margin:0;padding:0">
+				$tlang.getString("mb.joinable")
+			</h3>
+		</div>
 		<div class="searchNav">
+	#if ($openSites.size() > 0 || $search.length() > 0)
 			<form name="searchform" method="post" class="inlineForm" action="#toolForm("$action")">
 			<label for="search" class="skip">$tlang.getString("mb.list.search")</label>
 			<input type="text" size="15" id="search" name="search" value="$validator.escapeHtml($search)" /> 
 			<input type="submit" name="eventSubmit_doSearch" value="$tlang.getString("mb.list.search")" />
 			<input type="submit" name="eventSubmit_doSearch_clear" value="$tlang.getString("mb.list.clear")" />
 			</form> 
+	#end
 		</div>
 	</div>	
-	#end
+
 
 	#if ($openSites.size() > 0)
 		<div class="navPanel">
 			<div class="viewNav">
 				<div class="instruction">
+					<br />
 				#if ($search.length() > 0)
 					$tlang.getString("mb.listsearchjoin")${search}$tlang.getString("mb.listsearchjoin2")
 				#else
@@ -100,7 +104,7 @@
 		<form action="#toolForm("$action")" method="post">
 			<table class = "listHier lines" cellspacing="0" border="0"  summary ="$tlang.getString("mb.list.joinable.summary")">
 				<tr>
-					<th id="worksite">
+					<th id="worksite" class="attach">
 						<a href="#toolLink("$action" "doToggle_joinable_sort")" title ="$tlang.getString('list.sortbytitle')"> 
 							$tlang.getString("gen.worksite")
 							#if ($currentSortAsc) 
@@ -115,7 +119,7 @@
 				#foreach ($site in $openSites)
 					<tr>
 
-					<td headers="worksite" style="white-space:nowrap">
+					<td headers="worksite" style="white-space:nowrap" class="attach">
 					## Note: joinable site shouldn't be clickable because of the permission issues
 					## <a href="$site.Url" target="_top" title="Go to site $validator.escapeHtml($site.Title)">$validator.escapeHtml($site.Title)</a>
 					<h4>$validator.escapeHtml($site.Title)</h4>
@@ -123,13 +127,17 @@
 							<a href="#toolLinkParam("$action" "doJoin" "itemReference=$validator.escapeUrl($site.Id)")" title="$tlang.getString('mb.joinsite') $!validator.escapeHtml($!site.Title)">$tlang.getString('mb.join')</a>
 						</div>	
 						</td>
-						<td headers="description">$!site.Description</td>
+						<td headers="description">
+							#if ($validator.escapeHtml($site.Description) != '')
+								$!membershipFormattedText.doPlainTextAndLimit($site.Description,65,"....")
+							#end
+						</td>
 					</tr>
 				#end	
 			</table>
 		</form>
 	#elseif ($search.length() > 0)
-		<p class="instruction">$tlang.getString('mb.list.nosearchsites')${validator.escapeHtml($search)}$tlang.getString('mb.list.nosearchsites2')</p>
+		aaa<p class="instruction">$tlang.getString('mb.list.nosearchsites')${validator.escapeHtml($search)}$tlang.getString('mb.list.nosearchsites2')</p>
 	#else
 		<p class="instruction">$tlang.getString('mb.list.nosites')</p>
 	#end
