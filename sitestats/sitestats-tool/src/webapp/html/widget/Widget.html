@@ -6,17 +6,25 @@
         var isVisible = !display || display != 'none';
         if(!isVisible) {
         	   setMainFrameHeightNoScroll(window.name, 0, 400);
-        	   // Load by ajax only for the first time (remaining action will only be hide/show)
-        	   if(jQuery(middle + ' .loaded').length == 0) {
-        		   jQuery(middle + ' .tabsel a').click();
-        		   jQuery(middle).append('<span class="loaded" style="display: none"></span>');
-        	   }
+
+               jQuery(more).hide();
+               jQuery(less).show();
+               jQuery(middle).slideDown('300', function() {
+                   setMainFrameHeightNoScroll(window.name, 0, 100);
+               });  
+               
+               // Load by ajax only for the first time (remaining action will only be hide/show)
+               if(jQuery(middle + ' .loaded').length == 0) {
+                   jQuery(middle + ' .tabsel a').click();
+                   jQuery(middle).append('<span class="loaded" style="display: none"></span>');
+               }
+        }else{
+        	jQuery(more).show();
+            jQuery(less).hide();
+            jQuery(middle).slideUp('300', function() {
+                setMainFrameHeightNoScroll(window.name, 0, 100);
+            });
         }
-        jQuery(middle).slideToggle('300', function() {
-            setMainFrameHeightNoScroll(window.name, 0, 100);
-        });
-        jQuery(more).toggle();
-        jQuery(less).toggle();        
     }
     jQuery(document).ready(function(){
         jQuery('.alpha').ifixpng();
