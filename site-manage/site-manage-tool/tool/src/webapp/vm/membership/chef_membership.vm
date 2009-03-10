@@ -190,7 +190,7 @@ $(document).ready(function() {
 							</td>
 							<td headers="description">
 								#if ($validator.escapeHtml($site.Description) != '')
-									$!membershipFormattedText.doPlainTextAndLimit($site.Description,65,"....")
+									$!membershipTextEdit.doPlainTextAndLimit($site.Description,65,"....")
 								#end
 					    </td>
 						</tr>

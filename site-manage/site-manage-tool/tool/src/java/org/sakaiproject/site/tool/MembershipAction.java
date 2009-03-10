@@ -228,7 +228,7 @@ public class MembershipAction extends PagedResourceActionII
 		}
 		context.put("tlang", rb);
 		context.put("alertMessage", state.getAttribute(STATE_MESSAGE));
-		context.put("membershipFormattedText", new MembershipFormattedText());
+		context.put("membershipTextEdit", new MembershipTextEditAction());
 
 		return template;
 
@@ -239,7 +239,7 @@ public class MembershipAction extends PagedResourceActionII
 	/**
 	 * An inner class that can be initiated to perform text formatting
 	 */
-	public class MembershipFormattedText
+	public class MembershipTextEditAction
 	{
 		
 		/**
