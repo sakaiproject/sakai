@@ -62,6 +62,7 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 
@@ -213,6 +214,41 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 		 * EventObservingCourier observer = (EventObservingCourier) state.getAttribute(STATE_OBSERVER); // the delivery location for this tool String deliveryId = clientWindowId(state, peid); observer.setDeliveryId(deliveryId);
 		 */
 	} // updateObservationOfChannel
+	
+	/**
+	 * An inner class that can be initiated to perform Html stripping and trimming of text
+	 */
+	public class SiteBrowserTextEditAction
+	{
+
+		/**
+		 * @param formattedText 
+		          The formatted text to convert to plain text and then to trim
+		 * @param maxNumOfChars
+		          The maximum number of characters for the trimmed text.
+		 * @return Ellipse 
+		           A String to represent the ending pattern of the trimmed text
+		 */
+		public String doPlainTextAndLimit(String formattedText, int maxNumOfChars, String ellipse)
+		{
+			if(formattedText.equalsIgnoreCase("<br/>") || formattedText.equalsIgnoreCase("<br>")||
+					formattedText.length()==0 || formattedText.equals(" ") || formattedText.equals("&nbsp;") || formattedText.equals("") || FormattedText.escapeHtml(formattedText,false).equals("&lt;br type=&quot;_moz&quot; /&gt;")){
+
+				return formattedText;
+			}
+
+			StringBuilder sb = new StringBuilder();
+			String text = FormattedText.convertFormattedTextToPlaintext(formattedText);				
+			if(maxNumOfChars>text.length()){
+				maxNumOfChars=text.length();
+			}
+			String trimmedText=text.substring(0, maxNumOfChars);
+			sb.setLength(0);
+			sb.append(trimmedText).append(ellipse);
+			return sb.toString();				
+		}
+	}
+
 
 	/**
 	 * build the context
@@ -260,6 +296,7 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 		context.put("searchText", (String) state.getAttribute(STATE_SEARCH));
 		context.put("siteType", (String) state.getAttribute(STATE_SEARCH_SITE_TYPE));
 		context.put("termSelection", (String) state.getAttribute(STATE_TERM_SELECTION));
+		context.put("siteBrowserTextEdit", new SiteBrowserTextEditAction());
 
 		// String newPageSize = state.getAttribute(STATE_PAGESIZE).toString();
 		Integer newPageSize = (Integer) state.getAttribute(INTER_SIZE);
