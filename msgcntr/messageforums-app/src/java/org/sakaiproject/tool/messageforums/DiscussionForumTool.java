@@ -1466,6 +1466,9 @@ public class DiscussionForumTool
   {
     LOG.debug("processActionTopicSettings()");
     
+    topicClickCount = 0;
+    forumClickCount = 0;
+    
     setEditMode(true);
     setPermissionMode(PERMISSION_MODE_TOPIC);
     DiscussionTopic topic = null;
