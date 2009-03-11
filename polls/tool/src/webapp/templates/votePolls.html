@@ -12,26 +12,13 @@
 $(document).ready(function() {
 $("#sortableTable").tablesorter({ 
 	sortList: [[2,1]], // Initial order by the latest (NOT earliest) closing date
-	headers: { 
-            1: { 
-                // Convert the Date string into an ISO standard format, ready for proper sorting.
-                sorter: 'isoDate'
-            }, 
-            2: {  
-                sorter: 'isoDate' 
-            }, 
-            3: { 
-                // disable it by setting the property sorter to false 
-                sorter: false 
-            }, 
-            4: { 
-                sorter: false 
-            } 
+	headers: { // disable it by setting the property sorter to false
+            3: {sorter: false}, 
+            4: {sorter: false} 
         } 
 	});
 });
 </script>
-<!--tryng this -->
 </head>
 
 <body rsf:id="scr=sakai-body">
