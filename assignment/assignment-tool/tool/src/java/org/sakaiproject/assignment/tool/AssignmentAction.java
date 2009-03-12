@@ -4472,7 +4472,7 @@ public class AssignmentAction extends PagedResourceActionII
 			// clean the attribute after user confirm
 			state.removeAttribute(NEW_ASSIGNMENT_PAST_DUE_DATE);
 		}
-		if (state.getAttribute(NEW_ASSIGNMENT_PAST_DUE_DATE) != null)
+		if (state.getAttribute(NEW_ASSIGNMENT_PAST_DUE_DATE) != null && validify)
 		{
 			addAlert(state, rb.getString("assig4"));
 		}
