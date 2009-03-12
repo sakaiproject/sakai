@@ -23,7 +23,7 @@
 					$tlang.getString("gen.creby")
 				</th>	
 				<td>
-					$userDirectoryService.getUser($assignment.getCreator()).DisplayName
+					$validator.escapeHtml($!creator)
 				</td>
 			</tr>
 			<tr> 

@@ -628,7 +628,7 @@
 				$tlang.getString("gen.creby")
 			</th>
 			<td>
-				$validator.escapeHtml($userDirectoryService.getUser($assignment.getCreator()).DisplayName) ($assignment.TimeCreated.toStringLocalFull())
+				$validator.escapeHtml($!creator) ($assignment.TimeCreated.toStringLocalFull())
 			</td>
 		</tr>
 		<tr>
