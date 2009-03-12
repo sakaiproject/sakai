@@ -24,7 +24,7 @@
 		</subject>
 		<message>${currentUserDisplayName}: Se us ha
 			afegit al/s següent/s ${localSakaiName} lloc: per
-			${currentUserDisplayName}. &lt;#if newNonOfficialAccount &gt;Insert your institutions specific instructions for new guest users here 
+			${currentUserDisplayName}. &lt;#if newNonOfficialAccount == "true" &gt;Insert your institutions specific instructions for new guest users here 
 
 Quan tingueu el vostre compte de convidat, ja podeu accedir-hi. ${localSakaiName} : 
 1. Obriu ${localSakaiName} : ${localSakaiURL}
@@ -44,7 +44,7 @@ Quan tingueu el vostre compte de convidat, ja podeu accedir-hi. ${localSakaiName
  ${localSakaiName}
  ${currentUserDisplayName}. 
 
-&lt;#if newNonOfficialAccount &gt;Insert your institutions specific instructions for new guest users here 
+&lt;#if newNonOfficialAccount == "true" &gt;Insert your institutions specific instructions for new guest users here 
 
  ${localSakaiName} : 
  ${localSakaiName} : ${localSakaiURL}
@@ -64,7 +64,7 @@ Quan tingueu el vostre compte de convidat, ja podeu accedir-hi. ${localSakaiName
 U bent toegevoegd aan de volgende ${localSakaiName}  site:
 door ${currentUserDisplayName}. 
 
-&lt;#if newNonOfficialAccount &gt;Insert your institutions specific instructions for new guest users here 
+&lt;#if newNonOfficialAccount == "true" &gt;Insert your institutions specific instructions for new guest users here 
 
 Zodra u uw gastaccount heeft, kunt u inloggen voor ${localSakaiName} : 
 1. Open ${localSakaiName} : ${localSakaiURL}
@@ -85,7 +85,7 @@ Zodra u uw gastaccount heeft, kunt u inloggen voor ${localSakaiName} :
 \ub2e4\uc74c\uacfc \uac19\uc774 \ub4f1\ub85d\ub418\uc5c8\uc2b5\ub2c8\ub2e4. ${localSakaiName}  \uc0ac\uc774\ud2b8:
  ${currentUserDisplayName}. 
 
-&lt;#if newNonOfficialAccount &gt;Insert your institutions specific instructions for new guest users here 
+&lt;#if newNonOfficialAccount == "true" &gt;Insert your institutions specific instructions for new guest users here 
 
 \uc190\ub2d8 \uacc4\uc815\uc744 \ubc1b\uc740\ud6c4 \ub85c\uadf8\uc778\ud558\uc2e4 \uc218 \uc788\uc2b5\ub2c8\ub2e4. ${localSakaiName} : 
 1. \uc5f4\uae30\ub97c \ud569\ub2c8\ub2e4. ${localSakaiName} : ${localSakaiURL}
@@ -105,7 +105,7 @@ Zodra u uw gastaccount heeft, kunt u inloggen voor ${localSakaiName} :
 Foi adicionado a ${localSakaiName}  \u00E1rea\:
 por ${currentUserDisplayName}. 
 
-&lt;#if newNonOfficialAccount &gt;Insert your institutions specific instructions for new guest users here 
+&lt;#if newNonOfficialAccount == "true" &gt;Insert your institutions specific instructions for new guest users here 
 
 Quando tiver a conta de convidado, pode aceder \u00E0 plataforma ${localSakaiName} : 
 1. Abrir ${localSakaiName} : ${localSakaiURL}
@@ -128,7 +128,7 @@ Quando tiver a conta de convidado, pode aceder \u00E0 plataforma ${localSakaiNam
 Du har lagts till p\u00E5 f\u00F6ljande ${localSakaiName}  sajt\:
 av ${currentUserDisplayName}. 
 
-&lt;#if newNonOfficialAccount &gt;Insert your institutions specific instructions for new guest users here 
+&lt;#if newNonOfficialAccount == "true" &gt;Insert your institutions specific instructions for new guest users here 
 
 S\u00E5 snart som du har f\u00E5tt ditt g\u00E4stkonto kan du logga in p\u00E5 ${localSakaiName} : 
 1. \u00D6ppna ${localSakaiName} : ${localSakaiURL}
@@ -148,7 +148,7 @@ S\u00E5 snart som du har f\u00E5tt ditt g\u00E4stkonto kan du logga in p\u00E5 $
 Ha sido añadido a los siguientes ${localSakaiName}  sitio:
 por ${currentUserDisplayName}. 
 
-&lt;#if newNonOfficialAccount &gt;Insert your institutions specific instructions for new guest users here 
+&lt;#if newNonOfficialAccount == "true" &gt;Insert your institutions specific instructions for new guest users here 
 
 Después de tener su cuenta de invitado, ya puede entrar. ${localSakaiName} : 
 1. Abrir ${localSakaiName} : ${localSakaiURL}
@@ -168,7 +168,7 @@ Después de tener su cuenta de invitado, ya puede entrar. ${localSakaiName} :
 \u60A8\u5DF2\u88AB\u6DFB\u52A0\u5230\u4EE5\u4E0B ${localSakaiName}  \u7AD9\u70B9\uFF1A
 \u88AB ${currentUserDisplayName}. 
 
-&lt;#if newNonOfficialAccount &gt;Insert your institutions specific instructions for new guest users here 
+&lt;#if newNonOfficialAccount == "true" &gt;Insert your institutions specific instructions for new guest users here 
 
 \u4E00\u65E6\u60A8\u6709\u81EA\u5DF1\u7684\u8BBF\u5BA2\u8D26\u6237\uFF0C\u60A8\u5C31\u53EF\u4EE5\u767B\u5F55\u5230 ${localSakaiName} : 
 1. \u6253\u5F00 ${localSakaiName} : ${localSakaiURL}
@@ -188,7 +188,7 @@ Después de tener su cuenta de invitado, ya puede entrar. ${localSakaiName} :
 Vous avez \u00E9t\u00E9 ajout\u00E9 \u00E0 ce qui suit ${localSakaiName}  site:
 par ${currentUserDisplayName}. 
 
-&lt;#if newNonOfficialAccount &gt;Insert your institutions specific instructions for new guest users here 
+&lt;#if newNonOfficialAccount == "true" &gt;Insert your institutions specific instructions for new guest users here 
 
 Lorsque vous avez votre compte Invit\u00E9, vous pouvez ouvrir une session dans ${localSakaiName} : 
 1. Ouvrez ${localSakaiName} : ${localSakaiURL}

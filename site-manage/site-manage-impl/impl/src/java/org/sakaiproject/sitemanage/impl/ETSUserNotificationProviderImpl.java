@@ -106,7 +106,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
         replacementValues.put("localSakaiURL", "");
         replacementValues.put("siteName", "");
         replacementValues.put("productionSiteName", "");
-        replacementValues.put("newNonOfficialAccount", "");
+        replacementValues.put("newNonOfficialAccount", "false");
         replacementValues.put("newPassword", "");
         replacementValues.put("productionSiteName", "");
         
@@ -115,18 +115,11 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		else 
 			M_log.info("templates for " + NOTIFY_ADDED_PARTICIPANT + " exist");
 		
-		if (serverConfigurationService.getBoolean("auto.ddl", false)) {
-			if (emailTemplateService.getRenderedTemplateForUser(NOTIFY_NEW_USER, "/user/admin", replacementValues) == null) 
-				loadNewUserMail();
-			else 
-				M_log.info("templates for " + NOTIFY_NEW_USER + " exist");
+		if (emailTemplateService.getRenderedTemplateForUser(NOTIFY_NEW_USER, "/user/admin", replacementValues) == null) 
+			loadNewUserMail();
+		else 
+			M_log.info("templates for " + NOTIFY_NEW_USER + " exist");
 			
-			if (emailTemplateService.getRenderedTemplateForUser(this.NOTIFY_ADDED_PARTICIPANT, "/user/admin", replacementValues) == null) 
-				loadAddedParticipantMail();
-			else 
-				M_log.info("templates for " + NOTIFY_NEW_USER + " exist");
-			
-		}
 	}
 	
 	public void notifyAddedParticipant(boolean newNonOfficialAccount,
@@ -168,7 +161,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 	            replacementValues.put("localSakaiUrl", serverConfigurationService.getPortalUrl());
 	            replacementValues.put("siteName", siteTitle);
 	            replacementValues.put("productionSiteName", productionSiteName);
-	            replacementValues.put("newNonOfficialAccount", new Boolean(newNonOfficialAccount).toString());
+	            replacementValues.put("newNonOfficialAccount", new Boolean(newNonOfficialAccount).toString().toLowerCase());
 	         
 	            M_log.debug("getting template: sitemange.notifyAddedParticipant");
 	            RenderedTemplate template = null;
