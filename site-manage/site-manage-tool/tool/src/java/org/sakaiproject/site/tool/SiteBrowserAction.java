@@ -234,7 +234,7 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 			if(formattedText.equalsIgnoreCase("<br/>") || formattedText.equalsIgnoreCase("<br>")||
 					formattedText.length()==0 || formattedText.equals(" ") || formattedText.equals("&nbsp;") || formattedText.equals("") || FormattedText.escapeHtml(formattedText,false).equals("&lt;br type=&quot;_moz&quot; /&gt;")){
 
-				return formattedText;
+				return "";
 			}
 
 			StringBuilder sb = new StringBuilder();
