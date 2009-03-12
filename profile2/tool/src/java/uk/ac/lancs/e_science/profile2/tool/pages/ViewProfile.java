@@ -15,20 +15,17 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.image.resource.BufferedDynamicImageResource;
+import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.protocol.http.RequestUtils;
-import org.apache.wicket.util.value.ValueMap;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
-import uk.ac.lancs.e_science.profile2.api.exception.ProfileIllegalAccessException;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfilePrototypeNotDefinedException;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
-import uk.ac.lancs.e_science.profile2.tool.components.BlankPanel;
 import uk.ac.lancs.e_science.profile2.tool.models.FriendAction;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.FriendsFeed;
 import uk.ac.lancs.e_science.profile2.tool.pages.windows.AddFriend;
@@ -80,6 +77,10 @@ public class ViewProfile extends BasePage {
 		
 		//is this user allowed to view this person's profile image?
 		boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(userUuid, currentUserId, friend);
+		
+		//is this user allowed to view this person's status?
+		boolean isStatusAllowed = profile.isUserXStatusVisibleByUserY(userUuid, currentUserId, friend);
+		
 		
 		/* DEPRECATED via PRFL-24 when privacy was relaxed
 		if(!isProfileAllowed) {
@@ -172,6 +173,12 @@ public class ViewProfile extends BasePage {
 		Label statusDateLabel = new Label("statusDate", statusDateStr);
 		statusDateLabel.setOutputMarkupId(true);
 		statusContainer.add(statusDateLabel);
+		
+		//if this person is not allowed to view their status, hide it
+		//TODO move this into a separet method and don't even get the data if they can't view it.
+		if(!isStatusAllowed) {
+			statusContainer.setVisible(false);
+		}
 		
 		//add status container
 		add(statusContainer);
@@ -491,7 +498,7 @@ public class ViewProfile extends BasePage {
 		if(isFriendsListVisible) {
 			friendsFeed = new FriendsFeed("friendsFeed", userUuid, currentUserId);
 		} else {
-			friendsFeed = new BlankPanel("friendsFeed");
+			friendsFeed = new EmptyPanel("friendsFeed");
 			friendsFeed.setVisible(false);
 		}
 		friendsFeed.setOutputMarkupId(true);
