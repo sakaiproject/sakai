@@ -6472,6 +6472,11 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			state.setAttribute(NEW_ASSIGNMENT_OPENHOUR, new Integer((openHour > 12) ? openHour - 12 : openHour));
 			state.setAttribute(NEW_ASSIGNMENT_OPENMIN, new Integer(openTime.getMin()));
+			// generate alert when editing an assignment past open date
+			if (a.getOpenTime().before(TimeService.newTime()))
+			{
+				addAlert(state, rb.getString("youarenot20"));
+			}
 
 			TimeBreakdown dueTime = a.getDueTime().breakdownLocal();
 			state.setAttribute(NEW_ASSIGNMENT_DUEMONTH, new Integer(dueTime.getMonth()));
