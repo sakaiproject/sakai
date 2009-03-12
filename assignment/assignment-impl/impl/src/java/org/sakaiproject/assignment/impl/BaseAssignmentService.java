@@ -8827,7 +8827,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							// return student score from Gradebook
 							try
 							{
-								return g.getAssignmentScoreString(gradebookUid, gAssignmentName, userId);
+								String gString = StringUtil.trimToNull(g.getAssignmentScoreString(gradebookUid, gAssignmentName, userId));
+								if (gString != null)
+								{
+									return gString;
+								}
 							}
 							catch (Exception e)
 							{
