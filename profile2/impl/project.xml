@@ -1,0 +1,169 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/3.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/3.0.0 http://maven.apache.org/maven-v3_0_0.xsd">
+	<pomVersion>3</pomVersion>
+	<extend>../../master/project.xml</extend>
+	<name>Profile2 IMPL</name>
+	<groupId>uk.ac.lancs.e_science</groupId>
+	<artifactId>sakai-profile2-impl</artifactId>
+	
+	<currentVersion>${tool.version}</currentVersion>
+	
+	<properties>
+		<deploy.type>jar</deploy.type>
+	</properties>
+	
+	  	
+  	<dependencies>
+
+		<!--  internal dependencies -->
+		<dependency>
+			<groupId>uk.ac.lancs.e_science</groupId>
+			<artifactId>sakai-profile2-api</artifactId>
+			<version>${tool.version}</version>
+		</dependency>
+		
+		
+		 <!-- Spring and Hibernate dependencies. -->
+        <dependency>
+           <groupId>${sakai.spring.groupId}</groupId>
+           <artifactId>${sakai.spring.artifactId}</artifactId>
+           <version>${sakai.spring.version}</version>
+        </dependency>
+
+		<dependency>
+		  <groupId>${sakai.hibernate.groupId}</groupId>
+		  <artifactId>${sakai.hibernate.artifactId}</artifactId>
+		  <version>${sakai.hibernate.version}</version>
+		</dependency>
+
+		<!-- Required for hibernate 3 HQL queries -->
+		<!-- 
+		<dependency>
+			<groupId>antlr</groupId>
+			<artifactId>antlr</artifactId>
+			<version>2.7.6</version>
+		</dependency>
+    	-->
+    	
+    	<!--  logging dependency -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+		
+		<!--  twitter4j dependency -->
+		<dependency>
+			<groupId>net.homeip.yusuke</groupId>
+			<artifactId>twitter4j</artifactId>
+			<version>${twitter4j.version}</version>
+		</dependency>
+		
+		<!--  encryption/decryption dependency -->
+		<dependency>
+      		<groupId>org.jasypt</groupId>
+      		<artifactId>jasypt</artifactId>
+      		<version>${jasypt.version}</version>
+    	</dependency>
+    	<dependency>
+			<groupId>com.ibm.icu</groupId>
+			<artifactId>icu4j</artifactId>
+			<version>${icu4j.version}</version>
+		</dependency>
+
+		<!--  Sakai dependencies -->
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-tool-api</artifactId>
+			<version>${sakai.version}</version>
+    	</dependency>
+    	<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-user-api</artifactId>
+      		<version>${sakai.version}</version>
+   		</dependency>
+    	<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-authz-api</artifactId>
+      		<version>${sakai.version}</version>
+   		</dependency>
+    	<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util-api</artifactId>
+      		<version>${sakai.version}</version>
+   		</dependency>
+    	<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util</artifactId>
+      		<version>${sakai.version}</version>
+   		</dependency>
+    	<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-site-api</artifactId>
+      		<version>${sakai.version}</version>
+   		</dependency>
+    	<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-entity-api</artifactId>
+      		<version>${sakai.version}</version>
+   		</dependency>
+    	<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-component-api</artifactId>
+      		<version>${sakai.version}</version>
+   		</dependency>
+    	
+    	<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-common-edu-person-api</artifactId>
+      		<version>${sakai.version}</version>
+   		</dependency>
+    	<dependency>
+      		<groupId>sakaiproject</groupId>
+      		<artifactId>sakai-common-manager-api</artifactId>
+      		<version>${sakai.version}</version>
+   		</dependency>
+	    <dependency>
+	      	<groupId>sakaiproject</groupId>
+	      	<artifactId>sakai-common-type-api</artifactId>
+      		<version>${sakai.version}</version>
+   		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-content-api</artifactId>
+      		<version>${sakai.version}</version>
+   		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-event-api</artifactId>
+      		<version>${sakai.version}</version>
+   		</dependency>
+		<dependency>
+      		<groupId>sakaiproject</groupId>
+      		<artifactId>sakai-entitybroker-api</artifactId>
+      		<version>${sakai.version}</version>
+    	</dependency> 
+		<dependency>
+      		<groupId>sakaiproject</groupId>
+      		<artifactId>sakai-email-api</artifactId>
+      		<version>${sakai.version}</version>
+   		</dependency>
+   		
+   		<dependency>
+      		<groupId>org.sakaiproject</groupId>
+      		<artifactId>sakai-tinyurl-api</artifactId>
+     		<version>${tinyurl.version}</version>
+   		</dependency>
+  	
+  	
+  	</dependencies>
+
+	<build>
+		<sourceDirectory>src/java</sourceDirectory>
+	</build>
+	
+	
+</project>
+

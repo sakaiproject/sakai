@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/3.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/3.0.0 http://maven.apache.org/maven-v3_0_0.xsd">
+	<pomVersion>3</pomVersion>
+	<extend>../../master/project.xml</extend>
+	<name>Profile2 PACK</name>
+	<groupId>uk.ac.lancs.e_science</groupId>
+	<artifactId>sakai-profile2-pack</artifactId>
+	
+	<currentVersion>${tool.version}</currentVersion>
+	
+	<properties>
+		<deploy.type>components</deploy.type>
+	</properties>
+	
+  	<dependencies>
+
+        <!-- internal dependencies -->
+        <dependency>
+            <groupId>uk.ac.lancs.e_science</groupId>
+            <artifactId>sakai-profile2-impl</artifactId>
+            <version>${tool.version}</version>
+            <properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+        </dependency>
+        
+        <!--  sakai dependencies -->
+        <dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util</artifactId>
+      		<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+   		</dependency>
+        
+        <!-- external dependencies we need bundled -->
+		<dependency>
+			<groupId>net.homeip.yusuke</groupId>
+			<artifactId>twitter4j</artifactId>
+			<version>${twitter4j.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+      		</properties>
+		</dependency>
+	
+		<dependency>
+      		<groupId>org.jasypt</groupId>
+      		<artifactId>jasypt</artifactId>
+      		<version>${jasypt.version}</version>
+      		<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+    	</dependency>
+    	
+    	<dependency>
+			<groupId>com.ibm.icu</groupId>
+			<artifactId>icu4j</artifactId>
+			<version>${icu4j.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+		
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>${commonscodec.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+        
+        
+        
+
+    </dependencies>
+
+    <build />
+
+
+</project>

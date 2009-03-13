@@ -1,0 +1,155 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/3.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/3.0.0 http://maven.apache.org/maven-v3_0_0.xsd">
+	<pomVersion>3</pomVersion>
+	<extend>../../master/project.xml</extend>
+	<name>Profile2 TOOL</name>
+	<groupId>uk.ac.lancs.e_science</groupId>
+	<artifactId>sakai-profile2-tool</artifactId>
+	
+	<currentVersion>${tool.version}</currentVersion>
+	
+	<properties>
+        <deploy.type>war</deploy.type>
+    </properties>
+	
+		
+	<dependencies>
+		
+		<!--  WICKET DEPENDENCIES -->
+		<dependency>
+			<groupId>org.apache.wicket</groupId>
+			<artifactId>wicket</artifactId>
+			<version>${wicket.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+			<dependency>
+			<groupId>org.apache.wicket</groupId>
+			<artifactId>wicket-extensions</artifactId>
+			<version>${wicket.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.wicket</groupId>
+			<artifactId>wicket-spring</artifactId>
+			<version>${wicket.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+    	</dependency>
+    	
+    	<dependency>
+      		<groupId>org.apache.wicket</groupId>
+      		<artifactId>wicket-spring-annot</artifactId>
+      		<version>${wicket.version}</version>
+      		<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+    	</dependency>
+    	
+    	<dependency>
+      		<groupId>org.apache.wicket</groupId>
+      		<artifactId>wicket-ioc</artifactId>
+      		<version>${wicket.version}</version>
+      		<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+    	</dependency>
+    	
+    	
+		
+		<!--  INTERNAL DEPENDENCIES -->
+		<dependency>
+      		<groupId>uk.ac.lancs.e_science</groupId>
+      		<artifactId>sakai-profile2-api</artifactId>
+      		<version>${tool.version}</version>
+    	</dependency>
+		
+		
+		<!--  SAKAI DEPENDENCIES -->
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-component-api</artifactId>
+			<version>${sakai.version}</version>
+    	</dependency>
+    	<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-site-api</artifactId>
+			<version>${sakai.version}</version>
+    	</dependency>
+    	<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-tool-api</artifactId>
+			<version>${sakai.version}</version>
+    	</dependency>
+    	<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-user-api</artifactId>
+			<version>${sakai.version}</version>
+    	</dependency>
+    	
+    	<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-common-edu-person-api</artifactId>
+			<version>${sakai.version}</version>
+    	</dependency>
+    	<dependency>
+      		<groupId>sakaiproject</groupId>
+      		<artifactId>sakai-common-manager-api</artifactId>
+      		<version>${sakai.version}</version>
+    	</dependency>
+	    <dependency>
+	      	<groupId>sakaiproject</groupId>
+	      	<artifactId>sakai-common-type-api</artifactId>
+	      	<version>${sakai.version}</version>
+	    </dependency>
+		
+		
+		<!-- LOGGING DEPENDENCIES - LOG4J -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>${slf4j.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+	
+		<sourceDirectory>src/java</sourceDirectory>
+		<resources>
+			<resource>
+				<directory>${basedir}/src/java</directory>
+				<includes>
+					<include>**/*.properties</include>
+					<include>**/*.html</include>
+				</includes>
+			</resource>
+		</resources>
+					
+	</build>
+
+	
+</project>

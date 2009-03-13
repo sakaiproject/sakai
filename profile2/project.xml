@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project>
+	<pomVersion>3</pomVersion>
+	<extend>../master/project.xml</extend>
+	<name>Profile2 BASE</name>
+	<groupId>uk.ac.lancs.e_science</groupId>
+	
+	<currentVersion>${tool.version}</currentVersion>
+	
+	<organization>
+        <name>Lancaster University, Centre for e-Science</name>
+        <url>http://e-science.lancs.ac.uk</url>
+    </organization>
+	<inceptionYear>2008</inceptionYear>
+    
+    <dependencies>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai</artifactId>
+			<version>${sakai.plugin.version}</version>
+			<type>plugin</type>
+		</dependency>
+	</dependencies>
+	
+	<build />
+	
+</project>
