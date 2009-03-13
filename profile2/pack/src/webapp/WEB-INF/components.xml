@@ -44,18 +44,22 @@
 	</bean>	
 	
 	<!--  ProfileService bean for the outward facing API  -->
+	<!-- 
 	<bean id="uk.ac.lancs.e_science.profile2.api.ProfileService" class="uk.ac.lancs.e_science.profile2.impl.ProfileServiceImpl">
 		<property name="sakaiProxy" ref="uk.ac.lancs.e_science.profile2.api.SakaiProxy" />
 		<property name="profile" ref="uk.ac.lancs.e_science.profile2.api.Profile" />
 	</bean>
+	-->
     
     
     <!-- EntityBroker beans -->
+    <!-- 
 	<bean id="uk.ac.lancs.e_science.profile2.api.entity.ProfileEntityProvider" class="uk.ac.lancs.e_science.profile2.impl.entity.ProfileEntityProviderImpl"></bean>
 	
 	<bean id="uk.ac.lancs.e_science.profile2.api.entity.FriendsEntityProvider" class="uk.ac.lancs.e_science.profile2.impl.entity.FriendsEntityProviderImpl">
 		<property name="profile" ref="uk.ac.lancs.e_science.profile2.api.Profile" />
 	</bean>
+	-->
 	
 
 	<!-- Add our HBM files to the Sakai global session factory -->

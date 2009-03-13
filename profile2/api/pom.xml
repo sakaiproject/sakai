@@ -60,11 +60,13 @@
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-content-api</artifactId>
 		</dependency>
+		<!-- 
 		<dependency>
       		<groupId>org.sakaiproject.entitybroker</groupId>
       		<artifactId>entitybroker-api</artifactId>
       		<version>${entitybroker.version}</version>
     	</dependency> 
+    	-->
 		
   	</dependencies>
 
