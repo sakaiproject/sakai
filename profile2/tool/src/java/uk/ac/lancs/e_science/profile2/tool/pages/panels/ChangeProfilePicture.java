@@ -173,17 +173,10 @@ public class ChangeProfilePicture extends Panel{
         form.add(fileFeedback);
 		
 		//submit button
+		//TODO form indicator on this button, but requires an AJAX button which can't handle file uploads.
 		Button submitButton = new Button("submit", new ResourceModel("button.upload"));
-			
 		
 		form.add(submitButton);
-		
-		//form indicator - show when the submit button has been clicked - TODO
-		//requires AJAX submit button but we can't use it since Ajax cant do file uploads
-		AjaxIndicator indicator = new AjaxIndicator("indicator");
-		indicator.setOutputMarkupId(true);
-		indicator.setVisible(false);
-		form.add(indicator);
 		
 		//add form to page
 		add(form);

@@ -229,12 +229,23 @@ public interface SakaiProxy {
 	 * Is the profile2.picture.change.enabled flag set in sakai.properties?
 	 * If not set, defaults to true
 	 * 
-	 * <p>Depending on this setting, uses will be able to upload thier own image. 
+	 * <p>Depending on this setting, usesr will be able to upload thier own image. 
 	 * This can be useful to disable for institutions which may provide official photos for students.</p>
 	 * 
 	 * @return
 	 */
 	public boolean isProfilePictureChangeEnabled();
+	
+	/**
+	 * Get the profile2.picture.type setting in sakai.properties
+	 * Possible values are 'upload' and 'url'. If not set, defaults to 'upload'
+	 * 
+	 * <p>Depending on this setting, Profile2 will deicde how it retrieves the image.
+	 * Users will also be able to upload thier own image or provide a URL, depending on this setting.</p>
+	 * 
+	 * @return
+	 */
+	public int getProfilePictureType();
 	
 	
 

@@ -543,7 +543,29 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return serverConfigurationService.getBoolean("profile2.picture.change.enabled", true);
 	}
 	
-
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public int getProfilePictureType() {
+		String pictureType = serverConfigurationService.getString("profile2.picture.type");
+		
+		//if 'upload'
+		if(pictureType.equals(ProfileUtilityManager.PICTURE_SETTING_UPLOAD_PROP)) {
+			return ProfileUtilityManager.PICTURE_SETTING_UPLOAD;
+		}
+		//if 'url'
+		else if(pictureType.equals(ProfileUtilityManager.PICTURE_SETTING_URL_PROP)) {
+			return ProfileUtilityManager.PICTURE_SETTING_URL;
+		}
+		//otherwise return default
+		else {
+			return ProfileUtilityManager.PICTURE_SETTING_DEFAULT;
+		}
+	}
+	
+	
+	
+	
 	
 	
 	
