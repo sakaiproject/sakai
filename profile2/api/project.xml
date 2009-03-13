@@ -8,7 +8,7 @@
 	<groupId>uk.ac.lancs.e_science</groupId>
 	<artifactId>sakai-profile2-api</artifactId>
 	
-	<currentVersion>${tool.version}</currentVersion>
+	<currentVersion>1.1-SNAPSHOT</currentVersion>
 
 	<properties>
 		<deploy.type>jar</deploy.type>
@@ -21,10 +21,10 @@
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<version>${log4j.version}</version>
+			<version>1.2.14</version>
 		</dependency>
 
-		<!--  Sakai dependenceies -->
+		<!--  Sakai dependencies -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-common-edu-person-api</artifactId>

@@ -8,20 +8,26 @@
 	<groupId>uk.ac.lancs.e_science</groupId>
 	<artifactId>sakai-profile2-tool</artifactId>
 	
-	<currentVersion>${tool.version}</currentVersion>
+	<currentVersion>1.1-SNAPSHOT</currentVersion>
 	
 	<properties>
         <deploy.type>war</deploy.type>
     </properties>
-	
 		
 	<dependencies>
 		
+		<!--  INTERNAL DEPENDENCIES -->
+		<dependency>
+      		<groupId>uk.ac.lancs.e_science</groupId>
+      		<artifactId>sakai-profile2-api</artifactId>
+      		<version>1.1-SNAPSHOT</version>
+    	</dependency>
+    	
 		<!--  WICKET DEPENDENCIES -->
 		<dependency>
 			<groupId>org.apache.wicket</groupId>
 			<artifactId>wicket</artifactId>
-			<version>${wicket.version}</version>
+			<version>1.3.5</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
@@ -29,7 +35,7 @@
 			<dependency>
 			<groupId>org.apache.wicket</groupId>
 			<artifactId>wicket-extensions</artifactId>
-			<version>${wicket.version}</version>
+			<version>1.3.5</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
@@ -38,7 +44,7 @@
 		<dependency>
 			<groupId>org.apache.wicket</groupId>
 			<artifactId>wicket-spring</artifactId>
-			<version>${wicket.version}</version>
+			<version>1.3.5</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
@@ -47,7 +53,7 @@
     	<dependency>
       		<groupId>org.apache.wicket</groupId>
       		<artifactId>wicket-spring-annot</artifactId>
-      		<version>${wicket.version}</version>
+      		<version>1.3.5</version>
       		<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
@@ -56,22 +62,38 @@
     	<dependency>
       		<groupId>org.apache.wicket</groupId>
       		<artifactId>wicket-ioc</artifactId>
-      		<version>${wicket.version}</version>
+      		<version>1.3.5</version>
       		<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
     	</dependency>
     	
-    	
-		
-		<!--  INTERNAL DEPENDENCIES -->
+    	<!-- LOGGING DEPENDENCIES - LOG4J -->
 		<dependency>
-      		<groupId>uk.ac.lancs.e_science</groupId>
-      		<artifactId>sakai-profile2-api</artifactId>
-      		<version>${tool.version}</version>
-    	</dependency>
-		
-		
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.4.2</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.4.2</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.14</version>
+		</dependency>
+    	
+    	
+    	
+
 		<!--  SAKAI DEPENDENCIES -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
@@ -110,30 +132,6 @@
 	      	<version>${sakai.version}</version>
 	    </dependency>
 		
-		
-		<!-- LOGGING DEPENDENCIES - LOG4J -->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>${slf4j.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>${log4j.version}</version>
-		</dependency>
-
 	</dependencies>
 
 	<build>

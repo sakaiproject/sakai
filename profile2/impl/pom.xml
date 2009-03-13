@@ -28,14 +28,7 @@
 			<scope>provided</scope>
 		</dependency>
 		
-		
-		 <!-- generic DAO -->
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>generic-dao</artifactId>
-            <version>0.9.8</version>
-        </dependency>
-		
+
 		<!-- shared external dependencies -->
         <dependency>
             <groupId>org.springframework</groupId>

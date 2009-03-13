@@ -8,7 +8,7 @@
 	<groupId>uk.ac.lancs.e_science</groupId>
 	<artifactId>sakai-profile2-pack</artifactId>
 	
-	<currentVersion>${tool.version}</currentVersion>
+	<currentVersion>1.1-SNAPSHOT</currentVersion>
 	
 	<properties>
 		<deploy.type>components</deploy.type>
@@ -20,7 +20,7 @@
         <dependency>
             <groupId>uk.ac.lancs.e_science</groupId>
             <artifactId>sakai-profile2-impl</artifactId>
-            <version>${tool.version}</version>
+            <version>1.1-SNAPSHOT</version>
             <properties>
 				<war.bundle>true</war.bundle>
 			</properties>
@@ -40,7 +40,7 @@
 		<dependency>
 			<groupId>net.homeip.yusuke</groupId>
 			<artifactId>twitter4j</artifactId>
-			<version>${twitter4j.version}</version>
+			<version>1.1.4</version>
 			<properties>
 				<war.bundle>true</war.bundle>
       		</properties>
@@ -49,7 +49,7 @@
 		<dependency>
       		<groupId>org.jasypt</groupId>
       		<artifactId>jasypt</artifactId>
-      		<version>${jasypt.version}</version>
+      		<version>1.5</version>
       		<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
@@ -58,7 +58,7 @@
     	<dependency>
 			<groupId>com.ibm.icu</groupId>
 			<artifactId>icu4j</artifactId>
-			<version>${icu4j.version}</version>
+			<version>3.8</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
@@ -67,7 +67,7 @@
 		<dependency>
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
-			<version>${commonscodec.version}</version>
+			<version>1.1</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>

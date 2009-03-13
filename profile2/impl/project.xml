@@ -8,7 +8,7 @@
 	<groupId>uk.ac.lancs.e_science</groupId>
 	<artifactId>sakai-profile2-impl</artifactId>
 	
-	<currentVersion>${tool.version}</currentVersion>
+	<currentVersion>1.1-SNAPSHOT</currentVersion>
 	
 	<properties>
 		<deploy.type>jar</deploy.type>
@@ -21,11 +21,10 @@
 		<dependency>
 			<groupId>uk.ac.lancs.e_science</groupId>
 			<artifactId>sakai-profile2-api</artifactId>
-			<version>${tool.version}</version>
+			<version>1.1-SNAPSHOT</version>
 		</dependency>
 		
-		
-		 <!-- Spring and Hibernate dependencies. -->
+		<!-- Spring and Hibernate dependencies. -->
         <dependency>
            <groupId>${sakai.spring.groupId}</groupId>
            <artifactId>${sakai.spring.artifactId}</artifactId>
@@ -51,27 +50,35 @@
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<version>${log4j.version}</version>
+			<version>1.2.14</version>
 		</dependency>
 		
 		<!--  twitter4j dependency -->
 		<dependency>
 			<groupId>net.homeip.yusuke</groupId>
 			<artifactId>twitter4j</artifactId>
-			<version>${twitter4j.version}</version>
+			<version>1.1.4</version>
 		</dependency>
 		
 		<!--  encryption/decryption dependency -->
 		<dependency>
       		<groupId>org.jasypt</groupId>
       		<artifactId>jasypt</artifactId>
-      		<version>${jasypt.version}</version>
+      		<version>1.5</version>
     	</dependency>
     	<dependency>
 			<groupId>com.ibm.icu</groupId>
 			<artifactId>icu4j</artifactId>
-			<version>${icu4j.version}</version>
+			<version>3.8</version>
 		</dependency>
+		
+		<!-- tinyurl for sakai dependency -->
+		<dependency>
+      		<groupId>org.sakaiproject</groupId>
+      		<artifactId>sakai-tinyurl-api</artifactId>
+     		<version>0.9-SNAPSHOT</version>
+   		</dependency>
+  	
 
 		<!--  Sakai dependencies -->
 		<dependency>
@@ -151,12 +158,7 @@
       		<version>${sakai.version}</version>
    		</dependency>
    		
-   		<dependency>
-      		<groupId>org.sakaiproject</groupId>
-      		<artifactId>sakai-tinyurl-api</artifactId>
-     		<version>${tinyurl.version}</version>
-   		</dependency>
-  	
+   	
   	
   	</dependencies>
 
