@@ -1542,11 +1542,15 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			Object[] fields = new Object[2 + (2 * realms.size())];
 			Object[] fields2 = new Object[3]; // for roleswap
 			int pos = 0;
+			String siteId = "";
 			for (Iterator i = realms.iterator(); i.hasNext();)
 			{
 				String role = (String) i.next();
-				if (role.startsWith("/site/")) 
+				if (role.startsWith("/site/"))
+				{
 					fields2[2] = role;
+					siteId = role; // set this variable for potential use later 
+				}
 				fields[pos++] = role;
 			}
 			fields[pos++] = lock;
@@ -1565,7 +1569,10 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
             {
 				fields2[0] = roleswap;
 				fields2[1] = lock;
+				
 				statement = dbAuthzGroupSql.getCountRoleFunctionSql();
+				
+				// check the main site id first for the permission since this  
 				results = m_sql.dbRead(statement, fields2, new SqlReader()
 				{
 					public Object readSqlResultRecord(ResultSet result)
@@ -1581,6 +1588,52 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 						}
 					}
 				});
+				
+				boolean rv = false;
+				int count = -1;
+				if (!results.isEmpty())
+				{
+					count = ((Integer) results.get(0)).intValue();
+					rv = count > 0;
+				}
+				if (rv) // if true, go ahead and return
+					return rv;
+				
+				for (Iterator i = realms.iterator(); i.hasNext();)
+				{
+					String site = (String) i.next();
+					if (site == siteId) // we've already checked this so no need to do it again
+						continue;
+					
+					fields2[2] = site;
+				
+					results = m_sql.dbRead(statement, fields2, new SqlReader()
+					{
+						public Object readSqlResultRecord(ResultSet result)
+						{
+							try
+							{
+								int count = result.getInt(1);
+								return new Integer(count);
+							}
+							catch (SQLException ignore)
+							{
+								return null;
+							}
+						}
+					});
+					
+					count = -1;
+					if (!results.isEmpty())
+					{
+						count = ((Integer) results.get(0)).intValue();
+						rv = count > 0;
+					}
+					if (rv) // if true, go ahead and return
+						return rv;
+					else if (!i.hasNext()) // if this is the last one and we still have not gotten a true result, go ahead and return the false
+						return rv;
+				}
             }
 			else
 			{
