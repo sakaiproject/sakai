@@ -889,7 +889,6 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getEventStats(java.lang.String, java.util.List)
 	 */
 	public List<Stat> getEventStats(String siteId, List<String> events) {
-		//return getEventStats(siteId, events, null, getInitialActivityDate(siteId), null);
 		return getEventStats(siteId, events, getInitialActivityDate(siteId), null, null, false, null, null, null, true, 0);
 	}
 	
@@ -2169,33 +2168,34 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			}
 			
 			// build 'where' clause
-			_hql.append("where ");
-			for(int i=0; i<whereFields.size() - 1; i++) {
-				if(whereFields.get(i).startsWith("s.resourceRef")){
-					// this is a resource condition
-					if(i!= 0 && !whereFields.get(i-1).startsWith("s.resourceRef")) {
-						_hql.append("(");
-					}
-					_hql.append(whereFields.get(i));
-					if(whereFields.get(i+1).startsWith("s.resourceRef")) {
-						 // and so is next
-						_hql.append(" or ");
+			if(whereFields.size() > 0) {
+				_hql.append("where ");
+				for(int i=0; i<whereFields.size() - 1; i++) {
+					if(whereFields.get(i).startsWith("s.resourceRef")){
+						// this is a resource condition
+						if(i!= 0 && !whereFields.get(i-1).startsWith("s.resourceRef")) {
+							_hql.append("(");
+						}
+						_hql.append(whereFields.get(i));
+						if(whereFields.get(i+1).startsWith("s.resourceRef")) {
+							 // and so is next
+							_hql.append(" or ");
+						}else{
+							// and next is not
+							_hql.append(") and ");
+						}
 					}else{
-						// and next is not
-						_hql.append(") and ");
+						_hql.append(whereFields.get(i));
+						_hql.append(" and ");
 					}
-				}else{
-					_hql.append(whereFields.get(i));
-					_hql.append(" and ");
 				}
-			}
-			_hql.append(whereFields.get(whereFields.size() - 1));
-			if(whereFields.size() > 1 && whereFields.get(whereFields.size() - 2).startsWith("s.resourceRef")) {
-				// last was also a resource condition
-				_hql.append(')');
-			}
-			_hql.append(' ');
-			
+				_hql.append(whereFields.get(whereFields.size() - 1));
+				if(whereFields.size() > 1 && whereFields.get(whereFields.size() - 2).startsWith("s.resourceRef")) {
+					// last was also a resource condition
+					_hql.append(')');
+				}
+			}			
+			_hql.append(' ');			
 			
 			return _hql.toString();
 			
@@ -2470,7 +2470,11 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 							}else{
 								c.setSiteId((String)s[0]);
 								c.setTotalVisits(((Long)s[1]).longValue());
-								c.setTotalUnique(((Integer)s[2]).intValue());
+								try{
+									c.setTotalUnique(((Integer)s[2]).intValue());
+								}catch(ClassCastException e) {
+									c.setTotalUnique(((Long)s[2]).intValue());
+								}
 								cal.set(Calendar.YEAR, ((Integer)s[3]).intValue());
 								cal.set(Calendar.MONTH, ((Integer)s[4]).intValue() - 1);
 							}							
@@ -2558,10 +2562,14 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					q.setString("siteid", siteId);
 					List<Object[]> res = q.list();
 					if(res.size() > 0) return res.get(0);
-					else return Long.valueOf(0);	
+					else return Integer.valueOf(0);	
 				}
 			};
-			return ((Integer) getHibernateTemplate().execute(hcb)).longValue();
+			try{
+				return ((Long) getHibernateTemplate().execute(hcb)).longValue();
+			}catch(ClassCastException e) {
+				return ((Integer) getHibernateTemplate().execute(hcb)).longValue();
+			}
 		}
 	}
 
@@ -2608,7 +2616,11 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					else return Long.valueOf(0);	
 				}
 			};
-			return ((Integer) getHibernateTemplate().execute(hcb)).longValue();
+			try{
+				return ((Long) getHibernateTemplate().execute(hcb)).longValue();
+			}catch(ClassCastException e) {
+				return ((Integer) getHibernateTemplate().execute(hcb)).longValue();
+			}
 		}
 	}
 	

@@ -3,6 +3,7 @@ package org.sakaiproject.sitestats.test;
 
 import static org.easymock.classextension.EasyMock.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -13,11 +14,19 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.PrefsData;
+import org.sakaiproject.sitestats.api.SiteActivityByTool;
+import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
+import org.sakaiproject.sitestats.api.SummaryActivityChartData;
+import org.sakaiproject.sitestats.api.SummaryActivityTotals;
+import org.sakaiproject.sitestats.api.SummaryVisitsChartData;
+import org.sakaiproject.sitestats.api.SummaryVisitsTotals;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.impl.StatsManagerImpl;
 import org.sakaiproject.sitestats.impl.StatsUpdateManagerImpl;
@@ -140,7 +149,7 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 
 	// run this before each test starts and as part of the transaction
 	protected void onSetUpInTransaction() {
-		//db.deleteAll();
+		db.deleteAll();
 	}
 
 	
@@ -450,4 +459,324 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		assertNull(M_sm.getResourceURL(null));
 	}
 	
+	private List<Event> getSampleData() {
+		List<Event> samples = new ArrayList<Event>();
+		Date today = new Date();
+		Date oneDayBefore = new Date(today.getTime() - 24*60*60*1000);
+		Date twoDaysBefore = new Date(today.getTime() - 2*24*60*60*1000);
+		Date fourDaysBefore = new Date(today.getTime() - 4*24*60*60*1000);
+		Date sixDaysBefore = new Date(today.getTime() - 6*24*60*60*1000);
+		// visits
+		Event vAToday = M_sum.buildEvent(today, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		Event vBToday = M_sum.buildEvent(today, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_B_ID, "session-id-b");
+		Event vAOneDayBefore = M_sum.buildEvent(oneDayBefore, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		Event vATowDaysBefore = M_sum.buildEvent(twoDaysBefore, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		Event vAFourDaysBefore = M_sum.buildEvent(fourDaysBefore, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		Event vBFourDaysBefore = M_sum.buildEvent(fourDaysBefore, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_B_ID, "session-id-b");
+		Event vBSixDaysBefore = M_sum.buildEvent(sixDaysBefore, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_B_ID, "session-id-b");
+		samples.addAll(Arrays.asList(
+				vAToday, vAToday, vBToday, 			// today:			3 visits, 2 unique
+				vAOneDayBefore, 					// 1 day before:	1 visits, 1 unique
+				vATowDaysBefore, vATowDaysBefore, 	// 2 day before:	2 visits, 1 unique
+				vAFourDaysBefore, vBFourDaysBefore, // 4 day before:	2 visits, 2 unique
+				vBSixDaysBefore						// 6 day before:	1 visits, 1 unique
+				));
+		// activity
+		Event aAToday = M_sum.buildEvent(today, FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
+		Event aBToday = M_sum.buildEvent(today, FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_A_ID+"/resource_id", FakeData.SITE_A_ID, FakeData.USER_B_ID, "session-id-b");
+		Event aAOneDayBefore = M_sum.buildEvent(oneDayBefore, FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
+		Event aATowDaysBefore = M_sum.buildEvent(twoDaysBefore, FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
+		Event aAFourDaysBefore = M_sum.buildEvent(fourDaysBefore, FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
+		Event aBFourDaysBefore = M_sum.buildEvent(fourDaysBefore, FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, FakeData.SITE_A_ID, FakeData.USER_B_ID, "session-id-b");
+		Event aBSixDaysBefore = M_sum.buildEvent(sixDaysBefore, FakeData.EVENT_CONTENTREV, "/content/group/"+FakeData.SITE_A_ID+"/resource_id", FakeData.SITE_A_ID, FakeData.USER_B_ID, "session-id-b");
+		samples.addAll(Arrays.asList(
+				aAToday, aBToday,  					// today:			2 (1 chat + 1 content)
+				aAOneDayBefore, 					// 1 day before:	1 (1 chat)
+				aATowDaysBefore, aATowDaysBefore, 	// 2 day before:	2 (2 chat)
+				aAFourDaysBefore, aBFourDaysBefore, // 4 day before:	2 (2 chat)
+				aBSixDaysBefore						// 6 day before:	1 (1 chat)
+				));
+		return samples;
+	}
+	
+	public void testSummaryMethods() {
+		M_sum.collectEvents(getSampleData());
+		
+		// #1 getSummaryVisitsTotals
+		SummaryVisitsTotals svt = M_sm.getSummaryVisitsTotals(FakeData.SITE_A_ID);
+		assertEquals(2, svt.getTotalUsers());
+		assertEquals(9, svt.getTotalVisits());
+		assertEquals(2, svt.getTotalUniqueVisits());
+		assertEquals((100 * 2) / (double) 2, svt.getPercentageOfUsersThatVisitedSite());
+		assertEquals(1.3, svt.getLast7DaysVisitsAverage());
+		assertEquals(0.3, svt.getLast30DaysVisitsAverage());
+		assertEquals(0.0, svt.getLast365DaysVisitsAverage());
+		
+		// #2 getSummaryActivityTotals
+		SummaryActivityTotals sat = M_sm.getSummaryActivityTotals(FakeData.SITE_A_ID);
+		assertEquals(8, sat.getTotalActivity());
+		assertEquals(1.1, sat.getLast7DaysActivityAverage());
+		assertEquals(0.3, sat.getLast30DaysActivityAverage());
+		assertEquals(0.0, sat.getLast365DaysActivityAverage());
+		
+		// #3 getSummaryVisitsChartData: week
+		SummaryVisitsChartData svcd = M_sm.getSummaryVisitsChartData(FakeData.SITE_A_ID, StatsManager.VIEW_WEEK);
+		assertEquals(5, svcd.getSiteVisits().size());
+		assertNotNull(svcd.getFirstDay());
+		long[] wv = svcd.getVisits();
+		long[] wuv = svcd.getUniqueVisits();
+		assertEquals(1, wv[0]); // 6
+		assertEquals(1, wuv[0]);
+		assertEquals(0, wv[1]); // 5
+		assertEquals(0, wuv[1]);
+		assertEquals(2, wv[2]); // 4
+		assertEquals(2, wuv[2]);
+		assertEquals(0, wv[3]); // 3
+		assertEquals(0, wuv[3]);
+		assertEquals(2, wv[4]); // 2
+		assertEquals(1, wuv[4]);
+		assertEquals(1, wv[5]); // 1
+		assertEquals(1, wuv[5]);
+		assertEquals(3, wv[6]); // 0
+		assertEquals(2, wuv[6]);
+		
+		// #4 getSummaryVisitsChartData: month
+		svcd = M_sm.getSummaryVisitsChartData(FakeData.SITE_A_ID, StatsManager.VIEW_MONTH);
+		assertEquals(5, svcd.getSiteVisits().size());
+		assertNotNull(svcd.getFirstDay());
+		wv = svcd.getVisits();
+		wuv = svcd.getUniqueVisits();
+		for(int i=0; i<wv.length ; i++) {
+			if(i==23) {
+				assertEquals(1, wv[i]);
+				assertEquals(1, wuv[i]);				
+			}else if(i==25) {
+				assertEquals(2, wv[i]);
+				assertEquals(2, wuv[i]);				
+			}else if(i==27) {
+				assertEquals(2, wv[i]);
+				assertEquals(1, wuv[i]);				
+			}else if(i==28) {
+				assertEquals(1, wv[i]);
+				assertEquals(1, wuv[i]);				
+			}else if(i==29) {
+				assertEquals(3, wv[i]);
+				assertEquals(2, wuv[i]);				
+			}else{
+				assertEquals(0, wv[i]);
+				assertEquals(0, wuv[i]);
+			}
+		}
+		
+		// #5 getSummaryVisitsChartData: year
+		svcd = M_sm.getSummaryVisitsChartData(FakeData.SITE_A_ID, StatsManager.VIEW_YEAR);
+		assertEquals(1, svcd.getSiteVisits().size());
+		assertNotNull(svcd.getFirstDay());
+		wv = svcd.getVisits();
+		wuv = svcd.getUniqueVisits();
+		for(int i=0; i<wv.length ; i++) {
+			if(i==11) {
+				assertEquals(9, wv[i]);
+				assertEquals(2, wuv[i]);				
+			}else{
+				assertEquals(0, wv[i]);
+				assertEquals(0, wuv[i]);
+			}
+		}
+		
+		// #6 getSummaryActivityChartData: week, BAR
+		SummaryActivityChartData sacd = M_sm.getSummaryActivityChartData(FakeData.SITE_A_ID, StatsManager.VIEW_WEEK, StatsManager.CHARTTYPE_BAR);
+		assertEquals(0, sacd.getActivityByToolTotal());
+		assertNotNull(sacd.getFirstDay());
+		long[] a = sacd.getActivity();
+		assertEquals(1, a[0]); // 6
+		assertEquals(0, a[1]); // 5
+		assertEquals(2, a[2]); // 4
+		assertEquals(0, a[3]); // 3
+		assertEquals(2, a[4]); // 2
+		assertEquals(1, a[5]); // 1
+		assertEquals(2, a[6]); // 0
+		
+		// #7 getSummaryActivityChartData: month, BAR
+		sacd = M_sm.getSummaryActivityChartData(FakeData.SITE_A_ID, StatsManager.VIEW_MONTH, StatsManager.CHARTTYPE_BAR);
+		assertEquals(0, sacd.getActivityByToolTotal());
+		assertNotNull(sacd.getFirstDay());
+		a = sacd.getActivity();
+		for(int i=0; i<a.length ; i++) {
+			if(i==23) {
+				assertEquals(1, a[i]);				
+			}else if(i==25) {
+				assertEquals(2, a[i]);				
+			}else if(i==27) {
+				assertEquals(2, a[i]);				
+			}else if(i==28) {
+				assertEquals(1, a[i]);				
+			}else if(i==29) {
+				assertEquals(2, a[i]);				
+			}else{
+				assertEquals(0, a[i]);
+			}
+		}
+		
+		// #8 getSummaryActivityChartData: year, BAR
+		sacd = M_sm.getSummaryActivityChartData(FakeData.SITE_A_ID, StatsManager.VIEW_YEAR, StatsManager.CHARTTYPE_BAR);
+		assertEquals(0, sacd.getActivityByToolTotal());
+		assertNotNull(sacd.getFirstDay());
+		a = sacd.getActivity();
+		for(int i=0; i<a.length ; i++) {
+			if(i==11) {
+				assertEquals(8, a[i]);
+			}else{
+				assertEquals(0, a[i]);
+			}
+		}
+		
+		// #9 getSummaryActivityChartData: week, TOOL
+		sacd = M_sm.getSummaryActivityChartData(FakeData.SITE_A_ID, StatsManager.VIEW_WEEK, StatsManager.CHARTTYPE_PIE);
+		List<SiteActivityByTool> sabt = sacd.getActivityByTool();
+		assertNotNull(sabt);
+		assertEquals(2, sabt.size());
+		for(SiteActivityByTool s : sabt) {
+			assertEquals(FakeData.SITE_A_ID, s.getSiteId());
+			ToolInfo ti = s.getTool();
+			if(FakeData.TOOL_CHAT.equals(ti.getToolId())) {
+				assertEquals(6, s.getCount());
+			}else if(StatsManager.RESOURCES_TOOLID.equals(ti.getToolId())) {
+				assertEquals(2, s.getCount());
+			}
+		}
+		
+		// #10 getSummaryActivityChartData: month, TOOL
+		sacd = M_sm.getSummaryActivityChartData(FakeData.SITE_A_ID, StatsManager.VIEW_MONTH, StatsManager.CHARTTYPE_PIE);
+		sabt = sacd.getActivityByTool();
+		assertNotNull(sabt);
+		assertEquals(2, sabt.size());
+		for(SiteActivityByTool s : sabt) {
+			assertEquals(FakeData.SITE_A_ID, s.getSiteId());
+			ToolInfo ti = s.getTool();
+			if(FakeData.TOOL_CHAT.equals(ti.getToolId())) {
+				assertEquals(6, s.getCount());
+			}else if(StatsManager.RESOURCES_TOOLID.equals(ti.getToolId())) {
+				assertEquals(2, s.getCount());
+			}
+		}
+		
+		// #11 getSummaryActivityChartData: year, TOOL
+		sacd = M_sm.getSummaryActivityChartData(FakeData.SITE_A_ID, StatsManager.VIEW_YEAR, StatsManager.CHARTTYPE_PIE);
+		sabt = sacd.getActivityByTool();
+		assertNotNull(sabt);
+		assertEquals(2, sabt.size());
+		for(SiteActivityByTool s : sabt) {
+			assertEquals(FakeData.SITE_A_ID, s.getSiteId());
+			ToolInfo ti = s.getTool();
+			if(FakeData.TOOL_CHAT.equals(ti.getToolId())) {
+				assertEquals(6, s.getCount());
+			}else if(StatsManager.RESOURCES_TOOLID.equals(ti.getToolId())) {
+				assertEquals(2, s.getCount());
+			}
+		}
+		
+	}
+	
+	public void testEventStats() {
+		M_sum.collectEvents(getSampleData());
+		Date now = new Date();
+		Date today = new Date(now.getTime() + 24*60*60*1000);
+		Date threeDaysBefore = new Date(now.getTime() - 3*24*60*60*1000);
+		
+		// #1 getEventStats()
+		List<Stat> stats = M_sm.getEventStats(FakeData.SITE_A_ID, null);
+		assertEquals(14, stats.size());
+		stats = M_sm.getEventStats(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CHATNEW));
+		assertEquals(5, stats.size());
+		stats = M_sm.getEventStats(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CHATNEW, FakeData.EVENT_CONTENTNEW));
+		assertEquals(6, stats.size());
+		
+		// #2
+		stats = M_sm.getEventStats(null, null, 
+				null, null, null, false, null, 
+				null, null, false, 0);
+		assertNotNull(stats);
+		assertEquals(14, stats.size());
+		
+		stats = M_sm.getEventStats(FakeData.SITE_A_ID, null, 
+				threeDaysBefore, null, null, false, null, 
+				null, null, false, 0);
+		assertNotNull(stats);
+		assertEquals(8, stats.size());
+		
+		stats = M_sm.getEventStats(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CHATNEW, FakeData.EVENT_CONTENTNEW), 
+				null, today, null, false, null, 
+				null, null, false, 0);
+		assertNotNull(stats);
+		assertEquals(6, stats.size());
+		
+		stats = M_sm.getEventStats(FakeData.SITE_A_ID, null, 
+				null, null, Arrays.asList(FakeData.USER_B_ID), false, null, 
+				null, null, false, 0);
+		assertNotNull(stats);
+		assertEquals(6, stats.size());
+		
+		// test inverse selection
+		stats = M_sm.getEventStats(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CONTENTNEW), 
+				null, null, null, true, null, 
+				null, null, false, 0);
+		assertNotNull(stats);
+		assertEquals(1, stats.size());
+		assertEquals(FakeData.USER_A_ID, stats.get(0).getUserId());
+		
+		// test paging
+		stats = M_sm.getEventStats(null, null, 
+				null, null, null, false, new PagingPosition(0, 5), 
+				null, null, false, 0);
+		assertNotNull(stats);
+		assertEquals(6, stats.size());
+		
+		// test max results
+		stats = M_sm.getEventStats(null, null, 
+				null, null, null, false, new PagingPosition(0, 5), 
+				null, null, false, 3);
+		assertNotNull(stats);
+		assertEquals(3, stats.size());
+		
+		// test columns with sorting
+		stats = M_sm.getEventStats(null, null, 
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_EVENT, StatsManager.T_USER), StatsManager.T_USER, true, 0);
+		assertNotNull(stats);
+		assertEquals(FakeData.USER_A_ID, stats.get(0).getUserId());
+		for(Stat s : stats) {
+			EventStat es = (EventStat) s;
+			assertNotNull(es.getEventId());
+			assertNotNull(es.getUserId());
+			assertNotNull(es.getCount());
+			assertNull(es.getSiteId());
+			assertNull(es.getDate());
+		}
+		assertEquals(6, stats.size());
+		stats = M_sm.getEventStats(null, null, 
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_EVENT, StatsManager.T_USER), StatsManager.T_USER, false, 0);
+		assertNotNull(stats);
+		assertEquals(FakeData.USER_B_ID, stats.get(0).getUserId());
+		assertEquals(6, stats.size());
+		
+		// anonymous
+		Event eAnon = M_sum.buildEvent(today, FakeData.EVENT_CONTENTDEL, "/content/group/"+FakeData.SITE_A_ID+"/resource_id", FakeData.SITE_A_ID, FakeData.USER_B_ID, "session-id-b");
+		M_sum.collectEvent(eAnon);
+		stats = M_sm.getEventStats(null, null, 
+				null, null, null, false, null, 
+				null, null, false, 0);
+		assertNotNull(stats);
+		assertEquals(15, stats.size());
+		assertEquals("-", stats.get(14).getUserId());
+		stats = M_sm.getEventStats(null, null, 
+				null, null, new ArrayList<String>(), false, null, 
+				null, null, false, 0);
+		assertNotNull(stats);
+		assertEquals(0, stats.size());
+		
+		//System.out.println("Stats: "+stats);
+		//System.out.println("Size: "+stats.size());
+	}
 }

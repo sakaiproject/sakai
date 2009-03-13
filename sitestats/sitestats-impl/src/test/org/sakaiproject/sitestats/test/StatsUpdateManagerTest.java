@@ -393,7 +393,7 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		M_ets.post(e1);
 		try{
 			// give it time to process event
-			Thread.sleep(200);			
+			Thread.sleep(500);			
 		}catch(Exception e) {}
 		results = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
 		assertEquals(1, results.size());
@@ -404,15 +404,21 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		db.deleteAll();
 		// #2: collect thread update interval
 		assertEquals(50, M_sum.getCollectThreadUpdateInterval());
+		
 		// make sure it processes
 		Event e1 = M_sum.buildEvent(new Date(), FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
-		M_ets.post(e1);
-		try{
-			// give it time to process event
-			Thread.sleep(200);			
-		}catch(Exception e) {}
-		List<EventStat> results = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
+		M_ets.post(e1);		
+		int tries = 0;
+		List<EventStat> results = new ArrayList<EventStat>();
+		while(results.size() == 0 && tries++ < 3) {
+			results = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
+			try{
+				// give it time to process event
+				Thread.sleep(250);			
+			}catch(Exception e) {/* ignore */}
+		}
 		assertEquals(1, results.size());
+		
 		// make sure it doesn't process it
 		M_sum.setCollectThreadUpdateInterval(500);
 		assertEquals(500, M_sum.getCollectThreadUpdateInterval());
@@ -422,7 +428,7 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		assertEquals(1, results.size());
 		M_sum.setCollectThreadUpdateInterval(50);
 		assertEquals(50, M_sum.getCollectThreadUpdateInterval());
-		int tries = 0;
+		tries = 0;
 		while(results.size() == 1 && tries++ < 3) {
 			results = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
 			try{

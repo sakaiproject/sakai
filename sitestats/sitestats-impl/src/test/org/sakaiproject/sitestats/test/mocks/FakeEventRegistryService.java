@@ -1,5 +1,6 @@
 package org.sakaiproject.sitestats.test.mocks;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -12,8 +13,7 @@ import org.sakaiproject.sitestats.test.data.FakeData;
 public class FakeEventRegistryService implements EventRegistryService {
 
 	public List<String> getAnonymousEventIds() {
-		// TODO Auto-generated method stub
-		return null;
+		return Arrays.asList(FakeData.EVENT_CONTENTDEL);
 	}
 
 	public EventFactory getEventFactory() {

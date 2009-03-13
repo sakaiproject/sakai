@@ -30,6 +30,8 @@ public class FakeData {
 	public final static String					EVENT_CHATNEW		= "chat.new";
 	public final static String					EVENT_CONTENTNEW	= "content.new";
 	public final static String					EVENT_CONTENTREV	= "content.revise";
+	// anonymous events
+	public final static String					EVENT_CONTENTDEL	= "content.delete";
 	
 	// EVENT LIST & EVENT MAP
 	public final static List<String>			EVENTIDS			= new ArrayList<String>();
@@ -40,6 +42,7 @@ public class FakeData {
 		EVENTIDS.add(EVENT_CHATNEW); 
 		EVENTIDS.add(EVENT_CONTENTNEW); 
 		EVENTIDS.add(EVENT_CONTENTREV); 
+		EVENTIDS.add(EVENT_CONTENTDEL); 
 	};
 	public final static Map<String, ToolInfo>	EVENTID_TOOL_MAP	= new HashMap<String, ToolInfo>();
 	static{
