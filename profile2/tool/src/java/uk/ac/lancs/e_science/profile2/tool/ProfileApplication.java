@@ -3,12 +3,9 @@ package uk.ac.lancs.e_science.profile2.tool;
 
 import org.apache.wicket.Application;
 import org.apache.wicket.protocol.http.WebApplication;
-import org.apache.wicket.request.target.coding.QueryStringUrlCodingStrategy;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
-import uk.ac.lancs.e_science.profile2.tool.pages.MyFriends;
-import uk.ac.lancs.e_science.profile2.tool.pages.ViewProfile;
 import uk.ac.lancs.e_science.profile2.tool.pages.errors.InternalErrorPage;
 import uk.ac.lancs.e_science.profile2.tool.pages.errors.SessionExpiredPage;
 
