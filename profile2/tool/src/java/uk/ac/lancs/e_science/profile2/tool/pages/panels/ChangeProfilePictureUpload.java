@@ -25,15 +25,15 @@ import uk.ac.lancs.e_science.profile2.tool.components.FeedbackLabel;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 import uk.ac.lancs.e_science.profile2.tool.pages.MyProfile;
 
-public class ChangeProfilePicture extends Panel{
+public class ChangeProfilePictureUpload extends Panel{
     
 	private static final long serialVersionUID = 1L;
 	private FileUploadField uploadField;
     private transient SakaiProxy sakaiProxy;
     private transient Profile profile;
-	private transient Logger log = Logger.getLogger(ChangeProfilePicture.class);
+	private transient Logger log = Logger.getLogger(ChangeProfilePictureUpload.class);
 
-	public ChangeProfilePicture(String id, UserProfile userProfile) {  
+	public ChangeProfilePictureUpload(String id, UserProfile userProfile) {  
         super(id);  
         
 		//get SakaiProxy API

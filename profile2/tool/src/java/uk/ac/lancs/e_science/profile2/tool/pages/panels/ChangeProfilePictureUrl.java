@@ -29,7 +29,7 @@ public class ChangeProfilePictureUrl extends Panel{
 	private static final long serialVersionUID = 1L;
     private transient SakaiProxy sakaiProxy;
     private transient Profile profile;
-	private transient Logger log = Logger.getLogger(ChangeProfilePicture.class);
+	private transient Logger log = Logger.getLogger(ChangeProfilePictureUpload.class);
 
 	public ChangeProfilePictureUrl(String id, UserProfile userProfile) {  
         super(id);  

@@ -19,7 +19,7 @@ import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfileNotDefinedException;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
-import uk.ac.lancs.e_science.profile2.tool.pages.panels.ChangeProfilePicture;
+import uk.ac.lancs.e_science.profile2.tool.pages.panels.ChangeProfilePictureUpload;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.FriendsFeed;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyContactDisplay;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyInfoDisplay;
@@ -32,7 +32,7 @@ public class MyProfile extends BasePage {
 	private static final long serialVersionUID = 1L;
 	private transient Logger log = Logger.getLogger(MyProfile.class);
 	private transient byte[] profileImageBytes;
-	private final ChangeProfilePicture changePicture;
+	private final ChangeProfilePictureUpload changePicture;
 
 	public MyProfile()   {
 		
@@ -111,7 +111,7 @@ public class MyProfile extends BasePage {
 		}
 		
 		//change picture panel
-		changePicture = new ChangeProfilePicture("changePicture", userProfile);
+		changePicture = new ChangeProfilePictureUpload("changePicture", userProfile);
 		changePicture.setOutputMarkupPlaceholderTag(true);
 		changePicture.setVisible(false);
 		add(changePicture);
