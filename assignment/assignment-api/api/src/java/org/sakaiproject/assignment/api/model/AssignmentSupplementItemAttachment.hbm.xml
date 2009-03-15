@@ -3,23 +3,23 @@
           "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 	
 <hibernate-mapping default-lazy="false">
-	<class name="org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment" table="ASSIGN_SUPP_ATTACH_T">
+	<class name="org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment" table="ASN_SUP_ATTACH_T">
 		
 		<comment>This table is for assignment supplement item attachment. </comment>
        
 		<id name="id" column="ID" type="long">
 					<generator class="native">
-						<param name="sequence">ASSIGN_SUPP_ITEM_ATT_S</param>
+						<param name="sequence">ASN_SUP_ITEM_ATT_S</param>
 					</generator>
 		</id>
        <property name="attachmentId" type="java.lang.String" not-null="true" unique-key="uniqueAttachmentItem">
             <column name="ATTACHMENT_ID" />
         </property>
         
-         <!--  This maps to the ASSIGNMENT_SUPPL_ITEM_ATTACHMENT_T table -->
-        <many-to-one name="assignmentSupplementItemWithAttachment" column="ASN_SUPP_ITEM_WITH_ATTACH_ID" unique-key="uniqueAttachmentItem"
+         <!--  This maps to the ASN_SUP_ATTACHMENT_T table -->
+        <many-to-one name="assignmentSupplementItemWithAttachment" column="ASN_SUP_ITEM_ID" unique-key="uniqueAttachmentItem"
         	class="org.sakaiproject.assignment.api.model.AssignmentSupplementItemWithAttachment"
-        	not-null="true" index="ASSIGN_SUPP_ITEM_WITH_ATT_I" />
+        	not-null="true" index="ASN_SUP_ITEM_I" />
     </class>
     <query name = "findAttachmentBySupplementItem">
 			<![CDATA[

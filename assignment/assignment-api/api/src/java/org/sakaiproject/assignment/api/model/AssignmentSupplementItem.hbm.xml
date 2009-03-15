@@ -4,19 +4,19 @@
 
 <hibernate-mapping package="org.sakaiproject.assignment.api.model" default-lazy="false">
 
-	<class name="AssignmentSupplementItemWithAttachment" table="ASSIGN_SUPP_ITEM_WITH_ATT_T" >
+	<class name="AssignmentSupplementItemWithAttachment" table="ASN_SUP_ITEM_T" >
        
         <id name="Id" column="ID" type="long">
 					<generator class="native">
-						<param name="sequence">ASSIGN_SUPP_ITEM_WITH_ATT_S</param>
+						<param name="sequence">ASN_SUP_ITEM_S</param>
 					</generator>
 		</id>
 		<set name="attachmentSet" lazy="false" inverse="true" cascade="none">
-	        <key column="ASN_SUPP_ITEM_WITH_ATTACH_ID"/>                        
+	        <key column="ASN_SUP_ITEM_ID"/>                        
 	        <one-to-many class="org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment"/>            
     	</set>
 		
-		<joined-subclass name="AssignmentModelAnswerItem" table="ASSIGN_MODEL_ANS_ITEM_T" >
+		<joined-subclass name="AssignmentModelAnswerItem" table="ASN_MA_ITEM_T" >
 			<key column="ID" />
 	    
 			<property name="assignmentId" type="string" not-null="true">
@@ -32,7 +32,7 @@
         	</property>
     	</joined-subclass>
     	
-    	<joined-subclass name="AssignmentAllPurposeItem" table="ASSIGN_ALL_PURPOSE_ITEM_T" >
+    	<joined-subclass name="AssignmentAllPurposeItem" table="ASN_AP_ITEM_T" >
        
         	<key column="ID" />
 	    
@@ -63,13 +63,13 @@
         	</property>
         	
         	<set name="accessSet" lazy="false" inverse="true" cascade="none">
-	        	<key column="ASN_ALL_PURPOSE_ITEM_ID"/>                        
+	        	<key column="ASN_AP_ITEM_ID"/>                        
 	        	<one-to-many class="org.sakaiproject.assignment.api.model.AssignmentAllPurposeItemAccess"/>            
     		</set>
         </joined-subclass>
     </class>
     
-   	<class name="AssignmentNoteItem" table="ASSIGN_NOTE_ITEM_T" >
+   	<class name="AssignmentNoteItem" table="ASN_NOTE_ITEM_T" >
        
         <id name="Id" column="ID" type="long">
 					<generator class="native">

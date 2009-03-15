@@ -3,21 +3,21 @@
           "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 	
 <hibernate-mapping default-lazy="false">
-	<class name="org.sakaiproject.assignment.api.model.AssignmentAllPurposeItemAccess" table="ASSIGN_ALL_PUR_ITEM_ACCESS_T">
+	<class name="org.sakaiproject.assignment.api.model.AssignmentAllPurposeItemAccess" table="ASN_AP_ITEM_T">
        
        <id name="id" column="ID" type="long">
 					<generator class="native">
-						<param name="sequence">ASSIGN_AP_ACCESS_S</param>
+						<param name="sequence">ASN_AP_ITEM_S</param>
 					</generator>
 		</id>
        <property name="access" type="java.lang.String" not-null="true" unique-key="uniqueAccessItem">
             <column name="ITEM_ACCESS" />
         </property>
         
-         <!--  This maps to the ASSIGNMENT_MODEL_ANSWER_ITEM_T table -->
-        <many-to-one name="assignmentAllPurposeItem" column="ASN_ALL_PURPOSE_ITEM_ID" unique-key="uniqueAccessItem"
+         <!--  This maps to the ASN_MO_ANS_T table -->
+        <many-to-one name="assignmentAllPurposeItem" column="ASN_AP_ITEM_ID" unique-key="uniqueAccessItem"
         	class="org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem"
-        	not-null="true" index="ASSIGN_ALL_PURPOSE_ITEM_ACCESS_I" />
+        	not-null="true" index="ASN_AP_ITEM_I" />
     </class>
     
     <query name = "findAccessByAllPurposeItem">
