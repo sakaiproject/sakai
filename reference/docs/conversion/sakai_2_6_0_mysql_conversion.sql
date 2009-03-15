@@ -565,3 +565,78 @@ INSERT INTO CITATION_SCHEMA_FIELD (SCHEMA_ID, FIELD_ID, PROPERTY_NAME, PROPERTY_
 INSERT INTO CITATION_SCHEMA_FIELD (SCHEMA_ID, FIELD_ID, PROPERTY_NAME, PROPERTY_VALUE) VALUES('thesis','subject','sakai:valueType','shorttext');
 INSERT INTO CITATION_SCHEMA_FIELD (SCHEMA_ID, FIELD_ID, PROPERTY_NAME, PROPERTY_VALUE) VALUES('thesis','subject','sakai:ris_identifier','KW');
 INSERT INTO CITATION_SCHEMA (SCHEMA_ID, PROPERTY_NAME, PROPERTY_VALUE) VALUES('thesis','sakai:hasField','subject');
+
+-- tables for SAK-13843: assignment - information display on triggers 
+
+    create table ASN_AP_ITEM_T (
+        ID bigint not null auto_increment,
+        ITEM_ACCESS varchar(255),
+        ASN_AP_ITEM_ID bigint not null,
+        ASSIGNMENT_ID varchar(255),
+        TITLE varchar(255),
+        TEXT text,
+        RELEASE_DATE datetime,
+        RETRACT_DATE datetime,
+        HIDE bit,
+        primary key (ID),
+        unique (ITEM_ACCESS, ASN_AP_ITEM_ID)
+    );
+
+    create table ASN_MA_ITEM_T (
+        ID bigint not null,
+        ASSIGNMENT_ID varchar(255),
+        TEXT varchar(255),
+        SHOW_TO integer,
+        primary key (ID)
+    );
+
+    create table ASN_NOTE_ITEM_T (
+        ID bigint not null auto_increment,
+        ASSIGNMENT_ID varchar(255),
+        NOTE varchar(255),
+        CREATOR_ID varchar(255),
+        SHARE_WITH integer,
+        primary key (ID)
+    );
+
+    create table ASN_SUP_ATTACH_T (
+        ID bigint not null auto_increment,
+        ATTACHMENT_ID varchar(255),
+        ASN_SUP_ITEM_ID bigint not null,
+        primary key (ID),
+        unique (ATTACHMENT_ID, ASN_SUP_ITEM_ID)
+    ) comment='This table is for assignment supplement item attachment.';
+
+    create table ASN_SUP_ITEM_T (
+        ID bigint not null auto_increment,
+        primary key (ID)
+    );
+
+    create index ASN_AP_ITEM_I on ASN_AP_ITEM_T (ASN_AP_ITEM_ID);
+
+    alter table ASN_AP_ITEM_T 
+        add index FK514CEE156E844C61 (ASN_AP_ITEM_ID), 
+        add constraint FK514CEE156E844C61 
+        foreign key (ASN_AP_ITEM_ID) 
+        references ASN_AP_ITEM_T (ID);
+
+    alter table ASN_AP_ITEM_T 
+        add index FK514CEE15935EEE07 (ID), 
+        add constraint FK514CEE15935EEE07 
+        foreign key (ID) 
+        references ASN_SUP_ITEM_T (ID);
+
+    alter table ASN_MA_ITEM_T 
+        add index FK2E508110935EEE07 (ID), 
+        add constraint FK2E508110935EEE07 
+        foreign key (ID) 
+        references ASN_SUP_ITEM_T (ID);
+
+    create index ASN_SUP_ITEM_I on ASN_SUP_ATTACH_T (ASN_SUP_ITEM_ID);
+
+    alter table ASN_SUP_ATTACH_T 
+        add index FK560294CEDE4CD07F (ASN_SUP_ITEM_ID), 
+        add constraint FK560294CEDE4CD07F 
+        foreign key (ASN_SUP_ITEM_ID) 
+        references ASN_SUP_ITEM_T (ID);
+
