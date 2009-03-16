@@ -550,16 +550,16 @@ public class SakaiProxyImpl implements SakaiProxy {
 		String pictureType = serverConfigurationService.getString("profile2.picture.type");
 		
 		//if 'upload'
-		if(pictureType.equals(ProfileUtilityManager.PICTURE_SETTING_UPLOAD_PROP)) {
-			return ProfileUtilityManager.PICTURE_SETTING_UPLOAD;
+		if(pictureType.equals(ProfileImageManager.PICTURE_SETTING_UPLOAD_PROP)) {
+			return ProfileImageManager.PICTURE_SETTING_UPLOAD;
 		}
 		//if 'url'
-		else if(pictureType.equals(ProfileUtilityManager.PICTURE_SETTING_URL_PROP)) {
-			return ProfileUtilityManager.PICTURE_SETTING_URL;
+		else if(pictureType.equals(ProfileImageManager.PICTURE_SETTING_URL_PROP)) {
+			return ProfileImageManager.PICTURE_SETTING_URL;
 		}
 		//otherwise return default
 		else {
-			return ProfileUtilityManager.PICTURE_SETTING_DEFAULT;
+			return ProfileImageManager.PICTURE_SETTING_DEFAULT;
 		}
 	}
 	

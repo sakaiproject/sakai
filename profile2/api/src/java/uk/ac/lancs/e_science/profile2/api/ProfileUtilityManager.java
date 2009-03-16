@@ -50,14 +50,6 @@ public class ProfileUtilityManager {
 	public static final String EVENT_TWITTER_UPDATE = "profile.twitter.update";
 
 	
-	//profile picture settings for use in API and tool and their values for sakai.properties
-	//and the default if not specified or invalid one specified
-	public static final int PICTURE_SETTING_UPLOAD = 1;
-	public static final String PICTURE_SETTING_UPLOAD_PROP = "upload";
-	public static final int PICTURE_SETTING_URL = 2;
-	public static final String PICTURE_SETTING_URL_PROP = "url";
-
-	public static final int PICTURE_SETTING_DEFAULT = PICTURE_SETTING_UPLOAD;
-
+	
 	
 }
