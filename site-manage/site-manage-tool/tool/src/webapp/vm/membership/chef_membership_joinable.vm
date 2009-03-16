@@ -1,4 +1,20 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/prefs/chef_membership_joinable.vm,v 1.13 2005/05/28 03:04:36 ggolden.umich.edu Exp $ -->
+<script type="text/javascript" src="/library/js/jquery.js"></script>
+<script type="text/javascript" src="/library/js/jqmodal/jqModal.js"></script>
+<link type="text/css" href="/library/js/jqmodal/jqModal.css" rel="stylesheet" media="screen" />
+<script type="text/javascript" src="/sakai-site-manage-tool/js/site-manage.js"></script>
+<link type="text/css" href="/sakai-site-manage-tool/css/site-manage.css" rel="stylesheet" media="screen" />
+<div id="dialog" class="jqmWindow">
+    <a class="jqModalCloseClass" href="#">$tlang.getString("mb.close")</a>
+    <div id="dialogChild">
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function(){
+		setupGetSiteDesc('getSiteDesc','$tlang.getString("mb.nosd")','$tlang.getString("mb.nold")');
+    });
+</script>
+
 <div class="portletBody">
 	<ul class="navIntraTool actionToolBar" role="menu">
 		<li class="firstToolBarItem" role="menuitem"><span><a href="#toolLink("$action" "doGoto_unjoinable")" title="$tlang.getString('mb.cursit')">$tlang.getString('mb.cursit')</a></span></li>
@@ -6,9 +22,9 @@
 	</ul>
 	
 	## join/unjoin action info normally is the only value of "alertMessage"
-	#if ($alertMessage)<p class="information">$validator.escapeHtml($alertMessage)</p>#end
-	
-
+	#if ($alertMessage)
+		<p class="messageInformation">$validator.escapeHtml($alertMessage)</p>
+	#end
 	<div class="navPanel">
 		<div class="viewNav">
 			<h3 style="margin:0;padding:0">
@@ -127,9 +143,10 @@
 							<a href="#toolLinkParam("$action" "doJoin" "itemReference=$validator.escapeUrl($site.Id)")" title="$tlang.getString('mb.joinsite') $!validator.escapeHtml($!site.Title)">$tlang.getString('mb.join')</a>
 						</div>	
 						</td>
-						<td headers="description">
+						<td headers="description" class="specialLink">
 							#if ($validator.escapeHtml($site.Description) != '')
-								$!membershipTextEdit.doPlainTextAndLimit($site.Description,65,"....")
+								$!membershipTextEdit.doPlainTextAndLimit($site.Description,65,"...")
+								<span class="itemAction"><a class="getSiteDesc" id="$site.Id" href="#">$tlang.getString("list.desc.more")</a></span>
 							#end
 						</td>
 					</tr>

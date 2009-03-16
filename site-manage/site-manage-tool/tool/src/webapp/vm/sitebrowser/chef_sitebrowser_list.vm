@@ -141,46 +141,8 @@
                         </td>
                                                 
                         <td headers="description">
-                                #set ($shortDesc = $site.ShortDescription)
-
-                                #if ($shortDesc)
-                                        #if ($shortDesc.equals(""))
-                                               #set ($desc = $site.Description)
-                                               #if ($desc)
-		                                               #if ($desc.length() > 85)
-		                                                       #set ($desc = $desc.substring(0, 85))
-		                                                       $desc...
-		                                               #else
-		                                               		#if ($desc.equals(""))
-		                                               				&nbsp;
-		                                               		#else
-		                                                       		$desc
-		                                                    #end
-		                                               #end
-                                               #else
- 	                                           		&nbsp;
-                                               #end
-                                                     
-                                        #else
-                                                $validator.escapeHtml($shortDesc)
-                                        #end
-                                #else
-                                        #set ($desc = $site.Description)
-                                        #if ($desc)
-		                                        #if ($desc.length() > 85)
-		                                                #set ($desc = $desc.substring(0, 85))
-		                                                $validator.escapeHtml($desc)...
-		                                        #else
-		                                                #if ($desc.equals(""))
-		                                               			&nbsp;
-		                                               	#else
-		                                                	    $validator.escapeHtml($desc)
-		                                                #end
-		                                        #end
-		                                 #else
- 	                                           	&nbsp;
-                                         #end
-                                #end &nbsp;
+													#set ($desc = $site.Description)
+													$siteBrowserTextEdit.doPlainTextAndLimit($desc,50,$tlang.getString("list.desc.ellipse")) 
                         </td>
                 </tr>
 			#end ##foreach

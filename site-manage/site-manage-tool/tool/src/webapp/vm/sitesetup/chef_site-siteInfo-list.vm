@@ -1,6 +1,45 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-list.vm,v 1.6 2005/05/28 03:04:36 ggolden.umich.edu Exp $ -->
-## Site list Sites list on worksite setup home page
-<div class ="portletBody">
+<script type="text/javascript" src="/library/js/jquery.js"></script>
+<script type="text/javascript" src="/library/js/jqmodal/jqModal.js"></script>
+<link type="text/css" href="/library/js/jqmodal/jqModal.css" rel="stylesheet" media="screen" />
+<script type="text/javascript" src="/sakai-site-manage-tool/js/site-manage.js"></script>
+<link type="text/css" href="/sakai-site-manage-tool/css/site-manage.css" rel="stylesheet" media="screen" />
+<div id="dialog" class="jqmWindow">
+    <a class="jqModalCloseClass" href="#">$tlang.getString("sitegen.siteinfolist.close")</a>
+    <div id="dialogChild">
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function(){
+    	setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
+		setupSelectList('siteMembers','selunselallid','selectedSelected');
+		setupGetSiteDesc('getSiteDesc','$tlang.getString("sitegen.siteinfolist.nosd")','$tlang.getString("sitegen.siteinfolist.nold")');
+		setupGetGroupInfo('moreInfoGroups','$tlang.getString("sinfo.list.groups.memb")','$tlang.getString("sinfo.list.groups.print")');
+    });
+</script>
+<script type="text/javascript">
+
+
+function printPreview(target){
+    var w = window.open('', 'printwindow', 'width=600,height=400,scrollbars=yes,toolbar=yes,resizable=yes');
+	var content=  "";
+	var content=  document.getElementById('groupListContent').innerHTML;
+	w.document.writeln(
+	'<html><head>'
+	+ '<style type=\"text/css\">.listHier td, .listHier th {text-align:left}</style>'
+	+ '</head>'
+	+ '<body> '
+	+ content
+	+ '</body>'
+	+ '</html>'
+	);
+    w.focus();
+	w.print();
+    return false;
+}
+</script>
+
+<div class ="portletBody specialLink">
 	#if($menu)#toolbar($menu)#end
 	#if ($alertMessage)
 		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
@@ -144,67 +183,47 @@
 		#end
 		#end			
 		</table>
-		#if (!$!allowUpdate && $!groupsWithMember.size() >0)
-		<h4>
-			$tlang.getString("group.membership")
-		</h4>			
-		<dl class="indnt1">
+
+		#set ($desc = $siteDescription) 
+		#set ($ell= $tlang.getString("sinfo.list.desc.ellipse"))
+		#if ( $desc.length() == 0|| $desc ==" "|| $desc =="&nbsp;" || $desc =="" || $desc =="<br>" || $desc =="<br/>" || $desc.isEmpty() || $validator.escapeHtml($desc)=="&lt;br type=&quot;_moz&quot; /&gt;" )
+		#else
+
+			<h4 style="padding:5px 0">
+				$tlang.getString("sitegen.siteinfolist.sitedes")
+			</h4>
+			<div style="padding:5px 0">
+				## strip the HTML, trim by x chars, add an ellipsis and add a link to the full description
+				$siteTextEdit.doPlainTextAndLimit($desc,100,"$ell")
+				<a class="getSiteDesc" href="#" id="$!siteId">$tlang.getString("sinfo.list.desc.more")</a>
+			</div>
+		#end
+		
+		#if ($!groupsWithMember.size() > 0)
+		<h4 class="toggleAnchor specialLink"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
+			$tlang.getString("sinfo.list.groups")
+		</h4>		
+		<div class="toggledContent">
+		<dl style="margin:0;padding:0">
 			#foreach ($g in $!groupsWithMember)
+				#set ($gdesc = "") 
 				<dt>
-					$g.Title
+					$g.Title <span class="itemAction"> ( <a href="#" class="moreInfoGroups" id ="$g.Id">$tlang.getString("sinfo.list.groups.memb")</a>)</span>
 				</dt>
 
 				<dd>
 					#if ($g.Description)
-						<span class="textPanelFooter">
-							#set($description = "")
-							#set($description = $g.Description)
-							$!description
-						</span>			
+						$g.Description
 					#end					
 				</dd>				
 			#end
 		</dl>
+		</div>
 		<div style="clear:both"> </div>			
-				
-	#* turned the table below to a definition list above 
-					<table id="groupTable" class="listHier lines" border="0" cellspacing="0" summary="$tlang.getString("group.siteinfo.tablesummary")">
-						<tr>
-					 		<th id ="name">
-									$tlang.getString('group.title')
-								</th>
-								<th id ="description">
-									$tlang.getString('group.description')
-								</th>
-							</tr>
-								#foreach ($g in $!groupsWithMember)
-								<tr>
-									<td headers="name">
-										<h4>
-											<label for="$group.Id">
-												$g.Title
-											</label>	
-										</h4>
-									</td>
-									<td headers="description" width="70%">
-										#set($description = "")
-										#set($description = $g.Description)
-										$!description
-									</td>
-								</tr>
-							#end
-						</table>
-	*#
 		#end
-		#if($!siteDescription)
-			<h4 style="padding-left:5px">
-				$tlang.getString("sitegen.siteinfolist.sitedes")
-			</h4>
-			<div style="padding-left:5px">
-				$!siteDescription
-			</div>
 
-		#end
+
+
 
 	#if ($!viewRoster)
 		#if ($participantList.size() > 0)
@@ -272,7 +291,7 @@
 		<a href="$accessPointUrl" title="$!tlang.getString('print')">$!tlang.getString('print')</a>
 		<hr />
 		<form name="participantForm" id="participantForm" action="#toolForm("SiteAction")" method="post">
-			<table class ="listHier lines nolines"  cellpadding="0" cellspacing="0" border="0" summary ="$tlang.getString("sitegen.siteinfolist.partlist.summary")">
+			<table class ="listHier lines nolines"  cellpadding="0" cellspacing="0" border="0" summary ="$tlang.getString("sitegen.siteinfolist.partlist.summary")" id="siteMembers">
 				<tr>
 					<th id="name">
 						<a href="#toolLinkParam("SiteAction" "doSort_roster" "criterion=participant_name")" title ="$tlang.getString("sitegen.siteinfolist.sortname")"> 

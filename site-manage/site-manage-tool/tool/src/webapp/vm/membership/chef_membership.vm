@@ -1,69 +1,27 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/prefs/chef_membership.vm,v 1.10 2005/05/28 03:04:36 ggolden.umich.edu Exp $ -->
+<script type="text/javascript" src="/library/js/jquery.js"></script>
+<script type="text/javascript" src="/library/js/jqmodal/jqModal.js"></script>
+<link type="text/css" href="/library/js/jqmodal/jqModal.css" rel="stylesheet" media="screen" />
+<script type="text/javascript" src="/sakai-site-manage-tool/js/site-manage.js"></script>
+<link type="text/css" href="/sakai-site-manage-tool/css/site-manage.css" rel="stylesheet" media="screen" />
+<div id="dialog" class="jqmWindow">
+    <a class="jqModalCloseClass" href="#">$tlang.getString("mb.close")</a>
+    <div id="dialogChild">
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function(){
+        setupMessageListener("messageHolder", "information messageInformation");
+		setupSelectList('currentSites','selunselallid','selectedSelected');
+		setupGetSiteDesc('getSiteDesc','$tlang.getString("mb.nosd")','$tlang.getString("mb.nold")');
+    });
+</script>
+
 <div class="portletBody">
 	<ul class="navIntraTool actionToolbar" role="menu">
 	<li class="firstToolBarItem" role="menuitem" aria-disabled="true"><span class="current">$tlang.getString("mb.cursit")</span></li>
 	<li role="menuitem"><span><a href="#toolLink("$action" "doGoto_joinable")" title="$tlang.getString('mb.joisit')">$tlang.getString('mb.joisit')</a></span></li>
 </ul>
-<script type="text/javascript" src="/library/js/jquery.js"></script>
-<script type="text/javascript">
-$(document).ready(function() {
-	function setupMessageListener(messageHolder, messageMode){
-    //test to see if there is an actual message (trim whitespace first)
-    var str = $("#" + messageHolder).text();
-    str = jQuery.trim(str);
-    // show if message is there, then hide it
-    if (str != '') {
-        $("#" + messageHolder).fadeIn('slow')
-        $("#" + messageHolder).addClass(messageMode);
-        $("#" + messageHolder).animate({
-            opacity: 1.0
-        }, 5000)
-        $("#" + messageHolder).fadeOut('slow', function(){
-            $("#" + messageHolder).remove();
-        });
-    }
-}
-	    setupMessageListener("messageHolder", "information messageInformation");
-		
-		$('#selunselallid').click(function(){
-            if (this.checked) {
-				$(".listHier td :checkbox").attr('checked','checked')
-				$(".listHier td :checkbox").parent('td').parent('tr').addClass("selectedSelected");
-
-            }
-			else{
-				$(".listHier td :checkbox").attr('checked','')
-				$(".listHier tbody tr").removeClass("selectedSelected");
-			}
-
-			});
-		$(".listHier td :checkbox").click(function(){
-		     someChecked = false			
-	            if (this.checked) {
-					$(this).parent("td").parent('tr').addClass("selectedSelected");
-	            }
-				else{
-					$(this).parent("td").parent('tr').removeClass("selectedSelected");
-				}
-		        $('.listHier td :checkbox').each(function(){
-		            if (this.checked) {
-		                someChecked= true
-		            }
-		        });
-  				  if (!someChecked) {
-			            $('#selunselallid').attr('checked','');
-
-			        }
-        });
-	});
-</script>	
-	
-	#if ($alertMessage)
-		<p class="information messageInformation" id="messageHolder">
-			$validator.escapeHtml($alertMessage)
-		</p>
-	#end
-	
 	#if ($unjoinableSites.size() > 0 || $search.length() > 0)
 	<div class="navPanel">
 		<div class="viewNav">
@@ -86,6 +44,13 @@ $(document).ready(function() {
 	#if ($unjoinableSites.size()>0)
 		
 		<div class="navPanel">
+			#if ($alertMessage)
+				<p class="information messageInformation viewNav" id="messageHolder" style="width:50%;padding:0 0 0 2em;margin:0">
+					$validator.escapeHtml($alertMessage)
+				</p>
+			#end
+	
+
 		<div class="listNav">
 				<div class="instruction">
 					$tlang.getString("mb.list.viewing") $topMsgPos - $btmMsgPos $tlang.getString("mb.list.of") $allMsgNumber $tlang.getString("mb.list.sites")
@@ -149,7 +114,7 @@ $(document).ready(function() {
 		</div>	
 		
 		<form action="#toolForm("$action")" method="post">
-			<table class = "listHier lines" cellspacing="0" summary ="$tlang.getString('joinable.list.summary')">
+			<table class = "listHier lines specialLink" cellspacing="0" summary ="$tlang.getString('joinable.list.summary')" id="currentSites">
 				<tr>
 					<th id="checkbox" class="screenOnly attach">
 						<input title="$tlang.getString("mb.selectalltitle")" type="checkbox" name="selunselall" id="selunselallid"/>
@@ -188,9 +153,10 @@ $(document).ready(function() {
 								<h4><a href="$site.Url" target="_top" title="$tlang.getString('mb.gotosite') $validator.escapeHtml($site.Title)">$validator.escapeHtml($site.Title)</a></h4>
 								#set($siteType=$site.Type)
 							</td>
-							<td headers="description">
+							<td headers="description" class="specialLink">
 								#if ($validator.escapeHtml($site.Description) != '')
-									$!membershipTextEdit.doPlainTextAndLimit($site.Description,65,"....")
+									$!membershipTextEdit.doPlainTextAndLimit($site.Description,65,"...")
+									<span class="itemAction"><a class="getSiteDesc" id="$site.Id" href="#">$tlang.getString("list.desc.more")</a></span>
 								#end
 					    </td>
 						</tr>
