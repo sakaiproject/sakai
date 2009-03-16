@@ -1602,7 +1602,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    				"select a.publishedAssessmentId, a.agentId, count(*) " +
 	    				"from AssessmentGradingData a, AuthorizationData au  " +
 	    				"where a.forGrade=? and au.functionId = ? and au.agentIdString = ? and a.publishedAssessmentId = au.qualifierId " +
-	    				"group by a.publishedAssessmentId, a.agentId");
+	    				"group by a.publishedAssessmentId, a.agentId " +
+	    				"order by a.publishedAssessmentId, a.agentId");
 	    		q.setBoolean(0, true);
 	    		q.setString(1, "OWN_PUBLISHED_ASSESSMENT");
 	    		q.setString(2, siteId);
@@ -1667,7 +1668,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    				" where a.forGrade=? and au.functionId = ? and au.agentIdString = ? and a.publishedAssessmentId = au.qualifierId" +
 	    				" and a.publishedAssessmentId = s.publishedAssessmentId and a.agentId = s.agentId " +
 	    				" and a.submittedDate > s.createdDate" +
-	    				" group by a.publishedAssessmentId, a.agentId");
+	    				" group by a.publishedAssessmentId, a.agentId " +
+	    				" order by a.publishedAssessmentId, a.agentId");
 	    		q.setBoolean(0, true);
 	    		q.setString(1, "OWN_PUBLISHED_ASSESSMENT");
 	    		q.setString(2, siteId);
