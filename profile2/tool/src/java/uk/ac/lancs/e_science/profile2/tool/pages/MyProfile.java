@@ -10,16 +10,17 @@ import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.image.resource.BufferedDynamicImageResource;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
+import uk.ac.lancs.e_science.profile2.api.exception.ProfileBadConfigurationException;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfileNotDefinedException;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.ChangeProfilePictureUpload;
+import uk.ac.lancs.e_science.profile2.tool.pages.panels.ChangeProfilePictureUrl;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.FriendsFeed;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyContactDisplay;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyInfoDisplay;
@@ -32,7 +33,6 @@ public class MyProfile extends BasePage {
 	private static final long serialVersionUID = 1L;
 	private transient Logger log = Logger.getLogger(MyProfile.class);
 	private transient byte[] profileImageBytes;
-	private final ChangeProfilePictureUpload changePicture;
 
 	public MyProfile()   {
 		
@@ -110,8 +110,17 @@ public class MyProfile extends BasePage {
 			add(new ContextImage("photo",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
 		}
 		
-		//change picture panel
-		changePicture = new ChangeProfilePictureUpload("changePicture", userProfile);
+		//change picture panel (upload or url depending on property)
+		final Panel changePicture;
+		int profilePictureType = sakaiProxy.getProfilePictureType();
+		if(profilePictureType == ProfileImageManager.PICTURE_SETTING_UPLOAD) {
+			changePicture = new ChangeProfilePictureUpload("changePicture");
+		} else if (profilePictureType == ProfileImageManager.PICTURE_SETTING_URL) {
+			changePicture = new ChangeProfilePictureUrl("changePicture");
+		} else {
+			throw new ProfileBadConfigurationException("Invalid picture type returned: " + profilePictureType);
+		}
+			
 		changePicture.setOutputMarkupPlaceholderTag(true);
 		changePicture.setVisible(false);
 		add(changePicture);
@@ -122,13 +131,11 @@ public class MyProfile extends BasePage {
 
 			public void onClick(AjaxRequestTarget target) {
 				
-				//add the full changePicture component to the page dynamically
 				target.addComponent(changePicture);
-				//target.appendJavascript("$('#" + changePictureMarkupId + "').fadeIn();"); //this isn't firing in the right order
 				changePicture.setVisible(true);
 				
 				//resize iframe
-				target.appendJavascript("setMainFrameHeight(window.name);");
+				target.prependJavascript("setMainFrameHeight(window.name);");
 				//when the editImageButton is clicked, show the panel
 				//its possible this will push the content lower than the iframe, so make sure the iframe size is good.
 				//String js = "$('#" + changePicture.getMarkupId() + "').slideToggle()";

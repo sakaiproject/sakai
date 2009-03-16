@@ -16,6 +16,7 @@ import org.apache.wicket.validation.validator.UrlValidator;
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
+import uk.ac.lancs.e_science.profile2.hbm.ProfileImageExternal;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.components.CloseButton;
 import uk.ac.lancs.e_science.profile2.tool.models.SimpleText;
@@ -37,7 +38,7 @@ public class ChangeProfilePictureUrl extends Panel{
 		profile = ProfileApplication.get().getProfile();
 			
 		//get userId
-		String userId = sakaiProxy.getCurrentUserId();
+		final String userId = sakaiProxy.getCurrentUserId();
 		
 		//setup SimpleText object 
 		SimpleText simpleText = new SimpleText();
@@ -48,7 +49,6 @@ public class ChangeProfilePictureUrl extends Panel{
 		if(externalUrl != null) {
 			simpleText.setText(externalUrl);
 		}
-		
 		
 		//setup form model using the SimpleText object
 		CompoundPropertyModel formModel = new CompoundPropertyModel(simpleText);
@@ -82,10 +82,25 @@ public class ChangeProfilePictureUrl extends Panel{
         	
         	protected void onSubmit(AjaxRequestTarget target, Form form) {
 
-				//get the model
+				//get the model (already validated)
         		SimpleText simpleText = (SimpleText) form.getModelObject();
         		
-        		System.out.println("simpleText:" + simpleText.getText());
+        		
+        		//create a ProfileImageExternal record for this user and URL
+        		ProfileImageExternal ext = new ProfileImageExternal(
+        				userId,
+        				simpleText.getText(),
+        				null);
+        		
+        		//save it
+        		if(profile.saveExternalImage(ext)) {
+        			System.out.println("saved");
+        		} else {
+        			System.out.println("crap");
+        		}
+        		
+        		
+        		
         		
         	};
         	
