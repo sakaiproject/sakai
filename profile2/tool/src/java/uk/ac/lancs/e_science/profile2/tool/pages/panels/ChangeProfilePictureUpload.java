@@ -33,7 +33,7 @@ public class ChangeProfilePictureUpload extends Panel{
     private transient Profile profile;
 	private transient Logger log = Logger.getLogger(ChangeProfilePictureUpload.class);
 
-	public ChangeProfilePictureUpload(String id, UserProfile userProfile) {  
+	public ChangeProfilePictureUpload(String id) {  
         super(id);  
         
 		//get SakaiProxy API
@@ -50,11 +50,9 @@ public class ChangeProfilePictureUpload extends Panel{
 				
 				//get userid and sakaiperson for this user
 				String userId = sakaiProxy.getCurrentUserId();
-				//SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
 				
 				//get file that was uploaded
 				FileUpload upload = uploadField.getFileUpload();
-								
 				
 				if (upload == null) {
 					log.error("Profile.ChangeProfilePicture.onSubmit: upload was null.");
