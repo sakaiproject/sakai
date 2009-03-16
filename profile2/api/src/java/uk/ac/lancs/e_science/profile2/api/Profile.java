@@ -500,4 +500,12 @@ public interface Profile {
 	 */
 	public String getExternalImageUrl(final String userId, final int imageType);
 	
+	/**
+	 * Save the external image url that users can set.
+	 * 
+	 * @param profileImageExternal 	updated ProfileImageExternal object
+	 * @return
+	 */
+	public boolean saveExternalImage(ProfileImageExternal ext);
+	
 }

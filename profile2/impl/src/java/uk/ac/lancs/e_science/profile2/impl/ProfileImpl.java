@@ -1501,8 +1501,20 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 
 	
-	
-	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean saveExternalImage(ProfileImageExternal ext) {
+		try {
+			getHibernateTemplate().saveOrUpdate(ext);
+			log.info("Updated external image record for user: " + ext.getUserUuid());
+			return true;
+		} catch (Exception e) {
+			log.error("Profile.setExternalImage() failed. " + e.getClass() + ": " + e.getMessage());
+			return false;
+		}
+	}
+
 	
 	
 	//these encrypt/decrypt methods are bound always to the method before its saved or returned
