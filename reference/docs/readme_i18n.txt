@@ -44,10 +44,9 @@ languages, as follows:
 
 7) Brazilian Portuguese 
    Status: released 2.5
-   Translated by: Eduardo Hideki Tanaka		  etanaka@ic.unicamp.br
-	Contact: Eduardo Hideki Tanaka		  etanaka@ic.unicamp.br
-				Alessandro Oliveira			  aro1976@gmail.com
-				Nilton Lessa		  nlessa@moleque.com.br
+   Translated by: Eduardo Hideki Tanaka
+   Contact: Alessandro Oliveira          aro1976@gmail.com
+            Nilton Lessa        nlessa@moleque.com.br
    Local ID: pt_BR
    
 8) Portuguese
@@ -66,19 +65,19 @@ languages, as follows:
 10) Catalan
     Status: released
     Translated by: n/a
-    Contact: Alex Ballesté   alex@asic.udl.es
+    Contact: Alex Ballesté 
     Local ID: ca_ES
     
 11) Chinese (Taiwan)
-    Status: ??
-    Translated by: Max Tsai
-    Contact: Max Tsai  mj_tsai@yahoo.com
+    Status: 2.6 release pending
+    Translated by: Ivan Ho
+    Contact: Ivan Ho (ivan@huric.org)
     Local ID: zh_TW
     
 12) French (Canadian)
     Status: released
     Translated by: n/a
-    Contact Mustapha Es-salihe (Mustapha.Es-salihe@crim.ca)
+    Contact: Vincent Siveton (Vincent.Siveton@crim.ca)
     Local ID: fr_CA
 	 
 13) Spanish (Spain)
