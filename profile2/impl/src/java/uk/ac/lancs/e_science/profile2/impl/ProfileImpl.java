@@ -38,6 +38,7 @@ import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileFriend;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileImage;
+import uk.ac.lancs.e_science.profile2.hbm.ProfileImageExternal;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePreferences;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
@@ -81,6 +82,10 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	private static final String QUERY_FIND_SAKAI_PERSONS_BY_INTEREST = "findSakaiPersonsByInterest";
 	private static final String QUERY_LIST_ALL_SAKAI_PERSONS = "listAllSakaiPersons";
 	private static final String QUERY_GET_PREFERENCES_RECORD = "getPreferencesRecord";
+	private static final String QUERY_GET_EXTERNAL_IMAGE_RECORD = "getProfileImageExternalRecord";
+
+	
+	
 	
 	//Hibernate object fields
 	private static final String USER_UUID = "userUuid";
@@ -1437,8 +1442,26 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 
 	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public ProfileImageExternal getExternalImageRecordForUser(final String userId) {
+		
+		if(userId == null){
+	  		throw new IllegalArgumentException("Null Argument in Profile.getExternalImageRecordForUser");
+	  	}
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_EXTERNAL_IMAGE_RECORD);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+			}
+		};
 	
-	
+		return (ProfileImageExternal) getHibernateTemplate().execute(hcb);
+	}
 	
 	
 	

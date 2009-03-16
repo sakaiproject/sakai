@@ -3,6 +3,7 @@ package uk.ac.lancs.e_science.profile2.api;
 import java.util.Date;
 import java.util.List;
 
+import uk.ac.lancs.e_science.profile2.hbm.ProfileImageExternal;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePreferences;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
@@ -483,4 +484,14 @@ public interface Profile {
 	 * @return
 	 */
 	public boolean isEmailEnabledForThisMessageType(final String userId, final int messageType);
+	
+	/**
+	 * Get a ProfileImageExternal record for a user
+	 * @param userId uuid of the user
+	 * @return
+	 */
+	public ProfileImageExternal getExternalImageRecordForUser(final String userId);
+	
+	
+	
 }
