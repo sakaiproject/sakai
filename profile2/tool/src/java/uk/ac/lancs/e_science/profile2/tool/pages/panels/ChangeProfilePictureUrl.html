@@ -12,14 +12,12 @@
 	<form wicket:id="form" class="profileForm">
 	
 		<div wicket:id="closeButton">X</div>
-		
-		<div wicket:id="feedback"></div>
-	
+			
 		<p wicket:id="textEnterUrl" class="small">Enter a URL</p>
 	
-		<p><span class="feedbackLabel" wicket:id="textFeedback">[textFeedback]</span></p>
+		<div class="wicket-feedbackpanel-nolist" wicket:id="feedback">[feedback]</div>
 		
-		<p><input type="text" wicket:id="urlField" size="15"/></p>
+		<p><input type="text" wicket:id="urlField" size="25"/></p>
 				
 		<p><input type="submit" wicket:id="submit" value="Save" /></p>
 		

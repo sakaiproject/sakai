@@ -440,6 +440,15 @@ h2 {
     font-weight: bold;
 }
 
+/* wicket FeedbackPanel but remove the list styles and just make it bold */
+.wicket-feedbackpanel-nolist ul {
+	list-style-type: none;
+	margin-left: 0;
+	padding-left: 0;
+	font-weight: bold;
+}
+
+
 .formSectionHeading {
 	font-weight: bold;
 	padding-left: 0;
