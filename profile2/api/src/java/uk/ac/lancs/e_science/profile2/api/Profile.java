@@ -492,6 +492,12 @@ public interface Profile {
 	 */
 	public ProfileImageExternal getExternalImageRecordForUser(final String userId);
 	
-	
+	/**
+	 * Get the URL to an image that a user has specified as their profile image
+	 * @param userId	uuid of user
+	 * @param imageType	comes from ProfileImageManager. main or thumbnail.
+	 * @return
+	 */
+	public String getExternalImageUrl(final String userId, final int imageType);
 	
 }
