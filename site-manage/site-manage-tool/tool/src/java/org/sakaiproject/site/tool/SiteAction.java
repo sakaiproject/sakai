@@ -129,6 +129,7 @@ import org.sakaiproject.site.util.Participant;
 import org.sakaiproject.site.util.SiteParticipantHelper;
 import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.site.util.SiteComparator;
+import org.sakaiproject.site.util.SiteTextEditUtil;
 import org.sakaiproject.site.util.ToolComparator;
 import org.sakaiproject.sitemanage.api.SectionField;
 import org.sakaiproject.sitemanage.api.SiteHelper;
@@ -1097,41 +1098,6 @@ public class SiteAction extends PagedResourceActionII {
 		return template;
 
 	} // buildMainPanelContext
-	
-	
-	/**
-	 * An inner class that can be initiated to perform Html stripping and trimming of text
-	 */
-	public class SiteTextEditAction
-	{
-
-		/**
-		 * @param formattedText 
-		          The formatted text to convert to plain text and then to trim
-		 * @param maxNumOfChars
-		          The maximum number of characters for the trimmed text.
-		 * @return Ellipse 
-		           A String to represent the ending pattern of the trimmed text
-		 */
-		public String doPlainTextAndLimit(String formattedText, int maxNumOfChars, String ellipse)
-		{
-			if(formattedText.equalsIgnoreCase("<br/>") || formattedText.equalsIgnoreCase("<br>")||
-					formattedText.length()==0 || formattedText.equals(" ") || formattedText.equals("&nbsp;") || formattedText.equals("") || FormattedText.escapeHtml(formattedText,false).equals("&lt;br type=&quot;_moz&quot; /&gt;")){
-
-				return "";
-			}
-
-			StringBuilder sb = new StringBuilder();
-			String text = FormattedText.convertFormattedTextToPlaintext(formattedText);				
-			if(maxNumOfChars>text.length()){
-				maxNumOfChars=text.length();
-			}
-			String trimmedText=text.substring(0, maxNumOfChars);
-			sb.setLength(0);
-			sb.append(trimmedText).append(ellipse);
-			return sb.toString();				
-		}
-	}
 
 
 	/**
@@ -1210,7 +1176,7 @@ public class SiteAction extends PagedResourceActionII {
 		ParameterParser params = data.getParameters();
 		context.put("tlang", rb);
 		context.put("alertMessage", state.getAttribute(STATE_MESSAGE));
-		context.put("siteTextEdit", new SiteTextEditAction());
+		context.put("siteTextEdit", new SiteTextEditUtil());
 		
 		// the last visited template index
 		if (preIndex != null)
@@ -2214,7 +2180,7 @@ public class SiteAction extends PagedResourceActionII {
 				}
 			}
 			
-			if (siteInfo.description.indexOf("\n") != -1 && siteInfo.description.indexOf("<br />") == -1 && siteInfo.description.indexOf("<br/>") == -1)
+			if (siteInfo.description!=null && siteInfo.description.indexOf("\n") != -1 && siteInfo.description.indexOf("<br />") == -1 && siteInfo.description.indexOf("<br/>") == -1)
 			{
 				// replace the old style line break before WYSIWYG editor "\n" with the current line break <br />
 				context.put("description", siteInfo.description.replaceAll("\n", "<br />"));
