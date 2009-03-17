@@ -20,7 +20,9 @@ import org.apache.wicket.model.StringResourceModel;
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
+import uk.ac.lancs.e_science.profile2.api.exception.ProfileBadConfigurationException;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
+import uk.ac.lancs.e_science.profile2.tool.components.ExternalImage;
 import uk.ac.lancs.e_science.profile2.tool.dataproviders.FriendsFeedDataProvider;
 import uk.ac.lancs.e_science.profile2.tool.pages.MyFriends;
 import uk.ac.lancs.e_science.profile2.tool.pages.MyProfile;
@@ -104,16 +106,6 @@ public class FriendsFeed extends Panel {
 		    		friend = profile.isUserXFriendOfUserY(viewingUserId, friendId); //other person viewing, check if they are friends
 		    	}
 	    		
-		    	//is profile image allowed to be viewed by this user/friend?
-				final boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(friendId, viewingUserId, friend);
-				
-		    	if(isProfileImageAllowed) {
-		    		imageBytes = profile.getCurrentProfileImageForUser(friendId, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
-		    	} else {
-		    		imageBytes = null;
-		    	}
-				
-				
 		    	//link to their profile
 		    	AjaxLink friendItem = new AjaxLink("friendsFeedItem") {
 					private static final long serialVersionUID = 1L;
@@ -128,20 +120,51 @@ public class FriendsFeed extends Panel {
 					}
 				};
 				
-				//photo
-		    	if(imageBytes != null && imageBytes.length > 0){
-					BufferedDynamicImageResource photoResource = new BufferedDynamicImageResource(){
-						private static final long serialVersionUID = 1L;
+				//is profile image allowed to be viewed by this user/friend?
+				final boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(friendId, viewingUserId, friend);
+				
+		    	if(isProfileImageAllowed) {
+		    		
+		    		//what type of picture should we use?
+		    		int profilePictureType = sakaiProxy.getProfilePictureType();
+		    		
+		    		if(profilePictureType == ProfileImageManager.PICTURE_SETTING_UPLOAD) {
+			    		//upload
 
-						protected byte[] getImageData() {
-							return imageBytes;
+		    			imageBytes = profile.getCurrentProfileImageForUser(friendId, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
+		    			
+		    			//add uplaoded image or default
+						if(imageBytes != null && imageBytes.length > 0){
+							BufferedDynamicImageResource photoResource = new BufferedDynamicImageResource(){
+								private static final long serialVersionUID = 1L;
+								protected byte[] getImageData() {
+									return imageBytes;
+								}
+							};
+							friendItem.add(new Image("friendPhoto",photoResource));
+						} else {
+							friendItem.add(new ContextImage("friendPhoto",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
 						}
-					};
-					friendItem.add(new Image("friendPhoto",photoResource));
-				} else {
-					friendItem.add(new ContextImage("friendPhoto",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
-				}
-		    	
+						
+		    		} else if (profilePictureType == ProfileImageManager.PICTURE_SETTING_URL) {
+		    			//url
+		    			
+						String externalUrl = profile.getExternalImageUrl(friendId, ProfileImageManager.PROFILE_IMAGE_MAIN, true);
+						
+						//add uploaded iamge or default
+						if(externalUrl != null) {
+							friendItem.add(new ExternalImage("friendPhoto",externalUrl));
+						} else {
+							friendItem.add(new ContextImage("friendPhoto",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
+						}
+		    		} else {
+						//no valid option, exception. This is an error in Profile2, not the external configuration.
+						throw new ProfileBadConfigurationException("Invalid picture type returned: " + profilePictureType);
+						//perhaps we should just include the unavailable image?
+					}
+		    	} 
+				
+				
 				//name (will be linked also)
 		    	Label friendLinkLabel = new Label("friendName", displayName);
 		    	friendItem.add(friendLinkLabel);
