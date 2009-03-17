@@ -360,7 +360,6 @@ public class MySearch extends BasePage {
 		
 		IndicatingAjaxButton sbnSubmitButton = new IndicatingAjaxButton("sbnSubmit", sbnForm) {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
-				//need to show the busyindicator here TODO
 
 				if(target != null) {
 					//get the model
@@ -423,7 +422,6 @@ public class MySearch extends BasePage {
 		
         IndicatingAjaxButton sbiSubmitButton = new IndicatingAjaxButton("sbiSubmit", sbiForm) {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
-				//need to show the busyindicator here TODO
 
 				if(target != null) {
 					//get the model
