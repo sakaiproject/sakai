@@ -115,10 +115,10 @@ public class ChangeProfilePictureUpload extends Panel{
 					if(profile.addNewProfileImage(userId, mainResourceId, thumbnailResourceId)) {
 						
 						//log it
-						log.info("User " + userId + " successfully changed profile picture.");
+						log.info("User " + userId + " successfully changed profile picture by upload.");
 						
 						//post update event
-						sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_IMAGE_CHANGE, userId, true);
+						sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_IMAGE_CHANGE_UPLOAD, userId, true);
 						
 						//refresh image data
 						setResponsePage(new MyProfile());

@@ -22,7 +22,8 @@ public class ProfileUtilityManager {
 	//this is so granular so we can get good reports on what and how much is being used 
 	public static final String EVENT_PROFILE_VIEW_OWN = "profile.view.own";
 	public static final String EVENT_PROFILE_VIEW_OTHER = "profile.view.other";
-	public static final String EVENT_PROFILE_IMAGE_CHANGE = "profile.image.change";
+	public static final String EVENT_PROFILE_IMAGE_CHANGE_UPLOAD = "profile.image.change.upload";
+	public static final String EVENT_PROFILE_IMAGE_CHANGE_URL = "profile.image.change.url";
 	public static final String EVENT_PROFILE_NEW = "profile.new";
 		
 	public static final String EVENT_PROFILE_INFO_UPDATE = "profile.info.update";
