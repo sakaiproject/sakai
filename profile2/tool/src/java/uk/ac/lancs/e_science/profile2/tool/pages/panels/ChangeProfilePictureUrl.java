@@ -11,15 +11,17 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.validation.validator.UrlValidator;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
-import uk.ac.lancs.e_science.profile2.hbm.ProfileImageExternal;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.components.CloseButton;
 import uk.ac.lancs.e_science.profile2.tool.models.SimpleText;
+import uk.ac.lancs.e_science.profile2.tool.pages.MyProfile;
 
 public class ChangeProfilePictureUrl extends Panel{
     
@@ -44,7 +46,7 @@ public class ChangeProfilePictureUrl extends Panel{
 		SimpleText simpleText = new SimpleText();
 		
 		//do they already have a URL that should be loaded in here?
-		String externalUrl = profile.getExternalImageUrl(userId, ProfileImageManager.PROFILE_IMAGE_MAIN);
+		String externalUrl = profile.getExternalImageUrl(userId, ProfileImageManager.PROFILE_IMAGE_MAIN, true);
 		
 		if(externalUrl != null) {
 			simpleText.setText(externalUrl);
@@ -69,7 +71,7 @@ public class ChangeProfilePictureUrl extends Panel{
 		//upload
 		TextField urlField = new TextField("urlField", new PropertyModel(simpleText, "text"));
 		urlField.setRequired(true);
-		urlField.add(new UrlValidator());
+		urlField.add(new UrlValidator(new String[]{"http", "https"}, UrlValidator.ALLOW_2_SLASHES));
 		form.add(urlField);
 		
 		//feedback (styled to remove the list)
@@ -85,28 +87,31 @@ public class ChangeProfilePictureUrl extends Panel{
 				//get the model (already validated)
         		SimpleText simpleText = (SimpleText) form.getModelObject();
         		
-        		
-        		//create a ProfileImageExternal record for this user and URL
-        		ProfileImageExternal ext = new ProfileImageExternal(
-        				userId,
-        				simpleText.getText(),
-        				null);
+        		//get the url
+        		String url = simpleText.getText();
         		
         		//save it
-        		if(profile.saveExternalImage(ext)) {
-        			System.out.println("saved");
+        		if(profile.saveExternalImage(userId, url, null)) {
+       		
+	        		//log it
+					log.info("User " + userId + " successfully changed profile picture by url.");
+					
+					//post update event
+					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_IMAGE_CHANGE_URL, userId, true);
+					
+					//refresh image data
+					setResponsePage(new MyProfile());
         		} else {
-        			System.out.println("crap");
+        			error(new StringResourceModel("error.url.save.failed", this, null).getString());
+        			return;
         		}
-        		
-        		
         		
         		
         	};
         	
         	// update feedback panel if validation failed
         	protected void onError(AjaxRequestTarget target, Form form) { 
-        		System.out.println("validation failed");
+        		log.debug("ChangeProfilePictureUrl.onSubmit validation failed.");
         	    target.addComponent(feedback); 
         	} 
     		

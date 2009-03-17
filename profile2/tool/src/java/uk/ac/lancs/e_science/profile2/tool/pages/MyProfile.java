@@ -18,6 +18,7 @@ import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfileBadConfigurationException;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfileNotDefinedException;
+import uk.ac.lancs.e_science.profile2.tool.components.ExternalImage;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.ChangeProfilePictureUpload;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.ChangeProfilePictureUrl;
@@ -90,34 +91,59 @@ public class MyProfile extends BasePage {
 		userProfile.setFavouriteQuotes(sakaiPerson.getFavouriteQuotes());
 		userProfile.setOtherInformation(sakaiPerson.getNotes());
 
-		//get profile image
-		profileImageBytes = profile.getCurrentProfileImageForUser(userId, ProfileImageManager.PROFILE_IMAGE_MAIN);
-
-		//use profile bytes or add default image if none
-		if(profileImageBytes != null && profileImageBytes.length > 0){
+		//TODO: make this picture section a different panel
 		
-			BufferedDynamicImageResource photoResource = new BufferedDynamicImageResource(){
-				private static final long serialVersionUID = 1L;
-
-				protected byte[] getImageData() {
-					return profileImageBytes;
-				}
-			};
 		
-			add(new Image("photo",photoResource));
-		} else {
-			log.info("No photo for " + userId + ". Using blank image.");
-			add(new ContextImage("photo",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
-		}
+		//what type of picture should we use?
+		int profilePictureType = sakaiProxy.getProfilePictureType();
 		
 		//change picture panel (upload or url depending on property)
 		final Panel changePicture;
-		int profilePictureType = sakaiProxy.getProfilePictureType();
+		
+		//if upload
 		if(profilePictureType == ProfileImageManager.PICTURE_SETTING_UPLOAD) {
+		
+			//get profile image
+			profileImageBytes = profile.getCurrentProfileImageForUser(userId, ProfileImageManager.PROFILE_IMAGE_MAIN);
+
+			//use profile bytes or default image if none
+			if(profileImageBytes != null && profileImageBytes.length > 0){
+			
+				BufferedDynamicImageResource photoResource = new BufferedDynamicImageResource(){
+					private static final long serialVersionUID = 1L;
+	
+					protected byte[] getImageData() {
+						return profileImageBytes;
+					}
+				};
+			
+				add(new Image("photo",photoResource));
+			} else {
+				log.info("No uploaded image for " + userId + ". Using blank image.");
+				add(new ContextImage("photo",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
+			}
+		
+			//add the appropriate change picture panel
 			changePicture = new ChangeProfilePictureUpload("changePicture");
+			
 		} else if (profilePictureType == ProfileImageManager.PICTURE_SETTING_URL) {
+			
+			//get the url we should use
+			String externalUrl = profile.getExternalImageUrl(userId, ProfileImageManager.PROFILE_IMAGE_MAIN, true);
+			
+			//add the externalImage component or default image if none.
+			if(externalUrl != null) {
+				add(new ExternalImage("photo",externalUrl));
+			} else {
+				log.info("No external image for " + userId + ". Using blank image.");
+				add(new ContextImage("photo",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
+			}
+			
+			//add the appropriate change picture panel		
 			changePicture = new ChangeProfilePictureUrl("changePicture");
+		
 		} else {
+			//no valid option, exception. This is an error in Profile2, not the external configuration.
 			throw new ProfileBadConfigurationException("Invalid picture type returned: " + profilePictureType);
 		}
 			
@@ -153,6 +179,8 @@ public class MyProfile extends BasePage {
 			changePictureLink.setVisible(false);
 		}
 		add(changePictureLink);
+		
+		//END OF TODO FROM ABOVE
 		
 		//status panel
 		Panel myStatusPanel = new MyStatusPanel("myStatusPanel", userProfile);
