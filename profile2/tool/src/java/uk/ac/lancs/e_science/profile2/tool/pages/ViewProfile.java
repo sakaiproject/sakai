@@ -148,13 +148,13 @@ public class ViewProfile extends BasePage {
 					add(new ContextImage("photo",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
 				}
     		} else {
-				//no valid option, exception. This is an error in Profile2, not the external configuration.
-				throw new ProfileBadConfigurationException("Invalid picture type returned: " + profilePictureType);
-				//perhaps we should just include the unavailable image?
+				//no valid option. This is an error in Profile2, not the external configuration.
+				log.error("ViewProfile. Invalid picture type returned. Using default: " + profilePictureType);
+				add(new ContextImage("photo",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
 			}
-			
+		} else {
+			add(new ContextImage("photo",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
 		}
-		
 		
 		/*STATUS PANEL */
 		//container

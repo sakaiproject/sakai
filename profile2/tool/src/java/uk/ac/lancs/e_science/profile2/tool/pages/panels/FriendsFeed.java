@@ -158,11 +158,13 @@ public class FriendsFeed extends Panel {
 							friendItem.add(new ContextImage("friendPhoto",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
 						}
 		    		} else {
-						//no valid option, exception. This is an error in Profile2, not the external configuration.
-						throw new ProfileBadConfigurationException("Invalid picture type returned: " + profilePictureType);
-						//perhaps we should just include the unavailable image?
+		    			//invalid type, show default
+		    			friendItem.add(new ContextImage("friendPhoto",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
 					}
-		    	} 
+		    	} else {
+		    		//not allowed, show default.
+					friendItem.add(new ContextImage("friendPhoto",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
+				} 
 				
 				
 				//name (will be linked also)
