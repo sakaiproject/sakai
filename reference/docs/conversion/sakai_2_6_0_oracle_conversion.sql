@@ -525,26 +525,21 @@ INSERT INTO CITATION_SCHEMA (SCHEMA_ID, PROPERTY_NAME, PROPERTY_VALUE) VALUES('t
 -- tables for SAK-13843:  assignment - information display on triggers
 
 
-    create table ASSIGN_ALL_PURPOSE_ITEM_T (
+    create table ASN_AP_ITEM_T (
         ID number(19,0) not null,
+        ITEM_ACCESS varchar2(255),
+        ASN_AP_ITEM_ID number(19,0) not null,
         ASSIGNMENT_ID varchar2(255),
         TITLE varchar2(255),
         TEXT clob,
         RELEASE_DATE date,
         RETRACT_DATE date,
         HIDE number(1,0),
-        primary key (ID)
-    );
-
-    create table ASSIGN_ALL_PUR_ITEM_ACCESS_T (
-        ID number(19,0) not null,
-        ITEM_ACCESS varchar2(255),
-        ASN_ALL_PURPOSE_ITEM_ID number(19,0) not null,
         primary key (ID),
-        unique (ITEM_ACCESS, ASN_ALL_PURPOSE_ITEM_ID)
+        unique (ITEM_ACCESS, ASN_AP_ITEM_ID)
     );
 
-    create table ASSIGN_MODEL_ANS_ITEM_T (
+    create table ASN_MA_ITEM_T (
         ID number(19,0) not null,
         ASSIGNMENT_ID varchar2(255),
         TEXT varchar2(255),
@@ -552,7 +547,7 @@ INSERT INTO CITATION_SCHEMA (SCHEMA_ID, PROPERTY_NAME, PROPERTY_VALUE) VALUES('t
         primary key (ID)
     );
 
-    create table ASSIGN_NOTE_ITEM_T (
+    create table ASN_NOTE_ITEM_T (
         ID number(19,0) not null,
         ASSIGNMENT_ID varchar2(255),
         NOTE varchar2(255),
@@ -561,51 +556,51 @@ INSERT INTO CITATION_SCHEMA (SCHEMA_ID, PROPERTY_NAME, PROPERTY_VALUE) VALUES('t
         primary key (ID)
     );
 
-    create table ASSIGN_SUPP_ATTACH_T (
+    create table ASN_SUP_ATTACH_T (
         ID number(19,0) not null,
         ATTACHMENT_ID varchar2(255),
-        ASN_SUPP_ITEM_WITH_ATTACH_ID number(19,0) not null,
+        ASN_SUP_ITEM_ID number(19,0) not null,
         primary key (ID),
-        unique (ATTACHMENT_ID, ASN_SUPP_ITEM_WITH_ATTACH_ID)
+        unique (ATTACHMENT_ID, ASN_SUP_ITEM_ID)
     );
 
-    comment on table ASSIGN_SUPP_ATTACH_T is
+    comment on table ASN_SUP_ATTACH_T is
         'This table is for assignment supplement item attachment.';
 
-    create table ASSIGN_SUPP_ITEM_WITH_ATT_T (
+    create table ASN_SUP_ITEM_T (
         ID number(19,0) not null,
         primary key (ID)
     );
 
-    alter table ASSIGN_ALL_PURPOSE_ITEM_T 
-        add constraint FK9AA01457935EEE07 
+    create index ASN_AP_ITEM_I on ASN_AP_ITEM_T (ASN_AP_ITEM_ID);
+
+    alter table ASN_AP_ITEM_T 
+        add constraint FK514CEE156E844C61 
+        foreign key (ASN_AP_ITEM_ID) 
+        references ASN_AP_ITEM_T;
+
+    alter table ASN_AP_ITEM_T 
+        add constraint FK514CEE15935EEE07 
         foreign key (ID) 
-        references ASSIGN_SUPP_ITEM_WITH_ATT_T;
+        references ASN_SUP_ITEM_T;
 
-    create index ASSIGN_ALL_PURPOSE_ITEM_ACCESS_I on ASSIGN_ALL_PUR_ITEM_ACCESS_T (ASN_ALL_PURPOSE_ITEM_ID);
-
-    alter table ASSIGN_ALL_PUR_ITEM_ACCESS_T 
-        add constraint FKF5F4078522C687CC 
-        foreign key (ASN_ALL_PURPOSE_ITEM_ID) 
-        references ASSIGN_ALL_PURPOSE_ITEM_T;
-
-    alter table ASSIGN_MODEL_ANS_ITEM_T 
-        add constraint FKDE1CE707935EEE07 
+    alter table ASN_MA_ITEM_T 
+        add constraint FK2E508110935EEE07 
         foreign key (ID) 
-        references ASSIGN_SUPP_ITEM_WITH_ATT_T;
+        references ASN_SUP_ITEM_T;
 
-    create index ASSIGN_SUPP_ITEM_WITH_ATT_I on ASSIGN_SUPP_ATTACH_T (ASN_SUPP_ITEM_WITH_ATTACH_ID);
+    create index ASN_SUP_ITEM_I on ASN_SUP_ATTACH_T (ASN_SUP_ITEM_ID);
 
-    alter table ASSIGN_SUPP_ATTACH_T 
-        add constraint FK10B85547D4A0693A 
-        foreign key (ASN_SUPP_ITEM_WITH_ATTACH_ID) 
-        references ASSIGN_SUPP_ITEM_WITH_ATT_T;
+    alter table ASN_SUP_ATTACH_T 
+        add constraint FK560294CEDE4CD07F 
+        foreign key (ASN_SUP_ITEM_ID) 
+        references ASN_SUP_ITEM_T;
 
-    create sequence ASSIGN_AP_ACCESS_S;
+    create sequence ASN_AP_ITEM_S;
+
+    create sequence ASN_SUP_ITEM_ATT_S;
+
+    create sequence ASN_SUP_ITEM_S;
 
     create sequence ASSIGN_NOTE_S;
-
-    create sequence ASSIGN_SUPP_ITEM_ATT_S;
-
-    create sequence ASSIGN_SUPP_ITEM_WITH_ATT_S;
 
