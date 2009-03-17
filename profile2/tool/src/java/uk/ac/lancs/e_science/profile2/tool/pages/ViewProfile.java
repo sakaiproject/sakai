@@ -24,8 +24,10 @@ import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
+import uk.ac.lancs.e_science.profile2.api.exception.ProfileBadConfigurationException;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfilePrototypeNotDefinedException;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
+import uk.ac.lancs.e_science.profile2.tool.components.ExternalImage;
 import uk.ac.lancs.e_science.profile2.tool.models.FriendAction;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.FriendsFeed;
 import uk.ac.lancs.e_science.profile2.tool.pages.windows.AddFriend;
@@ -110,23 +112,49 @@ public class ViewProfile extends BasePage {
 		
 		/* PROFILE IMAGE */
 		if(isProfileImageAllowed) {
-			profileImageBytes = profile.getCurrentProfileImageForUser(userUuid, ProfileImageManager.PROFILE_IMAGE_MAIN);
-		}
+			
+			//what type of picture should we use?
+    		int profilePictureType = sakaiProxy.getProfilePictureType();
+    		
+    		if(profilePictureType == ProfileImageManager.PICTURE_SETTING_UPLOAD) {
+	    		//upload
 
-		//use profile bytes or add default image if none
-		if(profileImageBytes != null && profileImageBytes.length > 0){
-		
-			BufferedDynamicImageResource photoResource = new BufferedDynamicImageResource(){
-				protected byte[] getImageData() {
-					return profileImageBytes;
+    			profileImageBytes = profile.getCurrentProfileImageForUser(userUuid, ProfileImageManager.PROFILE_IMAGE_MAIN);
+    			
+				//use profile bytes or add default image if none
+				if(profileImageBytes != null && profileImageBytes.length > 0){
+				
+					BufferedDynamicImageResource photoResource = new BufferedDynamicImageResource(){
+						protected byte[] getImageData() {
+							return profileImageBytes;
+						}
+					};
+				
+					add(new Image("photo",photoResource));
+				} else {
+					log.info("No photo for " + userUuid + ". Using blank image.");
+					add(new ContextImage("photo",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
 				}
-			};
-		
-			add(new Image("photo",photoResource));
-		} else {
-			log.info("No photo for " + userUuid + ". Using blank image.");
-			add(new ContextImage("photo",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
+				
+    		} else if (profilePictureType == ProfileImageManager.PICTURE_SETTING_URL) {
+    			//url
+    			
+				String externalUrl = profile.getExternalImageUrl(userUuid, ProfileImageManager.PROFILE_IMAGE_MAIN, true);
+				
+				//add uploaded iamge or default
+				if(externalUrl != null) {
+					add(new ExternalImage("photo",externalUrl));
+				} else {
+					add(new ContextImage("photo",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
+				}
+    		} else {
+				//no valid option, exception. This is an error in Profile2, not the external configuration.
+				throw new ProfileBadConfigurationException("Invalid picture type returned: " + profilePictureType);
+				//perhaps we should just include the unavailable image?
+			}
+			
 		}
+		
 		
 		/*STATUS PANEL */
 		//container
