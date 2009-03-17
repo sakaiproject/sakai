@@ -43,6 +43,7 @@ import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
+import uk.org.ponder.rsf.components.UISelectLabel;
 import uk.org.ponder.rsf.components.decorators.DecoratorList;
 import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
@@ -108,12 +109,16 @@ public class SameRoleProducer implements ViewComponentProducer, NavigationCaseRe
 	    StringList roleItems = new StringList();
 	    UISelect roleSelect = UISelect.make(sameRoleForm, "select-roles", null,
 		        "#{siteAddParticipantHandler.sameRoleChoice}", handler.sameRoleChoice);
+	    String selectID = roleSelect.getFullID();
 	    List<Role> roles = handler.getRoles();
 	    for (int i = 0; i < roles.size(); ++i) {
 	    	Role r = roles.get(i);
 		    UIBranchContainer roleRow = UIBranchContainer.make(sameRoleForm,"role-row:", Integer.toString(i));
-            UIOutput.make(roleRow, "role-label", r.getId());
-            UISelectChoice.make(roleRow, "role-select", roleSelect.getFullID(), i);
+            
+            UISelectLabel lb = UISelectLabel.make(roleRow, "role-label", selectID, i);
+            UISelectChoice choice =UISelectChoice.make(roleRow, "role-select", selectID, i);
+            UILabelTargetDecorator.targetLabel(lb, choice);
+            
             roleItems.add(r.getId());
         }
         roleSelect.optionlist.setValue(roleItems.toStringArray()); 

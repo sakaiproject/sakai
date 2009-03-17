@@ -21,11 +21,14 @@ import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIMessage;
+import uk.org.ponder.rsf.components.UIOutputMany;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
+import uk.org.ponder.rsf.components.UISelectLabel;
+import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.flow.ActionResultInterceptor;
 import uk.org.ponder.rsf.flow.ARIResult;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
@@ -119,13 +122,20 @@ public class AddProducer implements ViewComponentProducer, NavigationCaseReporte
 	    String[] labels = new String[] {
 	    		messageLocator.getMessage("add.assign"), 
 	    		messageLocator.getMessage("add.assign2")
-	    		};	    
+	    		};
+	    
 	    StringList roleItems = new StringList();
+	    
 	    UISelect roleSelect = UISelect.make(participantForm, "select-roles", null, "#{siteAddParticipantHandler.roleChoice}", handler.roleChoice);
+
+	    roleSelect.optionnames = UIOutputMany.make(labels);
+	    String selectID = roleSelect.getFullID();
 	    for (int i = 0; i < values.length; ++i) {
 		    UIBranchContainer roleRow = UIBranchContainer.make(participantForm,"role-row:", Integer.toString(i));
-            UIOutput.make(roleRow, "role-label", labels[i]);
-            UISelectChoice.make(roleRow, "role-select", roleSelect.getFullID(), i);
+            UISelectLabel lb = UISelectLabel.make(roleRow, "role-label", selectID, i);
+            UISelectChoice choice =UISelectChoice.make(roleRow, "role-select", selectID, i);
+            UILabelTargetDecorator.targetLabel(lb, choice);
+            
             roleItems.add(values[i]);
         }
         roleSelect.optionlist.setValue(roleItems.toStringArray());        
