@@ -1466,7 +1466,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	/**
  	 * {@inheritDoc}
  	 */
-	public String getExternalImageUrl(final String userId, final int imageType) {
+	public String getExternalImageUrl(final String userId, final int imageType, boolean fallback) {
 		
 		//get external image record for this user
 		ProfileImageExternal externalImage = getExternalImageRecordForUser(userId);
@@ -1488,13 +1488,21 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	if(imageType == ProfileImageManager.PROFILE_IMAGE_THUMBNAIL) {
     		String url = externalImage.getThumbnailUrl();
     		if(url == null || url.length() == 0) {
+    			//use main instead?
+    			if(fallback) {
+    				 url = externalImage.getMainUrl();
+    				 if(url == null || url.length() == 0) {
+    					 return null;
+    				 }
+    				 return url;
+    			}
     			return null;
     		}
     		return url;
     	}
     	
     	//no notification for this message type, return false 	
-    	log.error("Profile.getExternalImageUrl. No URL for userId: " + userId + ", imageType: " + imageType);
+    	log.error("Profile.getExternalImageUrl. No URL for userId: " + userId + ", imageType: " + imageType + ", fallback: " + fallback);
 
     	return null;
 		
