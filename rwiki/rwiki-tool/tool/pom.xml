@@ -24,7 +24,7 @@ limitations under the License.
   <parent>
     <artifactId>rwiki-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>M2</version>
+    <version>2.7.0-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-rwiki-tool</name>
@@ -35,11 +35,6 @@ limitations under the License.
   </description>
   <packaging>war</packaging>
   <build>
-    
-    
-    
-    
-    
     <resources>
       <resource>
         <directory>${basedir}/src/bundle</directory>
@@ -58,8 +53,6 @@ limitations under the License.
     </resources>
 <!--nagEmailAddress: andrew@caret.cam.ac.uk -->
 <!-- java source -->
-    
-    
     <testResources>
       <testResource>
         <directory>${basedir}/src/testBundle</directory>
@@ -74,93 +67,53 @@ limitations under the License.
   </build>
   <dependencies>
     <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-util</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+    </dependency>
+<!--
+      This has been relocated to sakai-kernel-util
+      org.sakaiproject.kernel.utilsakai-util-->
+    <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-rwiki-api</artifactId>
-      <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
-    <dependency>      
+    <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-rwiki-util</artifactId>
-      <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-rwiki-diff</artifactId>
-      <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>      
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-tool-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>      
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-entity-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>      
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-content-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>      
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-authz-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>      
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>      
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-event-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>      
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-component-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>      
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-component</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-site-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-user-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
+<!--org.sakaiprojectsakai-util${sakai.version}jar-->
+<!--org.sakaiprojectsakai-tool-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-entity-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-content-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-authz-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-util-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-event-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-component-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-component${sakai.version}jar-->
+<!--org.sakaiprojectsakai-site-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-user-api${sakai.version}jar-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-search-api</artifactId>
-      <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
@@ -169,19 +122,14 @@ limitations under the License.
       <version>${sakai.spring.version}</version>
       <type>jar</type>
     </dependency>
-    <dependency>     
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>${sakai.servletapi.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>      
+<!--javax.servletservlet-api${sakai.servletapi.version}jar-->
+    <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>jsp-api</artifactId>
       <version>2.0</version>
       <type>jar</type>
     </dependency>
-    <dependency>      
+    <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>jstl</artifactId>
       <version>1.1.2</version>
@@ -200,7 +148,7 @@ limitations under the License.
       <version>1.0.4</version>
       <type>jar</type>
     </dependency>
-    <dependency>      
+    <dependency>
       <groupId>easymock</groupId>
       <artifactId>easymock</artifactId>
       <version>1.1</version>
@@ -218,6 +166,6 @@ limitations under the License.
       <artifactId>commons-collections</artifactId>
       <version>3.1</version>
       <type>jar</type>
-    </dependency>    
+    </dependency>
   </dependencies>
 </project>

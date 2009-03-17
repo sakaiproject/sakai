@@ -1,30 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<!--
-Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
-
-Licensed under the Educational Community License, Version 1.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-     http://www.opensource.org/licenses/ecl1.php
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
--->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>rwiki-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>M2</version>
+    <version>2.7.0-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-rwiki-impl</name>
@@ -35,11 +15,6 @@ limitations under the License.
     <deploy.target/>
   </properties>
   <build>
-    
-    
-    
-    
-    
     <resources>
       <resource>
         <directory>${basedir}/src/bundle</directory>
@@ -64,8 +39,6 @@ limitations under the License.
         <filtering>false</filtering>
       </resource>
     </resources>
-    
-    
     <testResources>
       <testResource>
         <directory>${basedir}/src/testBundle</directory>
@@ -80,155 +53,88 @@ limitations under the License.
   </build>
   <dependencies>
     <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-util</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+    </dependency>
+<!--
+      This has been relocated to sakai-kernel-util
+      org.sakaiproject.kernel.utilsakai-entity-util-->
+<!--
+      This has been relocated to sakai-kernel-util
+      org.sakaiproject.kernel.utilsakai-event-util-->
+<!--
+      This has been relocated to sakai-kernel-util
+      org.sakaiproject.kernel.utilsakai-util-->
+    <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
       <type>jar</type>
     </dependency>
-    <dependency>      
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>${sakai.servletapi.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>      
+<!--javax.servletservlet-api${sakai.servletapi.version}jar-->
+    <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-radeox</artifactId>
-      <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
-    <dependency>      
+    <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-rwiki-api</artifactId>
-      <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
-    <dependency>      
+    <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-rwiki-model</artifactId>
-      <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
-    <dependency>      
+    <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-rwiki-util</artifactId>
-      <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-tool-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>      
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-entity-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-site-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-event-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>      
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-event-util</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>      
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-component-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-component</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-email-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-user-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-content-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-db-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-alias-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
+<!--org.sakaiprojectsakai-tool-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-entity-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-site-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-event-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-event-util${sakai.version}jar-->
+<!--org.sakaiprojectsakai-component-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-component${sakai.version}jar-->
+<!--org.sakaiprojectsakai-email-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-user-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-content-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-util-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-db-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-alias-api${sakai.version}jar-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-search-api</artifactId>
-      <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-search-util</artifactId>
-      <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-authz-api</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
+<!--org.sakaiprojectsakai-util${sakai.version}jar-->
+<!--org.sakaiprojectsakai-authz-api${sakai.version}jar-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-api</artifactId>
-      <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-entity-util</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
+<!--org.sakaiprojectsakai-entity-util${sakai.version}jar-->
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate</artifactId>
@@ -236,7 +142,7 @@ limitations under the License.
       <type>jar</type>
     </dependency>
     <dependency>
-	  <groupId>net.sf.ehcache</groupId>
+      <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache</artifactId>
       <version>${sakai.ehcache.version}</version>
       <type>jar</type>
@@ -267,7 +173,7 @@ limitations under the License.
       <version>20070301</version>
       <type>jar</type>
     </dependency>
-    <!-- this will pull the dependencies for fop the 20070301 is a patched 0.93 -->
+<!-- this will pull the dependencies for fop the 20070301 is a patched 0.93 -->
     <dependency>
       <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>fop</artifactId>
@@ -286,7 +192,6 @@ limitations under the License.
       <version>1.1</version>
       <type>jar</type>
     </dependency>
-    
     <dependency>
       <groupId>xerces</groupId>
       <artifactId>xmlParserAPIs</artifactId>
@@ -305,7 +210,5 @@ limitations under the License.
       <version>2.6.0</version>
       <type>jar</type>
     </dependency>
- 
-    
   </dependencies>
 </project>
