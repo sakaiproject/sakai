@@ -497,7 +497,8 @@ public interface Profile {
 	 * @param userId		uuid of user
 	 * @param imageType		comes from ProfileImageManager. main or thumbnail.
 	 * @param fallback		if a thumbnail is requested but it does not exist, should the mainURL be returned instead? 
-	 * 						this should generally always be used and the full sized iamge can just be scaled in the markup
+	 * 						This should generally always be used and the full sized iamge can just be scaled in the markup.
+	 * 						If used with the main type of image, it has no effect.
 	 * @return
 	 */
 	public String getExternalImageUrl(final String userId, final int imageType, final boolean fallback);
@@ -505,10 +506,11 @@ public interface Profile {
 	
 	/**
 	 * Save the external image url that users can set.
-	 * 
-	 * @param profileImageExternal 	updated ProfileImageExternal object
+	 * @param userId		uuid of the user
+	 * @param mainUrl		url to main profile pic
+	 * @param thumbnailUrl	optional url to a thumbnail. If not set the main will be used and will be scaled in the markup
 	 * @return
 	 */
-	public boolean saveExternalImage(ProfileImageExternal ext);
+	public boolean saveExternalImage(final String userId, final String mainUrl, final String thumbnailUrl);
 	
 }

@@ -1512,7 +1512,11 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	/**
  	 * {@inheritDoc}
  	 */
-	public boolean saveExternalImage(ProfileImageExternal ext) {
+	public boolean saveExternalImage(final String userId, final String mainUrl, final String thumbnailUrl) {
+		
+		//make an object out of the params
+		ProfileImageExternal ext = new ProfileImageExternal(userId, mainUrl, thumbnailUrl);
+		
 		try {
 			getHibernateTemplate().saveOrUpdate(ext);
 			log.info("Updated external image record for user: " + ext.getUserUuid());
