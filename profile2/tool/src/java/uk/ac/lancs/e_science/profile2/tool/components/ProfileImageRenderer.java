@@ -2,6 +2,7 @@ package uk.ac.lancs.e_science.profile2.tool.components;
 
 import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.image.Image;
+import org.apache.wicket.markup.html.image.NonCachingImage;
 import org.apache.wicket.markup.html.image.resource.BufferedDynamicImageResource;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
@@ -26,8 +27,9 @@ public class ProfileImageRenderer extends Panel {
 	 * @param id		- wicket:id
 	 * @param userX		- user whose image we are showing
 	 * @param size		- ProfileImageManager.PROFILE_IMAGE_MAIN, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL
+	 * @param cacheable	- if this image is allowed to be cached or not. If having issues with sticky images from AJAX updates, set this to false to ensure the image is updated every request
 	 */
-	public ProfileImageRenderer(String id, String userX, int size) {
+	public ProfileImageRenderer(String id, String userX, int size, boolean cacheable) {
 		super(id);
 		
 		//get API's
@@ -50,8 +52,11 @@ public class ProfileImageRenderer extends Panel {
 						return bytes;
 					}
 				};
-			
-				add(new Image("img",photoResource));
+				if(cacheable) {
+					add(new Image("img",photoResource));
+				} else {
+					add(new NonCachingImage("img",photoResource));
+				}
 			} else {
 				add(new ContextImage("img",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
 			}
