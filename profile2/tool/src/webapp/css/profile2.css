@@ -490,7 +490,7 @@ h2 {
 	text-align: center;
 }
 	
-.friendsFeedPhoto {
+.friendsFeedPhoto img {
 	max-width: 55px;
 	width: expression(Math.min(parseInt(this.offsetWidth), 55 ) + "px"); /* ie6 max-width hack */
 	/* centre the image inside this cell */
