@@ -544,7 +544,7 @@ h2 {
 }
 
 
-.friendsListPhoto {
+.friendsListPhoto img{
 	float:left;
 	max-width: 100px;
 	width: expression(Math.min(parseInt(this.offsetWidth), 100 ) + "px"); /* ie6 max-width hack */
