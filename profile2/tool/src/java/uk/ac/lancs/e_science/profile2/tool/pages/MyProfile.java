@@ -110,7 +110,7 @@ public class MyProfile extends BasePage {
 		add(changePicture);
 		
 		//add the current picture
-		add(new ProfileImageRenderer("photo", userId, ProfileImageManager.PROFILE_IMAGE_MAIN));
+		add(new ProfileImageRenderer("photo", userId, ProfileImageManager.PROFILE_IMAGE_MAIN, true));
 		
 		//change profile image button
 		AjaxFallbackLink changePictureLink = new AjaxFallbackLink("changePictureLink") {

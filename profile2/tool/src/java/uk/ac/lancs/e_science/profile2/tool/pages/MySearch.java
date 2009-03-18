@@ -34,6 +34,7 @@ import uk.ac.lancs.e_science.profile2.hbm.SearchResult;
 import uk.ac.lancs.e_science.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import uk.ac.lancs.e_science.profile2.tool.components.FeedbackLabel;
 import uk.ac.lancs.e_science.profile2.tool.components.IconWithClueTip;
+import uk.ac.lancs.e_science.profile2.tool.components.ProfileImageRenderer;
 import uk.ac.lancs.e_science.profile2.tool.models.FriendAction;
 import uk.ac.lancs.e_science.profile2.tool.models.Search;
 import uk.ac.lancs.e_science.profile2.tool.pages.windows.AddFriend;
@@ -170,37 +171,18 @@ public class MySearch extends BasePage {
 		    			    	
 		    	//setup basic values
 		    	String displayName = sakaiProxy.getUserDisplayName(userUuid);
-		    	final byte[] photo;
+		    	final byte[] photo = null;
 		    		
 		    	//is profile image allowed to be viewed by this user/friend?
 				final boolean isProfileImageAllowed = searchResult.isProfileImageAllowed();
 				
-		    	if(isProfileImageAllowed) {
-		    		photo = profile.getCurrentProfileImageForUser(userUuid, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
-		    	} else {
-		    		photo = null;
-		    	}
-		    	
-		    	//photo (if allowed or default)
-		    	if(photo != null && photo.length > 0){
-		    		
-					BufferedDynamicImageResource photoResource = new BufferedDynamicImageResource(){
-						private static final long serialVersionUID = 1L;
-
-						protected byte[] getImageData() {
-							return photo;
-						}
-					};
-				
-					//so it always refreshes between searches
-					item.add(new NonCachingImage("result-photo",photoResource));
+				//image
+				if(isProfileImageAllowed) {
+					item.add(new ProfileImageRenderer("result-photo", userUuid, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, false));
 				} else {
 					item.add(new ContextImage("result-photo",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
 				}
-		    	
-		    	
-		    	
-		    	
+					    	
 		    	
 		    	//name and link to profile (if allowed or no link)
 		    	Link profileLink = new Link("result-profileLink") {

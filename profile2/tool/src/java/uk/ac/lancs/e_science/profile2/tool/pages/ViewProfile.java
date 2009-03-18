@@ -113,7 +113,7 @@ public class ViewProfile extends BasePage {
 		
 		/* IMAGE */
 		if(isProfileImageAllowed) {
-			add(new ProfileImageRenderer("photo", userUuid, ProfileImageManager.PROFILE_IMAGE_MAIN));
+			add(new ProfileImageRenderer("photo", userUuid, ProfileImageManager.PROFILE_IMAGE_MAIN, true));
 		} else {
 			add(new ContextImage("photo",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
 		}

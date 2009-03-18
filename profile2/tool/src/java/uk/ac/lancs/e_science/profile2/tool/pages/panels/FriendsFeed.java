@@ -126,7 +126,7 @@ public class FriendsFeed extends Panel {
 				
 				/* IMAGE */
 				if(isProfileImageAllowed) {
-					friendItem.add(new ProfileImageRenderer("friendPhoto", friendId, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL));
+					friendItem.add(new ProfileImageRenderer("friendPhoto", friendId, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, true));
 				} else {
 					friendItem.add(new ContextImage("friendPhoto",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
 				}
