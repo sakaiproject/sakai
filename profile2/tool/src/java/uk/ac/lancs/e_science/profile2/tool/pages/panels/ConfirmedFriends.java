@@ -23,6 +23,7 @@ import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
+import uk.ac.lancs.e_science.profile2.tool.components.ProfileImageRenderer;
 import uk.ac.lancs.e_science.profile2.tool.dataproviders.ConfirmedFriendsDataProvider;
 import uk.ac.lancs.e_science.profile2.tool.models.FriendAction;
 import uk.ac.lancs.e_science.profile2.tool.pages.ViewProfile;
@@ -116,9 +117,8 @@ public class ConfirmedFriends extends Panel {
 		    			    	
 		    	//setup values
 		    	String displayName = sakaiProxy.getUserDisplayName(friendId);
-		    	final byte[] photo;
+		    	final byte[] photo = null;
 		    	boolean friend;
-		    	
 		    	
 		    	//get friend status
 		    	if(userX.equals(userY)) {
@@ -130,25 +130,9 @@ public class ConfirmedFriends extends Panel {
 		    	//is profile image allowed to be viewed by this user/friend?
 				final boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(friendId, userY, friend);
 				
-		    	if(isProfileImageAllowed) {
-		    		photo = profile.getCurrentProfileImageForUser(friendId, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
-		    	} else {
-		    		photo = null;
-		    	}
-		    	
-		    	
-		    	//photo/default photo
-		    	if(photo != null && photo.length > 0){
-		    		
-					BufferedDynamicImageResource photoResource = new BufferedDynamicImageResource(){
-						private static final long serialVersionUID = 1L;
-
-						protected byte[] getImageData() {
-							return photo;
-						}
-					};
-				
-					item.add(new Image("result-photo",photoResource));
+				//image
+				if(isProfileImageAllowed) {
+					item.add(new ProfileImageRenderer("result-photo", friendId, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL));
 				} else {
 					item.add(new ContextImage("result-photo",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
 				}
