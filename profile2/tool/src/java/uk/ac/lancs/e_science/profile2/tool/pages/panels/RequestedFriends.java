@@ -91,9 +91,9 @@ public class RequestedFriends extends Panel {
 		    	//is this user allowed to view this person's profile image?
 				boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(friendId, userId, false);
 				
-				/* PROFILE IMAGE */
+				//image
 				if(isProfileImageAllowed) {
-					item.add(new ProfileImageRenderer("result-photo", friendId, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL));
+					item.add(new ProfileImageRenderer("result-photo", friendId, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, true));
 				} else {
 					item.add(new ContextImage("result-photo",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
 				}
