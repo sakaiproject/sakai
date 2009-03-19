@@ -1,6 +1,6 @@
 /**********************************************************************************
  * $URL: $
- * $Id:  $
+ * $Id:	$
  ***********************************************************************************
  *
  * Copyright (c) 2006,2007 The Sakai Foundation.
@@ -9,7 +9,7 @@
  * you may not use this file except in compliance with the License. 
  * You may obtain a copy of the License at
  * 
- *      http://www.opensource.org/licenses/ecl1.php
+ *		  http://www.opensource.org/licenses/ecl1.php
  * 
  * Unless required by applicable law or agreed to in writing, software 
  * distributed under the License is distributed on an "AS IS" BASIS, 
@@ -59,294 +59,287 @@ import org.sakaiproject.util.Xml;
 
 public class SakaiSigning {
 
-    private static final Log LOG = LogFactory.getLog("org.sakaiproject.axis.SakaiSigning");
+	private static final Log LOG = LogFactory.getLog("org.sakaiproject.axis.SakaiSigning");
 
 	private static String EVENT_TESTSIGN = "linktool.testsign";
 	private static String EVENT_GETSESSION = "linktool.getsession";
-    
-    private static SecretKey salt;
-    private static SecretKey privateKey;
-
-    private static boolean verify(String data, String sign) throws Exception {
-	if (salt == null)
-	   salt = readSecretKey("salt", "HmacSHA1");
-	Mac sig = Mac.getInstance("HmacSHA1");
-        sig.init(salt);
-        return sign.equals(byteArray2Hex(sig.doFinal(data.getBytes())));
-    }
-
-    private Session establishSession(String id) throws AxisFault {
-	Session s = SessionManager.getSession(id);
 	
-	if (s == null)
-	{
-		throw new AxisFault("Session "+id+" is not active");
-	}
-	s.setActive();
-	SessionManager.setCurrentSession(s);
-	return s;
-    }
-
-    public String testsign(String data) throws AxisFault {
-
-    if (!"true".equals(ServerConfigurationService.getString("linktool.enabled", "false")))
-    	return "not enabled";
-    	
-	int i = data.indexOf("&time=");
-	int j = data.indexOf("&", i+6);
-	String time = data.substring(i+6,j);
-	long mstime = java.lang.Long.parseLong(time);
-
-	if (java.lang.Math.abs(mstime - System.currentTimeMillis()) > 30000)
-	  return "stale value";
-
-	// post the event
-	LOG.info("testsign request: " + data);
-    EventTrackingService.post(EventTrackingService.newEvent(EVENT_TESTSIGN, null, true));
+	private static SecretKey salt;
+	private static SecretKey privateKey;
 	
-	return verifysign(data);
-    }
-
-    public String verifysign(String data) throws AxisFault {
-
-    if (!"true".equals(ServerConfigurationService.getString("linktool.enabled", "false")))
-    		return "false";
-            	
-	int i = data.lastIndexOf("&");
-	String sign = data.substring(i+6);
-	data = data.substring(0, i);
-
-	boolean result = false;
-
-	try {
-        result = verify(data, sign);
-//        System.out.println("Signature Verification Result = " + result);
-
-	} catch (Exception e) {  
-		return e.getClass().getName() + " : " + e.getMessage();
-	}
-
- 	return result ? "true" : "false";
-    }
-
-    public String getsession(String object) throws AxisFault {
-        return getsession(null, object);
-    }
-
-    public String getSessionToServer(String object) throws AxisFault {
-        return getsession(null, object) + "," + 
-        	ServerConfigurationService.getString("webservices.directurl", ServerConfigurationService.getString("serverUrl"));
-    }
-
-    public String getSessionToServer(String data, String object) throws AxisFault {
-        return getsession(data, object) + "," + 
-    	ServerConfigurationService.getString("webservices.directurl", ServerConfigurationService.getString("serverUrl"));
-    }
-    
-    public String getsession(String data, String object) throws AxisFault {
-
-    if (!"true".equals(ServerConfigurationService.getString("linktool.enabled", "false")))
-        throw new AxisFault("not enabled");
-    	
-
-	LOG.info("getsession request");
-
-    // Check user data
-
-    if (data != null) {
-          String sresult = verifysign(data);
-          if (!sresult.equals("true"))
-            throw new AxisFault("failed on user data");
-    }
-
-	// Check session object
-
-	int i = object.lastIndexOf("&");
-	String sign = object.substring(i+6);
-	object = object.substring(0, i);
-
-        boolean result = false;
-
-	try {
-
-        result = verify(object, sign);
-//        System.out.println("Signature Verification Result = " + result);
-
-	} catch (Exception e) {  
-	    throw new AxisFault(e.getClass().getName() + " : " + e.getMessage());
-	}
-	if (!result)
-          throw new AxisFault("failed on session object");
-
-    Session s = null;
-    String sessionid = null;
-    String userref = null;
-    
-	if (object.equals("currentuser") && data != null)
-	   s = makesession(data, "internaluser=");
-	else 
-	   s = makesession(object, "user=");
-
-	if (s != null) {
-		sessionid = s.getId();
-		String userid = s.getUserId(); 
-		userref = (userid != null) ? UserDirectoryService.userReference(userid) : null;
+	private static boolean verify(String data, String sign) throws Exception {
+		if (salt == null)
+			salt = readSecretKey("salt", "HmacSHA1");
+		Mac sig = Mac.getInstance("HmacSHA1");
+		sig.init(salt);
+		return sign.equals(byteArray2Hex(sig.doFinal(data.getBytes())));
 	}
 	
-    // post the login event
-    EventTrackingService.post(EventTrackingService.newEvent(EVENT_GETSESSION, userref, true));
-	
-	return sessionid;
-    }
-
-    Session makesession(String spec, String attr) throws AxisFault {
-	
-	int i;
-	if (!spec.startsWith(attr)) {
-	    i = spec.indexOf("&"+ attr);
-	    if (i > 0)
-		spec = spec.substring(i+1);
-	    else
-		throw new AxisFault("unabled to find "+attr);
-	}
-	i = spec.indexOf("&");
-	if (i > 0)
-	    spec = spec.substring(0, i);
-	i = spec.indexOf("=");
-	// has to be there
-	spec = spec.substring(i+1);
-	    
-	User user = null;
-	try{
-	    user = UserDirectoryService.getUser(spec);
-	} catch (Exception e) {
-	    throw new AxisFault(e.getClass().getName() + " : " + e.getMessage());
-	}
-
-	Session s = SessionManager.startSession();
-	if (s == null)
-	    throw new AxisFault("Unable to establish session");
-
-	//	   System.out.println("creating session for " + user);
-	s.setUserId(user.getId());
-	s.setUserEid(user.getEid());
-
-	return s;
-    }
-
-    public String touchsession(String esessions) throws AxisFault {
-
-// no security; you can't do anything damaging with this
-// you just prevent a session from timing out
-
-    if (!"true".equals(ServerConfigurationService.getString("linktool.enabled", "false")))
-    	return "not enabled";
-    	
-	int i;
-	String esession;
-
-	while (esessions != null) {
-	    i = esessions.indexOf(",");
-	    if (i > 0) {
-		esession = esessions.substring(0, i);
-		esessions = esessions.substring(i+1);
-	    } else {
-		esession = esessions;
-		esessions = null;
-	    }
-	    esession = esession.trim();
-
-	    Session s = null;
-	    String sessionid = decrypt(esession);
-
-	    System.out.println("session " + sessionid);
-
-	    if (sessionid != null)
-		s = SessionManager.getSession(sessionid);
-	
-	    if (s == null)
-		throw new AxisFault("Session "+esession+" is not active");
-
-	    s.setActive();
-	}
-
-	return "success";
-    }
-
-    private static String decrypt (String enc) {
-	if (privateKey == null)
-	   privateKey = readSecretKey("privkey", "Blowfish");
-
-	try {
-	  Cipher dcipher = Cipher.getInstance("Blowfish");
-	  dcipher.init(Cipher.DECRYPT_MODE, privateKey);
-	  byte[] dec = hex2byte(enc);
-	  // Decrypt
-          byte[] utf8 = dcipher.doFinal(dec);
-          // Decode using utf-8
-          return new String(utf8, "UTF8");
-        } catch (Exception ignore) {
-          System.out.println("SakaiSigning decrypt failed");
-        }
-	return null;
-    }
-
-    private static SecretKey readSecretKey(String name, String alg) {
-	try {
-	    String homedir = ServerConfigurationService.getString("linktool.home", ServerConfigurationService.getSakaiHomePath());
-	    if (homedir == null)
-			homedir = "/etc/";
-		if (!homedir.endsWith("/"))
-        {
-                homedir = homedir + "/";
-        }
+	private Session establishSession(String id) throws AxisFault {
+		Session s = SessionManager.getSession(id);
 		
-	    String filename = homedir + "sakai.rutgers.linktool." + name;
-	    FileInputStream file = new FileInputStream(filename);
-	    byte[] bytes = new byte[file.available()];
-	    file.read(bytes);
-	    file.close();
-	    SecretKey privkey = new SecretKeySpec(bytes, alg);
-            return privkey;
-	} catch (Exception ignore) {
-	    return null;
+		if (s == null)
+		{
+			throw new AxisFault("Session "+id+" is not active");
+		}
+		s.setActive();
+		SessionManager.setCurrentSession(s);
+		return s;
 	}
-    }
-
-    private static char[] hexChars = {
-            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
-    };
-
-    /**
-     * Convert byte array to hex string
-     * 
-     * @param ba
-     *        array of bytes
-     * @throws Exception.
-     */
-
-    private static String byteArray2Hex(byte[] ba){
-	StringBuffer sb = new StringBuffer();
-	for (int i = 0; i < ba.length; i++){
-	    int hbits = (ba[i] & 0x000000f0) >> 4;
-	    int lbits = ba[i] & 0x0000000f;
-	    sb.append("" + hexChars[hbits] + hexChars[lbits]);
-	}
-	return sb.toString();
-    }
-
-    public static byte[] hex2byte(String strhex) {
-	// System.out.println("hex2byte " + strhex); 
-
-        if(strhex==null) return null;
-        int l = strhex.length();
 	
-        if(l %2 ==1) return null;
-        byte[] b = new byte[l/2];
-        for(int i = 0 ; i < l/2 ;i++){
-            b[i] = (byte)Integer.parseInt(strhex.substring(i *2,i*2 +2),16);
-        }
-        return b;
-    }
-
+	public String testsign(String data) throws AxisFault {
+		
+		if (!"true".equals(ServerConfigurationService.getString("linktool.enabled", "false")))
+			return "not enabled";
+		
+		int i = data.indexOf("&time=");
+		int j = data.indexOf("&", i+6);
+		String time = data.substring(i+6,j);
+		long mstime = java.lang.Long.parseLong(time);
+		
+		if (java.lang.Math.abs(mstime - System.currentTimeMillis()) > 30000)
+			return "stale value";
+		
+		// post the event
+		LOG.debug("testsign request: " + data);
+		EventTrackingService.post(EventTrackingService.newEvent(EVENT_TESTSIGN, null, true));
+		
+		return verifysign(data);
+	}
+	
+	public String verifysign(String data) throws AxisFault {
+		
+		if (!"true".equals(ServerConfigurationService.getString("linktool.enabled", "false")))
+			return "false";
+		
+		int i = data.lastIndexOf("&");
+		String sign = data.substring(i+6);
+		data = data.substring(0, i);
+		
+		boolean result = false;
+		
+		try {
+		
+			result = verify(data, sign);
+			
+		} catch (Exception e) {	 
+			return e.getClass().getName() + " : " + e.getMessage();
+		}
+		
+		return result ? "true" : "false";
+	}
+	
+	public String getsession(String object) throws AxisFault {
+		return getsession(null, object);
+	}
+	
+	public String getSessionToServer(String object) throws AxisFault {
+		return getsession(null, object) + "," + 
+			ServerConfigurationService.getString("webservices.directurl", ServerConfigurationService.getString("serverUrl"));
+	}
+	
+	public String getSessionToServer(String data, String object) throws AxisFault {
+		return getsession(data, object) + "," + 
+			ServerConfigurationService.getString("webservices.directurl", ServerConfigurationService.getString("serverUrl"));
+	}
+	
+	public String getsession(String data, String object) throws AxisFault {
+		
+		if (!"true".equals(ServerConfigurationService.getString("linktool.enabled", "false")))
+			throw new AxisFault("not enabled");
+		
+		LOG.debug("getsession request");
+		
+		// Check user data
+		
+		if (data != null) {
+			String sresult = verifysign(data);
+			if (!sresult.equals("true"))
+				throw new AxisFault("failed on user data");
+		}
+		
+		// Check session object
+		
+		int i = object.lastIndexOf("&");
+		String sign = object.substring(i+6);
+		object = object.substring(0, i);
+		
+		boolean result = false;
+		
+		try {
+			
+			result = verify(object, sign);
+			
+		} catch (Exception e) {	 
+			throw new AxisFault(e.getClass().getName() + " : " + e.getMessage());
+		}
+		if (!result)
+			throw new AxisFault("failed on session object");
+		
+		Session s = null;
+		String sessionid = null;
+		String userref = null;
+		
+		if (object.equals("currentuser") && data != null)
+			s = makesession(data, "internaluser=");
+		else 
+			s = makesession(object, "user=");
+		
+		if (s != null) {
+			sessionid = s.getId();
+			String userid = s.getUserId(); 
+			userref = (userid != null) ? UserDirectoryService.userReference(userid) : null;
+		}
+		
+		// post the login event
+		EventTrackingService.post(EventTrackingService.newEvent(EVENT_GETSESSION, userref, true));
+		
+		return sessionid;
+	}
+	
+	Session makesession(String spec, String attr) throws AxisFault {
+		
+		int i;
+		if (!spec.startsWith(attr)) {
+			i = spec.indexOf("&"+ attr);
+			if (i > 0)
+				spec = spec.substring(i+1);
+			else
+				throw new AxisFault("unabled to find "+attr);
+		}
+		i = spec.indexOf("&");
+		if (i > 0)
+			spec = spec.substring(0, i);
+		i = spec.indexOf("=");
+		// has to be there
+		spec = spec.substring(i+1);
+		
+		User user = null;
+		try{
+			user = UserDirectoryService.getUser(spec);
+		} catch (Exception e) {
+			throw new AxisFault(e.getClass().getName() + " : " + e.getMessage());
+		}
+		
+		Session s = SessionManager.startSession();
+		if (s == null)
+			throw new AxisFault("Unable to establish session");
+		
+		s.setUserId(user.getId());
+		s.setUserEid(user.getEid());
+		
+		return s;
+	}
+	
+	public String touchsession(String esessions) throws AxisFault {
+		
+		// no security; you can't do anything damaging with this
+		// you just prevent a session from timing out
+		
+		if (!"true".equals(ServerConfigurationService.getString("linktool.enabled", "false")))
+			return "not enabled";
+		
+		int i;
+		String esession;
+		
+		while (esessions != null) {
+			i = esessions.indexOf(",");
+			if (i > 0) {
+				esession = esessions.substring(0, i);
+				esessions = esessions.substring(i+1);
+			} else {
+				esession = esessions;
+				esessions = null;
+			}
+			esession = esession.trim();
+			
+			Session s = null;
+			String sessionid = decrypt(esession);
+			
+			if (sessionid != null)
+				s = SessionManager.getSession(sessionid);
+			
+			if (s == null)
+				throw new AxisFault("Session "+esession+" is not active");
+			
+			s.setActive();
+		}
+		
+		return "success";
+	}
+	
+	private static String decrypt (String enc) {
+		if (privateKey == null)
+			privateKey = readSecretKey("privkey", "Blowfish");
+		
+		try {
+			Cipher dcipher = Cipher.getInstance("Blowfish");
+			dcipher.init(Cipher.DECRYPT_MODE, privateKey);
+			byte[] dec = hex2byte(enc);
+			// Decrypt
+			byte[] utf8 = dcipher.doFinal(dec);
+			// Decode using utf-8
+			return new String(utf8, "UTF8");
+		} catch (Exception ignore) {
+			LOG.warn("SakaiSigning decrypt failed", ignore);
+		}
+		return null;
+	}
+	
+	private static SecretKey readSecretKey(String name, String alg) {
+		try {
+			String homedir = ServerConfigurationService.getString("linktool.home", ServerConfigurationService.getSakaiHomePath());
+			if (homedir == null)
+				homedir = "/etc/";
+			if (!homedir.endsWith("/"))
+			{
+				homedir = homedir + "/";
+			}
+			
+			String filename = homedir + "sakai.rutgers.linktool." + name;
+			FileInputStream file = new FileInputStream(filename);
+			byte[] bytes = new byte[file.available()];
+			file.read(bytes);
+			file.close();
+			SecretKey privkey = new SecretKeySpec(bytes, alg);
+			return privkey;
+		} catch (Exception ignore) {
+			return null;
+		}
+	}
+	
+	private static char[] hexChars = {
+		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+	};
+	
+	/**
+	 * Convert byte array to hex string
+	 * 
+	 * @param ba
+	 *			 array of bytes
+	 * @throws Exception.
+	 */
+	
+	private static String byteArray2Hex(byte[] ba){
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < ba.length; i++){
+			int hbits = (ba[i] & 0x000000f0) >> 4;
+			int lbits = ba[i] & 0x0000000f;
+			sb.append("" + hexChars[hbits] + hexChars[lbits]);
+		}
+		return sb.toString();
+	}
+	
+	public static byte[] hex2byte(String strhex) {
+		if(strhex==null) return null;
+		int l = strhex.length();
+		
+		if(l %2 ==1) return null;
+		byte[] b = new byte[l/2];
+		for(int i = 0 ; i < l/2 ;i++){
+			b[i] = (byte)Integer.parseInt(strhex.substring(i *2,i*2 +2),16);
+		}
+		return b;
+	}
+	
 }
