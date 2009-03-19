@@ -46,6 +46,7 @@ limitations under the License.
     <module>rwiki-util/util</module>
     <module>rwiki-impl/pack</module>
     <module>rwiki-tool/tool</module>
+    <module>rwiki-access-tool</module>
   </modules>
   <dependencyManagement>
     <dependencies>
