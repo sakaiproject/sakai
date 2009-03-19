@@ -199,7 +199,8 @@ public class RequestScopeSuperBean
 				"wiki.experimental", false);
 
 		searchExperimental  = ServerConfigurationService.getBoolean(
-				"search.experimental", false);
+				  "wiki.fullsearch", true) && 
+				  ServerConfigurationService.getBoolean("search.enable", false);
 
 		withnotification = ServerConfigurationService.getBoolean(
 				"wiki.notification", true);
@@ -208,7 +209,7 @@ public class RequestScopeSuperBean
 		defaultUIHomePageName = ServerConfigurationService.getString(
 				"wiki.ui.homepage", "Home");
 		
-		if ( experimental && searchExperimental ) {
+		if ( searchExperimental ) {
 			searchService = (SearchService) context.getBean(SearchService.class
 				.getName());
 		}
@@ -530,7 +531,7 @@ public class RequestScopeSuperBean
 
 	public FullSearchBean getFullSearchBean()
 	{
-		if ( experimental && searchExperimental ) 
+		if ( searchExperimental ) 
 		{
 			String key = "fullSearchBean";
 			if (map.get(key) == null)
@@ -861,7 +862,7 @@ public class RequestScopeSuperBean
 
 	public String getSearchTarget()
 	{
-		if (experimental && searchExperimental )
+		if ( searchExperimental )
 		{
 			return WikiPageAction.FULL_SEARCH_ACTION.getName();
 		}
