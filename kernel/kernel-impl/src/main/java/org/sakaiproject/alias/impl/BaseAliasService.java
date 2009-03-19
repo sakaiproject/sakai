@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.Arrays;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -87,6 +88,8 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 
 	/** A cache of calls to the service and the results. */
 	protected Cache m_callCache = null;
+
+	private static List<String> prohibited_aliases = null;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Abstractions, etc.
@@ -368,6 +371,10 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 			functionManager().registerFunction(SECURE_ADD_ALIAS);
 			functionManager().registerFunction(SECURE_UPDATE_ALIAS);
 			functionManager().registerFunction(SECURE_REMOVE_ALIAS);
+
+			prohibited_aliases = Arrays.asList(serverConfigurationService().getString("mail.prohibitedaliases",
+ 					"postmaster").trim().toLowerCase().split("\\s*,\\s*"));
+
 		}
 		catch (Throwable t)
 		{
@@ -402,6 +409,9 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 	 */
 	public boolean allowSetAlias(String alias, String target)
 	{
+		if (!securityService().isSuperUser() && 
+		    prohibited_aliases.contains(alias.toLowerCase()))
+			return false;
 		return unlockTargetCheck(target);
 
 	} // allowSetAlias
@@ -425,7 +435,9 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 		// check for a valid alias name
 		Validator.checkResourceId(alias);
 
-		if (!unlockTargetCheck(target))
+		if ((!securityService().isSuperUser() && 
+		     prohibited_aliases.contains(alias.toLowerCase())) ||
+		    !unlockTargetCheck(target))
 		{
 			throw new PermissionException(sessionManager().getCurrentSessionUserId(), SECURE_ADD_ALIAS, target);
 		}
