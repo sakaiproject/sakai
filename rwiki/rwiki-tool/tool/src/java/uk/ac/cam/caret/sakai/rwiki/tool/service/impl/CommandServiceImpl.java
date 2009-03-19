@@ -40,6 +40,7 @@ import uk.ac.cam.caret.sakai.rwiki.tool.api.CommandService;
 import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
 import uk.ac.cam.caret.sakai.rwiki.tool.command.Dispatcher;
 import uk.ac.cam.caret.sakai.rwiki.tool.RequestScopeSuperBean;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 
@@ -137,6 +138,8 @@ public class CommandServiceImpl implements CommandService
 
 	public void init()
 	{
+        trackReads = ServerConfigurationService.getBoolean("wiki.trackreads", false);
+
 		for (Iterator it = commandMap.keySet().iterator(); it.hasNext();)
 		{
 			String commandName = (String) it.next();
