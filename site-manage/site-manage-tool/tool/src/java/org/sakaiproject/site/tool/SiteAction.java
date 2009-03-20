@@ -1589,11 +1589,9 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("check_home", checkHome);
 			
 			// get the email alias when an Email Archive tool has been selected
-			String channelReference = site!=null?mailArchiveChannelReference(site.getId()):"";
-			List aliases = AliasService.getAliases(channelReference, 1, 1);
-			if (aliases.size() > 0) {
-				state.setAttribute(STATE_TOOL_EMAIL_ADDRESS, ((Alias) aliases
-						.get(0)).getId());
+			String alias = getSiteAlias(site!=null?mailArchiveChannelReference(site.getId()):"");
+			if (alias != null) {
+				state.setAttribute(STATE_TOOL_EMAIL_ADDRESS, alias);
 			}
 			
 			if (state.getAttribute(STATE_TOOL_EMAIL_ADDRESS) != null) {
@@ -2149,7 +2147,18 @@ public class SiteAction extends PagedResourceActionII {
 			 * 
 			 */
 			siteProperties = site.getProperties();
-
+			boolean displaySiteAlias = displaySiteAlias();
+			context.put("displaySiteAlias", Boolean.valueOf(displaySiteAlias));
+			if (displaySiteAlias)
+			{
+				alias = getSiteAlias(site!=null?site.getReference():"");
+				if (alias != null) {
+					String urlAliasFull = aliasBaseUrl + alias;
+					context.put(FORM_URL_ALIAS_FULL, urlAliasFull);
+				}
+				context.put(FORM_URL_BASE, aliasBaseUrl);
+				context.put(FORM_URL_ALIAS, alias);
+			}
 			context.put("title", siteInfo.title);
 			context.put("siteTitleEditable", Boolean.valueOf(siteTitleEditable(state, site.getType())));
 			context.put("type", site.getType());
@@ -2202,6 +2211,7 @@ public class SiteAction extends PagedResourceActionII {
 			 * 
 			 */
 			siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
+			context.put("displaySiteAlias", Boolean.valueOf(displaySiteAlias()));
 			siteProperties = site.getProperties();
 			siteType = (String) state.getAttribute(STATE_SITE_TYPE);
 			if (siteType != null && siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
@@ -2229,7 +2239,10 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("oName", siteProperties.getProperty(PROP_SITE_CONTACT_NAME));
 			context.put("email", siteInfo.site_contact_email);
 			context.put("oEmail", siteProperties.getProperty(PROP_SITE_CONTACT_EMAIL));
-
+			if (StringUtil.trimToNull(siteInfo.getUrlAlias()) != null) {
+				String urlAliasFull = aliasBaseUrl + siteInfo.getUrlAlias();
+				context.put(FORM_URL_ALIAS_FULL, urlAliasFull);
+			}
 			return (String) getContext(data).get("template") + TEMPLATE[14];
 		case 15:
 			/*
@@ -4970,7 +4983,25 @@ public class SiteAction extends PagedResourceActionII {
 		}
 
 	}// doFinish
-
+	
+	/**
+	 * get one alias for site, if it exists
+	 * @param channelReference
+	 * @return
+	 */
+	private String getSiteAlias(String reference)
+	{
+		String alias = null;
+		if (reference != null)
+		{
+			// get the email alias when an Email Archive tool has been selected
+			List aliases = AliasService.getAliases(reference, 1, 1);
+			if (aliases.size() > 0) {
+				alias = ((Alias) aliases.get(0)).getId();
+			}
+		}
+		return alias;
+	}
 
 	/**
 	 * set site mail alias
@@ -6197,6 +6228,8 @@ public class SiteAction extends PagedResourceActionII {
 		{
 			Site.setTitle(siteInfo.title);
 		}
+		// set an alias for the site
+		setSiteAlias(siteInfo.url_alias, Site.getReference(), state);
 
 		Site.setDescription(siteInfo.description);
 		Site.setShortDescription(siteInfo.short_description);
@@ -8052,9 +8085,18 @@ public class SiteAction extends PagedResourceActionII {
 				M_log.warn(this + ".updateSiteInfo: " + rb.getString("java.alias") + " " + siteInfo.url_alias + " " + rb.getString("java.isinval"));
 			} else {
 				try {
-					AliasService.getTarget(siteInfo.url_alias);
-					addAlert(state, rb.getString("java.alias") + " " + siteInfo.url_alias
-							+ " " + rb.getString("java.exists"));
+					String reference = AliasService.getTarget(siteInfo.url_alias);
+					boolean aliasForOtherSite = true;
+					if (state.getAttribute(STATE_SITE_INSTANCE_ID) != null)
+					{
+						String currentSiteId = (String) state.getAttribute(STATE_SITE_INSTANCE_ID);
+						if (reference.indexOf(currentSiteId) != -1)
+						{
+							aliasForOtherSite = false;
+						}
+					}
+					if (aliasForOtherSite)
+						addAlert(state, rb.getString("java.alias") + " " + siteInfo.url_alias + " " + rb.getString("java.exists"));
 				} catch (IdUnusedException e) {
 					// Do nothing. We want the alias to be unused.
 				}
@@ -8647,13 +8689,9 @@ public class SiteAction extends PagedResourceActionII {
 						// get the email alias when an Email Archive tool
 						// has been selected
 						goToToolConfigPage = true;
-						String channelReference = mailArchiveChannelReference((String) state
-								.getAttribute(STATE_SITE_INSTANCE_ID));
-						List aliases = AliasService.getAliases(
-								channelReference, 1, 1);
-						if (aliases.size() > 0) {
-							state.setAttribute(STATE_TOOL_EMAIL_ADDRESS,
-									((Alias) aliases.get(0)).getId());
+						String alias = getSiteAlias(mailArchiveChannelReference((String) state.getAttribute(STATE_SITE_INSTANCE_ID)));
+						if (alias != null) {
+							state.setAttribute(STATE_TOOL_EMAIL_ADDRESS, alias);
 						}
 					}
 					idsSelected.add(toolId);
@@ -8954,22 +8992,7 @@ public class SiteAction extends PagedResourceActionII {
 				state.setAttribute(STATE_SITE_INSTANCE_ID, site.getId());
 				
 				// create an alias for the site
-				if (!siteInfo.url_alias.equals(NULL_STRING)) {
-					String alias = siteInfo.url_alias;
-					String siteReference = site.getReference();
-					try {
-						AliasService.setAlias(alias, siteReference);
-					} catch (IdUsedException ee) {
-						addAlert(state, rb.getString("java.alias") + " " + alias + " " + rb.getString("java.exists"));
-						M_log.warn(this + ".addNewSite: " + rb.getString("java.alias") + " " + alias + " " + rb.getString("java.exists"));
-					} catch (IdInvalidException ee) {
-						addAlert(state, rb.getString("java.alias") + " " + alias + " " + rb.getString("java.isinval"));
-						M_log.warn(this + ".addNewSite: " + rb.getString("java.alias") + " " + alias + " " + rb.getString("java.isinval"));	
-					} catch (PermissionException ee) {
-						addAlert(state, SessionManager.getCurrentSessionUserId() + " does not have permission to add alias. ");
-						M_log.warn(this + ".addNewSite: " + SessionManager.getCurrentSessionUserId() + " does not have permission to add alias. ");
-					}
-				}
+				setSiteAlias(siteInfo.url_alias, site.getReference(), state);
 
 				// commit newly added site in order to enable related realm
 				commitSite(site);
@@ -8993,7 +9016,29 @@ public class SiteAction extends PagedResourceActionII {
 		}
 	} // addNewSite
 
-
+	private void setSiteAlias(String alias, String siteReference, SessionState state)
+	{
+		if (StringUtil.trimToNull(alias) != null && StringUtil.trimToNull(siteReference) != null) 
+		{
+			String currentAlias = StringUtil.trimToNull(getSiteAlias(siteReference));
+			
+			if (currentAlias == null || !currentAlias.equals(alias))
+			{
+				try {
+					AliasService.setAlias(alias, siteReference);
+				} catch (IdUsedException ee) {
+					addAlert(state, rb.getString("java.alias") + " " + alias + " " + rb.getString("java.exists"));
+					M_log.warn(this + ".setSiteAlias: " + rb.getString("java.alias") + " " + alias + " " + rb.getString("java.exists"));
+				} catch (IdInvalidException ee) {
+					addAlert(state, rb.getString("java.alias") + " " + alias + " " + rb.getString("java.isinval"));
+					M_log.warn(this + ".setSiteAlias: " + rb.getString("java.alias") + " " + alias + " " + rb.getString("java.isinval"));	
+				} catch (PermissionException ee) {
+					addAlert(state, SessionManager.getCurrentSessionUserId() + " does not have permission to add alias. ");
+					M_log.warn(this + ".setSiteAlias: " + SessionManager.getCurrentSessionUserId() + " does not have permission to add alias. ");
+				}
+			}
+		}
+	}
 
 	private void sendTemplateUseNotification(Site site, User currentUser,
 			Site templateSite) {

@@ -34,6 +34,15 @@ function LimitText(fieldObj,maxChars)
 				$validator.escapeHtml($!title)
 			#end
 		</p>
+		#if ($displaySiteAlias)
+		<div class="shorttext">
+ 			<label for="url">
+ 				$tlang.getString("sinfo.url_alias")
+ 			</label>
+ 				$!form_url_base
+ 				<input type="text" name="url_alias" id="url_alias" maxlength="40" size="20" value="$validator.escapeHtml($form_url_alias)" />
+ 		</div>
+ 		#end
 		#if ($!isCourseSite)
 			<p class="shorttext">
 				<label for="term">

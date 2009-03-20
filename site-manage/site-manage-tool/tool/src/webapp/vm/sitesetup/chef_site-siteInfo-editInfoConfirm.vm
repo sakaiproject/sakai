@@ -7,6 +7,7 @@
 	<p class="instruction">
 		$tlang.getString("sitediconf.cli")
 	</p>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitediinf.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<form name="classInformationForm" method="post" action="#toolForm("SiteAction")">
 		<table class="itemSummary" summary="layout">
 			<tr>
@@ -21,6 +22,16 @@
 					#end
 				</td>					
 			</tr>
+			#if ($displaySiteAlias)
+				<tr>
+	 				<th>
+	 					$tlang.getString("newsc.url_alias")
+	 				</th>
+	 				<td>
+	 					$validator.escapeHtml($!form_url_alias_full)
+	 				</td>
+	 			</tr>
+	 		#end
 			#if ($!isCourseSite)
 				<tr>
 					<th>
