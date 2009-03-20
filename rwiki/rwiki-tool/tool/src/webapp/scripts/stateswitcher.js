@@ -133,7 +133,7 @@ function addAttachment(textareaid, formid, editcontrolid, type) {
   }
 
   
-  editcontrol.innerHTML += "<input type='hidden' name='save' value='attach" + type + "'/><input type='hidden' name='caretPosition' value='"+ store + "'/>";
+  editcontrol.innerHTML += "<input type='hidden' name='command_attach"+type+"' value='attach" + type + "'/><input type='hidden' name='caretPosition' value='"+ store + "'/>";
   form.submit();
 }
 
