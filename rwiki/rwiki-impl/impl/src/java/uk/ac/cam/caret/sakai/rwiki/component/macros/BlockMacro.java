@@ -37,6 +37,7 @@ public class BlockMacro extends BaseMacro
 	{
 		return new String[] {
 			Messages.getString("BlockMacro.0"), //$NON-NLS-1$
+			Messages.getString("BlockMacro.01"), //$NON-NLS-1$
 			Messages.getString("BlockMacro.1"), //$NON-NLS-1$
 			Messages.getString("BlockMacro.2") }; //$NON-NLS-1$
 	}
@@ -84,12 +85,20 @@ public class BlockMacro extends BaseMacro
 		String id = params.get("id"); //$NON-NLS-1$
 
 		String anchorName = params.get("name"); //$NON-NLS-1$
+		
+		String style = params.get("style"); //$NON-NLS-1$
 
 		writer.write("<div"); //$NON-NLS-1$
 		if (cssClass != null && !cssClass.equals("")) //$NON-NLS-1$
 		{
 			writer.write(" class='"); //$NON-NLS-1$
 			writer.write(cssClass.replaceAll("'", "&apos;")); //$NON-NLS-1$ //$NON-NLS-2$
+			writer.write('\'');
+		}
+		if (style != null && !style.equals("")) //$NON-NLS-1$
+		{
+			writer.write(" style='"); //$NON-NLS-1$
+			writer.write(style.replaceAll("'", "&apos;")); //$NON-NLS-1$ //$NON-NLS-2$
 			writer.write('\'');
 		}
 		if (id != null && !id.equals("")) //$NON-NLS-1$
