@@ -175,11 +175,11 @@
 					  		       #if (${requestScope.withnotification} )
 					  			        <input type="checkbox" name="smallchange" value="smallchange" /> ${rlb.jsp_minor_change}<br />
 					  			      #end
-					 		        <input id="saveButton" type="submit" name="save" value="${rlb.jsp_button_save}"  /> 
+					 		        <input id="saveButton" type="submit" name="command_save" value="${rlb.jsp_button_save}"  /> 
 					  		       #if (( ( ${editBean.saveType} && ( "preview" == ${editBean.saveType}  || ${editBean.saveType.startsWith("attach")} ) ) && ${nameHelperBean.submittedContent} ) || (( ${editBean.saveType} && ${editBean.saveType} != "preview" ) && !${editBean.saveType.statsWith("attach")} ))
-					 		        <input id="saveButton" type="submit" name="save" value="${rlb.jsp_button_overwrite}"  />
+					 		        <input id="saveButton" type="submit" name="command_overwrite" value="${rlb.jsp_button_overwrite}"  />
 					 		        #end 
-					 		        <input id="saveButton" type="submit" name="save" value="${rlb.jsp_button_cancel}"  />
+					 		        <input id="saveButton" type="submit" name="command_cancel" value="${rlb.jsp_button_cancel}"  />
 						       </p>
 				      </div>
 		    	</div> <!-- end of edit tab -->
@@ -201,11 +201,11 @@
 					       </div>
 				        <div class="rwiki_editControl" id="editControl2">
 						         <p class="act">
-					 		        <input id="saveButton" type="submit" name="save" value="${rlb.jsp_button_save}"  /> 
+					 		        <input id="saveButton" type="submit" name="command_save" value="${rlb.jsp_button_save}"  /> 
 					  		       #if ((( ${editBean.saveType} && ( "preview" == ${editBean.saveType}  || ${editBean.saveType.startsWith("attach")} )) && ${nameHelperBean.submittedContent} ) || (( ${editBean.saveType} && ${editBean.saveType} != "preview" ) && !${editBean.saveType.statsWith("attach")} ))
-					 		        <input id="saveButton" type="submit" name="save" value="${rlb.jsp_button_overwrite}"  />
+					 		        <input id="saveButton" type="submit" name="command_overwrite" value="${rlb.jsp_button_overwrite}"  />
 					 		        #end 
-					 		        <input id="saveButton" type="submit" name="save" value="${rlb.jsp_button_cancel}"  />
+					 		        <input id="saveButton" type="submit" name="command_cancel" value="${rlb.jsp_button_cancel}"  />
 						       </p>
 				      </div>
 					            

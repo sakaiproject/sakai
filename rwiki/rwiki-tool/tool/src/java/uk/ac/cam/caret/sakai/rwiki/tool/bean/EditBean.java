@@ -49,12 +49,6 @@ public class EditBean
 	public static final String OVERWRITE_VALUE = "overwrite";
 
 	/**
-	 * Parameter name for the save parameter that indicates what kind of save we
-	 * should be doing.
-	 */
-	public static final String SAVE_PARAM = "save";
-
-	/**
 	 * Parameter name for the content to save
 	 */
 	public static final String CONTENT_PARAM = "content";

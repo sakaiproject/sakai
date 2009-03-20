@@ -35,12 +35,6 @@ import uk.ac.cam.caret.sakai.rwiki.tool.util.WikiPageAction;
 public class AuthZGroupEditBean extends ViewBean
 {
 	/**
-	 * Parameter name for the save parameter that indicates what kind of save we
-	 * should be doing.
-	 */
-	public static final String SAVE_PARAM = "save";
-
-	/**
 	 * Value of the save parameter that indicates we wish to save the content
 	 */
 	public static final String SAVE_VALUE = "save";

@@ -45,7 +45,7 @@
 		<input type="hidden" name="realm" value="${currentRWikiObject.realm }"/>
 		<br/>
 		<span class="act">
-		  <input type="submit" name="save" value="${rlb.jsp_button_save}" />
+		  <input type="submit" name="command_save" value="${rlb.jsp_button_save}" />
 		  <input type="button" value="${rlb.jsp_button_cancel}" onclick="popupClose(-1);"/>
 		</span>
 	    </form>

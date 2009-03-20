@@ -21,6 +21,7 @@
 
 package uk.ac.cam.caret.sakai.rwiki.tool.bean.helper;
 
+import java.util.Map;
 import javax.servlet.ServletRequest;
 
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
@@ -157,7 +158,7 @@ public class ViewParamsHelperBean
 
 		submittedVersion = request.getParameter(EditBean.VERSION_PARAM);
 
-		saveType = request.getParameter(EditBean.SAVE_PARAM);
+		saveType = getSaveTypeFromParameters(request.getParameterMap());
 
 		String smallChange = request.getParameter(SMALL_CHANGE_PARAM);
 		if (smallChange != null && smallChange.equals(SMALL_CHANGE))
@@ -174,6 +175,23 @@ public class ViewParamsHelperBean
 		withBreadcrumbs =  "0".equals(request.getParameter(ViewBean.PARAM_BREADCRUMB_NAME))?"0":"1";
 
 	}
+	
+	 /**
+	  * @param parameterMap
+	  * @return
+	  */
+		public String getSaveTypeFromParameters(Map parameterMap)
+		{
+			for ( Object key : parameterMap.keySet()) {
+				if ( String.valueOf(key).startsWith("command_") ) {
+					Object value = parameterMap.get(key);
+					if ( value != null && String.valueOf(parameterMap.get(key)).trim().length() > 0 ) {
+						return String.valueOf(key).substring("command_".length());
+					}
+				}
+			}
+			return null;
+		}
 
 	/**
 	 * Get the globalised page name
