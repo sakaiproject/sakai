@@ -90,7 +90,7 @@ public class ShowAttachmentMediaServlet extends HttpServlet
 	String mimeType = req.getParameter("mimeType");
 	String filename = req.getParameter("filename");
 
-	String cleanedFilename = FormattedText.processFormattedText(filename, new StringBuffer());
+	String cleanedFilename = FormattedText.processFormattedText(filename, new StringBuilder());
 	
     res.setHeader("Content-Disposition", "inline;filename=\"" + cleanedFilename +"\";");
     log.debug("resourceId = " + resourceId);
