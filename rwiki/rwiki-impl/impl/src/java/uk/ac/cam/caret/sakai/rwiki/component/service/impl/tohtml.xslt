@@ -30,19 +30,28 @@
       
                 <link href="/sakai-rwiki-tool/styles/wikiStyle.css" type="text/css" rel="stylesheet"
                     media="all"/>
-                    
-                <script type="text/javascript" src="/sakai-rwiki-tool/scripts/stateswitcher.js"> </script>
-                <script type="text/javascript" src="/sakai-rwiki-tool/scripts/ajaxpopup.js"> </script>
-                <script type="text/javascript" src="/sakai-rwiki-tool/scripts/asyncload.js"> </script>
-                <script type="text/javascript" src="/sakai-rwiki-tool/scripts/logger.js"> </script>
-                <link type="application/rss+xml" href="/access/wiki{/entity-service/entity/properties/property[@name='realm']}/-.10.rss" title="Sakai Wiki RSS" rel="alternate"/>
-             
-                <link href="{/entity-service/request-properties/request-attributes/request-attribute[@name='sakai.skin.repo']/value}/tool_base.css" type="text/css" rel="stylesheet"
-                    media="all"/>
-                <link href="{/entity-service/request-properties/request-attributes/request-attribute[@name='sakai.skin.repo']/value}/{/entity-service/request-properties/request-attributes/request-attribute[@name='sakai.skin']/value}/tool.css" type="text/css" rel="stylesheet"
-                    media="all"/>
-                <script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"/>
-                <xsl:text disable-output-escaping="yes" >
+				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/stateswitcher.js">
+					<xsl:text>// non-empty script node ensures non-minimized tag is produced (SAK-14388)</xsl:text>
+				</script>
+				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/ajaxpopup.js">
+					<xsl:text>// non-empty script node ensures non-minimized tag is produced (SAK-14388)</xsl:text>
+				</script>
+				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/asyncload.js">
+					<xsl:text>// non-empty script node ensures non-minimized tag is produced (SAK-14388)</xsl:text>
+				</script>
+				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/logger.js">
+					<xsl:text>// non-empty script node ensures non-minimized tag is produced (SAK-14388)</xsl:text>
+				</script>
+				<link type="application/rss+xml" href="/wiki{/entity-service/entity/properties/property[@name='realm']}/-.10.rss" title="Sakai Wiki RSS" rel="alternate"/>
+               
+				<link href="{/entity-service/request-properties/request-attributes/request-attribute[@name='sakai.skin.repo']/value}/tool_base.css" type="text/css" rel="stylesheet"
+					media="all"/>
+				<link href="{/entity-service/request-properties/request-attributes/request-attribute[@name='sakai.skin.repo']/value}/{/entity-service/request-properties/request-attributes/request-attribute[@name='sakai.skin']/value}/tool.css" type="text/css" rel="stylesheet"
+					media="all"/>
+				<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js">
+					<xsl:text>// non-empty script node ensures non-minimized tag is produced (SAK-14388)</xsl:text>
+				</script>
+				<xsl:text disable-output-escaping="yes" >
                 <![CDATA[
 				<!--[if IE 6]>
 				<link href="/sakai-rwiki-tool/styles/wikiStyleIE6.css" type="text/css" rel="stylesheet" media="all" > </link>

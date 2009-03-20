@@ -48,6 +48,16 @@ limitations under the License.
     <module>rwiki-tool/tool</module>
     <module>rwiki-access-tool</module>
   </modules>
+
+  <profiles>
+    <profile>
+      <id>was</id>
+      <modules>
+        <module>rwiki-impl/rwiki-shared-serializer</module>
+      </modules>
+    </profile>
+  </profiles>
+
   <dependencyManagement>
     <dependencies>
       <dependency>

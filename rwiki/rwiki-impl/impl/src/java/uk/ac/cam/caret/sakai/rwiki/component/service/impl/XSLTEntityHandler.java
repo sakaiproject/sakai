@@ -105,6 +105,11 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	/**
 	 * dependency
 	 */
+	private String xalan270ContentHandler = null;
+
+	/**
+	 * dependency
+	 */
 	private RenderService renderService = null;
 
 	/**
@@ -890,6 +895,12 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 			TransformerHandler th = xsltTransform.getContentHandler();
 
 			Properties p = OutputPropertiesFactory.getDefaultMethodProperties("xml");
+		
+			// SAK-14388 - use the alternate XHTMLSerializer2 for Websphere environments
+			if ("websphere".equals(ServerConfigurationService.getString("servlet.container")))
+			{
+				outputProperties.put("{http://xml.apache.org/xalan}content-handler", getXalan270ContentHandler());		 
+			}
 			p.putAll(outputProperties);
 			
 			/*
@@ -1202,4 +1213,24 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	{
 		this.breadCrumbParameter = breadCrumbParameter;
 	}
+	
+	/**
+	 * @return the xalan270ContentHandler
+	 */
+	public String getXalan270ContentHandler()
+	{
+		return xalan270ContentHandler;
+	}
+
+	/**
+	 * @param xalan270ContentHandler
+	 *        the xalan270ContentHandler to set
+	 */
+	public void setXalan270ContentHandler(String xalan270ContentHandler)
+	{
+		this.xalan270ContentHandler = xalan270ContentHandler;
+	}
+	
+	
+	
 }
