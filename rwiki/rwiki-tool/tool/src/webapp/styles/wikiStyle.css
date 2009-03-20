@@ -654,6 +654,14 @@ a:hover.rwiki_help_popup_link, a:active.rwiki_help_popup_link    {
 	border-right: 1px solid #ccc;
 }
 
+.rwikicommentbody_6{
+	margin: .25em;
+	margin-left: 105px;
+	font-size: 85%;
+	border-bottom: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+}
+
 
 .rwikicommentheader{
 	border-bottom: 1px solid #ccc;
