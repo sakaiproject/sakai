@@ -21,7 +21,7 @@
 	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
 	    ##  $homeBean $viewBean $resourceLoaderBean )
 	    ##            uhl  upl  uvl  vln    uel   uil  uhl  uwl  wn
-	  	 #commandlinks(true true true "View"	false  true false false ${requestScope.Withnotification}	${homeBean} ${realmBean} ${rlb} ) 
+	  	 #commandlinks(true true true ${rlb.jsp_view}	false  true false false ${requestScope.Withnotification}	${homeBean} ${realmBean} ${rlb} ) 
 	    <span class="rwiki_searchBox">
 	      ${rlb.jsp_search}:	
 	      <input type="hidden" name="action" value="${util.escapeHtml($requestScope.SearchTarget)}" />
