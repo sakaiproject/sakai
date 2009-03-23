@@ -32,6 +32,7 @@ public class ConfirmedFriends extends Panel {
 	private transient SakaiProxy sakaiProxy;
 	private transient Profile profile; 
 	private int numConfirmedFriends = 0;
+	private boolean updateable = false;
 	
 	public ConfirmedFriends(final String id, final String userX) {
 		super(id);
@@ -47,6 +48,10 @@ public class ConfirmedFriends extends Panel {
 		
 		//get id of user viewing this page (will be the same if user is viewing own list, different if viewing someone else's)
 		final String userY = sakaiProxy.getCurrentUserId();
+		
+		if(userX.equals(userY)) {
+			updateable = true;
+		}
 		
 		//get our list of confirmed friends as an IDataProvider
 		ConfirmedFriendsDataProvider provider = new ConfirmedFriendsDataProvider(userX);
@@ -67,7 +72,7 @@ public class ConfirmedFriends extends Panel {
 		final WebMarkupContainer confirmedFriendsHeading = new WebMarkupContainer("confirmedFriendsHeading");
 		Label confirmedFriendsLabel = new Label("confirmedFriendsLabel");
 		//if viewing own list, "my friends", else, "their name's friends"
-		if(userX.equals(userY)) {
+		if(updateable) {
 			confirmedFriendsLabel.setModel(new ResourceModel("heading.friends.my"));
 		} else {
 			String displayName = sakaiProxy.getUserDisplayName(userX);
@@ -116,7 +121,7 @@ public class ConfirmedFriends extends Panel {
 		    	boolean friend;
 		    	
 		    	//get friend status
-		    	if(userX.equals(userY)) {
+		    	if(updateable) {
 		    		friend = true; //viewing own list of confirmed fiends so must be a friend
 		    	} else {
 		    		friend = profile.isUserXFriendOfUserY(userY, friendId); //other person viewing, check if they are friends
@@ -161,6 +166,12 @@ public class ConfirmedFriends extends Panel {
 				removeFriendLink.add(removeFriendIcon);
 				removeFriendLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.removefriend")));
 				item.add(removeFriendLink);
+				
+				//can only delete if own friends
+				if(!updateable) {
+					removeFriendLink.setEnabled(true);
+					removeFriendLink.setVisible(false);
+				}
 				
 				// REMOVE FRIEND MODAL WINDOW HANDLER 
 				removeFriendWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
