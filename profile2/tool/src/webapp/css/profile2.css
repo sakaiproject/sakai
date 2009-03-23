@@ -522,12 +522,13 @@ h2 {
 	border-left: 1px solid #d0d0df;
 	border-right: 1px solid #d0d0df;
 	border-top: 1px solid #d0d0df;
+	width: 500px;
 }
 
 .friendsListItem {
 	display:block;
 	border-bottom: 1px solid #d0d0df;
-	width: 500px;
+	border-collapse: collapse;
 	height: 120px;
 	padding-top: 5px;
 	padding-left: 5px;

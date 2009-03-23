@@ -49,6 +49,7 @@ public class ConfirmedFriends extends Panel {
 		//get id of user viewing this page (will be the same if user is viewing own list, different if viewing someone else's)
 		final String userY = sakaiProxy.getCurrentUserId();
 		
+		//if viewing own friends, you can manage them.
 		if(userX.equals(userY)) {
 			updateable = true;
 		}
