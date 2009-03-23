@@ -24,6 +24,7 @@ import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfileIllegalAccessException;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.components.FocusOnLoadBehaviour;
+import uk.ac.lancs.e_science.profile2.tool.components.ProfileImageRenderer;
 import uk.ac.lancs.e_science.profile2.tool.models.FriendAction;
 import uk.ac.lancs.e_science.profile2.tool.pages.ViewProfile;
 
@@ -39,7 +40,7 @@ public class ConfirmFriend extends Panel {
 	 * userY is the user who's friend request we are accepting
 	 */
 	
-	public ConfirmFriend(String id, final ModalWindow window, final FriendAction friendActionModel, final String userX, final String userY, final byte[] image){
+	public ConfirmFriend(String id, final ModalWindow window, final FriendAction friendActionModel, final String userX, final String userY){
         super(id);
 
         //get API's
@@ -55,15 +56,12 @@ public class ConfirmFriend extends Panel {
 		window.setInitialWidth(500);
 		window.setResizable(false);
 		
-		//image (already set just need to use it/use default)
-    	if(image != null && image.length > 0){
-			BufferedDynamicImageResource photoResource = new BufferedDynamicImageResource(){
-				private static final long serialVersionUID = 1L;
-				protected byte[] getImageData() {
-					return image;
-				}
-			};
-			add(new Image("image",photoResource));
+		//is this user allowed to view this person's profile image?
+		boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(userY, userX, false);
+		
+		//image
+		if(isProfileImageAllowed) {
+			add(new ProfileImageRenderer("image", userY, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, true));
 		} else {
 			add(new ContextImage("image",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
 		}
