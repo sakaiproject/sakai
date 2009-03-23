@@ -112,7 +112,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
   // configuration XML file location
     protected String m_databaseXml;
     protected String m_siteConfigXml;
-  
+
     // metasearch engine parameters
     protected String m_metasearchUsername;
     protected String m_metasearchPassword;
@@ -386,7 +386,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 
   /**
    * Get the maximum number of databases we can search at one time
-   * @return The maximum value (defaults to <code>SEARCHABLE_DATABASES</code> 
+   * @return The maximum value (defaults to <code>SEARCHABLE_DATABASES</code>
    *                            if no other value is specified)
    */
   public synchronized int getSiteConfigMaximumSearchableDBs()
@@ -409,11 +409,11 @@ public class BaseConfigurationService implements ConfigurationService, Observer
       if (searchableDbs <= 0)
       {
         throw new NumberFormatException(configValue);
-      }                                              
+      }
     }
     catch (NumberFormatException exception)
     {
-      m_log.debug("Maximum searchable database exception: " 
+      m_log.debug("Maximum searchable database exception: "
               +   exception.toString());
 
       searchableDbs = SEARCHABLE_DATABASES;
@@ -432,8 +432,8 @@ public class BaseConfigurationService implements ConfigurationService, Observer
    * <li> "title-link" (provide the preferred URL as the title link)
    * <li> "related-link" (provide as a related link, not as the title link)
    *</ul>
-   * Note: "false" is the default value if nothing is specified in the 
-   *       configuration file 
+   * Note: "false" is the default value if nothing is specified in the
+   *       configuration file
    *
    * @return "related-link", "title-link", or "false"
    */
@@ -445,23 +445,23 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     {
       return "false";
     }
-    
+
     value = value.trim().toLowerCase();
-    
-    if (!(value.equals("false") || 
-          value.equals("related-link") || 
+
+    if (!(value.equals("false") ||
+          value.equals("related-link") ||
           value.equals("title-link")))
     {
-      m_log.debug("Invalid value for <provide-direct-url>: \"" 
-                  + value 
-                  + "\", using \"false\""); 
+      m_log.debug("Invalid value for <provide-direct-url>: \""
+                  + value
+                  + "\", using \"false\"");
       value = "false";
     }
     return value;
   }
 
   /**
-   * Prefix string for "preferred" URLs (when used as title or related links).  
+   * Prefix string for "preferred" URLs (when used as title or related links).
    *
    * This is likely to be the proxy information for the direct URL.
    *
@@ -719,10 +719,10 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 
       saveParameter(document, parameterMap, "openurl-label");
       saveParameter(document, parameterMap, "openurl-resolveraddress");
-      
+
       saveParameter(document, parameterMap, "provide-direct-url");
       saveParameter(document, parameterMap, "direct-url-prefix");
-      
+
       saveParameter(document, parameterMap, "google-baseurl");
       saveParameter(document, parameterMap, "sakai-serverkey");
 
@@ -893,6 +893,10 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     {
       // no need to create
         m_log.info("init() site " + this.m_adminSiteName + " already exists");
+    }
+    else if(!m_serverConfigurationService.getBoolean("citationsAdmin.autocreate", true)) {
+     	//do not autocreate
+     	m_log.info("init() skipping autocreate of citationsAdmin site");
     }
     else
     {
