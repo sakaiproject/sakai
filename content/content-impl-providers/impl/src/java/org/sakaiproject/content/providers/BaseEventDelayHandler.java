@@ -28,12 +28,12 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 	private boolean autoDdl;
 
 	private static final Log LOG = LogFactory.getLog(BaseEventDelayHandler.class);
-	private static final String DELAY_WRITE_SQL = "insert into SAKAI_EVENT_DELAY (EVENT, MODIFY, PRIORITY, RESOURCE, USER_ID) VALUES (?, ?, ?, ?, ?)";
-	private static final String DELAY_READ_SQL = "select EVENT_DELAY_ID, EVENT, MODIFY, PRIORITY, RESOURCE, USER_ID from SAKAI_EVENT_DELAY where EVENT_DELAY_ID = ?";
-	private static final String DELAY_FIND_FINE_SQL = "select EVENT_DELAY_ID, EVENT, MODIFY, PRIORITY, RESOURCE, USER_ID from SAKAI_EVENT_DELAY where EVENT = ? and MODIFY = ? and PRIORITY = ? and RESOURCE = ? and USER_ID = ?";
-	private static final String DELAY_FIND_EVENT_SQL = "select EVENT_DELAY_ID, EVENT, MODIFY, PRIORITY, RESOURCE, USER_ID from SAKAI_EVENT_DELAY where EVENT = ? and MODIFY = ? and PRIORITY = ? and RESOURCE = ?";
-	private static final String DELAY_FIND_BY_RESOURCE_SQL = "select EVENT_DELAY_ID from SAKAI_EVENT_DELAY where RESOURCE = ?";
-	private static final String DELAY_FIND_BY_RESOURCE_EVENT_SQL = "select EVENT_DELAY_ID from SAKAI_EVENT_DELAY where RESOURCE = ? and EVENT = ?";
+	private static final String DELAY_WRITE_SQL = "insert into SAKAI_EVENT_DELAY (EVENT, MODIFY, PRIORITY, REF, USER_ID) VALUES (?, ?, ?, ?, ?)";
+	private static final String DELAY_READ_SQL = "select EVENT_DELAY_ID, EVENT, MODIFY, PRIORITY, REF, USER_ID from SAKAI_EVENT_DELAY where EVENT_DELAY_ID = ?";
+	private static final String DELAY_FIND_FINE_SQL = "select EVENT_DELAY_ID, EVENT, MODIFY, PRIORITY, REF, USER_ID from SAKAI_EVENT_DELAY where EVENT = ? and MODIFY = ? and PRIORITY = ? and REF = ? and USER_ID = ?";
+	private static final String DELAY_FIND_EVENT_SQL = "select EVENT_DELAY_ID, EVENT, MODIFY, PRIORITY, REF, USER_ID from SAKAI_EVENT_DELAY where EVENT = ? and MODIFY = ? and PRIORITY = ? and REF = ?";
+	private static final String DELAY_FIND_BY_REF_SQL = "select EVENT_DELAY_ID from SAKAI_EVENT_DELAY where REF = ?";
+	private static final String DELAY_FIND_BY_REF_EVENT_SQL = "select EVENT_DELAY_ID from SAKAI_EVENT_DELAY where REF = ? and EVENT = ?";
 	private static final String DELAY_DELETE_SQL = "delete from SAKAI_EVENT_DELAY where EVENT_DELAY_ID = ?";
 
 	private SqlService sqlService;
@@ -91,7 +91,7 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 						Event e = null;
 						try
 						{
-							// EVENT_DELAY_ID, EVENT, MODIFY, PRIORITY, RESOURCE, USER_ID
+							// EVENT_DELAY_ID, EVENT, MODIFY, PRIORITY, REF, USER_ID
 							e = new ReEvent(result.getString(2), result.getBoolean(3), result
 									.getInt(4), result.getString(5), result.getString(6));
 						}
@@ -149,7 +149,7 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 	public List<String> findDelayIds(String resource, String event)
 	{
 		Object[] fields = new Object[] { resource, event };
-		List<String> ids = sqlService.dbRead(DELAY_FIND_BY_RESOURCE_EVENT_SQL, fields, null);
+		List<String> ids = sqlService.dbRead(DELAY_FIND_BY_REF_EVENT_SQL, fields, null);
 		return ids;
 	}
 
@@ -159,7 +159,7 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 	public List<String> findDelayIds(String resource)
 	{
 		Object[] fields = new Object[] { resource };
-		List<String> ids = sqlService.dbRead(DELAY_FIND_BY_RESOURCE_SQL, fields, null);
+		List<String> ids = sqlService.dbRead(DELAY_FIND_BY_REF_SQL, fields, null);
 		return ids;
 	}
 
