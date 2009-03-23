@@ -764,6 +764,25 @@ you loose the native buttonishness affordance of the os/browser */
 	background: #fff;
 }
 
+/*see: forum/statistics --> display in thread */
+.hierItemBlockBold{
+	padding: 0 .5em .5em .5em;
+	border: 2px solid black;
+	margin-top: .5em;
+	margin-bottom: .5em;
+	width:auto;
+	background: #fff;
+}
+
+/*see: forum/statistics-->display in thread*/
+.hierItemBlockBold h4.textPanelHeaderBold{
+	border-bottom: 2px solid black;	
+	margin: 0 -.4em 1.0em -.4em;
+	padding:.5em;
+	background: #ffd !important;
+}
+
+
 table.hierItemBlock td{
 	width:100%;
 }
@@ -783,6 +802,8 @@ table.hierItemBlock td h4,table.hierItemBlock td h5,table.hierItemBlock td h6,
 	padding:.5em;
 	background: #ffd !important;
 }
+
+
 
 .hierItemBlockChild{
 	margin:.5em 0;
