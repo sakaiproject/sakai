@@ -8,6 +8,17 @@ img{
 	display: none;
 }
 
-.addAttendee{
+.addAttendee, .addWaiter{
 	display: none;
+}
+.instruction{
+	display:none;
+}
+.emailTable{
+	display:none;
+}
+
+table.signupTable{
+	border: solid;
+	border-width: thin;	
 }

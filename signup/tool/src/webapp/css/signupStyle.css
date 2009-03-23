@@ -296,6 +296,14 @@ table.preSignTable td {
 	font-size: 90%;
 }
 
+table.instruction td.note{
+	vertical-align: top;
+}
+
+table.instruction td.desc{
+	padding-left:13px;
+}
+
 .alertMessageInline {
 	width: 80%;
 	font-size: 1em;
@@ -385,5 +393,3 @@ table.emailTable td.valueColumn {
 	margin-top:-8px; 
 	margin-left:-5px;
 }
-
-

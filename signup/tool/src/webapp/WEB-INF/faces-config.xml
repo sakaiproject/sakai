@@ -20,6 +20,11 @@
 			<from-outcome>addMeeting</from-outcome>
 			<to-view-id>/signup/newMeeting/step1.jsp</to-view-id>
 		</navigation-case>
+		
+		<navigation-case>
+			<from-outcome>doPermission</from-outcome>
+			<to-view-id>/signup/updatePermission.jsp</to-view-id>
+		</navigation-case>
 				
 		<navigation-case>
 			<from-outcome>*</from-outcome>
@@ -227,6 +232,16 @@
 		<managed-bean-scope>session</managed-bean-scope>
 	</managed-bean>
 	
+	<managed-bean>
+        <managed-bean-name>SignupPermissionsUpdateBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.signup.tool.jsf.SignupPermissionsUpdateBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<property-name>sakaiFacade</property-name>
+			<value>#{org_sakaiproject_signup_logic_SakaiFacade}</value>
+		</managed-property>
+    </managed-bean>
+    
 	<validator>
     	<validator-id>Signup.EmptyStringValidator</validator-id>
     	<validator-class>org.sakaiproject.signup.tool.jsf.validator.EmptyStringValidator</validator-class>

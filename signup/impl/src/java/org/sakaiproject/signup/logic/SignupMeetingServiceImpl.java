@@ -179,9 +179,9 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry {
 			boolean allowedTodelete = true;
 			List<SignupGroup> signupGroups = site.getSignupGroups();
 			for (SignupGroup group : signupGroups) {
-				if (!sakaiFacade.isAllowedGroup(userId, SakaiFacade.SIGNUP_DELETE_GROUP, site.getSiteId(), group
-						.getGroupId())) {
-					allowedTodelete = false;
+				if (!(sakaiFacade.isAllowedGroup(userId, SakaiFacade.SIGNUP_DELETE_GROUP, site.getSiteId(), group.getGroupId()) 
+						|| sakaiFacade.isAllowedGroup(userId, SakaiFacade.SIGNUP_DELETE_GROUP_ALL, siteId, group.getGroupId()))) {
+				allowedTodelete = false;
 					break;
 				}
 			}
@@ -203,7 +203,9 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry {
 				if (sakaiFacade.isAllowedSite(userId, SakaiFacade.SIGNUP_UPDATE_SITE, site.getSiteId()))
 					return true;
 			}
-
+			/* Do we allow people with a group.all permission to update the meeting with a site scope?  
+			 * currently we allow them to update
+			 * */
 			if (sakaiFacade.isAllowedSite(userId, SakaiFacade.SIGNUP_UPDATE_GROUP_ALL, site.getSiteId())
 					|| sakaiFacade.isAllowedSite(userId, SakaiFacade.SIGNUP_UPDATE_SITE, site.getSiteId()))
 				return true;
@@ -326,8 +328,8 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry {
 
 				List<SignupGroup> signupGroups = site.getSignupGroups();
 				for (SignupGroup group : signupGroups) {
-					if (!sakaiFacade.isAllowedGroup(userId, SakaiFacade.SIGNUP_CREATE_GROUP, site.getSiteId(), group
-							.getGroupId()))
+					if (!(sakaiFacade.isAllowedGroup(userId, SakaiFacade.SIGNUP_CREATE_GROUP, site.getSiteId(), group.getGroupId()) 
+							|| sakaiFacade.isAllowedGroup(userId, SakaiFacade.SIGNUP_CREATE_GROUP_ALL, site.getSiteId(), group.getGroupId())))
 						return false;
 				}
 			}

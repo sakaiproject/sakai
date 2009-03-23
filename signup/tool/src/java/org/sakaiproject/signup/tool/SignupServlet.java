@@ -29,7 +29,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.jsf.util.JsfTool;
+import org.sakaiproject.jsf.util.HelperAwareJsfTool;
 
 /**
  * <p>
@@ -40,7 +40,7 @@ import org.sakaiproject.jsf.util.JsfTool;
  * </P>
  */
 @SuppressWarnings("serial")
-public class SignupServlet extends JsfTool {
+public class SignupServlet extends HelperAwareJsfTool {
 
 	private String headerPreContent;
 

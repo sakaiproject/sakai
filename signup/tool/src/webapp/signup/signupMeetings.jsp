@@ -12,6 +12,7 @@
 		<h:form id="addMeeting">
 			<sakai:tool_bar>
 				<sakai:tool_bar_item value="#{msgs.add_new_event}" action="#{SignupMeetingsBean.addMeeting}" rendered="#{SignupMeetingsBean.allowedToCreate}"/>
+				<sakai:tool_bar_item value="#{msgs.permission_feature_link}" action="#{SignupPermissionsUpdateBean.processPermission}" rendered="#{SignupPermissionsUpdateBean.showPermissionLink}"/>
 			</sakai:tool_bar>
 		</h:form>
 
