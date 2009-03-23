@@ -1,18 +1,14 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-list.vm,v 1.3 2005/05/28 03:04:36 ggolden.umich.edu Exp $ -->
-<script type="text/javascript" src="/library/js/jquery.js"></script>
-<script type="text/javascript" src="/library/js/jqmodal/jqModal.js"></script>
-<link type="text/css" href="/library/js/jqmodal/jqModal.css" rel="stylesheet" media="screen" />
+<script type="text/javascript" src="/library/js/jquery/jquery-ui/js/jquery.js"></script>
+<script type="text/javascript" src="/library/js/jquery/jquery-ui/js/jquery-ui.js"></script>
+<link type="text/css" href="/library/js/jquery/jquery-ui/css/smoothness/jquery-ui.css" rel="stylesheet" media="screen" />
 <script type="text/javascript" src="/sakai-site-manage-tool/js/site-manage.js"></script>
 <link type="text/css" href="/sakai-site-manage-tool/css/site-manage.css" rel="stylesheet" media="screen" />
-<div id="dialog" class="jqmWindow">
-    <a class="jqModalCloseClass" href="#">$tlang.getString("sitegen.siteinfolist.close")</a>
-    <div id="dialogChild">
-    </div>
-</div>
+<div id="dialog"></div>
 <script type="text/javascript">
     $(document).ready(function(){
-		setupSelectList('siteList','selunselallid','selectedSelected');
-		setupGetSiteDesc('getSiteDesc','$tlang.getString("sitegen.siteinfolist.nosd")','$tlang.getString("sitegen.siteinfolist.nold")');
+		sakai.getSiteInfo('getSiteDesc','dialog','$tlang.getString("sitegen.siteinfolist.nosd")','$tlang.getString("sitegen.siteinfolist.nold")');
+		sakai.setupSelectList('siteList','selunselallid','selectedSelected');
     });
 </script>
 <div class ="portletBody">

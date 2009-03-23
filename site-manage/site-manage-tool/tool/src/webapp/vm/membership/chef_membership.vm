@@ -1,19 +1,21 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/prefs/chef_membership.vm,v 1.10 2005/05/28 03:04:36 ggolden.umich.edu Exp $ -->
-<script type="text/javascript" src="/library/js/jquery.js"></script>
-<script type="text/javascript" src="/library/js/jqmodal/jqModal.js"></script>
+<script type="text/javascript" src="/library/js/jquery/jquery-ui/js/jquery.js"></script>
+<script type="text/javascript" src="/library/js/jquery/jquery-ui/js/jquery-ui.js"></script>
+<link type="text/css" href="/library/js/jquery/jquery-ui/css/smoothness/jquery-ui.css" rel="stylesheet" media="screen" />
+<!--
+<script type="text/javascript" src="/library/js/jquery/jquery-ui/jqModal.js"></script>
 <link type="text/css" href="/library/js/jqmodal/jqModal.css" rel="stylesheet" media="screen" />
+-->
 <script type="text/javascript" src="/sakai-site-manage-tool/js/site-manage.js"></script>
+
 <link type="text/css" href="/sakai-site-manage-tool/css/site-manage.css" rel="stylesheet" media="screen" />
-<div id="dialog" class="jqmWindow">
-    <a class="jqModalCloseClass" href="#">$tlang.getString("mb.close")</a>
-    <div id="dialogChild">
-    </div>
+<div id="dialog">
 </div>
 <script type="text/javascript">
     $(document).ready(function(){
-        setupMessageListener("messageHolder", "information messageInformation");
-		setupSelectList('currentSites','selunselallid','selectedSelected');
-		setupGetSiteDesc('getSiteDesc','$tlang.getString("mb.nosd")','$tlang.getString("mb.nold")');
+		sakai.getSiteInfo('getSiteDesc','dialog','$tlang.getString("mb.nosd")','$tlang.getString("mb.nold")');
+        sakai.setupMessageListener("messageHolder", "information messageInformation");
+		sakai.setupSelectList('currentSites','selunselallid','selectedSelected');
     });
 </script>
 
@@ -22,6 +24,7 @@
 	<li class="firstToolBarItem" role="menuitem" aria-disabled="true"><span class="current">$tlang.getString("mb.cursit")</span></li>
 	<li role="menuitem"><span><a href="#toolLink("$action" "doGoto_joinable")" title="$tlang.getString('mb.joisit')">$tlang.getString('mb.joisit')</a></span></li>
 </ul>
+
 	#if ($unjoinableSites.size() > 0 || $search.length() > 0)
 	<div class="navPanel">
 		<div class="viewNav">

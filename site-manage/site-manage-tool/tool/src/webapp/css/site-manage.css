@@ -1,54 +1,20 @@
 /*
-jqModal needs
+toggler needs
 */
-.jqmWindow {
-    background: #fff;
-    padding: 5px;
-}
-.jqmWindowMain {
-    border-top: 1px solid #ccc;
-    padding-top: 5px;
-    height: auto;
-    overflow: auto;
-    float: none;
-}
-.jqmWindowMainOverFlow {
-    height: 320px !important;
-    overflow: auto !important;
-}
-.jqModalCloseClass {
-    float: right;
-    padding: 3px
-}
 .toggleAnchor {
     border: 1px solid #cef;
     background: #cef !important;
     padding: 5px !important;
-    cursor: pointer
+    cursor: pointer;
+	outline:none;
 }
-/*
-toggler needs
-*/
- .toggleAnchor:hover, .toggleAnchorOpen:hover {
+ .toggleAnchor:hover{
     border: 1px solid #9cf;
-}
-.toggleAnchorOpen {
-    border: 1px solid #cef;
-    background: #cef !important;
-    padding: 5px !important;
-    cursor: pointer
 }
 .toggledContent {
     margin: 0;
     border: 2px solid #cef;
     border-top: none;
     padding: 1em
-}
-.toggledContent h4 {
-    color: #000 !important;
-    width: 40em;
-    margin: .5em 0 !important;
-    padding: .3em 0;
-    border-bottom: 2px solid #ccc
 }
 
