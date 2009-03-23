@@ -89,6 +89,7 @@ import org.sakaiproject.tool.messageforums.ui.DiscussionAreaBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionForumBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionMessageBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionTopicBean;
+import org.sakaiproject.tool.messageforums.ui.MessageForumStatisticsBean;
 import org.sakaiproject.tool.messageforums.ui.PermissionBean;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -301,6 +302,10 @@ public class DiscussionForumTool
   
   private int forumClickCount = 0;
   private int topicClickCount = 0;
+  
+  private String selectedMsgId;
+  private MessageForumStatisticsBean selectedStaticsUserInfo;
+
   
   /**
    * 
@@ -6255,6 +6260,30 @@ public class DiscussionForumTool
 						+ "printFriendlyThread";
 	  }
 	 
+	 public String getPrintFriendlyAllAuthoredMsg()
+	  {
+		  return ServerConfigurationService.getToolUrl() + Entity.SEPARATOR
+						+ ToolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "discussionForum" 
+						+ Entity.SEPARATOR + "statistics" + Entity.SEPARATOR 
+						+ "printFriendlyAllAuthoredMsg";
+	  }
+	 
+	 public String getPrintFriendlyFullTextForOne()
+	  {
+		  return ServerConfigurationService.getToolUrl() + Entity.SEPARATOR
+						+ ToolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "discussionForum" 
+						+ Entity.SEPARATOR + "statistics" + Entity.SEPARATOR 
+						+ "printFriendlyFullTextForOne";
+	  }
+	 
+	 public String getPrintFriendlyDisplayInThread()
+	  {
+		  return ServerConfigurationService.getToolUrl() + Entity.SEPARATOR
+						+ ToolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "discussionForum" 
+						+ Entity.SEPARATOR + "statistics" + Entity.SEPARATOR 
+						+ "printFriendlyDisplayInThread";
+	  }
+	 
 	 public Boolean isMessageReadForUser(Long topicId, Long messageId)
 	 {
 		 return messageManager.isMessageReadForUser(topicId, messageId);
@@ -6305,4 +6334,43 @@ public class DiscussionForumTool
 	 public boolean getShowForumLinksInNav() {
 		 return showForumLinksInNav;
 	 }
+	 
+	 public String processActionShowFullTextForAll() {
+		 return "dfStatisticsAllAuthoredMessageForOneUser";
+	 }
+
+	 public String processActionDisplayInThread() {
+
+		 String topicId = getExternalParameterByKey("topicId");
+		 selectedMsgId = getExternalParameterByKey("msgId");
+		 DiscussionTopic topic = forumManager.getTopicById(Long.valueOf(topicId));
+		 setSelectedForumForCurrentTopic(topic);		
+		 selectedTopic = getDecoratedTopic(topic);
+
+		 return "dfStatisticsDisplayInThread";
+	 }
+
+	 public MessageForumStatisticsBean getSelectedStaticsUserInfo() {
+		 return selectedStaticsUserInfo;
+	 }
+
+	 public void setSelectedStaticsUserInfo(
+			 MessageForumStatisticsBean selectedStaticsUserInfo) {
+		 this.selectedStaticsUserInfo = selectedStaticsUserInfo;
+	 }
+
+	 public String processActionDisplayFullText() {
+		 return "dfStatisticsFullTextForOne";
+	 }
+
+	 public String getSelectedMsgId() {
+		 return selectedMsgId;
+	 }
+
+	 public void setSelectedMsgId(String selectedMsgId) {
+		 this.selectedMsgId = selectedMsgId;
+	 }
+	 
+	 
+	 
 }

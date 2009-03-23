@@ -27,9 +27,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.faces.event.ActionEvent;
@@ -165,8 +168,14 @@ public class MessageForumStatisticsBean {
 		private String siteUser;
 		private String siteUserId;
 		private String forumTitle;
+		private String topicTitle;
 		private Date forumDate;
 		private String forumSubject;
+		private String message;
+		private String msgId;
+		private String topicId;
+		private Boolean msgDeleted;
+		private String forumId;
 		
 		public String getSiteName(){
 			return this.siteName;
@@ -223,6 +232,54 @@ public class MessageForumStatisticsBean {
 		public void setForumSubject(String newValue){
 			this.forumSubject = newValue;
 		}
+
+		public String getTopicTitle() {
+			return topicTitle;
+		}
+
+		public void setTopicTitle(String topicTitle) {
+			this.topicTitle = topicTitle;
+		}
+
+		public String getMessage() {
+			return message;
+		}
+
+		public void setMessage(String message) {
+			this.message = message;
+		}
+
+		public String getMsgId() {
+			return msgId;
+		}
+
+		public void setMsgId(String msgId) {
+			this.msgId = msgId;
+		}
+
+		public String getTopicId() {
+			return topicId;
+		}
+
+		public void setTopicId(String topicId) {
+			this.topicId = topicId;
+		}
+
+		public Boolean getMsgDeleted() {
+			return msgDeleted;
+		}
+
+		public void setMsgDeleted(Boolean msgDeleted) {
+			this.msgDeleted = msgDeleted;
+		}
+
+		public String getForumId() {
+			return forumId;
+		}
+
+		public void setForumId(String forumId) {
+			this.forumId = forumId;
+		}
 	}
 	/* === End DecoratedCompiledUserStatistics == */
 	
@@ -232,7 +289,14 @@ public class MessageForumStatisticsBean {
 	
 	private Map courseMemberMap;
 	protected boolean ascending = true;
+	protected boolean ascendingForUser = false;
+	protected boolean ascendingForUser2 = false;
+	protected boolean ascendingForUser3 = false;
 	protected String sortBy = NAME_SORT;
+	protected String sortByUser = FORUM_DATE_SORT;
+	protected String sortByUser2 = FORUM_DATE_SORT2;
+	protected String sortByUser3 = FORUM_DATE_SORT3;
+	
 	
 	private static final String LIST_PAGE = "dfStatisticsList";
 	private static final String NAME_SORT = "sort_by_name";
@@ -242,12 +306,38 @@ public class MessageForumStatisticsBean {
 	private static final String PERCENT_READ_SORT = "sort_by_percent_read";
 	private static final String SITE_USER_ID = "siteUserId";
 	private static final String SITE_USER = "siteUser";
+	private static final String FORUM_TITLE_SORT = "sort_by_forum_title";
+	private static final String TOPIC_TITLE_SORT = "sort_by_topic_title";
+	private static final String FORUM_DATE_SORT = "sort_by_forum_date";
+	private static final String FORUM_SUBJECT_SORT = "sort_by_forum_subject_2";
+	private static final String FORUM_TITLE_SORT2 = "sort_by_forum_title_2";
+	private static final String TOPIC_TITLE_SORT2 = "sort_by_topic_title_2";
+	private static final String FORUM_DATE_SORT2 = "sort_by_forum_date_2";
+	private static final String FORUM_SUBJECT_SORT2 = "sort_by_forum_subject_2";
+	private static final String FORUM_DATE_SORT3 = "sort_by_forum_date_3";
+	private static final String TOPIC_TITLE_SORT3 = "sort_by_forum_subject_3";
+
+	
+	
+	private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
 	
 	private static final String FORUM_STATISTICS = "dfStatisticsList";
 	private static final String FORUM_STATISTICS_USER = "dfStatisticsUser";
+	private static final String FORUM_STATISTICS_ALL_AUTHORED_MSG = "dfStatisticsAllAuthoredMessageForOneUser";
+	private static final String FORUM_STATISTICS_MSG = "dfStatisticsFullTextForOne";
+	
 	
 	public String selectedSiteUserId = null;
 	public String selectedSiteUser = null;
+	public String selectedMsgId= null;
+	public String selectedMsgSubject= null;
+	public String selectedForumTitle= null;
+	public String selectedTopicTitle= null;
+	public String selectedTopicId= null;
+		
+	private String buttonUserName;
+	private boolean isFirstParticipant = false;
+	private boolean isLastParticipant = false;
 	
 	//Comparatibles
 	public static Comparator NameComparatorAsc;
@@ -261,6 +351,17 @@ public class MessageForumStatisticsBean {
 	public static Comparator UnreadComparatorDesc;
 	public static Comparator PercentReadComparatorDesc;
 	public static Comparator DateComparaterDesc;
+	public static Comparator ForumTitleComparatorAsc;
+	public static Comparator ForumTitleComparatorDesc;
+	public static Comparator TopicTitleComparatorAsc;
+	public static Comparator TopicTitleComparatorDesc;
+	public static Comparator ForumDateComparatorAsc;
+	public static Comparator ForumDateComparatorDesc;
+	public static Comparator ForumSubjectComparatorAsc;
+	public static Comparator ForumSubjectComparatorDesc;
+	
+	
+
 	
 	public Map getCourseMemberMap(){
 		return this.courseMemberMap;
@@ -405,16 +506,108 @@ public class MessageForumStatisticsBean {
 						if(mes.getCreatedBy().equals(selectedSiteUserId)){
 							userAuthoredInfo = new DecoratedCompiledUserStatistics();
 							userAuthoredInfo.setSiteUserId(selectedSiteUserId);
-							userAuthoredInfo.setForumTitle(topic.getTitle());
+							userAuthoredInfo.setForumTitle(df.getTitle());
+							userAuthoredInfo.setTopicTitle(topic.getTitle());
 							userAuthoredInfo.setForumDate(mes.getCreated());
 							userAuthoredInfo.setForumSubject(mes.getTitle());
+							userAuthoredInfo.setMsgId(Long.toString(mes.getId()));
+							userAuthoredInfo.setTopicId(Long.toString(topic.getId()));
+							userAuthoredInfo.setForumId(Long.toString(df.getId()));
 							statistics.add(userAuthoredInfo);
 						}
 					}
 				}
 			}
 		}
-		Collections.sort(statistics, DateComparaterDesc);
+		sortStatisticsByUser(statistics);
+		return statistics;
+	}
+	
+	public List getUserAuthoredStatistics2(){
+		final List statistics = new ArrayList();
+		
+		//get all of the forum topics user has authored
+		final List topicsList = forumManager.getDiscussionForums();
+
+		final Iterator forumIter = topicsList.iterator();
+
+		while (forumIter.hasNext()) {
+			final DiscussionForum df = (DiscussionForum) forumIter.next();
+
+			final List topics = df.getTopics();
+			final Iterator topicIter = topics.iterator();
+
+			while (topicIter.hasNext()) {
+				final Topic topic = (Topic) topicIter.next();
+				
+				if (uiPermissionsManager.isRead((DiscussionTopic) topic, df)) {
+					List messageList = messageManager.findMessagesByTopicId(topic.getId());
+					final Iterator messageIter = messageList.iterator();
+					while(messageIter.hasNext()){
+						final Message mes = (Message) messageIter.next();
+						
+						if(mes.getCreatedBy().equals(selectedSiteUserId)){
+							userAuthoredInfo = new DecoratedCompiledUserStatistics();
+							userAuthoredInfo.setSiteUserId(selectedSiteUserId);
+							userAuthoredInfo.setForumTitle(df.getTitle());
+							userAuthoredInfo.setTopicTitle(topic.getTitle());
+							userAuthoredInfo.setForumDate(mes.getCreated());
+							userAuthoredInfo.setForumSubject(mes.getTitle());
+							userAuthoredInfo.setMessage(mes.getBody());
+							userAuthoredInfo.setMsgId(Long.toString(mes.getId()));
+							userAuthoredInfo.setTopicId(Long.toString(topic.getId()));
+							userAuthoredInfo.setMsgDeleted(mes.getDeleted());
+							statistics.add(userAuthoredInfo);
+						}
+					}
+				}
+			}
+		}
+		sortStatisticsByUser3(statistics);
+		return statistics;
+	}
+	
+	public List getUserSubjectMsgBody(){
+		final List statistics = new ArrayList();
+		
+		//get all of the forum topics user has authored
+		final List topicsList = forumManager.getDiscussionForums();
+
+		final Iterator forumIter = topicsList.iterator();
+
+		while (forumIter.hasNext()) {
+			final DiscussionForum df = (DiscussionForum) forumIter.next();
+
+			final List topics = df.getTopics();
+			final Iterator topicIter = topics.iterator();
+
+			while (topicIter.hasNext()) {
+				final Topic topic = (Topic) topicIter.next();
+				
+				if (uiPermissionsManager.isRead((DiscussionTopic) topic, df)) {
+					List messageList = messageManager.findMessagesByTopicId(topic.getId());
+					final Iterator messageIter = messageList.iterator();
+					while(messageIter.hasNext()){
+						final Message mes = (Message) messageIter.next();
+						
+						if(mes.getId().equals((new Long(selectedMsgId)))){
+							userAuthoredInfo = new DecoratedCompiledUserStatistics();
+							userAuthoredInfo.setSiteUserId(selectedSiteUserId);
+							userAuthoredInfo.setForumTitle(df.getTitle());
+							userAuthoredInfo.setTopicTitle(topic.getTitle());
+							userAuthoredInfo.setForumDate(mes.getCreated());
+							userAuthoredInfo.setForumSubject(mes.getTitle());
+							userAuthoredInfo.setMessage(mes.getBody());
+							userAuthoredInfo.setMsgId(selectedMsgId);
+							userAuthoredInfo.setTopicId(Long.toString(topic.getId()));
+							userAuthoredInfo.setMsgDeleted(mes.getDeleted());
+														
+							statistics.add(userAuthoredInfo);
+						}
+					}
+				}
+			}
+		}
 		return statistics;
 	}
 	
@@ -445,7 +638,8 @@ public class MessageForumStatisticsBean {
 						if(status != null){
 							userAuthoredInfo = new DecoratedCompiledUserStatistics();
 							userAuthoredInfo.setSiteUserId(selectedSiteUserId);
-							userAuthoredInfo.setForumTitle(topic.getTitle());
+							userAuthoredInfo.setForumTitle(df.getTitle());
+							userAuthoredInfo.setTopicTitle(topic.getTitle());
 							userAuthoredInfo.setForumDate(mes.getCreated());
 							userAuthoredInfo.setForumSubject(mes.getTitle());
 							statistics.add(userAuthoredInfo);
@@ -454,7 +648,7 @@ public class MessageForumStatisticsBean {
 				}
 			}
 		}
-		Collections.sort(statistics, DateComparaterDesc);
+		sortStatisticsByUser2(statistics);
 		return statistics;
 	}
 	
@@ -468,6 +662,25 @@ public class MessageForumStatisticsBean {
 		return statistics;
 	}
 	
+	private List sortStatisticsByUser(List statistics){
+		Comparator comparator = determineComparatorByUser();
+		Collections.sort(statistics, comparator);
+		return statistics;
+	}
+	
+	private List sortStatisticsByUser2(List statistics){
+		Comparator comparator = determineComparatorByUser2();
+		Collections.sort(statistics, comparator);
+		return statistics;
+	}
+	
+	private List sortStatisticsByUser3(List statistics){
+		Comparator comparator = determineComparatorByUser3();
+		Collections.sort(statistics, comparator);
+		return statistics;
+	}
+	
+	
 	public void toggleSort(String sortByType) {
 		if (sortBy.equals(sortByType)) {
 	       if (ascending) {
@@ -478,6 +691,45 @@ public class MessageForumStatisticsBean {
 	    } else {
 	    	sortBy = sortByType;
 	    	ascending = true;
+	    }
+	}
+	
+	public void toggleSortByUser(String sortByType) {
+		if (sortByUser.equals(sortByType)) {
+	       if (ascendingForUser) {
+	    	   ascendingForUser = false;
+	       } else {
+	    	   ascendingForUser = true;
+	       }
+	    } else {
+	    	sortByUser = sortByType;
+	    	ascendingForUser = true;
+	    }
+	}
+	
+	public void toggleSortByUser2(String sortByType) {
+		if (sortByUser2.equals(sortByType)) {
+	       if (ascendingForUser2) {
+	    	   ascendingForUser2 = false;
+	       } else {
+	    	   ascendingForUser2 = true;
+	       }
+	    } else {
+	    	sortByUser2 = sortByType;
+	    	ascendingForUser2 = true;
+	    }
+	}
+	
+	public void toggleSortByUser3(String sortByType) {
+		if (sortByUser3.equals(sortByType)) {
+	       if (ascendingForUser3) {
+	    	   ascendingForUser3 = false;
+	       } else {
+	    	   ascendingForUser3 = true;
+	       }
+	    } else {
+	    	sortByUser3 = sortByType;
+	    	ascendingForUser3 = true;
 	    }
 	}
 	
@@ -505,6 +757,117 @@ public class MessageForumStatisticsBean {
 		toggleSort(PERCENT_READ_SORT);	    
 		return LIST_PAGE;
 	}
+	
+	
+	public String toggleForumTitleSort()	{    
+		toggleSortByUser(FORUM_TITLE_SORT);	    
+		return FORUM_STATISTICS_USER;
+	}
+
+	public boolean isForumTitleSort() {
+		if (sortByUser.equals(FORUM_TITLE_SORT))
+			return true;
+		return false;
+	}
+	
+	public String toggleTopicTitleSort()	{    
+		toggleSortByUser(TOPIC_TITLE_SORT);	    
+		return FORUM_STATISTICS_USER;
+	}
+
+	public boolean isTopicTitleSort() {
+		if (sortByUser.equals(TOPIC_TITLE_SORT))
+			return true;
+		return false;
+	}	
+	
+	public String toggleDateSort()	{    
+		toggleSortByUser(FORUM_DATE_SORT);	    
+		return FORUM_STATISTICS_USER;
+	}
+
+	public boolean isForumDateSort() {
+		if (sortByUser.equals(FORUM_DATE_SORT))
+			return true;
+		return false;
+	}	
+	
+	public String toggleSubjectSort()	{    
+		toggleSortByUser(FORUM_SUBJECT_SORT);	    
+		return FORUM_STATISTICS_USER;
+	}
+
+	public boolean isForumSubjectSort() {
+		if (sortByUser.equals(FORUM_SUBJECT_SORT))
+			return true;
+		return false;
+	}
+	
+	public String toggleForumTitleSort2()	{    
+		toggleSortByUser2(FORUM_TITLE_SORT2);	    
+		return FORUM_STATISTICS_USER;
+	}
+
+	public boolean isForumTitleSort2() {
+		if (sortByUser2.equals(FORUM_TITLE_SORT2))
+			return true;
+		return false;
+	}	
+	
+	public String toggleTopicTitleSort2()	{    
+		toggleSortByUser2(TOPIC_TITLE_SORT2);	    	
+		return FORUM_STATISTICS_USER;
+	}
+
+	public boolean isTopicTitleSort2() {
+		if (sortByUser2.equals(TOPIC_TITLE_SORT2))
+			return true;
+		return false;
+	}	
+	
+	public String toggleDateSort2()	{    
+		toggleSortByUser2(FORUM_DATE_SORT2);	    
+		return FORUM_STATISTICS_USER;
+	}
+
+	public boolean isForumDateSort2() {
+		if (sortByUser2.equals(FORUM_DATE_SORT2))
+			return true;
+		return false;
+	}
+	
+	public String toggleSubjectSort2()	{    
+		toggleSortByUser2(FORUM_SUBJECT_SORT2);	    
+		return FORUM_STATISTICS_USER;
+	}
+
+	public boolean isForumSubjectSort2() {
+		if (sortByUser2.equals(FORUM_SUBJECT_SORT2))
+			return true;
+		return false;
+	}
+	
+	public String toggleDateSort3()	{    
+		toggleSortByUser3(FORUM_DATE_SORT3);	    
+		return FORUM_STATISTICS_ALL_AUTHORED_MSG;
+	}
+
+	public boolean isForumDateSort3() {
+		if (sortByUser3.equals(FORUM_DATE_SORT3))
+			return true;
+		return false;
+	}	
+	
+	public String toggleTopicTitleSort3()	{    
+		toggleSortByUser3(TOPIC_TITLE_SORT3);	    	
+		return FORUM_STATISTICS_ALL_AUTHORED_MSG;
+	}
+
+	public boolean isTopicTitleSort3() {
+		if (sortByUser3.equals(TOPIC_TITLE_SORT3))
+			return true;
+		return false;
+	}	
 	
 	public boolean isNameSort() {
 		if (sortBy.equals(NAME_SORT))
@@ -540,6 +903,17 @@ public class MessageForumStatisticsBean {
 		return ascending;
 	}
 	
+	public boolean isAscendingForUser() {
+		return ascendingForUser;
+	}
+	
+	public boolean isAscendingForUser2() {
+		return ascendingForUser2;
+	}
+	
+	public boolean isAscendingForUser3() {
+		return ascendingForUser3;
+	}	
 	
 	private Comparator determineComparator(){
 		if(ascending){
@@ -570,8 +944,77 @@ public class MessageForumStatisticsBean {
 		//default return NameComparatorAsc
 		return NameComparatorAsc;
 	}
-
 	
+	private Comparator determineComparatorByUser(){
+		if(ascendingForUser){
+			if (sortByUser.equals(FORUM_TITLE_SORT)){
+				return ForumTitleComparatorAsc;
+			}else if (sortByUser.equals(FORUM_DATE_SORT)){
+				return ForumDateComparatorAsc;
+			}else if (sortByUser.equals(FORUM_SUBJECT_SORT)){
+				return ForumSubjectComparatorAsc;
+			}else if (sortByUser.equals(TOPIC_TITLE_SORT)){
+				return TopicTitleComparatorAsc;
+			}
+		}else{
+			if (sortByUser.equals(FORUM_TITLE_SORT)){
+				return ForumTitleComparatorDesc;
+			}else if (sortByUser.equals(FORUM_DATE_SORT)){
+				return ForumDateComparatorDesc;
+			}else if (sortByUser.equals(FORUM_SUBJECT_SORT)){
+				return ForumSubjectComparatorDesc;
+			}else if (sortByUser.equals(TOPIC_TITLE_SORT)){
+				return TopicTitleComparatorDesc;
+			}
+		}
+		//default return NameComparatorAsc
+		return ForumDateComparatorDesc;
+	}
+	
+	private Comparator determineComparatorByUser2(){
+		if(ascendingForUser2){
+			if (sortByUser2.equals(FORUM_TITLE_SORT2)){
+				return ForumTitleComparatorAsc;
+			}else if (sortByUser2.equals(FORUM_DATE_SORT2)){
+				return ForumDateComparatorAsc;
+			}else if (sortByUser2.equals(FORUM_SUBJECT_SORT2)){
+				return ForumSubjectComparatorAsc;
+			}else if (sortByUser2.equals(TOPIC_TITLE_SORT2)){
+				return TopicTitleComparatorAsc;
+			}
+		}else{
+			if (sortByUser2.equals(FORUM_TITLE_SORT2)){
+				return ForumTitleComparatorDesc;
+			}else if (sortByUser2.equals(FORUM_DATE_SORT2)){
+				return ForumDateComparatorDesc;
+			}else if (sortByUser2.equals(FORUM_SUBJECT_SORT2)){
+				return ForumSubjectComparatorDesc;
+			}else if (sortByUser2.equals(TOPIC_TITLE_SORT2)){
+				return TopicTitleComparatorDesc;
+			}
+		}
+		//default return NameComparatorAsc
+		return ForumDateComparatorDesc;
+	}
+	
+	private Comparator determineComparatorByUser3(){
+		if(ascendingForUser3){
+			if (sortByUser3.equals(TOPIC_TITLE_SORT3)){
+				return TopicTitleComparatorAsc;
+			}else if (sortByUser3.equals(FORUM_DATE_SORT3)){
+				return ForumDateComparatorAsc;
+			}
+		}else{
+			if (sortByUser3.equals(TOPIC_TITLE_SORT3)){
+				return TopicTitleComparatorDesc;
+			}else if (sortByUser3.equals(FORUM_DATE_SORT3)){
+				return ForumDateComparatorDesc;
+			}
+		}
+		//default return NameComparatorAsc
+		return ForumDateComparatorDesc;
+	}
+
 	
 	static {
 		/**
@@ -632,6 +1075,38 @@ public class MessageForumStatisticsBean {
 			}
 		};
 		
+		ForumTitleComparatorAsc = new Comparator(){
+			public int compare(Object item, Object anotherItem){
+				String title1 = ((DecoratedCompiledUserStatistics) item).getForumTitle().toUpperCase();
+				String title2 = ((DecoratedCompiledUserStatistics) anotherItem).getForumTitle().toUpperCase();
+				return title1.compareTo(title2);
+			}
+		};
+		
+		TopicTitleComparatorAsc = new Comparator(){
+			public int compare(Object item, Object anotherItem){
+				String title1 = ((DecoratedCompiledUserStatistics) item).getTopicTitle().toUpperCase();
+				String title2 = ((DecoratedCompiledUserStatistics) anotherItem).getTopicTitle().toUpperCase();
+				return title1.compareTo(title2);
+			}
+		};
+		
+		ForumDateComparatorAsc = new Comparator(){
+			public int compare(Object item, Object anotherItem){
+				Date date1 = ((DecoratedCompiledUserStatistics) item).getForumDate();
+				Date date2 = ((DecoratedCompiledUserStatistics) anotherItem).getForumDate();
+				return date1.compareTo(date2);
+			}
+		};
+		
+		ForumSubjectComparatorAsc = new Comparator(){
+			public int compare(Object item, Object anotherItem){
+				String subject1 = ((DecoratedCompiledUserStatistics) item).getForumSubject().toUpperCase();
+				String subject2 = ((DecoratedCompiledUserStatistics) anotherItem).getForumSubject().toUpperCase();
+				return subject1.compareTo(subject2);
+			}
+		};
+
 		AuthoredComparatorDesc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
 				int authored1 = ((DecoratedCompiledMessageStatistics) item).getAuthoredForumsAmt();
@@ -683,6 +1158,38 @@ public class MessageForumStatisticsBean {
 				return date2.compareTo(date1);
 			}
 		};
+		
+		ForumTitleComparatorDesc = new Comparator(){
+			public int compare(Object item, Object anotherItem){
+				String title1 = ((DecoratedCompiledUserStatistics) item).getForumTitle().toUpperCase();
+				String title2 = ((DecoratedCompiledUserStatistics) anotherItem).getForumTitle().toUpperCase();
+				return title2.compareTo(title1);
+			}
+		};
+		
+		TopicTitleComparatorDesc = new Comparator(){
+			public int compare(Object item, Object anotherItem){
+				String title1 = ((DecoratedCompiledUserStatistics) item).getTopicTitle().toUpperCase();
+				String title2 = ((DecoratedCompiledUserStatistics) anotherItem).getTopicTitle().toUpperCase();
+				return title2.compareTo(title1);
+			}
+		};
+		
+		ForumDateComparatorDesc = new Comparator(){
+			public int compare(Object item, Object anotherItem){
+				Date date1 = ((DecoratedCompiledUserStatistics) item).getForumDate();
+				Date date2 = ((DecoratedCompiledUserStatistics) anotherItem).getForumDate();
+				return date2.compareTo(date1);
+			}
+		};
+		
+		ForumSubjectComparatorDesc = new Comparator(){
+			public int compare(Object item, Object anotherItem){
+				String subject1 = ((DecoratedCompiledUserStatistics) item).getForumSubject().toUpperCase();
+				String subject2 = ((DecoratedCompiledUserStatistics) anotherItem).getForumSubject().toUpperCase();
+				return subject2.compareTo(subject1);
+			}
+		};
 	}
 	
 	/**
@@ -695,22 +1202,196 @@ public class MessageForumStatisticsBean {
 	public String processActionStatisticsUser()
 	{
 		LOG.debug("processActionStatisticsUser");
+		
 		selectedSiteUserId = getExternalParameterByKey(SITE_USER_ID);
 		selectedSiteUser = getExternalParameterByKey(SITE_USER);
+		
+		isLastParticipant = false;
+		isFirstParticipant = false;
+		
+		Map<String, String> userIdName = getUserIdName();
+		Set<String> userIdSet = userIdName.keySet();
+		String[] userIdArray =(String[]) userIdSet.toArray(new String[userIdSet.size()]);
+		int currentPosition = getCurrentPosition(userIdArray, selectedSiteUserId);
+		
+		if(currentPosition == 0) {
+			isFirstParticipant = true;
+		}
+		if(currentPosition == userIdArray.length - 1) {
+			isLastParticipant = true;
+		}
+		
 		return FORUM_STATISTICS_USER;
 	}
 	
+	public String processActionBackToUser() {
+		return FORUM_STATISTICS_USER;
+	}
 	
-	
-	
-	  // **************************************** helper methods**********************************
 
-	  private String getExternalParameterByKey(String parameterId)
-	  {    
-	    ExternalContext context = FacesContext.getCurrentInstance()
-	        .getExternalContext();
-	    Map paramMap = context.getRequestParameterMap();
-	    
-	    return (String) paramMap.get(parameterId);    
-	  }
+
+	// **************************************** helper methods**********************************
+
+	private String getExternalParameterByKey(String parameterId)
+	{    
+		ExternalContext context = FacesContext.getCurrentInstance()
+		.getExternalContext();
+		Map paramMap = context.getRequestParameterMap();
+
+		return (String) paramMap.get(parameterId);    
+	}
+
+
+	public String getButtonUserName() {
+		String userName;
+		String firstName;
+		String lastName;
+		int firstIndex = 0;
+		int secondIndex = 0;
+		firstIndex = selectedSiteUser.indexOf(",");
+		secondIndex = selectedSiteUser.indexOf("(");
+		lastName = selectedSiteUser.substring(0, firstIndex);
+		firstName = selectedSiteUser.substring(firstIndex + 2, secondIndex-1);
+		userName = firstName + " " + lastName;
+		
+		return buttonUserName = getResourceBundleString("return_to_statistics" , new Object[] {userName}) ;
+	}
+
+	public void setButtonUserName(String buttonUserName) {
+		this.buttonUserName = buttonUserName;
+	}
+
+	public static String getResourceBundleString(String key) 
+	{
+		final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
+		return rb.getString(key);
+	}
+
+	public static String getResourceBundleString(String key, Object[] args) {
+		final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
+		return rb.getFormattedMessage(key, args);
+	}
+
+	public String getSelectedMsgId() {
+		return selectedMsgId;
+	}
+
+	public void setSelectedMsgId(String selectedMsgId) {
+		this.selectedMsgId = selectedMsgId;
+	}
+
+	public String getSelectedMsgSubject() {
+		return selectedMsgSubject;
+	}
+
+	public void setSelectedMsgSubject(String selectedMsgSubject) {
+		this.selectedMsgSubject = selectedMsgSubject;
+	}
+	
+	public String processActionDisplayMsgBody() {
+		LOG.debug("processActionDisplayMsgBody");
+
+		selectedMsgId = getExternalParameterByKey("msgId");
+		selectedMsgSubject = getExternalParameterByKey("msgSubject");
+		
+		return FORUM_STATISTICS_MSG;
+	}
+
+	public String getSelectedForumTitle() {
+		return selectedForumTitle;
+	}
+
+	public void setSelectedForumTitle(String selectedForumTitle) {
+		this.selectedForumTitle = selectedForumTitle;
+	}
+
+	public String getSelectedTopicTitle() {
+		return selectedTopicTitle;
+	}
+
+	public void setSelectedTopicTitle(String selectedTopicTitle) {
+		this.selectedTopicTitle = selectedTopicTitle;
+	}
+	
+	public Map<String, String> getUserIdName() {
+		Map<String, String> idNameMap = new LinkedHashMap<String, String>();
+		List allUserInfo = getAllUserStatistics();
+		Iterator allUserInfoIter = allUserInfo.iterator();
+
+		while(allUserInfoIter.hasNext() ) {
+			DecoratedCompiledMessageStatistics userInfo = (DecoratedCompiledMessageStatistics) allUserInfoIter.next();
+
+			idNameMap.put(userInfo.getSiteUserId(), userInfo.getSiteUser());
+		}
+		return idNameMap;
+	}
+
+	private int getCurrentPosition(Object[] userIdArray, String userId)  {
+		int currentPosition = -1;
+		for (int i =0; i < userIdArray.length; i++) {
+			if(userIdArray[i].equals(userId)) {
+				currentPosition = i;
+				break;
+			}
+		}
+		return currentPosition;
+	}
+	
+	public String processDisplayNextParticipant() {
+		isLastParticipant = false;
+		isFirstParticipant = false;
+		
+		Map<String, String> userIdName = getUserIdName();
+		Set<String> userIdSet = userIdName.keySet();
+		String[] userIdArray =(String[]) userIdSet.toArray(new String[userIdSet.size()]);
+		int currentPosition = getCurrentPosition(userIdArray, selectedSiteUserId);
+		
+		if(currentPosition < userIdArray.length-1) {
+			selectedSiteUserId = userIdArray[currentPosition+1];
+			selectedSiteUser = (String)userIdName.get(selectedSiteUserId);
+		}
+		
+		if(currentPosition == userIdArray.length - 2) {
+			isLastParticipant = true;
+		}
+		return FORUM_STATISTICS_USER;
+		
+	}
+	
+	public String processDisplayPreviousParticipant() {		
+		isLastParticipant = false;
+		isFirstParticipant = false;
+		
+		Map<String, String> userIdName = getUserIdName();
+		Set<String> userIdSet = userIdName.keySet();
+		String[] userIdArray =(String[]) userIdSet.toArray(new String[userIdSet.size()]);
+		int currentPosition = getCurrentPosition(userIdArray, selectedSiteUserId);
+		
+		if(currentPosition > 0) {
+			selectedSiteUserId = userIdArray[currentPosition -1];
+			selectedSiteUser = (String)userIdName.get(selectedSiteUserId);
+		}
+		
+		if(currentPosition == 1) {
+			isFirstParticipant = true;
+		}
+		return FORUM_STATISTICS_USER;
+	}
+			
+
+	public boolean getIsFirstParticipant() {
+		return isFirstParticipant;
+	}
+
+	public void setFirstParticipant(boolean isFirstParticipant) {
+		this.isFirstParticipant = isFirstParticipant;
+	}
+
+	public boolean getIsLastParticipant() {
+		return isLastParticipant;
+	}
+
+	public void setLastParticipant(boolean isLastParticipant) {
+		this.isLastParticipant = isLastParticipant;
+	}
 }
