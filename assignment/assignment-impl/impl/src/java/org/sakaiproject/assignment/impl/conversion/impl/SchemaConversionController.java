@@ -33,8 +33,8 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.assignment.impl.conversion.api.SchemaConversionHandler;
-import org.sakaiproject.assignment.impl.conversion.impl.SchemaConversionException;
+import org.sakaiproject.util.conversion.SchemaConversionHandler;
+import org.sakaiproject.util.conversion.SchemaConversionException;
 
 /**
  * @author ieb

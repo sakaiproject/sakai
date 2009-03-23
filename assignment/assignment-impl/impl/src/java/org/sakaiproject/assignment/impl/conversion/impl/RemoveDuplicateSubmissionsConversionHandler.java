@@ -25,7 +25,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.sakaiproject.assignment.impl.conversion.api.SchemaConversionHandler;
+import org.sakaiproject.util.conversion.SchemaConversionHandler;
 
 /**
  * 

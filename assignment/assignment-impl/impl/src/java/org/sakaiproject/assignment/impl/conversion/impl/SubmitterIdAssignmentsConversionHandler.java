@@ -28,7 +28,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.assignment.impl.conversion.api.SchemaConversionHandler;
+import org.sakaiproject.util.conversion.SchemaConversionHandler;
 
 /**
  * Performs just the file size conversion for quota calculations

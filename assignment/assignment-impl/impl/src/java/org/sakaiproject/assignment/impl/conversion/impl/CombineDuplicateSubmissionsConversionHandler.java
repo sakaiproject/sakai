@@ -35,7 +35,7 @@ import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.assignment.impl.conversion.api.SchemaConversionHandler;
+import org.sakaiproject.util.conversion.SchemaConversionHandler;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
 
