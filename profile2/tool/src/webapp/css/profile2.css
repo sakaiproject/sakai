@@ -736,7 +736,7 @@ h2 {
 	width: 450px; /* must be smaller than the actual modal window */
 	height: 120px;
 }
-.modalWindowImage {
+.modalWindowImage img {
 	position: absolute;
 	top: 0;
 	left: 0;
