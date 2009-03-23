@@ -1,50 +1,96 @@
-#!/bin/sh
+#!/bin/bash
 #
-# you could use the runconversion like this:
+# Usage:
+#   mailarchive-runconversion.sh -j JDBC_DRIVER_JAR -k KERNEL_VERSION -s SAKAI_VERSION -m /path/to/m2/repository -p SAKAI_PROPERTIES_FILE UPGRADESCHEMA_CONFIG
 #
-# ./mailarchive-runconversion.sh upgradeschema-2.6-mysql.config
-#
-# Or this
-#
-# ./mailarchive-runconversion.sh upgradeschema-2.6-oracle.config 
+# Example:
+#   content-runconversion.sh -j "$CATALINA_HOME/shared/lib/ojdbc14.jar" \
+#      -p "$CATALINA_HOME/sakai/sakai.properties" -k 1.0.3 \
+#      -s 2.6.0 -m /tmp/m2/repository upgradeschema-oracle.config
 
-if [ -d $CATALINA_HOME ] ;
-then
-  echo "Catalina_Home: $CATALINA_HOME"
+# The "runconversion.sh" script does not have to be run
+# in place. It could be copied to the working directory.
+
+# For Cygwin, ensure paths are in the proper format.
+cygwin=false;
+case "`uname`" in
+  CYGWIN*) cygwin=true ;;
+esac
+if $cygwin; then
+  [ -n "$CLASSPATH" ] && CLASSPATH=`cygpath --path --unix "$CLASSPATH"`
+  m2repository=`cygpath --path --unix "$HOMEDRIVE""$HOMEPATH"`/.m2/repository
 else
-  echo '$CATALINA_HOME not set properly ' $CATALINA_HOME
-fi 
+  m2repository="$HOME"/.m2/repository
+fi
+
+usage()
+{
+      cat<<USAGE;
+usage:
+      -h this message
+      -j extrajarfile
+             should include your JDBC JAR; may be specified multiple times (e.g., for MySQL)
+      -k kernelversion
+             version of kernel being used
+      -s sakaiversion
+             version of sakai being used (from master/pom.xml)
+      -m maven2repository
+             directory for maven2 repoository (DEFAULT: ~/.m2/repository)
+      -p sakaipropertiesfile
+             may be used to set up database connections
+      properties
+             the configuration file
+eg
+    `basename $0` -j $CATALINA_HOME/shared/lib/ojdbc14.jar -k 1.0.3 -s 2.6.0 -m /tmp/m2/repository convertcontent.config
+USAGE
+}
+
+while getopts 'hj:p:m:k:s:' OPTION
+do
+  case $OPTION in
+  j) CLASSPATH="$CLASSPATH":"$OPTARG"
+	;;
+  p) JAVA_OPTS="$JAVA_OPTS -Dsakai.properties=$OPTARG"
+	;;
+  m) m2repository="$OPTARG"
+	;;
+  k) KERNELVERSION="$OPTARG"
+	;;
+  s) SAKAIVERSION="$OPTARG"
+	;;
+  h) usage
+     exit 0
+	;;
+  \?) usage
+      exit 2
+	;;
+  esac
+done
+shift $(($OPTIND - 1))
 
 ##### MAIL SPECIFIC STUFF #####
-CLASSPATH="$CLASSPATH:$HOME/.m2/repository/org/sakaiproject/sakai-mailarchive-impl/2.6.0RC1-SNAPSHOT/sakai-mailarchive-impl-2.6.0RC1-SNAPSHOT.jar"
+CLASSPATH="$CLASSPATH:"$m2repository"/org/sakaiproject/sakai-mailarchive-impl/$SAKAIVERSION/sakai-mailarchive-impl-$SAKAIVERSION.jar"
 
 ##### COMMON KERNEL STUFF #####
-CLASSPATH="$CLASSPATH:$HOME/.m2/repository/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"
-CLASSPATH="$CLASSPATH:$HOME/.m2/repository/commons-collections/commons-collections/3.2/commons-collections-3.2.jar"
-CLASSPATH="$CLASSPATH:$HOME/.m2/repository/commons-dbcp/commons-dbcp/1.2.2/commons-dbcp-1.2.2.jar"
-CLASSPATH="$CLASSPATH:$HOME/.m2/repository/commons-pool/commons-pool/1.3/commons-pool-1.3.jar"
-CLASSPATH="$CLASSPATH:$HOME/.m2/repository/org/sakaiproject/kernel/sakai-kernel-api/1.0RC2-SNAPSHOT/sakai-kernel-api-1.0RC2-SNAPSHOT.jar"
-CLASSPATH="$CLASSPATH:$HOME/.m2/repository/org/sakaiproject/kernel/sakai-kernel-impl/1.0RC2-SNAPSHOT/sakai-kernel-impl-1.0RC2-SNAPSHOT.jar"
-CLASSPATH="$CLASSPATH:$HOME/.m2/repository/org/sakaiproject/kernel/sakai-kernel-util/1.0RC2-SNAPSHOT/sakai-kernel-util-1.0RC2-SNAPSHOT.jar"
-CLASSPATH="$CLASSPATH:$HOME/.m2/repository/org/sakaiproject/kernel/sakai-kernel-common/1.0RC2-SNAPSHOT/sakai-kernel-common-1.0RC2-SNAPSHOT.jar"
-CLASSPATH="$CLASSPATH:$HOME/.m2/repository/org/sakaiproject/kernel/sakai-kernel-component/1.0RC2-SNAPSHOT/sakai-kernel-component-1.0RC2-SNAPSHOT.jar"
-CLASSPATH="$CLASSPATH:$HOME/.m2/repository/org/sakaiproject/kernel/sakai-kernel-private/1.0RC2-SNAPSHOT/sakai-kernel-private-1.0RC2-SNAPSHOT.jar"
-CLASSPATH="$CLASSPATH:$HOME/.m2/repository/log4j/log4j/1.2.9/log4j-1.2.9.jar"
+CLASSPATH="$CLASSPATH:"$m2repository"/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"
+CLASSPATH="$CLASSPATH:"$m2repository"/commons-collections/commons-collections/3.2/commons-collections-3.2.jar"
+CLASSPATH="$CLASSPATH:"$m2repository"/commons-dbcp/commons-dbcp/1.2.2/commons-dbcp-1.2.2.jar"
+CLASSPATH="$CLASSPATH:"$m2repository"/commons-pool/commons-pool/1.3/commons-pool-1.3.jar"
+CLASSPATH="$CLASSPATH:"$m2repository"/org/sakaiproject/kernel/sakai-kernel-api/$KERNELVERSION/sakai-kernel-api-$KERNELVERSION.jar"
+CLASSPATH="$CLASSPATH:"$m2repository"/org/sakaiproject/kernel/sakai-kernel-impl/$KERNELVERSION/sakai-kernel-impl-$KERNELVERSION.jar"
+CLASSPATH="$CLASSPATH:"$m2repository"/org/sakaiproject/kernel/sakai-kernel-util/$KERNELVERSION/sakai-kernel-util-$KERNELVERSION.jar"
+CLASSPATH="$CLASSPATH:"$m2repository"/org/sakaiproject/kernel/sakai-kernel-common/$KERNELVERSION/sakai-kernel-common-$KERNELVERSION.jar"
+CLASSPATH="$CLASSPATH:"$m2repository"/org/sakaiproject/kernel/sakai-kernel-component/$KERNELVERSION/sakai-kernel-component-$KERNELVERSION.jar"
+CLASSPATH="$CLASSPATH:"$m2repository"/org/sakaiproject/kernel/sakai-kernel-private/$KERNELVERSION/sakai-kernel-private-$KERNELVERSION.jar"
+CLASSPATH="$CLASSPATH:"$m2repository"/log4j/log4j/1.2.9/log4j-1.2.9.jar"
 
-##### JDBC DRIVER #####
-##### SUPPLY PATH TO YOUR JDBC DRIVER #####
-## MYSQL ##
-CLASSPATH="$CLASSPATH:$HOME/.m2/repository/mysql/mysql-connector-java/3.1.14/mysql-connector-java-3.1.14-bin.jar"
-CLASSPATH="$CLASSPATH:$CATALINA_HOME/common/lib/mysql-connector-java-3.1.14-bin.jar"
-CLASSPATH="$CLASSPATH:$CATALINA_HOME/shared/lib/mysql-connector-java-5.0.5-bin.jar"
-CLASSPATH="$CLASSPATH:$CATALINA_HOME/common/lib/mysql-connector-java-5.1.6-bin.jar"
-## ORACLE ##
-CLASSPATH="$CLASSPATH:$CATALINA_HOME/common/lib/ojdbc-14.jar"
-CLASSPATH="$CLASSPATH:$CATALINA_HOME/common/lib/ojdbc14.jar"
-
-# echo $CLASSPATH
+# For Cygwin, ensure paths are in the proper format.
+if $cygwin; then
+  CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
+fi
 
 java $JAVA_OPTS  \
       -classpath "$CLASSPATH" \
-      -Dsakai.properties=/Users/csev/dev/sakai-trunk/apache-tomcat-5.5.23/sakai/sakai.properties \
-	org.sakaiproject.util.conversion.UpgradeSchema "$@" 
+      org.sakaiproject.util.conversion.UpgradeSchema "$@"
+
+exit 0
