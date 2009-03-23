@@ -86,8 +86,6 @@ public class RequestedFriends extends Panel {
 		    	//get name
 		    	String displayName = sakaiProxy.getUserDisplayName(friendId);
 		    	
-		    	final byte[] photo = null;
-	    		
 		    	//is this user allowed to view this person's profile image?
 				boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(friendId, userId, false);
 				
@@ -115,11 +113,11 @@ public class RequestedFriends extends Panel {
 		    	
 		    	//CONFIRM FRIEND MODAL WINDOW
 				final ModalWindow confirmFriendWindow = new ModalWindow("confirmFriendWindow");
-				confirmFriendWindow.setContent(new ConfirmFriend(confirmFriendWindow.getContentId(), confirmFriendWindow, friendActionModel, userId, friendId, photo)); 
+				confirmFriendWindow.setContent(new ConfirmFriend(confirmFriendWindow.getContentId(), confirmFriendWindow, friendActionModel, userId, friendId)); 
 				
 				//IGNORE FRIEND MODAL WINDOW
 				final ModalWindow ignoreFriendWindow = new ModalWindow("ignoreFriendWindow");
-				ignoreFriendWindow.setContent(new IgnoreFriend(ignoreFriendWindow.getContentId(), ignoreFriendWindow, friendActionModel, userId, friendId, photo)); 
+				ignoreFriendWindow.setContent(new IgnoreFriend(ignoreFriendWindow.getContentId(), ignoreFriendWindow, friendActionModel, userId, friendId)); 
 				
 				
 				

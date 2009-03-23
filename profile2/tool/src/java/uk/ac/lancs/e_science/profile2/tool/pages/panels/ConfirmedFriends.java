@@ -117,7 +117,6 @@ public class ConfirmedFriends extends Panel {
 		    			    	
 		    	//setup values
 		    	String displayName = sakaiProxy.getUserDisplayName(friendId);
-		    	final byte[] photo = null;
 		    	boolean friend;
 		    	
 		    	//get friend status
@@ -153,7 +152,7 @@ public class ConfirmedFriends extends Panel {
 		    	
 		    	//REMOVE FRIEND MODAL WINDOW
 				final ModalWindow removeFriendWindow = new ModalWindow("removeFriendWindow");
-				removeFriendWindow.setContent(new RemoveFriend(removeFriendWindow.getContentId(), removeFriendWindow, friendActionModel, userX, friendId, photo)); 
+				removeFriendWindow.setContent(new RemoveFriend(removeFriendWindow.getContentId(), removeFriendWindow, friendActionModel, userX, friendId)); 
 				
 				//REMOVE FRIEND LINK
 		    	final AjaxLink removeFriendLink = new AjaxLink("removeFriendLink") {

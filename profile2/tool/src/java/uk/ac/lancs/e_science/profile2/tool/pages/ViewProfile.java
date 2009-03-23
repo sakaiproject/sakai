@@ -37,7 +37,6 @@ import uk.ac.lancs.e_science.profile2.tool.pages.windows.AddFriend;
 public class ViewProfile extends BasePage {
 
 	private transient Logger log = Logger.getLogger(MyProfile.class);
-	private transient byte[] profileImageBytes;
     private transient ProfileStatus profileStatus;
 	
 	public ViewProfile(String userUuid)   {
@@ -454,7 +453,7 @@ public class ViewProfile extends BasePage {
 			addFriendLink.setEnabled(false);
 		}  else {
 			addFriendLabel.setModel(new StringResourceModel("link.friend.add.name", null, new Object[]{ nickname } ));
-			addFriendWindow.setContent(new AddFriend(addFriendWindow.getContentId(), addFriendWindow, friendActionModel, currentUserId, userUuid, profile.getCurrentProfileImageForUser(userUuid, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL))); 
+			addFriendWindow.setContent(new AddFriend(addFriendWindow.getContentId(), addFriendWindow, friendActionModel, currentUserId, userUuid)); 
 		}
 		sideLinks.add(addFriendLink);
 		

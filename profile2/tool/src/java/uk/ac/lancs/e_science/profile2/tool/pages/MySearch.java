@@ -171,7 +171,6 @@ public class MySearch extends BasePage {
 		    			    	
 		    	//setup basic values
 		    	String displayName = sakaiProxy.getUserDisplayName(userUuid);
-		    	final byte[] photo = null;
 		    		
 		    	//is profile image allowed to be viewed by this user/friend?
 				final boolean isProfileImageAllowed = searchResult.isProfileImageAllowed();
@@ -222,7 +221,7 @@ public class MySearch extends BasePage {
 		    	
 		    	//ADD FRIEND MODAL WINDOW
 				final ModalWindow connectionWindow = new ModalWindow("result-connectionWindow");
-		    	connectionWindow.setContent(new AddFriend(connectionWindow.getContentId(), connectionWindow, friendActionModel, currentUserUuid, userUuid, photo)); 
+		    	connectionWindow.setContent(new AddFriend(connectionWindow.getContentId(), connectionWindow, friendActionModel, currentUserUuid, userUuid)); 
 
 		    	//ADD FRIEND LINK
 		    	WebMarkupContainer c1 = new WebMarkupContainer("result-connectionContainer");
