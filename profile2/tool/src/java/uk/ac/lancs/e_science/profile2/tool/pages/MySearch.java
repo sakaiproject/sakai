@@ -176,12 +176,7 @@ public class MySearch extends BasePage {
 				final boolean isProfileImageAllowed = searchResult.isProfileImageAllowed();
 				
 				//image
-				if(isProfileImageAllowed) {
-					item.add(new ProfileImageRenderer("result-photo", userUuid, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, false));
-				} else {
-					item.add(new ContextImage("result-photo",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
-				}
-					    	
+				item.add(new ProfileImageRenderer("result-photo", userUuid, isProfileImageAllowed, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, false));
 		    	
 		    	//name and link to profile (if allowed or no link)
 		    	Link profileLink = new Link("result-profileLink") {

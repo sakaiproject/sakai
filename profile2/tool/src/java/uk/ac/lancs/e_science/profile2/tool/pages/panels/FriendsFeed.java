@@ -4,11 +4,8 @@ package uk.ac.lancs.e_science.profile2.tool.pages.panels;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.ContextImage;
-import org.apache.wicket.markup.html.image.Image;
-import org.apache.wicket.markup.html.image.resource.BufferedDynamicImageResource;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
@@ -20,9 +17,7 @@ import org.apache.wicket.model.StringResourceModel;
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
-import uk.ac.lancs.e_science.profile2.api.exception.ProfileBadConfigurationException;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
-import uk.ac.lancs.e_science.profile2.tool.components.ExternalImage;
 import uk.ac.lancs.e_science.profile2.tool.components.ProfileImageRenderer;
 import uk.ac.lancs.e_science.profile2.tool.dataproviders.FriendsFeedDataProvider;
 import uk.ac.lancs.e_science.profile2.tool.pages.MyFriends;
@@ -84,7 +79,9 @@ public class FriendsFeed extends Panel {
 					private static final long serialVersionUID = 1L;
 					public void onClick() {}
 				};
-				friendItem.add(new ContextImage("friendPhoto",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
+				
+				friendItem.add(new ProfileImageRenderer("friendPhoto", null, false, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, true));
+
 				friendItem.add(new Label("friendName","empty"));
 				item.add(friendItem);
 				friendItem.setVisible(false);
@@ -96,7 +93,6 @@ public class FriendsFeed extends Panel {
 				
 				//setup info
 				String displayName = sakaiProxy.getUserDisplayName(friendId);
-				final byte[] imageBytes;
 		    	boolean friend;
 		    	
 		    	
@@ -125,12 +121,7 @@ public class FriendsFeed extends Panel {
 				final boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(friendId, viewingUserId, friend);
 				
 				/* IMAGE */
-				if(isProfileImageAllowed) {
-					friendItem.add(new ProfileImageRenderer("friendPhoto", friendId, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, true));
-				} else {
-					friendItem.add(new ContextImage("friendPhoto",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
-				}
-				
+				friendItem.add(new ProfileImageRenderer("friendPhoto", friendId, isProfileImageAllowed, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, true));
 				
 				//name (will be linked also)
 		    	Label friendLinkLabel = new Label("friendName", displayName);

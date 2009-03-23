@@ -90,12 +90,7 @@ public class RequestedFriends extends Panel {
 				boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(friendId, userId, false);
 				
 				//image
-				if(isProfileImageAllowed) {
-					item.add(new ProfileImageRenderer("result-photo", friendId, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, true));
-				} else {
-					item.add(new ContextImage("result-photo",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
-				}
-		    	
+				item.add(new ProfileImageRenderer("result-photo", friendId, isProfileImageAllowed, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, true));
 		    			    	
 		    	//name and link to profile
 		    	Link profileLink = new Link("result-profileLink") {

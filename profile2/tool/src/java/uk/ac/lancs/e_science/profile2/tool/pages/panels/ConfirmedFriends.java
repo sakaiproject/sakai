@@ -1,6 +1,5 @@
 package uk.ac.lancs.e_science.profile2.tool.pages.panels;
 
-import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -8,8 +7,6 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.ContextImage;
-import org.apache.wicket.markup.html.image.Image;
-import org.apache.wicket.markup.html.image.resource.BufferedDynamicImageResource;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
@@ -32,7 +29,6 @@ import uk.ac.lancs.e_science.profile2.tool.pages.windows.RemoveFriend;
 public class ConfirmedFriends extends Panel {
 	
 	private static final long serialVersionUID = 1L;
-	private transient Logger log = Logger.getLogger(ConfirmedFriends.class);
 	private transient SakaiProxy sakaiProxy;
 	private transient Profile profile; 
 	private int numConfirmedFriends = 0;
@@ -130,11 +126,7 @@ public class ConfirmedFriends extends Panel {
 				final boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(friendId, userY, friend);
 				
 				//image
-				if(isProfileImageAllowed) {
-					item.add(new ProfileImageRenderer("result-photo", friendId, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, true));
-				} else {
-					item.add(new ContextImage("result-photo",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
-				}
+				item.add(new ProfileImageRenderer("result-photo", friendId, isProfileImageAllowed, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, true));
 		    	
 		    	//name and link to profile
 		    	Link profileLink = new Link("result-profileLink") {

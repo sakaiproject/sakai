@@ -109,14 +109,8 @@ public class ViewProfile extends BasePage {
 		//SakaiPerson returns NULL strings if value is not set, not blank ones
 		String userDisplayName = sakaiProxy.getUserDisplayName(userUuid);
 		
-		
 		/* IMAGE */
-		if(isProfileImageAllowed) {
-			add(new ProfileImageRenderer("photo", userUuid, ProfileImageManager.PROFILE_IMAGE_MAIN, true));
-		} else {
-			add(new ContextImage("photo",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
-		}
-		
+		add(new ProfileImageRenderer("photo", userUuid, isProfileImageAllowed, ProfileImageManager.PROFILE_IMAGE_MAIN, true));
 		
 		/*STATUS PANEL */
 		//container

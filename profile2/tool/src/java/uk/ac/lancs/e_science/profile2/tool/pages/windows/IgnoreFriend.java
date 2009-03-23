@@ -1,15 +1,11 @@
 package uk.ac.lancs.e_science.profile2.tool.pages.windows;
 
-import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.image.ContextImage;
-import org.apache.wicket.markup.html.image.Image;
-import org.apache.wicket.markup.html.image.resource.BufferedDynamicImageResource;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
@@ -27,7 +23,6 @@ import uk.ac.lancs.e_science.profile2.tool.models.FriendAction;
 public class IgnoreFriend extends Panel {
 
 	private static final long serialVersionUID = 1L;
-	private transient Logger log = Logger.getLogger(IgnoreFriend.class);
 	private transient SakaiProxy sakaiProxy;
 	private transient Profile profile;
 
@@ -56,11 +51,7 @@ public class IgnoreFriend extends Panel {
 		boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(userY, userX, false);
 		
 		//image
-		if(isProfileImageAllowed) {
-			add(new ProfileImageRenderer("image", userY, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, true));
-		} else {
-			add(new ContextImage("image",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
-		}
+		add(new ProfileImageRenderer("image", userY, isProfileImageAllowed, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, true));
 		
         //text
 		final Label text = new Label("text", new StringResourceModel("text.friend.ignore", null, new Object[]{ friendName } ));

@@ -56,11 +56,7 @@ public class RemoveFriend extends Panel {
 		boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(userY, userX, true);
 		
 		//image
-		if(isProfileImageAllowed) {
-			add(new ProfileImageRenderer("image", userY, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, true));
-		} else {
-			add(new ContextImage("image",new Model(ProfileImageManager.UNAVAILABLE_IMAGE)));
-		}
+		add(new ProfileImageRenderer("image", userY, isProfileImageAllowed, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, true));
 		
         //text
 		final Label text = new Label("text", new StringResourceModel("text.friend.remove", null, new Object[]{ friendName } ));
