@@ -21,51 +21,47 @@
 
 	<dependencies>
 		
-		<!--  WICKET DEPENDENCIES -->
+    	<!-- EXTERNAL DEPENDENCIES -->
 		<dependency>
 			<groupId>org.apache.wicket</groupId>
 			<artifactId>wicket</artifactId>
-			<version>${wicket.version}</version>
 		</dependency>
-			<dependency>
+		<dependency>
 			<groupId>org.apache.wicket</groupId>
 			<artifactId>wicket-extensions</artifactId>
-			<version>${wicket.version}</version>
 		</dependency>
-		
 		<dependency>
 			<groupId>org.apache.wicket</groupId>
 			<artifactId>wicket-spring</artifactId>
-			<version>${wicket.version}</version>
     	</dependency>
-    	
     	<dependency>
       		<groupId>org.apache.wicket</groupId>
       		<artifactId>wicket-spring-annot</artifactId>
-      		<version>${wicket.version}</version>
     	</dependency>
-    	
     	<dependency>
       		<groupId>org.jasypt</groupId>
       		<artifactId>jasypt</artifactId>
-      		<version>${jasypt.version}</version>
     	</dependency>
     	<dependency>
 			<groupId>com.ibm.icu</groupId>
 			<artifactId>icu4j</artifactId>
-			<version>${icu4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
 		</dependency>
 		
 		<!--  INTERNAL DEPENDENCIES -->
 		<dependency>
       		<groupId>uk.ac.lancs.e_science</groupId>
       		<artifactId>sakai-profile2-api</artifactId>
-      		<version>${tool.version}</version>
-      		<scope>provided</scope>
     	</dependency>
 		
-		
-		<!--  SAKAI DEPENDENCIES -->
+		<!--  SAKAI DEPENDENCIES (put this into build profile) -->
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-component-api</artifactId>
@@ -104,17 +100,7 @@
 	    </dependency>
 		
 		
-		<!-- LOGGING DEPENDENCIES - LOG4J -->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>${slf4j.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>${log4j.version}</version>
-		</dependency>
+		
 
 	</dependencies>
 
