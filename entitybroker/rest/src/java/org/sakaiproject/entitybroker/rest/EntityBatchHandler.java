@@ -325,6 +325,9 @@ public class EntityBatchHandler {
 
         // compile all the responses into encoded data
         String overallData = entityEncodingManager.encodeData(results, format, "refs", null);
+        if (Formats.XML.equals(format)) {
+            overallData = EntityEncodingManager.XML_HEADER + overallData;
+        }
         // replace the data unique keys if there are any
         overallData = reintegrateDataContent(format, dataMap, overallData);
 
@@ -709,19 +712,58 @@ public class EntityBatchHandler {
      * if it is too large it will not be processed and if it is in the wrong format it will be encoded as a data chunk,
      * it is OK it will be placed into the dataMap and reintegrated after encoding
      * @param content this it the content of the response body (if null then no processing occurs, null returned)
-     * @return the dataKey which maps to the real content, need replace the key later
+     * @return the dataKey which maps to the real content, need replace the key later OR null if the content is empty or too large
      */
     private String checkContent(String format, String content, String refKey,
             HashMap<String, String> dataMap) {
         String dataKey = null;
-        if ( content != null && ! "".equals(content.trim()) ) {
-            if (entityEncodingManager.validateFormat(content, format)) {
-                // valid for the current format so insert later instead of merging now
-                dataKey = UNIQUE_DATA_PREFIX + refKey;
-                dataMap.put(dataKey, content);
+        if (content != null) {
+            content = content.trim();
+            if (! "".equals(content)) {
+                if (entityEncodingManager.validateFormat(content, format)) {
+                    if (Formats.XML.equals(format) 
+                            || Formats.HTML.equals(format)) {
+                        // strip off the xml header and doctype if it exists
+                        content = stripOutXMLTag(content, "<?", "?>");
+                        content = stripOutXMLTag(content, "<!DOCTYPE", ">");
+                    }
+                    // valid for the current format so insert later instead of merging now
+                    dataKey = UNIQUE_DATA_PREFIX + refKey;
+                    dataMap.put(dataKey, content);
+                }
             }
         }
         return dataKey;
+    }
+
+    /**
+     * This will strip any tag out of an xml file by finding the startTag (if possible),
+     * and then the endTag and chopping this out of the given content and returning
+     * the new value
+     * @param content any XML like content
+     * @param startTag the starting tag (e.g. "<?" or "<blah")
+     * @param endTag the ending tag (e.g "?>" or "/blah")
+     * @return the content without the chopped out part if found
+     */
+    public String stripOutXMLTag(String content, String startTag, String endTag) {
+        if (startTag != null 
+                && ! "".equals(startTag)
+                && endTag != null 
+                && ! "".equals(endTag)) {
+            int pos = content.indexOf(startTag);
+            if (pos >= 0) {
+                int end = content.indexOf(endTag, pos);
+                if (end > 0) {
+                    StringBuilder sb = new StringBuilder();
+                    if (pos > 0) {
+                        sb.append( content.substring(0, pos) );
+                    }
+                    sb.append( content.substring(end + endTag.length()) );
+                    content = sb.toString().trim();
+                }
+            }
+        }
+        return content;
     }
 
     /**

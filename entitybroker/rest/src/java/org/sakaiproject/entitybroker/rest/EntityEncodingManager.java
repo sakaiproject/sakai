@@ -88,7 +88,9 @@ public class EntityEncodingManager {
     public static final String[] HANDLED_INPUT_FORMATS = new String[] { Formats.XML, Formats.JSON, Formats.HTML };
     public static final String[] HANDLED_OUTPUT_FORMATS = new String[] { Formats.XML, Formats.JSON, Formats.HTML, Formats.FORM };
 
-    protected static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n";
+    protected static final String XML_HEADER_PREFIX = "<?";
+    protected static final String XML_HEADER_SUFFIX = "?>";
+    protected static final String XML_HEADER = XML_HEADER_PREFIX + "xml version=\"1.0\" encoding=\"UTF-8\" "+XML_HEADER_SUFFIX+"\n";
     protected static final String XHTML_HEADER = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" " +
     "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
     "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n" +
@@ -495,6 +497,8 @@ public class EntityEncodingManager {
         if (Formats.FORM.equals(format)) {
             String title = view.getViewKey() + ":" + ref;
             encoded = XML_HEADER + XHTML_HEADER.replace("{title}", title) + encoded + XHTML_FOOTER;
+        } else if (Formats.XML.equals(format)) {
+            encoded = XML_HEADER + encoded;
         }
         // put the encoded data into the stream
         try {
