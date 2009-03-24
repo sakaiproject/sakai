@@ -150,6 +150,8 @@ import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
+import sun.tools.tree.ThisExpression;
+
 
 
 /**
@@ -5280,9 +5282,33 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				else
 				{
 					// return true if resubmission is allowed and current time is before resubmission close time
+					// get the resubmit settings from submission object first
 					int allowResubmitNumber = submission.getResubmissionNum();
-					Time resubmitCloseTime = a.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME) != null? a.getProperties().getTimeProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME):a.getCloseTime();
-					return !(allowResubmitNumber == 0) && currentTime.before(resubmitCloseTime);
+					Time resubmitCloseTime = null;
+					if (allowResubmitNumber != 0)
+					{
+						ResourceProperties submissionProperties = submission.getProperties();
+						String property = (String) submissionProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
+						resubmitCloseTime = submissionProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME) != null? TimeService.newTime(submissionProperties.getLongProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME)):null;
+					}
+					else
+					{
+						// if no setting on the submission object level, get it from the assignment level next
+						ResourceProperties assignmentProperties = a.getProperties();
+						try
+						{
+							allowResubmitNumber = assignmentProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null? Integer.parseInt((String) assignmentProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER)):0;
+							if (allowResubmitNumber != 0)
+							{
+								resubmitCloseTime = assignmentProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME) != null? assignmentProperties.getTimeProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME):a.getCloseTime();
+							}
+						}
+						catch (Exception e)
+						{
+							M_log.warn(this + "canSubmit: exception of get integer value for resubmit number: assignment id = " + a.getId() + " submission id = " + submission.getId() + " assignment resubmission number = " + assignmentProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) + e.getMessage());
+						}
+					}
+					return allowResubmitNumber != 0 && resubmitCloseTime != null && currentTime.before(resubmitCloseTime);
 				}
 			}
 		}
