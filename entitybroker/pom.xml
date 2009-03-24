@@ -44,7 +44,7 @@
             <modules>
                 <module>api</module>
                 <module>impl</module>
-                <module>restImpl</module>
+                <module>rest</module>
                 <module>tool</module>
                 <module>pack</module>
                 <module>mocks</module>
@@ -55,14 +55,14 @@
         <profile>
             <id>tool</id>
             <modules>
-                <module>restImpl</module>
+                <module>rest</module>
                 <module>tool</module>
             </modules>
         </profile>
         <profile>
             <id>rest</id>
             <modules>
-                <module>restImpl</module>
+                <module>rest</module>
                 <module>tool</module>
             </modules>
         </profile>
