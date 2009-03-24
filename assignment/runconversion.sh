@@ -95,8 +95,6 @@ if $cygwin; then
   CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
 fi
 
-echo $KERNELVERSION;
-
 java $JAVA_OPTS  \
       -classpath "$CLASSPATH" \
       org.sakaiproject.util.conversion.UpgradeSchema "$@"
