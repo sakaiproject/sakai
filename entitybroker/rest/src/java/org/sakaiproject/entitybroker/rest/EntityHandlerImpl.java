@@ -34,6 +34,8 @@ import java.util.Map.Entry;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.azeckoski.reflectutils.ReflectUtils;
+import org.azeckoski.reflectutils.exceptions.FieldnameNotFoundException;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -54,9 +56,9 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.InputTranslatab
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputFormattable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Redirectable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestHandler;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestInterceptor;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Redirectable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Updateable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.CustomAction;
@@ -71,19 +73,14 @@ import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
 import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
-
 import org.sakaiproject.entitybroker.util.ClassLoaderReporter;
 import org.sakaiproject.entitybroker.util.EntityDataUtils;
 import org.sakaiproject.entitybroker.util.EntityResponse;
-import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.entitybroker.util.http.HttpRESTUtils;
 import org.sakaiproject.entitybroker.util.http.HttpResponse;
 import org.sakaiproject.entitybroker.util.http.LazyResponseOutputStream;
 import org.sakaiproject.entitybroker.util.http.HttpRESTUtils.Method;
 import org.sakaiproject.entitybroker.util.request.RequestUtils;
-
-import org.azeckoski.reflectutils.ReflectUtils;
-import org.azeckoski.reflectutils.exceptions.FieldnameNotFoundException;
 
 /**
  * Implementation of the handler for the EntityBroker system<br/>
@@ -256,11 +253,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             if ( (SLASH_DESCRIBE).equals(path) 
                     || path.startsWith(SLASH_DESCRIBE + EntityReference.PERIOD)) {
                 // SPECIAL handling for the describe all URL
-                String format = TemplateParseUtil.findExtension(path)[2];
-                if (format == null) {
-                    format = Formats.HTML;
-                }
-                RequestUtils.setResponseEncoding(format, res);
+                String format = RequestUtils.findAndHandleFormat(req, res, Formats.HTML);
                 String output = entityDescriptionManager.makeDescribeAll(format, req.getLocale()); // possibly get the locale from other places?
                 res.setContentLength(output.getBytes().length);
                 try {
@@ -287,11 +280,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                             path, HttpServletResponse.SC_NOT_IMPLEMENTED );
                 } else if ( DESCRIBE.equals(view.getEntityReference().getId()) ) {
                     // SPECIAL handling for entity describe URLs
-                    String format = TemplateParseUtil.findExtension(path)[2];
-                    if (format == null) {
-                        format = Formats.HTML;
-                    }
-                    RequestUtils.setResponseEncoding(format, res);
+                    String format = RequestUtils.findAndHandleFormat(req, res, Formats.HTML);
                     String entityId = req.getParameter("_id");
                     if (entityId == null || "".equals(entityId)) {
                         entityId = FAKE_ID;
@@ -374,12 +363,14 @@ public class EntityHandlerImpl implements EntityRequestHandler {
 
                         if (BATCH.equals(prefix)) {
                             // special batch handling
-                            if (view.getExtension() == null) {
-                                // default extension is JSON
-                                view.setExtension(Formats.JSON);
-                            }
+                            // set the default format to JSON for batch handling
+                            view.setExtension( RequestUtils.findAndHandleFormat(req, res, Formats.JSON) );
                             entityBatchHandler.handleBatch(view, req, res);
                         } else {
+                            // ensure the format is set correctly for the response and the view
+                            String format = RequestUtils.findAndHandleFormat(req, res, Formats.HTML);
+                            view.setExtension( format );
+
                             // check for provider handling of this request
                             RequestHandler handler = (RequestHandler) entityProviderManager.getProviderByPrefixAndCapability(prefix, RequestHandler.class);
                             if (handler != null) {
@@ -471,7 +462,6 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                 if (!handled) {
                                     // INTERNAL PROCESSING OF REQUEST
                                     try {
-                                        String format = view.getFormat();
                                         if (output) {
                                             // output request
                                             String viewKey = view.getViewKey();

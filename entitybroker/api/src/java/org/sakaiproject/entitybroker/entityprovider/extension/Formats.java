@@ -20,6 +20,7 @@
 
 package org.sakaiproject.entitybroker.entityprovider.extension;
 
+
 /**
  * Defines a list of possible format types (extensions) which can be handled 
  * and indicates which are handled internally
@@ -35,7 +36,7 @@ public interface Formats {
      * OUTPUT: (X)HTML text <br/>
      */
     public static String HTML = "html";
-    public static String HTML_MIME_TYPE = "text/html";
+    public static String HTML_MIME_TYPE = "text/html"; // also application/xhtml+xml
     public static String[] HTML_EXTENSIONS = new String[] {"html","htm","HTML","HTM"};
 
     /**
@@ -66,7 +67,7 @@ public interface Formats {
      * OUTPUT: JSON text <br/>
      */
     public static String JSON = "json";
-    public static String JSON_MIME_TYPE = "text/plain"; //"application/json"; // switched to plain so its easier to work with
+    public static String JSON_MIME_TYPE = "application/json"; // can be switched to plain so its easier to work with
     public static String[] JSON_EXTENSIONS = new String[] {"json","jsn","JSON","JSN"};
 
     /**

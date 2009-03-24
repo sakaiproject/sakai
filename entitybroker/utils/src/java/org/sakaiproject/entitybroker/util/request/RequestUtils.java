@@ -21,7 +21,13 @@
 package org.sakaiproject.entitybroker.util.request;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -38,6 +44,7 @@ import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
+import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 
 
 /**
@@ -49,6 +56,62 @@ public class RequestUtils {
 
     private static final String DIVIDER = "||";
     private static final String ENTITY_REDIRECT_CHECK = "_entityRedirectCheck";
+
+    /**
+     * A map from mimetypes to format constants
+     */
+    public static Map<String, String> mimeTypeToFormat;
+    /**
+     * A map from format constants to mimetypes
+     */
+    public static Map<String, String> formatToMimeType;
+    /**
+     * A map from extensions to format constants
+     */
+    public static Map<String, String> extensionsToFormat;
+
+    static {
+        mimeTypeToFormat = new LinkedHashMap<String, String>(12);
+        mimeTypeToFormat.put(Formats.ATOM_MIME_TYPE, Formats.ATOM);
+        mimeTypeToFormat.put(Formats.FORM_MIME_TYPE, Formats.FORM);
+        mimeTypeToFormat.put(Formats.HTML_MIME_TYPE, Formats.HTML);
+        mimeTypeToFormat.put("application/xhtml+xml", Formats.HTML);
+        mimeTypeToFormat.put(Formats.JSON_MIME_TYPE, Formats.JSON);
+        mimeTypeToFormat.put("text/json", Formats.JSON); // this is not really valid
+        mimeTypeToFormat.put("application/*", Formats.JSON);
+        mimeTypeToFormat.put(Formats.RSS_MIME_TYPE, Formats.RSS);
+        mimeTypeToFormat.put(Formats.TXT_MIME_TYPE, Formats.TXT);
+        mimeTypeToFormat.put("text/*", Formats.TXT);
+        mimeTypeToFormat.put(Formats.XML_MIME_TYPE, Formats.XML);
+        mimeTypeToFormat.put("text/xml", Formats.XML); // this is not really valid
+
+        formatToMimeType = new LinkedHashMap<String, String>(7);
+        formatToMimeType.put(Formats.ATOM, Formats.ATOM_MIME_TYPE);
+        formatToMimeType.put(Formats.FORM, Formats.FORM_MIME_TYPE);
+        formatToMimeType.put(Formats.HTML, Formats.HTML_MIME_TYPE);
+        formatToMimeType.put(Formats.JSON, Formats.JSON_MIME_TYPE);
+        formatToMimeType.put(Formats.RSS, Formats.RSS_MIME_TYPE);
+        formatToMimeType.put(Formats.TXT, Formats.TXT_MIME_TYPE);
+        formatToMimeType.put(Formats.XML, Formats.XML_MIME_TYPE);
+
+        extensionsToFormat = new LinkedHashMap<String, String>(20);
+        extractExtensionsIntoMap(Formats.ATOM, Formats.ATOM_EXTENSIONS, extensionsToFormat);
+        extractExtensionsIntoMap(Formats.FORM, Formats.FORM_EXTENSIONS, extensionsToFormat);
+        extractExtensionsIntoMap(Formats.HTML, Formats.HTML_EXTENSIONS, extensionsToFormat);
+        extractExtensionsIntoMap(Formats.JSON, Formats.JSON_EXTENSIONS, extensionsToFormat);
+        extractExtensionsIntoMap(Formats.RSS, Formats.RSS_EXTENSIONS, extensionsToFormat);
+        extractExtensionsIntoMap(Formats.TXT, Formats.TXT_EXTENSIONS, extensionsToFormat);
+        extractExtensionsIntoMap(Formats.XML, Formats.XML_EXTENSIONS, extensionsToFormat);
+    }
+
+    /**
+     * 
+     */
+    private static void extractExtensionsIntoMap(String format, String[] extensions, Map<String, String> map) {
+        for (String extension : extensions) {
+            map.put(extension, format);
+        }
+    }
 
     /**
      * Handles the redirect to a URL from the current location,
@@ -206,6 +269,83 @@ public class RequestUtils {
         return output;
     }
 
+    /**
+     * This method will correctly extract the format constant from a request 
+     * (extension first and then Accepts header) and then set it in the response
+     * as the correct return type, if none is found then the default will be used
+     * @param req the Servlet request
+     * @param res the Servlet response
+     * @param defaultFormat (OPTIONAL) if this is set then it will be the default format assigned when none can be found,
+     * otherwise the default format is {@link Formats#HTML}
+     * @return the extracted format (will never be null), e.g {@link Formats#XML}
+     */
+    @SuppressWarnings("unchecked")
+    public static String findAndHandleFormat(HttpServletRequest req, HttpServletResponse res, String defaultFormat) {
+        if (defaultFormat == null) {
+            defaultFormat = Formats.HTML;
+        }
+        String path = req.getPathInfo();
+        String format = TemplateParseUtil.findExtension(path)[2];
+        if (format == null) {
+            // try to get it from the Accept header
+            for (Enumeration<String> enumHeader = req.getHeaderNames(); enumHeader.hasMoreElements();) {
+                String headerName = enumHeader.nextElement();
+                if ("accept".equalsIgnoreCase(headerName)) {
+                    ArrayList<String> accepts = new ArrayList<String>();
+                    for (Enumeration<String> enumAccepts = req.getHeaders(headerName); enumAccepts.hasMoreElements();) {
+                        String mimeType = enumAccepts.nextElement();
+                        if (mimeType == null) {
+                            continue;
+                        }
+                        mimeType = mimeType.trim();
+                        // trim out the optional stuff
+                        int pos = mimeType.indexOf(';');
+                        if (pos > 0) {
+                            mimeType = mimeType.substring(0, pos).trim();
+                        }
+                        accepts.add( mimeType );
+                    }
+                    // sort the list to longest first and shortest last
+                    Collections.sort(accepts, new ShortestStringLastComparator());
+                    for (String mimeType : accepts) {
+                        String f = mimeTypeToFormat.get(mimeType);
+                        if (f != null) {
+                            format = f;
+                            break; // FOUND A MIME MATCH
+                        }
+                    }
+                    break; // STOP CHECKING HEADERS
+                }
+            }
+        }
+        if (format == null || "".equals(format)) {
+            // set the default value
+            format = defaultFormat;
+        }
+        RequestUtils.setResponseEncoding(format, res);
+        return format;
+    }
+
+    /**
+     * Comparator which puts the longest strings first and the shortest last
+     */
+    public static class ShortestStringLastComparator implements Comparator<String>, Serializable {
+        public static final long serialVersionUID = 11L;
+        public int compare(String o1, String o2) {
+            int compare = 0;
+            if (o1 == null && o2 == null) {
+                compare = 0;
+            } else if (o1 == null) {
+                compare = 1;
+            } else if (o2 == null) {
+                compare = -1;
+            } else {
+                compare = o2.length() - o1.length();
+            }
+            return compare;
+        }
+    }
+
     // put the keys which should be ignored in this array which will be placed in a set and ignored
     public static String[] ignoreForSearch = new String[] {
         EntityRequestHandler.COMPENSATE_METHOD,
@@ -353,21 +493,12 @@ public class RequestUtils {
      * @param res the current outgoing response
      */
     public static void setResponseEncoding(String format, HttpServletResponse res) {
-        String encoding;
-        if (Formats.XML.equals(format)) {
-            encoding = Formats.XML_MIME_TYPE;
-        } else if (Formats.HTML.equals(format)) {
-            encoding = Formats.HTML_MIME_TYPE;
-        } else if (Formats.FORM.equals(format)) {
-            encoding = Formats.FORM_MIME_TYPE;
-        } else if (Formats.JSON.equals(format)) {
-            encoding = Formats.JSON_MIME_TYPE;
-        } else if (Formats.RSS.equals(format)) {
-            encoding = Formats.RSS_MIME_TYPE;                        
-        } else if (Formats.ATOM.equals(format)) {
-            encoding = Formats.ATOM_MIME_TYPE;                        
-        } else {
-            encoding = Formats.TXT_MIME_TYPE;
+        String encoding = Formats.TXT_MIME_TYPE;
+        if (format != null) {
+            String mimeType = formatToMimeType.get(format);
+            if (mimeType != null) {
+                encoding = mimeType;
+            }
         }
         res.setContentType(encoding);
         res.setCharacterEncoding(Formats.UTF_8);

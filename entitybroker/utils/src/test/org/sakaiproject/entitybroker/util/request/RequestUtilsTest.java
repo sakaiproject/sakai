@@ -20,6 +20,8 @@
 
 package org.sakaiproject.entitybroker.util.request;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +30,7 @@ import junit.framework.TestCase;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Order;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.util.http.EntityHttpServletRequest;
 import org.sakaiproject.entitybroker.util.http.EntityHttpServletResponse;
 import org.sakaiproject.entitybroker.util.request.RequestUtils;
 
@@ -198,6 +201,76 @@ public class RequestUtilsTest extends TestCase {
       RequestUtils.setResponseEncoding(Formats.XML, res);
       assertEquals(Formats.UTF_8, res.getCharacterEncoding());
       assertEquals(Formats.XML_MIME_TYPE, res.getContentType());
+   }
+
+   public void testShortComparator() {
+       ArrayList<String> l = new ArrayList<String>();
+       l.add("E");
+       l.add("DD");
+       l.add("BBBBB");
+       l.add("CCC");
+       l.add("AAAAAAAAAA");
+
+       Collections.sort(l, new RequestUtils.ShortestStringLastComparator());
+
+       assertNotNull(l);
+       assertEquals("AAAAAAAAAA", l.get(0));
+       assertEquals("BBBBB", l.get(1));
+       assertEquals("CCC", l.get(2));
+       assertEquals("DD", l.get(3));
+       assertEquals("E", l.get(4));
+   }
+
+   public void testFindAndHandleFormat() {
+       EntityHttpServletRequest req = new EntityHttpServletRequest("/stuff/111.xml");
+       EntityHttpServletResponse res = new EntityHttpServletResponse();
+       String format = null;
+
+       req = new EntityHttpServletRequest("/stuff/111.xml");
+       res = new EntityHttpServletResponse();
+       format = RequestUtils.findAndHandleFormat(req, res, null);
+       assertNotNull(format);
+       assertEquals(Formats.XML, format);
+
+       req = new EntityHttpServletRequest("/stuff/111.html");
+       res = new EntityHttpServletResponse();
+       format = RequestUtils.findAndHandleFormat(req, res, null);
+       assertNotNull(format);
+       assertEquals(Formats.HTML, format);
+
+       req = new EntityHttpServletRequest("/stuff/111.json");
+       res = new EntityHttpServletResponse();
+       format = RequestUtils.findAndHandleFormat(req, res, null);
+       assertNotNull(format);
+       assertEquals(Formats.JSON, format);
+
+       req = new EntityHttpServletRequest("/stuff/111");
+       res = new EntityHttpServletResponse();
+       format = RequestUtils.findAndHandleFormat(req, res, null);
+       assertNotNull(format);
+       assertEquals(Formats.HTML, format);
+
+       // test the accept header works
+       req = new EntityHttpServletRequest("/stuff/111");
+       req.addHeader("Accept", Formats.XML_MIME_TYPE);
+       res = new EntityHttpServletResponse();
+       format = RequestUtils.findAndHandleFormat(req, res, null);
+       assertNotNull(format);
+       assertEquals(Formats.XML, format);
+
+       req = new EntityHttpServletRequest("/stuff/111");
+       req.addHeader("Accept", Formats.JSON_MIME_TYPE, Formats.TXT_MIME_TYPE, "text/*", "*/*");
+       res = new EntityHttpServletResponse();
+       format = RequestUtils.findAndHandleFormat(req, res, null);
+       assertNotNull(format);
+       assertEquals(Formats.JSON, format);
+
+       req = new EntityHttpServletRequest("/stuff/111");
+       req.addHeader("Accept", "fakey/*", "something/thing", "*/*");
+       res = new EntityHttpServletResponse();
+       format = RequestUtils.findAndHandleFormat(req, res, null);
+       assertNotNull(format);
+       assertEquals(Formats.HTML, format);
    }
 
 }
