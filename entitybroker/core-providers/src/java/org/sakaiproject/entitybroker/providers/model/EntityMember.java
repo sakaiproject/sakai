@@ -28,6 +28,7 @@ import org.azeckoski.reflectutils.annotations.ReflectIgnoreClassFields;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityFieldRequired;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityLastModified;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityOwner;
@@ -44,9 +45,12 @@ public class EntityMember implements Member {
 
     @EntityId
     private String id;
+    @EntityFieldRequired
     @EntityOwner
     private String userId;
+    @EntityFieldRequired
     private String locationReference;
+    @EntityFieldRequired
     private String memberRole;
     private String userEid;
     private boolean active = true;

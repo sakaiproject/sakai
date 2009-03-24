@@ -27,6 +27,7 @@ import java.util.Stack;
 
 import org.azeckoski.reflectutils.annotations.ReflectIgnoreClassFields;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityFieldRequired;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityLastModified;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityOwner;
@@ -51,6 +52,7 @@ public class EntityUser implements User {
 
     @EntityId
     private String id;
+    @EntityFieldRequired
     private String eid;
     private String password;
     private String email;

@@ -36,6 +36,7 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityFieldRequired;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityLastModified;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityOwner;
@@ -63,6 +64,7 @@ public class EntitySite implements Site {
 
     @EntityId
     private String id;
+    @EntityFieldRequired
     private String title;
     private String shortDescription;
     private String description;
@@ -76,6 +78,7 @@ public class EntitySite implements Site {
     private String skin;
     private boolean published;
     private boolean pubView;
+    @EntityFieldRequired
     private String type;
     private String providerGroupId;
     private boolean customPageOrdered;

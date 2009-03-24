@@ -417,7 +417,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
     }
 
     public String[] getHandledOutputFormats() {
-        return new String[] { Formats.XML, Formats.JSON };
+        return new String[] { Formats.XML, Formats.JSON, Formats.FORM };
     }
 
 

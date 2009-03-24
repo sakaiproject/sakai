@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityDateCreated;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityFieldRequired;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityLastModified;
 import org.sakaiproject.tool.api.ContextSession;
@@ -47,6 +49,7 @@ public class EntitySession implements Session {
    private long lastAccessedTime;
    private int maxInactiveInterval;
    private String userEid;
+   @EntityFieldRequired
    private String userId;
    private boolean active = true;
 
@@ -108,6 +111,7 @@ public class EntitySession implements Session {
       this.id = id;
    }
 
+   @EntityDateCreated
    public long getCreationTime() {
       return creationTime;
    }
