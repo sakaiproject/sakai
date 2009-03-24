@@ -27,9 +27,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
@@ -45,8 +42,6 @@ import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
 public abstract class DirectServlet extends HttpServlet {
-
-    protected static final Log log = LogFactory.getLog(DirectServlet.class);
 
     protected transient EntityRequestHandler entityRequestHandler;
     public void setEntityRequestHandler(EntityRequestHandler entityRequestHandler) {
@@ -185,7 +180,7 @@ public abstract class DirectServlet extends HttpServlet {
             try {
                 entityRequestHandler.handleEntityAccess(req, res, path);
             } catch (EntityException e) {
-                log.warn("Could not process entity: "+e.entityReference+" ("+e.responseCode+")["+e.getCause()+"]: "+e.getMessage());
+                System.out.println("WARN Could not process entity: "+e.entityReference+" ("+e.responseCode+")["+e.getCause()+"]: "+e.getMessage());
                 // no longer catching FORBIDDEN or UNAUTHORIZED here
                 //            if (e.responseCode == HttpServletResponse.SC_UNAUTHORIZED ||
                 //                  e.responseCode == HttpServletResponse.SC_FORBIDDEN) {
@@ -197,8 +192,8 @@ public abstract class DirectServlet extends HttpServlet {
             // the end user does not have permission - offer a login if there is no user id yet
             // established,  if not permitted, and the user is the anon user, let them login
             if (getCurrentLoggedInUserId() == null) {
-                log.debug("Attempted to access an entity URL path (" + path
-                        + ") for a resource which requires authentication without a session", e);
+                //                log.debug("Attempted to access an entity URL path (" + path
+                //                        + ") for a resource which requires authentication without a session", e);
                 //            // store the original request type and query string, this is needed because the method gets lost when Sakai handles the login
                 //            path = path + (req.getQueryString() == null ? "?" : "?"+req.getQueryString()) + ORIGINAL_METHOD + "=" + req.getMethod();
                 path = path + (req.getQueryString() == null ? "" : "?"+req.getQueryString()); // preserve the query string
@@ -207,12 +202,12 @@ public abstract class DirectServlet extends HttpServlet {
             }
             // otherwise reject the request
             String msg = "Security exception accessing entity URL: " + path + " (current user not allowed): " + e.getMessage();
-            log.warn(msg);
+            System.out.println("WARN " + msg);
             sendError(res, HttpServletResponse.SC_FORBIDDEN, msg);
         } catch (Exception e) {
             // all other cases
             String msg = entityRequestHandler.handleEntityError(req, e);
-            log.warn(msg, e);
+            System.err.println("WARN " + msg + " :" + e);
             sendError(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, msg);
         }
 
@@ -231,7 +226,7 @@ public abstract class DirectServlet extends HttpServlet {
             res.reset();
             res.sendError(code, message);
         } catch (Exception e) {
-            log.warn("Error sending http servlet error code ("+code+") and message ("+message+"): " + e.getMessage(), e);
+            System.err.println("WARN Error sending http servlet error code ("+code+") and message ("+message+"): " + e);
         }
     }
 

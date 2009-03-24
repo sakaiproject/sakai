@@ -156,7 +156,7 @@ public class EntityHandlerImplTest extends TestCase {
             fail("Should have thrown exception");
         } catch (EntityException e) {
             assertNotNull(e.getMessage());
-            assertEquals(HttpServletResponse.SC_BAD_REQUEST, e.responseCode);
+            assertEquals(HttpServletResponse.SC_NOT_ACCEPTABLE, e.responseCode);
         }
     }
 

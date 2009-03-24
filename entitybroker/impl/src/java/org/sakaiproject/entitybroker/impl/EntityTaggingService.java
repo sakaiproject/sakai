@@ -37,7 +37,7 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.TagProvideable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Taggable;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
-import org.sakaiproject.entitybroker.entityprovider.extension.TagProvider;
+import org.sakaiproject.entitybroker.entityprovider.extension.TagSearchService;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.genericdao.api.search.Order;
 import org.sakaiproject.genericdao.api.search.Restriction;
@@ -50,7 +50,7 @@ import org.sakaiproject.genericdao.api.search.Search;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public class EntityTaggingService implements TagProvider {
+public class EntityTaggingService implements TagSearchService {
 
    private EntityBrokerDao dao;
    public void setDao(EntityBrokerDao dao) {

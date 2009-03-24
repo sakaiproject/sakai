@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderMethodStore;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RedirectControllable;
@@ -50,8 +48,6 @@ import org.sakaiproject.entitybroker.util.request.RequestUtils;
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 public class EntityRedirectsManager {
-
-    private static Log log = LogFactory.getLog(EntityRedirectsManager.class);
 
     /**
      * Empty constructor
@@ -152,7 +148,7 @@ public class EntityRedirectsManager {
                         try {
                             requestStorage.setStoredValue(entry.getKey(), entry.getValue());
                         } catch (IllegalArgumentException e) {
-                            log.warn("Had to skip key (" + entry.getKey() + ") while adding keys to request storage: " + e.getMessage());
+                            System.out.println("WARN: EntityRedirectsManager: Had to skip key (" + entry.getKey() + ") while adding keys to request storage: " + e);
                         }
                     }
                     // do the redirect
@@ -235,7 +231,7 @@ public class EntityRedirectsManager {
                             targetURL = TemplateParseUtil.mergeTemplate(redirect.outgoingTemplate, segmentValues);
                         } catch (IllegalArgumentException e) {
                             targetURL = null;
-                            log.warn("Unable to merge target template ("+redirect.outgoingTemplate+") with available variables: " + e.getMessage());
+                            System.out.println("WARN: EntityRedirectsManager: Unable to merge target template ("+redirect.outgoingTemplate+") with available variables: " + e);
                         }
                     } else {
                         // should never get here

@@ -26,8 +26,6 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
 
 /**
@@ -38,8 +36,6 @@ import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 public abstract class AbstractEntityPropertiesService implements EntityPropertiesService {
-
-    private static final Log log = LogFactory.getLog(AbstractEntityPropertiesService.class);
 
     public static interface MessageBundle {
         /**
@@ -110,9 +106,9 @@ public abstract class AbstractEntityPropertiesService implements EntityPropertie
         }
         List<String> keys = registerLocaleMessages(prefix, baseName, locale, classLoader);
         if (keys.size() > 0) {
-            log.info("Added "+keys.size()+" properties for entity prefix (" + prefix + ") and basename ("+baseName+")");
+            System.out.println("INFO EntityPropertiesService: Added "+keys.size()+" properties for entity prefix (" + prefix + ") and basename ("+baseName+")");
         } else {
-            log.warn("No properties to load for entity prefix (" + prefix + ") and basename ("+baseName+")");
+            System.out.println("INFO EntityPropertiesService: No properties to load for entity prefix (" + prefix + ") and basename ("+baseName+")");
         }
     }
 

@@ -277,10 +277,19 @@ public interface EntityBrokerManager {
     public void setEntityRESTProvider(EntityRESTProvider entityRESTProvider);
 
     /**
+     * Used to get a version info string which can be output to see what version we are working with
+     */
+    public String getVersionInfo();
+
+    /**
      * FOR INTERNAL USE ONLY (do not mess with this in other words)
      * @param servletContext sets the servlet context being used by the system (defaults to {@link #DIRECT})
      */
     public void setServletContext(String servletContext);
-    
+    /**
+     * FOR INTERNAL USE ONLY (do not mess with this in other words)
+     * This gets the known REST servlet context if there is one, will return a default "/rest" if none is known, will not return "" or null
+     */
+    public String getServletContext();
 
 }

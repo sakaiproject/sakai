@@ -68,7 +68,7 @@ public class TemplateParseUtil {
    public static final String QUESTION_QUERY_STRING = "question-query-string";
    public static final String PREFIX_VARIABLE = "{"+PREFIX+"}";
    public static final String TEMPLATE_PREFIX = SEPARATOR + PREFIX_VARIABLE;
-   public static final String DIRECT_PREFIX = SEPARATOR + "direct";
+   public static final String DIRECT_PREFIX = EntityView.DIRECT_PREFIX;
    public static final String DIRECT_PREFIX_SLASH = DIRECT_PREFIX + SEPARATOR;
 
    /**

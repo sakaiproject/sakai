@@ -117,6 +117,7 @@ public class EntityBrokerRESTServiceManager {
      * (i.e. all the required services are set)
      */
     public void init() {
+        System.out.println("INFO: EntityBrokerRESTServiceManager: init()");
         if (this.entityBrokerManager == null
                 || this.requestGetter == null
                 || this.requestStorage == null
@@ -160,6 +161,7 @@ public class EntityBrokerRESTServiceManager {
      * Shuts down all services and cleans up
      */
     public void destroy() {
+        System.out.println("INFO: EntityBrokerRESTServiceManager: destroy()");
         // cleanup everything
         setInstance(null);
         this.entityRESTProvider.destroy();

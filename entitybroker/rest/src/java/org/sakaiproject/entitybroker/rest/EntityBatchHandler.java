@@ -24,8 +24,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.azeckoski.reflectutils.ArrayUtils;
 import org.azeckoski.reflectutils.map.ArrayOrderedMap;
 import org.sakaiproject.entitybroker.EntityBrokerManager;
@@ -63,9 +61,9 @@ public class EntityBatchHandler {
     /**
      * This is the name of the parameter which is used to pass along the reference URLs to be batch processed
      */
-    private static final String REFS_PARAM_NAME = "_refs";
+    public static final String REFS_PARAM_NAME = "_refs";
     private static final String UNIQUE_DATA_PREFIX = "X-XqReplaceQX-X-";
-    private static final Log log = LogFactory.getLog(EntityBatchHandler.class);
+
     private static String INTERNAL_SERVER_ERROR_STATUS_STRING = HttpServletResponse.SC_INTERNAL_SERVER_ERROR+"";
 
     /**
@@ -185,7 +183,7 @@ public class EntityBatchHandler {
             // NOTE: this duplicate check happens again slightly down below so change both at once
             if (! Method.POST.equals(method) 
                     && processedRefsAndURLs.contains(reference)) {
-                log.warn("Found a duplicate reference, this will not be processed: " + reference);
+                System.out.println("WARN: EntityBatchHandler: Found a duplicate reference, this will not be processed: " + reference);
                 continue; // skip for GET/DELETE/PUT
             }
             // fix anything that does not start with a slash or http
@@ -234,7 +232,7 @@ public class EntityBatchHandler {
                     success = true;
                 } catch (IllegalArgumentException e) {
                     String errorMessage = "Failure parsing direct entityURL ("+entityURL+") from reference ("+reference+") from path ("+ud.pathInfo+"): " + e.getMessage() + ":" + e.getCause();
-                    log.warn(errorMessage);
+                    System.out.println("WARN: EntityBatchHandler: " + errorMessage);
                     result = new ResponseError(reference, entityURL, errorMessage);
                 }
 
@@ -258,7 +256,7 @@ public class EntityBatchHandler {
                     // NOTE: this duplicate check happens again slightly above so change both at once
                     if (! Method.POST.equals(method) 
                             && processedRefsAndURLs.contains(entityURL)) {
-                        log.warn("Found a duplicate entityURL, this will not be processed: " + entityURL);
+                        System.out.println("WARN: EntityBatchHandler: Found a duplicate entityURL, this will not be processed: " + entityURL);
                         continue; // skip
                     }
 
@@ -338,6 +336,8 @@ public class EntityBatchHandler {
         } catch (IOException e) {
             throw new RuntimeException("Unable to encode data for overall response: " + e.getMessage(), e);
         }
+        // set encoding
+        RequestUtils.setResponseEncoding(format, res);
         // set overall status code
         res.setStatus(overallStatus);
     }
@@ -376,7 +376,8 @@ public class EntityBatchHandler {
                         // fix key by removing the ref#. prefix
                         key = key.substring(refKey.length());
                         if (key.length() == 0) {
-                            log.warn("Skipping invalid reference param name ("+entry.getKey()+"), " +
+                            System.out.println("WARN: EntityBatchHandler: " +
+                            		"Skipping invalid reference param name ("+entry.getKey()+"), " +
                             		"name must start with ref#. but MUST have the actual name of the param after that");
                         } else {
                             referencedParams.get(refKey).put(key, entry.getValue());
@@ -483,7 +484,7 @@ public class EntityBatchHandler {
                 redirected = false; // assume no redirect
             } catch (Exception e) {
                 String errorMessage = "Failure attempting to process reference ("+reference+") for url ("+entityURL+"): " + e.getMessage() + ":" + e;
-                log.warn(errorMessage, e);
+                System.out.println("WARN: EntityBatchHandler: " + errorMessage);
                 error = new ResponseError(reference, entityURL, errorMessage);
                 break; // take us out if there is a failure
             }
@@ -598,7 +599,7 @@ public class EntityBatchHandler {
                     params, null, guaranteeSSL);
         } catch (RuntimeException e) {
             String errorMessage = "Failure attempting to process external URL ("+entityURL+") from reference ("+reference+"): " + e.getMessage() + ":" + e;
-            log.warn(errorMessage); //, e); // remove ,e to reduce error here
+            System.out.println("WARN: EntityBatchHandler: " + errorMessage);
             error = new ResponseError(reference, entityURL, errorMessage);
         }
 

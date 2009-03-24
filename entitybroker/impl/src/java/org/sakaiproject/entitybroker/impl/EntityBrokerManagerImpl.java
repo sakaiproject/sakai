@@ -77,9 +77,14 @@ import org.sakaiproject.entitybroker.util.request.RequestUtils;
  * rather than the user-facing EntityBroker directly.
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
- * @author Antranig Basman (antranig@caret.cam.ac.uk)
  */
 public class EntityBrokerManagerImpl implements EntityBrokerManager {
+    public static String SVN_REVISION = "$Revision$";
+    public static String SVN_LAST_UPDATE = "$Date$";
+
+    public String getVersionInfo() {
+        return "MANAGER:: SVN: " + SVN_REVISION + " : " + SVN_LAST_UPDATE;
+    }
 
     public EntityBrokerManagerImpl() { }
 
@@ -128,6 +133,7 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
     public void setServletContext(String servletContext) {
         if (servletContext != null) {
             this.servletContext = servletContext;
+            System.out.println("Setting the manager servlet context to: " + servletContext);
         }
     }
 

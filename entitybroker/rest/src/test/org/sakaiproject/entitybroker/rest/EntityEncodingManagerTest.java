@@ -92,14 +92,14 @@ public class EntityEncodingManagerTest extends TestCase {
         EntityData ed = null;
 
         ed = new EntityData(new EntityReference(TestData.REF4), "Aaron Title", TestData.entity4);
-        encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, ed);
+        encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, ed, null);
         assertNotNull(encoded);
         assertTrue(encoded.contains(TestData.PREFIX4));
         assertTrue(encoded.contains("Aaron Title"));
         assertTrue(encoded.contains("something0"));
 
         ed = new EntityData(new EntityReference(TestData.REF4), "Aaron Title2", TestData.entity4_two);
-        encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, ed);
+        encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, ed, null);
         assertNotNull(encoded);
         assertTrue(encoded.contains(TestData.PREFIX4));
         assertTrue(encoded.contains("Aaron Title2"));
@@ -111,7 +111,7 @@ public class EntityEncodingManagerTest extends TestCase {
         map.put("B", "becky");
         map.put("C", "minerva");
         ed = new EntityData(map);
-        encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, ed);
+        encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, ed, null);
         assertNotNull(encoded);
         assertTrue(encoded.contains(TestData.PREFIX4));
         assertTrue(encoded.contains("aaron"));
@@ -122,7 +122,7 @@ public class EntityEncodingManagerTest extends TestCase {
         l.add("BZ");
         l.add("CZ");
         ed = new EntityData(l);
-        encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, ed);
+        encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, ed, null);
         assertNotNull(encoded);
         assertTrue(encoded.contains(TestData.PREFIX4));
         assertTrue(encoded.contains("AZ"));
@@ -130,7 +130,7 @@ public class EntityEncodingManagerTest extends TestCase {
 
         String[] array = new String[] {"A","B","C"};
         ed = new EntityData(array);
-        encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, ed);
+        encoded = entityEncodingManager.encodeEntity(TestData.PREFIX4, Formats.XML, ed, null);
         assertNotNull(encoded);
         assertTrue(encoded.contains(TestData.PREFIX4));
         assertTrue(encoded.contains("A"));

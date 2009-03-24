@@ -26,13 +26,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.azeckoski.reflectutils.ReflectUtils;
 import org.azeckoski.reflectutils.transcoders.HTMLTranscoder;
 import org.azeckoski.reflectutils.transcoders.JSONTranscoder;
 import org.azeckoski.reflectutils.transcoders.Transcoder;
 import org.azeckoski.reflectutils.transcoders.XMLTranscoder;
+
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityBrokerManager;
@@ -49,8 +48,6 @@ import org.sakaiproject.entitybroker.providers.EntityRESTProvider;
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
 public abstract class AbstractDeveloperHelperService implements DeveloperHelperService {
-
-    private static final Log log = LogFactory.getLog(AbstractDeveloperHelperService.class);
 
     /**
      * EMPTY - do not use
@@ -100,7 +97,7 @@ public abstract class AbstractDeveloperHelperService implements DeveloperHelperS
         }
         Map<String, Object> decoded = new HashMap<String, Object>(0);
         if (getEntityRESTProvider() == null) {
-            log.warn("No entityRESTProvider available for decoding, using basic internal decoder");
+            System.out.println("WARN No entityRESTProvider available for decoding, using basic internal decoder");
             if (data != null) {
                 Transcoder transcoder = getTranscoder(format);
                 try {
@@ -125,7 +122,7 @@ public abstract class AbstractDeveloperHelperService implements DeveloperHelperS
         }
         String encoded = "";
         if (getEntityRESTProvider() == null) {
-            log.warn("No entityRESTProvider available for encoding, using basic internal encoder");
+            System.out.println("WARN No entityRESTProvider available for encoding, using basic internal encoder");
             if (data != null) {
                 Transcoder transcoder = getTranscoder(format);
                 try {
@@ -278,7 +275,7 @@ public abstract class AbstractDeveloperHelperService implements DeveloperHelperS
         if (userId != null) {
             locationRef = GROUP_BASE + "~" + userId; // make this manually
         } else {
-            log.warn("Cannot get the userhome locationReference because there is no current user: " + userReference);
+            System.out.println("WARN Cannot get the userhome locationReference because there is no current user: " + userReference);
         }
         return locationRef;
     }

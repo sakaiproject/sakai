@@ -23,6 +23,7 @@ package org.sakaiproject.entitybroker.rest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -40,6 +41,7 @@ import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderMethodStore;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityFieldRequired;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Createable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Deleteable;
@@ -56,10 +58,8 @@ import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
 import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
 import org.sakaiproject.entitybroker.rest.caps.BatchProvider;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
-import org.sakaiproject.entitybroker.util.VersionConstants;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.azeckoski.reflectutils.ArrayUtils;
+import org.azeckoski.reflectutils.ClassFields;
 import org.azeckoski.reflectutils.ConstructorUtils;
 import org.azeckoski.reflectutils.ReflectUtils;
 import org.azeckoski.reflectutils.ClassFields.FieldsFilter;
@@ -74,14 +74,13 @@ import org.azeckoski.reflectutils.ClassFields.FieldsFilter;
 @SuppressWarnings("deprecation")
 public class EntityDescriptionManager {
 
-    private static final Log log = LogFactory.getLog(EntityDescriptionManager.class);
-
     private static final String INPUT_DESCRIBE_KEY = "input";
     private static final String OUTPUT_DESCRIBE_KEY = "output";
     private static final String VIEW_KEY_PREFIX = "view.";
     private static final String FIELD_KEY_PREFIX = "field.";
     private static final String REDIRECT_KEY_PREFIX = "redirect.";
-    protected static String ACTION_KEY_PREFIX = "action.";
+    protected static final String ACTION_KEY_PREFIX = "action.";
+
     protected static String DESCRIBE = EntityRequestHandler.DESCRIBE;
     protected static String SLASH_DESCRIBE = EntityRequestHandler.SLASH_DESCRIBE;
     protected static String FAKE_ID = EntityRequestHandler.FAKE_ID;
@@ -97,11 +96,10 @@ public class EntityDescriptionManager {
     "<body>\n";
     // include versions info in the footer now
     protected static final String XHTML_FOOTER = "<br/>\n<div style='width:100%;text-align:center;font-style:italic;font-size:0.9em;'>"
-    		+ "<b>" + VersionConstants.APP_VERSION + "</b> :: SVN: " + VersionConstants.SVN_REVISION 
-    		+ " : " + VersionConstants.SVN_LAST_UPDATE + "</div>"
-    		+ "\n</body>\n</html>\n";
+        + "REST:: <b>" + EntityHandlerImpl.APP_VERSION + "</b> SVN: " + EntityHandlerImpl.SVN_REVISION + " : " + EntityHandlerImpl.SVN_LAST_UPDATE 
+        + "</div>\n"
+        + "</body>\n</html>\n";
 
-    
     protected EntityDescriptionManager() { }
 
     /**
@@ -132,7 +130,7 @@ public class EntityDescriptionManager {
     private EntityProvider describeEP = null;
     private EntityProvider batchEP = null;
     public void init() {
-        log.info("init");
+        System.out.println("INFO: EntityDescriptionManager: init()");
         // register the describe and batch prefixes to load up descriptions
         describeEP = new DescribePropertiesable() {
             public String getEntityPrefix() {
@@ -165,19 +163,20 @@ public class EntityDescriptionManager {
     }
 
     public void destroy() {
-        log.info("destroy");
-        if (describeEP != null) {
-            try {
-                entityProviderManager.unregisterEntityProvider(describeEP);
-            } catch (RuntimeException e) {
-                log.warn("Unable to unregister the describe and batch description providers");
-            }
-        }
+        System.out.println("INFO: EntityDescriptionManager: destroy()");
+        // NOTE: do not try to unregister describe
+//        if (describeEP != null) {
+//            try {
+//                entityProviderManager.unregisterEntityProvider(describeEP);
+//            } catch (RuntimeException e) {
+//                System.out.println("WARN: EntityDescriptionManager: Unable to unregister the describe description provider: " + e);
+//            }
+//        }
         if (batchEP != null) {
             try {
                 entityProviderManager.unregisterEntityProvider(batchEP);
             } catch (RuntimeException e) {
-                log.warn("Unable to unregister the describe and batch description providers");
+                System.out.println("WARN: EntityDescriptionManager: Unable to unregister the batch description provider: " + e);
             }
         }
     }
@@ -231,7 +230,7 @@ public class EntityDescriptionManager {
         // take out the "describe" EP if it is in there
         map.remove(DESCRIBE);
         // now get to creating the descriptions
-        String describeURL = entityBrokerManager.makeFullURL("") + SLASH_DESCRIBE;
+        String describeURL = entityBrokerManager.getServletContext() + SLASH_DESCRIBE;
         String output = "";
         if (Formats.XML.equals(format)) {
             // XML available in case someone wants to parse this in javascript or whatever
@@ -280,10 +279,10 @@ public class EntityDescriptionManager {
      */
     private String makeXMLVersion() {
         StringBuilder sb = new StringBuilder();
-        sb.append("  <version>" + VersionConstants.APP_VERSION + "</version>\n");
+        sb.append("  <version>" + EntityHandlerImpl.APP_VERSION + "</version>\n");
         sb.append("  <svn>\n");
-        sb.append("    <revision>"+VersionConstants.SVN_REVISION+"</revision>\n");
-        sb.append("    <last-update>"+VersionConstants.SVN_LAST_UPDATE+"</last-update>\n");
+        sb.append("    <revision>"+EntityHandlerImpl.SVN_REVISION+"</revision>\n");
+        sb.append("    <last-update>"+EntityHandlerImpl.SVN_LAST_UPDATE+"</last-update>\n");
         sb.append("  </svn>\n");
         return sb.toString();
     }
@@ -339,14 +338,18 @@ public class EntityDescriptionManager {
         if (locale == null) {
             locale = entityProperties.getLocale();
         }
-        String directUrl = entityBrokerManager.makeFullURL("");
+        String servletUrl = entityBrokerManager.getServletContext();
         if (Formats.XML.equals(format)) {
             // XML available in case someone wants to parse this in javascript or whatever
-            String describePrefixUrl = directUrl + "/" + prefix + SLASH_DESCRIBE;
+            String describePrefixUrl = servletUrl + "/" + prefix + SLASH_DESCRIBE;
             sb.append("    <prefix>\n");
             sb.append("      <prefix>" + prefix + "</prefix>\n");
             sb.append("      <describeURL>" + describePrefixUrl + "</describeURL>\n");
-            String description = getEntityDescription(prefix, null, locale);
+            String summary = getEntityDescription(prefix, null, locale);
+            if (summary != null) {
+                sb.append("      <summary>" + summary + "</summary>\n");            
+            }
+            String description = getEntityDescription(prefix, "description", locale);
             if (description != null) {
                 sb.append("      <description>" + description + "</description>\n");            
             }
@@ -395,7 +398,7 @@ public class EntityDescriptionManager {
                         sb.append("      <customActions>\n");
                         sb.append("        <customAction>\n");
                         sb.append("          <action>"+customAction.action+"</action>\n");
-                        sb.append("          <url>"+directUrl+makeActionURL(ev, customAction)+"</url>\n");
+                        sb.append("          <url>"+servletUrl+makeActionURL(ev, customAction)+"</url>\n");
                         if (customAction.viewKey == null || "".equals(customAction.viewKey)) {
                             sb.append("          <method/>\n");
                             sb.append("          <viewKey/>\n");
@@ -449,7 +452,8 @@ public class EntityDescriptionManager {
                 sb.append("       </inputFormats>\n");
 
                 EntityViewAccessProvider evap = entityViewAccessProviderManager.getProvider(prefix);
-                HttpServletAccessProvider hsap = httpServletAccessProviderManager.getProvider(prefix);
+                // httpServletAccessProviderManager is deprecated and can be null
+                HttpServletAccessProvider hsap = httpServletAccessProviderManager == null ? null : httpServletAccessProviderManager.getProvider(prefix);
                 if (evap != null || hsap != null) {
                     sb.append("      <accessProvider>\n");
                     if (evap != null) {
@@ -569,16 +573,22 @@ public class EntityDescriptionManager {
             sb.append("    </prefix>\n");
         } else {
             // just do HTML if not one of the handled ones
-            String describePrefixUrl = directUrl + "/" + prefix + SLASH_DESCRIBE;
-            sb.append("    <h3><a href='"+describePrefixUrl+"'>"+prefix+"</a>"
+            String describePrefixUrl = servletUrl + "/" + prefix + SLASH_DESCRIBE;
+            sb.append("    <h3 style='margin-bottom: 0.3em;'><a href='"+describePrefixUrl+"'>"+prefix+"</a>"
                     + makeFormatUrlHtml(describePrefixUrl, Formats.XML) +"</h3>\n");
-            String description = getEntityDescription(prefix, null, locale);
-            if (description != null) {
-                sb.append("      <div style='font-style: italics; padding-left:0.5em; padding-bottom:0.4em; width:90%;'>" + description + "</div>\n");
+            String summary = getEntityDescription(prefix, null, locale);
+            if (summary != null) {
+                sb.append("      <div style='padding-left:0.5em; padding-bottom:0.2em; width:90%;'>" + summary + "</div>\n");
             }
             if (extra) {
-                sb.append("      <div style='font-style: italics; padding-left:1em;'>" +
-                "RESTful URLs: <a href='http://microformats.org/wiki/rest/urls'>http://microformats.org/wiki/rest/urls</a></div>\n");
+                String description = getEntityDescription(prefix, "description", locale);
+                if (description != null) {
+                    sb.append("      <div style='padding-left:1em; padding-bottom:0.4em; width:90%; font-size:0.9em;'>" + description + "</div>\n");
+                }
+                sb.append("      <div style='font-style: italic; padding-left:1em;'>" 
+                        + "RESTful URLs: <a href='http://microformats.org/wiki/rest/urls'>http://microformats.org/wiki/rest/urls</a></div>\n");
+                sb.append("      <div style='font-style: italic; padding-left:2em; font-size:0.9em;'>" + entityProperties.getProperty(DESCRIBE, "describe.response.codes", locale) + "</div>\n");
+
                 String[] outputFormats = getFormats(prefix, true);
 
                 // URLs
@@ -598,11 +608,13 @@ public class EntityDescriptionManager {
                         url = ev.getEntityURL(EntityView.VIEW_LIST, null);
                         sb.append("        <div>\n");
                         sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.collection.url", locale)
-                                +": GET <a href='"+ directUrl+url +"'>"+url+"</a>"
-                                + makeFormatsUrlHtml(directUrl+url, outputFormats) +"</div>\n");
+                                +": GET <a href='"+ servletUrl+url +"'>"+url+"</a>"
+                                + makeFormatsUrlHtml(servletUrl+url, outputFormats) 
+                                + "</div>\n");
+                        sb.append( generateMethodDetails(EntityView.VIEW_LIST, locale) );
                         String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_LIST, locale);
                         if (viewDesc != null) {
-                            sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+viewDesc+"</div>\n");
+                            sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:2em;'>"+viewDesc+"</div>\n");
                         }
                         sb.append("        </div>\n");
                     }
@@ -610,35 +622,43 @@ public class EntityDescriptionManager {
                         url = ev.getEntityURL(EntityView.VIEW_NEW, null);
                         sb.append("        <div>\n");
                         sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.create.url", locale)
-                                +": POST <a href='"+ directUrl+url +"'>"+url+"</a></div>\n");
+                                +": POST <a href='"+ servletUrl+url +"'>"+url+"</a>"
+                                + makeFormUrlHtml(servletUrl+url, outputFormats)
+                                +"</div>\n");
+                        sb.append( generateMethodDetails(EntityView.VIEW_NEW, locale) );
                         String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_NEW, locale);
                         if (viewDesc != null) {
-                            sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+viewDesc+"</div>\n");
+                            sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:2em;'>"+viewDesc+"</div>\n");
                         }
                         sb.append("        </div>\n");
                     }
-    
+
                     if (caps.contains(CoreEntityProvider.class) || caps.contains(Resolvable.class)) {
                         url = ev.getEntityURL(EntityView.VIEW_SHOW, null);
                         sb.append("        <div>\n");
                         sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.show.url", locale)
-                                +": GET <a href='"+ directUrl+url +"'>"+url+"</a>"
-                                + makeFormatsUrlHtml(directUrl+url, outputFormats) +"</div>\n");
+                                +": GET <a href='"+ servletUrl+url +"'>"+url+"</a>"
+                                + makeFormatsUrlHtml(servletUrl+url, outputFormats) 
+                                + "</div>\n");
+                        sb.append( generateMethodDetails(EntityView.VIEW_SHOW, locale) );
                         String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_SHOW, locale);
                         if (viewDesc != null) {
-                            sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+viewDesc+"</div>\n");
+                            sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:2em;'>"+viewDesc+"</div>\n");
                         }
                         sb.append("        </div>\n");
                     }
-    
+
                     if (caps.contains(Updateable.class)) {
                         url = ev.getEntityURL(EntityView.VIEW_EDIT, null);
                         sb.append("        <div>\n");
                         sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.update.url", locale)
-                                +": PUT <a href='"+ directUrl+url +"'>"+url+"</a></div>\n");
+                                +": PUT <a href='"+ servletUrl+url +"'>"+url+"</a>"
+                                + makeFormUrlHtml(servletUrl+url, outputFormats)
+                                +"</div>\n");
+                        sb.append( generateMethodDetails(EntityView.VIEW_EDIT, locale) );
                         String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_EDIT, locale);
                         if (viewDesc != null) {
-                            sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+viewDesc+"</div>\n");
+                            sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:2em;'>"+viewDesc+"</div>\n");
                         }
                         sb.append("        </div>\n");
                     }
@@ -646,10 +666,13 @@ public class EntityDescriptionManager {
                         url = ev.getEntityURL(EntityView.VIEW_DELETE, null);
                         sb.append("        <div>\n");
                         sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.delete.url", locale)
-                                +": DELETE <a href='"+ directUrl+url +"'>"+url+"</a></div>\n");
+                                +": DELETE <a href='"+ servletUrl+url +"'>"+url+"</a>"
+                                + makeFormUrlHtml(servletUrl+url, outputFormats)
+                                +"</div>\n");
+                        sb.append( generateMethodDetails(EntityView.VIEW_DELETE, locale) );
                         String viewDesc = getEntityDescription(prefix, VIEW_KEY_PREFIX + EntityView.VIEW_DELETE, locale);
                         if (viewDesc != null) {
-                            sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+viewDesc+"</div>\n");
+                            sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:2em;'>"+viewDesc+"</div>\n");
                         }
                         sb.append("        </div>\n");
                     }
@@ -668,9 +691,9 @@ public class EntityDescriptionManager {
                         if (customAction.viewKey == null 
                                 || EntityView.VIEW_LIST.equals(customAction.viewKey)
                                 || EntityView.VIEW_SHOW.equals(customAction.viewKey)) {
-                            formatsHtml = makeFormatsUrlHtml(directUrl+actionURL, outputFormats);
+                            formatsHtml = makeFormatsUrlHtml(servletUrl+actionURL, outputFormats);
                         }
-                        sb.append("          <a style='font-weight:bold;' href='"+directUrl+actionURL+"'>"
+                        sb.append("          <a style='font-weight:bold;' href='"+servletUrl+actionURL+"'>"
                                 + customAction.action+"</a> : " 
                                 + "<span>"+makeCustomActionKeyMethodText(customAction)+"</span> : "
                                 + "<span>["+actionURL+"]</span> "
@@ -681,6 +704,124 @@ public class EntityDescriptionManager {
                             sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+actionDesc+"</div>\n");
                         }
                         sb.append("        </div>\n");
+                    }
+                    sb.append("      </div>\n");
+                }
+
+                // Redirects
+                List<URLRedirect> redirects = entityProviderMethodStore.getURLRedirects(prefix);
+                if (! redirects.isEmpty()) {
+                    sb.append("      <h4 style='padding-left:0.5em;margin-bottom:0.2em;'>"+entityProperties.getProperty(DESCRIBE, "describe.url.redirects", locale)+"</h4>\n");
+                    sb.append("      <div style='padding-left:1em;padding-bottom:1em;'>\n");
+                    for (int i = 0; i < redirects.size(); i++) {
+                        URLRedirect redirect = redirects.get(i);
+                        sb.append("        <div>\n");
+                        String target = replacePrefix(redirect.outgoingTemplate, prefix);
+                        if (target == null) {
+                            target = "<i>" + entityProperties.getProperty(DESCRIBE, "describe.url.redirects.no.outgoing", locale) + "</i>";
+                        }
+                        sb.append("          <span>"+(i+1)+")</span> &nbsp; "
+                                + makeRedirectLink(replacePrefix(redirect.template, prefix), servletUrl)
+                                + " ==&gt; <span>"+target+"</span><br/>\n");
+                        String redirectDesc = getEntityDescription(prefix, REDIRECT_KEY_PREFIX + redirect.template, locale);
+                        if (redirectDesc != null) {
+                            sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+redirectDesc+"</div>\n");
+                        }
+                        sb.append("        </div>\n");
+                    }
+                    sb.append("      </div>\n");
+                }
+
+                // Resolvable Entity Info
+                Object entity = entityBrokerManager.getSampleEntityObject(prefix, null);
+                if (entity != null) {
+                    Class<?> entityType = entity.getClass();
+                    sb.append("      <h4 style='padding-left:0.5em;margin-bottom:0.2em;'>"+entityProperties.getProperty(DESCRIBE, "describe.entity.class", locale)+" : "+ entityType.getName() +"</h4>\n");
+                    sb.append("      <div style='padding-left:1em;padding-bottom:1em;'>\n");
+                    if (ConstructorUtils.isClassSimple(entityType)) {
+                        sb.append( makeResolveType("simple", null, locale));
+                    } else if (ConstructorUtils.isClassCollection(entityType)) {
+                        sb.append( makeResolveType("collection", null, locale));
+                    } else if (ConstructorUtils.isClassArray(entityType)) {
+                        String cType = "Component Class: " + ArrayUtils.type((Object[])entity).getName();
+                        sb.append( makeResolveType("array", cType, locale));
+                    } else if (ConstructorUtils.isClassMap(entityType)) {
+                        // get the types of the map keys if possible
+                        String mapTypes = null;
+                        Map m = (Map) entity;
+                        if (m.size() > 0) {
+                            Entry entry = (Entry) m.entrySet().iterator().next();
+                            mapTypes = (entry.getKey()==null?Object.class.getName():entry.getKey().getClass().getName())
+                            +" => "
+                            +(entry.getValue()==null?Object.class.getName():entry.getValue().getClass().getName());
+                        }
+                        sb.append( makeResolveType("map", mapTypes, locale));
+                    } else {
+                        sb.append( makeResolveType("bean", null, locale));
+                        sb.append("        <table width='80%' cellpadding='0' cellspacing='0'>\n");
+                        sb.append("          <thead>\n");
+                        sb.append("            <tr>\n");
+                        sb.append("              <td width='1%'></td>\n");
+                        sb.append("              <td>"+ entityProperties.getProperty(DESCRIBE, "describe.capabilities.name", locale) +"</td>\n");
+                        sb.append("              <td>"+ entityProperties.getProperty(DESCRIBE, "describe.capabilities.type", locale) +"</td>\n");
+                        sb.append("              <td>"+ entityProperties.getProperty(DESCRIBE, "describe.entity.field.status", locale) +"</td>\n");
+                        sb.append("            </tr>\n");
+                        sb.append("          </thead>\n");
+                        sb.append("          <tbody>\n");
+                        // get all the read and write fields from this object
+                        ClassFields<?> cf = ReflectUtils.getInstance().analyzeClass(entity.getClass());
+                        Map<String, Class<?>> readTypes = cf.getFieldTypes(FieldsFilter.SERIALIZABLE);
+                        Map<String, Class<?>> writeTypes = cf.getFieldTypes(FieldsFilter.WRITEABLE);
+                        HashSet<String> requiredFieldNames = new HashSet<String>(cf.getFieldNamesWithAnnotation(EntityFieldRequired.class));
+                        Map<String, Class<?>> entityTypes = new HashMap<String, Class<?>>(readTypes);
+                        entityTypes.putAll(writeTypes);
+                        ArrayList<String> keys = new ArrayList<String>(entityTypes.keySet());
+                        Collections.sort(keys);
+                        for (int i = 0; i < keys.size(); i++) {
+                            String fieldName = keys.get(i);
+                            Class<?> type = entityTypes.get(fieldName);
+                            String status = null;
+                            String trStyle = "";
+                            if (! readTypes.containsKey(fieldName)) {
+                                // write only
+                                status = entityProperties.getProperty(DESCRIBE, "describe.entity.field.write.only", locale);
+                                trStyle = " style='color:blue;'";
+                            } else if (! writeTypes.containsKey(fieldName)) {
+                                // read only
+                                status = entityProperties.getProperty(DESCRIBE, "describe.entity.field.read.only", locale);
+                                trStyle = " style='color:red;'";
+                            } else {
+                                // read/write
+                                status = entityProperties.getProperty(DESCRIBE, "describe.entity.field.read.write", locale);
+                            }
+                            boolean required = requiredFieldNames.contains(fieldName);
+                            if (required) {
+                                status = status + " <b style='color:red;'>* " + entityProperties.getProperty(DESCRIBE, "describe.entity.field.required", locale) + "</b>";
+                            }
+                            // get the printable type names
+                            String typeName = type.getName();
+                            if (String.class.getName().equals(typeName)) {
+                                typeName = "string";
+                            } else if (Boolean.class.getName().equals(typeName)) {
+                                typeName = "boolean";
+                            } else if (Integer.class.getName().equals(typeName)) {
+                                typeName = "int";
+                            } else if (Long.class.getName().equals(typeName)) {
+                                typeName = "long";
+                            }
+                            sb.append("            <tr"+trStyle+"><td>"+(i+1)+")&nbsp;</td>"
+                                    + "<td style='font-weight:bold;'>"+ fieldName +"</td>"
+                                    + "<td>"+ typeName +"</td>"
+                                    + "<td style='font-style:italic;'>"+status+"</td></tr>\n");
+                            String fieldDesc = getEntityDescription(prefix, FIELD_KEY_PREFIX + fieldName, locale);
+                            if (fieldDesc != null) {
+                                sb.append("            <tr><td></td><td colspan='3' style='font-style:italic;font-size:0.9em;'>");
+                                sb.append(fieldDesc);
+                                sb.append("</td></tr>\n");
+                            }
+                        }
+                        sb.append("          </tbody>\n");
+                        sb.append("        </table>\n");
                     }
                     sb.append("      </div>\n");
                 }
@@ -711,119 +852,19 @@ public class EntityDescriptionManager {
                                 + makeFormatsString(accessFormats, null, locale) +"</div>\n");
                     }
                     sb.append("        <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.data.access.provider", locale)+" : "+ EntityViewAccessProvider.class.getSimpleName() +"</div>\n");
-                } else if (httpServletAccessProviderManager.getProvider(prefix) != null) {
+                } else if (httpServletAccessProviderManager != null 
+                        && httpServletAccessProviderManager.getProvider(prefix) != null) {
                     sb.append("        <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.data.access.provider", locale)+" : "+ HttpServletAccessProvider.class.getSimpleName() +"</div>\n");
                 } else {
                     sb.append("        <div style='font-style:italic;padding-left:1em'>"+entityProperties.getProperty(DESCRIBE, "describe.entity.data.access.provider.none", locale) +"</div>\n");
                 }
                 sb.append("      </div>\n");
-
-                // Resolvable Entity Info
-                Object entity = entityBrokerManager.getSampleEntityObject(prefix, null);
-                if (entity != null) {
-                    Class<?> entityType = entity.getClass();
-                    sb.append("      <h4 style='padding-left:0.5em;margin-bottom:0.2em;'>"+entityProperties.getProperty(DESCRIBE, "describe.entity.class", locale)+" : "+ entityType.getName() +"</h4>\n");
-                    sb.append("      <div style='padding-left:1em;padding-bottom:1em;'>\n");
-                    if (ConstructorUtils.isClassSimple(entityType)) {
-                        sb.append( makeResolveType("simple", null, locale));
-                    } else if (ConstructorUtils.isClassCollection(entityType)) {
-                        sb.append( makeResolveType("collection", null, locale));
-                    } else if (ConstructorUtils.isClassArray(entityType)) {
-                        String cType = "Component Class: " + ArrayUtils.type((Object[])entity).getName();
-                        sb.append( makeResolveType("array", cType, locale));
-                    } else if (ConstructorUtils.isClassMap(entityType)) {
-                        // get the types of the map keys if possible
-                        String mapTypes = null;
-                        Map m = (Map) entity;
-                        if (m.size() > 0) {
-                            Entry entry = (Entry) m.entrySet().iterator().next();
-                            mapTypes = (entry.getKey()==null?Object.class.getName():entry.getKey().getClass().getName())
-                                +" => "
-                                +(entry.getValue()==null?Object.class.getName():entry.getValue().getClass().getName());
-                        }
-                        sb.append( makeResolveType("map", mapTypes, locale));
-                    } else {
-                        sb.append( makeResolveType("bean", null, locale));
-                        sb.append("        <table width='80%' cellpadding='0' cellspacing='0'>\n");
-                        sb.append("          <thead>\n");
-                        sb.append("            <tr>\n");
-                        sb.append("              <td width='1%'></td>\n");
-                        sb.append("              <td>"+ entityProperties.getProperty(DESCRIBE, "describe.capabilities.name", locale) +"</td>\n");
-                        sb.append("              <td>"+ entityProperties.getProperty(DESCRIBE, "describe.capabilities.type", locale) +"</td>\n");
-                        sb.append("              <td>"+ entityProperties.getProperty(DESCRIBE, "describe.entity.field.status", locale) +"</td>\n");
-                        sb.append("            </tr>\n");
-                        sb.append("          </thead>\n");
-                        sb.append("          <tbody>\n");
-                        // get all the read and write fields from this object
-                        Map<String, Class<?>> readTypes = ReflectUtils.getInstance().getFieldTypes(entity.getClass(), FieldsFilter.SERIALIZABLE);
-                        Map<String, Class<?>> writeTypes = ReflectUtils.getInstance().getFieldTypes(entity.getClass(), FieldsFilter.WRITEABLE);
-                        Map<String, Class<?>> entityTypes = new HashMap<String, Class<?>>(readTypes);
-                        entityTypes.putAll(writeTypes);
-                        ArrayList<String> keys = new ArrayList<String>(entityTypes.keySet());
-                        Collections.sort(keys);
-                        for (int i = 0; i < keys.size(); i++) {
-                            String key = keys.get(i);
-                            Class<?> type = entityTypes.get(key);
-                            String status = null;
-                            String trStyle = "";
-                            if (! readTypes.containsKey(key)) {
-                                // write only
-                                status = entityProperties.getProperty(DESCRIBE, "describe.entity.field.write.only", locale);
-                                trStyle = " style='color:blue;'";
-                            } else if (! writeTypes.containsKey(key)) {
-                                // read only
-                                status = entityProperties.getProperty(DESCRIBE, "describe.entity.field.read.only", locale);
-                                trStyle = " style='color:red;'";
-                            } else {
-                                // read/write
-                                status = entityProperties.getProperty(DESCRIBE, "describe.entity.field.read.write", locale);
-                            }
-                            sb.append("            <tr"+trStyle+"><td>"+(i+1)+")&nbsp;</td>"
-                            		+ "<td style='font-weight:bold;'>"+ key +"</td>"
-                            		+ "<td>"+ type.getName() +"</td>"
-                            		+ "<td style='font-style:italic;'>"+status+"</td></tr>\n");
-                            String fieldDesc = getEntityDescription(prefix, FIELD_KEY_PREFIX + key, locale);
-                            if (fieldDesc != null) {
-                                sb.append("            <tr><td></td><td colspan='3' style='font-style:italic;font-size:0.9em;'>");
-                                sb.append(fieldDesc);
-                                sb.append("</td></tr>\n");
-                            }
-                        }
-                        sb.append("          </tbody>\n");
-                        sb.append("        </table>\n");
-                    }
-                    sb.append("      </div>\n");
-                }
-
-                // Redirects
-                List<URLRedirect> redirects = entityProviderMethodStore.getURLRedirects(prefix);
-                if (! redirects.isEmpty()) {
-                    sb.append("      <h4 style='padding-left:0.5em;margin-bottom:0.2em;'>"+entityProperties.getProperty(DESCRIBE, "describe.url.redirects", locale)+"</h4>\n");
-                    sb.append("      <div style='padding-left:1em;padding-bottom:1em;'>\n");
-                    for (int i = 0; i < redirects.size(); i++) {
-                        URLRedirect redirect = redirects.get(i);
-                        sb.append("        <div>\n");
-                        String target = replacePrefix(redirect.outgoingTemplate, prefix);
-                        if (target == null) {
-                            target = "<i>" + entityProperties.getProperty(DESCRIBE, "describe.url.redirects.no.outgoing", locale) + "</i>";
-                        }
-                        sb.append("          <span>"+(i+1)+")</span> &nbsp; "
-                                + makeRedirectLink(replacePrefix(redirect.template, prefix), directUrl)
-                                + " ==&gt; <span>"+target+"</span><br/>\n");
-                        String redirectDesc = getEntityDescription(prefix, REDIRECT_KEY_PREFIX + redirect.template, locale);
-                        if (redirectDesc != null) {
-                            sb.append("          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>"+redirectDesc+"</div>\n");
-                        }
-                        sb.append("        </div>\n");
-                    }
-                    sb.append("      </div>\n");
-                }
             }
 
             // Capabilities
-            sb.append("      <div style='font-size:1.1em; font-weight:bold; font-style:italic; padding-left:0.5em;'>"
-                    +entityProperties.getProperty(DESCRIBE, "describe.capabilities", locale)+": "+caps.size()+"</div>\n");
             if (extra) {
+                sb.append("      <h4 style='padding-left:0.5em;margin-bottom:0.2em;'>"
+                        +entityProperties.getProperty(DESCRIBE, "describe.capabilities", locale)+"</h4>\n");
                 sb.append("      <table width='95%' style='padding-left:1.5em;'>\n");
                 sb.append("        <tr style='font-size:0.9em;'><th width='1%'></th><th width='14%'>"
                         +entityProperties.getProperty(DESCRIBE, "describe.capabilities.name", locale)
@@ -855,6 +896,20 @@ public class EntityDescriptionManager {
             }
         }
         return sb.toString();
+    }
+
+    /**
+     * Generates the details listing which shows the response types for a view method
+     * @param methodType the view method (new, show, list, delete, edit)
+     * @param locale the locale
+     * @return the html string to place on the description page
+     */
+    protected String generateMethodDetails(String methodType, Locale locale) {
+        return "          <div style='font-style:italic;font-size:0.9em;padding-left:1.5em;'>" 
+        + entityProperties.getProperty(DESCRIBE, "describe.details.header", locale) 
+        + " "
+        + entityProperties.getProperty(DESCRIBE, "describe.entity."+methodType+".details", locale) 
+        + "</div>\n";
     }
 
     /**
@@ -937,6 +992,18 @@ public class EntityDescriptionManager {
                 formats = entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class).getHandledOutputFormats();
             } else {
                 formats = entityProviderManager.getProviderByPrefixAndCapability(prefix, Inputable.class).getHandledInputFormats();
+                if (formats != null) {
+                    // strip out the FORM element if it was included
+                    if (ArrayUtils.contains(formats, Formats.FORM)) {
+                        ArrayList<String> l = new ArrayList<String>();
+                        for (String format : formats) {
+                            if (! Formats.FORM.equals(format)) {
+                                l.add(format);
+                            }
+                        }
+                        formats = l.toArray(new String[l.size()]);
+                    }
+                }
             }
         } catch (NullPointerException e) {
             formats = null;
@@ -991,6 +1058,16 @@ public class EntityDescriptionManager {
             s = makeArrayIntoString( formats );
         }
         return s;
+    }
+
+    protected String makeFormUrlHtml(String url, String[] formats) {
+        String form = "";
+        if (formats != null) {
+            if (ArrayUtils.contains(formats, Formats.FORM)) {
+                form = makeFormatUrlHtml(url, Formats.FORM);
+            }
+        }
+        return form;
     }
 
     protected String makeFormatUrlHtml(String url, String format) {

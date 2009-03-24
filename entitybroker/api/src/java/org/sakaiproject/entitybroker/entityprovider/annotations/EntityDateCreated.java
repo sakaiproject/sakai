@@ -1,7 +1,7 @@
 /**
  * $Id$
  * $URL$
- * EntitySummary.java - entity-broker - Apr 13, 2008 12:17:49 PM - azeckoski
+ * EntityId.java - entity-broker - Apr 13, 2008 12:17:49 PM - azeckoski
  **************************************************************************
  * Copyright (c) 2008 Sakai Foundation
  *
@@ -24,12 +24,13 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Date;
 
 /**
- * Marks a getter method or field as the summary or description text for an entity,
- * Example: the summary for a blog entry or email, the instructions text for a test or survey
- * the convention is to run toString on the return from the 
- * "getSummary" method or the value in the "summary" field<br/>
+ * Marks a getter method or field as the date created time code (unix time code) for an entity,
+ * this can be a {@link Date}, {@link Long}, long, or {@link String} (will attempt to convert this to a long)<br/>
+ * the convention is to try to convert the return from the 
+ * "getDateCreated" method or the value in the "dateCreated" field<br/>
  * <b>NOTE:</b> This annotation should only be used once in a class,
  * the getter method must take no arguments and return an object
  * 
@@ -37,4 +38,4 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.FIELD})
-public @interface EntitySummary { }
+public @interface EntityDateCreated { }

@@ -49,11 +49,6 @@
             <groupId>org.azeckoski</groupId>
             <artifactId>reflectutils</artifactId>
         </dependency>
-        <!-- logging -->
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
 
         <!-- testing -->
         <dependency>

@@ -26,15 +26,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a getter method or field as the summary or description text for an entity,
- * Example: the summary for a blog entry or email, the instructions text for a test or survey
- * the convention is to run toString on the return from the 
- * "getSummary" method or the value in the "summary" field<br/>
- * <b>NOTE:</b> This annotation should only be used once in a class,
- * the getter method must take no arguments and return an object
+ * Marks a getter method or field as required to be non-null and non-empty for an entity,
+ * this can be used many times in a class,
+ * this is mostly for documentation purposes and has little effect on operations
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.FIELD})
-public @interface EntitySummary { }
+public @interface EntityFieldRequired { }

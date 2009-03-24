@@ -19,8 +19,6 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -39,8 +37,6 @@ import org.sakaiproject.entitybroker.util.EntityResponse;
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 public class EntityRESTProviderBase implements EntityRESTProvider {
-
-    private static final Log log = LogFactory.getLog(EntityRESTProviderBase.class);
 
     protected EntityRESTProviderBase() { }
 
@@ -74,13 +70,13 @@ public class EntityRESTProviderBase implements EntityRESTProvider {
     }
 
     public void init() {
-        log.info("init");
+        System.out.println("INFO EntityRESTProviderBase init");
         // register with the entity broker manager
         this.entityBrokerManager.setEntityRESTProvider(this);
     }
 
     public void destroy() {
-        log.info("destroy");
+        System.out.println("INFO EntityRESTProviderBase destroy");
         // unregister
         this.entityBrokerManager.setEntityRESTProvider(null);
     }

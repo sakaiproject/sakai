@@ -127,17 +127,7 @@ public class EntityDataUtils {
             } else {
                 if (ref.getId() == null) {
                     // attempt to get the id if it was not provided
-                    String entityId = null;
-                    try {
-                        entityId = ReflectUtils.getInstance().getFieldValueAsString(entity, "entityId", EntityId.class);
-                    } catch (FieldnameNotFoundException e) {
-                        try {
-                            // try just id only as well
-                            entityId = ReflectUtils.getInstance().getFieldValueAsString(entity, "id", null);
-                        } catch (FieldnameNotFoundException e1) {
-                            entityId = null;
-                        }
-                    }
+                    String entityId = getEntityId(entity);
                     if (entityId != null) {
                         ref = new EntityReference(ref.getPrefix(), entityId);
                     }
@@ -165,6 +155,44 @@ public class EntityDataUtils {
             }
         }
         return ed;
+    }
+
+    /**
+     * Gets the id field value from an entity if possible
+     * @param entity any entity object
+     * @return the id value OR null if it cannot be found
+     */
+    public static String getEntityId(Object entity) {
+        String entityId = null;
+        try {
+            entityId = ReflectUtils.getInstance().getFieldValueAsString(entity, "entityId", EntityId.class);
+        } catch (FieldnameNotFoundException e) {
+            try {
+                // try just id only as well
+                entityId = ReflectUtils.getInstance().getFieldValueAsString(entity, "id", null);
+            } catch (FieldnameNotFoundException e1) {
+                entityId = null;
+            }
+        }
+        return entityId;
+    }
+
+    /**
+     * Gets the fieldname of the identifier field for an entity class type
+     * @param type any entity class type
+     * @return the name of the identifier field for this entity OR null if it cannot be determined
+     */
+    public static String getEntityIdField(Class<?> type) {
+        String entityIdField = ReflectUtils.getInstance().getFieldNameWithAnnotation(type, EntityId.class);
+        if (entityIdField == null) {
+            try {
+                ReflectUtils.getInstance().getFieldType(type, "id");
+                entityIdField = "id";
+            } catch (FieldnameNotFoundException e) {
+                entityIdField = null;
+            }
+        }
+        return entityIdField;
     }
 
     /**

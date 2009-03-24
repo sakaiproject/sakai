@@ -24,7 +24,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -32,11 +35,11 @@ import java.util.Map.Entry;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.azeckoski.reflectutils.ClassFields;
 import org.azeckoski.reflectutils.ConstructorUtils;
 import org.azeckoski.reflectutils.ReflectUtils;
 import org.azeckoski.reflectutils.StringUtils;
+import org.azeckoski.reflectutils.ClassFields.FieldsFilter;
 import org.azeckoski.reflectutils.map.ArrayOrderedMap;
 import org.azeckoski.reflectutils.transcoders.HTMLTranscoder;
 import org.azeckoski.reflectutils.transcoders.JSONTranscoder;
@@ -46,17 +49,23 @@ import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityFieldRequired;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Createable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Deleteable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.InputTranslatable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputFormattable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputSerializable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Updateable;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityEncodingException;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.FormatUnsupportedException;
+import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
+import org.sakaiproject.entitybroker.util.EntityDataUtils;
 
 
 /**
@@ -74,11 +83,21 @@ public class EntityEncodingManager {
     public static final String ENTITY_TITLE = "entityTitle";
     public static final String ENTITY_PREFIX = "entityPrefix";
     public static final String COLLECTION = "_collection";
-
-    private static Log log = LogFactory.getLog(EntityEncodingManager.class);
+    public static final String BATCH_PREFIX = '/' + EntityRequestHandler.BATCH + '?' + EntityBatchHandler.REFS_PARAM_NAME + '=';
 
     public static final String[] HANDLED_INPUT_FORMATS = new String[] { Formats.XML, Formats.JSON, Formats.HTML };
-    public static final String[] HANDLED_OUTPUT_FORMATS = new String[] { Formats.XML, Formats.JSON, Formats.HTML };
+    public static final String[] HANDLED_OUTPUT_FORMATS = new String[] { Formats.XML, Formats.JSON, Formats.HTML, Formats.FORM };
+
+    protected static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n";
+    protected static final String XHTML_HEADER = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" " +
+    "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
+    "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n" +
+    "<head>\n" +
+    "  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n" +
+    "  <title>{title}</title>\n" +
+    "</head>\n" +
+    "<body>\n";
+    protected static final String XHTML_FOOTER = "</body>\n</html>\n";
 
 
     protected EntityEncodingManager() { }
@@ -407,7 +426,7 @@ public class EntityEncodingManager {
         }
         if (entities.isEmpty()) {
             // just log this for now
-            log.info("No entities to format ("+format+") and output for ref (" + ref + ")");
+            System.out.println("INFO: EntityEncodingManager: No entities to format ("+format+") and output for ref (" + ref + ")");
         }
 
         String encoded = null;
@@ -417,7 +436,8 @@ public class EntityEncodingManager {
             StringBuilder sb = new StringBuilder(40);
 
             // make header
-            if (Formats.HTML.equals(format)) {
+            if (Formats.HTML.equals(format) 
+                    || Formats.FORM.equals(format)) {
                 sb.append("<h1>"+ref.getPrefix() + COLLECTION + "</h1>\n");
             } else if (Formats.JSON.equals(format)) {
                 sb.append("{\""+ENTITY_PREFIX+"\": \""+ref.getPrefix() + "\", \"" + ref.getPrefix() + COLLECTION + "\": [\n");
@@ -431,7 +451,7 @@ public class EntityEncodingManager {
             int encodedEntities = 0;
             for (EntityData entity : entities) {
                 try {
-                    String encode = encodeEntity(ref.getPrefix(), format, entity);
+                    String encode = encodeEntity(ref.getPrefix(), format, entity, view);
                     if (encode.length() > 3) {
                         if (Formats.JSON.equals(format) 
                                 && encodedEntities > 0) {
@@ -446,7 +466,8 @@ public class EntityEncodingManager {
             }
 
             // make footer
-            if (Formats.HTML.equals(format)) {
+            if (Formats.HTML.equals(format)
+                    || Formats.FORM.equals(format)) {
                 sb.append("\n<b>Collection size:</b> "+encodedEntities+"\n");
             } else if (Formats.JSON.equals(format)) {
                 sb.append("\n]}");
@@ -464,11 +485,16 @@ public class EntityEncodingManager {
                         + "), entity object to encode could not be found (null object in list)", ref.toString());
             } else {
                 try {
-                    encoded = encodeEntity(ref.getPrefix(), format, toEncode);
+                    encoded = encodeEntity(ref.getPrefix(), format, toEncode, view);
                 } catch (RuntimeException e) {
                     throw new EntityEncodingException("Failure during internal output encoding of entity: " + ref, ref.toString(), e);
                 }
             }
+        }
+        // add the HTML headers and footers
+        if (Formats.FORM.equals(format)) {
+            String title = view.getViewKey() + ":" + ref;
+            encoded = XML_HEADER + XHTML_HEADER.replace("{title}", title) + encoded + XHTML_FOOTER;
         }
         // put the encoded data into the stream
         try {
@@ -486,12 +512,16 @@ public class EntityEncodingManager {
      * Encodes entity data
      * @param prefix the entity prefix related to this data
      * @param format the format to encode the data into
-     * @param entityData entity data to encode
+     * @param entityData (optional) entity data to encode
+     * @param view (optional) used to generate links and determine the correct incoming view
      * @return the encoded entity or "" if encoding fails
      */
-    public String encodeEntity(String prefix, String format, EntityData entityData) {
-        if (prefix == null || format == null || entityData == null) {
-            throw new IllegalArgumentException("prefix, format, and entity data to encode must not be null");
+    public String encodeEntity(String prefix, String format, EntityData entityData, EntityView view) {
+        if (prefix == null || format == null) {
+            throw new IllegalArgumentException("prefix and format must not be null");
+        }
+        if (entityData == null && ! Formats.FORM.equals(format)) {
+            throw new IllegalArgumentException("entityData to encode must not be null for prefix ("+prefix+") and format ("+format+")");
         }
         String encoded = "";
         if (Formats.HTML.equals(format)) {
@@ -532,6 +562,160 @@ public class EntityEncodingManager {
             }
             sb.append("  </div>\n");
             encoded = sb.toString();
+        } else if (Formats.FORM.equals(format)) {
+            // special handling for FORM type
+            if (view == null) {
+                throw new IllegalArgumentException("the view must be set for FORM handling and generation");
+            }
+            boolean handle = false;
+            boolean createable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Createable.class) != null;
+            boolean updateable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Updateable.class) != null;
+            boolean deleteable = entityProviderManager.getProviderByPrefixAndCapability(prefix, Deleteable.class) != null;
+            String viewKey = view.getViewKey();
+            if (EntityView.VIEW_NEW.equals(viewKey) && createable) {
+                handle = true;
+            } else if (EntityView.VIEW_EDIT.equals(viewKey) && updateable) {
+                handle = true;
+            } else if (EntityView.VIEW_DELETE.equals(viewKey) && deleteable) {
+                handle = true;
+            } else if ( (EntityView.VIEW_LIST.equals(viewKey) || EntityView.VIEW_SHOW.equals(viewKey))
+                    && (updateable || deleteable)) {
+                // we handle these only if the stuff can be changed
+                handle = true;
+            }
+            if (handle) {
+                // fix up URL stuff first
+                String prefixUrl = entityBrokerManager.getServletContext();
+                if (EntityView.VIEW_LIST.equals(viewKey) 
+                        && entityData != null
+                        && entityData.getEntityId() != null) {
+                    // SPECIAL CASE: if this is a list then the view refers to the space only so we have to copy it
+                    view = view.copy();
+                    view.setEntityReference( new EntityReference(prefix, entityData.getEntityId()) );
+                }
+                // now create the output data
+                StringBuilder sb = new StringBuilder(300);
+                String formName = prefix + "-" + (entityData != null ? entityData.getEntityRef().getId() : "xxx");
+                sb.append("  <div style='font-weight:bold;'>");
+                sb.append( (entityData != null ? entityData.getDisplayTitle() : prefix) );
+                if (createable 
+                        && ! EntityView.VIEW_NEW.equals(viewKey)) {
+                    // add the new link if this is not the create form
+                    sb.append(" (<a href='" + prefixUrl + view.getEntityURL(EntityView.VIEW_NEW, Formats.FORM) + "'>NEW</a>) ");
+                }
+                if (deleteable
+                        && ! EntityView.VIEW_NEW.equals(viewKey)) {
+                    String formAction = makeFormViewUrl(prefixUrl, EntityView.VIEW_DELETE, view) + "&_method=DELETE";
+                    sb.append("\n  <form name='"+formName+"-del' action='"+formAction+"' style='margin:0px; display:inline;' method='post'>\n");
+                    sb.append("    <input type='submit' value='DEL' />\n");
+                    sb.append("  </form>\n");
+                }
+                sb.append("</div>\n");
+
+                if (! EntityView.VIEW_DELETE.equals(viewKey)) {
+                    // only render all this stuff for non-delete forms
+                    if ( (entityData == null 
+                                || entityData.getData() == null)
+                            && (EntityView.VIEW_LIST.equals(viewKey) 
+                                    || EntityView.VIEW_SHOW.equals(viewKey)) ) {
+                        // die if we have no data to encode and this is a SHOW/LIST view
+                        throw new EntityEncodingException("Unable to find an entity to encode into the update form; prefix="+prefix+":"+view, prefix);
+                    }
+                    Object entity = (entityData != null ? entityData.getData() : null);
+                    if (entity == null) {
+                        // get the entity from the URL instead
+                        String id = (view.getEntityReference() != null ? view.getEntityReference().getId() : null);
+                        if (id == null) {
+                            id = (entityData != null ? entityData.getEntityId() : null);
+                        }
+                        entity = entityBrokerManager.getSampleEntityObject(prefix, id);
+                        if (entity == null) {
+                            throw new EntityEncodingException("Unable to find entity data to create form from using prefix="+prefix+",id="+id, prefix);
+                        }
+                    }
+                    Class<?> entityClass = entity.getClass();
+                    String formAction;
+                    if (EntityView.VIEW_NEW.equals(viewKey)) {
+                        formAction = makeFormViewUrl(prefixUrl, EntityView.VIEW_NEW, view);
+                    } else {
+                        formAction = makeFormViewUrl(prefixUrl, EntityView.VIEW_EDIT, view) + "&_method=PUT";
+                    }
+                    sb.append("  <form name='"+formName+"-edit' action='"+formAction+"' style='margin:0px;' method='post'>\n");
+                    sb.append("    <table border='1'>\n");
+                    // get all the read and write fields from this object
+                    ClassFields<?> cf = ReflectUtils.getInstance().analyzeClass(entityClass);
+                    Map<String, Object> fieldValues = ReflectUtils.getInstance().getObjectValues(entity);
+                    Map<String, Class<?>> readTypes = cf.getFieldTypes(FieldsFilter.SERIALIZABLE);
+                    Map<String, Class<?>> writeTypes = cf.getFieldTypes(FieldsFilter.WRITEABLE);
+                    HashSet<String> requiredFieldNames = new HashSet<String>(cf.getFieldNamesWithAnnotation(EntityFieldRequired.class));
+                    // make sure no one tries to write the id field when not creating entities
+                    String idFieldName = EntityDataUtils.getEntityIdField(entityClass);
+                    if (idFieldName != null && ! EntityView.VIEW_NEW.equals(viewKey)) {
+                        writeTypes.remove(idFieldName);
+                    }
+                    Map<String, Class<?>> entityTypes = new HashMap<String, Class<?>>(readTypes);
+                    entityTypes.putAll(writeTypes);
+                    ArrayList<String> keys = new ArrayList<String>(entityTypes.keySet());
+                    Collections.sort(keys);
+                    for (int i = 0; i < keys.size(); i++) {
+                        String fieldName = keys.get(i);
+                        Class<?> type = entityTypes.get(fieldName);
+                        boolean read = true;
+                        boolean write = false;
+                        if (! readTypes.containsKey(fieldName)) {
+                            // write only
+                            read = false;
+                            write = true;
+                        } else if (! writeTypes.containsKey(fieldName)) {
+                            // read only
+                            write = false;
+                        } else {
+                            // read/write
+                            write = true;
+                        }
+                        boolean required = requiredFieldNames.contains(fieldName);
+                        // get the printable type names
+                        String typeName = type.getName();
+                        if (String.class.getName().equals(typeName)) {
+                            typeName = "string";
+                        } else if (Boolean.class.getName().equals(typeName)) {
+                            typeName = "boolean";
+                        } else if (Integer.class.getName().equals(typeName)) {
+                            typeName = "int";
+                        } else if (Long.class.getName().equals(typeName)) {
+                            typeName = "long";
+                        }
+                        sb.append("      <tr><td>"+(i+1)+")&nbsp;</td>"
+                                + "<td style='font-weight:bold;'>"+ fieldName +"</td>"
+                                + "<td>"+ typeName +"</td><td>");
+                        if (read && write) {
+                            Object value = fieldValues.get(fieldName);
+                            String sVal = "";
+                            if (value != null) {
+                                sVal = ReflectUtils.getInstance().convert(value, String.class);
+                            }
+                            sb.append("<input type='text' name='"+fieldName+"' value='"+sVal+"' />");
+                        } else if (write) {
+                            sb.append("<input type='text' name='"+fieldName+"' />");
+                        } else if (read) {
+                            Object value = fieldValues.get(fieldName);
+                            String sVal = "";
+                            if (value != null) {
+                                sVal = ReflectUtils.getInstance().convert(value, String.class);
+                            }
+                            sb.append(sVal);
+                        }
+                        if (required) {
+                            sb.append(" <b style='color:red;'>*</b> ");
+                        }
+                        sb.append("</td></tr>\n");
+                    }
+                    sb.append("    </table>\n");
+                    sb.append("    <input type='submit' value='SAVE' />\n");
+                    sb.append("  </form>\n");
+                }
+                encoded = sb.toString();
+            }
         } else {
             // encode the entity itself
             Object toEncode = entityData; // default to encoding the entity data object
@@ -566,6 +750,16 @@ public class EntityEncodingManager {
             }
         }
         return encoded;
+    }
+
+    /**
+     * @return the form view URLs which should be used with the forms
+     */
+    protected String makeFormViewUrl(String contextUrl, String viewKey, EntityView view) {
+        if (viewKey == null || "".equals(viewKey)) {
+            viewKey = EntityView.VIEW_SHOW;
+        }
+        return contextUrl + BATCH_PREFIX + contextUrl + view.getEntityURL(viewKey, null);
     }
 
     protected static final String DATA_KEY = Transcoder.DATA_KEY;

@@ -111,7 +111,7 @@ public class EntityActionsManager {
                 if (actionReturn.encoding == null || actionReturn.mimeType == null) {
                     // use default if not set
                     if (actionReturn.format == null) {
-                        actionReturn.format = Formats.XML;
+                        actionReturn.format = Formats.TXT;
                     }
                     RequestUtils.setResponseEncoding(actionReturn.format, response);
                 } else {

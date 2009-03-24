@@ -33,8 +33,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.Map.Entry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.azeckoski.reflectutils.ReflectUtils;
 import org.azeckoski.reflectutils.refmap.ReferenceMap;
 import org.azeckoski.reflectutils.refmap.ReferenceType;
@@ -69,8 +67,6 @@ import org.sakaiproject.entitybroker.util.core.EntityProviderMethodStoreImpl;
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  */
 public class EntityProviderManagerImpl implements EntityProviderManager {
-
-    private static Log log = LogFactory.getLog(EntityProviderManagerImpl.class);
 
     /**
      * Empty constructor
@@ -110,7 +106,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
 
 
     public void init() {
-        log.info("init");
+        System.out.println("EntityProviderManagerImpl init");
         // register the describe and batch prefixes to reserve them
         registerEntityProvider(
                 new EntityProvider() {
@@ -179,7 +175,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
                 } catch (RuntimeException e) {
                     // added because there will be times where we cannot resolve capabilities 
                     // because of shifting ClassLoaders or CL visibility and that should not cause this to die
-                    log.warn("getPrefixCapabilities: Unable to retrieve class for capability bikey ("+bikey+"), skipping this capability");
+                    System.out.println("WARN getPrefixCapabilities: Unable to retrieve class for capability bikey ("+bikey+"), skipping this capability");
                 }
             }
         }
@@ -205,7 +201,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
             } catch (RuntimeException e) {
                 // added because there will be times where we cannot resolve capabilities 
                 // because of shifting ClassLoaders or CL visibility and that should not cause this to die
-                log.warn("getRegisteredEntityCapabilities: Unable to retrieve class for capability bikey ("+bikey+"), skipping this capability");
+                System.out.println("WARN getRegisteredEntityCapabilities: Unable to retrieve class for capability bikey ("+bikey+"), skipping this capability");
             }
         }      
         return m;
@@ -323,7 +319,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
                 entityProviderMethodStore.addURLRedirects(prefix, redirects);
             }
         }
-        log.info("EntityBroker: Registered entity provider ("+entityProvider.getClass().getName()
+        System.out.println("INFO Registered entity provider ("+entityProvider.getClass().getName()
                 +") prefix ("+prefix+") with "+count+" capabilities");
 
         // call the registered listeners
@@ -364,7 +360,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
         // clean up the properties cache
         entityProperties.unloadProperties(prefix);
 
-        log.info("EntityBroker: Unregistered entity provider ("+entityProvider.getClass().getName()+") and "+count+" capabilities");
+        System.out.println("INFO Unregistered entity provider ("+entityProvider.getClass().getName()+") and "+count+" capabilities");
     }
 
     /*
@@ -393,7 +389,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
             // clean up the redirect URLs record
             entityProviderMethodStore.removeURLRedirects(prefix);
         }
-        log.info("EntityBroker: Unregistered entity provider capability ("+capability.getName()+") for prefix ("+prefix+")");
+        System.out.println("INFO Unregistered entity provider capability ("+capability.getName()+") for prefix ("+prefix+")");
     }
 
     /*
@@ -410,7 +406,7 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
                 prefixMap.remove(bikey);
             }
         }
-        log.info("EntityBroker: Unregistered entity prefix ("+prefix+")");
+        System.out.println("INFO Unregistered entity prefix ("+prefix+")");
     }
 
     /**

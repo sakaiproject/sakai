@@ -26,10 +26,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks a getter method or field as the summary or description text for an entity,
- * Example: the summary for a blog entry or email, the instructions text for a test or survey
+ * Marks a getter method or field as the main content text for an entity,
+ * Example: the main text body for a blog entry or email, the main content of an article or posting,
  * the convention is to run toString on the return from the 
- * "getSummary" method or the value in the "summary" field<br/>
+ * "getContent" method or the value in the "content" field<br/>
  * <b>NOTE:</b> This annotation should only be used once in a class,
  * the getter method must take no arguments and return an object
  * 
@@ -37,4 +37,4 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.FIELD})
-public @interface EntitySummary { }
+public @interface EntityContent { }

@@ -28,77 +28,88 @@ package org.sakaiproject.entitybroker.entityprovider.extension;
  */
 public interface Formats {
 
-   /**
-    * HTML formatted text (text/html or application/xhtml+xml) <br/>
-    * http://en.wikipedia.org/wiki/HTML <br/>
-    * INPUT: POST or GET form data <br/>
-    * OUTPUT: (X)HTML text <br/>
-    */
-   public static String HTML = "html";
-   public static String HTML_MIME_TYPE = "text/html";
-   public static String[] HTML_EXTENSIONS = new String[] {"html","htm","HTML","HTM"};
+    /**
+     * HTML formatted text (text/html or application/xhtml+xml) <br/>
+     * http://en.wikipedia.org/wiki/HTML <br/>
+     * INPUT: POST or GET form data <br/>
+     * OUTPUT: (X)HTML text <br/>
+     */
+    public static String HTML = "html";
+    public static String HTML_MIME_TYPE = "text/html";
+    public static String[] HTML_EXTENSIONS = new String[] {"html","htm","HTML","HTM"};
 
-   /**
-    * XML formatted text (application/xml or text/xml) <br/>
-    * http://en.wikipedia.org/wiki/XML <br/>
-    * INPUT: XML text <br/>
-    * OUTPUT: XML text <br/>
-    */
-   public static String XML = "xml";
-   public static String XML_MIME_TYPE = "application/xml";
-   public static String[] XML_EXTENSIONS = new String[] {"xml","XML"};
+    /**
+     * Special output format which indicates this entity will use internally generated
+     * forms for input data, the output simply produces very simple html forms,
+     * this is handled internally <br/>
+     * INPUT: none <br/>
+     * OUTPUT: XHTML text (forms for submitting data) <br/>
+     */
+    public static String FORM = "form";
+    public static String FORM_MIME_TYPE = HTML_MIME_TYPE;
+    public static String[] FORM_EXTENSIONS = new String[] {"form"};
 
-   /**
-    * JSON formatted text (application/json or text/javascript) <br/>
-    * http://en.wikipedia.org/wiki/JSON <br/>
-    * INPUT: JSON text <br/>
-    * OUTPUT: JSON text <br/>
-    */
-   public static String JSON = "json";
-   public static String JSON_MIME_TYPE = "text/plain"; //"application/json"; // switched to plain so its easier to work with
-   public static String[] JSON_EXTENSIONS = new String[] {"json","jsn","JSON","JSN"};
+    /**
+     * XML formatted text (application/xml or text/xml) <br/>
+     * http://en.wikipedia.org/wiki/XML <br/>
+     * INPUT: XML text <br/>
+     * OUTPUT: XML text <br/>
+     */
+    public static String XML = "xml";
+    public static String XML_MIME_TYPE = "application/xml";
+    public static String[] XML_EXTENSIONS = new String[] {"xml","XML"};
 
-   /**
-    * Plain text (text/plain) <br/>
-    * http://en.wikipedia.org/wiki/Plain_text <br/>
-    * INPUT: -not supported- <br/>
-    * OUTPUT: text <br/>
-    */
-   public static String TXT = "txt";
-   public static String TXT_MIME_TYPE = "text/plain";
-   public static String[] TXT_EXTENSIONS = new String[] {"txt","text","TXT","TEXT"};
+    /**
+     * JSON formatted text (application/json or text/javascript) <br/>
+     * http://en.wikipedia.org/wiki/JSON <br/>
+     * INPUT: JSON text <br/>
+     * OUTPUT: JSON text <br/>
+     */
+    public static String JSON = "json";
+    public static String JSON_MIME_TYPE = "text/plain"; //"application/json"; // switched to plain so its easier to work with
+    public static String[] JSON_EXTENSIONS = new String[] {"json","jsn","JSON","JSN"};
 
-   /**
-    * RSS 2 XML feed (application/rss+xml) <br/>
-    * http://en.wikipedia.org/wiki/RSS <br/>
-    * INPUT: -not supported- <br/>
-    * OUTPUT: -not supported- <br/>
-    */
-   public static String RSS = "rss";
-   public static String RSS_MIME_TYPE = "application/rss+xml";
-   public static String[] RSS_EXTENSIONS = new String[] {"rss","RSS"};
+    /**
+     * Plain text (text/plain) <br/>
+     * http://en.wikipedia.org/wiki/Plain_text <br/>
+     * INPUT: -not supported- <br/>
+     * OUTPUT: text <br/>
+     */
+    public static String TXT = "txt";
+    public static String TXT_MIME_TYPE = "text/plain";
+    public static String[] TXT_EXTENSIONS = new String[] {"txt","text","TXT","TEXT"};
 
-   /**
-    * ATOM XML feed (application/atom+xml) <br/>
-    * http://en.wikipedia.org/wiki/ATOM <br/>
-    * INPUT: -not supported- <br/>
-    * OUTPUT: -not supported- <br/>
-    */
-   public static String ATOM = "atom";
-   public static String ATOM_MIME_TYPE = "application/atom+xml";
-   public static String[] ATOM_EXTENSIONS = new String[] {"atom","ATOM"};
+    /**
+     * RSS 2 XML feed (application/rss+xml) <br/>
+     * http://en.wikipedia.org/wiki/RSS <br/>
+     * INPUT: -not supported- <br/>
+     * OUTPUT: -not supported- <br/>
+     */
+    public static String RSS = "rss";
+    public static String RSS_MIME_TYPE = "application/rss+xml";
+    public static String[] RSS_EXTENSIONS = new String[] {"rss","RSS"};
 
-   /**
-    * All character data should be encoded and decoded as UTF-8,
-    * this constant is the proper encoding string to use
-    */
-   public static final String UTF_8 = "UTF-8";
+    /**
+     * ATOM XML feed (application/atom+xml) <br/>
+     * http://en.wikipedia.org/wiki/ATOM <br/>
+     * INPUT: -not supported- <br/>
+     * OUTPUT: -not supported- <br/>
+     */
+    public static String ATOM = "atom";
+    public static String ATOM_MIME_TYPE = "application/atom+xml";
+    public static String[] ATOM_EXTENSIONS = new String[] {"atom","ATOM"};
 
-   /**
-    * the array of all the known formats in this file
-    */
-   public static String[] ALL_KNOWN_FORMATS = new String[] {
-      HTML, XML, JSON, TXT, RSS, ATOM
-   };
+    /**
+     * All character data should be encoded and decoded as UTF-8,
+     * this constant is the proper encoding string to use
+     */
+    public static final String UTF_8 = "UTF-8";
+
+    /**
+     * the array of all the known formats in this file
+     */
+    public static String[] ALL_KNOWN_FORMATS = new String[] {
+        HTML, XML, JSON, TXT, RSS, ATOM
+    };
 
 }

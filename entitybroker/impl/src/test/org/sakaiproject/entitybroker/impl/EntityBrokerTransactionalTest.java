@@ -71,8 +71,8 @@ public class EntityBrokerTransactionalTest extends AbstractTransactionalSpringCo
         entityBroker = new EntityBrokerImpl();
         entityBroker.setEntityBrokerManager( tm.entityBrokerManager );
         entityBroker.setEntityProviderManager( tm.entityProviderManager );
-        entityBroker.setEntityTaggingService( tm.entityTaggingService);
-        entityBroker.setEntityMetaPropertiesService( tm.entityMetaPropertiesService);
+        entityBroker.setTagSearchService( tm.entityTaggingService );
+        entityBroker.setPropertiesProvider( tm.entityMetaPropertiesService );
         entityBroker.setRequestStorage( tm.requestStorage );
         // NOTE: no external integration provider set
         // NOTE: no REST provider set

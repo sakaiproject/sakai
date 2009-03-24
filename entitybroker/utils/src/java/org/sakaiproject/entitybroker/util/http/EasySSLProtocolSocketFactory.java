@@ -45,8 +45,6 @@ import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.commons.httpclient.HttpClientError;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * <p>
@@ -97,9 +95,6 @@ import org.apache.commons.logging.LogFactory;
 
 public class EasySSLProtocolSocketFactory implements SecureProtocolSocketFactory {
 
-    /** Log object for this class. */
-    private static final Log LOG = LogFactory.getLog(EasySSLProtocolSocketFactory.class);
-
     private SSLContext sslcontext = null;
 
     /**
@@ -118,7 +113,7 @@ public class EasySSLProtocolSocketFactory implements SecureProtocolSocketFactory
               null);
             return context;
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            System.err.println(e);
             throw new HttpClientError(e.toString());
         }
     }

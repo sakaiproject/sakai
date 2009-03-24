@@ -212,7 +212,7 @@ public class EntityBrokerManagerTest extends TestCase {
    public void testMakeFullURL() {
       String full = entityBrokerManager.makeFullURL(TestData.REF1);
       assertNotNull(full);
-      assertEquals("http://localhost:8080/direct" + TestData.REF1, full);
+      assertEquals("http://localhost:8080" + EntityView.DIRECT_PREFIX + TestData.REF1, full);
    }
 
    /**

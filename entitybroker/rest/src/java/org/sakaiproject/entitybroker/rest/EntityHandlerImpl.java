@@ -34,9 +34,6 @@ import java.util.Map.Entry;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -97,8 +94,9 @@ import org.azeckoski.reflectutils.exceptions.FieldnameNotFoundException;
  */
 @SuppressWarnings("deprecation")
 public class EntityHandlerImpl implements EntityRequestHandler {
-
-    private static final Log log = LogFactory.getLog(EntityHandlerImpl.class);
+    public static String APP_VERSION = "1.0.1";
+    public static String SVN_REVISION = "$Revision$";
+    public static String SVN_LAST_UPDATE = "$Date$";
 
     /**
      * Empty constructor
@@ -130,7 +128,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     }
 
     public void init() {
-        log.info("init complete");
+        System.out.println("INFO EntityRequestHandler init complete");
     }
 
     private EntityProviderManager entityProviderManager;
@@ -203,6 +201,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     public void setServletContext(String servletContext) {
         if (servletContext != null) {
             this.servletContext = servletContext;
+            System.out.println("Setting the REST servlet context to: " + servletContext);
+            entityBrokerManager.setServletContext(servletContext);
             entityRedirectsManager.setServletContext(servletContext);
             entityBatchHandler.setServletContext(servletContext);
         }
@@ -236,7 +236,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             try {
                 entityBrokerManager.getExternalIntegrationProvider().handleUserSessionKey(req);
             } catch (Exception e) {
-                log.warn("External handleUserSessionKey method failed, continuing...: " + e);
+                System.out.println("WARN: EntityRequestHandler: External handleUserSessionKey method failed, continuing...: " + e);
             }
         }
 
@@ -322,7 +322,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                 res.setStatus(HttpServletResponse.SC_OK);
                             } else {
                                 // do the redirect
-                                log.info("Entity Redirect: redirecting from ("+path+") to ("+redirectURL+")");
+                                System.out.println("INFO: EntityRequestHandler: Entity Redirect: redirecting from ("+path+") to ("+redirectURL+")");
                                 RequestUtils.handleURLRedirect(redirectURL, true, req, res);
                             }
                             return EntityView.SEPARATOR + prefix; // exit here for redirects
@@ -479,8 +479,43 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                                     || EntityView.VIEW_EDIT.equals(viewKey) 
                                                     || EntityView.VIEW_DELETE.equals(viewKey) ) {
                                                 // request for the create/edit/delete entity forms
-                                                // TODO possibly generate new/edit/delete forms internally?
-                                                handled = false;
+                                                handled = false; // if we handle this then switch this to true
+                                                if (Formats.FORM.equals(format)) {
+                                                    // generate new/edit/delete forms internally if the provider allows it
+                                                    Outputable outputable = (Outputable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class);
+                                                    if (outputable != null) {
+                                                        String[] outputFormats = outputable.getHandledOutputFormats();
+                                                        if (outputFormats != null && ReflectUtils.contains(outputFormats, Formats.FORM) ) {
+                                                            // we are handling this type of format for this entity
+                                                            RequestUtils.setResponseEncoding(format, res);
+                                                            if (EntityView.Method.HEAD.name().equals(view.getMethod())) {
+                                                                // HEADER only
+                                                                res.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                                                                handled = true;
+                                                            } else {
+                                                                // GET
+                                                                String form = entityEncodingManager.encodeEntity(prefix, format, null, view);
+                                                                // if the encoder returned something useful then we output it, if nothing comes back we pass on
+                                                                if (form != null && form.length() > 0) {
+                                                                    try {
+                                                                        res.getWriter().print(form);
+                                                                    } catch (IOException e) {
+                                                                        throw new RuntimeException("Failed to get writer from response: " + view, e);
+                                                                    }
+                                                                    handled = true;
+                                                                    setNoCacheHeaders(res);
+                                                                    res.setStatus(HttpServletResponse.SC_OK);
+                                                                }
+                                                            }
+                                                        } else {
+                                                            // format type not handled
+                                                            throw new FormatUnsupportedException("Outputable restriction (formats list) for " 
+                                                                    + prefix + " does not allow form generation, add the FORM format ("
+                                                                    +Formats.FORM+") to the list of allowed output formats to enable this",
+                                                                    view.getEntityReference()+"", format);
+                                                        }
+                                                    }
+                                                }
                                             } else {
                                                 Outputable outputable = (Outputable) entityProviderManager.getProviderByPrefixAndCapability(prefix, Outputable.class);
                                                 if (outputable != null) {
@@ -564,13 +599,17 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                                             if (!handled) {
                                                                 // handle internally or fail
                                                                 entityEncodingManager.internalOutputFormatter(ref, format, entities, requestStorage.getStorageMapCopy(), outputStream, view);
+                                                                // SPECIAL CASE: FORM
+                                                                if (Formats.FORM.equals(format)) {
+                                                                    setNoCacheHeaders(res);
+                                                                }
                                                             }
                                                             handled = true;
                                                             res.setStatus(HttpServletResponse.SC_OK);
                                                         }
                                                     } else {
                                                         // format type not handled
-                                                        throw new FormatUnsupportedException("Outputable restriction for " 
+                                                        throw new FormatUnsupportedException("Outputable restriction (formats list) for " 
                                                                 + prefix + " blocked handling this format ("+format+")",
                                                                 view.getEntityReference()+"", format);
                                                     }
@@ -729,7 +768,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                         // TODO add in the methods "allowed" header?
                                         throw new EntityException( "AccessProvider: Method/Format unsupported: Will not handle " + (output ? "output" : "input") + " request for format  "+view.getFormat()+" for this path (" 
                                                 + path + ") for prefix (" + prefix + ") for entity (" + view.getEntityReference() + "), request url (" + view.getOriginalEntityUrl() + ")",
-                                                view.getEntityReference()+"", HttpServletResponse.SC_BAD_REQUEST );
+                                                view.getEntityReference()+"", HttpServletResponse.SC_NOT_ACCEPTABLE );
                                     }
                                 }
                             }
@@ -826,7 +865,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             } catch (UnsupportedOperationException e) {
                 // nothing to do here, this is OK
             } catch (Exception e) {
-                log.warn("External handleEntityError method failed, using default instead: " + e);
+                System.out.println("WARN: EntityRequestHandler: External handleEntityError method failed, using default instead: " + e);
             }
         }
         return msg;
@@ -915,6 +954,23 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     }
 
     /**
+     * Force a response to be set for no caching,
+     * can be run after other headers are set
+     * @param res the response
+     */
+    protected void setNoCacheHeaders(HttpServletResponse res) {
+        long currentTime = System.currentTimeMillis();
+        res.setDateHeader(ActionReturn.Header.DATE.toString(), currentTime);
+        res.setDateHeader(ActionReturn.Header.EXPIRES.toString(), currentTime + 1000);
+
+        res.setHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "must-revalidate");
+        res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "private");
+        res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "no-store");
+        res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "max-age=0");
+        res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "s-maxage=0");
+    }
+
+    /**
      * Correctly sets up the basic headers for every response
      * @param view
      * @param res
@@ -948,20 +1004,22 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         setLastModifiedHeaders(res, null, lastModified);
 
         // set the cache headers
-        
-        if (noCache) {
-            res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "must-revalidate");
-            res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "private");
-            res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "no-store");
-        } else {
-            // response.addHeader("Cache-Control", "must-revalidate");
-            res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "public");
-        }
-        res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "max-age=600");
-        res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "s-maxage=600");
-
         res.setDateHeader(ActionReturn.Header.DATE.toString(), currentTime);
         res.setDateHeader(ActionReturn.Header.EXPIRES.toString(), currentTime + 600000);
+        
+        if (noCache) {
+            res.setHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "must-revalidate");
+            res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "private");
+            res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "no-store");
+            res.setDateHeader(ActionReturn.Header.EXPIRES.toString(), currentTime + 1000);
+            res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "max-age=0");
+            res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "s-maxage=0");
+        } else {
+            // response.addHeader("Cache-Control", "must-revalidate");
+            res.setHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "public");
+            res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "max-age=600");
+            res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "s-maxage=600");
+        }
 
         // set the EB specific headers
         String prefix = view.getEntityReference().getPrefix();
@@ -1055,7 +1113,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                     // nothing to do here
                 }
             } else {
-                log.warn("Unknown type returned for 'lastModified' (not Date, Long, String): " + lm.getClass() + ", using the default value of current time instead");
+                System.out.println("WARN: EntityRequestHandler: Unknown type returned for 'lastModified' (not Date, Long, String): " + lm.getClass() + ", using the default value of current time instead");
             }
         }
         return lastModified;

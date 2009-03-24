@@ -5,6 +5,7 @@
 package org.sakaiproject.entitybroker.mocks.data;
 
 import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsDefineable;
@@ -93,7 +94,7 @@ public class TestData {
 
    // testing constants
    public static String SERVER_URL = "http://localhost:8080";
-   public static String DIRECT = "/direct";
+   public static String DIRECT = EntityView.DIRECT_PREFIX;
 
    public static String PREFIX1 = "AZprefix1";
    public static String[] IDS1 = new String[] { "10", "11", "12" };

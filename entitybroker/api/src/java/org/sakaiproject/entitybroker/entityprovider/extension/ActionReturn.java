@@ -57,7 +57,7 @@ public class ActionReturn {
     /**
      * The MIME type to use for the output when it is returned
      */
-    public String mimeType = Formats.XML_MIME_TYPE;
+    public String mimeType;
     /**
      * the data to output (should use a provided OutputStream), can be binary, leave this null if not used
      */
