@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>base</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>2.7.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>Sakai Common Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>common-base</artifactId>
+  <packaging>pom</packaging>
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/common/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/common/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/common/trunk</url>
+  </scm>
+  <modules>
+    <module>pack</module>
+    <module>common-composite-component</module>
+    <module>impl</module>
+    <module>edu-person-api</module>
+    <module>manager-api</module>
+    <module>type-api</module>
+  </modules>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-common-composite-component</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+</project>

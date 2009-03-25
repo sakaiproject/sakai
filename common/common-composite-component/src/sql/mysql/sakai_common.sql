@@ -1,0 +1,98 @@
+drop table if exists CMN_TYPE_T
+drop table if exists SAKAI_PERSON_T
+create table CMN_TYPE_T (
+   ID bigint not null auto_increment,
+   VERSION integer not null,
+   UUID varchar(36) not null unique,
+   LAST_MODIFIED_BY varchar(36) not null,
+   LAST_MODIFIED_DATE datetime not null,
+   CREATED_BY varchar(36) not null,
+   CREATED_DATE datetime not null,
+   AUTHORITY varchar(100) not null,
+   DOMAIN varchar(100) not null,
+   KEYWORD varchar(100) not null,
+   DISPLAY_NAME varchar(255) not null,
+   DESCRIPTION varchar(255),
+   primary key (ID),
+   unique (AUTHORITY, DOMAIN, KEYWORD)
+)
+create table SAKAI_PERSON_T (
+   ID bigint not null auto_increment,
+   PERSON_TYPE varchar(3) not null,
+   VERSION integer not null,
+   UUID varchar(36) not null unique,
+   LAST_MODIFIED_BY varchar(36) not null,
+   LAST_MODIFIED_DATE datetime not null,
+   CREATED_BY varchar(36) not null,
+   CREATED_DATE datetime not null,
+   AGENT_UUID varchar(36) not null,
+   TYPE_UUID varchar(36) not null,
+   COMMON_NAME varchar(255),
+   DESCRIPTION varchar(255),
+   SEE_ALSO varchar(255),
+   STREET varchar(255),
+   SURNAME varchar(255),
+   TELEPHONE_NUMBER varchar(255),
+   FAX_NUMBER varchar(255),
+   LOCALITY_NAME varchar(255),
+   OU varchar(255),
+   PHYSICAL_DELIVERY_OFFICE_NAME varchar(255),
+   POSTAL_ADDRESS varchar(255),
+   POSTAL_CODE varchar(255),
+   POST_OFFICE_BOX varchar(255),
+   STATE_PROVINCE_NAME varchar(255),
+   STREET_ADDRESS varchar(255),
+   TITLE varchar(255),
+   BUSINESS_CATEGORY varchar(255),
+   CAR_LICENSE varchar(255),
+   DEPARTMENT_NUMBER varchar(255),
+   DISPLAY_NAME varchar(255),
+   EMPLOYEE_NUMBER varchar(255),
+   EMPLOYEE_TYPE varchar(255),
+   GIVEN_NAME varchar(255),
+   HOME_PHONE varchar(255),
+   HOME_POSTAL_ADDRESS varchar(255),
+   INITIALS varchar(255),
+   JPEG_PHOTO blob,
+   LABELED_URI varchar(255),
+   MAIL varchar(255),
+   MANAGER varchar(255),
+   MOBILE varchar(255),
+   ORGANIZATION varchar(255),
+   PAGER varchar(255),
+   PREFERRED_LANGUAGE varchar(255),
+   ROOM_NUMBER varchar(255),
+   SECRETARY varchar(255),
+   UID_C varchar(255),
+   USER_CERTIFICATE tinyblob,
+   USER_PKCS12 tinyblob,
+   USER_SMIME_CERTIFICATE tinyblob,
+   X500_UNIQUE_ID varchar(255),
+   AFFILIATION varchar(255),
+   ENTITLEMENT varchar(255),
+   NICKNAME varchar(255),
+   ORG_DN varchar(255),
+   ORG_UNIT_DN varchar(255),
+   PRIMARY_AFFILIATION varchar(255),
+   PRIMARY_ORG_UNIT_DN varchar(255),
+   PRINCIPAL_NAME varchar(255),
+   CAMPUS varchar(255),
+   HIDE_PRIVATE_INFO bit,
+   HIDE_PUBLIC_INFO bit,
+   NOTES varchar(255),
+   PICTURE_URL varchar(255),
+   SYSTEM_PICTURE_PREFERRED bit,
+   ferpaEnabled bit,
+   primary key (ID),
+   unique (AGENT_UUID, TYPE_UUID)
+)
+create index CMN_TYPE_T_DISPLAY_NAME_I on CMN_TYPE_T (DISPLAY_NAME)
+create index CMN_TYPE_T_KEYWORD_I on CMN_TYPE_T (KEYWORD)
+create index CMN_TYPE_T_DOMAIN_I on CMN_TYPE_T (DOMAIN)
+create index CMN_TYPE_T_AUTHORITY_I on CMN_TYPE_T (AUTHORITY)
+create index SAKAI_PERSON_TYPE_UUID_I on SAKAI_PERSON_T (TYPE_UUID)
+create index SAKAI_PERSON_SURNAME_I on SAKAI_PERSON_T (SURNAME)
+create index SAKAI_PERSON_ferpaEnabled_I on SAKAI_PERSON_T (ferpaEnabled)
+create index SAKAI_PERSON_AGENT_UUID_I on SAKAI_PERSON_T (AGENT_UUID)
+create index SAKAI_PERSON_GIVEN_NAME_I on SAKAI_PERSON_T (GIVEN_NAME)
+create index SAKAI_PERSON_UID_I on SAKAI_PERSON_T (UID_C)
