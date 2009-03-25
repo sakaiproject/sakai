@@ -58,7 +58,7 @@ public class MyProfile extends BasePage {
 		} 
 		
 		//post view event
-		sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_VIEW_OWN, userId, false);
+		sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_VIEW_OWN, "/profile/"+userId, false);
 
 		//get some values from SakaiPerson or SakaiProxy if empty
 		//SakaiPerson returns NULL strings if value is not set, not blank ones

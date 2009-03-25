@@ -52,7 +52,7 @@ public class MyPreferences extends BasePage{
 			}
 			
 			//post create event
-			sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PREFERENCES_NEW, userId, true);
+			sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PREFERENCES_NEW, "/profile/"+userId, true);
 			
 		}
 				
@@ -271,7 +271,7 @@ public class MyPreferences extends BasePage{
 					formFeedback.add(new AttributeModifier("class", true, new Model("success")));
 					
 					//post update event
-					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PREFERENCES_UPDATE, userId, true);
+					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PREFERENCES_UPDATE, "/profile/"+userId, true);
 					
 					
 				} else {

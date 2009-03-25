@@ -94,7 +94,7 @@ public class RemoveFriend extends Panel {
 					friendActionModel.setRemoved(true);
 					
 					//post event
-					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_FRIEND_REMOVE, userY, true);
+					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_FRIEND_REMOVE, "/profile/"+userY, true);
 					
 					window.close(target);
 				} else {

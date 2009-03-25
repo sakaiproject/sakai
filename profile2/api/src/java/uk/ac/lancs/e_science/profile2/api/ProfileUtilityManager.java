@@ -14,7 +14,7 @@ public class ProfileUtilityManager {
 	public static final int MAX_RECORDS = 99;
 	
 	public static final String TOOL_ID = "sakai.profile2";
-	
+		
 	//email constants
 	public static final String EMAIL_NEWLINE = "<br />\n";
 	

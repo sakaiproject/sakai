@@ -190,7 +190,7 @@ public class MyStatusPanel extends Panel {
 					log.info("Saved status for: " + userId);
 					
 					//post update event
-					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_STATUS_UPDATE, userId, true);
+					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_STATUS_UPDATE, "/profile/"+userId, true);
 
 					//update twitter if set
 					updateTwitter(userId, statusMessage);
@@ -221,7 +221,7 @@ public class MyStatusPanel extends Panel {
 			profile.sendMessageToTwitter(userId, message);
 			
 			//post update event
-			sakaiProxy.postEvent(ProfileUtilityManager.EVENT_TWITTER_UPDATE, userId, true);
+			sakaiProxy.postEvent(ProfileUtilityManager.EVENT_TWITTER_UPDATE, "/profile/"+userId, true);
 
 		}
 		

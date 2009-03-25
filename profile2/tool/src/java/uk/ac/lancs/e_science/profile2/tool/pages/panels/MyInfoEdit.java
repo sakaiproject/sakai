@@ -81,7 +81,7 @@ public class MyInfoEdit extends Panel {
 				if(save(form)) {
 					
 					//post update event
-					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_INFO_UPDATE, userProfile.getUserId(), true);
+					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_INFO_UPDATE, "/profile/"+userProfile.getUserId(), true);
 					
 					//repaint panel
 					Component newPanel = new MyInfoDisplay(id, userProfile);

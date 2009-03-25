@@ -122,10 +122,6 @@ public interface SakaiProxy {
 	 * @param reference		reference
 	 * @param modify		true if something changed, false if just access
 	 * 
-	 * NOTE: ideally, we could have the context in here which would be the person who performed the event
-	 * rather than having to crossmatch it with a session.
-	 * In most if not all of these events, the reference is the userId of the person who had the event performed on them
-	 * since a user profile is not site specific.
 	 */
 	public void postEvent(String event,String reference,boolean modify);
 

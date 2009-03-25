@@ -108,7 +108,7 @@ public class AddFriend extends Panel {
 					friendActionModel.setRequested(true);
 					
 					//post event
-					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_FRIEND_REQUEST, userY, true);
+					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_FRIEND_REQUEST, "/profile/"+userY, true);
 					
 					//if email is enabled for this message type, send email
 					if(profile.isEmailEnabledForThisMessageType(userY, ProfilePreferencesManager.EMAIL_NOTIFICATION_REQUEST)) {

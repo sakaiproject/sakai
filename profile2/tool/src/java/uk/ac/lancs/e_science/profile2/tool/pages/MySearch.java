@@ -371,7 +371,7 @@ public class MySearch extends BasePage {
 					}
 					
 					//post view event
-					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_SEARCH_BY_NAME, currentUserUuid, false);
+					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_SEARCH_BY_NAME, "/profile/"+currentUserUuid, false);
 					
 					//repaint components
 					target.addComponent(sbiInterestField);
@@ -433,7 +433,7 @@ public class MySearch extends BasePage {
 					}
 					
 					//post view event
-					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_SEARCH_BY_INTEREST, currentUserUuid, false);
+					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_SEARCH_BY_INTEREST, "/profile/"+currentUserUuid, false);
 					
 					//repaint components
 					target.addComponent(sbnNameField);

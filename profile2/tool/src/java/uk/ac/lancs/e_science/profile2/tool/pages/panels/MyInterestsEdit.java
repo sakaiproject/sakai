@@ -93,7 +93,7 @@ public class MyInterestsEdit extends Panel {
 				if(save(form)) {
 
 					//post update event
-					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_INTERESTS_UPDATE, userProfile.getUserId(), true);
+					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_INTERESTS_UPDATE, "/profile/"+userProfile.getUserId(), true);
 					
 					//repaint panel
 					Component newPanel = new MyInterestsDisplay(id, userProfile);

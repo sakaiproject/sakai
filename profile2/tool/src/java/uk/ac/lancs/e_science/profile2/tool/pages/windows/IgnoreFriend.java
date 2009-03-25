@@ -84,12 +84,12 @@ public class IgnoreFriend extends Panel {
 				}
 				
 				
-				//if ok, cancel request
+				//if ok, ignore friend request
 				if(profile.ignoreFriendRequest(userY, userX)) {
 					friendActionModel.setIgnored(true);
 					
 					//post event
-					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_FRIEND_IGNORE, userY, true);
+					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_FRIEND_IGNORE, "/profile/"+userY, true);
 					
 					window.close(target);
 				} else {

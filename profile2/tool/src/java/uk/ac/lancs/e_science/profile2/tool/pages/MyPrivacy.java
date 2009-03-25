@@ -54,7 +54,7 @@ public class MyPrivacy extends BasePage {
 			}
 			
 			//post create event
-			sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PRIVACY_NEW, userId, true);
+			sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PRIVACY_NEW, "/profile/"+userId, true);
 			
 		}
 		
@@ -262,7 +262,7 @@ public class MyPrivacy extends BasePage {
 					formFeedback.add(new AttributeModifier("class", true, new Model("success")));
 					
 					//post update event
-					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PRIVACY_UPDATE, userId, true);
+					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PRIVACY_UPDATE, "/profile/"+userId, true);
 
 				} else {
 					formFeedback.setModel(new ResourceModel("error.privacy.save.failed"));

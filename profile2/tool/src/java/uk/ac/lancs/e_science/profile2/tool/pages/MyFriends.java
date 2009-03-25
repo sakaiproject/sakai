@@ -36,7 +36,7 @@ public class MyFriends extends BasePage {
 		add(confirmedFriends);
 		
 		//post view event
-		sakaiProxy.postEvent(ProfileUtilityManager.EVENT_FRIENDS_VIEW_OWN, userId, false);
+		sakaiProxy.postEvent(ProfileUtilityManager.EVENT_FRIENDS_VIEW_OWN, "/profile/"+userId, false);
 		
 		
 	}

@@ -97,7 +97,7 @@ public class ChangeProfilePictureUrl extends Panel{
 					log.info("User " + userId + " successfully changed profile picture by url.");
 					
 					//post update event
-					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_IMAGE_CHANGE_URL, userId, true);
+					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_IMAGE_CHANGE_URL, "/profile/"+userId, true);
 					
 					//refresh image data
 					setResponsePage(new MyProfile());

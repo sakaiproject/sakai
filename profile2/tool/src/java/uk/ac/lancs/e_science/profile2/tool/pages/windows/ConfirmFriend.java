@@ -92,7 +92,7 @@ public class ConfirmFriend extends Panel {
 					friendActionModel.setConfirmed(true);
 					
 					//post event
-					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_FRIEND_CONFIRM, userY, true);
+					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_FRIEND_CONFIRM, "/profile/"+userY, true);
 					
 					//if email is enabled for this message type, send email
 					if(profile.isEmailEnabledForThisMessageType(userY, ProfilePreferencesManager.EMAIL_NOTIFICATION_CONFIRM)) {

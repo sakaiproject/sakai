@@ -56,7 +56,7 @@ public class ViewProfile extends BasePage {
 		}
 		
 		//post view event
-		sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_VIEW_OTHER, userUuid, false);
+		sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_VIEW_OTHER, "/profile/"+userUuid, false);
 		
 		//init
 		boolean friend = false;
