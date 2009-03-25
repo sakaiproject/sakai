@@ -134,6 +134,12 @@
             </property>
             <property name="dateOfBirth" column="dateOfBirth" type="date" />
             <property name="locked" column="locked" type="boolean" />
+            
+            <property name="favouriteBooks" column="FAVOURITE_BOOKS" type="text" />
+            <property name="favouriteTvShows" column="FAVOURITE_TV_SHOWS" type="text" />
+            <property name="favouriteMovies" column="FAVOURITE_MOVIES" type="text" />
+            <property name="favouriteQuotes" column="FAVOURITE_QUOTES" type="text" />
+            
           </subclass>
         </subclass>
       </subclass>

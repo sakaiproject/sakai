@@ -155,5 +155,56 @@ public interface SakaiPerson extends EduPerson
 	 */
 	public Boolean getLocked();
 	
+	
+	/**
+	 * Set favourite books
+	 */
+	public void setFavouriteBooks(String favouriteBooks);
+	
+	
+	/**
+	 *  Get favourite books
+	 * @return
+	 */
+	public String getFavouriteBooks();
+	
+	
+	/**
+	 * Set favourite TV shows
+	 */
+	public void setFavouriteTvShows(String favouriteTvShows);
+	
+	
+	/**
+	 *  Get favourite TV shows
+	 * @return
+	 */
+	public String getFavouriteTvShows();
+	
+	
+	/**
+	 * Set favourite movies
+	 */
+	public void setFavouriteMovies(String favouriteMovies);
+	
+	
+	/**
+	 *  Get favourite movies
+	 * @return
+	 */
+	public String getFavouriteMovies();
+	
+	
+	/**
+	 * Set favourite quotes
+	 */
+	public void setFavouriteQuotes(String favouriteQuotes);
+	
+	
+	/**
+	 *  Get favourite quotes
+	 * @return
+	 */
+	public String getFavouriteQuotes();
 
 }

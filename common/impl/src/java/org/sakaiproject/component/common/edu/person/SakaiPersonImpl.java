@@ -198,5 +198,40 @@ public class SakaiPersonImpl extends EduPersonImpl implements Person, Organizati
 	public void setLocked(Boolean locked) {
 		this.locked = locked;
 	}
-		
+	
+	private String favouriteBooks;
+	public String getFavouriteBooks() {
+		return favouriteBooks;
+	}
+	
+	public void setFavouriteBooks(String favouriteBooks) {
+		this.favouriteBooks = favouriteBooks;
+	}
+	
+	private String favouriteTvShows;
+	public String getFavouriteTvShows() {
+		return favouriteTvShows;
+	}
+	
+	public void setFavouriteTvShows(String favouriteTvShows) {
+		this.favouriteTvShows = favouriteTvShows;
+	}
+	
+	private String favouriteMovies;
+	public String getFavouriteMovies() {
+		return favouriteMovies;
+	}
+	
+	public void setFavouriteMovies(String favouriteMovies) {
+		this.favouriteMovies = favouriteMovies;
+	}
+	
+	private String favouriteQuotes;
+	public String getFavouriteQuotes() {
+		return favouriteQuotes;
+	}
+	
+	public void setFavouriteQuotes(String favouriteQuotes) {
+		this.favouriteQuotes = favouriteQuotes;
+	}
 }
