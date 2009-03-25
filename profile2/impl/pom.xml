@@ -6,8 +6,6 @@
 	<name>Profile2 IMPL</name>
 	<groupId>uk.ac.lancs.e_science</groupId>
 	<artifactId>sakai-profile2-impl</artifactId>
-	<url></url>
-	<description></description>
 
 	<packaging>jar</packaging>
 	
@@ -15,58 +13,45 @@
 		<groupId>uk.ac.lancs.e_science</groupId>
 		<artifactId>profile2-base</artifactId>
 	    <version>1.1-SNAPSHOT</version>
-	    <relativePath>../pom.xml</relativePath>
 	</parent>
   	
   	<dependencies>
 
-		<!--  internal dependencies -->
+    	<!-- INTERNAL DEPENDENCIES -->
 		<dependency>
 			<groupId>uk.ac.lancs.e_science</groupId>
 			<artifactId>sakai-profile2-api</artifactId>
-			<version>${parent.version}</version>
-			<scope>provided</scope>
 		</dependency>
 		
-
-		<!-- shared external dependencies -->
+    	<!-- SHARED EXTERNAL DEPENDENCIES -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate</artifactId>
         </dependency>
     	
-    	<!--  logging dependency -->
+    	<!-- EXTERNAL DEPENDENCIES -->
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<version>${log4j.version}</version>
 		</dependency>
-		
-		<!--  twitter4j dependency -->
 		<dependency>
 			<groupId>net.homeip.yusuke</groupId>
 			<artifactId>twitter4j</artifactId>
-			<version>${twitter4j.version}</version>
 		</dependency>
-		
-		<!--  encryption/decryption dependency -->
 		<dependency>
       		<groupId>org.jasypt</groupId>
       		<artifactId>jasypt</artifactId>
-      		<version>${jasypt.version}</version>
     	</dependency>
     	<dependency>
 			<groupId>com.ibm.icu</groupId>
 			<artifactId>icu4j</artifactId>
-			<version>${icu4j.version}</version>
 		</dependency>
 
-		<!--  Sakai dependencies -->
+		<!--  SAKAI DEPENDENCIES (put this into build profile) -->
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-tool-api</artifactId>
@@ -133,14 +118,7 @@
 			<artifactId>sakai-event-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		<!-- 
-		<dependency>
-      		<groupId>org.sakaiproject.entitybroker</groupId>
-      		<artifactId>entitybroker-api</artifactId>
-      		<version>${entitybroker.version}</version>
-      		<scope>provided</scope>
-    	</dependency> 
-    	-->
+		
 		<dependency>
       		<groupId>org.sakaiproject</groupId>
       		<artifactId>sakai-email-api</artifactId>
@@ -150,8 +128,6 @@
    		<dependency>
       		<groupId>org.sakaiproject</groupId>
       		<artifactId>sakai-tinyurl-api</artifactId>
-     		<version>0.9-SNAPSHOT</version>
-			<scope>provided</scope>
    		</dependency>
   	
   	

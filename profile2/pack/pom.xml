@@ -6,8 +6,6 @@
 	<name>Profile2 PACK</name>
 	<groupId>uk.ac.lancs.e_science</groupId>
 	<artifactId>sakai-profile2-pack</artifactId>
-	<url></url>
-	<description></description>
 
 	<packaging>sakai-component</packaging>
 
@@ -15,7 +13,6 @@
 		<groupId>uk.ac.lancs.e_science</groupId>
 		<artifactId>profile2-base</artifactId>
 	    <version>1.1-SNAPSHOT</version>
-	    <relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<properties>
@@ -28,8 +25,6 @@
         <dependency>
             <groupId>uk.ac.lancs.e_science</groupId>
             <artifactId>sakai-profile2-impl</artifactId>
-            <version>${parent.version}</version>
-            <scope>runtime</scope>
         </dependency>
 
     </dependencies>

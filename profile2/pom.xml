@@ -7,9 +7,7 @@
 	<name>Profile2 BASE</name>
 	<groupId>uk.ac.lancs.e_science</groupId>
 	<artifactId>profile2-base</artifactId>
-	<url></url>
-	<description></description>
-	
+		
 	<packaging>pom</packaging>
 	<version>1.1-SNAPSHOT</version>
 	
@@ -70,6 +68,7 @@
     	<twitter4j.version>1.1.4</twitter4j.version>
     	<jasypt.version>1.5</jasypt.version>
     	<icu4j.version>3.8</icu4j.version>
+    	<tinyurl.version>0.9-SNAPSHOT</tinyurl.version>
     </properties>
     
     <!-- Profile2 related dependencies -->
@@ -82,6 +81,12 @@
       			<artifactId>sakai-profile2-api</artifactId>
       			<version>${tool.version}</version>
       			<scope>provided</scope>
+    		</dependency>
+    		<dependency>
+      			<groupId>uk.ac.lancs.e_science</groupId>
+      			<artifactId>sakai-profile2-impl</artifactId>
+      			<version>${tool.version}</version>
+      			<scope>runtime</scope>
     		</dependency>
     		
     		<!-- external -->
@@ -130,6 +135,13 @@
 				<artifactId>log4j</artifactId>
 				<version>${log4j.version}</version>
 			</dependency>
+			<dependency>
+      			<groupId>org.sakaiproject</groupId>
+      			<artifactId>sakai-tinyurl-api</artifactId>
+     			<version>${tinyurl.version}</version>
+				<scope>provided</scope>
+   			</dependency>
+  	
     	</dependencies>
     </dependencyManagement>
 
