@@ -205,7 +205,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         }
     }
 
-    
+
     /**
      * If this param is set then the sakai session for the current request is set to this rather than establishing one,
      * will allow changing the session as well
@@ -379,11 +379,11 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                             } else {
                                 // STANDARD processing of the entity request internally start here
                                 // try to handle the request internally if possible
-    
+
                                 // identify the type of request (input or output) and the action (will be encoded in the viewKey)
                                 boolean output = RequestUtils.isRequestOutput(req, view);
                                 setResponseHeaders(view, res, requestStorage.getStorageMapCopy(), null);
-    
+
                                 boolean handled = false;
                                 // PROCESS CUSTOM ACTIONS
                                 ActionReturn actionReturn = null;
@@ -457,7 +457,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                         }
                                     }
                                 }
-    
+
                                 boolean formatInvalidFailure = false;
                                 if (!handled) {
                                     // INTERNAL PROCESSING OF REQUEST
@@ -520,7 +520,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                                     if (outputFormats == null || ReflectUtils.contains(outputFormats, format) ) {
                                                         // we are handling this type of format for this entity
                                                         RequestUtils.setResponseEncoding(format, res);
-    
+
                                                         EntityReference ref = view.getEntityReference();
                                                         // get the entities to output
                                                         List<EntityData> entities = null;
@@ -564,14 +564,14 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                                         }
                                                         // set the modified header (use the sole entity in the list if there is one only)
                                                         setLastModifiedHeaders(res, (entities != null && entities.size()==1 ? entities.get(0) : null), System.currentTimeMillis());
-    
+
                                                         if (EntityView.Method.HEAD.name().equals(view.getMethod())) {
                                                             // HEADER only
                                                             res.setStatus(HttpServletResponse.SC_NO_CONTENT);
                                                         } else {
                                                             // GET
                                                             OutputStream outputStream = new LazyResponseOutputStream(res);
-    
+
                                                             /* try to use the provider formatter if one available,
                                                              * if it decided not to handle it or none is available then control passes to internal
                                                              */
@@ -629,7 +629,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                                         } catch (IOException e) {
                                                             throw new RuntimeException("Failed to get output stream from response: " + view.getEntityReference(), e);
                                                         }
-    
+
                                                         /* try to use the provider translator if one available,
                                                          * if it decided not to handle it or none is available then control passes to internal
                                                          */
@@ -650,7 +650,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                                             entity = entityEncodingManager.internalInputTranslator(view.getEntityReference(), 
                                                                     format, inputStream, req);
                                                         }
-    
+
                                                         if (entity == null) {
                                                             // FAILURE input could not be translated into an entity object
                                                             handled = false;
@@ -738,7 +738,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                                                 view.getEntityReference()+"", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                                     }
                                 }
-    
+
                                 if (! handled) {
                                     // default handling, send to the access provider if there is one (if none this will throw EntityException)
                                     try {
@@ -961,7 +961,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
     }
 
     /**
-     * Correctly sets up the basic headers for every response
+     * Correctly sets up the basic headers for every response,
+     * allows setting caching to be disabled by using the nocache or no-cache param
      * @param view
      * @param res
      * @param params
@@ -972,16 +973,10 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         long currentTime = System.currentTimeMillis();
         long lastModified = currentTime;
         if (params != null) {
-            String key = "no-cache";
-            if (params.containsKey(key)) {
-                try {
-                    noCache = Boolean.parseBoolean(params.get(key).toString());
-                } catch (Exception e) {
-                    // in case the value is not there or null
-                    noCache = false;
-                }
+            if (params.containsKey("no-cache") || params.containsKey("nocache")) {
+                noCache = true;
             }
-            key = "last-modified";
+            String key = "last-modified";
             if (params.containsKey(key)) {
                 try {
                     lastModified = ((Long) params.get(key)).longValue();
@@ -996,7 +991,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         // set the cache headers
         res.setDateHeader(ActionReturn.Header.DATE.toString(), currentTime);
         res.setDateHeader(ActionReturn.Header.EXPIRES.toString(), currentTime + 600000);
-        
+
         if (noCache) {
             res.setHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "must-revalidate");
             res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "private");

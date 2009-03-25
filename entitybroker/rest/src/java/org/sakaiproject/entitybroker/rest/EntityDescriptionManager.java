@@ -261,6 +261,7 @@ public class EntityDescriptionManager {
             sb.append("  <h2>"+entityProperties.getProperty(DESCRIBE, "describe.all", locale)+" ("
                     +entityProperties.getProperty(DESCRIBE, "describe.registered.entities", locale)+"): "
                     +map.size()+"</h2>\n");
+            sb.append("  <div style='font-style:italic;padding-bottom:0.5em;'>"+entityProperties.getProperty(DESCRIBE, "describe.general.notes", locale)+"</div>\n"); // notes
             sb.append("  <div style='font-style:italic;'>"+entityProperties.getProperty(DESCRIBE, "describe.searching", locale)+"</div>\n"); // searching
             ArrayList<String> prefixes = new ArrayList<String>(map.keySet());
             Collections.sort(prefixes);
