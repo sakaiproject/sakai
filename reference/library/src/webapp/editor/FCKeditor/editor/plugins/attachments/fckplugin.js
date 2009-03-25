@@ -27,14 +27,15 @@ var FCKToolbarAttachmentSelectCommand = function ( combo ) {
 }
 
 FCKToolbarAttachmentSelectCommand.prototype.Execute = function (itemId, item) {
-   this.combo.currentItem = item;
+	this.combo.currentItem = item;
+	this.combo.currentItem.itemId = itemId;
 }
 
 FCKToolbarAttachmentSelectCommand.prototype.GetState = function()
 {
-	if(this.combo.currrentItem) 
+	if(this.combo.currentItem) 
 	{
-		return this.combo.currentItem.FCKItemID;
+		return this.combo.currentItem.itemId;
 	}
 	else {
 		//nothing selected
@@ -47,12 +48,12 @@ var FCKToolbarAttachmentsCombo = function( commandName )
 	this.Label		  = this.GetLabel() ;
 	this.Tooltip	  = this.Label ;
 	this.Style		  = FCK_TOOLBARITEM_ICONTEXT ;
-   this.CommandName = commandName;
+	this.CommandName = commandName;
 
-   this.NormalLabel = 'Normal' ;
+	this.NormalLabel = 'Normal' ;
 
 	this.PanelWidth = 260 ;
-   this.FieldWidth = 260 ;
+	this.FieldWidth = 260 ;
 }
 
 // Inherit from FCKToolbarSpecialCombo.
@@ -151,14 +152,14 @@ SelectAttachmentsCommand.prototype.Execute = function() {
    if ( oLink ) {
       FCK.Selection.SelectNode( oLink ) ;
       FCKUndo.SaveUndoStep() ;
-			oLink.href = item.FCKItemID ;
+			oLink.href = item.itemId ;
       return;
    }
 	 else {
-	 	  prepareSelection(item.FCKItemID, item.FCKItemLabel);
+	 	  prepareSelection(item.itemId, item.FCKItemLabel);
 	 }
 
-	 FCK.CreateLink(item.FCKItemID);
+	 FCK.CreateLink(item.itemId);
 }
 
 SelectAttachmentsCommand.prototype.GetState = function()
