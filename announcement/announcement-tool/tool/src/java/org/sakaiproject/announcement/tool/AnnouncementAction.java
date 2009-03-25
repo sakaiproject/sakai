@@ -4439,6 +4439,11 @@ public class AnnouncementAction extends PagedResourceActionII
 	 */
 	protected boolean notificationEnabled(AnnouncementActionState state)
 	{
+		// if it is motd, it does not send notification to user, hence the notification option is disabled. SAK-4559
+		if (state.getChannelId().contains("motd"))
+		{
+				return false;
+		}
 		return true;
 	} // notificationEnabled
 
