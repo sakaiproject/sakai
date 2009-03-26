@@ -50,49 +50,12 @@
 			<groupId>com.ibm.icu</groupId>
 			<artifactId>icu4j</artifactId>
 		</dependency>
-
-		<!--  SAKAI DEPENDENCIES (put this into build profile) -->
 		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-tool-api</artifactId>
-			<scope>provided</scope>
-    	</dependency>
-    	<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-user-api</artifactId>
-			<scope>provided</scope>
-    	</dependency>
-    	<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-authz-api</artifactId>
-			<scope>provided</scope>
-    	</dependency>
-    	<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-util-api</artifactId>
-			<scope>provided</scope>
-    	</dependency>
-    	<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-util</artifactId>
-			<version>${sakai.version}</version>
-    	</dependency>
-    	<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-site-api</artifactId>
-			<scope>provided</scope>
-    	</dependency>
-    	<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-entity-api</artifactId>
-			<scope>provided</scope>
-    	</dependency>
-    	<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-component-api</artifactId>
-			<scope>provided</scope>
-    	</dependency>
-    	
+      		<groupId>org.sakaiproject</groupId>
+      		<artifactId>sakai-tinyurl-api</artifactId>
+   		</dependency>
+		
+		<!--  GENERIC SAKAI DEPENDENCIES -->
     	<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-common-edu-person-api</artifactId>
@@ -108,30 +71,94 @@
 	      	<artifactId>sakai-common-type-api</artifactId>
 	      	<scope>provided</scope>
 	    </dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-content-api</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-event-api</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		
-		<dependency>
-      		<groupId>org.sakaiproject</groupId>
-      		<artifactId>sakai-email-api</artifactId>
-			<scope>provided</scope>
-   		</dependency>
-   		
-   		<dependency>
-      		<groupId>org.sakaiproject</groupId>
-      		<artifactId>sakai-tinyurl-api</artifactId>
-   		</dependency>
-  	
-  	
+
   	</dependencies>
+  	
+  	
+  	<profiles>
+        <profile>
+            <id>pre-K1</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <!-- Sakai 2.5.x specific dependencies -->
+			<dependencies>
+				<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-tool-api</artifactId>
+					<scope>provided</scope>
+		    	</dependency>
+		    	<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-user-api</artifactId>
+					<scope>provided</scope>
+		    	</dependency>
+		    	<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-authz-api</artifactId>
+					<scope>provided</scope>
+		    	</dependency>
+		    	<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-util-api</artifactId>
+					<scope>provided</scope>
+		    	</dependency>
+		    	<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-util</artifactId>
+					<version>${sakai.version}</version>
+		    	</dependency>
+		    	<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-site-api</artifactId>
+					<scope>provided</scope>
+		    	</dependency>
+		    	<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-entity-api</artifactId>
+					<scope>provided</scope>
+		    	</dependency>
+		    	<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-component-api</artifactId>
+					<scope>provided</scope>
+		    	</dependency>
+				<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-content-api</artifactId>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-event-api</artifactId>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+      				<groupId>org.sakaiproject</groupId>
+      				<artifactId>sakai-email-api</artifactId>
+					<scope>provided</scope>
+   				</dependency>
+			</dependencies>
+		</profile>
+        <profile>
+            <id>K1</id>
+            <!-- Sakai 2.6+ specific dependencies -->
+            <dependencies>
+		        <dependency>
+		            <groupId>org.sakaiproject.kernel</groupId>
+		            <artifactId>sakai-kernel-api</artifactId>
+		        </dependency>
+		        <dependency>
+		            <groupId>org.sakaiproject.kernel</groupId>
+		            <artifactId>sakai-component-manager</artifactId>
+		        </dependency>
+		        <dependency>
+            		<groupId>org.sakaiproject.kernel.util</groupId>
+            		<artifactId>sakai-entity-util</artifactId>
+        		</dependency>
+			</dependencies> 
+        </profile>
+    </profiles>
 
 	
 	

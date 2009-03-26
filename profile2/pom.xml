@@ -145,33 +145,22 @@
     	</dependencies>
     </dependencyManagement>
 
+ 	<modules>
+	    <module>api</module>
+	    <module>impl</module>
+	    <module>pack</module>
+	    <module>tool</module>
+	</modules>
        
     <profiles>
         <profile>
-            <id>full</id>
+            <id>pre-K1</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-            <modules>
-                <module>api</module>
-                <module>impl</module>
-                <module>pack</module>
-                <module>tool</module>
-            </modules>
         </profile>
         <profile>
-            <id>tool</id>
-            <modules>
-                <module>tool</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>api</id>
-            <modules>
-               	<module>api</module>
-                <module>impl</module>
-                <module>pack</module>
-            </modules>
+            <id>K1</id>
         </profile>
     </profiles>
     

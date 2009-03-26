@@ -57,29 +57,8 @@
       		<groupId>uk.ac.lancs.e_science</groupId>
       		<artifactId>sakai-profile2-api</artifactId>
     	</dependency>
-		
-		<!--  SAKAI DEPENDENCIES (put this into build profile) -->
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-component-api</artifactId>
-			<scope>provided</scope>
-    	</dependency>
-    	<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-site-api</artifactId>
-			<scope>provided</scope>
-    	</dependency>
-    	<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-tool-api</artifactId>
-			<scope>provided</scope>
-    	</dependency>
-    	<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-user-api</artifactId>
-			<scope>provided</scope>
-    	</dependency>
     	
+    	<!--  GENERIC SAKAI DEPENDENCIES -->
     	<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-common-edu-person-api</artifactId>
@@ -95,8 +74,58 @@
 	      	<artifactId>sakai-common-type-api</artifactId>
 	      	<scope>provided</scope>
 	    </dependency>
-	
+    	
 	</dependencies>
+	
+	
+	<profiles>
+        <profile>
+            <id>pre-K1</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <!-- Sakai 2.5.x specific dependencies -->
+			<dependencies>
+				<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-component-api</artifactId>
+					<scope>provided</scope>
+		    	</dependency>
+		    	<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-site-api</artifactId>
+					<scope>provided</scope>
+		    	</dependency>
+		    	<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-tool-api</artifactId>
+					<scope>provided</scope>
+		    	</dependency>
+		    	<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-user-api</artifactId>
+					<scope>provided</scope>
+		    	</dependency>
+			</dependencies>
+        </profile>
+        <profile>
+            <id>K1</id>
+            <!-- Sakai 2.6+ specific dependencies -->
+            <dependencies>
+		        <dependency>
+		            <groupId>org.sakaiproject.kernel</groupId>
+		            <artifactId>sakai-kernel-api</artifactId>
+		        </dependency>
+		        <dependency>
+		            <groupId>org.sakaiproject.kernel</groupId>
+		            <artifactId>sakai-component-manager</artifactId>
+		        </dependency>
+			</dependencies> 
+        </profile>
+    </profiles>
+	
+		
+	
 
 	<build>
 		<resources>
