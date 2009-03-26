@@ -524,7 +524,6 @@ public class BaseSearchManager implements SearchManager, Observer
         public void setLastPage(boolean lastPage)
         {
 	        this.m_lastPage = lastPage;
-
         }
 
 		/* (non-Javadoc)
@@ -737,6 +736,9 @@ public class BaseSearchManager implements SearchManager, Observer
 
 		/* (non-Javadoc)
          * @see org.sakaiproject.citation.api.ActiveSearch#prepareForNextPage()
+         *
+         * As far as I can tell, this is no longer used.  At one time it was
+         * referenced from CitationsHelperAction.  SRS, 03/34/09
          */
         public void prepareForNextPage()
         {
@@ -1989,6 +1991,7 @@ public class BaseSearchManager implements SearchManager, Observer
 		search.setNumRecordsMerged( numRecordsMerged );
 		search.setNewSearch(false);
 		search.setFirstPage(false);
+
 		if(done)
 		{
 			search.setLastPage(false);
@@ -2099,11 +2102,15 @@ public class BaseSearchManager implements SearchManager, Observer
 	    	Set duplicateCheck  = ((BasicSearch) search).getDuplicateCheck();
 	    	int duplicateCount  = 0;
 	    	int assetsRetrieved = 0;
+
 	    	boolean done = false;
+	    	boolean moreResults = false;
+
 	    	try
 	    	{
-	    		// poll until you get pageSize results to return
-	    		while( !done && assetIterator.hasNextAsset() )
+	    		// poll until we get pageSize results (or run out of results)
+	    	  moreResults = assetIterator.hasNextAsset();
+	    		while( !done && moreResults )
 	    		{
 	    			try
 	    			{
@@ -2141,6 +2148,8 @@ public class BaseSearchManager implements SearchManager, Observer
 	    				{
 	    					done = true;
 	    				}
+              // make sure we have more search results
+			    	  moreResults = assetIterator.hasNextAsset();
 	    			}
 	    			catch( RepositoryException re )
 	    			{
@@ -2197,7 +2206,7 @@ public class BaseSearchManager implements SearchManager, Observer
 	    	// get search status properties
 	    	Type statusType = getPropertyType( repository );
 	    	org.osid.shared.Properties statusProperties =
-	    		repository.getPropertiesByType( statusType );
+    		repository.getPropertiesByType( statusType );
 
 	    	Integer numRecordsFound = null;
 	    	Integer numRecordsFetched = null;
@@ -2223,13 +2232,23 @@ public class BaseSearchManager implements SearchManager, Observer
 	    	/*
 	    	 * forward results handling
 	    	 */
-
 	    	search.setNumRecordsFound( numRecordsFound );
 	    	search.setNumRecordsFetched( numRecordsFetched );
 	    	search.setNumRecordsMerged( numRecordsMerged );
+
 	    	search.setNewSearch(false);
 	    	search.setFirstPage(false);
-	    	search.setLastPage(! done);
+        /*
+         * disable the "next page" arrow if we've exhausted the search results
+         */
+	    	if (!moreResults)
+	    	{
+	    	  search.setLastPage(true);
+	    	}
+	    	else
+	    	{
+	    	  search.setLastPage(!done);
+        }
 	    	((BasicSearch) search).setRepository(repository);
 	    	((BasicSearch) search).setAssetIterator(assetIterator);
 
