@@ -215,10 +215,10 @@ public abstract class BaseCitationService implements CitationService
 
 			String description;
       /*
-       * How to use the preferred URL?  We can omit it, use it as the title 
+       * How to use the preferred URL?  We can omit it, use it as the title
        * link, or supply it as the related link.
        *
-			 * "preferred" (below) has one of three values: false, related-link, 
+			 * "preferred" (below) has one of three values: false, related-link,
 			 *                                              or title-link
 			 */
 			String preferredUrl = null;
@@ -226,7 +226,7 @@ public abstract class BaseCitationService implements CitationService
 
 			boolean usePreferredUrlAsTitle = preferred.equals("title-link");
 			boolean usePreferredUrls = !preferred.equals("false");
-      
+
 			// assetId = asset.getId().getIdString();
 			try
 			{
@@ -402,8 +402,8 @@ public abstract class BaseCitationService implements CitationService
 			  String id;
         /*
          * Save the URL without a label (it'll get the default label at
-         * render-time).  This URL needs to have the prefix text added at 
-         * render time, and we'll [optionally] set it as the preferred 
+         * render-time).  This URL needs to have the prefix text added at
+         * render time, and we'll [optionally] set it as the preferred
          * (or title) link.
          */
 			  id = addCustomUrl("",  preferredUrl, Citation.ADD_PREFIX_TEXT);
@@ -564,7 +564,7 @@ public abstract class BaseCitationService implements CitationService
 		 */
 		public String addCustomUrl(String label, String url, String prefixRequest)
 		{
-			UrlWrapper wrapper = new UrlWrapper(label, url, 
+			UrlWrapper wrapper = new UrlWrapper(label, url,
 			                                    getPrefixBoolean(prefixRequest));
 			String id = IdManager.createUuid();
 			m_urls.put(id, wrapper);
@@ -579,16 +579,16 @@ public abstract class BaseCitationService implements CitationService
 		 *                                                             java.lang.String,
 		 *                                                             java.lang.String)
 		 */
-		public void updateCustomUrl(String urlid, String label, 
+		public void updateCustomUrl(String urlid, String label,
 		                            String url, String prefixRequest)
 		{
-			UrlWrapper wrapper = new UrlWrapper(label, url, 
+			UrlWrapper wrapper = new UrlWrapper(label, url,
 			                                    getPrefixBoolean(prefixRequest));
 			m_urls.put(urlid, wrapper);
 		}
 
     /*
-     * addCustomUrl()/updateCustomUrl() helper: Convert the "prefix request 
+     * addCustomUrl()/updateCustomUrl() helper: Convert the "prefix request
      *                                          string" to a boolean value
      *
      * @param prefixRequest Prefix request text
@@ -740,7 +740,7 @@ public abstract class BaseCitationService implements CitationService
       }
 
       prefix = prefix.trim();
-      
+
 			if (!prefix.equals(""))
 			{
 				prefix = prefix + ": ";
@@ -968,12 +968,12 @@ public abstract class BaseCitationService implements CitationService
 
 			String creators = "";
 			int count = 0;
-			
+
 			if (creatorList == null)
 			{
 				return creators;
 			}
-			
+
 			Iterator it = creatorList.iterator();
 			while (it.hasNext())
 			{
@@ -1008,7 +1008,7 @@ public abstract class BaseCitationService implements CitationService
 		}
 
 		/**
-		 * Fetch a custom (direct) URL by ID.  
+		 * Fetch a custom (direct) URL by ID.
 		 *
 		 * @see org.sakaiproject.citation.api.Citation#getCustomUrl(java.lang.String)
 		 */
@@ -1017,14 +1017,14 @@ public abstract class BaseCitationService implements CitationService
 			UrlWrapper wrapper;
 	    StringBuilder urlBuffer;
 	    String prefix;
-	   
+
 	    if ((wrapper = (UrlWrapper) m_urls.get(id)) == null)
 			{
 				throw new IdUnusedException(id);
 			}
-  	  
+
   	  urlBuffer = new StringBuilder(wrapper.getUrl());
-  	  
+
   	  if (wrapper.addPrefix())
   	  {
     	  if ((prefix = getUrlPrefix()) != null)
@@ -1044,7 +1044,7 @@ public abstract class BaseCitationService implements CitationService
 		public String getUnprefixedCustomUrl(String id) throws IdUnusedException
 		{
 			UrlWrapper wrapper = (UrlWrapper) m_urls.get(id);
-			
+
 			if (wrapper == null)
 			{
 				throw new IdUnusedException(id);
@@ -1070,7 +1070,7 @@ public abstract class BaseCitationService implements CitationService
 		public boolean addPrefixToUrl(String id) throws IdUnusedException
 		{
 			UrlWrapper wrapper = (UrlWrapper) m_urls.get(id);
-			
+
 			if (wrapper == null)
 			{
 				throw new IdUnusedException(id);
@@ -1669,13 +1669,13 @@ public abstract class BaseCitationService implements CitationService
 			return source;
 		}
 
-		public String getAbstract() 
+		public String getAbstract()
 		{
-			if ((m_citationProperties != null) && 
+			if ((m_citationProperties != null) &&
 			    (m_citationProperties.get( "abstract" ) != null))
 			{
 				String abstractText = m_citationProperties.get("abstract").toString().trim();
-				
+
 				if (abstractText.length() > 0)
 				{
 				  return abstractText;
@@ -1774,15 +1774,15 @@ public abstract class BaseCitationService implements CitationService
 			boolean noFieldMapping = true; // Used to maintain/exit the tag lookup while loop
 			String[] RIScodes = null; // This holds the RISCodes valid for a given schema
 			String urlId = null; // Used to set the preferred URL
-			
-			String continueTag = null; // used to track EndNote continuation lines. 
+
+			String continueTag = null; // used to track EndNote continuation lines.
 			int delimiterIndex  = 0; // used to find the index of the hyphen to separate RIScode from RISvalue
 
 			logger.debug("importFromRisList: In importFromRisList. List size is " + risImportList.size());
 
 			// process loop that iterates list size many times
 			for(int i=0; i< risImportList.size(); i++)
-			{				
+			{
 				// get current RIS line
 				currentLine = (String) risImportList.get(i);
 				logger.debug("importFromRisList: currentLine = " + currentLine);
@@ -1797,7 +1797,7 @@ public abstract class BaseCitationService implements CitationService
 				else
 				{
 					// get the RIS code
-					
+
 					// New parsing code 2008-09 based on first delimiter not index in String
 
 					delimiterIndex  = currentLine.indexOf('-');
@@ -1807,14 +1807,14 @@ public abstract class BaseCitationService implements CitationService
 					{
 						RIScode = currentLine.substring(0, delimiterIndex).trim();
 
-						// get substring starting with hyphen. This guarantees that we at least have a 
+						// get substring starting with hyphen. This guarantees that we at least have a
 						// string of length 1 for processing
-						
+
 						RISvalue = currentLine.substring(delimiterIndex).trim();
-						
+
 						// if RISvalue's length is greater than 1 that means we have more than the hyphen for the
 						// string.  We then discard the hyphen (1st character)
-						
+
 						if (RISvalue.length() > 1)
 						{
 							RISvalue = RISvalue.substring(1);
@@ -1823,14 +1823,14 @@ public abstract class BaseCitationService implements CitationService
 						{
 							RISvalue = "";
 						}
-					
-					}	
+
+					}
 					else
 					{
 						RIScode = "CODENOTFOUND";
 						RISvalue = "";
 					}
-					
+
 					logger.debug("importFromRisList: substr value = " + RISvalue);
 				}
 
@@ -1920,9 +1920,9 @@ public abstract class BaseCitationService implements CitationService
 		                               RIScode + " for Schema = " + schema);
 
 						  // recompute hyphen location for KWTag check. Computation earlier may have gotten mangled
-						  
+
 						  delimiterIndex  = currentLine.indexOf('-');
-						  
+
 						  if (delimiterIndex == -1)
 						  {
 							  RIScode = "CODENOTFOUND";
@@ -1931,7 +1931,7 @@ public abstract class BaseCitationService implements CitationService
 						  {
 								RIScode = currentLine.substring(0, delimiterIndex).trim();
 						  }
-						  
+
 						  if (RIScode.equalsIgnoreCase("UR"))
 						  {
 							urlId = addCustomUrl("", RISvalue);
@@ -1946,12 +1946,12 @@ public abstract class BaseCitationService implements CitationService
 							  i = i-1;
 						  }
 
-					} // end if noFieldMapping (field not found)					
+					} // end if noFieldMapping (field not found)
 					else // ! noFieldMapping. We found a field in the Schema
 					{
 						logger.debug("importFromRisList: Field mapping is " + tempField.getIdentifier() +
 								     " => " + RISvalue);
-						
+
 						if (RIScode.equalsIgnoreCase("KW"))
 							continueTag = RIScode.toUpperCase();
 
@@ -2446,11 +2446,11 @@ public abstract class BaseCitationService implements CitationService
 				boolean hasPreviousPage = false;
 
 				if (m_ascending)
-					hasPreviousPage = this.firstItem - m_pageSize >= 0;
+					hasPreviousPage = this.firstItem > 0;
 				else
 					hasPreviousPage = this.firstItem + m_pageSize < this.listOfKeys.size();
 
-				return hasPreviousPage;
+  			return hasPreviousPage;
 
 //				return this.startPage > 0;
 			}
@@ -3916,7 +3916,7 @@ public abstract class BaseCitationService implements CitationService
 		{
 			m_url = url;
 		}
-	
+
 		/**
 		 * @param addPrefix
 		 *            the "add prefix" setting
@@ -3997,7 +3997,7 @@ public abstract class BaseCitationService implements CitationService
 		m_RISType.put("proceed", "CONF");
 		m_RISType.put("electronic", "ELEC");
 		m_RISType.put("thesis", "THES");
-		
+
 
 		m_RISTypeInverse.put("BOOK", "book");
 		m_RISTypeInverse.put("CHAP", "chapter");
@@ -4870,7 +4870,7 @@ public abstract class BaseCitationService implements CitationService
 	    article.addField("doi", Schema.NUMBER, true, false, 0, 1);
 
 	    article.addField("rights", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-	    
+
 
 	    /*
 	     * BOOK
@@ -4990,7 +4990,7 @@ public abstract class BaseCitationService implements CitationService
 	    chapter.addField("doi", Schema.NUMBER, true, false, 0, 1);
 
 	    chapter.addField("rights", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-	    
+
 
 	    /*
 	     * REPORT
@@ -5048,7 +5048,7 @@ public abstract class BaseCitationService implements CitationService
 	    report.addField("doi", Schema.NUMBER, true, false, 0, 1);
 
 	    report.addField("rights", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-	    
+
 
 	    /* IGNORING 'Citation' field for now...
 	    unknown.addField("inlineCitation", Schema.SHORTTEXT, false, false, 0, Schema.UNLIMITED);
