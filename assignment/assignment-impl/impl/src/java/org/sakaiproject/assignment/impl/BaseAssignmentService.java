@@ -150,10 +150,6 @@ import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
-import sun.tools.tree.ThisExpression;
-
-
-
 /**
  * <p>
  * BaseAssignmentService is the abstract service class for Assignments.
