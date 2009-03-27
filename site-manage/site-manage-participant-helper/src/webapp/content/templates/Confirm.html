@@ -10,16 +10,15 @@
 </head>
 <body>
 <div class="portletBody">
-		<h3 rsf:id="msg=addconf.confirming">Confirming Add Participant(s)</h3>
-		<!-- alert message -->
-		<div rsf:id="error-row:">
-			<div class="alertMessage" rsf:id="error">We Have Errors!</div>
-		</div>
+	<h3 rsf:id="msg=addconf.confirming">Confirming Add Participant(s)</h3>
+	<!-- alert message -->
+	<div rsf:id="error-row:">
+		<div class="alertMessage" rsf:id="error">We Have Errors!</div>
+	</div>
+	<div rsf:id="content:">
 		<h4 class="instruction" rsf:id="msg=addconf.finish"></h4>
-		<span class="instruction" rsf:id="msg=addconf.theywill"></span>
-		<span class="instruction" rsf:id="msg=addconf.not"></span>
-		<span class="instruction" rsf:id="msg=addconf.besent"></span>
-		<form rsf:id="back" action="Add.html">
+		<span class="instruction" rsf:id="emailnoti"></span>
+		<form rsf:id="confirm" action="Add.html">
 			<table class="listHier" border="0" cellspacing="0">
 			  <thead>
 			    <tr>
@@ -42,6 +41,7 @@
 				<input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/>
 			</p>			
 		</form>
+	</div>
 </div>
 </body>
 </html>

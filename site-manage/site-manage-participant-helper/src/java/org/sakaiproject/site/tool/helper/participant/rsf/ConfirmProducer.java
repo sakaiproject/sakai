@@ -67,7 +67,21 @@ public class ConfirmProducer implements ViewComponentProducer, NavigationCaseRep
 
     public void fillComponents(UIContainer tofill, ViewParameters arg1, ComponentChecker arg2) {
     	
-    	UIForm confirmForm = UIForm.make(tofill, "back", "");
+    	UIBranchContainer content = UIBranchContainer.make(tofill, "content:");
+    	
+        String emailChoice = handler.getEmailNotiChoice();
+        if (emailChoice != null && emailChoice.equals(Boolean.TRUE.toString()))
+        {
+        	// email notification will be sent out to added participants
+    		UIMessage.make(content, "emailnoti", "addconf.theywill");
+        }
+        else
+        {
+        	// email notification will NOT be sent out to added participants
+    		UIMessage.make(content, "emailnoti", "addconf.theywillnot");
+        }
+        
+    	UIForm confirmForm = UIForm.make(content, "confirm", "");
     	List<UserRoleEntry> userTable = handler.userRoleEntries;
     	// list of users
         for (UserRoleEntry userRoleEntry:userTable) {
@@ -87,7 +101,7 @@ public class ConfirmProducer implements ViewComponentProducer, NavigationCaseRep
             UIOutput.make(userRow, "user-eid", userEId);
             UIOutput.make(userRow, "user-role", userRoleEntry.role);
         }
-    	
+        
     	UICommand.make(confirmForm, "continue", messageLocator.getMessage("gen.continue"), "#{siteAddParticipantHandler.processConfirmContinue}");
     	UICommand.make(confirmForm, "back", messageLocator.getMessage("gen.back"), "#{siteAddParticipantHandler.processConfirmBack}");
     	UICommand.make(confirmForm, "cancel", messageLocator.getMessage("gen.cancel"), "#{siteAddParticipantHandler.processCancel}");
