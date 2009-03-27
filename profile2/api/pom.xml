@@ -80,8 +80,8 @@
 		            <artifactId>sakai-component-manager</artifactId>
 		        </dependency>
 		        <dependency>
-            		<groupId>org.sakaiproject.kernel.util</groupId>
-            		<artifactId>sakai-entity-util</artifactId>
+            		<groupId>org.sakaiproject.kernel</groupId>
+            		<artifactId>sakai-kernel-util</artifactId>
         		</dependency>
 			</dependencies> 
         </profile>

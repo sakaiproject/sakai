@@ -15,9 +15,8 @@
 		<artifactId>base</artifactId>
 		<groupId>org.sakaiproject</groupId>
 		<version>2.5.4</version> <!--  for any 2.5.x version -->
-		<!--<version>2.6.0-SNAPSHOT</version>--> <!--  for any 2.6.x version -->
+		<!--<version>2.6.0RC1-SNAPSHOT</version>--> <!--  for any 2.6.x version -->
 		<!--<version>2.7.0-SNAPSHOT</version>--> <!--  for trunk -->
-		<relativePath>../pom.xml</relativePath>
 	</parent>
 	
 	<organization>
