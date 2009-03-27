@@ -170,6 +170,19 @@
 								#end
 							#end
 						</th>
+						#if ($toolId.equals("sakai.announcements"))
+							<th id ="date">
+								#if (!$currentSortedBy.equals("date"))
+									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydate')">$tlang.getString('gen.date')</a>
+								#else
+									#if ($currentSortAsc.equals("true"))
+										 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydateasc')">$tlang.getString('gen.date')<img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortbydateasc')" /></a>
+									#else
+										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydatedesc')">$tlang.getString('gen.date') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt ="$tlang.getString('gen.sortbydatedesc')" /></a>
+									#end
+								#end
+							</th>
+						#end
 						#if ($SiteColumnFlag > 0) ## (there are anns from other sites so show what site they are from)
 							<th id ="Site">
 								#if (!$currentSortedBy.equals("channel"))
@@ -184,17 +197,6 @@
 							</th>
 						#end
 						#if ($toolId.equals("sakai.announcements"))
-							<th id ="date">
-								#if (!$currentSortedBy.equals("date"))
-									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydate')">$tlang.getString('gen.date')</a>
-								#else
-									#if ($currentSortAsc.equals("true"))
-										 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydateasc')">$tlang.getString('gen.date')<img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortbydateasc')" /></a>
-									#else
-										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydatedesc')">$tlang.getString('gen.date') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt ="$tlang.getString('gen.sortbydatedesc')" /></a>
-									#end
-								#end
-							</th>
 							<th id="releaseDate">
 								#if (!$currentSortedBy.equals("releasedate"))
 									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;"  title="$tlang.getString('gen.sortbyreleasedateasc')">$tlang.getString("gen.releasedate")</a>
@@ -258,6 +260,11 @@
 ##									#end
 								</h4>	
 							</td>
+							#if ($toolId.equals("sakai.announcements"))
+								<td headers="date">
+									$ann_item.Header.Date.toStringLocalFull()
+								</td>
+							#end
 							<td headers="author">
 ##								$validator.escapeHtml($ann_item.Header.From.DisplayName)
 								$validator.escapeHtml($ann_item.AuthorDisplayName)
@@ -268,9 +275,6 @@
 								</td>
 							#end
 							#if ($toolId.equals("sakai.announcements"))
-								<td headers="date">
-									$ann_item.Header.Date.toStringLocalFull()
-								</td>
 								<td headers="releaseDate">
 									#if (!$ann_item_props.isEmpty() && $ann_item_props.getProperty("releaseDate"))
 											$ann_item_props.getTimeProperty("releaseDate").toStringLocalFull()
@@ -493,6 +497,17 @@
 											#end
 										#end
 									</th>
+									<th id ="date">
+										#if (!$currentSortedBy.equals("date"))
+											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydateasc')">$tlang.getString("gen.date")</a>
+										#else
+											#if ($currentSortAsc.equals("true"))
+												 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydateasc')">$tlang.getString("gen.date") <img src = "#imageLink('sakai/sortascending.gif')" border="0" alt="$tlang.getString('gen.sortbydateasc')" /></a>
+											#else
+												<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydatedesc')">$tlang.getString("gen.date") <img src = "#imageLink('sakai/sortdescending.gif')" border="0" alt ="$tlang.getString('gen.sortbydatedesc')" /></a>
+											#end
+										#end
+									</th>
 									#if ($EnableItemCheckBoxes)
 										#if ($SiteColumnFlag > 0) ## (there are anns from other sites so show what site they are from)
 											<th id ="Site">
@@ -516,17 +531,6 @@
 												 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfor")';return false;"  title="$tlang.getString('gen.sortbyforasc')">$tlang.getString("gen.visible") <img src = "#imageLink('sakai/sortascending.gif')" border="0" alt="$tlang.getString('gen.sortbyforasc')" /></a>
 											#else
 												<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfor")';return false;"  title="$tlang.getString('gen.sortbyfordesc')">$tlang.getString("gen.visible") <img src = "#imageLink('sakai/sortdescending.gif')" border="0" alt ="$tlang.getString('gen.sortbyfordesc')" /></a>
-											#end
-										#end
-									</th>
-									<th id ="date">
-										#if (!$currentSortedBy.equals("date"))
-											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydateasc')">$tlang.getString("gen.date")</a>
-										#else
-											#if ($currentSortAsc.equals("true"))
-												 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydateasc')">$tlang.getString("gen.date") <img src = "#imageLink('sakai/sortascending.gif')" border="0" alt="$tlang.getString('gen.sortbydateasc')" /></a>
-											#else
-												<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydatedesc')">$tlang.getString("gen.date") <img src = "#imageLink('sakai/sortdescending.gif')" border="0" alt ="$tlang.getString('gen.sortbydatedesc')" /></a>
 											#end
 										#end
 									</th>
@@ -606,6 +610,9 @@
 									<td headers="author">
 										$validator.escapeHtml($ann_item.Header.From.DisplayName)
 									</td>
+									<td headers="date"> 
+										$ann_item.Header.Date.toStringLocalFull()
+									</td>
 									#if ($EnableItemCheckBoxes)
 										#if ($SiteColumnFlag > 0)
 											<td headers="channel">
@@ -616,10 +623,7 @@
 									<td >
 										$!ann_item.getRange()
 									</td>
-									<td headers="date"> 
-										$ann_item.Header.Date.toStringLocalFull()
-									</td>
-									
+																		
 									<td headers="releaseDate">
 									#if (!$ann_item_props.isEmpty() && $ann_item_props.getProperty("releaseDate"))
 											$ann_item_props.getTimeProperty("releaseDate").toStringLocalFull()

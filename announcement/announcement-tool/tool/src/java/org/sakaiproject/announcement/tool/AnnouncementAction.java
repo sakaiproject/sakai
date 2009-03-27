@@ -2773,6 +2773,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				// v2.4: Hidden in UI becomes Draft 'behind the scenes'
 				header.setDraft(tempHidden);
 				header.replaceAttachments(state.getAttachments());
+				header.setFrom(UserDirectoryService.getCurrentUser());
 
 				// values stored here if saving from Add/Revise page
 				ParameterParser params = rundata.getParameters();
