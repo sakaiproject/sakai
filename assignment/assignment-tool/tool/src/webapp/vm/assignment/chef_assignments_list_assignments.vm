@@ -487,7 +487,8 @@ function allowClick(object)
 								#if ($!view.equals('lisofass1'))
 								#if ($!showNumSubmissionColumn)
 								<td headers="num_submissions" class="specialLink">
-								#if ($!service.allowGradeSubmission($assignment.getReference()))
+								## not show the link for draft assignment
+								#if (!$assignment.Draft && $!service.allowGradeSubmission($assignment.getReference()))
 									## 1- text only; 2-attachment only; 3-text and attachment; 4-Non-electronic
 									#set($ungradedNumber = $!service.getUngradedSubmissionsCount($assignment.getId()))
 									#set($totalNumber = $!service.getSubmittedSubmissionsCount($assignment.getId()))
