@@ -126,7 +126,7 @@ public class VisitsWidget extends Panel {
 				rp.setHowChartType(StatsManager.CHARTTYPE_TIMESERIESBAR);
 				rp.setHowChartSource(StatsManager.T_DATE);
 				rp.setHowChartSeriesSource(StatsManager.T_NONE);
-				rp.setHowChartSeriesPeriod(StatsManager.CHARTTIMESERIES_MONTH);
+				rp.setHowChartSeriesPeriod(StatsManager.CHARTTIMESERIES_DAY);
 				r.setReportParams(rp);
 				return r;
 			}
@@ -181,7 +181,7 @@ public class VisitsWidget extends Panel {
 				rp.setHowChartType(StatsManager.CHARTTYPE_TIMESERIESBAR);
 				rp.setHowChartSource(StatsManager.T_DATE);
 				rp.setHowChartSeriesSource(StatsManager.T_NONE);
-				rp.setHowChartSeriesPeriod(StatsManager.CHARTTIMESERIES_MONTH);
+				rp.setHowChartSeriesPeriod(StatsManager.CHARTTIMESERIES_DAY);
 				r.setReportParams(rp);
 				return r;
 			}

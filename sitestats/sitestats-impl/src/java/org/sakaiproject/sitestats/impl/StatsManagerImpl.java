@@ -1093,7 +1093,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					Map<String,ToolInfo> eventIdToolMap = M_ers.getEventIdToolMap();
 					Map<String,Integer> toolIdEventStatIxMap = new HashMap<String,Integer>();
 					boolean groupByTool = columnMap.containsKey(StatsSqlBuilder.C_TOOL) && !columnMap.containsKey(StatsSqlBuilder.C_EVENT);
-					boolean hasVisitsData = columnMap.containsKey(StatsSqlBuilder.C_VISITS) && columnMap.containsKey(StatsSqlBuilder.C_VISITS);
+					boolean hasVisitsData = columnMap.containsKey(StatsSqlBuilder.C_VISITS);
 					for(Iterator<Object[]> iter = records.iterator(); iter.hasNext();) {
 						if(!inverseUserSelection){
 							Object[] s = iter.next();
@@ -1239,6 +1239,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				siteId, events, anonymousEvents, showAnonymousAccessEvents, null, null, 
 				iDate, fDate, userIds, inverseUserSelection, null, true);
 		final String hql = sqlBuilder.getHQL();
+		final Map<Integer,Integer> columnMap = sqlBuilder.getHQLColumnMap();
 
 		// DO IT!
 		HibernateCallback hcb = new HibernateCallback() {
@@ -1262,7 +1263,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					Date fDate2 = c.getTime();
 					q.setDate("fdate", fDate2);
 				}
-				if(anonymousEvents != null && anonymousEvents.size() > 0){
+				if(columnMap.containsKey(StatsSqlBuilder.C_USER) && anonymousEvents != null && anonymousEvents.size() > 0){
 					q.setParameterList("anonymousEvents", anonymousEvents);
 				}
 				LOG.debug("getEventStatsRowCount(): " + q.getQueryString());
@@ -1603,6 +1604,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				siteId, null, null, showAnonymousAccessEvents, resourceAction, resourceIds, 
 				iDate, fDate, userIds, inverseUserSelection, null, true);
 		final String hql = sqlBuilder.getHQL();
+		final Map<Integer,Integer> columnMap = sqlBuilder.getHQLColumnMap();
 
 		HibernateCallback hcb = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -2208,12 +2210,18 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			if(!inverseUserSelection && (siteId != null || totalsBy.contains(T_SITE))) {
 				groupFields.add("s.siteId");
 			}
-			if(totalsBy.contains(T_USER)) {
+			/*if(totalsBy.contains(T_USER) 
+					&& (!dbVendor.equals("mysql") && anonymousEvents != null && anonymousEvents.size() > 0) ) {*/
+			if(totalsBy.contains(T_USER) 
+					&& anonymousEvents != null && anonymousEvents.size() > 0) {
 				groupFields.add("s.userId");
 			}
-			if((queryType == Q_TYPE_EVENT || queryType == Q_TYPE_ACTIVITYTOTALS)
+			/*if((queryType == Q_TYPE_EVENT || queryType == Q_TYPE_ACTIVITYTOTALS)
 					&& (totalsBy.contains(T_EVENT) || totalsBy.contains(T_TOOL)
-					|| (!dbVendor.equals("mysql") && anonymousEvents != null && anonymousEvents.size() > 0) )
+						|| (!dbVendor.equals("mysql") && anonymousEvents != null && anonymousEvents.size() > 0) )*/
+			if((queryType == Q_TYPE_EVENT || queryType == Q_TYPE_ACTIVITYTOTALS)
+				&& (totalsBy.contains(T_EVENT) || totalsBy.contains(T_TOOL)
+					&& (anonymousEvents != null && anonymousEvents.size() > 0) )
 			) {
 				groupFields.add("s.eventId");
 			}

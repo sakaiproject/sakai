@@ -20,6 +20,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.SiteActivityByTool;
+import org.sakaiproject.sitestats.api.SiteVisits;
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
@@ -530,7 +531,7 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		assertEquals(0, wv[1]); // 5
 		assertEquals(0, wuv[1]);
 		assertEquals(2, wv[2]); // 4
-		assertEquals(2, wuv[2]);
+		assertTrue(wuv[2] <= 2);
 		assertEquals(0, wv[3]); // 3
 		assertEquals(0, wuv[3]);
 		assertEquals(2, wv[4]); // 2
@@ -691,6 +692,8 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		assertEquals(5, stats.size());
 		stats = M_sm.getEventStats(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CHATNEW, FakeData.EVENT_CONTENTNEW));
 		assertEquals(6, stats.size());
+		stats = M_sm.getEventStats(FakeData.SITE_A_ID, new ArrayList<String>());
+		assertEquals(0, stats.size());
 		
 		// #2
 		stats = M_sm.getEventStats(null, null, 
@@ -698,24 +701,37 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 				null, null, false, 0);
 		assertNotNull(stats);
 		assertEquals(14, stats.size());
+		int statsCount = M_sm.getEventStatsRowCount(null, null, 
+				null, null, null, false, null);
+		assertEquals(14, statsCount);
+		
 		
 		stats = M_sm.getEventStats(FakeData.SITE_A_ID, null, 
 				threeDaysBefore, null, null, false, null, 
 				null, null, false, 0);
 		assertNotNull(stats);
 		assertEquals(8, stats.size());
+		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, null, 
+				threeDaysBefore, null, null, false, null);
+		assertEquals(8, statsCount);
 		
 		stats = M_sm.getEventStats(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CHATNEW, FakeData.EVENT_CONTENTNEW), 
 				null, today, null, false, null, 
 				null, null, false, 0);
 		assertNotNull(stats);
 		assertEquals(6, stats.size());
+		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CHATNEW, FakeData.EVENT_CONTENTNEW),
+				null, today, null, false, null);
+		assertEquals(6, statsCount);
 		
 		stats = M_sm.getEventStats(FakeData.SITE_A_ID, null, 
 				null, null, Arrays.asList(FakeData.USER_B_ID), false, null, 
 				null, null, false, 0);
 		assertNotNull(stats);
 		assertEquals(6, stats.size());
+		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, null,
+				null, null, Arrays.asList(FakeData.USER_B_ID), false, null);
+		assertEquals(6, statsCount);
 		
 		// test inverse selection
 		stats = M_sm.getEventStats(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CONTENTNEW), 
@@ -731,6 +747,9 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 				null, null, false, 0);
 		assertNotNull(stats);
 		assertEquals(6, stats.size());
+		statsCount = M_sm.getEventStatsRowCount(null, null,
+				null, null, null, false, null);
+		assertEquals(14, statsCount);
 		
 		// test max results
 		stats = M_sm.getEventStats(null, null, 
@@ -770,11 +789,145 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		assertNotNull(stats);
 		assertEquals(15, stats.size());
 		assertEquals("-", stats.get(14).getUserId());
+		statsCount = M_sm.getEventStatsRowCount(null, null,
+				null, null, null, false, null);
+		assertEquals(15, statsCount);
 		stats = M_sm.getEventStats(null, null, 
 				null, null, new ArrayList<String>(), false, null, 
 				null, null, false, 0);
 		assertNotNull(stats);
 		assertEquals(0, stats.size());
+		statsCount = M_sm.getEventStatsRowCount(null, null,
+				null, null, new ArrayList<String>(), false, null);
+		assertEquals(0, statsCount);
+		
+		// group by: defaults
+		stats = M_sm.getEventStats(null, null, 
+				null, null, null, false, null, 
+				null, null, false, 0);
+		assertNotNull(stats);
+		assertEquals(15, stats.size());		
+		statsCount = M_sm.getEventStatsRowCount(null, null,
+				null, null, null, false, null);
+		assertEquals(15, statsCount);
+		// group by: site
+		stats = M_sm.getEventStats(null, null, 
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_SITE, StatsManager.T_EVENT), null, false, 0);
+		assertNotNull(stats);
+		assertEquals(5, stats.size());
+		statsCount = M_sm.getEventStatsRowCount(null, null,
+				null, null, null, false, Arrays.asList(StatsManager.T_SITE, StatsManager.T_EVENT));
+		assertEquals(5, statsCount);
+		stats = M_sm.getEventStats(null, null, 
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_SITE, StatsManager.T_TOOL), null, false, 0);
+		assertNotNull(stats);
+		assertEquals(3, stats.size());
+		statsCount = M_sm.getEventStatsRowCount(null, null,
+				null, null, null, false, Arrays.asList(StatsManager.T_SITE, StatsManager.T_TOOL));
+		assertEquals(5, statsCount);
+		stats = M_sm.getEventStats(null, null, 
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_SITE), null, false, 0);
+		assertNotNull(stats);
+		assertEquals(1, stats.size());
+		statsCount = M_sm.getEventStatsRowCount(null, null,
+				null, null, null, false, Arrays.asList(StatsManager.T_SITE));
+		assertEquals(1, statsCount);
+		// group by: user
+		stats = M_sm.getEventStats(FakeData.SITE_A_ID, null, 
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_USER), null, false, 0);
+		assertNotNull(stats);
+		assertEquals(2, stats.size());
+		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, null,
+				null, null, null, false, Arrays.asList(StatsManager.T_USER));
+		assertEquals(2, statsCount);
+		// group by: tool
+		stats = M_sm.getEventStats(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CONTENTNEW, FakeData.EVENT_CONTENTDEL, FakeData.EVENT_CHATNEW), 
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_TOOL), null, false, 0);
+		assertNotNull(stats);
+		assertEquals(2, stats.size());
+		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CONTENTNEW, FakeData.EVENT_CONTENTDEL, FakeData.EVENT_CHATNEW),
+				null, null, null, false, Arrays.asList(StatsManager.T_TOOL));
+		assertEquals(3, statsCount);
+		// group by: event
+		stats = M_sm.getEventStats(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CONTENTNEW, FakeData.EVENT_CONTENTDEL, FakeData.EVENT_CHATNEW),
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_TOOL, StatsManager.T_EVENT), null, false, 0);
+		assertNotNull(stats);
+		assertEquals(3, stats.size());
+		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CONTENTNEW, FakeData.EVENT_CONTENTDEL, FakeData.EVENT_CHATNEW),
+				null, null, null, false, Arrays.asList(StatsManager.T_TOOL, StatsManager.T_EVENT));
+		assertEquals(3, statsCount);
+		stats = M_sm.getEventStats(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CONTENTNEW, FakeData.EVENT_CONTENTDEL, FakeData.EVENT_CHATNEW),
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_EVENT), null, false, 0);
+		assertNotNull(stats);
+		assertEquals(3, stats.size());
+		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CONTENTNEW, FakeData.EVENT_CONTENTDEL, FakeData.EVENT_CHATNEW),
+				null, null, null, false, Arrays.asList(StatsManager.T_EVENT));
+		assertEquals(3, statsCount);
+		// group by: date
+		stats = M_sm.getEventStats(FakeData.SITE_A_ID, null, 
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_DATE), null, false, 0);
+		assertNotNull(stats);
+		assertEquals(6, stats.size());
+		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, null,
+				null, null, null, false, Arrays.asList(StatsManager.T_DATE));
+		assertEquals(6, statsCount);
+		// group by: datemonth
+		stats = M_sm.getEventStats(FakeData.SITE_A_ID, null, 
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_DATEMONTH), null, false, 0);
+		assertNotNull(stats);
+		assertTrue(stats.size() <= 2);
+		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, null,
+				null, null, null, false, Arrays.asList(StatsManager.T_DATEMONTH));
+		assertTrue(statsCount <= 2);
+		// group by: dateyear
+		stats = M_sm.getEventStats(FakeData.SITE_A_ID, null, 
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_DATEYEAR), null, false, 0);
+		assertNotNull(stats);
+		assertTrue(stats.size() <= 2);
+		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, null,
+				null, null, null, false, Arrays.asList(StatsManager.T_DATEYEAR));
+		assertTrue(statsCount <= 2);
+		// group by: lastdate
+		stats = M_sm.getEventStats(FakeData.SITE_A_ID, null, 
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_LASTDATE), null, false, 0);
+		assertNotNull(stats);
+		assertEquals(1, stats.size());
+		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, null,
+				null, null, null, false, Arrays.asList(StatsManager.T_LASTDATE));
+		assertEquals(1, statsCount);
+		// group by: visits
+		stats = M_sm.getEventStats(FakeData.SITE_A_ID, null, 
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_VISITS), null, false, 0);
+		assertNotNull(stats);
+		assertEquals(1, stats.size());
+		assertEquals(18, ((SiteVisits)stats.get(0)).getTotalVisits());
+		assertEquals(2, ((SiteVisits)stats.get(0)).getTotalUnique());
+		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, null,
+				null, null, null, false, Arrays.asList(StatsManager.T_VISITS));
+		assertEquals(1, statsCount);
+		// group by: uniquevisits
+		stats = M_sm.getEventStats(FakeData.SITE_A_ID, null, 
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_UNIQUEVISITS), null, false, 0);
+		assertNotNull(stats);
+		assertEquals(1, stats.size());
+		assertEquals(18, ((SiteVisits)stats.get(0)).getTotalVisits());
+		assertEquals(2, ((SiteVisits)stats.get(0)).getTotalUnique());
+		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, null,
+				null, null, null, false, Arrays.asList(StatsManager.T_UNIQUEVISITS));
+		assertEquals(1, statsCount);
 		
 		//System.out.println("Stats: "+stats);
 		//System.out.println("Size: "+stats.size());

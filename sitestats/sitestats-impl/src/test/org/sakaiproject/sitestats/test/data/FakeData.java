@@ -59,6 +59,7 @@ public class FakeData {
 		resources.setEventParserTip(new EventParserTip("contextId", "/", "3"));
 		EVENTID_TOOL_MAP.put(EVENT_CONTENTNEW, resources);
 		EVENTID_TOOL_MAP.put(EVENT_CONTENTREV, resources);
+		EVENTID_TOOL_MAP.put(EVENT_CONTENTDEL, resources);
 		EVENT_REGISTRY.add(resources);
 		EVENT_REGISTRY_RES.add(resources);
 	}
