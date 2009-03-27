@@ -8,7 +8,7 @@
 </div>
 <script type="text/javascript">
     $(document).ready(function(){
-		sakai.getSiteInfo('getSiteDesc','dialog','$tlang.getString("mb.nosd")','$tlang.getString("mb.nold")');
+		sakai.getSiteInfo('getSiteDesc','dialog','$tlang.getString("sitegen.siteinfolist.nosd")','$tlang.getString("sitegen.siteinfolist..nold")');
 		sakai.getGroupInfo('moreInfoGroups','dialog','$tlang.getString("sinfo.list.groups.memb")','$tlang.getString("sinfo.list.groups.print")','$tlang.getString("sitegen.siteinfolist.name")','$tlang.getString("sitegen.siteinfolist.role")','&nbsp;');
 		sakai.setupSelectList('siteMembers','selunselallid','selectedSelected');
 //    	sakai.setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
