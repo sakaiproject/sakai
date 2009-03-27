@@ -186,14 +186,6 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		//buf.append(rb.getString("Subject") + ": "); buf.append(hdr.getSubject());
 		buf.append(newline);
 		buf.append(newline);
-		buf.append(rb.getString("From"));
-		buf.append(hdr.getFrom().getDisplayName());
-		buf.append(newline);
-		buf.append(newline);
-		buf.append(rb.getString("Date"));
-		buf.append(hdr.getDate().toStringLocalFull());
-		buf.append(newline);
-		buf.append(newline);
 		buf.append(rb.getString("Group"));
 		buf.append(getAnnouncementGroup(msg));
 		buf.append(newline);
