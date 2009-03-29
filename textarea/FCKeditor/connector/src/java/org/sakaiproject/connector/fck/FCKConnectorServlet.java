@@ -44,18 +44,19 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.fileupload.DiskFileUpload;
 import org.apache.commons.fileupload.FileItem;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.event.cover.NotificationService;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.w3c.dom.Document;
@@ -85,13 +86,56 @@ import org.w3c.dom.Node;
  */
 
 public class FCKConnectorServlet extends HttpServlet {
-     
-    private static final long serialVersionUID = 1L;
-	
-    private static final String FCK_ADVISOR_BASE = "fck.security.advisor.";
-    private static final String FCK_EXTRA_COLLECTIONS_BASE = "fck.extra.collections.";
 
-	/**
+     private static final long serialVersionUID = 1L;
+
+     private static final String FCK_ADVISOR_BASE = "fck.security.advisor.";
+     private static final String FCK_EXTRA_COLLECTIONS_BASE = "fck.extra.collections.";
+
+     private ContentHostingService contentHostingService = null;
+     private SecurityService securityService = null;
+     private SessionManager sessionManager = null;
+     private NotificationService notificationService = null;
+
+     /**
+      * Injects dependencies using the ComponentManager cover.
+      * 
+      * @param beanName The name of the bean to get.
+      * @return the bean
+      */
+     private Object inject(String beanName) {
+          Object bean = null;
+          bean = ComponentManager.get(beanName);
+          if (bean == null) {
+               throw new IllegalStateException("FAILURE to inject dependency during initialization of the FCKConnectorServlet");
+          }
+          return bean;
+     }
+
+     /**
+      * Ensures all necessary dependencies are loaded.
+      */
+     private void initialize() {
+          if (contentHostingService == null) {
+               contentHostingService = (ContentHostingService) inject("org.sakaiproject.content.api.ContentHostingService");
+          }
+          if (securityService == null) {
+               securityService = (SecurityService) inject("org.sakaiproject.authz.api.SecurityService");
+          }
+          if (sessionManager == null) {
+               sessionManager = (SessionManager) inject("org.sakaiproject.tool.api.SessionManager");
+          }
+          if (notificationService == null) {
+               notificationService = (NotificationService) inject("org.sakaiproject.event.api.NotificationService");
+          }
+     }
+
+     public void init() throws ServletException {
+          super.init();
+          initialize();
+     }
+
+     /**
       * Manage the Get requests (GetFolders, GetFoldersAndFiles, CreateFolder).<br>
       *
       * The servlet accepts commands sent in the following format:<br>
@@ -102,7 +146,7 @@ public class FCKConnectorServlet extends HttpServlet {
       *
       */
      public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-          
+          initialize();
           response.setContentType("text/xml; charset=UTF-8");
           response.setHeader("Cache-Control","no-cache");
           PrintWriter out = null;
@@ -113,10 +157,10 @@ public class FCKConnectorServlet extends HttpServlet {
 
           String collectionBase = request.getPathInfo();
 
-          SecurityAdvisor advisor = (SecurityAdvisor) SessionManager.getCurrentSession()
+          SecurityAdvisor advisor = (SecurityAdvisor) sessionManager.getCurrentSession()
                .getAttribute(FCK_ADVISOR_BASE + collectionBase);
           if (advisor != null) {
-               SecurityService.pushAdvisor(advisor);
+               securityService.pushAdvisor(advisor);
           }
           
           Document document = null;
@@ -130,7 +174,7 @@ public class FCKConnectorServlet extends HttpServlet {
           }
           
           Node root = createCommonXml(document, commandStr, type, currentFolder, 
-        	   ContentHostingService.getUrl(currentFolder));
+               contentHostingService.getUrl(currentFolder));
           
           if ("GetFolders".equals(commandStr)) {
                getFolders(currentFolder, root, document, collectionBase);
@@ -144,7 +188,7 @@ public class FCKConnectorServlet extends HttpServlet {
                String status = "110";
                
                try {
-                    ContentCollectionEdit edit = ContentHostingService
+                    ContentCollectionEdit edit = contentHostingService
                          .addCollection(currentFolder + Validator.escapeResourceName(newFolderStr) + Entity.SEPARATOR);
                     ResourcePropertiesEdit resourceProperties = edit.getPropertiesEdit();
                     resourceProperties.addProperty (ResourceProperties.PROP_DISPLAY_NAME, newFolderStr);
@@ -152,7 +196,7 @@ public class FCKConnectorServlet extends HttpServlet {
                     if (altRoot != null)
                          resourceProperties.addProperty (ContentHostingService.PROP_ALTERNATE_REFERENCE, altRoot);
 
-                    ContentHostingService.commitCollection(edit);
+                    contentHostingService.commitCollection(edit);
                     
                     status="0";
                }
@@ -183,14 +227,14 @@ public class FCKConnectorServlet extends HttpServlet {
           catch (Exception ex) {
                ex.printStackTrace();
           }
-          finally {  	  
-	          if (out != null) {
-	        	  out.close();
-	          }
+          finally { 
+               if (out != null) {
+                    out.close();
+               }
           }
           
           if (advisor != null) {
-        	  SecurityService.clearAdvisors();
+               securityService.clearAdvisors();
           }
      }
      
@@ -205,7 +249,7 @@ public class FCKConnectorServlet extends HttpServlet {
       *
       */     
      public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
+          initialize();
           response.setContentType("text/html; charset=UTF-8");
           response.setHeader("Cache-Control", "no-cache");
           PrintWriter out = null;
@@ -215,10 +259,10 @@ public class FCKConnectorServlet extends HttpServlet {
           String currentFolder = request.getParameter("CurrentFolder");
           String collectionBase = request.getPathInfo();
           
-          SecurityAdvisor advisor = (SecurityAdvisor) SessionManager.getCurrentSession()
+          SecurityAdvisor advisor = (SecurityAdvisor) sessionManager.getCurrentSession()
                .getAttribute(FCK_ADVISOR_BASE + collectionBase);
           if (advisor != null) {
-               SecurityService.pushAdvisor(advisor);
+               securityService.pushAdvisor(advisor);
           }
           
           String fileName = "";
@@ -238,7 +282,6 @@ public class FCKConnectorServlet extends HttpServlet {
                
                     Iterator iter = items.iterator();
                     while (iter.hasNext()) {
-                    	
                         FileItem item = (FileItem) iter.next();
                         if (item.isFormField()) {
                              fields.put(item.getFieldName(), item.getString());
@@ -269,7 +312,7 @@ public class FCKConnectorServlet extends HttpServlet {
 
                     while(!done) {
                          try {
-                             ResourcePropertiesEdit resourceProperties = ContentHostingService.newResourceProperties();
+                             ResourcePropertiesEdit resourceProperties = contentHostingService.newResourceProperties();
                              resourceProperties.addProperty (ResourceProperties.PROP_DISPLAY_NAME, fileName);
 
                              String altRoot = getAltReferenceRoot(currentFolder);
@@ -278,7 +321,7 @@ public class FCKConnectorServlet extends HttpServlet {
 
                              int noti = NotificationService.NOTI_NONE;
 
-                             ContentHostingService.addResource(currentFolder+fileName, mime, uplFile.get(), 
+                             contentHostingService.addResource(currentFolder+fileName, mime, uplFile.get(), 
                                     resourceProperties, noti);
                              done = true;
                          }
@@ -304,31 +347,31 @@ public class FCKConnectorServlet extends HttpServlet {
           }
 
           try {
-        	   out = response.getWriter();
+               out = response.getWriter();
                out.println("<script type=\"text/javascript\">");
-	          
+
                if ("QuickUpload".equals(command)) {
                     out.println("window.parent.OnUploadCompleted(" + status + ",'"
-                    		+ ContentHostingService.getUrl(currentFolder) + fileName
-                    		+ "','" + fileName + "','" + errorMessage + "');");
+                                + contentHostingService.getUrl(currentFolder) + fileName
+                                + "','" + fileName + "','" + errorMessage + "');");
                }
                else {
                     out.println("window.parent.frames['frmUpload'].OnUploadCompleted("+status+",'"+fileName+"');");
                }
-	          
+
                out.println("</script>");
           }
           catch (Exception e) {
-        	  e.printStackTrace();
+               e.printStackTrace();
           }
-          finally {	          
+          finally {         
                if (out != null) {
                     out.close();
                }
           }
           
           if (advisor != null) {
-        	  SecurityService.clearAdvisors();
+               securityService.clearAdvisors();
           }
      }
 
@@ -353,11 +396,11 @@ public class FCKConnectorServlet extends HttpServlet {
                //the root folders of all the top collections they actually have access to.
                if (dir.split("/").length == 2) {
                     List collections = new ArrayList();
-                    map = ContentHostingService.getCollectionMap();
+                    map = contentHostingService.getCollectionMap();
                     if (map != null && map.keySet() != null) {
                          collections.addAll(map.keySet());
                     }
-                    List extras = (List) SessionManager.getCurrentSession()
+                    List extras = (List) sessionManager.getCurrentSession()
                          .getAttribute(FCK_EXTRA_COLLECTIONS_BASE + collectionBase);
                     if (extras != null) {
                          collections.addAll(extras);
@@ -366,7 +409,7 @@ public class FCKConnectorServlet extends HttpServlet {
                     foldersIterator = collections.iterator();
                }
                else if (dir.split("/").length > 2) {
-                    collection = ContentHostingService.getCollection(dir);
+                    collection = contentHostingService.getCollection(dir);
                     if (collection != null && collection.getMembers() != null) {
                          foldersIterator = collection.getMembers().iterator();
                     }
@@ -382,11 +425,11 @@ public class FCKConnectorServlet extends HttpServlet {
                while (foldersIterator.hasNext()) {
                     try {
                          current = (String) foldersIterator.next();
-                         ContentCollection myCollection = ContentHostingService.getCollection(current);
+                         ContentCollection myCollection = contentHostingService.getCollection(current);
                          Element element=doc.createElement("Folder");
                          element.setAttribute("url", current);
                          element.setAttribute("name", myCollection.getProperties().getProperty(
-                        		 myCollection.getProperties().getNamePropDisplayName()));
+                                              myCollection.getProperties().getNamePropDisplayName()));
                          folders.appendChild(element);
                     }
                     catch (Exception e) {    
@@ -403,17 +446,17 @@ public class FCKConnectorServlet extends HttpServlet {
           ContentCollection collection = null;
           
           try {
-               collection = ContentHostingService.getCollection(dir);
+               collection = contentHostingService.getCollection(dir);
           }
           catch (Exception e) {
                //do nothing, file will be empty and so will doc
           }     
           if (collection != null) {
-        	   Iterator iterator = collection.getMemberResources().iterator();
+               Iterator iterator = collection.getMemberResources().iterator();
           
                while (iterator.hasNext ()) {
                     try {
-                    	 ContentResource current = (ContentResource)iterator.next();
+                         ContentResource current = (ContentResource)iterator.next();
 
                          String ext = current.getProperties().getProperty(
                                    current.getProperties().getNamePropContentType());
@@ -423,13 +466,13 @@ public class FCKConnectorServlet extends HttpServlet {
                               ("Image".equals(type) && ext.startsWith("image") ) ||
                               "Link".equals(type)) {
 
-                        	 String id = current.getId();
+                              String id = current.getId();
                              
                               Element element=doc.createElement("File");
                               // displaying the id instead of the display name because the url used
                               // for linking in the FCK editor uses what is returned...
                               element.setAttribute("name", current.getProperties().getProperty(
-                            		  current.getProperties().getNamePropDisplayName()));
+                                                   current.getProperties().getNamePropDisplayName()));
                               element.setAttribute("url", current.getUrl());
                               
                               if (current.getProperties().getProperty(
@@ -447,10 +490,10 @@ public class FCKConnectorServlet extends HttpServlet {
                          }
                     }
                     catch (ClassCastException e)  {
-                    	//it's a colleciton not an item
+                         //it's a colleciton not an item
                     }
                     catch (Exception e)  {
-                    	//do nothing, we don't have access to the item
+                         //do nothing, we don't have access to the item
                     }
                }     
           }
@@ -474,7 +517,7 @@ public class FCKConnectorServlet extends HttpServlet {
      private String getAltReferenceRoot (String id)  {
           String altRoot = null;
           try {
-               altRoot = StringUtil.trimToNull(ContentHostingService.getProperties(id)
+               altRoot = StringUtil.trimToNull(contentHostingService.getProperties(id)
                     .getProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE));
           }
           catch (Exception e) {
