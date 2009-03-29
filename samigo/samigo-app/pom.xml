@@ -18,7 +18,7 @@
   <packaging>war</packaging>
   <properties>
     <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
-    <rsfutil.version>0.7.4</rsfutil.version>
+    <rsfutil.version>0.7.2</rsfutil.version>
   </properties>
   <repositories>
     <repository>
