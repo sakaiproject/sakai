@@ -36,14 +36,15 @@ import org.springframework.context.ApplicationContextAware;
 /**
  * Collects beans implementing {@link EventReceiver} from around the context, and distributes
  * matching events to them.<br/>
- * TODO - make a way to handle events by allowing manual registration of receivers
+ * FIXME - make a way to handle events by allowing manual registration of receivers,
+ * the way this works now the event receivers will not be registered from webapps, bad bad
  * 
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  * @author Aaron Zeckoski (azeckoski at gmail.com)
  */
 public class EventReceiverCoordinator implements ApplicationContextAware {
 
-    private Map<ClassLoader, EventReceiver> receivers = new ReferenceMap<ClassLoader, EventReceiver>(ReferenceType.SOFT, ReferenceType.STRONG);
+    private Map<ClassLoader, EventReceiver> receivers = new ReferenceMap<ClassLoader, EventReceiver>(ReferenceType.WEAK, ReferenceType.STRONG);
 
     EventTrackingService eventTrackingService;
     public void setEventTrackingService(EventTrackingService eventTrackingService) {
