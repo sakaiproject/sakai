@@ -525,8 +525,12 @@ h2 {
 	width: 500px;
 }
 
+
 .friendsListItem {
 	display:block;
+	position: relative;
+	left: 0;
+	top: 0;
 	border-bottom: 1px solid #d0d0df;
 	border-collapse: collapse;
 	height: 120px;
@@ -534,6 +538,7 @@ h2 {
 	padding-left: 5px;
 	padding-right: 5px;
 	padding-bottom: 5px;
+	overflow: hidden; /* to crop bigger pictures that might overhang */
 }
 
 
@@ -546,7 +551,9 @@ h2 {
 
 
 .friendsListPhoto img{
-	float:left;
+	position: absolute;
+	top: 5px;
+	left: 5px;
 	max-width: 100px;
 	width: expression(Math.min(parseInt(this.offsetWidth), 100 ) + "px"); /* ie6 max-width hack */
 	border: 1px solid #666666;
@@ -555,10 +562,10 @@ h2 {
 
 
 .friendsListInfo {
-	margin-left: 5px;
-	float:left;
-	/*border:1px solid blue;*/
-	vertical-align: top;
+	position: absolute;
+	top: 5px;
+	left: 115px;
+	width: 200px;
 }
 
 
@@ -567,28 +574,29 @@ h2 {
 	font-weight: bold;
 }
 
-
-.friendsListInfoStatus {
-	display:inline;
-	font-weight: normal;
+.friendsListInfoStatusMessage {
+	display: block;
 	font-size: 90%;
 }
 
 .friendsListInfoStatusDate {
-	display:inline;
+	display: block;
+	font-size: 70%;
 	color: #5D5D5D;
-	font-size: 90%;
 }
+
 
 
 
 /* search result styles */
 .searchResultActions {
-	width: 120px;
-	float:right;
-	/*border:1px solid yellow;*/
+	position: absolute;
+	top: 5px;
+	left: 345px;
+	width: 150px;
 	font-size: 90%;
 	padding: 0;
+	
 }
 
 .searchResultActionIcon {
@@ -600,6 +608,7 @@ h2 {
 	margin-bottom: 0;
 	margin-top: 0;
 	margin-left: 0;
+	padding-top: 0;
 	list-style-type:none !important;
 }
 
