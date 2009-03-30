@@ -16,6 +16,7 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
@@ -181,12 +182,21 @@ public class SakaiProxyImpl implements SakaiProxy {
  	*/
 	public String getProfileImageResourcePath(String userId, int type) {
 		
-		//this needs to come from a sakai property perhaps?
-		//may break on windows unless use File.separator?
+		String slash = Entity.SEPARATOR;
 		
-		String fullResourceId = "/private/profileImages/" + userId + "/" + type + "/" + idManager.createUuid();
+		StringBuilder path = new StringBuilder();
+		path.append(slash);
+		path.append("private");
+		path.append(slash);
+		path.append("profileImages");
+		path.append(slash);
+		path.append(userId);
+		path.append(slash);
+		path.append(type);
+		path.append(slash);
+		path.append(idManager.createUuid());
 		
-		return fullResourceId;
+		return path.toString();
 		
 	}
 	
