@@ -151,7 +151,7 @@ public class VelocityInlineDispatcher implements Dispatcher
 			{
 				return "unknown";
 			}
-			return UserDisplayHelper.formatDisplayName(name);
+			return UserDisplayHelper.formatDisplayName(name, null);
 		}
 
 		public String formatDateTime(Date date, HttpServletRequest request)

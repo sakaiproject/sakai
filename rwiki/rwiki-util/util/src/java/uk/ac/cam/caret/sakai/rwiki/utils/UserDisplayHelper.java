@@ -21,7 +21,9 @@
 
 package uk.ac.cam.caret.sakai.rwiki.utils;
 
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.user.api.ContextualUserDisplayService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -31,12 +33,12 @@ public class UserDisplayHelper
 
 	private static boolean displayID = ServerConfigurationService.getBoolean("wiki.display.user.id", false);
 	
-	public static String formatDisplayName(String name)
+	public static String formatDisplayName(String name, String context)
 	{
-		return formatDisplayName(name, Messages.getString("UserDisplayHelper.0")); //$NON-NLS-1$
+		return formatDisplayName(name, Messages.getString("UserDisplayHelper.0"), context); //$NON-NLS-1$
 	}
 
-	public static String formatDisplayName(String name, String defaultName)
+	public static String formatDisplayName(String name, String defaultName, String context)
 	{
 		if ( name == null ) {
 			return defaultName;
@@ -50,10 +52,37 @@ public class UserDisplayHelper
 		{
 			return defaultName + " (" + XmlEscaper.xmlEscape(name) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
+		
+		ContextualUserDisplayService contextualUserDisplayService = (ContextualUserDisplayService) ComponentManager.get("org.sakaiproject.user.api.ContextualUserDisplayService");
+		
 		if ( displayID ) {
-			return XmlEscaper.xmlEscape(user.getDisplayName() + " (" + user.getDisplayId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
-		} else {
-			return XmlEscaper.xmlEscape(user.getDisplayName()); //$NON-NLS-1$ //$NON-NLS-2$
+			if (context != null && contextualUserDisplayService != null)
+			{
+				String userDisplayName =  contextualUserDisplayService.getUserDisplayName(user, context);
+				String userDisplayId =  contextualUserDisplayService.getUserDisplayId(user, context);
+				
+				if (userDisplayName == null)
+					userDisplayName = user.getDisplayName();
+				
+				if (userDisplayId == null)
+					userDisplayId = user.getDisplayId();
+				
+				return XmlEscaper.xmlEscape(userDisplayName + " (" + userDisplayId + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			else
+			{
+				return XmlEscaper.xmlEscape(user.getDisplayName() + " (" + user.getDisplayId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		}
+		else
+		{
+			if (context != null)
+				return XmlEscaper.xmlEscape(contextualUserDisplayService.getUserDisplayName(user, context)); //$NON-NLS-1$ //$NON-NLS-2$
+			else 
+				return XmlEscaper.xmlEscape(user.getDisplayName()); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
+	
+	
+
 }
