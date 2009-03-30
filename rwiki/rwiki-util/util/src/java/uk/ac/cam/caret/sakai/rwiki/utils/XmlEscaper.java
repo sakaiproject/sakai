@@ -41,6 +41,10 @@ public class XmlEscaper
 
 	public static String xmlEscape(String toEscape)
 	{
+		//the string could be null
+		if (toEscape == null)
+			return "";
+		
 		char[] chars = toEscape.toCharArray();
 		int lastEscapedBefore = 0;
 		StringBuffer escapedString = null;
