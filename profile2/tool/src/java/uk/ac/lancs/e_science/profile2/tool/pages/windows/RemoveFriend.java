@@ -14,6 +14,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.sakaiproject.util.FormattedText;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
@@ -44,7 +45,7 @@ public class RemoveFriend extends Panel {
         profile = ProfileApplication.get().getProfile();
         
         //get friendName
-        final String friendName = sakaiProxy.getUserDisplayName(userY);
+        final String friendName = FormattedText.processFormattedText(sakaiProxy.getUserDisplayName(userY), new StringBuilder());
                 
         //window setup
 		window.setTitle(new ResourceModel("title.friend.remove")); 
