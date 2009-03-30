@@ -76,7 +76,7 @@ public class UserDisplayHelper
 		}
 		else
 		{
-			if (context != null)
+			if (context != null && contextualUserDisplayService != null)
 				return XmlEscaper.xmlEscape(contextualUserDisplayService.getUserDisplayName(user, context)); //$NON-NLS-1$ //$NON-NLS-2$
 			else 
 				return XmlEscaper.xmlEscape(user.getDisplayName()); //$NON-NLS-1$ //$NON-NLS-2$
