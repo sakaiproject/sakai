@@ -378,7 +378,7 @@ public interface AssignmentService extends EntityProducer
 			PermissionException, IdUsedException, IdUnusedException;
 
 	/**
-	 * Removes this Assignment and all references to it.
+	 * Removes this Assignment
 	 * 
 	 * @param assignment -
 	 *        The Assignment to remove.
@@ -386,6 +386,17 @@ public interface AssignmentService extends EntityProducer
 	 *         if current User does not have permission to do this.
 	 */
 	public void removeAssignment(AssignmentEdit assignment) throws PermissionException;
+	
+
+	/**
+	 * Removes this Assignment and all references to it.
+	 * 
+	 * @param assignment -
+	 *        The Assignment to remove.
+	 * @throws PermissionException
+	 *         if current User does not have permission to do this.
+	 */
+	public void removeAssignmentAndAllReferences(AssignmentEdit assignment) throws PermissionException;
 
 	/**
 	 * Get a locked assignment object for editing. Must commitEdit() to make official, or cancelEdit() when done!

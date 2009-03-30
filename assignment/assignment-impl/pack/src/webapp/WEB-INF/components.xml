@@ -15,6 +15,10 @@
 		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
 		<property name="taggingManager"><ref bean="org.sakaiproject.taggable.api.TaggingManager"/></property>
 		<property name="assignmentActivityProducer"><ref bean="org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer"/></property>
+ 		<property name="gradebookService"><ref bean="org.sakaiproject.service.gradebook.GradebookService"/></property>
+ 		<property name="gradebookExternalAssessmentService"><ref bean="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/></property>
+ 		<property name="calendarService"><ref bean="org.sakaiproject.calendar.api.CalendarService"/></property>
+ 		<property name="announcementService"><ref bean="org.sakaiproject.announcement.api.AnnouncementService"/></property>
  		<property name="assignmentTableName"><value>ASSIGNMENT_ASSIGNMENT</value></property>
  		<property name="contentTableName"><value>ASSIGNMENT_CONTENT</value></property>
  		<property name="submissionTableName"><value>ASSIGNMENT_SUBMISSION</value></property>

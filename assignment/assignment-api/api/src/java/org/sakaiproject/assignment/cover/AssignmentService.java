@@ -349,6 +349,16 @@ public class AssignmentService {
 
 		service.removeAssignment(param0);
 	}
+	
+	public static void removeAssignmentAndAllReferences(
+			org.sakaiproject.assignment.api.AssignmentEdit param0)
+			throws org.sakaiproject.exception.PermissionException {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return;
+
+		service.removeAssignmentAndAllReferences(param0);
+	}
 
 	public static org.sakaiproject.assignment.api.AssignmentEdit editAssignment(
 			java.lang.String param0)
