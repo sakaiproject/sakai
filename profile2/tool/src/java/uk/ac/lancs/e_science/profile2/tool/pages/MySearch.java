@@ -2,6 +2,7 @@ package uk.ac.lancs.e_science.profile2.tool.pages;
 
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -202,6 +203,35 @@ public class MySearch extends BasePage {
 
 				profileLink.add(new Label("result-name", displayName));
 		    	item.add(profileLink);
+		    	
+		    	//is status allowed to be viewed by this user?
+				final boolean isProfileStatusAllowed = searchResult.isStatusAllowed();
+				
+				Label statusMsgLabel = new Label("result-statusMsg");
+				Label statusDateLabel = new Label("result-statusDate");
+				
+				if(isProfileStatusAllowed) {
+					String profileStatusMessage = profile.getUserStatusMessage(userUuid);
+					Date profileStatusDate = profile.getUserStatusDate(userUuid);
+					if(profileStatusMessage == null) {
+						statusMsgLabel.setVisible(false);
+						statusDateLabel.setVisible(false);
+					} else {
+						//message
+						statusMsgLabel.setModel(new Model(profileStatusMessage));
+						
+						//now date
+						if(profileStatusDate == null) {
+							statusDateLabel.setVisible(false);
+						} else {
+							statusDateLabel.setModel(new Model(profile.convertDateForStatus(profileStatusDate)));
+						}
+					}
+				}
+				
+				item.add(statusMsgLabel);
+				item.add(statusDateLabel);
+		    	
 		    	
 		    	
 		    	/* ACTIONS */

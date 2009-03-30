@@ -1753,14 +1753,19 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			//is profile photo visible to this user
 			boolean profileImageAllowed = isUserXProfileImageVisibleByUserY(userUuid, userId, friend);
 			
-			//is profile/ photo visible to this user
+			//is status visible to this user
+			boolean statusVisible = this.isUserXStatusVisibleByUserY(userUuid, userId, friend);
+			
+			//is friends list visible to this user
 			boolean friendsListVisible = isUserXFriendsListVisibleByUserY(userUuid, userId, friend);
+			
 			
 			//make object
 			SearchResult searchResult = new SearchResult(
 					userUuid,
 					friend,
 					profileImageAllowed,
+					statusVisible,
 					friendsListVisible,
 					friendRequestToThisPerson,
 					friendRequestFromThisPerson
