@@ -4985,6 +4985,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							nAssignment.setOpenTime(oAssignment.getOpenTime());
 							nAssignment.setSection(oAssignment.getSection());
 							nAssignment.setTitle(oAssignment.getTitle());
+							nAssignment.setPosition_order(oAssignment.getPosition_order());
 							// properties
 							ResourcePropertiesEdit p = nAssignment.getPropertiesEdit();
 							p.clear();
