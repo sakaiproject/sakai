@@ -1,5 +1,7 @@
 package uk.ac.lancs.e_science.profile2.tool.pages.panels;
 
+import java.util.Date;
+
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -134,6 +136,7 @@ public class ConfirmedFriends extends Panel {
 				//image
 				item.add(new ProfileImageRenderer("result-photo", friendId, isProfileImageAllowed, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, true));
 		    	
+			
 		    	//name and link to profile
 		    	Link profileLink = new Link("result-profileLink") {
 					private static final long serialVersionUID = 1L;
@@ -145,6 +148,35 @@ public class ConfirmedFriends extends Panel {
 				};
 				profileLink.add(new Label("result-name", displayName));
 		    	item.add(profileLink);
+		    	
+				//is status allowed to be viewed by this user/friend?
+				final boolean isProfileStatusAllowed = profile.isUserXStatusVisibleByUserY(friendId, userY, friend);
+				
+				Label statusMsgLabel = new Label("result-statusMsg");
+				Label statusDateLabel = new Label("result-statusDate");
+				
+				if(isProfileStatusAllowed) {
+					String profileStatusMessage = profile.getUserStatusMessage(friendId);
+					Date profileStatusDate = profile.getUserStatusDate(friendId);
+					if(profileStatusMessage == null) {
+						statusMsgLabel.setVisible(false);
+						statusDateLabel.setVisible(false);
+					} else {
+						//message
+						statusMsgLabel.setModel(new Model(profileStatusMessage));
+						
+						//now date
+						if(profileStatusDate == null) {
+							statusDateLabel.setVisible(false);
+						} else {
+							statusDateLabel.setModel(new Model(profile.convertDateForStatus(profileStatusDate)));
+						}
+					}
+				}
+				
+				item.add(statusMsgLabel);
+				item.add(statusDateLabel);
+		    	
 		    	
 		    	/* ACTIONS */
 		    	
