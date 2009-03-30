@@ -380,6 +380,61 @@
 			<p class="instruction">
 				$tlang.getString("nonelec_instruction")
 			</p>
+			## show feedbacks if any
+			#if ($returned && $!timeReturned)
+					#if (($!submission.FeedbackComment) && ($submission.FeedbackComment.trim().length()>0))
+						#if ($submissionType==2)
+							<h3>$tlang.getString("gen.addinst2")</h3>
+						#else
+							<h3>$tlang.getString("gen.addinst")</h3>
+						#end	
+							<div class="textPanel">$validator.escapeHtmlFormattedText($submission.FeedbackComment)</div>
+						#else
+					#end
+					## for returned (not resubmitted ) submission, show the instructor feedback
+					#if ($!prevFeedbackComment && $!prevFeedbackComment.trim().length() > 0)
+							<h4  id="toggleGen" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
+								$tlang.getString("gradingsub.prefee2")
+								</h4>
+					<div class="toggledContent gencoms">					
+						$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment))</div>
+					#end					
+					#set ($size = 0)
+					#set ($props = false)
+					#set ($feedbackAttachments = $submission.FeedbackAttachments)	
+					#set ($size = 0)
+					#set ($props = false)
+					#foreach ($attachment in $feedbackAttachments) 
+						#set ($props = $attachment.Properties) 
+						#if ($!props)
+							#set ($size = $size + 1)
+						#end
+					#end
+					#if ($size == 0)
+						##$tlang.getString("gen.noatt")
+					#else
+						<h4>$tlang.getString("gen.addinstatts")</h4>
+						<ul class="attachList indnt1">
+							#foreach ($attachment in $feedbackAttachments) 
+								#set ($props = false)
+								#set ($props = $attachment.Properties) 
+								#if ($!props)
+									<li>
+										#if ($props.getBooleanProperty($props.NamePropIsCollection))
+											<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+										#else
+											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+										#end
+										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+										#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+											($props.getPropertyFormatted($props.NamePropContentLength))
+										#end
+									</li>
+								#end
+							#end
+						</ul>
+					#end
+			#end
 			##just show a simple done button for non-electronic submission type
 			<form name="dummyForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
 				<input type="submit" accesskey="x" name="eventSubmit_doCancel_show_submission" value="$tlang.getString('gen.don')" />
