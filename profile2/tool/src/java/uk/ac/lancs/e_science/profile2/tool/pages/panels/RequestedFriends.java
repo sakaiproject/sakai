@@ -1,5 +1,7 @@
 package uk.ac.lancs.e_science.profile2.tool.pages.panels;
 
+import java.util.Date;
+
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -103,6 +105,40 @@ public class RequestedFriends extends Panel {
 				};
 				profileLink.add(new Label("result-name", displayName));
 		    	item.add(profileLink);
+		    	
+		    	
+		    	//is status allowed to be viewed by this user?
+				final boolean isProfileStatusAllowed = profile.isUserXStatusVisibleByUserY(friendId, userId, false);
+				
+				Label statusMsgLabel = new Label("result-statusMsg");
+				Label statusDateLabel = new Label("result-statusDate");
+				
+				if(isProfileStatusAllowed) {
+					String profileStatusMessage = profile.getUserStatusMessage(friendId);
+					Date profileStatusDate = profile.getUserStatusDate(friendId);
+					if(profileStatusMessage == null) {
+						statusMsgLabel.setVisible(false);
+						statusDateLabel.setVisible(false);
+					} else {
+						//message
+						statusMsgLabel.setModel(new Model(profileStatusMessage));
+						
+						//now date
+						if(profileStatusDate == null) {
+							statusDateLabel.setVisible(false);
+						} else {
+							statusDateLabel.setModel(new Model(profile.convertDateForStatus(profileStatusDate)));
+						}
+					}
+				}
+				
+				item.add(statusMsgLabel);
+				item.add(statusDateLabel);
+		    	
+		    	
+		    	
+		    	
+		    	
 		    	
 		    	/* ACTIONS */
 		    	
