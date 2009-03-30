@@ -15,9 +15,6 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.image.ContextImage;
-import org.apache.wicket.markup.html.image.NonCachingImage;
-import org.apache.wicket.markup.html.image.resource.BufferedDynamicImageResource;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -27,6 +24,7 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.sakaiproject.util.FormattedText;
 
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
@@ -342,7 +340,7 @@ public class MySearch extends BasePage {
 					Search search = (Search) form.getModelObject();
 					
 					//get search field
-					String searchText = search.getSearchName();
+					String searchText = FormattedText.processFormattedText(search.getSearchName(), new StringBuilder());
 					
 					log.debug("MySearch() search.getSearchName(): " + searchText);
 					
@@ -404,9 +402,9 @@ public class MySearch extends BasePage {
 					Search search = (Search) form.getModelObject();
 					
 					//get search field
-					String searchText = search.getSearchInterest();
-					
-					if(log.isDebugEnabled()) log.debug("MySearch() search.getSearchInterest(): " + searchText);
+					String searchText = FormattedText.processFormattedText(search.getSearchInterest(), new StringBuilder());
+
+					log.debug("MySearch() search.getSearchInterest(): " + searchText);
 					
 					//clear the name search field in model and repaint to clear value
 					search.setSearchName("");
