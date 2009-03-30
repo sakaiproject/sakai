@@ -82,4 +82,10 @@ LICENSE
 
 Sakai code is distributed under the ECL license:
 
-	http://www.opensource.org/licenses/ecl1.txt
+ECL 1.0: Sakai 2.5 series and earlier
+
+http://www.opensource.org/licenses/ecl1.txt
+
+ECL 2.0: Sakai 2.6+
+
+http://www.opensource.org/licenses/ecl2.txt
