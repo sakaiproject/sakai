@@ -8355,7 +8355,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		
 		public String getReviewReport() {
 //			 Code to get updated report if default
-			if (m_submittedAttachments.isEmpty()) M_log.warn(this + " getReviewReport No attachments submitted.");
+			if (m_submittedAttachments.isEmpty()) { 
+				M_log.debug(this.getId() + " getReviewReport No attachments submitted."); 
+				return "Error";
+			}
 			else
 			{
 				try {
@@ -8380,7 +8383,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				}
 					
 			}
-			return "Error";
+			
 		}
 		
 		private ContentResource getFirstAcceptableAttachement() {
