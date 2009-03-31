@@ -1984,7 +1984,7 @@ public class AssignmentAction extends PagedResourceActionII
 		// to context
 		context.put(yearValue, state.getAttribute(yearAttribute));
 		Integer month = (Integer) state.getAttribute(monthAttribute);
-		context.put(monthValue, month.intValue() + 1);/*GregorianCalendar's month starts with "0". Need to + 1 here in order to match the date widget*/
+		context.put(monthValue, month.intValue());
 		context.put(dayValue, state.getAttribute(dayAttribute));
 		context.put(hourValue, state.getAttribute(hourAttribute));
 		context.put(minValue, state.getAttribute(minAttribute));
@@ -5330,7 +5330,7 @@ public class AssignmentAction extends PagedResourceActionII
 						// save release date
 						int hour = params.getInt("allPurposeReleaseAMPM")==0?0:12;
 						hour += params.getInt("allPurposeReleaseHour");
-						cal.set(params.getInt("allPurposeReleaseYear"), params.getInt("allPurposeReleaseMonth")-1/*month values are 0-based in GregorianCalendar object*/, params.getInt("allPurposeReleaseDay"), hour, params.getInt("allPurposeReleaseMin"), 0);
+						cal.set(params.getInt("allPurposeReleaseYear"), params.getInt("allPurposeReleaseMonth"), params.getInt("allPurposeReleaseDay"), hour, params.getInt("allPurposeReleaseMin"), 0);
 						nAllPurpose.setReleaseDate(cal.getTime());
 					}
 					else
@@ -5342,7 +5342,7 @@ public class AssignmentAction extends PagedResourceActionII
 						// save retract date
 						int hour = params.getInt("allPurposeRetractAMPM")==0?0:12;
 						hour += params.getInt("allPurposeRetractHour");
-						cal.set(params.getInt("allPurposeRetractYear"), params.getInt("allPurposeRetractMonth")-1/*month values are 0-based in GregorianCalendar object*/, params.getInt("allPurposeRetractDay"), hour, params.getInt("allPurposeRetractMin"), 0);
+						cal.set(params.getInt("allPurposeRetractYear"), params.getInt("allPurposeRetractMonth"), params.getInt("allPurposeRetractDay"), hour, params.getInt("allPurposeRetractMin"), 0);
 						nAllPurpose.setRetractDate(cal.getTime());
 					}
 					else
