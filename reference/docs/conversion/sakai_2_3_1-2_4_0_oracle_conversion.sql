@@ -1,12 +1,12 @@
 -- This is the Oracle Sakai 2.3.0 (or later) -> 2.4.0 conversion script
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 --
 -- use this to convert a Sakai database from 2.3.0 to 2.4.0.  Run this before you run your first app server.
 -- auto.ddl does not need to be enabled in your app server - this script takes care of all new TABLEs, changed TABLEs, and changed data.
 --
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 
 -- OSP conversion (note first 2 alters may be unnecessary for 2.3.x
 alter table osp_presentation_template add propertyFormType varchar2(36);
@@ -18,19 +18,19 @@ alter table osp_review add review_item_id varchar2(36);
 update osp_list_config set selected_columns = replace(selected_columns, 'name', 'title') where selected_columns like '%name%';
 update osp_list_config set selected_columns = replace(selected_columns, 'siteName', 'site.title') where selected_columns like '%siteName%';
 
---Updating for a change to the synoptic view for portfolio worksites
+-- Updating for a change to the synoptic view for portfolio worksites
 update sakai_site_tool_property set name='siteTypeList', value='portfolio,PortfolioAdmin' where value like 'portfolioWorksites';
 
---making sure these fields allow nulls
+-- making sure these fields allow nulls
 ALTER TABLE osp_scaffolding MODIFY ( readyColor VARCHAR2(7) NULL );
 ALTER TABLE osp_scaffolding MODIFY ( pendingColor VARCHAR2(7) NULL );
 ALTER TABLE osp_scaffolding MODIFY ( completedColor VARCHAR2(7) NULL );
 ALTER TABLE osp_scaffolding MODIFY ( lockedColor VARCHAR2(7) NULL );
 
 
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 
 -- SAMIGO conversion
 -- SAK-6790 
@@ -87,9 +87,9 @@ from sam_sectionmetadata_t a where a.label='POOLID_FOR_RANDOM_DRAW'
 and not exists (select null from sam_sectionmetadata_t b where a.sectionid=b.sectionid and label='POOLNAME_FOR_RANDOM_DRAW');
 
 
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 -- new roster permissions
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'roster.viewall');
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'roster.viewofficialid');
@@ -135,9 +135,9 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Student'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewsection'));
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Student'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'roster.viewsection'));
 
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 -- backfill new roster permissions into existing realms
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 
 -- for each realm that has a role matching something in this table, we will add to that role the function from this table
 CREATE TABLE PERMISSIONS_SRC_TEMP (ROLE_NAME VARCHAR(99), FUNCTION_NAME VARCHAR(99));
@@ -190,14 +190,14 @@ drop table PERMISSIONS_TEMP;
 drop table PERMISSIONS_SRC_TEMP;
 
 
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 -- Site related tables changes needed for 2.4.0 (SAK-7341)
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 ALTER TABLE SAKAI_SITE ADD (CUSTOM_PAGE_ORDERED CHAR(1) DEFAULT '0' CHECK (CUSTOM_PAGE_ORDERED IN (1, 0)));
 
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 -- Post'em table changes needed for 2.4.0 
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 -- SAK-8232
 ALTER TABLE SAKAI_POSTEM_STUDENT_GRADES MODIFY grade VARCHAR2 (2000);
 
@@ -207,9 +207,9 @@ ALTER TABLE SAKAI_POSTEM_GRADEBOOK MODIFY title VARCHAR2 (255);
 -- SAK-8213
 ALTER TABLE SAKAI_REALM_ROLE_DESC ADD (PROVIDER_ONLY CHAR(1) NULL);
 
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 -- Add Moderator functionality to Message Center (SAK-8632)
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 -- add column to allow Moderator as template setting
 alter table MFR_AREA_T add (MODERATED NUMBER(1,0));
 update MFR_AREA_T set MODERATED=0 where MODERATED is NULL;
@@ -226,11 +226,11 @@ alter table MFR_OPEN_FORUM_T modify (MODERATED NUMBER(1,0) not null);
 update MFR_TOPIC_T set MODERATED=0 where MODERATED is NULL;
 alter table MFR_TOPIC_T modify (MODERATED NUMBER(1,0) not null);
 
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 -- New Chat storage and permissions (SAK-8508)
-----------------------------------------------------------------------------------------------------------------------------------------
---create new tables
---This is coming soon as soon as I can generate the ddl for Oracle...
+-- --------------------------------------------------------------------------------------------------------------------------------------
+-- create new tables
+-- This is coming soon as soon as I can generate the ddl for Oracle...
 
 CREATE TABLE CHAT2_CHANNEL ( 
     CHANNEL_ID           	VARCHAR2(99) NOT NULL,
@@ -281,13 +281,13 @@ CREATE INDEX CHAT2_MSG_CHNL_DATE_I ON CHAT2_MESSAGE
        MESSAGE_DATE
 );
 
---chat conversion prep
+-- chat conversion prep
 alter table CHAT2_CHANNEL add migratedChannelId varchar2(99);
 alter table CHAT2_MESSAGE add migratedMessageId varchar2(99);
 
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 -- New private folder (SAK-8759)
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 
 INSERT INTO CONTENT_COLLECTION VALUES ('/private/','/',
 '<?xml version="1.0" encoding="UTF-8"?>
@@ -303,9 +303,9 @@ INSERT INTO CONTENT_COLLECTION VALUES ('/private/','/',
 </collection>
 ');
 
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 -- Gradebook table changes needed for 2.4.0 (SAK-8711)
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 -- Add grade commments.
 create table GB_COMMENT_T (
 	ID number(19,0) not null,
@@ -324,9 +324,9 @@ create sequence GB_COMMENT_S;
 -- Remove database-caching of calculated course grades.
 alter table GB_GRADE_RECORD_T drop column SORT_GRADE;
 
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 -- CourseManagement Reference Impl table changes needed for 2.4.0
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 create table CM_SEC_CATEGORY_T (CAT_CODE varchar2(255 char) not null, CAT_DESCR varchar2(255 char), primary key (CAT_CODE));
 create index CM_ENR_USER on CM_ENROLLMENT_T (USER_ID);
 create index CM_MBR_CTR on CM_MEMBERSHIP_T (MEMBER_CONTAINER_ID);
@@ -366,10 +366,10 @@ alter table CM_MEMBER_CONTAINER_T drop column EQUIV_CANON_COURSE_ID;
 alter table CM_MEMBER_CONTAINER_T drop column EQUIV_COURSE_OFFERING_ID;
 alter table CM_OFFICIAL_INSTRUCTORS_T add unique (ENROLLMENT_SET_ID, INSTRUCTOR_ID);
 
-----------------------------------------------------------------------------------------------------------------------------------------
---SAK-7752
---Add grade comments that were previously stored in Message Center table to the new gradebook table
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
+-- SAK-7752
+-- Add grade comments that were previously stored in Message Center table to the new gradebook table
+-- --------------------------------------------------------------------------------------------------------------------------------------
 INSERT INTO GB_COMMENT_T
 (select GB_COMMENT_S.NEXTVAL, gb_grade_record_t.VERSION, gb_grade_record_t.GRADER_ID, gb_grade_record_t.STUDENT_ID, MFR_MESSAGE_T.GRADECOMMENT, gb_grade_record_t.DATE_RECORDED, GB_GRADABLE_OBJECT_T.ID
     from (select MAX(MFR_MESSAGE_T.MODIFIED) as MSG_MOD, MFR_MESSAGE_T.GRADEASSIGNMENTNAME as ASSGN_NAME, MFR_MESSAGE_T.CREATED_BY as CREATED_BY_STUDENT, MFR_AREA_T.CONTEXT_ID as CONTEXT from MFR_MESSAGE_T 
@@ -391,10 +391,10 @@ INSERT INTO GB_COMMENT_T
         MFR_MESSAGE_T.GRADECOMMENT is not null and
         GB_GRADE_RECORD_T.GRADABLE_OBJECT_ID = GB_GRADABLE_OBJECT_T.ID);
 
-----------------------------------------------------------------------------------------------------------------------------------------
---SAK-8702 
---New ScheduledInvocationManager API for jobscheduler
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
+-- SAK-8702 
+-- New ScheduledInvocationManager API for jobscheduler
+-- --------------------------------------------------------------------------------------------------------------------------------------
 
 CREATE TABLE SCHEDULER_DELAYED_INVOCATION (
 	INVOCATION_ID VARCHAR2(36) NOT NULL,
@@ -406,10 +406,10 @@ CREATE TABLE SCHEDULER_DELAYED_INVOCATION (
 
 CREATE INDEX SCHEDULER_DI_TIME_INDEX ON SCHEDULER_DELAYED_INVOCATION (INVOCATION_TIME);
 
-----------------------------------------------------------------------------------------------------------------------------------------
---SAK-7557
---New Osp Reports Tables
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
+-- SAK-7557
+-- New Osp Reports Tables
+-- --------------------------------------------------------------------------------------------------------------------------------------
 
 CREATE TABLE osp_report_def_xml (
    reportDefId VARCHAR2(36 CHAR) NOT NULL,
@@ -427,10 +427,10 @@ CREATE TABLE osp_report_def_xml (
 
  ALTER TABLE osp_report_xsl add CONSTRAINT FK25C0A259BE381194 FOREIGN KEY (reportDefId)	REFERENCES OSP_REPORT_DEF_XML (reportDefId);
 
-----------------------------------------------------------------------------------------------------------------------------------------
---SAK-9029
---Poll Tool Tables
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
+-- SAK-9029
+-- Poll Tool Tables
+-- --------------------------------------------------------------------------------------------------------------------------------------
 
 CREATE TABLE POLL_POLL (
   POLL_ID number(20,0) NOT NULL,
@@ -479,9 +479,9 @@ CREATE INDEX POLL_VOTE_POLL_ID_IDX ON POLL_VOTE (VOTE_POLL_ID);
 CREATE INDEX POLL_VOTE_USER_ID_IDX ON POLL_VOTE (USER_ID);
 
 
------------------------------------------------------------------------------
+-- ---------------------------------------------------------------------------
 -- SAK-8892 CONTENT_TYPE_REGISTRY
------------------------------------------------------------------------------
+-- ---------------------------------------------------------------------------
 
 CREATE TABLE CONTENT_TYPE_REGISTRY
 (
@@ -495,9 +495,9 @@ CREATE INDEX content_type_registry_idx ON CONTENT_TYPE_REGISTRY
 	CONTEXT_ID
 );
 
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 -- SAK-9029 new mailtool permissions 
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'mailtool.admin');
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'mailtool.send');
@@ -585,9 +585,9 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Student'), 
 (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mailtool.send'));
 
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 -- backfill new mailtool permissions into existing realms
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 
 -- for each realm that has a role matching something in this table, we will add to that role the function from this table
 CREATE TABLE PERMISSIONS_SRC_TEMP (ROLE_NAME VARCHAR(99), FUNCTION_NAME VARCHAR(99));
@@ -637,9 +637,9 @@ from
 drop table PERMISSIONS_TEMP;
 drop table PERMISSIONS_SRC_TEMP;
 
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 -- SAK-8967 new chat permissions 
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'chat.delete.channel');
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'chat.new.channel');
@@ -744,9 +744,9 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 -- Student role
 -- no new permissions
 
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 -- backfill new chat permissions into existing realms
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 
 -- for each realm that has a role matching something in this table, we will add to that role the function from this table
 CREATE TABLE PERMISSIONS_SRC_TEMP (ROLE_NAME VARCHAR(99), FUNCTION_NAME VARCHAR(99));
@@ -795,9 +795,9 @@ from
 drop table PERMISSIONS_TEMP;
 drop table PERMISSIONS_SRC_TEMP;
 
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 -- SAK-9327 poll permissions 
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'poll.add');
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'poll.deleteAny');
@@ -967,9 +967,9 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Student'), 
 (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.vote'));
 
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 -- backfill new Poll permissions into existing realms
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 
 -- for each realm that has a role matching something in this table, we will add to that role the function from this table
 CREATE TABLE PERMISSIONS_SRC_TEMP (ROLE_NAME VARCHAR(99), FUNCTION_NAME VARCHAR(99));
@@ -1028,9 +1028,9 @@ from
 drop table PERMISSIONS_TEMP;
 drop table PERMISSIONS_SRC_TEMP;
 
------------------------------------------------------------------------------
+-- ---------------------------------------------------------------------------
 -- INITIALIZE TABLES FOR CITATIONS HELPER
------------------------------------------------------------------------------
+-- ---------------------------------------------------------------------------
 
 -- create CITATION_COLLECTION table
 CREATE TABLE CITATION_COLLECTION ( COLLECTION_ID VARCHAR (36) NOT NULL, PROPERTY_NAME VARCHAR (255), PROPERTY_VALUE CLOB );
@@ -1749,12 +1749,12 @@ INSERT INTO CITATION_SCHEMA_FIELD (SCHEMA_ID, FIELD_ID, PROPERTY_NAME, PROPERTY_
 INSERT INTO CITATION_SCHEMA_FIELD (SCHEMA_ID, FIELD_ID, PROPERTY_NAME, PROPERTY_VALUE) VALUES('report','rights','sakai:maxCardinality','2147483647');
 INSERT INTO CITATION_SCHEMA_FIELD (SCHEMA_ID, FIELD_ID, PROPERTY_NAME, PROPERTY_VALUE) VALUES('report','rights','sakai:valueType','shorttext');
 INSERT INTO CITATION_SCHEMA (SCHEMA_ID, PROPERTY_NAME, PROPERTY_VALUE) VALUES('report','sakai:hasField','rights');
------------------------------------------------------------------------------
+-- ---------------------------------------------------------------------------
 
-------------------------------------------------------------------------
---- SAK-9436 Missing indexes in rwiki 
-------------------------------------------------------------------------
---- its ok to ignore the drop errors, 
+-- ----------------------------------------------------------------------
+-- - SAK-9436 Missing indexes in rwiki 
+-- ----------------------------------------------------------------------
+-- - its ok to ignore the drop errors, 
 drop index rwikiproperties_name;
 drop index  irwikicurrentcontent_rwi;
 drop index  irwikihistorycontent_rwi;
@@ -1797,9 +1797,9 @@ create index irwikipt_user on  rwikipagetrigger (userid);
 create index irwikipt_pagespace on  rwikipagetrigger (pagespace);
 create index irwikipt_pavename on  rwikipagetrigger (pagename);
 
-------------------------------------------------------------------------
+-- ----------------------------------------------------------------------
 -- SAK-9439 Missing indexes in search
-------------------------------------------------------------------------
+-- ----------------------------------------------------------------------
 drop index   isearchbuilderitem_name;
 drop index   isearchbuilderitem_ctx;
 drop index   isearchbuilderitem_act;

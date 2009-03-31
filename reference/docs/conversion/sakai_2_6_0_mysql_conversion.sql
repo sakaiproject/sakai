@@ -1,5 +1,5 @@
 -- This is the MYSQL Sakai 2.5.4 -> 2.6.0 conversion script
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 -- 
 -- use this to convert a Sakai database from 2.5.3 to 2.6.0.  Run this before you run your first app server.
 -- auto.ddl does not need to be enabled in your app server - this script takes care of all new TABLEs, changed TABLEs, and changed data.
@@ -8,9 +8,9 @@
 -- * Note that there was not a 2.5.1 release due to critical issue identified just prior to release 
 -- The 2.5.2 - 2.5.3 script can be located at https://source.sakaiproject.org/svn/reference/tags/sakai_2-5-3/docs/conversion/sakai_2_5_2-2_5_3_mysql_conversion.sql
 -- The 2.5.3 - 2.5.4 script can be located at https://source.sakaiproject.org/svn/reference/tags/sakai-2.5.4/docs/conversion/sakai_2_5_3-2_5_4_mysql_conversion.sql
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 
---SAK-12527 Changes to Chat Room options do not work consistently
+-- SAK-12527 Changes to Chat Room options do not work consistently
 
 -- add column timeParam and numberParam 
 alter table CHAT2_CHANNEL add column timeParam int;
@@ -23,14 +23,14 @@ timeParam = Case When filterparam = 0 or filterType <> 'SelectMessagesByTime' Th
 alter table CHAT2_CHANNEL modify column timeParam int not null;
 alter table CHAT2_CHANNEL modify column numberParam int not null;
 
---SAK-12176 Messages-Send cc to recipients' email address(es)
+-- SAK-12176 Messages-Send cc to recipients' email address(es)
 
 -- add column sendEmailOut to table MFR_AREA_T
 alter table MFR_AREA_T add column (SENDEMAILOUT bit);
 update MFR_AREA_T set SENDEMAILOUT=1 where SENDEMAILOUT is NULL;
 alter table MFR_AREA_T modify column SENDEMAILOUT bit not null;
 
---new msg.emailout permission 
+-- new msg.emailout permission 
 
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'msg.emailout');
 
@@ -40,18 +40,18 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 -- Instructor role
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'msg.emailout'));
 
---CIG Coordinator role
+-- CIG Coordinator role
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.portfolio'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'CIG Coordinator'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'msg.emailout'));
 
---Program Coordinator role
+-- Program Coordinator role
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.portfolioAdmin'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Program Coordinator'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'msg.emailout'));
 
---Program Admin role
+-- Program Admin role
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.portfolioAdmin'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Program Admin'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'msg.emailout'));
 
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 -- backfill new msg.emailout permissions into existing realms
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 
 -- for each realm that has a role matching something in this table, we will add to that role the function from this table
 CREATE TABLE PERMISSIONS_SRC_TEMP (ROLE_NAME VARCHAR(99), FUNCTION_NAME VARCHAR(99));
@@ -107,7 +107,7 @@ INSERT INTO SAKAI_REALM_RL_FN SELECT DISTINCT SR.REALM_KEY, SRR.ROLE_KEY, SRF.FU
 
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.user'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.evaluate'));
 
---SAK-13406 matrix feedback options
+-- SAK-13406 matrix feedback options
 
 alter table osp_scaffolding add column generalFeedbackOption tinyint not null DEFAULT '0';
 alter table osp_scaffolding add column itemFeedbackOption tinyint not null DEFAULT '0';
@@ -121,22 +121,22 @@ update osp_wizard set itemFeedbackOption=0;
 
 
 
---SAK-13345
+-- SAK-13345
 
 create index ISEARCHBUILDERITEM_STA_ACT on searchbuilderitem (SEARCHSTATE,SEARCHACTION); 
 drop index ISEARCHBUILDERITEM_STA; 
 
 
---OSP SAK-11545
+-- OSP SAK-11545
 alter table osp_wizard add reviewerGroupAccess integer not null default '0';
 
---SAK-6216 Optional ability to store client hostname (resolved IP) in SAKAI_SESSION
+-- SAK-6216 Optional ability to store client hostname (resolved IP) in SAKAI_SESSION
 alter table SAKAI_SESSION add column SESSION_HOSTNAME varchar(255);
 
---SAK-10801 Add CONTEXT field to SAKAI_EVENT
+-- SAK-10801 Add CONTEXT field to SAKAI_EVENT
 alter table SAKAI_EVENT add column CONTEXT varchar(255);
 
---SAK-13310 Poll description field too small
+-- SAK-13310 Poll description field too small
 alter table POLL_POLL change POLL_DETAILS POLL_DETAILS text; 
 
 -- SAK-14106
@@ -198,7 +198,7 @@ alter table CM_ACADEMIC_SESSION_T add column IS_CURRENT bit default 0 not null;
 -- and edit this script accordingly!
 update CM_ACADEMIC_SESSION_T set IS_CURRENT=1 where CURDATE() >= START_DATE and CURDATE() <= END_DATE;
 
---Tables for email template service (new tool - SAK-14573)
+-- Tables for email template service (new tool - SAK-14573)
     create table EMAIL_TEMPLATE_ITEM (
         ID bigint not null auto_increment,
         LAST_MODIFIED datetime not null,
@@ -215,11 +215,11 @@ update CM_ACADEMIC_SESSION_T set IS_CURRENT=1 where CURDATE() >= START_DATE and 
 
     create index email_templ_key on EMAIL_TEMPLATE_ITEM (TEMPLATE_KEY);
 
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 -- SAK-7924 - add and backfill new site.roleswap permissions into existing realms and templates
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 
------- View Site in a Different Role Backfill --------
+-- ---- View Site in a Different Role Backfill --------
 -- SAK-7924 -- Adding the new site.roleswap permission as well as backfilling where appropriate
 -- roles that can be switched to are defined in sakai.properties with the studentview.roles property
 
@@ -236,9 +236,9 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'),
 (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.roleswap'));
 
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 -- backfill script
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 
 -- course sites
 
@@ -304,7 +304,7 @@ from
 drop table PERMISSIONS_TEMP;
 drop table PERMISSIONS_SRC_TEMP;
 
---- Tables added for SAK-12912:Add optional ability to prompt for questions during site creation
+-- - Tables added for SAK-12912:Add optional ability to prompt for questions during site creation
 
     create table SSQ_ANSWER (
         ID varchar(99) not null,
@@ -363,7 +363,7 @@ drop table PERMISSIONS_SRC_TEMP;
         foreign key (SITETYPE_ID) 
         references SSQ_SITETYPE_QUESTIONS (ID);
 
------ SAK-15040 site.viewRoster is a newly added permission
+-- --- SAK-15040 site.viewRoster is a newly added permission
 
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'site.viewRoster');
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.user'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.viewRoster'));

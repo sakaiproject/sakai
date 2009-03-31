@@ -1,10 +1,10 @@
 -- This is the MySQL Sakai 2.1.1 -> 2.1.2 conversion script
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 --
 -- use this to convert a Sakai database from 2.1.1 to 2.1.2.  Run this before you run your first app server.
 -- auto.ddl does not need to be enabled in your app server - this script takes care of all new TABLEs, changed TABLEs, and changed data.
 --
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 
 
 -- RWiki
@@ -30,7 +30,7 @@ CREATE INDEX SAM_PUBSECTION_ASSESSMENT_I ON SAM_PUBLISHEDSECTION_T (ASSESSMENTID
 CREATE INDEX SAM_PUBSECTIONMETA_SECTION_I ON SAM_PUBLISHEDSECTIONMETADATA_T (SECTIONID); 
 CREATE INDEX SAM_PUBIP_ASSESSMENT_I ON SAM_PUBLISHEDSECUREDIP_T (ASSESSMENTID);
 
---PublishedItemData.hbm.xml
+-- PublishedItemData.hbm.xml
 CREATE INDEX SAM_PUBITEM_SECTION_I ON SAM_PUBLISHEDITEM_T (SECTIONID);
 CREATE INDEX SAM_PUBITEMTEXT_ITEM_I ON SAM_PUBLISHEDITEMTEXT_T (ITEMID);
 CREATE INDEX SAM_PUBITEMMETA_ITEM_I ON SAM_PUBLISHEDITEMMETADATA_T (ITEMID); 
@@ -39,7 +39,7 @@ CREATE INDEX SAM_PUBANSWER_ITEMTEXT_I ON SAM_PUBLISHEDANSWER_T (ITEMTEXTID);
 CREATE INDEX SAM_PUBANSWER_ITEM_I ON SAM_PUBLISHEDANSWER_T (ITEMID); 
 CREATE INDEX SAM_PUBANSWERFB_ANSWER_I ON SAM_PUBLISHEDANSWERFEEDBACK_T (ANSWERID);
 
---MediaData.hbm.xml
+-- MediaData.hbm.xml
 CREATE INDEX SAM_MEDIA_ITEMGRADING_I ON SAM_MEDIA_T (ITEMGRADINGID);
 
 commit;

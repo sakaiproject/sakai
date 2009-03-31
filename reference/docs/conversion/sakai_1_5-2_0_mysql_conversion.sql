@@ -13,7 +13,7 @@ alter table CHEF_SESSION rename to SAKAI_SESSION;
 
 DROP TABLE if exists CHEF_ID_SEQ;
 
---fields were expanded
+-- fields were expanded
 alter table ANNOUNCEMENT_MESSAGE modify MESSAGE_ID VARCHAR(36);
 ALTER TABLE CALENDAR_EVENT modify EVENT_ID VARCHAR(36) NOT NULL DEFAULT '';
 alter table CHAT_MESSAGE modify MESSAGE_ID VARCHAR(36);

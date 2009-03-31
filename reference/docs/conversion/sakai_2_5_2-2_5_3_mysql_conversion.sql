@@ -43,7 +43,7 @@ where TITLE in (
 
 
 
------------------------------------------------------------------------------
+-- ---------------------------------------------------------------------------
 -- Fix http://bugs.sakaiproject.org/jira/browse/SAK-13842
 -- 
 -- Remove discussions and recent discussions from mercury and !worksite
@@ -51,7 +51,7 @@ where TITLE in (
 -- Sites which still run discussions from contrib - can simply patch
 -- this so it never runs - either by commenting out all this SQL
 -- or by removing the call to this script in SiteService.
------------------------------------------------------------------------------
+-- ---------------------------------------------------------------------------
 
 -- Undo the hard-coded inserts
 

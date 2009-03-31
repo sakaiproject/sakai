@@ -19,7 +19,7 @@ rename CHEF_EVENT_SEQ to SAKAI_EVENT_SEQ;
 -- and removed
 DROP SEQUENCE CHEF_ID_SEQ;
 
---fields were expanded
+-- fields were expanded
 alter table ANNOUNCEMENT_MESSAGE modify MESSAGE_ID VARCHAR2(36);
 alter table CALENDAR_EVENT modify EVENT_ID VARCHAR2(36);
 alter table CHAT_MESSAGE modify MESSAGE_ID VARCHAR2(36);

@@ -1,16 +1,16 @@
 -- This is the MySQL Sakai 2.4.0 (or later) -> 2.5.0 conversion script
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 --
 -- use this to convert a Sakai database from 2.4.0 to 2.5.0.  Run this before you run your first app server.
 -- auto.ddl does not need to be enabled in your app server - this script takes care of all new TABLEs, changed TABLEs, and changed data.
 --
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 
---metaobj conversion
+-- metaobj conversion
 alter TABLE metaobj_form_def add column alternateCreateXslt	varchar(36) NULL;
 alter TABLE metaobj_form_def add column alternateViewXslt  	varchar(36) NULL;
 
---Post'em SAK-8232
+-- Post'em SAK-8232
 ALTER TABLE SAKAI_POSTEM_HEADINGS MODIFY heading VARCHAR(500);
 
 
@@ -24,10 +24,10 @@ create index isearchbuilderitem_sco on searchbuilderitem (itemscope);
 alter table MFR_MESSAGE_T add DELETED bit not null default false;
 create index MFR_MESSAGE_DELETED_I on MFR_MESSAGE_T (DELETED);
 
---Chat SAK-10682
+-- Chat SAK-10682
 alter table CHAT2_CHANNEL modify CONTEXT VARCHAR(99) NOT NULL;
 
---Chat SAK-10163
+-- Chat SAK-10163
 -- also released in sakai_2_4_0-2_4_x_mysql_conversion_003.sql  
 ALTER TABLE CHAT2_CHANNEL ADD COLUMN PLACEMENT_ID varchar(99) NULL;
 ALTER TABLE CHAT2_CHANNEL CHANGE contextDefaultChannel placementDefaultChannel tinyint(1) NULL;
@@ -40,10 +40,10 @@ where st.REGISTRATION = 'sakai.chat'
 
 update CHAT2_CHANNEL set placementDefaultChannel=false where placementDefaultChannel is null;
 
---OSP SAK-10396: Add a default layout to be specified for a portfolio
+-- OSP SAK-10396: Add a default layout to be specified for a portfolio
 alter table osp_presentation add column layout_id varchar(36) NULL;
 
---Profile add dateOfBirth property SAK-8423
+-- Profile add dateOfBirth property SAK-8423
 alter table SAKAI_PERSON_T add column dateOfBirth date;
 
 -- SAK-8780, SAK-7452 - Add SESSION_ACTIVE flag to explicitly indicate when
@@ -52,7 +52,7 @@ alter table SAKAI_PERSON_T add column dateOfBirth date;
 alter table SAKAI_SESSION add column SESSION_ACTIVE tinyint(1);
 create index SESSION_ACTIVE_IE on SAKAI_SESSION (SESSION_ACTIVE);
 
---Add categories to the gradebook
+-- Add categories to the gradebook
 create table GB_CATEGORY_T (ID bigint not null auto_increment, VERSION integer not null, GRADEBOOK_ID bigint not null, NAME varchar(255) not null, WEIGHT double precision, DROP_LOWEST integer, REMOVED bit, primary key (ID));
 alter table GB_GRADABLE_OBJECT_T add CATEGORY_ID bigint;
 alter table GB_GRADEBOOK_T add GRADE_TYPE integer not null;
@@ -63,11 +63,11 @@ create index GB_CATEGORY_GB_IDX on GB_CATEGORY_T (GRADEBOOK_ID);
 create index GB_GRADABLE_OBJ_CT_IDX on GB_GRADABLE_OBJECT_T (CATEGORY_ID);
 update GB_GRADEBOOK_T set GRADE_TYPE = 1, CATEGORY_TYPE = 1;
 
---Gradebook SAK-10427
+-- Gradebook SAK-10427
 alter table GB_GRADABLE_OBJECT_T add column UNGRADED bit;
 update GB_GRADABLE_OBJECT_T set UNGRADED = false;
 
---Gradebook SAK-10571
+-- Gradebook SAK-10571
 drop table if exists GB_LETTERGRADE_PERCENT_MAPPING;
 drop table if exists GB_LETTERGRADE_MAPPING;
 create table GB_LETTERGRADE_MAPPING (LG_MAPPING_ID bigint not null, value double precision, GRADE varchar(255) not null, primary key (LG_MAPPING_ID, GRADE));
@@ -89,7 +89,7 @@ insert into GB_LETTERGRADE_MAPPING values (1, 63.0, 'D');
 insert into GB_LETTERGRADE_MAPPING values (1, 60.0, 'D-');
 insert into GB_LETTERGRADE_MAPPING values (1, 0.0, 'F');
 
---Gradebook SAK-10835
+-- Gradebook SAK-10835
 CREATE TABLE GB_PERMISSION_T ( 
     GB_PERMISSION_ID bigint AUTO_INCREMENT NOT NULL,
     VERSION     	 integer NOT NULL,
@@ -101,17 +101,17 @@ CREATE TABLE GB_PERMISSION_T (
     PRIMARY KEY(GB_PERMISSION_ID)
 );
 
---Gradebook SAK-12429
+-- Gradebook SAK-12429
 -- also released in sakai_2_4_0-2_4_x_mysql_conversion_005.sql  
 CREATE INDEX GB_GRADING_EVENT_T_STU_OBJ_ID ON GB_GRADING_EVENT_T (STUDENT_ID, GRADABLE_OBJECT_ID);
 
---OSP SAK-10553
+-- OSP SAK-10553
 ALTER TABLE osp_wizard_page_def ADD SUPPRESS_ITEMS bit(1) not null default false; 
 
---OSP SAK-10612
+-- OSP SAK-10612
 alter table osp_scaffolding add reviewerGroupAccess integer not null default '0';
 
---OSP SAK-10832
+-- OSP SAK-10832
 CREATE TABLE osp_wiz_page_def_attachments ( 
     wiz_page_def_id	varchar(36) NOT NULL,
     artifact_id    	varchar(255) NULL,
@@ -683,7 +683,7 @@ DELETE From SAKAI_REALM_RL_FN WHERE REALM_KEY = (select REALM_KEY from SAKAI_REA
 DELETE From SAKAI_REALM_RL_FN WHERE REALM_KEY = (select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.portfolio') AND ROLE_KEY = (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'CIG Participant') and FUNCTION_KEY = (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'reports.view');
 
 
---Reports conversion SAK-10545
+-- Reports conversion SAK-10545
 RENAME TABLE osp_report_xsl TO report_xsl_file;
 ALTER TABLE report_xsl_file 
 	DROP PRIMARY KEY;
@@ -784,9 +784,9 @@ INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'roster.viewprofile');
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'roster.viewofficialphoto');
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'roster.export');
 
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 -- backfill roster permissions into existing sites and groups
-----------------------------------------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------------------------------------
 CREATE TABLE PERMISSIONS_SRC_TEMP (ROLE_NAME VARCHAR(99), FUNCTION_NAME VARCHAR(99));
 CREATE TABLE PERMISSIONS_TEMP (ROLE_KEY INTEGER, FUNCTION_KEY INTEGER);
 
@@ -932,13 +932,13 @@ CREATE UNIQUE INDEX ASSIGNMENT_SUBMISSION_SUBMITTER_INDEX ON ASSIGNMENT_SUBMISSI
 -- SAK-11876, SAK-10490
 alter table SAKAI_PERSON_T add locked bit(1);
 
---Chat SAK-10215
---This only has to be run if you've upgraded from 2.3 and had chat data
+-- Chat SAK-10215
+-- This only has to be run if you've upgraded from 2.3 and had chat data
 -- also released in sakai_2_4_0-2_4_x_mysql_conversion_004.sql  
 update SAKAI_SITE_TOOL set title = 'Chat Room' where REGISTRATION = 'sakai.chat' and TITLE like 'Chat Room: "%';
 
 
---SAK-8957 new colums for polls
+-- SAK-8957 new colums for polls
 alter table POLL_POLL add column POLL_UUID varchar(255);
 alter table POLL_OPTION add column OPTION_UUID varchar(255);
 
