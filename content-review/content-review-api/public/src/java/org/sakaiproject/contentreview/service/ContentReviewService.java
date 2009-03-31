@@ -29,6 +29,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.contentreview.exception.QueueException;
 import org.sakaiproject.contentreview.exception.ReportException;
 import org.sakaiproject.contentreview.exception.SubmissionException;
+import org.sakaiproject.contentreview.model.ContentReviewItem;
 
 /**
  *  ContentReview Service manages submission to the Content review queue and retrieving reports from the service
@@ -141,7 +142,7 @@ public interface ContentReviewService {
 	 * @throws SubmissionException
 	 * @throws ReportException
 	 */
-	public List getReportList(String siteId, String taskId)
+	public List<ContentReviewItem> getReportList(String siteId, String taskId)
 	throws QueueException, SubmissionException, ReportException;
 	
 	
@@ -154,7 +155,7 @@ public interface ContentReviewService {
 	 * @throws SubmissionException
 	 * @throws ReportException
 	 */
-	public List getReportList(String siteId)
+	public List<ContentReviewItem> getReportList(String siteId)
 	throws QueueException, SubmissionException, ReportException;
 	
 	/**
