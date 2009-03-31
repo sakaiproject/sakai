@@ -1,6 +1,6 @@
------------------------------------------------------------------------------
+-- ---------------------------------------------------------------------------
 -- IMSENT_PERSON
------------------------------------------------------------------------------
+-- ---------------------------------------------------------------------------
 
 CREATE TABLE IMSENT_PERSON (
        USERID            VARCHAR (99) NOT NULL,
@@ -49,9 +49,9 @@ CREATE TABLE IMSENT_GROUP (
 INSERT INTO IMSENT_GROUP VALUES ('F05:AH200', 'Art History', 'AH', NULL, NULL,
    'Fall:2005', NULL, NULL, NULL);
 
---- A simple hierarchy - parent relationship (child is not supported)
---- Parent membership is the merge between direct membership in the parent, and 
---- membership in any of the children
+-- - A simple hierarchy - parent relationship (child is not supported)
+-- - Parent membership is the merge between direct membership in the parent, and 
+-- - membership in any of the children
 INSERT INTO IMSENT_GROUP VALUES ('F05:CS101-000', 'Intro Computer Science - Lecture', 'CS', NULL, NULL,
    'Fall:2005', NULL, NULL, NULL);
 
@@ -61,16 +61,16 @@ INSERT INTO IMSENT_GROUP VALUES ('F05:CS101-101', 'Lab 1', 'CS', NULL, NULL,
 INSERT INTO IMSENT_GROUP VALUES ('F05:CS101-102', 'Lab 2', 'CS', NULL, NULL,
    'Fall 2005', 1, 'F05:CS101-000', 'Lecture Section');
 
---- A Course and a "Also Known As"
+-- - A Course and a "Also Known As"
 INSERT INTO IMSENT_GROUP VALUES ('F05:GE400', 'Geological Studies', 'GE', NULL, NULL,
    'Fall:2005', NULL, NULL, NULL);
 
 INSERT INTO IMSENT_GROUP VALUES ('F05:MU442', 'Ancient Rock Music', 'MU', NULL, NULL,
    'Fall:2005', 3, 'F05:GE400', 'Cross List');
    
---- A Course and a "Redirect" - the redirected course is silently redirected
---- there is no user visible evidence of the redirected course
---- Membership is computed as the union of the membership of both courses
+-- - A Course and a "Redirect" - the redirected course is silently redirected
+-- - there is no user visible evidence of the redirected course
+-- - Membership is computed as the union of the membership of both courses
 INSERT INTO IMSENT_GROUP VALUES ('F05:ST201', 'Intro Statistics', 'ST', NULL, NULL,
    'Fall:2005', NULL, NULL, NULL);
 
@@ -92,25 +92,25 @@ CREATE TABLE IMSENT_MEMBERSHIP (
        PRIMARY KEY (SOURCEDID_ID, MEMBER_SOURCEDID_ID, MEMBER_ROLE_ROLETYPE)
 );
 
---- Single Course
+-- - Single Course
 INSERT INTO IMSENT_MEMBERSHIP VALUES('F05:AH200', 'user1', 'Instructor');
 INSERT INTO IMSENT_MEMBERSHIP VALUES('F05:AH200', 'user2', 'Learner');
 INSERT INTO IMSENT_MEMBERSHIP VALUES('F05:AH200', 'user3', 'Learner');
 
---- Standard Parent relationship - roles roll up
+-- - Standard Parent relationship - roles roll up
 INSERT INTO IMSENT_MEMBERSHIP VALUES('F05:CS101-000', 'user1', 'Instructor');
 INSERT INTO IMSENT_MEMBERSHIP VALUES('F05:CS101-101', 'user2', 'Learner');
 INSERT INTO IMSENT_MEMBERSHIP VALUES('F05:CS101-102', 'user3', 'Learner');
 
---- Cross list relationship - This is one course (F05:GE400) with 
---- (F05:MU442) noted as its cross-list - memebership is merged
+-- - Cross list relationship - This is one course (F05:GE400) with 
+-- - (F05:MU442) noted as its cross-list - memebership is merged
 INSERT INTO IMSENT_MEMBERSHIP VALUES('F05:GE400', 'user1', 'Instructor');
 INSERT INTO IMSENT_MEMBERSHIP VALUES('F05:GE400', 'user2', 'Learner');
 INSERT INTO IMSENT_MEMBERSHIP VALUES('F05:MU442', 'user3', 'Learner');
 
---- Equivalence relationship / redirect - two courses 
---- (F05:ST201-001) and (F05:ST201-002) are invisibly 
---- folded into (F05:ST201) 
+-- - Equivalence relationship / redirect - two courses 
+-- - (F05:ST201-001) and (F05:ST201-002) are invisibly 
+-- - folded into (F05:ST201) 
 INSERT INTO IMSENT_MEMBERSHIP VALUES('F05:ST201', 'user1', 'Instructor');
 INSERT INTO IMSENT_MEMBERSHIP VALUES('F05:ST201-001', 'user2', 'Learner');
 INSERT INTO IMSENT_MEMBERSHIP VALUES('F05:ST201-002', 'user3', 'Learner');
