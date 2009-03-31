@@ -471,11 +471,11 @@ alter sequence sam_answerFeedback_id_s increment by 1;
  
 commit; 
 
---------the following new tables are added recently, no data in the old tables to copy from ----------------- 
---------sam_authzData_t----------
---------sam_qualifierData_t--------
---------sam_functionData_t-------- 
---------sam_media_t----------- 
+-- ------the following new tables are added recently, no data in the old tables to copy from ----------------- 
+-- ------sam_authzData_t----------
+-- ------sam_qualifierData_t--------
+-- ------sam_functionData_t-------- 
+-- ------sam_media_t----------- 
 
 
 
