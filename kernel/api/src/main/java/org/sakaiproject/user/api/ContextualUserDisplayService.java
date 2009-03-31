@@ -4,7 +4,7 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2008 The Regents of the University of California
+* Copyright (c) 2008 The Sakai Foundation
 *
 * Licensed under the Educational Community License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
