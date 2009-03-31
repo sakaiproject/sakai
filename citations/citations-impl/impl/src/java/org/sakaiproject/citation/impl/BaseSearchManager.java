@@ -2148,8 +2148,6 @@ public class BaseSearchManager implements SearchManager, Observer
 	    				{
 	    					done = true;
 	    				}
-              // make sure we have more search results
-			    	  moreResults = assetIterator.hasNextAsset();
 	    			}
 	    			catch( RepositoryException re )
 	    			{
@@ -2185,6 +2183,8 @@ public class BaseSearchManager implements SearchManager, Observer
 	    					}
 	    				}
 	    			}
+            // make sure we have more search results
+		    	  moreResults = assetIterator.hasNextAsset();
 	    		}
 	    	}
 	    	catch( RepositoryException re )
