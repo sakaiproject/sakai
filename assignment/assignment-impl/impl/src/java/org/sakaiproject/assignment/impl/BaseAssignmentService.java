@@ -8292,22 +8292,22 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			else
 			{
 				//we may have already retrived this one
-				if (m_reviewScore != null) {
+				if (m_reviewScore != null && m_reviewScore > 0) {
+					M_log.debug("returning stored value of " + m_reviewScore);
 					return m_reviewScore.intValue();
 				}
 				
+				ContentResource cr = getFirstAcceptableAttachement();
+				if (cr == null )
+				{
+					M_log.debug(this + " getReviewScore No suitable attachments found in list");
+					return -2;
+				}
 				
 				try {
 					//we need to find the first attachment the CR will accept
-					
-					ContentResource cr = getFirstAcceptableAttachement();
-					if (cr == null )
-					{
-						M_log.debug(this + " getReviewScore No suitable attachments found in list");
-						return -2;
-					}
 					String contentId = cr.getId();
-					M_log.debug(this + " getReviewScore checking for socre for content: " + contentId);
+					M_log.debug(this + " getReviewScore checking for score for content: " + contentId);
 					int score = contentReviewService.getReviewScore(contentId);
 					m_reviewScore = score;
 					M_log.debug(this + " getReviewScore CR returned a score of: " + score);
@@ -8319,12 +8319,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					try {
 						
 							M_log.debug(this + " getReviewScore Item is not in queue we will try add it");
-							ContentResource cr = getFirstAcceptableAttachement();
-							if (cr == null )
-							{
-								M_log.debug(this + " getReviewScore No suitable attachments found in list");
-								return -2;
-							}
 							String contentId = cr.getId();
 							String userId = (String)this.getSubmitterIds().get(0);
 							try {
