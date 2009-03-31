@@ -44,6 +44,9 @@ import javax.servlet.http.HttpServletResponse;
 
 
 import org.sakaiproject.contentreview.exception.QueueException;
+import org.sakaiproject.contentreview.exception.ReportException;
+import org.sakaiproject.contentreview.exception.SubmissionException;
+import org.sakaiproject.contentreview.model.ContentReviewItem;
 import org.sakaiproject.contentreview.service.ContentReviewService;
 
 
@@ -2763,7 +2766,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	protected List getSubmissions(String context)
 	{
-		List submissions = new Vector();
+		List<AssignmentSubmission> submissions = new Vector<AssignmentSubmission>();
 
 		if ((m_caching) && (m_submissionCache != null) && (!m_submissionCache.disabled()))
 		{
@@ -2825,10 +2828,66 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// }
 			// }
 		}
-
+		
+		//get all the review scores
+		if (contentReviewService != null) {
+			try {
+				List<ContentReviewItem> reports = contentReviewService.getReportList(null, context);
+				if (reports != null && reports.size() > 0) {
+					updateSubmissionList(submissions, reports);
+				}
+			} catch (QueueException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SubmissionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ReportException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		return submissions;
 
 	} // getAssignmentSubmissions
+	
+	private void updateSubmissionList(List<AssignmentSubmission> submissions, List<ContentReviewItem> reports) {
+		//lets build a map  to avoid multiple searches through the list of reports
+		Map<String, ContentReviewItem> reportsMap = new HashMap<String, ContentReviewItem> ();
+		for (int i = 0; i < reports.size(); i++) {
+			ContentReviewItem item = reports.get(i);
+			reportsMap.put(item.getUserId(), item);
+		}
+		
+		for (int i = 0; i < submissions.size(); i++) {
+			AssignmentSubmission sub = submissions.get(i);
+			String submitterid = (String)sub.getSubmitterIds().get(0);
+			if (reportsMap.containsKey(submitterid)) {
+				ContentReviewItem report = reportsMap.get(submitterid);
+				AssignmentSubmissionEdit edit;
+				try {
+					edit = this.editSubmission(sub.getReference());
+					edit.setReviewScore(report.getReviewScore());
+					edit.setReviewIconUrl(report.getIconUrl());
+					edit.setReviewStatus(report.getStatus().toString());
+					this.commitEdit(edit);
+				} catch (IdUnusedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (PermissionException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InUseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+		}
+		
+		
+	}
+	
 
 	/**
 	 * Access list of all AssignmentContents created by the User.
@@ -8208,7 +8267,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		
 		//The score given by the review service
-		protected int m_reviewScore;
+		protected Integer m_reviewScore;
 		// The report given by the content review service
 		protected String m_reviewReport;
 		// The status of the review service
@@ -8232,6 +8291,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 			else
 			{
+				//we may have already retrived this one
+				if (m_reviewScore != null) {
+					return m_reviewScore.intValue();
+				}
+				
+				
 				try {
 					//we need to find the first attachment the CR will accept
 					
@@ -8243,9 +8308,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					}
 					String contentId = cr.getId();
 					M_log.debug(this + " getReviewScore checking for socre for content: " + contentId);
-					int score =contentReviewService.getReviewScore(contentId);
+					int score = contentReviewService.getReviewScore(contentId);
+					m_reviewScore = score;
 					M_log.debug(this + " getReviewScore CR returned a score of: " + score);
-					return contentReviewService.getReviewScore(contentId);
+					return score;
 						
 				} 
 				catch (QueueException cie) {
@@ -10107,6 +10173,22 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 
 		} // valueUnbound
+
+		public void setReviewScore(int score) {
+			this.m_reviewScore = score;
+			
+		}
+
+		public void setReviewIconUrl(String url) {
+			this.m_reviewIconUrl = url;
+			
+		}
+
+		public void setReviewStatus(String status) {
+			this.m_reviewStatus = status;
+		
+			
+		}
 
 	} // BaseAssignmentSubmissionEdit
 
