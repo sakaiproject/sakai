@@ -1,6 +1,6 @@
---SAK-7752
---Add grade comments that were previously stored in MC table to the gradebook
---------------------------------------------------------------------------------
+-- SAK-7752
+-- Add grade comments that were previously stored in MC table to the gradebook
+-- ------------------------------------------------------------------------------
 
 INSERT INTO GB_COMMENT_T
 (select GB_COMMENT_S.NEXTVAL, gb_grade_record_t.VERSION, gb_grade_record_t.GRADER_ID, gb_grade_record_t.STUDENT_ID, MFR_MESSAGE_T.GRADECOMMENT, gb_grade_record_t.DATE_RECORDED, GB_GRADABLE_OBJECT_T.ID
