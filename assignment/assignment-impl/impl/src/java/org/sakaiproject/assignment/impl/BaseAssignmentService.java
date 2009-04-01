@@ -8292,7 +8292,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			else
 			{
 				//we may have already retrived this one
-				if (m_reviewScore != null && m_reviewScore > 0) {
+				if (m_reviewScore != null && m_reviewScore > -1) {
 					M_log.debug("returning stored value of " + m_reviewScore);
 					return m_reviewScore.intValue();
 				}
