@@ -665,13 +665,13 @@ public class BaseSitePage implements SitePage, Identifiable
 					.serverConfigurationService().getPortalUrl()
 					+ ((BaseSiteService) (SiteService.getInstance())).sitePageReference(
 							m_siteId, m_id);
-		}
+		} else {
 
-		rv = ((BaseSiteService) (SiteService.getInstance())).serverConfigurationService()
+			rv = ((BaseSiteService) (SiteService.getInstance())).serverConfigurationService()
 				.getPortalUrl()
 				+ ((BaseSiteService) (SiteService.getInstance())).sitePageReference(
 						m_site.getId(), m_id);
-
+		}
 		return rv;
 	}
 
