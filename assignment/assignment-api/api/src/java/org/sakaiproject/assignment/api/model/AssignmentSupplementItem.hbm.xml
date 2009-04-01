@@ -73,7 +73,7 @@
        
         <id name="Id" column="ID" type="long">
 					<generator class="native">
-						<param name="sequence">ASSIGN_NOTE_S</param>
+						<param name="sequence">ASN_NOTE_S</param>
 					</generator>
 		</id>
 	    
