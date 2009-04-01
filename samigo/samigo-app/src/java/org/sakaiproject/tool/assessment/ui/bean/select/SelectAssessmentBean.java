@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.bean.select;
 
 import java.io.Serializable;
@@ -28,12 +26,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
- *
- * <p>Title: sakaiproject.org</p>
- * <p>Description: OKI based implementation</p>
-* <p>Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
-*  </p>
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
  * @version $Id$
  *
