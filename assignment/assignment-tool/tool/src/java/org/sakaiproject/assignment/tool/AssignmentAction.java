@@ -471,8 +471,6 @@ public class AssignmentAction extends PagedResourceActionII
 
 	private static final String NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE = "new_assignment_check_add_honor_pledge";
 
-	private static final String NEW_ASSIGNMENT_HIDE_OPTION_FLAG = "new_assignment_hide_option_flag";
-
 	private static final String NEW_ASSIGNMENT_FOCUS = "new_assignment_focus";
 
 	private static final String NEW_ASSIGNMENT_DESCRIPTION_EMPTY = "new_assignment_description_empty";
@@ -715,13 +713,13 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String ALLPURPOSE_ATTACHMENTS = "Assignment.allpurpose_attachments";
 	private static final String ALLPURPOSE_RELEASE_YEAR = "allPurpose.releaseYear";
 	private static final String ALLPURPOSE_RELEASE_MONTH = "allPurpose.releaseMonth";
-	private static final String ALLPURPOSE_RELEASE_DAY = "allPurpose.releaseDAY";
+	private static final String ALLPURPOSE_RELEASE_DAY = "allPurpose.releaseDay";
 	private static final String ALLPURPOSE_RELEASE_HOUR = "allPurpose.releaseHour";
 	private static final String ALLPURPOSE_RELEASE_MIN = "allPurpose.releaseMin";
 	private static final String ALLPURPOSE_RELEASE_AMPM = "allPurpose.releaseAMPM";
 	private static final String ALLPURPOSE_RETRACT_YEAR = "allPurpose.retractYear";
 	private static final String ALLPURPOSE_RETRACT_MONTH = "allPurpose.retractMonth";
-	private static final String ALLPURPOSE_RETRACT_DAY = "allPurpose.retractDAY";
+	private static final String ALLPURPOSE_RETRACT_DAY = "allPurpose.retractDay";
 	private static final String ALLPURPOSE_RETRACT_HOUR = "allPurpose.retractHour";
 	private static final String ALLPURPOSE_RETRACT_MIN = "allPurpose.retractMin";
 	private static final String ALLPURPOSE_RETRACT_AMPM = "allPurpose.retractAMPM";
@@ -1722,7 +1720,6 @@ public class AssignmentAction extends PagedResourceActionII
 
 		context.put("monthTable", monthTable());
 		context.put("submissionTypeTable", submissionTypeTable());
-		context.put("hide_assignment_option_flag", state.getAttribute(NEW_ASSIGNMENT_HIDE_OPTION_FLAG));
 		context.put("attachments", state.getAttribute(ATTACHMENTS));
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
 
@@ -1805,109 +1802,17 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		
 		// the supplement information
-		// model answers
-		AssignmentModelAnswerItem mAnswer = m_assignmentSupplementItemService.getModelAnswer(assignmentId);
-		if (mAnswer != null)
-		{
-			if (state.getAttribute(MODELANSWER_TEXT) == null)
-			{
-				state.setAttribute(MODELANSWER_TEXT, mAnswer.getText());
-			}
-			if (state.getAttribute(MODELANSWER_SHOWTO) == null)
-			{
-				state.setAttribute(MODELANSWER_SHOWTO, String.valueOf(mAnswer.getShowTo()));
-			}
-			if (state.getAttribute(MODELANSWER) == null)
-			{
-				state.setAttribute(MODELANSWER, Boolean.TRUE);
-			}
-		}
+		// model answers		
 		context.put("modelanswer", state.getAttribute(MODELANSWER) != null?Boolean.TRUE:Boolean.FALSE);
 		context.put("modelanswer_text", state.getAttribute(MODELANSWER_TEXT));
 		context.put("modelanswer_showto", state.getAttribute(MODELANSWER_SHOWTO));
-		// get attachments for model answer object
-		getSupplementItemAttachments(state, context, mAnswer, MODELANSWER_ATTACHMENTS);
-		
 		// private notes
-		AssignmentNoteItem mNote = m_assignmentSupplementItemService.getNoteItem(assignmentId);
-		if (mNote != null)
-		{
-			if (state.getAttribute(NOTE) == null)
-			{
-				state.setAttribute(NOTE, Boolean.TRUE);
-			}
-			if (state.getAttribute(NOTE_TEXT) == null)
-			{
-				state.setAttribute(NOTE_TEXT, mNote.getNote());
-			}
-			if (state.getAttribute(NOTE_SHAREWITH) == null)
-			{
-				state.setAttribute(NOTE_SHAREWITH, String.valueOf(mNote.getShareWith()));
-			}
-		}
 		context.put("allowReadAssignmentNoteItem", m_assignmentSupplementItemService.canReadNoteItem(a, contextString));
 		context.put("allowEditAssignmentNoteItem", m_assignmentSupplementItemService.canEditNoteItem(a));
 		context.put("note", state.getAttribute(NOTE) != null?Boolean.TRUE:Boolean.FALSE);
 		context.put("note_text", state.getAttribute(NOTE_TEXT));
 		context.put("note_to", state.getAttribute(NOTE_SHAREWITH) != null?state.getAttribute(NOTE_SHAREWITH):String.valueOf(0));
-		
 		// all purpose item
-		AssignmentAllPurposeItem aItem = m_assignmentSupplementItemService.getAllPurposeItem(assignmentId);
-		if (aItem != null)
-		{
-			if (state.getAttribute(ALLPURPOSE) == null)
-			{
-				state.setAttribute(ALLPURPOSE, Boolean.TRUE);
-			}
-			if (state.getAttribute(ALLPURPOSE_TITLE) == null)
-			{
-				state.setAttribute(ALLPURPOSE_TITLE, aItem.getTitle());
-			}
-			if (state.getAttribute(ALLPURPOSE_TEXT) == null)
-			{
-				state.setAttribute(ALLPURPOSE_TEXT, aItem.getText());
-			}
-			if (state.getAttribute(ALLPURPOSE_HIDE) == null)
-			{
-				state.setAttribute(ALLPURPOSE_HIDE, Boolean.valueOf(aItem.getHide()));
-			}
-			if (state.getAttribute(ALLPURPOSE_SHOW_FROM) == null)
-			{
-				state.setAttribute(ALLPURPOSE_SHOW_FROM, Boolean.FALSE);
-			}
-			if (state.getAttribute(ALLPURPOSE_SHOW_TO) == null)
-			{
-				state.setAttribute(ALLPURPOSE_SHOW_TO, Boolean.FALSE);
-			}
-			if (state.getAttribute(ALLPURPOSE_ACCESS) == null)
-			{
-				Set<AssignmentAllPurposeItemAccess> aSet = aItem.getAccessSet();
-				List<String> aList = new Vector<String>();
-				for(Iterator<AssignmentAllPurposeItemAccess> aIterator = aSet.iterator(); aIterator.hasNext();)
-				{
-					AssignmentAllPurposeItemAccess access = aIterator.next();
-					aList.add(access.getAccess());
-				}
-				state.setAttribute(ALLPURPOSE_ACCESS, aList);
-			}
-			// put release date information into context
-			GregorianCalendar cal = new GregorianCalendar();
-			Date releaseDate = aItem.getReleaseDate();
-			if (releaseDate != null)
-			{
-				state.setAttribute(ALLPURPOSE_SHOW_FROM, Boolean.TRUE);
-				cal.setTime(aItem.getReleaseDate());
-				dateIntoState(state, context, cal, ALLPURPOSE_RELEASE_YEAR, ALLPURPOSE_RELEASE_MONTH, ALLPURPOSE_RELEASE_DAY, ALLPURPOSE_RELEASE_HOUR, ALLPURPOSE_RELEASE_MIN, ALLPURPOSE_RELEASE_AMPM);
-			}
-			// put retract date information into context
-			Date retractDate = aItem.getRetractDate();
-			if (retractDate != null)
-			{
-				state.setAttribute(ALLPURPOSE_SHOW_TO, Boolean.TRUE);
-				cal.setTime(aItem.getRetractDate());
-				dateIntoState(state, context, cal, ALLPURPOSE_RETRACT_YEAR, ALLPURPOSE_RETRACT_MONTH, ALLPURPOSE_RETRACT_DAY, ALLPURPOSE_RETRACT_HOUR, ALLPURPOSE_RETRACT_MIN, ALLPURPOSE_RETRACT_AMPM);
-			}
-		}
 		context.put("allPurpose", state.getAttribute(ALLPURPOSE) != null?Boolean.TRUE:Boolean.FALSE);
 		context.put("value_allPurposeTitle", state.getAttribute(ALLPURPOSE_TITLE));
 		context.put("value_allPurposeText", state.getAttribute(ALLPURPOSE_TEXT));
@@ -1915,11 +1820,10 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("value_allPurposeShowFrom", state.getAttribute(ALLPURPOSE_SHOW_FROM) != null?state.getAttribute(ALLPURPOSE_SHOW_FROM):Boolean.FALSE);
 		context.put("value_allPurposeShowTo", state.getAttribute(ALLPURPOSE_SHOW_TO) != null?state.getAttribute(ALLPURPOSE_SHOW_TO):Boolean.FALSE);
 		context.put("value_allPurposeAccessList", state.getAttribute(ALLPURPOSE_ACCESS));
-		dateIntoContext(state, context, ALLPURPOSE_RELEASE_YEAR, ALLPURPOSE_RELEASE_MONTH, ALLPURPOSE_RELEASE_DAY, ALLPURPOSE_RELEASE_HOUR, ALLPURPOSE_RELEASE_MIN, ALLPURPOSE_RELEASE_AMPM, "value_allPurposeReleaseYear", "value_allPurposeReleaseMonth", "value_allPurposeReleaseDay", "value_allPurposeReleaseHour", "value_allPurposeReleaseMin", "value_allPurposeReleaseAMPM");
-		dateIntoContext(state, context, ALLPURPOSE_RETRACT_YEAR, ALLPURPOSE_RETRACT_MONTH, ALLPURPOSE_RETRACT_DAY, ALLPURPOSE_RETRACT_HOUR, ALLPURPOSE_RETRACT_MIN, ALLPURPOSE_RETRACT_AMPM, "value_allPurposeRetractYear", "value_allPurposeRetractMonth", "value_allPurposeRetractDay", "value_allPurposeRetractHour", "value_allPurposeRetractMin", "value_allPurposeRetractAMPM");
-		
+		putTimePropertiesInContext(context, state, "allPurposeRelease", ALLPURPOSE_RELEASE_MONTH, ALLPURPOSE_RELEASE_DAY, ALLPURPOSE_RELEASE_YEAR, ALLPURPOSE_RELEASE_HOUR, ALLPURPOSE_RELEASE_MIN, ALLPURPOSE_RELEASE_AMPM);
+		putTimePropertiesInContext(context, state, "allPurposeRetract", ALLPURPOSE_RETRACT_MONTH, ALLPURPOSE_RETRACT_DAY, ALLPURPOSE_RETRACT_YEAR, ALLPURPOSE_RETRACT_HOUR, ALLPURPOSE_RETRACT_MIN, ALLPURPOSE_RETRACT_AMPM);
 		// get attachment for all purpose object
-		getSupplementItemAttachments(state, context, aItem, ALLPURPOSE_ATTACHMENTS);
+		putSupplementItemAttachmentStateIntoContext(state, context, ALLPURPOSE_ATTACHMENTS);
 		
 		// put role information into context
 		Hashtable<String, List> roleUsers = new Hashtable<String, List>();
@@ -1958,48 +1862,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		
 	} // setAssignmentFormContext
-
-
-	private void dateIntoState(SessionState state, Context context, GregorianCalendar cal, 
-									String yearAttribute, String monthAttribute, String dayAttribute, String hourAttribute, String minAttribute, String ampmAttribute) {
-		if (cal != null)
-		{
-			// year
-			state.setAttribute(yearAttribute, Integer.valueOf(cal.get(java.util.Calendar.YEAR)));
-			
-			// month
-			state.setAttribute(monthAttribute, Integer.valueOf(cal.get(java.util.Calendar.MONTH)));
-
-			// day
-			state.setAttribute(dayAttribute, Integer.valueOf(cal.get(java.util.Calendar.DAY_OF_MONTH)));
-			
-			// hour
-			int hour = cal.get(java.util.Calendar.HOUR_OF_DAY);
-			hour = hour > 12?hour-12:hour;
-			state.setAttribute(hourAttribute,Integer.valueOf(hour));
-			
-			// min
-			state.setAttribute(minAttribute, Integer.valueOf(cal.get(java.util.Calendar.MINUTE)));
-
-			// ampm
-			state.setAttribute(ampmAttribute, Integer.valueOf(cal.get(java.util.Calendar.AM_PM)));
-		}
-	}
 	
-	private void dateIntoContext(SessionState state, Context context,  
-				String yearAttribute, String monthAttribute, String dayAttribute, String hourAttribute, String minAttribute, String ampmAttribute,
-				String yearValue, String monthValue, String dayValue, String hourValue, String minValue, String ampmValue) {
-
-		// to context
-		context.put(yearValue, state.getAttribute(yearAttribute));
-		Integer month = (Integer) state.getAttribute(monthAttribute);
-		context.put(monthValue, month.intValue());
-		context.put(dayValue, state.getAttribute(dayAttribute));
-		context.put(hourValue, state.getAttribute(hourAttribute));
-		context.put(minValue, state.getAttribute(minAttribute));
-		context.put(ampmValue, state.getAttribute(ampmAttribute));
-	}
-
 	/**
 	 * build the instructor view of create a new assignment
 	 */
@@ -2014,25 +1877,11 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("name_order", NEW_ASSIGNMENT_ORDER);
 		context.put("value_position_order", (String) state.getAttribute(NEW_ASSIGNMENT_ORDER));
 
-		Time openTime = getOpenTime(state);
+		Time openTime = getTimeFromState(state, NEW_ASSIGNMENT_OPENMONTH, NEW_ASSIGNMENT_OPENDAY, NEW_ASSIGNMENT_OPENYEAR, NEW_ASSIGNMENT_OPENHOUR, NEW_ASSIGNMENT_OPENMIN, NEW_ASSIGNMENT_OPENAMPM);
 		context.put("value_OpenDate", openTime);
 
 		// due time
-		int dueMonth = ((Integer) state.getAttribute(NEW_ASSIGNMENT_DUEMONTH)).intValue();
-		int dueDay = ((Integer) state.getAttribute(NEW_ASSIGNMENT_DUEDAY)).intValue();
-		int dueYear = ((Integer) state.getAttribute(NEW_ASSIGNMENT_DUEYEAR)).intValue();
-		int dueHour = ((Integer) state.getAttribute(NEW_ASSIGNMENT_DUEHOUR)).intValue();
-		int dueMin = ((Integer) state.getAttribute(NEW_ASSIGNMENT_DUEMIN)).intValue();
-		String dueAMPM = (String) state.getAttribute(NEW_ASSIGNMENT_DUEAMPM);
-		if ((dueAMPM.equals("PM")) && (dueHour != 12))
-		{
-			dueHour = dueHour + 12;
-		}
-		if ((dueHour == 12) && (dueAMPM.equals("AM")))
-		{
-			dueHour = 0;
-		}
-		Time dueTime = TimeService.newTimeLocal(dueYear, dueMonth, dueDay, dueHour, dueMin, 0, 0);
+		Time dueTime = getTimeFromState(state, NEW_ASSIGNMENT_DUEMONTH, NEW_ASSIGNMENT_DUEDAY, NEW_ASSIGNMENT_DUEYEAR, NEW_ASSIGNMENT_DUEHOUR, NEW_ASSIGNMENT_DUEMIN, NEW_ASSIGNMENT_DUEAMPM);
 		context.put("value_DueDate", dueTime);
 
 		// close time
@@ -2041,21 +1890,7 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("value_EnableCloseDate", enableCloseDate);
 		if ((enableCloseDate).booleanValue())
 		{
-			int closeMonth = ((Integer) state.getAttribute(NEW_ASSIGNMENT_CLOSEMONTH)).intValue();
-			int closeDay = ((Integer) state.getAttribute(NEW_ASSIGNMENT_CLOSEDAY)).intValue();
-			int closeYear = ((Integer) state.getAttribute(NEW_ASSIGNMENT_CLOSEYEAR)).intValue();
-			int closeHour = ((Integer) state.getAttribute(NEW_ASSIGNMENT_CLOSEHOUR)).intValue();
-			int closeMin = ((Integer) state.getAttribute(NEW_ASSIGNMENT_CLOSEMIN)).intValue();
-			String closeAMPM = (String) state.getAttribute(NEW_ASSIGNMENT_CLOSEAMPM);
-			if ((closeAMPM.equals("PM")) && (closeHour != 12))
-			{
-				closeHour = closeHour + 12;
-			}
-			if ((closeHour == 12) && (closeAMPM.equals("AM")))
-			{
-				closeHour = 0;
-			}
-			closeTime = TimeService.newTimeLocal(closeYear, closeMonth, closeDay, closeHour, closeMin, 0, 0);
+			closeTime = getTimeFromState(state, NEW_ASSIGNMENT_CLOSEMONTH, NEW_ASSIGNMENT_CLOSEDAY, NEW_ASSIGNMENT_CLOSEYEAR, NEW_ASSIGNMENT_CLOSEHOUR, NEW_ASSIGNMENT_CLOSEMIN, NEW_ASSIGNMENT_CLOSEAMPM);
 			context.put("value_CloseDate", closeTime);
 		}
 
@@ -2078,7 +1913,6 @@ public class AssignmentAction extends PagedResourceActionII
 
 		context.put("monthTable", monthTable());
 		context.put("submissionTypeTable", submissionTypeTable());
-		context.put("hide_assignment_option_flag", state.getAttribute(NEW_ASSIGNMENT_HIDE_OPTION_FLAG));
 		context.put("attachments", state.getAttribute(ATTACHMENTS));
 
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
@@ -3799,7 +3633,7 @@ public class AssignmentAction extends PagedResourceActionII
 				if (state.getAttribute(ALLOW_RESUBMIT_CLOSEYEAR) != null)
 				{
 					// get resubmit time
-					Time closeTime = getAllowSubmitCloseTime(state);
+					Time closeTime = getTimeFromState(state, ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN, ALLOW_RESUBMIT_CLOSEAMPM);
 					pEdit.addProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(closeTime.getTime()));
 				}
 				else
@@ -4362,7 +4196,7 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			if (AssignmentService.allowAddAssignment((String) state.getAttribute(STATE_CONTEXT_STRING)))
 			{
-				resetAssignment(state);
+				initializeAssignment(state);
 				
 				state.setAttribute(ATTACHMENTS, EntityManager.newReferenceList());
 				state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT);
@@ -4390,9 +4224,7 @@ public class AssignmentAction extends PagedResourceActionII
 		if (!alertGlobalNavigation(state, data))
 		{
 			if (AssignmentService.allowAllGroups((String) state.getAttribute(STATE_CONTEXT_STRING)))
-			{
-				resetAssignment(state);
-				
+			{	
 				state.setAttribute(ATTACHMENTS, EntityManager.newReferenceList());
 				state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_REORDER_ASSIGNMENT);
 			}
@@ -4431,58 +4263,12 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		// open time
-		int openMonth = (new Integer(params.getString(NEW_ASSIGNMENT_OPENMONTH))).intValue();
-		state.setAttribute(NEW_ASSIGNMENT_OPENMONTH, new Integer(openMonth));
-		int openDay = (new Integer(params.getString(NEW_ASSIGNMENT_OPENDAY))).intValue();
-		state.setAttribute(NEW_ASSIGNMENT_OPENDAY, new Integer(openDay));
-		int openYear = (new Integer(params.getString(NEW_ASSIGNMENT_OPENYEAR))).intValue();
-		state.setAttribute(NEW_ASSIGNMENT_OPENYEAR, new Integer(openYear));
-		int openHour = (new Integer(params.getString(NEW_ASSIGNMENT_OPENHOUR))).intValue();
-		state.setAttribute(NEW_ASSIGNMENT_OPENHOUR, new Integer(openHour));
-		int openMin = (new Integer(params.getString(NEW_ASSIGNMENT_OPENMIN))).intValue();
-		state.setAttribute(NEW_ASSIGNMENT_OPENMIN, new Integer(openMin));
-		String openAMPM = params.getString(NEW_ASSIGNMENT_OPENAMPM);
-		state.setAttribute(NEW_ASSIGNMENT_OPENAMPM, openAMPM);
-		if ((openAMPM.equals("PM")) && (openHour != 12))
-		{
-			openHour = openHour + 12;
-		}
-		if ((openHour == 12) && (openAMPM.equals("AM")))
-		{
-			openHour = 0;
-		}
-		Time openTime = TimeService.newTimeLocal(openYear, openMonth, openDay, openHour, openMin, 0, 0);
-		// validate date
-		if (!Validator.checkDate(openDay, openMonth, openYear))
-		{
-			addAlert(state, rb.getString("date.invalid") + rb.getString("date.opendate") + ".");
-		}
+		Time openTime = putTimeInputInState(params, state, NEW_ASSIGNMENT_OPENMONTH, NEW_ASSIGNMENT_OPENDAY, NEW_ASSIGNMENT_OPENYEAR, NEW_ASSIGNMENT_OPENHOUR, NEW_ASSIGNMENT_OPENMIN, NEW_ASSIGNMENT_OPENAMPM, "date.opendate");
 
 		// due time
-		int dueMonth = (new Integer(params.getString(NEW_ASSIGNMENT_DUEMONTH))).intValue();
-		state.setAttribute(NEW_ASSIGNMENT_DUEMONTH, new Integer(dueMonth));
-		int dueDay = (new Integer(params.getString(NEW_ASSIGNMENT_DUEDAY))).intValue();
-		state.setAttribute(NEW_ASSIGNMENT_DUEDAY, new Integer(dueDay));
-		int dueYear = (new Integer(params.getString(NEW_ASSIGNMENT_DUEYEAR))).intValue();
-		state.setAttribute(NEW_ASSIGNMENT_DUEYEAR, new Integer(dueYear));
-		int dueHour = (new Integer(params.getString(NEW_ASSIGNMENT_DUEHOUR))).intValue();
-		state.setAttribute(NEW_ASSIGNMENT_DUEHOUR, new Integer(dueHour));
-		int dueMin = (new Integer(params.getString(NEW_ASSIGNMENT_DUEMIN))).intValue();
-		state.setAttribute(NEW_ASSIGNMENT_DUEMIN, new Integer(dueMin));
-		String dueAMPM = params.getString(NEW_ASSIGNMENT_DUEAMPM);
-		state.setAttribute(NEW_ASSIGNMENT_DUEAMPM, dueAMPM);
-		if ((dueAMPM.equals("PM")) && (dueHour != 12))
-		{
-			dueHour = dueHour + 12;
-		}
-		if ((dueHour == 12) && (dueAMPM.equals("AM")))
-		{
-			dueHour = 0;
-		}
-		Time dueTime = TimeService.newTimeLocal(dueYear, dueMonth, dueDay, dueHour, dueMin, 0, 0);
-		
+		Time dueTime = putTimeInputInState(params, state, NEW_ASSIGNMENT_DUEMONTH, NEW_ASSIGNMENT_DUEDAY, NEW_ASSIGNMENT_DUEYEAR, NEW_ASSIGNMENT_DUEHOUR, NEW_ASSIGNMENT_DUEMIN, NEW_ASSIGNMENT_DUEAMPM, "date.duedate");		
 		// show alert message when due date is in past. Remove it after user confirms the choice.
-		if (dueTime.before(TimeService.newTime()) && state.getAttribute(NEW_ASSIGNMENT_PAST_DUE_DATE) == null)
+		if (dueTime != null && dueTime.before(TimeService.newTime()) && state.getAttribute(NEW_ASSIGNMENT_PAST_DUE_DATE) == null)
 		{
 			state.setAttribute(NEW_ASSIGNMENT_PAST_DUE_DATE, Boolean.TRUE);
 		}
@@ -4496,49 +4282,20 @@ public class AssignmentAction extends PagedResourceActionII
 			addAlert(state, rb.getString("assig4"));
 		}
 		
-		if (!dueTime.after(openTime))
+		if (openTime != null && dueTime != null && !dueTime.after(openTime))
 		{
 			addAlert(state, rb.getString("assig3"));
-		}
-		if (!Validator.checkDate(dueDay, dueMonth, dueYear))
-		{
-			addAlert(state, rb.getString("date.invalid") + rb.getString("date.duedate") + ".");
 		}
 
 		state.setAttribute(NEW_ASSIGNMENT_ENABLECLOSEDATE, new Boolean(true));
 
 		// close time
-		int closeMonth = (new Integer(params.getString(NEW_ASSIGNMENT_CLOSEMONTH))).intValue();
-		state.setAttribute(NEW_ASSIGNMENT_CLOSEMONTH, new Integer(closeMonth));
-		int closeDay = (new Integer(params.getString(NEW_ASSIGNMENT_CLOSEDAY))).intValue();
-		state.setAttribute(NEW_ASSIGNMENT_CLOSEDAY, new Integer(closeDay));
-		int closeYear = (new Integer(params.getString(NEW_ASSIGNMENT_CLOSEYEAR))).intValue();
-		state.setAttribute(NEW_ASSIGNMENT_CLOSEYEAR, new Integer(closeYear));
-		int closeHour = (new Integer(params.getString(NEW_ASSIGNMENT_CLOSEHOUR))).intValue();
-		state.setAttribute(NEW_ASSIGNMENT_CLOSEHOUR, new Integer(closeHour));
-		int closeMin = (new Integer(params.getString(NEW_ASSIGNMENT_CLOSEMIN))).intValue();
-		state.setAttribute(NEW_ASSIGNMENT_CLOSEMIN, new Integer(closeMin));
-		String closeAMPM = params.getString(NEW_ASSIGNMENT_CLOSEAMPM);
-		state.setAttribute(NEW_ASSIGNMENT_CLOSEAMPM, closeAMPM);
-		if ((closeAMPM.equals("PM")) && (closeHour != 12))
-		{
-			closeHour = closeHour + 12;
-		}
-		if ((closeHour == 12) && (closeAMPM.equals("AM")))
-		{
-			closeHour = 0;
-		}
-		Time closeTime = TimeService.newTimeLocal(closeYear, closeMonth, closeDay, closeHour, closeMin, 0, 0);
-		// validate date
-		if (!Validator.checkDate(closeDay, closeMonth, closeYear))
-		{
-			addAlert(state, rb.getString("date.invalid") + rb.getString("date.closedate") + ".");
-		}
-		if (!closeTime.after(openTime))
+		Time closeTime = putTimeInputInState(params, state, NEW_ASSIGNMENT_CLOSEMONTH, NEW_ASSIGNMENT_CLOSEDAY, NEW_ASSIGNMENT_CLOSEYEAR, NEW_ASSIGNMENT_CLOSEHOUR, NEW_ASSIGNMENT_CLOSEMIN, NEW_ASSIGNMENT_CLOSEAMPM, "date.closedate");		
+		if (openTime != null && closeTime != null && !closeTime.after(openTime))
 		{
 			addAlert(state, rb.getString("acesubdea3"));
 		}
-		if (closeTime.before(dueTime))
+		if (dueTime != null && closeTime != null && closeTime.before(dueTime))
 		{
 			addAlert(state, rb.getString("acesubdea2"));
 		}
@@ -4774,23 +4531,23 @@ public class AssignmentAction extends PagedResourceActionII
 		if (StringUtil.trimToNull(params.getString("allPurposeShowFrom")) != null)
 		{
 			state.setAttribute(ALLPURPOSE_SHOW_FROM, Boolean.valueOf(params.getString("allPurposeShowFrom")));
+			// allpurpose release time
+			putTimeInputInState(params, state, ALLPURPOSE_RELEASE_MONTH, ALLPURPOSE_RELEASE_DAY, ALLPURPOSE_RELEASE_YEAR, ALLPURPOSE_RELEASE_HOUR, ALLPURPOSE_RELEASE_MIN, ALLPURPOSE_RELEASE_AMPM, "date.allpurpose.releasedate");
+		}
+		else
+		{
+			state.removeAttribute(ALLPURPOSE_SHOW_FROM);
 		}
 		if (StringUtil.trimToNull(params.getString("allPurposeShowTo")) != null)
 		{
 			state.setAttribute(ALLPURPOSE_SHOW_TO, Boolean.valueOf(params.getString("allPurposeShowTo")));
+			// allpurpose retract time
+			putTimeInputInState(params, state, ALLPURPOSE_RETRACT_MONTH, ALLPURPOSE_RETRACT_DAY, ALLPURPOSE_RETRACT_YEAR, ALLPURPOSE_RETRACT_HOUR, ALLPURPOSE_RETRACT_MIN, ALLPURPOSE_RETRACT_AMPM, "date.allpurpose.retractdate");
 		}
-		state.setAttribute(ALLPURPOSE_RELEASE_YEAR, Integer.valueOf(params.getString("allPurposeReleaseYear")));
-		state.setAttribute(ALLPURPOSE_RELEASE_MONTH, Integer.valueOf(params.getString("allPurposeReleaseMonth")));
-		state.setAttribute(ALLPURPOSE_RELEASE_DAY, Integer.valueOf(params.getString("allPurposeReleaseDay")));
-		state.setAttribute(ALLPURPOSE_RELEASE_HOUR, Integer.valueOf(params.getString("allPurposeReleaseHour")));
-		state.setAttribute(ALLPURPOSE_RELEASE_MIN, Integer.valueOf(params.getString("allPurposeReleaseMin")));
-		state.setAttribute(ALLPURPOSE_RELEASE_AMPM, Integer.valueOf(params.getString("allPurposeReleaseAMPM")));
-		state.setAttribute(ALLPURPOSE_RETRACT_YEAR, Integer.valueOf(params.getString("allPurposeRetractYear")));
-		state.setAttribute(ALLPURPOSE_RETRACT_MONTH, Integer.valueOf(params.getString("allPurposeRetractMonth")));
-		state.setAttribute(ALLPURPOSE_RETRACT_DAY, Integer.valueOf(params.getString("allPurposeRetractDay")));
-		state.setAttribute(ALLPURPOSE_RETRACT_HOUR, Integer.valueOf(params.getString("allPurposeRetractHour")));
-		state.setAttribute(ALLPURPOSE_RETRACT_MIN, Integer.valueOf(params.getString("allPurposeRetractMin")));
-		state.setAttribute(ALLPURPOSE_RETRACT_AMPM, Integer.valueOf(params.getString("allPurposeRetractAMPM")));
+		else
+		{
+			state.removeAttribute(ALLPURPOSE_SHOW_TO);
+		}
 		
 		String siteId = (String)state.getAttribute(STATE_CONTEXT_STRING);
 		List<String> accessList = new Vector<String>();
@@ -4828,6 +4585,49 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(ALLPURPOSE_ACCESS, accessList);
 		
 	} // setNewAssignmentParameters
+	
+	/**
+	 * read time input and assign it to state attributes
+	 * @param params
+	 * @param state
+	 * @param monthString
+	 * @param dayString
+	 * @param yearString
+	 * @param hourString
+	 * @param minString
+	 * @param ampmString
+	 * @param invalidBundleMessage
+	 * @return
+	 */
+	Time putTimeInputInState(ParameterParser params, SessionState state, String monthString, String dayString, String yearString, String hourString, String minString, String ampmString, String invalidBundleMessage)
+	{
+		int month = (new Integer(params.getString(monthString))).intValue();
+		state.setAttribute(monthString, new Integer(month));
+		int day = (new Integer(params.getString(dayString))).intValue();
+		state.setAttribute(dayString, new Integer(day));
+		int year = (new Integer(params.getString(yearString))).intValue();
+		state.setAttribute(yearString, new Integer(year));
+		int hour = (new Integer(params.getString(hourString))).intValue();
+		state.setAttribute(hourString, new Integer(hour));
+		int min = (new Integer(params.getString(minString))).intValue();
+		state.setAttribute(minString, new Integer(min));
+		String ampm = params.getString(ampmString);
+		state.setAttribute(ampmString, ampm);
+		if ((ampm.equals("PM")) && (hour != 12))
+		{
+			hour = hour + 12;
+		}
+		if ((hour == 12) && (ampm.equals("AM")))
+		{
+			hour = 0;
+		}
+		// validate date
+		if (!Validator.checkDate(day, month, year))
+		{
+			addAlert(state, rb.getString("date.invalid") + rb.getString(invalidBundleMessage) + ".");
+		}
+		return TimeService.newTimeLocal(year, month, day, hour, min, 0, 0);
+	}
 
 	/**
 	 * Action is to hide the preview assignment student view
@@ -4894,30 +4694,6 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(PREVIEW_ASSIGNMENT_ASSIGNMENT_HIDE_FLAG, new Boolean(false));
 
 	} // doShow_preview_assignment_assignment
-
-	/**
-	 * Action is to hide the assignment option
-	 */
-	public void doHide_assignment_option(RunData data)
-	{
-		setNewAssignmentParameters(data, false);
-		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		state.setAttribute(NEW_ASSIGNMENT_HIDE_OPTION_FLAG, new Boolean(true));
-		state.setAttribute(NEW_ASSIGNMENT_FOCUS, "eventSubmit_doShow_assignment_option");
-
-	} // doHide_assignment_option
-
-	/**
-	 * Action is to show the assignment option
-	 */
-	public void doShow_assignment_option(RunData data)
-	{
-		setNewAssignmentParameters(data, false);
-		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		state.setAttribute(NEW_ASSIGNMENT_HIDE_OPTION_FLAG, new Boolean(false));
-		state.setAttribute(NEW_ASSIGNMENT_FOCUS, NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
-
-	} // doShow_assignment_option
 
 	/**
 	 * Action is to hide the assignment content in the view assignment page
@@ -5110,17 +4886,17 @@ public class AssignmentAction extends PagedResourceActionII
 			String order = (String) state.getAttribute(NEW_ASSIGNMENT_ORDER);
 
 			// open time
-			Time openTime = getOpenTime(state);
+			Time openTime = getTimeFromState(state, NEW_ASSIGNMENT_OPENMONTH, NEW_ASSIGNMENT_OPENDAY, NEW_ASSIGNMENT_OPENYEAR, NEW_ASSIGNMENT_OPENHOUR, NEW_ASSIGNMENT_OPENMIN, NEW_ASSIGNMENT_OPENAMPM);
 
 			// due time
-			Time dueTime = getDueTime(state);
+			Time dueTime = getTimeFromState(state, NEW_ASSIGNMENT_DUEMONTH, NEW_ASSIGNMENT_DUEDAY, NEW_ASSIGNMENT_DUEYEAR, NEW_ASSIGNMENT_DUEHOUR, NEW_ASSIGNMENT_DUEMIN, NEW_ASSIGNMENT_DUEAMPM);
 
 			// close time
 			Time closeTime = dueTime;
 			boolean enableCloseDate = ((Boolean) state.getAttribute(NEW_ASSIGNMENT_ENABLECLOSEDATE)).booleanValue();
 			if (enableCloseDate)
 			{
-				closeTime = getCloseTime(state);
+				closeTime = getTimeFromState(state, NEW_ASSIGNMENT_CLOSEMONTH, NEW_ASSIGNMENT_CLOSEDAY, NEW_ASSIGNMENT_CLOSEYEAR, NEW_ASSIGNMENT_CLOSEHOUR, NEW_ASSIGNMENT_CLOSEMIN, NEW_ASSIGNMENT_CLOSEAMPM);
 			}
 
 			// sections
@@ -5332,14 +5108,12 @@ public class AssignmentAction extends PagedResourceActionII
 					nAllPurpose.setHide(params.getBoolean("allPurposeHide"));
 					
 					// save the release and retract dates
-					GregorianCalendar cal = new GregorianCalendar();
-					Date current = cal.getTime();
 					if (params.getBoolean("allPurposeShowFrom") && !params.getBoolean("allPurposeHide"))
 					{
 						// save release date
-						int hour = params.getInt("allPurposeReleaseAMPM")==0?0:12;
-						hour += params.getInt("allPurposeReleaseHour");
-						cal.set(params.getInt("allPurposeReleaseYear"), params.getInt("allPurposeReleaseMonth"), params.getInt("allPurposeReleaseDay"), hour, params.getInt("allPurposeReleaseMin"), 0);
+						Time releaseTime = getTimeFromState(state, ALLPURPOSE_RELEASE_MONTH, ALLPURPOSE_RELEASE_DAY, ALLPURPOSE_RELEASE_YEAR, ALLPURPOSE_RELEASE_HOUR, ALLPURPOSE_RELEASE_MIN, ALLPURPOSE_RELEASE_AMPM);
+						GregorianCalendar cal = new GregorianCalendar();
+						cal.setTimeInMillis(releaseTime.getTime());
 						nAllPurpose.setReleaseDate(cal.getTime());
 					}
 					else
@@ -5349,9 +5123,9 @@ public class AssignmentAction extends PagedResourceActionII
 					if (params.getBoolean("allPurposeShowTo") && !params.getBoolean("allPurposeHide"))
 					{
 						// save retract date
-						int hour = params.getInt("allPurposeRetractAMPM")==0?0:12;
-						hour += params.getInt("allPurposeRetractHour");
-						cal.set(params.getInt("allPurposeRetractYear"), params.getInt("allPurposeRetractMonth"), params.getInt("allPurposeRetractDay"), hour, params.getInt("allPurposeRetractMin"), 0);
+						Time retractTime = getTimeFromState(state, ALLPURPOSE_RETRACT_MONTH, ALLPURPOSE_RETRACT_DAY, ALLPURPOSE_RETRACT_YEAR, ALLPURPOSE_RETRACT_HOUR, ALLPURPOSE_RETRACT_MIN, ALLPURPOSE_RETRACT_AMPM);
+						GregorianCalendar cal = new GregorianCalendar();
+						cal.setTimeInMillis(retractTime.getTime());
 						nAllPurpose.setRetractDate(cal.getTime());
 					}
 					else
@@ -6141,7 +5915,6 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
 			state.setAttribute(ATTACHMENTS, EntityManager.newReferenceList());
-			//resetAssignment(state);
 		}
 	} // reorderAssignments
 
@@ -6230,85 +6003,34 @@ public class AssignmentAction extends PagedResourceActionII
 		return ac;
 	}
 
-	private Time getOpenTime(SessionState state) 
+	/**
+	 * construct time object based on various state variables
+	 * @param state
+	 * @param monthString
+	 * @param dayString
+	 * @param yearString
+	 * @param hourString
+	 * @param minString
+	 * @param ampmString
+	 * @return
+	 */
+	private Time getTimeFromState(SessionState state, String monthString, String dayString, String yearString, String hourString, String minString, String ampmString) 
 	{
-		int openMonth = ((Integer) state.getAttribute(NEW_ASSIGNMENT_OPENMONTH)).intValue();
-		int openDay = ((Integer) state.getAttribute(NEW_ASSIGNMENT_OPENDAY)).intValue();
-		int openYear = ((Integer) state.getAttribute(NEW_ASSIGNMENT_OPENYEAR)).intValue();
-		int openHour = ((Integer) state.getAttribute(NEW_ASSIGNMENT_OPENHOUR)).intValue();
-		int openMin = ((Integer) state.getAttribute(NEW_ASSIGNMENT_OPENMIN)).intValue();
-		String openAMPM = (String) state.getAttribute(NEW_ASSIGNMENT_OPENAMPM);
-		if ((openAMPM.equals("PM")) && (openHour != 12))
+		int month = ((Integer) state.getAttribute(monthString)).intValue();
+		int day = ((Integer) state.getAttribute(dayString)).intValue();
+		int year = ((Integer) state.getAttribute(yearString)).intValue();
+		int hour = ((Integer) state.getAttribute(hourString)).intValue();
+		int min = ((Integer) state.getAttribute(minString)).intValue();
+		String ampm = (String) state.getAttribute(ampmString);
+		if ((ampm.equals("PM")) && (hour != 12))
 		{
-			openHour = openHour + 12;
+			hour = hour + 12;
 		}
-		if ((openHour == 12) && (openAMPM.equals("AM")))
+		if ((hour == 12) && (ampm.equals("AM")))
 		{
-			openHour = 0;
+			hour = 0;
 		}
-		Time openTime = TimeService.newTimeLocal(openYear, openMonth, openDay, openHour, openMin, 0, 0);
-		return openTime;
-	}
-
-	private Time getCloseTime(SessionState state) 
-	{
-		Time closeTime;
-		int closeMonth = ((Integer) state.getAttribute(NEW_ASSIGNMENT_CLOSEMONTH)).intValue();
-		int closeDay = ((Integer) state.getAttribute(NEW_ASSIGNMENT_CLOSEDAY)).intValue();
-		int closeYear = ((Integer) state.getAttribute(NEW_ASSIGNMENT_CLOSEYEAR)).intValue();
-		int closeHour = ((Integer) state.getAttribute(NEW_ASSIGNMENT_CLOSEHOUR)).intValue();
-		int closeMin = ((Integer) state.getAttribute(NEW_ASSIGNMENT_CLOSEMIN)).intValue();
-		String closeAMPM = (String) state.getAttribute(NEW_ASSIGNMENT_CLOSEAMPM);
-		if ((closeAMPM.equals("PM")) && (closeHour != 12))
-		{
-			closeHour = closeHour + 12;
-		}
-		if ((closeHour == 12) && (closeAMPM.equals("AM")))
-		{
-			closeHour = 0;
-		}
-		closeTime = TimeService.newTimeLocal(closeYear, closeMonth, closeDay, closeHour, closeMin, 0, 0);
-		return closeTime;
-	}
-
-	private Time getDueTime(SessionState state) 
-	{
-		int dueMonth = ((Integer) state.getAttribute(NEW_ASSIGNMENT_DUEMONTH)).intValue();
-		int dueDay = ((Integer) state.getAttribute(NEW_ASSIGNMENT_DUEDAY)).intValue();
-		int dueYear = ((Integer) state.getAttribute(NEW_ASSIGNMENT_DUEYEAR)).intValue();
-		int dueHour = ((Integer) state.getAttribute(NEW_ASSIGNMENT_DUEHOUR)).intValue();
-		int dueMin = ((Integer) state.getAttribute(NEW_ASSIGNMENT_DUEMIN)).intValue();
-		String dueAMPM = (String) state.getAttribute(NEW_ASSIGNMENT_DUEAMPM);
-		if ((dueAMPM.equals("PM")) && (dueHour != 12))
-		{
-			dueHour = dueHour + 12;
-		}
-		if ((dueHour == 12) && (dueAMPM.equals("AM")))
-		{
-			dueHour = 0;
-		}
-		Time dueTime = TimeService.newTimeLocal(dueYear, dueMonth, dueDay, dueHour, dueMin, 0, 0);
-		return dueTime;
-	}
-	
-	private Time getAllowSubmitCloseTime(SessionState state) 
-	{
-		int closeMonth = ((Integer) state.getAttribute(ALLOW_RESUBMIT_CLOSEMONTH)).intValue();
-		int closeDay = ((Integer) state.getAttribute(ALLOW_RESUBMIT_CLOSEDAY)).intValue();
-		int closeYear = ((Integer) state.getAttribute(ALLOW_RESUBMIT_CLOSEYEAR)).intValue();
-		int closeHour = ((Integer) state.getAttribute(ALLOW_RESUBMIT_CLOSEHOUR)).intValue();
-		int closeMin = ((Integer) state.getAttribute(ALLOW_RESUBMIT_CLOSEMIN)).intValue();
-		String closeAMPM = (String) state.getAttribute(ALLOW_RESUBMIT_CLOSEAMPM);
-		if ((closeAMPM.equals("PM")) && (closeHour != 12))
-		{
-			closeHour = closeHour + 12;
-		}
-		if ((closeHour == 12) && (closeAMPM.equals("AM")))
-		{
-			closeHour = 0;
-		}
-		Time closeTime = TimeService.newTimeLocal(closeYear, closeMonth, closeDay, closeHour, closeMin, 0, 0);
-		return closeTime;
+		return TimeService.newTimeLocal(year, month, day, hour, min, 0, 0);
 	}
 
 	/**
@@ -6471,52 +6193,15 @@ public class AssignmentAction extends PagedResourceActionII
 			// put the names and values into vm file
 			state.setAttribute(NEW_ASSIGNMENT_TITLE, a.getTitle());
 			state.setAttribute(NEW_ASSIGNMENT_ORDER, a.getPosition_order());
-			TimeBreakdown openTime = a.getOpenTime().breakdownLocal();
-			state.setAttribute(NEW_ASSIGNMENT_OPENMONTH, new Integer(openTime.getMonth()));
-			state.setAttribute(NEW_ASSIGNMENT_OPENDAY, new Integer(openTime.getDay()));
-			state.setAttribute(NEW_ASSIGNMENT_OPENYEAR, new Integer(openTime.getYear()));
-			int openHour = openTime.getHour();
-			if (openHour >= 12)
-			{
-				state.setAttribute(NEW_ASSIGNMENT_OPENAMPM, "PM");
-			}
-			else
-			{
-				state.setAttribute(NEW_ASSIGNMENT_OPENAMPM, "AM");
-			}
-			if (openHour == 0)
-			{
-				// for midnight point, we mark it as 12AM
-				openHour = 12;
-			}
-			state.setAttribute(NEW_ASSIGNMENT_OPENHOUR, new Integer((openHour > 12) ? openHour - 12 : openHour));
-			state.setAttribute(NEW_ASSIGNMENT_OPENMIN, new Integer(openTime.getMin()));
+			
+			putTimePropertiesInState(state, a.getOpenTime(), NEW_ASSIGNMENT_OPENMONTH, NEW_ASSIGNMENT_OPENDAY, NEW_ASSIGNMENT_OPENYEAR, NEW_ASSIGNMENT_OPENHOUR, NEW_ASSIGNMENT_OPENMIN, NEW_ASSIGNMENT_OPENAMPM);
 			// generate alert when editing an assignment past open date
 			if (a.getOpenTime().before(TimeService.newTime()))
 			{
 				addAlert(state, rb.getString("youarenot20"));
 			}
 
-			TimeBreakdown dueTime = a.getDueTime().breakdownLocal();
-			state.setAttribute(NEW_ASSIGNMENT_DUEMONTH, new Integer(dueTime.getMonth()));
-			state.setAttribute(NEW_ASSIGNMENT_DUEDAY, new Integer(dueTime.getDay()));
-			state.setAttribute(NEW_ASSIGNMENT_DUEYEAR, new Integer(dueTime.getYear()));
-			int dueHour = dueTime.getHour();
-			if (dueHour >= 12)
-			{
-				state.setAttribute(NEW_ASSIGNMENT_DUEAMPM, "PM");
-			}
-			else
-			{
-				state.setAttribute(NEW_ASSIGNMENT_DUEAMPM, "AM");
-			}
-			if (dueHour == 0)
-			{
-				// for midnight point, we mark it as 12AM
-				dueHour = 12;
-			}
-			state.setAttribute(NEW_ASSIGNMENT_DUEHOUR, new Integer((dueHour > 12) ? dueHour - 12 : dueHour));
-			state.setAttribute(NEW_ASSIGNMENT_DUEMIN, new Integer(dueTime.getMin()));
+			putTimePropertiesInState(state, a.getDueTime(), NEW_ASSIGNMENT_DUEMONTH, NEW_ASSIGNMENT_DUEDAY, NEW_ASSIGNMENT_DUEYEAR, NEW_ASSIGNMENT_DUEHOUR, NEW_ASSIGNMENT_DUEMIN, NEW_ASSIGNMENT_DUEAMPM);
 			// generate alert when editing an assignment past due date
 			if (a.getDueTime().before(TimeService.newTime()))
 			{
@@ -6526,26 +6211,7 @@ public class AssignmentAction extends PagedResourceActionII
 			if (a.getCloseTime() != null)
 			{
 				state.setAttribute(NEW_ASSIGNMENT_ENABLECLOSEDATE, new Boolean(true));
-				TimeBreakdown closeTime = a.getCloseTime().breakdownLocal();
-				state.setAttribute(NEW_ASSIGNMENT_CLOSEMONTH, new Integer(closeTime.getMonth()));
-				state.setAttribute(NEW_ASSIGNMENT_CLOSEDAY, new Integer(closeTime.getDay()));
-				state.setAttribute(NEW_ASSIGNMENT_CLOSEYEAR, new Integer(closeTime.getYear()));
-				int closeHour = closeTime.getHour();
-				if (closeHour >= 12)
-				{
-					state.setAttribute(NEW_ASSIGNMENT_CLOSEAMPM, "PM");
-				}
-				else
-				{
-					state.setAttribute(NEW_ASSIGNMENT_CLOSEAMPM, "AM");
-				}
-				if (closeHour == 0)
-				{
-					// for the midnight point, we mark it as 12 AM
-					closeHour = 12;
-				}
-				state.setAttribute(NEW_ASSIGNMENT_CLOSEHOUR, new Integer((closeHour > 12) ? closeHour - 12 : closeHour));
-				state.setAttribute(NEW_ASSIGNMENT_CLOSEMIN, new Integer(closeTime.getMin()));
+				putTimePropertiesInState(state, a.getCloseTime(), NEW_ASSIGNMENT_CLOSEMONTH, NEW_ASSIGNMENT_CLOSEDAY, NEW_ASSIGNMENT_CLOSEYEAR, NEW_ASSIGNMENT_CLOSEHOUR, NEW_ASSIGNMENT_CLOSEMIN, NEW_ASSIGNMENT_CLOSEAMPM);
 			}
 			else
 			{
@@ -6604,8 +6270,11 @@ public class AssignmentAction extends PagedResourceActionII
 			//set whether students can view the review service results
 			state.setAttribute(NEW_ASSIGNMENT_ALLOW_STUDENT_VIEW, new Boolean(a.getContent().getAllowStudentViewReport()).toString());
 			
-			
 			state.setAttribute(NEW_ASSIGNMENT_GROUPS, a.getGroups());
+			
+			// get all supplement item info into state
+			setAssignmentSupplementItemInState(state, a);
+		
 		}
 		catch (IdUnusedException e)
 		{
@@ -6621,6 +6290,122 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT);
 
 	} // doEdit_Assignment
+
+	/**
+	 * put all assignment supplement item info into state
+	 * @param state
+	 * @param a
+	 */
+	private void setAssignmentSupplementItemInState(SessionState state, Assignment a) {
+		
+		String assignmentId = a.getId();
+		
+		// model answer
+		AssignmentModelAnswerItem mAnswer = m_assignmentSupplementItemService.getModelAnswer(assignmentId);
+		if (mAnswer != null)
+		{
+			if (state.getAttribute(MODELANSWER_TEXT) == null)
+			{
+				state.setAttribute(MODELANSWER_TEXT, mAnswer.getText());
+			}
+			if (state.getAttribute(MODELANSWER_SHOWTO) == null)
+			{
+				state.setAttribute(MODELANSWER_SHOWTO, String.valueOf(mAnswer.getShowTo()));
+			}
+			if (state.getAttribute(MODELANSWER) == null)
+			{
+				state.setAttribute(MODELANSWER, Boolean.TRUE);
+			}
+		}
+
+		// get attachments for model answer object
+		putSupplementItemAttachmentInfoIntoState(state, mAnswer, MODELANSWER_ATTACHMENTS);
+		
+		// private notes
+		AssignmentNoteItem mNote = m_assignmentSupplementItemService.getNoteItem(assignmentId);
+		if (mNote != null)
+		{
+			if (state.getAttribute(NOTE) == null)
+			{
+				state.setAttribute(NOTE, Boolean.TRUE);
+			}
+			if (state.getAttribute(NOTE_TEXT) == null)
+			{
+				state.setAttribute(NOTE_TEXT, mNote.getNote());
+			}
+			if (state.getAttribute(NOTE_SHAREWITH) == null)
+			{
+				state.setAttribute(NOTE_SHAREWITH, String.valueOf(mNote.getShareWith()));
+			}
+		}
+		
+		// all purpose item
+		AssignmentAllPurposeItem aItem = m_assignmentSupplementItemService.getAllPurposeItem(assignmentId);
+		if (aItem != null)
+		{
+			if (state.getAttribute(ALLPURPOSE) == null)
+			{
+				state.setAttribute(ALLPURPOSE, Boolean.TRUE);
+			}
+			if (state.getAttribute(ALLPURPOSE_TITLE) == null)
+			{
+				state.setAttribute(ALLPURPOSE_TITLE, aItem.getTitle());
+			}
+			if (state.getAttribute(ALLPURPOSE_TEXT) == null)
+			{
+				state.setAttribute(ALLPURPOSE_TEXT, aItem.getText());
+			}
+			if (state.getAttribute(ALLPURPOSE_HIDE) == null)
+			{
+				state.setAttribute(ALLPURPOSE_HIDE, Boolean.valueOf(aItem.getHide()));
+			}
+			if (state.getAttribute(ALLPURPOSE_SHOW_FROM) == null)
+			{
+				state.setAttribute(ALLPURPOSE_SHOW_FROM, aItem.getReleaseDate() != null);
+			}
+			if (state.getAttribute(ALLPURPOSE_SHOW_TO) == null)
+			{
+				state.setAttribute(ALLPURPOSE_SHOW_TO, aItem.getRetractDate() != null);
+			}
+			if (state.getAttribute(ALLPURPOSE_ACCESS) == null)
+			{
+				Set<AssignmentAllPurposeItemAccess> aSet = aItem.getAccessSet();
+				List<String> aList = new Vector<String>();
+				for(Iterator<AssignmentAllPurposeItemAccess> aIterator = aSet.iterator(); aIterator.hasNext();)
+				{
+					AssignmentAllPurposeItemAccess access = aIterator.next();
+					aList.add(access.getAccess());
+				}
+				state.setAttribute(ALLPURPOSE_ACCESS, aList);
+			}
+			
+			// get the AllPurposeItem and AllPurposeReleaseTime/AllPurposeRetractTime
+			//default to assignment open time
+			Time releaseTime = a.getOpenTime();
+			// default to assignment close time
+			Time retractTime = a.getCloseTime();
+			if (aItem != null)
+			{
+				Date releaseDate = aItem.getReleaseDate();
+				if (releaseDate != null)
+				{
+					// overwrite if there is a release date
+					releaseTime = TimeService.newTime(releaseDate.getTime());
+				}
+				
+				Date retractDate = aItem.getRetractDate();
+				if (retractDate != null)
+				{
+					// overwriteif there is a retract date
+					retractTime = TimeService.newTime(retractDate.getTime());
+				}
+				putTimePropertiesInState(state, releaseTime, ALLPURPOSE_RELEASE_MONTH, ALLPURPOSE_RELEASE_DAY, ALLPURPOSE_RELEASE_YEAR, ALLPURPOSE_RELEASE_HOUR, ALLPURPOSE_RELEASE_MIN, ALLPURPOSE_RELEASE_AMPM);
+				
+				putTimePropertiesInState(state, retractTime, ALLPURPOSE_RETRACT_MONTH, ALLPURPOSE_RETRACT_DAY, ALLPURPOSE_RETRACT_YEAR, ALLPURPOSE_RETRACT_HOUR, ALLPURPOSE_RETRACT_MIN, ALLPURPOSE_RETRACT_AMPM);
+				
+			}
+		}
+	}
 
 	/**
 	 * Action is to show the delete assigment confirmation screen
@@ -7529,8 +7314,13 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 	}
 	
-
-	private List getSupplementItemAttachments(SessionState state, Context context, AssignmentSupplementItemWithAttachment item, String attachmentsKind)
+	/**
+	 * put supplement item attachment info into state
+	 * @param state
+	 * @param item
+	 * @param attachmentsKind
+	 */
+	private void putSupplementItemAttachmentInfoIntoState(SessionState state, AssignmentSupplementItemWithAttachment item, String attachmentsKind)
 	{
 		List refs = new Vector();
 		
@@ -7563,29 +7353,38 @@ public class AssignmentAction extends PagedResourceActionII
 		    }
 		    session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
 		    session.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
-		    
-		    if  (attachmentsFor.equals(MODELANSWER_ATTACHMENTS))
-	    	{
-	    		context.put("attachments_for", "modelanswer");
-		    	state.removeAttribute(ATTACHMENTS_FOR);
-	    	}
-	    	else if (attachmentsFor.equals(ALLPURPOSE_ATTACHMENTS)) 
-	    	{
-	    		context.put("attachments_for", "allPurpose");
-		    	state.removeAttribute(ATTACHMENTS_FOR);
-	    	}
+
 		}
+	}
+		
+	/**
+	 * put supplement item attachment state attribute value into context
+	 * @param state
+	 * @param context
+	 * @param attachmentsKind
+	 */
+	private void putSupplementItemAttachmentStateIntoContext(SessionState state, Context context, String attachmentsKind)
+	{
+		String attachmentsFor = (String) state.getAttribute(ATTACHMENTS_FOR);
+		if  (MODELANSWER_ATTACHMENTS.equals(attachmentsFor))
+    	{
+    		context.put("attachments_for", "modelanswer");
+    		state.removeAttribute("attachments_for");
+    	}
+    	else if (ALLPURPOSE_ATTACHMENTS.equals(attachmentsFor)) 
+    	{
+    		context.put("attachments_for", "allPurpose");
+    		state.removeAttribute("attachments_for");
+    	}
 	    
-	    if (attachmentsKind.equals(MODELANSWER_ATTACHMENTS))
+	    if (MODELANSWER_ATTACHMENTS.equals(attachmentsKind))
     	{
     		context.put("modelanswer_attachments", state.getAttribute(MODELANSWER_ATTACHMENTS));
     	}
-	    else if (attachmentsKind.equals(ALLPURPOSE_ATTACHMENTS)) 
+	    else if (ALLPURPOSE_ATTACHMENTS.equals(attachmentsKind)) 
     	{
     		context.put("allPurpose_attachments", state.getAttribute(ALLPURPOSE_ATTACHMENTS));
     	}
-	    
-	    return refs;
 	}
 	
 	/**
@@ -8006,11 +7805,6 @@ public class AssignmentAction extends PagedResourceActionII
 			state.setAttribute(SORTED_SUBMISSION_ASC, Boolean.TRUE.toString());
 		}
 
-		if (state.getAttribute(NEW_ASSIGNMENT_HIDE_OPTION_FLAG) == null)
-		{
-			resetAssignment(state);
-		}
-
 		if (state.getAttribute(STUDENT_LIST_SHOW_TABLE) == null)
 		{
 			state.setAttribute(STUDENT_LIST_SHOW_TABLE, new HashSet());
@@ -8124,9 +7918,10 @@ public class AssignmentAction extends PagedResourceActionII
 	} // resetViewSubmission
 
 	/**
-	 * reset the attributes for view submission
+	 * initialize assignment attributes
+	 * @param state
 	 */
-	private void resetAssignment(SessionState state)
+	private void initializeAssignment(SessionState state)
 	{
 		// put the input value into the state attributes
 		state.setAttribute(NEW_ASSIGNMENT_TITLE, "");
@@ -8201,10 +7996,100 @@ public class AssignmentAction extends PagedResourceActionII
 
 		state.setAttribute(NEW_ASSIGNMENT_ATTACHMENT, EntityManager.newReferenceList());
 
-		state.setAttribute(NEW_ASSIGNMENT_HIDE_OPTION_FLAG, new Boolean(false));
-
 		state.setAttribute(NEW_ASSIGNMENT_FOCUS, NEW_ASSIGNMENT_TITLE);
 
+		state.removeAttribute(NEW_ASSIGNMENT_DESCRIPTION_EMPTY);
+
+		// reset the global navigaion alert flag
+		if (state.getAttribute(ALERT_GLOBAL_NAVIGATION) != null)
+		{
+			state.removeAttribute(ALERT_GLOBAL_NAVIGATION);
+		}
+
+		state.removeAttribute(NEW_ASSIGNMENT_RANGE);
+		state.removeAttribute(NEW_ASSIGNMENT_GROUPS);
+
+		// remove the edit assignment id if any
+		state.removeAttribute(EDIT_ASSIGNMENT_ID);
+		
+		// remove the resubmit number
+		state.removeAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
+		
+		// remove the supplement attributes
+		state.removeAttribute(MODELANSWER);
+		state.removeAttribute(MODELANSWER_TEXT);
+		state.removeAttribute(MODELANSWER_SHOWTO);
+		state.removeAttribute(MODELANSWER_ATTACHMENTS);
+		state.removeAttribute(NOTE);
+		state.removeAttribute(NOTE_TEXT);
+		state.removeAttribute(NOTE_SHAREWITH);
+		state.removeAttribute(ALLPURPOSE);
+		state.removeAttribute(ALLPURPOSE_TITLE);
+		state.removeAttribute(ALLPURPOSE_TEXT);
+		state.removeAttribute(ALLPURPOSE_HIDE);
+		state.removeAttribute(ALLPURPOSE_SHOW_FROM);
+		state.removeAttribute(ALLPURPOSE_SHOW_TO);
+		state.removeAttribute(ALLPURPOSE_RELEASE_DATE);
+		state.removeAttribute(ALLPURPOSE_RETRACT_DATE);
+		state.removeAttribute(ALLPURPOSE_ACCESS);
+		state.removeAttribute(ALLPURPOSE_ATTACHMENTS);
+
+	} // resetNewAssignment
+	
+	/**
+	 * reset the attributes for assignment
+	 */
+	private void resetAssignment(SessionState state)
+	{
+		state.removeAttribute(NEW_ASSIGNMENT_TITLE);
+		state.removeAttribute(NEW_ASSIGNMENT_OPENMONTH);
+		state.removeAttribute(NEW_ASSIGNMENT_OPENDAY);
+		state.removeAttribute(NEW_ASSIGNMENT_OPENYEAR);
+		state.removeAttribute(NEW_ASSIGNMENT_OPENHOUR);
+		state.removeAttribute(NEW_ASSIGNMENT_OPENMIN);
+		state.removeAttribute(NEW_ASSIGNMENT_OPENAMPM);
+		
+		state.removeAttribute(ALLPURPOSE_RELEASE_MONTH);
+		state.removeAttribute(ALLPURPOSE_RELEASE_DAY);
+		state.removeAttribute(ALLPURPOSE_RELEASE_YEAR);
+		state.removeAttribute(ALLPURPOSE_RELEASE_HOUR);
+		state.removeAttribute(ALLPURPOSE_RELEASE_MIN);
+		state.removeAttribute(ALLPURPOSE_RELEASE_AMPM);
+
+		state.removeAttribute(NEW_ASSIGNMENT_DUEMONTH);
+		state.removeAttribute(NEW_ASSIGNMENT_DUEDAY);
+		state.removeAttribute(NEW_ASSIGNMENT_DUEYEAR);
+		state.removeAttribute(NEW_ASSIGNMENT_DUEHOUR);
+		state.removeAttribute(NEW_ASSIGNMENT_DUEMIN);
+		state.removeAttribute(NEW_ASSIGNMENT_DUEAMPM);
+
+		state.removeAttribute(NEW_ASSIGNMENT_ENABLECLOSEDATE);
+		state.removeAttribute(NEW_ASSIGNMENT_CLOSEMONTH);
+		state.removeAttribute(NEW_ASSIGNMENT_CLOSEDAY);
+		state.removeAttribute(NEW_ASSIGNMENT_CLOSEYEAR);
+		state.removeAttribute(NEW_ASSIGNMENT_CLOSEHOUR);
+		state.removeAttribute(NEW_ASSIGNMENT_CLOSEMIN);
+		state.removeAttribute(NEW_ASSIGNMENT_CLOSEAMPM);
+		
+		// set the all purpose retract time
+		state.removeAttribute(ALLPURPOSE_RETRACT_MONTH);
+		state.removeAttribute(ALLPURPOSE_RETRACT_DAY);
+		state.removeAttribute(ALLPURPOSE_RETRACT_YEAR);
+		state.removeAttribute(ALLPURPOSE_RETRACT_HOUR);
+		state.removeAttribute(ALLPURPOSE_RETRACT_MIN);
+		state.removeAttribute(ALLPURPOSE_RETRACT_AMPM);
+
+		state.removeAttribute(NEW_ASSIGNMENT_SECTION);
+		state.removeAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE);
+		state.removeAttribute(NEW_ASSIGNMENT_GRADE_TYPE);
+		state.removeAttribute(NEW_ASSIGNMENT_GRADE_POINTS);
+		state.removeAttribute(NEW_ASSIGNMENT_DESCRIPTION);
+		state.removeAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE);
+		state.removeAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
+		state.removeAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
+		state.removeAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
+		state.removeAttribute(NEW_ASSIGNMENT_ATTACHMENT);
+		state.removeAttribute(NEW_ASSIGNMENT_FOCUS);
 		state.removeAttribute(NEW_ASSIGNMENT_DESCRIPTION_EMPTY);
 
 		// reset the global navigaion alert flag
@@ -11571,7 +11456,7 @@ public class AssignmentAction extends PagedResourceActionII
 						if (state.getAttribute(ALLOW_RESUBMIT_CLOSEYEAR) != null)
 						{
 							// get resubmit time
-							Time closeTime = getAllowSubmitCloseTime(state);
+							Time closeTime = getTimeFromState(state, ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN, ALLOW_RESUBMIT_CLOSEAMPM);
 							pEdit.addProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(closeTime.getTime()));
 						}
 						else

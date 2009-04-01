@@ -1031,24 +1031,28 @@ $(document).ready(function() {
 					<td>
 					</td>
 					<td>
-						#chef_dateselectionwidget("allPurposeReleaseYear" "allPurposeReleaseMonth" "allPurposeReleaseDay" $!value_year_from $!value_year_to $value_allPurposeReleaseYear $value_allPurposeReleaseMonth $value_allPurposeReleaseDay $dateFormat "")
+					#chef_dateselectionwidget($name_allPurposeReleaseYear $name_allPurposeReleaseMonth $name_allPurposeReleaseDay $!value_year_from $!value_year_to $value_allPurposeReleaseYear $value_allPurposeReleaseMonth $value_allPurposeReleaseDay $dateFormat "")
 					</td>
 					<td>
-						<select name="allPurposeReleaseHour" id="allPurposeReleaseHour">
+						<select name="$name_allPurposeReleaseHour" id="$name_allPurposeReleaseHour">
 							#foreach ($i in [1..12])
 								<option value="$i" #if ($value_allPurposeReleaseHour==$i)selected="selected"#end>$i</option>
 							#end
 						</select>
-						<select name="allPurposeReleaseMin" id="allPurposeReleaseMin">
+						<select name="$name_allPurposeReleaseMin" id="$name_allPurposeReleaseMin">
 							#foreach ($i in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
 								<option value="$i" #if($i == $value_allPurposeReleaseMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
 							#end
 						</select>
-						<select name="allPurposeReleaseAMPM" id="allPurposeReleaseHourAMPM">
-							#foreach ($i in [0, 1])
-								<option value="$i" #if($i == $value_allPurposeReleaseAMPM)selected="selected"#end>#if($i==0) AM #else PM #end</option>
-							#end
-						</select>
+						<select name="$name_allPurposeReleaseAMPM" id="$name_allPurposeReleaseAMPM">
+							#foreach ($i in ["AM", "PM"])
+								#if ($i == $value_allPurposeReleaseAMPM)
+									<option value="$i" selected="selected">$i</option>
+								#else
+									<option value="$i">$i</option>
+								#end
+						#end
+					</select>
 					</td>
 				</tr>
 				<tr>
@@ -1089,24 +1093,28 @@ $(document).ready(function() {
 					<td>
 					</td>
 					<td>
-						#chef_dateselectionwidget("allPurposeRetractYear" "allPurposeRetractMonth" "allPurposeRetractDay" $!value_year_from $!value_year_to $value_allPurposeRetractYear $value_allPurposeRetractMonth $value_allPurposeRetractDay $dateFormat "")
+						#chef_dateselectionwidget($name_allPurposeRetractYear $name_allPurposeRetractMonth $name_allPurposeRetractDay $!value_year_from $!value_year_to $value_allPurposeRetractYear $value_allPurposeRetractMonth $value_allPurposeRetractDay $dateFormat "")
 					</td>
 					<td>
-						<select name="allPurposeRetractHour" id="allPurposeRetractHour">
+						<select name="$name_allPurposeRetractHour" id="$name_allPurposeRetractHour">
 							#foreach ($i in [1..12])
 								<option value="$i" #if ($value_allPurposeRetractHour==$i)selected="selected"#end>$i</option>
 							#end
 						</select>
-						<select name="allPurposeRetractMin" id="allPurposeRetractMin">
+						<select name="$name_allPurposeRetractMin" id="$name_allPurposeRetractMin">
 							#foreach ($i in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
 								<option value="$i" #if($i == $value_allPurposeRetractMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
 							#end
 						</select>
-						<select name="allPurposeRetractAMPM" id="allPurposeRetractHourAMPM">
-							#foreach ($i in [0, 1])
-								<option value="$i" #if($i == $value_allPurposeRetractAMPM)selected="selected"#end>#if($i==0) AM #else PM #end </option>
-							#end
-						</select>
+						<select name="$name_allPurposeRetractAMPM" id="$name_allPurposeRetractAMPM">
+							#foreach ($i in ["AM", "PM"])
+								#if ($i == $value_allPurposeRetractAMPM)
+									<option value="$i" selected="selected">$i</option>
+								#else
+									<option value="$i">$i</option>
+								#end
+						#end
+					</select>
 					</td>
 				</tr>
 				<tr>
