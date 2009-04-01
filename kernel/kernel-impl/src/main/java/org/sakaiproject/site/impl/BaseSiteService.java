@@ -2678,24 +2678,27 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 				{
 					msg.append(this + "cannot find site: " + siteId);
 				}
+				else
+				{		
+					site.setEvent(SECURE_ADD_SITE);
 
-				site.setEvent(SECURE_ADD_SITE);
 
-				if (creatorId != null)
-				{
-					el.setAttribute("created-id", creatorId);
-				}
+					if (creatorId != null)
+					{
+						el.setAttribute("created-id", creatorId);
+					}
 
-				// assign source site's attributes to the target site
-				((BaseSite) site).set(new BaseSite(this,el), false);
+					// assign source site's attributes to the target site
+					((BaseSite) site).set(new BaseSite(this,el), false);
 
-				try
-				{
-					save(site);
-				}
-				catch (Throwable t)
-				{
-					M_log.warn(".merge: " + t);
+					try
+					{
+						save(site);
+					}
+					catch (Throwable t)
+					{
+						M_log.warn(".merge: " + t);
+					}
 				}
 			}
 			catch (PermissionException ignore)
