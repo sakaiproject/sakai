@@ -24,6 +24,14 @@
         <property name="courseManagementService"><ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/></property>
     </bean>
 
+	<!-- database beans -->
+    <bean id="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlDefault" class="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlDefault" singleton="true"/>
+    <bean id="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlDb2" class="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlDb2" singleton="true"/>
+    <bean id="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlHSql" class="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlHSql" singleton="true"/>
+    <bean id="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlOracle" class="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlOracle" singleton="true"/>
+    <bean id="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlMsSql" class="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlMsSql" singleton="true"/>
+    <bean id="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlMySql" class="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlMySql" singleton="true"/>
+    
 	<bean id="org.sakaiproject.content.providers.BaseEventDelayHandler"
 		  class="org.sakaiproject.content.providers.BaseEventDelayHandler"
 		  init-method="init">
@@ -32,6 +40,17 @@
 		<property name="schedInvocMgr" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager" />
 		<property name="eventService" ref="org.sakaiproject.event.api.EventTrackingService" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+		<property name="databaseBeans">
+           <map>
+              <entry key="default"><ref bean="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlDefault"/></entry>
+              <entry key="db2"    ><ref bean="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlDb2"    /></entry>
+              <entry key="hsqldb" ><ref bean="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlHSql"   /></entry>
+              <entry key="oracle" ><ref bean="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlOracle" /></entry>
+              <entry key="mssql"  ><ref bean="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlMsSql"  /></entry>
+              <entry key="mysql"  ><ref bean="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlMySql"  /></entry>
+           </map>
+        </property>
+		
 	</bean>
 
 </beans>
