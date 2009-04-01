@@ -412,26 +412,41 @@ h2 {
 
 .statusField {
 	color: #5D5D5D;
+	border: 1px solid #AAAAAA;
+	width: 300px;
 }
 	
 
-.formInputField {
+.formInputField,
+.formInputArea {
 	padding-left: 2px;
 	border: 1px solid #AAAAAA;
 	margin: .2em;
 }
 
-.formInputField:focus {
+.formInputField {
+	width: 210px;
+}
+
+.formInputArea {
+	width: 300px;
+}
+
+
+.formInputField:focus,
+.formInputArea:focus {
 	border-color: black;
 	background: #ffc;
 }
 
-.formInputField.invalid {
+.formInputField.invalid,
+.formInputArea.invalid {
     border: 2px solid red;
     color: red;
 }
 
-.formInputField.valid {
+.formInputField.valid
+.formInputArea.valid  {
     /*color: green;*/
 }
 
@@ -776,9 +791,6 @@ span.wicket-ajax-indicator img {
 	white-space: nowrap; 
 	vertical-align: middle;
 }
-
-
-
 
 
 		
