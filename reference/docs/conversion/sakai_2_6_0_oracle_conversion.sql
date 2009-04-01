@@ -524,19 +524,23 @@ INSERT INTO CITATION_SCHEMA (SCHEMA_ID, PROPERTY_NAME, PROPERTY_VALUE) VALUES('t
 
 -- tables for SAK-13843:  assignment - information display on triggers
 
-
-    create table ASN_AP_ITEM_T (
+    create table ASN_AP_ITEM_ACCESS_T (
         ID number(19,0) not null,
         ITEM_ACCESS varchar2(255),
         ASN_AP_ITEM_ID number(19,0) not null,
+        primary key (ID),
+        unique (ITEM_ACCESS, ASN_AP_ITEM_ID)
+    );
+
+    create table ASN_AP_ITEM_T (
+        ID number(19,0) not null,
         ASSIGNMENT_ID varchar2(255),
         TITLE varchar2(255),
         TEXT clob,
         RELEASE_DATE date,
         RETRACT_DATE date,
         HIDE number(1,0),
-        primary key (ID),
-        unique (ITEM_ACCESS, ASN_AP_ITEM_ID)
+        primary key (ID)
     );
 
     create table ASN_MA_ITEM_T (
@@ -572,10 +576,10 @@ INSERT INTO CITATION_SCHEMA (SCHEMA_ID, PROPERTY_NAME, PROPERTY_VALUE) VALUES('t
         primary key (ID)
     );
 
-    create index ASN_AP_ITEM_I on ASN_AP_ITEM_T (ASN_AP_ITEM_ID);
+    create index ASN_AP_ITEM_I on ASN_AP_ITEM_ACCESS_T (ASN_AP_ITEM_ID);
 
-    alter table ASN_AP_ITEM_T 
-        add constraint FK514CEE156E844C61 
+    alter table ASN_AP_ITEM_ACCESS_T 
+        add constraint FK573733586E844C61 
         foreign key (ASN_AP_ITEM_ID) 
         references ASN_AP_ITEM_T;
 
@@ -598,9 +602,9 @@ INSERT INTO CITATION_SCHEMA (SCHEMA_ID, PROPERTY_NAME, PROPERTY_VALUE) VALUES('t
 
     create sequence ASN_AP_ITEM_S;
 
+    create sequence ASN_NOTE_S;
+
     create sequence ASN_SUP_ITEM_ATT_S;
 
     create sequence ASN_SUP_ITEM_S;
-
-    create sequence ASSIGN_NOTE_S;
 

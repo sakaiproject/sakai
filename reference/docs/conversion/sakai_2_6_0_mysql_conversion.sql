@@ -527,18 +527,24 @@ INSERT INTO CITATION_SCHEMA (SCHEMA_ID, PROPERTY_NAME, PROPERTY_VALUE) VALUES('t
 
 -- tables for SAK-13843: assignment - information display on triggers 
 
-    create table ASN_AP_ITEM_T (
+
+    create table ASN_AP_ITEM_ACCESS_T (
         ID bigint not null auto_increment,
         ITEM_ACCESS varchar(255),
         ASN_AP_ITEM_ID bigint not null,
+        primary key (ID),
+        unique (ITEM_ACCESS, ASN_AP_ITEM_ID)
+    );
+
+    create table ASN_AP_ITEM_T (
+        ID bigint not null,
         ASSIGNMENT_ID varchar(255),
         TITLE varchar(255),
         TEXT text,
         RELEASE_DATE datetime,
         RETRACT_DATE datetime,
         HIDE bit,
-        primary key (ID),
-        unique (ITEM_ACCESS, ASN_AP_ITEM_ID)
+        primary key (ID)
     );
 
     create table ASN_MA_ITEM_T (
@@ -571,11 +577,11 @@ INSERT INTO CITATION_SCHEMA (SCHEMA_ID, PROPERTY_NAME, PROPERTY_VALUE) VALUES('t
         primary key (ID)
     );
 
-    create index ASN_AP_ITEM_I on ASN_AP_ITEM_T (ASN_AP_ITEM_ID);
+    create index ASN_AP_ITEM_I on ASN_AP_ITEM_ACCESS_T (ASN_AP_ITEM_ID);
 
-    alter table ASN_AP_ITEM_T 
-        add index FK514CEE156E844C61 (ASN_AP_ITEM_ID), 
-        add constraint FK514CEE156E844C61 
+    alter table ASN_AP_ITEM_ACCESS_T 
+        add index FK573733586E844C61 (ASN_AP_ITEM_ID), 
+        add constraint FK573733586E844C61 
         foreign key (ASN_AP_ITEM_ID) 
         references ASN_AP_ITEM_T (ID);
 
@@ -598,4 +604,5 @@ INSERT INTO CITATION_SCHEMA (SCHEMA_ID, PROPERTY_NAME, PROPERTY_VALUE) VALUES('t
         add constraint FK560294CEDE4CD07F 
         foreign key (ASN_SUP_ITEM_ID) 
         references ASN_SUP_ITEM_T (ID);
+
 
