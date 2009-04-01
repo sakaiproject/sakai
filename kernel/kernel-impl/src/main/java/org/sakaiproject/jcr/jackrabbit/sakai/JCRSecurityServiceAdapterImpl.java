@@ -72,6 +72,7 @@ public class JCRSecurityServiceAdapterImpl implements JCRSecurityServiceAdapter
 			if (functionManager == null)
 			{
 				log.error("functionManager has not been set");
+				error = true;
 			}
 			else
 			{
