@@ -426,7 +426,7 @@ $(document).ready(function() {
 		#if ($allowReviewService)
 			<div style="display:block">
 				<h4>
-				$!tlang.getString('review.title')
+				$reviewServiceName
 				</h4>
 				<div class="checkbox  indnt2">
 					#if ($!value_UseReviewService.equals("true"))
@@ -435,7 +435,7 @@ $(document).ready(function() {
 						<input id="$name_UseReviewService" name="$name_UseReviewService" type="checkbox" value="true" />
 					#end
 					<label for="$name_UseReviewService">
-						$tlang.getString("review.use") 
+						$reviewServiceUse
 					</label>
 				</div>
 				<div class="checkbox  indnt2">

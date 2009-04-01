@@ -768,6 +768,15 @@ public class AssignmentAction extends PagedResourceActionII
 		getContentReviewService();
 		context.put("allowReviewService", allowReviewService && contentReviewService != null && contentReviewService.isSiteAcceptable(s));
 
+		if (allowReviewService && contentReviewService != null && contentReviewService.isSiteAcceptable(s)) {
+			//put the review service stings in context
+			String reviewServiceName = contentReviewService.getServiceName();
+			String reviewServiceTitle = rb.getFormattedMessage("review.title", new Object[]{reviewServiceName});
+			String reviewServiceUse = rb.getFormattedMessage("review.use", new Object[]{reviewServiceName});
+			context.put("reviewServiceName", reviewServiceTitle);
+			context.put("reviewServiceUse", reviewServiceUse);
+		}
+		
 		// grading option
 		context.put("withGrade", state.getAttribute(WITH_GRADES));
 		
