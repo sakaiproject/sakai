@@ -83,12 +83,12 @@
 			<value>10</value>
 		</property>
 
-		<!-- The maximum number of active connections that can be allocated from this pool at the same time, or zero for no limit. -->
+		<!-- The maximum number of active connections that can be allocated from this pool at the same time, or negative for no limit. -->
 		<property name="maxActive">
 			<value>50</value>
 		</property>
 
-		<!-- The maximum number of active connections that can remain idle in the pool, without extra ones being released, or zero for no limit. -->
+		<!-- The maximum number of active connections that can remain idle in the pool, without extra ones being released, or negative for no limit. -->
 		<property name="maxIdle">
 			<value>10</value>
 		</property>
