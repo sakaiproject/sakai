@@ -4,7 +4,7 @@
  * $Id: $
  ***********************************************************************************
  *
- * Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
+ * Copyright (c) 2005 The Sakai Foundation, The MIT Corporation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
