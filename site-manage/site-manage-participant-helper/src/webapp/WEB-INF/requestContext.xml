@@ -31,6 +31,8 @@
     <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
     <property name="targettedMessageList" ref="targettedMessageList" />
     <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+    <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+    <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
   </bean>
   
   <bean id="SameRoleProducer"
@@ -61,6 +63,8 @@
     <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
     <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
     <property name="targettedMessageList" ref="targettedMessageList" />
+    <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+    <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
   </bean>
 
 </beans>

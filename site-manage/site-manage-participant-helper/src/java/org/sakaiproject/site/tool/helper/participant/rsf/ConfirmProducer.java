@@ -7,6 +7,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.entitybroker.DeveloperHelperService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.tool.helper.participant.rsf.AddViewParameters;
 import org.sakaiproject.site.tool.helper.participant.impl.UserRoleEntry;
 import org.sakaiproject.site.tool.helper.participant.impl.SiteAddParticipantHandler;
@@ -64,8 +68,32 @@ public class ConfirmProducer implements ViewComponentProducer, NavigationCaseRep
 	{
 		this.userDirectoryService = userDirectoryService;
 	}
+	
+	private DeveloperHelperService developerHelperService;
+    public void setDeveloperHelperService(
+			DeveloperHelperService developerHelperService) {
+		this.developerHelperService = developerHelperService;
+	}
+
+    private SiteService siteService = null;
+    public void setSiteService(SiteService siteService)
+	{
+		this.siteService = siteService;
+	}
+
 
     public void fillComponents(UIContainer tofill, ViewParameters arg1, ComponentChecker arg2) {
+    	
+    	String locationId = developerHelperService.getCurrentLocationId();
+    	String siteTitle = "";
+    	try {
+			Site s = siteService.getSite(locationId);
+			siteTitle = s.getTitle();
+		} catch (IdUnusedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	UIMessage.make(tofill, "addconf.confirming", "addconf.confirming", new Object[]{siteTitle});
     	
     	UIBranchContainer content = UIBranchContainer.make(tofill, "content:");
     	
