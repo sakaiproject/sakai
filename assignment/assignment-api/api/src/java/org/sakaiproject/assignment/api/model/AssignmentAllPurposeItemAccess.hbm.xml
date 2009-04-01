@@ -3,7 +3,7 @@
           "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 	
 <hibernate-mapping default-lazy="false">
-	<class name="org.sakaiproject.assignment.api.model.AssignmentAllPurposeItemAccess" table="ASN_AP_ITEM_T">
+	<class name="org.sakaiproject.assignment.api.model.AssignmentAllPurposeItemAccess" table="ASN_AP_ITEM_ACCESS_T">
        
        <id name="id" column="ID" type="long">
 					<generator class="native">
