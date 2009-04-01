@@ -2,7 +2,7 @@
 What is in here:
 --------------
 
-database/		- contains scripts for creating the database tables if you do not have auto.ddl on
+database/		- contains scripts for creating the database tables if you do not/cannot have auto.ddl turned on
 				- also contains conversion scripts for performing conversion between releases.
 
 Creation scripts exist for Profile2 version 1.1 for all supported databases and for the conversion from

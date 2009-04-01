@@ -6,10 +6,13 @@ alter table PROFILE_PREFERENCES_T add EMAIL_REQUEST bit not null DEFAULT false, 
 /* update the new columns based on the old data */
 /* if all emails, then both true */
 update PROFILE_PREFERENCES_T set EMAIL_REQUEST=true, EMAIL_CONFIRM=true where EMAIL=0;
+
 /* if just requests, set requests to true, confirms to false */
 update PROFILE_PREFERENCES_T set EMAIL_REQUEST=true, EMAIL_CONFIRM=false where EMAIL=1;
+
 /* if just confirms, set confirms to true, requests to false */
 update PROFILE_PREFERENCES_T set EMAIL_REQUEST=false, EMAIL_CONFIRM=true where EMAIL=2;
+
 /* if all off, set both false */
 update PROFILE_PREFERENCES_T set EMAIL_REQUEST=false, EMAIL_CONFIRM=false where EMAIL=3;
 
