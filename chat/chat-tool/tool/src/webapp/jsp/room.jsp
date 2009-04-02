@@ -1,6 +1,7 @@
 <f:view>
    <sakai:view title="#{msgs['custom.chatroom']}">
       <h:form id="topForm">
+      <h:inputHidden id="chatidhidden" value="#{ChatTool.currentChatChannelId}" />
       <script type="text/javascript">
 	//focus_path = [ "Control", "mainForm:message" ];
 

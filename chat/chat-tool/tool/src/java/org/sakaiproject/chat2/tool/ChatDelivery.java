@@ -102,9 +102,6 @@ public class ChatDelivery extends BaseDelivery
 	{
       ChatMessage message = null;
       
-      // assume the message is being delivered, so clear timeout
-      ChatTool.setTimeout(getAddress(),null);
-
       if(m_message instanceof ChatMessage) {
          message = (ChatMessage)m_message;
       } else if(m_message instanceof String) {

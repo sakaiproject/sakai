@@ -53,6 +53,7 @@ try { parent.updateNow(); } catch (error) {}
 
    <h:form id="mainForm">
 	  <input type="hidden" id="actionInjection" name="_idOfAction" value="some value" />
+      <h:inputHidden id="chatidhidden" value="#{ChatTool.currentChatChannelId}" />
       <h:outputLabel for="message"	value="#{msgs['control.lab']}" />    
       <br>      
       <h:inputTextarea id="message" value="#{ChatTool.newMessageText}" rows="3" cols="60" onkeypress="formSubmitOnEnterJSF(this, event)" />

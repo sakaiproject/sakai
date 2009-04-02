@@ -13,6 +13,10 @@ doubleDeep = true;
 	<sakai:script contextBase="/sakai-chat-tool" path="/js/chatscript.js"/>
 	
 
+<h:form id="topForm">
+<h:inputHidden id="chatidhidden" value="#{ChatTool.currentChatChannelId}" />
+</h:form>
+
 <ul class="presenceList">
 <c:forEach items="${ChatTool.usersInCurrentChannel}" var="user">
 	<li><c:out value="${user}" escapeXml="false" /></li>
