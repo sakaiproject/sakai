@@ -14,7 +14,7 @@
 		<property name="pollListManager"
 			ref="org.sakaiproject.tool.poll.api.PollListManager" />
 		<property name="pollVoteManager"
-			ref="org.sakaiproject.tool.poll.api.PollVoteManagerDao" />
+			ref="org.sakaiproject.tool.poll.api.PollVoteManager" />
 	</bean>
 	<bean
 		parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
@@ -28,7 +28,7 @@
 		<property name="pollListManager"
 			ref="org.sakaiproject.tool.poll.api.PollListManager" />
 		<property name="pollVoteManager"
-			ref="org.sakaiproject.tool.poll.api.PollVoteManagerDao" />
+			ref="org.sakaiproject.tool.poll.api.PollVoteManager" />
 	</bean>
 	<!--
 		Spring messageSource replaces JSF message-bundle from faces-config.xml
@@ -46,7 +46,7 @@
 				<property name="pollListManager"
 					ref="org.sakaiproject.tool.poll.api.PollListManager" />
 				<property name="pollVoteManager"
-					ref="org.sakaiproject.tool.poll.api.PollVoteManagerDao" />
+					ref="org.sakaiproject.tool.poll.api.PollVoteManager" />
 				<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
 			</bean>
 		</property>

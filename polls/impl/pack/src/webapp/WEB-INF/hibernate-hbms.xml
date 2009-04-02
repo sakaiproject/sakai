@@ -9,19 +9,7 @@
 	<bean
 		id="org.sakaiproject.poll.hibernate.AdditionalHibernateMappings"
 		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
-		<property name="mappingResources">
-			<list>
-				<value>
-					org/sakaiproject/poll/hbm/Poll.hbm.xml
-				</value>
-				<value>
-					org/sakaiproject/poll/hbm/Option.hbm.xml
-				</value>
-				<value>
-					org/sakaiproject/poll/hbm/Vote.hbm.xml
-				</value>
-			</list>
-		</property>
+		<property name="mappingResources" ref="org.sakaiproject.poll.hbmMappingList" />
 	</bean>
 
 </beans>

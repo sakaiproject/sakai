@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.poll.dao.impl;
+package org.sakaiproject.poll.service.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,26 +28,23 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.genericdao.api.search.Restriction;
+import org.sakaiproject.genericdao.api.search.Search;
+import org.sakaiproject.poll.dao.PollDao;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 
-public class PollVoteManagerDaoImpl extends HibernateDaoSupport implements PollVoteManager {
+public class PollVoteManagerImpl implements PollVoteManager {
 
 //  use commons logger
-    private static Log log = LogFactory.getLog(PollListManagerDaoImpl.class);
+    private static Log log = LogFactory.getLog(PollListManagerImpl.class);
 
     private EventTrackingService eventTrackingService;
     public void setEventTrackingService(EventTrackingService ets) {
@@ -65,7 +62,12 @@ public class PollVoteManagerDaoImpl extends HibernateDaoSupport implements PollV
     }
 
 
-    public void saveVoteList(List<Vote> votes) {
+    private PollDao dao;
+    public void setDao(PollDao dao) {
+		this.dao = dao;
+	}
+
+	public void saveVoteList(List<Vote> votes) {
         Long pollId = null;
         for (int i =0; i < votes.size(); i ++) {
             Vote vote = (Vote)votes.get(i);
@@ -76,23 +78,15 @@ public class PollVoteManagerDaoImpl extends HibernateDaoSupport implements PollV
     }
 
     public boolean saveVote(Vote vote)  {
-        try {
-            getHibernateTemplate().save(vote);
-
-        } catch (DataAccessException e) {
-            log.error("Hibernate could not save: " + e.toString());
-            e.printStackTrace();
-            return false;
-        }
-
+       	dao.save(vote);
         log.debug(" Vote  " + vote.getId() + " successfuly saved");
         return true;
     }
 
     public List<Vote> getAllVotesForPoll(Poll poll) {
-        DetachedCriteria d = DetachedCriteria.forClass(Vote.class)
-        .add( Restrictions.eq("pollId",poll.getPollId()) );
-        List<Vote> votes = getHibernateTemplate().findByCriteria(d);
+        Search search = new Search();
+        search.addRestriction(new Restriction("pollId",poll.getPollId()));
+        List<Vote> votes = dao.findBySearch(Vote.class, search); 
         return votes;
     }
 
@@ -100,11 +94,12 @@ public class PollVoteManagerDaoImpl extends HibernateDaoSupport implements PollV
         if (userId == null) {
             throw new IllegalArgumentException("userId cannot be null");
         }
-        DetachedCriteria d = DetachedCriteria.forClass(Vote.class);
-        d.add( Restrictions.eq("userId",userId) );
+        Search search = new Search();
+        search.addRestriction(new Restriction("userId",userId));
+        
         if (pollIds != null) {
             if (pollIds.length > 0) {
-                d.add( Restrictions.in("pollId",pollIds) );
+            	search.addRestriction(new Restriction("pollId",pollIds) );
             } else {
                 // no polls to search so EXIT here
                 return new HashMap<Long, List<Vote>>();
@@ -112,7 +107,7 @@ public class PollVoteManagerDaoImpl extends HibernateDaoSupport implements PollV
         }
         Map<Long, List<Vote>> map = new HashMap<Long, List<Vote>>();
         if (pollIds != null && pollIds.length > 0) {
-            List<Vote> votes = getHibernateTemplate().findByCriteria(d);
+            List<Vote> votes = dao.findBySearch(Vote.class, search);
             // put the list of votes into a map
             for (Vote vote : votes) {
                 Long pollId = vote.getPollId();
@@ -126,25 +121,14 @@ public class PollVoteManagerDaoImpl extends HibernateDaoSupport implements PollV
     }
 
     public int getDisctinctVotersForPoll(Poll poll) {
-
-        Query q = null;
-        Session session = getHibernateTemplate().getSessionFactory().getCurrentSession();
-        String statement = "SELECT DISTINCT VOTE_SUBMISSION_ID from POLL_VOTE where VOTE_POLL_ID = " + poll.getPollId().toString();
-        q = session.createSQLQuery(statement);
-        List results = q.list();
-        if (results.size() > 0)
-            return results.size();
-
-        return 0; 
+       return dao.getDisctinctVotersForPoll(poll);
     }
 
     public boolean userHasVoted(Long pollid, String userID) {
-        DetachedCriteria d = DetachedCriteria.forClass(Vote.class)
-        .add( Restrictions.eq("userId",userID) )
-        .add( Restrictions.eq("pollId",pollid) );
-
-        List<Vote> votes = getHibernateTemplate().findByCriteria(d);		
-        //System.out.println("got " + pollCollection.size() + "votes for this poll");
+    	Search search = new Search();
+        search.addRestriction(new Restriction("userId",userID));
+        search.addRestriction(new Restriction("pollId",pollid));
+        List<Vote> votes = dao.findBySearch(Vote.class, search);		
         if (votes.size() > 0)
             return true;
         else
@@ -160,13 +144,16 @@ public class PollVoteManagerDaoImpl extends HibernateDaoSupport implements PollV
         if (voteId == null) {
             throw new IllegalArgumentException("voteId cannot be null when getting vote");
         }
-        Vote vote = (Vote) getHibernateTemplate().get(Vote.class, voteId);
+        Search search = new Search(new Restriction("voteId", voteId));
+        Vote vote = (Vote) dao.findOneBySearch(Vote.class, search);
         return vote;
     }
 
     public boolean isUserAllowedVote(String userId, Long pollId, boolean ignoreVoted) {
         boolean allowed = false;
-        Poll poll = (Poll) getHibernateTemplate().get(Poll.class, pollId);
+        //pollId
+        Search search = new Search(new Restriction("pollId", pollId));
+        Poll poll =  dao.findOneBySearch(Poll.class, search);
         if (poll == null) {
             throw new IllegalArgumentException("Invalid poll id ("+pollId+") when checking user can vote");
         }

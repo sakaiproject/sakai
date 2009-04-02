@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.poll.dao.impl;
+package org.sakaiproject.poll.service.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,9 +34,6 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
@@ -48,25 +45,29 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.genericdao.api.search.Order;
+import org.sakaiproject.genericdao.api.search.Restriction;
+import org.sakaiproject.genericdao.api.search.Search;
 import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.poll.dao.PollDao;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
+import org.sakaiproject.poll.util.PollUtil;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 
 
-public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollListManager,EntityTransferrer {
+public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
     // use commons logger
-    private static Log log = LogFactory.getLog(PollListManagerDaoImpl.class);
+    private static Log log = LogFactory.getLog(PollListManagerImpl.class);
     public static final String REFERENCE_ROOT = Entity.SEPARATOR + "poll";
 
     private AuthzGroupService authzGroupService;
@@ -104,6 +105,12 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
         idManager = idm;
     }
 
+    private PollDao dao;
+    public void setDao(PollDao dao) {
+		this.dao = dao;
+	}
+    
+    
     public void init() {
         try {
             entityManager.registerEntityProducer(this, REFERENCE_ROOT);
@@ -126,7 +133,7 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
     }
 
 
-    @SuppressWarnings("unchecked")
+
     public List<Poll> findAllPollsForUserAndSitesAndPermission(String userId, String[] siteIds,
             String permissionConstant) {
         if (userId == null || permissionConstant == null) {
@@ -157,20 +164,20 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
                 }
             }
             String[] siteIdsToSearch = allowedSites.toArray(new String[allowedSites.size()]);
-            DetachedCriteria d = DetachedCriteria.forClass(Poll.class);
+            Search search = new Search();
             if (siteIdsToSearch.length > 0) {
-                d.add( Restrictions.in("siteId", siteIdsToSearch) );
+                search.addRestriction(new Restriction("siteId", siteIdsToSearch));
             }
             if (PollListManager.PERMISSION_VOTE.equals(permissionConstant)) {
                 // limit to polls which are open
                 Date now = new Date();
-                d.add( Restrictions.lt("voteOpen", now));
-                d.add( Restrictions.gt("voteClose", now));
+                search.addRestriction(new Restriction("voteOpen", now));
+                search.addRestriction(new Restriction("voteClose", now));
             } else {
                 // show all polls
             }
-            d.addOrder( Order.desc("creationDate") );
-            polls = getHibernateTemplate().findByCriteria(d);
+            search.addOrder(new Order("creationDate"));
+            polls = dao.findBySearch(Poll.class, search);
         }
         if (polls == null) {
             polls = new ArrayList<Poll>();
@@ -221,7 +228,7 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
             t.setDetails(t.getDetails().substring(0, 254));
 
         try {
-            getHibernateTemplate().saveOrUpdate(t);
+            dao.save(t);
 
         } catch (DataAccessException e) {
             log.error("Hibernate could not save: " + e.toString());
@@ -246,7 +253,7 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
                     "poll.delete", "poll." + t.getId());
 
         try {
-            getHibernateTemplate().delete(t);
+            dao.delete(t);
         } catch (DataAccessException e) {
             log.error("Hibernate could not delete: " + e.toString());
             e.printStackTrace();
@@ -259,32 +266,25 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
     }
 
     public List<Poll> findAllPolls(String siteId) {
-        DetachedCriteria d = DetachedCriteria.forClass(Poll.class).add(
-                Restrictions.eq("siteId", siteId)).addOrder(Order.desc("creationDate"));
-        List<Poll> polls = getHibernateTemplate().findByCriteria(d);
+        
+        Search search = new Search();
+        search.addOrder(new Order("creationDate", false));
+        search.addRestriction(new Restriction("siteId", siteId));
+        
+        List<Poll> polls = dao.findBySearch(Poll.class, search);
         return polls;
     }
 
     public Poll getPollById(Long pollId) {
-        DetachedCriteria d = DetachedCriteria.forClass(Poll.class).add(
-                Restrictions.eq("pollId", pollId));
-        Collection c = getHibernateTemplate().findByCriteria(d);
-        if (c == null || c.size() == 0)
-        	return null;
         
-        Poll poll = (Poll) PollUtil.pollCollectionToList(c)
-                .get(0);
-
-        // we need to get the options here
-        List optionList = getOptionsForPoll(poll);
-
-        poll.setOptions(optionList);
-
-        return poll;
+       return getPollById(pollId, true);
     }
 
     public Poll getPollById(Long pollId, boolean includeOptions) {
-        Poll poll = (Poll) getHibernateTemplate().get(Poll.class, pollId);
+    	
+    	Search search = new Search();
+        search.addRestriction(new Restriction("pollId", pollId));
+        Poll poll = dao.findOneBySearch(Poll.class, search);
         if (poll != null) {
             if (includeOptions) {
                 List<Option> optionList = getOptionsForPoll(poll);
@@ -306,25 +306,24 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
         if (poll == null) {
             throw new IllegalArgumentException("Cannot get options for a poll ("+pollId+") that does not exist");
         }
-        // we need to get the options here
-        DetachedCriteria d = DetachedCriteria.forClass(Option.class);
-        d.add( Restrictions.eq("pollId", pollId));
-        // add an explicit order - needed by Oracle
-        d.addOrder(Order.asc("optionId"));
-        List<Option> optionList = getHibernateTemplate().findByCriteria(d);
+        Search search = new Search();
+        search.addRestriction(new Restriction("pollId", pollId));
+        search.addOrder(new Order("optionId"));
+        List<Option> optionList = dao.findBySearch(Option.class, search);
         return optionList;
     }
 
     public Poll getPollWithVotes(Long pollId) {
-        DetachedCriteria d = DetachedCriteria.forClass(Poll.class).add(
-                Restrictions.eq("pollId", pollId));
-        return (Poll) PollUtil.pollCollectionToList(getHibernateTemplate().findByCriteria(d))
-                .get(0);
+    	Search search = new Search();
+        search.addRestriction(new Restriction("pollId", pollId));
+        return dao.findOneBySearch(Poll.class, search);
 
     }
 
     public Option getOptionById(Long optionId) {
-        Option option = (Option) getHibernateTemplate().get(Option.class, optionId);
+    	Search search = new Search();
+        search.addRestriction(new Restriction("optionId", optionId));
+        Option option = dao.findOneBySearch(Option.class, search);
         // if the id is null set it
         if (option.getUUId() == null) {
             option.setUUId( UUID.randomUUID().toString() );
@@ -335,7 +334,7 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
 
     public void deleteOption(Option option) {
         try {
-            getHibernateTemplate().delete(option);
+            dao.delete(option);
         } catch (DataAccessException e) {
             log.error("Hibernate could not delete: " + e.toString());
             e.printStackTrace();
@@ -351,7 +350,7 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
         }
 
         try {
-            getHibernateTemplate().saveOrUpdate(t);
+            dao.save(t);
         } catch (DataAccessException e) {
             log.error("Hibernate could not save: " + e.toString());
             e.printStackTrace();
@@ -532,9 +531,9 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
 
 		public void transferCopyEntities(String fromContext, String toContext, List resourceIds){
 			try{
-				Iterator fromPolls = findAllPolls(fromContext).iterator();
+				Iterator<Poll> fromPolls = findAllPolls(fromContext).iterator();
 				while (fromPolls.hasNext()){
-					Poll fromPoll = (Poll) fromPolls.next();
+					Poll fromPoll = fromPolls.next();
 					Poll fromPollV = getPollWithVotes(fromPoll.getPollId());
 					Poll toPoll = (Poll) new Poll();
 					toPoll.setOwner(fromPollV.getOwner());
@@ -553,9 +552,9 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
 			        savePoll(toPoll);
 			        
 			        //Añadimos las opciones
-			        List options = getOptionsForPoll(fromPoll);
+			        List<Option> options = getOptionsForPoll(fromPoll);
 			        if (options!=null){
-				        Iterator fromOptions = options.iterator();
+				        Iterator<Option> fromOptions = options.iterator();
 				        while (fromOptions.hasNext()){
 				        	Option fromOption = (Option) fromOptions.next();
 				        	Option toOption = (Option) new Option();
@@ -569,9 +568,9 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
 			        }
 
 			        //Añadimos los votos
-			        List votes = fromPollV.getVotes();
+			        List<Vote> votes = fromPollV.getVotes();
 			        if (votes!=null){
-			        	Iterator fromVotes = votes.iterator();
+			        	Iterator<Vote> fromVotes = votes.iterator();
 			        	while (fromVotes.hasNext()){
 			        		toPoll.addVote((Vote)fromVotes.next());
 			        	}
@@ -611,9 +610,10 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
 
     public Poll getPoll(String ref) {
         // we need to get the options here
-        DetachedCriteria d = DetachedCriteria.forClass(Poll.class).add(Restrictions.eq("id", ref));
-        List optionList = PollUtil.optionCollectionToList(getHibernateTemplate().findByCriteria(d));
-        Poll poll = (Poll) optionList.get(0);
+        
+        Search search = new Search();
+        search.addRestriction(new Restriction("id", ref));
+        Poll poll = dao.findOneBySearch(Poll.class, search);
         // if the id is null set it
         if (poll.getId() == null) {
             poll.setId(idManager.createUuid());
@@ -635,11 +635,12 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
 			return true;
 
 		if (poll.getDisplayResult().equals("afterVoting")) {
-			DetachedCriteria d = DetachedCriteria.forClass(Vote.class)
-	        .add( Restrictions.eq("userId",userId) )
-	        .add( Restrictions.eq("pollId",poll.getPollId()) );
-
-	        List<Vote> votes = getHibernateTemplate().findByCriteria(d);		
+			
+			Search search = new Search();
+	        search.addRestriction(new Restriction("pollId", poll.getPollId()));
+	        search.addRestriction(new Restriction("userId", userId));
+	        
+	        List<Vote> votes = dao.findBySearch(Vote.class, search);		
 	        //System.out.println("got " + pollCollection.size() + "votes for this poll");
 	        if (votes.size() > 0)
 	        	return true;
