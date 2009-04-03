@@ -8920,7 +8920,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// SAK-13408 -The XML implementation in Websphere throws an LSException if the
 			// attribute is null, while in Tomcat it assumes an empty string. The following
 			// sets the attribute to an empty string if the value is null. 
-			submission.setAttribute("reviewScore",Integer.toString(m_reviewScore));
+			submission.setAttribute("reviewScore",m_reviewScore == null ? "" : Integer.toString(m_reviewScore));
 			submission.setAttribute("reviewReport",m_reviewReport == null ? "" : m_reviewReport);
 			submission.setAttribute("reviewStatus",m_reviewStatus == null ? "" : m_reviewStatus);
 			
