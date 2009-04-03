@@ -134,8 +134,8 @@
 
 	<build>
 		<resources>
+			<!-- include our HTML but not the Java source -->
 			<resource>
-				<filtering>false</filtering>
 				<directory>${basedir}/src/java</directory>
 				<includes>
 					<include>**</include>
@@ -143,7 +143,16 @@
 				<excludes>
 					<exclude>**/*.java</exclude>
 				</excludes>
+				<filtering>false</filtering>
 			</resource>
+			<!-- include our log4j.properties -->
+            <resource>
+                <directory>${basedir}/src/resources</directory>
+                <includes>
+                    <include>*.properties</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
 		</resources>
 	</build>
 
