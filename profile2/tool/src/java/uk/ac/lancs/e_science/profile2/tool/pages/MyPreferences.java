@@ -44,9 +44,6 @@ public class MyPreferences extends BasePage{
 		//get the preferences object for this user from the database
 		profilePreferences = profile.getPreferencesRecordForUser(userId);
 		
-		//get email address for this user
-		String emailAddress = sakaiProxy.getUserEmail(userId);
-		
 		//if null, create one
 		if(profilePreferences == null) {
 			profilePreferences = profile.createDefaultPreferencesRecord(userId);
@@ -58,7 +55,13 @@ public class MyPreferences extends BasePage{
 			
 			//post create event
 			sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PREFERENCES_NEW, "/profile/"+userId, true);
-			
+		}
+		
+		//get email address for this user
+		String emailAddress = sakaiProxy.getUserEmail(userId);
+		//if no email, set a message into it fo display
+		if(emailAddress == null || emailAddress.length() == 0) {
+			emailAddress = new ResourceModel("preferences.email.none").getObject().toString();
 		}
 				
 		Label heading = new Label("heading", new ResourceModel("heading.preferences"));
