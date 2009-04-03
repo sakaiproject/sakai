@@ -3,7 +3,7 @@
 * $Id:HelperAwareJsfTool.java 9134 2006-05-08 20:28:42Z chmaurer@iupui.edu $
 ***********************************************************************************
 *
- * Copyright (c) 2005, 2006, 2007 Sakai Foundation
+ * Copyright (c) 2005, 2006, 2007, 2008 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
