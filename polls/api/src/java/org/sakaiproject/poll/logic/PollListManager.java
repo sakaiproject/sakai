@@ -47,12 +47,7 @@ public interface PollListManager extends EntityProducer {
     public static final String PERMISSION_EDIT_OWN = "poll.editOwn";
 
     public static final String REF_POLL_TYPE ="poll";
-    /**
-     *  Save a poll
-     * @param t - the poll object to save
-     * @return - true for success, false if failure
-     */
-    public boolean savePoll(Poll t);
+    public void deleteOption(Option option);
 
     /**
      * Delete a poll
@@ -61,15 +56,12 @@ public interface PollListManager extends EntityProducer {
      */
     public boolean deletePoll(Poll t) throws PermissionException;
 
-    public boolean saveOption(Option t);
-
     /**
      * Gets all the task objects for the site
      * @param siteId - the siteId of the site
      * @return - a collection of task objects (empty collection if none found)
      */
-    @SuppressWarnings("unchecked")
-    public List findAllPolls(String siteId);
+    public List<Poll> findAllPolls(String siteId);
 
     /**
      * Get all the polls for a user in a set of sites (can be one) given the permission,
@@ -82,6 +74,32 @@ public interface PollListManager extends EntityProducer {
      * @return the list of all polls this user can access
      */
     public List<Poll> findAllPollsForUserAndSitesAndPermission(String userId, String[] siteIds, String permissionConstant);
+
+    /**
+     *  Get a specific option by its id
+     */
+    public Option getOptionById(Long optionId);
+
+    /**
+     * Get all options for a specific poll
+     * @param pollId the id for a poll
+     * @return all options OR empty if there are no options for this poll
+     * @throws IllegalArgumentException if the pollId is invalid
+     */
+    public List<Option> getOptionsForPoll(Long pollId);
+
+    /**
+     * Get all options for a specific poll
+     * @param the poll
+     * @return all options OR empty if there are no options for this poll
+     * @throws IllegalArgumentException if the pollId is invalid
+     */
+    public List<Option> getOptionsForPoll(Poll poll);
+
+    /**
+     *  get a poll by its Entity  Reference  
+     */
+    public Poll getPoll(String ref);
 
     /**
      * Retrieve a specific poll
@@ -106,28 +124,6 @@ public interface PollListManager extends EntityProducer {
     public Poll getPollWithVotes(Long pollId);
 
     /**
-     *  get a poll by its Entity  Reference  
-     */
-    public Poll getPoll(String ref);
-
-    /**
-     *  Get a specific option by its id
-     */
-    public Option getOptionById(Long optionId);
-
-    public void deleteOption(Option option);
-
-    public List<Option> getOptionsForPoll(Poll poll);
-
-    /**
-     * Get all options for a specific poll
-     * @param pollId the id for a poll
-     * @return all options OR empty if there are no options for this poll
-     * @throws IllegalArgumentException if the pollId is invalid
-     */
-    public List<Option> getOptionsForPoll(Long pollId);
-    
-    /**
      *  Can the this user view the results for this poll?
      * @param poll
      * @param userId
@@ -135,5 +131,19 @@ public interface PollListManager extends EntityProducer {
      */
     
     public boolean isAllowedViewResults(Poll poll, String userId);
+
+    /**
+     * Save an individual option
+     * @param t
+     * @return
+     */
+    public boolean saveOption(Option t);
+    
+    /**
+     *  Save a poll
+     * @param t - the poll object to save
+     * @return - true for success, false if failure
+     */
+    public boolean savePoll(Poll t);
 
 }

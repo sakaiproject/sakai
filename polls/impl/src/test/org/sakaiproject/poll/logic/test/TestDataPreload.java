@@ -18,7 +18,10 @@
 
 package org.sakaiproject.poll.logic.test;
 
+import java.util.Date;
+
 import org.sakaiproject.genericdao.api.GenericDao;
+import org.sakaiproject.poll.model.Poll;
 
 public class TestDataPreload {
 
@@ -70,7 +73,7 @@ public class TestDataPreload {
 	public final static String LOCATION1_CONTACT_NAME = "Site Contact Name";
 	public final static String LOCATION1_CONTACT_EMAIL = "sitecontact@site.com";
 
-
+	public final static Long POLL_1_POLL1D = Long.valueOf(1);
 	
 	/**
 	 * Preload a bunch of test data into the database
@@ -79,7 +82,15 @@ public class TestDataPreload {
 	 *            a generic dao
 	 */
 	public void preloadTestData(GenericDao dao) {
-
+		
+		Poll poll1 = new Poll();
+		poll1.setCreationDate(new Date());
+		poll1.setVoteOpen(new Date());
+		poll1.setVoteClose(new Date());
+		poll1.setDescription("this is some text");
+		poll1.setText("something");
+		poll1.setOwner(USER_UPDATE);
+		dao.save(poll1);
 	}
 
 }
