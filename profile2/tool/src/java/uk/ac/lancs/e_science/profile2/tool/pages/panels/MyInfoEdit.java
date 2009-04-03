@@ -76,7 +76,7 @@ public class MyInfoEdit extends Panel {
 
 		
 		//submit button
-		IndicatingAjaxButton submitButton = new IndicatingAjaxButton("submit", form) {
+		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", form) {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				//save() form, show message, then load display panel
 
@@ -100,12 +100,6 @@ public class MyInfoEdit extends Panel {
 					target.prependJavascript(js);
 				}
             }
-			
-			public String getAjaxIndicatorMarkupId() {
-				System.out.println("indicator called");
-				return "indicator";
-			}
-
 			
 		};
 		submitButton.setModel(new ResourceModel("button.save.changes"));
