@@ -3,7 +3,7 @@
  * $Id: SuTool.java 6970 2006-03-23 23:25:04Z zach.thomas@txstate.edu $
  ***********************************************************************************
  *
- * Copyright (c) 2005, 2006 Sakai Foundation
+ * Copyright (c) 2005, 2006, 2008 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
