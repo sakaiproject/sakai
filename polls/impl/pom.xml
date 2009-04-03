@@ -4,9 +4,8 @@
   <parent>
     <artifactId>polls-base</artifactId>
     <groupId>org.sakaiproject.polls</groupId>
-    <version>1.1-SNAPSHOT</version>
-<!-- polls.version -->
-    <relativePath>../../pom.xml</relativePath>
+    <version>1.1-SNAPSHOT</version><!-- polls.version -->
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>sakai-poll-impl</name>
   <groupId>org.sakaiproject.polls</groupId>
