@@ -77,7 +77,7 @@
 					scrolling="no"
 					align="right"
 					class="wcwmenu"
-					src="roomUsers">
+					src="roomUsers?channel=<h:outputText value="#{ChatTool.currentChatChannelId}" />">
 				</iframe>
 			</div>
 			<iframe

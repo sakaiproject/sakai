@@ -288,68 +288,83 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    }
    
    /**
-    * this gets the users in the current channel.  It should be called often
-    * to refresh the presence of the channel
+    * this gets the users in a channel.  It is typically called from roomUsers.jsp
+    * to display or refresh the list. Despite the name, if called from a JSP with
+    * channel as an argument, it uses that channel. Otherwise the current channel.
+    *
     * @return List of String display names
     */
    public List<String> getUsersInCurrentChannel()
    {
-      List<String> userList = new ArrayList<String>();
-      PresenceObserverHelper observer = presenceChannelObservers.get(getCurrentChatChannelId());
 
-      if(!refreshPresence() || observer == null) {
-         return userList;
-      }
+       ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+       HttpServletRequest req = (HttpServletRequest) context.getRequest();
 
-      observer.updatePresence();
+       // normally this comes from roomUsers.jsp, which has the channel as an argument
+       // no need to validate input as weird input simply results in a failure
+       String channelId = req.getParameter("channel");
+       if (channelId == null)
+	   channelId = getCurrentChatChannelId();
+
+       List<String> userList = new ArrayList<String>();
+
+       if (channelId == null)
+	   return userList;
+
+       PresenceObserverHelper observer = presenceChannelObservers.get(channelId);
+
+       if(observer == null)
+	   return userList;
+
+       observer.updatePresence();
       
-      // put into context a list of sessions with chat presence
-      String location = observer.getLocation();
+       // put into context a list of sessions with chat presence
+       String location = observer.getLocation();
 
-      // get the current presence list (User objects) for this page
-      List<User> users = observer.getPresentUsers();
+       // get the current presence list (User objects) for this page
+       List<User> users = observer.getPresentUsers();
+
+       //System.out.println("userincurrent channel: " + getCurrentChatChannelId() + " users " + users);
+
       
-   // is the current user running under an assumed (SU) user id?
-      String asName = null;
-      String myUserId = null;
-      try
-      {
-         UsageSession usageSession = UsageSessionService.getSession();
-         if (usageSession != null)
-         {
-            // this is the absolutely real end-user id, even if running as another user
-            myUserId = usageSession.getUserId();
+       // is the current user running under an assumed (SU) user id?
+       String asName = null;
+       String myUserId = null;
+       try {
 
-            // this is the user id the current user is running as
-            String sessionUserId = SessionManager.getCurrentSessionUserId();
+	   UsageSession usageSession = UsageSessionService.getSession();
+	   if (usageSession != null) {
 
-            // if different
-            if (!myUserId.equals(sessionUserId))
-            {
-               asName = UserDirectoryService.getUser(sessionUserId).getDisplayName();
-            }
-         }
-      }
-      catch (Throwable any)
-      {
-      }
+	       // this is the absolutely real end-user id, even if running as another user
+	       myUserId = usageSession.getUserId();
+
+	       // this is the user id the current user is running as
+	       String sessionUserId = SessionManager.getCurrentSessionUserId();
+	       
+	       // if different
+	       if (!myUserId.equals(sessionUserId)) {
+		   asName = UserDirectoryService.getUser(sessionUserId).getDisplayName();
+	       }
+	   }
+       } catch (Throwable any) {
+       }
       
-      for (Iterator<User> i = users.iterator(); i.hasNext();)
-      {
-         User u = (User) i.next();
-         String displayName = u.getDisplayName();
+       for (Iterator<User> i = users.iterator(); i.hasNext();) {
 
-         // adjust if this is the current user running as someone else
-         if ((asName != null) && (u.getId().equals(myUserId)))
-         {
-            displayName += " (" + asName + ")";
-         }
+	   User u = (User) i.next();
+	   String displayName = u.getDisplayName();
 
-         userList.add(Web.escapeHtml(displayName));
-      }
+	   // adjust if this is the current user running as someone else
+	   if ((asName != null) && (u.getId().equals(myUserId))) {
+	       displayName += " (" + asName + ")";
+	   }
+
+	   userList.add(Web.escapeHtml(displayName));
+       }
       
+       //System.out.println("userincurrent channel return: " + userList);
       
-      return userList;
+       return userList;
    }
    
    protected boolean refreshPresence() {
@@ -867,18 +882,9 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     * @return String
     */
    public String getCourierString() {
-      return "/courier/" + getCurrentChatChannelId() + "/" + getToolString();
+      return "/courier/" + getCurrentChatChannelId();
    }
 
-   /**
-    * This allows us to change/give the courier address.
-    * We want the courier to respond to the chat room.
-    * @return String
-    */
-   public String getCourierPresenceString() {
-      return "/courier/" + getToolString() + "-presence";
-   }
-   
    /**
     * Check for add/edit/del perms on the channel
     * @return
