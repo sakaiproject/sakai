@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>polls-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <groupId>org.sakaiproject.polls</groupId>
     <version>1.1-SNAPSHOT</version>
 <!-- polls.version -->
     <relativePath>../pom.xml</relativePath>

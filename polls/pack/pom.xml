@@ -3,13 +3,13 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>polls-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <groupId>org.sakaiproject.polls</groupId>
     <version>1.1-SNAPSHOT</version>
 <!-- polls.version -->
-    <relativePath>../../pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>sakai-poll-pack</name>
-  <groupId>org.sakaiproject</groupId>
+  <groupId>org.sakaiproject.polls</groupId>
   <artifactId>sakai-poll-pack</artifactId>
   <description>
     This project creates the pack used by the Sakai Poll Tool
@@ -20,12 +20,8 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-poll-logic-impl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-poll-dao-impl</artifactId>
+      <groupId>org.sakaiproject.polls</groupId>
+      <artifactId>poll-impl</artifactId>
     </dependency>
   </dependencies>
 </project>

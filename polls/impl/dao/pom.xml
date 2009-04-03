@@ -32,11 +32,7 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
-    <dependency>
-    	<groupId>org.sakaiproject</groupId>
-    	<artifactId>generic-dao</artifactId>
-    	<version>0.9.16</version>
-    </dependency>
+
 <!-- Evaluation dependencies -->
     <dependency>
       <groupId>org.sakaiproject</groupId>

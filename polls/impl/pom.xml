@@ -3,16 +3,16 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>polls-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <groupId>org.sakaiproject.polls</groupId>
     <version>1.1-SNAPSHOT</version>
 <!-- polls.version -->
     <relativePath>../../pom.xml</relativePath>
   </parent>
-  <name>sakai-poll-logic-impl</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-poll-logic-impl</artifactId>
+  <name>sakai-poll-impl</name>
+  <groupId>org.sakaiproject.polls</groupId>
+  <artifactId>poll-impl</artifactId>
   <description>
-    This project creates the logic impl used by the Sakai Poll Tool
+    This project creates the impl used by the Sakai Poll Tool
   </description>
   <packaging>jar</packaging>
   <dependencies>
@@ -32,18 +32,15 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
+    <dependency>
+    	<groupId>org.sakaiproject</groupId>
+    	<artifactId>generic-dao</artifactId>
+    	<version>0.9.16</version>
+    </dependency>
 <!-- internal dependencies -->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-poll-model-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-poll-logic-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-poll-dao-impl</artifactId>
+      <groupId>org.sakaiproject.polls</groupId>
+      <artifactId>poll-api</artifactId>
     </dependency>
     <dependency>
       <groupId>antlr</groupId>
@@ -68,11 +65,6 @@
       <artifactId>hsqldb</artifactId>
       <version>1.8.0.5</version>
       <scope>test</scope>
-    </dependency>
-<!-- needed if we are testing the logic class using a working DAO -->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-poll-hbm</artifactId>
     </dependency>
   </dependencies>
   <build>
