@@ -3,7 +3,7 @@
  * $Id: CitationHelperAction.java 34481 2007-08-27 21:36:06Z dsobiera@indiana.edu $
  ***********************************************************************************
  *
- * Copyright (c) 2006, 2007 Sakai Foundation
+ * Copyright (c) 2006, 2007, 2008 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
