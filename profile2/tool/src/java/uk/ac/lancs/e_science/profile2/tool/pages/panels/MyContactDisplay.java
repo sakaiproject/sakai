@@ -1,8 +1,5 @@
 package uk.ac.lancs.e_science.profile2.tool.pages.panels;
 
-import java.util.Date;
-
-import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
@@ -16,17 +13,11 @@ import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 public class MyContactDisplay extends Panel {
 	
 	private static final long serialVersionUID = 1L;
-	private transient Logger log = Logger.getLogger(MyInfoDisplay.class);
-	
-	private String nickname = null;
-	private Date dateOfBirth = null;
-	private String birthday = null;
 	private int visibleFieldCount = 0;
-
 	
 	public MyContactDisplay(final String id, final UserProfile userProfile) {
 		super(id);
-		
+				
 		//this panel stuff
 		final Component thisPanel = this;
 			
@@ -96,12 +87,12 @@ public class MyContactDisplay extends Panel {
 		} else {
 			visibleFieldCount++;
 		}
-			
-		
-		
 		
 		//edit button
 		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton") {
+			
+			private static final long serialVersionUID = 1L;
+
 			public void onClick(AjaxRequestTarget target) {
 				Component newPanel = new MyContactEdit(id, userProfile);
 				newPanel.setOutputMarkupId(true);

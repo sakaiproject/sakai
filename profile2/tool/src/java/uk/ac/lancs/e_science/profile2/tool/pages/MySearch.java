@@ -1,6 +1,8 @@
 package uk.ac.lancs.e_science.profile2.tool.pages;
 
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -41,14 +43,13 @@ import uk.ac.lancs.e_science.profile2.tool.pages.windows.AddFriend;
 
 public class MySearch extends BasePage {
 
-	private transient Logger log = Logger.getLogger(MySearch.class);
 	private transient Search search;
 	private List<SearchResult> results = new ArrayList<SearchResult>();
-
+	private static final Logger log = Logger.getLogger(MySearch.class); 
 	
 	public MySearch() {
 		
-		if(log.isDebugEnabled()) log.debug("MySearch()");
+		log.debug("MySearch()");
 		
 		//setup model to store the actions in the modal windows
 		final FriendAction friendActionModel = new FriendAction();
@@ -167,7 +168,7 @@ public class MySearch extends BasePage {
 		    	
 		    	//get userUuid
 		    	final String userUuid = searchResult.getUserUuid();
-		    			    	
+		    		
 		    	//setup basic values
 		    	String displayName = sakaiProxy.getUserDisplayName(userUuid);
 		    		
@@ -363,6 +364,9 @@ public class MySearch extends BasePage {
 		 */
 		
 		IndicatingAjaxButton sbnSubmitButton = new IndicatingAjaxButton("sbnSubmit", sbnForm) {
+			
+			private static final long serialVersionUID = 1L;
+
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 
 				if(target != null) {
@@ -373,7 +377,7 @@ public class MySearch extends BasePage {
 					String searchText = FormattedText.processFormattedText(search.getSearchName(), new StringBuilder());
 					
 					log.debug("MySearch() search.getSearchName(): " + searchText);
-					
+				
 					//clear the interest search field in model and repaint to clear value
 					search.setSearchInterest("");
 					
@@ -425,7 +429,10 @@ public class MySearch extends BasePage {
 		 */
 		
         IndicatingAjaxButton sbiSubmitButton = new IndicatingAjaxButton("sbiSubmit", sbiForm) {
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			
+			private static final long serialVersionUID = 1L;
+        	
+        	protected void onSubmit(AjaxRequestTarget target, Form form) {
 
 				if(target != null) {
 					//get the model
@@ -480,6 +487,14 @@ public class MySearch extends BasePage {
    	
 	}
 
+	/* reinit for deserialisation (ie back button) */
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		log.debug("MySearch has been deserialized.");
+		//re-init our transient objects
+		profile = getProfile();
+		sakaiProxy = getSakaiProxy();
+	}
 	
 	
 }

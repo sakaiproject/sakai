@@ -1,6 +1,8 @@
 package uk.ac.lancs.e_science.profile2.tool.pages;
 
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
@@ -30,8 +32,7 @@ import uk.ac.lancs.e_science.profile2.tool.components.IconWithClueTip;
 
 public class MyPrivacy extends BasePage {
 
-	private transient Logger log = Logger.getLogger(MyPrivacy.class);
-
+	private static final Logger log = Logger.getLogger(MyPrivacy.class);
 	private transient ProfilePrivacy profilePrivacy;
 		
 	public MyPrivacy() {
@@ -251,8 +252,6 @@ public class MyPrivacy extends BasePage {
 		basicInfoContainer.add(basicInfoChoice);
 		form.add(basicInfoContainer);
 		
-		
-		
 		//submit button
 		IndicatingAjaxButton submitButton = new IndicatingAjaxButton("submit", form) {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
@@ -274,7 +273,6 @@ public class MyPrivacy extends BasePage {
 		submitButton.setModel(new ResourceModel("button.save.settings"));
 		form.add(submitButton);
 		
-        
 		//cancel button
 		/*
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
@@ -287,11 +285,6 @@ public class MyPrivacy extends BasePage {
 		*/
         
         add(form);
-        
-        
- 
-        
-		
 	}
 	
 	
@@ -310,6 +303,16 @@ public class MyPrivacy extends BasePage {
 		}
 	
 	}
+	
+	/* reinit for deserialisation (ie back button) */
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		log.debug("MyPrivacy has been deserialized.");
+		//re-init our transient objects
+		profile = getProfile();
+		sakaiProxy = getSakaiProxy();
+	}
+	
 	
 }
 

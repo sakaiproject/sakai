@@ -1,6 +1,9 @@
 package uk.ac.lancs.e_science.profile2.tool.pages;
 
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+
 import org.apache.log4j.Logger;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -11,11 +14,9 @@ import uk.ac.lancs.e_science.profile2.tool.pages.panels.RequestedFriends;
 
 public class MyFriends extends BasePage {
 
-	private transient Logger log = Logger.getLogger(MyFriends.class);
-	
+	private static final Logger log = Logger.getLogger(MyFriends.class);
 	private Panel confirmedFriends;
 	private Panel requestedFriends;
-	
 	
 	public MyFriends() {
 		
@@ -38,7 +39,6 @@ public class MyFriends extends BasePage {
 		//post view event
 		sakaiProxy.postEvent(ProfileUtilityManager.EVENT_FRIENDS_VIEW_OWN, "/profile/"+userId, false);
 		
-		
 	}
 	
 	//method to allow us to update the confirmedFriends panel
@@ -54,10 +54,17 @@ public class MyFriends extends BasePage {
 			target.appendJavascript("setMainFrameHeight(window.name);");
 		}
 		
-		
 	}
 	
 	
+	/* reinit for deserialisation (ie back button) */
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		log.debug("MyFriends has been deserialized.");
+		//re-init our transient objects
+		//profile = getProfile();
+		//sakaiProxy = getSakaiProxy();
+	}
 	
 }
 

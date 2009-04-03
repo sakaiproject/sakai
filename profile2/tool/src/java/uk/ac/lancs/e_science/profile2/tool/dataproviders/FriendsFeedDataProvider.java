@@ -1,11 +1,14 @@
 package uk.ac.lancs.e_science.profile2.tool.dataproviders;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -21,7 +24,6 @@ import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
  * January 2009
  * 
  * This implementation of Wicket's IDataProvider gets a list of friends of userX
- *  * 
  * 
  */
 
@@ -29,17 +31,30 @@ import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 public class FriendsFeedDataProvider implements IDataProvider, Serializable {
 	
 	private static final long serialVersionUID = 1L;
-	private transient List<String> allFriends = new ArrayList<String>();
-	private transient List<String> friends = new ArrayList<String>();
+	private static final Logger log = Logger.getLogger(FriendsFeedDataProvider.class); 
 	private transient Profile profile;
+	private transient List<String> friends = new ArrayList<String>();
+	private String userId;
 	
-	public FriendsFeedDataProvider(final String userX) {
+	public FriendsFeedDataProvider(final String userId) {
+		
+		//set userId
+		this.userId = userId;
 		
 		//get Profile
 		profile = ProfileApplication.get().getProfile();
 		
+		//get list of friends
+		friends = getFriendsForUser(userId);
+	}
+	
+	//this is a helper method to process our friends list
+	private List<String> getFriendsForUser(final String userId) {
+		
+		List<String> allFriends = new ArrayList<String>();
+		
 		//get all friends of userX visible by userY
-		allFriends = profile.getConfirmedFriendUserIdsForUser(userX);
+		allFriends = profile.getConfirmedFriendUserIdsForUser(userId);
 		
 		//randomise this list
 		Collections.shuffle(allFriends);
@@ -53,8 +68,14 @@ public class FriendsFeedDataProvider implements IDataProvider, Serializable {
 		}
 		
 		friends = allFriends.subList(0, subListSize);
+		
+		return friends;
+		
 	}
-
+	
+	
+	
+	
 	public Iterator<String> iterator(int first, int count) {
 		try {
 			List<String> slice = friends.subList(first, first + count);
@@ -79,6 +100,15 @@ public class FriendsFeedDataProvider implements IDataProvider, Serializable {
     
     public void detach() {}
 	
+    
+    /* reinit for deserialisation (ie back button) */
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		log.debug("FriendsFeedDataProvider has been deserialized.");
+		//re-init our transient objects
+		profile = ProfileApplication.get().getProfile();
+		friends = getFriendsForUser(userId);
+	}
 }
 
 

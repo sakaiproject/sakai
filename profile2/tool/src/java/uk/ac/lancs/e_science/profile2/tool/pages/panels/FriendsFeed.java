@@ -2,6 +2,10 @@ package uk.ac.lancs.e_science.profile2.tool.pages.panels;
 
 
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+
+import org.apache.log4j.Logger;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
@@ -38,12 +42,14 @@ import uk.ac.lancs.e_science.profile2.tool.pages.ViewProfile;
 public class FriendsFeed extends Panel {
 	
 	private static final long serialVersionUID = 1L;
-	//private transient Logger log = Logger.getLogger(FriendsFeed.class);
+	private static final Logger log = Logger.getLogger(ChangeProfilePictureUrl.class);
 	private transient Profile profile;
 	private transient SakaiProxy sakaiProxy;
 	
 	public FriendsFeed(String id, final String ownerUserId, final String viewingUserId) {
 		super(id);
+		
+		log.debug("FriendsFeed()");
 		
 		//get SakaiProxy
 		sakaiProxy = ProfileApplication.get().getSakaiProxy();
@@ -181,13 +187,16 @@ public class FriendsFeed extends Panel {
 			numFriendsLabel.setModel(new StringResourceModel("text.friend.feed.num.many", null, new Object[]{ numFriends }));
 			viewFriendsLabel.setModel(new ResourceModel("link.friend.feed.view"));
 		}
-		
-		
-		
-		
-		
-		
-		
+	
+	}
+	
+	/* reinit for deserialisation (ie back button) */
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		log.debug("FriendsFeed has been deserialized.");
+		//re-init our transient objects
+		profile = ProfileApplication.get().getProfile();
+		sakaiProxy = ProfileApplication.get().getSakaiProxy();
 	}
 	
 	

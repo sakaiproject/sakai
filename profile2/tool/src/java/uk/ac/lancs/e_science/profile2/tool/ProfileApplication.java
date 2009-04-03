@@ -10,16 +10,11 @@ import uk.ac.lancs.e_science.profile2.tool.pages.errors.InternalErrorPage;
 import uk.ac.lancs.e_science.profile2.tool.pages.errors.SessionExpiredPage;
 
 
-
-
 public class ProfileApplication extends WebApplication {    
-    
-	//private transient Logger log = Logger.getLogger(ProfileApplication.class);
-	
+    	
 	private transient SakaiProxy sakaiProxy;
 	private transient Profile profile;
 
-	
 	protected void init(){
 		
 		getResourceSettings().setThrowExceptionOnMissingResource(true);
@@ -33,8 +28,7 @@ public class ProfileApplication extends WebApplication {
 		//TODO on requestcycle.onruntimeexception you can redirect to your error page passing in the exception so we can make a more Sakai-like error page
 		
 		//super.init();
-		//if(logger.isDebugEnabled()) logger.debug("init()");
-		
+	
 		/* strip the wicket:id tags from the output HTML */
 		getMarkupSettings().setStripWicketTags(true);
 		

@@ -1,5 +1,7 @@
 package uk.ac.lancs.e_science.profile2.tool.pages.panels;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
@@ -33,13 +35,15 @@ import uk.ac.lancs.e_science.profile2.tool.pages.windows.IgnoreFriend;
 public class RequestedFriends extends Panel {
 	
 	private static final long serialVersionUID = 1L;
-	private transient Logger log = Logger.getLogger(RequestedFriends.class);
+	private static final Logger log = Logger.getLogger(RequestedFriends.class);
 	private transient SakaiProxy sakaiProxy;
 	private transient Profile profile; 
 	private int numRequestedFriends = 0;
 	
 	public RequestedFriends(final String id, final MyFriends parent, final String userId) {
 		super(id);
+		
+		log.debug("RequestedFriends()");
 		
 		//get SakaiProxy
 		sakaiProxy = ProfileApplication.get().getSakaiProxy();
@@ -258,6 +262,15 @@ public class RequestedFriends extends Panel {
 			this.setVisible(false);
 		}
 		
+	}
+	
+	/* reinit for deserialisation (ie back button) */
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		log.debug("RequestedFriends has been deserialized");
+		//re-init our transient objects
+		profile = ProfileApplication.get().getProfile();
+		sakaiProxy = ProfileApplication.get().getSakaiProxy();
 	}
 	
 }

@@ -1,6 +1,9 @@
 package uk.ac.lancs.e_science.profile2.tool.pages;
 
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+
 import org.apache.log4j.Logger;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
@@ -28,8 +31,7 @@ import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyStatusPanel;
 public class MyProfile extends BasePage {
 
 	private static final long serialVersionUID = 1L;
-	private transient Logger log = Logger.getLogger(MyProfile.class);
-	private transient byte[] profileImageBytes;
+	private static final Logger log = Logger.getLogger(MyProfile.class);
 
 	public MyProfile()   {
 		
@@ -63,7 +65,7 @@ public class MyProfile extends BasePage {
 		//get some values from SakaiPerson or SakaiProxy if empty
 		//SakaiPerson returns NULL strings if value is not set, not blank ones
 	
-		//thse must come from Account to keep it all in sync
+		//these must come from Account to keep it all in sync
 		String userDisplayName = sakaiProxy.getUserDisplayName(userId);
 		String userEmail = sakaiProxy.getUserEmail(userId);
 		
@@ -169,12 +171,17 @@ public class MyProfile extends BasePage {
 		Panel friendsFeed = new FriendsFeed("friendsFeed", userId, userId);
 		friendsFeed.setOutputMarkupId(true);
 		add(friendsFeed);
-		
-		
-		
+
 	}
 	
-		
+	/* reinit for deserialisation (ie back button) */
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		log.debug("MyProfile has been deserialized.");
+		//re-init our transient objects
+		profile = getProfile();
+		sakaiProxy = getSakaiProxy();
+	}	
 	
 	
 	

@@ -1,6 +1,9 @@
 package uk.ac.lancs.e_science.profile2.tool.pages;
 
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -28,10 +31,12 @@ import uk.ac.lancs.e_science.profile2.tool.components.EnablingCheckBox;
 
 public class MyPreferences extends BasePage{
 
-	private transient Logger log = Logger.getLogger(MyPreferences.class);
+	private static final Logger log = Logger.getLogger(MyPreferences.class);
 	private transient ProfilePreferences profilePreferences;
 
 	public MyPreferences() {
+		
+		log.debug("MyPreferences()");
 		
 		//get current user
 		final String userId = sakaiProxy.getCurrentUserId();
@@ -290,14 +295,16 @@ public class MyPreferences extends BasePage{
 		submitButton.setDefaultFormProcessing(false);
 		form.add(submitButton);
 		
-        
-        
         add(form);
-        
-        
- 
-        
 		
+	}
+	
+	/* reinit for deserialisation (ie back button) */
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		log.debug("MyPreferences has been deserialized.");
+		profile = getProfile();
+		sakaiProxy = getSakaiProxy();
 	}
 
 }

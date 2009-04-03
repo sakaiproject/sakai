@@ -1,5 +1,8 @@
 package uk.ac.lancs.e_science.profile2.tool.pages.panels;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+
 import org.apache.log4j.Logger;
 import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.html.basic.Label;
@@ -31,10 +34,12 @@ public class ChangeProfilePictureUpload extends Panel{
 	private FileUploadField uploadField;
     private transient SakaiProxy sakaiProxy;
     private transient Profile profile;
-	private transient Logger log = Logger.getLogger(ChangeProfilePictureUpload.class);
+	private static final Logger log = Logger.getLogger(ChangeProfilePictureUpload.class);
 
 	public ChangeProfilePictureUpload(String id) {  
         super(id);  
+        
+        log.debug("ChangeProfilePictureUpload()");
         
 		//get SakaiProxy API
 		sakaiProxy = ProfileApplication.get().getSakaiProxy();
@@ -179,6 +184,15 @@ public class ChangeProfilePictureUpload extends Panel{
 		//add form to page
 		add(form);
     }
+	
+	/* reinit for deserialisation (ie back button) */
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		log.debug("ChangeProfilePictureUpload has been deserialized.");
+		//re-init our transient objects
+		profile = ProfileApplication.get().getProfile();
+		sakaiProxy = ProfileApplication.get().getSakaiProxy();
+	}
 
 }
 

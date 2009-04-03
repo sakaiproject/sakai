@@ -57,7 +57,7 @@ import com.sun.image.codec.jpeg.JPEGImageEncoder;
  */
 public class ProfileImpl extends HibernateDaoSupport implements Profile {
 
-	private transient final Logger log = Logger.getLogger(ProfileImpl.class);
+	private static final Logger log = Logger.getLogger(ProfileImpl.class);
 	
 	//surely this is in the Calendar API somewhere
 	private static final String[] DAY_OF_WEEK_MAPPINGS = { "", "Sunday", "Monday",
@@ -1727,6 +1727,9 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		//otherwise create SearchResult record and add to list
 		for(Iterator<String> i = userUuids.iterator(); i.hasNext();){
 			String userUuid = (String)i.next();
+			
+			//TODO skip all this if userId == userUuid, just return a default search record?
+			
 			
 			//friend?
 			boolean friend = isUserXFriendOfUserY(userUuid, userId);

@@ -2,13 +2,15 @@ package uk.ac.lancs.e_science.profile2.tool.pages.panels;
 
 
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -29,14 +31,14 @@ import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 public class MyInfoEdit extends Panel {
 	
 	private static final long serialVersionUID = 1L;
-	private transient Logger log = Logger.getLogger(MyInfoEdit.class);
-	private WebMarkupContainer formFeedback;
+	private static final Logger log = Logger.getLogger(MyInfoEdit.class);
     private transient SakaiProxy sakaiProxy;
-
 	
 	public MyInfoEdit(final String id, final UserProfile userProfile) {
 		super(id);
 		
+        log.debug("MyInfoEdit()");
+
 		//get SakaiProxy API
 		sakaiProxy = ProfileApplication.get().getSakaiProxy();
 		
@@ -74,7 +76,7 @@ public class MyInfoEdit extends Panel {
 
 		
 		//submit button
-		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.save.changes"), form) {
+		IndicatingAjaxButton submitButton = new IndicatingAjaxButton("submit", form) {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				//save() form, show message, then load display panel
 
@@ -97,10 +99,16 @@ public class MyInfoEdit extends Panel {
 					String js = "alert('Failed to save information. Contact your system administrator.');";
 					target.prependJavascript(js);
 				}
-				
-				
             }
+			
+			public String getAjaxIndicatorMarkupId() {
+				System.out.println("indicator called");
+				return "indicator";
+			}
+
+			
 		};
+		submitButton.setModel(new ResourceModel("button.save.changes"));
 		form.add(submitButton);
 		
         
@@ -119,6 +127,7 @@ public class MyInfoEdit extends Panel {
 				}
             	
             }
+			
         };
         cancelButton.setDefaultFormProcessing(false);
         form.add(cancelButton);
@@ -156,7 +165,7 @@ public class MyInfoEdit extends Panel {
 		//this WILL fail if there is no sakaiPerson for the user however this should have been caught already
 		//as a new Sakaiperson for a user is created in MyProfile.java if they don't have one.
 		
-		//we should set these up as strings and clean them first
+		//TODO should we set these up as strings and clean them first?
 		
 		sakaiPerson.setNickname(userProfile.getNickname());
 		
@@ -168,7 +177,6 @@ public class MyInfoEdit extends Panel {
 			userProfile.setDateOfBirth(null); //clear both fields
 			sakaiPerson.setDateOfBirth(null);
 		}
-		
 
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
 			log.info("Saved SakaiPerson for: " + userId );
@@ -177,8 +185,14 @@ public class MyInfoEdit extends Panel {
 			log.info("Couldn't save SakaiPerson for: " + userId);
 			return false;
 		}
-	 	
+	}
+	
+	/* reinit for deserialisation (ie back button) */
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		log.debug("MyInfoEdit has been deserialized.");
+		//re-init our transient objects
+		sakaiProxy = ProfileApplication.get().getSakaiProxy();
 	}
 
-	
 }

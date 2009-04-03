@@ -170,10 +170,6 @@ public class ConfirmFriend extends Panel {
         //add form
         add(form);
         
-        
-       
-        
-
     }
 
 	

@@ -2,6 +2,9 @@ package uk.ac.lancs.e_science.profile2.tool.pages.panels;
 
 
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+
 import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -24,11 +27,13 @@ import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 public class MyInterestsEdit extends Panel {
 	
 	private static final long serialVersionUID = 1L;
-	private transient Logger log = Logger.getLogger(MyInterestsEdit.class);
+	private static final Logger log = Logger.getLogger(MyInterestsEdit.class);
     private transient SakaiProxy sakaiProxy;
 	
 	public MyInterestsEdit(final String id, final UserProfile userProfile) {
 		super(id);
+		
+		log.debug("MyInterestsEdit()");
 		
 		//get SakaiProxy API
 		sakaiProxy = ProfileApplication.get().getSakaiProxy();
@@ -176,5 +181,12 @@ public class MyInterestsEdit extends Panel {
 		}
 	}
 
+	/* reinit for deserialisation (ie back button) */
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		log.debug("MyInterestsEdit has been deserialized.");
+		//re-init our transient objects
+		sakaiProxy = ProfileApplication.get().getSakaiProxy();
+	}
 	
 }

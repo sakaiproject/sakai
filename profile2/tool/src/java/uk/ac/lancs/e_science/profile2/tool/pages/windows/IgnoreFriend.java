@@ -123,10 +123,6 @@ public class IgnoreFriend extends Panel {
         //add form
         add(form);
         
-        
-       
-        
-
     }
 
 	

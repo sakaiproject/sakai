@@ -28,7 +28,6 @@ import uk.ac.lancs.e_science.profile2.tool.models.FriendAction;
 public class RemoveFriend extends Panel {
 
 	private static final long serialVersionUID = 1L;
-	private transient Logger log = Logger.getLogger(AddFriend.class);
 	private transient SakaiProxy sakaiProxy;
 	private transient Profile profile;
 
@@ -128,10 +127,6 @@ public class RemoveFriend extends Panel {
         //add form
         add(form);
         
-        
-       
-        
-
     }
 
 	

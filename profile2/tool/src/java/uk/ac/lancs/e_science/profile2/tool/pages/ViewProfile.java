@@ -1,6 +1,8 @@
 package uk.ac.lancs.e_science.profile2.tool.pages;
 
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
@@ -36,7 +38,7 @@ import uk.ac.lancs.e_science.profile2.tool.pages.windows.AddFriend;
 
 public class ViewProfile extends BasePage {
 
-	private transient Logger log = Logger.getLogger(MyProfile.class);
+	private static final Logger log = Logger.getLogger(ViewProfile.class);
     private transient ProfileStatus profileStatus;
 	
 	public ViewProfile(String userUuid)   {
@@ -500,6 +502,13 @@ public class ViewProfile extends BasePage {
 		this(parameters.getString("id"));
 	}
 	
-	
+	/* reinit for deserialisation (ie back button) */
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		log.debug("ViewProfile has been deserialized.");
+		//re-init our transient objects
+		profile = getProfile();
+		sakaiProxy = getSakaiProxy();
+	}
 	
 }

@@ -1,17 +1,21 @@
 package uk.ac.lancs.e_science.profile2.tool.dataproviders;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
+import uk.ac.lancs.e_science.profile2.tool.pages.BasePage;
 
 /**
  * ConfirmedFriendsDataProvider.java
@@ -36,18 +40,29 @@ import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 public class ConfirmedFriendsDataProvider implements IDataProvider, Serializable {
 	
 	private static final long serialVersionUID = 1L;
+	private static final Logger log = Logger.getLogger(ConfirmedFriendsDataProvider.class); 
 	private transient List<String> friends = new ArrayList<String>();
 	private transient Profile profile;
+	private String userId;
 	
 	public ConfirmedFriendsDataProvider(final String userId) {
+		
+		//set userId
+		this.userId = userId;
 		
 		//get Profile
 		profile = ProfileApplication.get().getProfile();
 		
 		//get list of friends for user
-		friends = profile.getConfirmedFriendUserIdsForUser(userId);
+		friends = getFriendsForUser(userId);
 		
-		//TODO sort list here - need comparator etc
+		//TODO sort list here based on some criteria.
+	}
+	
+	//this is a helper method to process our friends list
+	private List<String> getFriendsForUser(final String userId) {
+		friends = profile.getConfirmedFriendUserIdsForUser(userId);
+		return friends;
 	}
 
 	public Iterator<String> iterator(int first, int count) {
@@ -74,6 +89,15 @@ public class ConfirmedFriendsDataProvider implements IDataProvider, Serializable
     
     public void detach() {}
 	
+      
+    /* reinit for deserialisation (ie back button) */
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		log.debug("ConfirmedFriendsDataProvider has been deserialized.");
+		//re-init our transient objects
+		profile = ProfileApplication.get().getProfile();
+		friends = getFriendsForUser(userId);
+	}
 }
 
 

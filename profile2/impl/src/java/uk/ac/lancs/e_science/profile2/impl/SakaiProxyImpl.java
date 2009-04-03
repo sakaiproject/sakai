@@ -48,7 +48,7 @@ import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
  */
 public class SakaiProxyImpl implements SakaiProxy {
 
-	private transient final Logger log = Logger.getLogger(SakaiProxyImpl.class);
+	private static final Logger log = Logger.getLogger(SakaiProxyImpl.class);
     
 	/**
  	* {@inheritDoc}

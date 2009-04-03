@@ -181,17 +181,9 @@ public class AddFriend extends Panel {
         
         //add form
         add(form);
-        
-        
-       
-        
-
     }
 
-	
-	
-	
-	
+		
 }
 
 

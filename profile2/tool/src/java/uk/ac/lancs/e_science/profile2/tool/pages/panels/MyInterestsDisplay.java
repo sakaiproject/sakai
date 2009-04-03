@@ -13,7 +13,7 @@ import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 
 public class MyInterestsDisplay extends Panel {
 	
-	private transient Logger log = Logger.getLogger(MyInterestsDisplay.class);
+	private static final Logger log = Logger.getLogger(MyInterestsDisplay.class);
 	
 	private int visibleFieldCount = 0;
 

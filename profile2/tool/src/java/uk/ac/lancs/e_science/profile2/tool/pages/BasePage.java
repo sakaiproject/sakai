@@ -18,11 +18,7 @@ import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 
 public class BasePage extends WebPage implements IHeaderContributor {
 
-	private transient Logger log = Logger.getLogger(BasePage.class);
-	//protected Link myProfileLink;
-	//protected Link testDataLink;
-	//protected Link myFriendsLink;
-
+	private static final Logger log = Logger.getLogger(BasePage.class); 
 	protected transient SakaiProxy sakaiProxy;
 	protected transient Profile profile;
 	
@@ -30,13 +26,13 @@ public class BasePage extends WebPage implements IHeaderContributor {
     	
 		//super();
 		
-		if(log.isDebugEnabled()) log.debug("BasePage()");
+		log.debug("BasePage()");
 
 		//get sakaiProxy API
-		sakaiProxy = ProfileApplication.get().getSakaiProxy();
+		sakaiProxy = getSakaiProxy();
 		
 		//get Profile API
-		profile = ProfileApplication.get().getProfile();
+		profile = getProfile();
 		
 		
     	//profile link
@@ -226,7 +222,22 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	}
 
 	
+	/* helper methods for our child pages to get at the API's */
+	public SakaiProxy getSakaiProxy() {
+		return ProfileApplication.get().getSakaiProxy();
+	}
+
+	public Profile getProfile() {
+		return ProfileApplication.get().getProfile();
+	}
+
 	
+	/* disable caching
+	protected void setHeaders(WebResponse response) { 
+		response.setHeader("Pragma", "no-cache"); 
+		response.setHeader("Cache-Control", "no-cache, max-age=0, must-revalidate, no-store"); 
+    } 
+	*/
 	
 	
 }

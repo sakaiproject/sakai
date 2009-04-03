@@ -1,7 +1,10 @@
 package uk.ac.lancs.e_science.profile2.tool.pages.panels;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Date;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -31,13 +34,17 @@ import uk.ac.lancs.e_science.profile2.tool.pages.windows.RemoveFriend;
 public class ConfirmedFriends extends Panel {
 	
 	private static final long serialVersionUID = 1L;
+	private static final Logger log = Logger.getLogger(ConfirmedFriends.class);
 	private transient SakaiProxy sakaiProxy;
 	private transient Profile profile; 
 	private int numConfirmedFriends = 0;
 	private boolean updateable = false;
 	
+	
 	public ConfirmedFriends(final String id, final String userX) {
 		super(id);
+		
+		log.debug("ConfirmedFriends()");
 		
 		//get SakaiProxy
 		sakaiProxy = ProfileApplication.get().getSakaiProxy();
@@ -249,20 +256,21 @@ public class ConfirmedFriends extends Panel {
 
 		//add results container
 		add(confirmedFriendsContainer);
-		
-		
-		
-		
+
 		//initially, if no friends, hide container
 		if(numConfirmedFriends == 0) {
 			confirmedFriendsContainer.setVisible(false);
 			
 		}
-		
-		
-		
-		
-
+	}
+	
+	/* reinit for deserialisation (ie back button) */
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		log.debug("ConfirmedFriends has been deserialized.");
+		//re-init our transient objects
+		profile = ProfileApplication.get().getProfile();
+		sakaiProxy = ProfileApplication.get().getSakaiProxy();
 	}
 	
 }

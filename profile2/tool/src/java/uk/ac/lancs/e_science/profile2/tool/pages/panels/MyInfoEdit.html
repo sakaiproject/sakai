@@ -16,6 +16,7 @@
 		<div class="mainSectionContentForm">	
 	
 			<form wicket:id="form" class="profileForm">
+				<div id="indicator" style="width: 20px; height: 20px; border:1px solid red;" />
 				<table class="profileContent">
 					
 					<!-- nickname -->
@@ -39,13 +40,7 @@
 					<input type="submit" wicket:id="submit" value="Save changes" />
 					<input type="button" wicket:id="cancel" value="Cancel"/>
 				</div>
-				<!-- 
-				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				<span wicket:id="formFeedback" style="display:none;>
-					<img src="" wicket:id="feedbackImg" />
-					<span wicket:id="feedbackMsg">[indicatorMsg]</span>
-				</span>
-				-->
+				
 			</form>	
 		</div>
 	</div>
@@ -83,6 +78,8 @@
 			
 		});
 	</script> 
+	
+	
 	
 	
 

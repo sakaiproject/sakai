@@ -1,6 +1,8 @@
 package uk.ac.lancs.e_science.profile2.tool.pages.panels;
 
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
@@ -28,7 +30,7 @@ import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 public class MyStatusPanel extends Panel {
 	
 	private static final long serialVersionUID = 1L;
-	private transient Logger log = Logger.getLogger(MyStatusPanel.class);
+	private static final Logger log = Logger.getLogger(MyStatusPanel.class);
     private transient SakaiProxy sakaiProxy;
     private transient Profile profile;
     private transient ProfileStatus profileStatus;
@@ -36,10 +38,11 @@ public class MyStatusPanel extends Panel {
     //get default text that fills the textField
 	String defaultStatus = new ResourceModel("text.no.status", "Say something").getObject().toString();
 
-
 	public MyStatusPanel(String id, UserProfile userProfile) {
 		super(id);
 		
+		log.debug("MyStatusPanel()");
+
 		//get SakaiProxy API
 		sakaiProxy = ProfileApplication.get().getSakaiProxy();
 		
@@ -222,9 +225,16 @@ public class MyStatusPanel extends Panel {
 			
 			//post update event
 			sakaiProxy.postEvent(ProfileUtilityManager.EVENT_TWITTER_UPDATE, "/profile/"+userId, true);
-
 		}
-		
+	}
+	
+	/* reinit for deserialisation (ie back button) */
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		log.debug("MyStatusPanel has been deserialized");
+		//re-init our transient objects
+		profile = ProfileApplication.get().getProfile();
+		sakaiProxy = ProfileApplication.get().getSakaiProxy();
 	}
 	
 }

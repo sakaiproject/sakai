@@ -2,6 +2,8 @@ package uk.ac.lancs.e_science.profile2.tool.pages.panels;
 
 
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
@@ -22,21 +24,22 @@ import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 public class MyInfoDisplay extends Panel {
 	
 	private static final long serialVersionUID = 1L;
-	private transient Logger log = Logger.getLogger(MyInfoDisplay.class);
-	
+	private static final Logger log = Logger.getLogger(MyInfoDisplay.class);
+	private transient Profile profile;
 	private int visibleFieldCount = 0;
 	private String birthday = ""; 
 	private String birthdayDisplay = "";
-
 	
 	public MyInfoDisplay(final String id, final UserProfile userProfile) {
 		super(id);
+		
+		log.debug("MyInfoDisplay()");
 		
 		//this panel stuff
 		final Component thisPanel = this;
 		
 		//get Profile API
-		Profile profile = ProfileApplication.get().getProfile();
+		profile = ProfileApplication.get().getProfile();
 		
 		//get userId of this profile
 		String userId = userProfile.getUserId();
@@ -87,10 +90,12 @@ public class MyInfoDisplay extends Panel {
 		} else {
 			visibleFieldCount++;
 		}
-		
 				
 		//edit button
 		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton", new ResourceModel("button.edit")) {
+			
+			private static final long serialVersionUID = 1L;
+
 			public void onClick(AjaxRequestTarget target) {
 				Component newPanel = new MyInfoEdit(id, userProfile);
 				newPanel.setOutputMarkupId(true);
@@ -113,7 +118,14 @@ public class MyInfoDisplay extends Panel {
 		if(visibleFieldCount > 0) {
 			noFieldsMessage.setVisible(false);
 		}
-		
+	}
+	
+	/* reinit for deserialisation (ie back button) */
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		log.debug("MyInfoDisplay has been deserialized.");
+		//re-init our transient objects
+		profile = ProfileApplication.get().getProfile();
 	}
 	
 }
