@@ -3,7 +3,7 @@
  * $URL$
  * EntityBrokerException.java - entity-broker - Aug 18, 2008 2:44:50 PM - azeckoski
  **************************************************************************
- * Copyright (c) 2008 Sakai Foundation
+ * Copyright (c) 2008 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

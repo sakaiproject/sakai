@@ -3,7 +3,7 @@
  * $URL$
  * EntityId.java - entity-broker - Apr 13, 2008 12:17:49 PM - azeckoski
  **************************************************************************
- * Copyright (c) 2008 Sakai Foundation
+ * Copyright (c) 2008 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

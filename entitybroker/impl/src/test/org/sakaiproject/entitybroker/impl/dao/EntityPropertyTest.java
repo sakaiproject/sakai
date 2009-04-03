@@ -1,7 +1,7 @@
 /******************************************************************************
  * EntityPropertyTest.java - created by aaronz on Jul 24, 2007
  * 
- * Copyright (c) 2007, 2008 Sakai Foundation
+ * Copyright (c) 2007, 2008 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

@@ -3,7 +3,7 @@
  * $URL: https://source.sakaiproject.org/svn/entitybroker/trunk/impl/src/java/org/sakaiproject/entitybroker/providers/MembershipEntityProvider.java $
  * ServerConfigEntityProvider.java - entity-broker - Jul 17, 2008 2:19:03 PM - azeckoski
  **************************************************************************
- * Copyright (c) 2008 Sakai Foundation
+ * Copyright (c) 2008, 2009 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

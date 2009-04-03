@@ -3,7 +3,7 @@
  * $URL: https://source.sakaiproject.org/svn/entitybroker/trunk/impl/src/java/org/sakaiproject/entitybroker/providers/SiteEntityProvider.java $
  * SiteEntityProvider.java - entity-broker - Jun 29, 2008 8:35:55 AM - azeckoski
  **************************************************************************
- * Copyright (c) 2008 Sakai Foundation
+ * Copyright (c) 2008, 2009 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

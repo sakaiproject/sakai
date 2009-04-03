@@ -3,7 +3,7 @@
  * $URL$
  * EntityRedirectsManager.java - entity-broker - Jul 26, 2008 9:58:00 AM - azeckoski
  **************************************************************************
- * Copyright (c) 2008 Sakai Foundation
+ * Copyright (c) 2008, 2009 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

@@ -3,7 +3,7 @@
  * $URL$
  * EntityViewAccessProviderImpl.java - entity-broker - Apr 11, 2008 11:55:45 AM - azeckoski
  **************************************************************************
- * Copyright (c) 2008 Sakai Foundation
+ * Copyright (c) 2008, 2009 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

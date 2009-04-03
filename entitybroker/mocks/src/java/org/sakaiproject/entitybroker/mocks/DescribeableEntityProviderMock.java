@@ -3,7 +3,7 @@
  * $URL$
  * DescribeableEntityProviderMock.java - entity-broker - Jul 19, 2008 9:37:54 AM - azeckoski
  **************************************************************************
- * Copyright (c) 2008 Sakai Foundation
+ * Copyright (c) 2008 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
