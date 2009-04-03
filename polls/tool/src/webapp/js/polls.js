@@ -17,8 +17,8 @@ $(document).ready(function() {
     //A filter to extract the real date and pass that to the sorter
     var dateExtractor = function(_that) {
        var that = $(_that);
-        if(that.attr('class') && (that.attr('class').search(/realDate:/) != -1)){
-            return that.attr('class').replace(/realDate:/,'');
+        if(that.attr('name') && (that.attr('name').search(/realDate:/) != -1)){
+            return that.attr('name').replace(/realDate:/,'');
         }
        return that.text();
     }

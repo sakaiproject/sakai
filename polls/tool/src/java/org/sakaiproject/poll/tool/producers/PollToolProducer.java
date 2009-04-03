@@ -67,6 +67,7 @@ import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.stringutil.StringList;
 import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.decorators.DecoratorList;
+import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.components.decorators.UIStyleDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
@@ -265,13 +266,13 @@ DefaultView,NavigationCaseReporter {
 
 			if (poll.getVoteOpen()!=null)
 				UIOutput.make(pollrow,"poll-open-date",df.format(poll.getVoteOpen()))
-					.decorators = new DecoratorList(new UIStyleDecorator("realDate:"+poll.getVoteOpen().toString()));
+					.decorators = new DecoratorList(new UIFreeAttributeDecorator("name", "realDate:"+poll.getVoteOpen().toString()));
 			else 
 				UIVerbatim.make(pollrow,"poll-open-date","  ");
 
 			if (poll.getVoteClose()!=null)
 				UIOutput.make(pollrow,"poll-close-date",df.format(poll.getVoteClose()))
-					.decorators = new DecoratorList(new UIStyleDecorator("realDate:"+poll.getVoteClose().toString()));
+					.decorators = new DecoratorList(new UIFreeAttributeDecorator("name", "realDate:"+poll.getVoteClose().toString()));
 			else 
 				UIVerbatim.make(pollrow,"poll-close-date","  ");
 
