@@ -3,7 +3,7 @@
  * $Id: QualifierImpl.java 9276 2006-05-10 23:04:20Z daisyf@stanford.edu $
  ***********************************************************************************
  *
- * Copyright (c) 2005, 2006 Sakai Foundation
+ * Copyright (c) 2005, 2006, 2008, 2009 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

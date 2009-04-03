@@ -3,7 +3,7 @@
 * $Id: RichTextEditArea.java 226 2005-06-23 23:46:26Z esmiley@stanford.edu $
 ***********************************************************************************
 *
- * Copyright (c) 2004, 2005, 2006 Sakai Foundation
+ * Copyright (c) 2004, 2005, 2006 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

@@ -3,7 +3,7 @@
  * $Id: TotalScoresBean.java 29431 2007-04-22 05:20:55Z ktsao@stanford.edu $
  ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 Sakai Foundation
+ * Copyright (c) 2007, 2008, 2009 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

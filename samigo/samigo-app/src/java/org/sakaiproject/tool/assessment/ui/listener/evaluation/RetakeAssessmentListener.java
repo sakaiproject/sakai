@@ -3,7 +3,7 @@
  * $Id: ConfirmRemovePartListener.java 16897 2006-10-09 00:28:33Z ktsao@stanford.edu $
  ***********************************************************************************
  *
- * Copyright (c) 2004, 2005, 2006, 2007 Sakai Foundation
+ * Copyright (c) 2004, 2005, 2006, 2007, 2008 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

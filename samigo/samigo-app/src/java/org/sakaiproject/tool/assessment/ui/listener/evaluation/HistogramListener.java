@@ -50,7 +50,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
  * This handles the selection of the Histogram Aggregate Statistics.
  *  </p>
  *
- * Copyright (c) 2004, 2005, 2006, 2007, 2008 Sakai Foundation
+ * Copyright (c) 2004, 2005, 2006, 2007, 2008, 2009 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

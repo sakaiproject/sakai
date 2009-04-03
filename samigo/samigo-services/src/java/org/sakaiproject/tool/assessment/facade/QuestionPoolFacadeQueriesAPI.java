@@ -3,7 +3,7 @@
  * $Id: QuestionPoolFacadeQueriesAPI.java 9343 2006-05-12 23:30:02Z lydial@stanford.edu $
  ***********************************************************************************
  *
- * Copyright (c) 2004, 2005, 2006, 2007 Sakai Foundation
+ * Copyright (c) 2004, 2005, 2006, 2007, 2008 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

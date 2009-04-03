@@ -3,7 +3,7 @@
  * $Id: TotalScoreListener.java 30029 2007-05-04 15:41:31Z ktsao@stanford.edu $
  ***********************************************************************************
  *
- * Copyright (c) 2007 Sakai Foundation
+ * Copyright (c) 2007, 2008 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

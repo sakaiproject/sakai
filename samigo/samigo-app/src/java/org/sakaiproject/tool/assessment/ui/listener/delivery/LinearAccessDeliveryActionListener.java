@@ -3,7 +3,7 @@
  * $Id: DeliveryActionListener.java 13044 2006-07-28 03:23:48Z daisyf@stanford.edu $
  ***********************************************************************************
  *
- * Copyright (c) 2004, 2005, 2006, 2007 Sakai Foundation
+ * Copyright (c) 2004, 2005, 2006, 2007, 2008, 2009 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

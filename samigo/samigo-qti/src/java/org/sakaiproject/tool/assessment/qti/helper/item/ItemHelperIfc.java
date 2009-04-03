@@ -3,7 +3,7 @@
  * $Id: ItemHelperIfc.java 9274 2006-05-10 22:50:48Z daisyf@stanford.edu $
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006, 2008 Sakai Foundation
+ * Copyright (c) 2003, 2004, 2005, 2006, 2008 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

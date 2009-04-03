@@ -3,7 +3,7 @@
  * $Id: QuestionScoreUpdateListener.java 13037 2006-07-27 20:29:15Z lydial@stanford.edu $
  ***********************************************************************************
  *
- * Copyright (c) 2004, 2005, 2006 Sakai Foundation
+ * Copyright (c) 2004, 2005, 2006, 2008 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

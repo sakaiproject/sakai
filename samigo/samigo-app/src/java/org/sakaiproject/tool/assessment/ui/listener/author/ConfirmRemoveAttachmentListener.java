@@ -3,7 +3,7 @@
  * $Id: ConfirmRemoveMediaListener.java 9268 2006-05-10 21:27:24Z daisyf@stanford.edu $
  ***********************************************************************************
  *
- * Copyright (c) 2004, 2005, 2006 Sakai Foundation
+ * Copyright (c) 2004, 2005, 2006, 2008 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
