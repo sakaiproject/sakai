@@ -8737,7 +8737,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						if ("submission".equals(qName) && entity == null)
 						{
 							try {
-								if (attributes.getValue("reviewScore")!=null)
+								if (StringUtil.trimToNull(attributes.getValue("reviewScore"))!=null)
 									m_reviewScore = Integer.parseInt(attributes.getValue("reviewScore"));
 								else
 									m_reviewScore = -1;
