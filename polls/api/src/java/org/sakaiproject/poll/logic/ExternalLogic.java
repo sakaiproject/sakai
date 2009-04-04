@@ -42,6 +42,9 @@ public interface ExternalLogic {
 	 */
 	public boolean isUserAdmin();
 	
+	
+	
+	
 	/**
 	 * @return the current location id of the current user
 	 */

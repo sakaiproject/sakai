@@ -18,21 +18,16 @@
 		<property name="dao" ref="org.sakaiproject.poll.dao.PollDao"/>
 		<property name="idManager"
 			ref="org.sakaiproject.id.api.IdManager" />
-		
-		<property name="entityManager"
+				<property name="entityManager"
 			ref="org.sakaiproject.entity.api.EntityManager" />
+		<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
     </bean>
 
 	<bean id="org.sakaiproject.tool.poll.api.PollVoteManager"
 		class="org.sakaiproject.poll.service.impl.PollVoteManagerImpl"
 		lazy-init="true">
 		<property name="dao" ref="org.sakaiproject.poll.dao.PollDao"/>
-		<property name="toolManager"
-			ref="org.sakaiproject.tool.api.ToolManager" />
-		<property name="eventTrackingService"
-			ref="org.sakaiproject.event.api.EventTrackingService" />
-        <property name="securityService"
-            ref="org.sakaiproject.authz.api.SecurityService" />
+		<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
 	</bean>
 
 	<bean id="org.sakaiproject.poll.logic.ExternalLogic">

@@ -28,16 +28,14 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.genericdao.api.search.Restriction;
 import org.sakaiproject.genericdao.api.search.Search;
 import org.sakaiproject.poll.dao.PollDao;
+import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
-import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
 
@@ -46,20 +44,10 @@ public class PollVoteManagerImpl implements PollVoteManager {
 //  use commons logger
     private static Log log = LogFactory.getLog(PollListManagerImpl.class);
 
-    private EventTrackingService eventTrackingService;
-    public void setEventTrackingService(EventTrackingService ets) {
-        eventTrackingService = ets;
-    }
-
-    private SecurityService securityService;
-    public void setSecurityService(SecurityService ss) {
-        securityService = ss;
-    }
-
-    private ToolManager toolManager;
-    public void setToolManager(ToolManager tm) {
-        toolManager = tm;
-    }
+  private ExternalLogic externalLogic;    
+    public void setExternalLogic(ExternalLogic externalLogic) {
+		this.externalLogic = externalLogic;
+	}
 
 
     private PollDao dao;
@@ -74,7 +62,8 @@ public class PollVoteManagerImpl implements PollVoteManager {
             pollId = vote.getPollId();
             saveVote(vote);
         }
-        eventTrackingService.post(eventTrackingService.newEvent("poll.vote", "poll/site/" + toolManager.getCurrentPlacement().getContext() +"/poll/" +  pollId, true));
+        
+        externalLogic.postEvent("poll.vote", "poll/site/" + externalLogic.getCurrentLocationReference() +"/poll/" +  pollId, true);
     }
 
     public boolean saveVote(Vote vote)  {
@@ -157,11 +146,11 @@ public class PollVoteManagerImpl implements PollVoteManager {
         if (poll == null) {
             throw new IllegalArgumentException("Invalid poll id ("+pollId+") when checking user can vote");
         }
-        if (securityService.isSuperUser(userId)) {
+        if (externalLogic.isUserAdmin(userId)) {
             allowed = true;
         } else {
             String siteRef = "/site/" + poll.getSiteId();
-            if (securityService.unlock(userId, PollListManager.PERMISSION_VOTE, siteRef)) {
+            if (externalLogic.isAllowedInLocation(PollListManager.PERMISSION_VOTE, siteRef, "/user/" +userId)) {
                 if (ignoreVoted) {
                     allowed = true;
                 } else {
