@@ -21,6 +21,7 @@ import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.event.api.NotificationService;
 
 public class ZipContentUtil {
 	
@@ -53,7 +54,7 @@ public class ZipContentUtil {
 			resourceEdit.setContentType(mime.getContentType(resourceId));
 			ResourcePropertiesEdit props = resourceEdit.getPropertiesEdit();
 			props.addProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME, resourceName);
-			ContentHostingService.commitResource(resourceEdit);								
+			ContentHostingService.commitResource(resourceEdit, NotificationService.NOTI_NONE);								
 		} 
 		catch (Exception e) {
 			e.printStackTrace();
@@ -123,7 +124,7 @@ public class ZipContentUtil {
 		resourceEdit.setContentType(mime.getContentType(resourceName));
 		ResourcePropertiesEdit props = resourceEdit.getPropertiesEdit();
 		props.addProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME, resourceName);
-		ContentHostingService.commitResource(resourceEdit);
+		ContentHostingService.commitResource(resourceEdit, NotificationService.NOTI_NONE);
 	}
 
 	/**
