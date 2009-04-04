@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,6 +37,7 @@ import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.time.api.TimeService;
 
 public class ExternalLogicImpl implements ExternalLogic {
 
@@ -72,6 +74,12 @@ public class ExternalLogicImpl implements ExternalLogic {
     public void setFunctionManager(FunctionManager fm) {
         functionManager = fm;
     }
+    
+	private TimeService timeService;
+	public void setTimeService(TimeService ts) {
+		timeService = ts;
+	}
+
     
     /**
      * Methods
@@ -146,6 +154,10 @@ public class ExternalLogicImpl implements ExternalLogic {
 	public void registerFunction(String function) {
 		functionManager.registerFunction(function);
 		
+	}
+
+	public TimeZone getLocalTimeZone() {
+		return timeService.getLocalTimeZone();
 	}
 	
 }

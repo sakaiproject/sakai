@@ -22,6 +22,7 @@
 package org.sakaiproject.poll.logic;
 
 import java.util.List;
+import java.util.TimeZone;
 
 public interface ExternalLogic {
 
@@ -99,4 +100,10 @@ public interface ExternalLogic {
 	 * @param function
 	 */
 	public void registerFunction(String function);
+	
+	/** 
+	 *  get the correct Timezone for the the current user
+	 * @return
+	 */
+	public TimeZone getLocalTimeZone();
 }

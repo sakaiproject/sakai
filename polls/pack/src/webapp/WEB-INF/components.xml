@@ -30,14 +30,16 @@
 		<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
 	</bean>
 
-	<bean id="org.sakaiproject.poll.logic.ExternalLogic">
+	<bean id="org.sakaiproject.poll.logic.ExternalLogic" class="org.sakaiproject.poll.logic.impl.ExternalLogicImpl">
 		<property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
 		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
-		<property name="entityManager" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
+		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
 		<property name="eventTrackingService"
 			ref="org.sakaiproject.event.api.EventTrackingService" />
 		<property name="functionManager"
 			ref="org.sakaiproject.authz.api.FunctionManager" />
+		<property name="timeService"
+			ref="org.sakaiproject.time.api.TimeService" />
 	</bean>
 
 </beans>

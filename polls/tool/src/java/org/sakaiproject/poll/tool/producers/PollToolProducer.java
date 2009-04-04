@@ -22,26 +22,22 @@
 package org.sakaiproject.poll.tool.producers;
 
 import java.text.DateFormat;
-import java.util.Locale;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 
-import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.time.api.TimeService;
-import org.sakaiproject.tool.api.ToolManager;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.tool.params.PollViewParameters;
 import org.sakaiproject.poll.tool.params.VoteBean;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
 
-
-import org.sakaiproject.site.api.SiteService;
-
+import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIBranchContainer;
@@ -49,13 +45,17 @@ import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIELBinding;
 import uk.org.ponder.rsf.components.UIForm;
+import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.UILink;
 import uk.org.ponder.rsf.components.UIMessage;
-import uk.org.ponder.rsf.components.UIVerbatim;
-
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
+import uk.org.ponder.rsf.components.UIVerbatim;
+import uk.org.ponder.rsf.components.decorators.DecoratorList;
+import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
+import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
+import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.rsf.view.ComponentChecker;
@@ -63,27 +63,15 @@ import uk.org.ponder.rsf.view.DefaultView;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
-import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.stringutil.StringList;
-import uk.org.ponder.rsf.components.UIInternalLink;
-import uk.org.ponder.rsf.components.decorators.DecoratorList;
-import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
-import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
-import uk.org.ponder.rsf.components.decorators.UIStyleDecorator;
-import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
-//import uk.org.ponder.rsf.viewstate.EntityCentredViewParameters;
-import uk.org.ponder.beanutil.entity.EntityID;
-
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
 
 
 public class PollToolProducer implements ViewComponentProducer,
 DefaultView,NavigationCaseReporter {
 	public static final String VIEW_ID = "votePolls";
-	private UserDirectoryService userDirectoryService;
+	
 	private PollListManager pollListManager;
-	private ToolManager toolManager;
+	
 	private MessageLocator messageLocator;
 	private LocaleGetter localegetter;
 	private PollVoteManager pollVoteManager;  
@@ -102,21 +90,19 @@ DefaultView,NavigationCaseReporter {
 		return VIEW_ID;
 	}
 
+    private ExternalLogic externalLogic;    
+    public void setExternalLogic(ExternalLogic externalLogic) {
+		this.externalLogic = externalLogic;
+	}
+	
 	public void setMessageLocator(MessageLocator messageLocator) {
 
 		this.messageLocator = messageLocator;
 	}
 
-	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-		this.userDirectoryService = userDirectoryService;
-	}
-
+	
 	public void setPollListManager(PollListManager pollListManager) {
 		this.pollListManager = pollListManager;
-	}
-
-	public void setToolManager(ToolManager toolManager) {
-		this.toolManager = toolManager;
 	}
 
 	public void setLocaleGetter(LocaleGetter localegetter) {
@@ -125,16 +111,6 @@ DefaultView,NavigationCaseReporter {
 
 	public void setPollVoteManager(PollVoteManager pvm){
 		this.pollVoteManager = pvm;
-	}
-
-	private SiteService siteService;
-	public void setSiteService(SiteService s){
-		this.siteService = s;
-
-	}
-	private TimeService timeService;
-	public void setTimeService(TimeService ts) {
-		timeService = ts;
 	}
 
 	private VoteBean voteBean;
@@ -156,7 +132,7 @@ DefaultView,NavigationCaseReporter {
 		UIOutput.make(tofill, "poll-list-title", messageLocator.getMessage("poll_list_title"));	
 		
 		boolean renderDelete = false;
-		//populte the action links
+		//populate the action links
 		if (this.isAllowedPollAdd() || this.isSiteOwner() ) {
 			UIBranchContainer actions = UIBranchContainer.make(tofill,"actions:",Integer.toString(0));
 			m_log.debug("this user has some admin functions");
@@ -175,7 +151,7 @@ DefaultView,NavigationCaseReporter {
 
 		List<Poll> polls = new ArrayList<Poll>();
 
-		String siteId = toolManager.getCurrentPlacement().getContext();
+		String siteId = externalLogic.getCurrentLocationId();
 		if (siteId != null) {
 			polls = pollListManager.findAllPolls(siteId);
 		} else {
@@ -206,7 +182,7 @@ DefaultView,NavigationCaseReporter {
 
 		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
 				DateFormat.SHORT, M_locale);
-		TimeZone tz = timeService.getLocalTimeZone();
+		TimeZone tz = externalLogic.getLocalTimeZone();
 		df.setTimeZone(tz);
 		//m_log.debug("got timezone: " + tz.getDisplayName());
 
@@ -257,7 +233,7 @@ DefaultView,NavigationCaseReporter {
 
 
 
-			if (pollListManager.isAllowedViewResults(poll, userDirectoryService.getCurrentUser().getId())) {
+			if (pollListManager.isAllowedViewResults(poll, externalLogic.getCurrentUserId())) {
 				UIInternalLink resultsLink =  UIInternalLink.make(pollrow, "poll-results", messageLocator.getMessage("action_view_results"),
 						new PollViewParameters(ResultsProducer.VIEW_ID, poll.getPollId().toString()));
 				resultsLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("action_view_results")+ ":" + poll.getText()));
@@ -307,19 +283,19 @@ DefaultView,NavigationCaseReporter {
 
 
 	private boolean isAllowedPollAdd() {
-		if (SecurityService.isSuperUser())
+		if (externalLogic.isUserAdmin())
 			return true;
 
-		if (SecurityService.unlock("poll.add", "/site/" + toolManager.getCurrentPlacement().getContext()))
+		if (externalLogic.isAllowedInLocation(PollListManager.PERMISSION_ADD, externalLogic.getCurrentLocationId()))
 			return true;
 
 		return false;
 	}
 
 	private boolean isSiteOwner(){
-		if (SecurityService.isSuperUser())
+		if (externalLogic.isUserAdmin())
 			return true;
-		else if (SecurityService.unlock("site.upd", "/site/" + toolManager.getCurrentPlacement().getContext()))
+		else if (externalLogic.isAllowedInLocation("site.upd", externalLogic.getCurrentLocationId()))
 			return true;
 		else
 			return false;
@@ -365,8 +341,9 @@ DefaultView,NavigationCaseReporter {
 				return false;
 			}
 			//the user hasn't voted do they have permission to vote?'
-			m_log.debug("about to check if this user can vote in " + toolManager.getCurrentPlacement().getContext());
-			if (SecurityService.unlock("poll.vote","/site/" + toolManager.getCurrentPlacement().getContext()) || SecurityService.isSuperUser())
+			m_log.debug("about to check if this user can vote in " + externalLogic.getCurrentLocationReference());
+			if (externalLogic.isAllowedInLocation(PollListManager.PERMISSION_VOTE, externalLogic.getCurrentLocationReference())
+					|| externalLogic.isUserAdmin())
 			{
 				m_log.debug("this poll is votable  " + poll.getText());
 				return true;
@@ -379,25 +356,26 @@ DefaultView,NavigationCaseReporter {
 
 
 	private boolean pollCanEdit(Poll poll) {
-		if (SecurityService.isSuperUser() )
+		if (externalLogic.isUserAdmin())
 			return true;
 
-		if (SecurityService.unlock(PollListManager.PERMISSION_EDIT_ANY,"/site/" + toolManager.getCurrentPlacement().getContext()))
+		if (externalLogic.isAllowedInLocation(PollListManager.PERMISSION_EDIT_ANY, externalLogic.getCurrentLocationReference()))
 			return true;
 
-		if (SecurityService.unlock(PollListManager.PERMISSION_EDIT_OWN,"/site/" + toolManager.getCurrentPlacement().getContext()) && poll.getOwner().equals(userDirectoryService.getCurrentUser().getId()))
+		if (externalLogic.isAllowedInLocation(PollListManager.PERMISSION_EDIT_OWN, externalLogic.getCurrentLocationReference())
+				&& poll.getOwner().equals(externalLogic.getCurrentUserId()))
 			return true;
 
 		return false;
 	}
 
 	private boolean pollCanDelete(Poll poll) {
-		if (SecurityService.isSuperUser() )
+		if (externalLogic.isUserAdmin())
 			return true;
-		if (SecurityService.unlock(PollListManager.PERMISSION_DELETE_ANY,"/site/" + toolManager.getCurrentPlacement().getContext()))
+		if (externalLogic.isAllowedInLocation(PollListManager.PERMISSION_DELETE_ANY, externalLogic.getCurrentLocationReference()))
 			return true;
 
-		if (SecurityService.unlock(PollListManager.PERMISSION_DELETE_OWN,"/site/" + toolManager.getCurrentPlacement().getContext()) && poll.getOwner().equals(userDirectoryService.getCurrentUser().getId())) 
+		if (externalLogic.isAllowedInLocation(PollListManager.PERMISSION_DELETE_OWN, externalLogic.getCurrentLocationReference()) && poll.getOwner().equals(externalLogic.getCurrentUserId())) 
 			return true;
 
 		return false;

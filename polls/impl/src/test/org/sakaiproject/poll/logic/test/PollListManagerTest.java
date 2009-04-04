@@ -82,13 +82,13 @@ public class PollListManagerTest extends AbstractTransactionalSpringContextTests
 		assertNotNull(poll2);
 		assertEquals(poll1.getPollText(), poll2.getPollText());
 		
-		//TODO add failure cases - null paramaters  
+		//TODO add failure cases - null parameters  
     }
 	
     
     public void testDeletePoll() {
-    	/* not sure why this is failing not getting the objects?
-    	Poll poll = pollListManager.findAllPolls(TestDataPreload.LOCATION1_ID).get(0);
+    	/* not sure why this is failing not getting the objects? 
+    	Poll poll = pollListManager.getPollById(Long.valueOf(1));
     	try {
 			pollListManager.deletePoll(poll);
 		} catch (PermissionException e) {
