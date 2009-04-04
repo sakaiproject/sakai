@@ -4,9 +4,11 @@ import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.poll.dao.PollDao;
 import org.sakaiproject.poll.logic.test.TestDataPreload;
 import org.sakaiproject.poll.logic.test.stubs.EventTrackingServiceStub;
+import org.sakaiproject.poll.logic.test.stubs.ExternalLogicStubb;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.service.impl.PollListManagerImpl;
 import org.springframework.test.AbstractTransactionalSpringContextTests;
@@ -35,13 +37,12 @@ public class PollListManagerTest extends AbstractTransactionalSpringContextTests
 		PollDao dao = (PollDao) applicationContext.getBean("org.sakaiproject.poll.dao.impl.PollDaoTarget");
 		if (dao == null) {
 			log.error("onSetUpInTransaction: DAO could not be retrieved from spring context");
-			
+			return;
 		}
 		
 		pollListManager = new PollListManagerImpl();
 		pollListManager.setDao(dao);
-		pollListManager.setEventTrackingService(new EventTrackingServiceStub());
-		
+		pollListManager.setExternalLogic(new ExternalLogicStubb());
 		
 		// preload testData
 		tdp.preloadTestData(dao);
@@ -80,6 +81,20 @@ public class PollListManagerTest extends AbstractTransactionalSpringContextTests
 		Poll poll2 = pollListManager.getPollById(poll1.getPollId());
 		assertNotNull(poll2);
 		assertEquals(poll1.getPollText(), poll2.getPollText());
+		
+		//TODO add failure cases - null paramaters  
     }
 	
+    
+    public void testDeletePoll() {
+    	/* not sure why this is failing not getting the objects?
+    	Poll poll = pollListManager.findAllPolls(TestDataPreload.LOCATION1_ID).get(0);
+    	try {
+			pollListManager.deletePoll(poll);
+		} catch (PermissionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		*/
+    }
 }

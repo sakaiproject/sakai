@@ -34,30 +34,25 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.FunctionManager;
-import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.genericdao.api.search.Order;
 import org.sakaiproject.genericdao.api.search.Restriction;
 import org.sakaiproject.genericdao.api.search.Search;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.poll.dao.PollDao;
+import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.poll.util.PollUtil;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.springframework.dao.DataAccessException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -70,35 +65,13 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     private static Log log = LogFactory.getLog(PollListManagerImpl.class);
     public static final String REFERENCE_ROOT = Entity.SEPARATOR + "poll";
 
-    private AuthzGroupService authzGroupService;
-    public void setAuthzGroupService(AuthzGroupService authzGroupService) {
-        this.authzGroupService = authzGroupService;
-    }
 
-    private SecurityService securityService;
-    public void setSecurityService(SecurityService ss) {
-        securityService = ss;
-    }
-
-    private EventTrackingService eventTrackingService;
-    public void setEventTrackingService(EventTrackingService ets) {
-        eventTrackingService = ets;
-    }
-
-    private ToolManager toolManager;
-    public void setToolManager(ToolManager tm) {
-        toolManager = tm;
-    }
 
     private EntityManager entityManager;
     public void setEntityManager(EntityManager em) {
         entityManager = em;
     }
 
-    private FunctionManager functionManager;
-    public void setFunctionManager(FunctionManager fm) {
-        functionManager = fm;
-    }
 
     private IdManager idManager;
     public void setIdManager(IdManager idm) {
@@ -110,20 +83,24 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 		this.dao = dao;
 	}
     
-    
-    public void init() {
+    private ExternalLogic externalLogic;    
+    public void setExternalLogic(ExternalLogic externalLogic) {
+		this.externalLogic = externalLogic;
+	}
+
+	public void init() {
         try {
             entityManager.registerEntityProducer(this, REFERENCE_ROOT);
         } catch (Throwable t) {
             log.warn("init(): ", t);
         }
 
-        functionManager.registerFunction(PERMISSION_VOTE);
-        functionManager.registerFunction(PERMISSION_ADD);
-        functionManager.registerFunction(PERMISSION_DELETE_OWN);
-        functionManager.registerFunction(PERMISSION_DELETE_ANY);
-        functionManager.registerFunction(PERMISSION_EDIT_ANY);
-        functionManager.registerFunction(PERMISSION_EDIT_OWN);
+        externalLogic.registerFunction(PERMISSION_VOTE);
+        externalLogic.registerFunction(PERMISSION_ADD);
+        externalLogic.registerFunction(PERMISSION_DELETE_OWN);
+        externalLogic.registerFunction(PERMISSION_DELETE_ANY);
+        externalLogic.registerFunction(PERMISSION_EDIT_ANY);
+        externalLogic.registerFunction(PERMISSION_EDIT_OWN);
         log.info(this + " init()");
 
     }
@@ -141,7 +118,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         }
         List<Poll> polls = null;
         // get all allowed sites for this user
-        List<String> allowedSites = getSitesForUser(userId, permissionConstant);
+        List<String> allowedSites = externalLogic.getSitesForUser(userId, permissionConstant);
         if (! allowedSites.isEmpty()) {
             if (siteIds != null) {
                 if (siteIds.length > 0) {
@@ -185,36 +162,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         return polls;
     }
 
-    private static final String SAKAI_SITE_TYPE = SiteService.SITE_SUBTYPE;
-    @SuppressWarnings("unchecked")
-    protected List<String> getSitesForUser(String userId, String permission) {
-        log.debug("userId: " + userId + ", permission: " + permission);
 
-        List<String> l = new ArrayList<String>();
-
-        // get the groups from Sakai
-        Set<String> authzGroupIds = 
-           authzGroupService.getAuthzGroupsIsAllowed(userId, permission, null);
-        Iterator<String> it = authzGroupIds.iterator();
-        while (it.hasNext()) {
-           String authzGroupId = it.next();
-           Reference r = entityManager.newReference(authzGroupId);
-           if (r.isKnownType()) {
-              // check if this is a Sakai Site or Group
-              if (r.getType().equals(SiteService.APPLICATION_ID)) {
-                 String type = r.getSubType();
-                 if (SAKAI_SITE_TYPE.equals(type)) {
-                    // this is a Site
-                    String siteId = r.getId();
-                    l.add(siteId);
-                 }
-              }
-           }
-        }
-
-        if (l.isEmpty()) log.info("Empty list of siteIds for user:" + userId + ", permission: " + permission);
-        return l;
-     }
 
     public boolean savePoll(Poll t) {
         boolean newPoll = false;
@@ -237,31 +185,29 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         }
         log.debug(" Poll  " + t.toString() + "successfuly saved");
         if (newPoll)
-
-            eventTrackingService.post(eventTrackingService.newEvent("poll.add", "poll/site/"
-                    + t.getSiteId() + "/poll/" + t.getId(), true));
+        	externalLogic.postEvent("poll.add", "poll/site/"
+                    + t.getSiteId() + "/poll/" + t.getId(), true);
         else
-            eventTrackingService.post(eventTrackingService.newEvent("poll.update", "poll/site/"
-                    + t.getSiteId() + " /poll/" + t.getId(), true));
+        	externalLogic.postEvent("poll.update", "poll/site/"
+                    + t.getSiteId() + " /poll/" + t.getId(), true);
 
         return true;
     }
 
     public boolean deletePoll(Poll t) throws PermissionException {
+    	if (t == null)
+    		throw new NullPointerException("Poll can't be null");
+    	
         if (!pollCanDelete(t))
-            throw new PermissionException(UserDirectoryService.getCurrentUser().getId(),
+            throw new PermissionException(externalLogic.getCurrentUserId(),
                     "poll.delete", "poll." + t.getId());
 
-        try {
+       
             dao.delete(t);
-        } catch (DataAccessException e) {
-            log.error("Hibernate could not delete: " + e.toString());
-            e.printStackTrace();
-            return false;
-        }
+        
         log.info("Poll id " + t.getId() + " deleted");
-        eventTrackingService.post(eventTrackingService.newEvent("poll.delete", "poll/site/"
-                + t.getSiteId() + "/poll/" + t.getId(), true));
+        externalLogic.postEvent("poll.delete", "poll/site/"
+                + t.getSiteId() + "/poll/" + t.getId(), true);
         return true;
     }
 
@@ -364,28 +310,25 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     // INTERNAL
 
     private boolean pollCanDelete(Poll poll) {
-        if (securityService.isSuperUser() || this.isSiteOwner())
+        if (externalLogic.isUserAdmin() || this.isSiteOwner())
             return true;
-        if (securityService.unlock(PERMISSION_DELETE_ANY, "/site/"
-                + toolManager.getCurrentPlacement().getContext()))
+        if (externalLogic.isAllowedInLocation(PERMISSION_DELETE_ANY, externalLogic.getCurrentLocationReference()))
             return true;
 
-        if (securityService.unlock(PERMISSION_DELETE_OWN, "/site/"
-                + toolManager.getCurrentPlacement().getContext())
-                && poll.getOwner().equals(UserDirectoryService.getCurrentUser().getId()))
+        if (externalLogic.isAllowedInLocation(PERMISSION_DELETE_OWN, externalLogic.getCurrentLocationReference())
+        		&& poll.getOwner().equals(externalLogic.getCurrentUserId()))
             return true;
 
         return false;
     }
 
     private boolean isSiteOwner() {
-        if (securityService.isSuperUser())
+        if (externalLogic.isUserAdmin())
             return true;
-        else if (securityService.unlock("site.upd", "/site/"
-                + toolManager.getCurrentPlacement().getContext()))
-            return true;
+        else if (externalLogic.isAllowedInLocation("site.upd", externalLogic.getCurrentLocationReference()))
+        	return true;
         else
-            return false;
+        	return false;
     }
 
     /*
@@ -399,6 +342,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         return true;
     }
 
+    @SuppressWarnings("unchecked")
     public String archive(String siteId, Document doc, Stack stack, String archivePath,
             List attachments) {
         log.debug("archive: poll " + siteId);
@@ -625,7 +569,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     
     
 	public boolean isAllowedViewResults(Poll poll, String userId) {
-		if (securityService.isSuperUser())
+		if (externalLogic.isUserAdmin())
 			return true;
 
 		if (poll.getDisplayResult().equals("open"))

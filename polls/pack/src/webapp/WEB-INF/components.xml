@@ -18,19 +18,10 @@
 		<property name="dao" ref="org.sakaiproject.poll.dao.PollDao"/>
 		<property name="idManager"
 			ref="org.sakaiproject.id.api.IdManager" />
-		<property name="securityService"
-			ref="org.sakaiproject.authz.api.SecurityService" />
-		<property name="toolManager"
-			ref="org.sakaiproject.tool.api.ToolManager" />
-		<property name="eventTrackingService"
-			ref="org.sakaiproject.event.api.EventTrackingService" />
+		
 		<property name="entityManager"
 			ref="org.sakaiproject.entity.api.EntityManager" />
-		<property name="functionManager"
-			ref="org.sakaiproject.authz.api.FunctionManager" />
-        <property name="authzGroupService"
-            ref="org.sakaiproject.authz.api.AuthzGroupService" />
-	</bean>
+    </bean>
 
 	<bean id="org.sakaiproject.tool.poll.api.PollVoteManager"
 		class="org.sakaiproject.poll.service.impl.PollVoteManagerImpl"
@@ -42,6 +33,16 @@
 			ref="org.sakaiproject.event.api.EventTrackingService" />
         <property name="securityService"
             ref="org.sakaiproject.authz.api.SecurityService" />
+	</bean>
+
+	<bean id="org.sakaiproject.poll.logic.ExternalLogic">
+		<property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
+		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+		<property name="entityManager" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
+		<property name="eventTrackingService"
+			ref="org.sakaiproject.event.api.EventTrackingService" />
+		<property name="functionManager"
+			ref="org.sakaiproject.authz.api.FunctionManager" />
 	</bean>
 
 </beans>
