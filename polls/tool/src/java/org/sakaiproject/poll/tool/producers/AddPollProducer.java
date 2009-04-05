@@ -26,21 +26,17 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
-import org.sakaiproject.poll.tool.locators.PollBeanLocator;
+import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.poll.tool.params.OptionViewParameters;
 import org.sakaiproject.poll.tool.params.PollViewParameters;
 import org.sakaiproject.poll.tool.params.VoteBean;
-import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 
-import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIBranchContainer;
@@ -73,12 +69,10 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
 public class AddPollProducer implements ViewComponentProducer,NavigationCaseReporter, ViewParamsReporter, ActionResultInterceptor {
 	 public static final String VIEW_ID = "voteAdd";
-	  private UserDirectoryService userDirectoryService;
+	  
 	  private PollListManager pollListManager;
-	  private ToolManager toolManager;
 	  private MessageLocator messageLocator;
-	  private LocaleGetter localegetter;
-
+	 
 	  
 	  private static Log m_log = LogFactory.getLog(AddPollProducer.class);
 	  
@@ -90,21 +84,11 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 	    this.messageLocator = messageLocator;
 	  }
 
-	  public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-	    this.userDirectoryService = userDirectoryService;
-	  }
-
-	  public void setPollListManager(PollListManager pollListManager) {
+	   public void setPollListManager(PollListManager pollListManager) {
 	    this.pollListManager = pollListManager;
 	  }
 
-	  public void setToolManager(ToolManager toolManager) {
-	    this.toolManager = toolManager;
-	  }
 
-	  public void setLocaleGetter(LocaleGetter localegetter) {
-	    this.localegetter = localegetter;
-	  }
 	  
 	  private VoteBean voteBean;
 	  public void setVoteBean(VoteBean vb){
@@ -121,18 +105,15 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		    this.tml = tml;
 	  }
 	  
-	  private Poll poll;
-	  public void setPoll(Poll p) {
-		  poll =p;
-	  }
-	  
+
+	    private ExternalLogic externalLogic;    
+	    public void setExternalLogic(ExternalLogic externalLogic) {
+			this.externalLogic = externalLogic;
+		}
 	  
 	  private PollVoteManager pollVoteManager;
 	  
-	  private PollBeanLocator pollBeanLocator;
-	  public void setPollBeanLocator(PollBeanLocator templateBeanLocator) {
-	    this.pollBeanLocator = templateBeanLocator;
-	    }
+
 		
 	public void setPollVoteManager(PollVoteManager pvm){
 		this.pollVoteManager = pvm;
@@ -159,8 +140,8 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		      ComponentChecker checker) {
 		  
 		
-	    User currentuser = userDirectoryService.getCurrentUser();
-	    String currentuserid = currentuser.getId();
+	    
+	    String currentuserid = externalLogic.getCurrentUserId();
 		   
 	    PollViewParameters ecvp = (PollViewParameters) viewparams;
 	    Poll poll = null;
@@ -196,7 +177,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 			UIInternalLink.make(actionBlock,"option-add",UIMessage.make("new_poll_option_add"),
 					new OptionViewParameters(PollOptionProducer.VIEW_ID, null, poll.getPollId().toString()));
 
-			List votes = pollVoteManager.getAllVotesForPoll(poll);
+			List<Vote> votes = pollVoteManager.getAllVotesForPoll(poll);
 			if (votes != null && votes.size() > 0 ) {
 				m_log.debug("Poll has " + votes.size() + " votes");
 				UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", "0");
@@ -205,7 +186,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 			}
 			
 			
-			List options = poll.getPollOptions();
+			List<Option> options = poll.getPollOptions();
 			for (int i = 0; i < options.size(); i++){
 				Option o = (Option)options.get(i);
 				UIBranchContainer oRow = UIBranchContainer.make(actionBlock,"options-row:",o.getOptionId().toString());
@@ -310,7 +291,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		    m_log.debug("About to close the form");
 		    newPoll.parameters.add(new UIELBinding("#{poll.owner}",
 		    		currentuserid));
-		    String siteId = toolManager.getCurrentPlacement().getContext();
+		    String siteId = externalLogic.getCurrentLocationId();
 		    newPoll.parameters.add(new UIELBinding("#{poll.siteId}",siteId));
 		  
 		    if (isNew || poll.getPollOptions() == null || poll.getPollOptions().size() == 0)	 {
@@ -327,8 +308,8 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 	  }
 	  
 
-	  public List reportNavigationCases() {
-		    List togo = new ArrayList(); // Always navigate back to this view.
+	  public List<NavigationCase> reportNavigationCases() {
+		    List<NavigationCase> togo = new ArrayList<NavigationCase>(); // Always navigate back to this view.
 		    togo.add(new NavigationCase(null, new SimpleViewParameters(VIEW_ID)));
 		    togo.add(new NavigationCase("added", new SimpleViewParameters(PollToolProducer.VIEW_ID)));
 		    togo.add(new NavigationCase("option", new OptionViewParameters(PollOptionProducer.VIEW_ID, null, null)));

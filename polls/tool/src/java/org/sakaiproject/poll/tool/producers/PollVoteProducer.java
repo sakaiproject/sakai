@@ -23,6 +23,11 @@ package org.sakaiproject.poll.tool.producers;
 
 
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Option;
@@ -32,38 +37,26 @@ import org.sakaiproject.poll.tool.params.PollViewParameters;
 import org.sakaiproject.poll.tool.params.VoteCollectionViewParameters;
 
 import uk.org.ponder.messageutil.MessageLocator;
-import uk.org.ponder.rsf.components.UIContainer;
-import uk.org.ponder.rsf.components.UIOutput;
+import uk.org.ponder.messageutil.TargettedMessageList;
+import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
-
-import uk.org.ponder.rsf.view.ComponentChecker;
-import uk.org.ponder.rsf.view.ViewComponentProducer;
-import uk.org.ponder.rsf.viewstate.ViewParameters;
-import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
-import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
-import uk.org.ponder.beanutil.BeanGetter;
-import uk.org.ponder.beanutil.entity.EntityID;
+import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIELBinding;
-
+import uk.org.ponder.rsf.components.UIForm;
+import uk.org.ponder.rsf.components.UIOutput;
+import uk.org.ponder.rsf.components.UIOutputMany;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
-
-import uk.org.ponder.rsf.components.UIForm;
-import uk.org.ponder.rsf.components.UIBranchContainer;
-import uk.org.ponder.rsf.components.UIOutputMany;
 import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.flow.ARIResult;
 import uk.org.ponder.rsf.flow.ActionResultInterceptor;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
-import uk.org.ponder.messageutil.TargettedMessageList;
-
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import uk.org.ponder.rsf.view.ComponentChecker;
+import uk.org.ponder.rsf.view.ViewComponentProducer;
+import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
+import uk.org.ponder.rsf.viewstate.ViewParameters;
+import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
 
 public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporter, ActionResultInterceptor,NavigationCaseReporter {
@@ -160,7 +153,7 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 
 			UIForm voteForm = UIForm.make(tofill,"options-form",""); 
 
-			List pollOptions = poll.getPollOptions();
+			List<Option> pollOptions = poll.getPollOptions();
 			//build the options + label lists
 			String[] values= new String[pollOptions.size()];
 			for (int i = 0;i <pollOptions.size(); i++ ) {
@@ -233,8 +226,8 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 	}
 
 
-	public List reportNavigationCases() {
-		List togo = new ArrayList(); // Always navigate back to this view.
+	public List<NavigationCase> reportNavigationCases() {
+		List<NavigationCase> togo = new ArrayList<NavigationCase>(); // Always navigate back to this view.
 		//togo.add(new NavigationCase(null, new SimpleViewParameters(VIEW_ID)));
 		togo.add(new NavigationCase("Error", new SimpleViewParameters(VIEW_ID)));
 		togo.add(new NavigationCase("Success", new VoteCollectionViewParameters(ConfirmProducer.VIEW_ID)));

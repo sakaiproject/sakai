@@ -21,55 +21,49 @@
 
 package org.sakaiproject.poll.tool.producers;
 
-import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.poll.logic.PollListManager;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.authz.cover.AuthzGroupService;
-import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.GroupNotDefinedException;
-import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.cover.FunctionManager;
-import org.sakaiproject.exception.IdUnusedException;
-
-import uk.org.ponder.rsf.components.UIBoundBoolean; 
-
-import uk.org.ponder.messageutil.MessageLocator;
-import uk.org.ponder.rsf.components.UICommand;
-import uk.org.ponder.rsf.components.UIContainer;
-import uk.org.ponder.rsf.components.UIBranchContainer;
-import uk.org.ponder.rsf.components.UIELBinding;
-import uk.org.ponder.rsf.components.UIOutput;
-import uk.org.ponder.rsf.components.UIForm;
-import uk.org.ponder.rsf.view.ComponentChecker;
-import uk.org.ponder.rsf.view.ViewComponentProducer;
-import uk.org.ponder.rsf.viewstate.ViewParameters;
-import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
-import uk.org.ponder.beanutil.PathUtil;
-import uk.org.ponder.localeutil.LocaleGetter;
-import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
-import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
-import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.site.api.Site;
-
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.ArrayList;
-import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.poll.logic.PollListManager;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.api.ToolManager;
+
+import uk.org.ponder.beanutil.PathUtil;
+import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.rsf.components.UIBoundBoolean;
+import uk.org.ponder.rsf.components.UIBranchContainer;
+import uk.org.ponder.rsf.components.UICommand;
+import uk.org.ponder.rsf.components.UIContainer;
+import uk.org.ponder.rsf.components.UIELBinding;
+import uk.org.ponder.rsf.components.UIForm;
+import uk.org.ponder.rsf.components.UIOutput;
+import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
+import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
+import uk.org.ponder.rsf.view.ComponentChecker;
+import uk.org.ponder.rsf.view.ViewComponentProducer;
+import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
+import uk.org.ponder.rsf.viewstate.ViewParameters;
 
 public class PermissionsProducer implements ViewComponentProducer,NavigationCaseReporter {
 
 	public static final String VIEW_ID = "votePermissions";
 	
-	  private UserDirectoryService userDirectoryService;
-	  private PollListManager pollListManager;
+	  
+	  
 	  private ToolManager toolManager;
 	  private MessageLocator messageLocator;
-	  private LocaleGetter localegetter;
+
 	  
 	  private static final String PERMISSION_PREFIX ="poll";
 	  private static Log m_log = LogFactory.getLog(PermissionsProducer.class);
@@ -84,25 +78,16 @@ public class PermissionsProducer implements ViewComponentProducer,NavigationCase
 	    this.messageLocator = messageLocator;
 	  }
 
-	  public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-	    this.userDirectoryService = userDirectoryService;
-	  }
-
-	  public void setPollListManager(PollListManager pollListManager) {
-	    this.pollListManager = pollListManager;
-	  }
-
+	  
+	 
 	  public void setToolManager(ToolManager toolManager) {
 	    this.toolManager = toolManager;
 	  }
 
-	  public void setLocaleGetter(LocaleGetter localegetter) {
-	    this.localegetter = localegetter;
-	  }
 	  
-		Map perms = null;
+		Map<String, String> perms = null;
 		
-		public void setRoleperms(Map perms)
+		public void setRoleperms(Map<String, String> perms)
 		{
 			this.perms = perms;
 		}
@@ -178,8 +163,8 @@ public class PermissionsProducer implements ViewComponentProducer,NavigationCase
 	
 	}
 	
-	  public List reportNavigationCases() {
-		    List togo = new ArrayList(); // Always navigate back to this view.
+	  public List<NavigationCase> reportNavigationCases() {
+		    List<NavigationCase> togo = new ArrayList<NavigationCase>(); // Always navigate back to this view.
 		    togo.add(new NavigationCase(null, new SimpleViewParameters(VIEW_ID)));
 		    togo.add(new NavigationCase("Success", new SimpleViewParameters(PollToolProducer.VIEW_ID)));
 		    togo.add(new NavigationCase("cancel", new SimpleViewParameters(PollToolProducer.VIEW_ID)));

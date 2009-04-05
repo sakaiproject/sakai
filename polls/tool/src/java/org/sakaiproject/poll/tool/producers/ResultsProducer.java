@@ -21,59 +21,47 @@
 
 package org.sakaiproject.poll.tool.producers;
 
-import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.poll.model.Option;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.poll.tool.params.PollViewParameters;
-import org.sakaiproject.user.api.UserDirectoryService;
 
-import uk.org.ponder.beanutil.entity.EntityID;
-import uk.org.ponder.messageutil.MessageLocator;
-import uk.org.ponder.rsf.components.UIContainer;
-import uk.org.ponder.rsf.view.ComponentChecker;
-import uk.org.ponder.rsf.view.ViewComponentProducer;
-import uk.org.ponder.rsf.viewstate.EntityCentredViewParameters;
-import uk.org.ponder.rsf.viewstate.ViewParameters;
-import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.localeutil.LocaleGetter;
-import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
-import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
-import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
-import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
+import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIBranchContainer;
+import uk.org.ponder.rsf.components.UICommand;
+import uk.org.ponder.rsf.components.UIContainer;
+import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UILink;
 import uk.org.ponder.rsf.components.UIOutput;
-import uk.org.ponder.rsf.components.UIForm;
-import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIVerbatim;
-import uk.org.ponder.util.NumberFormatter;
-
-
-import java.text.NumberFormat;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
+import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
+import uk.org.ponder.rsf.view.ComponentChecker;
+import uk.org.ponder.rsf.view.ViewComponentProducer;
+import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
+import uk.org.ponder.rsf.viewstate.ViewParameters;
+import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
 public class ResultsProducer implements ViewComponentProducer,NavigationCaseReporter,ViewParamsReporter {
 
 	public static final String VIEW_ID = "voteResults";
 
-	private UserDirectoryService userDirectoryService;
+	
 	private PollListManager pollListManager;
 	private PollVoteManager pollVoteManager;
 	private MessageLocator messageLocator;
 	private LocaleGetter localegetter;
-	private ToolManager toolManager;	  
+		  
 
 	private static Log m_log  = LogFactory.getLog(ResultsProducer.class);
 
@@ -94,18 +82,12 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 		this.messageLocator = messageLocator;
 	}
 
-	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-		this.userDirectoryService = userDirectoryService;
-	}
-
+	
 	public void setPollListManager(PollListManager pollListManager) {
 		this.pollListManager = pollListManager;
 	}
 
-	public void setToolManager(ToolManager toolManager) {
-		this.toolManager = toolManager;
-	}
-
+	
 	public void setLocaleGetter(LocaleGetter localegetter) {
 		this.localegetter = localegetter;
 	}
@@ -114,12 +96,12 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 	}
 
 
-
-	private EventTrackingService eventTrackingService;
-	public void setEventTrackingService(EventTrackingService ets) {
-		eventTrackingService = ets;
+    private ExternalLogic externalLogic;    
+    public void setExternalLogic(ExternalLogic externalLogic) {
+		this.externalLogic = externalLogic;
 	}
 
+	
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams,
 			ComponentChecker checker) {
 
@@ -140,7 +122,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 
 		UIOutput.make(tofill,"question",poll.getText());
 		m_log.debug("got poll " + poll.getText());
-		List pollOptions = poll.getPollOptions();
+		List<Option> pollOptions = poll.getPollOptions();
 
 		m_log.debug("got a list of " + pollOptions.size() + " options");
 		//appeng an option for no votes
@@ -151,10 +133,10 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 			pollOptions.add(noVote);
 		}
 
-		List votes = pollVoteManager.getAllVotesForPoll(poll);
+		List<Vote> votes = pollVoteManager.getAllVotesForPoll(poll);
 		int totalVotes= votes.size();
 		m_log.debug("got " + totalVotes + " votes");
-		List collation = new ArrayList();
+		List<CollatedVote> collation = new ArrayList<CollatedVote>();
 
 		for (int i=0; i <pollOptions.size(); i++ ) {
 			CollatedVote collatedVote = new CollatedVote();
@@ -207,13 +189,14 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 		//the cancel button
 		UIForm form = UIForm.make(tofill,"actform");
 		UICommand.make(form,"cancel",messageLocator.getMessage("results_cancel"),"#{pollToolBean.cancel}"); 
-		eventTrackingService.post(eventTrackingService.newEvent("poll.viewResult", "poll/site/" + toolManager.getCurrentPlacement().getContext() +"/poll/" +  poll.getPollId(), false));
+		externalLogic.postEvent("poll.viewResult", "poll/site/" + externalLogic.getCurrentLocationId() +"/poll/" +  poll.getPollId(), false);
+
 
 	}
 
-	public List reportNavigationCases() {
+	public List<NavigationCase> reportNavigationCases() {
 		
-		List togo = new ArrayList(); // Always navigate back to this view.
+		List<NavigationCase> togo = new ArrayList<NavigationCase>(); // Always navigate back to this view.
 		togo.add(new NavigationCase(null, new SimpleViewParameters(VIEW_ID)));
 		togo.add(new NavigationCase("cancel", new SimpleViewParameters(PollToolProducer.VIEW_ID)));
 		return togo;

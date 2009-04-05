@@ -21,45 +21,37 @@
 
 package org.sakaiproject.poll.tool.producers;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.poll.logic.PollListManager;
+import org.sakaiproject.poll.model.Option;
+import org.sakaiproject.poll.model.Poll;
+import org.sakaiproject.poll.tool.params.OptionViewParameters;
+import org.sakaiproject.poll.tool.params.PollViewParameters;
+import org.sakaiproject.poll.tool.params.VoteBean;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIBranchContainer;
+import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIELBinding;
+import uk.org.ponder.rsf.components.UIForm;
+import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
-//import uk.org.ponder.rsf.components.UIInternalLink;
-import uk.org.ponder.rsf.components.UIForm;
-import uk.org.ponder.rsf.components.UICommand;
-
-import uk.org.ponder.rsf.view.ComponentChecker;
-import uk.org.ponder.rsf.view.ViewComponentProducer;
-import uk.org.ponder.rsf.viewstate.ViewParameters;
-
-//import org.sakaiproject.tool.poll.api.VoteCollection;
-import org.sakaiproject.poll.logic.PollListManager;
-import org.sakaiproject.poll.model.Poll;
-import org.sakaiproject.poll.model.Option;
-import org.sakaiproject.poll.tool.locators.PollBeanLocator;
-import org.sakaiproject.poll.tool.params.OptionViewParameters;
-import org.sakaiproject.poll.tool.params.PollViewParameters;
-import org.sakaiproject.poll.tool.params.VoteBean;
-//import org.sakaiproject.tool.poll.impl.PollListManagerDaoImpl;
-
 import uk.org.ponder.rsf.evolvers.TextInputEvolver;
 import uk.org.ponder.rsf.flow.ARIResult;
 import uk.org.ponder.rsf.flow.ActionResultInterceptor;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
+import uk.org.ponder.rsf.view.ComponentChecker;
+import uk.org.ponder.rsf.view.ViewComponentProducer;
+import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
-import uk.org.ponder.localeutil.LocaleGetter;
-import uk.org.ponder.rsf.components.UIInput;
-
-import java.util.List;
-import java.util.ArrayList;
 
 
 public class PollOptionProducer implements ViewComponentProducer,ViewParamsReporter,NavigationCaseReporter, ActionResultInterceptor {
@@ -70,19 +62,8 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 
 
 	private MessageLocator messageLocator;
-	private LocaleGetter localegetter;
-
-	private Option optionBean;
-	public void setOption (Option o) {
-		this.optionBean = o;
-	}
-
-
-	private PollBeanLocator pollBeanLocator;
-	public void setPollBeanLocator(PollBeanLocator templateBeanLocator) {
-		this.pollBeanLocator = templateBeanLocator;
-	}
-
+	
+	
 	public String getViewID() {
 
 		return VIEW_ID;
@@ -98,9 +79,6 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 		this.messageLocator = messageLocator;
 	}
 
-	public void setLocaleGetter(LocaleGetter localegetter) {
-		this.localegetter = localegetter;
-	}
 
 	private PollListManager pollListManager;
 	public void setPollListManager(PollListManager p){
@@ -203,8 +181,8 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 	}
 
 
-	public List reportNavigationCases() {
-		List togo = new ArrayList();
+	public List<NavigationCase> reportNavigationCases() {
+		List<NavigationCase> togo = new ArrayList<NavigationCase>();
 		togo.add(new NavigationCase("save", new PollViewParameters(AddPollProducer.VIEW_ID)));
 		togo.add(new NavigationCase("cancel", null));
 		return togo;
@@ -229,7 +207,7 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 					result.resultingView = new PollViewParameters(viewId, optvp.pollId);
 				} else {
 					m_log.debug("New option for poll: " + optvp.pollId);
-					result.resultingView = new OptionViewParameters(this.VIEW_ID, optvp.id , optvp.pollId);
+					result.resultingView = new OptionViewParameters(VIEW_ID, optvp.id , optvp.pollId);
 				}
 
 			} else {

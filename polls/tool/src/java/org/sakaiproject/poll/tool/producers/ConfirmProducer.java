@@ -23,32 +23,18 @@ package org.sakaiproject.poll.tool.producers;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import uk.org.ponder.messageutil.MessageLocator;
-import uk.org.ponder.rsf.components.UIContainer;
-import uk.org.ponder.rsf.components.UIOutput;
-import uk.org.ponder.rsf.components.UIForm;
-import uk.org.ponder.rsf.components.UICommand;
-
-import uk.org.ponder.rsf.view.ComponentChecker;
-import uk.org.ponder.rsf.view.ViewComponentProducer;
-import uk.org.ponder.rsf.viewstate.ViewParameters;
-import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
-
-import org.sakaiproject.poll.model.Poll;
-import org.sakaiproject.poll.tool.params.PollViewParameters;
-import org.sakaiproject.poll.tool.params.VoteBean;
 import org.sakaiproject.poll.tool.params.VoteCollectionViewParameters;
 
-import uk.org.ponder.rsf.flow.ARIResult;
-import uk.org.ponder.rsf.flow.ActionResultInterceptor;
-import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
-import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
+import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.rsf.components.UICommand;
+import uk.org.ponder.rsf.components.UIContainer;
+import uk.org.ponder.rsf.components.UIForm;
+import uk.org.ponder.rsf.components.UIOutput;
+import uk.org.ponder.rsf.view.ComponentChecker;
+import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
-
-
-import java.util.List;
-import java.util.ArrayList;
+import uk.org.ponder.rsf.viewstate.ViewParameters;
+import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
 
 public class ConfirmProducer implements ViewComponentProducer, ViewParamsReporter {
