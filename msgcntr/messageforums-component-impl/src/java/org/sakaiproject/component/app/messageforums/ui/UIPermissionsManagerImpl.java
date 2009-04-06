@@ -1399,18 +1399,17 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
   	List topicItemsList = permissionLevelManager.getAllMembershipItemsForTopicsForSite(dfa.getId());
 
   	Set forumItems = new HashSet();
-  	for(int i=0; i<forumItemsList.size(); i++)
-  	{
-  		if(forumItemsList.get(i) != null)
-  			forumItems.add(((Object[])forumItemsList.get(i))[0]);
+  	for(Iterator i = forumItemsList.iterator(); i.hasNext();) {
+  		DBMembershipItem forumItem = (DBMembershipItemImpl)i.next();
+  		forumItems.add(forumItem);
   	}
+  	
   	Set topicItems = new HashSet();
-  	for(int i=0; i<topicItemsList.size(); i++)
-  	{
-  		if(topicItemsList.get(i) != null)
-  			topicItems.add(((Object[])topicItemsList.get(i))[0]);
-  	}  	
-
+  	for(Iterator i = topicItems.iterator(); i.hasNext();) {
+  		DBMembershipItem topicItem = (DBMembershipItemImpl)i.next();
+  		topicItems.add(topicItem);
+  	}
+  
   	Collection groups = null;
   	try
   	{

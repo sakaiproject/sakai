@@ -169,7 +169,7 @@
   </query>  
   
   <query name="findForumByTypeAndContextWithAllInfo">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl as f
+    <![CDATA[select f from org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl as f
              join f.area as a
              left join fetch f.attachmentsSet
              left join fetch f.topicsSet as topic

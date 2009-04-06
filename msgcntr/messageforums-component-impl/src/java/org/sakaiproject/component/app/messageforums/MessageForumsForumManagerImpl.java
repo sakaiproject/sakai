@@ -1235,18 +1235,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
 			for (Iterator i = temp.iterator(); i.hasNext();)
 			{
-				Object[] results = (Object[]) i.next();        
-
-				if (results != null) {
-					if (results[0] instanceof BaseForum) {
-						tempForum = (BaseForum)results[0];
-						tempForum.setArea((Area)results[1]);            
-					} else {
-						tempForum = (BaseForum)results[1];
-						tempForum.setArea((Area)results[0]);
-					}
-					resultSet.add(tempForum);
-				}
+				BaseForum results = (DiscussionForumImpl) i.next();  
+				resultSet.add(results);
 			}
 
 			List resultList = Util.setToList(resultSet);

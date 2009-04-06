@@ -57,7 +57,7 @@
   </class>
     
    <query name="findAllMembershipItemsForForumsForSite">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl as membership
+    <![CDATA[select membership from org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl as membership
 		    join membership.forum as forum
 		    join forum.area as area
 		    left join fetch membership.permissionLevel
@@ -76,7 +76,7 @@
   </query>
 
    <query name="findAllMembershipItemsForTopicsForSite">
-     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl as membership
+     <![CDATA[select membership from org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl as membership
 		     join membership.topic as topic
 		     left join fetch membership.permissionLevel
 		     where
