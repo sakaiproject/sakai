@@ -5,7 +5,7 @@
 	<name>Profile2 BASE</name>
 	<groupId>uk.ac.lancs.e_science</groupId>
 	
-	<currentVersion>1.1-SNAPSHOT</currentVersion>
+	<currentVersion>1.1</currentVersion>
 	
 	<organization>
         <name>Lancaster University, Centre for e-Science</name>

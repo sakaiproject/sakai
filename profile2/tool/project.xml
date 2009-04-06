@@ -8,7 +8,7 @@
 	<groupId>uk.ac.lancs.e_science</groupId>
 	<artifactId>sakai-profile2-tool</artifactId>
 	
-	<currentVersion>1.1-SNAPSHOT</currentVersion>
+	<currentVersion>1.1</currentVersion>
 	
 	<properties>
         <deploy.type>war</deploy.type>
@@ -20,7 +20,7 @@
 		<dependency>
       		<groupId>uk.ac.lancs.e_science</groupId>
       		<artifactId>sakai-profile2-api</artifactId>
-      		<version>1.1-SNAPSHOT</version>
+      		<version>1.1</version>
     	</dependency>
     	
 		<!--  WICKET DEPENDENCIES -->

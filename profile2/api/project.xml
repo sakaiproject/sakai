@@ -8,7 +8,7 @@
 	<groupId>uk.ac.lancs.e_science</groupId>
 	<artifactId>sakai-profile2-api</artifactId>
 	
-	<currentVersion>1.1-SNAPSHOT</currentVersion>
+	<currentVersion>1.1</currentVersion>
 
 	<properties>
 		<deploy.type>jar</deploy.type>

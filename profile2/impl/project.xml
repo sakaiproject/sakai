@@ -8,7 +8,7 @@
 	<groupId>uk.ac.lancs.e_science</groupId>
 	<artifactId>sakai-profile2-impl</artifactId>
 	
-	<currentVersion>1.1-SNAPSHOT</currentVersion>
+	<currentVersion>1.1</currentVersion>
 	
 	<properties>
 		<deploy.type>jar</deploy.type>
@@ -21,7 +21,7 @@
 		<dependency>
 			<groupId>uk.ac.lancs.e_science</groupId>
 			<artifactId>sakai-profile2-api</artifactId>
-			<version>1.1-SNAPSHOT</version>
+			<version>1.1</version>
 		</dependency>
 		
 		<!-- Spring and Hibernate dependencies. -->
