@@ -56,6 +56,7 @@ public class PollListManagerTest extends AbstractTransactionalSpringContextTests
     	assertNull(pollFail);
     	
     	//this one should exist
+    	externalLogicStubb.currentUserId = TestDataPreload.USER_UPDATE;
     	Poll poll1 = pollListManager.getPollById(Long.valueOf(1));
     	assertNotNull(poll1);
     	
@@ -85,8 +86,8 @@ public class PollListManagerTest extends AbstractTransactionalSpringContextTests
 		poll1.setDescription("this is some text");
 		poll1.setText("something");
 		poll1.setOwner(TestDataPreload.USER_UPDATE);
-		poll1.setSiteId(TestDataPreload.LOCATION1_ID);
 		
+		poll1.setSiteId(TestDataPreload.LOCATION1_ID);
 		
 		
 		//If this has a value something is wrong without POJO
@@ -142,6 +143,7 @@ public class PollListManagerTest extends AbstractTransactionalSpringContextTests
 	
     
     public void testDeletePoll() {
+    	
     	externalLogicStubb.currentUserId = TestDataPreload.USER_UPDATE;
     	Poll poll1 = new Poll();
 		poll1.setCreationDate(new Date());
@@ -187,5 +189,6 @@ public class PollListManagerTest extends AbstractTransactionalSpringContextTests
 			e.printStackTrace();
 			fail();
 		}
+		
     }
 }

@@ -44,10 +44,10 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.PollListManager;
+import org.sakaiproject.poll.model.PollRolePerms;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.TimeService;
-import org.sakaiproject.poll.model.PollRolePerms;
 
 public class ExternalLogicImpl implements ExternalLogic {
 
@@ -95,6 +95,8 @@ public class ExternalLogicImpl implements ExternalLogic {
 		this.siteService = siteService;
 	}
 
+
+
 	/**
      * Methods
      */
@@ -114,13 +116,16 @@ public class ExternalLogicImpl implements ExternalLogic {
 		return developerHelperService.getCurrentUserId();
 	}
 
+	public String getCurrentuserReference() {
+		return developerHelperService.getCurrentUserReference();
+	} 
+	
 	public String getCurrentLocationReference() {
 		return developerHelperService.getCurrentLocationReference();
 	}
 
 	public boolean isAllowedInLocation(String permission, String locationReference, String userReference) {
-		// TODO Auto-generated method stub
-		return false;
+		return developerHelperService.isUserAllowedInEntityReference(userReference, permission, locationReference);
 	}
 
 	public boolean isAllowedInLocation(String permission,
@@ -323,7 +328,9 @@ public class ExternalLogicImpl implements ExternalLogic {
 
 	public String getSiteRefFromId(String siteId) {
 		return siteService.siteReference(siteId);
-	} 
+	}
+
+
 
 	
 }

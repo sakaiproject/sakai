@@ -40,7 +40,6 @@ import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.genericdao.api.search.Order;
 import org.sakaiproject.genericdao.api.search.Restriction;
 import org.sakaiproject.genericdao.api.search.Search;
@@ -172,7 +171,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         }
         
         if (!externalLogic.isUserAdmin() && !externalLogic.isAllowedInLocation(PollListManager.PERMISSION_ADD, externalLogic.getSiteRefFromId(t.getSiteId()),
-        			externalLogic.getCurrentUserId())) {
+        			externalLogic.getCurrentuserReference())) {
         	throw new SecurityException();
         }
         
@@ -209,13 +208,13 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     		throw new NullPointerException("Poll can't be null");
     	}
     	
-    	if (t.getId() == null) {
+    	if (t.getPollId() == null) {
     		throw new IllegalArgumentException("Poll id can't be null");
     	}
     	
-        if (!pollCanDelete(t))
-            throw new SecurityException("user:" + externalLogic.getCurrentUserId() + " can't delete poll: " + t.getId());
-
+        if (!pollCanDelete(t)) {
+            throw new SecurityException("user:" + externalLogic.getCurrentuserReference() + " can't delete poll: " + t.getId());
+        }
        
             dao.delete(t);
         
@@ -256,8 +255,8 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
          if (poll == null)
         	 return null;
       //user needs at least site visit to read a poll
-    	if (!externalLogic.isAllowedInLocation("site.visit", "/site/" + poll.getSiteId(), externalLogic.getCurrentUserId()) && !externalLogic.isUserAdmin()) {
-    		throw new SecurityException("user:" + externalLogic.getCurrentUserId() + " can't read poll " + pollId);
+    	if (!externalLogic.isAllowedInLocation("site.visit", externalLogic.getSiteRefFromId(poll.getSiteId()), externalLogic.getCurrentuserReference()) && !externalLogic.isUserAdmin()) {
+    		throw new SecurityException("user:" + externalLogic.getCurrentuserReference() + " can't read poll " + pollId);
     	}
         
         return poll;
@@ -344,7 +343,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             return true;
 
         if (externalLogic.isAllowedInLocation(PERMISSION_DELETE_OWN, externalLogic.getCurrentLocationReference())
-        		&& poll.getOwner().equals(externalLogic.getCurrentUserId()))
+        		&& poll.getOwner().equals(externalLogic.getCurrentuserReference()))
             return true;
 
         return false;

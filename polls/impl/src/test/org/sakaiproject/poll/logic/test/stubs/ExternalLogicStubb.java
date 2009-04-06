@@ -51,7 +51,7 @@ public class ExternalLogicStubb implements ExternalLogic {
 	public boolean isAllowedInLocation(String permission,
 			String locationReference) {
 		return isAllowedInLocation(permission, locationReference, getCurrentUserId());	
-		}
+	}
 
 	public boolean isAllowedInLocation(String permission,
 			String locationReference, String userRefence) {
@@ -152,6 +152,11 @@ public class ExternalLogicStubb implements ExternalLogic {
 	public String getSiteRefFromId(String siteId) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public String getCurrentuserReference() {
+		// TODO Auto-generated method stub
+		return currentUserId;
 	}
 
 }

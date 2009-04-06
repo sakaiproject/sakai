@@ -66,6 +66,11 @@ public interface ExternalLogic {
 	 */
 	public String getCurrentUserId();
 	
+	/**
+	 * Get the current user reference (/user/admin)
+	 * @return
+	 */
+	public String getCurrentuserReference();
 	
 	/**
 	 * is the current user allowed to perform the action in the current location?
