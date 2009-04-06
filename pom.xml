@@ -148,6 +148,7 @@
         <module>calendar</module>
         <module>chat</module>
         <module>citations</module>
+        <module>common</module>
         <module>config</module>
         <module>content</module>
         <module>content-review</module>
