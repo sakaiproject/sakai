@@ -32,13 +32,17 @@ import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.EntityView.Method;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityParameters;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityURLRedirect;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Redirectable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestStorable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
+import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.providers.model.EntityGroup;
 import org.sakaiproject.entitybroker.providers.model.EntitySite;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
@@ -47,6 +51,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
@@ -58,7 +63,7 @@ import org.sakaiproject.site.api.SiteService.SortType;
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 public class SiteEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, 
-        RESTful, ActionsExecutable, Redirectable {
+        RESTful, ActionsExecutable, Redirectable, RequestStorable {
 
     private SiteService siteService;
     public void setSiteService(SiteService siteService) {
@@ -86,7 +91,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
         boolean exists = entityExists(siteId);
         return exists;
     }
-    
+
     @EntityCustomAction(action="role", viewKey="")
     public void handleRoles (EntityView view){
     	String siteId = view.getEntityReference().getId();
@@ -114,6 +119,21 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
 			throw new SecurityException("User not allowed to update role " + roleId + " in site " + siteId);
 		}
     }
+
+    @EntityCustomAction(action="group", viewKey=EntityView.VIEW_SHOW)
+    public EntityGroup handleGroup(EntityView view) {
+        // expects site/siteId/group/groupId
+        String groupId = view.getPathSegment(3);
+        if (groupId == null) {
+            throw new IllegalArgumentException("Invalid path provided: expect to receive the ");
+        }
+        String siteId = view.getEntityReference().getId();
+        Site site = getSiteById(siteId);
+        Group group = site.getGroup(groupId);
+        EntityGroup eg = new EntityGroup(group);
+        return eg;
+    }
+
 
     /**
      * @param site the site to check perms in
@@ -314,7 +334,12 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
         }
     }
 
+    @EntityParameters(accepted={"includeGroups"})
     public Object getEntity(EntityReference ref) {
+        boolean includeGroups = false;
+        if (requestStorage.getStoredValue("includeGroups") != null) {
+            includeGroups = true;
+        }
         if (ref.getId() == null) {
             return new EntitySite();
         }
@@ -323,7 +348,7 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
         // check if the user can access site
         isAllowedAccessSite(site);
         // convert
-        EntitySite es = convertSite(site);
+        EntitySite es = new EntitySite(site, includeGroups);
         return es;
     }
 
@@ -407,7 +432,8 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
         // convert these into EntityUser objects
         List<EntitySite> entitySites = new ArrayList<EntitySite>();
         for (Site site : sites) {
-            entitySites.add( convertSite(site) );
+            EntitySite es = new EntitySite(site, false);
+            entitySites.add( es );
         }
         return entitySites;
     }
@@ -421,12 +447,6 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
     }
 
 
-
-    private EntitySite convertSite(Site site) {
-        EntitySite es = new EntitySite(site);
-        return es;
-    }
-
     private Site getSiteById(String siteId) {
         Site site;
         try {
@@ -435,6 +455,11 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
             throw new IllegalArgumentException("Cannot find site by siteId: " + siteId, e);
         }
         return site;
+    }
+
+    private RequestStorage requestStorage;
+    public void setRequestStorage(RequestStorage requestStorage) {
+        this.requestStorage = requestStorage;
     }
 
 }

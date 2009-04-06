@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.Vector;
 
 import org.azeckoski.reflectutils.annotations.ReflectIgnoreClassFields;
 import org.azeckoski.reflectutils.annotations.ReflectTransient;
@@ -86,6 +87,8 @@ public class EntitySite implements Site {
     private long lastModified;
     private String[] userRoles;
 
+    private transient List<EntityGroup> siteGroupsList;
+
     public Map<String, String> props;
 
     public Map<String, String> getProps() {
@@ -142,7 +145,7 @@ public class EntitySite implements Site {
         getUserRoles(); // populate the user roles
     }
 
-    public EntitySite(Site site) {
+    public EntitySite(Site site, boolean includeGroups) {
         this.site = site;
         this.id = site.getId();
         this.title = site.getTitle();
@@ -168,6 +171,15 @@ public class EntitySite implements Site {
             String name = iterator.next();
             String value = rp.getProperty(name);
             this.setProperty(name, value);
+        }
+        // add in the groups
+        if (includeGroups) {
+            Collection<Group> groups = site.getGroups();
+            siteGroupsList = new Vector<EntityGroup>(groups.size());
+            for (Group group : groups) {
+                EntityGroup eg = new EntityGroup(group);
+                siteGroupsList.add(eg);
+            }
         }
     }
 
@@ -372,12 +384,20 @@ public class EntitySite implements Site {
         }
         return userRoles;
     }
-    
+
     public void setUserRoles(String[] userRoles) {
         this.userRoles = userRoles;
     }
-    
-    
+
+    public List<EntityGroup> getSiteGroups() {
+        return siteGroupsList;
+    }
+
+    // transient
+    public void setSiteGroupsList(List<EntityGroup> siteGroups) {
+        this.siteGroupsList = siteGroups;
+    }
+
     // Site operations
 
     public Group addGroup() {
@@ -721,6 +741,7 @@ public class EntitySite implements Site {
     public void removeMember(String arg0) {
         if (site != null) {
             site.removeMember(arg0);
+            return;
         }
         throw new UnsupportedOperationException();
     }
@@ -728,6 +749,7 @@ public class EntitySite implements Site {
     public void removeMembers() {
         if (site != null) {
             site.removeMembers();
+            return;
         }
         throw new UnsupportedOperationException();
     }
@@ -735,6 +757,7 @@ public class EntitySite implements Site {
     public void removeRole(String arg0) {
         if (site != null) {
             site.removeRole(arg0);
+            return;
         }
         throw new UnsupportedOperationException();
     }
@@ -742,6 +765,7 @@ public class EntitySite implements Site {
     public void removeRoles() {
         if (site != null) {
             site.removeRoles();
+            return;
         }
         throw new UnsupportedOperationException();
     }
