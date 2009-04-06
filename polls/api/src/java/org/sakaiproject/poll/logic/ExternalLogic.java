@@ -106,4 +106,28 @@ public interface ExternalLogic {
 	 * @return
 	 */
 	public TimeZone getLocalTimeZone();
+	
+	
+	/**
+	 * Get a list of RoleIds in a the given realms
+	 * @param RealmId
+	 * @return a list os frings of the role Ids
+	 */
+	public List<String> getRoleIdsInRealm(String realmId);
+	
+	
+	/**
+	 * is the role allowed to perform the function in the given realm?
+	 * @param RoleId
+	 * @param realmId
+	 * @return
+	 */
+	public boolean isRoleAllowedInRealm(String roleId, String realmId, String permission);
+	
+	/**
+	 * 
+	 * @param locationReference
+	 * @return
+	 */
+	public String getSiteTile(String locationReference);
 }

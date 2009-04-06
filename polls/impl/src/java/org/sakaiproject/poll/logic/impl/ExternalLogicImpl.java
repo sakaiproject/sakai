@@ -29,13 +29,18 @@ import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.poll.logic.ExternalLogic;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.TimeService;
 
@@ -80,8 +85,12 @@ public class ExternalLogicImpl implements ExternalLogic {
 		timeService = ts;
 	}
 
-    
-    /**
+    private SiteService siteService;
+    public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
+
+	/**
      * Methods
      */
 	public String getCurrentLocationId() {
@@ -158,6 +167,58 @@ public class ExternalLogicImpl implements ExternalLogic {
 
 	public TimeZone getLocalTimeZone() {
 		return timeService.getLocalTimeZone();
+	}
+
+
+	public List<String> getRoleIdsInRealm(String realmId) {
+		AuthzGroup group;
+		
+		try {
+			group = authzGroupService.getAuthzGroup(realmId);
+			List<String> ret = new ArrayList<String>();
+			Set<Role> roles = group.getRoles();
+			Iterator<Role> i = roles.iterator();
+			while (i.hasNext()) {
+				Role role = (Role)i.next();
+				ret.add(role.getId());
+			}
+			return ret;
+		} catch (GroupNotDefinedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+
+		
+		return null;
+	}
+
+
+	public boolean isRoleAllowedInRealm(String roleId, String realmId, String permission) {
+		try {
+			AuthzGroup group = authzGroupService.getAuthzGroup(realmId);
+			Role role = group.getRole(roleId);
+			return  role.isAllowed(permission);
+		} catch (GroupNotDefinedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+
+	public String getSiteTile(String locationReference) {
+		Site site;
+		
+		try {
+			site = siteService.getSite(locationReference);
+			return site.getTitle();
+		} catch (IdUnusedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
+		return null;
 	}
 	
 }

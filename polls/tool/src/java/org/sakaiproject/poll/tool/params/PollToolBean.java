@@ -23,40 +23,24 @@ package org.sakaiproject.poll.tool.params;
 
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.poll.logic.PollListManager;
+import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Option;
-import org.sakaiproject.poll.model.Option;
-import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.poll.model.VoteCollection;
-import org.sakaiproject.poll.model.Vote;
-import org.sakaiproject.poll.tool.producers.AddPollProducer;
-import org.sakaiproject.poll.tool.producers.PollOptionProducer;
-import org.sakaiproject.poll.tool.producers.PollToolProducer;
 import org.sakaiproject.poll.util.PollUtils;
-import org.sakaiproject.poll.logic.PollListManager;
-import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.exception.PermissionException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
-import uk.org.ponder.stringutil.StringUtil;
-import uk.org.ponder.util.UniversalRuntimeException;
 
 
 

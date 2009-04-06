@@ -85,4 +85,19 @@ public class ExternalLogicStubb implements ExternalLogic {
 		return null;
 	}
 
+	public List<String> getRoleIdsInRealm(String RealmId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean isRoleAllowedInRealm(String RoleId, String realmId, String permission) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public String getSiteTile(String locationReference) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

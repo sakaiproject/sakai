@@ -33,13 +33,10 @@
 		class="org.sakaiproject.poll.tool.producers.PermissionsProducer">
 		<property name="pollListManager"
 			ref="org.sakaiproject.tool.poll.api.PollListManager" />
-		<property name="toolManager"
-			ref="org.sakaiproject.tool.api.ToolManager" />
-		<property name="userDirectoryService"
-			ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="localeGetter" ref="requestLocaleProxy" />
 		<property name="messageLocator" ref="messageLocator" />
 		<property name="roleperms" ref="roleperms" />
+		<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
 	</bean>
 
 	<bean id="roleperms" factory-bean="RoleFactory"
