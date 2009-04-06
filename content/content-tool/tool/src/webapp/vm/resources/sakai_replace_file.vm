@@ -11,6 +11,7 @@
 		$tlang.getString("instr.replace")
 	</p>
 	<form name="addContentForm" id="addContentForm" method="post" action="#toolForm("ResourcesHelperAction")"  enctype="multipart/form-data">
+		<input type="hidden" name="pipe-init-id" id="pipe-init-id" value="$!{pipe-init-id}" />
 		
 		#if($!{item.isMissing("content$i")})
 			<p class="shorttext validation">

@@ -11,6 +11,7 @@
 	</p>
 	
 	<form name="$DETAILS_FORM_NAME" id="$DETAILS_FORM_NAME" action="#toolLinkParam("ResourcesAction" "doCompleteCreateWizard" "flow=update")" method="post">
+		<input type="hidden" name="pipe-init-id" id="pipe-init-id" value="$!{pipe-init-id}" />
 		<input type="hidden" name="sakai_action" id="sakai_action" value="doCompleteCreateWizard" />
 		<input type="hidden" name="user_action" id="user_action" value="save" />
 		<input type="hidden" name="user_action" id="user_action" value="save" />
