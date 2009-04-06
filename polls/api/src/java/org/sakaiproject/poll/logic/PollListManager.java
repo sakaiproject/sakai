@@ -54,7 +54,7 @@ public interface PollListManager extends EntityProducer {
      * @param t - the poll object to remove
      * @return - true for success, false if failure
      */
-    public boolean deletePoll(Poll t) throws SecurityException;
+    public boolean deletePoll(Poll t) throws SecurityException, IllegalArgumentException;
 
     /**
      * Gets all the task objects for the site
@@ -144,6 +144,6 @@ public interface PollListManager extends EntityProducer {
      * @param t - the poll object to save
      * @return - true for success, false if failure
      */
-    public boolean savePoll(Poll t);
+    public boolean savePoll(Poll t) throws SecurityException, IllegalArgumentException;
 
 }

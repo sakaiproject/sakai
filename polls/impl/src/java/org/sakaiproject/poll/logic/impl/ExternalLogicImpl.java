@@ -319,6 +319,10 @@ public class ExternalLogicImpl implements ExternalLogic {
 			else
 				role.disallowFunction(function);
 			
+	}
+
+	public String getSiteRefFromId(String siteId) {
+		return siteService.siteReference(siteId);
 	} 
 
 	

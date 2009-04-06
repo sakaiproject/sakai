@@ -149,4 +149,9 @@ public class ExternalLogicStubb implements ExternalLogic {
 		return null;
 	}
 
+	public String getSiteRefFromId(String siteId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

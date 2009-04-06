@@ -164,8 +164,18 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
 
 
-    public boolean savePoll(Poll t) {
+    public boolean savePoll(Poll t) throws SecurityException, IllegalArgumentException {
         boolean newPoll = false;
+        
+        if (t == null || t.getText() == null || t.getSiteId() == null || t.getVoteOpen() == null|| t.getVoteClose() == null) {
+        	throw new IllegalArgumentException("you must supply a question, siteId & open and close dates");
+        }
+        
+        if (!externalLogic.isUserAdmin() && !externalLogic.isAllowedInLocation(PollListManager.PERMISSION_ADD, externalLogic.getSiteRefFromId(t.getSiteId()),
+        			externalLogic.getCurrentUserId())) {
+        	throw new SecurityException();
+        }
+        
         if (t.getId() == null) {
             newPoll = true;
             t.setId(idManager.createUuid());
@@ -194,9 +204,14 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         return true;
     }
 
-    public boolean deletePoll(Poll t) throws SecurityException {
-    	if (t == null)
+    public boolean deletePoll(Poll t) throws SecurityException, IllegalArgumentException {
+    	if (t == null) {
     		throw new NullPointerException("Poll can't be null");
+    	}
+    	
+    	if (t.getId() == null) {
+    		throw new IllegalArgumentException("Poll id can't be null");
+    	}
     	
         if (!pollCanDelete(t))
             throw new SecurityException("user:" + externalLogic.getCurrentUserId() + " can't delete poll: " + t.getId());

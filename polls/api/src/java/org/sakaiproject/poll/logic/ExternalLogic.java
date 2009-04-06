@@ -135,6 +135,12 @@ public interface ExternalLogic {
 	public String getSiteTile(String locationReference);
 	
 	/**
+	 * Get a site reference "/site/ABCD from its id (ABCD)
+	 * @param siteId
+	 * @return
+	 */
+	public String getSiteRefFromId(String siteId);
+	/**
 	 * Set the tool permissions for the given location
 	 * @param permMap
 	 * @param locationReference
@@ -146,5 +152,6 @@ public interface ExternalLogic {
 	
 	public Map<String, PollRolePerms> getRoles(String locationReference);
 	
+
 	
 }

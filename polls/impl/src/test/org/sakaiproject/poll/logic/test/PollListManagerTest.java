@@ -4,10 +4,7 @@ import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.poll.dao.PollDao;
-import org.sakaiproject.poll.logic.test.TestDataPreload;
-import org.sakaiproject.poll.logic.test.stubs.EventTrackingServiceStub;
 import org.sakaiproject.poll.logic.test.stubs.ExternalLogicStubb;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.service.impl.PollListManagerImpl;
@@ -106,23 +103,89 @@ public class PollListManagerTest extends AbstractTransactionalSpringContextTests
 		
 		//TODO add failure cases - null parameters
 		
-
+		//we should not be able to save empty polls
 		
+		//a user needs privileges to save the poll
+		try {
+			pollListManager.savePoll(null);
+			fail();
+		}
+		catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		}
+		
+		
+		//a user needs privileges to save the poll
+		try {
+			Poll poll = new Poll();
+			poll.setText("sdfgsdf");
+			pollListManager.savePoll(poll);
+			fail();
+		}
+		catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		}
+		
+		externalLogicStubb.currentUserId = TestDataPreload.USER_NO_ACCEESS;
+		try {
+			pollListManager.savePoll(poll1);
+			fail();
+		}
+		catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		}
+		catch (SecurityException se) {
+			se.printStackTrace();
+		}
 		
     }
 	
     
     public void testDeletePoll() {
     	externalLogicStubb.currentUserId = TestDataPreload.USER_UPDATE;
-    	
-    	/* not sure why this is failing not getting the objects? 
-    	Poll poll = pollListManager.getPollById(Long.valueOf(1));
+    	Poll poll1 = new Poll();
+		poll1.setCreationDate(new Date());
+		poll1.setVoteOpen(new Date());
+		poll1.setVoteClose(new Date());
+		poll1.setDescription("this is some text");
+		poll1.setText("something");
+		poll1.setOwner(TestDataPreload.USER_UPDATE);
+		poll1.setSiteId(TestDataPreload.LOCATION1_ID);
+		
+		
+		
+		//we should not be able to delete a poll that hasn't been saved
+		try {
+			pollListManager.deletePoll(poll1);
+			fail();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		}
+		
+		pollListManager.savePoll(poll1);
+		
+		externalLogicStubb.currentUserId = TestDataPreload.USER_NO_ACCEESS;
+		
     	try {
-			pollListManager.deletePoll(poll);
-		} catch (PermissionException e) {
+			pollListManager.deletePoll(poll1);
+			fail();
+		} catch (SecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		*/
+		
+		
+		externalLogicStubb.currentUserId = TestDataPreload.USER_UPDATE;
+    	try {
+			pollListManager.deletePoll(poll1);
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			fail();
+		}
     }
 }
