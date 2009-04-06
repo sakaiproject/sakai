@@ -19,9 +19,13 @@
   </properties>
   <packaging>war</packaging>
   <dependencies>
-    <dependency>
+ <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-util</artifactId>
+    </dependency>
+   <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.polls</groupId>
@@ -39,10 +43,7 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-api</artifactId>
-    </dependency>
+
 <!--
       This has been relocated to sakai-kernel-util
       org.sakaiproject.kernel.utilsakai-util-->

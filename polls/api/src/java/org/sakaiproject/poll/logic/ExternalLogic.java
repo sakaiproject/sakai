@@ -139,8 +139,12 @@ public interface ExternalLogic {
 	 * @param permMap
 	 * @param locationReference
 	 * @throws SecurityException
+	 * @throws IllegalArgumentException
 	 */
 	public void setToolPermissions(Map<String, PollRolePerms> permMap, String locationReference) throws SecurityException, IllegalArgumentException;
+	
+	
+	public Map<String, PollRolePerms> getRoles(String locationReference);
 	
 	
 }

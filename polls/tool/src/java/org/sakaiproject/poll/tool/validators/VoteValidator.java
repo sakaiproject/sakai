@@ -27,12 +27,11 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.VoteCollection;
-import org.sakaiproject.tool.api.ToolManager;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
@@ -53,11 +52,11 @@ public class VoteValidator implements Validator {
 		this.pollVoteManager = pvm;
 	}
 
-    private ToolManager toolManager;
-    public void setToolManager(ToolManager toolManager) {
-        this.toolManager = toolManager;
-      }
-	
+	private ExternalLogic externalLogic;    
+	public void setExternalLogic(ExternalLogic externalLogic) {
+		this.externalLogic = externalLogic;
+	}	
+    
 	public boolean supports(Class clazz) {
 		// TODO Auto-generated method stub
 		return clazz.equals(VoteCollection.class);
@@ -75,7 +74,7 @@ public class VoteValidator implements Validator {
 	//get the poll
 	Poll poll = manager.getPollById(votes.getPollId());
 	logger.debug("this is a vote for " + poll.getText());
-	List options = new ArrayList();
+	List<String> options = new ArrayList<String>();
 	
 	//is the poll open?
 	if (!(poll.getVoteClose().after(new Date()) && new Date().after(poll.getVoteOpen()))) {
@@ -85,10 +84,10 @@ public class VoteValidator implements Validator {
 	}
 		
 	//does the user have permission to vote
-	if (!SecurityService.isSuperUser()) {
-		if (!SecurityService.unlock("poll.vote","/site/" + toolManager.getCurrentPlacement().getContext()))
+	if (!externalLogic.isUserAdmin()) {
+		if (!externalLogic.isAllowedInLocation(PollListManager.PERMISSION_VOTE, externalLogic.getCurrentLocationReference(), externalLogic.getCurrentUserId()))
 		{
-			logger.warn("attempt to vote in " + toolManager.getCurrentPlacement().getContext() + " by unauthorized user" );
+			logger.warn("attempt to vote in " + externalLogic.getCurrentLocationReference() + " by unauthorized user" );
 			errors.reject("vote_noperm","no permissions");
 			return;
 		}

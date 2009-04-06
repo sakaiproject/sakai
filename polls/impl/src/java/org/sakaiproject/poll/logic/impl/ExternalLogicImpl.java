@@ -22,6 +22,7 @@
 package org.sakaiproject.poll.logic.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +47,6 @@ import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.TimeService;
-import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.poll.model.PollRolePerms;
 
 public class ExternalLogicImpl implements ExternalLogic {
@@ -227,14 +227,15 @@ public class ExternalLogicImpl implements ExternalLogic {
 	}
 
 	public void setToolPermissions(Map<String, PollRolePerms> permMap,
-			String locationReference) throws SecurityException {
+			String locationReference) throws SecurityException, IllegalArgumentException {
 		
 		AuthzGroup authz = null;
 		try {
 			 authz = authzGroupService.getAuthzGroup(locationReference);
 		}
 		catch (GroupNotDefinedException e) {
-			new IllegalArgumentException(e);
+			
+			throw new IllegalArgumentException(e);
 			
 		}
 		for (Iterator<String> i = permMap.keySet().iterator(); i.hasNext();)
@@ -269,7 +270,7 @@ public class ExternalLogicImpl implements ExternalLogic {
 			authzGroupService.save(authz);
 		}
 		catch (GroupNotDefinedException e) {
-			new IllegalArgumentException(e);
+			throw new IllegalArgumentException(e);
 		}
 		catch (AuthzPermissionException e) {
 			throw new SecurityException(e);
@@ -277,6 +278,38 @@ public class ExternalLogicImpl implements ExternalLogic {
 		
 	}
 
+	
+	public Map<String, PollRolePerms> getRoles(String locationReference)
+	{
+		log.debug("Getting permRoles");
+		Map<String, PollRolePerms>  perms = new HashMap<String, PollRolePerms>();
+		try {
+			AuthzGroup group = authzGroupService.getAuthzGroup(locationReference);
+			Set<Role> roles = group.getRoles();
+			Iterator<Role> i = roles.iterator();
+			
+			while (i.hasNext())
+			{
+				Role role = (Role)i.next();
+				String name = role.getId();
+				log.debug("Adding element for " + name); 
+				perms.put(name, new PollRolePerms(name, 
+						role.isAllowed(PollListManager.PERMISSION_VOTE),
+						role.isAllowed(PollListManager.PERMISSION_ADD),
+						role.isAllowed(PollListManager.PERMISSION_DELETE_OWN),
+						role.isAllowed(PollListManager.PERMISSION_DELETE_ANY),
+						role.isAllowed(PollListManager.PERMISSION_EDIT_OWN),
+						role.isAllowed(PollListManager.PERMISSION_EDIT_ANY)
+						));
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		return perms;
+	}
+
+	
 	private void setFunc(Role role, String function, Boolean allow)
 	{
 		

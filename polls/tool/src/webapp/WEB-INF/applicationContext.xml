@@ -47,7 +47,7 @@
 					ref="org.sakaiproject.tool.poll.api.PollListManager" />
 				<property name="pollVoteManager"
 					ref="org.sakaiproject.tool.poll.api.PollVoteManager" />
-				<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+				<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
 			</bean>
 		</property>
 	</bean>

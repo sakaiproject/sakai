@@ -144,4 +144,9 @@ public class ExternalLogicStubb implements ExternalLogic {
 		
 	}
 
+	public Map<String, PollRolePerms> getRoles(String locationReference) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
