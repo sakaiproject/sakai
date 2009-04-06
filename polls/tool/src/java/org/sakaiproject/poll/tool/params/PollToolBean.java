@@ -28,7 +28,6 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Option;
@@ -180,7 +179,7 @@ public class PollToolBean {
 			try {
 				manager.deletePoll(todelete);
 			}
-			catch(PermissionException e){
+			catch(SecurityException e){
 				m_log.error(" Permission Error" + e);
 			}
 		}

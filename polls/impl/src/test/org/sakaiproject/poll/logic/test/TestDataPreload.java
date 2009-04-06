@@ -21,6 +21,7 @@ package org.sakaiproject.poll.logic.test;
 import java.util.Date;
 
 import org.sakaiproject.genericdao.api.GenericDao;
+import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 
 public class TestDataPreload {
@@ -46,6 +47,8 @@ public class TestDataPreload {
 	public final static String USER_LOC_3_NO_UPDATE_2_EMAIL = "user-65000011@qnatest.com";
 	
 	public final static String USER_NO_UPDATE = "user-87654321";
+	
+	public final static String USER_NO_ACCEESS = "user-nobody";
 	
 	public final static String USER_CUSTOM_EMAIL1 = "user1@qna.com";
 	public final static String USER_CUSTOM_EMAIL2 = "user2@qna.com";
@@ -75,6 +78,11 @@ public class TestDataPreload {
 
 	public final static Long POLL_1_POLL1D = Long.valueOf(1);
 	
+	//used for poll read
+	public final static String PERM_SITE_VISIT = "site.visit";
+	
+	
+	
 	/**
 	 * Preload a bunch of test data into the database
 	 * 
@@ -91,6 +99,18 @@ public class TestDataPreload {
 		poll1.setText("something");
 		poll1.setOwner(USER_UPDATE);
 		dao.save(poll1);
+		
+		//add some options
+		Option option1 = new Option();
+		option1.setOptionText("Option 1");
+		option1.setPollId(poll1.getPollId());
+		dao.save(option1);
+		
+		Option option2 = new Option();
+		option2.setOptionText("Option 2");
+		option2.setPollId(poll1.getPollId());
+		dao.save(option2);
+		
 	}
 
 }

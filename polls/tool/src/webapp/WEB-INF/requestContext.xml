@@ -66,6 +66,7 @@
 	<bean id="permissionAction"
 		class="org.sakaiproject.poll.tool.params.PermissionAction">
 		<property name="roleperms" ref="roleperms" />
+		<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
 	</bean>
 
 	<bean id="confirmProducer"

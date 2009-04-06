@@ -54,7 +54,7 @@ public interface PollListManager extends EntityProducer {
      * @param t - the poll object to remove
      * @return - true for success, false if failure
      */
-    public boolean deletePoll(Poll t) throws PermissionException;
+    public boolean deletePoll(Poll t) throws SecurityException;
 
     /**
      * Gets all the task objects for the site
@@ -106,7 +106,7 @@ public interface PollListManager extends EntityProducer {
      * @param pollId
      * @return a single poll object
      */
-    public Poll getPollById(Long pollId);
+    public Poll getPollById(Long pollId) throws SecurityException;
 
     /**
      * Retrieve a specific poll
@@ -114,7 +114,7 @@ public interface PollListManager extends EntityProducer {
      * @param includeOptions if true then options included, else no options (poll only)
      * @return a single poll object
      */
-    public Poll getPollById(Long pollId, boolean includeOptions);
+    public Poll getPollById(Long pollId, boolean includeOptions) throws SecurityException;
 
     /**
      * Get a specific poll with all its votes

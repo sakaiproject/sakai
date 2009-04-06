@@ -37,7 +37,6 @@ import org.sakaiproject.entitybroker.entityprovider.extension.TemplateMap;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Option;
@@ -230,7 +229,7 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
         }
         try {
             pollListManager.deletePoll(poll);
-        } catch (PermissionException e) {
+        } catch (SecurityException e) {
             throw new SecurityException("The current user ("+developerHelperService.getCurrentUserReference()
                     +") is not allowed to delete this poll: " + ref);
         }

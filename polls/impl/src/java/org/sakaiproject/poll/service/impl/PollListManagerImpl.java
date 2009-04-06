@@ -194,13 +194,12 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         return true;
     }
 
-    public boolean deletePoll(Poll t) throws PermissionException {
+    public boolean deletePoll(Poll t) throws SecurityException {
     	if (t == null)
     		throw new NullPointerException("Poll can't be null");
     	
         if (!pollCanDelete(t))
-            throw new PermissionException(externalLogic.getCurrentUserId(),
-                    "poll.delete", "poll." + t.getId());
+            throw new SecurityException("user:" + externalLogic.getCurrentUserId() + " can't delete poll: " + t.getId());
 
        
             dao.delete(t);
@@ -221,12 +220,13 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         return polls;
     }
 
-    public Poll getPollById(Long pollId) {
+    public Poll getPollById(Long pollId) throws SecurityException {
         
        return getPollById(pollId, true);
     }
 
-    public Poll getPollById(Long pollId, boolean includeOptions) {
+    public Poll getPollById(Long pollId, boolean includeOptions) throws SecurityException {
+    	
     	
     	Search search = new Search();
         search.addRestriction(new Restriction("pollId", pollId));
@@ -237,6 +237,14 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
                 poll.setOptions(optionList);
             }
         }
+        
+         if (poll == null)
+        	 return null;
+      //user needs at least site visit to read a poll
+    	if (!externalLogic.isAllowedInLocation("site.visit", "/site/" + poll.getSiteId(), externalLogic.getCurrentUserId()) && !externalLogic.isUserAdmin()) {
+    		throw new SecurityException("user:" + externalLogic.getCurrentUserId() + " can't read poll " + pollId);
+    	}
+        
         return poll;
     }
 
@@ -248,7 +256,12 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     }
 
     public List<Option> getOptionsForPoll(Long pollId) {
-        Poll poll = getPollById(pollId, false);
+        Poll poll;
+		try {
+			poll = getPollById(pollId, false);
+		} catch (SecurityException e) {
+			throw new SecurityException(e);
+		}
         if (poll == null) {
             throw new IllegalArgumentException("Cannot get options for a poll ("+pollId+") that does not exist");
         }

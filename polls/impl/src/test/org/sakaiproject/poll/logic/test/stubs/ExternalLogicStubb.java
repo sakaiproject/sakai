@@ -21,10 +21,15 @@
 
 package org.sakaiproject.poll.logic.test.stubs;
 
+
+
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.sakaiproject.poll.logic.ExternalLogic;
+import org.sakaiproject.poll.logic.test.TestDataPreload;
+import org.sakaiproject.poll.model.PollRolePerms;
 
 public class ExternalLogicStubb implements ExternalLogic {
 
@@ -38,31 +43,63 @@ public class ExternalLogicStubb implements ExternalLogic {
 		return null;
 	}
 
+	public String currentUserId = null;
 	public String getCurrentUserId() {
-		// TODO Auto-generated method stub
-		return null;
+		return currentUserId;
 	}
 
 	public boolean isAllowedInLocation(String permission,
 			String locationReference) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+		return isAllowedInLocation(permission, locationReference, getCurrentUserId());	
+		}
 
 	public boolean isAllowedInLocation(String permission,
 			String locationReference, String userRefence) {
-		// TODO Auto-generated method stub
+		
+		if (TestDataPreload.USER_NO_ACCEESS.equals(userRefence)) {
+			//this user should always have no rights
+			return false;
+		}
+		
+		if (TestDataPreload.USER_UPDATE.equals(userRefence)) {
+			return true;
+		}
+		
+		/*
+		if (userRefence.equals(TestDataPreload.USER_NO_UPDATE)) {
+			if (locationReference.equals(TestDataPreload.LOCATION1_ID)) {
+				if (permission.equals(TestDataPreload.QNA_UPDATE)) {
+					return false;
+				}
+			}
+		} else if (userRefence.equals(TestDataPreload.USER_UPDATE)) {
+			if (locationReference.equals(LOCATION1_ID)) {
+				if (permission.equals(QNA_UPDATE) || permission.equals(QNA_NEW_QUESTION) || permission.equals(QNA_NEW_CATEGORY) || permission.equals(QNA_NEW_ANSWER)) {
+					return true;
+				} 
+			}
+		} else if (userRefence.equals(USER_LOC_3_UPDATE_1)
+				|| userRefence.equals(USER_LOC_3_UPDATE_2)
+				|| userRefence.equals(USER_LOC_3_UPDATE_3)) {
+			if (locationReference.equals(LOCATION3_ID)) {
+				if (permission.equals(QNA_UPDATE) || permission.equals(QNA_NEW_QUESTION) || permission.equals(QNA_NEW_CATEGORY) || permission.equals(QNA_NEW_ANSWER)) {
+					return true;
+				}
+			}
+		} 
+		*/
 		return false;
 	}
 
 	public boolean isUserAdmin(String userId) {
-		// TODO Auto-generated method stub
+		if ("admin".equals(userId))
+			return true;
+		
 		return false;
 	}
 
 	public boolean isUserAdmin() {
-		// TODO Auto-generated method stub
-		return false;
+		return isUserAdmin(getCurrentUserId());
 	}
 
 	public List<String> getSitesForUser(String userId, String permission) {
@@ -98,6 +135,13 @@ public class ExternalLogicStubb implements ExternalLogic {
 	public String getSiteTile(String locationReference) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public void setToolPermissions(Map<String, PollRolePerms> permMap,
+			String locationReference) throws SecurityException,
+			IllegalArgumentException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -33,20 +33,21 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.poll.logic.PollListManager;
+import org.sakaiproject.poll.model.PollRolePerms;
 
 
 
 public class RoleFactory {
 
 	private static Log m_log = LogFactory.getLog(RoleFactory.class);
-	public Map getRoles()
+	public Map<String, PollRolePerms> getRoles()
 	{
 		m_log.debug("Getting permRoles");
-		Map perms = new HashMap();
+		Map<String, PollRolePerms>  perms = new HashMap<String, PollRolePerms>();
 		try {
 			AuthzGroup group = AuthzGroupService.getAuthzGroup("/site/" + ToolManager.getCurrentPlacement().getContext());
-			Set roles = group.getRoles();
-			Iterator i = roles.iterator();
+			Set<Role> roles = group.getRoles();
+			Iterator<Role> i = roles.iterator();
 			
 			while (i.hasNext())
 			{

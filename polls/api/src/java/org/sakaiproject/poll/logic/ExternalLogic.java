@@ -22,7 +22,10 @@
 package org.sakaiproject.poll.logic;
 
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
+
+import org.sakaiproject.poll.model.PollRolePerms;
 
 public interface ExternalLogic {
 
@@ -130,4 +133,14 @@ public interface ExternalLogic {
 	 * @return
 	 */
 	public String getSiteTile(String locationReference);
+	
+	/**
+	 * Set the tool permissions for the given location
+	 * @param permMap
+	 * @param locationReference
+	 * @throws SecurityException
+	 */
+	public void setToolPermissions(Map<String, PollRolePerms> permMap, String locationReference) throws SecurityException, IllegalArgumentException;
+	
+	
 }

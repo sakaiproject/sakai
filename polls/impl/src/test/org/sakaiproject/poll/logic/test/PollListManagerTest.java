@@ -20,6 +20,7 @@ public class PollListManagerTest extends AbstractTransactionalSpringContextTests
 	private TestDataPreload tdp = new TestDataPreload();
 
 	private PollListManagerImpl pollListManager;
+	private ExternalLogicStubb externalLogicStubb;
 	
 	protected String[] getConfigLocations() {
 		// point to the needed spring config files, must be on the classpath
@@ -42,13 +43,17 @@ public class PollListManagerTest extends AbstractTransactionalSpringContextTests
 		
 		pollListManager = new PollListManagerImpl();
 		pollListManager.setDao(dao);
-		pollListManager.setExternalLogic(new ExternalLogicStubb());
+		
+		externalLogicStubb = new ExternalLogicStubb();
+		pollListManager.setExternalLogic(externalLogicStubb);
 		
 		// preload testData
 		tdp.preloadTestData(dao);
 	}
 	
     public void testGetPollById() {
+    	externalLogicStubb.currentUserId = TestDataPreload.USER_UPDATE;
+    	
     	//we shouldNot find this poll
     	Poll pollFail = pollListManager.getPollById(Long.valueOf(99));
     	assertNull(pollFail);
@@ -56,10 +61,25 @@ public class PollListManagerTest extends AbstractTransactionalSpringContextTests
     	//this one should exist
     	Poll poll1 = pollListManager.getPollById(Long.valueOf(1));
     	assertNotNull(poll1);
+    	
+    	//it should have options
+    	assertNotNull(poll1.getPollOptions());
+    	assertTrue(poll1.getPollOptions().size() > 0);
+    	
+    	//we expect this one to fails
+		externalLogicStubb.currentUserId = TestDataPreload.USER_NO_ACCEESS;
+		try {
+			Poll poll2 = pollListManager.getPollById(Long.valueOf(1));
+			fail("should not be allowed to read this poll");
+		} 
+		catch (SecurityException e) {
+			e.printStackTrace();
+		}
     }
 	
     
     public void testSavePoll() {
+    	externalLogicStubb.currentUserId = TestDataPreload.USER_UPDATE;
 		
     	Poll poll1 = new Poll();
 		poll1.setCreationDate(new Date());
@@ -69,6 +89,8 @@ public class PollListManagerTest extends AbstractTransactionalSpringContextTests
 		poll1.setText("something");
 		poll1.setOwner(TestDataPreload.USER_UPDATE);
 		poll1.setSiteId(TestDataPreload.LOCATION1_ID);
+		
+		
 		
 		//If this has a value something is wrong without POJO
 		assertNull(poll1.getPollId());
@@ -82,11 +104,17 @@ public class PollListManagerTest extends AbstractTransactionalSpringContextTests
 		assertNotNull(poll2);
 		assertEquals(poll1.getPollText(), poll2.getPollText());
 		
-		//TODO add failure cases - null parameters  
+		//TODO add failure cases - null parameters
+		
+
+		
+		
     }
 	
     
     public void testDeletePoll() {
+    	externalLogicStubb.currentUserId = TestDataPreload.USER_UPDATE;
+    	
     	/* not sure why this is failing not getting the objects? 
     	Poll poll = pollListManager.getPollById(Long.valueOf(1));
     	try {
