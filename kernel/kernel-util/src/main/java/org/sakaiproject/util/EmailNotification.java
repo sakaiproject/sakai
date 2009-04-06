@@ -72,7 +72,7 @@ public class EmailNotification implements NotificationAction
 	private final String TERMINATION_LINE = "\n\n--"+MULTIPART_BOUNDARY+"--\n\n";
 
 	private final String MIME_ADVISORY = "This message is for MIME-compliant mail readers.";
-	
+
 	/** The related site id. */
 	protected String m_siteId = null;
 
@@ -713,7 +713,12 @@ public class EmailNotification implements NotificationAction
 		String userDisplay = null;
 		String userEmail = null;
 
-		String userId = SessionManager.getCurrentSessionUserId();
+		String userId = event.getUserId();
+		
+		if (userId == null) {
+			userId = SessionManager.getCurrentSessionUserId(); 
+		}
+		
 		if (userId != null)
 		{
 			try
