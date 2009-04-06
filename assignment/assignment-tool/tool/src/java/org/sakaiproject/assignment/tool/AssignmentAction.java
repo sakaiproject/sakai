@@ -7639,7 +7639,7 @@ public class AssignmentAction extends PagedResourceActionII
 		state.removeAttribute(ALLOW_RESUBMIT_CLOSEMIN);
 		state.removeAttribute(ALLOW_RESUBMIT_CLOSEAMPM);
 		state.removeAttribute(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
-		state.removeAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
+		state.setAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, "0");
 	}
 
 	/**
