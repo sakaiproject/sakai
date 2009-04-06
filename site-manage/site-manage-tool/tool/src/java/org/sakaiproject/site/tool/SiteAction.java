@@ -743,7 +743,7 @@ public class SiteAction extends PagedResourceActionII {
 				{
 					String title = page.getTitle();
 					
-					if (isHomeTool(title))
+					if (isHomePage(page))
 					{
 						// found home page, add all tool ids to return value
 						for(ToolConfiguration tConfiguration : (List<ToolConfiguration>) page.getTools())
@@ -8256,7 +8256,7 @@ public class SiteAction extends PagedResourceActionII {
 		String homePageId = null;
 		for (ListIterator i = wSetupPageList.listIterator(); i.hasNext();) {
 			wSetupPage = (WorksiteSetupPage) i.next();
-			if (isHomeTool(wSetupPage.getPageTitle())) {
+			if (isHomePage(site.getPage(wSetupPage.getPageId()))) {
 				homeInWSetupPageList = true;
 				homePageId = wSetupPage.getPageId();
 				break;
@@ -8344,6 +8344,13 @@ public class SiteAction extends PagedResourceActionII {
 				// only use one column layout
 				page.setLayout(SitePage.LAYOUT_SINGLE_COL);
 			}
+			
+			// mark this page as Home page inside its property
+			if (page.getProperties().getProperty(SiteConstants.IS_HOME_PAGE) == null)
+			{
+				page.getPropertiesEdit().addProperty(SiteConstants.IS_HOME_PAGE, Boolean.TRUE.toString());
+			}
+			
 		} // add Home
 
 		// if Home is in wSetupPageList and not chosen, remove Home feature from
@@ -8526,7 +8533,7 @@ public class SiteAction extends PagedResourceActionII {
 				if (pageList != null && pageList.size() != 0) {
 					for (ListIterator i = pageList.listIterator(); i.hasNext();) {
 						SitePage page = (SitePage) i.next();
-						if (isHomeTool(page.getTitle()))
+						if (isHomePage(page))
 						{
 							homePage = page;
 							break;
@@ -9203,7 +9210,7 @@ public class SiteAction extends PagedResourceActionII {
 		int count = pageToolList.size();
 		
 		// check Home tool first
-		if (isHomeTool(page.getTitle()))
+		if (isHomePage(page))
 			return TOOL_ID_HOME;
 
 		// Other than Home page, no other page is allowed to have more than one tool within. Otherwise, WSetup/Site Info tool won't handle it
@@ -9297,7 +9304,7 @@ public class SiteAction extends PagedResourceActionII {
 				// collect the pages consistent with Worksite Setup patterns
 				wSetupTool = pageMatchesPattern(state, page);
 				if (wSetupTool != null) {
-					if (isHomeTool(page.getTitle()))
+					if (TOOL_ID_HOME.equals(wSetupTool))
 					{
 						check_home = true;
 					}
@@ -11380,9 +11387,19 @@ public class SiteAction extends PagedResourceActionII {
 	 * @param toolTitle
 	 * @return
 	 */
-	private boolean isHomeTool(String toolTitle)
+	private boolean isHomePage(SitePage page)
 	{
-		return TOOL_ID_HOME.equalsIgnoreCase(toolTitle) || rb.getString("java.home").equalsIgnoreCase(toolTitle);
+		if (page.getProperties().getProperty(SiteConstants.IS_HOME_PAGE) != null)
+		{
+			// check based on the page property first
+			return true;
+		}
+		else
+		{
+			// if above fails, check based on the page title
+			String pageTitle = page.getTitle();
+			return TOOL_ID_HOME.equalsIgnoreCase(pageTitle) || rb.getString("java.home").equalsIgnoreCase(pageTitle);
+		}
 	}
 
 	public boolean displaySiteAlias() {

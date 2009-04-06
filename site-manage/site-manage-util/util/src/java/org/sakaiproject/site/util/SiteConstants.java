@@ -40,5 +40,7 @@ public class SiteConstants {
 	public static final String GROUP_PROP_ROLE_PROVIDERID = "group_prop_role_providerid";
 	
 	public static final int SITE_GROUP_TITLE_LIMIT = 99;
+	
+	public static final String IS_HOME_PAGE = "is_home_page";
 
 }
