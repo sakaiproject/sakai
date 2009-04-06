@@ -12,7 +12,7 @@
 	<parent>
 		<groupId>uk.ac.lancs.e_science</groupId>
 		<artifactId>profile2-base</artifactId>
-	    <version>1.1</version>
+	    <version>1.2-SNAPSHOT</version>
 	</parent>
 
 	<properties>
