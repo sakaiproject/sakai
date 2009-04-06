@@ -43,7 +43,7 @@ public class ConfirmFriend extends Panel {
         profile = ProfileApplication.get().getProfile();
         
         //get friendName
-        final String friendName = FormattedText.processFormattedText(sakaiProxy.getUserDisplayName(userY), new StringBuilder());
+        final String friendName = FormattedText.processFormattedText(sakaiProxy.getUserDisplayName(userY), new StringBuffer());
                 
         //window setup
 		window.setTitle(new StringResourceModel("title.friend.confirm", null, new Object[]{ friendName } )); 

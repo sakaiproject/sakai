@@ -374,7 +374,7 @@ public class MySearch extends BasePage {
 					Search search = (Search) form.getModelObject();
 					
 					//get search field
-					String searchText = FormattedText.processFormattedText(search.getSearchName(), new StringBuilder());
+					String searchText = FormattedText.processFormattedText(search.getSearchName(), new StringBuffer());
 					
 					log.debug("MySearch() search.getSearchName(): " + searchText);
 				
@@ -439,7 +439,7 @@ public class MySearch extends BasePage {
 					Search search = (Search) form.getModelObject();
 					
 					//get search field
-					String searchText = FormattedText.processFormattedText(search.getSearchInterest(), new StringBuilder());
+					String searchText = FormattedText.processFormattedText(search.getSearchInterest(), new StringBuffer());
 
 					log.debug("MySearch() search.getSearchInterest(): " + searchText);
 					

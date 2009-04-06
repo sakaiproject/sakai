@@ -42,7 +42,7 @@ public class AddFriend extends Panel {
         profile = ProfileApplication.get().getProfile();
         
         //get friendName
-        final String friendName = FormattedText.processFormattedText(sakaiProxy.getUserDisplayName(userY), new StringBuilder());
+        final String friendName = FormattedText.processFormattedText(sakaiProxy.getUserDisplayName(userY), new StringBuffer());
         
         //window setup
 		window.setTitle(new StringResourceModel("title.friend.add", null, new Object[]{ friendName } )); 
