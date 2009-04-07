@@ -1,5 +1,7 @@
 package uk.ac.lancs.e_science.profile2.tool.pages;
 
+import java.util.Locale;
+
 import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
@@ -23,17 +25,18 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	protected transient Profile profile;
 	
 	public BasePage() {
-    	
 		//super();
 		
 		log.debug("BasePage()");
-
+		
 		//get sakaiProxy API
 		sakaiProxy = getSakaiProxy();
 		
 		//get Profile API
 		profile = getProfile();
 		
+		//set Locale - all pages will inherit this.
+		setUserPreferredLocale();
 		
     	//profile link
     	Link myProfileLink = new Link("myProfileLink") {
@@ -238,6 +241,13 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		response.setHeader("Cache-Control", "no-cache, max-age=0, must-revalidate, no-store"); 
     } 
 	*/
+	
+	public void setUserPreferredLocale() {
+		Locale sakaiLocale = sakaiProxy.getUserPreferredLocale();
+		log.debug("User preferred locale: " + sakaiLocale);
+		getSession().setLocale(sakaiLocale);
+	}
+	
 	
 	
 }
