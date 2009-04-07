@@ -327,6 +327,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
       }
     }; 
     getHibernateTemplate().execute(hcb);    
+    updateSyllabusAttachmentsViewState(syllabusData);
   }  
   
   
@@ -359,7 +360,38 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
     }; 
     getHibernateTemplate().execute(hcb);
   }  
-  
+
+  /**
+   * Make sure all attachments associated with a syllabus
+   * are marked by the Content Hosting Service with appropriate
+   * public (true/false) permissions.
+   * 
+   * @param syllabusData the SyllabusData object to check for publicness
+   */
+  private void updateSyllabusAttachmentsViewState(final SyllabusData syllabusData)
+  {
+	boolean publicView = "yes".equalsIgnoreCase(syllabusData.getView());
+    Set<?> attachments = syllabusData.getAttachments();
+    for (Object a: attachments) {
+    	SyllabusAttachment attach = (SyllabusAttachment)a;
+    	contentHostingService.setPubView(attach.getAttachmentId(), publicView);
+    }
+  }
+
+  /**
+   * Make sure this attachmentis marked by the Content Hosting Service
+   * with the appropriate public (true/false) permissions.
+   * 
+   * @param syllabusData the SyllabusData object to check for publicness
+   * @param attach the SyllabusAttachment object to update
+   */
+  private void updateSyllabusAttachmentViewState(final SyllabusData syllabusData, final SyllabusAttachment attach)
+  {
+	boolean publicView = "yes".equalsIgnoreCase(syllabusData.getView());
+    contentHostingService.setPubView(attach.getAttachmentId(), publicView);
+  }
+
+
   /**
    * saveSyllabusItem persists a SyllabusItem
    * @param item
@@ -376,6 +408,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
   public void saveSyllabus(SyllabusData data)
   {
     getHibernateTemplate().saveOrUpdate(data);
+    updateSyllabusAttachmentsViewState(data);
   }  
 
   public SyllabusData getSyllabusData(final String dataId)
@@ -475,6 +508,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
       }
     }; 
     getHibernateTemplate().execute(hcb);
+    updateSyllabusAttachmentViewState(syllabusData, syllabusAttach);
   }  
 
 
