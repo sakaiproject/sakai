@@ -5,6 +5,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
@@ -31,6 +32,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 
@@ -573,8 +575,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 	}
 	
-	
-	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public Locale getUserPreferredLocale() {
+		ResourceLoader rl = new ResourceLoader();
+		return rl.getLocale();
+	}
 	
 	
 	

@@ -1,6 +1,7 @@
 package uk.ac.lancs.e_science.profile2.api;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 /**
@@ -242,6 +243,13 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public int getProfilePictureType();
+	
+	
+	/**
+	 * Gets the users preferred locale, either from the user's session or Sakai preferences and returns it
+	 * @return
+	 */
+	public Locale getUserPreferredLocale();
 	
 	
 
