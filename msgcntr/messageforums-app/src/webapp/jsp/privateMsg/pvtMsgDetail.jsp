@@ -88,9 +88,8 @@
             <th>
             	 <h:outputText value="#{msgs.pvt_to}" />
             </th>
-            <td>
-            	 <h:outputText value="#{PrivateMessagesTool.detailMsg.visibleRecipientsAsText}" rendered="#{! (PrivateMessagesTool.detailMsg.author == PrivateMessagesTool.authorString) }"  />
-            	 <h:outputText value="#{PrivateMessagesTool.detailMsg.recipientsAsText}" rendered="#{ (PrivateMessagesTool.detailMsg.author == PrivateMessagesTool.authorString) }" />
+            <td>           	
+            	 <h:outputText value="#{PrivateMessagesTool.detailMsg.recipientsAsText}" />
             </td>
           </tr>
           <tr>
