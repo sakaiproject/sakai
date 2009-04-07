@@ -31,19 +31,17 @@
 
 	<bean id="permissionsProducer"
 		class="org.sakaiproject.poll.tool.producers.PermissionsProducer">
-		<property name="pollListManager"
-			ref="org.sakaiproject.tool.poll.api.PollListManager" />
-		<property name="localeGetter" ref="requestLocaleProxy" />
+		
 		<property name="messageLocator" ref="messageLocator" />
 		<property name="roleperms" ref="roleperms" />
 		<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
 	</bean>
 
+ 
 	<bean id="roleperms" factory-bean="RoleFactory"
 		factory-method="getRoles" />
 
-	<bean id="RoleFactory"
-		class="org.sakaiproject.poll.tool.params.RoleFactory">
+	<bean id="RoleFactory"	class="org.sakaiproject.poll.tool.params.RoleFactory">
 	</bean>
 
 
@@ -126,10 +124,6 @@
 			ref="org.sakaiproject.tool.poll.api.PollListManager" />
 		<property name="pollVoteManager"
 			ref="org.sakaiproject.tool.poll.api.PollVoteManager" />
-		<property name="toolManager"
-			ref="org.sakaiproject.tool.api.ToolManager" />
-		<property name="eventTrackingService"
-			ref="org.sakaiproject.event.api.EventTrackingService" />
 		<property name="localeGetter" ref="requestLocaleProxy" />
 		<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
 	</bean>
