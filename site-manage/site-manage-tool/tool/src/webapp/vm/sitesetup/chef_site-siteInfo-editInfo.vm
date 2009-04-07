@@ -15,13 +15,134 @@ function LimitText(fieldObj,maxChars)
     
   	return result;
 }
+
+function submitRemoveSection(index){
+		id = "removeSection"+index;
+  removeSection = document.getElementById(id);
+		removeSection.value="true";
+		document.getElementById("option").value="removeSection";
+		document.siteInfoForm.submit();
+		return false;
+}
 </script>
   
 <div class="portletBody">
-	<h3>
-		$tlang.getString("sitediinf.rev") <span class="highlight">$validator.escapeHtml($title)</span>
-	</h3>
+	#if(!$existingSite)
+		## adding new site
+		#if ($!isProjectSite)
+			<h3>
+				$tlang.getString("sinfo.pi")
+			</h3>
+			<p class="step">
+				$tlang.getString("sinfo.enter")
+			</p>
+		#elseif ($!isCourseSite)
+			<h3>
+				$tlang.getString("sinfo.class")
+			</h3>
+			<p class="step">
+				$tlang.getString("sinfo.enter2")
+			</p>
+		#elseif ($type && $type=='portfolio')
+			<h3>
+				$tlang.getString("sinfo.portfolio")
+			</h3>
+			<p class="step">
+				$tlang.getString("sinfo.enter3")
+			</p>
+		#else
+			<h3>
+				$tlang.getString("sinfo.other")
+			</h3>
+			<p class="step">
+				$tlang.getString("sinfo.enter3")
+			</p>
+		#end
+	#else
+		## editing existing site
+		<h3>
+			$tlang.getString("sitediinf.rev") <span class="highlight">$validator.escapeHtml($title)</span>
+		</h3>
+	#end
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitediinf.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	## adding a new course site
+	#if ($!existingSite && $isCourseSite)
+	<table class="listHier lines nolines indnt1" style="width:auto" summary="$tlang.getString("sinfo.rosterlist.summary")" border="0">
+	
+		#if ($!selectedProviderCourse)
+			<tr class="exclude" id="selectedProviderCourse-head"><td colspan="2" style="padding:.4em 0">
+				<h4><span class="instruction">$tlang.getString("sinfo.youare")</span></h4>
+			</td></tr>
+			#set ($selectedProviderCourse-num=0)
+			#foreach ($item in $!selectedProviderCourseTitles)
+				<tr>
+					<td style="padding-left:1em">
+					#set ($selectedProviderCourse-num=1)
+					$item
+					</td>
+					<td>
+					<!-- Remove Section -->
+					
+					##gsilver: am surprised this works at all, the ids may not be valid
+					<span class="itemAction"><a href="#" onclick="javascript:submitRemoveSection('$item');">$tlang.getString("sinfo.removeSections")</a></span>
+					<input type="hidden" id="removeSection$item" name="removeSection$item" value="" />
+				</td></tr>
+			#end
+			<tr>
+				<td style="height:0;display:none">
+				## do it this way
+					#if ($selectedProviderCourse-num ==0)
+						<script type="text/javascript">document.getElementById('selectedProviderCourse-head').style.display='none'</script>
+				</td>
+			</tr>
+			#end								
+		#end
+		#if ($!cmAuthorizerSections || $!cmRequestedSections || $!manualAddNumber)
+			<tr class="exclude"><td colspan="2" style="padding:.4em 0">
+			<h4><span class="instruction">$tlang.getString("sinfo.requestedSections")</span></h4>
+			#foreach ($sect in $!cmRequestedSections)
+				<tr>
+					<td style="padding-left:1em">
+						$sect.title
+					</td>
+					<td>
+						<!-- Remove Section -->
+						<span class="itemAction"><a href="#" onclick="javascript:submitRemoveSection('$sect.eid');">$tlang.getString("sinfo.removeSections")</a></span>
+						<input type="hidden" id="removeSection$sect.eid" name="removeSection$sect.eid" value="" />
+					</td>
+				</tr>	
+			#end
+   #foreach ($sect in $!cmAuthorizerSections)
+    <tr>
+					<td style="padding-left:1em">
+						$sect.eid: $sect.title, $sect.categoryDescription (Pending approval by $sect.authorizer)
+					</td>
+					<td>
+						<span class="itemAction">
+							<a href="#" onclick="javascript:submitRemoveSection('$sect.eid');">$tlang.getString("sinfo.removeSections")</a>
+                            <input type="hidden" id="removeSection$sect.eid" name="removeSection$sect.eid" value="" />
+						</span>	
+					</td>
+				</tr>	
+			#end
+			#foreach ($k in [0..$manualAddNumber])
+					#set($courseFieldValues = $!fieldValues.get($k))
+					#set($bound = $!form_requiredFields.size())
+					#set($bound = $bound - 1)
+					<tr><td colspan="2" style="padding-left:1em">
+						#foreach ($fieldCount in [0..$!bound])
+							$!courseFieldValues.get($fieldCount).getValue()
+						#end
+					</td></tr>
+			#end
+		#end
+		</table>
+	#end
+	#if (!$!existingSite && $!isProjectSite)
+		<p class="instruction">
+			$tlang.getString("sinfo.simplea") <span class ="reqStarInline">*</span> $tlang.getString("sinfo.means")
+		</p>
+	#end
 	<form name="classInformationForm" method="post" action="#toolForm("SiteAction")">
 		<p class="shorttext required">
 			<span class="reqStar">*</span>
@@ -117,9 +238,13 @@ function LimitText(fieldObj,maxChars)
 		</p>
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />
-		<input type="hidden" name="continue" value="14" />
+		<input type="hidden" name="continue" value="$!continue" />
 	<div class="act">
 		<input type="submit" accesskey="s" class= "active" name="eventSubmit_doContinue" value="$tlang.getString("sitediinf.con")" />
+		#if(!$existingSite)
+			## have the back button for creating site wizard
+			<input type="submit" accesskey="b" class= "active" name="eventSubmit_doBack" value="$tlang.getString("gen.back")" />
+		#end
 		<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitediinf.can")" />
 	</div>
 </form>

@@ -226,7 +226,7 @@ public class SiteAction extends PagedResourceActionII {
 	protected final static String[] TEMPLATE = {
 			"-list",// 0
 			"-type",
-			"-newSiteInformation",
+			"",// combined with 13
 			"-editFeatures",
 			"",
 			"-addParticipant",
@@ -1438,96 +1438,6 @@ public class SiteAction extends PagedResourceActionII {
 			setTemplateListForContext(context, state);
 			
 			return (String) getContext(data).get("template") + TEMPLATE[1];
-
-		case 2:
-			/*
-			 * buildContextForTemplate chef_site-newSiteInformation.vm
-			 * 
-			 */
-			context.put("displaySiteAlias", Boolean.valueOf(displaySiteAlias()));
-			context.put("siteTypes", state.getAttribute(STATE_SITE_TYPES));
-			String siteType = (String) state.getAttribute(STATE_SITE_TYPE);
-			context.put("type", siteType);
-			context.put("siteTitleEditable", Boolean.valueOf(siteTitleEditable(state, siteType)));
-
-			if (siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
-				context.put("isCourseSite", Boolean.TRUE);
-				context.put("isProjectSite", Boolean.FALSE);
-
-				putSelectedProviderCourseIntoContext(context, state);
-
-				List<SectionObject> cmRequestedList = (List<SectionObject>) state
-						.getAttribute(STATE_CM_REQUESTED_SECTIONS);
-
-				if (cmRequestedList != null) {
-					context.put("cmRequestedSections", cmRequestedList);
-				}
-
-				List<SectionObject> cmAuthorizerSectionList = (List<SectionObject>) state
-						.getAttribute(STATE_CM_AUTHORIZER_SECTIONS);
-				if (cmAuthorizerSectionList != null) {
-					context
-							.put("cmAuthorizerSections",
-									cmAuthorizerSectionList);
-				}
-
-				if (state.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER) != null) {
-					int number = ((Integer) state
-							.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER))
-							.intValue();
-					context.put("manualAddNumber", new Integer(number - 1));
-					context.put("manualAddFields", state
-							.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS));
-				} else {
-					if (courseManagementIsImplemented()) {
-					} else {
-						context.put("templateIndex", "37");
-					}
-				}
-
-				// whether to show course skin selection choices or not
-				courseSkinSelection(context, state, null, siteInfo);
-				
-			} else {
-				context.put("isCourseSite", Boolean.FALSE);
-				if (siteType.equalsIgnoreCase("project")) {
-					context.put("isProjectSite", Boolean.TRUE);
-				}
-
-				if (StringUtil.trimToNull(siteInfo.iconUrl) != null) {
-					context.put(FORM_ICON_URL, siteInfo.iconUrl);
-				}
-			}
-
-			if (state.getAttribute(SiteHelper.SITE_CREATE_SITE_TITLE) != null) {
-				context.put("titleEditableSiteType", Boolean.FALSE);
-				siteInfo.title = (String)state.getAttribute(SiteHelper.SITE_CREATE_SITE_TITLE);
-			} else {
-				context.put("titleEditableSiteType", state
-						.getAttribute(TITLE_EDITABLE_SITE_TYPE));
-			}
-			context.put(FORM_TITLE, siteInfo.title);
-			context.put(FORM_URL_BASE, aliasBaseUrl);
-			context.put(FORM_URL_ALIAS, siteInfo.url_alias);
-			context.put(FORM_SHORT_DESCRIPTION, siteInfo.short_description);
-			context.put(FORM_DESCRIPTION, siteInfo.description);
-
-			// defalt the site contact person to the site creator
-			if (siteInfo.site_contact_name.equals(NULL_STRING)
-					&& siteInfo.site_contact_email.equals(NULL_STRING)) {
-				User user = UserDirectoryService.getCurrentUser();
-				siteInfo.site_contact_name = user.getDisplayName();
-				siteInfo.site_contact_email = user.getEmail();
-			}
-			context.put("form_site_contact_name", siteInfo.site_contact_name);
-			context.put("form_site_contact_email", siteInfo.site_contact_email);
-
-			// those manual inputs
-			context.put("form_requiredFields", sectionFieldProvider
-					.getRequiredFields());
-			context.put("fieldValues", state
-					.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS));
-			return (String) getContext(data).get("template") + TEMPLATE[2];
 		case 3:
 			/*
 			 * buildContextForTemplate chef_site-editFeatures.vm
@@ -1616,7 +1526,7 @@ public class SiteAction extends PagedResourceActionII {
 			else
 			{
 				context.put("existSite", Boolean.FALSE);
-				context.put("backIndex", "2");	// back to new site information page
+				context.put("backIndex", "13");	// back to new site information page
 			}
 
 			context.put("homeToolId", TOOL_ID_HOME);
@@ -1631,7 +1541,7 @@ public class SiteAction extends PagedResourceActionII {
 			roles = getRoles(state);
 			context.put("roles", roles);
 			
-			siteType = (String) state.getAttribute(STATE_SITE_TYPE);
+			String siteType = (String) state.getAttribute(STATE_SITE_TYPE);
 			context.put("isCourseSite", siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))?Boolean.TRUE:Boolean.FALSE);
 			
 			// Note that (for now) these strings are in both sakai.properties
@@ -2146,7 +2056,16 @@ public class SiteAction extends PagedResourceActionII {
 			 * buildContextForTemplate chef_site-siteInfo-editInfo.vm
 			 * 
 			 */
-			siteProperties = site.getProperties();
+			if (site != null) {
+				// revising a existing site's tool
+				context.put("existingSite", Boolean.TRUE);
+				context.put("continue", "14");
+			} else {
+				// new site
+				context.put("existingSite", Boolean.FALSE);
+				context.put("continue", "3");
+			}
+			
 			boolean displaySiteAlias = displaySiteAlias();
 			context.put("displaySiteAlias", Boolean.valueOf(displaySiteAlias));
 			if (displaySiteAlias)
@@ -2159,36 +2078,99 @@ public class SiteAction extends PagedResourceActionII {
 				context.put(FORM_URL_BASE, aliasBaseUrl);
 				context.put(FORM_URL_ALIAS, alias);
 			}
-			context.put("title", siteInfo.title);
-			context.put("siteTitleEditable", Boolean.valueOf(siteTitleEditable(state, site.getType())));
-			context.put("type", site.getType());
+			
+			siteType = (String) state.getAttribute(STATE_SITE_TYPE);
+			context.put("type", siteType);
+			context.put("siteTitleEditable", Boolean.valueOf(siteTitleEditable(state, siteType)));
 			context.put("titleMaxLength", state.getAttribute(STATE_SITE_TITLE_MAX));
 
-			siteType = siteInfo.site_type;
-			if (siteType != null && siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
+			if (siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 				context.put("isCourseSite", Boolean.TRUE);
-				
-				// whether to show course skin selection choices or not
-				courseSkinSelection(context, state, site, siteInfo);
+				context.put("isProjectSite", Boolean.FALSE);
 
-				setTermListForContext(context, state, true); // true->only future terms
+				putSelectedProviderCourseIntoContext(context, state);
 
-				if (siteInfo.term == null) {
-					String currentTerm = site.getProperties().getProperty(
-							PROP_SITE_TERM);
-					if (currentTerm != null) {
-						siteInfo.term = currentTerm;
+				List<SectionObject> cmRequestedList = (List<SectionObject>) state
+						.getAttribute(STATE_CM_REQUESTED_SECTIONS);
+
+				if (cmRequestedList != null) {
+					context.put("cmRequestedSections", cmRequestedList);
+				}
+
+				List<SectionObject> cmAuthorizerSectionList = (List<SectionObject>) state
+						.getAttribute(STATE_CM_AUTHORIZER_SECTIONS);
+				if (cmAuthorizerSectionList != null) {
+					context
+							.put("cmAuthorizerSections",
+									cmAuthorizerSectionList);
+				}
+
+				if (state.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER) != null) {
+					int number = ((Integer) state
+							.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER))
+							.intValue();
+					context.put("manualAddNumber", new Integer(number - 1));
+					context.put("manualAddFields", state
+							.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS));
+				} else {
+					if (courseManagementIsImplemented()) {
+					} else {
+						context.put("templateIndex", "37");
 					}
 				}
-				context.put("selectedTerm", siteInfo.term);
+
+				// whether to show course skin selection choices or not
+				courseSkinSelection(context, state, site, siteInfo);
+				
+				if (StringUtil.trimToNull(siteInfo.term) == null) {
+					if (site != null)
+					{
+						// existing site
+						siteInfo.term = site.getProperties().getProperty(PROP_SITE_TERM);
+					}
+					else
+					{
+						// creating new site
+						AcademicSession t = (AcademicSession) state.getAttribute(STATE_TERM_SELECTED);
+						siteInfo.term = t != null?t.getEid() : "";
+					}
+				}
+				context.put("selectedTerm", siteInfo.term != null? siteInfo.term:"");
+				
 			} else {
 				context.put("isCourseSite", Boolean.FALSE);
-				
-				if (siteInfo.iconUrl != null) {
-					context.put("iconUrl", siteInfo.iconUrl);
+				if (siteType.equalsIgnoreCase("project")) {
+					context.put("isProjectSite", Boolean.TRUE);
+				}
+
+				if (StringUtil.trimToNull(siteInfo.iconUrl) != null) {
+					context.put(FORM_ICON_URL, siteInfo.iconUrl);
 				}
 			}
+
+			if (state.getAttribute(SiteHelper.SITE_CREATE_SITE_TITLE) != null) {
+				context.put("titleEditableSiteType", Boolean.FALSE);
+				siteInfo.title = (String)state.getAttribute(SiteHelper.SITE_CREATE_SITE_TITLE);
+			} else {
+				context.put("titleEditableSiteType", state
+						.getAttribute(TITLE_EDITABLE_SITE_TYPE));
+			}
+
+			// defalt the site contact person to the site creator
+			if (siteInfo.site_contact_name.equals(NULL_STRING)
+					&& siteInfo.site_contact_email.equals(NULL_STRING)) {
+				User u = UserDirectoryService.getCurrentUser();
+				siteInfo.site_contact_name = u != null? u.getDisplayName():"";
+				siteInfo.site_contact_email = u != null?u.getEmail():"";
+			}
+
+			// those manual inputs
+			context.put("form_requiredFields", sectionFieldProvider.getRequiredFields());
+			context.put("fieldValues", state.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS));
 			
+			context.put("title", siteInfo.title);
+			context.put(FORM_URL_BASE, aliasBaseUrl);
+			context.put(FORM_URL_ALIAS, siteInfo.url_alias);
 			if (siteInfo.description!=null && siteInfo.description.indexOf("\n") != -1 && siteInfo.description.indexOf("<br />") == -1 && siteInfo.description.indexOf("<br/>") == -1)
 			{
 				// replace the old style line break before WYSIWYG editor "\n" with the current line break <br />
@@ -2199,7 +2181,6 @@ public class SiteAction extends PagedResourceActionII {
 			{
 				context.put("description", siteInfo.description);
 			}
-			
 			context.put("short_description", siteInfo.short_description);
 			context.put("form_site_contact_name", siteInfo.site_contact_name);
 			context.put("form_site_contact_email", siteInfo.site_contact_email);
@@ -4246,7 +4227,7 @@ public class SiteAction extends PagedResourceActionII {
 				}
 			} else if (type.equals("project")) {
 				totalSteps = 4;
-				state.setAttribute(STATE_TEMPLATE_INDEX, "2");
+				state.setAttribute(STATE_TEMPLATE_INDEX, "13");
 			} else if (type.equals(SITE_TYPE_GRADTOOLS_STUDENT)) {
 				// if a GradTools site use pre-defined site info and exclude
 				// from public listing
@@ -4267,7 +4248,7 @@ public class SiteAction extends PagedResourceActionII {
 				// skip directly to confirm creation of site
 				state.setAttribute(STATE_TEMPLATE_INDEX, "42");
 			} else {
-				state.setAttribute(STATE_TEMPLATE_INDEX, "2");
+				state.setAttribute(STATE_TEMPLATE_INDEX, "13");
 			}
 			// get the user selected template
 			getSelectedTemplate(state, params, type);
@@ -4484,7 +4465,7 @@ public class SiteAction extends PagedResourceActionII {
 				}
 				if (state.getAttribute(STATE_MESSAGE) == null) {
 					if (getStateSite(state) == null) {
-						state.setAttribute(STATE_TEMPLATE_INDEX, "2");
+						state.setAttribute(STATE_TEMPLATE_INDEX, "13");
 					} else {
 						state.setAttribute(STATE_TEMPLATE_INDEX, "44");
 					}
@@ -5639,7 +5620,7 @@ public class SiteAction extends PagedResourceActionII {
 			state.removeAttribute(STATE_TOOL_EMAIL_ADDRESS);
 			state.removeAttribute(STATE_MESSAGE);
 			removeEditToolState(state);
-		} else if (currentIndex.equals("13") || currentIndex.equals("14")) {
+		} else if (getStateSite(state) != null && (currentIndex.equals("13") || currentIndex.equals("14"))) {
 			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
 		} else if (currentIndex.equals("15")) {
 			params = data.getParameters();
@@ -6807,32 +6788,6 @@ public class SiteAction extends PagedResourceActionII {
 			 * 
 			 */
 			break;
-		case 2:
-			/*
-			 * actionForTemplate chef_site-newSiteInformation.vm
-			 * 
-			 */
-			updateSiteInfo(params, state);
-
-			siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
-			
-			// alerts after clicking Continue but not Back
-			if (!forward) {
-				// removing previously selected template site
-				state.removeAttribute(STATE_TEMPLATE_SITE);				
-			}
-			
-			updateSiteAttributes(state);
-
-			if (state.getAttribute(STATE_MESSAGE) == null) {
-				updateCurrentStep(state, forward);
-			}
-			else
-			{
-				state.setAttribute(STATE_TEMPLATE_INDEX, "2");
-			}
-
-			break;
 		case 3:
 			/*
 			 * actionForTemplate chef_site-editFeatures.vm
@@ -6889,11 +6844,18 @@ public class SiteAction extends PagedResourceActionII {
 			 * 
 			 */
 			if (forward) {
-				updateSiteInfo(params, state);
-
-				if (state.getAttribute(STATE_MESSAGE) == null) {
-					state.setAttribute(STATE_TEMPLATE_INDEX, "14");
+				if (getStateSite(state) == null)
+				{
+					// alerts after clicking Continue but not Back
+					if (!forward) {
+						// removing previously selected template site
+						state.removeAttribute(STATE_TEMPLATE_SITE);				
+					}
+					
+					updateSiteAttributes(state);
 				}
+				
+				updateSiteInfo(params, state);
 			}
 			break;
 		case 14:
@@ -10927,7 +10889,7 @@ public class SiteAction extends PagedResourceActionII {
 				} else {
 					// if creating a site, go the the site
 					// information entry page
-					state.setAttribute(STATE_TEMPLATE_INDEX, "2");
+					state.setAttribute(STATE_TEMPLATE_INDEX, "13");
 				}
 			}
 		}
@@ -11181,7 +11143,7 @@ public class SiteAction extends PagedResourceActionII {
 				}
 				if (state.getAttribute(STATE_MESSAGE) == null) {
 					if (getStateSite(state) == null) {
-						state.setAttribute(STATE_TEMPLATE_INDEX, "2");
+						state.setAttribute(STATE_TEMPLATE_INDEX, "13");
 					} else {
 						state.setAttribute(STATE_TEMPLATE_INDEX, "44");
 					}
