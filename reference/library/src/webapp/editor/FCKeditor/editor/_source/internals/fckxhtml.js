@@ -204,9 +204,18 @@ FCKXHtml._AppendNode = function( xmlNode, htmlNode )
 
 			// Ignore bogus BR nodes in the DOM.
 			if ( FCKBrowserInfo.IsGecko &&
-					htmlNode.nextSibling &&
 					( htmlNode.hasAttribute('_moz_editor_bogus_node') || htmlNode.getAttribute( 'type' ) == '_moz' ) )
-				return false ;
+			{
+				if ( htmlNode.nextSibling )
+					return false ;
+				else if ( xmlNode.ownerDocument.documentElement == xmlNode && htmlNode.parentNode && htmlNode.parentNode.lastChild == htmlNode )
+					return false ;
+				else
+				{
+					htmlNode.removeAttribute( '_moz_editor_bogus_node' ) ;
+					htmlNode.removeAttribute( 'type' ) ;
+				}
+			}
 
 			// This is for elements that are instrumental to FCKeditor and
 			// must be removed from the final HTML.
