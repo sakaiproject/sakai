@@ -1592,6 +1592,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		pipe.setActionCompleted(true);
 
 		toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
+		toolSession.removeAttribute(CitationHelper.CITATION_HELPER_INITIALIZED);
 
 		cleanup(toolSession, CitationHelper.CITATION_PREFIX, state);
 
@@ -1671,6 +1672,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		pipe.setActionCompleted(true);
 
 		toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
+		toolSession.removeAttribute(CitationHelper.CITATION_HELPER_INITIALIZED);
 
 		state.removeAttribute("fromListPage");
 
@@ -3209,8 +3211,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		 * Resources Tool/Citation Helper support
 		 */
 
-		String initId = pipe.getInitializationId();
-		if( initId == null )
+		if( toolSession.getAttribute(CitationHelper.CITATION_HELPER_INITIALIZED) == null )
 		{
 			// we're starting afresh: an action has been clicked in Resources
 
@@ -3226,6 +3227,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 					// leave helper
 					pipe.setActionCompleted( true );
 					toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
+					toolSession.removeAttribute(CitationHelper.CITATION_HELPER_INITIALIZED);
 					cleanup( toolSession, CitationHelper.CITATION_PREFIX, state);
 
 					return false;
@@ -3265,7 +3267,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			}
 
 			// set Citations Helper to "initialized"
-			pipe.setInitializationId( "initialized" );
+			//pipe.setInitializationId( "initialized" );
+			toolSession.setAttribute(CitationHelper.CITATION_HELPER_INITIALIZED, Boolean.toString(true));
 		}
 
 		else

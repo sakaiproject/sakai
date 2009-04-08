@@ -62,5 +62,7 @@ public interface CitationHelper
 	public static final String CITATION_VIEW_ITEM = CITATION_PREFIX + "edit_item_item";
 
 	public static final int DEFAULT_PAGESIZE = 10;
+	
+	public static final String CITATION_HELPER_INITIALIZED = CITATION_PREFIX + "citation_helper_initialized";
 
 }
