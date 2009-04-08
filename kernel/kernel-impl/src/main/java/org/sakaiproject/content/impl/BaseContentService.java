@@ -4645,16 +4645,31 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		ContentCollection thisCollection = null;
 		try
 		{
-			thisCollection = findCollection(id);
+			thisCollection = getCollection(id);
 		}
 		catch (TypeException e)
 		{
 			thisCollection = null;
-		}
+        }
+        catch (IdUnusedException e)
+        {
+            thisCollection = null;
+        }
+        catch (PermissionException e)
+        {
+            return null;
+        }
 		if (thisCollection == null)
 		{
-			thisResource = findResource(id);
-		}
+            try
+            {
+                thisResource = getResource(id);
+            }
+            catch (PermissionException e)
+            {
+                return null;
+            }
+        }
 		else
 		{
 			isCollection = true;
@@ -4671,11 +4686,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 		if (isCollection)
 		{
-			new_id = deepcopyCollection(thisCollection, new_id);
+                        new_id = deepcopyCollection(thisCollection, new_id);
 		}
 		else
 		{
-			new_id = copyResource(thisResource, new_id);
+		        new_id = copyResource(thisResource, new_id);
 		}
 		return new_id;
 	}
@@ -5445,8 +5460,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			while (memberIt.hasNext())
 			{
 				String member_id = (String) memberIt.next();
-				copyIntoFolder(member_id, new_folder_id);
-			}
+                		if (isAvailable(member_id)){
+                    			copyIntoFolder(member_id, new_folder_id);
+			    	}
+            }
 
 		}
 		catch (InconsistentException e)
