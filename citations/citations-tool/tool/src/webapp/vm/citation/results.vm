@@ -36,6 +36,7 @@
 
     <form name="$FORM_NAME" id="$FORM_NAME" method="post"
       action="#toolForm("CitationHelperAction")">
+	  <input type="hidden" name="requestStateId" id="requestStateId" value="$!{requestStateId}" />
       <input name="sakai_action" id="sakai_action" value="doBeginSearch" type="hidden" />
       <input name="searchType" id="searchType" value="$searchType" type="hidden" />
       <input name="pageSelector" id="pageSelector" value="" type="hidden" />

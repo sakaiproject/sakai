@@ -37,6 +37,10 @@ public interface CitationHelper
 	
 	public static final String CITATION_PREFIX = "citation.";
 	
+	// temporary -- replace these with constants in content-util or content-api
+	public static final String RESOURCES_REQUEST_PREFIX = "resources.request.";
+	public static final String RESOURCES_SYS_PREFIX = "resources.sys.";
+	
 	/** The name of the state attribute indicating which mode the helper is in */
 	public static final String STATE_HELPER_MODE = CITATION_PREFIX + "helper.mode";
 

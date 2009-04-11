@@ -33,6 +33,7 @@
 
 		<form name="$FORM_NAME" id="$FORM_NAME" action="#toolForm("CitationHelperAction")" method="post">
 			<input name="sakai_action" id="sakai_action" value="doList" type="hidden" />
+			<input type="hidden" name="requestStateId" id="requestStateId" value="$!{requestStateId}" />
 			<input name="citationId" id="citationId" value="$citationId" type="hidden" />
 			<input name="collectionId" id="collectionId" value="$collectionId" type="hidden" />
 

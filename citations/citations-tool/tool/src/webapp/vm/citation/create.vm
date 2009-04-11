@@ -49,6 +49,7 @@
 	
 		<form name="$FORM_NAME" id="$FORM_NAME" method="post" action="#toolForm("CitationHelperAction")">
 			<input name="sakai_action" id="sakai_action" value="doCreateCitation" type="hidden" />
+			<input type="hidden" name="requestStateId" id="requestStateId" value="$!{requestStateId}" />
 			<p class="shorttext">
 				<label for="type">
 					<strong>$tlang.getString("type.select")</strong>

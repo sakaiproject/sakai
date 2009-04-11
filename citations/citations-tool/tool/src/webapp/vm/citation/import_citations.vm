@@ -44,6 +44,7 @@ doubleDeep = true;
 	      enctype="multipart/form-data" >
       <p class="instruction">$tlang.getString("import.directions")</p>
       <input name="sakai_action" id="sakai_action" value="" type="hidden" />
+	  <input type="hidden" name="requestStateId" id="requestStateId" value="$!{requestStateId}" />
       <input name="searchType" id="searchType" value="$basicSearchType" type="hidden" />
 
 	  <input type="button" value='$tlang.getString("label.import")' id="import1"
