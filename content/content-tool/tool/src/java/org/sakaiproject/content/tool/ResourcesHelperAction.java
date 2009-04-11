@@ -202,7 +202,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			template = CREATE_UPLOAD_TEMPLATE;
 		}
 		
-		int requestStateId = ResourcesAction.preserveRequestState(state);
+		int requestStateId = ResourcesAction.preserveRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST});
 		context.put("requestStateId", requestStateId);
 
 		return template;
@@ -385,7 +385,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		ResourcesAction.copyrightChoicesIntoContext(state, context);
 		ResourcesAction.publicDisplayChoicesIntoContext(state, context);
 		
-		int requestStateId = ResourcesAction.preserveRequestState(state);
+		int requestStateId = ResourcesAction.preserveRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST});
 		context.put("requestStateId", requestStateId);
 		
 		return CREATE_URLS_TEMPLATE;
@@ -443,7 +443,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 		ResourcesAction.publicDisplayChoicesIntoContext(state, context);
 
-		int requestStateId = ResourcesAction.preserveRequestState(state);
+		int requestStateId = ResourcesAction.preserveRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST});
 		context.put("requestStateId", requestStateId);
 
 		return CREATE_FOLDERS_TEMPLATE;
@@ -484,7 +484,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		context.put("item", item);
 		
-		int requestStateId = ResourcesAction.preserveRequestState(state);
+		int requestStateId = ResourcesAction.preserveRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST});
 		context.put("requestStateId", requestStateId);
 
 		return REPLACE_CONTENT_TEMPLATE;
@@ -556,7 +556,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			template = REVISE_UPLOAD_TEMPLATE;
 		}
 		
-		int requestStateId = ResourcesAction.preserveRequestState(state);
+		int requestStateId = ResourcesAction.preserveRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST});
 		context.put("requestStateId", requestStateId);
 
 		return template;
@@ -650,7 +650,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 		context.put("defaultCopyrightStatus", defaultCopyrightStatus);
 	
-		int requestStateId = ResourcesAction.preserveRequestState(state);
+		int requestStateId = ResourcesAction.preserveRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST});
 		context.put("requestStateId", requestStateId);
 
 		return CREATE_UPLOADS_TEMPLATE;
@@ -664,7 +664,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		
 		int requestStateId = params.getInt("requestStateId", 0);
-		ResourcesAction.restoreRequestState(state, requestStateId);
+		ResourcesAction.restoreRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST}, requestStateId);
 		
 		//Tool tool = ToolManager.getCurrentTool();
 		//String url = (String) toolSession.getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
@@ -703,7 +703,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		ParameterParser params = data.getParameters ();
 
 		int requestStateId = params.getInt("requestStateId", 0);
-		ResourcesAction.restoreRequestState(state, requestStateId);
+		ResourcesAction.restoreRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST}, requestStateId);
 		
 		String content = params.getString("content");
 		if(content == null)
@@ -819,7 +819,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		
 		int requestStateId = params.getInt("requestStateId", 0);
-		ResourcesAction.restoreRequestState(state, requestStateId);
+		ResourcesAction.restoreRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST}, requestStateId);
 		
 		MultiFileUploadPipe pipe = (MultiFileUploadPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		if(pipe == null)
@@ -840,7 +840,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			return;
 		}
 		
-	String resourceType = pipe.getAction().getTypeId();
+		String resourceType = pipe.getAction().getTypeId();
 		
 		int count = params.getInt("fileCount");
 		pipe.setFileCount(count);
@@ -940,7 +940,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		
 		int requestStateId = params.getInt("requestStateId", 0);
-		ResourcesAction.restoreRequestState(state, requestStateId);
+		ResourcesAction.restoreRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST}, requestStateId);
 		
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		if(pipe == null)
@@ -1049,7 +1049,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		
 		int requestStateId = params.getInt("requestStateId", 0);
-		ResourcesAction.restoreRequestState(state, requestStateId);
+		ResourcesAction.restoreRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST}, requestStateId);
 		
 		MultiFileUploadPipe mfp = (MultiFileUploadPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		if(mfp == null)
@@ -1274,7 +1274,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		
 		int requestStateId = params.getInt("requestStateId", 0);
-		ResourcesAction.restoreRequestState(state, requestStateId);
+		ResourcesAction.restoreRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST}, requestStateId);
 		
 		MultiFileUploadPipe mfp = (MultiFileUploadPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		if(mfp == null)
