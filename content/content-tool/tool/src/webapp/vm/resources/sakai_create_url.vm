@@ -12,6 +12,7 @@
 	</p>
 	<form name="addContentForm" id="addContentForm" method="post" action="#toolForm("ResourcesHelperAction")" >
 		<input type="hidden" name="pipe-init-id" id="pipe-init-id" value="$!{pipe-init-id}" />
+		<input type="hidden" name="requestStateId" id="requestStateId" value="$!{requestStateId}" />
 		#if($!{item.isMissing("content")})
 			<p class="shorttext validation">
 		#else

@@ -22,6 +22,7 @@
 	<form name="addFolderForm" id="addFolderForm" method="post" action="#toolForm("ResourcesHelperAction")">
 		<input type="hidden" name="pipe-init-id" id="pipe-init-id" value="$!{pipe-init-id}" />
 		<input type="hidden" name="fileCount" id="fileCount" value="$pipes.size()" />
+		<input type="hidden" name="requestStateId" id="requestStateId" value="$!{requestStateId}" />
 		#set($lastIndex = $pipes.size() - 1)
 		<input type="hidden" name="lastIndex" id="lastIndex" value="$lastIndex" />
 		<div id="fileInputDiv">

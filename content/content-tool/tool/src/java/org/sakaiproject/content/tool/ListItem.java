@@ -557,7 +557,11 @@ public class ListItem
 		if(this.collection)
 		{
 			ContentCollection collection = (ContentCollection) entity;
-			String shortSizeStr = typeDef.getSizeLabel(entity);
+			String shortSizeStr = null;
+			if(typeDef != null)
+			{
+				shortSizeStr = typeDef.getSizeLabel(entity);
+			}
         	int collection_size = collection.getMemberCount();
 			if(shortSizeStr == null)
 			{
@@ -577,7 +581,11 @@ public class ListItem
 			}
 			setIsEmpty(collection_size < 1);
 			setSize(shortSizeStr);
-			String longSizeStr = typeDef.getLongSizeLabel(entity);
+			String longSizeStr = null;
+			if(typeDef != null)
+			{
+				longSizeStr = typeDef.getLongSizeLabel(entity);
+			}
 			if(longSizeStr == null)
 			{
 				longSizeStr = shortSizeStr;
@@ -630,8 +638,14 @@ public class ListItem
 			{
 				this.iconLocation = ContentTypeImageService.getContentTypeImage(this.mimetype);
 			}
-			String size = typeDef.getSizeLabel(entity);
-			String sizzle = typeDef.getLongSizeLabel(entity);
+			
+			String size = null;
+			String sizzle = null;
+			if(typeDef != null)
+			{
+				size = typeDef.getSizeLabel(entity);
+				sizzle = typeDef.getLongSizeLabel(entity);
+			}
 			if((size == null || sizzle == null) && props.getProperty(ResourceProperties.PROP_CONTENT_LENGTH) != null)
 			{
 				long size_long = 0;

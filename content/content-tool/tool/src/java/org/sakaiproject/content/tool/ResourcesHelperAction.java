@@ -33,6 +33,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
@@ -153,6 +154,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			RunData data,
 			SessionState state)
 	{
+		logger.debug(this + ".buildAccessContext()");
 		String template = ACCESS_TEXT_TEMPLATE;
 		return template;
 	}
@@ -164,6 +166,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			RunData data,
 			SessionState state)
 	{
+		logger.debug(this + ".buildCreateContext()");
 		String template = CREATE_UPLOAD_TEMPLATE;
 		
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
@@ -199,6 +202,9 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			template = CREATE_UPLOAD_TEMPLATE;
 		}
 		
+		int requestStateId = ResourcesAction.preserveRequestState(state);
+		context.put("requestStateId", requestStateId);
+
 		return template;
 	}
 
@@ -207,6 +213,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			RunData data,
 			SessionState state)
 	{
+		logger.debug(this + ".buildMainPanelContext()");
 		// context.put("sysout", System.out);
 		context.put("tlang", rb);
 		
@@ -330,6 +337,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 	protected String buildNewUrlsContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	 {
+		logger.debug(this + ".buildNewUrlsContext()");
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 
 		MultiFileUploadPipe pipe = (MultiFileUploadPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
@@ -377,6 +385,9 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		ResourcesAction.copyrightChoicesIntoContext(state, context);
 		ResourcesAction.publicDisplayChoicesIntoContext(state, context);
 		
+		int requestStateId = ResourcesAction.preserveRequestState(state);
+		context.put("requestStateId", requestStateId);
+		
 		return CREATE_URLS_TEMPLATE;
 	 }
 
@@ -391,6 +402,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	 */
 	private String buildNewFoldersContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
+		logger.debug(this + ".buildNewFoldersContext()");
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 
 		MultiFileUploadPipe pipe = (MultiFileUploadPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
@@ -431,6 +443,9 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 		ResourcesAction.publicDisplayChoicesIntoContext(state, context);
 
+		int requestStateId = ResourcesAction.preserveRequestState(state);
+		context.put("requestStateId", requestStateId);
+
 		return CREATE_FOLDERS_TEMPLATE;
 	}
 
@@ -445,6 +460,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	 */
 	protected String buildReplaceContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
+		logger.debug(this + ".buildReplaceContext()");
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
@@ -468,6 +484,9 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		context.put("item", item);
 		
+		int requestStateId = ResourcesAction.preserveRequestState(state);
+		context.put("requestStateId", requestStateId);
+
 		return REPLACE_CONTENT_TEMPLATE;
 	}
 
@@ -478,6 +497,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			RunData data,
 			SessionState state)
 	{
+		logger.debug(this + ".buildReviseContext()");
 		String template = REVISE_TEXT_TEMPLATE;
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 
@@ -536,6 +556,9 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			template = REVISE_UPLOAD_TEMPLATE;
 		}
 		
+		int requestStateId = ResourcesAction.preserveRequestState(state);
+		context.put("requestStateId", requestStateId);
+
 		return template;
 	}
 
@@ -548,6 +571,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	 */
 	protected String buildUploadFilesContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
+		logger.debug(this + ".buildUploadFilesContext()");
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		
 		String max_file_size_mb = (String) state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
@@ -626,17 +650,21 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 		context.put("defaultCopyrightStatus", defaultCopyrightStatus);
 	
-		
-		
+		int requestStateId = ResourcesAction.preserveRequestState(state);
+		context.put("requestStateId", requestStateId);
 
 		return CREATE_UPLOADS_TEMPLATE;
 	}
 
 	public void doCancel(RunData data)
 	{
+		logger.debug(this + ".doCancel()");
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ParameterParser params = data.getParameters ();
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		
+		int requestStateId = params.getInt("requestStateId", 0);
+		ResourcesAction.restoreRequestState(state, requestStateId);
 		
 		//Tool tool = ToolManager.getCurrentTool();
 		//String url = (String) toolSession.getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
@@ -670,9 +698,13 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	
 	public void doContinue(RunData data)
 	{
+		logger.debug(this + ".doContinue()");
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ParameterParser params = data.getParameters ();
 
+		int requestStateId = params.getInt("requestStateId", 0);
+		ResourcesAction.restoreRequestState(state, requestStateId);
+		
 		String content = params.getString("content");
 		if(content == null)
 		{
@@ -691,17 +723,22 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			return;
 		}
 		
-		String pipe_init_id = pipe.getInitializationId();
-		String response_init_id = params.getString(ResourcesAction.PIPE_INIT_ID);
-		
-		if(pipe_init_id == null || response_init_id == null || ! response_init_id.equalsIgnoreCase(pipe_init_id))
+		if(pipe != null)
 		{
-			// in this case, prevent upload to wrong folder
-			pipe.setErrorMessage(rb.getString("alert.try-again"));
-			pipe.setActionCanceled(false);
-			pipe.setErrorEncountered(true);
-			pipe.setActionCompleted(false);
-			return;
+			String pipe_init_id = pipe.getInitializationId();
+			String response_init_id = params.getString(ResourcesAction.PIPE_INIT_ID);
+			if(pipe_init_id == null || response_init_id == null || ! response_init_id.equalsIgnoreCase(pipe_init_id))
+			{
+					// in this case, prevent upload to wrong folder
+					pipe.setErrorMessage(rb.getString("alert.try-again"));
+					pipe.setActionCanceled(false);
+					pipe.setErrorEncountered(true);
+					pipe.setActionCompleted(false);
+					return;
+			}
+				
+			toolSession.setAttribute(ResourceToolAction.ACTION_PIPE, pipe);
+
 		}
 		
 		String resourceType = pipe.getAction().getTypeId();
@@ -775,10 +812,14 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	
 	public void doCreateFolders(RunData data)
 	{
+		logger.debug(this + ".doCreateFolders()");
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ParameterParser params = data.getParameters ();
 
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		
+		int requestStateId = params.getInt("requestStateId", 0);
+		ResourcesAction.restoreRequestState(state, requestStateId);
 		
 		MultiFileUploadPipe pipe = (MultiFileUploadPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		if(pipe == null)
@@ -893,11 +934,14 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	
 	public void doReplace(RunData data)
 	{
+		logger.debug(this + ".doReplace()");
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ParameterParser params = data.getParameters ();
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		
-
+		int requestStateId = params.getInt("requestStateId", 0);
+		ResourcesAction.restoreRequestState(state, requestStateId);
+		
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		if(pipe == null)
 		{
@@ -999,11 +1043,14 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	
 	public void doAddUrls(RunData data)
 	{
+		logger.debug(this + ".soAddUrls()");
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ParameterParser params = data.getParameters ();
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		
-
+		int requestStateId = params.getInt("requestStateId", 0);
+		ResourcesAction.restoreRequestState(state, requestStateId);
+		
 		MultiFileUploadPipe mfp = (MultiFileUploadPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		if(mfp == null)
 		{
@@ -1221,14 +1268,18 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	
 	public void doUpload(RunData data)
 	{
+		logger.debug(this + ".doUpload()");
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ParameterParser params = data.getParameters ();
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		
-
+		int requestStateId = params.getInt("requestStateId", 0);
+		ResourcesAction.restoreRequestState(state, requestStateId);
+		
 		MultiFileUploadPipe mfp = (MultiFileUploadPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		if(mfp == null)
 		{
+			logger.debug(this + ".doUpload() mfp is null");
 			return;
 		}
 		
@@ -1242,7 +1293,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			mfp.setActionCanceled(false);
 			mfp.setErrorEncountered(true);
 			mfp.setActionCompleted(false);
-			toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
+			logger.debug(this + ".doUpload() setting error on pipe");
+
 			return;
 		}
 		
@@ -1275,7 +1327,9 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		}
 		
 		List<ResourceToolActionPipe> pipes = mfp.getPipes();
-		
+	
+		logger.debug(this + ".doUpload() iterating through pipes");
+
 		int uploadCount = 0;
 		
 		for(int i = 0, c = 0; i <= lastIndex && c < count; i++)
@@ -1382,9 +1436,12 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			c++;
 			
 		}
+		logger.debug(this + ".doUpload() checking upload count");
 		
 		if(uploadCount < 1 && state.getAttribute(ResourcesAction.STATE_MESSAGE) == null)
 		{
+			logger.debug(this + ".doUpload() no files uploaded");
+
 			HttpServletRequest req = data.getRequest();
 			String status = (String) req.getAttribute("upload.status");
 			if(status == null)
@@ -1421,6 +1478,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				addAlert(state, rb.getString("choosefile7"));
 			}
 		}
+		logger.debug(this + ".doUpload() checking allAlerts");
 		if(! allAlerts.isEmpty())
 		{
 			for(String alert: allAlerts)
@@ -1429,12 +1487,15 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			}
 		}
 
+		logger.debug(this + ".doUpload() checking messages");
 		if(state.getAttribute(ResourcesAction.STATE_MESSAGE) == null)
 		{
 			mfp.setActionCanceled(false);
 			mfp.setErrorEncountered(false);
 			mfp.setActionCompleted(true);
-			
+
+			logger.debug(this + ".doUpload() no error messages");
+
 			toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
 		}
 
@@ -1442,6 +1503,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	
 	protected void initHelper(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
+		logger.debug(this + ".initHelper()");
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		//toolSession.setAttribute(ResourceToolAction.STARTED, Boolean.TRUE);
 		//state.setAttribute(ResourceToolAction.STATE_MODE, MODE_MAIN);
@@ -1589,6 +1651,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	protected void toolModeDispatch(String methodBase, String methodExt, HttpServletRequest req, HttpServletResponse res)
 		throws ToolException
 	{
+		logger.debug(this + ".toolModeDispatch()");
 		SessionState sstate = getState(req);
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		
@@ -1602,6 +1665,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			Tool tool = ToolManager.getCurrentTool();
 		
 			String url = (String) SessionManager.getCurrentToolSession().getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
+			logger.debug(this + ".toolModeDispatch() url == " + url);
 		
 			SessionManager.getCurrentToolSession().removeAttribute(tool.getId() + Tool.HELPER_DONE_URL);
 		
@@ -1611,10 +1675,12 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			}
 			catch (IOException e)
 			{
-				// Log.warn("chef", this + " : ", e);
+				logger.warn(this + ".toolModeDispatch() IOException", e);
 			}
+			logger.debug(this + ".toolModeDispatch() returning");
 			return;
 		}
+		logger.debug(this + ".toolModeDispatch() calling super.toolModeDispatch(" + methodBase + ", " + "methodExt" + ", " + req + ", " + res+ ")");
 		
 		super.toolModeDispatch(methodBase, methodExt, req, res);
 	}
