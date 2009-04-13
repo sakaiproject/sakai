@@ -294,6 +294,7 @@ public class BaseSearchManager implements SearchManager, Observer
     	public List viewPage(int page) throws SearchException, SearchCancelException
     	{
     		List citations = new Vector();
+    		boolean searchPerformed = false;
 
           	if(page < 0)
         	{
@@ -313,12 +314,14 @@ public class BaseSearchManager implements SearchManager, Observer
         		if(this.m_pageOrder.isEmpty())
         		{
         			doSearch(this);
+        			searchPerformed = true;
         		}
         		else if(end > this.m_pageOrder.size())
         		{
 	        		try
 	                {
 		                doNextPage(this);
+		                searchPerformed = true;
 	                }
 	                catch (SearchException e)
 	                {
@@ -329,6 +332,73 @@ public class BaseSearchManager implements SearchManager, Observer
 	                }
         		}
         	}
+          /*
+           * Determine the proper the "last page" setting.
+           */
+          m_log.debug(">>> viewPage() new page is " + page
+                  +   ", last page is " + m_lastPageViewed);
+          m_log.debug(">>> viewPage() was a search done? " + searchPerformed);
+          m_log.debug(">>> viewPage() did we find the last page? " + this.isLastPage());
+          m_log.debug(">>> viewPage() records found = " + getNumRecordsFetched()
+                  +   ", records rendered = " + m_pageOrder.size());
+          /*
+           * Step 1: Previous (and the first) pages are a special case
+           */
+          if (page < m_lastPageViewed)
+          {
+            setLastPage(false);
+          }
+          /*
+           * Step 2: Re-evaluate the "last page" status if one of these is true:
+           *
+           *    o This is a previous (or the first) page
+           *    o This was purely a page size adjustment (no search required)
+           *    o A search was performed (and it didn't hit "end-of-search-results")
+           */
+          if ((page < m_lastPageViewed)
+          ||  (!searchPerformed)
+          ||  (searchPerformed && !isLastPage()))
+          {
+            int estimatedHits = getNumRecordsFound();
+            int hitsRendered  = m_pageOrder.size();
+            int pageHits      = (page == 0) ? m_viewPageSize
+                                            : ((page + 1) * m_viewPageSize);
+            /*
+             * Step 3: This is the last page if:
+             *
+             *    o The estimated number of possible results will fit on the
+             *      current page
+             * or
+             *    o The number of results actually rendered is less than the
+             *      current page size (we ran out)
+             */
+//       		m_log.debug(">>> viewPage() estimate ("
+//       		        +   estimatedHits
+//       		        +   ") <= page size ("
+//       		        +   m_viewPageSize
+//       		        +   ") ? "
+//       		        +   (estimatedHits <= m_viewPageSize));
+
+         		m_log.debug(">>> viewPage() estimate ("
+         		        +   estimatedHits
+         		        +   ") <= page size (in hits) ("
+         		        +   pageHits
+         		        +   ") ? "
+         		        +   (estimatedHits <= pageHits));
+
+         		m_log.debug(">>> viewPage() records rendered ("
+         		        +   hitsRendered
+         		        +   ") < page size (in hits) ("
+         		        +   pageHits
+         		        +   ") ? "
+         		        +   (hitsRendered < pageHits));
+
+//       		if ((estimatedHits <= m_viewPageSize)
+         		if ((estimatedHits <= pageHits) ||  (hitsRendered  < pageHits))
+         		{
+         		  setLastPage(true);
+            }
+          }
 
         	if(end > m_pageOrder.size())
         	{
@@ -1852,11 +1922,15 @@ public class BaseSearchManager implements SearchManager, Observer
 
 		Set duplicateCheck = ((BasicSearch) search).getDuplicateCheck();
     int duplicateCount = 0;
+
 		boolean done = false;
+		boolean moreResults = false;
+
 		try
 		{
-			// poll until you get pageSize results to return
-			while( !done && assetIterator.hasNextAsset() )
+   		// poll until we get pageSize results (or run out of results)
+   	  moreResults = assetIterator.hasNextAsset();
+			while( !done && moreResults )
 			{
 				try
 				{
@@ -1932,6 +2006,8 @@ public class BaseSearchManager implements SearchManager, Observer
 						}
 					}
 				}
+        // make sure we have more search results
+    	  moreResults = assetIterator.hasNextAsset();
 			}
 		}
 		catch( RepositoryException re )
@@ -1991,8 +2067,14 @@ public class BaseSearchManager implements SearchManager, Observer
 		search.setNumRecordsMerged( numRecordsMerged );
 		search.setNewSearch(false);
 		search.setFirstPage(false);
-
-		if(done)
+    /*
+     * disable the "next page" arrow if we've exhausted the search results
+     */
+  	if (!moreResults)
+  	{
+  	  search.setLastPage(true);
+  	}
+  	else if(done)
 		{
 			search.setLastPage(false);
 		}
@@ -2000,7 +2082,6 @@ public class BaseSearchManager implements SearchManager, Observer
 		{
 			search.setLastPage(true);
 		}
-
 		return search;
 	}
 

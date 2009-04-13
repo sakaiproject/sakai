@@ -120,7 +120,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		public static final String TITLE_ID = "title";
 		public static final String SUBJECT_ID = "subject";
 		public static final String YEAR_ID = "year";
-		
+
 		/* keys to hold state information */
 		public static final String STATE_FIELD1 = CitationHelper.CITATION_PREFIX + "advField1";
 		public static final String STATE_FIELD2 = CitationHelper.CITATION_PREFIX + "advField2";
@@ -640,7 +640,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		// validator
 		context.put("xilator", new Validator());
-		
+
 		int requestStateId = preserveRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX});
 		context.put("requestStateId", requestStateId);
 
@@ -695,7 +695,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		if(collection == null)
 		{
 			logger.warn( "buildAddCitationsPanelContext unable to access citationCollection " + collectionId );
-			
+
 			int requestStateId = preserveRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX});
 			context.put("requestStateId", requestStateId);
 
@@ -1535,7 +1535,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 
 		if (pipe == null)
@@ -1658,10 +1658,10 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
     	SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ParameterParser params = data.getParameters();
-		
+
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 
 		if (pipe == null)
@@ -1739,7 +1739,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		// get the citation from search results, add it to the citation collection, and rebuild the context
 		String[] citationIds = params.getStrings("citationId");
 		String collectionId = params.getString("collectionId");
@@ -1780,10 +1780,10 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		// get the state object
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ParameterParser params = data.getParameters();
-		
+
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		// get the citation number from search results, remove it from the citation collection, and rebuild the context
 		// get the citation from search results, add it to the citation collection, and rebuild the context
 		String[] citationIds = params.getStrings("citationId");
@@ -1823,7 +1823,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		// get category id
 		String categoryId = params.get( "categoryId" );
 		logger.debug( "doDatabasePopulate() categoryId from URL: " + categoryId );
@@ -1860,7 +1860,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		setMode(state, Mode.IMPORT_CITATIONS);
 
 	}	// doImportPage
@@ -1879,7 +1879,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		Iterator iter = params.getNames();
 
 		String param = null;
@@ -2065,7 +2065,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		setMode(state, Mode.CREATE);
 		//state.setAttribute(CitationHelper.SPECIAL_HELPER_ID, CitationHelper.CITATION_ID);
 
@@ -2114,7 +2114,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		Set validPropertyNames = CitationService.getValidPropertyNames();
 		String mediatype = params.getString("type");
 
@@ -2269,7 +2269,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		String citationId = params.getString("citationId");
 		String collectionId = params.getString("collectionId");
 
@@ -2310,7 +2310,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		setMode(state, Mode.LIST);
 
 	}	// doList
@@ -2323,7 +2323,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		setMode(state, Mode.RESULTS);
 	}
 
@@ -2338,7 +2338,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		setMode(state, Mode.ADD_CITATIONS);
 
 	}	// doAddCitations
@@ -2351,7 +2351,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		// get params
 		String citationId = params.getString("citationId");
 		String collectionId = params.getString("collectionId");
@@ -2442,7 +2442,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		String collectionId = params.getString("collectionId");
 
 		CitationCollection collection = getCitationCollection(state, false);
@@ -2479,7 +2479,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		String collectionId = params.getString("collectionId");
 
 		CitationCollection collection = getCitationCollection(state, false);
@@ -2530,7 +2530,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		// Set validPropertyNames = CitationService.getValidPropertyNames();
 		// String mediatype = params.getString("type");
 
@@ -2583,7 +2583,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		// cancel the running search
 		ActiveSearch search = ( ActiveSearch )state.getAttribute( STATE_SEARCH_INFO );
 		if( search != null )
@@ -2624,7 +2624,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		doSearchCommon(state, Mode.ADD_CITATIONS);
 	}
 
@@ -2680,7 +2680,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		// get search object from state
 		ActiveSearch search = (ActiveSearch) state.getAttribute(STATE_SEARCH_INFO);
 		if(search == null)
@@ -2889,7 +2889,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		CitationIterator listIterator = (CitationIterator) state.getAttribute(STATE_LIST_ITERATOR);
 		if(listIterator == null)
 		{
@@ -2915,7 +2915,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		CitationIterator listIterator = (CitationIterator) state.getAttribute(STATE_LIST_ITERATOR);
 		if(listIterator == null)
 		{
@@ -2941,7 +2941,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		CitationCollection collection = getCitationCollection(state, true);
 
 		CitationIterator listIterator = (CitationIterator) state.getAttribute(STATE_LIST_ITERATOR);
@@ -2970,7 +2970,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		CitationIterator listIterator = (CitationIterator) state.getAttribute(STATE_LIST_ITERATOR);
 		if(listIterator == null)
 		{
@@ -2995,7 +2995,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		ActiveSearch search = (ActiveSearch) state.getAttribute(STATE_SEARCH_RESULTS);
 		if(search == null)
 		{
@@ -3039,7 +3039,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		ActiveSearch search = (ActiveSearch) state.getAttribute(STATE_SEARCH_RESULTS);
 		if(search == null)
 		{
@@ -3057,9 +3057,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	        }
 	        state.setAttribute(STATE_CURRENT_RESULTS, latestResults);
     			setMode(state, Mode.RESULTS);
-
-      		// We're returning to a previous page.  Enable the "next page" arrow.
-          search.setLastPage(false);
         }
         catch (SearchException e)
         {
@@ -3085,7 +3082,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		ActiveSearch search = (ActiveSearch) state.getAttribute(STATE_SEARCH_RESULTS);
 		if(search == null)
 		{
@@ -3104,8 +3101,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	        }
 	        state.setAttribute(STATE_CURRENT_RESULTS, latestResults);
     			setMode(state, Mode.RESULTS);
-      		// We're returning to the first page.  Enable the "next page" arrow.
-          search.setLastPage(false);
         }
         catch (SearchException e)
         {
@@ -3131,7 +3126,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		ActiveSearch search = (ActiveSearch) state.getAttribute(STATE_SEARCH_RESULTS);
 		if(search == null)
 		{
@@ -3204,7 +3199,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		// check for top or bottom page selector
 		String pageSelector = params.get( "pageSelector" );
 		int pageSize;
@@ -3239,7 +3234,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		String citationId = params.getString("citationId");
 		String collectionId = params.getString("collectionId");
 
@@ -3653,7 +3648,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		String collectionId = params.getString("collectionId");
 
 		String sort = params.getString("sort");
@@ -3723,7 +3718,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 		int requestStateId = params.getInt("requestStateId", 0);
 		restoreRequestState(state, new String[]{CitationHelper.RESOURCES_REQUEST_PREFIX, CitationHelper.CITATION_PREFIX}, requestStateId);
-		
+
 		String collectionId = params.getString("collectionId");
 
 		CitationCollection collection = null;
@@ -3781,18 +3776,18 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
         }
 
 	}
-	
-	// temporary -- replace with a method in content-util 
+
+	// temporary -- replace with a method in content-util
 	public static int preserveRequestState(SessionState state, String[] prefixes)
 	{
 		Map requestState = new HashMap();
-		
+
 		int requestStateId = 0;
 		while(requestStateId == 0)
 		{
 			requestStateId = (int) (Math.random() * Integer.MAX_VALUE);
 		}
-		
+
 		List<String> attrNames = state.getAttributeNames();
 		for(String attrName : attrNames)
 		{
@@ -3805,13 +3800,13 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				}
 			}
 		}
-		
+
 		Object pipe = state.getAttribute(ResourceToolAction.ACTION_PIPE);
 		if(pipe != null)
 		{
 			requestState.put(ResourceToolAction.ACTION_PIPE, pipe);
 		}
-		
+
 		Tool tool = ToolManager.getCurrentTool();
 		Object url = state.getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
 		if( url != null)
@@ -3823,7 +3818,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		logger.debug("preserveRequestState() requestStateId == " + requestStateId + "\n" + requestState);
 		return requestStateId;
 	}
-	
+
 	// temporary -- replace with a value in content-util or content-api
 	public static void restoreRequestState(SessionState state, String[] prefixes, int requestStateId)
 	{
@@ -3843,13 +3838,13 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 					}
 				}
 			}
-			
+
 			for(String attrName : (Set<String>) requestState.keySet())
 			{
 				state.setAttribute(attrName, requestState.get(attrName));
 			}
 		}
-		
+
 	}
 
 
