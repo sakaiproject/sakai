@@ -191,7 +191,6 @@ public class SiteAddParticipantHandler {
      */
     public void init() {
         if (site == null) {
-            siteId = null;
             try {
                 siteId = sessionManager.getCurrentToolSession()
                         .getAttribute(HELPER_ID + ".siteId").toString();
@@ -338,6 +337,8 @@ public class SiteAddParticipantHandler {
 
 	        // if user doesn't have full rights, don't let him add one with site update
 	    	if (!authzGroupService.allowUpdate("/site/" + siteId)) {
+	    	if (realm == null)
+	    		init();
 		    Role r = realm.getRole(sameRoleChoice);
 		    if (r != null && r.isAllowed("site.upd")) {
 			targettedMessageList.addMessage(new TargettedMessage("java.roleperm", new Object[] { sameRoleChoice }, TargettedMessage.SEVERITY_ERROR));
@@ -955,6 +956,9 @@ public class SiteAddParticipantHandler {
 	
 	private void reset()
 	{
+		site = null;
+		siteId = null;
+		realm = null;
 		officialAccountParticipant = null;
 		officialAccountEidOnly = new Vector<String>();
 		nonOfficialAccountParticipant = null;
