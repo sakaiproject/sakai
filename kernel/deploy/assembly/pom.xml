@@ -12,7 +12,7 @@
   <groupId>org.sakaiproject.kernel.deploy</groupId>
   <artifactId>kernel-assembly</artifactId>
   <organization>
-    <name>University of Cambridge</name>
+    <name>Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2008</inceptionYear>
