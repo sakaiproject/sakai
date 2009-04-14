@@ -59,13 +59,10 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 
 import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.util.Web;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -88,9 +85,6 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
    
    //protected final static String EVENT_CHAT_DELETE_CHANNEL = "sakai.chat.delete.channel";
    
-   
-   /**   The tool manager   */
-   private ToolManager toolManager;
    
    /** the clients listening to the various rooms */
    protected Map roomListeners = new HashMap();
@@ -158,7 +152,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
     */
    public ChatChannel createNewChannel(String context, String title, boolean placementDefaultChannel, boolean checkAuthz, String placement) throws PermissionException {
       if (checkAuthz)
-         checkPermission(ChatFunctions.CHAT_FUNCTION_NEW_CHANNEL);
+         checkPermission(ChatFunctions.CHAT_FUNCTION_NEW_CHANNEL, context);
       
       ChatChannel channel = new ChatChannel(getDefaultChannelSettings());
       
@@ -181,7 +175,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
    public void updateChannel(ChatChannel channel, boolean checkAuthz) throws PermissionException {
 
       if (checkAuthz)
-         checkPermission(ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL);
+         checkPermission(ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL, channel.getContext());
       
       getHibernateTemplate().saveOrUpdate(channel);
    }
@@ -192,7 +186,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
     */
    public void deleteChannel(ChatChannel channel) throws PermissionException {
 
-      checkPermission(ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL);
+      checkPermission(ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL, channel.getContext());
       getHibernateTemplate().delete(channel);
       
       sendDeleteChannel(channel);
@@ -255,7 +249,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
     */
    protected List<ChatMessage> getChannelMessages(ChatChannel channel, Date date, int items, boolean sortAsc) throws PermissionException 
    {
-      checkPermission(ChatFunctions.CHAT_FUNCTION_READ);
+      checkPermission(ChatFunctions.CHAT_FUNCTION_READ, channel.getContext());
       int localItems = items;
       Date localDate = date;
 
@@ -312,7 +306,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
     */
    public ChatMessage createNewMessage(ChatChannel channel, String owner) throws PermissionException {
       
-      checkPermission(ChatFunctions.CHAT_FUNCTION_NEW);
+      checkPermission(ChatFunctions.CHAT_FUNCTION_NEW, channel.getContext());
       
       ChatMessage message = new ChatMessage();
       
@@ -392,9 +386,9 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
    /**
     * tells us if the message can be deleted by the current session user
     */
-    public boolean getCanDelete(ChatMessage message, String placementId) {
-       ToolConfiguration toolConfig = SiteService.findTool(placementId);
-       String context = toolConfig.getContext();
+    public boolean getCanDelete(ChatMessage message) {
+       String context = message.getChatChannel().getContext();
+       
        boolean canDeleteAny = can(ChatFunctions.CHAT_FUNCTION_DELETE_ANY, context);
        boolean canDeleteOwn = can(ChatFunctions.CHAT_FUNCTION_DELETE_OWN, context);
        boolean isOwner = SessionManager.getCurrentSessionUserId() != null ?
@@ -411,72 +405,32 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
     /**
      * {@inheritDoc}
      */
-    public boolean getCanDeleteAnyMessage() {
-       return getCanDeleteAnyMessage(toolManager.getCurrentPlacement().getId());
-    }
-    
-    protected boolean getCanDeleteAnyMessage(String placementId) {
-       ToolConfiguration toolConfig = SiteService.findTool(placementId);
-       String context = toolConfig.getContext();
+    public boolean getCanDeleteAnyMessage(String context) {
        return can(ChatFunctions.CHAT_FUNCTION_DELETE_ANY, context);
     }
     
-    public boolean getCanDelete(ChatMessage message)
+    public boolean getCanDelete(ChatChannel channel)
    {
-      return getCanDelete(message, toolManager.getCurrentPlacement().getId());
-   }
-    
-    /**
-     * tells us if the channel can be deleted by the current session user
-     */
-     public boolean getCanDelete(ChatChannel channel, String placementId) {
-        ToolConfiguration toolConfig = SiteService.findTool(placementId);
-        String context = toolConfig.getContext();
-        boolean canDelete = can(ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL, context);
+        if (channel == null) {
+        	return false;
+        }
         
-        return canDelete;
-     }
-     
-     public boolean getCanDelete(ChatChannel channel)
-    {
-       return getCanDelete(channel, toolManager.getCurrentPlacement().getId());
-    }
-     
-     protected boolean getCanEdit(ChatChannel channel, String placementId) {
-        ToolConfiguration toolConfig = SiteService.findTool(placementId);
-        String context = toolConfig.getContext();
-        boolean canDelete = can(ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL, context);
-        
-        return canDelete;
+        return can(ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL, channel.getContext());
      }
      
      public boolean getCanEdit(ChatChannel channel)
      {
-        return getCanEdit(channel, toolManager.getCurrentPlacement().getId());
+        return can(ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL, channel.getContext());
      }
-     
-     protected boolean getCanCreateChannel(String placementId) {
-        ToolConfiguration toolConfig = SiteService.findTool(placementId);
-        String context = toolConfig.getContext();
-        boolean canDelete = can(ChatFunctions.CHAT_FUNCTION_NEW_CHANNEL, context);
-        
-        return canDelete;
-     }
-     
-     public boolean getCanCreateChannel()
+      
+     public boolean getCanCreateChannel(String context)
      {
-        return getCanCreateChannel(toolManager.getCurrentPlacement().getId());
+        return can(ChatFunctions.CHAT_FUNCTION_NEW_CHANNEL, context);
      }
-     
-     protected boolean getCanReadMessage(ChatChannel channel, String context) {
-        boolean canRead = can(ChatFunctions.CHAT_FUNCTION_READ, context);
-        
-        return canRead;
-     }
-     
+  
      public boolean getCanReadMessage(ChatChannel channel)
      {
-        return getCanReadMessage(channel, toolManager.getCurrentPlacement().getContext());
+        return can(ChatFunctions.CHAT_FUNCTION_READ, channel.getContext());
      }
    
    /**
@@ -487,7 +441,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
    {
 	  if(message==null) return;
       if(!getCanDelete(message))
-         checkPermission(ChatFunctions.CHAT_FUNCTION_DELETE_ANY);
+         checkPermission(ChatFunctions.CHAT_FUNCTION_DELETE_ANY, message.getChatChannel().getContext());
       
       getHibernateTemplate().delete(message);
       
@@ -498,8 +452,8 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
     * {@inheritDoc}
     */
    public void deleteChannelMessages(ChatChannel channel) throws PermissionException {
-      if (!getCanDeleteAnyMessage())
-         checkPermission(ChatFunctions.CHAT_FUNCTION_DELETE_ANY);
+      if (!getCanDeleteAnyMessage(channel.getContext()))
+         checkPermission(ChatFunctions.CHAT_FUNCTION_DELETE_ANY, channel.getContext());
       
       channel = getChatChannel(channel.getId());
       channel.getMessages().size();
@@ -881,7 +835,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
    
    public void makeDefaultContextChannel(ChatChannel channel, String placement) {
       //reset context's defaults
-      if (isMaintainer()) {
+      if (isMaintainer(channel.getContext())) {
          try {
             resetPlacementDefaultChannel(channel.getContext(), placement);
          
@@ -896,19 +850,9 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
       }
    }
    
-   /**
-    * This turns the site id into a realm  (/site/<siteId>)
-    * @return siteId
-    */
-   private String getContextSiteId(String context)
-   {
-     //LOG.debug("getContextSiteId()");
-     return ("/site/" + context);
-   }
-
-   protected void checkPermission(String function) throws PermissionException {
-      String context = toolManager.getCurrentPlacement().getContext();
-      if (!SecurityService.unlock(function,getContextSiteId(context)))
+   protected void checkPermission(String function, String context) throws PermissionException {
+      
+      if (!SecurityService.unlock(function, SiteService.siteReference(context)))
       {
          String user = SessionManager.getCurrentSessionUserId();
          throw new PermissionException(user, function, context);
@@ -916,19 +860,14 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
    }
 
    protected boolean can(String function, String context) {      
-      return SecurityService.unlock(function, getContextSiteId(context));
-   }
-
-   protected boolean can(String function) {
-       return can(function, toolManager.getCurrentPlacement().getContext());
+      return SecurityService.unlock(function, SiteService.siteReference(context));
    }
 
    /**
     * {@inheritDoc}
     */
-   public boolean isMaintainer() {
-      return SecurityService.unlock("site.upd",
-            getContextSiteId(toolManager.getCurrentPlacement().getContext())); 
+   public boolean isMaintainer(String context) {
+      return SecurityService.unlock(SiteService.SECURE_UPDATE_SITE, SiteService.siteReference(context));
    }
    
 
@@ -984,15 +923,6 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
       return null;
    }
 
-
-   public ToolManager getToolManager() {
-      return toolManager;
-   }
-
-
-   public void setToolManager(ToolManager toolManager) {
-      this.toolManager = toolManager;
-   }
 
    /**
     * @return the entityManager

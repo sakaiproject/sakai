@@ -160,7 +160,7 @@ public class ChatDelivery extends BaseDelivery
 			retvalBuf.append( "', '" );
 			retvalBuf.append( sender.getId() );
 			retvalBuf.append( "', '" );
-			retvalBuf.append( String.valueOf(chatManager.getCanDelete(message, placementId)).toString() );
+			retvalBuf.append( String.valueOf(chatManager.getCanDelete(message)).toString() );
 			retvalBuf.append( "', '" );
 			retvalBuf.append( messageTime.toStringLocalDate() );
 			retvalBuf.append( "', '" );

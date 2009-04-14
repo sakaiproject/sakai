@@ -38,9 +38,6 @@
     		<ref
     			bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
     	</property>
-    	<property name="toolManager">
-    		<ref bean="org.sakaiproject.tool.api.ActiveToolManager" />
-    	</property>
     	<property name="entityManager">
     		<ref bean="org.sakaiproject.entity.api.EntityManager" />
     	</property>

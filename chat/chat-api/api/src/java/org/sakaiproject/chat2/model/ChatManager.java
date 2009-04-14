@@ -174,8 +174,7 @@ public interface ChatManager extends EntitySummary {
    public ChatChannel getDefaultChannel(String contextId, String placement);
 
 
-   public boolean getCanDelete(ChatMessage chatMessage);
-   public boolean getCanDelete(ChatMessage message, String placementId);
+   public boolean getCanDelete(ChatMessage message);
    
    public boolean getCanDelete(ChatChannel channel);
    //public boolean getCanDelete(ChatChannel channel, String placementId);
@@ -183,14 +182,24 @@ public interface ChatManager extends EntitySummary {
    /**
     * Returns whether or not the user has permissions to delete any messages
     */
-   public boolean getCanDeleteAnyMessage();
+   public boolean getCanDeleteAnyMessage(String context);
    
    public boolean getCanEdit(ChatChannel channel);
+ 
+   /**
+    * Returns whether or not the user has permissions to create a new channel in the given context
+    */
+   public boolean getCanCreateChannel(String context);
    
-   public boolean getCanCreateChannel();
+   /**
+    * Returns whether or not the user can read messages in this channel
+    */
    public boolean getCanReadMessage(ChatChannel channel);
    
-   public boolean isMaintainer();
+   /**
+    * Returns whether or not the user is a site maintainer in this context
+    */
+   public boolean isMaintainer(String context);
    
    /**
     * Makes the passed channel the dfault in the channel's context
