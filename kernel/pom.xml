@@ -12,7 +12,7 @@
   </organization>
   <issueManagement>
     <system>jira</system>
-    <url>http://bugs.sakaiproject.org/jira/browse/SAK</url>
+    <url>http://bugs.sakaiproject.org/jira/browse/KNL</url>
   </issueManagement>
   <ciManagement>
     <system>continuum</system>
@@ -70,6 +70,13 @@
     <url>https://source.sakaiproject.org/svn/kernel/trunk</url>
   </scm>
   <distributionManagement>
+    <snapshotRepository>
+      <uniqueVersion>false</uniqueVersion>
+      <id>snapshots</id>
+      <name>CET snapshot Repo</name>
+      <url>http://srvslscet001.uct.ac.za:8081/nexus/content/repositories/snapshots</url>
+      <layout>default</layout>
+    </snapshotRepository>
     <repository>
       <uniqueVersion>false</uniqueVersion>
       <id>local</id>
