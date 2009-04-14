@@ -398,7 +398,10 @@ public class PrivateMessagesTool
   
   public boolean getPvtAreaEnabled()
   {  
-    return area.getEnabled().booleanValue();
+    if(area == null) {
+    	initializePrivateMessageArea();
+    }
+	  return area.getEnabled().booleanValue();
   } 
   
   public boolean isDispSendEmailOut()
