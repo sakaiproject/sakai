@@ -21,11 +21,8 @@
 
 package org.sakaiproject.content.impl;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -42,17 +39,17 @@ import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl 
 {
 	/** Our logger. */
-	protected static Log M_log = LogFactory.getLog(DbResourceTypeRegistry.class);
+	protected static final Log M_log = LogFactory.getLog(DbResourceTypeRegistry.class);
 
 	/** Configuration: to run the ddl on init or not. */
 	protected boolean m_autoDdl = false;
 	
 	/** Table amd field names**/
 	
-	protected static String m_resourceTableName = "CONTENT_TYPE_REGISTRY";
-	protected static String m_contextIDField    = "CONTEXT_ID";
-	protected static String m_resourceIDField   = "RESOURCE_TYPE_ID";
-	protected static String m_enabledField      = "ENABLED";
+	protected static final String m_resourceTableName = "CONTENT_TYPE_REGISTRY";
+	protected static final String m_contextIDField    = "CONTEXT_ID";
+	protected static final String m_resourceIDField   = "RESOURCE_TYPE_ID";
+	protected static final String m_enabledField      = "ENABLED";
 	
 	/** SQL to get enabled resource ids **/
 	protected static String GET_ENABLED_RESOURCES = "select " + m_resourceIDField + 
@@ -63,14 +60,14 @@ public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl
 	
     /** SQL to get full map of resources **/
 	
-	protected static String FIELDLIST = m_contextIDField + ", " + m_resourceIDField + ", " + m_enabledField;
-	protected static String GET_RESOURCEID_MAP = "select " + FIELDLIST + " from " + m_resourceTableName + 
+	protected static final String FIELDLIST = m_contextIDField + ", " + m_resourceIDField + ", " + m_enabledField;
+	protected static final String GET_RESOURCEID_MAP = "select " + FIELDLIST + " from " + m_resourceTableName + 
 				                                 " where " + m_contextIDField + "=?";
 	/** SQL to delete and insert triples **/
 	
-	protected static String DELETE_CURRENT_MAP = "delete from " + m_resourceTableName + 
+	protected static final String DELETE_CURRENT_MAP = "delete from " + m_resourceTableName + 
 	                                             " where " + m_contextIDField + "=?";
-	protected static String INSERT_RESOURCEID_MAP = "insert into " + m_resourceTableName +
+	protected static final String INSERT_RESOURCEID_MAP = "insert into " + m_resourceTableName +
 	                                                " (" + FIELDLIST + ") values (?, ?, ?) ";
 	
 	                                                
@@ -95,7 +92,7 @@ public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl
 	 */
 	public void setAutoDdl(String value)
 	{
-		m_autoDdl = new Boolean(value).booleanValue();
+		m_autoDdl = Boolean.valueOf(value).booleanValue();
 	}
 	
 	/* protected -- delete everything in the db associated with this context
@@ -111,7 +108,7 @@ public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl
 		Object fields[] = new Object[1];
 		fields[0] = contextID;
 
-		boolean ok = m_sqlService.dbWrite(DELETE_CURRENT_MAP, fields);
+		m_sqlService.dbWrite(DELETE_CURRENT_MAP, fields);
 	}
 	
 	/* insert enabled status for resource ids in the given map for the provided contextid
@@ -201,7 +198,7 @@ public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl
 				{
 					Entry entry = (Entry) result;
 					
-					enabled.put(entry.getTypeId(), new Boolean(entry.isEnabled()));
+					enabled.put(entry.getTypeId(), Boolean.valueOf(entry.isEnabled()));
 				}
 			}
 			
@@ -211,7 +208,7 @@ public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl
 				{
 					if(type instanceof SiteSpecificResourceType)
 					{
-						enabled.put(type.getId(), new Boolean(((SiteSpecificResourceType) type).isEnabledByDefault()));
+						enabled.put(type.getId(), Boolean.valueOf(((SiteSpecificResourceType) type).isEnabledByDefault()));
 					}
 				}
 			}
