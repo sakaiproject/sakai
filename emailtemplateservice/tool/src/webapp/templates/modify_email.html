@@ -49,16 +49,18 @@ ${URLtoOptOut} - the direct URL for evaluators to opt in to use this evaluation 
 				<div>
 					<label rsf:id="msg=modifyemail.template.key" from="emailKey">key:</label>
 					<input rsf:id="emailKey" type="text" id="emailKey" size="80" maxlength="250" />
-				</div>	
+				</div>
+				<br/>	
 				<div>
 					<label rsf:id="msg=modifyemail.template.locale" from="emailLocale">locale:</label>
 					<input rsf:id="emailLocale" type="text" id="email:Locale" size="80" maxlength="250" />
 				</div>
+					<span rsf:id="msg=textInput">Plain text</span>
 					<textarea rsf:id="emailMessage" rows="20" cols="120" name="emailMessage" id="emailMessage">
                          The text of the email message will appear here
                     </textarea>
 				</div>
-				<div>
+				<div><span rsf:id="msg=htmlInput">Html text</span><br/>
 					<textarea rsf:id="emailHtmlMessage" rows="20" cols="120">
                          The HTML text of the email message will appear here
                     </textarea>
