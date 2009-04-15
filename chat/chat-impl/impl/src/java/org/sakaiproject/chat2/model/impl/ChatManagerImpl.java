@@ -160,11 +160,10 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
       channel.setContext(context);
       channel.setTitle(title);
       channel.setPlacementDefaultChannel(placementDefaultChannel);
-      if(placementDefaultChannel){
+      if (placementDefaultChannel) {
     	  channel.setPlacement(placement);  
       }
-      
-      
+         
       return channel;
    }
 
@@ -174,6 +173,9 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
     */
    public void updateChannel(ChatChannel channel, boolean checkAuthz) throws PermissionException {
 
+	  if (channel == null)
+		  return;
+	  
       if (checkAuthz)
          checkPermission(ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL, channel.getContext());
       
@@ -186,6 +188,9 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
     */
    public void deleteChannel(ChatChannel channel) throws PermissionException {
 
+	  if (channel == null)
+		   return;
+	   
       checkPermission(ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL, channel.getContext());
       getHibernateTemplate().delete(channel);
       
@@ -249,6 +254,10 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
     */
    protected List<ChatMessage> getChannelMessages(ChatChannel channel, Date date, int items, boolean sortAsc) throws PermissionException 
    {
+	  if (channel == null) {
+		  return new ArrayList<ChatMessage>();
+	  }
+	  
       checkPermission(ChatFunctions.CHAT_FUNCTION_READ, channel.getContext());
       int localItems = items;
       Date localDate = date;
@@ -272,9 +281,8 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
          }
       }
       
-      if (channel != null) {
-         c.add(Expression.eq("chatChannel", channel));      
-      }
+      c.add(Expression.eq("chatChannel", channel));      
+      
       if (localDate != null) {
          c.add(Expression.ge("messageDate", localDate));
       }
@@ -283,7 +291,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
       // reorder after we get the final list
       c.addOrder(Order.desc("messageDate"));
       
-      List messages = new ArrayList();
+      List<ChatMessage> messages = new ArrayList<ChatMessage>();
       
       if (localItems != 0) {
          if (localItems > 0) {
@@ -306,7 +314,11 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
     */
    public ChatMessage createNewMessage(ChatChannel channel, String owner) throws PermissionException {
       
-      checkPermission(ChatFunctions.CHAT_FUNCTION_NEW, channel.getContext());
+	  if (channel == null) {
+		  throw new IllegalArgumentException("Must specify a channel");
+	  }
+	  
+	  checkPermission(ChatFunctions.CHAT_FUNCTION_NEW, channel.getContext());
       
       ChatMessage message = new ChatMessage();
       
@@ -387,6 +399,10 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
     * tells us if the message can be deleted by the current session user
     */
     public boolean getCanDelete(ChatMessage message) {
+    	
+       if (message == null)
+    	   return false;
+       
        String context = message.getChatChannel().getContext();
        
        boolean canDeleteAny = can(ChatFunctions.CHAT_FUNCTION_DELETE_ANY, context);
@@ -411,16 +427,12 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
     
     public boolean getCanDelete(ChatChannel channel)
    {
-        if (channel == null) {
-        	return false;
-        }
-        
-        return can(ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL, channel.getContext());
+        return channel == null ? false : can(ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL, channel.getContext());
      }
      
      public boolean getCanEdit(ChatChannel channel)
      {
-        return can(ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL, channel.getContext());
+        return channel == null ? false : can(ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL, channel.getContext());
      }
       
      public boolean getCanCreateChannel(String context)
@@ -430,7 +442,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
   
      public boolean getCanReadMessage(ChatChannel channel)
      {
-        return can(ChatFunctions.CHAT_FUNCTION_READ, channel.getContext());
+        return channel == null ? false : can(ChatFunctions.CHAT_FUNCTION_READ, channel.getContext());
      }
    
    /**
@@ -452,6 +464,10 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
     * {@inheritDoc}
     */
    public void deleteChannelMessages(ChatChannel channel) throws PermissionException {
+	   
+	  if (channel == null)
+		  return;
+	  
       if (!getCanDeleteAnyMessage(channel.getContext()))
          checkPermission(ChatFunctions.CHAT_FUNCTION_DELETE_ANY, channel.getContext());
       
