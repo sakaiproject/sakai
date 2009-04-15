@@ -423,6 +423,33 @@ public class DomUtils
 	}
 
   /**
+   * Return the first named Element with a specific attribute
+   * value (namespace aware)
+   *
+   * namespace The namespace URI
+   * @param element the containing Element
+   * @param name the tag name
+   * @param attribute Attribute name
+   * @param value Attribute value
+   * @return The first matching Element (null if none)
+   */
+  public static Element selectFirstElementByAttributeValueNS(String   namespace,
+                                                             Element 	element,
+  																												   String 	name,
+  																												   String 	attribute,
+  																											     String 	value)
+  {
+		ArrayList	resultList;
+
+		resultList = (ArrayList) selectElementsByAttributeValueNS(namespace,
+		                                                          element,
+		                                                          name, attribute,
+																														  value, true);
+
+		return (resultList.size() == 0) ? null : (Element) resultList.get(0);
+	}
+
+  /**
    * Return a list of named Elements with a specific attribute
    * value (namespace aware)
    *

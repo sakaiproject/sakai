@@ -466,14 +466,15 @@ public class Query extends SruQueryBase implements Constants
 
     for (int i = 0; i < providerList.size(); i++)
     {
+      Element provider;
       String  target;
       Map     map;
-      int     estimate;
+      int     estimate, hits;
       /*
        * Set up a status map for this database (target)
        */
-      element = (Element) providerList.get(i);
-      target  = element.getAttribute("id");
+      provider  = (Element) providerList.get(i);
+      target    = provider.getAttribute("id");
 
       map = StatusUtils.getStatusMapForTarget(sessionContext, target);
       if (map == null)
@@ -482,19 +483,31 @@ public class Query extends SruQueryBase implements Constants
         map = StatusUtils.getStatusMapForTarget(sessionContext, target);
       }
       /*
-       * Save the estimated total record count
+       * Find the estimated and actual number of hits
        */
-      counterList = DomUtils.getElementListNS(NS_CS, element, "citationCount");
+      element = DomUtils.selectFirstElementByAttributeValueNS(NS_CS, provider,
+                                                              "citationCount",
+                                                              "type", "total");
+			estimate = Integer.parseInt(DomUtils.getText(element));
 
-      element = (Element) counterList.item(1);
-			map.put("ESTIMATE", DomUtils.getText(element));
+      element = DomUtils.selectFirstElementByAttributeValueNS(NS_CS, provider,
+                                                              "citationCount",
+                                                              "type", "partial");
+			hits = Integer.parseInt(DomUtils.getText(element));
 
-			estimate = Integer.parseInt((String) map.get("ESTIMATE"));
-			total += estimate;
-
+      _log.debug("*** Estimated hits: " + estimate + ", actual hits: " + hits);
+      /*
+       * Set up the status map for the current provider.  The provider is active
+       * only when the estimated and actual hit counts are both available.
+       */
+			map.put("ESTIMATE", "0");
 			map.put("STATUS", "DONE");
-			if (estimate > 0)
+
+			if ((estimate > 0) && (hits > 0))
 			{
+  			total += estimate;
+  			map.put("ESTIMATE", String.valueOf(estimate));
+
 				map.put("STATUS", "ACTIVE");
   			active++;
 	  	}
