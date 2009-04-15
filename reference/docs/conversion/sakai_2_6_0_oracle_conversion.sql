@@ -208,7 +208,10 @@ update CM_ACADEMIC_SESSION_T set IS_CURRENT=1 where SYSDATE >= START_DATE and SY
 
     create index email_templ_key on EMAIL_TEMPLATE_ITEM (TEMPLATE_KEY);
 
-    create sequence hibernate_sequence;
+-- Statement duplicated below in after create table SSQ_Question statement. 
+-- Commented out both statements and located a single create hibernate_sequence at the end
+-- of this DDL script.
+ --   create sequence hibernate_sequence;
 
 -- --------------------------------------------------------------------------------------------------------------------------------------
 -- SAK-7924 - add and backfill new site.roleswap permissions into existing realms and templates
@@ -359,7 +362,10 @@ drop table PERMISSIONS_SRC_TEMP;
         foreign key (SITETYPE_ID) 
         references SSQ_SITETYPE_QUESTIONS;
 
-    create sequence hibernate_sequence;
+-- Statement duplicated below above after create table EMAIL_TEMPLATE_ITEM statement. 
+-- Commented out both statements and located a single create hibernate_sequence at the end
+-- of this DDL script.
+ --   create sequence hibernate_sequence;
 
 -- --- SAK-15040 site.viewRoster is a newly added permission
 
@@ -631,4 +637,8 @@ CREATE INDEX SAKAI_EVENT_DELAY_REF_INDEX ON SAKAI_EVENT_DELAY
 );
 
 CREATE SEQUENCE SAKAI_EVENT_DELAY_SEQ;
+
+-- Create a Hibernate sequence table for all Sakai/hbm implementations
+
+create sequence hibernate_sequence;
 
