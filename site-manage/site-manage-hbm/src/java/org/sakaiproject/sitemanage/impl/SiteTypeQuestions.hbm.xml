@@ -7,9 +7,18 @@
 	<class name="SiteTypeQuestionsImpl"
 		table="SSQ_SITETYPE_QUESTIONS">
 		
+		<id name="id" type="java.lang.Long" unsaved-value="null">
+            <column name="ID" />
+            <generator class="native">
+            	<param name="sequence">sitetype_question_seq</param>
+            </generator>
+        </id>
+		
+		<!--
 		<id name="id" length="99" column="ID">
 			<generator class="org.sakaiproject.id.hbm.IdGenerator"/>
 		</id>
+		-->
 		
 		<property name="siteType" type="string" not-null="true">
             <column name="SITE_TYPE"/>
