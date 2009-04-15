@@ -362,7 +362,7 @@ drop table PERMISSIONS_SRC_TEMP;
         foreign key (SITETYPE_ID) 
         references SSQ_SITETYPE_QUESTIONS;
 
--- Statement duplicated below above after create table EMAIL_TEMPLATE_ITEM statement. 
+-- Statement duplicated above after create table EMAIL_TEMPLATE_ITEM statement. 
 -- Commented out both statements and located a single create hibernate_sequence at the end
 -- of this DDL script.
  --   create sequence hibernate_sequence;
