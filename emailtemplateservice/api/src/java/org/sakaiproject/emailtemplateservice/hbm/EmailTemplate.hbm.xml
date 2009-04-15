@@ -7,7 +7,9 @@
     <class name="org.sakaiproject.emailtemplateservice.model.EmailTemplate" table="EMAIL_TEMPLATE_ITEM" dynamic-insert="false" dynamic-update="false">
         <id name="id" type="java.lang.Long" unsaved-value="null">
             <column name="ID" />
-            <generator class="native" />
+            <generator class="native">
+            	<param name="sequence">emailtemplate_item_seq</param>
+            </generator>
         </id>
         <property name="lastModified" type="java.util.Date">
             <column name="LAST_MODIFIED" not-null="true" />

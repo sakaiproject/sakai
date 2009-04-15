@@ -15,4 +15,5 @@
 
     create index email_templ_key on EMAIL_TEMPLATE_ITEM (TEMPLATE_KEY);
 
-    create sequence hibernate_sequence;
+	create sequence emailtemplate_item_seq;
+    -- create sequence hibernate_sequence;
