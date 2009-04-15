@@ -208,10 +208,19 @@ update CM_ACADEMIC_SESSION_T set IS_CURRENT=1 where SYSDATE >= START_DATE and SY
 
     create index email_templ_key on EMAIL_TEMPLATE_ITEM (TEMPLATE_KEY);
 
--- Statement duplicated below in after create table SSQ_Question statement. 
--- Commented out both statements and located a single create hibernate_sequence at the end
--- of this DDL script.
- --   create sequence hibernate_sequence;
+-- SAK-16021 -- The statement 'create sequence hibernate_sequence' is duplicated below following create/alter table SSQ_Question statements.
+-- Multiple statements of this nature will cause the DDL script to fail. 
+-- Instead added generator param to emailtemplateservice EmailTemplate.hbm.xml mapping:
+
+-- <id name="id" type="java.lang.Long" unsaved-value="null">
+-- 	<column name="ID" />
+-- 	<generator class="native">
+-- 		<param name="sequence">emailtemplate_item_seq</param>
+-- 	</generator>
+-- </id>
+
+	create sequence emailtemplate_item_seq;
+ -- create sequence hibernate_sequence;
 
 -- --------------------------------------------------------------------------------------------------------------------------------------
 -- SAK-7924 - add and backfill new site.roleswap permissions into existing realms and templates
@@ -362,10 +371,23 @@ drop table PERMISSIONS_SRC_TEMP;
         foreign key (SITETYPE_ID) 
         references SSQ_SITETYPE_QUESTIONS;
 
--- Statement duplicated above after create table EMAIL_TEMPLATE_ITEM statement. 
--- Commented out both statements and located a single create hibernate_sequence at the end
--- of this DDL script.
- --   create sequence hibernate_sequence;
+-- SAK-16021 -- The statement 'create sequence hibernate_sequence' is duplicated 
+-- above following Create table EMAIL_TEMPLATE_ITEM statement.
+-- Multiple statements of this nature will cause the DDL script to fail. 
+-- Instead added generator param to each site-manage *.hbm.xml mapping, as in:
+
+-- <id name="id" type="java.lang.Long" unsaved-value="null">
+-- 	<column name="ID" />
+-- 	<generator class="native">
+-- 		<param name="sequence">sitetype_question_seq</param>
+-- 	</generator>
+-- </id>
+
+	create sequence sitesetup_question_seq;
+	create sequence sitesetup_questionanswer_seq;
+	create sequence sitesetup_useranswer_seq;
+	create sequence sitetype_question_seq;
+ -- create sequence hibernate_sequence;
 
 -- --- SAK-15040 site.viewRoster is a newly added permission
 
@@ -638,7 +660,6 @@ CREATE INDEX SAKAI_EVENT_DELAY_REF_INDEX ON SAKAI_EVENT_DELAY
 
 CREATE SEQUENCE SAKAI_EVENT_DELAY_SEQ;
 
--- Create a Hibernate sequence table for all Sakai/hbm implementations
-
-create sequence hibernate_sequence;
+-- SAK-16021 -- Create a Hibernate sequence table for all Sakai/hbm implementations
+-- create sequence hibernate_sequence;
 
