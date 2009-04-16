@@ -83,5 +83,5 @@ public interface UserDirectoryProvider
 	 * @param users
 	 *        The UserEdit objects (with eid set) to fill in or remove.
 	 */
-	void getUsers(Collection users);
+	void getUsers(Collection<UserEdit> users);
 }

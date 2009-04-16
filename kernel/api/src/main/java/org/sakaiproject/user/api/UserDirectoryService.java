@@ -257,7 +257,7 @@ public interface UserDirectoryService extends EntityProducer
 	 *        The email address string.
 	 * @return A Collection (User) of user objects which have this email address (may be empty).
 	 */
-	Collection findUsersByEmail(String email);
+	Collection<User> findUsersByEmail(String email);
 
 	/**
 	 * Access the anonymous user object.
@@ -322,7 +322,7 @@ public interface UserDirectoryService extends EntityProducer
 	 * 
 	 * @return A list of user objects containing each user's information.
 	 */
-	List getUsers();
+	List<User> getUsers();
 
 	/**
 	 * Access a bunch of user object.
@@ -331,7 +331,7 @@ public interface UserDirectoryService extends EntityProducer
 	 *        The Collection (String) of user ids.
 	 * @return A List (User) of user objects for valid ids.
 	 */
-	List getUsers(Collection ids);
+	List<User> getUsers(Collection<String> ids);
 
 	/**
 	 * Find all the users within the record range given (sorted by sort name).
@@ -342,7 +342,7 @@ public interface UserDirectoryService extends EntityProducer
 	 *        The last record position to return.
 	 * @return A list (User) of all the users within the record range given (sorted by sort name).
 	 */
-	List getUsers(int first, int last);
+	List<User> getUsers(int first, int last);
 	
 	/**
 	 * Find all the users matching the given EID strings.
@@ -388,7 +388,7 @@ public interface UserDirectoryService extends EntityProducer
 	 *        The last record position to return.
 	 * @return A list (User) of all the aliases matching the criteria, within the record range given (sorted by sort name).
 	 */
-	List searchUsers(String criteria, int first, int last);
+	List<User> searchUsers(String criteria, int first, int last);
 
 	/**
 	 * Access the internal reference which can be used to access the resource from within the system.
