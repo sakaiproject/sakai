@@ -9262,24 +9262,19 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					String gradebookUid = m.getContext();
 					if (g.isGradebookDefined(gradebookUid) && g.isAssignmentDefined(gradebookUid, gAssignmentName))
 					{
-						org.sakaiproject.service.gradebook.shared.Assignment gAssignment = g.getAssignment(gradebookUid, gAssignmentName);
-						Map studentMap = g.getViewableStudentsForItemForCurrentUser(gradebookUid, gAssignment.getId());
+						// return student score from Gradebook
 						String userId = (String) m_submitters.get(0);
-						if (studentMap.containsKey(userId))
+						try
 						{
-							// return student score from Gradebook
-							try
+							String gString = StringUtil.trimToNull(g.getAssignmentScoreString(gradebookUid, gAssignmentName, userId));
+							if (gString != null)
 							{
-								String gString = StringUtil.trimToNull(g.getAssignmentScoreString(gradebookUid, gAssignmentName, userId));
-								if (gString != null)
-								{
-									return gString;
-								}
+								return gString;
 							}
-							catch (Exception e)
-							{
-								M_log.warn(this + " BaseAssignmentSubmission getGrade getAssignmentScoreString from GradebookService " + e.getMessage() + " context=" + m_context + " assignment id=" + m_assignment + " userId=" + userId + " gAssignmentName=" + gAssignmentName); 
-							}
+						}
+						catch (Exception e)
+						{
+							M_log.warn(this + " BaseAssignmentSubmission getGrade getAssignmentScoreString from GradebookService " + e.getMessage() + " context=" + m_context + " assignment id=" + m_assignment + " userId=" + userId + " gAssignmentName=" + gAssignmentName); 
 						}
 					}
 					
