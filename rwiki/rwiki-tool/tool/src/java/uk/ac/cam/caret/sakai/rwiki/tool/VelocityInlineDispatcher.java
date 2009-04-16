@@ -3,13 +3,13 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008 The Sakai Foundation
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  *
- * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.osedu.org/licenses/ECL-2.0
+ *      http://www.opensource.org/licenses/ecl1.php
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,12 +34,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.MethodInvocationException;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.FormattedText;
 
 import uk.ac.cam.caret.sakai.rwiki.service.exception.PermissionException;
+import uk.ac.cam.caret.sakai.rwiki.service.exception.ReadPermissionException;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ResourceLoaderBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ResourceLoaderHelperBean;
@@ -52,7 +50,7 @@ import uk.ac.cam.caret.sakai.rwiki.utils.UserDisplayHelper;
 public class VelocityInlineDispatcher implements Dispatcher
 {
 	private static final String MACROS = "/WEB-INF/vm/macros.vm";
-	private static final String WIKI_CONFIG = "/sakai-rwiki-tool/scripts/";
+
 	private VelocityEngine vengine;
 
 	private String inlineMacros;
@@ -60,16 +58,9 @@ public class VelocityInlineDispatcher implements Dispatcher
 	private String basePath;
 
 	private VelocityUtilBean utilBean = new VelocityUtilBean();
-	private ContentHostingService contentHostingService;
-	protected static final String LIBRARY_PATH = "/library/";
-
-	/** The name of the context variable containing the identifier for the site's root content collection */
-	protected static final String CONTEXT_SITE_COLLECTION_ID = "vppa_site_collection_id";
-
 
 	public void init(ServletContext context) throws ServletException
 	{
-		contentHostingService = (ContentHostingService) ComponentManager.get(ContentHostingService.class.getName());
 		inlineMacros = MACROS;
 		try
 		{
@@ -104,15 +95,11 @@ public class VelocityInlineDispatcher implements Dispatcher
 		// EventCartridge ec = new EventCartridge();
 		// ec.addEventHandler(new ExcludeEscapeHtmlReference());
 		// ec.attachToContext(vcontext);
-		String collectionId = contentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
 
 		vcontext.put("session", request.getSession());
 		vcontext.put("request", request);
 		vcontext.put("requestScope", RequestScopeSuperBean.getFromRequest(request));
 		vcontext.put("util", utilBean);
-		vcontext.put("collectionId", collectionId);
-		vcontext.put("fckLibraryPath", LIBRARY_PATH);
-		vcontext.put("fckConfigPath", WIKI_CONFIG);
 		try
 		{
 			String filePath = path + ".vm";

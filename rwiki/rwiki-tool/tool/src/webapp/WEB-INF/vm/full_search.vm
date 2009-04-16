@@ -48,21 +48,23 @@
 #set ($searchViewBean.localSpace = $currentLocalSpace)
 	
 	<div id="rwiki_content" class="${rwikiContentStyle}" >
- 	   <!--ls--> 	
-	 #foreach( $result in ${searchResults} )
-	        <!--is-->
-	        <div class="searchItem" > 
+	
+	<!--ls--> 	
+	#foreach( $result in ${searchResults} )
+	    <!--is-->
+     <div class="searchItem" > 
+     
+         <span class="searchTool">${result.tool}:</span>
+         <a href="${result.url}" target="searchresult" class="searchTopLink" >${result.title}</a>
+         <div class="searchItemBody" >${result.searchResult}</div>
+         <a href="${result.url}" target="searchresult" class="searchBottonLink" >${result.url}</a>
 
-	        <span class="searchTool">${result.tool}:</span>
-	        <a href="${result.url}" target="searchresult" class="searchTopLink" >${result.title}</a>
-			      <div class="searchItemBody" >${result.searchResult}</div>
-			      <a href="${result.url}" target="searchresult" class="searchBottonLink" >${result.url}</a>
-			      </div>
-
-			      <!--ie-->
-	  #end   
-	     <!--le--> 
-	  <!--
+     </div>
+     
+     <!--ie-->
+ #end   
+   <!--le--> 
+   <!--
      <p>
      		${foundItem.index}&nbsp;<a href="${util.escapeHtml(${foundItem.url})}" >${foundItem.title}</a><br />
      		${rlb.jsp_search_content}: <br />
@@ -75,7 +77,7 @@
      		 ${rlb.jsp_search_score}: ${foundItem.score}
 				   </span>	  		  
 	  		</p>
-	  		-->
+	  -->
 		<p>
 		  ${rlb.jsp_search_result_page}:
 		  #foreach( $pages in ${searchPages} )

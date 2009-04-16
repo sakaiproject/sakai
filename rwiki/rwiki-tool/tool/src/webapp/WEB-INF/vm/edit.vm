@@ -67,34 +67,20 @@
 	        <ul class="tabs" >
 			<li id="edit" class="tabHeadOn" >
 	  		  <p class="tabhead" title="${rlb.jsp_edit}" >
-		       <a href="#" onClick="showSidebar('none');selectTabs('autosaveTab','tabOn','tabOff','previewTab','tabOn','tabOff','editTab','tabOff','tabOn','editTabFCK','tabOn','tabOff','autosave','tabHeadOn','tabHeadOff','preview','tabHeadOn','tabHeadOff','edit','tabHeadOff','tabHeadOn','editFck','tabHeadOn','tabHeadOff'); FCKToWiki(); return false;" >
+		       <a href="#" onClick="selectTabs('autosaveTab','tabOn','tabOff','previewTab','tabOn','tabOff','editTab','tabOff','tabOn','autosave','tabHeadOn','tabHeadOff','preview','tabHeadOn','tabHeadOff','edit','tabHeadOff','tabHeadOn'); return false;" >
 		       ${rlb.jsp_edit}
 		       </a>
 		     </p>
 		    </li>
-
-			#if ($viewBean.getDisplayHtmlEditor())
-			<script>setWysiwyg(true);</script>
-		    <li id="editFck" class="tabHeadOff" >
-	  		  <p class="tabhead" title="${rlb.jsp_edit_fckeditor}" >
-		       <a href="#" onClick="hideSidebar('none');selectTabs('autosaveTab','tabOn','tabOff','previewTab','tabOn','tabOff','editTab','tabOn','tabOff','editTabFCK','tabOff','tabOn','autosave','tabHeadOn','tabHeadOff','preview','tabHeadOn','tabHeadOff','edit','tabHeadOn','tabHeadOff','editFck','tabHeadOff','tabHeadOn'); wikiToFCK(); return false;" >
-		       ${rlb.jsp_edit_fckeditor}
-		       </a>
-		     </p>
-		    </li>
-		    #else
-		    <script>setWysiwyg(false);</script>
-		    #end
-
 		    <li id="preview" class="tabHeadOff"  >
 		    	<p class="tabhead" title="${rlb.jsp_preview}">
-		   		<a href="#" onClick="hideSidebar('none');selectTabs('autosaveTab','tabOn','tabOff','previewTab','tabOff','tabOn','editTab','tabOn','tabOff','editTabFCK','tabOn','tabOff','autosave','tabHeadOn','tabHeadOff','preview','tabHeadOff','tabHeadOn','edit','tabHeadOn','tabHeadOff','editFck','tabHeadOn','tabHeadOff'); FCKToWiki(); previewContent('content','previewContent', 'pageVersion', 'realm','pageName','?' ); return false;" >
+				   		<a href="#" onClick="selectTabs('autosaveTab','tabOn','tabOff','previewTab','tabOff','tabOn','editTab','tabOn','tabOff','autosave','tabHeadOn','tabHeadOff','preview','tabHeadOff','tabHeadOn','edit','tabHeadOn','tabHeadOff'); previewContent('content','previewContent', 'pageVersion', 'realm','pageName','?' ); return false;" >
 				   		${rlb.jsp_preview}
 				   		</a>
 		    </li>
 		    <li id="autosave" class="autoSaveOffClass" >
 		    	<p class="tabhead" title="${rlb.jsp_recovered_content}" >
-			    <a href="#" onClick="showSidebar('none');selectTabs('autosaveTab','tabOff','tabOn','previewTab','tabOn','tabOff','editTab','tabOn','tabOff','editTabFCK','tabOn','tabOff','autosave','tabHeadOff','tabHeadOn','preview','tabHeadOn','tabHeadOff','edit','tabHeadOn','tabHeadOff','editFck','tabHeadOn','tabHeadOff'); return false;" >
+						   <a href="#" onClick="selectTabs('autosaveTab','tabOff','tabOn','previewTab','tabOn','tabOff','editTab','tabOn','tabOff','autosave','tabHeadOff','tabHeadOn','preview','tabHeadOn','tabHeadOff','edit','tabHeadOn','tabHeadOff'); return false;" >
 						   ${rlb.jsp_recovered_content}
          </a>
        </p>
@@ -104,11 +90,11 @@
 		#sidebar_switcher()
 	</div>
 	
-	<form action="?#" method="post" id="editForm" name="wikiForm">
+	<form action="?#" method="post" id="editForm"  >
 	
 	<div id="rwiki_content" class="${rwikiContentStyle}" >
 	
-			<!-- WikiText tab -->
+			       
 		    <div id="editTab" class="tabOn" >
 				      #if (${errorBean.errors.size()} > 0)
 						       <p class="validation" style="clear: none;">
@@ -189,7 +175,6 @@
 					  		       #if (${requestScope.withnotification} )
 					  			        <input type="checkbox" name="smallchange" value="smallchange" /> ${rlb.jsp_minor_change}<br />
 					  			      #end
-					  			      
 					 		        <input id="saveButton" type="submit" name="command_save" value="${rlb.jsp_button_save}"  /> 
 					  		       #if (( ( ${editBean.saveType} && ( "preview" == ${editBean.saveType}  || ${editBean.saveType.startsWith("attach")} ) ) && ${nameHelperBean.submittedContent} ) || (( ${editBean.saveType} && ${editBean.saveType} != "preview" ) && !${editBean.saveType.statsWith("attach")} ))
 					 		        <input id="saveButton" type="submit" name="command_overwrite" value="${rlb.jsp_button_overwrite}"  />
@@ -199,106 +184,7 @@
 				      </div>
 		    	</div> <!-- end of edit tab -->
 		    	
-			<!-- Fckeditor tab -->
-		    <div id="editTabFCK" class="tabOff" >
-				      #if (${errorBean.errors.size()} > 0)
-						       <p class="validation" style="clear: none;">
-						       #foreach ( $error in ${errorBean.errors} )
-						          ${util.escapeHtml($error)}
-						       #end
-						       </p>
-				      #end
-
-				      #if ( ${editBean.saveType} && ${editBean.saveType} != "preview" && !$editBean.saveType.startsWith("attach") )
-						      #if ( ${editBean.saveType} == "revert" )
-						         #set( ${editBean.previousContent} = ${requestScope.getPageRevisionContent(${currentRWikiObject},${editBean.previousRevision})} )
-						      #end
-					      	<p class="longtext">
-					      		<label for="submittedContent">${rlb.jsp_submitted_content}</label>
-						       <input id="submittedContent" type="hidden" name="submittedContent" value="${util.escapeHtml($editBean.previousContent)}" />
-						      </p>
-						      <pre class="rwiki_previousContent" >
-						          ${util.escapeHtml($editBean.previousContent)}
-						      </pre>
-				      #end
-				      #if ( ${editBean.saveType} && "preview" == ${editBean.saveType} && ${nameHelperBean.submittedContent} )
-						      <p class="longtext">
-						         <label for="submittedContent">${rlb.jsp_submitted_prior_content}</label>
-						         <input type="hidden" name="submittedContent" value="${util.escapeHtml($nameHelperBean.submittedContent)}" />
-						      </p>
-						      <pre class="rwiki_previousContent">
-						         ${util.escapeHtml($nameHelperBean.submittedContent)}
-						      </pre>
-				      #end
-				      #if ( ${editBean.saveType} && ${editBean.saveType.startsWith("attach")} && ${nameHelperBean.submittedContent} )
-						      <p class="longtext">
-						         <label for="submittedContent">${rlb.jsp_submitted_prior_content_attach}</label>
-						         <input type="hidden" name="submittedContent" value="${util.escapeHtml($nameHelperBean.submittedContent)}" />
-						      </p>
-						      <pre class="rwiki_previousContent">
-						         ${util.escapeHtml($nameHelperBean.submittedContent)}
-						      </pre>
-				      #end
-				      <div>
-						      <div id="textarea_outer_sizing_divx">
-						        <div id="textarea_inner_sizing_divx">
-
-					                <!-- fckeditor integration -->
-									<table border="0" cellpadding="0" cellspacing="0" >
-										<tr>
-											<td>
-											      #if ( ${editBean.saveType} && ("preview" ==  ${editBean.saveType}|| ${editBean.saveType.startsWith("attach")}) )
-														<textarea cols="60"
-											                      rows="25"
-											                      name="contentFck"
-											                      id="contentFck"
-											                      onselect="storeCaret(this)"
-											                      onclick="storeCaret(this)"
-											                      onkeyup="storeCaret(this)"></textarea>
-													#else
-														<textarea cols="60"
-											                      rows="25"
-											                      name="contentFck"
-											                      id="contentFck"
-											                      onselect="storeCaret(this)"
-											                      onclick="storeCaret(this)"
-											                      onkeyup="storeCaret(this)"></textarea>
-													#end
-													#chef_setupformattedtextarea("contentFck")
-											</td>
-										</tr>
-									</table>
-									<!-- end of fckeditor integration -->
 		    	
-						        </div>
-						      </div>
-						      <input type="hidden" name="action" value="save"/>
-							  <input type="hidden" name="panel" value="Main"/>
-						      #if ( ${editBean.saveType} && (${editBean.saveType} == 'preview' || ${editBean.saveType.startsWith("attach")}) )
-   						      <input type="hidden" name="version" id="pageVersion"
-						                value="${editBean.previousVersion}" />
-						      #else
-   						      <input type="hidden" name="version" id="pageVersion"
-						                value="${currentRWikiObject.version.time}" />
-						      #end
-												<input type="hidden" name="pageName" id="pageName" value="${util.escapeHtml($currentRWikiObject.name)}" />
-												<input type="hidden" name="realm" id="realm" value="${util.escapeHtml($currentRWikiObject.realm)}" />
-				      </div>
-				      <div class="rwiki_editControl" id="editControl1">
-						       <p class="act">
-					  		       #if (${requestScope.withnotification} )
-					  			        <input type="checkbox" name="smallchange" value="smallchange" /> ${rlb.jsp_minor_change}<br />
-					  			      #end
-					 		        <input id="saveButton" type="submit" name="command_save" value="${rlb.jsp_button_save}" onClick="FCKToWiki()" />
-					  		       #if (( ( ${editBean.saveType} && ( "preview" == ${editBean.saveType}  || ${editBean.saveType.startsWith("attach")} ) ) && ${nameHelperBean.submittedContent} ) || (( ${editBean.saveType} && ${editBean.saveType} != "preview" ) && !${editBean.saveType.statsWith("attach")} ))
-					 		        <input id="saveButton" type="submit" name="command_overwrite" value="${rlb.jsp_button_overwrite}"  />
-					 		        #end
-					 		        <input id="saveButton" type="submit" name="command_cancel" value="${rlb.jsp_button_cancel}"  />
-						       </p>
-				      </div>
-		    </div> <!-- end of edit tab Fckeditor-->
-
-			<!-- Preview tab -->
 		     <div id="previewTab" class="tabOff" >	        
 						      <div id="textarea_outer_sizing_divx">
 						        <div id="textarea_inner_sizing_divx">

@@ -357,7 +357,7 @@ public class Balancer
 		public String toString()
 		{
 			StringBuffer sb = new StringBuffer();
-			for (Iterator it = iterator(); it.hasNext();)
+						for (Iterator it = iterator(); it.hasNext();)
 			{
 				Tag t = (Tag) it.next();
 				sb.append("Tag: " + t.open + "\n");

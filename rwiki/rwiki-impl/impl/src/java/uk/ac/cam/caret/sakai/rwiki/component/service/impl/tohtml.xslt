@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 <!--
-/**********************************************************************************
-* $URL:  $
-* $Id:  $
-***********************************************************************************
-*
-* Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
-*
-* Licensed under the Educational Community License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.osedu.org/licenses/ECL-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*
-**********************************************************************************/
+    /**********************************************************************************
+    * $URL:  $
+    * $Id:  $
+    ***********************************************************************************
+    *
+    * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+    *
+    * Licensed under the Educational Community License, Version 1.0 (the "License");
+    * you may not use this file except in compliance with the License.
+    * You may obtain a copy of the License at
+    *
+    *      http://www.opensource.org/licenses/ecl1.php
+    *
+    * Unless required by applicable law or agreed to in writing, software
+    * distributed under the License is distributed on an "AS IS" BASIS,
+    * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    * See the License for the specific language governing permissions and
+    * limitations under the License.
+    *
+    **********************************************************************************/
 -->
     <xsl:template match="/">
         <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -30,19 +30,28 @@
       
                 <link href="/sakai-rwiki-tool/styles/wikiStyle.css" type="text/css" rel="stylesheet"
                     media="all"/>
-                    
-                <script type="text/javascript" src="/sakai-rwiki-tool/scripts/stateswitcher.js"> </script>
-                <script type="text/javascript" src="/sakai-rwiki-tool/scripts/ajaxpopup.js"> </script>
-                <script type="text/javascript" src="/sakai-rwiki-tool/scripts/asyncload.js"> </script>
-                <script type="text/javascript" src="/sakai-rwiki-tool/scripts/logger.js"> </script>
-                <link type="application/rss+xml" href="/wiki{/entity-service/entity/properties/property[@name='realm']}/-.10.rss" title="Sakai Wiki RSS" rel="alternate"/>
-             
-                <link href="{/entity-service/request-properties/request-attributes/request-attribute[@name='sakai.skin.repo']/value}/tool_base.css" type="text/css" rel="stylesheet"
-                    media="all"/>
-                <link href="{/entity-service/request-properties/request-attributes/request-attribute[@name='sakai.skin.repo']/value}/{/entity-service/request-properties/request-attributes/request-attribute[@name='sakai.skin']/value}/tool.css" type="text/css" rel="stylesheet"
-                    media="all"/>
-                <script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"/>
-                <xsl:text disable-output-escaping="yes" >
+				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/stateswitcher.js">
+					<xsl:text>// non-empty script node ensures non-minimized tag is produced (SAK-14388)</xsl:text>
+				</script>
+				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/ajaxpopup.js">
+					<xsl:text>// non-empty script node ensures non-minimized tag is produced (SAK-14388)</xsl:text>
+				</script>
+				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/asyncload.js">
+					<xsl:text>// non-empty script node ensures non-minimized tag is produced (SAK-14388)</xsl:text>
+				</script>
+				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/logger.js">
+					<xsl:text>// non-empty script node ensures non-minimized tag is produced (SAK-14388)</xsl:text>
+				</script>
+				<link type="application/rss+xml" href="/wiki{/entity-service/entity/properties/property[@name='realm']}/-.10.rss" title="Sakai Wiki RSS" rel="alternate"/>
+               
+				<link href="{/entity-service/request-properties/request-attributes/request-attribute[@name='sakai.skin.repo']/value}/tool_base.css" type="text/css" rel="stylesheet"
+					media="all"/>
+				<link href="{/entity-service/request-properties/request-attributes/request-attribute[@name='sakai.skin.repo']/value}/{/entity-service/request-properties/request-attributes/request-attribute[@name='sakai.skin']/value}/tool.css" type="text/css" rel="stylesheet"
+					media="all"/>
+				<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js">
+					<xsl:text>// non-empty script node ensures non-minimized tag is produced (SAK-14388)</xsl:text>
+				</script>
+				<xsl:text disable-output-escaping="yes" >
                 <![CDATA[
 				<!--[if IE 6]>
 				<link href="/sakai-rwiki-tool/styles/wikiStyleIE6.css" type="text/css" rel="stylesheet" media="all" > </link>

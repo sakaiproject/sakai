@@ -3,13 +3,13 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008 The Sakai Foundation
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
  *
- * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.osedu.org/licenses/ECL-2.0
+ *      http://www.opensource.org/licenses/ecl1.php
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -44,10 +44,9 @@ import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.MimeConstants;
 import org.apache.xml.serializer.DOMSerializer;
 import org.apache.xml.serializer.ToXMLSAXHandler;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.xml.sax.Attributes;
@@ -59,7 +58,6 @@ import org.xml.sax.helpers.DefaultHandler;
 public class BaseFOPSerializer extends ToXMLSAXHandler implements ContentHandler
 {
 
-	
 	private static final Log logger = LogFactory
 			.getLog(BaseFOPSerializer.class);
 
@@ -76,13 +74,6 @@ public class BaseFOPSerializer extends ToXMLSAXHandler implements ContentHandler
 	private Fop fop = null;
 
 	protected String mimeType = MimeConstants.MIME_PDF;
-
-	private ContentHostingService contentHostingService;
-	
-	
-	public BaseFOPSerializer() {
-		contentHostingService = (ContentHostingService) ComponentManager.get(ContentHostingService.class.getName());
-	}
 
 	/**
 	 * {@inheritDoc}
@@ -171,7 +162,7 @@ public class BaseFOPSerializer extends ToXMLSAXHandler implements ContentHandler
 
 									Reference ref = EntityManager
 											.newReference(path);
-									ContentResource resource = contentHostingService
+									ContentResource resource = ContentHostingService
 											.getResource(ref.getId());
 									String headers = "Content-type: "
 											+ resource.getContentType()

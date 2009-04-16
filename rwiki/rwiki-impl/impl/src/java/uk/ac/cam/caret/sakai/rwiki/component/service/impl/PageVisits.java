@@ -3,13 +3,13 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008 The Sakai Foundation
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  *
- * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.osedu.org/licenses/ECL-2.0
+ *      http://www.opensource.org/licenses/ecl1.php
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Stack;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.entity.api.Entity;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
@@ -40,9 +39,6 @@ public class PageVisits
 {
 	private static final int MAX_SIZE = 10;
 
-	/** Configuration: allow use of alias for site id in references. */
-	protected boolean m_siteAlias = true;
-	
 	private Stack<String> s = new Stack<String>();
 
 	public PageVisits()
@@ -65,24 +61,13 @@ public class PageVisits
 		List<String[]> l = new ArrayList<String[]>();
 		if (s.size() > 0)
 		{
+			String localSpace = NameHelper.localizeSpace(s.peek());
 			for (String pagename : s)
 			{
 				String[] pagespec = new String[2];
-
-				String localSpace = NameHelper.localizeSpace(pagename);
-				pagespec[1] = NameHelper.localizeName(pagename, localSpace);
-				
-				if (m_siteAlias) {
-					String localAliasSpace = NameHelper.aliasSpace(localSpace);
-					pagespec[0] = RWikiObjectService.REFERENCE_ROOT + localAliasSpace 
-						+ Entity.SEPARATOR 
-						+ encode(pagespec[1])
+				pagespec[0] = ServerConfigurationService.getAccessUrl() + RWikiObjectService.REFERENCE_ROOT + encode(pagename)
 						+ "." + type;
-				} else {
-					// /wiki
-					pagespec[0] =  RWikiObjectService.REFERENCE_ROOT + encode(pagename)
-							+ "." + type;
-				}
+				pagespec[1] = NameHelper.localizeName(pagename, localSpace);
 				l.add(pagespec);
 			}
 		}

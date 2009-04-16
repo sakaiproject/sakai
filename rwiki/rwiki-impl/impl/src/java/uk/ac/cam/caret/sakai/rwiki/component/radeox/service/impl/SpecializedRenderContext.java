@@ -3,13 +3,13 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008 The Sakai Foundation
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
  *
- * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.osedu.org/licenses/ECL-2.0
+ *      http://www.opensource.org/licenses/ecl1.php
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,7 +22,6 @@
 package uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl;
 
 import org.radeox.engine.context.BaseRenderContext;
-import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
@@ -60,20 +59,16 @@ public class SpecializedRenderContext extends BaseRenderContext implements
 
 	private SiteService siteService;
 
-	private EntityManager entityManager;
-
 	public SpecializedRenderContext(RWikiObject rwikiObject,
 			RWikiObjectService objectService,
 			RWikiSecurityService securityService,
-			SiteService siteService,
-			EntityManager entityManager)
+			SiteService siteService)
 	{
 		this.rwikiObject = rwikiObject;
 
 		this.objectService = objectService;
 		this.securityService = securityService;
 		this.siteService = siteService;
-		this.entityManager = entityManager;
 		
 		this.set(RWikiObject.class.getName(), rwikiObject);
 		this.set(RWikiObject.class.getName().concat(".name"), rwikiObject.getName()); //$NON-NLS-1$
@@ -187,13 +182,13 @@ public class SpecializedRenderContext extends BaseRenderContext implements
 				if ( remLink.startsWith("~") ) { //$NON-NLS-1$
 					remLink = remLink.substring(1);
 				}
-				link = "/content/user/" //$NON-NLS-1$
+				link = "/access/content/user/" //$NON-NLS-1$
 						+ remLink;
 
 			}
 			else
 			{
-				link = "/content/group/" //$NON-NLS-1$
+				link = "/access/content/group/" //$NON-NLS-1$
 						+ link.substring("sakai:/".length()); //$NON-NLS-1$
 			}
 		}
@@ -221,13 +216,13 @@ public class SpecializedRenderContext extends BaseRenderContext implements
 				if ( remLink.startsWith("~") ) { //$NON-NLS-1$
 					remLink = remLink.substring(1);
 				}
-				link = "/content/group-user/" //$NON-NLS-1$
+				link = "/access/content/group-user/" //$NON-NLS-1$
 						+ remLink;
 
 			}
 			else
 			{
-				link = "/content/group-user/" //$NON-NLS-1$
+				link = "/access/content/group-user/" //$NON-NLS-1$
 						+ link.substring("sakai-dropbox:/".length()); //$NON-NLS-1$
 			}
 		}
@@ -242,13 +237,13 @@ public class SpecializedRenderContext extends BaseRenderContext implements
 				if ( siteId.startsWith("~") ) { //$NON-NLS-1$
 					siteId = siteId.substring(1);
 				}
-				link = "/content/user/" + siteId + "/" //$NON-NLS-1$ //$NON-NLS-2$
+				link = "/access/content/user/" + siteId + "/" //$NON-NLS-1$ //$NON-NLS-2$
 						+ link.substring("worksite:/".length()); //$NON-NLS-1$
 
 			}
 			else
 			{
-				link = "/content/group/" + siteId + "/" //$NON-NLS-1$ //$NON-NLS-2$
+				link = "/access/content/group/" + siteId + "/" //$NON-NLS-1$ //$NON-NLS-2$
 						+ link.substring("worksite:/".length()); //$NON-NLS-1$
 			}
 
@@ -264,31 +259,15 @@ public class SpecializedRenderContext extends BaseRenderContext implements
 				if ( siteId.startsWith("~") ) { //$NON-NLS-1$
 					siteId = siteId.substring(1);
 				}
-				link = "/content/group-user/" + siteId + "/" //$NON-NLS-1$ //$NON-NLS-2$
+				link = "/access/content/group-user/" + siteId + "/" //$NON-NLS-1$ //$NON-NLS-2$
 						+ link.substring("dropbox:/".length()); //$NON-NLS-1$
 
 			}
 			else
 			{
-				link = "/content/group-user/" + siteId + "/" //$NON-NLS-1$ //$NON-NLS-2$
+				link = "/access/content/group-user/" + siteId + "/" //$NON-NLS-1$ //$NON-NLS-2$
 						+ link.substring("dropbox:/".length()); //$NON-NLS-1$
 			}
-
-		}
-		try
-		{
-			Reference r = entityManager.newReference(link);
-			if (r != null)
-			{
-				String s = r.getUrl();
-				if (s != null)
-				{
-					link = s;
-				}
-			}
-		}
-		catch (Exception ex)
-		{
 
 		}
 		return link;

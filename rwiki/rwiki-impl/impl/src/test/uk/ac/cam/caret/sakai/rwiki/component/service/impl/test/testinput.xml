@@ -24,7 +24,7 @@
             <fo:block role="rendered">MINOR CHANGE, NO PREFERENCE<fo:block space-before="1em"
                     space-after="1em" role="p"/><fo:basic-link text-decoration="underline"
                     color="blue" role="a"
-                    external-destination="url('http://localhost:8080/wiki/site/669db422-0b8c-4b29-00ff-911684482725/subspace1/home.html')"
+                    external-destination="url('http://localhost:8080/access/wiki/site/669db422-0b8c-4b29-00ff-911684482725/subspace1/home.html')"
                     >subspace1/</fo:basic-link><fo:block space-before="1em" space-after="1em"
                     role="p"/><fo:external-graphic
                     src="url('http://localhost:8080/access/content/group/669db422-0b8c-4b29-00ff-911684482725/Picture_8_.jpg')"
@@ -36,7 +36,7 @@
                     space-after="1em" role="p"/>[ <fo:inline font-weight="bolder" role="b"
                 >Index</fo:inline> | <fo:inline font-weight="bolder" role="b">
                     <fo:basic-link text-decoration="underline" color="blue" role="a"
-                        external-destination="url('http://localhost:8080/wiki/site/669db422-0b8c-4b29-00ff-911684482725/recent
+                        external-destination="url('http://localhost:8080/access/wiki/site/669db422-0b8c-4b29-00ff-911684482725/recent
                         changes.html')">Recent Changes</fo:basic-link>
                 </fo:inline> | <fo:inline font-weight="bolder" role="b">Operational
                 Issues</fo:inline>] | <fo:inline font-weight="bolder" role="b">FlowTalk</fo:inline>

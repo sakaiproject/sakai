@@ -3,13 +3,13 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008 The Sakai Foundation
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
  *
- * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.osedu.org/licenses/ECL-2.0
+ *      http://www.opensource.org/licenses/ecl1.php
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,7 +26,6 @@ import org.apache.commons.logging.LogFactory;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.context.RenderContext;
 import org.sakaiproject.component.api.ComponentManager;
-import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.site.api.SiteService;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
@@ -48,8 +47,6 @@ public class RenderContextFactoryImpl implements RenderContextFactory
 
 	private SiteService siteService;
 
-	private EntityManager entityManager;
-
 	public void init()
 	{
 		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
@@ -59,7 +56,6 @@ public class RenderContextFactoryImpl implements RenderContextFactory
 		securityService = (RWikiSecurityService) load(cm,
 				RWikiSecurityService.class.getName());
 		siteService = (SiteService) load(cm, SiteService.class.getName());
-		entityManager = (EntityManager) load(cm, EntityManager.class.getName());
 	}
 
 	private Object load(ComponentManager cm, String name)
@@ -83,7 +79,7 @@ public class RenderContextFactoryImpl implements RenderContextFactory
 	{
 
 		SpecializedRenderContext context = new SpecializedRenderContext(rwo,
-				objectService, securityService, siteService, entityManager);
+				objectService, securityService, siteService);
 		context.setRenderEngine(renderEngine);
 		return context;
 	}

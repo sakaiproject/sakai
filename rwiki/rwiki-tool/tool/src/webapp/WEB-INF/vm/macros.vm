@@ -128,12 +128,12 @@ LOG-LOG-LOG-LOG-LOG
 #if ($useHomeLink)
 <a href="${util.escapeHtml($homeBean.getHomeLinkUrl())}"
 	id="homeLink"  
-	title="${resourceLoaderBean.getString("jsp_wiki_home")}" >${resourceLoaderBean.getString("jsp_wiki_home")}</a>
+	title="${resourceLoaderBean.getString("jsp_wiki_home")}" >${util.escapeHtml($homeBean.getHomeLinkValue())}</a> 
 #end
 #if ($useViewLink)
 <a href="${util.escapeHtml($viewBean.getViewUrl())}"
 	id="viewLink"  
-	title="${resourceLoaderBean.getString("jsp_view")}" >${resourceLoaderBean.getString("jsp_view")}</a>
+	title="${resourceLoaderBean.getString("jsp_view")}" >${util.escapeHtml($viewLinkName)}</a> 
 #end
 #if ($useEditLink)
 #set( $permissionsCheckBean = ${requestScope.permissionsBean} )
@@ -383,7 +383,7 @@ function togglePresence(target) {
 <a class="editToolBar" 
 			href="#" 
 			id="toolbarButtonSave" 
-			onclick="var form = document.getElementById('editForm'); var saveButton = document.getElementById('saveButton'); form.command_save.value = saveButton.value; form.submit();" >
+			onclick="var form = document.getElementById('editForm'); var saveButton = document.getElementById('saveButton'); form.save.value = saveButton.value; form.submit();" >
 			<img src="/library/image/transparent.gif" 
 								border="0"   
 								title="${rlb.jsp_toolb_save}" 
@@ -493,40 +493,3 @@ function togglePresence(target) {
 </div>
 
 #end
-
-
-#* ------------------------------------------------------------------
-# The standard way to instantiate a WYSIWYG formatted text editing widget
-# $textarea_id - The HTML id of the textarea form element already in the HTML document
-*# ------------------------------------------------------------------
-
-#macro (chef_setupformattedtextarea $textarea_id)
-<script type="text/javascript" language="JavaScript">
-	function chef_setupformattedtextarea(textarea_id)
-	{
-        		var oFCKeditor = new FCKeditor(textarea_id);
-				oFCKeditor.BasePath = "#libraryLink("editor/FCKeditor/")";
-
-                var courseId = "$collectionId";
-
-                oFCKeditor.Config['ImageBrowserURL'] = oFCKeditor.BasePath + "editor/filemanager/browser/default/browser.html?Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector&Type=Image&CurrentFolder=" + courseId;
-                oFCKeditor.Config['LinkBrowserURL'] = oFCKeditor.BasePath + "editor/filemanager/browser/default/browser.html?Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector&Type=Link&CurrentFolder=" + courseId;
-                oFCKeditor.Config['FlashBrowserURL'] = oFCKeditor.BasePath + "editor/filemanager/browser/default/browser.html?Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector&Type=Flash&CurrentFolder=" + courseId;
-                oFCKeditor.Config['ImageUploadURL'] = oFCKeditor.BasePath + "/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector?Type=Image&Command=QuickUpload&Type=Image&CurrentFolder=" + courseId;
-                oFCKeditor.Config['FlashUploadURL'] = oFCKeditor.BasePath + "/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector?Type=Flash&Command=QuickUpload&Type=Flash&CurrentFolder=" + courseId;
-                oFCKeditor.Config['LinkUploadURL'] = oFCKeditor.BasePath + "/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector?Type=File&Command=QuickUpload&Type=Link&CurrentFolder=" + courseId;
-				oFCKeditor.Width  = "700" ;
-				oFCKeditor.Height = "500" ;
-				oFCKeditor.Config['CustomConfigurationsPath'] = "#configLink("fckrwikiconfig.js")";
-    		    oFCKeditor.ReplaceTextarea() ;
-	}
-
-
-
-</script>
-<script type="text/javascript" defer="1">chef_setupformattedtextarea('$textarea_id');</script>
-
-#end
-
-#macro (libraryLink $path) ${fckLibraryPath}${path}#end
-#macro (configLink $path) ${fckConfigPath}${path}#end

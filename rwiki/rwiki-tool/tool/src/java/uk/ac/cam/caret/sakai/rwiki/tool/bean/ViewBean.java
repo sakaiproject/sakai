@@ -3,13 +3,13 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008, 2009 The Sakai Foundation
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
  *
- * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.osedu.org/licenses/ECL-2.0
+ *      http://www.opensource.org/licenses/ecl1.php
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -606,14 +606,14 @@ public class ViewBean
 
 	public String getBaseAccessUrl()
 	{
-		// /wiki 
-		return RWikiObjectService.REFERENCE_ROOT + pageName + ".";
+		return ServerConfigurationService.getAccessUrl()
+				+ RWikiObjectService.REFERENCE_ROOT + pageName + ".";
 
 	}
 	public String getRssAccessUrl()
 	{
-		// /wiki 
-		return RWikiObjectService.REFERENCE_ROOT + getPageSpace() + "/.20.rss";
+		return ServerConfigurationService.getAccessUrl()
+				+ RWikiObjectService.REFERENCE_ROOT + getPageSpace() + "/.20.rss";
  	}
 	public String getPreferencesUrl()
 	{
@@ -643,8 +643,5 @@ public class ViewBean
 				withBreadcrumbs);
 	}
 
-	public boolean getDisplayHtmlEditor() {
-		return ServerConfigurationService.getBoolean("wiki.wysiwyg", true);
-	}
 
 }

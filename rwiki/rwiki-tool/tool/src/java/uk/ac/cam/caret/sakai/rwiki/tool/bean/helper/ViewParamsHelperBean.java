@@ -3,13 +3,13 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008 The Sakai Foundation
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
  *
- * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.osedu.org/licenses/ECL-2.0
+ *      http://www.opensource.org/licenses/ecl1.php
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,7 +22,6 @@
 package uk.ac.cam.caret.sakai.rwiki.tool.bean.helper;
 
 import java.util.Map;
-
 import javax.servlet.ServletRequest;
 
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
@@ -176,23 +175,23 @@ public class ViewParamsHelperBean
 		withBreadcrumbs =  "0".equals(request.getParameter(ViewBean.PARAM_BREADCRUMB_NAME))?"0":"1";
 
 	}
-
-	/**
-	 * @param parameterMap
-	 * @return
-	 */
-	public String getSaveTypeFromParameters(Map parameterMap)
-	{
-		for ( Object key : parameterMap.keySet()) {
-			if ( String.valueOf(key).startsWith("command_") ) {
-				Object value = parameterMap.get(key);
-				if ( value != null && String.valueOf(parameterMap.get(key)).trim().length() > 0 ) {
-					return String.valueOf(key).substring("command_".length());
+	
+	 /**
+	  * @param parameterMap
+	  * @return
+	  */
+		public String getSaveTypeFromParameters(Map parameterMap)
+		{
+			for ( Object key : parameterMap.keySet()) {
+				if ( String.valueOf(key).startsWith("command_") ) {
+					Object value = parameterMap.get(key);
+					if ( value != null && String.valueOf(parameterMap.get(key)).trim().length() > 0 ) {
+						return String.valueOf(key).substring("command_".length());
+					}
 				}
 			}
+			return null;
 		}
-		return null;
-	}
 
 	/**
 	 * Get the globalised page name

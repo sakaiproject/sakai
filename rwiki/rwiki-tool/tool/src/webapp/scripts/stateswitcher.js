@@ -3,13 +3,13 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
  *
- * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.osedu.org/licenses/ECL-2.0
+ *      http://www.opensource.org/licenses/ecl1.php
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,550 +19,11 @@
  *
  **********************************************************************************/
 
-
-/****************************************************************************/
-// Start of FCK Editor integration functions
-/****************************************************************************/
-
-// Global variables containing temporary values of content so changes are detected
-var tempWikiContent="";
-var tempFCKContent="";
-
-// Variable used to discard the replacement of FCK content in asynchronous calls to server
-var calledFromFck=false;
-
-// Variable used to activate the tool init behaviour
-var pageInit=true;
-
-//Variable for wysiwyg mode
-var wysiwyg=false;
-
-//set wysiwyg mode or not
-function setWysiwyg(bool)
-{
-	wysiwyg=bool;
-}
-
-// Remove uncompatible and unnecessary markup from a server-generated HTML content
-function cleanHTML(inputString)
-{
-	  // Remove heading attibutes from <h3 class="heading-h2">Text</h3>
-	  var headingText = "heading-h";
-	  var closingTagText = "</h";
-	  var beginHeadingPos = inputString.indexOf(headingText);
-	  var beginTagPos = beginHeadingPos-9; // Up to the <h
-	  var endHeadingPos = beginHeadingPos+headingText.length; //right after the heading Text
-	  var start=beginTagPos-2;
-	  var startExtract = 0;
-	  var endExtract = 0;
-	  var newText="";
-	  
-	  // Iterate on all to generate HTML without the heading attributes
-	  // This code will be cleaned soon to be more efficient and readable
-	  while(beginHeadingPos != -1)
-	  {
-	      // Creates the replacement tag for the heading
-	      var headerType = inputString.substring(endHeadingPos,endHeadingPos+1);
-	      var replacedString = inputString.substring(start,beginTagPos)+headerType+">";
-	      var closingTagPos = (inputString.substring(endHeadingPos, inputString.length)).indexOf(closingTagText)+endHeadingPos;
-	      replacedString += inputString.substring(endHeadingPos+3,closingTagPos)+closingTagText+headerType+">";
-	      
-	      endExtract=start;
-	      var firstPart = inputString.substring(startExtract,endExtract); //everything before the new heading text
-	      startExtract=closingTagPos+5;
-	      newText += firstPart + replacedString;
-	      
-	      var lastPart =  inputString.substring(closingTagPos+5,inputString.length); //everything after the new heading text
-	      beginHeadingPos = lastPart.indexOf(headingText);
-	      
-	      if(beginHeadingPos!=-1) 
-	      	beginHeadingPos=beginHeadingPos+inputString.length-lastPart.length;
-	      else
-	      	newText+=lastPart;
-	      	
-	      endHeadingPos = beginHeadingPos+headingText.length; //right after the heading Text
-	      beginTagPos = beginHeadingPos-9;
-	      start=beginTagPos-2; 
-	  }
-	  
-	  //Finally cleans the HTML content from heading !
-	  inputString = newText;
-	  
-	  // Removes class attributes
-	  inputString = inputString.replace(/<(\w[^>]*) class=([^ |>]*)([^>]*)/gi, "<$1$3") ;
-	  
-	  // Removes ending paragraph
-		var srcPos  = inputString.lastIndexOf("<br/>\r\n\r\n");
-		if (srcPos != -1){
-			inputString = inputString.substring(0, srcPos);
-		}
-		
-		// Removes anchors
-		inputString = inputString.replace(/<a name=([^ |>]*)([^>]*)><\/a>/gi, "") ;
-		
-		return inputString;
-}
-
-// replace HTML links with Wiki
-function replaceLink(selection) 
-{
-	  var RegexLink = /<a [^<]*>*<\/a>/gi;  //Find all links
-	  var RegexLinkUrl = /<a[^<]*>/gi;  //Find the link url
-	  var RegexExtLink = /http:\/\/|ftp:\/\//gi; //test the internal, external link
-	  var RegexWorkLink = /worksite:/gi; //remove worksite: from link
-	  
-	  var escRep = "";
-	  
-		var resultat = selection.match(RegexLink)!= null? selection.match(RegexLink):[];
-
-		for(i=0;i<resultat.length; i++) 
-	  {
-	    var result = resultat[i];
-		  
-			var resultatLink = result.match(RegexLinkUrl)!= null? result.match(RegexLinkUrl):[];
-	
-			var linkPos  = resultatLink[0].indexOf("href=\"");
-			var linklimPos = resultatLink[0].lastIndexOf("\"");
-			var textPos  = result.indexOf(">");
-			var textlimPos = result.lastIndexOf("<");
-			var anchorPos = result.indexOf("class=\"anchorpoint\"");
-			
-			if( linkPos != -1 ) {
-			  var linkText = result.substring(textPos + 1, textlimPos);
-			  var linkUrl = resultatLink[0].substring(linkPos+6, linklimPos);
-			  var linkUrl  = linkUrl.replace(RegexWorkLink,escRep);
-			  var linkFileName = linkUrl.lastIndexOf("/");
-			  var strFileName = linkUrl.substring(linkFileName,linkUrl.length);
-			  if(linkUrl.indexOf("http://")==-1 && linkUrl.indexOf("ftp://")==-1 && linkUrl.indexOf("https://")==-1 && linkUrl.indexOf("news://")==-1) { //if is an internal link
-			     var newlink = "{link:"+linkText+"|worksite:"+strFileName+"}";
-			  } 
-			  else {
-		         var newlink = "{link:text="+linkText+"|url="+linkUrl+"}";
-		    }
-			  selection = selection.replace(result,newlink);
-			} 
-				else if(anchorPos != -1) {
-			    selection = selection.replace(result,escRep);
-			}
-	  }
-	  return selection;
-}
-
-// replace HTML images with Wiki
-function replaceImg(selection) 
-{
-	  var RegexImgTag = /<img[^<]*>/gi;  //Find the image tag
-	  var imgExp = "\/icklearrow.gif"; //Image for rows
-	  var escRep = "";
-
-	  var resultat = selection.match(RegexImgTag)!= null? selection.match(RegexImgTag):[];
-
-	  for(i=0;i<resultat.length; i++) 
-	  {
-	  	var result = resultat[i];
-	  	var srcPos  = result.indexOf("src=\"");
-	  	if( srcPos != -1 ) var imgTxt = result.substring(srcPos + 5, result.length);
-	  	
-	  	srcPos  = imgTxt.indexOf("\"");
-		
-			if( srcPos != -1 ) 
-			{
-			  var imgSrc = imgTxt.substring(0, srcPos);
-			  srcPos  = imgSrc.lastIndexOf("\/");
-			  var rowpos = imgSrc.indexOf(imgExp);
-			  if (rowpos != -1){
-	       	  var newImg = escRep;
-	      } 
-	      else if(srcPos != -1) {
-			  	  var imgName = imgSrc.substring(srcPos, imgSrc.length);
-		          var newImg = "{image:worksite:"+imgName+"|"+imgName+"}";
-		    } 
-		    else {
-		          var newImg = "{image:worksite:"+imgSrc+"|"+imgSrc+"}";
-		    }
-			  selection = selection.replace(result,newImg);
-			}
-    }
-	  return selection;
-}
-
-// replace HTML lists with Wiki
-function replaceList(selection) {
-	  var RegexListOTerm = /<ol[^<]*>*<\/ol>/gi; //find lists
-	  var RegexListUTerm = /<ul[^<]*>*<\/ul>/gi;
-	  var RegexListB = /<li[^<]*>/gi;
-	  var RegexListE = /<\/li>\s?/gi;
-	  var RegexListTerms = /<ul[^<]*>|<ol[^<]*>|<\/ol>|<\/ul>/gi;
-
-	  var wikiListRep = 'SSS';
-	  var wikiListRegRep = /SSS/gi;
-
-	  var wikiListp = '* ';
-	  var wikiListe = '# ';
-	  var wikiEndParag = '\n';
-	  var wikiesc = '';
-	  var selectionCo = selection.replace(RegexListB,wikiListRep);
-	  selectionCo = selectionCo.replace(RegexListE,wikiEndParag);
-	  
-	  var resultO = selectionCo.match(RegexListOTerm)!= null? selectionCo.match(RegexListOTerm):[];
-	  var resultU = selectionCo.match(RegexListUTerm)!= null? selectionCo.match(RegexListUTerm):[];
-	  
-	  for(i=0;i<resultO.length; i++) {
-	    var result = resultO[i];
-        var newresult = result.replace(wikiListRegRep,wikiListe);
-        selectionCo = selectionCo.replace(result,newresult);
-    }
-    
-    for(i=0;i<resultU.length; i++) {
-	    var result = resultU[i];
-        var newresult = result.replace(wikiListRegRep,wikiListp);
-        selectionCo = selectionCo.replace(result,newresult);
-    }
-    
-    selectionCo = selectionCo.replace(RegexListTerms,wikiEndParag);
-
-	  return selectionCo;
-}
-
-// replace xhtml text with wiki text
-function replaceMarkup(selection, cible) {
-
-		// get the elements Ids
-		var content = document.getElementById(cible);
-
-    var RegexBold = /<strong[^<]*>|<\/strong>/gi;
-    // var RegexBold2 = /<span style="font-weight: bold;">|<\/span>/gi;
-	  var RegexBold3 = /<b [^<]*>|<\/b>/gi;
-	  
-	  var RegexItalic = /<em[^<]*>|<\/em>/gi;
-	  //var RegexItalic2 = /<span style="font-style: italic;">|<\/span>/gi;
-	  var RegexItalic3 = /<i[^<]*>|<\/i>/gi;
-	  
-	  var RegexStrike = /<strike[^<]*>|<\/strike>/gi;
-	  //var RegexStrike2 = /<span style="text-decoration: line-through;">|<\/span>/gi;
-	  
-	  var RegexParagBeg = /<p[^<]*>/gi;
-	  var RegexParagEnd = /<\/p>/gi;
-	  var RegexCarriageReturn = /<\/br>\s?|<br \/>\s?|<br\/>\s?/gi;
-
-	  var RegexTable = /<table[^<]*>|<\/table>/gi;
-	  var RegexTableSep = /<\/td><td[^<]*>|<\/th><th[^<]*>/gi;
-  	var RegexTableL = /<tr[^<]*>|<th[^<]*>/gi;
-    var RegexTableTerm = /<td[^<]*>|<\/td>|<\/tr>/gi;
-
-	  var RegexTitle1 = /<h1[^<]*>/gi;
-	  var RegexTitle2 = /<h2[^<]*>/gi;
-	  var RegexTitle3 = /<h3[^<]*>/gi;
-	  var RegexTitle4 = /<h4[^<]*>/gi;
-	  var RegexTitle5 = /<h5[^<]*>/gi;
-	  var RegexTitle6 = /<h6[^<]*>/gi;
-	  var RegexTitleTerm = /<\/h1>|<\/h2>|<\/h3>|<\/h4>|<\/h5>|<\/h6>/gi;
-
-	  var RegexSup = /<sup[^<]*>|<\/sup>/gi;
-	  var RegexSub = /<sub[^<]*>|<\/sub>/gi;
-
-	  var RegexHtmlTerms = /<div[^<]*>|<\/div>|<u [^<]*>|<\/u>|<span[^<]*>|<\/span>|&nbsp;|<tbody>|<\/tbody>|<th>|<\/th>/gi;
-
-	  var wikiBold = '__';
-	  var wikiItalic = '~~';
-	  var wikiStrike = '--';
-    var wikiesc = '';
-    var wikiTable = '{table}';
-	  var wikiTableSep = '|';
-	  var wikiTitle1 = 'h1 ';
-	  var wikiTitle2 = 'h2 ';
-	  var wikiTitle3 = 'h3 ';
-	  var wikiTitle4 = 'h4 ';
-	  var wikiTitle5 = 'h5 ';
-	  var wikiTitle6 = 'h6 ';
-	  var wikiSup = '^^';
-	  var wikiSub = '%%';
-	  var wikiEndParag = '\r\n\r\n';
-	  var wikiEscTable = '\r\n';
-	  var wikiCarriageReturn = '\\\\\r\n';
-
-	  var processedString = selection; //wiki text value
-	  
-	  //replace all Regular expression
-	  processedString = processedString.replace(RegexBold,wikiBold);
-	  processedString = processedString.replace(RegexItalic,wikiItalic);
-	  processedString = processedString.replace(RegexStrike,wikiStrike);
-	  
-	  //processedString = processedString.replace(RegexBold2,wikiBold);
-    processedString = processedString.replace(RegexBold3,wikiBold);
-    //processedString = processedString.replace(RegexItalic2,wikiItalic);
-    //processedString = processedString.replace(RegexStrike2,wikiStrike);
-
-		//paragraph tags
-		processedString = processedString.replace(RegexParagBeg,wikiesc);
-		processedString = processedString.replace(RegexParagEnd,wikiEndParag);
-		
-		processedString = processedString.replace(RegexSup,wikiSup);
-		processedString = processedString.replace(RegexSub,wikiSub);
-
-	  processedString = processedString.replace(RegexTable,wikiTable);
-	  processedString = processedString.replace(RegexTableSep,wikiTableSep);
-	  processedString = processedString.replace(RegexTableL,wikiEscTable);
-	  processedString = processedString.replace(RegexTableTerm,wikiesc);
-	  
-	  processedString = processedString.replace(RegexCarriageReturn,wikiCarriageReturn);
-	  processedString = processedString.replace(RegexTitle1,wikiTitle1);
-    processedString = processedString.replace(RegexTitle2,wikiTitle2);
-    processedString = processedString.replace(RegexTitle3,wikiTitle3);
-    processedString = processedString.replace(RegexTitle4,wikiTitle4);
-    processedString = processedString.replace(RegexTitle5,wikiTitle5);
-    processedString = processedString.replace(RegexTitle6,wikiTitle6);
-    processedString = processedString.replace(RegexTitleTerm,wikiEndParag);
-    
-    processedString = ReplaceHTMLEntities(processedString);
-	  processedString = processedString.replace(RegexHtmlTerms,wikiesc);
-	  	  
-	  var srcPos  = processedString.lastIndexOf("\r\n\r\n");
-		if (srcPos != -1){
-			processedString = processedString.substring(0, srcPos);
-		}
-	  
-	  processedString  = replaceLink(processedString);
-	  processedString  = replaceImg(processedString);
-	  processedString  = replaceList(processedString);
-		
-	  content.value = processedString; //new text
-}
-
-// Unused function. FCK editor was configured to keep special chars intact
-function ReplaceHTMLEntities(processedString)
-{
-		processedString = processedString.replace(/&#160;/g,unescape('%A0'));
-    processedString = processedString.replace(/&amp;/g,unescape('%26'));
-    processedString = processedString.replace(/&gt;/g,unescape('%3E'));
-    processedString = processedString.replace(/&lt;/g,unescape('%3C'));
-    
-    return processedString;
-}
-
-// replace html text with wiki text
-function ReplaceContents(cible1,cible2)
-{
-   	  // Get the editor instance that we want to interact with.
-   	  var oEditor = FCKeditorAPI.GetInstance(cible1);
-   	  var fckValue = oEditor.GetHTML();//Get the editor contents in HTML.
-   	  replaceMarkup(fckValue,cible2);
-}
-
-function saveTempContent(editorType)
-{
-	if(editorType=="wiki" || editorType=="all")
-	{
-		tempWikiContent=document.getElementById('content').value;
-	}
-	
-	if(editorType=="fck" || editorType=="all")
-	{
-		var oEditor = FCKeditorAPI.GetInstance('contentFck');
-		tempFCKContent=oEditor.GetHTML();
-	}
-}
-
-function isContentSynchro(editorType)
-{
-	isSynchro=true;
-	// synchro occur only if wysiwyg tab is displayed
-	if (wysiwyg)
-	{
-		// has modifications been made to wikiText?
-		if(editorType=="wiki")
-		{
-			var newContent = document.getElementById('content').value;
-			if (tempWikiContent==newContent) 
-				isSynchro=true;
-			else 
-				isSynchro=false;
-		}
-		// has modifications been made to FCK Text?
-		else if(editorType=="fck")
-		{
-			var oEditor = FCKeditorAPI.GetInstance('contentFck');
-			var newContent=oEditor.GetHTML();
-			if (tempFCKContent==newContent) 
-				isSynchro=true;
-			else 
-				isSynchro=false;
-		}
-	}	
-	return isSynchro;
-}
-
-function FCKToWiki()
-{
-	  //Permit to discard calls from the preview pane
-	calledFromFck=false;
-	 
-	 // page initialization special behaviour: no synchro
-	 if (!pageInit)
-	 {	 
-	  if(!isContentSynchro("fck"))
-		{
-			//Convert HTML back to wiki via Javascript
-			ReplaceContents('contentFck','content');
-			
-			//Save current state
-			saveTempContent('all');
-		}		
-	 }
-	 else
-	 {
-		 pageInit=false;
-	 }
-	
-}
-
-function wikiToFCK()
-{
-		if(!isContentSynchro("wiki"))
-		{
-			//We only want the previewContent callback to pushback values is called from FCK window
-			calledFromFck=true; 
-			
-			//Asks for a HTML preview to the server
-			previewContent('content','previewContent', 'pageVersion', 'realm','pageName','?' );
-			
-			//Save current state
-			saveTempContent('all');
-		}
-}
-
-// Breaks the macro markup so the server won't process it
-function disableMacros(inputString)
-{
-	  var macroImage = "image";
-	  var macroLink = "link";
-	  var macroTable = "table";
-	  
-	  var candidateMacroName = "";
-	  var endMacroPos = inputString.indexOf("}");
-	  var beginMacroPos = inputString.indexOf("{");
-	  while(beginMacroPos != -1 && endMacroPos != 1)
-	  {
-	  	 candidateMacroName=inputString.substring(beginMacroPos+1, endMacroPos);
-	  	 
-	  	 var candidateMacroImage = candidateMacroName.substring(0,macroImage.length);
-	  	 var candidateMacroLink =  candidateMacroName.substring(0,macroLink.length);
-	     var candidateMacroTable = candidateMacroName.substring(0,macroTable.length);
-	     
-	     // If the candidate macro is non supported, replace its delimiters
-	  	 if(candidateMacroImage != macroImage && 
-	  	    candidateMacroLink  != macroLink && 
-	  	    candidateMacroTable != macroTable)
-	  	 {
-	  	    inputString = inputString.substring(0,beginMacroPos)+ '@#' + candidateMacroName + '#@' + inputString.substring(endMacroPos+1,inputString.length);	
-	  	 }
-	  	 
-	  	 // Extract the unprocessed part of the initial string
-	  	 var tempString = inputString.substring(endMacroPos+1,inputString.length);
-	  	 endMacroPos = tempString.indexOf("}");
-	 		 beginMacroPos = tempString.indexOf("{");
-	 		 
-	 		 // Add the length of the processed part
-	  	 if(endMacroPos!=-1) endMacroPos=endMacroPos+inputString.length-tempString.length;
-	 		 if(beginMacroPos!=-1) beginMacroPos=beginMacroPos+inputString.length-tempString.length;
-	  }
-	  
-	  var RegexOpenWikiPage = /\[/gi;
-    var RegexCloseWikiPage = /\]/gi;
-	  
-	  inputString = inputString.replace(RegexOpenWikiPage,'@,');
-	  inputString = inputString.replace(RegexCloseWikiPage,',@');
-	  
-    return inputString;
-}
-
-// Reactivate the macro markup after processing from server
-function enableMacros(inputString)
-{
-	  var mrkPreviewMacroOpen = /@#/gi;
-	  var mrkPreviewMacroClose = /#@/gi;
-	  
-	  var mrkPreviewWikiPageOpen = /@,/gi;
-	  var mrkPreviewWikiPageClose = /,@/gi;
-	  
-	  var mrkWikiMacroOpen = '{';
-	  var mrkWikiMacroClose = '}';
-	  
-	  var mrkWikiPageOpen = '[';
-	  var mrkWikiPageClose = ']';
-	  
-	  inputString = inputString.replace(mrkPreviewMacroOpen,mrkWikiMacroOpen);
-    inputString = inputString.replace(mrkPreviewMacroClose,mrkWikiMacroClose);
-    
-    inputString = inputString.replace(mrkPreviewWikiPageOpen,mrkWikiPageOpen);
-    inputString = inputString.replace(mrkPreviewWikiPageClose,mrkWikiPageClose);
-    
-    return inputString;
-}
-
-var previewDiv;
-function previewContent(contentId,previewId,pageVersionId,realmId,pageNameId,url) {
-    try {
-	 	var content = document.getElementById(contentId);
-	 	var contentValue ="";
-	 	
-	 	// Before the call to the server by FCK, don't process Macros
-	 	if(calledFromFck){contentValue = disableMacros(content.value);}
-		else{contentValue = content.value;}
-		
-	 	var pageVersion = document.getElementById(pageVersionId);
-	 	var pageName = document.getElementById(pageNameId);
-	 	var realm = document.getElementById(realmId);
-	 	previewDiv = document.getElementById(previewId);
-	 	var formContent = new Array();
-	 	formContent[0] = "content"
-	 	formContent[1] = contentValue;
-	 	formContent[2] = "pageName";
-	 	formContent[3] = pageName.value;
-	 	formContent[4] = "command_render";
-	 	formContent[5] = "render";
-	 	formContent[6] = "action";
-	 	formContent[7] = "fragmentpreview";
-	 	formContent[8] = "panel";
-	 	formContent[9] = "Main";
-	 	formContent[10] = "version";
-	 	formContent[11] = pageVersion.value;
-	 	formContent[12] = "realm";
-	 	formContent[13] = realm.value;
-	 	var myLoader = new AsyncDIVLoader();
-	 	myLoader.loaderName = "previewloader";
-	 	previewDiv.innerHTML = "<img src=\"/sakai-rwiki-tool/images/ajaxload.gif\" />";
-	 	myLoader.fullLoadXMLDoc(url,"divReplaceCallback","POST",formContent);
- 	} catch  (e) {
-	 	previewDiv.innerHTML = "<img src=\"/sakai-rwiki-tool/images/silk/icons/error.png\" />";
- 		alert("Failed to Load preview "+e);
- 	}
-}
-
-function divReplaceCallback(responsestring) {
-	previewDiv.innerHTML = responsestring;
-	sizeFrameAfterAjax(previewDiv);
-	
-	// Push the result in the FCK editor window
-	if (calledFromFck) {
-		
-		responsestring = cleanHTML(responsestring);
-		responsestring = enableMacros(responsestring);
-		
-		var oEditor = FCKeditorAPI.GetInstance('contentFck');
-  	oEditor.SetHTML(responsestring);
-  }
-}
-
-/****************************************************************************/
-// End of FCK Editor integration functions
-/****************************************************************************/
-
-
 function changeClass(oldclass, newclass) {
 
     var spantags = document.getElementsByTagName("SPAN");
     var oldclasses = getElementsByClass(spantags,oldclass);
+   // alert("Changin from "+oldclass+" to "+newclass+" for "+oldclasses.length);
     for (i = 0; i < oldclasses.length; i++ ) { 
        oldclasses[i].className = newclass;
     }
@@ -575,6 +36,7 @@ function changeRoleState(cb,column,enable,disable) {
         changeClass(column+enable,column+disable);
     }
 }
+
 
 // FIXME: Internationalize
 contractsymbol = '<span class="rwiki_collapse"><img title="hide" alt="hide" src="/sakai-rwiki-tool/images/minus.gif"/><span>Hide </span></span>';
@@ -611,7 +73,6 @@ function hidecontent(rootname, blockname) {
 }
 
 function onload() {
-	
   var allels = document.all? document.all : document.getElementsByTagName("*");
   var expandableContent = getElementsByClass(allels, "expandablecontent");
   for (var i = 0; i < expandableContent.length; i++) {
@@ -624,6 +85,7 @@ function onload() {
     var showstatespans = getElementsByClass(spantags, "showstate");
     showstatespans[0].innerHTML = expandsymbol;
   }
+
 }
 function storeCaret(el) {
     if ( el.createTextRange ) 
@@ -870,6 +332,7 @@ function initTree(el) {
 		
 }
  
+
 /*
  * +/- toggle the tree, where el is the <span class="b"> node
  * force, will force it to "open" or "close"
@@ -904,6 +367,7 @@ function treeToggle(el, force) {
 		}
 	}
 }
+
 
 function treeOpen( a, b ){
 	removeClass(a,'spanClosed');
@@ -988,41 +452,8 @@ function setMainFrameHeightNoScroll(id, shouldScroll) {
 		}
 
 		var objToResize = (frame.style) ? frame.style : frame;
-//		alert("After objToResize");
 
-		var height; 
-		
-		var scrollH = document.body.scrollHeight;
-		var offsetH = document.body.offsetHeight;
-		var docElOffsetH = document.documentElement.offsetHeight;
-		var clientH = document.body.clientHeight;
-		var innerDocScrollH = null;
-
-		if (typeof(frame.contentDocument) != 'undefined' || typeof(frame.contentWindow) != 'undefined')
-		{
-			// very special way to get the height from IE on Windows!
-			// note that the above special way of testing for undefined variables is necessary for older browsers
-			// (IE 5.5 Mac) to not choke on the undefined variables.
- 			var innerDoc = (frame.contentDocument) ? frame.contentDocument : frame.contentWindow.document;
-			innerDocScrollH = (innerDoc != null) ? innerDoc.body.scrollHeight : null;
-		}
-
-//		alert("After innerDocScrollH");
-	
-		if (document.all && innerDocScrollH != null)
-		{
-			// IE on Windows only
-			height = innerDocScrollH;
-		}
-		else
-		{
-			// every other browser!
-			if (docElOffsetH > offsetH) {
-			  height = docElOffsetH;
-			} else {
-			  height = offsetH;
-			}
-		}
+                var height = getFrameHeight(frame);
 
 		// here we fudge to get a little bigger
 		//gsilver: changing this from 50 to 10, and adding extra bottom padding to the portletBody		
@@ -1033,9 +464,6 @@ function setMainFrameHeightNoScroll(id, shouldScroll) {
 		objToResize.height=newHeight + "px";
 		
 		
-		var s = " scrollH: " + scrollH + " offsetH: " + offsetH + " clientH: " + clientH + " innerDocScrollH: " + innerDocScrollH + " Read height: " + height + " Set height to: " + newHeight;
-//		window.status = s;
-//		alert(s);
 		//window.location.hash = window.location.hash;
 		if (shouldScroll) {
 		  var anchor = document.location.hash;
@@ -1046,14 +474,20 @@ function setMainFrameHeightNoScroll(id, shouldScroll) {
 		    parent.window.scrollTo(coords.x, coords.y + framey);
 		  }
 		}
-
-                if (parent.postIframeResize){ 
-			parent.postIframeResize(id);
-		}
 	}
 
 }
+/* get height of an iframe document */
+function getFrameHeight (frame)
+{
+   var document = frame.contentWindow.document;
+   var doc_height = document.height ? document.height : 0; // Safari uses document.height
 
+if (document.documentElement && document.documentElement.scrollHeight) /* Strict mode */
+      return Math.max (document.documentElement.scrollHeight, doc_height);
+   else /* quirks mode */
+      return Math.max (document.body.scrollHeight, doc_height);
+}
 // This invaluable function taken from QuirksMode @ http://www.quirksmode.org/index.html?/js/findpos.html
 // Portable to virtually every browser, with a few caveates.
 function findPosY(obj) {
@@ -1102,6 +536,43 @@ function showSidebar(id) {
   document.getElementById('sidebar_switch_on').style.display='none';
   document.getElementById('sidebar_switch_off').style.display='block';
   sizeFrameAfterAjax();
+}
+var previewDiv;
+function previewContent(contentId,previewId,pageVersionId,realmId,pageNameId,url) {
+    try {
+	 	var content = document.getElementById(contentId);
+	 	var pageVersion = document.getElementById(pageVersionId);
+	 	var pageName = document.getElementById(pageNameId);
+	 	var realm = document.getElementById(realmId);
+	 	previewDiv = document.getElementById(previewId);
+	 	var formContent = new Array();
+	 	formContent[0] = "content"
+	 	formContent[1] = content.value;
+	 	formContent[2] = "pageName";
+	 	formContent[3] = pageName.value;
+	 	formContent[4] = "save";
+	 	formContent[5] = "render";
+	 	formContent[6] = "action";
+	 	formContent[7] = "fragmentpreview";
+	 	formContent[8] = "panel";
+	 	formContent[9] = "Main";
+	 	formContent[10] = "version";
+	 	formContent[11] = pageVersion.value;
+	 	formContent[12] = "realm";
+	 	formContent[13] = realm.value;
+	 	var myLoader = new AsyncDIVLoader();
+	 	myLoader.loaderName = "previewloader";
+	 	previewDiv.innerHTML = "<img src=\"/sakai-rwiki-tool/images/ajaxload.gif\" />";
+	 	myLoader.fullLoadXMLDoc(url,"divReplaceCallback","POST",formContent);
+ 	} catch  (e) {
+	 	previewDiv.innerHTML = "<img src=\"/library/image/silk/error.png\" />";
+ 		alert("Failed to Load preview "+e);
+ 	}
+}
+
+function divReplaceCallback(responsestring) {
+	previewDiv.innerHTML = responsestring;
+	sizeFrameAfterAjax(previewDiv);
 }
 
 function sizeFrameAfterAjax(el) {

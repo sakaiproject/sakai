@@ -118,8 +118,7 @@
 		    pmi++;
 		  #end
 		</script>
-		
-		<table class="rwiki_info" cellspacing="0" summary="This table gives the permissions for this page. Column 1 gives the role name. Column 2 lists the status of the 'create' permission. Column 3 lists the status of the 'read' permission. Column 4 lists the status of the 'edit permission. Column 5 lists the status of the 'admin' permission. Column 6 lists the status of the 'super-admin' permission. Edit, read and create permissions can be enabled and disabled on this page by checking and unchecking the checkboxes in the relevant column. This will change the status of the permission as given in the table.">
+		<table class="rwiki_info" cellspacing="0" summary="This table gives the permissions for this page. Column 1 gives the role name. Column 2 lists the status of the 'create' permission. Column 3 lists the status of the 'read' permission. Column 4 lists the status of the 'edit' permission. Column 5 lists the status of the 'admin' permission. Column 6 lists the status of the 'super-admin' permission. Edit, read and create permissions can be enabled and disabled on this page by checking and unchecking the checkboxes in the relevant column. This will change the status of the permission as given in the table.">
 		  <tbody>
 		    <tr id="permissions">
 		    	<th>${rlb.jsp_page_perms_by_role}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'permissionshelp'); return false;"
@@ -370,8 +369,8 @@
 			     </td>
 			   </tr>
 			   #end
-			</table>
-			<table  class="rwiki_info" cellspacing="0"  summary="This table display information about this page. Column 1 gives a heading. Column 2 lists the relevant information. ">   
+			  </table>
+					<table class="rwiki_info" cellspacing="0" summary="This table display information about this page. Column 1 gives a heading. Column 2 lists the relevant information.">
 		    <tr id="incommingStart" >
 		    	<th>${rlb.jsp_incomming}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'incomminghelp'); return false;"
 		    		onMouseOut="hidePopup('incomminghelp');" >?</a></th>

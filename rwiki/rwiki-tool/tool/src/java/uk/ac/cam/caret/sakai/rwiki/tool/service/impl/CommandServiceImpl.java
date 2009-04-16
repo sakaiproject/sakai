@@ -3,13 +3,13 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008 The Sakai Foundation
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
  *
- * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.osedu.org/licenses/ECL-2.0
+ *      http://www.opensource.org/licenses/ecl1.php
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,6 +29,7 @@ import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.jsp.PageContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,7 +40,6 @@ import uk.ac.cam.caret.sakai.rwiki.tool.api.CommandService;
 import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
 import uk.ac.cam.caret.sakai.rwiki.tool.command.Dispatcher;
 import uk.ac.cam.caret.sakai.rwiki.tool.RequestScopeSuperBean;
-
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
@@ -112,8 +112,8 @@ public class CommandServiceImpl implements CommandService
 					RequestScopeSuperBean rssb = RequestScopeSuperBean.getInstance();
 					String ref = rssb.getCurrentRWikiObjectReference();
 					eventTrackingService.post(eventTrackingService.newEvent(
-                                        	RWikiObjectService.EVENT_RESOURCE_READ, ref, false,
-                                        	NotificationService.NOTI_NONE));
+                                        	RWikiObjectService.EVENT_RESOURCE_READ, ref, true,
+                                        	NotificationService.PREF_IMMEDIATE));
 
 				}
 			}
@@ -138,7 +138,8 @@ public class CommandServiceImpl implements CommandService
 
 	public void init()
 	{
-		trackReads = ServerConfigurationService.getBoolean("wiki.trackreads", false);
+        trackReads = ServerConfigurationService.getBoolean("wiki.trackreads", false);
+
 		for (Iterator it = commandMap.keySet().iterator(); it.hasNext();)
 		{
 			String commandName = (String) it.next();
