@@ -32,7 +32,7 @@ import java.util.TimeZone;
  */
 public class GMTDateformatter
 {
-	public static TimeZone gmt = TimeZone.getTimeZone("GMT");
+	public static final TimeZone gmt = TimeZone.getTimeZone("GMT");
 
 	public static Date parse(String formattedDate) {
 		//                 01234567890123456  

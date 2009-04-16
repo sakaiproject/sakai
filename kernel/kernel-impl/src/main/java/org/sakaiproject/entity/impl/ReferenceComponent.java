@@ -47,7 +47,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 public class ReferenceComponent implements Reference
 {
 	/** Our logger. */
-	protected static Log M_log = LogFactory.getLog(ReferenceComponent.class);
+	protected static final Log M_log = LogFactory.getLog(ReferenceComponent.class);
 
 	/** The reference string. */
 	protected String m_reference = null;

@@ -39,7 +39,7 @@ public abstract class BasicEventTracking extends BaseEventTrackingService
 	private static Log M_log = LogFactory.getLog(BasicEventTracking.class);
 
 	/** String used to identify this service in the logs */
-	protected static String m_logId = "EventTracking: ";
+	protected static final String m_logId = "EventTracking: ";
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Event post / flow

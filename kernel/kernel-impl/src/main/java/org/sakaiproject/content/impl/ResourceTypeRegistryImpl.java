@@ -49,7 +49,7 @@ import org.sakaiproject.javax.Filter;
 public class ResourceTypeRegistryImpl implements ResourceTypeRegistry 
 {
 	/** Our logger. */
-	protected static Log M_log = LogFactory.getLog(ResourceTypeRegistryImpl.class);
+	protected static final Log M_log = LogFactory.getLog(ResourceTypeRegistryImpl.class);
 
 	/** Map of ResourceType objects indexed by typeId */
 	protected Map<String, ResourceType> typeIndex = new HashMap<String, ResourceType>();

@@ -54,7 +54,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 	private static Log M_log = LogFactory.getLog(ClusterEventTracking.class);
 
 	/** String used to identify this service in the logs */
-	protected static String m_logId = "EventTracking: ";
+	protected static final String m_logId = "EventTracking: ";
 
 	/** The db event checker thread. */
 	protected Thread m_thread = null;

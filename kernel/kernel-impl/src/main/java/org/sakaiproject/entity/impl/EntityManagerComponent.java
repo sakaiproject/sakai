@@ -142,7 +142,7 @@ public class EntityManagerComponent implements EntityManager
 	}
 
 	/** Our logger. */
-	protected static Log M_log = LogFactory.getLog(EntityManagerComponent.class);
+	protected static final Log M_log = LogFactory.getLog(EntityManagerComponent.class);
 
 	/** Set of EntityProducer services. */
 	protected ConcurrentHashMap<String, EntityProducer> m_producersIn = new ConcurrentHashMap<String, EntityProducer>();

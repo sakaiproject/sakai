@@ -44,7 +44,7 @@ public class ConfigurationLoadingTest extends SakaiKernelTestBase {
 	
 	private ServerConfigurationService serverConfigurationService;
 
-	protected static String CONFIG = "src/test/webapp/WEB-INF/components.xml";
+	protected static final String CONFIG = "src/test/webapp/WEB-INF/components.xml";
 
 	public static Test suite() {
 		TestSetup setup = new TestSetup(new TestSuite(ConfigurationLoadingTest.class)) {
