@@ -1404,6 +1404,11 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       return getChatManager().getCanReadMessage(channel);
    }
    
+   public boolean getCanPost()
+   {
+      return (getCurrentChannel() == null) ? false : getChatManager().getCanPostMessage(getCurrentChannel().getChatChannel());
+   }
+   
    public boolean getMaintainer()
    {
       return (getChatManager() == null) ? false : getChatManager().isMaintainer(getContext());

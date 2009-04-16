@@ -195,6 +195,11 @@ public interface ChatManager extends EntitySummary {
     * Returns whether or not the user can read messages in this channel
     */
    public boolean getCanReadMessage(ChatChannel channel);
+
+   /**
+    * Returns whether or not the user can post messages in this channel
+    */
+   public boolean getCanPostMessage(ChatChannel channel);
    
    /**
     * Returns whether or not the user is a site maintainer in this context

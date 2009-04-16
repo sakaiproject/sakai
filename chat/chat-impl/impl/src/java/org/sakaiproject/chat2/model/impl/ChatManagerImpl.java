@@ -318,6 +318,11 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
 		  throw new IllegalArgumentException("Must specify a channel");
 	  }
 	  
+	  // We don't support posting by anonymous users
+	  if (owner == null) {
+		  throw new PermissionException(owner, ChatFunctions.CHAT_FUNCTION_NEW, channel.getContext());
+	  }
+	  
 	  checkPermission(ChatFunctions.CHAT_FUNCTION_NEW, channel.getContext());
       
       ChatMessage message = new ChatMessage();
@@ -444,7 +449,17 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
      {
         return channel == null ? false : can(ChatFunctions.CHAT_FUNCTION_READ, channel.getContext());
      }
+ 
+     public boolean getCanPostMessage(ChatChannel channel)
+     {
+    	 // We don't currently support posting messages by anonymous users
+    	 if (SessionManager.getCurrentSessionUserId() == null)
+    		return false;
+    	
+        return channel == null ? false : can(ChatFunctions.CHAT_FUNCTION_NEW, channel.getContext());
+     }
    
+ 
    /**
     * delete a Chat Message
     * @param ChatMessage the message to delete
