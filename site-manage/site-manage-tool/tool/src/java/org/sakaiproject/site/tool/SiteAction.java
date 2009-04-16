@@ -6467,7 +6467,7 @@ public class SiteAction extends PagedResourceActionII {
 						String roleId = params.getString(inputRoleField);
 						String oldRoleId = participant.getRole();
 						// save any roles changed for permission check
-						if (!roleId.equals(oldRoleId)) {
+						if (roleId != null && !roleId.equals(oldRoleId)) {
 						    roles.add(roleId);
 						    roles.add(oldRoleId);
 						}
