@@ -139,7 +139,7 @@ public interface AliasService extends EntityProducer
 	 *        The target resource reference string.
 	 * @return A list (Alias) of all the aliases defined for this target.
 	 */
-	List getAliases(String target);
+	List<Alias> getAliases(String target);
 
 	/**
 	 * Find all the aliases defined for this target, within the record range given (sorted by id).
@@ -152,7 +152,7 @@ public interface AliasService extends EntityProducer
 	 *        The last record position to return.
 	 * @return A list (Alias) of all the aliases defined for this target, within the record range given (sorted by id).
 	 */
-	List getAliases(String target, int first, int last);
+	List<Alias> getAliases(String target, int first, int last);
 
 	/**
 	 * Find all the aliases within the record range given (sorted by id).
@@ -163,7 +163,7 @@ public interface AliasService extends EntityProducer
 	 *        The last record position to return.
 	 * @return A list (Alias) of all the aliases within the record range given (sorted by id).
 	 */
-	List getAliases(int first, int last);
+	List<Alias> getAliases(int first, int last);
 
 	/**
 	 * Count all the aliases.
@@ -183,7 +183,7 @@ public interface AliasService extends EntityProducer
 	 *        The last record position to return.
 	 * @return A list (Alias) of all the aliases matching the criteria, within the record range given (sorted by id).
 	 */
-	List searchAliases(String criteria, int first, int last);
+	List<Alias> searchAliases(String criteria, int first, int last);
 
 	/**
 	 * Count all the aliases that match this criteria in id or target.

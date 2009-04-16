@@ -21,6 +21,7 @@
 
 package org.sakaiproject.alias.cover;
 
+import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.component.cover.ComponentManager;
 
 /**
@@ -113,7 +114,7 @@ public class AliasService
 		service.removeTargetAliases(param0);
 	}
 
-	public static java.util.List getAliases(int param0, int param1)
+	public static java.util.List<Alias> getAliases(int param0, int param1)
 	{
 		org.sakaiproject.alias.api.AliasService service = getInstance();
 		if (service == null) return null;
@@ -121,7 +122,7 @@ public class AliasService
 		return service.getAliases(param0, param1);
 	}
 
-	public static java.util.List getAliases(java.lang.String param0)
+	public static java.util.List<Alias> getAliases(java.lang.String param0)
 	{
 		org.sakaiproject.alias.api.AliasService service = getInstance();
 		if (service == null) return null;
@@ -129,7 +130,7 @@ public class AliasService
 		return service.getAliases(param0);
 	}
 
-	public static java.util.List getAliases(java.lang.String param0, int param1, int param2)
+	public static java.util.List<Alias> getAliases(java.lang.String param0, int param1, int param2)
 	{
 		org.sakaiproject.alias.api.AliasService service = getInstance();
 		if (service == null) return null;
@@ -145,7 +146,7 @@ public class AliasService
 		return service.countAliases();
 	}
 
-	public static java.util.List searchAliases(java.lang.String param0, int param1, int param2)
+	public static java.util.List<Alias> searchAliases(java.lang.String param0, int param1, int param2)
 	{
 		org.sakaiproject.alias.api.AliasService service = getInstance();
 		if (service == null) return null;
