@@ -325,6 +325,9 @@ public class ChatTool implements RoomObserver, PresenceObserver {
        // get the current presence list (User objects) for this page
        List<User> users = observer.getPresentUsers();
 
+       if (users == null)
+          return userList;   
+
        //System.out.println("userincurrent channel: " + getCurrentChatChannelId() + " users " + users);
 
       
