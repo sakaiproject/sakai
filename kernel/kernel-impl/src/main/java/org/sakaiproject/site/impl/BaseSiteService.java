@@ -284,13 +284,13 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	 */
 	protected void regenerateAllSiteIds()
 	{
-		List sites = m_storage.getAll();
-		for (Iterator iSites = sites.iterator(); iSites.hasNext();)
+		List<Site> sites = m_storage.getAll();
+		for (Iterator<Site> iSites = sites.iterator(); iSites.hasNext();)
 		{
 			Site site = (Site) iSites.next();
-			Site edit = m_storage.get(site.getId());
 			if (site != null)
 			{
+				Site edit = m_storage.get(site.getId());
 				edit.regenerateIds();
 				m_storage.save(edit);
 
@@ -298,7 +298,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			}
 			else
 			{
-				M_log.warn("regenerateAllSiteIds: site: " + site.getId() + " could not be edited.");
+				M_log.warn("regenerateAllSiteIds: null site in list");
 			}
 		}
 	}
