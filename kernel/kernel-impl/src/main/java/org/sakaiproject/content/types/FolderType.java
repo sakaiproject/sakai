@@ -65,6 +65,7 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
 {
 	protected String typeId = ResourceType.TYPE_FOLDER;
 	protected String helperId = "sakai.resource.type.helper";
+	private static final String RESOURCES_ZIP_ENABLE = "resources.zip.enable"; //sakai.properties hack
 	
 	/** localized tool properties **/
 	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.TypeProperties";
@@ -101,7 +102,11 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
 		actions.put(ResourceToolAction.PERMISSIONS, new FolderPermissionsAction());
 		actions.put(ResourceToolAction.EXPAND, new FolderExpandAction());
 		actions.put(ResourceToolAction.COLLAPSE, new FolderCollapseAction());
-		actions.put(ResourceToolAction.COMPRESS_ZIP_FOLDER, new FolderCompressAction());
+		
+		// KNL-155/SAK-800 Hack; archive file handling is buggy; enable by property setting only	
+		if (ServerConfigurationService.getBoolean(RESOURCES_ZIP_ENABLE,false)) {
+			actions.put(ResourceToolAction.COMPRESS_ZIP_FOLDER, new FolderCompressAction());
+		}
 		
 		// initialize actionMap with an empty List for each ActionType
 		for(ResourceToolAction.ActionType type : ResourceToolAction.ActionType.values())
