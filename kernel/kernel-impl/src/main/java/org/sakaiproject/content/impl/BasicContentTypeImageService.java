@@ -357,13 +357,10 @@ public class BasicContentTypeImageService implements ContentTypeImageService
 	 */
 	public void destroy()
 	{
-		m_contentTypeImages.clear();
 		m_contentTypeImages = null;
 
-		m_contentTypeDisplayNames.clear();
 		m_contentTypeDisplayNames = null;
 
-		m_contentTypeExtensions.clear();
 		m_contentTypeExtensions = null;
 
 		m_contentTypes.clear();
