@@ -320,7 +320,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
 	  
 	  // We don't support posting by anonymous users
 	  if (owner == null) {
-		  throw new PermissionException(owner, ChatFunctions.CHAT_FUNCTION_NEW, channel.getContext());
+		  throw new PermissionException(null, ChatFunctions.CHAT_FUNCTION_NEW, channel.getContext());
 	  }
 	  
 	  checkPermission(ChatFunctions.CHAT_FUNCTION_NEW, channel.getContext());
