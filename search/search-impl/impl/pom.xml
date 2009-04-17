@@ -14,6 +14,7 @@
   <properties>
     <deploy.target/>
     <maven.test.jvmargs/>
+    <poi.version>3.5-beta5</poi.version>
   </properties>
   <build>
     <resources>
@@ -157,19 +158,19 @@
     <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>poi</artifactId>
-      <version>3.5-beta4</version>
+      <version>${poi.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>poi-ooxml</artifactId>
-      <version>3.5-beta4</version>
+      <version>${poi.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>poi-scratchpad</artifactId>
-      <version>3.5-beta4</version>
+      <version>${poi.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
