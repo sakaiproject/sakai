@@ -817,6 +817,11 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 			
 			// get list of public announcements
 			AnnouncementChannel anncChan = (AnnouncementChannel)getChannelPublic( channelReference(rssRef.getContext(), SiteService.MAIN_CONTAINER) );
+			if ( anncChan == null )
+			{
+				M_log.warn(this+".printAnnouncementRss invalid request "+rssRef.getContext());
+				return;
+			}
 			List anncList = anncChan.getMessagesPublic(null,false);
 			
 			for ( Iterator it=anncList.iterator(); it.hasNext(); )
