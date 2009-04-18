@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2007, 2008 The Sakai Foundation
+ * Copyright (c) 2007, 2008, 2009 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,6 @@ import java.util.List;
 
 import org.sakaiproject.entity.api.EntitySummary;
 import org.sakaiproject.exception.PermissionException;
-
-
 
 /**
  * 
@@ -152,8 +150,7 @@ public interface ChatManager extends EntitySummary {
     * @param lazy boolean to load the messages lazily or not
     * @return List of ChatChannel
     */
-   
-   public List getContextChannels(String context, boolean lazy);
+   public List<ChatChannel> getContextChannels(String context, boolean lazy);
    
    /**
     * Gets the rooms associated with the context
@@ -163,7 +160,7 @@ public interface ChatManager extends EntitySummary {
     * @param placement
     * @return List of ChatChannel
     */
-   public List getContextChannels(String contextId, String defaultNewTitle, String placement);
+   public List<ChatChannel> getContextChannels(String contextId, String defaultNewTitle, String placement);
    
    /**
     * Returns the context's default channel, or null if none.
@@ -173,17 +170,24 @@ public interface ChatManager extends EntitySummary {
     */
    public ChatChannel getDefaultChannel(String contextId, String placement);
 
-
+   /**
+    * Returns whether or not the user has permissions to delete this message
+    */
    public boolean getCanDelete(ChatMessage message);
-   
+
+   /**
+    * Returns whether or not the user has permissions to delete this channel
+    */
    public boolean getCanDelete(ChatChannel channel);
-   //public boolean getCanDelete(ChatChannel channel, String placementId);
    
    /**
-    * Returns whether or not the user has permissions to delete any messages
+    * Returns whether or not the user has permissions to delete any messages in this context
     */
    public boolean getCanDeleteAnyMessage(String context);
    
+   /**
+    * Returns whether or not the user has permissions to edit this channel
+    */
    public boolean getCanEdit(ChatChannel channel);
  
    /**
@@ -207,7 +211,7 @@ public interface ChatManager extends EntitySummary {
    public boolean isMaintainer(String context);
    
    /**
-    * Makes the passed channel the dfault in the channel's context
+    * Makes the passed channel the default in the channel's context
     * @param channel
     * @param placement
     */
@@ -219,7 +223,10 @@ public interface ChatManager extends EntitySummary {
     * @return
     */
    public Date calculateDateByOffset(int offset);
-   
+ 
+   /**
+    * Returns label used for entity producer
+    */
    public String getLabel();
    
    /**
