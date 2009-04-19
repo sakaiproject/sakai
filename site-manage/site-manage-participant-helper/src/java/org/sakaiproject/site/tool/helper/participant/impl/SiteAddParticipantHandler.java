@@ -144,6 +144,8 @@ public class SiteAddParticipantHandler {
 	public List<Role> roles = new Vector<Role>();
 	public List<Role> getRoles()
 	{
+		if (roles.isEmpty())
+			init();
 		return roles;
 	}
 	public void setRoles (List<Role> roles)
@@ -959,6 +961,7 @@ public class SiteAddParticipantHandler {
 		site = null;
 		siteId = null;
 		realm = null;
+		roles.clear();
 		officialAccountParticipant = null;
 		officialAccountEidOnly = new Vector<String>();
 		nonOfficialAccountParticipant = null;
