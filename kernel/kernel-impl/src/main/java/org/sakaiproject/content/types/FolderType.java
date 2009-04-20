@@ -103,10 +103,14 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
 		actions.put(ResourceToolAction.EXPAND, new FolderExpandAction());
 		actions.put(ResourceToolAction.COLLAPSE, new FolderCollapseAction());
 		
-		// KNL-155/SAK-800 Hack; archive file handling is buggy; enable by property setting only	
+		// [WARN] Archive file handling compress/decompress feature contains bugs; exclude action item.
+		// Disable property setting masking problematic code per will of the Community.
+		// See Jira KNL-155/SAK-800 for more details.
+		/*
 		if (ServerConfigurationService.getBoolean(RESOURCES_ZIP_ENABLE,false)) {
 			actions.put(ResourceToolAction.COMPRESS_ZIP_FOLDER, new FolderCompressAction());
 		}
+		*/
 		
 		// initialize actionMap with an empty List for each ActionType
 		for(ResourceToolAction.ActionType type : ResourceToolAction.ActionType.values())
