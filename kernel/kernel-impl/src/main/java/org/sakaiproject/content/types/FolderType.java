@@ -65,7 +65,7 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
 {
 	protected String typeId = ResourceType.TYPE_FOLDER;
 	protected String helperId = "sakai.resource.type.helper";
-	private static final String RESOURCES_ZIP_ENABLE = "resources.zip.enable"; //sakai.properties hack
+	// private static final String RESOURCES_ZIP_ENABLE = "resources.zip.enable"; //sakai.properties hack
 	
 	/** localized tool properties **/
 	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.TypeProperties";
