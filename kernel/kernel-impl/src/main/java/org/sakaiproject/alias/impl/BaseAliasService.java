@@ -89,7 +89,7 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 	/** A cache of calls to the service and the results. */
 	protected Cache m_callCache = null;
 
-	private static List<String> prohibited_aliases = null;
+	private List<String> prohibited_aliases = null;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Abstractions, etc.
@@ -203,7 +203,19 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 		else if (ref.getType().equals("sakai:mailarchive"))
 		{
 			// base this on site update, too
-			return siteService().allowUpdateSite(ref.getContext());
+			M_log.debug("checing allow update on " + ref.getContext());
+			//due to a bug in the mailarchive entity manager the context may be the strign null
+			if (ref.getContext() != null && !ref.getContext().equals("null"))
+			{
+				M_log.debug("Checking allow update on " + ref.getContext() + " with lenght: " + ref.getContext().length());
+				return siteService().allowUpdateSite(ref.getContext());
+			}
+			else
+			{
+				boolean ret = siteService().allowAddSite(null);
+				M_log.debug("Cheking site.add permission returning: " + ret);
+				return ret;
+			}
 		}
 
 		// TODO: fake this dependency (CalendarService.APPLICATION_ID) to keep the calendar dependencies away 
