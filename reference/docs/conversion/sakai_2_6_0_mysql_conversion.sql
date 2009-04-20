@@ -10,6 +10,12 @@
 -- The 2.5.3 - 2.5.4 script can be located at https://source.sakaiproject.org/svn/reference/tags/sakai-2.5.4/docs/conversion/sakai_2_5_3-2_5_4_mysql_conversion.sql
 -- --------------------------------------------------------------------------------------------------------------------------------------
 
+-- SAK-13345 introduced a performance optimization to search. To see if you need this index run this command:
+-- show indexes from searchbuilderitem where key_name = "isearchbuilderitem_sta";
+-- If there is 1 row returned then you should run the following 2 queries
+-- create index ISEARCHBUILDERITEM_STA_ACT on searchbuilderitem (SEARCHSTATE,SEARCHACTION);
+-- drop index ISEARCHBUILDERITEM_STA; 
+
 -- SAK-12527 Changes to Chat Room options do not work consistently
 
 -- add column timeParam and numberParam 
@@ -118,14 +124,6 @@ alter table osp_wizard add column generalFeedbackOption tinyint not null DEFAULT
 alter table osp_wizard add column itemFeedbackOption tinyint not null DEFAULT '0';
 update osp_wizard set generalFeedbackOption=0;
 update osp_wizard set itemFeedbackOption=0;
-
-
-
--- SAK-13345
-
-create index ISEARCHBUILDERITEM_STA_ACT on searchbuilderitem (SEARCHSTATE,SEARCHACTION); 
-drop index ISEARCHBUILDERITEM_STA; 
-
 
 -- OSP SAK-11545
 alter table osp_wizard add reviewerGroupAccess integer not null default '0';

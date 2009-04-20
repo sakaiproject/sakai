@@ -11,6 +11,13 @@
 --
 -- --------------------------------------------------------------------------------------------------------------------------------------
 
+-- SAK-13345 introduced a performance optimization to search. To see if you need this index run this command:
+-- select INDEX_NAME FROM USER_INDEXES WHERE INDEX_NAME='ISEARCHBUILDERITEM_STA';
+-- If there is 1 row returned then you should run the following 2 queries
+-- create index ISEARCHBUILDERITEM_STA_ACT on searchbuilderitem (SEARCHSTATE,SEARCHACTION);
+-- drop index ISEARCHBUILDERITEM_STA; 
+
+
 -- SAK-12527 Changes to Chat Room options do not work consistently
 
 -- add column timeParam and numberParam 
@@ -118,12 +125,6 @@ alter table osp_wizard add generalFeedbackOption number(10,0)  DEFAULT '0' NOT N
 alter table osp_wizard add itemFeedbackOption number(10,0) DEFAULT '0' NOT NULL;
 update osp_wizard set generalFeedbackOption=0;
 update osp_wizard set itemFeedbackOption=0;
-
-
--- SAK-13345
-create index ISEARCHBUILDERITEM_STA_ACT on searchbuilderitem (SEARCHSTATE,SEARCHACTION); 
-drop index ISEARCHBUILDERITEM_STA; 
-
 
 -- OSP SAK-11545
 alter table osp_wizard add reviewerGroupAccess number(10, 0) default '0' not null;
