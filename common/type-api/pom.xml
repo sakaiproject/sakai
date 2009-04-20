@@ -23,6 +23,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-common-manager-api</artifactId>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>

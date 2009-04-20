@@ -23,6 +23,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-common-composite-component</artifactId>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>commons-beanutils</groupId>
@@ -31,6 +32,7 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>
