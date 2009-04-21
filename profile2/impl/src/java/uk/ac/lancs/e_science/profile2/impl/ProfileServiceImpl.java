@@ -43,8 +43,30 @@ public class ProfileServiceImpl implements ProfileService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public UserProfile getUserProfile(String userUuid) {
+	public UserProfile getUserProfileByIdOrEid(String userId) {
+		//figure out what type of userid was given, internal id or eid
+		String userUuid = null;
 		
+		//if need be transform it into a userUuid for the user
+		
+		
+		return getUserProfileByUuid(userUuid);
+		
+	}
+	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean checkUserProfileExists(String userUuid) {
+		return sakaiProxy.checkForUser(userUuid);
+	}
+
+	/**
+	 * Get a user profile 
+	 * @param userUuid
+	 */
+	private UserProfile getUserProfileByUuid(String userUuid) {
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
 		
 		if(sakaiPerson == null) {
@@ -54,14 +76,6 @@ public class ProfileServiceImpl implements ProfileService {
 		UserProfile userProfile = transformSakaiPersonToUserProfile(userUuid, sakaiPerson);
 		return userProfile;
 	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean checkUserProfileExists(String userUuid) {
-		return sakaiProxy.checkForUser(userUuid);
-	}
-
 	
 	
 	

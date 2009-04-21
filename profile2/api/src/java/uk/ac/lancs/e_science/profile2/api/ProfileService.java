@@ -29,7 +29,7 @@ public interface ProfileService {
 	public UserProfile getPrototype(String userUuid);
 	
 	/**
-	 * Get a UserProfile for the given user.
+	 * Get a UserProfile for the given user, can be an internal id or an eid
 	 * 
 	 * <p>All users have profiles, even if they haven't filled it in yet. 
 	 * At a very minimum it will contain their name and possibly email address.</p>
@@ -37,10 +37,11 @@ public interface ProfileService {
 	 * <p>If they don't have a SakaiPerson object to get the data from, a prototype is used.</p>
 	 * <p>If they do, the SakaiPerson object is transformed into a UserProfile object.
 	 * 
-	 * @param userUuid
+	 * @param userId - internal Sakai user Id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
 	 * @return
 	 */
-	public UserProfile getUserProfile(String userUuid);
+	public UserProfile getUserProfile(String userId);
+	
 	
 	/**
 	 * Checks whether a user profile exists. 

@@ -53,9 +53,11 @@
     
     
     <!-- EntityBroker beans -->
-    <!-- 
-	<bean id="uk.ac.lancs.e_science.profile2.api.entity.ProfileEntityProvider" class="uk.ac.lancs.e_science.profile2.impl.entity.ProfileEntityProviderImpl"></bean>
+	<bean id="uk.ac.lancs.e_science.profile2.api.entity.ProfileEntityProvider" class="uk.ac.lancs.e_science.profile2.impl.entity.ProfileEntityProviderImpl">
+		<property name="profileService" ref="uk.ac.lancs.e_science.profile2.api.ProfileService" />
+	</bean>
 	
+	<!-- 
 	<bean id="uk.ac.lancs.e_science.profile2.api.entity.FriendsEntityProvider" class="uk.ac.lancs.e_science.profile2.impl.entity.FriendsEntityProviderImpl">
 		<property name="profile" ref="uk.ac.lancs.e_science.profile2.api.Profile" />
 	</bean>
