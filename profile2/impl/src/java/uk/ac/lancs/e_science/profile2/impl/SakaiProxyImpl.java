@@ -96,13 +96,29 @@ public class SakaiProxyImpl implements SakaiProxy {
  	* {@inheritDoc}
  	*/
 	public String getUserEmail(String userId) {
-	   String email = null;
+		String email = null;
 		try {
 			email = userDirectoryService.getUser(userId).getEmail();
 		} catch (UserNotDefinedException e) {
 			log.warn("Cannot get email for id: " + userId + " : " + e.getClass() + " : " + e.getMessage());
 		}
 		return email;
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public boolean checkForUser(String userId) {
+		User u = null;
+		try {
+			u = userDirectoryService.getUser(userId);
+			if (u != null) {
+				return true;
+			} 
+		} catch (UserNotDefinedException e) {
+			log.warn("User: " + userId + " does not exist : " + e.getClass() + " : " + e.getMessage());
+		}
+		return false;
 	}
 	
 		

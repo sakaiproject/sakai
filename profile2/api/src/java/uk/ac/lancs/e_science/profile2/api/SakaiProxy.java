@@ -45,6 +45,12 @@ public interface SakaiProxy {
 	public String getUserEmail(String userId);
 	
 	/**
+	 * Check if a given user account exists
+	 * @return
+	 */
+	public boolean checkForUser(String userId);
+	
+	/**
 	 * Get a SakaiPerson for a user
 	 * @param userId
 	 * @return
