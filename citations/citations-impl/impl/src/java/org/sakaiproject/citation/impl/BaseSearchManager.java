@@ -342,7 +342,7 @@ public class BaseSearchManager implements SearchManager, Observer
           m_log.debug(">>> viewPage() records found = " + getNumRecordsFetched()
                   +   ", records rendered = " + m_pageOrder.size());
           /*
-           * Step 1: Previous (and the first) pages are a special case
+           * Step 1: Previous pages (and the first) are a special case
            */
           if (page < m_lastPageViewed)
           {
@@ -372,13 +372,6 @@ public class BaseSearchManager implements SearchManager, Observer
              *    o The number of results actually rendered is less than the
              *      current page size (we ran out)
              */
-//       		m_log.debug(">>> viewPage() estimate ("
-//       		        +   estimatedHits
-//       		        +   ") <= page size ("
-//       		        +   m_viewPageSize
-//       		        +   ") ? "
-//       		        +   (estimatedHits <= m_viewPageSize));
-
          		m_log.debug(">>> viewPage() estimate ("
          		        +   estimatedHits
          		        +   ") <= page size (in hits) ("
@@ -393,8 +386,7 @@ public class BaseSearchManager implements SearchManager, Observer
          		        +   ") ? "
          		        +   (hitsRendered < pageHits));
 
-//       		if ((estimatedHits <= m_viewPageSize)
-         		if ((estimatedHits <= pageHits) ||  (hitsRendered  < pageHits))
+         		if ((estimatedHits <= pageHits) || (hitsRendered < pageHits))
          		{
          		  setLastPage(true);
             }
@@ -1952,6 +1944,8 @@ public class BaseSearchManager implements SearchManager, Observer
 					  {
 					    ((BasicSearch) search).setDuplicateCheckEnabled(false);
 					  }
+            // make sure we have more search results
+         	  moreResults = assetIterator.hasNextAsset();
 						continue;
 					}
 					else
@@ -2213,6 +2207,8 @@ public class BaseSearchManager implements SearchManager, Observer
 	    					{
 	    						((BasicSearch) search).setDuplicateCheckEnabled(false);
 	    					}
+                // make sure we have more search results
+             	  moreResults = assetIterator.hasNextAsset();
 	    					continue;
 	    				}
 	    				else
