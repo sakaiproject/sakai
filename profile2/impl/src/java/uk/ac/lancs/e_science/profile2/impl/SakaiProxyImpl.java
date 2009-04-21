@@ -78,6 +78,20 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 		return eid;
 	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public String getUserIdForEid(String eid) {
+		String userUuid = null;
+		try {
+			userUuid = userDirectoryService.getUserByEid(eid).getId();
+		} catch (UserNotDefinedException e) {
+			log.warn("Cannot get id for eid: " + eid + " : " + e.getClass() + " : " + e.getMessage());
+		}
+		return userUuid;
+	}
+
 
 	/**
  	* {@inheritDoc}

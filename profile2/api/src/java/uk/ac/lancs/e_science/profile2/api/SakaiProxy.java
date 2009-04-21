@@ -31,6 +31,12 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public String getUserEid(String userId);
+	
+	/**
+	 * Convert eid to internal userid
+	 * @return
+	 */
+	public String getUserIdForEid(String eid);
 
 	/**
 	 * Get displayname of a given userid
