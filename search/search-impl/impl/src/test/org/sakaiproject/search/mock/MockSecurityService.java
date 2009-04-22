@@ -139,4 +139,20 @@ public class MockSecurityService implements SecurityService
 		return null;
 	}
 
+	public void clearUserEffectiveRole(String arg0) {
+		return;
+	}
+
+	public void clearUserEffectiveRoles() {
+		return;
+	}
+
+	public String getUserEffectiveRole(String arg0) {
+		return null;
+	}
+
+	public boolean setUserEffectiveRole(String arg0, String arg1) {
+		return false;
+	}
+
 }
