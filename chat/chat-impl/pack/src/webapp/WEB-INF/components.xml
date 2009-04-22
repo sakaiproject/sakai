@@ -90,6 +90,17 @@
       <property name="chatManager"><ref bean="org.sakaiproject.chat2.model.ChatManager"/></property>
    </bean>
 
+	<bean id="org.sakaiproject.chat2.model.impl.ChatChannelEntityProvider"
+		class="org.sakaiproject.chat2.model.impl.ChatChannelEntityProvider">
+      <property name="chatManager"><ref bean="org.sakaiproject.chat2.model.ChatManager"/></property>
+	</bean>
+
+	<bean id="org.sakaiproject.chat2.model.impl.ChatMessageEntityProvider"
+		class="org.sakaiproject.chat2.model.impl.ChatMessageEntityProvider">
+      <property name="chatManager"><ref bean="org.sakaiproject.chat2.model.ChatManager"/></property>
+	</bean>
+
+
     <bean id="chatSearchAdapter"
     	class="org.sakaiproject.chat2.model.impl.ChatContentProducer"
     	singleton="true" init-method="init" destroy-method="destroy">
