@@ -9,6 +9,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEnt
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.tool.api.SessionManager;
 
 import uk.ac.lancs.e_science.profile2.api.ProfileService;
 import uk.ac.lancs.e_science.profile2.api.entity.ProfileEntityProvider;
@@ -20,9 +21,9 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 		return ENTITY_PREFIX;
 	}
 
-	public boolean entityExists(String id) {
+	public boolean entityExists(String eid) {
 		//check the user is valid. if it is then return true as everyone has a profile.
-		return profileService.checkUserProfileExists(id);
+		return profileService.checkUserProfileExists(eid);
 	}
 
 	public String createEntity(EntityReference ref, Object entity) {
@@ -43,11 +44,17 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 
 	public Object getEntity(EntityReference ref) {
 	
+		if (sessionManager.getCurrentSessionUserId() == null) {
+			//TESTING, do nothing 
+			//throw new SecurityException();
+		}
+		
 		if (ref.getId() == null) {
 			return profileService.getPrototype();
 		}
 		
 		//no security yet. add another param on here for the person requesting the profile which will be used to check what they can see
+		//ie sessionManager.getCurrentSessionUserId()
 		UserProfile entity = profileService.getUserProfile(ref.getId());
 		return entity;
 	}
@@ -77,6 +84,11 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 	private DeveloperHelperService developerHelperService;
 	public void setDeveloperHelperService(DeveloperHelperService developerHelperService) {
 		this.developerHelperService = developerHelperService;
+	}
+	
+	private SessionManager sessionManager;
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
 	}
 	
 	private ProfileService profileService;

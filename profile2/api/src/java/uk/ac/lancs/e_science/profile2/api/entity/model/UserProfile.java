@@ -13,6 +13,7 @@ public class UserProfile {
 	private String userUuid;
 	private String nickname;
 	private Date dateOfBirth;
+	private String displayName;
 
 	/**
 	 * Basic constructor
@@ -42,6 +43,14 @@ public class UserProfile {
 
 	public void setDateOfBirth(Date dateOfBirth) {
 		this.dateOfBirth = dateOfBirth;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
+
+	public String getDisplayName() {
+		return displayName;
 	}
 	
 }
