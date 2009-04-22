@@ -249,15 +249,7 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 			// read the show-newlines parameter
 			if (state.getAttribute(STATE_SHOW_NEWLINES) == null)
 			{
-				try
-				{
-					state.setAttribute(STATE_SHOW_NEWLINES, new Boolean(config.getInitParameter(PARAM_SHOW_NEWLINES)));
-				}
-				catch (Exception e)
-				{
-					// use a default value
-					state.setAttribute(STATE_SHOW_NEWLINES, new Boolean(false));
-				}
+				initStateShowNewlines(state, config);
 			}
 
 			// // setup the observer to notify our main panel
@@ -278,6 +270,18 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 		}
 
 	} // initState
+
+	private void initStateShowNewlines(SessionState state, PortletConfig config) {
+		try
+		{
+			state.setAttribute(STATE_SHOW_NEWLINES, new Boolean(config.getInitParameter(PARAM_SHOW_NEWLINES)));
+		}
+		catch (Exception e)
+		{
+			// use a default value
+			state.setAttribute(STATE_SHOW_NEWLINES, new Boolean(false));
+		}
+	}
 
 	/**
 	 * build the context for the Main panel
@@ -337,6 +341,10 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 		context.put("showBody", state.getAttribute(STATE_SHOW_BODY));
 
 		// whether to show newlines in the message body, or not
+		if (state.getAttribute(STATE_SHOW_NEWLINES) == null)
+		{
+			initStateShowNewlines(state, portlet.getPortletConfig());
+		}
 		context.put("show_newlines", ((Boolean) state.getAttribute(STATE_SHOW_NEWLINES)).toString());
 
 		try
