@@ -879,11 +879,6 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 
 	} // setAttachProperties
 
-	public void setFF(String key)
-	{
-		key.length();
-	}
-
 	/**
 	 * Get the status of preview: true - view new created; false - view revised existed
 	 * 
