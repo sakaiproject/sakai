@@ -51,10 +51,18 @@ public interface SakaiProxy {
 	public String getUserEmail(String userId);
 	
 	/**
-	 * Check if a given user account exists
+	 * Check if a user with the given internal id (ie 6ec73d2a-b4d9-41d2-b049-24ea5da03fca) exists
+	 * @param userId
 	 * @return
 	 */
 	public boolean checkForUser(String userId);
+	
+	/**
+	 * Check if a user with the given eid (ie jsmith26) exists
+	 * @param userId
+	 * @return
+	 */
+	public boolean checkForUserByEid(String eid);
 	
 	/**
 	 * Get a SakaiPerson for a user

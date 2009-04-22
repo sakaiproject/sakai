@@ -130,12 +130,27 @@ public class SakaiProxyImpl implements SakaiProxy {
 				return true;
 			} 
 		} catch (UserNotDefinedException e) {
-			log.warn("User: " + userId + " does not exist : " + e.getClass() + " : " + e.getMessage());
+			log.info("User with id: " + userId + " does not exist : " + e.getClass() + " : " + e.getMessage());
 		}
 		return false;
 	}
 	
-		
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public boolean checkForUserByEid(String eid) {
+		User u = null;
+		try {
+			u = userDirectoryService.getUserByEid(eid);
+			if (u != null) {
+				return true;
+			} 
+		} catch (UserNotDefinedException e) {
+			log.info("User with eid: " + eid + " does not exist : " + e.getClass() + " : " + e.getMessage());
+		}
+		return false;
+	}
+	
 	/**
  	* {@inheritDoc}
  	*/
