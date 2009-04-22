@@ -1214,7 +1214,11 @@ public class RealmsAction extends PagedResourceActionII
 		Member grant = realm.getMember(user.getId());
 
 		// if no change, change nothing
-		if ((roles == null) && ((grant == null) && ((checkForStatus == null) || (grant.isProvided())))) return true;
+		if (roles == null && (grant == null && (checkForStatus == null) ) ) {
+		    // removing this since it would cause a null pointer exception if the code got here so we think the code does not ever get here -AZ
+		    //) || (grant.isProvided())))) return true;
+		    return true;
+		}
 		if ((roles != null) && (grant != null) && (grant.getRole().getId().equals(roles) && (grant.isActive()==status)) && !grant.isProvided()) return true;
 
 		// clear out this user's settings
