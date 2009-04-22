@@ -9190,8 +9190,8 @@ public class SiteAction extends PagedResourceActionII {
 			ToolConfiguration toolConfiguration = (ToolConfiguration) pageToolList.get(0);
 			
 			toolList = (List) state.getAttribute(STATE_TOOL_REGISTRATION_LIST);
-	
-			if (pageToolList != null || pageToolList.size() != 0) {
+
+			if (pageToolList != null && pageToolList.size() != 0) {
 				// if tool attributes don't match, return false
 				String match = null;
 				for (ListIterator i = toolList.listIterator(); i.hasNext();) {
