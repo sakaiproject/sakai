@@ -23,6 +23,7 @@ package org.sakaiproject.jcr.jackrabbit;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.text.MessageFormat;
@@ -313,13 +314,28 @@ public class RepositoryBuilder
 			StringBuffer content = new StringBuffer();
 			try
 			{
-				Reader r = new InputStreamReader(this.getClass().getResourceAsStream(
-						repositoryConfig));
-				char[] c = new char[4096];
-				for (int i = 0; (i = r.read(c)) != -1;)
-				{
-					content.append(c, 0, i);
-				}
+			    InputStream is = this.getClass().getResourceAsStream(repositoryConfig);
+			    if (is != null) {
+	                Reader r = new InputStreamReader(is);
+	                try {
+                        char[] c = new char[4096];
+                        for (int i = 0; (i = r.read(c)) != -1;)
+                        {
+                            content.append(c, 0, i);
+                        }
+                    } finally {
+                        try {
+                            r.close();
+                        } catch (Exception e) {
+                            log.warn("failed to close reader");
+                        }
+                        try {
+                            is.close();
+                        } catch (Exception e) {
+                            log.warn("failed to close inputstream");
+                        }
+                    }
+			    }
 			}
 			catch (Exception ex)
 			{

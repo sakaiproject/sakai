@@ -594,7 +594,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		if (id != null) return id;
 
 		// Try the provider.
-		UserEdit user = getProvidedUserByEid(id, eid);
+		UserEdit user = getProvidedUserByEid(null, eid);
 		if (user != null)
 		{
 			id = user.getId();

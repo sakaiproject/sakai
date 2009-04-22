@@ -130,6 +130,8 @@ public class UserDirectoryServiceGetTest extends SakaiKernelTestBase {
 	private static boolean isAsExpected(User user, String eid, boolean isLocal) {
 		if ((eid != null) && (eidToId.get(eid) == null)) {
 			eidToId.put(eid, user.getId());
+		} else {
+		    fail("eid is null");
 		}
 		boolean isMatch = (eid.equals(user.getEid()) &&
 			user.getId().equals(eidToId.get(eid)) &&

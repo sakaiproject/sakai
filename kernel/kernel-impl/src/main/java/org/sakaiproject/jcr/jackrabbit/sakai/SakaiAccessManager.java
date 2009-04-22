@@ -164,8 +164,7 @@ public class SakaiAccessManager implements AccessManager
 			jCRSecurityServiceAdapter = getJCRSecurityServiceAdapter();
 			if (jCRSecurityServiceAdapter == null)
 			{
-				log
-						.fatal("No JCR to SecurityService Adapter can be found, repository is not available ");
+				log.fatal("No JCR to SecurityService Adapter can be found, repository is not available ");
 				throw new RepositoryException("No JCR Sakai Adapter Defined");
 			}
 		}
@@ -220,7 +219,7 @@ public class SakaiAccessManager implements AccessManager
 			}
 			else
 			{
-				throw new AccessDeniedException("Permission denined on null item " + item);
+				throw new AccessDeniedException("Permission ("+permission+") denied on null item");
 			}
 		}
 		catch (MalformedPathException mfpe)

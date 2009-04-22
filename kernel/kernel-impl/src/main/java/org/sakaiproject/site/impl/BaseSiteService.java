@@ -1418,7 +1418,9 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	public void join(String id) throws IdUnusedException, PermissionException
 	{
 		String user = sessionManager().getCurrentSessionUserId();
-		if (user == null) throw new PermissionException(user, AuthzGroupService.SECURE_UPDATE_OWN_AUTHZ_GROUP, siteReference(id));
+		if (user == null) {
+		    throw new PermissionException(null, AuthzGroupService.SECURE_UPDATE_OWN_AUTHZ_GROUP, siteReference(id));
+		}
 
 		// get the site
 		Site site = getDefinedSite(id);

@@ -228,9 +228,8 @@ public class JCRNodeFactoryServiceImpl implements JCRNodeFactoryService
 			node = currentNode;
 			if (node == null)
 			{
-				log.error("Failed to create Node " + id + " got " + node);
-				throw new JCRNodeFactoryServiceException("Failed to create node " + id
-						+ " got " + node);
+				log.error("Failed to create Node (node is null) " + id);
+				throw new JCRNodeFactoryServiceException("Failed to create node (node is null) " + id);
 			}
 			else if (!id.equals(node.getPath()))
 			{

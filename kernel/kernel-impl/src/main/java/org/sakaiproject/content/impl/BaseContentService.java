@@ -47,6 +47,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.api.AliasService;
@@ -4458,11 +4459,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 		// reserve the resource in storage - it will fail if the id is in use
 		BaseResourceEdit edit = (BaseResourceEdit) m_storage.putDeleteResource(id, uuid, userId);
-		// add live properties-do we need this? - done to have uniformity with main table
-		if (edit != null)
-		{
-			addLiveResourceProperties(edit);
+		// added for NPE static code review -AZ
+		if (edit == null) {
+		    throw new NullPointerException("putDeleteResource returned a null value, this is unrecoverable");
 		}
+
+		// add live properties-do we need this? - done to have uniformity with main table
+		addLiveResourceProperties(edit);
+
 		// track event - do we need this? no harm to keep track
 		edit.setEvent(EVENT_RESOURCE_ADD);
 
@@ -4933,6 +4937,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	 * @param new_id
 	 *        The desired id of the resource after it is moved.
 	 * @return The full id of the moved resource (which may be a variation on the new_id to ensure uniqueness within the new folder.
+	 * @throws IllegalArgumentException if the new_id is null
 	 * @exception PermissionException
 	 *            if the user does not have permissions to perform the operations
 	 * @exception IdUnusedException
@@ -4949,12 +4954,16 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	protected String moveResource(ContentResourceEdit thisResource, String new_id) throws PermissionException, IdUnusedException,
 	TypeException, InUseException, OverQuotaException, IdUsedException, ServerOverloadException
 	{
-		String fileName = isolateName(new_id);
+	    if (StringUtils.isBlank(new_id)) {
+	        throw new IllegalArgumentException("new_id must not be null");
+	    }
+
+	    String fileName = isolateName(new_id);
 		String folderId = isolateContainingId(new_id);
 
 		ResourceProperties properties = thisResource.getProperties();
 		String displayName = properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
-		if (displayName == null && fileName != null)
+		if (displayName == null)
 		{
 			displayName = fileName;
 		}
@@ -5210,13 +5219,17 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	public String copyResource(ContentResource resource, String new_id) throws PermissionException, IdUnusedException,
 	TypeException, InUseException, OverQuotaException, IdUsedException, ServerOverloadException
 	{
-		String fileName = isolateName(new_id);
+        if (StringUtils.isBlank(new_id)) {
+            throw new IllegalArgumentException("new_id must not be null");
+        }
+
+        String fileName = isolateName(new_id);
 		fileName = Validator.escapeResourceName(fileName);
 		String folderId = isolateContainingId(new_id);
 
 		ResourceProperties properties = resource.getProperties();
 		String displayName = properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
-		if (displayName == null && fileName != null)
+		if (displayName == null)
 		{
 			displayName = fileName;
 		}
@@ -6597,7 +6610,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	 */
 	public Collection getEntityAuthzGroups(Reference ref, String userId)
 	{
-		// double check that it's mine
+	    // static code review possible NPE fix -AZ
+	    if (ref == null || ref.getId() == null) {
+	        M_log.warn("ref passed into getEntityAuthzGroups is not valid (ref or ref.getId is null): " + ref);
+	        return null;
+	    }
+
+	    // double check that it's mine
 		if (!APPLICATION_ID.equals(ref.getType())) return null;
 
 		// form a key for thread-local caching
@@ -6653,6 +6672,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			{
 				entity = findResource(ref.getId());
 			}
+
+			// this piece of code only comes into effect when the ref id is not resolveable as is
 			if(entity == null)
 			{
 				String refId = ref.getId();
@@ -6664,6 +6685,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 						entity = findCollection(refId);
 					}
 				}
+			}
+
+			// this will ensure the NPE does not happen
+			if (entity == null) {
+	            M_log.warn("ref ("+ref+") is not resolveable as an entity (it is null)");
+	            return null;
 			}
 
 			boolean inherited = false;
@@ -8167,7 +8194,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	 * It is a temporary fix to eliminate GC collection issues with the size calculations
 	 */
 
-	protected class SizeHolder {
+	protected static class SizeHolder {
 
 		public long ttl = System.currentTimeMillis()+600000L;
 		public long size = 0;
@@ -8510,10 +8537,17 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		}
 
 		// if we have no realm and don't need one, we are done
-		if ((edit == null) && (!pubview)) return;
-
 		// if we need a realm and didn't get an edit, exception
-		if ((edit == null) && pubview) return;
+		if (edit == null) {
+		    return;
+		}
+
+		// this makes no sense... -AZ
+//		// if we have no realm and don't need one, we are done
+//		if ((edit == null) && (!pubview)) return;
+//
+//		// if we need a realm and didn't get an edit, exception
+//		if ((edit == null) && pubview) return;
 
 		boolean changed = false;
 		boolean delete = false;
@@ -8528,17 +8562,19 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 				try
 				{
 					role = edit.addRole(AuthzGroupService.ANON_ROLE);
+					// moved from below as part of NPE cleanup -AZ
+					if (!role.isAllowed(AUTH_RESOURCE_READ))
+		            {
+		                role.allowFunction(AUTH_RESOURCE_READ);
+		                changed = true;
+		            }
 				}
 				catch (RoleAlreadyDefinedException ignore)
 				{
+				    role = null;
 				}
 			}
 
-			if (!role.isAllowed(AUTH_RESOURCE_READ))
-			{
-				role.allowFunction(AUTH_RESOURCE_READ);
-				changed = true;
-			}
 		}
 
 		// align the realm with our negative setting

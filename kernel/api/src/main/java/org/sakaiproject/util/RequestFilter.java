@@ -1135,6 +1135,7 @@ public class RequestFilter implements Filter
 		// Now that we know the session exists, regardless of whether it's new or not, lets see if there
 		// is a UsageSession.  If so, we want to check it's serverId
 		UsageSession us = null;
+		// FIXME synchronizing on a changing value is a bad practice plus it is possible for s to be null according to the visible code -AZ
 		synchronized(s) {
 			us = (UsageSession)s.getAttribute(UsageSessionService.USAGE_SESSION_KEY);
 			if (us != null) {

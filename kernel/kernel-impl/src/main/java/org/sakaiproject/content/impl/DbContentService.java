@@ -3166,15 +3166,19 @@ public class DbContentService extends BaseContentService
 			statement3.executeUpdate();
 
 
-			cout = sout.toCharArray();
-			ByteStorageConversion.toByte(cout, 0, bout, 0, cout.length);
+			if (sout != null) {
+                cout = sout.toCharArray();
+            }
+            ByteStorageConversion.toByte(cout, 0, bout, 0, cout.length);
 
-			if (sin.length() != sout.length())
-			{
-				throw new Exception(
-						"UTF-8 Data was lost communicating with the database, please "
-								+ "check connection string and default table types (Truncation/Expansion)");
-			}
+            if (sout != null) {
+    			if (sin.length() != sout.length())
+    			{
+    				throw new Exception(
+    						"UTF-8 Data was lost communicating with the database, please "
+    								+ "check connection string and default table types (Truncation/Expansion)");
+    			}
+            }
 
 			for (int i = 0; i < bin.length; i++)
 			{

@@ -500,8 +500,14 @@ public abstract class SakaiDatabaseJournal extends AbstractJournal
 			}
 			finally
 			{
+                close(stmt);
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    // nothing to do but complain
+                    log.warn("Failed to close the input stream reader");
+                }
 				close(in);
-				close(stmt);
 			}
 		}
 	}

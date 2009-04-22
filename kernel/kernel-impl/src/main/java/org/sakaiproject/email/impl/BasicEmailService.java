@@ -1317,7 +1317,8 @@ public class BasicEmailService implements EmailService
 					charset = CharacterSet.UTF_8;
 				}
 				
-				if (contentType.contains("multipart/")) {
+				if (contentType != null 
+				        && contentType.contains("multipart/")) {
 					MimeMultipart multiPartContent = new MimeMultipart("alternative");
 					int indexOfStartOfBoundary = contentType.indexOf("boundary=\"") + 10;
 					String headerStartingWithBoundary = contentType.substring(indexOfStartOfBoundary);

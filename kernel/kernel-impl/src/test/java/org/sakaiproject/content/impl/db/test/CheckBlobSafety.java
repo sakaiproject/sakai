@@ -95,15 +95,22 @@ public class CheckBlobSafety extends TestCase
 		else
 		{
 			log.info("Using Default Config: testblob.config");
-			p.load(this.getClass().getResourceAsStream("testblob.config"));
-			StringBuilder sb = new StringBuilder();
-			Object[] keys = p.keySet().toArray();
-			Arrays.sort(keys);
-			for (Object k : keys)
-			{
-				sb.append("\n " + k + ":" + p.get(k));
+			InputStream is = this.getClass().getResourceAsStream("testblob.config");
+			if (is != null) {
+	            try {
+                    p.load(is);
+                    StringBuilder sb = new StringBuilder();
+                    Object[] keys = p.keySet().toArray();
+                    Arrays.sort(keys);
+                    for (Object k : keys)
+                    {
+                        sb.append("\n " + k + ":" + p.get(k));
+                    }
+                    log.info("Loaded Default Properties " + config + " as " + sb.toString());
+                } finally {
+                    is.close();
+                }
 			}
-			log.info("Loaded Default Properties " + config + " as " + sb.toString());
 		}
 
 		cpds.setDriver(p.getProperty("dbDriver"));

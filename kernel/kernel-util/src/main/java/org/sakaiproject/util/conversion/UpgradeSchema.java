@@ -24,6 +24,7 @@ package org.sakaiproject.util.conversion;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -89,15 +90,22 @@ public class UpgradeSchema
 		else
 		{
 			log.info("Using Default Config: upgradeschema.config");
-			p.load(this.getClass().getResourceAsStream("upgradeschema.config"));
-			StringBuilder sb = new StringBuilder();
-			Object[] keys = p.keySet().toArray();
-			Arrays.sort(keys);
-			for (Object k : keys )
-			{
-				sb.append("\n " + k + ":" + p.get(k));
+			InputStream is = this.getClass().getResourceAsStream("upgradeschema.config");
+			if (is != null) {
+    			try {
+                    p.load(is);
+                    StringBuilder sb = new StringBuilder();
+                    Object[] keys = p.keySet().toArray();
+                    Arrays.sort(keys);
+                    for (Object k : keys )
+                    {
+                    	sb.append("\n " + k + ":" + p.get(k));
+                    }
+                    log.info("Loaded Default Properties as " + sb.toString());
+                } finally {
+                    is.close();
+                }
 			}
-			log.info("Loaded Default Properties " + config + " as " + sb.toString());
 		}
 
 		tds = new SharedPoolDataSource();

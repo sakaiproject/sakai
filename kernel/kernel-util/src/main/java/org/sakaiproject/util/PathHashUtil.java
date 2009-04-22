@@ -46,7 +46,7 @@ public class PathHashUtil
      *
      * @param nodePath
      * @param encode
-     * @return
+     * @return some SHA1 hash value possibly
      * @throws NoSuchAlgorithmException
      */
     public static String hash(String nodePath)
@@ -57,12 +57,14 @@ public class PathHashUtil
     		try
     		{
     			mdigest = MessageDigest.getInstance("SHA1");
+                digest.set(mdigest);
     		}
     		catch (NoSuchAlgorithmException e)
     		{
-    			log.error("Cant find Hash Algorithm ",e);
+    		    throw new RuntimeException("Failed to find SHA1 message digest: " + e, e);
+    		    // this is unrecoverable -AZ
+//    			log.error("Cant find Hash Algorithm ",e);
     		}
-    		digest.set(mdigest);
     	}
     	byte[] b = mdigest.digest(nodePath.getBytes());
     	char[] c = new char[b.length * 2];

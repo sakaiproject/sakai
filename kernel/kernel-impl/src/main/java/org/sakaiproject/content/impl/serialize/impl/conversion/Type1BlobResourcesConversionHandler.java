@@ -188,7 +188,7 @@ public class Type1BlobResourcesConversionHandler implements SchemaConversionHand
 			}
 			else
 			{
-				System.out.println("getValidateSource(" + id + ") blob == " + blob );
+				System.out.println("getValidateSource(" + id + ") blob is null" );
 			}
 			break;
 		case Types.CLOB:

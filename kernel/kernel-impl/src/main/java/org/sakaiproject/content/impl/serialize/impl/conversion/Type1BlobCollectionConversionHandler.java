@@ -182,7 +182,7 @@ public class Type1BlobCollectionConversionHandler implements SchemaConversionHan
 			}
 			else
 			{
-				System.out.println("getValidateSource(" + id + ") blob == " + blob );
+				System.out.println("getValidateSource(" + id + ") blob is null" );
 			}
 			break;
 		case Types.CLOB:
