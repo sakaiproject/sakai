@@ -183,4 +183,24 @@ public class MockSecurityService implements SecurityService
 				"JCRService appears to be getting a list of users on a lock ");
 	}
 
+	public void clearUserEffectiveRole(String arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void clearUserEffectiveRoles() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public String getUserEffectiveRole(String arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean setUserEffectiveRole(String arg0, String arg1) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }
