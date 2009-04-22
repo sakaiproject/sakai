@@ -879,6 +879,8 @@ System.out.println("doRemove_confirmed id="+msgId);
 		catch (Exception e)
 		{
 			addAlert(state, rb.getString("cannot1"));
+            // FIXME confusing code: this exception will cause a NPE below
+			channel = null;
 		}
 
 		// first validate - page size
@@ -909,7 +911,8 @@ System.out.println("doRemove_confirmed id="+msgId);
 		MailArchiveChannelEdit edit = null;
 		try
 		{
-			edit = (MailArchiveChannelEdit) MailArchiveService.editChannel(channel.getReference());
+		    // FIXME if channel is null then this causes a NPE, if this is desired it should be moved up nearer to the other code
+	        edit = (MailArchiveChannelEdit) MailArchiveService.editChannel(channel.getReference());
 		}
 		catch (Exception any)
 		{
