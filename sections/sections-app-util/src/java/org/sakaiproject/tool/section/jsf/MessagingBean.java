@@ -36,8 +36,9 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
+@SuppressWarnings("unchecked")
 public class MessagingBean {
-	private List messages;
+    private List messages;
 	
 	public MessagingBean() {
 		messages = new ArrayList();
@@ -49,7 +50,7 @@ public class MessagingBean {
 
     /**
      * Returns the current list of FacesMessages, then removes them from the local list.
-     * @return
+     * @return list of MessageDecorator
      */
     public List getMessagesAndClear() {
         List list = new ArrayList();
@@ -80,21 +81,33 @@ public class MessagingBean {
      * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
      *
      */
-    class MessageDecorator implements Serializable {
+    private static class MessageDecorator implements Serializable {
 		private static final long serialVersionUID = 1L;
 
 		FacesMessage message;
 
     	public MessageDecorator(FacesMessage message) {
+            if (message == null) {
+                throw new IllegalArgumentException("Cannot create a message decorator with no message");
+            }
     		this.message = message;
     	}
 
     	public FacesMessage getMessage() {
+            if (message == null) {
+                throw new IllegalArgumentException("Cannot create a message decorator with no message");
+            }
     		return message;
     	}
     	
-		public boolean equals(Object o) {
-			MessageDecorator other = (MessageDecorator)o;
+		public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            MessageDecorator other = (MessageDecorator) obj;
 			return new EqualsBuilder()
 				.append(getSeverity(), other.getSeverity())
 				.append(getDetail(), other.getDetail())
@@ -110,7 +123,7 @@ public class MessagingBean {
 				.toHashCode();
 		}
 
-		public String getDetail() {
+        public String getDetail() {
 			return message.getDetail();
 		}
 
