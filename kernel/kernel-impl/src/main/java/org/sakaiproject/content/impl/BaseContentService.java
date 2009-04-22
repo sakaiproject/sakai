@@ -8532,6 +8532,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 				}
 				catch (Exception ee)
 				{
+				   M_log.warn("Failed to add AZG ("+ref+") for pubview: " + ee);
 				}
 			}
 		}
