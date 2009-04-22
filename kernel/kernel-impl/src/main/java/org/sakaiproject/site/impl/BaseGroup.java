@@ -271,13 +271,16 @@ public class BaseGroup implements Group, Identifiable
 	 */
 	public boolean equals(Object obj)
 	{
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
 		if (obj instanceof Group)
 		{
 			return ((Group) obj).getId().equals(getId());
-		}
-
-		// compare to strings as id
-		if (obj instanceof String)
+		} 
+        // NOTE: findbugs considers this bad practice
+		else if (obj instanceof String)
 		{
 			return ((String) obj).equals(getId());
 		}

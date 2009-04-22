@@ -1103,14 +1103,17 @@ public class BaseSite implements Site
 	 */
 	public boolean equals(Object obj)
 	{
-		if (obj instanceof Site)
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (obj instanceof Site)
 		{
 			return ((Site) obj).getId().equals(getId());
 		}
-
-		// compare to strings as id
-		if (obj instanceof String)
-		{
+        // NOTE: findbugs considers this bad prcatice
+		else if (obj instanceof String) {
+	        // compare to strings as id
 			return ((String) obj).equals(getId());
 		}
 
