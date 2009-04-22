@@ -10,7 +10,7 @@ public class ProfileMismatchException extends RuntimeException {
 	}
 
 	public String toString() {
-		return ProfilePrototypeNotDefinedException.class + ": " +  message;
+		return ProfileMismatchException.class + ": " +  message;
 	}
 }
 
