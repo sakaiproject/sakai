@@ -1068,15 +1068,17 @@ public class FilePickerAction extends PagedResourceHelperAction
 				String accessUrl = null;
 				if(res == null)
 				{
-		                props = contentService.getProperties(ref.getId());
-		                accessUrl = contentService.getUrl(ref.getId());
+				    // NOTE: the statement below throws exceptions if the ref.id is invalid
+	                props = contentService.getProperties(ref.getId());
+	                accessUrl = contentService.getUrl(ref.getId());
 	 			}
 				else
 				{
 					props = res.getProperties();
 					accessUrl = res.getUrl();
 				}
-	
+
+				// FIXME this logic is confusing because res could be null still, the logic that relies on res not being null should be moved up to the null check above
 				String displayName = props.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
 				String containerId = contentService.getContainingCollectionId (res.getId());
 	
