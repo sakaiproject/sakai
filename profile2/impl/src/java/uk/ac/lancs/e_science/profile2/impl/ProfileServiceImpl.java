@@ -1,5 +1,6 @@
 package uk.ac.lancs.e_science.profile2.impl;
 
+import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 import uk.ac.lancs.e_science.profile2.api.ProfileService;
@@ -15,6 +16,8 @@ import uk.ac.lancs.e_science.profile2.api.exception.ProfileMismatchException;
  */
 public class ProfileServiceImpl implements ProfileService {
 
+	private static final Logger log = Logger.getLogger(ProfileServiceImpl.class);
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -33,9 +36,12 @@ public class ProfileServiceImpl implements ProfileService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public UserProfile getPrototype(String userUuid) {
+	public UserProfile getPrototype(String userId) {
+		String userUuid = getUuidForUserId(userId);
+		
 		UserProfile userProfile = getPrototype();
 		userProfile.setUserUuid(userUuid);
+		userProfile.setDisplayName(sakaiProxy.getUserDisplayName(userUuid));
 		
 		return userProfile;
 	}
@@ -43,47 +49,68 @@ public class ProfileServiceImpl implements ProfileService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public UserProfile getUserProfileByIdOrEid(String userId) {
-		//figure out what type of userid was given, internal id or eid
-		String userUuid = null;
+	public UserProfile getUserProfile(String userId) {
+		//convert userId into uuid
+		String userUuid = getUuidForUserId(userId);
 		
-		//if need be transform it into a userUuid for the user
+		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
+		if(sakaiPerson == null) {
+			return getPrototype(userId);
+		}
+		UserProfile userProfile = transformSakaiPersonToUserProfile(userUuid, sakaiPerson);
+		
+		//get privacy record for the user
+		
+		//check friend status
+		
+		//check what they are allowed to see (ie unset parts of profile)
 		
 		
-		return getUserProfileByUuid(userUuid);
 		
+		
+		return userProfile;
 	}
 	
 	
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean checkUserProfileExists(String userUuid) {
-		return sakaiProxy.checkForUser(userUuid);
+	public boolean checkUserProfileExists(String userId) {
+		return sakaiProxy.checkForUser(getUuidForUserId(userId));
 	}
 
-	/**
-	 * Get a user profile 
-	 * @param userUuid
-	 */
-	private UserProfile getUserProfileByUuid(String userUuid) {
-		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
-		
-		if(sakaiPerson == null) {
-			return getPrototype(userUuid);
-		}
-		
-		UserProfile userProfile = transformSakaiPersonToUserProfile(userUuid, sakaiPerson);
-		return userProfile;
-	}
 	
+	/**
+	 * Convenience method to convert the given userId input (internal id or eid) to a uuid. 
+	 * @param userId
+	 * @return
+	 */
+	private String getUuidForUserId(String userId) {
+		
+		String userUuid = null;
+
+		if(sakaiProxy.checkForUser(userId)) {
+			userUuid = userId;
+		} else if (sakaiProxy.checkForUserByEid(userId)) {
+			userUuid = sakaiProxy.getUserIdForEid(userId);
+			
+			if(userUuid == null) {
+				log.error("Could not translate eid to uuid for: " + userId);
+			}
+		} else {
+			log.error("User " + userId + " could not be found in any lookup by either id or eid");
+		}
+		return userUuid;
+	}
 	
 	
 	
 	/**
 	 * Convenience method to map a SakaiPerson object onto a UserProfile object
-	 * @param sp 	input SakaiPerson
-	 * @return		returns a UserProfile representation of the SakaiPerson object
+	 * 
+	 * @param userUuid 	uuid for owner of this profile, for double checking.
+	 * @param sp 		input SakaiPerson
+	 * @return			returns a UserProfile representation of the SakaiPerson object
 	 */
 	private UserProfile transformSakaiPersonToUserProfile(String userUuid, SakaiPerson sp) {
 		
@@ -97,7 +124,8 @@ public class ProfileServiceImpl implements ProfileService {
 		userProfile.setUserUuid(userUuid);
 		userProfile.setNickname(sp.getNickname());
 		userProfile.setDateOfBirth(sp.getDateOfBirth());
-		/*userProfile.setDisplayName(userDisplayName);
+		userProfile.setDisplayName(sakaiProxy.getUserDisplayName(userUuid));
+		/*
 		userProfile.setEmail(userEmail);
 		userProfile.setHomepage(sp.getLabeledURI());
 		userProfile.setHomephone(sp.getHomePhone());

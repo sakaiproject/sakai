@@ -23,13 +23,14 @@ public interface ProfileService {
 	
 	/**
 	 * Create a UserProfile object for the given user. This is the minimum that a UserProfile can be. 
-	 * <p>USE THIS IF YOU NEED A PROTOTYPE USERPROFILE OBJECT FOR A USER.</p>
+	 * 
+	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
 	 * @return
 	 */
-	public UserProfile getPrototype(String userUuid);
+	public UserProfile getPrototype(String userId);
 	
 	/**
-	 * Get a UserProfile for the given user, can be an internal id or an eid
+	 * Get a UserProfile for the given user Id
 	 * 
 	 * <p>All users have profiles, even if they haven't filled it in yet. 
 	 * At a very minimum it will contain their name and possibly email address.</p>
@@ -37,7 +38,7 @@ public interface ProfileService {
 	 * <p>If they don't have a SakaiPerson object to get the data from, a prototype is used.</p>
 	 * <p>If they do, the SakaiPerson object is transformed into a UserProfile object.
 	 * 
-	 * @param userId - internal Sakai user Id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
+	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
 	 * @return
 	 */
 	public UserProfile getUserProfile(String userId);
@@ -47,8 +48,8 @@ public interface ProfileService {
 	 * Checks whether a user profile exists. 
 	 * <p>This actually just checks for the existence of a user in the system as every user has a profile, even if it is blank.</p>
 	 * 
-	 * @param userUuid
+	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
 	 * @return
 	 */
-	public boolean checkUserProfileExists(String userUuid);
+	public boolean checkUserProfileExists(String userId);
 }
