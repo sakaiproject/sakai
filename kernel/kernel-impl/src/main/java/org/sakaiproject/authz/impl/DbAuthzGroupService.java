@@ -40,6 +40,7 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupFullException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.db.api.SqlServiceDeadlockException;
@@ -728,10 +729,11 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				size += azGroups.size();
 				for (Iterator i = azGroups.iterator(); i.hasNext();)
 				{
+					// FIXME - just use the azGroups directly rather than split them up
 					String[] refs = StringUtil.split(i.next().toString(), Entity.SEPARATOR); // splits the azGroups values so we can look for swapped state
 					for (int i2 = 0; i2 < refs.length; i2++)  // iterate through the groups to see if there is a swapped state in the variable
 					{
-						roleswap = (String)sessionManager().getCurrentSession().getAttribute("roleswap/site/" + refs[i2]);
+						roleswap = SecurityService.getUserEffectiveRole("/site/" + refs[i2]);
 						if (roleswap!=null) // break from this loop if a swapped state is found
 							break;
 					}
@@ -1474,8 +1476,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			fields[2] = realmId;
 
 			// checks to see if the user has the roleswap variable set in the session
-			String roleswap = (String)sessionManager().getCurrentSession().getAttribute("roleswap" + fields[2]);
-
+			String roleswap = SecurityService.getUserEffectiveRole(realmId);
+			
             if (roleswap != null)
             {
             	fields[0] = roleswap; // set the field to the student role for the alternate sql
@@ -1563,7 +1565,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 
 			// TODO: would be better to get this initially to make the code more efficient, but the realms collection does not have a common 
 			// order for the site's id which is needed to determine if the session variable exists
-			String roleswap = (String)sessionManager().getCurrentSession().getAttribute("roleswap" + fields2[2]);
+			String roleswap = SecurityService.getUserEffectiveRole( (String) fields2[2]);
+			
 			List results = null;
 			if (roleswap != null)
             {
@@ -2330,29 +2333,30 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		{
 			if ((userId == null) || (azGroupId == null)) return null;
 
-			String sql = dbAuthzGroupSql.getSelectRealmRoleNameSql();
-			Object[] fields = new Object[2];
-			fields[0] = azGroupId;
-			fields[1] = userId;
-
-			// read the string
-			List results = m_sql.dbRead(sql, fields, null);
-
-			// prepare the return
-			String rv = null;
 			// checks to see if the user has the roleswap variable set in the session
-			String roleswap = (String)sessionManager().getCurrentSession().getAttribute("roleswap" + fields[0]);
-			if (roleswap != null)
-            	rv = roleswap;
-			else if ((results != null) && (!results.isEmpty()))
-			{
-				rv = (String) results.get(0);
-				if (results.size() > 1)
+			String rv = SecurityService.getUserEffectiveRole(azGroupId);
+
+			// otherwise drop through to the usual check
+			if (rv == null) {
+				String sql = dbAuthzGroupSql.getSelectRealmRoleNameSql();
+				Object[] fields = new Object[2];
+				fields[0] = azGroupId;
+				fields[1] = userId;
+	
+				// read the string
+				List results = m_sql.dbRead(sql, fields, null);
+	
+				// prepare the return
+				if ((results != null) && (!results.isEmpty()))
 				{
-					M_log.warn("getUserRole: user: " + userId + " multiple roles");
+					rv = (String) results.get(0);
+					if (results.size() > 1)
+					{
+						M_log.warn("getUserRole: user: " + userId + " multiple roles");
+					}
 				}
 			}
-
+			
 			return rv;
 		}
 

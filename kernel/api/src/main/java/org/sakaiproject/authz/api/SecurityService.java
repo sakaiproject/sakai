@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006, 2008 Sakai Foundation
+ * Copyright (c) 2003, 2004, 2005, 2006, 2008, 2009 Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ public interface SecurityService
 	boolean unlock(String userId, String lock, String reference);
 
 	/**
-	 * Can the specificed user id unlock the lock for use with this resource (using these authzGroups for the check)?
+	 * Can the specified user id unlock the lock for use with this resource (using these authzGroups for the check)?
 	 * 
 	 * @param userId
 	 *        The user id.
@@ -141,4 +141,38 @@ public interface SecurityService
 	 * Remove any SecurityAdvisors from this thread.
 	 */
 	void clearAdvisors();
+
+	/**
+	 * Set the current user's effective role in this authz group for security lookups in this session.
+	 * 
+	 * @param azGroupId
+	 *        The authz group id
+	 * @param role
+	 *        The role id to assume (must be a valid role in the authz group)
+	 * @return true, if the user can switch roles in this authz group and the role is set, otherwise false.
+	 */
+	boolean setUserEffectiveRole(String azGroupId, String role);
+
+	/**
+	 * Get the current user's effective role in this authz group for security lookups in this session.
+	 * 
+	 * @param azGroupId
+	 *        The authz group id
+	 * @return The user's effective role if set, otherwise null
+	 */
+	String getUserEffectiveRole(String azGroupId);
+
+	/**
+	 * Clear the current user's effective role in this authz group.
+	 * 
+	 * @param azGroupId
+	 *        The authz group id
+	 */
+	void clearUserEffectiveRole(String azGroupId);
+
+	/**
+	 * Clear all effective roles for this user. Should be called on logout.
+	 */
+	void clearUserEffectiveRoles();
+	
 }

@@ -23,6 +23,7 @@ package org.sakaiproject.authz.impl;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
@@ -38,11 +39,12 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.memory.api.MultiRefCache;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.StringUtil;
 
 /**
  * <p>
@@ -59,6 +61,12 @@ public abstract class SakaiSecurity implements SecurityService
 
 	/** ThreadLocalManager key for our SecurityAdvisor Stack. */
 	protected final static String ADVISOR_STACK = "SakaiSecurity.advisor.stack";
+
+	/** Session attribute to store roleswap state **/
+	protected final static String ROLESWAP_PREFIX = "roleswap";
+
+	/** The update event to post to clear cached security lookups involving the authz group **/
+	protected final static String EVENT_ROLESWAP_CLEAR = "realm.clear.cache";
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies, configuration, and their setter methods
@@ -285,18 +293,6 @@ public abstract class SakaiSecurity implements SecurityService
 	{
 		// check the cache
 		String command = "unlock@" + userId + "@" + function + "@" + entityRef;
-		String[] refs = StringUtil.split(entityRef, Entity.SEPARATOR);
-		String roleswap = null;
-		for (int i = 0; i < refs.length; i++) // Checking for existence of roll swapped state
-		{
-			roleswap = (String)sessionManager().getCurrentSession().getAttribute("roleswapFlagForClearing/" + refs[i]);
-			if (roleswap!=null) // check if our flag is set
-			{
-				sessionManager().getCurrentSession().removeAttribute("roleswapFlagForClearing/" + refs[i]); // remove the session attribute so we don't repeatedly call thi
-				eventTrackingService().post(eventTrackingService().newEvent(function, "/realm/" + entityRef, true)); // this will clear the cache for the site and render the pages correctly by forcing the permissions to be rechecked
-				break;
-			}
-		}
 		
 		if (m_callCache != null)
 		{
@@ -417,7 +413,7 @@ public abstract class SakaiSecurity implements SecurityService
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public void pushAdvisor(SecurityAdvisor advisor)
 	{
@@ -426,7 +422,7 @@ public abstract class SakaiSecurity implements SecurityService
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public SecurityAdvisor popAdvisor()
 	{
@@ -449,7 +445,7 @@ public abstract class SakaiSecurity implements SecurityService
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public boolean hasAdvisors()
 	{
@@ -460,10 +456,85 @@ public abstract class SakaiSecurity implements SecurityService
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public void clearAdvisors()
 	{
 		dropAdvisorStack();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean setUserEffectiveRole(String azGroupId, String role) {
+		
+		if (!unlock(SiteService.SITE_ROLE_SWAP, azGroupId))
+			return false;
+		
+		// set the session attribute with the roleid
+		sessionManager().getCurrentSession().setAttribute(ROLESWAP_PREFIX + azGroupId, role); 
+		resetSecurityCache(azGroupId);
+
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getUserEffectiveRole(String azGroupId) {
+		
+		return (String) sessionManager().getCurrentSession().getAttribute(ROLESWAP_PREFIX + azGroupId);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void clearUserEffectiveRole(String azGroupId) {
+	
+		// remove the attribute from the session
+		sessionManager().getCurrentSession().removeAttribute(ROLESWAP_PREFIX + azGroupId);
+		resetSecurityCache(azGroupId);
+		
+		return;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings("unchecked")
+	public void clearUserEffectiveRoles() {
+		
+		// get all the roleswaps from the session and clear them
+		
+		Session session = sessionManager().getCurrentSession();
+		
+		for (Enumeration<String> e = session.getAttributeNames(); e.hasMoreElements();)
+		{
+			String name = e.nextElement();
+			if (name.startsWith(ROLESWAP_PREFIX)) {
+				clearUserEffectiveRole(name.substring(ROLESWAP_PREFIX.length()));
+			}
+		}
+		
+		return;
+	}
+	
+	/**
+	 * Clear the results of security lookups involving the given authz group from the security lookup cache.
+	 * 
+	 * @param azGroupId
+	 *        The authz group id.
+	 */
+	protected void resetSecurityCache(String azGroupId) {
+		
+		// This will clear all cached security lookups involving this realm, thereby forcing the permissions to be rechecked.
+	
+		// We could turn this into a SessionStateBindingListener so it gets called automatically when
+		// the session is cleared.
+		
+		eventTrackingService().post(eventTrackingService().newEvent(EVENT_ROLESWAP_CLEAR, 
+				org.sakaiproject.authz.api.AuthzGroupService.REFERENCE_ROOT + Entity.SEPARATOR + azGroupId, true)); 
+		
+		return;
 	}
 }

@@ -145,4 +145,36 @@ public class SecurityService
 
 		service.clearAdvisors();
 	}
+	
+	
+	public static boolean setUserEffectiveRole(java.lang.String param0, java.lang.String param1)
+	{
+		org.sakaiproject.authz.api.SecurityService service = getInstance();
+		if (service == null) return false;
+
+		return service.setUserEffectiveRole(param0, param1);
+	}
+	
+	public static String getUserEffectiveRole(java.lang.String param0) {
+		org.sakaiproject.authz.api.SecurityService service = getInstance();
+		if (service == null) return null;
+
+		return service.getUserEffectiveRole(param0);
+	}
+	
+	public static void clearUserEffectiveRole(java.lang.String param0)
+	{
+		org.sakaiproject.authz.api.SecurityService service = getInstance();
+		if (service == null) return;
+
+		service.clearUserEffectiveRole(param0);
+	}
+	
+	public static void clearUserEffectiveRoles()
+	{
+		org.sakaiproject.authz.api.SecurityService service = getInstance();
+		if (service == null) return;
+
+		service.clearUserEffectiveRoles();
+	}
 }

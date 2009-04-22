@@ -740,7 +740,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		}
 		else
 		{
-			String roleswap = (String)sessionManager().getCurrentSession().getAttribute("roleswap/site/" + id);
+			String roleswap = securityService().getUserEffectiveRole(rv.getReference());
 			if (roleswap!=null) // if in a swapped mode, treat it as a normal site else do the normal unpublished check
 				unlock(SITE_VISIT, rv.getReference());
 			else
