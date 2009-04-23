@@ -227,8 +227,17 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
  	 * {@inheritDoc}
  	 */
 	public String getDayName(int day, Locale locale) {
+		
+		//localised daynames
 		String dayNames[] = new DateFormatSymbols(locale).getWeekdays();
-		return dayNames[day];
+		String dayName = null;
+		
+		try {
+			dayName = dayNames[day];
+		} catch (Exception e) {
+			log.error("Profile.getDayName() failed. " + e.getClass() + ": " + e.getMessage());
+		}
+		return dayName;
 	}
 
 
@@ -655,8 +664,11 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 				
 				int postingDay = postingCal.get(Calendar.DAY_OF_WEEK);
 
-				//on Wednesday for example
-				message = Messages.getString("ProfileImpl.on") + toProperCase(getDayName(postingDay,locale)); //$NON-NLS-1$
+				//set to localised value: 'on Wednesday' for example
+				String dayName = getDayName(postingDay,locale);
+				if(dayName != null) {
+					message = Messages.getString("ProfileImpl.on") + toProperCase(dayName); //$NON-NLS-1$
+				}
 			}
 			
 		} else {

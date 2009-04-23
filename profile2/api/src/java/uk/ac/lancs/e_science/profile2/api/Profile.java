@@ -55,8 +55,8 @@ public interface Profile {
 	
 	/**
 	 * Get the localised name of the day (ie Monday for en, Maandag for nl)
-	 * @param day		int matching a Calendar.DAY_OF_WEEK
-	 * @param locale	user's preferred locale or default locale
+	 * @param day		int according to Calendar.DAY_OF_WEEK
+	 * @param locale	locale to render dayname in
 	 * @return
 	 */
 	public String getDayName(int day, Locale locale);
