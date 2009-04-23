@@ -1559,11 +1559,8 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   }
   
   private boolean isRoleSwapView()
-  {
-  	String roleswap = (String)sessionManager.getCurrentSession().getAttribute("roleswap" + getContextSiteId());
-  	if (roleswap!=null)
-  		return true;
-  	return false;
+  {	 
+  	return (securityService.getUserEffectiveRole(getContextSiteId()) != null);
   }
 
   /**
