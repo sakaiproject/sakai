@@ -91,8 +91,21 @@ public class ProfileServiceImpl implements ProfileService {
 		//unset basic info if not allowed
 		if(!profile.isUserXContactInfoVisibleByUserY(userUuid, profilePrivacy, currentUser, friend)) {
 			System.out.println("contact info not allowed");
-			//userProfile.setNickname(null);
-			//userProfile.setDateOfBirth(null);
+			userProfile.setEmail(null);
+			userProfile.setHomepage(null);
+			userProfile.setHomephone(null);
+			userProfile.setWorkphone(null);
+			userProfile.setMobilephone(null);
+		}
+		
+		//unset personal info if not allowed
+		if(!profile.isUserXPersonalInfoVisibleByUserY(userUuid, profilePrivacy, currentUser, friend)) {
+			System.out.println("personal info not allowed");
+			userProfile.setFavouriteBooks(null);
+			userProfile.setFavouriteTvShows(null);
+			userProfile.setFavouriteMovies(null);
+			userProfile.setFavouriteQuotes(null);
+			userProfile.setOtherInformation(null);
 		}
 		
 		return userProfile;
