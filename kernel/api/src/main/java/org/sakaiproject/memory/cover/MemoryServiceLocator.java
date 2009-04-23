@@ -28,7 +28,6 @@ import org.sakaiproject.component.cover.ComponentManager;
  * MemoryService is a static Cover for the {@link org.sakaiproject.memory.api.MemoryService MemoryService}; see that interface for usage details.
  * </p>
  * 
- * @author University of Michigan, Sakai Software Development Team
  * @version $Revision$
  */
 public class MemoryServiceLocator

@@ -28,7 +28,6 @@ import org.sakaiproject.component.cover.ComponentManager;
  * SecurityService is a static Cover for the {@link org.sakaiproject.authz.api.SecurityService SecurityService}; see that interface for usage details.
  * </p>
  * 
- * @author University of Michigan, Sakai Software Development Team
  * @version $Revision$
  */
 public class SecurityService

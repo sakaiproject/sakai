@@ -31,7 +31,6 @@ import org.sakaiproject.time.api.Time;
 * <p>ContentCollection is the core interface for a Collection object in the GenericContentHostingService.</p>
 * <p>A Collection has a list of internal members, each a resource id.</p>
 *
-* @author University of Michigan, CHEF Software Development Team
 * @version $Revision$
 */
 public interface ContentCollection

@@ -31,7 +31,6 @@ import java.util.Map;
  * ServerConfigurationService is a static Cover for the {@link org.sakaiproject.component.api.ServerConfigurationService ServerConfigurationService}; see that interface for usage details.
  * </p>
  * 
- * @author University of Michigan, Sakai Software Development Team
  * @version $Revision$
  */
 public class ServerConfigurationService

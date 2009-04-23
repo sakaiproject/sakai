@@ -28,7 +28,6 @@ import org.sakaiproject.component.cover.ComponentManager;
  * UserDirectoryService is a static Cover for the {@link org.sakaiproject.user.api.UserDirectoryService UserDirectoryService}; see that interface for usage details.
  * </p>
  * 
- * @author University of Michigan, Sakai Software Development Team
  * @version $Revision$
  */
 public class UserDirectoryService

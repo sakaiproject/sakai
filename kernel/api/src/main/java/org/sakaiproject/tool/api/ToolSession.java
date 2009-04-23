@@ -28,7 +28,6 @@ import java.util.Enumeration;
  * ToolSession models an end user's Tool placement specific usage session.
  * </p>
  * 
- * @author University of Michigan, Sakai Software Development Team
  * @version $Revision$
  */
 public interface ToolSession

@@ -992,8 +992,7 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 	 * <p>
 	 * BaseAlias is an implementation of the CHEF Alias object.
 	 * </p>
-	 * 
-	 * @author University of Michigan, CHEF Software Development Team
+	 *
 	 */
 	public class BaseAliasEdit implements AliasEdit, SessionBindingListener
 	{
