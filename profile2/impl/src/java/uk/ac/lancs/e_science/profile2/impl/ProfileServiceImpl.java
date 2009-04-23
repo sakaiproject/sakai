@@ -1,12 +1,17 @@
 package uk.ac.lancs.e_science.profile2.impl;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
+import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.ProfileService;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.api.entity.model.UserProfile;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfileMismatchException;
+import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
 
 /**
  * <p>This is the implementation of {@link ProfileService}; see that interface for usage details.
@@ -49,7 +54,8 @@ public class ProfileServiceImpl implements ProfileService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public UserProfile getUserProfile(String userId) {
+	public UserProfile getUserProfile(String userId, String currentUser) {
+		
 		//convert userId into uuid
 		String userUuid = getUuidForUserId(userId);
 		
@@ -59,14 +65,35 @@ public class ProfileServiceImpl implements ProfileService {
 		}
 		UserProfile userProfile = transformSakaiPersonToUserProfile(userUuid, sakaiPerson);
 		
+		//if person requested own profile, no need for privacy checks
+		if(userUuid.equals(currentUser)) {
+			System.out.println("userId is current user");
+			return userProfile;
+		}
+		
 		//get privacy record for the user
+		ProfilePrivacy profilePrivacy = profile.getPrivacyRecordForUser(userUuid);
+		
+		//TODO get preferences
+		//TODO need to check if their basicinfo is allowed, but birth year is not, 
+		//to remove that from the Date by foramtting it to the hidden SimpleDateFormat in ProfileUtilityManager perhaps?
 		
 		//check friend status
+		boolean friend = profile.isUserXFriendOfUserY(userUuid, currentUser);
 		
-		//check what they are allowed to see (ie unset parts of profile)
+		//unset basic info if not allowed
+		if(!profile.isUserXBasicInfoVisibleByUserY(userUuid, profilePrivacy, currentUser, friend)) {
+			System.out.println("basic info not allowed");
+			userProfile.setNickname(null);
+			userProfile.setDateOfBirth(null);
+		}
 		
-		
-		
+		//unset basic info if not allowed
+		if(!profile.isUserXContactInfoVisibleByUserY(userUuid, profilePrivacy, currentUser, friend)) {
+			System.out.println("contact info not allowed");
+			//userProfile.setNickname(null);
+			//userProfile.setDateOfBirth(null);
+		}
 		
 		return userProfile;
 	}
@@ -121,21 +148,27 @@ public class ProfileServiceImpl implements ProfileService {
 				
 		UserProfile userProfile = new UserProfile();
 		
+		//minimum info
 		userProfile.setUserUuid(userUuid);
+		userProfile.setDisplayName(sakaiProxy.getUserDisplayName(userUuid));
+
+		//basic info
 		userProfile.setNickname(sp.getNickname());
 		userProfile.setDateOfBirth(sp.getDateOfBirth());
-		userProfile.setDisplayName(sakaiProxy.getUserDisplayName(userUuid));
-		/*
-		userProfile.setEmail(userEmail);
+		
+		//contact info
+		userProfile.setEmail(sakaiProxy.getUserEmail(userUuid));
 		userProfile.setHomepage(sp.getLabeledURI());
 		userProfile.setHomephone(sp.getHomePhone());
 		userProfile.setWorkphone(sp.getTelephoneNumber());
 		userProfile.setMobilephone(sp.getMobile());
+		
+		//personal info
 		userProfile.setFavouriteBooks(sp.getFavouriteBooks());
 		userProfile.setFavouriteTvShows(sp.getFavouriteTvShows());
 		userProfile.setFavouriteMovies(sp.getFavouriteMovies());
 		userProfile.setFavouriteQuotes(sp.getFavouriteQuotes());
-		userProfile.setOtherInformation(sp.getNotes());*/
+		userProfile.setOtherInformation(sp.getNotes());
 		
 		return userProfile;
 		
@@ -147,5 +180,11 @@ public class ProfileServiceImpl implements ProfileService {
 	public void setSakaiProxy(SakaiProxy sakaiProxy) {
 		this.sakaiProxy = sakaiProxy;
 	}
+	
+	private Profile profile;
+	public void setProfile(Profile profile) {
+		this.profile = profile;
+	}
+	
 
 }

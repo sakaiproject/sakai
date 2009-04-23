@@ -39,9 +39,10 @@ public interface ProfileService {
 	 * <p>If they do, the SakaiPerson object is transformed into a UserProfile object.
 	 * 
 	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
+	 * @param currentUser - user id that is making the request for the profile.
 	 * @return
 	 */
-	public UserProfile getUserProfile(String userId);
+	public UserProfile getUserProfile(String userId, String currentUser);
 	
 	
 	/**
