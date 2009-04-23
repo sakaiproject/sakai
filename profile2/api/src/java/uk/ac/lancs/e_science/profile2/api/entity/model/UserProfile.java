@@ -14,6 +14,20 @@ public class UserProfile {
 	private String nickname;
 	private Date dateOfBirth;
 	private String displayName;
+	private String email;
+	private String position;
+	private String department;
+	private String school;
+	private String room;
+	private String homepage;
+	private String workphone;
+	private String homephone;
+	private String mobilephone;
+	private String favouriteBooks;
+	private String favouriteTvShows;
+	private String favouriteMovies;
+	private String favouriteQuotes;
+	private String otherInformation;
 
 	/**
 	 * Basic constructor
@@ -51,6 +65,118 @@ public class UserProfile {
 
 	public String getDisplayName() {
 		return displayName;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getPosition() {
+		return position;
+	}
+
+	public void setPosition(String position) {
+		this.position = position;
+	}
+
+	public String getDepartment() {
+		return department;
+	}
+
+	public void setDepartment(String department) {
+		this.department = department;
+	}
+
+	public String getSchool() {
+		return school;
+	}
+
+	public void setSchool(String school) {
+		this.school = school;
+	}
+
+	public String getRoom() {
+		return room;
+	}
+
+	public void setRoom(String room) {
+		this.room = room;
+	}
+
+	public String getHomepage() {
+		return homepage;
+	}
+
+	public void setHomepage(String homepage) {
+		this.homepage = homepage;
+	}
+
+	public String getWorkphone() {
+		return workphone;
+	}
+
+	public void setWorkphone(String workphone) {
+		this.workphone = workphone;
+	}
+
+	public String getHomephone() {
+		return homephone;
+	}
+
+	public void setHomephone(String homephone) {
+		this.homephone = homephone;
+	}
+
+	public String getMobilephone() {
+		return mobilephone;
+	}
+
+	public void setMobilephone(String mobilephone) {
+		this.mobilephone = mobilephone;
+	}
+
+	public String getFavouriteBooks() {
+		return favouriteBooks;
+	}
+
+	public void setFavouriteBooks(String favouriteBooks) {
+		this.favouriteBooks = favouriteBooks;
+	}
+
+	public String getFavouriteTvShows() {
+		return favouriteTvShows;
+	}
+
+	public void setFavouriteTvShows(String favouriteTvShows) {
+		this.favouriteTvShows = favouriteTvShows;
+	}
+
+	public String getFavouriteMovies() {
+		return favouriteMovies;
+	}
+
+	public void setFavouriteMovies(String favouriteMovies) {
+		this.favouriteMovies = favouriteMovies;
+	}
+
+	public String getFavouriteQuotes() {
+		return favouriteQuotes;
+	}
+
+	public void setFavouriteQuotes(String favouriteQuotes) {
+		this.favouriteQuotes = favouriteQuotes;
+	}
+
+	public String getOtherInformation() {
+		return otherInformation;
+	}
+
+	public void setOtherInformation(String otherInformation) {
+		this.otherInformation = otherInformation;
 	}
 	
 }
