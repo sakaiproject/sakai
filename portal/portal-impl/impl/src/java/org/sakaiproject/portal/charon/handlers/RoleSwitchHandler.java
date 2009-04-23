@@ -1,7 +1,5 @@
 package org.sakaiproject.portal.charon.handlers;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -10,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -90,9 +89,9 @@ public class RoleSwitchHandler extends BasePortalHandler
 					siteUrl = siteUrl + "?" + queryString;
 				}
 				portalService.setResetState("true"); // flag the portal to reset
-				session.setAttribute("roleswapFlagForClearing/" + parts[2] , "true"); // set a session variable to flag for clearing the cache in authz
-				session.setAttribute("roleswap/site/" + parts[2] , parts[3]); // set the session attribute with the roleid
 				
+				SecurityService.setUserEffectiveRole(activeSite.getReference(), parts[3]);
+						
 				// Post an event
 				EventTrackingService.post(EventTrackingService.newEvent(EVENT_ROLESWAP_START, parts[3], parts[2], false, NotificationService.NOTI_NONE));
 				

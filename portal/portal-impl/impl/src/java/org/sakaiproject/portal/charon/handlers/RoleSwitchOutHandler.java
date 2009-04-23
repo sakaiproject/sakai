@@ -3,9 +3,11 @@ package org.sakaiproject.portal.charon.handlers;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.portal.api.PortalHandlerException;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.util.Web;
 
@@ -39,8 +41,7 @@ public class RoleSwitchOutHandler extends BasePortalHandler
 					siteUrl = siteUrl + "?" + queryString;
 				}
 				portalService.setResetState("true"); // flag the portal to reset
-				session.removeAttribute("roleswap/site/" + parts[2]); // remove the attribute from the session
-				session.setAttribute("roleswapFlagForClearing/" + parts[2], "true"); // set a session variable to flag for clearing the cache in authz
+				SecurityService.clearUserEffectiveRole(SiteService.siteReference(parts[2]));
 				
 				// Post an event
 				EventTrackingService.post(EventTrackingService.newEvent(EVENT_ROLESWAP_EXIT, null, parts[2], false, NotificationService.NOTI_NONE));				

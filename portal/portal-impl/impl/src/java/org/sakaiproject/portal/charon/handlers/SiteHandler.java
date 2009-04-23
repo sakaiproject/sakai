@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -436,7 +437,6 @@ public class SiteHandler extends WorksiteHandler
 
 			// for skinning
 			String siteType = portal.calcSiteType(siteId);
-			String origPrefix = prefix;
 
 			// If we have turned on auto-state reset on navigation, we generate
 			// the "site-reset" "worksite-reset" and "gallery-reset" urls
@@ -450,7 +450,7 @@ public class SiteHandler extends WorksiteHandler
 			
 			// Check to see if we display a link in the UI for swapping the view
 			boolean roleswapcheck = false; // This variable will tell the UI if we will display any role swapping component; false by default
-			String roleswitchvalue = (String)session.getAttribute("roleswap/site/" + siteId); // checks the session for a role swap value
+			String roleswitchvalue = SecurityService.getUserEffectiveRole(SiteService.siteReference(siteId)); // checks the session for a role swap value
 			boolean roleswitchstate = false; // This variable determines if the site is in the switched state or not; false by default
 			// check for the site.roleswap permission
 			if (SiteService.allowRoleSwap(siteId) || (!SiteService.allowRoleSwap(siteId) && roleswitchvalue != null))
