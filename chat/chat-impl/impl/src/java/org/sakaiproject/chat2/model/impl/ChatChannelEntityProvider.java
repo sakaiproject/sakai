@@ -95,7 +95,7 @@ public class ChatChannelEntityProvider implements CoreEntityProvider, AutoRegist
 		String id = ref.getId();
 		
 		if (id == null || "".equals(id)) {
-		         return new ChatChannel();
+		         return new SimpleChatChannel();
 		}
 		  
 		ChatChannel channel = chatManager.getChatChannel(id);
