@@ -2,6 +2,7 @@ package uk.ac.lancs.e_science.profile2.api;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import uk.ac.lancs.e_science.profile2.hbm.ProfileImageExternal;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePreferences;
@@ -52,6 +53,20 @@ public interface Profile {
 	 */
 	public Date convertStringToDate(String dateStr, String format);
 	
+	/**
+	 * Get the localised name of the day (ie Monday for en, Maandag for nl)
+	 * @param day		int matching a Calendar.DAY_OF_WEEK
+	 * @param locale	user's preferred locale or default locale
+	 * @return
+	 */
+	public String getDayName(int day, Locale locale);
+	
+	/**
+	 * Convert a string to propercase. ie This Is Proper Text
+	 * @param input		string to be formatted
+	 * @return
+	 */
+	public String toProperCase(String input);
 	
 	/**
 	 * Get a list of unconfirmed Friend requests for a given user. Uses a native SQL query
@@ -292,8 +307,7 @@ public interface Profile {
 	 */
 	public boolean isUserXVisibleInSearchesByUserY(String userX, String userY, boolean friend);
 	
-	
-	
+
 	/**
 	 * Has the user allowed viewing of their profile image by the given user?
 	 * ie have they restricted it to only friends? Or can everyone see it.
@@ -312,7 +326,6 @@ public interface Profile {
 	
 	/**
 	 * Has the user allowed viewing of their basic info by the given user?
-	 * ie have they restricted it to only me or friends etc
 	 * 
 	 * @param userX			the uuid of the user we are querying
 	 * @param userY			current user uuid
@@ -326,8 +339,24 @@ public interface Profile {
 	public boolean isUserXBasicInfoVisibleByUserY(String userX, String userY, boolean friend);
 	
 	/**
+	 * Has the user allowed viewing of their basic info by the given user?
+	 * 
+	 * <p>This constructor should be used if you already have the ProfilePrivacy record for userX as will minimise DB lookups</p>
+	 * 
+	 * @param userX				the uuid of the user we are querying
+	 * @param profilePrivacy	the privacy record of userX
+	 * @param userY				current user uuid
+	 * @param friend			if the current user is a friend of the user we are querying	
+	 * @return boolean
+	 * 
+	 * NOTE: userY is currently not used because the friend status between userX and userY has already
+	 * been determined, but it is in now in case later we allow blocking/opening up of info to specific users.
+	 */
+	public boolean isUserXBasicInfoVisibleByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend);
+	
+	
+	/**
 	 * Has the user allowed viewing of their contact info by the given user?
-	 * ie have they restricted it to only me or friends etc
 	 * 
 	 * @param userX			the uuid of the user we are querying
 	 * @param userY			current user uuid
@@ -341,8 +370,23 @@ public interface Profile {
 	public boolean isUserXContactInfoVisibleByUserY(String userX, String userY, boolean friend);
 	
 	/**
+	 * Has the user allowed viewing of their contact info by the given user?
+	 * 
+	 * <p>This constructor should be used if you already have the ProfilePrivacy record for userX as will minimise DB lookups</p>
+	 * 
+	 * @param userX				the uuid of the user we are querying
+	 * @param profilePrivacy	the privacy record of userX
+	 * @param userY				current user uuid
+	 * @param friend			if the current user is a friend of the user we are querying	
+	 * @return boolean
+	 * 
+	 * NOTE: userY is currently not used because the friend status between userX and userY has already
+	 * been determined, but it is in now in case later we allow blocking/opening up of info to specific users.
+	 */
+	public boolean isUserXContactInfoVisibleByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend);
+	
+	/**
 	 * Has the user allowed viewing of their personal info by the given user?
-	 * ie have they restricted it to only me or friends etc
 	 * 
 	 * @param userX			the uuid of the user we are querying
 	 * @param userY			current user uuid
@@ -354,6 +398,23 @@ public interface Profile {
 	 * 
 	 */
 	public boolean isUserXPersonalInfoVisibleByUserY(String userX, String userY, boolean friend);
+	
+	/**
+	 * Has the user allowed viewing of their personal info by the given user?
+	 * 
+	 * <p>This constructor should be used if you already have the ProfilePrivacy record for userX as will minimise DB lookups</p>
+	 * 
+	 * @param userX				the uuid of the user we are querying
+	 * @param profilePrivacy	the privacy record of userX
+	 * @param userY				current user uuid
+	 * @param friend			if the current user is a friend of the user we are querying	
+	 * @return boolean
+	 * 
+	 * NOTE: userY is currently not used because the friend status between userX and userY has already
+	 * been determined, but it is in now in case later we allow blocking/opening up of info to specific users.
+	 */
+	public boolean isUserXPersonalInfoVisibleByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend);
+	
 	
 	/**
 	 * Has the user allowed viewing of their friends list (which in turn has its own privacy associated for each record)

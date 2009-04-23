@@ -8,12 +8,14 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.ImageIcon;
 
@@ -58,41 +60,40 @@ import com.sun.image.codec.jpeg.JPEGImageEncoder;
 public class ProfileImpl extends HibernateDaoSupport implements Profile {
 
 	private static final Logger log = Logger.getLogger(ProfileImpl.class);
-	
-	//surely this is in the Calendar API somewhere
-	private static final String[] DAY_OF_WEEK_MAPPINGS = { "", "Sunday", "Monday",
-		"Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+
+	// Hibernate query constants
+	private static final String QUERY_GET_FRIEND_REQUESTS_FOR_USER = "getFriendRequestsForUser"; //$NON-NLS-1$
+	private static final String QUERY_GET_CONFIRMED_FRIEND_USERIDS_FOR_USER = "getConfirmedFriendUserIdsForUser"; //$NON-NLS-1$
+	private static final String QUERY_GET_FRIEND_REQUEST = "getFriendRequest"; //$NON-NLS-1$
+	private static final String QUERY_GET_FRIEND_RECORD = "getFriendRecord"; //$NON-NLS-1$
+	private static final String QUERY_GET_USER_STATUS = "getUserStatus"; //$NON-NLS-1$
+	private static final String QUERY_GET_PRIVACY_RECORD = "getPrivacyRecord"; //$NON-NLS-1$
+	private static final String QUERY_GET_CURRENT_PROFILE_IMAGE_RECORD = "getCurrentProfileImageRecord"; //$NON-NLS-1$
+	private static final String QUERY_OTHER_PROFILE_IMAGE_RECORDS = "getOtherProfileImageRecords"; //$NON-NLS-1$
+	private static final String QUERY_FIND_SAKAI_PERSONS_BY_NAME_OR_EMAIL = "findSakaiPersonsByNameOrEmail"; //$NON-NLS-1$
+	private static final String QUERY_FIND_SAKAI_PERSONS_BY_INTEREST = "findSakaiPersonsByInterest"; //$NON-NLS-1$
+	private static final String QUERY_LIST_ALL_SAKAI_PERSONS = "listAllSakaiPersons"; //$NON-NLS-1$
+	private static final String QUERY_GET_PREFERENCES_RECORD = "getPreferencesRecord"; //$NON-NLS-1$
+	private static final String QUERY_GET_EXTERNAL_IMAGE_RECORD = "getProfileImageExternalRecord"; //$NON-NLS-1$
+
+	// Hibernate object fields
+	private static final String USER_UUID = "userUuid"; //$NON-NLS-1$
+	private static final String FRIEND_UUID = "friendUuid"; //$NON-NLS-1$
+	private static final String CONFIRMED = "confirmed"; //$NON-NLS-1$
+	private static final String OLDEST_STATUS_DATE = "oldestStatusDate"; //$NON-NLS-1$
+	private static final String SEARCH = "search"; //$NON-NLS-1$
 	
 	/**
 	 * the user's password needs to be decrypted and sent to Twitter for updates
 	 * so we can't just one-way encrypt it. 
+	 * 
+	 * Note to casual observers:
+	 * Having just this key won't allow you to decrypt a password. 
+	 * No two encryptions are the same using the encryption method that Profile2 employs 
+	 * but they decrypt to the same value which is why we can use it.
 	 */
-	private static final String BASIC_ENCRYPTION_KEY = "AbrA_ca-DabRa.123";
+	private static final String BASIC_ENCRYPTION_KEY = "AbrA_ca-DabRa.123"; //$NON-NLS-1$
 	
-	
-	private static final String QUERY_GET_FRIEND_REQUESTS_FOR_USER = "getFriendRequestsForUser";
-	private static final String QUERY_GET_CONFIRMED_FRIEND_USERIDS_FOR_USER = "getConfirmedFriendUserIdsForUser";
-	private static final String QUERY_GET_FRIEND_REQUEST = "getFriendRequest";
-	private static final String QUERY_GET_FRIEND_RECORD = "getFriendRecord";
-	private static final String QUERY_GET_USER_STATUS = "getUserStatus";
-	private static final String QUERY_GET_PRIVACY_RECORD = "getPrivacyRecord";
-	private static final String QUERY_GET_CURRENT_PROFILE_IMAGE_RECORD = "getCurrentProfileImageRecord";
-	private static final String QUERY_OTHER_PROFILE_IMAGE_RECORDS = "getOtherProfileImageRecords";
-	private static final String QUERY_FIND_SAKAI_PERSONS_BY_NAME_OR_EMAIL = "findSakaiPersonsByNameOrEmail";
-	private static final String QUERY_FIND_SAKAI_PERSONS_BY_INTEREST = "findSakaiPersonsByInterest";
-	private static final String QUERY_LIST_ALL_SAKAI_PERSONS = "listAllSakaiPersons";
-	private static final String QUERY_GET_PREFERENCES_RECORD = "getPreferencesRecord";
-	private static final String QUERY_GET_EXTERNAL_IMAGE_RECORD = "getProfileImageExternalRecord";
-
-	
-	
-	
-	//Hibernate object fields
-	private static final String USER_UUID = "userUuid";
-	private static final String FRIEND_UUID = "friendUuid";
-	private static final String CONFIRMED = "confirmed";
-	private static final String OLDEST_STATUS_DATE = "oldestStatusDate";
-	private static final String SEARCH = "search";
 	
 	
 	/**
@@ -101,9 +102,9 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	public boolean checkContentTypeForProfileImage(String contentType) {
 		
 		ArrayList<String> allowedTypes = new ArrayList<String>();
-		allowedTypes.add("image/jpeg");
-		allowedTypes.add("image/gif");
-		allowedTypes.add("image/png");
+		allowedTypes.add("image/jpeg"); //$NON-NLS-1$
+		allowedTypes.add("image/gif"); //$NON-NLS-1$
+		allowedTypes.add("image/png"); //$NON-NLS-1$
 
 		if(allowedTypes.contains(contentType)) {
 			return true;
@@ -118,7 +119,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
  	 */
 	public byte[] scaleImage (byte[] imageData, int maxSize) {
 	
-	    log.debug("Scaling image...");
+	    log.debug("Scaling image..."); //$NON-NLS-1$
 
 	    // Get the image from a file.
 	    Image inImage = new ImageIcon(imageData).getImage();
@@ -174,9 +175,9 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	    	JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(os);
 	    	encoder.encode(outImage);
 	    	os.close();
-	    	log.debug("Scaling done.");
+	    	log.debug("Scaling done."); //$NON-NLS-1$
 	    } catch (IOException e) {
-	    	log.error("Scaling image failed.");
+	    	log.error("Scaling image failed."); //$NON-NLS-1$
 	    }
 	    return os.toByteArray();
 	}
@@ -186,18 +187,17 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
  	 */
 	public String convertDateToString(Date date, String format) {
 		
-		if(date == null || "".equals(format)) {
-			throw new IllegalArgumentException("Null Argument in Profile.convertDateToString()");	
+		if(date == null || "".equals(format)) { //$NON-NLS-1$
+			throw new IllegalArgumentException("Null Argument in Profile.convertDateToString()");	 //$NON-NLS-1$
 		}
 		
 		SimpleDateFormat dateFormat = new SimpleDateFormat(format);
         StringBuilder dateStr = new StringBuilder(dateFormat.format(date));
         
-        log.debug("Profile.convertDateToString(): Input date: " + date.toString());
-        log.debug("Profile.convertDateToString(): Converted date string: " + dateStr);
+        log.debug("Profile.convertDateToString(): Input date: " + date.toString()); //$NON-NLS-1$
+        log.debug("Profile.convertDateToString(): Converted date string: " + dateStr); //$NON-NLS-1$
 
 		return dateStr.toString();
-		
 	}
 	
 	/**
@@ -205,8 +205,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
  	 */
 	public Date convertStringToDate(String dateStr, String format) {
 		
-		if("".equals(dateStr) || "".equals(format)) {
-			throw new IllegalArgumentException("Null Argument in Profile.convertStringToDate()");	
+		if("".equals(dateStr) || "".equals(format)) { //$NON-NLS-1$ //$NON-NLS-2$
+			throw new IllegalArgumentException("Null Argument in Profile.convertStringToDate()");	 //$NON-NLS-1$
 		}
 		
 		SimpleDateFormat dateFormat = new SimpleDateFormat(format);
@@ -214,14 +214,21 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		try {
 			Date date = dateFormat.parse(dateStr);
 			
-	        log.debug("Profile.convertStringToDate(): Input date string: " + dateStr);
-	        log.debug("Profile.convertStringToDate(): Converted date: " + date.toString());
+	        log.debug("Profile.convertStringToDate(): Input date string: " + dateStr); //$NON-NLS-1$
+	        log.debug("Profile.convertStringToDate(): Converted date: " + date.toString()); //$NON-NLS-1$
 			return date;
 		} catch (Exception e) {
-			log.error("Profile.convertStringToDate() failed. " + e.getClass() + ": " + e.getMessage());
+			log.error("Profile.convertStringToDate() failed. " + e.getClass() + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 			return null;
 		}            
-        
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public String getDayName(int day, Locale locale) {
+		String dayNames[] = new DateFormatSymbols(locale).getWeekdays();
+		return dayNames[day];
 	}
 
 
@@ -232,7 +239,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	public List<String> getFriendRequestsForUser(final String userId) {
 		
 		if(userId == null){
-	  		throw new IllegalArgumentException("Null Argument in Profile.getFriendRequestsForUser()");
+	  		throw new IllegalArgumentException("Null Argument in Profile.getFriendRequestsForUser()"); //$NON-NLS-1$
 	  	}
 		
 		List<String> requests = new ArrayList<String>();
@@ -244,7 +251,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	  			
 	  			Query q = session.getNamedQuery(QUERY_GET_FRIEND_REQUESTS_FOR_USER);
 	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setBoolean("false", Boolean.FALSE);
+	  			q.setBoolean("false", Boolean.FALSE); //$NON-NLS-1$
 	  			//q.setResultTransformer(Transformers.aliasToBean(Friend.class));
 	  			
 	  			return q.list();
@@ -270,7 +277,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	  		
 	  			Query q = session.getNamedQuery(QUERY_GET_CONFIRMED_FRIEND_USERIDS_FOR_USER);
 	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setBoolean("true", Boolean.TRUE);
+	  			q.setBoolean("true", Boolean.TRUE); //$NON-NLS-1$
 	  			return q.list();
 	  		}
 	  	};
@@ -299,7 +306,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
  	 */
 	public boolean requestFriend(String userId, String friendId) {
 		if(userId == null || friendId == null){
-	  		throw new IllegalArgumentException("Null Argument in Profile.getFriendsForUser");
+	  		throw new IllegalArgumentException("Null Argument in Profile.getFriendsForUser"); //$NON-NLS-1$
 	  	}
 		
 		//check values are valid, ie userId, friendId etc
@@ -308,10 +315,10 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			//make a ProfileFriend object with 'Friend Request' constructor
 			ProfileFriend profileFriend = new ProfileFriend(userId, friendId, ProfileFriendsManager.RELATIONSHIP_FRIEND);
 			getHibernateTemplate().save(profileFriend);
-			log.info("User: " + userId + " requested friend: " + friendId);
+			log.info("User: " + userId + " requested friend: " + friendId); //$NON-NLS-1$ //$NON-NLS-2$
 			return true;
 		} catch (Exception e) {
-			log.error("Profile.requestFriend() failed. " + e.getClass() + ": " + e.getMessage());
+			log.error("Profile.requestFriend() failed. " + e.getClass() + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 			return false;
 		}
 	
@@ -325,7 +332,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		ProfileFriend profileFriend = getPendingFriendRequest(fromUser, toUser);
 
 		if(profileFriend == null) {
-			log.debug("Profile.isFriendRequestPending: No pending friend request from userId: " + fromUser + " to friendId: " + toUser + " found.");
+			log.debug("Profile.isFriendRequestPending: No pending friend request from userId: " + fromUser + " to friendId: " + toUser + " found."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			return false;
 		}
 		return true;
@@ -337,14 +344,14 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	public boolean confirmFriendRequest(final String fromUser, final String toUser) {
 		
 		if(fromUser == null || toUser == null){
-	  		throw new IllegalArgumentException("Null Argument in Profile.confirmFriendRequest");
+	  		throw new IllegalArgumentException("Null Argument in Profile.confirmFriendRequest"); //$NON-NLS-1$
 	  	}
 		
 		//get pending ProfileFriend object request for the given details
 		ProfileFriend profileFriend = getPendingFriendRequest(fromUser, toUser);
 
 		if(profileFriend == null) {
-			log.error("Profile.confirmFriendRequest() failed. No pending friend request from userId: " + fromUser + " to friendId: " + toUser + " found.");
+			log.error("Profile.confirmFriendRequest() failed. No pending friend request from userId: " + fromUser + " to friendId: " + toUser + " found."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			return false;
 		}
 		
@@ -355,10 +362,10 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		//save
 		try {
 			getHibernateTemplate().update(profileFriend);
-			log.info("User: " + fromUser + " confirmed friend request from: " + toUser);
+			log.info("User: " + fromUser + " confirmed friend request from: " + toUser); //$NON-NLS-1$ //$NON-NLS-2$
 			return true;
 		} catch (Exception e) {
-			log.error("Profile.confirmFriendRequest() failed. " + e.getClass() + ": " + e.getMessage());
+			log.error("Profile.confirmFriendRequest() failed. " + e.getClass() + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 			return false;
 		}
 	
@@ -370,14 +377,14 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	public boolean ignoreFriendRequest(final String fromUser, final String toUser) {
 		
 		if(fromUser == null || toUser == null){
-	  		throw new IllegalArgumentException("Null Argument in Profile.ignoreFriendRequest");
+	  		throw new IllegalArgumentException("Null Argument in Profile.ignoreFriendRequest"); //$NON-NLS-1$
 	  	}
 		
 		//get pending ProfileFriend object request for the given details
 		ProfileFriend profileFriend = getPendingFriendRequest(fromUser, toUser);
 
 		if(profileFriend == null) {
-			log.error("Profile.ignoreFriendRequest() failed. No pending friend request from userId: " + fromUser + " to friendId: " + toUser + " found.");
+			log.error("Profile.ignoreFriendRequest() failed. No pending friend request from userId: " + fromUser + " to friendId: " + toUser + " found."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			return false;
 		}
 		
@@ -385,10 +392,10 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		//delete
 		try {
 			getHibernateTemplate().delete(profileFriend);
-			log.info("User: " + toUser + " ignored friend request from: " + fromUser);
+			log.info("User: " + toUser + " ignored friend request from: " + fromUser); //$NON-NLS-1$ //$NON-NLS-2$
 			return true;
 		} catch (Exception e) {
-			log.error("Profile.ignoreFriendRequest() failed. " + e.getClass() + ": " + e.getMessage());
+			log.error("Profile.ignoreFriendRequest() failed. " + e.getClass() + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 			return false;
 		}
 	
@@ -400,24 +407,24 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	public boolean removeFriend(String userId, String friendId) {
 		
 		if(userId == null || friendId == null){
-	  		throw new IllegalArgumentException("Null Argument in Profile.removeFriend");
+	  		throw new IllegalArgumentException("Null Argument in Profile.removeFriend"); //$NON-NLS-1$
 	  	}
 		
 		//get the friend object for this connection pair (could be any way around)
 		ProfileFriend profileFriend = getFriendRecord(userId, friendId);
 		
 		if(profileFriend == null){
-			log.error("ProfileFriend record does not exist for userId: " + userId + ", friendId: " + friendId);
+			log.error("ProfileFriend record does not exist for userId: " + userId + ", friendId: " + friendId); //$NON-NLS-1$ //$NON-NLS-2$
 			return false;
 		}
 				
 		//if ok, delete it
 		try {
 			getHibernateTemplate().delete(profileFriend);
-			log.info("User: " + userId + " removed friend: " + friendId);
+			log.info("User: " + userId + " removed friend: " + friendId); //$NON-NLS-1$ //$NON-NLS-2$
 			return true;
 		} catch (Exception e) {
-			log.error("Profile.removeFriend() failed. " + e.getClass() + ": " + e.getMessage());
+			log.error("Profile.removeFriend() failed. " + e.getClass() + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 			return false;
 		}
 		
@@ -428,7 +435,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	private ProfileFriend getPendingFriendRequest(final String userId, final String friendId) {
 		
 		if(userId == null || friendId == null){
-	  		throw new IllegalArgumentException("Null Argument in Profile.getPendingFriendRequest");
+	  		throw new IllegalArgumentException("Null Argument in Profile.getPendingFriendRequest"); //$NON-NLS-1$
 	  	}
 		
 		HibernateCallback hcb = new HibernateCallback() {
@@ -465,7 +472,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	public ProfileStatus getUserStatus(final String userId) {
 		
 		if(userId == null){
-	  		throw new IllegalArgumentException("Null Argument in Profile.getUserStatus");
+	  		throw new IllegalArgumentException("Null Argument in Profile.getUserStatus"); //$NON-NLS-1$
 	  	}
 		
 		// compute oldest date for status 
@@ -493,7 +500,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	public String getUserStatusMessage(String userId) {
 		
 		if(userId == null){
-	  		throw new IllegalArgumentException("Null Argument in Profile.getUserStatusMessage");
+	  		throw new IllegalArgumentException("Null Argument in Profile.getUserStatusMessage"); //$NON-NLS-1$
 	  	}
 		
 		ProfileStatus profileStatus = getUserStatus(userId);
@@ -508,7 +515,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
  	 */
 	public Date getUserStatusDate(String userId) {
 		if(userId == null){
-	  		throw new IllegalArgumentException("Null Argument in Profile.getUserStatusDate");
+	  		throw new IllegalArgumentException("Null Argument in Profile.getUserStatusDate"); //$NON-NLS-1$
 	  	}
 		
 		ProfileStatus profileStatus = getUserStatus(userId);
@@ -532,10 +539,10 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		//so that we can get the friends/statuses more easily via single SQL statements
 		try {
 			getHibernateTemplate().saveOrUpdate(profileStatus);
-			log.info("Updated status for user: " + userId);
+			log.info("Updated status for user: " + userId); //$NON-NLS-1$
 			return true;
 		} catch (Exception e) {
-			log.error("Profile.setUserStatus() failed. " + e.getClass() + ": " + e.getMessage());
+			log.error("Profile.setUserStatus() failed. " + e.getClass() + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 			return false;
 		}
 		
@@ -552,17 +559,17 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		ProfileStatus profileStatus = getUserStatus(userId);
 		
 		if(profileStatus == null){
-			log.error("ProfileStatus null for userId: " + userId);
+			log.error("ProfileStatus null for userId: " + userId); //$NON-NLS-1$
 			return false;
 		}
 				
 		//if ok, delete it
 		try {
 			getHibernateTemplate().delete(profileStatus);
-			log.info("User: " + userId + " cleared status");
+			log.info("User: " + userId + " cleared status"); //$NON-NLS-1$ //$NON-NLS-2$
 			return true;
 		} catch (Exception e) {
-			log.error("Profile.clearUserStatus() failed. " + e.getClass() + ": " + e.getMessage());
+			log.error("Profile.clearUserStatus() failed. " + e.getClass() + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 			return false;
 		}
 		
@@ -576,23 +583,22 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
  	 */
 	public String convertDateForStatus(Date date) {
 		
-		//current time (can also specify timezome and local here, see API)
+		//current time
 		Calendar currentCal = Calendar.getInstance();
 		long currentTimeMillis = currentCal.getTimeInMillis();
 		
-		//posting time (set calendar time to be this)
-		//Calendar postingDate = Calendar.getInstance();
-		//postingDate.setTimeInMillis(date.getTime());
+		//posting time
 		long postingTimeMillis = date.getTime();
 		
 		//difference
 		int diff = (int)(currentTimeMillis - postingTimeMillis);
 		
+		//current Locale
+		Locale locale = sakaiProxy.getUserPreferredLocale();
 		
 		//System.out.println("currentDate:" + currentTimeMillis);
 		//System.out.println("postingDate:" + postingTimeMillis);
 		//System.out.println("diff:" + diff);
-		
 		
 		int MILLIS_IN_SECOND = 1000;
 		int MILLIS_IN_MINUTE = 1000 * 60;
@@ -600,62 +606,87 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		int MILLIS_IN_DAY = 1000 * 60 * 60 * 24;
 		int MILLIS_IN_WEEK = 1000 * 60 * 60 * 24 * 7;
 
-		String message="";
-		
+		String message=""; //$NON-NLS-1$
+				
 		if(diff < MILLIS_IN_SECOND) {
 			//less than a second
-			message = "just then";
+			message = Messages.getString("ProfileImpl.just_then"); //$NON-NLS-1$
 		} else if (diff < MILLIS_IN_MINUTE) {
 			//less than a minute, calc seconds
 			int numSeconds = diff/MILLIS_IN_SECOND;
-			message = numSeconds + " seconds ago";
+			if(numSeconds == 1) {
+				//one sec
+				message = numSeconds + Messages.getString("ProfileImpl.second_ago"); //$NON-NLS-1$
+			} else {
+				//more than one sec
+				message = numSeconds + Messages.getString("ProfileImpl.seconds_ago"); //$NON-NLS-1$
+			}
 		} else if (diff < MILLIS_IN_HOUR) {
 			//less than an hour, calc minutes
 			int numMinutes = diff/MILLIS_IN_MINUTE;
-			message = numMinutes + " minutes ago";
+			if(numMinutes == 1) {
+				//one minute
+				message = numMinutes + Messages.getString("ProfileImpl.minute_ago"); //$NON-NLS-1$
+			} else {
+				//more than one minute
+				message = numMinutes + Messages.getString("ProfileImpl.minutes_ago"); //$NON-NLS-1$
+			}
 		} else if (diff < MILLIS_IN_DAY) {
 			//less than a day, calc hours
 			int numHours = diff/MILLIS_IN_HOUR;
-			message = numHours + " hours ago";
+			if(numHours == 1) {
+				//one hour
+				message = numHours + Messages.getString("ProfileImpl.hour_ago"); //$NON-NLS-1$
+			} else {
+				//more than one hour
+				message = numHours + Messages.getString("ProfileImpl.hours_ago"); //$NON-NLS-1$
+			}
 		} else if (diff < MILLIS_IN_WEEK) {
 			//less than a week, calculate days
 			int numDays = diff/MILLIS_IN_DAY;
 			
-			//System.out.println("day diff = " + numDays);
+			System.out.println("day diff = " + numDays);
 			
 			//now calculate which day it was
 			if(numDays == 1) {
-				message = "yesterday";
+				message = Messages.getString("ProfileImpl.yesterday"); //$NON-NLS-1$
 			} else {
-				//copy calendar, then subtract number of days to find posting day
-				Calendar postingCal = currentCal;
-				postingCal.add(Calendar.DATE, -numDays);
+				//set calendar and get day of week
+				Calendar postingCal = Calendar.getInstance();
+				postingCal.setTimeInMillis(postingTimeMillis);
+				
+				//System.out.println("postingCal: " + postingCal.toString());
 				int postingDay = postingCal.get(Calendar.DAY_OF_WEEK);
 				//System.out.println("day of week of post = " + postingDay);
-				//System.out.println("day of week of post = " + DAY_OF_WEEK_MAPPINGS[postingDay]);
 
-				//use calendar API to get name of day here, for now using array at top
-				message = "on " + DAY_OF_WEEK_MAPPINGS[postingDay];
+				//on Wednesday for example
+				message = Messages.getString("ProfileImpl.on") + toProperCase(getDayName(postingDay,locale)); //$NON-NLS-1$
 			}
 			
 		} else {
-			//nothing, we want it blank.
+			//over a week ago, we want it blank though.
 		}
 
 		return message;
 	}
 	
 	
+	public String toProperCase(String input) {
+		if (input == null || input.trim().length() == 0) {
+			return input;
+		}
+		String output = input.toLowerCase();
+		return output.substring(0, 1).toUpperCase() + output.substring(1);
+	}
+
 	
 	
 	/**
  	 * {@inheritDoc}
  	 */
 	public String truncateAndPadStringToSize(String string, int size) {
-		
 		String returnStr = string.substring(0, size);
-		return (returnStr.concat("..."));
-		
+		return (returnStr.concat(Messages.getString("ProfileImpl.ellipsis"))); //$NON-NLS-1$
 	}
 	
 	
@@ -679,10 +710,10 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		//save
 		try {
 			getHibernateTemplate().save(profilePrivacy);
-			log.info("Created default privacy record for user: " + userId);
+			log.info("Created default privacy record for user: " + userId); //$NON-NLS-1$
 			return profilePrivacy;
 		} catch (Exception e) {
-			log.error("Profile.createDefaultPrivacyRecord() failed. " + e.getClass() + ": " + e.getMessage());
+			log.error("Profile.createDefaultPrivacyRecord() failed. " + e.getClass() + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 			return null;
 		}
 	}
@@ -694,7 +725,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	public ProfilePrivacy getPrivacyRecordForUser(final String userId) {
 		
 		if(userId == null){
-	  		throw new IllegalArgumentException("Null Argument in Profile.getPrivacyRecordForUser");
+	  		throw new IllegalArgumentException("Null Argument in Profile.getPrivacyRecordForUser"); //$NON-NLS-1$
 	  	}
 		
 		HibernateCallback hcb = new HibernateCallback() {
@@ -707,7 +738,6 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		};
 	
 		return (ProfilePrivacy) getHibernateTemplate().execute(hcb);
-
 	}
 	
 	/**
@@ -717,10 +747,10 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 
 		try {
 			getHibernateTemplate().update(profilePrivacy);
-			log.info("Updated privacy record for user: " + profilePrivacy.getUserUuid());
+			log.info("Updated privacy record for user: " + profilePrivacy.getUserUuid()); //$NON-NLS-1$
 			return true;
 		} catch (Exception e) {
-			log.error("Profile.savePrivacyRecordForUser() failed. " + e.getClass() + ": " + e.getMessage());
+			log.error("Profile.savePrivacyRecordForUser() failed. " + e.getClass() + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 			return false;
 		}
 		
@@ -743,9 +773,9 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			//save
 			try {
 				getHibernateTemplate().update(currentImage);
-				log.info("Profile.saveProfileImageRecord(): Invalidated profileImage: " + currentImage.getId() + " for user: " + currentImage.getUserUuid());
+				log.info("Profile.saveProfileImageRecord(): Invalidated profileImage: " + currentImage.getId() + " for user: " + currentImage.getUserUuid()); //$NON-NLS-1$ //$NON-NLS-2$
 			} catch (Exception e) {
-				log.error("Profile.saveProfileImageRecord(): Couldn't invalidate profileImage: " + e.getClass() + ": " + e.getMessage());
+				log.error("Profile.saveProfileImageRecord(): Couldn't invalidate profileImage: " + e.getClass() + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 				
@@ -755,10 +785,10 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		//save the new ProfileImage to the db
 		try {
 			getHibernateTemplate().save(newProfileImage);
-			log.info("Profile.saveProfileImageRecord(): Saved new profileImage for user: " + newProfileImage.getUserUuid());
+			log.info("Profile.saveProfileImageRecord(): Saved new profileImage for user: " + newProfileImage.getUserUuid()); //$NON-NLS-1$
 			return true;
 		} catch (Exception e) {
-			log.error("Profile.saveProfileImageRecord() failed. " + e.getClass() + ": " + e.getMessage());
+			log.error("Profile.saveProfileImageRecord() failed. " + e.getClass() + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 			return false;
 		}
 	}
@@ -864,13 +894,13 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
     	//if none, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
-    		log.debug("SEARCH VISIBILITY for " + userX + ": no record, returning default visibility");
+    		log.debug("SEARCH VISIBILITY for " + userX + ": no record, returning default visibility"); //$NON-NLS-1$ //$NON-NLS-2$
     		return ProfilePrivacyManager.DEFAULT_SEARCH_VISIBILITY;
     	}
     	
     	//if userX is userY (ie they found themself in a search)
     	if(userY.equals(userX)) {
-    		log.debug("SEARCH VISIBILITY for " + userX + ": user is current user");
+    		log.debug("SEARCH VISIBILITY for " + userX + ": user is current user"); //$NON-NLS-1$ //$NON-NLS-2$
     		return ProfilePrivacyManager.SELF_SEARCH_VISIBILITY;
     	}
     	
@@ -884,26 +914,25 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	
     	//if friend and set to friends only
     	if(friend && profilePrivacy.getSearch() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
-    		log.debug("SEARCH VISIBILITY for " + userX + ": only friends and  " + userY + " is friend");
+    		log.debug("SEARCH VISIBILITY for " + userX + ": only friends and  " + userY + " is friend"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     		return true;
     	}
     	
     	//if not friend and set to friends only
     	if(!friend && profilePrivacy.getSearch() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
-    		log.debug("SEARCH VISIBILITY for " + userX + ": only friends and  " + userY + " not friend");
+    		log.debug("SEARCH VISIBILITY for " + userX + ": only friends and  " + userY + " not friend"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     		return false;
     	}
     	
     	//if everyone is allowed
     	if(profilePrivacy.getSearch() == ProfilePrivacyManager.PRIVACY_OPTION_EVERYONE) {
-    		log.debug("SEARCH VISIBILITY: everyone");
+    		log.debug("SEARCH VISIBILITY: everyone"); //$NON-NLS-1$
     		return true;
     	}
     	
     	//uncaught rule, return false
-    	log.error("Profile.isUserXVisibleInSearchesByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);
+    	log.error("Profile.isUserXVisibleInSearchesByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     	return false;
-		
 	}
 	
 	
@@ -913,7 +942,6 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
  	 * {@inheritDoc}
  	 */
 	public boolean isUserXProfileImageVisibleByUserY(String userX, String userY, boolean friend) {
-		
 		
 		//get privacy record for this user
     	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
@@ -951,8 +979,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	}
     	
     	//uncaught rule, return false
-    	log.error("Profile.isUserProfileImageVisibleByCurrentUser. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);
-
+    	log.error("Profile.isUserProfileImageVisibleByCurrentUser. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     	return false;
 	}
 	
@@ -961,22 +988,28 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
  	 */
 	public boolean isUserXBasicInfoVisibleByUserY(String userX, String userY, boolean friend) {
 		
-		//get privacy record for this user
+		//get privacy record for userX
     	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
     	
-    	//if none, return whatever the flag is set as by default
+    	//pass to main
+    	return isUserXBasicInfoVisibleByUserY(userX, profilePrivacy, userY, friend);
+	}
+	
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean isUserXBasicInfoVisibleByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend) {
+		
+		//if user is requesting own info, they ARE allowed
+    	if(userY.equals(userX)) {
+    		return true;
+    	}
+		
+		//if no privacy record, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
     		return ProfilePrivacyManager.DEFAULT_BASICINFO_VISIBILITY;
     	}
-    	
-    	//if user is the current user, they ARE allowed to view their own picture!
-    	//but this will never be called as the current user cannot access ViewProfile.
-    	//so this has been removed from this function and all other privacy checks
-    	/*
-    	if(currentUserId.equals(userId)) {
-    		return true;
-    	}
-    	*/
     	
     	//if restricted to only self, not allowed
     	if(profilePrivacy.getBasicInfo() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYME) {
@@ -999,11 +1032,9 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	}
     	
     	//uncaught rule, return false
-    	log.error("Profile.isBasicInfoVisibleByCurrentUser. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);
-
+    	log.error("Profile.isUserXBasicInfoVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     	return false;
 	}
-	
 	
 	/**
  	 * {@inheritDoc}
@@ -1013,7 +1044,21 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		//get privacy record for this user
     	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
     	
-    	//if none, return whatever the flag is set as by default
+    	//pass to main
+    	return isUserXContactInfoVisibleByUserY(userX, profilePrivacy, userY, friend);
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean isUserXContactInfoVisibleByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend) {
+		
+		//if user is requesting own info, they ARE allowed
+    	if(userY.equals(userX)) {
+    		return true;
+    	}
+		
+		//if no privacy record, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
     		return ProfilePrivacyManager.DEFAULT_CONTACTINFO_VISIBILITY;
     	}
@@ -1039,7 +1084,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	}
     	
     	//uncaught rule, return false
-    	log.error("Profile.isContactInfoVisibleByCurrentUser. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);
+    	log.error("Profile.isUserXContactInfoVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
     	return false;
 	}
@@ -1053,7 +1098,21 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		//get privacy record for this user
     	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
     	
-    	//if none, return whatever the flag is set as by default
+    	//pass to main
+    	return isUserXPersonalInfoVisibleByUserY(userX, profilePrivacy, userY, friend);
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean isUserXPersonalInfoVisibleByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend) {
+		
+		//if user is requesting own info, they ARE allowed
+    	if(userY.equals(userX)) {
+    		return true;
+    	}
+		
+		//if no privacy record, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
     		return ProfilePrivacyManager.DEFAULT_PERSONALINFO_VISIBILITY;
     	}
@@ -1079,8 +1138,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	}
     	    	
     	//uncaught rule, return false
-    	log.error("Profile.isPersonalInfoVisibleByCurrentUser. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);
-
+    	log.error("Profile.isUserXPersonalInfoVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     	return false;
 	}
 	
@@ -1119,8 +1177,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	}
     	    	
     	//uncaught rule, return false
-    	log.error("Profile.isFriendsListVisibleByCurrentUser. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);
-
+    	log.error("Profile.isUserXFriendsListVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     	return false;
 	}
 	
@@ -1161,7 +1218,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	}
     	    	
     	//uncaught rule, return false
-    	log.error("Profile.isUserXStatusVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);
+    	log.error("Profile.isUserXStatusVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
     	return false;
 	}
@@ -1199,7 +1256,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		ProfileImage profileImage = getCurrentProfileImageRecord(userId);
 		
 		if(profileImage == null) {
-			log.debug("Profile.getCurrentProfileImageForUser() null for userId: " + userId);
+			log.debug("Profile.getCurrentProfileImageForUser() null for userId: " + userId); //$NON-NLS-1$
 			return null;
 		}
 		
@@ -1248,10 +1305,10 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		//save
 		try {
 			getHibernateTemplate().save(profilePreferences);
-			log.info("Created default preferences record for user: " + userId);
+			log.info("Created default preferences record for user: " + userId); //$NON-NLS-1$
 			return profilePreferences;
 		} catch (Exception e) {
-			log.error("Profile.createDefaultPreferencesRecord() failed. " + e.getClass() + ": " + e.getMessage());
+			log.error("Profile.createDefaultPreferencesRecord() failed. " + e.getClass() + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 			return null;
 		}
 	}
@@ -1262,7 +1319,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	public ProfilePreferences getPreferencesRecordForUser(final String userId) {
 		
 		if(userId == null){
-	  		throw new IllegalArgumentException("Null Argument in Profile.getPreferencesRecordForUser");
+	  		throw new IllegalArgumentException("Null Argument in Profile.getPreferencesRecordForUser"); //$NON-NLS-1$
 	  	}
 		
 		ProfilePreferences prefs = null;
@@ -1299,10 +1356,10 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		
 		try {
 			getHibernateTemplate().update(prefs);
-			log.info("Updated preferences record for user: " + prefs.getUserUuid());
+			log.info("Updated preferences record for user: " + prefs.getUserUuid()); //$NON-NLS-1$
 			return true;
 		} catch (Exception e) {
-			log.error("Profile.savePreferencesRecord() failed. " + e.getClass() + ": " + e.getMessage());
+			log.error("Profile.savePreferencesRecord() failed. " + e.getClass() + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 			return false;
 		}
 	}
@@ -1348,7 +1405,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 				this.password=password;
 				this.message=message;
 				
-				runner = new Thread(this,"Profile2 TwitterUpdater thread");
+				runner = new Thread(this,"Profile2 TwitterUpdater thread"); //$NON-NLS-1$
 				runner.start();
 			}
 			
@@ -1361,10 +1418,10 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 				try {
 					twitter.setSource(sakaiProxy.getTwitterSource());
 					twitter.update(message);
-					log.info("Twitter status updated for: " + userId);
+					log.info("Twitter status updated for: " + userId); //$NON-NLS-1$
 				}
 				catch (Exception e) {
-					log.error("Profile.sendMessageToTwitter() failed. " + e.getClass() + ": " + e.getMessage());
+					log.error("Profile.sendMessageToTwitter() failed. " + e.getClass() + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
 		}
@@ -1435,7 +1492,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	//add more cases here as need progresses
     	
     	//no notification for this message type, return false 	
-    	log.debug("Profile.isEmailEnabledForThisMessageType. False for userId: " + userId + ", messageType: " + messageType);
+    	log.debug("Profile.isEmailEnabledForThisMessageType. False for userId: " + userId + ", messageType: " + messageType); //$NON-NLS-1$ //$NON-NLS-2$
 
     	return false;
 		
@@ -1448,7 +1505,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	public ProfileImageExternal getExternalImageRecordForUser(final String userId) {
 		
 		if(userId == null){
-	  		throw new IllegalArgumentException("Null Argument in Profile.getExternalImageRecordForUser");
+	  		throw new IllegalArgumentException("Null Argument in Profile.getExternalImageRecordForUser"); //$NON-NLS-1$
 	  	}
 		
 		HibernateCallback hcb = new HibernateCallback() {
@@ -1502,7 +1559,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	}
     	
     	//no notification for this message type, return false 	
-    	log.error("Profile.getExternalImageUrl. No URL for userId: " + userId + ", imageType: " + imageType + ", fallback: " + fallback);
+    	log.error("Profile.getExternalImageUrl. No URL for userId: " + userId + ", imageType: " + imageType + ", fallback: " + fallback); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
     	return null;
 		
@@ -1519,10 +1576,10 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		
 		try {
 			getHibernateTemplate().saveOrUpdate(ext);
-			log.info("Updated external image record for user: " + ext.getUserUuid());
+			log.info("Updated external image record for user: " + ext.getUserUuid()); //$NON-NLS-1$
 			return true;
 		} catch (Exception e) {
-			log.error("Profile.setExternalImage() failed. " + e.getClass() + ": " + e.getMessage());
+			log.error("Profile.setExternalImage() failed. " + e.getClass() + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 			return false;
 		}
 	}
@@ -1675,7 +1732,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	private ProfileFriend getFriendRecord(final String userId, final String friendId) {
 		
 		if(userId == null || friendId == null){
-	  		throw new IllegalArgumentException("Null Argument in Profile.getFriendRecord");
+	  		throw new IllegalArgumentException("Null Argument in Profile.getFriendRecord"); //$NON-NLS-1$
 	  	}
 		
 		ProfileFriend profileFriend = null;
@@ -1784,7 +1841,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	//init method called when Tomcat starts up
 	public void init() {
 		
-		log.info("Profile2: init()");
+		log.info("Profile2: init()"); //$NON-NLS-1$
 		
 		//do we need to run the conversion utility?
 		if(sakaiProxy.isProfileConversionEnabled()) {
@@ -1796,15 +1853,15 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	//method to convert profileImages
 	private void convertProfile() {
-		log.info("Profile2: ===============================");
-		log.info("Profile2: Conversion utility starting up.");
-		log.info("Profile2: ===============================");
+		log.info("Profile2: ==============================="); //$NON-NLS-1$
+		log.info("Profile2: Conversion utility starting up."); //$NON-NLS-1$
+		log.info("Profile2: ==============================="); //$NON-NLS-1$
 
 		//get list of users
 		List<String> allUsers = new ArrayList<String>(listAllSakaiPersons());
 		
 		if(allUsers.isEmpty()){
-			log.info("Profile2 conversion util: No SakaiPersons to process.");
+			log.info("Profile2 conversion util: No SakaiPersons to process."); //$NON-NLS-1$
 			return;
 		}
 		//for each, do they have a profile image record. if so, skip (perhaps null the SakaiPerson JPEG_PHOTO bytes?)
@@ -1813,7 +1870,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			
 			//if already have a current ProfileImage record, skip to next user
 			if(hasProfileImage(userUuid)) {
-				log.info("Profile2 conversion util: valid ProfileImage record already exists for " + userUuid + ". Skipping...");
+				log.info("Profile2 conversion util: valid ProfileImage record already exists for " + userUuid + ". Skipping..."); //$NON-NLS-1$ //$NON-NLS-2$
 				continue;
 			}
 
@@ -1821,7 +1878,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
 			
 			if(sakaiPerson == null) {
-				log.error("Profile2 conversion util: No valid SakaiPerson record for " + userUuid + ". Skipping...");
+				log.error("Profile2 conversion util: No valid SakaiPerson record for " + userUuid + ". Skipping..."); //$NON-NLS-1$ //$NON-NLS-2$
 				continue;
 			}
 			
@@ -1831,24 +1888,24 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			
 			//if none, nothing to do
 			if(image == null) {
-				log.info("Profile2 conversion util: Nothing to convert for " + userUuid + ". Skipping...");
+				log.info("Profile2 conversion util: Nothing to convert for " + userUuid + ". Skipping..."); //$NON-NLS-1$ //$NON-NLS-2$
 				continue;
 			}
 			
 			//set some defaults for the image we are adding to ContentHosting
-			String fileName = "Profile Image";
-			String mimeType = "image/jpeg";
+			String fileName = "Profile Image"; //$NON-NLS-1$
+			String mimeType = "image/jpeg"; //$NON-NLS-1$
 			
 			//scale the main image
 			byte[] imageMain = scaleImage(image, ProfileImageManager.MAX_IMAGE_XY);
 			
 			//create resource ID
 			String mainResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileImageManager.PROFILE_IMAGE_MAIN);
-			log.info("Profile2 conversion util: mainResourceId: " + mainResourceId);
+			log.info("Profile2 conversion util: mainResourceId: " + mainResourceId); //$NON-NLS-1$
 			
 			//save, if error, log and return.
 			if(!sakaiProxy.saveFile(mainResourceId, userUuid, fileName, mimeType, imageMain)) {
-				log.error("Profile2 conversion util: Saving main profile image failed.");
+				log.error("Profile2 conversion util: Saving main profile image failed."); //$NON-NLS-1$
 				continue;
 			}
 
@@ -1861,11 +1918,11 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			//create resource ID
 			String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
 
-			log.info("Profile2 conversion util: thumbnailResourceId:" + thumbnailResourceId);
+			log.info("Profile2 conversion util: thumbnailResourceId:" + thumbnailResourceId); //$NON-NLS-1$
 			
 			//save, if error, log and return.
 			if(!sakaiProxy.saveFile(thumbnailResourceId, userUuid, fileName, mimeType, imageThumbnail)) {
-				log.error("Profile2 conversion util: Saving thumbnail profile image failed.");
+				log.error("Profile2 conversion util: Saving thumbnail profile image failed."); //$NON-NLS-1$
 				continue;
 			}
 
@@ -1873,9 +1930,9 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			 * SAVE IMAGE RESOURCE IDS
 			 */
 			if(addNewProfileImage(userUuid, mainResourceId, thumbnailResourceId)) {
-				log.info("Profile2 conversion util: images converted and saved for " + userUuid);
+				log.info("Profile2 conversion util: images converted and saved for " + userUuid); //$NON-NLS-1$
 			} else {
-				log.error("Profile2 conversion util: image conversion failed for " + userUuid);
+				log.error("Profile2 conversion util: image conversion failed for " + userUuid); //$NON-NLS-1$
 				continue;
 			}
 			
