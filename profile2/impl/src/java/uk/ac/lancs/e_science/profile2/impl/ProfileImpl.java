@@ -645,8 +645,6 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			//less than a week, calculate days
 			int numDays = diff/MILLIS_IN_DAY;
 			
-			System.out.println("day diff = " + numDays);
-			
 			//now calculate which day it was
 			if(numDays == 1) {
 				message = Messages.getString("ProfileImpl.yesterday"); //$NON-NLS-1$
@@ -655,9 +653,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 				Calendar postingCal = Calendar.getInstance();
 				postingCal.setTimeInMillis(postingTimeMillis);
 				
-				//System.out.println("postingCal: " + postingCal.toString());
 				int postingDay = postingCal.get(Calendar.DAY_OF_WEEK);
-				//System.out.println("day of week of post = " + postingDay);
 
 				//on Wednesday for example
 				message = Messages.getString("ProfileImpl.on") + toProperCase(getDayName(postingDay,locale)); //$NON-NLS-1$
