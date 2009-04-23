@@ -39,13 +39,13 @@ public interface SakaiProxy {
 	public String getUserIdForEid(String eid);
 
 	/**
-	 * Get displayname of a given userid
+	 * Get displayname of a given userid (internal id)
 	 * @return
 	 */
 	public String getUserDisplayName(String userId);
 	
 	/**
-	 * Get email address for a given userid
+	 * Get email address for a given userid (internal id)
 	 * @return
 	 */
 	public String getUserEmail(String userId);

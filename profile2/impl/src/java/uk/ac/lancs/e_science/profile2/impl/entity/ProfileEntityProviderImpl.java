@@ -45,8 +45,7 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 	public Object getEntity(EntityReference ref) {
 	
 		if (sessionManager.getCurrentSessionUserId() == null) {
-			//TESTING, do nothing 
-			//throw new SecurityException();
+			throw new SecurityException();
 		}
 		
 		if (ref.getId() == null) {
@@ -55,7 +54,7 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 		
 		//no security yet. add another param on here for the person requesting the profile which will be used to check what they can see
 		//ie sessionManager.getCurrentSessionUserId()
-		UserProfile entity = profileService.getUserProfile(ref.getId());
+		UserProfile entity = profileService.getUserProfile(ref.getId(), sessionManager.getCurrentSessionUserId());
 		return entity;
 	}
 

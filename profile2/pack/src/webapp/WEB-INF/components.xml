@@ -46,9 +46,7 @@
 	<!--  ProfileService bean for the outward facing API  -->
 	<bean id="uk.ac.lancs.e_science.profile2.api.ProfileService" class="uk.ac.lancs.e_science.profile2.impl.ProfileServiceImpl">
 		<property name="sakaiProxy" ref="uk.ac.lancs.e_science.profile2.api.SakaiProxy" />
-		<!-- 
 		<property name="profile" ref="uk.ac.lancs.e_science.profile2.api.Profile" />
-		-->
 	</bean>
     
     
