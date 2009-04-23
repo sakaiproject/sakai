@@ -1,0 +1,110 @@
+/**
+ ** Query and return list of public portfolio as a formatted xml document
+ **/
+        
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Date;
+import java.text.DateFormat;
+
+import org.theospi.portfolio.presentation.model.Presentation;
+import org.theospi.portfolio.presentation.PresentationManager;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+
+import org.apache.axis.AxisFault;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.sakaiproject.util.Xml;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
+public class Portfolio
+{
+   private static final Log logger = LogFactory.getLog(Portfolio.class);
+   private PresentationManager presentationManager = (org.theospi.portfolio.presentation.PresentationManager)ComponentManager.get("presentationManager");
+   private DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
+   private String serverUrl = ServerConfigurationService.getServerUrl();
+
+   public String getAllPublicPortfolios()
+		throws AxisFault
+   {
+      Collection presResults = presentationManager.findPublicPresentations(null);
+      return formatResults( presResults );
+   }
+   
+   public String getSitePublicPortfolios( String siteId )
+		throws AxisFault
+   {
+      Collection presResults = presentationManager.findPublicPresentations(siteId);
+      return formatResults( presResults );
+   }
+   
+   private String formatResults( Collection presResults )
+   {
+      Document doc = Xml.createDocument();
+      Node results = doc.createElement("results");
+      doc.appendChild(results);
+
+      if ( presResults == null )
+         return Xml.writeDocumentToString(doc);
+      
+      for ( Iterator it=presResults.iterator(); it.hasNext(); )
+      {
+         Presentation pres = (Presentation)it.next();
+         
+         // make sure portfolio hasn't expired
+         if ( pres.isExpired() )
+            continue;
+         
+         Node item = doc.createElement("presentation");
+         results.appendChild(item);
+      
+         Node itemChild = doc.createElement("id");
+         itemChild.appendChild (doc.createTextNode(pres.getId().getValue()));
+         item.appendChild(itemChild);
+      
+         itemChild = doc.createElement("name");
+         itemChild.appendChild (doc.createTextNode(pres.getName()));
+         item.appendChild(itemChild);
+      
+         itemChild = doc.createElement("description");
+         itemChild.appendChild (doc.createTextNode(pres.getDescription()));
+         item.appendChild(itemChild);
+      
+         String url =  serverUrl + "/osp-presentation-tool/viewPresentation.osp?id=" + pres.getId().getValue();
+         itemChild = doc.createElement("url");
+         itemChild.appendChild (doc.createTextNode(url));
+         item.appendChild(itemChild);
+      
+         itemChild = doc.createElement("owner");
+         itemChild.appendChild (doc.createTextNode(pres.getOwner().getDisplayName()));
+         item.appendChild(itemChild);
+      
+         Date dateCreated = pres.getCreated();
+         itemChild = doc.createElement("dateCreated");
+         itemChild.appendChild (doc.createTextNode(dateFormat.format(dateCreated)));
+         item.appendChild(itemChild);
+      
+         Date dateModified = pres.getModified();
+         itemChild = doc.createElement("dateModified");
+         itemChild.appendChild (doc.createTextNode(dateFormat.format(dateModified)));
+         item.appendChild(itemChild);
+      
+         itemChild = doc.createElement("siteId");
+         itemChild.appendChild (doc.createTextNode(pres.getSiteId()));
+         item.appendChild(itemChild);
+      
+         itemChild = doc.createElement("siteName");
+         itemChild.appendChild (doc.createTextNode(pres.getWorksiteName()));
+         item.appendChild(itemChild);
+      }
+      
+      return Xml.writeDocumentToString(doc);
+   }
+} 
