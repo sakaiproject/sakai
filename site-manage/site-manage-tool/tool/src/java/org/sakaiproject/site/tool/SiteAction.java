@@ -21,9 +21,6 @@
 package org.sakaiproject.site.tool;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -133,7 +130,6 @@ import org.sakaiproject.site.util.SiteTextEditUtil;
 import org.sakaiproject.site.util.ToolComparator;
 import org.sakaiproject.sitemanage.api.SectionField;
 import org.sakaiproject.sitemanage.api.SiteHelper;
-import org.sakaiproject.sitemanage.api.SiteParticipantProvider;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.cover.TimeService;
@@ -157,24 +153,8 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
-import org.sakaiproject.util.RequestFilter;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.util.Web;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-//get pdf
-import org.apache.fop.apps.Driver;
-import org.apache.fop.apps.FOPException;
-import org.apache.fop.apps.Options;
-import org.apache.fop.configuration.Configuration;
-import org.apache.fop.messaging.MessageHandler;
-
-
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.*;
-import javax.xml.transform.stream.StreamResult;
 /**
  * <p>
  * SiteAction controls the interface for worksite setup.
@@ -1735,6 +1715,9 @@ public class SiteAction extends PagedResourceActionII {
 			 * buildContextForTemplate chef_site-siteInfo-list.vm
 			 * 
 			 */
+			// put the link for downloading participant
+			putPrintParticipantLinkIntoContext(context, data, site);
+			
 			context.put("userDirectoryService", UserDirectoryService
 					.getInstance());
 			try {
@@ -2045,10 +2028,6 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("groupsWithMember", site
 					.getGroupsWithMember(UserDirectoryService.getCurrentUser()
 							.getId()));
-			
-			// get the access url for downloading the participants
-			String accessPointUrl = ServerConfigurationService.getAccessUrl().concat(SiteParticipantProvider.REFERENCE_ROOT).concat("/").concat(site.getId());
-			context.put("accessPointUrl", accessPointUrl);
 			return (String) getContext(data).get("template") + TEMPLATE[12];
 
 		case 13:
@@ -6357,7 +6336,6 @@ public class SiteAction extends PagedResourceActionII {
 			int siteTitleMaxLength = ServerConfigurationService.getInt("site.title.maxlength", 20);
 			state.setAttribute(STATE_SITE_TITLE_MAX, siteTitleMaxLength);
 		}
-		
 	} // init
 
 	public void doNavigate_to_site(RunData data) {
@@ -11371,4 +11349,9 @@ public class SiteAction extends PagedResourceActionII {
 		return true;
 	}
 	
+	private void putPrintParticipantLinkIntoContext(Context context, RunData data, Site site) {
+		// the status servlet reqest url
+		String url = Web.serverUrl(data.getRequest()) + "/sakai-site-manage-tool/tool/printparticipant/" + site.getId();
+		context.put("printParticipantUrl", url);
+	}
  }

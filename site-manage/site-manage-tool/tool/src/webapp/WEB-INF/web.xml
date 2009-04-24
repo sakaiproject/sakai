@@ -50,6 +50,14 @@
         <dispatcher>FORWARD</dispatcher>
         <dispatcher>INCLUDE</dispatcher>
     </filter-mapping>
+    
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.sitecopystatus</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
 
 	<!-- the vm handling servlet : used direct by name, not by URL path -->
 	<servlet>
@@ -135,6 +143,21 @@
         </init-param>
         <load-on-startup>1</load-on-startup>
      </servlet>
+     
+     <servlet>
+        <servlet-name>
+           sakai.sitecopystatus
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.site.tool.SiteInfoToolServlet
+        </servlet-class>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+    
+    <servlet-mapping>
+    	<servlet-name>sakai.sitecopystatus</servlet-name>
+    	<url-pattern>/tool/*</url-pattern>
+  	</servlet-mapping>
 
     <listener>
         <listener-class>org.sakaiproject.util.ToolListener</listener-class>

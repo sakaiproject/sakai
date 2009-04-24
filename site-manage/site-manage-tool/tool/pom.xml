@@ -151,8 +151,8 @@
        <version>${sakai.version}</version>
        <scope>test</scope>
    </dependency>
-   <!--javax.servletservlet-api${sakai.servletapi.version}-->
-	<!-- fop: fop, avalon-framework, batik -->
+   
+   <!-- fop: fop, avalon-framework, batik -->
     <dependency>
       <groupId>fop</groupId>
       <artifactId>fop</artifactId>
@@ -168,6 +168,7 @@
       <artifactId>batik</artifactId>
       <version>1.5-fop-0.20-5</version>
     </dependency>
+    
   </dependencies>
   <build>
     <resources>
@@ -177,6 +178,14 @@
           <include>**/*.properties</include>
         </includes>
       </resource>
+      <resource>
+    	<directory>${basedir}/src/config</directory>
+        <includes>
+        	<include>**/*.xsl</include>
+        	<include>**/*.xml</include>
+        	<include>**/*.ttf</include>
+    	</includes>
+      </resource> 
     </resources>
 <!-- java source -->
   </build>

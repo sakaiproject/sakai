@@ -21,10 +21,6 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-util</artifactId>
     </dependency>
@@ -100,22 +96,6 @@
 		<artifactId>xercesImpl</artifactId>
 		<version>2.6.2</version>
 	</dependency>
-	<!-- fop: fop, avalon-framework, batik -->
-    <dependency>
-      <groupId>fop</groupId>
-      <artifactId>fop</artifactId>
-      <version>0.20.5</version>
-    </dependency>
-    <dependency>
-      <groupId>avalon-framework</groupId>
-      <artifactId>avalon-framework</artifactId>
-      <version>20020627</version>
-    </dependency>
-    <dependency>
-      <groupId>batik</groupId>
-      <artifactId>batik</artifactId>
-      <version>1.5-fop-0.20-5</version>
-    </dependency>
   </dependencies>
   <build>
     <resources>
@@ -124,14 +104,6 @@
         <includes>
           <include>**/*.properties</include>
 	  <include>**/*.xml</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>${basedir}/src/config</directory>
-        <includes>
-          <include>**/*.xsl</include>
-          <include>**/*.xml</include>
-          <include>**/*.ttf</include>
         </includes>
       </resource>
     </resources>
