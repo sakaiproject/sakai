@@ -141,6 +141,7 @@ public class ChatMessage implements Entity {
     *        The DOM elements, the top of which is the containing element of the new "resource" element.
     * @return The newly added element.
     */
+   @SuppressWarnings("unchecked")
    public Element toXml(Document doc, Stack stack)
    {
       //I don't think this will get called since chat messages don't appear to be archived. - chmaurer

@@ -30,6 +30,7 @@ import java.util.Observer;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.presence.cover.PresenceService;
+import org.sakaiproject.user.api.User;
 
 /**
  * <p>
@@ -91,7 +92,7 @@ public class PresenceObserverHelper implements Observer
       PresenceService.removePresence(location);
    }
    
-   public List getPresentUsers()
+   public List<User> getPresentUsers()
    {
       return PresenceService.getPresentUsers(location);
    }

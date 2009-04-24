@@ -499,10 +499,12 @@ protected List<ChatMessage> getChannelMessages(ChatChannel channel, Date date, i
          checkPermission(ChatFunctions.CHAT_FUNCTION_DELETE_ANY, channel.getContext());
       
       channel = getChatChannel(channel.getId());
-      channel.getMessages().size();
-      channel.getMessages().clear();
-      updateChannel(channel, false);
       
+      if (channel != null) {
+	      channel.getMessages().size();
+	      channel.getMessages().clear();
+	      updateChannel(channel, false);
+	  }
       sendDeleteChannelMessages(channel);
    }
 

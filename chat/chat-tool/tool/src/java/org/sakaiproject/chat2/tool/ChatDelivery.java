@@ -23,14 +23,10 @@ package org.sakaiproject.chat2.tool;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.sakaiproject.chat2.model.ChatMessage;
 import org.sakaiproject.chat2.model.ChatManager;
-import org.sakaiproject.chat2.tool.ChatTool;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
-import org.sakaiproject.event.api.UsageSession;
-import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.chat2.model.ChatChannel;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.user.api.ContextualUserDisplayService;
@@ -124,18 +120,7 @@ public class ChatDelivery extends BaseDelivery
 		ChatChannel channel = message.getChatChannel();
 
 		// We may not have a usage session
-		UsageSession session = UsageSessionService.getSession();
-		String browserId = UsageSession.UNKNOWN;
-		if ( session != null ) 
-		{
-			browserId = session.getBrowserId();
-		}
-
 		String retval = null;
-
-		// if we don't know we can do the DOM based refresh, or we are missing channel or msg (could have been a message delete)
-		// trigger a panel refresh
-//		boolean browserSupportsDomRefresh = !browserId.equals(UsageSession.UNKNOWN);
 		
 		if (channel == null)
 		{
@@ -156,11 +141,10 @@ public class ChatDelivery extends BaseDelivery
 			String displayName = getUserDisplayName(sender, channel.getContext());
 			retvalBuf.append( Web.escapeJsQuoted(Web.escapeHtml(displayName)) );
 			 
-			//	retvalBuf.append( StringEscapeUtils.escapeJavaScript(contextualUserDisplayService.getUserDisplayId(sender, channel.getContext())) );
 			retvalBuf.append( "', '" );
 			retvalBuf.append( sender.getId() );
 			retvalBuf.append( "', '" );
-			retvalBuf.append( String.valueOf(chatManager.getCanDelete(message)).toString() );
+			retvalBuf.append( String.valueOf(chatManager.getCanDelete(message)) );
 			retvalBuf.append( "', '" );
 			retvalBuf.append( messageTime.toStringLocalDate() );
 			retvalBuf.append( "', '" );

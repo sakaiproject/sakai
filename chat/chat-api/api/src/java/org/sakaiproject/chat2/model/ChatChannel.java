@@ -54,7 +54,7 @@ public class ChatChannel implements Entity {
    private int numberParam = 10;
    private boolean placementDefaultChannel = false;
    private boolean enableUserOverride = true;
-   private Set messages = new HashSet();
+   private Set<ChatMessage> messages = new HashSet<ChatMessage>();
    private String migratedChannelId;
    
    
@@ -103,10 +103,10 @@ public class ChatChannel implements Entity {
    public void setDescription(String description) {
       this.description = description;
    }
-   public Set getMessages() {
+   public Set<ChatMessage> getMessages() {
       return messages;
    }
-   public void setMessages(Set messages) {
+   public void setMessages(Set<ChatMessage> messages) {
       this.messages = messages;
    }
    public String getFilterType() {
@@ -133,9 +133,6 @@ public class ChatChannel implements Entity {
    public void setEnableUserOverride(boolean enableUserOverride) {
       this.enableUserOverride = enableUserOverride;
    }
-   public void setEnabledUserOverride(String enableUserOverride) {
-      new Boolean(enableUserOverride).booleanValue();
-   }
 
    /**
     * Serialize the resource into XML, adding an element to the doc under the top of the stack element.
@@ -146,6 +143,7 @@ public class ChatChannel implements Entity {
     *        The DOM elements, the top of which is the containing element of the new "resource" element.
     * @return The newly added element.
     */
+   @SuppressWarnings("unchecked")
    public Element toXml(Document doc, Stack stack)
    {
       Element channel = doc.createElement("channel");
