@@ -111,6 +111,7 @@ public class Response extends SearchResultBase
 		resultElement = responseDocument.getDocumentElement();
 		recordList = DomUtils.getElementList(resultElement, "RECORD");
 
+/*********************
     if (recordList.getLength() == 0)
     {
       String errorText = "Unexpected server response (no search result records provided)";
@@ -120,7 +121,7 @@ public class Response extends SearchResultBase
 			StatusUtils.setGlobalError(sessionContext, errorText);
 			throw new SearchException(errorText);
     }
-
+**********************/
 		for (int i = 0; i < recordList.getLength(); i++)
 		{
 			MatchItem item;
@@ -297,7 +298,6 @@ public class Response extends SearchResultBase
 			 */
 
 			addItem(item);
-
 		}
 	}
 

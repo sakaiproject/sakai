@@ -56,7 +56,6 @@ public class AssetIterator extends edu.indiana.lib.osid.base.repository.AssetIte
 	private int 		populated;
 	private int			startRecord;
 	private int			pageSize;
-	private int			maximumRecords;
 
 	/**
 	 * Unused constructor
@@ -110,19 +109,9 @@ public class AssetIterator extends edu.indiana.lib.osid.base.repository.AssetIte
 	{
 		try
 		{
-			Integer	max = getIntegerProperty(searchProperties, "maxRecords");
-    	int 		m1 	= sessionContext.getInt("maxRecords");
-    	int 		m2;
-
-			/*
-			 * Determine maximum number of search result records to request
-			 */
-    	m2 = (max == null) ? m1 : max.intValue();
-
-    	this.maximumRecords = Math.min(m1, m2);
-    	this.assetVector 		= new Vector(maximumRecords);
-    	this.index					= 0;
-    	this.populated			= 0;
+    	this.assetVector  = new Vector();
+    	this.index				= 0;
+    	this.populated		= 0;
 			/*
 			 * Save starting record number, page size, properties pointer
 			 */
@@ -131,14 +120,13 @@ public class AssetIterator extends edu.indiana.lib.osid.base.repository.AssetIte
 
     	this.searchProperties	= searchProperties;
 
-    	_log.debug("AssetIterator max = " + maximumRecords + ", page = " + pageSize + ", start = " + startRecord);
+    	_log.debug("AssetIterator max = " + getMaximumRecords() + ", page = " + pageSize + ", start = " + startRecord);
     }
     catch (Throwable throwable)
     {
     	_log.error("initialize() " + throwable);
     	throw new org.osid.repository.RepositoryException(org.osid.shared.SharedException.OPERATION_FAILED);
   	}
-
 	}
 
 	/**
@@ -150,9 +138,24 @@ public class AssetIterator extends edu.indiana.lib.osid.base.repository.AssetIte
   {
 		try
 		{
-			boolean moreRecords = (index < maximumRecords);
+		  boolean moreRecords;
 
+    _log.debug("hasNextAsset: index=" + index
+            +  ", maximum records=" + getMaximumRecords()
+            +  ", async init=" + StatusUtils.doingAsyncInit(sessionContext));
+      /*
+       * During asynchronous initialization, we assume there are more assets
+       */
+      if (StatusUtils.doingAsyncInit(sessionContext))
+      {
+        return true;
+      }
+      /*
+       * Normal use, are there any more assets?
+       */
+			moreRecords = (index < getMaximumRecords());
     	_log.debug("AssetIterator.hasNext() = " + moreRecords);
+
     	if (!moreRecords)
     	{
     		StatusUtils.setAllComplete(sessionContext);
@@ -178,26 +181,34 @@ public class AssetIterator extends edu.indiana.lib.osid.base.repository.AssetIte
 		/*
 		 * End-of-file?
 		 */
-    if (index >= maximumRecords)
+    if (!StatusUtils.doingAsyncInit(sessionContext))
     {
-    	StatusUtils.setAllComplete(sessionContext);
-    	throw new org.osid.repository.RepositoryException(org.osid.shared.SharedException.NO_MORE_ITERATOR_ELEMENTS);
+      if (index >= getMaximumRecords())
+      {
+      	StatusUtils.setAllComplete(sessionContext);
+      	throw new org.osid.repository.RepositoryException(org.osid.shared.SharedException.NO_MORE_ITERATOR_ELEMENTS);
+      }
     }
 		/*
 		 * Additional assets should be available from the server
 		 */
+    _log.debug("nextAsset: index=" + index
+            +  ", populated=" + populated
+            +  ", async init=" + StatusUtils.doingAsyncInit(sessionContext));
+
     if ((index >= populated) || (populated == 0))
     {
-    	/*
-    	 * The cache is depleted, request more assets
-    	 */
-    	if (sessionContext.getInt("active") == 0)
-    	{
-				/*
-				 * End-of-file?  Every search has been marked "complete" (unxepected).
-				 */
-        throw new org.osid.repository.RepositoryException(org.osid.shared.SharedException.NO_MORE_ITERATOR_ELEMENTS);
-			}
+      if (!StatusUtils.doingAsyncInit(sessionContext))
+      {	/*
+      	 * The cache is depleted - we need to fetch more assets
+      	 */
+      	if (sessionContext.getInt("active") == 0)
+      	{	/*
+  				 * Every search has been marked "complete" (unexepected).
+  				 */
+          throw new org.osid.repository.RepositoryException(org.osid.shared.SharedException.NO_MORE_ITERATOR_ELEMENTS);
+  			}
+      }
 			/*
 			 * Populate the Asset queue with new results
 			 */
@@ -211,7 +222,16 @@ public class AssetIterator extends edu.indiana.lib.osid.base.repository.AssetIte
 	    	throw new MetasearchException(MetasearchException.SESSION_TIMED_OUT);
 			}
 			catch (SearchException searchException)
-			{
+			{ /*
+			   * No assets ready?
+			   */
+			  if (searchException.getMessage().equals(SearchException.ASSET_NOT_READY))
+			  {
+			    throw new MetasearchException(MetasearchException.ASSET_NOT_FETCHED);
+			  }
+			  /*
+			   * Unexpected error
+			   */
 	    	_log.error("nextAsset() search exception: " + searchException);
 	    	throw new MetasearchException(MetasearchException.METASEARCH_ERROR);
 			}
@@ -225,13 +245,18 @@ public class AssetIterator extends edu.indiana.lib.osid.base.repository.AssetIte
 		 * Finally, return the next Asset from the queue
 		 */
     asset = getAsset();
-  	_log.debug("AssetIterator.nextAsset() returns asset = " + asset + ", index = " + index + ", vector size = " + assetVectorSize());
+  	_log.debug("AssetIterator.nextAsset() returns asset at index " + index + ", vector size = " + assetVectorSize());
     return asset;
   }
 
 	/*
 	 * Helpers
 	 */
+
+  private int getMaximumRecords()
+  {
+    return sessionContext.getInt("maxRecords");
+  }
 
 	/**
 	 * Fetch an Integer property value
@@ -369,7 +394,7 @@ public class AssetIterator extends edu.indiana.lib.osid.base.repository.AssetIte
 //					+  	 ", vector size = "  + assetVectorSize()
 //					+    ", populated = "    + populated);
 
-			if (populated >= maximumRecords)
+			if (populated >= getMaximumRecords())
 			{
 				break;
 			}

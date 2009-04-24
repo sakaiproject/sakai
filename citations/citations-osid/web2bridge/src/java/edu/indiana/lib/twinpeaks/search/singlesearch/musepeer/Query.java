@@ -149,12 +149,14 @@ public class Query extends HttpTransactionQueryBase
 		action = getRequestParameter("action");
 		if (action.equalsIgnoreCase("startSearch"))
 		{
-  		int sleepCount, sleepLimit;
-  		boolean done;
 		  /*
-		   * Initialize a new search context block
+		   * Initialize a new search context block.  Augment the standard
+		   * (synchronous) initialization with the necessary asynchronous
+		   * setup (an asynchronous search with initialization in progress).
 		   */
 			StatusUtils.initialize(getSessionContext(), getRequestParameter("targets"));
+			StatusUtils.setAsyncSearch(getSessionContext());
+			StatusUtils.setAsyncInit(getSessionContext());
 			/*
 			 * LOGOFF any previous session
 			 */
@@ -185,49 +187,40 @@ public class Query extends HttpTransactionQueryBase
 
 			displayXml("Search", getResponseDocument());
 			validateResponse("SEARCH");
-			/*
-			 * Pick up the current status
-			 */
-			clearParameters();
 
-			doProgressCommand();
-			submit();
-      /*
-       * Wait for a complete set of responses.  If not found, wait:
-       *
-       *     8 seconds (one source)
-       *    20 seconds (at most)
-       *
-       * The times are set via the math.min() and Thread.sleep() calls below.
-       */
-		  sleepCount = 0;
-		  sleepLimit = 5 + Math.min((getTargetCount() * 3), 20);
-
-		  done = setStatus(getResponseDocument());
-      while (!done && (sleepCount++ < sleepLimit))
-			{
-			  displayXml("Progress", getResponseDocument());
-				try
-				{
-					Thread.sleep(1000);
-					_log.debug("Sleeping (" + sleepCount + " of " + sleepLimit + ")");
-				}
-				catch (InterruptedException ignore) { }
-
-  			clearParameters();
-				doProgressCommand();
-				submit();
-
-  		  done = setStatus(getResponseDocument());
-			}
-
-		  displayXml("Status done", getResponseDocument());
-
-			validateResponse("PROGRESS");
 			return;
 		}
+    /*
+     * Still doing asynchronous initialization?  If so, pick up the search
+     * status.  Throw "no assets ready" (to try again) if the estimates aren't
+     * available yet...
+     */
+    if (StatusUtils.doingAsyncInit(getSessionContext()))
+    {
+    	clearParameters();
+
+  		doProgressCommand();
+  	  submit();
+  		displayXml("Progress command done", getResponseDocument());
+
+  		validateResponse("PROGRESS");
+		  if (!setSearchStatus(getResponseDocument()))
+			{
+			  throw new SearchException(SearchException.ASSET_NOT_READY);
+			}
+      /*
+       * Asynchronous initialization is finished now.  If we found no hits,
+       * loop one more time to let hasNextAsset() reflect that fact...
+       */
+ 	    StatusUtils.clearAsyncInit(getSessionContext());
+
+			if (StatusUtils.getActiveTargetCount(getSessionContext()) == 0)
+			{
+			  throw new SearchException(SearchException.ASSET_NOT_READY);
+			}
+		}
 		/*
-		 * Request additional results
+		 * Fetch additional results
 		 */
 		doResultsCommand();
 		displayXml("Results", getResponseDocument());
@@ -506,10 +499,10 @@ public class Query extends HttpTransactionQueryBase
   }
 
 	/**
-	 * Initial response validation and cleanup activities.
+	 * Initial response validation and command cleanup/post-processing activities.
 	 * <ul>
-	 * <li>Verify the response format (ERROR?)
-	 * <li>If no error, perform any cleanup required for the action in question
+	 * <li>Verify the response format (an ERROR?)
+	 * <li>If no error, perform any cleanup required for the command in question
 	 * </ul>
 	 *<p>
 	 * @param action Server activity (SEARCH, LOGON, etc)
@@ -520,20 +513,24 @@ public class Query extends HttpTransactionQueryBase
 		Element 	element;
 		String		message, errorText;
 
-
 		_log.debug("VALIDATE: " + action);
 		/*
-		 * Success?
+		 * Verify this response corresponds to anticipated server activity
 		 */
 		document = getResponseDocument();
 		element = document.getDocumentElement();
 
 		if ((element!= null) && (element.getTagName().equals(action)))
 		{
+		  /*
+		  * Success - handle any post-processing required for this action
+		  */
 			if (action.equals("LOGON"))
 			{
   			String sessionId;
-
+        /*
+         * We just logged in.  Save the session ID.
+         */
 				element   = DomUtils.getElement(element, "SESSION_ID");
 	  		sessionId = DomUtils.getText(element);
 				setSessionId(sessionId);
@@ -546,14 +543,18 @@ public class Query extends HttpTransactionQueryBase
 			{
 			  Element searchElement;
 				String  id;
-
+        /*
+         * A search (or "more results") command.  Save the reference ID.
+         */
         searchElement = element;
 				element = DomUtils.getElement(element, "REFERENCE_ID");
 				id = DomUtils.getText(element);
 
 				setReferenceId(id);
 				_log.debug("Saved search reference ID \"" + getReferenceId() + "\"");
-
+        /*
+         * For the initial search, save the result set name as well.
+         */
 				if (action.equals("SEARCH"))
 				{
   				element = DomUtils.getElement(searchElement, "RESULT_SET_NAME");
@@ -571,7 +572,7 @@ public class Query extends HttpTransactionQueryBase
 			return;
 		}
 		/*
-		 * Error
+		 * An error - see if we can decipher it
 		 */
 		element = document.getDocumentElement();
 		if ((element != null) && (element.getTagName().equals("ERROR")))
@@ -618,15 +619,19 @@ public class Query extends HttpTransactionQueryBase
 	}
 
 	/**
-	 * Save the initial search status (estimated hits, etc.) as session context information
+	 * Save the current search status (estimated hits, etc.) as session
+	 * context information (status obtained by the PROGRESS command).
+	 *
 	 * @param document Server response
-	 * @rootElement Document root
+	 * @param rootElement Document root
+	 * @return true If all targets have responded
 	 */
-	private boolean setStatus(Document document) throws SearchException
+	private boolean setSearchStatus(Document document) throws SearchException
 	{
     Element   rootElement = document.getDocumentElement();
 		NodeList  nodeList 		= DomUtils.getElementList(rootElement, "ITEM");
 		String    status      = "0";
+
 		int       targetCount = nodeList.getLength();
 		int       active			= 0;
 		int       total 			= 0;
@@ -646,7 +651,7 @@ public class Query extends HttpTransactionQueryBase
 			int			  estimate, hits;
 
 			/*
-			 * Target (database)
+			 * Look for the target (database name)
 			 */
 			element = DomUtils.selectFirstElementByAttributeValue(recordElement,
 			                                                      "ENTRY",
@@ -657,13 +662,13 @@ public class Query extends HttpTransactionQueryBase
 			 * Get the current search status (we show this as "percent complete")
 			 */
 			element = DomUtils.selectFirstElementByAttributeValue(recordElement,
-			                                                       "ENTRY",
-			                                                       "key", "status");
+  		                                                      "ENTRY",
+			                                                      "key", "status");
 			if ((status	= DomUtils.getText(element)) == null)
 			{
 				status = "0";
 				/*
-				 * No status value - did the search ever start?
+				 * No status value; if the search will never start, mark it complete
 				 */
   			element = DomUtils.selectFirstElementByAttributeValue(recordElement,
 	  		                                                      "ENTRY",
@@ -676,24 +681,21 @@ public class Query extends HttpTransactionQueryBase
 			    }
 		    }
 			}
-			map.put("PERCENT_COMPLETE", status);
 			/*
-			 * Estimated match count
+			 * Find the estimated match count
 			 */
 			element = DomUtils.selectFirstElementByAttributeValue(recordElement,
 			                                                      "ENTRY",
 			                                                      "key", "estimate");
-
 			if ((text	= DomUtils.getText(element)) == null)
 			{
 				text = "0";
 			}
-			map.put("ESTIMATE", text);
-
 			estimate = Integer.parseInt(text);
       /*
-       * Any hits?
+       * Any hits? (unused for now)
        */
+/*******************************************************************************
 			element = DomUtils.selectFirstElementByAttributeValue(recordElement,
 			                                                      "ENTRY",
 			                                                      "key", "hits");
@@ -702,45 +704,33 @@ public class Query extends HttpTransactionQueryBase
 				text = "0";
 			}
 			hits = Integer.parseInt(text);
-			/*
-			 * Do final hit and estimate totals
-			 */
- 			map.put("STATUS", "DONE");
+*******************************************************************************/
       /*
-       * If we have hits, add this estimate to the grand total
+       * Add this estimate to the grand total.
+       *
+       * Do we need to check for?
+       *
+       *    (hits > 0)
+       *    (status.equals("100"))
        */
-      if (hits > 0)
-      {
-        totalHits += hits;
-   			total	    += estimate;
-      }
-			/*
-			 * This search target is active only if there are records available
-			 */
-			if ((estimate > 0) && (hits > 0))
-			{
-			  int pageSize = Integer.parseInt(getPageSize());
+			map.put("ESTIMATE", "0");
+ 			map.put("STATUS", "DONE");
+
+ 			if (estimate > 0)
+ 			{
+  			map.put("ESTIMATE", String.valueOf(estimate));
+   			total	+= estimate;
 
 				map.put("STATUS", "ACTIVE");
 				active++;
-        /*
-         * Try and exit the "check status" loop early: we consider this
-         * target complete if:
-         *
-         * -- It has hits
-         * -- We've already found enough result records (from all targets) to
-         *    fill our "page"
-         */
-        _log.debug("**** " + target + ": " + totalHits + " hit(s) vs page size " + pageSize);
-        if (totalHits >= pageSize)
-        {
-          status = "100";
-          _log.debug("**** Marking "  + target + " \"complete due to hit count\"");
-        }
-			}
+
+				status = "100";
+ 			}
       /*
        * Is this search complete?
        */
+			map.put("PERCENT_COMPLETE", status);
+
 			if ("100".equals(status))
       {
         complete++;
@@ -749,7 +739,9 @@ public class Query extends HttpTransactionQueryBase
   		_log.debug("****** Target: "
   		        +  target
   		        +  ", status = "
-  		        +  status);
+  		        +  status
+  		        +  ", all searches complete? "
+  		        +  (complete == targetCount));
     }
 		/*
 		 * Save in session context:
@@ -757,13 +749,16 @@ public class Query extends HttpTransactionQueryBase
 		 * -- The largest number of records we could possibly return
 		 * -- The count of "in progress" searches
 		 */
-		getSessionContext().put("maxRecords", String.valueOf(total));
 		getSessionContext().putInt("TOTAL_ESTIMATE", total);
+		getSessionContext().putInt("maxRecords", total);
 		getSessionContext().putInt("active", active);
 
-		return complete == targetCount;
+		return (complete == targetCount);
 	}
 
+  /*
+   * Getters & setters
+   */
 
   /**
    * Get the number of requested search targets (databases)
@@ -778,22 +773,9 @@ public class Query extends HttpTransactionQueryBase
    * Determine the page size (the number of results to request from the server)
    * @return The page size (as a String)
    */
-  public static final int MINIMUM_PAGESIZE = 20;
-  public static final int MAXIMUM_PAGESIZE = 50;
-
   private String getPageSize()
   {
     return "30";
-/*******************************************************************************
-    int targets   = StatusUtils.getActiveTargetCount(getSessionContext());
-    int pageSize  = targets * MINIMUM_PAGESIZE;
-
-    if ((pageSize = Math.min(pageSize, MAXIMUM_PAGESIZE)) == 0)
-    {
-      pageSize = MINIMUM_PAGESIZE;
-    }
-    return String.valueOf(pageSize);
-*******************************************************************************/
   }
 
 	/**
@@ -833,7 +815,7 @@ public class Query extends HttpTransactionQueryBase
 	}
 
 	/**
-	 * Construct the search result set name
+	 * Fetch the search result set name
 	 * @return the default result set for this search
 	 */
 	private String getResultSetName()
@@ -858,6 +840,10 @@ public class Query extends HttpTransactionQueryBase
 	{
 	  return (String) getSessionContext().get("SEARCH_QUERY");
 	}
+
+  /*
+   * Helpers
+   */
 
 	/**
 	 * Parse CQL search queries into a crude take on the Muse format.
@@ -926,107 +912,4 @@ public class Query extends HttpTransactionQueryBase
 	    LogUtils.displayXml(_log, text, xmlObject);
     }
   }
-
-  /*
-   * Not used
-   */
-	private boolean isStatusReadyToBeRead(Document document)
-	{
-		NodeList	nodeList;
-		Node node;
-
-		Element rootElement;
-		Element	recordElement;
-
-		String attributeResult;
-
-		boolean status = false;
-
-
-		/* Response will look like:
-
-		<PROGRESS>
-			<TOTAL_HITS>100</TOTAL_HITS>
-		  	<TOTAL_ESTIMATE>4449</TOTAL_ESTIMATE>
-			<STATUS>1</STATUS>
-			<ITEMS>
-				<ITEM>
-					<ENTRY key="searchURL">
-						http://server
-					</ENTRY>
-					<ENTRY key="messageID">STATUS_DONE</ENTRY>
-					<ENTRY key="moduleName">Academic Search Premier</ENTRY>
-					<ENTRY key="targetID">EBSCOASP</ENTRY>
-					<ENTRY key="hits">100</ENTRY>
-					<ENTRY key="instructionID">
-						EBSCOASP.jar:com.edulib.ice.modules.connectors.EBSCO@4
-					</ENTRY>
-					<ENTRY key="status">100</ENTRY>
-					<ENTRY key="timestamp">1226947004852</ENTRY>
-					<ENTRY key="estimate">4449</ENTRY>
-					<ENTRY key="message">Done</ENTRY>
-				</ITEM>
-			</ITEMS>
-		</PROGRESS>
-		*/
-
-		rootElement = document.getDocumentElement();
-
-		node = DomUtils.getElement(rootElement, "TOTAL_ESTIMATE");
-
-		if (node == null)
-		{
-			_log.info("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ total estimate = null");
-			return false;
-		}
-/*
-		int total_estimate = Integer.parseInt(node.getTextContent());
-
-		if (total_estimate > 0)
-		{
-			_log.info("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ total estimate > 0");
-			return true;
-		}
-*/
-
-		nodeList = DomUtils.getElementList(rootElement, "ENTRY");
-
-		if (nodeList == null)
-		{
-			_log.info("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ no items");
-			return false;
-		}
-
-		for (int i = 0; i < nodeList.getLength(); i++)
-		{
-			recordElement	= (Element) nodeList.item(i);
-
-			attributeResult = recordElement.getAttribute("key");
-
-			if (attributeResult != null)
-			{
-				attributeResult = attributeResult.trim();
-
-				if (attributeResult.equalsIgnoreCase("status"))
-				{
-					if (recordElement.getTextContent().trim().equals("100"))
-					{
-						_log.info("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ status = 100");
-						status = true;
-					}
-					else
-					{
-						_log.info("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ status != 100. status = " + recordElement.getTextContent());
-						_log.info("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{ key = " + attributeResult);
-
-						return false;
-					}
-				} // end if attributeResult.length > 0
-			} // end if attributeResult != null
-
-
-		} // end for i
-
-		return status;
-	}
 }
