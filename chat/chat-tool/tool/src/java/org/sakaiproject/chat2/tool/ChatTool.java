@@ -230,6 +230,25 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    private static Map<String,ChatTool> tools = 
        new ConcurrentHashMap<String,ChatTool>();
    
+   protected void setupTool() {
+      // "inject" a CourierService
+      m_courierService = org.sakaiproject.courier.cover.CourierService.getInstance();
+      
+      Session session = SessionManager.getCurrentSession();
+      sessionId = session.getId();
+      
+      Placement placement = getToolManager().getCurrentPlacement();
+      placementId = placement.getId();
+      
+      // Really only calling this just to make sure a room gets created
+      getSiteChannels();
+      
+      ChatChannel defaultChannel = getChatManager().getDefaultChannel(placement.getContext(), placement.getId());
+      setCurrentChannel(new DecoratedChatChannel(this, defaultChannel));
+         
+      return;
+   }
+   
    /**
     * This is called from the first page to redirect the user to the proper view.
     * This is the first call after JSF creates a new instance, so initialization is 
@@ -242,35 +261,20 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     */
    public String getEnterTool() {
       
-      // "inject" a CourierService
-      m_courierService = org.sakaiproject.courier.cover.CourierService.getInstance();
-      
-      Session session = SessionManager.getCurrentSession();
-      
-      sessionId = session.getId();
-      String url = PAGE_ENTER_ROOM;
-      
-      Placement placement = getToolManager().getCurrentPlacement();
-      placementId = placement.getId();
-      
-      //Really only calling this just to make sure a room gets created
-      getSiteChannels();
-      
-      ChatChannel defaultChannel = getChatManager().getDefaultChannel(placement.getContext(), placement.getId());
-      setCurrentChannel(new DecoratedChatChannel(this, defaultChannel));
-         
+	  setupTool();
+	   
       // if there is no room selected to enter then go to select a room
+      String url = PAGE_ENTER_ROOM;
+
       if(currentChannel == null)
          url = PAGE_LIST_ROOMS;
-         
-      
+               
       ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
       
       HttpServletRequest req = (HttpServletRequest) context.getRequest();
       req.setAttribute(Tool.NATIVE_URL, null); //signal to WrappedRequest that we want the Sakai managed
       setToolContext(req.getContextPath());
       req.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
-      
       
       try {
            context.redirect(url);
@@ -361,15 +365,6 @@ public class ChatTool implements RoomObserver, PresenceObserver {
        return userList;
    }
    
-   protected boolean refreshPresence() {
-
-	  if(getCurrentChannel() != null) {
-         return true;
-      }
-      return false;
-   }
-   
-
    //********************************************************************
    // Interface Implementations
 
@@ -914,7 +909,12 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     */
    public DecoratedChatChannel getCurrentChannel()
    {
-      return currentChannel;
+	   if (currentChannel == null) {
+		   // reset to the default channel
+		   setupTool();
+	   }
+	   
+	   return currentChannel;
    }
    
    /**
