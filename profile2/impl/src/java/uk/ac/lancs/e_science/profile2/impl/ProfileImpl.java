@@ -1159,7 +1159,21 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		//get privacy record for this user
     	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
     	
-    	//if none, return whatever the flag is set as by default
+    	//pass to main
+    	return isUserXFriendsListVisibleByUserY(userX, profilePrivacy, userY, friend);
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean isUserXFriendsListVisibleByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend) {
+		
+		//if user is requesting own info, they ARE allowed
+    	if(userY.equals(userX)) {
+    		return true;
+    	}
+	
+		//if no privacy record, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
     		return ProfilePrivacyManager.DEFAULT_MYFRIENDS_VISIBILITY;
     	}
@@ -1198,7 +1212,21 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		//get privacy record for this user
     	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
     	
-    	//if none, return whatever the flag is set as by default
+    	//pass to main
+    	return isUserXStatusVisibleByUserY(userX, profilePrivacy, userY, friend);
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean isUserXStatusVisibleByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend) {
+		
+		//if user is requesting own info, they ARE allowed
+    	if(userY.equals(userX)) {
+    		return true;
+    	}
+    	
+		//if no privacy record, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
     		return ProfilePrivacyManager.DEFAULT_MYSTATUS_VISIBILITY;
     	}
@@ -1227,7 +1255,6 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	    	
     	//uncaught rule, return false
     	log.error("Profile.isUserXStatusVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-
     	return false;
 	}
 	
