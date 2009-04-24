@@ -153,10 +153,13 @@ public class Query extends HttpTransactionQueryBase
 		   * Initialize a new search context block.  Augment the standard
 		   * (synchronous) initialization with the necessary asynchronous
 		   * setup (an asynchronous search with initialization in progress).
+		   *
+		   * And, set the timeout value for this search (in seconds).
 		   */
 			StatusUtils.initialize(getSessionContext(), getRequestParameter("targets"));
 			StatusUtils.setAsyncSearch(getSessionContext());
 			StatusUtils.setAsyncInit(getSessionContext());
+			setSearchTimeout(60);
 			/*
 			 * LOGOFF any previous session
 			 */
@@ -631,6 +634,7 @@ public class Query extends HttpTransactionQueryBase
     Element   rootElement = document.getDocumentElement();
 		NodeList  nodeList 		= DomUtils.getElementList(rootElement, "ITEM");
 		String    status      = "0";
+		boolean   timedOut    = searchTimedOut();
 
 		int       targetCount = nodeList.getLength();
 		int       active			= 0;
@@ -741,7 +745,9 @@ public class Query extends HttpTransactionQueryBase
   		        +  ", status = "
   		        +  status
   		        +  ", all searches complete? "
-  		        +  (complete == targetCount));
+  		        +  (complete == targetCount)
+  		        +  ", timedout? "
+  		        +  timedOut);
     }
 		/*
 		 * Save in session context:
@@ -753,7 +759,7 @@ public class Query extends HttpTransactionQueryBase
 		getSessionContext().putInt("maxRecords", total);
 		getSessionContext().putInt("active", active);
 
-		return (complete == targetCount);
+		return ((complete == targetCount) || timedOut);
 	}
 
   /*
@@ -911,5 +917,25 @@ public class Query extends HttpTransactionQueryBase
 	  {
 	    LogUtils.displayXml(_log, text, xmlObject);
     }
+  }
+
+  /**
+   * Set the search timout
+   * @param numberOfSeconds Seconds until the search times out
+   */
+  private static final long ONE_SECOND = 1000;
+  private long _timeout;
+
+  private void setSearchTimeout(long numberOfSeconds)
+  {
+    _timeout = System.currentTimeMillis() + (numberOfSeconds * ONE_SECOND);
+  }
+
+  /**
+   * Has the current search timed out?
+   */
+  private boolean searchTimedOut()
+  {
+    return System.currentTimeMillis() >= _timeout;
   }
 }
