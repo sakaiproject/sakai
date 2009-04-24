@@ -1,17 +1,16 @@
 package uk.ac.lancs.e_science.profile2.impl;
 
-import java.util.Calendar;
-import java.util.Date;
-
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
+import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileService;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.api.entity.model.UserProfile;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfileMismatchException;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
+import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
 
 /**
  * <p>This is the implementation of {@link ProfileService}; see that interface for usage details.
@@ -108,6 +107,14 @@ public class ProfileServiceImpl implements ProfileService {
 			userProfile.setOtherInformation(null);
 		}
 		
+		//profile status
+		if(profile.isUserXStatusVisibleByUserY(userUuid, profilePrivacy, currentUser, friend)) {
+			ProfileStatus profileStatus = profile.getUserStatus(userUuid);
+			if(profileStatus == null) {
+				System.out.println("status null");
+			}
+		}
+		
 		return userProfile;
 	}
 	
@@ -120,8 +127,21 @@ public class ProfileServiceImpl implements ProfileService {
 	}
 
 	
+	public byte[] getProfileImage(String userId) {
+		String userUuid = getUuidForUserId(userId);
+		return profile.getCurrentProfileImageForUser(userUuid, ProfileImageManager.PROFILE_IMAGE_MAIN);
+	}
+	
+	
+	
 	/**
 	 * Convenience method to convert the given userId input (internal id or eid) to a uuid. 
+	 * 
+	 * There is a small risk that an eid could be created that matches the uuid of another user.
+	 * 
+	 * Since 99% of the time requests will be made with uuid as the param, to speed things up this checks for that first.
+	 * If the above risk manifests itself, we will need to swap the order to usernames are checked first.
+	 * 
 	 * @param userId
 	 * @return
 	 */

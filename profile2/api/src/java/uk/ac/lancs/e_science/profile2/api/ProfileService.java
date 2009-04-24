@@ -39,12 +39,11 @@ public interface ProfileService {
 	 * <p>If they do, the SakaiPerson object is transformed into a UserProfile object.
 	 * 
 	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
-	 * @param currentUser - user id that is making the request for the profile.
+	 * @param currentUser - user id (internal) that is making the request for the profile.
 	 * @return
 	 */
 	public UserProfile getUserProfile(String userId, String currentUser);
 
-		
 	/**
 	 * Checks whether a user profile exists. 
 	 * <p>This actually just checks for the existence of a user in the system as every user has a profile, even if it is blank.</p>
@@ -53,4 +52,16 @@ public interface ProfileService {
 	 * @return
 	 */
 	public boolean checkUserProfileExists(String userId);
+	
+	/**
+	 * Get the profile image for a user
+	 * @param userId 
+	 * @param currentUser
+	 * @param imageType
+	 * @return
+	 */
+	public byte[] getProfileImage(String userId);
+	
+	//public String getExternalProfileImageUrl(String userId, String currentUser, int imageType);
+	
 }
