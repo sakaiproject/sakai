@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.sakaiproject.polls</groupId>
-  <artifactId>polls-base</artifactId>
+  <artifactId>polls</artifactId>
   <name>Sakai Polls Project</name>
   <packaging>pom</packaging>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.2-SNAPSHOT</version>
 <!-- polls.version -->
   <licenses>
     <license>
@@ -39,14 +39,14 @@
       <dependency>
         <groupId>org.sakaiproject.polls</groupId>
         <artifactId>poll-api</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.2-SNAPSHOT</version>
 <!-- polls.version -->
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.polls</groupId>
         <artifactId>poll-impl</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.2-SNAPSHOT</version>
 <!-- polls.version -->
       </dependency>
     </dependencies>
