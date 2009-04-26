@@ -691,7 +691,7 @@ This is not needed now that pluto have been released
 		</groupId>
 		<artifactId>emailtemplateservice-api
 		</artifactId>
-		<version>0.3-SNAPSHOT</version>
+		<version>0.4-SNAPSHOT</version>
 		<scope>provided</scope>
 	</dependency>
       <dependency>
@@ -750,8 +750,8 @@ This is not needed now that pluto have been released
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-poll-logic-api</artifactId>
-        <version>${sakai.version}</version>
+        <artifactId>poll-api</artifactId>
+        <version>1.2-SNAPSHOT</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
