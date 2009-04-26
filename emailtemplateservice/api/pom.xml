@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>emailtemplateservice</artifactId>
-        <version>0.3-SNAPSHOT</version><!--emailtemplateservice.version-->
+        <version>0.4-SNAPSHOT</version><!--emailtemplateservice.version-->
         <relativePath>../pom.xml</relativePath>
     </parent>
 

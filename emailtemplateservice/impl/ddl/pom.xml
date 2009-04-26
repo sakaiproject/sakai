@@ -12,7 +12,7 @@
         <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>emailtemplateservice</artifactId>
-        <version>0.3-SNAPSHOT</version>
+        <version>0.4-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -27,7 +27,7 @@
         <dependency>
         	<groupId>org.sakaiproject.emailtemplateservice</groupId>
         	<artifactId>emailtemplateservice-api</artifactId>
-        	<version>0.3-SNAPSHOT</version><!--hierarchy.version-->
+        	<version>0.4-SNAPSHOT</version><!--hierarchy.version-->
         	<scope>provided</scope>
         </dependency>
 

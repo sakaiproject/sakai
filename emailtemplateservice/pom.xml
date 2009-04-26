@@ -17,11 +17,7 @@
     </organization>
     <inceptionYear>2007</inceptionYear>
     <packaging>pom</packaging>
-    <version>0.3-SNAPSHOT</version><!--emailtemplateservice.version-->
-	<properties>
-        <rsfutil.version>0.7.3M3</rsfutil.version>
-    </properties>
-
+    <version>0.4-SNAPSHOT</version><!--emailtemplateservice.version-->
     <parent>
         <artifactId>master</artifactId>
         <groupId>org.sakaiproject</groupId>
@@ -53,20 +49,20 @@
             <dependency>
                 <groupId>org.sakaiproject.emailtemplateservice</groupId>
                 <artifactId>emailtemplateservice-api</artifactId>
-                <version>0.3-SNAPSHOT</version><!--emailtemplateservice.version-->
+                <version>0.4-SNAPSHOT</version><!--emailtemplateservice.version-->
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.emailtemplateservice</groupId>
                 <artifactId>emailtemplateservice-impl</artifactId>
-                <version>0.3-SNAPSHOT</version><!--emailtemplateservice.version-->
+                <version>0.4-SNAPSHOT</version><!--emailtemplateservice.version-->
             </dependency>
         </dependencies>
     </dependencyManagement>
     <!-- define source code repository location -->
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/contrib/emailtemplateservice/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/emailtemplateservice/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/contrib/emailtemplateservice/trunk</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/emailtemplateservice/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/emailtemplateservice/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/emailtemplateservice/trunk</url>
   </scm>
 </project>
