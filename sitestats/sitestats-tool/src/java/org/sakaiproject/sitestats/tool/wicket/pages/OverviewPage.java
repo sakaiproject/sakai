@@ -89,7 +89,8 @@ public class OverviewPage extends BasePage {
 		// Resources
 		boolean resourcesVisible = false;
 		try{
-			resourcesVisible = (getFacade().getSiteService().getSite(siteId).getToolForCommonId(StatsManager.RESOURCES_TOOLID) != null);
+			resourcesVisible = statsManager.isEnableResourceStats() &&
+								(getFacade().getSiteService().getSite(siteId).getToolForCommonId(StatsManager.RESOURCES_TOOLID) != null);
 		}catch(Exception e) {
 			resourcesVisible = false;
 		}

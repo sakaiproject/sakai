@@ -37,6 +37,9 @@
 			<!-- Enable/disable site activity charts -->
 			<!-- <property name="enableSiteActivity" value="true" /> -->
 
+            <!-- Enable/disable Resource statistics for Overview page -->
+            <!-- <property name="enableResourceStats" value="true" /> -->
+
 			<!-- Enable/disable sakai-wide statistics -->
 			<!-- <property name="serverWideStatsEnabled" value="false" /> -->
 			

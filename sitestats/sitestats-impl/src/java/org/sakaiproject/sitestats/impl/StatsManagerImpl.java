@@ -101,6 +101,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	/** Spring bean members */
 	private Boolean						enableSiteVisits						= null;
 	private Boolean                     enableSiteActivity						= null;
+	private Boolean						enableResourceStats						= null;
 	private Boolean 				    visitsInfoAvailable						= null;
 	private boolean						enableServerWideStats					= false;
 	private boolean						countFilesUsingCHS						= false;
@@ -140,6 +141,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	public void setEnableSiteVisits(Boolean enableSiteVisits) {
 		this.enableSiteVisits = enableSiteVisits;
 	}
+	public void setEnableSiteVisits(boolean enableSiteVisits) {
+		this.enableSiteVisits = Boolean.valueOf(enableSiteVisits);
+	}
 	
 	public boolean isEnableSiteVisits() {
 		return enableSiteVisits;
@@ -147,6 +151,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 
 	public void setEnableSiteActivity(Boolean enableSiteActivity) {
 		this.enableSiteActivity = enableSiteActivity;
+	}
+	public void setEnableSiteActivity(boolean enableSiteActivity) {
+		this.enableSiteActivity = Boolean.valueOf(enableSiteActivity);
 	}
 
 	public void setServerWideStatsEnabled(boolean enableServerWideStats) {
@@ -166,6 +173,16 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	}
 	public boolean isVisitsInfoAvailable(){
 		return this.visitsInfoAvailable;
+	}
+
+	public void setEnableResourceStats(Boolean enableResourceStats) {
+		this.enableResourceStats = enableResourceStats;
+	}
+	public void setEnableResourceStats(boolean enableResourceStats) {
+		this.enableResourceStats = Boolean.valueOf(enableResourceStats);
+	}
+	public boolean isEnableResourceStats() {
+		return enableResourceStats;
 	}
 	
 	public void setCountFilesUsingCHS(boolean countFilesUsingCHS) {
@@ -297,6 +314,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		}
 		if(enableSiteActivity == null) {
 			enableSiteActivity = true;
+		}
+		if(enableResourceStats == null) {
+			enableResourceStats = true;
 		}
 	}
 

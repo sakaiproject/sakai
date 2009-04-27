@@ -103,6 +103,9 @@ public interface StatsManager {
 	/** Are site visits info available (displayable) in SiteStats tool? */
 	public boolean isVisitsInfoAvailable();
 	
+	/** Are Resource statistics enabled for Overview page? */
+	public boolean isEnableResourceStats();
+	
 	/** Get chart background color used to draw charts on SiteStats tool. */
 	public String getChartBackgroundColor();
 	

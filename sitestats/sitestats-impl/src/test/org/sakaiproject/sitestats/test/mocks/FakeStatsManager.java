@@ -258,6 +258,11 @@ public class FakeStatsManager implements StatsManager {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	public boolean isEnableResourceStats() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 	public boolean isEventContextSupported() {
 		// TODO Auto-generated method stub
