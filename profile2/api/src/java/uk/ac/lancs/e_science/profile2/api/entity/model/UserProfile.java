@@ -28,6 +28,8 @@ public class UserProfile {
 	private String favouriteMovies;
 	private String favouriteQuotes;
 	private String otherInformation;
+	private String statusMessage;
+	private Date statusDate;
 
 	/**
 	 * Basic constructor
@@ -177,6 +179,22 @@ public class UserProfile {
 
 	public void setOtherInformation(String otherInformation) {
 		this.otherInformation = otherInformation;
+	}
+
+	public String getStatusMessage() {
+		return statusMessage;
+	}
+
+	public void setStatusMessage(String statusMessage) {
+		this.statusMessage = statusMessage;
+	}
+
+	public Date getStatusDate() {
+		return statusDate;
+	}
+
+	public void setStatusDate(Date statusDate) {
+		this.statusDate = statusDate;
 	}
 	
 }
