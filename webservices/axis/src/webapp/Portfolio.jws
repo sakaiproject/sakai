@@ -103,6 +103,10 @@ public class Portfolio
          itemChild = doc.createElement("siteName");
          itemChild.appendChild (doc.createTextNode(pres.getWorksiteName()));
          item.appendChild(itemChild);
+      
+         itemChild = doc.createElement("isDefault");
+         itemChild.appendChild (doc.createTextNode(String.valueOf(pres.getIsDefault())));
+         item.appendChild(itemChild);
       }
       
       return Xml.writeDocumentToString(doc);
