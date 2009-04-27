@@ -59,7 +59,7 @@ public class Query extends HttpTransactionQueryBase
 	/**
 	 * Error text: No logged-in session
 	 */
-	private static final String NO_SESSION = "Connection to server not set.";
+	private static final String NO_SESSION = "Not logged on. Please logon first.";
 	/**
 	 * Database for this request
 	 */
@@ -153,13 +153,10 @@ public class Query extends HttpTransactionQueryBase
 		   * Initialize a new search context block.  Augment the standard
 		   * (synchronous) initialization with the necessary asynchronous
 		   * setup (an asynchronous search with initialization in progress).
-		   *
-		   * And, set the timeout value for this search (in seconds).
 		   */
 			StatusUtils.initialize(getSessionContext(), getRequestParameter("targets"));
 			StatusUtils.setAsyncSearch(getSessionContext());
 			StatusUtils.setAsyncInit(getSessionContext());
-			setSearchTimeout(60);
 			/*
 			 * LOGOFF any previous session
 			 */
@@ -181,7 +178,7 @@ public class Query extends HttpTransactionQueryBase
 			displayXml("Login", getResponseDocument());
 			validateResponse("LOGON");
 			/*
-			 * Search
+			 * SEARCH - on success, set a PROGRESS command time limit (in seconds)
 			 */
 			clearParameters();
 
@@ -191,9 +188,12 @@ public class Query extends HttpTransactionQueryBase
 			displayXml("Search", getResponseDocument());
 			validateResponse("SEARCH");
 
+			setSearchStatusTimeout(60);
 			return;
 		}
     /*
+     * PROGRESS
+     *
      * Still doing asynchronous initialization?  If so, pick up the search
      * status.  Throw "no assets ready" (to try again) if the estimates aren't
      * available yet...
@@ -223,6 +223,8 @@ public class Query extends HttpTransactionQueryBase
 			}
 		}
 		/*
+		 * NEXT or MORE
+		 *
 		 * Fetch additional results
 		 */
 		doResultsCommand();
@@ -763,6 +765,29 @@ public class Query extends HttpTransactionQueryBase
 	}
 
   /*
+   * Search status (PROGRESS command) timers
+   */
+  private static final long ONE_SECOND = 1000;
+  private long _timeLimit;
+
+  /**
+   * Set the search status timout
+   * @param numberOfSeconds Seconds (from now) until the search times out
+   */
+  private void setSearchStatusTimeout(long numberOfSeconds)
+  {
+    _timeLimit = System.currentTimeMillis() + (numberOfSeconds * ONE_SECOND);
+  }
+
+  /**
+   * Has the current search timed out?
+   */
+  private boolean searchTimedOut()
+  {
+    return System.currentTimeMillis() >= _timeLimit;
+  }
+
+  /*
    * Getters & setters
    */
 
@@ -917,25 +942,5 @@ public class Query extends HttpTransactionQueryBase
 	  {
 	    LogUtils.displayXml(_log, text, xmlObject);
     }
-  }
-
-  /**
-   * Set the search timout
-   * @param numberOfSeconds Seconds until the search times out
-   */
-  private static final long ONE_SECOND = 1000;
-  private long _timeout;
-
-  private void setSearchTimeout(long numberOfSeconds)
-  {
-    _timeout = System.currentTimeMillis() + (numberOfSeconds * ONE_SECOND);
-  }
-
-  /**
-   * Has the current search timed out?
-   */
-  private boolean searchTimedOut()
-  {
-    return System.currentTimeMillis() >= _timeout;
   }
 }
