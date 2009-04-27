@@ -22,15 +22,12 @@
 			</div>
 					 
 			  	  <f:verbatim><div class="breadCrumb"><h3></f:verbatim>
-			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
-			      		rendered="#{ForumTool.messagesandForums}" />
-			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
-			      		rendered="#{ForumTool.forumsTool}" />
+			  	  
+			  	  <h:outputText value="#{msgs.cdfm_discussion_forums}" />			 
 			      <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
-			      <h:commandLink action="#{ForumTool.processActionStatistics}" value="#{msgs.stat_list}" title="#{msgs.stat_list}"/>
+			      <h:outputText value="#{msgs.stat_list}" />
 			      <f:verbatim><h:outputText value="" /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
-			      <h:commandLink action="#{mfStatisticsBean.processActionBackToUser}" value="#{mfStatisticsBean.selectedSiteUser}">
-			      </h:commandLink>
+			      <h:outputText value="#{mfStatisticsBean.selectedSiteUser}"/>
 			       <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
 			       <h:outputText value="#{msgs.stat_authored}" />
 			    <f:verbatim></h3></div></f:verbatim>
@@ -76,7 +73,7 @@
 
   		<br /><br />
   		<h:panelGroup>
-  			<h:commandButton action="#{mfStatisticsBean.processActionBackToUser}" value="#{mfStatisticsBean.buttonUserName}"  
+  			<h:commandButton  value="#{mfStatisticsBean.buttonUserName}"  
 			               title="#{mfStatisticsBean.buttonUserName}">			               			
 			</h:commandButton>
 		</h:panelGroup>
