@@ -878,6 +878,12 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
  	 */
 	public boolean isUserXFriendOfUserY(String userX, String userY) {
 		
+		//if same then friends.
+		//added this check so we don't need to do it everywhere else and can call isFriend for all user pairs.
+		if(userY.equals(userX)) {
+			return true;
+		}
+		
 		//get friends of current user
 		//TODO change this to be a single lookup rather than iterating over a list
 		List<String> friendUuids = new ArrayList<String>(getConfirmedFriendUserIdsForUser(userY));
@@ -898,18 +904,19 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
  	 */
 	public boolean isUserXVisibleInSearchesByUserY(String userX, String userY, boolean friend) {
 				
+		//if userX is userY (ie they found themself in a search)
+    	if(userY.equals(userX)) {
+    		log.debug("SEARCH VISIBILITY for " + userX + ": user is current user"); //$NON-NLS-1$ //$NON-NLS-2$
+    		return ProfilePrivacyManager.SELF_SEARCH_VISIBILITY;
+    	}
+		
 		//get ProfilePrivacy record for user
     	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
+    	
     	//if none, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
     		log.debug("SEARCH VISIBILITY for " + userX + ": no record, returning default visibility"); //$NON-NLS-1$ //$NON-NLS-2$
     		return ProfilePrivacyManager.DEFAULT_SEARCH_VISIBILITY;
-    	}
-    	
-    	//if userX is userY (ie they found themself in a search)
-    	if(userY.equals(userX)) {
-    		log.debug("SEARCH VISIBILITY for " + userX + ": user is current user"); //$NON-NLS-1$ //$NON-NLS-2$
-    		return ProfilePrivacyManager.SELF_SEARCH_VISIBILITY;
     	}
     	
     	//if restricted to only self, not allowed
@@ -951,17 +958,17 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
  	 */
 	public boolean isUserXProfileImageVisibleByUserY(String userX, String userY, boolean friend) {
 		
+		//if userX is userY, they ARE allowed to view their own image!
+    	if(userY.equals(userX)) {
+    		return true;
+    	}
+		
 		//get privacy record for this user
     	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
     	
     	//if none, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
     		return ProfilePrivacyManager.DEFAULT_PROFILEIMAGE_VISIBILITY;
-    	}
-    	
-    	//if userX is userY, they ARE allowed to view their own picture!
-    	if(userY.equals(userX)) {
-    		return true;
     	}
     	
     	//if restricted to only self, not allowed
@@ -995,6 +1002,11 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
  	 * {@inheritDoc}
  	 */
 	public boolean isUserXBasicInfoVisibleByUserY(String userX, String userY, boolean friend) {
+		
+		//if user is requesting own info, they ARE allowed
+    	if(userY.equals(userX)) {
+    		return true;
+    	}
 		
 		//get privacy record for userX
     	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
@@ -1048,6 +1060,11 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
  	 * {@inheritDoc}
  	 */
 	public boolean isUserXContactInfoVisibleByUserY(String userX, String userY, boolean friend) {
+		
+		//if user is requesting own info, they ARE allowed
+    	if(userY.equals(userX)) {
+    		return true;
+    	}
 		
 		//get privacy record for this user
     	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
@@ -1103,6 +1120,11 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
  	 */
 	public boolean isUserXPersonalInfoVisibleByUserY(String userX, String userY, boolean friend) {
 		
+		//if user is requesting own info, they ARE allowed
+    	if(userY.equals(userX)) {
+    		return true;
+    	}
+		
 		//get privacy record for this user
     	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
     	
@@ -1156,6 +1178,11 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
  	 */
 	public boolean isUserXFriendsListVisibleByUserY(String userX, String userY, boolean friend) {
 		
+		//if user is requesting own info, they ARE allowed
+    	if(userY.equals(userX)) {
+    		return true;
+    	}
+		
 		//get privacy record for this user
     	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
     	
@@ -1208,6 +1235,11 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
  	 * {@inheritDoc}
  	 */
 	public boolean isUserXStatusVisibleByUserY(String userX, String userY, boolean friend) {
+		
+		//if user is requesting own info, they ARE allowed
+    	if(userY.equals(userX)) {
+    		return true;
+    	}
 		
 		//get privacy record for this user
     	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
