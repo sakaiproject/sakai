@@ -19,8 +19,6 @@
   	
   		<sakai:tool_bar>
 			<h:outputLink id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyDisplayInThread}');" title="#{msgs.cdfm_print}">
-				<h:outputText value="#{msgs.cdfm_print}" />
-				<h:outputText value=" " />
 				<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
 			</h:outputLink>
   		</sakai:tool_bar>
