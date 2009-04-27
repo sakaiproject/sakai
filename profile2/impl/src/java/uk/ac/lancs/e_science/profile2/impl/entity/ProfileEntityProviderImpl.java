@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -15,13 +16,17 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.tool.api.SessionManager;
 
+import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileService;
 import uk.ac.lancs.e_science.profile2.api.entity.ProfileEntityProvider;
 import uk.ac.lancs.e_science.profile2.api.entity.model.UserProfile;
 
 public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
+
+	private static final Logger log = Logger.getLogger(ProfileEntityProviderImpl.class);
 
 	public String getEntityPrefix() {
 		return ENTITY_PREFIX;
@@ -53,13 +58,35 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 			return profileService.getPrototype();
 		}
 		
-		//get the profile, with privacy checks against the requesting user
-		UserProfile entity = profileService.getUserProfile(ref.getId(), sessionManager.getCurrentSessionUserId());
+		//get the full profile, with privacy checks against the requesting user
+		UserProfile entity = profileService.getFullUserProfile(ref.getId(), sessionManager.getCurrentSessionUserId());
+		if(entity == null) {
+			throw new EntityException("Profile could not be retrieved for " + ref.getId(), ref.getId());
+		}
+		return entity;
+	}
+	
+	@EntityCustomAction(action="minimal",viewKey=EntityView.VIEW_SHOW)
+	public Object getMinimalProfile(EntityReference ref) {
+		
+		if (sessionManager.getCurrentSessionUserId() == null) {
+			throw new SecurityException();
+		}
+		
+		if (ref.getId() == null) {
+			return profileService.getPrototype();
+		}
+		
+		//get the minimal profile, with privacy checks against the requesting user
+		UserProfile entity = profileService.getMinimalUserProfile(ref.getId(), sessionManager.getCurrentSessionUserId());
+		if(entity == null) {
+			throw new EntityException("Profile could not be retrieved for " + ref.getId(), ref.getId());
+		}
 		return entity;
 	}
 	
 	@EntityCustomAction(action="image",viewKey=EntityView.VIEW_SHOW)
-	public Object getImage(OutputStream out, EntityView view, EntityReference ref) {
+	public Object getMainImage(OutputStream out, EntityView view, EntityReference ref) {
 		
 		if (sessionManager.getCurrentSessionUserId() == null) {
 			throw new SecurityException();
@@ -69,8 +96,8 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 			return null;
 		}
 		
-		//get profile image. TODO add requesting userId and the type of image, or make this two functions one for main and one for thumbnail
-		byte[] b = profileService.getProfileImage(ref.getId());
+		//get main profile image. 
+		byte[] b = profileService.getProfileImage(ref.getId(), sessionManager.getCurrentSessionUserId(), ProfileImageManager.PROFILE_IMAGE_MAIN);
 		
 		if(b == null) {
 			return null;
@@ -80,11 +107,56 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 			out.write(b);
 			return new ActionReturn(out);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Error retrieving profile image for: " + ref.getId() + " : " + e.getMessage());
 			return null;
 		}
 	}
 	
+	@EntityCustomAction(action="imagethumb",viewKey=EntityView.VIEW_SHOW)
+	public Object getThumbnailImage(OutputStream out, EntityView view, EntityReference ref) {
+		
+		if (sessionManager.getCurrentSessionUserId() == null) {
+			throw new SecurityException();
+		}
+		
+		if (ref.getId() == null) {
+			return null;
+		}
+		
+		//get thumbnail profile image. 
+		byte[] b = profileService.getProfileImage(ref.getId(), sessionManager.getCurrentSessionUserId(), ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
+		
+		if(b == null) {
+			return null;
+		}
+		
+		try {
+			out.write(b);
+			return new ActionReturn(out);
+		} catch (IOException e) {
+			log.error("Error retrieving profile image for: " + ref.getId() + " : " + e.getMessage());
+			return null;
+		}
+	}
+	
+	@EntityCustomAction(action="connections",viewKey="")
+	public Object getConnections(EntityView view, EntityReference ref) {
+		
+		if (sessionManager.getCurrentSessionUserId() == null) {
+			throw new SecurityException();
+		}
+		
+		if (ref.getId() == null) {
+			return null;
+		}
+		
+		//get list of connections
+		List<String> connections = profileService.getConnectionsForUser(ref.getId(), sessionManager.getCurrentSessionUserId());
+		
+		ActionReturn actionReturn = new ActionReturn(connections);
+		return actionReturn;
+	}
+
 
 	public String[] getHandledOutputFormats() {
 		return new String[] {Formats.XML, Formats.JSON};
@@ -120,10 +192,8 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 	
-	
-	
+		
 	private DeveloperHelperService developerHelperService;
 	public void setDeveloperHelperService(DeveloperHelperService developerHelperService) {
 		this.developerHelperService = developerHelperService;
