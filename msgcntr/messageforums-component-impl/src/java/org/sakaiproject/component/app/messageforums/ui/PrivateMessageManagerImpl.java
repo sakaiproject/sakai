@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashSet;
 
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
@@ -1049,8 +1048,6 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     List<PrivateForum> privateForums = null;
     Map<String, PrivateForum> pfMap = null;
     
-    Set forwardRecipients = new HashSet();
-    
     if (!asEmail) {
     	currentArea = getAreaByContextIdAndTypeId(typeManager.getPrivateMessageAreaType());
 
@@ -1086,12 +1083,10 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 			}
 		}
 		
-		if (forwardingEnable){
-			forwardRecipients.add(currentUser);
-			additionalHeaders.add("From: " + systemEmail);
-	    	additionalHeaders.add("Subject: " + message.getTitle());
-	    	emailService.sendToUsers(forwardRecipients, additionalHeaders, bodyString);
-		}    	
+		if (forwardingEnable){			
+			emailService.send(systemEmail, forwardAddress, message.getTitle(), 
+					bodyString, currentUser.getEmail(), null, additionalHeaders);
+		}			
 
     	//this only needs to be done if the message is not being sent
 		for (Iterator i = recipients.iterator(); i.hasNext();)
