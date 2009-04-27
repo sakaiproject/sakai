@@ -136,7 +136,7 @@ public interface StatsManager {
 	
 	
 	// ################################################################
-	// Maps
+	// Resources related
 	// ################################################################
 	/** Get the resource name from a reference */
 	public String getResourceName(String ref);
@@ -152,6 +152,9 @@ public interface StatsManager {
 	
 	/** Get the resource url from a reference. Returns null if resource no longer exist. */
 	public String getResourceURL(String ref);
+	
+	/** Get total number of resources (eventually, files only) in specified site, based on resources events (faster than consulting CHS). */
+	public int getTotalResources(String siteId, boolean excludeFolders);
 	
 	// ################################################################
 	// Summary/report methods

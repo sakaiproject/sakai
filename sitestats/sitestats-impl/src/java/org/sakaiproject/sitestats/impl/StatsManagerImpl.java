@@ -103,6 +103,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	private Boolean                     enableSiteActivity						= null;
 	private Boolean 				    visitsInfoAvailable						= null;
 	private boolean						enableServerWideStats					= false;
+	private boolean						countFilesUsingCHS						= false;
 	private String						chartBackgroundColor					= "white";
 	private boolean						chartIn3D								= true;
 	private float						chartTransparency						= 0.80f;
@@ -165,6 +166,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	}
 	public boolean isVisitsInfoAvailable(){
 		return this.visitsInfoAvailable;
+	}
+	
+	public void setCountFilesUsingCHS(boolean countFilesUsingCHS) {
+		this.countFilesUsingCHS = countFilesUsingCHS;
 	}
 	
 	public void setChartBackgroundColor(String color) {
@@ -472,7 +477,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	
 	
 	// ################################################################
-	// Maps
+	// Resources related
 	// ################################################################		
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getResourceName(java.lang.String)
@@ -695,6 +700,89 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			return Validator.escapeHtml(r.getUrl());
 		}else{
 			return null;
+		}
+	}
+	
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.api.StatsManager#getTotalResources(java.lang.String, boolean)
+	 */
+	public int getTotalResources(final String siteId, final boolean excludeFolders) {
+		if(siteId == null){
+			throw new IllegalArgumentException("Null siteId");
+		}else{
+			if(countFilesUsingCHS) {
+				// Use ContentHostingService (very slow if there are hundreds of files in site
+				String siteCollectionId = M_chs.getSiteCollection(siteId);
+				return M_chs.getAllResources(siteCollectionId).size();
+			}else{
+				// Use SiteStats tables (very fast, relies on resource events)
+				// Build common HQL
+				String hql_ = "select s.siteId, sum(s.count) " 
+					+ "from ResourceStatImpl as s " 
+					+ "where s.siteId = :siteid " 
+					+ "and s.resourceAction = :resourceAction "
+					+ "and s.resourceRef like :resourceRefLike ";
+				if(excludeFolders) {
+					hql_ += "and s.resourceRef not like :resourceRefNotLike ";
+				}
+				hql_ +=  "group by s.siteId";
+				final String hql = hql_;
+				final String resourceRefLike = "/content/group/" + siteId + "/%";
+				final String resourceRefNotLike = "%/";
+				
+				// New files
+				HibernateCallback hcb1 = new HibernateCallback() {
+					@SuppressWarnings("unchecked")
+					public Object doInHibernate(Session session) throws HibernateException, SQLException {
+						Query q = session.createQuery(hql);
+						q.setString("siteid", siteId);
+						q.setString("resourceAction", "new");
+						q.setString("resourceRefLike", resourceRefLike);
+						if(excludeFolders){
+							q.setString("resourceRefNotLike", resourceRefNotLike);
+						}
+						List<Object[]> list = q.list();
+						Long total = Long.valueOf(0);
+						if(list != null && list.size() > 0) {
+							try{
+								total = (Long) (list.get(0))[1];
+							}catch(ClassCastException e) {
+								total = Long.valueOf( ((Integer) (list.get(0))[1]).longValue() );
+							}
+						}
+						return total;
+					}
+				};
+				Long totalNew = (Long) getHibernateTemplate().execute(hcb1);
+				
+				// Deleted files
+				HibernateCallback hcb2 = new HibernateCallback() {
+					@SuppressWarnings("unchecked")
+					public Object doInHibernate(Session session) throws HibernateException, SQLException {
+						Query q = session.createQuery(hql);
+						q.setString("siteid", siteId);
+						q.setString("resourceAction", "delete");
+						q.setString("resourceRefLike", resourceRefLike);
+						if(excludeFolders){
+							q.setString("resourceRefNotLike", resourceRefNotLike);
+						}
+						List<Object[]> list = q.list();
+						Long total = Long.valueOf(0);
+						if(list != null && list.size() > 0) {
+							try{
+								total = (Long) (list.get(0))[1];
+							}catch(ClassCastException e) {
+								total = Long.valueOf( ((Integer) (list.get(0))[1]).longValue() );
+							}
+						}
+						return total;
+					}
+				};
+				Long totalDel = (Long) getHibernateTemplate().execute(hcb2);
+				
+				return (int) (totalNew.longValue() - totalDel.longValue());
+			}
 		}
 	}
 

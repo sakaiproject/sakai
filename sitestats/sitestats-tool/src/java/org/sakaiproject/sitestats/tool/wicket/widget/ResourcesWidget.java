@@ -11,6 +11,9 @@ import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.ResourceStat;
 import org.sakaiproject.sitestats.api.Stat;
@@ -217,10 +220,19 @@ public class ResourcesWidget extends Panel {
 								if(resId.startsWith(prefix)) {
 									resId = resId.substring(prefix.length());
 								}
-								getFacade().getContentHostingService().getResource(resId);
+								if(!resId.endsWith("/")) {
+									getFacade().getContentHostingService().checkResource(resId);
+									totalDistinctFileReads++;
+								}
+							}catch(PermissionException e) {
+								// count it: user just don't have the correct permission
 								totalDistinctFileReads++;
+							}catch(IdUnusedException e) {
+								// skip: file was removed
+							}catch(TypeException e) {
+								// skip: wrong type: it is a collection
 							}catch(Exception e) {
-								// skip: doesn't exist or is a collection
+								// skip: unknown error
 							}
 						}
 					}catch(Exception e) {
@@ -742,8 +754,7 @@ public class ResourcesWidget extends Panel {
 	private int getTotalFiles() {
 		if(totalFiles == -1) {
 			try{
-				String siteCollectionId = getFacade().getContentHostingService().getSiteCollection(siteId);
-				totalFiles = getFacade().getContentHostingService().getAllResources(siteCollectionId).size();
+				totalFiles = getFacade().getStatsManager().getTotalResources(siteId, true);
 			}catch(Exception e){
 				totalFiles = 0;
 			}		

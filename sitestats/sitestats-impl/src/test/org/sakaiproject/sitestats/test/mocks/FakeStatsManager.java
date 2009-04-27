@@ -304,4 +304,9 @@ public class FakeStatsManager implements StatsManager {
 		return false;
 	}
 
+	public int getTotalResources(String siteId, boolean excludeFolders) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }
