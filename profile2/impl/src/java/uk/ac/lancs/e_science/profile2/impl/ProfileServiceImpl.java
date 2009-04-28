@@ -1,18 +1,19 @@
 package uk.ac.lancs.e_science.profile2.impl;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
+import uk.ac.lancs.e_science.profile2.api.ProfilePreferencesManager;
+import uk.ac.lancs.e_science.profile2.api.ProfilePrivacyManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileService;
-import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.api.entity.model.UserProfile;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfileMismatchException;
+import uk.ac.lancs.e_science.profile2.hbm.ProfilePreferences;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
 
@@ -63,6 +64,13 @@ public class ProfileServiceImpl implements ProfileService {
 		String userUuid = getUuidForUserId(userId);
 		String currentUserUuid = getUuidForUserId(currentUser);
 		
+		//check they are valid
+		if(userUuid == null || currentUserUuid == null) {
+			log.error("Invalid arguments supplied. userId:" + userId + ", currentUser: " + currentUser);
+			return null;
+		}
+		
+		//get SakaiPerson
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
 		if(sakaiPerson == null) {
 			return getPrototype(userUuid);
@@ -77,31 +85,22 @@ public class ProfileServiceImpl implements ProfileService {
 		}
 		
 		//get privacy record for the user
-		ProfilePrivacy profilePrivacy = profile.getPrivacyRecordForUser(userUuid);
-		
-		//TODO get preferences
-		//TODO need to check if their basicinfo is allowed, but birth year is not, 
-		//to remove that from the Date by foramtting it to the hidden SimpleDateFormat in ProfileUtilityManager perhaps?
-		
+		ProfilePrivacy privacy = profile.getPrivacyRecordForUser(userUuid);
+
+		ProfilePreferences preferences = profile.getPreferencesRecordForUser(userUuid);
+				
 		//check friend status
 		boolean friend = profile.isUserXFriendOfUserY(userUuid, currentUserUuid);
 		
 		//unset basic info if not allowed
-		if(!profile.isUserXBasicInfoVisibleByUserY(userUuid, profilePrivacy, currentUserUuid, friend)) {
+		if(!profile.isUserXBasicInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
 			System.out.println("basic info not allowed");
 			userProfile.setNickname(null);
 			userProfile.setDateOfBirth(null);
-		} else {
-			//strip birth year from birthday
-			Date dateOfBirth = userProfile.getDateOfBirth();
-			//if(dateOfBirth != null && !profile.isBirthYearVisible(userUuid)) {
-				Date date = profile.convertDateFormat(dateOfBirth, ProfileUtilityManager.DEFAULT_DATE_FORMAT, ProfileUtilityManager.DEFAULT_DATE_FORMAT_HIDE_YEAR);
-				//userProfile.setDateOfBirth(
-			//}
 		}
 		
-		//unset basic info if not allowed
-		if(!profile.isUserXContactInfoVisibleByUserY(userUuid, profilePrivacy, currentUserUuid, friend)) {
+		//unset contact info if not allowed
+		if(!profile.isUserXContactInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
 			System.out.println("contact info not allowed");
 			userProfile.setEmail(null);
 			userProfile.setHomepage(null);
@@ -111,7 +110,7 @@ public class ProfileServiceImpl implements ProfileService {
 		}
 		
 		//unset personal info if not allowed
-		if(!profile.isUserXPersonalInfoVisibleByUserY(userUuid, profilePrivacy, currentUserUuid, friend)) {
+		if(!profile.isUserXPersonalInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
 			System.out.println("personal info not allowed");
 			userProfile.setFavouriteBooks(null);
 			userProfile.setFavouriteTvShows(null);
@@ -121,9 +120,12 @@ public class ProfileServiceImpl implements ProfileService {
 		}
 		
 		//profile status
-		if(profile.isUserXStatusVisibleByUserY(userUuid, profilePrivacy, currentUserUuid, friend)) {
+		if(profile.isUserXStatusVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
 			addStatusToProfile(userProfile);
 		}
+		
+		//properties
+		addPropertiesToProfile(userProfile, privacy, preferences);
 		
 		return userProfile;
 	}
@@ -139,6 +141,7 @@ public class ProfileServiceImpl implements ProfileService {
 		
 		//check they are valid
 		if(userUuid == null || currentUserUuid == null) {
+			log.error("Invalid arguments supplied. userId:" + userId + ", currentUser: " + currentUser);
 			return null;
 		}
 		
@@ -178,6 +181,7 @@ public class ProfileServiceImpl implements ProfileService {
 		
 		//check they are valid
 		if(userUuid == null || currentUserUuid == null) {
+			log.error("Invalid arguments supplied. userId:" + userId + ", currentUser: " + currentUser);
 			return null;
 		}
 		
@@ -202,6 +206,7 @@ public class ProfileServiceImpl implements ProfileService {
 		
 		//check they are valid
 		if(userUuid == null || currentUserUuid == null) {
+			log.error("Invalid arguments supplied. userId:" + userId + ", currentUser: " + currentUser);
 			return null;
 		}
 		
@@ -229,6 +234,18 @@ public class ProfileServiceImpl implements ProfileService {
 		}
 	}
 	
+	/**
+	 * This is a helper method to take care of setting the various relevant properties into a user's profile.
+	 * @param userProfile	- UserProfile object for the person
+	 * @param privacy		- Privacy object for the person
+	 */
+	private void addPropertiesToProfile(UserProfile userProfile, ProfilePrivacy privacy, ProfilePreferences preferences) {
+		
+		userProfile.setProperty(ProfilePrivacyManager.PROP_BIRTH_YEAR_VISIBLE, String.valueOf(privacy.isShowBirthYear()));
+		userProfile.setProperty(ProfilePreferencesManager.PROP_EMAIL_CONFIRM_ENABLED, String.valueOf(preferences.isConfirmEmailEnabled()));
+		userProfile.setProperty(ProfilePreferencesManager.PROP_EMAIL_REQUEST_ENABLED, String.valueOf(preferences.isRequestEmailEnabled()));
+	}
+	
 	
 	/**
 	 * Convenience method to convert the given userId input (internal id or eid) to a uuid. 
@@ -244,6 +261,7 @@ public class ProfileServiceImpl implements ProfileService {
 	private String getUuidForUserId(String userId) {
 		
 		String userUuid = null;
+		//TODO should we throw the exception in here if they can't be found? Would save checking the retval later on.
 
 		if(sakaiProxy.checkForUser(userId)) {
 			userUuid = userId;
