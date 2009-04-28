@@ -34,5 +34,7 @@ public class ProfilePrivacyManager {
 	//if the user doing a search finds themself in the results, should they be included in the results?
 	public static final boolean SELF_SEARCH_VISIBILITY = true;
 	
+	public static final String PROP_BIRTH_YEAR_VISIBLE="birthYearVisible";
+
 	
 }
