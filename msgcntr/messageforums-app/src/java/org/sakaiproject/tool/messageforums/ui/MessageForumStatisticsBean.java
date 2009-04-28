@@ -45,6 +45,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
+import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MembershipManager;
@@ -76,6 +77,7 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.Util;
 
 
 public class MessageForumStatisticsBean {
@@ -176,6 +178,8 @@ public class MessageForumStatisticsBean {
 		private String topicId;
 		private Boolean msgDeleted;
 		private String forumId;
+		private List decoAttachmentsList;
+	
 		
 		public String getSiteName(){
 			return this.siteName;
@@ -279,6 +283,14 @@ public class MessageForumStatisticsBean {
 
 		public void setForumId(String forumId) {
 			this.forumId = forumId;
+		}
+
+		public List getDecoAttachmentsList() {
+			return decoAttachmentsList;
+		}
+
+		public void setDecoAttachmentsList(List decoAttachmentsList) {
+			this.decoAttachmentsList = decoAttachmentsList;
 		}
 	}
 	/* === End DecoratedCompiledUserStatistics == */
@@ -547,6 +559,16 @@ public class MessageForumStatisticsBean {
 						final Message mes = (Message) messageIter.next();
 						
 						if(mes.getCreatedBy().equals(selectedSiteUserId)){
+							Message mesWithAttach = (Message)messageManager.getMessageByIdWithAttachments(mes.getId()); 
+							List decoAttachList = new ArrayList();
+							List attachList = mesWithAttach.getAttachments();
+							if(attachList != null ) {
+								 for(int i=0; i<attachList.size(); i++)
+								  {
+									  DecoratedAttachment decoAttach = new DecoratedAttachment((Attachment)attachList.get(i));
+									  decoAttachList.add(decoAttach);
+								  }
+							}
 							userAuthoredInfo = new DecoratedCompiledUserStatistics();
 							userAuthoredInfo.setSiteUserId(selectedSiteUserId);
 							userAuthoredInfo.setForumTitle(df.getTitle());
@@ -557,6 +579,8 @@ public class MessageForumStatisticsBean {
 							userAuthoredInfo.setMsgId(Long.toString(mes.getId()));
 							userAuthoredInfo.setTopicId(Long.toString(topic.getId()));
 							userAuthoredInfo.setMsgDeleted(mes.getDeleted());
+							userAuthoredInfo.setDecoAttachmentsList(decoAttachList);
+
 							statistics.add(userAuthoredInfo);
 						}
 					}
@@ -591,6 +615,16 @@ public class MessageForumStatisticsBean {
 						final Message mes = (Message) messageIter.next();
 						
 						if(mes.getId().equals((new Long(selectedMsgId)))){
+							Message mesWithAttach = (Message)messageManager.getMessageByIdWithAttachments(mes.getId()); 
+							List decoAttachList = new ArrayList();
+							List attachList = mesWithAttach.getAttachments();
+							if(attachList != null ) {
+								 for(int i=0; i<attachList.size(); i++)
+								  {
+									  DecoratedAttachment decoAttach = new DecoratedAttachment((Attachment)attachList.get(i));
+									  decoAttachList.add(decoAttach);
+								  }
+							}							
 							userAuthoredInfo = new DecoratedCompiledUserStatistics();
 							userAuthoredInfo.setSiteUserId(selectedSiteUserId);
 							userAuthoredInfo.setForumTitle(df.getTitle());
@@ -601,6 +635,8 @@ public class MessageForumStatisticsBean {
 							userAuthoredInfo.setMsgId(selectedMsgId);
 							userAuthoredInfo.setTopicId(Long.toString(topic.getId()));
 							userAuthoredInfo.setMsgDeleted(mes.getDeleted());
+							userAuthoredInfo.setDecoAttachmentsList(decoAttachList);
+
 														
 							statistics.add(userAuthoredInfo);
 						}

@@ -55,6 +55,18 @@
 					<h:outputText value="#{stat.forumDate}">
 						<f:convertDateTime pattern="#{msgs.date_format_paren}" />
 					</h:outputText>
+					<h:outputText value="<br />" escape="false" rendered="#{!empty stat.decoAttachmentsList}" />
+					<h:panelGroup rendered="#{!empty stat.decoAttachmentsList}">
+						<h:dataTable value="#{stat.decoAttachmentsList}" var="eachAttach" styleClass="attachListJSF" rendered="#{!empty stat.decoAttachmentsList}">
+						<h:column rendered="#{!empty stat.decoAttachmentsList}">
+							<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>		
+							<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />							
+							<h:outputLink value="#{eachAttach.url}" target="_blank">
+								<h:outputText value="#{eachAttach.attachment.attachmentName}" />
+							</h:outputLink>								
+						</h:column>
+						</h:dataTable>
+				</h:panelGroup>
 				<f:verbatim></div ></f:verbatim>
 				<f:verbatim><div style="width:30%;float:right;text-align:right"	class="specialLink"></f:verbatim>
 				</h:panelGroup>

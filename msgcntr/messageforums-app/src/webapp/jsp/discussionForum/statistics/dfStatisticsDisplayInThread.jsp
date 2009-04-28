@@ -54,6 +54,17 @@
 					<h:outputText value="#{msgDecorateBean.message.created}">
 						<f:convertDateTime pattern="#{msgs.date_format_paren}" />
 					</h:outputText>
+					<h:panelGroup rendered="#{!empty msgDecorateBean.attachList}">
+						<h:dataTable value="#{msgDecorateBean.attachList}" var="eachAttach" styleClass="attachListJSF" rendered="#{!empty msgDecorateBean.attachList}">
+						<h:column rendered="#{!empty msgDecorateBean.attachList}">
+							<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>		
+							<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />							
+							<h:outputLink value="#{eachAttach.url}" target="_blank">
+								<h:outputText value="#{eachAttach.attachment.attachmentName}" />
+							</h:outputLink>								
+						</h:column>
+						</h:dataTable>
+				</h:panelGroup>
 				<f:verbatim></div ></f:verbatim>			
 				</h:panelGroup>
 				
@@ -81,6 +92,17 @@
 					<h:outputText value="#{msgDecorateBean.message.created}">
 						<f:convertDateTime pattern="#{msgs.date_format_paren}" />
 					</h:outputText>
+					<h:panelGroup rendered="#{!empty msgDecorateBean.attachList}">
+						<h:dataTable value="#{msgDecorateBean.attachList}" var="eachAttach" styleClass="attachListJSF" rendered="#{!empty msgDecorateBean.attachList}">
+						<h:column rendered="#{!empty msgDecorateBean.attachList}">
+							<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>		
+							<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />							
+							<h:outputLink value="#{eachAttach.url}" target="_blank">
+								<h:outputText value="#{eachAttach.attachment.attachmentName}" />
+							</h:outputLink>								
+						</h:column>
+						</h:dataTable>
+				</h:panelGroup>
 				<f:verbatim></div ></f:verbatim>			
 				</h:panelGroup>
 				
