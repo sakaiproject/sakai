@@ -77,7 +77,7 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.Util;
+import org.sakaiproject.tool.cover.SessionManager;
 
 
 public class MessageForumStatisticsBean {
@@ -580,7 +580,9 @@ public class MessageForumStatisticsBean {
 							userAuthoredInfo.setTopicId(Long.toString(topic.getId()));
 							userAuthoredInfo.setMsgDeleted(mes.getDeleted());
 							userAuthoredInfo.setDecoAttachmentsList(decoAttachList);
-
+							
+							messageManager.markMessageReadForUser(topic.getId(), mes.getId(), true, getCurrentUserId());
+							
 							statistics.add(userAuthoredInfo);
 						}
 					}
@@ -589,6 +591,11 @@ public class MessageForumStatisticsBean {
 		}
 		sortStatisticsByUser3(statistics);
 		return statistics;
+	}
+	
+	private String getCurrentUserId() {
+		String currentUserId = SessionManager.getCurrentSessionUserId();;
+		return currentUserId;
 	}
 	
 	public List getUserSubjectMsgBody(){
