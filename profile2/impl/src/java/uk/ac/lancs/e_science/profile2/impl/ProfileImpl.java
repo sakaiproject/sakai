@@ -192,12 +192,12 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		}
 		
 		SimpleDateFormat dateFormat = new SimpleDateFormat(format);
-        StringBuilder dateStr = new StringBuilder(dateFormat.format(date));
+        String dateStr = dateFormat.format(date);
         
         log.debug("Profile.convertDateToString(): Input date: " + date.toString()); //$NON-NLS-1$
         log.debug("Profile.convertDateToString(): Converted date string: " + dateStr); //$NON-NLS-1$
 
-		return dateStr.toString();
+		return dateStr;
 	}
 	
 	/**
@@ -223,6 +223,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		}            
 	}
 	
+		
 	/**
  	 * {@inheritDoc}
  	 */
@@ -1299,7 +1300,15 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	public boolean isBirthYearVisible(String userId) {
 		
 		//get privacy record for this user
-		ProfilePrivacy profilePrivacy = this.getPrivacyRecordForUser(userId);
+		ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userId);
+		
+		return isBirthYearVisible(profilePrivacy);
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean isBirthYearVisible(ProfilePrivacy profilePrivacy) {
 		
 		//return value or whatever the flag is set as by default
     	if(profilePrivacy == null) {
@@ -1307,7 +1316,6 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	} else {
     		return profilePrivacy.isShowBirthYear();
     	}
-		
 	}
 
 	

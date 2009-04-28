@@ -485,7 +485,15 @@ public interface Profile {
 	 */
 	public boolean isBirthYearVisible(String userId);
 	
-	
+	/**
+	 * Has the user allowed viewing of their birth year in their profile. 
+	 * This is either on or off and does not depend on friends etc
+	 * 
+	 * @param profilePrivacy	the privacy record for the user. 
+	 * 							Used if we already have this info to save a lookup by the above method. The above method calls this for it's checks anyway.
+	 * @return boolean
+	 */
+	public boolean isBirthYearVisible(ProfilePrivacy profilePrivacy);
 	
 	/**
 	 * Get the profile image for the given user
