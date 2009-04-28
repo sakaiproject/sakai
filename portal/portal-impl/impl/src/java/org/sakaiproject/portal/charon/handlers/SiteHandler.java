@@ -452,8 +452,10 @@ public class SiteHandler extends WorksiteHandler
 			boolean roleswapcheck = false; // This variable will tell the UI if we will display any role swapping component; false by default
 			String roleswitchvalue = SecurityService.getUserEffectiveRole(SiteService.siteReference(siteId)); // checks the session for a role swap value
 			boolean roleswitchstate = false; // This variable determines if the site is in the switched state or not; false by default
+			boolean allowroleswap = SiteService.allowRoleSwap(siteId) && !SecurityService.isSuperUser();
+			
 			// check for the site.roleswap permission
-			if (SiteService.allowRoleSwap(siteId) || (!SiteService.allowRoleSwap(siteId) && roleswitchvalue != null))
+			if (allowroleswap || roleswitchvalue != null)
 			{
 				Site activeSite = null;
 	            try
