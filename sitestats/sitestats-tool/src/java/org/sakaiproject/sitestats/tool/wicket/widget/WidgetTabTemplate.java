@@ -124,6 +124,7 @@ public abstract class WidgetTabTemplate extends Panel {
 
 	private void renderChart() {
 		WebMarkupContainer chartTd = new WebMarkupContainer("chartTd");
+		chartTd.setOutputMarkupId(true);
 		chart = new AjaxLazyLoadImage("chart", OverviewPage.class) {
 			private static final long	serialVersionUID	= 1L;
 
@@ -148,7 +149,7 @@ public abstract class WidgetTabTemplate extends Panel {
 				);
 			}
 		};
-		chart.setAutoDetermineChartSizeByAjax(".chartTd");
+		chart.setAutoDetermineChartSizeByAjax("#"+chartTd.getMarkupId());
 		chart.setOutputMarkupId(true);
 		chartTd.add(chart);
 		if(!renderChart) {
