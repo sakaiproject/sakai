@@ -1,6 +1,12 @@
 package uk.ac.lancs.e_science.profile2.api.entity.model;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityOwner;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityTitle;
 
 /**
  * This is the model for a user's profile, used by the ProfileEntityProvider
@@ -10,10 +16,13 @@ import java.util.Date;
  */
 public class UserProfile {
 
+	@EntityId
 	private String userUuid;
+	
+	@EntityTitle @EntityOwner
+	private String displayName;
 	private String nickname;
 	private Date dateOfBirth;
-	private String displayName;
 	private String email;
 	private String position;
 	private String department;
@@ -30,6 +39,9 @@ public class UserProfile {
 	private String otherInformation;
 	private String statusMessage;
 	private Date statusDate;
+	private Map<String, String> props;
+
+	
 
 	/**
 	 * Basic constructor
@@ -64,7 +76,7 @@ public class UserProfile {
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
 	}
-
+	
 	public String getDisplayName() {
 		return displayName;
 	}
@@ -196,5 +208,32 @@ public class UserProfile {
 	public void setStatusDate(Date statusDate) {
 		this.statusDate = statusDate;
 	}
+
+	public void setProps(Map<String, String> props) {
+		this.props = props;
+	}
+
+	public Map<String, String> getProps() {
+		return props;
+	}
+	
+	/* for setting properties into the props Map */
+	public void setProperty(String key, String value) {
+        if (props == null) {
+            props = new HashMap<String, String>();
+        }
+        props.put(key, value);
+    }
+
+    public String getProperty(String key) {
+        if (props == null) {
+            return null;
+        }
+        return props.get(key);
+    }
+	
+	
+	
+	
 	
 }
