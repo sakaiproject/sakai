@@ -16,5 +16,6 @@
     <bean id="org.sakaiproject.sitestats.test.mocks.FakeServerConfigurationService" class="org.sakaiproject.sitestats.test.mocks.FakeServerConfigurationService" singleton="true"/>
     <bean id="org.sakaiproject.sitestats.test.mocks.FakeMemoryService" class="org.sakaiproject.sitestats.test.mocks.FakeMemoryService"/>
     <bean id="org.sakaiproject.sitestats.test.mocks.FakeSessionManager" class="org.sakaiproject.sitestats.test.mocks.FakeSessionManager"/>
-    
+    <bean id="org.sakaiproject.sitestats.test.mocks.FakeStatsAuthz" class="org.sakaiproject.sitestats.test.mocks.FakeStatsAuthz"/>
+    <bean id="org.sakaiproject.sitestats.test.mocks.FakeUserDirectoryService" class="org.sakaiproject.sitestats.test.mocks.FakeUserDirectoryService"/>
 </beans>

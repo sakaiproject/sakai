@@ -27,6 +27,16 @@
         <property name="serverConfigurationService" ref="org.sakaiproject.sitestats.test.mocks.FakeServerConfigurationService"/>
         <property name="db" ref="org.sakaiproject.sitestats.test.DB"/>
     </bean>
+    <bean id="org.sakaiproject.sitestats.test.ReportManagerTest"
+        class="org.sakaiproject.sitestats.test.ReportManagerTest">
+        <property name="reportManager" ref="org.sakaiproject.sitestats.test.ReportManager"/>
+        <property name="statsManager" ref="org.sakaiproject.sitestats.test.StatsManager"/>
+        <property name="statsUpdateManager" ref="org.sakaiproject.sitestats.test.StatsUpdateManager"/>
+        <property name="eventRegistryService" ref="org.sakaiproject.sitestats.test.mocks.FakeEventRegistryService"/>
+        <property name="toolManager" ref="org.sakaiproject.sitestats.test.mocks.FakeToolManager"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.sitestats.test.mocks.FakeServerConfigurationService"/>
+        <property name="db" ref="org.sakaiproject.sitestats.test.DB"/>
+    </bean>
     <!-- [END] Classes that will test others -->
     
     
@@ -68,6 +78,22 @@
                 <property name="sessionManager" ref="org.sakaiproject.sitestats.test.mocks.FakeSessionManager" />
                 <property name="eventTrackingService" ref="org.sakaiproject.sitestats.test.mocks.FakeEventTrackingService"/>
                 <property name="entityManager" ref="org.sakaiproject.sitestats.test.mocks.FakeEntityManager"/>                
+    </bean>
+    
+    <bean id="org.sakaiproject.sitestats.test.ReportManager" parent="sstTxTemplate"
+        class="org.sakaiproject.sitestats.impl.report.ReportManagerImpl"
+        singleton="true" lazy-init="true" init-method="init" destroy-method="destroy">    
+                <property name="statsManager" ref="org.sakaiproject.sitestats.test.StatsManager" />
+                <property name="statsAuthz" ref="org.sakaiproject.sitestats.test.mocks.FakeStatsAuthz" />
+                <property name="eventRegistryService" ref="org.sakaiproject.sitestats.test.mocks.FakeEventRegistryService"/>
+                <property name="siteService" ref="org.sakaiproject.mock.service.SiteService"/>
+                <!-- <property name="userService" ref="org.sakaiproject.mock.service.UserDirectoryService"/> -->
+                <property name="userService" ref="org.sakaiproject.sitestats.test.mocks.FakeUserDirectoryService"/>
+                <!-- <property name="contentService" ref="org.sakaiproject.content.api.ContentHostingService"/> -->
+                <property name="toolManager" ref="org.sakaiproject.sitestats.test.mocks.FakeToolManager"/>
+                <!-- <property name="timeService" ref="org.sakaiproject.time.api.TimeService" /> -->    
+                <property name="eventTrackingService" ref="org.sakaiproject.sitestats.test.mocks.FakeEventTrackingService"/>
+                <property name="memoryService" ref="org.sakaiproject.sitestats.test.mocks.FakeMemoryService" />                            
     </bean>
     <!-- [END] Target classes to test -->
 

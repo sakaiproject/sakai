@@ -165,6 +165,11 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		this.M_ms = memoryService;
 	}
 	
+	/** This one is needed for unit testing */
+	public void setResourceLoader(ResourceLoader msgs) {
+		this.msgs = msgs;
+	}
+	
 	public void init(){
 		// Initialize cacheReportDef and event observer for cacheReportDef invalidation across cluster
 		M_ets.addPriorityObserver(this);
@@ -524,9 +529,9 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			if(reportDef.getModifiedOn() == null) {
 				reportDef.setModifiedOn(new Date());
 			}
-			reportDef.setReportDefinitionXml(DigesterUtil.convertReportParamsToXml(reportDef.getReportParams()));			
+			reportDef.setReportDefinitionXml(DigesterUtil.convertReportParamsToXml(reportDef.getReportParams()));
 		}catch(Exception e) {
-			LOG.warn("saveReportDefinition(): unable to generate xml string from report parameters.");
+			LOG.warn("saveReportDefinition(): unable to generate xml string from report parameters.", e);
 			return false;
 		}
 		HibernateCallback hcb = new HibernateCallback() {
@@ -545,14 +550,14 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			}
 		};
 		Boolean success = (Boolean) getHibernateTemplate().execute(hcb);
-		if(success) {
+		if(success.booleanValue()) {
 			String siteId = reportDef.getSiteId();
 			if(siteId == null) {
 				siteId = reportDef.getReportParams().getSiteId();
 			}
 			M_sm.logEvent(reportDef, isNew ? StatsManager.LOG_ACTION_NEW : StatsManager.LOG_ACTION_EDIT, siteId, false);
 		}
-		return success;
+		return success.booleanValue();
 	}
 	
 	/* (non-Javadoc)

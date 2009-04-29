@@ -2321,8 +2321,11 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			/*if(totalsBy.contains(T_USER) 
 					&& (!dbVendor.equals("mysql") && anonymousEvents != null && anonymousEvents.size() > 0) ) {*/
 			if(totalsBy.contains(T_USER) 
-					&& anonymousEvents != null && anonymousEvents.size() > 0) {
-				groupFields.add("s.userId");
+				|| (queryType == Q_TYPE_RESOURCE && dbVendor.equals("hsql"))) {
+				if( (queryType == Q_TYPE_EVENT && (anonymousEvents != null && anonymousEvents.size() > 0))
+					|| queryType == Q_TYPE_RESOURCE) {
+					groupFields.add("s.userId");
+				}
 			}
 			/*if((queryType == Q_TYPE_EVENT || queryType == Q_TYPE_ACTIVITYTOTALS)
 					&& (totalsBy.contains(T_EVENT) || totalsBy.contains(T_TOOL)

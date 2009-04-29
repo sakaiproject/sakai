@@ -19,6 +19,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.PrefsData;
+import org.sakaiproject.sitestats.api.ResourceStat;
 import org.sakaiproject.sitestats.api.SiteActivityByTool;
 import org.sakaiproject.sitestats.api.SiteVisits;
 import org.sakaiproject.sitestats.api.Stat;
@@ -29,6 +30,7 @@ import org.sakaiproject.sitestats.api.SummaryActivityTotals;
 import org.sakaiproject.sitestats.api.SummaryVisitsChartData;
 import org.sakaiproject.sitestats.api.SummaryVisitsTotals;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
+import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.impl.StatsManagerImpl;
 import org.sakaiproject.sitestats.impl.StatsUpdateManagerImpl;
 import org.sakaiproject.sitestats.test.data.FakeData;
@@ -216,6 +218,14 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		assertEquals(false, M_sm.isEnableSiteActivity());
 		((StatsManagerImpl)M_sm).setEnableSiteActivity(true);
 		assertEquals(true, M_sm.isEnableSiteActivity());
+		// isEnableResourceStats
+		((StatsManagerImpl)M_sm).setEnableResourceStats(null);
+		((StatsManagerImpl)M_sm).setDefaultPropertiesIfNotSet();
+		assertEquals(true, M_sm.isEnableResourceStats());
+		((StatsManagerImpl)M_sm).setEnableResourceStats(false);
+		assertEquals(false, M_sm.isEnableResourceStats());
+		((StatsManagerImpl)M_sm).setEnableResourceStats(true);
+		assertEquals(true, M_sm.isEnableResourceStats());
 		// isServerWideStatsEnabled
 		((StatsManagerImpl)M_sm).setServerWideStatsEnabled(false);
 		assertEquals(false, M_sm.isServerWideStatsEnabled());
@@ -458,6 +468,26 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 				"http://localhost:8080"+FakeData.RES_DROPBOX_SITE_A_USER_A_FILE, 
 				M_sm.getResourceURL(FakeData.RES_DROPBOX_SITE_A_USER_A_FILE));
 		assertNull(M_sm.getResourceURL(null));
+		
+		
+		// #5 getTotalResources()
+		M_sum.collectEvents(Arrays.asList(
+				/* Files */
+				M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_A_ID+"/resource_id1", FakeData.SITE_A_ID, FakeData.USER_B_ID, "session-id-b"),
+				M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_A_ID+"/resource_id2", FakeData.SITE_A_ID, FakeData.USER_B_ID, "session-id-b"),
+				M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_A_ID+"/resource_id3", FakeData.SITE_A_ID, FakeData.USER_B_ID, "session-id-b"),
+				M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTDEL, "/content/group/"+FakeData.SITE_A_ID+"/resource_id1", FakeData.SITE_A_ID, FakeData.USER_B_ID, "session-id-b"),
+				M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTDEL, "/content/group/"+FakeData.SITE_A_ID+"/resource_id2", FakeData.SITE_A_ID, FakeData.USER_B_ID, "session-id-b"),
+				/* Folders */
+				M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_A_ID+"/folder_id1/", FakeData.SITE_A_ID, FakeData.USER_B_ID, "session-id-b"),
+				M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_A_ID+"/folder_id2/", FakeData.SITE_A_ID, FakeData.USER_B_ID, "session-id-b"),
+				M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTDEL, "/content/group/"+FakeData.SITE_A_ID+"/folder_id1/", FakeData.SITE_A_ID, FakeData.USER_B_ID, "session-id-b")
+		));
+		int totalFiles = M_sm.getTotalResources(FakeData.SITE_A_ID, true);
+		int totalFilesAndFolders = M_sm.getTotalResources(FakeData.SITE_A_ID, false);
+		assertEquals(1, totalFiles);
+		assertEquals(2, totalFilesAndFolders);
+		
 	}
 	
 	private List<Event> getSampleData() {
@@ -931,5 +961,191 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		
 		//System.out.println("Stats: "+stats);
 		//System.out.println("Size: "+stats.size());
+	}
+	
+	public void testResourceStats() {
+		M_sum.collectEvents(getSampleData());
+		Date now = new Date();
+		Date today = new Date(now.getTime() + 24*60*60*1000);
+		Date sixDaysBefore = new Date(today.getTime() - 6*24*60*60*1000);
+		
+		// #1
+		List<Stat> stats = M_sm.getResourceStats(FakeData.SITE_A_ID);
+		assertEquals(2, stats.size());
+		
+		// #2
+		stats = M_sm.getResourceStats(null, null, null,
+				null, null, null, false, null, 
+				null, null, false, 0);
+		assertNotNull(stats);
+		assertEquals(2, stats.size());
+		int statsCount = M_sm.getResourceStatsRowCount(null, null, null,
+				null, null, null, false, null);
+		assertEquals(2, statsCount);
+		
+		
+		stats = M_sm.getResourceStats(FakeData.SITE_A_ID, null, null,
+				sixDaysBefore, null, null, false, null, 
+				null, null, false, 0);
+		assertNotNull(stats);
+		assertEquals(1, stats.size());
+		statsCount = M_sm.getResourceStatsRowCount(FakeData.SITE_A_ID, null, null,
+				sixDaysBefore, null, null, false, null);
+		assertEquals(1, statsCount);
+			
+		stats = M_sm.getResourceStats(FakeData.SITE_A_ID, ReportManager.WHAT_RESOURCES_ACTION_REVS, null,
+				null, null, Arrays.asList(FakeData.USER_B_ID), false, null, 
+				null, null, false, 0);
+		assertNotNull(stats);
+		assertEquals(1, stats.size());
+		statsCount = M_sm.getResourceStatsRowCount(FakeData.SITE_A_ID, ReportManager.WHAT_RESOURCES_ACTION_REVS, null,
+				null, null, Arrays.asList(FakeData.USER_B_ID), false, null);
+		assertEquals(1, statsCount);
+		
+		// test inverse selection
+		stats = M_sm.getResourceStats(FakeData.SITE_A_ID, ReportManager.WHAT_RESOURCES_ACTION_NEW ,null, 
+				null, null, null, true, null, 
+				null, null, false, 0);
+		assertNotNull(stats);
+		assertEquals(1, stats.size());
+		assertEquals(FakeData.USER_A_ID, stats.get(0).getUserId());
+		
+		// test paging
+		stats = M_sm.getResourceStats(null, null, null,
+				null, null, null, false, new PagingPosition(0, 0), 
+				null, null, false, 0);
+		assertNotNull(stats);
+		assertEquals(1, stats.size());
+		statsCount = M_sm.getResourceStatsRowCount(null, null, null,
+				null, null, null, false, null);
+		assertEquals(2, statsCount);
+		
+		// test max results
+		stats = M_sm.getResourceStats(null, null, null,
+				null, null, null, false, new PagingPosition(0, 0), 
+				null, null, false, 1);
+		assertNotNull(stats);
+		assertEquals(1, stats.size());
+		
+		// test columns with sorting
+		stats = M_sm.getResourceStats(null, null, null,
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_RESOURCE_ACTION), StatsManager.T_RESOURCE_ACTION, true, 0);
+		assertNotNull(stats);
+		assertEquals(ReportManager.WHAT_RESOURCES_ACTION_NEW, ((ResourceStat)stats.get(0)).getResourceAction());
+		for(Stat s : stats) {
+			ResourceStat es = (ResourceStat) s;
+			assertNotNull(es.getResourceAction());
+			assertNotNull(es.getCount());
+			assertNull(es.getSiteId());
+			assertNull(es.getDate());
+			assertNull(es.getUserId());
+			assertNull(es.getResourceRef());
+		}
+		assertEquals(2, stats.size());
+		stats = M_sm.getResourceStats(null, null, null,
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_RESOURCE_ACTION), StatsManager.T_RESOURCE_ACTION, false, 0);
+		assertNotNull(stats);
+		assertEquals(ReportManager.WHAT_RESOURCES_ACTION_REVS, ((ResourceStat)stats.get(0)).getResourceAction());
+		assertEquals(2, stats.size());
+		
+		// group by: defaults
+		stats = M_sm.getResourceStats(null, null, null,
+				null, null, null, false, null, 
+				null, null, false, 0);
+		assertNotNull(stats);
+		assertEquals(2, stats.size());		
+		statsCount = M_sm.getResourceStatsRowCount(null, null, null,
+				null, null, null, false, null);
+		assertEquals(2, statsCount);
+		// group by: site
+		stats = M_sm.getResourceStats(null, null, null,
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_SITE, StatsManager.T_USER), null, false, 0);
+		assertNotNull(stats);
+		assertEquals(1, stats.size());
+		statsCount = M_sm.getResourceStatsRowCount(null, null, null,
+				null, null, null, false, Arrays.asList(StatsManager.T_SITE, StatsManager.T_USER));
+		assertEquals(1, statsCount);
+		stats = M_sm.getResourceStats(null, null, null,
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_SITE, StatsManager.T_RESOURCE), null, false, 0);
+		assertNotNull(stats);
+		assertEquals(1, stats.size());
+		statsCount = M_sm.getResourceStatsRowCount(null, null, null,
+				null, null, null, false, Arrays.asList(StatsManager.T_SITE, StatsManager.T_RESOURCE));
+		assertEquals(1, statsCount);
+		stats = M_sm.getResourceStats(null, null, null,
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_SITE), null, false, 0);
+		assertNotNull(stats);
+		assertEquals(1, stats.size());
+		statsCount = M_sm.getResourceStatsRowCount(null, null, null,
+				null, null, null, false, Arrays.asList(StatsManager.T_SITE));
+		assertEquals(1, statsCount);
+		// group by: user
+		stats = M_sm.getResourceStats(FakeData.SITE_A_ID, null, null,
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_USER), null, false, 0);
+		assertNotNull(stats);
+		assertEquals(1, stats.size());
+		statsCount = M_sm.getResourceStatsRowCount(FakeData.SITE_A_ID, null, null,
+				null, null, null, false, Arrays.asList(StatsManager.T_USER));
+		assertEquals(1, statsCount);
+		// group by: resource
+		stats = M_sm.getResourceStats(FakeData.SITE_A_ID, null, Arrays.asList("/content/group/"+FakeData.SITE_A_ID+"/resource_id"), 
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_RESOURCE), null, false, 0);
+		assertNotNull(stats);
+		assertEquals(1, stats.size());
+		statsCount = M_sm.getResourceStatsRowCount(FakeData.SITE_A_ID, null, Arrays.asList("/content/group/"+FakeData.SITE_A_ID+"/resource_id"),
+				null, null, null, false, Arrays.asList(StatsManager.T_RESOURCE));
+		assertEquals(1, statsCount);
+		// group by: resource action
+		stats = M_sm.getResourceStats(FakeData.SITE_A_ID, ReportManager.WHAT_RESOURCES_ACTION_NEW, null,
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_RESOURCE_ACTION), null, false, 0);
+		assertNotNull(stats);
+		assertEquals(1, stats.size());
+		statsCount = M_sm.getResourceStatsRowCount(FakeData.SITE_A_ID, ReportManager.WHAT_RESOURCES_ACTION_NEW, null,
+				null, null, null, false, Arrays.asList(StatsManager.T_RESOURCE_ACTION));
+		assertEquals(1, statsCount);
+		// group by: date
+		stats = M_sm.getResourceStats(FakeData.SITE_A_ID, null, null,
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_DATE), null, false, 0);
+		assertNotNull(stats);
+		assertEquals(2, stats.size());
+		statsCount = M_sm.getResourceStatsRowCount(FakeData.SITE_A_ID, null, null,
+				null, null, null, false, Arrays.asList(StatsManager.T_DATE));
+		assertEquals(2, statsCount);
+		// group by: datemonth
+		stats = M_sm.getResourceStats(FakeData.SITE_A_ID, null, null,
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_DATEMONTH), null, false, 0);
+		assertNotNull(stats);
+		assertTrue(stats.size() <= 2);
+		statsCount = M_sm.getResourceStatsRowCount(FakeData.SITE_A_ID, null, null,
+				null, null, null, false, Arrays.asList(StatsManager.T_DATEMONTH));
+		assertTrue(statsCount <= 2);
+		// group by: dateyear
+		stats = M_sm.getResourceStats(FakeData.SITE_A_ID, null, null, 
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_DATEYEAR), null, false, 0);
+		assertNotNull(stats);
+		assertTrue(stats.size() <= 2);
+		statsCount = M_sm.getResourceStatsRowCount(FakeData.SITE_A_ID, null, null, 
+				null, null, null, false, Arrays.asList(StatsManager.T_DATEYEAR));
+		assertTrue(statsCount <= 2);
+		// group by: lastdate
+		stats = M_sm.getResourceStats(FakeData.SITE_A_ID, null, null,
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_LASTDATE), null, false, 0);
+		assertNotNull(stats);
+		assertEquals(1, stats.size());
+		statsCount = M_sm.getResourceStatsRowCount(FakeData.SITE_A_ID, null, null,
+				null, null, null, false, Arrays.asList(StatsManager.T_LASTDATE));
+		assertEquals(1, statsCount);
 	}
 }
