@@ -23,7 +23,6 @@ package org.sakaiproject.presence.tool;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
@@ -42,7 +41,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -71,6 +69,9 @@ public class PresenceTool extends HttpServlet
 	/** Tool state attribute where the chat observer is stored. */
 	protected static final String ATTR_CHAT_OBSERVER = "chat_observer";
 
+	/** Presence prefix for context id for chat presence in a site **/
+	protected static final String CHAT_CONTEXT_PRESENCE_PREFIX = "chat_site_";
+
 	/** Localized messages * */
 	ResourceLoader rb = new ResourceLoader("presence");
 
@@ -96,9 +97,6 @@ public class PresenceTool extends HttpServlet
 	 */
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
 	{
-		// get the Sakai session
-		Session session = SessionManager.getCurrentSession();
-
 		// get the current tool session, where we store our observer
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 
@@ -121,14 +119,14 @@ public class PresenceTool extends HttpServlet
 		}
 
 		// get the list of users at the location
-		List users = PresenceService.getPresentUsers(location, placement.getContext());
+		List<User> users = PresenceService.getPresentUsers(location, placement.getContext());
 		
 		// get SiteId from the current placement and retrieve site
 		String siteId = placement.getContext();
 
 		Site site = null;
 		ToolConfiguration toolConfig = null;
-		List chatUsers = null;
+		List<User> chatUsers = null;
 
 		if (siteId != null)
 		{
@@ -149,13 +147,14 @@ public class PresenceTool extends HttpServlet
 
 		if (toolConfig != null)
 		{
-			String chatLocation = toolConfig.getId();
+			// Check the secondary chat presence that's specific to the site (rather than channel or placement)
+			String chatLocation = CHAT_CONTEXT_PRESENCE_PREFIX + siteId;
 			chatUsers = PresenceService.getPresentUsers(chatLocation, siteId);
 
 			PresenceObservingCourier chatObserver = (PresenceObservingCourier) toolSession.getAttribute(ATTR_CHAT_OBSERVER);
 			if (chatObserver == null)
 			{
-				// Monitor presense changes at chatLocation and deliver them to this window's location with
+				// Monitor presence changes at chatLocation and deliver them to this window's location with
 				// no sub window (null)
 				chatObserver = new PresenceObservingCourier(location, null, chatLocation);
 				toolSession.setAttribute(ATTR_CHAT_OBSERVER, chatObserver);
@@ -227,7 +226,7 @@ public class PresenceTool extends HttpServlet
 	 * @param out
 	 * @param users
 	 */
-	protected void sendPresence(PrintWriter out, List users, List chatUsers)
+	protected void sendPresence(PrintWriter out, List<User> users, List<User> chatUsers)
 	{
 		// is the current user running under an assumed (SU) user id?
 		String asName = null;
@@ -265,9 +264,7 @@ public class PresenceTool extends HttpServlet
 		// first pass - list Chat users (if any)
 		if (chatUsers != null)
 		{
-			for (Iterator i = chatUsers.iterator(); i.hasNext();)
-			{
-				User u = (User) i.next();
+			for (User u : chatUsers) {
 				String displayName = u.getDisplayName();
 
 				// adjust if this is the current user running as someone else
@@ -280,20 +277,19 @@ public class PresenceTool extends HttpServlet
 				out.print("<li class=\"inChat\">");
 				out.print("<span title=\"" + msg + "\">");
 				out.print(Web.escapeHtml(displayName));
-				out.println("</span></li>");
+				out.println("</span></li>");				
 			}
 		}
 
 		// second pass - list remaining non-chat users
-		List nonChatUsers = new Vector(users);
+		List<User> nonChatUsers = new Vector<User>(users);
 		if (chatUsers != null)
 		{
 			nonChatUsers.removeAll(chatUsers);
 		}
-		for (Iterator i = nonChatUsers.iterator(); i.hasNext();)
-		{
-			User u = (User) i.next();
 
+		for (User u : nonChatUsers)
+		{
 			String displayName = u.getDisplayName();
 
 			// adjust if this is the current user running as someone else
