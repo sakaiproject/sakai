@@ -3008,7 +3008,7 @@ public class AssignmentAction extends PagedResourceActionII
 									if (submitters != null && submitters.length > 0) {
 										String submitterId = submitters[0].getId();
 										String gradeString = StringUtil.trimToNull(aSubmission.getGrade(false));
-										Double grade = gradeString != null ? Double.valueOf(displayGrade(state,gradeString)) : null;
+										String grade = gradeString != null ? displayGrade(state,gradeString) : null;
 										m.put(submitterId, grade);
 									}
 								}
