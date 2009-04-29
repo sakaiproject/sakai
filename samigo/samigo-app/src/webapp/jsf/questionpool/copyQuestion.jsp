@@ -51,10 +51,6 @@
 <h:outputText value="#{questionPoolMessages.copy_q_to}"/>
 
 <h:outputText value=""/>
-<h:panelGroup>
-<%@ include file="/jsf/questionpool/test.jsp" %>
-</h:panelGroup>
-
 
 <h:outputText styleClass="number" value="2"/>
 <h:outputText value="#{questionPoolMessages.click_copy}"/>

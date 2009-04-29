@@ -639,10 +639,6 @@
       <from-outcome>sortCore</from-outcome>
       <to-view-id>/jsf/author/authorIndex.jsp</to-view-id>
     </navigation-case>
-    <navigation-case>
-      <from-outcome>test</from-outcome>
-      <to-view-id>/jsf/questionpool/test.jsp</to-view-id>
-    </navigation-case>
 
   <!-- DELIVERY -->
     <navigation-case>
