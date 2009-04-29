@@ -4446,8 +4446,33 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				{
 					out.write(data, 0, bCount);
 				}
-				out.closeEntry();
-				content.close();
+				
+				try
+				{
+					out.closeEntry(); // The zip entry need to be closed
+				}
+				catch (IOException ioException)
+				{
+					M_log.warn(this + ":zipAttachments: problem closing zip entry " + ioException.getMessage());
+				}
+				
+				try
+				{
+					bContent.close(); // The BufferedInputStream needs to be closed
+				}
+				catch (IOException ioException)
+				{
+					M_log.warn(this + ":zipAttachments: problem closing FileChannel " + ioException.getMessage());
+				}
+				
+				try
+				{
+					content.close(); // The input stream needs to be closed
+				}
+				catch (IOException ioException)
+				{
+					M_log.warn(this + ":zipAttachments: problem closing Inputstream content " + ioException.getMessage());
+				}
 			}
 			catch (PermissionException e)
 			{

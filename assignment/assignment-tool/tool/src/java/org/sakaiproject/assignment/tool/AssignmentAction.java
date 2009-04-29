@@ -11056,7 +11056,14 @@ public class AssignmentAction extends PagedResourceActionII
     			}
     			zin.closeEntry();
 			} finally {
-			    fout.close();
+				try
+				{
+					fout.close(); // The file channel needs to be closed before the deletion.
+				}
+				catch (IOException ioException)
+				{
+					M_log.warn(this + "readIntoBytes: problem closing FileOutputStream " + ioException.getMessage());
+				}
 			}
 			
 			FileInputStream fis = new FileInputStream(f);
@@ -11067,8 +11074,25 @@ public class AssignmentAction extends PagedResourceActionII
     			ByteBuffer bb = ByteBuffer.wrap(data);
     			fc.read(bb);
 			} finally {
-			    fc.close(); // The file channel needs to be closed before the deletion.
+				try
+				{
+					fc.close(); // The file channel needs to be closed before the deletion.
+				}
+				catch (IOException ioException)
+				{
+					M_log.warn(this + "readIntoBytes: problem closing FileChannel " + ioException.getMessage());
+				}
+				
+				try
+				{
+					fis.close(); // The file inputstream needs to be closed before the deletion.
+				}
+				catch (IOException ioException)
+				{
+					M_log.warn(this + "readIntoBytes: problem closing FileInputStream " + ioException.getMessage());
+				}
 			}
+			
             //remove the file
 			f.delete();
 			
