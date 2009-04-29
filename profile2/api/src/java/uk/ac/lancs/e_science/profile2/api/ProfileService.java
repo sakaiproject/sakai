@@ -2,6 +2,7 @@ package uk.ac.lancs.e_science.profile2.api;
 
 import java.util.List;
 
+import uk.ac.lancs.e_science.profile2.api.entity.model.Connection;
 import uk.ac.lancs.e_science.profile2.api.entity.model.UserProfile;
 
 /**
@@ -75,14 +76,20 @@ public interface ProfileService {
 	
 	
 	/**
-	 * Get a list of connections for the given user.
+	 * Get a list of connections (as userIds) for the given user.
 	  * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
 	 * @param currentUser - either internal user id or eid for user that is making the request for the list.
-	 * @return
+	 * @return List of uuids or null if error
 	 */
-	public List<String> getConnectionsForUser(String userId, String currentUser);
+	public List<String> getConnectionIdsForUser(String userId, String currentUser);
 	
-	
+	/**
+	 * Get a list of Connections (as Collection objects) for the given user.
+	  * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
+	 * @param currentUser - either internal user id or eid for user that is making the request for the list.
+	 * @return List of Connections or null if error
+	 */
+	public List<Connection> getConnectionsForUser(String userId, String currentUser);
 	
 	
 	//public String getExternalProfileImageUrl(String userId, String currentUser);

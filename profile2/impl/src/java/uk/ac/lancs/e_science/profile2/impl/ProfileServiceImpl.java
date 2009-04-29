@@ -11,6 +11,7 @@ import uk.ac.lancs.e_science.profile2.api.ProfilePreferencesManager;
 import uk.ac.lancs.e_science.profile2.api.ProfilePrivacyManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileService;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
+import uk.ac.lancs.e_science.profile2.api.entity.model.Connection;
 import uk.ac.lancs.e_science.profile2.api.entity.model.UserProfile;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfileMismatchException;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePreferences;
@@ -198,7 +199,7 @@ public class ProfileServiceImpl implements ProfileService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<String> getConnectionsForUser(String userId, String currentUser) {
+	public List<String> getConnectionIdsForUser(String userId, String currentUser) {
 		
 		//convert ids into uuids
 		String userUuid = getUuidForUserId(userId);
@@ -213,13 +214,38 @@ public class ProfileServiceImpl implements ProfileService {
 		//check friend status
 		boolean friend = profile.isUserXFriendOfUserY(userUuid, currentUserUuid);
 		
-		List<String> connections = new ArrayList<String>();
+		List<String> connectionIds = new ArrayList<String>();
 		
 		if(profile.isUserXFriendsListVisibleByUserY(userUuid, currentUserUuid, friend)) {
-			connections = profile.getConfirmedFriendUserIdsForUser(userUuid);
+			connectionIds = profile.getConfirmedFriendUserIdsForUser(userUuid);
 		}
+		return connectionIds;
+	}
+	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<Connection> getConnectionsForUser(String userId, String currentUser) {
+		
+		//pass off to get the list of uuids. Checks done in above method
+		List<String> connectionIds = new ArrayList<String>();
+		connectionIds = getConnectionIdsForUser(userId, currentUser);
+		
+		if(connectionIds == null) {
+			return null;
+		}
+		
+		//convert userIds to Connections
+		List<Connection> connections = new ArrayList<Connection>();
+		for(String connectionId: connectionIds) {
+			connections.add(new Connection(connectionId, sakaiProxy.getUserDisplayName(connectionId)));
+		}
+		
 		return connections;
 	}
+	
+	
 	
 	/**
 	 * This is a helper method to take care of getting the status and adding it to the profile.
