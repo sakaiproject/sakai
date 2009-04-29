@@ -2417,6 +2417,7 @@ public class DbContentService extends BaseContentService
 				catch(SQLException e)
 				{
 					// ignore?
+					M_log.debug("SqlException unable to read entity");
 				}
 				catch(EntityParseException e)
 				{
@@ -2453,7 +2454,7 @@ public class DbContentService extends BaseContentService
 					}
 					catch(SQLException e)
 					{
-						
+						M_log.debug("SqlException problem with results");
 					}
 				}
 				return edit;
@@ -2562,6 +2563,7 @@ public class DbContentService extends BaseContentService
 		}
 	}
 
+
 	/**
 	 * Create a file system body binary for any content_resource record that has a null file_path.
 	 */
@@ -2569,20 +2571,20 @@ public class DbContentService extends BaseContentService
 	{
 		M_log.info("convertToFile");
 		
-		final Pattern contextPattern = Pattern.compile("\\A/group/(.+?)/");
-
+		//final Pattern contextPattern = Pattern.compile("\\A/group/(.+?)/");
+	
 		try
 		{
 			// get a connection for the updates
 			final Connection connection = m_sqlService.borrowConnection();
 			boolean wasCommit = connection.getAutoCommit();
 			connection.setAutoCommit(false);
-
+	
 			// get a connection for reading binary
 			final Connection sourceConnection = m_sqlService.borrowConnection();
-
+	
 			final Counter count = new Counter();
-
+	
 			// read content_resource records that have null file path
 			String sql = contentServiceSql.getResourceIdXmlSql();
 			m_sqlService.dbRead(sql, null, new SqlReader()
@@ -2590,111 +2592,170 @@ public class DbContentService extends BaseContentService
 				public Object readSqlResultRecord(ResultSet result)
 				{
 					String id = null;
+					BaseResourceEdit edit = null;
+
 					try
 					{
-						// create the Resource from the db xml
-						id = result.getString(1);
-						String xml = result.getString(2);
-						if (xml == null)
+						Object clob = result.getObject(3);
+						if(clob != null && clob instanceof byte[])
 						{
-							M_log.warn("convertToFile: null xml : " + id);
-							return null;
+							edit = new BaseResourceEdit();
+							resourceSerializer.parse(edit, (byte[]) clob);
 						}
-
-						// read the xml
-						Document doc = Xml.readDocumentFromString(xml);
-						if (doc == null)
-						{
-							M_log.warn("convertToFile: null xml doc : " + id);
-							return null;
-						}
-
-						// verify the root element
-						Element root = doc.getDocumentElement();
-						if (!root.getTagName().equals("resource"))
-						{
-							M_log.warn("convertToFile: XML root element not resource: " + root.getTagName());
-							return null;
-						}
-						BaseResourceEdit edit = new BaseResourceEdit(root);
-
-						// zero length?
-						if (edit.getContentLength() == 0)
-						{
-							M_log.warn("convertToFile: zero length body : " + id);
-							return null;
-						}
-
-						// is it there?
-						String sql = contentServiceSql.getResourceId2Sql();
-						Object[] fields = new Object[1];
-						fields[0] = id;
-						List found = m_sqlService.dbRead(sourceConnection, sql, fields, null);
-						if ((found == null) || (found.size() == 0))
-						{
-							// not found
-							M_log.warn("convertToFile: body not found in source : " + id);
-							return null;
-						}
-
-						// get the creation date (or modified date, or now)
-						Time created = null;
+					}
+					catch(SQLException e)
+					{
+						// ignore?
+						M_log.debug("convertToFile(): SqlException unable to read entity");
+						edit = null;
+					}
+					catch(EntityParseException e)
+					{
+						M_log.warn("convertToFile(): EntityParseException unable to parse entity");
+						edit = null;
+					}
+					if(edit == null)
+					{
 						try
 						{
-							created = edit.getProperties().getTimeProperty(ResourceProperties.PROP_CREATION_DATE);
+							String xml = result.getString(2);
+							if (xml == null)
+							{
+								M_log.warn("convertToFile(): null xml : " );
+								return null;
+							}
+
+							// read the xml
+							Document doc = Xml.readDocumentFromString(xml);
+							if (doc == null)
+							{
+								M_log.warn("convertToFile(): null xml doc : " );
+								return null;
+							}
+
+							// verify the root element
+							Element root = doc.getDocumentElement();
+							if (!root.getTagName().equals("resource"))
+							{
+								M_log.warn("convertToFile(): XML root element not resource: " + root.getTagName());
+								return null;
+							}
+							edit = new BaseResourceEdit(root);
+
 						}
-						catch (Exception any)
+						catch(SQLException e)
 						{
-							try
-							{
-								created = edit.getProperties().getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE);
-							}
-							catch (Exception e)
-							{
-								created = TimeService.newTime();
-							}
+							M_log.debug("convertToFile(): SqlException problem with results");
 						}
+					}
+					
+					if(edit == null)
+					{
+						return null;
+					}
 
-						// form the file name
-						edit.setFilePath(created);
+					// zero length?
+					if (edit.getContentLength() == 0)
+					{
+						M_log.warn("convertToFile(): zero length body : " + id);
+						return null;
+					}
+					
+					id = edit.getId();
+					
+					if(id == null)
+					{
+						return null;
+					}
+						
 
+					// is resource body in db there?
+					String sql = contentServiceSql.getResourceId2Sql();
+					Object[] fields = new Object[1];
+					fields[0] = id;
+					List found = m_sqlService.dbRead(sourceConnection, sql, fields, null);
+					if ((found == null) || (found.size() == 0))
+					{
+						// not found
+						M_log.warn("convertToFile(): body not found in source : " + id);
+						return null;
+					}
+
+					// get the creation date (or modified date, or now)
+					Time created = null;
+					try
+					{
+						created = edit.getProperties().getTimeProperty(ResourceProperties.PROP_CREATION_DATE);
+					}
+					catch (Exception any)
+					{
+						try
+						{
+							created = edit.getProperties().getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE);
+						}
+						catch (Exception e)
+						{
+							created = TimeService.newTime();
+						}
+					}
+
+					// form the file name
+					edit.setFilePath(created);
+
+					try
+					{
 						// read the body from the source
 						sql = contentServiceSql.getBodySql(m_resourceBodyTableName);
-						byte[] body = new byte[edit.m_contentLength];
-						m_sqlService.dbReadBinary(sourceConnection, sql, fields, body);
-
+						InputStream stream = m_sqlService.dbReadBinary(sql, fields, true);
+						
+						//byte[] body = new byte[edit.m_contentLength];
+						//m_sqlService.dbReadBinary(sourceConnection, sql, fields, body);
+	
 						// write the body to the file
-						boolean ok = ((DbStorage) m_storage).putResourceBodyFilesystem(edit, body);
+						boolean ok = ((DbStorage) m_storage).putResourceBodyFilesystem(edit, stream);
 						if (!ok)
 						{
 							M_log.warn("convertToFile: body file failure : " + id + " file: " + edit.m_filePath);
 							return null;
 						}
-
-						// regenerate the xml, now with file path set
-						doc = Xml.createDocument();
-						edit.toXml(doc, new Stack());
-						xml = Xml.writeDocumentToString(doc);
-
+					}
+					catch (ServerOverloadException e)
+					{
+						M_log.debug("convertToFile(): ServerOverloadException moving resource body for " + id);
+						return null;
+					}
+					
+					// write resource back to db, now with file path set
+					
+					try
+					{
+						// regenerate the serialization
+						byte[] serialization = resourceSerializer.serialize(edit);
+						
 						Matcher contextMatcher = contextPattern.matcher(id);
 						String context = null;
 						if(contextMatcher.find())
 						{
-							context = contextMatcher.group(1);
+							String root = contextMatcher.group(1);
+							context = contextMatcher.group(2);
+							if(! root.equals("group/"))
+							{
+								context = "~" + context;
+							}
 						}
 						
 						// update the record
 						sql = contentServiceSql.getUpdateContentResource3Sql();
 						fields = new Object[6];
 						fields[0] = edit.m_filePath;
-						fields[1] = xml;
+						fields[1] = serialization;
 						fields[2] = context;
 						fields[3] = new Integer(edit.m_contentLength);
 						fields[4] = edit.getResourceType();
 						fields[5] = id;
 						
 						m_sqlService.dbWrite(connection, sql, fields);
-
+	
 						// m_logger.info(" ** converted: " + id + " size: " +
 						// edit.m_contentLength);
 						count.value++;
@@ -2703,7 +2764,12 @@ public class DbContentService extends BaseContentService
 							connection.commit();
 							M_log.info(" ** converted: " + count.value);
 						}
-
+	
+						return null;
+					}
+					catch (EntityParseException e)
+					{
+						M_log.debug("convertToFile(): EntityParseException for " + id);
 						return null;
 					}
 					catch (Throwable e)
@@ -2713,13 +2779,13 @@ public class DbContentService extends BaseContentService
 					}
 				}
 			});
-
+	
 			connection.commit();
-
+	
 			M_log.info("convertToFile: converted resources: " + count.value);
-
+	
 			m_sqlService.returnConnection(sourceConnection);
-
+	
 			connection.setAutoCommit(wasCommit);
 			m_sqlService.returnConnection(connection);
 		}
@@ -2727,7 +2793,7 @@ public class DbContentService extends BaseContentService
 		{
 			M_log.warn("convertToFile: failed: " + t);
 		}
-
+	
 		M_log.info("convertToFile: done");
 	}
 

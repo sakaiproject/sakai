@@ -120,7 +120,7 @@ public class ContentServiceSqlDefault implements ContentServiceSql
 	 */
 	public String getResourceIdXmlSql()
 	{
-		return "select RESOURCE_ID, XML from CONTENT_RESOURCE where FILE_PATH IS NULL";
+		return "select RESOURCE_ID, XML, BINARY_ENTITY from CONTENT_RESOURCE where FILE_PATH IS NULL";
 	}
 
 	/**
@@ -152,7 +152,7 @@ public class ContentServiceSqlDefault implements ContentServiceSql
 	 */
 	public String getUpdateContentResource3Sql()
 	{
-		return "update CONTENT_RESOURCE set FILE_PATH = ?, XML = ?, CONTEXT = ?, FILE_SIZE = ?, RESOURCE_TYPE_ID = ? where RESOURCE_ID = ?";
+		return "update CONTENT_RESOURCE set FILE_PATH = ?, XML = NULL, BINARY_ENTITY = ?, CONTEXT = ?, FILE_SIZE = ?, RESOURCE_TYPE_ID = ? where RESOURCE_ID = ?";
 	}
 
 	/**
