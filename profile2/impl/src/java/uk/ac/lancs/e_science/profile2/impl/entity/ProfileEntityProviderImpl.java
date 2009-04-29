@@ -5,7 +5,6 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -23,6 +22,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileService;
 import uk.ac.lancs.e_science.profile2.api.entity.ProfileEntityProvider;
+import uk.ac.lancs.e_science.profile2.api.entity.model.Connection;
 import uk.ac.lancs.e_science.profile2.api.entity.model.UserProfile;
 
 public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
@@ -124,7 +124,7 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 		}
 	}
 	
-	@EntityCustomAction(action="connections",viewKey="")
+	@EntityCustomAction(action="connections",viewKey=EntityView.VIEW_SHOW)
 	public Object getConnections(EntityView view, EntityReference ref) {
 		
 		//check auth
@@ -133,8 +133,10 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 		}
 		
 		//get list of connections
-		List<String> connections = profileService.getConnectionsForUser(ref.getId(), sessionManager.getCurrentSessionUserId());
-		
+		List<Connection> connections = profileService.getConnectionsForUser(ref.getId(), sessionManager.getCurrentSessionUserId());
+		if(connections == null) {
+			throw new EntityException("Error retrieving connections for: " + ref.getId(), ref.getReference());
+		}
 		ActionReturn actionReturn = new ActionReturn(connections);
 		return actionReturn;
 	}
