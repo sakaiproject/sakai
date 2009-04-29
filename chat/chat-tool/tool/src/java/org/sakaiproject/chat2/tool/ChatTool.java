@@ -153,6 +153,8 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    
    private static final String PERMISSION_ERROR = "perm_error";
    private static final String PRESENCE_PREPEND = "chat_room_";
+
+   private static final String CHAT_CONTEXT_PRESENCE_PREFIX = "chat_site_";
    
    private static final int MESSAGEOPTIONS_NULL = -99;
    private static final int MESSAGEOPTIONS_ALL_MESSAGES = -1;
@@ -870,7 +872,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     * @return String
     */
    public String getCourierString() {
-      return "/courier/" + getCurrentChatChannelId();
+      return "/courier/" + getCurrentChatChannelId() + "/" + CHAT_CONTEXT_PRESENCE_PREFIX + getContext();
    }
 
    /**
