@@ -1073,33 +1073,30 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     		boolean forwardingEnabled = false;
     		String forwardAddress = null;
     		//as this is a hefty overhead only do this if we're not sending as email
-    		if (!asEmail) {
-    			/** determine if recipient has forwarding enabled */
+    		
+    		PrivateForum pf = null;
+    		if (pfMap.containsKey(userId))
+    			pf = pfMap.get(userId);
 
-    			PrivateForum pf = null;
-    			if (pfMap.containsKey(userId))
-    				pfMap.get(userId);
-
-    			if (pf != null && pf.getAutoForward().booleanValue()){
-    				forwardingEnabled = true;
-    				forwardAddress = pf.getAutoForwardEmail();
-    			}
-    			if( pf == null)  
-    			{
-    				//only check for default settings if the pf is null
-    				PrivateForum oldPf = forumManager.getPrivateForumByOwnerAreaNull(userId);
-    				if (oldPf != null && oldPf.getAutoForward().booleanValue()) {
-    					forwardAddress = oldPf.getAutoForwardEmail();
-    					forwardingEnabled = true;
-    				}
-    			}
-
+    		if (pf != null && pf.getAutoForward().booleanValue()){
+    			forwardingEnabled = true;
+    			forwardAddress = pf.getAutoForwardEmail();
     		}
+    		if( pf == null)  
+    		{
+    			//only check for default settings if the pf is null
+    			PrivateForum oldPf = forumManager.getPrivateForumByOwnerAreaNull(userId);
+    			if (oldPf != null && oldPf.getAutoForward().booleanValue()) {
+    				forwardAddress = oldPf.getAutoForwardEmail();
+    				forwardingEnabled = true;
+    			}
+    		}
+
     		/** determine if current user is equal to recipient */
     		Boolean isRecipientCurrentUser = 
     			(currentUserAsString.equals(userId) ? Boolean.TRUE : Boolean.FALSE);      
 
-    		if (!asEmail && forwardingEnabled){
+    		if (forwardingEnabled){
     			emailService.send(systemEmail, forwardAddress, message.getTitle(), 
     					bodyString, u.getEmail(), null, additionalHeaders);
 
