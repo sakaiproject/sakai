@@ -145,11 +145,9 @@
 	<distributionManagement>
 		<snapshotRepository>
 			<uniqueVersion>false</uniqueVersion>
-			<id>snapshots</id>
-			<name>CET snapshot Repo</name>
-			<url>
-				http://srvslscet001.uct.ac.za:8081/nexus/content/repositories/snapshots
-			</url>
+			<id>sakai-maven-snapshots</id>
+			<name>Sakai snapshot Repo</name>
+			<url>https://source.sakaiproject.org/maven2-snapshots</url>
 			<layout>default</layout>
 		</snapshotRepository>
 		<repository>
