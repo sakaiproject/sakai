@@ -53,7 +53,6 @@
     <!-- EntityBroker beans -->
 	<bean id="uk.ac.lancs.e_science.profile2.api.entity.ProfileEntityProvider" class="uk.ac.lancs.e_science.profile2.impl.entity.ProfileEntityProviderImpl">
 		<property name="profileService" ref="uk.ac.lancs.e_science.profile2.api.ProfileService" />
-		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 	</bean>
 	
 	<!-- 

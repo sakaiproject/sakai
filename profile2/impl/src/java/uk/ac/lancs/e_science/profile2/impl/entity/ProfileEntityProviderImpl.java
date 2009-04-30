@@ -17,7 +17,6 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
-import org.sakaiproject.tool.api.SessionManager;
 
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileService;
@@ -49,13 +48,8 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 	
 	public Object getEntity(EntityReference ref) {
 	
-		//check auth
-		if (sessionManager.getCurrentSessionUserId() == null) {
-			throw new SecurityException();
-		}
-		
-		//get the full profile, with privacy checks against the requesting user
-		UserProfile entity = profileService.getFullUserProfile(ref.getId(), sessionManager.getCurrentSessionUserId());
+		//get the full profile for the user. takes care of privacy checks against the current user
+		UserProfile entity = profileService.getFullUserProfile(ref.getId());
 		if(entity == null) {
 			throw new EntityNotFoundException("Profile could not be retrieved for " + ref.getId(), ref.getReference());
 		}
@@ -64,14 +58,9 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 	
 	@EntityCustomAction(action="minimal",viewKey=EntityView.VIEW_SHOW)
 	public Object getMinimalProfile(EntityReference ref) {
-		
-		//check auth
-		if (sessionManager.getCurrentSessionUserId() == null) {
-			throw new SecurityException();
-		}
-		
+				
 		//get the minimal profile, with privacy checks against the requesting user
-		UserProfile entity = profileService.getMinimalUserProfile(ref.getId(), sessionManager.getCurrentSessionUserId());
+		UserProfile entity = profileService.getMinimalUserProfile(ref.getId());
 		if(entity == null) {
 			throw new EntityException("Profile could not be retrieved for " + ref.getId(), ref.getReference());
 		}
@@ -81,13 +70,8 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 	@EntityCustomAction(action="image",viewKey=EntityView.VIEW_SHOW)
 	public Object getMainImage(OutputStream out, EntityView view, EntityReference ref) {
 		
-		//check auth
-		if (sessionManager.getCurrentSessionUserId() == null) {
-			throw new SecurityException();
-		}
-		
 		//get main profile image. 
-		byte[] b = profileService.getProfileImage(ref.getId(), sessionManager.getCurrentSessionUserId(), ProfileImageManager.PROFILE_IMAGE_MAIN);
+		byte[] b = profileService.getProfileImage(ref.getId(),ProfileImageManager.PROFILE_IMAGE_MAIN);
 		
 		if(b == null) {
 			throw new EntityNotFoundException("No profile image for " + ref.getId(), ref.getReference());
@@ -97,20 +81,15 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 			out.write(b);
 			return new ActionReturn(out);
 		} catch (IOException e) {
-			throw new EntityException("Error retrieving profile image for: " + ref.getId() + " : " + e.getMessage(), ref.getReference());
+			throw new EntityException("Error retrieving profile image for " + ref.getId() + " : " + e.getMessage(), ref.getReference());
 		}
 	}
 	
 	@EntityCustomAction(action="imagethumb",viewKey=EntityView.VIEW_SHOW)
 	public Object getThumbnailImage(OutputStream out, EntityView view, EntityReference ref) {
 		
-		//check auth
-		if (sessionManager.getCurrentSessionUserId() == null) {
-			throw new SecurityException();
-		}
-		
 		//get thumbnail profile image. 
-		byte[] b = profileService.getProfileImage(ref.getId(), sessionManager.getCurrentSessionUserId(), ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
+		byte[] b = profileService.getProfileImage(ref.getId(), ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
 		
 		if(b == null) {
 			throw new EntityNotFoundException("No thumbnail image for " + ref.getId(), ref.getReference());
@@ -120,22 +99,17 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 			out.write(b);
 			return new ActionReturn(out);
 		} catch (IOException e) {
-			throw new EntityException("Error retrieving thumbnail image for: " + ref.getId() + " : " + e.getMessage(), ref.getReference());
+			throw new EntityException("Error retrieving thumbnail image for " + ref.getId() + " : " + e.getMessage(), ref.getReference());
 		}
 	}
 	
 	@EntityCustomAction(action="connections",viewKey=EntityView.VIEW_SHOW)
 	public Object getConnections(EntityView view, EntityReference ref) {
-		
-		//check auth
-		if (sessionManager.getCurrentSessionUserId() == null) {
-			throw new SecurityException();
-		}
-		
+				
 		//get list of connections
-		List<Connection> connections = profileService.getConnectionsForUser(ref.getId(), sessionManager.getCurrentSessionUserId());
+		List<Connection> connections = profileService.getConnectionsForUser(ref.getId());
 		if(connections == null) {
-			throw new EntityException("Error retrieving connections for: " + ref.getId(), ref.getReference());
+			throw new EntityException("Error retrieving connections for " + ref.getId(), ref.getReference());
 		}
 		ActionReturn actionReturn = new ActionReturn(connections);
 		return actionReturn;
@@ -181,11 +155,6 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 	private DeveloperHelperService developerHelperService;
 	public void setDeveloperHelperService(DeveloperHelperService developerHelperService) {
 		this.developerHelperService = developerHelperService;
-	}
-	
-	private SessionManager sessionManager;
-	public void setSessionManager(SessionManager sessionManager) {
-		this.sessionManager = sessionManager;
 	}
 	
 	private ProfileService profileService;

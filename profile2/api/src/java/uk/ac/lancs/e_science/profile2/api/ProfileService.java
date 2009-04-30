@@ -38,23 +38,27 @@ public interface ProfileService {
 	 * <p>All users have profiles, even if they haven't filled it in yet. 
 	 * At a very minimum it will contain their name. Privacy checks will determine visibility of other fields</p>
 	 * 
+	 * <p>You must be logged-in in order to make requests to this method as the content returned will be tailored
+	 * to be visible for the currently logged in user.</p>
+	 * 
 	 * <p>If they don't have a SakaiPerson object to get the data from, a prototype is used.</p>
 	 * <p>If they do, the SakaiPerson object is transformed into a UserProfile object.
 	 * 
 	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
-	 * @param currentUser - either internal user id or eid for user that is making the request for the profile.
 	 * @return UserProfile for the user, that is visible to the requesting user
 	 */
-	public UserProfile getFullUserProfile(String userId, String currentUser);
+	public UserProfile getFullUserProfile(String userId);
 	
 	/**
 	 * Get a minimal UserProfile for a user. Contains name, uuid and status msg/date only. Useful for lists of users.
 	 * 
+	 * <p>You must be logged-in in order to make requests to this method as the content returned will be tailored
+	 * to be visible for the currently logged in user.</p>
+	 * 
 	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
-	 * @param currentUser - either internal user id or eid for user that is making the request for the profile.
 	 * @return UserProfile for the user, that is visible to the requesting user
 	 */
-	public UserProfile getMinimalUserProfile(String userId, String currentUser);
+	public UserProfile getMinimalUserProfile(String userId);
 
 	/**
 	 * Checks whether a user profile exists. 
@@ -67,29 +71,35 @@ public interface ProfileService {
 	
 	/**
 	 * Get the profile image for a user
+	 * 
+	 * <p>You must be logged-in in order to make requests to this method.</p>
+	 * 
 	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
-	 * @param currentUser - either internal user id or eid for user that is making the request for the image.
 	 * @param imageType - type of image, main or thumbnail, mapped via ProfileImageManager
 	 * @return byte[] or null if not allowed or none
 	 */
-	public byte[] getProfileImage(String userId, String currentUser, int imageType);
+	public byte[] getProfileImage(String userId, int imageType);
 	
 	
 	/**
 	 * Get a list of connections (as userIds) for the given user.
-	  * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
-	 * @param currentUser - either internal user id or eid for user that is making the request for the list.
+	 * 
+	 * <p>You must be logged-in in order to make requests to this method.</p>
+	 * 
+	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
 	 * @return List of uuids or null if error
 	 */
-	public List<String> getConnectionIdsForUser(String userId, String currentUser);
+	public List<String> getConnectionIdsForUser(String userId);
 	
 	/**
 	 * Get a list of Connections (as Collection objects) for the given user.
-	  * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
-	 * @param currentUser - either internal user id or eid for user that is making the request for the list.
+	 * 
+	 * <p>You must be logged-in in order to make requests to this method.</p>
+	 * 
+	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
 	 * @return List of Connections or null if error
 	 */
-	public List<Connection> getConnectionsForUser(String userId, String currentUser);
+	public List<Connection> getConnectionsForUser(String userId);
 	
 	
 	//public String getExternalProfileImageUrl(String userId, String currentUser);

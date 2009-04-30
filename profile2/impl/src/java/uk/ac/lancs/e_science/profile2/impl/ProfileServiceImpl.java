@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.ProfilePreferencesManager;
@@ -59,15 +60,18 @@ public class ProfileServiceImpl implements ProfileService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public UserProfile getFullUserProfile(String userId, String currentUser) {
+	public UserProfile getFullUserProfile(String userId) {
 		
-		//convert ids into uuids
+		//check auth and get currentUserUuid
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if(currentUserUuid == null) {
+			throw new SecurityException("You must be logged in to make a request for a user's profile.");
+		}
+		
+		//convert userId into uuid
 		String userUuid = getUuidForUserId(userId);
-		String currentUserUuid = getUuidForUserId(currentUser);
-		
-		//check they are valid
-		if(userUuid == null || currentUserUuid == null) {
-			log.error("Invalid arguments supplied. userId:" + userId + ", currentUser: " + currentUser);
+		if(userUuid == null) {
+			log.error("Invalid userId:" + userId);
 			return null;
 		}
 		
@@ -134,18 +138,21 @@ public class ProfileServiceImpl implements ProfileService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public UserProfile getMinimalUserProfile(String userId, String currentUser) {
+	public UserProfile getMinimalUserProfile(String userId) {
 		
-		//convert ids into uuids
-		String userUuid = getUuidForUserId(userId);
-		String currentUserUuid = getUuidForUserId(currentUser);
-		
-		//check they are valid
-		if(userUuid == null || currentUserUuid == null) {
-			log.error("Invalid arguments supplied. userId:" + userId + ", currentUser: " + currentUser);
-			return null;
+		//check auth and get currentUserUuid
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if(currentUserUuid == null) {
+			throw new SecurityException("You must be logged in to make a request for a user's profile.");
 		}
 		
+		//convert userId into uuid
+		String userUuid = getUuidForUserId(userId);
+		if(userUuid == null) {
+			log.error("Invalid userId:" + userId);
+			return null;
+		}
+				
 		//create base profile
 		UserProfile userProfile = getPrototype(userUuid);
 		
@@ -174,15 +181,18 @@ public class ProfileServiceImpl implements ProfileService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public byte[] getProfileImage(String userId, String currentUser, int imageType) {
+	public byte[] getProfileImage(String userId, int imageType) {
 		
-		//convert ids into uuids
+		//check auth and get currentUserUuid
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if(currentUserUuid == null) {
+			throw new SecurityException("You must be logged in to make a request for a user's profile image.");
+		}
+		
+		//convert userId into uuid
 		String userUuid = getUuidForUserId(userId);
-		String currentUserUuid = getUuidForUserId(currentUser);
-		
-		//check they are valid
-		if(userUuid == null || currentUserUuid == null) {
-			log.error("Invalid arguments supplied. userId:" + userId + ", currentUser: " + currentUser);
+		if(userUuid == null) {
+			log.error("Invalid userId:" + userId);
 			return null;
 		}
 		
@@ -199,18 +209,21 @@ public class ProfileServiceImpl implements ProfileService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<String> getConnectionIdsForUser(String userId, String currentUser) {
+	public List<String> getConnectionIdsForUser(String userId) {
 		
-		//convert ids into uuids
-		String userUuid = getUuidForUserId(userId);
-		String currentUserUuid = getUuidForUserId(currentUser);
-		
-		//check they are valid
-		if(userUuid == null || currentUserUuid == null) {
-			log.error("Invalid arguments supplied. userId:" + userId + ", currentUser: " + currentUser);
-			return null;
+		//check auth and get currentUserUuid
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if(currentUserUuid == null) {
+			throw new SecurityException("You must be logged in to make a request for a user's connections.");
 		}
 		
+		//convert userId into uuid
+		String userUuid = getUuidForUserId(userId);
+		if(userUuid == null) {
+			log.error("Invalid userId:" + userId);
+			return null;
+		}
+				
 		//check friend status
 		boolean friend = profile.isUserXFriendOfUserY(userUuid, currentUserUuid);
 		
@@ -226,11 +239,11 @@ public class ProfileServiceImpl implements ProfileService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<Connection> getConnectionsForUser(String userId, String currentUser) {
+	public List<Connection> getConnectionsForUser(String userId) {
 		
 		//pass off to get the list of uuids. Checks done in above method
 		List<String> connectionIds = new ArrayList<String>();
-		connectionIds = getConnectionIdsForUser(userId, currentUser);
+		connectionIds = getConnectionIdsForUser(userId);
 		
 		if(connectionIds == null) {
 			return null;
@@ -270,6 +283,12 @@ public class ProfileServiceImpl implements ProfileService {
 		userProfile.setProperty(ProfilePrivacyManager.PROP_BIRTH_YEAR_VISIBLE, String.valueOf(privacy.isShowBirthYear()));
 		userProfile.setProperty(ProfilePreferencesManager.PROP_EMAIL_CONFIRM_ENABLED, String.valueOf(preferences.isConfirmEmailEnabled()));
 		userProfile.setProperty(ProfilePreferencesManager.PROP_EMAIL_REQUEST_ENABLED, String.valueOf(preferences.isRequestEmailEnabled()));
+	
+		//check the type of profileimage in use by the system (sakaiProxy)
+		//based on that type, check if they have an image, and if so, what type is it. the value for this should match the entitynames
+		//ie image or imageurl
+	
+	
 	}
 	
 	
@@ -279,15 +298,15 @@ public class ProfileServiceImpl implements ProfileService {
 	 * There is a small risk that an eid could be created that matches the uuid of another user.
 	 * 
 	 * Since 99% of the time requests will be made with uuid as the param, to speed things up this checks for that first.
-	 * If the above risk manifests itself, we will need to swap the order to usernames are checked first.
+	 * If the above risk manifests itself, we will need to swap the order so usernames are checked first.
 	 * 
 	 * @param userId
 	 * @return
+	 * @throws UserNotDefinedException 
 	 */
-	private String getUuidForUserId(String userId) {
+	private String getUuidForUserId(String userId){
 		
 		String userUuid = null;
-		//TODO should we throw the exception in here if they can't be found? Would save checking the retval later on.
 
 		if(sakaiProxy.checkForUser(userId)) {
 			userUuid = userId;
@@ -300,6 +319,7 @@ public class ProfileServiceImpl implements ProfileService {
 		} else {
 			log.error("User " + userId + " could not be found in any lookup by either id or eid");
 		}
+		
 		return userUuid;
 	}
 	
