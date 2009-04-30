@@ -101,7 +101,18 @@ public interface ProfileService {
 	 */
 	public List<Connection> getConnectionsForUser(String userId);
 	
-	
-	//public String getExternalProfileImageUrl(String userId, String currentUser);
+	/**
+	 * Get the external image url for a user
+	 * 
+	 * If a thumbnail is requested and none is found, it will by default, fallback to the main image url.
+	 * 
+	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
+	 * @param imageType - type of image, main or thumbnail, mapped via ProfileImageManager
+	 * @param fallback - if a thumbnail is requested but it does not exist, should the mainURL be returned instead? 
+	 * 					This should generally always be used and the full sized image can just be scaled in the markup.
+	 * 					If used with the main type of image, it has no effect.
+	 * @return String url or null if error or none
+	 */
+	public String getExternalProfileImageUrl(String userId, int imageType, boolean fallback);
 
 }

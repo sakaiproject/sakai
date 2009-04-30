@@ -8,6 +8,7 @@ import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
+import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.ProfilePreferencesManager;
 import uk.ac.lancs.e_science.profile2.api.ProfilePrivacyManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileService;
@@ -71,7 +72,7 @@ public class ProfileServiceImpl implements ProfileService {
 		//convert userId into uuid
 		String userUuid = getUuidForUserId(userId);
 		if(userUuid == null) {
-			log.error("Invalid userId:" + userId);
+			log.error("Invalid userId: " + userId);
 			return null;
 		}
 		
@@ -84,14 +85,15 @@ public class ProfileServiceImpl implements ProfileService {
 		
 		//if person requested own profile, no need for privacy checks
 		if(userUuid.equals(currentUserUuid)) {
-			System.out.println("userId is current user");
+			log.debug("userId is current user");
 			addStatusToProfile(userProfile);
 			return userProfile;
 		}
 		
-		//get privacy record for the user
+		//get privacy record
 		ProfilePrivacy privacy = profile.getPrivacyRecordForUser(userUuid);
 
+		//get preferences record
 		ProfilePreferences preferences = profile.getPreferencesRecordForUser(userUuid);
 				
 		//check friend status
@@ -99,14 +101,14 @@ public class ProfileServiceImpl implements ProfileService {
 		
 		//unset basic info if not allowed
 		if(!profile.isUserXBasicInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
-			System.out.println("basic info not allowed");
+			log.debug("basic info not allowed");
 			userProfile.setNickname(null);
 			userProfile.setDateOfBirth(null);
 		}
 		
 		//unset contact info if not allowed
 		if(!profile.isUserXContactInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
-			System.out.println("contact info not allowed");
+			log.debug("contact info not allowed");
 			userProfile.setEmail(null);
 			userProfile.setHomepage(null);
 			userProfile.setHomephone(null);
@@ -116,7 +118,7 @@ public class ProfileServiceImpl implements ProfileService {
 		
 		//unset personal info if not allowed
 		if(!profile.isUserXPersonalInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
-			System.out.println("personal info not allowed");
+			log.debug("personal info not allowed");
 			userProfile.setFavouriteBooks(null);
 			userProfile.setFavouriteTvShows(null);
 			userProfile.setFavouriteMovies(null);
@@ -149,7 +151,7 @@ public class ProfileServiceImpl implements ProfileService {
 		//convert userId into uuid
 		String userUuid = getUuidForUserId(userId);
 		if(userUuid == null) {
-			log.error("Invalid userId:" + userId);
+			log.error("Invalid userId: " + userId);
 			return null;
 		}
 				
@@ -192,7 +194,14 @@ public class ProfileServiceImpl implements ProfileService {
 		//convert userId into uuid
 		String userUuid = getUuidForUserId(userId);
 		if(userUuid == null) {
-			log.error("Invalid userId:" + userId);
+			log.error("Invalid userId: " + userId);
+			return null;
+		}
+		
+		//check that the environment is configured to be using these types of images.
+		//you should not be able to get the info if not as it will be incorrect/out of date
+		if(sakaiProxy.getProfilePictureType() != ProfileImageManager.PICTURE_SETTING_UPLOAD) {
+			log.error("Requested profile image but environment not configured for this. Check sakai.properties if this is intentional.");
 			return null;
 		}
 		
@@ -220,7 +229,7 @@ public class ProfileServiceImpl implements ProfileService {
 		//convert userId into uuid
 		String userUuid = getUuidForUserId(userId);
 		if(userUuid == null) {
-			log.error("Invalid userId:" + userId);
+			log.error("Invalid userId: " + userId);
 			return null;
 		}
 				
@@ -258,6 +267,42 @@ public class ProfileServiceImpl implements ProfileService {
 		return connections;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getExternalProfileImageUrl(String userId, int imageType, boolean fallback) {
+		
+		//check auth and get currentUserUuid
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if(currentUserUuid == null) {
+			throw new SecurityException("You must be logged in to make a request for a user's external image.");
+		}
+		
+		//convert userId into uuid
+		String userUuid = getUuidForUserId(userId);
+		if(userUuid == null) {
+			log.error("Invalid userId: " + userId);
+			return null;
+		}
+		
+		//check that the environment is configured to be using these types of images.
+		//you should not be able to get the info if not as it will be incorrect/out of date
+		if(sakaiProxy.getProfilePictureType() != ProfileImageManager.PICTURE_SETTING_URL) {
+			log.error("Requested external image but environment not configured for this. Check sakai.properties if this is intentional.");
+			return null;
+		}
+		
+		//check friend status
+		boolean friend = profile.isUserXFriendOfUserY(userUuid, currentUserUuid);
+		
+		//check if photo is allowed
+		if(!profile.isUserXProfileImageVisibleByUserY(userUuid, currentUserUuid, friend)) {
+			return null;
+		}
+		
+		return profile.getExternalImageUrl(userUuid, imageType, fallback);
+		
+	}
 	
 	
 	/**
@@ -284,7 +329,22 @@ public class ProfileServiceImpl implements ProfileService {
 		userProfile.setProperty(ProfilePreferencesManager.PROP_EMAIL_CONFIRM_ENABLED, String.valueOf(preferences.isConfirmEmailEnabled()));
 		userProfile.setProperty(ProfilePreferencesManager.PROP_EMAIL_REQUEST_ENABLED, String.valueOf(preferences.isRequestEmailEnabled()));
 	
-		//check the type of profileimage in use by the system (sakaiProxy)
+		//check the type of profileimage in use by the system (sakaiProxy) and set properties
+		int imageType = sakaiProxy.getProfilePictureType();
+		if(imageType == ProfileImageManager.PICTURE_SETTING_UPLOAD) {
+			boolean hasImage = profile.hasUploadedProfileImage(userProfile.getUserUuid());
+			userProfile.setProperty(ProfileImageManager.PROP_HAS_IMAGE, String.valueOf(hasImage));
+			if(hasImage) {
+				userProfile.setProperty(ProfileImageManager.PROP_IMAGE_TYPE, ProfileImageManager.ENTITY_IMAGE);
+			}
+		}
+		if(imageType == ProfileImageManager.PICTURE_SETTING_URL) {
+			boolean hasImage = profile.hasExternalProfileImage(userProfile.getUserUuid());
+			userProfile.setProperty(ProfileImageManager.PROP_HAS_IMAGE, String.valueOf(hasImage));
+			if(hasImage) {
+				userProfile.setProperty(ProfileImageManager.PROP_IMAGE_TYPE, ProfileImageManager.ENTITY_IMAGE_URL);
+			}
+		}
 		//based on that type, check if they have an image, and if so, what type is it. the value for this should match the entitynames
 		//ie image or imageurl
 	
@@ -304,7 +364,7 @@ public class ProfileServiceImpl implements ProfileService {
 	 * @return
 	 * @throws UserNotDefinedException 
 	 */
-	private String getUuidForUserId(String userId){
+	private String getUuidForUserId(String userId) {
 		
 		String userUuid = null;
 
@@ -317,7 +377,7 @@ public class ProfileServiceImpl implements ProfileService {
 				log.error("Could not translate eid to uuid for: " + userId);
 			}
 		} else {
-			log.error("User " + userId + " could not be found in any lookup by either id or eid");
+			log.error("User: " + userId + " could not be found in any lookup by either id or eid");
 		}
 		
 		return userUuid;
