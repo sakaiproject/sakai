@@ -67,7 +67,7 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 		return entity;
 	}
 	
-	@EntityCustomAction(action="image",viewKey=EntityView.VIEW_SHOW)
+	@EntityCustomAction(action=ProfileImageManager.ENTITY_IMAGE,viewKey=EntityView.VIEW_SHOW)
 	public Object getMainImage(OutputStream out, EntityView view, EntityReference ref) {
 		
 		//get main profile image. 
@@ -85,7 +85,7 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 		}
 	}
 	
-	@EntityCustomAction(action="imagethumb",viewKey=EntityView.VIEW_SHOW)
+	@EntityCustomAction(action=ProfileImageManager.ENTITY_IMAGE_THUMB,viewKey=EntityView.VIEW_SHOW)
 	public Object getThumbnailImage(OutputStream out, EntityView view, EntityReference ref) {
 		
 		//get thumbnail profile image. 
@@ -102,6 +102,35 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 			throw new EntityException("Error retrieving thumbnail image for " + ref.getId() + " : " + e.getMessage(), ref.getReference());
 		}
 	}
+	
+	@EntityCustomAction(action=ProfileImageManager.ENTITY_IMAGE_URL,viewKey=EntityView.VIEW_SHOW)
+	public Object getExternalMainImage(EntityView view, EntityReference ref) {
+		
+		//get external image url. 
+		String url = profileService.getExternalProfileImageUrl(ref.getId(), ProfileImageManager.PROFILE_IMAGE_MAIN, true);
+		
+		if(url == null) {
+			throw new EntityNotFoundException("No external image for " + ref.getId(), ref.getReference());
+		}
+		
+		return new ActionReturn(url);
+	}
+	
+	@EntityCustomAction(action=ProfileImageManager.ENTITY_IMAGE_URL_THUMB,viewKey=EntityView.VIEW_SHOW)
+	public Object getExternalThumbnailImage(EntityView view, EntityReference ref) {
+		
+		//get external thumbnail image url.
+		//by default this will fall back to the main url if no thumbnail is found.
+		String url = profileService.getExternalProfileImageUrl(ref.getId(), ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, true);
+		
+		if(url == null) {
+			throw new EntityNotFoundException("No external thumbnail image for " + ref.getId(), ref.getReference());
+		}
+		
+		return new ActionReturn(url);
+	}
+	
+	
 	
 	@EntityCustomAction(action="connections",viewKey=EntityView.VIEW_SHOW)
 	public Object getConnections(EntityView view, EntityReference ref) {
