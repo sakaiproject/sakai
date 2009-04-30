@@ -508,7 +508,7 @@ public interface Profile {
 	
 	
 	/**
-	 * Does this user have a profile image record?
+	 * Does this user have an uplaoded profile image?
 	 * Calls getCurrentProfileImageRecord to see if a record exists.
 	 * 
 	 * This is mainly used by the convertProfile() method, but could have another use.
@@ -516,7 +516,15 @@ public interface Profile {
 	 * @param userId 		the uuid of the user we are querying
 	 * @return boolean		true if it exists/false if not
 	 */
-	public boolean hasProfileImage(String userId);
+	public boolean hasUploadedProfileImage(String userId);
+	
+	/**
+	 * Does this user have an external profile image?
+	 * 
+	 * @param userId 		the uuid of the user we are querying
+	 * @return boolean		true if it exists/false if not
+	 */
+	public boolean hasExternalProfileImage(String userId);
 	
 	
 	/**

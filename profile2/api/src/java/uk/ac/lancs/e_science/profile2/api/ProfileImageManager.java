@@ -33,5 +33,8 @@ public class ProfileImageManager {
 	public static final String PICTURE_SETTING_URL_PROP = "url";
 
 	public static final int PICTURE_SETTING_DEFAULT = PICTURE_SETTING_UPLOAD;
+	
+	//for Entities
+	public static final String PROP_IMAGE_TYPE="imageType";
 
 }

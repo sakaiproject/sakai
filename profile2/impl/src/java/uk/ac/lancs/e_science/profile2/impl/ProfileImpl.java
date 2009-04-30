@@ -1352,16 +1352,29 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	/**
  	 * {@inheritDoc}
  	 */
-	public boolean hasProfileImage(String userId) {
+	public boolean hasUploadedProfileImage(String userId) {
 		
 		//get record from db
-		ProfileImage profileImage = getCurrentProfileImageRecord(userId);
+		ProfileImage record = getCurrentProfileImageRecord(userId);
 		
-		if(profileImage == null) {
+		if(record == null) {
 			return false;
 		}
 		return true;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean hasExternalProfileImage(String userId) {
 		
+		//get record from db
+		ProfileImageExternal record = getExternalImageRecordForUser(userId);
+		
+		if(record == null) {
+			return false;
+		}
+		return true;
 	}
 	
 	
@@ -1944,7 +1957,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			String userUuid = (String)i.next();
 			
 			//if already have a current ProfileImage record, skip to next user
-			if(hasProfileImage(userUuid)) {
+			if(hasUploadedProfileImage(userUuid)) {
 				log.info("Profile2 conversion util: valid ProfileImage record already exists for " + userUuid + ". Skipping..."); //$NON-NLS-1$ //$NON-NLS-2$
 				continue;
 			}
