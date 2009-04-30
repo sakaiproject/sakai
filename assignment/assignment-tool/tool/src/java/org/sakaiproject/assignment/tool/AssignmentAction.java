@@ -10601,7 +10601,7 @@ public class AssignmentAction extends PagedResourceActionII
 						User[] users = s.getSubmitters();
 						if (users != null && users.length > 0 && users[0] != null)
 						{
-							submissionTable.put(users[0].getDisplayId(), new UploadGradeWrapper(s.getGrade(), s.getSubmittedText(), s.getFeedbackComment(), hasSubmissionAttachment?new Vector():s.getSubmittedAttachments(), hasFeedbackAttachment?new Vector():s.getFeedbackAttachments(), (s.getSubmitted() && s.getTimeSubmitted() != null)?s.getTimeSubmitted().toString():"", s.getFeedbackText()));
+							submissionTable.put(users[0].getEid(), new UploadGradeWrapper(s.getGrade(), s.getSubmittedText(), s.getFeedbackComment(), hasSubmissionAttachment?new Vector():s.getSubmittedAttachments(), hasFeedbackAttachment?new Vector():s.getFeedbackAttachments(), (s.getSubmitted() && s.getTimeSubmitted() != null)?s.getTimeSubmitted().toString():"", s.getFeedbackText()));
 						}
 					}
 				}
@@ -10686,7 +10686,7 @@ public class AssignmentAction extends PagedResourceActionII
 									        			User u = UserDirectoryService.getUserByEid(items[1]/*user eid*/);
 									        			if (u != null)
 									        			{
-										        			UploadGradeWrapper w = (UploadGradeWrapper) submissionTable.get(u.getDisplayId());
+										        			UploadGradeWrapper w = (UploadGradeWrapper) submissionTable.get(u.getEid());
 										        			if (w != null)
 										        			{
 										        				String itemString = items[4];
@@ -10702,7 +10702,7 @@ public class AssignmentAction extends PagedResourceActionII
 										        				if (state.getAttribute(STATE_MESSAGE) == null)
 										        				{
 											        				w.setGrade(gradeType == Assignment.SCORE_GRADE_TYPE?scalePointGrade(state, itemString):itemString);
-											        				submissionTable.put(u.getDisplayId(), w);
+											        				submissionTable.put(u.getEid(), w);
 										        				}
 										        			}
 									        			}
@@ -10829,7 +10829,7 @@ public class AssignmentAction extends PagedResourceActionII
 						User[] users = s.getSubmitters();
 						if (users != null && users.length > 0 && users[0] != null)
 						{
-							String uName = users[0].getDisplayId();
+							String uName = users[0].getEid();
 							if (submissionTable.containsKey(uName))
 							{
 								// update the AssignmetnSubmission record
