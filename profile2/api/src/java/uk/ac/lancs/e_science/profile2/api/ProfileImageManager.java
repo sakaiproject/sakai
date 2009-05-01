@@ -36,9 +36,7 @@ public class ProfileImageManager {
 	
 	//for Entities - these are the names of the custom image entities
 	public static final String ENTITY_IMAGE="image";
-	public static final String ENTITY_IMAGE_THUMB="imagethumb";
 	public static final String ENTITY_IMAGE_URL="imageurl";
-	public static final String ENTITY_IMAGE_URL_THUMB="imageurlthumb";
 
 	//for Entity properties
 	public static final String PROP_HAS_IMAGE="hasImage";

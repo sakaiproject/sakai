@@ -10,6 +10,7 @@ import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityURLRedirect;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
@@ -17,6 +18,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
+import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileService;
@@ -33,12 +35,6 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 	public boolean entityExists(String eid) {
 		//check the user is valid. if it is then return true as everyone has a profile.
 		return profileService.checkUserProfileExists(eid);
-	}
-
-	public String createEntity(EntityReference ref, Object entity) {
-		UserProfile userProfile = (UserProfile) entity;
-		profileService.save(userProfile);
-		return userProfile.getUserUuid();
 	}
 
 	public Object getSampleEntity() {
@@ -70,8 +66,14 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 	@EntityCustomAction(action=ProfileImageManager.ENTITY_IMAGE,viewKey=EntityView.VIEW_SHOW)
 	public Object getMainImage(OutputStream out, EntityView view, EntityReference ref) {
 		
-		//get main profile image. 
-		byte[] b = profileService.getProfileImage(ref.getId(),ProfileImageManager.PROFILE_IMAGE_MAIN);
+		byte[] b = null;
+		
+		//if we have thumb as a param, then get the thumbnail instead
+		if("thumb".equals(view.getPathSegment(3))) {
+			b = profileService.getProfileImage(ref.getId(), ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
+		} else {
+			b = profileService.getProfileImage(ref.getId(),ProfileImageManager.PROFILE_IMAGE_MAIN);
+		}
 		
 		if(b == null) {
 			throw new EntityNotFoundException("No profile image for " + ref.getId(), ref.getReference());
@@ -85,29 +87,21 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 		}
 	}
 	
-	@EntityCustomAction(action=ProfileImageManager.ENTITY_IMAGE_THUMB,viewKey=EntityView.VIEW_SHOW)
-	public Object getThumbnailImage(OutputStream out, EntityView view, EntityReference ref) {
-		
-		//get thumbnail profile image. 
-		byte[] b = profileService.getProfileImage(ref.getId(), ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
-		
-		if(b == null) {
-			throw new EntityNotFoundException("No thumbnail image for " + ref.getId(), ref.getReference());
-		}
-		
-		try {
-			out.write(b);
-			return new ActionReturn(out);
-		} catch (IOException e) {
-			throw new EntityException("Error retrieving thumbnail image for " + ref.getId() + " : " + e.getMessage(), ref.getReference());
-		}
-	}
 	
 	@EntityCustomAction(action=ProfileImageManager.ENTITY_IMAGE_URL,viewKey=EntityView.VIEW_SHOW)
 	public Object getExternalMainImage(EntityView view, EntityReference ref) {
 		
-		//get external image url. 
-		String url = profileService.getExternalProfileImageUrl(ref.getId(), ProfileImageManager.PROFILE_IMAGE_MAIN, true);
+		String url = null;
+		
+		boolean wantsThumbnail = "thumb".equals(view.getPathSegment(3)) ? true : false;
+		boolean fallbackOk = "fallback".equals(view.getPathSegment(4)) ? true : false;
+		
+		//get thumb if requested
+		if(wantsThumbnail) {
+			url = profileService.getExternalProfileImageUrl(ref.getId(), ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, fallbackOk);
+		} else {
+			url = profileService.getExternalProfileImageUrl(ref.getId(), ProfileImageManager.PROFILE_IMAGE_MAIN, true);
+		}
 		
 		if(url == null) {
 			throw new EntityNotFoundException("No external image for " + ref.getId(), ref.getReference());
@@ -115,22 +109,7 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 		
 		return new ActionReturn(url);
 	}
-	
-	@EntityCustomAction(action=ProfileImageManager.ENTITY_IMAGE_URL_THUMB,viewKey=EntityView.VIEW_SHOW)
-	public Object getExternalThumbnailImage(EntityView view, EntityReference ref) {
 		
-		//get external thumbnail image url.
-		//by default this will fall back to the main url if no thumbnail is found.
-		String url = profileService.getExternalProfileImageUrl(ref.getId(), ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, true);
-		
-		if(url == null) {
-			throw new EntityNotFoundException("No external thumbnail image for " + ref.getId(), ref.getReference());
-		}
-		
-		return new ActionReturn(url);
-	}
-	
-	
 	
 	@EntityCustomAction(action="connections",viewKey=EntityView.VIEW_SHOW)
 	public Object getConnections(EntityView view, EntityReference ref) {
@@ -143,42 +122,54 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 		ActionReturn actionReturn = new ActionReturn(connections);
 		return actionReturn;
 	}
-
-
-	public String[] getHandledOutputFormats() {
-		return new String[] {Formats.XML, Formats.JSON};
-	}
-
-	public String[] getHandledInputFormats() {
-		return new String[] {Formats.XML, Formats.JSON};
-	}
-		
 	
-	public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
-		// TODO Auto-generated method stub
-		return null;
+	@EntityURLRedirect("/{prefix}/{id}/account")
+	public String redirectUserAccount(Map<String,String> vars) {
+		return "user/" + vars.get("id") + vars.get(TemplateParseUtil.DOT_EXTENSION);
 	}
 
-	public void updateEntity(EntityReference ref, Object entity) {
-		// TODO Auto-generated method stub
+
+	public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
+		
+		return null;
 	}
 
 	public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params) {
 		// TODO Auto-generated method stub
+		
 	}
 
 	public void deleteEntity(EntityReference ref, Map<String, Object> params) {
 		// TODO Auto-generated method stub
-	}
-	
-	public void deleteEntity(EntityReference ref) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	public List<?> getEntities(EntityReference ref, Search search) {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	public String[] getHandledOutputFormats() {
+		return new String[] {Formats.XML, Formats.JSON, Formats.FORM};
+	}
+
+	public String[] getHandledInputFormats() {
+		return new String[] {Formats.XML, Formats.JSON, Formats.HTML};
+	}
+	
+	
+	
+	
+	
 	
 		
 	private DeveloperHelperService developerHelperService;
@@ -191,7 +182,7 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 		this.profileService = profileService;
 	}
 
-
+	
 	
 
 }
