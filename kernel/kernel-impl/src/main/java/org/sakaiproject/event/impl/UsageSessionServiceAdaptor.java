@@ -581,7 +581,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		List getSessions(List ids);
 
 		/**
-		 * Access a List of usage sessions by *arbitrary criteria* for te session ids.
+		 * Access a List of active usage sessions by *arbitrary criteria* for the session ids.
 		 *
 		 * @param joinTable
 		 *        the table name to (inner) join to
@@ -878,7 +878,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		}
 
 		/**
-		 * Access a List of usage sessions by *arbitrary criteria* for te session ids.
+		 * Access a List of active usage sessions by *arbitrary criteria* for the session ids.
 		 *
 		 * @param joinTable
 		 *        the table name to (inner) join to

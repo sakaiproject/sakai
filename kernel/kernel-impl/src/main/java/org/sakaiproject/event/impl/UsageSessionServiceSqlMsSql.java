@@ -46,7 +46,7 @@ public class UsageSessionServiceSqlMsSql extends UsageSessionServiceSqlDefault
              "from   SAKAI_SESSION " + alias                                    + " " +
              "inner join " + joinTable + " " + joinAlias                        + " " +
              "ON "    + alias + ".SESSION_ID = " + joinAlias + "." + joinColumn + " " +
-             "where " + joinCriteria;
+             "where " + alias + ".SESSION_ACTIVE=1 and " + joinCriteria;
    }
 
 

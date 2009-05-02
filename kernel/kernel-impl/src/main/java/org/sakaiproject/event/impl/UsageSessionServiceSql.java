@@ -44,7 +44,7 @@ public interface UsageSessionServiceSql
 	String getSakaiSessionSql2();
 
 	/**
-	 * returns the sql statement which retrieves all the sakai sessions from the sakai_session table based on a join column and criteria.
+	 * returns the sql statement which retrieves all the active sakai sessions from the sakai_session table based on a join column and criteria.
 	 */
 	String getSakaiSessionSql3(String alias, String joinAlias, String joinTable, String joinColumn, String joinCriteria);
 

@@ -55,7 +55,7 @@ public class UsageSessionServiceSqlDefault implements UsageSessionServiceSql
 	}
 
 	/**
-	 * returns the sql statement which retrieves all the sakai sessions from the sakai_session table based on a join column and criteria.
+	 * returns the sql statement which retrieves all the active sakai sessions from the sakai_session table based on a join column and criteria.
 	 */
    public String getSakaiSessionSql3(String alias, String joinAlias, String joinTable, String joinColumn, String joinCriteria)
    {
@@ -63,7 +63,7 @@ public class UsageSessionServiceSqlDefault implements UsageSessionServiceSql
              "from   SAKAI_SESSION " + alias                                    + " " +
              "inner join " + joinTable + " " + joinAlias                        + " " +
              "ON "    + alias + ".SESSION_ID = " + joinAlias + "." + joinColumn + " " +
-             "where " + joinCriteria;
+             "where " + alias + ".SESSION_ACTIVE=1 and " + joinCriteria;
    }
 
    /**
