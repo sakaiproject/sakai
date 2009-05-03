@@ -483,6 +483,9 @@ public abstract class SakaiSecurity implements SecurityService
 	 */
 	public String getUserEffectiveRole(String azGroupId) {
 		
+		if (azGroupId == null || "".equals(azGroupId))
+			return null;
+		
 		return (String) sessionManager().getCurrentSession().getAttribute(ROLESWAP_PREFIX + azGroupId);
 	}
 

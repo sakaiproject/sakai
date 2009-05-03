@@ -1294,7 +1294,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		 *        A collection of AuthzGroup ids to consult.
 		 * @return true if this user is allowed to perform the function in the named AuthzGroups, false if not.
 		 */
-		boolean isAllowed(String userId, String function, Collection realms);
+		boolean isAllowed(String userId, String function, Collection<String> realms);
 
 		/**
 		 * Get the set of user ids of users who are allowed to perform the function in the named AuthzGroups.
