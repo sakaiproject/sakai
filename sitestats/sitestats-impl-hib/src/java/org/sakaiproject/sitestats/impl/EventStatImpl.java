@@ -178,6 +178,20 @@ public class EventStatImpl implements EventStat, Serializable {
 				&& count == other.getCount()
 				&& date.equals(other.getDate());
 	}
+	
+	public boolean equalExceptForCount(Object o) {
+		if(o == null) return false;
+		if(!(o instanceof EventStatImpl)) return false;
+		EventStatImpl other = (EventStatImpl) o;
+		return 	   ( (siteId == null && other.getSiteId() == null)
+					 || (siteId != null && other.getSiteId() != null && siteId.equals(other.getSiteId())) )
+				&& ( (userId == null && other.getUserId() == null)
+						 || (userId != null && other.getUserId() != null && userId.equals(other.getUserId())) )
+				&& ( (eventId == null && other.getEventId() == null)
+						 || (eventId != null && other.getEventId() != null && eventId.equals(other.getEventId())) )
+				&& ( (date == null && other.getDate() == null)
+						 || (date != null && other.getDate() != null && date.equals(other.getDate())) );
+	}
 
 	public int hashCode() {
 		if(siteId == null) return Integer.MIN_VALUE;

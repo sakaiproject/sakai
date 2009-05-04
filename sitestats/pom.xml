@@ -36,6 +36,9 @@
     <commons-collection.version>3.1</commons-collection.version>
     <easymock.version>2.4</easymock.version>
     <hsqldb.version>1.8.0.7</hsqldb.version>
+    <h2.version>1.1.111</h2.version>
+    <mysql.version>3.1.14</mysql.version>
+    <ojdbc.version>10.2.0.2.0</ojdbc.version>
     <dom4j.version>1.6.1</dom4j.version>
     <jta.version>h2.1.8</jta.version>
     <cglib-nodep.version>2.1_3</cglib-nodep.version>
@@ -86,7 +89,7 @@
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
-      </repository>
+    </repository>
     <repository>
       <id>default</id>
       <name>Maven Repository Switchboard</name>
@@ -260,6 +263,21 @@
       <artifactId>hsqldb</artifactId>
       <version>${hsqldb.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <version>${h2.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>${mysql.version}</version>
+    </dependency>
+    <!-- <dependency>
+      <groupId>com.oracle</groupId>
+      <artifactId>ojdbc14</artifactId>
+      <version>${ojdbc.version}</version>
+    </dependency> -->
     <dependency>
       <groupId>dom4j</groupId>
       <artifactId>dom4j</artifactId>

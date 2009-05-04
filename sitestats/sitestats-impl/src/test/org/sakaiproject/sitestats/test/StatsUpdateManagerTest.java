@@ -414,7 +414,7 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 			results = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
 			try{
 				// give it time to process event
-				Thread.sleep(250);			
+				Thread.sleep(500);			
 			}catch(Exception e) {/* ignore */}
 		}
 		assertEquals(1, results.size());
@@ -433,7 +433,7 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 			results = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
 			try{
 				// give it time to process event before finish
-				Thread.sleep(250);			
+				Thread.sleep(500);			
 			}catch(Exception e) {/* ignore */}
 		}
 		assertEquals(2, results.size());

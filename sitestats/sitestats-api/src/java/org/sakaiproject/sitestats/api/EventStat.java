@@ -32,4 +32,6 @@ public interface EventStat extends Stat {
 	public String getToolId();
 	/** Set the the tool Id (eg. 'sakai.chat') this record refers to. */
 	public void setToolId(String toolId);
+	
+	public boolean equalExceptForCount(Object other);
 }

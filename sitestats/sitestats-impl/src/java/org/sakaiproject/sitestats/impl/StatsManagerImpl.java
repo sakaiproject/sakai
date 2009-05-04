@@ -1324,6 +1324,26 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 						results.add(c);
 					}
 				}
+				// hack for hibernate-oracle bug producing duplicate lines
+				else if(getDbVendor().equals("oracle") && totalsBy.contains(T_USER) && anonymousEvents != null && anonymousEvents.size() > 0) {
+					List<Stat> consolidated = new ArrayList<Stat>();
+					for(Stat s : results) {
+						EventStat es = (EventStat) s;
+						boolean found = false;
+						for(Stat c : consolidated) {
+							EventStat esc = (EventStat) c;
+							if(esc.equalExceptForCount((Object)es)) {
+								esc.setCount(esc.getCount() + es.getCount());
+								found = true;
+								break;
+							}
+						}
+						if(!found) {
+							consolidated.add(es);
+						}
+					}
+					results = consolidated;
+				}
 				return results;	
 			}
 		};
@@ -2108,8 +2128,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				// user
 				if(totalsBy.contains(T_USER)) {
 					if(queryType == Q_TYPE_EVENT && anonymousEvents != null && anonymousEvents.size() > 0) {
-						//selectFields.add("case when s.eventId not in (:anonymousEvents) then s.userId else '-' end as user");
-						selectFields.add("(CASE WHEN s.eventId not in (:anonymousEvents) THEN s.userId ELSE '-' END) as user");
+						selectFields.add("(CASE WHEN s.eventId not in (:anonymousEvents) THEN s.userId ELSE '-' END) as user");						
 					}else{
 						selectFields.add("s.userId as user");
 					}
@@ -2318,22 +2337,30 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			if(!inverseUserSelection && (siteId != null || totalsBy.contains(T_SITE))) {
 				groupFields.add("s.siteId");
 			}
-			/*if(totalsBy.contains(T_USER) 
-					&& (!dbVendor.equals("mysql") && anonymousEvents != null && anonymousEvents.size() > 0) ) {*/
-			if(totalsBy.contains(T_USER) 
-				|| (queryType == Q_TYPE_RESOURCE && dbVendor.equals("hsql"))) {
-				if( (queryType == Q_TYPE_EVENT && (anonymousEvents != null && anonymousEvents.size() > 0))
-					|| queryType == Q_TYPE_RESOURCE) {
+			// User: new approach		
+			if(totalsBy.contains(T_USER)) {
+				if(queryType == Q_TYPE_EVENT && anonymousEvents != null && anonymousEvents.size() > 0) {
+					if(dbVendor.equals("oracle")) {
+						// unfortunately, this produces results different from the expected:
+						//  - hibernate-oracle bug (sometimes) producing duplicate lines
+						//  - hack fix in getEventStats() method
+						groupFields.add("s.eventId");
+						groupFields.add("s.userId");
+						// it should be: ( but doesn't work in Hibernate :( )
+						//groupFields.add("(CASE WHEN s.eventId not in (:anonymousEvents) THEN s.userId ELSE '-' END)");
+					}else{
+						groupFields.add("col_" + (columnMap.get(C_USER)) + "_0_");
+					}
+				}else{
 					groupFields.add("s.userId");
 				}
-			}
-			/*if((queryType == Q_TYPE_EVENT || queryType == Q_TYPE_ACTIVITYTOTALS)
-					&& (totalsBy.contains(T_EVENT) || totalsBy.contains(T_TOOL)
-						|| (!dbVendor.equals("mysql") && anonymousEvents != null && anonymousEvents.size() > 0) )*/
+			}			
 			if((queryType == Q_TYPE_EVENT || queryType == Q_TYPE_ACTIVITYTOTALS)
-				&& (totalsBy.contains(T_EVENT) || totalsBy.contains(T_TOOL)
-					&& (anonymousEvents != null && anonymousEvents.size() > 0) )
-			) {
+					&& (
+						totalsBy.contains(T_EVENT) 
+						|| totalsBy.contains(T_TOOL)
+						)
+				) {
 				groupFields.add("s.eventId");
 			}
 			if(queryType == Q_TYPE_RESOURCE && totalsBy.contains(T_RESOURCE)) {
@@ -2406,7 +2433,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					sortField = "s.date";
 				}
 				if(sortBy.equals(T_TOTAL)) {
-					if(!dbVendor.equals("mysql")) {
+					if(dbVendor.equals("oracle") || dbVendor.equals("hql")) {
 						sortField = "sum(s.count)";					
 					}else{
 						// Big, dangerous & ugly hack to get aggregate
@@ -2418,7 +2445,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					}
 				}
 				if(sortBy.equals(T_VISITS)) {
-					if(!dbVendor.equals("mysql")) {
+					if(dbVendor.equals("oracle") || dbVendor.equals("hql")) {
 						if(queryType == Q_TYPE_EVENT
 							|| totalsBy.contains(T_DATEMONTH) || totalsBy.contains(T_DATEYEAR)) {
 							sortField = "sum(s.count)";							
@@ -2435,7 +2462,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					}
 				}
 				if(sortBy.equals(T_UNIQUEVISITS)) {
-					if(!dbVendor.equals("mysql")) {
+					if(dbVendor.equals("oracle") || dbVendor.equals("hql")) {
 						sortField = "sum(s.totalUnique)";
 						if(queryType == Q_TYPE_EVENT
 								|| totalsBy.contains(T_DATEMONTH) || totalsBy.contains(T_DATEYEAR)) {

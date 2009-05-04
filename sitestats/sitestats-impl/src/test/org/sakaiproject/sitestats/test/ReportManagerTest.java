@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.easymock.IAnswer;
+import org.hibernate.Hibernate;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.event.api.Event;
@@ -46,6 +47,8 @@ import org.sakaiproject.sitestats.test.mocks.FakeSite;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate3.HibernateTransactionManager;
 import org.springframework.test.annotation.AbstractAnnotationAwareTransactionalTests;
 
 
@@ -219,6 +222,62 @@ public class ReportManagerTest extends AbstractAnnotationAwareTransactionalTests
 				));
 		return samples;
 	}
+	
+	private List<Event> getSampleData2() {
+		List<Event> samples = new ArrayList<Event>();
+		Date today = new Date();
+		Date oneDayBefore = new Date(today.getTime() - 24*60*60*1000);
+		Date twoDaysBefore = new Date(today.getTime() - 2*24*60*60*1000);
+		Date fourDaysBefore = new Date(today.getTime() - 4*24*60*60*1000);
+		Date sixDaysBefore = new Date(today.getTime() - 6*24*60*60*1000);
+		// visits
+		Event vAToday = M_sum.buildEvent(today, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		Event vBToday = M_sum.buildEvent(today, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_B_ID, "session-id-b");
+		Event vAOneDayBefore = M_sum.buildEvent(oneDayBefore, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		Event vATowDaysBefore = M_sum.buildEvent(twoDaysBefore, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		Event vAFourDaysBefore = M_sum.buildEvent(fourDaysBefore, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
+		Event vBFourDaysBefore = M_sum.buildEvent(fourDaysBefore, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_B_ID, "session-id-b");
+		Event vBSixDaysBefore = M_sum.buildEvent(sixDaysBefore, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_B_ID, "session-id-b");
+		samples.addAll(Arrays.asList(
+				vAToday, vAToday, vBToday, 			// today:			3 visits, 2 unique
+				vAOneDayBefore, 					// 1 day before:	1 visits, 1 unique
+				vATowDaysBefore, vATowDaysBefore, 	// 2 day before:	2 visits, 1 unique
+				vAFourDaysBefore, vBFourDaysBefore, // 4 day before:	2 visits, 2 unique
+				vBSixDaysBefore						// 6 day before:	1 visits, 1 unique
+				));
+		// activity
+		Event aAToday = M_sum.buildEvent(today, FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_B_ID, FakeData.SITE_B_ID, FakeData.USER_A_ID, "session-id-a");
+		Event aBToday = M_sum.buildEvent(today, FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_B_ID+"/resource_id", FakeData.SITE_B_ID, FakeData.USER_B_ID, "session-id-b");
+		Event aAOneDayBefore = M_sum.buildEvent(oneDayBefore, FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
+		Event aATowDaysBefore = M_sum.buildEvent(twoDaysBefore, FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
+		Event aAFourDaysBefore = M_sum.buildEvent(fourDaysBefore, FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
+		Event aBFourDaysBefore = M_sum.buildEvent(fourDaysBefore, FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, FakeData.SITE_A_ID, FakeData.USER_B_ID, "session-id-b");
+		Event aBSixDaysBefore = M_sum.buildEvent(sixDaysBefore, FakeData.EVENT_CONTENTREV, "/content/group/"+FakeData.SITE_A_ID+"/resource_id", FakeData.SITE_A_ID, FakeData.USER_B_ID, "session-id-b");
+		samples.addAll(Arrays.asList(
+				aAToday, aBToday,  					// today:			2 (1 chat + 1 content)
+				aAOneDayBefore, 					// 1 day before:	1 (1 chat)
+				aATowDaysBefore, aATowDaysBefore, 	// 2 day before:	2 (2 chat)
+				aAFourDaysBefore, aBFourDaysBefore, // 4 day before:	2 (2 chat)
+				aBSixDaysBefore						// 6 day before:	1 (1 chat)
+				));
+		// resources
+		Event r1 = M_sum.buildEvent(today, FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_A_ID+"/resource_id1", FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
+		Event r1a = M_sum.buildEvent(today, FakeData.EVENT_CONTENTREAD, "/content/group/"+FakeData.SITE_A_ID+"/resource_id1", FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
+		Event r1b = M_sum.buildEvent(today, FakeData.EVENT_CONTENTREAD, "/content/group/"+FakeData.SITE_A_ID+"/resource_id1", FakeData.SITE_A_ID, FakeData.USER_B_ID, "session-id-b");
+		Event r1c = M_sum.buildEvent(today, FakeData.EVENT_CONTENTREAD, "/content/group/"+FakeData.SITE_A_ID+"/resource_id1", FakeData.SITE_A_ID, FakeData.USER_B_ID, "session-id-b");
+		Event r2 = M_sum.buildEvent(today, FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_A_ID+"/resource_id2", FakeData.SITE_A_ID, FakeData.USER_B_ID, "session-id-b");
+		Event r2a = M_sum.buildEvent(today, FakeData.EVENT_CONTENTREAD, "/content/group/"+FakeData.SITE_A_ID+"/resource_id2", FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
+		Event r2b = M_sum.buildEvent(today, FakeData.EVENT_CONTENTREAD, "/content/group/"+FakeData.SITE_A_ID+"/resource_id2", FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
+		Event r3 = M_sum.buildEvent(today, FakeData.EVENT_CONTENTDEL, "/content/group/"+FakeData.SITE_A_ID+"/resource_id2", FakeData.SITE_A_ID, FakeData.USER_B_ID, "session-id-b");
+		Event r4 = M_sum.buildEvent(today, FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_B_ID+"/resource_id2", FakeData.SITE_B_ID, FakeData.USER_A_ID, "session-id-a");
+		// resources: attachment
+		Event r5 = M_sum.buildEvent(today, FakeData.EVENT_CONTENTNEW, FakeData.RES_ATTACH, FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
+		// resources: dropbox
+		Event r6 = M_sum.buildEvent(today, FakeData.EVENT_CONTENTNEW, FakeData.RES_DROPBOX_SITE_A_USER_A_FILE, FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
+		
+		samples.addAll(Arrays.asList( r1, r1a, r1b, r1c, r2, r2a, r2b, r3, r4, r5, r6 ));
+		return samples;
+	}
 
 	
 	// ---- TESTS ----
@@ -349,6 +408,240 @@ public class ReportManagerTest extends AbstractAnnotationAwareTransactionalTests
 //		assertEquals(1, r.getReportData().size());
 //		assertEquals(1, r.getReportData().get(0).getCount());
 		
+	}
+	
+	public void testReportsFromOverviewPage() {
+		M_sum.collectEvents(getSampleData2());
+		
+		// MiniStatsVisits & MiniStatUniqueVisits
+		{
+			ReportDef r = new ReportDef();
+			r.setId(0);
+			r.setSiteId(FakeData.SITE_A_ID);
+			ReportParams rp = new ReportParams(FakeData.SITE_A_ID);
+			rp.setWhat(ReportManager.WHAT_VISITS_TOTALS);
+			rp.setWhen(ReportManager.WHEN_ALL);
+			rp.setWho(ReportManager.WHO_ALL);
+			List<String> totalsBy = new ArrayList<String>();
+			totalsBy.add(StatsManager.T_DATE);
+			totalsBy.add(StatsManager.T_VISITS);
+			totalsBy.add(StatsManager.T_UNIQUEVISITS);
+			rp.setHowTotalsBy(totalsBy);
+			rp.setHowSort(true);
+			rp.setHowSortBy(StatsManager.T_DATE);
+			rp.setHowSortAscending(false);
+			rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_BOTH);
+			rp.setHowChartType(StatsManager.CHARTTYPE_TIMESERIESBAR);
+			rp.setHowChartSource(StatsManager.T_DATE);
+			rp.setHowChartSeriesSource(StatsManager.T_NONE);
+			rp.setHowChartSeriesPeriod(StatsManager.CHARTTIMESERIES_DAY);
+			r.setReportParams(rp);
+			Report rep = M_rm.getReport(r, false);
+			assertNotNull(rep);
+			assertEquals(5, rep.getReportData().size());
+		}
+		
+		// MiniStatEnrolledUsersWithVisits
+		{
+			ReportDef r = new ReportDef();
+			r.setId(0);
+			r.setSiteId(FakeData.SITE_A_ID);
+			ReportParams rp = new ReportParams(FakeData.SITE_A_ID);
+			rp.setWhat(ReportManager.WHAT_VISITS);
+			rp.setWhen(ReportManager.WHEN_ALL);
+			rp.setWho(ReportManager.WHO_ALL);
+			// grouping
+			List<String> totalsBy = new ArrayList<String>();
+			totalsBy.add(StatsManager.T_USER);
+			rp.setHowTotalsBy(totalsBy);
+			// sorting
+			rp.setHowSort(false);
+			// chart
+			rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
+			r.setReportParams(rp);
+			Report rep = M_rm.getReport(r, false);
+			assertNotNull(rep);
+			assertEquals(2, rep.getReportData().size());
+		}
+		
+		// MiniStatEnrolledUsersWithoutVisits
+		{
+			ReportDef r = new ReportDef();
+			r.setId(0);
+			r.setSiteId(FakeData.SITE_A_ID);
+			ReportParams rp = new ReportParams(FakeData.SITE_A_ID);
+			rp.setWhat(ReportManager.WHAT_VISITS);
+			rp.setWhen(ReportManager.WHEN_ALL);
+			rp.setWho(ReportManager.WHO_NONE);
+			// grouping
+			List<String> totalsBy = new ArrayList<String>();
+			totalsBy.add(StatsManager.T_USER);
+			rp.setHowTotalsBy(totalsBy);
+			// sorting
+			rp.setHowSort(false);
+			// chart
+			rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
+			r.setReportParams(rp);
+			Report rep = M_rm.getReport(r, false);
+			assertNotNull(rep);
+			assertEquals(0, rep.getReportData().size());
+		}
+		
+		// MiniStatActivityEvents
+		{
+			ReportDef r = new ReportDef();
+			r.setId(0);
+			r.setSiteId(FakeData.SITE_A_ID);
+			ReportParams rp = new ReportParams(FakeData.SITE_A_ID);
+			// what
+			rp.setWhat(ReportManager.WHAT_EVENTS);
+			rp.setWhatEventSelType(ReportManager.WHAT_EVENTS_BYEVENTS);
+			rp.setWhatEventIds(M_ers.getEventIds());
+			// when
+			rp.setWhen(ReportManager.WHEN_ALL);
+			// who
+			rp.setWho(ReportManager.WHO_ALL);
+			// grouping
+			List<String> totalsBy = new ArrayList<String>();
+			totalsBy.add(StatsManager.T_EVENT);
+			rp.setHowTotalsBy(totalsBy);
+			// sorting
+			rp.setHowSort(true);
+			rp.setHowSortBy(StatsManager.T_EVENT);
+			rp.setHowSortAscending(true);
+			// chart
+			rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
+			r.setReportParams(rp);
+			Report rep = M_rm.getReport(r, false);
+			assertNotNull(rep);
+			assertEquals(6, rep.getReportData().size());
+		}
+		
+		// MiniStatMostActiveUser
+		{
+			ReportDef r = new ReportDef();
+			r.setId(0);
+			r.setSiteId(FakeData.SITE_A_ID);
+			ReportParams rp = new ReportParams(FakeData.SITE_A_ID);
+			// what
+			rp.setWhat(ReportManager.WHAT_EVENTS);
+			rp.setWhatEventSelType(ReportManager.WHAT_EVENTS_BYEVENTS);
+			rp.setWhatEventIds(M_ers.getEventIds());
+			// when
+			rp.setWhen(ReportManager.WHEN_ALL);
+			// who
+			rp.setWho(ReportManager.WHO_ALL);
+			// grouping
+			List<String> totalsBy = new ArrayList<String>();
+			totalsBy.add(StatsManager.T_USER);
+			rp.setHowTotalsBy(totalsBy);
+			// sorting
+			rp.setHowSort(true);
+			rp.setHowSortBy(StatsManager.T_TOTAL);
+			rp.setHowSortAscending(false);
+			// chart
+			rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
+			r.setReportParams(rp);
+			Report rep = M_rm.getReport(r, false);
+			assertNotNull(rep);
+			assertEquals(3, rep.getReportData().size());
+		}
+		
+		// MiniStatFiles (files with new event)
+		{
+			ReportDef r = new ReportDef();
+			r.setId(0);
+			r.setSiteId(FakeData.SITE_A_ID);
+			ReportParams rp = new ReportParams(FakeData.SITE_A_ID);
+			// what
+			rp.setWhat(ReportManager.WHAT_RESOURCES);
+			rp.setWhatLimitedAction(true);
+			rp.setWhatResourceAction(ReportManager.WHAT_RESOURCES_ACTION_NEW);
+			rp.setWhatLimitedResourceIds(true);
+			rp.setWhatResourceIds(Arrays.asList(StatsManager.RESOURCES_DIR + FakeData.SITE_A_ID + "/"));
+			// when
+			rp.setWhen(ReportManager.WHEN_ALL);
+			// who
+			rp.setWho(ReportManager.WHO_ALL);
+			// grouping
+			List<String> totalsBy = new ArrayList<String>();
+			totalsBy.add(StatsManager.T_RESOURCE);
+			rp.setHowTotalsBy(totalsBy);
+			// sorting
+			rp.setHowSort(true);
+			rp.setHowSortBy(StatsManager.T_RESOURCE);
+			rp.setHowSortAscending(true);
+			// chart
+			rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
+			r.setReportParams(rp);
+			Report rep = M_rm.getReport(r, false);
+			assertNotNull(rep);
+			assertEquals(2, rep.getReportData().size());
+		}
+		
+		// MiniStatOpenedFiles (files with read event)
+		{
+			ReportDef r = new ReportDef();
+			r.setId(0);
+			r.setSiteId(FakeData.SITE_A_ID);
+			ReportParams rp = new ReportParams(FakeData.SITE_A_ID);
+			// what
+			rp.setWhat(ReportManager.WHAT_RESOURCES);
+			rp.setWhatLimitedAction(true);
+			rp.setWhatResourceAction(ReportManager.WHAT_RESOURCES_ACTION_READ);
+			rp.setWhatLimitedResourceIds(true);
+			rp.setWhatResourceIds(Arrays.asList(StatsManager.RESOURCES_DIR + FakeData.SITE_A_ID + "/"));
+			// when
+			rp.setWhen(ReportManager.WHEN_ALL);
+			// who
+			rp.setWho(ReportManager.WHO_ALL);
+			// grouping
+			List<String> totalsBy = new ArrayList<String>();
+			totalsBy.add(StatsManager.T_RESOURCE);
+			rp.setHowTotalsBy(totalsBy);
+			// sorting
+			rp.setHowSort(true);
+			rp.setHowSortBy(StatsManager.T_TOTAL);
+			rp.setHowSortAscending(false);
+			// chart
+			rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
+			r.setReportParams(rp);
+			Report rep = M_rm.getReport(r, false);
+			assertNotNull(rep);
+			assertEquals(2, rep.getReportData().size());
+		}
+		
+		// MiniStatUserThatOpenedMoreFiles
+		{
+			ReportDef r = new ReportDef();
+			r.setId(0);
+			r.setSiteId(FakeData.SITE_A_ID);
+			ReportParams rp = new ReportParams(FakeData.SITE_A_ID);
+			// what
+			rp.setWhat(ReportManager.WHAT_RESOURCES);
+			rp.setWhatLimitedAction(true);
+			rp.setWhatResourceAction(ReportManager.WHAT_RESOURCES_ACTION_READ);
+			rp.setWhatLimitedResourceIds(true);
+			rp.setWhatResourceIds(Arrays.asList(StatsManager.RESOURCES_DIR + FakeData.SITE_A_ID + "/"));
+			// when
+			rp.setWhen(ReportManager.WHEN_ALL);
+			// who
+			rp.setWho(ReportManager.WHO_ALL);
+			// grouping
+			List<String> totalsBy = new ArrayList<String>();
+			totalsBy.add(StatsManager.T_USER);
+			rp.setHowTotalsBy(totalsBy);
+			// sorting
+			rp.setHowSort(true);
+			rp.setHowSortBy(StatsManager.T_TOTAL);
+			rp.setHowSortAscending(false);
+			// chart
+			rp.setHowPresentationMode(ReportManager.HOW_PRESENTATION_TABLE);
+			r.setReportParams(rp);
+			Report rep = M_rm.getReport(r, false);
+			assertNotNull(rep);
+			assertEquals(2, rep.getReportData().size());
+		}
 	}
 
 	public void testLoadSaveReports() {

@@ -30,6 +30,7 @@ public class FakeData {
 	public final static String					EVENT_CHATNEW		= "chat.new";
 	public final static String					EVENT_CONTENTNEW	= "content.new";
 	public final static String					EVENT_CONTENTREV	= "content.revise";
+	public final static String					EVENT_CONTENTREAD	= "content.read";
 	// anonymous events
 	public final static String					EVENT_CONTENTDEL	= "content.delete";
 	
@@ -41,6 +42,7 @@ public class FakeData {
 	static{
 		EVENTIDS.add(EVENT_CHATNEW); 
 		EVENTIDS.add(EVENT_CONTENTNEW); 
+		EVENTIDS.add(EVENT_CONTENTREAD); 
 		EVENTIDS.add(EVENT_CONTENTREV); 
 		EVENTIDS.add(EVENT_CONTENTDEL); 
 	};
@@ -55,9 +57,12 @@ public class FakeData {
 
 		ToolInfo resources = new ToolInfo(StatsManager.RESOURCES_TOOLID);
 		resources.addEvent(new EventInfo(EVENT_CONTENTNEW));
+		resources.addEvent(new EventInfo(EVENT_CONTENTREAD));
 		resources.addEvent(new EventInfo(EVENT_CONTENTREV));
+		resources.addEvent(new EventInfo(EVENT_CONTENTDEL));
 		resources.setEventParserTip(new EventParserTip("contextId", "/", "3"));
 		EVENTID_TOOL_MAP.put(EVENT_CONTENTNEW, resources);
+		EVENTID_TOOL_MAP.put(EVENT_CONTENTREAD, resources);
 		EVENTID_TOOL_MAP.put(EVENT_CONTENTREV, resources);
 		EVENTID_TOOL_MAP.put(EVENT_CONTENTDEL, resources);
 		EVENT_REGISTRY.add(resources);
