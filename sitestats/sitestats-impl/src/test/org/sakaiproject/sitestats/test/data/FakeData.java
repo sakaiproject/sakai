@@ -20,10 +20,14 @@ public class FakeData {
 	public final static String					SITE_A_TARGET		= SITE_A_REF;
 	public final static String					SITE_B_ID			= "site-b-id";
 	public final static String					SITE_B_REF			= "/site/site-b-id";
+	public final static String					SITE_C_ID			= "site-c-id";
+	public final static String					SITE_C_REF			= "/site/site-c-id";
+	public final static int						SITE_C_USER_COUNT	= 2002;
 	
 	// USERs
 	public final static String					USER_A_ID			= "user-a";
 	public final static String					USER_B_ID			= "user-b";
+	public final static String					USER_ID_PREFIX		= "user-";
 
 	// TOOLs & EVENTs
 	public final static String					TOOL_CHAT			= "sakai.chat";

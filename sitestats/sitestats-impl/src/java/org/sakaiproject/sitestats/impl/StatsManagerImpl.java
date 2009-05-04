@@ -1168,8 +1168,22 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					}
 					q.setParameterList("events", events);
 				}
-				if(userIds != null && !userIds.isEmpty())
-					q.setParameterList("users", userIds);
+				if(userIds != null && !userIds.isEmpty()) {
+					if(userIds.size() <= 1000) {
+						q.setParameterList("users", userIds);
+					}else{
+						int nUsers = userIds.size();
+						int blockId = 0, startIndex = 0;
+						int blocks = (int) (nUsers / 1000);
+						blocks = (blocks*1000 == nUsers) ? blocks : blocks+1;
+						for(int i=0; i<blocks-1; i++) {
+							q.setParameterList("users"+blockId, userIds.subList(startIndex, startIndex+1000));
+							blockId++;
+							startIndex += 1000;
+						}
+						q.setParameterList("users"+blockId, userIds.subList(startIndex, nUsers));
+					}
+				}
 				if(iDate != null)
 					q.setDate("idate", iDate);
 				if(fDate != null){
@@ -1379,8 +1393,22 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				if(events != null && !events.isEmpty()){
 					q.setParameterList("events", events);
 				}
-				if(userIds != null && !userIds.isEmpty())
-					q.setParameterList("users", userIds);
+				if(userIds != null && !userIds.isEmpty()) {
+					if(userIds.size() <= 1000) {
+						q.setParameterList("users", userIds);
+					}else{
+						int nUsers = userIds.size();
+						int blockId = 0, startIndex = 0;
+						int blocks = (int) (nUsers / 1000);
+						blocks = (blocks*1000 == nUsers) ? blocks : blocks+1;
+						for(int i=0; i<blocks-1; i++) {
+							q.setParameterList("users"+blockId, userIds.subList(startIndex, startIndex+1000));
+							blockId++;
+							startIndex += 1000;
+						}
+						q.setParameterList("users"+blockId, userIds.subList(startIndex, nUsers));
+					}
+				}
 				if(iDate != null)
 					q.setDate("idate", iDate);
 				if(fDate != null){
@@ -1588,8 +1616,22 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				if(siteId != null){
 					q.setString("siteid", siteId);
 				}
-				if(userIds != null && !userIds.isEmpty())
-					q.setParameterList("users", userIds);
+				if(userIds != null && !userIds.isEmpty()) {
+					if(userIds.size() <= 1000) {
+						q.setParameterList("users", userIds);
+					}else{
+						int nUsers = userIds.size();
+						int blockId = 0, startIndex = 0;
+						int blocks = (int) (nUsers / 1000);
+						blocks = (blocks*1000 == nUsers) ? blocks : blocks+1;
+						for(int i=0; i<blocks-1; i++) {
+							q.setParameterList("users"+blockId, userIds.subList(startIndex, startIndex+1000));
+							blockId++;
+							startIndex += 1000;
+						}
+						q.setParameterList("users"+blockId, userIds.subList(startIndex, nUsers));
+					}
+				}
 				if(resourceAction != null)
 					q.setString("action", resourceAction);
 				if(resourceIds != null && !resourceIds.isEmpty()) {
@@ -1740,8 +1782,22 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				if(siteId != null){
 					q.setString("siteid", siteId);
 				}
-				if(userIds != null && !userIds.isEmpty())
-					q.setParameterList("users", userIds);
+				if(userIds != null && !userIds.isEmpty()) {
+					if(userIds.size() <= 1000) {
+						q.setParameterList("users", userIds);
+					}else{
+						int nUsers = userIds.size();
+						int blockId = 0, startIndex = 0;
+						int blocks = (int) (nUsers / 1000);
+						blocks = (blocks*1000 == nUsers) ? blocks : blocks+1;
+						for(int i=0; i<blocks-1; i++) {
+							q.setParameterList("users"+blockId, userIds.subList(startIndex, startIndex+1000));
+							blockId++;
+							startIndex += 1000;
+						}
+						q.setParameterList("users"+blockId, userIds.subList(startIndex, nUsers));
+					}
+				}
 				if(resourceAction != null)
 					q.setString("action", resourceAction);
 				if(resourceIds != null && !resourceIds.isEmpty())
@@ -2280,7 +2336,24 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			if((queryType == Q_TYPE_EVENT || queryType == Q_TYPE_RESOURCE) 
 				&& userIds != null) {
 				if(!userIds.isEmpty()) {
-					whereFields.add("s.userId in (:users)");
+					if(userIds.size() <= 1000) {
+						whereFields.add("s.userId in (:users)");
+					}else{
+						int nUsers = userIds.size();
+						int blockId = 0;
+						StringBuilder buff = new StringBuilder();
+						buff.append("(");
+						int blocks = (int) (nUsers / 1000);
+						blocks = (blocks*1000 == nUsers) ? blocks : blocks+1;
+						for(int i=0; i<blocks-1; i++) {
+							buff.append("s.userId in (:users"+blockId+")");
+							buff.append(" OR ");
+							blockId++;
+						}
+						buff.append("s.userId in (:users"+blockId+")");
+						buff.append(")");
+						whereFields.add(buff.toString());
+					}
 				}else{
 					whereFields.add("s.userId=''");
 				}

@@ -43,8 +43,10 @@ import org.springframework.test.annotation.AbstractAnnotationAwareTransactionalT
 
 public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests { 
 	// AbstractAnnotationAwareTransactionalTests / AbstractTransactionalSpringContextTests
+	private final static boolean			enableLargeMembershipTest = false;
+	
 	private StatsManager					M_sm;
-	private StatsUpdateManager		M_sum;
+	private StatsUpdateManager				M_sum;
 	private DB								db;
 	private SiteService						M_ss;
 	private FakeServerConfigurationService	M_scs;
@@ -119,6 +121,24 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		expect(M_ss.isSpecialSite(FakeData.SITE_B_ID)).andStubReturn(false);	
 		//expect(siteB.getCreatedTime()).andStubReturn(timeB).anyTimes();
 		expect(siteB.getCreatedTime()).andStubReturn((Time)anyObject());
+
+		if(enableLargeMembershipTest) {
+			// Site C has tools {SiteStats, Chat}, has 2002 users (user-1..user-2002), created 1 month ago
+			Site siteC = new FakeSite(FakeData.SITE_C_ID,
+					Arrays.asList(StatsManager.SITESTATS_TOOLID, FakeData.TOOL_CHAT, StatsManager.RESOURCES_TOOLID)
+				);
+			List<String> siteCUsersList = new ArrayList<String>();
+			for(int i=0; i<FakeData.SITE_C_USER_COUNT; i++) {
+				siteCUsersList.add(FakeData.USER_ID_PREFIX + (i+1));
+			}
+			Set<String> siteCUsersSet = new HashSet<String>(siteCUsersList);
+			((FakeSite)siteC).setUsers(siteCUsersSet);
+			((FakeSite)siteC).setMembers(siteCUsersSet);
+			expect(M_ss.getSite(FakeData.SITE_C_ID)).andStubReturn(siteC);
+			expect(M_ss.isUserSite(FakeData.SITE_C_ID)).andStubReturn(false);
+			expect(M_ss.isSpecialSite(FakeData.SITE_C_ID)).andStubReturn(false);
+			expect(siteC.getCreatedTime()).andStubReturn((Time)anyObject());
+		}
 		
 		// Site 'non_existent_site' doesn't exist
 		expect(M_ss.isUserSite("non_existent_site")).andStubReturn(false);
@@ -527,6 +547,40 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 				aAFourDaysBefore, aBFourDaysBefore, // 4 day before:	2 (2 chat)
 				aBSixDaysBefore						// 6 day before:	1 (1 chat)
 				));
+		return samples;
+	}
+	
+	private List<Event> getSampleData2() {
+		List<Event> samples = new ArrayList<Event>();
+		Date today = new Date();
+		
+		// visits
+		// even numbered users has visits
+		for(int i=0; i<FakeData.SITE_C_USER_COUNT; i+=2) {
+			String userId = FakeData.USER_ID_PREFIX + (i+1);
+			samples.add(
+					M_sum.buildEvent(today, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_C_ID+"-presence", null, userId, "session-id-a")
+					);
+		}
+		
+		// activity
+		// odd numbered users has chat.new activity event
+		for(int i=1; i<FakeData.SITE_C_USER_COUNT; i+=2) {
+			String userId = FakeData.USER_ID_PREFIX + (i+1);
+			samples.add(
+					M_sum.buildEvent(today, FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_C_ID, FakeData.SITE_C_ID, userId, "session-id-a")
+					);
+		}
+		
+		// resources
+		// all users has content.new activity event
+		for(int i=0; i<FakeData.SITE_C_USER_COUNT; i++) {
+			String userId = FakeData.USER_ID_PREFIX + (i+1);
+			samples.add(
+					M_sum.buildEvent(today, FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_C_ID+"/resource_id", FakeData.SITE_C_ID, userId, "session-id-b")
+					);
+		}
+
 		return samples;
 	}
 	
@@ -1153,5 +1207,55 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		statsCount = M_sm.getResourceStatsRowCount(FakeData.SITE_A_ID, null, null,
 				null, null, null, false, Arrays.asList(StatsManager.T_LASTDATE));
 		assertEquals(1, statsCount);
+	}
+	
+	public void testLargeMembershipSite() {
+		// For development only: this tests take too long!
+		if(enableLargeMembershipTest) {
+			// sample data
+			M_sum.collectEvents(getSampleData2());
+			
+			// all users list
+			List<String> allUsers = new ArrayList<String>();
+			for(int i=0; i<FakeData.SITE_C_USER_COUNT; i++) {
+				allUsers.add(FakeData.USER_ID_PREFIX + (i+1));
+			}
+			
+			// test visits
+			{
+				List<Stat> stats = M_sm.getEventStats(null, Arrays.asList(StatsManager.SITEVISIT_EVENTID), 
+						null, null, allUsers, false, null, 
+						null, null, false, 0);
+				assertNotNull(stats);
+				assertEquals(FakeData.SITE_C_USER_COUNT / 2, stats.size());
+				int statsCount = M_sm.getEventStatsRowCount(null, Arrays.asList(StatsManager.SITEVISIT_EVENTID), 
+						null, null, allUsers, false, null);
+				assertEquals(FakeData.SITE_C_USER_COUNT / 2, statsCount);
+			}
+			
+			// test activity
+			{
+				List<Stat> stats = M_sm.getEventStats(null, Arrays.asList(FakeData.EVENT_CHATNEW), 
+						null, null, allUsers, false, null, 
+						null, null, false, 0);
+				assertNotNull(stats);
+				assertEquals(FakeData.SITE_C_USER_COUNT / 2, stats.size());
+				int statsCount = M_sm.getEventStatsRowCount(null, Arrays.asList(FakeData.EVENT_CHATNEW), 
+						null, null, allUsers, false, null);
+				assertEquals(FakeData.SITE_C_USER_COUNT / 2, statsCount);
+			}
+			
+			// test resources
+			{
+				List<Stat> stats = M_sm.getResourceStats(null, null, null, 
+						null, null, allUsers, false, null, 
+						null, null, false, 0);
+				assertNotNull(stats);
+				assertEquals(FakeData.SITE_C_USER_COUNT, stats.size());
+				int statsCount = M_sm.getResourceStatsRowCount(null, null, null, 
+						null, null, allUsers, false, null);
+				assertEquals(FakeData.SITE_C_USER_COUNT, statsCount);
+			}
+		}
 	}
 }
