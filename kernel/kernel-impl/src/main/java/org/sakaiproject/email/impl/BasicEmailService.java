@@ -419,11 +419,11 @@ public class BasicEmailService implements EmailService
 			// the character set, for example, windows-1252 or UTF-8
 			String charset = extractCharset(contentTypeHeader);
 
-			if (charset != null && canUseCharset(content, charset))
+                       if (charset != null && canUseCharset(content, charset) && canUseCharset(subject, charset))
 			{
 				// use the charset from the Content-Type header
 			}
-			else if (canUseCharset(content, CharacterSet.ISO_8859_1))
+                       else if (canUseCharset(content, CharacterSet.ISO_8859_1) && canUseCharset(subject, CharacterSet.ISO_8859_1))
 			{
 				if (contentTypeHeader != null && charset != null)
 					contentTypeHeader = contentTypeHeader.replaceAll(charset, CharacterSet.ISO_8859_1);
@@ -431,13 +431,13 @@ public class BasicEmailService implements EmailService
 					contentTypeHeader += "; charset=" + CharacterSet.ISO_8859_1;
 				charset = CharacterSet.ISO_8859_1;
 			}
-			else if (canUseCharset(content, CharacterSet.WINDOWS_1252))
+                       else if (canUseCharset(content, CharacterSet.WINDOWS_1252) && canUseCharset(subject, CharacterSet.WINDOWS_1252))
 			{
 				if (contentTypeHeader != null && charset != null)
 					contentTypeHeader = contentTypeHeader.replaceAll(charset, CharacterSet.WINDOWS_1252);
 				else if (contentTypeHeader != null)
 					contentTypeHeader += "; charset=" + CharacterSet.WINDOWS_1252;
-				charset = CharacterSet.ISO_8859_1;
+                               charset = CharacterSet.WINDOWS_1252;
 			}
 			else
 			{
@@ -1292,24 +1292,24 @@ public class BasicEmailService implements EmailService
 					}
 				}
 
-				if (charset != null && canUseCharset(message, charset))
+                               if (charset != null && canUseCharset(message, charset) && canUseCharset(getSubject(), charset))
 				{
 					// use the charset from the Content-Type header
 				}
-				else if (canUseCharset(message, CharacterSet.ISO_8859_1))
+                               else if (canUseCharset(message, CharacterSet.ISO_8859_1) && canUseCharset(getSubject(), CharacterSet.ISO_8859_1))
 				{
 					if (contentType != null && charset != null)
 						contentType = contentType.replaceAll(charset, CharacterSet.ISO_8859_1);
 					else if (contentType != null)
-						contentType += "; " + CharacterSet.ISO_8859_1;
+						contentType += "; charset=" + CharacterSet.ISO_8859_1;
 					charset = CharacterSet.ISO_8859_1;
 				}
-				else if (canUseCharset(message, CharacterSet.WINDOWS_1252))
+                               else if (canUseCharset(message, CharacterSet.WINDOWS_1252) && canUseCharset(getSubject(), CharacterSet.WINDOWS_1252))
 				{
 					if (contentType != null && charset != null)
 						contentType = contentType.replaceAll(charset, CharacterSet.WINDOWS_1252);
 					else if (contentType != null)
-						contentType += "; " + CharacterSet.WINDOWS_1252;
+						contentType += "; charset=" + CharacterSet.WINDOWS_1252;
 					charset = CharacterSet.WINDOWS_1252;
 				}
 				else
