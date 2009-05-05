@@ -466,35 +466,25 @@ This is not needed now that pluto have been released
         <version>${sakai.jcr.version}</version>
         <scope>provided</scope>
       </dependency>
-<!-- kernel apis -->
-<!--org.sakaiprojectsakai-authz-api${sakai.version}provided-->
-<!--org.sakaiprojectsakai-alias-api${sakai.version}provided-->
+<!-- Sakai apis -->
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-archive-api</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
-<!--org.sakaiprojectsakai-cluster-api${sakai.version}provided-->
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-comp-shared-help</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
-<!--org.sakaiprojectsakai-component-api${sakai.version}provided-->
-<!--org.sakaiprojectsakai-component${sakai.version}provided-->
-<!--org.sakaiprojectsakai-content-api${sakai.version}provided-->
-<!--org.sakaiprojectsakai-db-api${sakai.version}provided-->
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-db-ext</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
-<!--org.sakaiprojectsakai-email-api${sakai.version}provided-->
-<!--org.sakaiprojectsakai-entity-api${sakai.version}provided-->
-<!--org.sakaiprojectsakai-event-api${sakai.version}provided-->
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-courier-api</artifactId>
@@ -519,8 +509,6 @@ This is not needed now that pluto have been released
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
-<!--org.sakaiprojectsakai-jcr-api${sakai.version}provided-->
-<!--org.sakaiprojectsakai-memory-api${sakai.version}provided-->
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-portal-api</artifactId>
@@ -539,17 +527,12 @@ This is not needed now that pluto have been released
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
-<!--org.sakaiprojectsakai-site-api${sakai.version}provided-->
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-site-manage-api</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
-<!--org.sakaiprojectsakai-tool-api${sakai.version}provided-->
-<!--org.sakaiprojectsakai-tool-servlet${sakai.version}provided-->
-<!--org.sakaiprojectsakai-user-api${sakai.version}provided-->
-<!--org.sakaiprojectsakai-util-api${sakai.version}provided-->
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-velocity-tool-api</artifactId>
@@ -562,7 +545,6 @@ This is not needed now that pluto have been released
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
-<!-- release apis -->
       <dependency>
         <groupId>org.sakaiproject.osp</groupId>
         <artifactId>osp-common-api</artifactId>
