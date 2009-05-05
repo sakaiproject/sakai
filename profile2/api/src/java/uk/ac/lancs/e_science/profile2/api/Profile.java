@@ -506,6 +506,16 @@ public interface Profile {
 	 */
 	public byte[] getCurrentProfileImageForUser(String userId, int imageType);
 	
+	/**
+	 * Get the profile image for the given user, allowing fallback if no thumbnail exists.
+	 * 
+	 * @param userId 		the uuid of the user we are querying
+	 * @param imageType		comes from ProfileImageManager and maps to a directory in ContentHosting
+	 * @param fallback		if thumbnail and none exists, should the main image be returned instead? It can be scaled in the markup.
+	 * @return image as bytes
+	 */
+	public byte[] getCurrentProfileImageForUser(String userId, int imageType, boolean fallback);
+	
 	
 	/**
 	 * Does this user have an uplaoded profile image?
@@ -619,5 +629,31 @@ public interface Profile {
 	 * @return
 	 */
 	public boolean saveExternalImage(final String userId, final String mainUrl, final String thumbnailUrl);
+	
+	/**
+	 * TODO
+	 * 
+	 * Convert a UserProfile object into a piece of HTML - this should go in the EntityProvider.
+	 * The HTML will be fully abstracted so it can be styled and rearranged as desired.
+	 * 
+	 * @param userProfile	UserProfile object
+	 * @return String of HTML
+	 */
+	//public String convertUserProfileToHTML(final UserProfile userProfile);
+	
+	
+	/**
+	 * Gets a URL resource, reads it and returns the byte[]. Useful for diplaying remote images where you only have a URL.
+	 * 
+	 * @param url 	String url of the remote resource
+	 * @return
+	 */
+	public byte[] getURLResourceAsBytes(final String url);
+	
+	/**
+	 * Get the full URL to the default unavailable image defined in ProfileImageManager
+	 * @return
+	 */
+	public String getUnavailableImageURL();
 	
 }

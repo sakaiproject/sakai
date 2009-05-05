@@ -5,8 +5,14 @@ import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.sql.SQLException;
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
@@ -1344,6 +1350,38 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		if(imageType == ProfileImageManager.PROFILE_IMAGE_THUMBNAIL) {
 			image = sakaiProxy.getResource(profileImage.getThumbnailResource());
 		}
+		//or get nothing ;)
+		
+		return image;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public byte[] getCurrentProfileImageForUser(String userId, int imageType, boolean fallback) {
+		
+		byte[] image = null;
+		
+		//get record from db
+		ProfileImage profileImage = getCurrentProfileImageRecord(userId);
+		
+		if(profileImage == null) {
+			log.debug("Profile.getCurrentProfileImageForUser() null for userId: " + userId);
+			return null;
+		}
+		
+		//get main image
+		if(imageType == ProfileImageManager.PROFILE_IMAGE_MAIN) {
+			image = sakaiProxy.getResource(profileImage.getMainResource());
+		}
+		
+		//or get thumbnail
+		if(imageType == ProfileImageManager.PROFILE_IMAGE_THUMBNAIL) {
+			image = sakaiProxy.getResource(profileImage.getThumbnailResource());
+			if(image == null && fallback) {
+				image = sakaiProxy.getResource(profileImage.getMainResource());
+			}
+		}
 		
 		return image;
 	}
@@ -1673,21 +1711,77 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 
 	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	//public String convertProfileEntityXMLToHTML(String entity) {
+		// TODO Auto-generated method stub
+		//return null;
+	//}
+	
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public byte[] getURLResourceAsBytes(String url) {
+		
+		try {
+			URL u = new URL(url);
+			
+			URLConnection uc = u.openConnection();
+			int contentLength = uc.getContentLength();
+			uc.setReadTimeout(5000); //timeout of 5 sec just to be on the safe side.
+			
+			InputStream in = new BufferedInputStream(uc.getInputStream());
+			byte[] data = new byte[contentLength];
+			
+			int bytes = 0;
+			int offset = 0;
+		      
+			while (offset < contentLength) {
+				bytes = in.read(data, offset, data.length - offset);
+				if (bytes == -1) {
+					break;
+				}
+				offset += bytes;
+			}
+			in.close();
+			
+			if (offset != contentLength) {
+				throw new IOException("Only read " + offset + " bytes; Expected " + contentLength + " bytes.");
+			}
+			
+			return data;
+		} catch (Exception e) {
+			log.error("Failed to retrieve resource: " + e.getClass() + ": " + e.getMessage());
+			return null;
+		} 
+	}
+
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public String getUnavailableImageURL() {
+		StringBuilder path = new StringBuilder();
+		path.append(sakaiProxy.getServerUrl());
+		path.append(ProfileImageManager.UNAVAILABLE_IMAGE_FULL);
+		return path.toString();
+	}
+
+	
+	
 	
 	//these encrypt/decrypt methods are bound always to the method before its saved or returned
 	private String decrypt(final String encryptedText) {
-		
 		BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
 		textEncryptor.setPassword(BASIC_ENCRYPTION_KEY);
 		return(textEncryptor.decrypt(encryptedText));
-		
 	}
 	
 	private String encrypt(final String plainText) {
 		BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
 		textEncryptor.setPassword(BASIC_ENCRYPTION_KEY);
 		return(textEncryptor.encrypt(plainText));
-		
 	}
 	
 	
