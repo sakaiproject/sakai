@@ -18,6 +18,7 @@ public class ProfileImageManager {
 	
 	//default images for certain things
 	public static final String UNAVAILABLE_IMAGE = "images/no_image.gif";
+	public static final String UNAVAILABLE_IMAGE_FULL = "/sakai-profile2-tool/images/no_image.gif";
 	public static final String RSS_IMG = "/library/image/silk/feed.png";
 	public static final String ACCEPT_IMG = "/library/image/silk/accept.png";
 	public static final String ADD_IMG = "/library/image/silk/add.png";
@@ -34,10 +35,6 @@ public class ProfileImageManager {
 
 	public static final int PICTURE_SETTING_DEFAULT = PICTURE_SETTING_UPLOAD;
 	
-	//for Entities - these are the names of the custom image entities
-	public static final String ENTITY_IMAGE="image";
-	public static final String ENTITY_IMAGE_URL="imageurl";
-
 	//for Entity properties
 	public static final String PROP_HAS_IMAGE="hasImage";
 	public static final String PROP_IMAGE_TYPE="imageType";
