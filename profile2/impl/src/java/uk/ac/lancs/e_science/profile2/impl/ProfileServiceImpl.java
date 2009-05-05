@@ -183,7 +183,7 @@ public class ProfileServiceImpl implements ProfileService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public byte[] getProfileImage(String userId, int imageType) {
+	public byte[] getProfileImage(String userId, int imageType, boolean fallback) {
 		
 		//check auth and get currentUserUuid
 		String currentUserUuid = sakaiProxy.getCurrentUserId();
@@ -198,21 +198,30 @@ public class ProfileServiceImpl implements ProfileService {
 			return null;
 		}
 		
-		//check that the environment is configured to be using these types of images.
-		//you should not be able to get the info if not as it will be incorrect/out of date
-		if(sakaiProxy.getProfilePictureType() != ProfileImageManager.PICTURE_SETTING_UPLOAD) {
-			log.error("Requested profile image but environment not configured for this. Check sakai.properties if this is intentional.");
-			return null;
-		}
-		
 		//check friend status
 		boolean friend = profile.isUserXFriendOfUserY(userUuid, currentUserUuid);
 		
-		//check if photo is allowed
+		//check if photo is allowed, if not return default
 		if(!profile.isUserXProfileImageVisibleByUserY(userUuid, currentUserUuid, friend)) {
-			return null;
+			return returnDefaultImage();
 		}
-		return profile.getCurrentProfileImageForUser(userUuid, imageType);
+		
+		//check environment configuration (will be url or upload) and get image accordingly
+		if(sakaiProxy.getProfilePictureType() == ProfileImageManager.PICTURE_SETTING_URL) {
+			String url = profile.getExternalImageUrl(userUuid, imageType, fallback);
+			if(url == null) {
+				return returnDefaultImage();
+			} else {
+				return profile.getURLResourceAsBytes(url);
+			}
+		} else {
+			byte[] image = profile.getCurrentProfileImageForUser(userUuid, imageType, fallback);
+			if(image == null) {
+				return returnDefaultImage();
+			} else {
+				return image;
+			}
+		} 
 	}
 	
 	/**
@@ -267,41 +276,13 @@ public class ProfileServiceImpl implements ProfileService {
 		return connections;
 	}
 	
+	
 	/**
-	 * {@inheritDoc}
+	 * This is a helper method to take care of getting the default unavailable image and returning it.
+	 * @return
 	 */
-	public String getExternalProfileImageUrl(String userId, int imageType, boolean fallback) {
-		
-		//check auth and get currentUserUuid
-		String currentUserUuid = sakaiProxy.getCurrentUserId();
-		if(currentUserUuid == null) {
-			throw new SecurityException("You must be logged in to make a request for a user's external image.");
-		}
-		
-		//convert userId into uuid
-		String userUuid = getUuidForUserId(userId);
-		if(userUuid == null) {
-			log.error("Invalid userId: " + userId);
-			return null;
-		}
-		
-		//check that the environment is configured to be using these types of images.
-		//you should not be able to get the info if not as it will be incorrect/out of date
-		if(sakaiProxy.getProfilePictureType() != ProfileImageManager.PICTURE_SETTING_URL) {
-			log.error("Requested external image but environment not configured for this. Check sakai.properties if this is intentional.");
-			return null;
-		}
-		
-		//check friend status
-		boolean friend = profile.isUserXFriendOfUserY(userUuid, currentUserUuid);
-		
-		//check if photo is allowed
-		if(!profile.isUserXProfileImageVisibleByUserY(userUuid, currentUserUuid, friend)) {
-			return null;
-		}
-		
-		return profile.getExternalImageUrl(userUuid, imageType, fallback);
-		
+	private byte[] returnDefaultImage() {
+		return profile.getURLResourceAsBytes(profile.getUnavailableImageURL());
 	}
 	
 	
@@ -335,14 +316,14 @@ public class ProfileServiceImpl implements ProfileService {
 			boolean hasImage = profile.hasUploadedProfileImage(userProfile.getUserUuid());
 			userProfile.setProperty(ProfileImageManager.PROP_HAS_IMAGE, String.valueOf(hasImage));
 			if(hasImage) {
-				userProfile.setProperty(ProfileImageManager.PROP_IMAGE_TYPE, ProfileImageManager.ENTITY_IMAGE);
+				userProfile.setProperty(ProfileImageManager.PROP_IMAGE_TYPE, ProfileImageManager.PICTURE_SETTING_UPLOAD_PROP);
 			}
 		}
 		if(imageType == ProfileImageManager.PICTURE_SETTING_URL) {
 			boolean hasImage = profile.hasExternalProfileImage(userProfile.getUserUuid());
 			userProfile.setProperty(ProfileImageManager.PROP_HAS_IMAGE, String.valueOf(hasImage));
 			if(hasImage) {
-				userProfile.setProperty(ProfileImageManager.PROP_IMAGE_TYPE, ProfileImageManager.ENTITY_IMAGE_URL);
+				userProfile.setProperty(ProfileImageManager.PROP_IMAGE_TYPE, ProfileImageManager.PICTURE_SETTING_URL_PROP);
 			}
 		}
 		//based on that type, check if they have an image, and if so, what type is it. the value for this should match the entitynames

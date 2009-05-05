@@ -31,7 +31,7 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 	public String getEntityPrefix() {
 		return ENTITY_PREFIX;
 	}
-	
+		
 	public boolean entityExists(String eid) {
 		//check the user is valid. if it is then return true as everyone has a profile.
 		return profileService.checkUserProfileExists(eid);
@@ -63,16 +63,19 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 		return entity;
 	}
 	
-	@EntityCustomAction(action=ProfileImageManager.ENTITY_IMAGE,viewKey=EntityView.VIEW_SHOW)
+	@EntityCustomAction(action="image",viewKey=EntityView.VIEW_SHOW)
 	public Object getMainImage(OutputStream out, EntityView view, EntityReference ref) {
 		
 		byte[] b = null;
 		
-		//if we have thumb as a param, then get the thumbnail instead
-		if("thumb".equals(view.getPathSegment(3))) {
-			b = profileService.getProfileImage(ref.getId(), ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
+		boolean wantsThumbnail = "thumb".equals(view.getPathSegment(3)) ? true : false;
+		boolean fallbackOk = "fallback".equals(view.getPathSegment(4)) ? true : false;
+		
+		//get thumb if requested
+		if(wantsThumbnail) {
+			b = profileService.getProfileImage(ref.getId(), ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, fallbackOk);
 		} else {
-			b = profileService.getProfileImage(ref.getId(),ProfileImageManager.PROFILE_IMAGE_MAIN);
+			b = profileService.getProfileImage(ref.getId(),ProfileImageManager.PROFILE_IMAGE_MAIN, fallbackOk);
 		}
 		
 		if(b == null) {
@@ -86,30 +89,7 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 			throw new EntityException("Error retrieving profile image for " + ref.getId() + " : " + e.getMessage(), ref.getReference());
 		}
 	}
-	
-	
-	@EntityCustomAction(action=ProfileImageManager.ENTITY_IMAGE_URL,viewKey=EntityView.VIEW_SHOW)
-	public Object getExternalMainImage(EntityView view, EntityReference ref) {
-		
-		String url = null;
-		
-		boolean wantsThumbnail = "thumb".equals(view.getPathSegment(3)) ? true : false;
-		boolean fallbackOk = "fallback".equals(view.getPathSegment(4)) ? true : false;
-		
-		//get thumb if requested
-		if(wantsThumbnail) {
-			url = profileService.getExternalProfileImageUrl(ref.getId(), ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, fallbackOk);
-		} else {
-			url = profileService.getExternalProfileImageUrl(ref.getId(), ProfileImageManager.PROFILE_IMAGE_MAIN, true);
-		}
-		
-		if(url == null) {
-			throw new EntityNotFoundException("No external image for " + ref.getId(), ref.getReference());
-		}
-		
-		return new ActionReturn(url);
-	}
-		
+			
 	
 	@EntityCustomAction(action="connections",viewKey=EntityView.VIEW_SHOW)
 	public Object getConnections(EntityView view, EntityReference ref) {
@@ -130,7 +110,6 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 
 
 	public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
-		
 		return null;
 	}
 

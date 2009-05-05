@@ -72,13 +72,20 @@ public interface ProfileService {
 	/**
 	 * Get the profile image for a user
 	 * 
+	 * <p>Checks the configuration settings for Profile2 and returns accordingly. If the file has been uploaded, will return bytes. If the file is a URL, will send a redirect for that resource. 
+	 * <p>Will return default image defined in ProfileImageManager.UNAVAILABLE_IMAGE_FULL if there is no image or privacy checks mean it is not allowed.</p>
+	 * <p>If the userId is invalid, will return null.</p>
+	 *
 	 * <p>You must be logged-in in order to make requests to this method.</p>
 	 * 
 	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
 	 * @param imageType - type of image, main or thumbnail, mapped via ProfileImageManager
+	 * @param fallback - if a thumbnail is requested but it does not exist, should the main image be returned instead? 
+	 * 					This should generally always be used and the full sized image can just be scaled down in the markup.
+	 * 					If used with the main type of image, it has no effect.
 	 * @return byte[] or null if not allowed or none
 	 */
-	public byte[] getProfileImage(String userId, int imageType);
+	public byte[] getProfileImage(String userId, int imageType, boolean fallback);
 	
 	
 	/**
@@ -101,18 +108,4 @@ public interface ProfileService {
 	 */
 	public List<Connection> getConnectionsForUser(String userId);
 	
-	/**
-	 * Get the external image url for a user
-	 * 
-	 * If a thumbnail is requested and none is found, it will by default, fallback to the main image url.
-	 * 
-	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
-	 * @param imageType - type of image, main or thumbnail, mapped via ProfileImageManager
-	 * @param fallback - if a thumbnail is requested but it does not exist, should the mainURL be returned instead? 
-	 * 					This should generally always be used and the full sized image can just be scaled in the markup.
-	 * 					If used with the main type of image, it has no effect.
-	 * @return String url or null if error or none
-	 */
-	public String getExternalProfileImageUrl(String userId, int imageType, boolean fallback);
-
 }
