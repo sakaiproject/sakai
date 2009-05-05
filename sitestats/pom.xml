@@ -57,6 +57,7 @@
     <module>sitestats-impl-hib</module>
     <module>sitestats-pack</module>
     <module>sitestats-tool</module>
+    <module>sitestats-help</module>
   </modules>
   
   

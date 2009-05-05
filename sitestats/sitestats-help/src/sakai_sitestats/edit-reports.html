@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html version="-//W3C//DTD HTML 3.2//EN">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Site Stats: Add/Edit/Duplicate/Delete Reports</title>
+<link type="text/css" href="/library/skin/tool_base.css" rel="stylesheet">
+<link type="text/css" href="/library/skin/default/tool.css" rel="stylesheet">
+</head>
+<body>
+<div class="helpBody"> 
+
+<p>On this page:</p>
+<ul>
+    <li><a href="#edit">Adding/Editing a report</a></li>
+    <li><a href="#duplicate">Duplicating a report</a></li>
+    <li><a href="#delete">Deleting a report</a></li>
+</ul>
+
+<hr />
+
+<a name="edit"></a>
+<h3>Adding/Editing a report</h3>
+<ul>
+  <li>Click on the tool Reports page;</li>
+  <li>Click <strong>Add</strong> (or <strong>Edit</strong> below a report's title) to edit the report definition.</li>
+  <li>The report editing page will be presented. Configure the report accordingly to match your needs:
+    
+    <h4>Report</h4>
+    This option is collapsed by default. If you wish to save the report you need to click the <strong>Show</strong> link to display additional options:
+    <ul>
+        <li><strong>Title</strong>: The report's title.</li>
+        <li><strong>Description</strong>: The report's description.</li>
+    </ul>
+    
+    <h4>What?</h4>
+    This option allows to configure the type of activity to report.
+    <ul>
+        <li><strong>Visits</strong>: Site visits.</li>
+        <li><strong>Events</strong>: Tool activity (activity can be selected by tool or by event).</li>
+        <li><strong>Resources</strong>: Resource (file/folder) activity. This selection can be filtered by:
+            <ul>
+                <li><strong>Action</strong>: New (file uploaded/folder created), Read (file opened for reading), Revise (file details or contents changed) or Delete (file/folder deleted).</li>
+                <li><strong>Resources</strong>: Restricts report to selected files/folders or to files under selected folders.</li>
+            </ul>
+        </li>
+    </ul>
+    
+    <h4>When?</h4>
+    This option allows to configure the time period to report.
+    <ul>
+        <li><strong>All</strong>: All activity since site creation.</li>
+        <li><strong>Last 7 days</strong>: Activity from the last 7 days.</li>
+        <li><strong>Last 30 days</strong>: Activity from the last 30 days.</li>
+        <li><strong>Last 365 days</strong>: Activity from the last 365 days.</li>
+        <li><strong>Custom</strong>: Activity from a user-specified date interval.</li>
+    </ul>
+    
+    <h4>Who?</h4>
+    This option allows to configure the users to report.
+    <ul>
+        <li><strong>All</strong>: All site users.</li>
+        <li><strong>Role</strong>: Users with the a user-specified role.</li>
+        <li><strong>Group</strong>: Users with the a user-specified group.</li>
+        <li><strong>Custom</strong>: Users selected from the presented list. Multiple users can be selected pressing the CTRL (for disjoint selection) or ALT (for range selection) keys while clicking with the mouse.</li>
+        <li><strong>None</strong>: To report users that doesn't match all the specified report conditions (e.g., selecting "Visits" + "All" date + "None" will report users that never visited the site).</li>
+    </ul>
+    
+    <h4>How?</h4>
+    This option allows to configure how the report will be presented.
+    <ul>
+        <li><strong>Totals by</strong>: Defines how to group report data (eg, selecting "User" + "Date" will present a report grouped by user and date). Multiple fields can be selected pressing the CTRL (for disjoint selection) or ALT (for range selection) keys while clicking with the mouse.</li>
+        <li><strong>Number of results</strong>: Allows to limit the number of report results.</li>
+        <li><strong>Presentation</strong>: Defines how the report will be presented (table and/or chart).</li>
+        <li><strong>Chart type</strong>: Defines the type of chart to be presented (bar, pie or timeseries (line or bar)).</li>
+        <li><strong>Chart data source/Chart series source</strong>: Defines the main source of chart data. Only fields selected on <strong>Totals by</strong> will be selectable.</li>
+        <li><strong>Grouped by</strong>: (Bar chart only) Defines the grouping field for chart data. Only fields selected on <strong>Totals by</strong> will be selectable.</li>
+    </ul>
+    
+  </li>
+</ul>
+<hr />
+
+
+<a name="duplicate"></a>
+<h3>Duplicating a report</h3>
+Any report can be duplicated (reports defined by the user and predefined reports):
+<ul>
+  <li>Click on the tool Reports page;</li>
+  <li>Click <strong>Duplicate</strong> below a report's title; a copy from the related report will be created with the tile "Copy of [report title]"</li>
+</ul>
+<hr />
+
+
+<a name="delete"></a>
+<h3>Deleting a report</h3>
+<ul>
+  <li>Click on the tool Reports page;</li>
+  <li>Click <strong>Delete</strong> below a report's title; after confirming the report will be deleted.</li>
+</ul>
+
+</div>
+</body>
+</html>
