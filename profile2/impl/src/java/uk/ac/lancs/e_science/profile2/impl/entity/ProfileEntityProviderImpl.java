@@ -115,7 +115,8 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 		//convert UserProfile to HTML object
 		String entity = profileService.getUserProfileAsHTML(userProfile);
 		
-		return entity;
+		ActionReturn actionReturn = new ActionReturn("UTF-8", "text/html", entity);
+		return actionReturn;
 	}
 	
 	@EntityURLRedirect("/{prefix}/{id}/account")
