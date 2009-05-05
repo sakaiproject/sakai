@@ -165,11 +165,15 @@ public interface SakaiProxy {
 	
 	/**
 	 * Gets the portalUrl configuration parameter (ie http://sakai.lancs.ac.uk/portal)
-	 * 
-	 * @param userId
 	 * @return
 	 */
 	public String getPortalUrl();
+	
+	/**
+	 * Gets the serverUrl configuration parameter
+	 * @return
+	 */
+	public String getServerUrl();
 	
 	/**
 	 * Get the DNS name of this Sakai server (ie sakai.lancs.ac.uk)
@@ -255,10 +259,12 @@ public interface SakaiProxy {
 	
 	/**
 	 * Get the profile2.picture.type setting in sakai.properties
-	 * Possible values are 'upload' and 'url'. If not set, defaults to 'upload'
+	 * <p>Possible values for the sakai property are 'upload' and 'url'.
+	 * If not set, defaults to 'upload'.</p>
+	 * <p>This returns an int which matches ProfileImageManager.PICTURE_SETTING_UPLOAD or ProfileImageManager.PICTURE_SETTING_URL</p>
 	 * 
-	 * <p>Depending on this setting, Profile2 will deicde how it retrieves the image.
-	 * Users will also be able to upload thier own image or provide a URL, depending on this setting.</p>
+	 * <p>Depending on this setting, Profile2 will decide how it retrieves a user's profile image, and the method by which
+	 * users can cadd their own image. ie by uploading their own image or providing a URL.</p>
 	 * 
 	 * @return
 	 */

@@ -481,6 +481,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return serverConfigurationService.getPortalUrl();
 	}
 	
+	public String getServerUrl() {
+		return serverConfigurationService.getServerUrl();
+	}
+	
 	/**
  	* {@inheritDoc}
  	*/
