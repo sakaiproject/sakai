@@ -630,17 +630,6 @@ public interface Profile {
 	 */
 	public boolean saveExternalImage(final String userId, final String mainUrl, final String thumbnailUrl);
 	
-	/**
-	 * TODO
-	 * 
-	 * Convert a UserProfile object into a piece of HTML - this should go in the EntityProvider.
-	 * The HTML will be fully abstracted so it can be styled and rearranged as desired.
-	 * 
-	 * @param userProfile	UserProfile object
-	 * @return String of HTML
-	 */
-	//public String convertUserProfileToHTML(final UserProfile userProfile);
-	
 	
 	/**
 	 * Gets a URL resource, reads it and returns the byte[]. Useful for diplaying remote images where you only have a URL.

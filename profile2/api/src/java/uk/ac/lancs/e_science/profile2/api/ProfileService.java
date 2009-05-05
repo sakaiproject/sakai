@@ -108,4 +108,13 @@ public interface ProfileService {
 	 */
 	public List<Connection> getConnectionsForUser(String userId);
 	
+	/**
+	 * Convert a UserProfile object into a fragment of HTML.
+	 * The HTML is fully abstracted so it can be styled and rearranged as desired.
+	 * 
+	 * @param userProfile
+	 * @return
+	 */
+	public String getUserProfileAsHTML(UserProfile userProfile);
+	
 }

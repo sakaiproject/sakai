@@ -1711,15 +1711,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	//public String convertProfileEntityXMLToHTML(String entity) {
-		// TODO Auto-generated method stub
-		//return null;
-	//}
-	
-	
+		
 	/**
  	 * {@inheritDoc}
  	 */

@@ -276,6 +276,13 @@ public class ProfileServiceImpl implements ProfileService {
 		return connections;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getUserProfileAsHTML(UserProfile userProfile) {
+		return null;
+	}
+
 	
 	/**
 	 * This is a helper method to take care of getting the default unavailable image and returning it.
