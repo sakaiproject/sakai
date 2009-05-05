@@ -103,6 +103,21 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 		return actionReturn;
 	}
 	
+	@EntityCustomAction(action="formatted",viewKey=EntityView.VIEW_SHOW)
+	public Object getFormattedProfile(EntityReference ref) {
+				
+		//get the full profile, with privacy checks against the requesting user
+		UserProfile userProfile = profileService.getFullUserProfile(ref.getId());
+		if(userProfile == null) {
+			throw new EntityNotFoundException("Profile could not be retrieved for " + ref.getId(), ref.getReference());
+		}
+		
+		//convert UserProfile to HTML object
+		String entity = profileService.getUserProfileAsHTML(userProfile);
+		
+		return entity;
+	}
+	
 	@EntityURLRedirect("/{prefix}/{id}/account")
 	public String redirectUserAccount(Map<String,String> vars) {
 		return "user/" + vars.get("id") + vars.get(TemplateParseUtil.DOT_EXTENSION);
