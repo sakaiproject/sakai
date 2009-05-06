@@ -5,7 +5,6 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>sitestats-base</artifactId>
   <version>2.0-SNAPSHOT</version><!-- sitestats.version --> 
-  
   <description>SiteStats is a tool for Sakai for showing site usage statistics.</description>
   <url>http://bugs.sakaiproject.org/confluence/display/STAT</url>
   <inceptionYear>2006</inceptionYear>
@@ -21,6 +20,7 @@
     <artifactId>master</artifactId>
     <groupId>org.sakaiproject</groupId>
     <!-- EDIT ME: Sakai Version -->  
+    <!--<version>2.7.0-SNAPSHOT</version>-->  <!-- For TRUNK -->  
     <version>2.6.0RC1-SNAPSHOT</version>      <!-- For 2.6.x branch --> 
     <!--<version>2.6.0</version>-->           <!-- For 2.6.0 release -->   
     <!--<version>M2</version>-->              <!-- For 2.5.x branch -->   
@@ -29,7 +29,6 @@
     <!--<version>2.5.2</version>-->           <!-- For 2.5.2 release -->   
     <!--<version>2.5.1</version>-->           <!-- For 2.5.1 release -->   
     <!--<version>2.5.0</version>-->           <!-- For 2.5.0 release --> 
-    <!--<version>2.7.0-SNAPSHOT</version>-->  <!-- For TRUNK -->  
   </parent>
   
 
