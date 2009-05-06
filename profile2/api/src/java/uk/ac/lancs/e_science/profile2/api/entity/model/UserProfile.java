@@ -39,6 +39,9 @@ public class UserProfile {
 	private String otherInformation;
 	private String statusMessage;
 	private Date statusDate;
+	
+	private String imageEntityUrl; //entity path
+	
 	private Map<String, String> props;
 
 	
@@ -207,6 +210,15 @@ public class UserProfile {
 
 	public void setStatusDate(Date statusDate) {
 		this.statusDate = statusDate;
+	}
+
+	
+	public String getImageEntityUrl() {
+		return imageEntityUrl;
+	}
+
+	public void setImageEntityUrl(String imageEntityUrl) {
+		this.imageEntityUrl = imageEntityUrl;
 	}
 
 	public void setProps(Map<String, String> props) {
