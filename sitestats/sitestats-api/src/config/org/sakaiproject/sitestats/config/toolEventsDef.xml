@@ -90,13 +90,14 @@
 		toolId="sakai.gradebook.tool"
 		selected="true">
 		<event eventId="gradebook.newItem" selected="true"/>
-		<event eventId="gradebook.deleteItem" selected="true"/> v
-		<event eventId="gradebook.updateItemScores" selected="true"/> v
-		<event eventId="gradebook.updateCourseGrades" selected="true"/> v
-		<event eventId="gradebook.comment" selected="true"/> v
-		<event eventId="gradebook.downloadRoster" selected="true"/> v
-		<event eventId="gradebook.downloadCourseGrade " selected="true"/> v
+		<event eventId="gradebook.deleteItem" selected="true"/>
+		<event eventId="gradebook.updateItemScores" selected="true"/>
+		<event eventId="gradebook.updateCourseGrades" selected="true"/>
+		<event eventId="gradebook.comment" selected="true"/>
+		<event eventId="gradebook.downloadRoster" selected="true"/>
+		<event eventId="gradebook.downloadCourseGrade " selected="true"/>
 		<event eventId="gradebook.importEntire" selected="true"/>
+        <event eventId="gradebook.importItem" selected="true"/>
 		<eventParserTip for="contextId" separator="/" index="2"/>
 	</tool>
 
@@ -167,13 +168,12 @@
 		<event eventId="forums.new" selected="true"/>
 		<event eventId="forums.read" selected="true"/>
 		<event eventId="forums.response" selected="true"/>
-		<!-- Need SAK-13119 FIXED: 
-		<event eventId="forums.delete" selected="true"/>
-		<event eventId="forums.newtopic" selected="true"/>
-		<event eventId="forums.revisetopic" selected="true"/>
-		<event eventId="forums.deleteforum" selected="true"/>
-		<event eventId="forums.deletetopic" selected="true"/>
-		-->
+        <event eventId="forums.grade" selected="true"/>
+        <event eventId="forums.newtopic" selected="true"/>
+        <event eventId="forums.revisetopic" selected="true"/>
+        <event eventId="forums.delete" selected="true"/>
+        <event eventId="forums.deleteforum" selected="true"/>
+        <event eventId="forums.deletetopic" selected="true"/>
 		<eventParserTip for="contextId" separator="/" index="3"/>
 	</tool>
 	
@@ -185,6 +185,8 @@
 		<event eventId="messages.newfolder" selected="true"/>
 		<event eventId="messages.delete" selected="true"/>
 		<event eventId="messages.reply" selected="true"/>
+        <event eventId="messages.forward" selected="true"/>
+        <event eventId="messages.read" selected="true"/>
 		<eventParserTip for="contextId" separator="/" index="3"/>
 	</tool>
 	
