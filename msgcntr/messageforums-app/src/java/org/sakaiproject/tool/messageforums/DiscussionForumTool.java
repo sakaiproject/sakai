@@ -6338,14 +6338,25 @@ public class DiscussionForumTool
 	 public String processActionShowFullTextForAll() {
 		 return "dfStatisticsAllAuthoredMessageForOneUser";
 	 }
-
+	 
 	 public String processActionDisplayInThread() {
 
+		 String forumId = getExternalParameterByKey("forumId");
 		 String topicId = getExternalParameterByKey("topicId");
 		 selectedMsgId = getExternalParameterByKey("msgId");
+		 DiscussionForum forum = forumManager.getForumById(Long.valueOf(forumId));
 		 DiscussionTopic topic = forumManager.getTopicById(Long.valueOf(topicId));
 		 setSelectedForumForCurrentTopic(topic);		
 		 selectedTopic = getDecoratedTopic(topic);
+
+		 if (uiPermissionsManager.isRead((DiscussionTopic)topic, forum)) {
+			 List messageList = messageManager.findMessagesByTopicId(topic.getId());
+			 Iterator messageIter = messageList.iterator();
+			 while(messageIter.hasNext()){
+				 Message mes = (Message) messageIter.next();					
+				 messageManager.markMessageReadForUser(topic.getId(), mes.getId(), true, getUserId());
+			 }
+		 }
 
 		 return "dfStatisticsDisplayInThread";
 	 }

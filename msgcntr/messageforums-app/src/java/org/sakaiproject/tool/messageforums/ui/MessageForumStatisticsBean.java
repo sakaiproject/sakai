@@ -578,6 +578,7 @@ public class MessageForumStatisticsBean {
 							userAuthoredInfo.setMessage(mes.getBody());
 							userAuthoredInfo.setMsgId(Long.toString(mes.getId()));
 							userAuthoredInfo.setTopicId(Long.toString(topic.getId()));
+							userAuthoredInfo.setForumId(Long.toString(df.getId()));
 							userAuthoredInfo.setMsgDeleted(mes.getDeleted());
 							userAuthoredInfo.setDecoAttachmentsList(decoAttachList);
 							
@@ -641,9 +642,11 @@ public class MessageForumStatisticsBean {
 							userAuthoredInfo.setMessage(mes.getBody());
 							userAuthoredInfo.setMsgId(selectedMsgId);
 							userAuthoredInfo.setTopicId(Long.toString(topic.getId()));
+							userAuthoredInfo.setForumId(Long.toString(df.getId()));
 							userAuthoredInfo.setMsgDeleted(mes.getDeleted());
 							userAuthoredInfo.setDecoAttachmentsList(decoAttachList);
-
+							
+							messageManager.markMessageReadForUser(topic.getId(), mes.getId(), true, getCurrentUserId());
 														
 							statistics.add(userAuthoredInfo);
 						}
