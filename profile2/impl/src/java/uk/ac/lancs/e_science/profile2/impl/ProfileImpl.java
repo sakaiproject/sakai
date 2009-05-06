@@ -965,15 +965,30 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
  	 */
 	public boolean isUserXProfileImageVisibleByUserY(String userX, String userY, boolean friend) {
 		
-		//if userX is userY, they ARE allowed to view their own image!
+		//if user is requesting own info, they ARE allowed
     	if(userY.equals(userX)) {
     		return true;
     	}
 		
-		//get privacy record for this user
+		//get privacy record for userX
     	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
     	
-    	//if none, return whatever the flag is set as by default
+    	//pass to main
+    	return isUserXProfileImageVisibleByUserY(userX, profilePrivacy, userY, friend);
+	}
+	
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean isUserXProfileImageVisibleByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend) {
+		
+		//if user is requesting own info, they ARE allowed
+    	if(userY.equals(userX)) {
+    		return true;
+    	}
+		
+		//if no privacy record, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
     		return ProfilePrivacyManager.DEFAULT_PROFILEIMAGE_VISIBILITY;
     	}
