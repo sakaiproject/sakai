@@ -37,7 +37,7 @@ public class DBHelper extends HibernateDaoSupport {
 		
 		if(autoDdl) {
 			// update db indexes, if needed
-			updateIndexes();
+			//updateIndexes();
 		
 			// preload default reports, if needed
 			//preloadDefaultReports();
