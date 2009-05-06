@@ -21,9 +21,9 @@
     <artifactId>master</artifactId>
     <groupId>org.sakaiproject</groupId>
     <!-- EDIT ME: Sakai Version -->  
-    <!--<version>2.6.0RC1-SNAPSHOT</version>-->      <!-- For 2.6.x branch --> 
+    <version>2.6.0RC1-SNAPSHOT</version>      <!-- For 2.6.x branch --> 
     <!--<version>2.6.0</version>-->           <!-- For 2.6.0 release -->   
-    <version>M2</version>              <!-- For 2.5.x branch -->   
+    <!--<version>M2</version>-->              <!-- For 2.5.x branch -->   
     <!--<version>2.5.4</version>-->           <!-- For 2.5.4 release -->   
     <!--<version>2.5.3</version>-->           <!-- For 2.5.3 release -->   
     <!--<version>2.5.2</version>-->           <!-- For 2.5.2 release -->   
