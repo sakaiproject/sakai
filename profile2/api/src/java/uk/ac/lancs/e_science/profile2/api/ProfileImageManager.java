@@ -35,8 +35,5 @@ public class ProfileImageManager {
 
 	public static final int PICTURE_SETTING_DEFAULT = PICTURE_SETTING_UPLOAD;
 	
-	//for Entity properties
-	public static final String PROP_HAS_IMAGE="hasImage";
-	public static final String PROP_IMAGE_TYPE="imageType";
 
 }
