@@ -20,10 +20,16 @@
   <parent>
     <artifactId>master</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <!-- EDIT ME: Sakai Version -->
-    <!--<version>2.5.2</version>--> <!-- For Official Releases -->    
-    <!--<version>M2</version>--> <!-- For 2.5.x --> 
-    <version>2.6.0RC1-SNAPSHOT</version> <!-- For TRUNK -->   
+    <!-- EDIT ME: Sakai Version -->  
+    <!--<version>2.6.0RC1-SNAPSHOT</version>-->      <!-- For 2.6.x branch --> 
+    <!--<version>2.6.0</version>-->           <!-- For 2.6.0 release -->   
+    <version>M2</version>              <!-- For 2.5.x branch -->   
+    <!--<version>2.5.4</version>-->           <!-- For 2.5.4 release -->   
+    <!--<version>2.5.3</version>-->           <!-- For 2.5.3 release -->   
+    <!--<version>2.5.2</version>-->           <!-- For 2.5.2 release -->   
+    <!--<version>2.5.1</version>-->           <!-- For 2.5.1 release -->   
+    <!--<version>2.5.0</version>-->           <!-- For 2.5.0 release --> 
+    <!--<version>2.7.0-SNAPSHOT</version>-->  <!-- For TRUNK -->  
   </parent>
   
 
@@ -77,20 +83,59 @@
       </roles>
       <timezone>0</timezone>
     </developer>
+    
+    <developer>
+      <id>jayshao</id>
+      <name>Jason Shao</name>
+      <url>http://bugs.sakaiproject.org/confluence/display/~jayshao</url>
+      <organization>CampusEAI Consortium</organization>
+      <roles>
+        <role>Contributor</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>darolmar</id>
+      <name>David Roldan Martínez</name>
+      <url>http://bugs.sakaiproject.org/confluence/display/~darolmar@abierta.upv.es</url>
+      <organization>Universidad Politecnica de Valencia</organization>
+      <roles>
+        <role>Contributor</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>denny</id>
+      <name>Denny</name>
+      <url>http://bugs.sakaiproject.org/confluence/display/~denny.denny</url>
+      <organization>Wicaksana</organization>
+      <roles>
+        <role>Contributor</role>
+      </roles>
+    </developer>
   </developers>
   
   
   <!-- Project repositories -->
   <repositories>
     <repository>
-      <id>sakai-maven</id>
-      <name>Sakai Maven Repo</name>
+      <id>sakai-maven2</id>
+      <name>Sakai Maven Repository</name>
       <layout>default</layout>
       <url>http://source.sakaiproject.org/maven2</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
     </repository>
+    <!--
+    <repository>
+      <id>sakai-maven2-snapshots</id>
+      <name>Sakai Maven Repo Snapshots</name>
+      <layout>default</layout>
+      <url>http://source.sakaiproject.org/maven2-snapshots</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+    -->
     <repository>
       <id>default</id>
       <name>Maven Repository Switchboard</name>
@@ -140,6 +185,102 @@
     <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/ufp/sitestats/trunk</developerConnection>
     <url>http://source.sakaiproject.org/viewsvn/ufp/sitestats/?root=contrib</url>
   </scm>
+  
+  
+  <!-- Profiles -->
+  <profiles>
+    <profile>
+      <!-- Binds to Sakai Kernel K1 - for Sakai 2.6.0+ -->
+      <id>K1</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+    </profile>
+    <profile>
+      <!-- Binds to Sakai pre Kernel K1 - for Sakai 2.4.x/2.5.x -->
+      <id>pre-K1</id>
+      <dependencyManagement>
+        <dependencies>
+          <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-site-api</artifactId>
+            <version>${sakai.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-user-api</artifactId>
+            <version>${sakai.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-content-api</artifactId>
+            <version>${sakai.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-authz-api</artifactId>
+            <version>${sakai.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-alias-api</artifactId>
+            <version>${sakai.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-memory-api</artifactId>
+            <version>${sakai.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-entity-api</artifactId>
+            <version>${sakai.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-db-api</artifactId>
+            <version>${sakai.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-tool-api</artifactId>
+            <version>${sakai.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-event-api</artifactId>
+            <version>${sakai.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-util-api</artifactId>
+            <version>${sakai.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-component-api</artifactId>
+            <version>${sakai.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-component</artifactId>
+            <version>${sakai.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-util</artifactId>
+            <version>${sakai.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.sakaiproject.entitybroker</groupId>
+            <artifactId>entitybroker-api</artifactId>
+            <version>${entitybroker.version}</version>
+            <scope>provided</scope>
+          </dependency>
+        </dependencies>
+      </dependencyManagement>
+    </profile>
+  </profiles>
 
   
   <!-- Project related dependencies -->
@@ -163,22 +304,6 @@
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
-  
-    <!-- Sakai -->
-    <!-- Pre K1 Sakai deps -->
-    <!--    
-    <dependency>
-      <groupId>org.sakaiproject.entitybroker</groupId>
-      <artifactId>entitybroker-api</artifactId>
-      <version>${entitybroker.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    -->
     
     <!-- Apache Commons -->
     <dependency>
