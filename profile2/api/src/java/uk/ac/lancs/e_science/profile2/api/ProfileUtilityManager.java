@@ -51,6 +51,8 @@ public class ProfileUtilityManager {
 	public static final String EVENT_TWITTER_UPDATE = "profile.twitter.update";
 
 	
+	//entity set defaults
+	public static final String ENTITY_SET_ACADEMIC = "displayName,imageUrl";
 	
 	
 }

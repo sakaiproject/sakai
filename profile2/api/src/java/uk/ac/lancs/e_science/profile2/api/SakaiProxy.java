@@ -277,6 +277,11 @@ public interface SakaiProxy {
 	 */
 	public Locale getUserPreferredLocale();
 	
-	
+	/**
+	 * Gets the profile2.profile.entity.set.academic list of properties that should be used in the academic profile view.
+	 * Returns default list of ProfileUtilityManager.ENTITY_SET_ACADEMIC if none.
+	 * @return
+	 */
+	public List getConfigurationAcademicEntitySet();
 
 }

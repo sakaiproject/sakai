@@ -3,6 +3,7 @@ package uk.ac.lancs.e_science.profile2.impl;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -632,7 +633,19 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return rl.getLocale();
 	}
 	
-	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public List<String> getConfigurationAcademicEntitySet() {
+		
+		String configuration = serverConfigurationService.getString("profile2.profile.entity.set.academic", ProfileUtilityManager.ENTITY_SET_ACADEMIC);
+		String[] parameters = StringUtils.split(configuration, ',');
+		
+		List<String> tempList = Arrays.asList(parameters);
+		List<String> list = new ArrayList<String>(tempList);
+		
+		return list;
+	}
 	
 	
 	
