@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
@@ -33,7 +34,6 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
@@ -382,7 +382,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 					//get User to send to
 					User user = userDirectoryService.getUser(userId);
 					
-					if (StringUtil.trimToNull(user.getEmail()) == null){
+					if (StringUtils.isBlank(user.getEmail())){
 						log.error("SakaiProxy.sendEmail() failed. No email for userId: " + userId);
 						return;
 					}
@@ -436,7 +436,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 				headers.add("Content-Type: multipart/alternative; boundary=\""+MULTIPART_BOUNDARY+"\"");
 				headers.add(formatSubject(subject));
 				headers.add(getFrom());
-				if (StringUtil.trimToNull(emailTo) != null) {
+				if (StringUtils.isNotBlank(emailTo)) {
 					headers.add("To: " + emailTo);
 				}
 				

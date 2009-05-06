@@ -51,10 +51,16 @@
 			<artifactId>icu4j</artifactId>
 		</dependency>
 		<dependency>
+      		<groupId>commons-lang</groupId>
+      		<artifactId>commons-lang</artifactId>
+      		<scope>provided</scope>
+   		</dependency>
+		<dependency>
       		<groupId>org.sakaiproject</groupId>
       		<artifactId>sakai-tinyurl-api</artifactId>
       		<scope>provided</scope>
    		</dependency>
+   		
    		   				
 		<!--  GENERIC SAKAI DEPENDENCIES -->
     	<dependency>
