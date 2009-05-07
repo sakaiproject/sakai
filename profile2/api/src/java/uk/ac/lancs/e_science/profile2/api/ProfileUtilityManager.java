@@ -53,6 +53,7 @@ public class ProfileUtilityManager {
 	
 	//entity set defaults
 	public static final String ENTITY_SET_ACADEMIC = "displayName,imageUrl";
+	public static final String ENTITY_SET_MINIMAL = "displayName,statusMessage,statusDate";
 	
 	
 }

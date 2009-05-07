@@ -636,7 +636,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
  	* {@inheritDoc}
  	*/
-	public List<String> getConfigurationAcademicEntitySet() {
+	public List<String> getAcademicEntityConfigurationSet() {
 		
 		String configuration = serverConfigurationService.getString("profile2.profile.entity.set.academic", ProfileUtilityManager.ENTITY_SET_ACADEMIC);
 		String[] parameters = StringUtils.split(configuration, ',');

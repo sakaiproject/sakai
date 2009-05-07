@@ -282,6 +282,6 @@ public interface SakaiProxy {
 	 * Returns default list of ProfileUtilityManager.ENTITY_SET_ACADEMIC if none.
 	 * @return
 	 */
-	public List getConfigurationAcademicEntitySet();
+	public List<String> getAcademicEntityConfigurationSet();
 
 }

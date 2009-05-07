@@ -3,6 +3,7 @@ package uk.ac.lancs.e_science.profile2.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -84,9 +85,12 @@ public class ProfileServiceImpl implements ProfileService {
 		UserProfile userProfile = transformSakaiPersonToUserProfile(userUuid, sakaiPerson);
 		
 		//if person requested own profile, no need for privacy checks
+		//add the additional information and return
 		if(userUuid.equals(currentUserUuid)) {
 			log.debug("userId is current user");
 			addStatusToProfile(userProfile);
+			addImageUrlToProfile(userProfile);
+			addThumbnailImageUrlToProfile(userProfile);
 			return userProfile;
 		}
 		
@@ -131,6 +135,10 @@ public class ProfileServiceImpl implements ProfileService {
 			addStatusToProfile(userProfile);
 		}
 		
+		//add image urls
+		addImageUrlToProfile(userProfile);
+		addThumbnailImageUrlToProfile(userProfile);
+		
 		//properties
 		addPropertiesToProfile(userProfile, privacy, preferences);
 		
@@ -169,6 +177,9 @@ public class ProfileServiceImpl implements ProfileService {
 			addStatusToProfile(userProfile);
 		}
 		
+		//add thumbnail image url
+		addThumbnailImageUrlToProfile(userProfile);
+		
 		return userProfile;
 	}
 	
@@ -183,7 +194,7 @@ public class ProfileServiceImpl implements ProfileService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public byte[] getProfileImage(String userId, int imageType, boolean fallback) {
+	public byte[] getProfileImage(String userId, int imageType) {
 		
 		//check auth and get currentUserUuid
 		String currentUserUuid = sakaiProxy.getCurrentUserId();
@@ -207,15 +218,16 @@ public class ProfileServiceImpl implements ProfileService {
 		}
 		
 		//check environment configuration (will be url or upload) and get image accordingly
+		//fall back by default. there is no real use case for not doing it.
 		if(sakaiProxy.getProfilePictureType() == ProfileImageManager.PICTURE_SETTING_URL) {
-			String url = profile.getExternalImageUrl(userUuid, imageType, fallback);
+			String url = profile.getExternalImageUrl(userUuid, imageType, true);
 			if(url == null) {
 				return returnDefaultImage();
 			} else {
 				return profile.getURLResourceAsBytes(url);
 			}
 		} else {
-			byte[] image = profile.getCurrentProfileImageForUser(userUuid, imageType, fallback);
+			byte[] image = profile.getCurrentProfileImageForUser(userUuid, imageType, true);
 			if(image == null) {
 				return returnDefaultImage();
 			} else {
@@ -280,9 +292,136 @@ public class ProfileServiceImpl implements ProfileService {
 	 * {@inheritDoc}
 	 */
 	public String getUserProfileAsHTML(UserProfile userProfile) {
-		return null;
-	}
+		
+		//note there is no birthday in this field. we need a good way to get the birthday without the year. 
+		//maybe it needs to be stored in a separate field and treated differently. Or returned as a localised string.
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append("<div class=\"profile2-profile\">");
+		
+		boolean hasImage = false;
 
+		if(StringUtils.isNotBlank(userProfile.getImageUrl())) {
+			sb.append("<img class=\"profile2-profile-image\" src=\"");
+			sb.append(userProfile.getImageUrl());
+			sb.append("\" />");
+			hasImage = true;
+		}
+		
+		//only add thumbnail if no main image has been used
+		if(!hasImage && StringUtils.isNotBlank(userProfile.getImageThumbUrl())) {
+			sb.append("<img class=\"profile2-profile-imagethumb\" src=\"");
+			sb.append(userProfile.getImageThumbUrl());
+			sb.append("\" />");
+		}
+		
+		//need different styles for the images and for the content wrappers that follow them so that we can apply different widths.
+		
+		sb.append("<div class=\"profile2-profile-content\">");
+		
+		if(StringUtils.isNotBlank(userProfile.getUserUuid())) {
+			sb.append("<span class=\"profile2-profile-userUuid\">");
+			sb.append(userProfile.getUserUuid());
+			sb.append("</span>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getDisplayName())) {
+			sb.append("<span class=\"profile2-profile-displayName\">");
+			sb.append(userProfile.getDisplayName());
+			sb.append("</span>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getNickname())) {
+			sb.append("<span class=\"profile2-profile-nickname\">");
+			sb.append(userProfile.getNickname());
+			sb.append("</span>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getEmail())) {
+			sb.append("<span class=\"profile2-profile-email\">");
+			sb.append(userProfile.getEmail());
+			sb.append("</span>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getHomepage())) {
+			sb.append("<span class=\"profile2-profile-homepage\">");
+			sb.append(userProfile.getHomepage());
+			sb.append("</span>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getHomephone())) {
+			sb.append("<span class=\"profile2-profile-homephone\">");
+			sb.append(userProfile.getHomephone());
+			sb.append("</span>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getWorkphone())) {
+			sb.append("<span class=\"profile2-profile-workphone\">");
+			sb.append(userProfile.getWorkphone());
+			sb.append("</span>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getMobilephone())) {
+			sb.append("<span class=\"profile2-profile-mobilephone\">");
+			sb.append(userProfile.getMobilephone());
+			sb.append("</span>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getFavouriteBooks())) {
+			sb.append("<span class=\"profile2-profile-favouriteBooks\">");
+			sb.append(userProfile.getFavouriteBooks());
+			sb.append("</span>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getFavouriteTvShows())) {
+			sb.append("<span class=\"profile2-profile-favouriteTvShows\">");
+			sb.append(userProfile.getFavouriteTvShows());
+			sb.append("</span>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getFavouriteMovies())) {
+			sb.append("<span class=\"profile2-profile-favouriteMovies\">");
+			sb.append(userProfile.getFavouriteMovies());
+			sb.append("</span>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getFavouriteQuotes())) {
+			sb.append("<span class=\"profile2-profile-favouriteQuotes\">");
+			sb.append(userProfile.getFavouriteQuotes());
+			sb.append("</span>");
+		}
+		if(StringUtils.isNotBlank(userProfile.getOtherInformation())) {
+			sb.append("<span class=\"profile2-profile-otherInformation\">");
+			sb.append(userProfile.getOtherInformation());
+			sb.append("</span>");
+		}
+		
+		sb.append("</div>");
+		sb.append("</div>");
+		
+		//add the styles that will format this
+		//image needs to be styled to be a max width. 
+
+		
+		
+		return sb.toString();
+	}
+	
+	
+
+	/**
+	 * These are two helper methods to simply add the URL to a user's profile image or thumbnail to the UserProfile. 
+	 * It can be added to any profile without checks as the retrieval of the image does the checks
+	 * 
+	 * @param userProfile
+	 */
+	private void addImageUrlToProfile(UserProfile userProfile) {
+		userProfile.setImageUrl(sakaiProxy.getServerUrl() + "/direct/profile/" + userProfile.getUserUuid() + "/image/");
+	}
+	
+	private void addThumbnailImageUrlToProfile(UserProfile userProfile) {
+		userProfile.setImageThumbUrl(sakaiProxy.getServerUrl() + "/direct/profile/" + userProfile.getUserUuid() + "/image/thumb/");
+	}
 	
 	/**
 	 * This is a helper method to take care of getting the default unavailable image and returning it.
@@ -316,27 +455,7 @@ public class ProfileServiceImpl implements ProfileService {
 		userProfile.setProperty(ProfilePrivacyManager.PROP_BIRTH_YEAR_VISIBLE, String.valueOf(privacy.isShowBirthYear()));
 		userProfile.setProperty(ProfilePreferencesManager.PROP_EMAIL_CONFIRM_ENABLED, String.valueOf(preferences.isConfirmEmailEnabled()));
 		userProfile.setProperty(ProfilePreferencesManager.PROP_EMAIL_REQUEST_ENABLED, String.valueOf(preferences.isRequestEmailEnabled()));
-	
-		//check the type of profileimage in use by the system (sakaiProxy) and set properties
-		int imageType = sakaiProxy.getProfilePictureType();
-		if(imageType == ProfileImageManager.PICTURE_SETTING_UPLOAD) {
-			boolean hasImage = profile.hasUploadedProfileImage(userProfile.getUserUuid());
-			userProfile.setProperty(ProfileImageManager.PROP_HAS_IMAGE, String.valueOf(hasImage));
-			if(hasImage) {
-				userProfile.setProperty(ProfileImageManager.PROP_IMAGE_TYPE, ProfileImageManager.PICTURE_SETTING_UPLOAD_PROP);
-			}
-		}
-		if(imageType == ProfileImageManager.PICTURE_SETTING_URL) {
-			boolean hasImage = profile.hasExternalProfileImage(userProfile.getUserUuid());
-			userProfile.setProperty(ProfileImageManager.PROP_HAS_IMAGE, String.valueOf(hasImage));
-			if(hasImage) {
-				userProfile.setProperty(ProfileImageManager.PROP_IMAGE_TYPE, ProfileImageManager.PICTURE_SETTING_URL_PROP);
-			}
-		}
-		//based on that type, check if they have an image, and if so, what type is it. the value for this should match the entitynames
-		//ie image or imageurl
-	
-	
+
 	}
 	
 	

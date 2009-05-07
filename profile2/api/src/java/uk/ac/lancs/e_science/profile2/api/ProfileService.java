@@ -50,7 +50,7 @@ public interface ProfileService {
 	public UserProfile getFullUserProfile(String userId);
 	
 	/**
-	 * Get a minimal UserProfile for a user. Contains name, uuid and status msg/date only. Useful for lists of users.
+	 * Get a minimal UserProfile for a user. Contains name, uuid and status msg/date only (configurable). Useful for lists of users.
 	 * 
 	 * <p>You must be logged-in in order to make requests to this method as the content returned will be tailored
 	 * to be visible for the currently logged in user.</p>
@@ -75,17 +75,14 @@ public interface ProfileService {
 	 * <p>Checks the configuration settings for Profile2 and returns accordingly. If the file has been uploaded, will return bytes. If the file is a URL, will send a redirect for that resource. 
 	 * <p>Will return default image defined in ProfileImageManager.UNAVAILABLE_IMAGE_FULL if there is no image or privacy checks mean it is not allowed.</p>
 	 * <p>If the userId is invalid, will return null.</p>
-	 *
+	 * <p>If a thumbnail is requested but does not exist, it will fall back to the full sized image and return that, which can just be scaled down in the markup.</p>
 	 * <p>You must be logged-in in order to make requests to this method.</p>
 	 * 
 	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
 	 * @param imageType - type of image, main or thumbnail, mapped via ProfileImageManager
-	 * @param fallback - if a thumbnail is requested but it does not exist, should the main image be returned instead? 
-	 * 					This should generally always be used and the full sized image can just be scaled down in the markup.
-	 * 					If used with the main type of image, it has no effect.
 	 * @return byte[] or null if not allowed or none
 	 */
-	public byte[] getProfileImage(String userId, int imageType, boolean fallback);
+	public byte[] getProfileImage(String userId, int imageType);
 	
 	
 	/**
