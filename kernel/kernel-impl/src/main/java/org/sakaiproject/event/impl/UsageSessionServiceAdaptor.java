@@ -25,12 +25,10 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
 
@@ -49,18 +47,15 @@ import org.sakaiproject.event.api.SessionStateBindingListener;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionBindingEvent;
-import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.Authentication;
-import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
  * <p>
@@ -75,6 +70,9 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 
 	/** Storage manager for this service. */
 	protected Storage m_storage = null;
+
+	 /** A Cache of recently refreshed users. This is to prevent frequent authentications refreshing user data */
+	protected Cache m_recentUserRefresh = null;
 
 	/*************************************************************************************************************************************************
 	 * Abstractions, etc.
@@ -138,6 +136,13 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 	 */
 	protected abstract UserDirectoryService userDirectoryService();
 
+	/**
+	 * 
+	 * @return the MemoryService collaborator.
+	 */
+	protected abstract MemoryService memoryService();
+
+
 	/*************************************************************************************************************************************************
 	 * Configuration
 	 ************************************************************************************************************************************************/
@@ -198,6 +203,8 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		{
 			// open storage
 			m_storage.open();
+
+			m_recentUserRefresh = memoryService().newCache("org.sakaiproject.event.api.UsageSessionService.recentUserRefresh");
 
 			M_log.info("init()");
 		}
@@ -496,7 +503,26 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		sakaiSession.setUserEid(eid);
 
 		// update the user's externally provided realm definitions
-		authzGroupService().refreshUser(uid);
+		if (m_recentUserRefresh != null && m_recentUserRefresh.get(uid) != null)
+		{
+			if (M_log.isDebugEnabled())
+			{
+				M_log.debug("User is still in cache of recent refreshes: "+ uid);
+			}
+		}
+		else
+		{
+			authzGroupService().refreshUser(uid);
+			if (m_recentUserRefresh != null)
+			{
+				// Cache the refresh.
+				m_recentUserRefresh.put(uid, Boolean.TRUE);
+				if (M_log.isDebugEnabled())
+				{
+					M_log.debug("User is not in recent cache of refreshes: "+ uid);
+				}
+			}
+		}
 
 		// post the login event
 		eventTrackingService().post(eventTrackingService().newEvent(event != null ? event : EVENT_LOGIN, null, true));

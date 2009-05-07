@@ -26,6 +26,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -110,4 +111,13 @@ public class SessionServiceAdaptorTest extends UsageSessionServiceAdaptor
 	{
 		return null;
 	}
+	
+	/**
+	 * @return the MemoryService collaborator.
+	 */
+	protected MemoryService memoryService()
+	{
+		return null;
+	}
+
 }
