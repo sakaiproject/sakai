@@ -40,7 +40,11 @@ public class UserProfile {
 	private String statusMessage;
 	private Date statusDate;
 	
-	private String imageEntityUrl; //entity path
+	/* 
+	 * This is an EntityBroker URL that can be used to get directly to a user's profile image. URL is open, but privacy is still checked.
+	 */
+	private String imageUrl; 
+	private String imageThumbUrl; 
 	
 	private Map<String, String> props;
 
@@ -213,12 +217,20 @@ public class UserProfile {
 	}
 
 	
-	public String getImageEntityUrl() {
-		return imageEntityUrl;
+	public String getImageUrl() {
+		return imageUrl;
 	}
 
-	public void setImageEntityUrl(String imageEntityUrl) {
-		this.imageEntityUrl = imageEntityUrl;
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
+	}
+
+	public void setImageThumbUrl(String imageThumbUrl) {
+		this.imageThumbUrl = imageThumbUrl;
+	}
+
+	public String getImageThumbUrl() {
+		return imageThumbUrl;
 	}
 
 	public void setProps(Map<String, String> props) {
