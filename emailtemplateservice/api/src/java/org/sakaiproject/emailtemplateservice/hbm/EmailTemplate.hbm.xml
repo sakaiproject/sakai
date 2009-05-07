@@ -20,11 +20,11 @@
         </property>
         <!-- the subject -->
         <property name="subject" type="text">
-	        <column name="SUBJECT" not-null="true"/>
+	        <column name="SUBJECT" not-null="true" length="100000000"/>
         </property>
         <!-- the email template message -->
         <property name="message" type="text">
-            <column name="MESSAGE" not-null="true" />
+             <column name="MESSAGE" not-null="true" length="100000000"/>
         </property>
         <!-- the email template message in html-->
         <property name="htmlMessage" type="text">
