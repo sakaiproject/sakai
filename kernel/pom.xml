@@ -32,107 +32,246 @@
 	<properties>
 		<url.localsite>file:///tmp/site</url.localsite>
 	</properties>
-	<!-- Mailing Lists ======================================================= -->
 	<mailingLists>
-		<mailingList>
-			<name>Sakai User List</name>
-			<subscribe>https://collab.sakaiproject.org</subscribe>
-			<unsubscribe>https://collab.sakaiproject.org</unsubscribe>
-			<post>sakai-user@collab.sakaiproject.org</post>
-			<archive>
-				http://news.gmane.org/group/gmane.comp.cms.sakai.user/last=/force_load=t
-			</archive>
-		</mailingList>
-		<mailingList>
-			<name>Sakai Developer List</name>
-			<subscribe>https://collab.sakaiproject.org</subscribe>
-			<unsubscribe>https://collab.sakaiproject.org</unsubscribe>
-			<post>sakai-dev@collab.sakaiproject.org</post>
-			<archive>
-				http://news.gmane.org/group/gmane.comp.cms.sakai.dev/last=/force_load=t
-			</archive>
-		</mailingList>
-		<mailingList>
-			<name>Sakai SCM List</name>
-			<subscribe>https://collab.sakaiproject.org</subscribe>
-			<unsubscribe>https://collab.sakaiproject.org</unsubscribe>
-			<post>source@collab.sakaiproject.org</post>
-		</mailingList>
-	</mailingLists>
-	<licenses>
-		<license>
-			<name>Educational Community License, Version 2.0</name>
-			<url>http://www.osedu.org/licenses/ECL-2.0</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
-	<developers>
-		<developer>
-			<id>jimeng</id>
-			<name>Jim Eng</name>
-			<email>jimeng@umich.edu</email>
-			<organization>The University of Michigan</organization>
-			<organizationUrl>http://www.umich.edu</organizationUrl>
-			<roles>
-				<role>developer</role>
-			</roles>
-			<timezone>-5</timezone>
-			<properties></properties>
-		</developer>
-		<developer>
-			<id>dhorwitz</id>
-			<name>David Horwitz</name>
-			<email>david.horwitz@uct.ac.za</email>
-			<url>http://blogs.uct.ac.za/blog/daves-blog</url>
-			<organization>
-				Centre for Educational Technology, University of Cape
-				Town
-			</organization>
-			<organizationUrl>http://www.cet.uct.ac.za</organizationUrl>
-			<roles>
-				<role>developer</role>
-				<role>branch manager</role>
-			</roles>
-			<timezone>+2</timezone>
-			<properties>
-				<picUrl></picUrl>
-			</properties>
-		</developer>
-		<developer>
-			<id>stephen.marquard</id>
-			<name>Stephen Marquard</name>
-			<email>stephen.marquard@uct.ac.za</email>
-			<organization>
-				Centre for Educational Technology, University of Cape
-				Town
-			</organization>
-			<organizationUrl>http://www.cet.uct.ac.za</organizationUrl>
-			<roles>
-				<role>developer</role>
-			</roles>
-			<timezone>+2</timezone>
-		</developer>
-		<developer>
-			<id>arwhyte</id>
-			<name>Anthony Whyte</name>
-			<email>arwhyte@sakaifoundation.org</email>
-			<url>http://www.whyteboy.org</url>
-			<organization>Sakai Foundation</organization>
-			<organizationUrl>
-				http://www.sakaiproject.org
-			</organizationUrl>
-			<roles>
-				<role>developer</role>
-				<role>release manager</role>
-			</roles>
-			<timezone>-5</timezone>
-			<properties>
-				<picUrl>
-					http://www.sakaiproject.org/access/content/group/sakai-foundation/images/staff/arwhyte_capeargus07_grin_100x70.gif
-				</picUrl>
-			</properties>
-		</developer>
-	</developers>
+        <mailingList>
+            <name>Sakai Developer List</name>
+            <subscribe>
+                http://collab.sakaiproject.org/mailman/listinfo/sakai-dev
+            </subscribe>
+            <unsubscribe>
+                sakai-dev-unsubscribe@collab.sakaiproject.org
+            </unsubscribe>
+            <post>sakai-dev@collab.sakaiproject.org</post>
+            <archive>
+                http://news.gmane.org/group/gmane.comp.cms.sakai.dev/last=/force_load=t
+            </archive>
+        </mailingList>
+        <mailingList>
+            <name>Sakai User List</name>
+            <subscribe>
+                http://collab.sakaiproject.org/mailman/listinfo/sakai-user
+            </subscribe>
+            <unsubscribe>
+                sakai-user-unsubscribe@collab.sakaiproject.org
+            </unsubscribe>
+            <post>sakai-user@collab.sakaiproject.org</post>
+            <archive>
+                http://news.gmane.org/group/gmane.comp.cms.sakai.user/last=/force_load=t
+            </archive>
+        </mailingList>
+        <mailingList>
+            <name>Sakai SCM List</name>
+            <subscribe>
+                http://collab.sakaiproject.org/mailman/listinfo/source
+            </subscribe>
+            <unsubscribe>
+                source-unsubscribe@collab.sakaiproject.org
+            </unsubscribe>
+            <post>source@collab.sakaiproject.org</post>
+        </mailingList>
+    </mailingLists>
+    <licenses>
+        <license>
+            <name>Educational Community License, Version 2.0</name>
+            <url>http://www.osedu.org/licenses/ECL-2.0/ecl2.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <id>ieb</id>
+            <name>Ian Boston</name>
+            <email>ian@caret.cam.ac.uk</email>
+            <url>http://blog.tfd.co.uk/</url>
+            <organization>
+                Centre for Applied Research in Educational Technologies,
+                University of Cambridge
+            </organization>
+            <organizationUrl>
+                http://www.caret.cam.ac.uk
+            </organizationUrl>
+            <roles>
+                <role>architect</role>
+            </roles>
+            <timezone>0</timezone>
+            <properties>
+                <picUrl>
+                    http://www.caret.cam.ac.uk/wp-content/uploads/2008/12/ian.jpg
+                </picUrl>
+            </properties>
+        </developer>
+        <developer>
+            <id>rdavis</id>
+            <name>Ray Davis</name>
+            <email>ray@media.berkeley.edu</email>
+            <url>http://ray.media.berkeley.edu/blog/</url>
+            <organization>
+                University of California, Berkeley
+            </organization>
+            <organizationUrl>http://ets.berkeley.edu/</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-7</timezone>
+            <properties>
+                <picUrl></picUrl>
+            </properties>
+        </developer>
+        <developer>
+            <id>jimeng</id>
+            <name>Jim Eng</name>
+            <email>jimeng@umich.edu</email>
+            <organization>The University of Michigan</organization>
+            <organizationUrl>http://www.umich.edu</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-5</timezone>
+            <properties></properties>
+        </developer>
+        <developer>
+            <id>dhorwitz</id>
+            <name>David Horwitz</name>
+            <email>david.horwitz@uct.ac.za</email>
+            <url>http://blogs.uct.ac.za/blog/daves-blog</url>
+            <organization>
+                Centre for Educational Technology, University of Cape
+                Town
+            </organization>
+            <organizationUrl>http://www.cet.uct.ac.za</organizationUrl>
+            <roles>
+                <role>developer</role>
+                <role>branch manager</role>
+            </roles>
+            <timezone>+2</timezone>
+            <properties>
+                <picUrl>
+                    http://www.sakaiproject.org/access/content/group/sakai-community/images/people/horwitzdavid_sakaigers_100x80.jpg
+                </picUrl>
+            </properties>
+        </developer>
+        <developer>
+            <id>bkirschn</id>
+            <name>Beth Kirschner</name>
+            <email>bkirschn@umich.edu</email>
+            <url></url>
+            <organization>University of Michigan</organization>
+            <organizationUrl>http://www.umich.edu</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-5</timezone>
+            <properties>
+                <picUrl>
+                    http://www.sakaiproject.org/access/content/group/sakai-community/images/people/kirschnerbeth_100x79.png
+                </picUrl>
+            </properties>
+        </developer>
+        <developer>
+            <id>stephen.marquard</id>
+            <name>Stephen Marquard</name>
+            <email>stephen.marquard@uct.ac.za</email>
+            <organization>
+                Centre for Educational Technology, University of Cape
+                Town
+            </organization>
+            <organizationUrl>http://www.cet.uct.ac.za</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>+2</timezone>
+            <properties>
+                <picUrl>
+                    http://www.sakaiproject.org/access/content/group/sakai-foundation/images/people/marquard_100x77.jpg
+                </picUrl>
+            </properties>
+        </developer>
+        <developer>
+            <id>slt</id>
+            <name>Seth Theriault</name>
+            <email>slt@columbia.edu</email>
+            <organization>Columbia University</organization>
+            <organizationUrl>http://www.columbia.edu/</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-5</timezone>
+        </developer>
+        <developer>
+            <id>arwhyte</id>
+            <name>Anthony Whyte</name>
+            <email>arwhyte@sakaifoundation.org</email>
+            <url>http://www.whyteboy.org</url>
+            <organization>
+                Sakai Foundation / University of Michigan
+            </organization>
+            <organizationUrl>
+                http://www.sakaiproject.org
+            </organizationUrl>
+            <roles>
+                <role>developer</role>
+                <role>release manager</role>
+            </roles>
+            <timezone>-5</timezone>
+            <properties>
+                <picUrl>
+                    http://www.sakaiproject.org/access/content/group/sakai-foundation/images/staff/arwhyte_capeargus07_grin_100x70.gif
+                </picUrl>
+            </properties>
+        </developer>
+    </developers>
+    <contributors>
+        <contributor>
+            <name>Glenn Golden</name>
+            <email>ggolden@etudes.org</email>
+            <url></url>
+            <organization>Etudes</organization>
+            <organizationUrl>http://etudes.org/</organizationUrl>
+            <roles>
+                <role>architect (2003-2007)</role>
+            </roles>
+            <timezone>-7</timezone>
+            <properties></properties>
+        </contributor>
+        <contributor>
+            <name>Josh Holtzman</name>
+            <email>jholtzman@berkeley.edu</email>
+            <url>josh.media.berkeley.edu/</url>
+            <organization>
+                University of California, Berkeley
+            </organization>
+            <organizationUrl>http://ets.berkeley.edu/</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-7</timezone>
+            <properties></properties>
+        </contributor>
+        <contributor>
+            <name>Charles Severance</name>
+            <email>csev@umich.edu</email>
+            <url>http://www.dr-chuck.com/</url>
+            <organization>University of Michigan</organization>
+            <organizationUrl>http://www.umich.edu</organizationUrl>
+            <roles>
+                <role>chief architect (2003-2007)</role>
+            </roles>
+            <timezone>-5</timezone>
+            <properties></properties>
+        </contributor>
+        <contributor>
+            <name>Lance Speelmon</name>
+            <email>lance@indiana.edu</email>
+            <url>http://lancespeelmon.wordpress.com/</url>
+            <organization>Indiana University</organization>
+            <organizationUrl>http://www.iu.edu</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-5</timezone>
+            <properties></properties>
+        </contributor>
+    </contributors>
 	<scm>
 		<connection>
 			scm:svn:https://source.sakaiproject.org/svn/kernel/trunk
