@@ -84,7 +84,7 @@ public class ProfileServiceImpl implements ProfileService {
 			return getPrototype(userUuid);
 		}
 		UserProfile userProfile = transformSakaiPersonToUserProfile(userUuid, sakaiPerson);
-		
+				
 		//if person requested own profile, no need for privacy checks
 		//add the additional information and return
 		if(userUuid.equals(currentUserUuid)) {
@@ -92,15 +92,17 @@ public class ProfileServiceImpl implements ProfileService {
 			addStatusToProfile(userProfile);
 			addImageUrlToProfile(userProfile);
 			addThumbnailImageUrlToProfile(userProfile);
+			
 			return userProfile;
+			
 		}
 		
 		//get privacy record
 		ProfilePrivacy privacy = profile.getPrivacyRecordForUser(userUuid);
-
+		
 		//get preferences record
 		ProfilePreferences preferences = profile.getPreferencesRecordForUser(userUuid);
-				
+		
 		//check friend status
 		boolean friend = profile.isUserXFriendOfUserY(userUuid, currentUserUuid);
 		
@@ -207,7 +209,7 @@ public class ProfileServiceImpl implements ProfileService {
 		UserProfile userProfile = getPrototype(userUuid);
 		
 		//get privacy record for the user
-		ProfilePrivacy profilePrivacy = profile.getPrivacyRecordForUser(userUuid);
+		ProfilePrivacy privacy = profile.getPrivacyRecordForUser(userUuid);
 		
 		//check friend status
 		
@@ -555,14 +557,27 @@ public class ProfileServiceImpl implements ProfileService {
 	
 	/**
 	 * This is a helper method to take care of setting the various relevant properties into a user's profile.
-	 * @param userProfile	- UserProfile object for the person
-	 * @param privacy		- Privacy object for the person
+	 * If a user has requested their own profile, they dont need these properties (?)
+	 * 
+	 * @param userProfile		- UserProfile object for the person
+	 * @param privacy			- Privacy object for the person
+	 * @param preferences	- Preferences object for the person
 	 */
 	private void addPropertiesToProfile(UserProfile userProfile, ProfilePrivacy privacy, ProfilePreferences preferences) {
 		
-		userProfile.setProperty(ProfilePrivacyManager.PROP_BIRTH_YEAR_VISIBLE, String.valueOf(privacy.isShowBirthYear()));
-		userProfile.setProperty(ProfilePreferencesManager.PROP_EMAIL_CONFIRM_ENABLED, String.valueOf(preferences.isConfirmEmailEnabled()));
-		userProfile.setProperty(ProfilePreferencesManager.PROP_EMAIL_REQUEST_ENABLED, String.valueOf(preferences.isRequestEmailEnabled()));
+		if(privacy == null) {
+			userProfile.setProperty(ProfilePrivacyManager.PROP_BIRTH_YEAR_VISIBLE, String.valueOf(ProfilePrivacyManager.DEFAULT_BIRTHYEAR_VISIBILITY));
+		} else {
+			userProfile.setProperty(ProfilePrivacyManager.PROP_BIRTH_YEAR_VISIBLE, String.valueOf(privacy.isShowBirthYear()));
+		}
+		
+		if(preferences == null) {
+			userProfile.setProperty(ProfilePreferencesManager.PROP_EMAIL_CONFIRM_ENABLED, String.valueOf(ProfilePreferencesManager.DEFAULT_EMAIL_NOTIFICATION_SETTING));
+			userProfile.setProperty(ProfilePreferencesManager.PROP_EMAIL_REQUEST_ENABLED, String.valueOf(ProfilePreferencesManager.DEFAULT_EMAIL_NOTIFICATION_SETTING));
+		} else {
+			userProfile.setProperty(ProfilePreferencesManager.PROP_EMAIL_CONFIRM_ENABLED, String.valueOf(preferences.isConfirmEmailEnabled()));
+			userProfile.setProperty(ProfilePreferencesManager.PROP_EMAIL_REQUEST_ENABLED, String.valueOf(preferences.isRequestEmailEnabled()));
+		}
 
 	}
 	
