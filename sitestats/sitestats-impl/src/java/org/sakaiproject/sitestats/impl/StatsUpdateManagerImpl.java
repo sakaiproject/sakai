@@ -929,6 +929,11 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			String contextId = null;
 			try{
 				contextId = (String) e.getClass().getMethod("getContext", null).invoke(e, null);
+				// STAT-150 fix:
+				String sitePrefix = "/site/";
+				if(contextId != null && contextId.startsWith(sitePrefix)) {
+					contextId = contextId.substring(sitePrefix.length());
+				}
 				LOG.debug("Context read from Event.getContext() for event: " + eventId + " - context: " + contextId);
 			}catch(Exception ex){
 				LOG.warn("Unable to get Event.getContext() for event: " + eventId, ex);
