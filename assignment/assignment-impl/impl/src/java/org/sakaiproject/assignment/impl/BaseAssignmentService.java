@@ -5725,23 +5725,15 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					{
 						ResourceProperties submissionProperties = submission.getProperties();
 						String property = (String) submissionProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
-						resubmitCloseTime = submissionProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME) != null? TimeService.newTime(submissionProperties.getLongProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME)):null;
-					}
-					else
-					{
-						// if no setting on the submission object level, get it from the assignment level next
-						ResourceProperties assignmentProperties = a.getProperties();
-						try
+						if (submissionProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME) != null)
 						{
-							allowResubmitNumber = assignmentProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null? Integer.parseInt((String) assignmentProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER)):0;
-							if (allowResubmitNumber != 0)
-							{
-								resubmitCloseTime = assignmentProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME) != null? assignmentProperties.getTimeProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME):a.getCloseTime();
-							}
+							// see if a resubmission close time is set on submission level
+							resubmitCloseTime = TimeService.newTime(submissionProperties.getLongProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME));
 						}
-						catch (Exception e)
+						else
 						{
-							M_log.warn(this + "canSubmit: exception of get integer value for resubmit number: assignment id = " + a.getId() + " submission id = " + submission.getId() + " assignment resubmission number = " + assignmentProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) + e.getMessage());
+							// otherwise, use assignment close time as the resubmission close time
+							resubmitCloseTime = a.getCloseTime();
 						}
 					}
 					return allowResubmitNumber != 0 && resubmitCloseTime != null && currentTime.before(resubmitCloseTime);

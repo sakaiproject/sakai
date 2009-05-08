@@ -3827,6 +3827,15 @@ public class AssignmentAction extends PagedResourceActionII
 								edit.addSubmittedAttachment((Reference) it.next());
 							}
 						}
+						
+						// get the assignment setting for resubmitting
+						if (a.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null)
+						{
+							edit.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, a.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER));
+							// use assignment close time as the close time for resubmit
+							edit.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(a.getCloseTime().getTime()));
+						}
+						
 						AssignmentService.commitEdit(edit);
 					}
 					catch (PermissionException e)
@@ -3969,6 +3978,20 @@ public class AssignmentAction extends PagedResourceActionII
 						try
 						{
 							AssignmentSubmissionEdit sEdit = AssignmentService.editSubmission(submission.getReference());
+
+							ResourcePropertiesEdit sPropertiesEdit = sEdit.getPropertiesEdit();
+							
+							// decrease the allow_resubmit_number, if this submission has been submitted.
+							if (sEdit.getSubmitted() && sEdit.getTimeSubmitted() != null && sPropertiesEdit.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null)
+							{
+								int number = Integer.parseInt(sPropertiesEdit.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER));
+								// minus 1 from the submit number, if the number is not -1 (not unlimited)
+								if (number>=1)
+								{
+									sPropertiesEdit.addProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, String.valueOf(number-1));
+								}
+							}
+							
 							sEdit.setSubmittedText(text);
 							sEdit.setHonorPledgeFlag(Boolean.valueOf(honorPledgeYes).booleanValue());
 							sEdit.setTimeSubmitted(TimeService.newTime());
@@ -3977,7 +4000,6 @@ public class AssignmentAction extends PagedResourceActionII
 							// for resubmissions
 							// when resubmit, keep the Returned flag on till the instructor grade again.
 							Time now = TimeService.newTime();
-							ResourcePropertiesEdit sPropertiesEdit = sEdit.getPropertiesEdit();
 							if (sEdit.getGraded())
 							{
 								// add the current grade into previous grade histroy
@@ -4066,17 +4088,6 @@ public class AssignmentAction extends PagedResourceActionII
 								sEdit.clearFeedbackAttachments();
 							}
 							
-							// decrease the allow_resubmit_number
-							if (sPropertiesEdit.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null)
-							{
-								int number = Integer.parseInt(sPropertiesEdit.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER));
-								// minus 1 from the submit number, if the number is not -1 (not unlimited)
-								if (number>=1)
-								{
-									sPropertiesEdit.addProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, String.valueOf(number-1));
-								}
-							}
-							
 							sEdit.setAssignment(a);
 	
 							// add attachments
@@ -4153,6 +4164,8 @@ public class AssignmentAction extends PagedResourceActionII
 							if (a.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null)
 							{
 								edit.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, a.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER));
+								// use assignment close time as the close time for resubmit
+								edit.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(a.getCloseTime().getTime()));
 							}
 	
 							AssignmentService.commitEdit(edit);
@@ -9662,6 +9675,15 @@ public class AssignmentAction extends PagedResourceActionII
 													AssignmentSubmissionEdit s = AssignmentService.addSubmission(contextString, a.getId(), userId);
 													s.setSubmitted(true);
 													s.setAssignment(a);
+													
+													// get the assignment setting for resubmitting
+													if (a.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null)
+													{
+														s.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, a.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER));
+														// use assignment close time as the close time for resubmit
+														s.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(a.getCloseTime().getTime()));
+													}
+													
 													AssignmentService.commitEdit(s);
 													
 													// update the UserSubmission list by adding newly created Submission object
