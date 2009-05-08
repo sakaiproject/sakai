@@ -52,16 +52,32 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 		return entity;
 	}
 	
+	
+	
+	
 	@EntityCustomAction(action="minimal",viewKey=EntityView.VIEW_SHOW)
-	public Object getMinimalProfile(EntityReference ref) {
-				
+	public Object getMinimalProfile(EntityReference ref, EntityView view) {
+			
+		boolean wantsFormatted = "formatted".equals(view.getPathSegment(3)) ? true : false;
+		
 		//get the minimal profile, with privacy checks against the requesting user
-		UserProfile entity = profileService.getMinimalUserProfile(ref.getId());
-		if(entity == null) {
+		UserProfile userProfile = profileService.getMinimalUserProfile(ref.getId());
+		if(userProfile == null) {
 			throw new EntityException("Profile could not be retrieved for " + ref.getId(), ref.getReference());
 		}
-		return entity;
+		
+		//if want formatted, convert and return as HTML, otherwise return the entity.
+		if(wantsFormatted) {
+			String formattedProfile = profileService.getUserProfileAsHTML(userProfile);
+			ActionReturn actionReturn = new ActionReturn("UTF-8", "text/html", formattedProfile);
+			return actionReturn;
+		} else {
+			return userProfile;
+		}
 	}
+	
+	
+	
 	
 	@EntityCustomAction(action="image",viewKey=EntityView.VIEW_SHOW)
 	public Object getMainImage(OutputStream out, EntityView view, EntityReference ref) {
@@ -69,13 +85,12 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 		byte[] b = null;
 		
 		boolean wantsThumbnail = "thumb".equals(view.getPathSegment(3)) ? true : false;
-		boolean fallbackOk = "fallback".equals(view.getPathSegment(4)) ? true : false;
 		
-		//get thumb if requested
+		//get thumb if requested - will fallback by default
 		if(wantsThumbnail) {
-			b = profileService.getProfileImage(ref.getId(), ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, fallbackOk);
+			b = profileService.getProfileImage(ref.getId(), ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
 		} else {
-			b = profileService.getProfileImage(ref.getId(),ProfileImageManager.PROFILE_IMAGE_MAIN, fallbackOk);
+			b = profileService.getProfileImage(ref.getId(),ProfileImageManager.PROFILE_IMAGE_MAIN);
 		}
 		
 		if(b == null) {
@@ -89,6 +104,8 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 			throw new EntityException("Error retrieving profile image for " + ref.getId() + " : " + e.getMessage(), ref.getReference());
 		}
 	}
+	
+	
 			
 	
 	@EntityCustomAction(action="connections",viewKey=EntityView.VIEW_SHOW)
@@ -103,14 +120,15 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 		return actionReturn;
 	}
 	
+	
+	
 	@EntityCustomAction(action="formatted",viewKey=EntityView.VIEW_SHOW)
 	public Object getFormattedProfile(EntityReference ref) {
-				
-		//get the full profile, with privacy checks against the requesting user
-		UserProfile userProfile = profileService.getFullUserProfile(ref.getId());
-		if(userProfile == null) {
-			throw new EntityNotFoundException("Profile could not be retrieved for " + ref.getId(), ref.getReference());
-		}
+			
+		//this allows a normal full profile to be returned formatted in HTML
+		
+		//get the full profile 
+		UserProfile userProfile = (UserProfile) getEntity(ref);
 		
 		//convert UserProfile to HTML object
 		String entity = profileService.getUserProfileAsHTML(userProfile);
@@ -124,6 +142,18 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 		return "user/" + vars.get("id") + vars.get(TemplateParseUtil.DOT_EXTENSION);
 	}
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
 		return null;

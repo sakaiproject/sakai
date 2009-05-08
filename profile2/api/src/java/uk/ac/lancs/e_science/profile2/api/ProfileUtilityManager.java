@@ -55,5 +55,7 @@ public class ProfileUtilityManager {
 	public static final String ENTITY_SET_ACADEMIC = "displayName,imageUrl";
 	public static final String ENTITY_SET_MINIMAL = "displayName,statusMessage,statusDate";
 	
+	//entity css
+	public static final String ENTITY_CSS_PROFILE = "/sakai-profile2-tool/css/profile2-profile-entity.css";
 	
 }

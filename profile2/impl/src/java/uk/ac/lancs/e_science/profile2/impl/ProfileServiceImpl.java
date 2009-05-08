@@ -13,6 +13,7 @@ import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.ProfilePreferencesManager;
 import uk.ac.lancs.e_science.profile2.api.ProfilePrivacyManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileService;
+import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.api.entity.model.Connection;
 import uk.ac.lancs.e_science.profile2.api.entity.model.UserProfile;
@@ -299,110 +300,154 @@ public class ProfileServiceImpl implements ProfileService {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<div class=\"profile2-profile\">");
 		
-		boolean hasImage = false;
-
+		boolean useThumbnail = true;
+		
 		if(StringUtils.isNotBlank(userProfile.getImageUrl())) {
-			sb.append("<img class=\"profile2-profile-image\" src=\"");
+			sb.append("<div class=\"profile2-profile-image\">");
+			sb.append("<img src=\"");
 			sb.append(userProfile.getImageUrl());
 			sb.append("\" />");
-			hasImage = true;
+			sb.append("</div>");
+			useThumbnail = false;
 		}
 		
 		//only add thumbnail if no main image has been used
-		if(!hasImage && StringUtils.isNotBlank(userProfile.getImageThumbUrl())) {
-			sb.append("<img class=\"profile2-profile-imagethumb\" src=\"");
+		if(useThumbnail && StringUtils.isNotBlank(userProfile.getImageThumbUrl())) {
+			sb.append("<div class=\"profile2-profile-image-thumb\">");
+			sb.append("<img src=\"");
 			sb.append(userProfile.getImageThumbUrl());
 			sb.append("\" />");
+			sb.append("</div>");
 		}
 		
-		//need different styles for the images and for the content wrappers that follow them so that we can apply different widths.
-		
-		sb.append("<div class=\"profile2-profile-content\">");
+		//diff styles depending on if thumb was used or not, for diff widths in formatted profile view.
+		if(useThumbnail) {
+			sb.append("<div class=\"profile2-profile-content-thumb\">");
+		} else {
+			sb.append("<div class=\"profile2-profile-content\">");
+		}
 		
 		if(StringUtils.isNotBlank(userProfile.getUserUuid())) {
-			sb.append("<span class=\"profile2-profile-userUuid\">");
-			sb.append(userProfile.getUserUuid());
+			sb.append("<div class=\"profile2-profile-userUuid\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("ProfileServiceImpl.userUuid"));
 			sb.append("</span>");
+			sb.append(userProfile.getUserUuid());
+			sb.append("</div>");
 		}
 		
 		if(StringUtils.isNotBlank(userProfile.getDisplayName())) {
-			sb.append("<span class=\"profile2-profile-displayName\">");
+			sb.append("<div class=\"profile2-profile-displayName\">");
 			sb.append(userProfile.getDisplayName());
-			sb.append("</span>");
+			sb.append("</div>");
 		}
 		
 		if(StringUtils.isNotBlank(userProfile.getNickname())) {
-			sb.append("<span class=\"profile2-profile-nickname\">");
-			sb.append(userProfile.getNickname());
+			sb.append("<div class=\"profile2-profile-nickname\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("ProfileServiceImpl.nickname"));
 			sb.append("</span>");
+			sb.append(userProfile.getNickname());
+			sb.append("</div>");
 		}
 		
 		if(StringUtils.isNotBlank(userProfile.getEmail())) {
-			sb.append("<span class=\"profile2-profile-email\">");
-			sb.append(userProfile.getEmail());
+			sb.append("<div class=\"profile2-profile-email\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("ProfileServiceImpl.email"));
 			sb.append("</span>");
+			sb.append(userProfile.getEmail());
+			sb.append("</div>");
 		}
 		
 		if(StringUtils.isNotBlank(userProfile.getHomepage())) {
-			sb.append("<span class=\"profile2-profile-homepage\">");
-			sb.append(userProfile.getHomepage());
+			sb.append("<div class=\"profile2-profile-homepage\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("ProfileServiceImpl.homepage"));
 			sb.append("</span>");
+			sb.append(userProfile.getHomepage());
+			sb.append("</div>");
 		}
 		
 		if(StringUtils.isNotBlank(userProfile.getHomephone())) {
-			sb.append("<span class=\"profile2-profile-homephone\">");
-			sb.append(userProfile.getHomephone());
+			sb.append("<div class=\"profile2-profile-homephone\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("ProfileServiceImpl.homephone"));
 			sb.append("</span>");
+			sb.append(userProfile.getHomephone());
+			sb.append("</div>");
 		}
 		
 		if(StringUtils.isNotBlank(userProfile.getWorkphone())) {
-			sb.append("<span class=\"profile2-profile-workphone\">");
-			sb.append(userProfile.getWorkphone());
+			sb.append("<div class=\"profile2-profile-workphone\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("ProfileServiceImpl.workphone"));
 			sb.append("</span>");
+			sb.append(userProfile.getWorkphone());
+			sb.append("</div>");
 		}
 		
 		if(StringUtils.isNotBlank(userProfile.getMobilephone())) {
-			sb.append("<span class=\"profile2-profile-mobilephone\">");
-			sb.append(userProfile.getMobilephone());
+			sb.append("<div class=\"profile2-profile-mobilephone\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("ProfileServiceImpl.mobilephone"));
 			sb.append("</span>");
+			sb.append(userProfile.getMobilephone());
+			sb.append("</div>");
 		}
 		
 		if(StringUtils.isNotBlank(userProfile.getFavouriteBooks())) {
-			sb.append("<span class=\"profile2-profile-favouriteBooks\">");
-			sb.append(userProfile.getFavouriteBooks());
+			sb.append("<div class=\"profile2-profile-favouriteBooks\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("ProfileServiceImpl.favouriteBooks"));
 			sb.append("</span>");
+			sb.append(userProfile.getFavouriteBooks());
+			sb.append("</div>");
 		}
 		
 		if(StringUtils.isNotBlank(userProfile.getFavouriteTvShows())) {
-			sb.append("<span class=\"profile2-profile-favouriteTvShows\">");
-			sb.append(userProfile.getFavouriteTvShows());
+			sb.append("<div class=\"profile2-profile-favouriteTvShows\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("ProfileServiceImpl.favouriteTvShows"));
 			sb.append("</span>");
+			sb.append(userProfile.getFavouriteTvShows());
+			sb.append("</div>");
 		}
 		
 		if(StringUtils.isNotBlank(userProfile.getFavouriteMovies())) {
-			sb.append("<span class=\"profile2-profile-favouriteMovies\">");
-			sb.append(userProfile.getFavouriteMovies());
+			sb.append("<div class=\"profile2-profile-favouriteMovies\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("ProfileServiceImpl.favouriteMovies"));
 			sb.append("</span>");
+			sb.append(userProfile.getFavouriteMovies());
+			sb.append("</div>");
 		}
 		
 		if(StringUtils.isNotBlank(userProfile.getFavouriteQuotes())) {
-			sb.append("<span class=\"profile2-profile-favouriteQuotes\">");
-			sb.append(userProfile.getFavouriteQuotes());
+			sb.append("<div class=\"profile2-profile-favouriteQuotes\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("ProfileServiceImpl.favouriteQuotes"));
 			sb.append("</span>");
+
+			sb.append(userProfile.getFavouriteQuotes());
+			sb.append("</div>");
 		}
 		if(StringUtils.isNotBlank(userProfile.getOtherInformation())) {
-			sb.append("<span class=\"profile2-profile-otherInformation\">");
-			sb.append(userProfile.getOtherInformation());
+			sb.append("<div class=\"profile2-profile-otherInformation\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("ProfileServiceImpl.otherInformation"));
 			sb.append("</span>");
+			sb.append(userProfile.getOtherInformation());
+			sb.append("</div>");
 		}
 		
 		sb.append("</div>");
 		sb.append("</div>");
 		
-		//add the styles that will format this
-		//image needs to be styled to be a max width. 
-
-		
+		//add the stylesheet
+		sb.append("<link href=\"");
+		sb.append(ProfileUtilityManager.ENTITY_CSS_PROFILE);
+		sb.append("\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />");
 		
 		return sb.toString();
 	}

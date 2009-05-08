@@ -1,0 +1,74 @@
+/* stylesheet for the formatted version of the Profile2 profile entity */
+
+div.profile2-profile {
+	display: block;
+	position: relative;
+	font-size: inherit;
+	font-weight: inherit;
+	font-family: inherit;
+}
+
+div.profile2-profile-image {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 200px;
+}
+
+div.profile2-profile-image-thumb {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100px;
+}
+
+div.profile2-profile-image img {
+	max-width: 200px;
+	width: expression(Math.min(parseInt(this.offsetWidth), 200 ) + "px"); /* ie6 max-width hack */
+	padding: 2px;
+	border: 1px solid silver;
+   	display: block;
+  	margin: auto;
+}
+
+div.profile2-profile-image-thumb img {
+	max-width: 100px;
+	width: expression(Math.min(parseInt(this.offsetWidth), 100 ) + "px"); /* ie6 max-width hack */
+	padding: 2px;
+	border: 1px solid silver;
+    display: block;
+    margin: auto;
+}
+
+
+div.profile2-profile-content {
+	text-align: left;
+	position: absolute;
+	top: 0;
+	left: 210px;
+	width: 500px;
+	font-size: 0.9em;
+}
+
+div.profile2-profile-content-thumb {
+	text-align: left;
+	position: absolute;
+	top: 0;
+	left: 110px;
+	width: 500px;
+}
+
+
+.profile2-profile-label {
+	font-weight: bold;
+}
+
+
+.profile2-profile-userUuid {
+	display:none !important;
+}
+
+.profile2-profile-displayName {
+	font-size: 1.4em;
+	font-weight: bold;
+}
