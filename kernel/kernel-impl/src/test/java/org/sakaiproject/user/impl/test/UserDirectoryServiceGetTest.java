@@ -128,10 +128,11 @@ public class UserDirectoryServiceGetTest extends SakaiKernelTestBase {
 		return user;
 	}
 	private static boolean isAsExpected(User user, String eid, boolean isLocal) {
-		if ((eid != null) && (eidToId.get(eid) == null)) {
+	    if (eid == null) {
+	        fail("eid is null");
+	    }
+	    if (eidToId.get(eid) == null) {
 			eidToId.put(eid, user.getId());
-		} else {
-		    fail("eid is null");
 		}
 		boolean isMatch = (eid.equals(user.getEid()) &&
 			user.getId().equals(eidToId.get(eid)) &&
@@ -155,7 +156,7 @@ public class UserDirectoryServiceGetTest extends SakaiKernelTestBase {
 	public void testLocalUser() throws Exception {
 		User user = userDirectoryService.getUserByEid("localuser");
 		Assert.assertTrue(isAsExpected(user, "localuser", true));
-		List users = userDirectoryService.getUsers();
+		List<User> users = userDirectoryService.getUsers();
 		Assert.assertTrue(users.size() >= 4);	// Will probably also include "admin" and "postmaster"
 	}
 	
@@ -163,7 +164,7 @@ public class UserDirectoryServiceGetTest extends SakaiKernelTestBase {
 		// Get into cache.
 		User user = userDirectoryService.getUserByEid("localuser");
 		
-		Collection users = userDirectoryService.findUsersByEmail("localuser" + "@somewhere.edu");
+		Collection<User> users = userDirectoryService.findUsersByEmail("localuser" + "@somewhere.edu");
 		Assert.assertTrue(users.size() == 1);
 		user = (User)users.iterator().next();
 		Assert.assertTrue(isAsExpected(user, "localuser", true));
@@ -257,7 +258,7 @@ public class UserDirectoryServiceGetTest extends SakaiKernelTestBase {
 		String userId = userDirectoryService.getUserId("providedthroughid");
 		user = userDirectoryService.getUser(userId);
 		Assert.assertTrue(isAsExpected(user, "providedthroughid", false));
-		Collection users = userDirectoryService.findUsersByEmail("provideduser@somewhere.edu");
+		Collection<User> users = userDirectoryService.findUsersByEmail("provideduser@somewhere.edu");
 		Assert.assertTrue(users.size() == 1);
 		user = (User)users.iterator().next();
 		Assert.assertTrue(isAsExpected(user, "provideduser", false));
@@ -282,7 +283,7 @@ public class UserDirectoryServiceGetTest extends SakaiKernelTestBase {
 		log.debug("have " + mappedIds.size() + " mapped IDs");
 		List<String> searchIds = new ArrayList<String>(mappedIds);
 		searchIds.add("NoSuchId");
-		List users = userDirectoryService.getUsers(searchIds);
+		List<User> users = userDirectoryService.getUsers(searchIds);
 		log.debug("Return from getUsers=" + users);
 		Assert.assertTrue(users.size() == (searchIds.size() - 1));
 	}
@@ -355,8 +356,9 @@ public class UserDirectoryServiceGetTest extends SakaiKernelTestBase {
 			}
 		}
 
-		public void getUsers(Collection users) {
-			for (Iterator iter = users.iterator(); iter.hasNext(); ) {
+		@SuppressWarnings("unchecked")
+        public void getUsers(Collection users) {
+			for (Iterator<User> iter = users.iterator(); iter.hasNext(); ) {
 				UserEdit userEdit = (UserEdit)iter.next();
 				if (!getUser(userEdit)) {
 					iter.remove();
