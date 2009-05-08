@@ -50,6 +50,10 @@ public class ProfileUtilityManager {
 	public static final String EVENT_STATUS_UPDATE = "profile.status.update";
 	public static final String EVENT_TWITTER_UPDATE = "profile.twitter.update";
 
+	//custom entity types
+	public static final int ENTITY_PROFILE_FULL = 0;
+	public static final int ENTITY_PROFILE_MINIMAL = 1;
+	public static final int ENTITY_PROFILE_ACADEMIC = 2;
 	
 	//entity set defaults
 	public static final String ENTITY_SET_ACADEMIC = "displayName,imageUrl";

@@ -50,7 +50,7 @@ public interface ProfileService {
 	public UserProfile getFullUserProfile(String userId);
 	
 	/**
-	 * Get a minimal UserProfile for a user. Contains name, uuid and status msg/date only (configurable). Useful for lists of users.
+	 * Get a minimal UserProfile for a user. Contains name, uuid and status msg/date only. Useful for lists of users.
 	 * 
 	 * <p>You must be logged-in in order to make requests to this method as the content returned will be tailored
 	 * to be visible for the currently logged in user.</p>
@@ -59,6 +59,35 @@ public interface ProfileService {
 	 * @return UserProfile for the user, that is visible to the requesting user
 	 */
 	public UserProfile getMinimalUserProfile(String userId);
+	
+	/**
+	 * Get the academic UserProfile for a user.
+	 * 
+	 * <p>You must be logged-in in order to make requests to this method as the content returned will be tailored
+	 * to be visible for the currently logged in user.</p>
+	 * 
+	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
+	 * @return UserProfile for the user, that is visible to the requesting user
+	 */
+	public UserProfile getAcademicUserProfile(String userId);
+	
+	
+	/**
+	 * Get a customised profile for a user. The type must match one of the ProfileUtilityManager.ENTITY_PROFILE_*
+	 * If none is given, defaults to full.
+	 * 
+	 * <p>The set of fields can be configured in sakai.properties (except for full and minimal)</p>
+	 * 
+	 * <p>You must be logged-in in order to make requests to this method as the content returned will be tailored
+	 * to be visible for the currently logged in user, even if the fields are explicitly specified.</p>
+	 * 
+	 * <p>Not yet implemented</p>
+	 * 
+	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
+	 * @param profileType - see ProfileUtilityManager.ENTITY_PROFILE_*
+	 * @return UserProfile for the user, that is visible to the requesting user
+	 */
+	public UserProfile getCustomUserProfile(String userId, int profileType);
 
 	/**
 	 * Checks whether a user profile exists. 

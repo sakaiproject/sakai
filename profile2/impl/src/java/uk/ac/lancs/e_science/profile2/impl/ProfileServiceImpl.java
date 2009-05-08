@@ -188,6 +188,48 @@ public class ProfileServiceImpl implements ProfileService {
 	/**
 	 * {@inheritDoc}
 	 */
+	public UserProfile getAcademicUserProfile(String userId) {
+		
+		//check auth and get currentUserUuid
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if(currentUserUuid == null) {
+			throw new SecurityException("You must be logged in to make a request for a user's profile.");
+		}
+		
+		//convert userId into uuid
+		String userUuid = getUuidForUserId(userId);
+		if(userUuid == null) {
+			log.error("Invalid userId: " + userId);
+			return null;
+		}
+				
+		//create base profile
+		UserProfile userProfile = getPrototype(userUuid);
+		
+		//get privacy record for the user
+		ProfilePrivacy profilePrivacy = profile.getPrivacyRecordForUser(userUuid);
+		
+		//check friend status
+		
+		//check if the academic fields are allowed to be viewed by this user.
+		
+		//add thumbnail image url
+		addImageUrlToProfile(userProfile);
+		
+		return userProfile;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public UserProfile getCustomUserProfile(String userId, int profileType) {
+		return null;
+	}
+	
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public boolean checkUserProfileExists(String userId) {
 		return sakaiProxy.checkForUser(getUuidForUserId(userId));
 	}
@@ -342,6 +384,18 @@ public class ProfileServiceImpl implements ProfileService {
 			sb.append("</div>");
 		}
 		
+		if(StringUtils.isNotBlank(userProfile.getStatusMessage())) {
+			sb.append("<div class=\"profile2-profile-statusMessage\">");
+			sb.append(userProfile.getStatusMessage());
+			sb.append("</div>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getStatusDateFormatted())) {
+			sb.append("<div class=\"profile2-profile-statusDate\">");
+			sb.append(userProfile.getStatusDateFormatted());
+			sb.append("</div>");
+		}
+		
 		if(StringUtils.isNotBlank(userProfile.getNickname())) {
 			sb.append("<div class=\"profile2-profile-nickname\">");
 			sb.append("<span class=\"profile2-profile-label\">");
@@ -452,6 +506,13 @@ public class ProfileServiceImpl implements ProfileService {
 		return sb.toString();
 	}
 	
+	// TODO
+	private void applyPrivacyChecksToUserProfile(UserProfile userProfile, ProfilePrivacy privacy, boolean friend) {
+		
+		//go over the various sections of the profile, see if a user is allowed to see them or not, and null out if not.
+		
+		
+	}
 	
 
 	/**
@@ -487,6 +548,8 @@ public class ProfileServiceImpl implements ProfileService {
 		if(profileStatus != null) {
 			userProfile.setStatusMessage(profileStatus.getMessage());
 			userProfile.setStatusDate(profileStatus.getDateAdded());
+			
+			userProfile.setStatusDateFormatted(profile.convertDateForStatus(userProfile.getStatusDate()));
 		}
 	}
 	

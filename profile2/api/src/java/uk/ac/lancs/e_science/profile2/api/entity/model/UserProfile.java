@@ -39,6 +39,7 @@ public class UserProfile {
 	private String otherInformation;
 	private String statusMessage;
 	private Date statusDate;
+	private String statusDateFormatted;
 	
 	/* 
 	 * This is an EntityBroker URL that can be used to get directly to a user's profile image. URL is open, but privacy is still checked.
@@ -231,6 +232,14 @@ public class UserProfile {
 
 	public String getImageThumbUrl() {
 		return imageThumbUrl;
+	}
+
+	public void setStatusDateFormatted(String statusDateFormatted) {
+		this.statusDateFormatted = statusDateFormatted;
+	}
+
+	public String getStatusDateFormatted() {
+		return statusDateFormatted;
 	}
 
 	public void setProps(Map<String, String> props) {

@@ -72,3 +72,13 @@ div.profile2-profile-content-thumb {
 	font-size: 1.4em;
 	font-weight: bold;
 }
+
+.profile2-profile-statusMessage {
+	font-size: 0.8em;
+}
+
+.profile2-profile-statusDate {
+	font-size: 0.6em;
+	color: #5D5D5D;
+	margin-bottom: 2px;
+}
