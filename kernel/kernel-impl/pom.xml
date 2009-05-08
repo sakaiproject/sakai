@@ -32,14 +32,13 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
-          <testFailureIgnore>true</testFailureIgnore> <!--  Until the tests are made to work. -->
+          <testFailureIgnore>false</testFailureIgnore> 
 <!--
 						<includes>
 						<include>**/AllTests*</include>
 						</includes>
 					-->
           <forkMode>pertest</forkMode>
-          <argLine>-Xmx256m -enableassertions ${maven.test.jvmargs}</argLine>
           <systemProperties>
             <property>
               <name>derby.system.durability</name>
