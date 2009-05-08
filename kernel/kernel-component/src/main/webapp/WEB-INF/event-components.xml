@@ -111,7 +111,7 @@
            <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
        </property>
        <property name="cacheName" value="org.sakaiproject.event.api.UsageSessionService.recentUserRefresh"/>
-       <property name="maxElementsInMemory" value="0"/>
+       <property name="maxElementsInMemory" value="10000"/>
        <property name="timeToIdle" value="120"/>
        <property name="timeToLive" value="120"/>
     </bean>
