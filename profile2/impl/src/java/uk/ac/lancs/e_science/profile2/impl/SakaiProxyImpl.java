@@ -647,6 +647,16 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return list;
 	}
 	
+	public List<String> getMinimalEntityConfigurationSet() {
+		String configuration = serverConfigurationService.getString("profile2.profile.entity.set.minimal", ProfileUtilityManager.ENTITY_SET_MINIMAL);
+		String[] parameters = StringUtils.split(configuration, ',');
+		
+		List<String> tempList = Arrays.asList(parameters);
+		List<String> list = new ArrayList<String>(tempList);
+		
+		return list;
+	}
+	
 	
 	
 	// PRIVATE METHODS FOR SAKAIPROXY

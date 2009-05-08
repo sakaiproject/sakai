@@ -283,5 +283,12 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public List<String> getAcademicEntityConfigurationSet();
+	
+	/**
+	 * Gets the profile2.profile.entity.set.minimal list of properties that should be used in the minimal profile view.
+	 * Returns default list of ProfileUtilityManager.ENTITY_SET_MINIMAL if none.
+	 * @return
+	 */
+	public List<String> getMinimalEntityConfigurationSet();
 
 }
