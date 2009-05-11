@@ -94,7 +94,7 @@ public abstract class EnrollmentTableBean
     private static Map columnSortMap;
     private String searchString;
     private int firstScoreRow;
-    private int maxDisplayedScoreRows;
+    public int maxDisplayedScoreRows;
     private int scoreDataRows;
     private boolean emptyEnrollments;	// Needed to render buttons
     private String defaultSearchString;

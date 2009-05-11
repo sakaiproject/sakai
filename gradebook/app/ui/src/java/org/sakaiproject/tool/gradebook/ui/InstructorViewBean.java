@@ -89,6 +89,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 				orderedEnrollmentList = new ArrayList();
 				if (returnToPage.equals(ROSTER_PAGE)) {
 					super.setSelectedSectionFilterValue(getPreferencesBean().getRosterTableSectionFilter());
+					maxDisplayedScoreRows = 0;
 					orderedEnrollmentList = getOrderedEnrolleesFromRosterPage();
 				} else if (returnToPage.equals(ASSIGN_DETAILS_PAGE)) {
 					super.setSelectedSectionFilterValue(getPreferencesBean().getAssignmentDetailsTableSectionFilter());
