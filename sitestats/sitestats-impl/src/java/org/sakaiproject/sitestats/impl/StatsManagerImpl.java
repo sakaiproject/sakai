@@ -2773,12 +2773,15 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					"from EventStatImpl as es " +
 					"where es.siteId = :siteid " +
 					usersStr +
-					"and es.eventId = 'pres.begin'";
+					"and es.date > :idate " +
+					"and es.eventId = 'pres.begin' " +
+					"group by es.siteId";
 			
 			HibernateCallback hcb = new HibernateCallback() {
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
 					Query q = session.createQuery(hql);
 					q.setString("siteid", siteId);
+					q.setDate("idate", getInitialActivityDate(siteId));
 					List<Object[]> res = q.list();
 					if(res.size() > 0) return res.get(0);
 					else return Integer.valueOf(0);	
