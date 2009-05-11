@@ -27,6 +27,27 @@
     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/polls/trunk</developerConnection>
     <url>https://source.sakaiproject.org/svn/polls/trunk</url>
   </scm>
+	<distributionManagement>
+		<snapshotRepository>
+			<uniqueVersion>false</uniqueVersion>
+			<id>sakai-maven-snapshots</id>
+			<name>Sakai snapshot Repo</name>
+			<url>dav:https://source.sakaiproject.org/maven2-snapshots</url>
+			<layout>default</layout>
+		</snapshotRepository>
+		<repository>
+			<uniqueVersion>false</uniqueVersion>
+			<id>sakai-maven2</id>
+			<name>Local Test</name>
+			<url>dav:http://source.sakaiproject.org/maven2</url>
+			<layout>default</layout>
+		</repository>
+		<site>
+			<id>local</id>
+			<name>Local Test</name>
+			<url>file:///tmp/site</url>
+		</site>
+        </distributionManagement>
   <modules>
     <module>api</module>
     <module>poll-help</module>
