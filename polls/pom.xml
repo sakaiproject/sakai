@@ -23,9 +23,9 @@
     <relativePath>../master/pom.xml</relativePath>
   </parent>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/polls/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/polls/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/polls/trunk</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/polls/branches/SAK-16313</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/polls/branches/SAK-16313</developerConnection>
+    <url>https://source.sakaiproject.org/svn/polls/branches/SAK-16313</url>
   </scm>
 	<distributionManagement>
 		<snapshotRepository>
