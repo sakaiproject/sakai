@@ -4892,6 +4892,8 @@ public class AssignmentAction extends PagedResourceActionII
 		boolean bool_change_from_non_electronic = false;
 		// whether this is an editing which changes non-point graded assignment to point graded assignment?
 		boolean bool_change_from_non_point = false;
+		// whether there is a change in the assignment resubmission choice
+		boolean bool_change_resubmit_option = false;
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
@@ -4903,6 +4905,7 @@ public class AssignmentAction extends PagedResourceActionII
 			
 			bool_change_from_non_electronic = change_from_non_electronic(state, assignmentId, assignmentContentId, ac);
 			bool_change_from_non_point = change_from_non_point(state, assignmentId, assignmentContentId, ac);
+			bool_change_resubmit_option = change_resubmit_option(state, a);
 
 			// put the names and values into vm file
 			String title = (String) state.getAttribute(NEW_ASSIGNMENT_TITLE);
@@ -5006,8 +5009,8 @@ public class AssignmentAction extends PagedResourceActionII
 
 				if (post)
 				{
-					// either situation, we need to update the submission grade
-					if (bool_change_from_non_electronic || bool_change_from_non_point)
+					// we need to update the submission
+					if (bool_change_from_non_electronic || bool_change_from_non_point || bool_change_resubmit_option)
 					{
 						List submissions = AssignmentService.getSubmissions(a);
 						if (submissions != null && submissions.size() >0)
@@ -5031,6 +5034,11 @@ public class AssignmentAction extends PagedResourceActionII
 										sEdit.setGraded(false);
 										sEdit.setGradeReleased(false);
 										sEdit.setReturned(false);
+									}
+									if (bool_change_resubmit_option)
+									{
+										sEdit.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, (String) state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER));
+										sEdit.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(a.getCloseTime().getTime()));
 									}
 									AssignmentService.commitEdit(sEdit);
 								}
@@ -5276,6 +5284,30 @@ public class AssignmentAction extends PagedResourceActionII
 					&& ((Integer) state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE)).intValue() == Assignment.SCORE_GRADE_TYPE)
 			{
 				// changing from non-point grade type to point grade type?
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * whether the resubmit option has been changed
+	 * @param state
+	 * @param a
+	 * @return
+	 */
+	private boolean change_resubmit_option(SessionState state, Assignment a) 
+	{
+		if (a != null)
+		{
+			// editing
+			String o_resubmit_number = a.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
+			String n_resubmit_number = state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null? (String) state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER):null;
+			if (o_resubmit_number == null && n_resubmit_number != null
+				|| o_resubmit_number != null && n_resubmit_number == null
+				|| !o_resubmit_number.equals(n_resubmit_number))
+			{
+				// there is a change
 				return true;
 			}
 		}
