@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.Date;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -44,8 +45,14 @@ public class MyInfoEdit extends Panel {
 		//this panel
 		final Component thisPanel = this;
 		
+		//get userId
+		//final String userId = userProfile.getUserId();
+		
 		//create model
 		CompoundPropertyModel userProfileModel = new CompoundPropertyModel(userProfile);
+		
+		//updates back to Account for some fields allowed?
+		//boolean updateAllowed = sakaiProxy.isAccountUpdateAllowed(userId);
 		
 		//heading
 		add(new Label("heading", new ResourceModel("heading.basic.edit")));
@@ -57,6 +64,49 @@ public class MyInfoEdit extends Panel {
 		//We don't need to get the info from userProfile, we load it into the form with a property model
 	    //just make sure that the form element id's match those in the model
 	   		
+		//firstName
+		/*
+		WebMarkupContainer firstNameContainer = new WebMarkupContainer("firstNameContainer");
+		firstNameContainer.add(new Label("firstNameLabel", new ResourceModel("profile.name.first")));
+		TextField firstName = new TextField("firstName", new PropertyModel(userProfile, "firstName"));
+		//readonly view
+		Label firstNameReadOnly = new Label("firstNameReadOnly", new PropertyModel(userProfile, "firstName"));
+		if(updateAllowed) {
+			firstNameReadOnly.setVisible(false);
+		} else {
+			firstName.setVisible(false);
+		}
+		firstNameContainer.add(firstName);
+		firstNameContainer.add(firstNameReadOnly);
+		form.add(firstNameContainer);
+		*/
+		
+		//middleName
+		/*
+		WebMarkupContainer middleNameContainer = new WebMarkupContainer("middleNameContainer");
+		middleNameContainer.add(new Label("middleNameLabel", new ResourceModel("profile.name.middle")));
+		TextField middleName = new TextField("middleName", new PropertyModel(userProfile, "middleName"));
+		middleNameContainer.add(middleName);
+		form.add(middleNameContainer);
+		*/
+		
+		//lastName
+		/*
+		WebMarkupContainer lastNameContainer = new WebMarkupContainer("lastNameContainer");
+		lastNameContainer.add(new Label("lastNameLabel", new ResourceModel("profile.name.last")));
+		TextField lastName = new TextField("lastName", new PropertyModel(userProfile, "lastName"));
+		//readonly view
+		Label lastNameReadOnly = new Label("lastNameReadOnly", new PropertyModel(userProfile, "lastName"));
+		if(updateAllowed) {
+			lastNameReadOnly.setVisible(false);
+		} else {
+			lastName.setVisible(false);
+		}
+		lastNameContainer.add(lastName);
+		lastNameContainer.add(lastNameReadOnly);
+		form.add(lastNameContainer);
+		*/
+		
 		//nickname
 		WebMarkupContainer nicknameContainer = new WebMarkupContainer("nicknameContainer");
 		nicknameContainer.add(new Label("nicknameLabel", new ResourceModel("profile.nickname")));
@@ -160,9 +210,10 @@ public class MyInfoEdit extends Panel {
 		
 		//TODO should we set these up as strings and clean them first?
 		
+		//sakaiPerson.setInitials(userProfile.getMiddleName());
 		sakaiPerson.setNickname(userProfile.getNickname());
 		
-		if(userProfile.getBirthday() != null && userProfile.getBirthday().trim().length()>0) {
+		if(StringUtils.isNotBlank(userProfile.getBirthday())) {
 			Date convertedDate = profile.convertStringToDate(userProfile.getBirthday(), ProfileUtilityManager.DEFAULT_DATE_FORMAT);
 			userProfile.setDateOfBirth(convertedDate); //set in userProfile which backs the profile
 			sakaiPerson.setDateOfBirth(convertedDate); //set into sakaiPerson to be persisted to DB
@@ -172,7 +223,19 @@ public class MyInfoEdit extends Panel {
 		}
 
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
-			log.info("Saved SakaiPerson for: " + userId );
+			log.info("Saved SakaiPerson for: " + userId);
+			
+			//update their name details in their account if allowed
+			/*
+			if(sakaiProxy.isAccountUpdateAllowed(userId)) {
+				sakaiProxy.updateNameForUser(userId, userProfile.getFirstName(), userProfile.getLastName());
+			
+				//now update displayName in UserProfile
+				userProfile.setDisplayName(sakaiProxy.getUserDisplayName(userId));
+			
+			}
+			*/
+			
 			return true;
 		} else {
 			log.info("Couldn't save SakaiPerson for: " + userId);

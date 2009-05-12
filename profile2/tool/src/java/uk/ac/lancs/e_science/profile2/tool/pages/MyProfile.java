@@ -66,18 +66,27 @@ public class MyProfile extends BasePage {
 		//SakaiPerson returns NULL strings if value is not set, not blank ones
 	
 		//these must come from Account to keep it all in sync
+		//we *could* get a User object here and get the values.
 		String userDisplayName = sakaiProxy.getUserDisplayName(userId);
+		/*
+		String userFirstName = sakaiProxy.getUserFirstName(userId);
+		String userLastName = sakaiProxy.getUserLastName(userId);
+		*/
+
 		String userEmail = sakaiProxy.getUserEmail(userId);
 		
 		//create instance of the UserProfile class
 		//we then pass the userProfile in the constructor to the child panels
 		UserProfile userProfile = new UserProfile();
 				
-		//get rest of values from SakaiPerson and set into UserProfile
+		//get rest of values from SakaiPerson and setup UserProfile
 		userProfile.setUserId(userId);
 		userProfile.setNickname(sakaiPerson.getNickname());
 		userProfile.setDateOfBirth(sakaiPerson.getDateOfBirth());
 		userProfile.setDisplayName(userDisplayName);
+		//userProfile.setFirstName(userFirstName);
+		//userProfile.setLastName(userLastName);
+		//userProfile.setMiddleName(sakaiPerson.getInitials());
 		userProfile.setEmail(userEmail);
 		userProfile.setHomepage(sakaiPerson.getLabeledURI());
 		userProfile.setHomephone(sakaiPerson.getHomePhone());
@@ -89,8 +98,6 @@ public class MyProfile extends BasePage {
 		userProfile.setFavouriteQuotes(sakaiPerson.getFavouriteQuotes());
 		userProfile.setOtherInformation(sakaiPerson.getNotes());
 	
-		//TODO: make this picture section a different panel
-		
 		//what type of picture changing method do we use?
 		int profilePictureType = sakaiProxy.getProfilePictureType();
 		

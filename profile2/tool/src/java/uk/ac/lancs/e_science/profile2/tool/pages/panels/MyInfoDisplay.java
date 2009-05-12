@@ -46,10 +46,11 @@ public class MyInfoDisplay extends Panel {
 		
 		//get info from userProfile since we need to validate it and turn things off if not set.
 		//otherwise we could just use a propertymodel
-		String firstname = userProfile.getFirstName();
-		String middlename = userProfile.getMiddleName();
-		String lastname = userProfile.getLastName();
-		
+		/*
+		String firstName = userProfile.getFirstName();
+		String middleName = userProfile.getMiddleName();
+		String lastName = userProfile.getLastName();
+		*/
 		String nickname = userProfile.getNickname();
 		Date dateOfBirth = userProfile.getDateOfBirth();
 		if(dateOfBirth != null) {
@@ -73,17 +74,44 @@ public class MyInfoDisplay extends Panel {
 		//heading
 		add(new Label("heading", new ResourceModel("heading.basic")));
 		
-		//middlename
-		WebMarkupContainer middlenameContainer = new WebMarkupContainer("middlenameContainer");
-		middlenameContainer.add(new Label("middlenameLabel", new ResourceModel("profile.name.middle")));
-		middlenameContainer.add(new Label("middlename", middlename));
-		add(middlenameContainer);
-		if(StringUtils.isBlank(middlename)) {
-			middlenameContainer.setVisible(false);
+		//firstName
+		/*
+		WebMarkupContainer firstNameContainer = new WebMarkupContainer("firstNameContainer");
+		firstNameContainer.add(new Label("firstNameLabel", new ResourceModel("profile.name.first")));
+		firstNameContainer.add(new Label("firstName", firstName));
+		add(firstNameContainer);
+		if(StringUtils.isBlank(firstName)) {
+			firstNameContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
 		}
+		*/
 		
+		//middleName
+		/*
+		WebMarkupContainer middleNameContainer = new WebMarkupContainer("middleNameContainer");
+		middleNameContainer.add(new Label("middleNameLabel", new ResourceModel("profile.name.middle")));
+		middleNameContainer.add(new Label("middleName", middleName));
+		add(middleNameContainer);
+		if(StringUtils.isBlank(middleName)) {
+			middleNameContainer.setVisible(false);
+		} else {
+			visibleFieldCount++;
+		}
+		*/
+		
+		//lastName
+		/*
+		WebMarkupContainer lastNameContainer = new WebMarkupContainer("lastNameContainer");
+		lastNameContainer.add(new Label("lastNameLabel", new ResourceModel("profile.name.last")));
+		lastNameContainer.add(new Label("lastName", lastName));
+		add(lastNameContainer);
+		if(StringUtils.isBlank(lastName)) {
+			lastNameContainer.setVisible(false);
+		} else {
+			visibleFieldCount++;
+		}
+		*/
 		
 		
 		//nickname
