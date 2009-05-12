@@ -3,8 +3,9 @@ package uk.ac.lancs.e_science.profile2.tool.models;
 import java.io.Serializable;
 
 /**
- * Simple model to back a search.
- * To be used ONLY by the tool.
+ * Simple model to back a search. To be used only by the Profile2 tool.
+ * 
+ * <p>DO NOT USE THIS YOURSELF.</p>
  * 
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  */

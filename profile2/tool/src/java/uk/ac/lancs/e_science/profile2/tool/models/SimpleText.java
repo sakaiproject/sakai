@@ -3,9 +3,10 @@ package uk.ac.lancs.e_science.profile2.tool.models;
 import java.io.Serializable;
 
 /**
- * Simple model to back a simple single text field.
- * To be used ONLY by the tool.
+ * Simple model to back a simple single text field. To be used only by the Profile2 tool.
  * 
+ * <p>DO NOT USE THIS YOURSELF.</p>
+ *
  * TODO make this model replace the Search model
  * 
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
