@@ -71,12 +71,6 @@
   			</h:column>			
   		</h:dataTable>
 
-  		<br /><br />
-  		<h:panelGroup>
-  			<h:commandButton  value="#{mfStatisticsBean.buttonUserName}"  
-			               title="#{mfStatisticsBean.buttonUserName}">			               			
-			</h:commandButton>
-		</h:panelGroup>
   	</h:form>
   </sakai:view>
  </f:view>
