@@ -4,7 +4,9 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * Model for profile information to be used ONLY by the tool.
+ * Model for profile information which backs form updates. To be used only by the Profile2 tool.
+ * 
+ * <p>DO NOT USE THIS YOURSELF.</p>
  * 
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  */
@@ -17,6 +19,9 @@ public class UserProfile implements Serializable {
 	private String birthdayDisplay;
 	private Date dateOfBirth;
 	private String displayName;
+	private String firstName;
+	private String middleName;
+	private String lastName;
 	private String email;
 	private String position;
 	private String department;
@@ -74,6 +79,24 @@ public class UserProfile implements Serializable {
 		this.displayName = displayName;
 	}
 	
+	public String getFirstName() {
+		return firstName;
+	}
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+	public String getMiddleName() {
+		return middleName;
+	}
+	public void setMiddleName(String middleName) {
+		this.middleName = middleName;
+	}
+	public String getLastName() {
+		return lastName;
+	}
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
 	public String getEmail() {
 		return email;
 	}
