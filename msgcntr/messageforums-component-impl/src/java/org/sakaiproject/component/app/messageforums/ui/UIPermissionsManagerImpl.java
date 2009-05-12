@@ -1405,7 +1405,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
   	}
   	
   	Set topicItems = new HashSet();
-  	for(Iterator i = topicItems.iterator(); i.hasNext();) {
+  	for(Iterator i = topicItemsList.iterator(); i.hasNext();) {
   		DBMembershipItem topicItem = (DBMembershipItemImpl)i.next();
   		topicItems.add(topicItem);
   	}
