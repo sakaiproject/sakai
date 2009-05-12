@@ -45,6 +45,18 @@ public interface SakaiProxy {
 	public String getUserDisplayName(String userId);
 	
 	/**
+	 * Get firstname of a given userid (internal id)
+	 * @return
+	 */
+	public String getUserFirstName(String userId);
+	
+	/**
+	 * Get lastname of a given userid (internal id)
+	 * @return
+	 */
+	public String getUserLastName(String userId);
+	
+	/**
 	 * Get email address for a given userid (internal id)
 	 * @return
 	 */

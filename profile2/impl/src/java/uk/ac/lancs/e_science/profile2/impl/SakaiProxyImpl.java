@@ -110,6 +110,32 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
  	* {@inheritDoc}
  	*/
+	public String getUserFirstName(String userId) {
+		String email = null;
+		try {
+			email = userDirectoryService.getUser(userId).getFirstName();
+		} catch (UserNotDefinedException e) {
+			log.warn("Cannot get first name for id: " + userId + " : " + e.getClass() + " : " + e.getMessage());
+		}
+		return email;
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public String getUserLastName(String userId) {
+		String email = null;
+		try {
+			email = userDirectoryService.getUser(userId).getLastName();
+		} catch (UserNotDefinedException e) {
+			log.warn("Cannot get last name for id: " + userId + " : " + e.getClass() + " : " + e.getMessage());
+		}
+		return email;
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public String getUserEmail(String userId) {
 		String email = null;
 		try {
