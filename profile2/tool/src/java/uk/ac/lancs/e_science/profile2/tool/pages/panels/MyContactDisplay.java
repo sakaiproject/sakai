@@ -1,5 +1,6 @@
 package uk.ac.lancs.e_science.profile2.tool.pages.panels;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
@@ -38,7 +39,7 @@ public class MyContactDisplay extends Panel {
 		emailContainer.add(new Label("emailLabel", new ResourceModel("profile.email")));
 		emailContainer.add(new Label("email", email));
 		add(emailContainer);
-		if("".equals(email) || email == null) {
+		if(StringUtils.isBlank(email)) {
 			emailContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
@@ -49,7 +50,7 @@ public class MyContactDisplay extends Panel {
 		homepageContainer.add(new Label("homepageLabel", new ResourceModel("profile.homepage")));
 		homepageContainer.add(new Label("homepage", homepage));
 		add(homepageContainer);
-		if("".equals(homepage) || homepage == null) {
+		if(StringUtils.isBlank(homepage)) {
 			homepageContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
@@ -60,7 +61,7 @@ public class MyContactDisplay extends Panel {
 		workphoneContainer.add(new Label("workphoneLabel", new ResourceModel("profile.phone.work")));
 		workphoneContainer.add(new Label("workphone", workphone));
 		add(workphoneContainer);
-		if("".equals(workphone) || workphone == null) {
+		if(StringUtils.isBlank(workphone)) {
 			workphoneContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
@@ -71,7 +72,7 @@ public class MyContactDisplay extends Panel {
 		homephoneContainer.add(new Label("homephoneLabel", new ResourceModel("profile.phone.home")));
 		homephoneContainer.add(new Label("homephone", homephone));
 		add(homephoneContainer);
-		if("".equals(homephone) || homephone == null) {
+		if(StringUtils.isBlank(homephone)) {
 			homephoneContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
@@ -82,7 +83,7 @@ public class MyContactDisplay extends Panel {
 		mobilephoneContainer.add(new Label("mobilephoneLabel", new ResourceModel("profile.phone.mobile")));
 		mobilephoneContainer.add(new Label("mobilephone", mobilephone));
 		add(mobilephoneContainer);
-		if("".equals(mobilephone) || mobilephone == null) {
+		if(StringUtils.isBlank(mobilephone)) {
 			mobilephoneContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;

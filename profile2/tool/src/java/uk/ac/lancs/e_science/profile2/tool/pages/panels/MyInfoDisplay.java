@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.Date;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -45,6 +46,10 @@ public class MyInfoDisplay extends Panel {
 		
 		//get info from userProfile since we need to validate it and turn things off if not set.
 		//otherwise we could just use a propertymodel
+		String firstname = userProfile.getFirstName();
+		String middlename = userProfile.getMiddleName();
+		String lastname = userProfile.getLastName();
+		
 		String nickname = userProfile.getNickname();
 		Date dateOfBirth = userProfile.getDateOfBirth();
 		if(dateOfBirth != null) {
@@ -68,12 +73,25 @@ public class MyInfoDisplay extends Panel {
 		//heading
 		add(new Label("heading", new ResourceModel("heading.basic")));
 		
+		//middlename
+		WebMarkupContainer middlenameContainer = new WebMarkupContainer("middlenameContainer");
+		middlenameContainer.add(new Label("middlenameLabel", new ResourceModel("profile.name.middle")));
+		middlenameContainer.add(new Label("middlename", middlename));
+		add(middlenameContainer);
+		if(StringUtils.isBlank(middlename)) {
+			middlenameContainer.setVisible(false);
+		} else {
+			visibleFieldCount++;
+		}
+		
+		
+		
 		//nickname
 		WebMarkupContainer nicknameContainer = new WebMarkupContainer("nicknameContainer");
 		nicknameContainer.add(new Label("nicknameLabel", new ResourceModel("profile.nickname")));
 		nicknameContainer.add(new Label("nickname", nickname));
 		add(nicknameContainer);
-		if("".equals(nickname) || nickname == null) {
+		if(StringUtils.isBlank(nickname)) {
 			nicknameContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
@@ -84,7 +102,7 @@ public class MyInfoDisplay extends Panel {
 		birthdayContainer.add(new Label("birthdayLabel", new ResourceModel("profile.birthday")));
 		birthdayContainer.add(new Label("birthday", birthdayDisplay));
 		add(birthdayContainer);
-		if("".equals(birthdayDisplay) || birthdayDisplay == null) {
+		if(StringUtils.isBlank(birthdayDisplay)) {
 			birthdayContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;

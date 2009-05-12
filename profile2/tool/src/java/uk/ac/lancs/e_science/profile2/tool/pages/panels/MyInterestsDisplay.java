@@ -1,5 +1,6 @@
 package uk.ac.lancs.e_science.profile2.tool.pages.panels;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -43,7 +44,7 @@ public class MyInterestsDisplay extends Panel {
 		booksContainer.add(new Label("booksLabel", new ResourceModel("profile.favourite.books")));
 		booksContainer.add(new Label("favouriteBooks", favouriteBooks));
 		add(booksContainer);
-		if("".equals(favouriteBooks) || favouriteBooks == null) {
+		if(StringUtils.isBlank(favouriteBooks)) {
 			booksContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
@@ -54,7 +55,7 @@ public class MyInterestsDisplay extends Panel {
 		tvContainer.add(new Label("tvLabel", new ResourceModel("profile.favourite.tv")));
 		tvContainer.add(new Label("favouriteTvShows", favouriteTvShows));
 		add(tvContainer);
-		if("".equals(favouriteTvShows) || favouriteTvShows == null) {
+		if(StringUtils.isBlank(favouriteTvShows)) {
 			tvContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
@@ -65,7 +66,7 @@ public class MyInterestsDisplay extends Panel {
 		moviesContainer.add(new Label("moviesLabel", new ResourceModel("profile.favourite.movies")));
 		moviesContainer.add(new Label("favouriteMovies", favouriteMovies));
 		add(moviesContainer);
-		if("".equals(favouriteMovies) || favouriteMovies == null) {
+		if(StringUtils.isBlank(favouriteMovies)) {
 			moviesContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
@@ -76,7 +77,7 @@ public class MyInterestsDisplay extends Panel {
 		quotesContainer.add(new Label("quotesLabel", new ResourceModel("profile.favourite.quotes")));
 		quotesContainer.add(new Label("favouriteQuotes", favouriteQuotes));
 		add(quotesContainer);
-		if("".equals(favouriteQuotes) || favouriteQuotes == null) {
+		if(StringUtils.isBlank(favouriteQuotes)) {
 			quotesContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
@@ -87,7 +88,7 @@ public class MyInterestsDisplay extends Panel {
 		otherContainer.add(new Label("otherLabel", new ResourceModel("profile.other")));
 		otherContainer.add(new Label("otherInformation", otherInformation));
 		add(otherContainer);
-		if("".equals(otherInformation) || otherInformation == null) {
+		if(StringUtils.isBlank(otherInformation)) {
 			otherContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
