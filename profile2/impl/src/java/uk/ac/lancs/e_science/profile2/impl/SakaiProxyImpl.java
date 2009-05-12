@@ -523,7 +523,6 @@ public class SakaiProxyImpl implements SakaiProxy {
  	* {@inheritDoc}
  	*/
 	public void updateEmailForUser(String userId, String email) {
-		
 		try {
 			UserEdit userEdit = null;
 			userEdit = userDirectoryService.editUser(userId);
@@ -537,6 +536,24 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 	}
 
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public void updateNameForUser(String userId, String firstName, String lastName) {
+		try {
+			UserEdit userEdit = null;
+			userEdit = userDirectoryService.editUser(userId);
+			userEdit.setFirstName(firstName);
+			userEdit.setLastName(lastName);
+			userDirectoryService.commitEdit(userEdit);
+			
+			log.info("User name details updated for: " + userId);
+		}
+		catch (Exception e) {  
+			log.error("SakaiProxy.updateNameForUser() failed for userId: " + userId + " : " + e.getClass() + " : " + e.getMessage());
+		}
+	}
 
 	
 	/**

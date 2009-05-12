@@ -196,13 +196,22 @@ public interface SakaiProxy {
 	/**
 	 * Updates a user's email address
 	 * If the user is a provided user (ie from LDAP) this will probably fail
-	 * so only internal accounts can be updated. That's ok since LDAP accounts will always 
-	 * have an email address associated with tehm (most likely ;)
+	 * so only internal accounts can be updated.
 	 * 
 	 * @param userId	uuid of the user
 	 * @param email	
 	 */
 	public void updateEmailForUser(String userId, String email);
+	
+	/**
+	 * Updates a user's name
+	 * If the user is a provided user (ie from LDAP) this will probably fail
+	 * so only internal accounts can be updated.
+	 * 
+	 * @param userId	uuid of the user
+	 * @param email	
+	 */
+	public void updateNameForUser(String userId, String firstName, String lastName);
 	
 	
 	/**
