@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.Date;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageParameters;
@@ -125,7 +126,7 @@ public class ViewProfile extends BasePage {
 		
 		//get the message
 		String statusMessage = profileStatus.getMessage();
-		if("".equals(statusMessage) || statusMessage == null){
+		if(StringUtils.isBlank(statusMessage)){
 			statusContainer.setVisible(false);
 			statusMessage = "";
 		} 
@@ -196,7 +197,7 @@ public class ViewProfile extends BasePage {
 		nicknameContainer.add(new Label("nicknameLabel", new ResourceModel("profile.nickname")));
 		nicknameContainer.add(new Label("nickname", nickname));
 		basicInfoContainer.add(nicknameContainer);
-		if("".equals(nickname) || nickname == null) {
+		if(StringUtils.isBlank(nickname)) {
 			nickname=""; //for the 'add friend' link
 			nicknameContainer.setVisible(false);
 		} else {
@@ -208,7 +209,7 @@ public class ViewProfile extends BasePage {
 		birthdayContainer.add(new Label("birthdayLabel", new ResourceModel("profile.birthday")));
 		birthdayContainer.add(new Label("birthday", birthday));
 		basicInfoContainer.add(birthdayContainer);
-		if("".equals(birthday) || birthday == null) {
+		if(StringUtils.isBlank(birthday)) {
 			birthdayContainer.setVisible(false);
 		} else {
 			visibleFieldCount_basic++;
@@ -239,6 +240,8 @@ public class ViewProfile extends BasePage {
 		String workphone = sakaiPerson.getTelephoneNumber();
 		String homephone = sakaiPerson.getHomePhone();
 		String mobilephone = sakaiPerson.getMobile();
+		String facsimile = sakaiPerson.getFacsimileTelephoneNumber();
+		
 		int visibleFieldCount_contact = 0;
 		
 		//heading
@@ -249,7 +252,7 @@ public class ViewProfile extends BasePage {
 		emailContainer.add(new Label("emailLabel", new ResourceModel("profile.email")));
 		emailContainer.add(new Label("email", email));
 		contactInfoContainer.add(emailContainer);
-		if("".equals(email) || email == null) {
+		if(StringUtils.isBlank(email)) {
 			emailContainer.setVisible(false);
 		} else {
 			visibleFieldCount_contact++;
@@ -260,7 +263,7 @@ public class ViewProfile extends BasePage {
 		homepageContainer.add(new Label("homepageLabel", new ResourceModel("profile.homepage")));
 		homepageContainer.add(new Label("homepage", homepage));
 		contactInfoContainer.add(homepageContainer);
-		if("".equals(homepage) || homepage == null) {
+		if(StringUtils.isBlank(homepage)) {
 			homepageContainer.setVisible(false);
 		} else {
 			visibleFieldCount_contact++;
@@ -271,7 +274,7 @@ public class ViewProfile extends BasePage {
 		workphoneContainer.add(new Label("workphoneLabel", new ResourceModel("profile.phone.work")));
 		workphoneContainer.add(new Label("workphone", workphone));
 		contactInfoContainer.add(workphoneContainer);
-		if("".equals(workphone) || workphone == null) {
+		if(StringUtils.isBlank(workphone)) {
 			workphoneContainer.setVisible(false);
 		} else {
 			visibleFieldCount_contact++;
@@ -282,7 +285,7 @@ public class ViewProfile extends BasePage {
 		homephoneContainer.add(new Label("homephoneLabel", new ResourceModel("profile.phone.home")));
 		homephoneContainer.add(new Label("homephone", homephone));
 		contactInfoContainer.add(homephoneContainer);
-		if("".equals(homephone) || homephone == null) {
+		if(StringUtils.isBlank(homephone)) {
 			homephoneContainer.setVisible(false);
 		} else {
 			visibleFieldCount_contact++;
@@ -293,8 +296,19 @@ public class ViewProfile extends BasePage {
 		mobilephoneContainer.add(new Label("mobilephoneLabel", new ResourceModel("profile.phone.mobile")));
 		mobilephoneContainer.add(new Label("mobilephone", mobilephone));
 		contactInfoContainer.add(mobilephoneContainer);
-		if("".equals(mobilephone) || mobilephone == null) {
+		if(StringUtils.isBlank(mobilephone)) {
 			mobilephoneContainer.setVisible(false);
+		} else {
+			visibleFieldCount_contact++;
+		}
+		
+		//facsimile
+		WebMarkupContainer facsimileContainer = new WebMarkupContainer("facsimileContainer");
+		facsimileContainer.add(new Label("facsimileLabel", new ResourceModel("profile.phone.facsimile")));
+		facsimileContainer.add(new Label("facsimile", facsimile));
+		contactInfoContainer.add(facsimileContainer);
+		if(StringUtils.isBlank(facsimile)) {
+			facsimileContainer.setVisible(false);
 		} else {
 			visibleFieldCount_contact++;
 		}
@@ -335,7 +349,7 @@ public class ViewProfile extends BasePage {
 		booksContainer.add(new Label("booksLabel", new ResourceModel("profile.favourite.books")));
 		booksContainer.add(new Label("favouriteBooks", favouriteBooks));
 		personalInfoContainer.add(booksContainer);
-		if("".equals(favouriteBooks) || favouriteBooks == null) {
+		if(StringUtils.isBlank(favouriteBooks)) {
 			booksContainer.setVisible(false);
 		} else {
 			visibleFieldCount_personal++;
@@ -346,7 +360,7 @@ public class ViewProfile extends BasePage {
 		tvContainer.add(new Label("tvLabel", new ResourceModel("profile.favourite.tv")));
 		tvContainer.add(new Label("favouriteTvShows", favouriteTvShows));
 		personalInfoContainer.add(tvContainer);
-		if("".equals(favouriteTvShows) || favouriteTvShows == null) {
+		if(StringUtils.isBlank(favouriteTvShows)) {
 			tvContainer.setVisible(false);
 		} else {
 			visibleFieldCount_personal++;
@@ -357,7 +371,7 @@ public class ViewProfile extends BasePage {
 		moviesContainer.add(new Label("moviesLabel", new ResourceModel("profile.favourite.movies")));
 		moviesContainer.add(new Label("favouriteMovies", favouriteMovies));
 		personalInfoContainer.add(moviesContainer);
-		if("".equals(favouriteMovies) || favouriteMovies == null) {
+		if(StringUtils.isBlank(favouriteMovies)) {
 			moviesContainer.setVisible(false);
 		} else {
 			visibleFieldCount_personal++;
@@ -368,7 +382,7 @@ public class ViewProfile extends BasePage {
 		quotesContainer.add(new Label("quotesLabel", new ResourceModel("profile.favourite.quotes")));
 		quotesContainer.add(new Label("favouriteQuotes", favouriteQuotes));
 		personalInfoContainer.add(quotesContainer);
-		if("".equals(favouriteQuotes) || favouriteQuotes == null) {
+		if(StringUtils.isBlank(favouriteQuotes)) {
 			quotesContainer.setVisible(false);
 		} else {
 			visibleFieldCount_personal++;
@@ -379,7 +393,7 @@ public class ViewProfile extends BasePage {
 		otherContainer.add(new Label("otherLabel", new ResourceModel("profile.other")));
 		otherContainer.add(new Label("otherInformation", otherInformation));
 		personalInfoContainer.add(otherContainer);
-		if("".equals(otherInformation) || otherInformation == null) {
+		if(StringUtils.isBlank(otherInformation)) {
 			otherContainer.setVisible(false);
 		} else {
 			visibleFieldCount_personal++;

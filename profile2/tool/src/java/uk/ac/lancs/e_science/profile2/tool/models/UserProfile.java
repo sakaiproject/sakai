@@ -31,6 +31,7 @@ public class UserProfile implements Serializable {
 	private String workphone;
 	private String homephone;
 	private String mobilephone;
+	private String facsimile;
 	private String favouriteBooks;
 	private String favouriteTvShows;
 	private String favouriteMovies;
@@ -153,8 +154,12 @@ public class UserProfile implements Serializable {
 	public void setMobilephone(String mobilephone) {
 		this.mobilephone = mobilephone;
 	}
-	
-	
+	public void setFacsimile(String facsimile) {
+		this.facsimile = facsimile;
+	}
+	public String getFacsimile() {
+		return facsimile;
+	}
 	public String getFavouriteBooks() {
 		return favouriteBooks;
 	}

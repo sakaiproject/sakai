@@ -123,6 +123,13 @@ public class MyContactEdit extends Panel {
 		mobilephoneContainer.add(mobilephone);
 		form.add(mobilephoneContainer);
 		
+		//facsimile
+		WebMarkupContainer facsimileContainer = new WebMarkupContainer("facsimileContainer");
+		facsimileContainer.add(new Label("facsimileLabel", new ResourceModel("profile.phone.facsimile")));
+		TextField facsimile = new TextField("facsimile", new PropertyModel(userProfile, "facsimile"));
+		facsimileContainer.add(facsimile);
+		form.add(facsimileContainer);
+		
 		//submit button
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.save.changes"), form) {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
@@ -200,6 +207,7 @@ public class MyContactEdit extends Panel {
 		sakaiPerson.setTelephoneNumber(userProfile.getWorkphone()); //workphone
 		sakaiPerson.setHomePhone(userProfile.getHomephone()); //homephone
 		sakaiPerson.setMobile(userProfile.getMobilephone()); //mobilephone
+		sakaiPerson.setFacsimileTelephoneNumber(userProfile.getFacsimile()); //facsimile
 
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
 			log.info("Saved SakaiPerson for: " + userId );

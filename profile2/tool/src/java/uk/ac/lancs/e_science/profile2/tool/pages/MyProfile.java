@@ -81,17 +81,21 @@ public class MyProfile extends BasePage {
 				
 		//get rest of values from SakaiPerson and setup UserProfile
 		userProfile.setUserId(userId);
+		
 		userProfile.setNickname(sakaiPerson.getNickname());
 		userProfile.setDateOfBirth(sakaiPerson.getDateOfBirth());
 		userProfile.setDisplayName(userDisplayName);
 		//userProfile.setFirstName(userFirstName);
 		//userProfile.setLastName(userLastName);
 		//userProfile.setMiddleName(sakaiPerson.getInitials());
+		
 		userProfile.setEmail(userEmail);
 		userProfile.setHomepage(sakaiPerson.getLabeledURI());
 		userProfile.setHomephone(sakaiPerson.getHomePhone());
 		userProfile.setWorkphone(sakaiPerson.getTelephoneNumber());
 		userProfile.setMobilephone(sakaiPerson.getMobile());
+		userProfile.setFacsimile(sakaiPerson.getFacsimileTelephoneNumber());
+		
 		userProfile.setFavouriteBooks(sakaiPerson.getFavouriteBooks());
 		userProfile.setFavouriteTvShows(sakaiPerson.getFavouriteTvShows());
 		userProfile.setFavouriteMovies(sakaiPerson.getFavouriteMovies());

@@ -29,6 +29,7 @@ public class MyContactDisplay extends Panel {
 		String workphone = userProfile.getWorkphone();
 		String homephone = userProfile.getHomephone();
 		String mobilephone = userProfile.getMobilephone();
+		String facsimile = userProfile.getFacsimile();
 
 
 		//heading
@@ -85,6 +86,17 @@ public class MyContactDisplay extends Panel {
 		add(mobilephoneContainer);
 		if(StringUtils.isBlank(mobilephone)) {
 			mobilephoneContainer.setVisible(false);
+		} else {
+			visibleFieldCount++;
+		}
+		
+		//facsimile
+		WebMarkupContainer facsimileContainer = new WebMarkupContainer("facsimileContainer");
+		facsimileContainer.add(new Label("facsimileLabel", new ResourceModel("profile.phone.facsimile")));
+		facsimileContainer.add(new Label("facsimile", facsimile));
+		add(facsimileContainer);
+		if(StringUtils.isBlank(facsimile)) {
+			facsimileContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
 		}
