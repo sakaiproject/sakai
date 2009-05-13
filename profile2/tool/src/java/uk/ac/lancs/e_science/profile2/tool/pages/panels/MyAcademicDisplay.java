@@ -1,0 +1,110 @@
+package uk.ac.lancs.e_science.profile2.tool.pages.panels;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
+import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.ResourceModel;
+
+import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
+
+public class MyAcademicDisplay extends Panel {
+	
+	private static final long serialVersionUID = 1L;
+	private int visibleFieldCount = 0;
+	
+	public MyAcademicDisplay(final String id, final UserProfile userProfile) {
+		super(id);
+		
+		//this panel stuff
+		final Component thisPanel = this;
+		
+		//get info from userProfile
+		String department = userProfile.getDepartment();
+		String position = userProfile.getPosition();
+		String school = userProfile.getSchool();
+		String room = userProfile.getRoom();
+		
+		//heading
+		add(new Label("heading", new ResourceModel("heading.academic")));
+		
+		//department
+		WebMarkupContainer departmentContainer = new WebMarkupContainer("departmentContainer");
+		departmentContainer.add(new Label("departmentLabel", new ResourceModel("profile.department")));
+		departmentContainer.add(new Label("department", department));
+		add(departmentContainer);
+		if(StringUtils.isBlank(department)) {
+			departmentContainer.setVisible(false);
+		} else {
+			visibleFieldCount++;
+		}
+		
+		//position
+		WebMarkupContainer positionContainer = new WebMarkupContainer("positionContainer");
+		positionContainer.add(new Label("positionLabel", new ResourceModel("profile.position")));
+		positionContainer.add(new Label("position", position));
+		add(positionContainer);
+		if(StringUtils.isBlank(position)) {
+			positionContainer.setVisible(false);
+		} else {
+			visibleFieldCount++;
+		}
+		
+		//school
+		WebMarkupContainer schoolContainer = new WebMarkupContainer("schoolContainer");
+		schoolContainer.add(new Label("schoolLabel", new ResourceModel("profile.school")));
+		schoolContainer.add(new Label("school", school));
+		add(schoolContainer);
+		if(StringUtils.isBlank(school)) {
+			schoolContainer.setVisible(false);
+		} else {
+			visibleFieldCount++;
+		}
+		
+		//room
+		WebMarkupContainer roomContainer = new WebMarkupContainer("roomContainer");
+		roomContainer.add(new Label("roomLabel", new ResourceModel("profile.room")));
+		roomContainer.add(new Label("room", room));
+		add(roomContainer);
+		if(StringUtils.isBlank(room)) {
+			roomContainer.setVisible(false);
+		} else {
+			visibleFieldCount++;
+		}
+		
+				
+		//edit button
+		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton", new ResourceModel("button.edit")) {
+			
+			private static final long serialVersionUID = 1L;
+
+			public void onClick(AjaxRequestTarget target) {
+				Component newPanel = new MyAcademicEdit(id, userProfile);
+				newPanel.setOutputMarkupId(true);
+				thisPanel.replaceWith(newPanel);
+				if(target != null) {
+					target.addComponent(newPanel);
+					//resize iframe
+					target.appendJavascript("setMainFrameHeight(window.name);");
+				}
+				
+			}
+						
+		};
+		editButton.add(new Label("editButtonLabel", new ResourceModel("button.edit")));
+		editButton.setOutputMarkupId(true);
+		add(editButton);
+		
+		//no fields message
+		Label noFieldsMessage = new Label("noFieldsMessage", new ResourceModel("text.no.fields"));
+		add(noFieldsMessage);
+		if(visibleFieldCount > 0) {
+			noFieldsMessage.setVisible(false);
+		}
+		
+	}
+	
+}

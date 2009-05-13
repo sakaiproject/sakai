@@ -22,6 +22,7 @@ import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.ChangeProfilePictureUpload;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.ChangeProfilePictureUrl;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.FriendsFeed;
+import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyAcademicDisplay;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyContactDisplay;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyInfoDisplay;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyInterestsDisplay;
@@ -96,6 +97,11 @@ public class MyProfile extends BasePage {
 		userProfile.setMobilephone(sakaiPerson.getMobile());
 		userProfile.setFacsimile(sakaiPerson.getFacsimileTelephoneNumber());
 		
+		userProfile.setDepartment(sakaiPerson.getOrganizationalUnit());
+		userProfile.setPosition(sakaiPerson.getTitle());
+		userProfile.setSchool(sakaiPerson.getCampus());
+		userProfile.setRoom(sakaiPerson.getRoomNumber());
+		
 		userProfile.setFavouriteBooks(sakaiPerson.getFavouriteBooks());
 		userProfile.setFavouriteTvShows(sakaiPerson.getFavouriteTvShows());
 		userProfile.setFavouriteMovies(sakaiPerson.getFavouriteMovies());
@@ -169,6 +175,11 @@ public class MyProfile extends BasePage {
 		Panel myContactDisplay = new MyContactDisplay("myContact", userProfile);
 		myContactDisplay.setOutputMarkupId(true);
 		add(myContactDisplay);
+		
+		//academic panel - load the display version by default
+		Panel myAcademicDisplay = new MyAcademicDisplay("myAcademic", userProfile);
+		myAcademicDisplay.setOutputMarkupId(true);
+		add(myAcademicDisplay);
 		
 		//interests panel - load the display version by default
 		Panel myInterestsDisplay = new MyInterestsDisplay("myInterests", userProfile);

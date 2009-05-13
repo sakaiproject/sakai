@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html  
+      xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.sourceforge.net/"  
+      xml:lang="en"  
+      lang="en">
+<body>
+
+<wicket:panel>	
+	
+
+	<div class="mainSection">
+		<div class="mainSectionHeading"><span wicket:id="heading">[Academic Information]</span></div>
+		
+		<div class="mainSectionContentForm">	
+
+			<form wicket:id="form" class="profileForm">
+				<!-- 
+				<div wicket:id="feedback"></div>
+				-->
+				
+				<div class="formSectionHeading">[twitter integration]</div>
+				<div class="formSectionText">[twitterSectionText]</div>
+				
+				<table class="profileContent">
+					
+					<!-- position -->
+					<tr wicket:id="positionContainer">
+						<td class="label" wicket:id="positionLabel">[positionLabel]</td>
+						<td class="content"><input type="text" wicket:id="position" class="formInputField" /></td>
+					</tr>
+					
+					<!-- department -->
+					<tr wicket:id="departmentContainer">
+						<td class="label" wicket:id="departmentLabel">[departmentLabel]</td>
+						<td class="content"><input type="text" wicket:id="department" class="formInputField" /></td>
+					</tr>
+					
+					<!-- school -->
+					<tr wicket:id="schoolContainer">
+						<td class="label" wicket:id="schoolLabel">[schoolLabel]</td>
+						<td class="content"><input type="text" wicket:id="school" class="formInputField" /></td>
+					</tr>
+					
+					<!-- room -->
+					<tr wicket:id="roomContainer">
+						<td class="label" wicket:id="roomLabel">[roomLabel]</td>
+						<td class="content"><input type="text" wicket:id="room" class="formInputField" /></td>
+					</tr>
+					
+					
+				</table>
+				
+				<div class="profileFormButtons">
+					<input type="submit" wicket:id="submit" value="Save changes" />
+					<input type="button" wicket:id="cancel" value="Cancel"/>
+				</div>
+				
+			</form>	
+		</div>
+	</div>
+	
+
+</wicket:panel>
+	
+	
+</body>
+</html>
+

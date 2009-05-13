@@ -323,6 +323,80 @@ public class ViewProfile extends BasePage {
 		}
 		
 		
+		/* ACADEMIC INFO */
+		
+		// privacy settings for contact info
+		//boolean isAcademicInfoAllowed = profile.isUserXContactInfoVisibleByUserY(userUuid, currentUserId, friend);
+		boolean isAcademicInfoAllowed = true;
+		
+		WebMarkupContainer academicInfoContainer = new WebMarkupContainer("mainSectionContainer_academic");
+		academicInfoContainer.setOutputMarkupId(true);
+		
+		//get info
+		String department = sakaiPerson.getOrganizationalUnit();
+		String position = sakaiPerson.getTitle();
+		String school = sakaiPerson.getCampus();
+		String room = sakaiPerson.getRoomNumber();
+		
+		int visibleFieldCount_academic = 0;
+		
+		//heading
+		academicInfoContainer.add(new Label("mainSectionHeading_academic", new ResourceModel("heading.academic")));
+		
+		//department
+		WebMarkupContainer departmentContainer = new WebMarkupContainer("departmentContainer");
+		departmentContainer.add(new Label("departmentLabel", new ResourceModel("profile.department")));
+		departmentContainer.add(new Label("department", department));
+		academicInfoContainer.add(departmentContainer);
+		if(StringUtils.isBlank(department)) {
+			departmentContainer.setVisible(false);
+		} else {
+			visibleFieldCount_academic++;
+		}
+		
+		//position
+		WebMarkupContainer positionContainer = new WebMarkupContainer("positionContainer");
+		positionContainer.add(new Label("positionLabel", new ResourceModel("profile.position")));
+		positionContainer.add(new Label("position", position));
+		academicInfoContainer.add(positionContainer);
+		if(StringUtils.isBlank(position)) {
+			positionContainer.setVisible(false);
+		} else {
+			visibleFieldCount_academic++;
+		}
+		
+		//school
+		WebMarkupContainer schoolContainer = new WebMarkupContainer("schoolContainer");
+		schoolContainer.add(new Label("schoolLabel", new ResourceModel("profile.school")));
+		schoolContainer.add(new Label("school", school));
+		academicInfoContainer.add(schoolContainer);
+		if(StringUtils.isBlank(school)) {
+			schoolContainer.setVisible(false);
+		} else {
+			visibleFieldCount_academic++;
+		}
+		
+		//room
+		WebMarkupContainer roomContainer = new WebMarkupContainer("roomContainer");
+		roomContainer.add(new Label("roomLabel", new ResourceModel("profile.room")));
+		roomContainer.add(new Label("room", room));
+		academicInfoContainer.add(roomContainer);
+		if(StringUtils.isBlank(room)) {
+			roomContainer.setVisible(false);
+		} else {
+			visibleFieldCount_academic++;
+		}
+		
+		add(academicInfoContainer);
+		
+		//if nothing/not allowed, hide whole panel
+		if(visibleFieldCount_academic == 0 || !isAcademicInfoAllowed) {
+			academicInfoContainer.setVisible(false);
+		} else {
+			visibleContainerCount++;
+		}
+		
+		
 		
 		
 		/* PERSONAL INFO */
