@@ -66,13 +66,14 @@
   <div class="tier1">
 <p>
 <h:outputLink title="#{templateMessages.t_showDivs}" value="#" onclick="showDivs();" onkeypress="showDivs();" >
+<h:outputText value="#{templateMessages.allMenus0}"/>
 <h:outputText value="#{templateMessages.open}"/>
 </h:outputLink>
 <h:outputText value=" | " />
 <h:outputLink title="#{templateMessages.t_hideDivs}" value="#" onclick="hideDivs();" onkeypress="hideDivs();">
 <h:outputText value="#{templateMessages.close}"/>
 </h:outputLink>
- <h:outputText value="#{templateMessages.allMenus}"/>
+<h:outputText value="#{templateMessages.allMenus}"/>
 </p>
   <samigo:hideDivision id="div1" title="#{templateMessages.template_inform}" >
     <div class="tier2">

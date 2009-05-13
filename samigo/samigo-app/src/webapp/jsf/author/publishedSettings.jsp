@@ -209,6 +209,7 @@ function checkUncheckTimeBox(){
   <!-- *** GENERAL TEMPLATE INFORMATION *** -->
 
 <h:outputLink value="#" title="#{templateMessages.t_showDivs}" onclick="showDivs();" onkeypress="showDivs();">
+<h:outputText value="#{templateMessages.allMenus0}"/>
 <h:outputText value="#{templateMessages.open}"/>
 </h:outputLink>
 <h:outputText value=" | " />
