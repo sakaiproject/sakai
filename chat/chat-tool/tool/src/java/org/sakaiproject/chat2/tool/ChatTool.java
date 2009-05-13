@@ -520,30 +520,6 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       }
    }
    
-   public String processActionSubmitMessage()
-   {
-      try {
-         ChatMessage message = getChatManager().createNewMessage(
-               getCurrentChannel().getChatChannel(), SessionManager.getCurrentSessionUserId());
-         message.setBody( FormattedText.convertPlaintextToFormattedText(newMessageText));
-         if (!newMessageText.equals("")) {
-            newMessageText = "";
-            getChatManager().updateMessage(message);
-            getChatManager().sendMessage(message);
-         }
-         return PAGE_ROOM_CONTROL;
-      }
-      catch (PermissionException e) {
-         setErrorMessage(PERMISSION_ERROR, new String[] {ChatFunctions.CHAT_FUNCTION_NEW});
-         return "";
-      }
-   }
-   
-   public String processActionResetMessage()
-   {
-      newMessageText = "";
-      return PAGE_ROOM_CONTROL;
-   }
    public String processActionPermissions()
    {
       ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
@@ -564,8 +540,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       }
       return null;
    }
-   
-  
+     
    public String processActionSynopticOptions() {
       DecoratedSynopticOptions dso = lookupSynopticOptions();
       setCurrentSynopticOptions(dso);

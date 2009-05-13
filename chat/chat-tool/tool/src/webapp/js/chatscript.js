@@ -1,9 +1,9 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/presence/trunk/presence-util/util/src/java/org/sakaiproject/util/PresenceObservingCourier.java $
- * $Id: PresenceObservingCourier.java 8204 2006-04-24 19:35:57Z ggolden@umich.edu $
+ * $URL: $
+ * $Id: $
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008, 2009 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,13 @@
  *
  **********************************************************************************/
 
-// add a message to the chat list from chef_chat-List.vm 
+// add a message to the chat list from chef_chat-List.vm
 function appendMessage(uname, uid, removeable, pdate, ptime, pid, msg, msgId)
 {
 	var undefined;
-	var position = 100000, docheight = 0, frameheight = 300;	  
+	var position = 100000, docheight = 0, frameheight = 300;
 	var transcript = document.getElementById("topForm:chatList");
-	
+
 	// compose the time/date according to user preferences for this session
 	var msgTime = "";
 	if(window.display_date && window.display_time)
@@ -44,7 +44,7 @@ function appendMessage(uname, uid, removeable, pdate, ptime, pid, msg, msgId)
 	{
 		msgTime = " (" + pid + ") " ;
 	}
-	
+
 
 	var newDiv = document.createElement('li');
 	var color = ColorMap[uid];
@@ -57,16 +57,16 @@ function appendMessage(uname, uid, removeable, pdate, ptime, pid, msg, msgId)
 			nextColor = 0;
 		}
 	}
-	
+
 	var deleteHtml = "";
 	if (removeable == "true")
 	{
 		newComponentId = $(transcript).children("li").size();
 		var builtId = "topForm:chatList:" + newComponentId + ":deleteMessage";
 		var tmpdeleteUrl = deleteUrl + msgId;
-		deleteHtml = 
+		deleteHtml =
 			" <a id=\"" + builtId + "\" href=\"#\" onclick=\"location.href='" + tmpdeleteUrl + "'\" title=\"" + deleteMsg + "\" >" +
-			"<img src=\"/library/image/sakai/delete.gif\" border=\"0\" alt=\"" + deleteMsg + "\" /></a>";
+			"<img src=\"/library/image/sakai/delete.gif\" style=\"margin-bottom:-2px;\" border=\"0\" alt=\"" + deleteMsg + "\" /></a>";
 	}
 
 	newDiv.innerHTML = '<span style="color: ' + color + '">' + uname + '</span>'
@@ -79,13 +79,88 @@ function appendMessage(uname, uid, removeable, pdate, ptime, pid, msg, msgId)
 	var objDiv = document.getElementById("Monitor");
    objDiv.scrollTop = objDiv.scrollHeight;
 
-}
+}                           
 
-//fix for double click stack traces in IE
-doubleclick_disabler = function(){
-	this.form.submit();
-	this.onclick="return false;";
-}
-$(document).ready(function(){
-   $("input[@type=button], input[@type=submit]").bind("click", doubleclick_disabler);
-});
+//Library to ajaxify the Chatroom message submit action
+	$(document).ready(function() {
+        //resize horizontal chat area to get rid of horizontal scrollbar in IE
+        if($.browser.msie){
+           $(".chatList").width('93%');
+        }
+	    var options = {
+	        //RESTful submit URL
+	        url_submit: '/direct/chat-message/new',
+	        control_key: 13,
+            dom_button_submit_raw: document.getElementById("controlPanel:submit"),
+            dom_button_submit: $(document.getElementById("controlPanel:submit")),
+	        dom_button_reset: $(document.getElementById("controlPanel:reset")),
+	        dom_textarea: $(document.getElementById("controlPanel:message")),
+	        channelId: document.getElementById("topForm:chatidhidden").value,
+	        enterKeyCheck:''
+	    };
+        
+	    //Bind button submit action
+	    options.dom_button_submit.bind('click', function() {
+	    	options.dom_button_submit_raw.disabled = true;
+	    	var params = [{
+	            name:"chatChannelId", value:options.channelId
+	            },{
+	            name:"body", value:options.dom_textarea.val()
+	        }];
+	        if(options.channelId == null || options.channelId == "" ||
+                options.dom_textarea.val() == null || options.dom_textarea.val() == ""){
+                 options.dom_textarea.focus();
+                 options.dom_button_submit_raw.disabled = false;
+                 return false;
+             }
+             if(options.dom_textarea.val().replace(/\n/g, "").replace(/ /g, "").length == 0){
+                     options.dom_textarea
+                        .val("")
+                        .focus();
+                     options.dom_button_submit_raw.disabled = false;
+                   return false;
+            }
+            $.ajax({
+	            url: options.url_submit,
+	            data: params,
+	            type: "POST",
+	            beforeSend: function() {
+	                 $("#errorSubmit").slideUp('fast');
+                },
+	            error: function(xhr, ajaxOptions, thrownError) {
+	                $("#errorSubmit").slideDown('fast');
+	                options.dom_textarea.focus();
+	                options.dom_button_submit_raw.disabled = false;
+	                return false;
+	            },
+	            success: function(data) {
+	                //Run dom update from headscripts.js
+	               try { updateNow(); } catch (error) {alert(error);}
+                    options.dom_textarea
+	                    .val("")
+	                    .focus();
+	                options.dom_button_submit_raw.disabled = false;
+	                return false;
+	            }
+	        });
+            return false;
+	    });
+        //Avoid submitting on mouse click in textarea
+        options.dom_textarea.bind('click', function(){
+	        return false;
+	    });
+	    //Bind textarea keypress to submit btn
+	    options.dom_textarea.keydown(function(e){
+	        var key = e.charCode || e.keyCode || 0;
+	        if( options.control_key == key && !options.dom_button_submit_raw.disabled ){
+              options.dom_button_submit.trigger('click');
+	          return false;
+	        }
+	    });
+	    options.dom_button_reset.bind('click', function(){
+	        options.dom_textarea
+	                .val("")
+	                .focus();
+	        return false;
+	    });
+	});

@@ -1,16 +1,19 @@
 <f:view>
    <sakai:view title="#{msgs['custom.chatroom']}">
-      <h:form id="topForm">
-      <h:inputHidden id="chatidhidden" value="#{ChatTool.currentChatChannelId}" />
-      <script type="text/javascript">
-	//focus_path = [ "Control", "mainForm:message" ];
-
+     <script type="text/javascript">
+	focus_path = ["controlPanel:message"];
+    doubleDeep = true;
 </script>
+<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+<sakai:script contextBase="/library" path="/js/jquery.js" />
+<sakai:script contextBase="/sakai-chat-tool" path="/js/chatscript.js"/>
 <script type="text/javascript">
-	window.frameElement.className='wcwmenu'
+	window.frameElement.className='wcwmenu';
 </script>
+<h:form id="topForm">
+      <h:inputHidden id="chatidhidden" value="#{ChatTool.currentChatChannelId}" />
 
-      
+
          <sakai:tool_bar rendered="#{ChatTool.canManageTool || ChatTool.siteChannelCount > 1 || ChatTool.maintainer}">
             <h:commandLink action="#{ChatTool.processActionListRooms}" rendered="#{ChatTool.canManageTool}">
                <h:outputText value="#{msgs.manage_tool}" />
@@ -80,21 +83,29 @@
 					src="roomUsers?channel=<h:outputText value="#{ChatTool.currentChatChannelId}" />">
 				</iframe>
 			</div>
-			<iframe
-					name="Control"
-					id="Control"
-					title="<h:outputText value="#{msgs.control_panel}" />"
-					width="100%"
-					frameborder="0"
-					marginwidth="0"
-					marginheight="0"
-					scrolling="no"
-					class="wcwmenu"
-					style="clear:both;display:block"
-					src="roomControl"
-					onLoad="window.scroll(0,0);">
-				</iframe>
-      </h:form>
+		</h:form>
+		<f:subview id="controlPanel" rendered="#{ChatTool.canPost}">
+		<div>
+			    <h:outputLabel for="message" value="#{msgs['control.lab']}" style="clear:both;display:block;" />
+                <div id="errorSubmit" class="alertMessage" style="display:none">
+                    <h:outputText value="#{msgs['therewaspro']}" />
+                </div>
+				<h:inputTextarea id="message" value="#{ChatTool.newMessageText}" rows="3" cols="60" />
+				<p class="act">
+		          <h:commandButton type="button" id="submit"
+		              value="#{msgs['control.post']}"
+		              styleClass="active" />
+		          <h:commandButton type="button" id="reset"
+		              value="#{msgs['control.clear']}" />
+		     	</p>
+		     	</div>
+			</f:subview>
+			<p style="clear:both;display:block;"></p>
+			
+	<script type="text/javascript" language="JavaScript">
+		setMainFrameHeight('<h:outputText value="#{ChatTool.framePlacementId}" />');
+	</script>
+
 <!--  We can't use the sakai:courier tag because it works from the tool placement id...  and this is now specific to presence in the room  -->
 <script type="text/javascript" language="JavaScript">
 updateTime = 10000;
