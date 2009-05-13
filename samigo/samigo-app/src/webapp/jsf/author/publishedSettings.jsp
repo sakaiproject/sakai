@@ -350,11 +350,11 @@ function checkUncheckTimeBox(){
 		<h:selectOneMenu id="timedHours" value="#{publishedSettings.timedHours}" disabled="#{!publishedSettings.valueMap.hasTimeAssessment}" >
 		  <f:selectItems value="#{publishedSettings.hours}" />
         </h:selectOneMenu>
-        <h:outputText value="#{assessmentSettingsMessages.timed_hours}. " />
+        <h:outputText value="#{assessmentSettingsMessages.timed_hours} " />
         <h:selectOneMenu id="timedMinutes" value="#{publishedSettings.timedMinutes}" disabled="#{!publishedSettings.valueMap.hasTimeAssessment}">
           <f:selectItems value="#{publishedSettings.mins}" />
         </h:selectOneMenu>
-        <h:outputText value="#{assessmentSettingsMessages.timed_minutes}. " />
+        <h:outputText value="#{assessmentSettingsMessages.timed_minutes} " />
        <f:verbatim><br/></f:verbatim>
         <h:outputText value="#{assessmentSettingsMessages.auto_submit_description}" />
       </h:panelGroup>

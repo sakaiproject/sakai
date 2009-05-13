@@ -469,11 +469,11 @@ function setBlockDivs()
 				<h:selectOneMenu id="timedHours" value="#{assessmentSettings.timedHours}" disabled="#{!assessmentSettings.valueMap.hasTimeAssessment}" >
           <f:selectItems value="#{assessmentSettings.hours}" />
         </h:selectOneMenu>
-        <h:outputText value="#{assessmentSettingsMessages.timed_hours}. " />
+        <h:outputText value="#{assessmentSettingsMessages.timed_hours} " />
         <h:selectOneMenu id="timedMinutes" value="#{assessmentSettings.timedMinutes}" disabled="#{!assessmentSettings.valueMap.hasTimeAssessment}">
           <f:selectItems value="#{assessmentSettings.mins}" />
         </h:selectOneMenu>
-        <h:outputText value="#{assessmentSettingsMessages.timed_minutes}. " />
+        <h:outputText value="#{assessmentSettingsMessages.timed_minutes} " />
        <f:verbatim><br/></f:verbatim>
         <h:outputText value="#{assessmentSettingsMessages.auto_submit_description}" />
       </h:panelGroup>
