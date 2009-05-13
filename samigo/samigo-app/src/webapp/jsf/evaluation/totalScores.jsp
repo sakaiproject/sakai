@@ -129,7 +129,7 @@ return;
 
 
     <h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" />
-    <h:commandLink title="#{evaluationMessages.t_histogram}" action="detailedStatistics" immediate="true"
+    <h:commandLink title="#{evaluationMessages.t_itemAnalysis}" action="detailedStatistics" immediate="true"
       rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" >
       <h:outputText value="#{evaluationMessages.item_analysis}" />
       <f:param name="hasNav" value="true"/>

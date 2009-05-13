@@ -83,7 +83,7 @@ $Id$
 
     <h:outputText value=" #{evaluationMessages.separator} " rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
 
-    <h:commandLink title="#{evaluationMessages.t_histogram}" action="detailedStatistics" immediate="true"
+    <h:commandLink title="#{evaluationMessages.t_itemAnalysis}" action="detailedStatistics" immediate="true"
       rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" >
       <h:outputText value="#{evaluationMessages.item_analysis}" />
       <f:actionListener
