@@ -1338,7 +1338,8 @@ public class MessageForumStatisticsBean {
 		LOG.debug("processActionDisplayMsgBody");
 
 		selectedMsgId = getExternalParameterByKey("msgId");
-		selectedMsgSubject = getExternalParameterByKey("msgSubject");
+		Message message =(Message) messageManager.getMessageById(Long.parseLong(selectedMsgId));
+		selectedMsgSubject = message.getTitle();
 		
 		return FORUM_STATISTICS_MSG;
 	}

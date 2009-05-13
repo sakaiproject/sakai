@@ -99,8 +99,7 @@
 					</h:commandLink>
   				</f:facet>
   				<h:commandLink action="#{mfStatisticsBean.processActionDisplayMsgBody}" value="#{stat.forumSubject}">
-  							<f:param value="#{stat.msgId}" name="msgId"/>
-  				  			<f:param value="#{stat.forumSubject}" name="msgSubject"/>
+  							<f:param value="#{stat.msgId}" name="msgId"/> 				  			
   				 </h:commandLink>
   				 </h:column>
   				 <h:column>
