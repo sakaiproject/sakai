@@ -121,6 +121,7 @@ public class ProfileServiceImpl implements ProfileService {
 			userProfile.setHomephone(null);
 			userProfile.setWorkphone(null);
 			userProfile.setMobilephone(null);
+			userProfile.setFacsimile(null);
 		}
 		
 		//unset personal info if not allowed
@@ -452,6 +453,15 @@ public class ProfileServiceImpl implements ProfileService {
 			sb.append("</div>");
 		}
 		
+		if(StringUtils.isNotBlank(userProfile.getFacsimile())) {
+			sb.append("<div class=\"profile2-profile-facsimile\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("ProfileServiceImpl.facsimile"));
+			sb.append("</span>");
+			sb.append(userProfile.getFacsimile());
+			sb.append("</div>");
+		}
+		
 		if(StringUtils.isNotBlank(userProfile.getFavouriteBooks())) {
 			sb.append("<div class=\"profile2-profile-favouriteBooks\">");
 			sb.append("<span class=\"profile2-profile-label\">");
@@ -645,6 +655,7 @@ public class ProfileServiceImpl implements ProfileService {
 		userProfile.setHomephone(sp.getHomePhone());
 		userProfile.setWorkphone(sp.getTelephoneNumber());
 		userProfile.setMobilephone(sp.getMobile());
+		userProfile.setFacsimile(sp.getFacsimileTelephoneNumber());
 		
 		//personal info
 		userProfile.setFavouriteBooks(sp.getFavouriteBooks());
