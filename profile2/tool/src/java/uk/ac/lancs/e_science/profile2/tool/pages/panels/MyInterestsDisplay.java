@@ -1,7 +1,6 @@
 package uk.ac.lancs.e_science.profile2.tool.pages.panels;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
@@ -14,10 +13,8 @@ import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 
 public class MyInterestsDisplay extends Panel {
 	
-	private static final Logger log = Logger.getLogger(MyInterestsDisplay.class);
-	
+	private static final long serialVersionUID = 1L;
 	private int visibleFieldCount = 0;
-
 	
 	public MyInterestsDisplay(final String id, final UserProfile userProfile) {
 		super(id);
@@ -83,7 +80,7 @@ public class MyInterestsDisplay extends Panel {
 			visibleFieldCount++;
 		}
 		
-		//favourite quotes
+		//other info
 		WebMarkupContainer otherContainer = new WebMarkupContainer("otherContainer");
 		otherContainer.add(new Label("otherLabel", new ResourceModel("profile.other")));
 		otherContainer.add(new Label("otherInformation", otherInformation));
@@ -98,6 +95,9 @@ public class MyInterestsDisplay extends Panel {
 				
 		//edit button
 		AjaxFallbackLink editButton = new AjaxFallbackLink("editButton", new ResourceModel("button.edit")) {
+			
+			private static final long serialVersionUID = 1L;
+
 			public void onClick(AjaxRequestTarget target) {
 				Component newPanel = new MyInterestsEdit(id, userProfile);
 				newPanel.setOutputMarkupId(true);
