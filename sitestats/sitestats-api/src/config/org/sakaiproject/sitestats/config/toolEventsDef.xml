@@ -37,7 +37,9 @@
 	<tool 
 		toolId="sakai.assignment.grades"
 		selected="true">
-		<event eventId="asn.read" selected="true"/> <!-- available in sakai 2.3+ (see SAK-10806) -->
+		<!-- available in sakai 2.3+ (see SAK-10806) -->
+		<!-- removed in sakai 2.5 (see SAK-11180) -->
+		<!--<event eventId="asn.read" selected="true"/>-->
 		<event eventId="asn.new.assignment" selected="true"/>
 		<event eventId="asn.revise.assignment" selected="true"/>
 		<event eventId="asn.delete.assignment" selected="true"/>
