@@ -716,6 +716,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_PROFILEIMAGE,
 				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_BASICINFO,
 				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_CONTACTINFO,
+				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_ACADEMICINFO,
 				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_PERSONALINFO,
 				ProfilePrivacyManager.DEFAULT_BIRTHYEAR_VISIBILITY,
 				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_SEARCH,
@@ -1132,6 +1133,64 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	
     	//uncaught rule, return false
     	log.error("Profile.isUserXContactInfoVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+    	return false;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean isUserXAcademicInfoVisibleByUserY(String userX, String userY, boolean friend) {
+		
+		//if user is requesting own info, they ARE allowed
+    	if(userY.equals(userX)) {
+    		return true;
+    	}
+		
+		//get privacy record for this user
+    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
+    	
+    	//pass to main
+    	return isUserXAcademicInfoVisibleByUserY(userX, profilePrivacy, userY, friend);
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean isUserXAcademicInfoVisibleByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend) {
+		
+		//if user is requesting own info, they ARE allowed
+    	if(userY.equals(userX)) {
+    		return true;
+    	}
+		
+		//if no privacy record, return whatever the flag is set as by default
+    	if(profilePrivacy == null) {
+    		return ProfilePrivacyManager.DEFAULT_ACADEMICINFO_VISIBILITY;
+    	}
+    	
+    	//if restricted to only self, not allowed
+    	if(profilePrivacy.getAcademicInfo() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYME) {
+    		return false;
+    	}
+    	
+    	//if user is friend and friends are allowed
+    	if(friend && profilePrivacy.getAcademicInfo() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    		return true;
+    	}
+    	
+    	//if not friend and set to friends only
+    	if(!friend && profilePrivacy.getAcademicInfo() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    		return false;
+    	}
+    	
+    	//if everyone is allowed
+    	if(profilePrivacy.getAcademicInfo() == ProfilePrivacyManager.PRIVACY_OPTION_EVERYONE) {
+    		return true;
+    	}
+    	
+    	//uncaught rule, return false
+    	log.error("Profile.isUserXAcademicInfoVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
     	return false;
 	}

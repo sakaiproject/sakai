@@ -14,6 +14,7 @@ public class ProfilePrivacyManager {
 	public static final int DEFAULT_PRIVACY_OPTION_PROFILEIMAGE = PRIVACY_OPTION_EVERYONE; 
 	public static final int DEFAULT_PRIVACY_OPTION_BASICINFO = PRIVACY_OPTION_EVERYONE; 
 	public static final int DEFAULT_PRIVACY_OPTION_CONTACTINFO = PRIVACY_OPTION_EVERYONE; 
+	public static final int DEFAULT_PRIVACY_OPTION_ACADEMICINFO = PRIVACY_OPTION_EVERYONE;
 	public static final int DEFAULT_PRIVACY_OPTION_PERSONALINFO = PRIVACY_OPTION_EVERYONE; 
 	public static final int DEFAULT_PRIVACY_OPTION_SEARCH = PRIVACY_OPTION_EVERYONE; 
 	public static final int DEFAULT_PRIVACY_OPTION_MYFRIENDS = PRIVACY_OPTION_EVERYONE; 
@@ -22,10 +23,11 @@ public class ProfilePrivacyManager {
 	//if they have no privacy record, ie have not turned explicitly turned searches on or off
 	public static final boolean DEFAULT_SEARCH_VISIBILITY = true;
 	
-	//if they have no privacy record, ie have not turned explicitly turned thes eoptions on or off
+	//if they have no privacy record, ie have not turned explicitly turned these options on or off
 	public static final boolean DEFAULT_PROFILEIMAGE_VISIBILITY = true;
 	public static final boolean DEFAULT_BASICINFO_VISIBILITY = true;
 	public static final boolean DEFAULT_CONTACTINFO_VISIBILITY = true;
+	public static final boolean DEFAULT_ACADEMICINFO_VISIBILITY = true;
 	public static final boolean DEFAULT_PERSONALINFO_VISIBILITY = true;
 	public static final boolean DEFAULT_MYFRIENDS_VISIBILITY = true;
 	public static final boolean DEFAULT_BIRTHYEAR_VISIBILITY = true;

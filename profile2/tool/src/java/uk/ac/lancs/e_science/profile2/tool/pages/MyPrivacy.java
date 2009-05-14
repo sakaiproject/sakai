@@ -157,6 +157,21 @@ public class MyPrivacy extends BasePage {
             }
         });
 		
+		//academicInfo privacy
+		WebMarkupContainer academicInfoContainer = new WebMarkupContainer("academicInfoContainer");
+		academicInfoContainer.add(new Label("academicInfoLabel", new ResourceModel("privacy.academicinfo")));
+		DropDownChoice academicInfoChoice = new DropDownChoice("academicInfo", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
+		academicInfoContainer.add(academicInfoChoice);
+		//tooltip
+		academicInfoContainer.add(new IconWithClueTip("academicInfoToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.academicinfo.tooltip")));
+		form.add(academicInfoContainer);
+		//updater
+		academicInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+            protected void onUpdate(AjaxRequestTarget target) {
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
+		
 		//personalInfo privacy
 		WebMarkupContainer personalInfoContainer = new WebMarkupContainer("personalInfoContainer");
 		personalInfoContainer.add(new Label("personalInfoLabel", new ResourceModel("privacy.personalinfo")));
@@ -234,23 +249,6 @@ public class MyPrivacy extends BasePage {
         });
 		
 		
-		
-		
-		
-		/* 
-		phoneVendorDDC.add(new AjaxFormComponentUpdatingBehavior("onchange") {
-            protected void onUpdate(AjaxRequestTarget target) {
-                // Reset the phone model dropdown when the vendor changes
-                _myModel.setPhoneModel(null);
-                _phoneModelDDC.setChoices(getTerminalsByVendor(_myModel.getPhoneVendor()));
-                target.addComponent(_phoneModelDDC);
-            }
-        });
-		*/
-		
-		
-		basicInfoContainer.add(basicInfoChoice);
-		form.add(basicInfoContainer);
 		
 		//submit button
 		IndicatingAjaxButton submitButton = new IndicatingAjaxButton("submit", form) {

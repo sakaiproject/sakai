@@ -401,6 +401,36 @@ public interface Profile {
 	public boolean isUserXContactInfoVisibleByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend);
 	
 	/**
+	 * Has the user allowed viewing of their academic info by the given user?
+	 * 
+	 * @param userX			the uuid of the user we are querying
+	 * @param userY			current user uuid
+	 * @param friend 		if the current user is a friend of the user we are querying
+	 * @return boolean
+	 *
+	 * NOTE: userY is currently not used because the friend status between userX and userY has already
+	 * been determined, but it is in now in case later we allow blocking/opening up of info to specific users.
+	 * 
+	 */
+	public boolean isUserXAcademicInfoVisibleByUserY(String userX, String userY, boolean friend);
+	
+	/**
+	 * Has the user allowed viewing of their academic info by the given user?
+	 * 
+	 * <p>This constructor should be used if you already have the ProfilePrivacy record for userX as will minimise DB lookups</p>
+	 * 
+	 * @param userX				the uuid of the user we are querying
+	 * @param profilePrivacy	the privacy record of userX
+	 * @param userY				current user uuid
+	 * @param friend			if the current user is a friend of the user we are querying	
+	 * @return boolean
+	 * 
+	 * NOTE: userY is currently not used because the friend status between userX and userY has already
+	 * been determined, but it is in now in case later we allow blocking/opening up of info to specific users.
+	 */
+	public boolean isUserXAcademicInfoVisibleByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend);
+	
+	/**
 	 * Has the user allowed viewing of their personal info by the given user?
 	 * 
 	 * @param userX			the uuid of the user we are querying

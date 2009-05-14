@@ -15,6 +15,7 @@
 	    <property name="profileImage" column="PROFILE_IMAGE" not-null="true" />
 	    <property name="basicInfo" column="BASIC_INFO" not-null="true" />
 	    <property name="contactInfo" column="CONTACT_INFO" not-null="true" />
+	    <property name="academicInfo" column="ACADEMIC_INFO" not-null="true" />
 	    <property name="personalInfo" column="PERSONAL_INFO" not-null="true" />
 	    <property name="showBirthYear" column="BIRTH_YEAR" not-null="true" />
 		<property name="search" column="SEARCH" not-null="true" />
