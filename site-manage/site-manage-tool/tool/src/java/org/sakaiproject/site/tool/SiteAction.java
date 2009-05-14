@@ -8233,10 +8233,10 @@ public class SiteAction extends PagedResourceActionII {
 					if (!pageHasToolId(toolList, homeToolId))
 					{
 						// not a synoptic tool and is not in Home page yet, just add it
-						ToolConfiguration tool = page.addTool();
 						Tool reg = ToolManager.getTool(homeToolId);
 						if (reg != null)
 						{
+							ToolConfiguration tool = page.addTool();
 							tool.setTool(homeToolId, reg);
 							tool.setTitle(reg.getTitle() != null?reg.getTitle():"");
 							tool.setLayoutHints("0," + nonSynopticToolIndex++);
