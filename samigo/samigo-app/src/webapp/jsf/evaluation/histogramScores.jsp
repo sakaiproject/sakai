@@ -167,7 +167,7 @@ $Id$
 <h:outputLabel value="#{evaluationMessages.sub_view}"/>
 <h:outputLabel value="#{histogramScores.numResponses}" />
 
-<h:outputLabel value="#{evaluationMessages.tot} Possible" />
+<h:outputLabel value="#{evaluationMessages.tot_score_possible} " />
 <h:outputText value="#{histogramScores.roundedTotalPossibleScore}"/>
 
 <h:outputLabel value="#{evaluationMessages.mean_eq}" />
