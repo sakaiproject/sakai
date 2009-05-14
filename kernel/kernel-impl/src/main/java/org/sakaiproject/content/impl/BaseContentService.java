@@ -695,7 +695,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			NotificationEdit dbNoti = m_notificationService.addTransientNotification();
 
 			// set functions
-			dbNoti.setFunction(EVENT_RESOURCE_ADD);
+			dbNoti.setFunction(EVENT_RESOURCE_AVAILABLE);
 			dbNoti.addFunction(EVENT_RESOURCE_WRITE);
 
 			// set the filter to any site related resource

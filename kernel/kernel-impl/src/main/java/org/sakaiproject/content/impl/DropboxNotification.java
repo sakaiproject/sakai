@@ -296,7 +296,7 @@ public class DropboxNotification extends EmailNotification
 		{
 			portalUrl = "<a href=\"" + portalUrl + "\">" + portalName + "</a>";
 		}
-		if (ContentHostingService.EVENT_RESOURCE_ADD.equals(function))
+		if (ContentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function))
 		{
 			buf.append(rb.getFormattedMessage("db.text.new", new String[]{dropboxTitle, siteTitle, portalName, portalUrl}));
 		}
@@ -410,7 +410,7 @@ public class DropboxNotification extends EmailNotification
 		
 		String[] args = {siteTitle, dropboxTitle, resourceName};
 		
-		return rb.getFormattedMessage((ContentHostingService.EVENT_RESOURCE_ADD.equals(function) ? "db.subj.new" : "db.subj.upd"), args);
+		return rb.getFormattedMessage((ContentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function) ? "db.subj.new" : "db.subj.upd"), args);
 		
 	}
 	
