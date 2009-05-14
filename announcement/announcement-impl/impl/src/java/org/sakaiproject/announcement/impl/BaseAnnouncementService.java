@@ -800,8 +800,10 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 			
 			// add link
 			el = doc.createElement("link");
-			String siteUrl = m_serverConfigurationService.getPortalUrl() + site.getReference();
-			el.appendChild(doc.createTextNode(siteUrl)); 
+			StringBuilder siteUrl = new StringBuilder( m_serverConfigurationService.getServerUrl() );
+			siteUrl.append( m_serverConfigurationService.getString("portalPath") );
+			siteUrl.append( site.getReference() );
+			el.appendChild(doc.createTextNode(siteUrl.toString())); 
 			channel.appendChild(el);
 			
 			// add lastBuildDate
