@@ -124,6 +124,15 @@ public class ProfileServiceImpl implements ProfileService {
 			userProfile.setFacsimile(null);
 		}
 		
+		//unset contact info if not allowed
+		if(!profile.isUserXAcademicInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+			log.debug("academic info not allowed");
+			userProfile.setPosition(null);
+			userProfile.setDepartment(null);
+			userProfile.setSchool(null);
+			userProfile.setRoom(null);
+		}
+		
 		//unset personal info if not allowed
 		if(!profile.isUserXPersonalInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
 			log.debug("personal info not allowed");
@@ -387,6 +396,7 @@ public class ProfileServiceImpl implements ProfileService {
 			sb.append("</div>");
 		}
 		
+		//status
 		if(StringUtils.isNotBlank(userProfile.getStatusMessage())) {
 			sb.append("<div class=\"profile2-profile-statusMessage\">");
 			sb.append(userProfile.getStatusMessage());
@@ -399,6 +409,7 @@ public class ProfileServiceImpl implements ProfileService {
 			sb.append("</div>");
 		}
 		
+		//basic info
 		if(StringUtils.isNotBlank(userProfile.getNickname())) {
 			sb.append("<div class=\"profile2-profile-nickname\">");
 			sb.append("<span class=\"profile2-profile-label\">");
@@ -408,6 +419,9 @@ public class ProfileServiceImpl implements ProfileService {
 			sb.append("</div>");
 		}
 		
+		
+		
+		//contact info
 		if(StringUtils.isNotBlank(userProfile.getEmail())) {
 			sb.append("<div class=\"profile2-profile-email\">");
 			sb.append("<span class=\"profile2-profile-label\">");
@@ -462,6 +476,47 @@ public class ProfileServiceImpl implements ProfileService {
 			sb.append("</div>");
 		}
 		
+		
+		
+		//academic info
+		if(StringUtils.isNotBlank(userProfile.getPosition())) {
+			sb.append("<div class=\"profile2-profile-position\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("ProfileServiceImpl.position"));
+			sb.append("</span>");
+			sb.append(userProfile.getPosition());
+			sb.append("</div>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getDepartment())) {
+			sb.append("<div class=\"profile2-profile-department\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("ProfileServiceImpl.department"));
+			sb.append("</span>");
+			sb.append(userProfile.getDepartment());
+			sb.append("</div>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getSchool())) {
+			sb.append("<div class=\"profile2-profile-school\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("ProfileServiceImpl.school"));
+			sb.append("</span>");
+			sb.append(userProfile.getSchool());
+			sb.append("</div>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getRoom())) {
+			sb.append("<div class=\"profile2-profile-room\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("ProfileServiceImpl.room"));
+			sb.append("</span>");
+			sb.append(userProfile.getRoom());
+			sb.append("</div>");
+		}
+		
+		
+		//personal info
 		if(StringUtils.isNotBlank(userProfile.getFavouriteBooks())) {
 			sb.append("<div class=\"profile2-profile-favouriteBooks\">");
 			sb.append("<span class=\"profile2-profile-label\">");
@@ -522,7 +577,7 @@ public class ProfileServiceImpl implements ProfileService {
 	private void applyPrivacyChecksToUserProfile(UserProfile userProfile, ProfilePrivacy privacy, boolean friend) {
 		
 		//go over the various sections of the profile, see if a user is allowed to see them or not, and null out if not.
-		
+		//this should replace the checks above
 		
 	}
 	
@@ -656,6 +711,12 @@ public class ProfileServiceImpl implements ProfileService {
 		userProfile.setWorkphone(sp.getTelephoneNumber());
 		userProfile.setMobilephone(sp.getMobile());
 		userProfile.setFacsimile(sp.getFacsimileTelephoneNumber());
+		
+		//academic info
+		userProfile.setDepartment(sp.getOrganizationalUnit());
+		userProfile.setPosition(sp.getTitle());
+		userProfile.setSchool(sp.getCampus());
+		userProfile.setRoom(sp.getRoomNumber());
 		
 		//personal info
 		userProfile.setFavouriteBooks(sp.getFavouriteBooks());
