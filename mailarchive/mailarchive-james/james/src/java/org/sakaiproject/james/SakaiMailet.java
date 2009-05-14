@@ -340,7 +340,11 @@ public class SakaiMailet extends GenericMailet
 							}
 						}
 						// Note: can't use recipient, since it's host may be configured as mailId@myhost.james
-						MailAddress replyTo = new MailAddress( mailId, mail.getRemoteHost() );
+						String mailHost = ServerConfigurationService.getServerName();
+						if ( mailHost == null || mailHost.trim().equals("") )
+							mailHost = mail.getRemoteHost();
+                  
+						MailAddress replyTo = new MailAddress( mailId, mailHost );
 						M_log.debug("Set Reply-To address to "+ replyTo.toString());
 						modifiedHeaders.add("Reply-To: "+ replyTo.toString());
   
