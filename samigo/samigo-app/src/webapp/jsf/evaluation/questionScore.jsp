@@ -1063,6 +1063,10 @@ document.location='../evaluation/questionScore';
 
   </h:dataTable>
 </div>
+
+<h:outputText value="#{author.updateFormTime}" />
+<h:inputHidden value="#{author.currentFormTime}" />
+
 <p class="act">
    <%-- <h:commandButton value="#{evaluationMessages.save_exit}" action="author"/> --%>
    <h:commandButton accesskey="#{evaluationMessages.a_update}" styleClass="active" value="#{evaluationMessages.save_cont}" action="questionScores" type="submit" >
