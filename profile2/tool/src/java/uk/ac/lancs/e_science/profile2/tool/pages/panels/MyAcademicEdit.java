@@ -52,6 +52,8 @@ public class MyAcademicEdit extends Panel {
 		//We don't need to get the info from userProfile, we load it into the form with a property model
 	    //just make sure that the form element id's match those in the model
 		
+		form.add(new Label("forStaff", new ResourceModel("heading.section.academic.staff")));
+		
 		//position
 		WebMarkupContainer positionContainer = new WebMarkupContainer("positionContainer");
 		positionContainer.add(new Label("positionLabel", new ResourceModel("profile.position")));
