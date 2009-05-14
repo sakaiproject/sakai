@@ -1,15 +1,38 @@
 
-What is in here:
+WHAT IS IN HERE:
 --------------
 
 database/		- contains scripts for creating the database tables if you do not/cannot have auto.ddl turned on
 				- also contains conversion scripts for performing conversion between releases.
 
-Creation scripts exist for Profile2 version 1.1 for all supported databases and for the conversion from
-1.0.1 to 1.1 for Oracle and MySQL.
+Creation scripts exist for Profile2 version 1.1 for all supported databases and conversion for Oracle and MySQL.
+For releases beyond 1.1 I will endeavour to create upgrade scripts for the other databases, although I cannot vouch 
+for their accuracy as they will be diffs against the Hibernate mappings, and I have no way of testing them, sorry.
 
-For releases beyond 1.1 I will endeavour to create upgrade scripts for the other databases.
+NEW INSTALLS:
+------------
 
+Please set auto.ddl=true in sakai.properties, this is the best way to get the tables setup automatically. 
+if you cannot, read on.
+
+For a new install of Profile2, use profile2-ddl-VERSION-VENDOR.sql to setup the database,
+	where: 	VERSION is the version of profile2 you are installing
+			VENDOR is your database vendor, ie mysql, oracle, postgres...
+
+The scripts are located in the directory for your particular vendor.
+
+UPGRADES:
+---------
+
+For upgrades, apply the appropriate conversion scripts for your vendor and version, in succession:
+ie to upgrade from Profile2 1.1 to 1.2 on MySQL use profile2-conversion-1.1-1.2-mysql.sql
+
+Note: I have only tested the MySQL and Oracle conversion scripts. I do not have access to the other databases so
+have not been able to test the conversion scripts. They are provided here in good faith only (or might be missing entirely).
+Please check them before you run them, preferably with a DBA for your particular database vendor.
+
+ERRORS/OMISSIONS:
+-----------------
 For any errors or omissions, please open a Jira ticket at http://jira.sakaiproject.org/jira/browse/PRFL
 
 ---
