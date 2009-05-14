@@ -82,10 +82,16 @@ public class MyPreferences extends BasePage{
 		form.setOutputMarkupId(true);
 		
 	
+		//EMAIL SECTION
+		
 		//email settings
 		form.add(new Label("emailSectionHeading", new ResourceModel("heading.section.email")));
 		form.add(new Label("emailSectionText", new StringResourceModel("preferences.email.message", null, new Object[] { emailAddress })).setEscapeModelStrings(false));
 	
+		//on/off labels
+		form.add(new Label("prefOn", new ResourceModel("preference.option.on")));
+		form.add(new Label("prefOff", new ResourceModel("preference.option.off")));
+
 		//request emails
 		final RadioGroup emailRequests = new RadioGroup("requestEmailEnabled", new PropertyModel(preferencesModel, "requestEmailEnabled"));
 		emailRequests.add(new Radio("requestsOn", new Model(new Boolean(true))));
