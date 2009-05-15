@@ -57,10 +57,11 @@ import org.sakaiproject.tool.assessment.samlite.api.QuestionGroup;
 import org.sakaiproject.tool.assessment.samlite.api.SamLiteService;
 import org.w3c.dom.Document;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.util.ResourceLoader;
 
 public class SamLiteServiceImpl implements SamLiteService {
 	private static Log log = LogFactory.getLog(SamLiteServiceImpl.class);
-	public static final String DEFAULT_CHARSET = "ascii-us";
+	public static final String DEFAULT_CHARSET = "UTF-8";
 	
 	private Pattern justQuestionPattern, startOfQuestionPattern, correctAnswerPattern;
 	private Pattern correctFillInPattern, answerPattern, endQuestionPattern, correctMultipleChoicePattern;
@@ -70,21 +71,12 @@ public class SamLiteServiceImpl implements SamLiteService {
 	private Pattern pointsPattern;
 	
 	public void init() {	
-		// Initialization
-		startOfQuestionPattern = Pattern.compile("^(Question\\s*\\d*\\s*)", Pattern.CASE_INSENSITIVE);
+		// Initialization		
 		startOfQuestionNumericPattern = Pattern.compile("^(\\d+\\.|\\)|\\]\\s*)", Pattern.CASE_INSENSITIVE);
-		pointsPattern = Pattern.compile("\\((\\d*\\.?\\d*)\\s+point(s?)\\)", Pattern.CASE_INSENSITIVE);
-		
 		correctAnswerPattern = Pattern.compile("^\\*");
 		correctMultipleChoicePattern = Pattern.compile("^\\*\\s*([a-z])\\.\\s*(.*)", Pattern.CASE_INSENSITIVE);
 		correctFillInPattern = Pattern.compile("^\\*\\s*(.*)");
 		answerPattern = Pattern.compile("^([a-z])\\.\\s*(.*)", Pattern.CASE_INSENSITIVE);
-		endQuestionPattern = Pattern.compile("^Save answer", Pattern.CASE_INSENSITIVE);
-		shortEssayPattern = Pattern.compile("^\\[Essay\\]$", Pattern.CASE_INSENSITIVE);
-		correctTruePattern = Pattern.compile("^\\*\\s*True$");
-		correctFalsePattern = Pattern.compile("^\\*\\s*False$");
-		unnecessaryTruePattern = Pattern.compile("^True$");
-		unnecessaryFalsePattern = Pattern.compile("^False$");
 	} 
 	
 	public Question saveLast(QuestionGroup questionGroup, Question question) {
@@ -139,6 +131,20 @@ public class SamLiteServiceImpl implements SamLiteService {
 	
 	
 	public QuestionGroup parse(String name, String description, String data) {
+		ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.SamLitePatternMessages");
+		String stQuestion = rb.getString("question");
+		startOfQuestionPattern = Pattern.compile("^(" + stQuestion + "\\s*\\d*\\s*)", Pattern.CASE_INSENSITIVE);
+		String stPoints = rb.getString("points");
+		pointsPattern = Pattern.compile("\\((\\d*\\.?\\d*)\\s+" + stPoints + "\\)", Pattern.CASE_INSENSITIVE);
+		String stSaveAnswer = rb.getString("save_answer");
+		endQuestionPattern = Pattern.compile("^" + stSaveAnswer, Pattern.CASE_INSENSITIVE);
+		String stTrue = rb.getString("true");
+		String stFalse = rb.getString("false");
+		correctTruePattern = Pattern.compile("^\\*\\s*" + stTrue + "$");
+		correctFalsePattern = Pattern.compile("^\\*\\s*" + stFalse + "$");
+		unnecessaryTruePattern = Pattern.compile("^" + stTrue + "$");
+		unnecessaryFalsePattern = Pattern.compile("^" + stFalse + "$");
+		
 		QuestionGroup questionGroup = new QuestionGroup(name, description);
 		
 		String cleanData = data; 
@@ -147,7 +153,7 @@ public class SamLiteServiceImpl implements SamLiteService {
 		Question question = null;
 		
 		int questionNumber = 1;
-		
+	
 		for (int i=0;i<lines.length;i++) {
 			if (lines[i].endsWith("\\r"))
 				lines[i] = lines[i].replace('\r', ' ');
@@ -687,7 +693,7 @@ public class SamLiteServiceImpl implements SamLiteService {
 		
 		ItemrubricType itemRubric = item.addNewItemrubric();
 		MattextType mattext = itemRubric.addNewMaterial().addNewMattext();
-		mattext.setCharset("ascii-us");
+		mattext.setCharset("UTF-8");
 		mattext.setTexttype("text/plain");
 
 		buildPresentationAndResponseLid(item, question, "Resp001", "MCSC", ResponseLidType.Rcardinality.SINGLE);
@@ -719,7 +725,7 @@ public class SamLiteServiceImpl implements SamLiteService {
 		
 		ItemrubricType itemRubric = item.addNewItemrubric();
 		MattextType mattext = itemRubric.addNewMaterial().addNewMattext();
-		mattext.setCharset("ascii-us");
+		mattext.setCharset("UTF-8");
 		mattext.setTexttype("text/plain");
 		
 		buildPresentationAndResponseLid(item, question, "Resp001", "MCMC", ResponseLidType.Rcardinality.MULTIPLE);
