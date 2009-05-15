@@ -85,7 +85,20 @@
 			moveEl = document.getElementById(moveChecked);
 			IEbrowser=false;
 		}
-
+		
+		if(!readOnClick) {
+			readOnClick = readEl.onclick;
+		}
+		if(!unreadOnClick) {
+			unreadOnClick = unreadEl.onclick;
+		}
+		if(!deleteOnClick) {
+			deleteOnClick = deleteEl.onclick;
+		}
+		if(!moveOnClick) {
+			moveOnClick = moveEl.onclick;
+		}
+		
 		if (anyChecked)
 		{ 
 			// toggle onclick functionality
