@@ -8,7 +8,7 @@ public class SakaiPersonMeta implements Serializable {
 	
 	
 	private long id;
-	private long userUuid;
+	private String userUuid;
 	private String property;
 	private String value;
 	
@@ -22,7 +22,7 @@ public class SakaiPersonMeta implements Serializable {
 	/** 
 	 * Constructor to create a Meta object in one go
 	 */
-	public SakaiPersonMeta(long userUuid, String property, String value) {
+	public SakaiPersonMeta(String userUuid, String property, String value) {
 		super();
 		this.userUuid = userUuid;
 		this.property = property;
@@ -39,11 +39,11 @@ public class SakaiPersonMeta implements Serializable {
 		this.id = id;
 	}
 
-	public long getUserUuid() {
+	public String getUserUuid() {
 		return userUuid;
 	}
 
-	public void setUserUuid(long userUuid) {
+	public void setUserUuid(String userUuid) {
 		this.userUuid = userUuid;
 	}
 
