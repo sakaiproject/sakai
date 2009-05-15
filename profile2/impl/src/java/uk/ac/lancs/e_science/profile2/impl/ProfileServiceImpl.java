@@ -131,6 +131,8 @@ public class ProfileServiceImpl implements ProfileService {
 			userProfile.setDepartment(null);
 			userProfile.setSchool(null);
 			userProfile.setRoom(null);
+			userProfile.setCourse(null);
+			userProfile.setSubjects(null);
 		}
 		
 		//unset personal info if not allowed
@@ -515,6 +517,24 @@ public class ProfileServiceImpl implements ProfileService {
 			sb.append("</div>");
 		}
 		
+		if(StringUtils.isNotBlank(userProfile.getCourse())) {
+			sb.append("<div class=\"profile2-profile-course\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("ProfileServiceImpl.course"));
+			sb.append("</span>");
+			sb.append(userProfile.getCourse());
+			sb.append("</div>");
+		}
+		
+		if(StringUtils.isNotBlank(userProfile.getSubjects())) {
+			sb.append("<div class=\"profile2-profile-subjects\">");
+			sb.append("<span class=\"profile2-profile-label\">");
+			sb.append(Messages.getString("ProfileServiceImpl.subjects"));
+			sb.append("</span>");
+			sb.append(userProfile.getSubjects());
+			sb.append("</div>");
+		}
+		
 		
 		//personal info
 		if(StringUtils.isNotBlank(userProfile.getFavouriteBooks())) {
@@ -717,6 +737,8 @@ public class ProfileServiceImpl implements ProfileService {
 		userProfile.setPosition(sp.getTitle());
 		userProfile.setSchool(sp.getCampus());
 		userProfile.setRoom(sp.getRoomNumber());
+		userProfile.setCourse(sp.getEducationCourse());
+		userProfile.setSubjects(sp.getEducationSubjects());
 		
 		//personal info
 		userProfile.setFavouriteBooks(sp.getFavouriteBooks());

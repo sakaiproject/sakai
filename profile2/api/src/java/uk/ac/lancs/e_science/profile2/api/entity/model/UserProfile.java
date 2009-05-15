@@ -38,6 +38,9 @@ public class UserProfile {
 	private String favouriteMovies;
 	private String favouriteQuotes;
 	private String otherInformation;
+	private String course;
+	private String subjects;
+	
 	private String statusMessage;
 	private Date statusDate;
 	private String statusDateFormatted;
@@ -208,6 +211,22 @@ public class UserProfile {
 
 	public void setOtherInformation(String otherInformation) {
 		this.otherInformation = otherInformation;
+	}
+	
+	public String getCourse() {
+		return course;
+	}
+	
+	public void setCourse(String course) {
+		this.course = course;
+	}
+	
+	public String getSubjects() {
+		return subjects;
+	}
+	
+	public void setSubjects(String subjects) {
+		this.subjects = subjects;
 	}
 
 	public String getStatusMessage() {
