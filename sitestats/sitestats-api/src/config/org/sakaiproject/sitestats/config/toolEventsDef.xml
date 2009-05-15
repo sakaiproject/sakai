@@ -295,8 +295,8 @@
 		<event eventId="podcast.add" selected="true"/> <!-- (see SAK-10807) -->
 		<event eventId="podcast.revise" selected="true"/>
 		<event eventId="podcast.delete" selected="true"/>
-		<event eventId="podcast.generate.public" selected="true"/>
-		<event eventId="podcast.generate.private" selected="true"/>
+		<event eventId="podcast.read.public" selected="true"/>
+		<event eventId="podcast.read.site" selected="true"/>
 		<eventParserTip for="contextId" separator="/" index="3"/>
 	</tool>	
 	
