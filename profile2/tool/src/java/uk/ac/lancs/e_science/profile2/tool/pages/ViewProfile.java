@@ -337,6 +337,8 @@ public class ViewProfile extends BasePage {
 		String position = sakaiPerson.getTitle();
 		String school = sakaiPerson.getCampus();
 		String room = sakaiPerson.getRoomNumber();
+		String course = sakaiPerson.getEducationCourse();
+		String subjects = sakaiPerson.getEducationSubjects();
 		
 		int visibleFieldCount_academic = 0;
 		
@@ -383,6 +385,28 @@ public class ViewProfile extends BasePage {
 		academicInfoContainer.add(roomContainer);
 		if(StringUtils.isBlank(room)) {
 			roomContainer.setVisible(false);
+		} else {
+			visibleFieldCount_academic++;
+		}
+		
+		//course
+		WebMarkupContainer courseContainer = new WebMarkupContainer("courseContainer");
+		courseContainer.add(new Label("courseLabel", new ResourceModel("profile.course")));
+		courseContainer.add(new Label("course", course));
+		academicInfoContainer.add(courseContainer);
+		if(StringUtils.isBlank(course)) {
+			courseContainer.setVisible(false);
+		} else {
+			visibleFieldCount_academic++;
+		}
+		
+		//subjects
+		WebMarkupContainer subjectsContainer = new WebMarkupContainer("subjectsContainer");
+		subjectsContainer.add(new Label("subjectsLabel", new ResourceModel("profile.subjects")));
+		subjectsContainer.add(new Label("subjects", subjects));
+		academicInfoContainer.add(subjectsContainer);
+		if(StringUtils.isBlank(subjects)) {
+			subjectsContainer.setVisible(false);
 		} else {
 			visibleFieldCount_academic++;
 		}

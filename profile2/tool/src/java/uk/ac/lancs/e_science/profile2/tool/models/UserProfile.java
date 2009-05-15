@@ -37,6 +37,8 @@ public class UserProfile implements Serializable {
 	private String favouriteMovies;
 	private String favouriteQuotes;
 	private String otherInformation;
+	private String course;
+	private String subjects;
 	
 	
 	public String getUserId() {
@@ -184,16 +186,23 @@ public class UserProfile implements Serializable {
 	public void setFavouriteQuotes(String favouriteQuotes) {
 		this.favouriteQuotes = favouriteQuotes;
 	}
-
-
-
-
-
 	public void setOtherInformation(String otherInformation) {
 		this.otherInformation = otherInformation;
 	}
 	public String getOtherInformation() {
 		return otherInformation;
+	}
+	public String getCourse() {
+		return course;
+	}
+	public void setCourse(String course) {
+		this.course = course;
+	}
+	public String getSubjects() {
+		return subjects;
+	}
+	public void setSubjects(String subjects) {
+		this.subjects = subjects;
 	}
 
 

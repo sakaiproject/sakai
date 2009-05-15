@@ -102,6 +102,9 @@ public class MyProfile extends BasePage {
 		userProfile.setSchool(sakaiPerson.getCampus());
 		userProfile.setRoom(sakaiPerson.getRoomNumber());
 		
+		userProfile.setCourse(sakaiPerson.getEducationCourse());
+		userProfile.setCourse(sakaiPerson.getEducationSubjects());
+		
 		userProfile.setFavouriteBooks(sakaiPerson.getFavouriteBooks());
 		userProfile.setFavouriteTvShows(sakaiPerson.getFavouriteTvShows());
 		userProfile.setFavouriteMovies(sakaiPerson.getFavouriteMovies());

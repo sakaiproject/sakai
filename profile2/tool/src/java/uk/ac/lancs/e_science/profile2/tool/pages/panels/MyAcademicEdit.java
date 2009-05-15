@@ -82,6 +82,21 @@ public class MyAcademicEdit extends Panel {
 		roomContainer.add(room);
 		form.add(roomContainer);
 		
+		form.add(new Label("forStudents", new ResourceModel("heading.section.academic.students")));
+		
+		//course
+		WebMarkupContainer courseContainer = new WebMarkupContainer("courseContainer");
+		courseContainer.add(new Label("courseLabel", new ResourceModel("profile.course")));
+		TextField course = new TextField("course", new PropertyModel(userProfile, "course"));
+		courseContainer.add(course);
+		form.add(courseContainer);
+		
+		//subjects
+		WebMarkupContainer subjectsContainer = new WebMarkupContainer("subjectsContainer");
+		subjectsContainer.add(new Label("subjectsLabel", new ResourceModel("profile.subjects")));
+		TextField subjects = new TextField("subjects", new PropertyModel(userProfile, "subjects"));
+		subjectsContainer.add(subjects);
+		form.add(subjectsContainer);
 		
 		//submit button
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.save.changes"), form) {
@@ -151,16 +166,12 @@ public class MyAcademicEdit extends Panel {
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
 
 		//get values and set into SakaiPerson
-		//sakaiPerson.setFavouriteBooks(userProfile.getFavouriteBooks());
-		/*userProfile.setDepartment(sakaiPerson.getOrganizationalUnit());
-		userProfile.setPosition(sakaiPerson.getTitle());
-		userProfile.setSchool(sakaiPerson.getCampus());
-		userProfile.setRoom(sakaiPerson.getRoomNumber());*/
-		
 		sakaiPerson.setOrganizationalUnit(userProfile.getDepartment());
 		sakaiPerson.setTitle(userProfile.getPosition());
 		sakaiPerson.setCampus(userProfile.getSchool());
 		sakaiPerson.setRoomNumber(userProfile.getRoom());
+		sakaiPerson.setEducationCourse(userProfile.getCourse());
+		sakaiPerson.setEducationSubjects(userProfile.getSubjects());
 
 		//update SakaiPerson
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {

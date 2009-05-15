@@ -27,6 +27,8 @@ public class MyAcademicDisplay extends Panel {
 		String position = userProfile.getPosition();
 		String school = userProfile.getSchool();
 		String room = userProfile.getRoom();
+		String course = userProfile.getCourse();
+		String subjects = userProfile.getSubjects();
 		
 		//heading
 		add(new Label("heading", new ResourceModel("heading.academic")));
@@ -71,6 +73,28 @@ public class MyAcademicDisplay extends Panel {
 		add(roomContainer);
 		if(StringUtils.isBlank(room)) {
 			roomContainer.setVisible(false);
+		} else {
+			visibleFieldCount++;
+		}
+		
+		//course
+		WebMarkupContainer courseContainer = new WebMarkupContainer("courseContainer");
+		courseContainer.add(new Label("courseLabel", new ResourceModel("profile.course")));
+		courseContainer.add(new Label("course", course));
+		add(courseContainer);
+		if(StringUtils.isBlank(course)) {
+			courseContainer.setVisible(false);
+		} else {
+			visibleFieldCount++;
+		}
+		
+		//subjects
+		WebMarkupContainer subjectsContainer = new WebMarkupContainer("subjectsContainer");
+		subjectsContainer.add(new Label("subjectsLabel", new ResourceModel("profile.subjects")));
+		subjectsContainer.add(new Label("subjects", subjects));
+		add(subjectsContainer);
+		if(StringUtils.isBlank(subjects)) {
+			subjectsContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
 		}

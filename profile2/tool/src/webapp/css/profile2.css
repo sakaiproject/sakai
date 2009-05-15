@@ -321,6 +321,7 @@ h2 {
 .preferencesContent .content {
 	padding-left: 2px;
 	/*padding-right: 40px;*/
+	vertical-align: top;
 }
 
 .preferencesContent .item  {
