@@ -234,4 +234,24 @@ public class SakaiPersonImpl extends EduPersonImpl implements Person, Organizati
 	public void setFavouriteQuotes(String favouriteQuotes) {
 		this.favouriteQuotes = favouriteQuotes;
 	}
+	
+	private String educationCourse;
+	public String getEducationCourse() {
+		return educationCourse;
+	}
+
+	public void setEducationCourse(String educationCourse) {
+		this.educationCourse = educationCourse;
+	}
+	
+	private String educationSubjects;
+	public String getEducationSubjects() {
+		return educationSubjects;
+	}
+
+	public void setEducationSubjects(String educationSubjects) {
+		this.educationSubjects = educationSubjects;
+	}
+
+	
 }

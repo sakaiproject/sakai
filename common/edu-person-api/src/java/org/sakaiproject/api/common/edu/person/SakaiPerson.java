@@ -206,5 +206,32 @@ public interface SakaiPerson extends EduPerson
 	 * @return
 	 */
 	public String getFavouriteQuotes();
+	
+	/**
+	 * Set education course
+	 */
+	public void setEducationCourse(String educationCourse);
+	
+	
+	/**
+	 *  Get education course
+	 * @return
+	 */
+	public String getEducationCourse();
+	
+	
+	
+	/**
+	 * Set education subjects
+	 */
+	public void setEducationSubjects(String educationSubjects);
+	
+	
+	/**
+	 *  Get education subjects
+	 * @return
+	 */
+	public String getEducationSubjects();
+	
 
 }
