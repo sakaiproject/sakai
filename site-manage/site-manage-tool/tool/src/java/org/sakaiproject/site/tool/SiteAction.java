@@ -4586,7 +4586,7 @@ public class SiteAction extends PagedResourceActionII {
 				addAlert(state, rb.getString("java.miss"));
 			} 
 			// valid input, adjust the add course number
-			state.setAttribute(STATE_MANUAL_ADD_COURSE_NUMBER, new Integer(	validInputSites));
+			state.setAttribute(STATE_MANUAL_ADD_COURSE_NUMBER, new Integer(	validInputSites>1?validInputSites:1));
 		}
 
 		// set state attributes
