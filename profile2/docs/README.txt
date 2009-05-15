@@ -13,7 +13,7 @@ NEW INSTALLS:
 ------------
 
 Please set auto.ddl=true in sakai.properties, this is the best way to get the tables setup automatically. 
-if you cannot, read on.
+If you cannot, read on:
 
 For a new install of Profile2, use profile2-ddl-VERSION-VENDOR.sql to setup the database,
 	where: 	VERSION is the version of profile2 you are installing
@@ -21,11 +21,16 @@ For a new install of Profile2, use profile2-ddl-VERSION-VENDOR.sql to setup the 
 
 The scripts are located in the directory for your particular vendor.
 
+Bear in mind that Profile2 requires the 'Common' project, which has its own tables.
+
+
 UPGRADES:
 ---------
 
 For upgrades, apply the appropriate conversion scripts for your vendor and version, in succession:
 ie to upgrade from Profile2 1.1 to 1.2 on MySQL use profile2-conversion-1.1-1.2-mysql.sql
+
+You must also apply any conversion scripts in the 'common' folder that are relevant to your upgrade path and vendor.
 
 Note: I have only tested the MySQL and Oracle conversion scripts. I do not have access to the other databases so
 have not been able to test the conversion scripts. They are provided here in good faith only (or might be missing entirely).
