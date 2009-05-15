@@ -14,8 +14,8 @@
 	      </generator>
 	    </id>
 
-	    <property name="userUuid" column="USER_UUID" length="36" not-null="true" />
-	    <property name="friendUuid" column="FRIEND_UUID" length="36" not-null="true" />
+	    <property name="userUuid" column="USER_UUID" length="99" not-null="true" />
+	    <property name="friendUuid" column="FRIEND_UUID" length="99" not-null="true" />
 		<property name="relationship" column="RELATIONSHIP" length="1" not-null="true" />
 		<property name="requestedDate" column="REQUESTED_DATE" not-null="true" />
 		<property name="confirmed" column="CONFIRMED" not-null="true"/>

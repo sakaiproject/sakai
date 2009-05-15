@@ -8,7 +8,7 @@
 	<class name="ProfileImageExternal" table="PROFILE_IMAGES_EXTERNAL_T">
 
 		<!--  use the userUuid as the primary key directly since there will only ever be one record per user -->
-	    <id name="userUuid" column="USER_UUID" length="36">
+	    <id name="userUuid" column="USER_UUID" length="99">
 	    	<generator class="assigned" />
 	    </id>
 	    

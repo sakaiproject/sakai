@@ -14,7 +14,7 @@
 	      </generator>
 	    </id>
 
-	    <property name="userUuid" column="USER_UUID" length="36" not-null="true" />
+	    <property name="userUuid" column="USER_UUID" length="99" not-null="true" />
 	    <property name="property" column="PROPERTY" not-null="true" />
 		<property name="value" column="VALUE" not-null="true" />
 		

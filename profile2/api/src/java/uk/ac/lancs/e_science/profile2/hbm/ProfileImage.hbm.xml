@@ -14,7 +14,7 @@
 			</generator>
 	    </id>
 	    
-		<property name="userUuid" column="USER_UUID" length="36" not-null="true" />
+		<property name="userUuid" column="USER_UUID" length="99" not-null="true" />
 		<property name="mainResource" column="RESOURCE_MAIN" not-null="true" />
 		<property name="thumbnailResource" column="RESOURCE_THUMB" not-null="true" />
 		<property name="current" column="IS_CURRENT" not-null="true" />

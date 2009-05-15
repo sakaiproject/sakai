@@ -12,7 +12,7 @@
 		if moving to multiple statuses in future, see change below, may also need to drop all existing statuses so we can assign the
 		right sequence numbers to the id field when new status are entered for each user.
 		 -->
-	    <id name="userUuid" column="USER_UUID" length="36">
+	    <id name="userUuid" column="USER_UUID" length="99">
 	    	<generator class="assigned" />
 	    </id>
 
