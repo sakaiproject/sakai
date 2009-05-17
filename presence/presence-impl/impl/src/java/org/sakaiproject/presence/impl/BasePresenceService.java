@@ -48,6 +48,7 @@ import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.w3c.dom.Element;
 
@@ -151,8 +152,8 @@ public abstract class BasePresenceService implements PresenceService
 		m_privacyManager = service;
 	}
 
-	/** Configuration: milliseconds till a non-refreshed presence entry times out. */
-	protected int m_timeout = 60000;
+	/** Configuration: default value in seconds till a non-refreshed presence entry times out. */
+	protected int m_timeout = 60;
 
 	private NotificationEdit notification;
 
@@ -168,7 +169,7 @@ public abstract class BasePresenceService implements PresenceService
 	{
 		try
 		{
-			m_timeout = Integer.parseInt(value) * 1000;
+			m_timeout = Integer.parseInt(value);
 		}
 		catch (Exception ignore)
 		{
@@ -278,6 +279,14 @@ public abstract class BasePresenceService implements PresenceService
 	 */
 	public void setPresence(String locationId)
 	{
+		setPresence(locationId, m_timeout);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setPresence(String locationId, int timeout)
+	{
 		if (locationId == null) return;
 
 		if (!checkPresence(locationId, true))
@@ -298,7 +307,7 @@ public abstract class BasePresenceService implements PresenceService
 			// bind a presence tracking object to the sakai session for auto-cleanup when logout or inactivity invalidates the sakai session
 			Session session = m_sessionManager.getCurrentSession();
 			ToolSession ts = session.getToolSession(SESSION_KEY);
-			Presence p = new Presence(curSession, locationId);
+			Presence p = new Presence(curSession, locationId, timeout);
 			ts.setAttribute(locationId, p);
 		}
 
@@ -343,16 +352,14 @@ public abstract class BasePresenceService implements PresenceService
 	 */
 	public void removeSessionPresence(String sessionId)
 	{
-		List presence = m_storage.removeSessionPresence(sessionId); 
+		List<String> presence = m_storage.removeSessionPresence(sessionId); 
 		
 		// get the session
         UsageSession session = m_usageSessionService.getSession(sessionId);
 		
 		// send presence end events for these
-		for (Iterator iPresence = presence.iterator(); iPresence.hasNext();)
+		for (String locationId  : presence)
 		{
-			String locationId = (String) iPresence.next();
-
 			Event event = m_eventTrackingService.newEvent(PresenceService.EVENT_ABSENCE, 
 					presenceReference(locationId), true);
 			m_eventTrackingService.post(event, session);
@@ -364,10 +371,11 @@ public abstract class BasePresenceService implements PresenceService
 	/**
 	 * {@inheritDoc}
 	 */
-	public List getPresence(String locationId)
+	@SuppressWarnings("unchecked")
+	public List<UsageSession> getPresence(String locationId)
 	{
 		// get the sessions at this location
-		List sessions = m_storage.getSessions(locationId);
+		List<UsageSession> sessions = m_storage.getSessions(locationId);
 
 		// sort
 		Collections.sort(sessions);
@@ -379,17 +387,17 @@ public abstract class BasePresenceService implements PresenceService
 	/**
 	 * {@inheritDoc}
 	 */
-	public List getPresentUsers(String locationId)
+	@SuppressWarnings("unchecked")
+	public List<User> getPresentUsers(String locationId)
 	{
 		// get the sessions
-		List sessions = m_storage.getSessions(locationId);
+		List<UsageSession> sessions = m_storage.getSessions(locationId);
 
 		// form a list of user ids
-		List userIds = new Vector();
-		for (Iterator i = sessions.iterator(); i.hasNext();)
-		{
-			UsageSession s = (UsageSession) i.next();
-			
+		List<String> userIds = new Vector<String>();
+		
+		for (UsageSession s : sessions)
+		{	
 			if (!userIds.contains(s.getUserId()))
 			{
 				userIds.add(s.getUserId());
@@ -397,7 +405,7 @@ public abstract class BasePresenceService implements PresenceService
 		}
 
 		// get the users for these ids
-		List users = m_userDirectoryService.getUsers(userIds);
+		List<User> users = m_userDirectoryService.getUsers(userIds);
 
 		// sort
 		Collections.sort(users);
@@ -408,28 +416,27 @@ public abstract class BasePresenceService implements PresenceService
 	/**
 	 * {@inheritDoc}
 	 */
-	public List getPresentUsers(String locationId, String siteId)
+	@SuppressWarnings("unchecked")
+	public List<User> getPresentUsers(String locationId, String siteId)
 	{
 		// get the sessions
-		List sessions = m_storage.getSessions(locationId);
+		List<UsageSession> sessions = m_storage.getSessions(locationId);
 
 		// form a list of user ids
-		List userIds = new Vector();
+		List<String> userIds = new Vector<String>();
 		
-		for (Iterator i = sessions.iterator(); i.hasNext();)
+		for (UsageSession s : sessions)
 		{
-			UsageSession s = (UsageSession) i.next();
-			
 			if (!userIds.contains(s.getUserId()))
 			{
 				userIds.add(s.getUserId());
 			}
 		}
 		
-		Set userIdsSet = m_privacyManager.findViewable("/site/" + siteId, new HashSet(userIds));
+		Set<String> userIdsSet = m_privacyManager.findViewable("/site/" + siteId, new HashSet(userIds));
 
 		// get the users for these ids
-		List users = m_userDirectoryService.getUsers(userIdsSet);
+		List<User> users = m_userDirectoryService.getUsers(userIdsSet);
 		
 		// sort
 		Collections.sort(users);
@@ -440,9 +447,9 @@ public abstract class BasePresenceService implements PresenceService
 	/**
 	 * {@inheritDoc}
 	 */
-	public List getLocations()
+	public List<String> getLocations()
 	{
-		List locations = m_storage.getLocations();
+		List<String> locations = m_storage.getLocations();
 
 		Collections.sort(locations);
 
@@ -473,7 +480,7 @@ public abstract class BasePresenceService implements PresenceService
 	 */
 	public int getTimeout()
 	{
-		return m_timeout / 1000;
+		return m_timeout;
 	}
 
 	/**
@@ -502,6 +509,7 @@ public abstract class BasePresenceService implements PresenceService
 	/**
 	 * Check current session presences and remove any expired ones
 	 */
+	@SuppressWarnings("unchecked")
 	protected void checkPresenceForExpiration()
 	{
 		Session session = m_sessionManager.getCurrentSession();
@@ -522,6 +530,7 @@ public abstract class BasePresenceService implements PresenceService
 	/**
 	 * Check all session presences and remove any expired ones
 	 */
+	@SuppressWarnings("unchecked")
 	protected void checkAllPresenceForExpiration()
 	{
 		List<Session> sessions = m_sessionManager.getSessions();
@@ -584,7 +593,7 @@ public abstract class BasePresenceService implements PresenceService
 		 * @param locationId
 		 *        The location id.
 		 */
-		List removeSessionPresence(String sessionId);
+		List<String> removeSessionPresence(String sessionId);
 		
 		/**
 		 * Access the List of UsageSessions present at this location.
@@ -593,14 +602,14 @@ public abstract class BasePresenceService implements PresenceService
 		 *        The location id.
 		 * @return The List of sessions (UsageSession) present at this location.
 		 */
-		List getSessions(String locationId);
+		List<UsageSession> getSessions(String locationId);
 
 		/**
 		 * Access the List of all known location ids.
 		 * 
 		 * @return The List (String) of all known locations.
 		 */
-		List getLocations();
+		List<String> getLocations();
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -618,14 +627,18 @@ public abstract class BasePresenceService implements PresenceService
 		/** If true, process the unbound. */
 		protected boolean m_active = true;
 
-		/** Time to expire. */
+		/** Time in seconds before expiry. */
+		protected long m_presence_timeout = 0;
+
+		/** Timestamp in milliseconds to expire. */
 		protected long m_expireTime = 0;
 
-		public Presence(UsageSession session, String locationId)
+		public Presence(UsageSession session, String locationId, int timeout)
 		{
 			m_session = session;
 			m_locationId = locationId;
-			m_expireTime = System.currentTimeMillis() + m_timeout;
+			m_presence_timeout = timeout;
+			m_expireTime = System.currentTimeMillis() + m_presence_timeout * 1000;
 		}
 
 		public void deactivate()
@@ -638,7 +651,7 @@ public abstract class BasePresenceService implements PresenceService
 		 */
 		public void setActive()
 		{
-			m_expireTime = System.currentTimeMillis() + m_timeout;
+			m_expireTime = System.currentTimeMillis() + m_presence_timeout * 1000;
 		}
 
 		/**

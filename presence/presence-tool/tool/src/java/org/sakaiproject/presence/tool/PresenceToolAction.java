@@ -22,7 +22,6 @@
 package org.sakaiproject.presence.tool;
 
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -38,6 +37,7 @@ import org.sakaiproject.cheftool.menu.MenuDivider;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.presence.cover.PresenceService;
 import org.sakaiproject.tool.api.Placement;
@@ -52,6 +52,8 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class PresenceToolAction extends VelocityPortletPaneledAction
 {
+	private static final long serialVersionUID = 1L;
+
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("admin");
 
@@ -97,6 +99,7 @@ public class PresenceToolAction extends VelocityPortletPaneledAction
 	 * 
 	 * @return (optional) template name for this panel
 	 */
+	@SuppressWarnings("unchecked")
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
 		context.put("tlang", rb);
@@ -140,7 +143,7 @@ public class PresenceToolAction extends VelocityPortletPaneledAction
 			template += "-List";
 
 			// get the list of all presence locations
-			List locations = PresenceService.getLocations();
+			List<String> locations = PresenceService.getLocations();
 			context.put("locations", locations);
 
 			context.put("service", PresenceService.getInstance());
@@ -152,17 +155,16 @@ public class PresenceToolAction extends VelocityPortletPaneledAction
 			template += ".sessions-List";
 
 			// get sessions by server (keys are already sorted by server)
-			Map sessionsByServer = UsageSessionService.getOpenSessionsByServer();
+			Map<String,List<UsageSession>> sessionsByServer = UsageSessionService.getOpenSessionsByServer();
 			context.put("servers", sessionsByServer);
 
-			List serverList = new Vector();
+			List<String> serverList = new Vector<String>();
 			serverList.addAll(sessionsByServer.keySet());
 			context.put("serverList", serverList);
 
 			int count = 0;
-			for (Iterator i = sessionsByServer.values().iterator(); i.hasNext();)
+			for (List<UsageSession> sessions : sessionsByServer.values())
 			{
-				List sessions = (List) i.next();
 				count += sessions.size();
 			}
 			context.put("total", new Integer(count));
@@ -174,18 +176,17 @@ public class PresenceToolAction extends VelocityPortletPaneledAction
 			template += ".servers-List";
 
 			// get the set of all servers with current presence
-			Map servers = UsageSessionService.getOpenSessionsByServer();
+			Map<String,List<UsageSession>> servers = UsageSessionService.getOpenSessionsByServer();
 			context.put("servers", servers);
 
-			List serverList = new Vector();
+			List<String> serverList = new Vector<String>();
 			serverList.addAll(servers.keySet());
 			Collections.sort(serverList);
 			context.put("serverList", serverList);
 
 			int count = 0;
-			for (Iterator i = servers.values().iterator(); i.hasNext();)
+			for (List<UsageSession> sessions : servers.values())
 			{
-				List sessions = (List) i.next();
 				count += sessions.size();
 			}
 			context.put("total", new Integer(count));
@@ -268,9 +269,6 @@ public class PresenceToolAction extends VelocityPortletPaneledAction
 	 */
 	public void doRefresh(RunData data, Context context)
 	{
-		// access the portlet element id to find our state
-		String peid = ((JetspeedRunData) data).getJs_peid();
-		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 
 	} // doRefresh
 

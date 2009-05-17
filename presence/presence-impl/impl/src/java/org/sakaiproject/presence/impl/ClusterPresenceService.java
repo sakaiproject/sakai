@@ -21,15 +21,12 @@
 
 package org.sakaiproject.presence.impl;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.db.api.SqlService;
-import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.UsageSession;
-import org.sakaiproject.presence.api.PresenceService;
 
 /**
  * <p>
@@ -76,7 +73,7 @@ public class ClusterPresenceService extends BasePresenceService
 	 */
 	public void setAutoDdl(String value)
 	{
-		m_autoDdl = new Boolean(value).booleanValue();
+		m_autoDdl = Boolean.valueOf(value);
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -154,14 +151,15 @@ public class ClusterPresenceService extends BasePresenceService
 		/**
 		 * {@inheritDoc}
 		 */
-		public List removeSessionPresence(String sessionId)
+		@SuppressWarnings("unchecked")
+		public List<String> removeSessionPresence(String sessionId)
 		{
 			Object[] fields = new Object[1];
 			
 			// get all the presence for this session
 			String statement = "select LOCATION_ID from SAKAI_PRESENCE where SESSION_ID = ?";
 			fields[0] = sessionId;
-			List presence = m_sqlService.dbRead(statement, fields, null);
+			List<String> presence = m_sqlService.dbRead(statement, fields, null);
 	
 			// remove all the presence for this session
 			statement = "delete from SAKAI_PRESENCE where SESSION_ID = ?";
@@ -177,7 +175,8 @@ public class ClusterPresenceService extends BasePresenceService
 		/**
 		 * {@inheritDoc}
 		 */
-		public List getSessions(String locationId)
+		@SuppressWarnings("unchecked")
+		public List<UsageSession> getSessions(String locationId)
 		{
 			// Note: this assumes
 			// 1) the UsageSessionService has a db component selected.
@@ -194,7 +193,7 @@ public class ClusterPresenceService extends BasePresenceService
 			fields[0] = locationId;
 
 			// get these from usage session
-			List sessions = m_usageSessionService.getSessions(joinTable, joinAlias, joinColumn, joinCriteria, fields);
+			List<UsageSession> sessions = m_usageSessionService.getSessions(joinTable, joinAlias, joinColumn, joinCriteria, fields);
 
 			return sessions;
 		}
@@ -202,12 +201,13 @@ public class ClusterPresenceService extends BasePresenceService
 		/**
 		 * {@inheritDoc}
 		 */
-		public List getLocations()
+		@SuppressWarnings("unchecked")
+		public List<String> getLocations()
 		{
 			// form the SQL query
 			String statement = "select DISTINCT LOCATION_ID from SAKAI_PRESENCE";
 
-			List locs = m_sqlService.dbRead(statement);
+			List<String> locs = m_sqlService.dbRead(statement);
 
 			return locs;
 		}

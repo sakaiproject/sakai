@@ -57,6 +57,8 @@ import org.sakaiproject.util.Web;
  */
 public class PresenceTool extends HttpServlet
 {
+	private static final long serialVersionUID = 1L;
+
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(PresenceTool.class);
 

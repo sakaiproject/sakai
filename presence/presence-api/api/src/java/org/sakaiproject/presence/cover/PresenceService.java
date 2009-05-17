@@ -22,6 +22,8 @@
 package org.sakaiproject.presence.cover;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.user.api.User;
 
 /**
  * <p>
@@ -53,11 +55,11 @@ public class PresenceService
 
 	private static org.sakaiproject.presence.api.PresenceService m_instance = null;
 
-	public static java.lang.String REFERENCE_ROOT = org.sakaiproject.presence.api.PresenceService.REFERENCE_ROOT;
+	public static final java.lang.String REFERENCE_ROOT = org.sakaiproject.presence.api.PresenceService.REFERENCE_ROOT;
 
-	public static java.lang.String EVENT_PRESENCE = org.sakaiproject.presence.api.PresenceService.EVENT_PRESENCE;
+	public static final java.lang.String EVENT_PRESENCE = org.sakaiproject.presence.api.PresenceService.EVENT_PRESENCE;
 
-	public static java.lang.String EVENT_ABSENCE = org.sakaiproject.presence.api.PresenceService.EVENT_ABSENCE;
+	public static final java.lang.String EVENT_ABSENCE = org.sakaiproject.presence.api.PresenceService.EVENT_ABSENCE;
 
 	public static java.lang.String presenceReference(java.lang.String param0)
 	{
@@ -91,6 +93,14 @@ public class PresenceService
 		service.setPresence(param0);
 	}
 
+	public static void setPresence(java.lang.String param0, int param1)
+	{
+		org.sakaiproject.presence.api.PresenceService service = getInstance();
+		if (service == null) return;
+
+		service.setPresence(param0, param1);
+	}
+
 	public static void removePresence(java.lang.String param0)
 	{
 		org.sakaiproject.presence.api.PresenceService service = getInstance();
@@ -107,7 +117,7 @@ public class PresenceService
 		service.removeSessionPresence(param0);
 	}
 	
-	public static java.util.List getPresence(java.lang.String param0)
+	public static java.util.List<UsageSession> getPresence(java.lang.String param0)
 	{
 		org.sakaiproject.presence.api.PresenceService service = getInstance();
 		if (service == null) return null;
@@ -115,7 +125,7 @@ public class PresenceService
 		return service.getPresence(param0);
 	}
 
-	public static java.util.List getPresentUsers(java.lang.String param0)
+	public static java.util.List<User> getPresentUsers(java.lang.String param0)
 	{
 		org.sakaiproject.presence.api.PresenceService service = getInstance();
 		if (service == null) return null;
@@ -123,7 +133,7 @@ public class PresenceService
 		return service.getPresentUsers(param0);
 	}
 
-	public static java.util.List getPresentUsers(java.lang.String param0, java.lang.String param1)
+	public static java.util.List<User> getPresentUsers(java.lang.String param0, java.lang.String param1)
 	{
 		org.sakaiproject.presence.api.PresenceService service = getInstance();
 		if (service == null) return null;
@@ -131,7 +141,7 @@ public class PresenceService
 		return service.getPresentUsers(param0, param1);
 	}
 
-	public static java.util.List getLocations()
+	public static java.util.List<String> getLocations()
 	{
 		org.sakaiproject.presence.api.PresenceService service = getInstance();
 		if (service == null) return null;

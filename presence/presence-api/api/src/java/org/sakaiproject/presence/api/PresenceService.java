@@ -23,6 +23,9 @@ package org.sakaiproject.presence.api;
 
 import java.util.List;
 
+import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.user.api.User;
+
 /**
  * <p>
  * A PresenceService keeps track of a session's presence at various locations in the system.
@@ -84,6 +87,18 @@ public interface PresenceService
 	void setPresence(String locationId);
 
 	/**
+	 * Establish or refresh the presence of the current session in a location.
+	 * 
+	 * @param session
+	 *        The session object.
+	 * @param locationId
+	 *        A presence location id.
+	 * @param timeout
+	 *        The length of time in seconds for which the presence should persist before timing out if not refreshed.
+	 */
+	void setPresence(String locationId, int timeout);
+
+	/**
 	 * Remove the presence of the current session from a location.
 	 * 
 	 * @param session
@@ -110,7 +125,7 @@ public interface PresenceService
 	 *        A presence location id.
 	 * @return The a List of sessions (UsageSession) now present in the location (may be empty).
 	 */
-	List getPresence(String locationId);
+	List<UsageSession> getPresence(String locationId);
 
 	/**
 	 * Access a List of users (User) now present in a location.
@@ -119,7 +134,7 @@ public interface PresenceService
 	 *        A presence location id.
 	 * @return The a List of users (User) now present in the location (may be empty).
 	 */
-	List getPresentUsers(String locationId);
+	List<User> getPresentUsers(String locationId);
 
 	/**
 	 * Access a List of users (User) now present in a location.
@@ -131,14 +146,14 @@ public interface PresenceService
 	 * 
 	 * @return The a List of users (User) now present in the location (may be empty).
 	 */
-	List getPresentUsers(String locationId, String siteId);
+	List<User> getPresentUsers(String locationId, String siteId);
 
 	/**
 	 * Access a List of all location ids (String).
 	 * 
 	 * @return The List of all location ids (Strings) (may be empty).
 	 */
-	List getLocations();
+	List<String> getLocations();
 
 	/**
 	 * Access the time (in seconds) after which a presence will timeout.
