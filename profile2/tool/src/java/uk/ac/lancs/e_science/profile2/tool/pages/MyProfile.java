@@ -48,7 +48,7 @@ public class MyProfile extends BasePage {
 		
 		//get SakaiPerson for this user
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
-		//if null, create one (and a privacy record)
+		//if null, create one 
 		if(sakaiPerson == null) {
 			log.warn("No SakaiPerson for " + userId + ". Creating one.");
 			sakaiPerson = sakaiProxy.createSakaiPerson(userId);
