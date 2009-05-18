@@ -83,6 +83,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     private static final String QUERY_READ_STATUS_WITH_MSGS_USER = "findReadStatusByMsgIds";
     private static final String QUERY_FIND_PENDING_MSGS_BY_CONTEXT_AND_USER = "findAllPendingMsgsByContextByMembership";
     private static final String QUERY_FIND_PENDING_MSGS_BY_TOPICID = "findPendingMsgsByTopicId";
+    private static final String QUERY_UNDELETED_MSG_BY_TOPIC_ID = "findUndeletedMessagesByTopicId";
     //private static final String ID = "id";
 
     private static final String MESSAGECENTER_HELPER_TOOL_ID = "sakai.messageforums.helper";
@@ -475,6 +476,25 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         HibernateCallback hcb = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
                 Query q = session.getNamedQuery(QUERY_BY_TOPIC_ID);
+                q.setParameter("topicId", topicId, Hibernate.LONG);
+                return q.list();
+            }
+        };
+
+        return (List) getHibernateTemplate().execute(hcb);        
+    }
+    
+    public List findUndeletedMessagesByTopicId(final Long topicId) {
+        if (topicId == null) {
+            LOG.error("findUndeletedMessagesByTopicId failed with topicId: " + topicId);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("findUndeletedMessagesByTopicId executing with topicId: " + topicId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery(QUERY_UNDELETED_MSG_BY_TOPIC_ID);
                 q.setParameter("topicId", topicId, Hibernate.LONG);
                 return q.list();
             }

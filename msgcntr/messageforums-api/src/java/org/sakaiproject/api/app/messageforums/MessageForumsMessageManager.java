@@ -95,7 +95,9 @@ public interface MessageForumsMessageManager {
     public List<Object []> findDiscussionForumReadMessageCountsForTopicsWithMissingPermsForAllSites(final List<String> siteList);
 
     public List findMessagesByTopicId(Long topicId);
-
+  
+    public List findUndeletedMessagesByTopicId(Long topicId);
+    
     public Attachment getAttachmentById(Long attachmentId);
     
     public void getChildMsgs(final Long messageId, List returnList);

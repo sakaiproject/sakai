@@ -191,6 +191,10 @@
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.topic.id = :topicId]]>
   </query>
   
+  <query name="findUndeletedMessagesByTopicId">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.topic.id = :topicId and message.deleted = false]]>
+  </query>
+  
   <!-- ================ Gets count of all unread private messages ================= -->
   <!--  NOTE: do not need site list since private message read status table only has entries for sites user is a part of -->
   

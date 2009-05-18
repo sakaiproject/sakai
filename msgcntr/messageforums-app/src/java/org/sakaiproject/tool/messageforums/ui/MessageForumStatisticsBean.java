@@ -510,7 +510,7 @@ public class MessageForumStatisticsBean {
 				final Topic topic = (Topic) topicIter.next();
 				
 				if (uiPermissionsManager.isRead((DiscussionTopic) topic, df)) {
-					List messageList = messageManager.findMessagesByTopicId(topic.getId());
+					List messageList = messageManager.findUndeletedMessagesByTopicId(topic.getId());
 					final Iterator messageIter = messageList.iterator();
 					while(messageIter.hasNext()){
 						final Message mes = (Message) messageIter.next();
@@ -553,7 +553,7 @@ public class MessageForumStatisticsBean {
 				final Topic topic = (Topic) topicIter.next();
 				
 				if (uiPermissionsManager.isRead((DiscussionTopic) topic, df)) {
-					List messageList = messageManager.findMessagesByTopicId(topic.getId());
+					List messageList = messageManager.findUndeletedMessagesByTopicId(topic.getId());
 					final Iterator messageIter = messageList.iterator();
 					while(messageIter.hasNext()){
 						final Message mes = (Message) messageIter.next();
@@ -617,7 +617,7 @@ public class MessageForumStatisticsBean {
 				final Topic topic = (Topic) topicIter.next();
 				
 				if (uiPermissionsManager.isRead((DiscussionTopic) topic, df)) {
-					List messageList = messageManager.findMessagesByTopicId(topic.getId());
+					List messageList = messageManager.findUndeletedMessagesByTopicId(topic.getId());
 					final Iterator messageIter = messageList.iterator();
 					while(messageIter.hasNext()){
 						final Message mes = (Message) messageIter.next();
@@ -675,7 +675,7 @@ public class MessageForumStatisticsBean {
 				final Topic topic = (Topic) topicIter.next();
 				
 				if (uiPermissionsManager.isRead((DiscussionTopic) topic, df)) {
-					List messageList = messageManager.findMessagesByTopicId(topic.getId());
+					List messageList = messageManager.findUndeletedMessagesByTopicId(topic.getId());
 					final Iterator messageIter = messageList.iterator();
 					while(messageIter.hasNext()){
 						final Message mes = (Message) messageIter.next();
