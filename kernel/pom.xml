@@ -293,7 +293,7 @@
 			<uniqueVersion>false</uniqueVersion>
 			<id>sakai-maven2</id>
 			<name>Sakai maven2 repository</name>
-			<url>dav:https://source.sakaiproject.org/maven2/org/sakaiproject/kernel/</url>
+			<url>dav:https://source.sakaiproject.org/maven2</url>
 			<layout>default</layout>
 		</repository>
 		<site>
