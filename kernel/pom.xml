@@ -30,7 +30,8 @@
 		<maven>2.0.6</maven>
 	</prerequisites>
 	<properties>
-		<url.localsite>file:///tmp/site</url.localsite>
+		<!--<url.localsite>dav:http://source.sakaiproject.org/release/kernel/${project.version}</url.localsite>-->
+		<url.localsite>scp://source.sakaiproject.org/var/www/html/release/kernel/${project.version}</url.localsite>
 	</properties>
 	<mailingLists>
         <mailingList>
@@ -282,6 +283,7 @@
 		<url>https://source.sakaiproject.org/svn/kernel/trunk</url>
 	</scm>
 	<distributionManagement>
+	  <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
 		<snapshotRepository>
 			<uniqueVersion>false</uniqueVersion>
 			<id>sakai-maven-snapshots</id>
@@ -297,8 +299,8 @@
 			<layout>default</layout>
 		</repository>
 		<site>
-			<id>local</id>
-			<name>Local Test</name>
+			<id>sakai-site</id>
+			<name>Sakai release Site</name>
 			<url>${url.localsite}</url>
 		</site>
 	</distributionManagement>
