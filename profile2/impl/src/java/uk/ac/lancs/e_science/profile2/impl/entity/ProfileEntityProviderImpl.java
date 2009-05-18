@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -144,6 +145,23 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 
 	
 	
+	public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params) {
+		String userId = ref.getId();
+		if (StringUtils.isBlank(userId)) {
+			throw new IllegalArgumentException("Cannot update, No userId in provided reference: " + ref);
+		}
+		
+		if (entity.getClass().isAssignableFrom(UserProfile.class)) {
+			UserProfile userProfile = (UserProfile) entity;
+			profileService.save(userProfile);
+		} else {
+			 throw new IllegalArgumentException("Invalid entity for update, must be UserProfile object");
+		}
+	}
+	
+	
+	
+	
 	
 	
 	
@@ -159,10 +177,7 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 		return null;
 	}
 
-	public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params) {
-		// TODO Auto-generated method stub
-		
-	}
+	
 
 	public void deleteEntity(EntityReference ref, Map<String, Object> params) {
 		// TODO Auto-generated method stub
