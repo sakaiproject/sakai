@@ -35,6 +35,7 @@ import java.util.List;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -269,9 +270,17 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
     
     
 	public void writeDataToResponse(List<List<Object>> spreadsheetData, String fileName, HttpServletResponse response) {
-		response.setContentType("application/vnd.ms-excel");
-		response.setHeader("Content-disposition", "attachment; filename=" + fileName + ".xls");
-
+		response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+		String escapedFilename = org.sakaiproject.util.Validator.escapeUrl(fileName);
+        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+		String userAgent = request.getHeader("User-Agent"); 
+		if (userAgent != null && userAgent.contains("MSIE")) { 
+            response.setHeader("Content-disposition", "attachment; filename=" + escapedFilename + ".xls");
+		}
+		else {
+        	response.setHeader("Content-disposition", "attachment; filename*=utf-8''" + escapedFilename + ".xls");
+        }
+		
 		OutputStream out = null;
 		try {
 			out = response.getOutputStream();
@@ -287,39 +296,6 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 			}
 		}
 	}
-
-	/*
-	private HSSFWorkbook getAsWorkbookTest(List<List<Object>> spreadsheetData) {
-		HSSFWorkbook wb = new HSSFWorkbook();
-		HSSFSheet sheet = wb.createSheet();
-		Iterator<List<Object>> dataIter = spreadsheetData.iterator();
-
-		// By convention, the first list in the list contains column headers.
-		HSSFRow headerRow = sheet.createRow((short)0);
-		List<Object> headerList = dataIter.next();
-		for (short i = 0; i < headerList.size(); i++) {
-			createCell(headerRow, i, null).setCellValue(headerList.get(i).toString());
-		}
-		short rowPos = 1;
-		while (dataIter.hasNext()) {
-			List<Object> rowData = dataIter.next();
-			HSSFRow row = sheet.createRow(rowPos++);
-			for (short i = 0; i < rowData.size(); i++) {
-				HSSFCell cell = createCell(row, i, null);
-				Object data = rowData.get(i);
-				if (data != null) {
-					if (data instanceof Double) {
-						cell.setCellValue(((Double)data).doubleValue());
-					} 
-					else {
-						cell.setCellValue(data.toString());
-					}
-				}
-			}
-		}
-		return wb;
-	}
-	*/
 	
 	private HSSFWorkbook getAsWorkbook(List<List<Object>> spreadsheetData) {
 		HSSFWorkbook wb = new HSSFWorkbook();
