@@ -34,8 +34,9 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 	}
 		
 	public boolean entityExists(String eid) {
-		//check the user is valid. if it is then return true as everyone has a profile.
-		return profileService.checkUserProfileExists(eid);
+		//check the user is valid. if it is then return true as everyone has a 'profile'.
+		//note that we DO NOT check if they have an actual profile, just if they exist.
+		return profileService.checkUserExists(eid);
 	}
 
 	public Object getSampleEntity() {
@@ -160,21 +161,18 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 	}
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
 	public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
-		return null;
+		String userId = ref.getId();
+		if (StringUtils.isBlank(userId)) {
+			throw new IllegalArgumentException("Cannot create, No userId in provided reference: " + ref);
+		}
+		
+		if (entity.getClass().isAssignableFrom(UserProfile.class)) {
+			UserProfile userProfile = (UserProfile) entity;
+			return profileService.create(userProfile);
+		} else {
+			 throw new IllegalArgumentException("Invalid entity for create, must be UserProfile object");
+		}
 	}
 
 	

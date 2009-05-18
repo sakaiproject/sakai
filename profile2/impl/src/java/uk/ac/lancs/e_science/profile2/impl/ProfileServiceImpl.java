@@ -18,6 +18,7 @@ import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.api.entity.model.Connection;
 import uk.ac.lancs.e_science.profile2.api.entity.model.UserProfile;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfileMismatchException;
+import uk.ac.lancs.e_science.profile2.api.exception.ProfileNotDefinedException;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePreferences;
 import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
 import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
@@ -32,14 +33,7 @@ public class ProfileServiceImpl implements ProfileService {
 
 	private static final Logger log = Logger.getLogger(ProfileServiceImpl.class);
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean save(UserProfile userProfile) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -83,7 +77,7 @@ public class ProfileServiceImpl implements ProfileService {
 		if(sakaiPerson == null) {
 			return getPrototype(userUuid);
 		}
-		UserProfile userProfile = transformSakaiPersonToUserProfile(userUuid, sakaiPerson);
+		UserProfile userProfile = transformSakaiPersonToUserProfile(sakaiPerson);
 				
 		//if person requested own profile, no need for privacy checks
 		//add the additional information and return
@@ -244,9 +238,29 @@ public class ProfileServiceImpl implements ProfileService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean checkUserProfileExists(String userId) {
+	public boolean checkUserExists(String userId) {
 		return sakaiProxy.checkForUser(getUuidForUserId(userId));
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean checkUserProfileExists(String userId) {
+		
+		//convert userId into uuid
+		String userUuid = getUuidForUserId(userId);
+		if(userUuid == null) {
+			log.error("Invalid userId: " + userId);
+			return false;
+		}
+		
+		//check if we have a persisted profile
+		if(sakaiProxy.getSakaiPerson(userUuid) == null) {
+			return false;
+		}
+		return true;
+	}
+
 
 	/**
 	 * {@inheritDoc}
@@ -593,6 +607,97 @@ public class ProfileServiceImpl implements ProfileService {
 		return sb.toString();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String save(UserProfile userProfile) {
+		
+		//check auth and get currentUserUuid
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if(currentUserUuid == null) {
+			throw new SecurityException("You must be logged in to update your profile.");
+		}
+		
+		//check currentUser and profile uuid match
+		if(!currentUserUuid.equals(userProfile.getUserUuid())) {
+			throw new SecurityException("You are not allowed to update this user's profile.");
+		}
+		
+		//translate, save and return the response.
+		return persistUserProfile(userProfile);
+		
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String create(String userId) {
+		
+		//check auth and get currentUserUuid
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if(currentUserUuid == null) {
+			throw new SecurityException("You must be logged in to create your profile.");
+		}
+		
+		//convert userId into uuid
+		String userUuid = getUuidForUserId(userId);
+		if(userUuid == null) {
+			log.error("Invalid userId: " + userId);
+			return null;
+		}
+		
+		//check currentUser and profile uuid match
+		if(!currentUserUuid.equals(userUuid)) {
+			throw new SecurityException("You are not allowed to create this user's profile.");
+		}
+		
+		//does this user already have a persisted profile?
+		if(checkUserProfileExists(userUuid)) {
+			log.info("userId: " + userId + " already has a profile. Cannot create another.");
+			return userUuid;
+		}
+			
+		//no existing profile, setup a prototype
+		UserProfile userProfile = getPrototype(userUuid);
+		
+		//translate, save and return the response.
+		return persistUserProfile(userProfile);
+				
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String create(UserProfile userProfile) {
+		return save(userProfile);
+	}
+	
+	
+	/**
+	 * This is a helper method to take care of translating a UserProfile to a SakaiPerson, doing anything else
+	 * then saving it.
+	 * 
+	 * @param userProfile
+	 * @return userUuid if ok, null otherwise
+	 */
+	private String persistUserProfile(UserProfile userProfile) {
+		
+		//translate main fields
+		SakaiPerson sakaiPerson = transformUserProfileToSakaiPerson(userProfile);
+
+		//update SakaiPerson obj
+		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
+			log.info("Saved profile for: " + userProfile.getUserUuid());
+			return userProfile.getUserUuid();
+		} else {
+			log.error("Couldn't save profile for: " + userProfile.getUserUuid());
+			return null;
+		}
+		
+	}
+	
+	
+	
 	// TODO
 	private void applyPrivacyChecksToUserProfile(UserProfile userProfile, ProfilePrivacy privacy, boolean friend) {
 		
@@ -703,18 +808,16 @@ public class ProfileServiceImpl implements ProfileService {
 	/**
 	 * Convenience method to map a SakaiPerson object onto a UserProfile object
 	 * 
-	 * @param userUuid 	uuid for owner of this profile, for double checking.
 	 * @param sp 		input SakaiPerson
 	 * @return			returns a UserProfile representation of the SakaiPerson object
 	 */
-	private UserProfile transformSakaiPersonToUserProfile(String userUuid, SakaiPerson sp) {
+	private UserProfile transformSakaiPersonToUserProfile(SakaiPerson sp) {
 		
-		//double check the userUuid matches the SakaiPerson
-		if(!userUuid.equals(sp.getAgentUuid())) {
-			throw new ProfileMismatchException("Mismatch between SakaiPerson: " + sp.getAgentUuid() + " and userUuid: " + userUuid);
-		}
-				
+		String userUuid = sp.getAgentUuid();
+		
 		UserProfile userProfile = new UserProfile();
+		
+		//map fields from SakaiPerson to UserProfile
 		
 		//minimum info
 		userProfile.setUserUuid(userUuid);
@@ -727,8 +830,8 @@ public class ProfileServiceImpl implements ProfileService {
 		//contact info
 		userProfile.setEmail(sakaiProxy.getUserEmail(userUuid));
 		userProfile.setHomepage(sp.getLabeledURI());
-		userProfile.setHomephone(sp.getHomePhone());
 		userProfile.setWorkphone(sp.getTelephoneNumber());
+		userProfile.setHomephone(sp.getHomePhone());
 		userProfile.setMobilephone(sp.getMobile());
 		userProfile.setFacsimile(sp.getFacsimileTelephoneNumber());
 		
@@ -751,7 +854,58 @@ public class ProfileServiceImpl implements ProfileService {
 		
 	}
 	
+	/**
+	 * Convenience method to map a UserProfile object onto a SakaiPerson object for persisting
+	 * 
+	 * @param up 		input SakaiPerson
+	 * @return			returns a SakaiPerson representation of the UserProfile object
+	 */
+	private SakaiPerson transformUserProfileToSakaiPerson(UserProfile up) {
 	
+		String userUuid = up.getUserUuid();
+		
+		//get SakaiPerson
+		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
+		
+		//if null, create one 
+		if(sakaiPerson == null) {
+			sakaiPerson = sakaiProxy.createSakaiPerson(userUuid);
+			//if its still null, throw exception
+			if(sakaiPerson == null) {
+				throw new ProfileNotDefinedException("Couldn't create a SakaiPerson for " + userUuid);
+			}
+		} 
+		
+		//map fields from UserProfile to SakaiPerson
+		
+		//basic info
+		sakaiPerson.setNickname(up.getNickname());
+		sakaiPerson.setDateOfBirth(up.getDateOfBirth());
+		
+		//contact info
+		sakaiPerson.setLabeledURI(up.getHomepage());
+		sakaiPerson.setTelephoneNumber(up.getWorkphone());
+		sakaiPerson.setHomePhone(up.getHomephone());
+		sakaiPerson.setMobile(up.getMobilephone());
+		sakaiPerson.setFacsimileTelephoneNumber(up.getFacsimile());
+		
+		//academic info
+		sakaiPerson.setOrganizationalUnit(up.getDepartment());
+		sakaiPerson.setTitle(up.getPosition());
+		sakaiPerson.setCampus(up.getSchool());
+		sakaiPerson.setRoomNumber(up.getRoom());
+		sakaiPerson.setEducationCourse(up.getCourse());
+		sakaiPerson.setEducationSubjects(up.getSubjects());
+		
+		//personal info
+		sakaiPerson.setFavouriteBooks(up.getFavouriteBooks());
+		sakaiPerson.setFavouriteTvShows(up.getFavouriteTvShows());
+		sakaiPerson.setFavouriteMovies(up.getFavouriteMovies());
+		sakaiPerson.setFavouriteQuotes(up.getFavouriteQuotes());
+		sakaiPerson.setNotes(up.getOtherInformation());
+
+		return sakaiPerson;
+	}
 	
 	private SakaiProxy sakaiProxy;
 	public void setSakaiProxy(SakaiProxy sakaiProxy) {

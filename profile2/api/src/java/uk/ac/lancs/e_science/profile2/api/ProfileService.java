@@ -14,8 +14,6 @@ import uk.ac.lancs.e_science.profile2.api.entity.model.UserProfile;
  *
  */
 public interface ProfileService {
-
-	public boolean save(UserProfile userProfile);
 	
 	/**
 	 * Create a blank UserProfile object.
@@ -90,8 +88,17 @@ public interface ProfileService {
 	public UserProfile getCustomUserProfile(String userId, int profileType);
 
 	/**
-	 * Checks whether a user profile exists. 
+	 * Checks whether a user exists. 
 	 * <p>This actually just checks for the existence of a user in the system as every user has a profile, even if it is blank.</p>
+	 * 
+	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
+	 * @return true if exists, false otherwise
+	 */
+	public boolean checkUserExists(String userId);
+	
+	/**
+	 * Checks whether a user profile ACTUALLY exists. 
+	 * <p>Sometimes we need to check if the profile really does already exist.</p>
 	 * 
 	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
 	 * @return true if exists, false otherwise
@@ -139,8 +146,31 @@ public interface ProfileService {
 	 * The HTML is fully abstracted so it can be styled and rearranged as desired.
 	 * 
 	 * @param userProfile
-	 * @return
+	 * @return formatted HTML rady for use or for futher styling if required.
 	 */
 	public String getUserProfileAsHTML(UserProfile userProfile);
+	
+	/**
+	 * Save the given UserProfile. Checks currentUser against the userProfile supplied. 
+	 * A user can update only their own profile, no one elses.
+	 * 
+	 * @param userProfile
+	 * @return true/false for success
+	 */
+	public String save(UserProfile userProfile);
+	
+	/**
+	 * Create a UserProfile for the given user and persist it to the database.
+	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
+	 * @return String of user's uuid
+	 */
+	public String create(String userId);
+	
+	/**
+	 * Persist the given UserProfile object to the database
+	 * @param userProfile - UserProfile that you want persisted
+	 * @return String of user's uuid
+	 */
+	public String create(UserProfile userProfile);
 	
 }
