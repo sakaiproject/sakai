@@ -297,8 +297,8 @@ function setBlockDivs()
   <!-- *** GENERAL TEMPLATE INFORMATION *** -->
 
 <p>
-<h:outputLink value="#" title="#{templateMessages.t_showDivs}" onclick="showDivs();" onkeypress="showDivs();">
 <h:outputText value="#{templateMessages.allMenus0}"/>
+<h:outputLink value="#" title="#{templateMessages.t_showDivs}" onclick="showDivs();" onkeypress="showDivs();">
 <h:outputText value="#{templateMessages.open}"/>
 </h:outputLink>
 <h:outputText value=" | " />

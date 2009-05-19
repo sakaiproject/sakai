@@ -206,10 +206,9 @@ function checkUncheckTimeBox(){
     </h3>
 
 <f:verbatim><div class="tier1"></f:verbatim>
-  <!-- *** GENERAL TEMPLATE INFORMATION *** -->
-
-<h:outputLink value="#" title="#{templateMessages.t_showDivs}" onclick="showDivs();" onkeypress="showDivs();">
+<!-- *** GENERAL TEMPLATE INFORMATION *** -->
 <h:outputText value="#{templateMessages.allMenus0}"/>
+<h:outputLink value="#" title="#{templateMessages.t_showDivs}" onclick="showDivs();" onkeypress="showDivs();">
 <h:outputText value="#{templateMessages.open}"/>
 </h:outputLink>
 <h:outputText value=" | " />
