@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="RoleGroupEventWatcher"
+		class="org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.RoleGroupEventWatcher"
+		init-method="init"
+		destroy-method="destroy"
+		singleton="true">
+   	 	<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+ 	 	<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+ 	 	<property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
+ 	 </bean>
+  
+</beans>

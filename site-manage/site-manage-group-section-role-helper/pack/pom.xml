@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>site-manage-base</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>2.7.0-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+  <name>sakai-site-manage-group-section-role-helper-pack</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-site-manage-group-section-role-helper-pack</artifactId>
+  <organization>
+    <name>University of Michigan</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2003</inceptionYear>
+  <packaging>sakai-component</packaging>
+  <properties>
+    <deploy.target>components</deploy.target>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-site-manage-group-section-role-helper</artifactId>
+    </dependency>
+  </dependencies>
+  <build>
+    <resources/>
+  </build>
+</project>
