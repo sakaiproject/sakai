@@ -2547,7 +2547,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						" a.finalScore, a.comments, a.status, a.gradedBy, a.gradedDate, a.attemptDate, a.timeElapsed) " +
 						" from AssessmentGradingData a, PublishedAccessControl c " +
 						" where a.publishedAssessmentId = c.assessment.publishedAssessmentId " +
-						" and current_timestamp() >= c.dueDate and c.autoSubmit = ? " +
+						" and current_timestamp() >= c.dueDate and a.status not in (4, 5) and c.autoSubmit = ? " +
 						" order by a.publishedAssessmentId, a.agentId, a.forGrade desc ", values);
 		
 	    Iterator iter = list.iterator();
