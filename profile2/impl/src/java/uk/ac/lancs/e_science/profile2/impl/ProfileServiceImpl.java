@@ -653,7 +653,8 @@ public class ProfileServiceImpl implements ProfileService {
 		
 		//does this user already have a persisted profile?
 		if(checkUserProfileExists(userUuid)) {
-			log.info("userId: " + userId + " already has a profile. Cannot create another.");
+			System.out.println("already has a profile");
+			log.error("userUuid: " + userUuid + " already has a profile. Cannot create another.");
 			return userUuid;
 		}
 			
@@ -669,13 +670,22 @@ public class ProfileServiceImpl implements ProfileService {
 	 * {@inheritDoc}
 	 */
 	public String create(UserProfile userProfile) {
+		
+		String userUuid = userProfile.getUserUuid();
+		
+		//does this user already have a persisted profile?
+		if(checkUserProfileExists(userUuid)) {
+			log.error("userUuid: " + userUuid + " already has a profile. Cannot create another.");
+			return userUuid;
+		}
+		
 		return save(userProfile);
 	}
 	
 	
 	/**
 	 * This is a helper method to take care of translating a UserProfile to a SakaiPerson, doing anything else
-	 * then saving it.
+	 * then persisting it to the database.
 	 * 
 	 * @param userProfile
 	 * @return userUuid if ok, null otherwise

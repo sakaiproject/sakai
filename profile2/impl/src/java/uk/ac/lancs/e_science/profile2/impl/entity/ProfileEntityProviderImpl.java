@@ -147,6 +147,7 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 	
 	
 	public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params) {
+		
 		String userId = ref.getId();
 		if (StringUtils.isBlank(userId)) {
 			throw new IllegalArgumentException("Cannot update, No userId in provided reference: " + ref);
@@ -162,10 +163,8 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 	
 	
 	public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
-		String userId = ref.getId();
-		if (StringUtils.isBlank(userId)) {
-			throw new IllegalArgumentException("Cannot create, No userId in provided reference: " + ref);
-		}
+		
+		//reference will be the userUuid, which comes from the UserProfile
 		
 		if (entity.getClass().isAssignableFrom(UserProfile.class)) {
 			UserProfile userProfile = (UserProfile) entity;
@@ -201,7 +200,7 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 	}
 
 	public String[] getHandledInputFormats() {
-		return new String[] {Formats.XML, Formats.JSON, Formats.HTML};
+		return new String[] {Formats.XML, Formats.JSON, Formats.HTML, Formats.FORM};
 	}
 	
 	
