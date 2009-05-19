@@ -802,18 +802,10 @@ public class SiteManageGroupSectionRoleHandler {
         		for(String role:roleList)
         		{
         			Group group = site.addGroup();
+        			// make the provider id as of SITEID_ROLEID
+        			group.setProviderGroupId(site.getId() + "_" + role);
         			group.getProperties().addProperty(SiteConstants.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
         			group.getProperties().addProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID, role);
-        			
-        			// add users with role selected into group
-        			Set roleUsers = site.getUsersHasRole(role);
-    				for (Iterator iRoleUsers = roleUsers.iterator(); iRoleUsers.hasNext();)
-    				{
-    					String roleUserId = (String) iRoleUsers.next();
-        				Member member = site.getMember(roleUserId);
-    					group.addMember(roleUserId, role, member.isActive(), false);
-    				}
-        			
         			group.setTitle(role);
         		}
         	}
