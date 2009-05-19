@@ -47,6 +47,7 @@
         <module>pageorder/tool</module>
         <module>site-manage-group-helper/tool</module>
         <module>site-manage-group-section-role-helper/tool</module>
+        <module>site-manage-group-section-role-helper/pack</module>
      	<module>site-manage-participant-helper</module> 
      </modules>
     </profile>
@@ -61,6 +62,11 @@
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-site-manage-impl</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-site-manage-group-section-role-helper</artifactId>
         <version>2.7.0-SNAPSHOT</version>
       </dependency>
       <dependency>

@@ -16,8 +16,9 @@
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
-  <packaging>war</packaging>
+  <packaging>jar</packaging>
   <properties>
+    <deploy.target/>
     <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
     <rsfutil.version>0.7.4</rsfutil.version>
   </properties>
@@ -59,22 +60,6 @@
       <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
       <type>war</type>
     </dependency>
-<!--org.sakaiprojectsakai-util-api${sakai.version}-->
-<!--org.sakaiprojectsakai-util${sakai.version}-->
-<!-- Various Sakai dependencies -->
-<!--org.sakaiprojectsakai-authz-api${sakai.version}-->
-<!-- this is needed to use the ServerConfigurationService -->
-<!--org.sakaiprojectsakai-component-api${sakai.version}-->
-<!-- this is needed to access the SqlService -->
-<!--org.sakaiprojectsakai-db-api${sakai.version}-->
-<!--org.sakaiprojectsakai-entity-api${sakai.version}-->
-<!--org.sakaiprojectsakai-event-api${sakai.version}-->
-<!--org.sakaiprojectsakai-site-api${sakai.version}-->
-<!--org.sakaiprojectsakai-tool-api${sakai.version}-->
-<!--org.sakaiprojectsakai-user-api${sakai.version}-->
-<!-- Sakai Util is required to resolve user's Locale -->
-<!--org.sakaiprojectsakai-util${sakai.version}-->
-<!--org.sakaiprojectsakai-util-api${sakai.version}-->
 <!-- Commons JARS put in shared/lib by Sakai -->
     <dependency>
       <groupId>commons-lang</groupId>
@@ -86,23 +71,8 @@
     </dependency>
   </dependencies>
   <build>
-    <sourceDirectory>src/java</sourceDirectory>
-    <resources>
-      <resource>
-        <directory>${basedir}/src/bundle</directory>
-        <includes>
-          <include>**/*.properties</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>${basedir}/src/java</directory>
-        <includes>
-          <include>**/*.xml</include>
-        </includes>
-      </resource>
-    </resources>
-  </build>
-    <!-- for RSF snapshots -->
+    <resources/>
+  </build>]
     <repositories>
         <repository>
             <id>caret-maven2-dev</id>
