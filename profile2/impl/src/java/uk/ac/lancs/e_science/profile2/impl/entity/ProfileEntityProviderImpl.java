@@ -26,6 +26,7 @@ import uk.ac.lancs.e_science.profile2.api.ProfileService;
 import uk.ac.lancs.e_science.profile2.api.entity.ProfileEntityProvider;
 import uk.ac.lancs.e_science.profile2.api.entity.model.Connection;
 import uk.ac.lancs.e_science.profile2.api.entity.model.UserProfile;
+import uk.ac.lancs.e_science.profile2.api.model.ResourceWrapper;
 
 public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
 
@@ -71,7 +72,7 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 		//if want formatted, convert and return as HTML, otherwise return the entity.
 		if(wantsFormatted) {
 			String formattedProfile = profileService.getUserProfileAsHTML(userProfile);
-			ActionReturn actionReturn = new ActionReturn("UTF-8", "text/html", formattedProfile);
+			ActionReturn actionReturn = new ActionReturn(Formats.UTF_8, Formats.HTML_MIME_TYPE, formattedProfile);
 			return actionReturn;
 		} else {
 			return userProfile;
@@ -84,24 +85,26 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 	@EntityCustomAction(action="image",viewKey=EntityView.VIEW_SHOW)
 	public Object getMainImage(OutputStream out, EntityView view, EntityReference ref) {
 		
-		byte[] b = null;
+		ResourceWrapper resource = new ResourceWrapper();
 		
 		boolean wantsThumbnail = "thumb".equals(view.getPathSegment(3)) ? true : false;
 		
 		//get thumb if requested - will fallback by default
 		if(wantsThumbnail) {
-			b = profileService.getProfileImage(ref.getId(), ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
+			resource = profileService.getProfileImage(ref.getId(), ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
 		} else {
-			b = profileService.getProfileImage(ref.getId(),ProfileImageManager.PROFILE_IMAGE_MAIN);
+			resource = profileService.getProfileImage(ref.getId(),ProfileImageManager.PROFILE_IMAGE_MAIN);
 		}
 		
-		if(b == null) {
+		if(resource == null || resource.getBytes() == null) {
 			throw new EntityNotFoundException("No profile image for " + ref.getId(), ref.getReference());
 		}
 		
 		try {
-			out.write(b);
-			return new ActionReturn(out);
+			out.write(resource.getBytes());
+			ActionReturn actionReturn = new ActionReturn(out);
+			//actionReturn.setFormat(format)
+			return actionReturn;
 		} catch (IOException e) {
 			throw new EntityException("Error retrieving profile image for " + ref.getId() + " : " + e.getMessage(), ref.getReference());
 		}
@@ -165,13 +168,22 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 	public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
 		
 		//reference will be the userUuid, which comes from the UserProfile
+		String userUuid = null;
+
 		
 		if (entity.getClass().isAssignableFrom(UserProfile.class)) {
 			UserProfile userProfile = (UserProfile) entity;
-			return profileService.create(userProfile);
+			
+			if(profileService.create(userProfile)) {
+				userUuid = userProfile.getUserUuid();
+			}
+			if(userUuid == null) {
+				throw new EntityException("Could not create entity", ref.getReference());
+			}
 		} else {
 			 throw new IllegalArgumentException("Invalid entity for create, must be UserProfile object");
 		}
+		return userUuid;
 	}
 
 	
