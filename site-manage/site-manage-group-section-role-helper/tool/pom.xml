@@ -16,7 +16,7 @@
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
-  <packaging>jar</packaging>
+  <packaging>war</packaging>
   <properties>
     <deploy.target/>
     <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
