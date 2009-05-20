@@ -107,6 +107,9 @@ public class CSV {
 			Iterator citer = ((List) riter.next()).iterator();
 			while (citer.hasNext()) {
 				String current = (String) citer.next();
+				if (current == null) {
+				    current = "";
+				}
 				current = current.replaceAll("\"", "\"\"");
 
 				csv.append("\"");
