@@ -3,7 +3,7 @@
     PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
-<hibernate-mapping package="uk.ac.lancs.e_science.profile2.hbm">
+<hibernate-mapping package="uk.ac.lancs.e_science.profile2.api.model">
 
 	<class name="ProfileFriend" table="PROFILE_FRIENDS_T">
 
