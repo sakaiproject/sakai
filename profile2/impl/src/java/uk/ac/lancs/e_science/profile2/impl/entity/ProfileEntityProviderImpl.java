@@ -80,6 +80,28 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 	}
 	
 	
+	@EntityCustomAction(action="academic",viewKey=EntityView.VIEW_SHOW)
+	public Object getAcademicProfile(EntityReference ref, EntityView view) {
+			
+		boolean wantsFormatted = "formatted".equals(view.getPathSegment(3)) ? true : false;
+		
+		//get the academic profile, with privacy checks against the requesting user
+		UserProfile userProfile = profileService.getAcademicUserProfile(ref.getId());
+		if(userProfile == null) {
+			throw new EntityException("Profile could not be retrieved for " + ref.getId(), ref.getReference());
+		}
+		
+		//if want formatted, convert and return as HTML, otherwise return the entity.
+		if(wantsFormatted) {
+			String formattedProfile = profileService.getUserProfileAsHTML(userProfile);
+			ActionReturn actionReturn = new ActionReturn(Formats.UTF_8, Formats.HTML_MIME_TYPE, formattedProfile);
+			return actionReturn;
+		} else {
+			return userProfile;
+		}
+	}
+	
+	
 	
 	
 	@EntityCustomAction(action="image",viewKey=EntityView.VIEW_SHOW)
@@ -102,8 +124,13 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 		
 		try {
 			out.write(resource.getBytes());
+			
+			System.out.println("resource.getMimeType(): " + resource.getMimeType());
+			System.out.println("resource.getLength(): " + resource.getLength());
+			
 			ActionReturn actionReturn = new ActionReturn(out);
-			//actionReturn.setFormat(format)
+			//set the content type?
+		
 			return actionReturn;
 		} catch (IOException e) {
 			throw new EntityException("Error retrieving profile image for " + ref.getId() + " : " + e.getMessage(), ref.getReference());

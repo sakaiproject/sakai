@@ -210,7 +210,13 @@ public class ProfileServiceImpl implements ProfileService {
 			log.error("Invalid userId: " + userId);
 			return null;
 		}
-				
+		
+		//get SakaiPerson
+		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
+		if(sakaiPerson == null) {
+			return getPrototype(userUuid);
+		}
+		
 		//create base profile
 		UserProfile userProfile = getPrototype(userUuid);
 		
@@ -218,10 +224,14 @@ public class ProfileServiceImpl implements ProfileService {
 		ProfilePrivacy privacy = profile.getPrivacyRecordForUser(userUuid);
 		
 		//check friend status
+		boolean friend = profile.isUserXFriendOfUserY(userUuid, currentUserUuid);
 		
 		//check if the academic fields are allowed to be viewed by this user.
+		if(profile.isUserXAcademicInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+			addAcademicInfoToProfile(userProfile, sakaiPerson);
+		}
 		
-		//add thumbnail image url
+		//add full image url
 		addImageUrlToProfile(userProfile);
 		
 		return userProfile;
@@ -721,7 +731,8 @@ public class ProfileServiceImpl implements ProfileService {
 
 	/**
 	 * These are two helper methods to simply add the URL to a user's profile image or thumbnail to the UserProfile. 
-	 * It can be added to any profile without checks as the retrieval of the image does the checks
+	 * It can be added to any profile without checks as the retrieval of the image does the checks, and a default image
+	 * is used if not allowed or none available.
 	 * 
 	 * @param userProfile
 	 */
@@ -755,6 +766,23 @@ public class ProfileServiceImpl implements ProfileService {
 			
 			userProfile.setStatusDateFormatted(profile.convertDateForStatus(userProfile.getStatusDate()));
 		}
+	}
+	
+	/**
+	 * This is a helper method to take the values from SakaiPerson and add to UserProfile
+	 * 
+	 * TODO have one of these helpers for each block of info we get from SakaiPerson? is this needed?
+	 * 
+	 * @param userProfile
+	 * @param sakaiPerson
+	 */
+	private void addAcademicInfoToProfile(UserProfile userProfile, SakaiPerson sakaiPerson) {
+		userProfile.setDepartment(sakaiPerson.getOrganizationalUnit());
+		userProfile.setPosition(sakaiPerson.getTitle());
+		userProfile.setSchool(sakaiPerson.getCampus());
+		userProfile.setRoom(sakaiPerson.getRoomNumber());
+		userProfile.setCourse(sakaiPerson.getEducationCourse());
+		userProfile.setSubjects(sakaiPerson.getEducationSubjects());
 	}
 	
 	/**
