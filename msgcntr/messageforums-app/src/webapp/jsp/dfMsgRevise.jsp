@@ -12,6 +12,7 @@
 	<h:form id="dfCompose">
 	       		<script type="text/javascript" src="/library/js/jquery.js"></script>
        		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
+
      <h3><h:outputText value="#{msgs.cdfm_revise_forum_msg}" /></h3>
      <h4><h:outputText value="#{ForumTool.selectedForum.forum.title}-#{ForumTool.selectedTopic.topic.title}" /></h4> 
 
@@ -23,6 +24,8 @@
               <h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline" />
 	  </p>
 		
+		<h:messages styleClass="alertMessage" id="errorMessages" />
+
           <h:panelGrid styleClass="jsfFormTable" columns="2" width="100%">
             <h:panelGroup styleClass="required">
 							     <h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStar"/>

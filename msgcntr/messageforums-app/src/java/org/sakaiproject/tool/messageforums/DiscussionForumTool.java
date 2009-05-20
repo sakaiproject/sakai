@@ -170,6 +170,7 @@ public class DiscussionForumTool
   private static final String INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS = "cdfm_insufficient_privileges";
   private static final String INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_ORGANIZE = "cdfm_insufficient_privileges";
   private static final String INSUFFICIENT_PRIVILEAGES_TO="cdfm_insufficient_privileages_to";
+  private static final String INSUFFICIENT_PRIVILEGES_REVISE_MESSAGE="cdfm_insufficient_privileges_revise_message";
   private static final String INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM="cdfm_insufficient_privileges_change_forum";
   private static final String INSUFFICIENT_PRIVILEGES_NEW_TOPIC = "cdfm_insufficient_privileges_new_topic";
   private static final String INSUFFICIENT_PRIVILEGES_CREATE_TOPIC="cdfm_insufficient_privileges_create_topic";
@@ -3559,8 +3560,17 @@ public class DiscussionForumTool
   		return gotoMain();
   	}
   	
+	DiscussionTopic dfTopic = selectedTopic.getTopic();
+	DiscussionForum dfForum = selectedForum.getForum();
+  	
     Message dMsg = selectedMessage.getMessage();
 
+    if(!uiPermissionsManager.isReviseAny(dfTopic, dfForum) && !(selectedMessage.getIsOwn() && uiPermissionsManager.isReviseOwn(dfTopic, dfForum)))
+	{
+		setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_REVISE_MESSAGE));
+		return null;
+	}
+    
     for (int i = 0; i < prepareRemoveAttach.size(); i++)
     {
       DecoratedAttachment removeAttach = (DecoratedAttachment) prepareRemoveAttach.get(i);
