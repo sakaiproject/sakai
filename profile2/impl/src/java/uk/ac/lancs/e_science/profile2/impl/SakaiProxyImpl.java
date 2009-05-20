@@ -40,6 +40,7 @@ import org.sakaiproject.util.Validator;
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
+import uk.ac.lancs.e_science.profile2.api.model.ResourceWrapper;
 
 /**
  * This is the Implementation of the helper API used by the Profile2 tool only. 
@@ -347,6 +348,36 @@ public class SakaiProxyImpl implements SakaiProxy {
 			disableSecurityAdvisor();
 		}
 		return data;
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public ResourceWrapper getResourceWrapped(String resourceId) {
+		
+		ResourceWrapper wrapper = new ResourceWrapper();
+		
+		try {
+			
+			enableSecurityAdvisor();
+		
+			try {
+				ContentResource resource = contentHostingService.getResource(resourceId);
+				wrapper.setBytes(resource.getContent());
+				wrapper.setMimeType(resource.getContentType());
+				wrapper.setResourceID(resourceId);
+				wrapper.setLength(resource.getContentLength());
+			}
+			catch(Exception e){
+				log.error("SakaiProxy.getResourceWrapped() failed for resourceId: " + resourceId + " : " + e.getClass() + " : " + e.getMessage());
+			}
+		} catch (Exception e) {
+			log.error("SakaiProxy.getResourceWrapped():" + e.getClass() + ":" + e.getMessage());
+		}
+		finally	{
+			disableSecurityAdvisor();
+		}
+		return wrapper;
 	}
 	
 	/**
@@ -690,6 +721,9 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return list;
 	}
 	
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public List<String> getMinimalEntityConfigurationSet() {
 		String configuration = serverConfigurationService.getString("profile2.profile.entity.set.minimal", ProfileUtilityManager.ENTITY_SET_MINIMAL);
 		String[] parameters = StringUtils.split(configuration, ',');
@@ -699,6 +733,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		
 		return list;
 	}
+	
 	
 	
 	

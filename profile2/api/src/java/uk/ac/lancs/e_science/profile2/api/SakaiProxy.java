@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Locale;
 
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
+
+import uk.ac.lancs.e_science.profile2.api.model.ResourceWrapper;
 /**
  * This is a helper API used by the Profile2 tool only. 
  * 
@@ -135,11 +137,18 @@ public interface SakaiProxy {
 	public boolean saveFile(String fullResourceId, String userId, String fileName, String mimeType, byte[] fileData);
 		
 	/**
-	 * Retrieve a resource from ContentHosting
+	 * Retrieve a resource from ContentHosting as a byte[]
 	 *
 	 * @param resourceId	the full resourceId of the file
 	 */
 	public byte[] getResource(String resourceId);
+	
+	/**
+	 * Retrieve a resource from ContentHosting as a ResourceWrapper object
+	 *
+	 * @param resourceId	the full resourceId of the file
+	 */
+	public ResourceWrapper getResourceWrapped(String resourceId);
 	
 	/**
 	 * Search UserDirectoryService for a user that matches in name or email
@@ -312,4 +321,7 @@ public interface SakaiProxy {
 	 */
 	public List<String> getMinimalEntityConfigurationSet();
 
+	
+	
+	
 }

@@ -4,11 +4,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import uk.ac.lancs.e_science.profile2.hbm.ProfileImageExternal;
-import uk.ac.lancs.e_science.profile2.hbm.ProfilePreferences;
-import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
-import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
-import uk.ac.lancs.e_science.profile2.hbm.SearchResult;
+import uk.ac.lancs.e_science.profile2.api.model.ProfileImageExternal;
+import uk.ac.lancs.e_science.profile2.api.model.ProfilePreferences;
+import uk.ac.lancs.e_science.profile2.api.model.ProfilePrivacy;
+import uk.ac.lancs.e_science.profile2.api.model.ProfileStatus;
+import uk.ac.lancs.e_science.profile2.api.model.ResourceWrapper;
+import uk.ac.lancs.e_science.profile2.api.model.SearchResult;
 
 /**
  * This is the internal API to be used by the Profile2 tool and entities only. 
@@ -542,17 +543,6 @@ public interface Profile {
 	public boolean isBirthYearVisible(ProfilePrivacy profilePrivacy);
 	
 	/**
-	 * Get the profile image for the given user
-	 * First calls getCurrentProfileImageRecord to get the record, then using the URLs contained within
-	 * calls sakaiProxy.getResource(resource_id) to get the bytes.
-	 * 
-	 * @param userId 		the uuid of the user we are querying
-	 * @param imageType		comes from ProfileImageManager and maps to a directory in ContentHosting
-	 * @return image as bytes
-	 */
-	public byte[] getCurrentProfileImageForUser(String userId, int imageType);
-	
-	/**
 	 * Get the profile image for the given user, allowing fallback if no thumbnail exists.
 	 * 
 	 * @param userId 		the uuid of the user we are querying
@@ -561,6 +551,16 @@ public interface Profile {
 	 * @return image as bytes
 	 */
 	public byte[] getCurrentProfileImageForUser(String userId, int imageType, boolean fallback);
+	
+	/**
+	 * Get the profile image for the given user, allowing fallback if no thumbnail exists and wrapping it in a ResourceWrapper
+	 * 
+	 * @param userId 		the uuid of the user we are querying
+	 * @param imageType		comes from ProfileImageManager and maps to a directory in ContentHosting
+	 * @param fallback		if thumbnail and none exists, should the main image be returned instead? It can be scaled in the markup.
+	 * @return image as bytes
+	 */
+	public ResourceWrapper getCurrentProfileImageForUserWrapped(String userId, int imageType, boolean fallback);
 	
 	
 	/**
@@ -678,12 +678,13 @@ public interface Profile {
 	
 	
 	/**
-	 * Gets a URL resource, reads it and returns the byte[]. Useful for diplaying remote images where you only have a URL.
+	 * Gets a URL resource, reads it and returns the byte[] wrapped in ResourceWrapper along with metadata. 
+	 * Useful for displaying remote resources where you only have a URL.
 	 * 
 	 * @param url 	String url of the remote resource
 	 * @return
 	 */
-	public byte[] getURLResourceAsBytes(final String url);
+	public ResourceWrapper getURLResourceAsBytes(final String url);
 	
 	/**
 	 * Get the full URL to the default unavailable image defined in ProfileImageManager

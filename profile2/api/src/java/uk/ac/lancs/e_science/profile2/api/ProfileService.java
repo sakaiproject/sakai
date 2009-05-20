@@ -4,6 +4,7 @@ import java.util.List;
 
 import uk.ac.lancs.e_science.profile2.api.entity.model.Connection;
 import uk.ac.lancs.e_science.profile2.api.entity.model.UserProfile;
+import uk.ac.lancs.e_science.profile2.api.model.ResourceWrapper;
 
 /**
  * <p>This is the outward facing service that should be used by anyone or anything implementing Profile2.</p>
@@ -116,9 +117,9 @@ public interface ProfileService {
 	 * 
 	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
 	 * @param imageType - type of image, main or thumbnail, mapped via ProfileImageManager
-	 * @return byte[] or null if not allowed or none
+	 * @return ResourceWrapper of the wrapped bytes or null if not allowed/none
 	 */
-	public byte[] getProfileImage(String userId, int imageType);
+	public ResourceWrapper getProfileImage(String userId, int imageType);
 	
 	
 	/**
@@ -157,20 +158,20 @@ public interface ProfileService {
 	 * @param userProfile
 	 * @return true/false for success
 	 */
-	public String save(UserProfile userProfile);
+	public boolean save(UserProfile userProfile);
 	
 	/**
 	 * Create a UserProfile for the given user and persist it to the database.
 	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
-	 * @return String of user's uuid
+	 * @return true/false for success
 	 */
-	public String create(String userId);
+	public boolean create(String userId);
 	
 	/**
 	 * Persist the given UserProfile object to the database
 	 * @param userProfile - UserProfile that you want persisted
-	 * @return String of user's uuid
+	 * @return true/false for success
 	 */
-	public String create(UserProfile userProfile);
+	public boolean create(UserProfile userProfile);
 	
 }

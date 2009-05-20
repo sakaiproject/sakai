@@ -44,13 +44,14 @@ import uk.ac.lancs.e_science.profile2.api.ProfilePreferencesManager;
 import uk.ac.lancs.e_science.profile2.api.ProfilePrivacyManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
-import uk.ac.lancs.e_science.profile2.hbm.ProfileFriend;
-import uk.ac.lancs.e_science.profile2.hbm.ProfileImage;
-import uk.ac.lancs.e_science.profile2.hbm.ProfileImageExternal;
-import uk.ac.lancs.e_science.profile2.hbm.ProfilePreferences;
-import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
-import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
-import uk.ac.lancs.e_science.profile2.hbm.SearchResult;
+import uk.ac.lancs.e_science.profile2.api.model.ProfileFriend;
+import uk.ac.lancs.e_science.profile2.api.model.ProfileImage;
+import uk.ac.lancs.e_science.profile2.api.model.ProfileImageExternal;
+import uk.ac.lancs.e_science.profile2.api.model.ProfilePreferences;
+import uk.ac.lancs.e_science.profile2.api.model.ProfilePrivacy;
+import uk.ac.lancs.e_science.profile2.api.model.ProfileStatus;
+import uk.ac.lancs.e_science.profile2.api.model.ResourceWrapper;
+import uk.ac.lancs.e_science.profile2.api.model.SearchResult;
 
 import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGImageEncoder;
@@ -1398,37 +1399,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	}
 	}
 
-	
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public byte[] getCurrentProfileImageForUser(String userId, int imageType) {
 		
-		byte[] image = null;
-		
-		//get record from db
-		ProfileImage profileImage = getCurrentProfileImageRecord(userId);
-		
-		if(profileImage == null) {
-			log.debug("Profile.getCurrentProfileImageForUser() null for userId: " + userId); //$NON-NLS-1$
-			return null;
-		}
-		
-		//get main image
-		if(imageType == ProfileImageManager.PROFILE_IMAGE_MAIN) {
-			image = sakaiProxy.getResource(profileImage.getMainResource());
-		}
-		
-		//or get thumbnail
-		if(imageType == ProfileImageManager.PROFILE_IMAGE_THUMBNAIL) {
-			image = sakaiProxy.getResource(profileImage.getThumbnailResource());
-		}
-		//or get nothing ;)
-		
-		return image;
-	}
-	
 	/**
  	 * {@inheritDoc}
  	 */
@@ -1460,6 +1431,36 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		return image;
 	}
 
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public ResourceWrapper getCurrentProfileImageForUserWrapped(String userId, int imageType, boolean fallback) {
+		
+		ResourceWrapper resource = new ResourceWrapper();
+		
+		//get record from db
+		ProfileImage profileImage = getCurrentProfileImageRecord(userId);
+		
+		if(profileImage == null) {
+			log.debug("Profile.getCurrentProfileImageForUserWrapped() null for userId: " + userId);
+			return null;
+		}
+		
+		//get main image
+		if(imageType == ProfileImageManager.PROFILE_IMAGE_MAIN) {
+			resource = sakaiProxy.getResourceWrapped(profileImage.getMainResource());
+		}
+		
+		//or get thumbnail
+		if(imageType == ProfileImageManager.PROFILE_IMAGE_THUMBNAIL) {
+			resource = sakaiProxy.getResourceWrapped(profileImage.getThumbnailResource());
+			if(resource == null && fallback) {
+				resource = sakaiProxy.getResourceWrapped(profileImage.getMainResource());
+			}
+		}
+	
+		return resource;
+	}
 	
 	/**
  	 * {@inheritDoc}
@@ -1789,13 +1790,16 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	/**
  	 * {@inheritDoc}
  	 */
-	public byte[] getURLResourceAsBytes(String url) {
+	public ResourceWrapper getURLResourceAsBytes(String url) {
+		
+		ResourceWrapper wrapper = new ResourceWrapper();
 		
 		try {
 			URL u = new URL(url);
 			
 			URLConnection uc = u.openConnection();
 			int contentLength = uc.getContentLength();
+			String contentType = uc.getContentType();
 			uc.setReadTimeout(5000); //timeout of 5 sec just to be on the safe side.
 			
 			InputStream in = new BufferedInputStream(uc.getInputStream());
@@ -1817,11 +1821,16 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 				throw new IOException("Only read " + offset + " bytes; Expected " + contentLength + " bytes.");
 			}
 			
-			return data;
+			wrapper.setBytes(data);
+			wrapper.setMimeType(contentType);
+			wrapper.setLength(contentLength);
+			wrapper.setExternal(true);
+			wrapper.setResourceID(url);
+			
 		} catch (Exception e) {
 			log.error("Failed to retrieve resource: " + e.getClass() + ": " + e.getMessage());
-			return null;
 		} 
+		return wrapper;
 	}
 
 	/**

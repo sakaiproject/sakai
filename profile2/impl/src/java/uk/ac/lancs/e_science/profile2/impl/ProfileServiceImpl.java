@@ -17,11 +17,11 @@ import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.api.entity.model.Connection;
 import uk.ac.lancs.e_science.profile2.api.entity.model.UserProfile;
-import uk.ac.lancs.e_science.profile2.api.exception.ProfileMismatchException;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfileNotDefinedException;
-import uk.ac.lancs.e_science.profile2.hbm.ProfilePreferences;
-import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
-import uk.ac.lancs.e_science.profile2.hbm.ProfileStatus;
+import uk.ac.lancs.e_science.profile2.api.model.ProfilePreferences;
+import uk.ac.lancs.e_science.profile2.api.model.ProfilePrivacy;
+import uk.ac.lancs.e_science.profile2.api.model.ProfileStatus;
+import uk.ac.lancs.e_science.profile2.api.model.ResourceWrapper;
 
 /**
  * <p>This is the implementation of {@link ProfileService}; see that interface for usage details.
@@ -265,7 +265,9 @@ public class ProfileServiceImpl implements ProfileService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public byte[] getProfileImage(String userId, int imageType) {
+	public ResourceWrapper getProfileImage(String userId, int imageType) {
+		
+		ResourceWrapper resource = new ResourceWrapper();
 		
 		//check auth and get currentUserUuid
 		String currentUserUuid = sakaiProxy.getCurrentUserId();
@@ -285,7 +287,7 @@ public class ProfileServiceImpl implements ProfileService {
 		
 		//check if photo is allowed, if not return default
 		if(!profile.isUserXProfileImageVisibleByUserY(userUuid, currentUserUuid, friend)) {
-			return returnDefaultImage();
+			return getDefaultImage();
 		}
 		
 		//check environment configuration (will be url or upload) and get image accordingly
@@ -293,16 +295,16 @@ public class ProfileServiceImpl implements ProfileService {
 		if(sakaiProxy.getProfilePictureType() == ProfileImageManager.PICTURE_SETTING_URL) {
 			String url = profile.getExternalImageUrl(userUuid, imageType, true);
 			if(url == null) {
-				return returnDefaultImage();
+				return getDefaultImage();
 			} else {
 				return profile.getURLResourceAsBytes(url);
 			}
 		} else {
-			byte[] image = profile.getCurrentProfileImageForUser(userUuid, imageType, true);
-			if(image == null) {
-				return returnDefaultImage();
+			resource = profile.getCurrentProfileImageForUserWrapped(userUuid, imageType, true);
+			if(resource == null || resource.getBytes() == null) {
+				return getDefaultImage();
 			} else {
-				return image;
+				return resource;
 			}
 		} 
 	}
@@ -610,7 +612,7 @@ public class ProfileServiceImpl implements ProfileService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public String save(UserProfile userProfile) {
+	public boolean save(UserProfile userProfile) {
 		
 		//check auth and get currentUserUuid
 		String currentUserUuid = sakaiProxy.getCurrentUserId();
@@ -631,7 +633,7 @@ public class ProfileServiceImpl implements ProfileService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public String create(String userId) {
+	public boolean create(String userId) {
 		
 		//check auth and get currentUserUuid
 		String currentUserUuid = sakaiProxy.getCurrentUserId();
@@ -643,7 +645,7 @@ public class ProfileServiceImpl implements ProfileService {
 		String userUuid = getUuidForUserId(userId);
 		if(userUuid == null) {
 			log.error("Invalid userId: " + userId);
-			return null;
+			return false;
 		}
 		
 		//check currentUser and profile uuid match
@@ -655,7 +657,7 @@ public class ProfileServiceImpl implements ProfileService {
 		if(checkUserProfileExists(userUuid)) {
 			System.out.println("already has a profile");
 			log.error("userUuid: " + userUuid + " already has a profile. Cannot create another.");
-			return userUuid;
+			return false;
 		}
 			
 		//no existing profile, setup a prototype
@@ -669,14 +671,14 @@ public class ProfileServiceImpl implements ProfileService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public String create(UserProfile userProfile) {
+	public boolean create(UserProfile userProfile) {
 		
 		String userUuid = userProfile.getUserUuid();
 		
 		//does this user already have a persisted profile?
 		if(checkUserProfileExists(userUuid)) {
 			log.error("userUuid: " + userUuid + " already has a profile. Cannot create another.");
-			return userUuid;
+			return false;
 		}
 		
 		return save(userProfile);
@@ -688,9 +690,9 @@ public class ProfileServiceImpl implements ProfileService {
 	 * then persisting it to the database.
 	 * 
 	 * @param userProfile
-	 * @return userUuid if ok, null otherwise
+	 * @return true/false for success
 	 */
-	private String persistUserProfile(UserProfile userProfile) {
+	private boolean persistUserProfile(UserProfile userProfile) {
 		
 		//translate main fields
 		SakaiPerson sakaiPerson = transformUserProfileToSakaiPerson(userProfile);
@@ -698,10 +700,10 @@ public class ProfileServiceImpl implements ProfileService {
 		//update SakaiPerson obj
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
 			log.info("Saved profile for: " + userProfile.getUserUuid());
-			return userProfile.getUserUuid();
+			return true;
 		} else {
 			log.error("Couldn't save profile for: " + userProfile.getUserUuid());
-			return null;
+			return false;
 		}
 		
 	}
@@ -732,10 +734,10 @@ public class ProfileServiceImpl implements ProfileService {
 	}
 	
 	/**
-	 * This is a helper method to take care of getting the default unavailable image and returning it.
+	 * This is a helper method to take care of getting the default unavailable image and returning it, along with some metadata about it
 	 * @return
 	 */
-	private byte[] returnDefaultImage() {
+	private ResourceWrapper getDefaultImage() {
 		return profile.getURLResourceAsBytes(profile.getUnavailableImageURL());
 	}
 	
