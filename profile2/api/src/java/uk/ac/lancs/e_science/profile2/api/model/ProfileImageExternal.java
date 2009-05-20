@@ -1,9 +1,14 @@
-package uk.ac.lancs.e_science.profile2.hbm;
+package uk.ac.lancs.e_science.profile2.api.model;
 
 import java.io.Serializable;
 
 
-
+/**
+ * Hibernate model
+ * 
+ * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
+ *
+ */
 public class ProfileImageExternal implements Serializable {
 
 	private static final long serialVersionUID = 1L;

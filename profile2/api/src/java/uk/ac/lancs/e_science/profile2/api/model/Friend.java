@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.hbm;
+package uk.ac.lancs.e_science.profile2.api.model;
 
 import java.io.Serializable;
 import java.util.Date;
