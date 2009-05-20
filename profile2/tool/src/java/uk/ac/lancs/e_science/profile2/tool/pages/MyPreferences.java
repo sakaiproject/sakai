@@ -25,7 +25,7 @@ import org.apache.wicket.model.StringResourceModel;
 
 import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfilePreferencesNotDefinedException;
-import uk.ac.lancs.e_science.profile2.hbm.ProfilePreferences;
+import uk.ac.lancs.e_science.profile2.api.model.ProfilePreferences;
 import uk.ac.lancs.e_science.profile2.tool.components.EnablingCheckBox;
 
 

@@ -31,7 +31,7 @@ import org.sakaiproject.util.FormattedText;
 
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
 import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
-import uk.ac.lancs.e_science.profile2.hbm.SearchResult;
+import uk.ac.lancs.e_science.profile2.api.model.SearchResult;
 import uk.ac.lancs.e_science.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import uk.ac.lancs.e_science.profile2.tool.components.FeedbackLabel;
 import uk.ac.lancs.e_science.profile2.tool.components.IconWithClueTip;

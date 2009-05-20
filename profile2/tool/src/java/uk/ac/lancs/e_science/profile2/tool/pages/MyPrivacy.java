@@ -25,7 +25,7 @@ import org.apache.wicket.model.StringResourceModel;
 
 import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfilePrivacyNotDefinedException;
-import uk.ac.lancs.e_science.profile2.hbm.ProfilePrivacy;
+import uk.ac.lancs.e_science.profile2.api.model.ProfilePrivacy;
 import uk.ac.lancs.e_science.profile2.tool.components.HashMapChoiceRenderer;
 import uk.ac.lancs.e_science.profile2.tool.components.IconWithClueTip;
 
