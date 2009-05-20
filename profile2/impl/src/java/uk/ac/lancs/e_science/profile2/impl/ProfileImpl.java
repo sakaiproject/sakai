@@ -25,6 +25,7 @@ import java.util.Locale;
 
 import javax.swing.ImageIcon;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
@@ -1403,7 +1404,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	/**
  	 * {@inheritDoc}
  	 */
-	public byte[] getCurrentProfileImageForUser(String userId, int imageType, boolean fallback) {
+	public byte[] getCurrentProfileImageForUser(String userId, int imageType) {
 		
 		byte[] image = null;
 		
@@ -1423,7 +1424,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		//or get thumbnail
 		if(imageType == ProfileImageManager.PROFILE_IMAGE_THUMBNAIL) {
 			image = sakaiProxy.getResource(profileImage.getThumbnailResource());
-			if(image == null && fallback) {
+			if(image == null) {
 				image = sakaiProxy.getResource(profileImage.getMainResource());
 			}
 		}
@@ -1434,7 +1435,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	/**
  	 * {@inheritDoc}
  	 */
-	public ResourceWrapper getCurrentProfileImageForUserWrapped(String userId, int imageType, boolean fallback) {
+	public ResourceWrapper getCurrentProfileImageForUserWrapped(String userId, int imageType) {
 		
 		ResourceWrapper resource = new ResourceWrapper();
 		
@@ -1454,7 +1455,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		//or get thumbnail
 		if(imageType == ProfileImageManager.PROFILE_IMAGE_THUMBNAIL) {
 			resource = sakaiProxy.getResourceWrapped(profileImage.getThumbnailResource());
-			if(resource == null && fallback) {
+			if(resource == null) {
 				resource = sakaiProxy.getResourceWrapped(profileImage.getMainResource());
 			}
 		}
@@ -1724,7 +1725,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	/**
  	 * {@inheritDoc}
  	 */
-	public String getExternalImageUrl(final String userId, final int imageType, boolean fallback) {
+	public String getExternalImageUrl(final String userId, final int imageType) {
 		
 		//get external image record for this user
 		ProfileImageExternal externalImage = getExternalImageRecordForUser(userId);
@@ -1737,7 +1738,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	//else return the url for the type they requested
     	if(imageType == ProfileImageManager.PROFILE_IMAGE_MAIN) {
     		String url = externalImage.getMainUrl();
-    		if(url == null || url.length() == 0) {
+    		if(StringUtils.isBlank(url)) {
     			return null;
     		}
     		return url;
@@ -1745,22 +1746,18 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	
     	if(imageType == ProfileImageManager.PROFILE_IMAGE_THUMBNAIL) {
     		String url = externalImage.getThumbnailUrl();
-    		if(url == null || url.length() == 0) {
-    			//use main instead?
-    			if(fallback) {
-    				 url = externalImage.getMainUrl();
-    				 if(url == null || url.length() == 0) {
-    					 return null;
-    				 }
-    				 return url;
+    		if(StringUtils.isBlank(url)) {
+    			url = externalImage.getMainUrl();
+    			if(StringUtils.isBlank(url)) {
+    				return null;
     			}
-    			return null;
+    			return url;
     		}
     		return url;
     	}
     	
     	//no notification for this message type, return false 	
-    	log.error("Profile.getExternalImageUrl. No URL for userId: " + userId + ", imageType: " + imageType + ", fallback: " + fallback); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    	log.error("Profile.getExternalImageUrl. No URL for userId: " + userId + ", imageType: " + imageType); //$NON-NLS-1$ //$NON-NLS-2$
 
     	return null;
 		

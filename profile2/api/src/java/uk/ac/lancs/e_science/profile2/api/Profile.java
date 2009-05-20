@@ -547,20 +547,24 @@ public interface Profile {
 	 * 
 	 * @param userId 		the uuid of the user we are querying
 	 * @param imageType		comes from ProfileImageManager and maps to a directory in ContentHosting
-	 * @param fallback		if thumbnail and none exists, should the main image be returned instead? It can be scaled in the markup.
 	 * @return image as bytes
+	 * 
+	 * <p>Note: if thumbnail is requested and none exists, the main image will be returned instead. It can be scaled in the markup.</p>
+	 *
 	 */
-	public byte[] getCurrentProfileImageForUser(String userId, int imageType, boolean fallback);
+	public byte[] getCurrentProfileImageForUser(String userId, int imageType);
 	
 	/**
 	 * Get the profile image for the given user, allowing fallback if no thumbnail exists and wrapping it in a ResourceWrapper
 	 * 
 	 * @param userId 		the uuid of the user we are querying
 	 * @param imageType		comes from ProfileImageManager and maps to a directory in ContentHosting
-	 * @param fallback		if thumbnail and none exists, should the main image be returned instead? It can be scaled in the markup.
 	 * @return image as bytes
+	 * 
+	 * <p>Note: if thumbnail is requested and none exists, the main image will be returned instead. It can be scaled in the markup.</p>
+	 * 
 	 */
-	public ResourceWrapper getCurrentProfileImageForUserWrapped(String userId, int imageType, boolean fallback);
+	public ResourceWrapper getCurrentProfileImageForUserWrapped(String userId, int imageType);
 	
 	
 	/**
@@ -659,12 +663,12 @@ public interface Profile {
 	 * Get the URL to an image that a user has specified as their profile image
 	 * @param userId		uuid of user
 	 * @param imageType		comes from ProfileImageManager. main or thumbnail.
-	 * @param fallback		if a thumbnail is requested but it does not exist, should the mainURL be returned instead? 
-	 * 						This should generally always be used and the full sized iamge can just be scaled in the markup.
-	 * 						If used with the main type of image, it has no effect.
+	 *
+	 * <p>Note: if thumbnail is requested and none exists, the main image will be returned instead. It can be scaled in the markup.</p>
+	 * 
 	 * @return
 	 */
-	public String getExternalImageUrl(final String userId, final int imageType, final boolean fallback);
+	public String getExternalImageUrl(final String userId, final int imageType);
 	
 	
 	/**

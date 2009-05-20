@@ -70,7 +70,7 @@ public class ProfileImageRenderer extends Panel {
 		//EXTERNAL IMAGE
 		} else if (type == ProfileImageManager.PICTURE_SETTING_URL) {
 			
-			String url = profile.getExternalImageUrl(userX, ProfileImageManager.PROFILE_IMAGE_MAIN, true);
+			String url = profile.getExternalImageUrl(userX, ProfileImageManager.PROFILE_IMAGE_MAIN);
 			
 			//add uploaded image or default
 			if(url != null) {

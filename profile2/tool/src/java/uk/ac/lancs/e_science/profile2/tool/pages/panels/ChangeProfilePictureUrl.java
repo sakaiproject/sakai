@@ -51,7 +51,7 @@ public class ChangeProfilePictureUrl extends Panel{
 		SimpleText simpleText = new SimpleText();
 		
 		//do they already have a URL that should be loaded in here?
-		String externalUrl = profile.getExternalImageUrl(userId, ProfileImageManager.PROFILE_IMAGE_MAIN, true);
+		String externalUrl = profile.getExternalImageUrl(userId, ProfileImageManager.PROFILE_IMAGE_MAIN);
 		
 		if(externalUrl != null) {
 			simpleText.setText(externalUrl);

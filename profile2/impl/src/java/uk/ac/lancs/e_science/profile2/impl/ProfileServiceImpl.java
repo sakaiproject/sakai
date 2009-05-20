@@ -293,14 +293,14 @@ public class ProfileServiceImpl implements ProfileService {
 		//check environment configuration (will be url or upload) and get image accordingly
 		//fall back by default. there is no real use case for not doing it.
 		if(sakaiProxy.getProfilePictureType() == ProfileImageManager.PICTURE_SETTING_URL) {
-			String url = profile.getExternalImageUrl(userUuid, imageType, true);
+			String url = profile.getExternalImageUrl(userUuid, imageType);
 			if(url == null) {
 				return getDefaultImage();
 			} else {
 				return profile.getURLResourceAsBytes(url);
 			}
 		} else {
-			resource = profile.getCurrentProfileImageForUserWrapped(userUuid, imageType, true);
+			resource = profile.getCurrentProfileImageForUserWrapped(userUuid, imageType);
 			if(resource == null || resource.getBytes() == null) {
 				return getDefaultImage();
 			} else {
