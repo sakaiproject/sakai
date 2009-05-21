@@ -735,6 +735,27 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 	
 	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public String getUuidForUserId(String userId) {
+		
+		String userUuid = null;
+
+		if(checkForUser(userId)) {
+			userUuid = userId;
+		} else if (checkForUserByEid(userId)) {
+			userUuid = getUserIdForEid(userId);
+			
+			if(userUuid == null) {
+				log.error("Could not translate eid to uuid for: " + userId);
+			}
+		} else {
+			log.error("User: " + userId + " could not be found in any lookup by either id or eid");
+		}
+		
+		return userUuid;
+	}
 	
 	
 	// PRIVATE METHODS FOR SAKAIPROXY
