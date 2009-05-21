@@ -1139,25 +1139,25 @@ public List getActiveContexts(Map session)
     
     // find default help file
     if ( locale.equals(DEFAULT_LOCALE) ) {
-       classpathUrl = path + File.separator + HELP_BASENAME + ".xml";
+       classpathUrl = path + "/" + HELP_BASENAME + ".xml";
        urlResource = getClass().getResource(classpathUrl);
     }
     
     // find localized help file
     else {
-       classpathUrl = path + File.separator + HELP_BASENAME + "_" + locale + ".xml";
+       classpathUrl = path + "/" + HELP_BASENAME + "_" + locale + ".xml";
        urlResource = getClass().getResource(classpathUrl);
        
        // If language/region help file not found, look for language-only help file
        if ( urlResource == null ) {
           Locale nextLocale = getLocaleFromString(locale);
-          classpathUrl = path + File.separator + HELP_BASENAME + "_" + nextLocale.getLanguage() + ".xml";
+          classpathUrl = path + "/" + HELP_BASENAME + "_" + nextLocale.getLanguage() + ".xml";
           urlResource = getClass().getResource(classpathUrl);
        }
        
        // If language-only help file not found, look for default help file
        if ( urlResource == null ) {
-          classpathUrl = path + File.separator + HELP_BASENAME + ".xml";
+          classpathUrl = path + "/" + HELP_BASENAME + ".xml";
           urlResource = getClass().getResource(classpathUrl);
        }
     }
