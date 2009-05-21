@@ -736,6 +736,26 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		}
 	}
 	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public ProfilePrivacy getDefaultPrivacyRecord(String userId) {
+		
+		ProfilePrivacy profilePrivacy = new ProfilePrivacy(
+				userId,
+				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_PROFILEIMAGE,
+				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_BASICINFO,
+				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_CONTACTINFO,
+				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_ACADEMICINFO,
+				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_PERSONALINFO,
+				ProfilePrivacyManager.DEFAULT_BIRTHYEAR_VISIBILITY,
+				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_SEARCH,
+				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_MYFRIENDS,
+				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_MYSTATUS);
+		
+			return profilePrivacy;
+	}
+	
 	
 	/**
  	 * {@inheritDoc}
