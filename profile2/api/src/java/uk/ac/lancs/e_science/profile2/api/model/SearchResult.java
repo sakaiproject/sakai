@@ -10,7 +10,7 @@ import java.io.Serializable;
  * to minimise the number of database queries.
  * 
  * When we get the list of users, we then need to see if the user that searched for them is a friend,
- * then determine if the setings the person has on their profile limits searches to friends, everyone or only self.
+ * then determine if the settings the person has on their profile limits searches to friends or everyone.
  * If the privileges aren't high enough they need to be removed from the list.
  * 
  * But, when this data is being consumed, we also need the information about their friend status, privacy settings etc,
@@ -40,7 +40,7 @@ public class SearchResult implements Serializable {
 		this.userUuid = userUuid;
 		this.friend = friend;
 		this.profileImageAllowed = profileImageAllowed;
-		this.setStatusAllowed(statusAllowed);
+		this.statusAllowed = statusAllowed;
 		this.friendsListVisible = friendsListVisible;
 		this.friendRequestToThisPerson = friendRequestToThisPerson;
 		this.friendRequestFromThisPerson = friendRequestFromThisPerson;
