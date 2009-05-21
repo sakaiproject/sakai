@@ -43,8 +43,13 @@
 		</property>
 	</bean>	
 	
-	<!--  ProfileService bean for the outward facing API  -->
+	<!--  Service beans for the outward facing API  -->
 	<bean id="uk.ac.lancs.e_science.profile2.api.ProfileService" class="uk.ac.lancs.e_science.profile2.impl.ProfileServiceImpl">
+		<property name="sakaiProxy" ref="uk.ac.lancs.e_science.profile2.api.SakaiProxy" />
+		<property name="profile" ref="uk.ac.lancs.e_science.profile2.api.Profile" />
+	</bean>
+	
+	<bean id="uk.ac.lancs.e_science.profile2.api.ProfilePrivacyService" class="uk.ac.lancs.e_science.profile2.impl.ProfilePrivacyServiceImpl">
 		<property name="sakaiProxy" ref="uk.ac.lancs.e_science.profile2.api.SakaiProxy" />
 		<property name="profile" ref="uk.ac.lancs.e_science.profile2.api.Profile" />
 	</bean>
@@ -55,11 +60,9 @@
 		<property name="profileService" ref="uk.ac.lancs.e_science.profile2.api.ProfileService" />
 	</bean>
 	
-	<!-- 
-	<bean id="uk.ac.lancs.e_science.profile2.api.entity.FriendsEntityProvider" class="uk.ac.lancs.e_science.profile2.impl.entity.FriendsEntityProviderImpl">
-		<property name="profile" ref="uk.ac.lancs.e_science.profile2.api.Profile" />
+	<bean id="uk.ac.lancs.e_science.profile2.api.entity.ProfilePrivacyEntityProvider" class="uk.ac.lancs.e_science.profile2.impl.entity.ProfilePrivacyEntityProviderImpl">
+		<property name="profilePrivacyService" ref="uk.ac.lancs.e_science.profile2.api.ProfilePrivacyService" />
 	</bean>
-	-->
 	
 
 	<!-- Add our HBM files to the Sakai global session factory -->
