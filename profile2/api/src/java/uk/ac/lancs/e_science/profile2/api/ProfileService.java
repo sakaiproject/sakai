@@ -24,14 +24,6 @@ public interface ProfileService {
 	public UserProfile getPrototype();
 	
 	/**
-	 * Create a UserProfile object for the given user. This is the minimum that a UserProfile can be. 
-	 * 
-	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
-	 * @return the minimum UserProfile for the user, ie name only
-	 */
-	public UserProfile getPrototype(String userId);
-	
-	/**
 	 * Get a full UserProfile for the given userId
 	 * 
 	 * <p>All users have profiles, even if they haven't filled it in yet. 

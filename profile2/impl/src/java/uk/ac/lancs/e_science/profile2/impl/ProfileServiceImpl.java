@@ -6,7 +6,6 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
-import org.sakaiproject.user.api.UserNotDefinedException;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
@@ -44,19 +43,6 @@ public class ProfileServiceImpl implements ProfileService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public UserProfile getPrototype(String userId) {
-		String userUuid = getUuidForUserId(userId);
-		
-		UserProfile userProfile = getPrototype();
-		userProfile.setUserUuid(userUuid);
-		userProfile.setDisplayName(sakaiProxy.getUserDisplayName(userUuid));
-		
-		return userProfile;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
 	public UserProfile getFullUserProfile(String userId) {
 		
 		//check auth and get currentUserUuid
@@ -66,7 +52,7 @@ public class ProfileServiceImpl implements ProfileService {
 		}
 		
 		//convert userId into uuid
-		String userUuid = getUuidForUserId(userId);
+		String userUuid = sakaiProxy.getUuidForUserId(userId);
 		if(userUuid == null) {
 			log.error("Invalid userId: " + userId);
 			return null;
@@ -166,7 +152,7 @@ public class ProfileServiceImpl implements ProfileService {
 		}
 		
 		//convert userId into uuid
-		String userUuid = getUuidForUserId(userId);
+		String userUuid = sakaiProxy.getUuidForUserId(userId);
 		if(userUuid == null) {
 			log.error("Invalid userId: " + userId);
 			return null;
@@ -205,7 +191,7 @@ public class ProfileServiceImpl implements ProfileService {
 		}
 		
 		//convert userId into uuid
-		String userUuid = getUuidForUserId(userId);
+		String userUuid = sakaiProxy.getUuidForUserId(userId);
 		if(userUuid == null) {
 			log.error("Invalid userId: " + userId);
 			return null;
@@ -249,7 +235,7 @@ public class ProfileServiceImpl implements ProfileService {
 	 * {@inheritDoc}
 	 */
 	public boolean checkUserExists(String userId) {
-		return sakaiProxy.checkForUser(getUuidForUserId(userId));
+		return sakaiProxy.checkForUser(sakaiProxy.getUuidForUserId(userId));
 	}
 	
 	/**
@@ -258,7 +244,7 @@ public class ProfileServiceImpl implements ProfileService {
 	public boolean checkUserProfileExists(String userId) {
 		
 		//convert userId into uuid
-		String userUuid = getUuidForUserId(userId);
+		String userUuid = sakaiProxy.getUuidForUserId(userId);
 		if(userUuid == null) {
 			log.error("Invalid userId: " + userId);
 			return false;
@@ -286,7 +272,7 @@ public class ProfileServiceImpl implements ProfileService {
 		}
 		
 		//convert userId into uuid
-		String userUuid = getUuidForUserId(userId);
+		String userUuid = sakaiProxy.getUuidForUserId(userId);
 		if(userUuid == null) {
 			log.error("Invalid userId: " + userId);
 			return null;
@@ -314,6 +300,7 @@ public class ProfileServiceImpl implements ProfileService {
 			if(resource == null || resource.getBytes() == null) {
 				return getDefaultImage();
 			} else {
+				System.out.println("getting resource");
 				return resource;
 			}
 		} 
@@ -331,7 +318,7 @@ public class ProfileServiceImpl implements ProfileService {
 		}
 		
 		//convert userId into uuid
-		String userUuid = getUuidForUserId(userId);
+		String userUuid = sakaiProxy.getUuidForUserId(userId);
 		if(userUuid == null) {
 			log.error("Invalid userId: " + userId);
 			return null;
@@ -652,7 +639,7 @@ public class ProfileServiceImpl implements ProfileService {
 		}
 		
 		//convert userId into uuid
-		String userUuid = getUuidForUserId(userId);
+		String userUuid = sakaiProxy.getUuidForUserId(userId);
 		if(userUuid == null) {
 			log.error("Invalid userId: " + userId);
 			return false;
@@ -811,39 +798,7 @@ public class ProfileServiceImpl implements ProfileService {
 
 	}
 	
-	
-	/**
-	 * Convenience method to convert the given userId input (internal id or eid) to a uuid. 
-	 * 
-	 * There is a small risk that an eid could be created that matches the uuid of another user.
-	 * 
-	 * Since 99% of the time requests will be made with uuid as the param, to speed things up this checks for that first.
-	 * If the above risk manifests itself, we will need to swap the order so usernames are checked first.
-	 * 
-	 * @param userId
-	 * @return
-	 * @throws UserNotDefinedException 
-	 */
-	private String getUuidForUserId(String userId) {
 		
-		String userUuid = null;
-
-		if(sakaiProxy.checkForUser(userId)) {
-			userUuid = userId;
-		} else if (sakaiProxy.checkForUserByEid(userId)) {
-			userUuid = sakaiProxy.getUserIdForEid(userId);
-			
-			if(userUuid == null) {
-				log.error("Could not translate eid to uuid for: " + userId);
-			}
-		} else {
-			log.error("User: " + userId + " could not be found in any lookup by either id or eid");
-		}
-		
-		return userUuid;
-	}
-	
-	
 	
 	/**
 	 * Convenience method to map a SakaiPerson object onto a UserProfile object
@@ -945,6 +900,22 @@ public class ProfileServiceImpl implements ProfileService {
 		sakaiPerson.setNotes(up.getOtherInformation());
 
 		return sakaiPerson;
+	}
+	
+	/**
+	 * Create a UserProfile object for the given user. This is the minimum that a UserProfile can be. 
+	 * 
+	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
+	 * @return the minimum UserProfile for the user, ie name only
+	 */
+	private UserProfile getPrototype(String userId) {
+		String userUuid = sakaiProxy.getUuidForUserId(userId);
+		
+		UserProfile userProfile = getPrototype();
+		userProfile.setUserUuid(userUuid);
+		userProfile.setDisplayName(sakaiProxy.getUserDisplayName(userUuid));
+		
+		return userProfile;
 	}
 	
 	private SakaiProxy sakaiProxy;
