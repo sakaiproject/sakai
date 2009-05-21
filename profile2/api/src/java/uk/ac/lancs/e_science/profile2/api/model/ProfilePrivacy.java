@@ -2,9 +2,11 @@ package uk.ac.lancs.e_science.profile2.api.model;
 
 import java.io.Serializable;
 
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
+
 
 /**
- * Hibernate model
+ * Hibernate and EntityProvider model
  * 
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
@@ -13,6 +15,7 @@ public class ProfilePrivacy implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
+	@EntityId
 	private String userUuid;
 	private int profileImage;
 	private int basicInfo;
