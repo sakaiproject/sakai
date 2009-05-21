@@ -2209,8 +2209,17 @@ public class AssignmentAction extends PagedResourceActionII
 	/**
 	 * Responding to the request of going to next submission
 	 */
-	public void doNext_submission(RunData rundata, Context context)
+	public void doNext_submission(RunData rundata)
 	{
+		SessionState state = ((JetspeedRunData) rundata).getPortletSessionState(((JetspeedRunData) rundata).getJs_peid());
+		// save the instructor input
+		readGradeForm(rundata, state, "save");
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			grade_submission_option(rundata, "save");
+		}
+		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_SUBMISSION);
+		
 		navigateToSubmission(rundata, "nextSubmissionId");
 
 	} // doNext_submission
@@ -2231,8 +2240,17 @@ public class AssignmentAction extends PagedResourceActionII
 	/**
 	 * Responding to the request of going to previous submission
 	 */
-	public void doPrev_submission(RunData rundata, Context context)
+	public void doPrev_submission(RunData rundata)
 	{
+		SessionState state = ((JetspeedRunData) rundata).getPortletSessionState(((JetspeedRunData) rundata).getJs_peid());
+		// save the instructor input
+		readGradeForm(rundata, state, "save");
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			grade_submission_option(rundata, "save");
+		}
+		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_SUBMISSION);
+		
 		navigateToSubmission(rundata, "prevSubmissionId");
 
 	} // doPrev_submission
@@ -7330,6 +7348,21 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				// back from the preview mode
 				doDone_preview_new_assignment(data);
+			}
+			else if (option.equals("prevsubmission"))
+			{
+				// save and navigate to previous submission
+				doPrev_submission(data);
+			}
+			else if (option.equals("nextsubmission"))
+			{
+				// save and navigate to previous submission
+				doNext_submission(data);
+			}
+			else if (option.equals("cancelgradesubmission"))
+			{
+				// save and navigate to previous submission
+				doCancel_grade_submission(data);
 			}
 
 
