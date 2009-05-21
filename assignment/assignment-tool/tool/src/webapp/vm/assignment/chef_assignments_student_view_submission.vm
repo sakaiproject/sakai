@@ -236,6 +236,23 @@
 						</td>
 					</tr>
 				#end
+				#if($allowReviewService && $assignment.getContent().AllowReviewService && $assignment.getContent().AllowStudentViewReport)
+					<tr>
+						<th>
+							$tlang.getString("review.report")
+						</th>
+							<td>
+							#if ($submission.getReviewReport().equals("Error"))
+								$tlang.getString("review.notavail")
+							#else
+								<img src="$submission.getReviewIconUrl()" alt="$submission.getReviewScore()">
+							
+								<a href="$submission.getReviewReport()" target="_blank">$tlang.getString("review.viewreport")</a>
+							#end
+							</td>
+				
+					</tr>
+				#end
 			</table>
 		<h4>
 			$tlang.getString("gen.assinfshort")
