@@ -48,11 +48,11 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 	public Object getEntity(EntityReference ref) {
 	
 		//get the full profile for the user. takes care of privacy checks against the current user
-		UserProfile entity = profileService.getFullUserProfile(ref.getId());
-		if(entity == null) {
+		UserProfile userProfile = profileService.getFullUserProfile(ref.getId());
+		if(userProfile == null) {
 			throw new EntityNotFoundException("Profile could not be retrieved for " + ref.getId(), ref.getReference());
 		}
-		return entity;
+		return userProfile;
 	}
 	
 	
@@ -125,11 +125,7 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 		try {
 			out.write(resource.getBytes());
 			
-			System.out.println("resource.getMimeType(): " + resource.getMimeType());
-			System.out.println("resource.getLength(): " + resource.getLength());
-			
-			ActionReturn actionReturn = new ActionReturn(out);
-			//set the content type?
+			ActionReturn actionReturn = new ActionReturn("BASE64", resource.getMimeType(), out);
 		
 			return actionReturn;
 		} catch (IOException e) {
