@@ -7,9 +7,9 @@ import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 import uk.ac.lancs.e_science.profile2.api.model.ResourceWrapper;
 /**
- * This is a helper API used by the Profile2 tool only. 
+ * This is a helper API used by the Profile2 tool and entities only.
  * 
- * DO NOT IMPLEMENT THIS YOURSELF
+ * DO NOT IMPLEMENT THIS YOURSELF, use the {@link ProfileService} instead
  * 
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *

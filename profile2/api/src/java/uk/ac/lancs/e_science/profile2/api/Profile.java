@@ -14,7 +14,7 @@ import uk.ac.lancs.e_science.profile2.api.model.SearchResult;
 /**
  * This is the internal API to be used by the Profile2 tool and entities only. 
  * 
- * DO NOT IMPLEMENT THIS YOURSELF, use the ProfileService instead (todo)
+ * DO NOT IMPLEMENT THIS YOURSELF, use the {@link ProfileService} instead
  * 
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
