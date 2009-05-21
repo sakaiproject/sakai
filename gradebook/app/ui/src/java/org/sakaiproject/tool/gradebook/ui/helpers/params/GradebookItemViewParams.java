@@ -12,6 +12,11 @@ public class GradebookItemViewParams extends SimpleViewParameters {
 	public String name;
 	public boolean requireDueDate;
 	public Date dueDate;
+	/**
+	 * This value will be a long representing the due date as a time (but passed as a string) sent from the caller
+	 * to auto-populate the due date on the gradebook item if this is a new item
+	 */
+	public String dueDateTime;
 	
 	public GradebookItemViewParams() {}
 	
@@ -31,7 +36,7 @@ public class GradebookItemViewParams extends SimpleViewParameters {
 	}
 	
 	public String getParseSpec(){
-		return super.getParseSpec() + ",@1:contextId,@2:assignmentId,finishURL,name";
+		return super.getParseSpec() + ",@1:contextId,@2:assignmentId,finishURL,name,dueDateTime";
 	}
 	
 }

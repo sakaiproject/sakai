@@ -105,6 +105,16 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     	List<Category> categories = gradebookManager.getCategories(gradebookId);
     	
     	String newItemName = params.name;
+    	String newItemDueTime = params.dueDateTime;
+    	Date newItemDueDate = null;
+    	if (newItemDueTime != null && !"".equals(newItemDueTime.trim())) {
+    		try {
+    			Long time = Long.parseLong(newItemDueTime);
+    			newItemDueDate = new Date(time.longValue());
+    		} catch (NumberFormatException nfe) {
+    			// something funky was passed here, so we won't try to pre-set the due date
+    		}
+    	}
     	
     	//OTP
     	String assignmentOTP = "Assignment.";
@@ -169,7 +179,15 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         UIInput.make(form, "point", assignmentOTP + ".pointsPossible");
         
         
-        Assignment assignment = (Assignment) assignmentBeanLocator.locateBean(OTPKey);
+        Assignment assignment = (Assignment) assignmentBeanLocator.locateBean(OTPKey);  
+        
+        if (add) {          
+            // if a due date was passed in, set the due date
+            if (newItemDueDate != null) {
+            	assignment.setDueDate(newItemDueDate);
+            }
+        }
+        
         Boolean require_due_date = (assignment.getDueDate() != null);
 		UIBoundBoolean.make(form, "require_due_date", "#{GradebookItemBean.requireDueDate}", require_due_date);
 		UIMessage.make(form, "require_due_date_label", "gradebook.add-gradebook-item.require_due_date");
