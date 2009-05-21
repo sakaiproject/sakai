@@ -64,11 +64,6 @@
       <to-view-id>/jsp/room.jsp</to-view-id>
       <redirect/>
     </navigation-case>
-    <navigation-case>
-      <from-outcome>roomControl</from-outcome>
-      <to-view-id>/jsp/roomControl.jsp</to-view-id>
-      <redirect/>
-    </navigation-case>
     <navigation-case><!-- not needed if using the courier -->
       <from-outcome>roomActions</from-outcome>
       <to-view-id>/jsp/roomActions.jsp</to-view-id>

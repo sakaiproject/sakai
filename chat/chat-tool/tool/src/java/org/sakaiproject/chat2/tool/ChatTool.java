@@ -68,7 +68,6 @@ import org.sakaiproject.util.DirectRefreshDelivery;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
-import org.sakaiproject.util.FormattedText;
 
 /**
  *
@@ -143,7 +142,6 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    private static final String PAGE_EDIT_A_ROOM = "editRoom";
    private static final String PAGE_LIST_ROOMS = "listRooms";
    private static final String PAGE_ENTER_ROOM = "room";
-   private static final String PAGE_ROOM_CONTROL = "roomControl";
    private static final String PAGE_EDIT_ROOM = "editRoom";
    private static final String PAGE_DELETE_ROOM_CONFIRM = "deleteRoomConfirm";
    private static final String PAGE_DELETE_ROOM_MESSAGES_CONFIRM = "deleteRoomMessagesConfirm";
