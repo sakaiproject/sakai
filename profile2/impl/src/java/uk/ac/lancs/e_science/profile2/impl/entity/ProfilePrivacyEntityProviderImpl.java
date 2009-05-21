@@ -13,9 +13,8 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 
 import uk.ac.lancs.e_science.profile2.api.ProfilePrivacyService;
-import uk.ac.lancs.e_science.profile2.api.ProfileService;
 import uk.ac.lancs.e_science.profile2.api.entity.ProfilePrivacyEntityProvider;
-import uk.ac.lancs.e_science.profile2.api.entity.model.UserProfile;
+import uk.ac.lancs.e_science.profile2.api.model.ProfilePrivacy;
 
 public class ProfilePrivacyEntityProviderImpl implements ProfilePrivacyEntityProvider, CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
 
@@ -26,23 +25,27 @@ public class ProfilePrivacyEntityProviderImpl implements ProfilePrivacyEntityPro
 	public boolean entityExists(String eid) {
 		//check the user is valid. if it is then return true as everyone has a privacy record, even if its a default one.
 		//note that we DO NOT check if they have an actual privacy record, just if they exist.
-		return profileService.checkUserExists(eid);
+		
+		System.out.println("entityExists");
+		
+		return privacyService.checkUserExists(eid);
 	}
 
 	public Object getSampleEntity() {
-		//PrivacyEntity entity = profileService.getPrototype();
-		//return entity;
-		return null;
+		System.out.println("getSampleEntity");
+		
+		ProfilePrivacy privacy = privacyService.getPrototype();
+		return privacy;
 	}
 	
 	public Object getEntity(EntityReference ref) {
 	
-		//get the full profile for the user. takes care of privacy checks against the current user
-		UserProfile entity = profileService.getFullUserProfile(ref.getId());
-		if(entity == null) {
-			throw new EntityNotFoundException("Profile could not be retrieved for " + ref.getId(), ref.getReference());
+		System.out.println("getEntity");
+		ProfilePrivacy privacy = privacyService.getProfilePrivacyRecord(ref.getId());
+		if(privacy == null) {
+			throw new EntityNotFoundException("ProfilePrivacy could not be retrieved for " + ref.getId(), ref.getReference());
 		}
-		return entity;
+		return privacy;
 	}
 	
 	
@@ -118,13 +121,6 @@ public class ProfilePrivacyEntityProviderImpl implements ProfilePrivacyEntityPro
 	public void setProfilePrivacyService(ProfilePrivacyService privacyService) {
 		this.privacyService = privacyService;
 	}
-	
-	private ProfileService profileService;
-	public void setProfileService(ProfileService profileService) {
-		this.profileService = profileService;
-	}
-
-	
 	
 
 }
