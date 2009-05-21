@@ -914,29 +914,44 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
  	 */
 	public boolean isUserXVisibleInSearchesByUserY(String userX, String userY, boolean friend) {
 				
-		//if userX is userY (ie they found themself in a search)
+		//if user is requesting own info, they ARE allowed
     	if(userY.equals(userX)) {
-    		log.debug("SEARCH VISIBILITY for " + userX + ": user is current user"); //$NON-NLS-1$ //$NON-NLS-2$
-    		return ProfilePrivacyManager.SELF_SEARCH_VISIBILITY;
+    		return true;
     	}
 		
-		//get ProfilePrivacy record for user
+		//get privacy record for userX
     	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
     	
-    	//if none, return whatever the flag is set as by default
+    	//pass to main
+    	return isUserXVisibleInSearchesByUserY(userX, profilePrivacy, userY, friend);
+		
+	}
+	
+	
+
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean isUserXVisibleInSearchesByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend) {
+		
+		//if user is requesting own info, they ARE allowed
+    	if(userY.equals(userX)) {
+    		return true;
+    	}
+		
+		//if no privacy record, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
-    		log.debug("SEARCH VISIBILITY for " + userX + ": no record, returning default visibility"); //$NON-NLS-1$ //$NON-NLS-2$
-    		return ProfilePrivacyManager.DEFAULT_SEARCH_VISIBILITY;
+    		log.debug("SEARCH VISIBILITY for " + userX + ": user is current user"); //$NON-NLS-1$ //$NON-NLS-2$
+    		return ProfilePrivacyManager.SELF_SEARCH_VISIBILITY;
     	}
     	
     	//if restricted to only self, not allowed
     	/* DEPRECATED via PRFL-24 when the privacy settings were relaxed
-    	if(profilePrivacy.getSearch() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYME) {
-    		log.debug("SEARCH VISIBILITY for " + userX + ": only me");
+    	if(profilePrivacy.getProfile() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYME) {
     		return false;
     	}
     	*/
-    	
+		
     	//if friend and set to friends only
     	if(friend && profilePrivacy.getSearch() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
     		log.debug("SEARCH VISIBILITY for " + userX + ": only friends and  " + userY + " is friend"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -2041,7 +2056,6 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			
 			//TODO skip all this if userId == userUuid, just return a default search record?
 			
-			
 			//friend?
 			boolean friend = isUserXFriendOfUserY(userUuid, userId);
 			
@@ -2059,19 +2073,22 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 				friendRequestFromThisPerson = isFriendRequestPending(userUuid, userId);
 			}
 			
+			//get privacy record
+			ProfilePrivacy privacy = getPrivacyRecordForUser(userUuid);
+			
 			//is this user visible in searches by this user? if not, skip
-			if(!isUserXVisibleInSearchesByUserY(userUuid, userId, friend)) {
+			if(!isUserXVisibleInSearchesByUserY(userUuid, privacy, userId, friend)) {
 				continue; 
 			}
 			
 			//is profile photo visible to this user
-			boolean profileImageAllowed = isUserXProfileImageVisibleByUserY(userUuid, userId, friend);
+			boolean profileImageAllowed = isUserXProfileImageVisibleByUserY(userUuid, privacy, userId, friend);
 			
 			//is status visible to this user
-			boolean statusVisible = this.isUserXStatusVisibleByUserY(userUuid, userId, friend);
+			boolean statusVisible = isUserXStatusVisibleByUserY(userUuid, privacy, userId, friend);
 			
 			//is friends list visible to this user
-			boolean friendsListVisible = isUserXFriendsListVisibleByUserY(userUuid, userId, friend);
+			boolean friendsListVisible = isUserXFriendsListVisibleByUserY(userUuid, privacy, userId, friend);
 			
 			
 			//make object
