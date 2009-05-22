@@ -653,6 +653,9 @@ public class ProfileServiceImpl implements ProfileService {
 	public boolean create(UserProfile userProfile) {
 		
 		String userUuid = userProfile.getUserUuid();
+		if(StringUtils.isBlank(userUuid)) {
+			return false;
+		}
 		
 		//does this user already have a persisted profile?
 		if(checkUserProfileExists(userUuid)) {
@@ -700,6 +703,9 @@ public class ProfileServiceImpl implements ProfileService {
 
 		//update SakaiPerson obj
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
+			
+			//TODO the fields that can update the Account need to be done as well, if allowed.
+			
 			return true;
 		} 
 		return false;
