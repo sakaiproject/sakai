@@ -62,6 +62,7 @@
 	
 	<bean id="uk.ac.lancs.e_science.profile2.api.entity.ProfilePrivacyEntityProvider" class="uk.ac.lancs.e_science.profile2.impl.entity.ProfilePrivacyEntityProviderImpl">
 		<property name="profilePrivacyService" ref="uk.ac.lancs.e_science.profile2.api.ProfilePrivacyService" />
+	    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 	</bean>
 	
 

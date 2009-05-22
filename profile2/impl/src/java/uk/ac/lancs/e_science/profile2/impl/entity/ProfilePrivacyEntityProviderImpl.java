@@ -3,6 +3,7 @@ package uk.ac.lancs.e_science.profile2.impl.entity;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
@@ -10,7 +11,9 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEnt
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
+import org.sakaiproject.tool.api.SessionManager;
 
 import uk.ac.lancs.e_science.profile2.api.ProfilePrivacyService;
 import uk.ac.lancs.e_science.profile2.api.entity.ProfilePrivacyEntityProvider;
@@ -32,7 +35,6 @@ public class ProfilePrivacyEntityProviderImpl implements ProfilePrivacyEntityPro
 	}
 
 	public Object getSampleEntity() {
-		System.out.println("getSampleEntity");
 		
 		ProfilePrivacy privacy = privacyService.getPrototype();
 		return privacy;
@@ -40,7 +42,10 @@ public class ProfilePrivacyEntityProviderImpl implements ProfilePrivacyEntityPro
 	
 	public Object getEntity(EntityReference ref) {
 	
-		System.out.println("getEntity");
+		if (sessionManager.getCurrentSessionUserId() == null) {
+			throw new SecurityException();
+		}
+		
 		ProfilePrivacy privacy = privacyService.getProfilePrivacyRecord(ref.getId());
 		if(privacy == null) {
 			throw new EntityNotFoundException("ProfilePrivacy could not be retrieved for " + ref.getId(), ref.getReference());
@@ -52,41 +57,39 @@ public class ProfilePrivacyEntityProviderImpl implements ProfilePrivacyEntityPro
 	
 	
 	public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params) {
-		/*
+	
 		String userId = ref.getId();
 		if (StringUtils.isBlank(userId)) {
 			throw new IllegalArgumentException("Cannot update, No userId in provided reference: " + ref);
 		}
 		
-		if (entity.getClass().isAssignableFrom(UserProfile.class)) {
-			UserProfile userProfile = (UserProfile) entity;
-			profileService.save(userProfile);
+		if (entity.getClass().isAssignableFrom(ProfilePrivacy.class)) {
+			ProfilePrivacy privacy = (ProfilePrivacy) entity;
+			privacyService.save(privacy);
 		} else {
-			 throw new IllegalArgumentException("Invalid entity for update, must be UserProfile object");
+			 throw new IllegalArgumentException("Invalid entity for update, must be ProfilePrivacy object");
 		}
-		*/
+	
 	}
 	
 	
 	public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
 		
-		//reference will be the userUuid, which comes from the UserProfile
+		//reference will be the userUuid, which comes from the ProfilePrivacy passed in
 		String userUuid = null;
 
-		/*
-		if (entity.getClass().isAssignableFrom(UserProfile.class)) {
-			UserProfile userProfile = (UserProfile) entity;
+		if (entity.getClass().isAssignableFrom(ProfilePrivacy.class)) {
+			ProfilePrivacy privacy = (ProfilePrivacy) entity;
 			
-			if(profileService.create(userProfile)) {
-				userUuid = userProfile.getUserUuid();
+			if(privacyService.create(privacy)) {
+				userUuid = privacy.getUserUuid();
 			}
 			if(userUuid == null) {
 				throw new EntityException("Could not create entity", ref.getReference());
 			}
 		} else {
-			 throw new IllegalArgumentException("Invalid entity for create, must be UserProfile object");
+			 throw new IllegalArgumentException("Invalid entity for create, must be ProfilePrivacy object");
 		}
-		*/
 		return userUuid;
 	}
 
@@ -121,6 +124,11 @@ public class ProfilePrivacyEntityProviderImpl implements ProfilePrivacyEntityPro
 	public void setProfilePrivacyService(ProfilePrivacyService privacyService) {
 		this.privacyService = privacyService;
 	}
+	
+	private SessionManager sessionManager;
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
+	}	
 	
 
 }
