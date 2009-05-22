@@ -5498,7 +5498,7 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				Assignment aI = (Assignment) i.next();
 				String gbEntry = aI.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-				if (gbEntry != null && gbEntry.equals(associateGradebookAssignment) && !aI.getReference().equals(assignmentReference))
+				if (aI.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED) == null && gbEntry != null && gbEntry.equals(associateGradebookAssignment) && !aI.getReference().equals(assignmentReference))
 				{
 					found = true;
 				}
@@ -9560,10 +9560,34 @@ public class AssignmentAction extends PagedResourceActionII
 				while (assignments.hasNext())
 				{
 					Assignment a = (Assignment) assignments.next();
-					Time openTime = a.getOpenTime();
-					if (openTime != null && currentTime.after(openTime) && !a.getDraft())
+					try
 					{
-						returnResources.add(a);
+						String deleted = a.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED);
+						if (deleted == null || deleted.equals(""))
+						{
+							// show not deleted assignments
+							Time openTime = a.getOpenTime();
+							if (openTime != null && currentTime.after(openTime) && !a.getDraft())
+							{
+								returnResources.add(a);
+							}
+						}
+						else if (deleted.equalsIgnoreCase(Boolean.TRUE.toString()) && (a.getContent().getTypeOfSubmission() != Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) && AssignmentService.getSubmission(a.getReference(), (User) state
+								.getAttribute(STATE_USER)) != null)
+						{
+							// and those deleted but not non-electronic assignments but the user has made submissions to them
+							returnResources.add(a);
+						}
+					}
+					catch (IdUnusedException e)
+					{
+						addAlert(state, rb.getString("cannotfin3"));
+						M_log.warn(this + ":sizeResources " + e.getMessage());
+					}
+					catch (PermissionException e)
+					{
+						addAlert(state, rb.getString("youarenot14"));
+						M_log.warn(this + ":sizeResources " + e.getMessage());
 					}
 				}
 			}
@@ -9600,10 +9624,11 @@ public class AssignmentAction extends PagedResourceActionII
 					Assignment a = (Assignment) assignments.get(j);
 					
 					//get the list of users which are allowed to grade this assignment
-					List allowGradeAssignmentUsers = AssignmentService.allowGradeAssignmentUsers(a.getReference());
-					
-					if (!a.getDraft() && AssignmentService.allowGradeSubmission(a.getReference()))
-					{
+	  				List allowGradeAssignmentUsers = AssignmentService.allowGradeAssignmentUsers(a.getReference());
+	  				
+	  				String deleted = a.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED);
+	  				if ((deleted == null || deleted.equals("")) && (!a.getDraft()) && AssignmentService.allowGradeSubmission(a.getReference()))
+	  				{
 						try
 						{
 							List assignmentSubmissions = AssignmentService.getSubmissions(a);

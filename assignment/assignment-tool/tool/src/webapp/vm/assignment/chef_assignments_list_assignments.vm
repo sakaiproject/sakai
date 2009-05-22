@@ -438,6 +438,11 @@ function allowClick(object)
 												<a href="#toolLinkParam("AssignmentAction" "doView_assignment_as_student" "assignmentId=$assignment.Reference")">$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a></h4>
 											#end
 										#end
+										#set ($deleted = false)
+										#set ($deleted = $assignmentProperties.getProperty($assignmentProperties.getNamePropAssignmentDeleted()))
+										#if ($!deleted.equalsIgnoreCase("true"))
+											<span class="highlight">$tlang.getString("stulistassig.asshasbee1")</span>
+										#end
 									#end
 							</td>
 							#if ($!groups)

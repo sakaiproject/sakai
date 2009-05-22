@@ -118,6 +118,11 @@
 					</th>
 					<td>
 						$validator.escapeHtml($assignment.getTitle())
+						#set ($deleted = false)
+						#set ($deleted = $assignment.getProperties().getProperty($assignment.getProperties().getNamePropAssignmentDeleted()))
+						#if ($!deleted.equalsIgnoreCase("true"))
+							<span class="highlight">(Assignment has been deleted)</span>
+						#end
 					</td>
 				</tr>
 				<tr>
@@ -466,6 +471,11 @@
 			## 1- text only; 2-attachment only; 3-text and attachment
 			#set ( $submissionType = $assignment.getContent().getTypeOfSubmission())
 			#if (($submissionType==1) || ($submissionType==3))
+				#if ($!deleted.equalsIgnoreCase("true"))
+					<h4>$tlang.getString("gen.yousub") </h4>
+					##if the assignment has been deleted, disable the action button
+					$validator.escapeHtmlFormattedText($!value_submission_text)
+				#else
 					#*
 					#if (!$submitted || ($submitted && !$timeSubmitted))
 						## for draft submission
@@ -522,6 +532,7 @@
 							$validator.escapeHtmlFormattedText($!value_submission_text)
 						#end							
 					#end*#
+				#end
 			#end
 			#if (($submissionType==2) || ($submissionType==3)) 
 				#if ($submissionType==2)
@@ -569,6 +580,10 @@
 						</ul>
 					#end	 
 					<p class="act">
+						#if ($!deleted.equalsIgnoreCase("true")) 	 
+	    		##if the assignment has been deleted, disable the action button 	 
+	     	<input type="submit" name="eventSubmit_doAttachments" value="Attachment" accesskey="a" disabled="disabled" /> 	 
+	     #else
 							#if ($!canSubmit)
 										<input
 											class="disableme" 
@@ -583,10 +598,9 @@
 											accesskey="a" #if(!$allowSubmit)disabled="disabled"#end
 											onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='attach'; document.addSubmissionForm.submit(); return false;"
 										/>
-									#end
-					</p>
-				#end
-				
+						#end
+					#end
+				</p>
 				## for single file upload case
 				#if ($submissionType==5)
 					<div class="highlightPanel">
@@ -729,7 +743,7 @@
 					</p>
 				#end
 			<div class="act">
-					#if (!$!canSubmit)
+					#if ($!deleted.equalsIgnoreCase("true") || !$!canSubmit)
 						<input 
 							type="button" 
 							name="cancel"
@@ -784,6 +798,7 @@
 								onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='cancel'; document.addSubmissionForm.submit(); return false;"
 							/>
 					#end
+				#end
 				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 			</div>
 		#else
