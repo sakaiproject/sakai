@@ -238,24 +238,7 @@ public class ProfileServiceImpl implements ProfileService {
 		return sakaiProxy.checkForUser(sakaiProxy.getUuidForUserId(userId));
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean checkUserProfileExists(String userId) {
-		
-		//convert userId into uuid
-		String userUuid = sakaiProxy.getUuidForUserId(userId);
-		if(userUuid == null) {
-			log.error("Invalid userId: " + userId);
-			return false;
-		}
-		
-		//check if we have a persisted profile
-		if(sakaiProxy.getSakaiPerson(userUuid) == null) {
-			return false;
-		}
-		return true;
-	}
+	
 
 
 	/**
@@ -614,12 +597,12 @@ public class ProfileServiceImpl implements ProfileService {
 		//check auth and get currentUserUuid
 		String currentUserUuid = sakaiProxy.getCurrentUserId();
 		if(currentUserUuid == null) {
-			throw new SecurityException("You must be logged in to update your profile.");
+			throw new SecurityException("Must be logged in.");
 		}
 		
 		//check currentUser and profile uuid match
 		if(!currentUserUuid.equals(userProfile.getUserUuid())) {
-			throw new SecurityException("You are not allowed to update this user's profile.");
+			throw new SecurityException("Not allowed to save.");
 		}
 		
 		//translate, save and return the response.
@@ -635,7 +618,7 @@ public class ProfileServiceImpl implements ProfileService {
 		//check auth and get currentUserUuid
 		String currentUserUuid = sakaiProxy.getCurrentUserId();
 		if(currentUserUuid == null) {
-			throw new SecurityException("You must be logged in to create your profile.");
+			throw new SecurityException("Must be logged in.");
 		}
 		
 		//convert userId into uuid
@@ -647,12 +630,11 @@ public class ProfileServiceImpl implements ProfileService {
 		
 		//check currentUser and profile uuid match
 		if(!currentUserUuid.equals(userUuid)) {
-			throw new SecurityException("You are not allowed to create this user's profile.");
+			throw new SecurityException("Not allowed to save.");
 		}
 		
 		//does this user already have a persisted profile?
 		if(checkUserProfileExists(userUuid)) {
-			System.out.println("already has a profile");
 			log.error("userUuid: " + userUuid + " already has a profile. Cannot create another.");
 			return false;
 		}
@@ -683,6 +665,28 @@ public class ProfileServiceImpl implements ProfileService {
 	
 	
 	/**
+	 * {@inheritDoc}
+	 */
+	public boolean checkUserProfileExists(String userId) {
+		
+		//convert userId into uuid
+		String userUuid = sakaiProxy.getUuidForUserId(userId);
+		if(userUuid == null) {
+			log.error("Invalid userId: " + userId);
+			return false;
+		}
+		
+		//check if we have a persisted object already
+		if(sakaiProxy.getSakaiPerson(userUuid) == null) {
+			return false;
+		}
+		return true;
+	}
+	
+	
+	
+	
+	/**
 	 * This is a helper method to take care of translating a UserProfile to a SakaiPerson, doing anything else
 	 * then persisting it to the database.
 	 * 
@@ -696,12 +700,9 @@ public class ProfileServiceImpl implements ProfileService {
 
 		//update SakaiPerson obj
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
-			log.info("Saved profile for: " + userProfile.getUserUuid());
 			return true;
-		} else {
-			log.error("Couldn't save profile for: " + userProfile.getUserUuid());
-			return false;
-		}
+		} 
+		return false;
 		
 	}
 	
@@ -738,6 +739,9 @@ public class ProfileServiceImpl implements ProfileService {
 	private ResourceWrapper getDefaultImage() {
 		return profile.getURLResourceAsBytes(profile.getUnavailableImageURL());
 	}
+	
+	
+	
 	
 	
 	/**

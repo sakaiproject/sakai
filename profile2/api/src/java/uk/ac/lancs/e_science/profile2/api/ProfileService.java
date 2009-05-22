@@ -90,8 +90,7 @@ public interface ProfileService {
 	public boolean checkUserExists(String userId);
 	
 	/**
-	 * Checks whether a user profile ACTUALLY exists. 
-	 * <p>Sometimes we need to check if the profile really does already exist.</p>
+	 * Helper method to check whether a user profile ACTUALLY exists, not just if the user exists.
 	 * 
 	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
 	 * @return true if exists, false otherwise
