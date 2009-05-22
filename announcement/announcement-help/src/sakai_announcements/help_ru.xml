@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="announcementOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqyk_ru</value></property>
+      <property name="name"><value>Объявления: обзор</value></property>
+      <property name="location"><value>/sakai_announcements/aqyk_ru.html</value></property>
+      <property name="defaultForTool"><value>sakai.announcements</value></property>
+   </bean>
+
+   <bean id="createAnnouncement" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcr_ru</value></property>
+      <property name="name"><value>Создание/изменение/удаление объявлений</value></property>
+      <property name="location"><value>/sakai_announcements/arcr_ru.html</value></property>
+   </bean>
+   <bean id="postAnnouncement" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbw_ru</value></property>
+      <property name="name"><value>Отправка объявлений</value></property>
+      <property name="location"><value>/sakai_announcements/arbw_ru.html</value></property>
+   </bean>
+   <bean id="reviseAnnouncement" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbd_ru</value></property>
+      <property name="name"><value>Просмотр объявлений</value></property>
+      <property name="location"><value>/sakai_announcements/arbd_ru.html</value></property>
+   </bean>
+   <bean id="deleteAnnouncement" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aram_ru</value></property>
+      <property name="name"><value>Права доступа к "Объявлениям"</value></property>
+      <property name="location"><value>/sakai_announcements/aram_ru.html</value></property>
+   </bean>
+    <bean id="mergeAnnouncement" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzq_ru</value></property>
+      <property name="name"><value>Ретрансляция объявлений</value></property>
+      <property name="location"><value>/sakai_announcements/aqzq_ru.html</value></property>
+   </bean>
+
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="announcementCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Объявления</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="announcementOverview"/>
+                     <ref bean="createAnnouncement"/>
+                     <ref bean="postAnnouncement"/>
+                     <ref bean="reviseAnnouncement"/>
+                     <ref bean="deleteAnnouncement"/>
+					 <ref bean="mergeAnnouncement"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
