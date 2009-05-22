@@ -28,9 +28,6 @@ public class ProfilePrivacyEntityProviderImpl implements ProfilePrivacyEntityPro
 	public boolean entityExists(String eid) {
 		//check the user is valid. if it is then return true as everyone has a privacy record, even if its a default one.
 		//note that we DO NOT check if they have an actual privacy record, just if they exist.
-		
-		System.out.println("entityExists");
-		
 		return privacyService.checkUserExists(eid);
 	}
 
@@ -58,6 +55,10 @@ public class ProfilePrivacyEntityProviderImpl implements ProfilePrivacyEntityPro
 	
 	public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params) {
 	
+		if (sessionManager.getCurrentSessionUserId() == null) {
+			throw new SecurityException();
+		}
+		
 		String userId = ref.getId();
 		if (StringUtils.isBlank(userId)) {
 			throw new IllegalArgumentException("Cannot update, No userId in provided reference: " + ref);
@@ -75,7 +76,11 @@ public class ProfilePrivacyEntityProviderImpl implements ProfilePrivacyEntityPro
 	
 	public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
 		
-		//reference will be the userUuid, which comes from the ProfilePrivacy passed in
+		if (sessionManager.getCurrentSessionUserId() == null) {
+			throw new SecurityException();
+		}
+		
+		//reference will be the userUuid, which comes from the ProfilePrivacy obj passed in
 		String userUuid = null;
 
 		if (entity.getClass().isAssignableFrom(ProfilePrivacy.class)) {
