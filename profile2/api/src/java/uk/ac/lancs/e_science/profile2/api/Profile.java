@@ -209,14 +209,14 @@ public interface Profile {
 	public String truncateAndPadStringToSize(String string, int size);
 	
 	/**
-	 * Create a default privacy record according to the defaults in ProfilePrivacyManager, and save it to the DB
+	 * Create a persistent default privacy record according to the defaults in ProfilePrivacyManager.
 	 *
 	 * @param userId		uuid of the user to create the record for
 	 */
 	public ProfilePrivacy createDefaultPrivacyRecord(String userId);
 	
 	/**
-	 * Create a default privacy record according to the defaults in ProfilePrivacyManager. No save.
+	 * Create a default privacy record according to the defaults in ProfilePrivacyManager. Not persisted.
 	 *
 	 * @param userId		uuid of the user to create the record for
 	 */

@@ -784,8 +784,8 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	public boolean savePrivacyRecord(ProfilePrivacy profilePrivacy) {
 
 		try {
-			getHibernateTemplate().update(profilePrivacy);
-			log.info("Updated privacy record for user: " + profilePrivacy.getUserUuid()); //$NON-NLS-1$
+			getHibernateTemplate().saveOrUpdate(profilePrivacy);
+			log.info("Saved privacy record for user: " + profilePrivacy.getUserUuid()); //$NON-NLS-1$
 			return true;
 		} catch (Exception e) {
 			log.error("Profile.savePrivacyRecordForUser() failed. " + e.getClass() + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
