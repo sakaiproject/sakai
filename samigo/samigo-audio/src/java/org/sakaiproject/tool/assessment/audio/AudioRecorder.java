@@ -548,7 +548,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
 			urlConn.setRequestProperty("CONTENT-TYPE", getMimeType(audioType));
 			// Send binary POST output.
 			OutputStream outputStream = urlConn.getOutputStream();
-			BufferedReader input = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
+			BufferedReader input = null;
 			try {
 				// System.out.println("**** no. of bytes
 				// recorded="+audioInputStream.available());
@@ -560,6 +560,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
 				outputStream.flush();
 				outputStream.close();
 
+				input = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
 				// Get response data.
 				//String reportStr = res.getString("contentlenw") + ": " + c + " " + res.getString("bytes") + ".\n  ";
 				

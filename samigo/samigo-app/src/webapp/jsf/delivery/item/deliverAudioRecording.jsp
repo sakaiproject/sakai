@@ -40,7 +40,8 @@ should be included in file importing DeliveryMessages
 <f:verbatim><br /></f:verbatim>
 <f:verbatim><br /></f:verbatim>
 <f:verbatim><div id="</f:verbatim><h:outputText value="question#{question.itemData.itemId}" /><f:verbatim>" style="</f:verbatim><h:outputText value="display:none;" rendered="#{question==null or question.hasNoMedia}" /><f:verbatim>" ></f:verbatim>
-  <h:panelGrid cellpadding="10" columns="2" rendered="#{question!=null and !question.hasNoMedia}">
+
+  <h:panelGrid cellpadding="10" columns="1">
     <h:panelGroup>
       <h:outputText escape="false" value="
 	    <object classid=\"clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B\"  codebase=\"http://www.apple.com/qtactivex/qtplugin.cab\" width=\"300\" height=\"25\">
@@ -76,17 +77,6 @@ should be included in file importing DeliveryMessages
       <f:verbatim><a id="</f:verbatim><h:outputText value="link#{question.itemData.itemId}" /><f:verbatim>" href="</f:verbatim><h:outputText value="#{delivery.protocol}/samigo/servlet/ShowMedia?mediaId=#{question.mediaArray[0].mediaId}&setMimeType=false" /><f:verbatim>" ></f:verbatim><h:outputText value=" #{deliveryMessages.can_you_hear_2} " escape="false" /><f:verbatim></a></f:verbatim>
       <h:outputText value="#{deliveryMessages.can_you_hear_3}"  escape="false"/>
     </h:panelGroup>
-      <h:commandLink 
-	      title="#{deliveryMessages.t_removeMedia}" 
-	      action="confirmRemoveMedia"
-	      immediate="true">
-        <h:outputText value="   #{deliveryMessages.remove}" />
-        <f:param name="mediaId" value="#{question.mediaArray[0].mediaId}"/>
-        <f:param name="mediaUrl" value="/samigo/servlet/ShowMedia?mediaId=#{question.mediaArray[0].mediaId}"/>
-        <f:param name="mediaFilename" value="#{question.mediaArray[0].filename}"/>
-        <f:param name="itemGradingId" value="#{question.itemGradingDataArray[0].itemGradingId}"/>
-        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.shared.ConfirmRemoveMediaListener" />
-      </h:commandLink>
   </h:panelGrid>
 <f:verbatim></div></f:verbatim>
 
