@@ -190,6 +190,88 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 		if (idParam != null) {
 			setStudentUid(idParam);
 		}
+		processUpdateScoresForPreNextStudent();
+	}
+	
+	public void processUpdateScoresForPreNextStudent() {
+		try {
+			saveScoresWithoutConfirmation();
+		} catch (StaleObjectModificationException e) {
+			FacesUtil.addErrorMessage(getLocalizedString("assignment_details_locking_failure"));
+		}
+	}
+	
+	/**
+	 * Save the input scores for the user
+	 * @throws StaleObjectModificationException
+	 */
+	public void saveScoresWithoutConfirmation() throws StaleObjectModificationException {
+        if (logger.isInfoEnabled()) logger.info("saveScores for " + getStudentUid());
+
+		// first, determine which scores were updated
+		List updatedGradeRecords = new ArrayList();
+		if (getGradebookItems() != null) {
+			Iterator itemIter = getGradebookItems().iterator();
+			while (itemIter.hasNext()) {
+				Object item = itemIter.next();
+				if (item instanceof AssignmentGradeRow) {
+					AssignmentGradeRow gradeRow = (AssignmentGradeRow) item;
+					AssignmentGradeRecord gradeRecord = gradeRow.getGradeRecord();
+
+					if (gradeRecord == null && (gradeRow.getScore() != null || gradeRow.getLetterScore() != null)) {
+						// this is a new grade
+						gradeRecord = new AssignmentGradeRecord(gradeRow.getAssociatedAssignment(), getStudentUid(), null);
+					}
+					if (gradeRecord != null) {
+						if (getGradeEntryByPoints()) { 
+							Double originalScore = null;
+							originalScore = gradeRecord.getPointsEarned();
+
+							if (originalScore != null) {
+								// truncate to two decimals for more accurate comparison
+								originalScore = new Double(FacesUtil.getRoundDown(originalScore.doubleValue(), 2));
+							}
+							Double newScore = gradeRow.getScore();
+							if ( (originalScore != null && !originalScore.equals(newScore)) ||
+									(originalScore == null && newScore != null) ) {
+								gradeRecord.setPointsEarned(newScore);
+								updatedGradeRecords.add(gradeRecord);
+							}
+						} else if(getGradeEntryByPercent()) {
+							Double originalScore = null;
+							originalScore = gradeRecord.getPercentEarned();
+
+							if (originalScore != null) {
+								// truncate to two decimals for more accurate comparison
+								originalScore = new Double(FacesUtil.getRoundDown(originalScore.doubleValue(), 2));
+							}
+							Double newScore = gradeRow.getScore();
+							if ( (originalScore != null && !originalScore.equals(newScore)) ||
+									(originalScore == null && newScore != null) ) {
+								gradeRecord.setPercentEarned(newScore);
+								updatedGradeRecords.add(gradeRecord);
+							}
+
+						}	else if (getGradeEntryByLetter()) {
+
+							String originalScore = gradeRecord.getLetterEarned();
+							String newScore = gradeRow.getLetterScore();
+							if ( (originalScore != null && !originalScore.equals(newScore)) ||
+									(originalScore == null && newScore != null) ) {
+								gradeRecord.setLetterEarned(newScore);
+								updatedGradeRecords.add(gradeRecord);
+							}
+						}
+					} 
+				}
+			}
+		}
+
+		Set excessiveScores = getGradebookManager().updateStudentGradeRecords(updatedGradeRecords, getGradebook().getGrade_type(), getStudentUid());
+
+		if(updatedGradeRecords.size() > 0){
+			getGradebookBean().getEventTrackingService().postEvent("gradebook.updateItemScores","/gradebook/"+getGradebookId()+"/"+updatedGradeRecords.size()+"/"+getAuthzLevel());
+		}
 	}
 	
 	/**
