@@ -489,12 +489,11 @@
 	<tool 
 		toolId="sakai.rwiki"
 		selected="true">
-		<!-- wiki.new: see STAT-157 -->
-		<!--<event eventId="wiki.new" selected="true"/>-->
+		<event eventId="wiki.new" selected="true"/>
 		<!--
 			"wiki.read" requires the following on sakai.properties:
-				trackReads@uk.ac.cam.caret.sakai.rwiki.tool.service.api.CommandService=true
-			IMPORTANT: please track SAK-6851 before enabling this event.
+				wiki.trackReads = true
+			IMPORTANT: please see SAK-11214 before enabling this event.
 		 -->
 		<!--<event eventId="wiki.read" selected="true"/>-->
 		<event eventId="wiki.revise" selected="true"/>
