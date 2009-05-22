@@ -1,5 +1,6 @@
 package uk.ac.lancs.e_science.profile2.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
@@ -47,7 +48,11 @@ public class ProfilePrivacyServiceImpl implements ProfilePrivacyService {
 		return privacy;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public boolean save(ProfilePrivacy obj) {
+		
 		//check auth and get currentUserUuid
 		String currentUserUuid = sakaiProxy.getCurrentUserId();
 		if(currentUserUuid == null) {
@@ -56,19 +61,66 @@ public class ProfilePrivacyServiceImpl implements ProfilePrivacyService {
 		
 		//check currentUser and profile uuid match
 		if(!currentUserUuid.equals(obj.getUserUuid())) {
-			throw new SecurityException("Not allowed to update.");
+			throw new SecurityException("Not allowed to save.");
 		}
 		
 		//save and return response
 		return persistUserProfile(obj);
 	}
+	
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public boolean create(ProfilePrivacy obj) {
-		// TODO Auto-generated method stub
-		return false;
+		
+		String userUuid = obj.getUserUuid();
+		if(StringUtils.isBlank(userUuid)) {
+			return false;
+		}
+		
+		//does this user already have a persisted profile?
+		if(checkProfilePrivacyExists(userUuid)) {
+			log.error("userUuid: " + userUuid + " already has a ProfilePrivacy record. Cannot create another.");
+			return false;
+		}
+		return save(obj);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public boolean create(String userId) {
-		// TODO Auto-generated method stub
-		return false;
+		
+		//check auth and get currentUserUuid
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if(currentUserUuid == null) {
+			throw new SecurityException("Must be logged in.");
+		}
+		
+		//convert userId into uuid
+		String userUuid = sakaiProxy.getUuidForUserId(userId);
+		if(userUuid == null) {
+			log.error("Invalid userId: " + userId);
+			return false;
+		}
+		
+		//check currentUser and profile uuid match
+		if(!currentUserUuid.equals(userUuid)) {
+			throw new SecurityException("Not allowed to save.");
+		}
+		
+		//does this user already have a persisted profile?
+		if(checkProfilePrivacyExists(userUuid)) {
+			log.error("userUuid: " + userUuid + " already has a ProfilePrivacy record. Cannot create another.");
+			return false;
+		}
+			
+		//no existing profile, setup a prototype
+		ProfilePrivacy privacy = getPrototype(userUuid);
+		
+		//save and return response
+		return persistUserProfile(privacy);
 	}
 	
 	/**
@@ -77,6 +129,30 @@ public class ProfilePrivacyServiceImpl implements ProfilePrivacyService {
 	public boolean checkUserExists(String userId) {
 		return sakaiProxy.checkForUser(sakaiProxy.getUuidForUserId(userId));
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean checkProfilePrivacyExists(String userId) {
+		
+		//convert userId into uuid
+		String userUuid = sakaiProxy.getUuidForUserId(userId);
+		if(userUuid == null) {
+			log.error("Invalid userId: " + userId);
+			return false;
+		}
+		
+		//check if we have a persisted object already
+		if(profile.getPrivacyRecordForUser(userUuid) == null) {
+			return false;
+		}
+		return true;
+	}
+	
+	
+	
+	
+	
 	
 	
 	/**
@@ -103,6 +179,7 @@ public class ProfilePrivacyServiceImpl implements ProfilePrivacyService {
 		String userUuid = sakaiProxy.getUuidForUserId(userId);
 		return profile.getDefaultPrivacyRecord(userUuid);
 	}
+	
 	
 	
 	private SakaiProxy sakaiProxy;

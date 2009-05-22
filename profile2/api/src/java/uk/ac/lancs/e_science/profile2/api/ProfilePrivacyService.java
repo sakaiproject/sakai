@@ -50,10 +50,18 @@ public interface ProfilePrivacyService {
 	
 	/**
 	 * Checks whether a user exists. 
-	 * <p>This actually just checks for the existence of a user in the system as every user has a privacy object, even if its a default one.</p>
+	 * <p>This actually just checks for the existence of a user in the system as every user has a ProfilePrivacy object, even if its a default one.</p>
 	 * 
 	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
 	 * @return true if exists, false otherwise
 	 */
 	public boolean checkUserExists(String userId);
+	
+	/**
+	 * Helper method to check whether a user ProfilePrivacy object ACTUALLY exists, not just if the user exists.
+	 * 
+	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
+	 * @return true if exists, false otherwise
+	 */
+	public boolean checkProfilePrivacyExists(String userId);
 }
