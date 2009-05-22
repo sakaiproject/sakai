@@ -1,6 +1,7 @@
 package uk.ac.lancs.e_science.profile2.impl;
 
 import org.apache.log4j.Logger;
+import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.ProfilePrivacyService;
@@ -47,8 +48,19 @@ public class ProfilePrivacyServiceImpl implements ProfilePrivacyService {
 	}
 	
 	public boolean save(ProfilePrivacy obj) {
-		// TODO Auto-generated method stub
-		return false;
+		//check auth and get currentUserUuid
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if(currentUserUuid == null) {
+			throw new SecurityException("Must be logged in.");
+		}
+		
+		//check currentUser and profile uuid match
+		if(!currentUserUuid.equals(obj.getUserUuid())) {
+			throw new SecurityException("Not allowed to update.");
+		}
+		
+		//save and return response
+		return persistUserProfile(obj);
 	}
 	public boolean create(ProfilePrivacy obj) {
 		// TODO Auto-generated method stub
@@ -66,8 +78,23 @@ public class ProfilePrivacyServiceImpl implements ProfilePrivacyService {
 		return sakaiProxy.checkForUser(sakaiProxy.getUuidForUserId(userId));
 	}
 	
+	
 	/**
-	 * Create a default ProfilePrivacy object for the given user.
+	 * Helper method to take care of persisting a ProfilePrivacy object to the database.
+	 * 
+	 * @param ProfilePrivacy object
+	 * @return true/false for success
+	 */
+	private boolean persistUserProfile(ProfilePrivacy obj) {
+
+		if(profile.savePrivacyRecord(obj)) {
+			return true;
+		} 
+		return false;
+	}
+	
+	/**
+	 * Helper method to create a default ProfilePrivacy object for the given user.
 	 * 
 	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
 	 * @return a ProfilePrivacy object filled with the default fields
