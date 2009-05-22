@@ -419,3 +419,51 @@ function displayHideElement(myForm, displayId, radioId, radioElementValue) {
   }
 }
 
+function initCategoryDisplay() {
+	var tr_hidden = $("tr.hide");
+	tr_hidden.each(function(i){
+		var hideRow = true;
+		
+		// first, check for the existence of a category name in the input
+		var input_name = $(this).children("td").get(0);
+		if (input_name) {
+			var input_name_children = $(input_name).children("input.catNameInput");
+			if (input_name_children && input_name_children.length > 0) {
+				var input_name_val = input_name_children.get(0).value;
+				if (input_name_val && input_name_val.length > 0) {
+					hideRow = false;
+				}
+			}
+		}
+		
+		// now let's check if they input a weight!
+		var input_weight = $(this).children("td").get(1);
+		if (input_weight) {
+			var input_weight_children = $(input_weight).children("input.catWeightInput");
+			if (input_weight_children && input_weight_children.length > 0) {
+				var input_weight_val = input_weight_children.get(0).value;
+				if (input_weight_val && input_weight_val.length > 0) {
+					hideRow = false;
+				}
+			}
+		}
+		
+		// if there is data in the input, we display that row. otherwise, hide it
+		if (hideRow) {
+			$(this).addClass("hide");
+			$(this).hide();
+		} else {
+			$(this).removeClass("hide");
+		}
+	});
+
+	$("a.more_categories").click(function(event){
+		$("tr.hide:first").removeClass("hide").show();
+		mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
+		if(!$("tr.hide").size()){
+			$(event.target).hide();
+		}
+	});
+}
+
+

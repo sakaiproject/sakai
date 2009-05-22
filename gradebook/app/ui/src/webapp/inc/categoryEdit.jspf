@@ -26,14 +26,14 @@
 					<f:facet name="header">
 						<h:outputText value="#{msgs.cat_list_category}"/>
 					</f:facet>
-					<h:inputText id="categoryName" value="#{category.name}"/>
+					<h:inputText id="categoryName" value="#{category.name}" styleClass="catNameInput" />
 				</h:column>
 				<h:column rendered="#{gradebookSetupBean.displayWeighting}">
 					<f:facet name="header">
 						<h:outputText value="#{msgs.cat_list_weight}" />
 					</f:facet>
 					<h:inputText value="#{category.weight}" size="5" maxlength="6" id="weightInput"
-							onchange="javascript:updateRunningTotal(this.form);" >
+							onchange="javascript:updateRunningTotal(this.form);"  styleClass="catWeightInput">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
 						<f:validateDoubleRange minimum="0"/>
 						<f:validateDoubleRange maximum="100"/>
@@ -87,12 +87,7 @@
   }
 %>
 <script type="text/javascript">
-	$("tr.hide").hide();
-	$("a.more_categories").click(function(event){
-	   $("tr.hide:first").removeClass("hide").show();
-	   mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
-	   if(!$("tr.hide").size()){
-	      $(event.target).hide();
-	   }
-	});
+
+	initCategoryDisplay();
+
 </script>
