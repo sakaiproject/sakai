@@ -23,7 +23,6 @@
 			<h:commandButton
 				disabled="#{assignmentDetailsBean.first}"
 				actionListener="#{assignmentDetailsBean.processAssignmentIdChange}"
-				immediate="true"
 				value="#{msgs.assignment_details_previous_assignment}"
 				title="#{assignmentDetailsBean.previousAssignment.name}"
 				accesskey="p"
@@ -39,7 +38,6 @@
 			<h:commandButton
 				disabled="#{assignmentDetailsBean.last}"
 				actionListener="#{assignmentDetailsBean.processAssignmentIdChange}"
-				immediate="true"
 				value="#{msgs.assignment_details_next_assignment}"
 				title="#{assignmentDetailsBean.nextAssignment.name}"
 				accesskey="n"
