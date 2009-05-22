@@ -194,7 +194,13 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
 		
 		UIOutput require_due_container = UIOutput.make(form, "require_due_date_container");
 		UIInput dueDateField = UIInput.make(form, "due_date:", assignmentOTP + ".dueDate");
-		dateEvolver.evolveDateInput(dueDateField, (assignment.getDueDate() != null ? assignment.getDueDate() : duedate));
+		Date initDueDate = assignment.getDueDate() != null ? assignment.getDueDate() : duedate;
+		dateEvolver.evolveDateInput(dueDateField, initDueDate);
+		
+		// add the due date as a UIELBinding to force it to save this value
+        // if the user doesn't update the due date field
+        form.parameters.add( new UIELBinding(assignmentOTP + ".dueDate", initDueDate));
+        form.parameters.add( new UIELBinding("#{GradebookItemBean.requireDueDate}", require_due_date));
 		
 		if (!require_due_date){
 			require_due_container.decorators = display_none_list;
