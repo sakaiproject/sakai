@@ -60,7 +60,7 @@ public class JCRNodeFactoryServiceImpl implements JCRNodeFactoryService
 		
 	}
 	
-	public void destory() 
+	public void destroy() 
 	{
 		
 	}
