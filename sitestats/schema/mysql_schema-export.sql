@@ -27,6 +27,7 @@ create index SST_SITEACTIVITY_EVENT_ID_IX on SST_SITEACTIVITY (EVENT_ID);
 create index SST_SITEACTIVITY_SITE_ID_IX on SST_SITEACTIVITY (SITE_ID);
 create index SST_SITEVISITS_SITE_ID_IX on SST_SITEVISITS (SITE_ID);
 create index SST_SITEVISITS_DATE_IX on SST_SITEVISITS (VISITS_DATE);
+create index SST_EVENTS_SITEEVENTUSER_ID_IX on SST_EVENTS (SITE_ID,EVENT_ID,USER_ID);
 
 -- Preload with default reports (STAT-35)
 --   0) Activity total (Show activity in site, with totals per event.)

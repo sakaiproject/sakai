@@ -2772,16 +2772,13 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			final String hql = "select count(distinct es.userId) " +
 					"from EventStatImpl as es " +
 					"where es.siteId = :siteid " +
-					usersStr +
-					"and es.date > :idate " +
 					"and es.eventId = 'pres.begin' " +
-					"group by es.siteId";
+					usersStr;
 			
 			HibernateCallback hcb = new HibernateCallback() {
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
 					Query q = session.createQuery(hql);
 					q.setString("siteid", siteId);
-					q.setDate("idate", getInitialActivityDate(siteId));
 					List<Object[]> res = q.list();
 					if(res.size() > 0) return res.get(0);
 					else return Integer.valueOf(0);	
@@ -2815,9 +2812,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			final String hql = "select count(distinct es.userId) " +
 					"from EventStatImpl as es " +
 					"where es.siteId = :siteid " +
+					"and es.eventId = 'pres.begin'" +
 					usersStr +
-					iDateStr + fDateStr +
-					"and es.eventId = 'pres.begin'";
+					iDateStr + fDateStr;
 			
 			HibernateCallback hcb = new HibernateCallback() {
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
