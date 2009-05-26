@@ -94,19 +94,36 @@ should be included in file importing DeliveryMessages
        value="#{question.key}" escape="false" />
 
   </h:panelGroup>
-  <h:panelGroup rendered="#{delivery.feedbackComponent.showItemLevel && !delivery.noFeedback=='true' && question.feedbackIsNotEmpty}">
+  <h:panelGroup rendered="#{delivery.actionString !='gradeAssessment' &&  delivery.feedbackComponent.showItemLevel && !delivery.noFeedback=='true' && question.feedbackIsNotEmpty}">
     <f:verbatim><br /></f:verbatim>
     <f:verbatim><b></f:verbatim>
     <h:outputLabel for="feedSC" value="#{deliveryMessages.feedback}#{deliveryMessages.column} " />
     <f:verbatim></b></f:verbatim>
     <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
   </h:panelGroup>
-  <h:panelGroup rendered="#{delivery.actionString !='gradeAssessment' && delivery.feedbackComponent.showGraderComment && !delivery.noFeedback=='true' && question.gradingCommentIsNotEmpty}">
-    <f:verbatim><br /></f:verbatim>
-    <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="commentSC" value="#{deliveryMessages.comment}#{deliveryMessages.column} " />
-    <f:verbatim></b></f:verbatim>
-    <h:outputText id="commentSC" value="#{question.gradingComment}"
-      escape="false" />
-  </h:panelGroup>
+
+  <h:panelGrid rendered="#{delivery.actionString !='gradeAssessment' && delivery.feedbackComponent.showGraderComment && !delivery.noFeedback=='true' && (question.gradingCommentIsNotEmpty || question.hasItemGradingAttachment)}" columns="2" border="0">
+    <h:outputLabel for="commentSC" value="<b>#{deliveryMessages.comment}#{deliveryMessages.column} </b>" />
+    
+	<h:outputText id="commentSC" value="#{question.gradingComment}" escape="false" rendered="#{question.gradingCommentIsNotEmpty}"/>
+    <h:outputText value=" " rendered="#{question.gradingCommentIsNotEmpty}"/>
+    
+	<h:panelGroup rendered="#{question.hasItemGradingAttachment}">
+      <h:dataTable value="#{question.itemGradingAttachmentList}" var="attach">
+        <h:column>
+          <%@ include file="/jsf/shared/mimeicon.jsp" %>
+        </h:column>
+        <h:column>
+          <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+          <h:outputLink value="#{attach.location}" target="new_window">
+            <h:outputText escape="false" value="#{attach.filename}" />
+          </h:outputLink>
+        </h:column>
+        <h:column>
+          <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+          <h:outputText escape="false" value="(#{attach.fileSize}kb)" rendered="#{!attach.isLink}"/>
+        </h:column>
+      </h:dataTable>
+    </h:panelGroup>
+  </h:panelGrid>
 </h:panelGroup>

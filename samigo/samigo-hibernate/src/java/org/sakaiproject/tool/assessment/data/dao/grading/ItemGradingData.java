@@ -23,8 +23,13 @@ package org.sakaiproject.tool.assessment.data.dao.grading;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 
@@ -64,6 +69,7 @@ public class ItemGradingData
   private Integer attemptsRemaining;
   private String lastDuration;
   private ArrayList mediaArray;
+  private Set itemGradingAttachmentSet;
   
   public ItemGradingData() {
   }
@@ -226,4 +232,28 @@ public class ItemGradingData
 	  return mediaArray.size();
   }
 
+  public Set getItemGradingAttachmentSet() {
+	  return itemGradingAttachmentSet;
+  }
+
+  public void setItemGradingAttachmentSet(Set itemGradingAttachmentSet) {
+	  this.itemGradingAttachmentSet = itemGradingAttachmentSet;
+  }
+
+  public List getItemGradingAttachmentList() {
+	  ArrayList list = new ArrayList();
+	  if (itemGradingAttachmentSet !=null ){
+		  Iterator iter = itemGradingAttachmentSet.iterator();
+		  while (iter.hasNext()){
+			  ItemGradingAttachment a = (ItemGradingAttachment)iter.next();
+			  list.add(a);
+		  }
+	  }
+	  return list;
+  }
+
+  public void setItemGradingAttachmentList(List itemGradingAttachmentList) {
+	  HashSet itemGradingAttachmentSet = new HashSet(itemGradingAttachmentList);
+	  this.itemGradingAttachmentSet = itemGradingAttachmentSet;
+  }
 }

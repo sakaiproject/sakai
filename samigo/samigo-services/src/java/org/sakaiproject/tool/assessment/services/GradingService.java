@@ -43,6 +43,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -50,10 +51,12 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
+import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
@@ -639,7 +642,7 @@ public class GradingService
         if (i.getAutoScore()!=null)
           totalAutoScore += i.getAutoScore().floatValue();
       }
-
+      
       adata.setTotalAutoScore( Float.valueOf(totalAutoScore));
       if (Float.compare((totalAutoScore+totalOverrideScore),Float.valueOf("0").floatValue())<0){
     	  adata.setFinalScore(Float.valueOf("0"));
@@ -1820,6 +1823,30 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  e.printStackTrace();
 	  }
   }
+  
+  public ItemGradingAttachmentIfc createItemGradingAttachment(
+		  ItemGradingIfc itemGrading, String resourceId, String filename,
+			String protocol) {
+	  ItemGradingAttachmentIfc attachment = null;
+		try {
+			attachment = PersistenceService.getInstance().
+	        getAssessmentGradingFacadeQueries().createItemGradingtAttachment(itemGrading,
+					resourceId, filename, protocol);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return attachment;
+	}
+
+	public void removeItemGradingAttachment(String attachmentId) {
+		PersistenceService.getInstance().getAssessmentGradingFacadeQueries()
+				.removeItemGradingAttachment(Long.valueOf(attachmentId));
+	}
+	
+	public void saveOrUpdateAttachments(List list) {
+		PersistenceService.getInstance().getAssessmentGradingFacadeQueries()
+				.saveOrUpdateAttachments(list);
+	}
 }
 
 

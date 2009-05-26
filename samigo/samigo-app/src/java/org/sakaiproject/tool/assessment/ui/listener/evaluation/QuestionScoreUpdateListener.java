@@ -26,7 +26,10 @@ package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -38,6 +41,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
+import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingAttachmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -139,14 +143,15 @@ public class QuestionScoreUpdateListener
           float oldAutoScore = 0;
           if (data.getAutoScore() !=null)
             oldAutoScore=data.getAutoScore().floatValue();
+          
           String oldComments = data.getComments();
-
           if (oldComments!=null) {
         	  oldComments = oldComments.trim();
           }
           else {
         	  oldComments = "";
           }
+                    
           StringBuffer logString = new StringBuffer();
           logString.append("gradedBy=");
           logString.append(AgentFacade.getAgentString());
@@ -167,12 +172,15 @@ public class QuestionScoreUpdateListener
             logString.append(", oldComments=");
             logString.append(oldComments);
           }
+          
           if (newAutoScore != oldAutoScore || !newComments.equals(oldComments)){
             data.setGradedBy(AgentFacade.getAgentString());
             data.setGradedDate(new Date());
             EventTrackingService.post(EventTrackingService.newEvent("sam.question.score.update", logString.toString(), true));
             delegate.updateItemScore(data, newAutoScore-oldAutoScore, tbean.getPublishedAssessment());
           }
+          
+          updateAttachment(data, ar, bean);
         }
       }
 
@@ -190,4 +198,51 @@ public class QuestionScoreUpdateListener
     return true;
   }
 
+  private void updateAttachment(ItemGradingData itemGradingData, AgentResults agentResults, QuestionScoresBean bean){
+	  List oldList = itemGradingData.getItemGradingAttachmentList();
+	  List newList = agentResults.getItemGradingAttachmentList();
+	  if ((oldList == null || oldList.size() == 0 ) && (newList == null || newList.size() == 0)) return;
+	  List attachmentList = new ArrayList();
+	  HashMap map = getAttachmentIdHash(oldList);
+	  for (int i=0; i<newList.size(); i++){
+		  ItemGradingAttachmentIfc itemGradingAttachment = (ItemGradingAttachmentIfc) newList.get(i);
+		  if (map.get(itemGradingAttachment.getAttachmentId()) != null){
+			  // exist already, remove it from map
+			  map.remove(itemGradingAttachment.getAttachmentId());
+		  }
+		  else{
+			  // new attachments
+			  itemGradingAttachment.setItemGrading(itemGradingData);
+			  attachmentList.add(itemGradingAttachment);
+		  }
+	  }      
+	  // save new ones
+	  GradingService gradingService = new GradingService();
+	  if (attachmentList.size() > 0) {
+			gradingService.saveOrUpdateAttachments(attachmentList);
+			EventTrackingService.post(EventTrackingService.newEvent("sam.student.score.update", 
+					"Adding " + attachmentList.size() + " attachments for itemGradingData id = " + itemGradingData.getItemGradingId(), 
+					true));
+		}
+
+	  // remove old ones
+	  Set set = map.keySet();
+	  Iterator iter = set.iterator();
+	  while (iter.hasNext()){
+		  Long attachmentId = (Long)iter.next();
+		  gradingService.removeItemGradingAttachment(attachmentId.toString());
+		  EventTrackingService.post(EventTrackingService.newEvent("sam.student.score.update", 
+					"Removing attachmentId = " + attachmentId, true));
+	  }
+	  bean.setIsAnyItemGradingAttachmentListModified(true);
+  }
+
+  private HashMap getAttachmentIdHash(List list){
+    HashMap map = new HashMap();
+    for (int i=0; i<list.size(); i++){
+    	ItemGradingAttachmentIfc a = (ItemGradingAttachmentIfc)list.get(i);
+      map.put(a.getAttachmentId(), a);
+    }
+    return map;
+  }
 }

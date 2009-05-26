@@ -23,6 +23,8 @@
 
 package org.sakaiproject.tool.assessment.data.ifc.grading;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 
@@ -120,4 +122,11 @@ public interface ItemGradingIfc
   public Integer getAttemptsRemaining();
   
   public void setAttemptsRemaining(Integer attemptsRemaining);
+  
+  public Set getItemGradingAttachmentSet();
+
+  public void setItemGradingAttachmentSet(Set itemGradingAttachmentSet);
+
+  public List getItemGradingAttachmentList();
+
 }

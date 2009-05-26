@@ -41,7 +41,7 @@ public class ContentsDeliveryBean
 	private static final long serialVersionUID = -4619361961662881387L;
 private java.util.ArrayList partsContents;
   private float currentScore;
-  private float maxScore; // SectionContentsBeans
+  private float maxScore; // SectionContentsBean
   // for display/hide score
   private boolean showStudentScore;
   private String pointsDisplayString;
@@ -83,7 +83,7 @@ private java.util.ArrayList partsContents;
   }
 
   /**
-   * List of parts (SectionContentsBeans) for entire contents.
+   * List of parts (SectionContentsBean) for entire contents.
    * @return parts for entire contents
    */
   public java.util.ArrayList getPartsContents()
@@ -92,8 +92,8 @@ private java.util.ArrayList partsContents;
   }
 
   /**
-   * Set parts (SectionContentsBeans) for entire contents
-   * @param partsContents parts (SectionContentsBeans) for entire contents
+   * Set parts (SectionContentsBean) for entire contents
+   * @param partsContents parts (SectionContentsBean) for entire contents
    */
   public void setPartsContents(java.util.ArrayList partsContents)
   {

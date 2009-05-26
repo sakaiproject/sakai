@@ -25,10 +25,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-// import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -38,12 +36,9 @@ import javax.faces.event.ValueChangeListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-// import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
-// import
-// org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -54,7 +49,6 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.MediaIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-// import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.PartData;
@@ -212,6 +206,7 @@ public class QuestionScoreListener implements ActionListener,
 					.preparePublishedAnswerHash(publishedAssessment);
 			log.debug("questionScores(): publishedAnswerHash.size = "
 					+ publishedAnswerHash.size());
+			HashMap agentResultsByItemGradingIdMap = new HashMap();
 
 			GradingService delegate = new GradingService();
 
@@ -510,15 +505,19 @@ public class QuestionScoreListener implements ActionListener,
 			iter = scoresByItem.values().iterator();
 			while (iter.hasNext()) {
 				AgentResults results = new AgentResults();
-
 				// Get all the answers for this question to put in one grading
 				// row
 				ArrayList answerList = (ArrayList) iter.next();
 				results.setItemGradingArrayList(answerList);
 
 				Iterator iter2 = answerList.iterator();
+				ArrayList itemGradingAttachmentList = new ArrayList();
 				while (iter2.hasNext()) {
 					ItemGradingData gdata = (ItemGradingData) iter2.next();
+					results.setItemGrading(gdata);
+					itemGradingAttachmentList.addAll(gdata.getItemGradingAttachmentList());
+					agentResultsByItemGradingIdMap.put(gdata.getItemGradingId(), results);
+										
 					ItemTextIfc gdataPubItemText = (ItemTextIfc) publishedItemTextHash
 							.get(gdata.getPublishedItemTextId());
 					AnswerIfc gdataAnswer = (AnswerIfc) publishedAnswerHash
@@ -662,6 +661,7 @@ public class QuestionScoreListener implements ActionListener,
 							results.setTotalAutoScore(Float.toString((Float.valueOf(
 									results.getExactTotalAutoScore())).floatValue()));
 						}
+						results.setItemGradingAttachmentList(itemGradingAttachmentList);
 					} else {
 						results.setItemGradingId(gdata.getItemGradingId());
 						results.setAssessmentGradingId(gdata
@@ -704,6 +704,7 @@ public class QuestionScoreListener implements ActionListener,
 						log.debug("testing agent getEid agent.geteid = "
 								+ agent.getEidString());
 						results.setRole(agent.getRole());
+						results.setItemGradingAttachmentList(itemGradingAttachmentList);
 						agents.add(results);
 					}
 				}
@@ -734,6 +735,7 @@ public class QuestionScoreListener implements ActionListener,
 			bean
 					.setTotalPeople(Integer.valueOf(bean.getAgents().size())
 							.toString());
+			bean.setAgentResultsByItemGradingId(agentResultsByItemGradingIdMap);
 		}
 
 		catch (RuntimeException e) {
@@ -762,12 +764,15 @@ public class QuestionScoreListener implements ActionListener,
 		log.debug("getItemScores: itemScoresMap ==null ?" + itemScoresMap);
 		log.debug("getItemScores: isValueChange ?" + isValueChange);
 
-		if (itemScoresMap == null || isValueChange) {
+		if (itemScoresMap == null || isValueChange || questionScoresBean.getIsAnyItemGradingAttachmentListModified()) {
 			log
 					.debug("getItemScores: itemScoresMap == null or isValueChange == true ");
 			log.debug("getItemScores: isValueChange = " + isValueChange);
 			itemScoresMap = new HashMap();
 			questionScoresBean.setItemScoresMap(itemScoresMap);
+			// reset this anyway (because the itemScoresMap will be refreshed as well as the 
+			// attachment list)
+			questionScoresBean.setIsAnyItemGradingAttachmentListModified(false); 
 		}
 		log
 				.debug("getItemScores: itemScoresMap.size() "

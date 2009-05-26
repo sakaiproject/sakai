@@ -1013,7 +1013,8 @@ document.location='../evaluation/questionScore';
         <f:param name="sortBy" value="comments" />
       </h:commandLink>
      </f:facet>
- <h:inputTextarea value="#{description.comments}" rows="3" cols="30"/>
+     <h:inputTextarea value="#{description.comments}" rows="3" cols="30"/>
+     <%@ include file="/jsf/evaluation/questionScoreAttachment.jsp" %>
 <%-- temp replaced by inputTextArea until resize is introduced
      <samigo:wysiwyg rows="140" value="#{description.comments}" >
        <f:validateLength maximum="4000"/>
@@ -1033,7 +1034,10 @@ document.location='../evaluation/questionScore';
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
           </h:commandLink>    
       </f:facet>
- <h:inputTextarea value="#{description.comments}" rows="3" cols="30"/>
+
+      <h:inputTextarea value="#{description.comments}" rows="3" cols="30"/>
+      <%@ include file="/jsf/evaluation/questionScoreAttachment.jsp" %>
+
 <%-- temp replaced by inputTextArea until resize is introduced
      <samigo:wysiwyg rows="140" value="#{description.comments}" >
        <f:validateLength maximum="4000"/>
@@ -1053,7 +1057,8 @@ document.location='../evaluation/questionScore';
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
           </h:commandLink>    
       </f:facet>
- <h:inputTextarea value="#{description.comments}" rows="3" cols="30"/>
+     <h:inputTextarea value="#{description.comments}" rows="3" cols="30"/>
+     <%@ include file="/jsf/evaluation/questionScoreAttachment.jsp" %>
 <%-- temp replaced by inputTextArea until resize is introduced
      <samigo:wysiwyg rows="140" value="#{description.comments}" >
        <f:validateLength maximum="4000"/>

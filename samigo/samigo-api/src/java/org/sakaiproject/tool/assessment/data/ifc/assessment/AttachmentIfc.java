@@ -29,11 +29,12 @@ import java.util.Date;
 public interface AttachmentIfc
     extends Serializable{
 
-  public static Long ASSESSMENT_ATTACHMENT = Long.valueOf(1);
-  public static Long SECTION_ATTACHMENT = Long.valueOf(2);
-  public static Long ITEM_ATTACHMENT = Long.valueOf(3);
-  public static Integer ACTIVE_STATUS = Integer.valueOf(1);
-  public static Integer INACTIVE_STATUS = Integer.valueOf(0);
+  public static Long ASSESSMENT_ATTACHMENT = new Long(1);
+  public static Long SECTION_ATTACHMENT = new Long(2);
+  public static Long ITEM_ATTACHMENT = new Long(3);
+  public static Long ITEMGRADING_ATTACHMENT = new Long(4);
+  public static Integer ACTIVE_STATUS = new Integer(1);
+  public static Integer INACTIVE_STATUS = new Integer(0);
 
   Long getAttachmentId();
 

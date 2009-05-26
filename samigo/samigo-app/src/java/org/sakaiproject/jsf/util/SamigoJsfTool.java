@@ -32,11 +32,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.jsf.util.JsfTool;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
+
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -46,12 +46,14 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
-import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
 
 /**
@@ -247,7 +249,7 @@ import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
 
       // case 2: part mofification, then set 
       //         sectionBean.attachmentList = filepicker list
-      if (target.indexOf("/jsf/author/editPart") > -1 
+      else if (target.indexOf("/jsf/author/editPart") > -1 
 	  && ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))){
 	 SectionBean bean = (SectionBean) ContextUtil.lookupBeanFromExternalServlet(
                                "sectionBean", req, res);
@@ -256,7 +258,7 @@ import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
       }
 
       // case 3.1: assessment settings mofification, then set assessmentSettingsBean.attachmentList = filepicker list
-      if (target.indexOf("/jsf/author/authorSettings") > -1 
+      else if (target.indexOf("/jsf/author/authorSettings") > -1 
 	  && ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))){
 	 AssessmentSettingsBean bean = (AssessmentSettingsBean) ContextUtil.lookupBeanFromExternalServlet(
                                "assessmentSettings", req, res);
@@ -264,7 +266,7 @@ import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
          toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
       }
       // case 3.2: published assessment settings mofification, then set assessmentSettingsBean.attachmentList = filepicker list
-      if (target.indexOf("/jsf/author/publishedSettings") > -1 
+      else if (target.indexOf("/jsf/author/publishedSettings") > -1 
     		  && ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))){
     	  PublishedAssessmentSettingsBean bean = (PublishedAssessmentSettingsBean) ContextUtil.lookupBeanFromExternalServlet(
     	                               "publishedSettings", req, res);
@@ -274,13 +276,27 @@ import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
 
       // case 4: create new mail, then set
 		// emailBean.attachmentList = filepicker list
-		if (target.indexOf("/jsf/evaluation/createNewEmail") > -1
+      else if (target.indexOf("/jsf/evaluation/createNewEmail") > -1
 				&& ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))) {
 			EmailBean bean = (EmailBean) ContextUtil.lookupBeanFromExternalServlet("email", req, res);
 			bean.prepareAttachment();
 			toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
 		}
       
+      else if (target.indexOf("/jsf/evaluation/questionScore") > -1
+				&& ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))) {
+			QuestionScoresBean bean = (QuestionScoresBean) ContextUtil.lookupBeanFromExternalServlet("questionScores", req, res);
+			bean.setAttachment((Long) toolSession.getAttribute("itemGradingId"));
+			toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
+		}
+      
+      else if (target.indexOf("/jsf/evaluation/gradeStudentResult") > -1
+				&& ("true").equals(toolSession.getAttribute("SENT_TO_FILEPICKER_HELPER"))) {
+    	  ItemContentsBean bean = (ItemContentsBean) ContextUtil.lookupBeanFromExternalServlet("itemContents", req, res);
+			bean.setAttachment((Long) toolSession.getAttribute("itemGradingId"));
+			toolSession.removeAttribute("SENT_TO_FILEPICKER_HELPER");
+		}
+    
       RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(target);
       dispatcher.forward(req, res);
 

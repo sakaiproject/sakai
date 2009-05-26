@@ -25,11 +25,24 @@ package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.AttachmentUtil;
+import org.sakaiproject.tool.cover.SessionManager;
 
 
 /**
@@ -44,7 +57,9 @@ public class AgentResults
 	 * 
 	 */
 	private static final long serialVersionUID = 2820488402465439395L;
-private Long assessmentGradingId;
+	private static Log log = LogFactory.getLog(AgentResults.class);
+	
+  private Long assessmentGradingId;
   private Long itemGradingId;
   private String agentId;
   private String agentEid;
@@ -75,6 +90,8 @@ private Long assessmentGradingId;
   private boolean isAutoSubmitted;
   private boolean isAttemptDateAfterDueDate;
   private Integer timeElapsed;
+  private ItemGradingData itemGrading;
+  private List itemGradingAttachmentList;
   
   public AgentResults() {
   }
@@ -331,9 +348,6 @@ private Long assessmentGradingId;
 
 
   public String getFullAnswer() {
-    //String unicodeFullAnswer = ContextUtil.getStringInUnicode(fullAnswer);
-    //System.out.println("UNICODEFULLANSWER "+unicodeFullAnswer);
-    // System.out.println("FULL ANSWER: "+fullAnswer);
     return Validator.check(fullAnswer,"");
     //return Validator.check(escFullAnswer, "");
   }
@@ -379,4 +393,48 @@ private Long assessmentGradingId;
 	public void setTimeElapsed(Integer timeElapsed) {
 		this.timeElapsed = timeElapsed;
 	}
+
+	public ItemGradingData getItemGrading() {
+		return this.itemGrading;
+	}
+	public void setItemGrading(ItemGradingData itemGrading) {
+		this.itemGrading = itemGrading;
+	}
+	
+	public List getItemGradingAttachmentList() {
+		return itemGradingAttachmentList;
+	}
+
+	public void setItemGradingAttachmentList(List attachmentList)
+	{
+		this.itemGradingAttachmentList = attachmentList;
+	}
+
+	private boolean hasItemGradingAttachment = false;
+	public boolean getHasItemGradingAttachment(){
+		if (itemGradingAttachmentList!=null && itemGradingAttachmentList.size() >0)
+			this.hasItemGradingAttachment = true;
+		return this.hasItemGradingAttachment;
+	}
+	
+	public String addAttachmentsRedirect() {
+		  // 1. redirect to add attachment
+		  try	{
+			  List filePickerList = new ArrayList();
+			  if (itemGradingAttachmentList != null){
+				  AttachmentUtil attachmentUtil = new AttachmentUtil();
+				  filePickerList = attachmentUtil.prepareReferenceList(itemGradingAttachmentList);
+			  }
+			  ToolSession currentToolSession = SessionManager.getCurrentToolSession();
+			  currentToolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, filePickerList);
+			  
+			  currentToolSession.setAttribute("itemGradingId", itemGradingId);
+			  ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+			  context.redirect("sakai.filepicker.helper/tool");
+		  }
+		  catch(Exception e){
+			  log.error("fail to redirect to attachment page: " + e.getMessage());
+		  }
+		  return "studentScores";
+	  }
 }

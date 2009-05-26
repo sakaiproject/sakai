@@ -953,8 +953,12 @@ public class DeliveryActionListener
     itemBean.setItemGradingDataArray
       ( (ArrayList) itemGradingHash.get(item.getItemId()));
 
+    if (itemBean.getItemGradingDataArray().size() > 0) {
+    	itemBean.setItemGradingIdForFilePicker(((ItemGradingData) itemBean.getItemGradingDataArray().get(0)).getItemGradingId());
+    }
     // Set comments and points
     Iterator i = itemBean.getItemGradingDataArray().iterator();
+    ArrayList itemGradingAttachmentList = new ArrayList();
     while (i.hasNext())
     {
       ItemGradingData data = (ItemGradingData) i.next();
@@ -970,7 +974,10 @@ public class DeliveryActionListener
       if (data.getAttemptsRemaining() !=null ){
         itemBean.setAttemptsRemaining(data.getAttemptsRemaining());
       }
+      itemGradingAttachmentList.addAll(data.getItemGradingAttachmentList());
+      //itemBean.setItemGradingAttachmentList(data.getItemGradingAttachmentList());
     }
+    itemBean.setItemGradingAttachmentList(itemGradingAttachmentList);
 
     // set question feedback.
     if (item.getTypeId().equals(TypeIfc.ESSAY_QUESTION) ||

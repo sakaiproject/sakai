@@ -51,19 +51,28 @@ import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
+import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -2584,7 +2593,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	      
 	    this.saveOrUpdateAll(toBeAutoSubmittedList);
 	}
-	
+
 	private String makeHeader(String question, String headerType, int questionNumber) {
 		StringBuffer sb = new StringBuffer(question);
 		sb.append(" ");
@@ -2593,4 +2602,76 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		sb.append(headerType);
 		return sb.toString();
 	}
+	
+	public ItemGradingAttachmentIfc createItemGradingtAttachment(ItemGradingIfc itemGrading, String resourceId, String filename, String protocol) {
+		ItemGradingAttachment attach = null;
+		Boolean isLink = Boolean.FALSE;
+		try {
+			ContentResource cr = ContentHostingService.getResource(resourceId);
+			if (cr != null) {
+				AssessmentFacadeQueries assessmentFacadeQueries = new AssessmentFacadeQueries();
+				ResourceProperties p = cr.getProperties();
+				attach = new ItemGradingAttachment();
+				attach.setItemGrading(itemGrading);
+				attach.setResourceId(resourceId);
+				attach.setFilename(filename);
+				attach.setMimeType(cr.getContentType());
+				// we want to display kb, so divide by 1000 and round the result
+				attach.setFileSize(new Long(assessmentFacadeQueries.fileSizeInKB(cr.getContentLength())));
+				if (cr.getContentType().lastIndexOf("url") > -1) {
+					isLink = Boolean.TRUE;
+					if (!filename.toLowerCase().startsWith("http")) {
+						String adjustedFilename = "http://" + filename;
+						attach.setFilename(adjustedFilename);
+					} else {
+						attach.setFilename(filename);
+					}
+				} else {
+					attach.setFilename(filename);
+				}
+				attach.setIsLink(isLink);
+				attach.setStatus(AssessmentAttachmentIfc.ACTIVE_STATUS);
+				attach.setCreatedBy(p.getProperty(p.getNamePropCreator()));
+				attach.setCreatedDate(new Date());
+				attach.setLastModifiedBy(p.getProperty(p.getNamePropModifiedBy()));
+				attach.setLastModifiedDate(new Date());
+				attach.setLocation(assessmentFacadeQueries.getRelativePath(cr.getUrl(), protocol));
+			}
+		} catch (PermissionException pe) {
+			pe.printStackTrace();
+		} catch (IdUnusedException ie) {
+			ie.printStackTrace();
+		} catch (TypeException te) {
+			te.printStackTrace();
+		}
+		return attach;
+	}
+
+	  public void removeItemGradingAttachment(Long attachmentId) {
+		  ItemGradingAttachment itemGradingAttachment = (ItemGradingAttachment) getHibernateTemplate()
+				.load(ItemGradingAttachment.class, attachmentId);
+		ItemGradingIfc itemGrading = itemGradingAttachment.getItemGrading();
+		// String resourceId = assessmentAttachment.getResourceId();
+		int retryCount = PersistenceService.getInstance().getRetryCount()
+				.intValue();
+		while (retryCount > 0) {
+			try {
+				if (itemGrading != null) {
+					Set set = itemGrading.getItemGradingAttachmentSet();
+					set.remove(itemGradingAttachment);
+					getHibernateTemplate().delete(itemGradingAttachment);
+					retryCount = 0;
+				}
+			} catch (Exception e) {
+				log.warn("problem delete assessmentAttachment: "
+						+ e.getMessage());
+				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+						retryCount);
+			}
+		}
+	  }
+
+	  public void saveOrUpdateAttachments(List list) {
+		  getHibernateTemplate().saveOrUpdateAll(list);
+	  }
 }

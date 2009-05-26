@@ -23,16 +23,34 @@ package org.sakaiproject.tool.assessment.ui.bean.delivery;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
-//import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.MediaIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -42,10 +60,12 @@ import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PublishedItemService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.tool.assessment.util.AttachmentUtil;
+import org.sakaiproject.tool.cover.SessionManager;
 
 /**
  * <p>
@@ -126,6 +146,10 @@ public class ItemContentsBean implements Serializable {
 
 	private String pointsDisplayString;
 
+	private List itemGradingAttachmentList;
+	
+	private Long itemGradingIdForFilePicker;
+	
 	public ItemContentsBean() {
 	}
 
@@ -1092,6 +1116,52 @@ public class ItemContentsBean implements Serializable {
 
   public boolean getHasNoMedia() {
 	return getMediaArray().size() < 1;
-}
+  }
+  
+  public void setAttachment(Long itemGradingId){
+	  List itemGradingAttachmentList = new ArrayList();
+	  DeliveryBean dbean = (DeliveryBean) ContextUtil.lookupBean("delivery");
+	  HashMap itemContentsMap = dbean.getItemContentsMap();
+      if (itemContentsMap != null)
+      {
+        ItemContentsBean itemContentsBean = (ItemContentsBean) itemContentsMap.get(itemGradingId);
+        if (itemContentsBean != null) {
+        	ItemGradingData itemGradingData = (ItemGradingData) itemContentsBean.getItemGradingDataArray().get(0);
+        	AttachmentUtil attachmentUtil = new AttachmentUtil();
+        	Set itemGradingAttachmentSet = new HashSet();
+  		    if (itemGradingAttachmentList != null) {
+  			  itemGradingAttachmentSet = new HashSet(itemGradingAttachmentList);
+  		    }
+        	itemGradingAttachmentList = attachmentUtil.prepareAssessmentAttachment(itemGradingData, itemGradingAttachmentSet);
+        	itemContentsBean.setItemGradingAttachmentList(itemGradingAttachmentList);
+        }
+      }
+  }
+
+  public List getItemGradingAttachmentList() {
+	  return itemGradingAttachmentList;
+  }
+
+  public void setItemGradingAttachmentList(List itemGradingAttachmentList)
+  {
+	  this.itemGradingAttachmentList = itemGradingAttachmentList;
+  }
+
+  private boolean hasItemGradingAttachment = false;
+  public boolean getHasItemGradingAttachment(){
+	  if (itemGradingAttachmentList!=null && itemGradingAttachmentList.size() >0)
+		  this.hasItemGradingAttachment = true;
+	  return this.hasItemGradingAttachment;
+  }
+
+  public Long getItemGradingIdForFilePicker() {
+	  return itemGradingIdForFilePicker;
+  }
+
+  public void setItemGradingIdForFilePicker(Long itemGradingIdForFilePicker)
+  {
+	  this.itemGradingIdForFilePicker = itemGradingIdForFilePicker;
+  }
 
 }
+

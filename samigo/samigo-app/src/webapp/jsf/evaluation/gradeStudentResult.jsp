@@ -2,6 +2,8 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
+<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -182,7 +184,7 @@ document.location='../evaluation/gradeStudentResult';
       <f:verbatim></div></f:verbatim>
 
       <h:dataTable value="#{part.itemContents}" columnClasses="tier2"
-          var="question">
+          var="question" border="0">
         <h:column>
           <h:outputText value="<a name=\"" escape="false" />
           <h:outputText value="#{part.number}_#{question.number}\"></a>"
@@ -259,10 +261,14 @@ document.location='../evaluation/gradeStudentResult';
             </h:panelGroup>
           <f:verbatim></div></f:verbatim>
 
-          <h:panelGrid columns="2">
+          <f:verbatim><div class="tier2"></f:verbatim>
+          <h:panelGrid columns="2" border="0" >
             <h:outputText value="#{deliveryMessages.comment}#{deliveryMessages.column}"/>
             <h:inputTextarea value="#{question.gradingComment}" rows="3" cols="30"/>
+            <h:outputText value=" "/>
+    	    <%@ include file="/jsf/evaluation/gradeStudentResultAttachment.jsp" %>
           </h:panelGrid>
+          <f:verbatim></div></f:verbatim>
         </h:column>
       </h:dataTable>
     </h:column>

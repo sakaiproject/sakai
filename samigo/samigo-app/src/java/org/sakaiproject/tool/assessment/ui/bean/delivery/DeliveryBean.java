@@ -162,7 +162,7 @@ public class DeliveryBean
   private String password;
   private int numberRetake;
   private int actualNumberRetake;
-  
+  private HashMap itemContentsMap;
   
   // For paging
   private int partIndex;
@@ -3009,5 +3009,14 @@ public class DeliveryBean
 	  {
 	    this.displayMardForReview = displayMardForReview;
 	  }
-	  
+
+	  public HashMap getItemContentsMap()
+	  {
+	    return this.itemContentsMap;
+	  }
+
+	  public void setItemContentsMap(HashMap itemContentsMap)
+	  {
+	    this.itemContentsMap = itemContentsMap;
+	  }
 }

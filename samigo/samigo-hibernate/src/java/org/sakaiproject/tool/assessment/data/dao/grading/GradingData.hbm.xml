@@ -26,6 +26,12 @@
     <property name="review" type="boolean" column="REVIEW" not-null="false" />
     <property name="attemptsRemaining" type="integer" column="ATTEMPTSREMAINING" not-null="false" />
     <property name="lastDuration" type="string" length="36" column="LASTDURATION" not-null="false" />
+
+	<set name="itemGradingAttachmentSet" table="SAM_GRADINGATTACHMENT_T" cascade="all" order-by="createdDate asc"
+        inverse="true" lazy="false">
+        <key column="ITEMGRADINGID"/>
+        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment"/>
+    </set>
   </class>
 
   <class name="org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData" table="SAM_ASSESSMENTGRADING_T">
@@ -105,4 +111,35 @@
     <property name="lastModifiedBy" type="string" length="255" column="LASTMODIFIEDBY" not-null="true" />
     <property name="lastModifiedDate"  type="timestamp" column="LASTMODIFIEDDATE" not-null="true" />
   </class>
+
+  <class name="org.sakaiproject.tool.assessment.data.dao.grading.GradingAttachmentData" table="SAM_GRADINGATTACHMENT_T">
+    <id name="attachmentId" column="ATTACHMENTID" type="java.lang.Long" unsaved-value="0">
+      <generator class="native">
+        <param name="sequence">SAM_GRADINGATTACHMENT_ID_S</param>
+      </generator>
+    </id>
+
+    <discriminator column="ATTACHMENTTYPE" />
+
+    <property name="resourceId" type="string" length="255" column="RESOURCEID" not-null="false" />
+    <property name="filename" type="string" length="255" column="FILENAME" not-null="false" />
+    <property name="mimeType" type="string" length="80"  column="MIMETYPE" not-null="false" />
+    <property name="fileSize" type="long" column="FILESIZE" not-null="false" />
+    <property name="description" type="string" length="4000" column="DESCRIPTION" not-null="false" />
+    <property name="location" type="string" length="4000" column="LOCATION" not-null="false" />
+    <property name="isLink" type="boolean" column="ISLINK" not-null="false" />
+    <property name="status" type="integer" column="STATUS" not-null="true" />
+    <property name="createdBy" type="string" length="255" column="CREATEDBY" not-null="true" />
+    <property name="createdDate" type="timestamp" column="CREATEDDATE" not-null="true" />
+    <property name="lastModifiedBy" type="string" length="255" column="LASTMODIFIEDBY" not-null="true" />
+    <property name="lastModifiedDate" type="timestamp" column="LASTMODIFIEDDATE" not-null="true" />
+
+    <subclass name="org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment"
+      discriminator-value="1" lazy="false" > 
+      <many-to-one name="itemGrading" column="ITEMGRADINGID" not-null="false"
+        class="org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData"/>
+    </subclass>
+
+  </class>
+
 </hibernate-mapping>

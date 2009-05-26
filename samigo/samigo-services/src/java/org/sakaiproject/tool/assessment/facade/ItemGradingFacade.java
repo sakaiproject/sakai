@@ -22,11 +22,17 @@
 package org.sakaiproject.tool.assessment.facade;
 
 //import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
+import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 //import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 //import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import java.lang.Float;
 
 
@@ -58,6 +64,7 @@ private Long itemGradingId;
   private Date gradedDate;
   private Boolean review;
   private Integer attemptsRemaining;
+  private Set itemGradingAttachmentSet;
   
   public ItemGradingFacade() {
   }
@@ -184,5 +191,25 @@ private Long itemGradingId;
 
   public void setAttemptsRemaining(Integer attemptsRemaining) {
 	    this.attemptsRemaining = attemptsRemaining;
+  }
+  
+  public Set getItemGradingAttachmentSet() {
+	  return itemGradingAttachmentSet;
+  }
+
+  public void setItemGradingAttachmentSet(Set itemGradingAttachmentSet) {
+	  this.itemGradingAttachmentSet = itemGradingAttachmentSet;
+  }
+
+  public List getItemGradingAttachmentList() {
+	  ArrayList list = new ArrayList();
+	  if (itemGradingAttachmentSet != null){
+		  Iterator iter = itemGradingAttachmentSet.iterator();
+		  while (iter.hasNext()){
+			  ItemGradingAttachmentIfc a = (ItemGradingAttachmentIfc)iter.next();
+			  list.add(a);
+		  }
+	  }
+	  return list;
   }
 }

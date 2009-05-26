@@ -24,6 +24,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import javax.faces.event.AbortProcessingException;
@@ -38,12 +39,15 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.util.FormattedText;
+
+
 
 /**
  * <p>
@@ -62,7 +66,6 @@ public class StudentScoreListener
   private static Log log = LogFactory.getLog(StudentScoreListener.class);
   private static EvaluationListenerUtil util;
   private static BeanSort bs;
-  private static ContextUtil cu;
 
   /**
    * Standard process action method.
@@ -73,10 +76,10 @@ public class StudentScoreListener
     AbortProcessingException
   {
     log.debug("StudentScore LISTENER.");
-    StudentScoresBean bean = (StudentScoresBean) cu.lookupBean("studentScores");
+    StudentScoresBean bean = (StudentScoresBean) ContextUtil.lookupBean("studentScores");
 
     // we probably want to change the poster to be consistent
-    String publishedId = cu.lookupParam("publishedIdd");
+    String publishedId = ContextUtil.lookupParam("publishedIdd");
     
     log.debug("Calling studentScores.");
     if (!studentScores(publishedId, bean, false))
@@ -105,20 +108,20 @@ public class StudentScoreListener
 
 
       bean.setPublishedId(publishedId);
-      String studentId = cu.lookupParam("studentid");
+      String studentId = ContextUtil.lookupParam("studentid");
       bean.setStudentId(studentId);
       AgentFacade agent = new AgentFacade(studentId);
       bean.setStudentName(agent.getFirstName() + " " + agent.getLastName());
       bean.setLastName(agent.getLastName());
       bean.setFirstName(agent.getFirstName());
-      bean.setAssessmentGradingId(cu.lookupParam("gradingData"));
-      bean.setItemId(cu.lookupParam("itemId"));
-      String email = cu.lookupParam("email");
+      bean.setAssessmentGradingId(ContextUtil.lookupParam("gradingData"));
+      bean.setItemId(ContextUtil.lookupParam("itemId"));
+      String email = ContextUtil.lookupParam("email");
       bean.setEmail(email);
       
-	      DeliveryBean dbean = (DeliveryBean) cu.lookupBean("delivery");
+      DeliveryBean dbean = (DeliveryBean) ContextUtil.lookupBean("delivery");
       dbean.setActionString("gradeAssessment");
-      
+
       GradingService service = new GradingService();
       AssessmentGradingData adata= (AssessmentGradingData) service.load(bean.getAssessmentGradingId());
 
@@ -126,7 +129,7 @@ public class StudentScoreListener
       listener.processAction(null);
       
       // Added for SAK-13930
-      DeliveryBean updatedDeliveryBean = (DeliveryBean) cu.lookupBean("delivery");
+      DeliveryBean updatedDeliveryBean = (DeliveryBean) ContextUtil.lookupBean("delivery");
       ArrayList parts = updatedDeliveryBean.getPageContents().getPartsContents();
       Iterator iter = parts.iterator();
       while (iter.hasNext())
@@ -142,14 +145,41 @@ public class StudentScoreListener
           }
       } // End of SAK-13930
 
-      //if (adata.getComments() != null)
-          bean.setComments(FormattedText.unEscapeHtml(adata.getComments()));
+      bean.setComments(FormattedText.unEscapeHtml(adata.getComments()));
+      bean.setComments(adata.getComments());
+      buildItemContentsMap(dbean);
 
-      //dbean.setForGrading(false);
       return true;
     } catch (Exception e) {
       e.printStackTrace();
       return false;
     }
+  }
+  
+  private void buildItemContentsMap(DeliveryBean dbean) {
+	  HashMap itemContentsMap = new HashMap();
+	  ArrayList partsContents = dbean.getPageContents().getPartsContents();
+	  if (partsContents != null) {
+		  Iterator iter = partsContents.iterator();
+		  while (iter.hasNext()) {
+			  SectionContentsBean sectionContentsBean = (SectionContentsBean) iter.next();
+			  if (sectionContentsBean != null) {
+				  ArrayList itemContents = sectionContentsBean.getItemContents();
+				  Iterator iter2 = itemContents.iterator();
+				  while (iter2.hasNext()) {
+					  ItemContentsBean itemContentsBean = (ItemContentsBean) iter2.next();
+					  if (itemContentsBean != null) {
+						  ArrayList itemGradingDataArray = itemContentsBean.getItemGradingDataArray();
+						  Iterator iter3 = itemGradingDataArray.iterator();
+						  while (iter3.hasNext()) {
+							  ItemGradingData itemGradingData = (ItemGradingData) iter3.next();
+							  itemContentsMap.put(itemGradingData.getItemGradingId(), itemContentsBean);
+						  }
+					  }
+				  }
+			  }
+		  }  
+	  }
+	  dbean.setItemContentsMap(itemContentsMap);
   }
 }
