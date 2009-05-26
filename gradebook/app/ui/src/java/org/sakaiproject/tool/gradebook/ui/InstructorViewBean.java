@@ -186,11 +186,12 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 		Map params = FacesUtil.getEventParameterMap(event);
 		if (logger.isDebugEnabled()) 
 			logger.debug("processStudentUidChange params=" + params + ", current studentUid=" + getStudentUid());
+		// run the updates before changing the student id
+		processUpdateScoresForPreNextStudent();
 		String idParam = (String)params.get("studentUid");
 		if (idParam != null) {
 			setStudentUid(idParam);
 		}
-		processUpdateScoresForPreNextStudent();
 	}
 	
 	public void processUpdateScoresForPreNextStudent() {
