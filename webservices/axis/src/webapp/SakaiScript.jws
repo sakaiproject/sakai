@@ -665,9 +665,9 @@ public String removeRoleFromAuthzGroup( String sessionid, String authzgroupid, S
 	try {
 
 		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
-		//get existing roles
-		Set roles = authzgroup.getRoles();
-		if(!roles.contains(roleid)) {
+		//check Role exists
+		Role role = authzgroup.getRole(roleid);
+		if(role == null) {
 			//log warning, but still continue so as not to break any existing implementations
 			LOG.warn("WS removeRoleFromAuthzGroup(): authzgroup: " + authzgroupid + " does not contain role: " + roleid);
 		}
@@ -817,14 +817,13 @@ public String addMemberToAuthzGroupWithRole( String sessionid, String eid, Strin
 	try {
 
 		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
-		//get existing roles
-		Set roles = authzgroup.getRoles();
-		if(!roles.contains(roleid)) {
+		//check Role exists
+		Role role = authzgroup.getRole(roleid);
+		if(role == null) {
 			//log warning and return error as it would return success even if it failed
 			LOG.error("WS addMemberToAuthzGroupWithRole(): authzgroup: " + authzgroupid + " does not contain role: " + roleid);
 			return "WS addMemberToAuthzGroupWithRole(): authzgroup: " + authzgroupid + " does not contain role: " + roleid;
 		}
-		
 		
 		String userid = UserDirectoryService.getUserByEid(eid).getId();
 		authzgroup.addMember(userid,roleid,true,false);
