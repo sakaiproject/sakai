@@ -95,8 +95,7 @@ function clickSubmitForGrade(){
 <h3><h:outputText value="#{delivery.assessmentTitle} " /></h3>
 
 <h:panelGroup rendered="#{(delivery.actionString=='takeAssessment'
-                           || delivery.actionString=='takeAssessmentViaUrl' 
-                           || delivery.actionString=='previewAssessment')
+                           || delivery.actionString=='takeAssessmentViaUrl') 
                         && delivery.hasTimeLimit}" >
 <f:verbatim><span id="remText"></f:verbatim><h:outputText value="#{deliveryMessages.time_remaining} "/><f:verbatim></span></f:verbatim>
 <f:verbatim><span id="timer"></f:verbatim><f:verbatim> </span></f:verbatim>
@@ -115,6 +114,9 @@ function clickSubmitForGrade(){
 <h:commandButton type="button" onclick="document.getElementById('remText').style.display=document.getElementById('remText').style.display=='none' ? '': 'none';document.getElementById('timer').style.display=document.getElementById('timer').style.display=='none' ? '': 'none';document.getElementById('bar').style.display=document.getElementById('bar').style.display=='none' ? '': 'none'" onkeypress="document.getElementById('remText').style.display=document.getElementById('remText').style.display=='none' ? '': 'none';document.getElementById('timer').style.display=document.getElementById('timer').style.display=='none' ? '': 'none';document.getElementById('bar').style.display=document.getElementById('bar').style.display=='none' ? '': 'none'" value="#{deliveryMessages.hide_show}" />
 </h:panelGroup>
 
+<h:panelGroup rendered="#{delivery.actionString=='previewAssessment'&& delivery.hasTimeLimit}" >
+	<h:graphicImage height="60" width="300" url="/images/delivery/TimerPreview.png"/>
+</h:panelGroup>
 
 <div class="tier1">
   <f:verbatim><b></f:verbatim><h:outputText value="#{deliveryMessages.warning}#{deliveryMessages.column} "/><f:verbatim></b></f:verbatim>

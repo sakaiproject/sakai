@@ -24,8 +24,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 -->
 
 <!-- BEGIN OF TIMER -->
-<h:panelGroup rendered="#{(delivery.actionString=='previewAssessment'
-                           || delivery.actionString=='takeAssessment'
+<h:panelGroup rendered="#{(delivery.actionString=='takeAssessment'
                            || delivery.actionString=='takeAssessmentViaUrl')
                         && delivery.hasTimeLimit}" >
 <f:verbatim><span id="remText"></f:verbatim><h:outputText value="#{deliveryMessages.time_remaining} "/><f:verbatim></span></f:verbatim>
@@ -82,5 +81,9 @@ function clickSubmitForGrade(){
 }
 //-->
 </script>
+</h:panelGroup>
+
+<h:panelGroup rendered="#{delivery.actionString=='previewAssessment' && delivery.hasTimeLimit}" >
+	<h:graphicImage height="60" width="300" url="/images/delivery/TimerPreview.png"/>
 </h:panelGroup>
 </p>
