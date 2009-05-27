@@ -1391,11 +1391,15 @@ public class DeliveryBean
     log.debug("***DeliverBean.saveAndEXit face context =" + context);
 
     forGrade = false;
-    SubmitToGradingActionListener listener =
-      new SubmitToGradingActionListener();
-    listener.processAction(null);
-    syncTimeElapsedWithServer();
-
+    if (this.actionMode == TAKE_ASSESSMENT
+			  || this.actionMode == TAKE_ASSESSMENT_VIA_URL)
+    {
+    	SubmitToGradingActionListener listener =
+    		new SubmitToGradingActionListener();
+    	listener.processAction(null);
+    	syncTimeElapsedWithServer();
+    }
+    
     String returnValue = "saveForLaterWarning";
     if (this.actionMode == TAKE_ASSESSMENT_VIA_URL)
     { // if this is access via url, display quit message

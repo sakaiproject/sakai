@@ -60,6 +60,14 @@ remove the javascript onclick stuff.
 <h:form id="takeAssessmentForm" enctype="multipart/form-data"
    onsubmit="saveTime()">
 
+<!-- DONE BUTTON FOR PREVIEW -->
+<h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
+ <f:verbatim><div class="validation"></f:verbatim>
+     <h:outputText value="#{deliveryMessages.ass_preview}" />
+     <h:commandButton accesskey="#{deliveryMessages.a_done}" value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
+ <f:verbatim></div></f:verbatim>
+</h:panelGroup>
+
 <!-- JAVASCRIPT -->
 <%@ include file="/js/delivery.js" %>
 
@@ -178,6 +186,14 @@ function saveTime()
               && delivery.navigation eq '1'}"  
     onclick="pauseTiming='false'; disableSave();" onkeypress="pauseTiming='false'" 
     disabled="#{delivery.actionString=='previewAssessment'}" />
+
+<!-- DONE BUTTON FOR PREVIEW -->
+<h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
+ <f:verbatim><div class="validation"></f:verbatim>
+     <h:outputText value="#{deliveryMessages.ass_preview}" />
+     <h:commandButton accesskey="#{deliveryMessages.a_done}" value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
+ <f:verbatim></div></f:verbatim>
+</h:panelGroup>
 
 </h:form>
 <!-- end content -->

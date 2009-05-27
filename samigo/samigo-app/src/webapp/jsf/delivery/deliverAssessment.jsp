@@ -253,7 +253,6 @@ function saveTime()
     rendered="#{(delivery.actionString=='takeAssessment' || delivery.actionString=='previewAssessment') 
              && delivery.navigation ne '1' 
              && !delivery.continue}"
-	disabled="#{delivery.actionString=='previewAssessment'}" 
     onclick="disableSubmitForGrade()" onkeypress="" />
 
   <%-- SUBMIT FOR GRADE DURING PAU --%>
@@ -277,7 +276,6 @@ function saveTime()
       rendered="#{(delivery.actionString=='takeAssessment'
 				   || delivery.actionString=='previewAssessment')
 				   && delivery.navigation eq '1' && !delivery.continue}" 
-      disabled="#{delivery.actionString=='previewAssessment'}"
       onclick="pauseTiming='false'; disableSubmit()" onkeypress="pauseTiming='false'"/>
 
   <%-- SAVE AND EXIT --%>
@@ -286,8 +284,7 @@ function saveTime()
     rendered="#{(delivery.actionString=='previewAssessment'  
                  || delivery.actionString=='takeAssessment')
               && delivery.navigation ne '1' && !delivery.hasTimeLimit}"  
-    onclick="pauseTiming='false'; disableSave();" onkeypress="pauseTiming='false'" 
-    disabled="#{delivery.actionString=='previewAssessment'}" />
+    onclick="pauseTiming='false'; disableSave();" onkeypress="pauseTiming='false'" />
 
   <%-- SAVE AND EXIT DURING PAU WITH ANONYMOUS LOGIN--%>
   <h:commandButton  type="submit" value="#{deliveryMessages.button_quit}"

@@ -35,6 +35,15 @@
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
+<h:form id="isRetracted">
+<!-- DONE BUTTON FOR PREVIEW -->
+<h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
+ <f:verbatim><div class="validation"></f:verbatim>
+     <h:outputText value="#{deliveryMessages.ass_preview}" />
+     <h:commandButton accesskey="#{deliveryMessages.a_done}" value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
+ <f:verbatim></div></f:verbatim>
+</h:panelGroup>
+
 <div class="portletBody">
 <h3 style="insColor insBak">
    <h:outputText value="#{deliveryMessages.save_for_later_title}" />
@@ -51,7 +60,6 @@
     </h:panelGrid>
   </h:panelGroup>
 
-<h:form id="isRetracted">
  <p class="act">
   <h:commandButton id="beginAssessment1" value="#{deliveryMessages.button_return_to_assessment}" 
     action="#{delivery.validate}" type="submit" styleClass="active">
@@ -59,12 +67,20 @@
   </h:commandButton>
 
        <h:commandButton value="#{deliveryMessages.button_continue}" type="submit"
-         styleClass="active" action="select" >
+         styleClass="active" action="select" disabled="#{delivery.actionString=='previewAssessment'}" >
        </h:commandButton>
  </p> 
- </h:form>
   <!-- end content -->
 </div>
+<!-- DONE BUTTON IN PREVIEW -->
+<h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
+ <f:verbatim><div class="validation"></f:verbatim>
+     <h:outputText value="#{deliveryMessages.ass_preview}" />
+     <h:commandButton accesskey="#{deliveryMessages.a_done}" value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
+<f:verbatim></div></f:verbatim>
+</h:panelGroup>
+
+ </h:form>
       </body>
     </html>
   </f:view>
