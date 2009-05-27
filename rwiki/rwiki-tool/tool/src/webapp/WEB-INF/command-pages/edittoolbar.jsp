@@ -5,7 +5,7 @@
  **********************************************************************************/
 -->
 <div class="editToolBarContainer" >
-<a class="editToolBar" href="#" id="toolbarButtonSave" onclick="var form = document.getElementById('editForm'); var saveButton = document.getElementById('saveButton'); form.save.value = saveButton.value; form.submit();" ><img src="/library/image/transparent.gif" border="0"   title="${rlb.jsp_toolb_save}" alt="${rlb.jsp_toolb_save}" /></a>
+<a class="editToolBar" href="#" id="toolbarButtonSave" onclick="var form = document.getElementById('editForm'); var saveButton = document.getElementById('saveButton'); form.command_save.value = saveButton.value; form.submit();" ><img src="/library/image/transparent.gif" border="0"   title="${rlb.jsp_toolb_save}" alt="${rlb.jsp_toolb_save}" /></a>
 <a class="editToolBar" href="#" id="toolbarButtonBold" onclick="addMarkup('content','bold','__','__'); return false;" ><img src="/library/image/transparent.gif" border="0"   title="${rlb.jsp_toolb_bold}" alt="${rlb.jsp_toolb_bold}" /></a>
 <a class="editToolBar" href="#" id="toolbarButtonItalic" onclick="addMarkup('content','italic','~~','~~'); return false;" ><img src="/library/image/transparent.gif" border="0"  title="${rlb.jsp_toolb_italic}" alt="${rlb.jsp_toolb_italic}" /></a>
 <a class="editToolBar" href="#" id="toolbarButtonSuper" onclick="addMarkup('content','super','^^','^^'); return false;"  ><img src="/library/image/transparent.gif" border="0" title="${rlb.jsp_toolb_superscript}" alt="${rlb.jsp_toolb_superscript}" /></a>

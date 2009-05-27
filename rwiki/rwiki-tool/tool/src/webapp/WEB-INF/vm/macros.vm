@@ -383,7 +383,7 @@ function togglePresence(target) {
 <a class="editToolBar" 
 			href="#" 
 			id="toolbarButtonSave" 
-			onclick="var form = document.getElementById('editForm'); var saveButton = document.getElementById('saveButton'); form.save.value = saveButton.value; form.submit();" >
+			onclick="var form = document.getElementById('editForm'); var saveButton = document.getElementById('saveButton'); form.command_save.value = saveButton.value; form.submit();" >
 			<img src="/library/image/transparent.gif" 
 								border="0"   
 								title="${rlb.jsp_toolb_save}" 
@@ -463,7 +463,7 @@ function togglePresence(target) {
 <a class="previewToolBar" 
 			href="#" 
 			id="toolbarButtonSave" 
-			onclick="var form = document.getElementById('editForm'); var saveButton = document.getElementById('saveButton'); form.save.value = saveButton.value; form.submit();" >
+			onclick="var form = document.getElementById('editForm'); var saveButton = document.getElementById('saveButton'); form.command_save.value = saveButton.value; form.submit();" >
 			<img src="/library/image/transparent.gif" 
 								border="0"   
 								title="${rlb.jsp_toolb_save}" 
