@@ -559,7 +559,7 @@ function setBlockDivs()
       <h:panelGroup rendered="#{assessmentSettings.itemNavigation != 1}">
         <h:selectBooleanCheckbox id="markForReview1" value="#{assessmentSettings.isMarkForReview}"/>
         <h:outputLabel value="#{assessmentSettingsMessages.mark_for_review_label}"/>
-        <h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('markForReviewPopUp.faces','MarkForReview','width=300,height=220,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('markForReviewTipText.faces','MarkForReview','width=300,height=220,scrollbars=yes, resizable=yes');" >
+        <h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('markForReviewPopUp.faces','MarkForReview','width=250,height=220,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('markForReviewTipText.faces','MarkForReview','width=250,height=220,scrollbars=yes, resizable=yes');" >
             <h:outputText  value=" #{assessmentSettingsMessages.whats_this_link}"/>
         </h:outputLink>
       </h:panelGroup>

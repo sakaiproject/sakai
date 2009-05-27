@@ -38,11 +38,13 @@ $Id: fullShortAnswer.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 		<body onload="<%= request.getAttribute("html.body.onload") %>">
 		    <h:panelGrid columns="1" border="0">
 				<h:outputText value="#{assessmentSettingsMessages.mark_for_review_pop_up_text_1}"/>
+				<h:outputText value="&nbsp;" escape="false"/>
 				<h:panelGroup>
 				<f:verbatim><b></f:verbatim>
 				<h:outputText value="#{assessmentSettingsMessages.mark_for_review_pop_up_text_2}"/>
 				<f:verbatim></b></f:verbatim>	
 				</h:panelGroup>
+				<h:outputText value="&nbsp;" escape="false"/>
 				<h:commandButton id="close" onclick="window.close();" onkeypress="window.close();" value="#{assessmentSettingsMessages.button_close}"/>
 		    </h:panelGrid>
 		</body>

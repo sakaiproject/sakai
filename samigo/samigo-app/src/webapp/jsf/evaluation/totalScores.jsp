@@ -33,6 +33,12 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText
         value="#{evaluationMessages.title_total}" /></title>
+		<style type="text/css">
+			.disabled
+			{
+				background-color: #f1f1f1;
+			}
+		</style> 
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
  <div class="portletBody">
@@ -836,59 +842,67 @@ return;
     <!-- COMMENT -->
     <h:column rendered="#{totalScores.sortType!='comments'}">
      <f:facet name="header">
-      <h:commandLink title="#{evaluationMessages.t_sortComments}" id="comments" action="totalScores">
+      <h:panelGroup>
+	  <h:commandLink title="#{evaluationMessages.t_sortCommentsForStudent}" id="comments" action="totalScores">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />    
-        <h:outputText value="#{evaluationMessages.comment}"/>
+        <h:outputText value="#{evaluationMessages.comment_for_student}"/>
         <f:param name="sortBy" value="comments" />
         <f:param name="sortAscending" value="true"/>
       </h:commandLink>
+	  
+	  <h:outputText value="&nbsp;&nbsp;" escape="false"/>
+	  
+	  <h:outputLink title="#{evaluationMessages.whats_this_link}" value="#" onclick="javascript:window.open('../evaluation/totalScoresCommentPopUp.faces','CommentForStudent','width=510,height=515,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('../evaluation/totalScoresCommentPopUpt.faces','CommentForStudent','width=510,height=515,scrollbars=yes, resizable=yes');" >
+            <h:outputText  value="#{evaluationMessages.whats_this_link}"/>
+      </h:outputLink>
+	  </h:panelGroup>
      </f:facet>
-   <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
 
-<%-- temporary replaced by inputTextArea util toggle small/large produced
-     <samigo:wysiwyg rows="140" value="#{description.comments}" >
-       <f:validateLength maximum="4000"/>
-     </samigo:wysiwyg>
---%>
+   <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate != null}"/>
+   <h:inputTextarea value="#{evaluationMessages.requires_student_submission}" rows="3" styleClass="disabled" disabled="true" cols="30" rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate == null}"/>
     </h:column>
 
     <h:column rendered="#{totalScores.sortType=='comments' && totalScores.sortAscending}">
       <f:facet name="header">
-        <h:commandLink title="#{evaluationMessages.t_sortComments}" action="totalScores">
-          <h:outputText value="#{evaluationMessages.comment}" />
+        <h:panelGroup>
+        <h:commandLink title="#{evaluationMessages.t_sortCommentsForStudent}" action="totalScores">
+          <h:outputText value="#{evaluationMessages.comment_for_student}" />
           <f:param name="sortAscending" value="false" />
           <h:graphicImage alt="#{evaluationMessages.alt_sortCommentDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif"/>
           <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
-  	    </h:commandLink>    
+  	    </h:commandLink>   
+		<h:outputText value="&nbsp;&nbsp;" escape="false"/>
+	  
+        <h:outputLink title="#{evaluationMessages.whats_this_link}" value="#" onclick="javascript:window.open('../evaluation/totalScoresCommentPopUp.faces','CommentForStudent','width=510,height=515,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('../evaluation/totalScoresCommentPopUp.faces','CommentForStudent','width=510,height=515,scrollbars=yes, resizable=yes');" >
+            <h:outputText  value="#{evaluationMessages.whats_this_link}"/>
+        </h:outputLink>
+	  </h:panelGroup>
       </f:facet>
-   <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
-
-<%-- temporary replaced by inputTextArea util toggle small/large produced
-     <samigo:wysiwyg rows="140" value="#{description.comments}" >
-       <f:validateLength maximum="4000"/>
-     </samigo:wysiwyg>
---%>
+   <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate != null}"/>
+   <h:inputTextarea value="#{evaluationMessages.requires_student_submission}" rows="3" styleClass="disabled" disabled="true" cols="30" rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate == null}"/>
     </h:column>
     
     <h:column rendered="#{totalScores.sortType=='comments'  && !totalScores.sortAscending}">
       <f:facet name="header">
-      <h:commandLink title="#{evaluationMessages.t_sortComments}" action="totalScores">
-        <h:outputText value="#{evaluationMessages.comment}" />
+     <h:panelGroup>
+      <h:commandLink title="#{evaluationMessages.t_sortCommentsForStudent}" action="totalScores">
+        <h:outputText value="#{evaluationMessages.comment_for_student}" />
         <f:param name="sortAscending" value="true"/>
         <h:graphicImage alt="#{evaluationMessages.alt_sortCommentAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif"/>
         <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />              
       </h:commandLink> 
+	  <h:outputText value="&nbsp;&nbsp;" escape="false"/>
+	  
+	  <h:outputLink title="#{evaluationMessages.whats_this_link}" value="#" onclick="javascript:window.open('../evaluation/totalScoresCommentPopUp.faces','CommentForStudent','width=510,height=515,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('../evaluation/totalScoresCommentPopUp.faces','CommentForStudent','width=510,height=515,scrollbars=yes, resizable=yes');" >
+            <h:outputText  value="#{evaluationMessages.whats_this_link}"/>
+      </h:outputLink>
+	  </h:panelGroup>
       </f:facet>
-   <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
-
-<%-- temporary replaced by inputTextArea util toggle small/large produced
-     <samigo:wysiwyg rows="140" value="#{description.comments}" >
-       <f:validateLength maximum="4000"/>
-     </samigo:wysiwyg>
---%>
+   <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate != null}"/>
+   <h:inputTextarea value="#{evaluationMessages.requires_student_submission}" rows="3" styleClass="disabled" disabled="true" cols="30" rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate == null}"/>
     </h:column>
   </h:dataTable>
 <h:outputText value="#{author.updateFormTime}" />

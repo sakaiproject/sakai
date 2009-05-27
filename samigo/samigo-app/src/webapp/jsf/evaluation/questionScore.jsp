@@ -1004,66 +1004,71 @@ document.location='../evaluation/questionScore';
     <!-- COMMENT -->
     <h:column rendered="#{questionScores.sortType!='comments'}">
      <f:facet name="header">
-      <h:commandLink title="#{evaluationMessages.t_sortComments}" id="comments" action="questionScores">
+      <h:panelGroup>
+      <h:commandLink title="#{evaluationMessages.t_sortCommentsForStudent}" id="comments" action="questionScores">
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
-        <h:outputText value="#{evaluationMessages.comment}"/>
+        <h:outputText value="#{evaluationMessages.comment_for_student}"/>
         <f:param name="sortBy" value="comments" />
       </h:commandLink>
+	  <h:outputText value="&nbsp;&nbsp;" escape="false"/>
+	  
+      <h:outputLink title="#{evaluationMessages.whats_this_link}" value="#" onclick="javascript:window.open('../evaluation/totalScoresCommentPopUp.faces','CommentForStudent','width=510,height=515,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('../evaluation/totalScoresCommentPopUp.faces','CommentForStudent','width=510,height=515,scrollbars=yes, resizable=yes');" >
+        <h:outputText  value="#{evaluationMessages.whats_this_link}"/>
+      </h:outputLink>
+	  </h:panelGroup>
      </f:facet>
      <h:inputTextarea value="#{description.comments}" rows="3" cols="30"/>
      <%@ include file="/jsf/evaluation/questionScoreAttachment.jsp" %>
-<%-- temp replaced by inputTextArea until resize is introduced
-     <samigo:wysiwyg rows="140" value="#{description.comments}" >
-       <f:validateLength maximum="4000"/>
-     </samigo:wysiwyg>
---%>
     </h:column>
 
     <h:column rendered="#{questionScores.sortType eq 'comments' && questionScores.sortAscending}">
       <f:facet name="header">
-        <h:commandLink title="#{evaluationMessages.t_sortComments}" action="questionScores">
-          <h:outputText value="#{evaluationMessages.comment}" />
+        <h:panelGroup>
+        <h:commandLink title="#{evaluationMessages.t_sortCommentsForStudent}" action="questionScores">
+          <h:outputText value="#{evaluationMessages.comment_for_student}" />
           <f:param name="sortAscending" value="false" />
           <h:graphicImage alt="#{evaluationMessages.alt_sortCommentDescending}" rendered="#{questionScores.sortAscending}" url="/images/sortascending.gif"/>
       	  <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
           <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
-          </h:commandLink>    
+        </h:commandLink>
+		<h:outputText value="&nbsp;&nbsp;" escape="false"/>
+
+		<h:outputLink title="#{evaluationMessages.whats_this_link}" value="#" onclick="javascript:window.open('../evaluation/totalScoresCommentPopUp.faces','CommentForStudent','width=510,height=515,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('../evaluation/totalScoresCommentPopUp.faces','CommentForStudent','width=510,height=515,scrollbars=yes, resizable=yes');" >
+			<h:outputText  value="#{evaluationMessages.whats_this_link}"/>
+		</h:outputLink>
+	  </h:panelGroup>
       </f:facet>
 
       <h:inputTextarea value="#{description.comments}" rows="3" cols="30"/>
       <%@ include file="/jsf/evaluation/questionScoreAttachment.jsp" %>
-
-<%-- temp replaced by inputTextArea until resize is introduced
-     <samigo:wysiwyg rows="140" value="#{description.comments}" >
-       <f:validateLength maximum="4000"/>
-     </samigo:wysiwyg>
---%>
     </h:column>    
     
     <h:column rendered="#{questionScores.sortType eq 'comments' && !questionScores.sortAscending}">
       <f:facet name="header">
-        <h:commandLink title="#{evaluationMessages.t_sortComments}" action="questionScores">
-          <h:outputText value="#{evaluationMessages.comment}" />
+        <h:panelGroup>
+        <h:commandLink title="#{evaluationMessages.t_sortCommentsForStudent}" action="questionScores">
+          <h:outputText value="#{evaluationMessages.comment_for_student}" />
           <f:param name="sortAscending" value="true" />
           <h:graphicImage alt="#{evaluationMessages.alt_sortCommentAscending}" rendered="#{!questionScores.sortAscending}" url="/images/sortdescending.gif"/>
       	  <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
           <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
-          </h:commandLink>    
+        </h:commandLink>
+		<h:outputText value="&nbsp;&nbsp;" escape="false"/>
+
+		<h:outputLink title="#{evaluationMessages.whats_this_link}" value="#" onclick="javascript:window.open('../evaluation/totalScoresCommentPopUp.faces','CommentForStudent','width=510,height=515,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('../evaluation/totalScoresCommentPopUp.faces','CommentForStudent','width=510,height=515,scrollbars=yes, resizable=yes');" >
+			<h:outputText  value="#{evaluationMessages.whats_this_link}"/>
+		</h:outputLink>
+	  </h:panelGroup>
       </f:facet>
      <h:inputTextarea value="#{description.comments}" rows="3" cols="30"/>
      <%@ include file="/jsf/evaluation/questionScoreAttachment.jsp" %>
-<%-- temp replaced by inputTextArea until resize is introduced
-     <samigo:wysiwyg rows="140" value="#{description.comments}" >
-       <f:validateLength maximum="4000"/>
-     </samigo:wysiwyg>
---%>
     </h:column> 
 
   </h:dataTable>
