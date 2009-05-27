@@ -39,7 +39,7 @@ should be included in file importing DeliveryMessages
 	  <h:inputText size="10" rendered="#{answer.hasInput 
 		&& delivery.actionString !='gradeAssessment' 
 		&& delivery.actionString !='reviewAssessment'}"
-        disabled="#{delivery.actionString=='previewAssessment'}" value="#{answer.response}" onkeypress="return noenter()"/>
+		 value="#{answer.response}" onkeypress="return noenter()"/>
       <h:outputText style="text-decoration: underline" 
 		rendered="#{delivery.actionString=='gradeAssessment' 
 			|| delivery.actionString=='reviewAssessment'}"
