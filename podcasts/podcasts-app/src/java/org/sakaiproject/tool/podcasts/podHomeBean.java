@@ -1656,7 +1656,7 @@ public class podHomeBean {
 	}
 
 	public boolean getErrorOnPage() {
-		return displayNoFileErrMsg || displayNoDateErrMsg || displayNoTitleErrMsg;
+		return displayNoFileErrMsg || displayNoDateErrMsg || displayNoTitleErrMsg || displayInvalidDateErrMsg;
 	}
 	
 	/**
