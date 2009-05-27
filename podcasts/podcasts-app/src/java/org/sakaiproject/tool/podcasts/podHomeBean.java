@@ -1796,22 +1796,26 @@ public class podHomeBean {
 
 		} 
 		else {
-			int month = Integer.parseInt(dateSplit[0]);
-			int day = Integer.parseInt(dateSplit[1]);
+			if(!dateSplit[0].equals("") && !dateSplit[1].equals("") && !dateSplit[2].equals("")) {
+				int month = Integer.parseInt(dateSplit[0]);
+				int day = Integer.parseInt(dateSplit[1]);
 
-			if (month < 0 || month > 12) {
-				return false;
-			} 
-			else if (day < 0 || day > 31) {
-				return false;
-			} 
-			else if (dateSplit[2].length() != 4) {
-				return false;
-			} 
-			else {
-				int year = Integer.parseInt(dateSplit[2]);
+				if (month < 0 || month > 12) {
+					return false;
+				} 
+				else if (day < 0 || day > 31) {
+					return false;
+				} 
+				else if (dateSplit[2].length() != 4) {
+					return false;
+				} 
+				else {
+					int year = Integer.parseInt(dateSplit[2]);
 
-				validDate = Validator.checkDate(day, month, year);
+					validDate = Validator.checkDate(day, month, year);
+				}
+			} else {
+				return false;
 			}
 		}
 
@@ -1828,34 +1832,44 @@ public class podHomeBean {
 
 			} 
 			else if (timeSplit.length == 2) {
-				int hour = Integer.parseInt(timeSplit[0]);
-				int min = Integer.parseInt(timeSplit[1]);
+				if(!timeSplit[0].equals("") && !timeSplit[1].equals("")) {
+					int hour = Integer.parseInt(timeSplit[0]);
+					int min = Integer.parseInt(timeSplit[1]);
 
-				if (hour < 1 || hour > 12) {
-					return false;
+					if (hour < 1 || hour > 12) {
+						return false;
 
+					} 
+					else if (min < 0 || min > 59) {
+						return false;
+
+					}
 				} 
-				else if (min < 0 || min > 59) {
+				else {
 					return false;
-
 				}
 			} 
 			else {
-				int hour = Integer.parseInt(timeSplit[0]);
-				int min = Integer.parseInt(timeSplit[1]);
-				int sec = Integer.parseInt(timeSplit[2]);
+				if(!timeSplit[0].equals("") && !timeSplit[1].equals("") && !timeSplit[2].equals("")) {
+					int hour = Integer.parseInt(timeSplit[0]);
+					int min = Integer.parseInt(timeSplit[1]);
+					int sec = Integer.parseInt(timeSplit[2]);
 
-				if (hour < 1 || hour > 12) {
-					return false;
+					if (hour < 1 || hour > 12) {
+						return false;
 
+					}
+					else if (min < 0 || min > 59) {
+						return false;
+
+					} 
+					else if (sec < 0 || sec > 59) {
+						return false;
+
+					}
 				}
-				else if (min < 0 || min > 59) {
+				else {
 					return false;
-
-				} 
-				else if (sec < 0 || sec > 59) {
-					return false;
-
 				}
 			}
 		}
