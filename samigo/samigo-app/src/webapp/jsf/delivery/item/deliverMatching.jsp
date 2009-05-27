@@ -48,8 +48,7 @@ should be included in file importing DeliveryMessages
    </h:column>
    <h:column>
     <h:selectOneMenu value="#{matching.response}"
-      disabled="#{delivery.actionString=='previewAssessment'
-               || delivery.actionString=='reviewAssessment'
+      disabled="#{delivery.actionString=='reviewAssessment'
                || delivery.actionString=='gradeAssessment'}">
         <f:selectItems value="#{matching.choices}" />
     </h:selectOneMenu>
