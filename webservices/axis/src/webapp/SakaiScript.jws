@@ -899,7 +899,7 @@ public String addMemberToAuthzGroupWithRole( String sessionid, String eid, Strin
  * @param 	roleid		 	the id of the role to to set
  * @return					success or exception message
  *
- * TODO: fix for if the role doesn't exist in the authzgroup, it is still returning success - SAK-15334
+ * Note: This web service has been modified, see SAK-15334
  */
  public String setRoleForAuthzGroupMaintenance( String sessionid, String authzgroupid, String roleid) throws AxisFault
 {
@@ -908,6 +908,14 @@ public String addMemberToAuthzGroupWithRole( String sessionid, String eid, Strin
 	try {
 
 		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		
+		//check Role exists
+		Role role = authzgroup.getRole(roleid);
+		if(role == null) {
+			LOG.warn("WS setRoleForAuthzGroupMaintenance(): authzgroup: " + authzgroupid + " does not contain role: " + roleid);
+			return "WS setRoleForAuthzGroupMaintenance(): authzgroup: " + authzgroupid + " does not contain role: " + roleid;
+		}
+		
 		authzgroup.setMaintainRole(roleid);
 		AuthzGroupService.save(authzgroup);
 	
