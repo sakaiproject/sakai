@@ -113,10 +113,14 @@ font-size:1.2em
     text-align:right;
 }
 
-
 /* added gopalrc - Jan 2008  */
 .detailedStatsCorrectAnswerText {
     font-weight: bold;
 }
 
+.new_assessment label
+{
+	color: #555555;
+	font-weight: bold;
+}
 

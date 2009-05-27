@@ -44,6 +44,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
+import org.sakaiproject.tool.assessment.ui.listener.samlite.NameListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
@@ -68,9 +69,14 @@ public class AuthorAssessmentListener
     AssessmentService assessmentService = new AssessmentService();
 
     //#0 - permission checking before proceeding - daisyf
-    AuthorBean author = (AuthorBean) ContextUtil.lookupBean(
-                         "author");
-AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil.
+    AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+    if ("2".equals(author.getAssessCreationMode())) {
+    	NameListener nameListener = new NameListener();
+    	nameListener.processAction(null);
+    	return;
+    }
+    
+    AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil.
     lookupBean("assessmentSettings");
     author.setOutcome("createAssessment");
     if (!passAuthz(context)){

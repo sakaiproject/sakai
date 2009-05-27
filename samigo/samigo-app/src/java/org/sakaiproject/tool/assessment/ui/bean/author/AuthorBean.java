@@ -87,6 +87,7 @@ public class AuthorBean implements Serializable
   // warning text next to assignment title retracted by edit in instructor/admin view.
   // It is true if at least one of the assessment is currently "retract for edit".
   private boolean isAnyAssessmentRetractForEdit = false;
+  private String assessCreationMode; // assessment build (1)or markup text (2)
 
   /**
    * @return the id
@@ -581,5 +582,13 @@ public class AuthorBean implements Serializable
 			  context.redirect("discrepancyInData");
 		  } catch (Exception e) {};
 	  }
+  }
+
+  public String getAssessCreationMode(){
+	  return assessCreationMode;
+  }
+
+  public void setAssessCreationMode(String assessCreationMode){
+	  this.assessCreationMode = assessCreationMode;
   }
 }

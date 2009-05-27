@@ -103,6 +103,7 @@ public class AuthorActionListener
       author.setAssessmentTemplateList(templateList);
     }
 
+    author.setAssessCreationMode("1");
     prepareAssessmentsList(author, assessmentService, gradingService, publishedAssessmentService);
     
     String s = ServerConfigurationService.getString("samigo.editPubAssessment.restricted");

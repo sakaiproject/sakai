@@ -57,47 +57,61 @@
 <h:outputText value="#{authorFrontDoorMessages.assessment_new}" rendered="#{authorization.createAssessment}" />
  <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="</h4>"/>
  <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="<div class=\"tier2\">"/>
-<h:outputText escape="false" rendered="#{authorization.createAssessment}" value="<h5>"/>
-    <h:outputText value="#{authorFrontDoorMessages.assessment_create}" styleClass="form_label" rendered="#{authorization.createAssessment}" />
-   <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="</h5>"/>
-   <h:panelGrid columns="2">
-    <h:outputLabel for="assessmentTemplate" value="#{authorFrontDoorMessages.assessment_choose}" styleClass="form_label" 
-       rendered="#{authorization.createAssessment && author.showTemplateList}" />
-<h:panelGroup rendered="#{authorization.createAssessment && author.showTemplateList}">
-      <h:selectOneMenu id="assessmentTemplate" accesskey="#{authorFrontDoorMessages.a_select}"     
-        value="#{author.assessmentTemplateId}">
-         <f:selectItem itemValue="" itemLabel="#{generalMessages.select_menu}"/>
-         <f:selectItems value="#{author.assessmentTemplateList}" />
+
+ <h:panelGrid columns="3" border="0" rendered="#{authorization.createAssessment}">
+    <h:panelGroup>
+	  <f:verbatim><span class="new_assessment"></f:verbatim>
+      <h:outputLabel for="lable_create" value="#{authorFrontDoorMessages.assessment_create}"/>
+      <f:verbatim></span></f:verbatim>
+	</h:panelGroup>
+    <h:outputText value=" "/>
+    <h:panelGroup>
+	  <h:inputText id="title" value="#{author.assessTitle}" size="32" />
+      <h:commandButton type="submit" value="#{authorFrontDoorMessages.button_create}" action="#{author.getOutcome}" accesskey="#{authorFrontDoorMessages.a_create}">
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorAssessmentListener" />
+      </h:commandButton>
+    </h:panelGroup>
+
+    <h:outputText value=" "/>
+    <h:outputText value=" "/>
+	<h:selectOneRadio layout="lineDirection" value="#{author.assessCreationMode}">
+      <f:selectItem itemValue="1" itemLabel="#{authorFrontDoorMessages.assessmentBuild}" />
+      <f:selectItem itemValue="2" itemLabel="#{authorFrontDoorMessages.markupText}" />
+    </h:selectOneRadio>
+
+    <h:outputText value=" " rendered="#{author.showTemplateList}"/>
+    <h:outputText value=" " rendered="#{author.showTemplateList}"/>
+	<h:panelGroup rendered="#{author.showTemplateList}">
+  	  <h:outputText value="#{authorFrontDoorMessages.assessment_choose} " />
+	  <h:selectOneMenu id="assessmentTemplate" accesskey="#{authorFrontDoorMessages.a_select}" value="#{author.assessmentTemplateId}">
+        <f:selectItem itemValue="" itemLabel="#{generalMessages.select_menu}"/>
+        <f:selectItems value="#{author.assessmentTemplateList}" />
       </h:selectOneMenu>
+    </h:panelGroup>
 
-      <h:outputText value="#{authorFrontDoorMessages.optional_paren}" styleClass="form_label" />
-</h:panelGroup>
-    
-    <h:outputLabel for="title"  value="#{authorFrontDoorMessages.assessment_title}" rendered="#{authorization.createAssessment}"/>
-<h:panelGroup rendered="#{authorization.createAssessment}">
-    <h:inputText id="title" value="#{author.assessTitle}" size="32" />
-    <!-- AuthorAssessmentListener.createAssessment() read param from AuthorBean to
-      create the assessment  -->
+    <h:panelGroup>
+	  <f:verbatim><span class="new_assessment"></f:verbatim>
+      <h:outputLabel for="label_or" value="#{authorFrontDoorMessages.label_or}"/>
+      <f:verbatim></span></f:verbatim>
+	</h:panelGroup>
+    <h:outputText value=" "/>
+    <h:outputText value=" "/>
 
-	<h:commandButton id="samLiteCreate" value="#{authorFrontDoorMessages.button_samlite}" immediate="true" type="submit" 
-      rendered="#{samLiteBean.visible}" accesskey="#{authorFrontDoorMessages.a_samlite}"
-      action="#{author.getOutcome}">
-      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.samlite.NameListener" />
-    </h:commandButton>
+    <h:outputText value=" "/>
+    <h:outputText value=" "/>
+    <h:outputText value=" "/>
 
-    <!-- action=createAssessment if privilege is granted, otherwise =author --> 
-    <h:commandButton type="submit" value="#{authorFrontDoorMessages.button_create}" action="#{author.getOutcome}" accesskey="#{authorFrontDoorMessages.a_create}">
-      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorAssessmentListener" />
-    </h:commandButton>
-</h:panelGroup>
-   
-    <h:outputLabel for="import" value="#{authorFrontDoorMessages.assessment_import}" rendered="#{authorization.createAssessment}"/>
-
-    <h:commandButton id="import" value="#{authorFrontDoorMessages.button_import}" immediate="true" type="submit" 
+    <h:panelGroup>
+	  <f:verbatim><span class="new_assessment"></f:verbatim>
+      <h:outputLabel for="import" value="#{authorFrontDoorMessages.assessment_import}"/>
+      <f:verbatim></span></f:verbatim>
+	</h:panelGroup>
+    <h:outputText value=" "/>
+	<h:commandButton id="import" value="#{authorFrontDoorMessages.button_import}" immediate="true" type="submit" 
       rendered="#{authorization.createAssessment}" accesskey="#{authorFrontDoorMessages.a_import}"
       action="importAssessment">
     </h:commandButton>
-</h:panelGrid>
+ </h:panelGrid>
 
  <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="</div>"/>
 	<!-- CORE ASSESSMENTS-->
