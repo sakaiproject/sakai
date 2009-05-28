@@ -272,6 +272,18 @@
             <timezone>-5</timezone>
             <properties></properties>
         </contributor>
+        <contributor>
+            <name>Steve Swinsburg</name>
+            <email>s.swinsburg@lancaster.ac.uk</email>
+            <url>http://bugs.sakaiproject.org/confluence/display/~steve.swinsburg/Home</url>
+            <organization>Centre for e-Science, Lancaster University, UK</organization>
+            <organizationUrl>http://e-science.lancs.ac.uk/</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>0</timezone>
+            <properties></properties>
+        </contributor>
     </contributors>
 	<scm>
 		<connection>
