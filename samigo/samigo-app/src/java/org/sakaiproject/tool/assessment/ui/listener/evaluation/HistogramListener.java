@@ -31,6 +31,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
@@ -90,14 +91,8 @@ public class HistogramListener
                                 "totalScores");
     HistogramScoresBean bean = (HistogramScoresBean) ContextUtil.lookupBean(
                                "histogramScores");
-    String publishedId = totalBean.getPublishedId();
-
-    if ("0".equals(publishedId))
-    {
-	publishedId = (String) ContextUtil.lookupParam("publishedId");
-    }
-
-    if (!histogramScores(publishedId, bean, totalBean))
+    
+    if (!histogramScores(bean, totalBean))
     {
       throw new RuntimeException("failed to call histogramScores.");
     }
@@ -116,16 +111,8 @@ public class HistogramListener
                                "histogramScores");
     QuestionScoresBean questionBean = (QuestionScoresBean)
     ContextUtil.lookupBean("questionScores");
-    
-    String publishedId = totalBean.getPublishedId();
-
-    if ("0".equals(publishedId))
-    {
-	publishedId = (String) ContextUtil.lookupParam("publishedId");
-    }
 
     String selectedvalue= (String) event.getNewValue();
-
     if ((selectedvalue!=null) && (!selectedvalue.equals("")) ){
         log.debug("changed submission pulldown ");
         bean.setAllSubmissions(selectedvalue);    // changed for histogram score bean
@@ -133,8 +120,8 @@ public class HistogramListener
         questionBean.setAllSubmissions(selectedvalue); // changed for Question score bean
     }
 
-    //log.info("Calling histogramScores.");
-    if (!histogramScores(publishedId, bean, totalBean))
+    log.info("Calling histogramScores.");
+    if (!histogramScores(bean, totalBean))
     {
       throw new RuntimeException("failed to call histogramScores.");
     }
@@ -153,22 +140,29 @@ public class HistogramListener
    * @param histogramScores TotalScoresBean
    * @return boolean true if successful
    */
-  public boolean histogramScores(String publishedId,
-		  HistogramScoresBean histogramScores, TotalScoresBean totalScores) {
-
-	  try {
+  public boolean histogramScores(HistogramScoresBean histogramScores, TotalScoresBean totalScores)
+  {
+    try {
+    	DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
+    	String publishedId = totalScores.getPublishedId();
+        if (publishedId.equals("0"))
+        {
+        	publishedId = (String) ContextUtil.lookupParam("publishedAssessmentId");
+        }
+        String actionString = ContextUtil.lookupParam("actionString");
+        // See if this can fix SAK-16437
+        if (actionString != null && !actionString.equals("reviewAssessment")){
+        	// Shouldn't come to here. The action should either be null or reviewAssessment.
+        	// If we can confirm this is where causes SAK-16437, ask UX for a new screen with warning message.  
+        	log.error("SAK-16437 happens!! publishedId = " + publishedId + ", agentId = " + AgentFacade.getAgentString());
+        }
+        
+    	ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+        String assessmentName = "";
 
 		  // gopalrc Dec 2007
 		  histogramScores.clearLowerQuartileStudents();
 		  histogramScores.clearUpperQuartileStudents();
-
-		  ResourceLoader rb = new ResourceLoader(
-				  "org.sakaiproject.tool.assessment.bundle.AuthorMessages");
-		  String assessmentName = "";
-
-		  // Get all submissions, or just the last?
-		  // String which = cu.lookupParam("allSubmissions");
-		  // bean.setAllSubmissions(which.equals("true")?true:false);
 
 		  String which = histogramScores.getAllSubmissions();
 		  if (which == null && totalScores.getAllSubmissions() != null) {
@@ -186,9 +180,8 @@ public class HistogramListener
           if (allscores.size() == 0) {
 			// Similar case in Bug 1537, but clicking Statistics link instead of assignment title.
 			// Therefore, redirect the the same page.
-			DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
 			delivery.setOutcome("reviewAssessmentError");
-			delivery.setActionString(ContextUtil.lookupParam("actionString"));
+			delivery.setActionString(actionString);
 			return true;
 		  }
 		  
@@ -258,10 +251,7 @@ public class HistogramListener
 				  .toString());
 		  
 		  if (pub != null) {
-
-		    String actionString = ContextUtil.lookupParam("actionString");
 			if (actionString != null && actionString.equals("reviewAssessment")){
-				   DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
 				   if (AssessmentIfc.RETRACT_FOR_EDIT_STATUS.equals(pub.getStatus())) {
 				   // Bug 1547: If this is during review and the assessment is retracted for edit now, 
 				   // set the outcome to isRetractedForEdit2 error page.
@@ -1927,12 +1917,7 @@ public class HistogramListener
     totalBean.setPublishedId(publishedId);
     //String publishedId = totalBean.getPublishedId();
 
-    if ("0".equals(publishedId))
-    {
-    	publishedId = (String) ContextUtil.lookupParam("publishedId");
-    }
-
-    if (!histogramScores(publishedId, bean, totalBean))
+    if (!histogramScores(bean, totalBean))
     {
       throw new RuntimeException("failed to call histogramScores.");
     }
@@ -2082,7 +2067,5 @@ public class HistogramListener
     return spreadsheetRows;
     
   }
-  
-  
-  
+
 }
