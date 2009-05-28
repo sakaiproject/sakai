@@ -131,10 +131,12 @@ li.autoSaveOffClass {
 #rssLink {
 	float: right;
 	background: url(/library/image/feed.png) center right no-repeat;
+	text-decoration: none !important;
 }
 #printerFriendlyLink {
 	float: right;
 	background: url(/library/image/printer.png) center right no-repeat;
+	text-decoration: none !important;
 }
 
 #viewLink {
