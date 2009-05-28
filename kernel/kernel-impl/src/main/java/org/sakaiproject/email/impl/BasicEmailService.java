@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.Map.Entry;
 
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
@@ -829,10 +830,10 @@ public class BasicEmailService implements EmailService
 		if (headers != null && !headers.isEmpty())
 		{
 			retval = new ArrayList<String>();
-			for (String key : headers.keySet())
+			for (Entry<String, String> entry : headers.entrySet())
 			{
-				String value = headers.get(key);
-				retval.add(key + ": " + value);
+				String value = entry.getValue();
+				retval.add(entry.getKey() + ": " + value);
 			}
 		}
 		return retval;
@@ -922,11 +923,12 @@ public class BasicEmailService implements EmailService
 		if (map != null)
 		{
 			sb.append("[");
-			for (Iterator i = map.keySet().iterator(); i.hasNext(); )
+			for (Iterator i = map.entrySet().iterator(); i.hasNext(); )
 			{
-				Object key = i.next();
+				Entry entry = (Entry) i.next();
+				Object key = entry.getValue();
 				sb.append("[").append(key).append(":");
-				Object value = map.get(key);
+				Object value = entry.getValue();
 				if (value instanceof Collection)
 				{
 					sb.append(listToStr((Collection) value));

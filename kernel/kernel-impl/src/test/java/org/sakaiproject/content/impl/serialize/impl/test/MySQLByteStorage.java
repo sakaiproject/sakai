@@ -21,16 +21,15 @@
 
 package org.sakaiproject.content.impl.serialize.impl.test;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Iterator;
 import java.util.Properties;
 import java.util.Random;
+import java.util.Map.Entry;
 
 import junit.framework.TestCase;
 
@@ -74,14 +73,13 @@ public class MySQLByteStorage extends TestCase
 		if (config != null)
 		{
 			log.info("Using Config " + config);
-			File f = new File(config);
 			FileInputStream fin = new FileInputStream(config);
 			p.load(fin);
 			fin.close();
-			for (Iterator<Object> i = p.keySet().iterator(); i.hasNext();)
+			for (Entry<Object, Object> entry : p.entrySet())
 			{
-				Object k = i.next();
-				log.info("   Test Properties " + k + ":" + p.get(k));
+				Object k = entry.getKey();
+				log.info("   Test Properties " + k + ":" + entry.getValue());
 			}
 		}
 

@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -158,10 +159,10 @@ public class Type1BaseResourcePropertiesSerializer implements DataStreamEntitySe
 				}
 			}
 			ds.writeInt(ps);
-			for (Iterator i = properties.keySet().iterator(); i.hasNext();)
+			for (Entry<String, Object> entry : properties.entrySet())
 			{
-				String key = (String) i.next();
-				Object value = properties.get(key);
+				String key = entry.getKey();
+				Object value = entry.getValue();
 				if (value != null)
 				{
 					if (value instanceof String)

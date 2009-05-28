@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -124,15 +125,14 @@ public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl
 	
 	protected void insertMapofResourceTypesforContext(String contextID, Map<String, Boolean> enabled)
 	{
-		Iterator<String> iter = enabled.keySet().iterator();
-		while (iter.hasNext()) 
+		for (Map.Entry<String, Boolean> entry : enabled.entrySet())
 		{
-			String resourceID = iter.next();
+			String resourceID = entry.getKey();
 
 			Object fields[] = new Object[3];
 			fields[0]= contextID;
 			fields[1] = resourceID;
-			fields[2]= (enabled.get(resourceID).booleanValue() ? "e" : "d");
+			fields[2]= (entry.getValue().booleanValue() ? "e" : "d");
 			
 			m_sqlService.dbWrite(INSERT_RESOURCEID_MAP, fields);
 		}

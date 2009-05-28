@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -8641,11 +8642,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		List globalList = new ArrayList();
 
 		Map othersites = getCollectionMap();
-		Iterator siteIt = othersites.keySet().iterator();
+		Iterator siteIt = othersites.entrySet().iterator();
 		while (siteIt.hasNext())
 		{
-			String collId = (String) siteIt.next();
-			String displayName = (String) othersites.get(collId);
+			Entry entry = (Entry) siteIt.next();
+			String collId = (String) entry.getKey();
+			String displayName = (String) entry.getValue();
 			List artifacts = getFlatResources(collId);
 			globalList.addAll(filterArtifacts(artifacts, type, primaryMimeType, subMimeType, true));
 		}
@@ -10623,12 +10625,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			{
 				ResourcePropertiesEdit myProps = getPropertiesEdit();
 				myProps.addProperty(ResourceProperties.PROP_HAS_CUSTOM_SORT, Boolean.TRUE.toString());
-				Iterator nameIt = priorities.keySet().iterator();
+				Iterator nameIt = priorities.entrySet().iterator();
 				while(nameIt.hasNext())
 				{
-					String name = (String) nameIt.next();
-					Integer priority = (Integer) priorities.get(name);
-
+					Entry entry = (Entry) nameIt.next();
+					String name = (String) entry.getKey();
+					Integer priority = (Integer) entry.getValue();
+					
 					try
 					{
 						if(name.endsWith(Entity.SEPARATOR))
