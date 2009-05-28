@@ -438,6 +438,14 @@ public class MyTime implements Time
 	}
 
 	/**
+	 * Objects that are equal must have the same hashcode
+	 */
+	public int hashCode() {
+		Long m = m_millisecondsSince;
+		return m.hashCode();
+	}
+	
+	/**
 	 * {@inheritDoc}
 	 */
 	public int compareTo(Object o)

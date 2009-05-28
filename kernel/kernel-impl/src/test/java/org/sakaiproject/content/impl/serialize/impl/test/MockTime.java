@@ -280,6 +280,14 @@ public class MockTime implements Time
 	/**
 	 * {@inheritDoc}
 	 */
+	public int hashCode()
+	{
+		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public int compareTo(Object o)
 	{
 		throw new UnsupportedOperationException("This class is only to be used for conversion purposes");

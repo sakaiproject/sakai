@@ -1416,7 +1416,13 @@ public class Blob implements Cloneable, Serializable {
 
 	} // end equals()
 
-
+	/**
+	 * Objects that are equal must have the same hashcode
+	 */
+	public synchronized int hashCode() {
+		return toString().hashCode();
+	}
+	
 	/**
 	* Searches for a byte and returns an index to the first one found.
 	* @param b The byte to search for.

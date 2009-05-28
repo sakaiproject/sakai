@@ -814,6 +814,15 @@ public class BasicTimeService implements TimeService
 		} // equals
 
 		/**
+		 * Objects that are equal must have the same hashCode
+		 */
+		public int hashCode() {
+			String hash = Boolean.toString(m_startIncluded) + Boolean.toString(m_endIncluded)
+				+ m_startTime.getDisplay() + m_endTime.getDisplay();
+			return hash.hashCode();
+		}
+
+		/**
 		 * compute the duration, in ms, of the time range
 		 */
 		public long duration()

@@ -138,6 +138,13 @@ public interface GroupAwareEntity extends Entity
 			return rv;
 		}
 
+		/**
+		 * Objects that are equal must have the same hashcode
+		 */
+		public int hashCode() {
+			return this.toString().hashCode();
+		}
+
 		static public AccessMode fromString(String access)
 		{
 			if (SITE.m_id.equals(access)) return SITE;
