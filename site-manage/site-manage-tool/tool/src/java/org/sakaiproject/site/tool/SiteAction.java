@@ -4174,35 +4174,39 @@ public class SiteAction extends PagedResourceActionII {
 				state.setAttribute(STATE_INSTRUCTOR_SELECTED, userId);
 
 				String academicSessionEid = params.getString("selectTerm");
-				AcademicSession t = cms.getAcademicSession(academicSessionEid);
-				state.setAttribute(STATE_TERM_SELECTED, t);
-				if (t != null) {
-					List sections = prepareCourseAndSectionListing(userId, t
-							.getEid(), state);
-
-					isFutureTermSelected(state);
-
-					if (sections != null && sections.size() > 0) {
-						state.setAttribute(STATE_TERM_COURSE_LIST, sections);
-						state.setAttribute(STATE_TEMPLATE_INDEX, "36");
-						state.setAttribute(STATE_AUTO_ADD, Boolean.TRUE);
-					} else {
-						state.removeAttribute(STATE_TERM_COURSE_LIST);
-						
-						Boolean skipCourseSectionSelection = ServerConfigurationService.getBoolean("wsetup.skipCourseSectionSelection", Boolean.FALSE);
-						if (!skipCourseSectionSelection.booleanValue() && courseManagementIsImplemented())
-						{
-							state.setAttribute(STATE_TEMPLATE_INDEX, "53");
+				// check whether the academicsession might be null
+				if (academicSessionEid != null)
+				{
+					AcademicSession t = cms.getAcademicSession(academicSessionEid);
+					state.setAttribute(STATE_TERM_SELECTED, t);
+					if (t != null) {
+						List sections = prepareCourseAndSectionListing(userId, t
+								.getEid(), state);
+	
+						isFutureTermSelected(state);
+	
+						if (sections != null && sections.size() > 0) {
+							state.setAttribute(STATE_TERM_COURSE_LIST, sections);
+							state.setAttribute(STATE_TEMPLATE_INDEX, "36");
+							state.setAttribute(STATE_AUTO_ADD, Boolean.TRUE);
+						} else {
+							state.removeAttribute(STATE_TERM_COURSE_LIST);
+							
+							Boolean skipCourseSectionSelection = ServerConfigurationService.getBoolean("wsetup.skipCourseSectionSelection", Boolean.FALSE);
+							if (!skipCourseSectionSelection.booleanValue() && courseManagementIsImplemented())
+							{
+								state.setAttribute(STATE_TEMPLATE_INDEX, "53");
+							}
+							else
+							{
+								state.setAttribute(STATE_TEMPLATE_INDEX, "37");
+							}		
 						}
-						else
-						{
-							state.setAttribute(STATE_TEMPLATE_INDEX, "37");
-						}		
+	
+					} else { // not course type
+						state.setAttribute(STATE_TEMPLATE_INDEX, "37");
+						totalSteps = 5;
 					}
-
-				} else { // not course type
-					state.setAttribute(STATE_TEMPLATE_INDEX, "37");
-					totalSteps = 5;
 				}
 			} else if (type.equals("project")) {
 				totalSteps = 4;
