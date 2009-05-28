@@ -160,6 +160,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.IdPwEvidence;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.was.login.SakaiWASLoginModule;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -947,6 +948,52 @@ public class DavServlet extends HttpServlet
 
 		// try to authenticate based on a Principal (one of ours) in the req
 		Principal prin = req.getUserPrincipal();
+
+		//SAK-14776 - In order for WAS to return the Principal with getUserPrincipal()
+		//security needs to be enabled. We have employed a custom JAAS module to handle
+		//WAS's user security for the Sakai WebApp. SakaiWASLoginModule also acts as a wrapper
+		//to fetch PrivateCredentials from WAS. The user password is stored in those
+		//credentials. Once all information is obtained, the Principal is remade and 
+		//DavServlet is none the wiser. 
+		//The Login Module code can be found at:
+		//https://source.sakaiproject.org/contrib/websphere/was-login-module/
+		if ("websphere".equals(ServerConfigurationService.getString("servlet.container")))
+		    {
+			//Fetch the credentials collection from the Subject.
+			//A wrapper is used here because we need access to 
+			//com.ibm.ws.security.auth.WSLoginHelperImpl
+			Iterator credItr = null;
+			try {
+			    credItr = SakaiWASLoginModule.getSubject().getPrivateCredentials().iterator();
+			} catch (Exception e) {
+			    M_log.error("SAKAIDAV: Unabled to obtain WAS credentials.", e);
+			}
+			
+			String pw = "";
+			while(credItr.hasNext())
+			    {
+				//look for the Key-Value pair
+				Object cred = credItr.next();
+				if( cred instanceof SakaiWASLoginModule.SakaiWASLoginKeyValue ) 
+				    {
+					SakaiWASLoginModule.SakaiWASLoginKeyValue entry = 
+					    (SakaiWASLoginModule.SakaiWASLoginKeyValue)cred;
+					
+					//extract the password from the Key-Value pair
+					if( "sakai.dav.pw".equals(entry.getKey()) )
+					    {
+						pw = (String)entry.getValue();
+						String eid = prin.getName();
+						
+						//remake the Principal with the user eid 
+						//and the recently fetched password
+						prin = new DavPrincipal(eid,pw);
+						break;
+					    }
+				    }
+			    }
+		    }
+ 
 
 		if ((prin != null) && (prin instanceof DavPrincipal))
 		{
