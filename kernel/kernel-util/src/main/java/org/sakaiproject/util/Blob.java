@@ -1767,8 +1767,8 @@ public class Blob implements Cloneable, Serializable {
 	*
 	*/
 	public synchronized String toString() {
-		return new String("Blob[length=" + size +
-		                  ";checksum=" + toHex(checksum()) + "]");
+		return "Blob[length=" + size +
+		                  ";checksum=" + toHex(checksum()) + "]";
 	}
 
 
@@ -2041,7 +2041,7 @@ public class Blob implements Cloneable, Serializable {
 	* trying to write the linked list.  Damn!
 	*
 	*/
-	protected void writeObject(ObjectOutputStream out) throws IOException {
+	private void writeObject(ObjectOutputStream out) throws IOException {
 		out.defaultWriteObject();
 
 		byte a[] = getBytes();
@@ -2052,7 +2052,7 @@ public class Blob implements Cloneable, Serializable {
 	* A specialized object read routine.
 	*
 	*/
-	protected void readObject(ObjectInputStream in) throws IOException,
+	private void readObject(ObjectInputStream in) throws IOException,
 	                                                     ClassNotFoundException {
 		in.defaultReadObject();
 
