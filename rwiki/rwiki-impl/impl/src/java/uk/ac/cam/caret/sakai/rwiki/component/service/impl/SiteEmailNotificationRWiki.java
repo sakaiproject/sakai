@@ -313,7 +313,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 		return rv;
 	}
 
-	protected int getOption(User user, Notification notification, Event event) {
+	protected int getOption(User user, String notificationId, String resourceFilter, int eventPriority, Event event) {
 
 		// FIXME I don't think this should be here, but it certainly shouldn't
 		// be in preferenceService
