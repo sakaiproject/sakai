@@ -309,6 +309,7 @@ public class DiscussionForumTool
   private MessageForumStatisticsBean selectedStaticsUserInfo;
   
   private int selectedMessageCount = 0;
+  private int functionClick = 0;
 
   
   /**
@@ -3131,6 +3132,7 @@ public class DiscussionForumTool
   public String processDfMsgReplyMsg()
   {
 	  selectedMessageCount  = 0;
+	  functionClick ++;
     if(selectedMessage.getMessage().getTitle() != null && !selectedMessage.getMessage().getTitle().startsWith(getResourceBundleString(MSG_REPLY_PREFIX)))
 	  this.composeTitle = getResourceBundleString(MSG_REPLY_PREFIX) + " " + selectedMessage.getMessage().getTitle() + " ";
     else
@@ -3142,6 +3144,7 @@ public class DiscussionForumTool
   public String processDfMsgReplyThread()
   {
 	  selectedMessageCount  = 0;
+	  functionClick ++;
   	if(selectedTopic == null)
   	{
   		LOG.debug("selectedTopic is null in processDfMsgReplyThread");
@@ -3187,6 +3190,7 @@ public class DiscussionForumTool
   public String processDfMsgGrdFromThread()
   {
 	  selectedMessageCount = 0;
+	  functionClick ++;
 	  String messageId = getExternalParameterByKey(MESSAGE_ID);
 	    String topicId = getExternalParameterByKey(TOPIC_ID);
 	    if (messageId == null)
@@ -3333,6 +3337,7 @@ public class DiscussionForumTool
   public String processDfMsgRvs()
   {
 	selectedMessageCount = 0;
+	functionClick ++;
 	
     attachments.clear();
 
@@ -3383,6 +3388,7 @@ public class DiscussionForumTool
   public String processDfMsgDeleteConfirm()
   {
 	selectedMessageCount = 0;
+	functionClick ++;
 	  // if coming from thread view, need to set message info
   	fromPage = getExternalParameterByKey(FROMPAGE);
     if (fromPage != null) {
@@ -3396,7 +3402,7 @@ public class DiscussionForumTool
 
   public String processDfReplyMsgPost()
   {
-	  if(selectedMessageCount != 0) {
+	  if(selectedMessageCount != 0 || functionClick != 1) {
 		  setErrorMessage(getResourceBundleString(STATE_INCONSISTENT));
 		  return null;
 	  }
@@ -3572,7 +3578,7 @@ public class DiscussionForumTool
   
   public String processDfMsgRevisedPost()
   {
-	if(selectedMessageCount != 0) {
+	if(selectedMessageCount != 0 || functionClick != 1) {
 		setErrorMessage(getResourceBundleString(STATE_INCONSISTENT));
 		return null;
 	}
@@ -3953,7 +3959,7 @@ public class DiscussionForumTool
    */
   public String processDfMsgDeleteConfirmYes()
   {
-	  if(selectedMessageCount != 1) {
+	  if(selectedMessageCount != 1 || functionClick != 1) {
 			setErrorMessage(getResourceBundleString(STATE_INCONSISTENT));
 			return null;
 		}
@@ -4888,7 +4894,7 @@ public class DiscussionForumTool
   
   public String processDfGradeSubmit() 
   { 
-	  if(selectedMessageCount != 0) {
+	  if(selectedMessageCount != 0 || functionClick != 1) {
 			setErrorMessage(getResourceBundleString(STATE_INCONSISTENT));
 			return null;
 		}
