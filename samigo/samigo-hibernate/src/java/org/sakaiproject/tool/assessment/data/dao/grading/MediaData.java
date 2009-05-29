@@ -25,6 +25,10 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.MediaIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import java.io.Serializable;
 import java.util.Date;
+import java.text.DecimalFormat;
+
+
+
 
 
 public class MediaData
@@ -139,11 +143,27 @@ private Long mediaId;
   {
     return fileSize;
   }
+  
+  public String getFileSizeKBFormat()
+  {
+	  String fileSizeKBStr = "";
+	  if (fileSize!=null)
+	  {
+		  double fileSizeKB = fileSize.doubleValue()/1000;
+		  DecimalFormat nf = new DecimalFormat(); 
+		  nf.setMaximumFractionDigits(2);
+		  nf.setDecimalSeparatorAlwaysShown(true);
+		  fileSizeKBStr = nf.format(fileSizeKB);
+	  }
+	  return fileSizeKBStr;
+  }
+  
 
   public void setFileSize(Long fileSize)
   {
     this.fileSize = fileSize;
-  }
+  }  
+  
 
   public void setMimeType(String mimeType)
   {
