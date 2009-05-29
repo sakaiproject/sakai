@@ -658,14 +658,8 @@ public class SubmitToGradingActionListener implements ActionListener {
 			log.debug("assessmentGradingId = " + assessmentGradingId);
 			log.debug("publishedItemId = " + publishedItemId);
 			GradingService gradingService = new GradingService();
-			// For File Upload question, if user clicks on "Upload", a ItemGradingData will be created. 
-			// Therefore, when user clicks on "Next", we shouldn't create it again.
-			// Same for Audio question, if user records anything, a ItemGradingData will be created.
-			// We don't create it again when user clicks on "Next".
-			if ((typeId == 6 || typeId == 7) && gradingService.getItemGradingData(assessmentGradingId.toString(), publishedItemId.toString()) != null ) {
-				log.debug("File Upload or Audio! Do not create empty ItemGradingData if there exists one");
-			}
-			else {
+			
+			if (gradingService.getItemGradingData(assessmentGradingId.toString(), publishedItemId.toString()) == null) {
 				log.debug("Create a new (fake) ItemGradingData");
 				ItemGradingData itemGrading = new ItemGradingData();
 				itemGrading.setAssessmentGradingId(assessmentGradingId);
@@ -676,6 +670,15 @@ public class SubmitToGradingActionListener implements ActionListener {
 				log.debug("itemTextId = " + itemTextId);
 				itemGrading.setPublishedItemTextId(itemTextId);
 				adds.add(itemGrading);
+			}
+			else {
+				// For File Upload question, if user clicks on "Upload", a ItemGradingData will be created. 
+				// Therefore, when user clicks on "Next", we shouldn't create it again.
+				// Same for Audio question, if user records anything, a ItemGradingData will be created.
+				// We don't create it again when user clicks on "Next".
+				if ((typeId == 6 || typeId == 7)) {
+					log.debug("File Upload or Audio! Do not create empty ItemGradingData if there exists one");
+				}
 			}
 		}
 	}

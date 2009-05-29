@@ -203,7 +203,7 @@ function clickSubmitForGrade(){
     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}" />
 
 <!-- SAVE AND EXIT BUTTON FOR TAKE ASSESMENT AND PREVIEW ASSESSMENT-->
-  <h:commandButton accesskey="#{deliveryMessages.a_saveAndExit}" type="submit" value="#{deliveryMessages.button_save_for_later}"
+  <h:commandButton accesskey="#{deliveryMessages.a_saveAndExit}" type="submit" value="#{deliveryMessages.button_exit}"
     action="#{delivery.saveAndExit}"
     onclick="javascript:saveTime()" onkeypress="javascript:saveTime()"
     rendered="#{(delivery.actionString=='takeAssessment'
@@ -211,7 +211,7 @@ function clickSubmitForGrade(){
     disabled="#{delivery.actionString=='previewAssessment'}" />
 
 <!-- QUIT BUTTON FOR TAKE ASSESSMENT VIA URL -->
-  <h:commandButton accesskey="#{deliveryMessages.a_quit}" type="submit" value="#{deliveryMessages.button_quit}"
+  <h:commandButton accesskey="#{deliveryMessages.a_quit}" type="submit" value="#{deliveryMessages.button_exit}"
     action="#{delivery.saveAndExit}" id="quit"
     onclick="javascript:saveTime()" onkeypress="javascript:saveTime()"
     rendered="#{delivery.actionString=='takeAssessmentViaUrl' && !delivery.hasTimeLimit}" >

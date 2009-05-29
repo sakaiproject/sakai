@@ -32,11 +32,11 @@
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
+	  <script type="text/javascript" language="JavaScript" src="../../js/saveForm.js"></script>
       <title> <h:outputText value="#{delivery.assessmentTitle}"/>
       </title>
       </head>
-       <body onload="<%= request.getAttribute("html.body.onload") %>; checkRadio(); setLocation();">
-
+       <body onload="<%= request.getAttribute("html.body.onload") %>; checkRadio(); setLocation();SaveFormContentAsync('deliverAssessment', 'takeAssessmentForm', 'takeAssessmentForm:save', 'takeAssessmentForm:lastSubmittedDate1', 'takeAssessmentForm:lastSubmittedDate2',  <h:outputText value="#{delivery.autoSaveRepeatMilliseconds}"/>, true);" >
    <!--div class="portletBody" style='background:#c57717'-->
       <!--h:outputText value="<body bgcolor='#c57717' #{delivery.settings.bgcolor} #{delivery.settings.background} onLoad='checkRadio();'>" escape="false" /-->
 
@@ -234,52 +234,47 @@ function saveTime()
     </h:column>
   </h:dataTable>
 </div>
-<p class="act">
-  <%-- NEXT --%>
-  <h:commandButton id="next" type="submit" value="#{deliveryMessages.save_and_continue}"
-    action="#{delivery.next_page}" styleClass="active"
-    rendered="#{(delivery.actionString=='previewAssessment'
-                 || delivery.actionString=='takeAssessment' 
-                 || delivery.actionString=='takeAssessmentViaUrl')
-              && delivery.continue}"
-    onclick="disableNext()" onkeypress="" />
+<f:verbatim><p class="act"></f:verbatim>
 
-	<h:commandLink id="hiddenReloadLink" action="#{delivery.same_page}" value="">
-	</h:commandLink>
-
-  <%-- SUBMIT FOR GRADE --%>
-  <h:commandButton id="submitForGrade" type="submit" value="#{deliveryMessages.button_submit_grading}"
-    action="#{delivery.confirmSubmit}" styleClass="active" 
-    rendered="#{(delivery.actionString=='takeAssessment' || delivery.actionString=='previewAssessment') 
-             && delivery.navigation ne '1' 
-             && !delivery.continue}"
-    onclick="disableSubmitForGrade()" onkeypress="" />
-
-  <%-- SUBMIT FOR GRADE DURING PAU --%>
-  <h:commandButton type="submit" value="#{deliveryMessages.button_submit}"
-    action="#{delivery.confirmSubmit}"  id="submitForm1" styleClass="active"
-    rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
-    onclick="pauseTiming='false'; disableSubmit1();" onkeypress="pauseTiming='false'"/>
+<h:panelGrid columns="6" border="0">
 
   <%-- PREVIOUS --%>
-  <h:commandButton id="previous" type="submit" value="#{deliveryMessages.previous}"
+  <h:panelGrid columns="1" border="0">
+	<h:commandButton id="previous" type="submit" value="#{deliveryMessages.previous}"
     action="#{delivery.previous}"
-    rendered="#{(delivery.actionString=='previewAssessment'
+    disabled="#{!delivery.previous}" 
+    onclick="disablePrevious()" onkeypress="" 
+	rendered="#{(delivery.actionString=='previewAssessment'
                  || delivery.actionString=='takeAssessment'
                  || delivery.actionString=='takeAssessmentViaUrl')
-              && delivery.navigation ne '1' && delivery.previous}" 
-    onclick="disablePrevious()" onkeypress="" />
+              && delivery.navigation ne '1' && ((delivery.previous && delivery.continue) || (!delivery.previous && delivery.continue) || (delivery.previous && !delivery.continue))}" />
+  </h:panelGrid>
 
-  <%-- SUBMIT FOR GRADE FOR LINEAR ACCESS --%>
-  <h:commandButton type="submit" value="#{deliveryMessages.button_submit_grading}"
-      action="#{delivery.confirmSubmit}"  id="submitForm" styleClass="active"
-      rendered="#{(delivery.actionString=='takeAssessment'
-				   || delivery.actionString=='previewAssessment')
-				   && delivery.navigation eq '1' && !delivery.continue}" 
-      onclick="pauseTiming='false'; disableSubmit()" onkeypress="pauseTiming='false'"/>
+  <%-- NEXT --%>
+  <h:panelGrid columns="1" border="0" columnClasses="act">
+    <h:commandButton id="next" type="submit" value="#{deliveryMessages.button_next}"
+    action="#{delivery.next_page}" styleClass="active"
+    disabled="#{!delivery.continue}"
+    onclick="disableNext()" onkeypress="" 
+	rendered="#{(delivery.actionString=='previewAssessment'
+                 || delivery.actionString=='takeAssessment'
+                 || delivery.actionString=='takeAssessmentViaUrl')
+              && ((delivery.previous && delivery.continue) || (!delivery.previous && delivery.continue) || (delivery.previous && !delivery.continue))}" />
+  </h:panelGrid>
 
-  <%-- SAVE AND EXIT --%>
-  <h:commandButton type="submit" value="#{deliveryMessages.button_save_for_later}"
+  <h:panelGrid columns="1" border="0">
+           <h:outputText value="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" escape="false" />
+  </h:panelGrid>
+
+  <%-- SAVE --%>
+  <h:panelGrid columns="1" border="0">
+  <h:commandButton id="save" type="submit" value="#{deliveryMessages.button_save}"
+    action="#{delivery.save_work}" onclick="" onkeypress="" />
+  </h:panelGrid>
+
+  <h:panelGrid columns="1"  border="0">
+  <%-- EXIT --%>
+  <h:commandButton type="submit" value="#{deliveryMessages.button_exit}"
     action="#{delivery.saveAndExit}" id="saveAndExit"
     rendered="#{(delivery.actionString=='previewAssessment'  
                  || delivery.actionString=='takeAssessment')
@@ -287,20 +282,56 @@ function saveTime()
     onclick="pauseTiming='false'; disableSave();" onkeypress="pauseTiming='false'" />
 
   <%-- SAVE AND EXIT DURING PAU WITH ANONYMOUS LOGIN--%>
-  <h:commandButton  type="submit" value="#{deliveryMessages.button_quit}"
+  <h:commandButton  type="submit" value="#{deliveryMessages.button_exit}"
     action="#{delivery.saveAndExit}" id="quit"
     rendered="#{(delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin) && !delivery.hasTimeLimit}"
     onclick="pauseTiming='false'; disableQuit()" onkeypress="pauseTiming='false'"  /> 
 
   <%-- SAVE AND EXIT FOR LINEAR ACCESS --%>
-  <h:commandButton type="submit" value="#{deliveryMessages.button_save_for_later}"
+  <h:commandButton type="submit" value="#{deliveryMessages.button_exit}"
     action="#{delivery.saveAndExit}" id="saveAndExit2"
     rendered="#{delivery.actionString=='takeAssessment'
             && delivery.navigation eq '1' && delivery.continue && !delivery.hasTimeLimit}"
     onclick="disableSave2();" onkeypress=""
     disabled="#{delivery.actionString=='previewAssessment'}"/>
+  </h:panelGrid>
 
-</p>
+  <h:panelGrid columns="1" width="100%" border="0" columnClasses="act">
+  <%-- SUBMIT FOR GRADE --%>
+  <h:commandButton id="submitForGrade" type="submit" value="#{deliveryMessages.button_submit_grading}"
+    action="#{delivery.confirmSubmit}" styleClass="active"
+    rendered="#{(delivery.actionString=='takeAssessment' || delivery.actionString=='previewAssessment') 
+             && delivery.navigation ne '1' 
+             && !delivery.continue}"
+    onclick="disableSubmitForGrade()" onkeypress=""/>
+
+  <%-- SUBMIT FOR GRADE DURING PAU --%>
+  <h:commandButton type="submit" value="#{deliveryMessages.button_submit}"
+    action="#{delivery.confirmSubmit}"  id="submitForm1" styleClass="active"
+    rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
+    onclick="pauseTiming='false'; disableSubmit1();" onkeypress="pauseTiming='false'"/>
+
+  <%-- SUBMIT FOR GRADE FOR LINEAR ACCESS --%>
+  <h:commandButton type="submit" value="#{deliveryMessages.button_submit_grading}"
+      action="#{delivery.confirmSubmit}"  id="submitForm" styleClass="active"
+      rendered="#{(delivery.actionString=='takeAssessment'
+                   || delivery.actionString=='takeAssessmentViaUrl'
+				   || delivery.actionString=='previewAssessment')
+				   && delivery.navigation eq '1' && !delivery.continue}" 
+      onclick="pauseTiming='false'; disableSubmit()" onkeypress="pauseTiming='false'"/>
+
+  <%-- SUBMIT FOR GRADE DURING PAU --%>
+  <h:commandButton type="submit" value="#{deliveryMessages.button_submit}"
+    action="#{delivery.confirmSubmit}"  id="submitForm2" styleClass="active"
+    rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.continue}"
+    onclick="pauseTiming='false'; disableSubmit2();" onkeypress="pauseTiming='false'"/>
+  </h:panelGrid>
+
+</h:panelGrid>
+	<h:commandLink id="hiddenReloadLink" action="#{delivery.same_page}" value="">
+	</h:commandLink>
+
+<f:verbatim></p></f:verbatim>
 
 <!-- DONE BUTTON IN PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">

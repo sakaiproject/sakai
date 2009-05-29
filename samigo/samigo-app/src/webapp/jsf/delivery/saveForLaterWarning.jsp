@@ -45,9 +45,6 @@
 </h:panelGroup>
 
 <div class="portletBody">
-<h3 style="insColor insBak">
-   <h:outputText value="#{deliveryMessages.save_for_later_title}" />
-</h3>
 <br/>
   <!-- content... -->
   <h:panelGroup styleClass="validation">
@@ -67,7 +64,7 @@
   </h:commandButton>
 
        <h:commandButton value="#{deliveryMessages.button_continue}" type="submit"
-         styleClass="active" action="select" disabled="#{delivery.actionString=='previewAssessment'}" >
+        action="select" disabled="#{delivery.actionString=='previewAssessment'}" >
        </h:commandButton>
  </p> 
   <!-- end content -->

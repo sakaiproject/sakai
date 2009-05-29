@@ -1477,6 +1477,32 @@ public class DeliveryBean
     return "takeAssessment";
   }
 
+  public String save_work()
+  {
+	  String nextAction = checkBeforeProceed();
+	  log.debug("***** next Action="+nextAction);
+	  if (!("safeToProceed").equals(nextAction)){
+		  return nextAction;
+	  }
+
+	  forGrade = false;
+
+	  if (this.actionMode == TAKE_ASSESSMENT
+			  || this.actionMode == TAKE_ASSESSMENT_VIA_URL)
+	  {
+		  SubmitToGradingActionListener listener =
+			  new SubmitToGradingActionListener();
+		  listener.processAction(null);
+	  }
+	  syncTimeElapsedWithServer();
+
+	  DeliveryActionListener l2 = new DeliveryActionListener();
+	  l2.processAction(null);
+
+	  reload = false;
+	  return "takeAssessment";
+  }
+
   public String previous()
   {
     String nextAction = checkBeforeProceed();
@@ -3022,5 +3048,18 @@ public class DeliveryBean
 	  public void setItemContentsMap(HashMap itemContentsMap)
 	  {
 	    this.itemContentsMap = itemContentsMap;
+	  }
+	  
+	  public String getAutoSaveRepeatMilliseconds()
+	  {
+  	    String s = ServerConfigurationService.getString("samigo.autoSave.repeat.milliseconds");
+  	    try {
+  	    	Integer.parseInt(s);
+  	    }
+  	    catch (NumberFormatException ex) {
+  	    	s = "-1";
+  	    }
+  	    log.debug("auto save every " + s + " milliseconds");
+	    return s;
 	  }
 }
