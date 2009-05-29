@@ -119,33 +119,15 @@ public class PublishedAssessmentData
    * for persistence.
    */
   public PublishedAssessmentData(Long id, String title, String releaseTo,
-                                 Date startDate, Date dueDate, Date retractDate, Integer status,
-                                 Date lastModifiedDate, String lastModifiedBy,
-                                 Integer lateHandling, Boolean unlimitedSubmissions, Integer submissionsAllowed) {
+                                 Date startDate, Date dueDate, Date retractDate, Date lastModifiedDate, String lastModifiedBy) {
     this.assessmentBaseId = id;
     this.title = title;
     this.releaseTo = releaseTo;
     this.startDate = startDate;
     this.dueDate = dueDate;
     this.retractDate = retractDate;
-    this.status = status;
     this.lastModifiedDate = lastModifiedDate;
     this.lastModifiedBy = lastModifiedBy;
-    this.lateHandling = lateHandling;
-    this.unlimitedSubmissions = unlimitedSubmissions;
-    this.submissionsAllowed = submissionsAllowed;
-  }
-  
-  public PublishedAssessmentData(Long id, String title, String releaseTo,
-		  Date startDate, Date dueDate, Date retractDate, Date lastModifiedDate, String lastModifiedBy) {
-	  this.assessmentBaseId = id;
-	  this.title = title;
-	  this.releaseTo = releaseTo;
-	  this.startDate = startDate;
-	  this.dueDate = dueDate;
-	  this.retractDate = retractDate;
-	  this.lastModifiedDate = lastModifiedDate;
-	  this.lastModifiedBy = lastModifiedBy;
   }
   
   public PublishedAssessmentData(Long id, String title, String releaseTo,

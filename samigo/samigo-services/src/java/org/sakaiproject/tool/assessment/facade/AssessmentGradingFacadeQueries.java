@@ -1603,45 +1603,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    return assessmentGradings;
   }
   
-  public HashMap getSiteSubmissionCountHash(final String siteId) {
-	  HashMap siteSubmissionCountHash = new HashMap();
-	    final HibernateCallback hcb = new HibernateCallback(){
-	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    		Query q = session.createQuery(
-	    				"select a.publishedAssessmentId, a.agentId, count(*) " +
-	    				"from AssessmentGradingData a, AuthorizationData au  " +
-	    				"where a.forGrade=? and au.functionId = ? and au.agentIdString = ? and a.publishedAssessmentId = au.qualifierId " +
-	    				"group by a.publishedAssessmentId, a.agentId " +
-	    				"order by a.publishedAssessmentId, a.agentId");
-	    		q.setBoolean(0, true);
-	    		q.setString(1, "OWN_PUBLISHED_ASSESSMENT");
-	    		q.setString(2, siteId);
-	    		return q.list();
-	    	};
-	    };
-	    
-	    List countList = getHibernateTemplate().executeFind(hcb);
-		Iterator iter = countList.iterator();
-		Long lastPublishedAssessmentId = Long.valueOf(-1l);
-		HashMap numberSubmissionPerStudentHash = new HashMap();
-		while (iter.hasNext()) {
-			Object o[] = (Object[]) iter.next(); 
-			Long publishedAssessmentid = (Long) o[0];
-			
-			if (lastPublishedAssessmentId.equals(publishedAssessmentid)) {
-				numberSubmissionPerStudentHash.put(o[1], o[2]);
-			}
-			else {
-				numberSubmissionPerStudentHash = new HashMap();
-				numberSubmissionPerStudentHash.put(o[1], o[2]);
-				siteSubmissionCountHash.put(publishedAssessmentid, numberSubmissionPerStudentHash);
-				lastPublishedAssessmentId = publishedAssessmentid;
-			}
-		}
-	    
-	    return siteSubmissionCountHash;
-}
-  
   public int getActualNumberRetake(final Long publishedAssessmentId, final String agentIdString) {
 	    final HibernateCallback hcb = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -1665,46 +1626,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    else{
 	      return 0;
 	    }
-  }
-  
-  public HashMap getSiteActualNumberRetakeHash(final String siteId) {
-		HashMap actualNumberRetakeHash = new HashMap();
-	    final HibernateCallback hcb = new HibernateCallback(){
-	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    		Query q = session.createQuery(
-	    				"select a.publishedAssessmentId, a.agentId, count(*) " +
-	    				" from AssessmentGradingData a, StudentGradingSummaryData s, AuthorizationData au " +
-	    				" where a.forGrade=? and au.functionId = ? and au.agentIdString = ? and a.publishedAssessmentId = au.qualifierId" +
-	    				" and a.publishedAssessmentId = s.publishedAssessmentId and a.agentId = s.agentId " +
-	    				" and a.submittedDate > s.createdDate" +
-	    				" group by a.publishedAssessmentId, a.agentId " +
-	    				" order by a.publishedAssessmentId, a.agentId");
-	    		q.setBoolean(0, true);
-	    		q.setString(1, "OWN_PUBLISHED_ASSESSMENT");
-	    		q.setString(2, siteId);
-	    		return q.list();
-	    	};
-	    };
-	    List countList = getHibernateTemplate().executeFind(hcb);
-		Iterator iter = countList.iterator();
-		Long lastPublishedAssessmentId = Long.valueOf(-1l);
-		HashMap actualNumberRetakePerStudentHash = new HashMap();
-		while (iter.hasNext()) {
-			Object o[] = (Object[]) iter.next(); 
-			Long publishedAssessmentid = (Long) o[0];
-
-			if (lastPublishedAssessmentId.equals(publishedAssessmentid)) {
-				actualNumberRetakePerStudentHash.put(o[1], o[2]);
-			}
-			else {
-				actualNumberRetakePerStudentHash = new HashMap();
-				actualNumberRetakePerStudentHash.put(o[1], o[2]);
-				actualNumberRetakeHash.put(publishedAssessmentid, actualNumberRetakePerStudentHash);
-				lastPublishedAssessmentId = publishedAssessmentid;
-			}
-		}
-		
-		return actualNumberRetakeHash;
   }
   
   public HashMap getActualNumberRetakeHash(final String agentIdString) {
@@ -1789,44 +1710,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 			h.put(s.getPublishedAssessmentId(), s);
 		}
 		return h;
-  }
-  
-  public HashMap getSiteNumberRetakeHash(final String siteId) {
-	  HashMap siteNumberRetakeHash = new HashMap();
-	    final HibernateCallback hcb = new HibernateCallback(){
-	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    		Query q = session.createQuery(
-	    				"select s " +
-	    				"from StudentGradingSummaryData s, AuthorizationData au " +
-	    				"where au.functionId = ? and au.agentIdString = ? " +
-	    				"and s.publishedAssessmentId = au.qualifierId " +
-	    				"order by s.publishedAssessmentId, s.agentId");
-	    		q.setString(0, "OWN_PUBLISHED_ASSESSMENT");
-	    		q.setString(1, siteId);
-	    		return q.list();
-	    	};
-	    };
-	    List countList = getHibernateTemplate().executeFind(hcb);
-	    Iterator iter = countList.iterator();
-		Long lastPublishedAssessmentId = Long.valueOf(-1l);
-		HashMap numberRetakePerStudentHash = null;
-		while (iter.hasNext()) {
-			StudentGradingSummaryData s = (StudentGradingSummaryData) iter.next();
-			Long publishedAssessmentid = (Long) s.getPublishedAssessmentId();
-			
-			if (lastPublishedAssessmentId.equals(publishedAssessmentid)) {
-				numberRetakePerStudentHash.put(s.getAgentId(), s.getNumberRetake());
-			}
-			else {
-				numberRetakePerStudentHash = new HashMap();
-				numberRetakePerStudentHash.put(s.getAgentId(), s.getNumberRetake());
-				siteNumberRetakeHash.put(publishedAssessmentid, numberRetakePerStudentHash);
-				lastPublishedAssessmentId = publishedAssessmentid;
-			}
-		}
-		
-		return siteNumberRetakeHash;
-  }
+}
   
   public void saveStudentGradingSummaryData(StudentGradingSummaryIfc studentGradingSummaryData) {
 	    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
@@ -2534,16 +2418,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
 		List list = getHibernateTemplate()
 				.find("select a.publishedAssessmentId from AssessmentGradingData a where a.agentId=? and a.forGrade=? and a.status=?", values);
-		return list;
-	}
-	
-	public List getSiteNeedResubmitList(String siteId) {
-		Object [] values = {"OWN_PUBLISHED_ASSESSMENT", siteId, false, 4};
-
-		List list = getHibernateTemplate()
-				.find("select distinct a.publishedAssessmentId from AssessmentGradingData a, AuthorizationData au " +
-						"where au.functionId = ? and au.agentIdString = ? and a.publishedAssessmentId = au.qualifierId " +
-						"and a.forGrade=? and a.status=? ", values);
 		return list;
 	}
 	

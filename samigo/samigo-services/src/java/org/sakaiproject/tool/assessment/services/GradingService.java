@@ -1629,16 +1629,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    return results;
   }
   
-  public HashMap getSiteSubmissionCountHash(String siteId) {
-	  HashMap results = new HashMap();
-	    try {
-	    	results = PersistenceService.getInstance().
-	        getAssessmentGradingFacadeQueries().getSiteSubmissionCountHash(siteId);
-	    } catch (Exception e) {
-	      e.printStackTrace();
-	    }
-	    return results;
-  }  
 
   public int getActualNumberRetake(Long publishedAssessmentId, String agentIdString) {
 	  	int actualNumberReatke = 0;
@@ -1660,19 +1650,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	      e.printStackTrace();
 	    }
 	    return actualNumberReatkeHash;
-  }
-    
-  public HashMap getSiteActualNumberRetakeHash(String siteIdString) {
-	  HashMap numberRetakeHash = new HashMap();
-	    try {
-	    	numberRetakeHash = PersistenceService.getInstance().
-	        getAssessmentGradingFacadeQueries().getSiteActualNumberRetakeHash(siteIdString);
-	    } catch (Exception e) {
-	      e.printStackTrace();
-	    }
-	    return numberRetakeHash;
-  }
-    
+}
+  
   public List getStudentGradingSummaryData(Long publishedAssessmentId, String agentIdString) {
 	  List results = null;
 	    try {
@@ -1707,17 +1686,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    return numberRetakeHash;
   }
   
-  public HashMap getSiteNumberRetakeHash(String siteIdString) {
-	  HashMap siteActualNumberRetakeList = new HashMap();
-	    try {
-	    	siteActualNumberRetakeList = PersistenceService.getInstance().
-	        getAssessmentGradingFacadeQueries().getSiteNumberRetakeHash(siteIdString);
-	    } catch (Exception e) {
-	      e.printStackTrace();
-	    }
-	    return siteActualNumberRetakeList;
-  }
-    
   public void saveStudentGradingSummaryData(StudentGradingSummaryIfc studentGradingSummaryData) {
 	    try {
 	    	PersistenceService.getInstance().getAssessmentGradingFacadeQueries().saveStudentGradingSummaryData(studentGradingSummaryData);
@@ -1798,17 +1766,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    try {
 	    	list = PersistenceService.getInstance().
 	        getAssessmentGradingFacadeQueries().getNeedResubmitList(agentId);
-	    } catch (Exception e) {
-	      e.printStackTrace();
-	    }
-	    return list;
-  }
-  
-  public List getSiteNeedResubmitList(String siteId) {
-	  List list = null;
-	    try {
-	    	list = PersistenceService.getInstance().
-	        getAssessmentGradingFacadeQueries().getSiteNeedResubmitList(siteId);
 	    } catch (Exception e) {
 	      e.printStackTrace();
 	    }
