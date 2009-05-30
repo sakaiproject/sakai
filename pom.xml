@@ -168,7 +168,7 @@
         <module>message</module>
         <module>metaobj</module>
         <module>msgcntr</module>
-        <module>osp</module>
+        <!--<module>osp</module>-->
         <module>podcasts</module>
         <module>portal</module>
         <module>postem</module>
