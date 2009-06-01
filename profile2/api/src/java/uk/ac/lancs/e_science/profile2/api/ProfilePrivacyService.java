@@ -42,8 +42,8 @@ public interface ProfilePrivacyService {
 	public boolean create(String userId);
 	
 	/**
-	 * Persist the given UserProfile object to the database
-	 * @param userProfile - UserProfile that you want persisted
+	 * Persist the given ProfilePrivacy object to the database
+	 * @param obj - ProfilePrivacy obj that you want persisted
 	 * @return true/false for success
 	 */
 	public boolean create(ProfilePrivacy obj);

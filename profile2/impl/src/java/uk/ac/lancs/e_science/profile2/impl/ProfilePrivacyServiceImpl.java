@@ -63,7 +63,7 @@ public class ProfilePrivacyServiceImpl implements ProfilePrivacyService {
 		}
 		
 		//save and return response
-		return persistUserProfile(obj);
+		return persistProfilePrivacy(obj);
 	}
 	
 	
@@ -77,7 +77,7 @@ public class ProfilePrivacyServiceImpl implements ProfilePrivacyService {
 			return false;
 		}
 		
-		//does this user already have a persisted profile?
+		//does this user already have a persisted privacy record?
 		if(checkProfilePrivacyExists(userUuid)) {
 			log.error("userUuid: " + userUuid + " already has a ProfilePrivacy record. Cannot create another.");
 			return false;
@@ -114,11 +114,11 @@ public class ProfilePrivacyServiceImpl implements ProfilePrivacyService {
 			return false;
 		}
 			
-		//no existing profile, setup a prototype
+		//no existing privacy record, setup a prototype
 		ProfilePrivacy privacy = getPrototype(userUuid);
 		
 		//save and return response
-		return persistUserProfile(privacy);
+		return persistProfilePrivacy(privacy);
 	}
 	
 	/**
@@ -159,7 +159,7 @@ public class ProfilePrivacyServiceImpl implements ProfilePrivacyService {
 	 * @param ProfilePrivacy object
 	 * @return true/false for success
 	 */
-	private boolean persistUserProfile(ProfilePrivacy obj) {
+	private boolean persistProfilePrivacy(ProfilePrivacy obj) {
 
 		if(profile.savePrivacyRecord(obj)) {
 			return true;
