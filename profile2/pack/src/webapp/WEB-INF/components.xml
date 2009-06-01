@@ -43,7 +43,7 @@
 		</property>
 	</bean>	
 	
-	<!--  Service beans for the outward facing API  -->
+	<!--  API Service beans -->
 	<bean id="uk.ac.lancs.e_science.profile2.api.ProfileService" class="uk.ac.lancs.e_science.profile2.impl.ProfileServiceImpl">
 		<property name="sakaiProxy" ref="uk.ac.lancs.e_science.profile2.api.SakaiProxy" />
 		<property name="profile" ref="uk.ac.lancs.e_science.profile2.api.Profile" />
@@ -53,16 +53,25 @@
 		<property name="sakaiProxy" ref="uk.ac.lancs.e_science.profile2.api.SakaiProxy" />
 		<property name="profile" ref="uk.ac.lancs.e_science.profile2.api.Profile" />
 	</bean>
+	
+	<bean id="uk.ac.lancs.e_science.profile2.api.ProfilePreferencesService" class="uk.ac.lancs.e_science.profile2.impl.ProfilePreferencesServiceImpl">
+		<property name="sakaiProxy" ref="uk.ac.lancs.e_science.profile2.api.SakaiProxy" />
+		<property name="profile" ref="uk.ac.lancs.e_science.profile2.api.Profile" />
+	</bean>
     
     
     <!-- EntityBroker beans -->
-	<bean id="uk.ac.lancs.e_science.profile2.api.entity.ProfileEntityProvider" class="uk.ac.lancs.e_science.profile2.impl.entity.ProfileEntityProviderImpl">
+	<bean id="profile2.entity.ProfileEntityProvider" class="uk.ac.lancs.e_science.profile2.impl.entity.ProfileEntityProviderImpl">
 		<property name="profileService" ref="uk.ac.lancs.e_science.profile2.api.ProfileService" />
 	</bean>
 	
-	<bean id="uk.ac.lancs.e_science.profile2.api.entity.ProfilePrivacyEntityProvider" class="uk.ac.lancs.e_science.profile2.impl.entity.ProfilePrivacyEntityProviderImpl">
+	<bean id="profile2.entity.ProfilePrivacyEntityProvider" class="uk.ac.lancs.e_science.profile2.impl.entity.ProfilePrivacyEntityProviderImpl">
 		<property name="profilePrivacyService" ref="uk.ac.lancs.e_science.profile2.api.ProfilePrivacyService" />
 	    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+	</bean>
+	
+	<bean id="profile2.entity.ProfilePreferencesEntityProvider" class="uk.ac.lancs.e_science.profile2.impl.entity.ProfilePreferencesEntityProviderImpl">
+		<property name="profilePreferencesService" ref="uk.ac.lancs.e_science.profile2.api.ProfilePreferencesService" />
 	</bean>
 	
 
