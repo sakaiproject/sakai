@@ -43,6 +43,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -193,7 +194,7 @@ public class PublishedAssessmentService extends AssessmentService{
 			throw new RuntimeException(e);
 		}
   }
-
+  
   public Long getPublishedAssessmentId(String assessmentId) {
     try {
       return PersistenceService.getInstance().
@@ -556,10 +557,10 @@ public class PublishedAssessmentService extends AssessmentService{
      getPublishedAssessmentFacadeQueries().getPublishedAttachmentData(attachmentId);
    }
    
-   public void updateAssessmentLastModifiedInfo(PublishedAssessmentFacade publishedAssessmentFacade) {
+   public void updateAssessmentLastModifiedInfo(AssessmentIfc publishedAssessmentFacade) {
 	  PersistenceService.getInstance().
       getPublishedAssessmentFacadeQueries().
-      updateAssessmentLastModifiedInfo(publishedAssessmentFacade);
+      updateAssessmentLastModifiedInfo((PublishedAssessmentFacade) publishedAssessmentFacade);
    }
    
    public void saveOrUpdateSection(SectionFacade section) {
@@ -574,7 +575,7 @@ public class PublishedAssessmentService extends AssessmentService{
 	   return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().addSection(publishedAssessmentId);
 	}
    
-   public SectionFacade getSection(String publishedsectionId) {
+   public PublishedSectionFacade getSection(String publishedsectionId) {
 	   return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().getSection(Long.valueOf(publishedsectionId));
    }  
    
@@ -631,6 +632,25 @@ public class PublishedAssessmentService extends AssessmentService{
    public void removeAssessmentAttachment(String attachmentId) {
 		PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
 				.removeAssessmentAttachment(new Long(attachmentId));
+   }
+   
+   public SectionAttachmentIfc createSectionAttachment(SectionDataIfc section,
+		   String resourceId, String filename, String protocol) {
+	   SectionAttachmentIfc attachment = null;
+	   try {
+		   PublishedAssessmentFacadeQueriesAPI queries = PersistenceService
+		           .getInstance().getPublishedAssessmentFacadeQueries();
+		   attachment = queries.createSectionAttachment(section, resourceId,
+				   filename, protocol);
+	   } catch (Exception e) {
+		   e.printStackTrace();
+	   }
+	   return attachment;
+   }
+
+   public void removeSectionAttachment(String attachmentId) {
+	   PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
+	   .removeSectionAttachment(new Long(attachmentId));
    }
 
    public void saveOrUpdateAttachments(List list) {

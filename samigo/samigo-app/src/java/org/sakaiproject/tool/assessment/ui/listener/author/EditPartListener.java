@@ -28,12 +28,17 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
+import org.sakaiproject.tool.assessment.services.ItemService;
+import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.FormattedText;
@@ -49,7 +54,8 @@ public class EditPartListener
     implements ActionListener
 {
   //private static Log log = LogFactory.getLog(EditPartListener.class);
-
+  private boolean isEditPendingAssessmentFlow = true;
+  
   public EditPartListener()
   {
   }
@@ -71,12 +77,23 @@ public class EditPartListener
 	// so i can't read sectionId from a form. - daisyf
 	sectionId = sectionBean.getSectionId();
     }
+    AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+    isEditPendingAssessmentFlow = author.getIsEditPendingAssessmentFlow();
 
-
+    
     //log.info("**SectionId = "+sectionId);
     // #1a. prepare sectionBean
-    AssessmentService assessmentService = new AssessmentService();
-    SectionFacade section = assessmentService.getSection(sectionId);
+    AssessmentService assessmentService = null;
+    SectionFacade section = null;
+    if (isEditPendingAssessmentFlow) {
+    	EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.revise", "sectionId=" + sectionId, true));
+    	assessmentService = new AssessmentService();
+    }
+    else {
+    	EventTrackingService.post(EventTrackingService.newEvent("sam.pubassessment.revise", "sectionId=" + sectionId, true));
+    	assessmentService = new PublishedAssessmentService();
+    }
+    section = assessmentService.getSection(sectionId);
     section.setAssessment(assessmentBean.getAssessment());
     sectionBean.setSection(section);
     sectionBean.setSectionTitle(FormattedText.unEscapeHtml(section.getTitle()));
@@ -125,7 +142,7 @@ public class EditPartListener
     boolean isPointValueHasOverrided = false;
     boolean isDiscountValueHasOverrided = false;
     while (iter.hasNext()){
-       SectionMetaData meta= (SectionMetaData) iter.next();
+    SectionMetaDataIfc meta= (SectionMetaDataIfc) iter.next();
        if (meta.getLabel().equals(SectionMetaDataIfc.OBJECTIVES)){
          bean.setObjective(meta.getEntry());
        }

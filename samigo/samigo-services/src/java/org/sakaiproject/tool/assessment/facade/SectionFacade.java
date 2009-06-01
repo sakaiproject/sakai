@@ -38,6 +38,7 @@ import org.osid.shared.Type;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionMetaData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
@@ -64,7 +65,7 @@ public class SectionFacade implements Serializable, SectionDataIfc, Comparable {
   // #2) properties according to SectionDataIfc
   protected Long sectionId;
   protected Long assessmentId;
-  protected AssessmentFacade assessment;
+  protected AssessmentBaseIfc assessment;
   protected Integer duration;
   protected Integer sequence;
   protected String title;
@@ -253,7 +254,7 @@ public class SectionFacade implements Serializable, SectionDataIfc, Comparable {
   // section is AssessmentFacade not AssessmentData
   public void setAssessment(AssessmentIfc assessment) {
     this.assessment = (AssessmentFacade)assessment;
-    AssessmentData d = (AssessmentData) this.assessment.getData();
+    AssessmentData d = (AssessmentData) ((AssessmentFacade) this.assessment).getData();
     this.data.setAssessment(d);
   }
 

@@ -208,22 +208,23 @@ document.links[newindex].onclick();
 	  </h:panelGroup>
       </h:panelGroup>
 
-	  <h:panelGroup rendered="#{author.isEditPendingAssessmentFlow}">
-		<h:commandLink title="#{authorMessages.copy_to_pool}" id="copyToPool" immediate="true" action="#{questionpool.startCopyFromAssessment}">
+	  <h:panelGroup>
+		<h:commandLink title="#{authorMessages.copy_to_pool}" id="copyToPool" immediate="true" action="#{questionpool.startCopyFromAssessment}" rendered="#{author.isEditPendingAssessmentFlow}">
           <h:outputText value="#{authorMessages.copy_to_pool}" rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '1'}"/>
           <f:param name="sectionId" value="#{partBean.sectionId}"/>
         </h:commandLink>
 
-		<h:outputText value=" #{authorMessages.separator} " rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '1'}"/>
+		<h:outputText value=" #{authorMessages.separator} " rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '1' && author.isEditPendingAssessmentFlow}"/>
 
         <h:commandLink title="#{authorMessages.t_removeP}" action="confirmRemovePart" immediate="true"
-          rendered="#{partBean.number ne 1}">
+          rendered="#{partBean.number ne 1 && author.isEditPendingAssessmentFlow}">
           <h:outputText value="#{authorMessages.remove_part}" />
           <!-- use this to set the sectionBean.sectionId in ConfirmRemovePartListener -->
           <f:param name="sectionId" value="#{partBean.sectionId}"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRemovePartListener" />
         </h:commandLink>
-          <h:outputText value=" #{authorMessages.separator} " rendered="#{partBean.number ne 1}"/>
+
+        <h:outputText value=" #{authorMessages.separator} " rendered="#{partBean.number ne 1 && author.isEditPendingAssessmentFlow}"/>
 
         <h:commandLink title="#{authorMessages.t_editP}" id="editPart" immediate="true" action="editPart">
           <h:outputText value="#{authorMessages.button_modify}" />

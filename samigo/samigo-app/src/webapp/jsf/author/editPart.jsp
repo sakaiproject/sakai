@@ -81,7 +81,7 @@
    <h:panelGroup >
  <!--  had to separate the radio buttons , 'cuz there is no way to disable only one of them. -->
    <div class="longtext">
-     <h:selectOneRadio value="#{sectionBean.type}" layout="pageDirection" onclick="this.form.onsubmit();document.forms[0].submit();" onkeypress="this.form.onsubmit();document.forms[0].submit();" valueChangeListener="#{sectionBean.toggleAuthorType}">
+     <h:selectOneRadio value="#{sectionBean.type}" layout="pageDirection" onclick="this.form.onsubmit();document.forms[0].submit();" onkeypress="this.form.onsubmit();document.forms[0].submit();" valueChangeListener="#{sectionBean.toggleAuthorType}" disabled="#{!author.isEditPendingAssessmentFlow}">
      <f:selectItems value="#{sectionBean.authorTypeList}" />
      </h:selectOneRadio>
      <h:selectOneRadio accesskey="#{authorMessages.a_options}" rendered="#{sectionBean.hideRandom eq 'true'}" disabled="true" value="" layout="pageDirection" >
@@ -113,7 +113,7 @@
  
    <h:outputText value="#{authorMessages.pool_name} #{authorMessages.number_questions} " />
    <h:panelGrid>
-   <h:selectOneMenu disabled="#{sectionBean.type == '1'}" id="assignToPool" value="#{sectionBean.selectedPool}">
+   <h:selectOneMenu disabled="#{sectionBean.type == '1' || !author.isEditPendingAssessmentFlow}" id="assignToPool" value="#{sectionBean.selectedPool}">
      <f:selectItem itemValue="" itemLabel="#{authorMessages.select_a_pool_for_random_draw}(###)" />
      <f:selectItems value="#{sectionBean.poolsAvailable}" />
    </h:selectOneMenu>
@@ -126,25 +126,26 @@
     
      <!--f:selectItems value="#{sectionBean.poolsAvailable}" /-->
   <!--/h:selectOneMenu-->
-  <h:panelGrid>
-    <h:inputText id="numSelected" disabled="#{sectionBean.type == '1'}" value="#{sectionBean.numberSelected}" />
-  </h:panelGrid>
+
+   <h:panelGrid>
+   <h:inputText id="numSelected" disabled="#{sectionBean.type == '1' || !author.isEditPendingAssessmentFlow}" value="#{sectionBean.numberSelected}" />
+   </h:panelGrid>
 
   <h:outputText value="#{authorMessages.point_value_of_questons}"  />
   <h:panelGrid>
-    <h:inputText id="numPointsRandom" disabled="#{sectionBean.type == '1'}" value="#{sectionBean.randomPartScore}" />
+    <h:inputText id="numPointsRandom" disabled="#{sectionBean.type == '1' || !author.isEditPendingAssessmentFlow}" value="#{sectionBean.randomPartScore}" />
     <h:outputText value="#{authorMessages.note_point_value_for_question}" rendered="#{!sectionBean.pointValueHasOverrided}"/>
   </h:panelGrid>
    
   <h:outputText value="#{authorMessages.negative_point_value}"  />
   
   <h:panelGrid>
-    <h:inputText id="numDiscountRandom" disabled="#{sectionBean.type == '1'}" value="#{sectionBean.randomPartDiscount}" />
+    <h:inputText id="numDiscountRandom" disabled="#{sectionBean.type == '1' || !author.isEditPendingAssessmentFlow}" value="#{sectionBean.randomPartDiscount}" />
     <h:outputText value="#{authorMessages.note_negative_point_value_part}" rendered="#{!sectionBean.discountValueHasOverrided}"/>
   </h:panelGrid>
 
   <h:outputText value="#{authorMessages.type_of_randomization}" />
-  <h:selectOneRadio value="#{sectionBean.randomizationType}" layout="pageDirection" disabled="#{sectionBean.type == '1'}" id="randomizationType">
+  <h:selectOneRadio value="#{sectionBean.randomizationType}" layout="pageDirection" disabled="#{sectionBean.type == '1' || !author.isEditPendingAssessmentFlow}" id="randomizationType">
      <f:selectItems value="#{sectionBean.randomizationTypeList}" />
   </h:selectOneRadio>
 
@@ -162,7 +163,7 @@
    <h:panelGroup >
    <h:outputText value="#{authorMessages.q_ordering_n}" />
 
-     <h:selectOneRadio disabled="#{sectionBean.type =='2'}"layout="pageDirection" value="#{sectionBean.questionOrdering}">
+     <h:selectOneRadio disabled="#{sectionBean.type =='2' || !author.isEditPendingAssessmentFlow}" layout="pageDirection" value="#{sectionBean.questionOrdering}">
        <f:selectItem itemLabel="#{authorMessages.as_listed_on_assessm}"
          itemValue="1"/>
        <f:selectItem itemLabel="#{authorMessages.random_within_p}"
@@ -177,11 +178,11 @@
 
 <h:panelGrid columns="2" columnClasses="shorttext">
 <h:outputLabel for="obj" value="#{authorMessages.objective}" />
-  <h:inputText id="obj" value="#{sectionBean.objective}" />
+  <h:inputText id="obj" value="#{sectionBean.objective}" disabled="#{!author.isEditPendingAssessmentFlow}"/>
 <h:outputLabel for="keyword" value="#{authorMessages.keyword}" />
-  <h:inputText id="keyword" value="#{sectionBean.keyword}" />
+  <h:inputText id="keyword" value="#{sectionBean.keyword}" disabled="#{!author.isEditPendingAssessmentFlow}"/>
 <h:outputLabel for="rubric" value="#{authorMessages.rubric_colon}" />
-  <h:inputText id="rubric" value="#{sectionBean.rubric}" />
+  <h:inputText id="rubric" value="#{sectionBean.rubric}" disabled="#{!author.isEditPendingAssessmentFlow}"/>
 </h:panelGrid>
 
 </div>

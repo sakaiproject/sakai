@@ -53,8 +53,10 @@ import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
+import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.listener.author.SavePartAttachmentListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -768,8 +770,16 @@ private List attachmentList;
   }
 
   public void setPartAttachment(){
-    SavePartAttachmentListener lis = new SavePartAttachmentListener();
-    lis.processAction(null);
+	  AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+	  boolean isEditPendingAssessmentFlow =  author.getIsEditPendingAssessmentFlow();
+	  SavePartAttachmentListener lis = null;
+	  if (isEditPendingAssessmentFlow) {	  
+		  lis = new SavePartAttachmentListener(true);
+	  }
+	  else {
+		  lis = new SavePartAttachmentListener(false);
+	  }
+	  lis.processAction(null);
   }
 
   private List prepareReferenceList(List attachmentList){
@@ -789,7 +799,15 @@ private List attachmentList;
           // use case: user remove resource in file picker, then exit modification without
           // proper cancellation by clicking at the left nav instead of "cancel".
           // Also in this use case, any added resource would be left orphan. 
-          AssessmentService assessmentService = new AssessmentService();
+    	  AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+    	  boolean isEditPendingAssessmentFlow =  author.getIsEditPendingAssessmentFlow();
+    	  AssessmentService assessmentService = null;
+    	  if (isEditPendingAssessmentFlow) {	  
+    		  assessmentService = new AssessmentService();
+    	  }
+    	  else {
+    		  assessmentService = new PublishedAssessmentService();
+    	  }
           assessmentService.removeSectionAttachment(attach.getAttachmentId().toString());
       }
       catch (TypeException e) {

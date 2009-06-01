@@ -30,7 +30,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osid.assessment.AssessmentException;
 import org.osid.assessment.Section;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionMetaData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
@@ -41,7 +44,7 @@ public class PublishedSectionFacade extends SectionFacade implements Serializabl
 
 	private static final long serialVersionUID = 5788637014806801101L;
 	private static Log log = LogFactory.getLog(PublishedSectionFacade.class);
-
+	
   /**
    * This is a very important constructor. Please make sure that you have
    * set all the properties (declared above as private) of SectionFacade using
@@ -50,31 +53,7 @@ public class PublishedSectionFacade extends SectionFacade implements Serializabl
    * @param data
    */
   public PublishedSectionFacade(SectionDataIfc data){
-    this.data = data;
-    SectionImpl sectionImpl = new SectionImpl(); // place holder
-    section = (Section)sectionImpl;
-    try {
-      section.updateData(this.data);
-    }
-    catch (AssessmentException ex) {
-      throw new DataFacadeException(ex.getMessage());
-    }
-    this.id = getId();
-    this.description = getDescription();
-    this.assessmentId= getAssessmentId();
-    this.sectionType = getSectionType();
-    this.sequence = getSequence();
-    this.duration = getDuration();
-    this.typeId = getTypeId();
-    this.status = getStatus();
-    this.createdBy = getCreatedBy();
-    this.createdDate = getCreatedDate();
-    this.lastModifiedBy = getLastModifiedBy();
-    this.lastModifiedDate = getLastModifiedDate();
-    this.itemSet = getItemSet();
-    this.metaDataSet = getSectionMetaDataSet();
-    this.metaDataMap = getSectionMetaDataMap(this.metaDataSet);
-    this.sectionAttachmentSet = getSectionAttachmentSet(); 
+    super(data);
   }
 
   // the following method's signature has a one to one relationship to
@@ -141,4 +120,20 @@ public class PublishedSectionFacade extends SectionFacade implements Serializabl
 		}
 		return this.itemFacadeSet;
 	}
+    
+  public AssessmentIfc getAssessment() throws DataFacadeException {
+	    try {
+	      this.data = (SectionDataIfc) section.getData();
+	    }
+	    catch (AssessmentException ex) {
+	      throw new DataFacadeException(ex.getMessage());
+	    }
+	    return new PublishedAssessmentFacade(this.data.getAssessment());
+  }
+  
+  public void setAssessment(AssessmentIfc assessment) {
+	    this.assessment = (PublishedAssessmentFacade)assessment;
+	    PublishedAssessmentData d = (PublishedAssessmentData) ((PublishedAssessmentFacade) this.assessment).getData();
+	    this.data.setAssessment(d);
+  }
 }

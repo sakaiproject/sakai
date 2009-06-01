@@ -182,7 +182,7 @@ public interface AssessmentFacadeQueriesAPI {
 	public void removeItemAttachment(Long itemAttachmentId);
 
 	public void updateAssessmentLastModifiedInfo(
-			AssessmentFacade assessmentFacade);
+			AssessmentFacade assessment);
 
 	public SectionAttachmentIfc createSectionAttachment(SectionDataIfc section,
 			String resourceId, String filename, String protocol);

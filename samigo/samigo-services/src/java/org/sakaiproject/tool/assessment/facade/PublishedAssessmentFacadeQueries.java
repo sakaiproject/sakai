@@ -23,7 +23,6 @@ package org.sakaiproject.tool.assessment.facade;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,8 +36,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
 
-import javax.faces.model.SelectItem;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
@@ -47,7 +44,6 @@ import org.hibernate.Session;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -103,6 +99,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
@@ -2775,6 +2772,79 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			} catch (Exception e) {
 				log.warn("problem delete publishedAssessmentAttachment: "
 						+ e.getMessage());
+				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+						retryCount);
+			}
+		}
+	}
+	
+
+	public SectionAttachmentIfc createSectionAttachment(SectionDataIfc section,
+			String resourceId, String filename, String protocol) {
+		PublishedSectionAttachment attach = null;
+		Boolean isLink = Boolean.FALSE;
+		try {
+			ContentResource cr = AssessmentService.getContentHostingService().getResource(resourceId);
+			if (cr != null) {
+				ResourceProperties p = cr.getProperties();
+				attach = new PublishedSectionAttachment();
+				attach.setSection(section);
+				attach.setResourceId(resourceId);
+				attach.setMimeType(cr.getContentType());
+				// we want to display kb, so divide by 1000 and round the result
+				attach
+						.setFileSize(new Long(fileSizeInKB(cr
+								.getContentLength())));
+				if (cr.getContentType().lastIndexOf("url") > -1) {
+					isLink = Boolean.TRUE;
+					if (!filename.toLowerCase().startsWith("http")) {
+						String adjustedFilename = "http://" + filename;
+						attach.setFilename(adjustedFilename);
+					} else {
+						attach.setFilename(filename);
+					}
+				} else {
+					attach.setFilename(filename);
+				}
+				attach.setIsLink(isLink);
+				attach.setStatus(SectionAttachmentIfc.ACTIVE_STATUS);
+				attach.setCreatedBy(p.getProperty(p.getNamePropCreator()));
+				attach.setCreatedDate(new Date());
+				attach.setLastModifiedBy(p.getProperty(p
+						.getNamePropModifiedBy()));
+				attach.setLastModifiedDate(new Date());
+				attach.setLocation(getRelativePath(cr.getUrl(), protocol));
+				// getHibernateTemplate().save(attach);
+			}
+		} catch (PermissionException pe) {
+			pe.printStackTrace();
+		} catch (IdUnusedException ie) {
+			ie.printStackTrace();
+		} catch (TypeException te) {
+			te.printStackTrace();
+		}
+
+		return attach;
+	}
+
+	public void removeSectionAttachment(Long sectionAttachmentId) {
+		PublishedSectionAttachment sectionAttachment = (PublishedSectionAttachment) getHibernateTemplate()
+				.load(PublishedSectionAttachment.class, sectionAttachmentId);
+		SectionDataIfc section = sectionAttachment.getSection();
+		// String resourceId = sectionAttachment.getResourceId();
+		int retryCount = PersistenceService.getInstance().getRetryCount()
+				.intValue();
+		while (retryCount > 0) {
+			try {
+				if (section != null) { // need to dissociate with section
+					// before deleting in Hibernate 3
+					Set set = section.getSectionAttachmentSet();
+					set.remove(sectionAttachment);
+					getHibernateTemplate().delete(sectionAttachment);
+					retryCount = 0;
+				}
+			} catch (Exception e) {
+				log.warn("problem delete sectionAttachment: " + e.getMessage());
 				retryCount = PersistenceService.getInstance().retryDeadlock(e,
 						retryCount);
 			}

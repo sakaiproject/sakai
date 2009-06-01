@@ -436,10 +436,10 @@ public class AssessmentService {
 	}
 
 	public void updateAssessmentLastModifiedInfo(
-			AssessmentFacade assessmentFacade) {
+			AssessmentIfc assessment) {
 		try {
 			PersistenceService.getInstance().getAssessmentFacadeQueries()
-					.updateAssessmentLastModifiedInfo(assessmentFacade);
+					.updateAssessmentLastModifiedInfo((AssessmentFacade) assessment);
 		} catch (Exception e) {
 			log.error(e);
 			throw new RuntimeException(e);

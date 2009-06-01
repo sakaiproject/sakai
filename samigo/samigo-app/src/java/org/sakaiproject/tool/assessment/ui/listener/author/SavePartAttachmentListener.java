@@ -36,9 +36,13 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
@@ -57,16 +61,31 @@ public class SavePartAttachmentListener
     implements ActionListener
 {
   private static Log log = LogFactory.getLog(SavePartAttachmentListener.class);
-
+  //this is to indicate which flow
+  // if it is true, that means we save the section attachment in setting page of a pending assessment (authorSettings.jsp)
+  // if it is false, that means we save the section attachment in setting page of a published assessment (publishedSettings.jsp)
+  private boolean isForAuthorSettings;
+  
   public SavePartAttachmentListener()
   {
   }
 
+  public SavePartAttachmentListener(boolean isForAuthorSettings)
+  {
+	  this.isForAuthorSettings = isForAuthorSettings;
+  }
+  
   public void processAction(ActionEvent ae) throws AbortProcessingException {
     SectionBean sectionBean = (SectionBean) ContextUtil.lookupBean("sectionBean");
-
-    // attach section attachemnt to sectionBean
-    List attachmentList = prepareSectionAttachment(sectionBean);
+    AssessmentService assessmentService = null;
+	AssessmentIfc assessment = null;
+	if (isForAuthorSettings) {
+		assessmentService = new AssessmentService();
+	}
+	else {
+		assessmentService = new PublishedAssessmentService();
+	}  
+	List attachmentList = prepareSectionAttachment(sectionBean, assessmentService);
     sectionBean.setAttachmentList(attachmentList);
     if (attachmentList != null && attachmentList.size() >0){
       sectionBean.setHasAttachment(true);
@@ -88,7 +107,7 @@ public class SavePartAttachmentListener
     return map;
   }
 
-  private List prepareSectionAttachment(SectionBean sectionBean){
+  private List prepareSectionAttachment(SectionBean sectionBean, AssessmentService assessmentService){
     SectionDataIfc section = null;
     // section == null => section does not exist yet
     if (sectionBean.getSection() != null){
@@ -105,7 +124,6 @@ public class SavePartAttachmentListener
       HashMap map = getResourceIdHash(attachmentSet);
       ArrayList newAttachmentList = new ArrayList();
 
-      AssessmentService assessmentService = new AssessmentService();
       String protocol = ContextUtil.getProtocol();
 
       List refs = (List)session.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
@@ -141,7 +159,5 @@ public class SavePartAttachmentListener
     }
     return new ArrayList(); 
   }
-
-
  }
 

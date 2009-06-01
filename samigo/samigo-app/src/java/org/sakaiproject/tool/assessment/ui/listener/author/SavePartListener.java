@@ -39,6 +39,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
@@ -53,7 +54,9 @@ import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
@@ -68,7 +71,7 @@ public class SavePartListener
     implements ActionListener
 {
   private static Log log = LogFactory.getLog(SavePartListener.class);
-  //private static ContextUtil cu;
+  private boolean isEditPendingAssessmentFlow;
 
   public SavePartListener()
   {
@@ -99,8 +102,22 @@ public class SavePartListener
     
     String description = sectionBean.getSectionDescription();
     String sectionId = sectionBean.getSectionId();
-    AssessmentService assessmentService = new AssessmentService();
-    SectionFacade section;
+    
+    AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+    isEditPendingAssessmentFlow = author.getIsEditPendingAssessmentFlow();
+
+    // #1a. prepare sectionBean
+    AssessmentService assessmentService = null;
+    SectionFacade section = null;
+    if (isEditPendingAssessmentFlow) {
+    	EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.revise", "sectionId=" + sectionId, true));
+    	assessmentService = new AssessmentService();
+    }
+    else {
+    	EventTrackingService.post(EventTrackingService.newEvent("sam.pubassessment.revise", "sectionId=" + sectionId, true));
+    	assessmentService = new PublishedAssessmentService();
+    }
+    
     boolean addItemsFromPool = false;
 
     sectionBean.setOutcome("editAssessment");
@@ -114,7 +131,7 @@ public class SavePartListener
 
     }
 
-    if (!("".equals(sectionBean.getType()))  && ((SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()).equals(sectionBean.getType()))) {
+    if (isEditPendingAssessmentFlow && !("".equals(sectionBean.getType()))  && ((SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()).equals(sectionBean.getType()))) {
       addItemsFromPool = true;
 
       if (validateItemsDrawn(sectionBean)) {
@@ -167,119 +184,117 @@ public class SavePartListener
 
     // TODO: Need to save Type, Question Ordering, and Metadata
 
-    if (!("".equals(sectionBean.getKeyword())))
-    section.addSectionMetaData(SectionMetaDataIfc.KEYWORDS, sectionBean.getKeyword());
+    if (isEditPendingAssessmentFlow) {
+    	if (!("".equals(sectionBean.getKeyword())))
+    		section.addSectionMetaData(SectionMetaDataIfc.KEYWORDS, sectionBean.getKeyword());
 
-    if (!("".equals(sectionBean.getObjective())))
-    section.addSectionMetaData(SectionMetaDataIfc.OBJECTIVES, sectionBean.getObjective());
+    	if (!("".equals(sectionBean.getObjective())))
+    		section.addSectionMetaData(SectionMetaDataIfc.OBJECTIVES, sectionBean.getObjective());
 
-    if (!("".equals(sectionBean.getRubric())))
-    section.addSectionMetaData(SectionMetaDataIfc.RUBRICS, sectionBean.getRubric());
+    	if (!("".equals(sectionBean.getRubric())))
+    		section.addSectionMetaData(SectionMetaDataIfc.RUBRICS, sectionBean.getRubric());
 
-    if (!("".equals(sectionBean.getQuestionOrdering())))
-    section.addSectionMetaData(SectionDataIfc.QUESTIONS_ORDERING, sectionBean.getQuestionOrdering());
-
-
-    if (!("".equals(sectionBean.getType())))  {
-    section.addSectionMetaData(SectionDataIfc.AUTHOR_TYPE, sectionBean.getType());
-      if ((SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()).equals(sectionBean.getType()))  {
-        if ((sectionBean.getNumberSelected()!=null) && !("".equals(sectionBean.getNumberSelected())))
-        {
-          section.addSectionMetaData(SectionDataIfc.NUM_QUESTIONS_DRAWN, sectionBean.getNumberSelected());
-        }
-
-        if (!("".equals(sectionBean.getSelectedPool())))
-        {
-          section.addSectionMetaData(SectionDataIfc.POOLID_FOR_RANDOM_DRAW, sectionBean.getSelectedPool());
-          String poolname = "";
-          QuestionPoolService qpservice = new QuestionPoolService();
-          QuestionPoolFacade poolfacade = qpservice.getPool(Long.valueOf(sectionBean.getSelectedPool()), AgentFacade.getAgentString());
-          if (poolfacade!=null) {
-            poolname = poolfacade.getTitle();
-          }
-
-          section.addSectionMetaData(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW, poolname);
-        }
-        
-        section.addSectionMetaData(SectionDataIfc.RANDOMIZATION_TYPE, sectionBean.getRandomizationType());
-      }
-    }
+    	if (!("".equals(sectionBean.getQuestionOrdering())))
+    		section.addSectionMetaData(SectionDataIfc.QUESTIONS_ORDERING, sectionBean.getQuestionOrdering());
 
 
-    // if author-type is random draw from pool, add all items from pool now
-    // Note: a pool can only be randomly drawn by one part.  if part A is created to randomly draw from pool 1, and you create part B, and select  the same pool 1, all items from part A will be removed.  (item.sectionId will be set to sectionId of part B.
-    // currently if a pool is selected by one random draw part it will no longer show up in the poollist for random draw 
+    	if (!("".equals(sectionBean.getType())))  {
+    		section.addSectionMetaData(SectionDataIfc.AUTHOR_TYPE, sectionBean.getType());
+    		if ((SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()).equals(sectionBean.getType()))  {
+    			if ((sectionBean.getNumberSelected()!=null) && !("".equals(sectionBean.getNumberSelected())))
+    			{
+    				section.addSectionMetaData(SectionDataIfc.NUM_QUESTIONS_DRAWN, sectionBean.getNumberSelected());
+    			}
 
-    if (addItemsFromPool)
-    {
-      QuestionPoolService qpservice = new QuestionPoolService();
-      //ItemService itemservice = new ItemService();
-      boolean hasRandomPartScore = false;
-      Float score = null;
-      String requestedScore = sectionBean.getRandomPartScore();
-      if (requestedScore != null && !requestedScore.equals("")) {
-    	  hasRandomPartScore = true;
-    	  score = new Float(requestedScore);
-      }
-      boolean hasRandomPartDiscount = false;
-      Float discount = null;
-      String requestedDiscount = sectionBean.getRandomPartDiscount();
-      if (requestedDiscount != null && !requestedDiscount.equals("")) {
-    	  hasRandomPartDiscount = true;
-    	  discount = new Float(requestedDiscount);
-      }      
-      ArrayList itemlist = qpservice.getAllItems(Long.valueOf(sectionBean.getSelectedPool()) );
-      int i = 0;
-      Iterator iter = itemlist.iterator();
-      while(iter.hasNext())
-      {
-    	  ItemFacade item= (ItemFacade) iter.next();
-    	  //copy item so we can have it in more than one assessment
-    	  item = qpservice.copyItemFacade2(item);
-    	  item.setSection(section);
-    	  item.setSequence(Integer.valueOf(i+1));
-    	  if (hasRandomPartScore || hasRandomPartDiscount) {
-    		  if (hasRandomPartScore) item.setScore(score);
-    		  long itemTypeId = item.getTypeId().longValue();
-    		  if (hasRandomPartDiscount &&
-    				  (itemTypeId == TypeFacade.MULTIPLE_CHOICE.longValue() || itemTypeId == TypeFacade.TRUE_FALSE.longValue()))
-    			  item.setDiscount(discount);
+    			if (!("".equals(sectionBean.getSelectedPool())))
+    			{
+    				section.addSectionMetaData(SectionDataIfc.POOLID_FOR_RANDOM_DRAW, sectionBean.getSelectedPool());
+    				String poolname = "";
+    				QuestionPoolService qpservice = new QuestionPoolService();
+    				QuestionPoolFacade poolfacade = qpservice.getPool(new Long(sectionBean.getSelectedPool()), AgentFacade.getAgentString());
+    				if (poolfacade!=null) {
+    					poolname = poolfacade.getTitle();
+    				}
+    				section.addSectionMetaData(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW, poolname);
+    			}
 
-    		  ItemDataIfc data = item.getData();
-    		  Set itemTextSet = data.getItemTextSet();
-    		  if (itemTextSet != null) {
-    			  Iterator iterITS = itemTextSet.iterator();
-    			  while (iterITS.hasNext()) {
-    				  ItemTextIfc itemText = (ItemTextIfc) iterITS.next();
-    				  Set answerSet = itemText.getAnswerSet();
-    				  if (answerSet != null) {
-    					  Iterator iterAS = answerSet.iterator();
-    					  while (iterAS.hasNext()) {
-    						  AnswerIfc answer = (AnswerIfc)iterAS.next();
-    						  if (hasRandomPartScore) answer.setScore(score);
-    						  if (hasRandomPartDiscount &&
-    								  (itemTypeId == TypeFacade.MULTIPLE_CHOICE.longValue() || itemTypeId == TypeFacade.TRUE_FALSE.longValue()))
-    							  answer.setDiscount(discount);
-    					  }
-    				  }
-    			  }
-    		  }
-    	  }
-    	  section.addItem(item);
-    	  i= i+1;
-      }
-      if (hasRandomPartScore && score != null) {
-    	  section.addSectionMetaData(SectionDataIfc.POINT_VALUE_FOR_QUESTION, score.toString());
-      }
-      else {
-    	  section.addSectionMetaData(SectionDataIfc.POINT_VALUE_FOR_QUESTION, "");
-      }
-      if (hasRandomPartDiscount && discount != null) {
-    	  section.addSectionMetaData(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION, discount.toString());
-      }
-      else {
-    	  section.addSectionMetaData(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION, "");
-      }
+    			section.addSectionMetaData(SectionDataIfc.RANDOMIZATION_TYPE, sectionBean.getRandomizationType());
+    		}
+    	}
+
+
+    	if (addItemsFromPool)
+    	{
+    		QuestionPoolService qpservice = new QuestionPoolService();
+    		//ItemService itemservice = new ItemService();
+    		boolean hasRandomPartScore = false;
+    		Float score = null;
+    		String requestedScore = sectionBean.getRandomPartScore();
+    		if (requestedScore != null && !requestedScore.equals("")) {
+    			hasRandomPartScore = true;
+    			score = new Float(requestedScore);
+    		}
+    		boolean hasRandomPartDiscount = false;
+    		Float discount = null;
+    		String requestedDiscount = sectionBean.getRandomPartDiscount();
+    		if (requestedDiscount != null && !requestedDiscount.equals("")) {
+    			hasRandomPartDiscount = true;
+    			discount = new Float(requestedDiscount);
+    		}      
+    		ArrayList itemlist = qpservice.getAllItems(Long.valueOf(sectionBean.getSelectedPool()) );
+    		int i = 0;
+    		Iterator iter = itemlist.iterator();
+    		while(iter.hasNext())
+    		{
+    			ItemFacade item= (ItemFacade) iter.next();
+    			//copy item so we can have it in more than one assessment
+    			item = qpservice.copyItemFacade2(item);
+    			item.setSection(section);
+    			item.setSequence(Integer.valueOf(i+1));
+    			if (hasRandomPartScore || hasRandomPartDiscount) {
+    				if (hasRandomPartScore) item.setScore(score);
+    				long itemTypeId = item.getTypeId().longValue();
+    				if (hasRandomPartDiscount &&
+    						(itemTypeId == TypeFacade.MULTIPLE_CHOICE.longValue() || itemTypeId == TypeFacade.TRUE_FALSE.longValue()))
+    					item.setDiscount(discount);
+
+    				ItemDataIfc data = item.getData();
+    				Set itemTextSet = data.getItemTextSet();
+    				if (itemTextSet != null) {
+    					Iterator iterITS = itemTextSet.iterator();
+    					while (iterITS.hasNext()) {
+    						ItemTextIfc itemText = (ItemTextIfc) iterITS.next();
+    						Set answerSet = itemText.getAnswerSet();
+    						if (answerSet != null) {
+    							Iterator iterAS = answerSet.iterator();
+    							while (iterAS.hasNext()) {
+    								AnswerIfc answer = (AnswerIfc)iterAS.next();
+    								if (hasRandomPartScore) answer.setScore(score);
+    								if (hasRandomPartDiscount &&
+    										(itemTypeId == TypeFacade.MULTIPLE_CHOICE.longValue() || itemTypeId == TypeFacade.TRUE_FALSE.longValue()))
+    									answer.setDiscount(discount);
+    							}
+    						}
+    					}
+    				}
+    			}
+    			section.addItem(item);
+    			i= i+1;
+    		}
+    		if (hasRandomPartScore && score != null) {
+    			section.addSectionMetaData(SectionDataIfc.POINT_VALUE_FOR_QUESTION, score.toString());
+    		}
+    		else {
+    			section.addSectionMetaData(SectionDataIfc.POINT_VALUE_FOR_QUESTION, "");
+    		}
+
+    		if (hasRandomPartDiscount && discount != null) {
+    			section.addSectionMetaData(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION, discount.toString());
+    		}
+    		else {
+    			section.addSectionMetaData(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION, "");
+    		}
+    	}
     }
 
     assessmentService.saveOrUpdateSection(section);
@@ -288,8 +303,8 @@ public class SavePartListener
     updateAttachment(section.getSectionAttachmentList(), sectionBean.getAttachmentList(), section.getData());
 
     // #2 - goto editAssessment.jsp, so reset assessmentBean
-    AssessmentFacade assessment = assessmentService.getAssessment(
-        assessmentBean.getAssessmentId());
+    AssessmentIfc assessment = assessmentService.getAssessment(
+        Long.valueOf(assessmentBean.getAssessmentId()));
     assessmentBean.setAssessment(assessment);
     assessmentService.updateAssessmentLastModifiedInfo(assessment);
     
@@ -392,7 +407,13 @@ public class SavePartListener
       }
     }      
     // save new ones
-    AssessmentService assessmentService = new AssessmentService();
+    AssessmentService assessmentService = null;
+    if (isEditPendingAssessmentFlow) {
+    	assessmentService = new AssessmentService();
+    }
+    else {
+    	assessmentService = new PublishedAssessmentService();
+    }
     assessmentService.saveOrUpdateAttachments(list);
 
     // remove old ones
