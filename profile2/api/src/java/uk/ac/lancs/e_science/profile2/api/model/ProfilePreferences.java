@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 
 /**
- * Hibernate model
+ * Hibernate and EntityProvider model
  * 
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
@@ -97,31 +97,4 @@ public class ProfilePreferences implements Serializable {
 		this.twitterPasswordDecrypted = twitterPasswordDecrypted;
 	}
 
-	
-	
-	/**
-	 * for the form feedback, to get around a weird thing in Wicket where it needs a backing model for the FeedbackLabel component 
-	 * since this model is used directly by the Preferences page
-	 */
-	private String twitterUsernameFeedback;
-	private String twitterPasswordFeedback;
-
-	
-	public String getTwitterUsernameFeedback() {
-		return twitterUsernameFeedback;
-	}
-
-	public void setTwitterUsernameFeedback(String twitterUsernameFeedback) {
-		this.twitterUsernameFeedback = twitterUsernameFeedback;
-	}
-	public String getTwitterPasswordFeedback() {
-		return twitterPasswordFeedback;
-	}
-
-	public void setTwitterPasswordFeedback(String twitterPasswordFeedback) {
-		this.twitterPasswordFeedback = twitterPasswordFeedback;
-	}
-
-	
-	
 }
