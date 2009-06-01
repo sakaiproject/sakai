@@ -23,7 +23,7 @@ public interface ProfilePreferencesService {
 	 * @param userId
 	 * @return ProfilePreferences record for the user, default if they haven't got one, or null if invalid user
 	 */
-	public ProfilePreferences getProfilePrivacyRecord(String userId);
+	public ProfilePreferences getProfilePreferencesRecord(String userId);
 	
 	/**
 	 * Save the given ProfilePreferences object. Checks currentUser against the ProfilePreferences object supplied. 
