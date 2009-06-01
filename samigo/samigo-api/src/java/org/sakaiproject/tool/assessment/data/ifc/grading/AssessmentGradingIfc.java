@@ -33,8 +33,11 @@ public interface AssessmentGradingIfc
 	// status = 2: grader has went to total score page and graded + AUTO_GRADED
 	// status = 3: grader has went to total score page and graded + at least one question NEED_HUMAN_ATTENTION
 	// status = 4: the assessment has be republished. this assessmengGradingData needs to be resubmit
-	// status = 5: there is no submission but grader updat something in the score page
-
+	// status = 5: there is no submission but grader update something in the score page
+    // Because of SAK-16456, we no longer need to show the auto/human graded status per submission, I don't think we 
+	// need to distinguish status 2 and 3 anymore. But I just leave them here...
+	public static final Integer SUBMITTED = Integer.valueOf(1);
+	
 	public static final Integer AUTO_GRADED = Integer.valueOf(2);
 
 	public static final Integer NEED_HUMAN_ATTENTION = Integer.valueOf(3);
