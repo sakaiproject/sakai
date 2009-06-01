@@ -4397,11 +4397,24 @@ public class AnnouncementAction extends PagedResourceActionII
 		// Turn the observer back on.
 		enableObserver(sstate, true);
 
-		state.setStatus(null);
+		//state.setStatus(null);
 
 		sstate.removeAttribute(STATE_MODE);
 		
+		/*
+		 * SAK-13116 If we are in the synoptic view, we want some validation so
+		 * that is not possible to set the Number of Announcements to greater 
+		 * than 20, since only 20 will be displayed no matter what.
+		 */
+		if (isSynopticTool() && state.getDisplayOptions().getNumberOfAnnouncements() > 20) 
+		{
+			addAlert(sstate, rb.getFormattedMessage("java.alert.customsize", new Object[] { 20 }));
+			state.setStatus(OPTIONS_STATUS); //If the display option is more than 20, then go back to the options page
+		}
+		else
+		{		
 		state.setStatus(CANCEL_STATUS); //SAK-14001	It goes to the main page after updating the Options.
+		}
 	}
 
 	/*
