@@ -1604,11 +1604,18 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
  	 */
 	public boolean savePreferencesRecord(ProfilePreferences prefs) {
 		
-		//encrypt and set
-		prefs.setTwitterPasswordEncrypted(encrypt(prefs.getTwitterPasswordDecrypted()));
+		//validate fields are set and encrypt password if necessary, else clear them all
+		if(checkTwitterFields(prefs)) {
+			prefs.setTwitterPasswordEncrypted(encrypt(prefs.getTwitterPasswordDecrypted()));
+		} else {
+			prefs.setTwitterEnabled(false);
+			prefs.setTwitterUsername(null);
+			prefs.setTwitterPasswordDecrypted(null);
+			prefs.setTwitterPasswordEncrypted(null);
+		}
 		
 		try {
-			getHibernateTemplate().update(prefs);
+			getHibernateTemplate().saveOrUpdate(prefs);
 			log.info("Updated preferences record for user: " + prefs.getUserUuid()); //$NON-NLS-1$
 			return true;
 		} catch (Exception e) {
@@ -1699,13 +1706,23 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
  	 */
 	public boolean validateTwitterCredentials(final String twitterUsername, final String twitterPassword) {
 		
-		Twitter twitter = new Twitter(twitterUsername, twitterPassword);
-		
-		if(twitter.verifyCredentials()) {
-			return true;
+		if(StringUtils.isNotBlank(twitterUsername) && StringUtils.isNotBlank(twitterPassword)) {
+			Twitter twitter = new Twitter(twitterUsername, twitterPassword);
+			if(twitter.verifyCredentials()) {
+				return true;
+			}
 		}
-		
 		return false;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean validateTwitterCredentials(ProfilePreferences prefs) {
+		
+		String twitterUsername = prefs.getTwitterUsername();
+		String twitterPassword = prefs.getTwitterPasswordDecrypted();
+		return validateTwitterCredentials(twitterUsername, twitterPassword);
 	}
 
 	
@@ -1905,6 +1922,14 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
 		textEncryptor.setPassword(BASIC_ENCRYPTION_KEY);
 		return(textEncryptor.encrypt(plainText));
+	}
+	
+	
+	// helper method to check if all required twitter fields are set properly
+	private boolean checkTwitterFields(ProfilePreferences prefs) {
+		return (prefs.isTwitterEnabled() &&
+				StringUtils.isNotBlank(prefs.getTwitterUsername()) &&
+				StringUtils.isNotBlank(prefs.getTwitterPasswordDecrypted()));
 	}
 	
 	

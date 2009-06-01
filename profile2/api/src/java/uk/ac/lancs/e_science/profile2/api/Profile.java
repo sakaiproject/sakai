@@ -662,9 +662,15 @@ public interface Profile {
 	 *
 	 * @param twitterUsername	twitter username
 	 * @param twitterPassword	twitter password
-	 * @param message	the message
 	 */
 	public boolean validateTwitterCredentials(final String twitterUsername, final String twitterPassword);
+	
+	/**
+	 * Validate the Twitter username and password supplied via the object (does NOT run in a separate thread)
+	 *
+	 * @param prefs	ProfilePreferences object
+	 */
+	public boolean validateTwitterCredentials(ProfilePreferences prefs);
 	
 	/**
 	 * Generate a tiny URL for the supplied URL
