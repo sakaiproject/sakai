@@ -39,10 +39,6 @@ public class ProfilePreferencesEntityProviderImpl implements ProfilePreferencesE
 	
 	public Object getEntity(EntityReference ref) {
 	
-		if (sessionManager.getCurrentSessionUserId() == null) {
-			throw new SecurityException("Must be logged in");
-		}
-		
 		ProfilePreferences prefs = preferencesService.getProfilePreferencesRecord(ref.getId());
 		if(prefs == null) {
 			throw new EntityNotFoundException("ProfilePreferences could not be retrieved for " + ref.getId(), ref.getReference());
@@ -55,10 +51,6 @@ public class ProfilePreferencesEntityProviderImpl implements ProfilePreferencesE
 	
 	public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params) {
 	
-		if (sessionManager.getCurrentSessionUserId() == null) {
-			throw new SecurityException("Must be logged in");
-		}
-		
 		String userId = ref.getId();
 		if (StringUtils.isBlank(userId)) {
 			throw new IllegalArgumentException("Cannot update, No userId in provided reference: " + ref);
@@ -75,11 +67,7 @@ public class ProfilePreferencesEntityProviderImpl implements ProfilePreferencesE
 	
 	
 	public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
-		
-		if (sessionManager.getCurrentSessionUserId() == null) {
-			throw new SecurityException("Must be logged in");
-		}
-		
+				
 		//reference will be the userUuid, which comes from the ProfilePreferences obj passed in
 		String userUuid = null;
 
