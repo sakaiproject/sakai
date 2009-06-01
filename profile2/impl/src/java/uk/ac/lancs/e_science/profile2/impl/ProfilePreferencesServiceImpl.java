@@ -30,6 +30,12 @@ public class ProfilePreferencesServiceImpl implements ProfilePreferencesService 
 	 */
 	public ProfilePreferences getProfilePreferencesRecord(String userId) {
 		
+		//check auth and get currentUserUuid
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if(currentUserUuid == null) {
+			throw new SecurityException("You must be logged in to make a request for a user's preferences record.");
+		}
+		
 		//convert userId into uuid
 		String userUuid = sakaiProxy.getUuidForUserId(userId);
 		if(userUuid == null) {
@@ -42,6 +48,16 @@ public class ProfilePreferencesServiceImpl implements ProfilePreferencesService 
 		if(prefs == null) {
 			return getPrototype(userUuid);
 		}
+		
+		//if user requested own
+		if(userUuid.equals(currentUserUuid)) {
+			return prefs;
+		}
+		
+		//not own, clean it up
+		prefs.setTwitterUsername(null);
+		prefs.setTwitterPasswordDecrypted(null);
+		prefs.setTwitterPasswordEncrypted(null);
 		
 		return prefs;
 	}
@@ -57,9 +73,23 @@ public class ProfilePreferencesServiceImpl implements ProfilePreferencesService 
 			throw new SecurityException("Must be logged in.");
 		}
 		
-		//check currentUser and profile uuid match
-		if(!currentUserUuid.equals(obj.getUserUuid())) {
+		//get uuid
+		String userUuid = obj.getUserUuid();
+		if(StringUtils.isBlank(userUuid)) {
+			return false;
+		}
+		
+		//check currentUser and object uuid match
+		if(!currentUserUuid.equals(userUuid)) {
 			throw new SecurityException("Not allowed to save.");
+		}
+		
+		//validate twitter credentials if enabled globally and in supplied prefs
+		if(profile.isTwitterIntegrationEnabledForUser(obj)) {
+			if(!profile.validateTwitterCredentials(obj)) {
+				log.error("Failed to validate Twitter credentials for userUuid: " + userUuid);
+				return false;
+			}
 		}
 		
 		//save and return response
@@ -72,9 +102,21 @@ public class ProfilePreferencesServiceImpl implements ProfilePreferencesService 
 	 */
 	public boolean create(ProfilePreferences obj) {
 		
+		//check auth and get currentUserUuid
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if(currentUserUuid == null) {
+			throw new SecurityException("Must be logged in.");
+		}
+		
+		//get uuid
 		String userUuid = obj.getUserUuid();
 		if(StringUtils.isBlank(userUuid)) {
 			return false;
+		}
+		
+		//check currentUser and profile uuid match
+		if(!currentUserUuid.equals(userUuid)) {
+			throw new SecurityException("Not allowed to save.");
 		}
 		
 		//does this user already have a persisted preferences record?
@@ -82,6 +124,15 @@ public class ProfilePreferencesServiceImpl implements ProfilePreferencesService 
 			log.error("userUuid: " + userUuid + " already has a ProfilePreferences record. Cannot create another.");
 			return false;
 		}
+		
+		//validate twitter credentials if enabled for user and globally
+		if(profile.isTwitterIntegrationEnabledForUser(userUuid)) {
+			if(!profile.validateTwitterCredentials(obj)) {
+				log.error("Failed to validate Twitter credentials for userUuid: " + userUuid);
+				return false;
+			}
+		}
+		
 		return save(obj);
 	}
 	

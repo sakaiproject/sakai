@@ -2,6 +2,8 @@ package uk.ac.lancs.e_science.profile2.api.model;
 
 import java.io.Serializable;
 
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
+
 
 /**
  * Hibernate and EntityProvider model
@@ -13,13 +15,14 @@ public class ProfilePreferences implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
+	@EntityId
 	private String userUuid;
 	private boolean requestEmailEnabled;
 	private boolean confirmEmailEnabled;
 	private boolean twitterEnabled;
 	private String twitterUsername;
 	private String twitterPasswordEncrypted; //this is persisted
-	private String twitterPasswordDecrypted; //this is used for display
+	private String twitterPasswordDecrypted; //this is used for display. When updating, it is encrypted and set into the encrypted field
 
 	
 	/** 
