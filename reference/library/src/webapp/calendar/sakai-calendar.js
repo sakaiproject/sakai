@@ -15,6 +15,14 @@ if (document.calendarcounter == undefined)
 	document.write('<script type="text/javascript" src="/library/calendar/js/calendar2.js"></script>');
 }
 
+//Inserts a node after another node, license granted on page for use permission
+//http://www.netlobo.com/javascript-insertafter.html
+function insertAfter( referenceNode, newNode )
+{
+    if (referenceNode != undefined && newNode != undefined) {
+    	referenceNode.parentNode.insertBefore( newNode, referenceNode.nextSibling );
+    }
+}
 
 /**
  * This function does setup for a single popup calendar widget.
@@ -22,17 +30,52 @@ if (document.calendarcounter == undefined)
  * $monthselect_id The id attribute of the month selection dropdown list (html SELECT tag)
  * $dayselect_id   The id attribute of the day selection dropdown list (html SELECT tag)
  */
-function chef_dateselectionwidgetpopup(yearselect_id, monthselect_id, dayselect_id)
+function chef_dateselectionwidgetpopup(yearselect_id, monthselect_id, dayselect_id, calendar_id)
 {		
+
+	// if calendar_id not defined, generate it 
+	// TBD: replace all invokations of chef_dateselectionwidgetpopup with
+	// an explicitly defined calendar_id (currently none do). This will
+	// get rid of this hard-coded dependency, where calendar_id _must_
+	// be constructed like this due to dependencies in the content tool
+	if (calendar_id == undefined) {
+		calendar_id = yearselect_id.replace('year','calendar');
+	}
+
+	//Check to see if the this calendar id already exists and reinsert it (currently an issue with webkit)
+	if (document.getElementById(calendar_id)) {
+		return;
+	}
+
+	//Otherwise continue
 	var calendarcounter = document.calendarcounter++;
-	
 	var inputfield_id = "chef_calendarhiddenfield"+calendarcounter;
+	//Get the value of the year selectbox
+	if (yearselect_id == undefined) {
+		return;
+	} else {
+ 		var yearselectNode  = document.getElementById(yearselect_id);
+	}
 
-	// The image button that the user clicks on to pop up the calendar 
-	document.write('<img src="/library/calendar/images/calendar/cal.gif" onClick="popupCalendar(\''+inputfield_id+'\');" alt="" style="cursor: pointer;" title="Popup date selector" />');
 
-	// A hidden input field where the selected date value will be stored. 
-	document.write('<input type="hidden" name="'+inputfield_id+'" id="'+inputfield_id+'" />');
+	//Replace document.write as they break the div replication in webkit and they are flaky in firefox
+
+	//Create the popup calendar image and insert after the year selectbox)
+	var imageNode = document.createElement('img');
+	imageNode.src='/library/calendar/images/calendar/cal.gif';
+	imageNode.alt='';
+	imageNode.id=calendar_id;
+	imageNode.title='Popup date selector';
+	imageNode.style.cursor="pointer";
+	imageNode.setAttribute("onClick", "popupCalendar('"+inputfield_id+"')"); 
+	insertAfter(yearselectNode,imageNode);
+
+	//Insert the hidden field node and insert it after the year select box (doesn't really matter it's hidden)
+	var hiddenNode = document.createElement('input');
+	hiddenNode.type='hidden';
+	hiddenNode.name=inputfield_id;
+	hiddenNode.id=inputfield_id;
+	insertAfter(yearselectNode,hiddenNode);
 
 	// stuff away variables specific to this particular calendar instance so that updateXXX() can get them   
 	document.calendars[calendarcounter] = new Array(yearselect_id, monthselect_id, dayselect_id, inputfield_id);
