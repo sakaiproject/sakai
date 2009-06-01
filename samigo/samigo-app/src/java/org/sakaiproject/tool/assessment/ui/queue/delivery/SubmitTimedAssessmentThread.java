@@ -95,7 +95,7 @@ public class SubmitTimedAssessmentThread extends TimerTask
           AssessmentGradingData ag = service.load(timedAG.getAssessmentGradingId().toString());
           ag.setForGrade(Boolean.TRUE);
           ag.setTimeElapsed(Integer.valueOf(timedAG.getTimeLimit()));
-          ag.setStatus(AssessmentGradingIfc.AUTO_GRADED); // this will change status 0 -> 1
+          ag.setStatus(AssessmentGradingIfc.SUBMITTED); // this will change status 0 -> 1
           ag.setIsLate(islate(ag.getPublishedAssessmentId()));
           ag.setSubmittedDate(new Date());
           // SAK-7302, users taking a timed assessment may exit without completing the assessment

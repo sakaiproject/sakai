@@ -37,8 +37,6 @@ import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
-import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
-import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.AttachmentUtil;
@@ -89,9 +87,10 @@ public class AgentResults
   private boolean retakeAllowed;
   private boolean isAutoSubmitted;
   private boolean isAttemptDateAfterDueDate;
-  private Integer timeElapsed;
   private ItemGradingData itemGrading;
   private List itemGradingAttachmentList;
+  private Integer timeElapsed;
+
   
   public AgentResults() {
   }
@@ -387,13 +386,6 @@ public class AgentResults
 		this.isAttemptDateAfterDueDate = isAttemptDateAfterDueDate;
 	}
 
-	public Integer getTimeElapsed() {
-		return timeElapsed;
-	}
-	public void setTimeElapsed(Integer timeElapsed) {
-		this.timeElapsed = timeElapsed;
-	}
-
 	public ItemGradingData getItemGrading() {
 		return this.itemGrading;
 	}
@@ -437,4 +429,28 @@ public class AgentResults
 		  }
 		  return "studentScores";
 	  }
+	
+	public Integer getTimeElapsed() {
+		return this.timeElapsed;
+	}
+
+	public void setTimeElapsed(Integer timeElapsed) {
+		this.timeElapsed = timeElapsed;
+	}
+	
+	public String getFormatedTimeElapsed() {
+	    String timeElapsedInString = "n/a";
+	    if (this.timeElapsed!=null && this.timeElapsed.intValue() >0)
+	    {
+	      int totalSec = this.timeElapsed.intValue();
+	      int hr = totalSec / 3600;
+	      int min = (totalSec % 3600)/60;
+	      int sec = (totalSec % 3600)%60;
+	      timeElapsedInString = "";
+	      if (hr > 0) timeElapsedInString = hr + " hr ";
+	      if (min > 0) timeElapsedInString = timeElapsedInString + min + " min ";
+	      if (sec > 0) timeElapsedInString = timeElapsedInString + sec + " sec ";
+	    }
+	    return timeElapsedInString;	
+	}	
 }

@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -46,8 +47,9 @@ import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
-import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -69,7 +71,6 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.util.FormattedText;
 
 /**
@@ -339,6 +340,32 @@ public class TotalScoreListener
         HashSet sectionSet = PersistenceService.getInstance().
                      getPublishedAssessmentFacadeQueries().getSectionSetForAssessment(p);
         p.setSectionSet(sectionSet);
+        Iterator sectionIter = sectionSet.iterator();
+        boolean isAutoScored = true;
+		while (sectionIter.hasNext()) {
+			if (!isAutoScored) {
+				break;
+			}
+			PublishedSectionData section = (PublishedSectionData) sectionIter.next();
+			Set itemSet = section.getItemSet();
+			Iterator itemIter = itemSet.iterator();
+			while (itemIter.hasNext()) {
+				PublishedItemData item = (PublishedItemData) itemIter.next();
+				Long typeId = item.getTypeId();
+				if (typeId.equals(TypeIfc.FILE_UPLOAD) 
+						|| typeId.equals(TypeIfc.ESSAY_QUESTION) 
+						|| typeId.equals(TypeIfc.AUDIO_RECORDING))
+				{ 
+					bean.setIsAutoScored(false); 
+					isAutoScored = false;
+					break; 
+				}
+			}
+		}
+		if (isAutoScored) {
+			bean.setIsAutoScored(true); 
+		}
+				
         bean.setFirstItem(getFirstItem(p));
 log.debug("totallistener: firstItem = " + bean.getFirstItem());
         bean.setHasRandomDrawPart(hasRandomPart(p));
@@ -561,8 +588,8 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       
       // no need to initialize itemSet 'cos we don't need to use it in totalScoresPage. So I am
       // stuffing it with an empty HashSet - daisyf
-      gdata.setItemGradingSet(gradingService.getItemGradingSet(gdata.getAssessmentGradingId().toString()));
-      //gdata.setItemGradingSet(new HashSet());
+      gdata.setItemGradingSet(new HashSet());
+      //gdata.setItemGradingSet(gradingService.getItemGradingSet(gdata.getAssessmentGradingId().toString()));
       try{
         BeanUtils.copyProperties(results, gdata);
       }
@@ -584,45 +611,17 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       if(gdata.getFinalScore() != null)
         results.setFinalScore(gdata.getFinalScore().toString());
       else
-        results.setFinalScore("0.0");
+        results.setFinalScore("0.0");      
       
       results.setComments(FormattedText.unEscapeHtml(gdata.getComments()));
 
-      Iterator i3 = gdata.getItemGradingSet().iterator();
-      Long typeId = Long.valueOf(-1);
-      boolean autoGrade = true;
-      // Go through all itemGrading data, if there is at least one cannot be auto graded,
-      // ie, file upload, short answer/essay, or audio question,
-      // we set the autoGrade to false
-      // That is, this assessment grading record cannot be auto grade.
-      // We update the status to 3.
-      while (i3.hasNext())
-      {
-        ItemGradingData igd = (ItemGradingData) i3.next();
-        typeId = gradingService.getTypeId(igd.getItemGradingId());
-        if (typeId.equals(TypeIfc.FILE_UPLOAD) 
-        		|| typeId.equals(TypeIfc.ESSAY_QUESTION) 
-        		|| typeId.equals(TypeIfc.AUDIO_RECORDING)) {
-        	autoGrade = false;
-        	break;
-        }        
-      }
+      if(gdata.getTimeElapsed() != null)
+        results.setTimeElapsed(gdata.getTimeElapsed());
+      else
+        results.setTimeElapsed(new Integer(0));      
       
-      // Update the status to AUTO_GRADED or NEED_HUMAN_ATTENTION only when the 
-      // assessment has been submitted.
-      // If the assessment has not yet been submitted but only updated by instructor, 
-      // we leave the status as NO_SUBMISSION.
-      // Note: I think "if(results.getForGrade())" is enough here for now. But I still 
-      // put the second condition "!AssessmentGradingIfc.NO_SUBMISSION.equals(results.getStatus())"
-      // to avoid breaking by new statuses created later.
-      if (results.getForGrade() && !AssessmentGradingIfc.NO_SUBMISSION.equals(results.getStatus())) {
-    	  if (autoGrade) {
-    		  results.setStatus(AssessmentGradingIfc.AUTO_GRADED);
-    	  }
-    	  else {
-    		  results.setStatus(AssessmentGradingIfc.NEED_HUMAN_ATTENTION);
-    	  }
-      }
+      results.setComments(FormattedText.unEscapeHtml(gdata.getComments()));
+      
       Date dueDate = null;
       PublishedAccessControl ac = (PublishedAccessControl) p.getAssessmentAccessControl();
       if (ac!=null)

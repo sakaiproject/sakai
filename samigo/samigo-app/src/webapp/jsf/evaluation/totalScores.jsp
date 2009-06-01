@@ -100,6 +100,12 @@ return;
     <h:outputText value="#{totalScores.assessmentName} " escape="fasel"/> 
   </h3>
 
+  <div class="tier1">
+  		<h4>
+      		<h:outputText value="#{evaluationMessages.auto_scored_with_bracket}" rendered="#{totalScores.isAutoScored}"/>
+  		</h4>
+  </div>
+
   <p class="navViewAction">
     <h:commandLink title="#{evaluationMessages.t_submissionStatus}" action="submissionStatus" immediate="true">
       <h:outputText value="#{evaluationMessages.sub_status}" />
@@ -649,63 +655,46 @@ return;
         <h:outputText value="#{evaluationMessages.no_submission}"
          rendered="#{description.attemptDate == null && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
     </h:column>
-    
 
-    <!-- STATUS -->
-    <h:column rendered="#{totalScores.sortType!='status'}">
+    <!-- TIME -->
+    <h:column rendered="#{totalScores.isTimedAssessment && totalScores.sortType!='time'}">
       <f:facet name="header">
-        <h:commandLink title="#{evaluationMessages.t_sortStatus}" id="status" action="totalScores">
-          <h:outputText value="#{evaluationMessages.status}" />
+        <h:commandLink title="#{evaluationMessages.t_sortTime}" id="time" action="totalScores">
+          <h:outputText value="#{evaluationMessages.time}" />
           <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
-        <f:param name="sortBy" value="status" />
+        <f:param name="sortBy" value="time" />
         <f:param name="sortAscending" value="true"/>
         </h:commandLink>
       </f:facet>
-      <h:outputText value="#{evaluationMessages.auto_scored}" 
-         rendered="#{description.status == 2 && description.attemptDate != null 
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
-      <h:outputText value=" " 
-         rendered="#{description.status == 3 && description.attemptDate != null
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
+      <h:outputText value="#{description.formatedTimeElapsed}" />
     </h:column>
 
-	<h:column rendered="#{totalScores.sortType=='status' && totalScores.sortAscending}">
+	<h:column rendered="#{totalScores.isTimedAssessment && totalScores.sortType=='time' && totalScores.sortAscending}">
       <f:facet name="header">
-        <h:commandLink title="#{evaluationMessages.t_sortStatus}" action="totalScores">
-          <h:outputText value="#{evaluationMessages.status}" />
+        <h:commandLink title="#{evaluationMessages.t_sortTime}" action="totalScores">
+          <h:outputText value="#{evaluationMessages.time}" />
           <f:param name="sortAscending" value="false" />
-          <h:graphicImage alt="#{evaluationMessages.alt_sortStatusDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif"/>
+          <h:graphicImage alt="#{evaluationMessages.alt_sortTimeDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif"/>
           <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
           </h:commandLink>    
       </f:facet>
-<h:outputText value="#{evaluationMessages.auto_scored}" 
-         rendered="#{description.status == 2 && description.attemptDate != null 
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
-      <h:outputText value=" " 
-         rendered="#{description.status == 3 && description.attemptDate != null
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
+      <h:outputText value="#{description.formatedTimeElapsed}" />
     </h:column>
     
-    <h:column rendered="#{totalScores.sortType=='status'  && !totalScores.sortAscending}">
+    <h:column rendered="#{totalScores.isTimedAssessment && totalScores.sortType=='time'  && !totalScores.sortAscending}">
       <f:facet name="header">
-      <h:commandLink title="#{evaluationMessages.t_sortStatus}" action="totalScores">
-        <h:outputText value="#{evaluationMessages.status}" />
+      <h:commandLink title="#{evaluationMessages.t_sortTime}" action="totalScores">
+        <h:outputText value="#{evaluationMessages.time}" />
         <f:param name="sortAscending" value="true"/>
-        <h:graphicImage alt="#{evaluationMessages.alt_sortStatusAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif"/>
+        <h:graphicImage alt="#{evaluationMessages.alt_sortTimeAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif"/>
         <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
       </h:commandLink> 
       </f:facet>
-      <h:outputText value="#{evaluationMessages.auto_scored}" 
-         rendered="#{description.status == 2 && description.attemptDate != null 
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
-      <h:outputText value=" " 
-         rendered="#{description.status == 3 && description.attemptDate != null
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
+      <h:outputText value="#{description.formatedTimeElapsed}" />
     </h:column>
-
 
     <!-- TOTAL -->
     <h:column rendered="#{totalScores.sortType!='totalAutoScore'}">

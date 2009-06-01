@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
@@ -45,11 +46,12 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
@@ -137,6 +139,8 @@ public class TotalScoresBean
   private Boolean releasedToGroups = null; // added by gopalrc - Jan 2008
   private Map userIdMap;
   
+  private boolean isAutoScored = false;
+  
   private static Log log = LogFactory.getLog(TotalScoresBean.class);
 
   /**
@@ -190,7 +194,7 @@ public class TotalScoresBean
 			log.debug("init(): subList " + firstScoreRow + ", " + nextPageRow);
 		}
 		
-		agents = newAgents;
+		agents = newAgents;	
 	}
  
 	// Following three methods are for interface PhaseAware
@@ -1113,7 +1117,7 @@ public class TotalScoresBean
 	public void setAcceptLateSubmission(boolean acceptLateSubmission) {
 		this.acceptLateSubmission = acceptLateSubmission;
 	}
-	
+
 	/**
 	 * added by gopalrc - jan 2008
 	 * @return
@@ -1127,4 +1131,11 @@ public class TotalScoresBean
 		return this.getPublishedAssessment().getAssessmentAccessControl().getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS);
 	}
 	
+	public boolean getIsAutoScored() {
+		return isAutoScored;
+	}
+
+	public void setIsAutoScored(boolean isAutoScored) {		
+		this.isAutoScored = isAutoScored;
+	}	
 }
