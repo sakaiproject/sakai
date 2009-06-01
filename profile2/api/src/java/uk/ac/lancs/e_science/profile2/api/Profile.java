@@ -610,11 +610,20 @@ public interface Profile {
 	
 	
 	/**
-	 * Create a default preferences record for the user
+	 * Create a persistent default preferences record for the user according to the defaults.
 	 *
 	 * @param userId		uuid of the user to create the record for
 	 */
 	public ProfilePreferences createDefaultPreferencesRecord(final String userId);
+	
+	
+	/**
+	 * Create a default preferences record according to the defaults. Not persisted.
+	 *
+	 * @param userId		uuid of the user to create the record for
+	 */
+	public ProfilePreferences getDefaultPreferencesRecord(final String userId);
+	
 	
 	/**
 	 * Retrieve the preferences record from the database for this user

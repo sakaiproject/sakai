@@ -1533,7 +1533,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	public ProfilePreferences createDefaultPreferencesRecord(final String userId) {
 		
 		//see ProfilePreferences for this constructor and what it all means
-		ProfilePreferences profilePreferences = new ProfilePreferences(
+		ProfilePreferences prefs = new ProfilePreferences(
 				userId,
 				ProfilePreferencesManager.DEFAULT_EMAIL_REQUEST_SETTING,
 				ProfilePreferencesManager.DEFAULT_EMAIL_CONFIRM_SETTING,
@@ -1541,14 +1541,30 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		
 		//save
 		try {
-			getHibernateTemplate().save(profilePreferences);
+			getHibernateTemplate().save(prefs);
 			log.info("Created default preferences record for user: " + userId); //$NON-NLS-1$
-			return profilePreferences;
+			return prefs;
 		} catch (Exception e) {
 			log.error("Profile.createDefaultPreferencesRecord() failed. " + e.getClass() + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 			return null;
 		}
 	}
+	
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public ProfilePreferences getDefaultPreferencesRecord(final String userId) {
+		
+		ProfilePreferences prefs = new ProfilePreferences(
+				userId,
+				ProfilePreferencesManager.DEFAULT_EMAIL_REQUEST_SETTING,
+				ProfilePreferencesManager.DEFAULT_EMAIL_CONFIRM_SETTING,
+				ProfilePreferencesManager.DEFAULT_TWITTER_SETTING);
+		
+			return prefs;
+	}
+	
 	
 	/**
  	 * {@inheritDoc}
