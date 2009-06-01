@@ -2,12 +2,10 @@ package uk.ac.lancs.e_science.profile2.impl;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
 import uk.ac.lancs.e_science.profile2.api.ProfilePrivacyService;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
-import uk.ac.lancs.e_science.profile2.api.entity.model.UserProfile;
 import uk.ac.lancs.e_science.profile2.api.model.ProfilePrivacy;
 
 /**
