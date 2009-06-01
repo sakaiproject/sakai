@@ -1416,7 +1416,7 @@
 	
 	attachEventHandlers();
 	
-#if($calendarcounter)	
+#if($calendarcounter > 0)	
 	document.calendars = new Array();
 	document.calendarcounter = $calendarcounter;
 #set($n = $calendarcounter - 1)
@@ -1429,7 +1429,7 @@
 #end
 -->
 </script>
-#if($calendarcounter)
+#if($calendarcounter > 0)
 <script type="text/javascript" src="/library/calendar/sakai-calendar.js"></script>	
 <script type="text/javascript" src="/library/calendar/js/calendar2.js"></script>
 #end
