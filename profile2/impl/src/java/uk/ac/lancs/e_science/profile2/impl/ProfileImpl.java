@@ -1650,6 +1650,28 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	}
 	
 	/**
+ 	* {@inheritDoc}
+ 	*/
+	public boolean isTwitterIntegrationEnabledForUser(ProfilePreferences prefs) {
+		
+		//check global settings
+		if(!sakaiProxy.isTwitterIntegrationEnabledGlobally()) {
+			return false;
+		}
+		
+		//check own prefs
+		if(prefs == null) {
+			return false;
+		}
+		
+		return prefs.isTwitterEnabled();
+		
+	}
+	
+	
+	
+	
+	/**
  	 * {@inheritDoc}
  	 */
 	public void sendMessageToTwitter(final String userId, final String message){

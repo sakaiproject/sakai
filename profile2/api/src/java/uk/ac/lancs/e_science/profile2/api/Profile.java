@@ -640,11 +640,18 @@ public interface Profile {
 	public boolean savePreferencesRecord(ProfilePreferences profilePreferences);
 	
 	/**
-	 * Check if twitter integration is enabled for a user
+	 * Check if twitter integration is enabled globally and for a user
 	 *
 	 * @param userId	uuid of the user
 	 */
 	public boolean isTwitterIntegrationEnabledForUser(final String userId);
+	
+	/**
+	 * Check if twitter integration is enabled globally and for a user
+	 * @param prefs	ProfilePreferences object for the user
+	 *
+	 */
+	public boolean isTwitterIntegrationEnabledForUser(ProfilePreferences prefs);
 	
 	/**
 	 * Send a message to twitter ( runs in a separate thread)
