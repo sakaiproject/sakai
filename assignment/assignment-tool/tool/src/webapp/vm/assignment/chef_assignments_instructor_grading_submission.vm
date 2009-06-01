@@ -530,17 +530,13 @@ function handleEnterKeyPress(ev)
 										<select name="$name_grade" id="grade" >
 											<option  value="" #if($value_grade.equals(""))selected="selected"#end>ungraded</option>
 											#foreach ($i in ["Pass", "Fail"])
-													<option  value="$i" #if ($value_grade.equals($i))selected="selected"#end>$i</option>
+													<option  value="$i" #if ($value_grade.equalsIgnoreCase($i))selected="selected"#end>$i</option>
 											#end
 										</select>
 									</p>	
 								#elseif ($gradeType == 5)
 									<p class="checkbox">
-										#if ($value_grade.equals("graded"))
-											<input name="$name_grade" type="checkbox" value="graded" checked="checked" id="gradeChecked"  /> <label for="gradeChecked">$tlang.getString("gen.gra2") $tlang.getString("gen.checked")</label>
-										#else
-											<input name="$name_grade" type="checkbox" value="graded" id="gradeChecked"  /> <label for="gradeChecked">$tlang.getString("gen.gra2") $tlang.getString("gen.checked")</label>
-										#end
+											<input name="$name_grade" type="checkbox" value="Checked" #if ($value_grade.equals("Checked"))checked="checked"#end id="gradeChecked"  /> <label for="gradeChecked">$tlang.getString("gen.gra2") $tlang.getString("gen.checked")</label>
 									</p>	
 								#end
 							</div>	
