@@ -5,7 +5,7 @@
 	<pomVersion>3</pomVersion>
 	<extend>../../master/project.xml</extend>
 	<name>Profile2 IMPL</name>
-	<groupId>uk.ac.lancs.e_science</groupId>
+	<groupId>org.sakaiproject</groupId>
 	<artifactId>sakai-profile2-impl</artifactId>
 	
 	<currentVersion>1.2-SNAPSHOT</currentVersion>
@@ -19,7 +19,7 @@
 
 		<!--  internal dependencies -->
 		<dependency>
-			<groupId>uk.ac.lancs.e_science</groupId>
+			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-profile2-api</artifactId>
 			<version>1.2-SNAPSHOT</version>
 		</dependency>

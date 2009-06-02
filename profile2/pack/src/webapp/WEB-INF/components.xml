@@ -4,8 +4,8 @@
 <beans>
 
 	<!--  SakaiProxy -->
- 	<bean id="uk.ac.lancs.e_science.profile2.api.SakaiProxy"
-    	class="uk.ac.lancs.e_science.profile2.impl.SakaiProxyImpl">
+ 	<bean id="org.sakaiproject.profile2.api.SakaiProxy"
+    	class="org.sakaiproject.profile2.impl.SakaiProxyImpl">
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
@@ -21,21 +21,21 @@
 	
         
 	<!--  Setup the Profile IMPL as a DAO with Hibernate and give it the other beans as well  -->
-	<bean id="uk.ac.lancs.e_science.profile2.api.ProfileDAO"
-    	class="uk.ac.lancs.e_science.profile2.impl.ProfileImpl"
+	<bean id="org.sakaiproject.profile2.api.ProfileDAO"
+    	class="org.sakaiproject.profile2.impl.ProfileImpl"
     	singleton="true"
     	init-method="init">
 		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-		<property name="sakaiProxy" ref="uk.ac.lancs.e_science.profile2.api.SakaiProxy" />
+		<property name="sakaiProxy" ref="org.sakaiproject.profile2.api.SakaiProxy" />
 		<property name="tinyUrlService"><ref bean="org.sakaiproject.tinyurl.api.TinyUrlService"/></property>
 	</bean>
 	
 	
-	<!-- Give the DAO above the GlobalTransactionManager and call it api.Profile so we have a nice accessor -->
-	<bean id="uk.ac.lancs.e_science.profile2.api.Profile"
+	<!-- Give the DAO above the GlobalTransactionManager -->
+	<bean id="org.sakaiproject.profile2.api.Profile"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">		
 		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
-		<property name="target" ref="uk.ac.lancs.e_science.profile2.api.ProfileDAO" />
+		<property name="target" ref="org.sakaiproject.profile2.api.ProfileDAO" />
 		<property name="transactionAttributes">
 			<props>
 				<prop key="*">PROPAGATION_REQUIRED</prop>
@@ -44,50 +44,50 @@
 	</bean>	
 	
 	<!--  API Service beans -->
-	<bean id="uk.ac.lancs.e_science.profile2.api.ProfileService" class="uk.ac.lancs.e_science.profile2.impl.ProfileServiceImpl">
-		<property name="sakaiProxy" ref="uk.ac.lancs.e_science.profile2.api.SakaiProxy" />
-		<property name="profile" ref="uk.ac.lancs.e_science.profile2.api.Profile" />
+	<bean id="org.sakaiproject.profile2.api.ProfileService" class="org.sakaiproject.profile2.impl.ProfileServiceImpl">
+		<property name="sakaiProxy" ref="org.sakaiproject.profile2.api.SakaiProxy" />
+		<property name="profile" ref="org.sakaiproject.profile2.api.Profile" />
 	</bean>
 	
-	<bean id="uk.ac.lancs.e_science.profile2.api.ProfilePrivacyService" class="uk.ac.lancs.e_science.profile2.impl.ProfilePrivacyServiceImpl">
-		<property name="sakaiProxy" ref="uk.ac.lancs.e_science.profile2.api.SakaiProxy" />
-		<property name="profile" ref="uk.ac.lancs.e_science.profile2.api.Profile" />
+	<bean id="org.sakaiproject.profile2.api.ProfilePrivacyService" class="org.sakaiproject.profile2.impl.ProfilePrivacyServiceImpl">
+		<property name="sakaiProxy" ref="org.sakaiproject.profile2.api.SakaiProxy" />
+		<property name="profile" ref="org.sakaiproject.profile2.api.Profile" />
 	</bean>
 	
-	<bean id="uk.ac.lancs.e_science.profile2.api.ProfilePreferencesService" class="uk.ac.lancs.e_science.profile2.impl.ProfilePreferencesServiceImpl">
-		<property name="sakaiProxy" ref="uk.ac.lancs.e_science.profile2.api.SakaiProxy" />
-		<property name="profile" ref="uk.ac.lancs.e_science.profile2.api.Profile" />
+	<bean id="org.sakaiproject.profile2.api.ProfilePreferencesService" class="org.sakaiproject.profile2.impl.ProfilePreferencesServiceImpl">
+		<property name="sakaiProxy" ref="org.sakaiproject.profile2.api.SakaiProxy" />
+		<property name="profile" ref="org.sakaiproject.profile2.api.Profile" />
 	</bean>
     
     
     <!-- EntityBroker beans -->
-	<bean id="profile2.entity.ProfileEntityProvider" class="uk.ac.lancs.e_science.profile2.impl.entity.ProfileEntityProviderImpl">
-		<property name="profileService" ref="uk.ac.lancs.e_science.profile2.api.ProfileService" />
+	<bean id="profile2.entity.ProfileEntityProvider" class="org.sakaiproject.profile2.impl.entity.ProfileEntityProviderImpl">
+		<property name="profileService" ref="org.sakaiproject.profile2.api.ProfileService" />
 	</bean>
 	
-	<bean id="profile2.entity.ProfilePrivacyEntityProvider" class="uk.ac.lancs.e_science.profile2.impl.entity.ProfilePrivacyEntityProviderImpl">
-		<property name="profilePrivacyService" ref="uk.ac.lancs.e_science.profile2.api.ProfilePrivacyService" />
+	<bean id="profile2.entity.ProfilePrivacyEntityProvider" class="org.sakaiproject.profile2.impl.entity.ProfilePrivacyEntityProviderImpl">
+		<property name="profilePrivacyService" ref="org.sakaiproject.profile2.api.ProfilePrivacyService" />
 	    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 	</bean>
 	
-	<bean id="profile2.entity.ProfilePreferencesEntityProvider" class="uk.ac.lancs.e_science.profile2.impl.entity.ProfilePreferencesEntityProviderImpl">
-		<property name="profilePreferencesService" ref="uk.ac.lancs.e_science.profile2.api.ProfilePreferencesService" />
+	<bean id="profile2.entity.ProfilePreferencesEntityProvider" class="org.sakaiproject.profile2.impl.entity.ProfilePreferencesEntityProviderImpl">
+		<property name="profilePreferencesService" ref="org.sakaiproject.profile2.api.ProfilePreferencesService" />
 	</bean>
 	
 
 	<!-- Add our HBM files to the Sakai global session factory -->
-	<bean id="uk.ac.lancs.e_science.profile2.hbm.HBMMappingList"
+	<bean id="org.sakaiproject.profile2.hbm.HBMMappingList"
     	class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
 
 	    <property name="mappingResources">
 	      <list>
-	      	<value>uk/ac/lancs/e_science/profile2/hbm/ProfileStatus.hbm.xml</value>
-	        <value>uk/ac/lancs/e_science/profile2/hbm/ProfilePrivacy.hbm.xml</value>
-	       	<value>uk/ac/lancs/e_science/profile2/hbm/ProfileFriend.hbm.xml</value>
-	       	<value>uk/ac/lancs/e_science/profile2/hbm/ProfileImage.hbm.xml</value>
-	       	<value>uk/ac/lancs/e_science/profile2/hbm/SakaiPersonMeta.hbm.xml</value>
-	       	<value>uk/ac/lancs/e_science/profile2/hbm/ProfilePreferences.hbm.xml</value>
-	       	<value>uk/ac/lancs/e_science/profile2/hbm/ProfileImageExternal.hbm.xml</value>
+	      	<value>org/sakaiproject/profile2/hbm/ProfileStatus.hbm.xml</value>
+	        <value>org/sakaiproject/profile2/hbm/ProfilePrivacy.hbm.xml</value>
+	       	<value>org/sakaiproject/profile2/hbm/ProfileFriend.hbm.xml</value>
+	       	<value>org/sakaiproject/profile2/hbm/ProfileImage.hbm.xml</value>
+	       	<value>org/sakaiproject/profile2/hbm/SakaiPersonMeta.hbm.xml</value>
+	       	<value>org/sakaiproject/profile2/hbm/ProfilePreferences.hbm.xml</value>
+	       	<value>org/sakaiproject/profile2/hbm/ProfileImageExternal.hbm.xml</value>
 	      </list>
 	    </property>
 

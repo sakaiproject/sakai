@@ -1,9 +1,9 @@
-package uk.ac.lancs.e_science.profile2.tool.pages.errors;
+package org.sakaiproject.profile2.tool.pages.errors;
 
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.ResourceModel;
 
-import uk.ac.lancs.e_science.profile2.tool.pages.BasePage;
+import org.sakaiproject.profile2.tool.pages.BasePage;
 
 public class SessionExpiredPage extends BasePage {
 

@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.tool.pages.panels;
+package org.sakaiproject.profile2.tool.pages.panels;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -17,13 +17,13 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.validation.validator.UrlValidator;
 
-import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
-import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
-import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
-import uk.ac.lancs.e_science.profile2.tool.components.CloseButton;
-import uk.ac.lancs.e_science.profile2.tool.models.SimpleText;
-import uk.ac.lancs.e_science.profile2.tool.pages.MyProfile;
+import org.sakaiproject.profile2.api.Profile;
+import org.sakaiproject.profile2.api.ProfileConstants;
+import org.sakaiproject.profile2.api.SakaiProxy;
+import org.sakaiproject.profile2.tool.ProfileApplication;
+import org.sakaiproject.profile2.tool.components.CloseButton;
+import org.sakaiproject.profile2.tool.models.SimpleText;
+import org.sakaiproject.profile2.tool.pages.MyProfile;
 
 public class ChangeProfilePictureUrl extends Panel{
     

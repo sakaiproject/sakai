@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.api;
+package org.sakaiproject.profile2.api;
 
 /**
  * Class to hold static constants for Profile2, like defaults etc.

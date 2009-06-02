@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.api.entity.model;
+package org.sakaiproject.profile2.api.entity.model;
 
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityOwner;

@@ -1,13 +1,13 @@
-package uk.ac.lancs.e_science.profile2.tool;
+package org.sakaiproject.profile2.tool;
 
 
 import org.apache.wicket.Application;
 import org.apache.wicket.protocol.http.WebApplication;
 
-import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
-import uk.ac.lancs.e_science.profile2.tool.pages.errors.InternalErrorPage;
-import uk.ac.lancs.e_science.profile2.tool.pages.errors.SessionExpiredPage;
+import org.sakaiproject.profile2.api.Profile;
+import org.sakaiproject.profile2.api.SakaiProxy;
+import org.sakaiproject.profile2.tool.pages.errors.InternalErrorPage;
+import org.sakaiproject.profile2.tool.pages.errors.SessionExpiredPage;
 
 
 public class ProfileApplication extends WebApplication {    

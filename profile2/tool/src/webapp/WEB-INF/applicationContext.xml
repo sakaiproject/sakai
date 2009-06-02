@@ -4,9 +4,9 @@
 <beans>
 
 	<!-- The id of this bean needs to match the param 'applicationBean' under your web.xml -->
-	<bean id="profileApplication" class="uk.ac.lancs.e_science.profile2.tool.ProfileApplication">
-		<property name="sakaiProxy" ref="uk.ac.lancs.e_science.profile2.api.SakaiProxy" />
-		<property name="profile" ref="uk.ac.lancs.e_science.profile2.api.Profile" />
+	<bean id="profileApplication" class="org.sakaiproject.profile2.tool.ProfileApplication">
+		<property name="sakaiProxy" ref="org.sakaiproject.profile2.api.SakaiProxy" />
+		<property name="profile" ref="org.sakaiproject.profile2.api.Profile" />
 	</bean>
 	   
        

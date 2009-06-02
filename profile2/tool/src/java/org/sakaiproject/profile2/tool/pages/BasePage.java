@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.tool.pages;
+package org.sakaiproject.profile2.tool.pages;
 
 import java.util.Locale;
 
@@ -13,9 +13,9 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.SessionManager;
 
-import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
-import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
+import org.sakaiproject.profile2.api.Profile;
+import org.sakaiproject.profile2.api.SakaiProxy;
+import org.sakaiproject.profile2.tool.ProfileApplication;
 
 
 public class BasePage extends WebPage implements IHeaderContributor {

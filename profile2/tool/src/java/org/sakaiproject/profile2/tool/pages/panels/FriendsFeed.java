@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.tool.pages.panels;
+package org.sakaiproject.profile2.tool.pages.panels;
 
 
 
@@ -16,17 +16,17 @@ import org.apache.wicket.markup.repeater.data.GridView;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
-import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
-import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
-import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
-import uk.ac.lancs.e_science.profile2.tool.components.ProfileImageRenderer;
-import uk.ac.lancs.e_science.profile2.tool.dataproviders.FriendsFeedDataProvider;
-import uk.ac.lancs.e_science.profile2.tool.pages.MyFriends;
-import uk.ac.lancs.e_science.profile2.tool.pages.MyProfile;
-import uk.ac.lancs.e_science.profile2.tool.pages.MySearch;
-import uk.ac.lancs.e_science.profile2.tool.pages.ViewFriends;
-import uk.ac.lancs.e_science.profile2.tool.pages.ViewProfile;
+import org.sakaiproject.profile2.api.Profile;
+import org.sakaiproject.profile2.api.ProfileConstants;
+import org.sakaiproject.profile2.api.SakaiProxy;
+import org.sakaiproject.profile2.tool.ProfileApplication;
+import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
+import org.sakaiproject.profile2.tool.dataproviders.FriendsFeedDataProvider;
+import org.sakaiproject.profile2.tool.pages.MyFriends;
+import org.sakaiproject.profile2.tool.pages.MyProfile;
+import org.sakaiproject.profile2.tool.pages.MySearch;
+import org.sakaiproject.profile2.tool.pages.ViewFriends;
+import org.sakaiproject.profile2.tool.pages.ViewProfile;
 
 
 /*

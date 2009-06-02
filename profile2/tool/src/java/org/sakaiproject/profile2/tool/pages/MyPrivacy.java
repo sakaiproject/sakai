@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.tool.pages;
+package org.sakaiproject.profile2.tool.pages;
 
 
 import java.io.IOException;
@@ -23,11 +23,11 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
-import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
-import uk.ac.lancs.e_science.profile2.api.exception.ProfilePrivacyNotDefinedException;
-import uk.ac.lancs.e_science.profile2.api.model.ProfilePrivacy;
-import uk.ac.lancs.e_science.profile2.tool.components.HashMapChoiceRenderer;
-import uk.ac.lancs.e_science.profile2.tool.components.IconWithClueTip;
+import org.sakaiproject.profile2.api.ProfileConstants;
+import org.sakaiproject.profile2.api.exception.ProfilePrivacyNotDefinedException;
+import org.sakaiproject.profile2.api.model.ProfilePrivacy;
+import org.sakaiproject.profile2.tool.components.HashMapChoiceRenderer;
+import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 
 
 public class MyPrivacy extends BasePage {

@@ -4,13 +4,13 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<name>Profile2 IMPL</name>
-	<groupId>uk.ac.lancs.e_science</groupId>
+	<groupId>org.sakaiproject</groupId>
 	<artifactId>sakai-profile2-impl</artifactId>
 
 	<packaging>jar</packaging>
 	
 	<parent>
-		<groupId>uk.ac.lancs.e_science</groupId>
+		<groupId>org.sakaiproject</groupId>
 		<artifactId>profile2-base</artifactId>
 	    <version>1.2-SNAPSHOT</version>
 	</parent>
@@ -19,7 +19,7 @@
 
     	<!-- INTERNAL DEPENDENCIES -->
 		<dependency>
-			<groupId>uk.ac.lancs.e_science</groupId>
+			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-profile2-api</artifactId>
 		</dependency>
 		

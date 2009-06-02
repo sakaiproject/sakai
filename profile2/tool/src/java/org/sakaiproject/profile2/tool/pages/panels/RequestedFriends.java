@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.tool.pages.panels;
+package org.sakaiproject.profile2.tool.pages.panels;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -20,17 +20,17 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 
-import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
-import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
-import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
-import uk.ac.lancs.e_science.profile2.tool.components.ProfileImageRenderer;
-import uk.ac.lancs.e_science.profile2.tool.dataproviders.RequestedFriendsDataProvider;
-import uk.ac.lancs.e_science.profile2.tool.models.FriendAction;
-import uk.ac.lancs.e_science.profile2.tool.pages.MyFriends;
-import uk.ac.lancs.e_science.profile2.tool.pages.ViewProfile;
-import uk.ac.lancs.e_science.profile2.tool.pages.windows.ConfirmFriend;
-import uk.ac.lancs.e_science.profile2.tool.pages.windows.IgnoreFriend;
+import org.sakaiproject.profile2.api.Profile;
+import org.sakaiproject.profile2.api.ProfileConstants;
+import org.sakaiproject.profile2.api.SakaiProxy;
+import org.sakaiproject.profile2.tool.ProfileApplication;
+import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
+import org.sakaiproject.profile2.tool.dataproviders.RequestedFriendsDataProvider;
+import org.sakaiproject.profile2.tool.models.FriendAction;
+import org.sakaiproject.profile2.tool.pages.MyFriends;
+import org.sakaiproject.profile2.tool.pages.ViewProfile;
+import org.sakaiproject.profile2.tool.pages.windows.ConfirmFriend;
+import org.sakaiproject.profile2.tool.pages.windows.IgnoreFriend;
 
 public class RequestedFriends extends Panel {
 	

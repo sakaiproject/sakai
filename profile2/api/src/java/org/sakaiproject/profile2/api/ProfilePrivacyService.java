@@ -1,6 +1,6 @@
-package uk.ac.lancs.e_science.profile2.api;
+package org.sakaiproject.profile2.api;
 
-import uk.ac.lancs.e_science.profile2.api.model.ProfilePrivacy;
+import org.sakaiproject.profile2.api.model.ProfilePrivacy;
 
 
 /**

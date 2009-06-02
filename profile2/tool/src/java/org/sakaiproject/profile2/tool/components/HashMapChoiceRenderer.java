@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.tool.components;
+package org.sakaiproject.profile2.tool.components;
 
 import java.util.Map;
 

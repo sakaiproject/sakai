@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.tool.components;
+package org.sakaiproject.profile2.tool.components;
 
 
 import org.apache.wicket.Component;
@@ -9,7 +9,7 @@ import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 
-import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
+import org.sakaiproject.profile2.api.ProfileConstants;
 
 public class CloseButton extends Panel{
 	

@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.tool.models;
+package org.sakaiproject.profile2.tool.models;
 
 import java.io.Serializable;
 import java.util.Date;

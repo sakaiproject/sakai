@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.impl;
+package org.sakaiproject.profile2.impl;
 
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -36,17 +36,17 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import twitter4j.Twitter;
-import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
-import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
-import uk.ac.lancs.e_science.profile2.api.model.ProfileFriend;
-import uk.ac.lancs.e_science.profile2.api.model.ProfileImage;
-import uk.ac.lancs.e_science.profile2.api.model.ProfileImageExternal;
-import uk.ac.lancs.e_science.profile2.api.model.ProfilePreferences;
-import uk.ac.lancs.e_science.profile2.api.model.ProfilePrivacy;
-import uk.ac.lancs.e_science.profile2.api.model.ProfileStatus;
-import uk.ac.lancs.e_science.profile2.api.model.ResourceWrapper;
-import uk.ac.lancs.e_science.profile2.api.model.SearchResult;
+import org.sakaiproject.profile2.api.Profile;
+import org.sakaiproject.profile2.api.ProfileConstants;
+import org.sakaiproject.profile2.api.SakaiProxy;
+import org.sakaiproject.profile2.api.model.ProfileFriend;
+import org.sakaiproject.profile2.api.model.ProfileImage;
+import org.sakaiproject.profile2.api.model.ProfileImageExternal;
+import org.sakaiproject.profile2.api.model.ProfilePreferences;
+import org.sakaiproject.profile2.api.model.ProfilePrivacy;
+import org.sakaiproject.profile2.api.model.ProfileStatus;
+import org.sakaiproject.profile2.api.model.ResourceWrapper;
+import org.sakaiproject.profile2.api.model.SearchResult;
 
 import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGImageEncoder;

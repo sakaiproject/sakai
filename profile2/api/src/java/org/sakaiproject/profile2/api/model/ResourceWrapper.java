@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.api.model;
+package org.sakaiproject.profile2.api.model;
 
 /**
  * This is a simple wrapper object to wrap a byte[] so we can store some other metadata along with it:

@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.tool.pages.panels;
+package org.sakaiproject.profile2.tool.pages.panels;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.Component;
@@ -9,7 +9,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 
-import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
+import org.sakaiproject.profile2.tool.models.UserProfile;
 
 public class MyAcademicDisplay extends Panel {
 	

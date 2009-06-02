@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.impl;
+package org.sakaiproject.profile2.impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,17 +7,17 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
-import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
-import uk.ac.lancs.e_science.profile2.api.ProfileService;
-import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
-import uk.ac.lancs.e_science.profile2.api.entity.model.Connection;
-import uk.ac.lancs.e_science.profile2.api.entity.model.UserProfile;
-import uk.ac.lancs.e_science.profile2.api.exception.ProfileNotDefinedException;
-import uk.ac.lancs.e_science.profile2.api.model.ProfilePreferences;
-import uk.ac.lancs.e_science.profile2.api.model.ProfilePrivacy;
-import uk.ac.lancs.e_science.profile2.api.model.ProfileStatus;
-import uk.ac.lancs.e_science.profile2.api.model.ResourceWrapper;
+import org.sakaiproject.profile2.api.Profile;
+import org.sakaiproject.profile2.api.ProfileConstants;
+import org.sakaiproject.profile2.api.ProfileService;
+import org.sakaiproject.profile2.api.SakaiProxy;
+import org.sakaiproject.profile2.api.entity.model.Connection;
+import org.sakaiproject.profile2.api.entity.model.UserProfile;
+import org.sakaiproject.profile2.api.exception.ProfileNotDefinedException;
+import org.sakaiproject.profile2.api.model.ProfilePreferences;
+import org.sakaiproject.profile2.api.model.ProfilePrivacy;
+import org.sakaiproject.profile2.api.model.ProfileStatus;
+import org.sakaiproject.profile2.api.model.ResourceWrapper;
 
 /**
  * <p>This is the implementation of {@link ProfileService}; see that interface for usage details.

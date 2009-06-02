@@ -1,12 +1,12 @@
-package uk.ac.lancs.e_science.profile2.impl;
+package org.sakaiproject.profile2.impl;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.api.ProfilePrivacyService;
-import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
-import uk.ac.lancs.e_science.profile2.api.model.ProfilePrivacy;
+import org.sakaiproject.profile2.api.Profile;
+import org.sakaiproject.profile2.api.ProfilePrivacyService;
+import org.sakaiproject.profile2.api.SakaiProxy;
+import org.sakaiproject.profile2.api.model.ProfilePrivacy;
 
 /**
  * <p>This is the implementation of {@link ProfilePrivacyService}; see that interface for usage details.

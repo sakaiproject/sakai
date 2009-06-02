@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.tool.pages.windows;
+package org.sakaiproject.profile2.tool.pages.windows;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageParameters;
@@ -13,14 +13,14 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.util.FormattedText;
 
-import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
-import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
-import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
-import uk.ac.lancs.e_science.profile2.tool.components.FocusOnLoadBehaviour;
-import uk.ac.lancs.e_science.profile2.tool.components.ProfileImageRenderer;
-import uk.ac.lancs.e_science.profile2.tool.models.FriendAction;
-import uk.ac.lancs.e_science.profile2.tool.pages.ViewProfile;
+import org.sakaiproject.profile2.api.Profile;
+import org.sakaiproject.profile2.api.ProfileConstants;
+import org.sakaiproject.profile2.api.SakaiProxy;
+import org.sakaiproject.profile2.tool.ProfileApplication;
+import org.sakaiproject.profile2.tool.components.FocusOnLoadBehaviour;
+import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
+import org.sakaiproject.profile2.tool.models.FriendAction;
+import org.sakaiproject.profile2.tool.pages.ViewProfile;
 
 public class ConfirmFriend extends Panel {
 

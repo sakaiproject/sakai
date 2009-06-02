@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.tool.pages.panels;
+package org.sakaiproject.profile2.tool.pages.panels;
 
 
 
@@ -22,13 +22,13 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
-import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
-import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
-import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
-import uk.ac.lancs.e_science.profile2.tool.components.ComponentVisualErrorBehaviour;
-import uk.ac.lancs.e_science.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
-import uk.ac.lancs.e_science.profile2.tool.components.FeedbackLabel;
-import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
+import org.sakaiproject.profile2.api.ProfileConstants;
+import org.sakaiproject.profile2.api.SakaiProxy;
+import org.sakaiproject.profile2.tool.ProfileApplication;
+import org.sakaiproject.profile2.tool.components.ComponentVisualErrorBehaviour;
+import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
+import org.sakaiproject.profile2.tool.components.FeedbackLabel;
+import org.sakaiproject.profile2.tool.models.UserProfile;
 
 public class MyContactEdit extends Panel {
 	

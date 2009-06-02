@@ -5,13 +5,13 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<name>Profile2 TOOL</name>
-	<groupId>uk.ac.lancs.e_science</groupId>
+	<groupId>org.sakaiproject</groupId>
 	<artifactId>sakai-profile2-tool</artifactId>
 	
 	<packaging>war</packaging>
 	
 	<parent>
-		<groupId>uk.ac.lancs.e_science</groupId>
+		<groupId>org.sakaiproject</groupId>
 		<artifactId>profile2-base</artifactId>
 	    <version>1.2-SNAPSHOT</version>
 	</parent>
@@ -59,7 +59,7 @@
 		
 		<!--  INTERNAL DEPENDENCIES -->
 		<dependency>
-      		<groupId>uk.ac.lancs.e_science</groupId>
+      		<groupId>org.sakaiproject</groupId>
       		<artifactId>sakai-profile2-api</artifactId>
     	</dependency>
     	

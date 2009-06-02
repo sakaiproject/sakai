@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.api.exception;
+package org.sakaiproject.profile2.api.exception;
 
 public class ProfileBadConfigurationException extends RuntimeException {
 		

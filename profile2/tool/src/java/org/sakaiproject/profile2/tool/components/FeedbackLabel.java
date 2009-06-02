@@ -13,7 +13,7 @@
  *  limitations under the License.
  *
  */
-package uk.ac.lancs.e_science.profile2.tool.components;
+package org.sakaiproject.profile2.tool.components;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;

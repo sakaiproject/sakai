@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.tool.pages;
+package org.sakaiproject.profile2.tool.pages;
 
 
 import java.io.IOException;
@@ -22,13 +22,13 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
-import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
-import uk.ac.lancs.e_science.profile2.api.exception.ProfilePrototypeNotDefinedException;
-import uk.ac.lancs.e_science.profile2.api.model.ProfileStatus;
-import uk.ac.lancs.e_science.profile2.tool.components.ProfileImageRenderer;
-import uk.ac.lancs.e_science.profile2.tool.models.FriendAction;
-import uk.ac.lancs.e_science.profile2.tool.pages.panels.FriendsFeed;
-import uk.ac.lancs.e_science.profile2.tool.pages.windows.AddFriend;
+import org.sakaiproject.profile2.api.ProfileConstants;
+import org.sakaiproject.profile2.api.exception.ProfilePrototypeNotDefinedException;
+import org.sakaiproject.profile2.api.model.ProfileStatus;
+import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
+import org.sakaiproject.profile2.tool.models.FriendAction;
+import org.sakaiproject.profile2.tool.pages.panels.FriendsFeed;
+import org.sakaiproject.profile2.tool.pages.windows.AddFriend;
 
 
 public class ViewProfile extends BasePage {

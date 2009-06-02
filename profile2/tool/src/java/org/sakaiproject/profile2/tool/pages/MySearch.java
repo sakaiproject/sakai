@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.tool.pages;
+package org.sakaiproject.profile2.tool.pages;
 
 
 import java.io.IOException;
@@ -29,15 +29,15 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.util.FormattedText;
 
-import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
-import uk.ac.lancs.e_science.profile2.api.model.SearchResult;
-import uk.ac.lancs.e_science.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
-import uk.ac.lancs.e_science.profile2.tool.components.FeedbackLabel;
-import uk.ac.lancs.e_science.profile2.tool.components.IconWithClueTip;
-import uk.ac.lancs.e_science.profile2.tool.components.ProfileImageRenderer;
-import uk.ac.lancs.e_science.profile2.tool.models.FriendAction;
-import uk.ac.lancs.e_science.profile2.tool.models.Search;
-import uk.ac.lancs.e_science.profile2.tool.pages.windows.AddFriend;
+import org.sakaiproject.profile2.api.ProfileConstants;
+import org.sakaiproject.profile2.api.model.SearchResult;
+import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
+import org.sakaiproject.profile2.tool.components.FeedbackLabel;
+import org.sakaiproject.profile2.tool.components.IconWithClueTip;
+import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
+import org.sakaiproject.profile2.tool.models.FriendAction;
+import org.sakaiproject.profile2.tool.models.Search;
+import org.sakaiproject.profile2.tool.pages.windows.AddFriend;
 
 
 public class MySearch extends BasePage {

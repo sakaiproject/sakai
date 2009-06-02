@@ -1,10 +1,10 @@
-package uk.ac.lancs.e_science.profile2.api;
+package org.sakaiproject.profile2.api;
 
 import java.util.List;
 
-import uk.ac.lancs.e_science.profile2.api.entity.model.Connection;
-import uk.ac.lancs.e_science.profile2.api.entity.model.UserProfile;
-import uk.ac.lancs.e_science.profile2.api.model.ResourceWrapper;
+import org.sakaiproject.profile2.api.entity.model.Connection;
+import org.sakaiproject.profile2.api.entity.model.UserProfile;
+import org.sakaiproject.profile2.api.model.ResourceWrapper;
 
 /**
  * <p>This is the outward facing service that should be used by anyone or anything implementing Profile2.</p>

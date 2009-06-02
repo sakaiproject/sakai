@@ -1,7 +1,7 @@
-package uk.ac.lancs.e_science.profile2.tool;
+package org.sakaiproject.profile2.tool;
 
-import uk.ac.lancs.e_science.profile2.tool.pages.BasePage;
-import uk.ac.lancs.e_science.profile2.tool.pages.MyProfile;
+import org.sakaiproject.profile2.tool.pages.BasePage;
+import org.sakaiproject.profile2.tool.pages.MyProfile;
 
 public class Dispatcher extends BasePage {
 	

@@ -3,7 +3,7 @@
 	<pomVersion>3</pomVersion>
 	<extend>../master/project.xml</extend>
 	<name>Profile2 BASE</name>
-	<groupId>uk.ac.lancs.e_science</groupId>
+	<groupId>org.sakaiproject</groupId>
 	
 	<currentVersion>1.2-SNAPSHOT</currentVersion>
 	

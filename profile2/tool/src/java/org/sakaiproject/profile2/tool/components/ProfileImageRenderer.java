@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.tool.components;
+package org.sakaiproject.profile2.tool.components;
 
 import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.image.Image;
@@ -7,10 +7,10 @@ import org.apache.wicket.markup.html.image.resource.BufferedDynamicImageResource
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 
-import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
-import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
-import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
+import org.sakaiproject.profile2.api.Profile;
+import org.sakaiproject.profile2.api.ProfileConstants;
+import org.sakaiproject.profile2.api.SakaiProxy;
+import org.sakaiproject.profile2.tool.ProfileApplication;
 
 /** 
  * This is a helper panel for displaying a user's profile image.

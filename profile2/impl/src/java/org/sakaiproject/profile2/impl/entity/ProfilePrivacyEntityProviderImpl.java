@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.impl.entity;
+package org.sakaiproject.profile2.impl.entity;
 
 import java.util.List;
 import java.util.Map;
@@ -15,9 +15,9 @@ import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.tool.api.SessionManager;
 
-import uk.ac.lancs.e_science.profile2.api.ProfilePrivacyService;
-import uk.ac.lancs.e_science.profile2.api.entity.ProfilePrivacyEntityProvider;
-import uk.ac.lancs.e_science.profile2.api.model.ProfilePrivacy;
+import org.sakaiproject.profile2.api.ProfilePrivacyService;
+import org.sakaiproject.profile2.api.entity.ProfilePrivacyEntityProvider;
+import org.sakaiproject.profile2.api.model.ProfilePrivacy;
 
 public class ProfilePrivacyEntityProviderImpl implements ProfilePrivacyEntityProvider, CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
 

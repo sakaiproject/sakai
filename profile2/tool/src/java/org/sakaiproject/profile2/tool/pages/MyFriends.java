@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.tool.pages;
+package org.sakaiproject.profile2.tool.pages;
 
 
 import java.io.IOException;
@@ -8,9 +8,9 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.Panel;
 
-import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
-import uk.ac.lancs.e_science.profile2.tool.pages.panels.ConfirmedFriends;
-import uk.ac.lancs.e_science.profile2.tool.pages.panels.RequestedFriends;
+import org.sakaiproject.profile2.api.ProfileConstants;
+import org.sakaiproject.profile2.tool.pages.panels.ConfirmedFriends;
+import org.sakaiproject.profile2.tool.pages.panels.RequestedFriends;
 
 public class MyFriends extends BasePage {
 

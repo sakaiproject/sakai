@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.tool.pages;
+package org.sakaiproject.profile2.tool.pages;
 
 
 import java.io.IOException;
@@ -14,18 +14,18 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
-import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
-import uk.ac.lancs.e_science.profile2.api.exception.ProfileNotDefinedException;
-import uk.ac.lancs.e_science.profile2.tool.components.ProfileImageRenderer;
-import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
-import uk.ac.lancs.e_science.profile2.tool.pages.panels.ChangeProfilePictureUpload;
-import uk.ac.lancs.e_science.profile2.tool.pages.panels.ChangeProfilePictureUrl;
-import uk.ac.lancs.e_science.profile2.tool.pages.panels.FriendsFeed;
-import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyAcademicDisplay;
-import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyContactDisplay;
-import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyInfoDisplay;
-import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyInterestsDisplay;
-import uk.ac.lancs.e_science.profile2.tool.pages.panels.MyStatusPanel;
+import org.sakaiproject.profile2.api.ProfileConstants;
+import org.sakaiproject.profile2.api.exception.ProfileNotDefinedException;
+import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
+import org.sakaiproject.profile2.tool.models.UserProfile;
+import org.sakaiproject.profile2.tool.pages.panels.ChangeProfilePictureUpload;
+import org.sakaiproject.profile2.tool.pages.panels.ChangeProfilePictureUrl;
+import org.sakaiproject.profile2.tool.pages.panels.FriendsFeed;
+import org.sakaiproject.profile2.tool.pages.panels.MyAcademicDisplay;
+import org.sakaiproject.profile2.tool.pages.panels.MyContactDisplay;
+import org.sakaiproject.profile2.tool.pages.panels.MyInfoDisplay;
+import org.sakaiproject.profile2.tool.pages.panels.MyInterestsDisplay;
+import org.sakaiproject.profile2.tool.pages.panels.MyStatusPanel;
 
 
 public class MyProfile extends BasePage {

@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.impl;
+package org.sakaiproject.profile2.impl;
 
 
 import java.net.URLEncoder;
@@ -37,9 +37,9 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 
-import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
-import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
-import uk.ac.lancs.e_science.profile2.api.model.ResourceWrapper;
+import org.sakaiproject.profile2.api.ProfileConstants;
+import org.sakaiproject.profile2.api.SakaiProxy;
+import org.sakaiproject.profile2.api.model.ResourceWrapper;
 
 /**
  * This is the Implementation of the helper API used by the Profile2 tool only. 

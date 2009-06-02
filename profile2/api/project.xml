@@ -5,7 +5,7 @@
 	<pomVersion>3</pomVersion>
 	<extend>../../master/project.xml</extend>
 	<name>Profile2 API</name>
-	<groupId>uk.ac.lancs.e_science</groupId>
+	<groupId>org.sakaiproject</groupId>
 	<artifactId>sakai-profile2-api</artifactId>
 	
 	<currentVersion>1.2-SNAPSHOT</currentVersion>

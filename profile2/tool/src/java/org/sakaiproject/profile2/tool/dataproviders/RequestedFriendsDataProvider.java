@@ -1,4 +1,4 @@
-package uk.ac.lancs.e_science.profile2.tool.dataproviders;
+package org.sakaiproject.profile2.tool.dataproviders;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -13,8 +13,8 @@ import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
-import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
+import org.sakaiproject.profile2.api.Profile;
+import org.sakaiproject.profile2.tool.ProfileApplication;
 
 /**
  * RequestedFriendsDataProvider.java

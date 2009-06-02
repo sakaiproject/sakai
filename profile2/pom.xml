@@ -5,7 +5,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<name>Profile2 BASE</name>
-	<groupId>uk.ac.lancs.e_science</groupId>
+	<groupId>org.sakaiproject</groupId>
 	<artifactId>profile2-base</artifactId>
 		
 	<packaging>pom</packaging>
@@ -77,13 +77,13 @@
 			
 			<!-- internal -->
 			<dependency>
-      			<groupId>uk.ac.lancs.e_science</groupId>
+      			<groupId>org.sakaiproject</groupId>
       			<artifactId>sakai-profile2-api</artifactId>
       			<version>${tool.version}</version>
       			<scope>provided</scope>
     		</dependency>
     		<dependency>
-      			<groupId>uk.ac.lancs.e_science</groupId>
+      			<groupId>org.sakaiproject</groupId>
       			<artifactId>sakai-profile2-impl</artifactId>
       			<version>${tool.version}</version>
       			<scope>runtime</scope>

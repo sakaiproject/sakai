@@ -4,13 +4,13 @@
     <modelVersion>4.0.0</modelVersion>
     <!-- adjust these name,groupId,artifactId to match your project -->
     <name>Profile2 DB DDL generator</name>
-    <groupId>uk.ac.lancs.e_science</groupId>
+    <groupId>org.sakaiproject</groupId>
     <artifactId>sakai-profile2-ddl-generator</artifactId>
     <packaging>pom</packaging>
 
     <!-- this should refer to your project base POM (remove if not needed) -->
     <parent>
-		<groupId>uk.ac.lancs.e_science</groupId>
+		<groupId>org.sakaiproject</groupId>
 		<artifactId>profile2-base</artifactId>
 	    <version>1.2-SNAPSHOT</version>
 	    <relativePath>../pom.xml</relativePath>
@@ -25,7 +25,7 @@
 
         <!-- pull in your hibernate persistent objects -->
         <dependency>
-			<groupId>uk.ac.lancs.e_science</groupId>
+			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-profile2-api</artifactId>
 			<version>${parent.version}</version>
 			<scope>provided</scope>
