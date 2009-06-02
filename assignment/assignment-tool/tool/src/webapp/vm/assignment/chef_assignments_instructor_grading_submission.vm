@@ -562,15 +562,15 @@ function handleEnterKeyPress(ev)
 							#set($resubmitStyle="display:block")
 						#end
 						<p class="checkbox">
-							<input type="checkbox" id="tempAllowResToggle" name ="tempAllowResToggle" #if($!value_allowResubmitNumber==0) #else checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').style.display = 'block';document.getElementById('allowResubmitTime').style.display = 'block';}else{document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none'}" /> 
-							<label for="tempAllowResToggle">$tlang.getString("allowResubmit")</label>
+							<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber==0) #else checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').style.display = 'block';document.getElementById('allowResubmitTime').style.display = 'block';}else{document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none'}" /> 
+							<label for="allowResToggle">$tlang.getString("allowResubmit")</label>
 						</p>
 						<p class="shorttext" id="allowResubmitNumber" style="$!resubmitStyle">
 							<label for="allowResubmitNumber">
 								$tlang.getString("allow.resubmit.number")
 							</label>
 							<select name="$name_allowResubmitNumber" id="allowResubmitNumber" onchange="if (document.getElementById('allowResubmitNumber').value!=0 && document.getElementById('closeTime') !=null){document.getElementById('closeTime').style.display = 'block';}else {document.getElementById('closeTime').style.display = 'none';}">
-								#foreach ($i in [0..10])
+								#foreach ($i in [1..10])
 									<option value="$i" #if($i==$!value_allowResubmitNumber)selected="selected"#end>
 										$i
 									</option>

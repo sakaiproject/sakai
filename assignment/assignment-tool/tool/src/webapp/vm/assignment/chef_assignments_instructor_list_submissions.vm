@@ -11,6 +11,7 @@
     {
 					document.getElementById('allowResubmission_shown').style.display="inline";
     	document.getElementById('allowResubmission_hidden').style.display="none";
+    	document.getElementById('allowResToggle').value="checked";
     	resizeFrame('grow');
     }
     
@@ -18,6 +19,7 @@
     {
 					document.getElementById('allowResubmission_shown').style.display="none";
     	document.getElementById('allowResubmission_hidden').style.display="inline";
+    	document.getElementById('allowResToggle').value="";
     }
     
     function toggleSelectAll(caller, elementName)
@@ -324,6 +326,7 @@
 				</div>
 			#end
 			<div id="allowResubmission_hidden" #if ($!showAllowResubmission)style="display:none"#else style="display:block"#end>
+				<input type="hidden" name = "allowResToggle" id = "allowResToggle" value="checked" />
 				<p class="discTria">
 					<a href="#" onclick="javascript:showAllowResubmission();">
 					<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("allowResubmission.show")" border="0" width="13" height="13" align="top" /></a>
@@ -344,8 +347,8 @@
 							<label for="allowResubmitNumber">
 								$tlang.getString("allow.resubmit.number")
 							</label>
-							<select name="$name_allowResubmitNumber" id="allowResubmitNumber" onchange="if (document.getElementById('allowResubmitNumber').value!=0 && document.getElementById('closeTime') !=null){document.getElementById('closeTime').style.display = 'block';}else {document.getElementById('closeTime').style.display = 'none';}">
-								#foreach ($i in [0..10])
+							<select name="$name_allowResubmitNumber" id="allowResubmitNumber" onchange="if (document.getElementById('allowResubmitNumber').value!=0 && document.getElementById('allowResubmitTime') !=null){document.getElementById('allowResubmitTime').style.display = 'block';}else {document.getElementById('allowResubmitTime').style.display = 'none';}">
+								#foreach ($i in [1..10])
 									<option value="$i" #if($i==$!value_allowResubmitNumber)selected="selected"#end>
 										$i
 									</option>

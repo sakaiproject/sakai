@@ -324,12 +324,31 @@ $(document).ready(function() {
 		<p class="instruction labelindnt">
 			$tlang.getString("gen.noasscan")
 		</p>
+			#*
+			/** Assignment type not yet set */
+			public static final int ASSIGNMENT_SUBMISSION_TYPE_NOT_SET = -1;
+			
+			/** Text only assignment type */
+			public static final int TEXT_ONLY_ASSIGNMENT_SUBMISSION = 1;
+
+			/** Attachment only assignment type */
+			public static final int ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION = 2;
+			
+			/** Text and/or attachment assignment type */
+			public static final int TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION = 3;
+	
+			/** Non-electronic assignment type */
+			public static final int NON_ELECTRONIC_ASSIGNMENT_SUBMISSION = 4;
+	
+			/** Only one single upload attachment */
+			public static final int SINGLE_ATTACHMENT_SUBMISSION = 5;
+		*#
 		<p class="shorttext">
 			<span class="reqStar">*</span>
 			<label for="subType">
 				$tlang.getString("gen.stusub")
 			</label>
-			<select name="$name_SubmissionType" id="subType">
+			<select name="$name_SubmissionType" id="subType" onchange="if(document.getElementById('subType').value != 4){document.getElementById('tempAllowRes').style.display = 'block';resizeFrame();}else{document.getElementById('tempAllowRes').style.display = 'none';}document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none';" /> >
 				#foreach ($i in [1..$!value_totalSubmissionTypes])
 					#if ($i == $value_SubmissionType)
 						<option value="$i" selected="selected">$submissionTypeTable.get($i)</option>
@@ -339,12 +358,22 @@ $(document).ready(function() {
 				#end
 			</select>
 		</p>
-		<p class="shorttext" style="clear:both">
+		##show it only for those assignments not of type non-electronic submission
+		#if($!value_allowResubmitNumber==0 || $value_SubmissionType == 4)
+			#set($resubmitStyle="display:none")
+		#else 
+			#set($resubmitStyle="display:block")
+		#end
+		<p class="checkbox" id="tempAllowRes" #if ($value_SubmissionType == 4) style = "display:none"#end>
+			<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber==0 || $value_SubmissionType == 4) #else checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').style.display = 'block';document.getElementById('allowResubmitTime').style.display = 'block';resizeFrame();}else{document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none'}" /> 
+			<label for="allowResToggle">$tlang.getString("allowResubmit")</label>
+	 </p>
+		<p class="shorttext" id="allowResubmitNumber" style="$!resubmitStyle">
 				<label for="allowResubmitNumber">
 					$tlang.getString("allow.resubmit.number")
 				</label>
 				<select name="$name_allowResubmitNumber" id="allowResubmitNumber">
-					#foreach ($i in [0..10])
+					#foreach ($i in [1..10])
 						<option value="$i" #if($i==$!value_allowResubmitNumber)selected="selected"#end>
 							$i
 						</option>
@@ -352,6 +381,37 @@ $(document).ready(function() {
 					<option value="-1" #if($!value_allowResubmitNumber == -1)selected="selected"#end>$tlang.getString("allow.resubmit.number.unlimited")</option>
 				</select>
 		</p>
+		<p class="shorttext" id="allowResubmitTime" style="$!resubmitStyle">
+							## only show date selection when allowed to resubmit
+							<label for="$name_ResubmitMonth">
+								$tlang.getString("gen.resubmission") $tlang.getString("gen.acesubunt")
+							</label>
+							#chef_dateselectionwidget($name_ResubmitYear $name_ResubmitMonth $name_ResubmitDay $!value_year_from $!value_year_to $value_ResubmitYear $value_ResubmitMonth $value_ResubmitDay $dateFormat "")
+							$tlang.getString("gen.at") 
+							<select name="$name_ResubmitHour" id="$name_ResubmitHour">
+								#foreach ($i in [1..12])
+									#if ($i == $value_ResubmitHour)
+										<option value="$i" selected="selected">$i</option>
+									#else
+										<option value="$i">$i</option>
+									#end
+								#end
+							</select>
+							<select name="$name_ResubmitMin" id="$name_ResubmitMin">
+								#foreach ($i in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
+									<option value="$i" #if($i == $value_ResubmitMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
+								#end
+							</select>
+							<select name="$name_ResubmitAMPM" id="$name_ResubmitAMPM">
+								#foreach ($i in ["AM", "PM"])
+									#if ($i == $value_ResubmitAMPM)
+										<option value="$i" selected="selected">$i</option>
+									#else
+										<option value="$i">$i</option>
+									#end
+								#end
+							</select>
+						</p>
 		#if ($withGrade)
 			<p class="shorttext" style="clear:both">
 				<span class="reqStar">*</span>
