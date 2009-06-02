@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="uk.ac.lancs.e_science.profile2.api.model">
+
+	<class name="ProfilePreferences" table="PROFILE_PREFERENCES_T">
+
+		<!--  use the userUuid as the primary key directly since there will only ever be one record per user -->
+	    <id name="userUuid" column="USER_UUID" length="99">
+	    	<generator class="assigned" />
+	    </id>
+		
+		<!--  whilst the following set of email properties make this less normalised,
+		each setting is discrete and required and no other calcs need be done on them as a group so its ok
+		they are also set by default if no record exists. -->
+		<property name="requestEmailEnabled" column="EMAIL_REQUEST" not-null="true" />
+		<property name="confirmEmailEnabled" column="EMAIL_CONFIRM" not-null="true" />		
+		<property name="twitterEnabled" column="TWITTER_ENABLED" not-null="true"/>
+	    <property name="twitterUsername" column="TWITTER_USERNAME" not-null="false" />
+		<property name="twitterPasswordEncrypted" column="TWITTER_PASSWORD" not-null="false" />
+	   
+  	</class>
+
+	<query name="getPreferencesRecord">
+    	<![CDATA[from ProfilePreferences preferences WHERE preferences.userUuid = :userUuid]]>
+	</query>
+  	
+
+</hibernate-mapping>

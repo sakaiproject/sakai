@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="uk.ac.lancs.e_science.profile2.api.model">
+
+	<class name="ProfileImage" table="PROFILE_IMAGES_T">
+
+		<id name="id">
+			<column name="ID" not-null="true" length="19" />
+			<generator class="native">
+				<param name="sequence">PROFILE_IMAGES_S</param>
+			</generator>
+	    </id>
+	    
+		<property name="userUuid" column="USER_UUID" length="99" not-null="true" />
+		<property name="mainResource" column="RESOURCE_MAIN" not-null="true" />
+		<property name="thumbnailResource" column="RESOURCE_THUMB" not-null="true" />
+		<property name="current" column="IS_CURRENT" not-null="true" />
+
+  	</class>
+  	
+  	<!-- get the current profileImage record. if the db is out of sync and there are multiple, only get the latest -->
+	<query name="getCurrentProfileImageRecord">
+    	<![CDATA[from ProfileImage image WHERE image.userUuid = :userUuid AND image.current = true ORDER BY image.id desc]]>
+	</query>
+	 
+	<!-- get any other profile iamge records. used where the user can choose their profile image -->
+	<query name="getOtherProfileImageRecords">
+    	<![CDATA[from ProfileImage image WHERE image.userUuid = :userUuid AND image.current = false]]>
+	</query>
+	
+</hibernate-mapping>

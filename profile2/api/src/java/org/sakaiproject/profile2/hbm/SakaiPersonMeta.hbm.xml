@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="uk.ac.lancs.e_science.profile2.api.model">
+
+	<class name="SakaiPersonMeta" table="SAKAI_PERSON_META_T">
+
+	    <id name="id">
+	      <column name="ID" not-null="true" length="19" />
+	      <generator class="native">
+	        <param name="sequence">SAKAI_PERSON_META_S</param>
+	      </generator>
+	    </id>
+
+	    <property name="userUuid" column="USER_UUID" length="99" not-null="true" />
+	    <property name="property" column="PROPERTY" not-null="true" />
+		<property name="value" column="VALUE" not-null="true" />
+		
+  	</class>
+  	
+	<query name="getProperty">
+    	<![CDATA[from SakaiPersonMeta spm WHERE spm.userUuid = :userUuid AND spm.property = :property]]>
+	</query>
+	
+	
+	
+	<!--  these are on the SakaiPerson object. -->
+	<query name="findSakaiPersonsByNameOrEmail">
+    	<![CDATA[select sp.agentUuid from org.sakaiproject.component.common.edu.person.SakaiPersonImpl as sp where sp.nickname like :search or sp.mail like :search]]>
+  	</query>
+  
+ 	<query name="findSakaiPersonsByInterest">
+    	<![CDATA[select sp.agentUuid from org.sakaiproject.component.common.edu.person.SakaiPersonImpl as sp where sp.favouriteBooks like :search or sp.favouriteTvShows like :search or sp.favouriteMovies like :search or sp.favouriteQuotes like :search or sp.notes like :search]]>
+  	</query>
+  	
+  	<query name="listAllSakaiPersons">
+    	<![CDATA[select sp.agentUuid from org.sakaiproject.component.common.edu.person.SakaiPersonImpl as sp]]>
+  	</query>
+	
+
+</hibernate-mapping>
