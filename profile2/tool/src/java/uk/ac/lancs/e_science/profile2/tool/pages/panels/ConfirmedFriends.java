@@ -22,7 +22,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.components.ProfileImageRenderer;
@@ -141,7 +141,7 @@ public class ConfirmedFriends extends Panel {
 				final boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(friendId, userY, friend);
 				
 				//image
-				item.add(new ProfileImageRenderer("result-photo", friendId, isProfileImageAllowed, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, true));
+				item.add(new ProfileImageRenderer("result-photo", friendId, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
 		    	
 			
 		    	//name and link to profile
@@ -202,7 +202,7 @@ public class ConfirmedFriends extends Panel {
 
 					}
 				};
-				ContextImage removeFriendIcon = new ContextImage("removeFriendIcon",new Model(ProfileImageManager.DELETE_IMG));
+				ContextImage removeFriendIcon = new ContextImage("removeFriendIcon",new Model(ProfileConstants.DELETE_IMG));
 				removeFriendLink.add(removeFriendIcon);
 				removeFriendLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.removefriend")));
 				item.add(removeFriendLink);

@@ -17,7 +17,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.components.ProfileImageRenderer;
@@ -84,7 +84,7 @@ public class FriendsFeed extends Panel {
 					public void onClick() {}
 				};
 				
-				friendItem.add(new ProfileImageRenderer("friendPhoto", null, false, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, true));
+				friendItem.add(new ProfileImageRenderer("friendPhoto", null, false, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
 
 				friendItem.add(new Label("friendName","empty"));
 				item.add(friendItem);
@@ -125,7 +125,7 @@ public class FriendsFeed extends Panel {
 				final boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(friendId, viewingUserId, friend);
 				
 				/* IMAGE */
-				friendItem.add(new ProfileImageRenderer("friendPhoto", friendId, isProfileImageAllowed, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, true));
+				friendItem.add(new ProfileImageRenderer("friendPhoto", friendId, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
 				
 				//name (will be linked also)
 		    	Label friendLinkLabel = new Label("friendName", displayName);

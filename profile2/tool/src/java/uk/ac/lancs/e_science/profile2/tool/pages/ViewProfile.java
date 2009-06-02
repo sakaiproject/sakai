@@ -22,8 +22,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
-import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
-import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfilePrototypeNotDefinedException;
 import uk.ac.lancs.e_science.profile2.api.model.ProfileStatus;
 import uk.ac.lancs.e_science.profile2.tool.components.ProfileImageRenderer;
@@ -54,7 +53,7 @@ public class ViewProfile extends BasePage {
 		}
 		
 		//post view event
-		sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_VIEW_OTHER, "/profile/"+userUuid, false);
+		sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_VIEW_OTHER, "/profile/"+userUuid, false);
 		
 		//init
 		boolean friend = false;
@@ -108,7 +107,7 @@ public class ViewProfile extends BasePage {
 		String userDisplayName = sakaiProxy.getUserDisplayName(userUuid);
 		
 		/* IMAGE */
-		add(new ProfileImageRenderer("photo", userUuid, isProfileImageAllowed, ProfileImageManager.PROFILE_IMAGE_MAIN, true));
+		add(new ProfileImageRenderer("photo", userUuid, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_MAIN, true));
 		
 		/*STATUS PANEL */
 		//container
@@ -183,9 +182,9 @@ public class ViewProfile extends BasePage {
 		if(dateOfBirth != null) {
 			
 			if(profile.isBirthYearVisible(userUuid)) {
-				birthday = profile.convertDateToString(dateOfBirth, ProfileUtilityManager.DEFAULT_DATE_FORMAT);
+				birthday = profile.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT);
 			} else {
-				birthday = profile.convertDateToString(dateOfBirth, ProfileUtilityManager.DEFAULT_DATE_FORMAT_HIDE_YEAR);
+				birthday = profile.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT_HIDE_YEAR);
 			}
 		}
 		

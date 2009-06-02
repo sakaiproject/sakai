@@ -17,8 +17,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.util.lang.Bytes;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
-import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.components.CloseButton;
@@ -83,10 +82,10 @@ public class ChangeProfilePictureUpload extends Panel{
 					 * MAIN PROFILE IMAGE
 					 */
 					//scale image
-					imageBytes = profile.scaleImage(imageBytes, ProfileImageManager.MAX_IMAGE_XY);
+					imageBytes = profile.scaleImage(imageBytes, ProfileConstants.MAX_IMAGE_XY);
 					 
 					//create resource ID
-					String mainResourceId = sakaiProxy.getProfileImageResourcePath(userId, ProfileImageManager.PROFILE_IMAGE_MAIN);
+					String mainResourceId = sakaiProxy.getProfileImageResourcePath(userId, ProfileConstants.PROFILE_IMAGE_MAIN);
 					log.debug("Profile.ChangeProfilePicture.onSubmit mainResourceId: " + mainResourceId);
 					
 					//save, if error, log and return.
@@ -99,10 +98,10 @@ public class ChangeProfilePictureUpload extends Panel{
 					 * THUMBNAIL PROFILE IMAGE
 					 */
 					//scale image
-					imageBytes = profile.scaleImage(imageBytes, ProfileImageManager.MAX_THUMBNAIL_IMAGE_XY);
+					imageBytes = profile.scaleImage(imageBytes, ProfileConstants.MAX_THUMBNAIL_IMAGE_XY);
 					 
 					//create resource ID
-					String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userId, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
+					String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userId, ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
 					log.debug("Profile.ChangeProfilePicture.onSubmit thumbnailResourceId: " + thumbnailResourceId);
 					
 					//save, if error, log and return.
@@ -121,7 +120,7 @@ public class ChangeProfilePictureUpload extends Panel{
 						log.info("User " + userId + " successfully changed profile picture by upload.");
 						
 						//post update event
-						sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_IMAGE_CHANGE_UPLOAD, "/profile/"+userId, true);
+						sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_IMAGE_CHANGE_UPLOAD, "/profile/"+userId, true);
 						
 						//refresh image data
 						setResponsePage(new MyProfile());

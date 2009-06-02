@@ -21,7 +21,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.components.ProfileImageRenderer;
@@ -96,7 +96,7 @@ public class RequestedFriends extends Panel {
 				boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(friendId, userId, false);
 				
 				//image
-				item.add(new ProfileImageRenderer("result-photo", friendId, isProfileImageAllowed, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, true));
+				item.add(new ProfileImageRenderer("result-photo", friendId, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
 		    			    	
 		    	//name and link to profile
 		    	Link profileLink = new Link("result-profileLink") {
@@ -166,7 +166,7 @@ public class RequestedFriends extends Panel {
 
 					}
 				};
-				ContextImage ignoreFriendIcon = new ContextImage("ignoreFriendIcon",new Model(ProfileImageManager.CANCEL_IMG));
+				ContextImage ignoreFriendIcon = new ContextImage("ignoreFriendIcon",new Model(ProfileConstants.CANCEL_IMG));
 				ignoreFriendLink.add(ignoreFriendIcon);
 				ignoreFriendLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.ignorefriend")));
 				item.add(ignoreFriendLink);
@@ -181,7 +181,7 @@ public class RequestedFriends extends Panel {
 
 					}
 				};
-				ContextImage confirmFriendIcon = new ContextImage("confirmFriendIcon",new Model(ProfileImageManager.ACCEPT_IMG));
+				ContextImage confirmFriendIcon = new ContextImage("confirmFriendIcon",new Model(ProfileConstants.ACCEPT_IMG));
 				confirmFriendLink.add(confirmFriendIcon);
 				confirmFriendLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.confirmfriend")));
 				item.add(confirmFriendLink);

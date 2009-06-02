@@ -8,11 +8,8 @@ import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
-import uk.ac.lancs.e_science.profile2.api.ProfilePreferencesManager;
-import uk.ac.lancs.e_science.profile2.api.ProfilePrivacyManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
 import uk.ac.lancs.e_science.profile2.api.ProfileService;
-import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.api.entity.model.Connection;
 import uk.ac.lancs.e_science.profile2.api.entity.model.UserProfile;
@@ -271,7 +268,7 @@ public class ProfileServiceImpl implements ProfileService {
 		
 		//check environment configuration (will be url or upload) and get image accordingly
 		//fall back by default. there is no real use case for not doing it.
-		if(sakaiProxy.getProfilePictureType() == ProfileImageManager.PICTURE_SETTING_URL) {
+		if(sakaiProxy.getProfilePictureType() == ProfileConstants.PICTURE_SETTING_URL) {
 			String url = profile.getExternalImageUrl(userUuid, imageType);
 			if(url == null) {
 				return getDefaultImage();
@@ -583,7 +580,7 @@ public class ProfileServiceImpl implements ProfileService {
 		
 		//add the stylesheet
 		sb.append("<link href=\"");
-		sb.append(ProfileUtilityManager.ENTITY_CSS_PROFILE);
+		sb.append(ProfileConstants.ENTITY_CSS_PROFILE);
 		sb.append("\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />");
 		
 		return sb.toString();
@@ -793,17 +790,17 @@ public class ProfileServiceImpl implements ProfileService {
 	private void addPropertiesToProfile(UserProfile userProfile, ProfilePrivacy privacy, ProfilePreferences preferences) {
 		
 		if(privacy == null) {
-			userProfile.setProperty(ProfilePrivacyManager.PROP_BIRTH_YEAR_VISIBLE, String.valueOf(ProfilePrivacyManager.DEFAULT_BIRTHYEAR_VISIBILITY));
+			userProfile.setProperty(ProfileConstants.PROP_BIRTH_YEAR_VISIBLE, String.valueOf(ProfileConstants.DEFAULT_BIRTHYEAR_VISIBILITY));
 		} else {
-			userProfile.setProperty(ProfilePrivacyManager.PROP_BIRTH_YEAR_VISIBLE, String.valueOf(privacy.isShowBirthYear()));
+			userProfile.setProperty(ProfileConstants.PROP_BIRTH_YEAR_VISIBLE, String.valueOf(privacy.isShowBirthYear()));
 		}
 		
 		if(preferences == null) {
-			userProfile.setProperty(ProfilePreferencesManager.PROP_EMAIL_CONFIRM_ENABLED, String.valueOf(ProfilePreferencesManager.DEFAULT_EMAIL_NOTIFICATION_SETTING));
-			userProfile.setProperty(ProfilePreferencesManager.PROP_EMAIL_REQUEST_ENABLED, String.valueOf(ProfilePreferencesManager.DEFAULT_EMAIL_NOTIFICATION_SETTING));
+			userProfile.setProperty(ProfileConstants.PROP_EMAIL_CONFIRM_ENABLED, String.valueOf(ProfileConstants.DEFAULT_EMAIL_NOTIFICATION_SETTING));
+			userProfile.setProperty(ProfileConstants.PROP_EMAIL_REQUEST_ENABLED, String.valueOf(ProfileConstants.DEFAULT_EMAIL_NOTIFICATION_SETTING));
 		} else {
-			userProfile.setProperty(ProfilePreferencesManager.PROP_EMAIL_CONFIRM_ENABLED, String.valueOf(preferences.isConfirmEmailEnabled()));
-			userProfile.setProperty(ProfilePreferencesManager.PROP_EMAIL_REQUEST_ENABLED, String.valueOf(preferences.isRequestEmailEnabled()));
+			userProfile.setProperty(ProfileConstants.PROP_EMAIL_CONFIRM_ENABLED, String.valueOf(preferences.isConfirmEmailEnabled()));
+			userProfile.setProperty(ProfileConstants.PROP_EMAIL_REQUEST_ENABLED, String.valueOf(preferences.isRequestEmailEnabled()));
 		}
 
 	}

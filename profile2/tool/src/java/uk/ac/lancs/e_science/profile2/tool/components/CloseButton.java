@@ -9,9 +9,9 @@ import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 
-public class CloseButton extends Panel{
+import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
 
-	private static final String CLOSE_IMAGE = "/library/image/silk/cross.png";
+public class CloseButton extends Panel{
 	
 	
 	public CloseButton(String id, final Component parent) {
@@ -22,7 +22,7 @@ public class CloseButton extends Panel{
 		closeButton.setOutputMarkupId(true);
 		
 		//image
-		ContextImage image = new ContextImage("img",new Model(CLOSE_IMAGE));
+		ContextImage image = new ContextImage("img",new Model(ProfileConstants.CLOSE_IMAGE));
 		
 		AjaxFallbackLink link = new AjaxFallbackLink("link") {
 			public void onClick(AjaxRequestTarget target) {

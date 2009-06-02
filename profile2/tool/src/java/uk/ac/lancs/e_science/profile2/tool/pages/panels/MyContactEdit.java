@@ -22,7 +22,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
-import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.components.ComponentVisualErrorBehaviour;
@@ -138,7 +138,7 @@ public class MyContactEdit extends Panel {
 				if(save(form)) {
 					
 					//post update event
-					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_CONTACT_UPDATE, "/profile/"+userProfile.getUserId(), true);
+					sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_CONTACT_UPDATE, "/profile/"+userProfile.getUserId(), true);
 					
 					//repaint panel
 					Component newPanel = new MyContactDisplay(id, userProfile);

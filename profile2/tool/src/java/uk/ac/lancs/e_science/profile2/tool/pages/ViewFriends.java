@@ -7,7 +7,7 @@ import java.io.ObjectInputStream;
 import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.panel.Panel;
 
-import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfileFriendsIllegalAccessException;
 import uk.ac.lancs.e_science.profile2.tool.pages.panels.ConfirmedFriends;
 
@@ -37,7 +37,7 @@ public class ViewFriends extends BasePage {
 		add(confirmedFriends);
 		
 		//post view event
-		sakaiProxy.postEvent(ProfileUtilityManager.EVENT_FRIENDS_VIEW_OTHER, "/profile/"+userId, false);
+		sakaiProxy.postEvent(ProfileConstants.EVENT_FRIENDS_VIEW_OTHER, "/profile/"+userId, false);
 		
 	}
 	

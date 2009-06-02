@@ -14,7 +14,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.api.ProfileFriendsManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 
 /**
@@ -61,7 +61,7 @@ public class FriendsFeedDataProvider implements IDataProvider, Serializable {
 		
 		//make a subset (but make sure the sublist is not too big for the actual list size)
 		int allFriendsSize = allFriends.size();
-		int subListSize = ProfileFriendsManager.MAX_FRIENDS_FEED_ITEMS;
+		int subListSize = ProfileConstants.MAX_FRIENDS_FEED_ITEMS;
 		
 		if(allFriendsSize < subListSize) {
 			subListSize = allFriendsSize;

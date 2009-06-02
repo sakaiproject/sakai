@@ -23,7 +23,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
-import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfilePrivacyNotDefinedException;
 import uk.ac.lancs.e_science.profile2.api.model.ProfilePrivacy;
 import uk.ac.lancs.e_science.profile2.tool.components.HashMapChoiceRenderer;
@@ -55,7 +55,7 @@ public class MyPrivacy extends BasePage {
 			}
 			
 			//post create event
-			sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PRIVACY_NEW, "/profile/"+userId, true);
+			sakaiProxy.postEvent(ProfileConstants.EVENT_PRIVACY_NEW, "/profile/"+userId, true);
 			
 		}
 		
@@ -116,7 +116,7 @@ public class MyPrivacy extends BasePage {
 		DropDownChoice profileImageChoice = new DropDownChoice("profileImage", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));             
 		profileImageContainer.add(profileImageChoice);
 		//tooltip
-		profileImageContainer.add(new IconWithClueTip("profileImageToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.profileimage.tooltip")));
+		profileImageContainer.add(new IconWithClueTip("profileImageToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.profileimage.tooltip")));
 		form.add(profileImageContainer);
 		//updater
 		profileImageChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -133,7 +133,7 @@ public class MyPrivacy extends BasePage {
 		DropDownChoice basicInfoChoice = new DropDownChoice("basicInfo", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
 		basicInfoContainer.add(basicInfoChoice);
 		//tooltip
-		basicInfoContainer.add(new IconWithClueTip("basicInfoToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.basicinfo.tooltip")));
+		basicInfoContainer.add(new IconWithClueTip("basicInfoToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.basicinfo.tooltip")));
 		form.add(basicInfoContainer);
 		//updater
 		basicInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -148,7 +148,7 @@ public class MyPrivacy extends BasePage {
 		DropDownChoice contactInfoChoice = new DropDownChoice("contactInfo", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
 		contactInfoContainer.add(contactInfoChoice);
 		//tooltip
-		contactInfoContainer.add(new IconWithClueTip("contactInfoToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.contactinfo.tooltip")));
+		contactInfoContainer.add(new IconWithClueTip("contactInfoToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.contactinfo.tooltip")));
 		form.add(contactInfoContainer);
 		//updater
 		contactInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -163,7 +163,7 @@ public class MyPrivacy extends BasePage {
 		DropDownChoice academicInfoChoice = new DropDownChoice("academicInfo", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
 		academicInfoContainer.add(academicInfoChoice);
 		//tooltip
-		academicInfoContainer.add(new IconWithClueTip("academicInfoToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.academicinfo.tooltip")));
+		academicInfoContainer.add(new IconWithClueTip("academicInfoToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.academicinfo.tooltip")));
 		form.add(academicInfoContainer);
 		//updater
 		academicInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -178,7 +178,7 @@ public class MyPrivacy extends BasePage {
 		DropDownChoice personalInfoChoice = new DropDownChoice("personalInfo", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
 		personalInfoContainer.add(personalInfoChoice);
 		//tooltip
-		personalInfoContainer.add(new IconWithClueTip("personalInfoToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.personalinfo.tooltip")));
+		personalInfoContainer.add(new IconWithClueTip("personalInfoToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.personalinfo.tooltip")));
 		form.add(personalInfoContainer);
 		//updater
 		personalInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -193,7 +193,7 @@ public class MyPrivacy extends BasePage {
 		CheckBox birthYearCheckbox = new CheckBox("birthYear", new PropertyModel(privacyModel, "showBirthYear"));
 		birthYearContainer.add(birthYearCheckbox);
 		//tooltip
-		birthYearContainer.add(new IconWithClueTip("birthYearToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.birthyear.tooltip")));
+		birthYearContainer.add(new IconWithClueTip("birthYearToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.birthyear.tooltip")));
 		form.add(birthYearContainer);
 		//updater
 		birthYearCheckbox.add(new AjaxFormComponentUpdatingBehavior("onclick") {
@@ -208,7 +208,7 @@ public class MyPrivacy extends BasePage {
 		DropDownChoice searchChoice = new DropDownChoice("search", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));
 		searchContainer.add(searchChoice);
 		//tooltip
-		searchContainer.add(new IconWithClueTip("searchToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.search.tooltip")));
+		searchContainer.add(new IconWithClueTip("searchToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.search.tooltip")));
 		form.add(searchContainer);
 		//updater
 		searchChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -224,7 +224,7 @@ public class MyPrivacy extends BasePage {
 		DropDownChoice myFriendsChoice = new DropDownChoice("myFriends", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
 		myFriendsContainer.add(myFriendsChoice);
 		//tooltip
-		myFriendsContainer.add(new IconWithClueTip("myFriendsToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.myfriends.tooltip")));
+		myFriendsContainer.add(new IconWithClueTip("myFriendsToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.myfriends.tooltip")));
 		form.add(myFriendsContainer);
 		//updater
 		myFriendsChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -239,7 +239,7 @@ public class MyPrivacy extends BasePage {
 		DropDownChoice myStatusChoice = new DropDownChoice("myStatus", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));
 		myStatusContainer.add(myStatusChoice);
 		//tooltip
-		myStatusContainer.add(new IconWithClueTip("myStatusToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.privacy.mystatus.tooltip")));
+		myStatusContainer.add(new IconWithClueTip("myStatusToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.mystatus.tooltip")));
 		form.add(myStatusContainer);
 		//updater
 		myStatusChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -259,7 +259,7 @@ public class MyPrivacy extends BasePage {
 					formFeedback.add(new AttributeModifier("class", true, new Model("success")));
 					
 					//post update event
-					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PRIVACY_UPDATE, "/profile/"+userId, true);
+					sakaiProxy.postEvent(ProfileConstants.EVENT_PRIVACY_UPDATE, "/profile/"+userId, true);
 
 				} else {
 					formFeedback.setModel(new ResourceModel("error.privacy.save.failed"));

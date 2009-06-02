@@ -37,8 +37,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 
-import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
-import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.api.model.ResourceWrapper;
 
@@ -248,7 +247,7 @@ public class SakaiProxyImpl implements SakaiProxy {
  	* {@inheritDoc}
  	*/
 	public int getMaxProfilePictureSize() {
-		return serverConfigurationService.getInt("profile2.picture.max", ProfileImageManager.MAX_PROFILE_IMAGE_UPLOAD_SIZE);
+		return serverConfigurationService.getInt("profile2.picture.max", ProfileConstants.MAX_PROFILE_IMAGE_UPLOAD_SIZE);
 	}
 	
 	
@@ -388,7 +387,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		List<String> userUuids = new ArrayList<String>();
 		
 		//search for users
-		List<User> results = new ArrayList<User>(userDirectoryService.searchUsers(search, ProfileUtilityManager.FIRST_RECORD, ProfileUtilityManager.MAX_RECORDS));
+		List<User> results = new ArrayList<User>(userDirectoryService.searchUsers(search, ProfileConstants.FIRST_RECORD, ProfileConstants.MAX_RECORDS));
 		
 		for(Iterator<User> i = results.iterator(); i.hasNext();){
 			User user = (User)i.next();
@@ -595,10 +594,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 		
 		String siteId = getUserMyWorkspace(userId);
 		
-		ToolConfiguration toolConfig = getFirstInstanceOfTool(siteId, ProfileUtilityManager.TOOL_ID);
+		ToolConfiguration toolConfig = getFirstInstanceOfTool(siteId, ProfileConstants.TOOL_ID);
 		if(toolConfig == null) {
 			//if the user doesn't have the profile2 tool installed in their My Workspace,
-			log.warn("SakaiProxy.getDirectUrlToUserProfile() failed to find " + ProfileUtilityManager.TOOL_ID + " installed in My Workspace for userId: " + userId);
+			log.warn("SakaiProxy.getDirectUrlToUserProfile() failed to find " + ProfileConstants.TOOL_ID + " installed in My Workspace for userId: " + userId);
 			
 			//just return a link to their My Workspace
 			StringBuilder url = new StringBuilder();
@@ -686,16 +685,16 @@ public class SakaiProxyImpl implements SakaiProxy {
 		String pictureType = serverConfigurationService.getString("profile2.picture.type");
 		
 		//if 'upload'
-		if(pictureType.equals(ProfileImageManager.PICTURE_SETTING_UPLOAD_PROP)) {
-			return ProfileImageManager.PICTURE_SETTING_UPLOAD;
+		if(pictureType.equals(ProfileConstants.PICTURE_SETTING_UPLOAD_PROP)) {
+			return ProfileConstants.PICTURE_SETTING_UPLOAD;
 		}
 		//if 'url'
-		else if(pictureType.equals(ProfileImageManager.PICTURE_SETTING_URL_PROP)) {
-			return ProfileImageManager.PICTURE_SETTING_URL;
+		else if(pictureType.equals(ProfileConstants.PICTURE_SETTING_URL_PROP)) {
+			return ProfileConstants.PICTURE_SETTING_URL;
 		}
 		//otherwise return default
 		else {
-			return ProfileImageManager.PICTURE_SETTING_DEFAULT;
+			return ProfileConstants.PICTURE_SETTING_DEFAULT;
 		}
 	}
 	
@@ -712,7 +711,7 @@ public class SakaiProxyImpl implements SakaiProxy {
  	*/
 	public List<String> getAcademicEntityConfigurationSet() {
 		
-		String configuration = serverConfigurationService.getString("profile2.profile.entity.set.academic", ProfileUtilityManager.ENTITY_SET_ACADEMIC);
+		String configuration = serverConfigurationService.getString("profile2.profile.entity.set.academic", ProfileConstants.ENTITY_SET_ACADEMIC);
 		String[] parameters = StringUtils.split(configuration, ',');
 		
 		List<String> tempList = Arrays.asList(parameters);
@@ -725,7 +724,7 @@ public class SakaiProxyImpl implements SakaiProxy {
  	* {@inheritDoc}
  	*/
 	public List<String> getMinimalEntityConfigurationSet() {
-		String configuration = serverConfigurationService.getString("profile2.profile.entity.set.minimal", ProfileUtilityManager.ENTITY_SET_MINIMAL);
+		String configuration = serverConfigurationService.getString("profile2.profile.entity.set.minimal", ProfileConstants.ENTITY_SET_MINIMAL);
 		String[] parameters = StringUtils.split(configuration, ',');
 		
 		List<String> tempList = Arrays.asList(parameters);

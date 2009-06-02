@@ -18,8 +18,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.validation.validator.UrlValidator;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
-import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.components.CloseButton;
@@ -51,7 +50,7 @@ public class ChangeProfilePictureUrl extends Panel{
 		SimpleText simpleText = new SimpleText();
 		
 		//do they already have a URL that should be loaded in here?
-		String externalUrl = profile.getExternalImageUrl(userId, ProfileImageManager.PROFILE_IMAGE_MAIN);
+		String externalUrl = profile.getExternalImageUrl(userId, ProfileConstants.PROFILE_IMAGE_MAIN);
 		
 		if(externalUrl != null) {
 			simpleText.setText(externalUrl);
@@ -102,7 +101,7 @@ public class ChangeProfilePictureUrl extends Panel{
 					log.info("User " + userId + " successfully changed profile picture by url.");
 					
 					//post update event
-					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_IMAGE_CHANGE_URL, "/profile/"+userId, true);
+					sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_IMAGE_CHANGE_URL, "/profile/"+userId, true);
 					
 					//refresh image data
 					setResponsePage(new MyProfile());

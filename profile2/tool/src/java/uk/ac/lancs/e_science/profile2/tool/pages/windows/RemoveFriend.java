@@ -13,8 +13,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.util.FormattedText;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
-import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.components.FocusOnLoadBehaviour;
@@ -52,7 +51,7 @@ public class RemoveFriend extends Panel {
 		boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(userY, userX, true);
 		
 		//image
-		add(new ProfileImageRenderer("image", userY, isProfileImageAllowed, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, true));
+		add(new ProfileImageRenderer("image", userY, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
 		
         //text
 		final Label text = new Label("text", new StringResourceModel("text.friend.remove", null, new Object[]{ friendName } ));
@@ -90,7 +89,7 @@ public class RemoveFriend extends Panel {
 					friendActionModel.setRemoved(true);
 					
 					//post event
-					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_FRIEND_REMOVE, "/profile/"+userY, true);
+					sakaiProxy.postEvent(ProfileConstants.EVENT_FRIEND_REMOVE, "/profile/"+userY, true);
 					
 					window.close(target);
 				} else {

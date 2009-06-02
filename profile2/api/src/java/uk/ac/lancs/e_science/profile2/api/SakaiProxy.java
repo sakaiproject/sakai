@@ -291,7 +291,7 @@ public interface SakaiProxy {
 	 * Get the profile2.picture.type setting in sakai.properties
 	 * <p>Possible values for the sakai property are 'upload' and 'url'.
 	 * If not set, defaults to 'upload'.</p>
-	 * <p>This returns an int which matches ProfileImageManager.PICTURE_SETTING_UPLOAD or ProfileImageManager.PICTURE_SETTING_URL</p>
+	 * <p>This returns an int which matches ProfileConstants.PICTURE_SETTING_UPLOAD or ProfileConstants.PICTURE_SETTING_URL</p>
 	 * 
 	 * <p>Depending on this setting, Profile2 will decide how it retrieves a user's profile image, and the method by which
 	 * users can cadd their own image. ie by uploading their own image or providing a URL.</p>
@@ -309,14 +309,14 @@ public interface SakaiProxy {
 	
 	/**
 	 * Gets the profile2.profile.entity.set.academic list of properties that should be used in the academic profile view.
-	 * Returns default list of ProfileUtilityManager.ENTITY_SET_ACADEMIC if none.
+	 * Returns default list of ProfileConstants.ENTITY_SET_ACADEMIC if none.
 	 * @return
 	 */
 	public List<String> getAcademicEntityConfigurationSet();
 	
 	/**
 	 * Gets the profile2.profile.entity.set.minimal list of properties that should be used in the minimal profile view.
-	 * Returns default list of ProfileUtilityManager.ENTITY_SET_MINIMAL if none.
+	 * Returns default list of ProfileConstants.ENTITY_SET_MINIMAL if none.
 	 * @return
 	 */
 	public List<String> getMinimalEntityConfigurationSet();

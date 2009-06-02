@@ -22,7 +22,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.components.IconWithClueTip;
@@ -120,7 +120,7 @@ public class MyInfoEdit extends Panel {
 		TextField birthday = new TextField("birthday", new PropertyModel(userProfile, "birthday"));
 		birthdayContainer.add(birthday);
 		//tooltip
-		birthdayContainer.add(new IconWithClueTip("birthdayToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.profile.birthyear.tooltip")));
+		birthdayContainer.add(new IconWithClueTip("birthdayToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.profile.birthyear.tooltip")));
 		form.add(birthdayContainer);
 
 		
@@ -132,7 +132,7 @@ public class MyInfoEdit extends Panel {
 				if(save(form)) {
 					
 					//post update event
-					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_INFO_UPDATE, "/profile/"+userProfile.getUserId(), true);
+					sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_INFO_UPDATE, "/profile/"+userProfile.getUserId(), true);
 					
 					//repaint panel
 					Component newPanel = new MyInfoDisplay(id, userProfile);
@@ -214,7 +214,7 @@ public class MyInfoEdit extends Panel {
 		sakaiPerson.setNickname(userProfile.getNickname());
 		
 		if(StringUtils.isNotBlank(userProfile.getBirthday())) {
-			Date convertedDate = profile.convertStringToDate(userProfile.getBirthday(), ProfileUtilityManager.DEFAULT_DATE_FORMAT);
+			Date convertedDate = profile.convertStringToDate(userProfile.getBirthday(), ProfileConstants.DEFAULT_DATE_FORMAT);
 			userProfile.setDateOfBirth(convertedDate); //set in userProfile which backs the profile
 			sakaiPerson.setDateOfBirth(convertedDate); //set into sakaiPerson to be persisted to DB
 		} else {

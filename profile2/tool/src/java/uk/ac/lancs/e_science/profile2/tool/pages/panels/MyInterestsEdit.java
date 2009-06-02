@@ -19,7 +19,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
-import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
@@ -98,7 +98,7 @@ public class MyInterestsEdit extends Panel {
 				if(save(form)) {
 
 					//post update event
-					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_INTERESTS_UPDATE, "/profile/"+userProfile.getUserId(), true);
+					sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_INTERESTS_UPDATE, "/profile/"+userProfile.getUserId(), true);
 					
 					//repaint panel
 					Component newPanel = new MyInterestsDisplay(id, userProfile);

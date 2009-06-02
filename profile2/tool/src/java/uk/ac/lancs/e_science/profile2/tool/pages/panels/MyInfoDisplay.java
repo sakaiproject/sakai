@@ -17,7 +17,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
 
@@ -56,13 +56,13 @@ public class MyInfoDisplay extends Panel {
 		if(dateOfBirth != null) {
 			
 			//full value contains year regardless of privacy settings
-			birthday = profile.convertDateToString(dateOfBirth, ProfileUtilityManager.DEFAULT_DATE_FORMAT);
+			birthday = profile.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT);
 			
 			//get privacy on display of birthday year and format accordingly
 			if(profile.isBirthYearVisible(userId)) {
 				birthdayDisplay = birthday;
 			} else {
-				birthdayDisplay = profile.convertDateToString(dateOfBirth, ProfileUtilityManager.DEFAULT_DATE_FORMAT_HIDE_YEAR);
+				birthdayDisplay = profile.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT_HIDE_YEAR);
 			}
 			
 			//set both values as they are used differently

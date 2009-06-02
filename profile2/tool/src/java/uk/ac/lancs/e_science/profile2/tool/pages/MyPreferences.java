@@ -23,7 +23,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
-import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfilePreferencesNotDefinedException;
 import uk.ac.lancs.e_science.profile2.api.model.ProfilePreferences;
 import uk.ac.lancs.e_science.profile2.tool.components.EnablingCheckBox;
@@ -54,7 +54,7 @@ public class MyPreferences extends BasePage{
 			}
 			
 			//post create event
-			sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PREFERENCES_NEW, "/profile/"+userId, true);
+			sakaiProxy.postEvent(ProfileConstants.EVENT_PREFERENCES_NEW, "/profile/"+userId, true);
 		}
 		
 		//get email address for this user
@@ -285,7 +285,7 @@ public class MyPreferences extends BasePage{
 					formFeedback.add(new AttributeModifier("class", true, new Model("success")));
 					
 					//post update event
-					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PREFERENCES_UPDATE, "/profile/"+userId, true);
+					sakaiProxy.postEvent(ProfileConstants.EVENT_PREFERENCES_UPDATE, "/profile/"+userId, true);
 					
 					
 				} else {

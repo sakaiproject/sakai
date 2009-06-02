@@ -14,8 +14,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
-import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
-import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
 import uk.ac.lancs.e_science.profile2.api.exception.ProfileNotDefinedException;
 import uk.ac.lancs.e_science.profile2.tool.components.ProfileImageRenderer;
 import uk.ac.lancs.e_science.profile2.tool.models.UserProfile;
@@ -57,11 +56,11 @@ public class MyProfile extends BasePage {
 				throw new ProfileNotDefinedException("Couldn't create a SakaiPerson for " + userId);
 			}
 			//post create event
-			sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_NEW, userId, true);
+			sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_NEW, userId, true);
 		} 
 		
 		//post view event
-		sakaiProxy.postEvent(ProfileUtilityManager.EVENT_PROFILE_VIEW_OWN, "/profile/"+userId, false);
+		sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_VIEW_OWN, "/profile/"+userId, false);
 
 		//get some values from SakaiPerson or SakaiProxy if empty
 		//SakaiPerson returns NULL strings if value is not set, not blank ones
@@ -118,9 +117,9 @@ public class MyProfile extends BasePage {
 		final Panel changePicture;
 		
 		//if upload
-		if(profilePictureType == ProfileImageManager.PICTURE_SETTING_UPLOAD) {
+		if(profilePictureType == ProfileConstants.PICTURE_SETTING_UPLOAD) {
 			changePicture = new ChangeProfilePictureUpload("changePicture");
-		} else if (profilePictureType == ProfileImageManager.PICTURE_SETTING_URL) {
+		} else if (profilePictureType == ProfileConstants.PICTURE_SETTING_URL) {
 			changePicture = new ChangeProfilePictureUrl("changePicture");
 		} else {
 			//no valid option for changing picture was returned from the Profile2 API.
@@ -132,7 +131,7 @@ public class MyProfile extends BasePage {
 		add(changePicture);
 		
 		//add the current picture
-		add(new ProfileImageRenderer("photo", userId, true, ProfileImageManager.PROFILE_IMAGE_MAIN, true));
+		add(new ProfileImageRenderer("photo", userId, true, ProfileConstants.PROFILE_IMAGE_MAIN, true));
 		
 		//change profile image button
 		AjaxFallbackLink changePictureLink = new AjaxFallbackLink("changePictureLink") {

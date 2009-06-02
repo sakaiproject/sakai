@@ -21,7 +21,7 @@ import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 
-import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
 import uk.ac.lancs.e_science.profile2.api.ProfileService;
 import uk.ac.lancs.e_science.profile2.api.entity.ProfileEntityProvider;
 import uk.ac.lancs.e_science.profile2.api.entity.model.Connection;
@@ -113,9 +113,9 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 		
 		//get thumb if requested - will fallback by default
 		if(wantsThumbnail) {
-			resource = profileService.getProfileImage(ref.getId(), ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
+			resource = profileService.getProfileImage(ref.getId(), ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
 		} else {
-			resource = profileService.getProfileImage(ref.getId(),ProfileImageManager.PROFILE_IMAGE_MAIN);
+			resource = profileService.getProfileImage(ref.getId(),ProfileConstants.PROFILE_IMAGE_MAIN);
 		}
 		
 		if(resource == null || resource.getBytes() == null) {

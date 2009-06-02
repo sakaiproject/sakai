@@ -209,14 +209,14 @@ public interface Profile {
 	public String truncateAndPadStringToSize(String string, int size);
 	
 	/**
-	 * Create a persistent default privacy record according to the defaults in ProfilePrivacyManager.
+	 * Create a persistent default privacy record according to the defaults in ProfileConstants.
 	 *
 	 * @param userId		uuid of the user to create the record for
 	 */
 	public ProfilePrivacy createDefaultPrivacyRecord(String userId);
 	
 	/**
-	 * Create a default privacy record according to the defaults in ProfilePrivacyManager. Not persisted.
+	 * Create a default privacy record according to the defaults in ProfileConstants. Not persisted.
 	 *
 	 * @param userId		uuid of the user to create the record for
 	 */
@@ -568,7 +568,7 @@ public interface Profile {
 	 * Get the profile image for the given user, allowing fallback if no thumbnail exists.
 	 * 
 	 * @param userId 		the uuid of the user we are querying
-	 * @param imageType		comes from ProfileImageManager and maps to a directory in ContentHosting
+	 * @param imageType		comes from ProfileConstants and maps to a directory in ContentHosting
 	 * @return image as bytes
 	 * 
 	 * <p>Note: if thumbnail is requested and none exists, the main image will be returned instead. It can be scaled in the markup.</p>
@@ -580,7 +580,7 @@ public interface Profile {
 	 * Get the profile image for the given user, allowing fallback if no thumbnail exists and wrapping it in a ResourceWrapper
 	 * 
 	 * @param userId 		the uuid of the user we are querying
-	 * @param imageType		comes from ProfileImageManager and maps to a directory in ContentHosting
+	 * @param imageType		comes from ProfileConstants and maps to a directory in ContentHosting
 	 * @return image as bytes
 	 * 
 	 * <p>Note: if thumbnail is requested and none exists, the main image will be returned instead. It can be scaled in the markup.</p>
@@ -706,7 +706,7 @@ public interface Profile {
 	/**
 	 * Get the URL to an image that a user has specified as their profile image
 	 * @param userId		uuid of user
-	 * @param imageType		comes from ProfileImageManager. main or thumbnail.
+	 * @param imageType		comes from ProfileConstants. main or thumbnail.
 	 *
 	 * <p>Note: if thumbnail is requested and none exists, the main image will be returned instead. It can be scaled in the markup.</p>
 	 * 
@@ -735,7 +735,7 @@ public interface Profile {
 	public ResourceWrapper getURLResourceAsBytes(final String url);
 	
 	/**
-	 * Get the full URL to the default unavailable image defined in ProfileImageManager
+	 * Get the full URL to the default unavailable image defined in ProfileConstants
 	 * @return
 	 */
 	public String getUnavailableImageURL();

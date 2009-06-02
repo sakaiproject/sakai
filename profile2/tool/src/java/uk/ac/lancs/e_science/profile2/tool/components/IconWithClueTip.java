@@ -34,8 +34,6 @@ import org.apache.wicket.model.Model;
 
 public class IconWithClueTip extends Panel{
 	
-	public static final String INFO_IMAGE = "/library/image/silk/information.png";
-
 	public IconWithClueTip(String id, String iconUrl, IModel textModel) {
 		super(id);
 			

@@ -14,9 +14,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.util.FormattedText;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
-import uk.ac.lancs.e_science.profile2.api.ProfilePreferencesManager;
-import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 import uk.ac.lancs.e_science.profile2.tool.components.FocusOnLoadBehaviour;
@@ -55,7 +53,7 @@ public class ConfirmFriend extends Panel {
 		boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(userY, userX, false);
 		
 		//image
-		add(new ProfileImageRenderer("image", userY, isProfileImageAllowed, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, true));
+		add(new ProfileImageRenderer("image", userY, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
 		
 		
         //text
@@ -93,10 +91,10 @@ public class ConfirmFriend extends Panel {
 					friendActionModel.setConfirmed(true);
 					
 					//post event
-					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_FRIEND_CONFIRM, "/profile/"+userY, true);
+					sakaiProxy.postEvent(ProfileConstants.EVENT_FRIEND_CONFIRM, "/profile/"+userY, true);
 					
 					//if email is enabled for this message type, send email
-					if(profile.isEmailEnabledForThisMessageType(userY, ProfilePreferencesManager.EMAIL_NOTIFICATION_CONFIRM)) {
+					if(profile.isEmailEnabledForThisMessageType(userY, ProfileConstants.EMAIL_NOTIFICATION_CONFIRM)) {
 						
 										       
 						final String currentUserName = sakaiProxy.getUserDisplayName(userX);
@@ -107,7 +105,7 @@ public class ConfirmFriend extends Panel {
 						final String subject = new StringResourceModel("email.friend.confirm.subject", null, new Object[]{ currentUserName, serviceName } ).getObject().toString();
 						
 						//email newline
-						final String newline = ProfileUtilityManager.EMAIL_NEWLINE;
+						final String newline = ProfileConstants.EMAIL_NEWLINE;
 						
 						//message
 						StringBuilder message = new StringBuilder();

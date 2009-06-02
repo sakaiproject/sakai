@@ -29,8 +29,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.util.FormattedText;
 
-import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
-import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
 import uk.ac.lancs.e_science.profile2.api.model.SearchResult;
 import uk.ac.lancs.e_science.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import uk.ac.lancs.e_science.profile2.tool.components.FeedbackLabel;
@@ -89,7 +88,7 @@ public class MySearch extends BasePage {
 		sbnNameField.setRequired(true);
 		sbnNameField.setOutputMarkupId(true);
 		sbnForm.add(sbnNameField);
-		sbnForm.add(new IconWithClueTip("sbnNameToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.search.byname.tooltip")));
+		sbnForm.add(new IconWithClueTip("sbnNameToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.search.byname.tooltip")));
 		
 		//search feedback
         final FeedbackLabel sbnNameFeedback = new FeedbackLabel("searchNameFeedback", sbnNameField, new ResourceModel("text.search.nothing"));
@@ -119,7 +118,7 @@ public class MySearch extends BasePage {
 		sbiInterestField.setRequired(true);
 		sbiInterestField.setOutputMarkupId(true);
 		sbiForm.add(sbiInterestField);
-		sbiForm.add(new IconWithClueTip("sbiInterestToolTip", IconWithClueTip.INFO_IMAGE, new ResourceModel("text.search.byinterest.tooltip")));
+		sbiForm.add(new IconWithClueTip("sbiInterestToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.search.byinterest.tooltip")));
 		
 		//search feedback
         final FeedbackLabel sbiInterestFeedback = new FeedbackLabel("searchInterestFeedback", sbiInterestField, new ResourceModel("text.search.nothing"));
@@ -176,7 +175,7 @@ public class MySearch extends BasePage {
 				final boolean isProfileImageAllowed = searchResult.isProfileImageAllowed();
 				
 				//image
-				item.add(new ProfileImageRenderer("result-photo", userUuid, isProfileImageAllowed, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL, false));
+				item.add(new ProfileImageRenderer("result-photo", userUuid, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false));
 		    	
 		    	//name and link to profile (if allowed or no link)
 		    	Link profileLink = new Link("result-profileLink") {
@@ -385,7 +384,7 @@ public class MySearch extends BasePage {
 					results = new ArrayList<SearchResult>(profile.findUsersByNameOrEmail(searchText, currentUserUuid));
 	
 					int numResults = results.size();
-					int maxResults = ProfileUtilityManager.MAX_SEARCH_RESULTS;
+					int maxResults = ProfileConstants.MAX_SEARCH_RESULTS;
 					
 					//text
 					if(numResults == 0) {
@@ -403,7 +402,7 @@ public class MySearch extends BasePage {
 					}
 					
 					//post view event
-					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_SEARCH_BY_NAME, "/profile/"+currentUserUuid, false);
+					sakaiProxy.postEvent(ProfileConstants.EVENT_SEARCH_BY_NAME, "/profile/"+currentUserUuid, false);
 					
 					//repaint components
 					target.addComponent(sbiInterestField);
@@ -450,7 +449,7 @@ public class MySearch extends BasePage {
 					results = new ArrayList<SearchResult>(profile.findUsersByInterest(searchText, currentUserUuid));
 										
 					int numResults = results.size();
-					int maxResults = ProfileUtilityManager.MAX_SEARCH_RESULTS;
+					int maxResults = ProfileConstants.MAX_SEARCH_RESULTS;
 
 					//text
 					if(numResults == 0) {
@@ -468,7 +467,7 @@ public class MySearch extends BasePage {
 					}
 					
 					//post view event
-					sakaiProxy.postEvent(ProfileUtilityManager.EVENT_SEARCH_BY_INTEREST, "/profile/"+currentUserUuid, false);
+					sakaiProxy.postEvent(ProfileConstants.EVENT_SEARCH_BY_INTEREST, "/profile/"+currentUserUuid, false);
 					
 					//repaint components
 					target.addComponent(sbnNameField);

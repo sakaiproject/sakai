@@ -57,7 +57,7 @@ public class ProfilePrivacyServiceImpl implements ProfilePrivacyService {
 			throw new SecurityException("Must be logged in.");
 		}
 		
-		//check currentUser and profile uuid match
+		//check currentUser and object uuid match
 		if(!currentUserUuid.equals(obj.getUserUuid())) {
 			throw new SecurityException("Not allowed to save.");
 		}
@@ -103,7 +103,7 @@ public class ProfilePrivacyServiceImpl implements ProfilePrivacyService {
 			return false;
 		}
 		
-		//check currentUser and profile uuid match
+		//check currentUser and object uuid match
 		if(!currentUserUuid.equals(userUuid)) {
 			throw new SecurityException("Not allowed to save.");
 		}

@@ -8,7 +8,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 
 import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.tool.ProfileApplication;
 
@@ -46,7 +46,7 @@ public class ProfileImageRenderer extends Panel {
 		int type = sakaiProxy.getProfilePictureType();
 		
 		//UPLOAD
-		if(type == ProfileImageManager.PICTURE_SETTING_UPLOAD) {
+		if(type == ProfileConstants.PICTURE_SETTING_UPLOAD) {
 
 			final byte[] bytes = profile.getCurrentProfileImageForUser(userX, size);
 			
@@ -68,9 +68,9 @@ public class ProfileImageRenderer extends Panel {
 			}
 		
 		//EXTERNAL IMAGE
-		} else if (type == ProfileImageManager.PICTURE_SETTING_URL) {
+		} else if (type == ProfileConstants.PICTURE_SETTING_URL) {
 			
-			String url = profile.getExternalImageUrl(userX, ProfileImageManager.PROFILE_IMAGE_MAIN);
+			String url = profile.getExternalImageUrl(userX, ProfileConstants.PROFILE_IMAGE_MAIN);
 			
 			//add uploaded image or default
 			if(url != null) {
@@ -92,7 +92,7 @@ public class ProfileImageRenderer extends Panel {
 	 * @return
 	 */
 	private String getDefaultImage() {
-		return ProfileImageManager.UNAVAILABLE_IMAGE;
+		return ProfileConstants.UNAVAILABLE_IMAGE;
 	}
 	
 	

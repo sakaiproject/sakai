@@ -6,11 +6,9 @@ import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.sql.SQLException;
@@ -39,11 +37,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import twitter4j.Twitter;
 import uk.ac.lancs.e_science.profile2.api.Profile;
-import uk.ac.lancs.e_science.profile2.api.ProfileFriendsManager;
-import uk.ac.lancs.e_science.profile2.api.ProfileImageManager;
-import uk.ac.lancs.e_science.profile2.api.ProfilePreferencesManager;
-import uk.ac.lancs.e_science.profile2.api.ProfilePrivacyManager;
-import uk.ac.lancs.e_science.profile2.api.ProfileUtilityManager;
+import uk.ac.lancs.e_science.profile2.api.ProfileConstants;
 import uk.ac.lancs.e_science.profile2.api.SakaiProxy;
 import uk.ac.lancs.e_science.profile2.api.model.ProfileFriend;
 import uk.ac.lancs.e_science.profile2.api.model.ProfileImage;
@@ -331,7 +325,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		
 		try {
 			//make a ProfileFriend object with 'Friend Request' constructor
-			ProfileFriend profileFriend = new ProfileFriend(userId, friendId, ProfileFriendsManager.RELATIONSHIP_FRIEND);
+			ProfileFriend profileFriend = new ProfileFriend(userId, friendId, ProfileConstants.RELATIONSHIP_FRIEND);
 			getHibernateTemplate().save(profileFriend);
 			log.info("User: " + userId + " requested friend: " + friendId); //$NON-NLS-1$ //$NON-NLS-2$
 			return true;
@@ -713,17 +707,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	public ProfilePrivacy createDefaultPrivacyRecord(String userId) {
 		
 		//see ProfilePrivacy for this constructor and what it all means
-		ProfilePrivacy profilePrivacy = new ProfilePrivacy(
-				userId,
-				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_PROFILEIMAGE,
-				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_BASICINFO,
-				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_CONTACTINFO,
-				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_ACADEMICINFO,
-				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_PERSONALINFO,
-				ProfilePrivacyManager.DEFAULT_BIRTHYEAR_VISIBILITY,
-				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_SEARCH,
-				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_MYFRIENDS,
-				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_MYSTATUS);
+		ProfilePrivacy profilePrivacy = getDefaultPrivacyRecord(userId);
 		
 		//save
 		try {
@@ -743,15 +727,15 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		
 		ProfilePrivacy profilePrivacy = new ProfilePrivacy(
 				userId,
-				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_PROFILEIMAGE,
-				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_BASICINFO,
-				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_CONTACTINFO,
-				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_ACADEMICINFO,
-				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_PERSONALINFO,
-				ProfilePrivacyManager.DEFAULT_BIRTHYEAR_VISIBILITY,
-				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_SEARCH,
-				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_MYFRIENDS,
-				ProfilePrivacyManager.DEFAULT_PRIVACY_OPTION_MYSTATUS);
+				ProfileConstants.DEFAULT_PRIVACY_OPTION_PROFILEIMAGE,
+				ProfileConstants.DEFAULT_PRIVACY_OPTION_BASICINFO,
+				ProfileConstants.DEFAULT_PRIVACY_OPTION_CONTACTINFO,
+				ProfileConstants.DEFAULT_PRIVACY_OPTION_ACADEMICINFO,
+				ProfileConstants.DEFAULT_PRIVACY_OPTION_PERSONALINFO,
+				ProfileConstants.DEFAULT_BIRTHYEAR_VISIBILITY,
+				ProfileConstants.DEFAULT_PRIVACY_OPTION_SEARCH,
+				ProfileConstants.DEFAULT_PRIVACY_OPTION_MYFRIENDS,
+				ProfileConstants.DEFAULT_PRIVACY_OPTION_MYSTATUS);
 		
 			return profilePrivacy;
 	}
@@ -841,7 +825,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		List<String> userUuids = new ArrayList<String>(findUsersByNameOrEmail(search));
 
 		//restrict to only return the max number. UI will print message
-		int maxResults = ProfileUtilityManager.MAX_SEARCH_RESULTS;
+		int maxResults = ProfileConstants.MAX_SEARCH_RESULTS;
 		if(userUuids.size() >= maxResults) {
 			userUuids = userUuids.subList(0, maxResults);
 		}
@@ -864,7 +848,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		List<String> userUuids = new ArrayList<String>(findSakaiPersonsByInterest(search));
 		
 		//restrict to only return the max number. UI will print message
-		int maxResults = ProfileUtilityManager.MAX_SEARCH_RESULTS;
+		int maxResults = ProfileConstants.MAX_SEARCH_RESULTS;
 		if(userUuids.size() >= maxResults) {
 			userUuids = userUuids.subList(0, maxResults);
 		}
@@ -962,7 +946,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		//if no privacy record, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
     		log.debug("SEARCH VISIBILITY for " + userX + ": user is current user"); //$NON-NLS-1$ //$NON-NLS-2$
-    		return ProfilePrivacyManager.SELF_SEARCH_VISIBILITY;
+    		return ProfileConstants.SELF_SEARCH_VISIBILITY;
     	}
     	
     	//if restricted to only self, not allowed
@@ -973,19 +957,19 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	*/
 		
     	//if friend and set to friends only
-    	if(friend && profilePrivacy.getSearch() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    	if(friend && profilePrivacy.getSearch() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
     		log.debug("SEARCH VISIBILITY for " + userX + ": only friends and  " + userY + " is friend"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     		return true;
     	}
     	
     	//if not friend and set to friends only
-    	if(!friend && profilePrivacy.getSearch() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    	if(!friend && profilePrivacy.getSearch() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
     		log.debug("SEARCH VISIBILITY for " + userX + ": only friends and  " + userY + " not friend"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     		return false;
     	}
     	
     	//if everyone is allowed
-    	if(profilePrivacy.getSearch() == ProfilePrivacyManager.PRIVACY_OPTION_EVERYONE) {
+    	if(profilePrivacy.getSearch() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
     		log.debug("SEARCH VISIBILITY: everyone"); //$NON-NLS-1$
     		return true;
     	}
@@ -1028,7 +1012,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		
 		//if no privacy record, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
-    		return ProfilePrivacyManager.DEFAULT_PROFILEIMAGE_VISIBILITY;
+    		return ProfileConstants.DEFAULT_PROFILEIMAGE_VISIBILITY;
     	}
     	
     	//if restricted to only self, not allowed
@@ -1039,17 +1023,17 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	*/
     	
     	//if user is friend and friends are allowed
-    	if(friend && profilePrivacy.getProfileImage() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    	if(friend && profilePrivacy.getProfileImage() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
     		return true;
     	}
     	
     	//if not friend and set to friends only
-    	if(!friend && profilePrivacy.getProfileImage() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    	if(!friend && profilePrivacy.getProfileImage() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
     		return false;
     	}
     	
     	//if everyone is allowed
-    	if(profilePrivacy.getProfileImage() == ProfilePrivacyManager.PRIVACY_OPTION_EVERYONE) {
+    	if(profilePrivacy.getProfileImage() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
     		return true;
     	}
     	
@@ -1088,26 +1072,26 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		
 		//if no privacy record, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
-    		return ProfilePrivacyManager.DEFAULT_BASICINFO_VISIBILITY;
+    		return ProfileConstants.DEFAULT_BASICINFO_VISIBILITY;
     	}
     	
     	//if restricted to only self, not allowed
-    	if(profilePrivacy.getBasicInfo() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYME) {
+    	if(profilePrivacy.getBasicInfo() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
     		return false;
     	}
     	
     	//if user is friend and friends are allowed
-    	if(friend && profilePrivacy.getBasicInfo() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    	if(friend && profilePrivacy.getBasicInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
     		return true;
     	}
     	
     	//if not friend and set to friends only
-    	if(!friend && profilePrivacy.getBasicInfo() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    	if(!friend && profilePrivacy.getBasicInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
     		return false;
     	}
     	
     	//if everyone is allowed
-    	if(profilePrivacy.getBasicInfo() == ProfilePrivacyManager.PRIVACY_OPTION_EVERYONE) {
+    	if(profilePrivacy.getBasicInfo() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
     		return true;
     	}
     	
@@ -1145,26 +1129,26 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		
 		//if no privacy record, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
-    		return ProfilePrivacyManager.DEFAULT_CONTACTINFO_VISIBILITY;
+    		return ProfileConstants.DEFAULT_CONTACTINFO_VISIBILITY;
     	}
     	
     	//if restricted to only self, not allowed
-    	if(profilePrivacy.getContactInfo() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYME) {
+    	if(profilePrivacy.getContactInfo() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
     		return false;
     	}
     	
     	//if user is friend and friends are allowed
-    	if(friend && profilePrivacy.getContactInfo() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    	if(friend && profilePrivacy.getContactInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
     		return true;
     	}
     	
     	//if not friend and set to friends only
-    	if(!friend && profilePrivacy.getContactInfo() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    	if(!friend && profilePrivacy.getContactInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
     		return false;
     	}
     	
     	//if everyone is allowed
-    	if(profilePrivacy.getContactInfo() == ProfilePrivacyManager.PRIVACY_OPTION_EVERYONE) {
+    	if(profilePrivacy.getContactInfo() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
     		return true;
     	}
     	
@@ -1203,26 +1187,26 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		
 		//if no privacy record, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
-    		return ProfilePrivacyManager.DEFAULT_ACADEMICINFO_VISIBILITY;
+    		return ProfileConstants.DEFAULT_ACADEMICINFO_VISIBILITY;
     	}
     	
     	//if restricted to only self, not allowed
-    	if(profilePrivacy.getAcademicInfo() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYME) {
+    	if(profilePrivacy.getAcademicInfo() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
     		return false;
     	}
     	
     	//if user is friend and friends are allowed
-    	if(friend && profilePrivacy.getAcademicInfo() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    	if(friend && profilePrivacy.getAcademicInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
     		return true;
     	}
     	
     	//if not friend and set to friends only
-    	if(!friend && profilePrivacy.getAcademicInfo() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    	if(!friend && profilePrivacy.getAcademicInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
     		return false;
     	}
     	
     	//if everyone is allowed
-    	if(profilePrivacy.getAcademicInfo() == ProfilePrivacyManager.PRIVACY_OPTION_EVERYONE) {
+    	if(profilePrivacy.getAcademicInfo() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
     		return true;
     	}
     	
@@ -1262,26 +1246,26 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		
 		//if no privacy record, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
-    		return ProfilePrivacyManager.DEFAULT_PERSONALINFO_VISIBILITY;
+    		return ProfileConstants.DEFAULT_PERSONALINFO_VISIBILITY;
     	}
     	
     	//if restricted to only self, not allowed
-    	if(profilePrivacy.getPersonalInfo() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYME) {
+    	if(profilePrivacy.getPersonalInfo() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
     		return false;
     	}
     	
     	//if user is friend and friends are allowed
-    	if(friend && profilePrivacy.getPersonalInfo() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    	if(friend && profilePrivacy.getPersonalInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
     		return true;
     	}
     	
     	//if not friend and set to friends only
-    	if(!friend && profilePrivacy.getPersonalInfo() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    	if(!friend && profilePrivacy.getPersonalInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
     		return false;
     	}
     	
     	//if everyone is allowed
-    	if(profilePrivacy.getPersonalInfo() == ProfilePrivacyManager.PRIVACY_OPTION_EVERYONE) {
+    	if(profilePrivacy.getPersonalInfo() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
     		return true;
     	}
     	    	
@@ -1320,26 +1304,26 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 		//if no privacy record, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
-    		return ProfilePrivacyManager.DEFAULT_MYFRIENDS_VISIBILITY;
+    		return ProfileConstants.DEFAULT_MYFRIENDS_VISIBILITY;
     	}
     	
     	//if restricted to only self, not allowed
-    	if(profilePrivacy.getMyFriends() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYME) {
+    	if(profilePrivacy.getMyFriends() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
     		return false;
     	}
     	
     	//if user is friend and friends are allowed
-    	if(friend && profilePrivacy.getMyFriends() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    	if(friend && profilePrivacy.getMyFriends() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
     		return true;
     	}
     	
     	//if not friend and set to friends only
-    	if(!friend && profilePrivacy.getMyFriends() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    	if(!friend && profilePrivacy.getMyFriends() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
     		return false;
     	}
     	
     	//if everyone is allowed
-    	if(profilePrivacy.getMyFriends() == ProfilePrivacyManager.PRIVACY_OPTION_EVERYONE) {
+    	if(profilePrivacy.getMyFriends() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
     		return true;
     	}
     	    	
@@ -1378,7 +1362,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	
 		//if no privacy record, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
-    		return ProfilePrivacyManager.DEFAULT_MYSTATUS_VISIBILITY;
+    		return ProfileConstants.DEFAULT_MYSTATUS_VISIBILITY;
     	}
     	
     	//if restricted to only self, not allowed
@@ -1389,17 +1373,17 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	*/
     	
     	//if user is friend and friends are allowed
-    	if(friend && profilePrivacy.getMyStatus() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    	if(friend && profilePrivacy.getMyStatus() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
     		return true;
     	}
     	
     	//if not friend and set to friends only
-    	if(!friend && profilePrivacy.getMyStatus() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYFRIENDS) {
+    	if(!friend && profilePrivacy.getMyStatus() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
     		return false;
     	}
     	
     	//if everyone is allowed
-    	if(profilePrivacy.getMyStatus() == ProfilePrivacyManager.PRIVACY_OPTION_EVERYONE) {
+    	if(profilePrivacy.getMyStatus() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
     		return true;
     	}
     	    	
@@ -1429,7 +1413,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		
 		//return value or whatever the flag is set as by default
     	if(profilePrivacy == null) {
-    		return ProfilePrivacyManager.DEFAULT_BIRTHYEAR_VISIBILITY;
+    		return ProfileConstants.DEFAULT_BIRTHYEAR_VISIBILITY;
     	} else {
     		return profilePrivacy.isShowBirthYear();
     	}
@@ -1452,12 +1436,12 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		}
 		
 		//get main image
-		if(imageType == ProfileImageManager.PROFILE_IMAGE_MAIN) {
+		if(imageType == ProfileConstants.PROFILE_IMAGE_MAIN) {
 			image = sakaiProxy.getResource(profileImage.getMainResource());
 		}
 		
 		//or get thumbnail
-		if(imageType == ProfileImageManager.PROFILE_IMAGE_THUMBNAIL) {
+		if(imageType == ProfileConstants.PROFILE_IMAGE_THUMBNAIL) {
 			image = sakaiProxy.getResource(profileImage.getThumbnailResource());
 			if(image == null) {
 				image = sakaiProxy.getResource(profileImage.getMainResource());
@@ -1483,12 +1467,12 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		}
 		
 		//get main image
-		if(imageType == ProfileImageManager.PROFILE_IMAGE_MAIN) {
+		if(imageType == ProfileConstants.PROFILE_IMAGE_MAIN) {
 			resource = sakaiProxy.getResourceWrapped(profileImage.getMainResource());
 		}
 		
 		//or get thumbnail
-		if(imageType == ProfileImageManager.PROFILE_IMAGE_THUMBNAIL) {
+		if(imageType == ProfileConstants.PROFILE_IMAGE_THUMBNAIL) {
 			resource = sakaiProxy.getResourceWrapped(profileImage.getThumbnailResource());
 			if(resource == null) {
 				resource = sakaiProxy.getResourceWrapped(profileImage.getMainResource());
@@ -1532,12 +1516,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
  	 */
 	public ProfilePreferences createDefaultPreferencesRecord(final String userId) {
 		
-		//see ProfilePreferences for this constructor and what it all means
-		ProfilePreferences prefs = new ProfilePreferences(
-				userId,
-				ProfilePreferencesManager.DEFAULT_EMAIL_REQUEST_SETTING,
-				ProfilePreferencesManager.DEFAULT_EMAIL_CONFIRM_SETTING,
-				ProfilePreferencesManager.DEFAULT_TWITTER_SETTING);
+		ProfilePreferences prefs = getDefaultPreferencesRecord(userId);
 		
 		//save
 		try {
@@ -1558,9 +1537,9 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		
 		ProfilePreferences prefs = new ProfilePreferences(
 				userId,
-				ProfilePreferencesManager.DEFAULT_EMAIL_REQUEST_SETTING,
-				ProfilePreferencesManager.DEFAULT_EMAIL_CONFIRM_SETTING,
-				ProfilePreferencesManager.DEFAULT_TWITTER_SETTING);
+				ProfileConstants.DEFAULT_EMAIL_REQUEST_SETTING,
+				ProfileConstants.DEFAULT_EMAIL_CONFIRM_SETTING,
+				ProfileConstants.DEFAULT_TWITTER_SETTING);
 		
 			return prefs;
 	}
@@ -1665,7 +1644,6 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		}
 		
 		return prefs.isTwitterEnabled();
-		
 	}
 	
 	
@@ -1767,17 +1745,16 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	
     	//if none, return whatever the flag is set as by default
     	if(profilePreferences == null) {
-    		return ProfilePreferencesManager.DEFAULT_EMAIL_NOTIFICATION_SETTING;
+    		return ProfileConstants.DEFAULT_EMAIL_NOTIFICATION_SETTING;
     	}
     	
-    	
     	//if its a request and requests enabled, true
-    	if(messageType == ProfilePreferencesManager.EMAIL_NOTIFICATION_REQUEST && profilePreferences.isRequestEmailEnabled()) {
+    	if(messageType == ProfileConstants.EMAIL_NOTIFICATION_REQUEST && profilePreferences.isRequestEmailEnabled()) {
     		return true;
     	}
     	
     	//if its a confirm and confirms enabled, true
-    	if(messageType == ProfilePreferencesManager.EMAIL_NOTIFICATION_CONFIRM && profilePreferences.isConfirmEmailEnabled()) {
+    	if(messageType == ProfileConstants.EMAIL_NOTIFICATION_CONFIRM && profilePreferences.isConfirmEmailEnabled()) {
     		return true;
     	}
     	
@@ -1826,7 +1803,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     	}
     	
     	//else return the url for the type they requested
-    	if(imageType == ProfileImageManager.PROFILE_IMAGE_MAIN) {
+    	if(imageType == ProfileConstants.PROFILE_IMAGE_MAIN) {
     		String url = externalImage.getMainUrl();
     		if(StringUtils.isBlank(url)) {
     			return null;
@@ -1834,7 +1811,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
     		return url;
     	}
     	
-    	if(imageType == ProfileImageManager.PROFILE_IMAGE_THUMBNAIL) {
+    	if(imageType == ProfileConstants.PROFILE_IMAGE_THUMBNAIL) {
     		String url = externalImage.getThumbnailUrl();
     		if(StringUtils.isBlank(url)) {
     			url = externalImage.getMainUrl();
@@ -1926,7 +1903,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	public String getUnavailableImageURL() {
 		StringBuilder path = new StringBuilder();
 		path.append(sakaiProxy.getServerUrl());
-		path.append(ProfileImageManager.UNAVAILABLE_IMAGE_FULL);
+		path.append(ProfileConstants.UNAVAILABLE_IMAGE_FULL);
 		return path.toString();
 	}
 
@@ -2251,10 +2228,10 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			String mimeType = "image/jpeg"; //$NON-NLS-1$
 			
 			//scale the main image
-			byte[] imageMain = scaleImage(image, ProfileImageManager.MAX_IMAGE_XY);
+			byte[] imageMain = scaleImage(image, ProfileConstants.MAX_IMAGE_XY);
 			
 			//create resource ID
-			String mainResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileImageManager.PROFILE_IMAGE_MAIN);
+			String mainResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileConstants.PROFILE_IMAGE_MAIN);
 			log.info("Profile2 conversion util: mainResourceId: " + mainResourceId); //$NON-NLS-1$
 			
 			//save, if error, log and return.
@@ -2267,10 +2244,10 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			 * THUMBNAIL PROFILE IMAGE
 			 */
 			//scale image
-			byte[] imageThumbnail = scaleImage(image, ProfileImageManager.MAX_THUMBNAIL_IMAGE_XY);
+			byte[] imageThumbnail = scaleImage(image, ProfileConstants.MAX_THUMBNAIL_IMAGE_XY);
 			 
 			//create resource ID
-			String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileImageManager.PROFILE_IMAGE_THUMBNAIL);
+			String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
 
 			log.info("Profile2 conversion util: thumbnailResourceId:" + thumbnailResourceId); //$NON-NLS-1$
 			

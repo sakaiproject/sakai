@@ -64,7 +64,7 @@ public interface ProfileService {
 	
 	
 	/**
-	 * Get a customised profile for a user. The type must match one of the ProfileUtilityManager.ENTITY_PROFILE_*
+	 * Get a customised profile for a user. The type must match one of the ProfileConstants.ENTITY_PROFILE_*
 	 * If none is given, defaults to full.
 	 * 
 	 * <p>The set of fields can be configured in sakai.properties (except for full and minimal)</p>
@@ -75,7 +75,7 @@ public interface ProfileService {
 	 * <p>Not yet implemented</p>
 	 * 
 	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
-	 * @param profileType - see ProfileUtilityManager.ENTITY_PROFILE_*
+	 * @param profileType - see ProfileConstants.ENTITY_PROFILE_*
 	 * @return UserProfile for the user, that is visible to the requesting user
 	 */
 	public UserProfile getCustomUserProfile(String userId, int profileType);
@@ -101,13 +101,13 @@ public interface ProfileService {
 	 * Get the profile image for a user
 	 * 
 	 * <p>Checks the configuration settings for Profile2 and returns accordingly. If the file has been uploaded, will return bytes. If the file is a URL, will send a redirect for that resource. 
-	 * <p>Will return default image defined in ProfileImageManager.UNAVAILABLE_IMAGE_FULL if there is no image or privacy checks mean it is not allowed.</p>
+	 * <p>Will return default image defined in ProfileConstants.UNAVAILABLE_IMAGE_FULL if there is no image or privacy checks mean it is not allowed.</p>
 	 * <p>If the userId is invalid, will return null.</p>
 	 * <p>If a thumbnail is requested but does not exist, it will fall back to the full sized image and return that, which can just be scaled down in the markup.</p>
 	 * <p>You must be logged-in in order to make requests to this method.</p>
 	 * 
 	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
-	 * @param imageType - type of image, main or thumbnail, mapped via ProfileImageManager
+	 * @param imageType - type of image, main or thumbnail, mapped via ProfileConstants
 	 * @return ResourceWrapper of the wrapped bytes or null if not allowed/none
 	 */
 	public ResourceWrapper getProfileImage(String userId, int imageType);
@@ -124,7 +124,7 @@ public interface ProfileService {
 	public List<String> getConnectionIdsForUser(String userId);
 	
 	/**
-	 * Get a list of Connections (as Collection objects) for the given user.
+	 * Get a list of Connections (as Connection objects) for the given user.
 	 * 
 	 * <p>You must be logged-in in order to make requests to this method.</p>
 	 * 

@@ -6,11 +6,11 @@ package uk.ac.lancs.e_science.profile2.api.model;
  * resourceID - id of resource in CHS or if isExternal then this will be populated with the URL to the resource as the identifier<br />
  * bytes[]	- content<br />
  * mimeType	- content type<br />
- * length	- contetn length<br />
+ * length	- content length<br />
  * isExternal - if the resource is external, therefore the resourceID will be the external URL.<br />
  * </p>
  * 
- * We could possibly use net.sf.ehcache.MimeTypeByteArray
+ * We could possibly use net.sf.ehcache.MimeTypeByteArray instead however this has more fields.
  * 
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
