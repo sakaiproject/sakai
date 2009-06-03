@@ -3969,7 +3969,8 @@ public class DiscussionForumTool
    */
   public String processDfMsgDeleteConfirmYes()
   {
-	  if(selectedMessageCount != 1 || functionClick != 1) {
+	  //selectedMessageCount can be 0 or 1 for single tab open. There are 2 places for deleting message. 
+	  if(selectedMessageCount > 1 || functionClick != 1) {
 			setErrorMessage(getResourceBundleString(STATE_INCONSISTENT));
 			return null;
 		}
