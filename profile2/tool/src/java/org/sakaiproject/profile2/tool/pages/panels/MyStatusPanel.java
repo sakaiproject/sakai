@@ -19,13 +19,13 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-
 import org.sakaiproject.profile2.api.Profile;
 import org.sakaiproject.profile2.api.ProfileConstants;
 import org.sakaiproject.profile2.api.SakaiProxy;
 import org.sakaiproject.profile2.api.model.ProfileStatus;
 import org.sakaiproject.profile2.tool.ProfileApplication;
 import org.sakaiproject.profile2.tool.models.UserProfile;
+import org.sakaiproject.profile2.util.ProfileUtils;
 
 public class MyStatusPanel extends Panel {
 	
@@ -101,7 +101,7 @@ public class MyStatusPanel extends Panel {
 					log.warn("No status date for: " + userId);
 				} else {
 					//transform the date
-					dateStr = profile.convertDateForStatus(date);
+					dateStr = ProfileUtils.convertDateForStatus(date);
 				}
 				return dateStr;
 			}

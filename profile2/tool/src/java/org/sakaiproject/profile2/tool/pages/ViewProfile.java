@@ -21,7 +21,6 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
-
 import org.sakaiproject.profile2.api.ProfileConstants;
 import org.sakaiproject.profile2.api.exception.ProfilePrototypeNotDefinedException;
 import org.sakaiproject.profile2.api.model.ProfileStatus;
@@ -29,6 +28,7 @@ import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.tool.pages.panels.FriendsFeed;
 import org.sakaiproject.profile2.tool.pages.windows.AddFriend;
+import org.sakaiproject.profile2.util.ProfileUtils;
 
 
 public class ViewProfile extends BasePage {
@@ -137,7 +137,7 @@ public class ViewProfile extends BasePage {
 			statusContainer.setVisible(false);
 		} else {
 			//transform the date
-			statusDateStr = profile.convertDateForStatus(statusDate);
+			statusDateStr = ProfileUtils.convertDateForStatus(statusDate);
 		}
 		
 		//name
@@ -182,9 +182,9 @@ public class ViewProfile extends BasePage {
 		if(dateOfBirth != null) {
 			
 			if(profile.isBirthYearVisible(userUuid)) {
-				birthday = profile.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT);
+				birthday = ProfileUtils.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT);
 			} else {
-				birthday = profile.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT_HIDE_YEAR);
+				birthday = ProfileUtils.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT_HIDE_YEAR);
 			}
 		}
 		

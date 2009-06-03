@@ -61,16 +61,16 @@
     
     
     <!-- EntityBroker beans -->
-	<bean id="profile2.entity.ProfileEntityProvider" class="org.sakaiproject.profile2.impl.entity.ProfileEntityProviderImpl">
+	<bean id="org.sakaiproject.profile2.entity.ProfileEntityProvider" class="org.sakaiproject.profile2.impl.entity.ProfileEntityProviderImpl">
 		<property name="profileService" ref="org.sakaiproject.profile2.api.ProfileService" />
 	</bean>
 	
-	<bean id="profile2.entity.ProfilePrivacyEntityProvider" class="org.sakaiproject.profile2.impl.entity.ProfilePrivacyEntityProviderImpl">
+	<bean id="org.sakaiproject.profile2.entity.ProfilePrivacyEntityProvider" class="org.sakaiproject.profile2.impl.entity.ProfilePrivacyEntityProviderImpl">
 		<property name="profilePrivacyService" ref="org.sakaiproject.profile2.api.ProfilePrivacyService" />
 	    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 	</bean>
 	
-	<bean id="profile2.entity.ProfilePreferencesEntityProvider" class="org.sakaiproject.profile2.impl.entity.ProfilePreferencesEntityProviderImpl">
+	<bean id="rg.sakaiproject.profile2.entity.ProfilePreferencesEntityProvider" class="org.sakaiproject.profile2.impl.entity.ProfilePreferencesEntityProviderImpl">
 		<property name="profilePreferencesService" ref="org.sakaiproject.profile2.api.ProfilePreferencesService" />
 	</bean>
 	

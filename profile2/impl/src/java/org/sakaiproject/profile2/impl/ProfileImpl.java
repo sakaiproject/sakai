@@ -1,27 +1,16 @@
 package org.sakaiproject.profile2.impl;
 
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.RenderingHints;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.sql.SQLException;
-import java.text.DateFormatSymbols;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
-
-import javax.swing.ImageIcon;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -29,13 +18,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.jasypt.util.text.BasicTextEncryptor;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
-import org.sakaiproject.tinyurl.api.TinyUrlService;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-
-import twitter4j.Twitter;
 import org.sakaiproject.profile2.api.Profile;
 import org.sakaiproject.profile2.api.ProfileConstants;
 import org.sakaiproject.profile2.api.SakaiProxy;
@@ -47,9 +30,12 @@ import org.sakaiproject.profile2.api.model.ProfilePrivacy;
 import org.sakaiproject.profile2.api.model.ProfileStatus;
 import org.sakaiproject.profile2.api.model.ResourceWrapper;
 import org.sakaiproject.profile2.api.model.SearchResult;
+import org.sakaiproject.profile2.util.ProfileUtils;
+import org.sakaiproject.tinyurl.api.TinyUrlService;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGImageEncoder;
+import twitter4j.Twitter;
 
 /**
  * This is the Profile2 API Implementation to be used by the Profile2 tool only. 
@@ -85,164 +71,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	private static final String OLDEST_STATUS_DATE = "oldestStatusDate"; //$NON-NLS-1$
 	private static final String SEARCH = "search"; //$NON-NLS-1$
 	
-	/**
-	 * the user's password needs to be decrypted and sent to Twitter for updates
-	 * so we can't just one-way encrypt it. 
-	 * 
-	 * Note to casual observers:
-	 * Having just this key won't allow you to decrypt a password. 
-	 * No two encryptions are the same using the encryption method that Profile2 employs 
-	 * but they decrypt to the same value which is why we can use it.
-	 */
-	private static final String BASIC_ENCRYPTION_KEY = "AbrA_ca-DabRa.123"; //$NON-NLS-1$
 	
-	
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean checkContentTypeForProfileImage(String contentType) {
-		
-		ArrayList<String> allowedTypes = new ArrayList<String>();
-		allowedTypes.add("image/jpeg"); //$NON-NLS-1$
-		allowedTypes.add("image/gif"); //$NON-NLS-1$
-		allowedTypes.add("image/png"); //$NON-NLS-1$
-
-		if(allowedTypes.contains(contentType)) {
-			return true;
-		}
-		
-		return false;
-	}
-	
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public byte[] scaleImage (byte[] imageData, int maxSize) {
-	
-	    log.debug("Scaling image..."); //$NON-NLS-1$
-
-	    // Get the image from a file.
-	    Image inImage = new ImageIcon(imageData).getImage();
-	
-	    // Determine the scale (we could change this to only determine scale from one dimension, ie the width only?)
-	    double scale = (double) maxSize / (double) inImage.getHeight(null);
-	    if (inImage.getWidth(null) > inImage.getHeight(null)) {
-	        scale = (double) maxSize / (double) inImage.getWidth(null);
-	    }
-	    
-	    /*
-	    log.debug("===========Image scaling============");
-	    log.debug("WIDTH: " + inImage.getWidth(null));
-	    log.debug("HEIGHT: " + inImage.getHeight(null));
-	    log.debug("SCALE: " + scale);
-	    log.debug("========End of image scaling========");
-	    */
-
-	    //if image is smaller than desired image size (ie scale is larger) just return the original image bytes
-	    if (scale >= 1.0d) {
-	    	return imageData;
-	    }
-	    
-	    
-	
-	    // Determine size of new image.
-	    // One of the dimensions should equal maxSize.
-	    int scaledW = (int) (scale * inImage.getWidth(null));
-	    int scaledH = (int) (scale * inImage.getHeight(null));
-	
-	    // Create an image buffer in which to paint on.
-	    BufferedImage outImage = new BufferedImage(scaledW, scaledH, BufferedImage.TYPE_INT_RGB);
-	
-	    // Set the scale.
-	    AffineTransform tx = new AffineTransform();
-	
-	    //scale
-	    tx.scale(scale, scale);
-	
-	    // Paint image.
-	    Graphics2D g2d = outImage.createGraphics();
-	    g2d.setRenderingHint(
-	            RenderingHints.KEY_ANTIALIASING,
-	            RenderingHints.VALUE_ANTIALIAS_ON
-	        );
-	    g2d.drawImage(inImage, tx, null);
-	    g2d.dispose();
-	
-	    // JPEG-encode the image
-	    // and write to file.
-	    ByteArrayOutputStream os = new ByteArrayOutputStream();
-	    try { 
-	    	JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(os);
-	    	encoder.encode(outImage);
-	    	os.close();
-	    	log.debug("Scaling done."); //$NON-NLS-1$
-	    } catch (IOException e) {
-	    	log.error("Scaling image failed."); //$NON-NLS-1$
-	    }
-	    return os.toByteArray();
-	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public String convertDateToString(Date date, String format) {
-		
-		if(date == null || "".equals(format)) { //$NON-NLS-1$
-			throw new IllegalArgumentException("Null Argument in Profile.convertDateToString()");	 //$NON-NLS-1$
-		}
-		
-		SimpleDateFormat dateFormat = new SimpleDateFormat(format);
-        String dateStr = dateFormat.format(date);
-        
-        log.debug("Profile.convertDateToString(): Input date: " + date.toString()); //$NON-NLS-1$
-        log.debug("Profile.convertDateToString(): Converted date string: " + dateStr); //$NON-NLS-1$
-
-		return dateStr;
-	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public Date convertStringToDate(String dateStr, String format) {
-		
-		if("".equals(dateStr) || "".equals(format)) { //$NON-NLS-1$ //$NON-NLS-2$
-			throw new IllegalArgumentException("Null Argument in Profile.convertStringToDate()");	 //$NON-NLS-1$
-		}
-		
-		SimpleDateFormat dateFormat = new SimpleDateFormat(format);
-		 
-		try {
-			Date date = dateFormat.parse(dateStr);
-			
-	        log.debug("Profile.convertStringToDate(): Input date string: " + dateStr); //$NON-NLS-1$
-	        log.debug("Profile.convertStringToDate(): Converted date: " + date.toString()); //$NON-NLS-1$
-			return date;
-		} catch (Exception e) {
-			log.error("Profile.convertStringToDate() failed. " + e.getClass() + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
-			return null;
-		}            
-	}
-	
-		
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public String getDayName(int day, Locale locale) {
-		
-		//localised daynames
-		String dayNames[] = new DateFormatSymbols(locale).getWeekdays();
-		String dayName = null;
-		
-		try {
-			dayName = dayNames[day];
-		} catch (Exception e) {
-			log.error("Profile.getDayName() failed. " + e.getClass() + ": " + e.getMessage());
-		}
-		return dayName;
-	}
-
 
 	
 	/**
@@ -590,115 +419,6 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 	
 	
 
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public String convertDateForStatus(Date date) {
-		
-		//current time
-		Calendar currentCal = Calendar.getInstance();
-		long currentTimeMillis = currentCal.getTimeInMillis();
-		
-		//posting time
-		long postingTimeMillis = date.getTime();
-		
-		//difference
-		int diff = (int)(currentTimeMillis - postingTimeMillis);
-		
-		//current Locale
-		Locale locale = sakaiProxy.getUserPreferredLocale();
-		
-		//System.out.println("currentDate:" + currentTimeMillis);
-		//System.out.println("postingDate:" + postingTimeMillis);
-		//System.out.println("diff:" + diff);
-		
-		int MILLIS_IN_SECOND = 1000;
-		int MILLIS_IN_MINUTE = 1000 * 60;
-		int MILLIS_IN_HOUR = 1000 * 60 * 60;
-		int MILLIS_IN_DAY = 1000 * 60 * 60 * 24;
-		int MILLIS_IN_WEEK = 1000 * 60 * 60 * 24 * 7;
-
-		String message=""; //$NON-NLS-1$
-				
-		if(diff < MILLIS_IN_SECOND) {
-			//less than a second
-			message = Messages.getString("ProfileImpl.just_then"); //$NON-NLS-1$
-		} else if (diff < MILLIS_IN_MINUTE) {
-			//less than a minute, calc seconds
-			int numSeconds = diff/MILLIS_IN_SECOND;
-			if(numSeconds == 1) {
-				//one sec
-				message = numSeconds + Messages.getString("ProfileImpl.second_ago"); //$NON-NLS-1$
-			} else {
-				//more than one sec
-				message = numSeconds + Messages.getString("ProfileImpl.seconds_ago"); //$NON-NLS-1$
-			}
-		} else if (diff < MILLIS_IN_HOUR) {
-			//less than an hour, calc minutes
-			int numMinutes = diff/MILLIS_IN_MINUTE;
-			if(numMinutes == 1) {
-				//one minute
-				message = numMinutes + Messages.getString("ProfileImpl.minute_ago"); //$NON-NLS-1$
-			} else {
-				//more than one minute
-				message = numMinutes + Messages.getString("ProfileImpl.minutes_ago"); //$NON-NLS-1$
-			}
-		} else if (diff < MILLIS_IN_DAY) {
-			//less than a day, calc hours
-			int numHours = diff/MILLIS_IN_HOUR;
-			if(numHours == 1) {
-				//one hour
-				message = numHours + Messages.getString("ProfileImpl.hour_ago"); //$NON-NLS-1$
-			} else {
-				//more than one hour
-				message = numHours + Messages.getString("ProfileImpl.hours_ago"); //$NON-NLS-1$
-			}
-		} else if (diff < MILLIS_IN_WEEK) {
-			//less than a week, calculate days
-			int numDays = diff/MILLIS_IN_DAY;
-			
-			//now calculate which day it was
-			if(numDays == 1) {
-				message = Messages.getString("ProfileImpl.yesterday"); //$NON-NLS-1$
-			} else {
-				//set calendar and get day of week
-				Calendar postingCal = Calendar.getInstance();
-				postingCal.setTimeInMillis(postingTimeMillis);
-				
-				int postingDay = postingCal.get(Calendar.DAY_OF_WEEK);
-
-				//set to localised value: 'on Wednesday' for example
-				String dayName = getDayName(postingDay,locale);
-				if(dayName != null) {
-					message = Messages.getString("ProfileImpl.on") + toProperCase(dayName); //$NON-NLS-1$
-				}
-			}
-			
-		} else {
-			//over a week ago, we want it blank though.
-		}
-
-		return message;
-	}
-	
-	
-	public String toProperCase(String input) {
-		if (input == null || input.trim().length() == 0) {
-			return input;
-		}
-		String output = input.toLowerCase();
-		return output.substring(0, 1).toUpperCase() + output.substring(1);
-	}
-
-	
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public String truncateAndPadStringToSize(String string, int size) {
-		String returnStr = string.substring(0, size);
-		return (returnStr.concat(Messages.getString("ProfileImpl.ellipsis"))); //$NON-NLS-1$
-	}
 	
 	
 	/**
@@ -1572,7 +1292,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		}
 		
 		//decrypt password and set into field
-		prefs.setTwitterPasswordDecrypted(decrypt(prefs.getTwitterPasswordEncrypted()));
+		prefs.setTwitterPasswordDecrypted(ProfileUtils.decrypt(prefs.getTwitterPasswordEncrypted()));
 		
 		return prefs;
 		
@@ -1585,7 +1305,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 		
 		//validate fields are set and encrypt password if necessary, else clear them all
 		if(checkTwitterFields(prefs)) {
-			prefs.setTwitterPasswordEncrypted(encrypt(prefs.getTwitterPasswordDecrypted()));
+			prefs.setTwitterPasswordEncrypted(ProfileUtils.encrypt(prefs.getTwitterPasswordDecrypted()));
 		} else {
 			prefs.setTwitterEnabled(false);
 			prefs.setTwitterUsername(null);
@@ -1909,21 +1629,6 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 
 	
 	
-	
-	//these encrypt/decrypt methods are bound always to the method before its saved or returned
-	private String decrypt(final String encryptedText) {
-		BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
-		textEncryptor.setPassword(BASIC_ENCRYPTION_KEY);
-		return(textEncryptor.decrypt(encryptedText));
-	}
-	
-	private String encrypt(final String plainText) {
-		BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
-		textEncryptor.setPassword(BASIC_ENCRYPTION_KEY);
-		return(textEncryptor.encrypt(plainText));
-	}
-	
-	
 	// helper method to check if all required twitter fields are set properly
 	private boolean checkTwitterFields(ProfilePreferences prefs) {
 		return (prefs.isTwitterEnabled() &&
@@ -2228,7 +1933,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			String mimeType = "image/jpeg"; //$NON-NLS-1$
 			
 			//scale the main image
-			byte[] imageMain = scaleImage(image, ProfileConstants.MAX_IMAGE_XY);
+			byte[] imageMain = ProfileUtils.scaleImage(image, ProfileConstants.MAX_IMAGE_XY);
 			
 			//create resource ID
 			String mainResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileConstants.PROFILE_IMAGE_MAIN);
@@ -2244,7 +1949,7 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
 			 * THUMBNAIL PROFILE IMAGE
 			 */
 			//scale image
-			byte[] imageThumbnail = scaleImage(image, ProfileConstants.MAX_THUMBNAIL_IMAGE_XY);
+			byte[] imageThumbnail = ProfileUtils.scaleImage(image, ProfileConstants.MAX_THUMBNAIL_IMAGE_XY);
 			 
 			//create resource ID
 			String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileConstants.PROFILE_IMAGE_THUMBNAIL);

@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -26,6 +25,9 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.profile2.api.ProfileConstants;
+import org.sakaiproject.profile2.api.SakaiProxy;
+import org.sakaiproject.profile2.api.model.ResourceWrapper;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;
@@ -34,12 +36,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
-
-import org.sakaiproject.profile2.api.ProfileConstants;
-import org.sakaiproject.profile2.api.SakaiProxy;
-import org.sakaiproject.profile2.api.model.ResourceWrapper;
 
 /**
  * This is the Implementation of the helper API used by the Profile2 tool only. 
@@ -698,13 +695,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 	}
 	
-	/**
- 	* {@inheritDoc}
- 	*/
-	public Locale getUserPreferredLocale() {
-		ResourceLoader rl = new ResourceLoader();
-		return rl.getLocale();
-	}
 	
 	/**
  	* {@inheritDoc}

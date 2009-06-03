@@ -2,7 +2,6 @@ package org.sakaiproject.profile2.api;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import org.sakaiproject.profile2.api.model.ProfileImageExternal;
 import org.sakaiproject.profile2.api.model.ProfilePreferences;
@@ -22,52 +21,6 @@ import org.sakaiproject.profile2.api.model.SearchResult;
 
 public interface Profile {
 
-	
-	/**
-	 * Check content type against allowed types. only JPEG,GIF and PNG are support at the moment
-	 *
-	 * @param contentType		string of the content type determined by some image parser
-	 */
-	public boolean checkContentTypeForProfileImage(String contentType);
-
-	/**
-	 * Scale an image so one side is a maximum of maxSize in pixels.
-	 *
-	 * @param imageData		bytes of the original image
-	 * @param maxSize		maximum dimension in px that the image should have on any one side
-	 */
-	public byte[] scaleImage(byte[] imageData, int maxSize);
-	
-	/**
-	 * Convert a Date into a String according to format
-	 *
-	 * @param date			date to convert
-	 * @param format		format in SimpleDateFormat syntax
-	 */
-	public String convertDateToString(Date date, String format);
-	
-	/**
-	 * Convert a string into a Date object (reverse of above
-	 *
-	 * @param dateStr		date string to convert
-	 * @param format		format of the input date in SimpleDateFormat syntax
-	 */
-	public Date convertStringToDate(String dateStr, String format);
-	
-	/**
-	 * Get the localised name of the day (ie Monday for en, Maandag for nl)
-	 * @param day		int according to Calendar.DAY_OF_WEEK
-	 * @param locale	locale to render dayname in
-	 * @return
-	 */
-	public String getDayName(int day, Locale locale);
-	
-	/**
-	 * Convert a string to propercase. ie This Is Proper Text
-	 * @param input		string to be formatted
-	 * @return
-	 */
-	public String toProperCase(String input);
 	
 	/**
 	 * Get a list of unconfirmed Friend requests for a given user. Uses a native SQL query
@@ -193,21 +146,7 @@ public interface Profile {
 	public boolean clearUserStatus(String userId);
 	
 	
-	/**
-	 * Convert a date into a field like "just then, 2 minutes ago, 4 hours ago, yesterday, on sunday, etc"
-	 *
-	 * @param data		date to convert
-	 */
-	public String convertDateForStatus(Date date);
-	
-	/**
-	 * Truncate a string and pad it with ... at the end
-	 *
-	 * @param string	the string to be manipulated
-	 * @param size		size the string should be truncated to (not including the ...)
-	 */
-	public String truncateAndPadStringToSize(String string, int size);
-	
+		
 	/**
 	 * Create a persistent default privacy record according to the defaults in ProfileConstants.
 	 *

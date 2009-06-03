@@ -15,11 +15,11 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
-
 import org.sakaiproject.profile2.api.Profile;
 import org.sakaiproject.profile2.api.ProfileConstants;
 import org.sakaiproject.profile2.tool.ProfileApplication;
 import org.sakaiproject.profile2.tool.models.UserProfile;
+import org.sakaiproject.profile2.util.ProfileUtils;
 
 public class MyInfoDisplay extends Panel {
 	
@@ -56,13 +56,13 @@ public class MyInfoDisplay extends Panel {
 		if(dateOfBirth != null) {
 			
 			//full value contains year regardless of privacy settings
-			birthday = profile.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT);
+			birthday = ProfileUtils.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT);
 			
 			//get privacy on display of birthday year and format accordingly
 			if(profile.isBirthYearVisible(userId)) {
 				birthdayDisplay = birthday;
 			} else {
-				birthdayDisplay = profile.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT_HIDE_YEAR);
+				birthdayDisplay = ProfileUtils.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT_HIDE_YEAR);
 			}
 			
 			//set both values as they are used differently

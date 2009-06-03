@@ -27,8 +27,6 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.sakaiproject.util.FormattedText;
-
 import org.sakaiproject.profile2.api.ProfileConstants;
 import org.sakaiproject.profile2.api.model.SearchResult;
 import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
@@ -38,6 +36,8 @@ import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.tool.models.Search;
 import org.sakaiproject.profile2.tool.pages.windows.AddFriend;
+import org.sakaiproject.profile2.util.ProfileUtils;
+import org.sakaiproject.util.FormattedText;
 
 
 public class MySearch extends BasePage {
@@ -224,7 +224,7 @@ public class MySearch extends BasePage {
 						if(profileStatusDate == null) {
 							statusDateLabel.setVisible(false);
 						} else {
-							statusDateLabel.setModel(new Model(profile.convertDateForStatus(profileStatusDate)));
+							statusDateLabel.setModel(new Model(ProfileUtils.convertDateForStatus(profileStatusDate)));
 						}
 					}
 				}

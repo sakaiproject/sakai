@@ -15,7 +15,6 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.util.lang.Bytes;
-
 import org.sakaiproject.profile2.api.Profile;
 import org.sakaiproject.profile2.api.ProfileConstants;
 import org.sakaiproject.profile2.api.SakaiProxy;
@@ -24,6 +23,7 @@ import org.sakaiproject.profile2.tool.components.CloseButton;
 import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import org.sakaiproject.profile2.tool.components.FeedbackLabel;
 import org.sakaiproject.profile2.tool.pages.MyProfile;
+import org.sakaiproject.profile2.util.ProfileUtils;
 
 public class ChangeProfilePictureUpload extends Panel{
     
@@ -64,7 +64,7 @@ public class ChangeProfilePictureUpload extends Panel{
 				    log.error("Profile.ChangeProfilePicture.onSubmit: upload was empty.");
 					error(new StringResourceModel("error.empty.file.uploaded", this, null).getString());
 					return;
-				} else if (!profile.checkContentTypeForProfileImage(upload.getContentType())) {
+				} else if (!ProfileUtils.checkContentTypeForProfileImage(upload.getContentType())) {
 					log.error("Profile.ChangeProfilePicture.onSubmit: invalid file type uploaded for profile picture");
 					error(new StringResourceModel("error.invalid.image.type", this, null).getString());
 				    return;
@@ -82,7 +82,7 @@ public class ChangeProfilePictureUpload extends Panel{
 					 * MAIN PROFILE IMAGE
 					 */
 					//scale image
-					imageBytes = profile.scaleImage(imageBytes, ProfileConstants.MAX_IMAGE_XY);
+					imageBytes = ProfileUtils.scaleImage(imageBytes, ProfileConstants.MAX_IMAGE_XY);
 					 
 					//create resource ID
 					String mainResourceId = sakaiProxy.getProfileImageResourcePath(userId, ProfileConstants.PROFILE_IMAGE_MAIN);
@@ -98,7 +98,7 @@ public class ChangeProfilePictureUpload extends Panel{
 					 * THUMBNAIL PROFILE IMAGE
 					 */
 					//scale image
-					imageBytes = profile.scaleImage(imageBytes, ProfileConstants.MAX_THUMBNAIL_IMAGE_XY);
+					imageBytes = ProfileUtils.scaleImage(imageBytes, ProfileConstants.MAX_THUMBNAIL_IMAGE_XY);
 					 
 					//create resource ID
 					String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userId, ProfileConstants.PROFILE_IMAGE_THUMBNAIL);

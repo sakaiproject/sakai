@@ -20,13 +20,13 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
-
 import org.sakaiproject.profile2.api.Profile;
 import org.sakaiproject.profile2.api.ProfileConstants;
 import org.sakaiproject.profile2.api.SakaiProxy;
 import org.sakaiproject.profile2.tool.ProfileApplication;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.tool.models.UserProfile;
+import org.sakaiproject.profile2.util.ProfileUtils;
 
 public class MyInfoEdit extends Panel {
 	
@@ -214,7 +214,7 @@ public class MyInfoEdit extends Panel {
 		sakaiPerson.setNickname(userProfile.getNickname());
 		
 		if(StringUtils.isNotBlank(userProfile.getBirthday())) {
-			Date convertedDate = profile.convertStringToDate(userProfile.getBirthday(), ProfileConstants.DEFAULT_DATE_FORMAT);
+			Date convertedDate = ProfileUtils.convertStringToDate(userProfile.getBirthday(), ProfileConstants.DEFAULT_DATE_FORMAT);
 			userProfile.setDateOfBirth(convertedDate); //set in userProfile which backs the profile
 			sakaiPerson.setDateOfBirth(convertedDate); //set into sakaiPerson to be persisted to DB
 		} else {

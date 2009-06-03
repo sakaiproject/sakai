@@ -301,11 +301,6 @@ public interface SakaiProxy {
 	public int getProfilePictureType();
 	
 	
-	/**
-	 * Gets the users preferred locale, either from the user's session or Sakai preferences and returns it
-	 * @return
-	 */
-	public Locale getUserPreferredLocale();
 	
 	/**
 	 * Gets the profile2.profile.entity.set.academic list of properties that should be used in the academic profile view.

@@ -10,12 +10,12 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tool.cover.SessionManager;
-
 import org.sakaiproject.profile2.api.Profile;
 import org.sakaiproject.profile2.api.SakaiProxy;
 import org.sakaiproject.profile2.tool.ProfileApplication;
+import org.sakaiproject.profile2.util.ProfileUtils;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.cover.SessionManager;
 
 
 public class BasePage extends WebPage implements IHeaderContributor {
@@ -243,9 +243,9 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	*/
 	
 	public void setUserPreferredLocale() {
-		Locale sakaiLocale = sakaiProxy.getUserPreferredLocale();
-		log.debug("User preferred locale: " + sakaiLocale);
-		getSession().setLocale(sakaiLocale);
+		Locale locale = ProfileUtils.getUserPreferredLocale();
+		log.debug("User preferred locale: " + locale);
+		getSession().setLocale(locale);
 	}
 	
 	

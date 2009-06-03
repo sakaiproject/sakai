@@ -20,7 +20,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-
 import org.sakaiproject.profile2.api.Profile;
 import org.sakaiproject.profile2.api.ProfileConstants;
 import org.sakaiproject.profile2.api.SakaiProxy;
@@ -30,6 +29,7 @@ import org.sakaiproject.profile2.tool.dataproviders.ConfirmedFriendsDataProvider
 import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
 import org.sakaiproject.profile2.tool.pages.windows.RemoveFriend;
+import org.sakaiproject.profile2.util.ProfileUtils;
 
 public class ConfirmedFriends extends Panel {
 	
@@ -176,7 +176,7 @@ public class ConfirmedFriends extends Panel {
 						if(profileStatusDate == null) {
 							statusDateLabel.setVisible(false);
 						} else {
-							statusDateLabel.setModel(new Model(profile.convertDateForStatus(profileStatusDate)));
+							statusDateLabel.setModel(new Model(ProfileUtils.convertDateForStatus(profileStatusDate)));
 						}
 					}
 				}
