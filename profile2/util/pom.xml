@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<name>Profile2 UTIL</name>
+	<groupId>org.sakaiproject</groupId>
+	<artifactId>sakai-profile2-util</artifactId>
+
+	<packaging>jar</packaging>
+	
+	<parent>
+		<groupId>org.sakaiproject</groupId>
+		<artifactId>profile2-base</artifactId>
+	    <version>1.2-SNAPSHOT</version>
+	</parent>
+  	
+  	<dependencies>
+
+    	<!-- INTERNAL DEPENDENCIES -->
+		
+    	
+    	<!-- EXTERNAL DEPENDENCIES -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+		</dependency>
+		<dependency>
+      		<groupId>org.jasypt</groupId>
+      		<artifactId>jasypt</artifactId>
+    	</dependency>
+    	<dependency>
+			<groupId>com.ibm.icu</groupId>
+			<artifactId>icu4j</artifactId>
+		</dependency>
+		<dependency>
+      		<groupId>commons-lang</groupId>
+      		<artifactId>commons-lang</artifactId>
+      		<scope>provided</scope>
+   		</dependency>
+		<dependency>
+      		<groupId>org.sakaiproject</groupId>
+      		<artifactId>sakai-tinyurl-api</artifactId>
+      		<scope>provided</scope>
+   		</dependency>
+   		
+   		   				
+		<!--  GENERIC SAKAI DEPENDENCIES -->
+	    
+	    
+  	</dependencies>
+  	
+  	
+  	<profiles>
+        <profile>
+            <id>pre-K1</id>
+            <activation>
+	        	<file>
+	          		<missing>../master/../kernel-deploy/pom.xml</missing>
+	        	</file>
+	      	</activation>
+            <!-- Sakai 2.5.x specific dependencies -->
+			<dependencies>
+				
+		    	<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-util-api</artifactId>
+					<scope>provided</scope>
+		    	</dependency>
+		    	<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-util</artifactId>
+					<version>${sakai.version}</version>
+		    	</dependency>
+		    	
+			</dependencies>
+		</profile>
+        <profile>
+            <id>K1</id>
+            <activation>
+	        	<file>
+	          		<exists>../master/../kernel-deploy/pom.xml</exists>
+	        	</file>
+	      	</activation>
+            <!-- Sakai 2.6+ specific dependencies -->
+            <dependencies>
+		        <dependency>
+            		<groupId>org.sakaiproject.kernel</groupId>
+            		<artifactId>sakai-kernel-util</artifactId>
+        		</dependency>
+			</dependencies> 
+        </profile>
+    </profiles>
+
+	<build>
+		<resources>
+            <resource>
+                <directory>${basedir}/src/java</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+	</build>
+	
+</project>
+
