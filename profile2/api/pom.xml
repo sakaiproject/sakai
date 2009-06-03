@@ -26,6 +26,19 @@
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 		</dependency>
+		<dependency>
+      		<groupId>org.jasypt</groupId>
+      		<artifactId>jasypt</artifactId>
+    	</dependency>
+    	<dependency>
+			<groupId>com.ibm.icu</groupId>
+			<artifactId>icu4j</artifactId>
+		</dependency>
+		<dependency>
+      		<groupId>commons-lang</groupId>
+      		<artifactId>commons-lang</artifactId>
+      		<scope>provided</scope>
+   		</dependency>
 
 		<!--  GENERIC SAKAI DEPENDENCIES -->
 		<dependency>

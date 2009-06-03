@@ -88,6 +88,11 @@
       			<version>${tool.version}</version>
       			<scope>runtime</scope>
     		</dependency>
+    		<dependency>
+      			<groupId>org.sakaiproject</groupId>
+      			<artifactId>sakai-profile2-util</artifactId>
+      			<version>${tool.version}</version>
+    		</dependency>
     		
     		<!-- external -->
 			<dependency>
@@ -154,6 +159,7 @@
  	<modules>
 	    <module>api</module>
 	    <module>impl</module>
+	    <module>util</module>
 	    <module>pack</module>
 	    <module>tool</module>
 	</modules>
