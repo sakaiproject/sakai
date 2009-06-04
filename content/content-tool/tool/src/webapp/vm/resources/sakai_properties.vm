@@ -339,10 +339,10 @@
 					<td>
 					</td>
 					<td>
-						<label for="retract_year${DOT}$i">Date:</label>
+						<label for="retract_year${DOT}$i">$tlang.getString("label.date")</label>
 					</td>
 					<td>
-						<label for="retract_time${DOT}$i">Time:</label>
+						<label for="retract_time${DOT}$i">$tlang.getString("label.time")</label>
 					</td>
 				</tr>
 				<tr>
