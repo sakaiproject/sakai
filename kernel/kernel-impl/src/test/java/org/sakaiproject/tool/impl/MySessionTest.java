@@ -350,7 +350,7 @@ public class MySessionTest extends BaseSessionComponentTest {
 
 		// make sure the expiry value was not updated (because we let no time expire)
 		// by asserting the original and new value are the same
-		assertNotSame(new Long(originalValue), new Long(newValue));
+		assertNotSame(Long.valueOf(originalValue), Long.valueOf(newValue));
 	}
 	
 	public MySession createSessionSetMaxInActive(int maxInactive) {

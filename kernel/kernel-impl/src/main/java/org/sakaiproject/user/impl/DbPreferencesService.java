@@ -77,7 +77,7 @@ public abstract class DbPreferencesService extends BasePreferencesService
 	 */
 	public void setLocksInDb(String value)
 	{
-		m_locksInDb = new Boolean(value).booleanValue();
+		m_locksInDb = Boolean.valueOf(value).booleanValue();
 	}
 
 	/** Configuration: to run the ddl on init or not. */
@@ -91,7 +91,7 @@ public abstract class DbPreferencesService extends BasePreferencesService
 	 */
 	public void setAutoDdl(String value)
 	{
-		m_autoDdl = new Boolean(value).booleanValue();
+		m_autoDdl = Boolean.valueOf(value).booleanValue();
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************

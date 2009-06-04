@@ -1664,7 +1664,7 @@ public class BaseDbDoubleStorage
 		}
 		if (useLimitField)
 		{
-			fields[pos++] = new Integer(limitedToLatest);
+			fields[pos++] = Integer.valueOf(limitedToLatest);
 		}
 
 		List all = m_sql.dbRead(buf.toString(), fields, new SqlReader()

@@ -113,7 +113,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 	 */
 	public void setExternalLocks(String value)
 	{
-		m_useExternalLocks = new Boolean(value).booleanValue();
+		m_useExternalLocks = Boolean.valueOf(value).booleanValue();
 	}
 
 	/** Configuration: to run the ddl on init or not. */
@@ -127,7 +127,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 	 */
 	public void setAutoDdl(String value)
 	{
-		m_autoDdl = new Boolean(value).booleanValue();
+		m_autoDdl = Boolean.valueOf(value).booleanValue();
 	}
 
 	/** The map of database dependent handler. */

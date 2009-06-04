@@ -318,7 +318,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	 */
 	public void setRegenerateIds(String value)
 	{
-		m_regenerateIds = new Boolean(value).booleanValue();
+		m_regenerateIds = Boolean.valueOf(value).booleanValue();
 	}
 
 	/** The # seconds to cache the site queries. 0 disables the cache. */

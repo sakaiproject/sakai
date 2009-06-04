@@ -521,7 +521,7 @@ public class RequestFilter implements Filter
 		try
 		{
 			ThreadLocalManager.set(CURRENT_REMOTE_USER, Boolean.valueOf(m_sakaiRemoteUser));
-			ThreadLocalManager.set(CURRENT_HTTP_SESSION, new Integer(m_sakaiHttpSession));
+			ThreadLocalManager.set(CURRENT_HTTP_SESSION, Integer.valueOf(m_sakaiHttpSession));
 			ThreadLocalManager.set(CURRENT_CONTEXT, m_contextId);
 
 			// make the servlet context available
@@ -964,7 +964,7 @@ public class RequestFilter implements Filter
 						// TODO: for 1.2 commons-fileupload, switch this to a FileSizeLimitExceededException
 						req.setAttribute("upload.exception", new FileUploadBase.SizeLimitExceededException("", item.getSize(),
 								uploadMax));
-						req.setAttribute("upload.limit", new Long((uploadMax / 1024L) / 1024L));
+						req.setAttribute("upload.limit", Long.valueOf((uploadMax / 1024L) / 1024L));
 					}
 					else
 					{
@@ -987,7 +987,7 @@ public class RequestFilter implements Filter
 			// so that the tool down-the-line can handle the problem
 			req.setAttribute("upload.status", "size_limit_exceeded");
 			req.setAttribute("upload.exception", ex);
-			req.setAttribute("upload.limit", new Long((upload.getSizeMax() / 1024L) / 1024L));
+			req.setAttribute("upload.limit", Long.valueOf((upload.getSizeMax() / 1024L) / 1024L));
 		}
 		// TODO: put in for commons-fileupload 1.2
 		// catch (FileUploadBase.FileSizeLimitExceededException ex)

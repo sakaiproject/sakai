@@ -291,7 +291,7 @@ public class ResourceTypeRegistryImpl implements ResourceTypeRegistry
 			{
 				if(type instanceof SiteSpecificResourceType)
 				{
-					enabled.put(type.getId(), new Boolean(((SiteSpecificResourceType) type).isEnabledByDefault()));
+					enabled.put(type.getId(), Boolean.valueOf(((SiteSpecificResourceType) type).isEnabledByDefault()));
 				}
 			}
 			

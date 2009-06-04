@@ -80,7 +80,7 @@ public abstract class Log4jConfigurationManager implements LogConfigurationManag
 	 */
 	public void setEnabled(String value)
 	{
-		m_enabled = new Boolean(value).booleanValue();
+		m_enabled = Boolean.valueOf(value).booleanValue();
 	}
 
 	/** Map by logger name of set of message string starts to ignore. */

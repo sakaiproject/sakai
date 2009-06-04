@@ -1347,7 +1347,7 @@ public class Blob implements Cloneable, Serializable {
 				}
 
 				// All done
-				return new Byte(ret);
+				return Byte.valueOf(ret);
 			} // end nextElement()
 
 		}; // end Enumeration

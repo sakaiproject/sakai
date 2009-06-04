@@ -160,7 +160,7 @@ public class SakaiClusterService implements ClusterService
 	 */
 	public void setAutoDdl(String value)
 	{
-		m_autoDdl = new Boolean(value).booleanValue();
+		m_autoDdl = Boolean.valueOf(value).booleanValue();
 	}
 
 	/** Dependency: the current manager. */

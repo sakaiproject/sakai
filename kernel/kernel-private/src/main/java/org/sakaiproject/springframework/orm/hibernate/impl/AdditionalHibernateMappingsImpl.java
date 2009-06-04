@@ -38,7 +38,7 @@ public class AdditionalHibernateMappingsImpl implements AdditionalHibernateMappi
 
 	private Resource[] mappingLocations;
 
-	private Integer sortOrder = new Integer(Integer.MAX_VALUE);
+	private Integer sortOrder = Integer.valueOf(Integer.MAX_VALUE);
 
     public void setMappingResources(String[] mappingResources)
 	{

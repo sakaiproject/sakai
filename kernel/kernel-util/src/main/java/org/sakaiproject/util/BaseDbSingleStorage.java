@@ -349,7 +349,7 @@ public class BaseDbSingleStorage implements DbSingleStorage
 				try
 				{
 					int count = result.getInt(1);
-					return new Integer(count);
+					return Integer.valueOf(count);
 				}
 				catch (SQLException ignore)
 				{
@@ -379,7 +379,7 @@ public class BaseDbSingleStorage implements DbSingleStorage
 				try
 				{
 					int count = result.getInt(1);
-					return new Integer(count);
+					return Integer.valueOf(count);
 				}
 				catch (SQLException ignore)
 				{

@@ -53,8 +53,8 @@ public class FlatStorageSqlOracle extends FlatStorageSqlDefault
 	{
 		Object[] fields = new Object[2];
 
-		fields[0] = new Long(last);
-		fields[1] = new Long(first);
+		fields[0] = Long.valueOf(last);
+		fields[1] = Long.valueOf(first);
 		
 
 		return fields;

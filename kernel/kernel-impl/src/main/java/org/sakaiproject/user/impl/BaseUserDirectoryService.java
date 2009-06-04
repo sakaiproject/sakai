@@ -411,7 +411,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	public void setCaseSensitiveId(String value)
 	{
-		m_caseSensitiveEid = new Boolean(value).booleanValue();
+		m_caseSensitiveEid = Boolean.valueOf(value).booleanValue();
 	}
 
 	/** Configuration: use a different id and eid for each record (otherwise make them the same value). */
@@ -425,7 +425,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	public void setSeparateIdEid(String value)
 	{
-		m_separateIdEid = new Boolean(value).booleanValue();
+		m_separateIdEid = Boolean.valueOf(value).booleanValue();
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************

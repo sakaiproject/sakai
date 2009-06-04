@@ -44,8 +44,8 @@ public class SingleStorageSqlMsSql extends SingleStorageSqlDefault
 	public Object[] getXmlFields(int first, int last)
 	{
 		Object[] fields = new Object[2];
-		fields[0] = new Long(first);
-		fields[1] = new Long(last);
+		fields[0] = Long.valueOf(first);
+		fields[1] = Long.valueOf(last);
 
 		return fields;
 	}

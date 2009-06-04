@@ -369,7 +369,7 @@ public class BaseDbFlatStorage
 				try
 				{
 					int count = result.getInt(1);
-					return new Integer(count);
+					return Integer.valueOf(count);
 				}
 				catch (SQLException ignore)
 				{
@@ -509,7 +509,7 @@ public class BaseDbFlatStorage
 				try
 				{
 					int count = result.getInt(1);
-					return new Integer(count);
+					return Integer.valueOf(count);
 				}
 				catch (SQLException ignore)
 				{
@@ -589,8 +589,8 @@ public class BaseDbFlatStorage
 			}
 			sql = flatStorageSql.getSelectFieldsSql3(m_resourceTableName, fieldList(m_resourceTableReadFields, null), m_resourceTableIdField,
 					m_resourceTableSortField1, m_resourceTableSortField2, (first - 1), (last - first + 1), join, where, order);
-			fields[fields.length - 2] = new Long(last);
-			fields[fields.length - 1] = new Long(first);
+			fields[fields.length - 2] = Long.valueOf(last);
+			fields[fields.length - 1] = Long.valueOf(first);
 		}
 		else if ("mssql".equals(m_sql.getVendor()) || "db2".equals(m_sql.getVendor()))
 		{
@@ -608,8 +608,8 @@ public class BaseDbFlatStorage
 					m_resourceTableSortField1, m_resourceTableSortField2, (first - 1), (last - first + 1), join, where, order);
 			sql += flatStorageSql.getSelectFieldsSql4(m_resourceTableName, fieldList(m_resourceTableReadFields, null), m_resourceTableIdField,
 					m_resourceTableSortField1, m_resourceTableSortField2, (first - 1), (last - first + 1), join, where, order);
-			fields[fields.length - 2] = new Long(first);
-			fields[fields.length - 1] = new Long(last);
+			fields[fields.length - 2] = Long.valueOf(first);
+			fields[fields.length - 1] = Long.valueOf(last);
 		}
 		else
 		{

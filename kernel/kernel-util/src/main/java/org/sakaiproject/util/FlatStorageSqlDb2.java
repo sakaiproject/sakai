@@ -61,7 +61,7 @@ public class FlatStorageSqlDb2 extends FlatStorageSqlDefault
    {
       String sql = " select " + fieldList.replaceAll(table + "\\.", "TEMP_QUERY.") + " from TEMP_QUERY where rank between ? and ? order by ";
       // here, need to replace table name with TEMP_QUERY in 'order'
-      String newOrder = new String(order);
+      String newOrder = String.valueOf(order);
       newOrder = newOrder.replaceAll(table + "\\.", "TEMP_QUERY.");
       sql += newOrder;
       // only add next part if it's not already there
@@ -74,8 +74,8 @@ public class FlatStorageSqlDb2 extends FlatStorageSqlDefault
    {
       Object[] fields = new Object[2];
 
-      fields[0] = new Long(first);
-      fields[1] = new Long(last);
+      fields[0] = Long.valueOf(first);
+      fields[1] = Long.valueOf(last);
 
       return fields;
    }

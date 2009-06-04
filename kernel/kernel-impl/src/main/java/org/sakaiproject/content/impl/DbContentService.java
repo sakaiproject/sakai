@@ -232,7 +232,7 @@ public class DbContentService extends BaseContentService
 	 */
 	public void setLocksInDb(String value)
 	{
-		m_locksInDb = new Boolean(value).booleanValue();
+		m_locksInDb = Boolean.valueOf(value).booleanValue();
 	}
 
 	/** Set if we are to run the to-file conversion. */
@@ -246,7 +246,7 @@ public class DbContentService extends BaseContentService
 	 */
 	public void setConvertToFile(String value)
 	{
-		m_convertToFile = new Boolean(value).booleanValue();
+		m_convertToFile = Boolean.valueOf(value).booleanValue();
 	}
 
 	/** Configuration: to run the ddl on init or not. */
@@ -263,7 +263,7 @@ public class DbContentService extends BaseContentService
 	 */
 	public void setAutoDdl(String value)
 	{
-		m_autoDdl = new Boolean(value).booleanValue();
+		m_autoDdl = Boolean.valueOf(value).booleanValue();
 	}
 
 	// htripath-start
@@ -2750,7 +2750,7 @@ public class DbContentService extends BaseContentService
 						fields[0] = edit.m_filePath;
 						fields[1] = serialization;
 						fields[2] = context;
-						fields[3] = new Integer(edit.m_contentLength);
+						fields[3] = Integer.valueOf(edit.m_contentLength);
 						fields[4] = edit.getResourceType();
 						fields[5] = id;
 						
@@ -2914,7 +2914,7 @@ public class DbContentService extends BaseContentService
 				String individualDropboxId = result.getString(1);
 				long time = result.getLong(2);
 				
-				return new TimeEntry(individualDropboxId, new Long(time));
+				return new TimeEntry(individualDropboxId, Long.valueOf(time));
 			}
 			catch(Exception e)
 			{
@@ -3073,7 +3073,7 @@ public class DbContentService extends BaseContentService
 					// update the record
 					Object [] fields = new Object[5];
 					fields[0] = context;
-					fields[1] = new Integer(filesize);
+					fields[1] = Integer.valueOf(filesize);
 					fields[2] = resourceType;
 					fields[3] = uuid;
 					fields[4] = resourceId;
@@ -3085,7 +3085,7 @@ public class DbContentService extends BaseContentService
 					// update the record
 					Object [] fields = new Object[4];
 					fields[0] = context;
-					fields[1] = new Integer(filesize);
+					fields[1] = Integer.valueOf(filesize);
 					fields[2] = resourceType;
 					fields[3] = uuid;
 					m_sqlService.dbWrite(sql, fields);

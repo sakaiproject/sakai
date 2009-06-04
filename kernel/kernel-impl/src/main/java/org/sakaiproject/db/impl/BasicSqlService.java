@@ -106,7 +106,7 @@ public abstract class BasicSqlService implements SqlService
 			LOG.debug("setCommitAfterRead(String " + value + ")");
 		}
 
-		m_commitAfterRead = new Boolean(value).booleanValue();
+		m_commitAfterRead = Boolean.valueOf(value).booleanValue();
 	}
 
 	/** Database vendor used; possible values are oracle, mysql, hsqldb (default). */
@@ -152,7 +152,7 @@ public abstract class BasicSqlService implements SqlService
 			LOG.debug("setShowSql(String " + value + ")");
 		}
 
-		m_showSql = new Boolean(value).booleanValue();
+		m_showSql = Boolean.valueOf(value).booleanValue();
 	}
 
 	/** Configuration: number of on-deadlock retries for save. */
@@ -185,7 +185,7 @@ public abstract class BasicSqlService implements SqlService
 			LOG.debug("setAutoDdl(String " + value + ")");
 		}
 
-		m_autoDdl = new Boolean(value).booleanValue();
+		m_autoDdl = Boolean.valueOf(value).booleanValue();
 	}
 
 	/** contains a map of the database dependent handlers. */
@@ -1411,7 +1411,7 @@ public abstract class BasicSqlService implements SqlService
 			{
 				if (keys.next())
 				{
-					rv = new Long(keys.getLong(1));
+					rv = Long.valueOf(keys.getLong(1));
 				}
 			}
 

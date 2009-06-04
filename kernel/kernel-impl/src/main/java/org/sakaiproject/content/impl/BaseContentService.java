@@ -354,7 +354,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	{
 		try
 		{
-			m_caching = new Boolean(value).booleanValue();
+			m_caching = Boolean.valueOf(value).booleanValue();
 		}
 		catch (Throwable t)
 		{
@@ -377,7 +377,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	{
 		try
 		{
-			m_siteAttachments = new Boolean(value).booleanValue();
+			m_siteAttachments = Boolean.valueOf(value).booleanValue();
 		}
 		catch (Throwable t)
 		{
@@ -453,7 +453,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	{
 		try
 		{
-			m_shortRefs = new Boolean(value).booleanValue();
+			m_shortRefs = Boolean.valueOf(value).booleanValue();
 		}
 		catch (Throwable t)
 		{
@@ -481,7 +481,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	{
 		try
 		{
-			m_siteAlias = new Boolean(value).booleanValue();
+			m_siteAlias = Boolean.valueOf(value).booleanValue();
 		}
 		catch (Throwable t)
 		{
@@ -1128,7 +1128,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 					Object[] rv = new Object[5];
 					rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
 					rv[1] = ((BasicGroupAwareEdit) r).getContext();
-					rv[2] = new Integer(((ContentResource) r).getContentLength());
+					rv[2] = Integer.valueOf(((ContentResource) r).getContentLength());
 					rv[3] = ((BasicGroupAwareEdit) r).getResourceType();
 					rv[4] = StringUtil.trimToZero(((BaseResourceEdit) r).m_filePath);
 					return rv;
@@ -1140,7 +1140,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 					Object[] rv = new Object[4];
 					rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
 					rv[1] = ((BasicGroupAwareEdit) r).getContext();
-					rv[2] = new Integer(((ContentResource) r).getContentLength());
+					rv[2] = Integer.valueOf(((ContentResource) r).getContentLength());
 					rv[3] = ((BasicGroupAwareEdit) r).getResourceType();
 					return rv;
 				}
@@ -10706,7 +10706,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			if(countObj == null)
 			{
 				count = m_storage.getMemberCount(this.m_id);
-				ThreadLocalManager.set("getMemberCount@" + this.m_id, new Integer(count));
+				ThreadLocalManager.set("getMemberCount@" + this.m_id, Integer.valueOf(count));
 			}
 			else
 			{

@@ -85,7 +85,7 @@ public abstract class DbAliasService extends BaseAliasService
 	 */
 	public void setConvertOld(String value)
 	{
-		m_convertOld = new Boolean(value).booleanValue();
+		m_convertOld = Boolean.valueOf(value).booleanValue();
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -109,7 +109,7 @@ public abstract class DbAliasService extends BaseAliasService
 	 */
 	public void setExternalLocks(String value)
 	{
-		m_useExternalLocks = new Boolean(value).booleanValue();
+		m_useExternalLocks = Boolean.valueOf(value).booleanValue();
 	}
 
 	/** Configuration: check the old table, too. */
@@ -123,7 +123,7 @@ public abstract class DbAliasService extends BaseAliasService
 	 */
 	public void setCheckOld(String value)
 	{
-		m_checkOld = new Boolean(value).booleanValue();
+		m_checkOld = Boolean.valueOf(value).booleanValue();
 	}
 
 	/** Configuration: to run the ddl on init or not. */
@@ -137,7 +137,7 @@ public abstract class DbAliasService extends BaseAliasService
 	 */
 	public void setAutoDdl(String value)
 	{
-		m_autoDdl = new Boolean(value).booleanValue();
+		m_autoDdl = Boolean.valueOf(value).booleanValue();
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************

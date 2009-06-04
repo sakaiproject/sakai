@@ -1185,7 +1185,7 @@ public class BaseSite implements Site
 		if (m_description != null)
 			Xml.encodeAttribute(site, "description-enc", m_description);
 
-		site.setAttribute("joinable", new Boolean(m_joinable).toString());
+		site.setAttribute("joinable", Boolean.valueOf(m_joinable).toString());
 		if (m_joinerRole != null) site.setAttribute("joiner-role", m_joinerRole);
 		site.setAttribute("published", Boolean.valueOf(m_published).toString());
 		if (m_icon != null) site.setAttribute("icon", m_icon);
