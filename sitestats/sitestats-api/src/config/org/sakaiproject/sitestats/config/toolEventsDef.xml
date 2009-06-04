@@ -69,6 +69,7 @@
 		<event eventId="chat.new" selected="true"/>
 		<event eventId="chat.delete.any" selected="true"/>
 		<event eventId="chat.delete.own" selected="true"/>
+		<event eventId="chat.delete.channel" selected="true"/>		
 		<eventParserTip for="contextId" separator="/" index="3"/>
 	</tool>
 
