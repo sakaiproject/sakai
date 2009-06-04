@@ -114,7 +114,7 @@
 										<label for="$attributeInputName">
 											$attribute
 										</label>
-										<input type="text" name="$attributeInputName" id="$attributeInputName" value="$!attributeHashtable.get($attribute)" size="50" />
+										<input type="text" name="$attributeInputName" id="$attributeInputName" value="$validator.escapeHtml($!attributeHashtable.get($attribute))" size="50" />
 								</p>
 								#end
 						#end
