@@ -381,7 +381,7 @@ public class ProfileServiceImpl implements ProfileService {
 		if(StringUtils.isNotBlank(userProfile.getUserUuid())) {
 			sb.append("<div class=\"profile2-profile-userUuid\">");
 			sb.append("<span class=\"profile2-profile-label\">");
-			sb.append(Messages.getString("ProfileServiceImpl.userUuid"));
+			sb.append(Messages.getString("Label.userUuid"));
 			sb.append("</span>");
 			sb.append(userProfile.getUserUuid());
 			sb.append("</div>");
@@ -410,7 +410,7 @@ public class ProfileServiceImpl implements ProfileService {
 		if(StringUtils.isNotBlank(userProfile.getNickname())) {
 			sb.append("<div class=\"profile2-profile-nickname\">");
 			sb.append("<span class=\"profile2-profile-label\">");
-			sb.append(Messages.getString("ProfileServiceImpl.nickname"));
+			sb.append(Messages.getString("Label.nickname"));
 			sb.append("</span>");
 			sb.append(userProfile.getNickname());
 			sb.append("</div>");
@@ -422,7 +422,7 @@ public class ProfileServiceImpl implements ProfileService {
 		if(StringUtils.isNotBlank(userProfile.getEmail())) {
 			sb.append("<div class=\"profile2-profile-email\">");
 			sb.append("<span class=\"profile2-profile-label\">");
-			sb.append(Messages.getString("ProfileServiceImpl.email"));
+			sb.append(Messages.getString("Label.email"));
 			sb.append("</span>");
 			sb.append(userProfile.getEmail());
 			sb.append("</div>");
@@ -431,7 +431,7 @@ public class ProfileServiceImpl implements ProfileService {
 		if(StringUtils.isNotBlank(userProfile.getHomepage())) {
 			sb.append("<div class=\"profile2-profile-homepage\">");
 			sb.append("<span class=\"profile2-profile-label\">");
-			sb.append(Messages.getString("ProfileServiceImpl.homepage"));
+			sb.append(Messages.getString("Label.homepage"));
 			sb.append("</span>");
 			sb.append(userProfile.getHomepage());
 			sb.append("</div>");
@@ -440,7 +440,7 @@ public class ProfileServiceImpl implements ProfileService {
 		if(StringUtils.isNotBlank(userProfile.getHomephone())) {
 			sb.append("<div class=\"profile2-profile-homephone\">");
 			sb.append("<span class=\"profile2-profile-label\">");
-			sb.append(Messages.getString("ProfileServiceImpl.homephone"));
+			sb.append(Messages.getString("Label.homephone"));
 			sb.append("</span>");
 			sb.append(userProfile.getHomephone());
 			sb.append("</div>");
@@ -449,7 +449,7 @@ public class ProfileServiceImpl implements ProfileService {
 		if(StringUtils.isNotBlank(userProfile.getWorkphone())) {
 			sb.append("<div class=\"profile2-profile-workphone\">");
 			sb.append("<span class=\"profile2-profile-label\">");
-			sb.append(Messages.getString("ProfileServiceImpl.workphone"));
+			sb.append(Messages.getString("Label.workphone"));
 			sb.append("</span>");
 			sb.append(userProfile.getWorkphone());
 			sb.append("</div>");
@@ -458,7 +458,7 @@ public class ProfileServiceImpl implements ProfileService {
 		if(StringUtils.isNotBlank(userProfile.getMobilephone())) {
 			sb.append("<div class=\"profile2-profile-mobilephone\">");
 			sb.append("<span class=\"profile2-profile-label\">");
-			sb.append(Messages.getString("ProfileServiceImpl.mobilephone"));
+			sb.append(Messages.getString("Label.mobilephone"));
 			sb.append("</span>");
 			sb.append(userProfile.getMobilephone());
 			sb.append("</div>");
@@ -467,7 +467,7 @@ public class ProfileServiceImpl implements ProfileService {
 		if(StringUtils.isNotBlank(userProfile.getFacsimile())) {
 			sb.append("<div class=\"profile2-profile-facsimile\">");
 			sb.append("<span class=\"profile2-profile-label\">");
-			sb.append(Messages.getString("ProfileServiceImpl.facsimile"));
+			sb.append(Messages.getString("Label.facsimile"));
 			sb.append("</span>");
 			sb.append(userProfile.getFacsimile());
 			sb.append("</div>");
@@ -479,7 +479,7 @@ public class ProfileServiceImpl implements ProfileService {
 		if(StringUtils.isNotBlank(userProfile.getPosition())) {
 			sb.append("<div class=\"profile2-profile-position\">");
 			sb.append("<span class=\"profile2-profile-label\">");
-			sb.append(Messages.getString("ProfileServiceImpl.position"));
+			sb.append(Messages.getString("Label.position"));
 			sb.append("</span>");
 			sb.append(userProfile.getPosition());
 			sb.append("</div>");
@@ -488,7 +488,7 @@ public class ProfileServiceImpl implements ProfileService {
 		if(StringUtils.isNotBlank(userProfile.getDepartment())) {
 			sb.append("<div class=\"profile2-profile-department\">");
 			sb.append("<span class=\"profile2-profile-label\">");
-			sb.append(Messages.getString("ProfileServiceImpl.department"));
+			sb.append(Messages.getString("Label.department"));
 			sb.append("</span>");
 			sb.append(userProfile.getDepartment());
 			sb.append("</div>");
@@ -497,7 +497,7 @@ public class ProfileServiceImpl implements ProfileService {
 		if(StringUtils.isNotBlank(userProfile.getSchool())) {
 			sb.append("<div class=\"profile2-profile-school\">");
 			sb.append("<span class=\"profile2-profile-label\">");
-			sb.append(Messages.getString("ProfileServiceImpl.school"));
+			sb.append(Messages.getString("Label.school"));
 			sb.append("</span>");
 			sb.append(userProfile.getSchool());
 			sb.append("</div>");
@@ -506,7 +506,7 @@ public class ProfileServiceImpl implements ProfileService {
 		if(StringUtils.isNotBlank(userProfile.getRoom())) {
 			sb.append("<div class=\"profile2-profile-room\">");
 			sb.append("<span class=\"profile2-profile-label\">");
-			sb.append(Messages.getString("ProfileServiceImpl.room"));
+			sb.append(Messages.getString("Label.room"));
 			sb.append("</span>");
 			sb.append(userProfile.getRoom());
 			sb.append("</div>");
@@ -515,7 +515,7 @@ public class ProfileServiceImpl implements ProfileService {
 		if(StringUtils.isNotBlank(userProfile.getCourse())) {
 			sb.append("<div class=\"profile2-profile-course\">");
 			sb.append("<span class=\"profile2-profile-label\">");
-			sb.append(Messages.getString("ProfileServiceImpl.course"));
+			sb.append(Messages.getString("Label.course"));
 			sb.append("</span>");
 			sb.append(userProfile.getCourse());
 			sb.append("</div>");
@@ -524,7 +524,7 @@ public class ProfileServiceImpl implements ProfileService {
 		if(StringUtils.isNotBlank(userProfile.getSubjects())) {
 			sb.append("<div class=\"profile2-profile-subjects\">");
 			sb.append("<span class=\"profile2-profile-label\">");
-			sb.append(Messages.getString("ProfileServiceImpl.subjects"));
+			sb.append(Messages.getString("Label.subjects"));
 			sb.append("</span>");
 			sb.append(userProfile.getSubjects());
 			sb.append("</div>");
@@ -535,7 +535,7 @@ public class ProfileServiceImpl implements ProfileService {
 		if(StringUtils.isNotBlank(userProfile.getFavouriteBooks())) {
 			sb.append("<div class=\"profile2-profile-favouriteBooks\">");
 			sb.append("<span class=\"profile2-profile-label\">");
-			sb.append(Messages.getString("ProfileServiceImpl.favouriteBooks"));
+			sb.append(Messages.getString("Label.favouriteBooks"));
 			sb.append("</span>");
 			sb.append(userProfile.getFavouriteBooks());
 			sb.append("</div>");
@@ -544,7 +544,7 @@ public class ProfileServiceImpl implements ProfileService {
 		if(StringUtils.isNotBlank(userProfile.getFavouriteTvShows())) {
 			sb.append("<div class=\"profile2-profile-favouriteTvShows\">");
 			sb.append("<span class=\"profile2-profile-label\">");
-			sb.append(Messages.getString("ProfileServiceImpl.favouriteTvShows"));
+			sb.append(Messages.getString("Label.favouriteTvShows"));
 			sb.append("</span>");
 			sb.append(userProfile.getFavouriteTvShows());
 			sb.append("</div>");
@@ -553,7 +553,7 @@ public class ProfileServiceImpl implements ProfileService {
 		if(StringUtils.isNotBlank(userProfile.getFavouriteMovies())) {
 			sb.append("<div class=\"profile2-profile-favouriteMovies\">");
 			sb.append("<span class=\"profile2-profile-label\">");
-			sb.append(Messages.getString("ProfileServiceImpl.favouriteMovies"));
+			sb.append(Messages.getString("Label.favouriteMovies"));
 			sb.append("</span>");
 			sb.append(userProfile.getFavouriteMovies());
 			sb.append("</div>");
@@ -562,7 +562,7 @@ public class ProfileServiceImpl implements ProfileService {
 		if(StringUtils.isNotBlank(userProfile.getFavouriteQuotes())) {
 			sb.append("<div class=\"profile2-profile-favouriteQuotes\">");
 			sb.append("<span class=\"profile2-profile-label\">");
-			sb.append(Messages.getString("ProfileServiceImpl.favouriteQuotes"));
+			sb.append(Messages.getString("Label.favouriteQuotes"));
 			sb.append("</span>");
 
 			sb.append(userProfile.getFavouriteQuotes());
@@ -571,7 +571,7 @@ public class ProfileServiceImpl implements ProfileService {
 		if(StringUtils.isNotBlank(userProfile.getOtherInformation())) {
 			sb.append("<div class=\"profile2-profile-otherInformation\">");
 			sb.append("<span class=\"profile2-profile-label\">");
-			sb.append(Messages.getString("ProfileServiceImpl.otherInformation"));
+			sb.append(Messages.getString("Label.otherInformation"));
 			sb.append("</span>");
 			sb.append(userProfile.getOtherInformation());
 			sb.append("</div>");

@@ -235,36 +235,36 @@ public class ProfileUtils {
 				
 		if(diff < MILLIS_IN_SECOND) {
 			//less than a second
-			message = Messages.getString("ProfileImpl.just_then"); 
+			message = Messages.getString("Label.just_then"); 
 		} else if (diff < MILLIS_IN_MINUTE) {
 			//less than a minute, calc seconds
 			int numSeconds = diff/MILLIS_IN_SECOND;
 			if(numSeconds == 1) {
 				//one sec
-				message = numSeconds + Messages.getString("ProfileImpl.second_ago"); 
+				message = numSeconds + Messages.getString("Label.second_ago"); 
 			} else {
 				//more than one sec
-				message = numSeconds + Messages.getString("ProfileImpl.seconds_ago"); 
+				message = numSeconds + Messages.getString("Label.seconds_ago"); 
 			}
 		} else if (diff < MILLIS_IN_HOUR) {
 			//less than an hour, calc minutes
 			int numMinutes = diff/MILLIS_IN_MINUTE;
 			if(numMinutes == 1) {
 				//one minute
-				message = numMinutes + Messages.getString("ProfileImpl.minute_ago"); 
+				message = numMinutes + Messages.getString("Label.minute_ago"); 
 			} else {
 				//more than one minute
-				message = numMinutes + Messages.getString("ProfileImpl.minutes_ago"); 
+				message = numMinutes + Messages.getString("Label.minutes_ago"); 
 			}
 		} else if (diff < MILLIS_IN_DAY) {
 			//less than a day, calc hours
 			int numHours = diff/MILLIS_IN_HOUR;
 			if(numHours == 1) {
 				//one hour
-				message = numHours + Messages.getString("ProfileImpl.hour_ago"); 
+				message = numHours + Messages.getString("Label.hour_ago"); 
 			} else {
 				//more than one hour
-				message = numHours + Messages.getString("ProfileImpl.hours_ago"); 
+				message = numHours + Messages.getString("Label.hours_ago"); 
 			}
 		} else if (diff < MILLIS_IN_WEEK) {
 			//less than a week, calculate days
@@ -272,7 +272,7 @@ public class ProfileUtils {
 			
 			//now calculate which day it was
 			if(numDays == 1) {
-				message = Messages.getString("ProfileImpl.yesterday"); 
+				message = Messages.getString("Label.yesterday"); 
 			} else {
 				//set calendar and get day of week
 				Calendar postingCal = Calendar.getInstance();
@@ -283,7 +283,7 @@ public class ProfileUtils {
 				//set to localised value: 'on Wednesday' for example
 				String dayName = getDayName(postingDay,locale);
 				if(dayName != null) {
-					message = Messages.getString("ProfileImpl.on") + toProperCase(dayName); 
+					message = Messages.getString("Label.on") + toProperCase(dayName); 
 				}
 			}
 			
