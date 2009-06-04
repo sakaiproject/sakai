@@ -252,15 +252,24 @@ function saveTime()
 
   <%-- NEXT --%>
   <h:panelGrid columns="1" border="0" columnClasses="act">
-    <h:commandButton id="next" type="submit" value="#{deliveryMessages.button_next}"
-    action="#{delivery.next_page}" styleClass="active"
-    disabled="#{!delivery.continue}"
+    <h:commandButton id="next1" type="submit" value="#{deliveryMessages.button_next}"
+    action="#{delivery.next_page}" disabled="#{!delivery.continue}"
     onclick="disableNext()" onkeypress="" 
 	rendered="#{(delivery.actionString=='previewAssessment'
                  || delivery.actionString=='takeAssessment'
                  || delivery.actionString=='takeAssessmentViaUrl')
-              && ((delivery.previous && delivery.continue) || (!delivery.previous && delivery.continue) || (delivery.previous && !delivery.continue))}" />
+              && (delivery.previous && !delivery.continue)}" />
+
+    <h:commandButton id="next" type="submit" value="#{deliveryMessages.button_next}"
+    action="#{delivery.next_page}" styleClass="active"
+    onclick="disableNext()" onkeypress="" 
+	rendered="#{(delivery.actionString=='previewAssessment'
+                 || delivery.actionString=='takeAssessment'
+                 || delivery.actionString=='takeAssessmentViaUrl')
+              && delivery.continue}" />
+
   </h:panelGrid>
+
 
   <h:panelGrid columns="1" border="0">
            <h:outputText value="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" escape="false" />
@@ -269,7 +278,9 @@ function saveTime()
   <%-- SAVE --%>
   <h:panelGrid columns="1" border="0">
   <h:commandButton id="save" type="submit" value="#{deliveryMessages.button_save}"
-    action="#{delivery.save_work}" onclick="" onkeypress="" />
+    action="#{delivery.save_work}" onclick="" onkeypress="" rendered="#{delivery.actionString=='previewAssessment'
+                 || delivery.actionString=='takeAssessment'
+                 || delivery.actionString=='takeAssessmentViaUrl'}" />
   </h:panelGrid>
 
   <h:panelGrid columns="1"  border="0">
