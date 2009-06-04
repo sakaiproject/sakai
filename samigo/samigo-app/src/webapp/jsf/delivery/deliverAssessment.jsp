@@ -134,8 +134,16 @@ function saveTime()
 <!-- h:inputHidden id="currentSection" value="#{item.currentSection}"/ -->
 <!-- h:inputHidden id="insertPosition" value="#{item.insertPosition}"/ -->
 <%-- PART/ITEM DATA TABLES --%>
-<div class="tier1">
-  <h:dataTable width="100%" value="#{delivery.pageContents.partsContents}" var="part">
+
+<h:panelGrid columns="1" width="100%" rendered="#{delivery.pageContents.isNoParts && delivery.navigation eq '1'}" border="0">
+      <h:outputText value="#{deliveryMessages.linear_no_contents_warning_1}"/>
+      <h:outputText value="#{deliveryMessages.linear_no_contents_warning_2} <b>#{deliveryMessages.button_submit_grading}</b>  #{deliveryMessages.linear_no_contents_warning_3}"  escape="false"/>
+      <h:outputText value="#{deliveryMessages.linear_no_contents_warning_4} <b>#{deliveryMessages.button_cancel}</b>  #{deliveryMessages.linear_no_contents_warning_5}"  escape="false"/>
+</h:panelGrid>
+
+<h:panelGroup rendered="#{!delivery.pageContents.isNoParts || delivery.navigation ne '1'}">
+<f:verbatim><div class="tier1"></f:verbatim>
+  <h:dataTable width="100%" value="#{delivery.pageContents.partsContents}" var="part" border="0">
     <h:column>
      <!-- f:subview id="parts" -->
       <f:verbatim><h4></f:verbatim>
@@ -151,7 +159,6 @@ function saveTime()
 </h:panelGrid>
       <f:verbatim></h4></f:verbatim>
       <h:outputText value="#{part.description}" escape="false"/>
-   <f:verbatim><div class="tier2"></f:verbatim>
 
   <!-- PART ATTACHMENTS -->
   <%@ include file="/jsf/delivery/part_attachment.jsp" %>
@@ -233,11 +240,31 @@ function saveTime()
 
     </h:column>
   </h:dataTable>
-</div>
-<f:verbatim><p class="act"></f:verbatim>
+<f:verbatim></div></f:verbatim>
+</h:panelGroup>
 
-<h:panelGrid columns="6" border="0">
+  <f:verbatim><br/></f:verbatim>
 
+<!-- 1. special case: linear + no question to answer -->
+<h:panelGrid columns="2" border="0" rendered="#{delivery.pageContents.isNoParts && delivery.navigation eq '1'}">
+  <h:panelGrid columns="1" width="100%" border="0" columnClasses="act">
+  <h:commandButton type="submit" value="#{deliveryMessages.button_submit_grading}"
+      action="#{delivery.confirmSubmit}"  id="submitForm3" styleClass="active"
+      rendered="#{(delivery.actionString=='takeAssessment'
+                   || delivery.actionString=='takeAssessmentViaUrl'
+				   || delivery.actionString=='previewAssessment')
+				   && delivery.navigation eq '1' && !delivery.continue}" 
+      onclick="pauseTiming='false'; disableSubmit()" onkeypress="pauseTiming='false'"/>
+  </h:panelGrid>
+
+  <h:panelGrid columns="1" width="100%" border="0">
+  <h:commandButton value="#{deliveryMessages.button_cancel}" type="submit"
+     action="select" rendered="#{delivery.pageContents.isNoParts && delivery.navigation eq '1'}" />
+  </h:panelGrid>
+</h:panelGrid>
+
+<!-- 2. normal flow -->
+<h:panelGrid columns="6" border="0" rendered="#{!(delivery.pageContents.isNoParts && delivery.navigation eq '1')}">
   <%-- PREVIOUS --%>
   <h:panelGrid columns="1" border="0">
 	<h:commandButton id="previous" type="submit" value="#{deliveryMessages.previous}"
@@ -276,7 +303,7 @@ function saveTime()
   </h:panelGrid>
 
   <%-- SAVE --%>
-  <h:panelGrid columns="1" border="0">
+  <h:panelGrid columns="1" border="0" >
   <h:commandButton id="save" type="submit" value="#{deliveryMessages.button_save}"
     action="#{delivery.save_work}" onclick="" onkeypress="" rendered="#{delivery.actionString=='previewAssessment'
                  || delivery.actionString=='takeAssessment'
@@ -337,8 +364,8 @@ function saveTime()
     rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.continue}"
     onclick="pauseTiming='false'; disableSubmit2();" onkeypress="pauseTiming='false'"/>
   </h:panelGrid>
-
 </h:panelGrid>
+
 	<h:commandLink id="hiddenReloadLink" action="#{delivery.same_page}" value="">
 	</h:commandLink>
 
@@ -349,12 +376,11 @@ function saveTime()
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{deliveryMessages.ass_preview}" />
      <h:commandButton accesskey="#{deliveryMessages.a_done}" value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
-<f:verbatim></div></f:verbatim>
 </h:panelGroup>
 
 </h:form>
 <!-- end content -->
-</div>
+<f:verbatim></div></f:verbatim>
     </body>
   </html>
 </f:view>

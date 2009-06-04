@@ -115,24 +115,30 @@ private java.util.ArrayList partsContents;
    */
   public void setShowStudentScore(boolean showStudentScore)
   {
-    this.showStudentScore = showStudentScore;
+	  this.showStudentScore = showStudentScore;
   }
 
   /**
-  * If we display the current score, return it, otherwise an empty string.
-  * Not currently used, provided if we need it later.
-  * @return either, a) the current score, otherwise, b) "" (empty string)
-  */
- public String getPointsDisplayString()
- {
-   String pointsDisplayString = "";
-   if (showStudentScore)
-   {
-     pointsDisplayString = "" + currentScore;
-   }
-   return pointsDisplayString;
- }
+   * If we display the current score, return it, otherwise an empty string.
+   * Not currently used, provided if we need it later.
+   * @return either, a) the current score, otherwise, b) "" (empty string)
+   */
+  public String getPointsDisplayString()
+  {
+	  String pointsDisplayString = "";
+	  if (showStudentScore)
+	  {
+		  pointsDisplayString = "" + currentScore;
+	  }
+	  return pointsDisplayString;
+  }
 
-
+  public boolean getIsNoParts()
+  {
+	  if (partsContents == null || partsContents.size() == 0) {
+		  return true;
+	  }
+	  return false;
+  }
 
 }

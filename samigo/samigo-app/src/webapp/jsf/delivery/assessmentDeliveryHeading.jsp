@@ -39,8 +39,8 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 <!-- SHOW FEEDBACK LINK FOR TAKE ASSESSMENT AND TAKE ASSESSMENT VIA URL -->
     <h:commandLink title="#{deliveryMessages.t_feedback}" action="#{delivery.getOutcome}" 
        id="showFeedback" onmouseup="saveTime(); disableFeedback();" 
-       rendered="#{delivery.actionString=='takeAssessment'
-                || delivery.actionString=='takeAssessmentViaUrl'}" >
+       rendered="#{(delivery.actionString=='takeAssessment'
+                || delivery.actionString=='takeAssessmentViaUrl') && !(delivery.pageContents.isNoParts && delivery.navigation eq '1')}" >
      <h:outputText value="#{deliveryMessages.show_feedback}" />
      <f:param name="showfeedbacknow" value="true" />
      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.ShowFeedbackActionListener" />
@@ -48,7 +48,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 
 <!-- SHOW FEEDBACK LINK FOR PREVIEW ASSESSMENT -->
     <h:commandLink title="#{deliveryMessages.t_feedback}" action="takeAssessment" onmouseup="saveTime();" 
-       rendered="#{delivery.actionString=='previewAssessment'}" >
+       rendered="#{delivery.actionString=='previewAssessment' && !(delivery.pageContents.isNoParts && delivery.navigation eq '1')}" >
      <h:outputText value="#{deliveryMessages.show_feedback}" />
      <f:param name="showfeedbacknow" value="true" />
      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />

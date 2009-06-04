@@ -21,10 +21,10 @@
 --%>
 -->
 <!-- 2a ATTACHMENTS -->
- <div class="tier1"><h:outputLabel value="#{deliveryMessages.attachments}" rendered="#{delivery.hasAttachment}"/>
-  <br/>
+ <f:verbatim><div class="tier1"></f:verbatim><h:outputLabel value="#{deliveryMessages.attachments}" rendered="#{delivery.hasAttachment}"/>
+  <f:verbatim><br/></f:verbatim>
   <h:panelGroup rendered="#{delivery.hasAttachment}">
-    <h:dataTable value="#{delivery.attachmentList}" var="attach">
+    <h:dataTable value="#{delivery.attachmentList}" var="attach" border="0">
       <h:column rendered="#{!attach.isMedia}">
         <%@ include file="/jsf/shared/mimeicon.jsp" %>
       </h:column>
@@ -47,5 +47,5 @@
     </h:dataTable>
   </h:panelGroup>
 
-</div>
+<f:verbatim></div></f:verbatim>
 
