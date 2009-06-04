@@ -632,7 +632,7 @@ public class FormattedText
 				M_log.warn("FormattedText.processEscapedHtml M_patternTag.matcher(Html):", e);
 			}
 		}
-		return new String(buf.toString());
+		return String.valueOf(buf.toString());
 	}
 
 	private static String checkTag (final String tag, StringBuilder errorMessages)

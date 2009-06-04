@@ -193,7 +193,7 @@ public class SchemaConversionDriver
 			sql = new String[count];
 			for(int i = 0; i < count; i++)
 			{
-				sql[i] = new String(p.getProperty(base + key + "." + i));
+				sql[i] = String.valueOf(p.getProperty(base + key + "." + i));
 			}
 		}
 

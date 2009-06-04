@@ -1225,7 +1225,7 @@ public class Blob implements Cloneable, Serializable {
 
 		// Special case
 		if ((pos == 0) && (len == 0)) {
-			return new String();
+			return "";
 		}
 
 		// Is the data within bounds?

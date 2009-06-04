@@ -56,7 +56,7 @@ public class HibernateStringBigIntType implements UserType {
         if (value == null)
             return null;
 
-        return new String((String) value);
+        return String.valueOf((String) value);
     }
 
     public boolean isMutable() {
