@@ -22,23 +22,6 @@
   	<dependencies>
 
     	<!-- EXTERNAL DEPENDENCIES -->
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-		</dependency>
-		<dependency>
-      		<groupId>org.jasypt</groupId>
-      		<artifactId>jasypt</artifactId>
-    	</dependency>
-    	<dependency>
-			<groupId>com.ibm.icu</groupId>
-			<artifactId>icu4j</artifactId>
-		</dependency>
-		<dependency>
-      		<groupId>commons-lang</groupId>
-      		<artifactId>commons-lang</artifactId>
-      		<scope>provided</scope>
-   		</dependency>
 
 		<!--  GENERIC SAKAI DEPENDENCIES -->
 		<dependency>
@@ -46,11 +29,7 @@
 			<artifactId>sakai-common-edu-person-api</artifactId>
 			<scope>provided</scope>
     	</dependency>
-    	<dependency>
-	      	<groupId>org.sakaiproject</groupId>
-	      	<artifactId>sakai-common-type-api</artifactId>
-	      	<scope>provided</scope>
-	    </dependency>
+    	
 	    <dependency>
     		<groupId>org.sakaiproject.entitybroker</groupId>
     		<artifactId>entitybroker-api</artifactId>
@@ -69,22 +48,7 @@
 	      	</activation>
             <!-- Sakai 2.5.x specific dependencies -->
 			<dependencies>
-				<dependency>
-        			<groupId>org.sakaiproject</groupId>
-        			<artifactId>sakai-util-api</artifactId>
-		      	</dependency>
-		    	<dependency>
-					<groupId>org.sakaiproject</groupId>
-					<artifactId>sakai-component-api</artifactId>
-				</dependency>
-				<dependency>
-					<groupId>org.sakaiproject</groupId>
-					<artifactId>sakai-authz-api</artifactId>
-				</dependency>
-				<dependency>
-					<groupId>org.sakaiproject</groupId>
-					<artifactId>sakai-content-api</artifactId>
-				</dependency>
+				
 			</dependencies>
 		</profile>
         <profile>
@@ -96,27 +60,10 @@
 	      	</activation>
             <!-- Sakai 2.6+ specific dependencies -->
             <dependencies>
-		        <dependency>
-		            <groupId>org.sakaiproject.kernel</groupId>
-		            <artifactId>sakai-kernel-api</artifactId>
-		        </dependency>
-		        <dependency>
-		            <groupId>org.sakaiproject.kernel</groupId>
-		            <artifactId>sakai-component-manager</artifactId>
-		        </dependency>
-		        <dependency>
-            		<groupId>org.sakaiproject.kernel</groupId>
-            		<artifactId>sakai-kernel-util</artifactId>
-        		</dependency>
+		        
 			</dependencies> 
         </profile>
     </profiles>
-	 
-	 
-	 
-	    
-	   
-		
-		
+	 	
 
 </project>

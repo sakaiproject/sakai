@@ -35,14 +35,6 @@
       		<groupId>org.apache.wicket</groupId>
       		<artifactId>wicket-spring-annot</artifactId>
     	</dependency>
-    	<dependency>
-      		<groupId>org.jasypt</groupId>
-      		<artifactId>jasypt</artifactId>
-    	</dependency>
-    	<dependency>
-			<groupId>com.ibm.icu</groupId>
-			<artifactId>icu4j</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
@@ -78,11 +70,7 @@
       		<artifactId>sakai-common-manager-api</artifactId>
       		<scope>provided</scope>
     	</dependency>
-	    <dependency>
-	      	<groupId>org.sakaiproject</groupId>
-	      	<artifactId>sakai-common-type-api</artifactId>
-	      	<scope>provided</scope>
-	    </dependency>
+	   
     	
 	</dependencies>
 	
@@ -110,11 +98,6 @@
 		    	<dependency>
 					<groupId>org.sakaiproject</groupId>
 					<artifactId>sakai-tool-api</artifactId>
-					<scope>provided</scope>
-		    	</dependency>
-		    	<dependency>
-					<groupId>org.sakaiproject</groupId>
-					<artifactId>sakai-user-api</artifactId>
 					<scope>provided</scope>
 		    	</dependency>
 		    	<dependency>
