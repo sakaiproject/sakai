@@ -45,16 +45,18 @@
 </h:panelGroup>
 
 <div class="portletBody">
+<h3 style="insColor insBak">
+   <h:outputText value="#{deliveryMessages.assessment_exit_warning_title}" />
+</h3>
 <br/>
   <!-- content... -->
   <h:panelGroup styleClass="validation">
-    <h:panelGrid border="0">
-      <h:outputText value="#{deliveryMessages.warning_2}" />
+  <h:panelGrid border="0">
       <h:outputText value="#{deliveryMessages.save_for_later_warning_1}"/>
-      <h:outputText value="#{deliveryMessages.save_for_later_warning_2}"/>
-      <h:outputText value="#{deliveryMessages.save_for_later_warning_3}"/>
+      <h:outputText value="#{deliveryMessages.save_for_later_warning_2} <b> #{deliveryMessages.button_continue} </b> #{deliveryMessages.save_for_later_warning_3}"  escape="false"/>
       <h:outputText value="#{deliveryMessages.save_for_later_warning_4}"/>
-    </h:panelGrid>
+      <h:outputText value="#{deliveryMessages.save_for_later_warning_5} <b> #{deliveryMessages.button_return_to_assessment} </b> #{deliveryMessages.save_for_later_warning_6} <b> #{deliveryMessages.button_submit_grading} </b>."  escape="false"/>
+  </h:panelGrid>
   </h:panelGroup>
 
  <p class="act">
