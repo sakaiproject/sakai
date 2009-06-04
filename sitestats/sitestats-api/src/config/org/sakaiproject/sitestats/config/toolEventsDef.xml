@@ -373,6 +373,7 @@
 		selected="true">
 		<event eventId="calendar.new" selected="true"/>
 		<event eventId="calendar.revise" selected="true"/>
+		<!--<event eventId="calendar.read" selected="true"/>-->
 		<eventParserTip for="contextId" separator="/" index="3"/>
 	</tool>
 	
