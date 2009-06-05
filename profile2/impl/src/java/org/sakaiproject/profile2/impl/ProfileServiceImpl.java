@@ -292,7 +292,6 @@ public class ProfileServiceImpl implements ProfileService {
 			if(resource == null || resource.getBytes() == null) {
 				return getDefaultImage();
 			} else {
-				System.out.println("getting resource");
 				return resource;
 			}
 		} 
