@@ -67,7 +67,9 @@ function removeDHTMLMask() {
 (function($){$.fn.bgIframe=$.fn.bgiframe=function(s){if($.browser.msie&&/6.0/.test(navigator.userAgent)){s=$.extend({top:'auto',left:'auto',width:'auto',height:'auto',opacity:true,src:'javascript:false;'},s||{});var prop=function(n){return n&&n.constructor==Number?n+'px':n;},html='<iframe class="bgiframe"frameborder="0"tabindex="-1"src="'+s.src+'"'+'style="display:block;position:absolute;z-index:-1;'+(s.opacity!==false?'filter:Alpha(Opacity=\'0\');':'')+'top:'+(s.top=='auto'?'expression(((parseInt(this.parentNode.currentStyle.borderTopWidth)||0)*-1)+\'px\')':prop(s.top))+';'+'left:'+(s.left=='auto'?'expression(((parseInt(this.parentNode.currentStyle.borderLeftWidth)||0)*-1)+\'px\')':prop(s.left))+';'+'width:'+(s.width=='auto'?'expression(this.parentNode.offsetWidth+\'px\')':prop(s.width))+';'+'height:'+(s.height=='auto'?'expression(this.parentNode.offsetHeight+\'px\')':prop(s.height))+';'+'"/>';return this.each(function(){if($('> iframe.bgiframe',this).length==0)this.insertBefore(document.createElement(html),this.firstChild);});}return this;};})(jQuery);
 
 //For SAK-13987
-var sessionId = document.cookie.replace(/^[^=]*=/, '').replace(/\..*$/, '');
+//For SAK-16162
+//Just use the EB current.json as the session id rather than trying to do a search/replace
+var sessionId = "current";
 var sessionTimeOut;
 var timeoutDialogEnabled = false;
 var timeoutDialogWarningTime;
@@ -107,9 +109,9 @@ var setup_timeout_config = function() {
 }
 
 var poll_session_data = function() {
+    //Need to append Date.getTime as sakai still uses jquery pre 1.2.1 which doesn't support the cache: false parameter.
 	jQuery.ajax({
-		url: "/direct/session/" + sessionId + ".json?auto=true",   //auto=true makes it not refresh the session lastaccessedtime
-		cache: false,
+		url: "/direct/session/" + sessionId + ".json?auto=true&_=" + (new Date()).getTime(),    //auto=true makes it not refresh the session lastaccessedtime
 		dataType: "json",
 		success: function(data){
 		//get the maxInactiveInterval in the same ms
