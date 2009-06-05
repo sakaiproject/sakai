@@ -68,7 +68,7 @@
     	<icu4j.version>3.8</icu4j.version>
     	<tinyurl.version>0.9-SNAPSHOT</tinyurl.version>
     	<commons.lang.version>2.1</commons.lang.version>
-    	<entitybroker.version>1.3.7-SNAPSHOT</entitybroker.version>
+    	<entitybroker.version>1.3.6</entitybroker.version>
     </properties>
     
     <!-- Profile2 related dependencies -->
