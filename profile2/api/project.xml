@@ -30,39 +30,12 @@
 			<artifactId>sakai-common-edu-person-api</artifactId>
 			<version>${sakai.version}</version>
     	</dependency>
-    	<dependency>
-	      	<groupId>sakaiproject</groupId>
-	      	<artifactId>sakai-common-type-api</artifactId>
-	      	<version>${sakai.version}</version>
-	    </dependency>
-	    
-	    <dependency>
-        	<groupId>sakaiproject</groupId>
-        	<artifactId>sakai-util-api</artifactId>
-        	<version>${sakai.version}</version>
-      	</dependency>
-    	<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-component-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-authz-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-content-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<!-- 
+    		    
 		<dependency>
       		<groupId>sakaiproject</groupId>
       		<artifactId>sakai-entitybroker-api</artifactId>
       		<version>${sakai.version}</version>
     	</dependency> 
-    	-->
 		
   	</dependencies>
   	

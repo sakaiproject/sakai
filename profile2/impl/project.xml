@@ -24,7 +24,13 @@
 			<version>1.2-SNAPSHOT</version>
 		</dependency>
 		
-		<!-- Spring and Hibernate dependencies. -->
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-profile2-util</artifactId>
+			<version>1.2-SNAPSHOT</version>
+		</dependency>
+		
+		<!-- external dependencies -->
         <dependency>
            <groupId>${sakai.spring.groupId}</groupId>
            <artifactId>${sakai.spring.artifactId}</artifactId>
@@ -46,21 +52,16 @@
 		</dependency>
     	-->
     	
-    	<!--  logging dependency -->
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 			<version>1.2.14</version>
 		</dependency>
-		
-		<!--  twitter4j dependency -->
 		<dependency>
 			<groupId>net.homeip.yusuke</groupId>
 			<artifactId>twitter4j</artifactId>
-			<version>1.1.4</version>
+			<version>1.1.7</version>
 		</dependency>
-		
-		<!--  encryption/decryption dependency -->
 		<dependency>
       		<groupId>org.jasypt</groupId>
       		<artifactId>jasypt</artifactId>
@@ -71,14 +72,18 @@
 			<artifactId>icu4j</artifactId>
 			<version>3.8</version>
 		</dependency>
-		
-		<!-- tinyurl for sakai dependency -->
+   		<dependency>
+      		<groupId>commons-lang</groupId>
+      		<artifactId>commons-lang</artifactId>
+      		<version>2.1</version>
+   		</dependency>
+  	
+  		<!-- tinyurl -->
 		<dependency>
       		<groupId>org.sakaiproject</groupId>
       		<artifactId>sakai-tinyurl-api</artifactId>
      		<version>0.9-SNAPSHOT</version>
    		</dependency>
-  	
 
 		<!--  Sakai dependencies -->
 		<dependency>
@@ -147,13 +152,11 @@
 			<artifactId>sakai-event-api</artifactId>
       		<version>${sakai.version}</version>
    		</dependency>
-   		<!-- 
 		<dependency>
       		<groupId>sakaiproject</groupId>
       		<artifactId>sakai-entitybroker-api</artifactId>
       		<version>${sakai.version}</version>
     	</dependency> 
-    	-->
 		<dependency>
       		<groupId>sakaiproject</groupId>
       		<artifactId>sakai-email-api</artifactId>
@@ -166,6 +169,15 @@
 
 	<build>
 		<sourceDirectory>src/java</sourceDirectory>
+		<resources>
+			<resource>
+                <directory>${basedir}/src/java</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
 	</build>
 	
 	

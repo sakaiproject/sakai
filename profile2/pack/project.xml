@@ -25,6 +25,14 @@
 				<war.bundle>true</war.bundle>
 			</properties>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-profile2-util</artifactId>
+            <version>1.2-SNAPSHOT</version>
+            <properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+        </dependency>
         
         <!--  sakai dependencies -->
         <dependency>

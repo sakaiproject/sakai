@@ -22,6 +22,14 @@
       		<artifactId>sakai-profile2-api</artifactId>
       		<version>1.2-SNAPSHOT</version>
     	</dependency>
+    	<dependency>
+      		<groupId>org.sakaiproject</groupId>
+      		<artifactId>sakai-profile2-util</artifactId>
+      		<version>1.2-SNAPSHOT</version>
+      		<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+    	</dependency>
     	
 		<!--  WICKET DEPENDENCIES -->
 		<dependency>
@@ -40,7 +48,6 @@
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
-		
 		<dependency>
 			<groupId>org.apache.wicket</groupId>
 			<artifactId>wicket-spring</artifactId>
@@ -49,7 +56,6 @@
 				<war.bundle>true</war.bundle>
 			</properties>
     	</dependency>
-    	
     	<dependency>
       		<groupId>org.apache.wicket</groupId>
       		<artifactId>wicket-spring-annot</artifactId>
@@ -58,7 +64,6 @@
 				<war.bundle>true</war.bundle>
 			</properties>
     	</dependency>
-    	
     	<dependency>
       		<groupId>org.apache.wicket</groupId>
       		<artifactId>wicket-ioc</artifactId>
@@ -91,7 +96,12 @@
 			<version>1.2.14</version>
 		</dependency>
     	
-    	
+    	<!-- other external dependencies -->
+    	<dependency>
+      		<groupId>commons-lang</groupId>
+      		<artifactId>commons-lang</artifactId>
+      		<version>2.1</version>
+   		</dependency>
     	
 
 		<!--  SAKAI DEPENDENCIES -->
@@ -108,11 +118,6 @@
     	<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-tool-api</artifactId>
-			<version>${sakai.version}</version>
-    	</dependency>
-    	<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-user-api</artifactId>
 			<version>${sakai.version}</version>
     	</dependency>
     	<dependency>
@@ -134,11 +139,7 @@
       		<artifactId>sakai-common-manager-api</artifactId>
       		<version>${sakai.version}</version>
     	</dependency>
-	    <dependency>
-	      	<groupId>sakaiproject</groupId>
-	      	<artifactId>sakai-common-type-api</artifactId>
-	      	<version>${sakai.version}</version>
-	    </dependency>
+	    
 		
 	</dependencies>
 
@@ -146,13 +147,25 @@
 	
 		<sourceDirectory>src/java</sourceDirectory>
 		<resources>
+			<!-- include our HTML but not the Java source -->
 			<resource>
 				<directory>${basedir}/src/java</directory>
 				<includes>
-					<include>**/*.properties</include>
-					<include>**/*.html</include>
+					<include>**</include>
 				</includes>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+				<filtering>false</filtering>
 			</resource>
+			<!-- include our log4j.properties -->
+            <resource>
+                <directory>${basedir}/src/resources</directory>
+                <includes>
+                    <include>*.properties</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
 		</resources>
 					
 	</build>
