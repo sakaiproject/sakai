@@ -57,12 +57,22 @@ public class ProfileServiceImpl implements ProfileService {
 			return null;
 		}
 		
+		//setup obj
+		UserProfile userProfile = null;
+		
 		//get SakaiPerson
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
 		if(sakaiPerson == null) {
-			return getPrototype(userUuid);
+			userProfile = getPrototype(userUuid);
+			//even though we don't have a real profile, they need an image url, it will just be the default one
+			addImageUrlToProfile(userProfile);
+			addThumbnailImageUrlToProfile(userProfile);
+			
+			return userProfile;
 		}
-		UserProfile userProfile = transformSakaiPersonToUserProfile(sakaiPerson);
+		
+		//transform
+		userProfile = transformSakaiPersonToUserProfile(sakaiPerson);
 				
 		//if person requested own profile, no need for privacy checks
 		//add the additional information and return
@@ -725,7 +735,7 @@ public class ProfileServiceImpl implements ProfileService {
 	/**
 	 * These are two helper methods to simply add the URL to a user's profile image or thumbnail to the UserProfile. 
 	 * It can be added to any profile without checks as the retrieval of the image does the checks, and a default image
-	 * is used if not allowed or none available.
+	 * is used if not allowed or none available. The UserProfile must have a userUuid in it first though.
 	 * 
 	 * @param userProfile
 	 */

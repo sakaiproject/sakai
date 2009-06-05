@@ -105,7 +105,7 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 	
 	
 	@EntityCustomAction(action="image",viewKey=EntityView.VIEW_SHOW)
-	public Object getMainImage(OutputStream out, EntityView view, EntityReference ref) {
+	public Object getProfileImage(OutputStream out, EntityView view, EntityReference ref) {
 		
 		ResourceWrapper resource = new ResourceWrapper();
 		
