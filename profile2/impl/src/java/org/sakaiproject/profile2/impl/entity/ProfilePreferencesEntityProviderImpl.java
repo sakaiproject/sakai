@@ -100,11 +100,11 @@ public class ProfilePreferencesEntityProviderImpl implements ProfilePreferencesE
 	}
 
 	public String[] getHandledOutputFormats() {
-		return new String[] {Formats.XML, Formats.JSON, Formats.FORM};
+		return new String[] {Formats.XML, Formats.JSON};
 	}
 
 	public String[] getHandledInputFormats() {
-		return new String[] {Formats.XML, Formats.JSON, Formats.HTML, Formats.FORM};
+		return new String[] {Formats.XML, Formats.JSON, Formats.HTML};
 	}
 	
 		
