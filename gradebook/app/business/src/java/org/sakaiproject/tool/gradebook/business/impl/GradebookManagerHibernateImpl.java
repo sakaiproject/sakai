@@ -1019,7 +1019,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                         "select agr from AssignmentGradeRecord as agr where agr.gradableObject.id=? and agr.pointsEarned is not null").
                         setLong(0, assignmentId.longValue()).list();
                 Integer total = new Integer(totalList.size());
-                if (log.isInfoEnabled()) log.info("assignment " + assignmentId + " has " + total + " entered scores");
+                if (log.isDebugEnabled()) log.debug("assignment " + assignmentId + " has " + total + " entered scores");
                 return total;
             }
         };

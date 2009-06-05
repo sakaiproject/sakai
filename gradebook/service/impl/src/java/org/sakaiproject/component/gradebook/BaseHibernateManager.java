@@ -340,7 +340,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
                     q.setParameterList("studentUids", studentUids);
                     List totalList = (List)q.list();
                     total = new Integer(totalList.size());
-                    if (log.isInfoEnabled()) log.info("total number of explicitly entered course grade records = " + total);
+                    if (log.isDebugEnabled()) log.debug("total number of explicitly entered course grade records = " + total);
                 } else {
                     total = new Integer(0);
                     Query q = session.createQuery(
