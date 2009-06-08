@@ -924,7 +924,7 @@ public abstract class BasicSqlService implements SqlService
 
 		if (LOG.isDebugEnabled())
 		{
-			LOG.debug("dbWriteBinary(String " + sql + ", Object[] " + Arrays.toString(fields) + ", byte[] " + var + ", int " + offset + ", int " + len + ")");
+			LOG.debug("dbWriteBinary(String " + sql + ", Object[] " + Arrays.toString(fields) + ", byte[] " + Arrays.toString(var) + ", int " + offset + ", int " + len + ")");
 		}
 
 		// for DEBUG
@@ -1512,7 +1512,7 @@ public abstract class BasicSqlService implements SqlService
 
 		if (LOG.isDebugEnabled())
 		{
-			LOG.debug("dbReadBlobAndUpdate(String " + sql + ", byte[] " + content + ")");
+			LOG.debug("dbReadBlobAndUpdate(String " + sql + ", byte[] " + Arrays.toString(content) + ")");
 		}
 
 		if (!sqlServiceSql.canReadAndUpdateBlob())
@@ -2238,7 +2238,7 @@ public abstract class BasicSqlService implements SqlService
 		{
 			if (SWC_LOG.isDebugEnabled())
 			{
-				SWC_LOG.debug("read(byte " + b + ")");
+				SWC_LOG.debug("read(byte " + Arrays.toString(b) + ")");
 			}
 
 			return m_stream.read(b);
@@ -2248,7 +2248,7 @@ public abstract class BasicSqlService implements SqlService
 		{
 			if (SWC_LOG.isDebugEnabled())
 			{
-				SWC_LOG.debug("read(byte " + b + ", int " + off + ", int " + len + ")");
+				SWC_LOG.debug("read(byte " + Arrays.toString(b) + ", int " + off + ", int " + len + ")");
 			}
 
 			return m_stream.read(b, off, len);

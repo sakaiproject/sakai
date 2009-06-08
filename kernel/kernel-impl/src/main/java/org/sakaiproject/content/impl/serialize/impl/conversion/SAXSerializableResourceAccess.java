@@ -53,6 +53,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
+
 /**
  * @author ieb
  */
@@ -651,14 +653,14 @@ public class SAXSerializableResourceAccess implements SerializableResourceAccess
 		if ((body == null && sax2.body != null) || (body != null && sax2.body == null))
 		{
 			sb.append("     ").append(
-					"group not equal [" + body + "]!=[" + sax2.body + "]").append("\n");
+					"group not equal [" + Arrays.toString(body) + "]!=[" + Arrays.toString(sax2.body) + "]").append("\n");
 		}
 		if (body != null && sax2.body != null)
 		{
 			if (this.body.length != sax2.body.length)
 			{
 				sb.append("     ").append(
-						"group not equal [" + body + "]!=[" + sax2.body + "]").append(
+						"group not equal [" + Arrays.toString(body) + "]!=[" + Arrays.toString(sax2.body) + "]").append(
 						"\n");
 			}
 			else
