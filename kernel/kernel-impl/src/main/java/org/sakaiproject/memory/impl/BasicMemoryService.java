@@ -452,7 +452,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 		{
 			name = "DefaultCache" + UUID.randomUUID().toString();			
 		}
-		name = MemoryService.class.getName()+"."+name;
+		
 		
 		
 		// Cache creation should all go to the cache manager and be
