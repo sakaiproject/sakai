@@ -17,11 +17,11 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
-
 import org.sakaiproject.profile2.api.ProfileConstants;
 import org.sakaiproject.profile2.api.SakaiProxy;
 import org.sakaiproject.profile2.tool.ProfileApplication;
@@ -50,14 +50,12 @@ public class MyContactEdit extends Panel {
 		//get userId
 		final String userId = userProfile.getUserId();
 		
-		//create model
-		CompoundPropertyModel userProfileModel = new CompoundPropertyModel(userProfile);
 		
 		//heading
 		add(new Label("heading", new ResourceModel("heading.contact.edit")));
 		
-		//setup form		
-		Form form = new Form("form", userProfileModel);
+		//setup form	
+		Form form = new Form("form", new Model(userProfile));
 		form.setOutputMarkupId(true);
 		
 		//We don't need to get the info from userProfile, we load it into the form with a property model
@@ -89,7 +87,7 @@ public class MyContactEdit extends Panel {
 		emailContainer.add(emailReadOnly);
 		
 		//email feedback
-        final FeedbackLabel emailFeedback = new FeedbackLabel("emailFeedback", email, new ResourceModel("error.email.invalid"));
+        final FeedbackLabel emailFeedback = new FeedbackLabel("emailFeedback", email);
         emailFeedback.setOutputMarkupId(true);
         emailContainer.add(emailFeedback);
         email.add(new ComponentVisualErrorBehaviour("onblur", emailFeedback));

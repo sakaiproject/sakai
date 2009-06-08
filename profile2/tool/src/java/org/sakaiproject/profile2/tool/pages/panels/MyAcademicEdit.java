@@ -12,11 +12,10 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
-
 import org.sakaiproject.profile2.api.ProfileConstants;
 import org.sakaiproject.profile2.api.SakaiProxy;
 import org.sakaiproject.profile2.tool.ProfileApplication;
@@ -39,14 +38,11 @@ public class MyAcademicEdit extends Panel {
 		//this panel
 		final Component thisPanel = this;
 				
-		//create model
-		CompoundPropertyModel userProfileModel = new CompoundPropertyModel(userProfile);
-		
 		//heading
 		add(new Label("heading", new ResourceModel("heading.academic.edit")));
 		
 		//setup form		
-		Form form = new Form("form", userProfileModel);
+		Form form = new Form("form", new Model(userProfile));
 		form.setOutputMarkupId(true);
 		
 		//We don't need to get the info from userProfile, we load it into the form with a property model

@@ -16,7 +16,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
@@ -48,8 +48,6 @@ public class MyInfoEdit extends Panel {
 		//get userId
 		//final String userId = userProfile.getUserId();
 		
-		//create model
-		CompoundPropertyModel userProfileModel = new CompoundPropertyModel(userProfile);
 		
 		//updates back to Account for some fields allowed?
 		//boolean updateAllowed = sakaiProxy.isAccountUpdateAllowed(userId);
@@ -58,7 +56,7 @@ public class MyInfoEdit extends Panel {
 		add(new Label("heading", new ResourceModel("heading.basic.edit")));
 		
 		//setup form		
-		Form form = new Form("form", userProfileModel);
+		Form form = new Form("form", new Model(userProfile));
 		form.setOutputMarkupId(true);
 		
 		//We don't need to get the info from userProfile, we load it into the form with a property model

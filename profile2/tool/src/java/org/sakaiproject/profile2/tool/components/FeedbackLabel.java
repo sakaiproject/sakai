@@ -98,7 +98,7 @@ public class FeedbackLabel extends Label {
     @Override
     protected void onBeforeRender() {
         super.onBeforeRender();
-        setModel(null);
+        this.setModel(null);
 
         if(component.getFeedbackMessage()!=null){
             if(this.text!=null){
