@@ -714,6 +714,8 @@ public class ProfileServiceImpl implements ProfileService {
 			
 			//TODO the fields that can update the Account need to be done as well, if allowed.
 			
+			//TODO if profile is locked,should not update, but will need to get the existing record if exists, then check that.
+			
 			return true;
 		} 
 		return false;

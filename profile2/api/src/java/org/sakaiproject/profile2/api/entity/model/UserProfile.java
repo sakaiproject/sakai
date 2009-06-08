@@ -40,6 +40,7 @@ public class UserProfile {
 	private String otherInformation;
 	private String course;
 	private String subjects;
+	private boolean locked;
 	
 	private String statusMessage;
 	private Date statusDate;
@@ -227,6 +228,14 @@ public class UserProfile {
 	
 	public void setSubjects(String subjects) {
 		this.subjects = subjects;
+	}
+
+	public void setLocked(boolean locked) {
+		this.locked = locked;
+	}
+
+	public boolean isLocked() {
+		return locked;
 	}
 
 	public String getStatusMessage() {
