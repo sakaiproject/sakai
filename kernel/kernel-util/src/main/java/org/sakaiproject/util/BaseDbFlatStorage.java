@@ -358,7 +358,6 @@ public class BaseDbFlatStorage
 
 	public int countAllResources()
 	{
-		List all = new Vector();
 
 		// read all count
 		String sql = flatStorageSql.getSelectCountSql(m_resourceTableName);

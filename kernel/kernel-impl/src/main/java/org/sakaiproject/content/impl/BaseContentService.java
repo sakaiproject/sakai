@@ -657,11 +657,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	{
 		try
 		{
-			// Get resource bundle
-			String resourceClass = m_serverConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
-			String resourceBundle = m_serverConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
-			rb = new Resource().getLoader(resourceClass, resourceBundle);
-
 			m_relativeAccessPoint = REFERENCE_ROOT;
 
 			// construct a storage helper and read
@@ -8674,8 +8669,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	 */
 	public void eliminateDuplicates(Collection resourceIds)
 	{
-		Collection dups = new ArrayList();
-
 		// eliminate exact duplicates
 		Set others = new TreeSet(resourceIds);
 

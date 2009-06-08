@@ -77,8 +77,8 @@ public class MockSerializableCollectionAcccess implements SerializableCollection
 	 */
 	public Collection<String> getSerializableGroup()
 	{
-		Collection<String> s = new ArrayList<String>();
-		return group;
+		Collection<String> s = new ArrayList<String>(group);
+		return s;
 	}
 
 	/* (non-Javadoc)

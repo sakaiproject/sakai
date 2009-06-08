@@ -590,8 +590,6 @@ public class BaseXmlFileStorage
 	 */
 	public int countAllResources(String container)
 	{
-		List rv = new Vector();
-
 		if (container == null) container = "";
 		Container c = ((Container) m_store.get(container));
 		if (c == null) return 0;
@@ -854,8 +852,6 @@ public class BaseXmlFileStorage
 		}
 
 		// pick what we need
-		List rv = new Vector();
-
 		if ((limitedToLatest > 0) && (limitedToLatest < selected.size()))
 		{
 			all = selected.subList(0, limitedToLatest);
