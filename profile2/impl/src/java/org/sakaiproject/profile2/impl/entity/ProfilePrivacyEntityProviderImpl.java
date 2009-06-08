@@ -39,10 +39,6 @@ public class ProfilePrivacyEntityProviderImpl implements ProfilePrivacyEntityPro
 	
 	public Object getEntity(EntityReference ref) {
 	
-		if (sessionManager.getCurrentSessionUserId() == null) {
-			throw new SecurityException("Must be logged in");
-		}
-		
 		ProfilePrivacy privacy = privacyService.getProfilePrivacyRecord(ref.getId());
 		if(privacy == null) {
 			throw new EntityNotFoundException("ProfilePrivacy could not be retrieved for " + ref.getId(), ref.getReference());
@@ -54,10 +50,6 @@ public class ProfilePrivacyEntityProviderImpl implements ProfilePrivacyEntityPro
 	
 	
 	public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params) {
-	
-		if (sessionManager.getCurrentSessionUserId() == null) {
-			throw new SecurityException("Must be logged in");
-		}
 		
 		String userId = ref.getId();
 		if (StringUtils.isBlank(userId)) {
@@ -75,11 +67,7 @@ public class ProfilePrivacyEntityProviderImpl implements ProfilePrivacyEntityPro
 	
 	
 	public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
-		
-		if (sessionManager.getCurrentSessionUserId() == null) {
-			throw new SecurityException("Must be logged in");
-		}
-		
+				
 		//reference will be the userUuid, which comes from the ProfilePrivacy obj passed in
 		String userUuid = null;
 

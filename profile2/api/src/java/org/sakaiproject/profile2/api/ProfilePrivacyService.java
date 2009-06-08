@@ -4,7 +4,10 @@ import org.sakaiproject.profile2.api.model.ProfilePrivacy;
 
 
 /**
- * <p>This is the outward facing service that should be used by anyone or anything implementing Profile2 privacy methods.</p>
+ * This is the outward facing service that should be used by anyone or anything implementing Profile2 privacy methods.
+ * <p>
+ * Note that you must be logged in and can request anyone's privacy record. This is required so
+ * that we can render information retrieved appropriately.
  * 
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *

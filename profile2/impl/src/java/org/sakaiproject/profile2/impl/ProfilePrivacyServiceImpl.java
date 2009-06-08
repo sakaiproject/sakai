@@ -30,6 +30,11 @@ public class ProfilePrivacyServiceImpl implements ProfilePrivacyService {
 	 */
 	public ProfilePrivacy getProfilePrivacyRecord(String userId) {
 		
+		//check auth
+		if(sakaiProxy.getCurrentUserId() == null) {
+			throw new SecurityException("You must be logged in to make a request for a user's privacy record.");
+		}
+		
 		//convert userId into uuid
 		String userUuid = sakaiProxy.getUuidForUserId(userId);
 		if(userUuid == null) {
@@ -72,9 +77,21 @@ public class ProfilePrivacyServiceImpl implements ProfilePrivacyService {
 	 */
 	public boolean create(ProfilePrivacy obj) {
 		
+		//check auth and get currentUserUuid
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if(currentUserUuid == null) {
+			throw new SecurityException("Must be logged in.");
+		}
+		
+		//check userUuid assoc with obj
 		String userUuid = obj.getUserUuid();
 		if(StringUtils.isBlank(userUuid)) {
 			return false;
+		}
+		
+		//check currentUser and object uuid match
+		if(!currentUserUuid.equals(userUuid)) {
+			throw new SecurityException("Not allowed to save.");
 		}
 		
 		//does this user already have a persisted privacy record?
