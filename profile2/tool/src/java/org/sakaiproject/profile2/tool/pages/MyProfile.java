@@ -109,6 +109,8 @@ public class MyProfile extends BasePage {
 		userProfile.setFavouriteMovies(sakaiPerson.getFavouriteMovies());
 		userProfile.setFavouriteQuotes(sakaiPerson.getFavouriteQuotes());
 		userProfile.setOtherInformation(sakaiPerson.getNotes());
+		
+		userProfile.setLocked(sakaiPerson.getLocked());
 	
 		//what type of picture changing method do we use?
 		int profilePictureType = sakaiProxy.getProfilePictureType();
@@ -156,7 +158,7 @@ public class MyProfile extends BasePage {
 		changePictureLink.add(new Label("changePictureLabel", new ResourceModel("link.change.profile.picture")));
 		
 		//is picture changing disabled?
-		if(!sakaiProxy.isProfilePictureChangeEnabled()) {
+		if(!sakaiProxy.isProfilePictureChangeEnabled() || userProfile.isLocked()) {
 			changePictureLink.setEnabled(false);
 			changePictureLink.setVisible(false);
 		}

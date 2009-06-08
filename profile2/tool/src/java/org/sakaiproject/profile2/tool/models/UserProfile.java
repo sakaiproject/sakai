@@ -39,6 +39,7 @@ public class UserProfile implements Serializable {
 	private String otherInformation;
 	private String course;
 	private String subjects;
+	private boolean locked;
 	
 	
 	public String getUserId() {
@@ -205,27 +206,13 @@ public class UserProfile implements Serializable {
 		this.subjects = subjects;
 	}
 
-
-
-
-
-	/* for the form feedback, to get around a weird thing in Wicket where it needs a backing model for the FeedbackLabel component */
-	private String emailFeedback;
-	private String fileFeedback;
-
-	public String getEmailFeedback() {
-		return emailFeedback;
+	public void setLocked(boolean locked) {
+		this.locked = locked;
 	}
-	public void setEmailFeedback(String emailFeedback) {
-		this.emailFeedback = emailFeedback;
+	public boolean isLocked() {
+		return locked;
 	}
-	
-	public String getFileFeedback() {
-		return fileFeedback;
-	}
-	public void setFileFeedback(String fileFeedback) {
-		this.fileFeedback = fileFeedback;
-	}
+
 	
 	/**
 	 * Default constructor

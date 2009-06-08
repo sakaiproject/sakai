@@ -120,6 +120,11 @@ public class MyContactDisplay extends Panel {
 		};
 		editButton.add(new Label("editButtonLabel", new ResourceModel("button.edit")));
 		editButton.setOutputMarkupId(true);
+		
+		if(userProfile.isLocked()) {
+			editButton.setVisible(false);
+		}
+		
 		add(editButton);
 		
 		//no fields message
