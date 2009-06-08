@@ -139,13 +139,19 @@ public interface Profile {
 	public boolean setUserStatus(String userId, String status);
 	
 	/**
+	 * Set user status
+	 *
+	 * @param profileStatus		ProfileStatus object for the user
+	 */
+	public boolean setUserStatus(ProfileStatus profileStatus);
+	
+	
+	/**
 	 * Clear user status
 	 *
 	 * @param userId		uuid of the user 
 	 */
 	public boolean clearUserStatus(String userId);
-	
-	
 		
 	/**
 	 * Create a persistent default privacy record according to the defaults in ProfileConstants.

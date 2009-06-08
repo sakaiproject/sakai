@@ -372,18 +372,27 @@ public class ProfileImpl extends HibernateDaoSupport implements Profile {
  	 */
 	public boolean setUserStatus(String userId, String status) {
 		
-		//validate userId here - TODO
-		
+		//create object
 		ProfileStatus profileStatus = new ProfileStatus(userId,status,new Date());
 		
-		//this now uses saveOrUpdate as we are only allowing single status records
-		//so that we can get the friends/statuses more easily via single SQL statements
+		return setUserStatus(profileStatus);
+	}
+	
+	
+	/**
+	 * Set user status
+	 *
+	 * @param profileStatus		ProfileStatus object for the user
+	 */
+	public boolean setUserStatus(ProfileStatus profileStatus) {
+		
 		try {
+			//only allowing oen status object per user, hence saveOrUpdate
 			getHibernateTemplate().saveOrUpdate(profileStatus);
-			log.info("Updated status for user: " + userId); //$NON-NLS-1$
+			log.info("Updated status for user: " + profileStatus.getUserUuid()); 
 			return true;
 		} catch (Exception e) {
-			log.error("Profile.setUserStatus() failed. " + e.getClass() + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+			log.error("Profile.setUserStatus() failed. " + e.getClass() + ": " + e.getMessage()); 
 			return false;
 		}
 		
