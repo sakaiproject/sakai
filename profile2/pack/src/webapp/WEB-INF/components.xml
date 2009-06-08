@@ -58,6 +58,11 @@
 		<property name="sakaiProxy" ref="org.sakaiproject.profile2.api.SakaiProxy" />
 		<property name="profile" ref="org.sakaiproject.profile2.api.Profile" />
 	</bean>
+	
+	<bean id="org.sakaiproject.profile2.api.ProfileStatusService" class="org.sakaiproject.profile2.impl.ProfileStatusServiceImpl">
+		<property name="sakaiProxy" ref="org.sakaiproject.profile2.api.SakaiProxy" />
+		<property name="profile" ref="org.sakaiproject.profile2.api.Profile" />
+	</bean>
     
     
     <!-- EntityBroker beans -->
@@ -67,11 +72,14 @@
 	
 	<bean id="org.sakaiproject.profile2.entity.ProfilePrivacyEntityProvider" class="org.sakaiproject.profile2.impl.entity.ProfilePrivacyEntityProviderImpl">
 		<property name="profilePrivacyService" ref="org.sakaiproject.profile2.api.ProfilePrivacyService" />
-	    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 	</bean>
 	
-	<bean id="rg.sakaiproject.profile2.entity.ProfilePreferencesEntityProvider" class="org.sakaiproject.profile2.impl.entity.ProfilePreferencesEntityProviderImpl">
+	<bean id="org.sakaiproject.profile2.entity.ProfilePreferencesEntityProvider" class="org.sakaiproject.profile2.impl.entity.ProfilePreferencesEntityProviderImpl">
 		<property name="profilePreferencesService" ref="org.sakaiproject.profile2.api.ProfilePreferencesService" />
+	</bean>
+	
+	<bean id="org.sakaiproject.profile2.entity.ProfileStatusEntityProvider" class="org.sakaiproject.profile2.impl.entity.ProfileStatusEntityProviderImpl">
+		<property name="profileStatusService" ref="org.sakaiproject.profile2.api.ProfileStatusService" />
 	</bean>
 	
 
