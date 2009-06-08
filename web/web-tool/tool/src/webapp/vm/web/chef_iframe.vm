@@ -8,11 +8,7 @@
 #end
 
 #if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
-	#if($options_title)
 	 	<div class="wcwmenu"> ##style="padding:0; margin:3px -2em -1em  -2em">
-	#else
-		<div class="wcwomenu"> ##style="padding:0; margin:-.3em -2em -1em -2em">
-	#end
 		<iframe 
 			width="100%"
 			id="wciframe"
