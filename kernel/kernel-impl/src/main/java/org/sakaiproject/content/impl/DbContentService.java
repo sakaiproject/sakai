@@ -41,6 +41,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -109,7 +110,9 @@ public class DbContentService extends BaseContentService
 	/** Table name for entity-group relationships. */
 	protected String m_groupTableName = "CONTENT_ENTITY_GROUPS";
 
-	
+	/** maximum items for 'select where in' sql statement (Oracle limitation) **/
+	public static final int MAX_IN_QUERY = 1000;
+
 	/**
 	 * If true, we do our locks in the remote database, otherwise we do them here.
 	 */
@@ -2393,7 +2396,49 @@ public class DbContentService extends BaseContentService
 
 		public Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page) 
 		{
-			List resources = this.m_resourceStore.getAllResourcesWhere("RESOURCE_TYPE_ID", resourceType, "RESOURCE_ID", page * pageSize, pageSize);
+			if(pageSize > MAXIMUM_PAGE_SIZE)
+				pageSize = MAXIMUM_PAGE_SIZE;
+		
+			String key = "getResourcesOfType@" + resourceType + ":" + pageSize + ":" + page;
+			List resources = (List) ThreadLocalManager.get(key);
+
+			if (resources == null) {
+				resources = this.m_resourceStore.getAllResourcesWhere("RESOURCE_TYPE_ID", resourceType, "RESOURCE_ID", page * pageSize, pageSize);
+				if (resources != null) {
+					ThreadLocalManager.set(key, resources);
+				}
+			}
+			
+			return resources;
+		}
+  
+		public Collection<ContentResource> getContextResourcesOfType(String resourceType, Set<String> contextIds) 
+		{
+			if ( resourceType == null || contextIds == null || contextIds.size() == 0 )
+				return null;
+				
+			ArrayList resources = new ArrayList();
+			StringBuilder sqlWhere = new StringBuilder("WHERE RESOURCE_TYPE_ID = '"+resourceType+"' AND CONTEXT IN (");
+			int numContext = 0;
+			
+			for ( Iterator it=contextIds.iterator(); it.hasNext(); )
+			{
+				sqlWhere.append("'");
+				sqlWhere.append( (String)it.next() );
+				sqlWhere.append("'");
+				if ( numContext+1<contextIds.size() )
+					sqlWhere.append(",");
+				  
+				// run query if at end of context list (or at MAX_IN_QUERY)
+				if ( (numContext % MAX_IN_QUERY == 0 && numContext > 0) ||
+					  (numContext+1 == contextIds.size()) )
+				{
+					sqlWhere.append(")");
+					resources.addAll( this.m_resourceStore.getSelectedResourcesWhere( sqlWhere.toString() ) );
+					sqlWhere = new StringBuilder("WHERE RESOURCE_TYPE_ID = '"+resourceType+"' AND CONTEXT IN (");
+				}
+				numContext++;
+			}
 			
 			return resources;
 		}
@@ -3315,55 +3360,19 @@ public class DbContentService extends BaseContentService
 	}
 
 	/**
-	 * Retrieve a collection of ContentResource objects pf a particular resource-type.  The collection will 
-	 * contain no more than the number of items specified as the pageSize, where pageSize is a non-negative 
-	 * number less than or equal to 1028. The resources will be selected in ascending order by resource-id.
-	 * If the resources of the specified resource-type in the ContentHostingService in ascending order by 
-	 * resource-id are indexed from 0 to M and this method is called with parameters of N for pageSize and 
-	 * I for page, the resources returned will be those with indexes (I*N) through ((I+1)*N - 1).  For example,
-	 * if pageSize is 1028 and page is 0, the resources would be those with indexes of 0 to 1027.
-	 * This method finds the resources the current user has access to from a "page" of all resources
-	 * of the specified type. If that page contains no resources the current user has access to, the 
-	 * method returns an empty collection.  If the page does not exist (i.e. there are fewer than 
-	 * ((page+1)*page_size) resources of the specified type), the method returns null.    
-	 * @param resourceType
-	 * @param pageSize
-	 * @param page
-	 * @return
-	 * @see org.sakaiproject.content.api.MAX_PAGE_SIZE
+	 *	 {@inheritDoc}
+	 */
+	public Collection<ContentResource> getContextResourcesOfType(String resourceType, Set<String> contextids) 
+	{
+		return m_storage.getContextResourcesOfType(resourceType, contextids);
+	}
+	
+	/**
+	 *	 {@inheritDoc}
 	 */
 	public Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page) 
 	{
-		Collection<ContentResource> results = null;
-		
-		if(pageSize > MAXIMUM_PAGE_SIZE)
-		{
-			pageSize = MAXIMUM_PAGE_SIZE;
-		}
-		Collection<ContentResource> resources = m_storage.getResourcesOfType(resourceType, pageSize, page);
-		
-		if(resources == null || resources.isEmpty())
-		{
-			// return null
-		}
-		else
-		{
-			results = new ArrayList<ContentResource>();
-			for(ContentResource resource : resources)
-			{
-				if(resource == null)
-				{
-					continue;
-				}
-				if(unlockCheck(AUTH_RESOURCE_READ, resource.getId()))
-				{
-					results.add(resource);
-					ThreadLocalManager.set("findResource@" + resource.getId(), resource);
-				}
-			}
-		}
-		
-		return results;
+		return  m_storage.getResourcesOfType(resourceType, pageSize, page);
 	}
 	
 }

@@ -162,7 +162,7 @@ public interface ContentHostingService extends EntityProducer
 	
 	/** The maximum number of resources that can be returned by getResourcesOfType() */
 	public static final int MAXIMUM_PAGE_SIZE = 1028;
-
+   
 	/** 
 	 * When assigning default priority (for "priority" sort) folders come before files, 
 	 * so files get "priority" much higher than folders.  Add the offset to folder priorities  
@@ -1672,12 +1672,22 @@ public interface ContentHostingService extends EntityProducer
 	 * of the specified type. If that page contains no resources the current user has access to, the 
 	 * method returns an empty collection.  If the page does not exist (i.e. there are fewer than 
 	 * ((page+1)*page_size) resources of the specified type), the method returns null.    
-	 * @param resourceType
-	 * @param pageSize
-	 * @param page
-	 * @return
+    *
+	 * @param resourceType select resources where CONTENT_RESOURCE.RESOURCE_TYPE_ID equals resourceType
+	 * @param pageSize (page) size of results
+	 * @param page (page) increment of results
+	 * @return collection of ContentResource
 	 * @see org.sakaiproject.content.api.MAX_PAGE_SIZE
 	 */
 	public Collection<ContentResource> getResourcesOfType(String resourceType, int pageSize, int page);
+
+	/**
+	 * Retrieve a collection of ContentResource objects of a particular resource-type in a set of contexts
+	 *
+	 * @param resourceType select resources where CONTENT_RESOURCE.RESOURCE_TYPE_ID equals resourceType
+	 * @param context	 select resources where CONTENT_RESOURCE.CONTEXT in [context,...]
+	 * @return collection of ContentResource
+	 */
+	public Collection<ContentResource> getContextResourcesOfType(String resourceType, Set<String> contextIds);
 
 }

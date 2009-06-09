@@ -36,6 +36,7 @@ import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.ContentResourceFilter;
 import org.sakaiproject.content.api.providers.SiteContentAdvisor;
 import org.sakaiproject.content.api.providers.SiteContentAdvisorProvider;
 import org.sakaiproject.content.api.providers.SiteContentAdvisorTypeRegistry;
@@ -2320,6 +2321,21 @@ public class ContentHostingMultiplexService implements ContentHostingService,
 		try
 		{
 			return getService().getResourcesOfType(resourceType, pageSize, page);
+		}
+		finally
+		{
+			popThreadBoundService();
+		}
+	}
+   
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.content.api.ContentHostingService#getContextResourcesOfType(java.lang.String, java.util.Set<java.lang.String>)
+	 */
+	public Collection<ContentResource> getContextResourcesOfType(String resourceType, Set<String> contextIds) {
+		try
+		{
+			return getService().getContextResourcesOfType(resourceType, contextIds);
 		}
 		finally
 		{
