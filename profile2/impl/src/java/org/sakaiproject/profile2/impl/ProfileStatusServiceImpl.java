@@ -4,8 +4,10 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.sakaiproject.profile2.api.Profile;
+import org.sakaiproject.profile2.api.ProfileConstants;
 import org.sakaiproject.profile2.api.ProfileStatusService;
 import org.sakaiproject.profile2.api.SakaiProxy;
+import org.sakaiproject.profile2.api.model.ProfilePrivacy;
 import org.sakaiproject.profile2.api.model.ProfileStatus;
 
 /**
@@ -30,6 +32,12 @@ public class ProfileStatusServiceImpl implements ProfileStatusService {
 	 */
 	public ProfileStatus getProfileStatusRecord(String userId) {
 		
+		//check auth and get currentUserUuid
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if(currentUserUuid == null) {
+			throw new SecurityException("Must be logged in.");
+		}
+		
 		//convert userId into uuid
 		String userUuid = sakaiProxy.getUuidForUserId(userId);
 		if(userUuid == null) {
@@ -37,10 +45,24 @@ public class ProfileStatusServiceImpl implements ProfileStatusService {
 			return null;
 		}
 		
-		//get record, will be null if none
+		//get record for the user, will be null if none
 		ProfileStatus status = profile.getUserStatus(userUuid);
+		if(status == null) {
+			return null;
+		}
 		
-		return status;
+		//get privacy on the status (if no privacy, return based on default)
+		ProfilePrivacy privacy = profile.getPrivacyRecordForUser(userUuid);
+		if (privacy == null) {
+			return (ProfileConstants.DEFAULT_MYSTATUS_VISIBILITY ? status : null);
+		}
+		
+		//check if friends
+		boolean friend = profile.isUserXFriendOfUserY(userUuid, currentUserUuid);
+		
+		//now check if allowed, return if ok, null if not
+		return (profile.isUserXStatusVisibleByUserY(userUuid, privacy, currentUserUuid, friend) ? status : null);
+		
 	}
 	
 	/**
@@ -58,6 +80,9 @@ public class ProfileStatusServiceImpl implements ProfileStatusService {
 		if(!currentUserUuid.equals(obj.getUserUuid())) {
 			throw new SecurityException("Not allowed to save.");
 		}
+		
+		//reset the date to be now
+		obj.setDateAdded(new Date());
 		
 		//save and return response
 		return persistProfileStatus(obj);
