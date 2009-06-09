@@ -601,6 +601,7 @@
 						#end
 					#end
 				</p>
+				#end
 				## for single file upload case
 				#if ($submissionType==5)
 					<div class="highlightPanel">
@@ -798,7 +799,6 @@
 								onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='cancel'; document.addSubmissionForm.submit(); return false;"
 							/>
 					#end
-				#end
 				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 			</div>
 		#else
