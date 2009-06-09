@@ -1,11 +1,9 @@
-package org.sakaiproject.profile2.api;
+package org.sakaiproject.profile2.logic;
 
 import java.util.List;
-import java.util.Locale;
 
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
-
-import org.sakaiproject.profile2.api.model.ResourceWrapper;
+import org.sakaiproject.profile2.model.ResourceWrapper;
 /**
  * This is a helper API used by the Profile2 tool and entities only.
  * 

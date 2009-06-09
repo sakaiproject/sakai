@@ -1,4 +1,4 @@
-package org.sakaiproject.profile2.api.model;
+package org.sakaiproject.profile2.model;
 
 import java.io.Serializable;
 

@@ -1,4 +1,4 @@
-package org.sakaiproject.profile2.api.entity.model;
+package org.sakaiproject.profile2.entity.model;
 
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityOwner;

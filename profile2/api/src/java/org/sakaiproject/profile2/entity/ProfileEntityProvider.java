@@ -1,4 +1,4 @@
-package org.sakaiproject.profile2.api.entity;
+package org.sakaiproject.profile2.entity;
 
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 

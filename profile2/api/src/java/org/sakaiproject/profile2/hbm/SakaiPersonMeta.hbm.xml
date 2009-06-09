@@ -3,7 +3,7 @@
     PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
-<hibernate-mapping package="org.sakaiproject.profile2.api.model">
+<hibernate-mapping package="org.sakaiproject.profile2.model">
 
 	<class name="SakaiPersonMeta" table="SAKAI_PERSON_META_T">
 

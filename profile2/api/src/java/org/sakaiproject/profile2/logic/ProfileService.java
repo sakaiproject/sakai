@@ -1,10 +1,10 @@
-package org.sakaiproject.profile2.api;
+package org.sakaiproject.profile2.logic;
 
 import java.util.List;
 
-import org.sakaiproject.profile2.api.entity.model.Connection;
-import org.sakaiproject.profile2.api.entity.model.UserProfile;
-import org.sakaiproject.profile2.api.model.ResourceWrapper;
+import org.sakaiproject.profile2.entity.model.Connection;
+import org.sakaiproject.profile2.entity.model.UserProfile;
+import org.sakaiproject.profile2.model.ResourceWrapper;
 
 /**
  * <p>This is the outward facing service that should be used by anyone or anything implementing Profile2.</p>

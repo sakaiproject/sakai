@@ -1,6 +1,6 @@
-package org.sakaiproject.profile2.api;
+package org.sakaiproject.profile2.logic;
 
-import org.sakaiproject.profile2.api.model.ProfilePreferences;
+import org.sakaiproject.profile2.model.ProfilePreferences;
 
 
 /**

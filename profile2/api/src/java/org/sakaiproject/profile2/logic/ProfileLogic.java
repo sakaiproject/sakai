@@ -1,14 +1,14 @@
-package org.sakaiproject.profile2.api;
+package org.sakaiproject.profile2.logic;
 
 import java.util.Date;
 import java.util.List;
 
-import org.sakaiproject.profile2.api.model.ProfileImageExternal;
-import org.sakaiproject.profile2.api.model.ProfilePreferences;
-import org.sakaiproject.profile2.api.model.ProfilePrivacy;
-import org.sakaiproject.profile2.api.model.ProfileStatus;
-import org.sakaiproject.profile2.api.model.ResourceWrapper;
-import org.sakaiproject.profile2.api.model.SearchResult;
+import org.sakaiproject.profile2.model.ProfileImageExternal;
+import org.sakaiproject.profile2.model.ProfilePreferences;
+import org.sakaiproject.profile2.model.ProfilePrivacy;
+import org.sakaiproject.profile2.model.ProfileStatus;
+import org.sakaiproject.profile2.model.ResourceWrapper;
+import org.sakaiproject.profile2.model.SearchResult;
 
 /**
  * This is the internal API to be used by the Profile2 tool and entities only. 
@@ -19,7 +19,7 @@ import org.sakaiproject.profile2.api.model.SearchResult;
  *
  */
 
-public interface Profile {
+public interface ProfileLogic {
 
 	
 	/**

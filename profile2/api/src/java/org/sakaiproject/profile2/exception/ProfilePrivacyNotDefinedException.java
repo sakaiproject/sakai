@@ -1,4 +1,4 @@
-package org.sakaiproject.profile2.api.exception;
+package org.sakaiproject.profile2.exception;
 
 public class ProfilePrivacyNotDefinedException extends RuntimeException {
 	
