@@ -178,6 +178,8 @@ public class ProfilePrivacyServiceImpl implements ProfilePrivacyService {
 	 */
 	private boolean persistProfilePrivacy(ProfilePrivacy obj) {
 
+		//TODO twitter updates if activated.
+		
 		if(profile.savePrivacyRecord(obj)) {
 			return true;
 		} 
