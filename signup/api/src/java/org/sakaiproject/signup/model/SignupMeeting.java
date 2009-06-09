@@ -601,5 +601,17 @@ public class SignupMeeting implements MeetingTypes {
 	public void setApplyToAllRecurMeetings(boolean applyToAllRecurMeetings) {
 		this.applyToAllRecurMeetings = applyToAllRecurMeetings;
 	}
+	
+	/* For RESTful case to pass siteId for email*/
+	private String currentSiteId;
+
+	public String getCurrentSiteId() {
+		return currentSiteId;
+	}
+
+	public void setCurrentSiteId(String currentSiteId) {
+		this.currentSiteId = currentSiteId;
+	}
+	
 
 }

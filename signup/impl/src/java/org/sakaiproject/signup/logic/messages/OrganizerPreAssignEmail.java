@@ -41,8 +41,6 @@ public class OrganizerPreAssignEmail extends SignupEmailBase {
 
 	private final User organizer;
 
-	private final SignupMeeting meeting;
-
 	private final SignupTimeslot timeslot;
 
 	private final User user;

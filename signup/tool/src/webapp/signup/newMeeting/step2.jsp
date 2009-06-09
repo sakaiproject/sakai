@@ -43,9 +43,14 @@
 			 					</h:outputText>	
 								
 								<h:outputText value="#{msgs.event_end_time}" styleClass="titleText" escape="false"/>
-								<h:outputText value="#{NewSignupMeetingBean.meetingEndTime}" styleClass="longtext">
-									<f:convertDateTime dateStyle="full" timeStyle="short" type="both"/>
-								</h:outputText>
+								<h:panelGroup>
+									<h:outputText value="#{NewSignupMeetingBean.meetingEndTime}" styleClass="longtext" rendered="#{!NewSignupMeetingBean.endTimeAutoAdjusted}">
+										<f:convertDateTime dateStyle="full" timeStyle="short" type="both"/>
+									</h:outputText>
+									<h:outputText value="#{NewSignupMeetingBean.meetingEndTime}" style="color:#b11;" styleClass="longtext" rendered="#{NewSignupMeetingBean.endTimeAutoAdjusted}">
+										<f:convertDateTime dateStyle="full" timeStyle="short" type="both"/>
+									</h:outputText>
+								</h:panelGroup>
 								
 								<h:outputText styleClass="titleText" value="#{msgs.event_recurrence}"  rendered="#{NewSignupMeetingBean.recurrence}" escape="false"/> 
 								<h:outputText value="#{NewSignupMeetingBean.eventFreqType}" rendered="#{NewSignupMeetingBean.recurrence}" escape="false"/>

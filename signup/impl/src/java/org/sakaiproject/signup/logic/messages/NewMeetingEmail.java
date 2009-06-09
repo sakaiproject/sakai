@@ -39,8 +39,6 @@ import org.sakaiproject.user.api.User;
  */
 public class NewMeetingEmail extends SignupEmailBase {
 
-	private final SignupMeeting meeting;
-
 	private final User creator;
 
 	private String emailReturnSiteId;

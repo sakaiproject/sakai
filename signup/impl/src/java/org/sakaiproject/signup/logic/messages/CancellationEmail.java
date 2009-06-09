@@ -42,8 +42,6 @@ public class CancellationEmail extends SignupEmailBase {
 
 	private final SignupTrackingItem item;
 
-	private final SignupMeeting meeting;
-
 	private final User attendee;
 
 	private String organizer;

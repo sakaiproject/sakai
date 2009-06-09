@@ -25,7 +25,7 @@ package org.sakaiproject.signup.dao;
 import java.util.Date;
 import java.util.List;
 
-import org.sakaiproject.genericdao.api.CompleteGenericDao;
+import org.sakaiproject.genericdao.api.GeneralGenericDao;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.springframework.dao.DataAccessException;
 
@@ -36,7 +36,7 @@ import org.springframework.dao.DataAccessException;
  * SignupMeeting objects.
  * </p>
  */
-public interface SignupMeetingDao extends CompleteGenericDao {
+public interface SignupMeetingDao extends GeneralGenericDao {
 
 	/**
 	 * This returns a list of SignupMeeting for the site
@@ -72,15 +72,15 @@ public interface SignupMeetingDao extends CompleteGenericDao {
 	 * @return a list of SignupMeeting objects
 	 */
 	List<SignupMeeting> getSignupMeetings(String siteId, Date startDate, Date endDate);
-	
+
 	/**
-	 * This returns a subset list of SignupMeetings with the same recurrenceId from a starting Date for
-	 * the site
+	 * This returns a subset list of SignupMeetings with the same recurrenceId
+	 * from a starting Date for the site
 	 * 
 	 * @param currentSiteId
 	 *            a unique id which represents the current site
 	 * @param recurrenceId
-	 *            recurrenceId,which constraints the recurring meetings.         
+	 *            recurrenceId,which constraints the recurring meetings.
 	 * @param startDate
 	 *            date,which constraints the search starting date.
 	 * @return a list of SignupMeeting objects
@@ -95,9 +95,10 @@ public interface SignupMeetingDao extends CompleteGenericDao {
 	 * @return a unique Id for the SignupMeeting object from DB
 	 */
 	Long saveMeeting(SignupMeeting signupMeeting);
-	
+
 	/**
 	 * This saves a list of meeting object into database
+	 * 
 	 * @param signupMeetings
 	 * @param userId
 	 */
@@ -122,7 +123,7 @@ public interface SignupMeetingDao extends CompleteGenericDao {
 	 *             thrown if the data is not accessible
 	 */
 	void updateMeeting(SignupMeeting meeting) throws DataAccessException;
-	
+
 	/**
 	 * This updates a list of SignupMeeting objects in the DB
 	 * 
@@ -141,5 +142,14 @@ public interface SignupMeetingDao extends CompleteGenericDao {
 	 *            a list of SignupMeeting objects, which need to be removed
 	 */
 	void removeMeetings(List<SignupMeeting> meetings);
+
+	/**
+	 * Test to see if the event exists.
+	 * 
+	 * @param evnetId
+	 *            a Long Id for event
+	 * @return true if the event is existed.
+	 */
+	boolean isEventExisted(Long evnetId);
 
 }

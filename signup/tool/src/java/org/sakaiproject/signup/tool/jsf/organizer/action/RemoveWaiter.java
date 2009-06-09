@@ -103,10 +103,13 @@ public class RemoveWaiter implements SignupBeanConstants {
 		try {
 
 			handleVersion(meeting, timeslot, waiter);
-			String signupEventType = isOrganizer? SignupEventTypes.EVENT_SIGNUP_REMOVE_ATTENDEE_WL_L : SignupEventTypes.EVENT_SIGNUP_REMOVE_ATTENDEE_WL_S;
-			Utilities.postEventTracking(signupEventType, ToolManager.getCurrentPlacement().getContext() + " meetingId:"
-					+ meeting.getId() + " -removed from wlist on TS:"
-					+ SignupDateFormat.format_date_h_mm_a(timeslot.getStartTime()));
+			if (ToolManager.getCurrentPlacement() != null) {
+				String signupEventType = isOrganizer ? SignupEventTypes.EVENT_SIGNUP_REMOVE_ATTENDEE_WL_L
+						: SignupEventTypes.EVENT_SIGNUP_REMOVE_ATTENDEE_WL_S;
+				Utilities.postEventTracking(signupEventType, ToolManager.getCurrentPlacement().getContext()
+						+ " meetingId:" + meeting.getId() + " -removed from wlist on TS:"
+						+ SignupDateFormat.format_date_h_mm_a(timeslot.getStartTime()));
+			}
 			logger.debug("Meeting Name:" + meeting.getTitle() + " - UserId:" + currentUserId
 					+ " - has removed attendee(userId):" + waiter.getAttendeeUserId() + " from waiting list"
 					+ " at timeslot started at:" + SignupDateFormat.format_date_h_mm_a(timeslot.getStartTime()));
@@ -131,7 +134,7 @@ public class RemoveWaiter implements SignupBeanConstants {
 			try {
 				meeting = reloadMeeting(meeting.getId());
 				prepareRemoveFromWaitingList(meeting, timeslot, waiter);
-				signupMeetingService.updateSignupMeeting(meeting,isOrganizer);
+				signupMeetingService.updateSignupMeeting(meeting, isOrganizer);
 				success = true;
 				break; // add attendee is successful
 			} catch (OptimisticLockingFailureException oe) {

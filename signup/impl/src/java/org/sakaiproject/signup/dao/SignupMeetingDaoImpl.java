@@ -182,5 +182,17 @@ public class SignupMeetingDaoImpl extends HibernateCompleteGenericDao implements
 		getHibernateTemplate().deleteAll(meetings);
 
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isEventExisted(Long eventId) {
+		//TODO need test with lazy loading
+		SignupMeeting ls = loadSignupMeeting(eventId);
+		if (ls ==null)
+			return false;
+		
+		return true;
+	}
 
 }

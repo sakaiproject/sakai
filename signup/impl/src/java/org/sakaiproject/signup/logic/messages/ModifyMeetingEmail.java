@@ -38,8 +38,6 @@ import org.sakaiproject.user.api.User;
  */
 public class ModifyMeetingEmail extends SignupEmailBase {
 
-	private final SignupMeeting meeting;
-
 	private final User organizer;
 
 	private final String emailReturnSiteId;

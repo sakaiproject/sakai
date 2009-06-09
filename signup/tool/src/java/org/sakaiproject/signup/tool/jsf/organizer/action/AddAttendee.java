@@ -54,8 +54,9 @@ public class AddAttendee extends SignupAction {
 	 * @param currentSiteId
 	 *            an unique sakai site id.
 	 */
-	public AddAttendee(SignupMeetingService signupMeetingService, String currentUserId, String currentSiteId, boolean isOrganizer) {
-		super(currentUserId, currentSiteId, signupMeetingService,isOrganizer);
+	public AddAttendee(SignupMeetingService signupMeetingService, String currentUserId, String currentSiteId,
+			boolean isOrganizer) {
+		super(currentUserId, currentSiteId, signupMeetingService, isOrganizer);
 	}
 
 	/**
@@ -76,17 +77,22 @@ public class AddAttendee extends SignupAction {
 			throws Exception {
 		try {
 			handleVersion(meeting, currentTimeslot, newAttendee);
-			String signupEventType = isOrganizer? SignupEventTypes.EVENT_SIGNUP_ADD_ATTENDEE_L : SignupEventTypes.EVENT_SIGNUP_ADD_ATTENDEE_S;
-			Utilities.postEventTracking(signupEventType, ToolManager.getCurrentPlacement().getContext() + " meetingId:"
-					+ meeting.getId() + this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
+			/* check if it comes from RESTful case */
+			if (ToolManager.getCurrentPlacement() != null) {
+				String signupEventType = isOrganizer ? SignupEventTypes.EVENT_SIGNUP_ADD_ATTENDEE_L
+						: SignupEventTypes.EVENT_SIGNUP_ADD_ATTENDEE_S;
+				Utilities.postEventTracking(signupEventType, ToolManager.getCurrentPlacement().getContext()
+						+ " meetingId:" + meeting.getId()
+						+ this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
+			}
 			logger.debug("Meeting Name:" + meeting.getTitle() + " - UserId:" + userId
 					+ this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
 		} catch (PermissionException pe) {
 			throw new SignupUserActionException(Utilities.rb.getString("no.permissoin.do_it"));
 		} finally {
 			meeting = reloadMeeting(meeting.getId());
-
 		}
+
 		return meeting;
 	}
 

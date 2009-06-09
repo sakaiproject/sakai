@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>signup-base</artifactId>
 		<groupId>org.sakaiproject</groupId>
-		<version>M2</version>
+		<version>2.6.0RC1-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<name>Sakai Signup Components Pack</name>
@@ -28,10 +28,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-util</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
+	      	<groupId>org.sakaiproject.kernel</groupId>
+	      	<artifactId>sakai-kernel-util</artifactId>
+	    </dependency>
 
 		<!-- generic DAO -->
 		<dependency>

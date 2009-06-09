@@ -764,5 +764,12 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry {
 		signupEmailFacade.sendEmailToParticipantsByOrganizerAction(signupEventTrackingInfo);
 
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isEventExisted(Long eventId) {
+		return signupMeetingDao.isEventExisted(eventId);
+	}
 
 }

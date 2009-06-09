@@ -45,8 +45,6 @@ public class SwapAttendeeEmail extends SignupEmailBase {
 
 	private final User attendee2;
 
-	private final SignupMeeting meeting;
-
 	private final SignupTrackingItem item;
 
 	private String emailReturnSiteId;

@@ -45,8 +45,6 @@ public class AttendeeCancellationEmail extends SignupEmailBase {
 
 	private final List<SignupTrackingItem> items;
 
-	private final SignupMeeting meeting;
-
 	/**
 	 * Constructor
 	 * 

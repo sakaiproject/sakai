@@ -55,8 +55,9 @@ public class CancelAttendee extends SignupAction {
 	 * @param currentSiteId
 	 *            an unique sakai site id.
 	 */
-	public CancelAttendee(SignupMeetingService signupMeetingService, String currentUserId, String currentSiteId,boolean isOrganizer) {
-		super(currentUserId, currentSiteId, signupMeetingService,isOrganizer);
+	public CancelAttendee(SignupMeetingService signupMeetingService, String currentUserId, String currentSiteId,
+			boolean isOrganizer) {
+		super(currentUserId, currentSiteId, signupMeetingService, isOrganizer);
 	}
 
 	/**
@@ -77,9 +78,13 @@ public class CancelAttendee extends SignupAction {
 			throws Exception {
 		try {
 			handleVersion(meeting, timeSlot, attendee);
-			String signupEventType = isOrganizer? SignupEventTypes.EVENT_SIGNUP_REMOVE_ATTENDEE_L : SignupEventTypes.EVENT_SIGNUP_REMOVE_ATTENDEE_S;
-			Utilities.postEventTracking(signupEventType, ToolManager.getCurrentPlacement().getContext() + " meetingId:"
-					+ meeting.getId() + this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
+			if (ToolManager.getCurrentPlacement() != null) {
+				String signupEventType = isOrganizer ? SignupEventTypes.EVENT_SIGNUP_REMOVE_ATTENDEE_L
+						: SignupEventTypes.EVENT_SIGNUP_REMOVE_ATTENDEE_S;
+				Utilities.postEventTracking(signupEventType, ToolManager.getCurrentPlacement().getContext()
+						+ " meetingId:" + meeting.getId()
+						+ this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
+			}
 			logger.debug("Meeting Name:" + meeting.getTitle() + " - UserId:" + userId
 					+ this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
 		} catch (PermissionException pe) {
@@ -135,7 +140,7 @@ public class CancelAttendee extends SignupAction {
 			try {
 				meeting = signupMeetingService.loadSignupMeeting(meeting.getId(), userId, siteId);
 				actionsForOptimisticVersioning(meeting, currentTimeslot, currentAttendee);
-				signupMeetingService.updateSignupMeeting(meeting,isOrganizer);
+				signupMeetingService.updateSignupMeeting(meeting, isOrganizer);
 				return meeting;
 			} catch (OptimisticLockingFailureException oe) {
 				// don't do any thing

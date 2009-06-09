@@ -37,7 +37,10 @@ import org.apache.commons.logging.impl.LogFactoryImpl;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.model.MeetingTypes;
+import org.sakaiproject.signup.model.SignupAttendee;
+import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.jsf.ErrorMessageUIBean;
 import org.sakaiproject.signup.tool.jsf.SignupMeetingsBean;
@@ -299,4 +302,86 @@ public final class Utilities implements SignupBeanConstants, MeetingTypes {
 
 	}
 
+	/**
+	 * It will obtain user current sign-up status in an event.
+	 * 
+	 * @param meeting
+	 *            a SignupMeeting object
+	 * @param currentUserId
+	 *            a unique user internal id.
+	 * @param sakaiFacade
+	 *            a SakaiFacade object
+	 * @return a String object
+	 */
+	public static String retrieveAvailStatus(SignupMeeting meeting,
+			String currentUserId, SakaiFacade sakaiFacade) {
+		long curTime = (new Date()).getTime();
+		long meetingStartTime = meeting.getStartTime().getTime();
+		long meetingEndTime = meeting.getEndTime().getTime();
+		long meetingSignupBegin = meeting.getSignupBegins().getTime();
+		if (meetingEndTime < curTime)
+			return rb.getString("event.closed");
+		if (meetingEndTime > curTime && meetingStartTime < curTime)
+			return rb.getString("event.inProgress");
+
+		if (meeting.getMeetingType().equals(SignupMeeting.ANNOUNCEMENT)) {
+			return rb.getString("event.SignupNotRequire");
+		}
+
+		String availableStatus = rb.getString("event.unavailable");
+		boolean isSignupBegin = true;
+		if (meetingSignupBegin > curTime) {
+			isSignupBegin = false;
+			availableStatus = rb.getString("event.Signup.not.started.yet")
+					+ " "
+					+ sakaiFacade.getTimeService().newTime(
+							meeting.getSignupBegins().getTime())
+							.toStringLocalShortDate();
+		}
+
+		boolean isOnWaitingList = false;
+		List<SignupTimeslot> signupTimeSlots = meeting.getSignupTimeSlots();
+		for (SignupTimeslot timeslot : signupTimeSlots) {
+			List<SignupAttendee> attendees = timeslot.getAttendees();
+			for (SignupAttendee attendee : attendees) {
+				if (attendee.getAttendeeUserId().equals(currentUserId))
+					return rb.getString("event.youSignedUp");
+			}
+
+			List<SignupAttendee> waiters = timeslot.getWaitingList();
+			if (!isOnWaitingList) {
+				for (SignupAttendee waiter : waiters) {
+					if (waiter.getAttendeeUserId().equals(currentUserId)) {
+						availableStatus = rb.getString("event.youOnWaitList");
+						isOnWaitingList = true;
+						break;
+					}
+				}
+			}
+
+			int size = (attendees == null) ? 0 : attendees.size();
+			if (!isOnWaitingList
+					&& isSignupBegin
+					&& (size < timeslot.getMaxNoOfAttendees() || timeslot
+							.getMaxNoOfAttendees() == SignupTimeslot.UNLIMITED)) {
+				availableStatus = rb.getString("event.available");
+			}
+		}
+
+		return availableStatus;
+	}
+
+	/**
+	 * This method will convert int days to a Date object
+	 * 
+	 * @param days
+	 *            it indicates how many days from current time into the future
+	 * @return a Date object
+	 */
+	public static Date getUserDefinedDate(int days) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(new Date());
+		cal.add(Calendar.HOUR, 24 * days);
+		return cal.getTime();
+	}
 }

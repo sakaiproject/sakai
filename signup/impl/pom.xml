@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>signup-base</artifactId>
 		<groupId>org.sakaiproject</groupId>
-		<version>M2</version>
+		<version>2.6.0RC1-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<name>Sakai Signup Implementation</name>
@@ -26,6 +26,19 @@
 			<artifactId>sakai-signup-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
+		
+		<dependency>
+	      	<groupId>org.sakaiproject.kernel</groupId>
+	      	<artifactId>sakai-kernel-api</artifactId>
+	    </dependency>
+	    <dependency>
+	      	<groupId>org.sakaiproject.kernel</groupId>
+	      	<artifactId>sakai-component-manager</artifactId>
+	    </dependency>
+	    <dependency>
+	      	<groupId>org.sakaiproject.kernel</groupId>
+	      	<artifactId>sakai-kernel-util</artifactId>
+	    </dependency>
 
 		<!-- generic DAO -->
 		<dependency>
@@ -55,59 +68,17 @@
 			<version>2.7.6</version>
 		</dependency>
 
-
 		<!-- Various Sakai dependencies -->
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-authz-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-entity-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-site-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-email-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-tool-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-user-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-util-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-util</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-component-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
+		
+<!--org.sakaiprojectsakai-site-api${sakai.version}-->
+<!--org.sakaiprojectsakai-user-api${sakai.version}-->
+<!--org.sakaiprojectsakai-util-api${sakai.version}-->
+<!--org.sakaiprojectsakai-component-api${sakai.version}-->
+<!--org.sakaiprojectsakai-tool-api${sakai.version}-->
+<!--org.sakaiprojectsakai-entity-api${sakai.version}-->
+<!--org.sakaiprojectsakai-util${sakai.version}-->
+<!--org.sakaiprojectsakai-email-api${sakai.version}-->
+<!--org.sakaiprojectsakai-authz-api${sakai.version}-->
 
 		<dependency>
 			<groupId>org.sakaiproject</groupId>

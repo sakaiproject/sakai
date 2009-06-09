@@ -62,7 +62,7 @@ public class AddWaiter extends SignupAction implements SignupBeanConstants {
 
 	public AddWaiter(SignupMeetingService signupMeetingService, String currentUserId, String currentSiteId,
 			String operationType, boolean isOrganizer) {
-		super(currentUserId, currentSiteId, signupMeetingService,isOrganizer);
+		super(currentUserId, currentSiteId, signupMeetingService, isOrganizer);
 		this.operationType = operationType;
 	}
 
@@ -83,10 +83,13 @@ public class AddWaiter extends SignupAction implements SignupBeanConstants {
 			throws Exception {
 		try {
 			handleVersion(meeting, timeSlot, newWaiter);
-			String signupEventType = isOrganizer? SignupEventTypes.EVENT_SIGNUP_ADD_ATTENDEE_WL_L : SignupEventTypes.EVENT_SIGNUP_ADD_ATTENDEE_WL_S;
-			Utilities.postEventTracking(signupEventType, ToolManager.getCurrentPlacement().getContext() + " meetingId:"
-					+ meeting.getId() + " -added to wlist on TS:"
-					+ SignupDateFormat.format_date_h_mm_a(timeSlot.getStartTime()));
+			if (ToolManager.getCurrentPlacement() != null) {
+				String signupEventType = isOrganizer ? SignupEventTypes.EVENT_SIGNUP_ADD_ATTENDEE_WL_L
+						: SignupEventTypes.EVENT_SIGNUP_ADD_ATTENDEE_WL_S;
+				Utilities.postEventTracking(signupEventType, ToolManager.getCurrentPlacement().getContext()
+						+ " meetingId:" + meeting.getId() + " -added to wlist on TS:"
+						+ SignupDateFormat.format_date_h_mm_a(timeSlot.getStartTime()));
+			}
 			logger.debug("Meeting Name:" + meeting.getTitle() + " - UserId:" + userId + " - has added attendee("
 					+ newWaiter.getAttendeeUserId() + ") into waiting list at timeslot started at:"
 					+ SignupDateFormat.format_date_h_mm_a(timeSlot.getStartTime()));
@@ -131,20 +134,20 @@ public class AddWaiter extends SignupAction implements SignupBeanConstants {
 			}
 		}
 
-		/*Meantime, if a spot becomes available again*/
-		if (attendees == null || attendees.size() < currentTimeSlot.getMaxNoOfAttendees()){
+		/* Meantime, if a spot becomes available again */
+		if (attendees == null || attendees.size() < currentTimeSlot.getMaxNoOfAttendees()) {
 			if (attendees == null){
 				attendees = new ArrayList<SignupAttendee>();
 				currentTimeSlot.setAttendees(attendees);
 			}
-			
+
 			attendees.add(newWaiter);
-			
+
 			removeAttendeeFromWaitingList(meeting, newWaiter);
 			removeAttendeeFromAttendeesList(meeting, currentTimeSlot, newWaiter);
 			return;
 		}
-		
+
 		List<SignupAttendee> waiters = currentTimeSlot.getWaitingList();
 
 		if (waiters == null) {
@@ -206,7 +209,7 @@ public class AddWaiter extends SignupAction implements SignupBeanConstants {
 			try {
 				meeting = signupMeetingService.loadSignupMeeting(meeting.getId(), userId, siteId);
 				actionsForOptimisticVersioning(meeting, currentTimeslot, currentAttendee);
-				signupMeetingService.updateSignupMeeting(meeting,isOrganizer);
+				signupMeetingService.updateSignupMeeting(meeting, isOrganizer);
 				return meeting;
 			} catch (OptimisticLockingFailureException oe) {
 				// don't do any thing

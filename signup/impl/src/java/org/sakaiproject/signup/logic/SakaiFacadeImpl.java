@@ -258,7 +258,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		try {
 			return toolManager.getCurrentPlacement().getContext();
 		} catch (Exception e) {
-			log.warn("Failed to get current location id");
+			log.info("Failed to get current location id");
 			return NO_LOCATION;
 		}
 	}

@@ -40,6 +40,8 @@ public class SignupAttendee {
 	private String calendarEventId;
 
 	private String calendarId;
+	
+	private String displayName;
 
 	/**
 	 * Constructor
@@ -153,5 +155,13 @@ public class SignupAttendee {
 	public void setSignupSiteId(String signupSiteId) {
 		this.signupSiteId = signupSiteId;
 	}
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}	
 
 }

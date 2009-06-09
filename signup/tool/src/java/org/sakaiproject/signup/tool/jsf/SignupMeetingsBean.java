@@ -368,7 +368,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 				searchDateStr = ALL_FUTURE;
 
 			signupMeetings = signupMeetingService.getSignupMeetings(sakaiFacade.getCurrentLocationId(), currentUserId,
-					calendar.getTime(), getUserDefinedDate(Integer.parseInt(searchDateStr)));
+					calendar.getTime(), Utilities.getUserDefinedDate(Integer.parseInt(searchDateStr)));
 
 		} else if (OLD_DAYS.equals(viewRange)) {
 			// calendar.add(Calendar.HOUR, 1 * 24);//exluding today for search
@@ -398,13 +398,6 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 		}
 
 		return wrapppers;
-	}
-
-	private Date getUserDefinedDate(int days) {
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(new Date());
-		cal.add(Calendar.HOUR, 24 * days);
-		return cal.getTime();
 	}
 
 	/**

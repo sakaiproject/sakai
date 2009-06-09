@@ -44,8 +44,6 @@ public class PromoteAttendeeEmail extends SignupEmailBase {
 
 	private final SignupTrackingItem item;
 
-	private final SignupMeeting meeting;
-
 	private String emailReturnSiteId;
 
 	/**

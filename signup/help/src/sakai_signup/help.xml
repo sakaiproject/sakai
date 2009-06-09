@@ -36,7 +36,7 @@
       <property name="name"><value>root</value></property>
       <property name="categories">
          <list>
-            <bean id="podcastsCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+            <bean id="signupCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
                <property name="name"><value>Sign-up</value></property>
                <property name="resources">
                   <list>

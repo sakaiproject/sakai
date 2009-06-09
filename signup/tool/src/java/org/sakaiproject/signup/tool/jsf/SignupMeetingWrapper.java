@@ -27,7 +27,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.sakaiproject.signup.logic.SakaiFacade;
-import org.sakaiproject.signup.model.SignupAttendee;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.util.SignupBeanConstants;
@@ -111,7 +110,7 @@ public class SignupMeetingWrapper implements SignupBeanConstants {
 	 */
 	public String getAvailableStatus() {
 		if (this.availableStatus == null) {
-			this.availableStatus = retrieveAvailStatus();
+			this.availableStatus = Utilities.retrieveAvailStatus(meeting, currentUserId, getSakaiFacade());
 		}
 		return this.availableStatus;
 	}
@@ -121,61 +120,6 @@ public class SignupMeetingWrapper implements SignupBeanConstants {
 	 */
 	public void resetAvailableStatus() {
 		this.availableStatus = null;
-	}
-
-	private String retrieveAvailStatus() {
-		long curTime = (new Date()).getTime();
-		long meetingStartTime = meeting.getStartTime().getTime();
-		long meetingEndTime = meeting.getEndTime().getTime();
-		long meetingSignupBegin = meeting.getSignupBegins().getTime();
-		if (meetingEndTime < curTime)
-			return Utilities.rb.getString("event.closed");
-		if (meetingEndTime > curTime && meetingStartTime < curTime)
-			return Utilities.rb.getString("event.inProgress");
-
-		if (meeting.getMeetingType().equals(SignupMeeting.ANNOUNCEMENT)) {
-			return Utilities.rb.getString("event.SignupNotRequire");
-		}
-
-		String availableStatus = Utilities.rb.getString("event.unavailable");
-		boolean isSignupBegin = true;
-		if (meetingSignupBegin > curTime) {
-			isSignupBegin = false;
-			availableStatus = Utilities.rb.getString("event.Signup.not.started.yet")
-					+ " "
-					+ getSakaiFacade().getTimeService().newTime(meeting.getSignupBegins().getTime())
-							.toStringLocalShortDate();
-		}
-
-		boolean isOnWaitingList = false;
-		List<SignupTimeslot> signupTimeSlots = meeting.getSignupTimeSlots();
-		for (SignupTimeslot timeslot : signupTimeSlots) {
-			List<SignupAttendee> attendees = timeslot.getAttendees();
-			for (SignupAttendee attendee : attendees) {
-				if (attendee.getAttendeeUserId().equals(currentUserId))
-					return Utilities.rb.getString("event.youSignedUp");
-			}
-
-			List<SignupAttendee> waiters = timeslot.getWaitingList();
-			if (!isOnWaitingList) {
-				for (SignupAttendee waiter : waiters) {
-					if (waiter.getAttendeeUserId().equals(currentUserId)) {
-						availableStatus = Utilities.rb.getString("event.youOnWaitList");
-						isOnWaitingList = true;
-						break;
-					}
-				}
-			}
-
-			int size = (attendees == null) ? 0 : attendees.size();
-			if (!isOnWaitingList
-					&& isSignupBegin
-					&& (size < timeslot.getMaxNoOfAttendees() || timeslot.getMaxNoOfAttendees() == SignupTimeslot.UNLIMITED)) {
-				availableStatus = Utilities.rb.getString("event.available");
-			}
-		}
-
-		return availableStatus;
 	}
 
 	/**

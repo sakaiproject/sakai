@@ -177,6 +177,14 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 			editMeeting.setConvertToNoRecurrent(convertToNoRecurrent);
 			/* update to DB */
 			editMeeting.saveModifiedMeeting(meeting);
+			
+			/*give warning to user in the next page if the event ending time get auto adjusted due to not even-division*/
+			if (isIndividualType() && getNumberOfSlots()!=0) {
+				double duration = (double)(getSignupMeeting().getEndTime().getTime() - getSignupMeeting().getStartTime().getTime())
+						/ (double)(MINUTE_IN_MILLISEC * getNumberOfSlots());				
+				if (duration != Math.floor(duration))
+					Utilities.addErrorMessage(Utilities.rb.getString("event_endtime_auto_adjusted_warning"));				
+			}
 
 			/* For case: a set of recurring meetings are updated */
 			List<SignupMeeting> successUpdatedMeetings = editMeeting.getSavedMeetings();

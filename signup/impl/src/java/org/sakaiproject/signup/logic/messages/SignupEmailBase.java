@@ -29,6 +29,7 @@ import java.util.ResourceBundle;
 
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.model.MeetingTypes;
+import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.time.api.Time;
 
 /**
@@ -40,6 +41,8 @@ import org.sakaiproject.time.api.Time;
 abstract public class SignupEmailBase implements SignupEmailNotification, MeetingTypes {
 
 	private SakaiFacade sakaiFacade;
+	
+	protected SignupMeeting meeting;
 
 	protected static ResourceBundle rb = ResourceBundle.getBundle("emailMessage");
 
@@ -50,12 +53,10 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 	/* footer for the email */
 	protected String getFooter(String newline) {
 		/* tag the message - HTML version */
-		Object[] params = new Object[] { getServiceName(),
-				"<a href=\"" + getSiteAccessUrl() + "\">" + getSiteAccessUrl() + "</a>", getSiteTitle(), newline };
-		String rv = newline + rb.getString("separator") + newline
-				+ MessageFormat.format(rb.getString("body.footer.text"), params) + newline;
-
-		return rv;
+		if(this.meeting.getCurrentSiteId()==null)
+			return getFooterWithAccessUrl(newline);
+		else
+			return getFooterWithNoAccessUrl(newline);
 	}
 
 	/* footer for the email */
@@ -66,6 +67,28 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 				getSiteTitle(targetSiteId), newline };
 		String rv = newline + rb.getString("separator") + newline
 				+ MessageFormat.format(rb.getString("body.footer.text"), params) + newline;
+
+		return rv;
+	}
+	
+	/* footer for the email */
+	private String getFooterWithAccessUrl(String newline) {
+		/* tag the message - HTML version */
+		Object[] params = new Object[] { getServiceName(),
+				"<a href=\"" + getSiteAccessUrl() + "\">" + getSiteAccessUrl() + "</a>", getSiteTitle(), newline };
+		String rv = newline + rb.getString("separator") + newline
+				+ MessageFormat.format(rb.getString("body.footer.text"), params) + newline;
+
+		return rv;
+	}
+	
+	/* footer for the email */
+	private String getFooterWithNoAccessUrl(String newline) {
+		/* tag the message - HTML version */
+		Object[] params = new Object[] { getServiceName(),
+				getSiteTitle(), newline };
+		String rv = newline + rb.getString("separator") + newline
+				+ MessageFormat.format(rb.getString("body.footer.text.no.access.link"), params) + newline;
 
 		return rv;
 	}
@@ -106,7 +129,12 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 	 * @return the current site Id
 	 */
 	protected String getSiteId() {
-		return getSakaiFacade().getCurrentLocationId();
+		String siteId = getSakaiFacade().getCurrentLocationId();
+		if(SakaiFacade.NO_LOCATION.equals(siteId)){
+			siteId =meeting.getCurrentSiteId()!=null? this.meeting.getCurrentSiteId() : SakaiFacade.NO_LOCATION;			
+		}
+		
+		return siteId;
 	}
 
 	/* get the site name */

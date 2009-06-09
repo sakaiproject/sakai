@@ -41,8 +41,6 @@ public class AttendeeSignupEmail extends SignupEmailBase {
 
 	private final User currentUser;
 
-	private final SignupMeeting meeting;
-
 	private final SignupTimeslot timeslot;
 
 	private final User creator;
@@ -79,7 +77,7 @@ public class AttendeeSignupEmail extends SignupEmailBase {
 		rv.add("Content-Type: text/html; charset=UTF-8");
 		rv.add("Subject: "
 				+ MessageFormat.format(rb.getString("subject.attendee.signup.field"), new Object[] {
-						getTime(meeting.getStartTime()).toStringLocalDate(), currentUser.getDisplayName() }));
+						getTime(meeting.getStartTime()).toStringLocalDate(), currentUser.getDisplayName(), getSiteTitle()}));
 		rv.add("From: " + currentUser.getEmail());
 		rv.add("To: " + creator.getEmail());
 

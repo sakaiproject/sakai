@@ -131,6 +131,8 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	private boolean eidInputMode = false;
 
 	private Boolean publishedSite;
+	
+	private boolean endTimeAutoAdjusted=false;
 
 	private Log logger = LogFactory.getLog(getClass());
 
@@ -292,6 +294,17 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 				// signupMeeting.setMeetingType(null);
 
 			}
+			
+			/*give warning to user in the next page if the event ending time get auto adjusted due to not even-division*/
+			setEndTimeAutoAdjusted(false);
+			if (isIndividualType() && getNumberOfSlots()!=0) {
+				double duration = (double)(getSignupMeeting().getEndTime().getTime() - getSignupMeeting().getStartTime().getTime())
+						/ (double)(MINUTE_IN_MILLISEC * getNumberOfSlots());				
+				if (duration != Math.floor(duration)){
+					setEndTimeAutoAdjusted(true);
+					Utilities.addErrorMessage(Utilities.rb.getString("event_endtime_auto_adjusted_warning"));
+				}
+			}
 
 		}
 	}
@@ -327,9 +340,10 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			return ADD_MEETING_STEP1_PAGE_URL;
 		}
 		if (step.equals("assignAttendee")) {
-			timeSlotWrappers = null; // reset to remove timeslots info with
+			timeSlotWrappers = null; // reset to remove timeslots info with attendees
 			assignParicitpantsToAllRecurEvents = false;
-			// attendees
+			//reset warning for ending time auto-adjustment
+			setEndTimeAutoAdjusted(false);
 			return ADD_MEETING_STEP2_PAGE_URL;
 		}
 
@@ -765,6 +779,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		if (this.timeSlotDuration == 0) {// first time
 			long duration = (getSignupMeeting().getEndTime().getTime() - getSignupMeeting().getStartTime().getTime())
 					/ (MINUTE_IN_MILLISEC * getNumberOfSlots());
+			
 			setTimeSlotDuration((int) duration);
 		}
 		return this.timeSlotDuration;
@@ -1304,5 +1319,22 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 		return publishedSite.booleanValue();
 	}
+
+	/**
+	 * This is a getter method for UI
+	 * @return true if the ending time is adjusted.
+	 */
+	public boolean isEndTimeAutoAdjusted() {
+		return endTimeAutoAdjusted;
+	}
+
+	/**
+	 * This is a setter method.
+	 * @param endTimeAutoAdjusted
+	 */
+	public void setEndTimeAutoAdjusted(boolean endTimeAutoAdjusted) {
+		this.endTimeAutoAdjusted = endTimeAutoAdjusted;
+	}
+		
 
 }

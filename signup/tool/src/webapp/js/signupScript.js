@@ -210,7 +210,7 @@
 		}
            
 		var prev_slotNum=4;//default
-		function getSignupDuration(){
+		function getSignup_Duration(showDecimal){
 					if (signupMeetingType !=INDIVIDUAL_TYPE)
 						return;
 						
@@ -222,11 +222,32 @@
  						
 				    prev_slotNum = signup_ValidateNumber(prev_slotNum,slotNumTag,100);   
 	                    
-				   var slotNum = parseInt(slotNumTag.value);
+				  	var slotNum = parseInt(slotNumTag.value);
 	                var duration = getSignupDateTime(endTimeTag).getTime() - getSignupDateTime(startTimeTag).getTime();
-				    //alert("duration in Minutes:=" + duration/(slotNum*60*1000) );
 				    var currentTimeslotDuration = document.getElementById("meeting:currentTimeslotDuration");
-				    currentTimeslotDuration.value= isNaN(duration/(slotNum*60*1000))? 0 : duration/(slotNum*60*1000);
+				    var slot_duration= isNaN(duration/(slotNum*60*1000))? 0 : duration/(slotNum*60*1000);
+				   	if(showDecimal=='yes')
+				    	currentTimeslotDuration.value= slot_duration;
+				    else
+					 	currentTimeslotDuration.value= Math.floor(slot_duration);
+	
+				    setTimeout( "signup_displaySlotDurationFloorNum();", 1200);//1.2 sec
+		}
+		
+		function getSignupDuration(){
+			getSignup_Duration('yes');
+		}
+		
+		function getSignupDurationNoDecimal(){
+			getSignup_Duration('no');
+		}		
+		
+		function signup_displaySlotDurationFloorNum(){		
+				    var slotDurationTag = document.getElementById("meeting:currentTimeslotDuration");
+				    if(slotDurationTag){
+				    	var cur_durationVal=parseFloat(slotDurationTag.value);
+				    	slotDurationTag.value= Math.floor(cur_durationVal);
+				    }
 		}
 		
 		var waiting=false;
@@ -234,7 +255,7 @@
 			if (!waiting){
 					waiting = true;
 					setEndtimeMonthDateYear();
-					getSignupDuration();
+					getSignupDurationNoDecimal();
 				  	setTimeout("waiting=false;", 1500);//1.5 sec
 				}			
 		}
