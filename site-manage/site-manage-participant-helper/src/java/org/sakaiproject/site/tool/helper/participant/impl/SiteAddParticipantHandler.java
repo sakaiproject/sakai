@@ -11,6 +11,7 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.validator.EmailValidator;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
@@ -794,6 +795,11 @@ public class SiteAddParticipantHandler {
 						targettedMessageList.addMessage(new TargettedMessage("java.emailaddress",
 		                new Object[] { nonOfficialAccount }, 
 		                TargettedMessage.SEVERITY_ERROR));
+					} else if (!isValidMail(nonOfficialAccount)) {
+						// must be a valid email address
+						targettedMessageList.addMessage(new TargettedMessage("java.emailaddress",
+				                new Object[] { nonOfficialAccount }, 
+				                TargettedMessage.SEVERITY_ERROR));
 					} else {
 						Participant participant = new Participant();
 						try {
@@ -918,8 +924,21 @@ public class SiteAddParticipantHandler {
 			}
 		}
 		return true;
+		
+		
 	}
     
+	private boolean isValidMail(String email) {
+		if (email == null || email.equals(""))
+			return false;
+		
+		email = email.trim();
+		
+		EmailValidator ev = EmailValidator.getInstance();
+		return ev.isValid(email);
+		
+	}
+	
 	private Vector<Participant> removeDuplicateParticipants(List<Participant> pList) {
 		// check the uniqueness of list member
 		Set<String> s = new HashSet<String>();
