@@ -507,6 +507,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	 * @param bundle
 	 *        properties bundle * *
 	 * @return locale specific ResourceBundle
+	 *         (or empty ListResourceBundle in case of error)
 	 */
 	protected ResourceBundle loadBundle(Locale loc)
 	{
@@ -518,9 +519,12 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 			else
 				newBundle = ResourceBundle.getBundle(this.baseName, loc, this.classLoader);
 		}
-		catch (NullPointerException e)
+		catch (Exception e)
 		{
-		} // ignore
+			M_log.warn("loadBundle "+baseName+" "+loc.toString(), e );
+			throw new MissingResourceException("ResourceLoader.loadBundle failed",
+														  "", "" );
+		}
 
 		setBundle(loc, newBundle);
 		return newBundle;
@@ -536,7 +540,8 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	 */
 	protected void setBundle(Locale loc, ResourceBundle bundle)
 	{
-		if (bundle == null) throw new NullPointerException();
+		if (loc == null || bundle == null) 
+			return;
 		this.bundles.put(loc, bundle);
 	}
 }
