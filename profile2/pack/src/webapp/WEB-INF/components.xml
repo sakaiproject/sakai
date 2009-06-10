@@ -4,8 +4,8 @@
 <beans>
 
 	<!--  SakaiProxy -->
- 	<bean id="org.sakaiproject.profile2.api.SakaiProxy"
-    	class="org.sakaiproject.profile2.impl.SakaiProxyImpl">
+ 	<bean id="org.sakaiproject.profile2.logic.SakaiProxy"
+    	class="org.sakaiproject.profile2.logic.SakaiProxyImpl">
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
@@ -22,17 +22,17 @@
         
 	<!--  Setup the Profile IMPL as a DAO with Hibernate and give it the other beans as well  -->
 	<bean id="org.sakaiproject.profile2.api.ProfileDAO"
-    	class="org.sakaiproject.profile2.impl.ProfileImpl"
+    	class="org.sakaiproject.profile2.logic.ProfileLogicImpl"
     	singleton="true"
     	init-method="init">
 		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-		<property name="sakaiProxy" ref="org.sakaiproject.profile2.api.SakaiProxy" />
+		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
 		<property name="tinyUrlService"><ref bean="org.sakaiproject.tinyurl.api.TinyUrlService"/></property>
 	</bean>
 	
 	
 	<!-- Give the DAO above the GlobalTransactionManager -->
-	<bean id="org.sakaiproject.profile2.api.Profile"
+	<bean id="org.sakaiproject.profile2.logic.ProfileLogic"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">		
 		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
 		<property name="target" ref="org.sakaiproject.profile2.api.ProfileDAO" />
@@ -44,42 +44,43 @@
 	</bean>	
 	
 	<!--  API Service beans -->
-	<bean id="org.sakaiproject.profile2.api.ProfileService" class="org.sakaiproject.profile2.impl.ProfileServiceImpl">
-		<property name="sakaiProxy" ref="org.sakaiproject.profile2.api.SakaiProxy" />
-		<property name="profile" ref="org.sakaiproject.profile2.api.Profile" />
+	<bean id="org.sakaiproject.profile2.service.BaseProfileService" abstract="true">
+		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
 	</bean>
 	
-	<bean id="org.sakaiproject.profile2.api.ProfilePrivacyService" class="org.sakaiproject.profile2.impl.ProfilePrivacyServiceImpl">
-		<property name="sakaiProxy" ref="org.sakaiproject.profile2.api.SakaiProxy" />
-		<property name="profile" ref="org.sakaiproject.profile2.api.Profile" />
-	</bean>
+	<bean id="org.sakaiproject.profile2.service.ProfileService" 
+		class="org.sakaiproject.profile2.service.ProfileServiceImpl"
+		parent="org.sakaiproject.profile2.service.BaseProfileService" />
 	
-	<bean id="org.sakaiproject.profile2.api.ProfilePreferencesService" class="org.sakaiproject.profile2.impl.ProfilePreferencesServiceImpl">
-		<property name="sakaiProxy" ref="org.sakaiproject.profile2.api.SakaiProxy" />
-		<property name="profile" ref="org.sakaiproject.profile2.api.Profile" />
-	</bean>
+	<bean id="org.sakaiproject.profile2.service.ProfilePrivacyService" 
+		class="org.sakaiproject.profile2.service.ProfilePrivacyServiceImpl"
+		parent="org.sakaiproject.profile2.service.BaseProfileService" />
 	
-	<bean id="org.sakaiproject.profile2.api.ProfileStatusService" class="org.sakaiproject.profile2.impl.ProfileStatusServiceImpl">
-		<property name="sakaiProxy" ref="org.sakaiproject.profile2.api.SakaiProxy" />
-		<property name="profile" ref="org.sakaiproject.profile2.api.Profile" />
-	</bean>
+	<bean id="org.sakaiproject.profile2.service.ProfilePreferencesService" 
+		class="org.sakaiproject.profile2.service.ProfilePreferencesServiceImpl"
+		parent="org.sakaiproject.profile2.service.BaseProfileService" />
+	
+	<bean id="org.sakaiproject.profile2.service.ProfileStatusService" 
+		class="org.sakaiproject.profile2.service.ProfileStatusServiceImpl"
+		parent="org.sakaiproject.profile2.service.BaseProfileService" />
     
     
     <!-- EntityBroker beans -->
-	<bean id="org.sakaiproject.profile2.entity.ProfileEntityProvider" class="org.sakaiproject.profile2.impl.entity.ProfileEntityProviderImpl">
-		<property name="profileService" ref="org.sakaiproject.profile2.api.ProfileService" />
+	<bean id="org.sakaiproject.profile2.entity.ProfileEntityProvider" class="org.sakaiproject.profile2.entity.ProfileEntityProviderImpl">
+		<property name="profileService" ref="org.sakaiproject.profile2.service.ProfileService" />
 	</bean>
 	
-	<bean id="org.sakaiproject.profile2.entity.ProfilePrivacyEntityProvider" class="org.sakaiproject.profile2.impl.entity.ProfilePrivacyEntityProviderImpl">
-		<property name="profilePrivacyService" ref="org.sakaiproject.profile2.api.ProfilePrivacyService" />
+	<bean id="org.sakaiproject.profile2.entity.ProfilePrivacyEntityProvider" class="org.sakaiproject.profile2.entity.ProfilePrivacyEntityProviderImpl">
+		<property name="privacyService" ref="org.sakaiproject.profile2.service.ProfilePrivacyService" />
 	</bean>
 	
-	<bean id="org.sakaiproject.profile2.entity.ProfilePreferencesEntityProvider" class="org.sakaiproject.profile2.impl.entity.ProfilePreferencesEntityProviderImpl">
-		<property name="profilePreferencesService" ref="org.sakaiproject.profile2.api.ProfilePreferencesService" />
+	<bean id="org.sakaiproject.profile2.entity.ProfilePreferencesEntityProvider" class="org.sakaiproject.profile2.entity.ProfilePreferencesEntityProviderImpl">
+		<property name="preferencesService" ref="org.sakaiproject.profile2.service.ProfilePreferencesService" />
 	</bean>
 	
-	<bean id="org.sakaiproject.profile2.entity.ProfileStatusEntityProvider" class="org.sakaiproject.profile2.impl.entity.ProfileStatusEntityProviderImpl">
-		<property name="profileStatusService" ref="org.sakaiproject.profile2.api.ProfileStatusService" />
+	<bean id="org.sakaiproject.profile2.entity.ProfileStatusEntityProvider" class="org.sakaiproject.profile2.entity.ProfileStatusEntityProviderImpl">
+		<property name="statusService" ref="org.sakaiproject.profile2.service.ProfileStatusService" />
 	</bean>
 	
 
