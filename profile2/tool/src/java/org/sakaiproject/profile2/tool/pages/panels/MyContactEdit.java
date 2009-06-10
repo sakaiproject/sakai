@@ -5,6 +5,7 @@ package org.sakaiproject.profile2.tool.pages.panels;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -20,6 +21,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
+import org.apache.wicket.validation.validator.UrlValidator;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.tool.ProfileApplication;
@@ -95,8 +97,30 @@ public class MyContactEdit extends Panel {
 		//homepage
 		WebMarkupContainer homepageContainer = new WebMarkupContainer("homepageContainer");
 		homepageContainer.add(new Label("homepageLabel", new ResourceModel("profile.homepage")));
-		TextField homepage = new TextField("homepage", new PropertyModel(userProfile, "homepage"));
+		TextField homepage = new TextField("homepage", new PropertyModel(userProfile, "homepage")) {
+			
+			private static final long serialVersionUID = 1L; 
+
+            // add http:// if missing 
+            @Override 
+            protected void convertInput() { 
+                    String input = getInput(); 
+
+                    if (StringUtils.isNotBlank(input) && !(input.startsWith("http://") || input.startsWith("https://"))) { 
+                            setConvertedInput("http://" + input); 
+                    } else { 
+                            setConvertedInput(StringUtils.isBlank(input) ? null : input); 
+                    } 
+            } 
+		};
+		homepage.add(new UrlValidator());
 		homepageContainer.add(homepage);
+		
+		//homepage feedback
+        final FeedbackLabel homepageFeedback = new FeedbackLabel("homepageFeedback", homepage);
+        homepageFeedback.setOutputMarkupId(true);
+        homepageContainer.add(homepageFeedback);
+        homepage.add(new ComponentVisualErrorBehaviour("onblur", homepageFeedback));
 		form.add(homepageContainer);
 		
 		//workphone
