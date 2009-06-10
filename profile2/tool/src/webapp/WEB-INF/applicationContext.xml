@@ -5,8 +5,8 @@
 
 	<!-- The id of this bean needs to match the param 'applicationBean' under your web.xml -->
 	<bean id="profileApplication" class="org.sakaiproject.profile2.tool.ProfileApplication">
-		<property name="sakaiProxy" ref="org.sakaiproject.profile2.api.SakaiProxy" />
-		<property name="profile" ref="org.sakaiproject.profile2.api.Profile" />
+		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
 	</bean>
 	   
        

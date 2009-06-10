@@ -16,19 +16,18 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
-import org.sakaiproject.profile2.api.ProfileConstants;
-import org.sakaiproject.profile2.api.SakaiProxy;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.tool.ProfileApplication;
 import org.sakaiproject.profile2.tool.components.ComponentVisualErrorBehaviour;
 import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import org.sakaiproject.profile2.tool.components.FeedbackLabel;
 import org.sakaiproject.profile2.tool.models.UserProfile;
+import org.sakaiproject.profile2.util.ProfileConstants;
 
 public class MyContactEdit extends Panel {
 	
@@ -36,7 +35,7 @@ public class MyContactEdit extends Panel {
 	private static final Logger log = Logger.getLogger(MyInfoEdit.class);
     private transient SakaiProxy sakaiProxy;
 
-	public MyContactEdit(final String id, final UserProfile userProfile) {
+    public MyContactEdit(final String id, final UserProfile userProfile) {
 		super(id);
 		
         log.debug("MyContactEdit()");

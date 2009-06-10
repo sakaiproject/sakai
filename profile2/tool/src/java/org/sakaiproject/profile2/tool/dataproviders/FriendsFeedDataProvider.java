@@ -12,10 +12,9 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-
-import org.sakaiproject.profile2.api.Profile;
-import org.sakaiproject.profile2.api.ProfileConstants;
+import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.tool.ProfileApplication;
+import org.sakaiproject.profile2.util.ProfileConstants;
 
 /**
  * FriendsFeedDataProvider.java
@@ -32,7 +31,7 @@ public class FriendsFeedDataProvider implements IDataProvider, Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(FriendsFeedDataProvider.class); 
-	private transient Profile profile;
+	private transient ProfileLogic profileLogic;
 	private transient List<String> friends = new ArrayList<String>();
 	private String userId;
 	
@@ -42,7 +41,7 @@ public class FriendsFeedDataProvider implements IDataProvider, Serializable {
 		this.userId = userId;
 		
 		//get Profile
-		profile = ProfileApplication.get().getProfile();
+		profileLogic = ProfileApplication.get().getProfileLogic();
 		
 		//get list of friends
 		friends = getFriendsForUser(userId);
@@ -54,7 +53,7 @@ public class FriendsFeedDataProvider implements IDataProvider, Serializable {
 		List<String> allFriends = new ArrayList<String>();
 		
 		//get all friends of userX visible by userY
-		allFriends = profile.getConfirmedFriendUserIdsForUser(userId);
+		allFriends = profileLogic.getConfirmedFriendUserIdsForUser(userId);
 		
 		//randomise this list
 		Collections.shuffle(allFriends);
@@ -106,7 +105,7 @@ public class FriendsFeedDataProvider implements IDataProvider, Serializable {
 		in.defaultReadObject();
 		log.debug("FriendsFeedDataProvider has been deserialized.");
 		//re-init our transient objects
-		profile = ProfileApplication.get().getProfile();
+		profileLogic = ProfileApplication.get().getProfileLogic();
 		friends = getFriendsForUser(userId);
 	}
 }

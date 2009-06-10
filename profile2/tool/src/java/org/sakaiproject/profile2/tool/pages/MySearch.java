@@ -27,8 +27,7 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.sakaiproject.profile2.api.ProfileConstants;
-import org.sakaiproject.profile2.api.model.SearchResult;
+import org.sakaiproject.profile2.model.SearchResult;
 import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import org.sakaiproject.profile2.tool.components.FeedbackLabel;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
@@ -36,6 +35,7 @@ import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.tool.models.Search;
 import org.sakaiproject.profile2.tool.pages.windows.AddFriend;
+import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.util.FormattedText;
 
@@ -211,8 +211,8 @@ public class MySearch extends BasePage {
 				Label statusDateLabel = new Label("result-statusDate");
 				
 				if(isProfileStatusAllowed) {
-					String profileStatusMessage = profile.getUserStatusMessage(userUuid);
-					Date profileStatusDate = profile.getUserStatusDate(userUuid);
+					String profileStatusMessage = profileLogic.getUserStatusMessage(userUuid);
+					Date profileStatusDate = profileLogic.getUserStatusDate(userUuid);
 					if(profileStatusMessage == null) {
 						statusMsgLabel.setVisible(false);
 						statusDateLabel.setVisible(false);
@@ -381,7 +381,7 @@ public class MySearch extends BasePage {
 					search.setSearchInterest("");
 					
 					//search both UDB and Sakaiperson for matches.
-					results = new ArrayList<SearchResult>(profile.findUsersByNameOrEmail(searchText, currentUserUuid));
+					results = new ArrayList<SearchResult>(profileLogic.findUsersByNameOrEmail(searchText, currentUserUuid));
 	
 					int numResults = results.size();
 					int maxResults = ProfileConstants.MAX_SEARCH_RESULTS;
@@ -446,7 +446,7 @@ public class MySearch extends BasePage {
 					search.setSearchName("");
 					
 					//search SakaiPerson for matches
-					results = new ArrayList<SearchResult>(profile.findUsersByInterest(searchText, currentUserUuid));
+					results = new ArrayList<SearchResult>(profileLogic.findUsersByInterest(searchText, currentUserUuid));
 										
 					int numResults = results.size();
 					int maxResults = ProfileConstants.MAX_SEARCH_RESULTS;
@@ -491,7 +491,7 @@ public class MySearch extends BasePage {
 		in.defaultReadObject();
 		log.debug("MySearch has been deserialized.");
 		//re-init our transient objects
-		profile = getProfile();
+		profileLogic = getProfileLogic();
 		sakaiProxy = getSakaiProxy();
 	}
 	

@@ -20,23 +20,23 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.sakaiproject.profile2.api.Profile;
-import org.sakaiproject.profile2.api.ProfileConstants;
-import org.sakaiproject.profile2.api.SakaiProxy;
+import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.tool.ProfileApplication;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.ConfirmedFriendsDataProvider;
 import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
 import org.sakaiproject.profile2.tool.pages.windows.RemoveFriend;
+import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
 public class ConfirmedFriends extends Panel {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(ConfirmedFriends.class);
-	private transient SakaiProxy sakaiProxy;
-	private transient Profile profile; 
+    private transient SakaiProxy sakaiProxy;
+    private transient ProfileLogic profileLogic;
 	private int numConfirmedFriends = 0;
 	private boolean updateable = false;
 	
@@ -49,8 +49,8 @@ public class ConfirmedFriends extends Panel {
 		//get SakaiProxy
 		sakaiProxy = ProfileApplication.get().getSakaiProxy();
 		
-		//get Profile
-		profile = ProfileApplication.get().getProfile();
+		//get ProfileLogic
+		profileLogic = ProfileApplication.get().getProfileLogic();
 			
 		//setup model to store the actions in the modal windows
 		final FriendAction friendActionModel = new FriendAction();
@@ -132,13 +132,13 @@ public class ConfirmedFriends extends Panel {
 		    	
 		    	//get friend status
 		    	if(updateable) {
-		    		friend = true; //viewing own list of confirmed fiends so must be a friend
+		    		friend = true; //viewing own page, hence friend
 		    	} else {
-		    		friend = profile.isUserXFriendOfUserY(userY, friendId); //other person viewing, check if they are friends
+		    		friend = profileLogic.isUserXFriendOfUserY(userY, friendId); //other person viewing, check if they are friends
 		    	}
 	    		
 		    	//is profile image allowed to be viewed by this user/friend?
-				final boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(friendId, userY, friend);
+				final boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(friendId, userY, friend);
 				
 				//image
 				item.add(new ProfileImageRenderer("result-photo", friendId, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
@@ -157,14 +157,14 @@ public class ConfirmedFriends extends Panel {
 		    	item.add(profileLink);
 		    	
 				//is status allowed to be viewed by this user/friend?
-				final boolean isProfileStatusAllowed = profile.isUserXStatusVisibleByUserY(friendId, userY, friend);
+				final boolean isProfileStatusAllowed = profileLogic.isUserXStatusVisibleByUserY(friendId, userY, friend);
 				
 				Label statusMsgLabel = new Label("result-statusMsg");
 				Label statusDateLabel = new Label("result-statusDate");
 				
 				if(isProfileStatusAllowed) {
-					String profileStatusMessage = profile.getUserStatusMessage(friendId);
-					Date profileStatusDate = profile.getUserStatusDate(friendId);
+					String profileStatusMessage = profileLogic.getUserStatusMessage(friendId);
+					Date profileStatusDate = profileLogic.getUserStatusDate(friendId);
 					if(profileStatusMessage == null) {
 						statusMsgLabel.setVisible(false);
 						statusDateLabel.setVisible(false);
@@ -269,7 +269,7 @@ public class ConfirmedFriends extends Panel {
 		in.defaultReadObject();
 		log.debug("ConfirmedFriends has been deserialized.");
 		//re-init our transient objects
-		profile = ProfileApplication.get().getProfile();
+		profileLogic = ProfileApplication.get().getProfileLogic();
 		sakaiProxy = ProfileApplication.get().getSakaiProxy();
 	}
 	

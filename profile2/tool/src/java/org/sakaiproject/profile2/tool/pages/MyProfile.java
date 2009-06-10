@@ -13,9 +13,7 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
-
-import org.sakaiproject.profile2.api.ProfileConstants;
-import org.sakaiproject.profile2.api.exception.ProfileNotDefinedException;
+import org.sakaiproject.profile2.exception.ProfileNotDefinedException;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.models.UserProfile;
 import org.sakaiproject.profile2.tool.pages.panels.ChangeProfilePictureUpload;
@@ -26,6 +24,7 @@ import org.sakaiproject.profile2.tool.pages.panels.MyContactDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyInfoDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyInterestsDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyStatusPanel;
+import org.sakaiproject.profile2.util.ProfileConstants;
 
 
 public class MyProfile extends BasePage {
@@ -205,7 +204,7 @@ public class MyProfile extends BasePage {
 		in.defaultReadObject();
 		log.debug("MyProfile has been deserialized.");
 		//re-init our transient objects
-		profile = getProfile();
+		profileLogic = getProfileLogic();
 		sakaiProxy = getSakaiProxy();
 	}	
 	

@@ -22,12 +22,11 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-
-import org.sakaiproject.profile2.api.ProfileConstants;
-import org.sakaiproject.profile2.api.exception.ProfilePrivacyNotDefinedException;
-import org.sakaiproject.profile2.api.model.ProfilePrivacy;
+import org.sakaiproject.profile2.exception.ProfilePrivacyNotDefinedException;
+import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.components.HashMapChoiceRenderer;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
+import org.sakaiproject.profile2.util.ProfileConstants;
 
 
 public class MyPrivacy extends BasePage {
@@ -43,11 +42,11 @@ public class MyPrivacy extends BasePage {
 		final String userId = sakaiProxy.getCurrentUserId();
 
 		//get the privacy object for this user from the database
-		profilePrivacy = profile.getPrivacyRecordForUser(userId);
+		profilePrivacy = profileLogic.getPrivacyRecordForUser(userId);
 		
 		//if null, create one
 		if(profilePrivacy == null) {
-			profilePrivacy = profile.createDefaultPrivacyRecord(userId);
+			profilePrivacy = profileLogic.createDefaultPrivacyRecord(userId);
 			//if its still null, throw exception
 			
 			if(profilePrivacy == null) {
@@ -292,7 +291,7 @@ public class MyPrivacy extends BasePage {
 		//get the backing model - its elems have been updated with the form params
 		ProfilePrivacy profilePrivacy = (ProfilePrivacy) form.getModelObject();
 
-		if(profile.savePrivacyRecord(profilePrivacy)) {
+		if(profileLogic.savePrivacyRecord(profilePrivacy)) {
 			log.info("Saved ProfilePrivacy for: " + profilePrivacy.getUserUuid());
 			return true;
 		} else {
@@ -307,7 +306,7 @@ public class MyPrivacy extends BasePage {
 		in.defaultReadObject();
 		log.debug("MyPrivacy has been deserialized.");
 		//re-init our transient objects
-		profile = getProfile();
+		profileLogic = getProfileLogic();
 		sakaiProxy = getSakaiProxy();
 	}
 	

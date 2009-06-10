@@ -10,21 +10,20 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.sakaiproject.util.FormattedText;
-
-import org.sakaiproject.profile2.api.Profile;
-import org.sakaiproject.profile2.api.ProfileConstants;
-import org.sakaiproject.profile2.api.SakaiProxy;
+import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.tool.ProfileApplication;
 import org.sakaiproject.profile2.tool.components.FocusOnLoadBehaviour;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.models.FriendAction;
+import org.sakaiproject.profile2.util.ProfileConstants;
+import org.sakaiproject.util.FormattedText;
 
 public class IgnoreFriend extends Panel {
 
 	private static final long serialVersionUID = 1L;
 	private transient SakaiProxy sakaiProxy;
-	private transient Profile profile;
+	private transient ProfileLogic profileLogic;
 
 	/*
 	 * userX is the current user
@@ -36,7 +35,7 @@ public class IgnoreFriend extends Panel {
 
         //get API's
         sakaiProxy = ProfileApplication.get().getSakaiProxy();
-        profile = ProfileApplication.get().getProfile();
+        profileLogic = ProfileApplication.get().getProfileLogic();
         
         //get friendName
         final String friendName = FormattedText.processFormattedText(sakaiProxy.getUserDisplayName(userY), new StringBuffer());
@@ -48,7 +47,7 @@ public class IgnoreFriend extends Panel {
 		window.setResizable(false);
 		
 		//is this user allowed to view this person's profile image?
-		boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(userY, userX, false);
+		boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(userY, userX, false);
 		
 		//image
 		add(new ProfileImageRenderer("image", userY, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
@@ -72,7 +71,7 @@ public class IgnoreFriend extends Panel {
 				/* double checking */
 				
 				//must exist a pending friend request FROM userY to userX in order to ignore it
-				boolean friendRequestFromThisPerson = profile.isFriendRequestPending(userY, userX);
+				boolean friendRequestFromThisPerson = profileLogic.isFriendRequestPending(userY, userX);
 				
 				if(!friendRequestFromThisPerson) {
 					text.setModel(new StringResourceModel("error.friend.not.pending.ignore", null, new Object[]{ friendName } ));
@@ -85,7 +84,7 @@ public class IgnoreFriend extends Panel {
 				
 				
 				//if ok, ignore friend request
-				if(profile.ignoreFriendRequest(userY, userX)) {
+				if(profileLogic.ignoreFriendRequest(userY, userX)) {
 					friendActionModel.setIgnored(true);
 					
 					//post event

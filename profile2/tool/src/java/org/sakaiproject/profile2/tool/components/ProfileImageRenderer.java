@@ -6,11 +6,10 @@ import org.apache.wicket.markup.html.image.NonCachingImage;
 import org.apache.wicket.markup.html.image.resource.BufferedDynamicImageResource;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
-
-import org.sakaiproject.profile2.api.Profile;
-import org.sakaiproject.profile2.api.ProfileConstants;
-import org.sakaiproject.profile2.api.SakaiProxy;
+import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.tool.ProfileApplication;
+import org.sakaiproject.profile2.util.ProfileConstants;
 
 /** 
  * This is a helper panel for displaying a user's profile image.
@@ -40,7 +39,7 @@ public class ProfileImageRenderer extends Panel {
 		
 		//get API's
         SakaiProxy sakaiProxy = ProfileApplication.get().getSakaiProxy();
-        Profile profile = ProfileApplication.get().getProfile();
+        ProfileLogic profileLogic = ProfileApplication.get().getProfileLogic();
                 
 		//what type of image are we to show?
 		int type = sakaiProxy.getProfilePictureType();
@@ -48,7 +47,7 @@ public class ProfileImageRenderer extends Panel {
 		//UPLOAD
 		if(type == ProfileConstants.PICTURE_SETTING_UPLOAD) {
 
-			final byte[] bytes = profile.getCurrentProfileImageForUser(userX, size);
+			final byte[] bytes = profileLogic.getCurrentProfileImageForUser(userX, size);
 			
 			//use profile bytes or add default image if none
 			if(bytes != null && bytes.length > 0){
@@ -70,7 +69,7 @@ public class ProfileImageRenderer extends Panel {
 		//EXTERNAL IMAGE
 		} else if (type == ProfileConstants.PICTURE_SETTING_URL) {
 			
-			String url = profile.getExternalImageUrl(userX, ProfileConstants.PROFILE_IMAGE_MAIN);
+			String url = profileLogic.getExternalImageUrl(userX, ProfileConstants.PROFILE_IMAGE_MAIN);
 			
 			//add uploaded image or default
 			if(url != null) {

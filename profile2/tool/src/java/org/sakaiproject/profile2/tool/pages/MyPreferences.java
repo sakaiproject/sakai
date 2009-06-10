@@ -22,11 +22,10 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-
-import org.sakaiproject.profile2.api.ProfileConstants;
-import org.sakaiproject.profile2.api.exception.ProfilePreferencesNotDefinedException;
-import org.sakaiproject.profile2.api.model.ProfilePreferences;
+import org.sakaiproject.profile2.exception.ProfilePreferencesNotDefinedException;
+import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.tool.components.EnablingCheckBox;
+import org.sakaiproject.profile2.util.ProfileConstants;
 
 
 public class MyPreferences extends BasePage{
@@ -42,11 +41,11 @@ public class MyPreferences extends BasePage{
 		final String userId = sakaiProxy.getCurrentUserId();
 
 		//get the preferences object for this user from the database
-		profilePreferences = profile.getPreferencesRecordForUser(userId);
+		profilePreferences = profileLogic.getPreferencesRecordForUser(userId);
 		
 		//if null, create one
 		if(profilePreferences == null) {
-			profilePreferences = profile.createDefaultPreferencesRecord(userId);
+			profilePreferences = profileLogic.createDefaultPreferencesRecord(userId);
 			//if its still null, throw exception
 			
 			if(profilePreferences == null) {
@@ -266,7 +265,7 @@ public class MyPreferences extends BasePage{
 					String twitterUsernameEntered = twitterUsername.getModelObjectAsString();
 					String twitterPasswordEntered = twitterPassword.getModelObjectAsString();
 
-					if(!profile.validateTwitterCredentials(twitterUsernameEntered, twitterPasswordEntered)) {
+					if(!profileLogic.validateTwitterCredentials(twitterUsernameEntered, twitterPasswordEntered)) {
 						formFeedback.setModel(new ResourceModel("error.twitter.details.invalid"));
 						formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));	
 						target.addComponent(formFeedback);
@@ -279,7 +278,7 @@ public class MyPreferences extends BasePage{
 				//note that the twitter password is encrypted before its saved and decrypted for display, automatically
 				
 				
-				if(profile.savePreferencesRecord(profilePreferences)) {
+				if(profileLogic.savePreferencesRecord(profilePreferences)) {
 					log.info("Saved ProfilePreferences for: " + profilePreferences.getUserUuid());
 					formFeedback.setModel(new ResourceModel("success.preferences.save.ok"));
 					formFeedback.add(new AttributeModifier("class", true, new Model("success")));
@@ -312,7 +311,7 @@ public class MyPreferences extends BasePage{
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		in.defaultReadObject();
 		log.debug("MyPreferences has been deserialized.");
-		profile = getProfile();
+		profileLogic = getProfileLogic();
 		sakaiProxy = getSakaiProxy();
 	}
 

@@ -8,8 +8,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
-
-import org.sakaiproject.profile2.api.ProfileConstants;
+import org.sakaiproject.profile2.util.ProfileConstants;
 
 public class CloseButton extends Panel{
 	

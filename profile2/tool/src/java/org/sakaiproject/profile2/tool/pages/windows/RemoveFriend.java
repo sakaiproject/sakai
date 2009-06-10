@@ -10,21 +10,20 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.sakaiproject.util.FormattedText;
-
-import org.sakaiproject.profile2.api.Profile;
-import org.sakaiproject.profile2.api.ProfileConstants;
-import org.sakaiproject.profile2.api.SakaiProxy;
+import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.tool.ProfileApplication;
 import org.sakaiproject.profile2.tool.components.FocusOnLoadBehaviour;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.models.FriendAction;
+import org.sakaiproject.profile2.util.ProfileConstants;
+import org.sakaiproject.util.FormattedText;
 
 public class RemoveFriend extends Panel {
 
 	private static final long serialVersionUID = 1L;
 	private transient SakaiProxy sakaiProxy;
-	private transient Profile profile;
+	private transient ProfileLogic profileLogic;
 
 	/*
 	 * userX is the current user
@@ -36,7 +35,7 @@ public class RemoveFriend extends Panel {
 
         //get API's
         sakaiProxy = ProfileApplication.get().getSakaiProxy();
-        profile = ProfileApplication.get().getProfile();
+        profileLogic = ProfileApplication.get().getProfileLogic();
         
         //get friendName
         final String friendName = FormattedText.processFormattedText(sakaiProxy.getUserDisplayName(userY), new StringBuffer());
@@ -48,7 +47,7 @@ public class RemoveFriend extends Panel {
 		window.setResizable(false);
 		
 		//is this user allowed to view this person's profile image?
-		boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(userY, userX, true);
+		boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(userY, userX, true);
 		
 		//image
 		add(new ProfileImageRenderer("image", userY, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
@@ -72,7 +71,7 @@ public class RemoveFriend extends Panel {
 				/* double checking */
 				
 				//must be friend in order to remove them
-				boolean friend = profile.isUserXFriendOfUserY(userX, userY);
+				boolean friend = profileLogic.isUserXFriendOfUserY(userX, userY);
 				
 				if(!friend) {
 					text.setModel(new StringResourceModel("error.friend.not.friend", null, new Object[]{ friendName } ));
@@ -85,7 +84,7 @@ public class RemoveFriend extends Panel {
 				
 				
 				//if ok, remove friend
-				if(profile.removeFriend(userX, userY)) {
+				if(profileLogic.removeFriend(userX, userY)) {
 					friendActionModel.setRemoved(true);
 					
 					//post event

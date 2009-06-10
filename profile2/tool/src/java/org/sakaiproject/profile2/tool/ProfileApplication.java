@@ -3,9 +3,8 @@ package org.sakaiproject.profile2.tool;
 
 import org.apache.wicket.Application;
 import org.apache.wicket.protocol.http.WebApplication;
-
-import org.sakaiproject.profile2.api.Profile;
-import org.sakaiproject.profile2.api.SakaiProxy;
+import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.tool.pages.errors.InternalErrorPage;
 import org.sakaiproject.profile2.tool.pages.errors.SessionExpiredPage;
 
@@ -13,7 +12,7 @@ import org.sakaiproject.profile2.tool.pages.errors.SessionExpiredPage;
 public class ProfileApplication extends WebApplication {    
     	
 	private transient SakaiProxy sakaiProxy;
-	private transient Profile profile;
+	private transient ProfileLogic profileLogic;
 
 	protected void init(){
 		
@@ -94,12 +93,12 @@ public class ProfileApplication extends WebApplication {
 	}
 	
 	//expose Profile API
-	public void setProfile(Profile profile) {
-		this.profile = profile;
+	public void setProfileLogic(ProfileLogic profileLogic) {
+		this.profileLogic = profileLogic;
 	}
 
-	public Profile getProfile() {
-		return profile;
+	public ProfileLogic getProfileLogic() {
+		return profileLogic;
 	}
 		
 

@@ -15,17 +15,17 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
-import org.sakaiproject.profile2.api.Profile;
-import org.sakaiproject.profile2.api.ProfileConstants;
+import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.tool.ProfileApplication;
 import org.sakaiproject.profile2.tool.models.UserProfile;
+import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
 public class MyInfoDisplay extends Panel {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(MyInfoDisplay.class);
-	private transient Profile profile;
+	private transient ProfileLogic profileLogic;
 	private int visibleFieldCount = 0;
 	private String birthday = ""; 
 	private String birthdayDisplay = "";
@@ -38,8 +38,8 @@ public class MyInfoDisplay extends Panel {
 		//this panel stuff
 		final Component thisPanel = this;
 		
-		//get Profile API
-		profile = ProfileApplication.get().getProfile();
+		//get ProfileLogic API
+		profileLogic = ProfileApplication.get().getProfileLogic();
 		
 		//get userId of this profile
 		String userId = userProfile.getUserId();
@@ -59,7 +59,7 @@ public class MyInfoDisplay extends Panel {
 			birthday = ProfileUtils.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT);
 			
 			//get privacy on display of birthday year and format accordingly
-			if(profile.isBirthYearVisible(userId)) {
+			if(profileLogic.isBirthYearVisible(userId)) {
 				birthdayDisplay = birthday;
 			} else {
 				birthdayDisplay = ProfileUtils.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT_HIDE_YEAR);
@@ -175,7 +175,7 @@ public class MyInfoDisplay extends Panel {
 		in.defaultReadObject();
 		log.debug("MyInfoDisplay has been deserialized.");
 		//re-init our transient objects
-		profile = ProfileApplication.get().getProfile();
+		profileLogic = ProfileApplication.get().getProfileLogic();
 	}
 	
 }

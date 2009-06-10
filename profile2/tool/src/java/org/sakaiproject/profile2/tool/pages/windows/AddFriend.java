@@ -10,22 +10,21 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.sakaiproject.util.FormattedText;
-
-import org.sakaiproject.profile2.api.Profile;
-import org.sakaiproject.profile2.api.ProfileConstants;
-import org.sakaiproject.profile2.api.SakaiProxy;
+import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.tool.ProfileApplication;
 import org.sakaiproject.profile2.tool.components.FocusOnLoadBehaviour;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.tool.pages.MyFriends;
+import org.sakaiproject.profile2.util.ProfileConstants;
+import org.sakaiproject.util.FormattedText;
 
 public class AddFriend extends Panel {
 
 	private static final long serialVersionUID = 1L;
 	private transient SakaiProxy sakaiProxy;
-	private transient Profile profile;
+	private transient ProfileLogic profileLogic;
 	
 	/*
 	 * userX is the current user
@@ -37,7 +36,7 @@ public class AddFriend extends Panel {
 
         //get API's
         sakaiProxy = ProfileApplication.get().getSakaiProxy();
-        profile = ProfileApplication.get().getProfile();
+        profileLogic = ProfileApplication.get().getProfileLogic();
         
         //get friendName
         final String friendName = FormattedText.processFormattedText(sakaiProxy.getUserDisplayName(userY), new StringBuffer());
@@ -49,7 +48,7 @@ public class AddFriend extends Panel {
 		window.setResizable(false);
 		
 		//is this user allowed to view this person's profile image?
-		boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(userY, userX, false);
+		boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(userY, userX, false);
 		
 		//image
 		add(new ProfileImageRenderer("image", userY, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
@@ -73,7 +72,7 @@ public class AddFriend extends Panel {
 				/* double checking */
 				
 				//friend?
-				if(profile.isUserXFriendOfUserY(userX, userY)) {
+				if(profileLogic.isUserXFriendOfUserY(userX, userY)) {
 					text.setModel(new StringResourceModel("error.friend.already.confirmed", null, new Object[]{ friendName } ));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", true, new Model("disabled")));
@@ -83,7 +82,7 @@ public class AddFriend extends Panel {
 				}
 				
 				//has a friend request already been made to this person?
-				if(profile.isFriendRequestPending(userX, userY)) {
+				if(profileLogic.isFriendRequestPending(userX, userY)) {
 					text.setModel(new StringResourceModel("error.friend.already.pending", null, new Object[]{ friendName } ));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", true, new Model("disabled")));
@@ -93,7 +92,7 @@ public class AddFriend extends Panel {
 				}
 				
 				//has a friend request been made from this person to the current user?
-				if(profile.isFriendRequestPending(userY, userX)) {
+				if(profileLogic.isFriendRequestPending(userY, userX)) {
 					text.setModel(new StringResourceModel("error.friend.already.pending", null, new Object[]{ friendName } ));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", true, new Model("disabled")));
@@ -103,14 +102,14 @@ public class AddFriend extends Panel {
 				}
 				
 				//if ok, request friend
-				if(profile.requestFriend(userX, userY)) {
+				if(profileLogic.requestFriend(userX, userY)) {
 					friendActionModel.setRequested(true);
 					
 					//post event
 					sakaiProxy.postEvent(ProfileConstants.EVENT_FRIEND_REQUEST, "/profile/"+userY, true);
 					
 					//if email is enabled for this message type, send email
-					if(profile.isEmailEnabledForThisMessageType(userY, ProfileConstants.EMAIL_NOTIFICATION_REQUEST)) {
+					if(profileLogic.isEmailEnabledForThisMessageType(userY, ProfileConstants.EMAIL_NOTIFICATION_REQUEST)) {
 						
 						//get some info
 				        final String currentUserName = sakaiProxy.getUserDisplayName(userX);
@@ -121,7 +120,7 @@ public class AddFriend extends Panel {
 				        final String url = sakaiProxy.getDirectUrlToUserProfile(userY, urlFor(MyFriends.class, null).toString());
 	
 				        //tinyUrl
-				        final String tinyUrl = profile.generateTinyUrl(url);
+				        final String tinyUrl = profileLogic.generateTinyUrl(url);
 				        
 						//subject
 						final String subject = new StringResourceModel("email.friend.request.subject", null, new Object[]{ currentUserName, serviceName } ).getObject().toString();

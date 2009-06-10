@@ -19,12 +19,12 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.sakaiproject.profile2.api.Profile;
-import org.sakaiproject.profile2.api.ProfileConstants;
-import org.sakaiproject.profile2.api.SakaiProxy;
-import org.sakaiproject.profile2.api.model.ProfileStatus;
+import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.model.ProfileStatus;
 import org.sakaiproject.profile2.tool.ProfileApplication;
 import org.sakaiproject.profile2.tool.models.UserProfile;
+import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
 public class MyStatusPanel extends Panel {
@@ -32,7 +32,7 @@ public class MyStatusPanel extends Panel {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(MyStatusPanel.class);
     private transient SakaiProxy sakaiProxy;
-    private transient Profile profile;
+    private transient ProfileLogic profileLogic;
     private transient ProfileStatus profileStatus;
     
     //get default text that fills the textField
@@ -46,8 +46,8 @@ public class MyStatusPanel extends Panel {
 		//get SakaiProxy API
 		sakaiProxy = ProfileApplication.get().getSakaiProxy();
 		
-		//get Profile API
-		profile = ProfileApplication.get().getProfile();
+		//get ProfileLogic API
+		profileLogic = ProfileApplication.get().getProfileLogic();
 				
 		//get info
 		String displayName = userProfile.getDisplayName();
@@ -58,7 +58,7 @@ public class MyStatusPanel extends Panel {
 		statusContainer.setOutputMarkupPlaceholderTag(true); //we need a placeholder for if we have no status
 		
 		//setup ProfileStatus object loaded with the current values from the DB for the page to use initially.
-		profileStatus = profile.getUserStatus(userId);
+		profileStatus = profileLogic.getUserStatus(userId);
 		
 		//if no status, initialise
 		if(profileStatus == null) {
@@ -78,7 +78,7 @@ public class MyStatusPanel extends Panel {
 			private String message = "";
 			
 			protected Object load() {
-				profileStatus = profile.getUserStatus(userId);
+				profileStatus = profileLogic.getUserStatus(userId);
 				message = profileStatus.getMessage(); //get from hibernate
 				if("".equals(message) || message == null){
 					log.warn("No status message for: " + userId);
@@ -96,7 +96,7 @@ public class MyStatusPanel extends Panel {
 			private String dateStr = "";
 			
 			protected Object load() {
-				date = profile.getUserStatusDate(userId);
+				date = profileLogic.getUserStatusDate(userId);
 				if(date == null) {
 					log.warn("No status date for: " + userId);
 				} else {
@@ -133,7 +133,7 @@ public class MyStatusPanel extends Panel {
 
 			public void onClick(AjaxRequestTarget target) {
 				//clear status, hide and repaint
-				if(profile.clearUserStatus(userId)) {
+				if(profileLogic.clearUserStatus(userId)) {
 					statusContainer.setVisible(false);
 					target.addComponent(statusContainer);
 				}
@@ -189,7 +189,7 @@ public class MyStatusPanel extends Panel {
 				}
 
 				//save status from userProfile
-				if(profile.setUserStatus(userId, statusMessage)) {
+				if(profileLogic.setUserStatus(userId, statusMessage)) {
 					log.info("Saved status for: " + userId);
 					
 					//post update event
@@ -220,8 +220,8 @@ public class MyStatusPanel extends Panel {
 
 	public void updateTwitter(String userId, String message) {
 		
-		if(profile.isTwitterIntegrationEnabledForUser(userId)) {
-			profile.sendMessageToTwitter(userId, message);
+		if(profileLogic.isTwitterIntegrationEnabledForUser(userId)) {
+			profileLogic.sendMessageToTwitter(userId, message);
 			
 			//post update event
 			sakaiProxy.postEvent(ProfileConstants.EVENT_TWITTER_UPDATE, "/profile/"+userId, true);
@@ -233,7 +233,7 @@ public class MyStatusPanel extends Panel {
 		in.defaultReadObject();
 		log.debug("MyStatusPanel has been deserialized");
 		//re-init our transient objects
-		profile = ProfileApplication.get().getProfile();
+		profileLogic = ProfileApplication.get().getProfileLogic();
 		sakaiProxy = ProfileApplication.get().getSakaiProxy();
 	}
 	

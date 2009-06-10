@@ -15,10 +15,8 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.GridView;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-
-import org.sakaiproject.profile2.api.Profile;
-import org.sakaiproject.profile2.api.ProfileConstants;
-import org.sakaiproject.profile2.api.SakaiProxy;
+import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.tool.ProfileApplication;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.FriendsFeedDataProvider;
@@ -27,6 +25,7 @@ import org.sakaiproject.profile2.tool.pages.MyProfile;
 import org.sakaiproject.profile2.tool.pages.MySearch;
 import org.sakaiproject.profile2.tool.pages.ViewFriends;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
+import org.sakaiproject.profile2.util.ProfileConstants;
 
 
 /*
@@ -41,8 +40,8 @@ public class FriendsFeed extends Panel {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(ChangeProfilePictureUrl.class);
-	private transient Profile profile;
-	private transient SakaiProxy sakaiProxy;
+    private transient SakaiProxy sakaiProxy;
+    private transient ProfileLogic profileLogic;
 	
 	public FriendsFeed(String id, final String ownerUserId, final String viewingUserId) {
 		super(id);
@@ -52,8 +51,8 @@ public class FriendsFeed extends Panel {
 		//get SakaiProxy
 		sakaiProxy = ProfileApplication.get().getSakaiProxy();
 		
-		//get Profile
-		profile = ProfileApplication.get().getProfile();
+		//get ProfileLogic
+		profileLogic = ProfileApplication.get().getProfileLogic();
 
 		//heading	
 		Label heading = new Label("heading");
@@ -104,7 +103,7 @@ public class FriendsFeed extends Panel {
 		    	if(ownerUserId.equals(viewingUserId)) {
 		    		friend = true; //viewing own list of confirmed fiends so must be a friend
 		    	} else {
-		    		friend = profile.isUserXFriendOfUserY(viewingUserId, friendId); //other person viewing, check if they are friends
+		    		friend = profileLogic.isUserXFriendOfUserY(viewingUserId, friendId); //other person viewing, check if they are friends
 		    	}
 	    		
 		    	//link to their profile
@@ -122,7 +121,7 @@ public class FriendsFeed extends Panel {
 				};
 				
 				//is profile image allowed to be viewed by this user/friend?
-				final boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(friendId, viewingUserId, friend);
+				final boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(friendId, viewingUserId, friend);
 				
 				/* IMAGE */
 				friendItem.add(new ProfileImageRenderer("friendPhoto", friendId, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
@@ -139,8 +138,8 @@ public class FriendsFeed extends Panel {
 		dataView.setColumns(3);
 		add(dataView);
 		
-		/* NUM FRIENDS LABEL (can't just use provider as it only ever returns 6, unless we modify it to return a slice somehow. */
-		final int numFriends = profile.countConfirmedFriendUserIdsForUser(ownerUserId);
+		/* NUM FRIENDS LABEL (can't just use provider as it only ever returns 6, unless we modify it to return a slice. */
+		final int numFriends = profileLogic.countConfirmedFriendUserIdsForUser(ownerUserId);
 		Label numFriendsLabel = new Label("numFriendsLabel");
 		add(numFriendsLabel);
 		
@@ -193,7 +192,7 @@ public class FriendsFeed extends Panel {
 		in.defaultReadObject();
 		log.debug("FriendsFeed has been deserialized.");
 		//re-init our transient objects
-		profile = ProfileApplication.get().getProfile();
+		profileLogic = ProfileApplication.get().getProfileLogic();
 		sakaiProxy = ProfileApplication.get().getSakaiProxy();
 	}
 	

@@ -20,12 +20,11 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
-import org.sakaiproject.profile2.api.Profile;
-import org.sakaiproject.profile2.api.ProfileConstants;
-import org.sakaiproject.profile2.api.SakaiProxy;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.tool.ProfileApplication;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.tool.models.UserProfile;
+import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
 public class MyInfoEdit extends Panel {
@@ -195,9 +194,6 @@ public class MyInfoEdit extends Panel {
 		
 		//get sakaiProxy, then get userId from sakaiProxy, then get sakaiperson for that userId
 		SakaiProxy sakaiProxy = ProfileApplication.get().getSakaiProxy();
-		
-		//get Profile API
-		Profile profile = ProfileApplication.get().getProfile();
 		
 		String userId = sakaiProxy.getCurrentUserId();
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);

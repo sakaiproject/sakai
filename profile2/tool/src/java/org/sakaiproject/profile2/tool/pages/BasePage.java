@@ -10,8 +10,8 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.profile2.api.Profile;
-import org.sakaiproject.profile2.api.SakaiProxy;
+import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.tool.ProfileApplication;
 import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.site.cover.SiteService;
@@ -22,18 +22,18 @@ public class BasePage extends WebPage implements IHeaderContributor {
 
 	private static final Logger log = Logger.getLogger(BasePage.class); 
 	protected transient SakaiProxy sakaiProxy;
-	protected transient Profile profile;
+	protected transient ProfileLogic profileLogic;
 	
 	public BasePage() {
 		//super();
 		
 		log.debug("BasePage()");
 		
-		//get sakaiProxy API
+		//get SakaiProxy API
 		sakaiProxy = getSakaiProxy();
 		
-		//get Profile API
-		profile = getProfile();
+		//get ProfileLogic API
+		profileLogic = getProfileLogic();
 		
 		//set Locale - all pages will inherit this.
 		setUserPreferredLocale();
@@ -230,8 +230,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		return ProfileApplication.get().getSakaiProxy();
 	}
 
-	public Profile getProfile() {
-		return ProfileApplication.get().getProfile();
+	public ProfileLogic getProfileLogic() {
+		return ProfileApplication.get().getProfileLogic();
 	}
 
 	

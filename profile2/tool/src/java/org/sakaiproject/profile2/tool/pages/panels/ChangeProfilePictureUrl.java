@@ -16,20 +16,19 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.validation.validator.UrlValidator;
-
-import org.sakaiproject.profile2.api.Profile;
-import org.sakaiproject.profile2.api.ProfileConstants;
-import org.sakaiproject.profile2.api.SakaiProxy;
+import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.tool.ProfileApplication;
 import org.sakaiproject.profile2.tool.components.CloseButton;
 import org.sakaiproject.profile2.tool.models.SimpleText;
 import org.sakaiproject.profile2.tool.pages.MyProfile;
+import org.sakaiproject.profile2.util.ProfileConstants;
 
 public class ChangeProfilePictureUrl extends Panel{
     
 	private static final long serialVersionUID = 1L;
     private transient SakaiProxy sakaiProxy;
-    private transient Profile profile;
+    private transient ProfileLogic profileLogic;
 	private static final Logger log = Logger.getLogger(ChangeProfilePictureUrl.class);
 
 	public ChangeProfilePictureUrl(String id) {  
@@ -40,8 +39,8 @@ public class ChangeProfilePictureUrl extends Panel{
 		//get SakaiProxy API
 		sakaiProxy = ProfileApplication.get().getSakaiProxy();
 		
-		//get Profile API
-		profile = ProfileApplication.get().getProfile();
+		//get ProfileLogic API
+		profileLogic = ProfileApplication.get().getProfileLogic();
 			
 		//get userId
 		final String userId = sakaiProxy.getCurrentUserId();
@@ -50,7 +49,7 @@ public class ChangeProfilePictureUrl extends Panel{
 		SimpleText simpleText = new SimpleText();
 		
 		//do they already have a URL that should be loaded in here?
-		String externalUrl = profile.getExternalImageUrl(userId, ProfileConstants.PROFILE_IMAGE_MAIN);
+		String externalUrl = profileLogic.getExternalImageUrl(userId, ProfileConstants.PROFILE_IMAGE_MAIN);
 		
 		if(externalUrl != null) {
 			simpleText.setText(externalUrl);
@@ -95,7 +94,7 @@ public class ChangeProfilePictureUrl extends Panel{
         		String url = simpleText.getText();
         		
         		//save it
-        		if(profile.saveExternalImage(userId, url, null)) {
+        		if(profileLogic.saveExternalImage(userId, url, null)) {
        		
 	        		//log it
 					log.info("User " + userId + " successfully changed profile picture by url.");
@@ -133,7 +132,7 @@ public class ChangeProfilePictureUrl extends Panel{
 		in.defaultReadObject();
 		log.debug("ChangeProfilePictureUrl has been deserialized.");
 		//re-init our transient objects
-		profile = ProfileApplication.get().getProfile();
+		profileLogic = ProfileApplication.get().getProfileLogic();
 		sakaiProxy = ProfileApplication.get().getSakaiProxy();
 	}
 	

@@ -12,18 +12,17 @@ import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.util.lang.Bytes;
-import org.sakaiproject.profile2.api.Profile;
-import org.sakaiproject.profile2.api.ProfileConstants;
-import org.sakaiproject.profile2.api.SakaiProxy;
+import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.tool.ProfileApplication;
 import org.sakaiproject.profile2.tool.components.CloseButton;
 import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import org.sakaiproject.profile2.tool.components.FeedbackLabel;
 import org.sakaiproject.profile2.tool.pages.MyProfile;
+import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
 public class ChangeProfilePictureUpload extends Panel{
@@ -31,8 +30,9 @@ public class ChangeProfilePictureUpload extends Panel{
 	private static final long serialVersionUID = 1L;
 	private FileUploadField uploadField;
     private transient SakaiProxy sakaiProxy;
-    private transient Profile profile;
-	private static final Logger log = Logger.getLogger(ChangeProfilePictureUpload.class);
+    private transient ProfileLogic profileLogic;
+
+    private static final Logger log = Logger.getLogger(ChangeProfilePictureUpload.class);
 
 	public ChangeProfilePictureUpload(String id) {  
         super(id);  
@@ -42,8 +42,8 @@ public class ChangeProfilePictureUpload extends Panel{
 		//get SakaiProxy API
 		sakaiProxy = ProfileApplication.get().getSakaiProxy();
 		
-		//get Profile API
-		profile = ProfileApplication.get().getProfile();
+		//get ProfileLogic API
+		profileLogic = ProfileApplication.get().getProfileLogic();
 		   
         //setup form	
 		Form form = new Form("form") {
@@ -115,7 +115,7 @@ public class ChangeProfilePictureUpload extends Panel{
 					 * SAVE IMAGE RESOURCE IDS
 					 */
 					//save
-					if(profile.addNewProfileImage(userId, mainResourceId, thumbnailResourceId)) {
+					if(profileLogic.addNewProfileImage(userId, mainResourceId, thumbnailResourceId)) {
 						
 						//log it
 						log.info("User " + userId + " successfully changed profile picture by upload.");
@@ -188,7 +188,7 @@ public class ChangeProfilePictureUpload extends Panel{
 		in.defaultReadObject();
 		log.debug("ChangeProfilePictureUpload has been deserialized.");
 		//re-init our transient objects
-		profile = ProfileApplication.get().getProfile();
+		profileLogic = ProfileApplication.get().getProfileLogic();
 		sakaiProxy = ProfileApplication.get().getSakaiProxy();
 	}
 

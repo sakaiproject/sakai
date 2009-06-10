@@ -21,13 +21,13 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
-import org.sakaiproject.profile2.api.ProfileConstants;
-import org.sakaiproject.profile2.api.exception.ProfilePrototypeNotDefinedException;
-import org.sakaiproject.profile2.api.model.ProfileStatus;
+import org.sakaiproject.profile2.exception.ProfilePrototypeNotDefinedException;
+import org.sakaiproject.profile2.model.ProfileStatus;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.tool.pages.panels.FriendsFeed;
 import org.sakaiproject.profile2.tool.pages.windows.AddFriend;
+import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
 
@@ -61,24 +61,24 @@ public class ViewProfile extends BasePage {
 		boolean friendRequestFromThisPerson = false;
 
 		//friend?
-		friend = profile.isUserXFriendOfUserY(userUuid, currentUserId);
+		friend = profileLogic.isUserXFriendOfUserY(userUuid, currentUserId);
 
 		//if not friend, has a friend request already been made to this person?
 		if(!friend) {
-			friendRequestToThisPerson = profile.isFriendRequestPending(currentUserId, userUuid);
+			friendRequestToThisPerson = profileLogic.isFriendRequestPending(currentUserId, userUuid);
 		}
 		
 		//if not friend and no friend request to this person, has a friend request been made from this person to the current user?
 		if(!friend && !friendRequestToThisPerson) {
-			friendRequestFromThisPerson = profile.isFriendRequestPending(userUuid, currentUserId);
+			friendRequestFromThisPerson = profileLogic.isFriendRequestPending(userUuid, currentUserId);
 		}
 		
 		
 		//is this user allowed to view this person's profile image?
-		boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(userUuid, currentUserId, friend);
+		boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(userUuid, currentUserId, friend);
 		
 		//is this user allowed to view this person's status?
-		boolean isStatusAllowed = profile.isUserXStatusVisibleByUserY(userUuid, currentUserId, friend);
+		boolean isStatusAllowed = profileLogic.isUserXStatusVisibleByUserY(userUuid, currentUserId, friend);
 		
 		
 		/* DEPRECATED via PRFL-24 when privacy was relaxed
@@ -115,7 +115,7 @@ public class ViewProfile extends BasePage {
 		statusContainer.setOutputMarkupId(true);
 		
 		//get status
-		profileStatus = profile.getUserStatus(userUuid);
+		profileStatus = profileLogic.getUserStatus(userUuid);
 		
 		//if no status, initialise
 		if(profileStatus == null) {
@@ -168,7 +168,7 @@ public class ViewProfile extends BasePage {
 		/* BASIC INFO */
 		
 		// privacy settings for basic info
-		boolean isBasicInfoAllowed = profile.isUserXBasicInfoVisibleByUserY(userUuid, currentUserId, friend);
+		boolean isBasicInfoAllowed = profileLogic.isUserXBasicInfoVisibleByUserY(userUuid, currentUserId, friend);
 
 		WebMarkupContainer basicInfoContainer = new WebMarkupContainer("mainSectionContainer_basic");
 		basicInfoContainer.setOutputMarkupId(true);
@@ -181,7 +181,7 @@ public class ViewProfile extends BasePage {
 		
 		if(dateOfBirth != null) {
 			
-			if(profile.isBirthYearVisible(userUuid)) {
+			if(profileLogic.isBirthYearVisible(userUuid)) {
 				birthday = ProfileUtils.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT);
 			} else {
 				birthday = ProfileUtils.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT_HIDE_YEAR);
@@ -228,7 +228,7 @@ public class ViewProfile extends BasePage {
 		/* CONTACT INFO */
 		
 		// privacy settings for contact info
-		boolean isContactInfoAllowed = profile.isUserXContactInfoVisibleByUserY(userUuid, currentUserId, friend);
+		boolean isContactInfoAllowed = profileLogic.isUserXContactInfoVisibleByUserY(userUuid, currentUserId, friend);
 
 		WebMarkupContainer contactInfoContainer = new WebMarkupContainer("mainSectionContainer_contact");
 		contactInfoContainer.setOutputMarkupId(true);
@@ -425,7 +425,7 @@ public class ViewProfile extends BasePage {
 		/* PERSONAL INFO */
 		
 		// privacy settings for basic info
-		boolean isPersonalInfoAllowed = profile.isUserXPersonalInfoVisibleByUserY(userUuid, currentUserId, friend);
+		boolean isPersonalInfoAllowed = profileLogic.isUserXPersonalInfoVisibleByUserY(userUuid, currentUserId, friend);
 
 		WebMarkupContainer personalInfoContainer = new WebMarkupContainer("mainSectionContainer_personal");
 		personalInfoContainer.setOutputMarkupId(true);
@@ -584,7 +584,7 @@ public class ViewProfile extends BasePage {
 		
 		/* FRIEND FEED PANEL */
 		//friends feed panel
-		boolean isFriendsListVisible = profile.isUserXFriendsListVisibleByUserY(userUuid, currentUserId, friend);
+		boolean isFriendsListVisible = profileLogic.isUserXFriendsListVisibleByUserY(userUuid, currentUserId, friend);
 		
 		Panel friendsFeed;
 		if(isFriendsListVisible) {
@@ -613,7 +613,7 @@ public class ViewProfile extends BasePage {
 		in.defaultReadObject();
 		log.debug("ViewProfile has been deserialized.");
 		//re-init our transient objects
-		profile = getProfile();
+		profileLogic = getProfileLogic();
 		sakaiProxy = getSakaiProxy();
 	}
 	

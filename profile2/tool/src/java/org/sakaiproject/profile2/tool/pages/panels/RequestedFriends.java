@@ -19,9 +19,8 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.sakaiproject.profile2.api.Profile;
-import org.sakaiproject.profile2.api.ProfileConstants;
-import org.sakaiproject.profile2.api.SakaiProxy;
+import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.tool.ProfileApplication;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.RequestedFriendsDataProvider;
@@ -30,6 +29,7 @@ import org.sakaiproject.profile2.tool.pages.MyFriends;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
 import org.sakaiproject.profile2.tool.pages.windows.ConfirmFriend;
 import org.sakaiproject.profile2.tool.pages.windows.IgnoreFriend;
+import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
 public class RequestedFriends extends Panel {
@@ -37,7 +37,7 @@ public class RequestedFriends extends Panel {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(RequestedFriends.class);
 	private transient SakaiProxy sakaiProxy;
-	private transient Profile profile; 
+	private transient ProfileLogic profileLogic; 
 	private int numRequestedFriends = 0;
 	
 	public RequestedFriends(final String id, final MyFriends parent, final String userId) {
@@ -48,8 +48,8 @@ public class RequestedFriends extends Panel {
 		//get SakaiProxy
 		sakaiProxy = ProfileApplication.get().getSakaiProxy();
 		
-		//get Profile
-		profile = ProfileApplication.get().getProfile();
+		//get ProfileLogic
+		profileLogic = ProfileApplication.get().getProfileLogic();
 		
 		//setup model to store the actions in the modal windows
 		final FriendAction friendActionModel = new FriendAction();
@@ -93,7 +93,7 @@ public class RequestedFriends extends Panel {
 		    	String displayName = sakaiProxy.getUserDisplayName(friendId);
 		    	
 		    	//is this user allowed to view this person's profile image?
-				boolean isProfileImageAllowed = profile.isUserXProfileImageVisibleByUserY(friendId, userId, false);
+				boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(friendId, userId, false);
 				
 				//image
 				item.add(new ProfileImageRenderer("result-photo", friendId, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
@@ -112,14 +112,14 @@ public class RequestedFriends extends Panel {
 		    	
 		    	
 		    	//is status allowed to be viewed by this user?
-				final boolean isProfileStatusAllowed = profile.isUserXStatusVisibleByUserY(friendId, userId, false);
+				final boolean isProfileStatusAllowed = profileLogic.isUserXStatusVisibleByUserY(friendId, userId, false);
 				
 				Label statusMsgLabel = new Label("result-statusMsg");
 				Label statusDateLabel = new Label("result-statusDate");
 				
 				if(isProfileStatusAllowed) {
-					String profileStatusMessage = profile.getUserStatusMessage(friendId);
-					Date profileStatusDate = profile.getUserStatusDate(friendId);
+					String profileStatusMessage = profileLogic.getUserStatusMessage(friendId);
+					Date profileStatusDate = profileLogic.getUserStatusDate(friendId);
 					if(profileStatusMessage == null) {
 						statusMsgLabel.setVisible(false);
 						statusDateLabel.setVisible(false);
@@ -269,7 +269,7 @@ public class RequestedFriends extends Panel {
 		in.defaultReadObject();
 		log.debug("RequestedFriends has been deserialized");
 		//re-init our transient objects
-		profile = ProfileApplication.get().getProfile();
+		profileLogic = ProfileApplication.get().getProfileLogic();
 		sakaiProxy = ProfileApplication.get().getSakaiProxy();
 	}
 	
