@@ -635,8 +635,8 @@ public class PodcastServiceImpl implements PodcastService {
 		ContentResourceEdit crEdit = null;
 
 		try {
+			enablePodcastSecurityAdvisor();
 			crEdit = contentHostingService.editResource(resourceId);
-
 		} 
 		catch (TypeException e) {
 			LOG.error("TypeException while attempting to pull resource: "
@@ -646,6 +646,9 @@ public class PodcastServiceImpl implements PodcastService {
 		catch (InUseException e) {
 			// Weirdness, should not be in use
 			return null;
+		}
+		finally{
+			SecurityService.clearAdvisors();
 		}
 
 		return crEdit;
