@@ -1,12 +1,9 @@
-package org.sakaiproject.profile2.impl;
+package org.sakaiproject.profile2.service;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-
-import org.sakaiproject.profile2.api.Profile;
-import org.sakaiproject.profile2.api.ProfilePreferencesService;
-import org.sakaiproject.profile2.api.SakaiProxy;
-import org.sakaiproject.profile2.api.model.ProfilePreferences;
+import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.model.ProfilePreferences;
 
 /**
  * <p>This is the implementation of {@link ProfilePreferencesService}; see that interface for usage details.

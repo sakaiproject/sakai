@@ -1,4 +1,4 @@
-package org.sakaiproject.profile2.logic;
+package org.sakaiproject.profile2.service;
 
 import java.util.List;
 

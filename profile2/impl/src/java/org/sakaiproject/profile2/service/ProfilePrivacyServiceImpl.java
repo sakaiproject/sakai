@@ -1,12 +1,9 @@
-package org.sakaiproject.profile2.impl;
+package org.sakaiproject.profile2.service;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-
-import org.sakaiproject.profile2.api.Profile;
-import org.sakaiproject.profile2.api.ProfilePrivacyService;
-import org.sakaiproject.profile2.api.SakaiProxy;
-import org.sakaiproject.profile2.api.model.ProfilePrivacy;
+import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.model.ProfilePrivacy;
 
 /**
  * <p>This is the implementation of {@link ProfilePrivacyService}; see that interface for usage details.

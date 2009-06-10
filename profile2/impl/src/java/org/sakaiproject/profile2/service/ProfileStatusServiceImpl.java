@@ -1,14 +1,12 @@
-package org.sakaiproject.profile2.impl;
+package org.sakaiproject.profile2.service;
 
 import java.util.Date;
 
 import org.apache.log4j.Logger;
-import org.sakaiproject.profile2.api.Profile;
-import org.sakaiproject.profile2.api.ProfileConstants;
-import org.sakaiproject.profile2.api.ProfileStatusService;
-import org.sakaiproject.profile2.api.SakaiProxy;
-import org.sakaiproject.profile2.api.model.ProfilePrivacy;
-import org.sakaiproject.profile2.api.model.ProfileStatus;
+import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.model.ProfilePrivacy;
+import org.sakaiproject.profile2.model.ProfileStatus;
+import org.sakaiproject.profile2.util.ProfileConstants;
 
 /**
  * <p>This is the implementation of {@link ProfileStatusService}; see that interface for usage details.

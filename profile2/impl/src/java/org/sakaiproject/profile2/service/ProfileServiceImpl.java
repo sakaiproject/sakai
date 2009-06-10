@@ -1,4 +1,4 @@
-package org.sakaiproject.profile2.impl;
+package org.sakaiproject.profile2.service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,19 +6,16 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
-
-import org.sakaiproject.profile2.api.Profile;
-import org.sakaiproject.profile2.api.ProfileConstants;
-import org.sakaiproject.profile2.api.ProfileService;
-import org.sakaiproject.profile2.api.SakaiProxy;
-import org.sakaiproject.profile2.api.entity.model.Connection;
-import org.sakaiproject.profile2.api.entity.model.UserProfile;
-import org.sakaiproject.profile2.api.exception.ProfileNotDefinedException;
-import org.sakaiproject.profile2.api.model.ProfilePreferences;
-import org.sakaiproject.profile2.api.model.ProfilePrivacy;
-import org.sakaiproject.profile2.api.model.ProfileStatus;
-import org.sakaiproject.profile2.api.model.ResourceWrapper;
+import org.sakaiproject.profile2.entity.model.Connection;
+import org.sakaiproject.profile2.entity.model.UserProfile;
+import org.sakaiproject.profile2.exception.ProfileNotDefinedException;
+import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.model.ProfilePreferences;
+import org.sakaiproject.profile2.model.ProfilePrivacy;
+import org.sakaiproject.profile2.model.ProfileStatus;
+import org.sakaiproject.profile2.model.ResourceWrapper;
 import org.sakaiproject.profile2.util.Messages;
+import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
 /**
