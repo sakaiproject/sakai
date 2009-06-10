@@ -30,7 +30,7 @@ public class ProfilePrivacyServiceImpl implements ProfilePrivacyService {
 		
 		//check auth
 		if(sakaiProxy.getCurrentUserId() == null) {
-			throw new SecurityException("You must be logged in to make a request for a user's privacy record.");
+			throw new SecurityException("Must be logged in.");
 		}
 		
 		//convert userId into uuid

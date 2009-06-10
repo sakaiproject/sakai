@@ -31,7 +31,7 @@ public class ProfilePreferencesServiceImpl implements ProfilePreferencesService 
 		//check auth and get currentUserUuid
 		String currentUserUuid = sakaiProxy.getCurrentUserId();
 		if(currentUserUuid == null) {
-			throw new SecurityException("You must be logged in to make a request for a user's preferences record.");
+			throw new SecurityException("Must be logged in.");
 		}
 		
 		//convert userId into uuid

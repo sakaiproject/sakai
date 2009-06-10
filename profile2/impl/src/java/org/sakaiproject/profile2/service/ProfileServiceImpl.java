@@ -45,7 +45,7 @@ public class ProfileServiceImpl implements ProfileService {
 		//check auth and get currentUserUuid
 		String currentUserUuid = sakaiProxy.getCurrentUserId();
 		if(currentUserUuid == null) {
-			throw new SecurityException("You must be logged in to make a request for a user's profile.");
+			throw new SecurityException("Must be logged in.");
 		}
 		
 		//convert userId into uuid
