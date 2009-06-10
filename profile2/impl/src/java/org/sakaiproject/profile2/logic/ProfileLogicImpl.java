@@ -1,4 +1,4 @@
-package org.sakaiproject.profile2.impl;
+package org.sakaiproject.profile2.logic;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -19,17 +19,15 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
-import org.sakaiproject.profile2.api.Profile;
-import org.sakaiproject.profile2.api.ProfileConstants;
-import org.sakaiproject.profile2.api.SakaiProxy;
-import org.sakaiproject.profile2.api.model.ProfileFriend;
-import org.sakaiproject.profile2.api.model.ProfileImage;
-import org.sakaiproject.profile2.api.model.ProfileImageExternal;
-import org.sakaiproject.profile2.api.model.ProfilePreferences;
-import org.sakaiproject.profile2.api.model.ProfilePrivacy;
-import org.sakaiproject.profile2.api.model.ProfileStatus;
-import org.sakaiproject.profile2.api.model.ResourceWrapper;
-import org.sakaiproject.profile2.api.model.SearchResult;
+import org.sakaiproject.profile2.model.ProfileFriend;
+import org.sakaiproject.profile2.model.ProfileImage;
+import org.sakaiproject.profile2.model.ProfileImageExternal;
+import org.sakaiproject.profile2.model.ProfilePreferences;
+import org.sakaiproject.profile2.model.ProfilePrivacy;
+import org.sakaiproject.profile2.model.ProfileStatus;
+import org.sakaiproject.profile2.model.ResourceWrapper;
+import org.sakaiproject.profile2.model.SearchResult;
+import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.tinyurl.api.TinyUrlService;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -45,9 +43,9 @@ import twitter4j.Twitter;
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
  */
-public class ProfileImpl extends HibernateDaoSupport implements Profile {
+public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogic {
 
-	private static final Logger log = Logger.getLogger(ProfileImpl.class);
+	private static final Logger log = Logger.getLogger(ProfileLogicImpl.class);
 
 	// Hibernate query constants
 	private static final String QUERY_GET_FRIEND_REQUESTS_FOR_USER = "getFriendRequestsForUser"; //$NON-NLS-1$

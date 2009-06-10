@@ -1,4 +1,4 @@
-package org.sakaiproject.profile2.impl.entity;
+package org.sakaiproject.profile2.entity;
 
 import java.util.List;
 import java.util.Map;
@@ -13,11 +13,9 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
+import org.sakaiproject.profile2.model.ProfilePrivacy;
+import org.sakaiproject.profile2.service.ProfilePrivacyService;
 import org.sakaiproject.tool.api.SessionManager;
-
-import org.sakaiproject.profile2.api.ProfilePrivacyService;
-import org.sakaiproject.profile2.api.entity.ProfilePrivacyEntityProvider;
-import org.sakaiproject.profile2.api.model.ProfilePrivacy;
 
 public class ProfilePrivacyEntityProviderImpl implements ProfilePrivacyEntityProvider, CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
 
@@ -114,7 +112,7 @@ public class ProfilePrivacyEntityProviderImpl implements ProfilePrivacyEntityPro
 	}
 	
 	private ProfilePrivacyService privacyService;
-	public void setProfilePrivacyService(ProfilePrivacyService privacyService) {
+	public void setPrivacyService(ProfilePrivacyService privacyService) {
 		this.privacyService = privacyService;
 	}
 	

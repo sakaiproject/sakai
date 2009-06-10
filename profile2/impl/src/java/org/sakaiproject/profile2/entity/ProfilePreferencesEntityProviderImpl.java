@@ -1,4 +1,4 @@
-package org.sakaiproject.profile2.impl.entity;
+package org.sakaiproject.profile2.entity;
 
 import java.util.List;
 import java.util.Map;
@@ -13,11 +13,9 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
+import org.sakaiproject.profile2.model.ProfilePreferences;
+import org.sakaiproject.profile2.service.ProfilePreferencesService;
 import org.sakaiproject.tool.api.SessionManager;
-
-import org.sakaiproject.profile2.api.ProfilePreferencesService;
-import org.sakaiproject.profile2.api.entity.ProfilePreferencesEntityProvider;
-import org.sakaiproject.profile2.api.model.ProfilePreferences;
 
 public class ProfilePreferencesEntityProviderImpl implements ProfilePreferencesEntityProvider, CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
 	
@@ -114,7 +112,7 @@ public class ProfilePreferencesEntityProviderImpl implements ProfilePreferencesE
 	}
 	
 	private ProfilePreferencesService preferencesService;
-	public void setProfilePreferencesService(ProfilePreferencesService preferencesService) {
+	public void setPreferencesService(ProfilePreferencesService preferencesService) {
 		this.preferencesService = preferencesService;
 	}
 	

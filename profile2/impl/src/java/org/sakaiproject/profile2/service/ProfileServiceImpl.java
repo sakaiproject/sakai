@@ -9,6 +9,7 @@ import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.entity.model.Connection;
 import org.sakaiproject.profile2.entity.model.UserProfile;
 import org.sakaiproject.profile2.exception.ProfileNotDefinedException;
+import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
@@ -84,23 +85,23 @@ public class ProfileServiceImpl implements ProfileService {
 		}
 		
 		//get privacy record
-		ProfilePrivacy privacy = profile.getPrivacyRecordForUser(userUuid);
+		ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(userUuid);
 		
 		//get preferences record
-		ProfilePreferences preferences = profile.getPreferencesRecordForUser(userUuid);
+		ProfilePreferences preferences = profileLogic.getPreferencesRecordForUser(userUuid);
 		
 		//check friend status
-		boolean friend = profile.isUserXFriendOfUserY(userUuid, currentUserUuid);
+		boolean friend = profileLogic.isUserXFriendOfUserY(userUuid, currentUserUuid);
 		
 		//unset basic info if not allowed
-		if(!profile.isUserXBasicInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+		if(!profileLogic.isUserXBasicInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
 			log.debug("basic info not allowed");
 			userProfile.setNickname(null);
 			userProfile.setDateOfBirth(null);
 		}
 		
 		//unset contact info if not allowed
-		if(!profile.isUserXContactInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+		if(!profileLogic.isUserXContactInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
 			log.debug("contact info not allowed");
 			userProfile.setEmail(null);
 			userProfile.setHomepage(null);
@@ -111,7 +112,7 @@ public class ProfileServiceImpl implements ProfileService {
 		}
 		
 		//unset contact info if not allowed
-		if(!profile.isUserXAcademicInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+		if(!profileLogic.isUserXAcademicInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
 			log.debug("academic info not allowed");
 			userProfile.setPosition(null);
 			userProfile.setDepartment(null);
@@ -122,7 +123,7 @@ public class ProfileServiceImpl implements ProfileService {
 		}
 		
 		//unset personal info if not allowed
-		if(!profile.isUserXPersonalInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+		if(!profileLogic.isUserXPersonalInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
 			log.debug("personal info not allowed");
 			userProfile.setFavouriteBooks(null);
 			userProfile.setFavouriteTvShows(null);
@@ -132,7 +133,7 @@ public class ProfileServiceImpl implements ProfileService {
 		}
 		
 		//profile status
-		if(profile.isUserXStatusVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+		if(profileLogic.isUserXStatusVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
 			addStatusToProfile(userProfile);
 		}
 		
@@ -171,10 +172,10 @@ public class ProfileServiceImpl implements ProfileService {
 		//ProfilePrivacy profilePrivacy = profile.getPrivacyRecordForUser(userUuid);
 		
 		//check friend status
-		boolean friend = profile.isUserXFriendOfUserY(userUuid, currentUserUuid);
+		boolean friend = profileLogic.isUserXFriendOfUserY(userUuid, currentUserUuid);
 		
 		//add status if allowed
-		if(profile.isUserXStatusVisibleByUserY(userUuid, currentUserUuid, friend)) {
+		if(profileLogic.isUserXStatusVisibleByUserY(userUuid, currentUserUuid, friend)) {
 			addStatusToProfile(userProfile);
 		}
 		
@@ -213,13 +214,13 @@ public class ProfileServiceImpl implements ProfileService {
 		UserProfile userProfile = getPrototype(userUuid);
 		
 		//get privacy record for the user
-		ProfilePrivacy privacy = profile.getPrivacyRecordForUser(userUuid);
+		ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(userUuid);
 		
 		//check friend status
-		boolean friend = profile.isUserXFriendOfUserY(userUuid, currentUserUuid);
+		boolean friend = profileLogic.isUserXFriendOfUserY(userUuid, currentUserUuid);
 		
 		//check if the academic fields are allowed to be viewed by this user.
-		if(profile.isUserXAcademicInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+		if(profileLogic.isUserXAcademicInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
 			addAcademicInfoToProfile(userProfile, sakaiPerson);
 		}
 		
@@ -268,24 +269,24 @@ public class ProfileServiceImpl implements ProfileService {
 		}
 		
 		//check friend status
-		boolean friend = profile.isUserXFriendOfUserY(userUuid, currentUserUuid);
+		boolean friend = profileLogic.isUserXFriendOfUserY(userUuid, currentUserUuid);
 		
 		//check if photo is allowed, if not return default
-		if(!profile.isUserXProfileImageVisibleByUserY(userUuid, currentUserUuid, friend)) {
+		if(!profileLogic.isUserXProfileImageVisibleByUserY(userUuid, currentUserUuid, friend)) {
 			return getDefaultImage();
 		}
 		
 		//check environment configuration (will be url or upload) and get image accordingly
 		//fall back by default. there is no real use case for not doing it.
 		if(sakaiProxy.getProfilePictureType() == ProfileConstants.PICTURE_SETTING_URL) {
-			String url = profile.getExternalImageUrl(userUuid, imageType);
+			String url = profileLogic.getExternalImageUrl(userUuid, imageType);
 			if(url == null) {
 				return getDefaultImage();
 			} else {
-				return profile.getURLResourceAsBytes(url);
+				return profileLogic.getURLResourceAsBytes(url);
 			}
 		} else {
-			resource = profile.getCurrentProfileImageForUserWrapped(userUuid, imageType);
+			resource = profileLogic.getCurrentProfileImageForUserWrapped(userUuid, imageType);
 			if(resource == null || resource.getBytes() == null) {
 				return getDefaultImage();
 			} else {
@@ -313,12 +314,12 @@ public class ProfileServiceImpl implements ProfileService {
 		}
 				
 		//check friend status
-		boolean friend = profile.isUserXFriendOfUserY(userUuid, currentUserUuid);
+		boolean friend = profileLogic.isUserXFriendOfUserY(userUuid, currentUserUuid);
 		
 		List<String> connectionIds = new ArrayList<String>();
 		
-		if(profile.isUserXFriendsListVisibleByUserY(userUuid, currentUserUuid, friend)) {
-			connectionIds = profile.getConfirmedFriendUserIdsForUser(userUuid);
+		if(profileLogic.isUserXFriendsListVisibleByUserY(userUuid, currentUserUuid, friend)) {
+			connectionIds = profileLogic.getConfirmedFriendUserIdsForUser(userUuid);
 		}
 		return connectionIds;
 	}
@@ -750,7 +751,7 @@ public class ProfileServiceImpl implements ProfileService {
 	 * @return
 	 */
 	private ResourceWrapper getDefaultImage() {
-		return profile.getURLResourceAsBytes(profile.getUnavailableImageURL());
+		return profileLogic.getURLResourceAsBytes(profileLogic.getUnavailableImageURL());
 	}
 	
 	
@@ -763,7 +764,7 @@ public class ProfileServiceImpl implements ProfileService {
 	 * @param userProfile	- UserProfile object for the person
 	 */
 	private void addStatusToProfile(UserProfile userProfile) {
-		ProfileStatus profileStatus = profile.getUserStatus(userProfile.getUserUuid());
+		ProfileStatus profileStatus = profileLogic.getUserStatus(userProfile.getUserUuid());
 		if(profileStatus != null) {
 			userProfile.setStatusMessage(profileStatus.getMessage());
 			userProfile.setStatusDate(profileStatus.getDateAdded());
@@ -940,9 +941,9 @@ public class ProfileServiceImpl implements ProfileService {
 		this.sakaiProxy = sakaiProxy;
 	}
 	
-	private Profile profile;
-	public void setProfile(Profile profile) {
-		this.profile = profile;
+	private ProfileLogic profileLogic;
+	public void setProfileLogic(ProfileLogic profileLogic) {
+		this.profileLogic = profileLogic;
 	}
 
 	

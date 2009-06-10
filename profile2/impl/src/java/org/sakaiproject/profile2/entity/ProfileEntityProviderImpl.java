@@ -1,4 +1,4 @@
-package org.sakaiproject.profile2.impl.entity;
+package org.sakaiproject.profile2.entity;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -20,13 +20,11 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
-
-import org.sakaiproject.profile2.api.ProfileConstants;
-import org.sakaiproject.profile2.api.ProfileService;
-import org.sakaiproject.profile2.api.entity.ProfileEntityProvider;
-import org.sakaiproject.profile2.api.entity.model.Connection;
-import org.sakaiproject.profile2.api.entity.model.UserProfile;
-import org.sakaiproject.profile2.api.model.ResourceWrapper;
+import org.sakaiproject.profile2.entity.model.Connection;
+import org.sakaiproject.profile2.entity.model.UserProfile;
+import org.sakaiproject.profile2.model.ResourceWrapper;
+import org.sakaiproject.profile2.service.ProfileService;
+import org.sakaiproject.profile2.util.ProfileConstants;
 
 public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
 

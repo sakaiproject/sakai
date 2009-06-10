@@ -2,6 +2,7 @@ package org.sakaiproject.profile2.service;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 
@@ -40,7 +41,7 @@ public class ProfilePrivacyServiceImpl implements ProfilePrivacyService {
 		}
 		
 		//get record or default if none.
-		ProfilePrivacy privacy = profile.getPrivacyRecordForUser(userUuid);
+		ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(userUuid);
 		if(privacy == null) {
 			return getPrototype(userUuid);
 		}
@@ -155,7 +156,7 @@ public class ProfilePrivacyServiceImpl implements ProfilePrivacyService {
 		}
 		
 		//check if we have a persisted object already
-		if(profile.getPrivacyRecordForUser(userUuid) == null) {
+		if(profileLogic.getPrivacyRecordForUser(userUuid) == null) {
 			return false;
 		}
 		return true;
@@ -177,7 +178,7 @@ public class ProfilePrivacyServiceImpl implements ProfilePrivacyService {
 
 		//TODO twitter updates if activated.
 		
-		if(profile.savePrivacyRecord(obj)) {
+		if(profileLogic.savePrivacyRecord(obj)) {
 			return true;
 		} 
 		return false;
@@ -191,7 +192,7 @@ public class ProfilePrivacyServiceImpl implements ProfilePrivacyService {
 	 */
 	private ProfilePrivacy getPrototype(String userId) {
 		String userUuid = sakaiProxy.getUuidForUserId(userId);
-		return profile.getDefaultPrivacyRecord(userUuid);
+		return profileLogic.getDefaultPrivacyRecord(userUuid);
 	}
 	
 	
@@ -201,9 +202,9 @@ public class ProfilePrivacyServiceImpl implements ProfilePrivacyService {
 		this.sakaiProxy = sakaiProxy;
 	}
 	
-	private Profile profile;
-	public void setProfile(Profile profile) {
-		this.profile = profile;
+	private ProfileLogic profileLogic;
+	public void setProfileLogic(ProfileLogic profileLogic) {
+		this.profileLogic = profileLogic;
 	}
 	
 

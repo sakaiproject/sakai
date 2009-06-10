@@ -3,6 +3,7 @@ package org.sakaiproject.profile2.service;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
+import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
@@ -44,22 +45,22 @@ public class ProfileStatusServiceImpl implements ProfileStatusService {
 		}
 		
 		//get record for the user, will be null if none
-		ProfileStatus status = profile.getUserStatus(userUuid);
+		ProfileStatus status = profileLogic.getUserStatus(userUuid);
 		if(status == null) {
 			return null;
 		}
 		
 		//get privacy on the status (if no privacy, return based on default)
-		ProfilePrivacy privacy = profile.getPrivacyRecordForUser(userUuid);
+		ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(userUuid);
 		if (privacy == null) {
 			return (ProfileConstants.DEFAULT_MYSTATUS_VISIBILITY ? status : null);
 		}
 		
 		//check if friends
-		boolean friend = profile.isUserXFriendOfUserY(userUuid, currentUserUuid);
+		boolean friend = profileLogic.isUserXFriendOfUserY(userUuid, currentUserUuid);
 		
 		//now check if allowed, return if ok, null if not
-		return (profile.isUserXStatusVisibleByUserY(userUuid, privacy, currentUserUuid, friend) ? status : null);
+		return (profileLogic.isUserXStatusVisibleByUserY(userUuid, privacy, currentUserUuid, friend) ? status : null);
 		
 	}
 	
@@ -132,7 +133,7 @@ public class ProfileStatusServiceImpl implements ProfileStatusService {
 		}
 		
 		//check if we have a persisted object already
-		if(profile.getUserStatus(userUuid) == null) {
+		if(profileLogic.getUserStatus(userUuid) == null) {
 			return false;
 		}
 		return true;
@@ -147,7 +148,7 @@ public class ProfileStatusServiceImpl implements ProfileStatusService {
 	 */
 	private boolean persistProfileStatus(ProfileStatus obj) {
 
-		if(profile.setUserStatus(obj)) {
+		if(profileLogic.setUserStatus(obj)) {
 			return true;
 		} 
 		return false;
@@ -160,9 +161,9 @@ public class ProfileStatusServiceImpl implements ProfileStatusService {
 		this.sakaiProxy = sakaiProxy;
 	}
 	
-	private Profile profile;
-	public void setProfile(Profile profile) {
-		this.profile = profile;
+	private ProfileLogic profileLogic;
+	public void setProfileLogic(ProfileLogic profileLogic) {
+		this.profileLogic = profileLogic;
 	}
 	
 

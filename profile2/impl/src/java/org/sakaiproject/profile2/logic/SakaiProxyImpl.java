@@ -1,4 +1,4 @@
-package org.sakaiproject.profile2.impl;
+package org.sakaiproject.profile2.logic;
 
 
 import java.net.URLEncoder;
@@ -25,9 +25,8 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.profile2.api.ProfileConstants;
-import org.sakaiproject.profile2.api.SakaiProxy;
-import org.sakaiproject.profile2.api.model.ResourceWrapper;
+import org.sakaiproject.profile2.model.ResourceWrapper;
+import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;

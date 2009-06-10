@@ -1,4 +1,4 @@
-package org.sakaiproject.profile2.impl.entity;
+package org.sakaiproject.profile2.entity;
 
 import java.util.List;
 import java.util.Map;
@@ -13,10 +13,8 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
-import org.sakaiproject.profile2.api.ProfileStatusService;
-import org.sakaiproject.profile2.api.entity.ProfileStatusEntityProvider;
-import org.sakaiproject.profile2.api.model.ProfilePreferences;
-import org.sakaiproject.profile2.api.model.ProfileStatus;
+import org.sakaiproject.profile2.model.ProfileStatus;
+import org.sakaiproject.profile2.service.ProfileStatusService;
 import org.sakaiproject.tool.api.SessionManager;
 
 public class ProfileStatusEntityProviderImpl implements ProfileStatusEntityProvider, CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
@@ -111,7 +109,7 @@ public class ProfileStatusEntityProviderImpl implements ProfileStatusEntityProvi
 	}
 	
 	private ProfileStatusService statusService;
-	public void setProfileStatusService(ProfileStatusService statusService) {
+	public void setStatusService(ProfileStatusService statusService) {
 		this.statusService = statusService;
 	}
 	

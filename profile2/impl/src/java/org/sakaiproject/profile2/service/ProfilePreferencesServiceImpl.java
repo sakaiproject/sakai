@@ -2,6 +2,7 @@ package org.sakaiproject.profile2.service;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 
@@ -41,7 +42,7 @@ public class ProfilePreferencesServiceImpl implements ProfilePreferencesService 
 		}
 		
 		//get record or default if none.
-		ProfilePreferences prefs = profile.getPreferencesRecordForUser(userUuid);
+		ProfilePreferences prefs = profileLogic.getPreferencesRecordForUser(userUuid);
 		if(prefs == null) {
 			return getPrototype(userUuid);
 		}
@@ -82,8 +83,8 @@ public class ProfilePreferencesServiceImpl implements ProfilePreferencesService 
 		}
 		
 		//validate twitter credentials if enabled globally and in supplied prefs
-		if(profile.isTwitterIntegrationEnabledForUser(obj)) {
-			if(!profile.validateTwitterCredentials(obj)) {
+		if(profileLogic.isTwitterIntegrationEnabledForUser(obj)) {
+			if(!profileLogic.validateTwitterCredentials(obj)) {
 				log.error("Failed to validate Twitter credentials for userUuid: " + userUuid);
 				return false;
 			}
@@ -123,8 +124,8 @@ public class ProfilePreferencesServiceImpl implements ProfilePreferencesService 
 		}
 		
 		//validate twitter credentials if enabled for user and globally
-		if(profile.isTwitterIntegrationEnabledForUser(userUuid)) {
-			if(!profile.validateTwitterCredentials(obj)) {
+		if(profileLogic.isTwitterIntegrationEnabledForUser(userUuid)) {
+			if(!profileLogic.validateTwitterCredentials(obj)) {
 				log.error("Failed to validate Twitter credentials for userUuid: " + userUuid);
 				return false;
 			}
@@ -189,7 +190,7 @@ public class ProfilePreferencesServiceImpl implements ProfilePreferencesService 
 		}
 		
 		//check if we have a persisted object already
-		if(profile.getPreferencesRecordForUser(userUuid) == null) {
+		if(profileLogic.getPreferencesRecordForUser(userUuid) == null) {
 			return false;
 		}
 		return true;
@@ -209,7 +210,7 @@ public class ProfilePreferencesServiceImpl implements ProfilePreferencesService 
 	 */
 	private boolean persistProfilePreferences(ProfilePreferences obj) {
 
-		if(profile.savePreferencesRecord(obj)) {
+		if(profileLogic.savePreferencesRecord(obj)) {
 			return true;
 		} 
 		return false;
@@ -223,7 +224,7 @@ public class ProfilePreferencesServiceImpl implements ProfilePreferencesService 
 	 */
 	private ProfilePreferences getPrototype(String userId) {
 		String userUuid = sakaiProxy.getUuidForUserId(userId);
-		return profile.getDefaultPreferencesRecord(userUuid);
+		return profileLogic.getDefaultPreferencesRecord(userUuid);
 	}
 	
 	
@@ -233,9 +234,9 @@ public class ProfilePreferencesServiceImpl implements ProfilePreferencesService 
 		this.sakaiProxy = sakaiProxy;
 	}
 	
-	private Profile profile;
-	public void setProfile(Profile profile) {
-		this.profile = profile;
+	private ProfileLogic profileLogic;
+	public void setProfileLogic(ProfileLogic profileLogic) {
+		this.profileLogic = profileLogic;
 	}
 	
 
