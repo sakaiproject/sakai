@@ -758,13 +758,22 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         
 		List gradableObjects = new ArrayList();
 		List allAssignments = new ArrayList(); 
+		List categoriesFilter = new ArrayList();
 		if (getCategoriesEnabled()) {
 			List categoryList = getGradebookManager().getCategoriesWithStats(getGradebookId(), getPreferencesBean().getAssignmentSortColumn(), 
 									getPreferencesBean().isAssignmentSortAscending(), getPreferencesBean().getCategorySortColumn(), getPreferencesBean().isCategorySortAscending());
+			
+			// filter out the CourseGrade from the Category list to prevent errors
+			for (Iterator catIter = categoryList.iterator(); catIter.hasNext();) {
+				Object catOrCourseGrade = catIter.next();
+				if (catOrCourseGrade instanceof Category) {
+					categoriesFilter.add((Category)catOrCourseGrade);
+				}
+			}
 
 			// then, we need to check for special grader permissions that may limit which categories may be viewed
 			if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
-				categoryList = getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), categoryList, getGradebook().getCategory_type());
+				categoryList = getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), categoriesFilter, getGradebook().getCategory_type());
 			}
 
 			if (categoryList != null && !categoryList.isEmpty()) {
