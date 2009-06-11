@@ -240,8 +240,12 @@ public class MySearch extends BasePage {
 				connectionLabel.setOutputMarkupId(true);
 				connectionLink.add(connectionLabel);
 				
-		    	//setup 'add friend' link
-				if(friend) {
+				//setup 'add friend' link
+				if(StringUtils.equals(userUuid, currentUserUuid)) {
+					connectionLabel.setModel(new ResourceModel("text.friend.self"));
+					connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
+					connectionLink.setEnabled(false);
+				} else if(friend) {
 					connectionLabel.setModel(new ResourceModel("text.friend.confirmed"));
 					connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
 					connectionLink.setEnabled(false);
@@ -253,9 +257,6 @@ public class MySearch extends BasePage {
 					connectionLabel.setModel(new ResourceModel("text.friend.pending"));
 					connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
 					connectionLink.setEnabled(false);
-				} else if (userUuid.equals(currentUserUuid)) {
-					connectionLink.setEnabled(false);
-					c1.setVisible(false);
 				} else {
 					connectionLabel.setModel(new ResourceModel("link.friend.add"));
 				}
