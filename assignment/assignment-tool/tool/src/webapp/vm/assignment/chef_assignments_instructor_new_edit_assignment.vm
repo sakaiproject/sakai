@@ -947,7 +947,7 @@ $(document).ready(function() {
 			<p class="longtext"  style="margin:.2em">
 				<span class="reqStar">*</span>				
 				<label for="note_to" class="block">
-					Share
+					$tlang.getString("note.to.prompt")
 				</label>
 				#if ($!note && $!allowEditAssignmentNoteItem || !$!note)
 					<select id="note_to" name="note_to">

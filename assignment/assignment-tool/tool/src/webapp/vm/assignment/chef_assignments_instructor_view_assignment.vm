@@ -176,9 +176,7 @@
 			$tlang.getString("gen.assinf")
 		</h4>
 		<div class="textPanel">					
-			#if ($assignment.getContent().getInstructions().length()==0)
-				&lt;none&gt;
-			#else
+			#if ($assignment.getContent().getInstructions().length()>0)
 				$validator.escapeHtmlFormattedText($assignment.getContent().getInstructions())
 			#end
 		</div>
@@ -280,7 +278,7 @@
 										#if ($submission.TimeReturned.before($submission.TimeSubmitted))
 											$tlang.getString("gen.retu") $submission.TimeReturned.toStringLocalFull()
 										#else
-											Re-submitted $submission.TimeSubmitted.toStringLocalFull()
+											$tlang.getString("gen.resub") $submission.TimeSubmitted.toStringLocalFull()
 											#if ($submission.getTimeSubmitted().after($assignment.DueTime))
 												<span class="highlight"> $tlang.getString("gen.late")</span>
 											#end

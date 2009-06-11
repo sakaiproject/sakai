@@ -214,7 +214,7 @@
 					</ul>
 				#end	
 			<div class="highlightPanel">
-				Grade:
+				$tlang.getString("gen.gra2")
 				#if ($!grade && $grade.length()>0 && $grade!="ungraded")
 					<span class="highlight">$grade</span>
 				#else

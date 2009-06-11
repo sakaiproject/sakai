@@ -120,9 +120,7 @@
 			$tlang.getString("gen.assinf")
 		</h4>
 		<p>					
-			#if ($assignment.getContent().getInstructions().length()==0)
-				&lt;none&gt;
-			#else
+			#if ($assignment.getContent().getInstructions().length()>0)
 				$validator.escapeHtmlFormattedText($assignment.getContent().getInstructions())
 			#end
 		</p>

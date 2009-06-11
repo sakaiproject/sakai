@@ -8,7 +8,7 @@
 				<span><a href="#toolLink("$action" "doNew_assignment")" title="$!tlang.getString("new")">$!tlang.getString("new")</a></span>
 			</li>
 		#end
-		<li #if ($prevAction=false) class="firstToolBarItem" #end>
+		<li #if ($prevAction==false) class="firstToolBarItem" #end>
 			<span><a href="#toolLinkParam("$action" "doView" "view=lisofass1")" title="$!tlang.getString('lisofass1')">$!tlang.getString('lisofass1')</a></span>
 		</li>
 		<li role="menuitem" aria-disabled="true">
