@@ -419,7 +419,8 @@ h2 {
 	
 
 .formInputField,
-.formInputArea {
+.formInputArea,
+.profileImageUrlInputField {
 	padding-left: 2px;
 	border: 1px solid #AAAAAA;
 	margin: .2em;
@@ -433,9 +434,13 @@ h2 {
 	width: 300px;
 }
 
+.profileImageUrlInputField {
+	width: 180px;
+}
 
 .formInputField:focus,
-.formInputArea:focus {
+.formInputArea:focus,
+.profileImageUrlInputField:focus {
 	border-color: black;
 	background: #ffc;
 }

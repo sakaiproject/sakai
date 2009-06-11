@@ -11,7 +11,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
@@ -45,7 +45,7 @@ public class ChangeProfilePictureUrl extends Panel{
 		//get userId
 		final String userId = sakaiProxy.getCurrentUserId();
 		
-		//setup SimpleText object 
+		//setup SimpleText object to back the single form field 
 		SimpleText simpleText = new SimpleText();
 		
 		//do they already have a URL that should be loaded in here?
@@ -55,11 +55,9 @@ public class ChangeProfilePictureUrl extends Panel{
 			simpleText.setText(externalUrl);
 		}
 		
-		//setup form model using the SimpleText object
-		CompoundPropertyModel formModel = new CompoundPropertyModel(simpleText);
 		
         //setup form	
-		Form form = new Form("form", formModel);
+		Form form = new Form("form", new Model(simpleText));
 		form.setOutputMarkupId(true);
         
         //close button component
