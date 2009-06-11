@@ -20,6 +20,7 @@ public class ProfileStatus implements Serializable {
 	private String userUuid;
 	private String message;
 	private Date dateAdded;
+	private String dateFormatted; //not persisted, convenience holder
 	//private int cleared; //maybe to hold value if the status has been cleared
 	
 	/**
@@ -65,6 +66,14 @@ public class ProfileStatus implements Serializable {
 
 	public void setDateAdded(Date dateAdded) {
 		this.dateAdded = dateAdded;
+	}
+
+	public void setDateFormatted(String dateFormatted) {
+		this.dateFormatted = dateFormatted;
+	}
+
+	public String getDateFormatted() {
+		return dateFormatted;
 	}
 	
 	
