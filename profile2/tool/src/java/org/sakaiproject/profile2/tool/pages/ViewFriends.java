@@ -14,29 +14,29 @@ public class ViewFriends extends BasePage {
 
 	private static final Logger log = Logger.getLogger(MyFriends.class);
 	
-	public ViewFriends(final String userId) {
+	public ViewFriends(final String userUuid) {
 		
 		log.debug("ViewFriends()");
 		
 		//get user viewing this page
-		final String currentUserId = sakaiProxy.getCurrentUserId();
+		final String currentUserUuid = sakaiProxy.getCurrentUserId();
 		
 		//double check they are friends
-		boolean friend = profileLogic.isUserXFriendOfUserY(userId, currentUserId);
+		boolean friend = profileLogic.isUserXFriendOfUserY(userUuid, currentUserUuid);
 		
 		//double check person viewing this page (currentuserId) is allowed to view userId's friends
-		boolean isFriendsListVisible = profileLogic.isUserXFriendsListVisibleByUserY(userId, currentUserId, friend);
+		boolean isFriendsListVisible = profileLogic.isUserXFriendsListVisibleByUserY(userUuid, currentUserUuid, friend);
 		if(!isFriendsListVisible) {
-			throw new ProfileFriendsIllegalAccessException("User: " + currentUserId + " is not allowed to view the friends list for: " + userId);
+			throw new ProfileFriendsIllegalAccessException("User: " + currentUserUuid + " is not allowed to view the friends list for: " + userUuid);
 		}
 		
 		//show confirmed friends panel for the given user
-		Panel confirmedFriends = new ConfirmedFriends("confirmedFriends", userId);
+		Panel confirmedFriends = new ConfirmedFriends("confirmedFriends", userUuid);
 		confirmedFriends.setOutputMarkupId(true);
 		add(confirmedFriends);
 		
 		//post view event
-		sakaiProxy.postEvent(ProfileConstants.EVENT_FRIENDS_VIEW_OTHER, "/profile/"+userId, false);
+		sakaiProxy.postEvent(ProfileConstants.EVENT_FRIENDS_VIEW_OTHER, "/profile/"+userUuid, false);
 		
 	}
 	

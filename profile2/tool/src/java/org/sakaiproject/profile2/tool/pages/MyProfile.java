@@ -41,45 +41,45 @@ public class MyProfile extends BasePage {
 		add(feedbackPanel);
 		feedbackPanel.setVisible(false); //hide by default
 
-		//get current user
-		String userId = sakaiProxy.getCurrentUserId();
+		//get user for this profile
+		String userUuid = sakaiProxy.getCurrentUserId();
 		
 		//get SakaiPerson for this user
-		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
+		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
 		//if null, create one 
 		if(sakaiPerson == null) {
-			log.warn("No SakaiPerson for " + userId + ". Creating one.");
-			sakaiPerson = sakaiProxy.createSakaiPerson(userId);
+			log.warn("No SakaiPerson for " + userUuid + ". Creating one.");
+			sakaiPerson = sakaiProxy.createSakaiPerson(userUuid);
 			//if its still null, throw exception
 			if(sakaiPerson == null) {
-				throw new ProfileNotDefinedException("Couldn't create a SakaiPerson for " + userId);
+				throw new ProfileNotDefinedException("Couldn't create a SakaiPerson for " + userUuid);
 			}
 			//post create event
-			sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_NEW, userId, true);
+			sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_NEW, userUuid, true);
 		} 
 		
 		//post view event
-		sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_VIEW_OWN, "/profile/"+userId, false);
+		sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_VIEW_OWN, "/profile/"+userUuid, false);
 
 		//get some values from SakaiPerson or SakaiProxy if empty
 		//SakaiPerson returns NULL strings if value is not set, not blank ones
 	
 		//these must come from Account to keep it all in sync
 		//we *could* get a User object here and get the values.
-		String userDisplayName = sakaiProxy.getUserDisplayName(userId);
+		String userDisplayName = sakaiProxy.getUserDisplayName(userUuid);
 		/*
 		String userFirstName = sakaiProxy.getUserFirstName(userId);
 		String userLastName = sakaiProxy.getUserLastName(userId);
 		*/
 
-		String userEmail = sakaiProxy.getUserEmail(userId);
+		String userEmail = sakaiProxy.getUserEmail(userUuid);
 		
 		//create instance of the UserProfile class
 		//we then pass the userProfile in the constructor to the child panels
 		UserProfile userProfile = new UserProfile();
 				
 		//get rest of values from SakaiPerson and setup UserProfile
-		userProfile.setUserId(userId);
+		userProfile.setUserId(userUuid);
 		
 		userProfile.setNickname(sakaiPerson.getNickname());
 		userProfile.setDateOfBirth(sakaiPerson.getDateOfBirth());
@@ -132,7 +132,7 @@ public class MyProfile extends BasePage {
 		add(changePicture);
 		
 		//add the current picture
-		add(new ProfileImageRenderer("photo", userId, true, ProfileConstants.PROFILE_IMAGE_MAIN, true));
+		add(new ProfileImageRenderer("photo", userUuid, true, ProfileConstants.PROFILE_IMAGE_MAIN, true));
 		
 		//change profile image button
 		AjaxFallbackLink changePictureLink = new AjaxFallbackLink("changePictureLink") {
@@ -193,7 +193,7 @@ public class MyProfile extends BasePage {
 		
 		
 		//friends feed panel for self
-		Panel friendsFeed = new FriendsFeed("friendsFeed", userId, userId);
+		Panel friendsFeed = new FriendsFeed("friendsFeed", userUuid, userUuid);
 		friendsFeed.setOutputMarkupId(true);
 		add(friendsFeed);
 

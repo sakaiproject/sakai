@@ -39,22 +39,22 @@ public class MyPrivacy extends BasePage {
 		log.debug("MyPrivacy()");
 
 		//get current user
-		final String userId = sakaiProxy.getCurrentUserId();
+		final String userUuid = sakaiProxy.getCurrentUserId();
 
 		//get the privacy object for this user from the database
-		profilePrivacy = profileLogic.getPrivacyRecordForUser(userId);
+		profilePrivacy = profileLogic.getPrivacyRecordForUser(userUuid);
 		
 		//if null, create one
 		if(profilePrivacy == null) {
-			profilePrivacy = profileLogic.createDefaultPrivacyRecord(userId);
+			profilePrivacy = profileLogic.createDefaultPrivacyRecord(userUuid);
 			//if its still null, throw exception
 			
 			if(profilePrivacy == null) {
-				throw new ProfilePrivacyNotDefinedException("Couldn't create default privacy record for " + userId);
+				throw new ProfilePrivacyNotDefinedException("Couldn't create default privacy record for " + userUuid);
 			}
 			
 			//post create event
-			sakaiProxy.postEvent(ProfileConstants.EVENT_PRIVACY_NEW, "/profile/"+userId, true);
+			sakaiProxy.postEvent(ProfileConstants.EVENT_PRIVACY_NEW, "/profile/"+userUuid, true);
 			
 		}
 		
@@ -258,7 +258,7 @@ public class MyPrivacy extends BasePage {
 					formFeedback.add(new AttributeModifier("class", true, new Model("success")));
 					
 					//post update event
-					sakaiProxy.postEvent(ProfileConstants.EVENT_PRIVACY_UPDATE, "/profile/"+userId, true);
+					sakaiProxy.postEvent(ProfileConstants.EVENT_PRIVACY_UPDATE, "/profile/"+userUuid, true);
 
 				} else {
 					formFeedback.setModel(new ResourceModel("error.privacy.save.failed"));

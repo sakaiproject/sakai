@@ -38,26 +38,26 @@ public class MyPreferences extends BasePage{
 		log.debug("MyPreferences()");
 		
 		//get current user
-		final String userId = sakaiProxy.getCurrentUserId();
+		final String userUuid = sakaiProxy.getCurrentUserId();
 
 		//get the preferences object for this user from the database
-		profilePreferences = profileLogic.getPreferencesRecordForUser(userId);
+		profilePreferences = profileLogic.getPreferencesRecordForUser(userUuid);
 		
 		//if null, create one
 		if(profilePreferences == null) {
-			profilePreferences = profileLogic.createDefaultPreferencesRecord(userId);
+			profilePreferences = profileLogic.createDefaultPreferencesRecord(userUuid);
 			//if its still null, throw exception
 			
 			if(profilePreferences == null) {
-				throw new ProfilePreferencesNotDefinedException("Couldn't create default preferences record for " + userId);
+				throw new ProfilePreferencesNotDefinedException("Couldn't create default preferences record for " + userUuid);
 			}
 			
 			//post create event
-			sakaiProxy.postEvent(ProfileConstants.EVENT_PREFERENCES_NEW, "/profile/"+userId, true);
+			sakaiProxy.postEvent(ProfileConstants.EVENT_PREFERENCES_NEW, "/profile/"+userUuid, true);
 		}
 		
 		//get email address for this user
-		String emailAddress = sakaiProxy.getUserEmail(userId);
+		String emailAddress = sakaiProxy.getUserEmail(userUuid);
 		//if no email, set a message into it fo display
 		if(emailAddress == null || emailAddress.length() == 0) {
 			emailAddress = new ResourceModel("preferences.email.none").getObject().toString();
@@ -284,7 +284,7 @@ public class MyPreferences extends BasePage{
 					formFeedback.add(new AttributeModifier("class", true, new Model("success")));
 					
 					//post update event
-					sakaiProxy.postEvent(ProfileConstants.EVENT_PREFERENCES_UPDATE, "/profile/"+userId, true);
+					sakaiProxy.postEvent(ProfileConstants.EVENT_PREFERENCES_UPDATE, "/profile/"+userUuid, true);
 					
 					
 				} else {
