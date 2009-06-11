@@ -3,29 +3,26 @@ package org.sakaiproject.profile2.tool.pages.panels;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
 import org.apache.wicket.behavior.StringHeaderContributor;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
-import org.sakaiproject.profile2.model.ProfileStatus;
 import org.sakaiproject.profile2.tool.ProfileApplication;
+import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
+import org.sakaiproject.profile2.tool.models.SimpleText;
 import org.sakaiproject.profile2.tool.models.UserProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
-import org.sakaiproject.profile2.util.ProfileUtils;
 
 public class MyStatusPanel extends Panel {
 	
@@ -33,7 +30,7 @@ public class MyStatusPanel extends Panel {
 	private static final Logger log = Logger.getLogger(MyStatusPanel.class);
     private transient SakaiProxy sakaiProxy;
     private transient ProfileLogic profileLogic;
-    private transient ProfileStatus profileStatus;
+    private ProfileStatusRenderer status;
     
     //get default text that fills the textField
 	String defaultStatus = new ResourceModel("text.no.status", "Say something").getObject().toString();
@@ -50,111 +47,31 @@ public class MyStatusPanel extends Panel {
 		profileLogic = ProfileApplication.get().getProfileLogic();
 				
 		//get info
-		String displayName = userProfile.getDisplayName();
-		final String userId = sakaiProxy.getCurrentUserId();
+		final String displayName = userProfile.getDisplayName();
+		final String userId = userProfile.getUserId();
+		final String currentUserId = sakaiProxy.getCurrentUserId();
 		
-		//status container - here so we can work on it if the status is not set
-		final WebMarkupContainer statusContainer = new WebMarkupContainer("statusContainer");
-		statusContainer.setOutputMarkupPlaceholderTag(true); //we need a placeholder for if we have no status
-		
-		//setup ProfileStatus object loaded with the current values from the DB for the page to use initially.
-		profileStatus = profileLogic.getUserStatus(userId);
-		
-		//if no status, initialise
-		if(profileStatus == null) {
-			statusContainer.setVisible(false); //hide status section
-			profileStatus = new ProfileStatus();
-		}
-		
-		
-		//the message and date fields get their values from the ProfileStatus object
-		//when the status form is submitted, Hibernate persists the data in the background
-		//and the message and date fields get their values again, via these models from the ProfileStatus object.
-		
-		//setup model for status message
-		LoadableDetachableModel statusMessageModel = new LoadableDetachableModel() {
-			private static final long serialVersionUID = 1L;
-			
-			private String message = "";
-			
-			protected Object load() {
-				profileStatus = profileLogic.getUserStatus(userId);
-				message = profileStatus.getMessage(); //get from hibernate
-				if("".equals(message) || message == null){
-					log.warn("No status message for: " + userId);
-				} 
-				return message;
-			}
-			
-		};
-		
-		//setup model for status date
-		LoadableDetachableModel statusDateModel = new LoadableDetachableModel() {
-			private static final long serialVersionUID = 1L;
-			
-			private Date date;
-			private String dateStr = "";
-			
-			protected Object load() {
-				date = profileLogic.getUserStatusDate(userId);
-				if(date == null) {
-					log.warn("No status date for: " + userId);
-				} else {
-					//transform the date
-					dateStr = ProfileUtils.convertDateForStatus(date);
-				}
-				return dateStr;
-			}
-			
-		};
-	
-				
-		//create model
-		CompoundPropertyModel profileStatusModel = new CompoundPropertyModel(profileStatus);
-	
 		//name
 		Label profileName = new Label("profileName", displayName);
 		add(profileName);
 		
+		//status component
+		status = new ProfileStatusRenderer("status", userId, currentUserId, null, "tiny");
+		status.setOutputMarkupId(true);
+		add(status);
 		
-		//status
-		Label statusMessageLabel = new Label("statusMessage", statusMessageModel);
-		statusMessageLabel.setOutputMarkupId(true);
-		statusContainer.add(statusMessageLabel);
 		
-		//status last updated
-		Label statusDateLabel = new Label("statusDate", statusDateModel);
-		statusDateLabel.setOutputMarkupId(true);
-		statusContainer.add(statusDateLabel);
-		
-		//status update link
-		AjaxFallbackLink statusClearLink = new AjaxFallbackLink("statusClearLink") {
-			private static final long serialVersionUID = 1L;
-
-			public void onClick(AjaxRequestTarget target) {
-				//clear status, hide and repaint
-				if(profileLogic.clearUserStatus(userId)) {
-					statusContainer.setVisible(false);
-					target.addComponent(statusContainer);
-				}
 				
-			}
-						
-		};
-		statusClearLink.setOutputMarkupId(true);
-		statusClearLink.add(new Label("statusClearLabel",new ResourceModel("link.status.clear")));
-		statusContainer.add(statusClearLink);
-		
-		//add status container
-		add(statusContainer);
+		//setup SimpleText object to back the single form field 
+		SimpleText simpleText = new SimpleText();
 				
 		//status form
-		Form form = new Form("form", profileStatusModel);
+		Form form = new Form("form", new Model(simpleText));
 		form.setOutputMarkupId(true);
         		
 		//status field
-        TextField statusField = new TextField("message", new PropertyModel(profileStatus, "message"));
-        statusField.setOutputMarkupId(true);
+		final TextField statusField = new TextField("message", new PropertyModel(simpleText, "text"));
+        statusField.setOutputMarkupPlaceholderTag(true);
         form.add(statusField);
         
         //link the status textfield field with the focus/blur function via this dynamic js 
@@ -165,6 +82,37 @@ public class MyStatusPanel extends Panel {
 					"});" +
 				"</script>");
 		add(statusJavascript);
+
+        
+        //clear link
+		final AjaxFallbackLink clearLink = new AjaxFallbackLink("clearLink") {
+			private static final long serialVersionUID = 1L;
+
+			public void onClick(AjaxRequestTarget target) {
+				//clear status, hide and repaint
+				if(profileLogic.clearUserStatus(userId)) {
+					status.setVisible(false); //hide status
+					this.setVisible(false); //hide clear link
+					target.addComponent(status);
+					target.addComponent(this);
+					
+					target.appendJavascript("autoFill($('#" + statusField.getMarkupId() + "'), '" + defaultStatus + "');");
+					//target.addComponent(statusField);
+					
+				}
+			}
+		};
+		clearLink.setOutputMarkupPlaceholderTag(true);
+		clearLink.add(new Label("clearLabel",new ResourceModel("link.status.clear")));
+	
+		//set visibility of clear link
+		if(!status.isVisible()) {
+			clearLink.setVisible(false);
+		}
+		add(clearLink);
+        
+        
+        
         
         
         //submit button
@@ -175,16 +123,15 @@ public class MyStatusPanel extends Panel {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				
 				//get the backing model
-				ProfileStatus profileStatus = (ProfileStatus) form.getModelObject();
+        		SimpleText simpleText = (SimpleText) form.getModelObject();
 				
 				//get userId from sakaiProxy
 				String userId = sakaiProxy.getCurrentUserId();
 				
 				//get the status. if its the default text, do not update, although we should clear the model
-				String statusMessage = profileStatus.getMessage().trim();
+				String statusMessage = simpleText.getText().trim();
 				if(statusMessage.equals(defaultStatus)) {
-					profileStatus.setMessage("");
-					log.warn("Status update for userId: " + userId + " was not updated because they didn't enter anything.");
+					log.warn("Status for userId: " + userId + " was not updated because they didn't enter anything.");
 					return;
 				}
 
@@ -198,9 +145,21 @@ public class MyStatusPanel extends Panel {
 					//update twitter if set
 					updateTwitter(userId, statusMessage);
 					
-					// make status panel container visible and repaint
-					statusContainer.setVisible(true);
-					target.addComponent(statusContainer);
+					//repaint status component
+					ProfileStatusRenderer newStatus = new ProfileStatusRenderer("status", userId, currentUserId, null, "tiny");
+					newStatus.setOutputMarkupId(true);
+					status.replaceWith(newStatus);
+					newStatus.setVisible(true);
+					
+					//also show the clear link
+					clearLink.setVisible(true);
+					
+					if(target != null) {
+						target.addComponent(newStatus);
+						target.addComponent(clearLink);
+						status=newStatus; //update reference
+					}
+					
 				} else {
 					log.error("Couldn't save status for: " + userId);
 					String js = "alert('Failed to save status. If the problem persists, contact your system administrator.');";
@@ -227,6 +186,7 @@ public class MyStatusPanel extends Panel {
 			sakaiProxy.postEvent(ProfileConstants.EVENT_TWITTER_UPDATE, "/profile/"+userId, true);
 		}
 	}
+	
 	
 	/* reinit for deserialisation (ie back button) */
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {

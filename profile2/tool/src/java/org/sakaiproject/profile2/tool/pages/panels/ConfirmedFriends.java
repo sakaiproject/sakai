@@ -24,6 +24,7 @@ import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.tool.ProfileApplication;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
+import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.ConfirmedFriendsDataProvider;
 import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
@@ -38,10 +39,10 @@ public class ConfirmedFriends extends Panel {
     private transient SakaiProxy sakaiProxy;
     private transient ProfileLogic profileLogic;
 	private int numConfirmedFriends = 0;
-	private boolean updateable = false;
+	private boolean ownList = false;
 	
 	
-	public ConfirmedFriends(final String id, final String userX) {
+	public ConfirmedFriends(final String id, final String userUuid) {
 		super(id);
 		
 		log.debug("ConfirmedFriends()");
@@ -56,15 +57,15 @@ public class ConfirmedFriends extends Panel {
 		final FriendAction friendActionModel = new FriendAction();
 		
 		//get id of user viewing this page (will be the same if user is viewing own list, different if viewing someone else's)
-		final String userY = sakaiProxy.getCurrentUserId();
+		final String currentUserUuid = sakaiProxy.getCurrentUserId();
 		
 		//if viewing own friends, you can manage them.
-		if(userX.equals(userY)) {
-			updateable = true;
+		if(userUuid.equals(currentUserUuid)) {
+			ownList = true;
 		}
 		
 		//get our list of confirmed friends as an IDataProvider
-		ConfirmedFriendsDataProvider provider = new ConfirmedFriendsDataProvider(userX);
+		ConfirmedFriendsDataProvider provider = new ConfirmedFriendsDataProvider(userUuid);
 		
 		//init number of friends
 		numConfirmedFriends = provider.size();
@@ -82,10 +83,10 @@ public class ConfirmedFriends extends Panel {
 		final WebMarkupContainer confirmedFriendsHeading = new WebMarkupContainer("confirmedFriendsHeading");
 		Label confirmedFriendsLabel = new Label("confirmedFriendsLabel");
 		//if viewing own list, "my friends", else, "their name's friends"
-		if(updateable) {
+		if(ownList) {
 			confirmedFriendsLabel.setModel(new ResourceModel("heading.friends.my"));
 		} else {
-			String displayName = sakaiProxy.getUserDisplayName(userX);
+			String displayName = sakaiProxy.getUserDisplayName(userUuid);
 			confirmedFriendsLabel.setModel(new StringResourceModel("heading.friends.view", null, new Object[]{ displayName } ));
 		}
 		confirmedFriendsHeading.add(confirmedFriendsLabel);
@@ -123,25 +124,25 @@ public class ConfirmedFriends extends Panel {
 
 			protected void populateItem(final Item item) {
 		        
-		    	//get friendId
-		    	final String friendId = (String)item.getModelObject();
+		    	//get friendUuid
+		    	final String friendUuid = (String)item.getModelObject();
 		    			    	
 		    	//setup values
-		    	String displayName = sakaiProxy.getUserDisplayName(friendId);
+		    	String displayName = sakaiProxy.getUserDisplayName(friendUuid);
 		    	boolean friend;
 		    	
 		    	//get friend status
-		    	if(updateable) {
+		    	if(ownList) {
 		    		friend = true; //viewing own page, hence friend
 		    	} else {
-		    		friend = profileLogic.isUserXFriendOfUserY(userY, friendId); //other person viewing, check if they are friends
+		    		friend = profileLogic.isUserXFriendOfUserY(userUuid, friendUuid); //other person viewing, check if they are friends
 		    	}
 	    		
 		    	//is profile image allowed to be viewed by this user/friend?
-				final boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(friendId, userY, friend);
+				final boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(friendUuid, currentUserUuid, friend);
 				
 				//image
-				item.add(new ProfileImageRenderer("result-photo", friendId, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
+				item.add(new ProfileImageRenderer("result-photo", friendUuid, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
 		    	
 			
 		    	//name and link to profile
@@ -149,47 +150,24 @@ public class ConfirmedFriends extends Panel {
 					private static final long serialVersionUID = 1L;
 
 					public void onClick() {
-						setResponsePage(new ViewProfile(friendId));
+						setResponsePage(new ViewProfile(friendUuid));
 					}
 					
 				};
 				profileLink.add(new Label("result-name", displayName));
 		    	item.add(profileLink);
 		    	
-				//is status allowed to be viewed by this user/friend?
-				final boolean isProfileStatusAllowed = profileLogic.isUserXStatusVisibleByUserY(friendId, userY, friend);
-				
-				Label statusMsgLabel = new Label("result-statusMsg");
-				Label statusDateLabel = new Label("result-statusDate");
-				
-				if(isProfileStatusAllowed) {
-					String profileStatusMessage = profileLogic.getUserStatusMessage(friendId);
-					Date profileStatusDate = profileLogic.getUserStatusDate(friendId);
-					if(profileStatusMessage == null) {
-						statusMsgLabel.setVisible(false);
-						statusDateLabel.setVisible(false);
-					} else {
-						//message
-						statusMsgLabel.setModel(new Model(profileStatusMessage));
-						
-						//now date
-						if(profileStatusDate == null) {
-							statusDateLabel.setVisible(false);
-						} else {
-							statusDateLabel.setModel(new Model(ProfileUtils.convertDateForStatus(profileStatusDate)));
-						}
-					}
-				}
-				
-				item.add(statusMsgLabel);
-				item.add(statusDateLabel);
+		    	//status component
+				ProfileStatusRenderer status = new ProfileStatusRenderer("result-status", userUuid, currentUserUuid, "friendsListInfoStatusMessage", "friendsListInfoStatusDate");
+				status.setOutputMarkupId(true);
+				item.add(status);
 		    	
 		    	
 		    	/* ACTIONS */
 		    	
 		    	//REMOVE FRIEND MODAL WINDOW
 				final ModalWindow removeFriendWindow = new ModalWindow("removeFriendWindow");
-				removeFriendWindow.setContent(new RemoveFriend(removeFriendWindow.getContentId(), removeFriendWindow, friendActionModel, userX, friendId)); 
+				removeFriendWindow.setContent(new RemoveFriend(removeFriendWindow.getContentId(), removeFriendWindow, friendActionModel, userUuid, friendUuid)); 
 				
 				//REMOVE FRIEND LINK
 		    	final AjaxLink removeFriendLink = new AjaxLink("removeFriendLink") {
@@ -208,7 +186,7 @@ public class ConfirmedFriends extends Panel {
 				item.add(removeFriendLink);
 				
 				//can only delete if own friends
-				if(!updateable) {
+				if(!ownList) {
 					removeFriendLink.setEnabled(true);
 					removeFriendLink.setVisible(false);
 				}
@@ -231,14 +209,6 @@ public class ConfirmedFriends extends Panel {
 		            		//if none left, hide whole thing
 		            		if(numConfirmedFriends==0) {
 		            			target.appendJavascript("$('#" + confirmedFriendsContainer.getMarkupId() + "').fadeOut();");
-		            			
-		            			/*
-		            			if(userX.equals(userY)) {
-		            				noFriendsContainer.setVisible(true);
-		            				target.addComponent(noFriendsContainer);
-		            			}
-		            			*/
-		            			
 		            		}
 		            		
 		            	}

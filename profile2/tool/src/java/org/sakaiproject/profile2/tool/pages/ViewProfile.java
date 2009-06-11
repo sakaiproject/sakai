@@ -22,8 +22,8 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.exception.ProfilePrototypeNotDefinedException;
-import org.sakaiproject.profile2.model.ProfileStatus;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
+import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.tool.pages.panels.FriendsFeed;
 import org.sakaiproject.profile2.tool.pages.windows.AddFriend;
@@ -34,7 +34,6 @@ import org.sakaiproject.profile2.util.ProfileUtils;
 public class ViewProfile extends BasePage {
 
 	private static final Logger log = Logger.getLogger(ViewProfile.class);
-    private transient ProfileStatus profileStatus;
 	
 	public ViewProfile(String userUuid)   {
 		
@@ -109,60 +108,14 @@ public class ViewProfile extends BasePage {
 		/* IMAGE */
 		add(new ProfileImageRenderer("photo", userUuid, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_MAIN, true));
 		
-		/*STATUS PANEL */
-		//container
-		WebMarkupContainer statusContainer = new WebMarkupContainer("statusContainer");
-		statusContainer.setOutputMarkupId(true);
-		
-		//get status
-		profileStatus = profileLogic.getUserStatus(userUuid);
-		
-		//if no status, initialise
-		if(profileStatus == null) {
-			statusContainer.setVisible(false); //hide status section
-			profileStatus = new ProfileStatus();
-		}
-		
-		//get the message
-		String statusMessage = profileStatus.getMessage();
-		if(StringUtils.isBlank(statusMessage)){
-			statusContainer.setVisible(false);
-			statusMessage = "";
-		} 
-		
-		//get the formatted date
-		Date statusDate = profileStatus.getDateAdded();
-		String statusDateStr = "";
-		if(statusDate == null) {
-			statusContainer.setVisible(false);
-		} else {
-			//transform the date
-			statusDateStr = ProfileUtils.convertDateForStatus(statusDate);
-		}
-		
-		//name
+		/* NAME */
 		Label profileName = new Label("profileName", userDisplayName);
 		add(profileName);
 		
-		
-		//status
-		Label statusMessageLabel = new Label("statusMessage", statusMessage);
-		statusMessageLabel.setOutputMarkupId(true);
-		statusContainer.add(statusMessageLabel);
-		
-		//status last updated
-		Label statusDateLabel = new Label("statusDate", statusDateStr);
-		statusDateLabel.setOutputMarkupId(true);
-		statusContainer.add(statusDateLabel);
-		
-		//if this person is not allowed to view their status, hide it
-		//TODO move this into a separet method and don't even get the data if they can't view it.
-		if(!isStatusAllowed) {
-			statusContainer.setVisible(false);
-		}
-		
-		//add status container
-		add(statusContainer);
+		/*STATUS PANEL */
+		ProfileStatusRenderer status = new ProfileStatusRenderer("status", userUuid, currentUserId, null, "tiny");
+		status.setOutputMarkupId(true);
+		add(status);
 		
 		
 		/* BASIC INFO */

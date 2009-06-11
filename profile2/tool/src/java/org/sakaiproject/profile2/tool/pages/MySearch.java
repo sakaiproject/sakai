@@ -4,7 +4,6 @@ package org.sakaiproject.profile2.tool.pages;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -32,11 +31,11 @@ import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilte
 import org.sakaiproject.profile2.tool.components.FeedbackLabel;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
+import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.tool.models.Search;
 import org.sakaiproject.profile2.tool.pages.windows.AddFriend;
 import org.sakaiproject.profile2.util.ProfileConstants;
-import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.util.FormattedText;
 
 
@@ -204,33 +203,10 @@ public class MySearch extends BasePage {
 				profileLink.add(new Label("result-name", displayName));
 		    	item.add(profileLink);
 		    	
-		    	//is status allowed to be viewed by this user?
-				final boolean isProfileStatusAllowed = searchResult.isStatusAllowed();
-				
-				Label statusMsgLabel = new Label("result-statusMsg");
-				Label statusDateLabel = new Label("result-statusDate");
-				
-				if(isProfileStatusAllowed) {
-					String profileStatusMessage = profileLogic.getUserStatusMessage(userUuid);
-					Date profileStatusDate = profileLogic.getUserStatusDate(userUuid);
-					if(profileStatusMessage == null) {
-						statusMsgLabel.setVisible(false);
-						statusDateLabel.setVisible(false);
-					} else {
-						//message
-						statusMsgLabel.setModel(new Model(profileStatusMessage));
-						
-						//now date
-						if(profileStatusDate == null) {
-							statusDateLabel.setVisible(false);
-						} else {
-							statusDateLabel.setModel(new Model(ProfileUtils.convertDateForStatus(profileStatusDate)));
-						}
-					}
-				}
-				
-				item.add(statusMsgLabel);
-				item.add(statusDateLabel);
+		    	//status component
+				ProfileStatusRenderer status = new ProfileStatusRenderer("result-status", userUuid, currentUserUuid, "friendsListInfoStatusMessage", "friendsListInfoStatusDate");
+				status.setOutputMarkupId(true);
+				item.add(status);
 		    	
 		    	
 		    	

@@ -2,7 +2,6 @@ package org.sakaiproject.profile2.tool.pages.panels;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
@@ -23,6 +22,7 @@ import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.tool.ProfileApplication;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
+import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.RequestedFriendsDataProvider;
 import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.tool.pages.MyFriends;
@@ -30,7 +30,6 @@ import org.sakaiproject.profile2.tool.pages.ViewProfile;
 import org.sakaiproject.profile2.tool.pages.windows.ConfirmFriend;
 import org.sakaiproject.profile2.tool.pages.windows.IgnoreFriend;
 import org.sakaiproject.profile2.util.ProfileConstants;
-import org.sakaiproject.profile2.util.ProfileUtils;
 
 public class RequestedFriends extends Panel {
 	
@@ -40,7 +39,7 @@ public class RequestedFriends extends Panel {
 	private transient ProfileLogic profileLogic; 
 	private int numRequestedFriends = 0;
 	
-	public RequestedFriends(final String id, final MyFriends parent, final String userId) {
+	public RequestedFriends(final String id, final MyFriends parent, final String userUuid) {
 		super(id);
 		
 		log.debug("RequestedFriends()");
@@ -55,7 +54,7 @@ public class RequestedFriends extends Panel {
 		final FriendAction friendActionModel = new FriendAction();
 	
 		//get our list of friend requests as an IDataProvider
-		RequestedFriendsDataProvider provider = new RequestedFriendsDataProvider(userId);
+		RequestedFriendsDataProvider provider = new RequestedFriendsDataProvider(userUuid);
 		
 		//init number of requests
 		numRequestedFriends = provider.size();
@@ -86,24 +85,24 @@ public class RequestedFriends extends Panel {
 
 			protected void populateItem(final Item item) {
 		        
-		    	//get friendId
-		    	final String friendId = (String)item.getModelObject();
+		    	//get friendUuid
+		    	final String friendUuid = (String)item.getModelObject();
 		    			    	
 		    	//get name
-		    	String displayName = sakaiProxy.getUserDisplayName(friendId);
+		    	String displayName = sakaiProxy.getUserDisplayName(friendUuid);
 		    	
 		    	//is this user allowed to view this person's profile image?
-				boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(friendId, userId, false);
+				boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(friendUuid, userUuid, false);
 				
 				//image
-				item.add(new ProfileImageRenderer("result-photo", friendId, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
+				item.add(new ProfileImageRenderer("result-photo", friendUuid, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
 		    			    	
 		    	//name and link to profile
 		    	Link profileLink = new Link("result-profileLink") {
 					private static final long serialVersionUID = 1L;
 
 					public void onClick() {
-						setResponsePage(new ViewProfile(friendId));
+						setResponsePage(new ViewProfile(friendUuid));
 					}
 					
 				};
@@ -111,36 +110,10 @@ public class RequestedFriends extends Panel {
 		    	item.add(profileLink);
 		    	
 		    	
-		    	//is status allowed to be viewed by this user?
-				final boolean isProfileStatusAllowed = profileLogic.isUserXStatusVisibleByUserY(friendId, userId, false);
-				
-				Label statusMsgLabel = new Label("result-statusMsg");
-				Label statusDateLabel = new Label("result-statusDate");
-				
-				if(isProfileStatusAllowed) {
-					String profileStatusMessage = profileLogic.getUserStatusMessage(friendId);
-					Date profileStatusDate = profileLogic.getUserStatusDate(friendId);
-					if(profileStatusMessage == null) {
-						statusMsgLabel.setVisible(false);
-						statusDateLabel.setVisible(false);
-					} else {
-						//message
-						statusMsgLabel.setModel(new Model(profileStatusMessage));
-						
-						//now date
-						if(profileStatusDate == null) {
-							statusDateLabel.setVisible(false);
-						} else {
-							statusDateLabel.setModel(new Model(ProfileUtils.convertDateForStatus(profileStatusDate)));
-						}
-					}
-				}
-				
-				item.add(statusMsgLabel);
-				item.add(statusDateLabel);
-		    	
-		    	
-		    	
+		    	//status component
+				ProfileStatusRenderer status = new ProfileStatusRenderer("result-status", userUuid, userUuid, "friendsListInfoStatusMessage", "friendsListInfoStatusDate");
+				status.setOutputMarkupId(true);
+				item.add(status);
 		    	
 		    	
 		    	
@@ -148,11 +121,11 @@ public class RequestedFriends extends Panel {
 		    	
 		    	//CONFIRM FRIEND MODAL WINDOW
 				final ModalWindow confirmFriendWindow = new ModalWindow("confirmFriendWindow");
-				confirmFriendWindow.setContent(new ConfirmFriend(confirmFriendWindow.getContentId(), confirmFriendWindow, friendActionModel, userId, friendId)); 
+				confirmFriendWindow.setContent(new ConfirmFriend(confirmFriendWindow.getContentId(), confirmFriendWindow, friendActionModel, userUuid, friendUuid)); 
 				
 				//IGNORE FRIEND MODAL WINDOW
 				final ModalWindow ignoreFriendWindow = new ModalWindow("ignoreFriendWindow");
-				ignoreFriendWindow.setContent(new IgnoreFriend(ignoreFriendWindow.getContentId(), ignoreFriendWindow, friendActionModel, userId, friendId)); 
+				ignoreFriendWindow.setContent(new IgnoreFriend(ignoreFriendWindow.getContentId(), ignoreFriendWindow, friendActionModel, userUuid, friendUuid)); 
 				
 				
 				
@@ -206,7 +179,7 @@ public class RequestedFriends extends Panel {
 		            		target.addComponent(requestedFriendsHeading);
 		            		
 		            		//TODO repaint confirmed friends panel by calling method in MyFriends to repaint it for us
-		            		parent.updateConfirmedFriends(target, userId);
+		            		parent.updateConfirmedFriends(target, userUuid);
 		            		
 		            		//if none left, hide everything
 		            		if(numRequestedFriends==0) {
