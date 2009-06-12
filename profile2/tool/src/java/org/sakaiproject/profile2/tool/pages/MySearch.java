@@ -170,12 +170,9 @@ public class MySearch extends BasePage {
 		    		
 		    	//setup basic values
 		    	String displayName = sakaiProxy.getUserDisplayName(userUuid);
-		    		
-		    	//is profile image allowed to be viewed by this user/friend?
-				final boolean isProfileImageAllowed = searchResult.isProfileImageAllowed();
 				
 				//image
-				item.add(new ProfileImageRenderer("result-photo", userUuid, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false));
+				item.add(new ProfileImageRenderer("result-photo", userUuid, searchResult.isProfileImageAllowed(), ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false));
 		    	
 		    	//name and link to profile (if allowed or no link)
 		    	Link profileLink = new Link("result-profileLink") {
@@ -205,10 +202,9 @@ public class MySearch extends BasePage {
 		    	item.add(profileLink);
 		    	
 		    	//status component
-				ProfileStatusRenderer status = new ProfileStatusRenderer("result-status", userUuid, currentUserUuid, "friendsListInfoStatusMessage", "friendsListInfoStatusDate");
+		    	ProfileStatusRenderer status = new ProfileStatusRenderer("result-status", userUuid, currentUserUuid, searchResult.isStatusAllowed(), "friendsListInfoStatusMessage", "friendsListInfoStatusDate");
 				status.setOutputMarkupId(true);
 				item.add(status);
-		    	
 		    	
 		    	
 		    	/* ACTIONS */
