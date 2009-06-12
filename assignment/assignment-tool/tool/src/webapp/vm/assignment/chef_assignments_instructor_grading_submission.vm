@@ -528,9 +528,9 @@ function handleEnterKeyPress(ev)
 									<p class="shorttext">
 										<label for="grade">$tlang.getString("gen.gra2")</label>
 										<select name="$name_grade" id="grade" >
-											<option  value="" #if($value_grade.equals(""))selected="selected"#end>ungraded</option>
+											<option  value="" #if($value_grade.equals(""))selected="selected"#end>$tlang.getString("ungra")</option>
 											#foreach ($i in ["Pass", "Fail"])
-													<option  value="$i" #if ($value_grade.equalsIgnoreCase($i))selected="selected"#end>$i</option>
+													<option  value="$i" #if ($value_grade.equalsIgnoreCase($i))selected="selected"#end>#if ($i=="Pass") $tlang.getString("pass3") #elseif ($i=="Fail") $tlang.getString("fail") #end</option>
 											#end
 										</select>
 									</p>	
