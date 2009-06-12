@@ -220,10 +220,10 @@ ${util.formatDateTime($date,$request)}
      <div id="rwiki_sidebar_switcher">
         <a id="sidebar_switch_on" 
         	href="#" 
-        	onclick="showSidebar('none')" >(+)</a>
+        	onclick="showSidebar('none')" >(Show/Hide)</a>
         <a id="sidebar_switch_off" 
         	href="#" 
-        	onclick="hideSidebar('none')" >(+)</a>
+        	onclick="hideSidebar('none')" >(Show/Hide)</a>
 	 </div>
   #end
 #end
