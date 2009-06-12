@@ -62,6 +62,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.StringUtil;
 import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
+import org.hibernate.HibernateException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -145,6 +146,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	private AliasService aliasService;
 
 	private UserDirectoryService userDirectoryService;
+	
+	private int maxReferencesStringSize = 4000;
 
 	/**
 	 * Configuration: to run the ddl on init or not.
@@ -224,6 +227,9 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		{
 			log.error("Perform additional SQL setup", ex);
 		}
+		
+		maxReferencesStringSize = ServerConfigurationService.getInt("wiki.maxReferences",4000);
+
 		
 		log.debug("init end"); //$NON-NLS-1$
 
@@ -408,7 +414,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	 */
 	private void update(String name, String user, String realm, Date version,
 			String content, RWikiPermissions permissions)
-			throws PermissionException, VersionException
+			throws PermissionException, VersionException, RuntimeException
 	{
 
 		// May throw ReadPermissionException...
@@ -483,6 +489,12 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 			throw new VersionException("Version has changed since: " + version, //$NON-NLS-1$
 					e);
 		}
+		catch (HibernateException e)
+		{
+			log.info("Caught hibernate exception, update failed."+e.getMessage());
+			throw new RuntimeException("An update could not be made to this wiki page. A possible cause is that you have too many links.");
+		}
+
 	}
 
 	public void update(String name, String realm, Date version, String content)
@@ -641,13 +653,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 			renderService.renderPage(rwo, currentSpace, plr);
 
 			// process the references
-			StringBuffer sb = new StringBuffer();
-			Iterator i = referenced.iterator();
-			while (i.hasNext())
-			{
-				sb.append("::").append(i.next()); //$NON-NLS-1$
-			}
-			sb.append("::"); //$NON-NLS-1$
+			StringBuffer sb = extractReferences(rwo, referenced);
 			rwo.setReferenced(sb.toString());
 
 			return rwho;
@@ -655,6 +661,35 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		return null;
 
 	}
+	
+	/**
+	 *  Add page references to the rwiki object.  Limit length of the 
+	 *  string to save to a fixed value that will cover the common cases 
+	 *  without using resources for degenerate cases.
+	 * @param rwo - The rwiki object
+	 * @param referenced - the hash of the references to save.
+	 */
+	public StringBuffer extractReferences(RWikiCurrentObject rwo, final HashSet referenced) {
+		
+		StringBuffer sb = new StringBuffer();
+		Iterator i = referenced.iterator();
+		String next = null;
+		while (i.hasNext())
+		{
+			next = (String) i.next();
+			int referencedLength = sb.length()+4+next.length();
+			if (referencedLength >= maxReferencesStringSize) { // SAK-12115
+				break;
+			}
+			else
+			{
+				sb.append("::").append(next); //$NON-NLS-1$
+			}
+		}
+		sb.append("::"); //$NON-NLS-1$
+		return sb;
+	}
+
 
 	public boolean exists(String name, String space)
 	{
