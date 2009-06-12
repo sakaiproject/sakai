@@ -20,6 +20,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.ProfileApplication;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
@@ -91,8 +92,11 @@ public class RequestedFriends extends Panel {
 		    	//get name
 		    	String displayName = sakaiProxy.getUserDisplayName(friendUuid);
 		    	
-		    	//is this user allowed to view this person's profile image?
-				boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(friendUuid, userUuid, false);
+		    	//get privacy record for the friend
+		    	ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(friendUuid);
+		    	
+		    	//is profile image allowed to be viewed by this user/friend?
+				final boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(friendUuid, privacy, userUuid, false);
 				
 				//image
 				item.add(new ProfileImageRenderer("result-photo", friendUuid, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
@@ -111,7 +115,7 @@ public class RequestedFriends extends Panel {
 		    	
 		    	
 		    	//status component
-				ProfileStatusRenderer status = new ProfileStatusRenderer("result-status", userUuid, userUuid, "friendsListInfoStatusMessage", "friendsListInfoStatusDate");
+				ProfileStatusRenderer status = new ProfileStatusRenderer("result-status", friendUuid, privacy, userUuid, false, "friendsListInfoStatusMessage", "friendsListInfoStatusDate");
 				status.setOutputMarkupId(true);
 				item.add(status);
 		    	

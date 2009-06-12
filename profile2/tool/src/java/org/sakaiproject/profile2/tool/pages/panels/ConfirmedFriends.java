@@ -2,7 +2,6 @@ package org.sakaiproject.profile2.tool.pages.panels;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
@@ -22,6 +21,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.ProfileApplication;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
@@ -30,7 +30,6 @@ import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
 import org.sakaiproject.profile2.tool.pages.windows.RemoveFriend;
 import org.sakaiproject.profile2.util.ProfileConstants;
-import org.sakaiproject.profile2.util.ProfileUtils;
 
 public class ConfirmedFriends extends Panel {
 	
@@ -137,9 +136,12 @@ public class ConfirmedFriends extends Panel {
 		    	} else {
 		    		friend = profileLogic.isUserXFriendOfUserY(userUuid, friendUuid); //other person viewing, check if they are friends
 		    	}
+		    	
+		    	//get privacy record for the friend
+		    	ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(friendUuid);
 	    		
 		    	//is profile image allowed to be viewed by this user/friend?
-				final boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(friendUuid, currentUserUuid, friend);
+				final boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(friendUuid, privacy, currentUserUuid, friend);
 				
 				//image
 				item.add(new ProfileImageRenderer("result-photo", friendUuid, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
@@ -158,7 +160,7 @@ public class ConfirmedFriends extends Panel {
 		    	item.add(profileLink);
 		    	
 		    	//status component
-				ProfileStatusRenderer status = new ProfileStatusRenderer("result-status", userUuid, currentUserUuid, "friendsListInfoStatusMessage", "friendsListInfoStatusDate");
+				ProfileStatusRenderer status = new ProfileStatusRenderer("result-status", userUuid, privacy, currentUserUuid, friend, "friendsListInfoStatusMessage", "friendsListInfoStatusDate");
 				status.setOutputMarkupId(true);
 				item.add(status);
 		    	

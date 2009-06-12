@@ -12,6 +12,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.ProfileApplication;
 import org.sakaiproject.profile2.tool.components.FocusOnLoadBehaviour;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
@@ -47,8 +48,9 @@ public class AddFriend extends Panel {
 		window.setInitialWidth(500);
 		window.setResizable(false);
 		
-		//is this user allowed to view this person's profile image?
-		boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(userY, userX, false);
+		//privacy
+		ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(userY);
+		boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(userY, privacy, userX, false);
 		
 		//image
 		add(new ProfileImageRenderer("image", userY, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));

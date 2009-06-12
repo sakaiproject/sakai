@@ -17,6 +17,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.ProfileApplication;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.FriendsFeedDataProvider;
@@ -120,8 +121,11 @@ public class FriendsFeed extends Panel {
 					}
 				};
 				
+				//get privacy
+				ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(friendId);
+				
 				//is profile image allowed to be viewed by this user/friend?
-				final boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(friendId, viewingUserId, friend);
+				final boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(friendId, privacy, viewingUserId,friend);
 				
 				/* IMAGE */
 				friendItem.add(new ProfileImageRenderer("friendPhoto", friendId, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
