@@ -15,8 +15,12 @@
 			<select name="frequencySelect" id="frequencySelect" onchange="javascript:document.setFrequencyForm.submit();">
 				#if ($freq == "once") <option value="once" selected="selected">$tlang.getString("set.once")</option> #else <option value="once">$tlang.getString("set.once")</option> #end
 				#if ($freq == "day") <option value="day" selected="selected">$tlang.getString("set.daily")</option> #else <option value="day">$tlang.getString("set.daily")</option> #end
+				##Lines Added by Mustansar
+				#if ($freq == "MWF") <option value="MWF" selected="selected">$tlang.getString("set.MWF")</option> #else <option value="MWF">$tlang.getString("set.MWF")</option> #end
+				#if ($freq == "TTh") <option value="TTh" selected="selected">$tlang.getString("set.TTh")</option> #else <option value="TTh">$tlang.getString("set.TTh")</option> #end
+				##end of lines added by Mustansar
 				#if ($freq == "week") <option value="week" selected="selected">$tlang.getString("set.weekly")</option> #else <option value="week">$tlang.getString("set.weekly")</option> #end
-				#if ($freq == "month") <option value="month" selected="selected">$tlang.getString("set.monthly")</option> #else <option value="month">$tlang.getString("set.monthly")</option> #end
+				#if ($freq == "month") <option value="month" selected="selected">$tlang.getString("set.monthly")</option> #else <option value="month">$tlang.getString("set.monthly")</option> #end 
 				#if ($freq == "year") <option value="year" selected="selected">$tlang.getString("set.yearly")</option> #else <option value="year">$tlang.getString("set.yearly")</option> #end
 			</select>
 		</p>	
@@ -61,6 +65,8 @@
 				#if ($freq == "week")$tlang.getString("set.weeks")#end
 				#if ($freq == "month")$tlang.getString("set.months")#end
 				#if ($freq == "year")$tlang.getString("set.years")#end
+				#if ($freq == "TTh")$tlang.getString("set.weeks")#end  ## TTH frequency is in weeks
+				#if ($freq == "MWF")$tlang.getString("set.weeks")#end  ## MWF frequency is in weeks
 			</p>
 			<h4>
 				$tlang.getString("set.ends")

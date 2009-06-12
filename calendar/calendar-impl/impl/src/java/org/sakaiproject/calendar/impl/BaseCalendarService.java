@@ -1046,6 +1046,14 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		{
 			return new WeeklyRecurrenceRule();
 		}
+		else if (frequency.equals(TThRecurrenceRule.FREQ))
+		{
+			return new TThRecurrenceRule();
+		}
+		else if (frequency.equals(MWFRecurrenceRule.FREQ))
+		{
+			return new MWFRecurrenceRule();
+		}
 		else if (frequency.equals(MonthlyRecurrenceRule.FREQ))
 		{
 			return new MonthlyRecurrenceRule();
@@ -1071,6 +1079,14 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		{
 			return new WeeklyRecurrenceRule(interval);
 		}
+		else if (frequency.equals(TThRecurrenceRule.FREQ))
+		{
+			return new TThRecurrenceRule(interval);
+		}
+		else if (frequency.equals(MWFRecurrenceRule.FREQ))
+		{
+			return new MWFRecurrenceRule(interval);
+		}
 		else if (frequency.equals(MonthlyRecurrenceRule.FREQ))
 		{
 			return new MonthlyRecurrenceRule(interval);
@@ -1079,7 +1095,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		{
 			return new YearlyRecurrenceRule(interval);
 		}
-
+	
 		return null;
 	}
 
@@ -1087,7 +1103,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	 * {@inheritDoc}
 	 */
 	public RecurrenceRule newRecurrence(String frequency, int interval, int count)
-	{
+	{	
+		M_log.debug("\n"+ frequency +"\nand Internval is \n "+ interval +"count is\n " + count);
 		if (frequency.equals(DailyRecurrenceRule.FREQ))
 		{
 			return new DailyRecurrenceRule(interval, count);
@@ -1096,6 +1113,14 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		{
 			return new WeeklyRecurrenceRule(interval, count);
 		}
+		else if (frequency.equals(TThRecurrenceRule.FREQ))
+		{
+			return new TThRecurrenceRule(interval,count);
+		}
+		else if (frequency.equals(MWFRecurrenceRule.FREQ))
+		{
+			return new MWFRecurrenceRule(interval,count);
+		} 
 		else if (frequency.equals(MonthlyRecurrenceRule.FREQ))
 		{
 			return new MonthlyRecurrenceRule(interval, count);
@@ -1107,7 +1132,6 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 		return null;
 	}
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1121,6 +1145,14 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		{
 			return new WeeklyRecurrenceRule(interval, until);
 		}
+		else if (frequency.equals(TThRecurrenceRule.FREQ))
+		{
+			return new TThRecurrenceRule(interval,until);
+		}
+		else if (frequency.equals(MWFRecurrenceRule.FREQ))
+		{
+			return new MWFRecurrenceRule(interval,until);
+		} 
 		else if (frequency.equals(MonthlyRecurrenceRule.FREQ))
 		{
 			return new MonthlyRecurrenceRule(interval, until);
@@ -1129,7 +1161,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		{
 			return new YearlyRecurrenceRule(interval, until);
 		}
-
+     
 		return null;
 	}
 
