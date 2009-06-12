@@ -115,22 +115,6 @@ public interface ProfileLogic {
 	public ProfileStatus getUserStatus(String userId);
 	
 	/**
-	 * Get the status message of a user
-	 * NOTE: This is required so the status display model can be dynamically updated with the latest status
-	 *
-	 * @param userId		uuid of the user to get their status message for
-	 */
-	public String getUserStatusMessage(String userId);
-	
-	/**
-	 * Get the status date of a user.
-	 * NOTE: This is required so the status display model can be dynamically updated with the latest status date
-	 *
-	 * @param userId		uuid of the user to get their status date for
-	 */
-	public Date getUserStatusDate(String userId);
-	
-	/**
 	 * Set user status
 	 *
 	 * @param userId		uuid of the user 

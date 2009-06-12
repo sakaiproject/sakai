@@ -333,37 +333,6 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	}
 	
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public String getUserStatusMessage(String userId) {
-		
-		if(userId == null){
-	  		throw new IllegalArgumentException("Null Argument in Profile.getUserStatusMessage"); //$NON-NLS-1$
-	  	}
-		
-		ProfileStatus profileStatus = getUserStatus(userId);
-		if(profileStatus == null) {
-			return null;
-		}
-		return profileStatus.getMessage();
-	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public Date getUserStatusDate(String userId) {
-		if(userId == null){
-	  		throw new IllegalArgumentException("Null Argument in Profile.getUserStatusDate"); //$NON-NLS-1$
-	  	}
-		
-		ProfileStatus profileStatus = getUserStatus(userId);
-		if(profileStatus == null) {
-			return null;
-		}
-		return profileStatus.getDateAdded();
-	}
-	
 	
 	/**
  	 * {@inheritDoc}
