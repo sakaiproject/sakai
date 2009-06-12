@@ -397,8 +397,12 @@
 			      #end
 			      </ul>
 			    #end
+			    #if( $referencedLinks && $referencedLinks.size() > 60) ##SAK-12115
+			      ${rlb.jsp_info_outgoing_manylinks}
+			    #end
 			    </td>
 		   </tr>
+		   
 		   <!-- NOTIFICATION SUPPORT, wiki.notifications to enable -->
 			  #if (${requestScope.withnotification})
 		   <tr>
