@@ -8,6 +8,8 @@ import java.util.Date;
  * 
  * <p>DO NOT USE THIS YOURSELF.</p>
  * 
+ * TODO merge this with the proper API model
+ * 
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  */
 public class UserProfile implements Serializable {

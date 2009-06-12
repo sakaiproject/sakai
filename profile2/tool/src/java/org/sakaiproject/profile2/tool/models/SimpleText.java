@@ -7,8 +7,6 @@ import java.io.Serializable;
  * 
  * <p>DO NOT USE THIS YOURSELF.</p>
  *
- * TODO make this model replace the Search model
- * 
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  */
 public class SimpleText implements Serializable {

@@ -3,7 +3,7 @@ package org.sakaiproject.profile2.tool.models;
 import java.io.Serializable;
 
 /**
- * Simple model to back the action behind adding/removeing/confirming/ignoring friend requests
+ * Simple model to back the action behind adding/removing/confirming/ignoring friend requests
  * Given to the modal windows, they then set the attributes and the calling page knows what to do based on these attributes.
  * To be used ONLY by the Profile2 tool.
  * 

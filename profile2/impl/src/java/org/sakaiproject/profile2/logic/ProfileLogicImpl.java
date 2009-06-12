@@ -1794,9 +1794,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		//otherwise create SearchResult record and add to list
 		for(Iterator<String> i = userUuids.iterator(); i.hasNext();){
 			String userUuid = (String)i.next();
-			
-			//TODO skip all this if userId == userUuid, just return a default search record?
-			
+				
 			//friend?
 			boolean friend = isUserXFriendOfUserY(userUuid, userId);
 			
