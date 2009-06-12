@@ -390,6 +390,9 @@
 		    		onMouseOut="hidePopup('outgoinghelp');" >?</a></th>
 		     <td colspan="6">
 			    #set( $referencedLinks = ${referencesBean.referencedPageLinks} )
+			     #if( $referencedLinks && $referencedLinks.size() > 60) ##SAK-12115
+			      ${rlb.jsp_info_outgoing_manylinks}
+			    #end
 			    #if ( $referencedLinks && $referencedLinks.size() > 0 ) 
 			      <ul id="referencedLinks">
 			      #foreach( $item in ${referencedLinks} )
@@ -397,10 +400,7 @@
 			      #end
 			      </ul>
 			    #end
-			    #if( $referencedLinks && $referencedLinks.size() > 60) ##SAK-12115
-			      ${rlb.jsp_info_outgoing_manylinks}
-			    #end
-			    </td>
+			   </td>
 		   </tr>
 		   
 		   <!-- NOTIFICATION SUPPORT, wiki.notifications to enable -->
