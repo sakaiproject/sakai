@@ -22,6 +22,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.exception.ProfilePrototypeNotDefinedException;
+import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.models.FriendAction;
@@ -45,7 +46,7 @@ public class ViewProfile extends BasePage {
 		//get current user Id
 		String currentUserId = sakaiProxy.getCurrentUserId();
 				
-		//double check, if somehow got to own ViewPage, redirect to MyProfile
+		//double check, if somehow got to own ViewPage, redirect to MyProfile instead
 		if(userUuid.equals(currentUserId)) {
 			log.warn("ViewProfile: user " + userUuid + " accessed ViewProfile for self. Redirecting...");
 			throw new RestartResponseException(new MyProfile());
@@ -72,14 +73,17 @@ public class ViewProfile extends BasePage {
 			friendRequestFromThisPerson = profileLogic.isFriendRequestPending(userUuid, currentUserId);
 		}
 		
-		
-		//is this user allowed to view this person's profile image?
-		boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(userUuid, currentUserId, friend);
-		
-		//is this user allowed to view this person's status?
-		boolean isStatusAllowed = profileLogic.isUserXStatusVisibleByUserY(userUuid, currentUserId, friend);
+		//privacy checks
+		ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(userUuid);
 		
 		
+		boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isBasicInfoAllowed = profileLogic.isUserXBasicInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isContactInfoAllowed = profileLogic.isUserXContactInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isAcademicInfoAllowed = profileLogic.isUserXAcademicInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isPersonalInfoAllowed = profileLogic.isUserXPersonalInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isFriendsListVisible = profileLogic.isUserXFriendsListVisibleByUserY(userUuid, privacy, currentUserId, friend);
+
 		/* DEPRECATED via PRFL-24 when privacy was relaxed
 		if(!isProfileAllowed) {
 			throw new ProfileIllegalAccessException("User: " + currentUserId + " is not allowed to view profile for: " + userUuid);
@@ -119,14 +123,10 @@ public class ViewProfile extends BasePage {
 		
 		
 		/* BASIC INFO */
-		
-		// privacy settings for basic info
-		boolean isBasicInfoAllowed = profileLogic.isUserXBasicInfoVisibleByUserY(userUuid, currentUserId, friend);
-
 		WebMarkupContainer basicInfoContainer = new WebMarkupContainer("mainSectionContainer_basic");
 		basicInfoContainer.setOutputMarkupId(true);
 		
-		//setup info
+		//get info
 		String nickname = sakaiPerson.getNickname();
 		Date dateOfBirth = sakaiPerson.getDateOfBirth();
 		String birthday = "";
@@ -179,10 +179,6 @@ public class ViewProfile extends BasePage {
 		
 		
 		/* CONTACT INFO */
-		
-		// privacy settings for contact info
-		boolean isContactInfoAllowed = profileLogic.isUserXContactInfoVisibleByUserY(userUuid, currentUserId, friend);
-
 		WebMarkupContainer contactInfoContainer = new WebMarkupContainer("mainSectionContainer_contact");
 		contactInfoContainer.setOutputMarkupId(true);
 		
@@ -276,11 +272,6 @@ public class ViewProfile extends BasePage {
 		
 		
 		/* ACADEMIC INFO */
-		
-		// privacy settings for contact info
-		//boolean isAcademicInfoAllowed = profile.isUserXContactInfoVisibleByUserY(userUuid, currentUserId, friend);
-		boolean isAcademicInfoAllowed = true;
-		
 		WebMarkupContainer academicInfoContainer = new WebMarkupContainer("mainSectionContainer_academic");
 		academicInfoContainer.setOutputMarkupId(true);
 		
@@ -376,10 +367,6 @@ public class ViewProfile extends BasePage {
 		
 		
 		/* PERSONAL INFO */
-		
-		// privacy settings for basic info
-		boolean isPersonalInfoAllowed = profileLogic.isUserXPersonalInfoVisibleByUserY(userUuid, currentUserId, friend);
-
 		WebMarkupContainer personalInfoContainer = new WebMarkupContainer("mainSectionContainer_personal");
 		personalInfoContainer.setOutputMarkupId(true);
 		
@@ -536,9 +523,6 @@ public class ViewProfile extends BasePage {
 		
 		
 		/* FRIEND FEED PANEL */
-		//friends feed panel
-		boolean isFriendsListVisible = profileLogic.isUserXFriendsListVisibleByUserY(userUuid, currentUserId, friend);
-		
 		Panel friendsFeed;
 		if(isFriendsListVisible) {
 			friendsFeed = new FriendsFeed("friendsFeed", userUuid, currentUserId);
