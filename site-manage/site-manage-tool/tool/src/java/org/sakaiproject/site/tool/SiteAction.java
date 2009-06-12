@@ -5451,6 +5451,9 @@ public class SiteAction extends PagedResourceActionII {
 			state.setAttribute(REQUEST_SENT, new Boolean(true));
 
 		} // if
+		
+		// reset locale to user default
+		rb.setContextLocale(null);
 
 	} // sendSiteRequest
 
@@ -5554,6 +5557,9 @@ public class SiteAction extends PagedResourceActionII {
 					replyTo, null);
 		} // if
 
+		// reset locale to user default
+		rb.setContextLocale(null);
+		
 	} // sendSiteNotification
 
 	/**
