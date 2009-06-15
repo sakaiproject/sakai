@@ -62,11 +62,22 @@ public interface MessageForumsMessageManager {
 
     public int findMessageCountByTopicId(Long topicId);
     
+    public int findMessageCountTotal();
+    
     public int findViewableMessageCountByTopicIdByUserId(Long topicId, String userId);
     
     public int findViewableMessageCountByTopicId(Long topicId);
 
     public int findAuhtoredMessageCountByTopicIdByUserId(final Long topicId, final String userId);
+    
+    public int findAuthoredMessageCountForStudent(final String userId);
+    
+    /**
+     * @return Each item in the list will be an array consisting of two elements.  The element
+     * at index 0 will correspond to the student's id and the element at index 1 will correspond
+     * to the number of messages that student has authored in the site.
+     */
+    public List<Object[]> findAuthoredMessageCountForAllStudents();
     
     public int findUnreadMessageCountByTopicIdByUserId(Long topicId, String userId);
     
@@ -79,6 +90,15 @@ public interface MessageForumsMessageManager {
     public int findReadMessageCountByTopicIdByUserId(Long topicId, String userId);
     
     public int findReadMessageCountByTopicId(Long topicId);
+    
+    public int findReadMessageCountForStudent(final String userId);
+    
+    /**
+     * @return Each item in the list will be an array consisting of two elements.  The element
+     * at index 0 will correspond to the student's id and the element at index 1 will correspond
+     * to the number of messages that student has read in the site.
+     */
+    public List<Object[]> findReadMessageCountForAllStudents();
     
     public int findReadViewableMessageCountByTopicId(Long topicId);
 

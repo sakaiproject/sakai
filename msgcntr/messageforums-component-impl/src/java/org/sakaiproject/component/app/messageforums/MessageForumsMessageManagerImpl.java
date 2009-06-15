@@ -298,6 +298,40 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         return ((Integer) getHibernateTemplate().execute(hcb)).intValue(); 
     }
     
+    public int findAuthoredMessageCountForStudent(final String userId) {
+    	if (userId == null) {
+    		LOG.error("findAuthoredMessageCountForStudentInSite failed with a null userId");
+    		throw new IllegalArgumentException("userId cannot be null");
+    	}
+    	
+    	if (LOG.isDebugEnabled()) LOG.debug("findAuthoredMessageCountForStudentInSite executing with userId: " + userId);
+    	
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery("findAuthoredMessageCountForStudentInSite");
+                q.setParameter("contextId", getContextId(), Hibernate.STRING);
+                q.setParameter("userId", userId, Hibernate.STRING);
+                return q.uniqueResult();
+            }
+        };
+
+        return ((Integer) getHibernateTemplate().execute(hcb)).intValue();     	
+    }
+    
+    public List<Object[]> findAuthoredMessageCountForAllStudents() {
+    	if (LOG.isDebugEnabled()) LOG.debug("findAuthoredMessageCountForAllStudents executing");
+    	
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery("findAuthoredMessageCountForAllStudents");
+                q.setParameter("contextId", getContextId(), Hibernate.STRING);
+                return q.list();
+            }
+        };
+
+        return (List)getHibernateTemplate().execute(hcb);        
+    }
+    
     public int findReadMessageCountByTopicIdByUserId(final Long topicId, final String userId) {
         if (topicId == null || userId == null) {
             LOG.error("findReadMessageCountByTopicIdByUserId failed with topicId: " + topicId + 
@@ -318,6 +352,40 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         };
 
         return ((Integer) getHibernateTemplate().execute(hcb)).intValue();        
+    }
+    
+    public int findReadMessageCountForStudent(final String userId) {
+    	if (userId == null) {
+    		LOG.error("findReadMessageCountForStudent failed with null userId");
+    		throw new IllegalArgumentException("userId cannot be null");
+    	}
+    	
+    	if (LOG.isDebugEnabled()) LOG.debug("findReadMessageCountForStudent executing with userId: " + userId);
+    	
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery("findReadMessageCountForStudent");
+                q.setParameter("contextId", getContextId(), Hibernate.STRING);
+                q.setParameter("userId", userId, Hibernate.STRING);
+                return q.uniqueResult();
+            }
+        };
+
+        return ((Integer) getHibernateTemplate().execute(hcb)).intValue();        
+    }
+    
+    public List<Object[]> findReadMessageCountForAllStudents() {
+    	if (LOG.isDebugEnabled()) LOG.debug("findReadMessageCountForAllStudentsInSite executing");
+    	
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery("findReadMessageCountForAllStudents");
+                q.setParameter("contextId", getContextId(), Hibernate.STRING);
+                return q.list();
+            }
+        };
+
+        return (List)getHibernateTemplate().execute(hcb);        
     }
     
     /**
@@ -522,6 +590,18 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         return ((Integer) getHibernateTemplate().execute(hcb)).intValue();        
     }
 
+    public int findMessageCountTotal() {
+    	HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery("findMessageCountTotal");
+                q.setParameter("contextId", getContextId(), Hibernate.STRING);
+                return q.uniqueResult();
+            }
+    	};
+    	
+    	return ((Integer)getHibernateTemplate().execute(hcb)).intValue();
+    }
+    
     public UnreadStatus findUnreadStatusByUserId(final Long topicId, final Long messageId, final String userId){
     	if (messageId == null || topicId == null || userId == null) {
             LOG.error("findUnreadStatusByUserId failed with topicId: " + topicId + ", messageId: " + messageId

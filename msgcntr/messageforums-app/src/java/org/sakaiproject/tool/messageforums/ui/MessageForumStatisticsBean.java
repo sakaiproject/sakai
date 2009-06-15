@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.Set;
 import java.util.Vector;
 
@@ -435,59 +436,74 @@ public class MessageForumStatisticsBean {
 	
 	
 	public List getAllUserStatistics(){
-		final List statistics = new ArrayList();
+
+		int totalForum = messageManager.findMessageCountTotal();
+		Map<String, DecoratedCompiledMessageStatistics> tmpStatistics = new TreeMap<String, DecoratedCompiledMessageStatistics>();
+
+		// process the returned read statistics for the students to get them sorted by user id
+		List<Object[]> studentReadStats = messageManager.findReadMessageCountForAllStudents();
+		for (Object[] readStat: studentReadStats) {
+			DecoratedCompiledMessageStatistics userStats = tmpStatistics.get(readStat[0]);
+			if (userStats == null) {
+				userStats = new DecoratedCompiledMessageStatistics();
+				tmpStatistics.put((String)readStat[0], userStats);
+			}
+			
+			if (totalForum > 0) {
+				userStats.setReadForumsAmt((Integer)readStat[1]);
+			} else {
+				userStats.setReadForumsAmt(0);				
+			}
+		}
 		
+		// process the returned authored statistics for the students to get them sorted by user id
+		List<Object[]> studentAuthoredStats = messageManager.findAuthoredMessageCountForAllStudents();
+		for (Object[] authoredStat: studentAuthoredStats) {
+			DecoratedCompiledMessageStatistics userStats = tmpStatistics.get(authoredStat[0]);
+			if (userStats == null) {
+				userStats = new DecoratedCompiledMessageStatistics();
+				tmpStatistics.put((String)authoredStat[0], userStats);
+			}
+			
+			if (totalForum > 0) {
+				userStats.setAuthoredForumsAmt((Integer)authoredStat[1]);
+			} else {
+				userStats.setAuthoredForumsAmt(0);
+			}
+		}
+
+		// now process the users from the list of site members to add display information
+		// this will also prune the list of members so only the papropriate ones are displayed
 		courseMemberMap = membershipManager.getAllCourseMembers(true,false,false);
 		List members = membershipManager.convertMemberMapToList(courseMemberMap);
-		
-		for (Iterator i = members.iterator(); i.hasNext();){       
-	        MembershipItem item = (MembershipItem) i.next();
-	 
-	        userInfo = new DecoratedCompiledMessageStatistics();
-	        
-	        String name = item.getName();
-	        if(null != item.getUser()){
-		        String userId = item.getUser().getId();
-		        userInfo.setSiteUser(name);
-		        userInfo.setSiteUserId(userId);
-		        
-		      	//Number of authored, read, unread, and percent forum messages is a little harder
-				// need to loop through all topics and add them up
-				final List topicsList = forumManager.getDiscussionForums();
-				int authoredForum = 0 , readForum = 0, unreadForum = 0, totalForum = 0;
-	
-				final Iterator forumIter = topicsList.iterator();
-	
-				while (forumIter.hasNext()) {
-					final DiscussionForum df = (DiscussionForum) forumIter.next();
-	
-					final List topics = df.getTopics();
-					final Iterator topicIter = topics.iterator();
-	
-					while (topicIter.hasNext()) {
-						final Topic topic = (Topic) topicIter.next();
-						
-						if (uiPermissionsManager.isRead((DiscussionTopic) topic, df)) {
-							totalForum += messageManager.findMessageCountByTopicId(topic.getId());
-							authoredForum += messageManager.findAuhtoredMessageCountByTopicIdByUserId(topic.getId(), userId);
-							unreadForum += messageManager.findUnreadMessageCountByTopicIdByUserId(topic.getId(), userId);
-							readForum += messageManager.findReadMessageCountByTopicIdByUserId(topic.getId(), userId);
-						}
-					}
+		final List<DecoratedCompiledMessageStatistics> statistics = new ArrayList<DecoratedCompiledMessageStatistics>();
+
+		for (Iterator i = members.iterator(); i.hasNext();) {
+			MembershipItem item = (MembershipItem) i.next();
+			
+			if (null != item.getUser()) {
+				userInfo = tmpStatistics.get(item.getUser().getId());
+				if (userInfo == null) {
+					userInfo = new DecoratedCompiledMessageStatistics();
+					userInfo.setReadForumsAmt(0);
+					userInfo.setAuthoredForumsAmt(0);
 				}
-				Double percentRead = 0.0;
-				//check to see if there are more than 0 messages in this forum
-				if(totalForum > 0){
-					percentRead = (new Double(readForum) / new Double(totalForum));
+				
+				userInfo.setSiteUserId(item.getUser().getId());
+				userInfo.setSiteUser(item.getName());
+
+				if (totalForum > 0) {
+					userInfo.setUnreadForumsAmt(totalForum - userInfo.getReadForumsAmt());
+					userInfo.setPercentReadFOrumsAmt((double)userInfo.getReadForumsAmt() / (double)totalForum);
+				} else {
+					userInfo.setUnreadForumsAmt(0);
+					userInfo.setPercentReadFOrumsAmt((double)0);
 				}
-		        userInfo.setAuthoredForumsAmt(authoredForum);
-		        userInfo.setReadForumsAmt(readForum);
-		        userInfo.setUnreadForumsAmt(unreadForum);
-		        userInfo.setPercentReadFOrumsAmt(percentRead);
-		        
-		       	statistics.add(userInfo);
-	        }
-	    }
+
+				statistics.add(userInfo);
+			}
+		}
+
 		sortStatistics(statistics);
 		return statistics;
 	}
