@@ -11,6 +11,13 @@
 # The "runconversion.sh" script does not have to be run
 # in place. It could be copied to the working directory.
 
+echo "
+Notice: This script is difficult to use and is planned to be updated and improved before the final 2.6 release. 
+However it was not ready to be included in the release candidate. 
+Please check the trunk at: https://source.sakaiproject.org/viewsvn/mailarchive/trunk for the latest version. 
+The SAK-16554 (http://bugs.sakaiproject.org/jira/browse/SAK-16554) & SAK-13608 also has lastest updates.
+"
+
 # For Cygwin, ensure paths are in the proper format.
 cygwin=false;
 case "`uname`" in
