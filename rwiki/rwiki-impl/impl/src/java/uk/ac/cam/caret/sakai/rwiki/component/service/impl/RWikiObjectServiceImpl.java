@@ -1484,6 +1484,11 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 										sideBar = null;
 									}
 								}
+                        
+								eventTrackingService.post(
+											eventTrackingService.newEvent(
+																					RWikiObjectService.EVENT_RESOURCE_READ, ref.getReference(), false,
+																					NotificationService.PREF_NONE));
 								eh.outputContent(entity, sideBar, req, res);
 							}
 							else
@@ -1517,6 +1522,11 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 										sideBar = null;
 									}
 								}
+                        
+								eventTrackingService.post(
+											eventTrackingService.newEvent(
+																					RWikiObjectService.EVENT_RESOURCE_READ, ref.getReference(), false,
+																					NotificationService.PREF_NONE));
 								eh.outputContent(entity, sideBar, req, res);
 							}
 							else
