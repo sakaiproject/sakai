@@ -11,9 +11,9 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.tool.ProfileApplication;
+import org.sakaiproject.profile2.tool.models.DetachableStringModel;
 
 /**
  * ConfirmedFriendsDataProvider.java
@@ -82,7 +82,7 @@ public class ConfirmedFriendsDataProvider implements IDataProvider, Serializable
 	}
 
     public IModel model(Object object) {
-            return new Model((String)object);
+            return new DetachableStringModel((String)object);
     }
     
     public void detach() {}

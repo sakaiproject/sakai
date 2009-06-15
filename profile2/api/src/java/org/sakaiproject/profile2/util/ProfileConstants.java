@@ -135,6 +135,9 @@ public class ProfileConstants {
 	//max number of search result items before its limited
 	public static final int MAX_SEARCH_RESULTS = 30;
 	
+	//max number of connections to show per page
+	public static final int MAX_CONNECTIONS_PER_PAGE = 15;
+	
 	//record limits used in searchUsers (could we combine with above?)
 	public static final int FIRST_RECORD = 0;		
 	public static final int MAX_RECORDS = 99;

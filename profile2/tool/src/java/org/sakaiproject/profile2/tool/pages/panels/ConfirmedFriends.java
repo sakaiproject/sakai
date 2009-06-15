@@ -12,6 +12,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -132,7 +133,7 @@ public class ConfirmedFriends extends Panel {
 		    	
 		    	//get friend status
 		    	if(ownList) {
-		    		friend = true; //viewing own page, hence friend
+		    		friend = true; //viewing own page of conenctions, must be friend!
 		    	} else {
 		    		friend = profileLogic.isUserXFriendOfUserY(userUuid, friendUuid); //other person viewing, check if they are friends
 		    	}
@@ -145,7 +146,6 @@ public class ConfirmedFriends extends Panel {
 				
 				//image
 				item.add(new ProfileImageRenderer("result-photo", friendUuid, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
-		    	
 			
 		    	//name and link to profile
 		    	Link profileLink = new Link("result-profileLink") {
@@ -160,7 +160,7 @@ public class ConfirmedFriends extends Panel {
 		    	item.add(profileLink);
 		    	
 		    	//status component
-				ProfileStatusRenderer status = new ProfileStatusRenderer("result-status", userUuid, privacy, currentUserUuid, friend, "friendsListInfoStatusMessage", "friendsListInfoStatusDate");
+				ProfileStatusRenderer status = new ProfileStatusRenderer("result-status", friendUuid, privacy, currentUserUuid, friend, "friendsListInfoStatusMessage", "friendsListInfoStatusDate");
 				status.setOutputMarkupId(true);
 				item.add(status);
 		    	
@@ -224,15 +224,21 @@ public class ConfirmedFriends extends Panel {
 			
 		};
 		confirmedFriendsDataView.setOutputMarkupId(true);
+		confirmedFriendsDataView.setItemsPerPage(ProfileConstants.MAX_CONNECTIONS_PER_PAGE);
+		
 		confirmedFriendsContainer.add(confirmedFriendsDataView);
 
 		//add results container
 		add(confirmedFriendsContainer);
+		
+		//add pager
+		PagingNavigator pager = new PagingNavigator("navigator", confirmedFriendsDataView);
+		add(pager);
 
 		//initially, if no friends, hide container
 		if(numConfirmedFriends == 0) {
 			confirmedFriendsContainer.setVisible(false);
-			
+			pager.setVisible(false);
 		}
 	}
 	
