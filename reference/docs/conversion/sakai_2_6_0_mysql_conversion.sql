@@ -702,3 +702,15 @@ CREATE INDEX IE_SAKAI_EVENT_DELAY_RESOURCE ON SAKAI_EVENT_DELAY
         REF ASC
 );
 
+-- SAK-13584 Further Improve the Performance of the Email Archive and Message API. Note you have to run a bash conversion script on your old mail archive data for it to
+-- appear in the new mail archive. The script is in the source as mailarchive-runconversion.sh. Please see the SAK for more information on this script or SAK-16554 for
+-- updates to this script. 
+
+CREATE INDEX IE_MAILARC_SUBJECT ON MAILARCHIVE_MESSAGE
+(
+       SUBJECT                   ASC
+);
+ALTER TABLE MAILARCHIVE_MESSAGE ADD COLUMN (
+       SUBJECT           VARCHAR (255) NULL,
+       BODY              LONGTEXT NULL
+);
