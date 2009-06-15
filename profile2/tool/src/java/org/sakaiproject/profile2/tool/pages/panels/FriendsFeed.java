@@ -102,7 +102,7 @@ public class FriendsFeed extends Panel {
 		    	
 		    	//get friend status
 		    	if(ownerUserId.equals(viewingUserId)) {
-		    		friend = true; //viewing own list of confirmed fiends so must be a friend
+		    		friend = true; //viewing own list of friends so must be a friend
 		    	} else {
 		    		friend = profileLogic.isUserXFriendOfUserY(viewingUserId, friendId); //other person viewing, check if they are friends
 		    	}
