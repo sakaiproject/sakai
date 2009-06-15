@@ -240,6 +240,12 @@ public class ConfirmedFriends extends Panel {
 			confirmedFriendsContainer.setVisible(false);
 			pager.setVisible(false);
 		}
+		
+		//also, if num less than num required for pager, hide it
+		if(numConfirmedFriends <= ProfileConstants.MAX_CONNECTIONS_PER_PAGE) {
+			pager.setVisible(false);
+		}
+		
 	}
 	
 	/* reinit for deserialisation (ie back button) */
