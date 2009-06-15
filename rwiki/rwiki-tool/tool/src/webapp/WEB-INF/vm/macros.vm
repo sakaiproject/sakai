@@ -128,12 +128,12 @@ LOG-LOG-LOG-LOG-LOG
 #if ($useHomeLink)
 <a href="${util.escapeHtml($homeBean.getHomeLinkUrl())}"
 	id="homeLink"  
-	title="${resourceLoaderBean.getString("jsp_wiki_home")}" >${util.escapeHtml($homeBean.getHomeLinkValue())}</a> 
+	title="${resourceLoaderBean.getString("jsp_wiki_home")}" >${resourceLoaderBean.getString("jsp_wiki_home")}</a> 
 #end
 #if ($useViewLink)
 <a href="${util.escapeHtml($viewBean.getViewUrl())}"
 	id="viewLink"  
-	title="${resourceLoaderBean.getString("jsp_view")}" >${util.escapeHtml($viewLinkName)}</a> 
+	title="${resourceLoaderBean.getString("jsp_view")}" >${resourceLoaderBean.getString("jsp_view")}</a> 
 #end
 #if ($useEditLink)
 #set( $permissionsCheckBean = ${requestScope.permissionsBean} )
