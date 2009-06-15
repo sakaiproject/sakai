@@ -189,7 +189,7 @@ public class ConfirmedFriends extends Panel {
 				
 				//can only delete if own friends
 				if(!ownList) {
-					removeFriendLink.setEnabled(true);
+					removeFriendLink.setEnabled(false);
 					removeFriendLink.setVisible(false);
 				}
 				
@@ -235,7 +235,7 @@ public class ConfirmedFriends extends Panel {
 		AjaxPagingNavigator pager = new AjaxPagingNavigator("navigator", confirmedFriendsDataView);
 		add(pager);
 
-		//initially, if no friends, hide container
+		//initially, if no friends, hide container and pager
 		if(numConfirmedFriends == 0) {
 			confirmedFriendsContainer.setVisible(false);
 			pager.setVisible(false);
