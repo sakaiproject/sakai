@@ -325,6 +325,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 		
 		byte[] data = null;
 		
+		if(StringUtils.isBlank(resourceId)) {
+			return null;
+		}
+		
 		try {
 			
 			enableSecurityAdvisor();
