@@ -22,20 +22,6 @@ public class SimpleText implements Serializable {
 	}
 	
 	
-	
-	
-	/* for the form feedback, to get around a bug in Wicket where it needs a backing model */
-	private String textFeedback;
-	
-	public String getTextFeedback() {
-		return textFeedback;
-	}
-	public void setTextFeedback(String textFeedback) {
-		this.textFeedback = textFeedback;
-	}
-	
-
-	
 	/**
 	 * Default constructor
 	 */
