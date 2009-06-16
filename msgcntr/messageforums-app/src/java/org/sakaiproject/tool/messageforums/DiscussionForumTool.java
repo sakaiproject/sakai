@@ -2014,6 +2014,7 @@ public class DiscussionForumTool
 	        	}
 	    	}
 	    }
+	    refreshSelectedMessageSettings(selectedMessage.getMessage());
   }
 
   
