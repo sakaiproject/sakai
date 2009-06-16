@@ -9482,6 +9482,17 @@ public class AssignmentAction extends PagedResourceActionII
 
 				// ... showing only locks that are prpefixed with this
 				state.setAttribute(PermissionsHelper.PREFIX, "asn.");
+				
+				// ... pass the resource loader object
+				ResourceLoader pRb = new ResourceLoader("permissions");
+				HashMap<String, String> pRbValues = new HashMap<String, String>();
+				for (Iterator iKeys = pRb.keySet().iterator();iKeys.hasNext();)
+				{
+					String key = (String) iKeys.next();
+					pRbValues.put(key, (String) pRb.get(key));
+					
+				}
+				state.setAttribute("permissionDescriptions",  pRbValues);
 
 				// disable auto-updates while leaving the list view
 				justDelivered(state);
