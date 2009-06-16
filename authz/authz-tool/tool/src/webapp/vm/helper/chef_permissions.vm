@@ -1,5 +1,169 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/helper/chef_permissions.vm,v 1.4 2005/05/28 03:04:36 ggolden.umich.edu Exp $ -->
 <div class="portletBody">
+	<style type="text/css">
+		h4,th, td{
+			cursor:pointer
+		}
+		h4{
+			color: #5896C7  !important;
+		}
+		th:hover, td h4:hover{
+			color:#369 !important
+		}
+		.checkGrid a{
+			text-decoration:none !important
+		}
+		.checkGrid{	border-top: 1px solid #e5eff8;
+		border-right: 1px solid #e5eff8;
+		border-collapse:collapse;
+		
+	}
+		.checkGrid th{
+			background: #f4f9fe;
+			text-align: center !important;
+			font-size: 1.2em;
+			color: #5896C7;
+		}
+		.checkGrid th#permission{
+			text-align:left !important
+		}
+		.checkGrid label{
+			display:block;
+			width:100%;
+			height:100%;
+			margin:0;
+			text-align:center;
+			padding:.3em 0;
+		}
+		.checkGrid td.active{
+			background:#DDECFC;
+		}
+		.checkGrid td.active:hover{
+			background:#cde;
+		}
+		.checkGrid td{
+			border:1px solid #eee;
+			cursor:pointer;
+			padding:0 !important;
+			text-align:center;
+			width:10em;
+		}
+		.checkGrid td label:hover{
+			background: #C4DFFB;
+			cursor:pointer;
+		}
+		tr.evenrow td { background: #f7fbff;}
+		td.permissionDescription {
+			width:auto;
+			background:#F9FCFE;
+			text-align:left;
+			white-space: nowrap;
+		}
+		td.permissionDescription a{
+			padding:.3em;
+			display:block;	
+		}
+		tr.evenrow .permissionDescription{
+			 background: #f4f9fe; 
+		}
+		.rowHover{
+			background:#c4dffb !important
+		}
+
+	</style>
+<script type="text/javascript" src="/library/js/jquery/jquery-ui/js/jquery.js"></script>
+			<script type="text/javascript">
+				$(document).ready(function(){
+				    $("table.checkGrid tr:even").addClass("evenrow");
+					$(':checked').parents('td').addClass('active');
+					$(':checked').parents('td').addClass('defaultSelected');
+				    $('input:checkbox').click(function(){
+				        if (this.checked) {
+				            $(this).parents('td').addClass('active');
+				        }
+				        else {
+				            $(this).parents('td').removeClass('active');
+				        }
+				    });
+
+					$('.permissionDescription').mouseenter(function(){
+						$(this).parents('tr').children('td').addClass('rowHover');
+						}).mouseleave(function(){
+							$(this).parents('tr').children('td').removeClass('rowHover');
+				    });
+
+					$('th').mouseenter(function(){
+						var col=($(this).prevAll().size());
+						$(this).addClass('rowHover');
+						$('.' + col).addClass('rowHover');
+						 }).mouseleave(function(){
+						var col=($(this).prevAll().size());
+						$(this).removeClass('rowHover');
+						$('.' + col).removeClass('rowHover');
+					  });
+					$('th#permission').mouseenter(function(){
+						$('.checkGrid td.checkboxCell').addClass('rowHover');
+						 }).mouseleave(function(){
+						$('.checkGrid td.checkboxCell').removeClass('rowHover');    });
+
+					$('th#permission a').click(function(e){
+						if ($('.checkGrid :checked').length > 0){
+							$('.checkGrid input').attr('checked','');
+							$('.checkGrid td.checkboxCell').removeClass('active');
+						}
+						else{
+							$('.checkGrid input').attr('checked','checked');
+							$('.checkGrid td.checkboxCell').addClass('active');
+							
+						}
+						e.preventDefault();
+
+					});
+					$('.permissionDescription a').click(function(e){
+						if ( $(this).parents('tr').children('td').children('label').children('input:checked').length > 0){
+							$(this).parents('tr').children('td').children('label').children('input').attr('checked','');							
+							$(this).parents('tr').children('td').removeClass('active');
+							
+						}
+						else{
+							$(this).parents('tr').children('td').children('label').children('input').attr('checked','checked');
+							$(this).parents('tr').children('td').addClass('active');
+							$(this).removeClass('active');
+						} 
+						e.preventDefault();
+
+						});
+					$('th.role a').click(function(e){
+						var col=($(this).parent('th').prevAll().size());
+							if ($('.' + col +' label input:checked').length > 0){
+								$('.' + col +' label input').attr('checked','');
+								$('.' + col).removeClass('active');
+							}
+							else{
+								$('.' + col +' label input').attr('checked','checked');
+								$('.' + col).addClass('active');
+							}
+						e.preventDefault();
+
+						});
+
+				    $('#clearall').click(function(e){
+				        $("input").attr("checked", "");
+				        $('td').removeClass('active');
+						e.preventDefault();
+				    });
+				    $('#restdef').click(function(e){
+				        $("input").attr("checked", "");
+				        $('td').removeClass('active');
+				        $(".defaultSelected").addClass("active");
+						$(".defaultSelected input ").attr("checked","checked");
+						 e.preventDefault();
+				    });
+
+				});
+			</script>
+
+	
 #if($menu)
 	#toolbar($menu)
 #end
@@ -12,42 +176,86 @@
 	<div class="instruction">
 		$!description
 	</div>
-		<form action="#toolForm("$action")" method="post">
+	## no need to show the drop down menu if there is no group defined for the site
+	#if ($!groups && $groups.size()>0)
+	<div class="navPanel">
+		## if there are any groups at all
+		<div class="viewNav" id="groupSelector">
+			<form name="viewForm" class="inlineForm" method="post" action="#toolForm($action)">
+				<input type="hidden" name="eventSubmit_doView_permission_option" value="view" />
+				<div class="">
+					<label for="groupSelection">
+					$thelp.getString("per.lis.selectgrp")
+					</label>
+					<select id="authzGroupSelection" name="authzGroupSelection" onchange="blur();document.viewForm.submit();">
+						<option value ="$siteRef" #if ($!viewRealmId.equals($!siteId)) selected = "selected" #end>$thelp.getString("per.lis.site")</option>
+
+						## for each group
+						#set($groupCount=0)
+						 #foreach ($group in $!groups)
+							#set($groupCount=$groupCount + 1)
+							<option value ="$group.Reference" #if ($!viewRealmId.equals($group.Reference)) selected = "selected" #end>$group.Title</option>
+				     	#end
+						## end 	for each group
+					</select>
+					#if ($groupCount==0)
+					<script type="text/javascript"> $('#groupSelector').hide()</script>
+					#end
+				</div>
+			</form>	
+		</div>
+		#end
+		## end if there are any groups at all			
+		<div class="actionItem itemAction" style="float:left;padding-top:.5em">
+			<a id="clearall" href="#">$thelp.getString("per.lis.clearall")</a> | 	<a id="restdef" href="#">$thelp.getString("per.lis.restoredef")</a>
+		</div>
+	</div>
+	
+		<form name= "permissionForm" action="#toolForm("$action")" method="post">
 			#if ($!roles)
-				<table class="listHier lines nolines" cellspacing="0" summary ="$thelp.getString("per.lis")" border="0">
+				<table class="listHier checkGrid specialLink" cellspacing="0" summary ="$thelp.getString("per.lis")" border="0" style="width:auto">
 					<tr>
-						<th id="role">
-							$thelp.getString("per.rol")
+						<th id="permission">
+							<a href="#" title="$thelp.getString("per.lis.head.title")">$thelp.getString("per.lis.head")</a>
 						</th>
-						#foreach($lock in $abilities)
-							<th id="$lock.substring($prefix.length())">$lock.substring($prefix.length())</th>
+						#foreach($role in $roles)
+							<th class="role"><a href="#"  title="$thelp.getString("per.lis.role.title")">$role.Id</a></th>
 						#end
 					</tr>
-					#foreach($role in $roles)
-						#set($myRole = $realm.getRole($role.Id))
-						#set($roleAbilities = $rolesAbilities.get($role.Id))
-						<tr>
-							<td headers="role">
-								<h4>$role.Id</h4>
-							</td>
 						#foreach($lock in $abilities)
-							<td headers="$lock.substring($prefix.length())">
+
+							<tr>
+							<td  class="permissionDescription unclicked">
+								<a href="#" title="$thelp.getString("per.lis.perm.title")">
+									#set($desc = $lock)
+									#set($desc = $!functionDescriptions.get($lock))
+									$desc
+								</a>
+							</td>
+						#set($roleCount=0)
+							#foreach($role in $roles)
+						#set($myRole = $viewRealm.getRole($role.Id))
+						#set($roleAbilities = $rolesAbilities.get($role.Id))
+						#set($roleCount=$roleCount + 1)		
+							<td headers="$lock.substring($prefix.length())" class="$roleCount checkboxCell">
 								#if ($!hiddenLock.indexOf($lock) != -1 || ($lock == "site.viewRoster" && !$!editViewRoster))
 									## don't show checkbox for those roles
 								#else
 									#if($roleAbilities.contains($lock))
 										<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$thelp.getString("per.alrgra")" hspace="5" />
 									#else
-										<label for="$role.Id$lock" class="skip">$role.Id$lock</label>
-										<input type="checkbox" name="$role.Id$lock" id="$role.Id$lock" value="$role.Id$lock" #if(($myRole) && ($myRole.Id==$role.Id) && ($myRole.AllowedFunctions.contains($lock)))checked="checked"#end />
+										<label for="$role.Id$lock">
+										<input class="$role.Id$lock" type="checkbox" name="$role.Id$lock" id="$role.Id$lock" value="$role.Id$lock" #if(($myRole) && ($myRole.Id==$role.Id) && ($myRole.AllowedFunctions.contains($lock)))checked="checked"#end />
+										</label>
 									#end
 								#end
 							</td>
+							
 						#end
 						</tr>
 					#end
 				</table>
-					<div class="act">
+				<div class="act">
 						<input type="submit" class="active"  name="eventSubmit_doSave" value="$thelp.getString("gen.sav")" accesskey="s" />
 						<input type="submit" name="eventSubmit_doCancel" value="$thelp.getString("gen.can")" accesskey="x" />
 					</div>

@@ -140,6 +140,9 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		// ... showing only locks that are prpefixed with this
 		state.setAttribute(PermissionsAction.STATE_PREFIX, prefix);
 
+		// ... set the ResourceLoader object
+		state.setAttribute(PermissionsAction.STATE_PERMISSION_DESCRIPTIONS, toolSession.getAttribute("permissionDescriptions"));
+		
 		// start the helper
 		state.setAttribute(PermissionsAction.STATE_MODE, PermissionsAction.MODE_MAIN);
 	}

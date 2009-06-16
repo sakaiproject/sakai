@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
@@ -46,9 +47,13 @@ import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -81,6 +86,9 @@ public class PermissionsAction
 
 	/** State attributes for storing the realm being edited. */
 	private static final String STATE_REALM_EDIT = "permission.realm";
+	
+	/** State attributes for storing the current selected realm being edited. */
+	private static final String STATE_VIEW_REALM_EDIT = "permission.view.realm";
 
 	/** State attributes for storing the abilities, filtered by the prefix. */
 	private static final String STATE_ABILITIES = "permission.abilities";
@@ -90,12 +98,21 @@ public class PermissionsAction
 
 	/** State attribute for storing the abilities of each role for this resource. */
 	private static final String STATE_ROLE_ABILITIES = "permission.rolesAbilities";
+	
+	/** State attribute for permission description */
+	public static final String STATE_PERMISSION_DESCRIPTIONS = "permission.descriptions";
+	
+	/** the prefix to permission title for permission description entry in bundle file */
+	public static final String PREFIX_PERMISSION_DESCRIPTION = "desc-";
 
 	/** Modes. */
 	public static final String MODE_MAIN = "main";
 
 	/** vm files for each mode. TODO: path too hard coded */
 	private static final String TEMPLATE_MAIN = "helper/chef_permissions";
+
+	/** the SiteService **/
+	private static SiteService siteService = (SiteService) ComponentManager.get("org.sakaiproject.site.api.SiteService");
 
 	/**
 	 * build the context.
@@ -109,8 +126,14 @@ public class PermissionsAction
 		String realmId = (String) state.getAttribute(STATE_REALM_ID);
 
 		// in state is the realm to use for roles - if not, use realmId
-		String realmRolesId = (String) state.getAttribute(STATE_REALM_ROLES_ID);
-
+		String realmRolesId = null;
+		if ( state.getAttribute(STATE_REALM_ROLES_ID) == null)
+		{
+			state.setAttribute(STATE_REALM_ROLES_ID, realmId);
+		}
+		realmRolesId = (String) state.getAttribute(STATE_REALM_ROLES_ID);
+		context.put("viewRealmId", realmRolesId);
+		
 		// get the realm locked for editing
 		AuthzGroup edit = (AuthzGroup) state.getAttribute(STATE_REALM_EDIT);
 		if (edit == null)
@@ -159,6 +182,61 @@ public class PermissionsAction
 				return null;
 			}
 		}
+		
+		String siteId = realmId.replaceAll(siteService.REFERENCE_ROOT + "/", "");
+		context.put("siteRef", realmId);
+		try
+		{
+			Site site = siteService.getSite(siteId);
+			Collection groups = site.getGroups();
+			if (groups != null && !groups.isEmpty())
+			{
+				Iterator iGroups = groups.iterator();
+				for(; iGroups.hasNext();)
+				{
+					Group group = (Group) iGroups.next();
+					// need to either have realm update permission on the group level or better at the site level
+					if (!AuthzGroupService.allowUpdate(group.getReference()) && !AuthzGroupService.allowUpdate(site.getReference()))
+					{
+						iGroups.remove();
+					}
+				}
+				context.put("groups", groups);
+			}
+				
+		}
+		catch (Exception siteException)
+		{
+			M_log.warn("PermissionsAction.buildHelperContext: getsite of realm id =  " + realmId + siteException);
+		}
+		
+		// get the realm locked for editing
+		AuthzGroup viewEdit = (AuthzGroup) state.getAttribute(STATE_VIEW_REALM_EDIT);
+		if (viewEdit == null)
+		{
+			if (AuthzGroupService.allowUpdate(realmRolesId) || AuthzGroupService.allowUpdate(siteService.siteReference(siteId)))
+			{
+				try
+				{
+					viewEdit = AuthzGroupService.getAuthzGroup(realmRolesId);
+					state.setAttribute(STATE_VIEW_REALM_EDIT, viewEdit);
+				}
+				catch (GroupNotDefinedException e)
+				{
+					M_log.warn("PermissionsAction.buildHelperContext: getRealm with id= " + realmRolesId + " : " + e);
+					cleanupState(state);
+					return null;
+				}
+			}
+
+			// no permission
+			else
+			{
+				M_log.warn("PermissionsAction.buildHelperContext: no permission: " + realmId);
+				cleanupState(state);
+				return null;
+			}
+		}
 
 		// in state is the prefix for abilities to present
 		String prefix = (String) state.getAttribute(STATE_PREFIX);
@@ -169,8 +247,51 @@ public class PermissionsAction
 		{
 			// get all functions prefixed with our prefix
 			functions = FunctionManager.getRegisteredFunctions(prefix);
-
-			state.setAttribute(STATE_ABILITIES, functions);
+		}
+		
+		if (functions != null && !functions.isEmpty())
+		{
+			List<String> nFunctions = new Vector<String>();
+			if (!realmRolesId.equals(realmId))
+			{
+				// editing groups within site, need to filter out those permissions only applicable to site level
+				for (Iterator iFunctions = functions.iterator(); iFunctions.hasNext();)
+				{
+					String function = (String) iFunctions.next();
+					if (function.indexOf("all.groups") == -1)
+					{
+						nFunctions.add(function);
+					}
+				}
+			}
+			else
+			{
+				nFunctions.addAll(functions);
+			}
+			state.setAttribute(STATE_ABILITIES, nFunctions);
+			context.put("abilities", nFunctions);
+			
+			// get function description from passed in HashMap
+			// output permission descriptions
+			HashMap<String, String> functionDescriptions = (HashMap<String, String>) state.getAttribute(STATE_PERMISSION_DESCRIPTIONS);
+			if (functionDescriptions != null)
+			{
+				Set keySet = functionDescriptions.keySet();
+				for(Object function : functions)
+				{
+					String desc = (String) function;
+					String descKey = PREFIX_PERMISSION_DESCRIPTION + function;
+					if (keySet.contains(descKey))
+					{
+						// use function description
+						desc = (String) functionDescriptions.get(descKey);
+					}
+	
+					functionDescriptions.put((String) function, desc);
+				}
+				context.put("functionDescriptions", functionDescriptions);
+			
+			}
 		}
 
 		// in state is the description of the edit
@@ -181,7 +302,7 @@ public class PermissionsAction
 		if (roles == null)
 		{
 			// get the roles from the edit, unless another is specified
-			AuthzGroup roleRealm = edit;
+			AuthzGroup roleRealm = viewEdit;
 			if (realmRolesId != null)
 			{
 				try
@@ -207,7 +328,7 @@ public class PermissionsAction
 			state.setAttribute(STATE_ROLE_ABILITIES, rolesAbilities);
 
 			// get this resource's role Realms,those that refine the role definitions, but not it's own
-			Reference ref = EntityManager.newReference(edit.getId());
+			Reference ref = EntityManager.newReference(viewEdit.getId());
 			Collection realms = ref.getAuthzGroups();
 			realms.remove(ref.getReference());
 
@@ -220,8 +341,8 @@ public class PermissionsAction
 		}
 
 		context.put("realm", edit);
+		context.put("viewRealm", viewEdit);
 		context.put("prefix", prefix);
-		context.put("abilities", functions);
 		context.put("description", description);
 		if (roles.size() > 0)
 		{
@@ -244,12 +365,15 @@ public class PermissionsAction
 	private static void cleanupState(SessionState state)
 	{
 		state.removeAttribute(STATE_REALM_ID);
+		state.removeAttribute(STATE_REALM_ROLES_ID);
 		state.removeAttribute(STATE_REALM_EDIT);
+		state.removeAttribute(STATE_VIEW_REALM_EDIT);
 		state.removeAttribute(STATE_PREFIX);
 		state.removeAttribute(STATE_ABILITIES);
 		state.removeAttribute(STATE_DESCRIPTION);
 		state.removeAttribute(STATE_ROLES);
 		state.removeAttribute(STATE_ROLE_ABILITIES);
+		state.removeAttribute(STATE_PERMISSION_DESCRIPTIONS);
 		state.removeAttribute(STATE_MODE);
 		state.removeAttribute(VelocityPortletPaneledAction.STATE_HELPER);
 
@@ -258,13 +382,30 @@ public class PermissionsAction
 	}
 
 	/**
+	 * to show different permission settings based on user selection of authz group
+	 * @param data
+	 */
+	static public void doView_permission_option(RunData data)
+	{
+		String viewAuthzId = data.getParameters().getString("authzGroupSelection");
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		// reset attributes
+		state.setAttribute(STATE_REALM_ROLES_ID, viewAuthzId);
+		state.removeAttribute(STATE_VIEW_REALM_EDIT);
+		state.removeAttribute(STATE_ABILITIES);
+		state.removeAttribute(STATE_ROLES);
+		state.removeAttribute(STATE_ROLE_ABILITIES);
+	}
+	
+	/**
 	 * Handle the eventSubmit_doSave command to save the edited permissions.
 	 */
 	static public void doSave(RunData data)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
-		AuthzGroup edit = (AuthzGroup) state.getAttribute(STATE_REALM_EDIT);
+		// only save the view realm's roles
+		AuthzGroup edit = (AuthzGroup) state.getAttribute(STATE_VIEW_REALM_EDIT);
 
 		// read the form, updating the edit
 		readForm(data, edit, state);
