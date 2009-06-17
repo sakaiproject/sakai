@@ -29,6 +29,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Stack;
@@ -4243,6 +4244,18 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		// ... showing only locks that are prpefixed with this
 		state.setAttribute(PermissionsHelper.PREFIX, "annc.");
+
+		// load the permissions.properties file
+		ResourceLoader pRb = new ResourceLoader("permissions");
+		HashMap<String, String> pRbValues = new HashMap<String, String>();
+		for (Iterator iKeys = pRb.keySet().iterator();iKeys.hasNext();)
+		{
+		String key = (String) iKeys.next();
+		pRbValues.put(key, (String) pRb.get(key));
+
+		}
+		state.setAttribute("permissionDescriptions", pRbValues);
+
 	}
 
 	/**
