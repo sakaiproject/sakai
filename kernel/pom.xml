@@ -21,6 +21,13 @@
 		<notifiers>
 			<notifier>
 				<type>mail</type>
+				<sendOnError>true</sendOnError>
+				<sendOnFailure>true</sendOnFailure>
+				<sendOnSuccess>false</sendOnSuccess>
+				<sendOnWarning>false</sendOnWarning>
+				<configuration>
+					<address>builds@collab.sakaiproject.org</address>
+				</configuration>
 				<address>builds@collab.sakaiproject.org</address>
 			</notifier>
 		</notifiers>
