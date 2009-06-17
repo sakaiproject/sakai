@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +61,7 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -518,9 +520,11 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       }
    }
    
+   @SuppressWarnings("unchecked")
    public String processActionPermissions()
    {
       ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+      ToolSession toolSession = SessionManager.getCurrentToolSession();
 
       try {
           String url = "sakai.permissions.helper.helper/tool?" +
@@ -531,6 +535,20 @@ public class ChatTool implements RoomObserver, PresenceObserver {
                   "&session." + PermissionsHelper.PREFIX + "=" +
                   getChatFunctionPrefix();
 
+          // Set permission descriptions
+          if (toolSession != null) {
+        	  ResourceLoader pRb = new ResourceLoader("permissions");
+        	  HashMap<String, String> pRbValues = new HashMap<String, String>();
+        	  for (Iterator iKeys = pRb.keySet().iterator();iKeys.hasNext();)
+        	  {
+        		  String key = (String) iKeys.next();
+        		  pRbValues.put(key, (String) pRb.get(key));
+        	  }
+
+        	  toolSession.setAttribute("permissionDescriptions", pRbValues); 
+          }
+
+          // Invoke Permissions helper
           context.redirect(url);
       }
       catch (IOException e) {
