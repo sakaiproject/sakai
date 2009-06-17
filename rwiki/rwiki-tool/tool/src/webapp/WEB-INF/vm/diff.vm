@@ -39,7 +39,7 @@
 		    <h3>
 	      ${rlb.jsp_page_differences}: ${historyBean.localName}
 	      (${rlb.jsp_page_version} ${diffBean.left.revision}
-	      vs ${diffBean.right.revision})
+	      ${rlb.jsp_page_diff_vs} ${diffBean.right.revision})
 	    </h3>
 	    <div class="differences">
 	      <table class="colordiff">
@@ -68,7 +68,7 @@
 	    </div>
 	    <table border="0" cellpadding="0" cellspacing="0" class="keytable">
 	      <tr>
-		       <td colspan="2" class="keytablehead">Key</td>
+		       <td colspan="2" class="keytablehead">${rlb.jsp_page_diff_key}</td>
 	      </tr>
 	      <tr>
 		       <td width="50%" class="deletedLeft">${rlb.jsp_page_diff_deleted}</td>
@@ -79,7 +79,7 @@
 	      </tr>
 	      <tr>
 		       <td width="50%" class="addedLeft">&nbsp;</td>
-		       <td width="50%" class="addedRight">Added</td>
+		       <td width="50%" class="addedRight">${rlb.jsp_page_diff_added}</td>
 	      </tr>
 	    </table>
 	</div>
