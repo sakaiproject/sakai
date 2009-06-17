@@ -108,7 +108,7 @@
             </properties>
         </developer>
         <developer>
-            <id>rdavis</id>
+            <id>ray@media.berkeley.edu</id>
             <name>Ray Davis</name>
             <email>ray@media.berkeley.edu</email>
             <url>http://ray.media.berkeley.edu/blog/</url>
@@ -125,7 +125,7 @@
             </properties>
         </developer>
         <developer>
-            <id>jimeng</id>
+            <id>jimeng@umich.edu</id>
             <name>Jim Eng</name>
             <email>jimeng@umich.edu</email>
             <organization>The University of Michigan</organization>
@@ -137,7 +137,7 @@
             <properties></properties>
         </developer>
         <developer>
-            <id>dhorwitz</id>
+            <id>david.horwitz@uct.ac.za</id>
             <name>David Horwitz</name>
             <email>david.horwitz@uct.ac.za</email>
             <url>http://blogs.uct.ac.za/blog/daves-blog</url>
@@ -158,7 +158,7 @@
             </properties>
         </developer>
         <developer>
-            <id>bkirschn</id>
+            <id>bkirschn@umich.edu</id>
             <name>Beth Kirschner</name>
             <email>bkirschn@umich.edu</email>
             <url></url>
@@ -175,7 +175,7 @@
             </properties>
         </developer>
         <developer>
-            <id>stephen.marquard</id>
+            <id>stephen.marquard@uct.ac.za</id>
             <name>Stephen Marquard</name>
             <email>stephen.marquard@uct.ac.za</email>
             <organization>
@@ -194,7 +194,7 @@
             </properties>
         </developer>
         <developer>
-            <id>slt</id>
+            <id>slt@columbia.edu</id>
             <name>Seth Theriault</name>
             <email>slt@columbia.edu</email>
             <organization>Columbia University</organization>
@@ -205,7 +205,7 @@
             <timezone>-5</timezone>
         </developer>
         <developer>
-            <id>arwhyte</id>
+            <id>arwhyte@umich.edu</id>
             <name>Anthony Whyte</name>
             <email>arwhyte@sakaifoundation.org</email>
             <url>http://www.whyteboy.org</url>
