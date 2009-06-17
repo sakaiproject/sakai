@@ -26,6 +26,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import java.util.HashMap;
 
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.cover.AliasService;
@@ -1080,6 +1081,16 @@ System.out.println("doRemove_confirmed id="+msgId);
 		// ... showing only locks that are prpefixed with this
 		state.setAttribute(PermissionsHelper.PREFIX, "mail.");
 
+		// ... pass the resource loader object
+		ResourceLoader pRb = new ResourceLoader("permissions");
+		HashMap<String, String> pRbValues = new HashMap<String, String>();
+		for (Iterator iKeys = pRb.keySet().iterator();iKeys.hasNext();)
+		{
+			String key = (String) iKeys.next();
+			pRbValues.put(key, (String) pRb.get(key));
+		}
+		state.setAttribute("permissionDescriptions",  pRbValues);
+		
 	} // doPermissions
 
 	private Search getSearchFilter(String search, int first, int last)
