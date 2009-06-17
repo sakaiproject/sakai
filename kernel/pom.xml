@@ -28,7 +28,6 @@
 				<configuration>
 					<address>builds@collab.sakaiproject.org</address>
 				</configuration>
-				<address>builds@collab.sakaiproject.org</address>
 			</notifier>
 		</notifiers>
 	</ciManagement>
