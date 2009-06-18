@@ -284,7 +284,7 @@ function redirectBasedOnSelection(){
 			#end	
 				## instructor could choose to go to the manual creation page
 				<input  type="hidden" name="manualAdds" value="x" id="manual_add"/>
-				<input type="hidden" name="findCourse" value="x" id="find_course"/>
+				<input type="hidden" name="find_course"  value="x" id="find_course"/>
 				
 
 		
@@ -318,6 +318,12 @@ function redirectBasedOnSelection(){
 			#if (!$site)
 				<!-- Add Not Listed Courses -->
 				<a href="#" onclick="javascript:submitFindCourse();">$tlang.getString('nscourse.add_course_not_listed')</a>
+				## if site creation is based on template, this could be the final step!
+				#if ($!basedOnTemplate) 
+					<div class="instruction" id ="nextInstructions">
+						<span id="templateNonCourseInstruction" style="display:block">$tlang.getString("sitetype.templatefinalstepinstruction")</span>
+					</div>
+				#end
 				<p class="act">
 				<input
 					class="active"
@@ -326,8 +332,8 @@ function redirectBasedOnSelection(){
 					accesskey="s"
 					name="Continue" 
 					id="continueButton" 
-					value="$tlang.getString('gen.continue')"
-					onclick="document.addCourseForm.option.value='continue'; document.addCourseForm.submit(); return false;"
+					#if ($!basedOnTemplate) value="$tlang.getString('sitetype.done')" #else value="$tlang.getString('gen.continue')" #end
+					onclick="showNotif('submitnotif','continueButton','addCourseForm');document.addCourseForm.option.value='continue'; document.addCourseForm.submit(); return false;"
 					/>
 				<input
 					type="button" 
@@ -345,6 +351,7 @@ function redirectBasedOnSelection(){
 					value="$tlang.getString('gen.cancel')"
 					onclick="document.addCourseForm.option.value='cancel'; document.addCourseForm.submit(); return false;"
 					/>
+					<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 				</p>
 			#else
 				<!-- Add Not Listed Courses -->
@@ -356,9 +363,9 @@ function redirectBasedOnSelection(){
 					type="button" 
 					accesskey="s"
 					name="AddClass" 
-					id="addClassButton" 
+					id="addClassButton" name="addClassButton"
 					value="$tlang.getString('gen.continue')"
-					onclick="document.getElementById('option').value='add'; document.addCourseForm.submit(); return false;"
+					onclick="showNotif('submitnotif','addClassButton','addCourseForm'); document.getElementById('option').value='add'; document.addCourseForm.submit(); return false;"
 					/>
 				<input
 					type="button" 
@@ -368,9 +375,9 @@ function redirectBasedOnSelection(){
 					value="$tlang.getString('gen.cancel')"
 					onclick="document.getElementById('option').value='cancel_edit'; document.addCourseForm.submit(); return false;"
 				/>
-				</p>
+				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
+			</p>
 			#end
-
 	</form>
 	<script type="text/javascript">
 	// <![CDATA[

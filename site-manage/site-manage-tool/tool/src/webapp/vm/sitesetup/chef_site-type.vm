@@ -1,49 +1,24 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-type.vm,v 1.3 2005/06/04 02:41:16 ggolden.umich.edu Exp $ -->
+
+#*
+	routing logic
+	
+	1 - if user selects a template with site type not course --> go to site after title is entered
+	2 - if user selects a template with site type course --> force term selection, go to roster selection, offer the choice there 
+		of going to site when done
+	3 - if build own selected --> as usual
+
+	in cases 1 and 2 site should be unpublished so that user can adjust before others have access
+
+*#
+
+<script type="text/javascript" src="/library/js/jquery/jquery-ui/js/jquery.js"></script>
+<script type="text/javascript" src="/sakai-site-manage-tool/js/site-manage.js"></script>
+<link type="text/css" href="/sakai-site-manage-tool/css/site-manage.css" rel="stylesheet" media="screen" />
 <script type="text/javascript" language="JavaScript">
- 	function selectSiteType(type)
- 	{
- 		for (var i=0; i<document.typeform.itemType.length; i++)
- 		{
- 			if (document.typeform.itemType[i].value==type)
- 			{
- 				document.typeform.itemType[i].checked=true;
- 			}
- 			else
- 			{
- 				document.typeform.itemType[i].checked=false;
- 			}
- 		}
- 	}
- 	
- 	function toggleTemplateSelectList (type)
- 	{
- 		var selectTemplateType = "selectTemplate" + type;
- 		var templateList = document.getElementById(selectTemplateType);
- 		templateList.disabled = !templateList.disabled;
- 		
- 		var useTemplateType = "useTemplate" + type;
- 		var useTemplateTypeCheckbox = document.getElementById(useTemplateType);
- 		if (useTemplateTypeCheckbox.checked)
- 		{
- 			selectSiteType(type);
- 		}
- 	}
- 	
- 	function selectTemplateSite (type)
- 	{
- 		for (var i=0; i<document.typeform.itemType.length; i++)
- 		{
- 			var templateType = "template" + type;
- 			if (document.typeform.itemType[i].value==templateType)
- 			{
- 				document.typeform.itemType[i].checked=true;
- 			}
- 			else
- 			{
- 				document.typeform.itemType[i].checked=false;
- 			}
- 		}
- 	}
+    $(document).ready(function(){
+		sakai.siteTypeSetup()
+	});
 </script>
 <div class ="portletBody">
 
@@ -52,6 +27,7 @@
 	</h3>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitetype.alert") $validator.escapeHtml($alertMessage)</div>	#end
 	<p class="step">
+		## NOTE: below does not seem to be working
 		#if ($templateList.size() > 0)
 			## if there is template site types
 			$tlang.getString("sitetype.chothetyp.withtemplate")
@@ -61,69 +37,150 @@
 		#end
 	</p>
 	<form name="typeform" id="typeform" action="#toolForm("$action")" method="post">
-		#foreach ($type in $siteTypes)
-			#if (($type != "GradToolsStudent" && $type != $courseSiteType) || ($type == $courseSiteType && $canAddCourse) || ($type == "GradToolsStudent" && $!withDissertation && $!isGradStudent.booleanValue() && $!noGradToolsSite.booleanValue()))
-				<p class="checkbox indnt1">
-					<input type="radio" name="itemType" id="$type" value="$type" #if ($type == $typeSelected) checked="checked" #end/>
+		## NOTE: if create from template is enabled
+		<p class="checkbox indnt1">
+			<input type="radio" name="createMode" id="buildOwn" value="buildOwn" checked="checked"/>	
+			<label for="buildOwn">$tlang.getString("sitetype.buildown")</label>
+		</p>
+		## NOTE: end if create from template enabled
+		#* following block should show if "build own" has been selected,
+		 a site type has been picked, and then the user (from the next screen) hits "back"	- the "Build own" radio
+		 should be checked, as well as the selected site type
+		 *#
+		<div id="siteTypeList" 
+			 #* if templates enabled *# class="indnt3" #*end templates enabled *#>
+			#foreach ($type in $siteTypes)
+				#if (($type != "GradToolsStudent" && $type != $courseSiteType) || ($type == $courseSiteType && $canAddCourse) || ($type == "GradToolsStudent" && $!withDissertation && $!isGradStudent.booleanValue() && $!noGradToolsSite.booleanValue()))
+					<p class="checkbox indnt1">
+						<input type="radio" name="itemType" id="$type" value="$type" #if ($type == $typeSelected) checked="checked" #end/>
 						<label for = "$type">
 							#if ($type == "GradToolsStudent")
 								$tlang.getString("sitetype.gratooweb")
 							#else
-								$type $tlang.getString("sitetype.websit")
+								$type $tlang.getString("sitetype.websit")	
 							#end
 						</label>	
-				</p>		
-						#if ($type == $courseSiteType && $canAddCourse)
-							<div class="indnt3">
-								<p class="shorttext required">
-									<span class ="reqStar" id="term-required"> *</span>
-									<label for="selectTerm">
-										$tlang.getString("sitetype.acater")
-									</label>	
-									<select name="selectTerm" id="selectTerm" onclick="selectSiteType('$type')">
-										#foreach($term in $termList)
-											<option value ="$term.eid"
-												#if ($!selectedTerm)
-													#if ($term.eid == $selectedTerm.eid)
-														selected="selected"
-													#end
-												#else
-													#if ($term.isCurrentTerm())
-														selected="selected"
-													#end
+					</p>		
+					#if ($type == $courseSiteType && $canAddCourse)
+						<div class="indnt3" id="termList" style="display:none;">
+							<p class="required">
+								<span class ="reqStar" id="term-required" style="height:1em;border:1px solid transparent"> * </span>
+								<label for="selectTerm">
+									$tlang.getString("sitetype.acater")
+								</label>	
+								<select name="selectTerm" id="selectTerm">  ## onclick="selectSiteType('$type')"
+									#foreach($term in $termList)
+										<option value ="$term.eid"
+											#if ($!selectedTerm)
+												#if ($term.eid == $selectedTerm.eid)
+													selected="selected"
 												#end
-											>
-											$term.title
-											</option>
-										#end
-									</select> 
-								</p>	
-							</div>	
-						#end
-			#end
-			#if ($templateList.size() > 0 && $templateList.containsKey($type))
+											#else
+												#if ($term.isCurrentTerm())
+													selected="selected"
+												#end
+											#end
+										>
+										$term.title
+										</option>
+									#end
+								</select> 
+							</p>	
+						</div>	
+					#end ## end of #if ($type == $courseSiteType && $canAddCourse)
+				#end ## end of #if (($type != "GradToolsStudent" && $type != $courseSiteType) || ($type == $courseSiteType && $canAddCourse) || ($type == "GradToolsStudent" && $!withDissertation && $!isGradStudent.booleanValue() && $!noGradToolsSite.booleanValue()))
+				#*
+				#if ($templateList.size() > 0 && $templateList.containsKey($type))
 					<p class="checkbox indnt3">
-							#set($templatetype="useTemplate")
-							#set($templatetype=$templatetype.concat($type))
-							<input type="checkbox" name="$templatetype" id="$templatetype" value="$templatetype" onchange="toggleTemplateSelectList('$type');"/>
-							<label for = "$templatetype">$tlang.getString("sitetype.usetemplate")</label>
-							&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-							<select name="selectTemplate$type" id="selectTemplate$type" disabled="true">
-								#foreach($template in $templateList.get($type))
-									<option value ="$template.getId()">
-										$template.getTitle()
-									</option>
+						#set($templatetype="useTemplate")
+						#set($templatetype=$templatetype.concat($type))
+						<input type="checkbox" name="$templatetype" id="$templatetype" value="$templatetype" onchange="toggleTemplateSelectList('$type');"/>
+						<label for = "$templatetype">$tlang.getString("sitetype.usetemplate")</label>
+						&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+						<select name="selectTemplate$type" id="selectTemplate$type" disabled="true">
+							#foreach($template in $templateList.get($type))
+								<option value ="$template.getId()">
+									$template.getTitle()
+								</option>
+							#end
+						</select> 
+					</p>
+				#end
+				*#
+			#end  ##end of #foreach ($type in $siteTypes)
+		</div>
+		## if templates enabled
+		<p class="checkbox indnt1">
+			<input type="radio" name="itemType" id="copy" value="copy"/>
+			<label for="copy">$tlang.getString("sitetype.createfromtemplate")</label>
+		</p>
+		<div class="indnt3"  id="templateSettings" style="display:none;">	
+			<div>
+				<strong class="reqStarInline"> * </strong>
+				<select id="templateSiteId" name="templateSiteId">
+					<option value ="0">$tlang.getString("sitetype.selectTemplate")</option>
+					#foreach($templateSite in $templateSites)
+						#set($siteType = false)
+						#set($siteType = $!templateSite.type)
+						<option value ="$templateSite.id" class="$templateSite.type">#if ($!siteType) $siteType - #end $templateSite.title</option>
+					#end				
+				</select>
+				#*
+				title length restrictions are copied from template chef_site-siteInfo-editInfo.vm maxlength needs to be set like in that template
+				*#
+				<span id="siteTitle"  style="display:none"><strong class="reqStarInline"> * </strong><label style="float:none" for="siteTitleField">$tlang.getString("sitetype.sitetitle") </label><input type="text" value="" size="20" maxlength="$!titleMaxLength"  id="siteTitleField" name="siteTitleField"/></span>
+				<span id="siteTerms" style="display:none"><strong class="reqStarInline"> * </strong>
+					<select name="selectTermTemplate" id="selectTermTemplate">
+						<option value ="0">$tlang.getString("sitetype.selectTerm")</option>
+						#foreach($term in $termList)
+							<option value ="$term.eid"
+								#if ($!selectedTerm)
+									#if ($term.eid == $selectedTerm.eid)
+										selected="selected"
+									#end
+								#else
+									#if ($term.isCurrentTerm())
+										selected="selected"
+									#end
 								#end
-							</select> 
-						</p>
-					#end
-		#end
+							>
+							$term.title
+							</option>
+						#end
+					</select> 				
+				</span>
+			</div>	 ## end of child of  div#templateSettings
+			<div style="padding:5px 8px;">
+				<input type="checkbox" name="copyUsers" id="copyUsers" value="true"/>	
+				<label for="copyUsers">$tlang.getString("sitetype.copyusers")</label>
+				<input type="checkbox" name="copyContent" id="copyContent" value="true"/>	
+				<label for="copyContent">$tlang.getString("sitetype.copycontent")</label>
+			</div>
+		</div> ## end of div#templateSettings
+		## end templates enabled
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />
-		<div class ="act">
-			<input type="submit" accesskey="s"  class="active" name="eventSubmit_doSite_type" value="$tlang.getString("sitetype.con")" />
-			<input type="submit" accesskey="x" name="eventSubmit_doCancel_create" value="$tlang.getString("sitetype.can")" />
+		<input type="hidden" name="eventSubmit_doSite_type_option" value="x" />
+		<input type="hidden" name="option" value="cancel" />
+		
+
+		<div class="instruction" id ="nextInstructions">
+				<span id="templateCourseInstruction" style="display:none">$tlang.getString("sitetype.templatecourserosterinstruction")</span>
+				<span id="templateNonCourseInstruction" style="display:none">$tlang.getString("sitetype.templatefinalstepinstruction")</span>
+		</div>	
+		<div class ="act" style="padding-top:1em;">
+			#* this submit should create the site from the template and redirect user to site
+			 it should be set style="display:none" if user is coming back
+			 ot this template from building own flow
+			 *#
+			<input type="submit" accesskey="s"  id="submitFromTemplate" disabled="disabled" style="display:none" class="active" name="submitFromTemplate" value="$tlang.getString('sitetype.done')" onclick="showNotif('submitnotif','submitFromTemplate','typeform'); document.typeform.option.value='createOnTemplate'; document.typeform.submit(); return false;" />
+			<input type="submit" accesskey="s"  id="submitFromTemplateCourse" disabled="disabled" style="display:none" class="active" name="submitFromTemplateCourse" value="$tlang.getString('sitetype.donecourse')" onclick="showNotif('submitnotif','submitFromTemplateCourse','typeform'); document.typeform.option.value='createCourseOnTemplate'; document.typeform.submit(); return false;"/>
+			## this submit should be ther normal one
+			<input type="submit" accesskey="s"  id="submitBuildOwn" disabled="disabled" class="active" name="submitBuildOwn" value="$tlang.getString('sitetype.con')" onclick="showNotif('submitnotif','submitBuildOwn','typeform'); document.typeform.option.value='siteType'; document.typeform.submit(); return false;" />
+			<input type="submit" accesskey="x" id="cancelCreate" name="cancelCreate" value="$tlang.getString('sitetype.can')" onclick="document.typeform.option.value='cancel'; document.typeform.submit(); return false;" />
+			<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 		</div>
+
 	</form>				
 </div>	
 

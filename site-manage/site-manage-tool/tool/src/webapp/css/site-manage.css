@@ -17,4 +17,15 @@ toggler needs
     border-top: none;
     padding: 1em
 }
-
+#templateSettings, #siteTypeList{
+	padding:.5em;
+	background:#eee;
+	width:50em;
+	-webkit-border-radius:5px;
+   -moz-border-radius:5px; 
+}
+#siteTypeList p {
+	border:none;
+	padding:.1em 0;
+	margin:5px !important
+}

@@ -44,6 +44,7 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
@@ -273,7 +274,6 @@ public class SiteAction extends PagedResourceActionII {
 	/** Name of state attribute for Site Information */
 	private static final String STATE_SITE_INFO = "site.info";
 
-	/** Name of state attribute for CHEF site type */
 	private static final String STATE_SITE_TYPE = "site-type";
 
 	/** Name of state attribute for possible site types */
@@ -408,8 +408,10 @@ public class SiteAction extends PagedResourceActionII {
 	/** State attribute for state initialization. */
 	private static final String STATE_INITIALIZED = "site.initialized";
 
-	/** State attribute for state initialization. */
+	/** State attributes for using templates in site creation. */
 	private static final String STATE_TEMPLATE_SITE = "site.templateSite";
+	private static final String STATE_TEMPLATE_SITE_COPY_USERS = "site.templateSiteCopyUsers";
+	private static final String STATE_TEMPLATE_SITE_COPY_CONTENT = "site.templateSiteCopyContent";
 
 	/** The action for menu */
 	private static final String STATE_ACTION = "site.action";
@@ -508,11 +510,6 @@ public class SiteAction extends PagedResourceActionII {
 	public static final String SITE_DUPLICATED = "site_duplicated";
 
 	public static final String SITE_DUPLICATED_NAME = "site_duplicated_named";
-
-	// used for site creation wizard title
-	public static final String SITE_CREATE_TOTAL_STEPS = "site_create_total_steps";
-
-	public static final String SITE_CREATE_CURRENT_STEP = "site_create_current_step";
 
 	// types of site whose title can be editable
 	public static final String TITLE_EDITABLE_SITE_TYPE = "title_editable_site_type";
@@ -986,8 +983,6 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(STATE_AUTO_ADD);
 		state.removeAttribute(STATE_MANUAL_ADD_COURSE_NUMBER);
 		state.removeAttribute(STATE_MANUAL_ADD_COURSE_FIELDS);
-		state.removeAttribute(SITE_CREATE_TOTAL_STEPS);
-		state.removeAttribute(SITE_CREATE_CURRENT_STEP);
 		state.removeAttribute(STATE_PROVIDER_SECTION_LIST);
 		state.removeAttribute(STATE_CM_LEVELS);
 		state.removeAttribute(STATE_CM_LEVEL_SELECTIONS);
@@ -1196,15 +1191,6 @@ public class SiteAction extends PagedResourceActionII {
 		List toolRegistrationSelectedList = new Vector();
 
 		ResourceProperties siteProperties = null;
-
-		// for showing site creation steps
-		if (state.getAttribute(SITE_CREATE_TOTAL_STEPS) != null) {
-			context.put("totalSteps", state
-					.getAttribute(SITE_CREATE_TOTAL_STEPS));
-		}
-		if (state.getAttribute(SITE_CREATE_CURRENT_STEP) != null) {
-			context.put("step", state.getAttribute(SITE_CREATE_CURRENT_STEP));
-		}
 
 		String hasGradSites = ServerConfigurationService.getString(
 				"withDissertation", Boolean.FALSE.toString());
@@ -1423,7 +1409,7 @@ public class SiteAction extends PagedResourceActionII {
 			// upcoming terms
 			setSelectedTermForContext(context, state, STATE_TERM_SELECTED);
 			
-			// template site - Denny
+			// template site
 			setTemplateListForContext(context, state);
 			
 			return (String) getContext(data).get("template") + TEMPLATE[1];
@@ -2421,7 +2407,6 @@ public class SiteAction extends PagedResourceActionII {
 			if (existingSite) {
 				// revising a existing site's tool
 				context.put("continue", "12");
-				context.put("totalSteps", "2");
 				context.put("step", "2");
 				context.put("currentSite", site);
 			} else {
@@ -2456,7 +2441,6 @@ public class SiteAction extends PagedResourceActionII {
 				// revising a existing site's tool
 				context.put("continue", "12");
 				context.put("back", "28");
-				context.put("totalSteps", "2");
 				context.put("step", "2");
 				context.put("currentSite", site);
 			} else {
@@ -2605,9 +2589,6 @@ public class SiteAction extends PagedResourceActionII {
 						state.removeAttribute(STATE_TERM_COURSE_LIST);
 					}
 				}
-
-				// step number used in UI
-				state.setAttribute(SITE_CREATE_CURRENT_STEP, new Integer("1"));
 			} else {
 				// need to include both list 'cos STATE_CM_AUTHORIZER_SECTIONS
 				// contains sections that doens't belongs to current user and
@@ -2673,6 +2654,9 @@ public class SiteAction extends PagedResourceActionII {
 			 * "+date); M_log.debug("***3. userId:"+(String) state
 			 * .getAttribute(STATE_INSTRUCTOR_SELECTED));
 			 */
+			
+			context.put("basedOnTemplate",  state.getAttribute(STATE_TEMPLATE_SITE) != null ? Boolean.TRUE:Boolean.FALSE);
+			
 			return (String) getContext(data).get("template") + TEMPLATE[36];
 		case 37:
 			/*
@@ -2732,6 +2716,9 @@ public class SiteAction extends PagedResourceActionII {
 					.getAttribute(STATE_FUTURE_TERM_SELECTED));
 			context.put("weeksAhead", ServerConfigurationService.getString(
 					"roster.available.weeks.before.term.start", "0"));
+			
+			context.put("basedOnTemplate",  state.getAttribute(STATE_TEMPLATE_SITE) != null ? Boolean.TRUE:Boolean.FALSE);
+			
 			return (String) getContext(data).get("template") + TEMPLATE[37];
 		case 42:
 			/*
@@ -2970,6 +2957,8 @@ public class SiteAction extends PagedResourceActionII {
 			else {
 				context.put("value_uniqname", "");
 			}
+			
+			context.put("basedOnTemplate",  state.getAttribute(STATE_TEMPLATE_SITE) != null ? Boolean.TRUE:Boolean.FALSE);
 
 			return (String) getContext(data).get("template") + TEMPLATE[53];
 		}
@@ -2985,6 +2974,7 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			context.put("continueIndex", state.getAttribute(STATE_SITE_SETUP_QUESTION_NEXT_TEMPLATE));
 			return (String) getContext(data).get("template") + TEMPLATE[54];
+		
 		case 61:
 			/*
 			 * build context for chef_site-importUser.vm
@@ -4154,11 +4144,9 @@ public class SiteAction extends PagedResourceActionII {
 		ParameterParser params = data.getParameters();
 		int index = Integer.valueOf(params.getString("templateIndex"))
 				.intValue();
-		actionForTemplate("continue", index, params, state);
+		actionForTemplate("continue", index, params, state, data);
 
 		String type = StringUtil.trimToNull(params.getString("itemType"));
-
-		int totalSteps = 0;
 
 		if (type == null) {
 			addAlert(state, rb.getString("java.select") + " ");
@@ -4166,59 +4154,9 @@ public class SiteAction extends PagedResourceActionII {
 			state.setAttribute(STATE_TYPE_SELECTED, type);
 			setNewSiteType(state, type);
 			if (type.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
-				User user = UserDirectoryService.getCurrentUser();
-				String currentUserId = user.getEid();
-
-				String userId = params.getString("userId");
-				if (userId == null || "".equals(userId)) {
-					userId = currentUserId;
-				} else {
-					// implies we are trying to pick sections owned by other
-					// users. Currently "select section by user" page only
-					// take one user per sitte request - daisy's note 1
-					ArrayList<String> list = new ArrayList();
-					list.add(userId);
-					state.setAttribute(STATE_CM_AUTHORIZER_LIST, list);
-				}
-				state.setAttribute(STATE_INSTRUCTOR_SELECTED, userId);
-
-				String academicSessionEid = params.getString("selectTerm");
-				// check whether the academicsession might be null
-				if (academicSessionEid != null)
-				{
-					AcademicSession t = cms.getAcademicSession(academicSessionEid);
-					state.setAttribute(STATE_TERM_SELECTED, t);
-					if (t != null) {
-						List sections = prepareCourseAndSectionListing(userId, t
-								.getEid(), state);
-	
-						isFutureTermSelected(state);
-	
-						if (sections != null && sections.size() > 0) {
-							state.setAttribute(STATE_TERM_COURSE_LIST, sections);
-							state.setAttribute(STATE_TEMPLATE_INDEX, "36");
-							state.setAttribute(STATE_AUTO_ADD, Boolean.TRUE);
-						} else {
-							state.removeAttribute(STATE_TERM_COURSE_LIST);
-							
-							Boolean skipCourseSectionSelection = ServerConfigurationService.getBoolean("wsetup.skipCourseSectionSelection", Boolean.FALSE);
-							if (!skipCourseSectionSelection.booleanValue() && courseManagementIsImplemented())
-							{
-								state.setAttribute(STATE_TEMPLATE_INDEX, "53");
-							}
-							else
-							{
-								state.setAttribute(STATE_TEMPLATE_INDEX, "37");
-							}		
-						}
-	
-					} else { // not course type
-						state.setAttribute(STATE_TEMPLATE_INDEX, "37");
-						totalSteps = 5;
-					}
-				}
+				// redirect
+				redirectCourseCreation(params, state, "selectTerm");
 			} else if (type.equals("project")) {
-				totalSteps = 4;
 				state.setAttribute(STATE_TEMPLATE_INDEX, "13");
 			} else if (type.equals(SITE_TYPE_GRADTOOLS_STUDENT)) {
 				// if a GradTools site use pre-defined site info and exclude
@@ -4244,14 +4182,6 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			// get the user selected template
 			getSelectedTemplate(state, params, type);
-		}
-
-		if (state.getAttribute(SITE_CREATE_TOTAL_STEPS) == null) {
-			state.setAttribute(SITE_CREATE_TOTAL_STEPS, new Integer(totalSteps));
-		}
-
-		if (state.getAttribute(SITE_CREATE_CURRENT_STEP) == null) {
-			state.setAttribute(SITE_CREATE_CURRENT_STEP, new Integer(1));
 		}
 		
 		redirectToQuestionVM(state, type);
@@ -4376,6 +4306,7 @@ public class SiteAction extends PagedResourceActionII {
 	public void doChange_user(RunData data) {
 		doSite_type(data);
 	} // doChange_user
+
 	
 	/**
 	 * 
@@ -4396,8 +4327,6 @@ public class SiteAction extends PagedResourceActionII {
 		List providerChosenList = (List) state
 				.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN);
 		collectNewSiteInfo(siteInfo, state, params, providerChosenList);
-		// next step
-		//state.setAttribute(SITE_CREATE_CURRENT_STEP, new Integer(2));
 	}
 
 	/**
@@ -4456,19 +4385,23 @@ public class SiteAction extends PagedResourceActionII {
 					}
 				}
 				if (state.getAttribute(STATE_MESSAGE) == null) {
-					if (getStateSite(state) == null) {
-						state.setAttribute(STATE_TEMPLATE_INDEX, "13");
-					} else {
-						state.setAttribute(STATE_TEMPLATE_INDEX, "44");
+					if (state.getAttribute(STATE_TEMPLATE_SITE) != null)
+					{
+						// create site based on template
+						doFinish(data);
+					}
+					else
+					{
+						if (getStateSite(state) == null) {
+							state.setAttribute(STATE_TEMPLATE_INDEX, "13");
+						} else {
+							state.setAttribute(STATE_TEMPLATE_INDEX, "44");
+						}
 					}
 				}
-				updateCurrentStep(state, true);
 			}
 		} else if (option.equalsIgnoreCase("back")) {
 			doBack(data);
-			if (state.getAttribute(STATE_MESSAGE) == null) {
-				updateCurrentStep(state, false);
-			}
 		} else if (option.equalsIgnoreCase("cancel")) {
 			if (getStateSite(state) == null) {
 				doCancel_create(data);
@@ -4648,7 +4581,10 @@ public class SiteAction extends PagedResourceActionII {
 		state.setAttribute(STATE_SITE_INFO, siteInfo);
 
 		// set tool registration list
-		setToolRegistrationList(state, type);
+		if (!type.equals("copy"))
+		{
+			setToolRegistrationList(state, type);
+		}
 	}
 
 	/**
@@ -4797,7 +4733,7 @@ public class SiteAction extends PagedResourceActionII {
 		String direction = "continue";
 		String option = params.getString("option");
 
-		actionForTemplate(direction, index, params, state);
+		actionForTemplate(direction, index, params, state, data);
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			if (index == 36 && ("add").equals(option)) {
 				// this is the Add extra Roster(s) case after a site is created
@@ -4861,7 +4797,7 @@ public class SiteAction extends PagedResourceActionII {
 		// Let actionForTemplate know not to make any permanent changes before
 		// continuing to the next template
 		String direction = "back";
-		actionForTemplate(direction, currentIndex, params, state);
+		actionForTemplate(direction, currentIndex, params, state, data);
 		
 		// remove the last template index from the list
 		removeLastIndexInStateVisitedTemplates(state);
@@ -4880,13 +4816,12 @@ public class SiteAction extends PagedResourceActionII {
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			state.setAttribute(STATE_TEMPLATE_INDEX, params
 					.getString("continue"));
-			int index = Integer.valueOf(params.getString("templateIndex"))
-					.intValue();
-			actionForTemplate("continue", index, params, state);
 
 			addNewSite(params, state);
 
 			Site site = getStateSite(state);
+
+			ResourcePropertiesEdit rp = site.getPropertiesEdit();
 
 			Site templateSite = (Site) state.getAttribute(STATE_TEMPLATE_SITE);
 			if (templateSite == null) 
@@ -4896,16 +4831,64 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			else
 			{
-				// create based on template: skip add features, and copying all the contents from the tools in template site
-				importToolContent(site.getId(), templateSite.getId(), site, true);
+				// creating based on template
+				if (state.getAttribute(STATE_TEMPLATE_SITE_COPY_CONTENT) != null)
+				{
+					// create based on template: skip add features, and copying all the contents from the tools in template site
+					importToolContent(templateSite.getId(), site, true);
+				}
+				// copy members
+				if(state.getAttribute(STATE_TEMPLATE_SITE_COPY_USERS) != null) 
+				{
+					try
+					{
+						AuthzGroup templateGroup = authzGroupService.getAuthzGroup(templateSite.getReference());
+						AuthzGroup newGroup = authzGroupService.getAuthzGroup(site.getReference());
+						
+						for(Iterator mi = templateGroup.getMembers().iterator();mi.hasNext();) {
+							Member member = (Member) mi.next();
+							if (newGroup.getMember(member.getUserId()) == null)
+							{
+								// only add those user who is not in the new site yet
+								newGroup.addMember(member.getUserId(), member.getRole().getId(), member.isActive(), member.isProvided());
+							}
+						}
+						
+						authzGroupService.save(newGroup);
+					}
+					catch (Exception copyUserException)
+					{
+						M_log.warn(this + "doFinish: copy user exception template site =" + templateSite.getReference() + " new site =" + site.getReference() + " " + copyUserException.getMessage());
+					}
+					
+				}
+				else
+				{
+					// if not bringing user over, remove the provider information
+					try
+					{
+						AuthzGroup newGroup = authzGroupService.getAuthzGroup(site.getReference());
+						newGroup.setProviderGroupId(null);
+						authzGroupService.save(newGroup);
+					}
+					catch (Exception removeProviderException)
+					{
+						M_log.warn(this + "doFinish: remove provider id " + " new site =" + site.getReference() + " " + removeProviderException.getMessage());
+					}
+				}
+				// We don't want the new site to automatically be a template
+				site.getPropertiesEdit().removeProperty("template");
+				
+				// new site is set to be unpublished
+				site.setPublished(false);
+				
+				sendTemplateUseNotification(site, UserDirectoryService.getCurrentUser(), templateSite);	
 			}
 				
 			// for course sites
 			String siteType = (String) state.getAttribute(STATE_SITE_TYPE);
 			if (siteType != null && siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 				String siteId = site.getId();
-
-				ResourcePropertiesEdit rp = site.getPropertiesEdit();
 
 				AcademicSession term = null;
 				if (state.getAttribute(STATE_TERM_SELECTED) != null) {
@@ -4921,21 +4904,18 @@ public class SiteAction extends PagedResourceActionII {
 
 			// commit site
 			commitSite(site);
-			
-			// transfer site content from template site
-			if (templateSite != null) 
+
+			if (templateSite == null) 
 			{
-				sendTemplateUseNotification(site, UserDirectoryService.getCurrentUser(), templateSite);					
+				String siteId = (String) state.getAttribute(STATE_SITE_INSTANCE_ID);
+	
+				// now that the site exists, we can set the email alias when an
+				// Email Archive tool has been selected
+				setSiteAlias(state, siteId);
+				
+				// save user answers
+				saveSiteSetupQuestionUserAnswers(state, siteId);
 			}
-
-			String siteId = (String) state.getAttribute(STATE_SITE_INSTANCE_ID);
-
-			// now that the site exists, we can set the email alias when an
-			// Email Archive tool has been selected
-			setSiteAlias(state, siteId);
-			
-			// save user answers
-			saveSiteSetupQuestionUserAnswers(state, siteId);
 			
 			// TODO: hard coding this frame id is fragile, portal dependent, and
 			// needs to be fixed -ggolden
@@ -6768,7 +6748,6 @@ public class SiteAction extends PagedResourceActionII {
 
 			if (state.getAttribute(STATE_MESSAGE) == null) {
 				state.setAttribute(STATE_TEMPLATE_INDEX, "10");
-				updateCurrentStep(state, true);
 			}
 		}
 
@@ -6781,7 +6760,7 @@ public class SiteAction extends PagedResourceActionII {
 	 * here. Some cases not implemented.
 	 */
 	private void actionForTemplate(String direction, int index,
-			ParameterParser params, SessionState state) {
+			ParameterParser params, SessionState state, RunData data) {
 		// Continue - make any permanent changes, Back - keep any data entered
 		// on the form
 		boolean forward = direction.equals("continue") ? true : false;
@@ -6810,10 +6789,6 @@ public class SiteAction extends PagedResourceActionII {
 				// editing existing site or creating a new one?
 				Site site = getStateSite(state);
 				getFeatures(params, state, site==null?"18":"15");
-				
-				if (state.getAttribute(STATE_MESSAGE) == null && site==null) {
-					updateCurrentStep(state, forward);
-				}
 			}
 			break;
 		case 5:
@@ -6840,9 +6815,6 @@ public class SiteAction extends PagedResourceActionII {
 			 * 
 			 */
 			if (!forward) {
-				if (state.getAttribute(STATE_MESSAGE) == null) {
-					updateCurrentStep(state, false);
-				}
 			}
 			break;
 		case 12:
@@ -6889,9 +6861,6 @@ public class SiteAction extends PagedResourceActionII {
 			 * 
 			 */
 			if (!forward) {
-				if (state.getAttribute(STATE_MESSAGE) == null) {
-					updateCurrentStep(state, false);
-				}
 			}
 			break;
 		case 24:
@@ -6907,9 +6876,6 @@ public class SiteAction extends PagedResourceActionII {
 			 * 
 			 */
 			updateSelectedToolList(state, params, true);
-			if (state.getAttribute(STATE_MESSAGE) == null) {
-				updateCurrentStep(state, forward);
-			}
 			break;
 		case 27:
 			/*
@@ -6947,9 +6913,6 @@ public class SiteAction extends PagedResourceActionII {
 			} else {
 				// read form input about import tools
 				select_import_tools(params, state);
-			}
-			if (state.getAttribute(STATE_MESSAGE) == null) {
-				updateCurrentStep(state, forward);
 			}
 			break;
 		case 60:
@@ -6989,9 +6952,6 @@ public class SiteAction extends PagedResourceActionII {
 			} else {
 				// read form input about import tools
 				select_import_tools(params, state);
-			}
-			if (state.getAttribute(STATE_MESSAGE) == null) {
-				updateCurrentStep(state, forward);
 			}
 			break;
 		case 28:
@@ -7093,7 +7053,7 @@ public class SiteAction extends PagedResourceActionII {
 								site.setTitle(title);
 								
 								// import tool content
-								importToolContent(nSiteId, oSiteId, site, false);
+								importToolContent(oSiteId, site, false);
 
 							} catch (Exception e1) {
 								// if goes here, IdService
@@ -7232,9 +7192,14 @@ public class SiteAction extends PagedResourceActionII {
 					}
 					collectNewSiteInfo(siteInfo, state, params,
 							providerChosenList);
+					
+					String find_course = params.getString("find_course");
+					if (state.getAttribute(STATE_TEMPLATE_SITE) != null && (find_course == null || !find_course.equals("true")))
+					{
+						// creating based on template
+						doFinish(data);
+					}
 				}
-				// next step
-				state.setAttribute(SITE_CREATE_CURRENT_STEP, new Integer(2));
 			}
 			break;
 		case 38:
@@ -7473,14 +7438,14 @@ public class SiteAction extends PagedResourceActionII {
 	}
 	
 	/**
-	 * 
-	 * @param nSiteId
+	 * copy tool content from old site
 	 * @param oSiteId
 	 * @param site
 	 */
-	private void importToolContent(String nSiteId, String oSiteId, Site site, boolean bypassSecurity) {
-		// import tool content
+	private void importToolContent(String oSiteId, Site site, boolean bypassSecurity) {
+		String nSiteId = site.getId();
 		
+		// import tool content
 		if (bypassSecurity)
 		{
 			// importing from template, bypass the permission checking:
@@ -7588,28 +7553,6 @@ public class SiteAction extends PagedResourceActionII {
 		}
 		return rv;
 	}
-	
-	/**
-	 * update current step index within the site creation wizard
-	 * 
-	 * @param state
-	 *            The SessionState object
-	 * @param forward
-	 *            Moving forward or backward?
-	 */
-	private void updateCurrentStep(SessionState state, boolean forward) {
-		if (state.getAttribute(SITE_CREATE_CURRENT_STEP) != null) {
-			int currentStep = ((Integer) state
-					.getAttribute(SITE_CREATE_CURRENT_STEP)).intValue();
-			if (forward) {
-				state.setAttribute(SITE_CREATE_CURRENT_STEP, new Integer(
-						currentStep + 1));
-			} else {
-				state.setAttribute(SITE_CREATE_CURRENT_STEP, new Integer(
-						currentStep - 1));
-			}
-		}
-	}
 
 	/**
 	 * remove related state variable for adding class
@@ -7625,8 +7568,6 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(STATE_MANUAL_ADD_COURSE_FIELDS);
 		state.removeAttribute(STATE_SITE_QUEST_UNIQNAME);
 		state.removeAttribute(STATE_AUTO_ADD);
-		state.removeAttribute(SITE_CREATE_TOTAL_STEPS);
-		state.removeAttribute(SITE_CREATE_CURRENT_STEP);
 		state.removeAttribute(STATE_IMPORT_SITE_TOOL);
 		state.removeAttribute(STATE_IMPORT_SITES);
 		state.removeAttribute(STATE_CM_REQUESTED_SECTIONS);
@@ -8960,8 +8901,6 @@ public class SiteAction extends PagedResourceActionII {
 					site.setTitle(title);
 				}
 
-				site.setType(siteInfo.site_type);
-
 				ResourcePropertiesEdit rp = site.getPropertiesEdit();
 				site.setShortDescription(siteInfo.short_description);
 				site.setPubView(siteInfo.include);
@@ -9070,40 +9009,19 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	private void setTemplateListForContext(Context context, SessionState state)
 	{   
-		Hashtable<String, List<Site>> templateList = new Hashtable<String, List<Site>>();
+		// We're searching for template sites and these are marked by a property
+		// called 'template' with a value of true
+		Map templateCriteria = new HashMap(1);
+		templateCriteria.put("template", "true");
 		
-		// find all template sites.
-		// need to have a default OOTB template site definition to faciliate testing without changing the sakai.properties file.
-		String[] siteTemplates = siteTemplates = StringUtil.split(ServerConfigurationService.getString("site.templates", "template"), ",");
+		List templateSites = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ANY, null, null, templateCriteria, SortType.TYPE_ASC, null);
 		
-		for (String siteTemplateId:siteTemplates) {
-			try
-			{
-				Site siteTemplate = SiteService.getSite(siteTemplateId);
-				if (siteTemplate != null)
-				{
-					// get the type of template
-					String type = siteTemplate.getType();
-					if (type != null)
-					{
-						// populate the list according to template site type
-						List<Site> subTemplateList = new Vector<Site>();
-						if (templateList.containsKey(type))
-						{
-							subTemplateList = templateList.get(type);
-						}
-						subTemplateList.add(siteTemplate);
-						templateList.put(type, subTemplateList);
-					}
-				}
-			}
-			catch (IdUnusedException e)
-			{
-				M_log.info(this + ".setTemplateListForContext: cannot find site with id " + siteTemplateId);
-			}
-		}
+		// If no templates could be found, stick an empty list in the context
+		if(templateSites == null || templateSites.size() <= 0)
+			templateSites = new ArrayList();
 		
-	    context.put("templateList", templateList);
+		context.put("templateSites",templateSites);
+		
 	} // setTemplateListForContext
 	
 	/**
@@ -10079,7 +9997,7 @@ public class SiteAction extends PagedResourceActionII {
 		state.setAttribute(STATE_TEMPLATE_INDEX, params.getString("continue"));
 		int index = Integer.valueOf(params.getString("templateIndex"))
 				.intValue();
-		actionForTemplate("continue", index, params, state);
+		actionForTemplate("continue", index, params, state, data);
 
 		// add the pre-configured Grad Tools tools to a new site
 		addGradToolsFeatures(state);
@@ -10907,8 +10825,8 @@ public class SiteAction extends PagedResourceActionII {
 				state.setAttribute(STATE_MANUAL_ADD_COURSE_NUMBER, new Integer(
 						1));
 
-			} else if (params.getString("findCourse") != null
-					&& ("true").equals(params.getString("findCourse"))) {
+			} else if (params.getString("find_course") != null
+					&& ("true").equals(params.getString("find_course"))) {
 				state.setAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN,
 						providerChosenList);
 				prepFindPage(state);
@@ -11179,7 +11097,17 @@ public class SiteAction extends PagedResourceActionII {
 				}
 				if (state.getAttribute(STATE_MESSAGE) == null) {
 					if (getStateSite(state) == null) {
-						state.setAttribute(STATE_TEMPLATE_INDEX, "13");
+						if (state.getAttribute(STATE_TEMPLATE_SITE) != null)
+						{
+							// if creating site using template, stop here and generate the new site
+							// create site based on template
+							doFinish(data);
+						}
+						else
+						{
+							// else follow the normal flow
+							state.setAttribute(STATE_TEMPLATE_INDEX, "13");
+						}
 					} else {
 						state.setAttribute(STATE_TEMPLATE_INDEX, "44");
 					}
@@ -11412,4 +11340,161 @@ public class SiteAction extends PagedResourceActionII {
 		String url = Web.serverUrl(data.getRequest()) + "/sakai-site-manage-tool/tool/printparticipant/" + site.getId();
 		context.put("printParticipantUrl", url);
 	}
- }
+	
+	/**
+	 * dispatch function for site type vm
+	 * @param data
+	 */
+	public void doSite_type_option(RunData data)
+	{
+		ParameterParser params = data.getParameters();
+		String option = StringUtil.trimToNull(params.getString("option"));
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		if (option != null)
+		{
+			if (option.equals("cancel"))
+			{
+				doCancel_create(data);
+			}
+			else if (option.equals("siteType"))
+			{
+				doSite_type(data);
+			}
+			else if (option.equals("createOnTemplate"))
+			{
+				doSite_copyFromTemplate(data);
+			}
+			else if (option.equals("createCourseOnTemplate"))
+			{
+				doSite_copyFromCourseTemplate(data);
+			}
+		}
+	}
+	
+	/**
+	 * create site from template
+	 * @param params
+	 * @param state
+	 */
+	private void doSite_copyFromTemplate(RunData data)
+	{	
+		ParameterParser params = data.getParameters();
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+	
+		// read template information
+		readCreateSiteTemplateInformation(params, state);
+		
+		// create site
+		doFinish(data);
+	}
+	
+	/**
+	 * create course site from template, next step would be select roster
+	 * @param params
+	 * @param state
+	 */
+	private void doSite_copyFromCourseTemplate(RunData data)
+	{
+		ParameterParser params = data.getParameters();
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+	
+		// read template information
+		readCreateSiteTemplateInformation(params, state);
+		
+		// redirect for site roster selection
+		redirectCourseCreation(params, state, "selectTermTemplate");
+	}
+	
+	/**
+	 * read the user input for creating site based on template
+	 * @param params
+	 * @param state
+	 */
+	private void readCreateSiteTemplateInformation(ParameterParser params, SessionState state)
+	{
+		// get the template site id
+		String templateSiteId = params.getString("templateSiteId");
+		try {
+			Site templateSite = SiteService.getSite(templateSiteId);
+			state.setAttribute(STATE_TEMPLATE_SITE, templateSite);
+			state.setAttribute(STATE_SITE_TYPE, templateSite.getType());
+			
+			SiteInfo siteInfo = new SiteInfo();
+			if (state.getAttribute(STATE_SITE_INFO) != null) {
+				siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
+			}
+			siteInfo.site_type = templateSite.getType();
+			siteInfo.title = StringUtil.trimToNull(params.getString("siteTitleField"));
+			siteInfo.term = StringUtil.trimToNull(params.getString("selectTermTemplate"));
+			state.setAttribute(STATE_SITE_INFO, siteInfo);
+			
+			// whether to copy users or site content over?
+			if (params.getBoolean("copyUsers")) state.setAttribute(STATE_TEMPLATE_SITE_COPY_USERS, Boolean.TRUE); else state.removeAttribute(STATE_TEMPLATE_SITE_COPY_USERS);
+			if (params.getBoolean("copyContent")) state.setAttribute(STATE_TEMPLATE_SITE_COPY_CONTENT, Boolean.TRUE); else state.removeAttribute(STATE_TEMPLATE_SITE_COPY_CONTENT);
+			
+		}
+		catch(Exception e){
+			M_log.warn(this + "readCreateSiteTemplateInformation: problem of getting template site: " + templateSiteId);
+		}
+	}
+
+	/**
+	 * redirect course creation process after the term selection step
+	 * @param params
+	 * @param state
+	 * @param termFieldName
+	 */
+	private void redirectCourseCreation(ParameterParser params, SessionState state, String termFieldName) {
+		User user = UserDirectoryService.getCurrentUser();
+		String currentUserId = user.getEid();
+
+		String userId = params.getString("userId");
+		if (userId == null || "".equals(userId)) {
+			userId = currentUserId;
+		} else {
+			// implies we are trying to pick sections owned by other
+			// users. Currently "select section by user" page only
+			// take one user per sitte request - daisy's note 1
+			ArrayList<String> list = new ArrayList();
+			list.add(userId);
+			state.setAttribute(STATE_CM_AUTHORIZER_LIST, list);
+		}
+		state.setAttribute(STATE_INSTRUCTOR_SELECTED, userId);
+
+		String academicSessionEid = params.getString(termFieldName);
+		// check whether the academicsession might be null
+		if (academicSessionEid != null)
+		{
+			AcademicSession t = cms.getAcademicSession(academicSessionEid);
+			state.setAttribute(STATE_TERM_SELECTED, t);
+			if (t != null) {
+				List sections = prepareCourseAndSectionListing(userId, t
+						.getEid(), state);
+
+				isFutureTermSelected(state);
+
+				if (sections != null && sections.size() > 0) {
+					state.setAttribute(STATE_TERM_COURSE_LIST, sections);
+					state.setAttribute(STATE_TEMPLATE_INDEX, "36");
+					state.setAttribute(STATE_AUTO_ADD, Boolean.TRUE);
+				} else {
+					state.removeAttribute(STATE_TERM_COURSE_LIST);
+					
+					Boolean skipCourseSectionSelection = ServerConfigurationService.getBoolean("wsetup.skipCourseSectionSelection", Boolean.FALSE);
+					if (!skipCourseSectionSelection.booleanValue() && courseManagementIsImplemented())
+					{
+						state.setAttribute(STATE_TEMPLATE_INDEX, "53");
+					}
+					else
+					{
+						state.setAttribute(STATE_TEMPLATE_INDEX, "37");
+					}		
+				}
+
+			} else { // not course type
+				state.setAttribute(STATE_TEMPLATE_INDEX, "37");
+			}
+		}
+	}
+}

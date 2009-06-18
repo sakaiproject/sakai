@@ -176,7 +176,7 @@
 			        $selectedCourse.title
 						     #set($authGroupSet=$!authzGroupService.getAuthzGroupIds($selectedCourse.eid))
 											#if ($!authGroupSet && !$!authGroupSet.isEmpty())
-												$tlang.getString("nscourse.site_exists") <a href="#" onclick="javascript:document.getElementById('continueButton').disabled=false;document.getElementById('sectionInfo').style.display = 'block';">$tlang.getString("nscourse.select_anyways")</a>)</span>
+												$tlang.getString("nscourse.site_exists") <a href="#" onclick="javascript:document.getElementById('continueButton').disabled=false;document.getElementById('sectionInfo').style.display = 'block';">$tlang.getString("nscourse.select_anyways")</a></span>
 											#end
 			    #else
 				    None
@@ -204,23 +204,31 @@
 						<span class="textPanelFooter">$tlang.getString("man.please")</span>
 					</p>
 			</div>
-			<a href="#" onclick="javascript:blur();document.findCourseForm.option.value='add';document.findCourseForm.submit();">$tlang.getString('nscourse.findCourse.addAnotherSection')</a>				
+			<br /><a href="#" onclick="javascript:blur();document.findCourseForm.option.value='add';document.findCourseForm.submit();">$tlang.getString('nscourse.findCourse.addAnotherSection')</a>				
 
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input id="index" type="hidden" name="templateIndex" value="$!templateIndex" />
 		<input type="hidden" name="eventSubmit_doFind_course" value="x" />
 		<input type="hidden" name="option" value="find"/>
+		## if site creation is based on template, this could be the final step!
+		#if ($!basedOnTemplate) 
+			<div class="instruction" id ="nextInstructions">
+				<span id="templateNonCourseInstruction" style="display:block">$tlang.getString("sitetype.templatefinalstepinstruction")</span>
+			</div>
+		#end
 		<p class="act">
-			<input id="continueButton" 
+			<input id="continueButton" name="continueButton"
 				#if (!$selectedCourse || ($!authGroupSet && !$!authGroupSet.isEmpty()))
   			disabled="true"
 				#end
 			 type="submit" class="active" accesskey="s" name="eventSubmit_doContinue" 
-				value="$tlang.getString('gen.continue')" onclick="resetOption('continue');" />
+				#if ($!basedOnTemplate) value="$tlang.getString('sitetype.done')" #else value="$tlang.getString('gen.continue')" #end
+				onclick="showNotif('submitnotif','continueButton','findCourseForm'); resetOption('continue');" />
 			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" 
 				onclick="resetOption('back');" />
 			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')"
 				onclick="resetOption('cancel');" />
+			<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 		</p>
 
 	</form>

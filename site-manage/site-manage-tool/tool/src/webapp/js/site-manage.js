@@ -146,6 +146,105 @@ sakai.setupSelectList = function(list, allcontrol, highlightClass){
     });
 };
 
+sakai.siteTypeSetup = function(){
+
+    $('input[name="itemType"]').attr('checked', '');
+    $('#copy').click(function(e){
+        $('#templateSettings').fadeIn('fast');
+        $('#buildOwn').attr('checked', '');
+        $('#siteTypeList').fadeOut('fast');
+        $('#termList').fadeOut('fast');
+        utils.resizeFrame('grow');
+        $('#submitFromTemplate').fadeIn('fast');
+        $('#submitBuildOwn').fadeOut('fast');
+        $('#submitBuildOwn').attr('disabled', 'disabled');
+    });
+    
+    $('#buildOwn').click(function(e){
+        $('#templateSettings').fadeOut('fast');
+        $('#templateSettings input:checked').attr('checked', '');
+        $('#siteTitleField').attr('value', '');
+        $('input[id="copy"]').attr('checked', '');
+        $('#templateSettings select').attr('selectedIndex', 0);
+        $('#templateSettings span').fadeOut('fast');
+        $('#siteTypeList').fadeIn('fast');
+        $('#submitFromTemplate').fadeOut('fast');
+        $('#submitFromTemplateCourse').fadeOut('fast');
+        $('#submitBuildOwn').fadeIn('fast');
+        $('#nextInstructions span').fadeOut('fast');
+        utils.resizeFrame('grow');
+    });
+    $('#siteTitleField').keyup(function(e){
+        if ($(this).attr('value').length >= 1) {
+            $('#submitFromTemplate').attr('disabled', '');
+        }
+        else {
+            $('#submitFromTemplate').attr('disabled', 'disabled');
+        }
+    });
+    $('#siteTitleField').blur(function(){
+        if ($(this).attr('value').length >= 1) {
+            $('#submitFromTemplate').attr('disabled', '');
+        }
+        else {
+            $('#submitFromTemplate').attr('disabled', 'disabled');
+        }
+    });
+    
+    
+    $('#selectTermTemplate').change(function(){
+        if (this.selectedIndex === 0) {
+            $('#submitFromTemplateCourse').attr('disabled', 'disabled');
+        }
+        else {
+            $('#submitFromTemplateCourse').attr('disabled', '');
+            
+        }
+    });
+    
+    $('#templateSiteId').change(function(){
+        $('#submitFromTemplateCourse').attr('disabled', 'disabled');
+        $('#submitFromTemplate').attr('disabled', 'disabled');
+        if (this.selectedIndex === 0) {
+            $('#templateSettings span').fadeOut('fast');
+            $('#templateSettings select').attr('selectedIndex', 0);
+            $('#submitFromTemplateCourse').attr('disabled', 'disabled');
+        }
+        else {
+        
+            var type = $('#templateSiteId option:selected').attr('class');
+            $('#templateSettings span').fadeOut('fast');
+            $('#nextInstructions span').fadeOut('fast');
+            if (type == "course") {
+                $('#templateCourseInstruction').fadeIn('fast');
+                $('#submitFromTemplate').fadeOut('fast');
+                $('#submitFromTemplateCourse').fadeIn('fast');
+                $('#siteTerms').fadeIn('fast');
+                $('#siteTerms select').focus();
+                $('#siteTitleField').attr('value', '');
+            }
+            else {
+                $('#submitFromTemplate').fadeIn('fast');
+                $('#submitFromTemplateCourse').fadeOut('fast');
+                $('#templateNonCourseInstruction').fadeIn('fast');
+                $('#siteTitle').fadeIn('fast');
+                $('#siteTerms select').attr('selectedIndex', 0);
+                $('#siteTitle input').focus();
+            }
+        }
+    });
+    $('#siteTypeList input').click(function(e){
+        if ($(this).attr('id') == 'course') {
+            $('#termList').fadeIn('fast');
+        }
+        else {
+            $('#termList').fadeOut('fast');
+        }
+        $('#submitBuildOwn').attr('disabled', '');
+        
+    });
+}
+
 sakai.setupToggleAreas = function(toggler, togglee, openInit, speed){
     // toggler=class of click target
     // togglee=class of container to expand

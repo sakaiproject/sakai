@@ -196,12 +196,18 @@
 			<input type="hidden" name="back" value="$!backIndex" />
 			<input type="hidden" name="templateIndex" value="$!templateIndex" />
 			<input type="hidden" name="continue" value="4" />
+			## if site creation is based on template, this could be the final step!
+			#if ($!basedOnTemplate) 
+				<div class="instruction" id ="nextInstructions">
+					<span id="templateNonCourseInstruction" style="display:block">$tlang.getString("sitetype.templatefinalstepinstruction")</span>
+				</div>
+			#end
 			<p class="act">
-				<input type="button" name="Add" id="addButton"
-						value="$tlang.getString('gen.continue')" 
+				<input type="button" name="Add" id="addButton" name="addButton"
+						#if ($!basedOnTemplate) value="$tlang.getString('sitetype.done')" #else value="$tlang.getString('gen.continue')" #end
 						class="active" 
 						accesskey="s" 
-						onclick="document.requestCourseForm.option.value='add'; document.requestCourseForm.submit(); return false;" />
+						onclick="showNotif('submitnotif','addButton','requestCourseForm');document.requestCourseForm.option.value='add'; document.requestCourseForm.submit(); return false;" />
 				<input type="button" name="Back" 
 						value="$tlang.getString('gen.back')"
 						accesskey="b"
@@ -210,6 +216,7 @@
 						value="$tlang.getString('gen.cancel')"
 						accesskey="x"
 						onclick="document.requestCourseForm.option.value='cancel'; document.requestCourseForm.submit(); return false;" />
+				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 			</p>
 		</form>
 	</div>
