@@ -616,15 +616,16 @@ public class SiteAction extends PagedResourceActionII {
 		SYNOPTIC_TOOL_ID_MAP.put(TOOL_ID_SYNOPTIC_CHAT, new ArrayList(Arrays.asList("sakai.chat")));
 		SYNOPTIC_TOOL_ID_MAP.put(TOOL_ID_SYNOPTIC_MESSAGECENTER, new ArrayList(Arrays.asList("sakai.messages", "sakai.forums", "sakai.messagecenter")));
 	}
-	// Map of synoptic tool titles
+	
+	// map of synoptic tool and message bundle properties, used to lookup an internationalized tool title
 	private final static Map<String, String> SYNOPTIC_TOOL_TITLE_MAP;
 	static
 	{
 		SYNOPTIC_TOOL_TITLE_MAP = new HashMap<String, String>();
-		SYNOPTIC_TOOL_TITLE_MAP.put(TOOL_ID_SUMMARY_CALENDAR, rb.getString("java.reccal"));
-		SYNOPTIC_TOOL_TITLE_MAP.put(TOOL_ID_SYNOPTIC_ANNOUNCEMENT, rb.getString("java.recann"));
-		SYNOPTIC_TOOL_TITLE_MAP.put(TOOL_ID_SYNOPTIC_CHAT, rb.getString("java.recent"));
-		SYNOPTIC_TOOL_TITLE_MAP.put(TOOL_ID_SYNOPTIC_MESSAGECENTER, rb.getString("java.recmsg"));
+		SYNOPTIC_TOOL_TITLE_MAP.put(TOOL_ID_SUMMARY_CALENDAR, "java.reccal");
+		SYNOPTIC_TOOL_TITLE_MAP.put(TOOL_ID_SYNOPTIC_ANNOUNCEMENT, "java.recann");
+		SYNOPTIC_TOOL_TITLE_MAP.put(TOOL_ID_SYNOPTIC_CHAT, "java.recent");
+		SYNOPTIC_TOOL_TITLE_MAP.put(TOOL_ID_SYNOPTIC_MESSAGECENTER, "java.recmsg");
 	}
 	
 	/**
@@ -8280,7 +8281,9 @@ public class SiteAction extends PagedResourceActionII {
 					{
 						try
 						{
-							addSynopticTool(page, homeToolId, SYNOPTIC_TOOL_TITLE_MAP.get(homeToolId), synopticToolIndex++ + ",1");
+							// use value from map to find an internationalized tool title
+							String toolTitleText = rb.getString(SYNOPTIC_TOOL_TITLE_MAP.get(homeToolId));
+							addSynopticTool(page, homeToolId, toolTitleText, synopticToolIndex++ + ",1");
 						} catch (Exception e) {
 							M_log.warn(this + ".saveFeatures addSynotpicTool: " + e.getMessage() + " site id = " + site.getId() + " tool = " + homeToolId, e);
 						}
