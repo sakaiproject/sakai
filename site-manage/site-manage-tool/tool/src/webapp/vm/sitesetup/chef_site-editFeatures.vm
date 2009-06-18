@@ -96,6 +96,12 @@
 						</td>
 						<td>
 								$tool.getDescription()
+								#if ($!multipleToolIdTitleMap.containsKey($toolId))
+									#set($properties = $!multipleToolConfiguration.get($toolId))
+									(#foreach ($property in $!properties.keySet())
+										$property = $validator.escapeHtml($properties.get($property)) 
+									#end)
+								#end
 						</td>
 					</tr>	
 				#end

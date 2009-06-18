@@ -108,7 +108,7 @@
 								</p>
 						 #set($attributeHashtable=false)
 							#set($attributeHashtable=$!multipleToolConfiguration.get($toolId))
-								#foreach ($attribute in $!attributeHashtable.keys())
+							 #foreach ($attribute in $!attributeHashtable.keys())
 									#set($attributeInputName=$attribute.concat("_").concat($toolId))
 									<p class="shorttext">
 										<label for="$attributeInputName">

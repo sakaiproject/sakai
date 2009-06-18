@@ -42,6 +42,12 @@
 					$!oldToolTitle: $!emailId@$serverName
 				#elseif ($!multipleToolIdTitleMap.containsKey($oldTool))
 					$validator.escapeHtml($!multipleToolIdTitleMap.get($oldTool))
+					## get tool configuration
+					#set($attributeHashtable=false)
+					#set($attributeHashtable=$!multipleToolConfiguration.get($oldTool))
+					(#foreach ($attribute in $!attributeHashtable.keys())
+						$attribute = $!attributeHashtable.get($attribute) 
+					#end)
 				#else
 					$!oldToolTitle
 				#end
@@ -79,15 +85,23 @@
 			#if ($newTool == "sakai.mailbox")
 				$!newToolTitle: $!emailId@$serverName
 			#elseif ($!multipleToolIdTitleMap.containsKey($newTool))
+				## show tool title
 				$validator.escapeHtml($!multipleToolIdTitleMap.get($newTool))
-				#if (!$found)
+				## show tool configuration
+				#if ($!multipleToolIdTitleMap.containsKey($toolId))
+					#set($properties = $!multipleToolConfiguration.get($toolId))
+					(
+						#foreach ($property in $!properties.keySet())
+							$property : $validator.escapeHtml($properties.get($property))
+						#end
+					)
+		   #end
 					## get tool configuration
 					#set($attributeHashtable=false)
 					#set($attributeHashtable=$!multipleToolConfiguration.get($newTool))
 					(#foreach ($attribute in $!attributeHashtable.keys())
 						$attribute = $!attributeHashtable.get($attribute) 
 					#end)
-				#end
 			#else
 				$!newToolTitle
 			#end
