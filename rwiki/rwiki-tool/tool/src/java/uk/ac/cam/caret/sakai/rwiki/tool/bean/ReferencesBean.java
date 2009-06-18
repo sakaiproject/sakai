@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.sakaiproject.entity.api.Entity;
 
@@ -69,6 +70,7 @@ public class ReferencesBean
 		String referenced = rwikiObject.getReferenced();
 		String[] references = referenced.split("::");
 		List referenceLinks = new ArrayList(references.length);
+		TreeMap <String, String> tmLinks = new TreeMap <String, String> ();
 		ViewBean vb = new ViewBean(rwikiObject.getName(), defaultSpace);
 		vb.setLocalSpace(vb.getPageSpace());
 		for (int i = 0; i < references.length; i++)
@@ -77,12 +79,26 @@ public class ReferencesBean
 			if (pageName != null && !pageName.equals(""))
 			{
 				vb.setPageName(pageName);
+				/*
 				String link = "<a href=\""
 						+ XmlEscaper.xmlEscape(vb.getViewUrl()) + "\">"
 						+ XmlEscaper.xmlEscape(vb.getLocalName()) + "</a>";
 				referenceLinks.add(link);
+				*/
+				tmLinks.put(vb.getLocalName(),vb.getViewUrl());
 			}
 		}
+		
+		Iterator tmiter = tmLinks.keySet().iterator();
+		while (tmiter.hasNext()) {
+			String objLocalName = (String) tmiter.next();
+			String objViewUrl = (String) tmLinks.get(objLocalName);
+			String link = "<a href=\""
+				+ XmlEscaper.xmlEscape(objViewUrl) + "\">"
+				+ XmlEscaper.xmlEscape(objLocalName) + "</a>";
+			referenceLinks.add(link);
+		}
+
 		return referenceLinks;
 	}
 
