@@ -320,11 +320,11 @@ function allowClick(object)
 											#if ($assignment.draft && $!allowUpdateAssignment )
 												<a href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">
 													<span class="highlight">$tlang.getString("gen.dra2") </span>
-														$validator.limit($validator.escapeHtml($!assignment.getTitle()), 40)
+														$validator.limit($validator.escapeHtml($!assignment.getTitle()), 64)
 												</a>
 											#else
 												<a href="#toolLinkParam("$action" "doView_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">
-													$validator.limit($validator.escapeHtml($!assignment.getTitle()), 40)
+													$validator.limit($validator.escapeHtml($!assignment.getTitle()), 64)
 												</a>
 											#end
 										</h4>
