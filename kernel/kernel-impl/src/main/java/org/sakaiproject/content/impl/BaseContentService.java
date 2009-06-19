@@ -6170,9 +6170,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		return true;
 	}
 
-	/** stream content requests if true, read all into memory and send if false. */
-	protected static final boolean STREAM_CONTENT = true;
-
 	/** The chunk size used when streaming (100k). */
 	protected static final int STREAM_BUFFER_SIZE = 102400;
 
@@ -6189,9 +6186,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	 * @throws CopyrightException
 	 */
 	protected void handleAccessResource(HttpServletRequest req, HttpServletResponse res, Reference ref,
-			Collection copyrightAcceptedRefs) throws EntityPermissionException, EntityNotDefinedException,
+			Collection<String> copyrightAcceptedRefs) throws EntityPermissionException, EntityNotDefinedException,
 			EntityAccessOverloadException, EntityCopyrightException
-			{
+	{
 		// we only access resources, not collections
 		if (ref.getId().endsWith(Entity.SEPARATOR)) throw new EntityNotDefinedException(ref.getReference());
 
@@ -6281,76 +6278,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 				}
 
 				// stream the content using a small buffer to keep memory managed
-				if (STREAM_CONTENT)
+				InputStream content = null;
+				OutputStream out = null;
+
+				try
 				{
-					InputStream content = null;
-					OutputStream out = null;
-
-					try
-					{
-						content = resource.streamContent();
-						if (content == null)
-						{
-							throw new IdUnusedException(ref.getReference());
-						}
-
-						res.setContentType(contentType);
-						res.addHeader("Content-Disposition", disposition);
-						res.addHeader("Accept-Ranges", "none");
-						res.setContentLength(len);
-
-						// set the buffer of the response to match what we are reading from the request
-						if (len < STREAM_BUFFER_SIZE)
-						{
-							res.setBufferSize(len);
-						}
-						else
-						{
-							res.setBufferSize(STREAM_BUFFER_SIZE);
-						}
-
-						out = res.getOutputStream();
-
-						// chunk
-						byte[] chunk = new byte[STREAM_BUFFER_SIZE];
-						int lenRead;
-						while ((lenRead = content.read(chunk)) != -1)
-						{
-							out.write(chunk, 0, lenRead);
-						}
-					}
-					catch (ServerOverloadException e)
-					{
-						throw e;
-					}
-					catch (Throwable ignore)
-					{
-					}
-					finally
-					{
-						// be a good little program and close the stream - freeing up valuable system resources
-						if (content != null)
-						{
-							content.close();
-						}
-
-						if (out != null)
-						{
-							try
-							{
-								out.close();
-							}
-							catch (Throwable ignore)
-							{
-							}
-						}
-					}
-				}
-
-				// read the entire content into memory and send it from there
-				else
-				{
-					byte[] content = resource.getContent();
+					content = resource.streamContent();
 					if (content == null)
 					{
 						throw new IdUnusedException(ref.getReference());
@@ -6358,36 +6291,56 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 					res.setContentType(contentType);
 					res.addHeader("Content-Disposition", disposition);
+					res.addHeader("Accept-Ranges", "none");
 					res.setContentLength(len);
 
-					// Increase the buffer size for more speed. - don't - we don't want a 20 meg buffer size,right? -ggolden
-					// res.setBufferSize(len);
+					// set the buffer of the response to match what we are reading from the request
+					if (len < STREAM_BUFFER_SIZE)
+					{
+						res.setBufferSize(len);
+					}
+					else
+					{
+						res.setBufferSize(STREAM_BUFFER_SIZE);
+					}
 
-					OutputStream out = null;
-					try
+					out = res.getOutputStream();
+
+					// chunk
+					byte[] chunk = new byte[STREAM_BUFFER_SIZE];
+					int lenRead;
+					while ((lenRead = content.read(chunk)) != -1)
 					{
-						out = res.getOutputStream();
-						out.write(content);
-						out.flush();
-						out.close();
+						out.write(chunk, 0, lenRead);
 					}
-					catch (Throwable ignore)
+				}
+				catch (ServerOverloadException e)
+				{
+					throw e;
+				}
+				catch (Throwable ignore)
+				{
+				}
+				finally
+				{
+					// be a good little program and close the stream - freeing up valuable system resources
+					if (content != null)
 					{
+						content.close();
 					}
-					finally
+
+					if (out != null)
 					{
-						if (out != null)
+						try
 						{
-							try
-							{
-								out.close();
-							}
-							catch (Throwable ignore)
-							{
-							}
+							out.close();
+						}
+						catch (Throwable ignore)
+						{
 						}
 					}
 				}
+
 			}
 
 			// track event
@@ -6397,7 +6350,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		{
 			throw new EntityNotDefinedException(ref.getReference());
 		}
-			}
+	}
 
 	/**
 	 * Process the access request for a collection, producing the "apache" style HTML file directory listing (complete with index.html redirect if found).
