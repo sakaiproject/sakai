@@ -716,6 +716,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		
 		// Remove from thread local cache
 		clearGroup(section.getUuid());
+		clearSite(group.getContainingSite().getId());
 		
 		return new EnrollmentRecordImpl(section, null, user);
 	}
@@ -1644,6 +1645,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 			Group group = findGroup((String)i.next());
 			Member member = group.getMember(userUid);
 			if(member == null) {
+				if (log.isDebugEnabled()) log.debug("getAuthzUserGroupIds said " + userUid + " is member of " + group.getId() + " but getMember disagrees");
 				continue;
 			}
 			if(member.getRole().isAllowed(SectionAwareness.STUDENT_MARKER)) {
