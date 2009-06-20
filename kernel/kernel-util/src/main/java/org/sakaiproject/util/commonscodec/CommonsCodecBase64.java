@@ -24,12 +24,13 @@ package org.sakaiproject.util.commonscodec;
  * <p>This class implements section <cite>6.8. Base64 Content-Transfer-Encoding</cite> 
  * from RFC 2045 <cite>Multipurpose Internet Mail Extensions (MIME) Part One: 
  * Format of Internet Message Bodies</cite> by Freed and Borenstein.</p> 
- *
+ *<p> This code is included here to avoid having to deploy commons-codec
+ * to shared. See http://jira.sakaiproject.org/jira/browse/SAK-7408</p> 
  * @see <a href="http://www.ietf.org/rfc/rfc2045.txt">RFC 2045</a>
  * @author Apache Software Foundation
  * @since 1.0-dev
  * @version SourceVerion: Base64.java,v 1.20 2004/05/24 00:21:24 ggregory Exp 
- * @deprecated this method is code from commons-codes 1.2 - this has at least one bug fixed in later versions of commons-codec. Rather use commons-codec
+ * 
  */
 public class CommonsCodecBase64  {
 
