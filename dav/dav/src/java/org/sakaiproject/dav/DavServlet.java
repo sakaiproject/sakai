@@ -1246,7 +1246,12 @@ public class DavServlet extends HttpServlet
 		long contentLength = resourceInfo.length;
 		if ((!resourceInfo.collection) && (contentLength >= 0))
 		{
-			response.setContentLength((int) contentLength);
+			// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4187336
+			if (contentLength <= Integer.MAX_VALUE) {
+				response.setContentLength((int) contentLength);
+			} else {
+				response.addHeader("Content-Length", Long.toString(contentLength));
+			}
 		}
 		return true;
 	}
@@ -2685,18 +2690,8 @@ public class DavServlet extends HttpServlet
 		String contentType = "";
 		InputStream inputStream = req.getInputStream();
 		contentType = req.getContentType();
-		int contentLength = req.getContentLength();
-		String transferCoding = req.getHeader("Transfer-Encoding");
-		boolean chunked = transferCoding != null && transferCoding.equalsIgnoreCase("chunked");
 
-		if (M_log.isDebugEnabled()) M_log.debug("  req.contentType() =" + contentType + " len=" + contentLength);
-
-		if (!chunked && contentLength < 0)
-		{
-			M_log.warn("SAKAIDavServlet.doPut() content length (" + contentLength + ") less than zero " + path);
-			resp.sendError(HttpServletResponse.SC_CONFLICT);
-			return;
-		}
+		if (M_log.isDebugEnabled()) M_log.debug("  req.contentType() =" + contentType);
 
 		if (contentType == null)
 		{
@@ -3894,7 +3889,7 @@ public class DavServlet extends HttpServlet
 
 		// Copying source to destination
 
-		Hashtable errorList = new Hashtable();
+		Hashtable<String,Integer> errorList = new Hashtable<String,Integer>();
 
 		boolean result = copyResource(resources, errorList, path, destinationPath);
 
@@ -3911,7 +3906,6 @@ public class DavServlet extends HttpServlet
 		lockNullResources.remove(destinationPath);
 
 		return true;
-
 	}
 
 	/**
@@ -3926,7 +3920,7 @@ public class DavServlet extends HttpServlet
 	 * @param dest
 	 *        Destination path
 	 */
-	private boolean copyResource(DirContextSAKAI resources, Hashtable errorList, String source, String dest)
+	private boolean copyResource(DirContextSAKAI resources, Hashtable<String,Integer> errorList, String source, String dest)
 	{
 
 		if (debug > 1) if (M_log.isDebugEnabled()) M_log.debug("Copy: " + source + " To: " + dest);
@@ -3947,8 +3941,6 @@ public class DavServlet extends HttpServlet
 		try
 		{
 		    boolean isCollection = contentHostingService.getProperties(source).getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
-		    String destfolder = null;
-		    String tempname = null;
 
 		    if (isCollection)
 			copyCollection(adjustId(source), adjustId(dest));
