@@ -2381,11 +2381,34 @@ public class DavServlet extends HttpServlet
 	}
 
 	/**
+	 * Find the containing collection id of a given resource id. Copied from BaseContentService.
+	 * 
+	 * @param id
+	 *        The resource id.
+	 * @return the containing collection id.
+	 */
+	private String isolateContainingId(String id)
+	{
+		// take up to including the last resource path separator, not counting one at the very end if there
+		return id.substring(0, id.lastIndexOf('/', id.length() - 2) + 1);
+
+	} // isolateContainingId
+
+
+	/**
 	 * MKCOL Method.
 	 */
 	protected void doMkcol(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
 
+		// Is there a body in the response which we don't understand? If so, return error code
+		// as per rfc2518 8.3.1
+		
+		if (req.getContentLength() > 0) {
+			resp.sendError(SakaidavStatus.SC_UNSUPPORTED_MEDIA_TYPE);
+			return;
+		}
+		
 		if (readOnly)
 		{
 			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
@@ -2413,15 +2436,55 @@ public class DavServlet extends HttpServlet
 			return;
 		}
 
-		// Check to see if collection already exists
+		// Check to see if the parent collection exists. ContentHosting will create a parent folder if it 
+		// does not exist, but the WebDAV spec requires this operation to fail (rfc2518, 8.3.1).
+		
+		String parentId = isolateContainingId(adjustId(path));
+		
+		try {
+			contentHostingService.getCollection(parentId);
+		} catch (IdUnusedException e1) {
+			resp.sendError(SakaidavStatus.SC_CONFLICT);
+			return;		
+		} catch (TypeException e1) {
+			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
+			return;						
+		} catch (PermissionException e1) {
+			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
+			return;			
+		}
+		
+		String adjustedId = adjustId(path);
+	
+		// Check to see if collection with this name already exists
 		try
-		{
-			contentHostingService.getProperties(adjustId(path)).getBooleanProperty(
-					ResourceProperties.PROP_IS_COLLECTION);
-
-			// return an error if it's a collection or an ordinary resource
+		{	
+			contentHostingService.getProperties(adjustedId);
 			
 			// return error (litmus: MKCOL on existing collection should fail, RFC2518:8.3.1 / 8.3.2)
+			
+			resp.sendError(SakaidavStatus.SC_METHOD_NOT_ALLOWED);
+			return;
+
+		}
+		catch (IdUnusedException e)
+		{
+			// Resource not found (this is actually the normal case)
+		}
+		catch (PermissionException e)
+		{
+			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
+			return;
+		}
+
+		// Check to see if a resource with this name already exists
+		if (adjustedId.endsWith("/") && adjustedId.length() > 1)
+		try
+		{
+			String idToCheck = adjustedId.substring(0, adjustedId.length() - 1);
+			
+			contentHostingService.getProperties(idToCheck);
+			
 			// don't allow overwriting an existing resource (litmus: mkcol_over_plain)
 
 			resp.sendError(SakaidavStatus.SC_METHOD_NOT_ALLOWED);
@@ -2437,37 +2500,15 @@ public class DavServlet extends HttpServlet
 			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
 			return;
 		}
-		catch (EntityPropertyNotDefinedException e)
-		{
-			M_log.warn("SAKAIDavServlet.doMkcol() - EntityPropertyNotDefinedException " + path);
-			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
-			return;
-		}
-		catch (EntityPropertyTypeException e)
-		{
-			M_log.warn("SAKAIDavServlet.doMkcol() - TypeException " + path);
-			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
-			return;
-		}
-
+		
 		// Add the collection
 
 		try
 		{
-			User user = UserDirectoryService.getCurrentUser();
-
-			TimeBreakdown timeBreakdown = TimeService.newTime().breakdownLocal();
-			String mycopyright = "copyright (c)" + " " + timeBreakdown.getYear() + ", " + user.getDisplayName()
-					+ ". All Rights Reserved. ";
-
-
 			ContentCollectionEdit edit = contentHostingService.addCollection(adjustId(path));
 			ResourcePropertiesEdit resourceProperties = edit.getPropertiesEdit();
 			resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
-			resourceProperties.addProperty(ResourceProperties.PROP_COPYRIGHT, mycopyright);
 			contentHostingService.commitCollection(edit);
-
-			ContentCollection collection = contentHostingService.addCollection(adjustId(path), resourceProperties);
 		}
 
 		catch (IdUsedException e)
@@ -2642,7 +2683,6 @@ public class DavServlet extends HttpServlet
 		// Add the resource
 
 		String contentType = "";
-		String collectionId = "";
 		InputStream inputStream = req.getInputStream();
 		contentType = req.getContentType();
 		int contentLength = req.getContentLength();
@@ -2680,6 +2720,7 @@ public class DavServlet extends HttpServlet
 			// use this code rather than the long form of addResource
 			// because it doesn't add an extension. Delete doesn't, so we have
 			// to match, and I'd just as soon be able to create items with no extension anyway
+			
 			ContentResourceEdit edit = contentHostingService.addResource(adjustId(path));
 			edit.setContentType(contentType);
 			edit.setContent(inputStream);
@@ -5234,4 +5275,5 @@ class SakaidavStatus
 	{
 		mapStatusCodes.put(new Integer(nKey), strVal);
 	}
+	
 };
