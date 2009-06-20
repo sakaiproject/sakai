@@ -198,31 +198,11 @@ System.out.println("NEED TO ADD SOME STUFF HERE");
 				String contextId = ref.getContext();
 System.out.println("ContextID="+contextId);
 System.out.println("ID="+ref.getId());
-System.out.println("Type="+ref.getType());
-System.out.println("SubType="+ref.getSubType());
-/*
-ToolConfiguration placement = SiteService.findTool(ref.getId());
-System.out.println("placement="+placement);
 
 // Make sure contextId is right for placement
 
-// Add user, course, etc to the launch parameters
-Properties launch = new Properties();
-IMSBLTIUtil.sakaiInfo(launch, placement);
-
-// Retrieve the launch detail
-Properties info = new Properties();
-IMSBLTIUtil.launchInfo(info, launch, placement);
-System.out.println("LAUNCH II="+launch);
-System.out.println("INFO="+info);
-
-String launch_url = "http://www.dr-chuck.com/page1.htm";
-
-info = BasicLTIUtil.signProperties(info, "POST", launch_url, "http://call.back.url", "umich.edu", "secret");
-System.out.println("INFO II="+info);
-
-
-*/
+System.out.println("Type="+ref.getType());
+System.out.println("SubType="+ref.getSubType());
 
 // Get the post data for the placement
 String postData = IMSBLTIUtil.postLaunchHTML(ref.getId());

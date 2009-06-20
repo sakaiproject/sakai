@@ -138,6 +138,7 @@ public class IMSBLTIUtil {
 	setProperty(props,"tool_consmer_instance_guid", ServerConfigurationService.getString("basiclti.consumer_instance_guid",null));
 	setProperty(props,"tool_consmer_instance_name", ServerConfigurationService.getString("basiclti.consumer_instance_name",null));
 	setProperty(props,"tool_consmer_instance_url", ServerConfigurationService.getString("basiclti.consumer_instance_url",null));
+	setProperty(props,"launch_presentation_return_url", ServerConfigurationService.getString("basiclti.consumer_return_url",null));
 	return true;
     } 
 
@@ -145,8 +146,6 @@ public class IMSBLTIUtil {
     {
         ToolConfiguration placement = SiteService.findTool(placementId);
         System.out.println("placement="+placement);
-    
-        // Make sure contextId is right for placement
     
         // Add user, course, etc to the launch parameters
         Properties launch = new Properties();
@@ -158,11 +157,29 @@ public class IMSBLTIUtil {
         System.out.println("LAUNCH II="+launch);
         System.out.println("INFO="+info);
                 
-        String launch_url = "http://www.dr-chuck.com/page1.htm";
-                
-        info = BasicLTIUtil.signProperties(info, "POST", launch_url, "http://call.back.url", "umich.edu", "secret");
-        System.out.println("INFO II="+info);
+        String launch_url = info.getProperty("secure_launch_url");
+	if ( launch_url == null ) launch_url = info.getProperty("launch_url");
+        if ( launch_url != null ) return "<p>Not configured</p>";
 
+        // Property secret takes precedence over resource secret
+        String org_guid = ServerConfigurationService.getString("basiclti.consumer_instance_guid",null);
+        String oauth_consumer_key = "basiclti-resource-level";
+	String oauth_consumer_secret = toNull(info.getProperty("secret"));
+	// Is this a good idea?  If there is no secret - perhaps we should not even 
+	// sign???  If we sign we get other things like nonce, and create time..  Hmmm
+	if ( oauth_consumer_secret == null ) oauth_consumer_secret = "secret";
+	System.out.println("key="+oauth_consumer_key+" secret="+oauth_consumer_secret);
+        if ( org_guid != null ) {
+	    oauth_consumer_secret = getToolConsumerSecret(launch_url);
+            oauth_consumer_key = "basiclti-lms:"+org_guid;
+	}
+	System.out.println("key="+oauth_consumer_key+" secret="+oauth_consumer_secret);
+        
+        String call_back_url = ServerConfigurationService.getString("basiclti.oauth_call_back_url",null);
+        launch = BasicLTIUtil.signProperties(launch, "POST", launch_url, 
+            call_back_url, oauth_consumer_key, oauth_consumer_secret);
+
+        System.out.println("INFO II="+info);
 
         String postData = BasicLTIUtil.postLaunchHTML(launch_url, launch, true /* debug */);
 
