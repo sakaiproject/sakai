@@ -260,6 +260,11 @@ public class DavServlet extends HttpServlet
 
 	/** delimiter for form multiple values */
 	static final String FORM_VALUE_DELIMETER = "^";
+	
+	/**
+	 * Size of buffer for streaming downloads 
+	 */
+	protected static final int STREAM_BUFFER_SIZE = 102400;
 
 	/** used to id a log message */
 	public static String ME = DavServlet.class.getName();
@@ -1759,37 +1764,81 @@ public class DavServlet extends HttpServlet
 		if (!isCollection)
 		{
 			if (M_log.isDebugEnabled()) M_log.debug("SAKAIAccess doContent is resource " + id);
+
+			InputStream contentStream = null;
+			OutputStream out = null;
+			
 			try
 			{
 				ContentResource resource = contentHostingService.getResource(adjustId(id));
 				long len = resource.getContentLength();
 				String contentType = resource.getContentType();
-				byte[] content = resource.getContent();
-
-				if (content == null)
-				{
-					return "Empty resource";
-				}
 
 				// for URL content type, encode a redirect to the body URL
 				if (contentType.equalsIgnoreCase(ResourceProperties.TYPE_URL))
 				{
-					res.sendRedirect(new String(content));
+					res.sendRedirect(new String(resource.getContent()));
 				}
 				else
 				{
+					// Similar to handleAccessResource() in BaseContentService.java
+					
+					contentStream = resource.streamContent();
+
+					if (contentStream == null || len == 0)
+					{
+						return "Empty resource";
+					}
+
+					// set the buffer of the response to match what we are reading from the request
+					if (len < STREAM_BUFFER_SIZE)
+					{
+						res.setBufferSize( (int) len);
+					}
+					else
+					{
+						res.setBufferSize(STREAM_BUFFER_SIZE);
+					}
+
 					if (!processHead(req, res)) return "Error setting header values";
-					OutputStream out = res.getOutputStream();
-					// now set in processHead
-					// res.setContentType(contentType);
-					out.write(content);
-					out.flush();
+
+					out = res.getOutputStream();
+					
+					// chunk content stream to response
+					byte[] chunk = new byte[STREAM_BUFFER_SIZE];
+					int lenRead;
+					while ((lenRead = contentStream.read(chunk)) != -1)
+					{
+						out.write(chunk, 0, lenRead);
+					}
 				}
 			}
 			catch (Throwable e)
 			{
 				// M_log.warn(this + ".doContent(): exception: id: " + id + " : " + e.toString());
 				return e.toString();
+			}
+			finally
+			{
+				if (contentStream != null) {
+					try {
+						contentStream.close();
+					} catch (IOException e) {
+						// ignore
+					}
+				}
+
+				if (out != null)
+				{
+					try
+					{
+						out.close();
+					}
+					catch (Throwable ignore)
+					{
+						// ignore
+					}
+				}
 			}
 		}
 
