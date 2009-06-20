@@ -466,12 +466,18 @@ public class IMSBLTIPortlet extends GenericPortlet {
 	String imsTIXml  = getFormParameter(request,sakaiProperties,"xml");
         if ( imsTIXml != null && imsTIXml.trim().length() < 1 ) imsTIXml = null;
 
+        if ( imsType.equalsIgnoreCase("XML") ) {
+            if ( imsTIXml != null ) imsTIUrl = null;
+        } else {
+            if ( imsTIUrl != null ) imsTIXml = null;
+        }
+
         if ( imsTIXml != null ) {
 		if ( ! BasicLTIUtil.validateDescriptor(imsTIXml) ) {
 			setErrorMessage(request, "Error in XML Input");
 			return;
 		}
-	} else if ( imsTIXml == null ) {
+	} else if ( imsTIUrl == null ) {
 		setErrorMessage(request, "Your must either set Launch URL or provide XML Input");
 		return;
         }
@@ -506,6 +512,19 @@ public class IMSBLTIPortlet extends GenericPortlet {
                 } catch (ReadOnlyException e) {
                         setErrorMessage(request, "Unable to store preferences.");
                 }
+        }
+
+        // Clear out the other setting
+        if ( imsType.equalsIgnoreCase("XML") ) {
+           if ( imsTIXml != null ) {
+               prefs.setValue("sakai:imsti.launch", null);
+               changed = true;
+           }
+        } else {
+           if ( imsTIUrl != null ) {
+               prefs.setValue("sakai:imsti.xml", null);
+               changed = true;
+           }
         }
         if ( changed ) prefs.store();
 

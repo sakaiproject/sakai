@@ -42,22 +42,8 @@ public class IMSBLTIUtil {
         if ( verbosePrint ) System.out.println(str);
     }
 
-   public static void loadProperty(Properties retProp, String propKey, Map<String,String> tm, String xmlKey1, String xmlKey2)
-   {
-	String value = null;
-	if ( value == null && xmlKey1 != null ) {
-		value = tm.get(xmlKey1);
-	}
-	if ( value == null && xmlKey2 != null ) {
- 		value = tm.get(xmlKey2);
-        }
-	if ( value == null ) return;
-	retProp.setProperty(propKey, value);	
-   }
-
-    // Look at the properties and figure out the launchurl, secret, 
-    // frameheight, and new window
-    //
+    // Look at a Placement and come up with the launch urls, and
+    // other launch parameters to drive the launch.
     public static boolean launchInfo(Properties info, Properties launch, Placement placement)
     {
 	Properties config = placement.getConfig();
@@ -129,7 +115,6 @@ public class IMSBLTIUtil {
 
 	if ( site != null ) {
 		String context_type = site.getType();
-System.out.println("SITE TYPE "+context_type);
 		if ( context_type != null && context_type.toLowerCase().contains("course") ){
 			setProperty(props,"context_type","CourseOffering");
 		}
@@ -156,6 +141,34 @@ System.out.println("SITE TYPE "+context_type);
 	return true;
     } 
 
+    public static String postLaunchHTML(String placementId)
+    {
+        ToolConfiguration placement = SiteService.findTool(placementId);
+        System.out.println("placement="+placement);
+    
+        // Make sure contextId is right for placement
+    
+        // Add user, course, etc to the launch parameters
+        Properties launch = new Properties();
+        sakaiInfo(launch, placement); 
+        
+        // Retrieve the launch detail
+        Properties info = new Properties();
+        launchInfo(info, launch, placement); 
+        System.out.println("LAUNCH II="+launch);
+        System.out.println("INFO="+info);
+                
+        String launch_url = "http://www.dr-chuck.com/page1.htm";
+                
+        info = BasicLTIUtil.signProperties(info, "POST", launch_url, "http://call.back.url", "umich.edu", "secret");
+        System.out.println("INFO II="+info);
+
+
+        String postData = BasicLTIUtil.postLaunchHTML(launch_url, launch, true /* debug */);
+
+        return postData;
+    }
+
     public static void setProperty(Properties props, String key, String value)
     {
         if ( value == null ) return;
@@ -181,10 +194,10 @@ System.out.println("SITE TYPE "+context_type);
         return rv;
     } // getExternalRealmId
 
-    // String org_secret = ServerConfigurationService.getString("simplelti.org_secret");
-    private static String getOrgSecret(String launchUrl)
+    // Look through a series of secrets from the properties based on the launchUrl
+    private static String getToolConsumerSecret(String launchUrl)
     {
-        String default_secret = ServerConfigurationService.getString("simplelti.org_secret",null);
+        String default_secret = ServerConfigurationService.getString("basiclti.consumer_instance_secret",null);
         dPrint("launchUrl = "+launchUrl);
         URL url = null;
         try {
@@ -198,13 +211,13 @@ System.out.println("SITE TYPE "+context_type);
         dPrint("host = "+hostName);
         if ( hostName == null || hostName.length() < 1 ) return default_secret;
         // Look for the property starting with the full name
-        String org_secret = ServerConfigurationService.getString("simplelti.org_secret."+hostName,null);
+        String org_secret = ServerConfigurationService.getString("basiclti.consumer_instance_secret."+hostName,null);
         if ( org_secret != null ) return org_secret;
         for ( int i = 0; i < hostName.length(); i++ ) {
             if ( hostName.charAt(i) != '.' ) continue;
             if ( i > hostName.length()-2 ) continue;
             String hostPart = hostName.substring(i+1);
-            String propName = "simplelti.org_secret."+hostPart;
+            String propName = "basiclti.consumer_instance_secret."+hostPart;
             org_secret = ServerConfigurationService.getString(propName,null);
             if ( org_secret != null ) return org_secret;
         }

@@ -61,7 +61,7 @@ Properties sp = (Properties) rReq.getAttribute("imsti.properties");
 <% if ( allow(sp,"launch") || allow(sp,"secret") || allow(sp,"xml") ) { %>
 <fieldset>
 <legend>Required Information</legend>
-<% if ( ( allow(sp,"launch") || allow(sp, "secret" ) ) && allow(sp,"xml") ) { %>
+<% if ( allow(sp,"launch") && allow(sp,"xml") ) { %>
 <script type="text/javascript">
 function switchui()
 {
@@ -76,11 +76,11 @@ function switchui()
 }
 </script>
 <select id="UISwitcher" name="imsti.type" onchange="switchui(); return false;">
-  <option>URL and Password</option>
+  <option value="URL">URL and Password</option>
 <% if ( ov.getProperty("imsti.xml",null) != null ) { %>
-  <option selected="selected">XML Paste</option>
+  <option selected="selected" value="XML">XML Paste</option>
 <% } else { %>
-  <option>XML Paste</option>
+  <option value="XML">XML Paste</option>
 <% } %>
 </select>
 <% } %>
@@ -91,22 +91,18 @@ function switchui()
 </textarea>
 </div>
 <% } %>
-<% if ( allow(sp,"launch") || allow(sp, "secret") ) { %>
-<div id="url.input">
-<% } %>
 <% if ( allow(sp,"launch") ) { %>
+<div id="url.input">
 <p>
 Remote Tool Url: <input type="text" size="100" name="imsti.launch" value="<%=ov.getProperty("imsti.launch","")%>">
 </p>
+</div>
+<% } %>
 <% } %>
 <% if ( allow(sp,"secret") ) { %>
 <p>
 Remote Tool Password: <input type="password" name="imsti.secret"> (Must re-enter every time)
 </p>
-<% } %>
-<% if ( allow(sp,"launch") || allow(sp, "secret") ) { %>
-</div>
-<% } %>
 <p>
 <input type="submit" value="Update Options">
 </p>
