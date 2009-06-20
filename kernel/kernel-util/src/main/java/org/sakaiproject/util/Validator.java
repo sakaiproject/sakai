@@ -174,6 +174,7 @@ public class Validator
 	 * @param id
 	 *        The string to escape.
 	 * @return id fully escaped using URL rules.
+	 * @deprecated use java.net.URLEncode.encode()
 	 */
 	public static String escapeUrl(String id)
 	{
