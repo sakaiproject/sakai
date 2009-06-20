@@ -29,7 +29,7 @@
                      Sites tool and set the finalness of the parameters
                      as well.  -->
                 <configuration name="imsti.launch" />
-                <configuration name="imsti.password" />
+                <configuration name="imsti.secret" />
                 <configuration name="imsti.pagetitle" />
                 <configuration name="imsti.tooltitle" />
                 <configuration name="imsti.newwindow" />
@@ -39,7 +39,7 @@
                 <!-- Setting these to true means the corresponding above values 
 		     cannot be altered by by the instructor.  -->
                 <configuration name="final.launch" value="false"/>
-                <configuration name="final.password" value="false"/>
+                <configuration name="final.secret" value="false"/>
                 <configuration name="final.pagetitle" value="false"/>
                 <configuration name="final.tooltitle" value="false"/>
                 <configuration name="final.newwindow" value="false"/>

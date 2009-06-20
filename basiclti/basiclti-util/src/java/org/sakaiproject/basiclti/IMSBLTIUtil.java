@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import java.net.URL;
 
-import org.sakaiproject.portlet.util.XMLMap;
 import org.imsglobal.basiclti.BasicLTIUtil;
 
 // Sakai APIs

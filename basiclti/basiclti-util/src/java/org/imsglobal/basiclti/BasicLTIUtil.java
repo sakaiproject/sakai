@@ -80,7 +80,7 @@ public class BasicLTIUtil {
 
     public static boolean validateDescriptor(String descriptor)
     {
-        Map<String,Object> tm = XMLMap.getFullMap(descriptor);
+        Map<String,Object> tm = XMLMap.getFullMap(descriptor.trim());
 
         if ( tm == null )
         {
@@ -159,11 +159,10 @@ public class BasicLTIUtil {
 
     public static boolean launchInfo(Properties info, Properties launch, String descriptor)
     {
-System.out.println("LAUNCHINFO");
         Map<String,Object> tm = null;
         try
         {
-                tm = XMLMap.getFullMap(descriptor);
+                tm = XMLMap.getFullMap(descriptor.trim());
         } 
         catch (Exception e) {
                 System.out.println("BasicLTIUtil exception parsing BasicLTI descriptor"+e.getMessage());
@@ -174,13 +173,11 @@ System.out.println("LAUNCHINFO");
             System.out.println("Unable to parse XML in launchInfo");
             return false;
         }
-System.out.println("LAUNCHINFO TM="+tm);
 
         boolean retVal = false;
 
         String launch_url = toNull(XMLMap.getString(tm,"/basicltiresource/launch_url"));
         String secure_launch_url = toNull(XMLMap.getString(tm,"/basicltiresource/secure_launch_url"));
-System.out.println("LU="+launch_url+" SLU="+secure_launch_url);
         if ( launch_url == null && secure_launch_url == null ) return false;
 
         setProperty(info, "launch_url", launch_url);
@@ -189,10 +186,10 @@ System.out.println("LU="+launch_url+" SLU="+secure_launch_url);
         List<Map<String,Object>> theList = XMLMap.getList(tm, "/basicltiresource/custom/parameter");
         for ( Map<String,Object> setting : theList) {
                 dPrint("Setting="+setting);
-                String key = XMLMap.getString(setting,"/!name"); // Get the key atribute
+                String key = XMLMap.getString(setting,"/!key"); // Get the key atribute
                 String value = XMLMap.getString(setting,"/"); // Get the value
                 if ( key == null || value == null ) continue;
-                key = mapKeyName(key);
+                key = "custom_" + mapKeyName(key);
                 dPrint("key="+key+" val="+value);
 		launch.setProperty(key,value);
         }
@@ -224,7 +221,6 @@ System.out.println("LU="+launch_url+" SLU="+secure_launch_url);
                sb.append('_');
 	   }
        }
-System.out.println("keyname="+keyname+" map="+sb.toString());
        return sb.toString();
     }
 

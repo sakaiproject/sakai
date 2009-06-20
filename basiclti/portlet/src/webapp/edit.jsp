@@ -53,15 +53,15 @@ Properties sp = (Properties) rReq.getAttribute("imsti.properties");
  | 
 <a href="<%=resetURL.toString()%>">Clear Stored Preferences</a>
 <p/>
-<% if ( allow(sp,"launch") || allow(sp,"password") || 
+<% if ( allow(sp,"launch") || allow(sp,"secret") || 
         allow(sp,"xml") ||
         allow(sp,"pagetitle") || allow(sp,"tooltitle") ||
         allow(sp,"resource") || allow(sp,"preferwidget") || allow(sp,"height") || allow(sp,"width") || allow(sp,"frameheight") ) { %>
 <form method="post" action="<%=launchURL.toString()%>">
-<% if ( allow(sp,"launch") || allow(sp,"password") || allow(sp,"xml") ) { %>
+<% if ( allow(sp,"launch") || allow(sp,"secret") || allow(sp,"xml") ) { %>
 <fieldset>
 <legend>Required Information</legend>
-<% if ( ( allow(sp,"launch") || allow(sp, "password" ) ) && allow(sp,"xml") ) { %>
+<% if ( ( allow(sp,"launch") || allow(sp, "secret" ) ) && allow(sp,"xml") ) { %>
 <script type="text/javascript">
 function switchui()
 {
@@ -91,7 +91,7 @@ function switchui()
 </textarea>
 </div>
 <% } %>
-<% if ( allow(sp,"launch") || allow(sp, "password") ) { %>
+<% if ( allow(sp,"launch") || allow(sp, "secret") ) { %>
 <div id="url.input">
 <% } %>
 <% if ( allow(sp,"launch") ) { %>
@@ -99,12 +99,12 @@ function switchui()
 Remote Tool Url: <input type="text" size="100" name="imsti.launch" value="<%=ov.getProperty("imsti.launch","")%>">
 </p>
 <% } %>
-<% if ( allow(sp,"password") ) { %>
+<% if ( allow(sp,"secret") ) { %>
 <p>
-Remote Tool Password: <input type="password" name="imsti.password"> (Must re-enter every time)
+Remote Tool Password: <input type="password" name="imsti.secret"> (Must re-enter every time)
 </p>
 <% } %>
-<% if ( allow(sp,"launch") || allow(sp, "password") ) { %>
+<% if ( allow(sp,"launch") || allow(sp, "secret") ) { %>
 </div>
 <% } %>
 <p>

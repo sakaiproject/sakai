@@ -26,9 +26,6 @@ import java.util.Vector;
 
 import java.net.URLEncoder;
 
-import javax.xml.namespace.QName;
-
-import org.sakaiproject.portlet.util.XMLMap;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

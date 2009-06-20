@@ -77,7 +77,6 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import javax.xml.transform.Source;
 
-import org.sakaiproject.portlet.util.XMLMap;
 import org.sakaiproject.portlet.util.SakaiPortletUtil;
 import org.sakaiproject.portlet.util.PortletHelper;
 import org.sakaiproject.id.cover.IdManager;
@@ -132,7 +131,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
         // Populate the list of fields
         fieldList.add("launch");
-        fieldList.add("password");
+        fieldList.add("secret");
         fieldList.add("xml");
         fieldList.add("frameheight");
         fieldList.add("pagetitle");
