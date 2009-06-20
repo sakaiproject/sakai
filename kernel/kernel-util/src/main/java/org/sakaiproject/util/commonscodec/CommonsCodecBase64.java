@@ -29,6 +29,7 @@ package org.sakaiproject.util.commonscodec;
  * @author Apache Software Foundation
  * @since 1.0-dev
  * @version SourceVerion: Base64.java,v 1.20 2004/05/24 00:21:24 ggregory Exp 
+ * @deprecated this method is code from commons-codes 1.2 - this has at least one bug fixed in later versions of commons-codec. Rather use commons-codec
  */
 public class CommonsCodecBase64  {
 
