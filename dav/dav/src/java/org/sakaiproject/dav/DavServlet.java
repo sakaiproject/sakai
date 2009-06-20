@@ -2416,33 +2416,26 @@ public class DavServlet extends HttpServlet
 		// Check to see if collection already exists
 		try
 		{
-			boolean isCollection = contentHostingService.getProperties(adjustId(path)).getBooleanProperty(
+			contentHostingService.getProperties(adjustId(path)).getBooleanProperty(
 					ResourceProperties.PROP_IS_COLLECTION);
 
-			// if the path already exists and it is a collection there is nothing to do
-			// if it exists and is a resource, we remove it to make room for the collection
-			if (isCollection)
-			{
-				return;
-			}
-			else
-			{
-				contentHostingService.removeResource(adjustId(path));
-			}
+			// return an error if it's a collection or an ordinary resource
+			
+			// return error (litmus: MKCOL on existing collection should fail, RFC2518:8.3.1 / 8.3.2)
+			// don't allow overwriting an existing resource (litmus: mkcol_over_plain)
+
+			resp.sendError(SakaidavStatus.SC_METHOD_NOT_ALLOWED);
+			return;
+
+		}
+		catch (IdUnusedException e)
+		{
+			// Resource not found (this is actually the normal case)
 		}
 		catch (PermissionException e)
 		{
 			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
 			return;
-		}
-		catch (InUseException e)
-		{
-			resp.sendError(SakaidavStatus.SC_FORBIDDEN); // %%%
-			return;
-		}
-		catch (IdUnusedException e)
-		{
-			// Resource not found (this is actually the normal case
 		}
 		catch (EntityPropertyNotDefinedException e)
 		{
@@ -2451,12 +2444,6 @@ public class DavServlet extends HttpServlet
 			return;
 		}
 		catch (EntityPropertyTypeException e)
-		{
-			M_log.warn("SAKAIDavServlet.doMkcol() - TypeException " + path);
-			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
-			return;
-		}
-		catch (TypeException e)
 		{
 			M_log.warn("SAKAIDavServlet.doMkcol() - TypeException " + path);
 			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
