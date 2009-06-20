@@ -4089,7 +4089,9 @@ public class DavServlet extends HttpServlet
 		}
 		catch (IdUnusedException e)
 		{
-			// Resource not found (this is actually the normal case)
+			// Resource not found
+			resp.sendError(SakaidavStatus.SC_NOT_FOUND);
+			return false;
 		}
 		catch (EntityPropertyNotDefinedException e)
 		{
