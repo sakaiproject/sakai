@@ -126,14 +126,14 @@ public class BasicLTIUtil {
 
     // Add the necessary fields and sign
     public static Properties signProperties(Properties postProp, String method, String url, 
-        String call_back_url, String oauth_consumer_key, String oauth_consumer_secret)
+        String oauth_callback, String oauth_consumer_key, String oauth_consumer_secret)
     {
         postProp = BasicLTIUtil.cleanupProperties(postProp);
         postProp.setProperty("lti_version","basiclti-1.0");
         postProp.setProperty("basiclti_submit","Continue");
 
         OAuthMessage oam = new OAuthMessage(method, url,postProp.entrySet());
-        OAuthConsumer cons = new OAuthConsumer(call_back_url, 
+        OAuthConsumer cons = new OAuthConsumer(oauth_callback, 
             oauth_consumer_key, oauth_consumer_secret, null);
         OAuthAccessor acc = new OAuthAccessor(cons);
         System.out.println("OAM="+oam+"\n");
@@ -152,8 +152,14 @@ public class BasicLTIUtil {
                 nextProp.setProperty(e.getKey(), e.getValue());
             }
 	    return nextProp;
-        } catch (Exception e) {
-            System.out.println("Exception "+e.getMessage());
+        } catch (net.oauth.OAuthException e) {
+            System.out.println("BasicLTIUtil.signProperties OAuth Exception "+e.getMessage());
+            return null;
+        } catch (java.io.IOException e) {
+            System.out.println("BasicLTIUtil.signProperties IO Exception "+e.getMessage());
+            return null;
+        } catch (java.net.URISyntaxException e) {
+            System.out.println("BasicLTIUtil.signProperties URI Syntax Exception "+e.getMessage());
             return null;
         }
     

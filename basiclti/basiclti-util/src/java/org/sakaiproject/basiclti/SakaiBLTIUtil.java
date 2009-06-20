@@ -32,8 +32,10 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  * Some Sakai Utility code for IMS Basic LTI
+ * This is mostly code to support the Sakai conventions for 
+ * making and launching BLTI resources within Sakai.
  */
-public class IMSBLTIUtil {
+public class SakaiBLTIUtil {
 
     public static final boolean verbosePrint = true;
 
@@ -144,22 +146,29 @@ public class IMSBLTIUtil {
 
     public static String postLaunchHTML(String placementId)
     {
+        if ( placementId == null ) return "<p>Error, missing placementId.</p>";
         ToolConfiguration placement = SiteService.findTool(placementId);
         System.out.println("placement="+placement);
+        if ( placement == null ) return "<p>Error, cannot load placement="+placementId+".</p>";
     
         // Add user, course, etc to the launch parameters
         Properties launch = new Properties();
-        sakaiInfo(launch, placement); 
+        if ( ! sakaiInfo(launch, placement) ) {
+           return "<p>Error, cannot load Sakai information for placement="+placementId+".</p>";
+        }
         
         // Retrieve the launch detail
         Properties info = new Properties();
-        launchInfo(info, launch, placement); 
+        if ( ! launchInfo(info, launch, placement) ) {
+           return "<p>Not Configured.</p>";
+	}
+
         System.out.println("LAUNCH II="+launch);
         System.out.println("INFO="+info);
                 
         String launch_url = info.getProperty("secure_launch_url");
 	if ( launch_url == null ) launch_url = info.getProperty("launch_url");
-        if ( launch_url != null ) return "<p>Not configured</p>";
+        if ( launch_url == null ) return "<p>Not configured</p>";
 
         // Property secret takes precedence over resource secret
         String org_guid = ServerConfigurationService.getString("basiclti.consumer_instance_guid",null);
@@ -175,11 +184,17 @@ public class IMSBLTIUtil {
 	}
 	System.out.println("key="+oauth_consumer_key+" secret="+oauth_consumer_secret);
         
-        String call_back_url = ServerConfigurationService.getString("basiclti.oauth_call_back_url",null);
-        launch = BasicLTIUtil.signProperties(launch, "POST", launch_url, 
-            call_back_url, oauth_consumer_key, oauth_consumer_secret);
+        String oauth_callback = ServerConfigurationService.getString("basiclti.oauth_callback",null);
+	// Too bad there is not a better default callback url for OAuth
+        // Actually since we are using signing-only, there is really not much point 
+	// In OAuth 6.2.3, this is after the user is authorized
+	if ( oauth_callback == null ) oauth_callback = "about:blank";
 
-        System.out.println("INFO II="+info);
+        launch = BasicLTIUtil.signProperties(launch, "POST", launch_url, 
+            oauth_callback, oauth_consumer_key, oauth_consumer_secret);
+
+        if ( launch == null ) return "<p>Error signing message.</p>";
+        System.out.println("LAUNCH III="+launch);
 
         String postData = BasicLTIUtil.postLaunchHTML(launch_url, launch, true /* debug */);
 

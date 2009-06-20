@@ -62,7 +62,7 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
-import org.sakaiproject.basiclti.IMSBLTIUtil;
+import org.sakaiproject.basiclti.SakaiBLTIUtil;
 import org.imsglobal.basiclti.BasicLTIUtil;
 
 public class BasicLTISecurityServiceImpl implements EntityProducer {
@@ -201,13 +201,15 @@ System.out.println("ID="+ref.getId());
 
 // Make sure contextId is right for placement
 
+// Make sure to check security!
+
 System.out.println("Type="+ref.getType());
 System.out.println("SubType="+ref.getSubType());
 
 // Get the post data for the placement
-String postData = IMSBLTIUtil.postLaunchHTML(ref.getId());
+String postData = SakaiBLTIUtil.postLaunchHTML(ref.getId());
 
-postData = "\n<pre>\n"+postData.replace("<","&lt;").replace(">","&gt;")+"\n</pre>\n";
+// postData = "\n<pre>\n"+postData.replace("<","&lt;").replace(">","&gt;")+"\n</pre>\n";
 
 
 try{
