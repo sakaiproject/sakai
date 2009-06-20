@@ -431,6 +431,7 @@ public class Validator
 	 * @param value
 	 *        The string to escape.
 	 * @return value escaped.
+	 * @deprecated use commons-lang StringEscapeUtils
 	 */
 	public static String escapeSql(String value)
 	{
@@ -468,6 +469,7 @@ public class Validator
 	 * @param value
 	 *        The string to escape.
 	 * @return value fully escaped using javascript / html identifier rules.
+	 * @deprecated use commons-lang StringEscapeUtils
 	 */
 	public static String escapeJavascript(String value)
 	{
@@ -560,6 +562,7 @@ public class Validator
 
 	/**
 	 * Is this a valid local part of an email id?
+	 * @deprecated use commons-validator EmailValidator
 	 */
 	public static boolean checkEmailLocal(String id)
 	{

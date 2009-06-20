@@ -199,6 +199,7 @@ public class StringUtil
 	 * @param value
 	 *        The string to trim.
 	 * @return value trimmed of blanks, and if nothing left, made null.
+	 * @deprecated use commons-lang StringUtils.trimToNull
 	 */
 	public static String trimToNull(String value)
 	{
@@ -229,6 +230,7 @@ public class StringUtil
 	 * @param value
 	 *        The string to trim.
 	 * @return value trimmed of blanks, assuring it not to be null.
+	 * @deprecated use commons-lang StringUtils.trimToEmpty
 	 */
 	public static String trimToZero(String value)
 	{

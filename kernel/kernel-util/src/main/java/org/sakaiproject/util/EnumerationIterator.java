@@ -28,6 +28,7 @@ import java.util.Iterator;
  * <p>
  * EnumerationIterator is an iterator over an enumeration.
  * </p>
+ * @deprecated use Commons-Collection EnumerationIterator
  */
 public class EnumerationIterator implements Iterator
 {
