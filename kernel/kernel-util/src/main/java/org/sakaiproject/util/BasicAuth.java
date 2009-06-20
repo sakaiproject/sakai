@@ -104,8 +104,8 @@ public class BasicAuth {
 	 * 
 	 */
 	public void init() {
-		ArrayList pat = new ArrayList();
-		ArrayList mat = new ArrayList();
+		ArrayList<Pattern> pat = new ArrayList<Pattern>();
+		ArrayList<String> mat = new ArrayList<String>();
 		String[] morepatterns = null;
 		try {
 			morepatterns = ServerConfigurationService.getStrings("login.browser.user.agent");
