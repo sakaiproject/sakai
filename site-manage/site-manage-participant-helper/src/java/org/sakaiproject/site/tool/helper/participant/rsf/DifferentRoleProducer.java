@@ -19,6 +19,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.site.tool.helper.participant.rsf.AddViewParameters;
 import org.sakaiproject.site.tool.helper.participant.impl.SiteAddParticipantHandler;
+import org.sakaiproject.site.tool.helper.participant.impl.UserRoleEntry;
 import org.sakaiproject.site.util.Participant;
 import org.sakaiproject.site.util.SiteComparator;
 import org.sakaiproject.site.util.SiteConstants;
@@ -113,11 +114,17 @@ public class DifferentRoleProducer implements ViewComponentProducer, NavigationC
         // list of users
         String curItemNum = null;
         i = 0;
-        for (Iterator<String> it=handler.getUsers().iterator(); it.hasNext(); i++) {
+        for (Iterator<UserRoleEntry> it=handler.userRoleEntries.iterator(); it.hasNext(); i++) {
         	curItemNum = Integer.toString(i);
-            
-        	String userEId = it.next();
+        	UserRoleEntry userRoleEntry = it.next();
+        	String userEId = userRoleEntry.userEId;
+        	// default to userEid
         	String userName = userEId;
+        	// if there is last name or first name specified, use it
+        	if (userRoleEntry.lastName != null && userRoleEntry.lastName.length() > 0 
+        			|| userRoleEntry.firstName != null && userRoleEntry.firstName.length() > 0)
+        		userName = userRoleEntry.lastName + "," + userRoleEntry.firstName;
+        	// get user from directory
         	try
         	{
         		User u = userDirectoryService.getUserByEid(userEId);
@@ -127,9 +134,6 @@ public class DifferentRoleProducer implements ViewComponentProducer, NavigationC
         	{
         		M_log.info(this + ":fillComponents: cannot find user with eid=" + userEId);
         	}
-            
-            //String[] roleIdArray = (String[]) roleIds.toArray();
-
             // SECOND LINE
             UIBranchContainer userRow = UIBranchContainer.make(differentRoleForm, "user-row:", curItemNum);
             UIOutput.make(userRow, "user-name", userEId + "(" + userName + ")");

@@ -19,6 +19,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.site.tool.helper.participant.rsf.AddViewParameters;
 import org.sakaiproject.site.tool.helper.participant.impl.SiteAddParticipantHandler;
+import org.sakaiproject.site.tool.helper.participant.impl.UserRoleEntry;
 import org.sakaiproject.site.util.Participant;
 import org.sakaiproject.site.util.SiteComparator;
 import org.sakaiproject.site.util.SiteConstants;
@@ -124,9 +125,16 @@ public class SameRoleProducer implements ViewComponentProducer, NavigationCaseRe
         roleSelect.optionlist.setValue(roleItems.toStringArray()); 
         
         // list of users
-        for (Iterator<String> it=handler.getUsers().iterator(); it.hasNext(); ) {
-        	String userEId = it.next();
+        for (Iterator<UserRoleEntry> it=handler.userRoleEntries.iterator(); it.hasNext(); ) {
+        	UserRoleEntry userRoleEntry = it.next();
+        	String userEId = userRoleEntry.userEId;
+        	// default to userEid
         	String userName = userEId;
+        	// if there is last name or first name specified, use it
+        	if (userRoleEntry.lastName != null && userRoleEntry.lastName.length() > 0 
+        			|| userRoleEntry.firstName != null && userRoleEntry.firstName.length() > 0)
+        		userName = userRoleEntry.lastName + "," + userRoleEntry.firstName;
+        	// get user from directory
         	try
         	{
         		User u = userDirectoryService.getUserByEid(userEId);

@@ -52,7 +52,6 @@ public class SiteAddParticipantHandler {
     private static Log M_log = LogFactory.getLog(SiteAddParticipantHandler.class);
 
 	private static final String EMAIL_CHAR = "@";
-    public Site site = null;
     public SiteService siteService = null;
     public AuthzGroupService authzGroupService = null;
     public ToolManager toolManager = null;
@@ -71,6 +70,8 @@ public class SiteAddParticipantHandler {
 	public void setTargettedMessageList(TargettedMessageList targettedMessageList) {
 		this.targettedMessageList = targettedMessageList;
 	}
+    
+    public Site site = null;
     
 	public String officialAccountParticipant = null;
 	public String getOfficialAccountParticipant() {
@@ -233,10 +234,10 @@ public class SiteAddParticipantHandler {
     public String getSiteTitle()
     {
     	String rv = "";
+    	if (site == null)
+    		init();
     	if (site != null)
-    	{
     		rv = site.getTitle();
-    	}
     	
     	return rv;
     }
@@ -249,6 +250,8 @@ public class SiteAddParticipantHandler {
     {
     	boolean rv = false;
 		String courseSiteType = getServerConfigurationString("courseSiteType", "course");
+		if (site == null)
+			init();
 		if (site != null && courseSiteType.equals(site.getType()))
 		{
 			rv = true;
@@ -446,6 +449,8 @@ public class SiteAddParticipantHandler {
 		List<String> addedUserEIds = new Vector<String>();
 
 		if (userRoleEntries != null && !userRoleEntries.isEmpty()) {
+			if (site == null)
+				init();
 			if (site != null) {
 				// get realm object
 				String realmId = site.getReference();
@@ -524,6 +529,8 @@ public class SiteAddParticipantHandler {
     public String processConfirmContinue() {
 
     	resetTargettedMessageList();
+    	if (site == null)
+    		init();
     	for (UserRoleEntry entry:userRoleEntries) {
 			String eId = entry.userEId;
 			
@@ -544,6 +551,17 @@ public class SiteAddParticipantHandler {
 
 						// set the guest user type
 						uEdit.setType("guest");
+						
+						// set the guest first name
+						String firstName = entry.firstName;
+						if (firstName != null  && firstName.length() > 0)
+							
+							uEdit.setFirstName(entry.firstName);
+						
+						// set the guest last name
+						String lastName = entry.firstName;
+						if (lastName != null  && lastName.length() > 0)
+							uEdit.setLastName(entry.lastName);
 
 						// set password to a positive random number
 						Random generator = new Random(System
@@ -561,7 +579,7 @@ public class SiteAddParticipantHandler {
 						boolean notifyNewUserEmail = (getServerConfigurationString("notifyNewUserEmail", Boolean.TRUE.toString()))
 								.equalsIgnoreCase(Boolean.TRUE.toString());
 						if (notifyNewUserEmail) {    						
-								notiProvider.notifyNewUserEmail(uEdit, pw, site != null?site.getTitle():"");
+								notiProvider.notifyNewUserEmail(uEdit, pw, site != null ? site.getTitle():"");
 						}
 					} catch (UserIdInvalidException ee) {
 						targettedMessageList.addMessage(new TargettedMessage("java.isinval",new Object[] { eId }, TargettedMessage.SEVERITY_INFO));
@@ -633,6 +651,8 @@ public class SiteAddParticipantHandler {
     private void checkAddParticipant() {
 		// get the participants to be added
 		int i;
+		if (site == null)
+			init();
 		Vector<Participant> pList = new Vector<Participant>();
 		HashSet<String> existingUsers = new HashSet<String>();
 
@@ -761,82 +781,94 @@ public class SiteAddParticipantHandler {
 		if (nonOfficialAccounts != null) {
 			String[] nonOfficialAccountArray = nonOfficialAccounts.split("\r\n");
 			for (i = 0; i < nonOfficialAccountArray.length; i++) {
-				String nonOfficialAccount = StringUtil.trimToNull(nonOfficialAccountArray[i].replaceAll("[ \t\r\n]", ""));
+				String nonOfficialAccountAll = StringUtil.trimToNull(nonOfficialAccountArray[i].replaceAll("[ \t\r\n]", ""));
+				// the format of per user entry is: email address,first name,last name
+				// comma separated
+				String[] nonOfficialAccountParts  = nonOfficialAccountAll.split(",");
 				
-				// remove the trailing dots
-				while (nonOfficialAccount != null && nonOfficialAccount.endsWith(".")) {
-					nonOfficialAccount = nonOfficialAccount.substring(0,
-							nonOfficialAccount.length() - 1);
+				String userEid = nonOfficialAccountParts[0];
+				// get last name, if any
+				String userLastName = "";
+				if (nonOfficialAccountParts.length > 1)
+				{
+					userLastName = nonOfficialAccountParts[1];
 				}
-				//this may be updated to an existing sakai user
-				String userEid = nonOfficialAccount;
+				// get first name, if any
+				String userFirstName = "";
+				if (nonOfficialAccountParts.length > 2)
+				{
+					userFirstName = nonOfficialAccountParts[2];
+				}
+				// remove the trailing dots
+				while (userEid != null && userEid.endsWith(".")) {
+					userEid = userEid.substring(0, userEid.length() - 1);
+				}
 
-				if (nonOfficialAccount != null && nonOfficialAccount.length() > 0) {
-					String[] parts = nonOfficialAccount.split(at);
+				if (userEid != null && userEid.length() > 0) {
+					String[] parts = userEid.split(at);
 
-					if (nonOfficialAccount.indexOf(at) == -1) {
+					if (userEid.indexOf(at) == -1) {
 						// must be a valid email address
 						targettedMessageList.addMessage(new TargettedMessage("java.emailaddress",
-				                new Object[] { nonOfficialAccount }, 
+				                new Object[] { userEid }, 
 				                TargettedMessage.SEVERITY_ERROR));
 					} else if ((parts.length != 2) || (parts[0].length() == 0)) {
 						// must have both id and address part
 						targettedMessageList.addMessage(new TargettedMessage("java.notemailid", 
-				                new Object[] { nonOfficialAccount }, 
+				                new Object[] { userEid }, 
 				                TargettedMessage.SEVERITY_ERROR));
 					} else if (!Validator.checkEmailLocal(parts[0])) {
 						targettedMessageList.addMessage(new TargettedMessage("java.emailaddress",
-				                new Object[] { nonOfficialAccount }, 
+				                new Object[] { userEid }, 
 				                TargettedMessage.SEVERITY_ERROR));
 						targettedMessageList.addMessage(new TargettedMessage("java.theemail", "no text"));
-					} else if (nonOfficialAccount != null
-							&& !isValidDomain(nonOfficialAccount)) {
+					} else if (userEid != null
+							&& !isValidDomain(userEid)) {
 						// wrong string inside nonOfficialAccount id
 						targettedMessageList.addMessage(new TargettedMessage("java.emailaddress",
-		                new Object[] { nonOfficialAccount }, 
+		                new Object[] { userEid }, 
 		                TargettedMessage.SEVERITY_ERROR));
-					} else if (!isValidMail(nonOfficialAccount)) {
+					} else if (!isValidMail(userEid)) {
 						// must be a valid email address
 						targettedMessageList.addMessage(new TargettedMessage("java.emailaddress",
-				                new Object[] { nonOfficialAccount }, 
+				                new Object[] { userEid }, 
 				                TargettedMessage.SEVERITY_ERROR));
 					} else {
 						Participant participant = new Participant();
 						try {
 							// if the nonOfficialAccount user already exists
 							User u = UserDirectoryService
-									.getUserByEid(nonOfficialAccount);
-							if (site != null
-									&& site.getUserRole(u.getId()) != null) {
+									.getUserByEid(userEid);
+							if (site != null && site.getUserRole(u.getId()) != null) {
 								// user already exists in the site, cannot be
 								// added again
-								existingUsers.add(nonOfficialAccount);
+								existingUsers.add(userEid);
 							} else {
 								participant.name = u.getDisplayName();
-								participant.uniqname = nonOfficialAccount;
+								participant.uniqname = userEid;
 								participant.active = true;
 								pList.add(participant);
 							}
 						} catch (UserNotDefinedException e) {
-							M_log.debug("no user with eid: " + nonOfficialAccount);
+							M_log.debug("no user with eid: " + userEid);
 							
 							/*
 							 * The account may exist with a different eid
 							 */
 							User u = null;
-							Collection<User> usersWithEmail = UserDirectoryService.findUsersByEmail(nonOfficialAccount);
+							Collection<User> usersWithEmail = UserDirectoryService.findUsersByEmail(userEid);
 							if(usersWithEmail != null) {
 								M_log.debug("found a collection of matching email users:  " + usersWithEmail.size());
 								if(usersWithEmail.size() == 0) {
 									// If the collection is empty, we didn't find any users with this email address
-									M_log.info("Unable to find users with email " + nonOfficialAccount);
+									M_log.info("Unable to find users with email " + userEid);
 								} else if (usersWithEmail.size() == 1) {
 									// We found one user with this email address.  Use it.
 									u = (User)usersWithEmail.iterator().next();
 								} else if (usersWithEmail.size() > 1) {
 									// If we have multiple users with this email address, pick one and log this error condition
 									// TODO Should we not pick a user?  Throw an exception?
-									M_log.warn("Found multiple user with email " + nonOfficialAccount);
+									M_log.warn("Found multiple user with email " + userEid);
 									u = (User)usersWithEmail.iterator().next();
 								}
 							}
@@ -845,8 +877,8 @@ public class SiteAddParticipantHandler {
 							
 							// if the nonOfficialAccount user is not in the system
 							// yet
-							participant.name = nonOfficialAccount;
-							participant.uniqname = nonOfficialAccount; // TODO:
+							participant.name = userEid;
+							participant.uniqname = userEid; // TODO:
 							// what
 							// would
 							// the
@@ -870,7 +902,7 @@ public class SiteAddParticipantHandler {
 						// update the userRoleTable
 						if (!getUsers().contains(userEid))
 						{
-							userRoleEntries.add(new UserRoleEntry(userEid, ""));
+							userRoleEntries.add(new UserRoleEntry(userEid, "", userFirstName, userLastName));
 						}
 					}
 				} // if

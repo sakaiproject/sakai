@@ -114,7 +114,13 @@ public class ConfirmProducer implements ViewComponentProducer, NavigationCaseRep
     	// list of users
         for (UserRoleEntry userRoleEntry:userTable) {
         	String userEId = userRoleEntry.userEId;
+        	// default to userEid
         	String userName = userEId;
+        	// if there is last name or first name specified, use it
+        	if (userRoleEntry.lastName != null && userRoleEntry.lastName.length() > 0 
+        			|| userRoleEntry.firstName != null && userRoleEntry.firstName.length() > 0)
+        		userName = userRoleEntry.lastName + "," + userRoleEntry.firstName;
+        	// get user from directory
         	try
         	{
         		User u = userDirectoryService.getUserByEid(userEId);
