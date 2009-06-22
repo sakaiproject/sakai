@@ -21,12 +21,10 @@
 
 package org.sakaiproject.mailarchive.tool;
 
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
-import java.util.HashMap;
 
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.cover.AliasService;
@@ -48,7 +46,11 @@ import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.javax.Filter;
+import org.sakaiproject.javax.Order;
 import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.javax.Search;
+import org.sakaiproject.javax.SearchFilter;
 import org.sakaiproject.mailarchive.api.MailArchiveChannel;
 import org.sakaiproject.mailarchive.api.MailArchiveChannelEdit;
 import org.sakaiproject.mailarchive.api.MailArchiveMessage;
@@ -62,12 +64,6 @@ import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
-
-import org.sakaiproject.javax.Filter;
-import org.sakaiproject.javax.SearchFilter;
-import org.sakaiproject.javax.Search;
-import org.sakaiproject.javax.Restriction;
-import org.sakaiproject.javax.Order;
 
 /**
  * <p>
@@ -362,7 +358,6 @@ public class MailboxAction extends PagedResourceActionII
 		context.put("prevPos",prevPos);
 		context.put("goPPButton", new Boolean(goPrev));
 
-System.out.println("Hello buildViewMode  viewPos="+viewPos+" max="+numMessages);
 		// prepare the sort of messages
 		context.put("tlang", rb);
 
@@ -428,7 +423,6 @@ System.out.println("Hello buildViewMode  viewPos="+viewPos+" max="+numMessages);
 		context.put("tlang", rb);
 
                 String id = (String) state.getAttribute(STATE_DELETE_CONFIRM_ID);
-System.out.println("buildConfirmModeContext id="+id);
 
 		MailArchiveMessage message = null;
 		try
@@ -738,7 +732,6 @@ System.out.println("buildConfirmModeContext id="+id);
 
 		// Grab and remove immedaitely
                 String msgId = (String) state.getAttribute(STATE_DELETE_CONFIRM_ID);
-System.out.println("doRemove_confirmed id="+msgId);
                 state.removeAttribute(STATE_DELETE_CONFIRM_ID);
 		state.removeAttribute(STATE_COUNT);
 		state.removeAttribute(STATE_COUNT_SEARCH);
