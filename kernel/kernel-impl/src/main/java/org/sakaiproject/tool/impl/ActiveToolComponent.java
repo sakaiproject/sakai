@@ -471,8 +471,12 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 			{
 				wreq = new WrappedRequest(req, toolContext, toolPath, placement, false, this);
 				WrappedResponse wres = new WrappedResponse(wreq, res);
+				RequestDispatcher dispatcher = getDispatcher();
+				if (dispatcher == null) {
+					throw new IllegalArgumentException("Unable to find registered context for tool with ID " + getId());
+				}
 
-				getDispatcher().forward(wreq, wres);
+				dispatcher.forward(wreq, wres);
 			}
 			catch (IOException e)
 			{
