@@ -4432,7 +4432,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		if (validify)
 		{
-			if (((description == null) || (description.length() == 0)) && ((attachments == null || attachments.size() == 0)))
+			if ((description == null) || (description.length() == 0) || (description.equals("<br/>")) && ((attachments == null || attachments.size() == 0)))
 			{
 				// if there is no description nor an attachment, show the following alert message.
 				// One could ignore the message and still post the assignment
