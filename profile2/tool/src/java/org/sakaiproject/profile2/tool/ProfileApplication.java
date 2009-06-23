@@ -41,6 +41,9 @@ public class ProfileApplication extends WebApplication {
 		//mount(new QueryStringUrlCodingStrategy("/myfriends", MyFriends.class));
 		//mount(new QueryStringUrlCodingStrategy("/viewprofile", ViewProfile.class));
 
+		
+		getRequestLoggerSettings().setRequestLoggerEnabled(true);
+		
 		  /*
          * In the following code example we will create a Jasypt byte 
          * encryptor by hand, but in real world we can get it from Spring, 
