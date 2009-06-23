@@ -14,8 +14,8 @@
 	      </generator>
 	    </id>
 
-	    <property name="userUuid" column="USER_UUID" length="99" not-null="true" />
-	    <property name="property" column="PROPERTY" not-null="true" />
+	    <property name="userUuid" column="USER_UUID" length="99" not-null="true"/>
+	    <property name="property" column="PROPERTY" not-null="true"/>
 		<property name="value" column="VALUE" not-null="true" />
 		
   	</class>
@@ -23,7 +23,6 @@
 	<query name="getProperty">
     	<![CDATA[from SakaiPersonMeta spm WHERE spm.userUuid = :userUuid AND spm.property = :property]]>
 	</query>
-	
 	
 	
 	<!--  these are on the SakaiPerson object. -->
@@ -38,6 +37,16 @@
   	<query name="listAllSakaiPersons">
     	<![CDATA[select sp.agentUuid from org.sakaiproject.component.common.edu.person.SakaiPersonImpl as sp]]>
   	</query>
+  	
+  	<!-- add indexes, bug in Hibernate with MySQL doesn't create them automatically. Will create for all dialects -->
+  	<database-object> 
+		<create>create index SAKAI_PERSON_META_USER_UUID_I on SAKAI_PERSON_META_T (USER_UUID)</create> 
+		<drop></drop> 
+	</database-object>
+	<database-object> 
+		<create>create index SAKAI_PERSON_META_PROPERTY_I on SAKAI_PERSON_META_T (PROPERTY)</create> 
+		<drop></drop> 
+	</database-object> 
 	
 
 </hibernate-mapping>

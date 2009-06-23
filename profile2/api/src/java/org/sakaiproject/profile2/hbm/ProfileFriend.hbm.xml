@@ -49,5 +49,15 @@
 	<query name="getFriendRequest">
     	<![CDATA[from ProfileFriend friend WHERE friend.userUuid = :userUuid AND friend.friendUuid = :friendUuid AND friend.confirmed = :confirmed]]>
 	</query>
+	
+	<!-- add indexes, bug in Hibernate with MySQL doesn't create them automatically. Will create for all dialects -->
+  	<database-object> 
+		<create>create index PROFILE_FRIENDS_USER_UUID_I on PROFILE_FRIENDS_T (USER_UUID)</create> 
+		<drop></drop>
+	</database-object>
+	<database-object> 
+		<create>create index PROFILE_FRIENDS_FRIEND_UUID_I on PROFILE_FRIENDS_T (FRIEND_UUID)</create> 
+		<drop></drop>
+	</database-object>
 
 </hibernate-mapping>
