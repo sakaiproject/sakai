@@ -3868,6 +3868,11 @@ public class DavServlet extends HttpServlet
 		// the destination path
 		lockNullResources.remove(destinationPath);
 
+		if (overwrite)
+			resp.setStatus(SakaidavStatus.SC_NO_CONTENT);
+		else
+			resp.setStatus(SakaidavStatus.SC_CREATED);
+				
 		return true;
 	}
 
