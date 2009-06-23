@@ -608,12 +608,21 @@ public class RequestFilter implements Filter
 						ThreadLocalManager.set(ServerConfigurationService.CURRENT_PORTAL_PATH, "/" + m_contextId);
 					}
 
-					synchronized(s) {
+					// Only synchronize on session for Terracotta. See KNL-218, KNL-75.
+					if (TERRACOTTA_CLUSTER) {
+						synchronized(s) {
+							// Pass control on to the next filter or the servlet
+							chain.doFilter(req, resp);
+	
+							// post-process response
+							postProcessResponse(s, req, resp);
+						}
+					} else {
 						// Pass control on to the next filter or the servlet
 						chain.doFilter(req, resp);
 
 						// post-process response
-						postProcessResponse(s, req, resp);
+						postProcessResponse(s, req, resp);						
 					}
 				}
 				catch (RuntimeException t)
