@@ -159,14 +159,14 @@ public class PageListProducer
             }
 
             UIInput.make(pageForm, "state-init", "#{SitePageEditHandler.state}", state);
-            fullyDecorate(UICommand.make(pageForm, "save", "#{SitePageEditHandler.savePages}"),
-                UIMessage.make("save_message"));
+            fullyDecorate(UICommand.make(pageForm, "save", UIMessage.make("save"), "#{SitePageEditHandler.savePages}"),
+            		UIMessage.make("save_message"));
 
-            fullyDecorate(UICommand.make(pageForm, "revert", "#{SitePageEditHandler.cancel}"),
+            fullyDecorate(UICommand.make(pageForm, "revert", UIMessage.make("cancel"), "#{SitePageEditHandler.cancel}"),
                 UIMessage.make("cancel_message"));
 
             if (handler.isSiteOrdered()) {
-                fullyDecorate(UICommand.make(pageForm, "reset", "#{SitePageEditHandler.reset}"),
+                fullyDecorate(UICommand.make(pageForm, "reset", UIMessage.make("reset"), "#{SitePageEditHandler.reset}"),
                     UIMessage.make("reset_message"));
             }
  
