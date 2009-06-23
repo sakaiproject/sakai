@@ -192,18 +192,14 @@
       <!-- Binds to Sakai Kernel K1 - for Sakai 2.6.0+ -->
       <id>K1</id>
       <activation>
-        <file>
-          <exists>../master/../kernel-deploy/pom.xml</exists>
-        </file>
+        <activeByDefault>true</activeByDefault>
       </activation>
     </profile>
     <profile>
       <!-- Binds to Sakai pre Kernel K1 - for Sakai 2.4.x/2.5.x -->
       <id>pre-K1</id>
       <activation>
-        <file>
-          <missing>../master/../kernel-deploy/pom.xml</missing>
-        </file>
+        <activeByDefault>false</activeByDefault>
       </activation>
       <dependencyManagement>
         <dependencies>
