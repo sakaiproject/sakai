@@ -3349,7 +3349,8 @@ public class DavServlet extends HttpServlet
 		/* the RFC requires this header in response to lock creation */
 
 		if (lockRequestType == LOCK_CREATION) resp.addHeader("Lock-Token", "opaquelocktoken:" + lockToken);
-		resp.setStatus(SakaidavStatus.SC_OK);
+
+		resp.setStatus(exists ? SakaidavStatus.SC_OK : SakaidavStatus.SC_CREATED);
 		resp.setContentType("text/xml; charset=UTF-8");
 		Writer writer = resp.getWriter();
 		writer.write(generatedXML.toString());
