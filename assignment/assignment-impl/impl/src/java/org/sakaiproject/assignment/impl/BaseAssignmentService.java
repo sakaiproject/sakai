@@ -2338,8 +2338,17 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			else if (returnedTime == null && !s.getReturned() && (submittedTime == null /*grading non-submissions*/
 																|| (submittedTime != null && (s.getTimeLastModified().getTime() - submittedTime.getTime()) > 1000*60 /*make sure the last modified time is at least one minute after the submit time*/)))
 			{
-				// graded and saved before releasing it
-				EventTrackingService.post(EventTrackingService.newEvent(EVENT_GRADE_ASSIGNMENT_SUBMISSION, submissionRef, true));
+				if (StringUtil.trimToNull(s.getSubmittedText()) == null && s.getSubmittedAttachments().isEmpty()
+					&& StringUtil.trimToNull(s.getGrade()) == null && StringUtil.trimToNull(s.getFeedbackText()) == null && StringUtil.trimToNull(s.getFeedbackComment()) == null && s.getFeedbackAttachments().isEmpty() )
+				{
+					// auto add submission for those not submitted
+					EventTrackingService.post(EventTrackingService.newEvent(EVENT_ADD_ASSIGNMENT_SUBMISSION, submissionRef, true));
+				}
+				else
+				{
+					// graded and saved before releasing it
+					EventTrackingService.post(EventTrackingService.newEvent(EVENT_GRADE_ASSIGNMENT_SUBMISSION, submissionRef, true));
+				}
 			}
 			else if (returnedTime != null && s.getGraded() && (submittedTime == null/*returning non-submissions*/ 
 											|| (submittedTime != null && returnedTime.after(submittedTime))/*returning normal submissions*/ 
