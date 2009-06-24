@@ -165,6 +165,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXParseException;
 
 /**
  * Servlet which adds support for WebDAV level 2. All the basic HTTP requests are handled by the DefaultServlet.
@@ -2020,8 +2021,13 @@ public class DavServlet extends HttpServlet
 					}
 				}
 			}
-			catch (Exception ignore)
+			catch (SAXParseException se) {
+				resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+				return;				
+			}
+			catch (Exception e)
 			{
+				M_log.warn("Exception parsing DAV request", e);
 			}
 			// again, in case of exception, we'll have the default
 			// FIND_ALL_PROP
