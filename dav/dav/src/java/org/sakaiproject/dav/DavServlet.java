@@ -266,9 +266,6 @@ public class DavServlet extends HttpServlet
 	 */
 	protected static final int STREAM_BUFFER_SIZE = 102400;
 
-	/** used to id a log message */
-	public static String ME = DavServlet.class.getName();
-
         // can be called on id with or withing adjustid, since
         // the prefixes we check for are not adjusted
         protected boolean prohibited(String id) {
@@ -606,14 +603,11 @@ public class DavServlet extends HttpServlet
 			while (e.hasMoreElements())
 			{
 				String key = (String) e.nextElement();
-				Object o = m_options.getProperty(key);
-				if (o instanceof String)
-				{
-					buf.append(key);
-					buf.append("=");
-					buf.append(o.toString());
-					buf.append("&");
-				}
+				String o = m_options.getProperty(key);
+				buf.append(key);
+				buf.append("=");
+				buf.append(o.toString());
+				buf.append("&");
 			}
 
 			return buf.toString();
@@ -759,7 +753,6 @@ public class DavServlet extends HttpServlet
 	 */
 	protected String normalize(String path)
 	{
-
 		if (path == null) return null;
 
 		// Create a place for the normalized path
@@ -768,8 +761,6 @@ public class DavServlet extends HttpServlet
 		/*
 		 * Commented out -- already URL-decoded in StandardContextMapper Decoding twice leaves the container vulnerable to %25 --> '%' attacks. if (normalized.indexOf('%') >= 0) normalized = RequestUtil.URLDecode(normalized, "UTF8");
 		 */
-
-		if (normalized == null) return (null);
 
 		if (normalized.equals("/.")) return "/";
 
@@ -968,7 +959,7 @@ public class DavServlet extends HttpServlet
 			}
 			
 			String pw = "";
-			while(credItr.hasNext())
+			while (credItr != null && credItr.hasNext())
 			    {
 				//look for the Key-Value pair
 				Object cred = credItr.next();
@@ -1526,9 +1517,10 @@ public class DavServlet extends HttpServlet
 				} // Ignore everything
 			}
 		}
-		catch (Exception e)
+		catch (PermissionException e)
 		{
-		} // Ignore all other exceptions
+			// Ignore all other exceptions
+		} 
 		return tmpPath;
 	}
 
@@ -2219,7 +2211,11 @@ public class DavServlet extends HttpServlet
 	@SuppressWarnings("deprecation")
 	protected void doProppatch(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
-
+		// Check that the resource is not locked
+		if (isLocked(req)) {
+			resp.sendError(SakaidavStatus.SC_LOCKED);
+		}
+		
 	    // we can't actually do this, but MS requires us to. Say we did.
 	    // I'm trying to be as close to valid here, so I generate an OK
 	    // for all the properties they tried to set. This is really hairy because
@@ -3295,9 +3291,8 @@ public class DavServlet extends HttpServlet
 
 			LockInfo toRenew = (LockInfo) resourceLocks.get(path);
 			Enumeration<String> tokenList = null;
-			if (lock != null)
+			if ((lock != null) && (toRenew != null) && (toRenew.tokens != null))
 			{
-
 				// At least one of the tokens of the locks must have been given
 
 				tokenList = toRenew.tokens.elements();
@@ -3310,7 +3305,6 @@ public class DavServlet extends HttpServlet
 						lock = toRenew;
 					}
 				}
-
 			}
 
 			// Checking inheritable collection locks
@@ -5114,7 +5108,7 @@ class SakaidavStatus
 	 */
 	public static String getStatusText(int nHttpStatusCode)
 	{
-		Integer intKey = new Integer(nHttpStatusCode);
+		Integer intKey = Integer.valueOf(nHttpStatusCode);
 
 		if (!mapStatusCodes.containsKey(intKey))
 		{
@@ -5138,7 +5132,7 @@ class SakaidavStatus
 	 */
 	private static void addStatusCodeMap(int nKey, String strVal)
 	{
-		mapStatusCodes.put(new Integer(nKey), strVal);
+		mapStatusCodes.put(Integer.valueOf(nKey), strVal);
 	}
 	
 };
