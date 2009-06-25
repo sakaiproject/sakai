@@ -172,7 +172,7 @@ public class SakaiBLTIUtil {
 
         // Property secret takes precedence over resource secret
         String org_guid = ServerConfigurationService.getString("basiclti.consumer_instance_guid",null);
-        String oauth_consumer_key = "basiclti-resource-level";
+        String oauth_consumer_key = launch_url;
 	String oauth_consumer_secret = toNull(info.getProperty("secret"));
 	// Is this a good idea?  If there is no secret - perhaps we should not even 
 	// sign???  If we sign we get other things like nonce, and create time..  Hmmm

@@ -131,6 +131,8 @@ public class BasicLTIUtil {
         postProp = BasicLTIUtil.cleanupProperties(postProp);
         postProp.setProperty("lti_version","basiclti-1.0");
         postProp.setProperty("basiclti_submit","Continue");
+        if ( postProp.getProperty("oauth_token") == null ) postProp.setProperty("oauth_token","not-applicable");
+        if ( postProp.getProperty("oauth_callback") == null ) postProp.setProperty("oauth_callback","about:blank");
 
         OAuthMessage oam = new OAuthMessage(method, url,postProp.entrySet());
         OAuthConsumer cons = new OAuthConsumer(oauth_callback, 
