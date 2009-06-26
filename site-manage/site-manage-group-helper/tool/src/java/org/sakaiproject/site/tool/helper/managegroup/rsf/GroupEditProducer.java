@@ -108,9 +108,11 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
     		 handler.resetParams();
     	 }
     	 
-
+    	 // action button name: Add for adding new group, Update for editing exist group
+    	 String addUpdateButtonName = id != null?messageLocator.getMessage("editgroup.update"):messageLocator.getMessage("editgroup.new");
+    	 
          UIOutput.make(groupForm, "prompt", messageLocator.getMessage("group.newgroup"));
-         UIOutput.make(groupForm, "instructions", messageLocator.getMessage("editgroup.instruction"));
+         UIOutput.make(groupForm, "instructions", messageLocator.getMessage("editgroup.instruction", new Object[]{addUpdateButtonName}));
          
          UIOutput.make(groupForm, "group_title_label", messageLocator.getMessage("group.title"));
          UIInput titleTextIn = UIInput.make(groupForm, "group_title", "#{SiteManageGroupHandler.title}",groupTitle);
@@ -163,7 +165,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 				groupMemberValues[i] = userId;
 	        }
 	        
-    	 UICommand.make(groupForm, "save", id != null?messageLocator.getMessage("editgroup.update"):messageLocator.getMessage("editgroup.new"), "#{SiteManageGroupHandler.processAddGroup}");
+	     UICommand.make(groupForm, "save", addUpdateButtonName, "#{SiteManageGroupHandler.processAddGroup}");
 
          UICommand.make(groupForm, "cancel", messageLocator.getMessage("editgroup.cancel"), "#{SiteManageGroupHandler.processBack}");
          
