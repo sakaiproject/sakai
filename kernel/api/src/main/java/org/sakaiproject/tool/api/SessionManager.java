@@ -21,7 +21,10 @@
 
 package org.sakaiproject.tool.api;
 
+import java.security.Principal;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * <p>
@@ -40,6 +43,13 @@ public interface SessionManager
 	 */
 	Session getSession(String sessionId);
 
+	/**
+	 * Generate a session ID for the given request and principal
+	 * 
+	 * @return The session id that should be used for the given request and principal.
+	 */
+	String makeSessionId(HttpServletRequest req, Principal principal);
+	
 	/**
 	 * Get all current sessions.
 	 * 

@@ -69,6 +69,14 @@ public class SessionManager
 		return manager.startSession();
 	}
 
+	public static String makeSessionId(javax.servlet.http.HttpServletRequest param0, java.security.Principal param1)
+	{
+		org.sakaiproject.tool.api.SessionManager manager = getInstance();
+		if (manager == null) return null;
+		
+		return manager.makeSessionId(param0, param1);
+	}
+	
 	public static org.sakaiproject.tool.api.Session startSession(java.lang.String param0)
 	{
 		org.sakaiproject.tool.api.SessionManager manager = getInstance();

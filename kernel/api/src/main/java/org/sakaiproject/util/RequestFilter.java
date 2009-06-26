@@ -77,6 +77,10 @@ public class RequestFilter implements Filter
 	/** The request attribute name used to store the Sakai session. */
 	public static final String ATTR_SESSION = "sakai.session";
 
+	/** The request attribute name used to ask the RequestFilter to output
+	 * a client cookie at the end of the request cycle. */
+	public static final String ATTR_SET_COOKIE = "sakai.set.cookie";
+	
 	/** The request attribute name (and value) used to indicated that the request has been filtered. */
 	public static final String ATTR_FILTERED = "sakai.filtered";
 
@@ -241,6 +245,9 @@ public class RequestFilter implements Filter
 	/** Is this a Terracotta clustered environment? */
 	protected boolean TERRACOTTA_CLUSTER = false;
 
+	/** Suffix for cookies */
+	protected String suffix = "sakai";
+	
 	/**
 	 * Wraps a request object so we can override some standard behavior.
 	 */
@@ -624,6 +631,24 @@ public class RequestFilter implements Filter
 						// post-process response
 						postProcessResponse(s, req, resp);						
 					}
+			
+					// Output client cookie if requested to do so
+					if (req.getAttribute(ATTR_SET_COOKIE) != null) {
+						// the cookie value we need to use
+						String sessionId = s.getId() + DOT + suffix;
+
+						// set the cookie
+						Cookie c = new Cookie(SESSION_COOKIE, sessionId);
+						c.setPath("/");
+						c.setMaxAge(-1);
+						if (req.isSecure() == true)
+						{
+							c.setSecure(true);
+						}
+						resp.addCookie(c);
+					}
+
+					
 				}
 				catch (RuntimeException t)
 				{
@@ -647,6 +672,7 @@ public class RequestFilter implements Filter
 					cleared = true;
 				}
 			}
+			
 		}
 		finally
 		{
@@ -669,6 +695,7 @@ public class RequestFilter implements Filter
 				M_log.debug("request timing (ms): " + elapsedTime + " for " + sb);
 			}
 		}
+		
 	}
 
 	/**
@@ -816,6 +843,15 @@ public class RequestFilter implements Filter
 		
 		String clusterTerracotta = System.getProperty("sakai.cluster.terracotta");
 		TERRACOTTA_CLUSTER = "true".equals(clusterTerracotta);
+		
+		// compute the session cookie suffix, based on this configured server id
+		suffix = System.getProperty(SAKAI_SERVERID);
+		if ((suffix == null) || (suffix.length() == 0))
+		{
+			M_log.warn("no sakai.serverId system property set - mod_jk load balancing will not function properly");
+			suffix = "sakai";
+		}
+
 	}
 
 	/**
@@ -1041,24 +1077,8 @@ public class RequestFilter implements Filter
 	{
 		Session s = null;
 		String sessionId = null;
-
-		// compute the session cookie suffix, based on this configured server id
-		String suffix = System.getProperty(SAKAI_SERVERID);
-		if ((suffix == null) || (suffix.length() == 0))
-		{
-			if (m_displayModJkWarning)
-			{
-				M_log.info("no sakai.serverId system property set - mod_jk load balancing will not function properly");
-
-				// only display warning once
-				// FYI this is not thread safe, but the side effects are negligible and not worth the overhead of synchronizing
-				// -lance
-				m_displayModJkWarning = false;
-			}
-
-			suffix = "sakai";
-		}
-
+		boolean allowSetCookieEarly = true;
+		
 		// automatic, i.e. not from user activite, request?
 		boolean auto = req.getParameter(PARAM_AUTO) != null;
 
@@ -1102,8 +1122,11 @@ public class RequestFilter implements Filter
 			if ((principal != null) && (principal.getName() != null))
 			{
 				// set our session id to the remote user id
-				sessionId = principal.getName();
+				sessionId = SessionManager.makeSessionId(req, principal);
 
+				// don't supply this cookie to the client
+				allowSetCookieEarly = false;
+				
 				// find the session
 				s = SessionManager.getSession(sessionId);
 
@@ -1112,6 +1135,9 @@ public class RequestFilter implements Filter
 				{
 					s = SessionManager.startSession(sessionId);
 				}
+				
+				// Make these sessions expire after 10 minutes
+				s.setMaxInactiveInterval(10*60);
 			}
 		}
 
@@ -1173,7 +1199,7 @@ public class RequestFilter implements Filter
 
 		// if we have a session and had no cookie,
 		// or the cookie was to another session id, set the cookie
-		if (s != null)
+		if ((s != null) && allowSetCookieEarly)
 		{
 			// the cookie value we need to use
 			sessionId = s.getId() + DOT + suffix;
