@@ -157,6 +157,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.AuthenticationManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.IdPwEvidence;
+import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.was.login.SakaiWASLoginModule;
@@ -1014,7 +1015,8 @@ public class DavServlet extends HttpServlet
 
 				Authentication a = AuthenticationManager.authenticate(e);
 
-				if (!UsageSessionService.login(a, req, UsageSessionService.EVENT_LOGIN_DAV))
+				if ((UsageSessionService.getSession() == null || UsageSessionService.getSession().isClosed())
+						&& !UsageSessionService.login(a, req, UsageSessionService.EVENT_LOGIN_DAV))
 				{
 					// login failed
 					res.sendError(401);
@@ -1035,6 +1037,12 @@ public class DavServlet extends HttpServlet
 			return;
 		}
 
+		// Set the client cookie as this is not done by the RequestFilter for dav requests.
+		// This is not required by DAV clients but may be helpful in some load-balancing
+		// configurations for session affinity across app servers.
+		
+		req.setAttribute(RequestFilter.ATTR_SET_COOKIE, true);
+		
 		// Setup... ?
 
 		try
