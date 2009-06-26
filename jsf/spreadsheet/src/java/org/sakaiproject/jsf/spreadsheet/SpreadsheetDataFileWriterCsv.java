@@ -32,6 +32,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.component.cover.ServerConfigurationService;
+
 /**
  * NOTE: CSV export capabilities are extremely limited! UTF-16 text (such as
  * Chinese) is not supported correctly, for example. Use Excel-formatted output if at all
@@ -43,7 +45,7 @@ public class SpreadsheetDataFileWriterCsv implements SpreadsheetDataFileWriter {
 	public void writeDataToResponse(List<List<Object>> spreadsheetData, String fileName, HttpServletResponse response) {
 		response.setContentType("text/comma-separated-values");
 		response.setHeader("Content-disposition", "attachment; filename=" + fileName + ".csv");
-		
+
 		String csvString = getAsCsv(spreadsheetData);
 		response.setContentLength(csvString.length());
 		OutputStream out = null;
@@ -63,9 +65,9 @@ public class SpreadsheetDataFileWriterCsv implements SpreadsheetDataFileWriter {
 	}
 
 	private String getAsCsv(List<List<Object>> spreadsheetData) {
-		String csvSep = ",";
+		String csvSep = ServerConfigurationService.getString("csv.separator",",");
 		StringBuilder sb = new StringBuilder();
-		
+
 		for (List<Object> rowData : spreadsheetData) {
 			Iterator<Object> dataIter = rowData.iterator();
 			while (dataIter.hasNext()) {
@@ -80,11 +82,11 @@ public class SpreadsheetDataFileWriterCsv implements SpreadsheetDataFileWriter {
 				if (dataIter.hasNext()) {
 					sb.append(csvSep);
 				} else {
-					sb.append("\n");					
+					sb.append("\n");
 				}
 			}
 		}
-		
+
 		return sb.toString();
 	}
 

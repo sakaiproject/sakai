@@ -35,6 +35,11 @@
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
     </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+    </dependency>
+    
 <!--javax.servletservlet-api${sakai.servletapi.version}-->
     <dependency>
       <groupId>poi</groupId>
