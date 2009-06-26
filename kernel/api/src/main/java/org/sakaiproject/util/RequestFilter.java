@@ -633,19 +633,25 @@ public class RequestFilter implements Filter
 					}
 			
 					// Output client cookie if requested to do so
-					if (req.getAttribute(ATTR_SET_COOKIE) != null) {
+					if (s != null && req.getAttribute(ATTR_SET_COOKIE) != null) {
+						
+						// check for existing cookie
+						Cookie c = findCookie(req, SESSION_COOKIE, suffix);
+
 						// the cookie value we need to use
 						String sessionId = s.getId() + DOT + suffix;
 
-						// set the cookie
-						Cookie c = new Cookie(SESSION_COOKIE, sessionId);
-						c.setPath("/");
-						c.setMaxAge(-1);
-						if (req.isSecure() == true)
-						{
-							c.setSecure(true);
+						// set the cookie if necessary
+						if ((c == null) || (!c.getValue().equals(sessionId))) {
+							c = new Cookie(SESSION_COOKIE, sessionId);
+							c.setPath("/");
+							c.setMaxAge(-1);
+							if (req.isSecure() == true)
+							{
+								c.setSecure(true);
+							}
+							resp.addCookie(c);
 						}
-						resp.addCookie(c);
 					}
 
 					
@@ -1078,66 +1084,68 @@ public class RequestFilter implements Filter
 		Session s = null;
 		String sessionId = null;
 		boolean allowSetCookieEarly = true;
+		Cookie c = null;
 		
 		// automatic, i.e. not from user activite, request?
 		boolean auto = req.getParameter(PARAM_AUTO) != null;
 
-		sessionId = req.getParameter(ATTR_SESSION);
+		// try finding a non-cookie session based on the remote user / principal
+		// Note: use principal instead of remote user to avoid any possible confusion with the remote user set by single-signon
+		// auth.
+		// Principal is set by our Dav interface, which this is designed to cover. -ggolden
+		
+		Principal principal = req.getUserPrincipal();
 
-		// find our session id from our cookie
-		Cookie c = findCookie(req, SESSION_COOKIE, suffix);
-
-		if (sessionId == null && c != null)
+		if ((principal != null) && (principal.getName() != null))
 		{
-			// get our session id
-			sessionId = c.getValue();
-		}
+			// set our session id to the remote user id
+			sessionId = SessionManager.makeSessionId(req, principal);
 
-		if (sessionId != null)
-		{
-			// remove the server id suffix
-			final int dotPosition = sessionId.indexOf(DOT);
-			if (dotPosition > -1)
-			{
-				sessionId = sessionId.substring(0, dotPosition);
-			}
-			if (M_log.isDebugEnabled())
-			{
-				M_log.debug("assureSession found sessionId in cookie: " + sessionId);
-			}
-
+			// don't supply this cookie to the client
+			allowSetCookieEarly = false;
+			
 			// find the session
 			s = SessionManager.getSession(sessionId);
+
+			// if not found, make a session for this user
+			if (s == null)
+			{
+				s = SessionManager.startSession(sessionId);
+			}
+			
+			// Make these sessions expire after 10 minutes
+			s.setMaxInactiveInterval(10*60);
 		}
 
-		// if no cookie, try finding a non-cookie session based on the remote user / principal
-		else
+		// if no principal, check request parameter and cookie
+		if (sessionId == null || s == null)
 		{
-			// Note: use principal instead of remote user to avoid any possible confusion with the remote user set by single-signon
-			// auth.
-			// Principal is set by our Dav interface, which this is desined to cover. -ggolden
-			// String remoteUser = req.getRemoteUser();
-			Principal principal = req.getUserPrincipal();
+			sessionId = req.getParameter(ATTR_SESSION);
 
-			if ((principal != null) && (principal.getName() != null))
+			// find our session id from our cookie
+			c = findCookie(req, SESSION_COOKIE, suffix);
+
+			if (sessionId == null && c != null)
 			{
-				// set our session id to the remote user id
-				sessionId = SessionManager.makeSessionId(req, principal);
+				// get our session id
+				sessionId = c.getValue();
+			}
 
-				// don't supply this cookie to the client
-				allowSetCookieEarly = false;
-				
+			if (sessionId != null)
+			{
+				// remove the server id suffix
+				final int dotPosition = sessionId.indexOf(DOT);
+				if (dotPosition > -1)
+				{
+					sessionId = sessionId.substring(0, dotPosition);
+				}
+				if (M_log.isDebugEnabled())
+				{
+					M_log.debug("assureSession found sessionId in cookie: " + sessionId);
+				}
+
 				// find the session
 				s = SessionManager.getSession(sessionId);
-
-				// if not found, make a session for this user
-				if (s == null)
-				{
-					s = SessionManager.startSession(sessionId);
-				}
-				
-				// Make these sessions expire after 10 minutes
-				s.setMaxInactiveInterval(10*60);
 			}
 		}
 
