@@ -1015,7 +1015,11 @@ public class DavServlet extends HttpServlet
 
 				Authentication a = AuthenticationManager.authenticate(e);
 
-				if ((UsageSessionService.getSession() == null || UsageSessionService.getSession().isClosed())
+				// No need to log in again if UsageSession is not null, active, and the eid is the 
+				// same as that resulting from the DAV basic auth authentication
+				
+				if ((UsageSessionService.getSession() == null || UsageSessionService.getSession().isClosed()
+						|| !a.getEid().equals(UsageSessionService.getSession().getUserEid()))
 						&& !UsageSessionService.login(a, req, UsageSessionService.EVENT_LOGIN_DAV))
 				{
 					// login failed
