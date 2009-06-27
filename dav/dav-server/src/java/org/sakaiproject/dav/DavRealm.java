@@ -25,6 +25,8 @@ import java.security.Principal;
 
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.realm.RealmBase;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Simple implementation of <b>Realm</b> that consults the Sakai user directory service to provide container security equivalent to then application security in CHEF.
@@ -33,8 +35,11 @@ import org.apache.catalina.realm.RealmBase;
  */
 public final class DavRealm extends RealmBase
 {
+	
+	private static Log M_log = LogFactory.getLog(DavRealm.class);
+
 	/** Descriptive information about this Realm implementation. */
-	protected final String info = "org.sakaiproject.realm.DavRealm/1.0";
+	protected static final String info = "org.sakaiproject.realm.DavRealm/1.0";
 
 	/** Descriptive information about this Realm implementation. */
 	protected static final String name = "DavRealm";
@@ -57,12 +62,10 @@ public final class DavRealm extends RealmBase
 	 */
 	public Principal authenticate(String username, String credentials)
 	{
-		if (username == null || credentials == null) return (null);
-		if (username.length() <= 0 || credentials.length() <= 0) return (null);
+		if (username == null || credentials == null) return null;
+		if (username.length() <= 0 || credentials.length() <= 0) return null;
 
-		DavPrincipal prin = new DavPrincipal(username, credentials);
-
-		return prin;
+		return new DavPrincipal(username, credentials);
 	}
 
 	/**
@@ -75,9 +78,9 @@ public final class DavRealm extends RealmBase
 
 	protected Principal getPrincipal(String username)
 	{
-		System.out.println("DavRealm.getPrincipal(" + username + ") -- why is this being called?");
+		M_log.debug("DavRealm.getPrincipal(" + username + ") -- why is this being called?");
 
-		if (username == null) return (null);
+		if (username == null) return null;
 
 		return new DavPrincipal(username, " ");
 	}
@@ -87,8 +90,8 @@ public final class DavRealm extends RealmBase
 	 */
 	protected String getPassword(String username)
 	{
-		System.out.println("DavRealm.getPassword(" + username + ")");
-		return (null);
+		M_log.debug("DavRealm.getPassword(" + username + ")");
+		return null;
 	}
 
 	/**
@@ -101,7 +104,7 @@ public final class DavRealm extends RealmBase
 	 */
 	public synchronized void start() throws LifecycleException
 	{
-		System.out.println("DavRealm.start()");
+		M_log.info("start()");
 
 		// Perform normal superclass initialization
 		super.start();
@@ -125,6 +128,6 @@ public final class DavRealm extends RealmBase
 
 	public boolean hasRole(Principal principal, String role)
 	{
-		return (true);
+		return true;
 	}
 }
