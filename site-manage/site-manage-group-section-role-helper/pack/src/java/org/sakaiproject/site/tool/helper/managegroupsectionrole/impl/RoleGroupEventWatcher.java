@@ -122,8 +122,6 @@ public class RoleGroupEventWatcher implements Observer
 	{
 		try
 		{
-			log.warn(this);
-			log.warn(m_eventTrackingService);
 			// start watching the events - only those generated on this server, not those from elsewhere
 			m_eventTrackingService.addLocalObserver(this);
 			
