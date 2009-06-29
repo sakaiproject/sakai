@@ -9,6 +9,10 @@
     <filter>
         <filter-name>sakai.request</filter-name>
         <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+	<init-param>
+              <param-name>sakai.session.auth</param-name>
+              <param-value>basic</param-value>	
+	</init-param>
     </filter>
 
     <filter-mapping>
