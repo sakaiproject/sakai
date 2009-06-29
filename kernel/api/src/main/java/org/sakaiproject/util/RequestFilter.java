@@ -245,9 +245,6 @@ public class RequestFilter implements Filter
 	/** Is this a Terracotta clustered environment? */
 	protected boolean TERRACOTTA_CLUSTER = false;
 
-	/** Suffix for cookies */
-	protected String suffix = "sakai";
-	
 	/**
 	 * Wraps a request object so we can override some standard behavior.
 	 */
@@ -636,6 +633,7 @@ public class RequestFilter implements Filter
 					if (s != null && req.getAttribute(ATTR_SET_COOKIE) != null) {
 						
 						// check for existing cookie
+						String suffix = getCookieSuffix();
 						Cookie c = findCookie(req, SESSION_COOKIE, suffix);
 
 						// the cookie value we need to use
@@ -850,14 +848,6 @@ public class RequestFilter implements Filter
 		String clusterTerracotta = System.getProperty("sakai.cluster.terracotta");
 		TERRACOTTA_CLUSTER = "true".equals(clusterTerracotta);
 		
-		// compute the session cookie suffix, based on this configured server id
-		suffix = System.getProperty(SAKAI_SERVERID);
-		if ((suffix == null) || (suffix.length() == 0))
-		{
-			M_log.warn("no sakai.serverId system property set - mod_jk load balancing will not function properly");
-			suffix = "sakai";
-		}
-
 	}
 
 	/**
@@ -1088,6 +1078,8 @@ public class RequestFilter implements Filter
 		
 		// automatic, i.e. not from user activite, request?
 		boolean auto = req.getParameter(PARAM_AUTO) != null;
+
+		String suffix = getCookieSuffix();
 
 		// try finding a non-cookie session based on the remote user / principal
 		// Note: use principal instead of remote user to avoid any possible confusion with the remote user set by single-signon
@@ -1388,4 +1380,26 @@ public class RequestFilter implements Filter
 
 		return url.toString();
 	}
+	
+	/**
+	 * Get cookie suffix from the serverId.
+	 * We can't do this at init time as it might not have been set yet (sakai hasn't started).
+	 * @return The cookie suffix to use.
+	 */
+	private String getCookieSuffix()
+	{
+		// compute the session cookie suffix, based on this configured server id
+		String suffix = System.getProperty(SAKAI_SERVERID);
+		if ((suffix == null) || (suffix.length() == 0))
+		{
+			if (m_displayModJkWarning)
+			{
+				M_log.warn("no sakai.serverId system property set - mod_jk load balancing will not function properly");
+			}
+			m_displayModJkWarning = false;
+			suffix = "sakai";
+		}
+		return suffix;
+	}
+
 }
