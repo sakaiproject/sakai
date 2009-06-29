@@ -99,6 +99,9 @@ public class RequestFilter implements Filter
 	/** Config parameter to control http session handling. */
 	public static final String CONFIG_SESSION = "http.session";
 
+	/** Config parameter to control whether to check the request principal before any cookie to establish a session */
+	public static final String CONFIG_SESSION_AUTH = "sakai.session.auth";
+
 	/** Config parameter to control remote user handling. */
 	public static final String CONFIG_REMOTE_USER = "remote.user";
 
@@ -223,6 +226,8 @@ public class RequestFilter implements Filter
 
 	protected boolean m_uploadEnabled = true;
 
+	protected boolean m_checkPrincipal = false; 
+	
 	protected long m_uploadMaxSize = 1L * 1024L * 1024L;
 
 	protected long m_uploadCeiling = 1L * 1024L * 1024L;
@@ -757,6 +762,11 @@ public class RequestFilter implements Filter
 			m_sakaiRemoteUser = Boolean.valueOf(filterConfig.getInitParameter(CONFIG_REMOTE_USER)).booleanValue();
 		}
 
+		if (filterConfig.getInitParameter(CONFIG_SESSION_AUTH) != null)
+		{
+			m_checkPrincipal= "basic".equals(filterConfig.getInitParameter(CONFIG_SESSION_AUTH));
+		}
+
 		if (filterConfig.getInitParameter(CONFIG_TOOL_PLACEMENT) != null)
 		{
 			m_toolPlacement = Boolean.valueOf(filterConfig.getInitParameter(CONFIG_TOOL_PLACEMENT)).booleanValue();
@@ -1088,7 +1098,7 @@ public class RequestFilter implements Filter
 		
 		Principal principal = req.getUserPrincipal();
 
-		if ((principal != null) && (principal.getName() != null))
+		if (m_checkPrincipal && (principal != null) && (principal.getName() != null))
 		{
 			// set our session id to the remote user id
 			sessionId = SessionManager.makeSessionId(req, principal);
