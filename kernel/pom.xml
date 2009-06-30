@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+f<?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -14,7 +14,7 @@
 	</organization>
 	<issueManagement>
 		<system>jira</system>
-		<url>http://bugs.sakaiproject.org/jira/browse/KNL</url>
+		<url>http://jira.sakaiproject.org/browse/KNL</url>
 	</issueManagement>
 	<ciManagement>
 		<system>continuum</system>
