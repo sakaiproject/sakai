@@ -312,9 +312,9 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	  if(level == null)
 	  {    
 
-		  LOG.warn("No permission level data exists for the Owner level in the MFR_PERMISSION_LEVEL_T table. " +
-				  "If you have autoDdl=false, look at mfr_m2-m3_mysq_conversion.sql or mfr_m2-m3_oracle_conversion.sql" +
-		          "to insert the missing permission level data. Default owner permissions will be used.");
+		  LOG.info("No permission level data exists for the Owner level in the MFR_PERMISSION_LEVEL_T table. " +
+				  "Default Owner permissions will be used. If you want to customize this permission level, use " +
+				  "mfr.sql as a reference to add this level to the table.");
 
 		  // return the default owner permission
 		  PermissionsMask mask = getDefaultOwnerPermissionsMask();
@@ -339,9 +339,9 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 
 	  if(level == null)
 	  {
-		  LOG.warn("No permission level data exists for the Author level in the MFR_PERMISSION_LEVEL_T table. " +
-				  "If you have autoDdl=false, look at mfr_m2-m3_mysq_conversion.sql or mfr_m2-m3_oracle_conversion.sql" +
-		          "to insert the missing permission level data. Default Author permission settings will be used.");
+		  LOG.info("No permission level data exists for the Author level in the MFR_PERMISSION_LEVEL_T table. " +
+                  "Default Author permissions will be used. If you want to customize this permission level, use " +
+                  "mfr.sql as a reference to add this level to the table.");
 
 		  // return the default author permission
 		  PermissionsMask mask = getDefaultAuthorPermissionsMask();
@@ -366,9 +366,9 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 
 	  if(level == null)
 	  {
-		  LOG.warn("No permission level data exists for the NoneditingAuthor level in the MFR_PERMISSION_LEVEL_T table. " +
-		  		"If you have autoDdl=false, look at mfr_m2-m3_mysq_conversion.sql or mfr_m2-m3_oracle_conversion.sql" +
-		  		"to insert the missing default permission level data. Default NoneditingAuthor permission settings will be used.");
+		  LOG.info("No permission level data exists for the NoneditingAuthor level in the MFR_PERMISSION_LEVEL_T table. " +
+                  "Default NoneditingAuthor permissions will be used. If you want to customize this permission level, use " +
+                  "mfr.sql as a reference to add this level to the table.");
 		  
 		  // return the default nonediting author permission
 		  PermissionsMask mask = getDefaultNoneditingAuthorPermissionsMask();
@@ -394,9 +394,9 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 
 	  if(level == null)
 	  {
-		  LOG.warn("No permission level data exists for the Reviewer level in the MFR_PERMISSION_LEVEL_T table. " +
-		  		"If you have autoDdl=false, look at mfr_m2-m3_mysq_conversion.sql or mfr_m2-m3_oracle_conversion.sql" +
-		  		"to insert the missing permission level data. Default Reviewer permissions will be used.");
+		  LOG.info("No permission level data exists for the Reviewer level in the MFR_PERMISSION_LEVEL_T table. " +
+                  "Default Reviewer permissions will be used. If you want to customize this permission level, use " +
+                  "mfr.sql as a reference to add this level to the table.");
 		  
 		  // return the default reviewer permission
 		  PermissionsMask mask = getDefaultReviewerPermissionsMask();
@@ -422,9 +422,9 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 
 	  if(level == null)
 	  {
-		  LOG.warn("No permission level data exists for the Contributor level in the MFR_PERMISSION_LEVEL_T table. " +
-		  		"If you have autoDdl=false, look at mfr_m2-m3_mysq_conversion.sql or mfr_m2-m3_oracle_conversion.sql" +
-		  		"to insert the missing permission level data. Default Contributor permissions will be used.");
+		  LOG.info("No permission level data exists for the Contributor level in the MFR_PERMISSION_LEVEL_T table. " +
+                  "Default Contributor permissions will be used. If you want to customize this permission level, use " +
+                  "mfr.sql as a reference to add this level to the table.");
 		  
 		  // return the default contributor permission
 		  PermissionsMask mask = getDefaultContributorPermissionsMask();
@@ -450,9 +450,9 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 
 	  if(level == null)
 	  {    
-		  LOG.warn("No permission level data exists for the None level in the MFR_PERMISSION_LEVEL_T table. " +
-		  		"If you have autoDdl=false, look at mfr_m2-m3_mysq_conversion.sql or mfr_m2-m3_oracle_conversion.sql" +
-		  		"to insert the missing permission level data. Default None permissions will be used.");
+		  LOG.info("No permission level data exists for the None level in the MFR_PERMISSION_LEVEL_T table. " +
+                  "Default None permissions will be used. If you want to customize this permission level, use " +
+                  "mfr.sql as a reference to add this level to the table.");
 		  
 		// return the default None permission
 		  PermissionsMask mask = getDefaultNonePermissionsMask();
