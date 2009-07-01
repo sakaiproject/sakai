@@ -169,7 +169,7 @@ public class BasicLTIUtil {
 
     // Create the HTML to render a POST form and then automatically submit it
     // Make sure to call cleanupProperties before signing
-    public static String postLaunchHTML(String launchurl, Properties newMap, boolean debug) {
+    public static String postLaunchHTML(Properties newMap, String launchurl, boolean debug) {
         if ( launchurl == null ) return null;
         StringBuffer text = new StringBuffer();
         text.append("<div id=\"ltiLaunchFormSubmitArea\">\n");

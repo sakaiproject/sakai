@@ -196,7 +196,7 @@ public class SakaiBLTIUtil {
         if ( launch == null ) return "<p>Error signing message.</p>";
         System.out.println("LAUNCH III="+launch);
 
-        String postData = BasicLTIUtil.postLaunchHTML(launch_url, launch, true /* debug */);
+        String postData = BasicLTIUtil.postLaunchHTML(launch, launch_url, true /* debug */);
 
         return postData;
     }
