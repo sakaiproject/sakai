@@ -421,6 +421,7 @@ INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'osp.presentation.edit');
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'osp.presentation.delete');
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'osp.presentation.copy');
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'osp.presentation.comment');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'osp.presentation.review');
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'osp.presentation.template.copy');
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'osp.presentation.template.publish');
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'osp.presentation.template.delete');
