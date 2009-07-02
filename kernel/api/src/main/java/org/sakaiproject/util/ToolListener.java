@@ -23,6 +23,7 @@ package org.sakaiproject.util;
 
 import java.util.Iterator;
 import java.util.Set;
+import java.io.File;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -59,7 +60,7 @@ public class ToolListener implements ServletContextListener
 
 			// load this
 			M_log.info("registering tools from resource: " + path);
-			ActiveToolManager.register(event.getServletContext().getResourceAsStream(path), event.getServletContext());
+			ActiveToolManager.register(new File(event.getServletContext().getRealPath(path)), event.getServletContext());
 		}
 	}
 
