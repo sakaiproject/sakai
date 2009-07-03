@@ -30,7 +30,7 @@
         <relativePath>../master/pom.xml</relativePath>
     </parent>
     <properties>
-        <spring.mock.version>2.0.6</spring.mock.version>
+        <spring.test.version>2.5.6.SEC01</spring.test.version>
         <hsqldb.version>1.8.0.5</hsqldb.version>
         <easymock.version>2.0</easymock.version>
     </properties>
@@ -240,7 +240,7 @@
             <dependency>
                 <groupId>org.sakaiproject</groupId>
                 <artifactId>generic-dao</artifactId>
-                <version>0.9.16</version>
+                <version>0.9.17</version>
 <!--                <version>[0.9.11,1.0.0)</version>-->
             </dependency>
             <dependency>

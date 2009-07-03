@@ -44,8 +44,8 @@
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
-      <artifactId>spring-mock</artifactId>
-      <version>${spring.mock.version}</version>
+      <artifactId>spring-test</artifactId>
+      <version>${spring.test.version}</version>
     </dependency>
   </dependencies>
   <build>
