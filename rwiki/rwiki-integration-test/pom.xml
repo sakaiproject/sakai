@@ -25,8 +25,8 @@
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
-      <artifactId>spring-mock</artifactId>
-      <version>${sakai.spring.mock.version}</version>
+      <artifactId>spring-test</artifactId>
+      <version>${sakai.spring.test.version}</version>
       <type>jar</type>
     </dependency>
   </dependencies>
