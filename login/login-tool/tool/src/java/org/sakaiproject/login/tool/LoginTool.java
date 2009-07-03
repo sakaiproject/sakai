@@ -198,6 +198,8 @@ public class LoginTool extends HttpServlet
 	 */
 	protected void sendForm(HttpServletRequest req, HttpServletResponse res) throws IOException
 	{
+
+
 		final String headHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">"
 				+ "<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">"
 				+ "  <head>"
@@ -207,9 +209,8 @@ public class LoginTool extends HttpServlet
 				+ "    <meta http-equiv=\"Content-Style-Type\" content=\"text/css\" />"
 				+ "    <title>UI.SERVICE</title>"
 				+ "    <script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>"
-				+ "    <meta name=\"viewport\" content=\"width=320, user-scalable=no\">"
 				+ "  </head>"
-				+ "  <body onload=\" setFocus(focus_path);parent.updCourier(doubleDeep, ignoreCourier);\">"
+				+ "  <body onload=\" setFocus(focus_path);parent.updCourier(doubleDeep, ignoreCourier);\" class=\"servletBody\">"
 				+ "<script type=\"text/javascript\" language=\"JavaScript\">" + "  focus_path = [\"eid\"];" + "</script>";
 
 		final String tailHtml = "</body></html>";
@@ -220,9 +221,9 @@ public class LoginTool extends HttpServlet
 				+ "				<form method=\"post\" action=\"ACTION\" enctype=\"application/x-www-form-urlencoded\">"
 				+ "                                        MSG" + "							<table border=\"0\" class=\"loginform\" summary=\"layout\">"
 				+ "								<tr>" + "									<td>" + "										<label for=\"eid\">EID</label>" + "									</td>"
-				+ "									<td>" + "										<input name=\"eid\" id=\"eid\" type=\"text\" size=\"15\"/>" + "									</td>"
+				+ "									<td class=\"shorttext\">" + "										<input name=\"eid\" id=\"eid\"  type=\"text\" size=\"15\"/>" + "									</td>"
 				+ "								</tr>" + "								<tr>" + "									<td>" + "										<label for=\"pw\">PW</label>" + "									</td>"
-				+ "									<td>" + "										<input name=\"pw\" id=\"pw\" type=\"password\" size=\"15\"/>" + "									</td>"
+				+ "									<td class=\"shorttext\">" + "										<input name=\"pw\" id=\"pw\"  type=\"password\" size=\"15\"/>" + "									</td>"
 				+ "								</tr>" + "								<tr>" + "									<td colspan=\"2\">"
 				+ "										<input name=\"submit\" type=\"submit\" id=\"submit\" value=\"LoginSubmit\"/>" + "									</td>"
 				+ "								</tr>" + "							</table>" + "						</form>" + "					</td>" + "				</tr>" + "			</table>";
@@ -266,8 +267,15 @@ public class LoginTool extends HttpServlet
 
 		if (!fragment)
 		{
+
 			// start our complete document
-			String head = headHtml.replaceAll("DEFAULT_SKIN", defaultSkin);
+			String head = headHtml;
+			if ( isPDA )
+			{
+				 head = head.replaceAll("</title>","</title><link href=\"SKIN_ROOT/DEFAULT_SKIN/pda.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" /> <meta name=\"viewport\" content=\"width=device-width, user-scalable=yes,  initial-scale=1.0, maximum-scale=1.0\"/>");
+			}
+
+			head = head.replaceAll("DEFAULT_SKIN", defaultSkin);
 			head = head.replaceAll("SKIN_ROOT", skinRoot);
 			head = head.replaceAll("UI.SERVICE", uiService);
 			out.println(head);
@@ -294,7 +302,8 @@ public class LoginTool extends HttpServlet
 		html = html.replaceAll("SKIN_ROOT", skinRoot);
 		if ( isPDA )
 		{
-			html = html.replaceAll("class=\"login\"", "align=\"center\"");
+			 html = html.replaceAll("class=\"login\"", "class=\"loginPDA\"");
+			 html = html.replaceAll("</title>","</title><link href=\"SKIN_ROOT/DEFAULT_SKIN/pda.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />");
 		}
 
 		// write a message if present
