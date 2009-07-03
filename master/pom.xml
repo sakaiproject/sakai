@@ -66,9 +66,9 @@
     <sakai.version>2.7.0-SNAPSHOT</sakai.version>
     <sakai.spring.groupId>org.springframework</sakai.spring.groupId>
     <sakai.spring.artifactId>spring</sakai.spring.artifactId>
-    <sakai.spring.version>2.0.6</sakai.spring.version>
-    <sakai.spring.mock.artifactId>spring-mock</sakai.spring.mock.artifactId>
-    <sakai.spring.mock.version>2.0.6</sakai.spring.mock.version>
+    <sakai.spring.version>2.5.6.SEC01</sakai.spring.version>
+    <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
+    <sakai.spring.test.version>2.5.6.SEC01</sakai.spring.test.version>
     <sakai.commons.lang.version>2.1</sakai.commons.lang.version>
     <sakai.commons.fileupload.version>1.1.1</sakai.commons.fileupload.version>
     <sakai.tomcat.version>tomcat-5.5.26</sakai.tomcat.version>
@@ -276,6 +276,12 @@ This is not needed now that pluto have been released
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring</artifactId>
+        <version>${sakai.spring.version}</version>
+        <scope>provided</scope>
+      </dependency>
+	  <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-webmvc</artifactId>
         <version>${sakai.spring.version}</version>
         <scope>provided</scope>
       </dependency>
