@@ -24,17 +24,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <link href="${pageSkinRepo}/${pageSkin}/portal.css" type="text/css" rel="stylesheet" media="all" />
-<!-- this caises problems for layout nneds investihating -->
-    <link href="/portal/styles/portalstyles.css" type="text/css" rel="stylesheet" media="all" />
-<!--[if gte IE 5]><![if lt IE 7]>
-    <link href="/portal/styles/portalstyles-ie5.css" type="text/css" rel="stylesheet" media="all" />
-<![endif]><![endif]-->
 
+## <!-- this caises problems for layout nneds investihating -->
+##     <link href="/portal/styles/portalstyles.css" type="text/css" rel="stylesheet" media="all" />
+## <!--[if gte IE 5]><![if lt IE 7]>
+##     <link href="/portal/styles/portalstyles-ie5.css" type="text/css" rel="stylesheet" media="all" />
+## <![endif]><![endif]-->
+	 <link href="${pageSkinRepo}/${pageSkin}/pda.css" type="text/css" rel="stylesheet" media="all" /> 
     <meta http-equiv="Content-Style-Type" content="text/css" />
-#if (! $currentPlacement && $isPDA )
-    <meta name="viewport" content="width=320, user-scalable=no" />
-#end
+    <meta name="viewport" content="width=device-width, user-scalable=yes,  initial-scale=1.0, maximum-scale=2.0"/>
+  	<link rel="apple-touch-icon" href="${pageSkinRepo}/${pageSkin}/images/pda-ico.png"/>      
 #if ( ${bufferedResponse} && ${responseHead} ) 
 <!-- Head material from Tool (will include title and headscripts) -->
 ${responseHead}
@@ -70,7 +69,7 @@ ${responseHead}
     #end
 #end
 </head>
-<body class="portalBody">
+<body class="portalBodyPDA">
 #if ( $pageTop )
 	<script type="text/javascript" language="JavaScript">
 	var sakaiPortalWindow = "";
@@ -87,7 +86,7 @@ ${responseHead}
 <div class="portletpda">
   <ul id="pda-portlet-menu">
 	  ## be nice to render here the UI string from instance - so like "CTools" or "CamTools" for context. See next line
-		<li class="instanceNote"><span>PDA Portal: </span></li>
+		<li class="instanceNote"><span></span></li>
 		## need to get string from bundle
   	<li class="sitesLink"><span><a href="${portalTopUrl}" title="Back to Site List">Sites</a></span></li>
  #set ($currentSiteChildren=0) 			 
