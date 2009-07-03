@@ -39,7 +39,7 @@
         <dependency>
             <groupId>org.sakaiproject</groupId>
             <artifactId>generic-dao</artifactId>
-            <version>0.9.8</version>
+            <version>0.9.17</version>
         </dependency>
 
         <!-- spring and hibernate -->
@@ -66,8 +66,8 @@
         <!-- testing dependencies -->
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-mock</artifactId>
-            <version>2.0.6</version>
+            <artifactId>spring-test</artifactId>
+            <version>2.5.6.SEC01</version>
             <scope>provided</scope>
         </dependency>
 
