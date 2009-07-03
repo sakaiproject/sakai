@@ -182,7 +182,7 @@ public class RequestedFriends extends Panel {
 		            		//update label
 		            		target.addComponent(requestedFriendsHeading);
 		            		
-		            		//TODO repaint confirmed friends panel by calling method in MyFriends to repaint it for us
+		            		//repaint confirmed friends panel by calling method in MyFriends to repaint it for us
 		            		parent.updateConfirmedFriends(target, userUuid);
 		            		
 		            		//if none left, hide everything
