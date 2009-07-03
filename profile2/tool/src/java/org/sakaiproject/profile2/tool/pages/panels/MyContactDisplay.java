@@ -8,7 +8,6 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
-
 import org.sakaiproject.profile2.tool.models.UserProfile;
 
 public class MyContactDisplay extends Panel {

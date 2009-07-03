@@ -8,7 +8,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
-import org.sakaiproject.profile2.tool.ProfileApplication;
+import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 /** 
@@ -38,8 +38,8 @@ public class ProfileImageRenderer extends Panel {
 		}
 		
 		//get API's
-        SakaiProxy sakaiProxy = ProfileApplication.get().getSakaiProxy();
-        ProfileLogic profileLogic = ProfileApplication.get().getProfileLogic();
+        SakaiProxy sakaiProxy = getSakaiProxy();
+        ProfileLogic profileLogic = getProfileLogic();
                 
 		//what type of image are we to show?
 		int type = sakaiProxy.getProfilePictureType();
@@ -92,6 +92,18 @@ public class ProfileImageRenderer extends Panel {
 	 */
 	private String getDefaultImage() {
 		return ProfileConstants.UNAVAILABLE_IMAGE;
+	}
+	
+	/**
+	 * API helper hethods
+	 * @return
+	 */
+	private SakaiProxy getSakaiProxy() {
+		return Locator.getSakaiProxy();
+	}
+
+	private ProfileLogic getProfileLogic() {
+		return Locator.getProfileLogic();
 	}
 	
 	

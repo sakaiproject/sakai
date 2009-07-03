@@ -9,7 +9,7 @@ import org.apache.wicket.model.Model;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
-import org.sakaiproject.profile2.tool.ProfileApplication;
+import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
 /** 
@@ -137,7 +137,7 @@ public class ProfileStatusRenderer extends Panel {
 		}
 
 		//get API's
-        ProfileLogic profileLogic = ProfileApplication.get().getProfileLogic();
+        ProfileLogic profileLogic = getProfileLogic();
 		
 		//get status
 		ProfileStatus status = profileLogic.getUserStatus(userX);
@@ -181,7 +181,7 @@ public class ProfileStatusRenderer extends Panel {
 	private boolean checkAllowed(String userX, String userY) {
 		
 		//get API's
-        ProfileLogic profileLogic = ProfileApplication.get().getProfileLogic();
+        ProfileLogic profileLogic = getProfileLogic();
 		
         //if bad userUuids
         if(blankUuids(userX, userY)) {
@@ -201,7 +201,7 @@ public class ProfileStatusRenderer extends Panel {
 	private boolean checkAllowed(String userX, String userY, ProfilePrivacy privacy) {
 		
 		//get API's
-        ProfileLogic profileLogic = ProfileApplication.get().getProfileLogic();
+        ProfileLogic profileLogic = getProfileLogic();
 		
         //if bad userUuids
         if(blankUuids(userX, userY)) {
@@ -228,7 +228,7 @@ public class ProfileStatusRenderer extends Panel {
 	private boolean checkAllowed(String userX, String userY, ProfilePrivacy privacy, boolean friend) {
 		
 		//get API's
-        ProfileLogic profileLogic = ProfileApplication.get().getProfileLogic();
+        ProfileLogic profileLogic = getProfileLogic();
 		
         //if bad userUuids
         if(blankUuids(userX, userY)) {
@@ -252,6 +252,11 @@ public class ProfileStatusRenderer extends Panel {
 	//helper
 	private boolean equalUuids(String userX, String userY) {
 		return (StringUtils.equals(userX, userY));
+	}
+
+	//helper
+	private ProfileLogic getProfileLogic() {
+		return Locator.getProfileLogic();
 	}
 	
 }

@@ -21,7 +21,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.logic.SakaiProxy;
-import org.sakaiproject.profile2.tool.ProfileApplication;
+import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.tool.models.UserProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -38,8 +38,8 @@ public class MyInfoEdit extends Panel {
 		
         log.debug("MyInfoEdit()");
 
-		//get SakaiProxy API
-		sakaiProxy = ProfileApplication.get().getSakaiProxy();
+        //get API's
+		sakaiProxy = getSakaiProxy();
 		
 		//this panel
 		final Component thisPanel = this;
@@ -193,7 +193,7 @@ public class MyInfoEdit extends Panel {
 		UserProfile userProfile = (UserProfile) form.getModelObject();
 		
 		//get sakaiProxy, then get userId from sakaiProxy, then get sakaiperson for that userId
-		SakaiProxy sakaiProxy = ProfileApplication.get().getSakaiProxy();
+		SakaiProxy sakaiProxy = getSakaiProxy();
 		
 		String userId = sakaiProxy.getCurrentUserId();
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
@@ -242,7 +242,11 @@ public class MyInfoEdit extends Panel {
 		in.defaultReadObject();
 		log.debug("MyInfoEdit has been deserialized.");
 		//re-init our transient objects
-		sakaiProxy = ProfileApplication.get().getSakaiProxy();
+		sakaiProxy = getSakaiProxy();
+	}
+	
+	private SakaiProxy getSakaiProxy() {
+		return Locator.getSakaiProxy();
 	}
 
 }

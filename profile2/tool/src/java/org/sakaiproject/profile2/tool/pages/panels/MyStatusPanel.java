@@ -18,7 +18,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
-import org.sakaiproject.profile2.tool.ProfileApplication;
+import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.models.SimpleText;
 import org.sakaiproject.profile2.tool.models.UserProfile;
@@ -40,11 +40,9 @@ public class MyStatusPanel extends Panel {
 		
 		log.debug("MyStatusPanel()");
 
-		//get SakaiProxy API
-		sakaiProxy = ProfileApplication.get().getSakaiProxy();
-		
-		//get ProfileLogic API
-		profileLogic = ProfileApplication.get().getProfileLogic();
+		//get API's
+		sakaiProxy = getSakaiProxy();
+		profileLogic = getProfileLogic();
 				
 		//get info
 		final String displayName = userProfile.getDisplayName();
@@ -193,8 +191,16 @@ public class MyStatusPanel extends Panel {
 		in.defaultReadObject();
 		log.debug("MyStatusPanel has been deserialized");
 		//re-init our transient objects
-		profileLogic = ProfileApplication.get().getProfileLogic();
-		sakaiProxy = ProfileApplication.get().getSakaiProxy();
+		profileLogic = getProfileLogic();
+		sakaiProxy = getSakaiProxy();
+	}
+	
+	private SakaiProxy getSakaiProxy() {
+		return Locator.getSakaiProxy();
+	}
+
+	private ProfileLogic getProfileLogic() {
+		return Locator.getProfileLogic();
 	}
 	
 }

@@ -16,7 +16,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.logic.ProfileLogic;
-import org.sakaiproject.profile2.tool.ProfileApplication;
+import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.models.UserProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -38,8 +38,8 @@ public class MyInfoDisplay extends Panel {
 		//this panel stuff
 		final Component thisPanel = this;
 		
-		//get ProfileLogic API
-		profileLogic = ProfileApplication.get().getProfileLogic();
+		//get API's
+		profileLogic = getProfileLogic();
 		
 		//get userId of this profile
 		String userId = userProfile.getUserId();
@@ -175,7 +175,11 @@ public class MyInfoDisplay extends Panel {
 		in.defaultReadObject();
 		log.debug("MyInfoDisplay has been deserialized.");
 		//re-init our transient objects
-		profileLogic = ProfileApplication.get().getProfileLogic();
+		profileLogic = getProfileLogic();
+	}
+	
+	private ProfileLogic getProfileLogic() {
+		return Locator.getProfileLogic();
 	}
 	
 }

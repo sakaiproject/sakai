@@ -13,6 +13,7 @@ import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.ProfileApplication;
 
 /**
@@ -45,7 +46,7 @@ public class RequestedFriendsDataProvider implements IDataProvider, Serializable
 		this.userId = userId;
 		
 		//get Profile
-		profileLogic = ProfileApplication.get().getProfileLogic();
+		profileLogic = getProfileLogic();
 		
 		//get list of requests for user
 		requests = getFriendsForUser(userId);
@@ -86,10 +87,13 @@ public class RequestedFriendsDataProvider implements IDataProvider, Serializable
 		in.defaultReadObject();
 		log.debug("RequestedFriendsDataProvider has been deserialized.");
 		//re-init our transient objects
-		profileLogic = ProfileApplication.get().getProfileLogic();
+		profileLogic = getProfileLogic();
 		requests = getFriendsForUser(userId);
 	}
 	
+    private ProfileLogic getProfileLogic() {
+		return Locator.getProfileLogic();
+	}
 }
 
 

@@ -12,7 +12,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
-import org.sakaiproject.profile2.tool.ProfileApplication;
+import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -226,12 +226,12 @@ public class BasePage extends WebPage implements IHeaderContributor {
 
 	
 	/* helper methods for our child pages to get at the API's */
-	public SakaiProxy getSakaiProxy() {
-		return ProfileApplication.get().getSakaiProxy();
+	protected SakaiProxy getSakaiProxy() {
+		return Locator.getSakaiProxy();
 	}
 
-	public ProfileLogic getProfileLogic() {
-		return ProfileApplication.get().getProfileLogic();
+	protected ProfileLogic getProfileLogic() {
+		return Locator.getProfileLogic();
 	}
 
 	
@@ -247,6 +247,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		log.debug("User preferred locale: " + locale);
 		getSession().setLocale(locale);
 	}
+	
+	
 	
 	
 	

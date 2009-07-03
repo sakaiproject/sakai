@@ -18,7 +18,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.validation.validator.UrlValidator;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
-import org.sakaiproject.profile2.tool.ProfileApplication;
+import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.CloseButton;
 import org.sakaiproject.profile2.tool.models.SimpleText;
 import org.sakaiproject.profile2.tool.pages.MyProfile;
@@ -36,11 +36,9 @@ public class ChangeProfilePictureUrl extends Panel{
         
         log.debug("ChangeProfilePictureUrl()");
         
-		//get SakaiProxy API
-		sakaiProxy = ProfileApplication.get().getSakaiProxy();
-		
-		//get ProfileLogic API
-		profileLogic = ProfileApplication.get().getProfileLogic();
+        //get API's
+		sakaiProxy = getSakaiProxy();
+		profileLogic = getProfileLogic();
 			
 		//get userId
 		final String userId = sakaiProxy.getCurrentUserId();
@@ -130,10 +128,17 @@ public class ChangeProfilePictureUrl extends Panel{
 		in.defaultReadObject();
 		log.debug("ChangeProfilePictureUrl has been deserialized.");
 		//re-init our transient objects
-		profileLogic = ProfileApplication.get().getProfileLogic();
-		sakaiProxy = ProfileApplication.get().getSakaiProxy();
+		profileLogic = getProfileLogic();
+		sakaiProxy = getSakaiProxy();
 	}
 	
+	private SakaiProxy getSakaiProxy() {
+		return Locator.getSakaiProxy();
+	}
+
+	private ProfileLogic getProfileLogic() {
+		return Locator.getProfileLogic();
+	}
 	
 	
 }

@@ -21,7 +21,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
-import org.sakaiproject.profile2.tool.ProfileApplication;
+import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.RequestedFriendsDataProvider;
@@ -45,11 +45,9 @@ public class RequestedFriends extends Panel {
 		
 		log.debug("RequestedFriends()");
 		
-		//get SakaiProxy
-		sakaiProxy = ProfileApplication.get().getSakaiProxy();
-		
-		//get ProfileLogic
-		profileLogic = ProfileApplication.get().getProfileLogic();
+		//get API's
+		sakaiProxy = getSakaiProxy();
+		profileLogic = getProfileLogic();
 		
 		//setup model to store the actions in the modal windows
 		final FriendAction friendActionModel = new FriendAction();
@@ -246,8 +244,16 @@ public class RequestedFriends extends Panel {
 		in.defaultReadObject();
 		log.debug("RequestedFriends has been deserialized");
 		//re-init our transient objects
-		profileLogic = ProfileApplication.get().getProfileLogic();
-		sakaiProxy = ProfileApplication.get().getSakaiProxy();
+		profileLogic = getProfileLogic();
+		sakaiProxy = getSakaiProxy();
+	}
+	
+	private SakaiProxy getSakaiProxy() {
+		return Locator.getSakaiProxy();
+	}
+
+	private ProfileLogic getProfileLogic() {
+		return Locator.getProfileLogic();
 	}
 	
 }

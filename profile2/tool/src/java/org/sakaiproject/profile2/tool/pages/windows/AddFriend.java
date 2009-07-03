@@ -13,7 +13,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
-import org.sakaiproject.profile2.tool.ProfileApplication;
+import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.FocusOnLoadBehaviour;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.models.FriendAction;
@@ -35,9 +35,9 @@ public class AddFriend extends Panel {
 	public AddFriend(String id, final ModalWindow window, final FriendAction friendActionModel, final String userX, final String userY){
         super(id);
 
-        //get API's
-        sakaiProxy = ProfileApplication.get().getSakaiProxy();
-        profileLogic = ProfileApplication.get().getProfileLogic();
+      //get API's
+		sakaiProxy = getSakaiProxy();
+		profileLogic = getProfileLogic();
         
         //get friendName
         final String friendName = FormattedText.processFormattedText(sakaiProxy.getUserDisplayName(userY), new StringBuffer());
@@ -181,6 +181,14 @@ public class AddFriend extends Panel {
         //add form
         add(form);
     }
+	
+	private SakaiProxy getSakaiProxy() {
+		return Locator.getSakaiProxy();
+	}
+
+	private ProfileLogic getProfileLogic() {
+		return Locator.getProfileLogic();
+	}
 
 		
 }
