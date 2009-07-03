@@ -58,8 +58,7 @@ public class NoisierDefaultListableBeanFactory extends
 				beanName = beanDefinitionNames[i];
 				if (!containsSingleton(beanName)
 						&& containsBeanDefinition(beanName)) {
-					RootBeanDefinition bd = getMergedBeanDefinition(beanName,
-							false);
+					RootBeanDefinition bd = (RootBeanDefinition)getMergedBeanDefinition(beanName);
 					if (!bd.isAbstract() && bd.isSingleton()
 							&& !bd.isLazyInit()) {
 						if (bd.hasBeanClass()
