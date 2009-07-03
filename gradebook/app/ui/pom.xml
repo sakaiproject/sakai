@@ -173,8 +173,8 @@
 <!--${sakai.spring.groupId}${sakai.spring.artifactId}${sakai.spring.version}-->
     <dependency>
       <groupId>${sakai.spring.groupId}</groupId>
-      <artifactId>${sakai.spring.mock.artifactId}</artifactId>
-      <version>${sakai.spring.mock.version}</version>
+      <artifactId>${sakai.spring.test.artifactId}</artifactId>
+      <version>${sakai.spring.test.version}</version>
     </dependency>
     <dependency>
       <groupId>aopalliance</groupId>
