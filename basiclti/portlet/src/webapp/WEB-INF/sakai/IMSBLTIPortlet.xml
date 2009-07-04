@@ -3,7 +3,7 @@
 
         <tool
                         id="sakai.basiclti"
-                        title="Proxy Tool"
+                        title="Basic LTI"
                         description="IMS Basic Learning Tools Interoperability.">
 
                 <configuration name="sakai:portlet-pre-render" value="true" />

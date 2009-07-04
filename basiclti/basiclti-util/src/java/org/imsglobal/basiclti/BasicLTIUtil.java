@@ -125,31 +125,37 @@ public class BasicLTIUtil {
     }
 
     // Add the necessary fields and sign
-    public static Properties signProperties(Properties postProp, String method, String url, 
-        String oauth_callback, String oauth_consumer_key, String oauth_consumer_secret)
+    public static Properties signProperties(Properties postProp, String url, String method, 
+        String oauth_consumer_secret, String org_id, String org_desc)
     {
         postProp = BasicLTIUtil.cleanupProperties(postProp);
         postProp.setProperty("lti_version","basiclti-1.0");
-        postProp.setProperty("basiclti_submit","Continue");
+        postProp.setProperty("basiclti_submit", "Launch Endpoint with BasicLTI Data");
+        if ( org_id != null ) postProp.setProperty("tool_consumer_instance_guid", org_id);
+        if ( org_desc != null ) postProp.setProperty("tool_consumer_instance_description", org_desc);
+
+        String oauth_consumer_key = url;
+        if ( org_id != null ) {
+            oauth_consumer_key = "basiclti-lms:"+org_id;
+        }
+
         if ( postProp.getProperty("oauth_callback") == null ) postProp.setProperty("oauth_callback","about:blank");
 
         OAuthMessage oam = new OAuthMessage(method, url,postProp.entrySet());
-        OAuthConsumer cons = new OAuthConsumer(oauth_callback, 
+        OAuthConsumer cons = new OAuthConsumer("about:blank",
             oauth_consumer_key, oauth_consumer_secret, null);
         OAuthAccessor acc = new OAuthAccessor(cons);
-        System.out.println("OAM="+oam+"\n");
+        // System.out.println("OAM="+oam+"\n");
         try {
             // System.out.println("BM="+OAuthSignatureMethod.getBaseString(oam)+"\n");
             oam.addRequiredParameters(acc);
-            System.out.println("BM2="+OAuthSignatureMethod.getBaseString(oam)+"\n");
-            // System.out.println("OAM="+oam+"\n");
+            System.out.println("Base Message String\n"+OAuthSignatureMethod.getBaseString(oam)+"\n");
 
             List<Map.Entry<String, String>> params = oam.getParameters();
     
             Properties nextProp = new Properties();
             // Convert to Properties
             for (Map.Entry<String,String> e : params) {
-                // System.out.println("value= " + e);
                 nextProp.setProperty(e.getKey(), e.getValue());
             }
 	    return nextProp;
@@ -168,11 +174,11 @@ public class BasicLTIUtil {
 
     // Create the HTML to render a POST form and then automatically submit it
     // Make sure to call cleanupProperties before signing
-    public static String postLaunchHTML(Properties newMap, String launchurl, boolean debug) {
-        if ( launchurl == null ) return null;
+    public static String postLaunchHTML(Properties newMap, String endpoint, boolean debug) {
+        if ( endpoint == null ) return null;
         StringBuffer text = new StringBuffer();
         text.append("<div id=\"ltiLaunchFormSubmitArea\">\n");
-        text.append("<form action=\""+launchurl+"\" name=\"ltiLaunchForm\" method=\"post\">\n" );
+        text.append("<form action=\""+endpoint+"\" name=\"ltiLaunchForm\" method=\"post\">\n" );
         for(Object okey : newMap.keySet() )
         {
                 if ( ! (okey instanceof String) ) continue;
@@ -182,8 +188,8 @@ public class BasicLTIUtil {
                 if ( value == null ) continue;
 		// This will escape the contents pretty much - at least 
 		// we will be safe and not generate dangerous HTML
-                key = encodeFormText(key);
-                value = encodeFormText(value);
+                key = htmlspecialchars(key);
+                value = htmlspecialchars(value);
                 if ( key.equals("basiclti_submit") ) {
                   text.append("<input type=\"submit\" size=\"40\" name=\"");
                 } else { 
@@ -196,8 +202,28 @@ public class BasicLTIUtil {
         }
         text.append("</form>\n" + 
                 "</div>\n");
-        if ( ! debug ) 
-        {
+        if ( debug ) {
+            text.append("<pre>\n");
+            text.append("<b>BasicLTI Endpoint</b>\n");
+	    text.append(endpoint);
+            text.append("\n\n");
+            text.append("<b>BasicLTI Parameters:</b>\n");
+            for(Object okey : newMap.keySet() )
+            {
+                if ( ! (okey instanceof String) ) continue;
+                String key = (String) okey;
+                if ( key == null ) continue;
+                String value = newMap.getProperty(key);
+                if ( value == null ) continue;
+                text.append(key);
+                text.append("=");
+                text.append(value);
+                text.append("\n");
+            }
+            text.append("</pre>\n");
+            // text.append("<p><b>OAuth Base String (most recent)</b><br/>\n".$last_base_string."</p>\n";
+    
+        } else {
             text.append(
                     " <script language=\"javascript\"> \n" +
 		    "    document.getElementById(\"ltiLaunchFormSubmitArea\").style.display = \"none\";\n" +
@@ -209,7 +235,7 @@ public class BasicLTIUtil {
 	return htmltext;
     }
 
-    public static boolean launchInfo(Properties info, Properties launch, String descriptor)
+    public static boolean launchInfo(Properties info, Properties postProp, String descriptor)
     {
         Map<String,Object> tm = null;
         try
@@ -243,7 +269,7 @@ public class BasicLTIUtil {
                 if ( key == null || value == null ) continue;
                 key = "custom_" + mapKeyName(key);
                 dPrint("key="+key+" val="+value);
-		launch.setProperty(key,value);
+		postProp.setProperty(key,value);
         }
         return true;
     }
@@ -291,8 +317,9 @@ public class BasicLTIUtil {
     }
 
     // Basic utility to encode form text - handle the "safe cases"
-    public static String encodeFormText(String input)
+    public static String htmlspecialchars(String input)
     {
+        if ( input == null ) return null;
 	String retval = input.replace("&", "&amp;");
 	retval = retval.replace("\"", "&quot;");
 	retval = retval.replace("<", "&lt;");

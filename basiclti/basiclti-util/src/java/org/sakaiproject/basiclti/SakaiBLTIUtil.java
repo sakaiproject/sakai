@@ -172,6 +172,8 @@ public class SakaiBLTIUtil {
 
         // Property secret takes precedence over resource secret
         String org_guid = ServerConfigurationService.getString("basiclti.consumer_instance_guid",null);
+	String org_name = ServerConfigurationService.getString("basiclti.consumer_instance_name",null);
+
         String oauth_consumer_key = launch_url;
 	String oauth_consumer_secret = toNull(info.getProperty("secret"));
 	// Is this a good idea?  If there is no secret - perhaps we should not even 
@@ -190,8 +192,8 @@ public class SakaiBLTIUtil {
 	// In OAuth 6.2.3, this is after the user is authorized
 	if ( oauth_callback == null ) oauth_callback = "about:blank";
 
-        launch = BasicLTIUtil.signProperties(launch, "POST", launch_url, 
-            oauth_callback, oauth_consumer_key, oauth_consumer_secret);
+        launch = BasicLTIUtil.signProperties(launch, launch_url, "POST", 
+            oauth_consumer_secret, org_guid, org_name);
 
         if ( launch == null ) return "<p>Error signing message.</p>";
         System.out.println("LAUNCH III="+launch);
