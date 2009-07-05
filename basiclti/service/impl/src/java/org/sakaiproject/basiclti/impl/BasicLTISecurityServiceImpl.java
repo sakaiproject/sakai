@@ -158,7 +158,6 @@ System.out.println("getContextSiteId "+reference);
 		 */
 		public boolean parseEntityReference(String reference, Reference ref)
 		{
-System.out.println("parseEntityReference "+reference);
 			if (reference.startsWith(REFERENCE_ROOT))
 			{
 				// we will get null, simplelti, site, <context>, <placement>
