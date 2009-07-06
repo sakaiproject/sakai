@@ -554,14 +554,14 @@ function resizeFrame(){
 			#if ($rule)
 			   $tlang.getString("new.every") $rule.Interval $freq<br />
 				#if (!($rule.Count == 0)) $tlang.getString("new.number") $rule.Count $tlang.getString("new.times") <br />#end
-				#if ($rule.Until) $tlang.getString("new.endson") $rule.Until.breakdownLocal().Month/$rule.Until.breakdownLocal().Day/$rule.Until.breakdownLocal().year <br />#end
+				#if ($rule.Until) $tlang.getString("new.endson") $rule.Until.toStringLocalDate() <br />#end
 			#else
 				#if ($freq) ## one occurrence doesn't have a 'freq' output
 					#if ($event.RecurrenceRule)
 						#set ($rule = $event.RecurrenceRule)
 						$tlang.getString("new.every") $rule.Interval $freq<br />
 						#if (!($rule.Count == 0)) $tlang.getString("new.number") $rule.Count  $tlang.getString("new.times") <br />#end
-						#if ($rule.Until) Ends on $rule.Until.breakdownLocal().Month/$rule.Until.breakdownLocal().Day/$rule.Until.breakdownLocal().year <br />#end
+						#if ($rule.Until) $tlang.getString("new.endson") $rule.Until.toStringLocalDate() <br />#end
 					#end
 				#else
 					$tlang.getString("new.oneocc")
