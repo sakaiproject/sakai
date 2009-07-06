@@ -23,12 +23,16 @@ package org.sakaiproject.tool.impl;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Locale;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,6 +45,7 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Xml;
+import org.sakaiproject.util.ResourceLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -86,7 +91,7 @@ public abstract class ToolComponent implements ToolManager
 
 	/**
 	 * Configuration - set the list of tool ids to be "stealthed". A stealthed tool does not show up in a category list of tools.
-	 * 
+	 *
 	 * @param toolIds
 	 *        The comma-separated list of tool ids to be stealthed.
 	 */
@@ -112,7 +117,7 @@ public abstract class ToolComponent implements ToolManager
 
 	/**
 	 * Configuration - set the list of tool ids to be visible, not hidden, even if marked hidden or stealthed.
-	 * 
+	 *
 	 * @param toolIds
 	 *        The comma-separated list of tool ids to be visible.
 	 */
@@ -138,7 +143,7 @@ public abstract class ToolComponent implements ToolManager
 
 	/**
 	 * Configuration - set the list of tool ids to be visible, not hidden, even if marked hidden or stealthed.
-	 * 
+	 *
 	 * @param toolIds
 	 *        The comma-separated list of tool ids to be visible.
 	 */
@@ -175,17 +180,17 @@ public abstract class ToolComponent implements ToolManager
 		{
 			toHide.addAll(m_stealthToolIds);
 		}
-		
+
 		if (m_hiddenToolIds!= null)
 		{
 			toHide.addAll(m_hiddenToolIds);
 		}
-		
+
 		if (m_visibleToolIds != null)
 		{
 			toHide.removeAll(m_visibleToolIds);
 		}
-		
+
 		// collect the hiddens for logging
 		StringBuilder hidden = new StringBuilder();
 
@@ -269,7 +274,7 @@ public abstract class ToolComponent implements ToolManager
 
 	/**
 	 * Check the target values for a match in the criteria. If criteria is empty or null, the target is a match.
-	 * 
+	 *
 	 * @param criteria
 	 *        The set of String values that is the criteria - any one in the target is a match
 	 * @param target
@@ -437,7 +442,7 @@ public abstract class ToolComponent implements ToolManager
 
 	/**
 	 * Establish the Tool associated with the current request / thread
-	 * 
+	 *
 	 * @param Tool
 	 *        The current Tool, or null if there is none.
 	 */
@@ -448,12 +453,54 @@ public abstract class ToolComponent implements ToolManager
 
 	/**
 	 * Establish the Tool associated with the current request / thread
-	 * 
+	 *
 	 * @param Tool
 	 *        The current Tool, or null if there is none.
 	 */
 	protected void setCurrentTool(Tool tool)
 	{
 		threadLocalManager().set(CURRENT_TOOL, tool);
+	}
+
+	/**
+	 * Add the file passed as part of the tool title localization resource bundled based on it's embedded locale code.
+	 *
+	 * @param toolId Id string of the tool being set.
+	 * @param filename Full filename of the properties file to be added to the resource bundle.
+	 * @author Mark Norton for SAK-8908
+	 */
+	public void setResourceBundle (String toolId, String filename)
+	{
+		File file = new File(filename);
+		String shortname = file.getName();
+		org.sakaiproject.util.Tool tool = (org.sakaiproject.util.Tool) this.getTool(toolId);
+
+		//	Initialize the HashSet if empty.
+		if (tool.m_title_bundle == null)
+			tool.m_title_bundle = new HashMap<String,Properties>();
+
+		//	Parse out the locale code.
+		String locale = null;
+		if (shortname.indexOf('_') == -1)
+			locale = "DEFAULT";
+		else {
+			//	Extract the substring after the first underbar to the first period.
+			locale = shortname.substring (shortname.indexOf('_')+1, shortname.lastIndexOf('.'));
+		}
+
+		//	Load the Properties file.
+		Properties props = new Properties ();
+		try {
+			InputStream in = new FileInputStream(file);
+			props.load(in);
+		}
+		catch (IOException ex) {
+			M_log.warn ("Unable to load "+filename+" as a tool localizaton resource in tool "+tool.getId());
+			props = null;
+		}
+
+		//	Add the properties set to the resource bundle.
+		if (props != null)
+			tool.m_title_bundle.put (locale, props);
 	}
 }

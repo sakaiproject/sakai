@@ -42,7 +42,7 @@ public class ActiveToolManager
 
 	/**
 	 * Access the component instance: special cover only method.
-	 * 
+	 *
 	 * @return the component instance.
 	 */
 	public static org.sakaiproject.tool.api.ActiveToolManager getInstance()
@@ -179,5 +179,11 @@ public class ActiveToolManager
 		if (manager == null) return null;
 
 		return manager.getLocalizedToolProperty(param0, param1);
+	}
+
+	public static void setResourceBundle (String toolId, String filename)
+	{
+		org.sakaiproject.tool.api.ToolManager manager = getInstance();
+		manager.setResourceBundle (toolId, filename);
 	}
 }
