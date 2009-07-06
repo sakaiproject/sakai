@@ -134,6 +134,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
         fieldList.add("secret");
         fieldList.add("xml");
         fieldList.add("frameheight");
+        fieldList.add("debug");
         fieldList.add("pagetitle");
         fieldList.add("tooltitle");
     }

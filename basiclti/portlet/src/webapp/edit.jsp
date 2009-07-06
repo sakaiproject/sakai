@@ -98,11 +98,11 @@ Remote Tool Url: <input type="text" size="100" name="imsti.launch" value="<%=ov.
 </p>
 </div>
 <% } %>
-<% } %>
 <% if ( allow(sp,"secret") ) { %>
 <p>
 Remote Tool Password: <input type="password" name="imsti.secret"> (Must re-enter every time)
 </p>
+<% } %>
 <p>
 <input type="submit" value="Update Options">
 </p>
@@ -129,12 +129,23 @@ Set Tool Title: <input type="text" name="imsti.tooltitle" value="<%=ov.getProper
 </p>
 </fieldset>
 <% } %>
-<% if ( allow(sp,"frameheight") ) { %>
+<% if ( allow(sp,"frameheight") || allow(sp, "debug") ) { %>
 <fieldset>
 <legend>Optional Launch Information</legend>
 <% if ( allow(sp,"frameheight") ) { %>
 <p>
 iFrame Height: <input type="text" size="10" name="imsti.frameheight" value="<%=ov.getProperty("imsti.frameheight","")%>"> 
+(<a href="#" onclick="window.open('<%=whatURL%>','name','width=480,height=400,menubar=no,resizable=no,status=no,toolbar=no');">What's this?</a>)
+</p>
+<% } %>
+<% if ( allow(sp,"debug") ) { %>
+<p>
+Debug Launch: <input type="checkbox" size="10" name="imsti.debug" 
+<% if ( ov.getProperty("imsti.debug",null) != null ) { %>
+  checked="yes" />
+<% } else { %>
+   />
+<% } %>
 (<a href="#" onclick="window.open('<%=whatURL%>','name','width=480,height=400,menubar=no,resizable=no,status=no,toolbar=no');">What's this?</a>)
 </p>
 <% } %>

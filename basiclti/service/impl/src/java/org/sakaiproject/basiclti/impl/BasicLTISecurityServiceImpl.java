@@ -193,7 +193,6 @@ System.out.println("getContextSiteId "+reference);
 					Collection copyrightAcceptedRefs) throws EntityPermissionException, EntityNotDefinedException,
 					EntityAccessOverloadException, EntityCopyrightException
 			{
-System.out.println("NEED TO ADD SOME STUFF HERE");
 				String contextId = ref.getContext();
 System.out.println("ContextID="+contextId);
 System.out.println("ID="+ref.getId());

@@ -57,6 +57,7 @@ public class SakaiBLTIUtil {
 	    BasicLTIUtil.launchInfo(info, launch, xml);
         }
         setProperty(info, "secret", config.getProperty("imsti.secret", null) );
+        setProperty(info, "debug", config.getProperty("imsti.debug", null) );
         setProperty(info, "frameheight", config.getProperty("imsti.frameheight", null) );
         setProperty(info, "newwindow", config.getProperty("imsti.newwindow", null) );
         setProperty(info, "title", config.getProperty("imsti.tooltitle", null) );
@@ -191,6 +192,7 @@ public class SakaiBLTIUtil {
         // Actually since we are using signing-only, there is really not much point 
 	// In OAuth 6.2.3, this is after the user is authorized
 	if ( oauth_callback == null ) oauth_callback = "about:blank";
+        setProperty(launch, "oauth_callback", oauth_callback);
 
         launch = BasicLTIUtil.signProperties(launch, launch_url, "POST", 
             oauth_consumer_secret, org_guid, org_name);
@@ -198,7 +200,8 @@ public class SakaiBLTIUtil {
         if ( launch == null ) return "<p>Error signing message.</p>";
         System.out.println("LAUNCH III="+launch);
 
-        String postData = BasicLTIUtil.postLaunchHTML(launch, launch_url, true /* debug */);
+	boolean dodebug = toNull(info.getProperty("debug")) != null;
+        String postData = BasicLTIUtil.postLaunchHTML(launch, launch_url, dodebug);
 
         return postData;
     }

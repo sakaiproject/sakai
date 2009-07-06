@@ -178,7 +178,7 @@ public class BasicLTIUtil {
         if ( endpoint == null ) return null;
         StringBuffer text = new StringBuffer();
         text.append("<div id=\"ltiLaunchFormSubmitArea\">\n");
-        text.append("<form action=\""+endpoint+"\" name=\"ltiLaunchForm\" method=\"post\">\n" );
+        text.append("<form action=\""+endpoint+"\" name=\"ltiLaunchForm\" id=\"ltiLaunchForm\" method=\"post\">\n" );
         for(Object okey : newMap.keySet() )
         {
                 if ( ! (okey instanceof String) ) continue;
@@ -221,13 +221,16 @@ public class BasicLTIUtil {
                 text.append("\n");
             }
             text.append("</pre>\n");
-            // text.append("<p><b>OAuth Base String (most recent)</b><br/>\n".$last_base_string."</p>\n";
-    
         } else {
             text.append(
                     " <script language=\"javascript\"> \n" +
-		    "    document.getElementById(\"ltiLaunchFormSubmitArea\").style.display = \"none\";\n" +
-                    "    document.ltiLaunchForm.submit(); \n" +
+		    "    document.getElementById(\"ltiLaunchFormSubmitArea\").style.display = \"none\";\n" + 
+		    "    nei = document.createElement('input');\n" +
+		    "    nei.setAttribute('type', 'hidden');\n" + 
+		    "    nei.setAttribute('name', 'basiclti_submit');\n" + 
+		    "    nei.setAttribute('value', '"+newMap.getProperty("basiclti_submit")+"');\n" + 
+		    "    document.getElementById(\"ltiLaunchForm\").appendChild(nei);\n" +
+                    "    document.ltiLaunchForm.submit(); \n" + 
                     " </script> \n");
 	}
 

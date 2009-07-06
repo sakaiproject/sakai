@@ -34,6 +34,7 @@
                 <configuration name="imsti.tooltitle" />
                 <configuration name="imsti.newwindow" />
                 <configuration name="imsti.frameheight" />
+                <configuration name="imsti.debug" />
                 <configuration name="imsti.xml" />
 
                 <!-- Setting these to true means the corresponding above values 
@@ -44,6 +45,7 @@
                 <configuration name="final.tooltitle" value="false"/>
                 <configuration name="final.newwindow" value="false"/>
                 <configuration name="final.frameheight" value="false"/>
+                <configuration name="final.debug" value="false"/>
                 <configuration name="final.xml" value="false"/>
 
         </tool>
