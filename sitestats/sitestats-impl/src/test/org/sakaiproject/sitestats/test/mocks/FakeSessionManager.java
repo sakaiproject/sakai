@@ -1,5 +1,9 @@
 package org.sakaiproject.sitestats.test.mocks;
 
+import java.security.Principal;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
@@ -25,6 +29,10 @@ public class FakeSessionManager implements SessionManager {
 
 	public Session getSession(String arg0) {
 		return currentSession;
+	}
+
+	public String makeSessionId(HttpServletRequest req, Principal principal) {
+		return null;
 	}
 
 	public void setCurrentSession(Session arg0) {
