@@ -37,6 +37,7 @@ import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.util.BaseResourceProperties;
@@ -92,7 +93,7 @@ public class BaseSitePage implements SitePage, Identifiable
 
 	/** The site skin, in case I have no m_site. */
 	protected String m_skin = null;
-
+   
 	private BaseSiteService siteService;
 
 	/**
@@ -337,13 +338,35 @@ public class BaseSitePage implements SitePage, Identifiable
 			}
 		}
 	}
-
+	
 	/**
 	 * @inheritDoc
 	 */
 	public String getTitle()
 	{
-		return m_title;
+		// if	 more than one tool on this page, just return the default page title
+		if ( getTools().size() != 1 )
+			return m_title;
+			
+		// Get the toolId of the first tool associated with this page & special page toolid property
+		final String toolId = ((BaseToolConfiguration) (getTools().get(0))).getToolId();
+		final String pageToolId = (String)getProperties().get(PAGE_TOOL_ID_PROP);
+		
+		// IFrame and News toolIds are considered 'custom' (page title easily configurable)
+		if ( IFRAME_TOOL_ID.equals(toolId) || NEWS_TOOL_ID.equals(toolId) )
+		{
+			return m_title;
+		}
+			
+		// check for special home page tool id
+		else if ( HOME_TOOL_ID.equals(pageToolId) )
+		{
+			 String title = ActiveToolManager.getLocalizedToolProperty(pageToolId, "title");
+			 if ( title != null )
+				 return title;
+		}
+			
+		return ActiveToolManager.getTool(toolId).getTitle();
 	}
 
 	/**

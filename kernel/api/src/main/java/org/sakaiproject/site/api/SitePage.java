@@ -43,6 +43,15 @@ public interface SitePage extends Edit, Serializable
 
 	public static final String PAGE_CATEGORY_PROP = "sitePage.pageCategory";
 
+	/** special property for storing tool_id for this page (for I18n) **/	
+	public static final String PAGE_TOOL_ID_PROP = "sitePage.tool_id";
+	
+	/** special page tool_id for site home page **/
+	public static final String HOME_TOOL_ID = "sakai.home";
+
+	public static final String IFRAME_TOOL_ID = "sakai.iframe";
+	public static final String NEWS_TOOL_ID = "sakai.news";
+
 	/** @return The human readable Title of this SitePage. */
 	public String getTitle();
 
