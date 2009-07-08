@@ -2168,34 +2168,6 @@ public abstract class BaseCitationService implements CitationService
 
 		}
 
-		/* (non-Javadoc)
-         * @see org.sakaiproject.citation.api.Citation#getSaveUrl()
-         */
-        public String getSaveUrl(String collectionId)
-        {
-     		SessionManager sessionManager = (SessionManager) ComponentManager.get("org.sakaiproject.tool.api.SessionManager");
-    		String sessionId = sessionManager.getCurrentSession().getId();
-
-	        String url = m_serverConfigurationService.getServerUrl() + "/savecite/" + collectionId + "?sakai.session=" + sessionId;
-
-	        String genre = this.getSchema().getIdentifier();
-	        url += "&genre=" + genre;
-
-	        String openUrlParams = this.getOpenurlParameters();
-	        String[] params = openUrlParams.split("&");
-	        for(int i = 0; i < params.length; i++)
-	        {
-        		String[] parts = params[i].split("=");
-        		String key = GS_TAGS.get(parts[0]);
-        		if(key != null)
-        		{
-        			url += "&" + key + "=" + parts[1];
-        		}
-	        }
-
-	        return url;
-        }
-
 		public String getPreferredUrlId()
 		{
 			return this.m_preferredUrl;

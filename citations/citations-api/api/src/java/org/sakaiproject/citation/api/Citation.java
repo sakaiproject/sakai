@@ -188,8 +188,6 @@ public interface Citation 	// extends Entity
    */
   public String getPrimaryUrl();
 
-	public String getSaveUrl(String collectionId);
-
 	/**
 	 * Access the schema for the Citation
 	 * @return th
