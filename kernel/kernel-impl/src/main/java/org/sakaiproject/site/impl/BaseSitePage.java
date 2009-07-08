@@ -365,7 +365,7 @@ public class BaseSitePage implements SitePage, Identifiable
 		
 		// IFrame and News toolIds are considered 'custom' (page title easily configurable)
 		// tbd: find more generalizeable or configurable implementation
-		if ( IFRAME_TOOL_ID.equals(toolId) || NEWS_TOOL_ID.equals(toolId) )
+		if ( IFRAME_TOOL_ID.equals(toolId) || NEWS_TOOL_ID.equals(toolId) || LINK_TOOL_ID.equals(toolId) )
 			return m_title;
 			
 		// otherwise, return localized title

@@ -51,6 +51,7 @@ public interface SitePage extends Edit, Serializable
 
 	/** Customized page/tool titles excluded from localization */
 	public static final String IFRAME_TOOL_ID = "sakai.iframe";
+	public static final String LINK_TOOL_ID = "sakai.rutgers.linktool";
 	public static final String NEWS_TOOL_ID = "sakai.news";
 	
 	/** @return The human readable Title of this SitePage. */

@@ -182,6 +182,7 @@ CREATE INDEX IE_SAKAI_SITE_USER_USER ON SAKAI_SITE_USER
 
 INSERT INTO SAKAI_SITE VALUES('~admin', 'Administration Workspace', null, null, 'Administration Workspace', null, null, null, 1, 0, 0, '', 'admin', 'admin', NOW(), NOW(), 0, 1, 0);
 INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-100', '~admin', 'Home', '0', 1, '0' );
+INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('~admin', '~admin-100', 'is_home_page', 'true' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-110', '~admin-100', '~admin', 'sakai.motd', 1, 'Message of the Day', NULL );
 INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-120', '~admin-100', '~admin', 'sakai.iframe.myworkspace', 2, 'My Workspace Information', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-200', '~admin', 'Users', '0', 2, '0' );
@@ -215,6 +216,7 @@ INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-1210', '~admin-1200', '~admin', 'saka
 
 INSERT INTO SAKAI_SITE VALUES('!admin', 'Administration Workspace', null, null, 'Administration Workspace', null, null, null, 1, 0, 0, '', 'admin', 'admin', NOW(), NOW(), 0, 0, 0);
 INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-100', '!admin', 'Home', '0', 1, '0' );
+INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-100', 'is_home_page', 'true' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-110', '!admin-100', '!admin', 'sakai.motd', 1, 'Message of the Day', NULL );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-120', '!admin-100', '!admin', 'sakai.iframe.myworkspace', 2, 'My Workspace Information', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-200', '!admin', 'Users', '0', 2, '0' );
