@@ -74,21 +74,21 @@ var textuncheckall="<h:outputText value="#{questionPoolMessages.t_uncheckAll}"/>
  <div class="tier2">
 <h:panelGrid columns="2" columnClasses="shorttext">
   <h:outputLabel for="namefield" value="#{questionPoolMessages.p_name}"/>
-  <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" onkeydown="inIt()" id="namefield" size="30" value="#{questionpool.currentPool.displayName}" />
+  <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt()" id="namefield" size="30" value="#{questionpool.currentPool.displayName}" />
   <h:outputLabel for="ownerfield" value="#{questionPoolMessages.creator}"/>
   <h:outputText id="ownerfield" value="#{questionpool.currentPool.owner}"/>
 
   <h:outputLabel rendered="!#{questionpool.currentPool.showParentPools}"  for="orgfield" value="#{questionPoolMessages.dept}"/>
-  <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" onkeydown="inIt() "id="orgfield" size="30"  value="#{questionpool.currentPool.organizationName}" rendered="!#{questionpool.currentPool.showParentPools}"/>
+  <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt() "id="orgfield" size="30"  value="#{questionpool.currentPool.organizationName}" rendered="!#{questionpool.currentPool.showParentPools}"/>
     
   <h:outputLabel rendered="!#{questionpool.currentPool.showParentPools}" for="descfield" value="#{questionPoolMessages.desc}" />
-  <h:inputTextarea disabled="#{questionpool.importToAuthoring == 'true'}" onkeydown="inIt()" id="descfield" rendered="!#{questionpool.currentPool.showParentPools}" value="#{questionpool.currentPool.description}" cols="30" rows="5"/>
-  
+  <h:inputTextarea readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt()" id="descfield" rendered="!#{questionpool.currentPool.showParentPools}" value="#{questionpool.currentPool.description}" cols="30" rows="5"/>
+
   <h:outputLabel for="objfield" value="#{questionPoolMessages.obj} " rendered="!#{questionpool.currentPool.showParentPools}"/>
-  <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" onkeydown="inIt()" id="objfield" size="30"  value="#{questionpool.currentPool.objectives}" rendered="!#{questionpool.currentPool.showParentPools}"/>
-  
+  <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt()" id="objfield" size="30"  value="#{questionpool.currentPool.objectives}" rendered="!#{questionpool.currentPool.showParentPools}"/>
+
   <h:outputLabel for="keyfield" value="#{questionPoolMessages.keywords} " rendered="!#{questionpool.currentPool.showParentPools}" />
-  <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" onkeydown="inIt()" id="keyfield" size="30" value="#{questionpool.currentPool.keywords}" rendered="!#{questionpool.currentPool.showParentPools}" />
+  <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt()" id="keyfield" size="30" value="#{questionpool.currentPool.keywords}" rendered="!#{questionpool.currentPool.showParentPools}" />
 
   <h:inputHidden id="createdDate" value="#{questionpool.currentPool.dateCreated}">
   <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/>
@@ -113,7 +113,7 @@ var textuncheckall="<h:outputText value="#{questionPoolMessages.t_uncheckAll}"/>
 <h:outputText rendered="#{questionpool.currentPool.numberOfSubpools == 1}" value=" #{questionPoolMessages.subp}"/>
 <h:outputText rendered="#{questionpool.currentPool.numberOfSubpools == 0}" value=" #{questionPoolMessages.subps}"/>
 </h:panelGroup>
-<h:commandLink title="#{questionPoolMessages.t_addSubpool}" rendered="#{questionpool.importToAuthoring != 'true'}" id="addlink" immediate="true" action="#{questionpool.addPool}">
+<h:commandLink title="#{questionPoolMessages.t_addSubpool}" rendered="#{questionpool.importToAuthoring != 'true' && questionpool.owner==questionpool.currentPool.owner}" id="addlink" immediate="true" action="#{questionpool.addPool}">
   <h:outputText  id="add" value="#{questionPoolMessages.add}"/>
   <f:param name="qpid" value="#{questionpool.currentPool.id}"/>
   <f:param name="addsource" value="editpool"/>

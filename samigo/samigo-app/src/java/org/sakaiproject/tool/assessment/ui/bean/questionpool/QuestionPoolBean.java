@@ -174,14 +174,22 @@ public class QuestionPoolBean implements Serializable
 
   public QuestionPoolDataModel getCopyQpools()
   {
+	  if (qpDataModel == null) {
+		  buildTreeCopy();
+		  setQpDataModelByLevel();
+	  }
 	  log.debug("getCopyQpools()");
 	  return qpDataModel;
   }
 
   public QuestionPoolDataModel getMoveQpools()
   {
+	  if (qpDataModel == null) {
+		  buildTreeCopy();
+		  setQpDataModelByLevel();
+	  }
 	  log.debug("getMoveQpools()");
-      return qpDataModel;
+	  return qpDataModel;
   }
 
   public QuestionPoolDataModel getSortedSubqpools()
@@ -287,8 +295,26 @@ public class QuestionPoolBean implements Serializable
     }
   }
 
+  public void buildTreeCopy()
+  {
+	  try
+	  {
+		  QuestionPoolService delegate = new QuestionPoolService();
+		  // getAllPools() returns pool in ascending order of poolId 
+		  // then a tree which represent the pool structure is built - daisyf
+		  //System.out.println("****** QPBean: build tree");
+		  tree=
+			  new QuestionPoolTreeImpl(
+					  (QuestionPoolIteratorFacade) delegate.getAllPools(AgentFacade.getAgentString()));
+	  }
+	  catch(Exception e)
+	  {
+		  throw new RuntimeException(e);
+	  }
+  }
+
   private void printChildrenPool(Tree tree, QuestionPoolDataIfc pool, String stars){
-    List children = tree.getChildList(pool.getQuestionPoolId());
+	  List children = tree.getChildList(pool.getQuestionPoolId());
     Map childrenMap = tree.getChildren(pool.getQuestionPoolId());
     stars += "**";
     for (int i=0; i<children.size();i++){
@@ -1341,6 +1367,7 @@ public String getAddOrEdit()
        }
      }
 
+     buildTree();
      this.startEditPoolAgain(sourceId);  // return to edit pool
      return "editPool";
   }
@@ -1390,6 +1417,7 @@ public String getAddOrEdit()
   {
 	log.debug("inside startCopyPool()");
 	getCheckedPool();
+	buildTreeCopy();
 	setActionType("pool");
 	setQpDataModelByProperty();
 	return "copyPool";
@@ -1399,6 +1427,7 @@ public String getAddOrEdit()
   {
 	log.debug("inside startMovePool()");  
 	getCheckedPool();
+	buildTreeCopy();
 	setActionType("pool");
 	setQpDataModelByProperty();
 	return "movePool";

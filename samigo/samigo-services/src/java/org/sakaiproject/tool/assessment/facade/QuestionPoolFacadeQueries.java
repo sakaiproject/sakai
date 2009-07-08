@@ -21,6 +21,7 @@
 
 package org.sakaiproject.tool.assessment.facade;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -121,8 +122,9 @@ public class QuestionPoolFacadeQueries
     // #1.
     // lydial: 9/22/05 we are not really using QuestionPoolAccessData, so filter by ownerid 
     //List poolList = getAllPools(); 
-    List poolList = getAllPoolsByAgent(agentId); 
-
+    List poolList = getHibernateTemplate().find(
+    		"from QuestionPoolData a where a.ownerId= ? ",
+    		new Object[] {agentId}); 
 /*
     // #2. get all the QuestionPoolAccessData record belonging to the agent
     List questionPoolAccessList = getHibernateTemplate().find(
@@ -151,7 +153,7 @@ public class QuestionPoolFacadeQueries
     	Iterator i1 = getSubPoolSizes(agentId).iterator();
     	while (i1.hasNext()) {
     		Object[]result = (Object [])i1.next();
-    		counts.put( Long.valueOf(((BigInteger)result[0]).longValue()), Integer.valueOf(((BigInteger)result[1]).intValue()));
+    		counts.put( Long.valueOf(((BigDecimal)result[0]).longValue()), Integer.valueOf(((BigDecimal)result[1]).intValue()));
     	}    	
 
     	Iterator j = poolList.iterator();
@@ -1129,6 +1131,7 @@ public class QuestionPoolFacadeQueries
       QuestionPoolFacade newPool = (QuestionPoolFacade) oldPool.clone();
       newPool.setParentPoolId(destId);
       newPool.setQuestionPoolId( Long.valueOf(0));
+      newPool.setOwnerId(AgentFacade.getAgentString());
 
       // If Pools in same trees,
       if (!haveCommonRoot) {

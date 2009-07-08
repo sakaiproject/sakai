@@ -72,17 +72,19 @@
 <f:verbatim><br/></f:verbatim>
 <h:graphicImage id="spacer" style="border:0" width="30" height="14" value="/images/delivery/spacer.gif" />
  <f:verbatim><span class="itemAction"></f:verbatim>
-<h:commandLink title="#{questionPoolMessages.t_addSubpool}" rendered="#{questionpool.importToAuthoring != 'true' && authorization.createQuestionPool}"  styleClass="tier#{questionpool.tree.currentLevel}" id="addlink" immediate="true" action="#{questionpool.addPool}">
+ <!-- Add Pool -->
+ <h:commandLink title="#{questionPoolMessages.t_addSubpool}" rendered="#{questionpool.importToAuthoring != 'true' && authorization.createQuestionPool && pool.ownerId==questionpool.agentId}"  styleClass="tier#{questionpool.tree.currentLevel}" id="addlink" immediate="true" action="#{questionpool.addPool}">
   <h:outputText id="add" value="#{questionPoolMessages.add}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
 </h:commandLink>
-<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && authorization.copyOwnQuestionPool}" value=" #{questionPoolMessages.separator} " />
+<!-- Copy Pool -->
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && authorization.copyOwnQuestionPool && pool.ownerId==questionpool.agentId}" value=" #{questionPoolMessages.separator} " />
 <h:commandLink title="#{questionPoolMessages.t_copyPool}" rendered="#{questionpool.importToAuthoring != 'true' && authorization.copyOwnQuestionPool}" id="copylink" immediate="true" action="#{questionpool.startCopyPool}">
   <h:outputText id="copy" value="#{questionPoolMessages.copy}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
 </h:commandLink>
-<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool && pool.ownerId==questionpool.agentId}" value="#{questionPoolMessages.separator} " />
-
+<!-- Move Pool -->
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool && pool.ownerId==questionpool.agentId}" value=" #{questionPoolMessages.separator} " />
 <h:commandLink title="#{questionPoolMessages.t_movePool}" rendered="#{questionpool.importToAuthoring != 'true' && authorization.editOwnQuestionPool && pool.ownerId==questionpool.agentId}" id="movelink" immediate="true" action="#{questionpool.startMovePool}">
   <h:outputText id="move" value="#{questionPoolMessages.move}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>

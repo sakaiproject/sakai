@@ -160,17 +160,18 @@ public class PoolSaveListener implements ActionListener
       questionpool.setOrganizationName(ContextUtil.processFormattedText(log, bean.getOrganizationName()));
       questionpool.setObjectives(ContextUtil.processFormattedText(log, bean.getObjectives()));
       questionpool.setKeywords(ContextUtil.processFormattedText(log, bean.getKeywords()));
-// need to set owner and accesstype
-//owner is hardcoded for now
-      questionpool.setOwnerId(AgentFacade.getAgentString());
+      // need to set owner and accesstype
       questionpool.setAccessTypeId(QuestionPoolFacade.ACCESS_DENIED); // set as default
-      
+
+      QuestionPoolService service = new QuestionPoolService();
       // add pool
       if (beanid.toString().equals("0")) {
-    		  questionpool.setDateCreated(new Date());
+    	  questionpool.setOwnerId(AgentFacade.getAgentString());
+    	  questionpool.setDateCreated(new Date());
       }
       // edit pool
       else {
+    	  questionpool.setOwnerId(service.getPool(beanid, AgentFacade.getAgentString()).getOwnerId());
     	  questionpool.setDateCreated(bean.getDateCreated());
       }
       QuestionPoolService delegate = new QuestionPoolService();

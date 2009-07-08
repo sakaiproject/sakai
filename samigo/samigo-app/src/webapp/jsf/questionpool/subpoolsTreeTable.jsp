@@ -67,17 +67,23 @@
 <f:verbatim><br/></f:verbatim>
 <h:graphicImage id="spacer" style="border:0" height="14" width="30" value="/images/delivery/spacer.gif" />
  <f:verbatim><span class="itemAction"></f:verbatim>
-<h:commandLink title="#{questionPoolMessages.t_addSubpool}" rendered="#{questionpool.importToAuthoring != 'true'}"  id="addlink" immediate="true" action="#{questionpool.addPool}">
+
+<!-- Add SubPools -->
+<h:commandLink title="#{questionPoolMessages.t_addSubpool}" rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId==questionpool.agentId}"  id="addlink" immediate="true" action="#{questionpool.addPool}">	
   <h:outputText id="add" value="#{questionPoolMessages.add}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
 </h:commandLink>
-<h:outputText  rendered="#{questionpool.importToAuthoring != 'true'}" value=" | " />
+
+<h:outputText  rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId==questionpool.agentId}" value=" | " />
+
+<!-- Copy Pool -->
 <h:commandLink title="#{questionPoolMessages.t_copyPool}" rendered="#{questionpool.importToAuthoring != 'true'}" id="copylink" immediate="true" action="#{questionpool.startCopyPool}">
   <h:outputText id="copy" value="#{questionPoolMessages.copy}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
 </h:commandLink>
 <h:outputText  rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId==questionpool.agentId}" value=" | " />
 
+<!-- Move Pool -->
 <h:commandLink title="#{questionPoolMessages.t_movePool}" rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId==questionpool.agentId}"  id="movelink" immediate="true" action="#{questionpool.startMovePool}">
   <h:outputText id="move" value="#{questionPoolMessages.move}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
@@ -90,6 +96,7 @@
 </h:commandLink>
 --%>
 
+<!-- Remove Pool -->
 <h:outputText  rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId==questionpool.agentId}" value=" | " />
 <h:commandLink title="#{questionPoolMessages.t_removePool}" rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId==questionpool.agentId}"  id="removelink" immediate="true" action="#{questionpool.confirmRemovePool}">
   <h:outputText id="remove" value="#{questionPoolMessages.remove}"/>

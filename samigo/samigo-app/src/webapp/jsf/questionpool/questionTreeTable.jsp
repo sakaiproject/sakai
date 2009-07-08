@@ -33,7 +33,7 @@ table.checkall td {padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bott
       <f:selectItem itemValue="1"/>
     </h:selectManyCheckbox>
   </f:facet>
-  <h:selectManyCheckbox immediate="true" id="removeCheckbox" rendered="#{question.createdBy==questionpool.agentId}" onclick="checkUpdate()" onkeypress="checkUpdate()"  value ="#{questionpool.destItems}">
+  <h:selectManyCheckbox immediate="true" id="removeCheckbox" onclick="checkUpdate()" onkeypress="checkUpdate()"  value ="#{questionpool.destItems}">
     <f:selectItem itemValue="#{question.itemIdString}" itemLabel=""/>
   </h:selectManyCheckbox>
 </h:column>
@@ -84,7 +84,7 @@ table.checkall td {padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bott
 </h:commandLink>
 <h:outputText  rendered="#{questionpool.importToAuthoring != 'true'}" value=" #{questionPoolMessages.separator} " />
 
-<h:commandLink title="#{questionPoolMessages.t_moveQuestion}" rendered="#{questionpool.importToAuthoring != 'true' && question.createdBy==questionpool.agentId}" id="movelink" immediate="true" action="#{questionpool.startMoveQuestion}">
+<h:commandLink title="#{questionPoolMessages.t_moveQuestion}" rendered="#{questionpool.importToAuthoring != 'true'}" id="movelink" immediate="true" action="#{questionpool.startMoveQuestion}">
   <h:outputText id="move" value="#{questionPoolMessages.move}"/>
     <f:param name="itemid" value="#{question.itemId}"/>
 </h:commandLink>
@@ -108,7 +108,8 @@ onkeypress=
 </h:outputLink>
  --%>
 
-<h:outputText rendered="#{questionpool.importToAuthoring != 'true' && question.createdBy==questionpool.agentId}"  value=" #{questionPoolMessages.separator} " />
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true'}"  value=" #{questionPoolMessages.separator} " />
+
 <h:commandLink title="#{questionPoolMessages.t_previewQuestion}" rendered="#{questionpool.importToAuthoring != 'true'}" id="previewlink" immediate="true" action="previewQuestion">
   <h:outputText id="preview" value="#{questionPoolMessages.preview}"/>
     <f:param name="itemid" value="#{question.itemId}"/>
