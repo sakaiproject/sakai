@@ -344,29 +344,33 @@ public class BaseSitePage implements SitePage, Identifiable
 	 */
 	public String getTitle()
 	{
-		// if	 more than one tool on this page, just return the default page title
-		if ( getTools().size() != 1 )
-			return m_title;
-			
-		// Get the toolId of the first tool associated with this page & special page toolid property
-		final String toolId = ((BaseToolConfiguration) (getTools().get(0))).getToolId();
-		final String pageToolId = (String)getProperties().get(PAGE_TOOL_ID_PROP);
-		
-		// IFrame and News toolIds are considered 'custom' (page title easily configurable)
-		if ( IFRAME_TOOL_ID.equals(toolId) || NEWS_TOOL_ID.equals(toolId) )
-		{
-			return m_title;
-		}
-			
 		// check for special home page tool id
-		else if ( HOME_TOOL_ID.equals(pageToolId) )
+		if (	getProperties().get(IS_HOME_PAGE) != null )
 		{
-			 String title = ActiveToolManager.getLocalizedToolProperty(pageToolId, "title");
+			 String title = ActiveToolManager.getLocalizedToolProperty(HOME_TOOL_ID, "title");
 			 if ( title != null )
 				 return title;
+			 else
+				 return m_title;
 		}
 			
-		return ActiveToolManager.getTool(toolId).getTitle();
+		// if	 more than one tool on this page, just return the default page title
+		else if ( getTools().size() != 1 )
+		{
+			return m_title;
+		}
+			
+		// Get the toolId of the first tool associated with this page
+		String toolId = ((BaseToolConfiguration) (getTools().get(0))).getToolId();
+		
+		// IFrame and News toolIds are considered 'custom' (page title easily configurable)
+		// tbd: find more generalizeable or configurable implementation
+		if ( IFRAME_TOOL_ID.equals(toolId) || NEWS_TOOL_ID.equals(toolId) )
+			return m_title;
+			
+		// otherwise, return localized title
+		else
+			return ActiveToolManager.getTool(toolId).getTitle();
 	}
 
 	/**
