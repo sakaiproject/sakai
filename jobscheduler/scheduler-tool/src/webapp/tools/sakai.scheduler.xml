@@ -2,8 +2,8 @@
 
 <registration>
 
-	<tool id="sakai.scheduler" title="Job Scheduler Based On Quartz"
-		description="Job Scheduler">
+	<tool id="sakai.scheduler" title="Job Scheduler"
+		description="Job Scheduler Based On Quartz">
 		<category name="sakai.scheduler" />
 	</tool>
 
