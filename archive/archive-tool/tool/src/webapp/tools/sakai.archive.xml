@@ -4,7 +4,7 @@
 
 	<tool
 			id="sakai.archive"
-			title="Admin: Archive Tool"
+			title="Site Archive"
 			description="An administration tool to Archive and Import Sites.">
 
 	</tool>
