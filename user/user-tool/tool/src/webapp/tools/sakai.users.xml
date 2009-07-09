@@ -4,7 +4,7 @@
 
 	<tool
 			id="sakai.users"
-			title="Admin: User Editor"
+			title="Users"
 			description="An administration tool to edit Users.">
 
 		<configuration name="pagesize" value="20" />

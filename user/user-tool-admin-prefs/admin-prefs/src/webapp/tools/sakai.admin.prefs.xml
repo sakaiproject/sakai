@@ -4,7 +4,7 @@
 
 	<tool
 			id="sakai.admin.prefs"
-			title="Administrator's Preferences Tool"
+			title="Administrator Preferences"
 			description="An admin tool to view and modify any user's Preferences.">
 
 	<category name="sakai.admin" />
