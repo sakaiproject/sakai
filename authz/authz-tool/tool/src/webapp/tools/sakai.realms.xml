@@ -4,7 +4,7 @@
 
 	<tool
 			id="sakai.realms"
-			title="Admin: Realms Editor"
+			title="Realms"
 			description="An administration tool to edit Realms.">
 
 		<configuration name="pagesize" value="20" />
