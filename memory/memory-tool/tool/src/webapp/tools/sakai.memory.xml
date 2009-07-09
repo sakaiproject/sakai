@@ -4,7 +4,7 @@
 
 	<tool
 			id="sakai.memory"
-			title="Admin: Memory / Cache Tool"
+			title="Memory"
 			description="An administration tool to view the JVM memory and reset the system caches.">
 
 	</tool>
