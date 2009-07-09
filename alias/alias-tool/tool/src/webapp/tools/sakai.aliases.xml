@@ -4,7 +4,7 @@
 
 	<tool
 			id="sakai.aliases"
-			title="Admin: Alias Editor"
+			title="Aliases"
 			description="An administration tool to edit Aliases.">
 	</tool>
 
