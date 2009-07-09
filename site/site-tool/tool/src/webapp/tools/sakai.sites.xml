@@ -4,7 +4,7 @@
 
 	<tool
 			id="sakai.sites"
-			title="Admin: Sites Editor"
+			title="Sites"
 			description="An administration tool to edit Sites.">
 
 		<configuration name="pagesize" value="20" />
