@@ -8264,9 +8264,9 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			
 			// mark this page as Home page inside its property
-			if (page.getProperties().getProperty(SiteConstants.IS_HOME_PAGE) == null)
+			if (page.getProperties().getProperty(SitePage.IS_HOME_PAGE) == null)
 			{
-				page.getPropertiesEdit().addProperty(SiteConstants.IS_HOME_PAGE, Boolean.TRUE.toString());
+				page.getPropertiesEdit().addProperty(SitePage.IS_HOME_PAGE, Boolean.TRUE.toString());
 			}
 			
 		} // add Home
@@ -11315,7 +11315,7 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	private boolean isHomePage(SitePage page)
 	{
-		if (page.getProperties().getProperty(SiteConstants.IS_HOME_PAGE) != null)
+		if (page.getProperties().getProperty(SitePage.IS_HOME_PAGE) != null)
 		{
 			// check based on the page property first
 			return true;
