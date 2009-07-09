@@ -310,6 +310,7 @@ INSERT INTO SAKAI_SITE_TOOL VALUES('!gateway-710', '!gateway-700', '!gateway', '
 
 INSERT INTO SAKAI_SITE VALUES('!user', 'My Workspace', null, null, 'My Workspace Site', null, null, null, 1, '0', '0', '', 'admin', 'admin', CURRENT TIMESTAMP, CURRENT TIMESTAMP, '1', '0' );
 INSERT INTO SAKAI_SITE_PAGE VALUES('!user-100', '!user', 'Home', '0', 1, '0' );
+INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!user', '!user-100', 'is_home_page', 'true' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!user-110', '!user-100', '!user', 'sakai.motd', 1, 'Message of the Day', NULL );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!user-120', '!user-100', '!user', 'sakai.iframe.myworkspace', 2, 'My Workspace Information', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('!user-150', '!user', 'Profile', '0', 2, '0' );
@@ -340,6 +341,7 @@ UPDATE SAKAI_SITE SET MODIFIEDBY='admin' WHERE SITE_ID = '!worksite';
 UPDATE SAKAI_SITE SET MODIFIEDON='2003-06-24 12:10:53.597000' WHERE SITE_ID = '!worksite';        
 UPDATE SAKAI_SITE SET CREATEDON='2003-06-24 04:15:08.851000' WHERE SITE_ID = '!worksite';
 INSERT INTO SAKAI_SITE_PAGE VALUES('!worksite-100', '!worksite', 'Home', '1', 1, '0' );
+INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!worksite', '!worksite-100', 'is_home_page', 'true' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-110', '!worksite-100', '!worksite', 'sakai.iframe.site', 1, 'My Workspace Information', NULL );
 INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!worksite', '!worksite-110', 'height', '100px' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-120', '!worksite-100', '!worksite', 'sakai.synoptic.announcement', 2, 'Recent Announcements', NULL );
@@ -374,6 +376,7 @@ INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-910', '!worksite-900', '!worksite'
 
 INSERT INTO SAKAI_SITE VALUES('mercury', 'mercury site', null, null, null, '', '', null, 1, '1', '1', 'access', 'admin', 'admin', CURRENT TIMESTAMP, CURRENT TIMESTAMP, '0', '0' );
 INSERT INTO SAKAI_SITE_PAGE VALUES('mercury-100', 'mercury', 'Home', '1', 1, '0' );
+INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('mercury', 'mercury-100', 'is_home_page', 'true' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-110', 'mercury-100', 'mercury', 'sakai.iframe.site', 1, 'My Workspace Information', NULL );
 INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-120', 'mercury-100', 'mercury', 'sakai.synoptic.announcement', 2, 'Recent Announcements', NULL );
 INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-130', 'mercury-100', 'mercury', 'sakai.synoptic.discussion', 3, 'Recent Discussion Items', NULL );
