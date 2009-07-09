@@ -2,7 +2,7 @@
 
 <registration>
   <tool id="sakai.su"
-        title="Admin: Become User"
+        title="Become User"
         description="Tool for logging in as another user."
         accessSecurity="tool">
      <category name="sakai.admin" />
