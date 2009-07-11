@@ -2,6 +2,8 @@ package org.sakaiproject.profile2.tool.models;
 
 import java.io.Serializable;
 
+import org.apache.wicket.Component;
+
 /**
  * Simple model to back the action behind adding/removing/confirming/ignoring friend requests
  * Given to the modal windows, they then set the attributes and the calling page knows what to do based on these attributes.
@@ -20,6 +22,7 @@ public class FriendAction implements Serializable {
 	private boolean confirmed;
 	private boolean removed;
 	private boolean ignored;
+	private Component updateThisComponentOnSuccess;
 	
 	public boolean isRequested() {
 		return requested;
@@ -47,6 +50,14 @@ public class FriendAction implements Serializable {
 		return ignored;
 	}
 	
+	
+	public Component getUpdateThisComponentOnSuccess() {
+		return updateThisComponentOnSuccess;
+	}
+	public void setUpdateThisComponentOnSuccess(
+			Component updateThisComponentOnSuccess) {
+		this.updateThisComponentOnSuccess = updateThisComponentOnSuccess;
+	}
 	/**
 	 * Default constructor
 	 */

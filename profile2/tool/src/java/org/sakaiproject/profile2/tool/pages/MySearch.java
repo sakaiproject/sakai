@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
@@ -155,11 +156,14 @@ public class MySearch extends BasePage {
 		resultsContainer.setOutputMarkupPlaceholderTag(true);
 		resultsContainer.setVisible(false); //hide initially
 		
+		//connection window
+		final ModalWindow connectionWindow = new ModalWindow("connectionWindow");
+		
 		//search results
 		ListView resultsListView = new ListView("results-list", resultsModel) {
 			private static final long serialVersionUID = 1L;
 
-			protected void populateItem(ListItem item) {
+			protected void populateItem(final ListItem item) {
 		        
 		    	//get SearchResult object
 		    	//this contains info like if they are a friend and if their profile is visible etc
@@ -215,26 +219,43 @@ public class MySearch extends BasePage {
 				boolean friendRequestFromThisPerson = searchResult.isFriendRequestFromThisPerson();
 				boolean isFriendsListVisible = searchResult.isFriendsListVisible();
 		    	
-		    	//ADD FRIEND MODAL WINDOW
-				final ModalWindow connectionWindow = new ModalWindow("result-connectionWindow");
-		    	connectionWindow.setContent(new AddFriend(connectionWindow.getContentId(), connectionWindow, friendActionModel, currentUserUuid, userUuid)); 
 
-		    	//ADD FRIEND LINK
-		    	WebMarkupContainer c1 = new WebMarkupContainer("result-connectionContainer");
+		    	//ADD CONNECTION LINK
+		    	WebMarkupContainer c1 = new WebMarkupContainer("connectionContainer");
 		    	c1.setOutputMarkupId(true);
 		    	
-		    	final AjaxLink connectionLink = new AjaxLink("result-connectionLink") {
+		    	final Label connectionLabel = new Label("connectionLabel");
+				connectionLabel.setOutputMarkupId(true);
+				
+		    	final AjaxLink connectionLink = new AjaxLink("connectionLink") {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
 						
+						//get this item, reinit some values and set content for modal
+				    	SearchResult this_searchResult = (SearchResult)getParent().getParent().getModelObject();
+				    	final String userUuid = this_searchResult.getUserUuid();
+				    	connectionWindow.setContent(new AddFriend(connectionWindow.getContentId(), connectionWindow, friendActionModel, currentUserUuid, userUuid)); 
+						
 						//target.appendJavascript("Wicket.Window.get().window.style.width='800px';");
+						
+						//in preparation for the window being closed, update the text. this will only
+						//be put into effect if its a successful model update from the window close
+				    	connectionLabel.setModel(new ResourceModel("text.friend.requested"));
+						this.add(new AttributeModifier("class", true, new Model("instruction")));
+						this.setEnabled(false);
+						friendActionModel.setUpdateThisComponentOnSuccess(this);
+						
+				    	
+				    	
+						//ListView returns an iterator of ListItems
+						//Each ListItem is a component so you can just do listItem.get("component_id");
+						
 						connectionWindow.show(target);
 						target.appendJavascript("fixWindowVertical();"); 
-
+		            	
 					}
 				};
-				final Label connectionLabel = new Label("result-connectionLabel");
-				connectionLabel.setOutputMarkupId(true);
+				
 				connectionLink.add(connectionLabel);
 				
 				//setup 'add friend' link
@@ -263,10 +284,10 @@ public class MySearch extends BasePage {
 				
 				
 				//VIEW FRIENDS LINK
-				WebMarkupContainer c2 = new WebMarkupContainer("result-friendsContainer");
+				WebMarkupContainer c2 = new WebMarkupContainer("viewFriendsContainer");
 		    	c2.setOutputMarkupId(true);
 		    	
-		    	final AjaxLink viewFriendsLink = new AjaxLink("result-viewFriendsLink") {
+		    	final AjaxLink viewFriendsLink = new AjaxLink("viewFriendsLink") {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
 						//if user found themself, go to MyFriends, else, ViewFriends
@@ -277,7 +298,7 @@ public class MySearch extends BasePage {
 						}
 					}
 				};
-				final Label viewFriendsLabel = new Label("result-viewFriendsLabel", new ResourceModel("link.view.friends"));
+				final Label viewFriendsLabel = new Label("viewFriendsLabel", new ResourceModel("link.view.friends"));
 				viewFriendsLink.add(viewFriendsLabel);
 				
 				//hide if not allowed
@@ -289,32 +310,29 @@ public class MySearch extends BasePage {
 				c2.add(viewFriendsLink);
 				item.add(c2);
 				
-				
-				// ADD FRIEND MODAL WINDOW HANDLER 
-				connectionWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-					private static final long serialVersionUID = 1L;
-
-					public void onClose(AjaxRequestTarget target){
-						
-		            	if(friendActionModel.isRequested()) { 
-		            		connectionLabel.setModel(new ResourceModel("text.friend.requested"));
-							connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
-							connectionLink.setEnabled(false);
-		            		
-							//TODO: recalculate if we can see this person's friend list and show the link if so
-		            		
-		            		//repaint
-		            		target.addComponent(connectionLink);
-		            	}
-		            }
-		        });
-				item.add(connectionWindow);
-				
-				
 		    }
 		};
 		resultsContainer.add(resultsListView);
 		
+		// connection modal window handler 
+		connectionWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+			private static final long serialVersionUID = 1L;
+
+			public void onClose(AjaxRequestTarget target){
+				
+            	if(friendActionModel.isRequested()) { 
+            		//connectionLabel.setModel(new ResourceModel("text.friend.requested"));
+					//connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
+					//connectionLink.setEnabled(false);
+            		
+					//TODO: recalculate if we can see this person's friend list and show the link if so
+            		
+            		//repaint the appropriate component
+            		target.addComponent(friendActionModel.getUpdateThisComponentOnSuccess());
+            	}
+            }
+        });
+		add(connectionWindow);
 		
 		
 		//add results container
