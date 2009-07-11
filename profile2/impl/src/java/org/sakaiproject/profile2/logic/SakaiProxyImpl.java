@@ -749,6 +749,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return userUuid;
 	}
 	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public boolean isPrivacyChangeAllowedGlobally() {
+		return serverConfigurationService.getBoolean("profile2.privacy.change.enabled", true);
+	}
+	
 	
 	// PRIVATE METHODS FOR SAKAIPROXY
 	

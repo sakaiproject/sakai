@@ -326,4 +326,16 @@ public interface SakaiProxy {
 	 * @return uuid or null
 	 */
 	public String getUuidForUserId(String userId);
+	
+	/**
+	 * Is the profile2.privacy.change.enabled flag set in sakai.properties?
+	 * If not set, defaults to true
+	 * <p>
+	 * 
+	 * Allows an instiution to lock down privacy changes as some things need to be never changed.
+	 * Generally should coupled with the sakai.properties that set the default privacy settings
+	 * 
+	 * @return
+	 */
+	public boolean isPrivacyChangeAllowedGlobally();
 }
