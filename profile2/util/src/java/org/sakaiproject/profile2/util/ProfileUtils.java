@@ -13,11 +13,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.swing.ImageIcon;
 
 import org.apache.log4j.Logger;
-import org.jasypt.util.text.BasicTextEncryptor;
 import org.sakaiproject.util.ResourceLoader;
 
 import com.sun.image.codec.jpeg.JPEGCodec;
@@ -312,6 +312,17 @@ public class ProfileUtils {
 	 */
 	public static String createEventRef(String ref) {
 		return "/profile/"+ref;
+	}
+	
+	/**
+	 * Method for getting a value from a map based on the given key, but if it does not exist, use the given default
+	 * @param map
+	 * @param key
+	 * @param defaultValue
+	 * @return
+	 */
+	public static Object getValueFromMapOrDefault(Map<?,?> map, Object key, Object defaultValue) {
+		return (map.containsKey(key) ? map.get(key) : defaultValue);
 	}
 	
 	

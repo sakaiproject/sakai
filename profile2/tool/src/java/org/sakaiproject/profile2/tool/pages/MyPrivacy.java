@@ -61,6 +61,11 @@ public class MyPrivacy extends BasePage {
 		Label heading = new Label("heading", new ResourceModel("heading.privacy"));
 		add(heading);
 		
+		Label infoLocked = new Label("infoLocked");
+		infoLocked.setOutputMarkupPlaceholderTag(true);
+		infoLocked.setVisible(false);
+		add(infoLocked);
+		
 		//feedback for form submit action
 		final Label formFeedback = new Label("formFeedback");
 		formFeedback.setOutputMarkupPlaceholderTag(true);
@@ -113,6 +118,7 @@ public class MyPrivacy extends BasePage {
 		WebMarkupContainer profileImageContainer = new WebMarkupContainer("profileImageContainer");
 		profileImageContainer.add(new Label("profileImageLabel", new ResourceModel("privacy.profileimage")));
 		DropDownChoice profileImageChoice = new DropDownChoice("profileImage", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));             
+		profileImageChoice.setOutputMarkupId(true);
 		profileImageContainer.add(profileImageChoice);
 		//tooltip
 		profileImageContainer.add(new IconWithClueTip("profileImageToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.profileimage.tooltip")));
@@ -130,6 +136,7 @@ public class MyPrivacy extends BasePage {
 		WebMarkupContainer basicInfoContainer = new WebMarkupContainer("basicInfoContainer");
 		basicInfoContainer.add(new Label("basicInfoLabel", new ResourceModel("privacy.basicinfo")));
 		DropDownChoice basicInfoChoice = new DropDownChoice("basicInfo", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
+		basicInfoChoice.setOutputMarkupId(true);
 		basicInfoContainer.add(basicInfoChoice);
 		//tooltip
 		basicInfoContainer.add(new IconWithClueTip("basicInfoToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.basicinfo.tooltip")));
@@ -145,6 +152,7 @@ public class MyPrivacy extends BasePage {
 		WebMarkupContainer contactInfoContainer = new WebMarkupContainer("contactInfoContainer");
 		contactInfoContainer.add(new Label("contactInfoLabel", new ResourceModel("privacy.contactinfo")));
 		DropDownChoice contactInfoChoice = new DropDownChoice("contactInfo", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
+		contactInfoChoice.setOutputMarkupId(true);
 		contactInfoContainer.add(contactInfoChoice);
 		//tooltip
 		contactInfoContainer.add(new IconWithClueTip("contactInfoToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.contactinfo.tooltip")));
@@ -160,6 +168,7 @@ public class MyPrivacy extends BasePage {
 		WebMarkupContainer academicInfoContainer = new WebMarkupContainer("academicInfoContainer");
 		academicInfoContainer.add(new Label("academicInfoLabel", new ResourceModel("privacy.academicinfo")));
 		DropDownChoice academicInfoChoice = new DropDownChoice("academicInfo", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
+		academicInfoChoice.setOutputMarkupId(true);
 		academicInfoContainer.add(academicInfoChoice);
 		//tooltip
 		academicInfoContainer.add(new IconWithClueTip("academicInfoToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.academicinfo.tooltip")));
@@ -175,6 +184,7 @@ public class MyPrivacy extends BasePage {
 		WebMarkupContainer personalInfoContainer = new WebMarkupContainer("personalInfoContainer");
 		personalInfoContainer.add(new Label("personalInfoLabel", new ResourceModel("privacy.personalinfo")));
 		DropDownChoice personalInfoChoice = new DropDownChoice("personalInfo", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
+		personalInfoChoice.setOutputMarkupId(true);
 		personalInfoContainer.add(personalInfoChoice);
 		//tooltip
 		personalInfoContainer.add(new IconWithClueTip("personalInfoToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.personalinfo.tooltip")));
@@ -190,6 +200,7 @@ public class MyPrivacy extends BasePage {
 		WebMarkupContainer birthYearContainer = new WebMarkupContainer("birthYearContainer");
 		birthYearContainer.add(new Label("birthYearLabel", new ResourceModel("privacy.birthyear")));
 		CheckBox birthYearCheckbox = new CheckBox("birthYear", new PropertyModel(privacyModel, "showBirthYear"));
+		birthYearCheckbox.setOutputMarkupId(true);
 		birthYearContainer.add(birthYearCheckbox);
 		//tooltip
 		birthYearContainer.add(new IconWithClueTip("birthYearToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.birthyear.tooltip")));
@@ -205,6 +216,7 @@ public class MyPrivacy extends BasePage {
 		WebMarkupContainer searchContainer = new WebMarkupContainer("searchContainer");
 		searchContainer.add(new Label("searchLabel", new ResourceModel("privacy.search")));
 		DropDownChoice searchChoice = new DropDownChoice("search", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));
+		searchChoice.setOutputMarkupId(true);
 		searchContainer.add(searchChoice);
 		//tooltip
 		searchContainer.add(new IconWithClueTip("searchToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.search.tooltip")));
@@ -221,6 +233,7 @@ public class MyPrivacy extends BasePage {
 		WebMarkupContainer myFriendsContainer = new WebMarkupContainer("myFriendsContainer");
 		myFriendsContainer.add(new Label("myFriendsLabel", new ResourceModel("privacy.myfriends")));
 		DropDownChoice myFriendsChoice = new DropDownChoice("myFriends", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
+		myFriendsChoice.setOutputMarkupId(true);
 		myFriendsContainer.add(myFriendsChoice);
 		//tooltip
 		myFriendsContainer.add(new IconWithClueTip("myFriendsToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.myfriends.tooltip")));
@@ -236,6 +249,7 @@ public class MyPrivacy extends BasePage {
 		WebMarkupContainer myStatusContainer = new WebMarkupContainer("myStatusContainer");
 		myStatusContainer.add(new Label("myStatusLabel", new ResourceModel("privacy.mystatus")));
 		DropDownChoice myStatusChoice = new DropDownChoice("myStatus", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));
+		myStatusChoice.setOutputMarkupId(true);
 		myStatusContainer.add(myStatusChoice);
 		//tooltip
 		myStatusContainer.add(new IconWithClueTip("myStatusToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.mystatus.tooltip")));
@@ -268,6 +282,7 @@ public class MyPrivacy extends BasePage {
             }
 		};
 		submitButton.setModel(new ResourceModel("button.save.settings"));
+		submitButton.setOutputMarkupId(true);
 		form.add(submitButton);
 		
 		//cancel button
@@ -280,6 +295,26 @@ public class MyPrivacy extends BasePage {
         cancelButton.setDefaultFormProcessing(false);
         form.add(cancelButton);
 		*/
+		
+		if(!sakaiProxy.isPrivacyChangeAllowedGlobally()){
+			infoLocked.setModel(new ResourceModel("text.privacy.cannot.modify"));
+			infoLocked.setVisible(true);
+
+			profileImageChoice.setEnabled(false);
+			basicInfoChoice.setEnabled(false);
+			contactInfoChoice.setEnabled(false);
+			academicInfoChoice.setEnabled(false);
+			personalInfoChoice.setEnabled(false);
+			birthYearCheckbox.setEnabled(false);
+			searchChoice.setEnabled(false);
+			myFriendsChoice.setEnabled(false);
+			myStatusChoice.setEnabled(false);
+			
+			submitButton.setEnabled(false);
+			submitButton.setVisible(false);
+			
+			form.setEnabled(false);
+		}
         
         add(form);
 	}

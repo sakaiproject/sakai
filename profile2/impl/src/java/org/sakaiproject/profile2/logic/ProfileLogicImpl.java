@@ -9,15 +9,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.management.Query;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.hibernate.Hibernate;
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.Session;
+import org.apache.wicket.Session;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.model.ProfileFriend;
 import org.sakaiproject.profile2.model.ProfileImage;
@@ -29,11 +29,6 @@ import org.sakaiproject.profile2.model.ResourceWrapper;
 import org.sakaiproject.profile2.model.SearchResult;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
-import org.sakaiproject.tinyurl.api.TinyUrlService;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-
-import twitter4j.Twitter;
 
 /**
  * This is the Profile2 API Implementation to be used by the Profile2 tool only. 
@@ -421,9 +416,15 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
  	 */
 	public ProfilePrivacy getDefaultPrivacyRecord(String userId) {
 		
+		//get the overriden privacy settings, if supplied
+		HashMap<String, Integer> props = sakaiProxy.getOverriddenPrivacySettings();	
+		
 		ProfilePrivacy profilePrivacy = new ProfilePrivacy(
 				userId,
-				ProfileConstants.DEFAULT_PRIVACY_OPTION_PROFILEIMAGE,
+				//ProfileConstants.DEFAULT_PRIVACY_OPTION_PROFILEIMAGE,
+				
+				ProfileUtils.getValueFromMapOrDefault(props, "profileImage", ProfileConstants.DEFAULT_PRIVACY_OPTION_PROFILEIMAGE),
+				
 				ProfileConstants.DEFAULT_PRIVACY_OPTION_BASICINFO,
 				ProfileConstants.DEFAULT_PRIVACY_OPTION_CONTACTINFO,
 				ProfileConstants.DEFAULT_PRIVACY_OPTION_ACADEMICINFO,

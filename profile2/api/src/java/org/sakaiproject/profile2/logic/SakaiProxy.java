@@ -1,9 +1,11 @@
 package org.sakaiproject.profile2.logic;
 
+import java.util.HashMap;
 import java.util.List;
 
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.model.ResourceWrapper;
+import org.sakaiproject.profile2.service.ProfileService;
 /**
  * This is a helper API used by the Profile2 tool and entities only.
  * 
@@ -332,10 +334,18 @@ public interface SakaiProxy {
 	 * If not set, defaults to true
 	 * <p>
 	 * 
-	 * Allows an instiution to lock down privacy changes as some things need to be never changed.
-	 * Generally should coupled with the sakai.properties that set the default privacy settings
+	 * Allows an institution to lock down privacy changes as some things need to be never changed.
+	 * Generally should coupled with the sakai.properties that override the default privacy settings
 	 * 
 	 * @return
 	 */
 	public boolean isPrivacyChangeAllowedGlobally();
+	
+	
+	/**
+	 * Gets the set of sakai.properties that can override the built in defaults. This is then called
+	 * when a default privacy record is requested and the values used preferentially.
+	 * @return
+	 */
+	public HashMap<String, Integer> getOverriddenPrivacySettings();
 }

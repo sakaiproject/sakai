@@ -2,7 +2,7 @@ package org.sakaiproject.profile2.model;
 
 import java.io.Serializable;
 
-import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
 
 /**
@@ -140,6 +140,9 @@ public class ProfilePrivacy implements Serializable {
 		return myStatus;
 	}
 
-
+	@Override
+	public String toString() {
+		return ReflectionToStringBuilder.toString(this);
+	}
 	
 }

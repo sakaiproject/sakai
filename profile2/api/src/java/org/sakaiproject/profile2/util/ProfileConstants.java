@@ -91,8 +91,6 @@ public class ProfileConstants {
 	public static final int PRIVACY_OPTION_EVERYONE = 0; 
 	public static final int PRIVACY_OPTION_ONLYFRIENDS = 1; 
 	public static final int PRIVACY_OPTION_ONLYME = 2; 
-
-	//TODO allow these to be overriden in sakai.properties?
 	
 	//these values are used when creating a default privacy record for a user
 	public static final int DEFAULT_PRIVACY_OPTION_PROFILEIMAGE = PRIVACY_OPTION_EVERYONE; 
