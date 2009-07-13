@@ -100,6 +100,8 @@
 
     <h:outputLabel value="#{deliveryMessages.feedback}" />
     <h:panelGroup>
+      <h:outputText value="#{deliveryMessages.feedback_on_submission}"
+         rendered="#{delivery.feedbackComponent.showOnSubmission}"/>
       <h:outputText value="#{deliveryMessages.immed}"
          rendered="#{delivery.feedbackComponent.showImmediate}"/>
       <h:outputText value="#{delivery.settings.feedbackDate}"
