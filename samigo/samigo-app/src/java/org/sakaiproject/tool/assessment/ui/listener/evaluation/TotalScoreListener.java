@@ -39,11 +39,14 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
+import javax.faces.model.SelectItem;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
@@ -134,6 +137,18 @@ public class TotalScoreListener
     		questionbean.setAllSubmissions(TotalScoresBean.LAST_SUBMISSION);
     		histobean.setAllSubmissions(TotalScoresBean.LAST_SUBMISSION);
     	}
+    	
+    	// reset the selectedSectionFilterValue when coming from authorIndex
+    	boolean isReleasedToGroups = false;
+		if (pubAssessment != null && pubAssessment.getAssessmentAccessControl() != null) {
+			isReleasedToGroups = AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS.equals(pubAssessment.getAssessmentAccessControl().getReleaseTo());
+		}
+    	if (isReleasedToGroups) {
+    		bean.setSelectedSectionFilterValue(TotalScoresBean.RELEASED_SECTIONS_GROUPS_SELECT_VALUE);
+    	}
+    	else {
+    		bean.setSelectedSectionFilterValue(TotalScoresBean.ALL_SECTIONS_SELECT_VALUE);
+    	}
     }
     
     // Set grader info (for email feature)
@@ -204,7 +219,8 @@ public class TotalScoreListener
     TotalScoresBean bean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
     QuestionScoresBean questionbean = (QuestionScoresBean) ContextUtil.lookupBean("questionScores");
     HistogramScoresBean histobean = (HistogramScoresBean) ContextUtil.lookupBean("histogramScores");
-
+    SubmissionStatusBean submissionbean = (SubmissionStatusBean) ContextUtil.lookupBean("submissionStatus");
+    
     // we probably want to change the poster to be consistent
     String publishedId = ContextUtil.lookupParam("publishedId");
     PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();
@@ -218,6 +234,7 @@ public class TotalScoreListener
         log.debug("changed section picker");
         bean.setSelectedSectionFilterValue(selectedvalue);   // changed section pulldown
         questionbean.setSelectedSectionFilterValue(selectedvalue);
+        submissionbean.setSelectedSectionFilterValue(selectedvalue);
       }
       else 
       {
@@ -279,8 +296,10 @@ public class TotalScoreListener
 
       // this line below also call bean.setPublishedId() so that the previous if.. will return true for 
       // any subsequent click on 'totalscores' link.
-      bean.setPublishedAssessment(p);
-
+      if (!isValueChange) {
+    	  bean.setPublishedAssessment(p);
+      }
+      
       PublishedAccessControl ac = (PublishedAccessControl) p.getAssessmentAccessControl();
       if (ac.getTimeLimit().equals(Integer.valueOf(0))) {
     	  bean.setIsTimedAssessment(false);
@@ -302,6 +321,7 @@ public class TotalScoreListener
       ArrayList scores = new ArrayList();  
       ArrayList students_not_submitted= new ArrayList();  
       
+      /*
       // if for anonymous, reset totalscorebean.getselectedsectionfiltervalue = ALL_SECTIONS_SELECT_VALUE 
     if ("true".equalsIgnoreCase(bean.getAnonymous())){
       //reset sectionaware pulldown to -1 all sections
@@ -319,7 +339,7 @@ public class TotalScoreListener
 	  	}
       
     }
-
+       */
       Map useridMap= bean.getUserIdMap(TotalScoresBean.CALLED_FROM_TOTAL_SCORE_LISTENER);
       ArrayList agents = new ArrayList();
       prepareAgentResultList(bean, p, scores, students_not_submitted, useridMap);

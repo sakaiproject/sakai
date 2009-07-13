@@ -53,6 +53,7 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.PartData;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.SubmissionStatusBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
@@ -125,12 +126,11 @@ public class QuestionScoreListener implements ActionListener,
 	 */
 	public void processValueChange(ValueChangeEvent event) {
 		log.debug("QuestionScore CHANGE LISTENER.");
-		QuestionScoresBean bean = (QuestionScoresBean) ContextUtil
-				.lookupBean("questionScores");
-		TotalScoresBean totalBean = (TotalScoresBean) ContextUtil
-				.lookupBean("totalScores");
-		HistogramScoresBean histogramBean = (HistogramScoresBean) ContextUtil
-				.lookupBean("histogramScores");
+		QuestionScoresBean bean = (QuestionScoresBean) ContextUtil.lookupBean("questionScores");
+		TotalScoresBean totalBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
+		HistogramScoresBean histogramBean = (HistogramScoresBean) ContextUtil.lookupBean("histogramScores");
+		SubmissionStatusBean submissionbean = (SubmissionStatusBean) ContextUtil.lookupBean("submissionStatus");
+	    
 
 		// we probably want to change the poster to be consistent
 		String publishedId = ContextUtil.lookupParam("publishedId");
@@ -140,9 +140,8 @@ public class QuestionScoreListener implements ActionListener,
 		if ((selectedvalue != null) && (!selectedvalue.equals(""))) {
 			if (event.getComponent().getId().indexOf("sectionpicker") > -1) {
 				bean.setSelectedSectionFilterValue(selectedvalue); // changed
-				// section
-				// pulldown
 				totalBean.setSelectedSectionFilterValue(selectedvalue);
+				submissionbean.setSelectedSectionFilterValue(selectedvalue);
 			} else if (event.getComponent().getId().indexOf("allSubmissions") > -1) {
 				bean.setAllSubmissions(selectedvalue); // changed submission
 				// pulldown

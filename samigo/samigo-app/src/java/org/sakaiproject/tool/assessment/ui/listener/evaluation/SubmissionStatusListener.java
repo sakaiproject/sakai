@@ -50,6 +50,7 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.RetakeAssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.SubmissionStatusBean;
@@ -106,7 +107,8 @@ public class SubmissionStatusListener
     log.debug("QuestionScore CHANGE LISTENER.");
     SubmissionStatusBean bean = (SubmissionStatusBean) ContextUtil.lookupBean("submissionStatus");
     TotalScoresBean totalScoresBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
-
+    QuestionScoresBean questionbean = (QuestionScoresBean) ContextUtil.lookupBean("questionScores");
+    
     // we probably want to change the poster to be consistent
     String publishedId = ContextUtil.lookupParam("publishedId");
 
@@ -115,6 +117,8 @@ public class SubmissionStatusListener
       if (event.getComponent().getId().indexOf("sectionpicker") >-1 )
       {
         bean.setSelectedSectionFilterValue(selectedvalue);   // changed section pulldown
+        totalScoresBean.setSelectedSectionFilterValue(selectedvalue);
+        questionbean.setSelectedSectionFilterValue(selectedvalue);
       }
     }
 

@@ -270,6 +270,7 @@ public class TotalScoresBean
   {
     publishedId = ppublishedId;
 
+    /*
     //added by gopalrc - Jan 2007
 	if (isReleasedToGroups()) {
 		setSelectedSectionFilterValue(TotalScoresBean.RELEASED_SECTIONS_GROUPS_SELECT_VALUE);
@@ -277,6 +278,7 @@ public class TotalScoresBean
 	else {
 		setSelectedSectionFilterValue(TotalScoresBean.ALL_SECTIONS_SELECT_VALUE);
 	}
+	*/
   }
 
   /**
@@ -738,39 +740,40 @@ public class TotalScoresBean
   }
 
   public List getSectionFilterSelectItems() {
-    availableSections = getAllAvailableSections();
-    List filterSelectItems = new ArrayList();
+	  availableSections = getAllAvailableSections();
+	    List filterSelectItems = new ArrayList();
 
-    // added by gopalrc - Jan 2008
-	if (isReleasedToGroups()) {
-		filterSelectItems.add(new SelectItem(TotalScoresBean.RELEASED_SECTIONS_GROUPS_SELECT_VALUE, ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "released_sections_groups")));
-	}
+	    // added by gopalrc - Jan 2008
+		if (isReleasedToGroups()) {
+			filterSelectItems.add(new SelectItem(TotalScoresBean.RELEASED_SECTIONS_GROUPS_SELECT_VALUE, ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "released_sections_groups")));
+		}
 
-    
-    // The first choice is always "All available enrollments"
-    filterSelectItems.add(new SelectItem(TotalScoresBean.ALL_SECTIONS_SELECT_VALUE, ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "all_sections")));
-    // TODO If there are unassigned students and the current user is allowed to see them, add them next.
+	    
+	    // The first choice is always "All available enrollments"
+	    filterSelectItems.add(new SelectItem(TotalScoresBean.ALL_SECTIONS_SELECT_VALUE, ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "all_sections")));
+	    // TODO If there are unassigned students and the current user is allowed to see them, add them next.
 
-    // Add the available sections.
-    for (int i = 0; i < availableSections.size(); i++) {
-        CourseSection section = (CourseSection)availableSections.get(i);
-        filterSelectItems.add(new SelectItem(String.valueOf(i), section.getTitle()));
-        //filterSelectItems.add(new SelectItem(section.getUuid(), section.getTitle()));
-    }
+	    // Add the available sections.
+	    for (int i = 0; i < availableSections.size(); i++) {
+	        CourseSection section = (CourseSection)availableSections.get(i);
+	        filterSelectItems.add(new SelectItem(String.valueOf(i), section.getTitle()));
+	        //filterSelectItems.add(new SelectItem(section.getUuid(), section.getTitle()));
+	    }
 
-    // If the selected value now falls out of legal range due to sections
-    // being deleted, throw it back to the default value (meaning everyone).
-    int selectedSectionVal = new Integer(selectedSectionFilterValue).intValue();
-    if ((selectedSectionVal >= 0) && (selectedSectionVal >= availableSections.size())) {
-    	// condition added by gopalrc - Jan 2008
-    	if (isReleasedToGroups()) {
-    		setSelectedSectionFilterValue(TotalScoresBean.RELEASED_SECTIONS_GROUPS_SELECT_VALUE);
-    	}
-    	else {
-    		setSelectedSectionFilterValue(TotalScoresBean.ALL_SECTIONS_SELECT_VALUE);
-    	}
-    }
-    return filterSelectItems;
+	    // If the selected value now falls out of legal range due to sections
+	    // being deleted, throw it back to the default value (meaning everyone).
+	    int selectedSectionVal = new Integer(selectedSectionFilterValue).intValue();
+	    if ((selectedSectionVal >= 0) && (selectedSectionVal >= availableSections.size())) {
+	    	// condition added by gopalrc - Jan 2008
+	    	if (isReleasedToGroups()) {
+	    		setSelectedSectionFilterValue(TotalScoresBean.RELEASED_SECTIONS_GROUPS_SELECT_VALUE);
+	    	}
+	    	else {
+	    		setSelectedSectionFilterValue(TotalScoresBean.ALL_SECTIONS_SELECT_VALUE);
+	    	}
+	    }
+	    return filterSelectItems;
+
   }
 
   private List getAllAvailableSections() {
