@@ -417,6 +417,11 @@ public class GradingService
     return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
         getMediaArray(new Long(itemGradingId));
   }
+  
+  public ArrayList getMediaArray2(String itemGradingId){
+	    return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+	        getMediaArray2(new Long(itemGradingId));
+  }
 
   public ArrayList getMediaArray(ItemGradingData i){
     return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().

@@ -111,6 +111,14 @@ private Long mediaId;
     setFileSize( Long.valueOf(media.length));
   }
 
+  public MediaData(Long mediaId, String filename, Long fileSize, String duration, Date createdDate){
+      this.mediaId = mediaId;
+      this.filename = filename;
+      this.fileSize = fileSize;
+      this.duration = duration;
+      this.createdDate = createdDate;
+  }
+  
   public Long getMediaId()
   {
     return mediaId;

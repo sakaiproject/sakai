@@ -682,12 +682,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   public MediaData getMedia(Long mediaId){
 
     MediaData mediaData = (MediaData) getHibernateTemplate().load(MediaData.class, mediaId);
-    if (mediaData != null){
-      String mediaLocation = mediaData.getLocation();
-      if (mediaLocation == null || (mediaLocation.trim()).equals("")){
-        mediaData.setMedia(getMediaStream(mediaId));
-      }
-    }
     return mediaData;
   }
 
@@ -709,6 +703,26 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
     log.debug("*** no. of media ="+a.size());
     return a;
+  }
+  
+  public ArrayList getMediaArray2(final Long itemGradingId){
+	    log.debug("*** itemGradingId ="+itemGradingId);
+	    ArrayList a = new ArrayList();
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery("select new MediaData(m.mediaId, m.filename, m.fileSize, m.duration, m.createdDate) "+
+	    		         " from MediaData m where m.itemGradingData.itemGradingId=?");
+	    		q.setLong(0, itemGradingId.longValue());
+	    		return q.list();
+	    	};
+	    };
+	    List list = getHibernateTemplate().executeFind(hcb);
+
+	    for (int i=0;i<list.size();i++){
+	      a.add((MediaData)list.get(i));
+	    }
+	    log.debug("*** no. of media ="+a.size());
+	    return a;
   }
 
   public ArrayList getMediaArray(ItemGradingData item){

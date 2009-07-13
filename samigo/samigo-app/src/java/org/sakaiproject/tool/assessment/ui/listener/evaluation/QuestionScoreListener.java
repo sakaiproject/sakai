@@ -594,13 +594,13 @@ public class QuestionScoreListener implements ActionListener,
 
 					// file upload
 					if (bean.getTypeId().equals("6")) {
-						gdata.setMediaArray(delegate.getMediaArray(gdata
+						gdata.setMediaArray(delegate.getMediaArray2(gdata
 								.getItemGradingId().toString()));
 					}
 
 					// audio recording
 					if (bean.getTypeId().equals("7")) {
-						ArrayList mediaList = delegate.getMediaArray(gdata
+						ArrayList mediaList = delegate.getMediaArray2(gdata
 								.getItemGradingId().toString());
 						setDurationIsOver(item, mediaList);
 						gdata.setMediaArray(mediaList);
