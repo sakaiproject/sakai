@@ -117,7 +117,7 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 		 * SAVE IMAGE RESOURCE IDS
 		 */
 		//save
-		if(!profileLogic.addNewProfileImage(userId, mainResourceId, thumbnailResourceId)) {
+		if(profileLogic.addNewProfileImage(userId, mainResourceId, thumbnailResourceId)) {
 			return true;
 		}
 		return false;		
