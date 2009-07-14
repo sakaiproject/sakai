@@ -53,12 +53,12 @@ Properties sp = (Properties) rReq.getAttribute("imsti.properties");
  | 
 <a href="<%=resetURL.toString()%>">Clear Stored Preferences</a>
 <p/>
-<% if ( allow(sp,"launch") || allow(sp,"secret") || 
+<% if ( allow(sp,"launch") || allow(sp,"key") || allow(sp,"secret") || 
         allow(sp,"xml") ||
         allow(sp,"pagetitle") || allow(sp,"tooltitle") ||
         allow(sp,"resource") || allow(sp,"preferwidget") || allow(sp,"height") || allow(sp,"width") || allow(sp,"frameheight") ) { %>
 <form method="post" action="<%=launchURL.toString()%>">
-<% if ( allow(sp,"launch") || allow(sp,"secret") || allow(sp,"xml") ) { %>
+<% if ( allow(sp,"launch") || allow(sp,"key") || allow(sp,"secret") || allow(sp,"xml") ) { %>
 <fieldset>
 <legend>Required Information</legend>
 <% if ( allow(sp,"launch") && allow(sp,"xml") ) { %>
@@ -98,9 +98,14 @@ Remote Tool Url: <input type="text" size="100" name="imsti.launch" value="<%=ov.
 </p>
 </div>
 <% } %>
+<% if ( allow(sp,"key") ) { %>
+<p>
+Remote Tool Key: <input type="password" name="imsti.key"> 
+</p>
+<% } %>
 <% if ( allow(sp,"secret") ) { %>
 <p>
-Remote Tool Password: <input type="password" name="imsti.secret"> (Must re-enter every time)
+Remote Tool Secret: <input type="password" name="imsti.secret"> (Must re-enter every time)
 </p>
 <% } %>
 <p>

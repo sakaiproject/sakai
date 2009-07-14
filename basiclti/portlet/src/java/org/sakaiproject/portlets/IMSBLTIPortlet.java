@@ -132,6 +132,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
         // Populate the list of fields
         fieldList.add("launch");
         fieldList.add("secret");
+        fieldList.add("key");
         fieldList.add("xml");
         fieldList.add("frameheight");
         fieldList.add("debug");

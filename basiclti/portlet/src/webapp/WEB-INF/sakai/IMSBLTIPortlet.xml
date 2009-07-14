@@ -30,6 +30,7 @@
                      as well.  -->
                 <configuration name="imsti.launch" />
                 <configuration name="imsti.secret" />
+                <configuration name="imsti.key" />
                 <configuration name="imsti.pagetitle" />
                 <configuration name="imsti.tooltitle" />
                 <configuration name="imsti.newwindow" />
@@ -41,6 +42,7 @@
 		     cannot be altered by by the instructor.  -->
                 <configuration name="final.launch" value="false"/>
                 <configuration name="final.secret" value="false"/>
+                <configuration name="final.key" value="false"/>
                 <configuration name="final.pagetitle" value="false"/>
                 <configuration name="final.tooltitle" value="false"/>
                 <configuration name="final.newwindow" value="false"/>
