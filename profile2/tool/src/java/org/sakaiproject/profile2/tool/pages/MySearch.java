@@ -9,7 +9,6 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
@@ -221,8 +220,8 @@ public class MySearch extends BasePage {
 		    	
 
 		    	//ADD CONNECTION LINK
-		    	WebMarkupContainer c1 = new WebMarkupContainer("connectionContainer");
-		    	c1.setOutputMarkupId(true);
+		    	final WebMarkupContainer connectionContainer = new WebMarkupContainer("connectionContainer");
+		    	connectionContainer.setOutputMarkupId(true);
 		    	
 		    	final Label connectionLabel = new Label("connectionLabel");
 				connectionLabel.setOutputMarkupId(true);
@@ -236,19 +235,24 @@ public class MySearch extends BasePage {
 				    	final String userUuid = this_searchResult.getUserUuid();
 				    	connectionWindow.setContent(new AddFriend(connectionWindow.getContentId(), connectionWindow, friendActionModel, currentUserUuid, userUuid)); 
 						
-						//target.appendJavascript("Wicket.Window.get().window.style.width='800px';");
-						
+				    	// connection modal window handler 
+						connectionWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+							private static final long serialVersionUID = 1L;
+							public void onClose(AjaxRequestTarget target){
+				            	if(friendActionModel.isRequested()) { 
+				            		connectionLabel.setModel(new ResourceModel("text.friend.requested"));
+				            		add(new AttributeModifier("class", true, new Model("instruction")));
+				            		setEnabled(false);
+				            		target.addComponent(connectionContainer);
+				            	}
+				            }
+				        });						
 						//in preparation for the window being closed, update the text. this will only
 						//be put into effect if its a successful model update from the window close
-				    	connectionLabel.setModel(new ResourceModel("text.friend.requested"));
-						this.add(new AttributeModifier("class", true, new Model("instruction")));
-						this.setEnabled(false);
-						friendActionModel.setUpdateThisComponentOnSuccess(this);
-						
-				    	
-				    	
-						//ListView returns an iterator of ListItems
-						//Each ListItem is a component so you can just do listItem.get("component_id");
+				    	//connectionLabel.setModel(new ResourceModel("text.friend.requested"));
+						//this.add(new AttributeModifier("class", true, new Model("instruction")));
+						//this.setEnabled(false);
+						//friendActionModel.setUpdateThisComponentOnSuccess(this);
 						
 						connectionWindow.show(target);
 						target.appendJavascript("fixWindowVertical();"); 
@@ -279,8 +283,8 @@ public class MySearch extends BasePage {
 					connectionLabel.setModel(new ResourceModel("link.friend.add"));
 				}
 				connectionLink.setOutputMarkupId(true);
-				c1.add(connectionLink);
-				item.add(c1);
+				connectionContainer.add(connectionLink);
+				item.add(connectionContainer);
 				
 				
 				//VIEW FRIENDS LINK
@@ -314,24 +318,7 @@ public class MySearch extends BasePage {
 		};
 		resultsContainer.add(resultsListView);
 		
-		// connection modal window handler 
-		connectionWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-			private static final long serialVersionUID = 1L;
-
-			public void onClose(AjaxRequestTarget target){
-				
-            	if(friendActionModel.isRequested()) { 
-            		//connectionLabel.setModel(new ResourceModel("text.friend.requested"));
-					//connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
-					//connectionLink.setEnabled(false);
-            		
-					//TODO: recalculate if we can see this person's friend list and show the link if so
-            		
-            		//repaint the appropriate component
-            		target.addComponent(friendActionModel.getUpdateThisComponentOnSuccess());
-            	}
-            }
-        });
+		
 		add(connectionWindow);
 		
 		
