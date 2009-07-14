@@ -22,6 +22,11 @@
   	<dependencies>
 
     	<!-- EXTERNAL DEPENDENCIES -->
+    	<dependency>
+      		<groupId>commons-lang</groupId>
+      		<artifactId>commons-lang</artifactId>
+      		<scope>provided</scope>
+   		</dependency>
 
 		<!--  GENERIC SAKAI DEPENDENCIES -->
 		<dependency>
