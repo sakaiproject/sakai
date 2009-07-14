@@ -13,11 +13,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.management.Query;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.apache.wicket.Session;
+import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.model.ProfileFriend;
 import org.sakaiproject.profile2.model.ProfileImage;
@@ -29,6 +30,11 @@ import org.sakaiproject.profile2.model.ResourceWrapper;
 import org.sakaiproject.profile2.model.SearchResult;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
+import org.sakaiproject.tinyurl.api.TinyUrlService;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+import twitter4j.Twitter;
 
 /**
  * This is the Profile2 API Implementation to be used by the Profile2 tool only. 
@@ -416,15 +422,14 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
  	 */
 	public ProfilePrivacy getDefaultPrivacyRecord(String userId) {
 		
-		//get the overriden privacy settings, if supplied
-		HashMap<String, Integer> props = sakaiProxy.getOverriddenPrivacySettings();	
+		//get the overriden privacy settings. they'll be defaults if not specified
+		HashMap<String, Object> props = sakaiProxy.getOverriddenPrivacySettings();	
+		
+		//using the overriden/defaults, set them into the ProfilePrivacy object
 		
 		ProfilePrivacy profilePrivacy = new ProfilePrivacy(
 				userId,
-				//ProfileConstants.DEFAULT_PRIVACY_OPTION_PROFILEIMAGE,
-				
-				ProfileUtils.getValueFromMapOrDefault(props, "profileImage", ProfileConstants.DEFAULT_PRIVACY_OPTION_PROFILEIMAGE),
-				
+				ProfileConstants.DEFAULT_PRIVACY_OPTION_PROFILEIMAGE,
 				ProfileConstants.DEFAULT_PRIVACY_OPTION_BASICINFO,
 				ProfileConstants.DEFAULT_PRIVACY_OPTION_CONTACTINFO,
 				ProfileConstants.DEFAULT_PRIVACY_OPTION_ACADEMICINFO,
@@ -481,7 +486,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
  	 */
 	public boolean addNewProfileImage(String userId, String mainResource, String thumbnailResource) {
 		
-		//first get the current ProfileImage records
+		//first get the current ProfileImage records for this user
 		List<ProfileImage> currentImages = new ArrayList<ProfileImage>(getCurrentProfileImageRecords(userId));
 		for(Iterator<ProfileImage> i = currentImages.iterator(); i.hasNext();){
 			ProfileImage currentImage = (ProfileImage)i.next();

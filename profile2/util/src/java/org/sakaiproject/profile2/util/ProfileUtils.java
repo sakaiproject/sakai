@@ -18,6 +18,7 @@ import java.util.Map;
 import javax.swing.ImageIcon;
 
 import org.apache.log4j.Logger;
+import org.jasypt.util.text.BasicTextEncryptor;
 import org.sakaiproject.util.ResourceLoader;
 
 import com.sun.image.codec.jpeg.JPEGCodec;
