@@ -73,6 +73,7 @@
     <!-- EntityBroker beans -->
 	<bean id="org.sakaiproject.profile2.entity.ProfileEntityProvider" class="org.sakaiproject.profile2.entity.ProfileEntityProviderImpl">
 		<property name="profileService" ref="org.sakaiproject.profile2.service.ProfileService" />
+		<property name="profileImageService" ref="org.sakaiproject.profile2.service.ProfileImageService" />
 	</bean>
 	
 	<bean id="org.sakaiproject.profile2.entity.ProfilePrivacyEntityProvider" class="org.sakaiproject.profile2.entity.ProfilePrivacyEntityProviderImpl">
