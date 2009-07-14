@@ -3,6 +3,7 @@ package org.sakaiproject.profile2.model;
 import java.io.Serializable;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
 
 
 /**
