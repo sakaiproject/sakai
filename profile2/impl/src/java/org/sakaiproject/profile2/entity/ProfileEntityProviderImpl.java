@@ -23,6 +23,7 @@ import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.profile2.entity.model.Connection;
 import org.sakaiproject.profile2.entity.model.UserProfile;
 import org.sakaiproject.profile2.model.ResourceWrapper;
+import org.sakaiproject.profile2.service.ProfileImageService;
 import org.sakaiproject.profile2.service.ProfileService;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
@@ -111,9 +112,9 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 		
 		//get thumb if requested - will fallback by default
 		if(wantsThumbnail) {
-			resource = profileService.getProfileImage(ref.getId(), ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
+			resource = profileImageService.getProfileImage(ref.getId(), ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
 		} else {
-			resource = profileService.getProfileImage(ref.getId(),ProfileConstants.PROFILE_IMAGE_MAIN);
+			resource = profileImageService.getProfileImage(ref.getId(),ProfileConstants.PROFILE_IMAGE_MAIN);
 		}
 		
 		if(resource == null || resource.getBytes() == null) {
@@ -250,6 +251,11 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 	private ProfileService profileService;
 	public void setProfileService(ProfileService profileService) {
 		this.profileService = profileService;
+	}
+	
+	private ProfileImageService profileImageService;
+	public void setProfileImageService(ProfileImageService profileImageService) {
+		this.profileImageService = profileImageService;
 	}
 
 	

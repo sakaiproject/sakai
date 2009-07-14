@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.sakaiproject.profile2.entity.model.Connection;
 import org.sakaiproject.profile2.entity.model.UserProfile;
-import org.sakaiproject.profile2.model.ResourceWrapper;
 
 /**
  * <p>This is the outward facing service that should be used by anyone or anything implementing Profile2.</p>
@@ -96,23 +95,7 @@ public interface ProfileService {
 	 * @return true if exists, false otherwise
 	 */
 	public boolean checkUserProfileExists(String userId);
-	
-	/**
-	 * Get the profile image for a user
-	 * 
-	 * <p>Checks the configuration settings for Profile2 and returns accordingly. If the file has been uploaded, will return bytes. If the file is a URL, will send a redirect for that resource. 
-	 * <p>Will return default image defined in ProfileConstants.UNAVAILABLE_IMAGE_FULL if there is no image or privacy checks mean it is not allowed.</p>
-	 * <p>If the userId is invalid, will return null.</p>
-	 * <p>If a thumbnail is requested but does not exist, it will fall back to the full sized image and return that, which can just be scaled down in the markup.</p>
-	 * <p>You must be logged-in in order to make requests to this method.</p>
-	 * 
-	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
-	 * @param imageType - type of image, main or thumbnail, mapped via ProfileConstants
-	 * @return ResourceWrapper of the wrapped bytes or null if not allowed/none
-	 */
-	public ResourceWrapper getProfileImage(String userId, int imageType);
-	
-	
+		
 	/**
 	 * Get a list of connections (as userIds) for the given user.
 	 * 

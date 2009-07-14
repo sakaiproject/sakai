@@ -14,7 +14,6 @@ import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
-import org.sakaiproject.profile2.model.ResourceWrapper;
 import org.sakaiproject.profile2.util.Messages;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -246,54 +245,7 @@ public class ProfileServiceImpl implements ProfileService {
 	}
 	
 	
-
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public ResourceWrapper getProfileImage(String userId, int imageType) {
-		
-		ResourceWrapper resource = new ResourceWrapper();
-		
-		//check auth and get currentUserUuid
-		String currentUserUuid = sakaiProxy.getCurrentUserId();
-		if(currentUserUuid == null) {
-			throw new SecurityException("You must be logged in to make a request for a user's profile image.");
-		}
-		
-		//convert userId into uuid
-		String userUuid = sakaiProxy.getUuidForUserId(userId);
-		if(userUuid == null) {
-			log.error("Invalid userId: " + userId);
-			return null;
-		}
-		
-		//check friend status
-		boolean friend = profileLogic.isUserXFriendOfUserY(userUuid, currentUserUuid);
-		
-		//check if photo is allowed, if not return default
-		if(!profileLogic.isUserXProfileImageVisibleByUserY(userUuid, currentUserUuid, friend)) {
-			return getDefaultImage();
-		}
-		
-		//check environment configuration (will be url or upload) and get image accordingly
-		//fall back by default. there is no real use case for not doing it.
-		if(sakaiProxy.getProfilePictureType() == ProfileConstants.PICTURE_SETTING_URL) {
-			String url = profileLogic.getExternalImageUrl(userUuid, imageType);
-			if(url == null) {
-				return getDefaultImage();
-			} else {
-				return profileLogic.getURLResourceAsBytes(url);
-			}
-		} else {
-			resource = profileLogic.getCurrentProfileImageForUserWrapped(userUuid, imageType);
-			if(resource == null || resource.getBytes() == null) {
-				return getDefaultImage();
-			} else {
-				return resource;
-			}
-		} 
-	}
+	
 	
 	/**
 	 * {@inheritDoc}
@@ -746,13 +698,7 @@ public class ProfileServiceImpl implements ProfileService {
 		userProfile.setImageThumbUrl(sakaiProxy.getServerUrl() + "/direct/profile/" + userProfile.getUserUuid() + "/image/thumb/");
 	}
 	
-	/**
-	 * This is a helper method to take care of getting the default unavailable image and returning it, along with some metadata about it
-	 * @return
-	 */
-	private ResourceWrapper getDefaultImage() {
-		return profileLogic.getURLResourceAsBytes(profileLogic.getUnavailableImageURL());
-	}
+	
 	
 	
 	
