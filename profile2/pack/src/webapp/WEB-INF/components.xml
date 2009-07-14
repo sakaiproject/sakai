@@ -64,6 +64,10 @@
 	<bean id="org.sakaiproject.profile2.service.ProfileStatusService" 
 		class="org.sakaiproject.profile2.service.ProfileStatusServiceImpl"
 		parent="org.sakaiproject.profile2.service.BaseProfileService" />
+		
+	<bean id="org.sakaiproject.profile2.service.ProfileImageService" 
+		class="org.sakaiproject.profile2.service.ProfileImageServiceImpl"
+		parent="org.sakaiproject.profile2.service.BaseProfileService" />
     
     
     <!-- EntityBroker beans -->
