@@ -452,6 +452,8 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	  		throw new IllegalArgumentException("Null Argument in Profile.getPrivacyRecordForUser"); //$NON-NLS-1$
 	  	}
 		
+		ProfilePrivacy privacy = null;
+		
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  			Query q = session.getNamedQuery(QUERY_GET_PRIVACY_RECORD);
@@ -461,7 +463,14 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 			}
 		};
 	
-		return (ProfilePrivacy) getHibernateTemplate().execute(hcb);
+		privacy = (ProfilePrivacy) getHibernateTemplate().execute(hcb);
+		
+		//if none, get a default, which can be overridden by sakai.properties
+		if(privacy == null) {
+			privacy = this.getDefaultPrivacyRecord(userId);
+		}
+		
+		return privacy;
 	}
 	
 	/**
@@ -647,7 +656,6 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		
 		//if no privacy record, return whatever the flag is set as by default
     	if(profilePrivacy == null) {
-    		log.debug("SEARCH VISIBILITY for " + userX + ": user is current user"); //$NON-NLS-1$ //$NON-NLS-2$
     		return ProfileConstants.SELF_SEARCH_VISIBILITY;
     	}
     	
@@ -660,19 +668,16 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		
     	//if friend and set to friends only
     	if(friend && profilePrivacy.getSearch() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		log.debug("SEARCH VISIBILITY for " + userX + ": only friends and  " + userY + " is friend"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     		return true;
     	}
     	
     	//if not friend and set to friends only
     	if(!friend && profilePrivacy.getSearch() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		log.debug("SEARCH VISIBILITY for " + userX + ": only friends and  " + userY + " not friend"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     		return false;
     	}
     	
     	//if everyone is allowed
     	if(profilePrivacy.getSearch() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
-    		log.debug("SEARCH VISIBILITY: everyone"); //$NON-NLS-1$
     		return true;
     	}
     	
