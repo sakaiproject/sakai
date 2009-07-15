@@ -7,6 +7,7 @@
 	<bean id="profileApplication" class="org.sakaiproject.profile2.tool.ProfileApplication">
 		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
 		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
+		<property name="profileImageService" ref="org.sakaiproject.profile2.service.ProfileImageService" />
 	</bean>
 	   
        

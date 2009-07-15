@@ -5,6 +5,7 @@ import org.apache.wicket.Application;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.service.ProfileImageService;
 import org.sakaiproject.profile2.tool.pages.errors.InternalErrorPage;
 import org.sakaiproject.profile2.tool.pages.errors.SessionExpiredPage;
 
@@ -13,6 +14,7 @@ public class ProfileApplication extends WebApplication {
     	
 	private transient SakaiProxy sakaiProxy;
 	private transient ProfileLogic profileLogic;
+	private transient ProfileImageService profileImageService;
 
 	protected void init(){
 		
@@ -104,5 +106,14 @@ public class ProfileApplication extends WebApplication {
 		return profileLogic;
 	}
 		
+	//expose Profile API
+	public void setProfileImageService(ProfileImageService profileImageService) {
+		this.profileImageService = profileImageService;
+	}
+
+	public ProfileImageService getProfileImageService() {
+		return profileImageService;
+	}
+	
 
 }

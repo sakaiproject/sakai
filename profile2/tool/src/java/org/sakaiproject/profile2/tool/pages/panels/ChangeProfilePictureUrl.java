@@ -18,6 +18,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.validation.validator.UrlValidator;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.service.ProfileImageService;
 import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.CloseButton;
 import org.sakaiproject.profile2.tool.models.SimpleText;
@@ -89,10 +90,9 @@ public class ChangeProfilePictureUrl extends Panel{
         		//get the url
         		String url = simpleText.getText();
         		
-        		//save it
-        		if(profileLogic.saveExternalImage(userId, url, null)) {
-       		
-	        		//log it
+        		//save via ProfileImageService
+				if(getProfileImageService().setProfileImage(userId, url, null)) {
+					//log it
 					log.info("User " + userId + " successfully changed profile picture by url.");
 					
 					//post update event
@@ -100,11 +100,10 @@ public class ChangeProfilePictureUrl extends Panel{
 					
 					//refresh image data
 					setResponsePage(new MyProfile());
-        		} else {
-        			error(new StringResourceModel("error.url.save.failed", this, null).getString());
+				} else {
+					error(new StringResourceModel("error.url.save.failed", this, null).getString());
         			return;
-        		}
-        		
+				}
         		
         	};
         	
@@ -138,6 +137,10 @@ public class ChangeProfilePictureUrl extends Panel{
 
 	private ProfileLogic getProfileLogic() {
 		return Locator.getProfileLogic();
+	}
+	
+	private ProfileImageService getProfileImageService() {
+		return Locator.getProfileImageService();
 	}
 	
 	

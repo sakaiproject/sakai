@@ -15,8 +15,8 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.util.lang.Bytes;
-import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.service.ProfileImageService;
 import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.CloseButton;
 import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
@@ -29,8 +29,6 @@ public class ChangeProfilePictureUpload extends Panel{
     
 	private static final long serialVersionUID = 1L;
 	private FileUploadField uploadField;
-    private transient SakaiProxy sakaiProxy;
-    private transient ProfileLogic profileLogic;
 
     private static final Logger log = Logger.getLogger(ChangeProfilePictureUpload.class);
 
@@ -40,8 +38,6 @@ public class ChangeProfilePictureUpload extends Panel{
         log.debug("ChangeProfilePictureUpload()");
         
 		//get API's
-		sakaiProxy = getSakaiProxy();
-		profileLogic = getProfileLogic();
 		   
         //setup form	
 		Form form = new Form("form") {
@@ -50,7 +46,7 @@ public class ChangeProfilePictureUpload extends Panel{
 			public void onSubmit(){
 				
 				//get userid and sakaiperson for this user
-				String userId = sakaiProxy.getCurrentUserId();
+				String userId = getSakaiProxy().getCurrentUserId();
 				
 				//get file that was uploaded
 				FileUpload upload = uploadField.getFileUpload();
@@ -75,51 +71,17 @@ public class ChangeProfilePictureUpload extends Panel{
 					//ok so get bytes of file uploaded
 					byte[] imageBytes = upload.getBytes();
 					
-					//TODO: take a copy of the bytes and then scale each individually but need to monitor memory usage
-					
-					/*
-					 * MAIN PROFILE IMAGE
-					 */
-					//scale image
-					imageBytes = ProfileUtils.scaleImage(imageBytes, ProfileConstants.MAX_IMAGE_XY);
-					 
-					//create resource ID
-					String mainResourceId = sakaiProxy.getProfileImageResourcePath(userId, ProfileConstants.PROFILE_IMAGE_MAIN);
-					log.debug("Profile.ChangeProfilePicture.onSubmit mainResourceId: " + mainResourceId);
-					
-					//save, if error, log and return.
-					if(!sakaiProxy.saveFile(mainResourceId, userId, fileName, mimeType, imageBytes)) {
-						error(new StringResourceModel("error.file.save.failed", this, null).getString());
-					    return;
-					}
-
-					/*
-					 * THUMBNAIL PROFILE IMAGE
-					 */
-					//scale image
-					imageBytes = ProfileUtils.scaleImage(imageBytes, ProfileConstants.MAX_THUMBNAIL_IMAGE_XY);
-					 
-					//create resource ID
-					String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userId, ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
-					log.debug("Profile.ChangeProfilePicture.onSubmit thumbnailResourceId: " + thumbnailResourceId);
-					
-					//save, if error, log and return.
-					if(!sakaiProxy.saveFile(thumbnailResourceId, userId, fileName, mimeType, imageBytes)) {
-						error(new StringResourceModel("error.file.save.failed", this, null).getString());
-					    return;
-					}
-					
-					/*
-					 * SAVE IMAGE RESOURCE IDS
-					 */
-					//save
-					if(profileLogic.addNewProfileImage(userId, mainResourceId, thumbnailResourceId)) {
+					//add image using ProfileImageService which scales and sets up CHS automatically
+					//note that this has changed so it uses the service. if needs to be changed back so there is no dependency on the PIS,
+					//just grab the bits from the methods in PIS that do what is required, remove from applicationContext.xml, Locator.java and ProfileApplication.java
+					//likewise for ChangeProfilePictureUrl.java
+					if(getProfileImageService().setProfileImage(userId, imageBytes, mimeType, null)) {
 						
 						//log it
 						log.info("User " + userId + " successfully changed profile picture by upload.");
 						
 						//post update event
-						sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_IMAGE_CHANGE_UPLOAD, "/profile/"+userId, true);
+						getSakaiProxy().postEvent(ProfileConstants.EVENT_PROFILE_IMAGE_CHANGE_UPLOAD, "/profile/"+userId, true);
 						
 						//refresh image data
 						setResponsePage(new MyProfile());
@@ -127,17 +89,14 @@ public class ChangeProfilePictureUpload extends Panel{
 						error(new StringResourceModel("error.file.save.failed", this, null).getString());
 						return;
 					}
-					
-					
+										
 				}
-				
-				
 				
 			}
 		};
 		
 		//get the max upload size from Sakai
-		int maxSize = sakaiProxy.getMaxProfilePictureSize();
+		int maxSize = getSakaiProxy().getMaxProfilePictureSize();
 		
 		//setup form
 		form.setMaxSize(Bytes.megabytes(maxSize));	
@@ -186,18 +145,18 @@ public class ChangeProfilePictureUpload extends Panel{
 		in.defaultReadObject();
 		log.debug("ChangeProfilePictureUpload has been deserialized.");
 		//re-init our transient objects
-		profileLogic = getProfileLogic();
-		sakaiProxy = getSakaiProxy();
+		//profileImageService = getProfileImageService();
+		//sakaiProxy = getSakaiProxy();
 	}
 	
 	private SakaiProxy getSakaiProxy() {
 		return Locator.getSakaiProxy();
 	}
 
-	private ProfileLogic getProfileLogic() {
-		return Locator.getProfileLogic();
+	private ProfileImageService getProfileImageService() {
+		return Locator.getProfileImageService();
 	}
-
+	
 }
 
 
