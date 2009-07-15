@@ -183,7 +183,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 		SakaiPerson sakaiPerson = null;
 		
 		try {
+			//try normal user type
 			sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
+			
+			//if null try system user type as a profile might have been created with this type
+			if(sakaiPerson == null) {
+				sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getSystemMutableType());
+			}
+			
 		} catch (Exception e) {
 			log.error("SakaiProxy.getSakaiPerson(): Couldn't get SakaiPerson for: " + userId + " : " + e.getClass() + " : " + e.getMessage());
 		}
