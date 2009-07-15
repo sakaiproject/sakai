@@ -126,7 +126,7 @@ public class BasicLTIUtil {
 
     // Add the necessary fields and sign
     public static Properties signProperties(Properties postProp, String url, String method, 
-        String oauth_consumer_secret, String org_id, String org_desc)
+        String key, String secret, String org_secret, String org_id, String org_desc)
     {
         postProp = BasicLTIUtil.cleanupProperties(postProp);
         postProp.setProperty("lti_version","basiclti-1.0");
@@ -134,8 +134,10 @@ public class BasicLTIUtil {
         if ( org_id != null ) postProp.setProperty("tool_consumer_instance_guid", org_id);
         if ( org_desc != null ) postProp.setProperty("tool_consumer_instance_description", org_desc);
 
-        String oauth_consumer_key = url;
-        if ( org_id != null ) {
+        String oauth_consumer_key = key;
+        String oauth_consumer_secret = secret;
+        if ( org_secret != null ) {
+            oauth_consumer_secret = org_secret;
             oauth_consumer_key = "basiclti-lms:"+org_id;
         }
 
@@ -238,7 +240,7 @@ public class BasicLTIUtil {
 	return htmltext;
     }
 
-    public static boolean launchInfo(Properties info, Properties postProp, String descriptor)
+    public static boolean parseDescriptor(Properties launch_info, Properties postProp, String descriptor)
     {
         Map<String,Object> tm = null;
         try
@@ -251,7 +253,7 @@ public class BasicLTIUtil {
 		return false;
         }
         if ( tm == null ) {
-            System.out.println("Unable to parse XML in launchInfo");
+            System.out.println("Unable to parse XML in parseDescriptor");
             return false;
         }
 
@@ -261,8 +263,8 @@ public class BasicLTIUtil {
         String secure_launch_url = toNull(XMLMap.getString(tm,"/basicltiresource/secure_launch_url"));
         if ( launch_url == null && secure_launch_url == null ) return false;
 
-        setProperty(info, "launch_url", launch_url);
-        setProperty(info, "secure_launch_url", secure_launch_url);
+        setProperty(launch_info, "launch_url", launch_url);
+        setProperty(launch_info, "secure_launch_url", secure_launch_url);
 
         List<Map<String,Object>> theList = XMLMap.getList(tm, "/basicltiresource/custom/parameter");
         for ( Map<String,Object> setting : theList) {

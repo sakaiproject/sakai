@@ -46,7 +46,7 @@ public class SakaiBLTIUtil {
 
     // Look at a Placement and come up with the launch urls, and
     // other launch parameters to drive the launch.
-    public static boolean launchInfo(Properties info, Properties launch, Placement placement)
+    public static boolean parseDescriptor(Properties info, Properties launch, Placement placement)
     {
 	Properties config = placement.getConfig();
 	dPrint("Sakai properties=" + config);
@@ -54,9 +54,10 @@ public class SakaiBLTIUtil {
         setProperty(info, "launch_url", launch_url);
         if ( launch_url == null ) {
             String xml = config.getProperty("imsti.xml", null);
-	    BasicLTIUtil.launchInfo(info, launch, xml);
+	    BasicLTIUtil.parseDescriptor(info, launch, xml);
         }
         setProperty(info, "secret", config.getProperty("imsti.secret", null) );
+        setProperty(info, "key", config.getProperty("imsti.key", null) );
         setProperty(info, "debug", config.getProperty("imsti.debug", null) );
         setProperty(info, "frameheight", config.getProperty("imsti.frameheight", null) );
         setProperty(info, "newwindow", config.getProperty("imsti.newwindow", null) );
@@ -160,7 +161,7 @@ public class SakaiBLTIUtil {
         
         // Retrieve the launch detail
         Properties info = new Properties();
-        if ( ! launchInfo(info, launch, placement) ) {
+        if ( ! parseDescriptor(info, launch, placement) ) {
            return "<p>Not Configured.</p>";
 	}
 
@@ -171,21 +172,15 @@ public class SakaiBLTIUtil {
 	if ( launch_url == null ) launch_url = info.getProperty("launch_url");
         if ( launch_url == null ) return "<p>Not configured</p>";
 
-        // Property secret takes precedence over resource secret
+	String secret = toNull(info.getProperty("secret"));
+	String key = toNull(info.getProperty("key"));
+
         String org_guid = ServerConfigurationService.getString("basiclti.consumer_instance_guid",null);
 	String org_name = ServerConfigurationService.getString("basiclti.consumer_instance_name",null);
-
-        String oauth_consumer_key = launch_url;
-	String oauth_consumer_secret = toNull(info.getProperty("secret"));
-	// Is this a good idea?  If there is no secret - perhaps we should not even 
-	// sign???  If we sign we get other things like nonce, and create time..  Hmmm
-	if ( oauth_consumer_secret == null ) oauth_consumer_secret = "secret";
-	System.out.println("key="+oauth_consumer_key+" secret="+oauth_consumer_secret);
+        String org_secret = null;
         if ( org_guid != null ) {
-	    oauth_consumer_secret = getToolConsumerSecret(launch_url);
-            oauth_consumer_key = "basiclti-lms:"+org_guid;
-	}
-	System.out.println("key="+oauth_consumer_key+" secret="+oauth_consumer_secret);
+	    org_secret = getToolConsumerSecret(launch_url);
+        }
         
         String oauth_callback = ServerConfigurationService.getString("basiclti.oauth_callback",null);
 	// Too bad there is not a better default callback url for OAuth
@@ -195,7 +190,7 @@ public class SakaiBLTIUtil {
         setProperty(launch, "oauth_callback", oauth_callback);
 
         launch = BasicLTIUtil.signProperties(launch, launch_url, "POST", 
-            oauth_consumer_secret, org_guid, org_name);
+            key, secret, org_secret, org_guid, org_name);
 
         if ( launch == null ) return "<p>Error signing message.</p>";
         System.out.println("LAUNCH III="+launch);
