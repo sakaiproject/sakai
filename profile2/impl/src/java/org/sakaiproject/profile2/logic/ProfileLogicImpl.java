@@ -425,21 +425,21 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		//get the overriden privacy settings. they'll be defaults if not specified
 		HashMap<String, Object> props = sakaiProxy.getOverriddenPrivacySettings();	
 		
-		//using the overriden/defaults, set them into the ProfilePrivacy object
-		
+		//using the props, set them into the ProfilePrivacy object
 		ProfilePrivacy profilePrivacy = new ProfilePrivacy(
 				userId,
-				ProfileConstants.DEFAULT_PRIVACY_OPTION_PROFILEIMAGE,
-				ProfileConstants.DEFAULT_PRIVACY_OPTION_BASICINFO,
-				ProfileConstants.DEFAULT_PRIVACY_OPTION_CONTACTINFO,
-				ProfileConstants.DEFAULT_PRIVACY_OPTION_ACADEMICINFO,
-				ProfileConstants.DEFAULT_PRIVACY_OPTION_PERSONALINFO,
-				ProfileConstants.DEFAULT_BIRTHYEAR_VISIBILITY,
-				ProfileConstants.DEFAULT_PRIVACY_OPTION_SEARCH,
-				ProfileConstants.DEFAULT_PRIVACY_OPTION_MYFRIENDS,
-				ProfileConstants.DEFAULT_PRIVACY_OPTION_MYSTATUS);
+				(Integer)props.get("profileImage"),
+				(Integer)props.get("basicInfo"),
+				(Integer)props.get("contactInfo"),
+				(Integer)props.get("academicInfo"),
+				(Integer)props.get("personalInfo"),
+				(Boolean)props.get("birthYear"),
+				(Integer)props.get("search"),
+				(Integer)props.get("myFriends"),
+				(Integer)props.get("myStatus")
+		);
 		
-			return profilePrivacy;
+		return profilePrivacy;
 	}
 	
 	

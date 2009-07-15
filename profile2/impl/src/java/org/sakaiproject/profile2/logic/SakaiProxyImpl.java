@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -762,18 +761,18 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
  	* {@inheritDoc}
  	*/
-	public HashMap<String, Integer> getOverriddenPrivacySettings() {
+	public HashMap<String, Object> getOverriddenPrivacySettings() {
 		
-		HashMap<String, Integer> props = new HashMap<String, Integer>();
-		props.add("profileImage", serverConfigurationService.getInt("profile2.privacy.default.profileImage", ProfileConstants.DEFAULT_PRIVACY_OPTION_PROFILEIMAGE));
-		props.add("basicInfo", serverConfigurationService.getInt("profile2.privacy.default.basicInfo", ProfileConstants.DEFAULT_PRIVACY_OPTION_BASICINFO));
-		props.add("contactInfo", serverConfigurationService.getInt("profile2.privacy.default.contactInfo", ProfileConstants.DEFAULT_PRIVACY_OPTION_CONTACTINFO));
-		props.add("academicInfo", serverConfigurationService.getInt("profile2.privacy.default.academicInfo", ProfileConstants.DEFAULT_PRIVACY_OPTION_ACADEMICINFO));
-		props.add("personalInfo", serverConfigurationService.getInt("profile2.privacy.default.personalInfo", ProfileConstants.DEFAULT_PRIVACY_OPTION_PERSONALINFO));
-		props.add("birthYear", serverConfigurationService.getBoolean("profile2.privacy.default.birthYear", ProfileConstants.DEFAULT_BIRTHYEAR_VISIBILITY));
-		props.add("search", serverConfigurationService.getInt("profile2.privacy.default.search", ProfileConstants.DEFAULT_PRIVACY_OPTION_SEARCH));
-		props.add("myFriends", serverConfigurationService.getInt("profile2.privacy.default.myFriends", ProfileConstants.DEFAULT_PRIVACY_OPTION_MYFRIENDS));
-		props.add("myStatus", serverConfigurationService.getInt("profile2.privacy.default.myStatus", ProfileConstants.DEFAULT_PRIVACY_OPTION_MYSTATUS));
+		HashMap<String, Object> props = new HashMap<String, Object>();
+		props.put("profileImage", serverConfigurationService.getInt("profile2.privacy.default.profileImage", ProfileConstants.DEFAULT_PRIVACY_OPTION_PROFILEIMAGE));
+		props.put("basicInfo", serverConfigurationService.getInt("profile2.privacy.default.basicInfo", ProfileConstants.DEFAULT_PRIVACY_OPTION_BASICINFO));
+		props.put("contactInfo", serverConfigurationService.getInt("profile2.privacy.default.contactInfo", ProfileConstants.DEFAULT_PRIVACY_OPTION_CONTACTINFO));
+		props.put("academicInfo", serverConfigurationService.getInt("profile2.privacy.default.academicInfo", ProfileConstants.DEFAULT_PRIVACY_OPTION_ACADEMICINFO));
+		props.put("personalInfo", serverConfigurationService.getInt("profile2.privacy.default.personalInfo", ProfileConstants.DEFAULT_PRIVACY_OPTION_PERSONALINFO));
+		props.put("birthYear", serverConfigurationService.getBoolean("profile2.privacy.default.birthYear", ProfileConstants.DEFAULT_BIRTHYEAR_VISIBILITY));
+		props.put("search", serverConfigurationService.getInt("profile2.privacy.default.search", ProfileConstants.DEFAULT_PRIVACY_OPTION_SEARCH));
+		props.put("myFriends", serverConfigurationService.getInt("profile2.privacy.default.myFriends", ProfileConstants.DEFAULT_PRIVACY_OPTION_MYFRIENDS));
+		props.put("myStatus", serverConfigurationService.getInt("profile2.privacy.default.myStatus", ProfileConstants.DEFAULT_PRIVACY_OPTION_MYSTATUS));
 
 		return props;
 	}

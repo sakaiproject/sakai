@@ -345,7 +345,10 @@ public interface SakaiProxy {
 	/**
 	 * Gets the set of sakai.properties that can override the built in defaults. This is then called
 	 * when a default privacy record is requested and the values used preferentially.
+	 * 
+	 * Note that mostly the value is an Integer but for some values its a Boolean, ie checkboxes
+	 * 
 	 * @return
 	 */
-	public HashMap<String, Integer> getOverriddenPrivacySettings();
+	public HashMap<String, Object> getOverriddenPrivacySettings();
 }
