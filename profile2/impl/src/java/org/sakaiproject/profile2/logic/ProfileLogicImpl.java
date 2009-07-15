@@ -655,9 +655,11 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
     	}
 		
 		//if no privacy record, return whatever the flag is set as by default
+    	/* deprecated by PRFL-86, privacy object will never be null now it will always be default or overridden default
     	if(profilePrivacy == null) {
     		return ProfileConstants.SELF_SEARCH_VISIBILITY;
     	}
+    	*/
     	
     	//if restricted to only self, not allowed
     	/* DEPRECATED via PRFL-24 when the privacy settings were relaxed
@@ -718,9 +720,11 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
     	}
 		
 		//if no privacy record, return whatever the flag is set as by default
+    	/* deprecated by PRFL-86, privacy object will never be null now it will always be default or overridden default
     	if(profilePrivacy == null) {
     		return ProfileConstants.DEFAULT_PROFILEIMAGE_VISIBILITY;
     	}
+    	*/
     	
     	//if restricted to only self, not allowed
     	/* DEPRECATED via PRFL-24 when the privacy settings were relaxed
@@ -778,9 +782,11 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
     	}
 		
 		//if no privacy record, return whatever the flag is set as by default
+    	/* deprecated by PRFL-86, privacy object will never be null now it will always be default or overridden default
     	if(profilePrivacy == null) {
     		return ProfileConstants.DEFAULT_BASICINFO_VISIBILITY;
     	}
+    	*/
     	
     	//if restricted to only self, not allowed
     	if(profilePrivacy.getBasicInfo() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
@@ -835,9 +841,11 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
     	}
 		
 		//if no privacy record, return whatever the flag is set as by default
+    	/* deprecated by PRFL-86, privacy object will never be null now it will always be default or overridden default
     	if(profilePrivacy == null) {
     		return ProfileConstants.DEFAULT_CONTACTINFO_VISIBILITY;
     	}
+    	*/
     	
     	//if restricted to only self, not allowed
     	if(profilePrivacy.getContactInfo() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
@@ -893,9 +901,11 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
     	}
 		
 		//if no privacy record, return whatever the flag is set as by default
+    	/* deprecated by PRFL-86, privacy object will never be null now it will always be default or overridden default
     	if(profilePrivacy == null) {
     		return ProfileConstants.DEFAULT_ACADEMICINFO_VISIBILITY;
     	}
+    	*/
     	
     	//if restricted to only self, not allowed
     	if(profilePrivacy.getAcademicInfo() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
@@ -952,9 +962,11 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
     	}
 		
 		//if no privacy record, return whatever the flag is set as by default
+    	/* deprecated by PRFL-86, privacy object will never be null now it will always be default or overridden default
     	if(profilePrivacy == null) {
     		return ProfileConstants.DEFAULT_PERSONALINFO_VISIBILITY;
     	}
+    	*/
     	
     	//if restricted to only self, not allowed
     	if(profilePrivacy.getPersonalInfo() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
@@ -1010,9 +1022,11 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
     	}
 	
 		//if no privacy record, return whatever the flag is set as by default
+    	/* deprecated by PRFL-86, privacy object will never be null now it will always be default or overridden default
     	if(profilePrivacy == null) {
     		return ProfileConstants.DEFAULT_MYFRIENDS_VISIBILITY;
     	}
+    	*/
     	
     	//if restricted to only self, not allowed
     	if(profilePrivacy.getMyFriends() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
@@ -1068,9 +1082,11 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
     	}
     	
 		//if no privacy record, return whatever the flag is set as by default
+    	/* deprecated by PRFL-86, privacy object will never be null now it will always be default or overridden default
     	if(profilePrivacy == null) {
     		return ProfileConstants.DEFAULT_MYSTATUS_VISIBILITY;
     	}
+    	*/
     	
     	//if restricted to only self, not allowed
     	/* DEPRECATED via PRFL-24 when the privacy settings were relaxed
@@ -1119,11 +1135,13 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	public boolean isBirthYearVisible(ProfilePrivacy profilePrivacy) {
 		
 		//return value or whatever the flag is set as by default
+		/* deprecated by PRFL-86, privacy object will never be null now it will always be default or overridden default
     	if(profilePrivacy == null) {
     		return ProfileConstants.DEFAULT_BIRTHYEAR_VISIBILITY;
     	} else {
-    		return profilePrivacy.isShowBirthYear();
     	}
+    	*/
+    	return profilePrivacy.isShowBirthYear();
 	}
 
 		
