@@ -927,7 +927,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 				retVal = addAssignment(context);
 				retVal.setContentReference(newContent.getReference());
-				retVal.setTitle(existingAssignment.getTitle() + " - Copy");
+				retVal.setTitle(existingAssignment.getTitle() + " - " + rb.getString("assignment.copy"));
 				retVal.setSection(existingAssignment.getSection());
 				retVal.setOpenTime(existingAssignment.getOpenTime());
 				retVal.setDueTime(existingAssignment.getDueTime());
@@ -1776,7 +1776,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 				existingContent = getAssignmentContent(contentReference);
 				retVal = addAssignmentContent(context);
-				retVal.setTitle(existingContent.getTitle() + " - Copy");
+				retVal.setTitle(existingContent.getTitle() + " - " + rb.getString("assignment.copy"));
 				retVal.setInstructions(existingContent.getInstructions());
 				retVal.setHonorPledge(existingContent.getHonorPledge());
 				retVal.setTypeOfSubmission(existingContent.getTypeOfSubmission());
