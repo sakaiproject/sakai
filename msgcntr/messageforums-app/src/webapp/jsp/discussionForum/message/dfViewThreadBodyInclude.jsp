@@ -49,9 +49,9 @@
 				<h:column rendered="#{!empty message.message.attachments}">
 					<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
 					<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />					
-					<h:outputLink value="#{eachAttach.url}" target="_blank">
-						<h:outputText value="#{eachAttach.attachment.attachmentName}" />
-					</h:outputLink>
+					<h:outputText escape="false" value="<a target='new_window' href='" />
+					<h:outputText value="#{eachAttach.url}" />
+					<h:outputText escape="false" value="'>#{eachAttach.attachment.attachmentName}</a>" />
 				</h:column>
 			</h:dataTable>
 		</h:panelGroup>

@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums;
 
+import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,6 +32,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -1138,10 +1141,19 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
   {
   	try
   	{
-      String tempString = contentHostingService.getResource(id).getUrl(false);
-      //url escaping the sting can break it
-      //String newString = org.sakaiproject.util.Web.escapeUrl(tempString);  		
-  		return tempString; 
+		String link = contentHostingService.getResource(id).getUrl(false);
+  		Pattern pattern = Pattern.compile("^(https?://[^/]+)(.+/)([^/]+)$");
+  		Matcher matcher = pattern.matcher(link);
+  		
+  		if(matcher.matches()){
+  			String host = matcher.group(1);
+  			String path = matcher.group(2).replace(" ", "%20");
+  			String file = matcher.group(3);
+  			String encoded = URLEncoder.encode(file, "UTF-8").replace("+", "%20");
+  			return (host + path + encoded);
+  		}else{
+  			return link;
+  		}
   	}
   	catch(Exception e)
   	{
