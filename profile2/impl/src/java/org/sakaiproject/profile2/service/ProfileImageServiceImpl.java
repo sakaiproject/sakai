@@ -82,6 +82,12 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 			throw new SecurityException("Not allowed to save.");
 		}
 		
+		//check image is actually allowed to be changed
+		if(!sakaiProxy.isProfilePictureChangeEnabled()) {
+			log.warn("Profile image changes are not permitted as per sakai.properties setting 'profile2.picture.change.enabled'.");
+			return false;
+		}
+		
 		/*
 		 * MAIN PROFILE IMAGE
 		 */
@@ -144,6 +150,12 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 		//check currentUser and object uuid match
 		if(!StringUtils.equals(currentUserUuid, userUuid)) {
 			throw new SecurityException("Not allowed to save.");
+		}
+		
+		//check image is actually allowed to be changed
+		if(!sakaiProxy.isProfilePictureChangeEnabled()) {
+			log.warn("Profile image changes are not permitted as per sakai.properties setting 'profile2.picture.change.enabled'.");
+			return false;
 		}
 		
 		//save it
