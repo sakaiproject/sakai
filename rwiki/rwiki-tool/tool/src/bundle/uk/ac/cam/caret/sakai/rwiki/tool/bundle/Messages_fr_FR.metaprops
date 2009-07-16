@@ -385,15 +385,9 @@ jsp_page_perms_by_role..text.md5=LgLwrkrIGOvSt4O9jLLr4g\=\=
 jsp_page_public_permission..text.author=cyril
 jsp_page_public_permission..text.changed=20090329210610
 jsp_page_public_permission..text.md5=aXZq+dcZOQx+DsX4vyyQUg\=\=
-jsp_page_public_permission_help..text.author=cyril
-jsp_page_public_permission_help..text.changed=20090329210605
-jsp_page_public_permission_help..text.md5=rFpzg7cH6CzhCZOYH4GZ/Q\=\=
 jsp_page_publicdisp_permission..text.author=cyril
 jsp_page_publicdisp_permission..text.changed=20090329210549
 jsp_page_publicdisp_permission..text.md5=aXZq+dcZOQx+DsX4vyyQUg\=\=
-jsp_page_publicdisp_permission_help..text.author=cyril
-jsp_page_publicdisp_permission_help..text.changed=20090329210545
-jsp_page_publicdisp_permission_help..text.md5=rFpzg7cH6CzhCZOYH4GZ/Q\=\=
 jsp_page_read_permission..text.author=cyril
 jsp_page_read_permission..text.changed=20090329210528
 jsp_page_read_permission..text.md5=8l1HZCp4/RBQVoJS3PIZ7g\=\=
@@ -406,9 +400,6 @@ jsp_page_realm..text.md5=arnviHr4980nJO662kS5nA\=\=
 jsp_page_sadmin_permission..text.author=cyril
 jsp_page_sadmin_permission..text.changed=20090329210516
 jsp_page_sadmin_permission..text.md5=gmfA9SHGlEGAW4N6TvKfEQ\=\=
-jsp_page_sadmin_permission_help..text.author=cyril
-jsp_page_sadmin_permission_help..text.changed=20090329210511
-jsp_page_sadmin_permission_help..text.md5=uwkX6uUF2o1eIlwjLe2n5A\=\=
 jsp_page_site_en_d_permission..text.author=cyril
 jsp_page_site_en_d_permission..text.changed=20090329210442
 jsp_page_site_en_d_permission..text.md5=kyYNrfNvtcX4TNBS434i9Q\=\=
@@ -421,9 +412,6 @@ jsp_page_site_en_permission..text.md5=kyYNrfNvtcX4TNBS434i9Q\=\=
 jsp_page_site_en_permission_help1..text.author=cyril
 jsp_page_site_en_permission_help1..text.changed=20090329210426
 jsp_page_site_en_permission_help1..text.md5=1L9dkFz9ft3lgAs9rEmxpw\=\=
-jsp_page_site_en_permission_help2..text.author=cyril
-jsp_page_site_en_permission_help2..text.changed=20090329210416
-jsp_page_site_en_permission_help2..text.md5=9wTbWGv9Mtp876+JLXGyDw\=\=
 jsp_page_version..text.author=cyril
 jsp_page_version..text.changed=20090329210331
 jsp_page_version..text.md5=NLbNdRca/7ppV+MI3L2Svg\=\=
