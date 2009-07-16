@@ -86,11 +86,20 @@ public interface SakaiProxy {
 	public SakaiPerson getSakaiPerson(String userId);
 	
 	/**
-	 * Get a SakaiPerson Jpeg photo for a user
+	 * Get a SakaiPerson Jpeg photo for a user. Checks UserMutableType record first, then goes for SystemMutableType if none.
+	 * <p>Returns null if nothing found.
 	 * @param userId
 	 * @return
 	 */
 	public byte[] getSakaiPersonJpegPhoto(String userId);
+	
+	/**
+	 * Get a SakaiPerson image URL for a user. Checks UserMutableType record first, then goes for SystemMutableType if none.
+	 * <p>Returns null if nothing found.
+	 * @param userId
+	 * @return
+	 */
+	public String getSakaiPersonImageUrl(String userId);
 	
 	/**
 	 * Get a SakaiPerson prototype if they don't have a profile.

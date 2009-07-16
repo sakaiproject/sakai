@@ -213,10 +213,38 @@ public class SakaiProxyImpl implements SakaiProxy {
 			}
 			
 		} catch (Exception e) {
-			log.error("SakaiProxy.getSakaiPerson(): Couldn't get SakaiPerson Jpeg photo for: " + userId + " : " + e.getClass() + " : " + e.getMessage());
+			log.error("SakaiProxy.getSakaiPersonJpegPhoto(): Couldn't get SakaiPerson Jpeg photo for: " + userId + " : " + e.getClass() + " : " + e.getMessage());
 		}
 		return image;
-  }
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public String getSakaiPersonImageUrl(String userId) {
+		
+		SakaiPerson sakaiPerson = null;
+		String url = null;
+    
+		try {
+			//try normal user type
+			sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
+			if(sakaiPerson != null) {
+				url = sakaiPerson.getPictureUrl();
+			}
+			//if null try system user type as a profile might have been created with this type
+			if(StringUtils.isBlank(url)) {
+				sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getSystemMutableType());
+				if(sakaiPerson != null) {
+					url = sakaiPerson.getPictureUrl();
+				}
+			}
+			
+		} catch (Exception e) {
+			log.error("SakaiProxy.getSakaiPersonImageUrl(): Couldn't get SakaiPerson image URL for: " + userId + " : " + e.getClass() + " : " + e.getMessage());
+		}
+		return url;
+	}
 	
 	/**
  	* {@inheritDoc}
