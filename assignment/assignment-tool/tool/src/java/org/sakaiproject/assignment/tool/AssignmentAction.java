@@ -3590,14 +3590,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			else
 			{
-				if (typeOfGrade == 1)
-				{
-					sEdit.setGrade(rb.getString("gen.nograd"));
-				}
-				else
-				{
-					sEdit.setGrade(grade);
-				}
+				sEdit.setGrade(grade);
 				
 				if (grade.length() != 0)
 				{
