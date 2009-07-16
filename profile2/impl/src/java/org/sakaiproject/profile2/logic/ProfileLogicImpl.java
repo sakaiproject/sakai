@@ -19,7 +19,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.sakaiproject.api.common.edu.person.SakaiPerson;
+import org.hibernate.Transaction;
 import org.sakaiproject.profile2.model.ProfileFriend;
 import org.sakaiproject.profile2.model.ProfileImage;
 import org.sakaiproject.profile2.model.ProfileImageExternal;
@@ -499,37 +499,43 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	public boolean addNewProfileImage(String userId, String mainResource, String thumbnailResource) {
+	public boolean addNewProfileImage(final String userId, final String mainResource, final String thumbnailResource) {
 		
-		//first get the current ProfileImage records for this user
-		List<ProfileImage> currentImages = new ArrayList<ProfileImage>(getCurrentProfileImageRecords(userId));
-		for(Iterator<ProfileImage> i = currentImages.iterator(); i.hasNext();){
-			ProfileImage currentImage = (ProfileImage)i.next();
-			
-			//invalidate each
-			currentImage.setCurrent(false);
-			
-			//save
-			try {
-				getHibernateTemplate().update(currentImage);
-				log.info("Profile.saveProfileImageRecord(): Invalidated profileImage: " + currentImage.getId() + " for user: " + currentImage.getUserUuid()); //$NON-NLS-1$ //$NON-NLS-2$
-			} catch (Exception e) {
-				log.error("Profile.saveProfileImageRecord(): Couldn't invalidate profileImage: " + e.getClass() + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-		}
-				
-		//now create a new ProfileImage object with the new data - this is our new current ProfileImage
-		ProfileImage newProfileImage = new ProfileImage(userId, mainResource, thumbnailResource, true);
-		
-		//save the new ProfileImage to the db
-		try {
-			getHibernateTemplate().save(newProfileImage);
-			log.info("Profile.saveProfileImageRecord(): Saved new profileImage for user: " + newProfileImage.getUserUuid()); //$NON-NLS-1$
-			return true;
-		} catch (Exception e) {
-			log.error("Profile.saveProfileImageRecord() failed. " + e.getClass() + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
-			return false;
-		}
+		Boolean success = (Boolean) getHibernateTemplate().execute(new HibernateCallback() {			
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
+					Transaction tx = null;
+					try{
+						tx = session.beginTransaction();
+            
+            //first get the current ProfileImage records for this user
+            List<ProfileImage> currentImages = new ArrayList<ProfileImage>(getCurrentProfileImageRecords(userId));
+            
+            for(Iterator<ProfileImage> i = currentImages.iterator(); i.hasNext();){
+              ProfileImage currentImage = (ProfileImage)i.next();
+              
+              //invalidate each
+              currentImage.setCurrent(false);
+              
+              //save
+              session.update(currentImage);
+            }
+            //now create a new ProfileImage object with the new data - this is our new current ProfileImage
+            ProfileImage newProfileImage = new ProfileImage(userId, mainResource, thumbnailResource, true);
+              
+            //save the new ProfileImage to the db
+            session.save(newProfileImage);
+            
+            // commit ALL
+						tx.commit();
+					}catch(Exception e){
+						if(tx != null) tx.rollback();
+						log.error("Profile.saveProfileImageRecord() failed. " + e.getClass() + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+						return Boolean.FALSE;
+					}
+					return Boolean.TRUE;
+				}			
+		});
+    return success.booleanValue();
 	}
 
 
@@ -1919,20 +1925,11 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 				continue;
 			}
 
-			//get SakaiPerson
-			SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
-			
-			if(sakaiPerson == null) {
-				log.error("Profile2 conversion util: No valid SakaiPerson record for " + userUuid + ". Skipping..."); //$NON-NLS-1$ //$NON-NLS-2$
-				continue;
-			}
-			
 			//get photo from SakaiPerson
-			byte[] image = null;
-			image = sakaiPerson.getJpegPhoto();
+			byte[] image = sakaiProxy.getSakaiPersonJpegPhoto(userUuid);
 			
 			//if none, nothing to do
-			if(image == null) {
+			if(image == null || image.length == 0) {
 				log.info("Profile2 conversion util: Nothing to convert for " + userUuid + ". Skipping..."); //$NON-NLS-1$ //$NON-NLS-2$
 				continue;
 			}

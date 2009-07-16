@@ -86,6 +86,13 @@ public interface SakaiProxy {
 	public SakaiPerson getSakaiPerson(String userId);
 	
 	/**
+	 * Get a SakaiPerson Jpeg photo for a user
+	 * @param userId
+	 * @return
+	 */
+	public byte[] getSakaiPersonJpegPhoto(String userId);
+	
+	/**
 	 * Get a SakaiPerson prototype if they don't have a profile.
 	 * <p>This is not persistable so should only be used for temporary views.
 	 * Use createSakaiPerson if need persistable object for saving a profile.

@@ -183,19 +183,40 @@ public class SakaiProxyImpl implements SakaiProxy {
 		SakaiPerson sakaiPerson = null;
 		
 		try {
-			//try normal user type
 			sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
-			
-			//if null try system user type as a profile might have been created with this type
-			if(sakaiPerson == null) {
-				sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getSystemMutableType());
-			}
-			
 		} catch (Exception e) {
 			log.error("SakaiProxy.getSakaiPerson(): Couldn't get SakaiPerson for: " + userId + " : " + e.getClass() + " : " + e.getMessage());
 		}
 		return sakaiPerson;
 	}
+  
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public byte[] getSakaiPersonJpegPhoto(String userId) {
+		
+		SakaiPerson sakaiPerson = null;
+		byte[] image = null;
+    
+		try {
+			//try normal user type
+			sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
+			if(sakaiPerson != null) {
+				image = sakaiPerson.getJpegPhoto();
+			}
+			//if null try system user type as a profile might have been created with this type
+			if(image == null) {
+				sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getSystemMutableType());
+				if(sakaiPerson != null) {
+					image = sakaiPerson.getJpegPhoto();
+				}
+			}
+			
+		} catch (Exception e) {
+			log.error("SakaiProxy.getSakaiPerson(): Couldn't get SakaiPerson Jpeg photo for: " + userId + " : " + e.getClass() + " : " + e.getMessage());
+		}
+		return image;
+  }
 	
 	/**
  	* {@inheritDoc}
