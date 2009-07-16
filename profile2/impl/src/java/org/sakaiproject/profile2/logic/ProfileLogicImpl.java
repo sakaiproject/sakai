@@ -478,6 +478,12 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
  	 */
 	public boolean savePrivacyRecord(ProfilePrivacy profilePrivacy) {
 
+		//if changes not allowed
+		if(!sakaiProxy.isPrivacyChangeAllowedGlobally()) {
+			log.warn("Privacy changes are not permitted as per sakai.properties setting 'profile2.privacy.change.enabled'.");
+			return false;
+		}
+		
 		try {
 			getHibernateTemplate().saveOrUpdate(profilePrivacy);
 			log.info("Saved privacy record for user: " + profilePrivacy.getUserUuid()); //$NON-NLS-1$
