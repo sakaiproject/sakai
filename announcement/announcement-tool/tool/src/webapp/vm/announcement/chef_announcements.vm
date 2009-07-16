@@ -45,7 +45,7 @@
 				<ul class="navIntraTool actionToolBar" role="menu">
 					<li class="firstToolBarItem" role="menuitem"><span><a href="#" title="$tlang.getString("gen.recopt")" onclick="location = '#toolLink("$action" "doOptions")';return false;">
 						$tlang.getString("custom.options")
-					</a></span></li></ul>
+					</a></span></li>
 				</ul>
 			#else
 				#toolbar($menu)
