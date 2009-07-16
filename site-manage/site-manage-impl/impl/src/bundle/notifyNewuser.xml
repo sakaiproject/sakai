@@ -139,6 +139,19 @@ Vous pouvez aller dans l'outil Compte dans le site ma Zone de Travail pour le r\
  <locale>fr_CA</locale>
 </emailTemplate>
 <emailTemplate>
+ <subject>${localSakaiName} Nouvelle notification utilisateur</subject>
+ <message>${userName}:
+
+Vous avez \u00E9t\u00E9 ajout\u00E9 \u00E0 ${localSakaiName} (${localSakaiURL})par ${currentUserDisplayName}. 
+
+Votre mot de passe est 
+ ${newPassword} 
+
+Vous pouvez aller dans l'outil Compte dans le site mon Espace de Travail pour le r\u00E9initialiser.
+
+</message>
+ <locale>fr_FR</locale>
+<emailTemplate>
  <subject>${localSakaiName} </subject>
  <message>${userName}:
 
