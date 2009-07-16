@@ -55,6 +55,16 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
+		<repository>
+			<id>wicket-snaps</id>
+			<url>http://wicketstuff.org/maven/repository</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
 	</repositories>
 	    
     <properties>
@@ -69,6 +79,7 @@
     	<tinyurl.version>0.9-SNAPSHOT</tinyurl.version>
     	<commons.lang.version>2.1</commons.lang.version>
     	<entitybroker.version>1.3.6</entitybroker.version>
+    	<wicket.tinymce.version>1.3-SNAPSHOT</wicket.tinymce.version>
     </properties>
     
     <!-- Profile2 related dependencies -->
@@ -120,6 +131,11 @@
 	      		<artifactId>wicket-spring-annot</artifactId>
 	      		<version>${wicket.version}</version>
 	    	</dependency>
+	    	<dependency>
+	    		<groupId>org.wicketstuff</groupId>
+  				<artifactId>wicket-contrib-tinymce</artifactId>
+  				<version>${wicket.tinymce.version}</version>
+  			</dependency>
 	    	<dependency>
 	      		<groupId>org.jasypt</groupId>
 	      		<artifactId>jasypt</artifactId>
