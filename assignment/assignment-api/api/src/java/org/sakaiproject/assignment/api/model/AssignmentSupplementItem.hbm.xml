@@ -23,7 +23,7 @@
             	<column name="ASSIGNMENT_ID"/>
       	  	</property>
         
-        	<property name="text" type="string" not-null="false">
+        	<property name="text" type="text" not-null="false" length="16777215">
             	<column name="TEXT"/>
         	</property>
         
@@ -44,7 +44,7 @@
             	<column name="TITLE"/>
         	</property>
         
-        	<property name="text" type="text" not-null="false">
+        	<property name="text" type="text" not-null="false" length="16777215">
             	<column name="TEXT"/>
         	</property>
         
@@ -81,7 +81,7 @@
             <column name="ASSIGNMENT_ID"/>
         </property>
         
-        <property name="note" type="string" not-null="false">
+        <property name="note" type="text" not-null="false" length="16777215">
             <column name="NOTE"/>
         </property>
         
