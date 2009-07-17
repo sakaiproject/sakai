@@ -29,6 +29,7 @@ import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.ConfirmedFriendsDataProvider;
 import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
+import org.sakaiproject.profile2.tool.pages.windows.IgnoreFriend;
 import org.sakaiproject.profile2.tool.pages.windows.RemoveFriend;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
@@ -116,6 +117,9 @@ public class ConfirmedFriends extends Panel {
 		final WebMarkupContainer confirmedFriendsContainer = new WebMarkupContainer("confirmedFriendsContainer");
 		confirmedFriendsContainer.setOutputMarkupId(true);
 		
+		//connection window
+		final ModalWindow connectionWindow = new ModalWindow("connectionWindow");
+
 		//results
 		DataView confirmedFriendsDataView = new DataView("results-list", provider) {
 			private static final long serialVersionUID = 1L;
@@ -165,19 +169,40 @@ public class ConfirmedFriends extends Panel {
 		    	
 		    	/* ACTIONS */
 		    	
-		    	//REMOVE FRIEND MODAL WINDOW
-				final ModalWindow removeFriendWindow = new ModalWindow("removeFriendWindow");
-				removeFriendWindow.setContent(new RemoveFriend(removeFriendWindow.getContentId(), removeFriendWindow, friendActionModel, userUuid, friendUuid)); 
-				
-				//REMOVE FRIEND LINK
+				//REMOVE FRIEND LINK AND WINDOW
 		    	final AjaxLink removeFriendLink = new AjaxLink("removeFriendLink") {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
 						
-						//target.appendJavascript("Wicket.Window.get().window.style.width='800px';");
-						removeFriendWindow.show(target);
+						//get this item, and set content for modalwindow
+				    	String friendUuid = (String)getParent().getModelObject();
+						connectionWindow.setContent(new RemoveFriend(connectionWindow.getContentId(), connectionWindow, friendActionModel, userUuid, friendUuid)); 
+						
+						//modalwindow handler 
+						connectionWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+							private static final long serialVersionUID = 1L;
+							public void onClose(AjaxRequestTarget target){
+								if(friendActionModel.isRemoved()) { 
+				            		
+				            		//decrement number of friends
+				            		numConfirmedFriends--;
+				            		
+				            		//remove friend item from display
+				            		target.appendJavascript("$('#" + item.getMarkupId() + "').slideUp();");
+				            		
+				            		//update label
+				            		target.addComponent(confirmedFriendsHeading);
+				            		
+				            		//if none left, hide whole thing
+				            		if(numConfirmedFriends==0) {
+				            			target.appendJavascript("$('#" + confirmedFriendsContainer.getMarkupId() + "').fadeOut();");
+				            		}
+				            	}
+							}
+				        });	
+						
+						connectionWindow.show(target);
 						target.appendJavascript("fixWindowVertical();"); 
-
 					}
 				};
 				ContextImage removeFriendIcon = new ContextImage("removeFriendIcon",new Model(ProfileConstants.DELETE_IMG));
@@ -191,33 +216,7 @@ public class ConfirmedFriends extends Panel {
 					removeFriendLink.setVisible(false);
 				}
 				
-				// REMOVE FRIEND MODAL WINDOW HANDLER 
-				removeFriendWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-					private static final long serialVersionUID = 1L;
-					public void onClose(AjaxRequestTarget target){
-		            	if(friendActionModel.isRemoved()) { 
-		            		
-		            		//decrement number of friends
-		            		numConfirmedFriends--;
-		            		
-		            		//remove friend item from display
-		            		target.appendJavascript("$('#" + item.getMarkupId() + "').slideUp();");
-		            		
-		            		//update label
-		            		target.addComponent(confirmedFriendsHeading);
-		            		
-		            		//if none left, hide whole thing
-		            		if(numConfirmedFriends==0) {
-		            			target.appendJavascript("$('#" + confirmedFriendsContainer.getMarkupId() + "').fadeOut();");
-		            		}
-		            		
-		            	}
-		            }
-		        });
-				item.add(removeFriendWindow);
-				
 				item.setOutputMarkupId(true);
-				
 		    }
 			
 		};
@@ -228,6 +227,9 @@ public class ConfirmedFriends extends Panel {
 
 		//add results container
 		add(confirmedFriendsContainer);
+		
+		//add window
+		add(connectionWindow);
 		
 		//add pager
 		AjaxPagingNavigator pager = new AjaxPagingNavigator("navigator", confirmedFriendsDataView);
