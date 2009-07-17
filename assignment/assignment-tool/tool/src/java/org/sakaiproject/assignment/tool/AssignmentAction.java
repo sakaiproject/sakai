@@ -9742,8 +9742,7 @@ public class AssignmentAction extends PagedResourceActionII
 									try
 									{
 										User u = UserDirectoryService.getUser(userId);
-										// only include those users that can submit to this assignment
-										if (u != null && allowAddSubmissionUsers.contains(u))
+										if (u != null)
 										{
 											boolean found = false;
 											for (int i = 0; !found && i<submissions.size();i++)
@@ -9757,8 +9756,8 @@ public class AssignmentAction extends PagedResourceActionII
 											}
 											
 		
-											// add those users who haven't made any submissions
-											if (!found)
+											// add those users who haven't made any submissions and with submission rights
+											if (!found && allowAddSubmissionUsers.contains(u))
 											{
 												// construct fake submissions for grading purpose if the user has right for grading
 												if (AssignmentService.allowGradeSubmission(a.getReference()))
