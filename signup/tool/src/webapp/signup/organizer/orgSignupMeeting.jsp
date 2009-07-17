@@ -2,8 +2,10 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
-<f:view>
-	<f:loadBundle basename="messages" var="msgs"/>
+<f:view locale="#{UserLocale.locale}">
+	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
+	   <jsp:setProperty name="msgs" property="baseName" value="messages"/>
+	</jsp:useBean>
 	<sakai:view_container title="Signup Tool">
 		<style type="text/css">
 			@import url("/sakai-signup-tool/css/signupStyle.css");
@@ -66,38 +68,62 @@
 								<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.location}" styleClass="longtext"/>
 								
 								<h:outputText value="#{msgs.event_date}" styleClass="titleText" escape="false"/>
-								<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.startTime}" styleClass="longtext">
-								 	<f:convertDateTime dateStyle="full"/>
+								<h:panelGroup>
+									<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.startTime}" styleClass="longtext">
+									 	<f:convertDateTime pattern="EEEEEEEE, "/>
+									</h:outputText>
+									<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.startTime}" styleClass="longtext">
+								 	<f:convertDateTime dateStyle="long"/>
 								</h:outputText>
+								</h:panelGroup>
 								
 								<h:outputText value="#{msgs.event_time_period}" styleClass="titleText" escape="false"/>
 								<h:panelGroup>
 									<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.startTime}">
-										<f:convertDateTime timeStyle="short" />
+										<f:convertDateTime pattern="h:mm a" />
 									</h:outputText>
 									<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.startTime}" rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
 										<f:convertDateTime pattern=", EEEEEEEE" />
 									</h:outputText>
 									<h:outputText value="#{msgs.timeperiod_divider}" escape="false"/>
 									<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.endTime}">
-										<f:convertDateTime timeStyle="short" />
+										<f:convertDateTime pattern="h:mm a" />
 									</h:outputText>
-									<h:outputText value=",&nbsp;" escape="false" rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingCrossDays}"/>
-									<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.endTime}" rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
-											<f:convertDateTime dateStyle="full"/>
-									</h:outputText>
+									<h:panelGroup rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
+										<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.endTime}" >
+												<f:convertDateTime pattern=", EEEEEEEE, "/>
+										</h:outputText>
+										<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.endTime}" >
+												<f:convertDateTime dateStyle="long"/>
+										</h:outputText>
+									</h:panelGroup>
 								</h:panelGroup>		
 								
-								
 								<h:outputText value="#{msgs.event_signup_start}" styleClass="titleText" rendered="#{!OrganizerSignupMBean.announcementType}" escape="false"/>			
-								<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.signupBegins}" styleClass="longtext" rendered="#{!OrganizerSignupMBean.announcementType}">
-								 	<f:convertDateTime dateStyle="full" timeStyle="short" type="both" />
-								</h:outputText>
+								<h:panelGroup rendered="#{!OrganizerSignupMBean.announcementType}">
+									<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.signupBegins}" styleClass="longtext">
+									 	<f:convertDateTime pattern="EEEEEEEE, " />
+									</h:outputText>
+									<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.signupBegins}" styleClass="longtext">
+									 	<f:convertDateTime dateStyle="long" />
+									</h:outputText>
+									<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.signupBegins}" styleClass="longtext">
+									 	<f:convertDateTime pattern=", h:mm a" />
+									</h:outputText>
+								</h:panelGroup>
 									
 								<h:outputText value="#{msgs.event_signup_deadline}" styleClass="titleText" rendered="#{!OrganizerSignupMBean.announcementType}" escape="false"/>
-								<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.signupDeadline}" styleClass="longtext" rendered="#{!OrganizerSignupMBean.announcementType}">
-								 	<f:convertDateTime dateStyle="full" timeStyle="short" type="both" />
-								</h:outputText>
+								<h:panelGroup rendered="#{!OrganizerSignupMBean.announcementType}">
+									<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.signupDeadline}" styleClass="longtext">
+									 	<f:convertDateTime pattern="EEEEEEEE, " />
+									</h:outputText>
+									<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.signupDeadline}" styleClass="longtext">
+									 	<f:convertDateTime dateStyle="long" />
+									</h:outputText>
+									<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.signupDeadline}" styleClass="longtext">
+									 	<f:convertDateTime pattern=", h:mm a" />
+									</h:outputText>
+								</h:panelGroup>
 								
 								<h:outputText value="#{msgs.event_status}" styleClass="titleText" rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}" escape="false"/>
 								<h:outputText value="#{msgs.event_isOver}" styleClass="longtext" escape="false"  rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}"/>
@@ -192,14 +218,14 @@
 											<h:outputLink title="#{msgs.event_tool_tips_lockOrcancel}"  onclick="showEditTimeslot('#{timeSlotWrapper.positionInTSlist}'); return false;"
 												rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}">
 									   			<h:outputText value="#{timeSlotWrapper.timeSlot.startTime}">
-													<f:convertDateTime timeStyle="short" />
+													<f:convertDateTime pattern="h:mm a" />
 												</h:outputText>
 												<h:outputText value="#{timeSlotWrapper.timeSlot.startTime}" rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
 													<f:convertDateTime pattern=", EEE" />
 												</h:outputText>
 												<h:outputText value="#{msgs.timeperiod_divider}" escape="false"/>
 												<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}">
-													<f:convertDateTime timeStyle="short" />
+													<f:convertDateTime pattern="h:mm a" />
 												</h:outputText>
 												<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}" rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
 													<f:convertDateTime pattern=", EEE" />
@@ -207,14 +233,14 @@
 											</h:outputLink>
 											<h:panelGroup rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}">
 												<h:outputText value="#{timeSlotWrapper.timeSlot.startTime}">
-													<f:convertDateTime timeStyle="short" />
+													<f:convertDateTime pattern="h:mm a" />
 												</h:outputText>
 												<h:outputText value="#{timeSlotWrapper.timeSlot.startTime}" rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
 													<f:convertDateTime pattern=", EEE" />
 												</h:outputText>
 												<h:outputText value="#{msgs.timeperiod_divider}" escape="false"/>
 												<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}">
-													<f:convertDateTime timeStyle="short" />
+													<f:convertDateTime pattern="h:mm a" />
 												</h:outputText>
 												<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}" rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
 													<f:convertDateTime pattern=", EEE" />

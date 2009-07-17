@@ -10,6 +10,8 @@
         <message-bundle>messages</message-bundle>
         <locale-config>
             <default-locale>en</default-locale>
+			<!-- The JSTL specfication implies that region-specific locales must precede generic language locales. -->
+			<!-- supported-locale>en_GB</supported-locale -->
         </locale-config>
     </application>
 
@@ -240,6 +242,12 @@
 			<property-name>sakaiFacade</property-name>
 			<value>#{org_sakaiproject_signup_logic_SakaiFacade}</value>
 		</managed-property>
+    </managed-bean>
+    
+    <managed-bean>
+    	<managed-bean-name>UserLocale</managed-bean-name>
+    	<managed-bean-class>org.sakaiproject.signup.tool.jsf.UserLocale</managed-bean-class>
+    	<managed-bean-scope>application</managed-bean-scope>
     </managed-bean>
     
 	<validator>

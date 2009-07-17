@@ -3,8 +3,10 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 
-<f:view>
-	<f:loadBundle basename="messages" var="msgs"/>
+<f:view locale="#{UserLocale.locale}">
+	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
+	   <jsp:setProperty name="msgs" property="baseName" value="messages"/>
+	</jsp:useBean>
 	<sakai:view_container title="Signup Tool">
 		<style type="text/css">
 			@import url("/sakai-signup-tool/css/signupStyle.css");

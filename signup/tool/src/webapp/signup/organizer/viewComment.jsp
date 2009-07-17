@@ -3,8 +3,10 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 
-<f:view>
-	<f:loadBundle basename="messages" var="msgs"/>
+<f:view locale="#{UserLocale.locale}">
+	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
+	   <jsp:setProperty name="msgs" property="baseName" value="messages"/>
+	</jsp:useBean>
 	<sakai:view_container title="Signup Tool">
 			<style type="text/css">
 				@import url("/sakai-signup-tool/css/signupStyle.css");
@@ -45,9 +47,14 @@
 					<h:outputText value="#{ViewCommentSignupMBean.attendeeWraper.timeslotPeriod}" styleClass="longtext" escape="false"/>
 					
 					<h:outputText value="#{msgs.event_appointment_date}" styleClass="titleText" escape="false"/>
-					<h:outputText value="#{ViewCommentSignupMBean.meetingWrapper.meeting.startTime}" styleClass="longtext">
-					 	<f:convertDateTime dateStyle="full" />
-					</h:outputText>	
+					<h:panelGroup>
+						<h:outputText value="#{ViewCommentSignupMBean.meetingWrapper.meeting.startTime}" styleClass="longtext">
+						 	<f:convertDateTime pattern="EEEEEEEE, " />
+						</h:outputText>
+						<h:outputText value="#{ViewCommentSignupMBean.meetingWrapper.meeting.startTime}" styleClass="longtext">
+						 	<f:convertDateTime dateStyle="long" />
+						</h:outputText>
+					</h:panelGroup>	
 					
 					<h:outputText value="&nbsp" escape="false"/>
 					<h:outputText value="&nbsp" escape="false"/>

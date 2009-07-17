@@ -3,8 +3,10 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 
-<f:view>
-	<f:loadBundle basename="messages" var="msgs"/>
+<f:view locale="#{UserLocale.locale}">
+	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
+	   <jsp:setProperty name="msgs" property="baseName" value="messages"/>
+	</jsp:useBean>
 	<sakai:view_container title="Signup Tool">
 		<style type="text/css">
 			@import url("/sakai-signup-tool/css/signupStyle.css");
@@ -38,19 +40,42 @@
 								<h:outputText value="#{NewSignupMeetingBean.signupMeeting.description}" styleClass="longtext" escape="false"/>
 								
 								<h:outputText value="#{msgs.event_start_time}" styleClass="titleText" escape="false"/>
-								<h:outputText value="#{NewSignupMeetingBean.signupMeeting.startTime}" styleClass="longtext">
-			 						<f:convertDateTime dateStyle="full" timeStyle="short" type="both"/>
-			 					</h:outputText>	
+								<h:panelGroup>
+									<h:outputText value="#{NewSignupMeetingBean.signupMeeting.startTime}" styleClass="longtext">
+				 						<f:convertDateTime pattern="EEEEEEEE, " />
+				 					</h:outputText>
+									<h:outputText value="#{NewSignupMeetingBean.signupMeeting.startTime}" styleClass="longtext">
+				 						<f:convertDateTime dateStyle="long" />
+				 					</h:outputText>
+				 					<h:outputText value="#{NewSignupMeetingBean.signupMeeting.startTime}" styleClass="longtext">
+				 						<f:convertDateTime pattern=", h:mm a" />
+				 					</h:outputText>		
+								</h:panelGroup>
 								
 								<h:outputText value="#{msgs.event_end_time}" styleClass="titleText" escape="false"/>
-								<h:panelGroup>
-									<h:outputText value="#{NewSignupMeetingBean.meetingEndTime}" styleClass="longtext" rendered="#{!NewSignupMeetingBean.endTimeAutoAdjusted}">
-										<f:convertDateTime dateStyle="full" timeStyle="short" type="both"/>
+								<h:panelGroup rendered="#{!NewSignupMeetingBean.endTimeAutoAdjusted}">
+									<h:outputText value="#{NewSignupMeetingBean.meetingEndTime}" styleClass="longtext">
+										<f:convertDateTime pattern="EEEEEEEE, " />
 									</h:outputText>
-									<h:outputText value="#{NewSignupMeetingBean.meetingEndTime}" style="color:#b11;" styleClass="longtext" rendered="#{NewSignupMeetingBean.endTimeAutoAdjusted}">
-										<f:convertDateTime dateStyle="full" timeStyle="short" type="both"/>
+									<h:outputText value="#{NewSignupMeetingBean.meetingEndTime}" styleClass="longtext">
+										<f:convertDateTime dateStyle="long" />
+									</h:outputText>
+									<h:outputText value="#{NewSignupMeetingBean.meetingEndTime}" styleClass="longtext">
+										<f:convertDateTime pattern=", h:mm a" />
 									</h:outputText>
 								</h:panelGroup>
+								<h:panelGroup rendered="#{NewSignupMeetingBean.endTimeAutoAdjusted}">
+									<h:outputText value="#{NewSignupMeetingBean.meetingEndTime}" style="color:#b11;" styleClass="longtext">
+										<f:convertDateTime pattern="EEEEEEEE, " />
+									</h:outputText>
+									<h:outputText value="#{NewSignupMeetingBean.meetingEndTime}" style="color:#b11;" styleClass="longtext">
+										<f:convertDateTime dateStyle="long" />
+									</h:outputText>
+									<h:outputText value="#{NewSignupMeetingBean.meetingEndTime}" style="color:#b11;" styleClass="longtext">
+										<f:convertDateTime pattern=", h:mm a" />
+									</h:outputText>
+								</h:panelGroup>
+								
 								
 								<h:outputText styleClass="titleText" value="#{msgs.event_recurrence}"  rendered="#{NewSignupMeetingBean.recurrence}" escape="false"/> 
 								<h:outputText value="#{NewSignupMeetingBean.eventFreqType}" rendered="#{NewSignupMeetingBean.recurrence}" escape="false"/>
@@ -65,14 +90,30 @@
 								<h:outputText value="#{NewSignupMeetingBean.signupMeeting.location}" styleClass="longtext" escape="false"/>
 								
 								<h:outputText value="#{msgs.event_signup_start}" styleClass="titleText" rendered="#{!NewSignupMeetingBean.announcementType}" escape="false"/>
-								<h:outputText value="#{NewSignupMeetingBean.signupBeginInDate}" styleClass="longtext" rendered="#{!NewSignupMeetingBean.announcementType}">
-									<f:convertDateTime dateStyle="full" timeStyle="short" type="both"/>
-								</h:outputText>
+								<h:panelGroup rendered="#{!NewSignupMeetingBean.announcementType}">
+									<h:outputText value="#{NewSignupMeetingBean.signupBeginInDate}" styleClass="longtext">
+										<f:convertDateTime pattern="EEEEEEEE, " />
+									</h:outputText>
+									<h:outputText value="#{NewSignupMeetingBean.signupBeginInDate}" styleClass="longtext">
+										<f:convertDateTime dateStyle="long" />
+									</h:outputText>
+									<h:outputText value="#{NewSignupMeetingBean.signupBeginInDate}" styleClass="longtext">
+										<f:convertDateTime pattern=", h:mm a" />
+									</h:outputText>
+								</h:panelGroup>
 								
 								<h:outputText value="#{msgs.event_signup_deadline}" styleClass="titleText" rendered="#{!NewSignupMeetingBean.announcementType}" escape="false"/>
-								<h:outputText value="#{NewSignupMeetingBean.signupDeadlineInDate}" styleClass="longtext" rendered="#{!NewSignupMeetingBean.announcementType}">
-									<f:convertDateTime dateStyle="full" timeStyle="short" type="both"/>
-								</h:outputText>
+								<h:panelGroup rendered="#{!NewSignupMeetingBean.announcementType}">
+									<h:outputText value="#{NewSignupMeetingBean.signupDeadlineInDate}" styleClass="longtext">
+										<f:convertDateTime pattern="EEEEEEEE, " />
+									</h:outputText>
+									<h:outputText value="#{NewSignupMeetingBean.signupDeadlineInDate}" styleClass="longtext">
+										<f:convertDateTime dateStyle="long" />
+									</h:outputText>
+									<h:outputText value="#{NewSignupMeetingBean.signupDeadlineInDate}" styleClass="longtext">
+										<f:convertDateTime pattern=", h:mm a" />
+									</h:outputText>
+								</h:panelGroup>
 								
 								<h:outputText value="&nbsp;" escape="false"/>
 								<h:outputText value="&nbsp;" escape="false"/>

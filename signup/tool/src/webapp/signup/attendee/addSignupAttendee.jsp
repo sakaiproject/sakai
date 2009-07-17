@@ -2,8 +2,10 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
-<f:view>
-<f:loadBundle basename="messages" var="msgs"/>
+<f:view locale="#{UserLocale.locale}">
+	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
+	   <jsp:setProperty name="msgs" property="baseName" value="messages"/>
+	</jsp:useBean>
 	<sakai:view_container title="Signup Tool">
 		<style type="text/css">
 			@import url("/sakai-signup-tool/css/signupStyle.css");
@@ -20,18 +22,20 @@
 					
 					<h:panelGroup>				    
 		  		   		<h:outputText value="#{AttendeeSignupMBean.timeslotWrapper.timeSlot.startTime}">
-							<f:convertDateTime timeStyle="short" />
+							<f:convertDateTime pattern="h:mm a" />
 						</h:outputText>
 						<h:outputText value="#{AttendeeSignupMBean.timeslotWrapper.timeSlot.startTime}" rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
 								<f:convertDateTime pattern=", EEEEEEEE" />
 						</h:outputText>	
 						<h:outputText value="#{msgs.timeperiod_divider}" escape="false"/>
 						<h:outputText value="#{AttendeeSignupMBean.timeslotWrapper.timeSlot.endTime}">
-							<f:convertDateTime timeStyle="short" />
+							<f:convertDateTime pattern="h:mm a" />
 						</h:outputText>
-						<h:outputText value=",&nbsp;" escape="false"></h:outputText>
 						<h:outputText value="#{AttendeeSignupMBean.timeslotWrapper.timeSlot.endTime}" styleClass="longtext">
-							<f:convertDateTime dateStyle="full"/>
+							<f:convertDateTime pattern=", EEEEEEEE, "/>
+						</h:outputText>
+						<h:outputText value="#{AttendeeSignupMBean.timeslotWrapper.timeSlot.endTime}" styleClass="longtext">
+							<f:convertDateTime dateStyle="long"/>
 						</h:outputText>
 					</h:panelGroup>			
 				   	

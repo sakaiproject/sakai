@@ -2,8 +2,10 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
-<f:view>
-<f:loadBundle basename="messages" var="msgs"/>
+<f:view locale="#{UserLocale.locale}">
+	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
+	   <jsp:setProperty name="msgs" property="baseName" value="messages"/>
+	</jsp:useBean>
 	<sakai:view_container title="Signup Tool">
 		<style type="text/css">
 				@import url("/sakai-signup-tool/css/signupStyle.css");
@@ -132,14 +134,14 @@
 							</f:facet>
 							<h:panelGroup style="white-space: nowrap;">
 								<h:outputText value="#{wrapper.meeting.startTime}">
-									<f:convertDateTime timeStyle="short" />
+									<f:convertDateTime pattern="h:mm a" />
 								</h:outputText>
 								<h:outputText value="#{wrapper.meeting.startTime}" rendered="#{wrapper.meeting.meetingCrossDays}">
 											<f:convertDateTime pattern=", EEE" />
 								</h:outputText>
 								<h:outputText value="#{msgs.timeperiod_divider}" escape="false"/>
 								<h:outputText value="#{wrapper.meeting.endTime}">
-									<f:convertDateTime timeStyle="short" />
+									<f:convertDateTime pattern="h:mm a" />
 								</h:outputText>
 								<h:outputText value="#{wrapper.meeting.endTime}" rendered="#{wrapper.meeting.meetingCrossDays}">
 											<f:convertDateTime pattern=", EEE" />
@@ -152,14 +154,14 @@
 							</f:facet>
 							<h:panelGroup style="white-space: nowrap;">
 								<h:outputText value="#{wrapper.startTime}">
-									<f:convertDateTime timeStyle="short" />
+									<f:convertDateTime pattern="h:mm a" />
 								</h:outputText>
 								<h:outputText value="#{wrapper.startTime}" rendered="#{wrapper.myAppointmentCrossDays}">
 											<f:convertDateTime pattern=", EEE" />
 								</h:outputText>
 								<h:outputText value="#{msgs.timeperiod_divider}" escape="false"/>
 								<h:outputText value="#{wrapper.endTime}">
-									<f:convertDateTime timeStyle="short" />
+									<f:convertDateTime pattern="h:mm a" />
 								</h:outputText>
 								<h:outputText value="#{wrapper.endTime}" rendered="#{wrapper.myAppointmentCrossDays}">
 											<f:convertDateTime pattern=", EEE" />

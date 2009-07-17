@@ -3,8 +3,10 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 
-<f:view>
-	<f:loadBundle basename="messages" var="msgs"/>
+<f:view locale="#{UserLocale.locale}">
+	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
+	   <jsp:setProperty name="msgs" property="baseName" value="messages"/>
+	</jsp:useBean>
 	<sakai:view_container title="Signup Tool">
 		<style type="text/css">
 			@import url("/sakai-signup-tool/css/signupStyle.css");
@@ -19,9 +21,18 @@
 
 				<h:panelGrid columns="2" style="margin-bottom:20px;" columnClasses="titleColumn,valueColumn">
 					<h:outputText value="#{msgs.event_date}" styleClass="titleText" escape="false"/>
-					<h:outputText value="#{NewSignupMeetingBean.signupMeeting.startTime}" styleClass="longtext">
-						<f:convertDateTime dateStyle="full" timeStyle="short" type="both"/>
-			 		</h:outputText>
+					<h:panelGroup>
+						<h:outputText value="#{NewSignupMeetingBean.signupMeeting.startTime}" styleClass="longtext">
+							<f:convertDateTime pattern="EEEEEEEE, " />
+				 		</h:outputText>
+						<h:outputText value="#{NewSignupMeetingBean.signupMeeting.startTime}" styleClass="longtext">
+							<f:convertDateTime dateStyle="long" />
+				 		</h:outputText>
+				 		<h:outputText value="#{NewSignupMeetingBean.signupMeeting.startTime}" styleClass="longtext">
+							<f:convertDateTime pattern=", h:mm a" />
+				 		</h:outputText>
+				 	</h:panelGroup>
+				 	
 					<h:outputText value="#{msgs.event_max_attendee_per_ts}" rendered="#{NewSignupMeetingBean.individualType}" styleClass="titleText" escape="false"/>
 					<h:outputText value="#{NewSignupMeetingBean.numberOfAttendees}" rendered="#{NewSignupMeetingBean.individualType}" styleClass="longtext"/>
 				    
@@ -55,11 +66,11 @@
 						</f:facet>
 						<h:panelGroup>
 				   			<h:outputText value="#{timeSlot.timeSlot.startTime}" styleClass="longtext">
-								<f:convertDateTime timeStyle="short"/>
+								<f:convertDateTime pattern="h:mm a"/>
 							</h:outputText>
 							<h:outputText value="#{msgs.timeperiod_divider}" escape="false"/>
 							<h:outputText value="#{timeSlot.timeSlot.endTime}" styleClass="longtext">
-								<f:convertDateTime timeStyle="short"/>
+								<f:convertDateTime pattern="h:mm a"/>
 							</h:outputText>
 							<h:outputText value="#{timeSlot.timeSlot.startTime}" rendered="#{NewSignupMeetingBean.signupMeeting.meetingCrossDays}">
 									<f:convertDateTime pattern=", EEEEEEEE" />

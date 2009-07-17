@@ -27,7 +27,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
@@ -44,6 +43,7 @@ import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.jsf.ErrorMessageUIBean;
 import org.sakaiproject.signup.tool.jsf.SignupMeetingsBean;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * <p>
@@ -55,7 +55,7 @@ public final class Utilities implements SignupBeanConstants, MeetingTypes {
 	/**
 	 * Get the resource bundle for messages.properties file
 	 */
-	public static ResourceBundle rb = ResourceBundle.getBundle("messages");
+	public static ResourceLoader rb = new ResourceLoader("messages");
 
 	/**
 	 * Defined a constant name for errorMessageUIBean
