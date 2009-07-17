@@ -8,7 +8,7 @@
 	<groupId>org.sakaiproject</groupId>
 	<artifactId>sakai-profile2-api</artifactId>
 	
-	<currentVersion>1.2</currentVersion>
+	<currentVersion>1.3-SNAPSHOT</currentVersion>
 
 	<properties>
 		<deploy.type>jar</deploy.type>

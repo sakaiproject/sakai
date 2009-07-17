@@ -8,7 +8,7 @@
 	<groupId>org.sakaiproject</groupId>
 	<artifactId>sakai-profile2-impl</artifactId>
 	
-	<currentVersion>1.2</currentVersion>
+	<currentVersion>1.3-SNAPSHOT</currentVersion>
 	
 	<properties>
 		<deploy.type>jar</deploy.type>
@@ -21,13 +21,13 @@
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-profile2-api</artifactId>
-			<version>1.2</version>
+			<version>1.3-SNAPSHOT</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-profile2-util</artifactId>
-			<version>1.2</version>
+			<version>1.3-SNAPSHOT</version>
 		</dependency>
 		
 		<!-- external dependencies -->
