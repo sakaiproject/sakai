@@ -9,7 +9,7 @@
 	<artifactId>profile2-base</artifactId>
 		
 	<packaging>pom</packaging>
-	<version>1.2-SNAPSHOT</version>
+	<version>1.2</version>
 	
 	<parent>
 		<artifactId>base</artifactId>
@@ -68,7 +68,7 @@
 	</repositories>
 	    
     <properties>
-    	<tool.version>1.2-SNAPSHOT</tool.version>
+    	<tool.version>1.2</tool.version>
     	<wicket.version>1.3.6</wicket.version>
 		<jetty.version>6.1.4</jetty.version>
     	<log4j.version>1.2.14</log4j.version>
