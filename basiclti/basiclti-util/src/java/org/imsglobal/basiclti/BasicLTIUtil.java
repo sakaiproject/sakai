@@ -151,7 +151,7 @@ public class BasicLTIUtil {
         try {
             // System.out.println("BM="+OAuthSignatureMethod.getBaseString(oam)+"\n");
             oam.addRequiredParameters(acc);
-            System.out.println("Base Message String\n"+OAuthSignatureMethod.getBaseString(oam)+"\n");
+            dPrint("Base Message String\n"+OAuthSignatureMethod.getBaseString(oam)+"\n");
 
             List<Map.Entry<String, String>> params = oam.getParameters();
     

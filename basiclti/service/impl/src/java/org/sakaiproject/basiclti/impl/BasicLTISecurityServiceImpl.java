@@ -55,11 +55,13 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
 import org.sakaiproject.basiclti.SakaiBLTIUtil;
@@ -90,8 +92,25 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 	 */
 	protected boolean checkSecurity(Reference ref)
 	{
-System.out.println("ZZZZZZZZZZZZZZZZZ checkSecurity hard coded to return TRUE");
-		return true;
+		String contextId = ref.getContext();
+		try
+		{
+			Site site = SiteService.getSiteVisit(contextId);
+			if ( site != null ) return true;
+		}
+		catch(IdUnusedException ex)
+		{
+			return false;
+		}
+		catch(PermissionException ex)
+		{
+			return false;
+		}
+		// System.out.println("ID="+ref.getId());
+		// System.out.println("Type="+ref.getType());
+		// System.out.println("SubType="+ref.getSubType());
+
+		return false;
 	}
 	/*******************************************************************************
 	* Init and Destroy
@@ -143,7 +162,7 @@ System.out.println("ZZZZZZZZZZZZZZZZZ checkSecurity hard coded to return TRUE");
 	 * @return siteId
 	 */
 	private String getContextSiteId(String reference) {
-System.out.println("getContextSiteId "+reference);
+                  // TODO: Fix this - Chuck
 		  return ("/site/" + reference);
 	}
 
@@ -154,7 +173,7 @@ System.out.println("getContextSiteId "+reference);
 		/**
 		 * {@inheritDoc}
                    /access/basiclti/site/12-siteid-456/98-placement-id
-                   /access/basiclti/content/ --- content path ----
+                   /access/basiclti/content/ --- content path ---- (Future)
 		 */
 		public boolean parseEntityReference(String reference, Reference ref)
 		{
@@ -193,100 +212,27 @@ System.out.println("getContextSiteId "+reference);
 					Collection copyrightAcceptedRefs) throws EntityPermissionException, EntityNotDefinedException,
 					EntityAccessOverloadException, EntityCopyrightException
 			{
-				String contextId = ref.getContext();
-System.out.println("ContextID="+contextId);
-System.out.println("ID="+ref.getId());
-
-// Make sure contextId is right for placement
-
-// Make sure to check security!
-
-System.out.println("Type="+ref.getType());
-System.out.println("SubType="+ref.getSubType());
-
-// Get the post data for the placement
-String postData = SakaiBLTIUtil.postLaunchHTML(ref.getId());
-
-// postData = "\n<pre>\n"+postData.replace("<","&lt;").replace(">","&gt;")+"\n</pre>\n";
-
-
-try{
-                                                                                res.setContentType("text/html");
-                                                                                ServletOutputStream out = res.getOutputStream();
-out.println(postData);
-} catch(Exception e) { }
-
-
-/*
 				// decide on security
 				if (!checkSecurity(ref))
 				{
-					throw new EntityPermissionException(SessionManager.getCurrentSessionUserId(), "meleteDocs", ref
-							.getReference());
+					throw new EntityPermissionException(SessionManager.getCurrentSessionUserId(), "basiclti", ref.getReference());
 				}
 
-				boolean handled = false;
-				// Find the site we are coming from
-				String contextId = ref.getContext();
-				// isolate the ContentHosting reference
-				Reference contentHostingRef = EntityManager.newReference(ref.getId());
+				// Get the post data for the placement
+				String postData = SakaiBLTIUtil.postLaunchHTML(ref.getId());
+				// postData = "\n<pre>\n"+postData.replace("<","&lt;").replace(">","&gt;")+"\n</pre>\n";
 
 				try
 				{
-					// make sure we have a valid ContentHosting reference with an entity producer we can talk to
-					EntityProducer service = contentHostingRef.getEntityProducer();
-					if (service == null) throw new EntityNotDefinedException(ref.getReference());
-
-					if ( service instanceof ContentHostingService )
-					{
-						ContentHostingService chService = (ContentHostingService) service;
-						try
-						{
-							chService.checkResource(contentHostingRef.getId());
-							
-							ContentResource content = chService.getResource(contentHostingRef.getId());
-							if ( MIME_TYPE_LTI.equals(content.getContentType()) )
-							{
-								byte [] bytes = content.getContent();
-								String str = new String(bytes);
-								Properties props = null;
-								// We must remove our advisor while we do the launch and then put it back
-								// Otherwise the launch will give the user too much power
-								try
-								{
-									props = SakaiSimpleLTI.doLaunch(str, ref.getContext(), ref.getId());
-								}
-								catch (Exception e)
-								{
-									 e.printStackTrace();
-								}
-								if ( props != null ) {
-									String htmltext = props.getProperty("htmltext");
-									if ( htmltext != null )
-									{
-										res.setContentType("text/html");
-										ServletOutputStream out = res.getOutputStream();
-										out.println(htmltext);
-										handled = true;
-									}
-								}
-							}
-						}
-						catch (Exception e)
-						{
-							e.printStackTrace();
-						}
-					}
-					if ( !handled ) {
-						// get the producer's HttpAccess helper, it might not support one
-						HttpAccess access = service.getHttpAccess();
-						if (access == null) throw new EntityNotDefinedException(ref.getReference());
-
-						// let the helper do the work
-						access.handleAccess(req, res, contentHostingRef, copyrightAcceptedRefs);
-					}
+					res.setContentType("text/html");
+					ServletOutputStream out = res.getOutputStream();
+					out.println(postData);
+				} 
+				catch (Exception e)
+				{
+					e.printStackTrace();
 				}
-*/
+
 			}
 		};
 	}
@@ -296,25 +242,7 @@ out.println(postData);
 	 */
 	public Entity getEntity(Reference ref)
 	{
-System.out.println("getEntity "+ref.getId());
-return null;
-/*
-		// decide on security
-		if (!checkSecurity(ref)) return null;
-
-		// isolate the ContentHosting reference
-		Reference contentHostingRef = EntityManager.newReference(ref.getId());
-
-		try
-		{
-			// make sure we have a valid ContentHosting reference with an entity producer we can talk to
-			EntityProducer service = ref.getEntityProducer();
-			if (service == null) return null;
-
-			// pass on the request
-			return service.getEntity(contentHostingRef);
-		}
-*/
+		return null;
 	}
 
 	/**
@@ -331,25 +259,7 @@ return null;
 	 */
 	public String getEntityDescription(Reference ref)
 	{
-System.out.println("getEntityDescription "+ref.getId());
-return null;
-/*
-		// decide on security
-		if (!checkSecurity(ref)) return null;
-
-		// isolate the ContentHosting reference
-		Reference contentHostingRef = EntityManager.newReference(ref.getId());
-
-		try
-		{
-			// make sure we have a valid ContentHosting reference with an entity producer we can talk to
-			EntityProducer service = ref.getEntityProducer();
-			if (service == null) return null;
-
-			// pass on the request
-			return service.getEntityDescription(contentHostingRef);
-		}
-*/
+		return null;
 	}
 
 	/**
@@ -357,32 +267,15 @@ return null;
 	 */
 	public ResourceProperties getEntityResourceProperties(Reference ref)
 	{
-System.out.println("getEntityResourceProperties "+ref.getId());
-return null;
-/*
-		// decide on security
-		if (!checkSecurity(ref)) return null;
-
-		// isolate the ContentHosting reference
-		Reference contentHostingRef = EntityManager.newReference(ref.getId());
-
-		try
-		{
-			// make sure we have a valid ContentHosting reference with an entity producer we can talk to
-			EntityProducer service = ref.getEntityProducer();
-			if (service == null) return null;
-
-			// pass on the request
-			return service.getEntityResourceProperties(contentHostingRef);
-		}
-*/
+		return null;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public String getEntityUrl(Reference ref)
-	{		return ServerConfigurationService.getAccessUrl() + ref.getReference();
+	{
+		return ServerConfigurationService.getAccessUrl() + ref.getReference();
 	}
 
 	/**
@@ -408,7 +301,5 @@ return null;
         {
 		return null;
         }
-
-
 
 }

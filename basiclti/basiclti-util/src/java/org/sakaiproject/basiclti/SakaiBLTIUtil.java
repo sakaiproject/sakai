@@ -37,7 +37,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
  */
 public class SakaiBLTIUtil {
 
-    public static final boolean verbosePrint = true;
+    public static final boolean verbosePrint = false;
 
     public static void dPrint(String str)
     {
@@ -53,7 +53,8 @@ public class SakaiBLTIUtil {
         String launch_url = toNull(config.getProperty("imsti.launch", null));
         setProperty(info, "launch_url", launch_url);
         if ( launch_url == null ) {
-            String xml = config.getProperty("imsti.xml", null);
+            String xml = toNull(config.getProperty("imsti.xml", null));
+            if ( xml == null ) return false;
 	    BasicLTIUtil.parseDescriptor(info, launch, xml);
         }
         setProperty(info, "secret", config.getProperty("imsti.secret", null) );
@@ -150,7 +151,6 @@ public class SakaiBLTIUtil {
     {
         if ( placementId == null ) return "<p>Error, missing placementId.</p>";
         ToolConfiguration placement = SiteService.findTool(placementId);
-        System.out.println("placement="+placement);
         if ( placement == null ) return "<p>Error, cannot load placement="+placementId+".</p>";
     
         // Add user, course, etc to the launch parameters
@@ -165,9 +165,6 @@ public class SakaiBLTIUtil {
            return "<p>Not Configured.</p>";
 	}
 
-        System.out.println("LAUNCH II="+launch);
-        System.out.println("INFO="+info);
-                
         String launch_url = info.getProperty("secure_launch_url");
 	if ( launch_url == null ) launch_url = info.getProperty("launch_url");
         if ( launch_url == null ) return "<p>Not configured</p>";
@@ -193,7 +190,7 @@ public class SakaiBLTIUtil {
             key, secret, org_secret, org_guid, org_name);
 
         if ( launch == null ) return "<p>Error signing message.</p>";
-        System.out.println("LAUNCH III="+launch);
+        dPrint("LAUNCH III="+launch);
 
 	boolean dodebug = toNull(info.getProperty("debug")) != null;
         String postData = BasicLTIUtil.postLaunchHTML(launch, launch_url, dodebug);
@@ -258,10 +255,8 @@ public class SakaiBLTIUtil {
 
     static private String getOurServerUrl() {
         String ourUrl = ServerConfigurationService.getString("sakai.rutgers.linktool.serverUrl");
-        // System.out.println("linktool url " + ourUrl);
         if (ourUrl == null || ourUrl.equals(""))
             ourUrl = ServerConfigurationService.getServerUrl();
-        // System.out.println("linktool url " + ourUrl);
         if (ourUrl == null || ourUrl.equals(""))
             ourUrl = "http://127.0.0.1:8080";
 
