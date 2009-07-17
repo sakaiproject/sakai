@@ -637,7 +637,7 @@ INSERT INTO CITATION_SCHEMA (SCHEMA_ID, PROPERTY_NAME, PROPERTY_VALUE) VALUES('t
     create table ASN_MA_ITEM_T (
         ID number(19,0) not null,
         ASSIGNMENT_ID varchar2(255),
-        TEXT varchar2(255),
+        TEXT clob,
         SHOW_TO number(10,0),
         primary key (ID)
     );
@@ -645,7 +645,7 @@ INSERT INTO CITATION_SCHEMA (SCHEMA_ID, PROPERTY_NAME, PROPERTY_VALUE) VALUES('t
     create table ASN_NOTE_ITEM_T (
         ID number(19,0) not null,
         ASSIGNMENT_ID varchar2(255),
-        NOTE varchar2(255),
+        NOTE clob,
         CREATOR_ID varchar2(255),
         SHARE_WITH number(10,0),
         primary key (ID)
