@@ -506,9 +506,6 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 					try {
 						//first get the current ProfileImage records for this user
 						List<ProfileImage> currentImages = new ArrayList<ProfileImage>(getCurrentProfileImageRecords(userId));
-						//Query q = session.getNamedQuery(QUERY_GET_CURRENT_PROFILE_IMAGE_RECORD);
-						//q.setParameter(USER_UUID, userId, Hibernate.STRING);
-						//List<ProfileImage> currentImages = q.list();
             
 						for(Iterator<ProfileImage> i = currentImages.iterator(); i.hasNext();){
 							ProfileImage currentImage = (ProfileImage)i.next();
@@ -524,6 +521,9 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
               
 						//save the new ProfileImage to the db
 						session.save(newProfileImage);
+						
+						// flush session
+			            session.flush();
             
 					} catch(Exception e) {
 						log.error("Profile.saveProfileImageRecord() failed. " + e.getClass() + ": " + e.getMessage()); 
@@ -1917,8 +1917,10 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 			String userUuid = (String)i.next();
 			
 			//only process uploaded image if doesn't already have a record for this
-			if(!hasUploadedProfileImage(userUuid)) {
-				log.info("Profile2 conversion util: no existing ProfileImage record for " + userUuid + ". Processing...");
+			if(hasUploadedProfileImage(userUuid)) {
+				log.info("Profile2 conversion util: ProfileImage record exists for " + userUuid + ". Nothing to do here, skipping to next section...");
+			} else {
+				log.info("Profile2 conversion util: No existing ProfileImage record for " + userUuid + ". Processing...");
 				
 				//get photo from SakaiPerson
 				byte[] image = sakaiProxy.getSakaiPersonJpegPhoto(userUuid);
@@ -1966,16 +1968,18 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 					 * SAVE IMAGE RESOURCE IDS
 					 */
 					if(addNewProfileImage(userUuid, mainResourceId, thumbnailResourceId)) {
-						log.info("Profile2 conversion util: binary image converted and saved for " + userUuid);
+						log.info("Profile2 conversion util: Binary image converted and saved for " + userUuid);
 					} else {
-						log.warn("Profile2 conversion util: binary image conversion failed for " + userUuid);
+						log.warn("Profile2 conversion util: Binary image conversion failed for " + userUuid);
 					}
 				}
-			}
+			} 
 			
 			//process any image URLs, if they don't already have a valid record.
-			if(!hasExternalProfileImage(userUuid)) {
-				log.info("Profile2 conversion util: no existing ProfileImageExternal record for " + userUuid + ". Processing...");
+			if(hasExternalProfileImage(userUuid)) {
+				log.info("Profile2 conversion util: ProfileImageExternal record exists for " + userUuid + ". Nothing to do here, skipping...");
+			} else {
+				log.info("Profile2 conversion util: No existing ProfileImageExternal record for " + userUuid + ". Processing...");
 				
 				String url = sakaiProxy.getSakaiPersonImageUrl(userUuid);
 				
@@ -1984,9 +1988,9 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 					log.info("Profile2 conversion util: No url image to convert for " + userUuid + ". Skipping...");
 				} else {
 					if(saveExternalImage(userUuid, url, null)) {
-						log.info("Profile2 conversion util: url image converted and saved for " + userUuid);
+						log.info("Profile2 conversion util: Url image converted and saved for " + userUuid);
 					} else {
-						log.warn("Profile2 conversion util: url image conversion failed for " + userUuid);
+						log.warn("Profile2 conversion util: Url image conversion failed for " + userUuid);
 					}
 				}
 				
