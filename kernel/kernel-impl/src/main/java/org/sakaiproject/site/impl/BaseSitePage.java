@@ -368,9 +368,18 @@ public class BaseSitePage implements SitePage, Identifiable
 		if ( IFRAME_TOOL_ID.equals(toolId) || NEWS_TOOL_ID.equals(toolId) || LINK_TOOL_ID.equals(toolId) )
 			return m_title;
 			
-		// otherwise, return localized title
-		else
-			return ActiveToolManager.getTool(toolId).getTitle();
+		// otherwise, return attempt to return a localized title
+		else {
+            Tool localTool = ActiveToolManager.getTool(toolId);
+            if (localTool != null) {
+            	return ActiveToolManager.getTool(toolId).getTitle();
+            }
+        }
+
+        //If all this fails, return something
+        if (M_log.isDebugEnabled()) M_log.debug("Returning default m_title:" + m_title + " for toolId:" + toolId);
+
+        return m_title;
 	}
 
 	/**
