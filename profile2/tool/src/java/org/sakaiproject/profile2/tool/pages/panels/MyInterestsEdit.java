@@ -82,6 +82,7 @@ public class MyInterestsEdit extends Panel {
 		WebMarkupContainer otherContainer = new WebMarkupContainer("otherContainer");
 		otherContainer.add(new Label("otherLabel", new ResourceModel("profile.other")));
 		TextArea otherInformation = new TextArea("otherInformation", new PropertyModel(userProfile, "otherInformation"));
+		//otherInformation.add(new TinyMceBehavior());
 		otherContainer.add(otherInformation);
 		form.add(otherContainer);
 		
