@@ -36,6 +36,12 @@ Note: I have only tested the MySQL and Oracle conversion scripts. I do not have 
 have not been able to test the conversion scripts. They are provided here in good faith only (or might be missing entirely).
 Please check them before you run them, preferably with a DBA for your particular database vendor.
 
+INDEXES:
+--------
+Database table indexes are provided in a separate script. For new installs these should be run manually as Hibernate is not adding them.
+This is a known issue. For upgrades, the upgrade script will add the indexes for you.
+
+
 ERRORS/OMISSIONS:
 -----------------
 For any errors or omissions, please open a Jira ticket at http://jira.sakaiproject.org/jira/browse/PRFL
