@@ -177,6 +177,23 @@ public class RequestedFriends extends Panel {
 							public void onClose(AjaxRequestTarget target){
 								if(friendActionModel.isConfirmed()) { 
 				            		
+				            		//decrement number of requests
+				            		numRequestedFriends--;
+				            		
+				            		//remove friend item from display
+				            		target.appendJavascript("$('#" + item.getMarkupId() + "').slideUp();");
+				            		
+				            		//update label
+				            		target.addComponent(requestedFriendsHeading);
+				            		
+				            		//repaint confirmed friends panel by calling method in MyFriends to repaint it for us
+				            		parent.updateConfirmedFriends(target, userUuid);
+				            		
+				            		//if none left, hide everything
+				            		if(numRequestedFriends==0) {
+				            			target.appendJavascript("$('#" + requestedFriendsHeading.getMarkupId() + "').fadeOut();");
+				            			target.appendJavascript("$('#" + requestedFriendsContainer.getMarkupId() + "').fadeOut();");
+				            		}
 				            	}
 							}
 				        });	
