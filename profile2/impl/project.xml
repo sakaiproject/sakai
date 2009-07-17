@@ -8,7 +8,7 @@
 	<groupId>org.sakaiproject</groupId>
 	<artifactId>sakai-profile2-impl</artifactId>
 	
-	<currentVersion>1.2-SNAPSHOT</currentVersion>
+	<currentVersion>1.2</currentVersion>
 	
 	<properties>
 		<deploy.type>jar</deploy.type>
@@ -21,13 +21,13 @@
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-profile2-api</artifactId>
-			<version>1.2-SNAPSHOT</version>
+			<version>1.2</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-profile2-util</artifactId>
-			<version>1.2-SNAPSHOT</version>
+			<version>1.2</version>
 		</dependency>
 		
 		<!-- external dependencies -->
@@ -162,9 +162,7 @@
       		<artifactId>sakai-email-api</artifactId>
       		<version>${sakai.version}</version>
    		</dependency>
-   		
-   	
-  	
+
   	</dependencies>
 
 	<build>

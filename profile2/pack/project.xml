@@ -8,7 +8,7 @@
 	<groupId>org.sakaiproject</groupId>
 	<artifactId>sakai-profile2-pack</artifactId>
 	
-	<currentVersion>1.2-SNAPSHOT</currentVersion>
+	<currentVersion>1.2</currentVersion>
 	
 	<properties>
 		<deploy.type>components</deploy.type>
@@ -20,7 +20,7 @@
         <dependency>
             <groupId>org.sakaiproject</groupId>
             <artifactId>sakai-profile2-impl</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>1.2</version>
             <properties>
 				<war.bundle>true</war.bundle>
 			</properties>
@@ -28,7 +28,7 @@
         <dependency>
             <groupId>org.sakaiproject</groupId>
             <artifactId>sakai-profile2-util</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>1.2</version>
             <properties>
 				<war.bundle>true</war.bundle>
 			</properties>
@@ -48,7 +48,7 @@
 		<dependency>
 			<groupId>net.homeip.yusuke</groupId>
 			<artifactId>twitter4j</artifactId>
-			<version>1.1.4</version>
+			<version>1.1.7</version>
 			<properties>
 				<war.bundle>true</war.bundle>
       		</properties>
