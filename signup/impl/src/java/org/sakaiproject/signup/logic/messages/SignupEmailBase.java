@@ -208,13 +208,13 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 		if (myServiceName == null) {
 			try {
 				myServiceName = rb.getString("ui.service");
-				if (myServiceName.trim().length() < 1)
+				int index = myServiceName.indexOf("missing key");
+				if (index >=0)
 					myServiceName = getSakaiFacade().getServerConfigurationService().getString("ui.service",
 							"Sakai Service");
 			} catch (Exception e) {
 				myServiceName = getSakaiFacade().getServerConfigurationService().getString("ui.service",
 						"Sakai Service");
-				;
 			}
 		}
 
