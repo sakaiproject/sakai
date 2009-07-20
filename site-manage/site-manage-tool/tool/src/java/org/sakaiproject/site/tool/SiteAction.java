@@ -9115,6 +9115,7 @@ public class SiteAction extends PagedResourceActionII {
 		{
 			rv = new Vector();
 			rv.add(TOOL_ID_HOME);
+			rv.add(TOOL_ID_HOME);
 		}
 
 		// Other than Home page, no other page is allowed to have more than one tool within. Otherwise, WSetup/Site Info tool won't handle it
