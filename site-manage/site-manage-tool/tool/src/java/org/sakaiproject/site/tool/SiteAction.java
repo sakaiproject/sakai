@@ -8092,6 +8092,7 @@ public class SiteAction extends PagedResourceActionII {
 		// declare some flags used in making decisions about Home, whether to
 		// add, remove, or do nothing
 		boolean hasHome = false;
+		String homePageId = null;
 		boolean homeInWSetupPageList = false;
 
 		List chosenList = (List) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
@@ -8169,7 +8170,6 @@ public class SiteAction extends PagedResourceActionII {
 
 		// see if Home and/or Help in the wSetupPageList (can just check title
 		// here, because we checked patterns before adding to the list)
-		String homePageId = null;
 		for (ListIterator i = wSetupPageList.listIterator(); i.hasNext();) {
 			wSetupPage = (WorksiteSetupPage) i.next();
 			if (isHomePage(site.getPage(wSetupPage.getPageId()))) {
@@ -8275,17 +8275,16 @@ public class SiteAction extends PagedResourceActionII {
 		// wSetupPageList and site
 		if (!hasHome && homeInWSetupPageList) {
 			// remove Home from wSetupPageList
-			WorksiteSetupPage removePage = new WorksiteSetupPage();
 			for (ListIterator i = wSetupPageList.listIterator(); i.hasNext();) {
 				WorksiteSetupPage comparePage = (WorksiteSetupPage) i.next();
-				if (comparePage.getToolId().equals(TOOL_ID_HOME)) {
-					removePage = comparePage;
+				SitePage sitePage = site.getPage(comparePage.getPageId());
+				if (sitePage != null && isHomePage(sitePage)) {
+					// remove the Home page
+					site.removePage(sitePage);
+					wSetupPageList.remove(comparePage);
+					break;
 				}
 			}
-			SitePage siteHome = site.getPage(removePage.getPageId());
-			site.removePage(siteHome);
-			wSetupPageList.remove(removePage);
-
 		}
 
 		// declare flags used in making decisions about whether to add, remove,
@@ -8317,7 +8316,8 @@ public class SiteAction extends PagedResourceActionII {
 				}
 			}
 
-			if (!inChosenList) {
+			// exclude the Home page if there is any
+			if (!inChosenList && !(homePageId != null && wSetupPage.getPageId().equals(homePageId))) {
 				removePageIds.add(wSetupPage.getPageId());
 			}
 		}
@@ -8344,6 +8344,9 @@ public class SiteAction extends PagedResourceActionII {
 				(String) state.getAttribute(STATE_SITE_TYPE), chosenList)
 				.listIterator(); j.hasNext();) {
 			String toolId = (String) j.next();
+			// exclude Home tool
+			if (!toolId.equals(TOOL_ID_HOME))
+			{
 			// Is the tool in the wSetupPageList?
 			inWSetupPageList = false;
 			for (ListIterator k = wSetupPageList.listIterator(); k.hasNext();) {
@@ -8436,6 +8439,7 @@ public class SiteAction extends PagedResourceActionII {
 						tool.setTitle(toolRegFound.getTitle());
 					}
 				}
+			}
 			}
 		} // for
 
@@ -9111,7 +9115,6 @@ public class SiteAction extends PagedResourceActionII {
 		{
 			rv = new Vector();
 			rv.add(TOOL_ID_HOME);
-			rv.add(TOOL_ID_HOME);
 		}
 
 		// Other than Home page, no other page is allowed to have more than one tool within. Otherwise, WSetup/Site Info tool won't handle it
@@ -9215,7 +9218,7 @@ public class SiteAction extends PagedResourceActionII {
 					wSetupToolId = pmList.get(1);
 				}
 				if (wSetupTool != null) {
-					if (TOOL_ID_HOME.equals(wSetupTool))
+					if (isHomePage(page))
 					{
 						check_home = true;
 					}
