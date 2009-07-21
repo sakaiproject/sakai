@@ -63,11 +63,14 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.util.ResourceLoader;
 
 import org.sakaiproject.basiclti.SakaiBLTIUtil;
 import org.imsglobal.basiclti.BasicLTIUtil;
 
 public class BasicLTISecurityServiceImpl implements EntityProducer {
+
+	private static ResourceLoader rb = new ResourceLoader("basicltisvc");
 
 	public static final String MIME_TYPE_BLTI="ims/basiclti";
 	public static final String REFERENCE_ROOT="/basiclti";
@@ -219,7 +222,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 				}
 
 				// Get the post data for the placement
-				String postData = SakaiBLTIUtil.postLaunchHTML(ref.getId());
+				String postData = SakaiBLTIUtil.postLaunchHTML(ref.getId(), rb);
 				// postData = "\n<pre>\n"+postData.replace("<","&lt;").replace(">","&gt;")+"\n</pre>\n";
 
 				try

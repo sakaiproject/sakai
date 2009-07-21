@@ -29,6 +29,7 @@ import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * Some Sakai Utility code for IMS Basic LTI
@@ -147,27 +148,28 @@ public class SakaiBLTIUtil {
 	return true;
     } 
 
-    public static String postLaunchHTML(String placementId)
+    public static String postLaunchHTML(String placementId, ResourceLoader rb)
     {
-        if ( placementId == null ) return "<p>Error, missing placementId.</p>";
+        if ( placementId == null ) return "<p>" + getRB(rb, "error.missing" ,"Error, missing placementId")+"</p>";
         ToolConfiguration placement = SiteService.findTool(placementId);
-        if ( placement == null ) return "<p>Error, cannot load placement="+placementId+".</p>";
+        if ( placement == null ) return "<p>" + getRB(rb, "error.load" ,"Error, cannot load placement=")+placementId+".</p>";
     
         // Add user, course, etc to the launch parameters
         Properties launch = new Properties();
         if ( ! sakaiInfo(launch, placement) ) {
-           return "<p>Error, cannot load Sakai information for placement="+placementId+".</p>";
+           return "<p>" + getRB(rb, "error.missing",
+                "Error, cannot load Sakai information for placement=")+placementId+".</p>";
         }
         
         // Retrieve the launch detail
         Properties info = new Properties();
         if ( ! parseDescriptor(info, launch, placement) ) {
-           return "<p>Not Configured.</p>";
+           return "<p>" + getRB(rb, "error.nolaunch" ,"Not Configured.")+"</p>";
 	}
 
         String launch_url = info.getProperty("secure_launch_url");
 	if ( launch_url == null ) launch_url = info.getProperty("launch_url");
-        if ( launch_url == null ) return "<p>Not configured</p>";
+        if ( launch_url == null ) return "<p>" + getRB(rb, "error.missing" ,"Not configured")+"</p>";
 
 	String secret = toNull(info.getProperty("secret"));
 	String key = toNull(info.getProperty("key"));
@@ -189,13 +191,19 @@ public class SakaiBLTIUtil {
         launch = BasicLTIUtil.signProperties(launch, launch_url, "POST", 
             key, secret, org_secret, org_guid, org_name);
 
-        if ( launch == null ) return "<p>Error signing message.</p>";
+        if ( launch == null ) return "<p>" + getRB(rb, "error.sign", "Error signing message.")+"</p>";
         dPrint("LAUNCH III="+launch);
 
 	boolean dodebug = toNull(info.getProperty("debug")) != null;
         String postData = BasicLTIUtil.postLaunchHTML(launch, launch_url, dodebug);
 
         return postData;
+    }
+
+    public static String getRB(ResourceLoader rb, String key, String def)
+    {
+        if ( rb == null ) return def;
+        return rb.getString(key, def);
     }
 
     public static void setProperty(Properties props, String key, String value)
