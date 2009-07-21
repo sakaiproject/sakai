@@ -102,6 +102,7 @@ import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.util.ResourceLoader;
 
 // For Rutgers Security
 import java.security.*;
@@ -113,6 +114,8 @@ import javax.crypto.spec.*;
  * a simple IMSBLTIPortlet Portlet
  */
 public class IMSBLTIPortlet extends GenericPortlet {
+
+    private static ResourceLoader rb = new ResourceLoader("basiclti");
 
     private PortletContext pContext;
 
@@ -194,14 +197,15 @@ public class IMSBLTIPortlet extends GenericPortlet {
 	    text.append("width=\"100%\" frameborder=\"0\" marginwidth=\"0\"\n");
 	    text.append("marginheight=\"0\" scrolling=\"auto\"\n");
 	    text.append("src=\""+iframeUrl+"\">\n");
-	    text.append("Your browser does not support iframes. <br>");
+	    text.append(rb.getString("noiframes"));
+	    text.append("<br>");
 	    text.append("<a href=\""+iframeUrl+"\">Press here for content</a>\n");
 	    text.append("</iframe>");
             out.println(text);
 	    dPrint("==== doView complete ====");
 	    return;
 	} else {
-	    out.println("Not yet configured");
+	    out.println(rb.getString("not.configured"));
 	}
 
 	dPrint("==== doView complete ====");
@@ -415,7 +419,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
                 }
 		dPrint("Preference removed");
         } catch (ReadOnlyException e) {
-		setErrorMessage(request, "Unable to modify preferences.");
+		setErrorMessage(request, rb.getString("error.modify.prefs")) ;
         }
         prefs.store();
 
@@ -476,11 +480,11 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
         if ( imsTIXml != null ) {
 		if ( ! BasicLTIUtil.validateDescriptor(imsTIXml) ) {
-			setErrorMessage(request, "Error in XML Input");
+			setErrorMessage(request, rb.getString("error.xml.input"));
 			return;
 		}
 	} else if ( imsTIUrl == null ) {
-		setErrorMessage(request, "Your must either set Launch URL or provide XML Input");
+		setErrorMessage(request, rb.getString("error.no.input") );
 		return;
         }
 
@@ -499,7 +503,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			page.setTitle(imsTIPageTitle);
 			SiteService.save(site);
         	} catch (Exception e) {
-               		setErrorMessage(request, "Unable to set page title.");
+               		setErrorMessage(request, rb.getString("error.page.title"));
 		}
 	}
 
@@ -512,7 +516,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
                         prefs.setValue("sakai:imsti."+element, formParm);
                         changed = true;
                 } catch (ReadOnlyException e) {
-                        setErrorMessage(request, "Unable to store preferences.");
+                        setErrorMessage(request, rb.getString("error.modify.prefs") );
                 }
         }
 
@@ -560,6 +564,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
                 return null;
         }
 
+    // TODO: Local cleverness ???
     private void sendToJSP(RenderRequest request, RenderResponse response,
             String jspPage) throws PortletException {
         response.setContentType(request.getResponseContentType());

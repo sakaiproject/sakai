@@ -3,7 +3,11 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet" %>
 <%@ page import="javax.portlet.PortletURL" %>
 <%@ page import="javax.portlet.PortletMode" %>
+<%@ page import="org.sakaiproject.util.ResourceLoader" %>
 <%@ page session="false" %>
+<%!
+  private static ResourceLoader rb = new ResourceLoader("basiclti");
+%>
 
 <%
 RenderResponse rRes = (RenderResponse)request.getAttribute("javax.portlet.response");
@@ -15,8 +19,7 @@ noURL.setParameter("sakai.action","edit");
 
 <portlet:defineObjects/>
 
-Are you sure your want to remove the settings for this Tool Interoperability
-Placement?
+<%= rb.getString("are.you.sure") %>
 <p>
 <a href="<%= yesURL.toString() %>">YES</a>
 |

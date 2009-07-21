@@ -5,8 +5,13 @@
 <%@ page import="javax.portlet.PortletMode" %>
 <%@ page import="javax.portlet.PortletSession" %>
 <%@ page import="java.util.Properties" %>
+<%@ page import="org.sakaiproject.util.ResourceLoader" %>
+
 <%@ page session="false" %>
 <%!
+
+private static ResourceLoader rb = new ResourceLoader("basiclti");
+
 // Allow the user to set unless final.launch etc. is true
 public boolean allow(Properties props, String s) {
   if ( props == null || s == null ) return false;
@@ -47,11 +52,11 @@ Properties sp = (Properties) rReq.getAttribute("imsti.properties");
 %>
 <portlet:defineObjects/>
 
-<a href="<%=viewURL.toString()%>">Exit Edit Mode</a>
+<a href="<%=viewURL.toString()%>"><%=rb.getString("edit.exit")%></a>
  | 
-<a href="<%=clearURL.toString()%>">Clear Session Settings</a>
+<a href="<%=clearURL.toString()%>"><%=rb.getString("edit.clear.session")%></a>
  | 
-<a href="<%=resetURL.toString()%>">Clear Stored Preferences</a>
+<a href="<%=resetURL.toString()%>"><%=rb.getString("edit.clear.prefs")%></a>
 <p/>
 <% if ( allow(sp,"launch") || allow(sp,"key") || allow(sp,"secret") || 
         allow(sp,"xml") ||
@@ -60,7 +65,7 @@ Properties sp = (Properties) rReq.getAttribute("imsti.properties");
 <form method="post" action="<%=launchURL.toString()%>">
 <% if ( allow(sp,"launch") || allow(sp,"key") || allow(sp,"secret") || allow(sp,"xml") ) { %>
 <fieldset>
-<legend>Required Information</legend>
+<legend><%=rb.getString("required.information") %></legend>
 <% if ( allow(sp,"launch") && allow(sp,"xml") ) { %>
 <script type="text/javascript">
 function switchui()
@@ -76,11 +81,11 @@ function switchui()
 }
 </script>
 <select id="UISwitcher" name="imsti.type" onchange="switchui(); return false;">
-  <option value="URL">URL and Password</option>
+  <option value="URL"><%=rb.getString("select.url") %></option>
 <% if ( ov.getProperty("imsti.xml",null) != null ) { %>
-  <option selected="selected" value="XML">XML Paste</option>
+  <option selected="selected" value="XML"><%=rb.getString("select.xml") %></option>
 <% } else { %>
-  <option value="XML">XML Paste</option>
+  <option value="XML"><%=rb.getString("select.xml")%></option>
 <% } %>
 </select>
 <% } %>
@@ -94,22 +99,26 @@ function switchui()
 <% if ( allow(sp,"launch") ) { %>
 <div id="url.input">
 <p>
-Remote Tool Url: <input type="text" size="100" name="imsti.launch" value="<%=ov.getProperty("imsti.launch","")%>">
+<%=rb.getString("remote.tool.url") %>
+<input type="text" size="100" name="imsti.launch" value="<%=ov.getProperty("imsti.launch","")%>">
 </p>
 </div>
 <% } %>
 <% if ( allow(sp,"key") ) { %>
 <p>
-Remote Tool Key: <input type="password" name="imsti.key"> 
+<%=rb.getString("remote.tool.key") %>
+<input type="password" name="imsti.key"> 
 </p>
 <% } %>
 <% if ( allow(sp,"secret") ) { %>
 <p>
-Remote Tool Secret: <input type="password" name="imsti.secret"> (Must re-enter every time)
+<%=rb.getString("remote.tool.secret") %>
+<input type="password" name="imsti.secret"> (Must re-enter every time)
+<%=rb.getString("remote.tool.secret.note") %>
 </p>
 <% } %>
 <p>
-<input type="submit" value="Update Options">
+<input type="submit" value="<%=rb.getString("update.options")%>">
 </p>
 </fieldset>
 <% } %>
@@ -118,7 +127,7 @@ if ( document.getElementById("UISwitcher") ) switchui();
 </script>
 <% if ( allow(sp,"pagetitle") || allow(sp,"tooltitle") ) { %>
 <fieldset>
-<legend>Display Information</legend>
+<legend><%=rb.getString("display.information") %></legend>
 <% if ( allow(sp,"pagetitle") ) { %>
 <p>
 Set Page Title: <input type="text" name="imsti.pagetitle" value="<%=ov.getProperty("imsti.pagetitle","")%>"> (Button text)
@@ -130,17 +139,17 @@ Set Tool Title: <input type="text" name="imsti.tooltitle" value="<%=ov.getProper
 </p>
 <% } %>
 <p>
-<input type="submit" value="Update Options">
+<input type="submit" value="<%=rb.getString("update.options")%>">
 </p>
 </fieldset>
 <% } %>
 <% if ( allow(sp,"frameheight") || allow(sp, "debug") ) { %>
 <fieldset>
-<legend>Optional Launch Information</legend>
+<legend><%=rb.getString("launch.information") %></legend>
 <% if ( allow(sp,"frameheight") ) { %>
 <p>
 iFrame Height: <input type="text" size="10" name="imsti.frameheight" value="<%=ov.getProperty("imsti.frameheight","")%>"> 
-(<a href="#" onclick="window.open('<%=whatURL%>','name','width=480,height=400,menubar=no,resizable=no,status=no,toolbar=no');">What's this?</a>)
+(<a href="#" onclick="window.open('<%=whatURL%>','name','width=480,height=400,menubar=no,resizable=no,status=no,toolbar=no');"><%=rb.getString("whats.this")%></a>)
 </p>
 <% } %>
 <% if ( allow(sp,"debug") ) { %>
@@ -151,11 +160,11 @@ Debug Launch: <input type="checkbox" size="10" name="imsti.debug"
 <% } else { %>
    />
 <% } %>
-(<a href="#" onclick="window.open('<%=whatURL%>','name','width=480,height=400,menubar=no,resizable=no,status=no,toolbar=no');">What's this?</a>)
+(<a href="#" onclick="window.open('<%=whatURL%>','name','width=480,height=400,menubar=no,resizable=no,status=no,toolbar=no');"><%=rb.getString("whats.this")%></a>)
 </p>
 <% } %>
 <p>
-<input type="submit" value="Update Options">
+<input type="submit" value="<%=rb.getString("update.options")%>">
 </p>
 </fieldset>
 <% } %>
