@@ -25,6 +25,8 @@ import java.util.UUID;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.Properties;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -69,13 +71,19 @@ import java.io.ByteArrayOutputStream;
  */
 public class BasicLTIUtil {
 
+    // We use the built-in Java logger because this code needs to be very generic
+    private static Logger M_log = Logger.getLogger(BasicLTIUtil.class.toString());
+
     /** To turn on really verbose debugging */
     private static boolean verbosePrint = false;
+
+    public static final String BASICLTI_SUBMIT = "basiclti_submit";
 
     // Simple Debug Print Mechanism
     public static void dPrint(String str)
     {
         if ( verbosePrint ) System.out.println(str);
+        M_log.fine(str);
     }
 
     private static void setErrorMessage(Properties retProp, String message)
@@ -130,7 +138,10 @@ public class BasicLTIUtil {
     {
         postProp = BasicLTIUtil.cleanupProperties(postProp);
         postProp.setProperty("lti_version","basiclti-1.0");
-        postProp.setProperty("basiclti_submit", "Launch Endpoint with BasicLTI Data");
+	// Allow caller to internatonalize this for us...
+        if ( postProp.getProperty(BASICLTI_SUBMIT) == null ) {
+            postProp.setProperty(BASICLTI_SUBMIT, "Launch Endpoint with BasicLTI Data");
+        }
         if ( org_id != null ) postProp.setProperty("tool_consumer_instance_guid", org_id);
         if ( org_desc != null ) postProp.setProperty("tool_consumer_instance_description", org_desc);
 
@@ -143,13 +154,16 @@ public class BasicLTIUtil {
 
         if ( postProp.getProperty("oauth_callback") == null ) postProp.setProperty("oauth_callback","about:blank");
 
+        if ( oauth_consumer_key == null || oauth_consumer_secret == null ) {
+            dPrint("Error in signProperties - key and secret must be specified");
+            return null;
+        }
+
         OAuthMessage oam = new OAuthMessage(method, url,postProp.entrySet());
         OAuthConsumer cons = new OAuthConsumer("about:blank",
             oauth_consumer_key, oauth_consumer_secret, null);
         OAuthAccessor acc = new OAuthAccessor(cons);
-        // System.out.println("OAM="+oam+"\n");
         try {
-            // System.out.println("BM="+OAuthSignatureMethod.getBaseString(oam)+"\n");
             oam.addRequiredParameters(acc);
             dPrint("Base Message String\n"+OAuthSignatureMethod.getBaseString(oam)+"\n");
 
@@ -162,13 +176,13 @@ public class BasicLTIUtil {
             }
 	    return nextProp;
         } catch (net.oauth.OAuthException e) {
-            System.out.println("BasicLTIUtil.signProperties OAuth Exception "+e.getMessage());
+            M_log.warning("BasicLTIUtil.signProperties OAuth Exception "+e.getMessage());
             return null;
         } catch (java.io.IOException e) {
-            System.out.println("BasicLTIUtil.signProperties IO Exception "+e.getMessage());
+            M_log.warning("BasicLTIUtil.signProperties IO Exception "+e.getMessage());
             return null;
         } catch (java.net.URISyntaxException e) {
-            System.out.println("BasicLTIUtil.signProperties URI Syntax Exception "+e.getMessage());
+            M_log.warning("BasicLTIUtil.signProperties URI Syntax Exception "+e.getMessage());
             return null;
         }
     
@@ -192,7 +206,7 @@ public class BasicLTIUtil {
 		// we will be safe and not generate dangerous HTML
                 key = htmlspecialchars(key);
                 value = htmlspecialchars(value);
-                if ( key.equals("basiclti_submit") ) {
+                if ( key.equals(BASICLTI_SUBMIT) ) {
                   text.append("<input type=\"submit\" size=\"40\" name=\"");
                 } else { 
                   text.append("<input type=\"hidden\" size=\"40\" name=\"");
@@ -229,8 +243,8 @@ public class BasicLTIUtil {
 		    "    document.getElementById(\"ltiLaunchFormSubmitArea\").style.display = \"none\";\n" + 
 		    "    nei = document.createElement('input');\n" +
 		    "    nei.setAttribute('type', 'hidden');\n" + 
-		    "    nei.setAttribute('name', 'basiclti_submit');\n" + 
-		    "    nei.setAttribute('value', '"+newMap.getProperty("basiclti_submit")+"');\n" + 
+		    "    nei.setAttribute('name', '"+BASICLTI_SUBMIT+"');\n" + 
+		    "    nei.setAttribute('value', '"+newMap.getProperty(BASICLTI_SUBMIT)+"');\n" + 
 		    "    document.getElementById(\"ltiLaunchForm\").appendChild(nei);\n" +
                     "    document.ltiLaunchForm.submit(); \n" + 
                     " </script> \n");
@@ -248,12 +262,12 @@ public class BasicLTIUtil {
                 tm = XMLMap.getFullMap(descriptor.trim());
         } 
         catch (Exception e) {
-                System.out.println("BasicLTIUtil exception parsing BasicLTI descriptor"+e.getMessage());
+                M_log.warning("BasicLTIUtil exception parsing BasicLTI descriptor"+e.getMessage());
 		e.printStackTrace();
 		return false;
         }
         if ( tm == null ) {
-            System.out.println("Unable to parse XML in parseDescriptor");
+            M_log.warning("Unable to parse XML in parseDescriptor");
             return false;
         }
 

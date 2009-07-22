@@ -187,6 +187,15 @@ public class SakaiBLTIUtil {
 	// In OAuth 6.2.3, this is after the user is authorized
 	if ( oauth_callback == null ) oauth_callback = "about:blank";
         setProperty(launch, "oauth_callback", oauth_callback);
+        setProperty(launch, BasicLTIUtil.BASICLTI_SUBMIT, getRB(rb, "launch.button", "Press to Launch External Tool"));
+
+        // Sanity checks
+        if ( secret == null && org_secret == null ) {
+            return "<p>" + getRB(rb, "error.nosecret", "Error - must have a secret.")+"</p>";
+        }
+        if ( ( secret != null && key == null) || ( org_secret != null && org_guid == null ) ){
+            return "<p>" + getRB(rb, "error.nokey", "Error - must have a secret and a key.")+"</p>";
+        }
 
         launch = BasicLTIUtil.signProperties(launch, launch_url, "POST", 
             key, secret, org_secret, org_guid, org_name);
