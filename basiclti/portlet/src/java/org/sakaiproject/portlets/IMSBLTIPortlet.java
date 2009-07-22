@@ -125,7 +125,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
     private static Log M_log = LogFactory.getLog(IMSBLTIPortlet.class);
 
     /** To turn on really verbose debugging */
-    private static boolean verbosePrint = true;
+    private static boolean verbosePrint = false;
 
     public void init(PortletConfig config) throws PortletException {
         super.init(config);
@@ -472,11 +472,14 @@ public class IMSBLTIPortlet extends GenericPortlet {
 	String imsTIXml  = getFormParameter(request,sakaiProperties,"xml");
         if ( imsTIXml != null && imsTIXml.trim().length() < 1 ) imsTIXml = null;
 
-        if ( imsType.equalsIgnoreCase("XML") ) {
-            if ( imsTIXml != null ) imsTIUrl = null;
-        } else {
-            if ( imsTIUrl != null ) imsTIXml = null;
-        }
+        // imsType will be null if launch or xml is coming from final properties
+        if ( imsType != null ) {
+            if ( imsType.equalsIgnoreCase("XML") ) {
+                if ( imsTIXml != null ) imsTIUrl = null;
+            } else {
+                if ( imsTIUrl != null ) imsTIXml = null;
+            }
+	}
 
         if ( imsTIXml != null ) {
 		if ( ! BasicLTIUtil.validateDescriptor(imsTIXml) ) {
@@ -521,16 +524,18 @@ public class IMSBLTIPortlet extends GenericPortlet {
         }
 
         // Clear out the other setting
-        if ( imsType.equalsIgnoreCase("XML") ) {
-           if ( imsTIXml != null ) {
-               prefs.setValue("sakai:imsti.launch", null);
-               changed = true;
-           }
-        } else {
-           if ( imsTIUrl != null ) {
-               prefs.setValue("sakai:imsti.xml", null);
-               changed = true;
-           }
+        if ( imsType != null ) {
+            if ( imsType.equalsIgnoreCase("XML") ) {
+               if ( imsTIXml != null ) {
+                   prefs.setValue("sakai:imsti.launch", null);
+                   changed = true;
+               }
+            } else {
+               if ( imsTIUrl != null ) {
+                   prefs.setValue("sakai:imsti.xml", null);
+                   changed = true;
+               }
+            }
         }
         if ( changed ) prefs.store();
 

@@ -107,13 +107,13 @@ function switchui()
 <% if ( allow(sp,"key") ) { %>
 <p>
 <%=rb.getString("remote.tool.key") %>
-<input type="password" name="imsti.key"> 
+<input type="text" name="imsti.key"> 
 </p>
 <% } %>
 <% if ( allow(sp,"secret") ) { %>
 <p>
 <%=rb.getString("remote.tool.secret") %>
-<input type="password" name="imsti.secret"> (Must re-enter every time)
+<input type="password" name="imsti.secret"> 
 <%=rb.getString("remote.tool.secret.note") %>
 </p>
 <% } %>
@@ -130,12 +130,14 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <legend><%=rb.getString("display.information") %></legend>
 <% if ( allow(sp,"pagetitle") ) { %>
 <p>
-Set Page Title: <input type="text" name="imsti.pagetitle" value="<%=ov.getProperty("imsti.pagetitle","")%>"> (Button text)
+Set Page Title: <input type="text" name="imsti.pagetitle" value="<%=ov.getProperty("imsti.pagetitle","")%>"> 
+(Button text)
 </p>
 <% } %>
 <% if ( allow(sp,"tooltitle") ) { %>
 <p>
-Set Tool Title: <input type="text" name="imsti.tooltitle" value="<%=ov.getProperty("imsti.tooltitle","")%>"> (Above the tool)
+Set Tool Title: <input type="text" name="imsti.tooltitle" size="40" value="<%=ov.getProperty("imsti.tooltitle","")%>"> 
+(Above the tool)
 </p>
 <% } %>
 <p>
