@@ -38,8 +38,6 @@ resetURL.setParameter("sakai.action","edit.reset");
 PortletURL launchURL = rResp.createActionURL();
 launchURL.setParameter("sakai.action","edit.save");
 
-String whatURL = rResp.encodeURL(rReq.getContextPath()+"/whatisthis.htm");
-
 PortletURL actionURL = rResp.createActionURL();
 
 String errorOutput = (String) pSession.getAttribute("error.output");
@@ -99,22 +97,24 @@ function switchui()
 <% if ( allow(sp,"launch") ) { %>
 <div id="url.input">
 <p>
-<%=rb.getString("remote.tool.url") %>
-<input type="text" size="100" name="imsti.launch" value="<%=ov.getProperty("imsti.launch","")%>">
+<%=rb.getString("tool.url") %>
+<input type="text" size="80" name="imsti.launch" value="<%=ov.getProperty("imsti.launch","")%>">
+<%=rb.getString("tool.url.detail") %>
 </p>
 </div>
 <% } %>
 <% if ( allow(sp,"key") ) { %>
 <p>
-<%=rb.getString("remote.tool.key") %>
-<input type="text" name="imsti.key"> 
+<%=rb.getString("tool.key") %>
+<input type="text" name="imsti.key" value="<%=ov.getProperty("imsti.key","")%>"> 
+<%=rb.getString("tool.key.detail") %>
 </p>
 <% } %>
 <% if ( allow(sp,"secret") ) { %>
 <p>
-<%=rb.getString("remote.tool.secret") %>
+<%=rb.getString("tool.secret") %>
 <input type="password" name="imsti.secret"> 
-<%=rb.getString("remote.tool.secret.note") %>
+<%=rb.getString("tool.secret.detail") %>
 </p>
 <% } %>
 <p>
@@ -130,14 +130,16 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <legend><%=rb.getString("display.information") %></legend>
 <% if ( allow(sp,"pagetitle") ) { %>
 <p>
-Set Page Title: <input type="text" name="imsti.pagetitle" value="<%=ov.getProperty("imsti.pagetitle","")%>"> 
-(Button text)
+<%=rb.getString("page.title") %>
+<input type="text" name="imsti.pagetitle" value="<%=ov.getProperty("imsti.pagetitle","")%>"> 
+<%=rb.getString("page.title.detail") %>
 </p>
 <% } %>
 <% if ( allow(sp,"tooltitle") ) { %>
 <p>
-Set Tool Title: <input type="text" name="imsti.tooltitle" size="40" value="<%=ov.getProperty("imsti.tooltitle","")%>"> 
-(Above the tool)
+<%=rb.getString("tool.title") %>
+<input type="text" name="imsti.tooltitle" size="40" value="<%=ov.getProperty("imsti.tooltitle","")%>"> 
+<%=rb.getString("tool.title.detail") %>
 </p>
 <% } %>
 <p>
@@ -150,19 +152,21 @@ Set Tool Title: <input type="text" name="imsti.tooltitle" size="40" value="<%=ov
 <legend><%=rb.getString("launch.information") %></legend>
 <% if ( allow(sp,"frameheight") ) { %>
 <p>
-iFrame Height: <input type="text" size="10" name="imsti.frameheight" value="<%=ov.getProperty("imsti.frameheight","")%>"> 
-(<a href="#" onclick="window.open('<%=whatURL%>','name','width=480,height=400,menubar=no,resizable=no,status=no,toolbar=no');"><%=rb.getString("whats.this")%></a>)
+<%=rb.getString("iframe.height") %>
+<input type="text" size="10" name="imsti.frameheight" value="<%=ov.getProperty("imsti.frameheight","")%>"> 
+<%=rb.getString("iframe.height.detail") %>
 </p>
 <% } %>
 <% if ( allow(sp,"debug") ) { %>
 <p>
-Debug Launch: <input type="checkbox" size="10" name="imsti.debug" 
+<%=rb.getString("debug.launch") %>
+<input type="checkbox" size="10" name="imsti.debug" 
 <% if ( ov.getProperty("imsti.debug",null) != null ) { %>
   checked="yes" />
 <% } else { %>
    />
 <% } %>
-(<a href="#" onclick="window.open('<%=whatURL%>','name','width=480,height=400,menubar=no,resizable=no,status=no,toolbar=no');"><%=rb.getString("whats.this")%></a>)
+<%=rb.getString("debug.launch.detail") %>
 </p>
 <% } %>
 <p>
