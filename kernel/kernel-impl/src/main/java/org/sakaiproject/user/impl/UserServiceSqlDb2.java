@@ -26,4 +26,9 @@ package org.sakaiproject.user.impl;
  */
 public class UserServiceSqlDb2 extends UserServiceSqlDefault
 {
+     public String getUserWhereSql()
+     {
+         return "SAKAI_USER.USER_ID = SAKAI_USER_ID_MAP.USER_ID AND (SAKAI_USER.USER_ID = ? OR UPPER(EID) LIKE UPPER(?||'') OR EMAIL_LC LIKE ? OR UPPER(FIRST_NAME) LIKE UPPER(?||'') OR UPPER(LAST_NAME) LIKE UPPER(?||''))";
+     }
+ 
 }

@@ -466,9 +466,9 @@ public abstract class DbAliasService extends BaseAliasService
 			}
 
 			Object[] fields = new Object[2];
-			fields[0] = "%" + criteria + "%";
+			fields[0] = "%" + criteria.toUpperCase() + "%";
 			fields[1] = fields[0];
-			List all = super.getSelectedResources("UPPER(ALIAS_ID) LIKE UPPER(?) OR UPPER(TARGET) LIKE UPPER(?)", fields, first,
+			List all = super.getSelectedResources("UPPER(ALIAS_ID) LIKE ? OR UPPER(TARGET) LIKE ?", fields, first,
 					last);
 
 			return all;
@@ -496,9 +496,9 @@ public abstract class DbAliasService extends BaseAliasService
 			}
 
 			Object[] fields = new Object[2];
-			fields[0] = "%" + criteria + "%";
+			fields[0] = "%" + criteria.toUpperCase() + "%";
 			fields[1] = fields[0];
-			int rv = super.countSelectedResources("UPPER(ALIAS_ID) LIKE UPPER(?) OR UPPER(TARGET) LIKE UPPER(?)", fields);
+			int rv = super.countSelectedResources("UPPER(ALIAS_ID) LIKE ? OR UPPER(TARGET) LIKE ?", fields);
 
 			return rv;
 		}

@@ -26,4 +26,18 @@ package org.sakaiproject.site.impl;
  */
 public class SiteServiceSqlDb2 extends SiteServiceSqlDefault
 {
+     /**
+      * returns the sql statement which is part of the where clause to retrieve sites.
+      */
+     public String getSitesWhere9Sql()
+     {
+         return "UPPER(SAKAI_SITE.TITLE) like UPPER(?||'') and ";
+     }
+     /**
+      * returns the sql statement which is part of the where clause to retrieve sites.
+      */
+     public String getSitesWhere13Sql()
+     {
+         return "SAKAI_SITE.SITE_ID in (select SITE_ID from SAKAI_SITE_PROPERTY where NAME = ? and UPPER(VALUE) like UPPER(?||'')) and ";
+     }
 }
