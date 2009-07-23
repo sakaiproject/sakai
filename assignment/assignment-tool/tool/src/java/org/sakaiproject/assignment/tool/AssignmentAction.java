@@ -3402,15 +3402,24 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doCancel_grade_submission(RunData data)
 	{
+		// put submission information into state
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-
-		// reset the grading page
-		resetGradeSubmission(state);
-
-		// back to the student list view of assignments
-		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_ASSIGNMENT);
-
+		String sId = (String) state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID);
+		String assignmentId = (String) state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_ID);
+		putSubmissionInfoIntoState(state, assignmentId, sId);
+		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_SUBMISSION);
 	} // doCancel_grade_submission
+	
+	/**
+	 * back to the submission list view
+	 * @param data
+	 */
+	public void doBack_to_submission_list(RunData data)
+	{
+		// put submission information into state
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_ASSIGNMENT);
+	} // doBack_to_submission_list
 
 	/**
 	 * clean the state variables related to grading page
@@ -3457,10 +3466,7 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doCancel_preview_to_list_submission(RunData data)
 	{
-		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		
-		// back to the instructor view of grading a submission
-		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_ASSIGNMENT);
+		doCancel_grade_submission(data);
 
 	} // doCancel_preview_to_list_submission
 	
@@ -3563,6 +3569,7 @@ public class AssignmentAction extends PagedResourceActionII
 		boolean withGrade = state.getAttribute(WITH_GRADES) != null ? ((Boolean) state.getAttribute(WITH_GRADES)).booleanValue(): false;
 
 		String sId = (String) state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID);
+		String assignmentId = (String) state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_ID);
 
 		try
 		{
@@ -3712,8 +3719,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
-			state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_ASSIGNMENT);
-			state.setAttribute(ATTACHMENTS, EntityManager.newReferenceList());
+			// put submission information into state
+			putSubmissionInfoIntoState(state, assignmentId, sId);
+			state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_SUBMISSION);
 		}
 
 	} // grade_submission_option
@@ -7361,8 +7369,8 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			else if (option.equals("cancelgradesubmission"))
 			{
-				// save and navigate to previous submission
-				doCancel_grade_submission(data);
+				// back to the list view
+				doBack_to_submission_list(data);
 			}
 
 
