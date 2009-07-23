@@ -646,22 +646,22 @@ public class SiteAction extends PagedResourceActionII {
 	{
 		List<String> rv = new Vector<String>();
 		
-		// if this is an existing Home tool page, get all tool ids on that page
-		if (!newHomeTool)
-		{
-			// found home page, add all tool ids to return value
-			for(ToolConfiguration tConfiguration : (List<ToolConfiguration>) homePage.getTools())
-			{
-				rv.add(tConfiguration.getToolId());
-			}
+		// if this is a new Home tool page to be added, get the tool ids from definition (template site first, and then configurations)
+		Site site  = getStateSite(state);
+		
+		String siteType = site != null? site.getType() : "";
+		
+		// First: get the tool ids from configuration files
+		// initially by "wsetup.home.toolids" + site type, and if missing, use "wsetup.home.toolids"
+		if (ServerConfigurationService.getStrings("wsetup.home.toolids" + siteType) != null) {
+			rv = new ArrayList(Arrays.asList(ServerConfigurationService.getStrings("wsetup.home.toolids") + siteType));
+		} else if (ServerConfigurationService.getStrings("wsetup.home.toolids") != null) {
+			rv = new ArrayList(Arrays.asList(ServerConfigurationService.getStrings("wsetup.home.toolids")));
 		}
-		else
+		
+		// Second: if tool list is empty, get it from the template site settings
+		if (rv.isEmpty())
 		{
-			// if this is a new Home tool page to be added, get the tool ids from definition (template site first, and then configurations)
-			Site site  = getStateSite(state);
-			
-			String siteType = site != null? site.getType() : "";
-			
 			// template site
 			Site templateSite = null;
 			String templateSiteId = "";
@@ -677,7 +677,7 @@ public class SiteAction extends PagedResourceActionII {
 				}
 				catch (Throwable t)
 				{
-
+	
 					M_log.debug(this + ": getHomeToolIds cannot find site " + templateSiteId + t.getMessage());
 					// use the fall-back, user template site
 					try
@@ -742,60 +742,66 @@ public class SiteAction extends PagedResourceActionII {
 					}
 				}
 			}
-			
-			// if the tool id list is still empty because we cannot find any template site yet
-			if (rv.isEmpty())
+		}
+		
+		// Third: if the tool id list is still empty because we cannot find any template site yet, use the default settings
+		if (rv.isEmpty())
+		{
+			if (siteType.equalsIgnoreCase("myworkspace"))
 			{
-				// first: get the tool ids from configuration files
-				if (ServerConfigurationService.getStrings("wsetup.home.toolids") != null) {
-					rv = new ArrayList(Arrays.asList(ServerConfigurationService.getStrings("wsetup.home.toolids")));
-				}
+				// first try with MOTD tool
+				if (ToolManager.getTool("sakai.motd") != null)
+					rv.add("sakai.motd");
 				
-				// second, if there is no definition from configuration file, use the default setting
 				if (rv.isEmpty())
 				{
-					if (siteType.equalsIgnoreCase("myworkspace"))
-					{
-						// first try with MOTD tool
-						if (ToolManager.getTool("sakai.motd") != null)
-							rv.add("sakai.motd");
-						
-						if (rv.isEmpty())
-						{
-							// then try with the myworkspace information tool
-							if (ToolManager.getTool("sakai.iframe.myworkspace") != null)
-								rv.add("sakai.iframe.myworkspace");
-						}
-					}
-					else
-					{
-						// try the site information tool
-						if (ToolManager.getTool("sakai.iframe.site") != null)
-							rv.add("sakai.iframe.site");
-					}
-					
-					// synoptical tools
-					if (ToolManager.getTool(TOOL_ID_SUMMARY_CALENDAR) != null)
-					{
-						rv.add(TOOL_ID_SUMMARY_CALENDAR);
-					}
-					
-					if (ToolManager.getTool(TOOL_ID_SYNOPTIC_ANNOUNCEMENT) != null)
-					{
-						rv.add(TOOL_ID_SYNOPTIC_ANNOUNCEMENT);
-					}
-					
-					if (ToolManager.getTool(TOOL_ID_SYNOPTIC_CHAT) != null)
-					{
-						rv.add(TOOL_ID_SYNOPTIC_CHAT);
-					}
-					if (ToolManager.getTool(TOOL_ID_SYNOPTIC_MESSAGECENTER) != null)
-					{
-						rv.add(TOOL_ID_SYNOPTIC_MESSAGECENTER);
-					}
+					// then try with the myworkspace information tool
+					if (ToolManager.getTool("sakai.iframe.myworkspace") != null)
+						rv.add("sakai.iframe.myworkspace");
+				}
+			}
+			else
+			{
+				// try the site information tool
+				if (ToolManager.getTool("sakai.iframe.site") != null)
+					rv.add("sakai.iframe.site");
+			}
+			
+			// synoptical tools
+			if (ToolManager.getTool(TOOL_ID_SUMMARY_CALENDAR) != null)
+			{
+				rv.add(TOOL_ID_SUMMARY_CALENDAR);
+			}
+			
+			if (ToolManager.getTool(TOOL_ID_SYNOPTIC_ANNOUNCEMENT) != null)
+			{
+				rv.add(TOOL_ID_SYNOPTIC_ANNOUNCEMENT);
+			}
+			
+			if (ToolManager.getTool(TOOL_ID_SYNOPTIC_CHAT) != null)
+			{
+				rv.add(TOOL_ID_SYNOPTIC_CHAT);
+			}
+			if (ToolManager.getTool(TOOL_ID_SYNOPTIC_MESSAGECENTER) != null)
+			{
+				rv.add(TOOL_ID_SYNOPTIC_MESSAGECENTER);
+			}
+		}
+		
+		// Fourth: if this is an existing Home tool page, get any extra tool ids in the page already back to the list
+		if (!newHomeTool)
+		{
+			// found home page, add all tool ids to return value
+			for(ToolConfiguration tConfiguration : (List<ToolConfiguration>) homePage.getTools())
+			{
+				String hToolId = tConfiguration.getToolId();
+				if (!rv.contains(hToolId))
+				{
+					rv.add(hToolId);
 				}
 			}
 		}
+		
 		return rv;
 	}
 	
