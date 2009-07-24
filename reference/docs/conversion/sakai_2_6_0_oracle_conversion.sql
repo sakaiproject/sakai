@@ -753,3 +753,7 @@ alter table MAILARCHIVE_MESSAGE modify XML CLOB;
 -- See the 2.6 release notes or SAK-16553 for further details
 
 -- select 'alter index '||index_name||' rebuild online;' from user_indexes where status = 'INVALID' or status = 'UNUSABLE'; 
+
+-- SAK-11096 asn.share.drafts is a newly added permission
+
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'asn.share.drafts');

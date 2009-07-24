@@ -720,3 +720,7 @@ ALTER TABLE MAILARCHIVE_MESSAGE ADD COLUMN (
        SUBJECT           VARCHAR (255) NULL,
        BODY              LONGTEXT NULL
 );
+
+-- SAK-11096 asn.share.drafts is a newly added permission
+
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'asn.share.drafts');
