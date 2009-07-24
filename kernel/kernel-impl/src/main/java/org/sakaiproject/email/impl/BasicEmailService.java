@@ -55,14 +55,16 @@ import javax.mail.internet.MimeMultipart;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.email.api.AddressValidationException;
 import org.sakaiproject.email.api.Attachment;
 import org.sakaiproject.email.api.CharacterSet;
 import org.sakaiproject.email.api.ContentType;
 import org.sakaiproject.email.api.EmailAddress;
+import org.sakaiproject.email.api.EmailAddress.RecipientType;
 import org.sakaiproject.email.api.EmailHeaders;
 import org.sakaiproject.email.api.EmailMessage;
 import org.sakaiproject.email.api.EmailService;
-import org.sakaiproject.email.api.RecipientType;
+import org.sakaiproject.email.api.NoRecipientsException;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -80,30 +82,39 @@ public class BasicEmailService implements EmailService
 	/** As defined in the com.sun.mail.smtp part of javamail. */
 
 	/** The SMTP server to connect to. */
-	protected static final String SMTP_HOST = "mail.smtp.host";
-
-	/** The SMTP server port to connect to, if the connect() method doesn't explicitly specify one. Defaults to 25. */
-	protected static final String SMTP_PORT = "mail.smtp.port";
-
-	/** Email address to use for SMTP MAIL command. This sets the envelope return address. Defaults to msg.getFrom() or InternetAddress.getLocalAddress(). NOTE: mail.smtp.user was previously used for this. */
-	protected static final String SMTP_FROM = "mail.smtp.from";
+	public static final String SMTP_HOST = "mail.smtp.host";
 
 	/**
-	 * If set to true, and a message has some valid and some invalid addresses, send the message anyway, reporting the partial failure with a SendFailedException. If set to false (the default), the message is not sent to any of the recipients if there is
-	 * an invalid recipient address.
+	 * The SMTP server port to connect to, if the connect() method doesn't explicitly specify one.
+	 * Defaults to 25.
 	 */
-	protected static final String SMTP_SENDPARTIAL = "mail.smtp.sendpartial";
+	public static final String SMTP_PORT = "mail.smtp.port";
+
+	/**
+	 * Email address to use for SMTP MAIL command. This sets the envelope return address. Defaults
+	 * to msg.getFrom() or InternetAddress.getLocalAddress(). NOTE: mail.smtp.user was previously
+	 * used for this.
+	 */
+	public static final String SMTP_FROM = "mail.smtp.from";
+
+	/**
+	 * If set to true, and a message has some valid and some invalid addresses, send the message
+	 * anyway, reporting the partial failure with a SendFailedException. If set to false (the
+	 * default), the message is not sent to any of the recipients if there is an invalid recipient
+	 * address.
+	 */
+	public static final String SMTP_SENDPARTIAL = "mail.smtp.sendpartial";
 
 	/** Socket connection timeout value in milliseconds. Default is infinite timeout. */
-	protected static final String SMTP_CONNECTIONTIMEOUT = "mail.smtp.connectiontimeout";
-	
+	public static final String SMTP_CONNECTIONTIMEOUT = "mail.smtp.connectiontimeout";
+
 	/** Socket I/O timeout value in milliseconds. Default is infinite timeout. */
-	protected static final String SMTP_TIMEOUT = "mail.smtp.timeout";
-	
+	public static final String SMTP_TIMEOUT = "mail.smtp.timeout";
+
 	/**
 	 * Hostname used in outgoing SMTP HELO commands.
 	 */
-	protected static final String SMTP_LOCALHOST = "mail.smtp.localhost";
+	public static final String SMTP_LOCALHOST = "mail.smtp.localhost";
 
 	protected static final String CONTENT_TYPE = ContentType.TEXT_PLAIN;
 
@@ -175,6 +186,18 @@ public class BasicEmailService implements EmailService
 	public void setTestMode(boolean value)
 	{
 		m_testMode = value;
+	}
+
+	/**
+	 * Configuration: turns off transport sending.  This can be turned off to allow pr
+	 * happen normally but only stop calling Transport.send.  Allows the code to run t
+	 * checks and validations that testMode = true does not.
+	 */
+	protected boolean allowTransport = true;
+	
+	public void setAllowTransport(boolean allowTransport)
+	{
+		this.allowTransport = allowTransport;
 	}
 
 	/** The max # recipients to include in each message. */
@@ -764,64 +787,111 @@ public class BasicEmailService implements EmailService
 		}
 	}
 
-	public void send(EmailMessage msg)
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see org.sakaiproject.email.api.EmailService#send(EmailMessage)
+	 */
+	public List<EmailAddress> send(EmailMessage msg) throws AddressValidationException,
+			NoRecipientsException
 	{
+		ArrayList<EmailAddress> invalids = new ArrayList<EmailAddress>();
+
+		InternetAddress from = null;
+		// convert and validate the 'from' address
 		try
 		{
-			// convert EmailAddress things to InternetAddress things
-			InternetAddress from = new InternetAddress(msg.getFrom().getAddress(), true);
+			from = new InternetAddress(msg.getFrom().getAddress(), true);
 			from.setPersonal(msg.getFrom().getPersonal());
-			InternetAddress[] to = emails2Internets(msg.getRecipients(RecipientType.TO));
-			InternetAddress[] cc = emails2Internets(msg.getRecipients(RecipientType.CC));
-			InternetAddress[] bcc = emails2Internets(msg.getRecipients(RecipientType.BCC));
-			InternetAddress[] actual = emails2Internets(msg.getRecipients(RecipientType.ACTUAL));
-			InternetAddress[] replyTo = emails2Internets(msg.getReplyTo());
+		}
+		catch (AddressException e)
+		{
+			throw new AddressValidationException("Invalid 'FROM' address: "
+					+ msg.getFrom().getAddress(), msg.getFrom());
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			throw new AddressValidationException("Invalid 'FROM' address: "
+					+ msg.getFrom().getAddress(), msg.getFrom());
+		}
+		
+		// convert and validate reply to addresses
+		InternetAddress[] replyTo = emails2Internets(msg.getReplyTo(), invalids);
+		if (!invalids.isEmpty())
+		{
+			throw new AddressValidationException("Invalid 'REPLY TO' address", invalids);
+		}
+		
+		/*
+		 * LOOK - IF THERE ARE ANY INVALID RECIPIENT, AN EXCEPTION IS THROWN AND THE METHOD EXITS
+		 */
+		// convert and validate the 'to' addresses
+		InternetAddress[] to = emails2Internets(msg.getRecipients(RecipientType.TO), invalids);
 
-			// check that some actual addresses were given. if not, use a compilation of to, cc, bcc
-			if (actual.length == 0)
+		// convert and validate 'cc' addresses
+		InternetAddress[] cc = emails2Internets(msg.getRecipients(RecipientType.CC), invalids);
+
+		// convert and validate 'bcc' addresses
+		InternetAddress[] bcc = emails2Internets(msg.getRecipients(RecipientType.BCC), invalids);
+
+		// convert and validate actual email addresses
+		InternetAddress[] actual = emails2Internets(msg.getRecipients(RecipientType.ACTUAL),
+				invalids);
+
+		// check that some actual addresses were given. if not, use a compilation of to, cc, bcc
+		if (actual.length == 0)
+		{
+			int total = to.length + cc.length + bcc.length;
+			if (total == 0)
 			{
-				actual = new InternetAddress[to.length + cc.length + bcc.length];
-				int count = 0;
-				for (InternetAddress t : to)
-					actual[count++] = t;
-				for (InternetAddress c : cc)
-					actual[count++] = c;
-				for (InternetAddress b : bcc)
-					actual[count++] = b;
+				throw new NoRecipientsException("No valid recipients found on message.  Check for invalid email addresses returned from this method.");
 			}
 
-			// rebundle addresses to expected param type
-			HashMap<RecipientType, InternetAddress[]> headerTo = new HashMap<RecipientType, InternetAddress[]>();
-			headerTo.put(RecipientType.TO, to);
-			headerTo.put(RecipientType.CC, cc);
-			headerTo.put(RecipientType.BCC, bcc);
-
-			// convert headers to expected format
-			List<String> headers = headerMap2List(msg.getHeaders());
-
-			// build the content type
-			String contentType = EmailHeaders.CONTENT_TYPE + ": " + msg.getContentType();
-			if (msg.getCharacterSet() != null && msg.getCharacterSet().trim().length() != 0)
-				contentType += "; charset=" + msg.getCharacterSet();
-			// message format is only used when content type is text/plain as specified in the rfc
-			if (ContentType.TEXT_PLAIN.equals(msg.getCharacterSet()) && msg.getFormat() != null
-					&& msg.getFormat().trim().length() != 0)
-				contentType += "; format=" + msg.getFormat();
-			// add the content type to the headers
-			headers.add(contentType);
-
-			// send the message
-			sendMail(from, actual, msg.getSubject(), msg.getBody(), headerTo, replyTo, headers, msg
-					.getAttachments());
+			actual = new InternetAddress[total];
+			int count = 0;
+			for (InternetAddress t : to)
+			{
+				actual[count++] = t;
+			}
+			for (InternetAddress c : cc)
+			{
+				actual[count++] = c;
+			}
+			for (InternetAddress b : bcc)
+			{
+				actual[count++] = b;
+			}
 		}
-		catch (AddressException ae)
+
+		// rebundle addresses to expected param type
+		HashMap<RecipientType, InternetAddress[]> headerTo = new HashMap<RecipientType, InternetAddress[]>();
+		headerTo.put(RecipientType.TO, to);
+		headerTo.put(RecipientType.CC, cc);
+		headerTo.put(RecipientType.BCC, bcc);
+
+		// convert headers to expected format
+		List<String> headers = headerMap2List(msg.getHeaders());
+
+		// build the content type
+		String contentType = EmailHeaders.CONTENT_TYPE + ": " + msg.getContentType();
+		if (msg.getCharacterSet() != null && msg.getCharacterSet().trim().length() != 0)
 		{
-			M_log.warn("Email.send: exception: " + ae.getMessage(), ae);
+			contentType += "; charset=" + msg.getCharacterSet();
 		}
-		catch (UnsupportedEncodingException uee)
+		// message format is only used when content type is text/plain as specified in the rfc
+		if (ContentType.TEXT_PLAIN.equals(msg.getCharacterSet()) && msg.getFormat() != null
+				&& msg.getFormat().trim().length() != 0)
 		{
-			M_log.warn("Email.send: exception: " + uee.getMessage(), uee);
+			contentType += "; format=" + msg.getFormat();
 		}
+		// add the content type to the headers
+		headers.add(contentType);
+
+		// send the message
+		sendMail(from, actual, msg.getSubject(), msg.getBody(), headerTo, replyTo, headers, msg
+				.getAttachments());
+
+		return invalids;
 	}
 
 	protected List<String> headerMap2List(Map<String, String> headers)
@@ -842,34 +912,49 @@ public class BasicEmailService implements EmailService
 	/**
 	 * Converts a {@link java.util.List} of {@link EmailAddress} to
 	 * {@link javax.mail.internet.InternetAddress}.
-	 * 
+	 *
 	 * @param emails
 	 * @return Array will be the same size as the list with converted addresses. If list is null,
 	 *         the array returned will be 0 length (non-null).
 	 * @throws AddressException
 	 * @throws UnsupportedEncodingException
 	 */
-	protected InternetAddress[] emails2Internets(List<EmailAddress> emails)
-			throws AddressException, UnsupportedEncodingException
+	protected InternetAddress[] emails2Internets(List<EmailAddress> emails,
+			List<EmailAddress> invalids)
 	{
-		InternetAddress[] addrs = null;
-		if (emails != null)
+		// set the default return value
+		InternetAddress[] addrs = new InternetAddress[0];
+
+		if (emails != null && !emails.isEmpty())
 		{
-			addrs = new InternetAddress[emails.size()];
+			ArrayList<InternetAddress> laddrs = new ArrayList<InternetAddress>();
 			for (int i = 0; i < emails.size(); i++)
 			{
 				EmailAddress email = emails.get(i);
-				addrs[i] = new InternetAddress(email.getAddress(), true);
-				addrs[i].setPersonal(email.getPersonal());
+				try
+				{
+					InternetAddress ia = new InternetAddress(email.getAddress(), true);
+					ia.setPersonal(email.getPersonal());
+					laddrs.add(ia);
+				}
+				catch (AddressException e)
+				{
+					invalids.add(email);
+				}
+				catch (UnsupportedEncodingException e)
+				{
+					invalids.add(email);
+				}
+			}
+			if (!laddrs.isEmpty())
+			{
+				addrs = laddrs.toArray(addrs);
 			}
 		}
-		else
-		{
-			addrs = new InternetAddress[0];
-		}
+
 		return addrs;
 	}
-
+	
 	protected String cleanUp(String str)
 	{
 		StringBuilder buf = new StringBuilder(str);
@@ -1044,7 +1129,7 @@ public class BasicEmailService implements EmailService
 		FileDataSource source = new FileDataSource(attachment.getFile());
 		attachPart = new MimeBodyPart();
 		attachPart.setDataHandler(new DataHandler(source));
-		attachPart.setFileName(attachment.getFile().getPath());
+		attachPart.setFileName(attachment.getFilename());
 		return attachPart;
 	}
 
@@ -1089,7 +1174,10 @@ public class BasicEmailService implements EmailService
 		long preSend = 0;
 		if (M_log.isDebugEnabled()) preSend = System.currentTimeMillis();
 
-		Transport.send(msg, to);
+		if (allowTransport)
+		{
+			Transport.send(msg, to);
+		}
 
 		long end = 0;
 		if (M_log.isDebugEnabled()) end = System.currentTimeMillis();

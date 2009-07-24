@@ -168,8 +168,9 @@
       <artifactId>hibernate</artifactId>
     </dependency>
     <dependency>
-      <groupId>dumbster</groupId>
-      <artifactId>dumbster</artifactId>
+      <groupId>org.subethamail</groupId>
+      <artifactId>subethasmtp</artifactId>
+      <version>2.1.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>

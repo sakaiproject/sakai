@@ -27,6 +27,7 @@ import java.util.Map;
 
 import javax.mail.internet.InternetAddress;
 
+import org.sakaiproject.email.api.EmailAddress.RecipientType;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -131,6 +132,13 @@ public interface EmailService
 	 * @param message
 	 *            {@link EmailMessage} that contains the parameters to create a message to the
 	 *            specified recipients.
+	 * @throws AddressValidationException
+	 *             If any recipient addresses are found to be invalid. This is checked when
+	 *             converting to {@link javax.mail.internet.InternetAddress}.
+	 * @throws NoRecipientsException
+	 * @return {@link java.util.List} of recipients that were found to be invalid per to
+	 *         {@link javax.mail.internet.InternetAddress.InternetAddress}.
 	 */
-	void send(EmailMessage message);
+	List<EmailAddress> send(EmailMessage message) throws AddressValidationException,
+			NoRecipientsException;
 }

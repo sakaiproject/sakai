@@ -290,6 +290,17 @@
             <timezone>0</timezone>
             <properties></properties>
         </contributor>
+        <contributor>
+            <name>Carl Hall</name>
+            <email>carl.hall@gatech.edu</email>
+            <organization>Georgia Tech</organization>
+            <organizationUrl>http://gatech.edu/</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-5</timezone>
+            <properties></properties>
+        </contributor>
     </contributors>
 	<scm>
 		<connection>
