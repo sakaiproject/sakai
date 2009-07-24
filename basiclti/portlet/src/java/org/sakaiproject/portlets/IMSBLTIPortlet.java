@@ -5,31 +5,16 @@ import org.imsglobal.basiclti.BasicLTIUtil;
 import java.lang.Integer;
 
 import java.io.PrintWriter;
-import java.io.InputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.OutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
-import java.io.FileOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileInputStream;
-import java.io.ObjectOutputStream;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLEncoder;
 
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.List;
 import java.util.Properties;
-import java.util.Iterator;
 import java.util.ArrayList;
-import java.util.Enumeration;
 
 import javax.portlet.GenericPortlet;
 import javax.portlet.RenderRequest;
@@ -49,37 +34,11 @@ import javax.portlet.PortletMode;
 import javax.portlet.PortletSession;
 import javax.portlet.ReadOnlyException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.Element;
-import org.w3c.dom.Text;
-import org.w3c.dom.Attr;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.NamedNodeMap;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.xml.transform.*;
-import javax.xml.transform.dom.*;
-import javax.xml.transform.stream.*;
-import java.io.ByteArrayInputStream;
-import javax.xml.xpath.*;
-import javax.xml.XMLConstants;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
-import javax.xml.transform.Source;
-
 import org.sakaiproject.portlet.util.SakaiPortletUtil;
 import org.sakaiproject.portlet.util.PortletHelper;
-import org.sakaiproject.id.cover.IdManager;
 
 // Sakai APIs
 import org.sakaiproject.tool.cover.ToolManager;
@@ -103,6 +62,10 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.event.cover.EventTrackingService;
+
 
 // For Rutgers Security
 import java.security.*;
@@ -123,6 +86,8 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
     /** Our log (commons). */
     private static Log M_log = LogFactory.getLog(IMSBLTIPortlet.class);
+
+    public static String EVENT_BASICLTI_CONFIG = "basiclti.config";
 
     /** To turn on really verbose debugging */
     private static boolean verbosePrint = false;
@@ -481,8 +446,10 @@ public class IMSBLTIPortlet extends GenericPortlet {
             }
 	}
 
+        String launch_url = imsTIUrl;
         if ( imsTIXml != null ) {
-		if ( ! BasicLTIUtil.validateDescriptor(imsTIXml) ) {
+		launch_url = BasicLTIUtil.validateDescriptor(imsTIXml);
+		if ( launch_url == null ) {
 			setErrorMessage(request, rb.getString("error.xml.input"));
 			return;
 		}
@@ -537,7 +504,13 @@ public class IMSBLTIPortlet extends GenericPortlet {
                }
             }
         }
-        if ( changed ) prefs.store();
+
+        // track event and store
+        if ( changed ) {
+            Event event = EventTrackingService.newEvent(EVENT_BASICLTI_CONFIG, launch_url, context, true, NotificationService.NOTI_OPTIONAL);
+            EventTrackingService.post(event);
+            prefs.store();
+	}
 
 	pSession.setAttribute("sakai.view", "main");
 	response.setPortletMode(PortletMode.VIEW);

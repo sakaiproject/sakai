@@ -148,28 +148,30 @@ public class SakaiBLTIUtil {
 	return true;
     } 
 
-    public static String postLaunchHTML(String placementId, ResourceLoader rb)
+    // This must return an HTML message as the [0] in the array
+    // If things are successful - the launch URL is in [1]
+    public static String[] postLaunchHTML(String placementId, ResourceLoader rb)
     {
-        if ( placementId == null ) return "<p>" + getRB(rb, "error.missing" ,"Error, missing placementId")+"</p>";
+        if ( placementId == null ) return postError("<p>" + getRB(rb, "error.missing" ,"Error, missing placementId")+"</p>" );
         ToolConfiguration placement = SiteService.findTool(placementId);
-        if ( placement == null ) return "<p>" + getRB(rb, "error.load" ,"Error, cannot load placement=")+placementId+".</p>";
+        if ( placement == null ) return postError("<p>" + getRB(rb, "error.load" ,"Error, cannot load placement=")+placementId+".</p>");
     
         // Add user, course, etc to the launch parameters
         Properties launch = new Properties();
         if ( ! sakaiInfo(launch, placement) ) {
-           return "<p>" + getRB(rb, "error.missing",
-                "Error, cannot load Sakai information for placement=")+placementId+".</p>";
+           return postError("<p>" + getRB(rb, "error.missing",
+                "Error, cannot load Sakai information for placement=")+placementId+".</p>");
         }
         
         // Retrieve the launch detail
         Properties info = new Properties();
         if ( ! parseDescriptor(info, launch, placement) ) {
-           return "<p>" + getRB(rb, "error.nolaunch" ,"Not Configured.")+"</p>";
+           return postError("<p>" + getRB(rb, "error.nolaunch" ,"Not Configured.")+"</p>");
 	}
 
         String launch_url = info.getProperty("secure_launch_url");
 	if ( launch_url == null ) launch_url = info.getProperty("launch_url");
-        if ( launch_url == null ) return "<p>" + getRB(rb, "error.missing" ,"Not configured")+"</p>";
+        if ( launch_url == null ) return postError("<p>" + getRB(rb, "error.missing" ,"Not configured")+"</p>");
 
 	String secret = toNull(info.getProperty("secret"));
 	String key = toNull(info.getProperty("key"));
@@ -191,23 +193,29 @@ public class SakaiBLTIUtil {
 
         // Sanity checks
         if ( secret == null && org_secret == null ) {
-            return "<p>" + getRB(rb, "error.nosecret", "Error - must have a secret.")+"</p>";
+            return postError("<p>" + getRB(rb, "error.nosecret", "Error - must have a secret.")+"</p>");
         }
         if ( ( secret != null && key == null) || ( org_secret != null && org_guid == null ) ){
-            return "<p>" + getRB(rb, "error.nokey", "Error - must have a secret and a key.")+"</p>";
+            return postError("<p>" + getRB(rb, "error.nokey", "Error - must have a secret and a key.")+"</p>");
         }
 
         launch = BasicLTIUtil.signProperties(launch, launch_url, "POST", 
             key, secret, org_secret, org_guid, org_name);
 
-        if ( launch == null ) return "<p>" + getRB(rb, "error.sign", "Error signing message.")+"</p>";
+        if ( launch == null ) return postError("<p>" + getRB(rb, "error.sign", "Error signing message.")+"</p>");
         dPrint("LAUNCH III="+launch);
 
 	boolean dodebug = toNull(info.getProperty("debug")) != null;
         String postData = BasicLTIUtil.postLaunchHTML(launch, launch_url, dodebug);
 
-        return postData;
+        String [] retval = { postData, launch_url };
+        return retval;
     }
+
+    public static String[] postError(String str) {
+        String [] retval = { str };
+        return retval;
+     }
 
     public static String getRB(ResourceLoader rb, String key, String def)
     {

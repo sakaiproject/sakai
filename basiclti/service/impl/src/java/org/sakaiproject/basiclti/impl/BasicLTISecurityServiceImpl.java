@@ -64,6 +64,9 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.event.cover.EventTrackingService;
 
 import org.sakaiproject.basiclti.SakaiBLTIUtil;
 import org.imsglobal.basiclti.BasicLTIUtil;
@@ -75,6 +78,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 	public static final String MIME_TYPE_BLTI="ims/basiclti";
 	public static final String REFERENCE_ROOT="/basiclti";
 	public static final String APPLICATION_ID = "sakai:basiclti";
+	public static final String EVENT_BASICLTI_LAUNCH = "basiclti.launch";
 
 	// Note: security needs a proper Resource reference
 
@@ -222,14 +226,25 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 				}
 
 				// Get the post data for the placement
-				String postData = SakaiBLTIUtil.postLaunchHTML(ref.getId(), rb);
-				// postData = "\n<pre>\n"+postData.replace("<","&lt;").replace(">","&gt;")+"\n</pre>\n";
+				String[] retval = SakaiBLTIUtil.postLaunchHTML(ref.getId(), rb);
 
 				try
 				{
 					res.setContentType("text/html");
 					ServletOutputStream out = res.getOutputStream();
-					out.println(postData);
+					out.println(retval[0]);
+					String refstring = ref.getReference();
+					if ( retval.length > 1 ) 
+					{ 
+						refstring = retval[1];
+					}
+					else
+					{
+						logger.warn(this +" Missing launch_url:"+refstring);
+					}
+                                        Event event = EventTrackingService.newEvent(EVENT_BASICLTI_LAUNCH, refstring, ref.getContext(),  false, NotificationService.NOTI_OPTIONAL);
+                                        EventTrackingService.post(event);
+
 				} 
 				catch (Exception e)
 				{

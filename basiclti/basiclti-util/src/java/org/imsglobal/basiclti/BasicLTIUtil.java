@@ -92,24 +92,18 @@ public class BasicLTIUtil {
         retProp.setProperty("status","fail");
     }
 
-    public static boolean validateDescriptor(String descriptor)
+    public static String validateDescriptor(String descriptor)
     {
         Map<String,Object> tm = XMLMap.getFullMap(descriptor.trim());
 
-        if ( tm == null )
-        {
-                return false;
-        }
+        if ( tm == null ) return null;
 
         // We demand at least an endpoint
-        String ltiLaunch = XMLMap.getString(tm,"/basicltiresource/launch_url");
         String ltiSecureLaunch = XMLMap.getString(tm,"/basicltiresource/secure_launch_url");
-        if ( ( ltiLaunch == null || ltiLaunch.trim().length() < 1 ) &&
-             ( ltiSecureLaunch == null || ltiSecureLaunch.trim().length() < 1 ) )
-        {
-                return false;
-        }
-        return true;
+        if ( ltiSecureLaunch != null || ltiSecureLaunch.trim().length() > 0 ) return ltiSecureLaunch;
+        String ltiLaunch = XMLMap.getString(tm,"/basicltiresource/launch_url");
+        if ( ltiLaunch != null || ltiLaunch.trim().length() > 0 ) return ltiLaunch;
+        return null;
     }
 
     // Remove any properties which we wil not send
