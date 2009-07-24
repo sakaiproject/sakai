@@ -21,6 +21,9 @@
 package org.sakaiproject.entitybroker.rest;
 
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -613,7 +616,7 @@ public class EntityBatchHandler {
         }
 
         // create the result object to encode and place into the final response
-        if (error == null) {
+        if (error == null && httpResponse != null) {
             result = new ResponseResult(reference, entityURL, httpResponse.getResponseCode(), 
                     httpResponse.getResponseHeaders(), httpResponse.getResponseBody());
         } else {
@@ -631,8 +634,15 @@ public class EntityBatchHandler {
     private String makeFullExternalURL(HttpServletRequest req, String entityURL) {
         if (entityURL.startsWith("/")) {
             // http client can only deal in complete URLs - e.g. "http://localhost:8080/thing"
-            String serverName = req.getServerName();
-            int serverPort = req.getServerPort();
+            String serverName = "localhost"; // req.getServerName();
+            try {
+                InetAddress i4 = Inet4Address.getLocalHost();
+                serverName = i4.getHostAddress();
+            } catch (UnknownHostException e) {
+                // could not get address, try the fallback
+                serverName = "localhost";
+            }
+            int serverPort = req.getLocalPort(); // getServerPort();
             String protocol = req.getScheme();
             if (protocol == null || "".equals(protocol)) {
                 protocol = "http";
