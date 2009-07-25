@@ -380,7 +380,7 @@ public class BasicEmailService implements EmailService
 		// set the mail envelope return address
 		props.put(SMTP_FROM, m_smtpFrom);
 
-		Session session = Session.getDefaultInstance(props, null);
+		Session session = Session.getInstance(props);
 
 		try
 		{
