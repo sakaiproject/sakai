@@ -508,9 +508,9 @@ public class IMSBLTIPortlet extends GenericPortlet {
         // track event and store
         if ( changed ) {
             // 2.6 Event Tracking
-            // Event event = EventTrackingService.newEvent(EVENT_BASICLTI_CONFIG, launch_url, context, true, NotificationService.NOTI_OPTIONAL);
+            Event event = EventTrackingService.newEvent(EVENT_BASICLTI_CONFIG, launch_url, context, true, NotificationService.NOTI_OPTIONAL);
             // 2.5 Event Tracking
-            Event event = EventTrackingService.newEvent(EVENT_BASICLTI_CONFIG, launch_url, true);
+            // Event event = EventTrackingService.newEvent(EVENT_BASICLTI_CONFIG, launch_url, true);
             EventTrackingService.post(event);
             prefs.store();
 	}

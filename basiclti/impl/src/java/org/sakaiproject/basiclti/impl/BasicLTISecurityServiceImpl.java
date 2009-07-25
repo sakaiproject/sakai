@@ -243,9 +243,9 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 						logger.warn(this +" Missing launch_url:"+refstring);
 					}
 					// Cool 2.6 Event call
-                                        // Event event = EventTrackingService.newEvent(EVENT_BASICLTI_LAUNCH, refstring, ref.getContext(),  false, NotificationService.NOTI_OPTIONAL);
+                                        Event event = EventTrackingService.newEvent(EVENT_BASICLTI_LAUNCH, refstring, ref.getContext(),  false, NotificationService.NOTI_OPTIONAL);
 					// 2.5 Event call
-                                        Event event = EventTrackingService.newEvent(EVENT_BASICLTI_LAUNCH, refstring, false);
+                                        // Event event = EventTrackingService.newEvent(EVENT_BASICLTI_LAUNCH, refstring, false);
                                         EventTrackingService.post(event);
 
 				} 
