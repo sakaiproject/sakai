@@ -2,6 +2,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
+    <!-- To switch between 2-5-x, 2-6-x, and 2-7-x - just 
+         fix the version to match the parent's pom. -->
     <artifactId>base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <!-- <version>2.5.0</version> -->
