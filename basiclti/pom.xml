@@ -19,11 +19,11 @@
     <url>https://source.sakaiproject.org/svn/mailarchive/trunk</url>
   </scm>
   <modules>
-    <module>basiclti-util</module>
-    <module>service/impl</module>
-    <module>service/pack</module>
-    <module>portlet</module>
     <module>portlet-util</module>
+    <module>basiclti-util</module>
+    <module>portlet</module>
+    <module>impl</module>
+    <module>pack</module>
   </modules>
   <dependencyManagement>
     <dependencies>

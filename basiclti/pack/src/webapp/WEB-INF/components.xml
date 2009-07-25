@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+        <bean id="org.sakaiproject.basiclti.service.BasicLTISecurityService"
+                        class="org.sakaiproject.basiclti.impl.BasicLTISecurityServiceImpl"
+                        init-method="init"
+                        destroy-method="destroy"
+                        singleton="true">
+        </bean>
+
+</beans>
