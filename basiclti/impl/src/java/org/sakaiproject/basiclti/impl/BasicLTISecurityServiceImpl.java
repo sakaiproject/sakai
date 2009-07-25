@@ -234,14 +234,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					ServletOutputStream out = res.getOutputStream();
 					out.println(retval[0]);
 					String refstring = ref.getReference();
-					if ( retval.length > 1 ) 
-					{ 
-						refstring = retval[1];
-					}
-					else
-					{
-						logger.warn(this +" Missing launch_url:"+refstring);
-					}
+					if ( retval.length > 1 ) refstring = retval[1];
 					// Cool 2.6 Event call
                                         Event event = EventTrackingService.newEvent(EVENT_BASICLTI_LAUNCH, refstring, ref.getContext(),  false, NotificationService.NOTI_OPTIONAL);
 					// 2.5 Event call
