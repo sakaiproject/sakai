@@ -21,7 +21,8 @@
       <id>K1</id>
       <activation>
         <file>
-          <exists>../../master/../kernel-deploy/pom.xml</exists>
+          <!-- Because this is relative to base pom, cannot compile in a sub-diectory -->
+          <exists>../master/../kernel-deploy/pom.xml</exists>
         </file>
       </activation>
       <dependencies>
@@ -62,7 +63,7 @@
       <id>Pre-K1</id>
       <activation>
         <file>
-          <missing>../../master/../kernel-deploy/pom.xml</missing>
+          <missing>../master/../kernel-deploy/pom.xml</missing>
         </file>
       </activation>
       <dependencies>
