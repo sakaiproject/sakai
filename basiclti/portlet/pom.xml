@@ -17,27 +17,34 @@
   <inceptionYear>2009</inceptionYear>
   <packaging>war</packaging>
   <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-blti-util</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-portlet-util</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+      <scope>provided</scope>
+    </dependency>
         <dependency>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-blti-util</artifactId>
+          <groupId>javax.servlet</groupId>
+          <artifactId>servlet-api</artifactId>
+          <version>${sakai.servletapi.version}</version>
         </dependency>
         <dependency>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-portlet-util</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-          <version>1.0.4</version>
-          <scope>provided</scope>
+          <groupId>javax.portlet</groupId>
+          <artifactId>portlet-api</artifactId>
+          <version>1.0</version>
         </dependency>
   </dependencies>
   <profiles>
     <profile>
       <id>Pre-K1</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
       <dependencies>
        <dependency>
           <groupId>org.sakaiproject</groupId>
@@ -71,16 +78,6 @@
           <scope>provided</scope>
         </dependency>
         <dependency>
-          <groupId>javax.servlet</groupId>
-          <artifactId>servlet-api</artifactId>
-          <version>${sakai.servletapi.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>javax.portlet</groupId>
-          <artifactId>portlet-api</artifactId>
-          <version>1.0</version>
-        </dependency>
-        <dependency>
           <groupId>org.sakaiproject</groupId>
           <artifactId>sakai-util-api</artifactId>
           <version>${sakai.version}</version>
@@ -104,6 +101,9 @@
     </profile>
     <profile>
       <id>K1</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
       <dependencies>
         <dependency>
           <groupId>org.sakaiproject.kernel</groupId>
