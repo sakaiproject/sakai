@@ -120,7 +120,7 @@ public interface Formats {
      * the array of all the known formats in this file
      */
     public static String[] ALL_KNOWN_FORMATS = new String[] {
-        HTML, XML, JSON, TXT, RSS, ATOM
+        HTML, XML, JSON, JSONP, TXT, RSS, ATOM
     };
 
 }
