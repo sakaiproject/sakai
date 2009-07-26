@@ -86,7 +86,10 @@ public class EntityEncodingManager {
     public static final String BATCH_PREFIX = '/' + EntityRequestHandler.BATCH + '?' + EntityBatchHandler.REFS_PARAM_NAME + '=';
 
     public static final String[] HANDLED_INPUT_FORMATS = new String[] { Formats.XML, Formats.JSON, Formats.HTML };
-    public static final String[] HANDLED_OUTPUT_FORMATS = new String[] { Formats.XML, Formats.JSON, Formats.HTML, Formats.FORM };
+    public static final String[] HANDLED_OUTPUT_FORMATS = new String[] { Formats.XML, Formats.JSON, Formats.JSONP, Formats.HTML, Formats.FORM };
+
+    public static final String JSON_CALLBACK_PARAM = "jsonCallback";
+    public static final String JSON_DEFAULT_CALLBACK = "jsonEntityFeed";
 
     protected static final String XML_HEADER_PREFIX = "<?";
     protected static final String XML_HEADER_SUFFIX = "?>";
@@ -455,7 +458,7 @@ public class EntityEncodingManager {
                 try {
                     String encode = encodeEntity(ref.getPrefix(), format, entity, view);
                     if (encode.length() > 3) {
-                        if (Formats.JSON.equals(format) 
+                        if ((Formats.JSON.equals(format) || Formats.JSONP.equals(format)) 
                                 && encodedEntities > 0) {
                             sb.append(",");
                         }
@@ -499,6 +502,12 @@ public class EntityEncodingManager {
             encoded = XML_HEADER + XHTML_HEADER.replace("{title}", title) + encoded + XHTML_FOOTER;
         } else if (Formats.XML.equals(format)) {
             encoded = XML_HEADER + encoded;
+        } else if (Formats.JSONP.equals(format)) {
+            String callback = JSON_DEFAULT_CALLBACK;
+            if (params != null && params.containsKey(JSON_CALLBACK_PARAM)) {
+                callback = sanitizeJsonCallback(params.get(JSON_CALLBACK_PARAM));
+            }
+            encoded = callback + "(" + encoded + ")";
         }
         // put the encoded data into the stream
         try {
@@ -793,6 +802,7 @@ public class EntityEncodingManager {
             transcoders = new HashMap<String, Transcoder>();
             JSONTranscoder jt = new JSONTranscoder(true, true, false);
             transcoders.put(jt.getHandledFormat(), jt);
+            transcoders.put(Formats.JSONP, jt);
             XMLTranscoder xt = new XMLTranscoder(true, true, false, false);
             transcoders.put(xt.getHandledFormat(), xt);
             HTMLTranscoder ht = new HTMLTranscoder();
@@ -831,6 +841,20 @@ public class EntityEncodingManager {
             }
         }
         return encoded;
+    }
+    
+    /**
+     * Clean the JSONP callback parameter to make sure it is sensible
+     * @param param The parameter for the callback, should be a String
+     * @return The string version of the param or the default callback name
+     */
+    protected String sanitizeJsonCallback(Object param) {
+        //We might want to sanitize down to something that looks like a valid function call
+        //This shouldn't be necessary, though, since it will just either work or not 
+        if (param == null || !(param instanceof String))
+            return JSON_DEFAULT_CALLBACK;
+        else
+            return param.toString();
     }
 
     /**

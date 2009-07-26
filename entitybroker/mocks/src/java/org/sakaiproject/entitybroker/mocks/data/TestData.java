@@ -150,6 +150,7 @@ public class TestData {
 
    public static String ENTITY_URL4_XML = EntityReference.SEPARATOR + PREFIX4 + EntityReference.SEPARATOR + IDS4[0] + "." + Formats.XML;
    public static String ENTITY_URL4_JSON = EntityReference.SEPARATOR + PREFIX4 + EntityReference.SEPARATOR + IDS4[0] + "." + Formats.JSON;
+   public static String ENTITY_URL4_JSONP = REF4 + "." + Formats.JSONP;   
    public static String COLLECTION_URL4_XML = EntityReference.SEPARATOR + PREFIX4 + "." + Formats.XML;
    public static String COLLECTION_URL4_JSON = EntityReference.SEPARATOR + PREFIX4 + "." + Formats.JSON;
 

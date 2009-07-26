@@ -90,6 +90,7 @@ public class RequestUtils {
         formatToMimeType.put(Formats.FORM, Formats.FORM_MIME_TYPE);
         formatToMimeType.put(Formats.HTML, Formats.HTML_MIME_TYPE);
         formatToMimeType.put(Formats.JSON, Formats.JSON_MIME_TYPE);
+        formatToMimeType.put(Formats.JSONP, Formats.JSONP_MIME_TYPE);
         formatToMimeType.put(Formats.RSS, Formats.RSS_MIME_TYPE);
         formatToMimeType.put(Formats.TXT, Formats.TXT_MIME_TYPE);
         formatToMimeType.put(Formats.XML, Formats.XML_MIME_TYPE);
@@ -99,6 +100,7 @@ public class RequestUtils {
         extractExtensionsIntoMap(Formats.FORM, Formats.FORM_EXTENSIONS, extensionsToFormat);
         extractExtensionsIntoMap(Formats.HTML, Formats.HTML_EXTENSIONS, extensionsToFormat);
         extractExtensionsIntoMap(Formats.JSON, Formats.JSON_EXTENSIONS, extensionsToFormat);
+        extractExtensionsIntoMap(Formats.JSONP, Formats.JSONP_EXTENSIONS, extensionsToFormat);
         extractExtensionsIntoMap(Formats.RSS, Formats.RSS_EXTENSIONS, extensionsToFormat);
         extractExtensionsIntoMap(Formats.TXT, Formats.TXT_EXTENSIONS, extensionsToFormat);
         extractExtensionsIntoMap(Formats.XML, Formats.XML_EXTENSIONS, extensionsToFormat);

@@ -40,7 +40,7 @@ public class ResolvableEntityProviderMock extends CoreEntityProviderMock impleme
    }
 
    public String[] getHandledOutputFormats() {
-      return new String[] {Formats.HTML, Formats.JSON, Formats.XML};
+      return new String[] {Formats.HTML, Formats.JSON, Formats.JSONP, Formats.XML};
    }
 
    /* (non-Javadoc)

@@ -25,6 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -209,6 +210,36 @@ public class EntityEncodingManagerTest extends TestCase {
         assertTrue(fo.contains("\"id\":"));
         assertTrue(fo.contains("\"4-one\","));
         assertTrue(fo.contains(EntityEncodingManager.ENTITY_REFERENCE));
+        
+        // JSONP test valid resolveable entity, default callback
+        output = new ByteArrayOutputStream();
+        view = entityBrokerManager.parseEntityURL(TestData.ENTITY_URL4_JSONP);
+        assertNotNull(view);
+        entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, null, output, view);
+        fo = output.toString();
+        assertNotNull(fo);
+        assertTrue(fo.length() > 20);
+        assertTrue(fo.contains(TestData.PREFIX4));
+        assertTrue(fo.contains("\"id\":"));
+        assertTrue(fo.contains("\"4-one\","));
+        assertTrue(fo.contains(EntityEncodingManager.ENTITY_REFERENCE));
+        assertTrue(fo.contains(EntityEncodingManager.JSON_DEFAULT_CALLBACK + "("));
+        
+        // JSONP test valid resolveable entity, specified callback
+        HashMap<String, Object> callbackParam = new HashMap<String, Object>();
+        callbackParam.put(EntityEncodingManager.JSON_CALLBACK_PARAM, "customCallback");
+        output = new ByteArrayOutputStream();
+        view = entityBrokerManager.parseEntityURL(TestData.ENTITY_URL4_JSONP);
+        assertNotNull(view);
+        entityEncodingManager.internalOutputFormatter(view.getEntityReference(), view.getExtension(), null, callbackParam, output, view);
+        fo = output.toString();
+        assertNotNull(fo);
+        assertTrue(fo.length() > 20);
+        assertTrue(fo.contains(TestData.PREFIX4));
+        assertTrue(fo.contains("\"id\":"));
+        assertTrue(fo.contains("\"4-one\","));
+        assertTrue(fo.contains(EntityEncodingManager.ENTITY_REFERENCE));
+        assertTrue(fo.contains("customCallback("));
 
         // HTML test valid resolveable entity
         output = new ByteArrayOutputStream();
