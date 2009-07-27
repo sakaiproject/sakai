@@ -28,6 +28,7 @@ import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -47,7 +48,7 @@ public class SakaiBLTIUtil {
 
     // Look at a Placement and come up with the launch urls, and
     // other launch parameters to drive the launch.
-    public static boolean parseDescriptor(Properties info, Properties launch, Placement placement)
+    public static boolean loadFromPlacement(Properties info, Properties launch, Placement placement)
     {
 	Properties config = placement.getConfig();
 	dPrint("Sakai properties=" + config);
@@ -71,7 +72,6 @@ public class SakaiBLTIUtil {
         return false;
     }
 
-   // Retrieve the Sakai information about users, etc.
    public static boolean sakaiInfo(Properties props, Placement placement)
    {
 	dPrint("placement="+ placement.getId());
@@ -79,13 +79,16 @@ public class SakaiBLTIUtil {
         String context = placement.getContext();
         dPrint("ContextID="+context);
 
-        ToolConfiguration toolConfig = SiteService.findTool(placement.getId());
-        // ActiveTool at = ActiveToolManager.getActiveTool(toolConfig.getToolId());
+        return sakaiInfo(props, context, placement.getId());
+   }
+
+   // Retrieve the Sakai information about users, etc.
+   public static boolean sakaiInfo(Properties props, String context, String placementId)
+   {
+
         Site site = null;
-        SitePage page = null;
         try {
 		site = SiteService.getSite(context);
-        	page = site.getPage(toolConfig.getPageId());
         } catch (Exception e) {
                 dPrint("No site/page associated with Launch context="+context);
                 return false;
@@ -94,7 +97,7 @@ public class SakaiBLTIUtil {
 	User user = UserDirectoryService.getCurrentUser();
 
 	// Start setting the Basici LTI parameters
-	setProperty(props,"resource_link_id",placement.getId());
+	setProperty(props,"resource_link_id",placementId);
 
 	// TODO: Think about anonymus
 	if ( user != null )
@@ -148,6 +151,29 @@ public class SakaiBLTIUtil {
 	return true;
     } 
 
+    // getProperty(String name);
+    // Gnerate HTML from a descriptor and properties from 
+    public static String[] postLaunchHTML(String descriptor, String contextId, String resourceId, ResourceProperties props, ResourceLoader rb)
+    {
+        if ( descriptor == null || contextId == null || resourceId == null ) 
+            return postError("<p>" + getRB(rb, "error.descriptor" ,"Error, missing contextId, resourceid or descriptor")+"</p>" );
+
+        // Add user, course, etc to the launch parameters
+        Properties launch = new Properties();
+        if ( ! sakaiInfo(launch, contextId, resourceId) ) {
+           return postError("<p>" + getRB(rb, "error.info.resource",
+                "Error, cannot load Sakai information for resource=")+resourceId+".</p>");
+        }
+
+        Properties info = new Properties();
+        if ( ! BasicLTIUtil.parseDescriptor(info, launch, descriptor) ) {
+           return postError("<p>" + getRB(rb, "error.badxml.resource",
+                "Error, cannot parse descriptor for resource=")+resourceId+".</p>");
+        }
+
+    	return postLaunchHTML(info, launch, rb);
+    }
+
     // This must return an HTML message as the [0] in the array
     // If things are successful - the launch URL is in [1]
     public static String[] postLaunchHTML(String placementId, ResourceLoader rb)
@@ -165,9 +191,14 @@ public class SakaiBLTIUtil {
         
         // Retrieve the launch detail
         Properties info = new Properties();
-        if ( ! parseDescriptor(info, launch, placement) ) {
+        if ( ! loadFromPlacement(info, launch, placement) ) {
            return postError("<p>" + getRB(rb, "error.nolaunch" ,"Not Configured.")+"</p>");
 	}
+    	return postLaunchHTML(info, launch, rb);
+    }
+
+    public static String[] postLaunchHTML(Properties info, Properties launch, ResourceLoader rb)
+    {
 
         String launch_url = info.getProperty("secure_launch_url");
 	if ( launch_url == null ) launch_url = info.getProperty("launch_url");

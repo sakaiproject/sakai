@@ -94,15 +94,18 @@ public class BasicLTIUtil {
 
     public static String validateDescriptor(String descriptor)
     {
-        Map<String,Object> tm = XMLMap.getFullMap(descriptor.trim());
+        if ( descriptor == null ) return null;
+        if ( descriptor.indexOf("<basicltiresource") < 0 ) return null;
 
+        Map<String,Object> tm = XMLMap.getFullMap(descriptor.trim());
         if ( tm == null ) return null;
 
         // We demand at least an endpoint
         String ltiSecureLaunch = XMLMap.getString(tm,"/basicltiresource/secure_launch_url");
-        if ( ltiSecureLaunch != null || ltiSecureLaunch.trim().length() > 0 ) return ltiSecureLaunch;
+        // We demand at least an endpoint
+        if ( ltiSecureLaunch != null && ltiSecureLaunch.trim().length() > 0 ) return ltiSecureLaunch;
         String ltiLaunch = XMLMap.getString(tm,"/basicltiresource/launch_url");
-        if ( ltiLaunch != null || ltiLaunch.trim().length() > 0 ) return ltiLaunch;
+        if ( ltiLaunch != null && ltiLaunch.trim().length() > 0 ) return ltiLaunch;
         return null;
     }
 
@@ -274,6 +277,12 @@ public class BasicLTIUtil {
         setProperty(launch_info, "launch_url", launch_url);
         setProperty(launch_info, "secure_launch_url", secure_launch_url);
 
+        // Extensions for hand-authored placements - The export process should scrub these
+        setProperty(launch_info, "key", 
+        	toNull(XMLMap.getString(tm,"/basicltiresource/x-secure/launch_key")));
+        setProperty(launch_info, "secret", 
+        	toNull(XMLMap.getString(tm,"/basicltiresource/x-secure/launch_secret")));
+
         List<Map<String,Object>> theList = XMLMap.getList(tm, "/basicltiresource/custom/parameter");
         for ( Map<String,Object> setting : theList) {
                 dPrint("Setting="+setting);
@@ -285,6 +294,28 @@ public class BasicLTIUtil {
 		postProp.setProperty(key,value);
         }
         return true;
+    }
+
+    // Remove fields that should not be exported
+    public static String prepareForExport(String descriptor)
+    {
+        Map<String,Object> tm = null;
+        try
+        {
+                tm = XMLMap.getFullMap(descriptor.trim());
+        } 
+        catch (Exception e) {
+                M_log.warning("BasicLTIUtil exception parsing BasicLTI descriptor"+e.getMessage());
+		e.printStackTrace();
+		return null;
+        }
+        if ( tm == null ) {
+            M_log.warning("Unable to parse XML in prepareForExport");
+            return null;
+        }
+        XMLMap.removeSubMap(tm,"/basicltiresource/x-secure");
+        String retval = XMLMap.getXML(tm, true);
+        return retval;
     }
 
     /*

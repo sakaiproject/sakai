@@ -494,12 +494,12 @@ public class IMSBLTIPortlet extends GenericPortlet {
         if ( imsType != null ) {
             if ( imsType.equalsIgnoreCase("XML") ) {
                if ( imsTIXml != null ) {
-                   prefs.setValue("sakai:imsti.launch", null);
+                   prefs.reset("sakai:imsti.launch");
                    changed = true;
                }
             } else {
                if ( imsTIUrl != null ) {
-                   prefs.setValue("sakai:imsti.xml", null);
+                   prefs.reset("sakai:imsti.xml");
                    changed = true;
                }
             }
