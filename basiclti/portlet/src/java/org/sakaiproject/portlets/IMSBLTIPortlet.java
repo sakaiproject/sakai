@@ -381,6 +381,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		prefs.reset("sakai.descriptor");
                 for (String element : fieldList) {
                         prefs.reset("imsti."+element);
+                        prefs.reset("sakai:imsti."+element);
                 }
 		dPrint("Preference removed");
         } catch (ReadOnlyException e) {
