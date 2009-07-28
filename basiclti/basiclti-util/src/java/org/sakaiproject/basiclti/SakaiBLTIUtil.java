@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.net.URL;
 
 import org.imsglobal.basiclti.BasicLTIUtil;
+import org.sakaiproject.linktool.LinkToolUtil;
 
 // Sakai APIs
 import org.sakaiproject.tool.cover.ToolManager;
@@ -136,6 +137,17 @@ public class SakaiBLTIUtil {
 			setProperty(props,"lis_course_offering_sourced_id",courseRoster);
 		}
 	}
+
+
+        // Sakai-Unique fields - compatible with LinkTool
+        Session s = SessionManager.getCurrentSession();
+        if (s != null) {
+                String sessionid = s.getId();
+                if (sessionid != null) {
+                        sessionid = LinkToolUtil.encrypt(sessionid);
+                        setProperty(props,"sakai_session",sessionid);
+                }
+        }
 
 	// We pass this along in the Sakai world - it might
 	// might be useful to the external tool
