@@ -620,6 +620,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       statement = conn.prepareStatement(query);
       statement.setLong(1, mediaId.longValue());
       statement.executeUpdate();
+      if (!conn.getAutoCommit()) {
+    	  conn.commit();
+      }
     }
     catch(Exception e){
       log.warn(e.getMessage());
