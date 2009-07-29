@@ -180,7 +180,7 @@ public abstract class DirectServlet extends HttpServlet {
             try {
                 entityRequestHandler.handleEntityAccess(req, res, path);
             } catch (EntityException e) {
-                System.out.println("WARN Could not process entity: "+e.entityReference+" ("+e.responseCode+")["+e.getCause()+"]: "+e.getMessage());
+                System.out.println("INFO Could not process entity: "+e.entityReference+" ("+e.responseCode+")["+e.getCause()+"]: "+e.getMessage());
                 // no longer catching FORBIDDEN or UNAUTHORIZED here
                 //            if (e.responseCode == HttpServletResponse.SC_UNAUTHORIZED ||
                 //                  e.responseCode == HttpServletResponse.SC_FORBIDDEN) {
@@ -202,7 +202,7 @@ public abstract class DirectServlet extends HttpServlet {
             }
             // otherwise reject the request
             String msg = "Security exception accessing entity URL: " + path + " (current user not allowed): " + e.getMessage();
-            System.out.println("WARN " + msg);
+            System.out.println("INFO " + msg);
             sendError(res, HttpServletResponse.SC_FORBIDDEN, msg);
         } catch (Exception e) {
             // all other cases
