@@ -27,21 +27,25 @@
 	</h3>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitetype.alert") $validator.escapeHtml($alertMessage)</div>	#end
 	<p class="step">
-		## NOTE: below does not seem to be working
-		#if ($templateList.size() > 0)
+		## if there is NO template site types
+		$tlang.getString("sitetype.chothetyp.withouttemplate")<br /><br />
+		#if ($templateSites.size() > 0)
 			## if there is template site types
 			$tlang.getString("sitetype.chothetyp.withtemplate")
-		#else
-			## if there is NO template site types
-			$tlang.getString("sitetype.chothetyp.withouttemplate")
 		#end
 	</p>
 	<form name="typeform" id="typeform" action="#toolForm("$action")" method="post">
-		## NOTE: if create from template is enabled
-		<p class="checkbox indnt1">
-			<input type="radio" name="createMode" id="buildOwn" value="buildOwn" checked="checked"/>	
-			<label for="buildOwn">$tlang.getString("sitetype.buildown")</label>
-		</p>
+		#if ($templateSites.size() > 0)
+			## only show the radio button when there is any template site defined
+			<p class="checkbox indnt1">
+				## only show the radio button when there is any template site defined
+				<input type="radio" name="createMode" id="buildOwn" value="buildOwn" checked="checked"/>	
+				<label for="buildOwn">$tlang.getString("sitetype.buildown")</label>
+			</p>
+		#else
+			## otherwise, default to the choice
+			<input type="hidden" name="createMode" id="buildOwn" value="buildOwn" />	
+		#end
 		## NOTE: end if create from template enabled
 		#* following block should show if "build own" has been selected,
 		 a site type has been picked, and then the user (from the next screen) hits "back"	- the "Build own" radio
@@ -109,54 +113,56 @@
 				*#
 			#end  ##end of #foreach ($type in $siteTypes)
 		</div>
-		## if templates enabled
-		<p class="checkbox indnt1">
-			<input type="radio" name="itemType" id="copy" value="copy"/>
-			<label for="copy">$tlang.getString("sitetype.createfromtemplate")</label>
-		</p>
-		<div class="indnt3"  id="templateSettings" style="display:none;">	
-			<div>
-				<strong class="reqStarInline"> * </strong>
-				<select id="templateSiteId" name="templateSiteId">
-					<option value ="0">$tlang.getString("sitetype.selectTemplate")</option>
-					#foreach($templateSite in $templateSites)
-						#set($siteType = false)
-						#set($siteType = $!templateSite.type)
-						<option value ="$templateSite.id" class="$templateSite.type">#if ($!siteType) $siteType - #end $templateSite.title</option>
-					#end				
-				</select>
-				#*
-				title length restrictions are copied from template chef_site-siteInfo-editInfo.vm maxlength needs to be set like in that template
-				*#
-				<span id="siteTitle"  style="display:none"><strong class="reqStarInline"> * </strong><label style="float:none" for="siteTitleField">$tlang.getString("sitetype.sitetitle") </label><input type="text" value="" size="20" maxlength="$!titleMaxLength"  id="siteTitleField" name="siteTitleField"/></span>
-				<span id="siteTerms" style="display:none"><strong class="reqStarInline"> * </strong>
-					<select name="selectTermTemplate" id="selectTermTemplate">
-						<option value ="0">$tlang.getString("sitetype.selectTerm")</option>
-						#foreach($term in $termList)
-							<option value ="$term.eid"
-								#if ($!selectedTerm)
-									#if ($term.eid == $selectedTerm.eid)
-										selected="selected"
+		#if ($templateSites.size() > 0)
+			## if templates enabled
+			<p class="checkbox indnt1">
+				<input type="radio" name="itemType" id="copy" value="copy"/>
+				<label for="copy">$tlang.getString("sitetype.createfromtemplate")</label>
+			</p>
+			<div class="indnt3"  id="templateSettings" style="display:none;">	
+				<div>
+					<strong class="reqStarInline"> * </strong>
+					<select id="templateSiteId" name="templateSiteId">
+						<option value ="0">$tlang.getString("sitetype.selectTemplate")</option>
+						#foreach($templateSite in $templateSites)
+							#set($siteType = false)
+							#set($siteType = $!templateSite.type)
+							<option value ="$templateSite.id" class="$templateSite.type">#if ($!siteType) $siteType - #end $templateSite.title</option>
+						#end				
+					</select>
+					#*
+					title length restrictions are copied from template chef_site-siteInfo-editInfo.vm maxlength needs to be set like in that template
+					*#
+					<span id="siteTitle"  style="display:none"><strong class="reqStarInline"> * </strong><label style="float:none" for="siteTitleField">$tlang.getString("sitetype.sitetitle") </label><input type="text" value="" size="20" maxlength="$!titleMaxLength"  id="siteTitleField" name="siteTitleField"/></span>
+					<span id="siteTerms" style="display:none"><strong class="reqStarInline"> * </strong>
+						<select name="selectTermTemplate" id="selectTermTemplate">
+							<option value ="0">$tlang.getString("sitetype.selectTerm")</option>
+							#foreach($term in $termList)
+								<option value ="$term.eid"
+									#if ($!selectedTerm)
+										#if ($term.eid == $selectedTerm.eid)
+											selected="selected"
+										#end
+									#else
+										#if ($term.isCurrentTerm())
+											selected="selected"
+										#end
 									#end
-								#else
-									#if ($term.isCurrentTerm())
-										selected="selected"
-									#end
-								#end
-							>
-							$term.title
+								>
+								$term.title
 							</option>
 						#end
 					</select> 				
 				</span>
-			</div>	 ## end of child of  div#templateSettings
-			<div style="padding:5px 8px;">
-				<input type="checkbox" name="copyUsers" id="copyUsers" value="true"/>	
-				<label for="copyUsers">$tlang.getString("sitetype.copyusers")</label>
-				<input type="checkbox" name="copyContent" id="copyContent" value="true"/>	
-				<label for="copyContent">$tlang.getString("sitetype.copycontent")</label>
-			</div>
-		</div> ## end of div#templateSettings
+				</div>	 ## end of child of  div#templateSettings
+				<div style="padding:5px 8px;">
+					<input type="checkbox" name="copyUsers" id="copyUsers" value="true"/>	
+					<label for="copyUsers">$tlang.getString("sitetype.copyusers")</label>
+					<input type="checkbox" name="copyContent" id="copyContent" value="true"/>	
+					<label for="copyContent">$tlang.getString("sitetype.copycontent")</label>
+				</div>
+			</div> ## end of div#templateSettings
+		#end
 		## end templates enabled
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />
