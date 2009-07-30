@@ -23,46 +23,55 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
+import javax.faces.component.UIComponent;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
+import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
-import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterCsv;
-import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterXls;
-import org.sakaiproject.jsf.spreadsheet.SpreadsheetUtil;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.jsf.util.JsfTool;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingSpreadsheetNameException;
-import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Comment;
-import org.sakaiproject.tool.gradebook.CourseGrade;
-import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
+import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 public class SpreadsheetUploadBean extends GradebookDependentBean implements Serializable {
 
 
     private String title;
     private UploadedFile upFile;
+    private String pickedFileReference;
+    private String pickedFileDesc;
     private static final Log logger = LogFactory.getLog(SpreadsheetUploadBean.class);
     private Spreadsheet spreadsheet;
     private Map rosterMap;
@@ -85,6 +94,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     private String selectedCategory;
     private Gradebook localGradebook;
     private StringBuilder externallyMaintainedImportMsg;
+    private UIComponent uploadButton;
 
     // Used for bulk upload of gradebook items
     // Holds list of unknown user ids
@@ -98,7 +108,11 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     private static final String IMPORT_NO_CHANGES = "import_entire_no_changes";
     private static final String IMPORT_ASSIGNMENT_NOTSUPPORTED= "import_assignment_entire_notsupported";
     private static final String IMPORT_ASSIGNMENT_NEG_VALUE = "import_assignment_entire_negative_score";
-    
+    private static final int MAX_FILE_PICKER_UPLOADS = 1;
+    static final String PICKED_FILE_REFERENCE = "pickedFileReference";
+    static final String PICKED_FILE_DESC = "pickedFileDesc";
+    static final String IMPORT_TITLE = "gradebookImportTitle";
+
     private String pageName;
     
     public SpreadsheetUploadBean() {
@@ -141,6 +155,13 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     }
 
     public String getTitle() {
+        if (title == null || "".equals(title)) {
+            // check the session attribute
+            ToolSession session = SessionManager.getCurrentToolSession();
+            if (session.getAttribute(IMPORT_TITLE) != null) {
+                title = (String) session.getAttribute(IMPORT_TITLE);
+            }
+        }
         return title;
     }
 
@@ -505,35 +526,70 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
      * @throws Exception
      */
     public String processFileEntire() throws Exception {
-        if(logger.isDebugEnabled()) logger.debug("check if upFile is intialized");
-        if(upFile == null){
-            if(logger.isDebugEnabled()) logger.debug("upFile not initialized");
-            FacesUtil.addErrorMessage(getLocalizedString("import_entire_file_missing"));
-            return null;
+    	InputStream inputStream = null;
+    	String fileName = null;
+	    List contents = null;
+
+        if (upFile != null) {
+	        if (upFile != null && logger.isDebugEnabled()) {
+	            logger.debug("file size " + upFile.getSize() + "file name " + upFile.getName() + "file Content Type " + upFile.getContentType() + "");
+	        }
+	
+	        if (logger.isDebugEnabled()) logger.debug("check that the file is csv file");
+	        
+	        if (!upFile.getName().endsWith("csv")) {
+	            FacesUtil.addErrorMessage(getLocalizedString("import_entire_filetype_error",new String[] {upFile.getName()}));
+	            return null;
+	        }
+	        
+	        fileName = upFile.getName();
+	        inputStream = new BufferedInputStream(upFile.getInputStream());
+        }
+        else {
+        	savePickedUploadFile();
+        	
+        	if (pickedFileReference != null) {
+		        if (logger.isDebugEnabled()) logger.debug("check that the file is csv file");
+		        
+		        if (pickedFileDesc == null || !pickedFileDesc.endsWith("csv")) {
+		            FacesUtil.addErrorMessage(getLocalizedString("import_entire_filetype_error", new String[] {pickedFileDesc}));
+		            return null;
+		        }
+		        
+		        fileName = pickedFileDesc;
+		        inputStream = getPickedFileStream();
+		        clearPickedFile();
+        	}
+            else {
+            	// all null - no uploaded or picked file
+                if (logger.isDebugEnabled()) logger.debug("uploaded file not initialized");
+                FacesUtil.addErrorMessage(getLocalizedString("import_entire_file_missing"));
+                return null;
+            }
         }
 
-        if(logger.isDebugEnabled()){
-            logger.debug("file size " + upFile.getSize() + "file name " + upFile.getName() + "file Content Type " + upFile.getContentType() + "");
-        }
-
-        if(logger.isDebugEnabled()) logger.debug("check that the file is csv file");
-        if(!upFile.getName().endsWith("csv")){
-            FacesUtil.addErrorMessage(getLocalizedString("import_entire_filetype_error",new String[] {upFile.getName()}));
+		if (inputStream == null) {
+            FacesUtil.addErrorMessage(getLocalizedString("upload_view_config_error"));
             return null;
-        }
+		}
+			
+		try {
+			contents = csvtoArray(inputStream);
+	        inputStream.close();
+		}
+		catch(IOException ioe) {
+            FacesUtil.addErrorMessage(getLocalizedString("upload_view_config_error"));
+            return null;
+		}
         
         // reset error lists
         unknownUsers = new ArrayList();
         unknownAssignments = new ArrayList();
-
-        // process file to set up objects
-        InputStream inputStream = new BufferedInputStream(upFile.getInputStream());
-        List contents;
-        contents = csvtoArray(inputStream);
+        
         spreadsheet = new Spreadsheet();
         spreadsheet.setDate(new Date());
         spreadsheet.setTitle(this.getTitle());
-        spreadsheet.setFilename(upFile.getName());
+        spreadsheet.setFilename(fileName);
         spreadsheet.setLineitems(contents);
 
         assignmentList = new ArrayList();
@@ -629,32 +685,70 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     }
         
     public String processFile() throws Exception {
-        if(logger.isDebugEnabled()) logger.debug("check if upFile is intialized");
-        if(upFile == null){
-            if(logger.isDebugEnabled()) logger.debug("upFile not initialized");
-            FacesUtil.addErrorMessage(getLocalizedString("upload_view_failure"));
+    	InputStream inputStream = null;
+    	String fileName = null;
+	    List contents = null;
+
+	    if (upFile != null) {
+	        if (upFile != null && logger.isDebugEnabled()) {
+	            logger.debug("file size " + upFile.getSize() + "file name " + upFile.getName() + "file Content Type " + upFile.getContentType() + "");
+	        }
+	
+	        if (logger.isDebugEnabled()) logger.debug("check that the file is csv file");
+	        
+	        if (!upFile.getName().endsWith("csv")) {
+	            FacesUtil.addErrorMessage(getLocalizedString("upload_view_filetype_error",new String[] {upFile.getName()}));
+	            return null;
+	        }
+	        
+	        fileName = upFile.getName();
+	        inputStream = new BufferedInputStream(upFile.getInputStream());
+        }
+        else {
+        	savePickedUploadFile();
+        	
+        	if (pickedFileReference != null) {
+		        if (logger.isDebugEnabled()) logger.debug("check that the file is csv file");
+		        
+		        if (pickedFileDesc == null || !pickedFileDesc.endsWith("csv")) {
+		            FacesUtil.addErrorMessage(getLocalizedString("upload_view_filetype_error", new String[] {pickedFileDesc}));
+		            return null;
+		        }
+		        
+		        fileName = pickedFileDesc;
+		        inputStream = getPickedFileStream();
+		        clearPickedFile();
+        	}
+            else {
+            	// all null - no uploaded or picked file
+                if (logger.isDebugEnabled()) logger.debug("uploaded file not initialized");
+                FacesUtil.addErrorMessage(getLocalizedString("upload_view_failure"));
+                return null;
+            }
+        }
+
+		if (inputStream == null) {
+            FacesUtil.addErrorMessage(getLocalizedString("upload_view_config_error"));
             return null;
-        }
-
-        if(logger.isDebugEnabled()){
-            logger.debug("file size " + upFile.getSize() + "file name " + upFile.getName() + "file Content Type " + upFile.getContentType() + "");
-        }
-
-        if(logger.isDebugEnabled()) logger.debug("check that the file is csv file");
-        if(!upFile.getName().endsWith("csv")){
-            FacesUtil.addErrorMessage(getLocalizedString("upload_view_filetype_error",new String[] {upFile.getName()}));
+		}
+			
+		try {
+			contents = csvtoArray(inputStream);
+	        inputStream.close();
+		}
+		catch(IOException ioe) {
+            FacesUtil.addErrorMessage(getLocalizedString("upload_view_config_error"));
             return null;
-        }
+		}
 
-        InputStream inputStream = new BufferedInputStream(upFile.getInputStream());
-        List contents;
-        contents = csvtoArray(inputStream);
-        spreadsheet = new Spreadsheet();
+		spreadsheet = new Spreadsheet();
         spreadsheet.setDate(new Date());
+        // SAK-14173 - get title from session if available 
+        // and then clear the value from the session
         spreadsheet.setTitle(this.getTitle());
-        spreadsheet.setFilename(upFile.getName());
+        clearImportTitle();
+        spreadsheet.setFilename(fileName);
         spreadsheet.setLineitems(contents);
-
         assignmentList = new ArrayList();
         studentRows = new ArrayList();
         assignmentColumnSelectItems = new ArrayList();
@@ -714,7 +808,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             FacesUtil.addErrorMessage(getLocalizedString("upload_view_filecontent_error"));
             return null;
         }
-        
+		
         return "spreadsheetUploadPreview";
     }
 
@@ -1869,6 +1963,131 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             }
         }
     }
+    
+    /**
+     * Process an upload ActionEvent from spreadsheetUpload.jsp or spreadsheetEntireGBImport.jsp
+     * Source of this action is the Upload button on either page
+     * 
+     * @param event
+     */
+    public void launchFilePicker(ActionEvent event) {
+		try  {
+			String titleText = FacesUtil.getLocalizedString("upload_view_page_title");
+			String instructionText = FacesUtil.getLocalizedString("upload_view_instructions_text");
+
+			ToolSession currentToolSession = SessionManager.getCurrentToolSession();
+	        // SAK-14173 - store title
+	        currentToolSession.setAttribute(IMPORT_TITLE, this.title);
+			currentToolSession.setAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS, FilePickerHelper.CARDINALITY_SINGLE);
+			currentToolSession.setAttribute(FilePickerHelper.FILE_PICKER_TITLE_TEXT, titleText); 
+			currentToolSession.setAttribute(FilePickerHelper.FILE_PICKER_INSTRUCTION_TEXT, instructionText);
+			currentToolSession.setAttribute(FilePickerHelper.FILE_PICKER_RESOURCE_FILTER,
+				ComponentManager.get("org.sakaiproject.content.api.ContentResourceFilter.spreadsheetCsvFile"));
+			ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+			context.redirect("sakai.filepicker.helper/tool");
+		}
+		catch(Exception e) {
+			logger.error(this + ".launchFilePicker - " + e);
+			e.printStackTrace();
+		}	
+    }
+
+    /**
+     * SAK-14173 - This event will cause the title to be stored in the bean so that it can be stored
+     * in the session when the user goes to choose a file and will not be lost
+     * @param event JSF value change event
+     */
+    public void changeTitle(ValueChangeEvent event) {
+        this.title = (String) event.getNewValue();
+    }
+
+    /**
+     * SAK-14173 - Clears all the session variables stored as part of the spreadsheet upload code
+     * @param event JSF event
+     */
+    public void cancelAndClearSession(ActionEvent event) {
+        clearImportTitle();
+        clearPickedFile();
+    }
+
+    /**
+     * SAK-14173 - Clears the import title from the session
+     */
+    private void clearImportTitle() {
+        ToolSession currentToolSession = SessionManager.getCurrentToolSession();
+        currentToolSession.removeAttribute(IMPORT_TITLE);
+    }
+
+    /**
+     * Extract and store the reference to the uploaded file.
+     * Only process the first reference - don't do multiple uploads.
+     * 
+     */
+    public void savePickedUploadFile() {
+      ToolSession session = SessionManager.getCurrentToolSession();
+      if (session.getAttribute(PICKED_FILE_REFERENCE) != null) {
+    	  pickedFileReference = (String) session.getAttribute(PICKED_FILE_REFERENCE);
+    	  pickedFileDesc = (String) session.getAttribute(PICKED_FILE_DESC);
+      }
+    }
+    
+    /**
+     * Use the uploaded file reference to get an InputStream.
+     * Must be a reference to a ContentResource
+     * 
+     * @return InputStream
+     */
+    private InputStream getPickedFileStream() {
+    	InputStream inStream = null;
+    	
+    	if (pickedFileReference != null) {
+    		try {
+    			Reference ref = EntityManager.newReference(pickedFileReference);
+    			if (ref != null) {
+	    			Entity ent = ref.getEntity();
+	    		    if (ent instanceof ContentResource) {
+				    // entity came from file picker, so it should be a content resource
+				    	inStream = ((ContentResource) ent).streamContent();
+	    			}
+    			}
+		    }
+		    catch(ServerOverloadException soe) {
+		        logger.error(soe.getStackTrace());
+		    }
+		}
+    	
+    	return inStream;
+    }
+    
+    private void clearPickedFile() {
+        ToolSession session = SessionManager.getCurrentToolSession();
+    	session.removeAttribute(PICKED_FILE_REFERENCE);
+    	session.removeAttribute(PICKED_FILE_DESC);
+    	
+    	pickedFileDesc = null;
+    	pickedFileReference = null;
+    }
+
+	/**
+	 * @return the pickedFileDesc
+	 */
+	public String getPickedFileDesc() {
+		// check the session attribute first
+		ToolSession session = SessionManager.getCurrentToolSession();
+	    if (session.getAttribute(PICKED_FILE_DESC) != null) {
+	    	pickedFileDesc = (String) session.getAttribute(PICKED_FILE_DESC);
+	    }
+		
+		return pickedFileDesc;
+	}
+
+	/**
+	 * @param pickedFileDesc the pickedFileDesc to set
+	 */
+	public void setPickedFileDesc(String pickedFileDesc) {
+		this.pickedFileDesc = pickedFileDesc;
+	}
+
 }
 
 

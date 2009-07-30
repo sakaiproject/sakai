@@ -23,7 +23,9 @@
            			</td>
            			<td>
            		</f:verbatim>
-                <h:inputText id="title" value="#{spreadsheetUploadBean.title}" required="true">
+                <h:inputText id="title" value="#{spreadsheetUploadBean.title}" 
+                        valueChangeListener="#{spreadsheetUploadBean.changeTitle}"
+                        required="true" immediate="true">
                     <f:validateLength minimum="1" maximum="255"/>
                 </h:inputText>
                 <f:verbatim>
@@ -37,19 +39,29 @@
            			<tr>
            			<td>
            		</f:verbatim>
+           		<%/* old commons.fileupload code
                 <h:outputLabel for="fileupload">
                     <h:outputText id="fileuploadLabel" value="#{msgs.upload_view_choose_file}   "/>
                 </h:outputLabel>
+           		*/%>
+           		<h:outputLabel for="pickedFileDesc" value="#{msgs.upload_view_choose_file}"/>
                 <f:verbatim>
            			</td>
            			<td>
            		</f:verbatim>
+           		<%/*
                 <t:inputFileUpload id="fileupload" value="#{spreadsheetUploadBean.upFile}" storage="file"required="true" accept="text/csv"/>
+           		*/%>
+           		<h:inputText id="pickedFileDesc" value="#{spreadsheetUploadBean.pickedFileDesc}" required="true" readonly="true"/>
+                <h:commandButton actionListener="#{spreadsheetUploadBean.launchFilePicker}" immediate="true" value="Choose File" />
                 <f:verbatim>
            			</td>
            			<td>
            		</f:verbatim>
+           		<%/*
                 <h:message for="fileupload" styleClass="validationEmbedded" />
+           		*/%>
+                <h:message for="pickedFileDesc" styleClass="validationEmbedded" />
                 <f:verbatim>
            			</td>
            			</tr>
@@ -64,7 +76,9 @@
                         action="#{spreadsheetUploadBean.processFile}"/>
                 <h:commandButton
                         value="#{msgs.upload_view_cancel}"
-                        action="spreadsheetListing" immediate="true"/>
+                        action="spreadsheetListing" 
+                        actionListener="#{spreadsheetUploadBean.cancelAndClearSession}" 
+                        immediate="true"/>
             </p>
         </h:form>
     </div>

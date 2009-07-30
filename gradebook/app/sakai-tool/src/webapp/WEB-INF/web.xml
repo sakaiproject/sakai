@@ -45,7 +45,7 @@
     <!-- Register jsf tool with sakai -->
     <servlet>
         <servlet-name>sakai.gradebook.tool</servlet-name>
-        <servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>
+        <servlet-class>org.sakaiproject.tool.gradebook.ui.GradebookFilePickerServlet</servlet-class>
         <init-param>
             <param-name>default</param-name>
             <param-value>entry.servlet</param-value>

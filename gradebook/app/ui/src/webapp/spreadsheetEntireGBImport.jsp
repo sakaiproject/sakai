@@ -56,21 +56,29 @@
 						<tr>
 						<td>
 				</f:verbatim>
+					<%/*
            			<h:outputLabel for="fileupload">
                     	<h:outputText id="fileuploadLabel" value="#{msgs.upload_view_choose_file}"/>
             		</h:outputLabel>
             		<t:inputFileUpload id="fileupload" value="#{spreadsheetUploadBean.upFile}" storage="file" required="true" accept="text/csv"/>
+					*/%>
+            		<h:outputLabel for="pickedFileDesc" value="#{msgs.upload_view_choose_file}"/>
+                	<h:inputText id="pickedFileDesc" value="#{spreadsheetUploadBean.pickedFileDesc}" required="true" readonly="true"/>
             		<f:verbatim>
             			</td>
             			<td>
             		</f:verbatim>
+                	<h:commandButton actionListener="#{spreadsheetUploadBean.launchFilePicker}" immediate="true" value="Choose File">
+                	</h:commandButton>
+					<%/*
             		<h:message for="fileupload" styleClass="validationEmbedded" />
+					*/%>
+                	<h:message for="pickedFileDesc" styleClass="validationEmbedded" />
             		<f:verbatim>
             			</td>
             			</tr>
             			</table>
-            		</f:verbatim>
-            		
+            		</f:verbatim>            		
 
            <%-- Button to do the actual import --%>
            <p>
