@@ -27,6 +27,7 @@ import java.security.MessageDigest;
 
 import javax.mail.internet.MimeUtility;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -64,6 +65,10 @@ public class OneWayHash
 
 			// we used to pick up the encoding before it was complete, leaving off the last 4 characters of the encoded value
 			String truncatedValue = bas.toString();
+			
+			// Mimic the logic of DbUserService commit() and trim any whitespace
+			// (notably the CR/LF that the JavaMail method may have appended).
+			truncatedValue = StringUtils.trimToEmpty(truncatedValue);
 
 			// close the stream to complete the encoding
 			encodedStream.close();
