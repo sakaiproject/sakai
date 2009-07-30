@@ -3598,6 +3598,8 @@ public class DiscussionForumTool
 	DiscussionForum dfForum = selectedForum.getForum();
   	
     Message dMsg = selectedMessage.getMessage();
+    
+    messageManager.markMessageReadForUser(dfTopic.getId(), dMsg.getId(), true);
 
     if(!uiPermissionsManager.isReviseAny(dfTopic, dfForum) && !(selectedMessage.getIsOwn() && uiPermissionsManager.isReviseOwn(dfTopic, dfForum)))
 	{
