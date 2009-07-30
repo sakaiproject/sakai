@@ -168,7 +168,10 @@ public interface ContentServiceSql
 
 	String getFilesizeColumnExistsSql();
 
-	String getFilesizeColumnCountSql();
+	/**
+	 * returns the sql statement to check if any rows exist with NULL FILE_SIZE values
+	 */
+	String getFilesizeExistsSql();
 
 	/**
 	 * A statement to create a UTF test table based on the name

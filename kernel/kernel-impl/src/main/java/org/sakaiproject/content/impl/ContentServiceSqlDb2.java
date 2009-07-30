@@ -36,4 +36,8 @@ public class ContentServiceSqlDb2 extends ContentServiceSqlDefault
       return "alter table " + table + " add FILE_SIZE BIGINT;";
    }
 
+   public String getFilesizeExistsSql()
+   {
+	  return "select RESOURCE_ID from CONTENT_RESOURCE where FILE_SIZE is NULL FETCH FIRST 1 ROWS ONLY";
+   }
 }

@@ -63,6 +63,12 @@ public class ContentServiceSqlOracle extends ContentServiceSqlDefault
 		return "select column_name from user_tab_columns where table_name = 'CONTENT_RESOURCE' and column_name = 'FILE_SIZE'";
 	}
 
+	@Override
+	public String getFilesizeExistsSql()
+	{
+		return "select RESOURCE_ID from CONTENT_RESOURCE where FILE_SIZE is NULL and rownum = 1";
+	}
+
 	/**
 	 * returns the sql statement which inserts the individual-dropbox-id, site-level dropbox-id and last-update fields into the content_dropbox_changes table.
 	 */

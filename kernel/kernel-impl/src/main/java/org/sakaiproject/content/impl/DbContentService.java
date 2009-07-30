@@ -338,9 +338,12 @@ public class DbContentService extends BaseContentService
 
 				// do the 2.1.0 conversions
 				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_content_2_1_0");
-				
+
 				filesizeColumnExists = filesizeColumnExists();
-				
+
+				// system property to manually set conversion completion status.
+				filesizeColumnReady = m_serverConfigurationService.getBoolean("content.filesizeColumnReady", false);
+
 				if(!filesizeColumnExists)
 				{
 					addNewColumns();
@@ -395,7 +398,7 @@ public class DbContentService extends BaseContentService
 			// If CHH resolvers are turned off in sakai.properties, unset the resolver property.
 			// This MUST happen before super.init() calls newStorage()
 			// (since that's when obj refs to the contentHostingHandlerResovler are passed around).
-			if (!ServerConfigurationService.getBoolean(CHH_ENABLE_FLAG,false))
+			if (!m_serverConfigurationService.getBoolean(CHH_ENABLE_FLAG,false))
 				this.contentHostingHandlerResolver = null;
 
 			super.init();
@@ -410,12 +413,6 @@ public class DbContentService extends BaseContentService
 	
 				M_log.info("init(): tables: " + m_collectionTableName + " " + m_resourceTableName + " " + m_resourceBodyTableName + " "
 						+ m_groupTableName + " locks-in-db: " + m_locksInDb + " bodyPath: " + m_bodyPath + " storage: " + m_storage);
-				
-				
-				
-				
-				
-				
 			}
 			
 			
@@ -579,22 +576,13 @@ public class DbContentService extends BaseContentService
 	
 	public boolean readyToUseFilesizeColumn()
 	{
-		if(!filesizeColumnExists)
-		{
-			// do nothing
-		}
-		else if(filesizeColumnReady)
-		{
-			// do nothing
-		}
-		else 
+		if (filesizeColumnExists && !filesizeColumnReady)
 		{
 			long now = TimeService.newTime().getTime();
 			if(now > filesizeColumnCheckExpires)
 			{
 				// cached value has expired -- time to renew
-				int filesizeColumnCheckNullCount = countNullFilesizeValues();
-				if(filesizeColumnCheckNullCount > 0)
+				if(hasNullFilesizeValues())
 				{
 					filesizeColumnCheckExpires = now + TWENTY_MINUTES;
 					M_log.debug("Conversion of the ContentHostingService database tables is needed to improve performance");
@@ -610,25 +598,11 @@ public class DbContentService extends BaseContentService
 		return filesizeColumnReady;
 	}
 	
-
-	protected int countNullFilesizeValues() 
+	protected boolean hasNullFilesizeValues() 
 	{
-		int count = 0;
-		String sql = contentServiceSql.getFilesizeColumnCountSql();
+		String sql = contentServiceSql.getFilesizeExistsSql();
 		List list = m_sqlService.dbRead(sql);
-		if(list != null && ! list.isEmpty())
-		{
-			try
-			{
-				String value = (String) list.get(0);
-				count = Integer.parseInt(value);
-			}
-			catch(Exception e)
-			{
-				// ignore
-			}
-		}
-		return count;
+		return (list != null && !list.isEmpty());
 	}
 
 	/**

@@ -261,11 +261,13 @@ public class ContentServiceSqlDefault implements ContentServiceSql
 		return "show columns from CONTENT_RESOURCE like 'FILE_SIZE'";
 	}
 
-	public String getFilesizeColumnCountSql() 
+	/**
+	 * returns the sql statement to check if any rows exist with NULL FILE_SIZE values
+	 */
+	public String getFilesizeExistsSql()
 	{
-		return "select COUNT(RESOURCE_ID) from CONTENT_RESOURCE where FILE_SIZE is NULL";
+	 	return "select TOP 1 RESOURCE_ID from CONTENT_RESOURCE where FILE_SIZE is NULL";
 	}
-
 
 	/*
 	 * (non-Javadoc)
