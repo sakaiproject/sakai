@@ -63,19 +63,23 @@ public class OneWayHash
 			OutputStream encodedStream = MimeUtility.encode(bas, "base64");
 			encodedStream.write(digest);
 
-			// we used to pick up the encoding before it was complete, leaving off the last 4 characters of the encoded value
-			String truncatedValue = bas.toString();
+			String rv;
+			if (truncated)
+			{
+				// we used to pick up the encoding before it was complete, leaving off the last 4 characters of the encoded value
+				rv = bas.toString();
+				encodedStream.close();
+			}
+			else
+			{
+				// close the stream to complete the encoding
+				encodedStream.close();
+				rv = bas.toString();
+			}
 			
 			// Mimic the logic of DbUserService commit() and trim any whitespace
 			// (notably the CR/LF that the JavaMail method may have appended).
-			truncatedValue = StringUtils.trimToEmpty(truncatedValue);
-
-			// close the stream to complete the encoding
-			encodedStream.close();
-			String rv = bas.toString();
-
-			// if we are asking for the truncated value, return that
-			if (truncated) return truncatedValue;
+			rv = StringUtils.trimToEmpty(rv);
 
 			return rv;
 		}
