@@ -44,6 +44,17 @@
 			</tr>
 			<tr>
 				<th>
+					<label for="url">
+ 	  	                $tlang.getString("sitedipag.url_alias")
+					</label>	
+				</th>
+				<td  class="shorttext">
+					 $!form_url_base
+	  	                     <input type="text" name="url_alias" id="url_alias" maxlength="40" size="20" value="$validator.escapeHtml($form_url_alias)" /> 
+				</td>
+			</tr>
+			<tr>
+				<th>
 					<label for="type">
 						$tlang.getString("sitedi.typ")
 					</label>

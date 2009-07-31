@@ -31,6 +31,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.alias.api.Alias;
+import org.sakaiproject.alias.cover.AliasService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
@@ -47,7 +51,9 @@ import org.sakaiproject.cheftool.menu.MenuDivider;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuField;
 import org.sakaiproject.cheftool.menu.MenuImpl;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.courier.api.ObservingCourier;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdInvalidException;
@@ -67,6 +73,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.util.Validator;
 
 /**
  * <p>
@@ -75,6 +82,7 @@ import org.sakaiproject.util.StringUtil;
  */
 public class AdminSitesAction extends PagedResourceActionII
 {
+	private static Log M_log = LogFactory.getLog(AdminSitesAction.class);
 	/** State holding the site id for site id search. */
 	protected static final String STATE_SEARCH_SITE_ID = "search_site";
 
@@ -84,8 +92,17 @@ public class AdminSitesAction extends PagedResourceActionII
 	protected static final String FORM_SEARCH_SITEID = "search_site";
 
 	protected static final String FORM_SEARCH_USERID = "search_user";
+	
+	private final static String FORM_URL_BASE = "form_url_base";
+	
+	private final static String FORM_URL_ALIAS = "form_url_alias";
+
+	private final static String FORM_URL_ALIAS_FULL = "form_url_alias_full";
 
 	private static ResourceLoader rb = new ResourceLoader("admin");
+	
+	/** Name of state attribute for Site instance id */
+	private static final String STATE_SITE_INSTANCE_ID = "site.instance.id";
 
 	/**
 	 * {@inheritDoc}
@@ -432,6 +449,25 @@ public class AdminSitesAction extends PagedResourceActionII
 		// name the html form for user edit fields
 		context.put("form-name", "site-form");
 
+		
+		// get alias base path
+		String aliasBaseUrl = ServerConfigurationService.getPortalUrl() + Entity.SEPARATOR + "site" + Entity.SEPARATOR;
+		
+		boolean displaySiteAlias = displaySiteAlias();
+		String alias;
+		
+		context.put("displaySiteAlias", Boolean.valueOf(displaySiteAlias));
+		if (displaySiteAlias)
+		{
+			alias = getSiteAlias(site!=null?site.getReference():"");
+			if (alias != null) {
+				String urlAliasFull = aliasBaseUrl + alias;
+				context.put(FORM_URL_ALIAS_FULL, urlAliasFull);
+			}
+			context.put(FORM_URL_BASE, aliasBaseUrl);
+			context.put(FORM_URL_ALIAS, alias);
+		}
+		
 		// build the menu
 		// we need the form fields for the remove...
 		Menu bar = new MenuImpl();
@@ -851,6 +887,14 @@ public class AdminSitesAction extends PagedResourceActionII
 		Site site = (Site) state.getAttribute("site");
 		if (site != null)
 		{
+			String url_alias = StringUtil.trimToNull(data.getParameters().getString("url_alias"));
+			// set an alias for the site
+			if(url_alias!=null)
+			{
+			state.setAttribute(STATE_SITE_INSTANCE_ID, site.getId());
+			setSiteAlias(url_alias, site.getReference(), state);
+			}
+
 			// bring the mail archive service's channel for this site in sync with the site's setting
 			// syncWithMailArchive(site);
 
@@ -2079,6 +2123,13 @@ public class AdminSitesAction extends PagedResourceActionII
 		state.removeAttribute(STATE_SEARCH_USER_ID);
 
 	} // cleanState
+	
+	public boolean displaySiteAlias() {
+		if (ServerConfigurationService.getBoolean("wsetup.disable.siteAlias", false)) {
+			return false;
+		}
+		return true;
+	}
 
 	/**
 	 * Create a list of the valid layout names.
@@ -2096,4 +2147,61 @@ public class AdminSitesAction extends PagedResourceActionII
 		return rv;
 
 	} // layoutsList
+	
+	/**
+	 * get one alias for site, if it exists
+	 * @param channelReference
+	 * @return
+	 */
+	private String getSiteAlias(String reference)
+	{
+		String alias = null;
+		if (reference != null)
+		{
+			// get the email alias when an Email Archive tool has been selected
+			List aliases = AliasService.getAliases(reference, 1, 1);
+			if (aliases.size() > 0) {
+				alias = ((Alias) aliases.get(0)).getId();
+			}
+		}
+		return alias;
+	}
+	
+	private void setSiteAlias(String alias, String siteReference, SessionState state)
+	{
+		
+		/*
+		 * The point of these site aliases is to have easy-to-recall,
+		 * easy-to-guess URLs. So we take a very conservative approach
+		 * here and disallow any aliases which would require special 
+		 * encoding or would simply be ignored when building a valid 
+		 * resource reference or outputting that reference as a URL.
+		 */
+		boolean isSimpleResourceName = alias.equals(Validator.escapeResourceName(alias));
+		boolean isSimpleUrl = alias.equals(Validator.escapeUrl(alias));
+		if ( !(isSimpleResourceName) || !(isSimpleUrl) ) {
+			addAlert(state, rb.getString("sitedipag.alias") + " " + alias + " " + rb.getString("sitedipag.isinval"));
+			M_log.warn(this + ".updateSiteInfo: " + rb.getString("sitedipag.alias") + " " + alias + " " + rb.getString("sitedipag.isinval"));
+		} 
+		else if (StringUtil.trimToNull(alias) != null && StringUtil.trimToNull(siteReference) != null) 
+		{
+			String currentAlias = StringUtil.trimToNull(getSiteAlias(siteReference));
+
+			if (currentAlias == null || !currentAlias.equals(alias))
+			{
+				try {
+					AliasService.setAlias(alias, siteReference);
+				} catch (IdUsedException ee) {
+					addAlert(state, rb.getString("sitedipag.alias") + " " + alias + " " + rb.getString("sitedipag.exists"));
+					M_log.warn(this + ".setSiteAlias: " + rb.getString("sitedipag.alias") + " " + alias + " " + rb.getString("sitedipag.exists"));
+				} catch (IdInvalidException ee) {
+					addAlert(state, rb.getString("sitedipag.alias") + " " + alias + " " + rb.getString("sitedipag.isinval"));
+					M_log.warn(this + ".setSiteAlias: " + rb.getString("sitedipag.alias") + " " + alias + " " + rb.getString("sitedipag.isinval"));	
+				} catch (PermissionException ee) {
+					addAlert(state, SessionManager.getCurrentSessionUserId() + rb.getString("sitedipag.alias.nopermission"));
+					M_log.warn(this + ".setSiteAlias: " + SessionManager.getCurrentSessionUserId() + rb.getString("sitedipag.alias.nopermission"));
+				}
+			}
+		}
+	}
 }
