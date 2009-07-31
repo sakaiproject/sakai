@@ -352,7 +352,7 @@ public class TransactionalIndexWorker implements IndexWorker
 												+ content + "]");
 									}
 									doc.add(new Field(SearchService.FIELD_CONTENTS,
-											filterNull(content), Field.Store.COMPRESS,
+											filterNull(content), Field.Store.NO,
 											Field.Index.TOKENIZED, Field.TermVector.YES));
 								}
 
