@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.search.indexer.api.LockTimeoutException;
 import org.sakaiproject.search.journal.api.JournalErrorException;
 import org.sakaiproject.search.journal.api.ManagementOperation;
@@ -66,6 +67,9 @@ public class JournalOptimizationOperation implements ManagementOperation
 	public void runOnce()
 	{
 
+		if (!ServerConfigurationService.getBoolean("search.sharedmerge", true))
+			return;
+		
 		/*
 		 * Run the optimizer transaction once
 		 */

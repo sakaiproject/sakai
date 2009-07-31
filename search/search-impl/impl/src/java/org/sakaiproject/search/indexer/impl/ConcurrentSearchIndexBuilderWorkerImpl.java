@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.search.api.SearchService;
@@ -133,7 +134,7 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 			return;
 		}
 		
-		enabled = searchService.isEnabled(); 
+		enabled = searchService.isEnabled() && "true".equals(ServerConfigurationService.getString("search.indexqueue", "true"));
 
 		started = true;
 		runThreads = true;
