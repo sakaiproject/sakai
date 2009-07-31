@@ -84,11 +84,12 @@
 			<input type="hidden" name="flow" id="flow" value="upload" />
 			<div class="highlightPanel">
 				#if (!$!download)
-					<p class="shorttext">
-						<label for="file">$tlang.getString("uploadall.choose.file")</label>
+					<div class="shorttext">
+						<h4><span class="reqStar">*</span><label for="file">$tlang.getString("uploadall.choose.file")</label></h4>
 						<input type="file" name="file" id="file" class="upload" onchange="javascript:document.getElementById('filechosenconfirm').style.display='block';" />
 						<p id="filechosenconfirm" class="information" style="display:none;clear:both">$tlang.getString("uploadall.choose.file.confirm")</p>
-					<h4>$tlang.getString("uploadall.choose.file2")</h4>
+						<h4><span class="reqStar">*</span>$tlang.getString("uploadall.choose.file2")</h4>
+					</div>
 			#end
 			<p class="checkbox indnt2">
 			 ## select-all box
