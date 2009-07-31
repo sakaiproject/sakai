@@ -49,6 +49,9 @@ public class SiteParticipantHelper {
 	private static org.sakaiproject.coursemanagement.api.CourseManagementService cms = (org.sakaiproject.coursemanagement.api.CourseManagementService) ComponentManager
 	.get(org.sakaiproject.coursemanagement.api.CourseManagementService.class);
 	
+	private static org.sakaiproject.user.api.ContextualUserDisplayService cus = (org.sakaiproject.user.api.ContextualUserDisplayService) ComponentManager
+	.get(org.sakaiproject.user.api.ContextualUserDisplayService.class);
+	
 	/**
 	 * Add participant from provider-defined enrollment set
 	 * @param participants
@@ -123,7 +126,9 @@ public class SiteParticipantHelper {
 								participant.credits = e.getCredits();
 								participant.name = user.getSortName();
 								participant.providerRole = member.getRole()!=null?member.getRole().getId():"";
-								participant.regId = "";
+								// get contextual user display id
+								String regId = cus != null ? cus.getUserDisplayId(user, "Site Info"):"";
+								participant.regId = regId != null?regId:"";
 								participant.removeable = false;
 								participant.role = member.getRole()!=null?member.getRole().getId():"";
 								participant.addSectionEidToList(sectionTitle);
