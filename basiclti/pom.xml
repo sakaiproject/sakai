@@ -10,9 +10,9 @@
     <version>2.7.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <version>BASICLTI-1.0-SNAPSHOT</version>
+  <version>1.0-SNAPSHOT</version>
   <name>Sakai BasicLTI Project</name>
-  <groupId>org.sakaiproject</groupId>
+  <groupId>org.sakaiproject.basiclti</groupId>
   <artifactId>basiclti-base</artifactId>
   <packaging>pom</packaging>
   <scm>
@@ -30,19 +30,19 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
+        <groupId>org.sakaiproject.basiclti</groupId>
         <artifactId>sakai-basiclti-impl</artifactId>
-        <version>BASICLTI-1.0-SNAPSHOT</version>
+        <version>1.0-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
+        <groupId>org.sakaiproject.basiclti</groupId>
         <artifactId>sakai-blti-util</artifactId>
-        <version>BASICLTI-1.0-SNAPSHOT</version>
+        <version>1.0-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
+        <groupId>org.sakaiproject.basiclti</groupId>
         <artifactId>sakai-portlet-util</artifactId>
-        <version>BASICLTI-1.0-SNAPSHOT</version>
+        <version>1.0-SNAPSHOT</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

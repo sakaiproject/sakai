@@ -3,12 +3,12 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>basiclti-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
-    <version>BASICLTI-1.0-SNAPSHOT</version>
+    <groupId>org.sakaiproject.basiclti</groupId>
+    <version>1.0-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-basiclti-impl</name>
-  <groupId>org.sakaiproject</groupId>
+  <groupId>org.sakaiproject.basiclti</groupId>
   <artifactId>sakai-basiclti-impl</artifactId>
   <organization>
     <name>University of Michigan</name>
@@ -18,7 +18,7 @@
   <packaging>jar</packaging>
   <dependencies>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.basiclti</groupId>
       <artifactId>sakai-blti-util</artifactId>
     </dependency>
     <dependency>
