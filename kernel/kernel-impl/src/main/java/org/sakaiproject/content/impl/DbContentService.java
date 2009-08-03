@@ -325,9 +325,15 @@ public class DbContentService extends BaseContentService
 
 		try
 		{
+			// system property to manually set conversion completion status.
+			filesizeColumnReady = m_serverConfigurationService.getBoolean("content.filesizeColumnReady", false);				
+
 			if ( m_sqlService != null ) {
 				setContentServiceSql(m_sqlService.getVendor());
+				
+				filesizeColumnExists = filesizeColumnExists();
 			}
+			
 			// if we are auto-creating our schema, check and create
 			if ( m_sqlService != null && m_autoDdl)
 			{
@@ -338,11 +344,6 @@ public class DbContentService extends BaseContentService
 
 				// do the 2.1.0 conversions
 				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_content_2_1_0");
-
-				filesizeColumnExists = filesizeColumnExists();
-
-				// system property to manually set conversion completion status.
-				filesizeColumnReady = m_serverConfigurationService.getBoolean("content.filesizeColumnReady", false);
 
 				if(!filesizeColumnExists)
 				{
