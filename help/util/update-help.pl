@@ -149,5 +149,7 @@ commit_svn_changes($svnrepo, $svn_user, $svn_pass, $svn_comment);
 
 #### ----- Consistency checks on the document collections
 
+print "Consistency check\n";
+
 getdoclist($svnrepo);
 

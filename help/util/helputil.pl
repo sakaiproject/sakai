@@ -133,12 +133,17 @@ sub getdoclist($)
 
  my @files = glob("$svnrepo/*/src/*/*.html");
 
+ # Parse HTML files, but ignore i18n versions in other languages
+
  foreach my $file (@files) {
+    if (! ($file =~ /_[a-z]{2}\.html$/) && !($file =~ /_[a-z]{2}_[A-Z]{2}\.html$/)) {
         my %parser_args = (Source => {SystemId => $file});
+	# print "Parsing $file\n";
         $parser->parse(%parser_args);
 	if ($file =~ /([A-Za-z]+).html/) {
 		$havedocs{$1} = $1;
 	}
+    }
  }
 
  print "\nDocids in $svnrepo:\n";
