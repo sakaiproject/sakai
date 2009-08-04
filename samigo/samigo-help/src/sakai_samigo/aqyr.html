@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html><head>
 <title>Creating questions for an assessment</title>
 <style type="text/css">
@@ -26,6 +25,7 @@
 
 
 
+
 <p><strong>Note:</strong> To complete the procedures in this
 document, you must be assigned a role having the necessary
 permissions.  To determine your role, follow the directions in <a href="content.hlp?docId=arbu">Participant roles</a>.  For a
@@ -37,8 +37,7 @@ assessment. Consider also reading the following documents:
 </li></ul>
 
 <p>You can choose from several types of questions when building an
-assessment. Before you begin adding questions, consider reviewing the
-different types available, which are outlined in the document <a href="content.hlp?docId=argy">Types of questions available for assessments</a>.</p>
+assessment; see <a href="content.hlp?docId=argy">Types of questions available for assessments</a>.</p>
 
 
 
@@ -47,22 +46,28 @@ different types available, which are outlined in the document <a href="content.h
 click <strong><code>Tests
 &amp; Quizzes</code></strong>. To create a new assessment, under the
 "New Assessment" heading, type a name for your assessment in the
-"Title" field. You may use the drop-down menu next to <strong><code>Choose
+"Title" field. </p>
+
+<p>You can use the drop-down menu next to <strong><code>Choose
 Existing Assessment type</code></strong> to choose a template for your
-assessment. You may also import an assessment by using the
-<strong><code>Import</code></strong> feature. For more information, see <a href="content.hlp?docId=aqys">Importing or exporting an assessment</a>. When you have made your choices, click <strong><code>Quick
-Create</code></strong> or <strong><code>Create</code></strong> to create the assessment.</p>
+assessment. You can also import an assessment by using the
+<strong><code>Import</code></strong> feature. For more information, see <a href="content.hlp?docId=aqys">Importing or exporting an assessment</a>. </p>
 
-<p>The <strong><code>Quick Create</code></strong> option allows you to type in your questions
-or cut and paste them from a text file. You must follow the formatting
-instructions found on the bottom of the page.</p>
+<p>When you have made your choices, you have two options to create the
+assessment:</p>
 
-<p>The <strong><code>Create</code></strong> option takes you to the question editor. To begin
-adding questions to a new assessment, choose the type of question you
-want to add from the <strong><code>Add Question:</code></strong> drop-down menu. Below,
-you'll find instructions for each question type:</p>
 
-<ul><li><a href="#multa">Multiple Choice</a></li><li><a href="#surveya">Survey</a></li><li><a href="#essaya">Short Answer/Essay</a></li><li><a href="#fiba">Fill in the Blank</a></li><li><a href="#numerica">Numeric Response</a></li><li><a href="#mata">Matching</a></li><li><a href="#truea">True/False</a></li><li><a href="#audioa">Audio Recording</a></li><li><a href="#filea">File Upload</a></li><li><a href="#uploada">Copy from Question Pool</a></li></ul>
+<ul><li>The <strong><code>Quick Create</code></strong> option allows you to type in your
+questions or cut and paste them from a text file. You will have to
+follow the formatting instructions found on the bottom of the page.
+
+<br /><br />
+</li><li>The <strong><code>Create</code></strong> option takes you to the question editor. To
+begin adding questions to a new assessment, choose the type of
+question you want to add from the <strong><code>Add Question:</code></strong> drop-down
+menu. Below are instructions for each question type: <br /><br />
+
+<ul><li><a href="#multa">Multiple Choice</a></li><li><a href="#surveya">Survey</a></li><li><a href="#essaya">Short Answer/Essay</a></li><li><a href="#fiba">Fill in the Blank</a></li><li><a href="#numerica">Numeric Response</a></li><li><a href="#mata">Matching</a></li><li><a href="#truea">True/False</a></li><li><a href="#audioa">Audio Recording</a></li><li><a href="#filea">File Upload</a></li><li><a href="#uploada">Copy from Question Pool</a></li></ul></li></ul>
 
 <a name="multa"> </a><h4>Multiple Choice</h4>
 
@@ -100,9 +105,11 @@ possibilities you want to add.</p>
 under "Randomize Answers", click <strong><code>Yes</code></strong>. To have them appear in
 the order you see in the question editing screen (the default), click
 <strong><code>No</code></strong>.<br /><br />
-</li><li>If you want to require users to provide a rationale for choosing
-an answer, under "Require Rationale", click <strong><code>Yes</code></strong>. If you
-don't require a rationale (the default), click <strong><code>No</code></strong>.<br /><br />
+</li><li>Under "Require Rationale", choose <strong><code>Yes</code></strong> or <strong><code>No</code></strong> (the
+default) depending on whether you want to require users to provide a
+rationale for choosing an answer.
+<br /><br />
+
 </li><li>From the <strong><code>Assign to Part</code></strong> drop-down menu, choose the part
 (i.e., section) to which you want to assign this question. Leave this
 as the default value if you haven't created any parts.<br /><br />
@@ -210,15 +217,14 @@ belong in a blank, you can use a pipe (<code> | </code>) to
 separate them. For example:
 
 <span class="example">  {red|yellow|blue} is the primary color I like best.</span>
-</li><li><strong>Case sensitivity:</strong> Click to place a checkmark in
-the <strong><code>Case sensitive</code></strong> checkbox if case matters in the
-response. For example:
+</li><li><strong>Case sensitivity:</strong> Check <strong><code>Case sensitive</code></strong>
+if case matters in the response. For example:
 
 <span class="example">  The capital of California is {Sacramento}.</span>
-</li><li><strong>Mutual exclusivity:</strong> Click to place a checkmark in
-the <strong><code>Mutually exclusive</code></strong> checkbox if your question has two or
-more blanks with identical answer choices, but the student must answer
-each one differently. For example:
+</li><li><strong>Mutual exclusivity:</strong> Check <strong><code>Mutually
+exclusive</code></strong> if your question has two or more blanks with identical
+answer choices, but the student must answer each one differently. For
+example:
 
 <span class="example">  When you toss a coin, it lands on {heads|tails} or {heads|tails}.</span>
 
@@ -288,7 +294,7 @@ as the default value if you haven't created any parts.<br /><br />
 </li><li>If you want to assign this question to a question pool, from the
 <strong><code>Assign to question pool</code></strong> drop-down menu, select the desired
 pool name.<br /><br />
-</li><li>Under "Correct/Incorrect answer feedback", you may choose to
+</li><li>Under "Correct/Incorrect answer feedback", you can choose to
 provide question-level feedback.  <br /><br />
 </li><li>Click <strong><code>Save</code></strong> to return to the Questions screen. You'll see
 that your new question has been added to the assessment.</li></ol>
@@ -310,8 +316,8 @@ this to be an ungraded question.<br /><br />
 question. Click <strong><code>Show/Hide Rich-Text Editor</code></strong> to display the
 WYSIWYG toolbar.  <br /><br />
 </li><li>In the "Choice" and "Match" fields, create a correct pair, then
-click <strong><code>Save Pairing</code></strong> to save it. You may do this as many times
-as you wish, and you may click <strong><code>Edit</code></strong> or <strong><code>Remove</code></strong> beside
+click <strong><code>Save Pairing</code></strong> to save it. You can do this as many times
+as you wish, and you can click <strong><code>Edit</code></strong> or <strong><code>Remove</code></strong> beside
 pairs you've created.
 
 <br /><br />
@@ -324,7 +330,7 @@ as the default value if you haven't created any parts.<br /><br />
 </li><li>If you want to assign this question to a question pool, from the
 <strong><code>Assign to question pool</code></strong> drop-down menu, select the desired
 pool name.<br /><br />
-</li><li>Under "Correct/Incorrect answer feedback", you may choose to
+</li><li>Under "Correct/Incorrect answer feedback", you can choose to
 provide question-level feedback.  <br /><br />
 </li><li>Click <strong><code>Save</code></strong> to return to the Questions screen. You'll see
 that your new question has been added to the assessment.</li></ol>
@@ -348,7 +354,7 @@ WYSIWYG toolbar.
 </li><li>If you wish to add an attachment, click <strong><code>Add Attachments</code></strong>
 and enter or browse to a filename or enter a URL.
 <br /><br />
-</li><li>Under "Required Rationale", you may choose to require an
+</li><li>Under "Required Rationale", you can choose to require an
 explanation by clicking <strong><code>Yes</code></strong>.<br /><br />
 </li><li>From the <strong><code>Assign to Part</code></strong> drop-down menu, choose the part
 (i.e., section) to which you want to assign this question. Leave this
@@ -357,7 +363,7 @@ as the default if you haven't created any parts.<br /><br />
 <strong><code>Assign to question pool</code></strong> drop-down menu, select the desired
 pool name.<br /><br />
 </li><li>In the "Correct answer (optional)" and "Incorrect answer
-(optional)" fields, you may offer answer-level feedback.
+(optional)" fields, you can offer answer-level feedback.
 <br /><br />
 </li><li>When you're finished, click <strong><code>Save</code></strong> to return to the
 Questions screen. You'll see that your new question has been
@@ -394,7 +400,7 @@ default value if you haven't created any parts.<br /><br />
 </li><li>If you want to assign this question to a question pool, from the
 <strong><code>Assign to question pool</code></strong> drop-down menu, select the desired
 pool name.<br /><br />
-</li><li>Under "Correct/Incorrect answer feedback", you may choose to
+</li><li>Under "Correct/Incorrect answer feedback", you can choose to
 provide question-level feedback.  <br /><br />
 </li><li>Click <strong><code>Save</code></strong> to return to the Questions screen. You'll see
 that your new question has been added to the assessment.</li></ol>
@@ -425,7 +431,8 @@ as the default if you haven't created any parts.<br /><br />
 </li><li>If you want to assign this question to a question pool, from the
 <strong><code>Assign to question pool</code></strong> drop-down menu, select the desired
 pool name.<br /><br />
-</li><li>In the "Feedback (optional)" field, you may offer question-level feedback.
+</li><li>In the "Feedback (optional)" field, you can offer question-level
+feedback.
 
 <br /><br /></li><li>When you're finished, click <strong><code>Save</code></strong> to return to the
 assessment editing screen. You'll see that your new question has been
