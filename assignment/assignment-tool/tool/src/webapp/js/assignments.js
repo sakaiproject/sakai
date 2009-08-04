@@ -162,7 +162,8 @@ function setupAssignNew(){
     });
     $(".selectAllMembers").click(function(){
         if (this.checked) {
-            $(this).parents('.groupCell').children('.countDisplay').text($(this).parents('.groupCell').find('input').attr('checked', 'checked').length);
+        	// need to minus the "select all" input box itself when counting the total user selected
+            $(this).parents('.groupCell').children('.countDisplay').text($(this).parents('.groupCell').find('input').attr('checked', 'checked').length-1);
             $(this).parents('.groupCell').find('input').attr('checked', 'checked');
             
             $(this).parents('.groupCell').find('li label').addClass('selectedItem');
