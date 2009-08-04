@@ -106,8 +106,9 @@ public class AuthorSettingsListener implements ActionListener
     assessmentSettings.setKeywords(FormattedText.unEscapeHtml(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.KEYWORDS)));
     assessmentSettings.setObjectives(FormattedText.unEscapeHtml(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.OBJECTIVES)));
     assessmentSettings.setRubrics(FormattedText.unEscapeHtml(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.RUBRICS)));
+    assessmentSettings.setUsername(FormattedText.unEscapeHtml(assessment.getAssessmentAccessControl().getUsername()));
+    assessmentSettings.setPassword(FormattedText.unEscapeHtml(assessment.getAssessmentAccessControl().getPassword()));
     
-  
     // else throw error
 
     // #1c - get question size

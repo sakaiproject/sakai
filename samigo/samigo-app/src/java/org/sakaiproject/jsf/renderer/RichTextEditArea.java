@@ -105,13 +105,11 @@ public class RichTextEditArea extends Renderer
     		valueHasRichText = Pattern.compile(".*<.*?>.*", Pattern.CASE_INSENSITIVE).matcher(valueNoNewLine).matches();
     		//valueHasRichText = Pattern.compile(".*(<)[^\n^<]+(>).*", Pattern.CASE_INSENSITIVE).matcher((String) value).matches();
     	}
+    	else {
+    		value = "";
+    	}
     	String hasToggle = (String) component.getAttributes().get("hasToggle");
-    
-    //fixes SAK-3116, I'm not sure if this logic really belongs in a renderer, but it 
-    //need to happen before the wysiwig is written or the editor tries to be too smart 
-    //value = FormattedText.escapeHtmlFormattedTextarea((String) value);
-    value = FormattedText.unEscapeHtml((String) value);
-
+    	
     String tmpCol = (String) component.getAttributes().get("columns");
     String tmpRow = (String) component.getAttributes().get("rows");
     int col;
@@ -425,11 +423,19 @@ public class RichTextEditArea extends Renderer
     	String show_hide_editor = rb.getString("show_hide_editor");
     	writer.write("<div class=\"toggle_link_container\"><a class=\"toggle_link\" id=\"" +clientId+ "_toggle\" href=\"javascript:show_hide_editor('" +  clientId + "');\">" + show_hide_editor + "</a></div>\n");
     }
+    else {
+        	value = FormattedText.escapeHtmlFormattedTextarea((String) value);
+    }
     
     writer.write("<textarea name=\"" + clientId + "_textinput\" id=\"" + clientId + "_textinput\" rows=\""+ textBoxRows + "\" cols=\""+ textBoxCols + "\" class=\"simple_text_area\">");
     writer.write((String) value);
     writer.write("</textarea>");
-    writer.write("<input type=\"hidden\" name=\"" + clientId + "_textinput_current_status\" id=\"" + clientId + "_textinput_current_status\" value=\"firsttime\">");
+    if (shouldToggle) {
+    	writer.write("<input type=\"hidden\" name=\"" + clientId + "_textinput_current_status\" id=\"" + clientId + "_textinput_current_status\" value=\"firsttime\">");
+    }
+    else {
+    	writer.write("<input type=\"hidden\" name=\"" + clientId + "_textinput_current_status\" id=\"" + clientId + "_textinput_current_status\" value=\"fckonly\">");
+    }
     
     writer.write("\n\t<script type=\"text/javascript\" src=\"" + FCK_BASE + FCK_SCRIPT + "\"></script>");
 
@@ -452,10 +458,29 @@ public class RichTextEditArea extends Renderer
     writer.write("\n\tsetMainFrameHeight('Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId().replace("-","x") + "');");
     writer.write("\n}\n");
     
-    
+    writer.write("function encodeHTML(text){\n");
+    //writer.write("\n\n\talert('encodeHTML');\n");
+    writer.write("\ttext = text.replace(\n");
+    writer.write("\t\t/&/g, '&amp;').replace(\n");
+    writer.write("\t\t/\"/g, '&quot;').replace(\n");
+    writer.write("\t\t/</g, '&lt;').replace(\n");
+    writer.write("\t\t/>/g, '&gt;');\n");
+    writer.write("\treturn text;\n");
+    writer.write("}\n");
+        
     writer.write("function chef_setupformattedtextarea(client_id,shouldToggle){\n");
     
-    writer.write("\tvar textarea_id = client_id + \"_textinput\";\n");    
+    writer.write("\tvar textarea_id = client_id + \"_textinput\";\n");   
+    //writer.write("\talert('shouldToggle:' + shouldToggle);\n");
+    writer.write("\n\tif (shouldToggle == true) {\n");
+    //writer.write("\talert('shouldToggle:' + shouldToggle);\n");
+    writer.write("\tvar input_text = document.getElementById(textarea_id);\n"); 
+    writer.write("\tvar input_text_value = input_text.value;\n"); 
+    //writer.write("\talert('before - input_text.value:' + input_text.value);\n");
+    writer.write("\tvar input_text_encoded = encodeHTML(input_text_value);\n");
+    writer.write("\tinput_text.value = input_text_encoded;\n"); 
+    //writer.write("\talert('encoded - input_text.value:' + input_text.value);\n");
+    writer.write("\t\n}\n");    
     
     //if toggling is on, hide the toggle when the user goes to richText
     //writer.write("\tif(shouldToggle){\n");
@@ -464,11 +489,12 @@ public class RichTextEditArea extends Renderer
     //writer.write("\toToggleDiv.style.display=\"none\";\n");
     //writer.write("\t}\n");
 
-    writer.write("var oFCKeditor = new FCKeditor(textarea_id);\n");
-    writer.write("\n\toFCKeditor.BasePath = \"" + FCK_BASE + "\";");
-    writer.write("\n\toFCKeditor.Height = " + outRow + ";");
-    writer.write("\n\n\toFCKeditor.Width = " + outCol + ";");
-
+    writer.write("\n\tvar oFCKeditor = new FCKeditor(textarea_id);\n");
+    writer.write("\toFCKeditor.BasePath = \"" + FCK_BASE + "\";");
+    writer.write("\toFCKeditor.Height = " + outRow + ";");
+    writer.write("\n\toFCKeditor.Width = " + outCol + ";");
+    //writer.write("\n\n\talert(value':' + oFCKeditor.Value);");
+    
     if ( (justArea != null) && (justArea.equals("yes")))
     {
       writer.write("\n\toFCKeditor.ToolbarSet = \"plain\";");
@@ -484,16 +510,16 @@ public class RichTextEditArea extends Renderer
         {
         	// need to set document.__pid to placementId
         	String placementId = ToolManager.getCurrentPlacement().getId();
-        	writer.write("\t\tdocument.__pid=\"" + placementId + "\";\n");
+        	writer.write("\tdocument.__pid=\"" + placementId + "\";\n");
 
 
         	// need to set document.__baseUrl to baseUrl
         	String baseUrl = ServerConfigurationService.getToolUrl() + "/" + Web.escapeUrl(placementId);
-        	writer.write("\t\tdocument.__baseUrl=\"" + baseUrl + "\";\n");
+        	writer.write("\tdocument.__baseUrl=\"" + baseUrl + "\";\n");
         }
 
 
-        writer.write("\n\t\tvar courseId = \"" + collectionId + "\";"); 
+        writer.write("\n\tvar courseId = \"" + collectionId + "\";"); 
         writer.write("\n\toFCKeditor.Config['ImageBrowserURL'] = oFCKeditor.BasePath + " + 
         		"\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Image&CurrentFolder=\" + courseId;");
         writer.write("\n\toFCKeditor.Config['LinkBrowserURL'] = oFCKeditor.BasePath + " + 
@@ -556,13 +582,46 @@ public class RichTextEditArea extends Renderer
       .getRequestParameterMap();
 
     String newValue = (String) requestParameterMap.get(clientId + "_textinput");
-    StringBuilder alertMsg = new StringBuilder();
-    String finalValue = FormattedText.processFormattedText(newValue, alertMsg);
-    if (alertMsg.length() > 0)
-    {
-    	log.debug(alertMsg.toString());
-    }
-
+    String current_status = (String) requestParameterMap.get(clientId + "_textinput_current_status");    
+    String finalValue = newValue;
+    
+    // if use hid the FCK editor, we treat it as text editor
+	if ("firsttime".equals(current_status) || "collapsed".equals(current_status)) {
+		finalValue = FormattedText.convertPlaintextToFormattedText(newValue);
+	}
+	else {
+		StringBuilder alertMsg = new StringBuilder();
+		try
+		{
+			finalValue = FormattedText.processFormattedText(newValue, alertMsg);
+			if (alertMsg.length() > 0)
+			{
+				log.debug(alertMsg.toString());
+			}
+		}catch (Exception e)
+		{
+			log.info(e.getMessage());
+		}
+	}
+	/*
+	else {
+		boolean valueHasRichText = false;
+	    if(newValue != null){
+			String valueNoNewLine = ((String) newValue).replaceAll("\\n", "").replaceAll("\\r", "");
+			//really simple regex to detect presence of any html tags in the value        
+			valueHasRichText = Pattern.compile(".*<.*?>.*", Pattern.CASE_INSENSITIVE).matcher(valueNoNewLine).matches();
+	    }
+	    // only if user expands the FCK editor, we treat it as rich text
+	    if ("expaneded".equals(current_status) && valueHasRichText) {
+	    	StringBuilder alertMsg = new StringBuilder();
+	    	finalValue = FormattedText.processFormattedText(newValue, alertMsg);
+	    	if (alertMsg.length() > 0)
+	    	{
+	    		log.debug(alertMsg.toString());
+	    	}
+	    }
+	}
+	*/
     org.sakaiproject.jsf.component.RichTextEditArea comp = (org.sakaiproject.jsf.component.RichTextEditArea) component;
     comp.setSubmittedValue(finalValue);
   }

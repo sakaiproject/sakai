@@ -88,9 +88,10 @@ public class SaveAssessmentSettings
     AssessmentFacade assessment = assessmentService.getAssessment(
         assessmentId.toString());
     //log.info("** assessment = "+assessment);
-    assessment.setTitle(ContextUtil.processFormattedText(log, assessmentSettings.getTitle()));
+    //assessment.setTitle(FormattedText.convertPlaintextToFormattedText(assessmentSettings.getTitle()));
+    assessment.setTitle(assessmentSettings.getTitle());
     assessment.setDescription(assessmentSettings.getDescription()); // No need to call processFormattedText() because this is done in RichTextEditArea.java
-    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.AUTHORS, ContextUtil.processFormattedText(log, assessmentSettings.getAuthors()));
+    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.AUTHORS, FormattedText.convertPlaintextToFormattedText(assessmentSettings.getAuthors()));
 
     // #2 - set AssessmentAccessControl
     AssessmentAccessControl control = (AssessmentAccessControl)assessment.getAssessmentAccessControl();
@@ -177,13 +178,13 @@ public class SaveAssessmentSettings
     // e. set Submission Messages
     control.setSubmissionMessage(assessmentSettings.getSubmissionMessage());
     // f. set username
-    control.setUsername(assessmentSettings.getUsername());
+    control.setUsername(FormattedText.convertPlaintextToFormattedText(assessmentSettings.getUsername()));
     // g. set password
-    control.setPassword(assessmentSettings.getPassword());
+    control.setPassword(FormattedText.convertPlaintextToFormattedText(assessmentSettings.getPassword()));
     // h. set finalPageUrl
     String finalPageUrl = assessmentSettings.getFinalPageUrl();
     if (finalPageUrl != null) {
-    	finalPageUrl = ContextUtil.processFormattedText(log, finalPageUrl.trim());
+    	finalPageUrl = FormattedText.convertPlaintextToFormattedText(finalPageUrl.trim());
     	if (finalPageUrl.length() != 0 && !finalPageUrl.toLowerCase().startsWith("http")) {
     		finalPageUrl = "http://" + finalPageUrl;
     	}
@@ -248,13 +249,13 @@ public class SaveAssessmentSettings
     updateMetaWithValueMap(assessment, h);
 
     // i. set Graphics
-    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGCOLOR, ContextUtil.processFormattedText(log, assessmentSettings.getBgColor()));
-    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGIMAGE, ContextUtil.processFormattedText(log, assessmentSettings.getBgImage()));
+    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGCOLOR, FormattedText.convertPlaintextToFormattedText(assessmentSettings.getBgColor()));
+    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGIMAGE, FormattedText.convertPlaintextToFormattedText(assessmentSettings.getBgImage()));
 
     // j. set objectives,rubrics,keywords
-    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.KEYWORDS, ContextUtil.processFormattedText(log, assessmentSettings.getKeywords()));
-    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.OBJECTIVES, ContextUtil.processFormattedText(log, assessmentSettings.getObjectives()));
-    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.RUBRICS, ContextUtil.processFormattedText(log, assessmentSettings.getRubrics()));
+    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.KEYWORDS, FormattedText.convertPlaintextToFormattedText(assessmentSettings.getKeywords()));
+    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.OBJECTIVES, FormattedText.convertPlaintextToFormattedText(assessmentSettings.getObjectives()));
+    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.RUBRICS, FormattedText.convertPlaintextToFormattedText(assessmentSettings.getRubrics()));
 
     // jj. save assessment first, then deal with ip
     assessmentService.saveAssessment(assessment);

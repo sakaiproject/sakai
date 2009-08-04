@@ -144,13 +144,13 @@ public class EditPartListener
     while (iter.hasNext()){
     SectionMetaDataIfc meta= (SectionMetaDataIfc) iter.next();
        if (meta.getLabel().equals(SectionMetaDataIfc.OBJECTIVES)){
-         bean.setObjective(meta.getEntry());
+         bean.setObjective(FormattedText.unEscapeHtml(meta.getEntry()));
        }
        if (meta.getLabel().equals(SectionMetaDataIfc.KEYWORDS)){
-         bean.setKeyword(meta.getEntry());
+         bean.setKeyword(FormattedText.unEscapeHtml(meta.getEntry()));
        }
        if (meta.getLabel().equals(SectionMetaDataIfc.RUBRICS)){
-         bean.setRubric(meta.getEntry());
+         bean.setRubric(FormattedText.unEscapeHtml(meta.getEntry()));
        }
 
        if (meta.getLabel().equals(SectionDataIfc.AUTHOR_TYPE)){

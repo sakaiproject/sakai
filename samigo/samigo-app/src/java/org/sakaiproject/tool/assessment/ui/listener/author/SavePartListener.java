@@ -59,6 +59,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * <p>Title: Samigo</p>2
@@ -92,7 +93,7 @@ public class SavePartListener
     // create an assessment based on the title entered and the assessment
     // template selected
     // #1 - read from form editpart.jsp
-    String title = ContextUtil.processFormattedText(log, (sectionBean.getSectionTitle()).trim());
+    String title = FormattedText.convertPlaintextToFormattedText(sectionBean.getSectionTitle()).trim();
     if(title == null || title.equals("")){
     	String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "empty_part_title_error");
     	context.addMessage(null, new FacesMessage(err));
@@ -186,13 +187,13 @@ public class SavePartListener
 
     if (isEditPendingAssessmentFlow) {
     	if (!("".equals(sectionBean.getKeyword())))
-    		section.addSectionMetaData(SectionMetaDataIfc.KEYWORDS, sectionBean.getKeyword());
+    		section.addSectionMetaData(SectionMetaDataIfc.KEYWORDS, FormattedText.convertPlaintextToFormattedText(sectionBean.getKeyword()));
 
     	if (!("".equals(sectionBean.getObjective())))
-    		section.addSectionMetaData(SectionMetaDataIfc.OBJECTIVES, sectionBean.getObjective());
+    		section.addSectionMetaData(SectionMetaDataIfc.OBJECTIVES, FormattedText.convertPlaintextToFormattedText(sectionBean.getObjective()));
 
     	if (!("".equals(sectionBean.getRubric())))
-    		section.addSectionMetaData(SectionMetaDataIfc.RUBRICS, sectionBean.getRubric());
+    		section.addSectionMetaData(SectionMetaDataIfc.RUBRICS, FormattedText.convertPlaintextToFormattedText(sectionBean.getRubric()));
 
     	if (!("".equals(sectionBean.getQuestionOrdering())))
     		section.addSectionMetaData(SectionDataIfc.QUESTIONS_ORDERING, sectionBean.getQuestionOrdering());
