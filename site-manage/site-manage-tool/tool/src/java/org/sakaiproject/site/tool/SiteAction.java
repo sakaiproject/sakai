@@ -8230,7 +8230,12 @@ public class SiteAction extends PagedResourceActionII {
 					// synoptic tool 
 					List<String> parentToolList = (List<String>) SYNOPTIC_TOOL_ID_MAP.get(homeToolId);
 					List chosenListClone = new Vector();
-					chosenListClone.addAll(chosenList);
+					// chosenlist may have things like bcf89cd4-fa3a-4dda-80bd-ed0b89981ce7sakai.chat
+					// get list of the actual tool names
+					List<String>chosenOrigToolList = new ArrayList<String>();
+					for (String chosenTool: (List<String>)chosenList)
+					    chosenOrigToolList.add(findOriginalToolId(state, chosenTool));
+					chosenListClone.addAll(chosenOrigToolList);
 					boolean hasAnyParentToolId = chosenListClone.removeAll(parentToolList);
 					
 					//first check whether the parent tool is available in site but its parent tool is no longer selected
