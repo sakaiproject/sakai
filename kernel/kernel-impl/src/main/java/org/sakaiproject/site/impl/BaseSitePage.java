@@ -363,9 +363,8 @@ public class BaseSitePage implements SitePage, Identifiable
 		// Get the toolId of the first tool associated with this page
 		String toolId = ((BaseToolConfiguration) (getTools().get(0))).getToolId();
 		
-		// IFrame and News toolIds are considered 'custom' (page title easily configurable)
-		// tbd: find more generalizeable or configurable implementation
-		if ( IFRAME_TOOL_ID.equals(toolId) || NEWS_TOOL_ID.equals(toolId) || LINK_TOOL_ID.equals(toolId) )
+		// Custom page/tool titles are not localized (e.g. News, Web Content)
+		if ( getTitleCustom() )
 			return m_title;
 			
 		// otherwise, return attempt to return a localized title
@@ -520,6 +519,44 @@ public class BaseSitePage implements SitePage, Identifiable
 		m_title = StringUtil.trimToNull(title);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
+	public void setTitleCustom(boolean custom)
+	{
+		getProperties().addProperty(PAGE_CUSTOM_TITLE_PROP, String.valueOf(custom));
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public boolean getTitleCustom()
+	{
+		String custom = (String)getProperties().get(PAGE_CUSTOM_TITLE_PROP);
+		if ( custom == null )
+			return getTitleCustomLegacy();
+		else
+			return Boolean.parseBoolean(custom);
+	}
+
+	/** Checks if this page's tool is a legacy iframe, news or linktool
+	 ** that should assumed to have a custom page title 
+	 ** (assumptions can be disabled with legacyPageTitleCustom = false).
+	 **/	 
+	private boolean getTitleCustomLegacy()
+	{
+		if ( ! ServerConfigurationService.getBoolean("legacyPageTitleCustom", true) )
+			return false;
+      
+		// Get the toolId of the first tool associated with this page
+		String toolId = ((BaseToolConfiguration) (getTools().get(0))).getToolId();
+      
+		if ( "sakai.iframe".equals(toolId) || "sakai.news".equals(toolId) || "sakai.rutgers.linktool".equals(toolId) )
+			return true;
+		else
+			return false;
+	}
+   
 	/**
 	 * @inheritDoc
 	 */
