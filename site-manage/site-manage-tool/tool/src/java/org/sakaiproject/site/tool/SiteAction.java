@@ -654,7 +654,7 @@ public class SiteAction extends PagedResourceActionII {
 		// First: get the tool ids from configuration files
 		// initially by "wsetup.home.toolids" + site type, and if missing, use "wsetup.home.toolids"
 		if (ServerConfigurationService.getStrings("wsetup.home.toolids." + siteType) != null) {
-			rv = new ArrayList(Arrays.asList(ServerConfigurationService.getStrings("wsetup.home.toolids") + siteType));
+			rv = new ArrayList(Arrays.asList(ServerConfigurationService.getStrings("wsetup.home.toolids.") + siteType));
 		} else if (ServerConfigurationService.getStrings("wsetup.home.toolids") != null) {
 			rv = new ArrayList(Arrays.asList(ServerConfigurationService.getStrings("wsetup.home.toolids")));
 		}
