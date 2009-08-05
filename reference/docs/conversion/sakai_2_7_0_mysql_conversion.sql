@@ -8,3 +8,7 @@
 
 -- SAK-16610 introduced a new osp presentation review permission
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'osp.presentation.review');
+
+-- SAK-16686/KNL-241 Support exceptions to dynamic page localization
+INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES ('~admin','~admin-400','sitePage.customTitle','true');
+
