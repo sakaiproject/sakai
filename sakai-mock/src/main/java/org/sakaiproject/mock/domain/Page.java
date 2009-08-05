@@ -42,6 +42,7 @@ public class Page implements SitePage {
 	Site site;
 	String id;
 	String title;
+	boolean titleCustom;
 	String reference;
 	boolean popUp;
 	boolean activeEdit;
@@ -210,6 +211,14 @@ public class Page implements SitePage {
 
 	public String getTitle() {
 		return title;
+	}
+
+	public void setTitleCustom(boolean custom) {
+		this.titleCustom = custom;
+	}
+
+	public boolean getTitleCustom() {
+		return titleCustom;
 	}
 
 	public void setTitle(String title) {
