@@ -815,7 +815,7 @@ $(document).ready(function() {
 		*#
 		<a name="extraNodesBoxTop"></a>		
 		<input type="hidden" name = "attachments_for" id="attachments_for" value="$!attachments_for" />
-		<fieldset class="extraNode" id="modelanswer-node" >## the panel for model answer
+		<fieldset class="extraNode" id="modelanswer-node" style="display:none">## the panel for model answer
 			<legend>$tlang.getString("modelAnswer")</legend>
 			<div class="longtext" style="margin:.2em">
 				<label for="modelanswer_text" class="block">
@@ -892,7 +892,7 @@ $(document).ready(function() {
 			</p>
 		</fieldset>
 		#*the panel for grading guideline
-			<fieldset class="extraNode" id="gradingguidelines-node">
+			<fieldset class="extraNode" id="gradingguidelines-node" style="display:none">
 				<legend>Grading guidelines</legend>
 					<div class="validationError alertMessage" id="gradingguidelines-message">
 					</div>
@@ -924,7 +924,7 @@ $(document).ready(function() {
 				</p>
 			</fieldset>	
 		*#
-		<fieldset class="extraNode" id="note-node">## the panel for private note
+		<fieldset class="extraNode" id="note-node" style="display:none">## the panel for private note
 			<legend>$tlang.getString("note")</legend>
 			<div class="longtext" style="margin:.2em">
 				<span class="reqStar">*</span>				
@@ -981,7 +981,7 @@ $(document).ready(function() {
 				</p>
 			#end
 		</fieldset>			
-		<fieldset class="extraNode" id="allPurpose-node" >## the panel for allPurpose type of object
+		<fieldset class="extraNode" id="allPurpose-node" style="display:none">## the panel for allPurpose type of object
 			<legend>$tlang.getString('allPurpose')</legend>
 			<div class="shorttext" style="margin:.2em">
 				<span class="reqStar">*</span>				
@@ -1194,7 +1194,11 @@ $(document).ready(function() {
 			</div>	
 			<table border="0" cellpadding="0" cellspacing="0" class="listHier" style="margin:1em 0;width:100%"  id="allPurposeGroupLists">
 				<tbody>
+					#set ($roleCount=0)
 					#foreach ($role in $!roleUsers.keys())
+
+						#set ($roleCount=$roleCount + 1)
+
 						#set($allString=$tlang.getString("allPurpose.show.all").concat(" ").concat($role))
 						#set($expandString=$tlang.getString("allPurpose.show.expand").concat(" ").concat($role).concat(" ").concat($tlang.getString("allPurpose.show.list")))
 						#set($collapseString=$tlang.getString("allPurpose.show.collapse").concat(" ").concat($role).concat(" ").concat($tlang.getString("allPurpose.show.list")))
@@ -1203,22 +1207,22 @@ $(document).ready(function() {
 						#set($collapseId="collapse_")
 						#set($collapseId=$collapseId.concat($role))
 						#set($roleDivString = $role.concat("Div"))
+						#set($showInputString = "allPurpose_")
+	            		#set($showInputString = $showInputString.concat($role))
 						<tr>
-							<td class="groupCell"> 
-								#set($showInputString = "allPurpose_")
-			            		#set($showInputString = $showInputString.concat($role))
-								<a href="#" id="$collapseId" class="toggleRoleLink" style="display:none;" title="$collapseString">
+							<td class="groupCell">					
+								<a href="#" id="collapse_$roleCount" class="toggleRoleLink" style="display:none;" title="$collapseString">
 									<img src="/library/image/sakai/collapse.gif" alt="$collapseString" /><img src="/library/image/silk/group.png"/>
 								</a>
-								<a href="#" id="$expandId" class="toggleRoleLink" style="display:inline" title="$expandString">
+								<a href="#" id="expand_$roleCount" class="toggleRoleLink" style="display:inline" title="$expandString">
 									<img src="/library/image/sakai/expand.gif"  alt="$expandString"/><img src="/library/image/silk/group.png"/>
 								</a>
-								<input id="$showInputString" name="$showInputString" #if ($!value_allPurposeAccessList.contains($role)) checked="checked" #end type="checkbox" name="allPurpose_$role" class="selectAllMembers"/>
-								<label for="$showInputString">
+								<input id="$showInputString" name="showInputString_$roleCount" #if ($!value_allPurposeAccessList.contains($role)) checked="checked" #end type="checkbox" name="allPurpose_$role" class="selectAllMembers"/>
+								<label for="showInputString_$roleCount">
 									$allString
 								</label>
 								(<span class="highlight countDisplay"></span> <span class="highlight">$tlang.getString("allPurpose.user.selection.count")</span>)
-								<ul id="$roleDivString" style="display:none;" class="attachList userList">
+								<ul id="roleDiv_$roleCount"  style="display:none;" class="attachList userList">
 									#set($userCount=0)
 									#foreach($user in $!roleUsers.get($role))
 										#set($showInputString = "allPurpose_")
