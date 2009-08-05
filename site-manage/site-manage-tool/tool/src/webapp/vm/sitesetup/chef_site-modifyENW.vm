@@ -14,7 +14,7 @@
 	</p>
 	<form name = "toolForm" method = "post" action="#toolForm("SiteAction")">
 		<input type="hidden" name="option" value="add" />
-		<input type="hidden" name="$function" value="x" />
+		<input type="hidden" name="eventSubmit_doAdd_features" value="x" />
 			#foreach($toolId in $!toolRegistrationSelectedList) 
 				## set up a hidden input field for every selected tool except for Email Archive, and other multiple instance of tools
 				#if ($toolId != "sakai.mailbox" && !$!multipleToolIdSet.contains($toolId))
@@ -96,9 +96,12 @@
 							#if ($!tool)
 								<h4>
 									$tool.Title
+									#if (!$toolId.equals($originToolId))
+									## the last instance is not removable
 									<a href="#" onclick="document.toolForm.option.value='remove_$toolId';javascript:document.toolForm.submit();" title ="$tlang.getString('multipleTools.remove')"> 
 										<img src="/library/image/silk/cross.png" alt="$tlang.getString('multipleTools.remove')" style="vertical-align:text-bottom"/>
 									</a>
+									#end
 								</h4>
 								<p class="shorttext">
 									<label for="title_$toolId">
@@ -108,7 +111,7 @@
 								</p>
 						 #set($attributeHashtable=false)
 							#set($attributeHashtable=$!multipleToolConfiguration.get($toolId))
-							 #foreach ($attribute in $!attributeHashtable.keys())
+							 #foreach ($attribute in $!attributeHashtable.keySet())
 									#set($attributeInputName=$attribute.concat("_").concat($toolId))
 									<p class="shorttext">
 										<label for="$attributeInputName">
@@ -146,7 +149,7 @@
 				accesskey="s"
 				class="active"
 				value="$tlang.getString('gen.continue')" 
-				onclick="document.toolForm.option.value='continue';javascript:document.toolForm.submit();" />
+				onclick="document.toolForm.option.value='continueENW';javascript:document.toolForm.submit();" />
 			<input type="button" name="Back" 
 				value="$tlang.getString('gen.back')"
 				accesskey="b"

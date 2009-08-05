@@ -2376,8 +2376,6 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("continue", "18");
 			}
 
-			context.put("function", "eventSubmit_doAdd_features");
-
 			context.put(STATE_TOOL_REGISTRATION_LIST, state
 					.getAttribute(STATE_TOOL_REGISTRATION_LIST));
 			toolRegistrationSelectedList = (List) state
@@ -4640,7 +4638,7 @@ public class SiteAction extends PagedResourceActionII {
 				multipleToolIdSet.add(tr.getId());
 				
 				// get the configuration for multiple instance
-				Hashtable<String, String> toolConfigurations = getMultiToolConfiguration(originalToolId, null);
+				HashMap<String, String> toolConfigurations = getMultiToolConfiguration(originalToolId, null);
 				multipleToolConfiguration.put(tr.getId(), toolConfigurations);
 			}
 		}
@@ -5577,6 +5575,9 @@ public class SiteAction extends PagedResourceActionII {
 		}
 		
 		resetVisitedTemplateListToIndex(state, (String) state.getAttribute(STATE_TEMPLATE_INDEX));
+		
+		// remove state variables in tool editing
+		removeEditToolState(state);
 
 	} // doCancel_create
 
@@ -5841,9 +5842,9 @@ public class SiteAction extends PagedResourceActionII {
 		return false;
 	}
 	
-	private Hashtable<String, String> getMultiToolConfiguration(String toolId, ToolConfiguration toolConfig)
+	private HashMap<String, String> getMultiToolConfiguration(String toolId, ToolConfiguration toolConfig)
 	{
-		Hashtable<String, String> rv = new Hashtable<String, String>();
+		HashMap<String, String> rv = new HashMap<String, String>();
 	
 		// read from configuration file
 		ArrayList<String> attributes=new ArrayList<String>();
@@ -8527,10 +8528,10 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	private void saveMultipleToolConfiguration(SessionState state, ToolConfiguration tool, String toolId) {
 		// get the configuration of multiple tool instance
-		HashMap<String, Hashtable<String, String>> multipleToolConfiguration = state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION) != null?(HashMap<String, Hashtable<String, String>>) state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION):new HashMap<String, Hashtable<String, String>>();
+		HashMap<String, HashMap<String, String>> multipleToolConfiguration = state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION) != null?(HashMap<String, HashMap<String, String>>) state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION):new HashMap<String, HashMap<String, String>>();
 		
 		// set tool attributes
-		Hashtable<String, String> attributes = multipleToolConfiguration.get(toolId);
+		HashMap<String, String> attributes = multipleToolConfiguration.get(toolId);
 		
 		if (attributes != null)
 		{
@@ -9243,7 +9244,7 @@ public class SiteAction extends PagedResourceActionII {
 							multipleToolIdTitleMap.put(mId, page.getTitle());
 							
 							// get the configuration for multiple instance
-							Hashtable<String, String> toolConfigurations = getMultiToolConfiguration(wSetupTool, page.getTool(wSetupToolId));
+							HashMap<String, String> toolConfigurations = getMultiToolConfiguration(wSetupTool, page.getTool(wSetupToolId));
 							multipleToolIdAttributeMap.put(mId, toolConfigurations);
 							
 							MyTool newTool = new MyTool();
@@ -9334,7 +9335,10 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(STATE_TOOL_REGISTRATION_OLD_SELECTED_HOME);
 		state.removeAttribute(STATE_WORKSITE_SETUP_PAGE_LIST);
 		state.removeAttribute(STATE_MULTIPLE_TOOL_ID_SET);
-		//state.removeAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP);
+		state.removeAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP);
+		state.removeAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION);
+		state.removeAttribute(STATE_TOOL_REGISTRATION_LIST);
+		state.removeAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
 	}
 
 	private List orderToolIds(SessionState state, String type, List toolIdList) {
@@ -9508,8 +9512,8 @@ public class SiteAction extends PagedResourceActionII {
 				Tool tool = ToolManager.getTool(originToolId);
 				if (tool != null)
 				{
-					removeTool(state, removeToolId);
 					updateSelectedToolList(state, params, false);
+					removeTool(state, removeToolId, originToolId);
 					state.setAttribute(STATE_TEMPLATE_INDEX, "26");
 				}
 			}
@@ -9528,9 +9532,12 @@ public class SiteAction extends PagedResourceActionII {
 			} else {
 				state.removeAttribute(STATE_IMPORT);
 			}
+		} else if (option.equalsIgnoreCase("continueENW")) {
+			// continue in multiple tools page
+			updateSelectedToolList(state, params, false);
+			doContinue(data);
 		} else if (option.equalsIgnoreCase("continue")) {
 			// continue
-			updateSelectedToolList(state, params, false);
 			doContinue(data);
 		} else if (option.equalsIgnoreCase("back")) {
 			// back
@@ -9563,10 +9570,10 @@ public class SiteAction extends PagedResourceActionII {
 				.getStrings("selectedTools")));
 		Set multipleToolIdSet = (Set) state.getAttribute(STATE_MULTIPLE_TOOL_ID_SET);
 		Map multipleToolIdTitleMap = state.getAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP) != null? (Map) state.getAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP):new HashMap();
-		HashMap<String, Hashtable<String, String>> multipleToolConfiguration = state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION) != null?(HashMap<String, Hashtable<String, String>>) state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION):new HashMap<String, Hashtable<String, String>>();
+		HashMap<String, HashMap<String, String>> multipleToolConfiguration = state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION) != null?(HashMap<String, HashMap<String, String>>) state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION):new HashMap<String, HashMap<String, String>>();
 		Vector<String> idSelected = (Vector<String>) state.getAttribute(STATE_TOOL_REGISTRATION_OLD_SELECTED_LIST);
 		boolean has_home = false;
-		String emailId = null;
+		String emailId = state.getAttribute(STATE_TOOL_EMAIL_ADDRESS) != null?(String) state.getAttribute(STATE_TOOL_EMAIL_ADDRESS):null;
 
 		for (int i = 0; i < selectedTools.size(); i++) 
 		{
@@ -9574,9 +9581,11 @@ public class SiteAction extends PagedResourceActionII {
 			if (id.equalsIgnoreCase(TOOL_ID_HOME)) {
 				has_home = true;
 			} else if (id.equalsIgnoreCase("sakai.mailbox")) {
+				// read email id
+				emailId = StringUtil.trimToNull(params.getString("emailId"));
+				state.setAttribute(STATE_TOOL_EMAIL_ADDRESS, emailId);
 				if ( updateConfigVariables ) {
 					// if Email archive tool is selected, check the email alias
-					emailId = StringUtil.trimToNull(params.getString("emailId"));
 					String siteId = (String) state.getAttribute(STATE_SITE_INSTANCE_ID);
 					String channelReference = mailArchiveChannelReference(siteId);
 					if (emailId == null) {
@@ -9606,11 +9615,9 @@ public class SiteAction extends PagedResourceActionII {
 							}
 						}
 					}
-
-					state.setAttribute(STATE_TOOL_EMAIL_ADDRESS, emailId);
 				}
 			}
-			else if (isMultipleInstancesAllowed(findOriginalToolId(state, id)) && (idSelected != null && !idSelected.contains(id) || idSelected == null) && updateConfigVariables)
+			else if (isMultipleInstancesAllowed(findOriginalToolId(state, id)) && (idSelected != null && !idSelected.contains(id) || idSelected == null))
 			{
 				// newly added mutliple instances
 				String title = StringUtil.trimToNull(Validator.escapeHtml(params.getString("title_" + id)));
@@ -9621,7 +9628,7 @@ public class SiteAction extends PagedResourceActionII {
 				}
 				
 				// get the attribute input
-				Hashtable<String, String> attributes = multipleToolConfiguration.get(id);
+				HashMap<String, String> attributes = multipleToolConfiguration.get(id);
 				if (attributes == null)
 				{
 					// if missing, get the default setting for original id
@@ -9667,7 +9674,7 @@ public class SiteAction extends PagedResourceActionII {
 		// get the map of titles of multiple tool instances
 		Map multipleToolIdTitleMap = state.getAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP) != null? (Map) state.getAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP):new HashMap();
 		// get the attributes of multiple tool instances
-		Hashtable<String, Hashtable<String, String>> multipleToolConfiguration = state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION) != null?(Hashtable<String, Hashtable<String, String>>) state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION):new Hashtable<String, Hashtable<String, String>>();
+		HashMap<String, HashMap<String, String>> multipleToolConfiguration = state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION) != null?(HashMap<String, HashMap<String, String>>) state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION):new HashMap<String, HashMap<String, String>>();
 		
 		int toolListedTimes = 0;
 		
@@ -9717,19 +9724,12 @@ public class SiteAction extends PagedResourceActionII {
 			multipleToolIdTitleMap.put(newTool.id, defaultTitle);
 			
 			// get the attribute input
-			Hashtable<String, String> attributes = multipleToolConfiguration.get(newToolId);
+			HashMap<String, String> attributes = multipleToolConfiguration.get(newToolId);
 			if (attributes == null)
 			{
 				// if missing, get the default setting for original id
-				attributes = new Hashtable<String, String>();
-				
-				Hashtable<String, String> oAttributes = multipleToolConfiguration.get(findOriginalToolId(state, newToolId));
-				// add the entry for the newly added tool
-				if (attributes != null)
-				{
-					attributes = (Hashtable<String, String>) oAttributes.clone();
-					multipleToolConfiguration.put(newToolId, attributes);
-				}
+				attributes = getMultiToolConfiguration(toolId, null);
+				multipleToolConfiguration.put(newToolId, attributes);
 			}
 		}
 
@@ -9744,22 +9744,37 @@ public class SiteAction extends PagedResourceActionII {
 	 * find the tool in the tool list and remove the tool instance
 	 * @param state
 	 * @param toolId
+	 * @param originalToolId
 	 */
-	private void removeTool(SessionState state, String toolId) {
+	private void removeTool(SessionState state, String toolId, String originalToolId) {
+		List toolList = (List) state.getAttribute(STATE_TOOL_REGISTRATION_LIST);
 		// get the map of titles of multiple tool instances
 		Map multipleToolIdTitleMap = state.getAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP) != null? (Map) state.getAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP):new HashMap();
 		// get the attributes of multiple tool instances
-		Hashtable<String, Hashtable<String, String>> multipleToolConfiguration = state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION) != null?(Hashtable<String, Hashtable<String, String>>) state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION):new Hashtable<String, Hashtable<String, String>>();
+		HashMap<String, HashMap<String, String>> multipleToolConfiguration = state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION) != null?(HashMap<String, HashMap<String, String>>) state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION):new HashMap<String, HashMap<String, String>>();
 		// the selected tool list
 		List toolSelected = (List) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
 
 		// remove the tool from related state variables
 		toolSelected.remove(toolId);
+		// remove the tool from the title map
 		multipleToolIdTitleMap.remove(toolId);
+		// remove the tool from the configuration map
+		boolean found = false;
+		for (ListIterator i = toolList.listIterator(); i.hasNext() && !found;) 
+		{
+			MyTool tool = (MyTool) i.next();
+			if (tool.getId().equals(toolId)) 
+			{
+				toolList.remove(tool);
+				found = true;
+			}
+		}
 		multipleToolConfiguration.remove(toolId);
 
 		state.setAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP, multipleToolIdTitleMap);
 		state.setAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION, multipleToolConfiguration);
+		state.setAttribute(STATE_TOOL_REGISTRATION_LIST, toolList);
 		state.setAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST, toolSelected);
 
 	} // removeTool
@@ -9793,9 +9808,7 @@ public class SiteAction extends PagedResourceActionII {
 		}
 		state.setAttribute(STATE_SELECTED_PARTICIPANT_ROLES,
 				selectedParticipantRoles);
-		state
-				.setAttribute(STATE_SELECTED_PARTICIPANTS,
-						selectedParticipantList);
+		state.setAttribute(STATE_SELECTED_PARTICIPANTS, selectedParticipantList);
 
 	} // setSelectedParticipantRol3es
 

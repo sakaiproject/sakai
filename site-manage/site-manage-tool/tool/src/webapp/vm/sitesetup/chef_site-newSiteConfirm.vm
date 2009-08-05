@@ -90,7 +90,7 @@
 											## get tool configuration
 											#set($attributeHashtable=false)
 											#set($attributeHashtable=$!multipleToolConfiguration.get($toolId))
-											(#foreach ($attribute in $!attributeHashtable.keys())
+											(#foreach ($attribute in $!attributeHashtable.keySet())
 												$attribute = $!attributeHashtable.get($attribute) 
 											#end)
 										#else
