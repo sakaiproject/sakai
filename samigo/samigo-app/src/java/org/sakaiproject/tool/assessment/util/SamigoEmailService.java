@@ -30,14 +30,17 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.Vector;
 
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
+import javax.mail.SendFailedException;
 import javax.mail.Session;
 import javax.mail.Transport;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
@@ -68,6 +71,7 @@ public class SamigoEmailService {
 	private String fromEmailAddress;
 	private String toName;
 	private String toEmailAddress;
+	private ArrayList toEmailAddressList;
 	private String ccMe;
 	private String subject;
 	private String message;
@@ -78,12 +82,13 @@ public class SamigoEmailService {
 	/**
 	 * Creates a new SamigoEmailService object.
 	 */
-	public SamigoEmailService(String fromName, String fromEmailAddress, 
-			String toName, String toEmailAddress, String ccMe, String subject, String message) {
+	public SamigoEmailService(String fromName, String fromEmailAddress, String toName, String toEmailAddress, 
+			ArrayList toEmailAddressList, String ccMe, String subject, String message) {
 		this.fromName = fromName;
 		this.fromEmailAddress = fromEmailAddress;
 		this.toName = toName;
 		this.toEmailAddress = toEmailAddress;
+		this.toEmailAddressList = toEmailAddressList;
 		this.ccMe = ccMe;
 		this.subject = subject;
 		this.message = message;
@@ -92,6 +97,16 @@ public class SamigoEmailService {
 		this.prefixedPath = ServerConfigurationService.getString("samigo.email.prefixedPath");
 	}
 	
+	public SamigoEmailService(String fromName, String fromEmailAddress, 
+			String toName, String toEmailAddress, String ccMe, String subject, String message) {
+		this(fromName, fromEmailAddress, toName, toEmailAddress, null, ccMe, subject, message);
+	}
+	
+	public SamigoEmailService(String fromEmailAddress, ArrayList toEmailAddressList, String ccMe, String subject, String message) {
+		this(null, fromEmailAddress, null, null, toEmailAddressList, ccMe, subject, message);
+	}
+	
+	// Not sure if we are going to obsolete/change this email flow. I keep this here and make a new one sendMail()
 	public String send() {
 		List attachmentList = null;
 		AttachmentData a = null;
@@ -217,6 +232,100 @@ public class SamigoEmailService {
 		return "send";
 	}
 
+	public String sendMail() {
+		try {
+			Properties props = new Properties();
+
+			// Server
+			if (smtpServer == null || smtpServer.equals("")) {
+				log.info("samigo.email.smtpServer is not set");
+				smtpServer = ServerConfigurationService.getString("smtp@org.sakaiproject.email.api.EmailService");
+				if (smtpServer == null || smtpServer.equals("")) {
+					log.info("smtp@org.sakaiproject.email.api.EmailService is not set");
+					log.error("Please set the value of samigo.email.smtpServer or smtp@org.sakaiproject.email.api.EmailService");
+					return "error";
+				}
+			}
+			props.setProperty("mail.smtp.host", smtpServer);
+
+			// Port
+			if (smtpPort == null || smtpPort.equals("")) {
+				log.warn("samigo.email.smtpPort is not set. The default port 25 will be used.");
+			} else {
+				props.setProperty("mail.smtp.port", smtpPort);
+			}
+			
+			props.put("mail.smtp.sendpartial", "true");
+			
+			Session session = Session.getInstance(props, null);
+			session.setDebug(true);
+			MimeMessage msg = new MimeMessage(session);
+
+			InternetAddress fromIA = new InternetAddress(fromEmailAddress, fromName);
+			msg.setFrom(fromIA);
+
+			msg.addHeaderLine("Subject: " + subject);
+			msg.addHeaderLine("To: no-reply@coursework.stanford.edu");
+			msg.setText(message, "ISO-8859-1");
+			msg.addHeaderLine("Content-Type: text/html");
+
+			ArrayList<InternetAddress> toIAList = new ArrayList<InternetAddress>();
+			String email = "";
+			Iterator iter = toEmailAddressList.iterator();
+			while (iter.hasNext()) {
+				try {
+					email = (String) iter.next();
+					toIAList.add(new InternetAddress(email));
+				} catch (AddressException ae) {
+					log.error("invalid email address: " + email);
+				}
+			}
+
+			InternetAddress[] toIA = new InternetAddress[toIAList.size()];
+			int count = 0;
+			Iterator iter2 = toIAList.iterator();
+			while (iter2.hasNext()) {
+				toIA[count++] = (InternetAddress) iter2.next();
+			}
+
+			try
+			{
+				Transport transport = session.getTransport("smtp");
+				msg.saveChanges();
+				transport.connect();
+
+				try {
+					transport.sendMessage(msg, toIA);
+				}
+				catch (SendFailedException e)
+				{
+					log.debug("SendFailedException: " + e);
+					return "error";
+				}
+				catch (MessagingException e)
+				{
+					log.warn("1st MessagingException: " + e);
+					return "error";
+				}
+				transport.close();
+			}
+			catch (MessagingException e)
+			{
+				log.warn("2nd MessagingException:" + e);
+				return "error";
+			}
+
+		} catch (UnsupportedEncodingException ue) {
+			log.warn("UnsupportedEncodingException:" + ue);
+			ue.printStackTrace();
+
+		} catch (MessagingException me) {
+			log.warn("3rd MessagingException:" + me);
+			return "error";
+		}
+		return "send";
+	}
+	
 	private File getAttachedFile(String resourceId) throws PermissionException, IdUnusedException, TypeException, ServerOverloadException, IOException {
 		ContentResource cr = AssessmentService.getContentHostingService().getResource(resourceId);
 		log.debug("getAttachedFile(): resourceId = " + resourceId);
@@ -256,6 +365,8 @@ public class SamigoEmailService {
 		}
 		return file;
 	}
+	
+	
 	
 	private void deleteAttachedFile(String filename) {
 		log.debug("deleteAttachedFile(): filename = " + filename);

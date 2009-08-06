@@ -25,7 +25,6 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
@@ -44,12 +43,12 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
-import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
@@ -235,11 +234,15 @@ public class ConfirmPublishAssessmentListener
     // sortString can be of these value:title,releaseTo,dueDate,startDate
     // get the managed bean, author and reset the list.
     // Yes, we need to do that just in case the user change those delivery
-    // dates and turning an inactive pub to active pub
+    // dates and turning an inactive pub to active pub and then go back to assessment list page
     AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
 	ArrayList assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(author.getCoreAssessmentOrderBy(),author.isCoreAscending());
 	// get the managed bean, author and set the list
 	author.setAssessments(assessmentList);
+	
+	PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
+	publishRepublishNotification.setSendNotification(false);
+	publishRepublishNotification.setPrePopulateText(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","pre_populate_text_publish"));
 	assessmentSettings.setOutcomePublish("saveSettingsAndConfirmPublish"); // finally goto confirm
   }
 

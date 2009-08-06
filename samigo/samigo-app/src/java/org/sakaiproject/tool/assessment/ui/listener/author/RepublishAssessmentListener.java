@@ -1,6 +1,5 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -19,7 +18,6 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationM
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -30,6 +28,7 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
@@ -53,9 +52,11 @@ public class RepublishAssessmentListener implements ActionListener {
 		
 		// Go to database to get the newly updated data. The data inside beans might not be up to date.
 		PublishedAssessmentFacade assessment = publishedAssessmentService.getPublishedAssessment(publishedAssessmentId);
+
 		EventTrackingService.post(EventTrackingService.newEvent("sam.pubassessment.republish", "publishedAssessmentId=" + publishedAssessmentId, true));
 
 		assessment.setStatus(AssessmentBaseIfc.ACTIVE_STATUS);
+		
 		publishedAssessmentService.saveAssessment(assessment);
 		AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
 		
@@ -64,6 +65,18 @@ public class RepublishAssessmentListener implements ActionListener {
 			regradeRepublishedAssessment(publishedAssessmentService, assessment);
 		}
 		updateGB(assessment);
+		
+		PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
+		if (publishRepublishNotification.getSendNotification()) {
+			PublishedAssessmentSettingsBean publishedAssessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean("publishedSettings");
+			PublishAssessmentListener publishAssessmentListener = new PublishAssessmentListener();
+			publishAssessmentListener.sendNotification(assessment, publishedAssessmentService, publishRepublishNotification,
+					publishedAssessmentSettings.getReleaseTo(), publishedAssessmentSettings.getTitle(),
+					publishedAssessmentSettings.getStartDateString(), publishedAssessmentSettings.getDueDateString(), publishedAssessmentSettings.getRetractDateString(),
+					publishedAssessmentSettings.getTimedHours(), publishedAssessmentSettings.getTimedMinutes(), publishedAssessmentSettings.getUnlimitedSubmissions(),
+					publishedAssessmentSettings.getSubmissionsAllowed(), publishedAssessmentSettings.getFeedbackDelivery(), publishedAssessmentSettings.getFeedbackDateString());
+		}
+		
 		GradingService gradingService = new GradingService();
 		AssessmentService assessmentService = new AssessmentService();
 		AuthorActionListener authorActionListener = new AuthorActionListener();

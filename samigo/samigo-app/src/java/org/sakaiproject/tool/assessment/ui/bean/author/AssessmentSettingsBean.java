@@ -196,6 +196,8 @@ public class AssessmentSettingsBean
   
   private boolean isMarkForReview;
   
+  private String releaseToGroupsAsString;
+  
   /**
    *  we use the calendar widget which uses 'MM/dd/yyyy hh:mm:ss a'
    *  used to take the internal format from calendar picker and move it
@@ -1299,7 +1301,7 @@ public class AssessmentSettingsBean
       return false;
   }
 
-  // modified gopalrc - Nov 2007
+  //modified gopalrc - Nov 2007
   public SelectItem[] getPublishingTargets(){
     HashMap targets = ptHelper.getTargets();
     Set e = targets.keySet();
@@ -1322,6 +1324,7 @@ public class AssessmentSettingsBean
     }
     return target;
   }
+
 
   public void setTargetSelected(String[] targetSelected){
     this.targetSelected = targetSelected;
@@ -1622,7 +1625,7 @@ public class AssessmentSettingsBean
    * @return
    */
   public String[] getGroupsAuthorizedToSave() {
-	 return groupsAuthorized;
+	  return groupsAuthorized;
   }  
   
   public boolean getIsMarkForReview()
@@ -1634,5 +1637,12 @@ public class AssessmentSettingsBean
   {
 	  this.isMarkForReview = isMarkForReview;
   }
-
+  
+  public void setReleaseToGroupsAsString(String releaseToGroupsAsString){
+	  this.releaseToGroupsAsString = releaseToGroupsAsString;
+  }
+  
+  public String getReleaseToGroupsAsString() {
+	  return releaseToGroupsAsString;
+  }
 }

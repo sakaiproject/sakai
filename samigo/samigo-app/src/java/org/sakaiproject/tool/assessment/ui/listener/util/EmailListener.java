@@ -63,9 +63,6 @@ public class EmailListener implements ActionListener {
 		emailBean.setToName(toName);
 		emailBean.setToEmailAddress(toEmailAddress);
 			
-		// Cc
-		emailBean.setCcMe("no");
-			
 		// AssessmentName
 		emailBean.setAssessmentName(totalScoreBean.getAssessmentName());
 			

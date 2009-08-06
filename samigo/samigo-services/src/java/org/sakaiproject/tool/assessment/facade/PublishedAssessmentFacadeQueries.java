@@ -634,7 +634,12 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	public PublishedAssessmentFacade getPublishedAssessment(Long assessmentId) {
 		PublishedAssessmentData a = loadPublishedAssessment(assessmentId);
 		a.setSectionSet(getSectionSetForAssessment(a));
-		PublishedAssessmentFacade f = new PublishedAssessmentFacade(a);
+		ArrayList pubList = new ArrayList();
+		String lastModifiedBy = "";
+		AgentFacade agent = null;
+		TreeMap groupsForSite = getGroupsForSite();
+		String releaseToGroups = getReleaseToGroupsAsString(groupsForSite, assessmentId);
+		PublishedAssessmentFacade f = new PublishedAssessmentFacade(a, releaseToGroups);
 		return f;
 	}
 
@@ -2642,7 +2647,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	   * Returns all groups for site
 	   * @return
 	   */
-	  private TreeMap getGroupsForSite(){
+	  public TreeMap getGroupsForSite(){
 	      TreeMap sortedGroups = new TreeMap();
 		  Site site = null;
 		  try {

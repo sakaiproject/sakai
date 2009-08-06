@@ -10,12 +10,12 @@ import javax.faces.event.ActionListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
@@ -94,7 +94,17 @@ public class ConfirmRepublishAssessmentListener implements ActionListener {
 			assessmentBean.setHasGradingData(false);
 			assessmentBean.setHasSubmission(false);
 		}
+		
+		publishedAssessmentSettings.setReleaseToGroupsAsString(assessment.getReleaseToGroups());
 		publishedAssessmentSettings.setUpdateMostCurrentSubmission(false);
+		PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
+		publishRepublishNotification.setSendNotification(false);
+		if (author.getIsRepublishAndRegrade()) {
+			publishRepublishNotification.setPrePopulateText(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","pre_populate_text_regrade_republish"));
+		}
+		else {
+			publishRepublishNotification.setPrePopulateText(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","pre_populate_text_republish"));
+		}
 		author.setOutcome("saveSettingsAndConfirmPublish");
 	}
 }

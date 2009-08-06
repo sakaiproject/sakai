@@ -184,18 +184,17 @@ public class SaveAssessmentSettingsListener
     // Set the outcome once Save button is clicked
     AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
     assessmentSettings.setOutcomeSave(author.getFromPage());
-    
+
     s.save(assessmentSettings);
+
     // reset the core listing in case assessment title changes
     ArrayList assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(
-                      author.getCoreAssessmentOrderBy(),author.isCoreAscending());
+    		author.getCoreAssessmentOrderBy(),author.isCoreAscending());
     // get the managed bean, author and set the list
     author.setAssessments(assessmentList);
 
     // goto Question Authoring page
     EditAssessmentListener editA= new EditAssessmentListener();
     editA.setPropertiesForAssessment(author);
-
   }
-
 }

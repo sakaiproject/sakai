@@ -124,3 +124,13 @@ font-size:1.2em
 	font-weight: bold;
 }
 
+/* added gopalrc - Jan 2008  */
+.detailedStatsCorrectAnswerText {
+    font-weight: bold;
+}
+
+.prePopulateText 
+{
+	color:gray;
+}
+

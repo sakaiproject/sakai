@@ -197,6 +197,8 @@ public class PublishedAssessmentSettingsBean
   private List attachmentList;
   private boolean editPubAnonyGradingRestricted = false;
   
+  private String releaseToGroupsAsString;
+  
   /*
    * Creates a new AssessmentBean object.
    */
@@ -1496,13 +1498,21 @@ public class PublishedAssessmentSettingsBean
 		}
 		return list;
 	}
-	
+
 	public void setEditPubAnonyGradingRestricted(boolean editPubAnonyGradingRestricted) {
 		this.editPubAnonyGradingRestricted = editPubAnonyGradingRestricted;
 	}
 
 	public boolean getEditPubAnonyGradingRestricted(){
 	    return this.editPubAnonyGradingRestricted;
+	}
+
+	public void setReleaseToGroupsAsString(String releaseToGroupsAsString){
+		this.releaseToGroupsAsString = releaseToGroupsAsString;
+	}
+
+	public String getReleaseToGroupsAsString() {
+		return releaseToGroupsAsString;
 	}
 }
 

@@ -25,12 +25,14 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -293,6 +295,13 @@ public class SaveAssessmentSettings
     		for (int i=0; i<groupsAuthorized.length; i++){
     			authz.createAuthorization(groupsAuthorized[i], "TAKE_ASSESSMENT", assessmentId.toString());
     		}
+    		
+    		PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+    		TreeMap groupsForSite = publishedAssessmentService.getGroupsForSite();
+    		if (groupsForSite != null && groupsForSite.size() > 0) {
+    			String releaseToGroups = getReleaseToGroupsAsString(groupsForSite, groupsAuthorized);
+    			assessmentSettings.setReleaseToGroupsAsString(releaseToGroups);
+    		}
     	}
     }
     else { // releaseTo is not "Selected Groups" - clean up old/orphaned group permissions if necessary
@@ -319,6 +328,7 @@ public class SaveAssessmentSettings
     }
     
     assessment = assessmentService.getAssessment(assessmentId.toString());
+    
     return assessment;
   }
 
@@ -427,5 +437,29 @@ public class SaveAssessmentSettings
       map.put(a.getAttachmentId(), a);
     }
     return map;
+  }
+
+  private String getReleaseToGroupsAsString(TreeMap groupsForSiteMap, String [] groupsAuthorized) {
+	  List releaseToGroups = new ArrayList();
+	  for (int i = 0; i < groupsAuthorized.length; i++) {
+		  if (groupsForSiteMap.containsKey(groupsAuthorized[i])) {
+			  releaseToGroups.add(groupsForSiteMap.get(groupsAuthorized[i]));
+		  }
+	  }
+	  Collections.sort(releaseToGroups);
+	  String releaseToGroupsAsString = "";
+	  if (releaseToGroups != null && releaseToGroups.size()!=0 ) {
+		  String lastGroup = (String) releaseToGroups.get(releaseToGroups.size()-1);
+		  Iterator releaseToGroupsIter = releaseToGroups.iterator();
+		  while (releaseToGroupsIter.hasNext()) {
+			  String group = (String) releaseToGroupsIter.next();
+			  releaseToGroupsAsString += group;
+			  if (!group.equals(lastGroup) ) {
+				  releaseToGroupsAsString += ", ";
+			  }
+		  }
+	  }	
+
+	  return releaseToGroupsAsString;
   }
 }

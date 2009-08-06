@@ -200,6 +200,12 @@ public class PublishedAssessmentFacade
     this.publishedSectionSet = data.getSectionSet();
   }
   
+  public PublishedAssessmentFacade(PublishedAssessmentIfc data, String releaseToGroups) {
+	    setProperties(data);
+	    this.publishedSectionSet = data.getSectionSet();
+	    this.releaseToGroups = releaseToGroups;
+	  }
+  
   public PublishedAssessmentFacade(AssessmentIfc data) {
 	this((PublishedAssessmentIfc) data);
   }

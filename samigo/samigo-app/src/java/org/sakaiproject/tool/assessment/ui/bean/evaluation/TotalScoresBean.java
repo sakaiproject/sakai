@@ -83,8 +83,10 @@ public class TotalScoresBean
   public static final int CALLED_FROM_TOTAL_SCORE_LISTENER = 3;  
   public static final int CALLED_FROM_HISTOGRAM_LISTENER = 4;
   public static final int CALLED_FROM_HISTOGRAM_LISTENER_STUDENT = 5;
-    
-  /** Use serialVersionUID for interoperability. */
+  public static final int CALLED_FROM_EXPORT_LISTENER = 6;
+  public static final int CALLED_FROM_NOTIFICATION_LISTENER = 7;
+  
+    /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 5517587781720762296L;
   private String assessmentName;
   private String anonymous;
@@ -805,7 +807,8 @@ public class TotalScoresBean
     	    		&& "true".equalsIgnoreCase(anonymous))
     		|| (calledFrom==CALLED_FROM_HISTOGRAM_LISTENER 
     	    		&& "true".equalsIgnoreCase(anonymous)) 
-    ) {
+    		|| (calledFrom==CALLED_FROM_NOTIFICATION_LISTENER
+	    	    && "true".equalsIgnoreCase(anonymous))) {
         enrollments = getAvailableEnrollments(false);
     }
     // added by gopalrc - Jan 2008

@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
@@ -363,4 +364,6 @@ public interface PublishedAssessmentFacadeQueriesAPI
   public void removeSectionAttachment(Long sectionAttachmentId);
 
   public void saveOrUpdateAttachments(List list);
+  
+  public TreeMap getGroupsForSite();
 }
