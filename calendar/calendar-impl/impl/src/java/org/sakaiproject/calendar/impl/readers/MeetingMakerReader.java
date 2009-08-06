@@ -42,7 +42,7 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class MeetingMakerReader extends Reader
 {
-   private ResourceLoader rb = new ResourceLoader("calendarimpl");
+   private ResourceLoader rb = new ResourceLoader("calendar");
    
 	private static final String CONTACT_SECTION_HEADER = "Contacts";
 	private static final String TODO_SECTION_HEADER = "Todos";

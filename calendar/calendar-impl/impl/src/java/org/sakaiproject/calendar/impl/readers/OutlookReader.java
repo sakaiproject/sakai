@@ -43,7 +43,7 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class OutlookReader extends CSVReader
 {
-   private ResourceLoader rb = new ResourceLoader("calendarimpl");
+   private ResourceLoader rb = new ResourceLoader("calendar");
    
 	//
 	// Commented out lines are present in the import file, but we are

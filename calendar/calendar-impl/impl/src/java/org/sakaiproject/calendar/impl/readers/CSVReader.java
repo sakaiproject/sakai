@@ -43,7 +43,7 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class CSVReader extends Reader
 {
-   private ResourceLoader rb = new ResourceLoader("calendarimpl");
+   private ResourceLoader rb = new ResourceLoader("calendar");
    
 	private static final String COMMENT_LINE_PREFIX = "//";
 	/** 

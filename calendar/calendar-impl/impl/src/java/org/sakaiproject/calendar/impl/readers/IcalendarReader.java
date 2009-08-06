@@ -56,7 +56,7 @@ import net.fortuna.ical4j.model.Property;
  */
 public class IcalendarReader extends Reader
 {
-	private ResourceLoader rb = new ResourceLoader("calendarimpl");
+	private ResourceLoader rb = new ResourceLoader("calendar");
 	private static Log M_log = LogFactory.getLog(IcalendarReader.class);
 	
 	private static final String CONTACT_SECTION_HEADER = "Contacts";
