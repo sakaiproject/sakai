@@ -83,7 +83,7 @@ should be included in file importing DeliveryMessages
 <%-- <%@ include file="/jsf/delivery/item/audioObject.jsp" %> --%>
 <%-- <%@ include file="/jsf/delivery/item/audioApplet.jsp" %> --%>
 
-<h:outputLink title="#{assessmentSettingsMessages.record_your_answer}" value="#" onclick="javascript:window.open('../author/audioRecordingPopup.faces?questionId=#{question.itemData.itemId}&duration=#{question.duration}&triesAllowed=#{question.triesAllowed}&attemptsRemaining=#{question.attemptsRemaining}','AudioRecordingApplet','width=584,height=400,scrollbars=no, resizable=no');" >
+<h:outputLink title="#{assessmentSettingsMessages.record_your_answer}" value="#" rendered="#{delivery.actionString!='reviewAssessment'}"  onclick="javascript:window.open('../author/audioRecordingPopup.faces?questionId=#{question.itemData.itemId}&duration=#{question.duration}&triesAllowed=#{question.triesAllowed}&attemptsRemaining=#{question.attemptsRemaining}','AudioRecordingApplet','width=584,height=400,scrollbars=no, resizable=no');" >
 	<h:outputText value=" #{assessmentSettingsMessages.record_your_answer}"/>
 </h:outputLink>
 
