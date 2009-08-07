@@ -71,7 +71,11 @@ public interface ToolManager
 	 * A tool must have a keyword in the keywords criteria (unless it is empty or null) to be returned.
 	 * If both categories and keywords criteria are specified, the tool must meet both criteria to be returned.
 	 * If neither criteria are specified, all registered tools are returned.
-	 * @param categories A Set (String) of category values; if null or empty no category criteria is specified.
+	 * To retrieve only non-hidden tools (that is, tools which will be displayed as available
+	 * in normal site setup), specify an empty set of categories.
+	 * @param categories A Set (String) of category values, typically corresponding to site types;
+	 *                   if null or empty no category criteria is specified;
+	 *                   if an empty set, then only non-hidden tools are returned.
 	 * @param keywords A Set (String) of keyword values; if null or empty no keyword criteria is specified.
 	 * @return A Set (Tool) of Tool objects that meet the criteria, or an empty set if none found.
 	 */
