@@ -49,6 +49,8 @@ public class RenderBean
 	private boolean withBreadcrumbs = true;
 
 	private boolean canEdit = false;
+	
+	private boolean canRead = false;
 
 	private String previewContent = null;
 
@@ -74,6 +76,7 @@ public class RenderBean
 		this.objectService = objectService;
 		this.withBreadcrumbs = withBreadcrumbs;
 		this.canEdit = objectService.checkUpdate(rwo);
+		this.canRead = objectService.checkRead(rwo);
 	}
 
 	/**
@@ -103,6 +106,7 @@ public class RenderBean
 		{
 			this.rwo = objectService.getRWikiObject(pageName, pageRealm);
 			this.canEdit = objectService.checkUpdate(rwo);
+			this.canRead = objectService.checkRead(rwo);
 		}
 		catch (PermissionException e)
 		{
@@ -427,6 +431,23 @@ public class RenderBean
 	public void setCanEdit(boolean canEdit)
 	{
 		this.canEdit = canEdit;
+	}
+	
+	/**
+	 * @return Returns the canEdit.
+	 */
+	public boolean getCanRead()
+	{
+		return canRead;
+	}
+
+	/**
+	 * @param canEdit
+	 *        The canEdit to set.
+	 */
+	public void setCanRead(boolean canRead)
+	{
+		this.canRead = canRead;
 	}
 
 	public String getListCommentsURL()

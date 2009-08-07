@@ -272,8 +272,10 @@ ${util.formatDateTime($date,$request)}
 <a href="#" onclick="ajaxRefPopup(this,'${util.escapeHtml(${renderBean.newCommentURL})}',0); return false;" >Comment</a>
   #foreach( $comment in ${renderBean.comments} )
 		 <div class="rwikicommentbody_${comment.commentLevel}">
+		 
+		#if (${comment.canRead})
 		
-	    <div class="rwikicommentheader">
+	      <div class="rwikicommentheader">
 	    
 	        ${rlb.jsp_comment_by}: 
 	        #formatDisplayName(${comment.rwikiObject.user})
@@ -282,10 +284,17 @@ ${util.formatDateTime($date,$request)}
         		#if (${comment.canEdit})
         			<a href="#" onclick="ajaxRefPopup(this,'${util.escapeHtml(${comment.editCommentURL})}',0); return false;" >${rlb.jsp_edit}</a>
         		#end
-     </div>
+            </div>
 		   <div class="rwikicomenttext" >
 				  ${comment.renderedPage}<br/>	    
-	    </div>
+	       </div>
+	    
+	    #else
+	  	    <br>Read Permission Denied for this Comment!
+	  	    <br>
+	  	    <br>
+	    #end
+	    
 	 </div>
   #end
 </div> 
