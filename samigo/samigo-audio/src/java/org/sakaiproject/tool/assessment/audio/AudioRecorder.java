@@ -143,7 +143,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
 
 	Timer timer;
 
-	JButton playB, captB, saveButton;
+	JButton playB, captB, stopB, saveButton;
 
 	JTextField textField;
 	
@@ -184,6 +184,12 @@ public class AudioRecorder extends JPanel implements ActionListener,
 	ImageIcon stopIcon = null;
 	
 	Applet containingApplet = null;
+	
+	String lastButtonClicked = ""; // record or play
+	
+	final String RECORD = "record";
+	
+	final String PLAY = "play";
 
 	public AudioRecorder(AudioRecorderParams params) {
 		res = AudioUtil.getInstance().getResourceBundle();
@@ -277,9 +283,10 @@ public class AudioRecorder extends JPanel implements ActionListener,
 	}
 
 	private JPanel makeAudioButtonsPanel() {
-		JPanel buttonsPanel = new JPanel(new GridLayout(2,3));
+		JPanel buttonsPanel = new JPanel(new GridLayout(2,4));
 //		JPanel buttonsPanel = new JPanel(new SpringLayout());
 		// the two leftmost buttons are unlabled
+		buttonsPanel.add(new JLabel(""));
 		buttonsPanel.add(new JLabel(""));
 		buttonsPanel.add(new JLabel(""));
 		finishedLabel = new JLabel(res.getString("Finished"));
@@ -291,21 +298,24 @@ public class AudioRecorder extends JPanel implements ActionListener,
 				|| params.getAttemptsRemaining() == -1) {
 			captB = addButton(res.getString("Record"), buttonsPanel, true,
 					params.isEnableRecord());
-			if (recordIcon != null)
-				captB.setIcon(recordIcon);
 		} else {
 			captB = addButton(res.getString("Record"), buttonsPanel, false,
 					params.isEnableRecord());
-			if (recordIcon != null)
-				captB.setIcon(recordIcon);
 		}
+		if (recordIcon != null)
+			captB.setIcon(recordIcon);
+		
+		stopB = addButton(res.getString("Stop"), buttonsPanel, false, params.isEnableStop());
+		if (stopIcon != null)
+			stopB.setIcon(stopIcon);
+		
 		playB = addButton(res.getString("Play"), buttonsPanel, false, params
 				.isEnablePlay());
-		saveButton = addButton(res.getString("Save_and_close"), Font.BOLD, buttonsPanel, false, params.isEnableSave());
-
 		if (playIcon != null)
 			playB.setIcon(playIcon);
-//		SpringUtilities.makeCompactGrid(buttonsPanel, 2, 3, 5, 5, 5, 5);
+		
+		saveButton = addButton(res.getString("Save_and_close"), Font.BOLD, buttonsPanel, false, params.isEnableSave());
+		
 		return buttonsPanel;
 	}
 
@@ -373,14 +383,52 @@ public class AudioRecorder extends JPanel implements ActionListener,
 		statusLabel.setVisible(false);
 		statusLabel.setText("");
 		if (obj.equals(playB)) {
-			if (playB.getText().startsWith(res.getString("Play"))) {
-				playback.start();
-				samplingGraph.start();
+			// System.out.println("playB");
+			lastButtonClicked = PLAY;
+			playback.start();
+			samplingGraph.start();
+			captB.setEnabled(false);
+			stopB.setEnabled(true);
+			playB.setEnabled(false);
+		} else if (obj.equals(captB)) {
+			// System.out.println("captB");
+			lastButtonClicked = RECORD;
+			if (containingApplet != null) {
+				JSObject openingWindow = (JSObject)((JSObject)JSObject.getWindow(containingApplet).getMember("opener"));
+				openingWindow.call("disableSubmitForGrade", null);
+				openingWindow.call("disableSave", null);
+				// openingWindow.call("hide", new Object[]{"question" + params.getQuestionId()});
+			}
+			file = null;
+			capture.start();
+			fileName = res.getString("default_file_name");
+			samplingGraph.start();
+			audioMeter.start();
+			captB.setEnabled(false);
+			playB.setEnabled(false);
+			saveButton.setEnabled(false);
+			samplingPanelContainer.remove(samplingGraph);
+			samplingPanelContainer.add(audioMeter);
+			stopB.setEnabled(true);
+			startTimer();
+		}
+		else if (obj.equals(stopB)) {
+			// System.out.println("stopB");
+			if (RECORD.equals(lastButtonClicked)) {
+				// System.out.println("captB is enabled");
+				statusLabel.setText(res.getString("processing"));
+				statusLabel.setVisible(true);
+				playB.setEnabled(false);
 				captB.setEnabled(false);
-				playB.setText(" " + res.getString("playB_Text"));
-				if (stopIcon != null)
-					playB.setIcon(stopIcon);
-			} else {
+				saveButton.setEnabled(false);
+				stopB.setEnabled(false);
+				audioMeter.stop();
+				samplingPanelContainer.remove(audioMeter);
+				samplingPanelContainer.add(samplingGraph);
+				captureAudio();
+			}
+			else if (PLAY.equals(lastButtonClicked)) {
+				// System.out.println("playB is enabled");
 				playback.stop();
 				samplingGraph.stop();
 				if (params.getAttemptsAllowed() > 0) {
@@ -388,49 +436,9 @@ public class AudioRecorder extends JPanel implements ActionListener,
 						captB.setEnabled(false);
 					else
 						captB.setEnabled(true);
-					if (recordIcon != null)
-						captB.setIcon(recordIcon);
+					stopB.setEnabled(false);
+					playB.setEnabled(true);
 				}
-				playB.setText(res.getString("Play"));
-				if (playIcon != null)
-					playB.setIcon(playIcon);
-			}
-		} else if (obj.equals(captB)) {
-			if (captB.getText().startsWith(res.getString("Record"))) {
-				if (containingApplet != null) {
-					JSObject openingWindow = (JSObject)((JSObject)JSObject.getWindow(containingApplet).getMember("opener"));
-					openingWindow.call("disableSubmitForGrade", null);
-					openingWindow.call("disableSave", null);
-					// openingWindow.call("hide", new Object[]{"question" + params.getQuestionId()});
-				}
-				file = null;
-				capture.start();
-				fileName = res.getString("default_file_name");
-				samplingGraph.start();
-				audioMeter.start();
-				
-				playB.setEnabled(false);
-				saveButton.setEnabled(false);
-				samplingPanelContainer.remove(samplingGraph);
-				samplingPanelContainer.add(audioMeter);
-				if (playIcon != null)
-					playB.setIcon(playIcon);
-				captB.setText(" " + res.getString("playB_Text"));
-				if (stopIcon != null)
-					captB.setIcon(stopIcon);
-				startTimer();
-			} else {
-				statusLabel.setText(res.getString("processing"));
-				statusLabel.setVisible(true);
-				playB.setEnabled(false);
-				captB.setEnabled(false);
-				saveButton.setEnabled(false);
-				audioMeter.stop();
-				samplingPanelContainer.remove(audioMeter);
-				samplingPanelContainer.add(samplingGraph);
-				captureAudio();
-				if (recordIcon != null)
-					captB.setIcon(recordIcon);
 			}
 		} else if (obj.equals(saveButton)) {
 			saveButton.setEnabled(false);
@@ -640,11 +648,9 @@ public class AudioRecorder extends JPanel implements ActionListener,
 						captB.setEnabled(false);
 					else
 						captB.setEnabled(true);
-
 				}
-				playB.setText(res.getString("Play"));
-				if (playIcon != null)
-					playB.setIcon(playIcon);
+				playB.setEnabled(true);
+				stopB.setEnabled(false);
 			}
 		}
 
@@ -762,7 +768,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
 				samplingGraph.stop();
 				playB.setEnabled(true);
 				saveButton.setEnabled(true);
-				captB.setText(res.getString("Record"));
 				System.err.println(errStr);
 				samplingGraph.repaint();
 			}
@@ -1112,8 +1117,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
 		lines.removeAllElements();
 		capture.stop();
 		samplingGraph.stop();
-		// playB.setEnabled(true);
-		captB.setText(res.getString("Record"));
 		int retry = 1;
 		while (audioInputStream == null) {
 	    	try {
@@ -1172,11 +1175,11 @@ public class AudioRecorder extends JPanel implements ActionListener,
 			private static final long serialVersionUID = 0L;
 
 			public void actionPerformed(ActionEvent e) {
-				// reportStatus(res.getString("time_passed")+"\n" );
 				statusLabel.setText(res.getString("time_expired"));
 				statusLabel.setVisible(true);
-				playB.setEnabled(false);
 				captB.setEnabled(false);
+				stopB.setEnabled(false);
+				playB.setEnabled(false);
 				saveButton.setEnabled(false);
 				audioMeter.stop();
 				samplingPanelContainer.remove(audioMeter);

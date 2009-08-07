@@ -26,7 +26,7 @@
   codebase = "/samigo/applets/"
   code = "org.sakaiproject.tool.assessment.audio.AudioRecorderApplet.class"
   archive = "sakai-samigo-audio-1.3-dev.jar"
-  WIDTH = "438" HEIGHT = "400" ALIGN = "middle" VSPACE = "2" HSPACE = "2" >
+  WIDTH = "468" HEIGHT = "400" ALIGN = "middle" VSPACE = "2" HSPACE = "2" >
 </f:verbatim>
 
   <%@ include file="/jsf/delivery/item/audioSettings.jsp" %>

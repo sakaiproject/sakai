@@ -42,6 +42,7 @@ public class AudioRecorderParams implements Serializable
   private boolean enablePause = true;
   private boolean enableSave = true;
   private boolean enableLoad = false;
+  private boolean enableStop = true;
   private boolean saveAu = true;
   private boolean saveWave = true;
   private boolean saveAiff = true;
@@ -155,6 +156,16 @@ public class AudioRecorderParams implements Serializable
       enableLoad = false;
     }
 
+    s = applet.getParameter("enableStop");
+    if ("true".equalsIgnoreCase(s))
+    {
+    	enableStop = true;
+    }
+    else if ("false".equalsIgnoreCase(s))
+    {
+    	enableStop = false;
+    }
+    
     s = applet.getParameter("saveAu");
     if ("true".equalsIgnoreCase(s))
     {
@@ -428,6 +439,11 @@ public class AudioRecorderParams implements Serializable
 	  return enableSave;
   }
 
+  public boolean isEnableStop() 
+  {
+	  return enableStop;
+  }
+  
   public String getFileName()
   {
     return fileName;
@@ -593,6 +609,11 @@ public class AudioRecorderParams implements Serializable
     this.enableLoad = enableLoad;
   }
 
+  public void setEnableStop(boolean enableStop)
+  {
+    this.enableStop = enableStop;
+  }
+  
   public void setCompression(String compression)
   {
     this.compression = compression;

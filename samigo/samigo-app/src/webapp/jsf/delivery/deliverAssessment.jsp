@@ -101,7 +101,47 @@ function saveTime()
  }
 }
 
+function disableRationale(){
+	var textAreas = document.getElementsByTagName("textarea");
+	//alert(textAreas[0].id);
+	//alert(textAreas[0].id.endsWith('rationale'));
+	if (textAreas.length == 1 && textAreas[0].id.endsWith('rationale')) {
+		textAreas[0].disabled = true;
+	}
+}
+
+function enableRationale(){
+	var textAreas = document.getElementsByTagName("textarea");
+	//alert(textAreas[0].id);
+	//alert(textAreas[0].id.endsWith('rationale'));
+	if (textAreas.length == 1 && textAreas[0].id.endsWith('rationale')) {
+		textAreas[0].disabled = false;
+	}
+
+	/* Somehow the following for-loop becomes an infinite look of enableRationale(). No time to look into this now. Use above work around. 
+	   Should come back later to figure out the reason.
+	for(i=0; i < textAreas.length; i++){
+		alert(i);
+		if (textAreas[i].id.endsWith('rationale')) {
+        textAreas[i].disabled = false;
+		return;
+		}
+    }
+	*/
+}
+
+// modified from tompuleo.com
+String.prototype.endsWith = function(txt)
+{
+  var rgx;
+  rgx = new RegExp(txt+"$");
+
+  return this.match(rgx) != null; 
+}
+
 </script>
+
+
 <h:inputHidden id="partIndex" value="#{delivery.partIndex}"/>
 <h:inputHidden id="questionIndex" value="#{delivery.questionIndex}"/>
 <h:inputHidden id="formatByPart" value="#{delivery.settings.formatByPart}"/>

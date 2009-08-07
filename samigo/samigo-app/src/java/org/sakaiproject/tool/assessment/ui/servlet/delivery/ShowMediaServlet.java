@@ -72,6 +72,9 @@ private static Log log = LogFactory.getLog(ShowMediaServlet.class);
   {
     // get media
     String mediaId = req.getParameter("mediaId");
+    if (mediaId == null || mediaId.equals("")) {
+    	return;
+    }
     GradingService gradingService = new GradingService();
     MediaData mediaData = gradingService.getMedia(mediaId);
     String mediaLocation = mediaData.getLocation();
