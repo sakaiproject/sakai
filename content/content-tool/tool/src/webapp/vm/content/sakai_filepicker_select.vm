@@ -356,7 +356,7 @@ $(document).ready(function() {
 							<td colspan="8">
 								<div class="navPanel">
 								<div class="listNav">
-									<div class="instruction" style="margin-bottom:.3em;">Viewing $topMsgPos - $btmMsgPos of $allMsgNumber items</div>
+									<div class="instruction" style="margin-bottom:.3em;">$tlang.getString("viewing") $topMsgPos - $btmMsgPos $tlang.getString("of") $allMsgNumber $tlang.getString("items")</div>
 									#if ("$pagesize" != "0")
 										#if ($goPPButton == "true")
 											<input type="button" name="List_first" value="|&lt;" title="First" onclick="javascript: document.getElementById('sakai_action').value='doList_first';document.getElementById('attachForm').submit();" />

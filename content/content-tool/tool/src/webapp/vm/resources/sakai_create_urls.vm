@@ -13,7 +13,7 @@
 	<div class="breadCrumb">
 		<h4>
 		$tlang.getString("gen.location")
-		##<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="folder" />
+		##<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="$tlang.getString("gen.folder")" />
 		#foreach ($folder in $model.collectionPath)
 			$folder.name /
 		#end

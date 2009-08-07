@@ -14,13 +14,13 @@
 			<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString('gen.folder')" />
 			#foreach ($id in $collectionPath)
 				#if ($dropboxMode && $id==$homeCollection)
-					$siteTitle Drop Box /
+					$siteTitle $tlang.getString("gen.dropbox") /
 				#else
 					$validator.escapeHtml($service.getProperties($id).getPropertyFormatted($resourceProperties.NamePropDisplayName)) /
 				#end
 			#end
 			#if ($dropboxMode && $collectionId==$homeCollection)
-				$siteTitle Drop Box
+				$siteTitle $tlang.getString("gen.dropbox")
 			#else
 				$validator.escapeHtml($service.getProperties($collectionId).getPropertyFormatted($resourceProperties.NamePropDisplayName))
 			#end

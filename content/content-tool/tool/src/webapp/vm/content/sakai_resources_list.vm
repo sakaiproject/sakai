@@ -141,13 +141,13 @@ $(document).ready(function() {
 				#if($showHotDropboxWidget)
 					<div class="listNav">
 						<span class="instruction">
-							Highlight individual dropboxes with recent changes:
+ 							$clang.getString("dropbox_highlight")
 						</span>	
 						<select name="dropboxHighlight" id="dropboxHighlight" onchange="javascript:document.getElementById('sakai_action').value='doSetHotDropbox';document.getElementById('showForm').submit();">
-							<option value="1"#if("$!dropboxHighlight" == "1") selected="selected"#end>1 day</option>
-							<option value="2"#if("$!dropboxHighlight" == "2") selected="selected"#end>2 days</option>
-							<option value="3"#if("$!dropboxHighlight" == "3") selected="selected"#end>3 days</option>
-							<option value="7"#if("$!dropboxHighlight" == "7") selected="selected"#end>1 week</option>
+ 							<option value="1"#if("$!dropboxHighlight" == "1") selected="selected"#end>$clang.getString("sh.1day")</option>
+ 							<option value="2"#if("$!dropboxHighlight" == "2") selected="selected"#end>$clang.getString("sh.2day")</option>
+ 							<option value="3"#if("$!dropboxHighlight" == "3") selected="selected"#end>$clang.getString("sh.3day")</option>
+ 							<option value="7"#if("$!dropboxHighlight" == "7") selected="selected"#end>$clang.getString("sh.1week")</option>
 						</select>
 					</div>
 				#end
@@ -274,7 +274,7 @@ $(document).ready(function() {
 							<input type="checkbox" name="selectedMembers" id="list$num" 
 									#if($selectedItems.contains("$item.id"))checked="checked"#end
 									onclick="#foreach($key in $item.multipleItemActions.keySet())adjustCount(this, '$key');#end"
-									value="$item.id" /><label for="list$num" class="skip">Select</label>
+ 									value="$item.id" /><label for="list$num" class="skip">$clang.getString("att.select")</label>
 							#foreach($key in $item.multipleItemActions.keySet())$counter.increment("$key") $counter.increment("selectall")#if($selectedItems.contains($item.id))$counter.increment("${key}selected")#end#end
 						#end
 					</td>
@@ -310,7 +310,7 @@ $(document).ready(function() {
 									</a>
 								#end
 								#if($item.isLocked())
-									<img src = "#imageLink("sakai/lock.gif")" border="0"  alt="locked" />
+ 									<img src = "#imageLink("sakai/lock.gif")" border="0"  alt="$tlang.getString('locked')" />
 								#end
 								#if ($item.hasCopyrightAlert())
 									## if there is a copyright alert, show the alert page first
@@ -334,7 +334,7 @@ $(document).ready(function() {
 							#else
 								 <img src="#imageLink($item.iconLocation)" border="0" alt ="$item.hoverText" hspace="0" />
 								#if($item.isLocked())
-									<img src = "#imageLink("sakai/lock.gif")" border="0"  alt="locked" />
+ 									<img src = "#imageLink("sakai/lock.gif")" border="0"  alt="$tlang.getString('locked')" />
 								#end
 								$validator.escapeHtml($item.name)
 								#if ($item.hasCopyrightAlert())
@@ -467,15 +467,15 @@ $(document).ready(function() {
 							<td colspan="10">
 								<div class="navPanel">
 								<div class="listNav">
-									<div class="instruction" style="margin-bottom:.3em;">Viewing $topMsgPos - $btmMsgPos of $allMsgNumber items</div>
+ 									<div class="instruction" style="margin-bottom:.3em;">$tlang.getString("viewing") $topMsgPos - $btmMsgPos $tlang.getString("of") $allMsgNumber $tlang.getString("items")</div>
 									#if ("$pagesize" != "0")
 										#if ($goPPButton == "true")
-											<input type="button" name="List_first" value="|&lt;" title="First" onclick="javascript: document.getElementById('sakai_action').value='doList_first';document.getElementById('showForm').submit();" />
+ 											<input type="button" name="List_first" id="List_first" value="|&lt;" title="$tlang.getString("gen.first")" onclick="javascript: document.getElementById('sakai_action').value='doList_first';document.getElementById('showForm').submit();" />
 										#else
 											<input type="button" name="List_first" value="|&lt;" disabled="disabled" />
 										#end
 										#if ($goPPButton == "true")
-											<input type="button" name="List_prev" value="&lt;" title="Previous $pagesize" onclick="javascript: document.getElementById('sakai_action').value='doList_prev';document.getElementById('showForm').submit();" />
+ 											<input type="button" name="List_prev" id="List_prev" value="&lt;" title="$tlang.getString("gen.previous") $pagesize" onclick="javascript: document.getElementById('sakai_action').value='doList_prev';document.getElementById('showForm').submit();" />
 										#else
 											<input type="button" name="List_prev" value="&lt;" disabled="disabled" />
 										#end
@@ -491,12 +491,12 @@ $(document).ready(function() {
 									</select>
 									#if ("$pagesize" != "0")
 										#if ($goNPButton == "true")
-											<input type="button" name="List_next" value="&gt;" title="Next $pagesize" onclick="javascript: document.getElementById('sakai_action').value='doList_next';document.getElementById('showForm').submit();" />
+ 											<input type="button" name="List_next" id="List_next" value="&gt;" title="$tlang.getString("gen.previous") $pagesize" onclick="javascript: document.getElementById('sakai_action').value='doList_next';document.getElementById('showForm').submit();" />
 										#else
 											<input type="button" name="List_next" value="&gt;" disabled="disabled" />
 										#end
 										#if ($goNPButton == "true")
-											<input type="button" name="List_last" value="&gt;|" title="Last" onclick="javascript: document.getElementById('sakai_action').value='doList_last';document.getElementById('showForm').submit();" />
+ 											<input type="button" name="List_last" id="List_last" value="&gt;|" title="$tlang.getString("gen.last")" onclick="javascript: document.getElementById('sakai_action').value='doList_last';document.getElementById('showForm').submit();" />
 										#else
 											<input type="button" name="List_last" value="&gt;|" disabled="disabled" />
 										#end
@@ -536,7 +536,7 @@ $(document).ready(function() {
 									<input type="checkbox" name="selectedMembers" id="list$num" 
 											#if($selectedItems.contains("$item.id"))checked="checked"#end
 											onclick="#foreach($key in $item.multipleItemActions.keySet())adjustCount(this, '$key');#end"
-											value="$item.id" /><label for="list$num" class="skip">Select</label>
+ 											value="$item.id" /><label for="list$num" class="skip">$tlang.getString("att.select")</label>
 									#foreach($key in $item.multipleItemActions.keySet())$counter.increment("$key") $counter.increment("selectall")#if($selectedItems.contains($item.id))$counter.increment("${key}selected")#end#end
 								#end
 							</td>
@@ -572,7 +572,7 @@ $(document).ready(function() {
 											</a>
 										#end
 										#if($item.isLocked())
-											<img src = "#imageLink("sakai/lock.gif")" border="0"  alt="locked" />
+ 											<img src = "#imageLink("sakai/lock.gif")" border="0"  alt="$tlang.getString('locked')" />
 										#end
 										#if ($item.hasCopyrightAlert())
 											## if there is a copyright alert, show the alert page first
@@ -596,7 +596,7 @@ $(document).ready(function() {
 									#else
 										 <img src="#imageLink($item.iconLocation)" border="0" alt ="$item.hoverText" hspace="0" />
 										#if($item.isLocked())
-											<img src = "#imageLink("sakai/lock.gif")" border="0"  alt="locked" />
+ 											<img src = "#imageLink("sakai/lock.gif")" border="0"  alt="$tlang.getString('locked')" />
 										#end
 										$validator.escapeHtml($item.name)
 										#if ($item.hasCopyrightAlert())
@@ -666,7 +666,7 @@ $(document).ready(function() {
 													</li>
 												#end
 										<li style="height:1px;width:1px;display:inline;">
-													<a href="#" onfocus="document.getElementById('menu-$actionCount2').style.display='none';document.getElementById('last-$actionCount2').focus()" style="height:1px;margin:0;padding:0" title="Actions menu end" class="skip">tlang.getString("button.endact")</a>
+ 													<a href="#" onfocus="document.getElementById('menu-$actionCount2').style.display='none';document.getElementById('last-$actionCount2').focus()" style="height:1px;margin:0;padding:0" title="$tlang.getString("list.ame")" class="skip">$tlang.getString("button.endact")</a>
 												</li>
 											</ul>
 								  	</li>

@@ -450,6 +450,9 @@ public class ResourcesAction
     private static ResourceLoader rb = new ResourceLoader("content");
 	/** Resource bundle using current language locale */
     public static ResourceLoader trb = new ResourceLoader("types");
+    /** Resource bundle using current language locale */
+    private static ResourceLoader rrb = new ResourceLoader("right");
+	
 	static final Log logger = LogFactory.getLog(ResourcesAction.class);
 
 	public static final String PREFIX = "resources.";
@@ -1106,45 +1109,27 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		if(usingCreativeCommons)
 		{
 			
-			String ccOwnershipLabel = "Who created this resource?";
-			List ccOwnershipList = new ArrayList();
-			ccOwnershipList.add("-- Select --");
-			ccOwnershipList.add("I created this resource");
-			ccOwnershipList.add("Someone else created this resource");
+			String ccOwnershipLabel = rrb.getString("creative.ownershipLabel");
+			List ccOwnershipList = new ArrayList(Arrays.asList(rrb.getStrings("creative.ownership")));
+						
+			String ccMyGrantLabel = rrb.getString("creative.myGrantLabel");
+			List ccMyGrantOptions = new ArrayList(Arrays.asList(rrb.getStrings("creative.myGrant")));
 			
-			String ccMyGrantLabel = "Terms of use";
-			List ccMyGrantOptions = new ArrayList();
-			ccMyGrantOptions.add("-- Select --");
-			ccMyGrantOptions.add("Use my copyright");
-			ccMyGrantOptions.add("Use Creative Commons License");
-			ccMyGrantOptions.add("Use Public Domain Dedication");
+			String ccCommercialLabel = rrb.getString("creative.commercialLabel");
+			List ccCommercialList = new ArrayList(Arrays.asList(rrb.getStrings("creative.commercial")));
 			
-			String ccCommercialLabel = "Allow commercial use?";
-			List ccCommercialList = new ArrayList();
-			ccCommercialList.add("Yes");
-			ccCommercialList.add("No");
+			String ccModificationLabel = rrb.getString("creative.modificationLabel");
+			List ccModificationList = new ArrayList(Arrays.asList(rrb.getStrings("creative.modification")));
 			
-			String ccModificationLabel = "Allow Modifications?";
-			List ccModificationList = new ArrayList();
-			ccModificationList.add("Yes");
-			ccModificationList.add("Yes, share alike");
-			ccModificationList.add("No");
+			String ccOtherGrantLabel = rrb.getString("creative.otherGrantLabel");
+			List ccOtherGrantList = new ArrayList(Arrays.asList(rrb.getStrings("creative.otherGrant")));
 			
-			String ccOtherGrantLabel = "Terms of use";
-			List ccOtherGrantList = new ArrayList();
-			ccOtherGrantList.add("Subject to fair-use exception");
-			ccOtherGrantList.add("Public domain (created before copyright law applied)");
-			ccOtherGrantList.add("Public domain (copyright has expired)");
-			ccOtherGrantList.add("Public domain (government document not subject to copyright)");
+			String ccRightsYear = rrb.getString("creative.rightsYear");
+			String ccRightsOwner = rrb.getString("creative.rightsOwner");
 			
-			String ccRightsYear = "Year";
-			String ccRightsOwner = "Copyright owner";
-			
-			String ccAcknowledgeLabel = "Require users to acknowledge author's rights before access?";
-			List ccAcknowledgeList = new ArrayList();
-			ccAcknowledgeList.add("Yes");
-			ccAcknowledgeList.add("No");
-			
+			String ccAcknowledgeLabel = rrb.getString("creative.acknowledgeLabel");
+			List ccAcknowledgeList = new ArrayList(Arrays.asList(rrb.getStrings("creative.acknowledge")));
+						
 			String ccInfoUrl = "";
 			
 			int year = TimeService.newTime().breakdownLocal().getYear();
@@ -1172,22 +1157,14 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		else
 		{
 			//copyright
-			if (state.getAttribute(STATE_COPYRIGHT_FAIRUSE_URL) != null)
-			{
-				context.put("fairuseurl", state.getAttribute(STATE_COPYRIGHT_FAIRUSE_URL));
-			}
-			if (state.getAttribute(STATE_NEW_COPYRIGHT_INPUT) != null)
-			{
-				context.put("newcopyrightinput", state.getAttribute(STATE_NEW_COPYRIGHT_INPUT));
-			}
-	
-			if (state.getAttribute(STATE_COPYRIGHT_TYPES) != null)
-			{
-				List copyrightTypes = (List) state.getAttribute(STATE_COPYRIGHT_TYPES);
-				context.put("copyrightTypes", copyrightTypes);
-				context.put("copyrightTypesSize", new Integer(copyrightTypes.size() - 1));
-				context.put("USE_THIS_COPYRIGHT", copyrightTypes.get(copyrightTypes.size() - 1));
-			}
+			context.put("fairuseurl", rrb.getString("fairuse.url"));
+			
+			context.put("newcopyrightinput", rrb.getString("newcopyrightinput"));
+			
+			List copyrightTypes = new ArrayList(Arrays.asList(rrb.getStrings("copyrighttype")));
+			context.put("copyrightTypes", copyrightTypes);
+			context.put("copyrightTypesSize", rrb.getString("copyrighttype.count"));
+			context.put("USE_THIS_COPYRIGHT", copyrightTypes.get(copyrightTypes.size() - 1));
 		}
 		
 	}	// copyrightChoicesIntoContext
@@ -5156,7 +5133,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			context.put("showMountPointProperty", Boolean.TRUE.toString());
 		}
-
+		
 		return TEMPLATE_REVISE_METADATA;
 	}
 
@@ -7805,54 +7782,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			else
 			{
 				state.setAttribute(STATE_USING_CREATIVE_COMMONS, Boolean.FALSE.toString());
-			}
-		}
-
-		if (state.getAttribute(STATE_COPYRIGHT_TYPES) == null)
-		{
-			if (ServerConfigurationService.getStrings("copyrighttype") != null)
-			{
-				state.setAttribute(STATE_COPYRIGHT_TYPES, new ArrayList(Arrays.asList(ServerConfigurationService.getStrings("copyrighttype"))));
-			}
-		}
-
-		if (state.getAttribute(STATE_DEFAULT_COPYRIGHT) == null)
-		{
-			if (ServerConfigurationService.getString("default.copyright") != null)
-			{
-				state.setAttribute(STATE_DEFAULT_COPYRIGHT, ServerConfigurationService.getString("default.copyright"));
-			}
-		}
-
-		if (state.getAttribute(STATE_DEFAULT_COPYRIGHT_ALERT) == null)
-		{
-			if (ServerConfigurationService.getString("default.copyright.alert") != null)
-			{
-				state.setAttribute(STATE_DEFAULT_COPYRIGHT_ALERT, ServerConfigurationService.getString("default.copyright.alert"));
-			}
-		}
-
-		if (state.getAttribute(STATE_NEW_COPYRIGHT_INPUT) == null)
-		{
-			if (ServerConfigurationService.getString("newcopyrightinput") != null)
-			{
-				state.setAttribute(STATE_NEW_COPYRIGHT_INPUT, ServerConfigurationService.getString("newcopyrightinput"));
-			}
-		}
-
-		if (state.getAttribute(STATE_COPYRIGHT_FAIRUSE_URL) == null)
-		{
-			if (ServerConfigurationService.getString("fairuse.url") != null)
-			{
-				state.setAttribute(STATE_COPYRIGHT_FAIRUSE_URL, ServerConfigurationService.getString("fairuse.url"));
-			}
-		}
-
-		if (state.getAttribute(STATE_COPYRIGHT_NEW_COPYRIGHT) == null)
-		{
-			if (ServerConfigurationService.getString("copyrighttype.new") != null)
-			{
-				state.setAttribute(STATE_COPYRIGHT_NEW_COPYRIGHT, ServerConfigurationService.getString("copyrighttype.new"));
 			}
 		}
 

@@ -30,7 +30,7 @@
 						#if ($service.allowGetCollection($id))
 							<a href="#toolLinkParam("ResourcesAction" "doNavigate" "cutFlag=$cutFlag&collectionId=$validator.escapeUrl($id)")" title ="$tlang.getString('sh.go') '$validator.escapeHtml($service.getProperties($id).getPropertyFormatted($resourceProperties.NamePropDisplayName))' $tlang.getString('gen.folder')">
 								#if ($dropboxMode && $id==$homeCollection)
-									$siteTitle Drop Box
+									$siteTitle $tlang.getString("gen.dropbox")
 								#else
 									$validator.escapeHtml($service.getProperties($id).getPropertyFormatted($resourceProperties.NamePropDisplayName))
 								#end
@@ -40,7 +40,7 @@
 						#end
 					#end
 					#if ($dropboxMode && $collectionId==$homeCollection)
-						$siteTitle Drop Box
+						$siteTitle $tlang.getString("gen.dropbox")
 					#else
 						 $validator.escapeHtml($service.getProperties($collectionId).getPropertyFormatted($resourceProperties.NamePropDisplayName))
 					#end

@@ -9,7 +9,7 @@
 	var inputfield_id = "chef_calendarhiddenfield"+calendarcounter;
 
 	// The image button that the user clicks on to pop up the calendar 
-	document.write('<img src="/library/calendar/images/calendar/cal.gif" onClick="popupCalendar(\''+inputfield_id+'\');" alt="" style="cursor: pointer;" title="Popup date selector" />');
+	document.write('<img src="/library/calendar/images/calendar/cal.gif" onClick="popupCalendar(\''+inputfield_id+'\');" alt="" style="cursor: pointer;" title="$tlang.getString("calendar.title")" />');
 
 	// A hidden input field where the selected date value will be stored. 
 	document.write('<input type="hidden" name="'+inputfield_id+'" id="'+inputfield_id+'" />');
@@ -211,7 +211,7 @@
 				<caption class="skip" style="display:none">$tlang.getString("edit.access4")</caption>
 				<tr>
 					<th id="selected${DOT}$i" style="width:2em;padding-left:.4em">
-						<input type="checkbox" id="selectall${DOT}$i" title="toggle select all" />
+ 						<input type="checkbox" id="selectall${DOT}$i" name="selectall${DOT}$i" title="$tlang.getString("group.select.title")" />
 					</th>
 					<th id="groupname${DOT}$i">
 						$tlang.getString("edit.group1")
@@ -457,7 +457,7 @@
 							$model.mimetype
 							<input type="hidden" name="mime_category${DOT}$i" id="mime_category${DOT}$i" value="$model.mimeCategory" />  
 							<input type="hidden" name="mime_subtype${DOT}$i" id="mime_subtype${DOT}$i" value="$model.mimeSubtype" />
-							<input type="button" name="changeMimetype${DOT}$i" id="changeMimetype${DOT}$i" value="Change File Type" />
+							<input type="button" name="changeMimetype${DOT}$i" id="changeMimetype${DOT}$i" value="$tlang.getString("change.filetype")" />
 						</span>
 					</td>
 				</tr>
