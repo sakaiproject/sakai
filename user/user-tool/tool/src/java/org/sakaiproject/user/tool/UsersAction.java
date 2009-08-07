@@ -740,6 +740,11 @@ public class UsersAction extends PagedResourceActionII
 		state.removeAttribute("user");
 		state.removeAttribute("newuser");
 		state.removeAttribute("new");
+                state.removeAttribute("valueEid");
+                state.removeAttribute("valueFirstName");
+                state.removeAttribute("valueLastName");
+                state.removeAttribute("valueEmail");
+                state.removeAttribute("valueType");
 
 		// go to main mode
 		state.removeAttribute("mode");
