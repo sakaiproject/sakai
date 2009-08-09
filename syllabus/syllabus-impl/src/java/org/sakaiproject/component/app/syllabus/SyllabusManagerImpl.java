@@ -445,7 +445,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
       attach.setName(name);
 
       ContentResource cr = contentHostingService.getResource(attachId);
-      attach.setSize((new Integer(cr.getContentLength())).toString());
+      attach.setSize((Long.valueOf(cr.getContentLength())).toString());
       User creator = UserDirectoryService.getUser(cr.getProperties().getProperty(cr.getProperties().getNamePropCreator()));
       attach.setCreatedBy(creator.getDisplayName());
       User modifier = UserDirectoryService.getUser(cr.getProperties().getProperty(cr.getProperties().getNamePropModifiedBy()));
