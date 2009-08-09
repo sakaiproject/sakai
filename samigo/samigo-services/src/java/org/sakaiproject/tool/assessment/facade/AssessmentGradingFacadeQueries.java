@@ -2508,7 +2508,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 				attach.setFilename(filename);
 				attach.setMimeType(cr.getContentType());
 				// we want to display kb, so divide by 1000 and round the result
-				attach.setFileSize(new Long(assessmentFacadeQueries.fileSizeInKB(cr.getContentLength())));
+				attach.setFileSize(assessmentFacadeQueries.fileSizeInKB(cr.getContentLength()));
 				if (cr.getContentType().lastIndexOf("url") > -1) {
 					isLink = Boolean.TRUE;
 					if (!filename.toLowerCase().startsWith("http")) {

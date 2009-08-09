@@ -1437,13 +1437,8 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 
 	}
 
-	public String fileSizeInKB(int fileSize) {
-		String fileSizeString = "1";
-		int size = Math.round((float)fileSize / 1024.0f);
-		if (size > 0) {
-			fileSizeString = size + "";
-		}
-		return fileSizeString;
+	public long fileSizeInKB(long fileSize) {
+		return fileSize / 1024;
 	}
 
 	public String getRelativePath(String url, String protocol) {
@@ -1533,8 +1528,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 				attach.setResourceId(resourceId);
 				attach.setMimeType(cr.getContentType());
 				// we want to display kb, so divide by 1000 and round the result
-				attach.setFileSize(new Long(""
-						+ fileSizeInKB(cr.getContentLength())));
+				attach.setFileSize(fileSizeInKB(cr.getContentLength()));
 				if (cr.getContentType().lastIndexOf("url") > -1) {
 					isLink = Boolean.TRUE;
 					if (!filename.toLowerCase().startsWith("http")) {
@@ -1579,9 +1573,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 				attach.setResourceId(resourceId);
 				attach.setMimeType(cr.getContentType());
 				// we want to display kb, so divide by 1000 and round the result
-				attach
-						.setFileSize(new Long(fileSizeInKB(cr
-								.getContentLength())));
+				attach.setFileSize(fileSizeInKB(cr.getContentLength()));
 				if (cr.getContentType().lastIndexOf("url") > -1) {
 					isLink = Boolean.TRUE;
 					if (!filename.toLowerCase().startsWith("http")) {
@@ -1653,9 +1645,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 				attach.setFilename(filename);
 				attach.setMimeType(cr.getContentType());
 				// we want to display kb, so divide by 1000 and round the result
-				attach
-						.setFileSize(new Long(fileSizeInKB(cr
-								.getContentLength())));
+				attach.setFileSize(fileSizeInKB(cr.getContentLength()));
 				if (cr.getContentType().lastIndexOf("url") > -1) {
 					isLink = Boolean.TRUE;
 					if (!filename.toLowerCase().startsWith("http")) {
@@ -1726,9 +1716,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 				attach.setMimeType(cr.getContentType());
 				// we want to display kb, so divide by 1000 and round
 				// the result
-				attach
-						.setFileSize(new Long(fileSizeInKB(cr
-								.getContentLength())));
+				attach.setFileSize(fileSizeInKB(cr.getContentLength()));
 				if (cr.getContentType().lastIndexOf("url") > -1) {
 					isLink = Boolean.TRUE;
 					if (!filename.toLowerCase().startsWith("http")) {

@@ -2716,7 +2716,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				attach.setFilename(filename);
 				attach.setMimeType(cr.getContentType());
 				// we want to display kb, so divide by 1000 and round the result
-				attach.setFileSize(new Long(fileSizeInKB(cr.getContentLength())));
+				attach.setFileSize(fileSizeInKB(cr.getContentLength()));
 				if (cr.getContentType().lastIndexOf("url") > -1) {
 					isLink = Boolean.TRUE;
 					if (!filename.toLowerCase().startsWith("http")) {
@@ -2748,13 +2748,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		return attach;
 	}
 	
-	private String fileSizeInKB(int fileSize) {
-		String fileSizeString = "1";
-		int size = Math.round((float)fileSize / 1024.0f);
-		if (size > 0) {
-			fileSizeString = size + "";
-		}
-		return fileSizeString;
+	private long fileSizeInKB(long fileSize) {
+		return fileSize / 1024;
 	}
 	
 	public void removeAssessmentAttachment(Long assessmentAttachmentId) {
@@ -2797,9 +2792,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				attach.setResourceId(resourceId);
 				attach.setMimeType(cr.getContentType());
 				// we want to display kb, so divide by 1000 and round the result
-				attach
-						.setFileSize(new Long(fileSizeInKB(cr
-								.getContentLength())));
+				attach.setFileSize(fileSizeInKB(cr.getContentLength()));
 				if (cr.getContentType().lastIndexOf("url") > -1) {
 					isLink = Boolean.TRUE;
 					if (!filename.toLowerCase().startsWith("http")) {
