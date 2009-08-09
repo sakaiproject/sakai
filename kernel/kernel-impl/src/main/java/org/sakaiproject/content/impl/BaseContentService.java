@@ -7887,19 +7887,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	protected String archiveResource(ContentResource resource, Document doc, Stack stack, String storagePath,
 			String siteCollectionId)
 	{
-		byte[] content = null;
-		try
-		{
-			// TODO use stream instead of byte array
-			// get the content bytes
-			content = resource.getContent();
-		}
-		catch (ServerOverloadException e)
-		{
-			M_log.warn("archiveResource(): while reading body for: " + resource.getId() + " : " + e);
-			// return "failed to archive resource: " + resource.getId() + " body temporarily unavailable due to server error\n"
-		}
-
 		// form the xml
 		Element el = resource.toXml(doc, stack);
 
@@ -7908,17 +7895,48 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 		// write the content to a file
 		String fileName = IdManager.createUuid();
-		Blob b = new Blob();
-		b.append(content);
+		InputStream stream = null;
+		FileOutputStream out = null;
 		try
 		{
-			FileOutputStream out = new FileOutputStream(storagePath + fileName);
-			b.write(out);
-			out.close();
+			stream = resource.streamContent();
+			out = new FileOutputStream(storagePath + fileName);
+			byte[] chunk = new byte[STREAM_BUFFER_SIZE];
+			int lenRead;
+			while ((lenRead = stream.read(chunk)) != -1)
+			{
+				out.write(chunk, 0, lenRead);
+			}
 		}
 		catch (Exception e)
 		{
 			M_log.warn("archiveResource(): while writing body for: " + resource.getId() + " : " + e);
+		}
+		finally
+		{
+			if (stream != null)
+			{
+				try
+				{
+					stream.close();
+				}
+				catch (IOException e)
+				{
+					M_log.warn("IOException ", e);
+				}
+			}
+
+			if (out != null)
+			{
+				try
+				{
+					out.close();
+				}
+				catch (IOException e)
+				{
+					M_log.warn("IOException ", e);
+				}
+			}
 		}
 
 		// store the file name in the xml
