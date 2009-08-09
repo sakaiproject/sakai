@@ -4439,16 +4439,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		String id = edit.getId();
 		String content_type = edit.getContentType();
 		byte[] content = null;
-		try
-		{
-			content = edit.getContent();
-		}
-		catch (ServerOverloadException e)
-		{
-			String this_method = this + ".addResourceToDeleteTable()";
-			M_log.warn("\n\n" + this_method + "\n" + this_method + ": Unable to access file in server filesystem\n" + this_method
-					+ ": May be orphaned file: " + id + "\n" + this_method + "\n\n");
-		}
+
+		// KNL-245 do not read the resource body, as this is not subsequently written out
+		
 		ResourceProperties properties = edit.getProperties();
 
 		ContentResource newResource = addDeleteResource(id, content_type, content, properties, uuid, userId,
