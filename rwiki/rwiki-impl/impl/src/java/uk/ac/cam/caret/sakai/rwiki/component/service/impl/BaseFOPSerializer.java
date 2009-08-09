@@ -169,13 +169,6 @@ public class BaseFOPSerializer extends ToXMLSAXHandler implements ContentHandler
 											+ "\nContent-length: "
 											+ resource.getContentLength()
 											+ "\n\n";
-									byte[] output = new byte[headers.length()
-											+ resource.getContentLength()];
-									System.arraycopy(headers.getBytes(), 0,
-											output, 0, headers.length());
-									System.arraycopy(resource.getContent(), 0,
-											output, headers.length(), resource
-													.getContentLength());
 									return new StreamSource(resource
 											.streamContent());
 								}
