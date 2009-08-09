@@ -323,19 +323,20 @@ public class DbContentService extends BaseContentService
 	public void init()
 	{
 
+		if (m_sqlService == null) {
+			M_log.error("init(): no sqlService found");
+			return;
+		}
+		
 		try
 		{
 			// system property to manually set conversion completion status.
 			filesizeColumnReady = m_serverConfigurationService.getBoolean("content.filesizeColumnReady", false);				
 
-			if ( m_sqlService != null ) {
-				setContentServiceSql(m_sqlService.getVendor());
+			setContentServiceSql(m_sqlService.getVendor());
 				
-				filesizeColumnExists = filesizeColumnExists();
-			}
-			
 			// if we are auto-creating our schema, check and create
-			if ( m_sqlService != null && m_autoDdl)
+			if (m_autoDdl)
 			{
 				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_content");
 
@@ -344,56 +345,59 @@ public class DbContentService extends BaseContentService
 
 				// do the 2.1.0 conversions
 				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_content_2_1_0");
-
-				if(!filesizeColumnExists)
+			} 
+			
+			// Check for the existence of the FILE_SIZE column
+			filesizeColumnExists = filesizeColumnExists();
+				
+			if (!filesizeColumnExists)
+			{
+				addNewColumns();
+				filesizeColumnExists = filesizeColumnExists();
+			}
+			
+			if (filesizeColumnExists && !readyToUseFilesizeColumn())
+			{
+				// if the convert flag is set to add CONTEXT and FILE_SIZE columns
+				// start doing the conversion
+				if (convertToContextQueryForCollectionSize)
 				{
-					addNewColumns();
-					filesizeColumnExists = filesizeColumnExists();
-				}
-				if(filesizeColumnExists && ! readyToUseFilesizeColumn())
-				{
-					// if the convert flag is set to add CONTEXT and FILE_SIZE columns
-					// start doing the conversion
-					if(convertToContextQueryForCollectionSize)
-					{
-						populateNewColumns();
-					}
+					populateNewColumns();
 				}
 			}
-			if ( m_sqlService != null ) {
-				try
-				{
-					validateUTF8Db();
-				}
-				catch (Exception ex)
-				{
-					M_log.fatal("Check on Database Failed ", ex);
-					M_log
-							.fatal("===========================================================");
-					M_log
-							.fatal("WARNING \n"
-									+ "  The connection from this instance of Sakai to the database\n"
-									+ "  has been tested and found to corrupt UTF-8 Data. \n"
-									+ "  In order for Sakai to operate correctly you must ensure that your \n"
-									+ "  database setup is correct for UTF-8 data. This includes both the \n"
-									+ "  JDBC connection to the database and the underlying storage in the \n"
-									+ "  database.\n"
-									+ "  The test that was performed on your database create a table\n"
-									+ "  wrote some data to that table and read it back again. On reading \n"
-									+ "  that data back it found some form of corruption, reported above.\n"
-									+ "\n"
-									+ " More information on database setup for sakai can be found at \n"
-									+ " http://bugs.sakaiproject.org/confluence/display/DOC/Install+Guide+-+DB+(2.4) \n"
-									+ "\n"
-									+ " Sakai Startup will continue but you might want to address this issue ASAP.\n");
-				}
-				if ( migrateData ) {
-					M_log.info("Migration of data to the Binary format will be performed by this node ");
-				} else {
-					M_log.info("Migration of data to the Binary format will NOT be performed by this node ");
-					
-				}
-				filesizeColumnExists = filesizeColumnExists();
+
+			try
+			{
+				validateUTF8Db();
+			}
+			catch (Exception ex)
+			{
+				M_log.fatal("Check on Database Failed ", ex);
+				M_log
+						.fatal("===========================================================");
+				M_log
+						.fatal("WARNING \n"
+								+ "  The connection from this instance of Sakai to the database\n"
+								+ "  has been tested and found to corrupt UTF-8 Data. \n"
+								+ "  In order for Sakai to operate correctly you must ensure that your \n"
+								+ "  database setup is correct for UTF-8 data. This includes both the \n"
+								+ "  JDBC connection to the database and the underlying storage in the \n"
+								+ "  database.\n"
+								+ "  The test that was performed on your database create a table\n"
+								+ "  wrote some data to that table and read it back again. On reading \n"
+								+ "  that data back it found some form of corruption, reported above.\n"
+								+ "\n"
+								+ " More information on database setup for sakai can be found at \n"
+								+ " http://bugs.sakaiproject.org/confluence/display/DOC/Install+Guide+-+DB+(2.4) \n"
+								+ "\n"
+								+ " Sakai Startup will continue but you might want to address this issue ASAP.\n");
+			}
+			
+			if ( migrateData ) {
+				M_log.info("Migration of data to the Binary format will be performed by this node ");
+			} else {
+				M_log.info("Migration of data to the Binary format will NOT be performed by this node ");
+				
 			}
 
 			// If CHH resolvers are turned off in sakai.properties, unset the resolver property.
@@ -404,19 +408,16 @@ public class DbContentService extends BaseContentService
 
 			super.init();
 
-			// convert?
-			if ( m_sqlService != null ) {
-				if (m_convertToFile)
-				{
-					m_convertToFile = false;
-					convertToFile();
-				}
-	
-				M_log.info("init(): tables: " + m_collectionTableName + " " + m_resourceTableName + " " + m_resourceBodyTableName + " "
-						+ m_groupTableName + " locks-in-db: " + m_locksInDb + " bodyPath: " + m_bodyPath + " storage: " + m_storage);
+			// convert to filesystem storage?
+			if (m_convertToFile)
+			{
+				m_convertToFile = false;
+				convertToFile();
 			}
-			
-			
+
+			M_log.info("init(): tables: " + m_collectionTableName + " " + m_resourceTableName + " " + m_resourceBodyTableName + " "
+					+ m_groupTableName + " locks-in-db: " + m_locksInDb + " bodyPath: " + m_bodyPath + " storage: " + m_storage);
+					
 		}
 		catch (Throwable t)
 		{
@@ -571,7 +572,7 @@ public class DbContentService extends BaseContentService
 			String sql = contentServiceSql.getFilesizeColumnExistsSql();
 			List list = m_sqlService.dbRead(sql);
 			ok = list != null && ! list.isEmpty();
-		}
+		}		
 		return ok;
 	}
 	
