@@ -54,6 +54,8 @@ public class RenderBeanTest extends TestCase
 
 		mockObjectService.checkUpdate(mockObject);
 		objectServiceControl.setReturnValue(false);
+		mockObjectService.checkRead(mockObject);
+		objectServiceControl.setReturnValue(false);
 		objectServiceControl.replay();
 
 		rb = new RenderBean(mockObject, mockToolRenderService,
