@@ -434,7 +434,7 @@ public class RenderBean
 	}
 	
 	/**
-	 * @return Returns the canEdit.
+	 * @return Returns the canRead.
 	 */
 	public boolean getCanRead()
 	{
@@ -442,8 +442,8 @@ public class RenderBean
 	}
 
 	/**
-	 * @param canEdit
-	 *        The canEdit to set.
+	 * @param canRead
+	 *        The canRead to set.
 	 */
 	public void setCanRead(boolean canRead)
 	{
