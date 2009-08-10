@@ -37,7 +37,6 @@ public interface AssessmentGradingIfc
     // Because of SAK-16456, we no longer need to show the auto/human graded status per submission, I don't think we 
 	// need to distinguish status 2 and 3 anymore. But I just leave them here...
 	public static final Integer SUBMITTED = Integer.valueOf(1);
-	
 	public static final Integer AUTO_GRADED = Integer.valueOf(2);
 
 	public static final Integer NEED_HUMAN_ATTENTION = Integer.valueOf(3);

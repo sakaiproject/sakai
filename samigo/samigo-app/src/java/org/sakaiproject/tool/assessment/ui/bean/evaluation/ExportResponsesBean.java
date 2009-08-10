@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
@@ -40,23 +41,19 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.sakaiproject.jsf.model.PhaseAware;
-import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterXls;
-import org.sakaiproject.jsf.spreadsheet.SpreadsheetUtil;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-
-// below added for extended spreadsheet support - gopalrc
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFFont;
 
 
 /**
@@ -177,20 +174,26 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
     }
 	
     private List<List<Object>> getSpreadsheetData() {
+    	TotalScoresBean totalScores = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
+    	Map useridMap = totalScores.getUserIdMap(TotalScoresBean.CALLED_FROM_EXPORT_LISTENER);
+    	
         // gopalrc Dec 2007
         HistogramListener histogramListener = new HistogramListener();
   	  	Iterator detailedStats = histogramListener.getDetailedStatisticsSpreadsheetData(assessmentId).iterator(); 
-  	  	boolean showPartAndTotalScoreSpreadsheetColumns = (Boolean) detailedStats.next();
+  	  	//boolean showPartAndTotalScoreSpreadsheetColumns = (Boolean) detailedStats.next();
+  	  	detailedStats.next();
+  	  	boolean showPartAndTotalScoreSpreadsheetColumns = true;
   	  	//boolean showDiscriminationColumn = (Boolean) detailedStats.next();
   		boolean showDetailedStatisticsSheet = (Boolean) detailedStats.next();
   	  	
   	  	String audioMessage = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","audio_message");
     	String fileUploadMessage = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","file_upload_message");
+    	String noSubmissionMessage = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","export_no_submission");
         GradingService gradingService = new GradingService();
         String questionString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","question");
         String textString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","text");
         String rationaleString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","rationale");
-        List exportResponsesDataList = gradingService.getExportResponsesData(assessmentId, anonymous, audioMessage, fileUploadMessage, showPartAndTotalScoreSpreadsheetColumns, questionString, textString, rationaleString);
+        List exportResponsesDataList = gradingService.getExportResponsesData(assessmentId, anonymous, audioMessage, fileUploadMessage, noSubmissionMessage, showPartAndTotalScoreSpreadsheetColumns, questionString, textString, rationaleString, useridMap);
         List<List<Object>> list = (List<List<Object>>) exportResponsesDataList.get(0);
 
         // Now insert the header line

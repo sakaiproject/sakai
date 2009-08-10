@@ -700,7 +700,7 @@ return;
     <h:column rendered="#{totalScores.sortType!='totalAutoScore'}">
       <f:facet name="header">
         <h:commandLink title="#{evaluationMessages.t_sortScore}" id="totalAutoScore" action="totalScores">
-          <h:outputText value="#{evaluationMessages.tot}" />
+          <h:outputText value="#{evaluationMessages.score}" />
           <f:param name="sortBy" value="totalAutoScore" />
           <f:param name="sortAscending" value="true"/>
           <f:actionListener
@@ -713,7 +713,7 @@ return;
     <h:column rendered="#{totalScores.sortType=='totalAutoScore' && totalScores.sortAscending}">
       <f:facet name="header">
         <h:commandLink title="#{evaluationMessages.t_sortScore}" action="totalScores">
-          <h:outputText value="#{evaluationMessages.tot}" />
+          <h:outputText value="#{evaluationMessages.score}" />
           <f:param name="sortAscending" value="false" />
           <h:graphicImage alt="#{evaluationMessages.alt_sortAdjustScoreDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif"/>
           <f:actionListener
@@ -726,7 +726,7 @@ return;
     <h:column rendered="#{totalScores.sortType=='totalAutoScore'  && !totalScores.sortAscending}">
       <f:facet name="header">
       <h:commandLink title="#{evaluationMessages.t_sortScore}" action="totalScores">
-        <h:outputText value="#{evaluationMessages.tot}" />
+        <h:outputText value="#{evaluationMessages.score}" />
         <f:param name="sortAscending" value="true"/>
         <h:graphicImage alt="#{evaluationMessages.alt_sortAdjustScoreAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif"/>
         <f:actionListener
@@ -740,7 +740,7 @@ return;
     <h:column rendered="#{totalScores.sortType!='totalOverrideScore'}">
       <f:facet name="header">
         <h:commandLink title="#{evaluationMessages.t_sortAdjustScore}" id="totalOverrideScore" action="totalScores">
-    	    <h:outputText value="#{evaluationMessages.adj}" />
+    	    <h:outputText value="#{evaluationMessages.adjustment}" />
         	<f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
 	        <f:param name="sortBy" value="totalOverrideScore" />
@@ -757,7 +757,7 @@ return;
     <h:column rendered="#{totalScores.sortType=='totalOverrideScore' && totalScores.sortAscending}">
       <f:facet name="header">
         <h:commandLink title="#{evaluationMessages.t_sortAdjustScore}" action="totalScores">
-          <h:outputText value="#{evaluationMessages.adj}" />
+          <h:outputText value="#{evaluationMessages.adjustment}" />
           <f:param name="sortAscending" value="false" />
           <h:graphicImage alt="#{evaluationMessages.alt_sortScoreDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif"/>
           <f:actionListener
@@ -773,7 +773,7 @@ return;
     <h:column rendered="#{totalScores.sortType=='totalOverrideScore'  && !totalScores.sortAscending}">
       <f:facet name="header">
       <h:commandLink title="#{evaluationMessages.t_sortAdjustScore}" action="totalScores">
-        <h:outputText value="#{evaluationMessages.adj}" />
+        <h:outputText value="#{evaluationMessages.adjustment}" />
         <f:param name="sortAscending" value="true"/>
         <h:graphicImage alt="#{evaluationMessages.alt_sortScoreAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif"/>
         <f:actionListener
@@ -791,7 +791,7 @@ return;
     <h:column rendered="#{totalScores.sortType!='finalScore'}">
      <f:facet name="header">
       <h:commandLink title="#{evaluationMessages.t_sortFinalScore}" id="finalScore" action="totalScores" >
-        <h:outputText value="#{evaluationMessages.final}" />
+        <h:outputText value="#{evaluationMessages.tot}" />
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
         <f:param name="sortBy" value="finalScore" />
@@ -804,7 +804,7 @@ return;
     <h:column rendered="#{totalScores.sortType=='finalScore' && totalScores.sortAscending}">
       <f:facet name="header">
         <h:commandLink title="#{evaluationMessages.t_sortFinalScore}" action="totalScores">
-          <h:outputText value="#{evaluationMessages.final}" />
+          <h:outputText value="#{evaluationMessages.tot}" />
           <f:param name="sortAscending" value="false" />
           <h:graphicImage alt="#{evaluationMessages.alt_sortFinalScoreDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif"/>
           <f:actionListener
@@ -817,7 +817,7 @@ return;
     <h:column rendered="#{totalScores.sortType=='finalScore'  && !totalScores.sortAscending}">
       <f:facet name="header">
       <h:commandLink title="#{evaluationMessages.t_sortFinalScore}" action="totalScores">
-        <h:outputText value="#{evaluationMessages.final}" />
+        <h:outputText value="#{evaluationMessages.tot}" />
         <f:param name="sortAscending" value="true"/>
         <h:graphicImage alt="#{evaluationMessages.alt_sortFinalScoreAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif"/>
         <f:actionListener

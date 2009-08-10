@@ -808,7 +808,9 @@ public class TotalScoresBean
     		|| (calledFrom==CALLED_FROM_HISTOGRAM_LISTENER 
     	    		&& "true".equalsIgnoreCase(anonymous)) 
     		|| (calledFrom==CALLED_FROM_NOTIFICATION_LISTENER
-	    	    && "true".equalsIgnoreCase(anonymous))) {
+	    	    && "true".equalsIgnoreCase(anonymous))
+    	    || (calledFrom==CALLED_FROM_EXPORT_LISTENER
+    	    	    && "true".equalsIgnoreCase(anonymous))) {
         enrollments = getAvailableEnrollments(false);
     }
     // added by gopalrc - Jan 2008

@@ -27,10 +27,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-//import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
-//import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
@@ -204,11 +203,11 @@ public interface AssessmentGradingFacadeQueriesAPI
 
   public int getLateSubmissionsNumberByAgentId(Long publishedAssessmentId, String agentIdString, Date dueDate);
   
-  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String questionString, String textString, String rationaleString);
+  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String questionString, String textString, String rationaleString, Map useridMap);
+  
+  public boolean getHasGradingData(Long publishedAssessmentId);
 
   public void removeUnsubmittedAssessmentGradingData(AssessmentGradingIfc data);
-
-  public boolean getHasGradingData(Long publishedAssessmentId);
     
   public ArrayList getHasGradingDataAndHasSubmission(Long publishedAssessmentId);
   

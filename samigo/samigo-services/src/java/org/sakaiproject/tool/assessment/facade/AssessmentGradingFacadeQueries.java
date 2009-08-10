@@ -1765,10 +1765,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       final HibernateCallback hcb = new HibernateCallback(){
       	public Object doInHibernate(Session session) throws HibernateException, SQLException {
       		Query q = session.createQuery("from AssessmentGradingData a " +
-      				"where a.publishedAssessmentId=? and a.forGrade=? " +
+      				"where a.publishedAssessmentId=? and (a.forGrade=? or (a.forGrade=? and a.status=? and a.finalScore <> 0)) " +
 			        "order by a.agentId ASC, a.submittedDate");
       		q.setLong(0, Long.parseLong(publishedId));
       		q.setBoolean(1, true);
+      		q.setBoolean(2, false);
+    		q.setInteger(3, AssessmentGradingIfc.NO_SUBMISSION.intValue());
       		return q.list();
       	};
       };
@@ -1776,7 +1778,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
   
   
-  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String questionString, String textString, String rationaleString) {
+  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String questionString, String textString, String rationaleString, Map useridMap) {
 	  ArrayList dataList = new ArrayList();
 	  ArrayList headerList = new ArrayList();
 	  ArrayList finalList = new ArrayList(2);
@@ -1789,12 +1791,19 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	  HashMap publishedAnswerHash = pubService.preparePublishedAnswerHash(pubService.getPublishedAssessment(publishedAssessmentId));
 	  HashMap publishedItemTextHash = pubService.preparePublishedItemTextHash(pubService.getPublishedAssessment(publishedAssessmentId));
 	  HashMap publishedItemHash = pubService.preparePublishedItemHash(pubService.getPublishedAssessment(publishedAssessmentId));
-	  
+	 
+	  int numSubmission = 1;
+	  String numSubmissionText = noSubmissionMessage;
+	  String lastAgentId = "";
+	  String agentEid = "";
+	  String firstName = "";
+	  String lastName = "";
+	  Set useridSet = new HashSet(useridMap.keySet());
+	  ArrayList responseList = null;
+	  boolean canBeExported = false;
+	  boolean fistItemGradingData = true;
 	  List list = getAllOrderedSubmissions(publishedAssessmentId);
 	  Iterator assessmentGradingIter = list.iterator();	  
-	  int numSubmission = 1;
-	  String lastAgentId = "";
-	  boolean fistItemGradingData = true;
 	  while(assessmentGradingIter.hasNext()) {
 		  
 		  // gopalrc Nov 2007
@@ -1816,233 +1825,269 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 			  sectionScores.put(publishedSection.getSequence(), zeroFloat);
 		  }
 		  
-		  
-		  ArrayList responseList = new ArrayList();
 		  AssessmentGradingData assessmentGradingData = (AssessmentGradingData) assessmentGradingIter.next();
 		  String agentId = assessmentGradingData.getAgentId();
+		  responseList = new ArrayList();
+		  canBeExported = false;
 		  if (anonymous) {
+			  canBeExported = true;
 			  responseList.add(assessmentGradingData.getAssessmentGradingId());
 		  }
 		  else {
-			  String agentEid = "";
-			  String firstName = "";
-			  String lastName = "";
+			  if (useridMap.containsKey(assessmentGradingData.getAgentId())) {
+				  useridSet.remove(assessmentGradingData.getAgentId());
+				  canBeExported = true;
+				  try {
+					  agentEid = UserDirectoryService.getUser(assessmentGradingData.getAgentId()).getEid();
+					  firstName = UserDirectoryService.getUser(assessmentGradingData.getAgentId()).getFirstName();
+					  lastName = UserDirectoryService.getUser(assessmentGradingData.getAgentId()).getLastName();
+				  } catch (Exception e) {
+					  log.error("Cannot get user");
+				  }
+				  responseList.add(lastName);
+				  responseList.add(firstName);
+				  responseList.add(agentEid);
+				  if (assessmentGradingData.getForGrade()) {
+					  if (lastAgentId.equals(agentId)) {
+						  numSubmission++;
+					  }
+					  else {
+						  numSubmission = 1;
+						  lastAgentId = agentId;
+					  }
+				  }
+				  else {
+					  numSubmission = 0;
+					  lastAgentId = agentId;
+				  }
+				  if (numSubmission == 0) {
+					  numSubmissionText = noSubmissionMessage;
+				  }
+				  else {
+					  numSubmissionText = String.valueOf(numSubmission);
+				  }
+				  responseList.add(numSubmissionText);
+			  }
+		  }
+
+		  if (canBeExported) {
+			  //gopalrc - Dec 2007
+			  int sectionScoreColumnStart = responseList.size();
+			  if (showPartAndTotalScoreSpreadsheetColumns) {
+				  Float finalScore = assessmentGradingData.getFinalScore();
+				  responseList.add((Double)finalScore.doubleValue()); // gopal - cast for spreadsheet numerics
+			  }
+
+			  Long assessmentGradingId = assessmentGradingData.getAssessmentGradingId();
+
+			  HashMap studentGradingMap = getStudentGradingData(assessmentGradingData.getAssessmentGradingId().toString());
+			  ArrayList grades = new ArrayList();
+			  grades.addAll(studentGradingMap.values());
+
+			  Collections.sort(grades, new QuestionComparator(publishedItemHash));
+
+			  int questionNumber = 0;
+			  for (Object oo: grades) {	   
+				  questionNumber++;
+				  // There can be more than one answer to a question, e.g. for
+				  // FIB with more than one blank or matching questions. So sort
+				  // by sequence number of answer. (don't bother to sort if just 1)
+
+				  List l = (List)oo;
+				  if (l.size() > 1)
+					  Collections.sort(l, new AnswerComparator(publishedAnswerHash));
+
+				  String maintext = "";
+				  String rationale = "";
+				  boolean addRationale = false;
+
+				  // loop over answers per question
+				  int count = 0;
+				  ItemGradingIfc grade = null;
+				  //boolean isAudioFileUpload = false;
+				  boolean isFinFib = false;
+
+				  // gopalrc - Dec 2007
+				  float itemScore = 0.0f;
+
+				  for (Object ooo: l) {
+					  grade = (ItemGradingIfc)ooo;
+					  if (grade == null) {
+						  continue;
+					  }
+					  // gopalrc - Dec 2007
+					  if (grade!=null && grade.getAutoScore()!=null) {
+						  itemScore += grade.getAutoScore().floatValue();
+					  }
+
+					  // now print answer data
+					  log.debug("<br> "+ grade.getPublishedItemId() + " " + grade.getRationale() + " " + grade.getAnswerText() + " " + grade.getComments() + " " + grade.getReview());
+					  Long publishedItemId = grade.getPublishedItemId();	    		   
+					  ItemDataIfc publishedItemData = (ItemDataIfc) publishedItemHash.get(publishedItemId);
+					  Long typeId = publishedItemData.getTypeId();
+					  if (typeId.equals(TypeIfc.FILL_IN_BLANK) || typeId.equals(TypeIfc.FILL_IN_NUMERIC)) {
+						  log.debug("FILL_IN_BLANK, FILL_IN_NUMERIC");
+						  isFinFib = true;
+						  String thistext = "";
+
+						  Long answerid = grade.getPublishedAnswerId();
+						  Long sequence = null;
+						  if (answerid != null) {
+							  AnswerIfc answer  = (AnswerIfc)publishedAnswerHash.get(answerid);
+							  sequence = answer.getSequence();
+						  }
+
+						  String temptext = grade.getAnswerText();
+						  if (temptext == null) {
+							  temptext = "No Answer";
+						  }
+						  thistext = sequence + ": " + temptext;
+
+						  if (count == 0)
+							  maintext = thistext;
+						  else
+							  maintext = maintext + "|" + thistext;
+
+						  count++;
+					  }
+					  else if (typeId.equals(TypeIfc.MATCHING)) {
+						  log.debug("MATCHING");
+						  String thistext = "";
+
+						  // for some question types we have another text field
+						  Long answerid = grade.getPublishedAnswerId();
+						  String temptext = "No Answer";
+						  Long sequence = null;
+						  if (answerid != null) {
+							  AnswerIfc answer  = (AnswerIfc)publishedAnswerHash.get(answerid);
+							  temptext = answer.getText();
+							  if (temptext == null) {
+								  temptext = "No Answer";
+							  }
+							  sequence = answer.getItemText().getSequence();
+						  }
+						  else {
+							  ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(grade.getPublishedItemTextId());
+							  sequence = itemTextIfc.getSequence();
+						  }
+						  thistext = sequence + ": " + temptext;
+
+						  if (count == 0)
+							  maintext = thistext;
+						  else
+							  maintext = maintext + "|" + thistext;
+
+						  count++;
+					  }
+					  else if (typeId.equals(TypeIfc.AUDIO_RECORDING)) {
+						  log.debug("AUDIO_RECORDING");
+						  maintext = audioMessage;
+						  //isAudioFileUpload = true;    			  
+					  }
+					  else if (typeId.equals(TypeIfc.FILE_UPLOAD)) {
+						  log.debug("FILE_UPLOAD");
+						  maintext = fileUploadMessage;
+						  //isAudioFileUpload = true;
+					  }
+					  else {
+						  log.debug("other type");
+						  String thistext = "";
+
+						  // for some question types we have another text field
+						  Long answerid = grade.getPublishedAnswerId();
+						  if (answerid != null) {
+							  AnswerIfc answer  = (AnswerIfc)publishedAnswerHash.get(answerid);
+							  String temptext = answer.getText();
+							  if (temptext != null)
+								  thistext = temptext;
+						  }
+
+						  String temp2text = grade.getAnswerText();
+						  if (temp2text != null)
+							  thistext = temp2text;
+
+						  if (count == 0)
+							  maintext = thistext;
+						  else
+							  maintext = maintext + "|" + thistext;
+
+						  count++;
+					  }
+
+					  // taking care of rationale
+					  if (!addRationale && (typeId.equals(TypeIfc.MULTIPLE_CHOICE) || typeId.equals(TypeIfc.MULTIPLE_CORRECT) || typeId.equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION) || typeId.equals(TypeIfc.TRUE_FALSE))) {
+						  log.debug("MULTIPLE_CHOICE or MULTIPLE_CORRECT or MULTIPLE_CORRECT_SINGLE_SELECTION or TRUE_FALSE");
+						  if (publishedItemData.getHasRationale()) {
+							  addRationale = true;
+							  rationale = grade.getRationale();
+							  if (rationale == null) {
+								  rationale = "";
+							  }
+						  }
+					  }
+				  } // inner for - answers
+
+				  updateSectionScore(sectionItems, sectionScores, grade.getPublishedItemId(), itemScore);
+
+				  if (isFinFib && maintext.indexOf("No Answer") >= 0 && count == 1) {
+					  maintext = "No Answer";
+				  }
+				  else if ("".equals(maintext)) {
+					  maintext = "No Answer";
+				  }
+
+				  responseList.add(maintext);
+				  if (addRationale) {
+					  responseList.add(rationale);
+				  }
+
+				  // Only set header based on the first item grading data
+				  if (fistItemGradingData) {
+					  headerList.add(makeHeader(questionString, textString, questionNumber));
+					  if (addRationale) {
+						  headerList.add(makeHeader(questionString, rationaleString, questionNumber));
+					  }
+				  }	    		   
+			  } // outer for - questions
+
+			  // gopalrc - Dec 2007
+			  if (showPartAndTotalScoreSpreadsheetColumns) {
+				  if (sectionScores.size() > 1) {
+					  Iterator keys = sectionScores.keySet().iterator();
+					  while (keys.hasNext()) {
+						  Double partScore = (Double) ((Float) sectionScores.get(keys.next())).doubleValue() ;
+						  responseList.add(sectionScoreColumnStart++, partScore);
+					  }
+				  }
+			  }
+
+			  dataList.add(responseList);
+
+			  if (fistItemGradingData) {
+				  fistItemGradingData = false;
+			  }
+		  }
+	  } // while
+
+	  if (!anonymous && useridSet.size() != 0) {
+		  Iterator iter = useridSet.iterator();
+		  while (iter.hasNext()) {
+			  String id = (String) iter.next();
 			  try {
-				  agentEid = UserDirectoryService.getUser(assessmentGradingData.getAgentId()).getEid();
-				  firstName = UserDirectoryService.getUser(assessmentGradingData.getAgentId()).getFirstName();
-				  lastName = UserDirectoryService.getUser(assessmentGradingData.getAgentId()).getLastName();
+				  agentEid = UserDirectoryService.getUser(id).getEid();
+				  firstName = UserDirectoryService.getUser(id).getFirstName();
+				  lastName = UserDirectoryService.getUser(id).getLastName();
 			  } catch (Exception e) {
 				  log.error("Cannot get user");
 			  }
+			  responseList = new ArrayList();
 			  responseList.add(lastName);
 			  responseList.add(firstName);
 			  responseList.add(agentEid);
-			  if (lastAgentId.equals(agentId)) {
-				  numSubmission++;
-			  }
-			  else {
-				  numSubmission = 1;
-				  lastAgentId = agentId;
-			  }
-			  responseList.add(Double.parseDouble(""+numSubmission));
+			  responseList.add(noSubmissionMessage);
+			  dataList.add(responseList);
 		  }
-
-		  //gopalrc - Dec 2007
-		  int sectionScoreColumnStart = responseList.size();
-          if (showPartAndTotalScoreSpreadsheetColumns) {
-			  Float finalScore = assessmentGradingData.getFinalScore();
-			  responseList.add((Double)finalScore.doubleValue()); // gopal - cast for spreadsheet numerics
-          }
-          
-		  Long assessmentGradingId = assessmentGradingData.getAssessmentGradingId();
-
-		  HashMap studentGradingMap = getStudentGradingData(assessmentGradingData.getAssessmentGradingId().toString());
-		  ArrayList grades = new ArrayList();
-          grades.addAll(studentGradingMap.values());
-          
-	      Collections.sort(grades, new QuestionComparator(publishedItemHash));
-
-   	   	  int questionNumber = 0;
-	      for (Object oo: grades) {	   
-	    	   questionNumber++;
-	    	   // There can be more than one answer to a question, e.g. for
-	    	   // FIB with more than one blank or matching questions. So sort
-	    	   // by sequence number of answer. (don't bother to sort if just 1)
-
-	    	   List l = (List)oo;
-	    	   if (l.size() > 1)
-	    		   Collections.sort(l, new AnswerComparator(publishedAnswerHash));
-
-	    	   String maintext = "";
-	    	   String rationale = "";
-	    	   boolean addRationale = false;
-	    	   
-	    	   // loop over answers per question
-	    	   int count = 0;
-	    	   ItemGradingIfc grade = null;
-	    	   //boolean isAudioFileUpload = false;
-	    	   boolean isFinFib = false;
-	    	   
-	    	   // gopalrc - Dec 2007
-	    	   float itemScore = 0.0f;
-	    	   
-	    	   for (Object ooo: l) {
-	    		   grade = (ItemGradingIfc)ooo;
-	    		   if (grade == null) {
-	    			   continue;
-	    		   }
-	    		   // gopalrc - Dec 2007
-	    		   if (grade!=null && grade.getAutoScore()!=null) {
-	    			   itemScore += grade.getAutoScore().floatValue();
-	    		   }
-	    		   
-	    		   // now print answer data
-	    		   log.debug("<br> "+ grade.getPublishedItemId() + " " + grade.getRationale() + " " + grade.getAnswerText() + " " + grade.getComments() + " " + grade.getReview());
-	    		   Long publishedItemId = grade.getPublishedItemId();	    		   
-	    		   ItemDataIfc publishedItemData = (ItemDataIfc) publishedItemHash.get(publishedItemId);
-	    		   Long typeId = publishedItemData.getTypeId();
-	    		   if (typeId.equals(TypeIfc.FILL_IN_BLANK) || typeId.equals(TypeIfc.FILL_IN_NUMERIC)) {
-	    			   log.debug("FILL_IN_BLANK, FILL_IN_NUMERIC");
-	    			   isFinFib = true;
-	    			   String thistext = "";
-	    			   
-	    			   Long answerid = grade.getPublishedAnswerId();
-		    		   Long sequence = null;
-		    		   if (answerid != null) {
-		    			   AnswerIfc answer  = (AnswerIfc)publishedAnswerHash.get(answerid);
-		    			   sequence = answer.getSequence();
-		    		   }
-		    		   
-		    		   String temptext = grade.getAnswerText();
-		    		   if (temptext == null) {
-		    			   temptext = "No Answer";
-		    		   }
-		    		   thistext = sequence + ": " + temptext;
-		    		   
-		    		   if (count == 0)
-		    			   maintext = thistext;
-		    		   else
-		    			   maintext = maintext + "|" + thistext;
-
-		    		   count++;
-	    		   }
-	    		   else if (typeId.equals(TypeIfc.MATCHING)) {
-	    			   log.debug("MATCHING");
-	    			   String thistext = "";
-
-		    		   // for some question types we have another text field
-		    		   Long answerid = grade.getPublishedAnswerId();
-		    		   String temptext = "No Answer";
-		    		   Long sequence = null;
-		    		   if (answerid != null) {
-		    			   AnswerIfc answer  = (AnswerIfc)publishedAnswerHash.get(answerid);
-		    			   temptext = answer.getText();
-		    			   if (temptext == null) {
-			    			   temptext = "No Answer";
-			    		   }
-		    			   sequence = answer.getItemText().getSequence();
-		    		   }
-		    		   else {
-		    			   ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(grade.getPublishedItemTextId());
-		    			   sequence = itemTextIfc.getSequence();
-		    		   }
-		    		   thistext = sequence + ": " + temptext;
-		    		   
-		    		   if (count == 0)
-		    			   maintext = thistext;
-		    		   else
-		    			   maintext = maintext + "|" + thistext;
-
-		    		   count++;
-	    		   }
-	    		   else if (typeId.equals(TypeIfc.AUDIO_RECORDING)) {
-	    			   log.debug("AUDIO_RECORDING");
-	    			   maintext = audioMessage;
-	    			   //isAudioFileUpload = true;    			  
-	    		   }
-	    		   else if (typeId.equals(TypeIfc.FILE_UPLOAD)) {
-	    			   log.debug("FILE_UPLOAD");
-	    			   maintext = fileUploadMessage;
-	    			   //isAudioFileUpload = true;
-	    		   }
-	    		   else {
-	    			   log.debug("other type");
-	    			   String thistext = "";
-	    			   
-		    		   // for some question types we have another text field
-		    		   Long answerid = grade.getPublishedAnswerId();
-		    		   if (answerid != null) {
-		    			   AnswerIfc answer  = (AnswerIfc)publishedAnswerHash.get(answerid);
-		    			   String temptext = answer.getText();
-		    			   if (temptext != null)
-		    				   thistext = temptext;
-		    		   }
-
-		    		   String temp2text = grade.getAnswerText();
-		    		   if (temp2text != null)
-		    			   thistext = temp2text;
-
-		    		   if (count == 0)
-		    			   maintext = thistext;
-		    		   else
-		    			   maintext = maintext + "|" + thistext;
-
-		    		   count++;
-	    		   }
-	    		   
-	    		   // taking care of rationale
-	    		   if (!addRationale && (typeId.equals(TypeIfc.MULTIPLE_CHOICE) || typeId.equals(TypeIfc.MULTIPLE_CORRECT) || typeId.equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION) || typeId.equals(TypeIfc.TRUE_FALSE))) {
-	    			   log.debug("MULTIPLE_CHOICE or MULTIPLE_CORRECT or MULTIPLE_CORRECT_SINGLE_SELECTION or TRUE_FALSE");
-	    			   if (publishedItemData.getHasRationale()) {
-	    				   addRationale = true;
-	    				   rationale = grade.getRationale();
-	    				   if (rationale == null) {
-	    					   rationale = "";
-	    				   }
-	    			   }
-	    		   }
-	    	   } // inner for - answers
-
-    		   updateSectionScore(sectionItems, sectionScores, grade.getPublishedItemId(), itemScore);
-	    	   
-	    	   if (isFinFib && maintext.indexOf("No Answer") >= 0 && count == 1) {
-	    		   maintext = "No Answer";
-	    	   }
-	    	   else if ("".equals(maintext)) {
-	    		   maintext = "No Answer";
-	    	   }
-
-	    	   responseList.add(maintext);
-	    	   if (addRationale) {
-	    		   responseList.add(rationale);
-	    	   }
-	    	   
-	    	   // Only set header based on the first item grading data
-	    	   if (fistItemGradingData) {
-	    		   headerList.add(makeHeader(questionString, textString, questionNumber));
-	    		   if (addRationale) {
-	    			   headerList.add(makeHeader(questionString, rationaleString, questionNumber));
-	    		   }
-	    	   }	    		   
-	       } // outer for - questions
-	      
-	   	   // gopalrc - Dec 2007
-           if (showPartAndTotalScoreSpreadsheetColumns) {
-		       if (sectionScores.size() > 1) {
-			   	   Iterator keys = sectionScores.keySet().iterator();
-			   	   while (keys.hasNext()) {
-			   		   Double partScore = (Double) ((Float) sectionScores.get(keys.next())).doubleValue() ;
-			   		   responseList.add(sectionScoreColumnStart++, partScore);
-			   	   }
-		       }
-           }
-	       
-           dataList.add(responseList);
-           
-           if (fistItemGradingData) {
- 			  fistItemGradingData = false;
- 		  }
-	  } // while
+	  }
 	  Collections.sort(dataList, new ResponsesComparator(anonymous));
 	  finalList.add(dataList);
 	  finalList.add(headerList);
