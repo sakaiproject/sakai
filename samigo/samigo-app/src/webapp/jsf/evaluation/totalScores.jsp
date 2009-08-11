@@ -100,10 +100,8 @@ return;
     <h:outputText value="#{totalScores.assessmentName} " escape="fasel"/> 
   </h3>
 
-  <div class="tier1">
-  		<h4>
-      		<h:outputText value="#{evaluationMessages.auto_scored_with_bracket}" rendered="#{totalScores.isAutoScored}"/>
-  		</h4>
+  <div class="textBelowHeader">
+  <h:outputText value="#{evaluationMessages.auto_scored_tip}" rendered="#{totalScores.isAutoScored}" />
   </div>
 
   <p class="navViewAction">
