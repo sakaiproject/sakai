@@ -290,9 +290,13 @@ ${util.formatDateTime($date,$request)}
 	       </div>
 	    
 	    #else
-	  	    <br>Read Permission Denied for this Comment!
-	  	    <br>
-	  	    <br>
+	  	   <div class="rwikicommentheader">
+	         ${rlb.jsp_noread_comment}
+            </div>
+		   <div class="rwikicomenttext" >
+		    <br/> ${rlb.jsp_hidden_comment}<br/>
+			<br/><br/>	    
+	       </div>
 	    #end
 	    
 	 </div>
