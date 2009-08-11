@@ -2064,7 +2064,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("siteTitleEditable", Boolean.valueOf(siteTitleEditable(state, siteType)));
 			context.put("titleMaxLength", state.getAttribute(STATE_SITE_TITLE_MAX));
 
-			if (siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
+			if (siteType != null && siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 				context.put("isCourseSite", Boolean.TRUE);
 				context.put("isProjectSite", Boolean.FALSE);
 
@@ -2119,7 +2119,7 @@ public class SiteAction extends PagedResourceActionII {
 				
 			} else {
 				context.put("isCourseSite", Boolean.FALSE);
-				if (siteType.equalsIgnoreCase("project")) {
+				if (siteType != null && siteType.equalsIgnoreCase("project")) {
 					context.put("isProjectSite", Boolean.TRUE);
 				}
 
