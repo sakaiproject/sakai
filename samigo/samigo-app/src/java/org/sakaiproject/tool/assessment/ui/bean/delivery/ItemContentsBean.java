@@ -837,14 +837,13 @@ public class ItemContentsBean implements Serializable {
 			// for True false  
 			data.setRationale(newRationale);
 		} 
-		else if ( getItemData().getTypeId().toString().equals(TypeIfc.MULTIPLE_CORRECT.toString()) || getItemData().getTypeId().toString().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.toString())) {
+		else if ( getItemData().getTypeId().toString().equals(TypeIfc.MULTIPLE_CORRECT.toString())) {
 			//   MCMC, need to update rationale in all  itemgrading records
-			  Iterator iter = getItemGradingDataArray().iterator(); 
-			  while (iter.hasNext()) { 
-			  	ItemGradingData mcmcdata = (ItemGradingData) iter.next(); 
-
-			mcmcdata.setRationale(newRationale);
-		}
+			Iterator iter = getItemGradingDataArray().iterator(); 
+			while (iter.hasNext()) { 
+				ItemGradingData mcmcdata = (ItemGradingData) iter.next(); 
+				mcmcdata.setRationale(newRationale);
+			}
 		} 
 		else {
 			// for MCSC
