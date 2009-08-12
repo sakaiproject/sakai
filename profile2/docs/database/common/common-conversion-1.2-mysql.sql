@@ -9,3 +9,6 @@ alter table SAKAI_PERSON_T add FAVOURITE_MOVIES text;
 alter table SAKAI_PERSON_T add FAVOURITE_QUOTES text;
 alter table SAKAI_PERSON_T add EDUCATION_COURSE text;
 alter table SAKAI_PERSON_T add EDUCATION_SUBJECTS text;
+
+/* PRFL-97 */
+update SAKAI_PERSON_T set locked=false where locked=null;
