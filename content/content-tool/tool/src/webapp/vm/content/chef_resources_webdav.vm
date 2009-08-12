@@ -86,6 +86,16 @@
 			<strong>${server_url}${dav_group}$site_id</strong>
 		#end
 	</p>
+	<script type="text/javascript">
+		function IEVersion8(){
+			if (document.documentMode){ 
+				document.getElementById('webdavLinkIE').style.display='none';
+			}
+		}
+	</script>
+	
+	<div id="webdavLinkIE">
+	<!--[if lt IE 8]>
 	#if($isWinIEBrowser)
 		<p class="shorttext">
 			$tlang.getString("dav.xpie")
@@ -110,7 +120,9 @@
 			#end
 		</p>
 	#end
-	
+<![endif]-->
+</div>
+
 	<h4>$tlang.getString("dav.setup")</h4>
 	<iframe src="$webdav_instructions"
 		width="100%"
@@ -120,6 +132,10 @@
 		frameborder="0"
 		onload="javascript:setFrameHeight(this);">
 	</iframe>
+	<script type="text/javascript">
+		IEVersion8();
+	</script>	
+		
 	<div class="act">
 		<input type="button" class="active" value="$tlang.getString("dav.cancel")" onclick="window.location='#toolLink("ResourcesAction" "doCancel")'" />
 	</div>
