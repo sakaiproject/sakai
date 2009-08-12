@@ -5749,8 +5749,7 @@ public class AssignmentAction extends PagedResourceActionII
 						}
 						e = c.addEvent(/* TimeRange */TimeService.newTimeRange(dueTime.getTime(), /* 0 duration */0 * 60 * 1000),
 								/* title */rb.getString("due") + " " + title,
-								/* description */rb.getString("assig1") + " " + title + " " + "is due on "
-										+ dueTime.toStringLocalFull() + ". ",
+								/* description */rb.getFormattedMessage("assign_due_event_desc", new Object[]{title, dueTime.toStringLocalFull()}),
 								/* type */rb.getString("deadl"),
 								/* location */"",
 								/* access */ eAccess,
