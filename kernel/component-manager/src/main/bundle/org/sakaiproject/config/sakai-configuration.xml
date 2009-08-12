@@ -4,6 +4,16 @@
     xmlns:util="http://www.springframework.org/schema/util"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
+	<!--
+	  This is the central configuration file for Sakai, mostly used to load properties files.
+	  Individual Sakai installations can add a supplemental "sakai-configuration.xml" file to
+	  their "sakai.home" directory (which is "$CATALINA_HOME/sakai/" by default). Currently
+	  the most common use for a local "sakai-configuration.xml" is to change which properties
+	  files are read at start-up. To do so, paste an edited version of the
+	  "org.sakaiproject.component.SakaiProperties" bean definition into your local file,
+	  keeping the "parent" part of the definition in place.
+	-->
+
 	<!-- An abstract parent SakaiProperties is used to set up defaults. -->
 	<bean id="org.sakaiproject.component.DefaultSakaiProperties" abstract="true" class="org.sakaiproject.util.SakaiProperties">
 		<property name="properties">
@@ -42,7 +52,9 @@
 		files are read, or to plug a DB-backed or JMX-backed properties factory bean into the "properties"
 		slot.
 		
-		However, if you do overwrite the SakaiProperties bean, make sure to include the "parent" attribute!
+		If you do override the SakaiProperties bean locally, make sure to include the original
+		"parent" attribute. The DefaultSakaiProperties bean handles Sakai's built-in properties
+		files, and pointing to it will protect you against possible changes in future releases.
 	-->
 	<bean id="org.sakaiproject.component.SakaiProperties" parent="org.sakaiproject.component.DefaultSakaiProperties">
 		<property name="locations">
