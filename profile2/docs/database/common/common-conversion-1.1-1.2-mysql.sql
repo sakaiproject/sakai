@@ -1,3 +1,7 @@
-/* add additional fields to SakaiPerson */
+/* 
+ * Add additional fields to SakaiPerson 
+ * Use this when upgrading from Profile2 1.1 to Profile2 1.2
+ * 
+ */
 alter table SAKAI_PERSON_T add EDUCATION_COURSE text;
 alter table SAKAI_PERSON_T add EDUCATION_SUBJECTS text;
