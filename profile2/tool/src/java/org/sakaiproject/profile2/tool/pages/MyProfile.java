@@ -109,7 +109,11 @@ public class MyProfile extends BasePage {
 		userProfile.setFavouriteQuotes(sakaiPerson.getFavouriteQuotes());
 		userProfile.setOtherInformation(sakaiPerson.getNotes());
 		
-		userProfile.setLocked(sakaiPerson.getLocked());
+		if(sakaiPerson.getLocked() == null) {
+			userProfile.setLocked(false);
+		} else {
+			userProfile.setLocked(sakaiPerson.getLocked());
+		}
 	
 		//what type of picture changing method do we use?
 		int profilePictureType = sakaiProxy.getProfilePictureType();
