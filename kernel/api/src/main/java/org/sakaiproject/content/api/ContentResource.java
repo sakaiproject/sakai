@@ -38,7 +38,7 @@ public interface ContentResource
 	* Access the content byte length.
 	* @return The content byte length.
 	*/
-	public int getContentLength();
+	public long getContentLength();
 
 	/**
 	* Access the resource MIME type.

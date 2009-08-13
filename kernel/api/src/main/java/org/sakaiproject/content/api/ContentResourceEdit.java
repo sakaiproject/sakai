@@ -38,7 +38,7 @@ public interface ContentResourceEdit
 	* Set the content byte length.
 	* @param length The content byte length.
 	*/
-	public void setContentLength(int length);
+	public void setContentLength(long length);
 
 	/**
 	* Set the resource MIME type.

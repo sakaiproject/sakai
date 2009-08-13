@@ -57,7 +57,7 @@ public class MockContentResource extends MockContentEntity implements ContentRes
 	protected String collectionId;
 	protected byte[] content;
 
-	protected int contentLength;
+	protected long contentLength;
 	protected String contentType;
 	protected String resourceId;
 
@@ -89,7 +89,7 @@ public class MockContentResource extends MockContentEntity implements ContentRes
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.ContentResource#getContentLength()
 	 */
-	public int getContentLength()
+	public long getContentLength()
 	{
 		return this.contentLength;
 	}
@@ -164,7 +164,7 @@ public class MockContentResource extends MockContentEntity implements ContentRes
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.ContentResourceEdit#setContentLength(int)
 	 */
-	public void setContentLength(int length)
+	public void setContentLength(long length)
 	{
 		this.contentLength = length;
 	}

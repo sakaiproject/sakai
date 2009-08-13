@@ -1134,7 +1134,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 					Object[] rv = new Object[5];
 					rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
 					rv[1] = ((BasicGroupAwareEdit) r).getContext();
-					rv[2] = Integer.valueOf(((ContentResource) r).getContentLength());
+					rv[2] = Long.valueOf(((ContentResource) r).getContentLength());
 					rv[3] = ((BasicGroupAwareEdit) r).getResourceType();
 					rv[4] = StringUtil.trimToZero(((BaseResourceEdit) r).m_filePath);
 					return rv;
@@ -1146,7 +1146,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 					Object[] rv = new Object[4];
 					rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
 					rv[1] = ((BasicGroupAwareEdit) r).getContext();
-					rv[2] = Integer.valueOf(((ContentResource) r).getContentLength());
+					rv[2] = Long.valueOf(((ContentResource) r).getContentLength());
 					rv[3] = ((BasicGroupAwareEdit) r).getResourceType();
 					return rv;
 				}
@@ -6171,7 +6171,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		return true;
 	}
 
-	/** The chunk size used when streaming (100k). */
+	/** The chunk size used when streaming (100K). */
 	protected static final int STREAM_BUFFER_SIZE = 102400;
 
 	/**
@@ -6223,8 +6223,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 		try
 		{
-			// changed to int from long because res.setContentLength won't take long param -- JE
-			int len = resource.getContentLength();
+			long len = resource.getContentLength();
 			String contentType = resource.getContentType();
 
 			// for url content type, encode a redirect to the body URL
@@ -6297,12 +6296,17 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 						res.setContentType(contentType);
 						res.addHeader("Content-Disposition", disposition);
 						res.addHeader("Accept-Ranges", "bytes");
-						res.setContentLength(len);
-	
+						// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4187336
+ 						if (len <= Integer.MAX_VALUE){
+ 							res.setContentLength((int)len);
+ 						} else {
+ 							res.addHeader("Content-Length", Long.toString(len));
+ 						}
+
 						// set the buffer of the response to match what we are reading from the request
 						if (len < STREAM_BUFFER_SIZE)
 						{
-							res.setBufferSize(len);
+							res.setBufferSize((int)len);
 						}
 						else
 						{
@@ -6388,7 +6392,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 							// set the buffer of the response to match what we are reading from the request
 							if (len < STREAM_BUFFER_SIZE)
 							{
-								res.setBufferSize(len);
+								res.setBufferSize((int)len);
 							}
 							else
 							{
@@ -6442,7 +6446,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 							// set the buffer of the response to match what we are reading from the request
 							if (len < STREAM_BUFFER_SIZE)
 							{
-								res.setBufferSize(len);
+								res.setBufferSize((int)len);
 							}
 							else
 							{
@@ -10998,7 +11002,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		protected byte[] m_body = null;
 
 		/** The content length of the body, consult only if the body is missing (null) */
-		protected int m_contentLength = 0;
+		protected long m_contentLength = 0;
 
 		/** When true, someone changed the body content with setContent() */
 		protected boolean m_bodyUpdated = false;
@@ -11133,7 +11137,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			m_properties = new BaseResourcePropertiesEdit();
 		}
 		/**
-		 * Construct from information in XML in a DOM element.
+		 * Construct from information in XML in a DOM element. Limited to body size of <= 2G.
 		 * 
 		 * @param el
 		 *        The XML DOM element.
@@ -11148,7 +11152,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			m_contentLength = 0;
 			try
 			{
-				m_contentLength = Integer.parseInt(el.getAttribute("content-length"));
+				m_contentLength = Long.parseLong(el.getAttribute("content-length"));
 			}
 			catch (Exception ignore)
 			{
@@ -11161,20 +11165,24 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			}
 			setResourceType(typeId);
 
-			String enc = StringUtil.trimToNull(el.getAttribute("body"));
-			if (enc != null)
+			if (m_contentLength <= Integer.MAX_VALUE)
 			{
-				byte[] decoded = null;
-				try
+				String enc = StringUtil.trimToNull(el.getAttribute("body"));
+				if (enc != null)
 				{
-					decoded = Base64.decodeBase64(enc.getBytes("UTF-8"));
+					byte[] decoded = null;
+					try
+					{
+						decoded = Base64.decodeBase64(enc.getBytes("UTF-8"));
+					}
+					catch (UnsupportedEncodingException e)
+					{
+						M_log.error(e);
+					}
+					
+					m_body = new byte[(int) m_contentLength];
+					System.arraycopy(decoded, 0, m_body, 0, (int) m_contentLength);
 				}
-				catch (UnsupportedEncodingException e)
-				{
-					M_log.error(e);
-				}
-				m_body = new byte[m_contentLength];
-				System.arraycopy(decoded, 0, m_body, 0, m_contentLength);
 			}
 
 			m_filePath = StringUtil.trimToNull(el.getAttribute("filePath"));
@@ -11283,7 +11291,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 							m_contentLength = 0;
 							try
 							{
-								m_contentLength = Integer.parseInt(attributes
+								m_contentLength = Long.parseLong(attributes
 										.getValue("content-length"));
 							}
 							catch (Exception ignore)
@@ -11298,21 +11306,24 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 							}
 							setResourceType(typeId);
 
-							String enc = StringUtil.trimToNull(attributes
-									.getValue("body"));
-							if (enc != null)
+							if (m_contentLength <= Integer.MAX_VALUE)
 							{
-								byte[] decoded = null;
-								try
+								String enc = StringUtil.trimToNull(attributes
+										.getValue("body"));
+								if (enc != null)
 								{
-									decoded = Base64.decodeBase64(enc.getBytes("UTF-8"));
+									byte[] decoded = null;
+									try
+									{
+										decoded = Base64.decodeBase64(enc.getBytes("UTF-8"));
+									}
+									catch (UnsupportedEncodingException e)
+									{
+										M_log.error(e);
+									}
+									m_body = new byte[(int) m_contentLength];
+									System.arraycopy(decoded, 0, m_body, 0, (int) m_contentLength);
 								}
-								catch (UnsupportedEncodingException e)
-								{
-									M_log.error(e);
-								}
-								m_body = new byte[m_contentLength];
-								System.arraycopy(decoded, 0, m_body, 0, m_contentLength);
 							}
 
 							m_filePath = StringUtil.trimToNull(attributes
@@ -11491,7 +11502,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		 * 
 		 * @return The content byte length.
 		 */
-		public int getContentLength()
+		public long getContentLength()
 		{
 			// Use the CHH delegate, if there is one.
 			if (chh_vce != null) return ((ContentResource)chh_vce).getContentLength();
@@ -11518,11 +11529,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		} // getContentType
 
 		/**
-		 * Access the content bytes of the resource.
+		 * Access the content bytes of the resource. As this reads the entire content into memory, only use this method
+		 * when the resource is known to be relatively small. For larger files and all files that exceed 2G in size, use
+		 * streamContent() instead.
 		 * 
 		 * @return An array containing the bytes of the resource's content.
 		 * @exception ServerOverloadException
-		 *            if server is configured to store resource body in filesystem and error occurs trying to read from filesystem.
+		 *            if server is configured to store resource body in filesystem and error occurs trying to read from filesystem,
+		 *            or the file is too large to read into a byte array (exceeds 2G in size).
 		 */
 		public byte[] getContent() throws ServerOverloadException
 		{
@@ -11597,7 +11611,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		 * @param length
 		 *        The content byte length.
 		 */
-		public void setContentLength(int length)
+		public void setContentLength(long length)
 		{
 			m_contentLength = length;
 
@@ -11688,9 +11702,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			resource.setAttribute("resource-type", m_resourceType);
 
 			// body may not be loaded; if not use m_contentLength
-			int contentLength = m_contentLength;
+			long contentLength = m_contentLength;
 			if (m_body != null) contentLength = m_body.length;
-			resource.setAttribute("content-length", Integer.toString(contentLength));
+			resource.setAttribute("content-length", Long.toString(contentLength));
 
 			if (m_filePath != null) resource.setAttribute("filePath", m_filePath);
 
@@ -12045,10 +12059,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		 */
 		public void setSerializableContentLength(long contentLength)
 		{
-			if ( contentLength > (long)Integer.MAX_VALUE ) {
-				M_log.warn("File is longer than "+Integer.MAX_VALUE+", length may be truncated ");
+			if (m_bodyPath == null && contentLength > Integer.MAX_VALUE ) {
+				M_log.warn("File is longer than "+Integer.MAX_VALUE+", may be truncated if not stored in filesystem ");
 			}
-			m_contentLength = (int)contentLength;
+			m_contentLength = contentLength;
 		}
 
 

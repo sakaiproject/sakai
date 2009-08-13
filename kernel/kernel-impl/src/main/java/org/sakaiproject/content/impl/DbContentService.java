@@ -1823,10 +1823,13 @@ public class DbContentService extends BaseContentService
 		 * @return The resources's body content as a byte array.
 		 * @exception ServerOverloadException
 		 *            if the server is configured to save the resource body in the filesystem and an error occurs while accessing the server's
-		 *            filesystem.
+		 *            filesystem, or
+		 *            if the server is configured to save the resource body in the database, and the resource cannot be read back from 
+		 *            the database.
 		 */
 		public byte[] getResourceBody(ContentResource resource) throws ServerOverloadException
 		{
+			
 			boolean goin = in();
 			try
 			{
@@ -1869,8 +1872,10 @@ public class DbContentService extends BaseContentService
 		 * @param resource
 		 *        The resource whose body is desired.
 		 * @return The resources's body content as a byte array.
+		 * @throws ServerOverloadException if the resource cannot be read from the database
+		 * 		   because its length exceeds 2G.
 		 */
-		protected byte[] getResourceBodyDb(ContentResource resource)
+		protected byte[] getResourceBodyDb(ContentResource resource) throws ServerOverloadException
 		{
 			// get the resource from the db
 			String sql = contentServiceSql.getBodySql(m_resourceBodyTableName);
@@ -1878,8 +1883,16 @@ public class DbContentService extends BaseContentService
 			Object[] fields = new Object[1];
 			fields[0] = resource.getId();
 
+			// In practice the following exception should never be thrown, because a file
+			// greater than 2G could never be stored in the database, so it could only
+			// ever arise if the content length was somehow set to an inconsistent value.
+			
+			if (((BaseResourceEdit) resource).m_contentLength > Integer.MAX_VALUE) {
+				throw new ServerOverloadException("content too large to read from database");
+			}
+			
 			// create the body to read into
-			byte[] body = new byte[((BaseResourceEdit) resource).m_contentLength];
+			byte[] body = new byte[(int)((BaseResourceEdit) resource).m_contentLength];
 			m_sqlService.dbReadBinary(sql, fields, body);
 
 			return body;
@@ -1897,13 +1910,19 @@ public class DbContentService extends BaseContentService
 		 */
 		protected byte[] getResourceBodyFilesystem(ContentResource resource) throws ServerOverloadException
 		{
+			// check that size does not exceed 2G
+			if (((BaseResourceEdit) resource).m_contentLength > Integer.MAX_VALUE) {
+				M_log.warn(": resource too large to read into byte array: " + resource.getId() + " len: " + ((BaseResourceEdit) resource).m_contentLength);
+				throw new ServerOverloadException("content too large to read from filesystem into byte array");
+			}
+			
 			// form the file name
 			File file = new File(externalResourceFileName(resource));
 
 			// read the new
 			try
 			{
-				byte[] body = new byte[((BaseResourceEdit) resource).m_contentLength];
+				byte[] body = new byte[(int) ((BaseResourceEdit) resource).m_contentLength];
 				FileInputStream in = new FileInputStream(file);
 
 				in.read(body);
@@ -1922,7 +1941,6 @@ public class DbContentService extends BaseContentService
 				// If we have a non-zero body length and reading failed, it is an error worth of note
 				M_log.warn(": failed to read resource: " + resource.getId() + " len: " + ((BaseResourceEdit) resource).m_contentLength + " : " + t);
 				throw new ServerOverloadException("failed to read resource");
-				// return null;
 			}
 
 		}
@@ -2063,7 +2081,7 @@ public class DbContentService extends BaseContentService
 
 			ByteArrayOutputStream bstream = new ByteArrayOutputStream();
 
-			int byteCount = 0;
+			long byteCount = 0;
 			
 			// chunk
 			byte[] chunk = new byte[STREAM_BUFFER_SIZE];
@@ -2105,6 +2123,12 @@ public class DbContentService extends BaseContentService
 				}
 			}
 
+			if (byteCount > Integer.MAX_VALUE)
+			{
+				M_log.warn("Attempted to write file of size > 2G to database content store");
+				return false;
+			}
+			
 			boolean ok = true;
 			if (bstream != null && bstream.size() > 0)
 			{
@@ -2148,7 +2172,7 @@ public class DbContentService extends BaseContentService
 				// write the file
 				out = new FileOutputStream(file);
 
-				int byteCount = 0;
+				long byteCount = 0;
 				// chunk
 				byte[] chunk = new byte[STREAM_BUFFER_SIZE];
 				int lenRead;
@@ -2771,7 +2795,7 @@ public class DbContentService extends BaseContentService
 						fields[0] = edit.m_filePath;
 						fields[1] = serialization;
 						fields[2] = context;
-						fields[3] = Integer.valueOf(edit.m_contentLength);
+						fields[3] = Long.valueOf(edit.m_contentLength);
 						fields[4] = edit.getResourceType();
 						fields[5] = id;
 						
