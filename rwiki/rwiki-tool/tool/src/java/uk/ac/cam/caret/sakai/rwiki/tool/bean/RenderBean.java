@@ -21,7 +21,10 @@
 
 package uk.ac.cam.caret.sakai.rwiki.tool.bean;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.TreeMap;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.ObjectProxy;
@@ -30,6 +33,7 @@ import uk.ac.cam.caret.sakai.rwiki.service.exception.PermissionException;
 import uk.ac.cam.caret.sakai.rwiki.tool.api.ToolRenderService;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ResourceLoaderHelperBean;
 import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
+import uk.ac.cam.caret.sakai.rwiki.utils.XmlEscaper;
 
 /**
  * Bean that renders the current rwikiObject using a set objectService and
@@ -414,6 +418,30 @@ public class RenderBean
 			}
 		};
 		return objectService.createListProxy(commentsList, lop);
+	}
+	
+	public String getCommentPageLink()
+	{
+		String pageName = rwo.getName();
+		String link="";
+		
+		
+		ViewBean vb = new ViewBean(rwo.getName(), NameHelper.localizeSpace(rwo
+				.getName(), rwo.getRealm()));
+		vb.setLocalSpace(vb.getPageSpace());
+		
+		if (pageName != null && !pageName.equals(""))
+			{
+				vb.setPageName(pageName);
+				
+				link = "<a href=\""
+						+ XmlEscaper.xmlEscape(vb.getViewUrl()) + "\">"
+						+ XmlEscaper.xmlEscape(vb.getLocalName()) + "</a>";
+				
+				
+			}
+		
+		return link;
 	}
 
 	/**

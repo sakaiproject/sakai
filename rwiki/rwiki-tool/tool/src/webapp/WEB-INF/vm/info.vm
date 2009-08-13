@@ -27,6 +27,7 @@
 #helppopup( "siteenabledisphelp" ${rlb.jsp_page_site_en_d_permission} ${rlb.jsp_page_site_en_d_permission_help})
 #helppopup( "incomminghelp"  ${rlb.jsp_incomming_pages} ${rlb.jsp_incomming_pages_help})
 #helppopup( "outgoinghelp"  ${rlb.jsp_outgoing_pages} ${rlb.jsp_outgoing_pages_help})
+#helppopup( "commenthelp"  ${rlb.jsp_comment_pages} ${rlb.jsp_comment_pages_help})
 #helppopup( "ownerhelp"  ${rlb.jsp_page_owner} ${rlb.jsp_page_owner_help})
 #helppopup( "realmhelp"  ${rlb.jsp_permission_section} ${rlb.jsp_permission_section_help})
 #helppopup( "idhelp"  ${rlb.jsp_page_id} ${rlb.jsp_page_id_help})
@@ -401,6 +402,18 @@
 			      </ul>
 			    #end
 			   </td>
+		   </tr>
+		   
+		   <tr>
+		    	<th>${rlb.jsp_comment}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'commenthelp'); return false;"
+		    		onMouseOut="hidePopup('outgoinghelp');" >?</a></th>
+		     <td colspan="6">
+		      <ul id="commentLinks">
+			    #foreach( $comment in ${renderBean.comments} )
+			     <li>${comment.CommentPageLink}</li>
+			    #end
+			      </ul>
+			 </td>
 		   </tr>
 		   
 		   <!-- NOTIFICATION SUPPORT, wiki.notifications to enable -->

@@ -130,6 +130,11 @@
     		<h3><c:out value="${rlb.jsp_outgoing_pages}"/></h3>
 <c:out value="${rlb.jsp_outgoing_pages_help}"/>
     	</div>
+    	<div id="commenthelp" style=" position: absolute; top: -1000px; left: -1000px; visibility: hidden; " 
+    		class="rwiki_help_popup" >
+    		<h3><c:out value="${rlb.jsp_comment_pages}"/></h3>
+<c:out value="${rlb.jsp_comment_pages_help}"/>
+    	</div>
     	<div id="ownerhelp" style=" position: absolute; top: -1000px; left: -1000px; visibility: hidden; " 
     		class="rwiki_help_popup" >
     		<h3><c:out value="${rlb.jsp_page_owner}"/></h3>
@@ -667,6 +672,21 @@
 			  <ul id="referencedLinks">
 			    <c:forEach var="item" items="${referencedLinks }">
 			      <li><c:out value="${item }" escapeXml="false" /></li>
+			    </c:forEach>
+			  </ul>
+			</c:if>
+		      </td>
+		    </tr>
+		    <tr>
+		    	<th><c:out value="${rlb.jsp_comment}"/><a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'commenthelp'); return false;"
+		    		onMouseOut="hidePopup('outgoinghelp');" >?</a></th>
+		      <td colspan="6">
+			<c:set var="commentLinks"
+			  value="${renderBean.comments }" />
+			<c:if test="${fn:length(commentLinks) gt 0}">
+			  <ul id="commentLinks">
+			    <c:forEach var="comment" items="${renderBean.comments }">
+			      <li><c:out value="${comment.CommentPageLink }" escapeXml="false" /></li>
 			    </c:forEach>
 			  </ul>
 			</c:if>
