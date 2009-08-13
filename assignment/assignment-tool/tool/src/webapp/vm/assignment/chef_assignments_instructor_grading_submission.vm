@@ -18,7 +18,6 @@ function handleEnterKeyPress(ev)
         setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
     });
 </script>
-
 <div class="portletBody" xmlns:wairole="http://www.w3.org/2005/01/wai-rdf/GUIRoleTaxonomy#"  xmlns:aaa="http://www.w3.org/2005/07/aaa">
 <ul class="navIntraTool actionToolBar" role="menu">
 		#set($prevAction=false)
@@ -52,6 +51,12 @@ function handleEnterKeyPress(ev)
 			</li>	
 		#end
 	</ul>
+	## confirmation
+	#if ($!gradingDone)
+		<div class="success">
+			$!tlang.getString("saved_grading")
+		</div>
+	#end
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both"></div>#end
 	
 	## the form

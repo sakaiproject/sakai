@@ -392,6 +392,8 @@ public class AssignmentAction extends PagedResourceActionII
 
 	private static final String GRADE_SUBMISSION_ALLOW_RESUBMIT = "grade_submission_allow_resubmit";
 	
+	private static final String GRADE_SUBMISSION_DONE = "grade_submission_done";
+	
 	/** ******************* instructor's export assignment ***************************** */
 	private static final String EXPORT_ASSIGNMENT_REF = "export_assignment_ref";
 
@@ -2161,6 +2163,13 @@ public class AssignmentAction extends PagedResourceActionII
 
 		// put supplement item into context
 		supplementItemIntoContext(state, context, a, null);
+
+		// put the grade confirmation message if applicable
+		if (state.getAttribute(GRADE_SUBMISSION_DONE) != null)
+		{
+			context.put("gradingDone", Boolean.TRUE);
+			state.removeAttribute(GRADE_SUBMISSION_DONE);
+		}
 		
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_INSTRUCTOR_GRADE_SUBMISSION;
@@ -3722,6 +3731,11 @@ public class AssignmentAction extends PagedResourceActionII
 			// put submission information into state
 			putSubmissionInfoIntoState(state, assignmentId, sId);
 			state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_SUBMISSION);
+			state.setAttribute(GRADE_SUBMISSION_DONE, Boolean.TRUE);
+		}
+		else
+		{
+			state.removeAttribute(GRADE_SUBMISSION_DONE);
 		}
 
 	} // grade_submission_option
