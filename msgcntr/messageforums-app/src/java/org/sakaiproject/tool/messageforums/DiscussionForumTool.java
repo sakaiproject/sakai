@@ -4913,11 +4913,12 @@ public class DiscussionForumTool
   
   public String processDfGradeSubmit() 
   { 
-	  if(selectedMessageCount != 0 || functionClick != 1) {
+	  if(selectedMessageCount != 0 ) {
 			setErrorMessage(getResourceBundleString(STATE_INCONSISTENT));
 			return null;
 		}
 	  functionClick = 0;
+	  selectedMessageCount = 0;
 
   	if(selectedTopic == null)
   	{ 
