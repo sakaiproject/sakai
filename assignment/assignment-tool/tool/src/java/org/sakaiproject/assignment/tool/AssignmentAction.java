@@ -3442,6 +3442,7 @@ public class AssignmentAction extends PagedResourceActionII
 		state.removeAttribute(GRADE_SUBMISSION_GRADE);
 		state.removeAttribute(GRADE_SUBMISSION_SUBMISSION_ID);
 		state.removeAttribute(GRADE_GREATER_THAN_MAX_ALERT);
+		state.removeAttribute(GRADE_SUBMISSION_DONE);
 		state.removeAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
 		resetAllowResubmitParams(state);
 	}
@@ -6924,6 +6925,9 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	private void putSubmissionInfoIntoState(SessionState state, String assignmentId, String submissionId)
 	{
+		// reset grading submission variables
+		resetGradeSubmission(state);
+		
 		// reset the grade assignment id and submission id
 		state.setAttribute(GRADE_SUBMISSION_ASSIGNMENT_ID, assignmentId);
 		state.setAttribute(GRADE_SUBMISSION_SUBMISSION_ID, submissionId);
