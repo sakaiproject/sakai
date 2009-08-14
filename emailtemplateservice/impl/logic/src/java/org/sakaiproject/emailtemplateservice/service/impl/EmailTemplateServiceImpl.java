@@ -300,33 +300,43 @@ public void sendRenderedMessages(String key, List<String> userReferences,
 				message.append(MIME_ADVISORY);
 				if (rt.getRenderedMessage() != null) {
 					message.append(BOUNDARY_LINE);
-					message.append("Content-Type: text/plain ; charset=iso-8859-1\n");
+					message.append("Content-Type: text/plain; charset=iso-8859-1\n");
 					message.append(rt.getRenderedMessage());
 				}
 				if (rt.getRenderedHtmlMessage() != null) {
-					//append the HML part
+					//append the HMTL part
 					message.append(BOUNDARY_LINE);
-					message.append("Content-Type: text/html ; charset=iso-8859-1\n");
+					message.append("Content-Type: text/html; charset=iso-8859-1\n");
 					message.append(rt.getRenderedHtmlMessage());
 				}
 			
 				message.append(TERMINATION_LINE);
 				
-				//we need to manualy contruct the hraders
+				// we need to manually contruct the headers
 				List<String> headers = new ArrayList<String>();
-				headers.add("From: \"" + fromName + "\"<" + fromEmail + ">" );
+				headers.add("From: \"" + fromName + "\" <" + fromEmail + ">" );
+				
+				// Add a To: header of either the recipient (if only 1), or the sender (if multiple)
+				String toName = fromName;
+				String toEmail = fromEmail;
+				
+				if (toAddress.size() == 1) {
+					User u = toAddress.get(0);
+					toName = u.getDisplayName();
+					toEmail = u.getEmail();
+				} 
+				
+				headers.add("To: \"" + toName + "\" <" + toEmail + ">" );
+				
 				headers.add("Subject: " + rt.getSubject());
 				headers.add("Content-Type: multipart/alternative; boundary=\"" + MULTIPART_BOUNDARY + "\"");
 				headers.add("Mime-Version: 1.0");
+				
 				String body = message.toString();
 				log.debug("message body " + body);
 				emailService.sendToUsers(toAddress, headers, body);
 				
 	}
-				
-	
-	
-	
 }
 
 
