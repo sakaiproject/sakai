@@ -10815,6 +10815,13 @@ public class AssignmentAction extends PagedResourceActionII
 						ZipInputStream zin = new ZipInputStream(new ByteArrayInputStream(fileData));
 						ZipEntry entry;
 						
+						// a flag value for checking whether the zip file is of proper format: 
+						// should have a grades.csv file if there is no user folders
+						boolean zipHasGradeFile = false;
+						// and if have any folder structures, those folders should be named after at least one site user (zip file could contain user names who is no longer inside the site)
+						boolean zipHasFolder = false;
+						boolean zipHasFolderValidUserId = false;
+						
 						try
 						{
 							while ((entry=zin.getNextEntry()) != null)
@@ -10824,6 +10831,9 @@ public class AssignmentAction extends PagedResourceActionII
 								{
 									if (entryName.endsWith("grades.csv"))
 									{
+										// at least the zip file has a grade.csv
+										zipHasGradeFile = true;
+										
 										if (hasGradeFile)
 										{
 											// read grades.cvs from zip
@@ -10882,6 +10892,9 @@ public class AssignmentAction extends PagedResourceActionII
 										String userEid = "";
 										if (entryName.indexOf("/") != -1)
 										{
+											// there is folder structure inside zip
+											if (!zipHasFolder) zipHasFolder = true;
+											
 											// remove the part of zip name
 											userEid = entryName.substring(entryName.indexOf("/")+1);
 											// get out the user name part
@@ -10898,6 +10911,8 @@ public class AssignmentAction extends PagedResourceActionII
 										}
 										if (submissionTable.containsKey(userEid))
 										{
+											if (!zipHasFolderValidUserId) zipHasFolderValidUserId = true;
+											
 											if (hasComment && entryName.indexOf("comments") != -1)
 											{
 												// read the comments file
@@ -10974,6 +10989,13 @@ public class AssignmentAction extends PagedResourceActionII
 							// uploaded file is not a valid archive
 							addAlert(state, rb.getString("uploadall.alert.zipFile"));
 							M_log.warn(this + ":doUpload_all_upload " + e.getMessage());
+						}
+						
+						if ((!zipHasGradeFile && !zipHasFolder)					// generate error when there is no grade file and no folder structure
+								|| (zipHasFolder && !zipHasFolderValidUserId))	// generate error when there is folder structure but not matching one user id
+						{
+							// alert if the zip is of wrong format
+							addAlert(state, rb.getString("uploadall.alert.wrongZipFormat"));
 						}
 					}
 				}
