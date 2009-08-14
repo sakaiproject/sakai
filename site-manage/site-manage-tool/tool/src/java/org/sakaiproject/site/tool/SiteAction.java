@@ -6285,6 +6285,13 @@ public class SiteAction extends PagedResourceActionII {
 
 		if (SITE_MODE_SITESETUP.equalsIgnoreCase((String) state.getAttribute(STATE_SITE_MODE))) {
 			state.setAttribute(STATE_TEMPLATE_INDEX, "0");
+			
+			// need to watch out for the config question.xml existence.
+			// read the file and put it to backup folder.
+			if (SiteSetupQuestionFileParser.isConfigurationXmlAvailable())
+			{
+				SiteSetupQuestionFileParser.updateConfig();
+			}
 		} else if (SITE_MODE_HELPER.equalsIgnoreCase((String) state.getAttribute(STATE_SITE_MODE))) {
 			state.setAttribute(STATE_TEMPLATE_INDEX, "1");
 		} else if (SITE_MODE_SITEINFO.equalsIgnoreCase((String) state.getAttribute(STATE_SITE_MODE))){
@@ -6326,13 +6333,6 @@ public class SiteAction extends PagedResourceActionII {
 					state.setAttribute(STATE_SITE_TYPES, new Vector());
 				}
 			}
-		}
-		
-		// need to watch out for the config question.xml existence.
-		// read the file and put it to backup folder.
-		if (SiteSetupQuestionFileParser.isConfigurationXmlAvailable())
-		{
-			SiteSetupQuestionFileParser.updateConfig();
 		}
 		
 		// show UI for adding non-official participant(s) or not
