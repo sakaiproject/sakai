@@ -1097,6 +1097,10 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	private void addIntoStateVisitedTemplates(SessionState state, String index) {
 		List<String> templateIndices = (List<String>) state.getAttribute(STATE_VISITED_TEMPLATES);
+		if (templateIndices == null)
+		{
+			templateIndices = new Vector<String>();
+		}
 		if (templateIndices.size() == 0 || !templateIndices.contains(index))
 		{
 			// this is to prevent from page refreshing accidentally updates the list
