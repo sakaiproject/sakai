@@ -841,7 +841,17 @@ public class HistogramListener
 		int[] heights = calColumnHeight(numarray, responses);
 		// int[] heights = calColumnHeight(numarray);
 		for (i = 0; i < bars.length; i++)
-			bars[i].setColumnHeight(Integer.toString(heights[i]));
+		{
+			try
+			{
+				bars[i].setColumnHeight(Integer.toString(heights[i]));
+			}
+			catch(NullPointerException npe)
+			{
+				log.warn("null column height " + npe);
+			}
+		}
+
 		qbean.setHistogramBars(bars);
 		qbean.setNumResponses(responses);
 		if (responses > 0)
