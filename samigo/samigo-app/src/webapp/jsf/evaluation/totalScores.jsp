@@ -840,7 +840,7 @@ return;
 	  
 	  <h:outputText value="&nbsp;&nbsp;" escape="false"/>
 	  
-	  <h:outputLink title="#{evaluationMessages.whats_this_link}" value="#" onclick="javascript:window.open('../evaluation/totalScoresCommentPopUp.faces','CommentForStudent','width=510,height=515,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('../evaluation/totalScoresCommentPopUpt.faces','CommentForStudent','width=510,height=515,scrollbars=yes, resizable=yes');" >
+	  <h:outputLink title="#{evaluationMessages.whats_this_link}" value="#" onclick="javascript:window.open('../evaluation/totalScoresCommentPopUp.faces','CommentForStudent','width=510,height=515,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('../evaluation/totalScoresCommentPopUp.faces','CommentForStudent','width=510,height=515,scrollbars=yes, resizable=yes');" >
             <h:outputText  value="#{evaluationMessages.whats_this_link}"/>
       </h:outputLink>
 	  </h:panelGroup>

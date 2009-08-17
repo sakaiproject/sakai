@@ -24,6 +24,7 @@
 package org.sakaiproject.tool.assessment.data.ifc.assessment;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @author Rachel Gollub
@@ -44,4 +45,9 @@ public interface PublishedAssessmentIfc
   public void setAssessmentId(Long assessmentId);
 
   Float getTotalScore();
+  
+  Date getLastNeedResubmitDate();
+
+  void setLastNeedResubmitDate(Date lastNeedResubmitDate);
+  
 }

@@ -2805,7 +2805,7 @@ public class DeliveryBean
 		  return false;
 	  }
 	  Integer status = adata.getStatus();
-	  if (status.equals(AssessmentGradingIfc.NEED_RESUBMIT)) {
+	  if (status.equals(AssessmentGradingIfc.ASSESSMENT_UPDATED_NEED_RESUBMIT)) {
 		  return true;
 	  }
 	  return false;

@@ -92,9 +92,15 @@ public class PublishedAssessmentFacade
   private Date feedbackDate;
   private String ownerSiteName;
   private Set publishedAssessmentAttachmentSet;
+  private boolean hasAssessmentGradingData;
+  private int inProgressCount;
+  private int submittedCount;
+  private Date lastNeedResubmitDate;
+
   // added by gopalrc Nov 2007
   private String releaseToGroups;
-  private boolean hasAssessmentGradingData;
+  private ArrayList releaseToGroupsList = new ArrayList();
+  private int enrolledStudentCount;
 
   public PublishedAssessmentFacade() {
   }
@@ -110,18 +116,32 @@ public class PublishedAssessmentFacade
 		  Date startDate, Date dueDate, String releaseToGroups, Date lastModifiedDate, String lastModifiedBy){
 	  this(id, title, releaseTo, startDate, dueDate, null, releaseToGroups, lastModifiedDate, lastModifiedBy);
   }
-  
+
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
 		  Date startDate, Date dueDate, Integer status, String releaseToGroups, Date lastModifiedDate, String lastModifiedBy){
+	  this(id, title, releaseTo, startDate, dueDate, null, status, releaseToGroups, lastModifiedDate, lastModifiedBy, null, null, null);
+  }
+  
+  public PublishedAssessmentFacade(Long id, String title, String releaseTo,
+		  Date startDate, Date dueDate, Date retractDate, Integer status, String releaseToGroups, 
+		  Date lastModifiedDate, String lastModifiedBy, Integer lateHandling,
+		  Boolean unlimitedSubmissions, Integer submissionsAllowed){
 	  this.publishedAssessmentId = id;
 	  this.title = title;
 	  this.releaseTo = releaseTo;
 	  this.startDate = startDate;
 	  this.dueDate = dueDate;
+	  this.retractDate = retractDate;
 	  this.status = status;
-	  this.releaseToGroups = releaseToGroups;
 	  this.lastModifiedDate = lastModifiedDate;
 	  this.lastModifiedBy = lastModifiedBy;
+	  this.releaseToGroups = releaseToGroups; // added by gopalrc Nov 2007
+	  if (releaseToGroups != null && !releaseToGroups.trim().equals("")) {
+		  setReleaseToGroupsList();
+	  }
+	  this.lateHandling = lateHandling;
+	  this.unlimitedSubmissions = unlimitedSubmissions;
+	  this.submissionsAllowed = submissionsAllowed;
   }
 
   // constructor that whole min. info, used for listing
@@ -720,5 +740,49 @@ public class PublishedAssessmentFacade
 
   public void setHasAssessmentGradingData(boolean hasAssessmentGradingData) {
 	  this.hasAssessmentGradingData = hasAssessmentGradingData;
+  }
+
+  public void setReleaseToGroupsList() {
+	  String [] groups = releaseToGroups.split(",");
+	  releaseToGroupsList = new ArrayList();
+	  for (int i = 0; i < groups.length; i++) {
+		  releaseToGroupsList.add(groups[i].trim());
+	  }
+  }
+  
+  public ArrayList getReleaseToGroupsList() {
+	    return releaseToGroupsList;
+  }
+
+  public int getInProgressCount() {
+	  return inProgressCount;
+  }
+
+  public void setInProgressCount(int inProgressCount) {
+	  this.inProgressCount = inProgressCount;
+  }
+  
+  public int getSubmittedCount() {
+	  return submittedCount;
+  }
+
+  public void setSubmittedCount(int submittedCount) {
+	  this.submittedCount = submittedCount;
+  }
+  
+  public int getEnrolledStudentCount() {
+	  return enrolledStudentCount;
+  }
+
+  public void setEnrolledStudentCount(int enrolledStudentCount) {
+	  this.enrolledStudentCount = enrolledStudentCount;
+  }
+  public Date getLastNeedResubmitDate() {
+	  return this.lastNeedResubmitDate;
+  }
+
+  public void setLastNeedResubmitDate(Date lastNeedResubmitDate) {
+	  this.lastNeedResubmitDate = lastNeedResubmitDate;
+	  this.data.setLastNeedResubmitDate(lastNeedResubmitDate);
   }
 }

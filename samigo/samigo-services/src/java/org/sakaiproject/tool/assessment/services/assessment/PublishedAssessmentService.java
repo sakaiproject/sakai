@@ -84,6 +84,15 @@ public class PublishedAssessmentService extends AssessmentService{
         getPublishedAssessmentFacadeQueries().
         getBasicInfoOfAllPublishedAssessments(orderBy, ascending, siteId);
   }
+  
+  public ArrayList getBasicInfoOfAllPublishedAssessments2(String orderBy,
+		  boolean ascending, String siteId) {
+
+	  // 2. get all takeable assessment available
+	  return PersistenceService.getInstance().
+	  getPublishedAssessmentFacadeQueries().
+	  getBasicInfoOfAllPublishedAssessments2(orderBy, ascending, siteId);
+  }
 
 /**
   public ArrayList getAllReviewableAssessments(String agentId, String orderBy,

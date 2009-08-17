@@ -19,11 +19,10 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -34,7 +33,7 @@ import javax.faces.event.ActionListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -43,6 +42,8 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
@@ -64,12 +65,6 @@ public class AuthorActionListener
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    //FacesContext context = FacesContext.getCurrentInstance();
-    //Map reqMap = context.getExternalContext().getRequestMap();
-    //Map requestParams = context.getExternalContext().getRequestParameterMap();
-    //log.debug("debugging ActionEvent: " + ae);
-    //log.debug("debug requestParams: " + requestParams);
-    //log.debug("debug reqMap: " + reqMap);
     log.debug("*****Log: inside AuthorActionListener =debugging ActionEvent: " + ae);
 
     // get service and managed bean
@@ -103,6 +98,10 @@ public class AuthorActionListener
 	else {
 		author.setEditPubAssessmentRestricted(true);
 	}
+	
+	AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+	author.setIsGradeable(authorizationBean.getGradeAnyAssessment() || authorizationBean.getGradeOwnAssessment());
+	author.setIsEditable(authorizationBean.getEditAnyAssessment() || authorizationBean.getEditOwnAssessment());
   }
 
   public void prepareAssessmentsList(AuthorBean author, AssessmentService assessmentService, GradingService gradingService, PublishedAssessmentService publishedAssessmentService) {
@@ -113,68 +112,65 @@ public class AuthorActionListener
 		// get the managed bean, author and set the list
 		author.setAssessments(assessmentList);
 
-		// #3 This map contains (Long, Integer)=(publishedAssessmentId,
-		// submissionSize)
-		HashMap map = gradingService.getSubmissionSizeOfAllPublishedAssessments();
-		HashMap agMap = gradingService.getAGDataSizeOfAllPublishedAssessments();
+	  ArrayList publishedAssessmentList = publishedAssessmentService.getBasicInfoOfAllPublishedAssessments2(
+			  PublishedAssessmentFacadeQueries.TITLE, true, AgentFacade.getCurrentSiteId());
+	  HashMap inProgressCounts = gradingService.getInProgressCounts(AgentFacade.getCurrentSiteId());
+	  HashMap submittedCounts = gradingService.getSubmittedCounts(AgentFacade.getCurrentSiteId());
+	  
+	  ArrayList dividedPublishedAssessmentList = getTakeableList(publishedAssessmentList);
+	  prepareActivePublishedAssessmentsList(author, (ArrayList) dividedPublishedAssessmentList.get(0), inProgressCounts, submittedCounts);
+	  prepareInactivePublishedAssessmentsList(author, (ArrayList) dividedPublishedAssessmentList.get(1), inProgressCounts, submittedCounts);
+  }
 
-		// #4 - prepare published assessment list
-		author.setPublishedAssessmentOrderBy(PublishedAssessmentFacadeQueries.TITLE);
-		ArrayList publishedList = publishedAssessmentService.getBasicInfoOfAllActivePublishedAssessments(
-						PublishedAssessmentFacadeQueries.TITLE, true);
-		setSubmissionSize(publishedList, map);
-		setHasAssessmentGradingData(publishedList, agMap);
-		// get the managed bean, author and set the list
-		author.setPublishedAssessments(publishedList);
-		log.debug("**** published list size =" + publishedList.size());
-
-		// #5 - prepare published inactive assessment list
-		author.setInactivePublishedAssessmentOrderBy(PublishedAssessmentFacadeQueries.TITLE);
-		ArrayList inactivePublishedList = publishedAssessmentService.getBasicInfoOfAllInActivePublishedAssessments(
-						PublishedAssessmentFacadeQueries.TITLE, true);
-		setSubmissionSize(inactivePublishedList, map);
-		setHasAssessmentGradingData(inactivePublishedList, agMap);
-		// get the managed bean, author and set the list
-		author.setInactivePublishedAssessments(inactivePublishedList);
-		boolean isAnyAssessmentRetractForEdit = false;
-		Iterator iter = inactivePublishedList.iterator();
-		while (iter.hasNext()) {
-			PublishedAssessmentFacade publishedAssessmentFacade = (PublishedAssessmentFacade) iter.next();
-			if (Integer.valueOf(3).equals(publishedAssessmentFacade.getStatus())) {
-				isAnyAssessmentRetractForEdit = true;
-				break;
-			}
-		}
-		if (isAnyAssessmentRetractForEdit) {
-			author.setIsAnyAssessmentRetractForEdit(true);
-		}
-		else {
-			author.setIsAnyAssessmentRetractForEdit(false);
-		}
+  public void prepareActivePublishedAssessmentsList(AuthorBean author, ArrayList<PublishedAssessmentFacade> activePublishedList, HashMap<Long, Integer> getInProgressCounts, HashMap<Long, Integer> submittedCounts) {
+	  setInProgressAndSubmittedCount(activePublishedList, getInProgressCounts, submittedCounts);
+	  author.setPublishedAssessments(activePublishedList);  
   }
   
-  private void setSubmissionSize(ArrayList list, HashMap map){
-    for (int i=0; i<list.size();i++){
-      PublishedAssessmentFacade p =(PublishedAssessmentFacade)list.get(i);
-      Integer size = (Integer) map.get(p.getPublishedAssessmentId());
-      if (size != null){
-        p.setSubmissionSize(size.intValue());
-      }
-    }
+  public void prepareInactivePublishedAssessmentsList(AuthorBean author, ArrayList inactivePublishedList, HashMap<Long, Integer> getInProgressCounts, HashMap<Long, Integer> submittedCounts) {	  
+	  setInProgressAndSubmittedCount(inactivePublishedList, getInProgressCounts, submittedCounts);
+	  author.setInactivePublishedAssessments(inactivePublishedList);
+	  boolean isAnyAssessmentRetractForEdit = false;
+	  Iterator iter = inactivePublishedList.iterator();
+	  while (iter.hasNext()) {
+		  PublishedAssessmentFacade publishedAssessmentFacade = (PublishedAssessmentFacade) iter.next();
+		  if (Integer.valueOf(3).equals(publishedAssessmentFacade.getStatus())) {
+			  isAnyAssessmentRetractForEdit = true;
+			  break;
+		  }
+	  }
+	  if (isAnyAssessmentRetractForEdit) {
+		  author.setIsAnyAssessmentRetractForEdit(true);
+	  }
+	  else {
+		  author.setIsAnyAssessmentRetractForEdit(false);
+	  }
   }
 
-  private void setHasAssessmentGradingData(ArrayList list, HashMap agMap) {
-      boolean hasAssessmentGradingData = true;
-      for (int i = 0; i < list.size(); i++) {
-              PublishedAssessmentFacade p = (PublishedAssessmentFacade) list
-                              .get(i);
-              if (agMap.get(p.getPublishedAssessmentId()) != null) {
-                      hasAssessmentGradingData = true;
-              } else {
-                      hasAssessmentGradingData = false;
-              }
-              p.setHasAssessmentGradingData(hasAssessmentGradingData);
-      }
+  private void setInProgressAndSubmittedCount(ArrayList<PublishedAssessmentFacade> list, HashMap<Long, Integer> inProgressCounts, HashMap<Long, Integer> submittedCounts) {
+	  for (int i = 0; i < list.size(); i++) {
+		  boolean hasAssessmentGradingData = true;
+		  boolean hasInProgressCounts = true;
+		  boolean hasSubmitted = true;
+		  PublishedAssessmentFacade p = (PublishedAssessmentFacade) list.get(i);
+		  Long publishedAssessmentId = p.getPublishedAssessmentId();
+		  if (publishedAssessmentId != null) {
+			  if (inProgressCounts.get(publishedAssessmentId) != null) {
+				  p.setInProgressCount(((Integer) inProgressCounts.get(publishedAssessmentId)).intValue());
+			  } else {
+				  p.setInProgressCount(0);
+				  hasInProgressCounts = false;
+			  }
+			  if (submittedCounts.get(publishedAssessmentId) != null) {
+				  p.setSubmittedCount(((Integer) submittedCounts.get(publishedAssessmentId)).intValue());
+			  } else {
+				  p.setSubmittedCount(0);
+				  hasSubmitted = false;
+			  }
+			  hasAssessmentGradingData = hasInProgressCounts || hasSubmitted;
+		  }
+		  p.setHasAssessmentGradingData(hasAssessmentGradingData);
+	  }
   }
   
   private void removeDefaultTemplate(ArrayList templateList){
@@ -185,5 +181,51 @@ public class AuthorActionListener
         return;
       }
     }
+  }
+
+  public ArrayList getTakeableList(ArrayList assessmentList) {
+	  ArrayList list = new ArrayList();
+	  ArrayList activeList = new ArrayList();
+	  ArrayList inActiveList = new ArrayList();
+	  	  	  
+	  for (int i = 0; i < assessmentList.size(); i++) {
+		  PublishedAssessmentFacade f = (PublishedAssessmentFacade)assessmentList.get(i);
+		  if (isActive(f)) {
+			  activeList.add(f);
+		  }
+		  else {
+			  inActiveList.add(f);
+		  }
+	  }
+	  list.add(activeList);
+	  list.add(inActiveList);
+	  return list;
+  }
+
+  public boolean isActive(PublishedAssessmentFacade f) {  
+	  //1. prepare our significant parameters
+	  Integer status = f.getStatus();
+	  Date currentDate = new Date();
+	  Date startDate = f.getStartDate();
+	  Date retractDate = f.getRetractDate();
+	  Date dueDate = f.getDueDate();
+
+	  if (!Integer.valueOf(1).equals(status)) {
+		  return false;
+	  }
+
+	  if (startDate != null && startDate.after(currentDate)) {
+		  return false;
+	  }
+
+	  if (dueDate != null && dueDate.before(currentDate)) {
+		  return false;
+	  }
+	  
+	  if (retractDate != null && retractDate.before(currentDate)) {
+		  return false;
+	  }
+
+	  return true;
   }
 }

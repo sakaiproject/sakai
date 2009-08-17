@@ -55,7 +55,8 @@ public class PersonBean implements Serializable
 	private static final long serialVersionUID = 1884634498046475698L;
 private static Log log = LogFactory.getLog(PersonBean.class);
   private String anonymousId;
- 
+  private String previewFromPage;
+  
   public PersonBean(){}
   {
   }
@@ -131,6 +132,10 @@ private static Log log = LogFactory.getLog(PersonBean.class);
   public String cleanResourceIdListInPreview(){
     AssessmentService service = new AssessmentService();
     service.deleteResources(resourceIdList);
+    if (previewFromPage != null && previewFromPage.equals("author")) {
+    	previewFromPage = null;
+    	return "author";
+    }
     return "editAssessment";
   }  
 
@@ -144,5 +149,13 @@ private static Log log = LogFactory.getLog(PersonBean.class);
 	  ResourceLoader r = new ResourceLoader();
 	  Locale locale = r.getLocale();
 	  return locale.getCountry();
+  }
+  
+  public void setPreviewFromPage(String previewFromPage){
+      this.previewFromPage = previewFromPage;
+  }  
+
+  public String getPreviewFromPage(){
+    return previewFromPage;
   }
 }

@@ -32,6 +32,7 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -61,15 +62,16 @@ public class SortPublishedAssessmentListener
 
     processSortInfo(author);
     
+    // Refresh the inactive published assessment list.
+    AuthorActionListener authorActionListener = new AuthorActionListener();
     GradingService gradingService = new GradingService();
-    HashMap map = gradingService.getSubmissionSizeOfAllPublishedAssessments();
-	 
-    ArrayList publishedList = new ArrayList();
-    publishedList = publishedAssessmentService.getBasicInfoOfAllActivePublishedAssessments(this.getPublishedOrderBy(author),author.isPublishedAscending());
 
-    // get the managed bean, author and set the list
-    author.setPublishedAssessments(publishedList);
-    setSubmissionSize(publishedList, map);
+    ArrayList publishedAssessmentList = publishedAssessmentService.getBasicInfoOfAllPublishedAssessments2(
+ 		   this.getPublishedOrderBy(author), author.isPublishedAscending(), AgentFacade.getCurrentSiteId());
+    HashMap startedCounts = gradingService.getInProgressCounts(AgentFacade.getCurrentSiteId());
+	HashMap submittedCounts = gradingService.getSubmittedCounts(AgentFacade.getCurrentSiteId());
+	ArrayList dividedPublishedAssessmentList = authorActionListener.getTakeableList(publishedAssessmentList);
+    authorActionListener.prepareActivePublishedAssessmentsList(author, (ArrayList) dividedPublishedAssessmentList.get(0), startedCounts, submittedCounts);
   }
 
   /**
@@ -126,15 +128,5 @@ public class SortPublishedAssessmentListener
 	bean.setPublishedAscending(true);
     }
 
-  }
-  
-  private void setSubmissionSize(ArrayList list, HashMap map) {
-	  for (int i = 0; i < list.size(); i++) {
-	      PublishedAssessmentFacade p = (PublishedAssessmentFacade) list.get(i);
-	      Integer size = (Integer) map.get(p.getPublishedAssessmentId());
-	      if (size != null) {
-	        p.setSubmissionSize(size.intValue());
-	      }
-	  }
   }
 }

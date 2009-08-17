@@ -1766,11 +1766,11 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    return name;
   }
   
-  public List getNeedResubmitList(String agentId) {
+  public List getUpdatedAssessmentList(String agentId, String siteId) {
 	  List list = null;
 	    try {
 	    	list = PersistenceService.getInstance().
-	        getAssessmentGradingFacadeQueries().getNeedResubmitList(agentId);
+	        getAssessmentGradingFacadeQueries().getUpdatedAssessmentList(agentId, siteId);
 	    } catch (Exception e) {
 	      e.printStackTrace();
 	    }
@@ -1800,15 +1800,25 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		return attachment;
 	}
 
-	public void removeItemGradingAttachment(String attachmentId) {
-		PersistenceService.getInstance().getAssessmentGradingFacadeQueries()
-				.removeItemGradingAttachment(Long.valueOf(attachmentId));
-	}
-	
-	public void saveOrUpdateAttachments(List list) {
-		PersistenceService.getInstance().getAssessmentGradingFacadeQueries()
-				.saveOrUpdateAttachments(list);
-	}
+  public void removeItemGradingAttachment(String attachmentId) {
+	  PersistenceService.getInstance().getAssessmentGradingFacadeQueries()
+	  .removeItemGradingAttachment(Long.valueOf(attachmentId));
+  }
+
+  public void saveOrUpdateAttachments(List list) {
+	  PersistenceService.getInstance().getAssessmentGradingFacadeQueries()
+	  .saveOrUpdateAttachments(list);
+  }
+  
+  public HashMap getInProgressCounts(String siteId)  {
+      return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+      getInProgressCounts(siteId);
+  }
+  
+  public HashMap getSubmittedCounts(String siteId)  {
+      return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+      getSubmittedCounts(siteId);
+  }
 }
 
 

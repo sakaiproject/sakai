@@ -46,7 +46,6 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentGradingFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
-//import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
@@ -127,11 +126,16 @@ public class SelectActionListener
         select.isTakeableAscending(), AgentFacade.getCurrentSiteId());
     
     GradingService gradingService = new GradingService();
-    List needResubmitList = gradingService.getNeedResubmitList(AgentFacade.getAgentString());
-    
+    List list = gradingService.getUpdatedAssessmentList(AgentFacade.getAgentString(), AgentFacade.getCurrentSiteId());
+    List updatedAssessmentNeedResubmitList = new ArrayList();
+    List updatedAssessmentList = new ArrayList();
+    if (list != null && list.size() == 2) {
+    	updatedAssessmentNeedResubmitList = (List) list.get(0);
+    	updatedAssessmentList = (List) list.get(1);
+    }
     
     // filter out the one that the given user do not have right to access
-    ArrayList takeableList = getTakeableList(publishedAssessmentList,  h, needResubmitList);
+    ArrayList takeableList = getTakeableList(publishedAssessmentList,  h, updatedAssessmentNeedResubmitList, updatedAssessmentList);
     
     // 1c. prepare delivery bean
     ArrayList takeablePublishedList = new ArrayList();
@@ -154,11 +158,18 @@ public class SelectActionListener
       else
         delivery.setPastDue(false);
       
-      if (needResubmitList.contains(f.getPublishedAssessmentId())) {
-    	  delivery.setNeedResubmit(true);
+      if (updatedAssessmentNeedResubmitList.contains(f.getPublishedAssessmentId())) {
+    	  delivery.setAssessmentUpdatedNeedResubmit(true);
       }
       else {
-    	  delivery.setNeedResubmit(false);
+    	  delivery.setAssessmentUpdatedNeedResubmit(false);
+      }
+      
+      if (updatedAssessmentList.contains(f.getPublishedAssessmentId())) {
+    	  delivery.setAssessmentUpdated(true);
+      }
+      else {
+    	  delivery.setAssessmentUpdated(false);
       }
     	  
       takeablePublishedList.add(delivery);
@@ -451,7 +462,7 @@ public class SelectActionListener
   // agent is authorizaed and filter out the one that does not meet the
   // takeable criteria.
   // SAK-1464: we also want to filter out assessment released To Anonymous Users
-  private ArrayList getTakeableList(ArrayList assessmentList, HashMap h, List needResubmitList) {
+  private ArrayList getTakeableList(ArrayList assessmentList, HashMap h, List updatedAssessmentNeedResubmitList, List updatedAssessmentList) {
     ArrayList takeableList = new ArrayList();
     GradingService gradingService = new GradingService();
     HashMap numberRetakeHash = gradingService.getNumberRetakeHash(AgentFacade.getAgentString());
@@ -460,7 +471,7 @@ public class SelectActionListener
       PublishedAssessmentFacade f = (PublishedAssessmentFacade)assessmentList.get(i);
       if (f.getReleaseTo()!=null && !("").equals(f.getReleaseTo())
           && f.getReleaseTo().indexOf("Anonymous Users") == -1 ) {
-        if (isAvailable(f, h, numberRetakeHash, actualNumberRetake, needResubmitList)) {
+        if (isAvailable(f, h, numberRetakeHash, actualNumberRetake, updatedAssessmentNeedResubmitList, updatedAssessmentList)) {
           takeableList.add(f);
         }
       }
@@ -468,7 +479,7 @@ public class SelectActionListener
     return takeableList;
   }
 
-  public boolean isAvailable(PublishedAssessmentFacade f, HashMap h, HashMap numberRetakeHash, HashMap actualNumberRetakeHash, List needResubmitList) {
+  public boolean isAvailable(PublishedAssessmentFacade f, HashMap h, HashMap numberRetakeHash, HashMap actualNumberRetakeHash, List updatedAssessmentNeedResubmitList, List updatedAssessmentList) {
     boolean returnValue = false;
     //1. prepare our significant parameters
     Integer status = f.getStatus();
@@ -489,7 +500,7 @@ public class SelectActionListener
     	return false;
     }
     
-    if (needResubmitList.contains(f.getPublishedAssessmentId())) {
+    if (updatedAssessmentNeedResubmitList.contains(f.getPublishedAssessmentId()) || updatedAssessmentList.contains(f.getPublishedAssessmentId())) {
     	return true;
     }
     

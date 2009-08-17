@@ -2475,12 +2475,36 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
    	    }
 	}
 	
-	public List getNeedResubmitList(String agentId) {
-		Object[] values = { agentId, false, 4};
+	public List getUpdatedAssessmentList(String agentId, String siteId) {
+		ArrayList finalList = new ArrayList();
+		ArrayList updatedAssessmentList = new ArrayList();
+		ArrayList updatedAssessmentNeedResubmitListList = new ArrayList();
+		
+		Object[] values = { agentId, siteId, "OWN_PUBLISHED_ASSESSMENT", false, AssessmentGradingIfc.ASSESSMENT_UPDATED, AssessmentGradingIfc.ASSESSMENT_UPDATED_NEED_RESUBMIT};
 
 		List list = getHibernateTemplate()
-				.find("select a.publishedAssessmentId from AssessmentGradingData a where a.agentId=? and a.forGrade=? and a.status=?", values);
-		return list;
+				.find("select a.publishedAssessmentId, a.status from AssessmentGradingData a, AuthorizationData az " +
+						" where a.agentId=? and az.agentIdString=? and az.functionId=? " + 
+						" and az.qualifierId=a.publishedAssessmentId and a.forGrade=? and (a.status=? or a.status=?) " +
+						" order by a.status", values);
+		
+		if (list.size() == 0) {
+			return updatedAssessmentList;
+		}
+
+		Iterator iter = list.iterator();
+		while (iter.hasNext()) {
+			Object o[] = (Object[]) iter.next();
+			if (AssessmentGradingIfc.ASSESSMENT_UPDATED_NEED_RESUBMIT.compareTo((Integer) o[1]) == 0) {
+				updatedAssessmentNeedResubmitListList.add(o[0]);
+			}
+			else {
+				updatedAssessmentList.add(o[0]);
+			}
+		}
+		finalList.add(updatedAssessmentNeedResubmitListList);
+		finalList.add(updatedAssessmentList);
+		return finalList;
 	}
 	
 	public void autoSubmitAssessments() {
@@ -2609,5 +2633,39 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
 	  public void saveOrUpdateAttachments(List list) {
 		  getHibernateTemplate().saveOrUpdateAll(list);
+	  }
+
+	  public HashMap getInProgressCounts(String siteId) {
+		  Object [] values = {"OWN_PUBLISHED_ASSESSMENT", siteId, false, 0, 6};
+
+		  List list = getHibernateTemplate()
+		  .find("select a.publishedAssessmentId, count(*) from AssessmentGradingData a, AuthorizationData au " +
+				  "where au.functionId = ? and au.agentIdString = ? and a.publishedAssessmentId = au.qualifierId " +
+				  "and a.forGrade=? and (a.status=? or a.status=?) group by a.publishedAssessmentId", values);
+		  Iterator iter = list.iterator();
+		  HashMap inProgressCountsMap = new HashMap();
+		  while (iter.hasNext()) {
+			  Object o[] = (Object[]) iter.next();
+			  inProgressCountsMap.put(o[0], o[1]);
+		  }
+		  return inProgressCountsMap;
+	  }
+
+	  public HashMap getSubmittedCounts(String siteId) {
+		  Object [] values = {"OWN_PUBLISHED_ASSESSMENT", siteId, true};
+
+		  List list = getHibernateTemplate()
+		  .find("select a.publishedAssessmentId, count(distinct a.agentId) " +
+				  "from AssessmentGradingData a, AuthorizationData au, PublishedAssessmentData p " +
+				  "where au.functionId = ? and au.agentIdString = ? and a.publishedAssessmentId = au.qualifierId " +
+				  "and a.forGrade=? and a.publishedAssessmentId = p.publishedAssessmentId and " +
+				  "(p.lastNeedResubmitDate is null or a.submittedDate >= p.lastNeedResubmitDate) group by a.publishedAssessmentId", values);
+		  Iterator iter = list.iterator();
+		  HashMap startedCountsMap = new HashMap();
+		  while (iter.hasNext()) {
+			  Object o[] = (Object[]) iter.next();
+			  startedCountsMap.put(o[0], o[1]);
+		  }
+		  return startedCountsMap;
 	  }
 }

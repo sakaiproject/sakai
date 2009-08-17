@@ -122,9 +122,8 @@ public class TotalScoreListener
                                               getPublishedAssessment(publishedId);
     
     // reset scoringType based on evaluationModel,scoringType if coming from authorIndex
-    if (ae != null && ae.getComponent().getId().startsWith("authorIndexToScore")) {
+    if (ae == null || (ae != null && ae.getComponent().getId().startsWith("authorIndexToScore"))) {
     	log.debug("coming from authorIndex");
-        log.debug("ae.getComponent().getId() = " + ae.getComponent().getId());
     	EvaluationModelIfc model = pubAssessment.getEvaluationModel();
     	if (model != null && model.getScoringType()!=null){
     		String allSubmissions = model.getScoringType().toString();
@@ -187,9 +186,9 @@ public class TotalScoreListener
     questionbean.setDeliveryItem(new ArrayList());
     questionbean.setSelectedSARationaleView(QuestionScoresBean.SHOW_SA_RATIONALE_RESPONSES_POPUP);
     
-    // if comes from scores link in auther index (means to view the score of a different assessment)
+    // if comes from scores link in author index (means to view the score of a different assessment)
     // we reset the following values for paging (for audio, displays 5 records; for others, display all)
-    if (ae.getComponent().getId().indexOf("authorIndexToScore") > -1) {
+    if (ae == null) {
     	submissionbean.setMaxDisplayedRows(0);
     	bean.setMaxDisplayedRows(0);
     	questionbean.setHasAudioMaxDisplayedScoreRowsChanged(false);

@@ -26,15 +26,17 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * General authoring information.
@@ -74,6 +76,7 @@ public class AuthorBean implements Serializable
   private String inactivePublishedAssessmentOrderBy = "title";
   private boolean inactivePublishedAscending = true;
   private String outcome;
+  private String selectActionOutcome;
   private boolean showTemplateList;
   private boolean isEditPendingAssessmentFlow = true;
   private String fromPage;
@@ -89,6 +92,12 @@ public class AuthorBean implements Serializable
   private boolean isAnyAssessmentRetractForEdit = false;
   private String assessCreationMode; // assessment build (1)or markup text (2)
 
+  private ArrayList<SelectItem> pendingActionList;
+  private ArrayList<SelectItem> publishedActionList;
+  private boolean isGradeable;
+  private boolean isEditable;
+  
+  
   /**
    * @return the id
    */
@@ -490,6 +499,16 @@ public class AuthorBean implements Serializable
     this.outcome = outcome;
   }
 
+  public String getSelectActionOutcome()
+  {
+    return selectActionOutcome;
+  }
+
+  public void setSelectActionOutcome(String selectActionOutcome)
+  {
+    this.selectActionOutcome = selectActionOutcome;
+  }
+  
   public boolean getShowTemplateList()
   {
     return showTemplateList;
@@ -591,4 +610,88 @@ public class AuthorBean implements Serializable
   public void setAssessCreationMode(String assessCreationMode){
 	  this.assessCreationMode = assessCreationMode;
   }
+
+  public void setIsGradeable(boolean isGradeable)
+  {
+    this.isGradeable = isGradeable;
+  }
+
+  public boolean getIsGradeable()
+  {
+    return isGradeable;
+  }
+  
+  public void setIsEditable(boolean isEditable)
+  {
+    this.isEditable = isEditable;
+  }
+
+  public boolean getIsEditable()
+  {
+    return isEditable;
+  }
+  
+  public ArrayList<SelectItem> getPendingSelectActionList()
+  {
+	  if (pendingActionList != null) {
+		  return pendingActionList;
+	  }
+	  
+	  pendingActionList = new ArrayList<SelectItem>();
+	  ResourceLoader res = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+	  AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+
+	  boolean isEditAnyAssessment = authorizationBean.getEditAnyAssessment();
+	  boolean isEditOwnAssessment = authorizationBean.getEditOwnAssessment();
+	  boolean isDeleteAnyAssessment = authorizationBean.getDeleteAnyAssessment();
+	  boolean isDeleteOwnAssessment = authorizationBean.getDeleteOwnAssessment();
+
+	  pendingActionList.add(new SelectItem("select", res.getString("select_action")));
+	  if (isEditAnyAssessment || isEditOwnAssessment) {
+		  pendingActionList.add(new SelectItem("edit_pending", res.getString("action_edit")));
+		  pendingActionList.add(new SelectItem("preview_pending", res.getString("action_preview")));
+		  pendingActionList.add(new SelectItem("settings_pending", res.getString("action_settings")));
+		  pendingActionList.add(new SelectItem("publish", res.getString("action_publish")));
+		  pendingActionList.add(new SelectItem("duplicate", res.getString("action_duplicate")));
+		  pendingActionList.add(new SelectItem("export", res.getString("action_export")));
+	  }
+	  if (isDeleteAnyAssessment || isDeleteOwnAssessment) {
+		  pendingActionList.add(new SelectItem("remove_pending", res.getString("action_remove")));
+	  }
+	  return pendingActionList;
+  }
+  
+  public ArrayList<SelectItem> getPublishedSelectActionList()
+  {
+	  if (publishedActionList != null) {
+		  return publishedActionList;
+	  }
+	  ResourceLoader res = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+	  AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+	  	  
+	  publishedActionList = new ArrayList<SelectItem>();
+	  //boolean isGradeAnyAssessment = authorizationBean.getGradeAnyAssessment();
+	  //boolean isGradeOwnAssessment = authorizationBean.getGradeOwnAssessment();
+	  boolean isEditAnyAssessment = authorizationBean.getEditAnyAssessment();
+	  boolean isEditOwnAssessment = authorizationBean.getEditOwnAssessment();
+	  boolean isDeleteAnyAssessment = authorizationBean.getDeleteAnyAssessment();
+	  boolean isDeleteOwnAssessment = authorizationBean.getDeleteOwnAssessment();
+
+	  //publishedActionList.add(new SelectItem("select", res.getString("select_action")));
+	  //if (isGradeAnyAssessment || isGradeOwnAssessment) {
+		  //publishedActionList.add(new SelectItem("scores", res.getString("action_scores")));
+	  //}
+	  if (isEditAnyAssessment || isEditOwnAssessment) {
+		  //publishedActionList.add(new SelectItem("edit_published", res.getString("action_edit")));
+		  publishedActionList.add(new SelectItem("preview_published", res.getString("action_preview")));
+		  publishedActionList.add(new SelectItem("settings_published", res.getString("action_settings")));
+	  }
+	  if (isDeleteAnyAssessment || isDeleteOwnAssessment) {
+		  publishedActionList.add(new SelectItem("remove_published", res.getString("action_remove")));
+	  }
+	  
+	  return publishedActionList;
+  }
+   
+  
 }

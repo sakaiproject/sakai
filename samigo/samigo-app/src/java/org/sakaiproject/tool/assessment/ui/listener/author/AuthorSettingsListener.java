@@ -23,8 +23,6 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.util.Map;
-
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -118,15 +116,12 @@ public class AuthorSettingsListener implements ActionListener
     else
       assessmentSettings.setHasQuestions(false);
 
-    String actionCommand = ae.getComponent().getId();
-	if ("editAssessmentSettings_author".equals(actionCommand)) {
-		log.debug("editAssessmentSettings_author");
-		author.setFromPage("author");
-	}
-	else if ("editAssessmentSettings_editAssessment".equals(actionCommand)) {
-		log.debug("editAssessmentSettings_editAssessment");
-		author.setFromPage("editAssessment");
-	}   
+    if (ae == null) {
+    	author.setFromPage("author");
+    }
+    else {
+    	author.setFromPage("editAssessment");
+    }
   }
 
   public boolean passAuthz(FacesContext context, String ownerId){

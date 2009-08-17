@@ -43,6 +43,7 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.cms.CourseManagementBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.FeedbackComponent;
@@ -77,7 +78,7 @@ public class BeginDeliveryActionListener implements ActionListener
     DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
     log.info("****DeliveryBean= "+delivery);
     String actionString = ContextUtil.lookupParam("actionString");
-    if (actionString != null) {
+    if (actionString != null && !actionString.trim().equals("")) {
       // if actionString is null, likely that action & actionString has been set already, 
       // e.g. take assessment via url, actionString is set by LoginServlet.
       // preview and take assessment is set by the parameter in the jsp pages
@@ -316,7 +317,7 @@ public class BeginDeliveryActionListener implements ActionListener
 
   }
 
-  public PublishedAssessmentFacade getPublishedAssessmentBasedOnAction(int action, DeliveryBean delivery){
+  private PublishedAssessmentFacade getPublishedAssessmentBasedOnAction(int action, DeliveryBean delivery){
     AssessmentService assessmentService = new AssessmentService();
     PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
     PublishedAssessmentFacade pub = null;
@@ -325,7 +326,9 @@ public class BeginDeliveryActionListener implements ActionListener
 
     switch (action){
     case 2: // delivery.PREVIEW_ASSESSMENT
-        // we would publish to create the publishedAssessment which we would use to populate
+    	AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+    	if (author.getIsEditPendingAssessmentFlow()) {
+    	// we would publish to create the publishedAssessment which we would use to populate
         // properties in delivery. However, for previewing, we do not need to keep this 
         // publishedAssessment record in DB at all, so we would delete it from DB right away.
         AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
@@ -348,6 +351,10 @@ public class BeginDeliveryActionListener implements ActionListener
           log.error(e);
           e.printStackTrace();
         }
+    	}
+    	else {
+    		pub = publishedAssessmentService.getPublishedAssessment(assessmentId);
+    	}
         break;
 
     case 5: //delivery.TAKE_ASSESSMENT_VIA_URL:

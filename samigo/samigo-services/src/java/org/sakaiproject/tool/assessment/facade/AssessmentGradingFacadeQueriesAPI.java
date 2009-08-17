@@ -214,7 +214,7 @@ public interface AssessmentGradingFacadeQueriesAPI
   
   public String getFilename(Long itemGradingId, String agentId, String filename);
 
-  public List getNeedResubmitList(String agentId);
+  public List getUpdatedAssessmentList(String agentId, String siteId);
   
   public void autoSubmitAssessments();
   
@@ -223,4 +223,8 @@ public interface AssessmentGradingFacadeQueriesAPI
   public void removeItemGradingAttachment(Long attachmentId);
   
   public void saveOrUpdateAttachments(List list);
+  
+  public HashMap getInProgressCounts(String siteId);
+  
+  public HashMap getSubmittedCounts(String siteId);
 }

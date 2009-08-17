@@ -327,7 +327,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		
 		// If this assessment grading data has been updated (comments or adj. score) by grader and then republic and allow student to resubmit
 		// when the student submit his answers, we update the status back to 0 and remove the grading entry/info.
-		if (AssessmentGradingIfc.NEED_RESUBMIT.equals(adata.getStatus())) {
+		if (AssessmentGradingIfc.ASSESSMENT_UPDATED_NEED_RESUBMIT.equals(adata.getStatus()) || AssessmentGradingIfc.ASSESSMENT_UPDATED.equals(adata.getStatus())) {
 			adata.setStatus(Integer.valueOf(0));
 			adata.setGradedBy(null);
 			adata.setGradedDate(null);

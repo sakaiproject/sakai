@@ -106,19 +106,21 @@ public class EditPublishedSettingsListener
     AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
     assessmentBean.setAssessmentId(assessmentId);
     
-	String actionCommand = ae.getComponent().getId();
-	if ("editPublishedAssessmentSettings_author".equals(actionCommand)) {
-		log.debug("editPublishedAssessmentSettings_author");
-		author.setFromPage("author");
-	}
-	else if ("editPublishedAssessmentSettings_editAssessment".equals(actionCommand)) {
-		log.debug("editPublishedAssessmentSettings_editAssessment");
-		author.setFromPage("editAssessment");
-	}
-	else if ("editPublishedAssessmentSettings_saveSettingsAndConfirmPublish".equals(actionCommand)) {
-		log.debug("editPublishedAssessmentSettings_saveSettingsAndConfirmPublish");
-		author.setFromPage("saveSettingsAndConfirmPublish");
-	}
+    if (ae == null) {
+    	// From authorIndex
+    	author.setFromPage("author");
+    }
+    else {
+    	String actionCommand = ae.getComponent().getId();
+    	if ("editPublishedAssessmentSettings_editAssessment".equals(actionCommand)) {
+    		log.debug("editPublishedAssessmentSettings_editAssessment");
+    		author.setFromPage("editAssessment");
+    	}
+    	else if ("editPublishedAssessmentSettings_saveSettingsAndConfirmPublish".equals(actionCommand)) {
+    		log.debug("editPublishedAssessmentSettings_saveSettingsAndConfirmPublish");
+    		author.setFromPage("saveSettingsAndConfirmPublish");
+    	}
+    }
 	
 	boolean isRetractedForEdit = isRetractedForEdit(assessment);
 	log.debug("isRetractedForEdit = " + isRetractedForEdit);

@@ -1,5 +1,6 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -52,18 +53,20 @@ public class RepublishAssessmentListener implements ActionListener {
 		
 		// Go to database to get the newly updated data. The data inside beans might not be up to date.
 		PublishedAssessmentFacade assessment = publishedAssessmentService.getPublishedAssessment(publishedAssessmentId);
-
 		EventTrackingService.post(EventTrackingService.newEvent("sam.pubassessment.republish", "publishedAssessmentId=" + publishedAssessmentId, true));
 
 		assessment.setStatus(AssessmentBaseIfc.ACTIVE_STATUS);
-		
 		publishedAssessmentService.saveAssessment(assessment);
+
 		AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
-		
 		// If there are submissions, need to regrade them
 		if (author.getIsRepublishAndRegrade() && hasGradingData) {
 			regradeRepublishedAssessment(publishedAssessmentService, assessment);
 		}
+		
+		EventTrackingService.post(EventTrackingService.newEvent("sam.pubassessment.republish", "publishedAssessmentId=" + publishedAssessmentId, true));
+		assessment.setStatus(AssessmentBaseIfc.ACTIVE_STATUS);
+		publishedAssessmentService.saveAssessment(assessment);
 		updateGB(assessment);
 		
 		PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
@@ -98,14 +101,18 @@ public class RepublishAssessmentListener implements ActionListener {
 		List list = service.getAllAssessmentGradingData(publishedAssessment.getPublishedAssessmentId());
 		Iterator iter = list.iterator();
 		if (updateMostCurrentSubmission) {
+			publishedAssessment.setLastNeedResubmitDate(new Date());
 		    String currentAgent = "";
 			while (iter.hasNext()) {
 				AssessmentGradingData adata = (AssessmentGradingData) iter.next();
 				if (!currentAgent.equals(adata.getAgentId())){
 					if (adata.getForGrade().booleanValue()) {
 						adata.setForGrade(Boolean.FALSE);
+						adata.setStatus(AssessmentGradingIfc.ASSESSMENT_UPDATED_NEED_RESUBMIT);
 					}
-					adata.setStatus(AssessmentGradingIfc.NEED_RESUBMIT);
+					else {
+						adata.setStatus(AssessmentGradingIfc.ASSESSMENT_UPDATED);
+					}
 					currentAgent = adata.getAgentId();
 				}
 				service.storeGrades(adata, true, publishedAssessment, publishedItemHash, publishedItemTextHash, publishedAnswerHash, true);

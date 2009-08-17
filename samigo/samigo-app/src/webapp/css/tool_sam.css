@@ -138,3 +138,64 @@ font-size:1.2em
 	padding: .5em 0 0 0;
 }
 
+.selectAction {
+	width: 10%;
+}
+
+.titlePending {
+	width: 77%;
+}
+
+.titlePub {
+	width: 30%;
+}
+
+.lastModified {
+	width: 13%;
+}
+
+.releaseTo {
+	width: 11%;
+}
+
+.inProgress {
+	width: 9%;
+}
+
+.submitted {
+	width: 9%;
+}
+
+.releaseDate {
+	width: 9%;
+}
+
+.dueDate {
+	width: 9%;
+}
+
+.listAssessments th{
+	background-color: #ddd;
+	border: 1px solid #999;
+}
+
+.makeInfo {
+	border: 1px solid #666; 
+	background-color: #FFFDD2;
+	position: absolute; 
+	top: 0px; 
+	left: 30px;
+	text-indent: 0em;
+	margin-top: 0.4em;
+	margin-left: -1.2em;
+	max-height: 250px; /* if div >= to this max-height value, will override with scrollDescription class b/c IE scrollbar issues */
+	white-space: nowrap;
+}
+
+.info {
+	position: relative;
+}
+
+.whiteSpaceNoWrap {
+	white-space: nowrap;
+}

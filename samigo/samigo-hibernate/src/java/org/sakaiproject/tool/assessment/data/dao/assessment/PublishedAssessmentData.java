@@ -82,6 +82,7 @@ public class PublishedAssessmentData
   //private String ownerSiteName;
   private Set assessmentAttachmentSet;
   private Integer scoringType;
+  private Date lastNeedResubmitDate;
   
   public PublishedAssessmentData() {}
   /**
@@ -112,6 +113,30 @@ public class PublishedAssessmentData
     this.retractDate = retractDate;
   }
   
+  /**
+   * "Convenient Constructor"
+   * This is a cheap object created for holding just the Id, title &
+   * delivery dates. This object is merely used for display. It is not used
+   * for persistence.
+   */
+  public PublishedAssessmentData(Long id, String title, String releaseTo,
+                                 Date startDate, Date dueDate, Date retractDate, Integer status,
+                                 Date lastModifiedDate, String lastModifiedBy,
+                                 Integer lateHandling, Boolean unlimitedSubmissions, Integer submissionsAllowed) {
+    this.assessmentBaseId = id;
+    this.title = title;
+    this.releaseTo = releaseTo;
+    this.startDate = startDate;
+    this.dueDate = dueDate;
+    this.retractDate = retractDate;
+    this.status = status;
+    this.lastModifiedDate = lastModifiedDate;
+    this.lastModifiedBy = lastModifiedBy;
+    this.lateHandling = lateHandling;
+    this.unlimitedSubmissions = unlimitedSubmissions;
+    this.submissionsAllowed = submissionsAllowed;
+  }
+
   /**
    * "Convenient Constructor"
    * This is a cheap object created for holding just the Id, title &
@@ -689,5 +714,13 @@ public class PublishedAssessmentData
   // implement AssessmentIfc
   public String getHasMetaDataForQuestions() {
 		return "false";
+  }
+  
+  public Date getLastNeedResubmitDate() {
+	  return this.lastNeedResubmitDate;
+  }
+
+  public void setLastNeedResubmitDate(Date lastNeedResubmitDate) {
+	  this.lastNeedResubmitDate = lastNeedResubmitDate;
   }
 }
