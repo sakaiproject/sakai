@@ -190,11 +190,10 @@ public class SakaiExternalIntegrationProvider implements ExternalIntegrationProv
                 + requestInfo + "\n" + usageSessionInfo;
 
         // attempt to get the email address, if it is not there then we will not send an email
-        String emailAddr = serverConfigurationService.getString("direct.error.email");
-        if (emailAddr == null) {
-            emailAddr = serverConfigurationService.getString("portal.error.email");
-        }
-        if (emailAddr != null) {
+        String emailAddr = serverConfigurationService.getString("direct.error.email", 
+        		serverConfigurationService.getString("portal.error.email"));
+ 
+        if (emailAddr != null && !"".equals(emailAddr)) {
             String from = "\"<no-reply@" + serverConfigurationService.getServerName() + ">";
             if (emailService != null) {
                 emailService.send(from, emailAddr, subject, body + "\n" + stacktrace, emailAddr, null, null);
