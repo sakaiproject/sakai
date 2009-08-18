@@ -9226,6 +9226,10 @@ public class SiteAction extends PagedResourceActionII {
 		Vector idSelected = new Vector();
 		if (!((pageList == null) || (pageList.size() == 0))) {
 			for (ListIterator i = pageList.listIterator(); i.hasNext();) {
+				// reset
+				wSetupTool = null;
+				wSetupToolId = null;
+				
 				SitePage page = (SitePage) i.next();
 				// collect the pages consistent with Worksite Setup patterns
 				List<String> pmList = pageMatchesPattern(state, page);
