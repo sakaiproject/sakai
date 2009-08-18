@@ -1380,7 +1380,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			else if (fileitem.getFileName().length() > 0)
 			{
 				String filename = Validator.getFileName(fileitem.getFileName());
-				pipe.setRevisedContent( fileitem.get() );
+				pipe.setRevisedContentStream( fileitem.getInputStream() );
 				String contentType = fileitem.getContentType();
 				pipe.setRevisedMimeType(contentType);
 				
