@@ -24,6 +24,7 @@ package org.sakaiproject.content.impl;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -117,7 +118,15 @@ public class DropboxNotification extends EmailNotification
 		rv.add(getFrom(event));
 
 		// to
-		//rv.add(getTo(event));
+		List toList = getRecipients(event);
+		Iterator itr = toList.iterator();
+		StringBuilder recips = new StringBuilder();
+		while (itr.hasNext())
+		{
+			User usr = (User) itr.next();
+			recips.append(usr.getEmail() + ", ");
+		}
+		rv.add("To: " + recips.toString());
 
 		return rv;
 	}
