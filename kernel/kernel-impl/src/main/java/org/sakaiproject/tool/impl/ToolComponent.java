@@ -32,7 +32,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Locale;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,7 +44,6 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Xml;
-import org.sakaiproject.util.ResourceLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -68,7 +66,7 @@ public abstract class ToolComponent implements ToolManager
 	protected final static String CURRENT_TOOL = "sakai:ToolComponent:current.tool";
 
 	/** The registered tools. */
-	protected Map m_tools = new ConcurrentHashMap();
+	protected Map<String,Tool> m_tools = new ConcurrentHashMap<String,Tool>();
 
 	/** tool ids to be hidden - their catagories don't matter, they don't show up on any catagorized listing. */
 	protected String[] m_toolIdsToHide = null;
@@ -87,7 +85,7 @@ public abstract class ToolComponent implements ToolManager
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/** tool ids to be stealthed (hidden). */
-	protected Collection m_stealthToolIds = null;
+	protected Collection<String> m_stealthToolIds = null;
 
 	/**
 	 * Configuration - set the list of tool ids to be "stealthed". A stealthed tool does not show up in a category list of tools.
@@ -103,7 +101,7 @@ public abstract class ToolComponent implements ToolManager
 		}
 		else
 		{
-			m_stealthToolIds = new Vector();
+			m_stealthToolIds = new Vector<String>();
 			String[] items = StringUtil.split(toolIds, ",");
 			for (int i = 0; i < items.length; i++)
 			{
@@ -113,7 +111,7 @@ public abstract class ToolComponent implements ToolManager
 	}
 
 	/** tool ids to be visible, not hidden, even if marked hidden or stealthed. */
-	protected Collection m_visibleToolIds = null;
+	protected Collection<String> m_visibleToolIds = null;
 
 	/**
 	 * Configuration - set the list of tool ids to be visible, not hidden, even if marked hidden or stealthed.
@@ -129,7 +127,7 @@ public abstract class ToolComponent implements ToolManager
 		}
 		else
 		{
-			m_visibleToolIds = new Vector();
+			m_visibleToolIds = new Vector<String>();
 			String[] items = StringUtil.split(toolIds, ",");
 			for (int i = 0; i < items.length; i++)
 			{
@@ -139,7 +137,7 @@ public abstract class ToolComponent implements ToolManager
 	}
 
 	/** tool ids to be hidden, adding to the stealth list (but not trumping the visible list) */
-	protected Collection m_hiddenToolIds = null;
+	protected Collection<String> m_hiddenToolIds = null;
 
 	/**
 	 * Configuration - set the list of tool ids to be visible, not hidden, even if marked hidden or stealthed.
@@ -155,7 +153,7 @@ public abstract class ToolComponent implements ToolManager
 		}
 		else
 		{
-			m_hiddenToolIds = new Vector();
+			m_hiddenToolIds = new Vector<String>();
 			String[] items = StringUtil.split(toolIds, ",");
 			for (int i = 0; i < items.length; i++)
 			{
@@ -174,7 +172,7 @@ public abstract class ToolComponent implements ToolManager
 	public void init()
 	{
 		// compute the tools to hide: these are the stealth tools plus the hidden tools, minus the visible ones
-		Collection toHide = new HashSet();
+		Collection<String> toHide = new HashSet<String>();
 
 		if (m_stealthToolIds != null)
 		{
@@ -198,9 +196,10 @@ public abstract class ToolComponent implements ToolManager
 		{
 			m_toolIdsToHide = new String[toHide.size()];
 			int pos = 0;
-			for (Iterator i = toHide.iterator(); i.hasNext();)
-			{
-				m_toolIdsToHide[pos] = (String) i.next();
+			
+			for (String i : toHide) {
+				
+				m_toolIdsToHide[pos] = i;
 
 				hidden.append(m_toolIdsToHide[pos]);
 				hidden.append(" ");
@@ -226,13 +225,14 @@ public abstract class ToolComponent implements ToolManager
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
-	public Set findTools(Set categories, Set keywords)
+	@SuppressWarnings("unchecked")
+	public Set<Tool> findTools(Set categories, Set keywords)
 	{
-		Set rv = new HashSet();
+		Set<Tool> rv = new HashSet<Tool>();
 
-		for (Iterator i = m_tools.values().iterator(); i.hasNext();)
+		for (Iterator<Tool> i = m_tools.values().iterator(); i.hasNext();)
 		{
 			Tool tool = (Tool) i.next();
 			if (matchCriteria(categories, tool.getCategories()) && matchCriteria(keywords, tool.getKeywords()))
@@ -249,7 +249,7 @@ public abstract class ToolComponent implements ToolManager
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public Placement getCurrentPlacement()
 	{
@@ -257,7 +257,7 @@ public abstract class ToolComponent implements ToolManager
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public Tool getCurrentTool()
 	{
@@ -265,11 +265,11 @@ public abstract class ToolComponent implements ToolManager
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public Tool getTool(String id)
 	{
-		return (Tool) m_tools.get(id);
+		return (id != null) ? (Tool) m_tools.get(id) : null;
 	}
 
 	/**
@@ -281,6 +281,7 @@ public abstract class ToolComponent implements ToolManager
 	 *        The set of String values to check against the criteria.
 	 * @return true if the target meets the criteria, false if not.
 	 */
+	@SuppressWarnings("unchecked")
 	protected boolean matchCriteria(Set criteria, Set target)
 	{
 		if ((criteria == null) || (criteria.isEmpty())) return true;
@@ -294,8 +295,9 @@ public abstract class ToolComponent implements ToolManager
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
+	@SuppressWarnings("deprecation")
 	public void register(Document toolXml)
 	{
 		Element root = toolXml.getDocumentElement();
@@ -336,8 +338,8 @@ public abstract class ToolComponent implements ToolManager
 				// collect values for these collections
 				Properties finalConfig = new Properties();
 				Properties mutableConfig = new Properties();
-				Set categories = new HashSet();
-				Set keywords = new HashSet();
+				Set<String> categories = new HashSet<String>();
+				Set<String> keywords = new HashSet<String>();
 
 				NodeList kids = rootElement.getChildNodes();
 				final int kidsLength = kids.getLength();
@@ -398,14 +400,14 @@ public abstract class ToolComponent implements ToolManager
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public void register(File toolXmlFile)
 	{
 		String path = toolXmlFile.getAbsolutePath();
 		if (!path.endsWith(".xml"))
 		{
-			M_log.info("register: skiping non .xml file: " + path);
+			M_log.info("register: skipping non .xml file: " + path);
 			return;
 		}
 
@@ -416,7 +418,7 @@ public abstract class ToolComponent implements ToolManager
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public void register(InputStream toolXmlStream)
 	{
@@ -433,7 +435,7 @@ public abstract class ToolComponent implements ToolManager
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public void register(Tool tool)
 	{
@@ -469,6 +471,7 @@ public abstract class ToolComponent implements ToolManager
 	 * @param filename Full filename of the properties file to be added to the resource bundle.
 	 * @author Mark Norton for SAK-8908
 	 */
+	@SuppressWarnings("unchecked")
 	public void setResourceBundle (String toolId, String filename)
 	{
 		File file = new File(filename);
