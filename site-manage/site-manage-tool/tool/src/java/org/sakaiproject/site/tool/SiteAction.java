@@ -10985,33 +10985,33 @@ public class SiteAction extends PagedResourceActionII {
 	}
 
 	private void prepFindPage(SessionState state) {
-		final List cmLevels = getCMLevelLabels(), selections = (List) state
-				.getAttribute(STATE_CM_LEVEL_SELECTIONS);
-		int lvlSz = 0;
-
-		if (cmLevels == null || (lvlSz = cmLevels.size()) < 1) {
-			// TODO: no cm levels configured, redirect to manual add
-			return;
-		}
-
-		if (selections != null && selections.size() == lvlSz) {
-			Section sect = cms.getSection((String) selections.get(selections
-					.size() - 1));
-			SectionObject so = new SectionObject(sect);
-
-			state.setAttribute(STATE_CM_SELECTED_SECTION, so);
-		} else
-			state.removeAttribute(STATE_CM_SELECTED_SECTION);
-
-		state.setAttribute(STATE_CM_LEVELS, cmLevels);
-		state.setAttribute(STATE_CM_LEVEL_SELECTIONS, selections);
-
 		// check the configuration setting for choosing next screen
 		Boolean skipCourseSectionSelection = ServerConfigurationService.getBoolean("wsetup.skipCourseSectionSelection", Boolean.FALSE);
 		if (!skipCourseSectionSelection.booleanValue())
 		{
 			// go to the course/section selection page
 			state.setAttribute(STATE_TEMPLATE_INDEX, "53");
+			
+			// get cm levels
+			final List cmLevels = getCMLevelLabels(), selections = (List) state.getAttribute(STATE_CM_LEVEL_SELECTIONS);
+			int lvlSz = 0;
+		
+			if (cmLevels == null || (lvlSz = cmLevels.size()) < 1) {
+				// TODO: no cm levels configured, redirect to manual add
+				return;
+			}
+		
+			if (selections != null && selections.size() == lvlSz) {
+				Section sect = cms.getSection((String) selections.get(selections
+						.size() - 1));
+				SectionObject so = new SectionObject(sect);
+		
+				state.setAttribute(STATE_CM_SELECTED_SECTION, so);
+			} else
+				state.removeAttribute(STATE_CM_SELECTED_SECTION);
+		
+			state.setAttribute(STATE_CM_LEVELS, cmLevels);
+			state.setAttribute(STATE_CM_LEVEL_SELECTIONS, selections);
 		}
 		else
 		{
