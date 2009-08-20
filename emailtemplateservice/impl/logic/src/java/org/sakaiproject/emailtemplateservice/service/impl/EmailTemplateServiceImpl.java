@@ -269,7 +269,11 @@ public Map<EmailTemplateLocaleUsers, RenderedTemplate> getRenderedTemplates(
 		Entry<Locale, EmailTemplateLocaleUsers> entry = it.next();
 		Locale loc = entry.getKey();
 		RenderedTemplate rt = this.getRenderedTemplate(key, loc, replacementValues);
-		ret.put(entry.getValue(), rt);
+		if (rt != null) {
+			ret.put(entry.getValue(), rt);
+		} else {
+			log.error("No template found for key: " + key + " in locale: " + loc);
+		}
 		
 	}
 	return ret;
