@@ -712,13 +712,15 @@ CREATE INDEX IE_SAKAI_EVENT_DELAY_RESOURCE ON SAKAI_EVENT_DELAY
 -- appear in the new mail archive. The script is in the source as mailarchive-runconversion.sh. Please see the SAK for more information on this script or SAK-16554 for
 -- updates to this script. 
 
-CREATE INDEX IE_MAILARC_SUBJECT ON MAILARCHIVE_MESSAGE
-(
-       SUBJECT                   ASC
-);
 ALTER TABLE MAILARCHIVE_MESSAGE ADD COLUMN (
        SUBJECT           VARCHAR (255) NULL,
        BODY              LONGTEXT NULL
+);
+
+-- SAK-16809 Index order wrong
+CREATE INDEX IE_MAILARC_SUBJECT ON MAILARCHIVE_MESSAGE
+(
+       SUBJECT                   ASC
 );
 
 -- SAK-11096 asn.share.drafts is a newly added permission
