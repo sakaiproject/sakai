@@ -335,6 +335,7 @@ public void sendRenderedMessages(String key, List<String> userReferences,
 				headers.add("Subject: " + rt.getSubject());
 				headers.add("Content-Type: multipart/alternative; boundary=\"" + MULTIPART_BOUNDARY + "\"");
 				headers.add("Mime-Version: 1.0");
+				headers.add("Precedence: bulk");
 				
 				String body = message.toString();
 				log.debug("message body " + body);
