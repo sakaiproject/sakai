@@ -256,30 +256,32 @@ public class SyllabusTool
         
                 
         syllabusItem = getSyllabusItem();            
-                        
-        Set tempEntries = syllabusManager
+
+        if (syllabusItem != null) {
+            Set tempEntries = syllabusManager
             .getSyllabiForSyllabusItem(syllabusItem);
 
-        if (tempEntries != null)
-        {
-          Iterator iter = tempEntries.iterator();
-          while (iter.hasNext())
-          {
-            SyllabusData en = (SyllabusData) iter.next();
-            if (this.checkAccess())
+            if (tempEntries != null)
             {
-              DecoratedSyllabusEntry den = new DecoratedSyllabusEntry(en);
-              entries.add(den);
+                Iterator iter = tempEntries.iterator();
+                while (iter.hasNext())
+                {
+                    SyllabusData en = (SyllabusData) iter.next();
+                    if (this.checkAccess())
+                    {
+                        DecoratedSyllabusEntry den = new DecoratedSyllabusEntry(en);
+                        entries.add(den);
+                    }
+                    else
+                    {
+                        if (en.getStatus().equals("Posted"))
+                        {
+                            DecoratedSyllabusEntry den = new DecoratedSyllabusEntry(en);
+                            entries.add(den);
+                        }
+                    }
+                }
             }
-            else
-            {
-              if (en.getStatus().equals("Posted"))
-              {
-                DecoratedSyllabusEntry den = new DecoratedSyllabusEntry(en);
-                entries.add(den);
-              }
-            }
-          }
         }
       }
       catch (Exception e)
@@ -402,39 +404,26 @@ public class SyllabusTool
   {
     //sakai2 - use Placement to get context instead of getting currentSitePageId from PortalService in sakai.
     Placement placement = ToolManager.getCurrentPlacement();
-		String currentSiteId = placement.getContext();
+    String currentSiteId = placement.getContext();
     String currentUserId = UserDirectoryService.getCurrentUser().getId();
-    try
+
+    if((syllabusItem != null) && (syllabusItem.getContextId().equals(currentSiteId))
+            && (syllabusItem.getUserId().equals(currentUserId)))
     {
-      if((syllabusItem != null) && (syllabusItem.getContextId().equals(currentSiteId))
-          && (syllabusItem.getUserId().equals(currentUserId)))
-      {
         return syllabusItem;
-      }
-
-      syllabusItem = syllabusManager.getSyllabusItemByContextId(currentSiteId);
-
-      if (syllabusItem == null)
-      {
-        if (!this.checkAccess())
-        {
-        	throw new PermissionException(currentUserId, SiteService.SECURE_UPDATE_SITE, currentSiteId); 
-        }
-        else
-        {
-          syllabusItem = syllabusManager.createSyllabusItem(currentUserId,
-              currentSiteId, null);
-        }
-      }
     }
-    catch (Exception e)
+
+    syllabusItem = syllabusManager.getSyllabusItemByContextId(currentSiteId);
+
+    if (syllabusItem == null)
     {
-      logger.info(this + ".getSyllabusItem() in SyllabusTool " + e);
-      FacesContext.getCurrentInstance().addMessage(
-          null,
-          MessageFactory.getMessage(FacesContext.getCurrentInstance(),
-              "error_permission", (new Object[] { e.toString() })));
+        if (this.checkAccess())
+        {
+            syllabusItem = syllabusManager.createSyllabusItem(currentUserId,
+                    currentSiteId, null);
+        }
     }
+
     return syllabusItem;
   }
 
