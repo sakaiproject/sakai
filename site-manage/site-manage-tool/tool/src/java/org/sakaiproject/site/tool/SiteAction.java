@@ -9155,8 +9155,7 @@ public class SiteAction extends PagedResourceActionII {
 					MyTool tool = (MyTool) i.next();
 					if (toolConfiguration.getTitle() != null) {
 						if (toolConfiguration.getTool() != null
-								&& toolConfiguration.getTool().getId().indexOf(
-										tool.getId()) != -1) {
+								&& originalToolId(toolConfiguration.getTool().getId(), tool.getId()) != null) {
 							match = tool.getId();
 							rv = new Vector();
 							rv.add(match);
