@@ -101,62 +101,6 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sitestats-api</artifactId>
     </dependency>
-
-    <!-- Sakai -->
-    <!-- K1 Sakai deps -->
-    <!--
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-util</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-component-manager</artifactId>
-    </dependency>
-    -->
-    <!-- Pre K1 Sakai deps -->
-    <!--
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-component</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-component-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-authz-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-entity-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-tool-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-site-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-user-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-content-api</artifactId>
-    </dependency>
-    -->
     
     <!-- Apache Wicket -->
     <dependency>
@@ -170,6 +114,12 @@
     <dependency>
       <groupId>org.apache.wicket</groupId>
       <artifactId>wicket-ioc</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>cglib</groupId>
+          <artifactId>cglib-nodep</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.wicket</groupId>
@@ -193,14 +143,6 @@
     </dependency>
 
     <!-- Apache Commons -->
-    <!--<dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>-->
-      <!-- Version 3.2 Required!!! -->
-      <!-- See: http://jira.jboss.com/jira/browse/AJSF-32  and  http://jira.jboss.com/jira/browse/AJSF-40 -->
-      <!--<version>3.2</version>
-      <scope>runtime</scope>
-    </dependency>-->
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
