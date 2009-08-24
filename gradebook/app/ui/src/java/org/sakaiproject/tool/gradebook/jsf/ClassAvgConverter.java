@@ -35,10 +35,11 @@ import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 /**
- * This formatting-only converver consolidates the rather complex formatting
+ * This formatting-only converter consolidates the rather complex formatting
  * logic for the display of class avg. If the avg is null,
  * it should be displayed in a special way. If the avg belongs to an
  * assignment which doesn't count toward the final grade, it should be
@@ -47,6 +48,22 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
  */
 public class ClassAvgConverter extends PointsConverter {
 	private static final Log log = LogFactory.getLog(ClassAvgConverter.class);
+
+    private int averageDecimalPlaces = 0;
+
+    public ClassAvgConverter() {
+        // AZ - allows configuration of the decimal points display for class average
+        // http://jira.sakaiproject.org/browse/SAK-14520
+        ServerConfigurationService configurationService = org.sakaiproject.component.cover.ServerConfigurationService.getInstance();
+        if (configurationService == null) {
+            log.warn("Unable to get configuration service, using default gradebook averageDecimalPlaces");
+        } else {
+            averageDecimalPlaces = configurationService.getInt("gradebook.class.average.decimal.places", 0);
+        }
+        if (averageDecimalPlaces < 0) {
+            averageDecimalPlaces = 0;
+        }
+    }
 
 	public String getAsString(FacesContext context, UIComponent component, Object value) {
 		if (log.isDebugEnabled()) log.debug("getAsString(" + context + ", " + component + ", " + value + ")");
@@ -62,7 +79,7 @@ public class ClassAvgConverter extends PointsConverter {
 		
 		Object avg = null;
 		Object pointsPossible = null;
-		int numDecimalPlaces = 0;
+		int numDecimalPlaces = averageDecimalPlaces;
 		Gradebook gradebook;
 		
 		GradebookBean gbb = (GradebookBean)FacesUtil.resolveVariable("gradebookBean");
@@ -140,7 +157,10 @@ public class ClassAvgConverter extends PointsConverter {
 				}
 			} else if (value instanceof CourseGradeRecord) {
 				CourseGradeRecord gradeRecord = (CourseGradeRecord) value;
-				numDecimalPlaces = 2;
+				if (numDecimalPlaces <= 0) {
+				    // AZ - maintain default operation
+	                numDecimalPlaces = 2;
+				}
 				entryMethod = PERCENT;
 				avg = gradeRecord.getGradeAsPercentage();
 			}
@@ -175,6 +195,7 @@ public class ClassAvgConverter extends PointsConverter {
 			if (value instanceof Number) {
 				// Truncate to given # decimal places.
 				value = new Double(FacesUtil.getRoundDown(((Number)value).doubleValue(), numDecimals));
+				// AZ - note, this next line always truncs to 2 places by default
 				formattedValue = super.getAsString(context, component, value);
 			} else {
 				formattedValue = value.toString();

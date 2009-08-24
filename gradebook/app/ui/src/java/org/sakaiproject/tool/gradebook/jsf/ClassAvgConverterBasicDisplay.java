@@ -34,14 +34,31 @@ import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 /**
- * This formatting-only converver displays appropriate class avg depending on
- * grade entry method for this gradebook. Truncates with 0 decimals.
+ * This formatting-only converter displays appropriate class avg depending on
+ * grade entry method for this gradebook. Truncates with 0 decimals or uses the config setting.
  */
 public class ClassAvgConverterBasicDisplay extends PointsConverter {
 	private static final Log log = LogFactory.getLog(ClassAvgConverterBasicDisplay.class);
+
+	private int averageDecimalPlaces = 0;
+
+	public ClassAvgConverterBasicDisplay() {
+        // AZ - allows configuration of the decimal points display for class average
+        // http://jira.sakaiproject.org/browse/SAK-14520
+	    ServerConfigurationService configurationService = org.sakaiproject.component.cover.ServerConfigurationService.getInstance();
+	    if (configurationService == null) {
+	        log.warn("Unable to get configuration service, using default gradebook averageDecimalPlaces");
+	    } else {
+	        averageDecimalPlaces = configurationService.getInt("gradebook.class.average.decimal.places", 0);
+	        if (averageDecimalPlaces < 0) {
+	            averageDecimalPlaces = 0;
+	        }
+	    }
+	}
 
 	public String getAsString(FacesContext context, UIComponent component, Object value) {
 		if (log.isDebugEnabled()) log.debug("getAsString(" + context + ", " + component + ", " + value + ")");
@@ -120,8 +137,9 @@ public class ClassAvgConverterBasicDisplay extends PointsConverter {
 			formattedValue = FacesUtil.getLocalizedString("score_null_placeholder");
 		} else {
 			if (value instanceof Number) {
-				// Truncate to 0 decimal places.
-				value = new Double(FacesUtil.getRoundDown(((Number)value).doubleValue(), 0));
+				// Truncate to averageDecimalPlaces decimal places.
+				value = new Double(FacesUtil.getRoundDown(((Number)value).doubleValue(), averageDecimalPlaces));
+                // AZ - note, this next line always truncs to 2 places by default
 				formattedValue = super.getAsString(context, component, value);
 			} else {
 				formattedValue = value.toString();
