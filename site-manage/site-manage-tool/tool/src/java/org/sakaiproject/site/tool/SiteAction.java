@@ -596,6 +596,9 @@ public class SiteAction extends PagedResourceActionII {
 	
 	// home tool id
 	private static final String TOOL_ID_HOME = "home";
+	// Site Info tool id
+	private static final String TOOL_ID_SITEINFO = "sakai.siteinfo";
+	
 	// synoptic tool ids
 	private static final String TOOL_ID_SUMMARY_CALENDAR = "sakai.summary.calendar";
 	private static final String TOOL_ID_SYNOPTIC_ANNOUNCEMENT = "sakai.synoptic.announcement";
@@ -8173,7 +8176,7 @@ public class SiteAction extends PagedResourceActionII {
 						}
 					}
 				}
-			}else if (choice.equals("sakai.siteinfo")) {
+			}else if (choice.equals(TOOL_ID_SITEINFO)) {
 				hasSiteInfo = true;
 			}
 			
@@ -8491,7 +8494,7 @@ public class SiteAction extends PagedResourceActionII {
 			if (hasSiteInfo) {
 				SitePage siteInfoPage = null;
 				pageList = site.getPages();
-				String[] toolIds = { "sakai.siteinfo" };
+				String[] toolIds = { TOOL_ID_SITEINFO };
 				if (pageList != null && pageList.size() != 0) {
 					for (ListIterator i = pageList.listIterator(); siteInfoPage == null
 							&& i.hasNext();) {
@@ -9113,7 +9116,7 @@ public class SiteAction extends PagedResourceActionII {
 	 * @return
 	 */
 	private List<String> pageMatchesPattern(SessionState state, SitePage page) {
-		List<String> rv = null;
+		List<String> rv = new Vector<String>();
 		
 		List pageToolList = page.getTools();
 
@@ -9129,17 +9132,37 @@ public class SiteAction extends PagedResourceActionII {
 		// check Home tool first
 		if (isHomePage(page))
 		{
-			rv = new Vector();
 			rv.add(TOOL_ID_HOME);
 			rv.add(TOOL_ID_HOME);
+			return rv;
+		}
+		
+		// check whether the page has Site Info tool
+		boolean foundSiteInfoTool = false;
+		for (int i = 0; i < count; i++)
+		{
+			ToolConfiguration toolConfiguration = (ToolConfiguration) pageToolList.get(i);
+			if (toolConfiguration.getToolId().equals(TOOL_ID_SITEINFO))
+			{
+				foundSiteInfoTool = true;
+				break;
+			}
+		}
+		if (foundSiteInfoTool)
+		{
+			rv.add(TOOL_ID_SITEINFO);
+			rv.add(TOOL_ID_SITEINFO);
+			return rv;
 		}
 
-		// Other than Home page, no other page is allowed to have more than one tool within. Otherwise, WSetup/Site Info tool won't handle it
+		// Other than Home, Site Info page, no other page is allowed to have more than one tool within. Otherwise, WSetup/Site Info tool won't handle it
 		if (count != 1)
 		{
+			return null;
 		}
 		// if the page layout doesn't match, return false
 		else if (page.getLayout() != SitePage.LAYOUT_SINGLE_COL) {
+			return null;
 		}
 		else
 		{
@@ -9157,7 +9180,6 @@ public class SiteAction extends PagedResourceActionII {
 						if (toolConfiguration.getTool() != null
 								&& originalToolId(toolConfiguration.getTool().getId(), tool.getId()) != null) {
 							match = tool.getId();
-							rv = new Vector();
 							rv.add(match);
 							rv.add(toolConfiguration.getId());
 							
