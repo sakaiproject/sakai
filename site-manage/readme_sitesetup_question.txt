@@ -17,7 +17,7 @@ The template the questions.xml is as follows:
 <?xml version="1.0" encoding="UTF-8" ?> 
 	 	<SiteSetupQuestions>
 			<site type="project">
-				<header>Please answer the following to help us understand how CTools is being used for this project site.</header> 
+				<header>Please answer the following to help us understand how Sakai is being used for this project site.</header> 
 				<url><a href="http://www.google.com" target="_blank">More info</a></url>
 				<question required="true" multiple_answers="false">
 	  				<q>In what capacity are you creating this site?</q> 
@@ -27,8 +27,8 @@ The template the questions.xml is as follows:
 	  			</question>
 				<question required="false" multiple_answers="false">
 	  				<q>The primary use for this project site will be:</q> 
-	  				<answer>Learning"</answer> 
-	 				<answer>Research"</answer> 
+	  				<answer>Learning</answer> 
+	 				<answer>Research</answer> 
 	  				<answer>Administrative</answer> 
 	  				<answer>Personal</answer> 
 	  				<answer>Student group/organization</answer> 
@@ -36,9 +36,9 @@ The template the questions.xml is as follows:
 	  			</question>
   			</site>
 			<site type="course">
-				<header>Please answer the following to help us understand how CTools is being used for this course site.</header> 
+				<header>Please answer the following to help us understand how Sakai is being used for this course site.</header> 
 				<question required="true" multiple_answers="false">
-	  				<q>The primary use for this project site will be:</q> 
+	  				<q>The primary use for this course site will be:</q> 
 	  				<answer>Student</answer> 
 	  				<answer>Faculty</answer> 
 	  				<answer>Staff</answer> 
