@@ -141,7 +141,7 @@
 					#if ($event.getType()=="Class section - Lecture") $tlang.getString("legend.key6") #end
 					#if ($event.getType()=="Class section - Small Group") $tlang.getString("legend.key7") #end
 					#if ($event.getType()=="Class session") $tlang.getString("legend.key8") #end
-					#if ($event.getType()=="Computer Session") $tlang.getString("legend.key9) #end
+					#if ($event.getType()=="Computer Session") $tlang.getString("legend.key9") #end
 					#if ($event.getType()=="Deadline") $tlang.getString("legend.key10") #end
 					#if ($event.getType()=="Exam") $tlang.getString("legend.key11") #end
 					#if ($event.getType()=="Meeting")$tlang.getString("legend.key12") #end
