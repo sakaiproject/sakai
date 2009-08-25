@@ -3,28 +3,25 @@ package org.sakaiproject.sitestats.tool.wicket;
 import java.util.Locale;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.IRequestTarget;
 import org.apache.wicket.Page;
 import org.apache.wicket.Request;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Response;
-import org.apache.wicket.Session;
-import org.apache.wicket.protocol.http.HttpSessionStore;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.protocol.http.WebResponse;
+import org.apache.wicket.request.RequestParameters;
+import org.apache.wicket.request.target.coding.AbstractRequestTargetUrlCodingStrategy;
 import org.apache.wicket.resource.loader.IStringResourceLoader;
-import org.apache.wicket.session.ISessionStore;
 import org.apache.wicket.settings.IExceptionSettings;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.resource.locator.ResourceStreamLocator;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
 import org.sakaiproject.sitestats.tool.wicket.pages.OverviewPage;
-import org.sakaiproject.sitestats.tool.wicket.pages.PreferencesPage;
-import org.sakaiproject.sitestats.tool.wicket.pages.ReportsPage;
 import org.sakaiproject.util.ResourceLoader;
 
 
@@ -38,7 +35,7 @@ public class SiteStatsApplication extends WebApplication {
 
 		// Configure general wicket application settings
 		addComponentInstantiationListener(new SpringComponentInjector(this));
-		getResourceSettings().setThrowExceptionOnMissingResource(true);
+		getResourceSettings().setThrowExceptionOnMissingResource(false);
 		getMarkupSettings().setStripWicketTags(true);
 		getResourceSettings().addStringResourceLoader(new SiteStatsStringResourceLoader());
 		getResourceSettings().addResourceFolder("html");
@@ -47,7 +44,9 @@ public class SiteStatsApplication extends WebApplication {
 
 		// Home page
 		mountBookmarkablePage("/home", OverviewPage.class);
-
+		// Prevent bad requests from: url(#default#VML)
+		mount(new PassThroughUrlCodingStrategy("/home/panel/Main/none"));
+		
 		// On wicket session timeout, redirect to main page
 		getApplicationSettings().setPageExpiredErrorPage(OverviewPage.class);
 		getApplicationSettings().setAccessDeniedPage(OverviewPage.class);
@@ -162,6 +161,26 @@ public class SiteStatsApplication extends WebApplication {
 		private String trimFolders(String path) {
 			String wicketPackage = "/wicket/";
 			return path.substring(path.lastIndexOf(wicketPackage) + wicketPackage.length());
+		}
+	}
+	
+	
+	/** Pass-through coding strategy to unmount paths from Wicket */
+	private class PassThroughUrlCodingStrategy extends AbstractRequestTargetUrlCodingStrategy {
+		public PassThroughUrlCodingStrategy(final String mountPath) {
+			super(mountPath);
+		}
+
+		public IRequestTarget decode(RequestParameters requestParameters) {
+			return null;
+		}
+
+		public CharSequence encode(IRequestTarget requestTarget) {
+			return null;
+		}
+
+		public boolean matches(IRequestTarget requestTarget) {
+			return false;
 		}
 	}
 }
