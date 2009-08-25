@@ -563,6 +563,7 @@ public class SitePageEditHandler {
         SitePage page = site.getPage(pageId);
         String oldTitle = page.getTitle();
         page.setTitle(newTitle);
+        page.setTitleCustom(true);
 
         // TODO: Find a way to call each tool to ask what fields they need configured
         // and what methods to use to validate the input..
@@ -584,8 +585,40 @@ public class SitePageEditHandler {
     }
 
     /**
-     * Sets the title of a page, and if there is only one tool on a page the title of that tool.
-     * Also optionally will alter the configuration of a tool
+     * Resets page title to the default and resets titleCustom flag
+     * 
+     * @param pageId The Id of the Page
+     * @return reset page title
+     * @throws IdUnusedException, PermissionException
+     */
+    public String resetTitle(String pageId) throws IdUnusedException, PermissionException {
+        SitePage page = site.getPage(pageId);
+        String oldTitle = page.getTitle();
+        page.setTitleCustom(false);
+        String newTitle = page.getTitle();
+        page.setTitle(newTitle);
+
+        // TODO: Find a way to call each tool to ask what fields they need configured
+        // and what methods to use to validate the input..
+        if (page.getTools().size() == 1) {
+            ToolConfiguration tool = (ToolConfiguration) page.getTools().get(0);
+            tool.setTitle(newTitle);
+        }
+
+        saveSite(site);
+        
+        EventTrackingService.post(
+            EventTrackingService.newEvent(PAGE_RENAME, "/site/" + site.getId() +
+                                        "/page/" + page.getId() +
+                                        "/old_title/" + oldTitle +
+                                        "/new_title/" + page.getTitle(), false));
+        
+        
+        return newTitle;
+    }
+    
+    /**
+     * Sets property config/value of page tool, if only one tool on page
      * 
      * @param pageId
      * @param config

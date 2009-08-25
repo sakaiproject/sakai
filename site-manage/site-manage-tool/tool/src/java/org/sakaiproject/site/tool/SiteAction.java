@@ -8438,6 +8438,7 @@ public class SiteAction extends PagedResourceActionII {
 					if (isMultipleInstancesAllowed(findOriginalToolId(state, toolId))) {
 						// set tool title
 						page.setTitle((String) multipleToolIdTitleMap.get(toolId));
+						page.setTitleCustom(true);
 					} else {
 						// other tools with default title
 						page.setTitle(toolRegFound.getTitle());

@@ -34,22 +34,25 @@ public class PageEditProducer implements ViewComponentProducer, ViewParamsReport
 
         if (params.pageId != null) {
             if (params.newTitle != null) {
-                if (!"".equals(params.newTitle)) {
-                    try {
-                        String oldTitle = handler.setTitle(params.pageId, params.newTitle);
-                      
-                        mode = UIBranchContainer.make(tofill, "mode-pass:");
-                        UIOutput.make(mode, "page-title", params.newTitle);
-                        UIMessage.make(mode, "message", "success_changed", new Object[] {oldTitle, params.newTitle});
-                    }
-                    catch (Exception e) {
-                       ErrorUtil.renderError(tofill, e);
-                    }
-                }
-                else {
-                    mode = UIBranchContainer.make(tofill, "mode-failed:");
-                    UIMessage.make(mode, "message", "error_title_null");
-                }
+               try {
+                  if (!"".equals(params.newTitle)) {
+                     String oldTitle = handler.setTitle(params.pageId, params.newTitle);
+                     
+                     mode = UIBranchContainer.make(tofill, "mode-pass:");
+                     UIOutput.make(mode, "page-title", params.newTitle);
+                     UIMessage.make(mode, "message", "success_changed", new Object[] {oldTitle, params.newTitle});
+                  }
+                  else {
+                     String newTitle = handler.resetTitle(params.pageId);
+                     
+                     mode = UIBranchContainer.make(tofill, "mode-pass:");
+                     UIOutput.make(mode, "page-title", newTitle);
+                     UIMessage.make(mode, "message", "success_reset", new Object[] {newTitle});
+                  }
+               }
+               catch (Exception e) {
+                  ErrorUtil.renderError(tofill, e);
+               }
             }
             
             if (params.newConfig != null) {
