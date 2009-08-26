@@ -20,6 +20,10 @@
  **********************************************************************************/
 package org.sakaiproject.api.app.messageforums;
 
+/**
+ *  @deprecated  seems never to have been used
+*/
+
 public interface UserPermissionManager {
 
     public static final String BEAN_NAME = "org.sakaiproject.api.app.messageforums.UserPermissionManager";
