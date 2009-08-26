@@ -6094,10 +6094,13 @@ public class DiscussionForumTool
 		  String userEidString = "";
 		  userEidString = UserDirectoryService.getUser(currentUserId).getDisplayId();
 		  
-		  if((userString != null && userString.length() > 0))
+		  if((userString != null && userString.length() > 0) && ServerConfigurationService.getBoolean("msg.displayEid", true))
 		  {
-
-			return userString + " (" + userEidString + ")";
+			  return userString + " (" + userEidString + ")";
+		  }
+		  else if ((userString != null && userString.length() > 0) && !ServerConfigurationService.getBoolean("msg.displayEid", true))
+		  {
+			  return userString;
 		  }
 		  else
 		  {

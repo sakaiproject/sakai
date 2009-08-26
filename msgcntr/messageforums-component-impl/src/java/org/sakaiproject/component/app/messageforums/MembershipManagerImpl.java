@@ -40,6 +40,7 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -263,7 +264,12 @@ public class MembershipManagerImpl implements MembershipManager{
       {
       	MembershipItem memberItem = MembershipItem.getInstance();
       	memberItem.setType(MembershipItem.TYPE_USER);
-      	memberItem.setName(user.getSortName() + " (" + user.getDisplayId() + ")");
+      	if (ServerConfigurationService.getBoolean("msg.displayEid", true)) {
+      		memberItem.setName(user.getSortName() + " (" + user.getDisplayId() + ")");
+      	}
+      	else {
+      		memberItem.setName(user.getSortName());
+      	}
       	memberItem.setUser(user);
       	memberItem.setRole(userRole);             
 
