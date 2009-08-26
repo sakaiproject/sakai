@@ -96,6 +96,11 @@ public class ReportsEditPage extends BasePage {
 	private boolean					visitsEnabled	= true;
 	private FeedbackPanel			feedback		= null;
 	
+	/** Options visiblity */
+	private boolean 				visitsVisible	= true;
+	private boolean 				activityVisible	= true;
+	private boolean 				resourcesVisible = true;
+	
 	/** Report related */
 	private ReportDefModel			reportDefModel;
 	private PrefsData				prefsdata		= null;
@@ -144,6 +149,17 @@ public class ReportsEditPage extends BasePage {
 		}
 		boolean allowed = getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
 		if(allowed) {
+			// options visibility
+			visitsVisible = getFacade().getStatsManager().isEnableSiteVisits() && getFacade().getStatsManager().isVisitsInfoAvailable();
+			activityVisible = getFacade().getStatsManager().isEnableSiteActivity();
+			resourcesVisible = false;
+			try{
+				resourcesVisible = getFacade().getStatsManager().isEnableResourceStats() &&
+									(getFacade().getSiteService().getSite(siteId).getToolForCommonId(StatsManager.RESOURCES_TOOLID) != null);
+			}catch(Exception e) {
+				resourcesVisible = false;
+			}
+			// render body
 			renderBody();
 		}else{
 			setResponsePage(NotAuthorizedPage.class);
@@ -355,7 +371,10 @@ public class ReportsEditPage extends BasePage {
 		// left panel
 		// -------------------------------------------------------
 		// activity
-		List<String> whatOptions = Arrays.asList(ReportManager.WHAT_VISITS, ReportManager.WHAT_EVENTS, ReportManager.WHAT_RESOURCES);
+		List<String> whatOptions = new ArrayList<String>();
+		if(visitsVisible) { 	whatOptions.add(ReportManager.WHAT_VISITS); 	}
+		if(activityVisible) { 	whatOptions.add(ReportManager.WHAT_EVENTS); 	}
+		if(resourcesVisible) { 	whatOptions.add(ReportManager.WHAT_RESOURCES); 	}
 		IChoiceRenderer whatChoiceRenderer = new IChoiceRenderer() {
 			public Object getDisplayValue(Object object) {
 				if(ReportManager.WHAT_VISITS.equals(object)) {
