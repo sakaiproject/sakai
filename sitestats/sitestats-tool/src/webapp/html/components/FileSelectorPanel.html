@@ -33,7 +33,7 @@
 			 <![endif]-->
 			 <script type="text/javascript">			      
 			      function updateFieldWithSelectedFiles(fieldId) {
-			        var files = jQuery('#container input[type=checkbox][checked]');
+			        var files = jQuery('#container input[type=checkbox]:checked');
 			        var selection;
 			        var first = true;
 			        for(var i=0; i<files.size(); i++) {
