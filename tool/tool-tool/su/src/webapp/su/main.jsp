@@ -40,9 +40,11 @@
 		  <h:outputText value="#{SuTool.userinfo.createdTime.display}" />
 		</h:panelGrid>
 
-		<h:message for="username" errorClass="alertMessage" infoClass="instruction" />
-		<p><h:inputText id="username" value="#{SuTool.username}" required="true" /></p>
-
+		<h:panelGroup>
+			<h:message for="username" errorClass="alertMessage" infoClass="instruction" />
+			<p><h:inputText id="username" value="#{SuTool.username}" required="true" /></p>
+		</h:panelGroup>
+	
 		<p class="act">
 			<h:commandButton id="become" styleClass="active" action="#{SuTool.confirm}" value="#{msgs.become_user_button}" /> 
 			&nbsp;
