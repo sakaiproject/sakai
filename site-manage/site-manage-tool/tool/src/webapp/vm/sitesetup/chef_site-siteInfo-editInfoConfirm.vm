@@ -71,6 +71,7 @@
 				</tr>
 			#end	
 			#if ($!isCourseSite	&& !$!disableCourseSelection)
+				## course site
 				<tr>
 					<th>
 						$tlang.getString("sitediconf.app")
@@ -94,24 +95,23 @@
 					</td>
 				</tr>
 			#else
-			<br />
-				#if ($!icon)
-					<tr>
-						<th>
-							$tlang.getString("sitediconf.sitico")
-						</th>
-						<td>
+				## other sites
+				<tr>
+					<th>
+						$tlang.getString("newsc.icon")
+					</th>
+					<td>
+						#if (!$!icon || $icon.length() == 0)
+							<span class="instruction">$tlang.getString("newsc.icon.none")</span>
+						#else
 							#if (!$!icon.equals($!oIcon))
-								<img src="$!icon" alt="$tlang.getString("sitediconf.sitico")" />
-								<p class="highlight">$!icon</p>
+								<span class="highlight">$!validator.escapeHtml($!icon)</span>
 							#else
-								<img src="$!icon" alt="$tlang.getString("sitediconf.sitico")" />
-								<p class="textPanelFooter">$!icon</p>
-
+								<span class="textPanelFooter">$!validator.escapeHtml($!icon)</span>
 							#end
-						</td>
-					</tr>
-				#end	
+						#end
+					</td>
+				</tr>
 			#end
 			<tr>
 				<th>
