@@ -2,7 +2,7 @@
 <!-- hide from non-JS browsers
 	function submitRemoveSection(index){
 		id = "removeSection"+index;
-    	removeSection = document.getElementById(id);
+   	   	removeSection = document.getElementById(id);
 		removeSection.value="true";
 		document.removeSectionForm.submit();
 		return false;
@@ -43,15 +43,14 @@
 					$tlang.getString("sitegen.addcourse.you")
 				</p>	
 				<form name = "removeSectionForm" method="post" action="#toolForm($action)">
-					<input type="hidden" name="eventSubmit_doContinue" value="$tlang.getString('gen.continue')" />
 					<input type="hidden" name="eventSubmit_doFind_course" value="x" />
 					<input type="hidden" name="option" value="remove" />
 
 					<table class="listHier lines nolines" style="width:auto" summary="" cellpadding="0" cellspacing="0" border="0">
-						#foreach($item in $!selectedProviderCourseTitles)
+						#foreach($item in $!selectedProviderCourseTitles.keySet())
 							<tr>
 								<td>
-									$item
+									$!selectedProviderCourseTitles.get($item)
 								</td>
 								<td>
 									<!-- Remove Section -->
@@ -164,19 +163,13 @@
 			  <!-- end creation of select box -->
 			  #set($i = $i + 1)
 		   #end
-		   <!-- end loop through fields-->
-		  	<p>
-				 	<a href="#" onclick="javascript:blur();document.findCourseForm.option.value='manual';document.findCourseForm.submit();">
-				 		$tlang.getString("nscourse.findCourse.stillNotFound")
-				 	</a>
-				 </p>
 		    $tlang.getString("nscourse.findCourse.selected")
 			<span class="highlight">
 			  #if ($selectedCourse)
 			        $selectedCourse.title
 						     #set($authGroupSet=$!authzGroupService.getAuthzGroupIds($selectedCourse.eid))
 											#if ($!authGroupSet && !$!authGroupSet.isEmpty())
-												$tlang.getString("nscourse.site_exists") <a href="#" onclick="javascript:document.getElementById('continueButton').disabled=false;document.getElementById('sectionInfo').style.display = 'block';">$tlang.getString("nscourse.select_anyways")</a></span>
+												$tlang.getString("nscourse.site_exists") <a href="#" onclick="javascript:document.getElementById('continueButton').disabled=false;document.getElementById('sectionInfo').style.display = 'block';utils.resizeFrame();">$tlang.getString("nscourse.select_anyways")</a></span>
 											#end
 			    #else
 				    None
@@ -203,9 +196,15 @@
 					<p  class="instruction labelindnt">
 						<span class="textPanelFooter">$tlang.getString("man.please")</span>
 					</p>
+					<a href="#" #if (!$selectedCourse || ($!authGroupSet && !$!authGroupSet.isEmpty())) disabled="true"#end onclick="javascript:blur();document.findCourseForm.option.value='add';document.findCourseForm.submit();">$tlang.getString('nscourse.findCourse.addAnotherSection')</a>				
 			</div>
-			<br /><a href="#" onclick="javascript:blur();document.findCourseForm.option.value='add';document.findCourseForm.submit();">$tlang.getString('nscourse.findCourse.addAnotherSection')</a>				
-
+			<br />
+			<!-- end loop through fields-->
+		 <p>
+				<a href="#" onclick="javascript:blur();document.findCourseForm.option.value='manual';document.findCourseForm.submit();">
+					$tlang.getString("nscourse.findCourse.stillNotFound")
+				</a>
+			</p>
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input id="index" type="hidden" name="templateIndex" value="$!templateIndex" />
 		<input type="hidden" name="eventSubmit_doFind_course" value="x" />

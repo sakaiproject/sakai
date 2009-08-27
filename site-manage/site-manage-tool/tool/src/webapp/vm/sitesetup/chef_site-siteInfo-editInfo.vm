@@ -21,12 +21,20 @@ function submitRemoveSection(index){
   removeSection = document.getElementById(id);
 		removeSection.value="true";
 		document.getElementById("option").value="removeSection";
-		document.siteInfoForm.submit();
+		document.classInformationForm.submit();
 		return false;
 }
+
+	function resetOption(action){
+		document.classInformationForm.option.value=action;
+		document.classInformationForm.submit();
+		return false;
+	}
 </script>
   
 <div class="portletBody">
+	## definie form
+	<form name="classInformationForm" method="post" action="#toolForm("SiteAction")">
 	#if(!$existingSite)
 		## adding new site
 		#if ($!isProjectSite)
@@ -66,19 +74,18 @@ function submitRemoveSection(index){
 	#end
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitediinf.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	## adding a new course site
-	#if ($!existingSite && $isCourseSite)
+	#if ($isCourseSite)
 	<table class="listHier lines nolines indnt1" style="width:auto" summary="$tlang.getString("sinfo.rosterlist.summary")" border="0">
-	
 		#if ($!selectedProviderCourse)
 			<tr class="exclude" id="selectedProviderCourse-head"><td colspan="2" style="padding:.4em 0">
 				<h4><span class="instruction">$tlang.getString("sinfo.youare")</span></h4>
 			</td></tr>
 			#set ($selectedProviderCourse-num=0)
-			#foreach ($item in $!selectedProviderCourseTitles)
+			#foreach ($item in $!selectedProviderCourseTitles.keySet())
 				<tr>
 					<td style="padding-left:1em">
 					#set ($selectedProviderCourse-num=1)
-					$item
+					$!selectedProviderCourseTitles.get($item)
 					</td>
 					<td>
 					<!-- Remove Section -->
@@ -129,11 +136,22 @@ function submitRemoveSection(index){
 					#set($courseFieldValues = $!fieldValues.get($k))
 					#set($bound = $!form_requiredFields.size())
 					#set($bound = $bound - 1)
-					<tr><td colspan="2" style="padding-left:1em">
+					<tr>
+					<td style="padding-left:1em">
+						#set($courseFieldString="")
 						#foreach ($fieldCount in [0..$!bound])
-							$!courseFieldValues.get($fieldCount).getValue()
+							#set($courseFieldString=$courseFieldString.concat($!courseFieldValues.get($fieldCount).getValue()).concat(" "))
 						#end
-					</td></tr>
+						#set($courseFieldString=$courseFieldString.trim())
+						$courseFieldString
+					</td>
+					<td>
+						<span class="itemAction">
+							<a href="#" onclick="javascript:submitRemoveSection('$!courseFieldString');">$tlang.getString("sinfo.removeSections")</a>
+                            <input type="hidden" id="removeSection$!courseFieldString" name="removeSection$!courseFieldString" value="" />
+						</span>	
+					</td>
+					</tr>
 			#end
 		#end
 		</table>
@@ -143,7 +161,6 @@ function submitRemoveSection(index){
 			$tlang.getString("sinfo.simplea") <span class ="reqStarInline">*</span> $tlang.getString("sinfo.means")
 		</p>
 	#end
-	<form name="classInformationForm" method="post" action="#toolForm("SiteAction")">
 		<p class="shorttext required">
 			<span class="reqStar">*</span>
 			<label for="title">
@@ -239,8 +256,11 @@ function submitRemoveSection(index){
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<input type="hidden" name="continue" value="$!continue" />
+		<input type="hidden" name="option" id="option" value="x" />
+		<input type="hidden" name="eventSubmit_doEdit_site_info" value="x" />
 	<div class="act">
-		<input type="submit" accesskey="s" class= "active" name="eventSubmit_doContinue" value="$tlang.getString("sitediinf.con")" />
+		<input type="submit" accesskey="s" class= "active" name="continue" value="$tlang.getString("sitediinf.con")" 
+				onclick="resetOption('continue');" />
 		#if(!$existingSite)
 			## have the back button for creating site wizard
 			<input type="submit" accesskey="b" class= "active" name="eventSubmit_doBack" value="$tlang.getString("gen.back")" />

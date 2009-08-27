@@ -10,7 +10,6 @@
  * You may obtain a copy of the License at
  *
  *       http://www.osedu.org/licenses/ECL-2.0
- *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -3050,7 +3049,7 @@ public class SiteAction extends PagedResourceActionII {
 			List<String> providerSectionList = (List<String>) state.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN);
 			context.put("selectedProviderCourse", providerSectionList);
 
-			List<String> providerSectionListTitles = new Vector<String>();
+			HashMap<String, String> providerSectionListTitles = new HashMap<String, String>();
 			if (providerSectionList != null)
 			{
 				for (String providerSectionId : providerSectionList)
@@ -3058,11 +3057,11 @@ public class SiteAction extends PagedResourceActionII {
 					try
 					{
 						Section s = cms.getSection(providerSectionId);
-						providerSectionListTitles.add(s.getTitle()); 
+						providerSectionListTitles.put(s.getEid(), s.getTitle()); 
 					}
 					catch (Exception e)
 					{
-						providerSectionListTitles.add(providerSectionId);
+						providerSectionListTitles.put(providerSectionId, providerSectionId);
 						M_log.warn(this + ".putSelectedProviderCourseIntoContext " + e.getMessage() + " sectionId=" + providerSectionId, e);
 					}
 				}
@@ -4423,7 +4422,7 @@ public class SiteAction extends PagedResourceActionII {
 		} else if (option.equalsIgnoreCase("removeSection"))
 		{
 			// remove selected section
-			removeSection(state, params);
+			removeAnyFlagedSection(state, params);
 		}
 
 	} // doManual_add_course
@@ -10808,46 +10807,7 @@ public class SiteAction extends PagedResourceActionII {
 					manualCourseList.remove(eid);
 			}
 		}
-
-		List<SectionObject> requestedCMSections = (List<SectionObject>) state
-				.getAttribute(STATE_CM_REQUESTED_SECTIONS);
-
-		if (requestedCMSections != null) {
-			for (int i = 0; i < requestedCMSections.size(); i++) {
-				SectionObject so = (SectionObject) requestedCMSections.get(i);
-
-				String field = "removeSection" + so.getEid();
-				String toRemove = params.getString(field);
-
-				if ("true".equals(toRemove)) {
-					requestedCMSections.remove(so);
-				}
-
-			}
-
-			if (requestedCMSections.size() == 0)
-				state.removeAttribute(STATE_CM_REQUESTED_SECTIONS);
-		}
-
-		List<SectionObject> authorizerSections = (List<SectionObject>) state
-				.getAttribute(STATE_CM_AUTHORIZER_SECTIONS);
-		if (authorizerSections != null) {
-			for (int i = 0; i < authorizerSections.size(); i++) {
-				SectionObject so = (SectionObject) authorizerSections.get(i);
-
-				String field = "removeSection" + so.getEid();
-				String toRemove = params.getString(field);
-
-				if ("true".equals(toRemove)) {
-					authorizerSections.remove(so);
-				}
-
-			}
-
-			if (authorizerSections.size() == 0)
-				state.removeAttribute(STATE_CM_AUTHORIZER_SECTIONS);
-		}
-
+		
 		// if list is empty, set to null. This is important 'cos null is
 		// the indication that the list is empty in the code. See case 2 on line
 		// 1081
@@ -10855,6 +10815,72 @@ public class SiteAction extends PagedResourceActionII {
 			manualCourseList = null;
 		if (providerCourseList != null && providerCourseList.size() == 0)
 			providerCourseList = null;
+		
+		removeAnyFlaggedSectionFromState(state, params, STATE_CM_REQUESTED_SECTIONS);
+		
+		removeAnyFlaggedSectionFromState(state, params, STATE_CM_SELECTED_SECTIONS);
+		
+		removeAnyFlaggedSectionFromState(state, params, STATE_CM_AUTHORIZER_SECTIONS);
+		
+		// remove manually requested sections
+		if (state.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER) != null) {
+			int number = ((Integer) state.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER)).intValue();
+			List requiredFields = state.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS) != null ?(List) state.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS):new Vector();
+			List removeRequiredFieldList = null;
+			for (int i = 0; i < requiredFields.size(); i++) {
+				
+				String sectionTitle = "";
+				List requiredFieldList = (List) requiredFields.get(i);
+				for (int j = 0; j < requiredFieldList.size(); j++) {
+					SectionField requiredField = (SectionField) requiredFieldList.get(j);
+					sectionTitle = sectionTitle.concat(requiredField.getValue() + " ");
+				}
+				String field = "removeSection" + sectionTitle.trim();
+				String toRemove = params.getString(field);
+				if ("true".equals(toRemove)) {
+					removeRequiredFieldList = requiredFieldList; 
+					break;
+				}
+			}
+			
+			if (removeRequiredFieldList != null)
+			{
+				requiredFields.remove(removeRequiredFieldList);
+				if (number > 1)
+				{
+					state.setAttribute(STATE_MANUAL_ADD_COURSE_FIELDS, requiredFields);
+					state.setAttribute(STATE_MANUAL_ADD_COURSE_NUMBER, Integer.valueOf(number -1));
+				}
+				else
+				{
+					state.removeAttribute(STATE_MANUAL_ADD_COURSE_FIELDS);
+					state.removeAttribute(STATE_MANUAL_ADD_COURSE_NUMBER);
+				}
+			}
+		}
+	}
+	
+	private void removeAnyFlaggedSectionFromState(SessionState state, ParameterParser params, String state_variable)
+	{
+		List<SectionObject> rv = (List<SectionObject>) state.getAttribute(state_variable);
+		if (rv != null) {
+			for (int i = 0; i < rv.size(); i++) {
+				SectionObject so = (SectionObject) rv.get(i);
+		
+				String field = "removeSection" + so.getEid();
+				String toRemove = params.getString(field);
+		
+				if ("true".equals(toRemove)) {
+					rv.remove(so);
+				}
+		
+			}
+		
+			if (rv.size() == 0)
+				state.removeAttribute(state_variable);
+			else
+				state.setAttribute(state_variable, rv);
+}
 	}
 
 	private void collectNewSiteInfo(SessionState state,
@@ -11556,6 +11582,25 @@ public class SiteAction extends PagedResourceActionII {
 			} else { // not course type
 				state.setAttribute(STATE_TEMPLATE_INDEX, "37");
 			}
+		}
+	}
+	
+	public void doEdit_site_info(RunData data)
+	{
+
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		ParameterParser params = data.getParameters();
+
+		String option = params.getString("option");
+		if (option.equals("removeSection"))
+		{
+			// remove section
+			removeAnyFlagedSection(state, params);
+		}
+		else if (option.equals("continue"))
+		{
+			// continue with site information edit
+			doContinue(data);
 		}
 	}
 }

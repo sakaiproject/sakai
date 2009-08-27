@@ -54,10 +54,10 @@
 				#end
 				<p class="instruction">$tlang.getString("man.sofar") #if($!site) $tlang.getString("man.toaddto") #else $tlang.getString("java.for") #end $tlang.getString("man.this")</p>
 				<table class="listHier lines nolines" cellapadding="0" cellspacing="0" summary="todo: summary" style="width:auto">
-					#foreach ($item in $!selectedProviderCourseTitles)
+					#foreach ($item in $!selectedProviderCourseTitles.keySet())
 						<tr>
 							<td>
-								$item
+								$!selectedProviderCourseTitles.get($item)
 							</td>
 							<td>
 							<span class="itemAction">

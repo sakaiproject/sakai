@@ -39,9 +39,9 @@
 		$tlang.getString("sitegen.addcourse.you")<br />
 	</p>
 	<ul class="attachList indnt2">
-		#foreach($id in $selectedProviderCourseTitles)
+		#foreach($id in $selectedProviderCourseTitles.keySet())
 			<li>
-				$id
+				$!selectedProviderCourseTitles.get($id)
 			</li>
 		#end
 	</ul>

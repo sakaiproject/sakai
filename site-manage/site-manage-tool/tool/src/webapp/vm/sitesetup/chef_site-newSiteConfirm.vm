@@ -29,9 +29,9 @@
 	#if ($isCourseSite)
 		<p class="instruction">$tlang.getString("newsc.youare")</p>
 		<ul class="indnt2 attachList">
-			#foreach ($item in $!selectedProviderCourseTitles)
+			#foreach ($item in $!selectedProviderCourseTitles.keySet())
 				<li>
-					$item
+					$!selectedProviderCourseTitles.get($item)
 				</li>
 			#end
 		#if ($!manualAddNumber)
@@ -240,7 +240,7 @@
 			<input
 				type="button"
 				class="active"
-				#if (($!isCourseSite && $!manualAddNumber) || $!selectedAuthorizerCourse || $!selectedRequestedCourse )
+				#if (($!isCourseSite && $!manualAddNumber) || $!selectedRequestedCourse )
 					#set($name = "$tlang.getString('newsc.reqsite')")
 				#else
 					#set($name="$tlang.getString('newsc.crsite')")
