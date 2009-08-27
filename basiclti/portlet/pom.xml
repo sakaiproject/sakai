@@ -70,7 +70,7 @@
       <id>Pre-K1</id>
       <activation>
         <file>
-          <missing>../master/../kernel-deploy/pom.xml</missing>
+            <exists>../master/../component/pom.xml</exists>
         </file>
       </activation>
       <dependencies>
