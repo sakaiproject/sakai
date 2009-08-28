@@ -33,7 +33,7 @@
 			$tlang.getString("ediacc.sitsta")
 		</h4>
 		<p class="instruction">
-			$tlang.getString("ediacc.pubyousit")#if(!$!site)$tlang.getString("ediacc.pubyousit1")#end
+			$tlang.getString("ediacc.pubyousit")
 		</p>
 		<p class="checkbox indnt1">
 			#if ($!site)
@@ -45,12 +45,21 @@
 				$tlang.getString("ediacc.pubsit")
 			</label>
 		</p>	
+		<h4>
+			$tlang.getString("ediacc.gloacc")
+		</h4>
+		<p class="instruction">
+			$tlang.getString("ediacc.gloacc1")
+			#if(!$!site)$tlang.getString("ediacc.gloacc2")#end
+			<br />
+		</p>
 		#if (!$!disableJoinable || $!publicChangeable)
-			<h4>
-				$tlang.getString("ediacc.gloacc")
-			</h4>
 			<p class="instruction">
 				$tlang.getString("ediacc.yousitcan")
+			</p>
+		#else
+			<p class="instruction">
+				$tlang.getString("ediacc.notallow")
 			</p>
 		#end
 		#if ($!publicChangeable)
@@ -75,6 +84,8 @@
 	##				</td>
 	##			</tr>
 			</p>
+		#else
+				$tlang.getString("ediacc.dismysit") <p />
 		#end
 		#if (!$!disableJoinable)
 			## set site joinable and joiner role
@@ -104,6 +115,8 @@
 					#end
 				</select>
 			</p>
+		#else
+			$tlang.getString("ediacc.other.setsitacc"): $tlang.getString("sitegen.siteinfolist.sitepar")<p />
 		#end
 		<input type="hidden" name="continue" value="$!continue" />
 		<input type="hidden" name="back" value="$!backIndex" />
