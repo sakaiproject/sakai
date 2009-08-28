@@ -98,17 +98,19 @@ public class EntityCollections
 		for (Iterator iRefs = entityRefs.iterator(); iRefs.hasNext();)
 		{
 			String findThisEntityRef = (String) iRefs.next();
-			for (Iterator iEntities = entities.iterator(); iEntities.hasNext();)
-			{
-				String thisEntityRef = ((Entity) iEntities.next()).getReference();
-				if (thisEntityRef.equals(findThisEntityRef))
-				{
-					return true;
-				}
+			if(!entities.contains(findThisEntityRef)) {
+				return false;
+			}
+		}
+		for (Iterator iEntities = entities.iterator(); iEntities.hasNext();)
+		{
+			String findThisEntityRef = (String) iEntities.next();
+			if(!entityRefs.contains(findThisEntityRef)) {
+				return false;
 			}
 		}
 
-		return false;
+		return true;
 	}
 
 	/**
