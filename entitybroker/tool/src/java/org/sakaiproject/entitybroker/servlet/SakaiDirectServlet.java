@@ -22,6 +22,7 @@ package org.sakaiproject.entitybroker.servlet;
 
 import java.io.IOException;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -127,6 +128,20 @@ public class SakaiDirectServlet extends DirectServlet {
         } catch (ToolException e) {
             throw new RuntimeException("Failure attempting to use Sakai login helper: " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    public void dispatch(HttpServletRequest req, HttpServletResponse res) throws ServletException {
+        // intercept this and try to do the sakai basic auth
+        try {
+            // NOTE: should this only run when the user is not authorized? It currently allows basic auth to override existing auth -AZ
+            basicAuth.doLogin(req);
+        } catch (IOException ioe) {
+            throw new RuntimeException("IO Exception intercepted during basic auth: " + ioe, ioe);
+        }
+
+        // continue on to the standard dispatch method
+        super.dispatch(req, res);
     }
 
 }
