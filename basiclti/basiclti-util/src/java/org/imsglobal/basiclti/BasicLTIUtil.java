@@ -95,16 +95,16 @@ public class BasicLTIUtil {
     public static String validateDescriptor(String descriptor)
     {
         if ( descriptor == null ) return null;
-        if ( descriptor.indexOf("<basicltiresource") < 0 ) return null;
+        if ( descriptor.indexOf("<basic_lti_link") < 0 ) return null;
 
         Map<String,Object> tm = XMLMap.getFullMap(descriptor.trim());
         if ( tm == null ) return null;
 
         // We demand at least an endpoint
-        String ltiSecureLaunch = XMLMap.getString(tm,"/basicltiresource/secure_launch_url");
+        String ltiSecureLaunch = XMLMap.getString(tm,"/basic_lti_link/secure_launch_url");
         // We demand at least an endpoint
         if ( ltiSecureLaunch != null && ltiSecureLaunch.trim().length() > 0 ) return ltiSecureLaunch;
-        String ltiLaunch = XMLMap.getString(tm,"/basicltiresource/launch_url");
+        String ltiLaunch = XMLMap.getString(tm,"/basic_lti_link/launch_url");
         if ( ltiLaunch != null && ltiLaunch.trim().length() > 0 ) return ltiLaunch;
         return null;
     }
@@ -134,7 +134,8 @@ public class BasicLTIUtil {
         String key, String secret, String org_secret, String org_id, String org_desc)
     {
         postProp = BasicLTIUtil.cleanupProperties(postProp);
-        postProp.setProperty("lti_version","basiclti-1.0");
+        postProp.setProperty("lti_version","LTI-1p0");
+        postProp.setProperty("lti_message_type","basic-lti-launch-request");
 	// Allow caller to internatonalize this for us...
         if ( postProp.getProperty(BASICLTI_SUBMIT) == null ) {
             postProp.setProperty(BASICLTI_SUBMIT, "Launch Endpoint with BasicLTI Data");
@@ -146,7 +147,7 @@ public class BasicLTIUtil {
         String oauth_consumer_secret = secret;
         if ( org_secret != null ) {
             oauth_consumer_secret = org_secret;
-            oauth_consumer_key = "basiclti-lms:"+org_id;
+            oauth_consumer_key = org_id;
         }
 
         if ( postProp.getProperty("oauth_callback") == null ) postProp.setProperty("oauth_callback","about:blank");
@@ -191,7 +192,7 @@ public class BasicLTIUtil {
         if ( endpoint == null ) return null;
         StringBuffer text = new StringBuffer();
         text.append("<div id=\"ltiLaunchFormSubmitArea\">\n");
-        text.append("<form action=\""+endpoint+"\" name=\"ltiLaunchForm\" id=\"ltiLaunchForm\" method=\"post\">\n" );
+        text.append("<form action=\""+endpoint+"\" name=\"ltiLaunchForm\" id=\"ltiLaunchForm\" method=\"post\" encType=\"application/x-www-form-urlencoded\">\n" );
         for(Object okey : newMap.keySet() )
         {
                 if ( ! (okey instanceof String) ) continue;
@@ -204,9 +205,9 @@ public class BasicLTIUtil {
                 key = htmlspecialchars(key);
                 value = htmlspecialchars(value);
                 if ( key.equals(BASICLTI_SUBMIT) ) {
-                  text.append("<input type=\"submit\" size=\"40\" name=\"");
+                  text.append("<input type=\"submit\" name=\"");
                 } else { 
-                  text.append("<input type=\"hidden\" size=\"40\" name=\"");
+                  text.append("<input type=\"hidden\" name=\"");
                 }
                 text.append(key);
                 text.append("\" value=\"");
@@ -270,8 +271,8 @@ public class BasicLTIUtil {
 
         boolean retVal = false;
 
-        String launch_url = toNull(XMLMap.getString(tm,"/basicltiresource/launch_url"));
-        String secure_launch_url = toNull(XMLMap.getString(tm,"/basicltiresource/secure_launch_url"));
+        String launch_url = toNull(XMLMap.getString(tm,"/basic_lti_link/launch_url"));
+        String secure_launch_url = toNull(XMLMap.getString(tm,"/basic_lti_link/secure_launch_url"));
         if ( launch_url == null && secure_launch_url == null ) return false;
 
         setProperty(launch_info, "launch_url", launch_url);
@@ -279,11 +280,11 @@ public class BasicLTIUtil {
 
         // Extensions for hand-authored placements - The export process should scrub these
         setProperty(launch_info, "key", 
-        	toNull(XMLMap.getString(tm,"/basicltiresource/x-secure/launch_key")));
+        	toNull(XMLMap.getString(tm,"/basic_lti_link/x-secure/launch_key")));
         setProperty(launch_info, "secret", 
-        	toNull(XMLMap.getString(tm,"/basicltiresource/x-secure/launch_secret")));
+        	toNull(XMLMap.getString(tm,"/basic_lti_link/x-secure/launch_secret")));
 
-        List<Map<String,Object>> theList = XMLMap.getList(tm, "/basicltiresource/custom/parameter");
+        List<Map<String,Object>> theList = XMLMap.getList(tm, "/basic_lti_link/custom/parameter");
         for ( Map<String,Object> setting : theList) {
                 dPrint("Setting="+setting);
                 String key = XMLMap.getString(setting,"/!key"); // Get the key atribute
@@ -313,7 +314,7 @@ public class BasicLTIUtil {
             M_log.warning("Unable to parse XML in prepareForExport");
             return null;
         }
-        XMLMap.removeSubMap(tm,"/basicltiresource/x-secure");
+        XMLMap.removeSubMap(tm,"/basic_lti_link/x-secure");
         String retval = XMLMap.getXML(tm, true);
         return retval;
     }
@@ -378,32 +379,34 @@ public class BasicLTIUtil {
 /* Sample Descriptor 
 
 <?xml version="1.0" encoding="UTF-8"?>
-<basicltiresource xmlns="http://www.imsglobal.org/services/cc/imsblti_v1p0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<basic_lti_link
+     xmlns="http://www.imsglobal.org/xsd/imsbasiclti_v1p0"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <title>generated by tp+user</title>
   <description>generated by tp+user</description>
   <custom>
-    <parameter key=”keyname”>value</parameter>
+    <parameter key="keyname">value</parameter>
   </custom>
-  <extensions platform=”www.lms.com”>
-    <parameter name=”keyname”>value</parameter>
+  <extensions platform="www.lms.com">
+    <parameter key="keyname">value</parameter>
   </extensions>
   <launch_url>url to the basiclti launch URL</launch_url>
   <secure_launch_url>url to the basiclti launch URL</secure_launch_url>
   <icon>url to an icon for this tool (optional)</icon>
   <secure_icon>url to an icon for this tool (optional)</secure_icon>
-  <catrtidge_icon identifieref="BLTI001_Icon" />
+  <cartridge_icon identifierref="BLTI001_Icon" />
   	  <vendor>
 		  <code>vendor.com</code>
-         <version>4.32</version>
-         <name>Pearson Education</name>
+        <name>Vendor Name</name>
          <description>
-           This is a Gradebook that supports many column types.
+           This is a Grade Book that supports many column types.
          </description>
          <contact>
             <email>support@vendor.com</email>
          </contact>
          <url>http://www.vendor.com/product</url>
 	  </vendor>
-</basicltiresource>
+</basic_lti_link>
+
 
 */
