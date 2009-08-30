@@ -357,7 +357,7 @@ public class AdminSitesAction extends PagedResourceActionII
 
 		// build the menu
 		Menu bar = new MenuImpl();
-		if (SiteService.allowAddSite(""))
+		if (SiteService.allowAddSite(null))
 		{
 			bar.add(new MenuEntry(rb.getString("sitact.newsit"), "doNew"));
 		}
