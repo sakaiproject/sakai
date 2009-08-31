@@ -120,7 +120,7 @@
 										</td>
 										<td headers="assignment">
 											<h5>
-											$validator.limit($validator.escapeHtml($assignment.Title), 40)
+												$validator.escapeHtml($validator.limit($assignment.Title, 40))
 											</h5>
 										</td>
 										<td headers="submitted">
