@@ -195,7 +195,7 @@
 				<th>$tlang.getString("gen.assignmentlink")</th>
 				<td>
 					<a href="javascript:change_parent_url('$assignmenturl');">
-						$validator.limit($validator.escapeHtml($!assignment.getTitle()), 40)
+						$validator.escapeHtml($validator.limit($!assignment.getTitle(), 40))
 					</a>
 				</td>
 			</tr>
