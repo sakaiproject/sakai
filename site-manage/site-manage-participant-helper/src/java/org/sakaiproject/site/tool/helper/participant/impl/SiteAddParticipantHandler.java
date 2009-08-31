@@ -2,7 +2,6 @@ package org.sakaiproject.site.tool.helper.participant.impl;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -24,19 +23,18 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.util.Participant;
 import org.sakaiproject.sitemanage.api.UserNotificationProvider;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserAlreadyDefinedException;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.StringUtil;
-import org.sakaiproject.util.Validator;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
@@ -76,6 +74,11 @@ public class SiteAddParticipantHandler {
 	public String officialAccountParticipant = null;
 	public String getOfficialAccountParticipant() {
 		return officialAccountParticipant;
+	}
+
+	private UserDirectoryService userDirectoryService;	
+	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+		this.userDirectoryService = userDirectoryService;
 	}
 
 	public void setOfficialAccountParticipant(String officialAccountParticipant) {
@@ -210,7 +213,7 @@ public class SiteAddParticipantHandler {
             try {    
                 site = siteService.getSite(siteId);
                 realm = authzGroupService.getAuthzGroup(siteService.siteReference(siteId));
-                for(Iterator i = realm.getRoles().iterator(); i.hasNext();)
+                for(Iterator<Role> i = realm.getRoles().iterator(); i.hasNext();)
                 { 
                 	Role r = (Role) i.next();
                 	roles.add(r);
@@ -475,7 +478,7 @@ public class SiteAddParticipantHandler {
 						}
 
 						try {
-							User user = UserDirectoryService.getUserByEid(eId);
+							User user = userDirectoryService.getUserByEid(eId);
 							if (authzGroupService.allowUpdate(realmId)
 									|| siteService.allowUpdateSiteMembership(site.getId())) 
 							{
@@ -539,11 +542,11 @@ public class SiteAddParticipantHandler {
 			} else {
 				// if this is an nonOfficialAccount
 				try {
-					UserDirectoryService.getUserByEid(eId);
+					userDirectoryService.getUserByEid(eId);
 				} catch (UserNotDefinedException e) {
 					// if there is no such user yet, add the user
 					try {
-						UserEdit uEdit = UserDirectoryService
+						UserEdit uEdit = userDirectoryService
 								.addUser(null, eId);
 
 						// set email address
@@ -566,15 +569,15 @@ public class SiteAddParticipantHandler {
 						// set password to a positive random number
 						Random generator = new Random(System
 								.currentTimeMillis());
-						Integer num = new Integer(generator
+						Integer num = Integer.valueOf(generator
 								.nextInt(Integer.MAX_VALUE));
 						if (num.intValue() < 0)
-							num = new Integer(num.intValue() * -1);
+							num = Integer.valueOf(num.intValue() * -1);
 						String pw = num.toString();
 						uEdit.setPassword(pw);
 
 						// and save
-						UserDirectoryService.commitEdit(uEdit);
+						userDirectoryService.commitEdit(uEdit);
 
 						boolean notifyNewUserEmail = (getServerConfigurationString("notifyNewUserEmail", Boolean.TRUE.toString()))
 								.equalsIgnoreCase(Boolean.TRUE.toString());
@@ -691,7 +694,7 @@ public class SiteAddParticipantHandler {
 						// is not of email format, then look up by eid only
 						try {
 							// look for user based on eid first
-							u = UserDirectoryService.getUserByEid(officialAccount);
+							u = userDirectoryService.getUserByEid(officialAccount);
 						} catch (UserNotDefinedException e) {
 							M_log.debug(this + ".checkAddParticipant: " + officialAccount + " " + messageLocator.getMessage("java.username") + " ");
 						}
@@ -701,7 +704,7 @@ public class SiteAddParticipantHandler {
 						// is email. Need to lookup by both eid and email address
 						try {
 							// look for user based on eid first
-							u = UserDirectoryService.getUserByEid(officialAccount);
+							u = userDirectoryService.getUserByEid(officialAccount);
 						} catch (UserNotDefinedException e) {
 							M_log.debug(this + ".checkAddParticipant: " + officialAccount + " " + messageLocator.getMessage("java.username") + " ");
 						}
@@ -711,7 +714,7 @@ public class SiteAddParticipantHandler {
 						// if the email address is not marked as eid only
 						if (!officialAccountEidOnly.contains(officialAccount))
 						{
-							Collection<User> usersWithEmail = UserDirectoryService.findUsersByEmail(officialAccount);
+							Collection<User> usersWithEmail = userDirectoryService.findUsersByEmail(officialAccount);
 							
 							if(usersWithEmail != null) {
 								if(usersWithEmail.size() == 0) {
@@ -817,7 +820,7 @@ public class SiteAddParticipantHandler {
 						targettedMessageList.addMessage(new TargettedMessage("java.notemailid", 
 				                new Object[] { userEid }, 
 				                TargettedMessage.SEVERITY_ERROR));
-					} else if (!Validator.checkEmailLocal(parts[0])) {
+					} else if (!EmailValidator.getInstance().isValid(userEid)) { 
 						targettedMessageList.addMessage(new TargettedMessage("java.emailaddress",
 				                new Object[] { userEid }, 
 				                TargettedMessage.SEVERITY_ERROR));
@@ -837,7 +840,7 @@ public class SiteAddParticipantHandler {
 						Participant participant = new Participant();
 						try {
 							// if the nonOfficialAccount user already exists
-							User u = UserDirectoryService
+							User u = userDirectoryService
 									.getUserByEid(userEid);
 							if (site != null && site.getUserRole(u.getId()) != null) {
 								// user already exists in the site, cannot be
@@ -856,7 +859,7 @@ public class SiteAddParticipantHandler {
 							 * The account may exist with a different eid
 							 */
 							User u = null;
-							Collection<User> usersWithEmail = UserDirectoryService.findUsersByEmail(userEid);
+							Collection<User> usersWithEmail = userDirectoryService.findUsersByEmail(userEid);
 							if(usersWithEmail != null) {
 								M_log.debug("found a collection of matching email users:  " + usersWithEmail.size());
 								if(usersWithEmail.size() == 0) {

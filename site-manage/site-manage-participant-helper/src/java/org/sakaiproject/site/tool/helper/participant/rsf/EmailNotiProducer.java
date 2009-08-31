@@ -132,7 +132,7 @@ public class EmailNotiProducer implements ViewComponentProducer, NavigationCaseR
     	//process any messages
         if (targettedMessageList != null && targettedMessageList.size() > 0) {
 			for (int i = 0; i < targettedMessageList.size(); i ++ ) {
-				UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", new Integer(i).toString());
+				UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", Integer.valueOf(i).toString());
 				TargettedMessage msg = targettedMessageList.messageAt(i);
 		    	if (msg.args != null ) 
 		    	{

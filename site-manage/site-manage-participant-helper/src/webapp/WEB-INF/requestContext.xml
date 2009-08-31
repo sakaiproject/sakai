@@ -12,6 +12,7 @@
     <property name="targettedMessageList" ref="targettedMessageList" />
     <property name="messageLocator" ref="messageLocator"/>
     <property name="notiProvider" ref="org.sakaiproject.sitemanage.api.UserNotificationProvider" />
+    <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
   </bean>
   
   <bean id="AddProducer"
