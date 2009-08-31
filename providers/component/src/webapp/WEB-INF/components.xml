@@ -169,7 +169,6 @@
 			destroy-method="destroy">
 		<property name="domain"><value>mydomain.edu</value></property>
 		<property name="loginContext"><value>KerberosAuthentication</value></property>
-		<property name="cachettl"><value>600000</value></property>
 		<property name="requireLocalAccount"><value>true</value></property>
 		<property name="knownUserMsg"><value>Integrity check on decrypted field failed</value></property>
 	</bean>
