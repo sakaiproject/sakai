@@ -19,11 +19,7 @@
 		<li class="firstToolBarItem" role="menuitem"><span><a href="#toolLink("$action" "doGoto_unjoinable")" title="$tlang.getString('mb.cursit')">$tlang.getString('mb.cursit')</a></span></li>
 		<li role="menuitem" aria-disabled="true"><span class="current">$tlang.getString("mb.joisit")</span></li>		
 	</ul>
-	
-	## join/unjoin action info normally is the only value of "alertMessage"
-	#if ($alertMessage)
-		<p class="messageInformation">$validator.escapeHtml($alertMessage)</p>
-	#end
+			
 	<div class="navPanel">
 		<div class="viewNav">
 			<h3 style="margin:0;padding:0">
@@ -55,6 +51,14 @@
 				#end
 				</div>
 			</div>
+			
+			## join/unjoin action info normally is the only value of "alertMessage"
+			#if ($alertMessage)
+				<p class="information messageInformation viewNav" id="messageHolder" style="width:50%;padding:0 0 0 2em;margin:0">
+					$validator.escapeHtml($alertMessage)
+				</p>
+			#end
+			
 			<div class="listNav">
 				<div class="instruction">
 					$tlang.getString("mb.list.viewing") $topMsgPos - $btmMsgPos $tlang.getString("mb.list.of") $allMsgNumber $tlang.getString("mb.list.sites")
@@ -153,8 +157,25 @@
 			</table>
 		</form>
 	#elseif ($search.length() > 0)
-		aaa<p class="instruction">$tlang.getString('mb.list.nosearchsites')${validator.escapeHtml($search)}$tlang.getString('mb.list.nosearchsites2')</p>
+		<p class="instruction">$tlang.getString('mb.list.nosearchjoinablesites')${validator.escapeHtml($search)}$tlang.getString('mb.list.nosearchsites2')</p>
+		<br>
+		## join/unjoin action info normally is the only value of "alertMessage"
+		#if ($alertMessage)
+			<p class="information messageInformation viewNav" id="messageHolder" style="width:50%;padding:0 0 0 2em;margin:0">
+				$validator.escapeHtml($alertMessage)
+			</p>
+		#end
+					
 	#else
 		<p class="instruction">$tlang.getString('mb.list.nosites')</p>
+		<br>
+		## join/unjoin action info normally is the only value of "alertMessage"
+		#if ($alertMessage)
+			<p class="information messageInformation viewNav" id="messageHolder" style="width:50%;padding:0 0 0 2em;margin:0">
+				$validator.escapeHtml($alertMessage)
+			</p>
+		#end
+			
+    	
 	#end
 </div>
