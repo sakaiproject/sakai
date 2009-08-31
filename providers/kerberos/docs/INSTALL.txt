@@ -11,21 +11,6 @@ Kerberos principals are the same). If you wish to allow anyone with a
 valid Kerberos principal to use Sakai, follow the instructions below 
 under ADVANCED OPTIONS.
 
-This provider implements a configurable, in-memory caching mechanism. 
-By default, a user's successful authentication is valid for 5 minutes. 
-This mechanism prevents WebDAV, which sends authenticates on every 
-connection, from overloading local KDCs.
-
-NOTE: As of Sakai 2.5, a central authentication cache for the
-UserDirectoryService has been implemented:
-
-http://jira.sakaiproject.org/jira/browse/SAK-13403
-
-As such, the caching mechanism in the Kerberos provider is scheduled
-for deprecation in Sakai 2.7. Implementors using Kerberos are
-encouraged to use the central cache to tune the longevity of their
-authentication.
-
 In addition, to protect the integrity of your Kerberos password, the 
 use of a secure Web front-end is HIGHLY recommended.
 
@@ -35,6 +20,25 @@ contains Sakai's configuration information. By default, this is the
 here as $TOMCAT_HOME). For more information on configuring
 ${sakai.home}, refer to the configuration documentation in the top-level
 "docs" directory of the Sakai source tree.
+
+**CHANGES TO CACHING MECHANISM**
+
+This provider previously implemented a configurable, in-memory caching 
+mechanism. By default, a user's successful authentication was valid 
+for 5 minutes. This mechanism prevented WebDAV, which sends 
+authenticates on every connection, from overloading local KDCs.
+
+This internal caching mechanism is now DEPRECATED per:
+
+http://jira.sakaiproject.org/browse/SAK-10227
+
+Implementors using Kerberos for authentication MUST use the 
+UserDirectoryService's central authentication cache, introduced in 
+Sakai 2.5, to tune the longevity of their authenticated logins:
+
+http://jira.sakaiproject.org/browse/SAK-13403
+
+The default TTL for entries in the central cache is 2 minutes.
 
 **GENERAL SETUP**
 
@@ -153,7 +157,6 @@ its components.xml:
 
 domain -- the 2nd-level domain name of the user's e-mail address
 loginContext -- the name of the JAAS LoginContext to use
-cachettl -- time (in milliseconds) to cache list of authenticated logins
 requireLocalAccount -- require a local account to login (true/false)
 knownUserMsg -- error message used to determine valid Kerberos principal
 

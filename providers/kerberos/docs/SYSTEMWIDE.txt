@@ -2,9 +2,9 @@ This file describes configuring Java for Kerberos for use by all
 applications systemwide. By default, most JDKs are NOT configured for 
 use with Kerberos on a systemwide basis.
 
-IF YOU ARE ONLY USING KERBEROS FOR SAKAI, YOU ARE ENCOURAGED TO FOLLOW
-THE INSTRUCTIONS IN INSTALL.txt. IT DESCRIBES AN EASIER (AND
-PREFERRED) METHOD FOR CONFIGURING JAVA FOR USE WITH SAKAI AND THIS
+IF YOU ARE ONLY USING KERBEROS FOR SAKAI, YOU ARE ENCOURAGED TO FOLLOW 
+THE INSTRUCTIONS IN INSTALL.txt. IT DESCRIBES AN EASIER (AND 
+PREFERRED) METHOD FOR CONFIGURING JAVA FOR USE WITH SAKAI AND THIS 
 PROVIDER.
 
 Before following these instructions, contact your local administrator 
@@ -18,23 +18,27 @@ Kerberos principals are the same). If you wish to allow anyone with a
 valid Kerberos principal to use Sakai, follow the instructions below
 under ADVANCED OPTIONS in the accompanying INSTALL.txt.
 
-This provider implements a configurable, in-memory caching mechanism. 
-By default, a user's successful authentication is valid for 5 minutes. 
-This mechanism prevents WebDAV, which sends authenticates on every 
-connection, from overloading local KDCs.
-
-NOTE: As of Sakai 2.5, a central authentication cache for the
-UserDirectoryService has been implemented:
-
-http://jira.sakaiproject.org/jira/browse/SAK-13403
-
-As such, the caching mechanism in the Kerberos provider is scheduled
-for deprecation in Sakai 2.7. Implementors using Kerberos are
-encouraged to use the central cache to tune the longevity of their
-authentication.
-
 In addition, to protect the integrity of your Kerberos password, the 
 use of a secure Web front-end is HIGHLY recommended.
+
+**CHANGES TO CACHING MECHANISM**
+
+This provider previously implemented a configurable, in-memory caching
+mechanism. By default, a user's successful authentication was valid
+for 5 minutes. This mechanism prevented WebDAV, which sends
+authenticates on every connection, from overloading local KDCs.
+
+This internal caching mechanism is now DEPRECATED per:
+
+http://jira.sakaiproject.org/browse/SAK-10227
+
+Implementors using Kerberos for authentication MUST use the 
+UserDirectoryService's central authentication cache, introduced in 
+Sakai 2.5, to tune the longevity of their authenticated logins:
+
+http://jira.sakaiproject.org/browse/SAK-13403
+
+The default TTL for entries in the central cache is 2 minutes.
 
 **CONFIGURING A SYSTEMWIDE CONFIGURATION**
 
