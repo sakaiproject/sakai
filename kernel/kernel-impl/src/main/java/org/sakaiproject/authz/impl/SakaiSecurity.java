@@ -326,26 +326,26 @@ public abstract class SakaiSecurity implements SecurityService
 	 *        The resource reference string.
 	 * @return A List (User) of the users can unlock the lock (may be empty).
 	 */
-	public List unlockUsers(String lock, String reference)
+	public List<User> unlockUsers(String lock, String reference)
 	{
 		if (reference == null)
 		{
 			M_log.warn("unlockUsers(): null resource: " + lock);
-			return new Vector();
+			return new Vector<User>();
 		}
 
 		// make a reference for the resource
 		Reference ref = entityManager().newReference(reference);
 
 		// get this resource's Realms
-		Collection realms = ref.getAuthzGroups();
+		Collection<String> realms = ref.getAuthzGroups();
 
 		// get the users who can unlock in these realms
-		List ids = new Vector();
+		List<String> ids = new Vector<String>();
 		ids.addAll(authzGroupService().getUsersIsAllowed(lock, realms));
 
 		// convert the set of Users into a sorted list of users
-		List users = userDirectoryService().getUsers(ids);
+		List<User> users = userDirectoryService().getUsers(ids);
 		Collections.sort(users);
 
 		return users;

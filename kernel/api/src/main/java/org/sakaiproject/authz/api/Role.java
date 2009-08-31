@@ -68,7 +68,7 @@ public interface Role extends Comparable, Serializable
 	 * 
 	 * @return The Set of function names (String) that users with this role are allowed to perform.
 	 */
-	Set getAllowedFunctions();
+	Set<String> getAllowedFunctions();
 
 	/**
 	 * Set the role description.
@@ -99,7 +99,7 @@ public interface Role extends Comparable, Serializable
 	 * @param functions
 	 *        The Collection (String) of function names to add to the allowed set.
 	 */
-	void allowFunctions(Collection functions);
+	void allowFunctions(Collection<String> functions);
 
 	/**
 	 * Remove this function from the set of functions that users with this role are allowed to perform.
@@ -115,7 +115,7 @@ public interface Role extends Comparable, Serializable
 	 * @param function
 	 *        The Collection (String) of function names to remove from the allowed set.
 	 */
-	void disallowFunctions(Collection functions);
+	void disallowFunctions(Collection<String> functions);
 
 	/**
 	 * Remove all functions from the set of functions that users with this role are allowed to perform.

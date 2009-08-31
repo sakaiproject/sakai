@@ -70,7 +70,7 @@ public interface AuthzGroupService extends EntityProducer
 	 *        The PagePosition subset of items to return.
 	 * @return The List (AuthzGroup) that meet specified criteria.
 	 */
-	List getAuthzGroups(String criteria, PagingPosition page);
+	List<AuthzGroup> getAuthzGroups(String criteria, PagingPosition page);
 
 	/**
 	 * Access a list of AuthzGroups which contain a specified userid
@@ -81,7 +81,7 @@ public interface AuthzGroupService extends EntityProducer
 	 *        Return only groups with userid as a member
 	 * @return The List (AuthzGroup) that contain the specified userid
 	 */
-	List getAuthzUserGroupIds(ArrayList authzGroupIds, String userid);
+	List<AuthzGroup> getAuthzUserGroupIds(ArrayList<String> authzGroupIds, String userid);
 
 	/**
 	 * Count the AuthzGroups that meet specified criteria.
@@ -299,7 +299,7 @@ public interface AuthzGroupService extends EntityProducer
 	 *        A collection of AuthzGroup ids to consult.
 	 * @return true if this user is allowed to perform the function in the named AuthzGroups, false if not.
 	 */
-	boolean isAllowed(String userId, String function, Collection azGroups);
+	boolean isAllowed(String userId, String function, Collection<String> azGroups);
 
 	/**
 	 * Get the set of user ids of users who are allowed to perform the function in the named AuthzGroups.
@@ -310,7 +310,7 @@ public interface AuthzGroupService extends EntityProducer
 	 *        A collection of the ids of AuthzGroups to consult.
 	 * @return the Set (String) of user ids of users who are allowed to perform the function in the named AuthzGroups.
 	 */
-	Set getUsersIsAllowed(String function, Collection azGroups);
+	Set<String> getUsersIsAllowed(String function, Collection<String> azGroups);
 
 	/**
 	 * Get the set of user ids per group of users who are allowed to perform the function in the named AuthzGroups.
@@ -349,7 +349,7 @@ public interface AuthzGroupService extends EntityProducer
 	 *        The Collection of AuthzGroup ids to search; if null, search them all.
 	 * @return the Set (String) of AuthzGroup ids in which this user is allowed to perform this function.
 	 */
-	Set getAuthzGroupsIsAllowed(String userId, String function, Collection azGroups);
+	Set<String> getAuthzGroupsIsAllowed(String userId, String function, Collection<String> azGroups);
 
 	/**
 	 * Get the set of functions that users with this role in these AuthzGroups are allowed to perform.
@@ -360,7 +360,7 @@ public interface AuthzGroupService extends EntityProducer
 	 *        A collection of AuthzGroup ids to consult.
 	 * @return the Set (String) of functions that users with this role in these AuthzGroups are allowed to perform
 	 */
-	Set getAllowedFunctions(String role, Collection azGroups);
+	Set<String> getAllowedFunctions(String role, Collection<String> azGroups);
 
 	/**
 	 * Get the role name for this user in this AuthzGroup, if the user has membership (the membership gives the user a single role).
@@ -386,7 +386,7 @@ public interface AuthzGroupService extends EntityProducer
 	 *        The AuthzGroup id to consult, if it exists.
 	 * @return A Map (userId (String) -> role name (String)) of role names for each user who have active membership; if the user does not, it will not be in the Map.
 	 */
-	Map getUsersRole(Collection userIds, String azGroupId);
+	Map<String, String> getUsersRole(Collection<String> userIds, String azGroupId);
 
 	/**
 	 * Refresh this user's AuthzGroup external definitions.
@@ -416,7 +416,7 @@ public interface AuthzGroupService extends EntityProducer
 	 * 
 	 * @return The Set of Strings representing authzGroup IDs (such as /site/1234 or /site/1234/group/5678) for all authzGroups with the given providerId.
 	 */
-	public Set getAuthzGroupIds(String providerId);
+	public Set<String> getAuthzGroupIds(String providerId);
 
 	/**
 	 * Gets the provider IDs associated with an AuthzGroup.
@@ -424,5 +424,5 @@ public interface AuthzGroupService extends EntityProducer
 	 * @return The Set of Strings representing external group IDs, as recognized by the GroupProvider implementation, that are associated with the given groupId. These strings
 	 * must not be "compound IDs", as defined by the GroupProvider's String[] unpackId(String id) method.
 	 */
-	public Set getProviderIds(String authzGroupId); 
+	public Set<String> getProviderIds(String authzGroupId); 
 }

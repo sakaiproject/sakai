@@ -86,7 +86,7 @@ public interface SecurityService
 	 *        The set of authz group ids to use for the check (the reference is not consulted).
 	 * @return true, if the user can unlock the lock, false otherwise.
 	 */
-	boolean unlock(String userId, String lock, String reference, Collection authzGroupIds);
+	boolean unlock(String userId, String lock, String reference, Collection<String> authzGroupIds);
 
 	/**
 	 * Access the List of Users who can unlock the lock for use with this resource.
@@ -97,7 +97,7 @@ public interface SecurityService
 	 *        The resource reference string.
 	 * @return A List (User) of the users can unlock the lock (may be empty).
 	 */
-	List unlockUsers(String lock, String reference);
+	List<User> unlockUsers(String lock, String reference);
 
 	/**
 	 * Is this a super special super (admin) user?

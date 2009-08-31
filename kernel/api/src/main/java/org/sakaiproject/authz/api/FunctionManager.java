@@ -42,7 +42,7 @@ public interface FunctionManager
 	 * 
 	 * @return A List (String) of registered functions.
 	 */
-	List getRegisteredFunctions();
+	List<String> getRegisteredFunctions();
 
 	/**
 	 * Access all the registered functions that begin with the string.
@@ -51,5 +51,5 @@ public interface FunctionManager
 	 *        The prefix pattern to find.
 	 * @return A List (String) of registered functions that begin with the string.
 	 */
-	List getRegisteredFunctions(String prefix);
+	List<String> getRegisteredFunctions(String prefix);
 }
