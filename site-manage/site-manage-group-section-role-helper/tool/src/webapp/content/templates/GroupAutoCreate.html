@@ -128,15 +128,15 @@
                 });
                 $('thead th :checkbox').click(function(){
                     if (this.checked) {
-                        $('td :checkbox').attr('checked', 'checked');
-                        $('tbody tr').addClass('selectedSelected');
+                    	$(this).parent().parent().parent().parent().find('tbody tr td :checkbox').attr('checked', 'checked');
+                        $(this).parent().parent().parent().parent().find('tbody tr').addClass('selectedSelected');
                         $('#save').attr('disabled', '')
                         $('#save').removeClass('disabled')                        
 
                     }
                     else {
-                        $('td :checkbox').attr('checked', '')
-                        $('tbody tr').removeClass('selectedSelected')
+                        $(this).parent().parent().parent().parent().find('tbody tr td :checkbox').attr('checked', '')
+                        $(this).parent().parent().parent().parent().find('tbody tr').removeClass('selectedSelected')
                         $('#save').attr('disabled', 'disabled')
                         $('#save').addClass('disabled')                        
                     }
