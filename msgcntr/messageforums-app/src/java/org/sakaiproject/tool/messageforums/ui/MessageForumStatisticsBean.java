@@ -1310,13 +1310,20 @@ public class MessageForumStatisticsBean {
 		String lastName;
 		int firstIndex = 0;
 		int secondIndex = 0;
-		firstIndex = selectedSiteUser.indexOf(",");
-		secondIndex = selectedSiteUser.indexOf("(");
-		lastName = selectedSiteUser.substring(0, firstIndex);
-		firstName = selectedSiteUser.substring(firstIndex + 2, secondIndex-1);
-		userName = firstName + " " + lastName;
-		
-		return buttonUserName = getResourceBundleString("return_to_statistics" , new Object[] {userName}) ;
+		if (ServerConfigurationService.getBoolean("msg.displayEid", true)) {
+			firstIndex = selectedSiteUser.indexOf(",");
+			secondIndex = selectedSiteUser.indexOf("(");
+			lastName = selectedSiteUser.substring(0, firstIndex);
+			firstName = selectedSiteUser.substring(firstIndex + 2, secondIndex-1);
+			userName = firstName + " " + lastName;	
+		} else {
+			firstIndex = selectedSiteUser.indexOf(",");
+			lastName = selectedSiteUser.substring(0, firstIndex);
+			firstName = selectedSiteUser.substring(firstIndex+2);		
+			userName = firstName + " " + lastName;			
+		}
+		buttonUserName = getResourceBundleString("return_to_statistics" , new Object[] {userName}) ;
+		return buttonUserName;
 	}
 
 	public void setButtonUserName(String buttonUserName) {
