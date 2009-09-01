@@ -324,25 +324,6 @@ $(document).ready(function() {
 		<p class="instruction labelindnt">
 			$tlang.getString("gen.noasscan")
 		</p>
-			#*
-			/** Assignment type not yet set */
-			public static final int ASSIGNMENT_SUBMISSION_TYPE_NOT_SET = -1;
-			
-			/** Text only assignment type */
-			public static final int TEXT_ONLY_ASSIGNMENT_SUBMISSION = 1;
-
-			/** Attachment only assignment type */
-			public static final int ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION = 2;
-			
-			/** Text and/or attachment assignment type */
-			public static final int TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION = 3;
-	
-			/** Non-electronic assignment type */
-			public static final int NON_ELECTRONIC_ASSIGNMENT_SUBMISSION = 4;
-	
-			/** Only one single upload attachment */
-			public static final int SINGLE_ATTACHMENT_SUBMISSION = 5;
-		*#
 		<p class="shorttext">
 			<span class="reqStar">*</span>
 			<label for="subType">
