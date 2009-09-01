@@ -320,8 +320,13 @@ public class TransactionalIndexWorker implements IndexWorker
 										filterNull(sep.getSiteId(ref)),
 										Field.Store.COMPRESS, Field.Index.UN_TOKENIZED));
 								
-								// add the ID to the contents to trap the filename
-								String idIndex = filterPunctuation(sep.getId(ref));
+								// add last part of the index as this is the filename
+								String idIndex = sep.getId(ref);
+								if (idIndex != null && idIndex.indexOf("/") > 0) {
+									idIndex = idIndex.substring(idIndex.lastIndexOf("/"));
+								}
+								idIndex = filterPunctuation(idIndex);
+								
 								doc.add(new Field(SearchService.FIELD_CONTENTS,
 										idIndex, Field.Store.COMPRESS,
 										Field.Index.TOKENIZED, Field.TermVector.YES));

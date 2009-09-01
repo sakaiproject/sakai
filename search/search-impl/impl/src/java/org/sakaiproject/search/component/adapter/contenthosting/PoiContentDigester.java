@@ -29,9 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.POITextExtractor;
 import org.apache.poi.extractor.ExtractorFactory;
-import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.sakaiproject.content.api.ContentResource;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 
 /**
  * @author ieb
