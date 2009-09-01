@@ -1218,10 +1218,13 @@ public abstract class BaseCitationService implements CitationService
 				return null;
 			}
 
-			String openUrlParams = getOpenurlParameters();
+      // SAK-16886 Honor parameters "hard coded" at the end of the resolver URL
+			String resolverUrl    = m_configService.getSiteConfigOpenUrlResolverAddress();
+			String firstDelimiter = (resolverUrl.indexOf("?") != -1) ? "&" : "?";
+			String openUrlParams  = getOpenurlParameters();
 
 			// return the URL-encoded string
-			return m_configService.getSiteConfigOpenUrlResolverAddress() + openUrlParams;
+			return resolverUrl + firstDelimiter + openUrlParams;
 		}
 
 		/*
@@ -1271,9 +1274,12 @@ public abstract class BaseCitationService implements CitationService
 			{
 				openUrl = new StringBuilder();
 
-				openUrl.append("?url_ver=" + URLEncoder.encode(OPENURL_VERSION, "utf8")
-						+ "&url_ctx_fmt=" + URLEncoder.encode(OPENURL_CONTEXT_FORMAT, "utf8")
-						+ "&rft_val_fmt=" + URLEncoder.encode(referentValueFormat, "utf8"));
+				openUrl.append("url_ver=");
+				openUrl.append(URLEncoder.encode(OPENURL_VERSION, "utf8"));
+				openUrl.append("&url_ctx_fmt=");
+				openUrl.append(URLEncoder.encode(OPENURL_CONTEXT_FORMAT, "utf8"));
+				openUrl.append("&rft_val_fmt=");
+				openUrl.append(URLEncoder.encode(referentValueFormat, "utf8"));
 
 				// flag articles
 				if (journalOpenUrlType)
