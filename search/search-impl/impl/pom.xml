@@ -14,7 +14,7 @@
   <properties>
     <deploy.target/>
     <maven.test.jvmargs/>
-    <poi.version>3.5-beta5</poi.version>
+    <poi.version>3.5-beta6</poi.version>
   </properties>
   <build>
     <resources>
@@ -116,8 +116,6 @@
       <artifactId>sakai-search-util</artifactId>
       <type>jar</type>
     </dependency>
-<!--${sakai.hibernate.groupId}${sakai.hibernate.artifactId}${sakai.hibernate.version}jar-->
-<!--${sakai.spring.groupId}${sakai.spring.artifactId}${sakai.spring.version}jar-->
     <dependency>
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-core</artifactId>
@@ -127,8 +125,6 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
-      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>commons-dbcp</groupId>
@@ -136,18 +132,6 @@
       <version>1.2.2</version>
       <type>jar</type>
     </dependency>
-<!--org.sakaiprojectsakai-event-api${sakai.version}jar-->
-<!--org.sakaiprojectsakai-component-api${sakai.version}jar-->
-<!--org.sakaiprojectsakai-component${sakai.version}jar-->
-<!--org.sakaiprojectsakai-util${sakai.version}jar-->
-<!--org.sakaiprojectsakai-util-api${sakai.version}jar-->
-<!--org.sakaiprojectsakai-cluster-api${sakai.version}jar-->
-<!--org.sakaiprojectsakai-entity-api${sakai.version}jar-->
-<!--org.sakaiprojectsakai-user-api${sakai.version}jar-->
-<!--org.sakaiprojectsakai-tool-api${sakai.version}jar-->
-<!--org.sakaiprojectsakai-content-api${sakai.version}jar-->
-<!--org.sakaiprojectsakai-site-api${sakai.version}jar-->
-<!--org.sakaiprojectsakai-authz-api${sakai.version}jar-->
 <!--
     <dependency>
       <groupId>org.sakaiproject</groupId>
@@ -156,7 +140,7 @@
       <type>jar</type>
     </dependency>
 -->
-<!--org.sakaiprojectsakai-db-api${sakai.version}jar-->
+
     <dependency>
       <groupId>jtidy</groupId>
       <artifactId>jtidy</artifactId>
