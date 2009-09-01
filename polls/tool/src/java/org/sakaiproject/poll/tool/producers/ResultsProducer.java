@@ -51,6 +51,8 @@ import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
+import uk.org.ponder.rsf.components.decorators.DecoratorList;
+import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
 
 public class ResultsProducer implements ViewComponentProducer,NavigationCaseReporter,ViewParamsReporter {
 
@@ -157,9 +159,18 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 
 		}
 
-		UILink.make(tofill,"answers-title",messageLocator.getMessage("results_answers_title"), "#");
-		UILink.make(tofill,"answers-count",messageLocator.getMessage("results_answers_numbering"), "#");
-
+		UILink title = UILink.make(tofill,"answers-title",messageLocator.getMessage("results_answers_title"), "#");
+		title.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("results_answers_title_tooltip")));
+		UILink count = UILink.make(tofill,"answers-count",messageLocator.getMessage("results_answers_numbering"), "#");
+		count.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("results_answers_numbering_tooltip")));
+		UILink avotes = UILink.make(tofill,"answers-votes",messageLocator.getMessage("results_answers_votes"), "#");
+		avotes.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("results_answers_votes_tooltip")));
+		UILink apercent = UILink.make(tofill,"answers-percent","%", "#");
+		apercent.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("results_answers_percent_tooltip")));
+		UIBranchContainer adefault = UIBranchContainer.make(tofill,"answers-default:");
+		adefault.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("results_answers_default_tooltip")));
+		
+		
 		//output the votes
 		for (int i=0; i <collation.size(); i++ ) {
 			CollatedVote cv = (CollatedVote)collation.get(i);
@@ -188,7 +199,9 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 
 		//the cancel button
 		UIForm form = UIForm.make(tofill,"actform");
-		UICommand.make(form,"cancel",messageLocator.getMessage("results_cancel"),"#{pollToolBean.cancel}"); 
+		UICommand cancel = UICommand.make(form,"cancel",messageLocator.getMessage("results_cancel"),"#{pollToolBean.cancel}");
+		cancel.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("results_cancel_tooltip"))); 
+		
 		externalLogic.postEvent("poll.viewResult", "poll/site/" + externalLogic.getCurrentLocationId() +"/poll/" +  poll.getPollId(), false);
 
 

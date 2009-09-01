@@ -199,10 +199,12 @@ DefaultView,NavigationCaseReporter {
 		UIMessage.make(deleteForm, "poll-result-title", "poll_result_title");
 		UIMessage.make(deleteForm, "poll-remove-title", "poll_remove_title");
 		
-		UILink.make(tofill,"poll-question-title",messageLocator.getMessage("poll_question_title"), "#");
-		UILink.make(tofill,"poll-open-title",messageLocator.getMessage("poll_open_title"), "#");
-		UILink.make(tofill,"poll-close-title",messageLocator.getMessage("poll_close_title"), "#");
-
+		UILink question = UILink.make(tofill,"poll-question-title",messageLocator.getMessage("poll_question_title"), "#");
+		question.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("poll_question_title_tooltip")));
+		UILink open = UILink.make(tofill,"poll-open-title",messageLocator.getMessage("poll_open_title"), "#");
+		open.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("poll_open_title_tooltip")));
+		UILink close = UILink.make(tofill,"poll-close-title",messageLocator.getMessage("poll_close_title"), "#");
+		close.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("poll_close_title_tooltip")));
 
 
 		StringList deletable = new StringList();
@@ -277,7 +279,8 @@ DefaultView,NavigationCaseReporter {
 
 		if (renderDelete) 
 			UICommand.make(deleteForm, "delete-polls",  UIMessage.make("poll_list_update"),
-			"#{pollToolBean.processActionDelete}");
+			"#{pollToolBean.processActionDelete}").decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("poll_list_update_tooltip")));
+			
 		}
 	}
 
