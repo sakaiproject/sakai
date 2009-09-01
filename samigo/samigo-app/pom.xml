@@ -582,7 +582,7 @@
         </includes>
       </resource>
     </resources>
-    <sourceDirectory>src</sourceDirectory>
+   <!--  <sourceDirectory>src</sourceDirectory> -->
 <!-- <unitTestSourceDirectory>src/test</unitTestSourceDirectory> -->
 <!--
       <unitTest>

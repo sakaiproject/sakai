@@ -54,6 +54,7 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.util.FormattedText;
 
 
 /**
@@ -354,7 +355,7 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 							if (data instanceof Double) {
 								cell.setCellValue(((Double)data).doubleValue());
 							} else {
-								cell.setCellValue(data.toString());
+								cell.setCellValue(FormattedText.convertFormattedTextToPlaintext(data.toString()));
 							}
 						}
 					}
