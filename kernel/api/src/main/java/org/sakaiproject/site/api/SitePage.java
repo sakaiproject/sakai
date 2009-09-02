@@ -62,13 +62,13 @@ public interface SitePage extends Edit, Serializable
 	public String getLayoutTitle();
 
 	/** @return The List (ToolConfiguration) of tools on this page. */
-	public List getTools();
+	public List<ToolConfiguration> getTools();
 
 	/**
 	 * @return The List (ToolConfiguration) of tools on this column (0 based) of
 	 *         this page.
 	 */
-	public List getTools(int col);
+	public List<ToolConfiguration> getTools(int col);
 
 	/**
 	 * Get all the tools placed in the site on this page that are of any of
@@ -80,7 +80,7 @@ public interface SitePage extends Edit, Serializable
 	 * @return A Collection (ToolConfiguration) of all the tools placed in the
 	 *         site on this page that are of this tool id (may be empty).
 	 */
-	Collection getTools(String[] toolIds);
+	Collection<ToolConfiguration> getTools(String[] toolIds);
 
 	/** @return the skin to use for this page. */
 	public String getSkin();

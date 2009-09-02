@@ -636,7 +636,7 @@ public interface SiteService extends EntityProducer
 	 * 
 	 * @return A list (String) of all used site types.
 	 */
-	List getSiteTypes();
+	List<String> getSiteTypes();
 
 	/**
 	 * Access a list of Site objets that meet specified criteria.
@@ -655,7 +655,7 @@ public interface SiteService extends EntityProducer
 	 *        The PagePosition subset of items to return.
 	 * @return The List (Site) of Site objets that meet specified criteria.
 	 */
-	List getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort, PagingPosition page);
+	List<Site> getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort, PagingPosition page);
 
 	/**
 	 * Count the Site objets that meet specified criteria.
@@ -684,7 +684,7 @@ public interface SiteService extends EntityProducer
 	 * @param visitUsers
 	 *        The set of String User Ids who have visit access.
 	 */
-	void setSiteSecurity(String siteId, Set updateUsers, Set visitUnpUsers, Set visitUsers);
+	void setSiteSecurity(String siteId, Set<String> updateUsers, Set<String> visitUnpUsers, Set<String> visitUsers);
 
 	/**
 	 * Establish the internal security for user for all sites. Previous security settings are replaced for this user. Assigning a user with update implies the two reads; assigning a user with unp read implies the other read.
@@ -698,7 +698,7 @@ public interface SiteService extends EntityProducer
 	 * @param visitSites
 	 *        The set of String site ids where the user has visit access.
 	 */
-	void setUserSecurity(String userId, Set updateSites, Set visitUnpSites, Set visitSites);
+	void setUserSecurity(String userId, Set<String> updateSites, Set<String> visitUnpSites, Set<String> visitSites);
 
 	/**
 	 * Merge the site information from the archive into the given site.
