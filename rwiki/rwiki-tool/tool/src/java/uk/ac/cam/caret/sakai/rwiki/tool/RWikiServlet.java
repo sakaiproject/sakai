@@ -133,8 +133,8 @@ public class RWikiServlet extends HttpServlet
 	public void execute(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException
 	{
-
-		
+	
+	
 		if (wac == null)
 		{
 			wac = WebApplicationContextUtils
@@ -149,13 +149,14 @@ public class RWikiServlet extends HttpServlet
 		log.debug("========================Page Start==========");
 		request.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
 		
-		
 		String targetURL = persistState(request);
-		if (targetURL != null && targetURL.trim().length() > 0)
+		String[] query= request.getQueryString().split("&");
+		if (targetURL != null && targetURL.trim().length() > 0 && !(query[0].equals("action=search")||query[0].equals("action=full_search")))
 		{
 			response.sendRedirect(targetURL);
 			return;
 		}
+		
 
 		// Must be done on every request
 		prePopulateRealm(request);
@@ -174,7 +175,7 @@ public class RWikiServlet extends HttpServlet
 				.getName());
 
 		HttpCommand command = helper.getCommandForRequest(request);
-
+		
 		// fix for IE6's poor cache capabilities
 		String userAgent = request.getHeader("User-Agent");
 		if ( userAgent != null && userAgent.indexOf("MSIE 6") >= 0 ) {
