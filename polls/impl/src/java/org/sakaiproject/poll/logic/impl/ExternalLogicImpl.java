@@ -134,7 +134,7 @@ public class ExternalLogicImpl implements ExternalLogic {
 	}
 
     private static final String SAKAI_SITE_TYPE = SiteService.SITE_SUBTYPE;
-    @SuppressWarnings("unchecked")
+   
     public List<String> getSitesForUser(String userId, String permission) {
         log.debug("userId: " + userId + ", permission: " + permission);
 
