@@ -88,7 +88,7 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	String getSkin();
 
 	/** @return the List (SitePage) of Site Pages. */
-	List getPages();
+	List<SitePage> getPages();
 
 	/**
 	 * Make sure pages and tools, groups and properties are loaded, not lazy
@@ -96,7 +96,7 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	void loadAll();
 
 	/** @return The pages ordered by the tool order constraint for this site's type (as tool category), or the site's pages in defined order if the site is set to have a custom page order. */
-	List getOrderedPages();
+	List<SitePage> getOrderedPages();
 
 	/** @return true if the site is published, false if not. */
 	boolean isPublished();
