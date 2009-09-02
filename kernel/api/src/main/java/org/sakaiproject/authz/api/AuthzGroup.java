@@ -115,7 +115,7 @@ public interface AuthzGroup extends Edit, Comparable, Serializable
 	 * 
 	 * @return The set of Membership records (Membership) defined for this AuthzGroup.
 	 */
-	public Set getMembers();
+	public Set<Member> getMembers();
 
 	/**
 	 * @return the user who last modified this.
@@ -148,7 +148,7 @@ public interface AuthzGroup extends Edit, Comparable, Serializable
 	 * 
 	 * @return The set of roles (Role) defined for this AuthzGroup.
 	 */
-	public Set getRoles();
+	public Set<Role> getRoles();
 
 	/**
 	 * Access all roles that have been granted permission to this function.
@@ -157,7 +157,7 @@ public interface AuthzGroup extends Edit, Comparable, Serializable
 	 *        The function to check.
 	 * @return The Set of role names (String) that have been granted permission to this function.
 	 */
-	public Set getRolesIsAllowed(String function);
+	public Set<String> getRolesIsAllowed(String function);
 
 	/**
 	 * Access the active role for this user's membership.
@@ -173,14 +173,14 @@ public interface AuthzGroup extends Edit, Comparable, Serializable
 	 * 
 	 * @return The Set of users ids (String) who have active role membership in the AuthzGroup.
 	 */
-	public Set getUsers();
+	public Set<String> getUsers();
 
 	/**
 	 * Access all users who have an active role membership with this role.
 	 * 
 	 * @return The Set of user ids (String) who have an active role membership with this role.
 	 */
-	public Set getUsersHasRole(String role);
+	public Set<String> getUsersHasRole(String role);
 
 	/**
 	 * Access all users who have an active role membership to a role that is allowed this function.
@@ -189,7 +189,7 @@ public interface AuthzGroup extends Edit, Comparable, Serializable
 	 *        The function to check.
 	 * @return The Set of user ids (String) who have an active role membership to a role that is allowed this function.
 	 */
-	public Set getUsersIsAllowed(String function);
+	public Set<String> getUsersIsAllowed(String function);
 
 	/**
 	 * Test if this user has a membership in this AuthzGroup that has this role and is active.
