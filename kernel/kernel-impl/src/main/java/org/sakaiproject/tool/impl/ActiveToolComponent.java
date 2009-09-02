@@ -161,7 +161,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 			// for tool
 			if (rootElement.getTagName().equals("tool"))
 			{
-				org.sakaiproject.util.Tool tool = parseToolRegistration(rootElement);
+				org.sakaiproject.tool.impl.ToolImpl tool = parseToolRegistration(rootElement);
 				register(tool, context);
 			}	
 			// for function
@@ -256,7 +256,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 			// for tool
 			if (rootElement.getTagName().equals("tool"))
 			{
-				org.sakaiproject.util.Tool tool = parseToolRegistration(rootElement);
+				org.sakaiproject.tool.impl.ToolImpl tool = parseToolRegistration(rootElement);
 				retval.add(tool);
 			}
 
@@ -265,9 +265,9 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 		return retval;
 	}
 
-	private org.sakaiproject.util.Tool parseToolRegistration(Element rootElement)
+	private org.sakaiproject.tool.impl.ToolImpl parseToolRegistration(Element rootElement)
 	{
-		org.sakaiproject.util.Tool tool = new org.sakaiproject.util.Tool();
+		org.sakaiproject.tool.impl.ToolImpl tool = new org.sakaiproject.tool.impl.ToolImpl();
 		
 		final String toolId = rootElement.getAttribute("id").trim();
 		tool.setId(toolId);
@@ -415,7 +415,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 	 * Entity: ActiveTool
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	public class MyActiveTool extends org.sakaiproject.util.Tool implements ActiveTool
+	public class MyActiveTool extends org.sakaiproject.tool.impl.ToolImpl implements ActiveTool
 	{
 
 		protected ServletContext m_servletContext = null;

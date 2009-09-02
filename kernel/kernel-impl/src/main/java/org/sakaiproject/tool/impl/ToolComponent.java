@@ -319,7 +319,7 @@ public abstract class ToolComponent implements ToolManager
 			// for tool
 			if (rootElement.getTagName().equals("tool"))
 			{
-				org.sakaiproject.util.Tool tool = new org.sakaiproject.util.Tool();
+				org.sakaiproject.tool.impl.ToolImpl tool = new org.sakaiproject.tool.impl.ToolImpl();
 
 				tool.setId(rootElement.getAttribute("id").trim());
 				tool.setTitle(rootElement.getAttribute("title").trim());
@@ -445,7 +445,7 @@ public abstract class ToolComponent implements ToolManager
 	/**
 	 * Establish the Tool associated with the current request / thread
 	 *
-	 * @param Tool
+	 * @param ToolImpl
 	 *        The current Tool, or null if there is none.
 	 */
 	protected void setCurrentPlacement(Placement placement)
@@ -456,7 +456,7 @@ public abstract class ToolComponent implements ToolManager
 	/**
 	 * Establish the Tool associated with the current request / thread
 	 *
-	 * @param Tool
+	 * @param ToolImpl
 	 *        The current Tool, or null if there is none.
 	 */
 	protected void setCurrentTool(Tool tool)
@@ -476,7 +476,7 @@ public abstract class ToolComponent implements ToolManager
 	{
 		File file = new File(filename);
 		String shortname = file.getName();
-		org.sakaiproject.util.Tool tool = (org.sakaiproject.util.Tool) this.getTool(toolId);
+		org.sakaiproject.tool.impl.ToolImpl tool = (org.sakaiproject.tool.impl.ToolImpl) this.getTool(toolId);
 
 		//	Initialize the HashSet if empty.
 		if (tool.m_title_bundle == null)

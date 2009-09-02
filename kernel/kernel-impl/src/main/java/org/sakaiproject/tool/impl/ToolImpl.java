@@ -19,18 +19,18 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.util;
+package org.sakaiproject.tool.impl;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Locale;
-import java.util.Iterator;
-import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.api.ActiveToolManager;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -38,10 +38,10 @@ import org.sakaiproject.util.ResourceLoader;
  * Tool is a utility class that implements the Tool interface.
  * </p>
  */
-public class Tool implements org.sakaiproject.tool.api.Tool, Comparable
+public class ToolImpl implements Tool, Comparable
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(Tool.class);
+	private static Log M_log = LogFactory.getLog(ToolImpl.class);
 
 	/** The access security. */
 	protected Tool.AccessSecurity m_accessSecurity = Tool.AccessSecurity.PORTAL;
@@ -80,7 +80,7 @@ public class Tool implements org.sakaiproject.tool.api.Tool, Comparable
 	/**
 	 * Construct
 	 */
-	public Tool()
+	public ToolImpl()
 	{
 	}
 
@@ -101,12 +101,12 @@ public class Tool implements org.sakaiproject.tool.api.Tool, Comparable
 	 */
 	public boolean equals(Object obj)
 	{
-		if (!(obj instanceof Tool))
+		if (!(obj instanceof ToolImpl))
 		{
 			return false;
 		}
 
-		return ((Tool) obj).getId().equals(getId());
+		return ((ToolImpl) obj).getId().equals(getId());
 	}
 
 	/**
