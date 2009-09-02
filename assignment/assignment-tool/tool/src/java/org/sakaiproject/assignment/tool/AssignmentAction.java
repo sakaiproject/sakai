@@ -11820,12 +11820,10 @@ public class AssignmentAction extends PagedResourceActionII
 				try
 				{
 					String siteId = ToolManager.getCurrentPlacement().getContext();
-
-					String toolName = "Assignment";
 					
 					// add attachment
 					enableSecurityAdvisor();
-					ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, toolName, contentType, bytes, props);
+					ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, getToolTitle(), contentType, bytes, props);
 					disableSecurityAdvisors();
 					
 					// construct the state variable for attachment list
