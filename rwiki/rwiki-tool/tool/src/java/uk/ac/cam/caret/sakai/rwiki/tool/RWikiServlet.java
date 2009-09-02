@@ -150,7 +150,13 @@ public class RWikiServlet extends HttpServlet
 		request.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
 		
 		String targetURL = persistState(request);
-		String[] query= request.getQueryString().split("&");
+		String queryString= request.getQueryString();
+		String[] query=null;
+		if (queryString!=null)
+		{
+			query= queryString.split("&");
+		}
+				
 		if (targetURL != null && targetURL.trim().length() > 0 && !(query[0].equals("action=search")||query[0].equals("action=full_search")))
 		{
 			response.sendRedirect(targetURL);
