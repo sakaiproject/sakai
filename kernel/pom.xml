@@ -382,18 +382,6 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
-		<!--
-			This is not needed now that pluto have been released
-			<repository>
-			<id>Pluto Repor</id>
-			<name>Pluto Dev Repository</name>
-			<layout>default</layout>
-			<url>http://people.apache.org/builds/portals-pluto/m2-staging-repository</url>
-			<snapshots>
-			<enabled>false</enabled>
-			</snapshots>
-			</repository>
-		-->
 		<repository>
 			<id>apache-repo</id>
 			<name>apache-repo</name>
@@ -401,6 +389,16 @@
 			<url>
 				http://myfaces.zones.apache.org/dist/maven-repository
 			</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<!--  contains the javax.mail artefacts -->
+		<repository>
+			<id>maven2-repository.dev.java.net</id>
+			<name>Java.net Repository for Maven</name>
+			<url>http://download.java.net/maven/2/</url>
+			<layout>default</layout>
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
