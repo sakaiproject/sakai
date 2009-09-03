@@ -60,6 +60,7 @@
          <a href="${result.url}" target="searchresult" class="searchBottonLink" >${result.url}</a>
 
      </div>
+     <br>
      
      <!--ie-->
  #end   

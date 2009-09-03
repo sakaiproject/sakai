@@ -73,6 +73,11 @@ public class FullSearchBean
 	 * The default request page
 	 */
 	private int requestPage = 0;
+	
+	/**
+	 * The default number of results
+	 */
+	private int nresults = 0;
 
 	/**
 	 * The current search list
@@ -171,7 +176,8 @@ public class FullSearchBean
 			searchResults = searchService.search(search, l, searchStart,
 					searchEnd);
 			long end = System.currentTimeMillis();
-			timeTaken = 0.001 * (end - start);
+			timeTaken = end - start;
+			nresults = searchResults.getFullSize();
 		}
 		return searchResults;
 	}
@@ -181,16 +187,23 @@ public class FullSearchBean
 		SearchList sr = (SearchList) search();
 		int npages = sr.getFullSize() / pagesize;
 		List pages = new ArrayList();
+		/*
 		int cpage = requestPage - (nlistPages / 2);
 		if (cpage < 0)
 		{
 			cpage = 0;
 		}
 		int lastPage = Math.min(cpage + nlistPages, npages);
+		
 		while (cpage <= lastPage)
 		{
 			pages.add(new PageLink(cpage));
 			cpage++;
+		}
+		*/
+		for (int i=0; i<npages; i++)
+		{
+		pages.add(new PageLink(i));
 		}
 		return pages;
 	}
@@ -294,7 +307,7 @@ public class FullSearchBean
 
 	public int getNresults()
 	{
-		return 0; // TODO: SearchsearchResults.getFullSize();
+		return nresults;
 	}
 
 }
