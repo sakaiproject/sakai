@@ -71,9 +71,6 @@ public class RequestFilter implements Filter
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(RequestFilter.class);
 
-	/** The name of the cookie we use to keep sakai session. */
-	public static final String SESSION_COOKIE = "JSESSIONID";
-
 	/** The request attribute name used to store the Sakai session. */
 	public static final String ATTR_SESSION = "sakai.session";
 
@@ -208,6 +205,12 @@ public class RequestFilter implements Filter
 	/** The name of the system property that will be used when setting the value of the session cookie. */
 	protected static final String SAKAI_SERVERID = "sakai.serverId";
 
+	/** The name of the system property that will be used when setting the name of the session cookie. */
+	protected static final String SAKAI_COOKIE_NAME = "sakai.cookieName";
+
+	/** The name of the system property that will be used when setting the domain of the session cookie. */
+	protected static final String SAKAI_COOKIE_DOMAIN = "sakai.cookieDomain";
+
 	/** If true, we deliver the Sakai wide session as the Http session for each request. */
 	protected int m_sakaiHttpSession = TOOL_SESSION;
 
@@ -250,6 +253,13 @@ public class RequestFilter implements Filter
 	/** Is this a Terracotta clustered environment? */
 	protected boolean TERRACOTTA_CLUSTER = false;
 
+                                                                                                             
+    /** The name of the cookie we use to keep sakai session. */                                            
+    protected String cookieName = "JSESSIONID";                                                            
+                                                                                                              
+    protected String cookieDomain = null; 
+	
+	
 	/**
 	 * Wraps a request object so we can override some standard behavior.
 	 */
@@ -639,16 +649,20 @@ public class RequestFilter implements Filter
 						
 						// check for existing cookie
 						String suffix = getCookieSuffix();
-						Cookie c = findCookie(req, SESSION_COOKIE, suffix);
+						Cookie c = findCookie(req, cookieName, suffix);
 
 						// the cookie value we need to use
 						String sessionId = s.getId() + DOT + suffix;
 
 						// set the cookie if necessary
 						if ((c == null) || (!c.getValue().equals(sessionId))) {
-							c = new Cookie(SESSION_COOKIE, sessionId);
+							c = new Cookie(cookieName, sessionId);
 							c.setPath("/");
 							c.setMaxAge(-1);
+							if (cookieDomain != null)
+							{
+								c.setDomain(cookieDomain);
+							}
 							if (req.isSecure() == true)
 							{
 								c.setSecure(true);
@@ -705,6 +719,17 @@ public class RequestFilter implements Filter
 			}
 		}
 		
+		// retrieve the configured cookie name, if any
+		if (System.getProperty(SAKAI_COOKIE_NAME) != null)
+		{
+			cookieName = System.getProperty(SAKAI_COOKIE_NAME);
+		}
+
+		// retrieve the configured cookie domain, if any
+		if (System.getProperty(SAKAI_COOKIE_NAME) != null)
+		{
+			cookieDomain = System.getProperty(SAKAI_COOKIE_DOMAIN);
+		}
 	}
 
 	/**
@@ -1125,7 +1150,7 @@ public class RequestFilter implements Filter
 			sessionId = req.getParameter(ATTR_SESSION);
 
 			// find our session id from our cookie
-			c = findCookie(req, SESSION_COOKIE, suffix);
+			c = findCookie(req, cookieName, suffix);
 
 			if (sessionId == null && c != null)
 			{
@@ -1201,9 +1226,13 @@ public class RequestFilter implements Filter
 		if ((s == null) && (c != null))
 		{
 			// remove the cookie
-			c = new Cookie(SESSION_COOKIE, "");
+			c = new Cookie(cookieName, "");
 			c.setPath("/");
 			c.setMaxAge(0);
+			if (cookieDomain != null)
+			{
+				c.setDomain(cookieDomain);
+			}
 			res.addCookie(c);
 		}
 
@@ -1217,9 +1246,13 @@ public class RequestFilter implements Filter
 			if ((c == null) || (!c.getValue().equals(sessionId)))
 			{
 				// set the cookie
-				c = new Cookie(SESSION_COOKIE, sessionId);
+				c = new Cookie(cookieName, sessionId);
 				c.setPath("/");
 				c.setMaxAge(-1);
+				if (cookieDomain != null)
+				{
+					c.setDomain(cookieDomain);
+				}
 				if (req.isSecure() == true)
 				{
 					c.setSecure(true);

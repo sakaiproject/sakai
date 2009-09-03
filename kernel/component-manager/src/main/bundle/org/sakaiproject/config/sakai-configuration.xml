@@ -43,6 +43,8 @@
 				<entry key="content.upload.ceiling" value="sakai.content.upload.ceiling"/>
 				<entry key="content.upload.dir" value="sakai.content.upload.dir"/>
 				<entry key="force.url.secure" value="sakai.force.url.secure"/>
+				<entry key="cookieName" value="sakai.cookieName"/>
+				<entry key="cookieDomain" value="sakai.cookieDomain"/>
 			</map>
 		</property>
 	</bean>
