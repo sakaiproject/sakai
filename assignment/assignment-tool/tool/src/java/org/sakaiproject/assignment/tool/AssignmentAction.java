@@ -5329,7 +5329,7 @@ public class AssignmentAction extends PagedResourceActionII
 			String n_resubmit_number = state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null? (String) state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER):null;
 			if (o_resubmit_number == null && n_resubmit_number != null
 				|| o_resubmit_number != null && n_resubmit_number == null
-				|| !o_resubmit_number.equals(n_resubmit_number))
+				|| o_resubmit_number != null && n_resubmit_number != null && !o_resubmit_number.equals(n_resubmit_number))
 			{
 				// there is a change
 				return true;
