@@ -11634,7 +11634,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 		}
 		
-		if (allowResubmitNumber == null)
+		if (allowResubmitNumber == null || "".equals(allowResubmitNumber))
 		{
 			// default setting;
 			allowResubmitNumber = "0";
