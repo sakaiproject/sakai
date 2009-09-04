@@ -233,7 +233,7 @@ public interface ServerConfigurationService
 	 *        The tool category
 	 * @return An ordered list of tool ids (String) indicating the desired tool display order, or an empty list if there are none for this category.
 	 */
-	List getToolOrder(String category);
+	List<String> getToolOrder(String category);
 
 	/**
 	 * Access the list of tool ids that are required for this category.
@@ -242,7 +242,7 @@ public interface ServerConfigurationService
 	 *        The tool category.
 	 * @return A list of tool ids (String) that are required for this category, or an empty list if there are none for this category.
 	 */
-	List getToolsRequired(String category);
+	List<String> getToolsRequired(String category);
 
 	/**
 	 * Access the list of tool ids that are selected by default for this category.
@@ -251,7 +251,7 @@ public interface ServerConfigurationService
 	 *        The tool category.
 	 * @return A list of tool ids (String) for this category to use by default, or an empty list if there are none for this category.
 	 */
-	List getDefaultTools(String category);
+	List<String> getDefaultTools(String category);
 
    /**
     * access the list of tool categories for the given site type

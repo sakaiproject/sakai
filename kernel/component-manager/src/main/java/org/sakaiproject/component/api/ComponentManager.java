@@ -75,7 +75,7 @@ public interface ComponentManager
 	 * 
 	 * @return A Set (String class name) of all interfaces registered in the component manager.
 	 */
-	Set getRegisteredInterfaces();
+	Set<String> getRegisteredInterfaces();
 
 	/**
 	 * Load a singleton already created component for this interface class as a singleton.
