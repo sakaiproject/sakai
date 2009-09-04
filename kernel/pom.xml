@@ -301,6 +301,17 @@
             <timezone>-5</timezone>
             <properties></properties>
         </contributor>
+        <contributor>
+            <name>Matthew Buckett</name>
+            <email>matthew.buckett@oucs.ox.ac.uk</email>
+            <organization>Oxford University</organization>
+            <organizationUrl>http://www.oucs.ox.ac.uk/</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>0</timezone>
+            <properties></properties>
+        </contributor>
     </contributors>
 	<scm>
 		<connection>
