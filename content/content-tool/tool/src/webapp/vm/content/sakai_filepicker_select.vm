@@ -3,17 +3,15 @@
 <!--[if gt IE 5.0]><![if lt IE 7]>
 <style type="text/css">
 /* that IE 5+ conditional comment makes this only visible in IE 5+*/ 
-ul.makeMenu li {  /* the behaviour to mimic the li:hover rules in IE 5+ */
-## not needed by click version
-##	behavior: url( /library/js/IEmen.htc );
-}
-  
 ul.makeMenu ul {  /* copy of above declaration without the > selector */                                                                      
   display: none; position: absolute; top: 18px; left: 0px; background-image:none; background-color:#ffffff;width: 15em; z-index:3;border:1px solid  #666  	
 }
+ul.makeMenu ul li {display:block}
+
+
 </style>
 <![endif]><![endif]-->
-<!--[if gt IE 6.0]>
+<!--[if gt IE 6.0]><![if lt IE 8]>
 <style type="text/css">
 ul.makeMenu li {
   list-style-type: none; 
@@ -32,7 +30,7 @@ ul.makeMenu li {
 	 .attach{width:1em !important;}
 
 </style>
-<![endif]-->
+<![endif]><![endif]-->
 
 <script language="JavaScript" type="text/JavaScript">
 	<!--
