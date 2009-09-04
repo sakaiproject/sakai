@@ -22,6 +22,7 @@
 		<property name="locations">
 			<list>
 				<value>classpath:/org/sakaiproject/config/kernel.properties</value>
+				<value>classpath:/org/sakaiproject/config/version.properties</value>
 				<value>classpath:org/sakaiproject/config/bundle/default.sakai.properties</value>
 			</list>
 		</property>

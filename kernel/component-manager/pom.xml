@@ -70,6 +70,27 @@
           <forkMode>pertest</forkMode>
         </configuration>
       </plugin>
+            <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.2</version>
+        <executions>
+          <execution>
+            <phase>compile</phase>
+            <configuration>
+              <tasks>
+                <echo message="version.kernel=${project.version}"
+                file="${basedir}/target/classes/org/sakaiproject/config/version.properties"/>
+              </tasks>
+
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      
     </plugins>
   </build>
 </project>
