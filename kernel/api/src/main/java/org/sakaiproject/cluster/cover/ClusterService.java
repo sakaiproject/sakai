@@ -53,7 +53,7 @@ public class ClusterService
 
 	private static org.sakaiproject.cluster.api.ClusterService m_instance = null;
 
-	public static java.util.List getServers()
+	public static java.util.List<String> getServers()
 	{
 		org.sakaiproject.cluster.api.ClusterService service = getInstance();
 		if (service == null) return null;

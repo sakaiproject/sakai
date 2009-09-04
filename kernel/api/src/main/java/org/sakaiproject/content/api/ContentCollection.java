@@ -40,7 +40,7 @@ public interface ContentCollection
 	* Access a List of the collection's internal members, each a resource id String.
 	* @return a List of the collection's internal members, each a resource id String (may be empty).
 	*/
-	public List getMembers();
+	public List<String> getMembers();
 
 	/**
 	* Access a List of the collections' internal members as full ContentResource or

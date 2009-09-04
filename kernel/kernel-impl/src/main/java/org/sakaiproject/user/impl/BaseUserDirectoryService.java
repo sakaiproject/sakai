@@ -203,9 +203,9 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 *        The resource reference string, or null if no resource is involved.
 	 * @return true if any of these locks are allowed, false if not
 	 */
-	protected boolean unlockCheck(List locks, String resource)
+	protected boolean unlockCheck(List<String> locks, String resource)
 	{
-		Iterator locksIterator = locks.iterator();
+		Iterator<String> locksIterator = locks.iterator();
 
 		while(locksIterator.hasNext()) {
 
@@ -296,12 +296,12 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 * @return A list of the lock strings that the user has access to.
 	 */
 
-	protected List unlock(List locks, String resource) throws UserPermissionException
+	protected List<String> unlock(List<String> locks, String resource) throws UserPermissionException
 	{
-		List locksSucceeded = new ArrayList();
+		List<String> locksSucceeded = new ArrayList<String>();
 		String locksFailed = "";
 
-		Iterator locksIterator = locks.iterator();
+		Iterator<String> locksIterator = locks.iterator();
 
 		while (locksIterator.hasNext()) {
 

@@ -35,5 +35,5 @@ public interface ClusterService
 	 * 
 	 * @return The List (String) of server ids active in the cluster.
 	 */
-	List getServers();
+	List<String> getServers();
 }

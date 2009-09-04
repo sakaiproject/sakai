@@ -272,7 +272,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @deprecated Suggest use of {@link #addCollection(String)} followed by {@link #Edit.getPropertiesEdit()},
 	 * 		{@link #GroupAwareEdit.setGroupAccess(Collection)} and {@link #commitCollection(ContentCollectionEdit)}
 	 */
-	public ContentCollection addCollection(String id, ResourceProperties properties, Collection groups) throws IdUsedException, IdInvalidException, PermissionException, InconsistentException;
+	public ContentCollection addCollection(String id, ResourceProperties properties, Collection<String>  groups) throws IdUsedException, IdInvalidException, PermissionException, InconsistentException;
 
 	/**
 	 * Create a new collection with the given resource id.
@@ -307,7 +307,7 @@ public interface ContentHostingService extends EntityProducer
 	 * 		{@link #GroupAwareEdit.setGroupAccess(Collection)}, {@link #GroupAwareEdit.setAvailability(boolean, Time, Time)} 
 	 * 		and {@link #commitCollection(ContentCollectionEdit)}
 	 */
-	public ContentCollection addCollection(String id, ResourceProperties properties, Collection groups, boolean hidden, Time releaseDate, Time retractDate) throws IdUsedException, IdInvalidException, PermissionException, InconsistentException;
+	public ContentCollection addCollection(String id, ResourceProperties properties, Collection<String>  groups, boolean hidden, Time releaseDate, Time retractDate) throws IdUsedException, IdInvalidException, PermissionException, InconsistentException;
 
 	/**
 	 * Create a new collection with the given resource id, locked for update. Must commitCollection() to make official, or cancelCollection() when done!
@@ -397,7 +397,7 @@ public interface ContentHostingService extends EntityProducer
 	 *        A collection id.
 	 * @return a List of the ContentResource objects.
 	 */
-	public List getAllResources(String id);
+	public List<ContentResource> getAllResources(String id);
 
 	/**
 	 * check permissions for editCollection()
@@ -606,7 +606,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @deprecated Suggest use of {@link #addResource(String)} or {@link #addResource(String, String, String, int)}} 
 	 * 		followed by {@link #Edit.getPropertiesEdit()} and {@link #commitResource(ContentResourceEdit)}
 	 */
-	public ContentResource addResource(String id, String type, byte[] content, ResourceProperties properties, Collection groups, int priority)
+	public ContentResource addResource(String id, String type, byte[] content, ResourceProperties properties, Collection<String>  groups, int priority)
 			throws PermissionException, IdUsedException, IdInvalidException, InconsistentException, OverQuotaException,
 			ServerOverloadException;
 
@@ -651,7 +651,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @deprecated Suggest use of {@link #addResource(String)} or {@link #addResource(String, String, String, int)}} 
 	 * 		followed by {@link #Edit.getPropertiesEdit()} and {@link #commitResource(ContentResourceEdit)}
 	 */
-	public ContentResource addResource(String name, String collectionId, int limit, String type, byte[] content, ResourceProperties properties, Collection groups, int priority)
+	public ContentResource addResource(String name, String collectionId, int limit, String type, byte[] content, ResourceProperties properties, Collection<String>  groups, int priority)
 			throws PermissionException, IdUniquenessException, IdLengthException, IdInvalidException, InconsistentException, IdLengthException, OverQuotaException,
 			ServerOverloadException;
 
@@ -702,7 +702,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @deprecated Suggest use of {@link #addResource(String)} or {@link #addResource(String, String, String, int)}} 
 	 * 		followed by {@link #Edit.getPropertiesEdit()} and {@link #commitResource(ContentResourceEdit)}
 	 */
-	public ContentResource addResource(String name, String collectionId, int limit, String type, byte[] content, ResourceProperties properties, Collection groups, boolean hidden, Time releaseDate, Time retractDate, int priority)
+	public ContentResource addResource(String name, String collectionId, int limit, String type, byte[] content, ResourceProperties properties, Collection<String>  groups, boolean hidden, Time releaseDate, Time retractDate, int priority)
 			throws PermissionException, IdUniquenessException, IdLengthException, IdInvalidException, InconsistentException, IdLengthException, OverQuotaException,
 			ServerOverloadException;
 
@@ -1393,14 +1393,14 @@ public interface ContentHostingService extends EntityProducer
 	 *        The sub type (ie, the "xml" of "text/xml") This may be null to include all resources of the primary mime type if specified.
 	 * @return List of ContentResource objects that match the search criteria
 	 */
-	public List findResources(String type, String primaryMimeType, String subMimeType);
+	public List<ContentResource> findResources(String type, String primaryMimeType, String subMimeType);
   
 	/**
 	 * Return a map of Worksite collections roots that the user has access to.
 	 * 
 	 * @return Map of worksite resource root id (String) to worksite title (String) 
 	 */
-	public Map getCollectionMap();
+	public Map<String, String>  getCollectionMap();
 
 	/**
 	 * Eliminate from the collection any duplicates as well as any items that are contained within another item whose resource-id is in the collection.
@@ -1408,7 +1408,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @param resourceIds
 	 *        A collection of strings (possibly empty) identifying items and/or collections.
 	 */
-	public void eliminateDuplicates(Collection resourceIds);
+	public void eliminateDuplicates(Collection<String> resourceIds);
 
 	/**
 	 * Create the current site's dropbox collection and one for each qualified user that the current user can make.

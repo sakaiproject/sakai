@@ -21,12 +21,9 @@
 
 package org.sakaiproject.content.api;
 
-import java.util.Collection;
 import java.util.Map;
 
-import org.sakaiproject.content.api.GroupAwareEdit;
 import org.sakaiproject.entity.api.Edit;
-import org.sakaiproject.time.api.Time;
 
 /**
 * <p>ContentCollectionEdit is an editable ContentCollection.</p>

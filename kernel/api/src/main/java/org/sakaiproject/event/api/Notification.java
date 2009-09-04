@@ -52,7 +52,7 @@ public interface Notification extends Entity
 	 * 
 	 * @return a List (String) of Event functions to watch for.
 	 */
-	List getFunctions();
+	List<String>  getFunctions();
 
 	/**
 	 * Check if the notification watches for events with this function code.

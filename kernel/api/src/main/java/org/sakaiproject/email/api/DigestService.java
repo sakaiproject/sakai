@@ -65,7 +65,7 @@ public interface DigestService
 	 * 
 	 * @return A List (Digest) of all defined digests.
 	 */
-	List getDigests();
+	List<Digest> getDigests();
 
 	/**
 	 * Add a new message to a digest, creating one if needed. This returns right away; the digest will be added as soon as possible.

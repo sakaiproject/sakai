@@ -81,7 +81,7 @@ public interface ContentHostingHandler
 	 * @param ce
 	 * @return
 	 */
-	List getFlatResources(ContentEntity ce);
+	List<String> getFlatResources(ContentEntity ce);
 
 	/**
 	 * get the resource body
@@ -98,7 +98,7 @@ public interface ContentHostingHandler
 	 * @param collection
 	 * @return
 	 */
-	List getResources(ContentCollection collection);
+	List<String> getResources(ContentCollection collection);
 
 	/**
 	 * Convert the passed-in ContentEntity into a virtual Content Entity. The implementation should check that the passed in entity is managed by this content handler before performing the translation. Additionally it must register the content handler

@@ -599,9 +599,9 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 	 *        The target resource reference string.
 	 * @return A list (Alias) of all the aliases defined for this target.
 	 */
-	public List getAliases(String target)
+	public List<Alias> getAliases(String target)
 	{
-		List allForTarget = m_storage.getAll(target);
+		List<Alias> allForTarget = m_storage.getAll(target);
 
 		return allForTarget;
 
@@ -618,9 +618,9 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 	 *        The last record position to return.
 	 * @return A list (Alias) of all the aliases defined for this target, within the record range given (sorted by id).
 	 */
-	public List getAliases(String target, int first, int last)
+	public List<Alias> getAliases(String target, int first, int last)
 	{
-		List allForTarget = m_storage.getAll(target, first, last);
+		List<Alias> allForTarget = m_storage.getAll(target, first, last);
 
 		return allForTarget;
 
@@ -635,9 +635,9 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 	 *        The last record position to return.
 	 * @return A list (Alias) of all the aliases within the record range given (sorted by id).
 	 */
-	public List getAliases(int first, int last)
+	public List<Alias> getAliases(int first, int last)
 	{
-		List all = m_storage.getAll(first, last);
+		List<Alias> all = m_storage.getAll(first, last);
 
 		return all;
 
@@ -654,7 +654,7 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 	/**
 	 * {@inheritDoc}
 	 */
-	public List searchAliases(String criteria, int first, int last)
+	public List<Alias> searchAliases(String criteria, int first, int last)
 	{
 		return m_storage.search(criteria, first, last);
 	}

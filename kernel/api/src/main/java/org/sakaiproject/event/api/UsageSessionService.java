@@ -110,7 +110,7 @@ public interface UsageSessionService
 	 *        the List (String) of Session ids.
 	 * @return The List (UsageSession) of UsageSession object for these ids.
 	 */
-	List getSessions(List ids);
+	List<UsageSession> getSessions(List<String> ids);
 
 	/**
 	 * Access a List of usage sessions by *arbitrary criteria* for te session ids.
@@ -127,7 +127,7 @@ public interface UsageSessionService
 	 *        Optional values to go with the criteria in an implementation specific way.
 	 * @return The List (UsageSession) of UsageSession object for these ids.
 	 */
-	List getSessions(String joinTable, String joinAlias, String joinColumn, String joinCriteria, Object[] values);
+	List<UsageSession> getSessions(String joinTable, String joinAlias, String joinColumn, String joinCriteria, Object[] values);
 
 	/**
 	 * Access the time (seconds) we will wait for any user generated request from a session before we consider the session inactive.
@@ -148,14 +148,14 @@ public interface UsageSessionService
 	 * 
 	 * @return a List (UsageSession) of all open sessions, ordered by server, then by start (asc)
 	 */
-	List getOpenSessions();
+	List<UsageSession> getOpenSessions();
 
 	/**
 	 * Access a list of all open sessions, grouped by server.
 	 * 
 	 * @return a Map (server id -> List (UsageSession)) of all open sessions, ordered by server, then by start (asc)
 	 */
-	Map getOpenSessionsByServer();
+	Map<String, UsageSession> getOpenSessionsByServer();
 	
 	/**
 	 * Start a usage session and do any other book-keeping needed to login a user who has already been authenticated.
