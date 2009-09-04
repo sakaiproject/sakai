@@ -2569,15 +2569,18 @@ public class SiteAction extends PagedResourceActionII {
 				
 			if (site != null) {
 				context.put("site", site);
-				context.put("siteTitle", site.getTitle());
-				setTermListForContext(context, state, true); // true -> upcoming only
 
 				List providerCourseList = (List) state
 						.getAttribute(SITE_PROVIDER_COURSE_LIST);
 				coursesIntoContext(state, context, site);
 
-				AcademicSession t = (AcademicSession) state
-						.getAttribute(STATE_TERM_SELECTED);
+				List<AcademicSession> terms = setTermListForContext(context, state, true); // true -> upcoming only
+				AcademicSession t = (AcademicSession) state.getAttribute(STATE_TERM_SELECTED);
+				if (terms != null && terms.size() > 0 && !terms.contains(t))
+				{
+					// if the term is no longer listed in the term list, choose the first term in the list instead
+					t = terms.get(0);
+				}
 				context.put("term", t);
 				if (t != null) {
 					String userId = UserDirectoryService.getCurrentUser().getEid();
@@ -10360,9 +10363,9 @@ public class SiteAction extends PagedResourceActionII {
 		return toolIdList;
 	} // getToolsAvailableForImport
 
-	private void setTermListForContext(Context context, SessionState state,
+	private List<AcademicSession> setTermListForContext(Context context, SessionState state,
 			boolean upcomingOnly) {
-		List terms;
+		List<AcademicSession> terms;
 		if (upcomingOnly) {
 			terms = cms != null?cms.getCurrentAcademicSessions():null;
 		} else { // get all
@@ -10371,6 +10374,7 @@ public class SiteAction extends PagedResourceActionII {
 		if (terms != null && terms.size() > 0) {
 			context.put("termList", terms);
 		}
+		return terms;
 	} // setTermListForContext
 
 	private void setSelectedTermForContext(Context context, SessionState state,
