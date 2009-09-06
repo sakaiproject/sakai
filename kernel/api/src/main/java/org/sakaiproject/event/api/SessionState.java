@@ -69,5 +69,5 @@ public interface SessionState
 	 * 
 	 * @return A List of all names of attribute stored in the SessionState.
 	 */
-	List getAttributeNames();
+	List<String> getAttributeNames();
 }

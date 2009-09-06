@@ -79,7 +79,7 @@ public interface ToolManager
 	 * @param keywords A Set (String) of keyword values; if null or empty no keyword criteria is specified.
 	 * @return A Set (Tool) of Tool objects that meet the criteria, or an empty set if none found.
 	 */
-	Set findTools(Set categories, Set keywords);
+	Set<Tool> findTools(Set<String> categories, Set<String> keywords);
 
 	/**
 	 * Access the Tool associated with the current request / thread

@@ -111,14 +111,14 @@ public interface Tool
 	 * 
 	 * @return The Set (String) of keywords registered for this tool.
 	 */
-	Set getKeywords();
+	Set<String> getKeywords();
 
 	/**
 	 * Access the catagories registered for this tool.   Access is read only.
 	 * 
 	 * @return The Set (String) of categories registered for this tool.
 	 */
-	Set getCategories();
+	Set<String> getCategories();
 	
 	/**
 	 * typesafe enumeration for access security.

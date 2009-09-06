@@ -58,7 +58,7 @@ public interface ToolSession
 	 * @exception IllegalStateException
 	 *            if this method is called on an invalidated session
 	 */
-	Enumeration getAttributeNames();
+	Enumeration<String> getAttributeNames();
 
 	/**
 	 * Returns the time when this session was created, measured in milliseconds since midnight January 1, 1970 GMT.

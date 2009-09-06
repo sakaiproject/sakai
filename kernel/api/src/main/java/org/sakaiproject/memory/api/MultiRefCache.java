@@ -44,5 +44,5 @@ public interface MultiRefCache extends Cache
 	 * @param azgIds
 	 *        AuthzGroup ids that, if the changed, will invalidate this entry.
 	 */
-	void put(Object key, Object payload, int duration, String ref, Collection azgIds);
+	void put(Object key, Object payload, int duration, String ref, Collection<String> azgIds);
 }

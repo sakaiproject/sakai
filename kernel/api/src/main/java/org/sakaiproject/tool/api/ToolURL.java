@@ -75,7 +75,7 @@ public interface ToolURL
 	 * @param parameters
 	 *        Map containing parameter names as keys and parameter values as map values. The keys in the parameter map must be of type String. The values in the parameter map must be of type String array (String[]).
 	 */
-	void setParameters(Map parameters);
+	void setParameters(Map<String, String[]> parameters);
 
 	/**
 	 * Returns the URL string representation to be embedded in the markup. Note that the returned String may not be a valid URL, as it may be rewritten by the portal/portlet-container before returning the markup to the client.

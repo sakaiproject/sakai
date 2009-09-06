@@ -655,7 +655,7 @@ public interface SiteService extends EntityProducer
 	 *        The PagePosition subset of items to return.
 	 * @return The List (Site) of Site objets that meet specified criteria.
 	 */
-	List<Site> getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort, PagingPosition page);
+	List<Site> getSites(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page);
 
 	/**
 	 * Count the Site objets that meet specified criteria.
@@ -670,7 +670,7 @@ public interface SiteService extends EntityProducer
 	 *        Additional selection criteria: sites returned will have a property named to match each key in the map, whose values match (somewhere in their value) the value in the map (may be null or empty).
 	 * @return The count of Site objets that meet specified criteria.
 	 */
-	int countSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria);
+	int countSites(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria);
 
 	/**
 	 * Establish the internal security for this site. Previous security settings are replaced for this site. Assigning a user with update implies the two reads; assigning a user with unp read implies the other read.

@@ -49,7 +49,7 @@ public interface Session
 	 * @exception IllegalStateException
 	 *            if this method is called on an invalidated session
 	 */
-	Enumeration getAttributeNames();
+	Enumeration<String> getAttributeNames();
 
 	/**
 	 * Returns the time when this session was created, measured in milliseconds since midnight January 1, 1970 GMT.
@@ -134,7 +134,7 @@ public interface Session
 	/**
 	 * Clear this session's attributes, except for those named, unbinding any objects bound, but do NOT fully invalidate - it remains the current session.
 	 */
-	void clearExcept(Collection names);
+	void clearExcept(Collection<String> names);
 
 	/**
 	 * Removes the object bound with the specified name from this session. If the session does not have an object bound with the specified name, this method does nothing.

@@ -715,10 +715,11 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		/**
 		 * @inheritDoc
 		 */
-		public List getAttributeNames()
+		@SuppressWarnings("unchecked")
+		public List<String> getAttributeNames()
 		{
-			List rv = new Vector();
-			for (Enumeration e = m_session.getAttributeNames(); e.hasMoreElements();)
+			List<String> rv = new Vector<String>();
+			for (Enumeration<String> e = m_session.getAttributeNames(); e.hasMoreElements();)
 			{
 				String name = (String) e.nextElement();
 				rv.add(name);
