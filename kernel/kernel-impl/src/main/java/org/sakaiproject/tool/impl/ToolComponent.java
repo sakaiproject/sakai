@@ -496,6 +496,7 @@ public abstract class ToolComponent implements ToolManager
 		try {
 			InputStream in = new FileInputStream(file);
 			props.load(in);
+			in.close();
 		}
 		catch (IOException ex) {
 			M_log.warn ("Unable to load "+filename+" as a tool localizaton resource in tool "+tool.getId());
@@ -505,5 +506,6 @@ public abstract class ToolComponent implements ToolManager
 		//	Add the properties set to the resource bundle.
 		if (props != null)
 			tool.m_title_bundle.put (locale, props);
+		
 	}
 }
