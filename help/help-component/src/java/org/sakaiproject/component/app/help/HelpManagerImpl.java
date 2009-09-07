@@ -733,7 +733,7 @@ public List getActiveContexts(Map session)
 	      if (doc != null)
 	      {
 	    	indexWriter.addDocument(doc);
-	        LOG.info("added resource '" + resource.getName() + "', doc count="
+	        LOG.debug("added resource '" + resource.getName() + "', doc count="
 	              + indexWriter.docCount());
 	      }
 	      else
