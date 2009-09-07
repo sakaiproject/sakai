@@ -28,7 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.Map.Entry;
 
+import org.apache.commons.collections.iterators.EntrySetMapIterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -243,12 +245,14 @@ public class ExternalLogicImpl implements ExternalLogic {
 			throw new IllegalArgumentException(e);
 			
 		}
-		for (Iterator<String> i = permMap.keySet().iterator(); i.hasNext();)
+		Set<Entry<String, PollRolePerms>> entrySet = permMap.entrySet(); 
+		for (Iterator<Entry<String, PollRolePerms>> i = entrySet.iterator(); i.hasNext();)
 		{	
-			String key = (String) i.next();
+			Entry<String, PollRolePerms> entry = i.next(); 
+			String key = entry.getKey();
 			Role role = authz.getRole(key);
 			//try {
-			  PollRolePerms rp = (PollRolePerms) permMap.get(key);
+			  PollRolePerms rp = (PollRolePerms) entry.getValue();
 			  if (rp.add != null )
 				  setFunc(role,PollListManager.PERMISSION_ADD,rp.add);
 			  if (rp.deleteAny != null )
