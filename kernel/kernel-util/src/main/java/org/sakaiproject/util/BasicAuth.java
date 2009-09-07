@@ -39,21 +39,21 @@ import org.sakaiproject.event.cover.UsageSessionService;
 
 
 /**
- * This is implemented in a filter, since most httpclients (ie non browser
- * clients) dont know what to do with a redirect.
+ * This is implemented in a filter, since most httpclients (i.e. non browser
+ * clients) don't know what to do with a redirect.
  * 
  * There are 2 mechanisms for selecting basic authentication. 1. The client is
  * not a browser as reported by the BasicAuthFilter.isBrowser method. 2. The
  * user requested basic auth in the URL and the
  * BasicAuthFilter.requestedBasicAuth confirms this.
  * 
- * in sakai.properties if allowbasicauth.login = true, then this feature is
+ * in sakai.properties if allow.basic.auth.login = true, then this feature is
  * enabled in BasicAuthFilter, the determination of non browser clients is
  * driven by matching user agent headers against a sequence of regex patterns.
  * These are defined in BasicAuthFilter with the form if the pattern matches a
  * browser 1pattern or if it does not match 0pattern
  * 
- * Addtional patterns may be added to sakai.properties as a multiple string
+ * Additional patterns may be added to sakai.properties as a multiple string
  * property against login.browser.user.agent
  * 
  * The list is matched in order, the first match found being definitive. If no
