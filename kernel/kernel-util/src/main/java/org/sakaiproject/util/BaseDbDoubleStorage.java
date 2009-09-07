@@ -950,7 +950,7 @@ public class BaseDbDoubleStorage
 	 */
 	public List getAllResources(Entity container, Filter softFilter, String sqlFilter, boolean asc, PagingPosition pager)
 	{
-		List all = new Vector();
+		
 		pager = fixPagingPosition(softFilter, pager);
 		// System.out.println("getAllResources e="+container+" sf="+softFilter+" sqlf="+sqlFilter+" asc="+asc+" pag="+pager);
         
@@ -1017,7 +1017,7 @@ public class BaseDbDoubleStorage
 		// System.out.println("getAllResources="+sql);
 
 		// If we are paged in SQL - then do not pass in the pager
-		all = m_sql.dbRead(sql, fields, new SearchFilterReader(container, softFilter,  pagedInSql ? null : pager, false));
+		List all = m_sql.dbRead(sql, fields, new SearchFilterReader(container, softFilter,  pagedInSql ? null : pager, false));
 		
 		return all;
 	}

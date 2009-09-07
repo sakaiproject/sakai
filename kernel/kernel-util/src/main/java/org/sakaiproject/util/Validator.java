@@ -615,7 +615,6 @@ public class Validator
 	{
 		StringBuilder newSize = new StringBuilder(size);
 
-		int length = size.length();
 		int index = size.length();
 
 		while (index > 3)
