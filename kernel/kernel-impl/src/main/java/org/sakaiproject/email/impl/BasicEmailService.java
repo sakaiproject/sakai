@@ -1180,9 +1180,8 @@ public class BasicEmailService implements EmailService
 	 */
 	private MimeBodyPart createAttachmentPart(Attachment attachment) throws MessagingException
 	{
-		MimeBodyPart attachPart = new MimeBodyPart();
 		FileDataSource source = new FileDataSource(attachment.getFile());
-		attachPart = new MimeBodyPart();
+		MimeBodyPart attachPart = new MimeBodyPart();
 		attachPart.setDataHandler(new DataHandler(source));
 		attachPart.setFileName(attachment.getFilename());
 		return attachPart;
