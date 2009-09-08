@@ -115,9 +115,20 @@ public class MembershipAction extends PagedResourceActionII
 		boolean defaultMode = state.getAttribute(STATE_VIEW_MODE) == null;
 		PagingPosition page = new PagingPosition(first, last);
 		
+		// check the sort order
+		boolean sortAsc = true;
+		if (state.getAttribute(SORT_ASC) != null)
+		{
+			sortAsc =((Boolean) state.getAttribute(SORT_ASC)).booleanValue();
+		}
+		else
+		{
+			state.setAttribute(SORT_ASC, Boolean.TRUE);
+		}
+		
 		if (defaultMode)
 		{
-			if (((Boolean) state.getAttribute(SORT_ASC)).booleanValue())
+			if (sortAsc)
 			{
 				rv = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, search,
 						null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, page);
@@ -131,7 +142,7 @@ public class MembershipAction extends PagedResourceActionII
 		else
 		{
 
-			if (((Boolean) state.getAttribute(SORT_ASC)).booleanValue())
+			if (sortAsc)
 			{
 				rv = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.JOINABLE,
 						// null, null, null, org.sakaiproject.service.legacy.site.SiteService.SortType.TITLE_ASC, null);
