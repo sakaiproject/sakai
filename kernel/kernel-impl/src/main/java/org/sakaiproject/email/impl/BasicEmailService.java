@@ -160,6 +160,62 @@ public class BasicEmailService implements EmailService
 		m_smtpPort = value;
 	}
 
+	/** Configuration: smtp user for use with authenticated SMTP. */
+	protected String m_smtpUser = null;
+
+	/**
+	 * Configuration: smtp user for use with authenticated SMTP.
+	 * 
+	 * @param value
+	 *        The smtp user string.
+	 */
+	public void setSmtpUser(String value)
+	{
+	 	m_smtpUser = value;
+	}
+
+	/** Configuration: smtp password for use with authenticated SMTP. */
+	protected String m_smtpPassword = null;
+
+  	/**
+	 * Configuration: smtp password for use with authenticated SMTP.
+	 * 
+	 * @param value
+	 *        The smtp password string.
+	 */
+ 	public void setSmtpPassword(String value)
+	{
+		m_smtpPassword = value;
+	}
+
+	/** Configuration: send over SSL (or not). */
+	protected boolean m_smtpUseSSL = false;
+
+	/**
+	 * Configuration: send over SSL (or not)
+	 * 
+	 * @param value
+	 *        The setting
+	 */
+	public void setSmtpUseSSL(boolean value)
+	{
+		m_smtpUseSSL = value;
+	}
+
+	/** Configuration: set the mail.debug property so we can get proper output from javamail (or not). */
+	protected boolean m_smtpDebug = false;
+
+	/**
+	 * Configuration: set the mail.debug property so we can get proper output from javamail (or not).
+	 * 
+	 * @param value
+	 *        The setting
+	 */
+	public void setSmtpDebug(boolean value)
+	{
+		m_smtpDebug = value;
+	}
+
 	/** Configuration: optional smtp mail envelope return address. */
 	protected String m_smtpFrom = null;
 
@@ -352,33 +408,7 @@ public class BasicEmailService implements EmailService
 			return;
 		}
 
-		Properties props = new Properties();
-
-		// set the server host
-		props.put(SMTP_HOST, m_smtp);
-
-		// set the port, if specified
-		if (m_smtpPort != null)
-			props.put(SMTP_PORT, m_smtpPort);
-		
-		// set smtp connection timeout, if specified
-		if (m_smtpConnectionTimeout != null)
-		{
-			props.put(SMTP_CONNECTIONTIMEOUT, m_smtpConnectionTimeout);
-		}
-		
-		// set smtp socket I/O timeout, if specified
-		if (m_smtpTimeout != null)
-		{
-			props.put(SMTP_TIMEOUT, m_smtpTimeout);
-		}
-		
-		// Set localhost name
-		if (m_smtpLocalhost != null)
-			props.put(SMTP_LOCALHOST, m_smtpLocalhost);
-
-		// set the mail envelope return address
-		props.put(SMTP_FROM, m_smtpFrom);
+		Properties props = createMailSessionProperties();
 
 		Session session = Session.getInstance(props);
 
@@ -501,13 +531,13 @@ public class BasicEmailService implements EmailService
 
 			if (M_log.isDebugEnabled()) {
 				M_log.debug("HeaderLines received were: ");
-				Enumeration allHeaders = msg.getAllHeaderLines();
+				Enumeration<String> allHeaders = msg.getAllHeaderLines();
 				while(allHeaders.hasMoreElements()) {
 					M_log.debug((String)allHeaders.nextElement());
 				}
 			}
 			
-			sendMessageAndLog(from, to, subject, headerTo, start, msg);
+			sendMessageAndLog(from, to, subject, headerTo, start, msg, session);
 		}
 		catch (MessagingException e)
 		{
@@ -672,13 +702,8 @@ public class BasicEmailService implements EmailService
 		}
 
 		// get a session for our smtp setup, include host, port, reverse-path, and set partial delivery
-		Properties props = new Properties();
-		props.put(SMTP_HOST, m_smtp);
-		if (m_smtpPort != null) props.put(SMTP_PORT, m_smtpPort);
-		props.put(SMTP_FROM, m_smtpFrom);
-		props.put(SMTP_SENDPARTIAL, "true");
-		if (m_smtpConnectionTimeout != null) props.put(SMTP_CONNECTIONTIMEOUT, m_smtpConnectionTimeout);
-		if (m_smtpTimeout != null) props.put(SMTP_TIMEOUT, m_smtpTimeout);
+		Properties props = createMailSessionProperties();
+
 		Session session = Session.getInstance(props);
 
 		// form our Message
@@ -704,7 +729,10 @@ public class BasicEmailService implements EmailService
 			msg.saveChanges();
 
 			if (M_log.isDebugEnabled()) time3 = System.currentTimeMillis();
-			transport.connect();
+			if(m_smtpUser != null && m_smtpPassword != null)
+				transport.connect(m_smtp,m_smtpUser,m_smtpPassword);
+			else
+				transport.connect();
 
 			if (M_log.isDebugEnabled()) time4 = System.currentTimeMillis();
 
@@ -785,6 +813,33 @@ public class BasicEmailService implements EmailService
 
 			M_log.info(buf.toString());
 		}
+	}
+
+	private Properties createMailSessionProperties()
+	{
+		Properties props = new Properties();
+
+		props.put(SMTP_HOST, m_smtp);
+		// Set localhost name
+		if (m_smtpLocalhost != null)
+			props.put(SMTP_LOCALHOST, m_smtpLocalhost);
+		if (m_smtpPort != null) props.put(SMTP_PORT, m_smtpPort);
+		props.put(SMTP_FROM, m_smtpFrom);
+		props.put(SMTP_SENDPARTIAL, "true");
+		if (m_smtpConnectionTimeout != null) props.put(SMTP_CONNECTIONTIMEOUT, m_smtpConnectionTimeout);
+		if (m_smtpTimeout != null) props.put(SMTP_TIMEOUT, m_smtpTimeout);
+
+		// smtpUser and smtpPassword are set, so assume mail.smtp.auth
+		if(m_smtpUser != null && m_smtpPassword != null)
+			props.put("mail.smtp.auth", "true");
+
+		if(m_smtpUseSSL)
+			props.put("mail.smtp.starttls.enable", "true");
+
+		if(m_smtpDebug)
+			props.put("mail.debug", "true");
+
+		return props;
 	}
 
 	/**
@@ -1168,7 +1223,7 @@ public class BasicEmailService implements EmailService
 	}
 
 	protected void sendMessageAndLog(InternetAddress from, InternetAddress[] to, String subject,
-			Map<RecipientType, InternetAddress[]> headerTo, long start, MimeMessage msg)
+			Map<RecipientType, InternetAddress[]> headerTo, long start, MimeMessage msg,Session session)
 			throws MessagingException
 	{
 		long preSend = 0;
@@ -1176,7 +1231,18 @@ public class BasicEmailService implements EmailService
 
 		if (allowTransport)
 		{
-			Transport.send(msg, to);
+			msg.saveChanges();
+
+			Transport transport = session.getTransport(SMTP_PROTOCOL);
+
+		    if(m_smtpUser != null && m_smtpPassword != null)
+				transport.connect(m_smtp,m_smtpUser,m_smtpPassword);
+			else
+				transport.connect();
+
+			transport.sendMessage(msg, to);
+
+			transport.close();
 		}
 
 		long end = 0;

@@ -312,6 +312,17 @@
             <timezone>0</timezone>
             <properties></properties>
         </contributor>
+        <contributor>
+            <name>Adrian Fish</name>
+            <email>a.fish@lancaster.ac.uk</email>
+            <organization>University of Lacanster</organization>
+            <organizationUrl>http://www.lancs.ac.uk/</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>0</timezone>
+            <properties></properties>
+        </contributor>
     </contributors>
 	<scm>
 		<connection>
