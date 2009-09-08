@@ -80,6 +80,8 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 	private static final String PARAM_SERVICE = "message-service";
 
 	private static final String PARAM_SHOW_SUBJECT = "show-subject";
+	
+	private static final String PARAM_HIDE_OPTIONS = "hide.options";
 
 	/** Configure form field names. */
 	private static final String FORM_CHANNEL = "channel";
@@ -96,6 +98,8 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 
 	/** Control form field names. */
 	private static final String FORM_MESSAGE = "message";
+	
+	private static final String STATE_HIDE_OPTIONS = "hide.options";
 
 	/** state attribute names. */
 	private static final String STATE_CHANNEL_REF = "channelId";
@@ -245,6 +249,19 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 					state.setAttribute(STATE_SHOW_BODY, new Boolean(false));
 				}
 			}
+			
+			if (state.getAttribute(STATE_HIDE_OPTIONS) == null)
+			{
+				try
+				{
+					state.setAttribute(STATE_HIDE_OPTIONS, new Boolean(config.getInitParameter(PARAM_HIDE_OPTIONS)));
+				}
+				catch (Exception e)
+				{
+					// use a default value
+					state.setAttribute(STATE_HIDE_OPTIONS, new Boolean(false));
+				}
+			}
 
 			// read the show-newlines parameter
 			if (state.getAttribute(STATE_SHOW_NEWLINES) == null)
@@ -322,7 +339,12 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 		Menu bar = new MenuImpl(portlet, rundata, (String) state.getAttribute(STATE_ACTION));
 
 		// add options if allowed
+		if (!(Boolean)state.getAttribute(STATE_HIDE_OPTIONS))
+		{
 		addOptionsMenu(bar, (JetspeedRunData) rundata);
+		}
+		
+		
 		if (!bar.getItems().isEmpty())
 		{
 			context.put(Menu.CONTEXT_MENU, bar);
@@ -799,6 +821,7 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 			state.setAttribute(STATE_SHOW_SUBJECT, new Boolean(config.getInitParameter(PARAM_SHOW_SUBJECT)));
 			state.setAttribute(STATE_SHOW_BODY, new Boolean(config.getInitParameter(PARAM_SHOW_BODY)));
 			state.setAttribute(STATE_SHOW_NEWLINES, new Boolean(config.getInitParameter(PARAM_SHOW_NEWLINES)));
+			state.setAttribute(STATE_HIDE_OPTIONS, new Boolean(config.getInitParameter(PARAM_HIDE_OPTIONS)));
 		}
 		catch (Exception e)
 		{
