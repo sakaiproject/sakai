@@ -57,7 +57,7 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 public class PollOptionProducer implements ViewComponentProducer,ViewParamsReporter,NavigationCaseReporter, ActionResultInterceptor {
 
 	public static final String VIEW_ID = "pollOption";
-	private static Log m_log = LogFactory.getLog(PollOptionProducer.class);
+	private static final Log LOG = LogFactory.getLog(PollOptionProducer.class);
 	private VoteBean voteBean;
 
 
@@ -123,7 +123,7 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 		OptionViewParameters aivp = (OptionViewParameters) viewparams;
 		boolean newOption = false;
 		if(aivp.id != null) {
-			m_log.debug("got a paramater with id: " + Long.valueOf(aivp.id));
+			LOG.debug("got a paramater with id: " + Long.valueOf(aivp.id));
 			// passed in an id so we should be modifying an item if we can find it
 			option = pollListManager.getOptionById(Long.valueOf(aivp.id));
 			// SAK-14702 : Bugfix
@@ -143,7 +143,7 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 		}
 
 		if (poll == null) {
-			m_log.warn("no poll found");
+			LOG.warn("no poll found");
 			return;
 		}
 		
@@ -194,19 +194,19 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 
 
 	public void interceptActionResult(ARIResult result, ViewParameters incoming, Object actionReturn) {
-		m_log.debug("checking IntercetpActionResult(");
+		LOG.debug("checking IntercetpActionResult(");
 
 		if (result.resultingView instanceof OptionViewParameters) {
 			OptionViewParameters optvp = (OptionViewParameters) result.resultingView;
-			m_log.debug("OptionViewParams: "  + optvp.id + " : " + optvp.pollId);
+			LOG.debug("OptionViewParams: "  + optvp.id + " : " + optvp.pollId);
 			String retVal = (String) actionReturn;
-			m_log.debug("retval is " + retVal);
+			LOG.debug("retval is " + retVal);
 			String viewId = AddPollProducer.VIEW_ID;
 			if (optvp.pollId != null) {
 				if (! "option".equals(retVal)) {
 					result.resultingView = new PollViewParameters(viewId, optvp.pollId);
 				} else {
-					m_log.debug("New option for poll: " + optvp.pollId);
+					LOG.debug("New option for poll: " + optvp.pollId);
 					result.resultingView = new OptionViewParameters(VIEW_ID, optvp.id , optvp.pollId);
 				}
 

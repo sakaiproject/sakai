@@ -233,7 +233,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
     private Vote getVoteById(String id) {
         Long voteId;
         try {
-            voteId = new Long(id);
+            voteId = Long.valueOf(id);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Cannot convert id ("+id+") to long: " + e.getMessage(), e);
         }

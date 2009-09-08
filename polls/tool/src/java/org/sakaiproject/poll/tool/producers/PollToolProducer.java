@@ -84,7 +84,7 @@ DefaultView,NavigationCaseReporter {
 
 
 
-	private static Log m_log = LogFactory.getLog(PollToolProducer.class);
+	private static final Log LOG = LogFactory.getLog(PollToolProducer.class);
 
 	public String getViewID() {
 		return VIEW_ID;
@@ -135,9 +135,9 @@ DefaultView,NavigationCaseReporter {
 		//populate the action links
 		if (this.isAllowedPollAdd() || this.isSiteOwner() ) {
 			UIBranchContainer actions = UIBranchContainer.make(tofill,"actions:",Integer.toString(0));
-			m_log.debug("this user has some admin functions");
+			LOG.debug("this user has some admin functions");
 			if (this.isAllowedPollAdd()) {
-				m_log.debug("User can add polls");
+				LOG.debug("User can add polls");
 				//UIOutput.make(tofill, "poll-add", messageLocator
 				//       .getMessage("action_add_poll"));
 				UIInternalLink.make(actions,NAVIGATE_ADD,UIMessage.make("action_add_poll"),
@@ -155,7 +155,7 @@ DefaultView,NavigationCaseReporter {
 		if (siteId != null) {
 			polls = pollListManager.findAllPolls(siteId);
 		} else {
-			m_log.warn("Unable to get siteid!");
+			LOG.warn("Unable to get siteid!");
 
 		}
 
@@ -217,7 +217,7 @@ DefaultView,NavigationCaseReporter {
 			UIBranchContainer pollrow = UIBranchContainer.make(deleteForm,
 					canVote ? "poll-row:votable"
 							: "poll-row:nonvotable", poll.getPollId().toString());
-			m_log.debug("adding poll row for " + poll.getText());
+			LOG.debug("adding poll row for " + poll.getText());
 
 			if (canVote) {
 				UIInternalLink voteLink = UIInternalLink.make(pollrow, NAVIGATE_VOTE, poll.getText(),
@@ -266,7 +266,7 @@ DefaultView,NavigationCaseReporter {
 				delete.decorators = new DecoratorList(new UITooltipDecorator(UIMessage.make("delete_poll_tooltip", new String[] {poll.getText()})));
 				UIMessage message = UIMessage.make(pollrow,"delete-label","delete_poll_tooltip", new String[] {poll.getText()});
 				UILabelTargetDecorator.targetLabel(message,delete);
-				m_log.debug("this poll can be deleted");
+				LOG.debug("this poll can be deleted");
 				renderDelete = true;
 
 			}
@@ -316,7 +316,7 @@ DefaultView,NavigationCaseReporter {
 
 		poll.setOptions(pollListManager.getOptionsForPoll(poll));
 		if (poll.getPollOptions()== null || poll.getPollOptions().size() == 0) {
-			m_log.debug("poll has no options");
+			LOG.debug("poll has no options");
 			return false;
 		}
 
@@ -325,7 +325,7 @@ DefaultView,NavigationCaseReporter {
 
 		if (poll.getVoteClose()!=null) {
 			if (poll.getVoteClose().before(new Date())) {
-				m_log.debug("Poll is closed for voting");
+				LOG.debug("Poll is closed for voting");
 				pollBeforeClose=false;
 			}
 
@@ -333,7 +333,7 @@ DefaultView,NavigationCaseReporter {
 
 		if (poll.getVoteOpen()!=null) {
 			if(new Date().before(poll.getVoteOpen())) {
-				m_log.debug("Poll is not open yet");
+				LOG.debug("Poll is not open yet");
 				pollAfterOpen=false;
 			}
 		} 
@@ -344,11 +344,11 @@ DefaultView,NavigationCaseReporter {
 				return false;
 			}
 			//the user hasn't voted do they have permission to vote?'
-			m_log.debug("about to check if this user can vote in " + externalLogic.getCurrentLocationReference());
+			LOG.debug("about to check if this user can vote in " + externalLogic.getCurrentLocationReference());
 			if (externalLogic.isAllowedInLocation(PollListManager.PERMISSION_VOTE, externalLogic.getCurrentLocationReference())
 					|| externalLogic.isUserAdmin())
 			{
-				m_log.debug("this poll is votable  " + poll.getText());
+				LOG.debug("this poll is votable  " + poll.getText());
 				return true;
 			}
 		}

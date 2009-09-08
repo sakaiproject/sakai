@@ -65,7 +65,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 	private LocaleGetter localegetter;
 		  
 
-	private static Log m_log  = LogFactory.getLog(ResultsProducer.class);
+	private static final Log LOG  = LogFactory.getLog(ResultsProducer.class);
 
 
 
@@ -110,7 +110,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 		PollViewParameters ecvp = (PollViewParameters) viewparams;
 
 		String strId = ecvp.id;
-		m_log.debug("got id of " + strId);
+		LOG.debug("got id of " + strId);
 		Poll poll = pollListManager.getPollById(Long.valueOf(strId));
 
 
@@ -120,13 +120,13 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 		if (poll.getMaxOptions()>1)
 			UIOutput.make(tofill,"poll-size",messageLocator.getMessage("results_poll_size",Integer.valueOf(voters).toString()));
 
-		m_log.debug(voters + " have voted on this poll");
+		LOG.debug(voters + " have voted on this poll");
 
 		UIOutput.make(tofill,"question",poll.getText());
-		m_log.debug("got poll " + poll.getText());
+		LOG.debug("got poll " + poll.getText());
 		List<Option> pollOptions = poll.getPollOptions();
 
-		m_log.debug("got a list of " + pollOptions.size() + " options");
+		LOG.debug("got a list of " + pollOptions.size() + " options");
 		//appeng an option for no votes
 		if (poll.getMinOptions()==0) {
 			Option noVote = new Option(Long.valueOf(0));
@@ -137,19 +137,19 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 
 		List<Vote> votes = pollVoteManager.getAllVotesForPoll(poll);
 		int totalVotes= votes.size();
-		m_log.debug("got " + totalVotes + " votes");
+		LOG.debug("got " + totalVotes + " votes");
 		List<CollatedVote> collation = new ArrayList<CollatedVote>();
 
 		for (int i=0; i <pollOptions.size(); i++ ) {
 			CollatedVote collatedVote = new CollatedVote();
 			Option option = (Option) pollOptions.get(i);
-			m_log.debug("collating option " + option.getOptionId());
+			LOG.debug("collating option " + option.getOptionId());
 			collatedVote.setoptionId(option.getOptionId());
 			collatedVote.setOptionText(option.getOptionText());
 			for (int q=0; q <votes.size(); q++ ) {
 				Vote vote = (Vote)votes.get(q);
 				if (vote.getPollOption().equals(option.getOptionId())){
-					m_log.debug("got a vote for option " + option.getOptionId());
+					LOG.debug("got a vote for option " + option.getOptionId());
 					collatedVote.incrementVotes();
 
 				}
@@ -178,7 +178,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 			UIVerbatim.make(resultRow,"answer-option",cv.getOptionText());
 			UIOutput.make(resultRow,"answer-count", Integer.valueOf(i+1).toString());
 			UIOutput.make(resultRow,"answer-numVotes",Long.valueOf(cv.getVotes()).toString());
-			m_log.debug("about to do the calc: (" + cv.getVotes()+"/"+ totalVotes +")*100");
+			LOG.debug("about to do the calc: (" + cv.getVotes()+"/"+ totalVotes +")*100");
 			double percent = (double)0;
 			if (totalVotes>0  && poll.getMaxOptions() == 1)
 				percent = ((double)cv.getVotes()/(double)totalVotes); //*(double)100;
@@ -188,7 +188,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 				percent = (double) 0;
 
 
-			m_log.debug("result is "+ percent);
+			LOG.debug("result is "+ percent);
 			NumberFormat nf = NumberFormat.getPercentInstance(localegetter.get());
 			UIOutput.make(resultRow,"answer-percVotes", nf.format(percent));
 

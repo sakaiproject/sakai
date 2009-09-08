@@ -69,7 +69,7 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 	private PollVoteManager pollVoteManager;
 
 
-	private static Log m_log = LogFactory.getLog(PollVoteProducer.class);
+	private static final Log LOG = LogFactory.getLog(PollVoteProducer.class);
 
 	public String getViewID() {
 		// TODO Auto-generated method stub
@@ -130,15 +130,15 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 
 
 			String strId = ecvp.id;
-			m_log.debug("got id of " + strId);
+			LOG.debug("got id of " + strId);
 			Poll poll = pollListManager.getPollById(Long.valueOf(strId));
 
-			m_log.debug("got poll " + poll.getText());
+			LOG.debug("got poll " + poll.getText());
 
 
 			//check if they can vote
 			if (poll.getLimitVoting() && pollVoteManager.userHasVoted(poll.getPollId())) {
-				m_log.warn("This user has already voted!");
+				LOG.warn("This user has already voted!");
 				UIOutput.make(tofill, "hasErrors",messageLocator.getMessage("vote_hasvoted"));
 				return;
 			}
@@ -149,7 +149,7 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 				UIVerbatim.make(tofill,"poll-description",poll.getDetails());
 			}
 
-			m_log.debug("this poll has " + poll.getPollOptions().size()+ " options");
+			LOG.debug("this poll has " + poll.getPollOptions().size()+ " options");
 
 			UIForm voteForm = UIForm.make(tofill,"options-form",""); 
 
@@ -168,7 +168,7 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 				if (po.getOptionText() != null ) {
 					labels[i]= po.getOptionText();
 				} else {
-					m_log.warn("Option text is null!");
+					LOG.warn("Option text is null!");
 					labels[i]="null option!";
 				}
 			}
@@ -190,7 +190,7 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 			String selectID = radio.getFullID();
 			for (int i = 0;i < pollOptions.size(); i++ ) {
 				Option po = (Option)pollOptions.get(i);
-				m_log.debug("got option " + po.getOptionText() + " with id of  " + po.getId());
+				LOG.debug("got option " + po.getOptionText() + " with id of  " + po.getId());
 				UIBranchContainer radioRow = UIBranchContainer.make(voteForm,
 						isMultiple ? "option:select"
 								: "option:radio"						 
@@ -215,7 +215,7 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 		} 
 		catch (Exception e)
 		{
-			m_log.error("Error: " + e);
+			LOG.error("Error: " + e);
 			e.printStackTrace();
 		}
 	}
@@ -242,10 +242,10 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 			VoteCollection votes = (VoteCollection) actionReturn;
 			
 			if (votes.getId() != null) {
-				m_log.debug("got a voteCollection with id: " + votes.getId());
+				LOG.debug("got a voteCollection with id: " + votes.getId());
 				result.resultingView = new VoteCollectionViewParameters(ConfirmProducer.VIEW_ID, votes.getId());
 			} else {
-				m_log.warn("no id in vote collection!");
+				LOG.warn("no id in vote collection!");
 			}
 		}
 		

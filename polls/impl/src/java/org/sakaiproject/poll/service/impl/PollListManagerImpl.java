@@ -206,7 +206,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
     public boolean deletePoll(Poll t) throws SecurityException, IllegalArgumentException {
     	if (t == null) {
-    		throw new NullPointerException("Poll can't be null");
+    		throw new IllegalArgumentException("Poll can't be null");
     	}
     	
     	if (t.getPollId() == null) {

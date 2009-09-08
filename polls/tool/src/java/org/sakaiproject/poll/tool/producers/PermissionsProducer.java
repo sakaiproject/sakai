@@ -57,7 +57,7 @@ public class PermissionsProducer implements ViewComponentProducer,NavigationCase
 
 
 	private static final String PERMISSION_PREFIX ="poll";
-	private static Log m_log = LogFactory.getLog(PermissionsProducer.class);
+	private static final Log LOG = LogFactory.getLog(PermissionsProducer.class);
 
 	public String getViewID() {
 		// TODO Auto-generated method stub
@@ -122,7 +122,7 @@ public class PermissionsProducer implements ViewComponentProducer,NavigationCase
 		UIOutput.make(form,"permissions-role",messageLocator.getMessage("permissions_role"));
 		for (int i =0; i < roleIds.size(); i++){
 			String roleId = roleIds.get(i);
-			m_log.debug("got role " + roleId);
+			LOG.debug("got role " + roleId);
 			UIBranchContainer row = UIBranchContainer.make(form,"permission-row:",roleId);
 			UIOutput.make(row,"role",roleId);
 			//now iterate through the permissions
@@ -132,7 +132,7 @@ public class PermissionsProducer implements ViewComponentProducer,NavigationCase
 				String thisPerm = (String)perms[ip];
 				thisPerm = thisPerm.substring(thisPerm.indexOf('.') + 1);
 				UIBranchContainer col = UIBranchContainer.make(row,"box-row:", thisPerm);
-				m_log.debug("drawing box for "+ thisPerm + " for role " + roleId);
+				LOG.debug("drawing box for "+ thisPerm + " for role " + roleId);
 				//Boolean.valueOf(role.isAllowed((String)perms[ip]))
 
 				UIBoundBoolean.make(col, "perm-box","#{" + prefix +"."+ thisPerm + "}",

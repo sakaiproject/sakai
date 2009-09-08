@@ -216,7 +216,7 @@ public class PollOptionEntityProvider extends AbstractEntityProvider implements 
     private Option getOptionById(String id) {
         Long optionId;
         try {
-            optionId = new Long(id);
+            optionId = Long.valueOf(id);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Cannot convert id ("+id+") to long: " + e.getMessage(), e);
         }

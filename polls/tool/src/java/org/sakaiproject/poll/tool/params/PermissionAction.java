@@ -29,7 +29,7 @@ import org.sakaiproject.poll.logic.ExternalLogic;
 
 public class PermissionAction {
 
-	private static Log m_log = LogFactory.getLog(PermissionAction.class);
+	private static final Log LOG = LogFactory.getLog(PermissionAction.class);
 	public Map perms = null;
 	public String submissionStatus;
 	
@@ -49,9 +49,9 @@ public class PermissionAction {
 		  if ("cancel".equals(submissionStatus))
 			  return "cancel";
 		  
-		  m_log.info("Seting permissions");
+		  LOG.info("Seting permissions");
 			if (perms == null)
-				m_log.error("My perms Map is null");
+				LOG.error("My perms Map is null");
 			else
 			{
 				try {

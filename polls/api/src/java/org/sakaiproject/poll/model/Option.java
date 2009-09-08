@@ -27,7 +27,7 @@ public class Option {
     private Long pollId;
     private String text;
     private String status;
-    private String UUId;
+    private String uuid;
 
     public Option() {}
 
@@ -80,11 +80,11 @@ public class Option {
     }
     
     public String getUUId() {
-        return UUId;
+        return uuid;
     }
     
     public void setUUId(String id) {
-        UUId = id;
+        uuid = id;
     }
     
     public void setId(Long id) {

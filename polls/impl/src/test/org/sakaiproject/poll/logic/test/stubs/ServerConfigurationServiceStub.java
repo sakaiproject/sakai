@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2008 The Sakai Foundation
@@ -122,7 +122,7 @@ public class ServerConfigurationServiceStub implements ServerConfigurationServic
 
 	public String[] getStrings(String name) {
 		// TODO Auto-generated method stub
-		return null;
+		return new String[0];
 	}
 
 	public List<String> getToolCategories(String category) {

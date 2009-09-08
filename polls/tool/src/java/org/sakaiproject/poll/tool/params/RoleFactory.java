@@ -39,10 +39,10 @@ import org.sakaiproject.poll.model.PollRolePerms;
 
 public class RoleFactory {
 
-	private static Log m_log = LogFactory.getLog(RoleFactory.class);
+	private static final Log LOG = LogFactory.getLog(RoleFactory.class);
 	public Map<String, PollRolePerms> getRoles()
 	{
-		m_log.debug("Getting permRoles");
+		LOG.debug("Getting permRoles");
 		Map<String, PollRolePerms> perms = new HashMap<String, PollRolePerms>();
 		try {
 			AuthzGroup group = AuthzGroupService.getAuthzGroup("/site/" + ToolManager.getCurrentPlacement().getContext());
@@ -53,7 +53,7 @@ public class RoleFactory {
 			{
 				Role role = (Role)i.next();
 				String name = role.getId();
-				m_log.debug("Adding element for " + name); 
+				LOG.debug("Adding element for " + name); 
 				perms.put(name, new PollRolePerms(name, 
 						role.isAllowed(PollListManager.PERMISSION_VOTE),
 						role.isAllowed(PollListManager.PERMISSION_ADD),
