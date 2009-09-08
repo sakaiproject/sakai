@@ -121,6 +121,10 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sitestats-impl-hib</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-sitestats-bundle</artifactId>
+    </dependency>
 
     <!-- Sakai -->   
     <!-- K1 Sakai deps -->
@@ -357,12 +361,6 @@
   <!-- Build -->
   <build>
     <resources>
-      <resource>
-        <directory>${basedir}/../sitestats-bundles</directory>
-        <includes>
-          <include>**/*.properties</include>
-        </includes>
-      </resource>
       <resource>
         <directory>src/java</directory>
         <includes>

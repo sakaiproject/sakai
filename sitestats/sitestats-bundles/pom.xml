@@ -1,0 +1,35 @@
++<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <name>Sakai SiteStats Bundle</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-sitestats-bundle</artifactId>
+  <organization>
+    <name>Universidade Fernando Pessoa</name>
+    <url>http://www.ufp.pt</url>
+  </organization>
+  <inceptionYear>2006</inceptionYear>
+
+  <!-- Parent: Sakai SiteStats base -->
+  <parent>
+    <artifactId>sitestats-base</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>2.1-SNAPSHOT</version><!-- sitestats.version --> 
+  </parent>
+  
+  <!-- Packaging -->
+  <packaging>jar</packaging>
+
+  <!-- Build -->
+  <build>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/resources</directory>
+        <includes>
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+  
+</project>
