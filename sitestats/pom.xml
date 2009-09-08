@@ -211,11 +211,6 @@
           </dependency>
           <dependency>
             <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-sitestats-bundle</artifactId>
-            <version>${project.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.sakaiproject</groupId>
             <artifactId>sakai-user-api</artifactId>
             <version>${sakai.version}</version>
           </dependency>
@@ -300,6 +295,11 @@
       <artifactId>sakai-sitestats-api</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-sitestats-bundle</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
