@@ -481,7 +481,7 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 	throws InterruptedException, SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
 		// unfortunate, but doesn't seem to be any other way around
 		// timing problems
-		Thread.sleep(((long) inactiveInterval) * 1500); // ensure expiration window elapses, and then some
+		Thread.sleep(inactiveInterval * 1500L); // ensure expiration window elapses, and then some
 		Field isValid = toBeExpired.getClass().getDeclaredField("m_valid");
 		isValid.setAccessible(true);
 		int cnt = 0;
