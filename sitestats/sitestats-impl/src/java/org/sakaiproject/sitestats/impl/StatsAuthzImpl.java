@@ -54,14 +54,14 @@ public class StatsAuthzImpl implements StatsAuthz {
 	 * @see org.sakaiproject.sitestats.impl.Authz#isUserAbleToViewSiteStats(java.lang.String)
 	 */
 	public boolean isUserAbleToViewSiteStats(String siteId) {
-		return isSuperUser() || hasPermission(SiteService.siteReference(siteId), PERMISSION_SITESTATS_VIEW);
+		return hasPermission(SiteService.siteReference(siteId), PERMISSION_SITESTATS_VIEW);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.impl.Authz#isUserAbleToViewSiteStatsAdmin(java.lang.String)
 	 */
 	public boolean isUserAbleToViewSiteStatsAdmin(String siteId) {
-		return isSuperUser() || hasPermission(SiteService.siteReference(siteId), PERMISSION_SITESTATS_ADMIN_VIEW);
+		return hasPermission(SiteService.siteReference(siteId), PERMISSION_SITESTATS_ADMIN_VIEW);
 	}
 	
 	/* (non-Javadoc)
@@ -81,10 +81,6 @@ public class StatsAuthzImpl implements StatsAuthz {
 	// ################################################################
 	// Private methods
 	// ################################################################
-	private boolean isSuperUser() {
-		return M_secs.isSuperUser();
-	}
-
 	private boolean hasPermission(String reference, String permission) {
 		return M_secs.unlock(permission, reference);
 	}
