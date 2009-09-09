@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.TreeSet;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.logging.Log;
@@ -100,7 +101,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	private Map<String, SiteVisits>			visitsMap							= Collections.synchronizedMap(new HashMap<String, SiteVisits>());
 	private Map<UniqueVisitsKey, Integer>	uniqueVisitsMap						= Collections.synchronizedMap(new HashMap<UniqueVisitsKey, Integer>());
 
-	private List<String>					registeredEvents					= null;
+	private Collection<String>					registeredEvents					= null;
 	private Map<String, ToolInfo>			eventIdToolMap						= null;
 	private boolean							initialized 						= false;
 	
@@ -187,8 +188,10 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	}
 	
 	public void init(){
+    // use a treeset as it's fast on contains()
+    registeredEvents = new TreeSet<String>();
 		// get all registered events
-		registeredEvents = M_ers.getEventIds();
+		registeredEvents.addAll(M_ers.getEventIds());
 		// add site visit event
 		registeredEvents.add(StatsManager.SITEVISIT_EVENTID);
 		// get eventId -> ToolInfo map
