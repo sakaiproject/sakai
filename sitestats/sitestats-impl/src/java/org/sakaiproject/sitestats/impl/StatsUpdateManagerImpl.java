@@ -188,10 +188,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	}
 	
 	public void init(){
-    // use a treeset as it's fast on contains()
-    registeredEvents = new TreeSet<String>();
 		// get all registered events
-		registeredEvents.addAll(M_ers.getEventIds());
+		registeredEvents = M_ers.getEventIds();
 		// add site visit event
 		registeredEvents.add(StatsManager.SITEVISIT_EVENTID);
 		// get eventId -> ToolInfo map
