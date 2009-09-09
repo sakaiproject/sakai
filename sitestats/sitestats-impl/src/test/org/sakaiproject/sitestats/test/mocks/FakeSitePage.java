@@ -14,6 +14,7 @@ import org.sakaiproject.tool.api.Tool;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+@SuppressWarnings("serial")
 public class FakeSitePage implements SitePage {
 	private String siteId;
 	private String toolId;
@@ -186,6 +187,16 @@ public class FakeSitePage implements SitePage {
 	public Element toXml(Document arg0, Stack arg1) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public boolean getTitleCustom() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public void setTitleCustom(boolean arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

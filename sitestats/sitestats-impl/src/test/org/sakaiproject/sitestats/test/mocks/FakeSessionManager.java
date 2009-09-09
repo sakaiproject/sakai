@@ -1,6 +1,7 @@
 package org.sakaiproject.sitestats.test.mocks;
 
 import java.security.Principal;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -46,6 +47,11 @@ public class FakeSessionManager implements SessionManager {
 	}
 
 	public Session startSession(String arg0) {
+		return null;
+	}
+
+	public List<Session> getSessions() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

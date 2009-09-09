@@ -102,4 +102,9 @@ public class FakeToolManager implements ToolManager {
 	public void register(InputStream toolXmlStream) {
 	}
 
+	public void setResourceBundle(String arg0, String arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
