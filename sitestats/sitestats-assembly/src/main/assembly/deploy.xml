@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<assembly>
+  <id>tomcat-overlay</id>
+  <formats>
+    <format>zip</format>
+  </formats>
+ <includeBaseDirectory>false</includeBaseDirectory>
+ <dependencySets>
+    <dependencySet>
+      <outputDirectory>shared/lib/</outputDirectory>
+      <includes>
+        <include>*:jar:*</include>
+      </includes>
+      <unpack>false</unpack>
+    </dependencySet>
+    <dependencySet>
+      <outputDirectory>webapps/</outputDirectory>
+      <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
+      <includes>
+        <include>*:war:*</include>
+      </includes>
+      <unpack>false</unpack>
+    </dependencySet>
+    <dependencySet>
+      <outputDirectory>commponents/${artifact.artifactId}</outputDirectory>
+      <includes>
+	<include>*:sakai-component:*</include>
+      </includes>
+      <unpack>true</unpack>
+    </dependencySet>
+  </dependencySets>
+</assembly>
