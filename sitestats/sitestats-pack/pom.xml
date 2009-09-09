@@ -28,23 +28,11 @@
     <!-- SiteStats -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-sitestats-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sitestats-impl</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sitestats-bundle</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-scheduler-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-comp-shared-scheduler</artifactId>
     </dependency>
   </dependencies>
   
