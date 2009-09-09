@@ -1629,11 +1629,29 @@ public abstract class DbSiteService extends BaseSiteService
 			((BaseResourcePropertiesEdit) ((BaseSite) site).m_properties).setLazy(false);
 
 			// read and unlazy the page properties for the entire site
-			readSitePageProperties((BaseSite) site);
+
+			// KNL-259 - Avoiding single-page fetch of properties by way of BaseToolConfiguration constructor
+			// rerun everything if anything is still lazy, but avoid call otherwise
+			// See also: SAK-10151 and BaseToolConfiguration.setPageCategory()
+			boolean loadPageProps = false;
 			for (Iterator i = site.getPages().iterator(); i.hasNext();)
 			{
 				BaseSitePage page = (BaseSitePage) i.next();
-				((BaseResourcePropertiesEdit) page.m_properties).setLazy(false);
+				if (((BaseResourcePropertiesEdit) page.m_properties).isLazy())
+				{
+					loadPageProps = true;
+					break;
+				}
+			}
+
+			if (loadPageProps)
+			{
+				readSitePageProperties((BaseSite) site);
+				for (Iterator i = site.getPages().iterator(); i.hasNext();)
+				{
+					BaseSitePage page = (BaseSitePage) i.next();
+					((BaseResourcePropertiesEdit) page.m_properties).setLazy(false);
+				}
 			}
 
 			// read and unlazy the tool properties for the entire site
@@ -1663,7 +1681,7 @@ public abstract class DbSiteService extends BaseSiteService
 		 * @param site
 		 *        The site to read properties for.
 		 */
-		protected void readSitePageProperties(final BaseSite site)
+		public void readSitePageProperties(final Site site)
 		{
 			// get the properties from the db for all pages in the site
 			String sql = siteServiceSql.getPagePropertiesSql();

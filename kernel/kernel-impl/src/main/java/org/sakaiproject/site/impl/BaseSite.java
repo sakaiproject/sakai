@@ -895,6 +895,14 @@ public class BaseSite implements Site
 		// first, pages
 		getPages();
 
+		// KNL-259 - Avoiding single-page fetch of properties by way of BaseToolConfiguration constructor
+		siteService.m_storage.readSitePageProperties(this);
+		for (Iterator i = getPages().iterator(); i.hasNext();)
+		{
+			BaseSitePage page = (BaseSitePage) i.next();
+			((BaseResourcePropertiesEdit) page.m_properties).setLazy(false);
+		}
+
 		// next, tools from all pages, all at once
 		siteService.m_storage.readSiteTools(this);
 

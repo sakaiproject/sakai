@@ -2300,6 +2300,14 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		public void readSiteProperties(Site site, ResourcePropertiesEdit props);
 
 		/**
+		 * Read properties for all pages in the site
+		 * 
+		 * @param site
+		 *        The site to read properties for.
+		 */
+		public void readSitePageProperties(Site site);
+
+		/**
 		 * Read site properties and all page and tool properties for the site from storage.
 		 * 
 		 * @param site
