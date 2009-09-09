@@ -33,7 +33,7 @@ import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationException;
 import org.sakaiproject.user.api.Evidence;
 import org.sakaiproject.user.cover.AuthenticationManager;
-import org.sakaiproject.util.commonscodec.CommonsCodecBase64;
+import org.apache.commons.codec.binary.Base64;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.UsageSessionService;
 
@@ -214,7 +214,7 @@ public class BasicAuth {
 					auth = auth.trim();
 					if (auth.startsWith("Basic ")) {
 						auth = auth.substring(6).trim();
-						auth = new String(CommonsCodecBase64.decodeBase64(auth.getBytes("UTF-8")));
+						auth = new String(Base64.decodeBase64(auth.getBytes("UTF-8")));
 						int colon = auth.indexOf(":");
 						if (colon != -1) {
 							String eid = auth.substring(0, colon);
