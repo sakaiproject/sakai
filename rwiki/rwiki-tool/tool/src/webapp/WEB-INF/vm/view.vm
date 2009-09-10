@@ -37,6 +37,11 @@
 	<div id="rwiki_head" >				    
 		#sidebar_switcher()
 	</div>
+	
+	#if ($renderBean.localisedPageNameLength>255)
+	<div class="alertMessage">${rlb.jsp_page_length_alert}</div>
+	<div class="clear"></div>#end
+	
 	<div id="rwiki_content" class="${rwikiContentStyle}" >
 	    <div class="rwikiRenderBody">
 	      <div class="rwikiRenderedContent"> 
