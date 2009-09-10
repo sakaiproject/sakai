@@ -27,7 +27,6 @@ import java.sql.SQLException;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
@@ -41,17 +40,15 @@ import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.javax.Filter;
+import org.sakaiproject.javax.Order;
+import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.javax.Search;
+import org.sakaiproject.javax.SearchFilter;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.javax.Filter;
-import org.sakaiproject.javax.Restriction;
-import org.sakaiproject.javax.Order;
-import org.sakaiproject.javax.Search;
-import org.sakaiproject.javax.SearchFilter;
 
 /**
  * <p>
@@ -721,7 +718,12 @@ public class BaseDbDoubleStorage
 			} else {
 			// read the xml
 			Document doc = Xml.readDocumentFromString(xml);
-
+			
+			//The resulting doc could be null
+			if (doc == null) {
+				M_log.warn("null xml document passed to readResource for container" + container.getId());
+				return null;
+			}
 			// verify the root element
 			Element root = doc.getDocumentElement();
 			if (!root.getTagName().equals(m_resourceEntryTagName))
