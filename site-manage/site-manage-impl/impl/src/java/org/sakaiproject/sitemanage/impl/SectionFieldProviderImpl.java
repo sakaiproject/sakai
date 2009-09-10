@@ -49,15 +49,12 @@ public class SectionFieldProviderImpl implements SectionFieldProvider {
 			return "";
 		}
 		
-		String[] values = new String[fields.size()+1];
+		String sectionEid = "";
 		for(int i = 0; i < fields.size(); i++) {
 			SectionField sf = fields.get(i);
-			values[i] = sf.getValue();
+			sectionEid += sf.getValue() + "_";
 		}
-		values[fields.size()] = academicSessionEid;
-		
-		ResourceLoader resourceLoader = new ResourceLoader("SectionFields");
-		String sectionEid = resourceLoader.getFormattedMessage("section_eid", values);
+		sectionEid += academicSessionEid;
 		if(log.isDebugEnabled()) log.debug(this + ":getSectionEid: Generated section eid = " + sectionEid);
 		return sectionEid;
 	}
