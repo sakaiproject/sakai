@@ -67,7 +67,11 @@ function chef_dateselectionwidgetpopup(yearselect_id, monthselect_id, dayselect_
 	imageNode.id=calendar_id;
 	imageNode.title='Popup date selector';
 	imageNode.style.cursor="pointer";
+/*
+	old - IE7 fails to register setAttribute in dynam. added elems
 	imageNode.setAttribute("onClick", "popupCalendar('"+inputfield_id+"')"); 
+*/
+	imageNode.onclick = new Function("popupCalendar('"+inputfield_id+"')");
 	insertAfter(yearselectNode,imageNode);
 
 	//Insert the hidden field node and insert it after the year select box (doesn't really matter it's hidden)
