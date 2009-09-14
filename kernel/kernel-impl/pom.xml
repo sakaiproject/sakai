@@ -41,6 +41,10 @@
           <forkMode>pertest</forkMode>
           <systemProperties>
             <property>
+              <name>derby.stream.error.file</name>
+              <value>${project.build.directory}/derby.log</value>
+            </property>
+            <property>
               <name>derby.system.durability</name>
               <value>test</value>
             </property>
