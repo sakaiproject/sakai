@@ -42,7 +42,7 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.util.commonscodec.CommonsCodecBase64;
+import org.apache.commons.codec.binary.Base64;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -333,7 +333,7 @@ public class Xml
 		// encode the message body base64, and make it an attribute
 		try
 		{
-			String encoded = new String(CommonsCodecBase64.encodeBase64(value.getBytes("UTF-8")),"UTF-8");
+			String encoded = new String(Base64.encodeBase64(value.getBytes("UTF-8")),"UTF-8");
 			el.setAttribute(tag, encoded);
 		}
 		catch (Exception e)
@@ -361,7 +361,7 @@ public class Xml
 		{
 			try
 			{
-				byte[] decoded = CommonsCodecBase64.decodeBase64(body.getBytes("UTF-8"));
+				byte[] decoded = Base64.decodeBase64(body.getBytes("UTF-8"));
 				body = new String(decoded, charset);
 			}
 			catch (Exception e)
@@ -387,7 +387,7 @@ public class Xml
 		{
 			try
 			{
-				byte[] decoded = CommonsCodecBase64.decodeBase64(body.getBytes("UTF-8"));
+				byte[] decoded = Base64.decodeBase64(body.getBytes("UTF-8"));
 				body = new String(decoded, charset);
 			}
 			catch (Exception e)
