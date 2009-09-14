@@ -36,9 +36,18 @@
       <body onload="<%= request.getAttribute("html.body.onload") %>">
  <div class="portletBody">
 <!-- content... -->
- <h:form id="importAssessmentForm" enctype="multipart/form-data">
+<script language="javascript" style="text/JavaScript">
+function samigo(){
+  document.getElementById("importAssessmentForm:sourceType").value = "samigo";
+}
 
-   <h:inputHidden value="#{xmlImport.importType}" />
+function respondus(){
+  document.getElementById("importAssessmentForm:sourceType").value = "respondus";
+}
+</script>
+
+ <h:form id="importAssessmentForm" enctype="multipart/form-data">
+   <h:inputHidden id="sourceType" value=""/>
    <h3><h:outputText  value="#{authorImportExport.import_a}" /></h3>
     <div class="tier1">
      <div class="form_label">
@@ -56,8 +65,10 @@
     <br/>
     <br/>
      <%-- activates the valueChangeListener --%>
-     <h:commandButton value="#{authorImportExport.import_action}" type="submit"
-       style="act" action="author" />
+     <h:commandButton value="#{authorImportExport.import_action}" type="submit" onclick="samigo();"
+       style="act" action="author"/>
+	<h:commandButton value="#{authorImportExport.import_action} 2" type="submit" onclick="respondus();"
+       style="act" action="author"/>
      <%-- immediate=true bypasses the valueChangeListener --%>
      <h:commandButton value="#{authorImportExport.import_cancel_action}" type="submit"
        style="act" action="author" immediate="true"/>
