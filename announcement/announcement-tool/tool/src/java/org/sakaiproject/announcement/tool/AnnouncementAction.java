@@ -2251,24 +2251,27 @@ public class AnnouncementAction extends PagedResourceActionII
 
 			// navigation bar display control
 			List msgs = (List) sstate.getAttribute(STATE_MESSAGES);
-			for (int i = 0; i < msgs.size(); i++)
+			if (msgs != null)
 			{
-				if (((AnnouncementWrapper) msgs.get(i)).getId().equals(message.getId()))
+				for (int i = 0; i < msgs.size(); i++)
 				{
-					boolean goPT = false;
-					boolean goNT = false;
-					if ((i - 1) >= 0)
+					if (((AnnouncementWrapper) msgs.get(i)).getId().equals(message.getId()))
 					{
-						goPT = true;
-						context.put("prevMsg", msgs.get(i - 1));
+						boolean goPT = false;
+						boolean goNT = false;
+						if ((i - 1) >= 0)
+						{
+							goPT = true;
+							context.put("prevMsg", msgs.get(i - 1));
+						}
+						if ((i + 1) < msgs.size())
+						{
+							goNT = true;
+							context.put("nextMsg", msgs.get(i + 1));
+						}
+						context.put("goPTButton", new Boolean(goPT));
+						context.put("goNTButton", new Boolean(goNT));
 					}
-					if ((i + 1) < msgs.size())
-					{
-						goNT = true;
-						context.put("nextMsg", msgs.get(i + 1));
-					}
-					context.put("goPTButton", new Boolean(goPT));
-					context.put("goNTButton", new Boolean(goNT));
 				}
 			}
 		}
