@@ -10,6 +10,7 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.util.FormattedText;
 
 public class ConfirmCopyAssessmentListener implements ActionListener {
 	public void processAction(ActionEvent ae) throws AbortProcessingException {
@@ -34,6 +35,6 @@ public class ConfirmCopyAssessmentListener implements ActionListener {
 		}
 
 		assessmentBean.setAssessmentId(assessment.getAssessmentBaseId().toString());
-		assessmentBean.setTitle(assessment.getTitle());
+		assessmentBean.setTitle(FormattedText.unEscapeHtml(assessment.getTitle()));
 	}
 }

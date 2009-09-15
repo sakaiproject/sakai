@@ -90,8 +90,8 @@ public class SaveAssessmentSettings
     AssessmentFacade assessment = assessmentService.getAssessment(
         assessmentId.toString());
     //log.info("** assessment = "+assessment);
-    //assessment.setTitle(FormattedText.convertPlaintextToFormattedText(assessmentSettings.getTitle()));
-    assessment.setTitle(assessmentSettings.getTitle());
+    assessment.setTitle(FormattedText.convertPlaintextToFormattedText(assessmentSettings.getTitle()));
+    //assessment.setTitle(assessmentSettings.getTitle());
     assessment.setDescription(assessmentSettings.getDescription()); // No need to call processFormattedText() because this is done in RichTextEditArea.java
     assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.AUTHORS, FormattedText.convertPlaintextToFormattedText(assessmentSettings.getAuthors()));
 

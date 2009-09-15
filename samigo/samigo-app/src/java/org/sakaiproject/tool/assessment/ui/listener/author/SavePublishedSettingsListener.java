@@ -55,8 +55,10 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -66,6 +68,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * <p>Title: Samigo</p>2
@@ -147,7 +150,7 @@ implements ActionListener
 	public boolean checkPublishedSettings(PublishedAssessmentService assessmentService, PublishedAssessmentSettingsBean assessmentSettings, FacesContext context) {
 		boolean error = false;
 		// Title
-		String assessmentName = assessmentSettings.getTitle();
+		String assessmentName = FormattedText.convertPlaintextToFormattedText(assessmentSettings.getTitle().trim());
 		// check if name is empty
 		if(assessmentName != null &&(assessmentName.trim()).equals("")){
 			String nameEmpty_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_empty");
@@ -239,9 +242,12 @@ implements ActionListener
 	
 	// Check if title has been changed. If yes, update it.
 	private boolean isTitleChanged(PublishedAssessmentSettingsBean assessmentSettings, PublishedAssessmentFacade assessment) {
-		if (assessment.getTitle() != null && assessmentSettings.getTitle() != null && !assessment.getTitle().trim().equals(assessmentSettings.getTitle().trim())) {
-			assessment.setTitle(assessmentSettings.getTitle());
-			return true;
+		if (assessment.getTitle() != null && assessmentSettings.getTitle() != null) {
+			String assessmentTitle = FormattedText.convertPlaintextToFormattedText(assessmentSettings.getTitle().trim());
+				if (!assessment.getTitle().trim().equals(assessmentTitle)) {
+					assessment.setTitle(assessmentTitle);
+					return true;
+				}
 		}
 		return false;
 	}
@@ -486,58 +492,10 @@ implements ActionListener
 
 	public void resetPublishedAssessmentsList(AuthorBean author,
 			PublishedAssessmentService assessmentService) {
-		// regenerate the publsihed assessment list in autor bean again
-		// sortString can be of these value:title,releaseTo,dueDate,startDate
-		// get the managed bean, author and reset the list.
-		// Yes, we need to do that just in case the user change those delivery
-		// dates and turning an inactive pub to active pub
+		AuthorActionListener authorActionListener = new AuthorActionListener();
 		GradingService gradingService = new GradingService();
-		HashMap map = gradingService
-		.getSubmissionSizeOfAllPublishedAssessments();
-		ArrayList publishedList = assessmentService
-		.getBasicInfoOfAllActivePublishedAssessments(author
-				.getPublishedAssessmentOrderBy(), author
-				.isPublishedAscending());
-		// get the managed bean, author and set the list
-		author.setPublishedAssessments(publishedList);
-		setSubmissionSize(publishedList, map);
-
-		ArrayList inactivePublishedList = assessmentService
-		.getBasicInfoOfAllInActivePublishedAssessments(author
-				.getInactivePublishedAssessmentOrderBy(), author
-				.isInactivePublishedAscending());
-		// get the managed bean, author and set the list
-		author.setInactivePublishedAssessments(inactivePublishedList);
-		boolean isAnyAssessmentRetractForEdit = false;
-		Iterator iter = inactivePublishedList.iterator();
-		while (iter.hasNext()) {
-			PublishedAssessmentFacade publishedAssessmentFacade = (PublishedAssessmentFacade) iter.next();
-			if (Integer.valueOf(3).equals(publishedAssessmentFacade.getStatus())) {
-				isAnyAssessmentRetractForEdit = true;
-				break;
-			}
-		}
-		if (isAnyAssessmentRetractForEdit) {
-			author.setIsAnyAssessmentRetractForEdit(true);
-		}
-		else {
-			author.setIsAnyAssessmentRetractForEdit(false);
-		}
-		setSubmissionSize(inactivePublishedList, map);
+		authorActionListener.prepareAllPublishedAssessmentsList(author, gradingService, assessmentService);
 	}
-
-	private void setSubmissionSize(ArrayList list, HashMap map){
-		for (int i=0; i<list.size();i++){
-			PublishedAssessmentFacade p =(PublishedAssessmentFacade)list.get(i);
-			Integer size = (Integer) map.get(p.getPublishedAssessmentId());
-			if (size != null){
-				p.setSubmissionSize(size.intValue());
-				//log.info("*** submission size" + size.intValue());
-			}
-		}
-	}
-
-
 }
 
 

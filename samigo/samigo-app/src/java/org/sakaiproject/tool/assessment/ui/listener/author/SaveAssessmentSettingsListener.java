@@ -24,6 +24,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -34,10 +35,12 @@ import javax.faces.event.ActionListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * <p>Title: Samigo</p>2
@@ -66,8 +69,8 @@ public class SaveAssessmentSettingsListener
     boolean error=false;
     String assessmentId=String.valueOf(assessmentSettings.getAssessmentId()); 
     AssessmentService assessmentService = new AssessmentService();
-    SaveAssessmentSettings s= new SaveAssessmentSettings();
-    String assessmentName=ContextUtil.processFormattedText(log, assessmentSettings.getTitle());
+    SaveAssessmentSettings s = new SaveAssessmentSettings();
+    String assessmentName = FormattedText.convertPlaintextToFormattedText(assessmentSettings.getTitle());
  
     // check if name is empty
     if(assessmentName!=null &&(assessmentName.trim()).equals("")){
@@ -190,6 +193,11 @@ public class SaveAssessmentSettingsListener
     // reset the core listing in case assessment title changes
     ArrayList assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(
     		author.getCoreAssessmentOrderBy(),author.isCoreAscending());
+    Iterator iter = assessmentList.iterator();
+	while (iter.hasNext()) {
+		AssessmentFacade assessmentFacade= (AssessmentFacade) iter.next();
+		assessmentFacade.setTitle(FormattedText.unEscapeHtml(assessmentFacade.getTitle()));
+	}
     // get the managed bean, author and set the list
     author.setAssessments(assessmentList);
 

@@ -146,7 +146,6 @@ public class StudentScoreListener
       } // End of SAK-13930
 
       bean.setComments(FormattedText.unEscapeHtml(adata.getComments()));
-      bean.setComments(adata.getComments());
       buildItemContentsMap(dbean);
 
       return true;

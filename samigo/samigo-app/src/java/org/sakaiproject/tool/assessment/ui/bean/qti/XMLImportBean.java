@@ -25,6 +25,9 @@ package org.sakaiproject.tool.assessment.ui.bean.qti;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
+
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
 import javax.faces.application.FacesMessage;
@@ -254,7 +257,11 @@ public class XMLImportBean implements Serializable
     
     ArrayList list = assessmentService.getBasicInfoOfAllActiveAssessments(
                      AssessmentFacadeQueries.TITLE,true);
-    //
+    Iterator iter = list.iterator();
+	while (iter.hasNext()) {
+		AssessmentFacade assessmentFacade= (AssessmentFacade) iter.next();
+		assessmentFacade.setTitle(FormattedText.unEscapeHtml(assessmentFacade.getTitle()));
+	}
     authorBean.setAssessments(list);
 
     // remove uploaded file

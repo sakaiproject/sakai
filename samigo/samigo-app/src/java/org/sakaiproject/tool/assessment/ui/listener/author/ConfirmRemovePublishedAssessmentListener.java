@@ -36,6 +36,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.util.FormattedText;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -78,7 +79,7 @@ public class ConfirmRemovePublishedAssessmentListener implements ActionListener
     	author.setOutcome("confirmRemovePublishedAssessment");
     	
     	publishedAssessmentBean.setAssessmentId(publishedAssessmentId);
-    	publishedAssessmentBean.setTitle(publishedAssessment.getTitle());
+    	publishedAssessmentBean.setTitle(FormattedText.unEscapeHtml(publishedAssessment.getTitle()));
     }
     else {
     	log.warn("publishedAssessment is null");

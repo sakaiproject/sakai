@@ -18,6 +18,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.util.FormattedText;
 
 public class ConfirmRepublishAssessmentListener implements ActionListener {
 	// To Do: I think this can be combined with SavePublishedSettingsListener.
@@ -29,6 +30,7 @@ public class ConfirmRepublishAssessmentListener implements ActionListener {
 		PublishedAssessmentService assessmentService = new PublishedAssessmentService();
 		SavePublishedSettingsListener savePublishedSettingsListener = new SavePublishedSettingsListener();
 		PublishedAssessmentSettingsBean assessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean("publishedSettings");
+		assessmentSettings.setTitle(FormattedText.unEscapeHtml(assessmentSettings.getTitle()));
 		Long assessmentId = assessmentSettings.getAssessmentId();
 		PublishedAssessmentFacade assessment = assessmentService.getPublishedAssessment(assessmentId.toString());
 		/*

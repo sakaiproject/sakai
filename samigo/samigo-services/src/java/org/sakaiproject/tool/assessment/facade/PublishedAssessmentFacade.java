@@ -325,7 +325,9 @@ public class PublishedAssessmentFacade
 
   public void setTitle(String title) {
     this.title = title;
-    this.data.setTitle(title);
+    if (this.data != null) {
+      this.data.setTitle(title);
+    }
   }
 
   public String getDescription() {

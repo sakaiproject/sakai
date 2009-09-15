@@ -73,7 +73,7 @@ public class PoolSaveListener implements ActionListener
   {
     //log.info("PoolSaveListener :");
     QuestionPoolBean  qpoolbean= (QuestionPoolBean) ContextUtil.lookupBean("questionpool");
-    String currentName= ContextUtil.processFormattedText(log, qpoolbean.getCurrentPool().getDisplayName());
+    String currentName= FormattedText.convertPlaintextToFormattedText(qpoolbean.getCurrentPool().getDisplayName());
    
     boolean isUnique=true;
     QuestionPoolService service = new QuestionPoolService();
@@ -155,11 +155,11 @@ public class PoolSaveListener implements ActionListener
 
       QuestionPoolFacade questionpool =
         new QuestionPoolFacade (beanid, parentid);
-      questionpool.updateDisplayName(ContextUtil.processFormattedText(log, bean.getDisplayName()));
-      questionpool.updateDescription(ContextUtil.processFormattedText(log, bean.getDescription()));
-      questionpool.setOrganizationName(ContextUtil.processFormattedText(log, bean.getOrganizationName()));
-      questionpool.setObjectives(ContextUtil.processFormattedText(log, bean.getObjectives()));
-      questionpool.setKeywords(ContextUtil.processFormattedText(log, bean.getKeywords()));
+      questionpool.updateDisplayName(FormattedText.convertPlaintextToFormattedText(bean.getDisplayName()));
+      questionpool.updateDescription(FormattedText.convertPlaintextToFormattedText(bean.getDescription()));
+      questionpool.setOrganizationName(FormattedText.convertPlaintextToFormattedText(bean.getOrganizationName()));
+      questionpool.setObjectives(FormattedText.convertPlaintextToFormattedText(bean.getObjectives()));
+      questionpool.setKeywords(FormattedText.convertPlaintextToFormattedText(bean.getKeywords()));
       // need to set owner and accesstype
       questionpool.setAccessTypeId(QuestionPoolFacade.ACCESS_DENIED); // set as default
 

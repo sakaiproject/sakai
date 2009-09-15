@@ -34,6 +34,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -43,8 +44,8 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
-import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * <p>Title: Samigo</p>2
@@ -109,9 +110,18 @@ public class AuthorActionListener
 		author.setCoreAssessmentOrderBy(AssessmentFacadeQueries.TITLE);
 		ArrayList assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(
 						AssessmentFacadeQueries.TITLE, author.isCoreAscending());
+		Iterator iter = assessmentList.iterator();
+		while (iter.hasNext()) {
+			AssessmentFacade assessmentFacade= (AssessmentFacade) iter.next();
+			assessmentFacade.setTitle(FormattedText.unEscapeHtml(assessmentFacade.getTitle()));
+		}
 		// get the managed bean, author and set the list
 		author.setAssessments(assessmentList);
 
+		prepareAllPublishedAssessmentsList(author, gradingService, publishedAssessmentService);
+  }
+
+  public void prepareAllPublishedAssessmentsList(AuthorBean author, GradingService gradingService, PublishedAssessmentService publishedAssessmentService) {
 	  ArrayList publishedAssessmentList = publishedAssessmentService.getBasicInfoOfAllPublishedAssessments2(
 			  PublishedAssessmentFacadeQueries.TITLE, true, AgentFacade.getCurrentSiteId());
 	  HashMap inProgressCounts = gradingService.getInProgressCounts(AgentFacade.getCurrentSiteId());
@@ -119,9 +129,9 @@ public class AuthorActionListener
 	  
 	  ArrayList dividedPublishedAssessmentList = getTakeableList(publishedAssessmentList);
 	  prepareActivePublishedAssessmentsList(author, (ArrayList) dividedPublishedAssessmentList.get(0), inProgressCounts, submittedCounts);
-	  prepareInactivePublishedAssessmentsList(author, (ArrayList) dividedPublishedAssessmentList.get(1), inProgressCounts, submittedCounts);
+	  prepareInactivePublishedAssessmentsList(author, (ArrayList) dividedPublishedAssessmentList.get(1), inProgressCounts, submittedCounts);  
   }
-
+  
   public void prepareActivePublishedAssessmentsList(AuthorBean author, ArrayList<PublishedAssessmentFacade> activePublishedList, HashMap<Long, Integer> getInProgressCounts, HashMap<Long, Integer> submittedCounts) {
 	  setInProgressAndSubmittedCount(activePublishedList, getInProgressCounts, submittedCounts);
 	  author.setPublishedAssessments(activePublishedList);  
@@ -190,6 +200,7 @@ public class AuthorActionListener
 	  	  	  
 	  for (int i = 0; i < assessmentList.size(); i++) {
 		  PublishedAssessmentFacade f = (PublishedAssessmentFacade)assessmentList.get(i);
+		  f.setTitle(FormattedText.unEscapeHtml(f.getTitle()));
 		  if (isActive(f)) {
 			  activeList.add(f);
 		  }

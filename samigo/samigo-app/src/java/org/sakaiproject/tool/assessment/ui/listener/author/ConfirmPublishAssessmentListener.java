@@ -51,6 +51,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * <p>Title: Samigo</p>2
@@ -104,6 +105,7 @@ public class ConfirmPublishAssessmentListener
       context.addMessage(null,new FacesMessage(nameUnique_err));
       error=true;
     }
+    
     //Gradebook right now only excep if total score >0 check if total score<=0 then throw error.
    
     if(assessmentSettings.getToDefaultGradebook() != null && assessmentSettings.getToDefaultGradebook().equals("1"))
@@ -202,6 +204,8 @@ public class ConfirmPublishAssessmentListener
 
     //#3 now u can proceed to save core assessment
     assessment = s.save(assessmentSettings);
+    //unEscape the FormattedText.convertPlaintextToFormattedText in s.save()
+    assessment.setTitle(FormattedText.unEscapeHtml(assessment.getTitle()));
     assessmentSettings.setAssessment(assessment);
 
     //  we need a publishedUrl, this is the url used by anonymous user

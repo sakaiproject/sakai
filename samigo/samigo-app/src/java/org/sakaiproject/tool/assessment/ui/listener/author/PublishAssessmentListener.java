@@ -62,6 +62,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificat
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.SamigoEmailService;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -278,7 +279,7 @@ public class PublishAssessmentListener
 		  (!prePopulateText.trim().equals(rl.getString("pre_populate_text_publish")) && 
 		   !prePopulateText.trim().equals(rl.getString("pre_populate_text_republish")) && 
 		   !prePopulateText.trim().equals(rl.getString("pre_populate_text_regrade_republish")))) {
-		  message.append(prePopulateText);
+		  message.append(FormattedText.convertPlaintextToFormattedText(prePopulateText));
 		  message.append(newline);
 		  message.append(newline);
 	  }

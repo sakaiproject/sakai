@@ -48,6 +48,7 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * <p>
@@ -185,7 +186,7 @@ public class TotalScoreUpdateListener
 
   private boolean needUpdate(AgentResults agentResults, HashMap map){
     boolean update = true;
-    String newComments = ContextUtil.processFormattedText(log, agentResults.getComments());
+    String newComments = FormattedText.convertPlaintextToFormattedText(agentResults.getComments());
     agentResults.setComments(newComments);
     log.debug("newComments = " + newComments);
 
