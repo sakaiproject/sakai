@@ -17,7 +17,13 @@
 	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
 	    ##  $homeBean $viewBean $resourceLoaderBean )
 	    ##            uhl  upl  uvl  vln    uel   uil  uhl  uwl  wn
-	  	 #commandlinks(true true true ${rlb.jsp_view}	true  true true true ${requestScope.Withnotification}	${homeBean} ${viewBean} ${rlb} ) 
+	    
+	    #if ($renderBean.localisedPageNameLength>255)
+	  	 #commandlinks(true false true ${rlb.jsp_view}	false  false false false ${requestScope.Withnotification}	${homeBean} ${viewBean} ${rlb} ) 
+	    #else
+	     #commandlinks(true true true ${rlb.jsp_view}	true  true true true ${requestScope.Withnotification}	${homeBean} ${viewBean} ${rlb} ) 
+	    #end
+	    
 	    <span class="rwiki_searchBox">
 	      ${rlb.jsp_search}:	
 	      <input type="hidden" name="action" value="${util.escapeHtml($requestScope.SearchTarget)}" />
@@ -40,8 +46,9 @@
 	
 	#if ($renderBean.localisedPageNameLength>255)
 	<div class="alertMessage">${rlb.jsp_page_length_alert}</div>
-	<div class="clear"></div>#end
+	<div class="clear"></div>
 	
+	#else
 	<div id="rwiki_content" class="${rwikiContentStyle}" >
 	    <div class="rwikiRenderBody">
 	      <div class="rwikiRenderedContent"> 
@@ -56,7 +63,9 @@
 	 	#formatDateTime($currentRWikiObject.version) 
 	 </div>
 	 
-  #comments()
+      #comments()
+     #end
+     
 	  </div>
 	 #sidebar()
 	 

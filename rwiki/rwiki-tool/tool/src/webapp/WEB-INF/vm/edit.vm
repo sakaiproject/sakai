@@ -62,10 +62,6 @@
 	
 	#breadcrumbs()
 	
-	#if ($renderBean.localisedPageNameLength>255)
-	<div class="alertMessage">${rlb.jsp_page_length_alert}</div>
-	<div class="clear"></div>#end
-	
 	<div id="rwiki_head" >		
 		<div id="rwiki_tabholder">
 	        <ul class="tabs" >
