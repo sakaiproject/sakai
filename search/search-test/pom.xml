@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>base</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>2.7.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>Sakai Search Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>search-test</artifactId>
+  <packaging>pom</packaging>
+  <description>This is in a separate POM to allow standard profile handling in the toplevel POM. This activates the correct test related
+  project depending on which JVM is in use.</description>
+  <profiles>
+  	<profile>
+  	  <id>1.5</id>
+  	  <activation>
+  	    <jdk>1.5</jdk>
+  	  </activation>
+  	  <modules>
+  	    <module>test-1.5</module>
+  	  </modules>
+  	</profile>
+  	<profile>
+  	  <id>1.6</id>
+  	  <activation>
+  	  	<jdk>1.6</jdk>
+  	  </activation>
+  	  <modules>
+  	    <module>test-1.6</module>
+  	  </modules>
+  	</profile>
+  </profiles>
+</project>
