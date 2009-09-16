@@ -1997,10 +1997,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						  Long answerid = grade.getPublishedAnswerId();
 						  if (answerid != null) {
 							  AnswerIfc answer  = (AnswerIfc)publishedAnswerHash.get(answerid);
-							  String temptext = answer.getText();
-							  if (temptext != null)
-								  thistext = temptext;
-						  }
+							  if (answer != null) { 
+								  String temptext = answer.getText();
+								  if (temptext != null)
+									  thistext = temptext;
+							  }
+							  else {
+								  log.warn("Published answer for " + answerid + " is null");
+							  } 					  
 
 						  String temp2text = grade.getAnswerText();
 						  if (temp2text != null)
