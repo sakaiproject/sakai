@@ -2992,7 +2992,8 @@ public class DeliveryBean
 				  // Solamente borramos los checkbox de la pregunta actual
 				  if (!item.getItemData().getItemId().toString().equals(radioId)) continue;
 
-				  if (item.getItemData().getTypeId().longValue() == TypeIfc.MULTIPLE_CHOICE.longValue() ||
+				  if (item.getItemData().getTypeId().longValue() == TypeIfc.MULTIPLE_CHOICE.longValue() || 
+						  item.getItemData().getTypeId().longValue() == TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue() ||
 						  item.getItemData().getTypeId().longValue() == TypeIfc.MULTIPLE_CHOICE_SURVEY.longValue()) {
 
 					  item.setUnanswered(true);

@@ -516,6 +516,10 @@ public class SubmitToGradingActionListener implements ActionListener {
 					}
 				}
 			}
+			
+			if(item.getUnanswered()) {
+				answerModified = true;
+			}
 
 
 			if (answerModified) {

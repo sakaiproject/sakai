@@ -399,6 +399,10 @@ public class ItemContentsBean implements Serializable {
 	public void setUnanswered(boolean unanswered) {
 		this.unanswered = unanswered;
 	}
+	
+	public boolean getUnanswered() {
+		return unanswered;
+	}
 
 	/**
 	 * String representation of the max points available for this question.
