@@ -191,11 +191,11 @@ public class PoolSaveListener implements ActionListener
       
       // Reset the properties for current pool to reflect the early changes (before click on "Add") in edit pool
       QuestionPoolDataBean currentPool = qpbean.getCurrentPool();
-      currentPool.setDisplayName(ContextUtil.processFormattedText(log, qpbean.getParentPool().getDisplayName()));
-      currentPool.setOrganizationName(ContextUtil.processFormattedText(log, qpbean.getParentPool().getOrganizationName()));
-      currentPool.setDescription(ContextUtil.processFormattedText(log, qpbean.getParentPool().getDescription()));
-      currentPool.setObjectives(ContextUtil.processFormattedText(log, qpbean.getParentPool().getObjectives()));
-      currentPool.setKeywords(ContextUtil.processFormattedText(log, qpbean.getParentPool().getKeywords()));
+      currentPool.setDisplayName(FormattedText.convertPlaintextToFormattedText(qpbean.getParentPool().getDisplayName()));
+      currentPool.setOrganizationName(FormattedText.convertPlaintextToFormattedText(qpbean.getParentPool().getOrganizationName()));
+      currentPool.setDescription(FormattedText.convertPlaintextToFormattedText(qpbean.getParentPool().getDescription()));
+      currentPool.setObjectives(FormattedText.convertPlaintextToFormattedText(qpbean.getParentPool().getObjectives()));
+      currentPool.setKeywords(FormattedText.convertPlaintextToFormattedText(qpbean.getParentPool().getKeywords()));
       ArrayList addedPools = qpbean.getAddedPools();
       if (addedPools == null) {
     	  addedPools = new ArrayList();

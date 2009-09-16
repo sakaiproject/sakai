@@ -59,6 +59,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * <p>
@@ -412,9 +413,9 @@ public class SubmitToGradingActionListener implements ActionListener {
 				Long oldAnswerId = oldItem.getPublishedAnswerId();
 				Long newAnswerId = newItem.getPublishedAnswerId();
 				String oldRationale = oldItem.getRationale();
-				String newRationale = ContextUtil.processFormattedText(log, newItem.getRationale());
+				String newRationale = FormattedText.convertPlaintextToFormattedText(newItem.getRationale());
 				String oldAnswerText = oldItem.getAnswerText();
-				String newAnswerText = ContextUtil.processFormattedText(log, newItem.getAnswerText());
+				String newAnswerText = FormattedText.convertPlaintextToFormattedText(newItem.getAnswerText());
 				if ((oldReview != null && !oldReview.equals(newReview))
 				    || (newReview!=null && !newReview.equals(oldReview))
 						|| (oldAnswerId != null && !oldAnswerId
@@ -539,7 +540,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 							itemgrading.setAgentId(AgentFacade.getAgentString());
 							itemgrading.setSubmittedDate(new Date());
 							if (itemgrading.getRationale() != null && itemgrading.getRationale().length() > 0) {
-								itemgrading.setRationale(ContextUtil.processFormattedText(log, itemgrading.getRationale()));
+								itemgrading.setRationale(FormattedText.convertPlaintextToFormattedText(itemgrading.getRationale()));
 							}
 							// the rest of the info is collected by
 							// ItemContentsBean via JSF form
@@ -568,7 +569,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 				} else if (itemgrading.getPublishedAnswerId() != null
 						|| itemgrading.getAnswerText() != null ) {
 					if (itemgrading.getRationale() != null && itemgrading.getRationale().length() > 0) {
-						itemgrading.setRationale(ContextUtil.processFormattedText(log, itemgrading.getRationale()));
+						itemgrading.setRationale(FormattedText.convertPlaintextToFormattedText(itemgrading.getRationale()));
 					}
 					adds.addAll(grading);
 					break;
@@ -588,7 +589,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 					adds.addAll(grading);
 					break;
 				} else if (itemgrading.getAnswerText() != null && !itemgrading.getAnswerText().equals("")) {
-					itemgrading.setAnswerText(ContextUtil.processFormattedText(log, itemgrading.getAnswerText()));
+					itemgrading.setAnswerText(FormattedText.convertPlaintextToFormattedText(itemgrading.getAnswerText()));
 					adds.addAll(grading);
 					break;
 				}
@@ -611,7 +612,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 				} else if (itemgrading.getAnswerText() != null && !itemgrading.getAnswerText().equals("")) {
 					String s = itemgrading.getAnswerText();
 					log.debug("s = " + s);
-					itemgrading.setAnswerText(ContextUtil.processFormattedText(log, s));
+					itemgrading.setAnswerText(FormattedText.convertPlaintextToFormattedText(s));
 					adds.addAll(grading);
 					if (!addedToAdds) {
 						adds.addAll(grading);
