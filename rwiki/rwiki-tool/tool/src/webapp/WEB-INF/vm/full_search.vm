@@ -53,12 +53,10 @@
 	#foreach( $result in ${searchResults} )
 	    <!--is-->
      <div class="searchItem" > 
-     
          <span class="searchTool">${result.tool}:</span>
-         <a href="${result.url}" target="searchresult" class="searchTopLink" >${result.title}</a>
+         <a href="${result.url}" target="searchresult" class="searchTopLink" >${searchBean.pageNameFromSearchTitle(${result.title})}</a>
          <div class="searchItemBody" >${result.searchResult}</div>
          <a href="${result.url}" target="searchresult" class="searchBottonLink" >${result.url}</a>
-
      </div>
      <br>
      
@@ -80,8 +78,11 @@
 	  		</p>
 	  -->
 		<p>
-		  ${rlb.jsp_search_result_page}:
+		  
 		  #foreach( $pages in ${searchPages} )
+		   #if ( ${pages.page} == "0")
+		  ${rlb.jsp_search_result_page}:
+		  #end
 		    		<a href="${util.escapeHtml(${pages.fullSearchLinkUrl})}" >${pages.page}</a>&nbsp;
 		  #end
 		</p>
