@@ -306,6 +306,16 @@ public class EntityViewTest extends TestCase {
       assertEquals("myid", ev.getPathSegment(1) );
       assertEquals("action", ev.getPathSegment(2) );
       assertEquals(null, ev.getPathSegment(3) );
+
+      // SAK-16975
+      ev = new EntityView("/myprefix/myid/stuff/this has spaces.csv");
+      assertNotNull(ev);
+      assertEquals("myprefix", ev.getPathSegment(0) );
+      assertEquals("myid", ev.getPathSegment(1) );
+      assertEquals("stuff", ev.getPathSegment(2) );
+      assertEquals("this has spaces", ev.getPathSegment(3) );
+      assertEquals(null, ev.getPathSegment(4) );
+
    }
 
    public void testGetPathSegments() {

@@ -123,7 +123,7 @@ public class TemplateParseUtil {
    /**
     * Defines the valid chars for a parser input (e.g. entity reference)
     */
-   public static final String VALID_INPUT_CHARS = "[A-Za-z0-9\\\\(\\\\)\\+\\*\\.\\-_=,:;!~@%"+SEPARATOR+"]";
+   public static final String VALID_INPUT_CHARS = "[A-Za-z0-9\\\\(\\\\)\\+\\*\\.\\-_=,:;!~@% "+SEPARATOR+"]";
    /**
     * Defines the valid chars for a template
     */

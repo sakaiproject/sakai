@@ -472,6 +472,13 @@ public class TemplateParseUtilTest extends TestCase {
       assertEquals("myPrefix", result.segmentValues.get(TemplateParseUtil.PREFIX));
       assertEquals("myId", result.segmentValues.get(TemplateParseUtil.ID));
 
+      input = "/myPrefix/myId/blahblah/this has spaces.xml";
+      result = TemplateParseUtil.parseTemplate(input, preprocessedTemplates);
+      assertNotNull(result);
+      assertEquals(TemplateParseUtil.TEMPLATE_SHOW, result.templateKey);
+      assertEquals("myPrefix", result.segmentValues.get(TemplateParseUtil.PREFIX));
+      assertEquals("myId", result.segmentValues.get(TemplateParseUtil.ID));
+
       // try some that will not match
       input = "myPrefix/stuff/stuff";
       result = TemplateParseUtil.parseTemplate(input, preprocessedTemplates);
