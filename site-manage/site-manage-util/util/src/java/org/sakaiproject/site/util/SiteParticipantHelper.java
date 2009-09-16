@@ -263,9 +263,10 @@ public class SiteParticipantHelper {
 	 * @param participantsMap
 	 * @param grants
 	 */
-	private static void addParticipantsFromMembers(Map<String, Participant> participantsMap, Set grants) {
+    	private static void addParticipantsFromMembers(Map<String, Participant> participantsMap, Set grants, String realmId) {
 		// get all user info once
 		Map<String, User> eidToUserMap = getEidUserMapFromCollection(grants);
+		boolean refreshed = false;
 		
 		for (Iterator<Member> i = grants.iterator(); i.hasNext();) {
 			Member g = (Member) i.next();
@@ -277,6 +278,25 @@ public class SiteParticipantHelper {
 				String userId = user.getId();
 				if (!participantsMap.containsKey(userId))
 				{
+				    // we should have seen all provided users by now. If any
+				    // are left, they are out of date. Refresh the realm
+				    // but also skip the users. Otherwise if the owner submits
+				    // the screen, they get created.
+				        if (g.isProvided()) {
+					    if (!refreshed) {
+						refreshed = true;
+						try {
+						    // refresh the realm
+						    AuthzGroup realmEdit = AuthzGroupService.getAuthzGroup(realmId);
+						    AuthzGroupService.save(realmEdit);
+						} catch (Exception exc) {
+						    M_log.warn("SiteParticipantHelper:addParticipantsFromMembers " + exc.getMessage());
+						}
+
+					    }
+					    continue;
+					}
+
 					Participant participant;
 					if (participantsMap.containsKey(userId))
 					{
@@ -418,7 +438,7 @@ public class SiteParticipantHelper {
 			if (grants != null && !grants.isEmpty())
 			{
 				// add participant from member defined in realm
-				addParticipantsFromMembers(participantsMap, grants);
+				addParticipantsFromMembers(participantsMap, grants, realmId);
 			}
 
 		} catch (GroupNotDefinedException ee) {
