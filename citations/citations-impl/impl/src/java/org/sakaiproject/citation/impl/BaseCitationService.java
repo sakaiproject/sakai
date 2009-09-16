@@ -855,7 +855,7 @@ public abstract class BaseCitationService implements CitationService
 
 			// TODO: deal with real dates. Right now, just year
 
-			exportRisField("Y1", getCitationProperty(Schema.YEAR) + "//", buffer);
+  		exportRisField("Y1", getCitationProperty(Schema.YEAR) + "//", buffer);
 
 			// Other stuff goes into the note field -- including the note
 			// itself of course.
@@ -1378,7 +1378,7 @@ public abstract class BaseCitationService implements CitationService
 				// date [ YYYY-MM-DD | YYYY-MM | YYYY ] - need filtering TODO
 				//  -- perhaps do another regular expressions scan...
 				// currently just using the year
-				String year = (String) m_citationProperties.get(Schema.YEAR);
+    		String year = (String) m_citationProperties.get(Schema.YEAR);
 
 				if (year != null && !year.trim().equals(""))
 				{
@@ -1908,7 +1908,6 @@ public abstract class BaseCitationService implements CitationService
 
 						for(int j=0; j< RIScodes.length && noFieldMapping; j++)
 						{
-
 							// Need Trim in case RIS complex value has a space after the delimiter
 							// (e.g. "BT, T1" vs "BT","T1")
 							if (RIScode.equalsIgnoreCase(RIScodes[j]))
@@ -1961,8 +1960,22 @@ public abstract class BaseCitationService implements CitationService
 						if (RIScode.equalsIgnoreCase("KW"))
 							continueTag = RIScode.toUpperCase();
 
-						// We found the mapping in the previous while loop. Set the citation property
-						setCitationProperty(tempField.getIdentifier(), RISvalue);
+					  // We found a mapping.  Set the citation property.
+					  setCitationProperty(tempField.getIdentifier(), RISvalue);
+
+ 					  // SAK-16949 -- If we have a date, we may need to extract and save
+ 					  //              the year as well.
+ 					  //
+						if (RIScode.equalsIgnoreCase("Y1") || RIScode.equalsIgnoreCase("PY"))
+						{
+						  if (!schemaName.equalsIgnoreCase("electronic")
+						  ||  !schemaName.equalsIgnoreCase("proceed")
+						  ||  !schemaName.equalsIgnoreCase("thesis"))
+						  {
+						    setYearProperty(RISvalue);
+						  }
+						}
+
 					} // end else which means we found the mapping
 
 				} // end else of i == 0
@@ -1973,6 +1986,137 @@ public abstract class BaseCitationService implements CitationService
 			return false;
 
 		}  // end ImportFromRisList
+
+    /*
+     * Set the year value.  This is based on a provided RIS date:
+     *
+     *    YYYY/MM/DD/Comment
+     *
+     * We reformat the date to reflect the ISO format:
+     *
+     *    YYYY-MM-DD
+     */
+    private void setDateProperty(String date)
+    {
+      StringBuilder normalized;
+      String[]      components;
+      /*
+       * Save the date "as is".  We'll normalize and [possibly] save again.
+       */
+      setCitationProperty("date", date);
+
+      if (date.length() < 4) return;
+
+      normalized = new StringBuilder();
+      components  = date.split("/");
+      /*
+       * Year
+       */
+      if (components.length == 0) return;
+
+      for (int i = 0; i < 4; i++)
+      {
+        char c = components[0].charAt(i);
+
+        if (!Character.isDigit(c)) return;
+
+        normalized.append(c);
+      }
+      /*
+       * Month
+       */
+      if (components.length == 1)
+      {
+        setCitationProperty("date", normalized.toString());
+        return;
+      }
+
+      if (components[1].length() == 2)
+      {
+        normalized.append("-");
+
+        for (int i = 0; i < 2; i++)
+        {
+          char c = components[1].charAt(i);
+
+          if (Character.isDigit(c))
+          {
+            normalized.append(c);
+          }
+        }
+      }
+      /*
+       * Day
+       */
+      if (components.length == 2)
+      {
+        if (normalized.length() < 7)
+        {
+          normalized.setLength(4);
+        }
+        setCitationProperty("date", normalized.toString());
+        return;
+      }
+
+      if (components[2].length() == 2)
+      {
+        normalized.append("-");
+
+        for (int i = 0; i < 2; i++)
+        {
+          char c = components[2].charAt(i);
+
+          if (Character.isDigit(c))
+          {
+            normalized.append(c);
+          }
+        }
+
+        if (normalized.length() < 10)
+        {
+          normalized.setLength(((normalized.length() < 7) ? 4 : 7));
+        }
+      }
+      /*
+       * Save the normalized date
+       */
+      setCitationProperty("date", normalized.toString());
+      /*
+       * Is there a note (and can we save it)?
+       */
+      if (components.length == 3) return;
+      /*
+       * Discard the comment field for now
+       */
+    }
+
+    /*
+     * Set the 4 digit year value.  This is based on a provided date.  We
+     * assume RIS or ISO forrmatting, where the first four digits specify
+     * a year.  Specifically:
+     *
+     *    YYYY/MM/DD/comment  (RIS)
+     *    YYYY-MM-DD          (ISO)
+     *    YYYY                (what we usually see in practice)
+     */
+    private void setYearProperty(String date)
+    {
+      StringBuilder year;
+
+      if (date.length() < 4) return;
+
+      year = new StringBuilder();
+
+      for (int i = 0; i < 4; i++)
+      {
+        char c = date.charAt(i);
+
+        if (!Character.isDigit(c)) return;
+
+        year.append(c);
+      }
+      setCitationProperty(Schema.YEAR, year.toString());
+    }
 
 		/*
 		 * (non-Javadoc)
