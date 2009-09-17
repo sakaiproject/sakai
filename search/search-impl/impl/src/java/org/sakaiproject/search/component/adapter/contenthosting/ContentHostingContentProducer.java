@@ -317,13 +317,13 @@ public class ContentHostingContentProducer implements EntityContentProducer
 
 	public ContentDigester getDigester(ContentResource cr)
 	{
-		boolean debug = log.isDebugEnabled();
+		
 		if (cr.getContentLength() > digesterSizeLimit)
 		{
 			return defaultDigester;
 		}
 		String mimeType = cr.getContentType();
-		for (Iterator i = digesters.iterator(); i.hasNext();)
+		for (Iterator<ContentDigester> i = digesters.iterator(); i.hasNext();)
 		{
 			ContentDigester digester = (ContentDigester) i.next();
 			if (digester.accept(mimeType))
