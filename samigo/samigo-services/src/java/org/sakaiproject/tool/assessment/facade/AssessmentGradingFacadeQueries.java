@@ -2004,7 +2004,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 							  }
 							  else {
 								  log.warn("Published answer for " + answerid + " is null");
-							  } 					  
+							  } 			
+						  }
 
 						  String temp2text = grade.getAnswerText();
 						  if (temp2text != null)
