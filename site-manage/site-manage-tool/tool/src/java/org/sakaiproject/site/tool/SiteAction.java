@@ -9189,6 +9189,11 @@ public class SiteAction extends PagedResourceActionII {
 						}
 					}
 				}
+				// no tool registeration is found (tool is not editable within Site Info tool), set return value to be null
+				if (match == null)
+				{
+					rv = null;
+				}
 			}
 		}
 		
