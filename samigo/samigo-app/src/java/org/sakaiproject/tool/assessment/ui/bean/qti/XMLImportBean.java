@@ -102,7 +102,7 @@ public class XMLImportBean implements Serializable
 	  String sourceType = ContextUtil.lookupParam("sourceType");
 	  String uploadFile = (String) e.getNewValue();
 	  if ("respondus".equals(sourceType)) {
-		  if(uploadFile.endsWith(".zip")) {
+		  if(uploadFile.toLowerCase().endsWith(".zip")) {
 			  isCP = true;
 			  importAssessment(uploadFile, true, true);
 		  }
@@ -112,7 +112,7 @@ public class XMLImportBean implements Serializable
 		  }
 	  }
 	  else {
-	  if(uploadFile.endsWith(".zip")) {
+	  if(uploadFile.toLowerCase().endsWith(".zip")) {
 		  isCP = true;
 		  importAssessment(uploadFile,true, false);
 	  }
