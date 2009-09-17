@@ -1,13 +1,11 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.sakaiproject</groupId>
 	<artifactId>kernel</artifactId>
 	<packaging>pom</packaging>
 	<name>Sakai Kernel</name>
-	<version>1.1-SNAPSHOT</version>
+	<version>1.1.0-beta01</version>
 	<organization>
 		<name>Sakai Project</name>
 		<url>http://sakaiproject.org/</url>
@@ -121,7 +119,7 @@
             </roles>
             <timezone>-7</timezone>
             <properties>
-                <picUrl></picUrl>
+                <picUrl />
             </properties>
         </developer>
         <developer>
@@ -134,7 +132,7 @@
                 <role>developer</role>
             </roles>
             <timezone>-5</timezone>
-            <properties></properties>
+            <properties />
         </developer>
         <developer>
             <id>david.horwitz@uct.ac.za</id>
@@ -161,7 +159,7 @@
             <id>bkirschn@umich.edu</id>
             <name>Beth Kirschner</name>
             <email>bkirschn@umich.edu</email>
-            <url></url>
+            <url />
             <organization>University of Michigan</organization>
             <organizationUrl>http://www.umich.edu</organizationUrl>
             <roles>
@@ -231,14 +229,14 @@
         <contributor>
             <name>Glenn Golden</name>
             <email>ggolden@etudes.org</email>
-            <url></url>
+            <url />
             <organization>Etudes</organization>
             <organizationUrl>http://etudes.org/</organizationUrl>
             <roles>
                 <role>architect (2003-2007)</role>
             </roles>
             <timezone>-7</timezone>
-            <properties></properties>
+            <properties />
         </contributor>
         <contributor>
             <name>Josh Holtzman</name>
@@ -252,7 +250,7 @@
                 <role>developer</role>
             </roles>
             <timezone>-7</timezone>
-            <properties></properties>
+            <properties />
         </contributor>
         <contributor>
             <name>Charles Severance</name>
@@ -264,7 +262,7 @@
                 <role>chief architect (2003-2007)</role>
             </roles>
             <timezone>-5</timezone>
-            <properties></properties>
+            <properties />
         </contributor>
         <contributor>
             <name>Lance Speelmon</name>
@@ -276,7 +274,7 @@
                 <role>developer</role>
             </roles>
             <timezone>-5</timezone>
-            <properties></properties>
+            <properties />
         </contributor>
         <contributor>
             <name>Steve Swinsburg</name>
@@ -288,7 +286,7 @@
                 <role>developer</role>
             </roles>
             <timezone>0</timezone>
-            <properties></properties>
+            <properties />
         </contributor>
         <contributor>
             <name>Carl Hall</name>
@@ -299,7 +297,7 @@
                 <role>developer</role>
             </roles>
             <timezone>-5</timezone>
-            <properties></properties>
+            <properties />
         </contributor>
         <contributor>
             <name>Matthew Buckett</name>
@@ -310,7 +308,7 @@
                 <role>developer</role>
             </roles>
             <timezone>0</timezone>
-            <properties></properties>
+            <properties />
         </contributor>
         <contributor>
             <name>Adrian Fish</name>
@@ -321,17 +319,17 @@
                 <role>developer</role>
             </roles>
             <timezone>0</timezone>
-            <properties></properties>
+            <properties />
         </contributor>
     </contributors>
 	<scm>
 		<connection>
-			scm:svn:https://source.sakaiproject.org/svn/kernel/trunk
+			scm:svn:https://source.sakaiproject.org/svn/kernel/tags/kernel-1.1.0-beta01
 		</connection>
 		<developerConnection>
-			scm:svn:https://source.sakaiproject.org/svn/kernel/trunk
+			scm:svn:https://source.sakaiproject.org/svn/kernel/tags/kernel-1.1.0-beta01
 		</developerConnection>
-		<url>https://source.sakaiproject.org/svn/kernel/trunk</url>
+		<url>https://source.sakaiproject.org/svn/kernel/tags/kernel-1.1.0-beta01</url>
 	</scm>
 	<distributionManagement>
 	  <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
