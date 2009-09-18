@@ -382,16 +382,22 @@ public class SiteParticipantHelper {
 				try
 				{
 					Section section = cms.getSection(providerCourseEid);
+					String sectionTitle = section.getTitle();
+					
 					if (section != null)
 					{
 						// in case of Section eid
 						EnrollmentSet enrollmentSet = section.getEnrollmentSet();
-						addParticipantsFromEnrollmentSet(participantsMap, realm, providerCourseEid, enrollmentSet, section.getTitle());
+						addParticipantsFromEnrollmentSet(participantsMap, realm, providerCourseEid, enrollmentSet, sectionTitle);
+						
+						// Include official instructors of record for the enrollment set.
+						addOfficialInstructorOfRecord(participantsMap, realm, sectionTitle, enrollmentSet);
+						
 						// add memberships
 						Set memberships = cms.getSectionMemberships(providerCourseEid);
 						if (memberships != null && memberships.size() > 0)
 						{
-							addParticipantsFromMemberships(participantsMap, realm, memberships, section.getTitle());
+							addParticipantsFromMemberships(participantsMap, realm, memberships, sectionTitle);
 						}
 						
 						// now look or the not-included member from CourseOffering object
@@ -447,4 +453,54 @@ public class SiteParticipantHelper {
 		return participantsMap.values();
 	}
 
+	private static void addOfficialInstructorOfRecord(Map<String, Participant> participantsMap, AuthzGroup realm, String sectionTitle, EnrollmentSet enrollmentSet) {
+		
+		if (enrollmentSet != null)
+		{
+			Set<String>instructorEids = cms.getInstructorsOfRecordIds(enrollmentSet.getEid());
+			if ((instructorEids != null) && (instructorEids.size() > 0)) {
+				for (String userEid : instructorEids) {
+					// This logic is copied-and-pasted from addParticipantsFromMemberships
+					// and really should be in a shared method, but refactoring would make
+					// it harder to merge changes.
+					try
+					{
+						User user = UserDirectoryService.getUserByEid(userEid);
+						String userId = user.getId();
+						Member member = realm.getMember(userId);
+						if (member != null && member.isProvided())
+						{
+							// get or add provided participant
+							Participant participant;
+							if (participantsMap.containsKey(userId))
+							{
+								participant = (Participant) participantsMap.get(userId);
+								if (!participant.section.contains(sectionTitle))
+								{
+									participant.section = participant.section.concat(", <br />" + sectionTitle);
+								}
+							}
+							else
+							{
+								participant = new Participant();
+								participant.credits = "";
+								participant.name = user.getSortName();
+								participant.providerRole = member.getRole()!=null?member.getRole().getId():"";
+								participant.regId = "";
+								participant.removeable = false;
+								participant.role = member.getRole()!=null?member.getRole().getId():"";
+								participant.section = sectionTitle;
+								participant.uniqname = userId;
+							}
+							participantsMap.put(userId, participant);
+						}
+					} catch (UserNotDefinedException exception) {
+						// deal with missing user quietly without throwing a
+						// warning message
+						M_log.warn(exception.getMessage());
+					}
+				}
+			}
+		}
+	}
 }
