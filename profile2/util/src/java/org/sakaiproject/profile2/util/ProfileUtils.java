@@ -40,6 +40,10 @@ public class ProfileUtils {
 		allowedTypes.add("image/jpeg");
 		allowedTypes.add("image/gif");
 		allowedTypes.add("image/png");
+		//Adding MIME types that Internet Explorer returns PRFL-98
+		allowedTypes.add("image/x-png");
+		allowedTypes.add("image/pjpeg");
+		allowedTypes.add("image/jpg");
 
 		if(allowedTypes.contains(contentType)) {
 			return true;
