@@ -274,7 +274,7 @@
     <!-- Testing dependencies -->
     <dependency>
       <groupId>${sakai.spring.groupId}</groupId>
-      <artifactId>${sakai.spring.mock.artifactId}</artifactId>
+      <artifactId>${sakai.spring.test.artifactId}</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
