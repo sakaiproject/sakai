@@ -128,6 +128,7 @@
             
             <property name="educationCourse" column="EDUCATION_COURSE" type="text" />
             <property name="educationSubjects" column="EDUCATION_SUBJECTS" type="text" />
+            <property name="normalizedMobile" column="NORMALIZEDMOBILE" />
             
           </subclass>
         </subclass>

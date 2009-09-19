@@ -253,5 +253,12 @@ public class SakaiPersonImpl extends EduPersonImpl implements Person, Organizati
 		this.educationSubjects = educationSubjects;
 	}
 
-	
+	private String normalizedMobile;
+	public String getNormalizedMobile() {
+		return normalizedMobile;
+	}
+
+	public void setNormalizedMobile(String number) {
+		normalizedMobile = number;
+	}
 }

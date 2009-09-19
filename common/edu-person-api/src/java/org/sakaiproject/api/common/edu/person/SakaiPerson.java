@@ -232,6 +232,23 @@ public interface SakaiPerson extends EduPerson
 	 * @return
 	 */
 	public String getEducationSubjects();
+
 	
+	/**
+	 * Get the user's normalized mobile number in international format:
+	 * country code + number, no spaces or punctuation, example:
+	 * local format for South African number = 083 123 4567,
+	 * normalized international form = 27831234567
+	 * @return
+	 */
+	public String getNormalizedMobile();
+
+	
+	/**
+	 *  Set the user's normalized mobile number in international format.
+	 *  Normalize the number before passing it to this method.
+	 *  @param the number
+	 */
+	public void setNormalizedMobile(String Number);
 
 }
