@@ -61,7 +61,7 @@ public class TextTemplateLogicUtils {
          return textTemplate;
       }
 
-      if (textTemplate == null || textTemplate.equals("")) {
+      if (textTemplate == null || "".equals(textTemplate)) {
          throw new IllegalArgumentException("The textTemplate cannot be null or empty string, " +
          		"please pass in at least something in the template or do not call this method");
       }

@@ -94,7 +94,7 @@ public class ModifyEmailProducer implements ViewComponentProducer, ViewParamsRep
       } else {
 
          emailTemplateId = emailViewParams.id;
-         template = emailTemplateService.getEmailTemplateById(new Long(emailTemplateId));
+         template = emailTemplateService.getEmailTemplateById(Long.valueOf(emailTemplateId));
          newEmailTemplate = false;
       }
       String emailTemplateOTP = emailTemplateLocator + emailTemplateId + ".";
