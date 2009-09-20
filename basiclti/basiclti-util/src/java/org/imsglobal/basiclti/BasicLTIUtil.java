@@ -153,8 +153,8 @@ public class BasicLTIUtil {
         if ( postProp.getProperty("oauth_callback") == null ) postProp.setProperty("oauth_callback","about:blank");
 
         if ( oauth_consumer_key == null || oauth_consumer_secret == null ) {
-            dPrint("Error in signProperties - key and secret must be specified");
-            return null;
+            dPrint("No signature generated in signProperties");
+            return postProp;
         }
 
         OAuthMessage oam = new OAuthMessage(method, url,postProp.entrySet());

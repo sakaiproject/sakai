@@ -112,10 +112,10 @@ public class SakaiBLTIUtil {
 		setProperty(props,"lis_person_sourced_id",user.getEid());
 	}
 
-	String theRole = "Student";
+	String theRole = "Learner";
 	if ( SecurityService.isSuperUser() )
 	{
-		theRole = "Administrator";
+		theRole = "Instructor";
 	}
 	else if ( SiteService.allowUpdateSite(context) ) 
 	{
