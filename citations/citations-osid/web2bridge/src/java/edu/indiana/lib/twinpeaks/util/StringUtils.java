@@ -123,7 +123,7 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(StringUtils
 		index	= 0;
 
 		while (normalizedText.charAt(index) == character) {
-			index++;
+			if (++index >= normalizedText.length()) break;
 		}
 		return normalizedText.substring(index).trim();
 	}
