@@ -143,6 +143,7 @@ FCKConfig.ToolbarSets["small"] = [
         ['Bold','Italic','TextColor','BGColor','-','Outdent','Indent','JustifyLeft','JustifyCenter','JustifyRight','-','OrderedList','UnorderedList','-','Link','Unlink']
 ] ;
 
+
 FCKConfig.ToolbarSets["Attachments"] = [
    ['Source','DocProps','Templates'],
    ['Cut','Copy','Paste','PasteText','PasteWord','SelectAll','RemoveFormat','SpellCheck'],
@@ -210,7 +211,7 @@ FCKConfig.MaxUndoLevels = 15 ;
 FCKConfig.DisableObjectResizing = false ;
 FCKConfig.DisableFFTableHandles = true ;
 
-FCKConfig.LinkDlgHideTarget	= true ;
+FCKConfig.LinkDlgHideTarget	= false ;
 FCKConfig.LinkDlgHideAdvanced	= false ;
 
 FCKConfig.ImageDlgHideLink	= true ;
