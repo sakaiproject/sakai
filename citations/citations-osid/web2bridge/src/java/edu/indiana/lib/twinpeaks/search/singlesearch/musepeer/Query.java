@@ -633,16 +633,18 @@ public class Query extends HttpTransactionQueryBase
 	 */
 	private boolean setSearchStatus(Document document) throws SearchException
 	{
-    Element   rootElement = document.getDocumentElement();
-		NodeList  nodeList 		= DomUtils.getElementList(rootElement, "ITEM");
-		String    status      = "0";
-		boolean   timedOut    = searchTimedOut();
+    Element   rootElement   = document.getDocumentElement();
+		NodeList  nodeList 		  = DomUtils.getElementList(rootElement, "ITEM");
+    Element   statusElement = DomUtils.getElement(rootElement, "STATUS");
+		String    status        = "0";
+		String    finalStatus   = "unknown";
+		boolean   timedOut      = searchTimedOut();
 
-		int       targetCount = nodeList.getLength();
-		int       active			= 0;
-		int       total 			= 0;
-		int       totalHits   = 0;
-		int       complete    = 0;
+		int       targetCount   = nodeList.getLength();
+		int       active			  = 0;
+		int       total 			  = 0;
+		int       totalHits     = 0;
+		int       complete      = 0;
 
 		/*
 		 * Update the status map for each target
@@ -760,8 +762,21 @@ public class Query extends HttpTransactionQueryBase
 		getSessionContext().putInt("TOTAL_ESTIMATE", total);
 		getSessionContext().putInt("maxRecords", total);
 		getSessionContext().putInt("active", active);
+    /*
+     * Determine final status
+     */
+    finalStatus = "not finished";
+    if (statusElement != null)
+    {
+      String commandStatus = DomUtils.getText(statusElement);
 
-		return ((complete == targetCount) || timedOut);
+      if ("1".equals(commandStatus))
+      {
+        finalStatus = "complete";
+      }
+    }
+
+		return (finalStatus.equals("complete") || timedOut);
 	}
 
   /*
