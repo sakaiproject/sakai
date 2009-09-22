@@ -150,14 +150,15 @@ implements ActionListener
 	public boolean checkPublishedSettings(PublishedAssessmentService assessmentService, PublishedAssessmentSettingsBean assessmentSettings, FacesContext context) {
 		boolean error = false;
 		// Title
-		String assessmentName = FormattedText.convertPlaintextToFormattedText(assessmentSettings.getTitle().trim());
+		String assessmentName = assessmentSettings.getTitle();
 		// check if name is empty
-		if(assessmentName != null &&(assessmentName.trim()).equals("")){
+		if(assessmentName == null || (assessmentName.trim()).equals("")){
 			String nameEmpty_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_empty");
 			context.addMessage(null, new FacesMessage(nameEmpty_err));
 			error=true;
 		}
 
+		assessmentName = FormattedText.convertPlaintextToFormattedText(assessmentName.trim());
 		// check if name is unique 
 		if(!assessmentService.publishedAssessmentTitleIsUnique(assessmentSettings.getAssessmentId().toString(), assessmentName)){
 			String nameUnique_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
