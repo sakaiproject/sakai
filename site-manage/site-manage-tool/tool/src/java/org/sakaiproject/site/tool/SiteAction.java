@@ -6514,8 +6514,16 @@ public class SiteAction extends PagedResourceActionII {
 						try {
 							User user = UserDirectoryService.getUser(rId);
 							// save role for permission check
-							roles.add(realmEdit.getUserRole(user.getId()).getId());
-							realmEdit.removeMember(user.getId());
+							if (user != null)
+							{
+								String userId = user.getId();
+								Role userRole = realmEdit.getUserRole(userId);
+								if (userRole != null)
+								{
+									roles.add(userRole.getId());
+									realmEdit.removeMember(userId);
+								}
+							}
 						} catch (UserNotDefinedException e) {
 							M_log.warn(this + ".doUpdate_participant: IdUnusedException " + rId + ". ", e);
 						}
@@ -6528,12 +6536,12 @@ public class SiteAction extends PagedResourceActionII {
 				if (!AuthzGroupService.allowUpdate(realmId)) {
 				    // see if any changed have site.upd
 				    for (String rolename: roles) {
-					Role role = realmEdit.getRole(rolename);
-					if (role != null && role.isAllowed("site.upd")) {
-					    addAlert(state, rb.getFormattedMessage("java.roleperm", new Object[]{rolename}));
-					    return;
-					}
-				    }
+						Role role = realmEdit.getRole(rolename);
+						if (role != null && role.isAllowed("site.upd")) {
+						    addAlert(state, rb.getFormattedMessage("java.roleperm", new Object[]{rolename}));
+						    return;
+							}
+					    }
 				}
 
 				if (hadMaintainUser
