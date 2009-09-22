@@ -382,10 +382,11 @@ public class SiteParticipantHelper {
 				try
 				{
 					Section section = cms.getSection(providerCourseEid);
-					String sectionTitle = section.getTitle();
 					
 					if (section != null)
 					{
+						String sectionTitle = section.getTitle();
+					
 						// in case of Section eid
 						EnrollmentSet enrollmentSet = section.getEnrollmentSet();
 						addParticipantsFromEnrollmentSet(participantsMap, realm, providerCourseEid, enrollmentSet, sectionTitle);
