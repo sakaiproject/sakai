@@ -3001,12 +3001,22 @@ public class DeliveryBean
 						  SelectionBean selection = (SelectionBean)item.getSelectionArray().get(k);
 						  selection.setResponse(false);
 					  }
+					  
+					  ArrayList itemGradingData = new ArrayList();
+					  Iterator iter = item.getItemGradingDataArray().iterator();
+					  while (iter.hasNext())
+					  {
+						  ItemGradingData itemgrading = (ItemGradingData) iter.next();
+						  if (itemgrading.getItemGradingId() != null
+									&& itemgrading.getItemGradingId().intValue() > 0) {
+							  itemGradingData.add(itemgrading);
+						  }
+					  }
+					  item.setItemGradingDataArray(itemGradingData);
 				  }
 
 				  if (item.getItemData().getTypeId().longValue() == TypeIfc.TRUE_FALSE.longValue()) {
-
 					  item.setResponseId(null);
-
 					  Iterator iter = item.getItemGradingDataArray().iterator();
 					  if (iter.hasNext())
 					  {
@@ -3014,6 +3024,8 @@ public class DeliveryBean
 						  data.setPublishedAnswerId(null);
 					  }
 				  }
+				  item.setReview(false);
+				  item.setRationale("");
 			  }
 		  }
 
