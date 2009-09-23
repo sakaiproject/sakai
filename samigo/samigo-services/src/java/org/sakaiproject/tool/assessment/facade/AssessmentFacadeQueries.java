@@ -1789,6 +1789,12 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 					.createAuthorization(toContext, "EDIT_ASSESSMENT",
 							a.getAssessmentId().toString());
 			
+			HashMap assessmentMetaDataMap = a.getAssessmentMetaDataMap();
+			if (!assessmentMetaDataMap.containsKey("markForReview_isInstructorEditable")) {
+				a.addAssessmentMetaData("markForReview_isInstructorEditable", "true");
+				a.getAssessmentAccessControl().setMarkForReview(1);
+			}
+			
 			// reset PARTID in ItemMetaData to the section of the newly created section
 			Set sectionSet = a.getSectionSet();
 			Iterator sectionIter = sectionSet.iterator();
