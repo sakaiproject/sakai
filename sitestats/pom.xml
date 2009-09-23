@@ -1,535 +1,604 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <name>Sakai SiteStats</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>sitestats-base</artifactId>
-  <version>2.1-SNAPSHOT</version><!-- sitestats.version --> 
-  <description>SiteStats is a tool for Sakai for showing site usage statistics.</description>
-  <url>http://bugs.sakaiproject.org/confluence/display/STAT</url>
-  <inceptionYear>2006</inceptionYear>
-  <organization>
-    <name>Universidade Fernando Pessoa</name>
-    <url>http://www.ufp.pt</url>
-  </organization>
-  <packaging>pom</packaging>  
-  
-  
-  <!-- Parent: Sakai master pom -->
-  <parent>
-    <artifactId>master</artifactId>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <name>Sakai SiteStats</name>
     <groupId>org.sakaiproject</groupId>
-    <!-- EDIT ME: Sakai Version -->  
-    <version>2.7.0-SNAPSHOT</version>  <!-- For TRUNK -->  
-    <!--<version>2.6.0RC1-SNAPSHOT</version>-->      <!-- For 2.6.x branch --> 
-    <!--<version>2.6.0</version>-->           <!-- For 2.6.0 release -->   
-    <!--<version>M2</version>-->              <!-- For 2.5.x branch -->   
-    <!--<version>2.5.4</version>-->           <!-- For 2.5.4 release -->   
-    <!--<version>2.5.3</version>-->           <!-- For 2.5.3 release -->   
-    <!--<version>2.5.2</version>-->           <!-- For 2.5.2 release -->   
-    <!--<version>2.5.1</version>-->           <!-- For 2.5.1 release -->   
-    <!--<version>2.5.0</version>-->           <!-- For 2.5.0 release --> 
-  </parent>
-  
+    <artifactId>sitestats</artifactId>
+    <version>2.1-SNAPSHOT</version><!-- sitestats.version -->
+    <description>SiteStats is a tool for Sakai for showing site usage statistics.</description>
+    <url>http://confluence.sakaiproject.org/confluence/display/STAT</url>
+    <inceptionYear>2006</inceptionYear>
+    <organization>
+        <name>Universidade Fernando Pessoa</name>
+        <url>http://www.ufp.pt</url>
+    </organization>
+    <packaging>pom</packaging>
 
-  <!-- Project versions -->
-  <properties>
-    <entitybroker.version>[1.3.5-SNAPSHOT,1.4.0]</entitybroker.version>
-    <commons-digester.version>1.6</commons-digester.version>
-    <commons-betwixt.version>0.8</commons-betwixt.version>
-    <commons-codec.version>1.3</commons-codec.version>
-    <commons-collection.version>3.1</commons-collection.version>
-    <easymock.version>2.4</easymock.version>
-    <hsqldb.version>1.8.0.7</hsqldb.version>
-    <h2.version>1.1.111</h2.version>
-    <mysql.version>3.1.14</mysql.version>
-    <ojdbc.version>10.2.0.2.0</ojdbc.version>
-    <dom4j.version>1.6.1</dom4j.version>
-    <jta.version>h2.1.8</jta.version>
-    <cglib-nodep.version>2.1_3</cglib-nodep.version>
-    <fop.version>0.95</fop.version>
-    <poi.version>2.0-final-20040126</poi.version>
-    <jfreechart.version>1.0.5</jfreechart.version>
-    <sst.wicket.version>1.3.5</sst.wicket.version>
-    <sst.slf4j.version>1.4.3</sst.slf4j.version>
-  </properties>
-  
-  
-  <!-- Project modules -->
-  <modules>
-    <module>sitestats-api</module>
-    <module>sitestats-bundle</module>
-    <module>sitestats-impl</module>
-    <module>sitestats-impl-hib</module>
-    <module>sitestats-pack</module>
-    <module>sitestats-tool</module>
-    <module>sitestats-help</module>
-    <module>sitestats-assembly</module>
-  </modules>
-  
-  
-  <!-- Project developers -->
-  <developers>
-    <developer>
-      <id>nuno</id>
-      <name>Nuno Fernandes</name>
-      <email>nuno@ufp.edu.pt</email>
-      <url>http://confluence.sakaiproject.org/confluence/display/~nfernandes</url>
-      <organization>Universidade Fernando Pessoa</organization>
-      <organizationUrl>http://www.ufp.pt/</organizationUrl>
-      <roles>
-        <role>Project Manager</role>
-        <role>Architect</role>
-        <role>Developer</role>
-      </roles>
-      <timezone>0</timezone>
-    </developer>
+    <!-- Parent: Sakai master pom -->
+    <parent>
+        <artifactId>master</artifactId>
+        <groupId>org.sakaiproject</groupId>
+        <!-- EDIT ME: Sakai Version -->
+        <version>2.7.0-SNAPSHOT</version>  <!-- For TRUNK -->
+        <!--<version>2.6.0RC1-SNAPSHOT</version>-->      <!-- For 2.6.x branch -->
+        <!--<version>2.6.0</version>-->           <!-- For 2.6.0 release -->
+        <!--<version>M2</version>-->              <!-- For 2.5.x branch -->
+        <!--<version>2.5.4</version>-->           <!-- For 2.5.4 release -->
+        <!--<version>2.5.3</version>-->           <!-- For 2.5.3 release -->
+        <!--<version>2.5.2</version>-->           <!-- For 2.5.2 release -->
+        <!--<version>2.5.1</version>-->           <!-- For 2.5.1 release -->
+        <!--<version>2.5.0</version>-->           <!-- For 2.5.0 release -->
+    </parent>
+
+    <!-- Project versions -->
+    <properties>
+        <entitybroker.version>[1.3.5-SNAPSHOT,1.4.0]</entitybroker.version>
+        <commons-digester.version>1.6</commons-digester.version>
+        <commons-betwixt.version>0.8</commons-betwixt.version>
+        <commons-codec.version>1.3</commons-codec.version>
+        <commons-collection.version>3.1</commons-collection.version>
+        <easymock.version>2.4</easymock.version>
+        <hsqldb.version>1.8.0.7</hsqldb.version>
+        <h2.version>1.1.111</h2.version>
+        <mysql.version>3.1.14</mysql.version>
+        <ojdbc.version>10.2.0.2.0</ojdbc.version>
+        <dom4j.version>1.6.1</dom4j.version>
+        <jta.version>h2.1.8</jta.version>
+        <cglib-nodep.version>2.1_3</cglib-nodep.version>
+        <fop.version>0.95</fop.version>
+        <poi.version>2.0-final-20040126</poi.version>
+        <jfreechart.version>1.0.5</jfreechart.version>
+        <sst.wicket.version>1.3.5</sst.wicket.version>
+        <sst.slf4j.version>1.4.3</sst.slf4j.version>
+        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/sitestats/${project.version}</url.localsite>
+    </properties>
+
+    <!-- Project modules -->
+    <modules>
+        <module>sitestats-api</module>
+        <module>sitestats-bundle</module>
+        <module>sitestats-impl</module>
+        <module>sitestats-impl-hib</module>
+        <module>sitestats-pack</module>
+        <module>sitestats-tool</module>
+        <module>sitestats-help</module>
+        <module>sitestats-assembly</module>
+    </modules>
+
+    <!-- Project developers -->
+    <developers>
+        <developer>
+            <id>nuno</id>
+            <name>Nuno Fernandes</name>
+            <email>nuno@ufp.edu.pt</email>
+            <url>http://confluence.sakaiproject.org/confluence/display/~nfernandes</url>
+            <organization>Universidade Fernando Pessoa</organization>
+            <organizationUrl>http://www.ufp.pt/</organizationUrl>
+            <roles>
+                <role>Project Manager</role>
+                <role>Architect</role>
+                <role>Developer</role>
+            </roles>
+            <timezone>0</timezone>
+        </developer>
+        <developer>
+            <id>jayshao</id>
+            <name>Jason Shao</name>
+            <url>http://confluence.sakaiproject.org/confluence/display/~jayshao</url>
+            <organization>CampusEAI Consortium</organization>
+            <roles>
+                <role>Contributor</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>darolmar</id>
+            <name>David Roldan Martínez</name>
+            <url>http://confluence.sakaiproject.org/confluence/display/~darolmar@abierta.upv.es</url>
+            <organization>Universidad Politecnica de Valencia</organization>
+            <roles>
+                <role>Contributor</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>denny</id>
+            <name>Denny</name>
+            <url>http://confluence.sakaiproject.org/confluence/display/~denny.denny</url>
+            <organization>Wicaksana</organization>
+            <roles>
+                <role>Contributor</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>arwhyte</id>
+            <name>Anthony Whyte</name>
+            <url>http://confluence.sakaiproject.org/confluence/display/~arwhyte</url>
+            <organization>Sakai Foundation / University of Michigan</organization>
+            <roles>
+                <role>Contributor</role>
+            </roles>
+            <timezone>-5</timezone>
+        </developer>
+    </developers>
     
-    <developer>
-      <id>jayshao</id>
-      <name>Jason Shao</name>
-      <url>http://bugs.sakaiproject.org/confluence/display/~jayshao</url>
-      <organization>CampusEAI Consortium</organization>
-      <roles>
-        <role>Contributor</role>
-      </roles>
-    </developer>
-    <developer>
-      <id>darolmar</id>
-      <name>David Roldan Martínez</name>
-      <url>http://bugs.sakaiproject.org/confluence/display/~darolmar@abierta.upv.es</url>
-      <organization>Universidad Politecnica de Valencia</organization>
-      <roles>
-        <role>Contributor</role>
-      </roles>
-    </developer>
-    <developer>
-      <id>denny</id>
-      <name>Denny</name>
-      <url>http://bugs.sakaiproject.org/confluence/display/~denny.denny</url>
-      <organization>Wicaksana</organization>
-      <roles>
-        <role>Contributor</role>
-      </roles>
-    </developer>
-  </developers>
-  
-  
-  <!-- Project repositories -->
-  <repositories>
-    <repository>
-      <id>sakai-maven2</id>
-      <name>Sakai Maven Repository</name>
-      <layout>default</layout>
-      <url>http://source.sakaiproject.org/maven2</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <!--
-    <repository>
-      <id>sakai-maven2-snapshots</id>
-      <name>Sakai Maven Repo Snapshots</name>
-      <layout>default</layout>
-      <url>http://source.sakaiproject.org/maven2-snapshots</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-    -->
-    <repository>
-      <id>default</id>
-      <name>Maven Repository Switchboard</name>
-      <layout>default</layout>
-      <url>http://repo1.maven.org/maven2</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>jboss</id>
-      <name>Jboss Repository for Maven</name>
-      <layout>default</layout>
-      <url>http://repository.jboss.com/maven2</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>org.wicketstuff</id>
-      <name>Wicket Stuff Repository</name>
-      <url>http://wicketstuff.org/maven/repository</url>
-    </repository>
-  </repositories>
+    <!-- Source code repository location -->
+    <scm>
+        <connection>scm:svn:https://source.sakaiproject.org/contrib/ufp/sitestats/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/ufp/sitestats/trunk</developerConnection>
+        <url>http://source.sakaiproject.org/viewsvn/ufp/sitestats/?root=contrib</url>
+    </scm>
+    
+    <!-- Distribution Management -->
+    <distributionManagement>
+      <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
+        <snapshotRepository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>sakai-maven-snapshots</id>
+            <name>Sakai snapshot Repo</name>
+            <url>dav:http://source.sakaiproject.org/maven2-snapshots</url>
+            <layout>default</layout>
+        </snapshotRepository>
+        <repository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>sakai-maven2</id>
+            <name>Sakai maven2 repository</name>
+            <url>dav:https://source.sakaiproject.org/maven2</url>
+            <layout>default</layout>
+        </repository>
+        <site>
+            <id>sakai-site</id>
+            <name>Sakai release Site</name>
+            <url>${url.localsite}</url>
+        </site>
+    </distributionManagement>
+    
+    <!-- Project repositories -->
+    <pluginRepositories>
+        <pluginRepository>
+            <id>mc-release</id>
+            <name>Maven License Plugin</name>
+            <url>http://mc-repo.googlecode.com/svn/maven2/releases</url>
+        </pluginRepository>
+    </pluginRepositories>
+    
+    <repositories>
+        <repository>
+            <id>sakai-maven2</id>
+            <name>Sakai Maven Repository</name>
+            <layout>default</layout>
+            <url>http://source.sakaiproject.org/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <!--
+            <repository> <id>sakai-maven2-snapshots</id> <name>Sakai
+            Maven Repo Snapshots</name> <layout>default</layout>
+            <url>http://source.sakaiproject.org/maven2-snapshots</url>
+            <snapshots> <enabled>true</enabled> </snapshots>
+            </repository>
+        -->
+        <repository>
+            <id>default</id>
+            <name>Maven Repository Switchboard</name>
+            <layout>default</layout>
+            <url>http://repo1.maven.org/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>jboss</id>
+            <name>Jboss Repository for Maven</name>
+            <layout>default</layout>
+            <url>http://repository.jboss.com/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>org.wicketstuff</id>
+            <name>Wicket Stuff Repository</name>
+            <url>http://wicketstuff.org/maven/repository</url>
+        </repository>
+    </repositories>
 
-  
-  <!-- JIRA -->
-  <issueManagement>
-    <system>JIRA</system>
-    <url>http://jira.sakaiproject.org/jira/browse/STAT</url>
-  </issueManagement>
+    <!-- JIRA -->
+    <issueManagement>
+        <system>JIRA</system>
+        <url>http://jira.sakaiproject.org/jira/browse/STAT</url>
+    </issueManagement>
 
+    <!-- License -->
+    <licenses>
+        <license>
+            <name>Educational Community License, Version 2.0</name>
+            <url>http://www.osedu.org/licenses/ECL-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
-  <!-- License -->
-  <licenses>
-    <license>
-      <name>Educational Community License, Version 2.0</name>
-      <url>http://www.osedu.org/licenses/ECL-2.0</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
+    <!-- Profiles -->
+    <profiles>
+        <profile>
+            <!-- Binds to Sakai Kernel K1 - for Sakai 2.6.0+ -->
+            <id>K1</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <!-- Binds to Sakai pre Kernel K1 - for Sakai 2.4.x/2.5.x -->
+            <id>pre-K1</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.sakaiproject</groupId>
+                        <artifactId>sakai-site-api</artifactId>
+                        <version>${sakai.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.sakaiproject</groupId>
+                        <artifactId>sakai-user-api</artifactId>
+                        <version>${sakai.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.sakaiproject</groupId>
+                        <artifactId>sakai-content-api</artifactId>
+                        <version>${sakai.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.sakaiproject</groupId>
+                        <artifactId>sakai-authz-api</artifactId>
+                        <version>${sakai.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.sakaiproject</groupId>
+                        <artifactId>sakai-alias-api</artifactId>
+                        <version>${sakai.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.sakaiproject</groupId>
+                        <artifactId>sakai-memory-api</artifactId>
+                        <version>${sakai.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.sakaiproject</groupId>
+                        <artifactId>sakai-entity-api</artifactId>
+                        <version>${sakai.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.sakaiproject</groupId>
+                        <artifactId>sakai-db-api</artifactId>
+                        <version>${sakai.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.sakaiproject</groupId>
+                        <artifactId>sakai-tool-api</artifactId>
+                        <version>${sakai.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.sakaiproject</groupId>
+                        <artifactId>sakai-event-api</artifactId>
+                        <version>${sakai.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.sakaiproject</groupId>
+                        <artifactId>sakai-util-api</artifactId>
+                        <version>${sakai.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.sakaiproject</groupId>
+                        <artifactId>sakai-component-api</artifactId>
+                        <version>${sakai.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.sakaiproject</groupId>
+                        <artifactId>sakai-component</artifactId>
+                        <version>${sakai.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.sakaiproject</groupId>
+                        <artifactId>sakai-util</artifactId>
+                        <version>${sakai.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.sakaiproject.entitybroker</groupId>
+                        <artifactId>entitybroker-api</artifactId>
+                        <version>${entitybroker.version}</version>
+                        <scope>provided</scope>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+    </profiles>
 
-  
-  <!-- Source code repository location -->
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/contrib/ufp/sitestats/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/ufp/sitestats/trunk</developerConnection>
-    <url>http://source.sakaiproject.org/viewsvn/ufp/sitestats/?root=contrib</url>
-  </scm>
-  
-  
-  <!-- Profiles -->
-  <profiles>
-    <profile>
-      <!-- Binds to Sakai Kernel K1 - for Sakai 2.6.0+ -->
-      <id>K1</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-    </profile>
-    <profile>
-      <!-- Binds to Sakai pre Kernel K1 - for Sakai 2.4.x/2.5.x -->
-      <id>pre-K1</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <dependencyManagement>
+    <!-- Project related dependencies -->
+    <dependencyManagement>
         <dependencies>
-          <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-site-api</artifactId>
-            <version>${sakai.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-user-api</artifactId>
-            <version>${sakai.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-content-api</artifactId>
-            <version>${sakai.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-authz-api</artifactId>
-            <version>${sakai.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-alias-api</artifactId>
-            <version>${sakai.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-memory-api</artifactId>
-            <version>${sakai.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-entity-api</artifactId>
-            <version>${sakai.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-db-api</artifactId>
-            <version>${sakai.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-tool-api</artifactId>
-            <version>${sakai.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-event-api</artifactId>
-            <version>${sakai.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-util-api</artifactId>
-            <version>${sakai.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-component-api</artifactId>
-            <version>${sakai.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-component</artifactId>
-            <version>${sakai.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-util</artifactId>
-            <version>${sakai.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.sakaiproject.entitybroker</groupId>
-            <artifactId>entitybroker-api</artifactId>
-            <version>${entitybroker.version}</version>
-            <scope>provided</scope>
-          </dependency>
+            <!-- SiteStats -->
+            <dependency>
+                <groupId>org.sakaiproject.sitestats</groupId>
+                <artifactId>sakai-sitestats-api</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.sitestats</groupId>
+                <artifactId>sakai-sitestats-bundle</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.sitestats</groupId>
+                <artifactId>sakai-sitestats-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.sitestats</groupId>
+                <artifactId>sakai-sitestats-impl-hib</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- Apache Commons -->
+            <dependency>
+                <groupId>commons-digester</groupId>
+                <artifactId>commons-digester</artifactId>
+                <version>${commons-digester.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-betwixt</groupId>
+                <artifactId>commons-betwixt</artifactId>
+                <version>${commons-betwixt.version}</version>
+            </dependency>
+
+            <!-- Apache others -->
+            <dependency>
+                <groupId>org.apache.xmlgraphics</groupId>
+                <artifactId>fop</artifactId>
+                <version>${fop.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>poi</groupId>
+                <artifactId>poi</artifactId>
+                <version>${poi.version}</version>
+            </dependency>
+
+            <!-- Apache Wicket -->
+            <dependency>
+                <groupId>org.apache.wicket</groupId>
+                <artifactId>wicket</artifactId>
+                <version>${sst.wicket.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.wicket</groupId>
+                <artifactId>wicket-extensions</artifactId>
+                <version>${sst.wicket.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.wicket</groupId>
+                <artifactId>wicket-ioc</artifactId>
+                <version>${sst.wicket.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.wicket</groupId>
+                <artifactId>wicket-spring</artifactId>
+                <version>${sst.wicket.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.wicket</groupId>
+                <artifactId>wicket-spring-annot</artifactId>
+                <version>${sst.wicket.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.wicket</groupId>
+                <artifactId>wicket-datetime</artifactId>
+                <version>${sst.wicket.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${sst.slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${sst.slf4j.version}</version>
+            </dependency>
+
+            <!-- JFreeChart -->
+            <dependency>
+                <groupId>jfree</groupId>
+                <artifactId>jfreechart</artifactId>
+                <version>${jfreechart.version}</version>
+            </dependency>
+
+            <!-- Testing dependencies -->
+            <dependency>
+                <groupId>${sakai.spring.groupId}</groupId>
+                <artifactId>${sakai.spring.test.artifactId}</artifactId>
+                <version>${sakai.spring.test.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>hsqldb</groupId>
+                <artifactId>hsqldb</artifactId>
+                <version>${hsqldb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${h2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql.version}</version>
+            </dependency>
+            <!--
+                <dependency> <groupId>com.oracle</groupId>
+                <artifactId>ojdbc14</artifactId>
+                <version>${ojdbc.version}</version> </dependency>
+            -->
+            <dependency>
+                <groupId>dom4j</groupId>
+                <artifactId>dom4j</artifactId>
+                <version>${dom4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jta</groupId>
+                <artifactId>jta</artifactId>
+                <version>${jta.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cglib</groupId>
+                <artifactId>cglib-nodep</artifactId>
+                <version>${cglib-nodep.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${commons-codec.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>${commons-collection.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${sakai.ehcache.groupId}</groupId>
+                <artifactId>${sakai.ehcache.artifactId}</artifactId>
+                <version>${sakai.ehcache.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.easymock</groupId>
+                <artifactId>easymock</artifactId>
+                <version>${easymock.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.easymock</groupId>
+                <artifactId>easymockclassextension</artifactId>
+                <version>${easymock.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject</groupId>
+                <artifactId>sakai-mock</artifactId>
+                <version>${sakai.version}</version>
+            </dependency>
         </dependencies>
-      </dependencyManagement>
-    </profile>
-  </profiles>
+    </dependencyManagement>
 
-  
-  <!-- Project related dependencies -->
-  <dependencyManagement>
-    <dependencies>
-    <!-- SiteStats -->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-sitestats-api</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-sitestats-bundle</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-sitestats-impl</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-sitestats-impl-hib</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    
-    <!-- Apache Commons -->
-    <dependency>
-      <groupId>commons-digester</groupId>
-      <artifactId>commons-digester</artifactId>
-      <version>${commons-digester.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-betwixt</groupId>
-      <artifactId>commons-betwixt</artifactId>
-      <version>${commons-betwixt.version}</version>
-    </dependency>
-    
-    <!-- Apache others -->
-    <dependency>
-      <groupId>org.apache.xmlgraphics</groupId>
-      <artifactId>fop</artifactId>
-      <version>${fop.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>poi</groupId>
-      <artifactId>poi</artifactId>
-      <version>${poi.version}</version>
-    </dependency>
+    <!-- Build -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.google.code.maven-license-plugin</groupId>
+                <artifactId>maven-license-plugin</artifactId>
+                <configuration>
+                    <basedir>${basedir}</basedir>
+                    <header>${user.home}/.m2/license-template.txt</header>
+                    <quiet>false</quiet>
+                    <failIfMissing>true</failIfMissing>
+                    <aggregate>false</aggregate>
+                    <includes>
+                        <include>src/**/*.java</include>
+                        <include>**/test/**/*.java</include>
+                        <include>src/webapp/**/*.css</include>
+                        <include>src/webapp/**/*.html</include>
+                        <include>src/webapp/**/*.js</include>
+                        <include>src/webapp/**/*.jsp</include>
+                    </includes>
+                    <excludes>
+                        <exclude>target/**</exclude>
+                        <exclude>m2-target/**</exclude>
+                        <exclude>**/*.properties</exclude>
+                        <exclude>**/*.sql</exclude>
+                        <exclude>**/*.TXT</exclude>
+                        <exclude>**/*.xml</exclude>
+                        <include>src/webapp/**/jquery*.js</include>
+                    </excludes>
+                    <useDefaultExcludes>true</useDefaultExcludes>
+                    <useDefaultMapping>true</useDefaultMapping>
+                    <properties>
+                        <!-- <name>${project.name}</name> -->
+                        <year>${project.inceptionYear}-2009</year>
+                        <holder>The Sakai Foundation</holder>
+                        <!-- <contact>info@sakaiproject.org</contact> -->
+                    </properties>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
-    <!-- Apache Wicket -->
-    <dependency>
-      <groupId>org.apache.wicket</groupId>
-      <artifactId>wicket</artifactId>
-      <version>${sst.wicket.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.wicket</groupId>
-      <artifactId>wicket-extensions</artifactId>
-      <version>${sst.wicket.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.wicket</groupId>
-      <artifactId>wicket-ioc</artifactId>
-      <version>${sst.wicket.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.wicket</groupId>
-      <artifactId>wicket-spring</artifactId>
-      <version>${sst.wicket.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.wicket</groupId>
-      <artifactId>wicket-spring-annot</artifactId>
-      <version>${sst.wicket.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.wicket</groupId>
-      <artifactId>wicket-datetime</artifactId>
-      <version>${sst.wicket.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>${sst.slf4j.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>${sst.slf4j.version}</version>
-    </dependency>
-    
-    <!-- JFreeChart -->
-    <dependency>
-      <groupId>jfree</groupId>
-      <artifactId>jfreechart</artifactId>
-      <version>${jfreechart.version}</version>
-    </dependency>
-    
-    <!-- Testing dependencies -->
-    <dependency>
-      <groupId>${sakai.spring.groupId}</groupId>
-      <artifactId>${sakai.spring.test.artifactId}</artifactId>
-      <version>${sakai.spring.test.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>hsqldb</groupId>
-      <artifactId>hsqldb</artifactId>
-      <version>${hsqldb.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <version>${h2.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
-      <version>${mysql.version}</version>
-    </dependency>
-    <!-- <dependency>
-      <groupId>com.oracle</groupId>
-      <artifactId>ojdbc14</artifactId>
-      <version>${ojdbc.version}</version>
-    </dependency> -->
-    <dependency>
-      <groupId>dom4j</groupId>
-      <artifactId>dom4j</artifactId>
-      <version>${dom4j.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>jta</groupId>
-      <artifactId>jta</artifactId>
-      <version>${jta.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>cglib</groupId>
-      <artifactId>cglib-nodep</artifactId>
-      <version>${cglib-nodep.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
-      <version>${commons-codec.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-      <version>${commons-collection.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${sakai.ehcache.groupId}</groupId>
-      <artifactId>${sakai.ehcache.artifactId}</artifactId>
-      <version>${sakai.ehcache.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.easymock</groupId>
-      <artifactId>easymock</artifactId>
-      <version>${easymock.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.easymock</groupId>
-      <artifactId>easymockclassextension</artifactId>
-      <version>${easymock.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-mock</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    
-    </dependencies>
-  </dependencyManagement>
-  
-  
-  <!-- Build -->
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <configuration>
-          <encoding>UTF-8</encoding>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-  
-  
-  <!-- Reporting (mvn site) -->
-  <reporting>
-    <plugins>
-      <!-- JavaDocs: mvn javadoc:javadoc -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <aggregate>true</aggregate>
-          <source>1.5</source>
-          <links>
-            <link>http://java.sun.com/j2se/1.5.0/docs/api</link>
-            <link>http://java.sun.com/products/servlet/2.3/javadoc/</link>
-          </links>
-          <breakiterator>true</breakiterator>
-          <verbose>false</verbose>
-          <maxmemory>512m</maxmemory>
-          <additionalJOption>
-            -J-Xms168m -J-Xmx512m -J-XX:PermSize=128m -J-XX:NewSize=64m
+    <!-- Reporting (mvn site) -->
+    <reporting>
+        <plugins>
+            <!-- JavaDocs: mvn javadoc:javadoc -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <aggregate>true</aggregate>
+                    <source>1.5</source>
+                    <links>
+                        <link>http://java.sun.com/j2se/1.5.0/docs/api</link>
+                        <link>http://java.sun.com/products/servlet/2.3/javadoc/</link>
+                    </links>
+                    <breakiterator>true</breakiterator>
+                    <verbose>false</verbose>
+                    <maxmemory>512m</maxmemory>
+                    <additionalJOption>
+                        -J-Xms168m -J-Xmx512m -J-XX:PermSize=128m -J-XX:NewSize=64m
           </additionalJOption>
-        </configuration>
-      </plugin>
-      <!-- FindBugs: mvn findbugs:findbugs -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>findbugs-maven-plugin</artifactId>
-        <version>1.2</version>
-        <configuration>
-          <findbugsXmlOutput>true</findbugsXmlOutput>
-          <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
-          <xmlOutput>true</xmlOutput>
-        </configuration>
-      </plugin>
-      <!-- CheckStyle: mvn checkstyle:checkstyle -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <configuration>
-          <outputFileFormat>xml</outputFileFormat>
-        </configuration>
-      </plugin>
-      <!-- Cobertura: mvn cobertura:cobertura -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>cobertura-maven-plugin</artifactId>
-        <configuration>
-          <formats>
-            <format>html</format>
-            <format>xml</format>
-          </formats>
-        </configuration>
-      </plugin>
-    </plugins>
-  </reporting>
-
+                </configuration>
+            </plugin>
+            <!-- FindBugs: mvn findbugs:findbugs -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>1.2</version>
+                <configuration>
+                    <findbugsXmlOutput>true</findbugsXmlOutput>
+                    <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
+                    <xmlOutput>true</xmlOutput>
+                </configuration>
+            </plugin>
+            <!-- CheckStyle: mvn checkstyle:checkstyle -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <outputFileFormat>xml</outputFileFormat>
+                </configuration>
+            </plugin>
+            <!-- Cobertura: mvn cobertura:cobertura -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <configuration>
+                    <formats>
+                        <format>html</format>
+                        <format>xml</format>
+                    </formats>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
 </project>
