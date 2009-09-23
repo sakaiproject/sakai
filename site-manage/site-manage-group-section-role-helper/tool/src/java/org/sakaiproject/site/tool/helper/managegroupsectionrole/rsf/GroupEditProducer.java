@@ -254,7 +254,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 			 }
 		 }
 		 // add the members last
-		 Iterator<Member> gIterator = new SortedIterator(groupMembers.iterator(), new SiteComparator(SiteConstants.SORTED_BY_PARTICIPANT_NAME, Boolean.TRUE.toString()));
+		 Iterator<Member> gIterator = new SortedIterator(groupMembers.iterator(), new SiteComparator(SiteConstants.SORTED_BY_MEMBER_NAME, Boolean.TRUE.toString()));
 	     for (; gIterator.hasNext();i++){
         	Member p = (Member) gIterator.next();
         	String userId = p.getUserId();
