@@ -13,6 +13,7 @@ import org.theospi.portfolio.presentation.model.Presentation;
 import org.theospi.portfolio.presentation.PresentationManager;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.metaobj.shared.mgt.IdManager;
 
 import org.apache.axis.AxisFault;
 import org.apache.commons.logging.Log;
@@ -28,9 +29,15 @@ public class Portfolio
 {
    private static final Log logger = LogFactory.getLog(Portfolio.class);
    private PresentationManager presentationManager = (org.theospi.portfolio.presentation.PresentationManager)ComponentManager.get("presentationManager");
+   private IdManager idManager  = (org.sakaiproject.metaobj.shared.mgt.IdManager)ComponentManager.get("idManager");
+
    private DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
    private String serverUrl = ServerConfigurationService.getServerUrl();
 
+   /** Return XML document string listing all public portfolios in all worksites
+    **
+    ** @return XML document string
+    **/
    public String getAllPublicPortfolios()
 		throws AxisFault
    {
@@ -38,6 +45,11 @@ public class Portfolio
       return formatResults( presResults );
    }
    
+   /** Return XML document string listing public portfolios in specified worksite
+    **
+    ** @param siteId specified worksite id
+    ** @return XML document string
+    **/
    public String getSitePublicPortfolios( String siteId )
 		throws AxisFault
    {
@@ -45,6 +57,33 @@ public class Portfolio
       return formatResults( presResults );
    }
    
+   /** Return the XML form document string corresponding to the specified public portfolio
+    **
+    ** @param portfolioId public portfolio id
+    ** @return XML document string
+    **/
+   public String getPortfolioOptions( String portfolioId )
+		throws AxisFault
+   {
+      StringBuilder options = new StringBuilder();
+      
+      if ( portfolioId == null )
+         throw new AxisFault("No portfolioId specified");
+		Presentation presentation = presentationManager.getPresentation(idManager.getId(portfolioId));
+      if ( presentation == null || !presentation.getIsPublic() )
+         throw new AxisFault("Attempt to view non-existent or non-public portfolio "+portfolioId );
+         
+		if (presentation.getPropertyForm() == null)
+         throw new AxisFault("No portfolio option form available "+portfolioId );
+         
+      return presentationManager.getPublicPropertyForm( presentation );
+   }
+
+   /** Format a colleciton of Presentations into an XML document string
+    **
+    ** @param presResults collection of presentations
+    ** @return XML document string
+    **/   
    private String formatResults( Collection presResults )
    {
       Document doc = Xml.createDocument();
