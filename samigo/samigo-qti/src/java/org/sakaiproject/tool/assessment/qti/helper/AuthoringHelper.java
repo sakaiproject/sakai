@@ -463,12 +463,7 @@ public class AuthoringHelper
 
   public AssessmentFacade createImportedAssessment(Document document, String unzipLocation)
   {
-	  return createImportedAssessment(document, unzipLocation, false);
-  }
-  
-  public AssessmentFacade createImportedAssessment(Document document, String unzipLocation, boolean isRespondus)
-  {
-    return createImportedAssessment(document, unzipLocation, null, isRespondus);
+    return createImportedAssessment(document, unzipLocation, null);
   }
 
 	  /**
@@ -477,11 +472,6 @@ public class AuthoringHelper
 	   * @return a persisted assessment
 	   */
   public AssessmentFacade createImportedAssessment(Document document, String unzipLocation, String templateId)
-  {
-	  return createImportedAssessment(document, unzipLocation, templateId, false);
-  }
-  
-  public AssessmentFacade createImportedAssessment(Document document, String unzipLocation, String templateId, boolean isRespondus)
   {
 	AssessmentFacade assessment = null;
 
@@ -496,7 +486,7 @@ public class AuthoringHelper
       exHelper.setUnzipLocation(unzipLocation);
       ItemService itemService = new ItemService();
       Assessment assessmentXml = new Assessment(document);
-      Map assessmentMap = exHelper.mapAssessment(assessmentXml, isRespondus);
+      Map assessmentMap = exHelper.mapAssessment(assessmentXml);
       String description = XmlUtil.processFormattedText(log, (String) assessmentMap.get("description"));
       String title = XmlUtil.processFormattedText(log, (String) assessmentMap.get("title"));
       assessment = assessmentService.createAssessmentWithoutDefaultSection(
@@ -549,7 +539,7 @@ public class AuthoringHelper
       for (int sec = 0; sec < sectionListSize; sec++) // for each section...
       {
         Section sectionXml = (Section) sectionList.get(sec);
-        Map sectionMap = exHelper.mapSection(sectionXml, isRespondus);
+        Map sectionMap = exHelper.mapSection(sectionXml);
         // create the assessment section
         SectionFacade section =
           assessmentService.addSection("" + assessment.getAssessmentId());
@@ -568,7 +558,7 @@ public class AuthoringHelper
         {
           log.debug("items=" + itemList.size());
           Item itemXml = (Item) itemList.get(itm);
-          Map itemMap = exHelper.mapItem(itemXml, isRespondus);
+          Map itemMap = exHelper.mapItem(itemXml);
 
           /* debugging
           if (itemMap!=null && itemMap.keySet()!=null){
@@ -589,7 +579,7 @@ public class AuthoringHelper
 
           ItemFacade item = new ItemFacade();
           if (itemMap != null) {
-        	  exHelper.updateItem(item, itemMap, isRespondus);
+        	  exHelper.updateItem(item, itemMap);
           }
           // make sure required fields are set
           item.setCreatedBy(me);

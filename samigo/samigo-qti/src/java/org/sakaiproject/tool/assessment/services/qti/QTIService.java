@@ -87,17 +87,12 @@ public class QTIService
    */
   public AssessmentFacade createImportedAssessment(Document document, int qtiVersion, String unzipLocation)
   {
-	  return createImportedAssessment(document, qtiVersion, unzipLocation, false);
-  }
-  
-  public AssessmentFacade createImportedAssessment(Document document, int qtiVersion, String unzipLocation, boolean isRespondus)
-  {
     testQtiVersion(qtiVersion);
 
     try
     {
       AuthoringHelper helper = new AuthoringHelper(qtiVersion);
-      return helper.createImportedAssessment(document, unzipLocation, isRespondus);
+      return helper.createImportedAssessment(document, unzipLocation);
     }
     catch (Exception ex)
     {

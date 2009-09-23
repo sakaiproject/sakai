@@ -711,10 +711,6 @@
       <from-outcome>importAssessment</from-outcome>
       <to-view-id>/jsf/qti/importAssessment.jsp</to-view-id>
     </navigation-case>
-	<navigation-case>
-      <from-outcome>importAssessmentFromRespondus</from-outcome>
-      <to-view-id>/jsf/qti/importAssessmentFromRespondus.jsp</to-view-id>
-    </navigation-case>
     <navigation-case>
       <from-outcome>samLiteEntry</from-outcome>
       <to-view-id>/jsf/samlite/samLiteEntry.jsp</to-view-id>

@@ -21,10 +21,6 @@
 
 package org.sakaiproject.tool.assessment.qti.helper.item;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -54,52 +50,12 @@ public class ItemTypeExtractionStrategy
    * @param itemIntrospect hte structure based guess from XSL
    * @param qmdItemtype hte item type meta information
    * @return Long item type id
-   */  
+   */
   public static Long calculate(String title, String itemIntrospect, String qmdItemtype)
   {
-	  String itemType = obtainTypeString(title, itemIntrospect, qmdItemtype);
-	  Long typeId = getType(itemType);
-	  return typeId;
-  }
-
-  public static Long calculate(Map itemMap)
-  {
-	  String itemType = null;
-	  if (itemMap.get("type") != null && !itemMap.get("type").equals("")) {
-		  if (itemMap.get("type").equals("FIB")) {
-			  itemType = AuthoringConstantStrings.FIB;
-		  }
-		  else if (itemMap.get("type").equals("Matching"))
-		  itemType = AuthoringConstantStrings.MATCHING;
-	  }
-	  else if (itemMap.get("itemRcardinality") != null && !itemMap.get("itemRcardinality").equals("")) {
-		  String itemRcardinality = (String) itemMap.get("itemRcardinality");
-		  if ("Single".equalsIgnoreCase(itemRcardinality)) {
-			  List answerList = (List) itemMap.get("itemAnswer");
-			  if (answerList.size() == 2) {
-				  String firstAnswer = ((String) answerList.get(0)).split(":::")[1];
-				  String secondAnswer = ((String) answerList.get(1)).split(":::")[1];
-				  if ((firstAnswer.equalsIgnoreCase("true") && secondAnswer.equalsIgnoreCase("false"))
-						  || (firstAnswer.equalsIgnoreCase("false") && secondAnswer.equalsIgnoreCase("true"))) {
-					  itemType = AuthoringConstantStrings.TF;
-				  }
-				  else {
-					  itemType = AuthoringConstantStrings.MCSC;
-				  }
-			  }
-			  else {
-				  itemType = AuthoringConstantStrings.MCSC;
-			  }
-		  }
-		  else {
-			  itemType = AuthoringConstantStrings.MCMC;
-		  }
-	  }
-	  else {
-		  itemType = AuthoringConstantStrings.ESSAY;
-	  }
-	  Long typeId = getType(itemType);
-	  return typeId;
+    String itemType = obtainTypeString(title, itemIntrospect, qmdItemtype);
+    Long typeId = getType(itemType);
+    return typeId;
   }
 
   /**
