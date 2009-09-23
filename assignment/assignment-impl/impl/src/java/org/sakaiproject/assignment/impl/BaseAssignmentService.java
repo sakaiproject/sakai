@@ -4286,100 +4286,93 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 								submittersName = submittersName.concat(StringUtil.trimToNull(submittersString));
 								submittedText = s.getSubmittedText();
 		
-								boolean added = false;
-								while (!added)
+								try
 								{
-									try
+									submittersName = submittersName.concat("/");
+									
+									// record submission timestamp
+									if (s.getSubmitted() && s.getTimeSubmitted() != null)
 									{
-										submittersName = submittersName.concat("/");
-										
-										// record submission timestamp
-										if (s.getSubmitted() && s.getTimeSubmitted() != null)
-										{
-											ZipEntry textEntry = new ZipEntry(submittersName + "timestamp.txt");
-											out.putNextEntry(textEntry);
-											byte[] b = (s.getTimeSubmitted().toString()).getBytes();
-											out.write(b);
-											textEntry.setSize(b.length);
-											out.closeEntry();
-										}
-										
-										// create the folder structure - named after the submitter's name
-										if (typeOfSubmission != Assignment.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION && typeOfSubmission != Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
-										{
-											// include student submission text
-											if (withStudentSubmissionText)
-											{
-												// create the text file only when a text submission is allowed
-												ZipEntry textEntry = new ZipEntry(submittersName + submittersString + "_submissionText" + ZIP_SUBMITTED_TEXT_FILE_TYPE);
-												out.putNextEntry(textEntry);
-												byte[] text = submittedText.getBytes();
-												out.write(text);
-												textEntry.setSize(text.length);
-												out.closeEntry();
-											}
-										
-											// include student submission feedback text
-											if (withFeedbackText)
-											{
-											// create a feedbackText file into zip
-											ZipEntry fTextEntry = new ZipEntry(submittersName + "feedbackText.html");
-											out.putNextEntry(fTextEntry);
-											byte[] fText = s.getFeedbackText().getBytes();
-											out.write(fText);
-											fTextEntry.setSize(fText.length);
-											out.closeEntry();
-											}
-										}
-										
-										if (typeOfSubmission != Assignment.TEXT_ONLY_ASSIGNMENT_SUBMISSION && typeOfSubmission != Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
-										{
-											// include student submission attachment
-											if (withStudentSubmissionAttachment)
-											{
-												// create a attachment folder for the submission attachments
-												String sSubAttachmentFolder = submittersName + rb.getString("download.submission.attachment") + "/";
-												ZipEntry sSubAttachmentFolderEntry = new ZipEntry(sSubAttachmentFolder);
-												out.putNextEntry(sSubAttachmentFolderEntry);
-												out.closeEntry();
-												// add all submission attachment into the submission attachment folder
-												zipAttachments(out, submittersName, sSubAttachmentFolder, s.getSubmittedAttachments());
-											}
-										}
-										
-										if (withFeedbackComment)
-										{
-											// the comments.txt file to show instructor's comments
-											ZipEntry textEntry = new ZipEntry(submittersName + "comments" + ZIP_COMMENT_FILE_TYPE);
-											out.putNextEntry(textEntry);
-											byte[] b = FormattedText.encodeUnicode(s.getFeedbackComment()).getBytes();
-											out.write(b);
-											textEntry.setSize(b.length);
-											out.closeEntry();
-										}
-										
-										if (withFeedbackAttachment)
-										{
-											// create an attachment folder for the feedback attachments
-											String feedbackSubAttachmentFolder = submittersName + rb.getString("download.feedback.attachment") + "/";
-											ZipEntry feedbackSubAttachmentFolderEntry = new ZipEntry(feedbackSubAttachmentFolder);
-											out.putNextEntry(feedbackSubAttachmentFolderEntry);
-											out.closeEntry();
-											// add all feedback attachment folder
-											zipAttachments(out, submittersName, feedbackSubAttachmentFolder, s.getFeedbackAttachments());
-										}
-		
-										added = true;
+										ZipEntry textEntry = new ZipEntry(submittersName + "timestamp.txt");
+										out.putNextEntry(textEntry);
+										byte[] b = (s.getTimeSubmitted().toString()).getBytes();
+										out.write(b);
+										textEntry.setSize(b.length);
+										out.closeEntry();
 									}
-									catch (IOException e)
+									
+									// create the folder structure - named after the submitter's name
+									if (typeOfSubmission != Assignment.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION && typeOfSubmission != Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
 									{
-										exceptionMessage.append("Can not establish the IO to create zip file for user "
-												+ submittersName);
-										M_log.warn(this + " zipSubmissions --IOException unable to create the zip file for user"
-												+ submittersName);
-										submittersName = submittersName.substring(0, submittersName.length() - 1) + "_" + count++;
+										// include student submission text
+										if (withStudentSubmissionText)
+										{
+											// create the text file only when a text submission is allowed
+											ZipEntry textEntry = new ZipEntry(submittersName + submittersString + "_submissionText" + ZIP_SUBMITTED_TEXT_FILE_TYPE);
+											out.putNextEntry(textEntry);
+											byte[] text = submittedText.getBytes();
+											out.write(text);
+											textEntry.setSize(text.length);
+											out.closeEntry();
+										}
+									
+										// include student submission feedback text
+										if (withFeedbackText)
+										{
+										// create a feedbackText file into zip
+										ZipEntry fTextEntry = new ZipEntry(submittersName + "feedbackText.html");
+										out.putNextEntry(fTextEntry);
+										byte[] fText = s.getFeedbackText().getBytes();
+										out.write(fText);
+										fTextEntry.setSize(fText.length);
+										out.closeEntry();
+										}
 									}
-								}	//while
+									
+									if (typeOfSubmission != Assignment.TEXT_ONLY_ASSIGNMENT_SUBMISSION && typeOfSubmission != Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
+									{
+										// include student submission attachment
+										if (withStudentSubmissionAttachment)
+										{
+											// create a attachment folder for the submission attachments
+											String sSubAttachmentFolder = submittersName + rb.getString("download.submission.attachment") + "/";
+											ZipEntry sSubAttachmentFolderEntry = new ZipEntry(sSubAttachmentFolder);
+											out.putNextEntry(sSubAttachmentFolderEntry);
+											out.closeEntry();
+											// add all submission attachment into the submission attachment folder
+											zipAttachments(out, submittersName, sSubAttachmentFolder, s.getSubmittedAttachments());
+										}
+									}
+									
+									if (withFeedbackComment)
+									{
+										// the comments.txt file to show instructor's comments
+										ZipEntry textEntry = new ZipEntry(submittersName + "comments" + ZIP_COMMENT_FILE_TYPE);
+										out.putNextEntry(textEntry);
+										byte[] b = FormattedText.encodeUnicode(s.getFeedbackComment()).getBytes();
+										out.write(b);
+										textEntry.setSize(b.length);
+										out.closeEntry();
+									}
+									
+									if (withFeedbackAttachment)
+									{
+										// create an attachment folder for the feedback attachments
+										String feedbackSubAttachmentFolder = submittersName + rb.getString("download.feedback.attachment") + "/";
+										ZipEntry feedbackSubAttachmentFolderEntry = new ZipEntry(feedbackSubAttachmentFolder);
+										out.putNextEntry(feedbackSubAttachmentFolderEntry);
+										out.closeEntry();
+										// add all feedback attachment folder
+										zipAttachments(out, submittersName, feedbackSubAttachmentFolder, s.getFeedbackAttachments());
+									}
+								}
+								catch (IOException e)
+								{
+									exceptionMessage.append("Can not establish the IO to create zip file for user "
+											+ submittersName);
+									M_log.warn(this + " zipSubmissions --IOException unable to create the zip file for user"
+											+ submittersName);
+								}
 							} // if
 						}
 					}
