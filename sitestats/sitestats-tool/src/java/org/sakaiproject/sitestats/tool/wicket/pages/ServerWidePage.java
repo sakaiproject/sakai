@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -34,9 +34,8 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.sitestats.api.StatsManager;
-import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
+import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.components.AdminMenu;
 import org.sakaiproject.sitestats.tool.wicket.components.AjaxLazyLoadImage;
 import org.sakaiproject.sitestats.tool.wicket.models.ServerWideModel;
@@ -46,9 +45,6 @@ import org.sakaiproject.sitestats.tool.wicket.models.ServerWideModel;
  */
 public class ServerWidePage extends BasePage {
 	private static final long			serialVersionUID		= 1L;
-
-	@SpringBean
-	private transient SakaiFacade		facade;
 
 	// UI Components
 	private Label						reportTitle				= null;
@@ -71,8 +67,8 @@ public class ServerWidePage extends BasePage {
 	}
 
 	public ServerWidePage(PageParameters params) {
-		siteId = facade.getToolManager().getCurrentPlacement().getContext();
-		boolean allowed = facade.getStatsAuthz().isUserAbleToViewSiteStatsAdmin(siteId);
+		siteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
+		boolean allowed = Locator.getFacade().getStatsAuthz().isUserAbleToViewSiteStatsAdmin(siteId);
 		if(allowed) {
 			renderBody();
 		}else{
@@ -147,7 +143,7 @@ public class ServerWidePage extends BasePage {
 	private byte[] getChartImage(int width, int height) {
 		int _width = (width <= 0) ? 350 : width;
 		int _height = (height <= 0) ? 200: height;
-		return facade.getServerWideReportManager().generateReportChart(
+		return Locator.getFacade().getServerWideReportManager().generateReportChart(
 			report.getSelectedView(), _width, _height
 			);
 	}

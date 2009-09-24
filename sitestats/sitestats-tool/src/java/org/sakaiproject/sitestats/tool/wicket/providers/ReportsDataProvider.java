@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -29,7 +29,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.ResourceStat;
@@ -39,7 +38,7 @@ import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
-import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
+import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
@@ -59,9 +58,6 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 	public final static String		COL_VISITS			= StatsManager.T_VISITS;
 	public final static String		COL_UNIQUEVISITS	= StatsManager.T_UNIQUEVISITS;
 
-	@SpringBean
-	private transient SakaiFacade	facade;
-	
 	private boolean					log					= true;
 	private PrefsData				prefsData;
 	private ReportDef				reportDef;
@@ -107,7 +103,7 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 	
 	public Report getReport() {
 		if(report == null) {
-			report = getFacade().getReportManager().getReport(getReportDef(), prefsData.isListToolEventsOnlyAvailableInSite(), null, log);
+			report = Locator.getFacade().getReportManager().getReport(getReportDef(), prefsData.isListToolEventsOnlyAvailableInSite(), null, log);
 			if(log && report != null) {
 				LOG.info("Site statistics report generated: "+report.getReportDefinition().toString(false));
 			}
@@ -130,7 +126,7 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 	}	
 
 	public void sortReport() {
-		Collections.sort(report.getReportData(), getReportDataComparator(getSort().getProperty(), getSort().isAscending(), getFacade().getStatsManager(), getFacade().getEventRegistryService(), getFacade().getUserDirectoryService()));
+		Collections.sort(report.getReportData(), getReportDataComparator(getSort().getProperty(), getSort().isAscending(), Locator.getFacade().getStatsManager(), Locator.getFacade().getEventRegistryService(), Locator.getFacade().getUserDirectoryService()));
 	}
 	
 	public final Comparator<Stat> getReportDataComparator(final String fieldName, final boolean sortAscending, 
@@ -140,8 +136,8 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 			
 			public int compare(Stat r1, Stat r2) {
 				if(fieldName.equals(COL_SITE)){
-					String s1 = getFacade().getSiteService().getSiteDisplay(r1.getSiteId()).toLowerCase();
-					String s2 = getFacade().getSiteService().getSiteDisplay(r2.getSiteId()).toLowerCase();
+					String s1 = Locator.getFacade().getSiteService().getSiteDisplay(r1.getSiteId()).toLowerCase();
+					String s2 = Locator.getFacade().getSiteService().getSiteDisplay(r2.getSiteId()).toLowerCase();
 					int res = collator.compare(s1, s2);
 					if(sortAscending)
 						return res;
@@ -244,13 +240,6 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 				return 0;
 			}
 		};
-	}
-	
-	private SakaiFacade getFacade() {
-		if(facade == null) {
-			InjectorHolder.getInjector().inject(this);
-		}
-		return facade;
 	}
 
 }

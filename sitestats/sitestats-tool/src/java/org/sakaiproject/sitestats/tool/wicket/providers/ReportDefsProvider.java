@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -30,7 +30,6 @@ import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -38,7 +37,7 @@ import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
-import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
+import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.models.ReportDefModel;
 
 
@@ -47,9 +46,6 @@ public class ReportDefsProvider implements IDataProvider {
 	public final static int			MODE_MYREPORTS					= 0;
 	public final static int			MODE_PREDEFINED_REPORTS			= 1;
 	public final static int			MODE_MY_AND_PREDEFINED_REPORTS	= 2;
-
-	@SpringBean
-	private transient SakaiFacade	facade;
 	
 	private String					siteId;
 	private	int						mode;
@@ -74,13 +70,13 @@ public class ReportDefsProvider implements IDataProvider {
 		if(data == null) {
 			switch(mode) {
 				case MODE_MYREPORTS:
-					data = getFacade().getReportManager().getReportDefinitions(siteId, false, includeHidden);
+					data = Locator.getFacade().getReportManager().getReportDefinitions(siteId, false, includeHidden);
 					break;
 				case MODE_PREDEFINED_REPORTS:
-					data = getFacade().getReportManager().getReportDefinitions(null, false, includeHidden);
+					data = Locator.getFacade().getReportManager().getReportDefinitions(null, false, includeHidden);
 					break;
 				case MODE_MY_AND_PREDEFINED_REPORTS:
-					data = getFacade().getReportManager().getReportDefinitions(siteId, true, includeHidden);
+					data = Locator.getFacade().getReportManager().getReportDefinitions(siteId, true, includeHidden);
 					break;
 			}
 			if(filterWithToolsInSite) {
@@ -122,7 +118,7 @@ public class ReportDefsProvider implements IDataProvider {
 		List<ReportDef> filtered = new ArrayList<ReportDef>();
 		if(list != null) {
 			try{
-				Site site = getFacade().getSiteService().getSite(siteId);
+				Site site = Locator.getFacade().getSiteService().getSite(siteId);
 				for(ReportDef rd : list){
 					if(canIncludeReport(rd, site)){
 						filtered.add(rd);
@@ -144,7 +140,7 @@ public class ReportDefsProvider implements IDataProvider {
 		
 		if(ReportManager.WHAT_VISITS.equals(reportDef.getReportParams().getWhat())) {
 			// keep visit based reports if site visits are enabled
-			if(getFacade().getStatsManager().isEnableSiteVisits()) {
+			if(Locator.getFacade().getStatsManager().isEnableSiteVisits()) {
 				return true;
 			}
 		}else if(ReportManager.WHAT_RESOURCES.equals(reportDef.getReportParams().getWhat())) {
@@ -158,7 +154,7 @@ public class ReportDefsProvider implements IDataProvider {
 			// at least one tool from the selection must be present
 			if(ReportManager.WHAT_EVENTS_BYEVENTS.equals(reportDef.getReportParams().getWhatEventSelType())) {
 				for(ToolConfiguration tc : siteTools) {
-					Map<String,ToolInfo> map = getFacade().getEventRegistryService().getEventIdToolMap();
+					Map<String,ToolInfo> map = Locator.getFacade().getEventRegistryService().getEventIdToolMap();
 					for(String eventId : reportDef.getReportParams().getWhatEventIds()) {
 						if(tc.getToolId().equals(map.get(eventId).getToolId())) {
 							return true;
@@ -201,12 +197,5 @@ public class ReportDefsProvider implements IDataProvider {
 			}
 			
 		};
-	}
-	
-	private SakaiFacade getFacade() {
-		if(facade == null) {
-			InjectorHolder.getInjector().inject(this);
-		}
-		return facade;
 	}
 }

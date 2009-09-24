@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -19,12 +19,10 @@
 package org.sakaiproject.sitestats.tool.wicket.pages;
 
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.sitestats.api.StatsManager;
-import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
+import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.components.LastJobRun;
 import org.sakaiproject.sitestats.tool.wicket.components.Menus;
 import org.sakaiproject.sitestats.tool.wicket.widget.ActivityWidget;
@@ -37,10 +35,6 @@ import org.sakaiproject.sitestats.tool.wicket.widget.VisitsWidget;
 public class OverviewPage extends BasePage {
 	private static final long			serialVersionUID	= 1L;
 
-	/** Inject Sakai facade */
-	@SpringBean
-	private transient SakaiFacade		facade;
-
 	private String						realSiteId;
 	private String						siteId;
 	
@@ -50,17 +44,17 @@ public class OverviewPage extends BasePage {
 	}
 
 	public OverviewPage(PageParameters pageParameters) {
-		realSiteId = getFacade().getToolManager().getCurrentPlacement().getContext();
+		realSiteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
 		if(pageParameters != null) {
 			siteId = pageParameters.getString("siteId");
 		}
 		if(siteId == null){
 			siteId = realSiteId;
 		}
-		boolean allowed = getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
+		boolean allowed = Locator.getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
 		if(allowed) {
 			renderBody();
-			getFacade().getStatsManager().logEvent(null, StatsManager.LOG_ACTION_VIEW, siteId, true);
+			Locator.getFacade().getStatsManager().logEvent(null, StatsManager.LOG_ACTION_VIEW, siteId, true);
 		}else{
 			setResponsePage(NotAuthorizedPage.class);
 		}
@@ -81,7 +75,7 @@ public class OverviewPage extends BasePage {
 		add(new Menus("menu", siteId));
 		
 		// SiteStats services
-		StatsManager statsManager = getFacade().getStatsManager();
+		StatsManager statsManager = Locator.getFacade().getStatsManager();
 		
 		// Last job run
 		add(new LastJobRun("lastJobRun", siteId));
@@ -108,7 +102,7 @@ public class OverviewPage extends BasePage {
 		boolean resourcesVisible = false;
 		try{
 			resourcesVisible = statsManager.isEnableResourceStats() &&
-								(getFacade().getSiteService().getSite(siteId).getToolForCommonId(StatsManager.RESOURCES_TOOLID) != null);
+								(Locator.getFacade().getSiteService().getSite(siteId).getToolForCommonId(StatsManager.RESOURCES_TOOLID) != null);
 		}catch(Exception e) {
 			resourcesVisible = false;
 		}
@@ -117,13 +111,6 @@ public class OverviewPage extends BasePage {
 		}else{
 			add(new WebMarkupContainer("resourcesWidget").setRenderBodyOnly(true));
 		}
-	}
-	
-	private SakaiFacade getFacade() {
-		if(facade == null) {
-			InjectorHolder.getInjector().inject(this);
-		}
-		return facade;
 	}
 }
 

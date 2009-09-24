@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -44,9 +44,9 @@ import org.sakaiproject.util.ResourceLoader;
 
 
 public class SiteStatsApplication extends WebApplication {
+	private boolean					debug	= false;
 	
-	private SakaiFacade	facade;
-	private boolean		debug	= false;
+	private transient SakaiFacade	facade;
 
 	protected void init() {
 		super.init();

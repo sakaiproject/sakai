@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -22,8 +22,7 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
+import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.pages.AdminPage;
 import org.sakaiproject.sitestats.tool.wicket.pages.AdminReportsPage;
 import org.sakaiproject.sitestats.tool.wicket.pages.ServerWidePage;
@@ -34,9 +33,6 @@ import org.sakaiproject.sitestats.tool.wicket.pages.ServerWidePage;
  */
 public class AdminMenu extends Panel {
 	private static final long	serialVersionUID	= 1L;
-
-	@SpringBean
-	private transient SakaiFacade facade;
 
 	/**
 	 * Default constructor.
@@ -54,28 +50,28 @@ public class AdminMenu extends Panel {
 	@SuppressWarnings("unchecked")
 	private void renderBody() {
 		// site id
-		String siteId = facade.getToolManager().getCurrentPlacement().getContext();
+		String siteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
 		PageParameters pageParameters = new PageParameters("siteId="+siteId);
 				
 		// --------- ADMIN SECTION ---------
 		
 		// Admin page
 		boolean adminPageVisible = 
-			facade.getStatsAuthz().isUserAbleToViewSiteStatsAdmin(siteId);
+			Locator.getFacade().getStatsAuthz().isUserAbleToViewSiteStatsAdmin(siteId);
 		MenuItem adminPage = new MenuItem("adminPage", new ResourceModel("menu_sitelist"), AdminPage.class, pageParameters, true);
 		adminPage.setVisible(adminPageVisible);
 		add(adminPage);
 		
 		// Admin reports
 		boolean reportsPageVisible = 
-			facade.getStatsAuthz().isUserAbleToViewSiteStatsAdmin(siteId);
+			Locator.getFacade().getStatsAuthz().isUserAbleToViewSiteStatsAdmin(siteId);
 		MenuItem reportsPage = new MenuItem("reportsPage", new ResourceModel("menu_adminreports"), AdminReportsPage.class, pageParameters, false);
 		reportsPage.setVisible(reportsPageVisible);
 		add(reportsPage);
 		
 		// Admin ServerWide page
 		boolean serverWidePageVisible = 
-			facade.getStatsManager().isServerWideStatsEnabled();
+			Locator.getFacade().getStatsManager().isServerWideStatsEnabled();
 		MenuItem serverWidePage = new MenuItem("serverWidePage", new ResourceModel("menu_serverwide"), ServerWidePage.class, pageParameters, false);
 		serverWidePage.setVisible(serverWidePageVisible);
 		add(serverWidePage);		

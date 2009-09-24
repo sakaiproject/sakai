@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -23,14 +23,10 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
+import org.sakaiproject.sitestats.tool.facade.Locator;
 
 public class Menus extends Panel {
 	private static final long		serialVersionUID	= 1L;
-
-	@SpringBean
-	private transient SakaiFacade	facade;
 
 	private String					siteId;
 	private String					realSiteId;
@@ -45,7 +41,7 @@ public class Menus extends Panel {
 		super(id);
 		
 		// site Id
-		realSiteId = facade.getToolManager().getCurrentPlacement().getContext();
+		realSiteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
 		if(siteId != null) {
 			this.siteId = siteId;
 		}else{
@@ -63,7 +59,7 @@ public class Menus extends Panel {
 	private void renderBody() {
 		setRenderBodyOnly(true);
 		
-		boolean isSiteStatsAdminPage = facade.getStatsAuthz().isSiteStatsAdminPage();
+		boolean isSiteStatsAdminPage = Locator.getFacade().getStatsAuthz().isSiteStatsAdminPage();
 		boolean isBrowsingThisSite = siteId.equals(realSiteId);
 		
 		// admin menu

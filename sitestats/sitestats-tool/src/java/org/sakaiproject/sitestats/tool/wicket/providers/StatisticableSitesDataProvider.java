@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -23,12 +23,11 @@ import java.util.Iterator;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
-import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
+import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.models.SiteModel;
 
 
@@ -38,9 +37,6 @@ public class StatisticableSitesDataProvider extends SortableSearchableDataProvid
 	public final static String		COL_TYPE			= "type";
 	public final static String		COL_STATUS			= "published";
 	public final static String		SITE_TYPE_ALL		= "all";
-	
-	@SpringBean
-	private transient SakaiFacade 	facade;
 	
 	private String					siteType			= SITE_TYPE_ALL;
 
@@ -58,7 +54,7 @@ public class StatisticableSitesDataProvider extends SortableSearchableDataProvid
 		PagingPosition pp = new PagingPosition(start, end);
 
 		String type = SITE_TYPE_ALL.equals(getSiteType()) ? null : getSiteType();
-		return getFacade().getSiteService().getSites(SelectionType.NON_USER, type, getSearchKeyword(), null, getSSSortType(), pp).iterator();
+		return Locator.getFacade().getSiteService().getSites(SelectionType.NON_USER, type, getSearchKeyword(), null, getSSSortType(), pp).iterator();
 	}
 	
 	private SortType getSSSortType() {
@@ -93,7 +89,7 @@ public class StatisticableSitesDataProvider extends SortableSearchableDataProvid
 
 	public int size() {
 		String type = SITE_TYPE_ALL.equals(getSiteType()) ? null : getSiteType();
-		return getFacade().getSiteService().countSites(SelectionType.NON_USER, type, getSearchKeyword(), null);
+		return Locator.getFacade().getSiteService().countSites(SelectionType.NON_USER, type, getSearchKeyword(), null);
 	}
 
 	public void setSiteType(String siteType) {
@@ -102,13 +98,6 @@ public class StatisticableSitesDataProvider extends SortableSearchableDataProvid
 
 	public String getSiteType() {
 		return siteType;
-	}
-	
-	private SakaiFacade getFacade() {
-		if(facade == null) {
-			InjectorHolder.getInjector().inject(this);
-		}
-		return facade;
 	}
 
 }

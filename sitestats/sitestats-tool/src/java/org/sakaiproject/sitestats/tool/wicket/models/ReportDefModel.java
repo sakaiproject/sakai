@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -18,18 +18,13 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.models;
 
-import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportParams;
-import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
+import org.sakaiproject.sitestats.tool.facade.Locator;
 
 public class ReportDefModel extends LoadableDetachableModel {
 	private static final long		serialVersionUID	= 1L;
-
-	@SpringBean
-	private transient SakaiFacade	facade;
 
 	private long					id;
 	private String 					siteId;
@@ -66,7 +61,7 @@ public class ReportDefModel extends LoadableDetachableModel {
 			reportDef.setSiteId(getSiteId());
 			reportDef.setReportParams(new ReportParams(reportSiteId));
 		}else{
-			reportDef = getFacade().getReportManager().getReportDefinition(id); 
+			reportDef = Locator.getFacade().getReportManager().getReportDefinition(id); 
 			if(reportDef.getSiteId() == null && reportDef.getReportParams().getSiteId() == null) {
 				// fix siteId for predefined reports
 				reportDef.getReportParams().setSiteId(getSiteId());
@@ -84,12 +79,5 @@ public class ReportDefModel extends LoadableDetachableModel {
 			siteId = reportSiteId;
 		}
 		return siteId;
-	}
-	
-	private SakaiFacade getFacade() {
-		if(facade == null) {
-			InjectorHolder.getInjector().inject(this);
-		}
-		return facade;
 	}
 }

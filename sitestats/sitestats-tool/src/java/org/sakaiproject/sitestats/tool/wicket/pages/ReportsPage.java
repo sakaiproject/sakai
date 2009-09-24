@@ -22,7 +22,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -35,9 +34,8 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.sitestats.api.report.ReportDef;
-import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
+import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.components.CSSFeedbackPanel;
 import org.sakaiproject.sitestats.tool.wicket.components.LastJobRun;
 import org.sakaiproject.sitestats.tool.wicket.components.Menus;
@@ -48,10 +46,6 @@ public class ReportsPage extends BasePage {
 	private static final long		serialVersionUID	= 1L;
 	private static Log				LOG					= LogFactory.getLog(ReportsPage.class);
 
-	/** Inject Sakai facade */
-	@SpringBean
-	private transient SakaiFacade	facade;
-
 	private String					realSiteId;
 	private String					siteId;
 
@@ -60,14 +54,14 @@ public class ReportsPage extends BasePage {
 	}
 	
 	public ReportsPage(PageParameters pageParameters) {
-		realSiteId = getFacade().getToolManager().getCurrentPlacement().getContext();
+		realSiteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
 		if(pageParameters != null) {
 			siteId = pageParameters.getString("siteId");
 		}
 		if(siteId == null){
 			siteId = realSiteId;
 		}
-		boolean allowed = getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
+		boolean allowed = Locator.getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
 		if(allowed) {
 			renderBody();
 		}else{
@@ -87,7 +81,7 @@ public class ReportsPage extends BasePage {
 	}
 	
 	private void renderBody() {	
-		boolean isSiteStatsAdminPage = getFacade().getStatsAuthz().isSiteStatsAdminPage();
+		boolean isSiteStatsAdminPage = Locator.getFacade().getStatsAuthz().isSiteStatsAdminPage();
 		boolean isAdministering = isSiteStatsAdminPage && realSiteId.equals(siteId);
 		boolean isFilteringReportsWithToolsInSite = !isAdministering;
 		
@@ -200,7 +194,7 @@ public class ReportsPage extends BasePage {
 			super(id, "reportRowFragment", ReportsPage.this);
 
 			final ReportDef reportDef = (ReportDef) model.getObject();
-			final boolean isSiteStatsAdminPage = getFacade().getStatsAuthz().isSiteStatsAdminPage();
+			final boolean isSiteStatsAdminPage = Locator.getFacade().getStatsAuthz().isSiteStatsAdminPage();
 			final boolean isPredefinedReport = reportDef.getSiteId() == null;
 			
 			// icon
@@ -261,7 +255,7 @@ public class ReportsPage extends BasePage {
 				@Override
 				public void onClick() {
 					reportDef.setHidden(!reportDef.isHidden());
-					getFacade().getReportManager().saveReportDefinition(reportDef);
+					Locator.getFacade().getReportManager().saveReportDefinition(reportDef);
 				}
 			};
 			hideContainer.add(hide);
@@ -294,7 +288,7 @@ public class ReportsPage extends BasePage {
 						reportDef.setSiteId(siteId);
 						reportDef.getReportParams().setSiteId(siteId);
 					}
-					getFacade().getReportManager().saveReportDefinition(reportDef);
+					Locator.getFacade().getReportManager().saveReportDefinition(reportDef);
 				}	
 			};
 			duplicateContainer.add(duplicate);
@@ -307,7 +301,7 @@ public class ReportsPage extends BasePage {
 				private static final long	serialVersionUID	= 1L;
 				@Override
 				public void onClick() {
-					getFacade().getReportManager().removeReportDefinition(reportDef);
+					Locator.getFacade().getReportManager().removeReportDefinition(reportDef);
 				}					
 				@Override
 				protected CharSequence getOnClickScript(CharSequence url) {
@@ -319,13 +313,6 @@ public class ReportsPage extends BasePage {
 		}
 
 		
-	}
-	
-	private SakaiFacade getFacade() {
-		if(facade == null) {
-			InjectorHolder.getInjector().inject(this);
-		}
-		return facade;
 	}
 	
 }

@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -20,25 +20,19 @@ package org.sakaiproject.sitestats.tool.wicket.pages;
 
 import org.apache.wicket.Page;
 import org.apache.wicket.Resource;
-import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.image.NonCachingImage;
 import org.apache.wicket.markup.html.image.resource.DynamicImageResource;
 import org.apache.wicket.protocol.http.WebResponse;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
+import org.sakaiproject.sitestats.tool.facade.Locator;
 
 /**
  * @author Nuno Fernandes
  */
 public abstract class MaximizedImagePage extends BasePage {
 	private static final long		serialVersionUID	= 1L;
-	
-	/** Inject Sakai facade */
-	@SpringBean
-	private transient SakaiFacade 	facade;
 	
 	private Page					returnPage;
 	private Class					returnClass;
@@ -53,8 +47,8 @@ public abstract class MaximizedImagePage extends BasePage {
 	}
 	
 	private void init(final Page returnPage, final Class returnClass) {
-		String siteId = getFacade().getToolManager().getCurrentPlacement().getContext();
-		boolean allowed = getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
+		String siteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
+		boolean allowed = Locator.getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
 		if(allowed) {
 			this.returnPage = returnPage;
 			this.returnClass = returnClass;
@@ -116,13 +110,6 @@ public abstract class MaximizedImagePage extends BasePage {
 		};
 		back.setDefaultFormProcessing(true);
 		form.add(back);
-	}
-	
-	private SakaiFacade getFacade() {
-		if(facade == null) {
-			InjectorHolder.getInjector().inject(this);
-		}
-		return facade;
 	}
 }
 

@@ -26,16 +26,12 @@
 
 	<!-- The id of this bean needs to match the param 'applicationBean' under your web.xml -->
 	<bean id="siteStatsApplication" class="org.sakaiproject.sitestats.tool.wicket.SiteStatsApplication">
-    	<property name="facade">
-			<ref bean="org.sakaiproject.sitestats.tool.facade.SakaiFacade"/>
-		</property>
+    	<property name="facade" ref="org.sakaiproject.sitestats.tool.facade.SakaiFacade"/>
     </bean>
 
     <!-- The id of this bean needs to match the param 'applicationBean' under your web.xml -->
     <bean id="siteStatsAdminApplication" class="org.sakaiproject.sitestats.tool.wicket.SiteStatsAdminApplication">
-        <property name="facade">
-            <ref bean="org.sakaiproject.sitestats.tool.facade.SakaiFacade"/>
-        </property>
+        <property name="facade" ref="org.sakaiproject.sitestats.tool.facade.SakaiFacade"/>
     </bean>
     
 </beans>

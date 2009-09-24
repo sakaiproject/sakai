@@ -19,10 +19,10 @@
     <filter>
         <filter-name>sakai.request</filter-name>
         <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
-        <init-param>
+        <!--<init-param>
             <param-name>http.session</param-name> 
             <param-value>tool</param-value> 
-        </init-param>
+        </init-param>-->
     </filter>
     <filter-mapping>
         <filter-name>sakai.request</filter-name>

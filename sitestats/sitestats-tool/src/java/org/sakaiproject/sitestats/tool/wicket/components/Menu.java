@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -25,9 +25,8 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
+import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.pages.AdminPage;
 import org.sakaiproject.sitestats.tool.wicket.pages.OverviewPage;
 import org.sakaiproject.sitestats.tool.wicket.pages.PreferencesPage;
@@ -39,9 +38,6 @@ import org.sakaiproject.sitestats.tool.wicket.pages.ReportsPage;
  */
 public class Menu extends Panel {
 	private static final long	serialVersionUID	= 1L;
-
-	@SpringBean
-	private transient SakaiFacade facade;
 
 	/**
 	 * Default constructor.
@@ -68,7 +64,7 @@ public class Menu extends Panel {
 	 */
 	@SuppressWarnings("unchecked")
 	private void renderBody() {
-		renderBody(facade.getToolManager().getCurrentPlacement().getContext());
+		renderBody(Locator.getFacade().getToolManager().getCurrentPlacement().getContext());
 	}
 	
 	/**
@@ -82,14 +78,14 @@ public class Menu extends Panel {
 		if(siteId != null) {
 			pageParameters.put("siteId", siteId);
 		}
-		String realSiteId = facade.getToolManager().getCurrentPlacement().getContext();
-		boolean isSiteStatsAdminPage = facade.getStatsAuthz().isSiteStatsAdminPage();
+		String realSiteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
+		boolean isSiteStatsAdminPage = Locator.getFacade().getStatsAuthz().isSiteStatsAdminPage();
 		boolean isBrowsingThisSite = siteId != null && siteId.equals(realSiteId);
 		
 		// Site display
 		String siteTitle = null;
 		try{
-			siteTitle = facade.getSiteService().getSite(siteId).getTitle();
+			siteTitle = Locator.getFacade().getSiteService().getSite(siteId).getTitle();
 		}catch(IdUnusedException e){
 			siteTitle = siteId;
 		}
@@ -100,8 +96,8 @@ public class Menu extends Panel {
 		
 		// Admin page
 		/*boolean adminPageVisible = 
-			facade.getStatsAuthz().isUserAbleToViewSiteStatsAdmin(realSiteId)
-			&& facade.getStatsAuthz().isSiteStatsAdminPage();
+			Locator.getFacade().getStatsAuthz().isUserAbleToViewSiteStatsAdmin(realSiteId)
+			&& Locator.getFacade().getStatsAuthz().isSiteStatsAdminPage();
 		MenuItem adminPage = new MenuItem("adminPage", new ResourceModel("menu_sitelist"), AdminPage.class, pageParameters, adminPageVisible);
 		adminPage.setVisible(adminPageVisible);
 		adminPage.add(new AttributeModifier("class", true, new Model("firstToolBarItem")));
@@ -111,7 +107,7 @@ public class Menu extends Panel {
 		boolean overviewVisible = 
 			!AdminPage.class.equals(currentPageClass)		
 			&&
-			(facade.getStatsManager().isEnableSiteVisits() || facade.getStatsManager().isEnableSiteActivity());
+			(Locator.getFacade().getStatsManager().isEnableSiteVisits() || Locator.getFacade().getStatsManager().isEnableSiteActivity());
 		MenuItem overview = new MenuItem("overview", new ResourceModel("menu_overview"), OverviewPage.class, pageParameters, !siteDisplayVisible /*overviewVisible && !adminPageVisible*/);
 		overview.setVisible(overviewVisible);
 		add(overview);

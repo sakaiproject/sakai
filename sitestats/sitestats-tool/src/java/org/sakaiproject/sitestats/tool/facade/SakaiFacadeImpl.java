@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -37,22 +37,22 @@ import org.sakaiproject.user.api.UserDirectoryService;
 public class SakaiFacadeImpl implements SakaiFacade {
 
 	// SiteStats services
-	private StatsManager			statsManager;
-	private StatsAuthz				statsAuthz;
-	private EventRegistryService	eventRegistryService;
-	private ReportManager			reportManager;
-	private ChartService			chartService;
-	private StatsUpdateManager		statsUpdateManager;
-	private ServerWideReportManager serverWideReportManager;
+	private transient StatsManager			statsManager;
+	private transient StatsAuthz				statsAuthz;
+	private transient EventRegistryService	eventRegistryService;
+	private transient ReportManager			reportManager;
+	private transient ChartService			chartService;
+	private transient StatsUpdateManager		statsUpdateManager;
+	private transient ServerWideReportManager serverWideReportManager;
 
 	// Sakai services
-	private SessionManager			sessionManager;
-	private ToolManager				toolManager;
-	private SiteService				siteService;
-	private AuthzGroupService		authzGroupService;
-	private UserDirectoryService	userDirectoryService;
-	private ContentHostingService	contentHostingService;
-	private TimeService				timeService;
+	private transient SessionManager			sessionManager;
+	private transient ToolManager				toolManager;
+	private transient SiteService				siteService;
+	private transient AuthzGroupService		authzGroupService;
+	private transient UserDirectoryService	userDirectoryService;
+	private transient ContentHostingService	contentHostingService;
+	private transient TimeService				timeService;
 
 	public final StatsManager getStatsManager() {
 		return statsManager;

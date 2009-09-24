@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
-import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Button;
@@ -35,12 +34,11 @@ import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.parser.EventParserTip;
-import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
+import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.components.CSSFeedbackPanel;
 import org.sakaiproject.sitestats.tool.wicket.components.EventRegistryTree;
 import org.sakaiproject.sitestats.tool.wicket.components.Menus;
@@ -50,10 +48,6 @@ import org.sakaiproject.sitestats.tool.wicket.components.Menus;
  */
 public class PreferencesPage extends BasePage {
 	private static final long		serialVersionUID			= 1L;
-
-	/** Inject Sakai facade */
-	@SpringBean
-	private transient SakaiFacade facade;
 	
 	private String realSiteId;
 	private String siteId;
@@ -73,14 +67,14 @@ public class PreferencesPage extends BasePage {
 	}
 
 	public PreferencesPage(PageParameters pageParameters) {
-		realSiteId = getFacade().getToolManager().getCurrentPlacement().getContext();
+		realSiteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
 		if(pageParameters != null) {
 			siteId = pageParameters.getString("siteId");
 		}
 		if(siteId == null){
 			siteId = realSiteId;
 		}
-		boolean allowed = getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
+		boolean allowed = Locator.getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
 		if(allowed) {
 			setModel(new CompoundPropertyModel(this));
 			renderBody();
@@ -115,7 +109,7 @@ public class PreferencesPage extends BasePage {
 		
 		// Section: Chart
 		WebMarkupContainer chartPrefs = new WebMarkupContainer("chartPrefs");
-		boolean chartPrefsVisible = getFacade().getStatsManager().isEnableSiteVisits() || getFacade().getStatsManager().isEnableSiteActivity();
+		boolean chartPrefsVisible = Locator.getFacade().getStatsManager().isEnableSiteVisits() || Locator.getFacade().getStatsManager().isEnableSiteActivity();
 		chartPrefs.setVisible(chartPrefsVisible);
 		form.add(chartPrefs);
 		//CheckBox chartIn3D = new CheckBox("chartIn3D");
@@ -146,10 +140,10 @@ public class PreferencesPage extends BasePage {
 		eventRegistryTree = new EventRegistryTree("eventRegistryTree", getPrefsdata().getToolEventsDef()) {
 			@Override
 			public boolean isToolSuported(final ToolInfo toolInfo) {
-				if(getFacade().getStatsManager().isEventContextSupported()){
+				if(Locator.getFacade().getStatsManager().isEventContextSupported()){
 					return true;
 				}else{
-					List<ToolInfo> siteTools = getFacade().getEventRegistryService().getEventRegistry(siteId, getPrefsdata().isListToolEventsOnlyAvailableInSite());
+					List<ToolInfo> siteTools = Locator.getFacade().getEventRegistryService().getEventRegistry(siteId, getPrefsdata().isListToolEventsOnlyAvailableInSite());
 					Iterator<ToolInfo> i = siteTools.iterator();
 					while (i.hasNext()){
 						ToolInfo t = i.next();
@@ -191,18 +185,18 @@ public class PreferencesPage extends BasePage {
 	
 	private PrefsData getPrefsdata() {
 		if(prefsdata == null) {
-			prefsdata = getFacade().getStatsManager().getPreferences(siteId, true);
+			prefsdata = Locator.getFacade().getStatsManager().getPreferences(siteId, true);
 		}
 		return prefsdata;
 	}
 
 	private void savePreferences() {
 		if(isUseAllTools()) {
-			getPrefsdata().setToolEventsDef(getFacade().getEventRegistryService().getEventRegistry(siteId, isListToolEventsOnlyAvailableInSite()));
+			getPrefsdata().setToolEventsDef(Locator.getFacade().getEventRegistryService().getEventRegistry(siteId, isListToolEventsOnlyAvailableInSite()));
 		}else{
 			getPrefsdata().setToolEventsDef((List<ToolInfo>) eventRegistryTree.getEventRegistry());
 		}
-		boolean opOk = getFacade().getStatsManager().setPreferences(siteId, getPrefsdata());		
+		boolean opOk = Locator.getFacade().getStatsManager().setPreferences(siteId, getPrefsdata());		
 		if(opOk){
 			info((String) new ResourceModel("prefs_updated").getObject());
 		}else{
@@ -259,13 +253,6 @@ public class PreferencesPage extends BasePage {
 		long tmp = Math.round(val);
 		// Shift the decimal the correct number of places back to the left.
 		return (double) tmp / factor;
-	}
-	
-	private SakaiFacade getFacade() {
-		if(facade == null) {
-			InjectorHolder.getInjector().inject(this);
-		}
-		return facade;
 	}
 }
 

@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -24,10 +24,9 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
-import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
+import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.pages.NotAuthorizedPage;
 
 
@@ -36,10 +35,6 @@ import org.sakaiproject.sitestats.tool.wicket.pages.NotAuthorizedPage;
  */
 public class LastJobRun extends Panel {
 	private static final long		serialVersionUID	= 1L;
-
-	/** Inject Sakai facade */
-	@SpringBean
-	private transient SakaiFacade	facade;
 
 	private String					realSiteId;
 	private String					siteId;
@@ -51,11 +46,11 @@ public class LastJobRun extends Panel {
 	
 	public LastJobRun(String id, String siteId) {
 		super(id);
-		realSiteId = facade.getToolManager().getCurrentPlacement().getContext();
+		realSiteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
 		if(siteId == null){
 			siteId = realSiteId;
 		}
-		boolean allowed = facade.getStatsAuthz().isUserAbleToViewSiteStats(siteId);
+		boolean allowed = Locator.getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
 		if(allowed) {
 			renderBody();
 		}else{
@@ -64,8 +59,8 @@ public class LastJobRun extends Panel {
 	}
 	
 	private void renderBody() {
-		StatsManager statsManager = facade.getStatsManager();
-		StatsUpdateManager statsUpdateManager = facade.getStatsUpdateManager();
+		StatsManager statsManager = Locator.getFacade().getStatsManager();
+		StatsUpdateManager statsUpdateManager = Locator.getFacade().getStatsUpdateManager();
 		
 		setRenderBodyOnly(true);
 		
@@ -77,7 +72,7 @@ public class LastJobRun extends Panel {
 		if(lastJobRunVisible) {
 			try{
 				Date d = statsUpdateManager.getEventDateFromLatestJobRun();
-				String dStr = facade.getTimeService().newTime(d.getTime()).toStringLocalFull();
+				String dStr = Locator.getFacade().getTimeService().newTime(d.getTime()).toStringLocalFull();
 				lastJobRunDate.setModel(new Model(dStr));
 			}catch(RuntimeException e) {
 				lastJobRunDate.setModel(new Model());

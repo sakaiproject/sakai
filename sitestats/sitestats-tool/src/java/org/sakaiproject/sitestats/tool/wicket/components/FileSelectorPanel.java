@@ -39,14 +39,13 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.request.target.basic.EmptyRequestTarget;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.sitestats.api.StatsManager;
-import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
+import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.models.CHResourceModel;
 import org.sakaiproject.sitestats.tool.wicket.pages.BasePage;
 
@@ -59,10 +58,6 @@ import org.sakaiproject.sitestats.tool.wicket.pages.BasePage;
 public class FileSelectorPanel extends Panel {
 	private static final long			serialVersionUID	= 1L;
 	private static final String			BASE_DIR			= "/";
-
-	/** Inject Sakai facade */
-	@SpringBean
-	private transient SakaiFacade		facade;
 
 	private String						siteId;
 	private String						siteTitle;
@@ -79,7 +74,7 @@ public class FileSelectorPanel extends Panel {
 		super(id, model);
 		this.siteId = siteId;
 		try{
-			this.siteTitle = facade.getSiteService().getSite(siteId).getTitle();
+			this.siteTitle = Locator.getFacade().getSiteService().getSite(siteId).getTitle();
 		}catch(IdUnusedException e){
 			this.siteTitle = siteId;
 		}
@@ -185,8 +180,8 @@ public class FileSelectorPanel extends Panel {
 		String dropboxCollectionId = null;
 		String attachmentsCollectionId = null;
 		if(!showDefaultBaseFoldersOnly) {
-			resourcesCollectionId = facade.getContentHostingService().getSiteCollection(siteId);
-			dropboxCollectionId = facade.getContentHostingService().getDropboxCollection(siteId);
+			resourcesCollectionId = Locator.getFacade().getContentHostingService().getSiteCollection(siteId);
+			dropboxCollectionId = Locator.getFacade().getContentHostingService().getDropboxCollection(siteId);
 			attachmentsCollectionId = resourcesCollectionId.replaceFirst(StatsManager.RESOURCES_DIR, StatsManager.ATTACHMENTS_DIR);
 		}else{
 			resourcesCollectionId = StatsManager.RESOURCES_DIR;
@@ -194,15 +189,15 @@ public class FileSelectorPanel extends Panel {
 			attachmentsCollectionId = StatsManager.ATTACHMENTS_DIR;
 		}
 		if(dir.equals(BASE_DIR)) {
-			resourcesList.add(new CHResourceModel(resourcesCollectionId, facade.getToolManager().getTool(StatsManager.RESOURCES_TOOLID).getTitle()/*(String) new ResourceModel("report_content_resources").getObject()*/, true));
-			resourcesList.add(new CHResourceModel(dropboxCollectionId, facade.getToolManager().getTool(StatsManager.DROPBOX_TOOLID).getTitle()/*(String) new ResourceModel("report_content_dropbox").getObject()*/, true));
+			resourcesList.add(new CHResourceModel(resourcesCollectionId, Locator.getFacade().getToolManager().getTool(StatsManager.RESOURCES_TOOLID).getTitle()/*(String) new ResourceModel("report_content_resources").getObject()*/, true));
+			resourcesList.add(new CHResourceModel(dropboxCollectionId, Locator.getFacade().getToolManager().getTool(StatsManager.DROPBOX_TOOLID).getTitle()/*(String) new ResourceModel("report_content_dropbox").getObject()*/, true));
 			resourcesList.add(new CHResourceModel(attachmentsCollectionId, (String) new ResourceModel("report_content_attachments").getObject(), true));
 		}else if(!showDefaultBaseFoldersOnly) {
-			ContentCollection collection = facade.getContentHostingService().getCollection(dir);
+			ContentCollection collection = Locator.getFacade().getContentHostingService().getCollection(dir);
 			if(collection != null) {
 				List<ContentEntity> members = collection.getMemberResources();
 				for(ContentEntity ce : members) {
-					String dispName = facade.getStatsManager().getResourceName("/content"+ce.getId(), false);
+					String dispName = Locator.getFacade().getStatsManager().getResourceName("/content"+ce.getId(), false);
 					resourcesList.add(new CHResourceModel(ce.getId(), dispName, ce.isCollection()));
 				}
 			}

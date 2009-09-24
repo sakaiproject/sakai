@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -27,23 +27,17 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
-import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
-import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
+import org.sakaiproject.sitestats.tool.facade.Locator;
 
 public class VisitsWidget extends Panel {
 	private static final long		serialVersionUID	= 1L;
 	private static Log				LOG					= LogFactory.getLog(VisitsWidget.class);
-
-	/** Inject Sakai facade */
-	@SpringBean
-	private transient SakaiFacade	facade;
 
 	/** The site id. */
 	private String					siteId				= null;
@@ -102,7 +96,7 @@ public class VisitsWidget extends Panel {
 			private static final long	serialVersionUID	= 1L;
 			@Override
 			public String getValue() {
-				return Long.toString(getFacade().getStatsManager().getTotalSiteVisits(siteId));
+				return Long.toString(Locator.getFacade().getStatsManager().getTotalSiteVisits(siteId));
 			}
 			@Override
 			public String getSecondValue() {
@@ -157,7 +151,7 @@ public class VisitsWidget extends Panel {
 			private static final long	serialVersionUID	= 1L;
 			@Override
 			public String getValue() {
-				return Long.toString(getFacade().getStatsManager().getTotalSiteUniqueVisits(siteId));
+				return Long.toString(Locator.getFacade().getStatsManager().getTotalSiteUniqueVisits(siteId));
 			}
 			@Override
 			public String getSecondValue() {
@@ -212,7 +206,7 @@ public class VisitsWidget extends Panel {
 			private static final long	serialVersionUID	= 1L;
 			@Override
 			public String getValue() {
-				return Long.toString(getFacade().getStatsManager().getTotalSiteUsers(siteId));
+				return Long.toString(Locator.getFacade().getStatsManager().getTotalSiteUsers(siteId));
 			}
 			@Override
 			public String getSecondValue() {
@@ -528,17 +522,10 @@ public class VisitsWidget extends Panel {
 	}
 	
 	// -------------------------------------------------------------------------------
-
-	private SakaiFacade getFacade() {
-		if(facade == null) {
-			InjectorHolder.getInjector().inject(this);
-		}
-		return facade;
-	}
 	
 	private Set<String> getSiteUsers() {
 		if(siteUsers == null) {
-			siteUsers = getFacade().getStatsManager().getSiteUsers(siteId);
+			siteUsers = Locator.getFacade().getStatsManager().getSiteUsers(siteId);
 			if(siteUsers == null) {
 				siteUsers = new HashSet<String>();
 			}
@@ -548,7 +535,7 @@ public class VisitsWidget extends Panel {
 	
 	private Set<String> getUsersWithVisits() {
 		if(usersWithVisits == null) {
-			usersWithVisits = getFacade().getStatsManager().getUsersWithVisits(siteId);
+			usersWithVisits = Locator.getFacade().getStatsManager().getUsersWithVisits(siteId);
 			if(usersWithVisits == null) {
 				usersWithVisits = new HashSet<String>();
 			}

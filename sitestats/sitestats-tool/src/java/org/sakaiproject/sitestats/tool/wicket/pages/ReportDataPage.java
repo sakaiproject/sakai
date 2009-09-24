@@ -34,7 +34,6 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
@@ -50,7 +49,6 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.request.target.basic.EmptyRequestTarget;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitestats.api.EventStat;
@@ -63,7 +61,7 @@ import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.api.report.ReportParams;
-import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
+import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.components.AjaxLazyLoadImage;
 import org.sakaiproject.sitestats.tool.wicket.components.ImageWithLink;
 import org.sakaiproject.sitestats.tool.wicket.components.LastJobRun;
@@ -79,10 +77,6 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 public class ReportDataPage extends BasePage {
 	private static final long			serialVersionUID	= 1L;
 	private static Log					LOG					= LogFactory.getLog(ReportDataPage.class);
-
-	/** Inject Sakai facade */
-	@SpringBean
-	private transient SakaiFacade		facade;
 
 	private String						realSiteId;
 	private String						siteId;
@@ -108,7 +102,7 @@ public class ReportDataPage extends BasePage {
 
 	public ReportDataPage(final ReportDefModel reportDef, final PageParameters pageParameters, final WebPage returnPage) {
 		this.reportDefModel = reportDef;
-		realSiteId = getFacade().getToolManager().getCurrentPlacement().getContext();
+		realSiteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
 		if(pageParameters != null) {
 			siteId = pageParameters.getString("siteId");
 			inPrintVersion = pageParameters.getBoolean("printVersion");
@@ -121,7 +115,7 @@ public class ReportDataPage extends BasePage {
 		}else{
 			this.returnPage = returnPage;
 		}
-		boolean allowed = getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
+		boolean allowed = Locator.getFacade().getStatsAuthz().isUserAbleToViewSiteStats(siteId);
 		if(allowed) {
 			if(reportDef != null && getReportDef() != null && getReportDef().getReportParams() != null) {
 				renderBody();
@@ -209,7 +203,7 @@ public class ReportDataPage extends BasePage {
 		// Report: table
 		SakaiDataTable reportTable = new SakaiDataTable(
 				"table", 
-				getTableColumns(getFacade(), getReportParams(), true), 
+				getTableColumns(getReportParams(), true), 
 				dataProvider, 
 				!inPrintVersion);
 		if(inPrintVersion) {
@@ -296,13 +290,13 @@ public class ReportDataPage extends BasePage {
 	
 	@SuppressWarnings("serial")
 	public static List<IColumn> getTableColumns(
-			final SakaiFacade facade, final ReportParams reportParams, final boolean columnsSortable
+			final ReportParams reportParams, final boolean columnsSortable
 		) {
 		List<IColumn> columns = new ArrayList<IColumn>();
-		final Map<String,ToolInfo> eventIdToolMap = facade.getEventRegistryService().getEventIdToolMap();
+		final Map<String,ToolInfo> eventIdToolMap = Locator.getFacade().getEventRegistryService().getEventIdToolMap();
 		
 		// site
-		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_SITE)) {
+		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_SITE)) {
 			columns.add(new PropertyColumn(new ResourceModel("th_site"), columnsSortable ? ReportsDataProvider.COL_SITE : null, ReportsDataProvider.COL_SITE) {
 				@Override
 				public void populateItem(Item item, String componentId, IModel model) {
@@ -310,7 +304,7 @@ public class ReportDataPage extends BasePage {
 					String lbl = "", href = "";
 					Site s = null;
 					try{
-						s = facade.getSiteService().getSite(site);
+						s = Locator.getFacade().getSiteService().getSite(site);
 						lbl = s.getTitle();
 						href = s.getUrl();
 					}catch(IdUnusedException e){
@@ -322,7 +316,7 @@ public class ReportDataPage extends BasePage {
 			});
 		}
 		// user
-		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_USER)) {
+		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_USER)) {
 			columns.add(new PropertyColumn(new ResourceModel("th_id"), columnsSortable ? ReportsDataProvider.COL_USERID : null, ReportsDataProvider.COL_USERID) {
 				@Override
 				public void populateItem(Item item, String componentId, IModel model) {
@@ -333,7 +327,7 @@ public class ReportDataPage extends BasePage {
 							name = "-";
 						}else{
 							try{
-								name = facade.getUserDirectoryService().getUser(userId).getDisplayId();
+								name = Locator.getFacade().getUserDirectoryService().getUser(userId).getDisplayId();
 							}catch(UserNotDefinedException e1){
 								name = userId;
 							}
@@ -356,7 +350,7 @@ public class ReportDataPage extends BasePage {
 							name = (String) new ResourceModel("user_anonymous_access").getObject();
 						}else{
 							try{
-								name = facade.getUserDirectoryService().getUser(userId).getDisplayName();
+								name = Locator.getFacade().getUserDirectoryService().getUser(userId).getDisplayName();
 							}catch(UserNotDefinedException e1){
 								name = (String) new ResourceModel("user_unknown").getObject();
 							}
@@ -369,18 +363,18 @@ public class ReportDataPage extends BasePage {
 			});
 		}
 		// tool
-		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_TOOL)) {
+		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_TOOL)) {
 			columns.add(new PropertyColumn(new ResourceModel("th_tool"), columnsSortable ? ReportsDataProvider.COL_TOOL : null, ReportsDataProvider.COL_TOOL) {
 				@Override
 				public void populateItem(Item item, String componentId, IModel model) {
 					final String toolId = ((EventStat) model.getObject()).getToolId();
 					String toolName = "";
 					if(!"".equals(toolId)){
-						toolName = facade.getEventRegistryService().getToolName(toolId);
+						toolName = Locator.getFacade().getEventRegistryService().getToolName(toolId);
 					}
 					Label toolLabel = new Label(componentId, toolName);
 					String toolIconClass = "toolIcon";
-					String toolIconPath = "url(" + facade.getEventRegistryService().getToolIcon(toolId) + ")";
+					String toolIconPath = "url(" + Locator.getFacade().getEventRegistryService().getToolIcon(toolId) + ")";
 					toolLabel.add(new AttributeModifier("class", true, new Model(toolIconClass)));
 					toolLabel.add(new AttributeModifier("style", true, new Model("background-image: "+toolIconPath)));
 					toolLabel.add(new AttributeModifier("title", true, new Model(toolName)));
@@ -389,22 +383,22 @@ public class ReportDataPage extends BasePage {
 			});
 		}
 		// event
-		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_EVENT)) {
+		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_EVENT)) {
 			columns.add(new PropertyColumn(new ResourceModel("th_event"), columnsSortable ? ReportsDataProvider.COL_EVENT : null, ReportsDataProvider.COL_EVENT) {
 				@Override
 				public void populateItem(Item item, String componentId, IModel model) {
 					final String eventId = ((EventStat) model.getObject()).getEventId();
 					String eventName = "";
 					if(!"".equals(eventId)){
-						eventName = facade.getEventRegistryService().getEventName(eventId);
+						eventName = Locator.getFacade().getEventRegistryService().getEventName(eventId);
 					}
 					Label eventLabel = new Label(componentId, eventName);
 					ToolInfo toolInfo = eventIdToolMap.get(eventId);
 					if(toolInfo != null) {
 						String toolId = toolInfo.getToolId();
-						String toolName = facade.getEventRegistryService().getToolName(toolId);
+						String toolName = Locator.getFacade().getEventRegistryService().getToolName(toolId);
 						String toolIconClass = "toolIcon";
-						String toolIconPath = "url(" + facade.getEventRegistryService().getToolIcon(toolId) + ")";
+						String toolIconPath = "url(" + Locator.getFacade().getEventRegistryService().getToolIcon(toolId) + ")";
 						eventLabel.add(new AttributeModifier("class", true, new Model(toolIconClass)));
 						eventLabel.add(new AttributeModifier("style", true, new Model("background-image: "+toolIconPath)));
 						eventLabel.add(new AttributeModifier("title", true, new Model(toolName)));
@@ -414,7 +408,7 @@ public class ReportDataPage extends BasePage {
 			});
 		}
 		// resource
-		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_RESOURCE)) {
+		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_RESOURCE)) {
 			columns.add(new PropertyColumn(new ResourceModel("th_resource"), columnsSortable ? ReportsDataProvider.COL_RESOURCE : null, ReportsDataProvider.COL_RESOURCE) {
 				@Override
 				public void populateItem(Item item, String componentId, IModel model) {
@@ -422,9 +416,9 @@ public class ReportDataPage extends BasePage {
 					String imgUrl = null, lnkUrl = null, lnkLabel = null;
 					Component resourceComp = null;
 					if(ref != null && !"".equals(ref)){
-						imgUrl = facade.getStatsManager().getResourceImage(ref);
-						lnkUrl = facade.getStatsManager().getResourceURL(ref);
-						lnkLabel = facade.getStatsManager().getResourceName(ref);
+						imgUrl = Locator.getFacade().getStatsManager().getResourceImage(ref);
+						lnkUrl = Locator.getFacade().getStatsManager().getResourceURL(ref);
+						lnkLabel = Locator.getFacade().getStatsManager().getResourceName(ref);
 						if(lnkLabel == null) {
 							lnkLabel = (String) new ResourceModel("resource_unknown").getObject();
 						}					
@@ -435,7 +429,7 @@ public class ReportDataPage extends BasePage {
 			});
 		}
 		// resource action
-		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_RESOURCE_ACTION)) {
+		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_RESOURCE_ACTION)) {
 			columns.add(new PropertyColumn(new ResourceModel("th_action"), columnsSortable ? ReportsDataProvider.COL_ACTION : null, ReportsDataProvider.COL_ACTION) {
 				@Override
 				public void populateItem(Item item, String componentId, IModel model) {
@@ -451,10 +445,10 @@ public class ReportDataPage extends BasePage {
 				}
 			});
 		}
-		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_DATE)) {
+		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_DATE)) {
 			columns.add(new PropertyColumn(new ResourceModel("th_date"), columnsSortable ? ReportsDataProvider.COL_DATE : null, ReportsDataProvider.COL_DATE));
 		}
-		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_DATEMONTH)) {
+		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_DATEMONTH)) {
 			columns.add(new PropertyColumn(new ResourceModel("th_date"), columnsSortable ? ReportsDataProvider.COL_DATE : null, ReportsDataProvider.COL_DATE) {
 				@Override
 				public void populateItem(Item item, String componentId, IModel model) {
@@ -464,7 +458,7 @@ public class ReportDataPage extends BasePage {
 				}
 			});
 		}
-		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_DATEYEAR)) {
+		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_DATEYEAR)) {
 			columns.add(new PropertyColumn(new ResourceModel("th_date"), columnsSortable ? ReportsDataProvider.COL_DATE : null, ReportsDataProvider.COL_DATE) {
 				@Override
 				public void populateItem(Item item, String componentId, IModel model) {
@@ -474,16 +468,16 @@ public class ReportDataPage extends BasePage {
 				}
 			});
 		}
-		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_LASTDATE)) {
+		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_LASTDATE)) {
 			columns.add(new PropertyColumn(new ResourceModel("th_lastdate"), columnsSortable ? ReportsDataProvider.COL_DATE : null, ReportsDataProvider.COL_DATE));
 		}
-		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_TOTAL)) {
+		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_TOTAL)) {
 			columns.add(new PropertyColumn(new ResourceModel("th_total"), columnsSortable ? ReportsDataProvider.COL_TOTAL : null, "count"));
 		}
-		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_VISITS)) {
+		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_VISITS)) {
 			columns.add(new PropertyColumn(new ResourceModel("th_visits"), columnsSortable ? ReportsDataProvider.COL_VISITS : null, "totalVisits"));
 		}
-		if(facade.getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_UNIQUEVISITS)) {
+		if(Locator.getFacade().getReportManager().isReportColumnAvailable(reportParams, StatsManager.T_UNIQUEVISITS)) {
 			columns.add(new PropertyColumn(new ResourceModel("th_uniquevisitors"), columnsSortable ? ReportsDataProvider.COL_UNIQUEVISITS : null, "totalUnique"));
 		}
 		return columns;
@@ -497,10 +491,10 @@ public class ReportDataPage extends BasePage {
 	}
 	
 	private byte[] getChartImage(int width, int height) {
-		PrefsData prefsData = getFacade().getStatsManager().getPreferences(siteId, false);
+		PrefsData prefsData = Locator.getFacade().getStatsManager().getPreferences(siteId, false);
 		int _width = (width <= 0) ? 350 : width;
 		int _height = (height <= 0) ? 200: height;
-		return getFacade().getChartService().generateChart(
+		return Locator.getFacade().getChartService().generateChart(
 					report, _width, _height,
 					prefsData.isChartIn3D(), prefsData.getChartTransparency(),
 					prefsData.isItemLabelsVisible()
@@ -530,7 +524,7 @@ public class ReportDataPage extends BasePage {
 		// append site
 		exportFileName.append(" (");
 		try{
-			exportFileName.append((getFacade().getSiteService().getSite(siteId)).getTitle());
+			exportFileName.append((Locator.getFacade().getSiteService().getSite(siteId)).getTitle());
 		}catch(IdUnusedException e){
 			exportFileName.append(siteId);
 		}
@@ -540,7 +534,7 @@ public class ReportDataPage extends BasePage {
 
 	protected void exportXls() {
 		String fileName = getExportFileName();
-		byte[] hssfWorkbookBytes = getFacade().getReportManager().getReportAsExcel(report, fileName);
+		byte[] hssfWorkbookBytes = Locator.getFacade().getReportManager().getReportAsExcel(report, fileName);
 		
 		RequestCycle.get().setRequestTarget(EmptyRequestTarget.getInstance());
 		WebResponse response = (WebResponse) getResponse();
@@ -568,7 +562,7 @@ public class ReportDataPage extends BasePage {
 
 	protected void exportCsv() {
 		String fileName = getExportFileName();
-		String csvString = getFacade().getReportManager().getReportAsCsv(report);
+		String csvString = Locator.getFacade().getReportManager().getReportAsCsv(report);
 		
 		RequestCycle.get().setRequestTarget(EmptyRequestTarget.getInstance());
 		WebResponse response = (WebResponse) getResponse();
@@ -596,7 +590,7 @@ public class ReportDataPage extends BasePage {
 
 	protected void exportPdf() {
 		String fileName = getExportFileName();
-		byte[] pdf = getFacade().getReportManager().getReportAsPDF(report);
+		byte[] pdf = Locator.getFacade().getReportManager().getReportAsPDF(report);
 
 		RequestCycle.get().setRequestTarget(EmptyRequestTarget.getInstance());
 		WebResponse response = (WebResponse) getResponse();
@@ -621,17 +615,10 @@ public class ReportDataPage extends BasePage {
 			}
 		}
 	}
-	
-	private SakaiFacade getFacade() {
-		if(facade == null) {
-			InjectorHolder.getInjector().inject(this);
-		}
-		return facade;
-	}
 
 	private PrefsData getPrefsdata() {
 		if(prefsdata == null) {
-			prefsdata = getFacade().getStatsManager().getPreferences(siteId, true);
+			prefsdata = Locator.getFacade().getStatsManager().getPreferences(siteId, true);
 		}
 		return prefsdata;
 	}
@@ -656,51 +643,51 @@ public class ReportDataPage extends BasePage {
 	// Report results: SUMMARY 
 	// ######################################################################################	
 	public String getReportDescription() {
-		return getFacade().getReportManager().getReportFormattedParams().getReportDescription(report);
+		return Locator.getFacade().getReportManager().getReportFormattedParams().getReportDescription(report);
 	}
 	
 	public String getReportSite() {
-		return getFacade().getReportManager().getReportFormattedParams().getReportSite(report);
+		return Locator.getFacade().getReportManager().getReportFormattedParams().getReportSite(report);
 	}
 	
 	public String getReportGenerationDate() {
-		return getFacade().getReportManager().getReportFormattedParams().getReportGenerationDate(report);
+		return Locator.getFacade().getReportManager().getReportFormattedParams().getReportGenerationDate(report);
 	}
 	
 	public String getReportActivityBasedOn() {
-		return getFacade().getReportManager().getReportFormattedParams().getReportActivityBasedOn(report);
+		return Locator.getFacade().getReportManager().getReportFormattedParams().getReportActivityBasedOn(report);
 	}
 	
 	public String getReportActivitySelectionTitle() {
-		return getFacade().getReportManager().getReportFormattedParams().getReportActivitySelectionTitle(report);
+		return Locator.getFacade().getReportManager().getReportFormattedParams().getReportActivitySelectionTitle(report);
 	}
 	
 	public String getReportActivitySelection() {
-		return getFacade().getReportManager().getReportFormattedParams().getReportActivitySelection(report);
+		return Locator.getFacade().getReportManager().getReportFormattedParams().getReportActivitySelection(report);
 	}
 	
 	public String getReportResourceActionTitle() {
-		return getFacade().getReportManager().getReportFormattedParams().getReportResourceActionTitle(report);
+		return Locator.getFacade().getReportManager().getReportFormattedParams().getReportResourceActionTitle(report);
 	}
 	
 	public String getReportResourceAction() {
-		return getFacade().getReportManager().getReportFormattedParams().getReportResourceAction(report);
+		return Locator.getFacade().getReportManager().getReportFormattedParams().getReportResourceAction(report);
 	}
 	
 	public String getReportTimePeriod() {
-		return getFacade().getReportManager().getReportFormattedParams().getReportTimePeriod(report);
+		return Locator.getFacade().getReportManager().getReportFormattedParams().getReportTimePeriod(report);
 	}
 	
 	public String getReportUserSelectionType() {
-		return getFacade().getReportManager().getReportFormattedParams().getReportUserSelectionType(report);
+		return Locator.getFacade().getReportManager().getReportFormattedParams().getReportUserSelectionType(report);
 	}
 	
 	public String getReportUserSelectionTitle() {
-		return getFacade().getReportManager().getReportFormattedParams().getReportUserSelectionTitle(report);
+		return Locator.getFacade().getReportManager().getReportFormattedParams().getReportUserSelectionTitle(report);
 	}
 	
 	public String getReportUserSelection() {
-		return getFacade().getReportManager().getReportFormattedParams().getReportUserSelection(report);
+		return Locator.getFacade().getReportManager().getReportFormattedParams().getReportUserSelection(report);
 	}
 	
 }

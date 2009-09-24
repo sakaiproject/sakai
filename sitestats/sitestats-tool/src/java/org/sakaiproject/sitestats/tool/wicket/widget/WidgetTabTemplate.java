@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -30,7 +30,6 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
-import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -40,7 +39,6 @@ import org.apache.wicket.markup.html.link.StatelessLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
@@ -51,7 +49,7 @@ import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.parser.EventParserTip;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
-import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
+import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.components.AjaxLazyLoadImage;
 import org.sakaiproject.sitestats.tool.wicket.components.IndicatingAjaxDropDownChoice;
 import org.sakaiproject.sitestats.tool.wicket.components.SakaiDataTable;
@@ -92,10 +90,6 @@ public abstract class WidgetTabTemplate extends Panel {
 	private String					toolFilter				= ReportManager.WHAT_EVENTS_ALLTOOLS;
 	private String					resactionFilter			= null;
 
-	/** Inject Sakai facade */
-	@SpringBean
-	private transient SakaiFacade	facade;
-	
 	
 	public WidgetTabTemplate(String id, String siteId) {
 		super(id);	
@@ -157,10 +151,10 @@ public abstract class WidgetTabTemplate extends Panel {
 			}
 			
 			private byte[] getChartImage(int width, int height) {
-				PrefsData prefsData = getFacade().getStatsManager().getPreferences(siteId, false);
+				PrefsData prefsData = Locator.getFacade().getStatsManager().getPreferences(siteId, false);
 				int _width = (width <= 0) ? 350 : width;
 				int _height = (height <= 0) ? 200: height;
-				return getFacade().getChartService().generateChart(
+				return Locator.getFacade().getChartService().generateChart(
 							chartDataProvider.getReport(), _width, _height,
 							prefsData.isChartIn3D(), prefsData.getChartTransparency(),
 							prefsData.isItemLabelsVisible()
@@ -229,14 +223,14 @@ public abstract class WidgetTabTemplate extends Panel {
 		if(useChartReportDefinitionForTable()) {
 			table = new SakaiDataTable(
 					"table", 
-					ReportDataPage.getTableColumns(getFacade(), getChartReportDefinition().getReportParams(), false), 
+					ReportDataPage.getTableColumns(getChartReportDefinition().getReportParams(), false), 
 					chartDataProvider, false
 					);
 			
 		}else{
 			table = new SakaiDataTable(
 					"table", 
-					ReportDataPage.getTableColumns(getFacade(), getTableReportDefinition().getReportParams(), false), 
+					ReportDataPage.getTableColumns(getTableReportDefinition().getReportParams(), false), 
 					tableDataProvider, false
 					);
 		}
@@ -291,7 +285,7 @@ public abstract class WidgetTabTemplate extends Panel {
 		List<String> roleFilterOptions = new ArrayList<String>();
 		roleFilterOptions.add(ReportManager.WHO_ALL);
 		try{
-			Site site = getFacade().getSiteService().getSite(siteId);
+			Site site = Locator.getFacade().getSiteService().getSite(siteId);
 			roles = site.getRoles();
 			Iterator<Role> i = roles.iterator();
 			while(i.hasNext()){
@@ -337,7 +331,7 @@ public abstract class WidgetTabTemplate extends Panel {
 				if(ReportManager.WHAT_EVENTS_ALLTOOLS.equals(object)) {
 					return new ResourceModel("overview_filter_tool_all").getObject();
 				}else{
-					return getFacade().getEventRegistryService().getToolName((String) object);
+					return Locator.getFacade().getEventRegistryService().getToolName((String) object);
 				}
 			}
 			public String getIdValue(Object object, int index) {
@@ -428,10 +422,10 @@ public abstract class WidgetTabTemplate extends Panel {
 	}
 	
 	private boolean isToolSuported(final ToolInfo toolInfo) {
-		if(getFacade().getStatsManager().isEventContextSupported()){
+		if(Locator.getFacade().getStatsManager().isEventContextSupported()){
 			return true;
 		}else{
-			List<ToolInfo> siteTools = getFacade().getEventRegistryService().getEventRegistry(siteId, getPrefsdata().isListToolEventsOnlyAvailableInSite());
+			List<ToolInfo> siteTools = Locator.getFacade().getEventRegistryService().getEventRegistry(siteId, getPrefsdata().isListToolEventsOnlyAvailableInSite());
 			Iterator<ToolInfo> i = siteTools.iterator();
 			while (i.hasNext()){
 				ToolInfo t = i.next();
@@ -457,7 +451,7 @@ public abstract class WidgetTabTemplate extends Panel {
 	
 	private PrefsData getPrefsdata() {
 		if(prefsdata == null) {
-			prefsdata = getFacade().getStatsManager().getPreferences(siteId, false);
+			prefsdata = Locator.getFacade().getStatsManager().getPreferences(siteId, false);
 		}
 		return prefsdata;
 	}
@@ -515,13 +509,6 @@ public abstract class WidgetTabTemplate extends Panel {
 
 	public String getResactionFilter() {
 		return resactionFilter;
-	}
-	
-	private SakaiFacade getFacade() {
-		if(facade == null) {
-			InjectorHolder.getInjector().inject(this);
-		}
-		return facade;
 	}
 	
 }

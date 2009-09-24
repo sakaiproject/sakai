@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -24,7 +24,6 @@ import java.util.List;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -33,10 +32,9 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitestats.api.StatsManager;
-import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
+import org.sakaiproject.sitestats.tool.facade.Locator;
 import org.sakaiproject.sitestats.tool.wicket.components.AdminMenu;
 import org.sakaiproject.sitestats.tool.wicket.components.SakaiDataTable;
 import org.sakaiproject.sitestats.tool.wicket.components.SakaiNavigatorSearch;
@@ -49,21 +47,17 @@ import org.sakaiproject.sitestats.tool.wicket.providers.StatisticableSitesDataPr
  */
 public class AdminPage extends BasePage {
 	private static final long		serialVersionUID	= 1L;
-
-	/** Inject Sakai facade */
-	@SpringBean
-	private transient SakaiFacade	facade;
 	
 	public AdminPage() {
 		this(null);
 	}
 
 	public AdminPage(PageParameters params) {
-		String siteId = getFacade().getToolManager().getCurrentPlacement().getContext();
-		boolean allowed = getFacade().getStatsAuthz().isUserAbleToViewSiteStatsAdmin(siteId);
+		String siteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
+		boolean allowed = Locator.getFacade().getStatsAuthz().isUserAbleToViewSiteStatsAdmin(siteId);
 		if(allowed){
 			renderBody();
-			getFacade().getStatsManager().logEvent("admin", StatsManager.LOG_ACTION_VIEW, siteId, true);
+			Locator.getFacade().getStatsManager().logEvent("admin", StatsManager.LOG_ACTION_VIEW, siteId, true);
 		}else{
 			redirectToInterceptPage(new NotAuthorizedPage());
 		}
@@ -86,7 +80,7 @@ public class AdminPage extends BasePage {
 		// Site types
 		List<String> choices = new ArrayList<String>();
 		choices.add(StatisticableSitesDataProvider.SITE_TYPE_ALL);
-		List<String> types = getFacade().getSiteService().getSiteTypes();
+		List<String> types = Locator.getFacade().getSiteService().getSiteTypes();
 		for(String t : types) {
 			choices.add(t);	
 		}
@@ -144,12 +138,5 @@ public class AdminPage extends BasePage {
 		
 		// Table
 		add(new SakaiDataTable("table", columns, dataProvider, true));
-	}
-	
-	private SakaiFacade getFacade() {
-		if(facade == null) {
-			InjectorHolder.getInjector().inject(this);
-		}
-		return facade;
 	}
 }
