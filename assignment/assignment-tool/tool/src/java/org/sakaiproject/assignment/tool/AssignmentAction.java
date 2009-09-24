@@ -2945,7 +2945,7 @@ public class AssignmentAction extends PagedResourceActionII
 					catch (ConflictingAssignmentNameException e)
 					{
 						// add alert prompting for change assignment title
-						addAlert(state, rb.getString("addtogradebook.nonUniqueTitle"));
+						addAlert(state, rb.getFormattedMessage("addtogradebook.nonUniqueTitle", new Object[]{"\"" + newAssignment_title + "\""}));
 						M_log.warn(this + ":integrateGradebook " + e.getMessage());
 					}
 					catch (ConflictingExternalIdException e)
@@ -5076,24 +5076,6 @@ public class AssignmentAction extends PagedResourceActionII
 						}
 								
 					}
-						
-
-					// add the due date to schedule if the schedule exists
-					integrateWithCalendar(state, a, title, dueTime, checkAddDueTime, oldDueTime, aPropertiesEdit);
-
-					// the open date been announced
-					integrateWithAnnouncement(state, aOldTitle, a, title, openTime, checkAutoAnnounce, oldOpenTime);
-
-					// integrate with Gradebook
-					try
-					{
-						initIntegrateWithGradebook(state, siteId, aOldTitle, oAssociateGradebookAssignment, a, title, dueTime, gradeType, gradePoints, addtoGradebook, associateGradebookAssignment, range);
-					}
-					catch (AssignmentHasIllegalPointsException e)
-					{
-						addAlert(state, rb.getString("addtogradebook.illegalPoints"));
-						M_log.warn(this + ":postOrSaveAssignment " + e.getMessage());
-					}
 	
 				} //if
 				
@@ -5236,20 +5218,38 @@ public class AssignmentAction extends PagedResourceActionII
 					nAllPurpose.setAccessSet(accessSet);
 					m_assignmentSupplementItemService.saveAllPurposeItem(nAllPurpose);
 				}
+				
+				// set default sorting
+				setDefaultSort(state);
+				
+				if (state.getAttribute(STATE_MESSAGE) == null)
+				{
+					// set the state navigation variables
+					state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+					state.setAttribute(ATTACHMENTS, EntityManager.newReferenceList());
+					resetAssignment(state);
+					
+					// add the due date to schedule if the schedule exists
+					integrateWithCalendar(state, a, title, dueTime, checkAddDueTime, oldDueTime, aPropertiesEdit);
+
+					// the open date been announced
+					integrateWithAnnouncement(state, aOldTitle, a, title, openTime, checkAutoAnnounce, oldOpenTime);
+
+					// integrate with Gradebook
+					try
+					{
+						initIntegrateWithGradebook(state, siteId, aOldTitle, oAssociateGradebookAssignment, a, title, dueTime, gradeType, gradePoints, addtoGradebook, associateGradebookAssignment, range);
+					}
+					catch (AssignmentHasIllegalPointsException e)
+					{
+						addAlert(state, rb.getString("addtogradebook.illegalPoints"));
+						M_log.warn(this + ":postOrSaveAssignment " + e.getMessage());
+					}
+				}
 
 			} // if
 
 		} // if
-		
-		// set default sorting
-		setDefaultSort(state);
-		
-		if (state.getAttribute(STATE_MESSAGE) == null)
-		{
-			state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
-			state.setAttribute(ATTACHMENTS, EntityManager.newReferenceList());
-			resetAssignment(state);
-		}
 		
 	} // postOrSaveAssignment
 
