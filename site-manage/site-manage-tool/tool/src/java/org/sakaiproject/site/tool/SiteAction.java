@@ -628,12 +628,12 @@ public class SiteAction extends PagedResourceActionII {
 	/** the web content tool id **/
 	private final static String WEB_CONTENT_TOOL_ID = "sakai.iframe";
 	private final static String WEB_CONTENT_TOOL_SOURCE_CONFIG = "source";
-	private final static String WEB_CONTENT_TOOL_SOURCE_CONFIG_VALUE = "http://www.sakaiproject.org/news-rss-feed";
+	private final static String WEB_CONTENT_TOOL_SOURCE_CONFIG_VALUE = "http://";
 
 	/** the news tool **/
 	private final static String NEWS_TOOL_ID = "sakai.news";
 	private final static String NEWS_TOOL_CHANNEL_CONFIG = "channel-url";
-	private final static String NEWS_TOOL_CHANNEL_CONFIG_VALUE = "http://";
+	private final static String NEWS_TOOL_CHANNEL_CONFIG_VALUE = "http://www.sakaiproject.org/news-rss-feed";
 	
 	/**
 	 * what are the tool ids within Home page?
@@ -5856,11 +5856,12 @@ public class SiteAction extends PagedResourceActionII {
 	{
 		HashMap<String, String> rv = new HashMap<String, String>();
 	
-		// read from configuration file
+		// read attribute list from configuration file
 		ArrayList<String> attributes=new ArrayList<String>();
 		String attributesConfig = ServerConfigurationService.getString(CONFIG_TOOL_ATTRIBUTE + toolId);
 		if ( attributesConfig != null && attributesConfig.length() > 0)
 		{
+			// read attributes from config file
 			attributes = new ArrayList(Arrays.asList(attributesConfig.split(",")));
 		}
 		else
@@ -5877,8 +5878,8 @@ public class SiteAction extends PagedResourceActionII {
 			}
 		}
 		
+		// read the defaul attribute setting from configuration
 		ArrayList<String> defaultValues =new ArrayList<String>();
-		
 		String defaultValueConfig = ServerConfigurationService.getString(CONFIG_TOOL_ATTRIBUTE_DEFAULT + toolId);
 		if ( defaultValueConfig != null && defaultValueConfig.length() > 0)
 		{
@@ -5886,39 +5887,39 @@ public class SiteAction extends PagedResourceActionII {
 		}
 		else
 		{
+			// otherwise, treat News tool and Web Content tool differently
 			if (toolId.equals(NEWS_TOOL_ID))
 			{
-				if (toolConfig != null && toolConfig.getConfig() != null && toolConfig.getConfig().containsKey(NEWS_TOOL_CHANNEL_CONFIG))
-				{
-					defaultValues.add(toolConfig.getConfig().getProperty(NEWS_TOOL_CHANNEL_CONFIG));
-				}
-				else
-				{
-					// default value
-					defaultValues.add(WEB_CONTENT_TOOL_SOURCE_CONFIG_VALUE);
-				}
+				// default value
+				defaultValues.add(NEWS_TOOL_CHANNEL_CONFIG_VALUE);
 			}
 			else if (toolId.equals(WEB_CONTENT_TOOL_ID))
 			{
-				if (toolConfig != null && toolConfig.getConfig() != null && toolConfig.getConfig().containsKey(WEB_CONTENT_TOOL_SOURCE_CONFIG))
-				{
-					defaultValues.add(toolConfig.getConfig().getProperty(WEB_CONTENT_TOOL_SOURCE_CONFIG));
-				}
-				else
-				{
-					// default value
-					defaultValues.add(NEWS_TOOL_CHANNEL_CONFIG_VALUE);
-				}
+				// default value
+				defaultValues.add(WEB_CONTENT_TOOL_SOURCE_CONFIG_VALUE);
 			}
 		}
 			
-		if (attributes != null && attributes.size() > 0)
+		if (attributes != null && attributes.size() > 0 && defaultValues != null && defaultValues.size() > 0 && attributes.size() == defaultValues.size())
 		{
-			for (int i = 0; i<attributes.size();i++)
+			for (int i = 0; i < attributes.size(); i++)
 			{
-				rv.put(attributes.get(i), defaultValues.get(i));
+				String attribute = attributes.get(i);
+				
+				// check to see the current settings first
+				Properties config = toolConfig != null ? toolConfig.getConfig() : null;
+				if (config != null && config.containsKey(attribute))
+				{
+					rv.put(attribute, config.getProperty(attribute));
+				}
+				else
+				{
+					// set according to the default setting
+					rv.put(attribute, defaultValues.get(i));
+				}
 			}
 		}
+		
 		
 		return rv;
 	}
