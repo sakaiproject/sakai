@@ -44,7 +44,8 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 			User user, String siteTitle) {
 		ResourceLoader rb = new ResourceLoader(user.getId(), "UserNotificationProvider");
 		
-		String from = getSetupRequestEmailAddress();
+		String from = serverConfigurationService.getBoolean(NOTIFY_FROM_CURRENT_USER, false)?
+				getCurrentUserEmailAddress():getSetupRequestEmailAddress();
 		if (from != null) {
 			String productionSiteName = serverConfigurationService.getString(
 					"ui.service", "");
@@ -148,6 +149,15 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 	/*
 	 *  Private methods
 	 */
+	private String getCurrentUserEmailAddress() {
+		User currentUser = userDirectoryService.getCurrentUser();
+		String email = currentUser != null ? currentUser.getEmail():null;
+		if (email == null || email.length() == 0) {
+			email = getSetupRequestEmailAddress();
+		}
+		return email;
+	}
+	
 	
 	private String getSetupRequestEmailAddress() {
 		String from = serverConfigurationService.getString("setup.request",
