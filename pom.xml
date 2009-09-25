@@ -77,21 +77,7 @@
       <modules>
         <module>kernel-deploy</module>
         <module>access</module>
-        <module>alias/alias-api/api</module>
-        <module>alias/alias-impl/impl</module>
-        <module>alias/alias-impl/pack</module>
-        <module>authz/authz-api/api</module>
-        <module>authz/authz-impl/impl</module>
-        <module>authz/authz-impl/pack</module>
         <module>config</module>
-        <module>content/content-api/api</module>
-        <module>content/content-impl/impl</module>
-        <module>content/content-impl/pack</module>
-        <module>content/content-impl/hbm</module>
-        <module>courier/courier-api/api</module>
-        <module>courier/courier-impl/impl</module>
-        <module>courier/courier-impl/pack</module>
-        <module>courier/courier-util/util</module>
         <module>jsf</module>
         <module>login</module>
         <module>master</module>
@@ -100,33 +86,17 @@
         <module>mailarchive/mailarchive-api/api</module>
         <module>mailarchive/mailarchive-impl/impl</module>
         <module>mailarchive/mailarchive-impl/pack</module>
-        <module>memory/memory-api/api</module>
-        <module>memory/memory-impl/impl</module>
-        <module>memory/memory-impl/pack</module>
         <module>metaobj/metaobj-api/api</module>
-        <module>metaobj/metaobj-impl</module>
+        <module>metaobj/metaobj-impl/api-impl</module>
         <module>portal</module>
         <module>presence/presence-api/api</module>
         <module>reference/library</module>
         <module>sakai-mock</module>
-        <module>site/site-api/api</module>
-        <module>site/site-impl/impl</module>
-        <module>site/site-impl/pack</module>
         <module>site-manage/site-manage-api/api</module>
         <module>site-manage/site-manage-impl/impl</module>
         <module>site-manage/site-manage-impl/pack</module>
         <module>site-manage/site-manage-util/util</module>
         <module>test-harness</module>
-        <module>tool/tool-api/api</module>
-        <module>tool/tool-impl/impl</module>
-        <module>tool/tool-impl/pack</module>
-        <module>tool/tool-util/util</module>
-        <module>tool/tool-util/servlet</module>
-        <module>tool/tool-shared-deploy</module>
-        <module>user/user-api/api</module>
-        <module>user/user-impl/impl</module>
-        <module>user/user-impl/pack</module>
-        <module>user/user-util/util</module>
         <module>velocity</module>
       </modules>
     </profile>
