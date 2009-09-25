@@ -154,8 +154,7 @@ $(document).ready(function() {
 			</div>	
 		#end
 				
-		#set ($actionCount=2000)
-		#set ($actionCount2=1000)
+		#set ($actionCount=0)
 		######################  Heirarchical list of resource folders/items  ##############
 		<table class="listHier lines centerLines" cellspacing="0" border="0"  summary="$clang.getString("sh.listsum")">
 			######################  Column labels, sort controls, expand/collapse all  ##############
@@ -353,28 +352,25 @@ $(document).ready(function() {
 							#end
 						#end
 					</td>
-					#set ($actionCount=($actionCount - 1))
-					#set ($actionCount2=($actionCount2 - 1))
+					#set ($actionCount=($actionCount + 1))
+				
+					
 					<td headers="actions2"   class="attach">
 
 					#if($item.addActions && !$item.addActions.isEmpty())
-							<a href="#" onfocus="document.getElementById('menu-$actionCount').style.display='none';"></a>
-							<a href="#" onfocus="document.getElementById('menu-$actionCount').style.display='block';" class="skip">$tlang.getString("button.startadd")</a>
+							<a href="#" onfocus="document.getElementById('menu-add$actionCount').style.display='none';"></a>
+							<a href="#" onfocus="document.getElementById('menu-add$actionCount').style.display='block';" class="skip">$tlang.getString("button.startadd")</a>
 
-							<ul style="z-index:$actionCount;margin:0;display:block" class="makeMenu">
-
-							<li  class="menuOpen" id="$actionCount">
+							<ul style="margin:0;display:block" class="makeMenu">
+							<li  class="menuOpen" id="add$actionCount">
 									&nbsp;$tlang.getString("button.add") 
 								<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"  alt="$tlang.getString("button.add")"  class="dropdn"/> 
-									<ul  id="menu-$actionCount" class="makeMenuChild">
-##										<li class="menuClose">
-##										<a href="#"  onmousedown="document.getElementById('menu-$actionCount').style.display='none';">$tlang.getString("button.closemenu")</a>
-##										</li>
+									<ul  id="menu-add$actionCount" class="makeMenuChild">
 										#foreach($action in $item.addActions)
 											<li><a  href="javascript:document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a></li>
 										#end
 										<li style="height:1px;width:1px;display:inline;">
-											<a href="#"  class="skip" onfocus="document.getElementById('menu-$actionCount').style.display='none';document.getElementById('last-$actionCount').focus()" >$tlang.getString("button.endadd")</a>
+											<a href="#"  class="skip" onfocus="document.getElementById('menu-add$actionCount').style.display='none';document.getElementById('last-add$actionCount').focus()" >$tlang.getString("button.endadd")</a>
 										</li>
 									</ul>
 
@@ -382,7 +378,7 @@ $(document).ready(function() {
 
 								</ul>
 
-							<a href="#" id="last-$actionCount" class="skip"></a>							
+							<a href="#" id="last-add$actionCount" class="skip"></a>							
 
 							#end
 
@@ -390,16 +386,13 @@ $(document).ready(function() {
 					<td headers="actions3"   class="attach">
 
 					#if($item.otherActions && !$item.otherActions.isEmpty())
-						<a href="#" onfocus="document.getElementById('menu-$actionCount2').style.display='none';" class="skip"></a>
-						<a href="#" onfocus="document.getElementById('menu-$actionCount2').style.display='block';" class="skip">$tlang.getString("button.startact")</a>
-							<ul style="z-index:$actionCount2;margin:0;display:block" class="makeMenu">
-								<li class="menuOpen" id="$actionCount2">
+						<a href="#" onfocus="document.getElementById('menu-act$actionCount').style.display='none';" class="skip"></a>
+						<a href="#" onfocus="document.getElementById('menu-act$actionCount').style.display='block';" class="skip">$tlang.getString("button.startact")</a>
+							<ul style="margin:0;display:block" class="makeMenu">
+								<li class="menuOpen" id="act$actionCount">
 									&nbsp;$tlang.getString("button.actions")
 									<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"   alt="$tlang.getString("button.actions")" class="dropdn"/>									
-									<ul  id="menu-$actionCount2"  class="makeMenuChild">
-##										<li class="menuClose">
-##											<a href="#"  onmousedown="document.getElementById('menu-$actionCount2').style.display='none'">$tlang.getString("button.closemenu")</a>
-##										</li>
+									<ul  id="menu-act$actionCount"  class="makeMenuChild">
 										#foreach($action in $item.otherActions)
 											<li>
 												<a  href="javascript:document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
@@ -408,12 +401,12 @@ $(document).ready(function() {
 											</li>
 										#end
 										<li style="height:1px;width:1px;display:inline;">
-											<a href="#" onfocus="document.getElementById('menu-$actionCount2').style.display='none';document.getElementById('last-$actionCount2').focus()" style="height:1px;margin:0;padding:0"  class="skip">$tlang.getString("button.endact")</a>
+											<a href="#" onfocus="document.getElementById('menu-act$actionCount').style.display='none';document.getElementById('last-act$actionCount').focus()" style="height:1px;margin:0;padding:0"  class="skip">$tlang.getString("button.endact")</a>
 										</li>
 									</ul>
 								</li>
 							</ul>
-							<a href="#" id="last-$actionCount2" class="skip"></a>		
+							<a href="#" id="last-act$actionCount" class="skip"></a>		
 						#end
 
 						</td>
@@ -615,49 +608,42 @@ $(document).ready(function() {
 									#end
 								#end
 							</td>
-							#set ($actionCount=($actionCount - 1))
-							#set ($actionCount2=($actionCount2 - 1))
+							#set ($actionCount=($actionCount + 1))
 							<td headers="actions2"   class="attach">
 
 								#if($item.addActions && !$item.addActions.isEmpty())
-									<a href="#" onfocus="document.getElementById('menu-$actionCount').style.display='none';"></a>
-									<a href="#" onfocus="document.getElementById('menu-$actionCount').style.display='block';" class="skip">$tlang.getString("button.startadd")</a>
-									<ul style="z-index:$actionCount;margin:0;display:block" class="makeMenu">
-										<li class="menuOpen" id="$actionCount">
+									<a href="#" onfocus="document.getElementById('menu-add$actionCount').style.display='none';"></a>
+									<a href="#" onfocus="document.getElementById('menu-add$actionCount').style.display='block';" class="skip">$tlang.getString("button.startadd")</a>
+									<ul style="margin:0;display:block" class="makeMenu">
+										<li class="menuOpen" id="add$actionCount">
 											&nbsp;$tlang.getString("button.add")
 											<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"  alt="$tlang.getString("button.add")" class="dropdn"/>
-											<ul  id="menu-$actionCount" class="makeMenuChild">
-##												<li class="menuClose">
-##													<a href="#"  onmousedown="document.getElementById('menu-$actionCount').style.display='none';">$tlang.getString("button.closemenu")</a>
-##												</li>
+											<ul  id="menu-add$actionCount" class="makeMenuChild">
 							    #foreach($action in $item.addActions)
 												<li>
 													<a  href="javascript:document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a>
 												</li>
 							    #end
 										<li style="height:1px;width:1px;display:inline;">
-													<a href="#" onfocus="document.getElementById('menu-$actionCount').style.display='none';document.getElementById('last-$actionCount').focus()" style="height:1px;margin:0;padding:0" class="skip">$tlang.getString("button.endadd")</a>
+													<a href="#" onfocus="document.getElementById('menu-add$actionCount').style.display='none';document.getElementById('last-add$actionCount').focus()" style="height:1px;margin:0;padding:0" class="skip">$tlang.getString("button.endadd")</a>
 												</li>
 											</ul>
 										</li>
 									</ul>
-									<a href="#" id="last-$actionCount" style="height:1px;margin:0;padding:0" class="skip"></a>
+									<a href="#" id="last-act$actionCount" style="height:1px;margin:0;padding:0" class="skip"></a>
 								#end
 
 								</td>
 							<td headers="actions3" class="attach">
 
 							#if($item.otherActions && !$item.otherActions.isEmpty())
-									<a href="#" onfocus="document.getElementById('menu-$actionCount2').style.display='none';"></a>
-									<a href="#" onfocus="document.getElementById('menu-$actionCount2').style.display='block';"  class="skip">$tlang.getString("button.startact")</a>
-									<ul style="z-index:$actionCount2;margin:0;display:block" class="makeMenu" >
-										<li class="menuOpen" id="$actionCount2">
+									<a href="#" onfocus="document.getElementById('menu-act$actionCount').style.display='none';"></a>
+									<a href="#" onfocus="document.getElementById('menu-act$actionCount').style.display='block';"  class="skip">$tlang.getString("button.startact")</a>
+									<ul style="margin:0;display:block" class="makeMenu" >
+										<li class="menuOpen" id="act$actionCount">
 											&nbsp;$tlang.getString("button.actions")
 											<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"   alt="$tlang.getString("button.actions")"  class="dropdn"/>
-											<ul  id="menu-$actionCount2" class="makeMenuChild">
-##												<li class="menuClose">
-##													<a href="#" 	 onmousedown="document.getElementById('menu-$actionCount2').style.display='none';">$tlang.getString("button.closemenu")</a>
-##												</li>											
+											<ul  id="menu-act$actionCount" class="makeMenuChild">
 												#foreach($action in $item.otherActions)
 													<li>
 														<a  href="javascript:document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
@@ -666,12 +652,12 @@ $(document).ready(function() {
 													</li>
 												#end
 										<li style="height:1px;width:1px;display:inline;">
- 													<a href="#" onfocus="document.getElementById('menu-$actionCount2').style.display='none';document.getElementById('last-$actionCount2').focus()" style="height:1px;margin:0;padding:0" title="$tlang.getString("list.ame")" class="skip">$tlang.getString("button.endact")</a>
+ 													<a href="#" onfocus="document.getElementById('menu-act$actionCount').style.display='none';document.getElementById('last-act$actionCount').focus()" style="height:1px;margin:0;padding:0" title="$tlang.getString("list.ame")" class="skip">$tlang.getString("button.endact")</a>
 												</li>
 											</ul>
 								  	</li>
 									</ul>
-									<a href="#" id="last-$actionCount2" ></a>
+									<a href="#" id="last-act$actionCount" ></a>
 								#end
 
 							</td>
