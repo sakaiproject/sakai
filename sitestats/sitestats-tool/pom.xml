@@ -194,6 +194,36 @@
         </includes>
       </resource>
     </resources>
+    
+    <plugins>
+      <plugin>
+        <!-- Compress CSS Stylesheets and Javascript -->
+        <groupId>net.sf.alchim</groupId>
+        <artifactId>yuicompressor-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>compress</goal>
+            </goals>
+          </execution>
+        </executions>        
+        <configuration>
+          <outputDirectory>${project.build.directory}/${project.build.finalName}</outputDirectory>
+          <nosuffix>true</nosuffix>
+          <excludes>
+            <exclude>**/**/*.html</exclude>
+            <exclude>**/**/*.xsl</exclude>
+            <exclude>**/**/*.properties</exclude>
+            <exclude>**/**/*.gif</exclude>            
+            <exclude>**/**/*.png</exclude>            
+            <exclude>**/**/*.jpg</exclude>
+            <exclude>**/**/*.min.js</exclude>
+            <exclude>**/**/*.pack.js</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+    </plugins>
+    
   </build>
   
 </project>
