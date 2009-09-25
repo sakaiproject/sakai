@@ -652,7 +652,7 @@ $(document).ready(function() {
 													</li>
 												#end
 										<li style="height:1px;width:1px;display:inline;">
- 													<a href="#" onfocus="document.getElementById('menu-act$actionCount').style.display='none';document.getElementById('last-act$actionCount').focus()" style="height:1px;margin:0;padding:0" title="$tlang.getString("list.ame")" class="skip">$tlang.getString("button.endact")</a>
+ 													<a href="#" onfocus="document.getElementById('menu-act$actionCount').style.display='none';document.getElementById('last-act$actionCount').focus()" style="height:1px;margin:0;padding:0" title="$tlang.getString("button.endact")" class="skip">$tlang.getString("button.endact")</a>
 												</li>
 											</ul>
 								  	</li>
