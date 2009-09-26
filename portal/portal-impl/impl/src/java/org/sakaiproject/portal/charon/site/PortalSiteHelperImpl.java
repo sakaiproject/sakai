@@ -345,12 +345,12 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		// TODO: This should come from the site neighbourhood.
 		ResourceProperties rp = s.getProperties();
 		String ourParent = rp.getProperty(PROP_PARENT_ID);
-		boolean isChild = ourParent != null;
-		m.put("isChild", Boolean.valueOf(isChild));
-		m.put("parentSite", ourParent);
+		// We are not really a child unless the parent exists
+		// And we have a valid pwd
+		boolean isChild = false;
 
 		// Get the current site hierarchy
-		if (isChild && isCurrentSite)
+		if (ourParent != null && isCurrentSite)
 		{
 			List<Site> pwd = getPwd(s, ourParent);
 			if (pwd != null)
@@ -365,9 +365,17 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					pm.put("siteTitle", Web.escapeHtml(site.getTitle()));
 					pm.put("siteUrl", siteUrl + Web.escapeUrl(getSiteEffectiveId(site)));
 					l.add(pm);
+					isChild = true;
 				}
-				m.put("pwd", l);
+				if ( l.size() > 0 ) m.put("pwd", l);
 			}
+		}
+		
+		// If we are a child and have a non-zero length, pwd
+		// show breadcrumbs
+		if ( isChild ) {
+			m.put("isChild", Boolean.valueOf(isChild));
+			m.put("parentSite", ourParent);
 		}
 
 		if (includeSummary)

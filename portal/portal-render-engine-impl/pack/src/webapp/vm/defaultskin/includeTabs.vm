@@ -110,6 +110,10 @@
  					#if (${site.isCurrentSite})
     					#if ( $site.isChild )
       			<ul id="siteHierarchy"> 
+     					 	#set ($tabTotal =0)
+      						#foreach ( $pwd in $site.pwd )
+          						#set ($tabTotal =$tabTotal + 1)       
+                                                #end
      					 	#set ($tabCountBread =0)
       						#foreach ( $pwd in $site.pwd )
           						#set ($tabCountBread =$tabCountBread + 1)       
@@ -118,7 +122,11 @@
                 		<span class="breadSeparator">${rloader.bread_separator}</span>
           						#end
           						## note: keep all the tags in this block in the same line 
+							#if ($tabCountBread == $tabTotal )
+                		<a href="${pwd.siteUrl}" title="${pwd.siteTitle}" class="lastBreadCrumb"><span>${pwd.siteTitle}</span></a>
+							#else
                 		<a href="${pwd.siteUrl}" title="${pwd.siteTitle}"><span>${pwd.siteTitle}</span></a>
+							#end
                   	</li>
       						#end
       			</ul>
