@@ -88,11 +88,11 @@
       <version>1.7.0</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.common</groupId>
       <artifactId>sakai-common-type-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.common</groupId>
       <artifactId>sakai-common-manager-api</artifactId>
     </dependency>
 <!--${sakai.hibernate.groupId}${sakai.hibernate.artifactId}${sakai.hibernate.version}-->
