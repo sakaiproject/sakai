@@ -90,6 +90,7 @@
     <sakai.polls.version>1.3-SNAPSHOT</sakai.polls.version>
     <sakai.ets.version>0.4-SNAPSHOT</sakai.ets.version>
     <sakai.entitybroker.version>1.3.7-SNAPSHOT</sakai.entitybroker.version>
+    <sakai.common.version>1.0-SNAPSHOT</sakai.common.version>
   </properties>
   <distributionManagement>
     <repository>
@@ -635,27 +636,27 @@ This is not needed now that pluto have been released
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
+        <groupId>org.sakaiproject.common</groupId>
         <artifactId>sakai-common-composite-component-data</artifactId>
-        <version>${sakai.version}</version>
+        <version>${sakai.common.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
+        <groupId>org.sakaiproject.common</groupId>
         <artifactId>sakai-common-edu-person-api</artifactId>
-        <version>${sakai.version}</version>
+        <version>${sakai.common.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
+        <groupId>org.sakaiproject.common</groupId>
         <artifactId>sakai-common-manager-api</artifactId>
-        <version>${sakai.version}</version>
+        <version>${sakai.common.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
+        <groupId>org.sakaiproject.common</groupId>
         <artifactId>sakai-common-type-api</artifactId>
-        <version>${sakai.version}</version>
+        <version>${sakai.common.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
