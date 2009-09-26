@@ -7,8 +7,8 @@
 		<version>2.7.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	<groupId>org.sakaiproject</groupId>
-	<artifactId>content-review-base</artifactId>
+	<groupId>org.sakaiproject.contentreview</groupId>
+	<artifactId>contentreview</artifactId>
 	<name>Sakai Content Review API</name>
 	<scm>
 		<connection>scm:svn:https://source.sakaiproject.org/svn/content-review/trunk</connection>
