@@ -11,20 +11,20 @@
             <useTransitiveDependencies>false
             </useTransitiveDependencies>
             <includes>
-                <include>org.sakaiproject.sitestats:sakai-sitestats-api:jar:*</include>
-       	        <include>org.sakaiproject.sitestats:sakai-sitestats-impl-hib:jar:*</include>
-                <include>org.sakaiproject.sitestats:sakai-sitestats-help:jar:*</include>
+                <include>org.sakaiproject.sitestats:sitestats-api:jar:*</include>
+       	        <include>org.sakaiproject.sitestats:sitestats-impl-hib:jar:*</include>
+                <include>org.sakaiproject.sitestats:sitestats-help:jar:*</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>
         <dependencySet>
-            <outputDirectory>components/sakai-sitestats-components</outputDirectory>
+            <outputDirectory>components/sitestats-components</outputDirectory>
             <!--
                 <outputDirectory>components/${artifact.artifactId}</outputDirectory>
             -->
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
-                <include>org.sakaiproject.sitestats:sakai-sitestats-components:war:*</include>
+                <include>org.sakaiproject.sitestats:sitestats-components:war:*</include>
             </includes>
             <unpack>true</unpack>
         </dependencySet>
@@ -34,7 +34,7 @@
             <!-- <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping> -->
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
-                 <include>org.sakaiproject.sitestats:sakai-sitestats-tool:war:*</include>
+                 <include>org.sakaiproject.sitestats:sitestats-tool:war:*</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>
