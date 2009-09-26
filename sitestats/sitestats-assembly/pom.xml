@@ -1,31 +1,31 @@
 <?xml version="1.0"?>
 <project>
     <parent>
-        <groupId>org.sakaiproject</groupId>
+        <groupId>org.sakaiproject.sitestats</groupId>
         <artifactId>sitestats</artifactId>
         <version>2.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.sakaiproject.sitestats</groupId>
-    <artifactId>sakai-sitestats-assembly</artifactId>
+    <artifactId>sitestats-assembly</artifactId>
     <name>Sakai SiteStats Assembly</name>
     <packaging>pom</packaging>
     <dependencies>
         <dependency>
             <groupId>org.sakaiproject.sitestats</groupId>
-            <artifactId>sakai-sitestats-api</artifactId>
+            <artifactId>sitestats-api</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.sitestats</groupId>
-            <artifactId>sakai-sitestats-impl-hib</artifactId>
+            <artifactId>sitestats-impl-hib</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.sitestats</groupId>
-            <artifactId>sakai-sitestats-components</artifactId>
+            <artifactId>sitestats-components</artifactId>
             <version>${project.version}</version>
             <type>war</type>
             <!-- <type>sakai-component</type> -->
@@ -33,14 +33,14 @@
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.sitestats</groupId>
-            <artifactId>sakai-sitestats-tool</artifactId>
+            <artifactId>sitestats-tool</artifactId>
             <version>${project.version}</version>
             <type>war</type>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.sitestats</groupId>
-            <artifactId>sakai-sitestats-help</artifactId>
+            <artifactId>sitestats-help</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
@@ -76,7 +76,6 @@
                         <phase>package</phase> <!-- append to the packaging phase. -->
                         <goals>
                             <goal>attached</goal>
-                            <!-- <goal>single</goal> --> <!-- goals == mojos -->
                         </goals>
                     </execution>
                 </executions>

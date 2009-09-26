@@ -3,7 +3,7 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <name>Sakai SiteStats</name>
-    <groupId>org.sakaiproject</groupId>
+    <groupId>org.sakaiproject.sitestats</groupId>
     <artifactId>sitestats</artifactId>
     <version>2.1-SNAPSHOT</version><!-- sitestats.version -->
     <description>SiteStats is a tool for Sakai for showing site usage statistics.</description>
@@ -322,23 +322,23 @@
             <!-- SiteStats -->
             <dependency>
                 <groupId>org.sakaiproject.sitestats</groupId>
-                <artifactId>sakai-sitestats-api</artifactId>
+                <artifactId>sitestats-api</artifactId>
                 <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.sitestats</groupId>
-                <artifactId>sakai-sitestats-bundle</artifactId>
+                <artifactId>sitestats-bundle</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.sitestats</groupId>
-                <artifactId>sakai-sitestats-impl</artifactId>
+                <artifactId>sitestats-impl</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.sitestats</groupId>
-                <artifactId>sakai-sitestats-impl-hib</artifactId>
+                <artifactId>sitestats-impl-hib</artifactId>
                 <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>

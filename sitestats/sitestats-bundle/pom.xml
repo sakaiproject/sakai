@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <name>Sakai SiteStats Bundle</name>
   <groupId>org.sakaiproject.sitestats</groupId>
-  <artifactId>sakai-sitestats-bundle</artifactId>
+  <artifactId>sitestats-bundle</artifactId>
   <organization>
     <name>Universidade Fernando Pessoa</name>
     <url>http://www.ufp.pt</url>
@@ -12,7 +12,7 @@
 
   <!-- Parent: Sakai SiteStats base -->
   <parent>
-    <groupId>org.sakaiproject</groupId>
+    <groupId>org.sakaiproject.sitestats</groupId>
     <artifactId>sitestats</artifactId>
     <version>2.1-SNAPSHOT</version><!-- sitestats.version --> 
   </parent>
