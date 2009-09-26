@@ -15,7 +15,7 @@
 	<!-- the base is parent -->
 	<parent>
 		<artifactId>common</artifactId>
-		<groupId>org.sakaiproject</groupId>
+		<groupId>org.sakaiproject.common</groupId>
 		<version>1.0-SNAPSHOT</version><!--entitybroker.version-->
 	</parent>
 
