@@ -39,11 +39,19 @@ body{
         float:none;
         margin:0;
         list-style: none;
-        padding:.5em 0;
+        padding:.5em;
+	background-color: #eeeeee;
+	border-bottom-width: 2px;
+	border-bottom-style: solid;
+	border-bottom-color: #88d0e8;
 }
 /*style the standard breadcrumbseparator
 can set display:none if needed because the list-style is taking care of it*/
 .breadSeparator{
+}
+a.lastBreadCrumb{
+	color: black;
+	text-decoration: none;
 }
 #siteHierarchy li{
         display:inline;
