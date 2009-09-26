@@ -188,7 +188,7 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 		spi.setAgentUuid(userId);
 		spi.setUid(userId);
 		spi.setTypeUuid(recordType.getUuid());
-		spi.setLocked(new Boolean(false));
+		spi.setLocked(Boolean.valueOf(false));
 		this.getHibernateTemplate().save(spi);
 		
 		//do not do this for system profiles 

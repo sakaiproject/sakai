@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+	<id>tomcat-overlay</id>
+	<formats>
+		<format>zip</format>
+	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+	<dependencySets>
+		<!-- stuff that goes into shared -->
+		<dependencySet>
+			<outputDirectory>shared/lib</outputDirectory>
+			<useTransitiveDependencies>false</useTransitiveDependencies>
+			<includes>
+				<include>org.sakaiproject.common:sakai-common-edu-person-api:jar:*
+				</include>
+				<include>org.sakaiproject.common:sakai-common-type-api:jar:*
+				</include>
+				<include>org.sakaiproject.common:sakai-common-manager-api:jar:*
+				</include>
+				<include>org.sakaiproject.common:sakai-common-composite-component-data:jar:*
+				</include>
+			</includes>
+		</dependencySet>
+		<!-- stuff that goes into components -->
+		<dependencySet>
+			<outputDirectory>components/sakai-common-components</outputDirectory>
+			<useTransitiveDependencies>false</useTransitiveDependencies>
+			<includes>
+				<include>org.sakaiproject.common:sakai-common-components:war:*
+				</include>
+			</includes>
+			<unpack>true</unpack>
+		</dependencySet>
+	</dependencySets>
+	<fileSets>
+		<fileSet>
+			<outputDirectory></outputDirectory>
+			<includes>
+				<include>${project.basedir}/README*</include>
+			</includes>
+		</fileSet>
+	</fileSets>
+</assembly>
