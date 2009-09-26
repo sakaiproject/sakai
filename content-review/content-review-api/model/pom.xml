@@ -9,7 +9,7 @@
 	</parent>
 	<name>contentreview-model-api</name>
 	<groupId>org.sakaiproject.contentreview</groupId>
-	<artifactId>sakai-contentreview-model-api</artifactId>
+	<artifactId>contentreview-model-api</artifactId>
 	<description />
 	<packaging>jar</packaging>
 	<properties>
