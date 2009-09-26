@@ -50,6 +50,7 @@
                 <module>mocks</module>
                 <module>utils</module>
                 <module>core-providers</module>
+                <module>deploy-assembly</module>
             </modules>
         </profile>
         <profile>
@@ -142,10 +143,15 @@
     </repositories>
     <distributionManagement>
         <repository>
-            <id>Sakai-Maven2</id>
+            <id>sakai-maven2</id>
             <name>Sakaiproject Maven 2 repository</name>
             <url>dav:https://source.sakaiproject.org/maven2</url>
         </repository>
+        <snapshotRepository>
+            <id>sakai-maven-snapshots</id>
+            <name>Sakaiproject Maven 2 snapshot repository</name>
+            <url>dav:https://source.sakaiproject.org/maven2-snapshots</url>
+        </snapshotRepository>
         <site>
             <id>local site</id>
             <url>file:/tmp/entitybroker/site/</url>

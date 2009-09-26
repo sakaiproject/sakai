@@ -13,7 +13,7 @@
             <outputDirectory>shared/lib</outputDirectory>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
-                <include>org.sakaiproject.entitybroker:*:jar:*</include>
+                <include>org.sakaiproject.entitybroker:entitybroker-api:jar:*</include>
             </includes>
         </dependencySet>
         <!-- stuff that goes into components -->
