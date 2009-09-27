@@ -73,10 +73,6 @@
 <!--org.sakaiprojectsakai-component-api${sakai.version}-->
 <!--org.sakaiprojectsakai-tool-api${sakai.version}-->
 <!--org.sakaiprojectsakai-util${sakai.version}-->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-search-api</artifactId>
-    </dependency>
 <!--${sakai.spring.groupId}${sakai.spring.artifactId}${sakai.spring.version}jar-->
 <!--org.sakaiprojectsakai-event-api${sakai.version}-->
     <dependency>
