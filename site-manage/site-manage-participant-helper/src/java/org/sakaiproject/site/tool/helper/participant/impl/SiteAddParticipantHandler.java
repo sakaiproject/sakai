@@ -828,9 +828,9 @@ public class SiteAddParticipantHandler {
 					} else if (userEid != null
 							&& !isValidDomain(userEid)) {
 						// wrong string inside nonOfficialAccount id
-						targettedMessageList.addMessage(new TargettedMessage("java.emailaddress",
-		                new Object[] { userEid }, 
-		                TargettedMessage.SEVERITY_ERROR));
+						targettedMessageList.addMessage(new TargettedMessage("java.emailbaddomain",
+								new Object[] { userEid, messageLocator.getMessage("nonOfficialAccountSectionTitle")}, 
+								TargettedMessage.SEVERITY_ERROR));
 					} else if (!isValidMail(userEid)) {
 						// must be a valid email address
 						targettedMessageList.addMessage(new TargettedMessage("java.emailaddress",
