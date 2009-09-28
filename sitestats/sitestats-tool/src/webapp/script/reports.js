@@ -1,6 +1,6 @@
 /*
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -24,112 +24,6 @@ var TOTALSBY_IX_RESOURCE = 3;
 var TOTALSBY_IX_RESOURCEACTION = 4;
 var TOTALSBY_IX_DATE = 5;
 var TOTALSBY_IX_SITE = 6;
-
-function checkWhatSelection() {
-	var what = jQuery('#what').val();
-	if(what == 'what-visits') {
-		jQuery('#what').css('width','300px');
-		jQuery('#what-selection-label').hide();
-		jQuery('#whatEventSelType').hide();
-		jQuery('#what-tools-select').hide();
-		jQuery('#what-events-select').hide();
-		jQuery('#what-resources-options').hide();
-		jQuery('#what-resources-select').hide();
-	}else if(what == 'what-events') {
-		jQuery('#what').css('width','122px');
-		var eventsSelectionType = jQuery('#whatEventSelType').val();
-		jQuery('#what-selection-label').show();
-		jQuery('#whatEventSelType').show();
-		if(eventsSelectionType == 'what-events-bytool') {
-			jQuery('#what-tools-select').show();
-			jQuery('#what-events-select').hide();
-		}else{
-			jQuery('#what-tools-select').hide();
-			jQuery('#what-events-select').show();
-		}
-		jQuery('#what-resources-options').hide();
-		jQuery('#what-resources-select').hide();
-	}else if(what == 'what-resources') {
-		jQuery('#what').css('width','300px');
-		jQuery('#what-selection-label').show();
-		jQuery('#whatEventSelType').hide();
-		jQuery('#what-tools-select').hide();
-		jQuery('#what-events-select').hide();
-		if(jQuery('#whatLimitedAction').attr('checked')) {
-			jQuery('#whatResourceAction').removeAttr('disabled');
-		}else{
-			jQuery('#whatResourceAction').attr('disabled','disabled');
-		}
-		if(jQuery('#whatLimitedResourceIds').attr('checked')) {
-			jQuery('#whatResourceIds').removeAttr('disabled');
-			jQuery('.containerHover').hide();
-		}else{
-			jQuery('#whatResourceIds').attr('disabled','disabled');
-			jQuery('.containerHover').show();
-		}
-		jQuery('#what-resources-options').show();
-		jQuery('#what-resources-select').show();
-	}
-	checkHowTotalsBySelection();
-	checkHowChartSelection();
-	setMainFrameHeightNoScroll(window.name);
-}
-
-function checkWhenSelection() {
-	if(jQuery('#when').val() == 'when-custom'){
-		jQuery('#when-custom-from').show();
-		jQuery('#when-custom-to').show();
-		setMainFrameHeightNoScroll(window.name);
-	}else{
-		jQuery('#when-custom-from').hide();
-		jQuery('#when-custom-to').hide();
-	}	
-}
-
-function checkWhoSelection() {
-	var who = jQuery('#who').val();
-	jQuery('.wicket-ajax-indicator').hide();
-	if(who == 'who-all'){
-		jQuery('#whoRole').hide();
-		jQuery('#whoGroup').hide();
-		jQuery('#whoCustom').hide();
-	}else if(who == 'who-role'){
-		jQuery('#whoRole').show();
-		jQuery('#whoGroup').hide();
-		jQuery('#whoCustom').hide();
-	}else if(who == 'who-groups'){
-		jQuery('#whoRole').hide();
-		jQuery('#whoGroup').show();
-		jQuery('#whoCustom').hide();
-	}else if(who == 'who-custom'){
-		jQuery('#whoRole').hide();
-		jQuery('#whoGroup').hide();
-		jQuery('#whoCustom').show();
-	}else{
-		jQuery('#whoRole').hide();
-		jQuery('#whoGroup').hide();
-		jQuery('#whoCustom').hide();
-	}
-	setMainFrameHeightNoScroll(window.name);
-}
-
-function checkHowSelection() {	
-	// sorting
-	if(jQuery('#howSortCheck').attr('checked')) {
-		jQuery('#howSortBy').removeAttr('disabled');
-		jQuery('#howSortAscending').removeAttr('disabled');
-	}else{
-		jQuery('#howSortBy').attr('disabled','disabled');
-		jQuery('#howSortAscending').attr('disabled','disabled');
-	}
-	// max results
-	if(jQuery('#howMaxResultsCheck').attr('checked')){
-		jQuery('#howMaxResults').removeAttr('disabled');
-	}else{
-		jQuery('#howMaxResults').attr('disabled','disabled');
-		jQuery('#howMaxResults').val('0');
-	}
-}
 
 function checkHowTotalsBySelection() {
 	var what = jQuery('#what').val();
@@ -311,6 +205,112 @@ function checkHowChartSelection() {
 			});
 	    }
 		setMainFrameHeightNoScroll(window.name);
+	}
+}
+
+function checkWhatSelection() {
+	var what = jQuery('#what').val();
+	if(what == 'what-visits') {
+		jQuery('#what').css('width','300px');
+		jQuery('#what-selection-label').hide();
+		jQuery('#whatEventSelType').hide();
+		jQuery('#what-tools-select').hide();
+		jQuery('#what-events-select').hide();
+		jQuery('#what-resources-options').hide();
+		jQuery('#what-resources-select').hide();
+	}else if(what == 'what-events') {
+		jQuery('#what').css('width','122px');
+		var eventsSelectionType = jQuery('#whatEventSelType').val();
+		jQuery('#what-selection-label').show();
+		jQuery('#whatEventSelType').show();
+		if(eventsSelectionType == 'what-events-bytool') {
+			jQuery('#what-tools-select').show();
+			jQuery('#what-events-select').hide();
+		}else{
+			jQuery('#what-tools-select').hide();
+			jQuery('#what-events-select').show();
+		}
+		jQuery('#what-resources-options').hide();
+		jQuery('#what-resources-select').hide();
+	}else if(what == 'what-resources') {
+		jQuery('#what').css('width','300px');
+		jQuery('#what-selection-label').show();
+		jQuery('#whatEventSelType').hide();
+		jQuery('#what-tools-select').hide();
+		jQuery('#what-events-select').hide();
+		if(jQuery('#whatLimitedAction').attr('checked')) {
+			jQuery('#whatResourceAction').removeAttr('disabled');
+		}else{
+			jQuery('#whatResourceAction').attr('disabled','disabled');
+		}
+		if(jQuery('#whatLimitedResourceIds').attr('checked')) {
+			jQuery('#whatResourceIds').removeAttr('disabled');
+			jQuery('.containerHover').hide();
+		}else{
+			jQuery('#whatResourceIds').attr('disabled','disabled');
+			jQuery('.containerHover').show();
+		}
+		jQuery('#what-resources-options').show();
+		jQuery('#what-resources-select').show();
+	}
+	checkHowTotalsBySelection();
+	checkHowChartSelection();
+	setMainFrameHeightNoScroll(window.name);
+}
+
+function checkWhenSelection() {
+	if(jQuery('#when').val() == 'when-custom'){
+		jQuery('#when-custom-from').show();
+		jQuery('#when-custom-to').show();
+		setMainFrameHeightNoScroll(window.name);
+	}else{
+		jQuery('#when-custom-from').hide();
+		jQuery('#when-custom-to').hide();
+	}	
+}
+
+function checkWhoSelection() {
+	var who = jQuery('#who').val();
+	jQuery('.wicket-ajax-indicator').hide();
+	if(who == 'who-all'){
+		jQuery('#whoRole').hide();
+		jQuery('#whoGroup').hide();
+		jQuery('#whoCustom').hide();
+	}else if(who == 'who-role'){
+		jQuery('#whoRole').show();
+		jQuery('#whoGroup').hide();
+		jQuery('#whoCustom').hide();
+	}else if(who == 'who-groups'){
+		jQuery('#whoRole').hide();
+		jQuery('#whoGroup').show();
+		jQuery('#whoCustom').hide();
+	}else if(who == 'who-custom'){
+		jQuery('#whoRole').hide();
+		jQuery('#whoGroup').hide();
+		jQuery('#whoCustom').show();
+	}else{
+		jQuery('#whoRole').hide();
+		jQuery('#whoGroup').hide();
+		jQuery('#whoCustom').hide();
+	}
+	setMainFrameHeightNoScroll(window.name);
+}
+
+function checkHowSelection() {	
+	// sorting
+	if(jQuery('#howSortCheck').attr('checked')) {
+		jQuery('#howSortBy').removeAttr('disabled');
+		jQuery('#howSortAscending').removeAttr('disabled');
+	}else{
+		jQuery('#howSortBy').attr('disabled','disabled');
+		jQuery('#howSortAscending').attr('disabled','disabled');
+	}
+	// max results
+	if(jQuery('#howMaxResultsCheck').attr('checked')){
+		jQuery('#howMaxResults').removeAttr('disabled');
+	}else{
+		jQuery('#howMaxResults').attr('disabled','disabled');
+		jQuery('#howMaxResults').val('0');
 	}
 }
 
