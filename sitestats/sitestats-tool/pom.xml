@@ -195,9 +195,9 @@
       </resource>
     </resources>
     
-    <!--
+
     <plugins>
-      --><!-- Compress CSS Stylesheets and Javascript --><!--
+      <!-- Compress CSS Stylesheets and Javascript -->
       <plugin>
         <groupId>net.sf.alchim</groupId>
         <artifactId>yuicompressor-maven-plugin</artifactId>
@@ -210,15 +210,12 @@
         </executions>        
         <configuration>
           <outputDirectory>${project.build.directory}/${project.build.finalName}</outputDirectory>
-          <nosuffix>true</nosuffix>
-          <nomunge>true</nomunge>
-          <preserveAllSemiColons>true</preserveAllSemiColons>
-          <preserveStringLiterals>true</preserveStringLiterals>          
+          <nosuffix>true</nosuffix>        
           <excludes>
             <exclude>**/**/*.html</exclude>
             <exclude>**/**/*.xsl</exclude>
             <exclude>**/**/*.properties</exclude>
-            <exclude>**/**/*.htc</exclude>
+            <!--<exclude>**/**/*.htc</exclude>-->
             <exclude>**/**/*.gif</exclude>            
             <exclude>**/**/*.png</exclude>            
             <exclude>**/**/*.jpg</exclude>
@@ -228,7 +225,6 @@
         </configuration>
       </plugin>
     </plugins>
-    -->
     
   </build>
   
