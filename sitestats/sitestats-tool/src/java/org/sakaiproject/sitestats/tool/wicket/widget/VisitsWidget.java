@@ -83,7 +83,7 @@ public class VisitsWidget extends Panel {
 		});
 
 		// Final Widget object		
-		String icon = "/sakai-sitestats-tool/images/silk/icons/user_gray.png";
+		String icon = StatsManager.SITESTATS_WEBAPP+"/images/silk/icons/user_gray.png";
 		String title = (String) new ResourceModel("overview_title_visits").getObject();
 		Widget widget = new Widget("widget", icon, title, widgetMiniStats, tabs);
 		add(widget);

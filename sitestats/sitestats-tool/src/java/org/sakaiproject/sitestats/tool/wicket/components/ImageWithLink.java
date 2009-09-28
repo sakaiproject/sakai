@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -23,6 +23,7 @@ import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.sakaiproject.sitestats.api.StatsManager;
 
 
 /**
@@ -49,7 +50,7 @@ public class ImageWithLink extends Panel {
 			b.append(lnkLabel);
 			b.append(' ');
 			b.append(((String) new ResourceModel("resource_unknown").getObject()));
-			add( new ExternalImage("image", "/sakai-sitestats-tool/images/silk/icons/cross.png").setVisible(true) );
+			add( new ExternalImage("image", StatsManager.SITESTATS_WEBAPP+"/images/silk/icons/cross.png").setVisible(true) );
 			lnk = new ExternalLink("link", lnkUrl, b.toString());
 			lnk.setEnabled(false);
 		}

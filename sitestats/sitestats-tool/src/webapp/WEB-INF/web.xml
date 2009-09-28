@@ -3,7 +3,7 @@
 	xmlns="http://java.sun.com/xml/ns/j2ee"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
-	<display-name>sitestats</display-name>
+	<display-name>SiteStats</display-name>
 	<description>Site Stats Tool</description>
     <distributable />
     
@@ -48,7 +48,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>sakai.sitestats</servlet-name>
-        <url-pattern>/sakai-sitestats-tool/*</url-pattern>      
+        <url-pattern>/sitestats-tool/*</url-pattern>      
     </servlet-mapping>
                 
                 
@@ -67,7 +67,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>sakai.sitestats.admin</servlet-name>
-        <url-pattern>/sakai-sitestats-tool/*</url-pattern>      
+        <url-pattern>/sitestats-tool/*</url-pattern>      
     </servlet-mapping>
 
 

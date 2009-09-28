@@ -95,7 +95,7 @@ public class ResourcesWidget extends Panel {
 		});
 
 		// Final Widget object		
-		String icon = "/sakai-sitestats-tool/images/silk/icons/folder_page.png";
+		String icon = StatsManager.SITESTATS_WEBAPP+"/images/silk/icons/folder_page.png";
 		String title = (String) new ResourceModel("overview_title_resources").getObject();
 		Widget widget = new Widget("widget", icon, title, widgetMiniStats, tabs);
 		add(widget);

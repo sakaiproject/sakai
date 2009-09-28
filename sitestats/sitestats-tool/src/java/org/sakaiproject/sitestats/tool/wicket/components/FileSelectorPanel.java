@@ -159,8 +159,8 @@ public class FileSelectorPanel extends Panel {
 	@Override
 	public void renderHead(HtmlHeaderContainer container) {
 		container.getHeaderResponse().renderJavascriptReference(BasePage.JQUERYSCRIPT);
-		container.getHeaderResponse().renderJavascriptReference("/sakai-sitestats-tool/html/components/jqueryFileTree/jqueryFileTree.js");
-		container.getHeaderResponse().renderCSSReference("/sakai-sitestats-tool/html/components/jqueryFileTree/jqueryFileTree.css");
+		container.getHeaderResponse().renderJavascriptReference(StatsManager.SITESTATS_WEBAPP+"/html/components/jqueryFileTree/jqueryFileTree.js");
+		container.getHeaderResponse().renderCSSReference(StatsManager.SITESTATS_WEBAPP+"/html/components/jqueryFileTree/jqueryFileTree.css");
 		StringBuilder onDomReady = new StringBuilder();
 		onDomReady.append("jQuery('#containerInner').fileTree(");
 		onDomReady.append("  {root: '");

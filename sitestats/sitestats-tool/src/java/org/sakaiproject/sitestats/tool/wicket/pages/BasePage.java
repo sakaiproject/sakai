@@ -27,6 +27,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -35,8 +36,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	
 	private static final long		serialVersionUID	= 1L;
 	public static final String		HEADSCRIPTS			= "/library/js/headscripts.js";
-	public static final String		COMMONSCRIPT		= "/sakai-sitestats-tool/script/common.js";
-	public static final String		JQUERYSCRIPT		= "/sakai-sitestats-tool/script/jquery-1.3.2.min.js";
+	public static final String		COMMONSCRIPT		= StatsManager.SITESTATS_WEBAPP+"/script/common.js";
+	public static final String		JQUERYSCRIPT		= StatsManager.SITESTATS_WEBAPP+"/script/jquery-1.3.2.min.js";
 	public static final String		BODY_ONLOAD_ADDTL	= "setMainFrameHeightNoScroll(window.name, 0, 400)";
 	public static final String		LAST_PAGE			= "lastSiteStatsPage";
 
@@ -59,7 +60,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		//response.renderOnDomReadyJavascript(BODY_ONLOAD_ADDTL);
 
 		// include (this) tool style (CSS)
-		response.renderCSSReference("/sakai-sitestats-tool/css/sitestats.css");
+		response.renderCSSReference(StatsManager.SITESTATS_WEBAPP+"/css/sitestats.css");
 	}
 	
 	@Override

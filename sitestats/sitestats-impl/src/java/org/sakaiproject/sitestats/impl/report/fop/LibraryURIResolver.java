@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -29,13 +29,13 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.sitestats.api.StatsManager;
 
 
 public class LibraryURIResolver implements URIResolver {
 	private Log					LOG					= LogFactory.getLog(LibraryURIResolver.class);
 	private final static String	LIBRARY_HANDLER		= "library://";
 	private final static String	SITESTATS_HANDLER	= "sitestats://";
-	private final static String	SITESTATS_WEBAPP	= "sakai-sitestats-tool";
 	private String				libraryRoot			= null;
 	private String				sitestatsRoot		= null;
 	
@@ -55,7 +55,7 @@ public class LibraryURIResolver implements URIResolver {
 			}
 			if(href.startsWith(SITESTATS_HANDLER)){
 				resource = href.substring(SITESTATS_HANDLER.length()); // chop off the sitestats://
-				String webappStartDir = File.separatorChar + SITESTATS_WEBAPP;
+				String webappStartDir = StatsManager.SITESTATS_WEBAPP;
 				if(resource.startsWith(webappStartDir)) {
 					resource = resource.substring(webappStartDir.length());
 				}
@@ -113,8 +113,7 @@ public class LibraryURIResolver implements URIResolver {
 	        StringBuilder buff = new StringBuilder(catalina);
 	        buff.append(File.separatorChar);
 	        buff.append("webapps");
-	        buff.append(File.separatorChar);
-	        buff.append(SITESTATS_WEBAPP);
+	        buff.append(StatsManager.SITESTATS_WEBAPP);
 	        buff.append(File.separatorChar);
 	        path = buff.toString();
 		}catch(Exception e) {

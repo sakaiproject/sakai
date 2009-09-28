@@ -93,7 +93,7 @@ public class ActivityWidget extends Panel {
 		});
 
 		// Final Widget object		
-		String icon = "/sakai-sitestats-tool/images/silk/icons/chart_pie.png";
+		String icon = StatsManager.SITESTATS_WEBAPP+"/images/silk/icons/chart_pie.png";
 		String title = (String) new ResourceModel("overview_title_activity").getObject();
 		Widget widget = new Widget("widget", icon, title, widgetMiniStats, tabs);
 		add(widget);		

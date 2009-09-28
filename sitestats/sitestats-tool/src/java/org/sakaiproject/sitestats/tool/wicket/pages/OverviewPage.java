@@ -64,9 +64,9 @@ public class OverviewPage extends BasePage {
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
 		response.renderJavascriptReference(JQUERYSCRIPT);
-		response.renderJavascriptReference("/sakai-sitestats-tool/script/jquery.ifixpng2.js");
+		response.renderJavascriptReference(StatsManager.SITESTATS_WEBAPP + "/script/jquery.ifixpng2.js");
 		StringBuilder onDomReady = new StringBuilder();
-		onDomReady.append("jQuery.ifixpng('/sakai-sitestats-tool/images/transparent.gif');");
+		onDomReady.append("jQuery.ifixpng('"+StatsManager.SITESTATS_WEBAPP+"/images/transparent.gif');");
 		response.renderOnDomReadyJavascript(onDomReady.toString());
 	}
 	

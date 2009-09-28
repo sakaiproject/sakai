@@ -30,6 +30,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.tool.facade.Locator;
@@ -65,7 +66,7 @@ public class EventRegistryTree extends Panel {
 
 	@Override
 	public void renderHead(HtmlHeaderContainer container) {
-		container.getHeaderResponse().renderJavascriptReference("/sakai-sitestats-tool/script/prefs.js");
+		container.getHeaderResponse().renderJavascriptReference(StatsManager.SITESTATS_WEBAPP+"/script/prefs.js");
 		container.getHeaderResponse().renderOnDomReadyJavascript("updateAllToolsSelection()");
 		super.renderHead(container);
 	}
