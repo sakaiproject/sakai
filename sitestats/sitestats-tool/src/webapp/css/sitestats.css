@@ -39,7 +39,6 @@
     min-height: 60px;
     margin: 10px 10px 10px 0px;
     padding: 0;
-    /*display: -moz-inline-box;*/
     display: inline-block;
     text-align: center;
 }
@@ -91,7 +90,6 @@
     max-width: 120px;
     width: auto;
     width: expression(this.clientWidth<62 ? "60px" :   this.clientWidth>122 ? "120px" : "auto");
-    /*height: 60px;*/
     min-height: 60px;
     max-height: 60px;
     height: auto;
@@ -179,7 +177,6 @@
 .widget .middle .tabContents .chartTd {
     height: 200px;
     width: 60%;
-    /*width: 400px;*/
     padding-right: 10px;
 }
 .widget .middle .tabContents .tableTd {
@@ -255,8 +252,6 @@ ul.tabnav a:hover {
 }
 /** TABS: Ajax Indicator */
 ul.tabnav li .wicket-ajax-indicator img{
-  /*float: right;
-  padding: 0 2px;*/
   margin: -5px 0 0 4px;
 }
 /** TABS: Content */
@@ -268,7 +263,6 @@ ul.tabnav li .wicket-ajax-indicator img{
     text-align: center;
     vertical-align: middle;
     background-color: #fff;
-    /*margin: 10px auto 0 auto;*/
     height: 20px;
 }
 
@@ -280,64 +274,6 @@ ul.tabnav li .wicket-ajax-indicator img{
     width: 50%;
 }
 
-/** OLD OVERVIEW PAGE: Positioning */
-/*
-.halfSize {
-	vertical-align: top;
-	text-align: left;
-	width: 50%;
-}
-.autoSize {
-	vertical-align: top;
-	text-align: left;
-	width: auto;
-}
-.left {
-	text-align: left;
-	float: left;
-	width: 100%
-}
-.leftAlign {
-    text-align: left;
-}
-.rightAlign {
-    text-align: right;
-}
-.centerAlign {
-    text-align: center;
-}
-.center {
-	text-align: center;
-}
-.right {
-	text-align: right;
-	float: right;
-	width: 100%;
-}
-.top {
-	vertical-align: top;
-}
-.left1 {
-	vertical-align: top;
-	text-align: left;
-	width: 80%;
-}
-.right1 {
-	vertical-align: top;
-	text-align: right;
-	width: 20%;
-}
-.left30 {
-	vertical-align: top;
-	text-align: left;
-	width: 30%;
-}
-.left70 {
-	vertical-align: top;
-	text-align: left;
-	width: 70%;
-}
-*/
 
 /** Hidden report */
 .hiddenReport {
@@ -494,7 +430,6 @@ label.indnt1 {
 .childCount {
 	display: none;
 	color: #555555;
-	/*font-size:85%;*/
 	font-weight: normal;
 }
 
@@ -519,8 +454,6 @@ label.indnt1 {
     position: relative;
     display: inline-block;
     height: 15px;
-    /*width: 200px;
-    margin: 5px;*/
     width: 100%;
     border: 1px solid #777;
     text-align: center;
@@ -544,7 +477,7 @@ label.indnt1 {
     top: 1px;
     right: 1px;
     height: 13px;
-    background-color: #9BBD02/*#0286C7*/;
+    background-color: #9BBD02;
     z-index: 1;
 }
 .valueCenter {
