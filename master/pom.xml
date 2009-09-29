@@ -666,13 +666,13 @@ This is not needed now that pluto have been released
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
+        <groupId>org.sakaiproject.contentreview</groupId>
         <artifactId>sakai-contentreview-logic-api</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
+        <groupId>org.sakaiproject.contentreview</groupId>
         <artifactId>sakai-contentreview-service-api</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
