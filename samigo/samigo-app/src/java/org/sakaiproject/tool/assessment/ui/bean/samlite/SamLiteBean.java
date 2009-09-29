@@ -2,6 +2,7 @@ package org.sakaiproject.tool.assessment.ui.bean.samlite;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -15,6 +16,7 @@ import org.sakaiproject.tool.assessment.samlite.api.SamLiteService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.util.FormattedText;
 import org.w3c.dom.Document;
 
 public class SamLiteBean implements Serializable {
@@ -49,9 +51,9 @@ public class SamLiteBean implements Serializable {
 	}
 	
 	public void parse() {
-		questionGroup = samLiteService.parse(ContextUtil.processFormattedText(log, name), 
-				ContextUtil.processFormattedText(log, description), 
-				ContextUtil.processFormattedText(log, data));
+		questionGroup = samLiteService.parse(FormattedText.escapeHtml(name, false), 
+				FormattedText.escapeHtml(description, false), 
+				FormattedText.escapeHtml(data, false));
 	}
 	
 	public Document createDocument() {
@@ -66,8 +68,12 @@ public class SamLiteBean implements Serializable {
 
 	    AssessmentService assessmentService = new AssessmentService();
 	    ArrayList list = assessmentService.getBasicInfoOfAllActiveAssessments(
-	                     AssessmentFacadeQueries.TITLE,true);
-
+	    		authorBean.getCoreAssessmentOrderBy(), authorBean.isCoreAscending());
+	    Iterator iter = list.iterator();
+		while (iter.hasNext()) {
+			AssessmentFacade assessmentFacade= (AssessmentFacade) iter.next();
+			assessmentFacade.setTitle(FormattedText.unEscapeHtml(assessmentFacade.getTitle()));
+		}
 	    authorBean.setAssessments(list);
 	}
 	

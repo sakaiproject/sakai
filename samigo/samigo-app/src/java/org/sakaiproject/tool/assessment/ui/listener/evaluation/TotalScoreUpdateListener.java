@@ -186,7 +186,7 @@ public class TotalScoreUpdateListener
 
   private boolean needUpdate(AgentResults agentResults, HashMap map){
     boolean update = true;
-    String newComments = FormattedText.convertPlaintextToFormattedText(agentResults.getComments());
+    String newComments = FormattedText.escapeHtml(agentResults.getComments(), false);
     agentResults.setComments(newComments);
     log.debug("newComments = " + newComments);
 

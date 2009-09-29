@@ -413,9 +413,9 @@ public class SubmitToGradingActionListener implements ActionListener {
 				Long oldAnswerId = oldItem.getPublishedAnswerId();
 				Long newAnswerId = newItem.getPublishedAnswerId();
 				String oldRationale = oldItem.getRationale();
-				String newRationale = FormattedText.convertPlaintextToFormattedText(newItem.getRationale());
+				String newRationale = FormattedText.escapeHtml(newItem.getRationale(), false);
 				String oldAnswerText = oldItem.getAnswerText();
-				String newAnswerText = FormattedText.convertPlaintextToFormattedText(newItem.getAnswerText());
+				String newAnswerText = FormattedText.escapeHtml(newItem.getAnswerText(), false);
 				if ((oldReview != null && !oldReview.equals(newReview))
 				    || (newReview!=null && !newReview.equals(oldReview))
 						|| (oldAnswerId != null && !oldAnswerId
@@ -539,7 +539,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 							itemgrading.setAgentId(AgentFacade.getAgentString());
 							itemgrading.setSubmittedDate(new Date());
 							if (itemgrading.getRationale() != null && itemgrading.getRationale().length() > 0) {
-								itemgrading.setRationale(FormattedText.convertPlaintextToFormattedText(itemgrading.getRationale()));
+								itemgrading.setRationale(FormattedText.escapeHtml(itemgrading.getRationale(), false));
 							}
 							// the rest of the info is collected by
 							// ItemContentsBean via JSF form
@@ -568,7 +568,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 				} else if (itemgrading.getPublishedAnswerId() != null
 						|| itemgrading.getAnswerText() != null ) {
 					if (itemgrading.getRationale() != null && itemgrading.getRationale().length() > 0) {
-						itemgrading.setRationale(FormattedText.convertPlaintextToFormattedText(itemgrading.getRationale()));
+						itemgrading.setRationale(FormattedText.escapeHtml(itemgrading.getRationale(), false));
 					}
 					adds.addAll(grading);
 					break;
@@ -588,7 +588,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 					adds.addAll(grading);
 					break;
 				} else if (itemgrading.getAnswerText() != null && !itemgrading.getAnswerText().equals("")) {
-					itemgrading.setAnswerText(FormattedText.convertPlaintextToFormattedText(itemgrading.getAnswerText()));
+					itemgrading.setAnswerText(FormattedText.escapeHtml(itemgrading.getAnswerText(), false));
 					adds.addAll(grading);
 					break;
 				}
