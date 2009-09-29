@@ -70,8 +70,8 @@
       <artifactId>sakai-message-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-search-api</artifactId>
+      <groupId>org.sakaiproject.search</groupId>
+      <artifactId>search-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.entitybroker</groupId>
