@@ -92,11 +92,11 @@
 <!--org.sakaiprojectsakai-util${sakai.version}-->
     <dependency>
       <groupId>org.sakaiproject.contentreview</groupId>
-      <artifactId>sakai-contentreview-model-api</artifactId>
+      <artifactId>contentreview-model-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.contentreview</groupId>
-      <artifactId>sakai-contentreview-service-api</artifactId>
+      <artifactId>contentreview-service-api</artifactId>
     </dependency>
     <dependency>
       <groupId>poi</groupId>

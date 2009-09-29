@@ -37,8 +37,8 @@
       This has been relocated to sakai-kernel-util
       org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-contentreview-service-api</artifactId>
+      <groupId>org.sakaiproject.contentreview</groupId>
+      <artifactId>contentreview-service-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
