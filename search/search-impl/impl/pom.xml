@@ -24,8 +24,8 @@
       </activation>
       <dependencies>
         <dependency>
-         <groupId>org.sakaiproject</groupId>
-         <artifactId>sakai-search-test-1.5</artifactId>
+         <groupId>org.sakaiproject.search</groupId>
+         <artifactId>search-test-1.5</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
         </dependency>
@@ -38,8 +38,8 @@
       </activation>
       <dependencies>
         <dependency>
-         <groupId>org.sakaiproject</groupId>
-         <artifactId>sakai-search-test-1.6</artifactId>
+         <groupId>org.sakaiproject.search</groupId>
+         <artifactId>search-test-1.6</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
         </dependency>

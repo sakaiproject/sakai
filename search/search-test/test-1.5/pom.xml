@@ -7,7 +7,7 @@
     <version>1.2-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
-  <name>sakai-search-test-1.5</name>
+  <name>search-test-1.5</name>
   <groupId>org.sakaiproject.search</groupId>
   <artifactId>sakai-search-test-1.5</artifactId>
   <packaging>jar</packaging>
