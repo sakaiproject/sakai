@@ -219,20 +219,23 @@ public class EditAssessmentListener
   }
   
   private void showPrintLink(AssessmentBean assessmentBean) {
-	log.debug("first condition = " + (ToolManager.getTool("sakai.questionbank.printout") != null));
-	log.debug("second conditon = " + !ServerConfigurationService.getString("stealthTools@org.sakaiproject.tool.api.ActiveToolManager").contains("sakai.questionbank.printout"));
-	log.debug("third condition = " + !ServerConfigurationService.getString("hiddenTools@org.sakaiproject.tool.api.ActiveToolManager").contains("sakai.questionbank.printout"));
-	if (ToolManager.getTool("sakai.questionbank.printout") != null
-	      && !ServerConfigurationService.getString(
-	         "stealthTools@org.sakaiproject.tool.api.ActiveToolManager")
-	           .contains("sakai.questionbank.printout")
-	       && !ServerConfigurationService.getString(
-	         "hiddenTools@org.sakaiproject.tool.api.ActiveToolManager")
-	          .contains("sakai.questionbank.printout")) {
-		assessmentBean.setShowPrintLink(true);
-	}
-	else {
-		assessmentBean.setShowPrintLink(false);
-	}
+	  log.debug("first condition = " + (ToolManager.getTool("sakai.questionbank.printout") != null));
+	  log.debug("second conditon = " + !ServerConfigurationService.getString("stealthTools@org.sakaiproject.tool.api.ActiveToolManager").contains("sakai.questionbank.printout"));
+	  log.debug("third condition = " + !ServerConfigurationService.getString("hiddenTools@org.sakaiproject.tool.api.ActiveToolManager").contains("sakai.questionbank.printout"));
+	  String printAssessment = ServerConfigurationService.getString("samigo.printAssessment");
+
+	  if (((ToolManager.getTool("sakai.questionbank.printout") != null)
+			  && !ServerConfigurationService.getString(
+			  "stealthTools@org.sakaiproject.tool.api.ActiveToolManager")
+			  .contains("sakai.questionbank.printout")
+			  && !ServerConfigurationService.getString(
+			  "hiddenTools@org.sakaiproject.tool.api.ActiveToolManager")
+			  .contains("sakai.questionbank.printout"))
+			  || Boolean.parseBoolean(printAssessment)) {
+		  assessmentBean.setShowPrintLink(true);
+	  }
+	  else {
+		  assessmentBean.setShowPrintLink(false);
+	  }
   }
 }

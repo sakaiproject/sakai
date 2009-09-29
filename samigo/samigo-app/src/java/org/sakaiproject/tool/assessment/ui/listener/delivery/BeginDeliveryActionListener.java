@@ -323,7 +323,9 @@ public class BeginDeliveryActionListener implements ActionListener
     PublishedAssessmentFacade pub = null;
     String publishedId = ContextUtil.lookupParam("publishedId");
     String assessmentId = (String)ContextUtil.lookupParam("assessmentId");
-
+    if (assessmentId == null || "".equals(assessmentId))
+    	assessmentId = delivery.getAssessmentId();
+    	 
     switch (action){
     case 2: // delivery.PREVIEW_ASSESSMENT
     	AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");

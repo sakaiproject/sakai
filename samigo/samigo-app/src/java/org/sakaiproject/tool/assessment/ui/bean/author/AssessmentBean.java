@@ -30,6 +30,7 @@ import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -68,6 +69,7 @@ public class AssessmentBean  implements Serializable {
   private boolean showPrintLink;
   private boolean hasGradingData = false;
   private boolean hasSubmission = false;
+  private boolean showPrintAssessment;
 
   /*
    * Creates a new AssessmentBean object.
@@ -288,5 +290,14 @@ public class AssessmentBean  implements Serializable {
 
   public void setHasSubmission(boolean hasSubmission) {
 		this.hasSubmission = hasSubmission;
+  }
+  
+  public boolean getShowPrintAssessment() {
+	  String printAssessment = ServerConfigurationService.getString("samigo.printAssessment");
+	  return Boolean.parseBoolean(printAssessment);
+  }
+
+  public void setShowPrintAssessment(boolean showPrintAssessment) {
+	  this.showPrintAssessment= showPrintAssessment;
   }
 }

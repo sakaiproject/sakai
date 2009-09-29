@@ -139,6 +139,16 @@ document.links[newindex].onclick();
       <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorSettingsListener" />
     </h:commandLink>
+
+	<h:outputText value=" #{authorMessages.separator} " rendered="#{assessmentBean.showPrintLink eq 'true'}"/>
+	
+	<h:commandLink action="#{itemauthor.print}" rendered="#{assessmentBean.showPrintLink eq 'true' && assessmentBean.showPrintAssessment ne 'true'}">
+		<h:outputText value="#{authorMessages.subnav_print}" escape="false" />
+	</h:commandLink>
+	<h:commandLink action="#{pdfAssessment.prepPDF}" rendered="#{assessmentBean.showPrintLink eq 'true' && assessmentBean.showPrintAssessment eq 'true'}">
+		<f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
+		<h:outputText value="#{printMessages.print}" escape="false" />
+	</h:commandLink>
   </p>
 
 <h:panelGrid columns="2" width="100%" columnClasses="shortText,navList" border="0">

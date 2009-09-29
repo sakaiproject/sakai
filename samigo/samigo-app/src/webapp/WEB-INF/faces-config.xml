@@ -158,6 +158,20 @@
  	</managed-property>
  </managed-bean>  
 
+ <managed-bean>
+ 	<description>
+ 		Dynamic Resource Bundle Loader
+ 	</description>
+ 	<managed-bean-name>printMessages</managed-bean-name>
+ 	<managed-bean-class>org.sakaiproject.util.ResourceLoader</managed-bean-class>
+ 	<managed-bean-scope>session</managed-bean-scope>
+ 	<managed-property>
+ 		<description>Bundle baseName</description>
+ 		<property-name>baseName</property-name>
+ 		<value>org.sakaiproject.tool.assessment.bundle.PrintMessages</value>
+ 	</managed-property>
+  </managed-bean>
+
   <managed-bean>
  	<description>
  		Dynamic Resource Bundle Loader
@@ -502,6 +516,19 @@
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
 
+ <managed-bean>
+    <description>Print to PDF backing bean</description>
+    <managed-bean-name>pdfAssessment</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.print.PDFAssessmentBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <description>Print settings bean</description>
+    <managed-bean-name>printSettings</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.print.settings.PrintSettingsBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+ 
   <!-- XML -->
   <managed-bean>
     <description>XML Display.</description>
@@ -746,6 +773,10 @@
     <navigation-case>
       <from-outcome>printAssessment</from-outcome>
       <to-view-id>/sakai.questionbank.printout.helper/printAssessment</to-view-id>
+    </navigation-case>
+    <navigation-case>
+    <from-outcome>print</from-outcome>
+      <to-view-id>/jsf/print/printAssessment.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>addPart</from-outcome>
