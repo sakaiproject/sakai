@@ -23,6 +23,8 @@
     <module>mailarchive-impl/pack</module>
     <module>mailarchive-james/james</module>
     <module>mailarchive-tool/tool</module>
+    <module>search-adapters/impl</module>
+    <module>search-adapters/pack</module>
   </modules>
   <dependencyManagement>
     <dependencies>
