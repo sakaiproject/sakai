@@ -14,7 +14,7 @@
   <properties>
     <deploy.target/>
     <maven.test.jvmargs/>
-    <poi.version>3.5-beta6</poi.version>
+    <poi.version>3.5-FINAL</poi.version>
   </properties>
   <profiles>
     <profile>
