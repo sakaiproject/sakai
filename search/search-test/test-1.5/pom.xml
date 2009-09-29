@@ -8,7 +8,7 @@
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-search-test-1.5</name>
-  <groupId>org.sakaiproject</groupId>
+  <groupId>org.sakaiproject.search</groupId>
   <artifactId>sakai-search-test-1.5</artifactId>
   <packaging>jar</packaging>
   <build>
