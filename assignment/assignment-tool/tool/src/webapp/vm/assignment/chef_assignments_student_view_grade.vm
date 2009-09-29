@@ -73,18 +73,40 @@
 						</td>
 					</tr>
 				#end
-				<tr>
-					<th>
-						$tlang.getString("gen.gra2") 
-					</th>
-					<td>
-					$submission.getGradeDisplay()
+				#if ($withGrade)
 					#set ($gradeScale = $assignment.getContent().getTypeOfGradeString($assignment.getContent().getTypeOfGrade()))
-					#if ($gradeTypeTable.get($assignment.getContent().getTypeOfGrade()) == $!tlang.getString("points"))
-						($tlang.getString("grade.max") $assignment.getContent().getMaxGradePointDisplay())
+					#if ($submission.getGraded() && $submission.getGradeReleased())
+						<tr>	
+							<th>
+								$tlang.getString("gen.gra3")
+							</th>
+							<td class="highlight">
+								<strong>
+									#if ($assignment.getContent().TypeOfGrade != 1)
+										$submission.GradeDisplay
+									#else
+										$tlang.getString("gen.nograd")
+									#end
+									#if ($gradeTypeTable.get($assignment.getContent().getTypeOfGrade()) == $!tlang.getString("points"))
+										($tlang.getString("grade.max") $assignment.getContent().getMaxGradePointDisplay())
+									#end
+								</strong>
+							</td>
+						</tr>
+					#else
+						<tr>	
+							<th>
+								$tlang.getString("gen.grasca")
+							</th>
+							<td>
+								$gradeScale
+								#if ($gradeTypeTable.get($assignment.getContent().getTypeOfGrade()) == $!tlang.getString("points"))
+									($tlang.getString("grade.max") $assignment.getContent().getMaxGradePointDisplay())
+								#end
+							</td>
+						</tr>
 					#end
-				</td>
-				</tr>
+				#end
 				#if($allowReviewService && $assignment.getContent().AllowReviewService && $assignment.getContent().AllowStudentViewReport)
 					<tr>
 						<th>
