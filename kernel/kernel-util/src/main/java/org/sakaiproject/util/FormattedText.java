@@ -444,7 +444,7 @@ public class FormattedText
 		catch (Exception e)
 		{
 			M_log.warn("Validator.escapeHtml: ", e);
-			return value;
+			return "";
 		}
 
 	} // escapeHtml
@@ -503,7 +503,7 @@ public class FormattedText
 		catch (Exception e)
 		{
 			M_log.warn("Validator.escapeHtml: ", e);
-			return value;
+			return "";
 		}
 	}
 

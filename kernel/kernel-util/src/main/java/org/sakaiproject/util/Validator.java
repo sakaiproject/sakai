@@ -210,10 +210,10 @@ public class Validator
 			String rv = buf.toString();
 			return rv;
 		}
-		catch (Exception e)
+		catch (UnsupportedEncodingException e)
 		{
 			M_log.warn("Validator.escapeUrl: ", e);
-			return id;
+			return "";
 		}
 
 	} // escapeUrl
@@ -299,7 +299,7 @@ public class Validator
 		catch (Exception e)
 		{
 			M_log.warn("Validator.escapeResourceName: ", e);
-			return id;
+			return "";
 		}
 
 	} // escapeResourceName
@@ -336,7 +336,7 @@ public class Validator
 		catch (Exception e)
 		{
 			M_log.warn("Validator.escapeQuestionMark: ", e);
-			return id;
+			return "";
 		}
 
 	} // escapeQuestionMark
@@ -373,7 +373,7 @@ public class Validator
 		catch (Exception e)
 		{
 			M_log.warn("Validator.escapeZipEntry: ", e);
-			return id;
+			return "";
 		}
 
 	} // escapeZipEntry
@@ -421,7 +421,7 @@ public class Validator
 		catch (Exception e)
 		{
 			M_log.warn("Validator.escapeJsQuoted: ", e);
-			return value;
+			return "";
 		}
 
 	} // escapeJsQuoted
@@ -459,7 +459,7 @@ public class Validator
 		catch (Exception e)
 		{
 			M_log.warn("Validator.escapeSql: ", e);
-			return value;
+			return "";
 		}
 
 	} // escapeSql
@@ -505,7 +505,7 @@ public class Validator
 		catch (Exception e)
 		{
 			M_log.warn("Validator.escapeJavascript: ", e);
-			return value;
+			return "";
 		}
 
 	} // escapeJavascript
