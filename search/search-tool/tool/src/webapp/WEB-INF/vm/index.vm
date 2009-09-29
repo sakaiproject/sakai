@@ -16,7 +16,7 @@
 				</label>
 				<input type="hidden" name="panel" value="Main" />
 				<input type="text" id="search"  name="search" size="42" maxlength="1024" value="${searchModel.search}"/>
-				<input type="submit" name="sb" value="Go" />
+				<input type="submit" name="sb" value="${rlb.jsp_search}" />
 				<br/>
 				<input id="searchSite" type="radio" name="scope" value="SITE" #if($searchModel.isScope('SITE')) checked="true" #end "/>
 				<label for="searchSite">${rlb.jsp_current_site}</label>

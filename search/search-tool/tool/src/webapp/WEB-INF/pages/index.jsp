@@ -81,10 +81,10 @@
 				<input type="hidden" name="panel" value="Main" />
 				<input type="text" id="search"  name="search" size="42" maxlength="1024" value="<%= searchBean.getSearch() %>"/>
 				<select name="scope">
-					<option value="SITE">This Site</option>
-					<option value="MINE">All My Sites</option>
+					<option value="SITE"><%= org.sakaiproject.search.tool.Messages.getString("jsp_current_site") %></option>
+					<option value="MINE"><%= org.sakaiproject.search.tool.Messages.getString("jsp_all_my_sites") %></option>
 				</select>
-				<input type="submit" name="sb" value="Go" />
+				<input type="submit" name="sb" value="<%= org.sakaiproject.search.tool.Messages.getString("jsp_search") %>" />
 			</form>
 		</div>
 	</div>	
