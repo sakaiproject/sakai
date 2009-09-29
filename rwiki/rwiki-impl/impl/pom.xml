@@ -118,13 +118,13 @@
 <!--org.sakaiprojectsakai-db-api${sakai.version}jar-->
 <!--org.sakaiprojectsakai-alias-api${sakai.version}jar-->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-search-api</artifactId>
+      <groupId>org.sakaiproject.search</groupId>
+      <artifactId>search-api</artifactId>
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-search-util</artifactId>
+      <groupId>org.sakaiproject.search</groupId>
+      <artifactId>search-util</artifactId>
       <type>jar</type>
     </dependency>
 <!--org.sakaiprojectsakai-util${sakai.version}jar-->
