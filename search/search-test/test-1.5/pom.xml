@@ -9,7 +9,7 @@
   </parent>
   <name>search-test-1.5</name>
   <groupId>org.sakaiproject.search</groupId>
-  <artifactId>sakai-search-test-1.5</artifactId>
+  <artifactId>search-test-1.5</artifactId>
   <packaging>jar</packaging>
   <build>
     <plugins>
