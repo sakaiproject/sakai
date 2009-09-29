@@ -7,9 +7,9 @@
     <version>1.2-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
-  <name>sakai-search-pack</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-search-pack</artifactId>
+  <name>search-pack</name>
+  <groupId>org.sakaiproject.search</groupId>
+  <artifactId>search-pack</artifactId>
   <packaging>sakai-component</packaging>
   <properties>
     <deploy.target>components</deploy.target>

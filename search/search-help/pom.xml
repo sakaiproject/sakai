@@ -7,9 +7,9 @@
     <version>1.2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>sakai-search-help</name>
+  <name>search-help</name>
   <groupId>org.sakaiproject.search</groupId>
-  <artifactId>sakai-search-help</artifactId>
+  <artifactId>search-help</artifactId>
   <organization>
     <name>Sakai Project</name>
     <url>http://sakaiproject.org/</url>
