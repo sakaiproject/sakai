@@ -21,7 +21,7 @@
     <dependency>
       <groupId>org.springfameworf</groupId>
       <artifactId>spring-test</artifactId>
-      <version>2.5.6.SEC0</version>
+      <version>2.5.6.SEC01</version>
       <type>jar</type>
     </dependency>
   </dependencies>
