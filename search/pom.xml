@@ -8,8 +8,9 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Search Project</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>search-base</artifactId>
+  <groupId>org.sakaiproject.search</groupId>
+  <artifactId>search</artifactId>
+  <version>1.2-SNAPSHOT</version>
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/search/trunk</connection>
     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/search/trunk</developerConnection>
@@ -52,27 +53,33 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-search-model</artifactId>
-        <version>2.7.0-SNAPSHOT</version>
+        <groupId>org.sakaiproject.search</groupId>
+        <artifactId>search-api</artifactId>
+        <version>1.2-SNAPSHOT</version>
         <type>jar</type>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-search-impl</artifactId>
-        <version>2.7.0-SNAPSHOT</version>
+        <groupId>org.sakaiproject.search</groupId>
+        <artifactId>search-model</artifactId>
+        <version>1.2-SNAPSHOT</version>
         <type>jar</type>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-search-util</artifactId>
-        <version>2.7.0-SNAPSHOT</version>
+        <groupId>org.sakaiproject.search</groupId>
+        <artifactId>search-impl</artifactId>
+        <version>1.2-SNAPSHOT</version>
         <type>jar</type>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-search-adapters-impl</artifactId>
-        <version>2.7.0-SNAPSHOT</version>
+        <groupId>org.sakaiproject.search</groupId>
+        <artifactId>search-util</artifactId>
+        <version>1.2-SNAPSHOT</version>
+        <type>jar</type>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.search</groupId>
+        <artifactId>search-adapters-impl</artifactId>
+        <version>1.2-SNAPSHOT</version>
         <type>jar</type>
       </dependency>
       <dependency>

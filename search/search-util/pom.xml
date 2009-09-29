@@ -2,14 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>search-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
-    <version>2.7.0-SNAPSHOT</version>
+    <artifactId>search</artifactId>
+    <groupId>org.sakaiproject.search</groupId>
+    <version>1.2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>sakai-search-util</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-search-util</artifactId>
+  <groupId>org.sakaiproject.search</groupId>
+  <artifactId>search-util</artifactId>
   <packaging>jar</packaging>
   <properties>
     <deploy.target/>
@@ -74,8 +74,8 @@
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-search-api</artifactId>
+      <groupId>org.sakaiproject.search</groupId>
+      <artifactId>search-api</artifactId>
       <type>jar</type>
     </dependency>
 <!--org.sakaiprojectsakai-util${sakai.version}jar-->
