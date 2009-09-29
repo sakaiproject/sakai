@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+    <id>tomcat-overlay</id>
+    <formats>
+        <format>dir</format>
+        <format>zip</format>
+        <format>tar.gz</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <dependencySets>
+        <!-- stuff that goes into shared -->
+        <dependencySet>
+            <outputDirectory>shared/lib</outputDirectory>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.sakaiproject.search-api:*:jar:*</include>
+                <include>org.sakaiproject.search-model:*:jar:*</include>
+                <include>org.sakaiproject.search-help:*:jar:*</include>
+            </includes>
+        </dependencySet>
+        <!-- stuff that goes into components -->
+        <dependencySet>
+            <outputDirectory>components/search-pack</outputDirectory>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.sakaiproject.search:search-pack:war:*</include>
+            </includes>
+            <unpack>true</unpack>
+        </dependencySet>
+        <!-- stuff that goes into webapps -->
+        <dependencySet>
+            <outputDirectory>webapps</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}.war</outputFileNameMapping>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.sakaiproject.search:search-tool:war:*</include>
+            </includes>
+            <unpack>false</unpack>
+        </dependencySet>
+    </dependencySets>
+    <fileSets>
+        <fileSet>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>${project.basedir}/README*</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+</assembly>
