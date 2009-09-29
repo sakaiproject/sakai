@@ -41,8 +41,6 @@
         <module>search-help</module>
         <module>search-impl/impl</module>
         <module>search-impl/pack</module>
-        <module>search-adapters/impl</module>
-        <module>search-adapters/pack</module>
         <module>search-integration-test</module>
         <module>search-model</module>
         <module>search-util</module>
