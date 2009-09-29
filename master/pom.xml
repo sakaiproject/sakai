@@ -91,7 +91,8 @@
     <sakai.ets.version>0.4-SNAPSHOT</sakai.ets.version>
     <sakai.entitybroker.version>1.3.7-SNAPSHOT</sakai.entitybroker.version>
     <sakai.common.version>1.0-SNAPSHOT</sakai.common.version>
-  </properties>
+    <sakai.search.version>1.2-SNAPSHOT</sakai.search.version>
+   </properties>
   <distributionManagement>
     <repository>
       <uniqueVersion>false</uniqueVersion>
@@ -830,11 +831,16 @@ This is not needed now that pluto have been released
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-search-api</artifactId>
-        <version>${sakai.version}</version>
+        <groupId>org.sakaiproject.search</groupId>
+        <artifactId>search-api</artifactId>
+        <version>${sakai.search.version}</version>
         <scope>provided</scope>
       </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.search</groupId>
+        <artifactId>search-util</artifactId>
+        <version>${sakai.search.version}</version>
+       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-syllabus-api</artifactId>
