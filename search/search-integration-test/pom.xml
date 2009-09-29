@@ -19,7 +19,7 @@
       <artifactId>sakai-test-harness</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.springfameworf</groupId>
+      <groupId>org.springfamework</groupId>
       <artifactId>spring-test</artifactId>
       <version>2.5.6.SEC01</version>
       <type>jar</type>
