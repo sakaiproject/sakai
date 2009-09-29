@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>search-base</artifactId>
+    <artifactId>mailarchive-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>2.7.0-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
@@ -85,13 +85,13 @@
       This has been relocated to sakai-kernel-util
       org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-search-api</artifactId>
+      <groupId>org.sakaiproject.search</groupId>
+      <artifactId>search-api</artifactId>
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-search-util</artifactId>
+      <groupId>org.sakaiproject.search</groupId>
+      <artifactId>search-util</artifactId>
       <type>jar</type>
     </dependency>
 <!--org.sakaiprojectsakai-entity-api${sakai.version}jar-->
