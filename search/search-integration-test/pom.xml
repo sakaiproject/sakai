@@ -19,9 +19,9 @@
       <artifactId>sakai-test-harness</artifactId>
     </dependency>
     <dependency>
-      <groupId>${sakai.spring.groupId}</groupId>
-      <artifactId>${sakai.spring.test.artifactId}</artifactId>
-      <version>${sakai.spring.test.version}</version>
+      <groupId>org.springfameworf</groupId>
+      <artifactId>spring-test</artifactId>
+      <version>2.5.6.SEC0</version>
       <type>jar</type>
     </dependency>
   </dependencies>
