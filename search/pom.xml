@@ -34,7 +34,6 @@
 				<module>search-util</module>
 				<module>search-tool/tool</module>
 				<module>search-test</module>
-				<module>search-assembly</module>
 			</modules>
 		</profile>
 		<profile>
@@ -52,6 +51,7 @@
 				<module>search-util</module>
 				<module>search-tool/tool</module>
 				<module>search-test</module>
+				<module>search-assembly</module>
 			</modules>
 		</profile>
 	</profiles>
