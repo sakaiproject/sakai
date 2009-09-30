@@ -73,34 +73,6 @@
       </modules>
     </profile>
     <profile>
-      <id>mini</id>
-      <modules>
-        <module>kernel-deploy</module>
-        <module>access</module>
-        <module>config</module>
-        <module>jsf</module>
-        <module>login</module>
-        <module>master</module>
-        <module>message/message-api/api</module>
-        <module>message/message-impl/impl</module>
-        <module>mailarchive/mailarchive-api/api</module>
-        <module>mailarchive/mailarchive-impl/impl</module>
-        <module>mailarchive/mailarchive-impl/pack</module>
-        <module>metaobj/metaobj-api/api</module>
-        <module>metaobj/metaobj-impl/api-impl</module>
-        <module>portal</module>
-        <module>presence/presence-api/api</module>
-        <module>reference/library</module>
-        <module>sakai-mock</module>
-        <module>site-manage/site-manage-api/api</module>
-        <module>site-manage/site-manage-impl/impl</module>
-        <module>site-manage/site-manage-impl/pack</module>
-        <module>site-manage/site-manage-util/util</module>
-        <module>test-harness</module>
-        <module>velocity</module>
-      </modules>
-    </profile>
-    <profile>
       <id>full</id>
       <activation>
         <activeByDefault>true</activeByDefault>
