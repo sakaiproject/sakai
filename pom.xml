@@ -126,7 +126,6 @@
         <module>course-management</module>
         <module>dav</module>
         <module>emailtemplateservice</module>
-        <module>entitybroker</module>
         <module>gradebook</module>
         <module>help</module>
         <module>jobscheduler</module>
