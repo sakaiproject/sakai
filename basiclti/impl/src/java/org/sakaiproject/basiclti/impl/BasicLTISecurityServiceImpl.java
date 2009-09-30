@@ -66,10 +66,11 @@ import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.event.cover.EventTrackingService;
+//import org.sakaiproject.event.cover.EventTrackingService;
 
 import org.sakaiproject.basiclti.SakaiBLTIUtil;
 import org.imsglobal.basiclti.BasicLTIUtil;
+import org.sakaiproject.basiclti.LocalEventTrackingService;
 
 public class BasicLTISecurityServiceImpl implements EntityProducer {
 
@@ -236,10 +237,10 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					String refstring = ref.getReference();
 					if ( retval.length > 1 ) refstring = retval[1];
 					// Cool 2.6 Event call
-                                        Event event = EventTrackingService.newEvent(EVENT_BASICLTI_LAUNCH, refstring, ref.getContext(),  false, NotificationService.NOTI_OPTIONAL);
+                                        Event event = LocalEventTrackingService.newEvent(EVENT_BASICLTI_LAUNCH, refstring, ref.getContext(),  false, NotificationService.NOTI_OPTIONAL);
 					// 2.5 Event call
                                         // Event event = EventTrackingService.newEvent(EVENT_BASICLTI_LAUNCH, refstring, false);
-                                        EventTrackingService.post(event);
+                                        LocalEventTrackingService.post(event);
 
 				} 
 				catch (Exception e)

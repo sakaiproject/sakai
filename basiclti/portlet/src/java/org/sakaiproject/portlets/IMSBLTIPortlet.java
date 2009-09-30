@@ -2,6 +2,7 @@ package org.sakaiproject.portlets;
 
 import org.imsglobal.basiclti.BasicLTIUtil;
 
+
 import java.lang.Integer;
 
 import java.io.PrintWriter;
@@ -64,7 +65,8 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.event.cover.EventTrackingService;
+//import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.basiclti.LocalEventTrackingService;
 
 
 // For Rutgers Security
@@ -509,10 +511,10 @@ public class IMSBLTIPortlet extends GenericPortlet {
         // track event and store
         if ( changed ) {
             // 2.6 Event Tracking
-            Event event = EventTrackingService.newEvent(EVENT_BASICLTI_CONFIG, launch_url, context, true, NotificationService.NOTI_OPTIONAL);
+            Event event = LocalEventTrackingService.newEvent(EVENT_BASICLTI_CONFIG, launch_url, context, true, NotificationService.NOTI_OPTIONAL);
             // 2.5 Event Tracking
             // Event event = EventTrackingService.newEvent(EVENT_BASICLTI_CONFIG, launch_url, true);
-            EventTrackingService.post(event);
+            LocalEventTrackingService.post(event);
             prefs.store();
 	}
 
