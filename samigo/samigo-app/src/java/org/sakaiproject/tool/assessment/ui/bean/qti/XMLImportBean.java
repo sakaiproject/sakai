@@ -141,7 +141,7 @@ public class XMLImportBean implements Serializable
     String filename = unzipLocation + "/" + importService.getQTIFilename();
     try
     {
-      processFile(filename);
+      processFile(filename, uploadFile, unzipLocation);
     }
     catch (Exception ex)
     {
@@ -150,8 +150,12 @@ public class XMLImportBean implements Serializable
       FacesContext.getCurrentInstance().addMessage(null, message);
       // remove unsuccessful file
       log.debug("****remove unsuccessful filename="+filename);
-      File upload = new File(filename);
-      upload.delete();
+      File f1 = new File(filename);
+      f1.delete();
+      File f2 = new File(uploadFile);
+      f2.delete();
+      File f3 = new File(unzipLocation);
+      deleteDirectory(f3);
     }
   }
 
@@ -213,12 +217,14 @@ public class XMLImportBean implements Serializable
     this.importType = importType;
   }
 
-  private void processFile(String uploadFile)
+  private void processFile(String fileName)
+  {
+	  processFile(fileName, null, null);
+  }
+  private void processFile(String fileName, String uploadFile, String unzipLocation)
   {
     itemAuthorBean.setTarget(ItemAuthorBean.FROM_ASSESSMENT); // save to assessment
 
-    // Get the file name
-    String fileName = uploadFile;
     AssessmentService assessmentService = new AssessmentService();
     // Create an assessment based on the uploaded file
     AssessmentFacade assessment = createImportedAssessment(fileName, qtiVersion);
@@ -270,14 +276,33 @@ public class XMLImportBean implements Serializable
     // remove uploaded file
     try{
       //log.debug("****filename="+fileName);
-      File upload = new File(fileName);
-      upload.delete();
+      File f1 = new File(fileName);
+      f1.delete();
+      File f2 = new File(uploadFile);
+      f2.delete();
+      File f3 = new File(unzipLocation);
+      deleteDirectory(f3);
     }
     catch(Exception e){
       log.error(e.getMessage());
     }
   }
   
+  private void deleteDirectory(File directory) {
+	  if(directory.exists()) {
+		  File[] files = directory.listFiles();
+		  for(int i=0; i < files.length; i++) {
+			  if(files[i].isDirectory()) {
+				  deleteDirectory(files[i]);
+			  }
+			  else {
+				  files[i].delete();
+			  }
+		  }
+	  }
+	  directory.delete();
+  }
+
   /**
    * Create assessment from uploaded QTI XML
    * @param fullFileName file name and path
