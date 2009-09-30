@@ -27,7 +27,8 @@
   <prerequisites>
     <maven>2.0.6</maven>
   </prerequisites>
-<!-- Mailing Lists ======================================================= -->
+<!-- Mailing Lists =======================================================
+-->
   <mailingLists>
     <mailingList>
       <name>Sakai User List</name>
@@ -209,7 +210,8 @@ This is not needed now that pluto have been released
         <version>${sakai.kernel.version}</version>
       </dependency>
 <!-- provided by the JDK, here to ensure its not packaged in child poms 
-     child poms may still override if necessary -->
+     child poms may still override if necessary
+-->
       <dependency>
         <groupId>xalan</groupId>
         <artifactId>xalan</artifactId>
@@ -709,6 +711,18 @@ This is not needed now that pluto have been released
         <artifactId>entitybroker-utils</artifactId>
         <version>${sakai.entitybroker.version}</version>
       </dependency>
+	  <dependency>
+		<groupId>org.sakaiproject.entitybroker</groupId>
+		<artifactId>entitybroker-assembly</artifactId>
+		<classifier>tomcat-overlay</classifier>
+		<version>${sakai.entitybroker.version}</version>
+		<type>zip</type>
+	</dependency>
+	<dependency>
+        <groupId>org.sakaiproject.entitybroker</groupId>
+        <artifactId>entitybroker-utils</artifactId>
+        <version>${sakai.entitybroker.version}</version>
+      </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-gradebook-service-api</artifactId>
@@ -1055,7 +1069,8 @@ This is not needed now that pluto have been released
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <!-- A log4j passthrough bug exists in version 2.3 of the surefire plugin. -->
+        <!-- A log4j passthrough bug exists in version 2.3 of the surefire plugin.
+-->
         <!-- (Plugin settings don't honor Maven version ranges : MNG-2742.) -->
         <version>2.4.3</version>
         <configuration>
