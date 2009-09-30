@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faqs title="Frequently Asked Questions">
+
+  <part id="general">
+    <title>General</title>
+
+    <faq id="why-so-empty">
+      <question>
+        Where are the questions?
+      </question>
+      <answer>
+        <p>
+          This file is in src/site/fml/faq.fml
+        </p>
+      </answer>
+    </faq>
+  </part>
+
+  <part id="build">
+    <title>Building Kernel</title>
+
+    <faq id="build-how">
+      <question>
+        How do I build the Kernel sources?
+      </question>
+      <answer>
+        mvn clean install
+      </answer>
+    </faq>
+
+    <faq id="build-missing-eclipse">
+      <question>
+        Where did the eclipse project files go  ?
+      </question>
+      <answer>
+        <p>
+	  We are not distributing IDE build files with the kernel. To generate them
+	  do <code>mvn eclipse:eclipse</code>
+        </p>
+      </answer>
+    </faq>
+
+  </part>
+
+</faqs>
