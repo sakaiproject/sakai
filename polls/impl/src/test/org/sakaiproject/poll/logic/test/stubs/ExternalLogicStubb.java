@@ -159,4 +159,9 @@ public class ExternalLogicStubb implements ExternalLogic {
 		return currentUserId;
 	}
 
+	public boolean userIsViewingAsRole() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

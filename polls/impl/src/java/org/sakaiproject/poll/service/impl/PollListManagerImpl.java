@@ -622,7 +622,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 			return true;
 
 		//the owner can view the results
-		if(poll.getOwner().equals(userId))
+		if(poll.getOwner().equals(userId) && !externalLogic.userIsViewingAsRole())
 			return true;
 
 		return false;

@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.Map.Entry;
 
-import org.apache.commons.collections.iterators.EntrySetMapIterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -39,6 +38,7 @@ import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
@@ -98,6 +98,10 @@ public class ExternalLogicImpl implements ExternalLogic {
 	}
 
 
+    private SecurityService securityService;
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
+	}
 
 	/**
      * Methods
@@ -332,6 +336,16 @@ public class ExternalLogicImpl implements ExternalLogic {
 
 	public String getSiteRefFromId(String siteId) {
 		return siteService.siteReference(siteId);
+	}
+
+
+
+	public boolean userIsViewingAsRole() {
+		String effectiveRole = securityService.getUserEffectiveRole(developerHelperService.getCurrentLocationReference());
+		if (effectiveRole != null)
+					return true;
+		
+		return false;
 	}
 
 

@@ -154,9 +154,17 @@ public interface ExternalLogic {
 	 */
 	public void setToolPermissions(Map<String, PollRolePerms> permMap, String locationReference) throws SecurityException, IllegalArgumentException;
 	
-	
+	/**
+	 * Get the Roles in a site
+	 * @param locationReference
+	 * @return
+	 */
 	public Map<String, PollRolePerms> getRoles(String locationReference);
 	
-
+	/**
+	 * is the user using the "view as ..." feature
+	 * @return
+	 */
+	public boolean userIsViewingAsRole();
 	
 }

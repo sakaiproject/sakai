@@ -41,6 +41,7 @@
 		<property name="timeService"
 			ref="org.sakaiproject.time.api.TimeService" />
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 	</bean>
 
 </beans>
