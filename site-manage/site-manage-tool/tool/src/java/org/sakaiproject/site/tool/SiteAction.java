@@ -1863,6 +1863,19 @@ public class SiteAction extends PagedResourceActionII {
 						}
 					}
 				}
+
+				if (allowUpdateSite) 
+				{
+					// show add parent sites menu
+					if (!isMyWorkspace) {
+						if (notStealthOrHiddenTool("sakai-site-manage-link-helper")) {
+							b.add(new MenuEntry(rb.getString("java.link"),
+									"doLinkHelper"));
+						}
+						
+					}
+				}
+				
 				
 				if (allowUpdateSite) 
 				{
@@ -3179,6 +3192,25 @@ public class SiteAction extends PagedResourceActionII {
 		// launch the helper
 		startHelper(data.getRequest(), (String) state.getAttribute(STATE_GROUP_HELPER_ID));//"sakai-site-manage-group-helper");
 		
+	}
+
+	/**
+	 * Launch the Link Helper Tool -- for setting/clearing parent site
+	 * 
+	 * @see case 12  // TODO
+	 * 
+	 */
+	public void doLinkHelper(RunData data) {
+		SessionState state = ((JetspeedRunData) data)
+				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// pass in the siteId of the site to be ordered (so it can configure
+		// sites other then the current site)
+		SessionManager.getCurrentToolSession().setAttribute(
+				HELPER_ID + ".siteId", ((Site) getStateSite(state)).getId());
+
+		// launch the helper
+		startHelper(data.getRequest(), "sakai-site-manage-link-helper");
 	}
 	
 	public boolean setHelper(String helperName, String defaultHelperId, SessionState state, String stateHelperString)

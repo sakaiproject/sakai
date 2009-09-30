@@ -1,0 +1,42 @@
+<div class="portletBody">
+#if ($alertMessage)
+    <div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>
+#end
+#if ($parentId)
+<p>Current Parent Site: $parentTitle ($parentId) </p>
+        <form action="#toolForm("")" method="post" name="customizeForm" >
+                <p class="act">
+                        <input type="submit" accesskey ="s" class="active" name="$doRemove" value="$tlang.getString('gen.remove')" />
+                        <input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" />
+                </p>
+        </form>
+#else
+<p>$tlang.getString('java.selectparent')</p>
+<form action="#toolForm("")" method="post" name="customizeForm" >
+#if ( $sites ) 
+<select name="parentSite">
+<option id="nothingselcted" value="" />$tlang.getString("java.please.select")</option>
+#foreach($site in $sites)
+    #if ($!currentSite && ($site.Id != $!currentSite.Id))
+        #set ($siteIDCounter = $siteIDCounter + 1)
+            <option id="site_$siteIDCounter" value="$site.getId()" />
+                $validator.escapeHtml($site.getTitle())
+            </option>
+        </p>
+    #end
+#end
+</select>
+#else
+<p>
+<div class="alertMessage">$tlang.getString('error.nosites')</div><div style="display:block;clear:both" ></div>
+</p>
+#end
+<p class="act">
+#if ( $sites ) 
+  <input type="submit" accesskey ="s" class="active" name="$doSave" value="$tlang.getString('gen.save')" />
+#end
+  <input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" />
+</p>
+</form>
+#end
+</div>
