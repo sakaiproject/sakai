@@ -6475,36 +6475,35 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 				state.setAttribute(ALLPURPOSE_ACCESS, aList);
 			}
-			
-			// get the AllPurposeItem and AllPurposeReleaseTime/AllPurposeRetractTime
-			//default to assignment open time
-			Time releaseTime = a.getOpenTime();
-			// default to assignment close time
-			Time retractTime = a.getCloseTime();
-			if (aItem != null)
-			{
-				Date releaseDate = aItem.getReleaseDate();
-				if (releaseDate != null)
-				{
-					// overwrite if there is a release date
-					releaseTime = TimeService.newTime(releaseDate.getTime());
-				}
-				
-				Date retractDate = aItem.getRetractDate();
-				if (retractDate != null)
-				{
-					// overwriteif there is a retract date
-					retractTime = TimeService.newTime(retractDate.getTime());
-				}
-				putTimePropertiesInState(state, releaseTime, ALLPURPOSE_RELEASE_MONTH, ALLPURPOSE_RELEASE_DAY, ALLPURPOSE_RELEASE_YEAR, ALLPURPOSE_RELEASE_HOUR, ALLPURPOSE_RELEASE_MIN, ALLPURPOSE_RELEASE_AMPM);
-				
-				putTimePropertiesInState(state, retractTime, ALLPURPOSE_RETRACT_MONTH, ALLPURPOSE_RETRACT_DAY, ALLPURPOSE_RETRACT_YEAR, ALLPURPOSE_RETRACT_HOUR, ALLPURPOSE_RETRACT_MIN, ALLPURPOSE_RETRACT_AMPM);
-				
-			}
-			
+
 			// get attachments for model answer object
 			putSupplementItemAttachmentInfoIntoState(state, aItem, ALLPURPOSE_ATTACHMENTS);
 		}
+			
+		// get the AllPurposeItem and AllPurposeReleaseTime/AllPurposeRetractTime
+		//default to assignment open time
+		Time releaseTime = a.getOpenTime();
+		// default to assignment close time
+		Time retractTime = a.getCloseTime();
+		if (aItem != null)
+		{
+			Date releaseDate = aItem.getReleaseDate();
+			if (releaseDate != null)
+			{
+				// overwrite if there is a release date
+				releaseTime = TimeService.newTime(releaseDate.getTime());
+			}
+			
+			Date retractDate = aItem.getRetractDate();
+			if (retractDate != null)
+			{
+				// overwriteif there is a retract date
+				retractTime = TimeService.newTime(retractDate.getTime());
+			}
+		}
+		putTimePropertiesInState(state, releaseTime, ALLPURPOSE_RELEASE_MONTH, ALLPURPOSE_RELEASE_DAY, ALLPURPOSE_RELEASE_YEAR, ALLPURPOSE_RELEASE_HOUR, ALLPURPOSE_RELEASE_MIN, ALLPURPOSE_RELEASE_AMPM);
+		
+		putTimePropertiesInState(state, retractTime, ALLPURPOSE_RETRACT_MONTH, ALLPURPOSE_RETRACT_DAY, ALLPURPOSE_RETRACT_YEAR, ALLPURPOSE_RETRACT_HOUR, ALLPURPOSE_RETRACT_MIN, ALLPURPOSE_RETRACT_AMPM);
 	}
 
 	/**
