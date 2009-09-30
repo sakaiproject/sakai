@@ -1966,9 +1966,12 @@ public class DeliveryBean
     }
     else
     { // put the location in
+      ExternalContext external = FacesContext.getCurrentInstance().getExternalContext();
+	  String repositoryPath = (String)((ServletContext)external.getContext()).getAttribute("FILEUPLOAD_REPOSITORY_PATH");
+	  String relativeLocation = mediaLocation.replaceFirst(repositoryPath, "/");
       mediaData = new MediaData(itemGradingData, null,
     		  					Long.valueOf(mediaByte.length + ""),
-                                mimeType, "description", mediaLocation,
+                                mimeType, "description", relativeLocation,
                                 updatedFilename, false, false, Integer.valueOf(1),
                                 agent, new Date(),
                                 agent, new Date(), null);

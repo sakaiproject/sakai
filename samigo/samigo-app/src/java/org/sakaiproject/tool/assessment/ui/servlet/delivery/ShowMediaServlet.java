@@ -23,6 +23,7 @@
 
 package org.sakaiproject.tool.assessment.ui.servlet.delivery;
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
@@ -33,6 +34,7 @@ import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import java.io.*;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
@@ -233,7 +235,9 @@ private static Log log = LogFactory.getLog(ShowMediaServlet.class);
   private FileInputStream getFileStream(String mediaLocation){
     FileInputStream inputStream=null;
     try{
-      File media=new File(mediaLocation);
+      ServletContext context = super.getServletContext();
+      String repositoryPath = (String)context.getAttribute("FILEUPLOAD_REPOSITORY_PATH");
+      File media=new File(repositoryPath + mediaLocation);
       inputStream = new FileInputStream(media);
     }
     catch (FileNotFoundException ex) {
