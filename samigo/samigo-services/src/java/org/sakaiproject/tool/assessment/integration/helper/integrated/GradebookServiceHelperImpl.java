@@ -195,12 +195,13 @@ public void removeExternalAssessment(String gradebookUId,
         appName = tool.getTitle();
       }
 
-      if(!g.isAssignmentDefined(gradebookUId, publishedAssessment.getTitle()))
+      String title = unEscapeHtml(publishedAssessment.getTitle());
+      if(!g.isAssignmentDefined(gradebookUId, title))
       {
         g.addExternalAssessment(gradebookUId,
                               publishedAssessment.getPublishedAssessmentId().
                               toString(), null,
-                              publishedAssessment.getTitle(),
+                              title,
                               publishedAssessment.getTotalScore().doubleValue(),
                               publishedAssessment.getAssessmentAccessControl().
                               getDueDate(),
@@ -209,6 +210,16 @@ public void removeExternalAssessment(String gradebookUId,
       }
     }
     return added;
+  }
+
+  private String unEscapeHtml(String value)
+  {
+	  if (value == null || value.equals("")) return "";
+	  value = value.replaceAll("&lt;", "<");
+	  value = value.replaceAll("&gt;", ">");
+	  value = value.replaceAll("&amp;", "&");
+	  value = value.replaceAll("&quot;", "\"");
+	  return value;
   }
 
   /**
