@@ -9339,7 +9339,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			else if (m.getContent().getTypeOfGrade() == Assignment.UNGRADED_GRADE_TYPE) {
 				String ret = "";
 				if (grade != null) {
-					if (grade.equalsIgnoreCase("No Grade")) ret = rb.getString("gen.nograd");
+					if (grade.equalsIgnoreCase("gen.nograd")) ret = rb.getString("gen.nograd");
 				}
 				return ret;
 			}
