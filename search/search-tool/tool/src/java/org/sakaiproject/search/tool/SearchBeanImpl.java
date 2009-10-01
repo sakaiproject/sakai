@@ -495,8 +495,8 @@ public class SearchBeanImpl implements SearchBean
 	
 	/* assemble the list of search sites */
 	
-	protected List getSearchSites (String[] toolPropertySiteIds) {
-		List<String> l = new ArrayList();
+	protected List<String> getSearchSites (String[] toolPropertySiteIds) {
+		List<String> l = new ArrayList<String>();
 		
 		l.add(this.siteId);
 		if (toolPropertySiteIds != null) {
@@ -504,7 +504,7 @@ public class SearchBeanImpl implements SearchBean
 
 			for(int i = 0;i<searchSiteIds.length;i++){
 				String ss = searchSiteIds[i];
-				if (searchSiteIds[i].length() > 0) l.add(searchSiteIds[i]);
+				if (searchSiteIds[i].length() > 0) l.add(ss);
 			}
 		}
 		if (scope != null && scope.equals(Scope.MINE)) {
@@ -574,7 +574,7 @@ public class SearchBeanImpl implements SearchBean
 			if (search != null && search.trim().length() > 0)
 			{
 
-				List l = getSearchSites(getToolPropertySiteIds());
+				List<String> l = getSearchSites(getToolPropertySiteIds());
 				long start = System.currentTimeMillis();
 				int searchStart = requestPage * pagesize;
 				int searchEnd = searchStart + pagesize;
@@ -827,13 +827,14 @@ public class SearchBeanImpl implements SearchBean
 	 * 
 	 * @see org.sakaiproject.search.tool.SearchBean#getResults()
 	 */
+	@SuppressWarnings("unchecked")
 	public List<SearchOutputItem> getResults()
 	{
 		if (outputItems == null) {
 			
 		outputItems = new ArrayList<SearchOutputItem>();
 		SearchList sl = search();
-		for (Iterator i = sl.iterator(); i.hasNext();)
+		for (Iterator<SearchResult> i = sl.iterator(); i.hasNext();)
 		{
 			final SearchResult sr = (SearchResult) i.next();
 			
