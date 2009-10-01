@@ -1,4 +1,4 @@
-<table border="0" class="listHier lines nolines" summary="citations table" cellpadding="0" cellspacing="0">
+<table border="0" class="listHier lines nolines" summary="$tlang.getString("list.summary")" cellpadding="0" cellspacing="0">
   <tbody>
     <tr>
       <th colspan="3">
@@ -72,7 +72,7 @@ Added for column sort
             <option class="selectAction" value="title"  #if ($sort == "default" || $sort == "title") SELECTED #end>$tlang.getString("sort.title")</option>
             <option class="selectAction" value="year"   #if ($sort == "year") SELECTED #end>$tlang.getString("sort.date")</option>
           </select>
-		  <input type="button" name="savesort" value="Save Sort"
+		  <input type="button" name="savesort" value="$tlang.getString("submit.sort")"
 		   onclick="document.getElementById('sakai_action').value='doSaveCollection';submitform('$FORM_NAME');"/>
         </div>
       </td>
@@ -124,7 +124,7 @@ Added for column sort
             <option class="selectAction" value="title"  #if ($sort == "default" || $sort == "title") SELECTED #end>$tlang.getString("sort.title")</option>
             <option class="selectAction" value="year"   #if ($sort == "year") SELECTED #end>$tlang.getString("sort.date")</option>
           </select>
-		  <input type="button" name="savesort" value="Save Sort"
+		  <input type="button" name="savesort" value="$tlang.getString("submit.sort")"
 		   onclick="document.getElementById('sakai_action').value='doSaveCollection';submitform('$FORM_NAME');"/>
         </div>
       </td>

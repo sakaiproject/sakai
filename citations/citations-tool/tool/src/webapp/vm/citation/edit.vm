@@ -120,7 +120,7 @@
 									$tlang.getString("preferred.link")
 								</label>
 								<input class="prefLink" name="pref_$count" id="pref_$count"
-									type="checkbox" value="preferred"
+									type="checkbox" value="$tlang.getString("preferred.text")"
 									#if( $citation.hasPreferredUrl() && ( $citation.getPreferredUrlId() == $urlId ) ) checked="checked" #end
 									onclick="trackPreferredUrl('pref_$count');" />
 							</td>
@@ -152,7 +152,7 @@
 									$tlang.getString("preferred.link")
 								</label>
 								<input class="prefLink" name="pref_${count}" id="pref_${count}"
-									type="checkbox" value="preferred" onclick="trackPreferredUrl('pref_${count}');" />
+									type="checkbox" value="$tlang.getString("preferred.text")" onclick="trackPreferredUrl('pref_${count}');" />
 							</td>
 						</tr>
 						<tr>
@@ -379,7 +379,7 @@
 		var html = "<tr>\n<td>\n<label class=\"block\" for=\"url_" + i + "\">\n$tlang.getString("url.link")\n</label>\n"
 						+ "<input name=\"url_" + i + "\" id=\"url_" + i + "\" type=\"text\" size=\"50\" />\n</td>\n</tr>\n"
 						+ "<tr>\n<td>\n<label class=\"block\" for=\"pref_" + i + "\">\n$tlang.getString("preferred.link")\n</label>\n"
-						+ "<input class=\"prefLink\" name=\"pref_" + i + "\" id=\"pref_" + i + "\" type=\"checkbox\" value=\"preferred\" onclick=\"javascript:trackPreferredUrl('pref_" + i + "');\" />\n</td>\n</tr>\n"
+						+ "<input class=\"prefLink\" name=\"pref_" + i + "\" id=\"pref_" + i + "\" type=\"checkbox\" value=\"$tlang.getString("preferred.text")\" onclick=\"javascript:trackPreferredUrl('pref_" + i + "');\" />\n</td>\n</tr>\n"
 						+ "<tr>\n<td>\n<label class=\"block\" for=\"label_" + i + "\">\n$tlang.getString("label.link")\n</label>\n"
 						+ "<input name=\"label_" + i + "\" id=\"label_" + i + "\" type=\"text\" size=\"20\" />\n<hr />\n</td>\n</tr>\n";
 		

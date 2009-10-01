@@ -4,11 +4,11 @@
     <tr>
       <td>
         <select name="advField1" id="advField1">
-          <option value="keyword" #if($advField1 == "keyword") selected="selected" #end>Keyword:</option>
-          <option value="author" #if($advField1 == "author") selected="selected" #end>Author:</option>
-          <option value="title" #if($advField1 == "title") selected="selected" #end>Title:</option>
-          <option value="subject" #if($advField1 == "subject") selected="selected" #end>Subject:</option>
-          <option value="year" #if($advField1 == "year") selected="selected" #end>Year:</option>
+          <option value="keyword" #if($advField1 == "keyword") selected="selected" #end>$tlang.getString("keyword.search.adv")</option>
+          <option value="author" #if($advField1 == "author") selected="selected" #end>$tlang.getString("author.search.adv")</option>
+          <option value="title" #if($advField1 == "title") selected="selected" #end>$tlang.getString("titletext.search.adv")</option>
+          <option value="subject" #if($advField1 == "subject") selected="selected" #end>$tlang.getString("subject.search.adv")</option>
+          <option value="year" #if($advField1 == "year") selected="selected" #end>$tlang.getString("year.search.adv")</option>
         </select>
       </td>
       <td>
@@ -41,11 +41,11 @@
     <tr>
       <td>
         <select name="advField2" id="advField2">
-          <option value="keyword" #if($advField2 == "keyword") selected="selected" #end>Keyword:</option>
-          <option value="author" #if($advField2 == "author") selected="selected" #end>Author:</option>
-          <option value="title" #if($advField2 == "title") selected="selected" #end>Title:</option>
-          <option value="subject" #if($advField2 == "subject") selected="selected" #end>Subject:</option>
-          <option value="year" #if($advField2 == "year") selected="selected" #end>Year:</option>
+          <option value="keyword" #if($advField2 == "keyword") selected="selected" #end>$tlang.getString("keyword.search.adv")</option>
+          <option value="author" #if($advField2 == "author") selected="selected" #end>$tlang.getString("author.search.adv")</option>
+          <option value="title" #if($advField2 == "title") selected="selected" #end>$tlang.getString("titletext.search.adv")</option>
+          <option value="subject" #if($advField2 == "subject") selected="selected" #end>$tlang.getString("subject.search.adv")</option>
+          <option value="year" #if($advField2 == "year") selected="selected" #end>$tlang.getString("year.search.adv")</option>
         </select>
       </td>
       <td>
@@ -57,11 +57,11 @@
     <tr>
       <td>
         <select name="advField3" id="advField3">
-          <option value="keyword" #if($advField3 == "keyword") selected="selected" #end>Keyword:</option>
-          <option value="author" #if($advField3 == "author") selected="selected" #end>Author:</option>
-          <option value="title" #if($advField3 == "title") selected="selected" #end>Title:</option>
-          <option value="subject" #if($advField3 == "subject") selected="selected" #end>Subject:</option>
-          <option value="year" #if($advField3 == "year") selected="selected" #end>Year:</option>
+          <option value="keyword" #if($advField3 == "keyword") selected="selected" #end>$tlang.getString("keyword.search.adv")</option>
+          <option value="author" #if($advField3 == "author") selected="selected" #end>$tlang.getString("author.search.adv")</option>
+          <option value="title" #if($advField3 == "title") selected="selected" #end>$tlang.getString("titletext.search.adv")</option>
+          <option value="subject" #if($advField3 == "subject") selected="selected" #end>$tlang.getString("subject.search.adv")</option>
+          <option value="year" #if($advField3 == "year") selected="selected" #end>$tlang.getString("year.search.adv")</option>
         </select>
       </td>
       <td>
@@ -73,11 +73,11 @@
     <tr>
       <td>
         <select name="advField4" id="advField4">
-          <option value="keyword" #if($advField4 == "keyword") selected="selected" #end>Keyword:</option>
-          <option value="author" #if($advField4 == "author") selected="selected" #end>Author:</option>
-          <option value="title" #if($advField4 == "title") selected="selected" #end>Title:</option>
-          <option value="subject" #if($advField4 == "subject") selected="selected" #end>Subject:</option>
-          <option value="year" #if($advField4 == "year") selected="selected" #end>Year:</option>
+          <option value="keyword" #if($advField4 == "keyword") selected="selected" #end>$tlang.getString("keyword.search.adv")</option>
+          <option value="author" #if($advField4 == "author") selected="selected" #end>$tlang.getString("author.search.adv")</option>
+          <option value="title" #if($advField4 == "title") selected="selected" #end>$tlang.getString("titletext.search.adv")</option>
+          <option value="subject" #if($advField4 == "subject") selected="selected" #end>$tlang.getString("subject.search.adv")</option>
+          <option value="year" #if($advField4 == "year") selected="selected" #end>$tlang.getString("year.search.adv")</option>
         </select>
       </td>
       <td>
@@ -89,11 +89,11 @@
     <tr>
       <td>
         <select name="advField5" id="advField5">
-          <option value="keyword" #if($advField5 == "keyword") selected="selected" #end>Keyword:</option>
-          <option value="author" #if($advField5 == "author") selected="selected" #end>Author:</option>
-          <option value="title" #if($advField5 == "title") selected="selected" #end>Title:</option>
-          <option value="subject" #if($advField5 == "subject") selected="selected" #end>Subject:</option>
-          <option value="year" #if($advField5 == "year") selected="selected" #end>Year:</option>
+          <option value="keyword" #if($advField5 == "keyword") selected="selected" #end>$tlang.getString("keyword.search.adv")</option>
+          <option value="author" #if($advField5 == "author") selected="selected" #end>$tlang.getString("author.search.adv")</option>
+          <option value="title" #if($advField5 == "title") selected="selected" #end>$tlang.getString("titletext.search.adv")</option>
+          <option value="subject" #if($advField5 == "subject") selected="selected" #end>$tlang.getString("subject.search.adv")</option>
+          <option value="year" #if($advField5 == "year") selected="selected" #end>$tlang.getString("year.search.adv")</option>
         </select>
       </td>
       <td>
