@@ -190,7 +190,7 @@ public class SakaiPersonImpl extends EduPersonImpl implements Person, Organizati
 		this.dateOfBirth = dateOfBirth;
 	}
 
-	private Boolean locked = false;
+	private Boolean locked;
 	public Boolean getLocked() {
 		return locked;
 	}
