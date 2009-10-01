@@ -145,12 +145,6 @@
        <version>${sakai.spring.version}</version>
        <scope>test</scope>
    </dependency>
-   <dependency>
-       <groupId>org.sakaiproject</groupId>
-       <artifactId>sakai-mock</artifactId>
-       <version>${sakai.version}</version>
-       <scope>test</scope>
-   </dependency>
    
    <!-- fop: fop, avalon-framework, batik -->
     <dependency>
