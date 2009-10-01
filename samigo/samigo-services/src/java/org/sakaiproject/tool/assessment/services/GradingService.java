@@ -500,10 +500,10 @@ public class GradingService
     }
   }
 
-  public AssessmentGradingData getLastSubmittedAssessmentGradingByAgentId(String publishedAssessmentId, String agentIdString) {
+  public AssessmentGradingData getLastSubmittedAssessmentGradingByAgentId(String publishedAssessmentId, String agentIdString, Long assessmentGradingId) {
 	    try{
 	      return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-	      getLastSubmittedAssessmentGradingByAgentId(new Long(publishedAssessmentId), agentIdString);
+	      getLastSubmittedAssessmentGradingByAgentId(new Long(publishedAssessmentId), agentIdString, assessmentGradingId);
 	    }
 	    catch(Exception e)
 	    {
@@ -597,16 +597,20 @@ public class GradingService
     }
   }
 
-  public AssessmentGradingIfc getHighestSubmittedAssessmentGrading(String publishedAssessmentId, String agentId){
+  public AssessmentGradingIfc getHighestSubmittedAssessmentGrading(String publishedAssessmentId, String agentId, Long assessmentGradingId){
 	    try{
 	      return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-	      getHighestSubmittedAssessmentGrading(new Long(publishedAssessmentId), agentId);
+	      getHighestSubmittedAssessmentGrading(new Long(publishedAssessmentId), agentId, assessmentGradingId);
 	    }
 	    catch(Exception e)
 	    {
 	      log.error(e); throw new RuntimeException(e);
 	    }
 	  }
+  
+  public AssessmentGradingIfc getHighestSubmittedAssessmentGrading(String publishedAssessmentId, String agentId){
+	  return getHighestSubmittedAssessmentGrading(publishedAssessmentId, agentId, new Long(0));
+  }
   
   public Set getItemGradingSet(String assessmentGradingId){
     try{

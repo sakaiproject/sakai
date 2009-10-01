@@ -193,8 +193,19 @@ sorting actions for table:
 <h4> <h:outputText value="#{selectIndexMessages.submitted_assessments}" /></h4>
   <p class="tier2">
    
-<h:outputText rendered="#{select.isThereAssessmentToReview eq 'true'}" value="#{selectIndexMessages.review_assessment_notes}" />
-<h:outputText rendered="#{select.isThereAssessmentToReview eq 'false'}" value="#{selectIndexMessages.review_assessment_notAvailable}" />
+	<h:outputText rendered="#{select.isThereAssessmentToReview eq 'true'}" value="#{selectIndexMessages.review_assessment_notes}" />
+		
+	  </p>
+	  
+	  <p class="tier2">
+	   
+		<h:outputText rendered="#{select.isThereAssessmentToReview eq 'true'}" value="#{selectIndexMessages.review_assessment_view}" />
+		<h:selectOneMenu value="#{select.displayAllAssessments}" id="view" rendered="#{select.isThereAssessmentToReview eq 'true'}" onchange="submit();">
+			<f:selectItem itemValue="1" itemLabel="#{selectIndexMessages.review_assessment_recorded}" />
+	      	<f:selectItem itemValue="2" itemLabel="#{selectIndexMessages.review_assessment_all}" />
+	      	<f:valueChangeListener 
+	      		type="org.sakaiproject.tool.assessment.ui.listener.select.SelectRecordedListener"/>
+		</h:selectOneMenu>
   </p>
 
 <%-- pager controls NOT required by mockups, not implemented
@@ -255,18 +266,21 @@ sorting actions for table:
       </h:panelGroup>
       </f:facet>
 
-    <h:outputText value="#{reviewable.assessmentTitle}" rendered="#{reviewable.feedback != 'true' || reviewable.isAssessmentRetractForEdit}" escape="false"/>
-    
+	<h:outputText value="#{reviewable.assessmentTitle}" styleClass="currentSort" rendered="#{(reviewable.feedback != 'true' || reviewable.isAssessmentRetractForEdit) && reviewable.recordedAssessment}"/>
+	<h:outputText value="#{reviewable.assessmentTitle}" rendered="#{(reviewable.feedback != 'true' || reviewable.isAssessmentRetractForEdit) && !reviewable.recordedAssessment}"/>
+
     <h:commandLink title="#{selectIndexMessages.t_reviewAssessment}" action="#{delivery.getOutcome}" immediate="true"  
         rendered="#{reviewable.feedback == 'true' && !reviewable.isAssessmentRetractForEdit}" onmouseup="disableLinks(this);">
         <f:param name="publishedId" value="#{reviewable.assessmentId}" />
+        <f:param name="assessmentGradingId" value="#{reviewable.assessmentGradingId}" />
         <f:param name="nofeedback" value="false"/>
         <f:param name="actionString" value="reviewAssessment"/>
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
-        <h:outputText value="#{reviewable.assessmentTitle}" escape="false"/> 
+		<h:outputText styleClass="currentSort" value="#{reviewable.assessmentTitle}" rendered="#{reviewable.recordedAssessment}"/> 
+	    <h:outputText value="#{reviewable.assessmentTitle}" rendered="#{!reviewable.recordedAssessment}"/> 
     </h:commandLink>
 
 	<h:outputText value="#{selectIndexMessages.asterisk_2}" rendered="#{reviewable.feedback == 'true' && !reviewable.isAssessmentRetractForEdit && reviewable.hasAssessmentBeenModified}" styleClass="validate"/> 
@@ -317,86 +331,17 @@ sorting actions for table:
           </h:commandLink>
          </h:panelGroup>
       </f:facet>
-      <h:outputText value="#{reviewable.feedbackDateString}" 
-        rendered="#{reviewable.feedbackDelivery eq '2' && !reviewable.isAssessmentRetractForEdit}" >
-      </h:outputText>
-      <h:outputText value="#{selectIndexMessages.immediate}" 
-        rendered="#{(reviewable.feedbackDelivery eq '1' || reviewable.feedbackDelivery eq '4') && !reviewable.isAssessmentRetractForEdit}" />
 
-       <h:outputText value="#{selectIndexMessages.not_applicable}" 
-        rendered="#{reviewable.feedbackDelivery==null || reviewable.feedbackDelivery eq '3' || reviewable.isAssessmentRetractForEdit}" />
+	  <h:outputText value="#{reviewable.feedbackDateString}" styleClass="currentSort" rendered="#{reviewable.feedbackDelivery eq '2' && !reviewable.isAssessmentRetractForEdit && reviewable.recordedAssessment}" />
+	  <h:outputText value="#{reviewable.feedbackDateString}" rendered="#{reviewable.feedbackDelivery eq '2' && !reviewable.isAssessmentRetractForEdit && !reviewable.recordedAssessment}" />
+	      
+	  <h:outputText value="#{selectIndexMessages.immediate}" styleClass="currentSort" rendered="#{(reviewable.feedbackDelivery eq '1' || reviewable.feedbackDelivery eq '4') && !reviewable.isAssessmentRetractForEdit && reviewable.recordedAssessment}" />
+	  <h:outputText value="#{selectIndexMessages.immediate}" rendered="#{(reviewable.feedbackDelivery eq '1' || reviewable.feedbackDelivery eq '4') && !reviewable.isAssessmentRetractForEdit && !reviewable.recordedAssessment}" />
+	      
+	  <h:outputText value="#{selectIndexMessages.not_applicable}" styleClass="currentSort" rendered="#{(reviewable.feedbackDelivery==null || reviewable.feedbackDelivery eq '3' || reviewable.isAssessmentRetractForEdit) && reviewable.recordedAssessment}" />
+	  <h:outputText value="#{selectIndexMessages.not_applicable}" rendered="#{(reviewable.feedbackDelivery==null || reviewable.feedbackDelivery eq '3' || reviewable.isAssessmentRetractForEdit) && !reviewable.recordedAssessment}" />
+
     </h:column>
-
-<%-- STATISTICS --%>
-<%-- no statistic for 1.5 release
-    <h:column>
-      <f:facet name="header">
-        <h:commandLink id="reviewstats">
-          <f:param name="reviewableSortType" value="stats" />
-          <f:actionListener
-             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
-          <h:outputText value="#{selectIndexMessages.statistics} " styleClass="currentSort" rendered="#{select.reviewableSortOrder=='stats'}"/>
-          <h:outputText value="#{selectIndexMessages.statistics} " rendered="#{select.reviewableSortOrder!='stats'}"/>
-           <h:commandLink rendered="#{select.reviewableSortOrder=='stats'}">
-          <h:graphicImage alt="#{selectIndexMessages.asc}"
-            rendered="#{!select.reviewableAscending}"
-            url="/images/sortascending.gif"/>
-          <h:graphicImage alt="#{selectIndexMessages.desc}"
-            rendered="#{select.reviewableAscending}"
-            url="/images/sortdescending.gif"/>
-          </h:commandLink>
-        </h:commandLink>
-      </f:facet>
-      <h:panelGroup>
-        <h:commandLink action="personalStats" id="personalStats"
-          rendered="#{reviewable.statsAvailable}">
-          <h:inputHidden id="statsAssessmentId" value="#{reviewable.assessmentId}"/>
-          <h:outputText value="#{selectIndexMessages.view} "/>
-        </h:commandLink>
-        <h:outputText value="#{selectIndexMessages.not_applicable}"
-          rendered="#{!reviewable.statsAvailable}"/>
-      </h:panelGroup>
-    </h:column>
---%>
-
-
-<%-- GRADE --%>
-<%--
-    <h:column>
-      <f:facet name="header">
-        <h:panelGroup>
-        <h:commandLink title="#{selectIndexMessages.t_sortScore}" id="reviewgrade"  rendered="#{select.reviewableSortOrder!='grade'}">
-          <f:param name="reviewableSortType" value="grade" />
-          <f:param name="reviewableAscending" value="true" />
-          <f:actionListener
-             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
-          <h:outputText value="#{selectIndexMessages.grade} "  rendered="#{select.reviewableSortOrder!='grade'}" />
-        </h:commandLink>
-          <h:outputText value="#{selectIndexMessages.grade} " styleClass="currentSort" rendered="#{select.reviewableSortOrder=='grade'}" />
-        <h:commandLink title="#{selectIndexMessages.t_sortScore}" rendered="#{select.reviewableSortOrder=='grade' && select.reviewableAscending  }">
-           <f:param name="reviewableAscending" value="false" />
-           <f:actionListener
-             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
-          <h:graphicImage alt="#{selectIndexMessages.alt_sortScoreDescending}"
-            rendered="#{select.reviewableSortOrder=='grade' && select.reviewableAscending}"
-            url="/images/sortascending.gif"/>
-        </h:commandLink>
-        <h:commandLink title="#{selectIndexMessages.t_sortScore}" rendered="#{select.reviewableSortOrder=='grade' && !select.reviewableAscending  }">
-           <f:param name="reviewableAscending" value="true" />
-           <f:actionListener
-             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
-          <h:graphicImage alt="#{selectIndexMessages.alt_sortScoreAscending}"
-            rendered="#{select.reviewableSortOrder=='grade' && !select.reviewableAscending}"
-            url="/images/sortdescending.gif"/>
-        </h:commandLink>
-        </h:panelGroup>
-      </f:facet>
-      <h:panelGroup>
-        <h:outputText value="#{reviewable.grade} " rendered="#{reviewable.graded}"/>
-        <h:outputText value="#{selectIndexMessages.not_applicable}" rendered="#{!reviewable.graded}"/>
-      </h:panelGroup>
-    </h:column>
---%>
 
 <%-- SCORE --%>
     <h:column>
@@ -428,11 +373,16 @@ sorting actions for table:
           </h:commandLink>
         </h:panelGroup>
       </f:facet>
-      <h:outputText value="#{reviewable.roundedRawScore} " rendered="#{reviewable.showScore eq 'true'  && !reviewable.isAssessmentRetractForEdit}" />
-      <h:outputText value="#{selectIndexMessages.not_applicable}" rendered="#{reviewable.showScore eq 'false' || reviewable.isAssessmentRetractForEdit}" />
-        
-<h:outputText value="#{selectIndexMessages.asterisk}" rendered="#{reviewable.multipleSubmissions eq 'true' && reviewable.scoringOption eq '1'}"/>
-      
+
+	  <h:outputText value="#{reviewable.roundedRawScore} " styleClass="currentSort" rendered="#{(reviewable.showScore eq 'true' && !reviewable.isAssessmentRetractForEdit) && reviewable.recordedAssessment}" />
+	  <h:outputText value="#{reviewable.roundedRawScore} " rendered="#{(reviewable.showScore eq 'true' && !reviewable.isAssessmentRetractForEdit) && !reviewable.recordedAssessment}" />
+	      
+	  <h:outputText value="#{selectIndexMessages.not_applicable}" styleClass="currentSort" rendered="#{(reviewable.showScore eq 'false' || reviewable.isAssessmentRetractForEdit) && reviewable.recordedAssessment}" />
+	  <h:outputText value="#{selectIndexMessages.not_applicable}" rendered="#{(reviewable.showScore eq 'false' || reviewable.isAssessmentRetractForEdit) && !reviewable.recordedAssessment}" />
+	
+	  <h:outputText value="#{selectIndexMessages.asterisk}" styleClass="currentSort" rendered="#{reviewable.multipleSubmissions eq 'true' && reviewable.scoringOption eq '1' && reviewable.recordedAssessment}"/>
+	  <h:outputText value="#{selectIndexMessages.asterisk}" rendered="#{reviewable.multipleSubmissions eq 'true' && reviewable.scoringOption eq '1' && !reviewable.recordedAssessment}"/>
+
     </h:column>
 
 <%-- TIME --%>
@@ -466,16 +416,8 @@ sorting actions for table:
       </f:facet>
       <h:panelGroup>
 
-        <h:outputText id="timeElapse" value="#{reviewable.timeElapse}" />
-<%--
-        <h:outputText value="#{selectIndexMessages.na}"
-          rendered="#{reviewable.submitted && reviewable.submissionHours == 'n/a' && reviewable.submissionMinutes == 'n/a'}" />
-
- <h:outputText value="#{reviewable.submissionHours} #{selectIndexMessages.hours}, #{reviewable.submissionMinutes} #{selectIndexMessages.minutes}"
-          rendered="#{reviewable.submitted && reviewable.submissionHours ne 'n/a' || reviewable.submissionMinutes ne 'n/a'}" />
-        <h:outputText value="#{selectIndexMessages.not_applicable}"
-          rendered="#{!reviewable.submitted}"/>
---%>
+        <h:outputText id="timeElapse" value="#{reviewable.timeElapse}" styleClass="currentSort" rendered="#{reviewable.recordedAssessment}" />
+        <h:outputText value="#{reviewable.timeElapse}" rendered="#{!reviewable.recordedAssessment}" />
       </h:panelGroup>
     </h:column>
 
@@ -512,8 +454,19 @@ sorting actions for table:
         </h:panelGroup>
       </f:facet>
 
-      <h:outputText value="#{reviewable.submissionDateString}" >
-      </h:outputText>
+      <h:outputText value="#{reviewable.submissionDateString}" styleClass="currentSort" rendered="#{reviewable.recordedAssessment}" />
+	  <h:outputText value="#{reviewable.submissionDateString}" rendered="#{!reviewable.recordedAssessment}" />
+	</h:column>
+	    
+	<%-- RECORDED --%>
+	<h:column>
+	  <f:facet name="header">
+	    <h:panelGroup>
+	    </h:panelGroup>
+	  </f:facet>
+	     
+	  <h:outputText id="recorded" styleClass="currentSort" value="#{selectIndexMessages.assessment_recorded}" 
+	        	rendered="#{reviewable.recordedAssessment}"  />
     </h:column>
   </h:dataTable>
 

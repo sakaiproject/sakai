@@ -699,7 +699,7 @@ function setBlockDivs()
         <h:selectOneRadio id="feedbackDelivery" value="#{assessmentSettings.feedbackDelivery}"
            layout="pageDirection" onclick="setBlockDivs();disableAllFeedbackCheck(this.value);">
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.immediate_feedback}"/>
-          <f:selectItem itemValue="4" itemLabel="#{assessmentSettingsMessages.feedback_on_submission} #{assessmentSettingsMessages.note_of_feedback_on_submission}"/>
+          <f:selectItem itemValue="4" itemLabel="#{assessmentSettingsMessages.feedback_on_submission}"/>
           <f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.no_feedback}"/>
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.feedback_by_date} "/>
         </h:selectOneRadio>

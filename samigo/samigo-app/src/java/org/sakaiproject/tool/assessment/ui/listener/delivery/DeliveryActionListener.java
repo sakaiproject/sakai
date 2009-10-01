@@ -195,6 +195,7 @@ public class DeliveryActionListener
       case 3: // Review assessment
               setFeedbackMode(delivery); //this determine if we should gather the itemGrading
               Integer scoringoption = publishedAssessment.getEvaluationModel().getScoringType();
+              String assessmentGradingId = ContextUtil.lookupParam("assessmentGradingId");
               
               if (("true").equals(delivery.getFeedback())){
                 itemGradingHash = new HashMap();
@@ -214,12 +215,10 @@ public class DeliveryActionListener
               delivery.setFeedbackComponent(component);
               AssessmentGradingData agData = null;
               if (EvaluationModelIfc.LAST_SCORE.equals(scoringoption)){
-            	  //agData = (AssessmentGradingData) service.getLastAssessmentGradingByAgentId(id, agent);		// should return ifc also
-            	  agData = (AssessmentGradingData) service.getLastSubmittedAssessmentGradingByAgentId(id, agent);
+            	  agData = (AssessmentGradingData) service.getLastSubmittedAssessmentGradingByAgentId(id, agent, new Long(assessmentGradingId));
               }
               else {
-            	  //agData = (AssessmentGradingData) service.getHighestAssessmentGrading(id, agent);
-            	  agData = (AssessmentGradingData) service.getHighestSubmittedAssessmentGrading(id, agent);
+            	  agData = (AssessmentGradingData) service.getHighestSubmittedAssessmentGrading(id, agent, new Long(assessmentGradingId));
               }
               if (agData == null) {
             	  delivery.setOutcome("reviewAssessmentError");

@@ -531,10 +531,10 @@ public class PublishedAssessmentService extends AssessmentService{
 * @param agentId 
 * @return
 */
-    public ArrayList getBasicInfoOfLastOrHighestSubmittedAssessmentsByScoringOption(String agentId, String siteId){
+    public ArrayList getBasicInfoOfLastOrHighestSubmittedAssessmentsByScoringOption(String agentId, String siteId, boolean allAssessments){
     return PersistenceService.getInstance().
         getPublishedAssessmentFacadeQueries().
-        getBasicInfoOfLastOrHighestSubmittedAssessmentsByScoringOption(agentId, siteId);
+        getBasicInfoOfLastOrHighestSubmittedAssessmentsByScoringOption(agentId, siteId, allAssessments);
   }
 
    public PublishedAssessmentData getBasicInfoOfPublishedAssessment(String publishedId) {

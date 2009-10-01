@@ -2027,18 +2027,20 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 
 	/**
 	 * return an array list of the AssessmentGradingFacade that a user has
-	 * submitted for grade. one per published assessment. If an assessment
-	 * allows multiple submissions and its grading option is to send highest,
+	 * submitted for grade. one per published assessment, when allAssessments is false,
+	 * and all submissions per published assessment when allAssesments is true. 
+	 * If an assessment allows multiple submissions and its grading option is to send highest,
 	 * then return only the submission with highest finalScore. If an assessment
 	 * allows multiple submissions and its grading option is to send last, then
 	 * return only the last submission.
 	 * 
 	 * @param agentId
 	 * @param siteId
+	 * @param allAssessments
 	 * @return
 	 */
 	public ArrayList getBasicInfoOfLastOrHighestSubmittedAssessmentsByScoringOption(
-			final String agentId, final String siteId) {
+			final String agentId, final String siteId, boolean allAssessments) {
 		
 		// modified by gopalrc to take account of group release
 		final ArrayList groupIds = getSiteGroupIdsForCurrentUser(siteId);
@@ -2228,8 +2230,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				}
 			}
 			*/
-			
-			if (EvaluationModelIfc.LAST_SCORE.equals(scoringOption) && !a.getPublishedAssessmentId().equals(currentid)) {
+			if (EvaluationModelIfc.LAST_SCORE.equals(scoringOption) && 
+					(!a.getPublishedAssessmentId().equals(currentid) || allAssessments)) {
 				currentid = a.getPublishedAssessmentId();
 				AssessmentGradingFacade f = new AssessmentGradingFacade(a);
 				assessmentList.add(f);
@@ -2291,7 +2293,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			*/
 			if ((multiSubmissionAllowed)
 					&& (EvaluationModelIfc.HIGHEST_SCORE.equals(scoringOption))
-					&& (!a.getPublishedAssessmentId().equals(currentid))) {
+					&& (!a.getPublishedAssessmentId().equals(currentid) || allAssessments)) {
 				currentid = a.getPublishedAssessmentId();
 				AssessmentGradingFacade f = new AssessmentGradingFacade(a);
 				assessmentList.add(f);

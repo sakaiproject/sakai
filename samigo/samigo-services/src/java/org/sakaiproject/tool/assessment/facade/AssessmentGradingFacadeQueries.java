@@ -870,7 +870,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     return ag;
   }
 
-  public AssessmentGradingData getLastSubmittedAssessmentGradingByAgentId(final Long publishedAssessmentId, final String agentIdString) {
+  public AssessmentGradingData getLastSubmittedAssessmentGradingByAgentId(final Long publishedAssessmentId, final String agentIdString, Long assessmentGradingId) {
 	    AssessmentGradingData ag = null;
 
 	    final HibernateCallback hcb = new HibernateCallback(){
@@ -885,13 +885,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    };
 	    List assessmentGradings = getHibernateTemplate().executeFind(hcb);
 
-//	    List assessmentGradings = getHibernateTemplate().find(
-//	        "from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? and a.forGrade=? order by a.submittedDate desc",
-//	         new Object[] { publishedAssessmentId, agentIdString, Boolean.FALSE },
-//	         new org.hibernate.type.Type[] { Hibernate.LONG, Hibernate.STRING, Hibernate.BOOLEAN });
-	    if (assessmentGradings.size() != 0){
-	      ag = (AssessmentGradingData) assessmentGradings.get(0);
-	      ag.setItemGradingSet(getItemGradingSet(ag.getAssessmentGradingId()));
+	    if (assessmentGradings.size() > 0) ag = (AssessmentGradingData) assessmentGradings.get(0);
+	    for (int i=0; i<assessmentGradings.size(); i++) {
+	    	AssessmentGradingData agd = (AssessmentGradingData) assessmentGradings.get(i);
+	    	if (agd.getAssessmentGradingId().compareTo(assessmentGradingId) == 0) {
+	    		ag = agd;
+	    		ag.setItemGradingSet(getItemGradingSet(agd.getAssessmentGradingId()));
+	    		break;
+	    	}
 	    }  
 	    return ag;
 	  }
@@ -1077,7 +1078,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
   
   public AssessmentGradingIfc getHighestSubmittedAssessmentGrading(
-	         final Long publishedAssessmentId, final String agentId)
+	         final Long publishedAssessmentId, final String agentId, Long assessmentGradingId)
 	  {
 	    AssessmentGradingData ag = null;
 	    final String query ="from AssessmentGradingData a "+
@@ -1095,13 +1096,15 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    };
 	    List assessmentGradings = getHibernateTemplate().executeFind(hcb);
 
-//	    List assessmentGradings = getHibernateTemplate().find(query,
-//	        new Object[] { publishedAssessmentId, agentId },
-//	        new org.hibernate.type.Type[] { Hibernate.LONG, Hibernate.STRING });
-	    if (assessmentGradings.size() != 0){
-	      ag = (AssessmentGradingData) assessmentGradings.get(0);
-	      ag.setItemGradingSet(getItemGradingSet(ag.getAssessmentGradingId()));
-	    }  
+	    if (assessmentGradings.size() > 0) ag = (AssessmentGradingData) assessmentGradings.get(0);
+	    for (int i=0; i<assessmentGradings.size(); i++) {
+	    	AssessmentGradingData agd = (AssessmentGradingData) assessmentGradings.get(i);
+	    	if (agd.getAssessmentGradingId().compareTo(assessmentGradingId) == 0) {
+	    		ag = agd;
+	    		ag.setItemGradingSet(getItemGradingSet(agd.getAssessmentGradingId()));
+	    		break;
+	    	}
+	    }    
 	    return ag;
 	  }
 

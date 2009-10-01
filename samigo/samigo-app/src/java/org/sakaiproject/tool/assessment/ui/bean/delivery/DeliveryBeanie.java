@@ -89,6 +89,10 @@ private static Log log = LogFactory.getLog(DeliveryBeanie.class);
   private boolean isAssessmentRetractForEdit;
   private boolean hasAssessmentBeenModified;
   
+  //Allow students to view all submissions of the same assessment
+  private Long assessmentGradingId;
+  private boolean recordedAssessment;
+  
   /**
    * Creates a new DeliveryBean object.
    */
@@ -438,6 +442,32 @@ private static Log log = LogFactory.getLog(DeliveryBeanie.class);
 	public void setHasAssessmentBeenModified(boolean hasAssessmentBeenModified) {
 		this.hasAssessmentBeenModified = hasAssessmentBeenModified;
 	}
-	
-	
+
+	/**
+	 * @return the assessmentGradingId
+	 */
+	public Long getAssessmentGradingId() {
+		return assessmentGradingId;
+	}
+
+	/**
+	 * @param assessmentGradingId the assessmentGradingId to set
+	 */
+	public void setAssessmentGradingId(Long assessmentGradingId) {
+		this.assessmentGradingId = assessmentGradingId;
+	}
+
+	/**
+	 * @return the recordedAssessment
+	 */
+	public boolean isRecordedAssessment() {
+		return recordedAssessment;
+	}
+
+	/**
+	 * @param recordedAssessment the recordedAssessment to set
+	 */
+	public void setRecordedAssessment(boolean recordedAssessment) {
+		this.recordedAssessment = recordedAssessment;
+	}
 }

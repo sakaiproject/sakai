@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-
+import javax.faces.component.html.HtmlSelectOneMenu;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -185,11 +185,17 @@ public class SelectActionListener
         */
 
     List containRandomPartAssessmentIds = publishedAssessmentService.getContainRandomPartAssessmentIds();
+
+    if (ae != null && "view".equals(ae.getComponent().getId())) {
+    	HtmlSelectOneMenu selectOne = (HtmlSelectOneMenu)ae.getComponent();
+    	String value = (String)selectOne.getValue();
+    	select.setDisplayAllAssessments(value);
+    }
     
     // 1. get the most recent submission, or the highest submissions of each assessment for a user, depending on grading option
     ArrayList recentSubmittedList =
         publishedAssessmentService.getBasicInfoOfLastOrHighestSubmittedAssessmentsByScoringOption(
-			  AgentFacade.getAgentString(), AgentFacade.getCurrentSiteId());
+              AgentFacade.getAgentString(), AgentFacade.getCurrentSiteId(), "2".equals(select.getDisplayAllAssessments()));
 
     HashMap publishedAssessmentHash = getPublishedAssessmentHash(publishedAssessmentList);
     ArrayList submittedAssessmentGradingList = new ArrayList();
@@ -197,6 +203,8 @@ public class SelectActionListener
     boolean hasHighest = false;
     boolean hasMultipleSubmission = false;
     HashMap feedbackHash = publishedAssessmentService.getFeedbackHash();
+    DeliveryBeanie deliveryAnt = null;
+    boolean isUnique = true;
     for (int k = 0; k < recentSubmittedList.size(); k++) {
         hasHighest = false;
         hasMultipleSubmission = false;
@@ -205,6 +213,7 @@ public class SelectActionListener
           recentSubmittedList.get(k);
 
         DeliveryBeanie delivery = new DeliveryBeanie();
+        delivery.setAssessmentGradingId(g.getAssessmentGradingId());
         delivery.setAssessmentId(g.getPublishedAssessmentId().toString());
         
         Integer submissionAllowed = getSubmissionAllowed(g.getPublishedAssessmentId(), publishedAssessmentHash);
@@ -308,6 +317,36 @@ public class SelectActionListener
 
         // to do: set statistics and time for delivery here.
         submittedAssessmentGradingList.add(delivery);
+        // Check if this assessment is that is recorded
+        delivery.setRecordedAssessment(false);
+        if ("2".equals(select.getDisplayAllAssessments())) {
+        	ArrayList recordedList =
+        		publishedAssessmentService.getBasicInfoOfLastOrHighestSubmittedAssessmentsByScoringOption(
+        				AgentFacade.getAgentString(), AgentFacade.getCurrentSiteId(), false);
+
+        	for (int i = 0; i < recordedList.size() && recentSubmittedList.size() > 1; i++) {
+        		AssessmentGradingFacade recordedAssessment = (AssessmentGradingFacade)recordedList.get(i);
+        		if (recordedAssessment.getAssessmentGradingId().equals(delivery.getAssessmentGradingId())) {
+        			delivery.setRecordedAssessment(true);
+        			break;
+        		}
+        	}
+
+        	// Remove the flag that indicates recorded when the assessment is unique
+        	if (deliveryAnt != null) {
+        		if (deliveryAnt.getAssessmentId().equals(delivery.getAssessmentId())) {
+        			isUnique = false;
+        		}
+        		else {
+        			if (isUnique) deliveryAnt.setRecordedAssessment(false);
+        			else isUnique = true;
+        			if (k == recentSubmittedList.size()-1) {
+        				delivery.setRecordedAssessment(false);
+        			}
+        		}
+        	}
+        	deliveryAnt = delivery;
+        }
     }
     // to do: set statistics and time for delivery here.
 

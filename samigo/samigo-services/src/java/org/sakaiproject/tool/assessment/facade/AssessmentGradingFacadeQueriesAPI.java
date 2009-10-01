@@ -137,7 +137,7 @@ public interface AssessmentGradingFacadeQueriesAPI
       Long publishedAssessmentId, String agentIdString);
   
   public AssessmentGradingData getLastSubmittedAssessmentGradingByAgentId(
-	      Long publishedAssessmentId, String agentIdString);
+	      Long publishedAssessmentId, String agentIdString, Long assessmentGradingId);
 	  
   public List getLastAssessmentGradingList(Long publishedAssessmentId);
 
@@ -157,7 +157,7 @@ public interface AssessmentGradingFacadeQueriesAPI
       Long publishedAssessmentId, String agentId);
 
   public AssessmentGradingIfc getHighestSubmittedAssessmentGrading(
-	      Long publishedAssessmentId, String agentId);
+		  Long publishedAssessmentId, String agentId, Long assessmentGradingId);
 
   public HashMap getLastAssessmentGradingByPublishedItem(Long publishedAssessmentId);
 

@@ -457,7 +457,7 @@
       <f:selectItem itemValue="1"
         itemLabel="#{templateMessages.immediate_feedback}"/>
       <f:selectItem itemValue="4"
-        itemLabel="#{templateMessages.feedback_on_submission} #{assessmentSettingsMessages.note_of_feedback_on_submission}"/>
+        itemLabel="#{templateMessages.feedback_on_submission}"/>
       <f:selectItem itemValue="2"
         itemLabel="#{templateMessages.feedback__disp_spec_date}"/>
       <f:selectItem itemValue="3"
