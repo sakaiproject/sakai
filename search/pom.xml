@@ -65,6 +65,7 @@
 				<artifactId>search-api</artifactId>
 				<version>1.2-SNAPSHOT</version>
 				<type>jar</type>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.sakaiproject.search</groupId>
