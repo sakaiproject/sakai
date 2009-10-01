@@ -29,7 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.search.api.SearchService;
@@ -75,6 +75,13 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 	 * dependency
 	 */
 	private ComponentManager componentManager;
+
+	
+	/**
+	 * Dependency
+	 */
+	private ServerConfigurationService serverConfigurationService;
+
 
 	/**
 	 * we need to watch local events to guage activity
@@ -134,7 +141,7 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 			return;
 		}
 		
-		enabled = searchService.isEnabled() && "true".equals(ServerConfigurationService.getString("search.indexqueue", "true"));
+		enabled = searchService.isEnabled() && "true".equals(serverConfigurationService.getString("search.indexqueue", "true"));
 
 		started = true;
 		runThreads = true;
@@ -399,6 +406,15 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 	public void setUserDirectoryService(UserDirectoryService userDirectoryService)
 	{
 		this.userDirectoryService = userDirectoryService;
+	}
+	
+	/**
+	 * 
+	 * @param serverConfigurationService
+	 */
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
 	}
 
 	/**

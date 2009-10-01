@@ -26,7 +26,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.search.indexer.api.LockTimeoutException;
 import org.sakaiproject.search.journal.api.JournalErrorException;
 import org.sakaiproject.search.journal.api.ManagementOperation;
@@ -61,13 +61,21 @@ public class JournalOptimizationOperation implements ManagementOperation
 
 	}
 
+	private ServerConfigurationService serverConfigurationService;
+	
+	
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
+
 	/**
 	 * @see org.sakaiproject.search.journal.api.ManagementOperation#runOnce()
 	 */
 	public void runOnce()
 	{
 
-		if (!ServerConfigurationService.getBoolean("search.sharedmerge", true))
+		if (!serverConfigurationService.getBoolean("search.sharedmerge", true))
 			return;
 		
 		/*

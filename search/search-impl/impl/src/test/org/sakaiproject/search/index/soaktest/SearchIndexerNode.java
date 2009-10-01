@@ -309,6 +309,7 @@ public class SearchIndexerNode
 		csibw.setSecurityService(securityService);
 		csibw.setJournalSettings(journalSettings);
 		csibw.setUserDirectoryService(userDirectoryService);
+		csibw.setServerConfigurationService(serverConfigurationService);
 		csibw.init();
 
 		indexer.setManagementOperation(csibw);
@@ -414,6 +415,7 @@ public class SearchIndexerNode
 
 		journalOptimizationOperation
 				.setJournalOptimizationManager(journalOptimizationManager);
+		journalOptimizationOperation.setServerConfigurationService(serverConfigurationService);
 
 		optimizeJournalManager.init();
 		optimizeSequence.init();

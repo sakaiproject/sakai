@@ -347,6 +347,7 @@
 			<property name="journalSettings"><ref bean="org.sakaiproject.search.api.JournalSettings" /></property>			
 			<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService" /></property>
     		<property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService" /></property>
+    		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
     </bean>
 	<bean 
     	class="org.sakaiproject.search.journal.impl.JournaledFSIndexStorageUpdateTransactionListener" 
@@ -533,6 +534,7 @@
 	   	init-method="init" 
     	destroy-method="destroy" >
 			<property name="journalOptimizationManager" ><ref bean="org.sakaiproject.search.api.SearchService.parallel.index.journalOptimizationManager" /></property>
+			<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService" /></property>
     </bean>
     
 	<bean 

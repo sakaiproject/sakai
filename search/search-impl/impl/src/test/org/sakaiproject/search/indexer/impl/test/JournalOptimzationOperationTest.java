@@ -321,6 +321,7 @@ public class JournalOptimzationOperationTest extends TestCase
 
 		journalOptimizationOperation
 				.setJournalOptimizationManager(journalOptimizationManager);
+		journalOptimizationOperation.setServerConfigurationService(serverConfigurationService);
 
 		optJournalManager.init();
 		optSequence.init();
