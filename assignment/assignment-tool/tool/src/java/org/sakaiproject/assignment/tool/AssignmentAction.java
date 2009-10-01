@@ -2204,8 +2204,8 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		SessionState state = ((JetspeedRunData) rundata).getPortletSessionState(((JetspeedRunData) rundata).getJs_peid());
 		// save the instructor input
-		readGradeForm(rundata, state, "save");
-		if (state.getAttribute(STATE_MESSAGE) == null)
+		boolean hasChange = readGradeForm(rundata, state, "save");
+		if (state.getAttribute(STATE_MESSAGE) == null && hasChange)
 		{
 			grade_submission_option(rundata, "save");
 		}
@@ -2235,8 +2235,8 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		SessionState state = ((JetspeedRunData) rundata).getPortletSessionState(((JetspeedRunData) rundata).getJs_peid());
 		// save the instructor input
-		readGradeForm(rundata, state, "save");
-		if (state.getAttribute(STATE_MESSAGE) == null)
+		boolean hasChange = readGradeForm(rundata, state, "save");
+		if (state.getAttribute(STATE_MESSAGE) == null && hasChange)
 		{
 			grade_submission_option(rundata, "save");
 		}
@@ -7545,9 +7545,13 @@ public class AssignmentAction extends PagedResourceActionII
 	}
 
 	/**
-	 * readGradeForm
+	 * read grade information form and see if any grading information has been changed
+	 * @param data
+	 * @param state
+	 * @param gradeOption
+	 * @return
 	 */
-	public void readGradeForm(RunData data, SessionState state, String gradeOption)
+	public boolean readGradeForm(RunData data, SessionState state, String gradeOption)
 	{
 
 		ParameterParser params = data.getParameters();
@@ -7556,23 +7560,46 @@ public class AssignmentAction extends PagedResourceActionII
 		boolean withGrade = state.getAttribute(WITH_GRADES) != null ? ((Boolean) state.getAttribute(WITH_GRADES)).booleanValue()
 				: false;
 
+		// whether user has changed anything from previous grading information
+		boolean hasChange = false;
+		
 		boolean checkForFormattingErrors = false; // so that grading isn't held up by formatting errors
 		String feedbackComment = processFormattedTextFromBrowser(state, params.getCleanString(GRADE_SUBMISSION_FEEDBACK_COMMENT),
 				checkForFormattingErrors);
+		// comment value changed?
+		hasChange = !hasChange ? valueDiffFromStateAttribute(state, feedbackComment, GRADE_SUBMISSION_FEEDBACK_COMMENT):hasChange;
 		if (feedbackComment != null)
 		{
 			state.setAttribute(GRADE_SUBMISSION_FEEDBACK_COMMENT, feedbackComment);
 		}
+		
 
 		String feedbackText = processAssignmentFeedbackFromBrowser(state, params.getCleanString(GRADE_SUBMISSION_FEEDBACK_TEXT));
+		// feedbackText value changed?
+		hasChange = !hasChange ? valueDiffFromStateAttribute(state, feedbackText, GRADE_SUBMISSION_FEEDBACK_TEXT):hasChange;
 		if (feedbackText != null)
 		{
 			state.setAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT, feedbackText);
 		}
 		
+		// any change inside attachment list?
+		if (!hasChange)
+		{
+			List stateAttachments = state.getAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT) == null?null:((List) state.getAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT)).isEmpty()?null:(List) state.getAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT);
+			List inputAttachments = state.getAttribute(ATTACHMENTS) == null?null:((List) state.getAttribute(ATTACHMENTS)).isEmpty()?null:(List) state.getAttribute(ATTACHMENTS);
+			
+			if (stateAttachments == null && inputAttachments != null
+				|| stateAttachments != null && inputAttachments == null	
+				|| stateAttachments != null && inputAttachments != null && !(stateAttachments.containsAll(inputAttachments) && inputAttachments.containsAll(stateAttachments)))
+			{
+				hasChange = true;
+			}
+		}
 		state.setAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT, state.getAttribute(ATTACHMENTS));
 
 		String g = params.getCleanString(GRADE_SUBMISSION_GRADE);
+		// any change in grade
+		hasChange = !hasChange ? valueDiffFromStateAttribute(state, g, GRADE_SUBMISSION_GRADE):hasChange;
 		if (g != null)
 		{
 			state.setAttribute(GRADE_SUBMISSION_GRADE, g);
@@ -7583,7 +7610,6 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		String sId = (String) state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID);
-
 		try
 		{
 			// for points grading, one have to enter number as the points
@@ -7678,6 +7704,29 @@ public class AssignmentAction extends PagedResourceActionII
 			grade = (typeOfGrade == Assignment.SCORE_GRADE_TYPE)?scalePointGrade(state, grade):grade;
 			state.setAttribute(GRADE_SUBMISSION_GRADE, grade);
 		}
+		
+		return hasChange;
+	}
+	
+	/**
+	 * whether the current input value is different from existing session state value
+	 * @param state
+	 * @param value
+	 * @param stateAttribute
+	 * @return
+	 */
+	private boolean valueDiffFromStateAttribute(SessionState state, String value, String stateAttribute)
+	{
+		boolean rv = false;
+		value = StringUtil.trimToNull(value);
+		String stateAttributeValue = state.getAttribute(stateAttribute) == null?null:StringUtil.trimToNull((String) state.getAttribute(stateAttribute));
+		if (stateAttributeValue == null && value != null 
+				|| stateAttributeValue != null && value == null
+				|| stateAttributeValue != null && value != null && !stateAttributeValue.equals(value))
+		{
+			rv = true;
+		}
+		return rv;
 	}
 	
 	/**
