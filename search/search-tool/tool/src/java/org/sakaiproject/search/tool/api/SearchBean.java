@@ -21,7 +21,6 @@
 
 package org.sakaiproject.search.tool.api;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import org.sakaiproject.search.tool.model.SearchOutputItem;
@@ -35,30 +34,6 @@ import org.sakaiproject.search.tool.model.SearchTerm;
  */
 public interface SearchBean
 {
-
-	/**
-	 * get an html fragmnent representing the search results
-	 * 
-	 * @param searchItemFormat
-	 *        A Message format string {0} is the result index, {1} is the item
-	 *        UR, {2} is the item title, {3} is the content fragment, {4} is the
-	 *        score
-	 * @param errorFeedbackFormat {0} is the error message location
-	 * @return
-	 * @deprecated
-	 */
-	String getSearchResults(String searchItemFormat, String errorFeedbackFormat);
-
-	/**
-	 * get an html fragment representing a pager the
-	 * 
-	 * @param pagerFormat
-	 *        A MessageFormat format string {0} is the page URL, {1} is the page
-	 *        text, {2} is a css class id, 0 for first, 1 for middle, 2 for end
-	 * @return
-	 * @deprecated
-	 */
-	String getPager(String pagerFormati, String singlePageFormat) throws UnsupportedEncodingException;
 
 	/**
 	 * Title for the search page
@@ -88,15 +63,6 @@ public interface SearchBean
 	 */
 	String getSearch();
 
-	/**
-	 * Format the header, param {0} is the start doc on the page {1} is the end
-	 * doc {2} is the total docs, {3} is the time taken.
-	 * 
-	 * @param headerFormat
-	 * @return
-	 * @deprecated
-	 */
-	String getHeader(String headerFormat);
 	
 	/**
 	 * returns true if search isEnabled

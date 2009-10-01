@@ -249,38 +249,7 @@ public class SearchBeanImpl implements SearchBean
 		this.filterName = filterName;
 	}
 
-	/**
- 	 * {@inheritDoc}
- 	 * @deprecated
-	 * {@inheritDoc}
-	 * @deprecated
-	 */
-	public String getSearchResults(String searchItemFormat, String errorFeedbackFormat)
-	{
-		StringBuilder sb = new StringBuilder();
-		List searchResults = search();
-		if (errorMessage != null)
-		{
-			sb.append(MessageFormat.format(errorFeedbackFormat,
-					new Object[] { FormattedText.escapeHtml(errorMessage, false) }));
-		}
-		if (searchResults != null)
-		{
-			for (Iterator i = searchResults.iterator(); i.hasNext();)
-			{
 
-				SearchResult sr = (SearchResult) i.next();
-				sb.append(MessageFormat.format(searchItemFormat, new Object[] {
-						FormattedText.escapeHtml(sr.getTool(), false),
-						FormattedText.escapeHtml(sr.getUrl(), false),
-						FormattedText.escapeHtml(sr.getTitle(), false),
-						sr.getSearchResult(), Double.valueOf(sr.getScore()),
-						String.valueOf(sr.getIndex() + 1) }));
-			}
-		}
-		return sb.toString();
-
-	}
 
 	private void loadTermVectors()
 	{
@@ -383,55 +352,7 @@ public class SearchBeanImpl implements SearchBean
 
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @deprecated
-	 */
-	public String getPager(String pagerFormat, String singlePageFormat)
-			throws UnsupportedEncodingException
-	{
-		SearchList sr = (SearchList) search();
-		if (sr == null) return "";
-		int npages = (sr.getFullSize()-1) / pagesize;
-		int cpage = requestPage - (nlistPages / 2);
-		if (cpage < 0)
-		{
-			cpage = 0;
-		}
-		StringBuilder sb = new StringBuilder();
 
-		int lastPage = Math.min(cpage + nlistPages, npages);
-		boolean first = true;
-		if (cpage == lastPage)
-		{
-			sb.append(singlePageFormat);
-		}
-		else
-		{
-			while (cpage <= lastPage)
-			{
-				String searchURL = "?search=" + URLEncoder.encode(search, "UTF-8")
-						+ "&page=" + String.valueOf(cpage);
-				String cssInd = "1";
-				if (first)
-				{
-					cssInd = "0";
-					first = false;
-				}
-				else if (cpage == (lastPage))
-				{
-					cssInd = "2";
-				}
-
-				sb.append(MessageFormat.format(pagerFormat, new Object[] {
-						FormattedText.escapeHtml(searchURL, false),
-						String.valueOf(cpage + 1), cssInd }));
-				cpage++;
-			}
-		}
-
-		return sb.toString();
-	}
 
 	public boolean isEnabled()
 	{
@@ -448,27 +369,7 @@ public class SearchBeanImpl implements SearchBean
 		return this.scope.equals(Scope.valueOf(scope));
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @deprecated
-	 */
 
-	public String getHeader(String headerFormat)
-	{
-		SearchList sr = (SearchList) search();
-		if (sr == null) return "";
-		int total = sr.getFullSize();
-		int start = 0;
-		int end = 0;
-		if (total > 0)
-		{
-			start = sr.getStart();
-			end = Math.min(start + sr.size(), total);
-			start++;
-		}
-		return MessageFormat.format(headerFormat, new Object[] { Integer.valueOf(start),
-				Integer.valueOf(end), Integer.valueOf(total), Double.valueOf(timeTaken) });
-	}
 
 	/**
 	 * Gets the current search request
