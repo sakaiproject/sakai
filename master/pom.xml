@@ -850,6 +850,13 @@ This is not needed now that pluto have been released
         <version>${sakai.search.version}</version>
        </dependency>
       <dependency>
+        <groupId>org.sakaiproject.search</groupId>
+        <artifactId>search-assembly</artifactId>
+        <version>${sakai.search.version}</version>
+        <classifier>tomcat-overlay</classifier>
+	<type>zip</type>
+      </dependency>
+      <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-syllabus-api</artifactId>
         <version>${sakai.version}</version>
