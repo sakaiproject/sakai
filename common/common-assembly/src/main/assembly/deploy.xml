@@ -32,6 +32,13 @@
 			<includes>
 				<include>org.sakaiproject.common:sakai-common-components:war:*
 				</include>
+			</includes>
+			<unpack>true</unpack>
+		</dependencySet>
+				<dependencySet>
+			<outputDirectory>components/sakai-privacy-pack</outputDirectory>
+			<useTransitiveDependencies>false</useTransitiveDependencies>
+			<includes>
 				<include>org.sakaiproject.common:sakai-privacy-pack:war:*
 				</include>
 			</includes>
