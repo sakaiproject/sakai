@@ -651,6 +651,13 @@ This is not needed now that pluto have been released
         <scope>provided</scope>
       </dependency>
       <dependency>
+	<groupId>org.sakaiproject.common</groupId>
+	<artifactId>sakai-common-assembly</artifactId>
+	<classifier>tomcat-overlay</classifier>
+	<version>${sakai.common.version}</version>
+	<type>zip</type>
+      </dependency>
+      <dependency>
         <groupId>org.sakaiproject.common</groupId>
         <artifactId>sakai-common-type-api</artifactId>
         <version>${sakai.common.version}</version>
