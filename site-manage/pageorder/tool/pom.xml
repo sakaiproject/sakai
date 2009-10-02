@@ -38,12 +38,6 @@
       org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
       <groupId>uk.org.ponder.sakairsf</groupId>
-      <artifactId>SakaiRSFComponents-evolvers</artifactId>
-      <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>uk.org.ponder.sakairsf</groupId>
       <artifactId>sakairsf</artifactId>
       <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
       <type>jar</type>
@@ -63,11 +57,6 @@
 <!--org.sakaiprojectsakai-util${sakai.version}-->
 <!--org.sakaiprojectsakai-util-api${sakai.version}-->
 <!-- Commons JARS put in shared/lib by Sakai -->
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-      <version>2.1</version>
-    </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>

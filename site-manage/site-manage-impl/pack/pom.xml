@@ -20,10 +20,6 @@
     <deploy.target>components</deploy.target>
   </properties>
   <dependencies>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-site-manage-impl</artifactId>
-    </dependency>
   </dependencies>
   <build>
     <resources>

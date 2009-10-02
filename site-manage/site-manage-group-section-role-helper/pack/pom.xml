@@ -20,17 +20,9 @@
     <deploy.target>components</deploy.target>
   </properties>
   <dependencies>
-<dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-util</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-component-manager</artifactId>
     </dependency>
 <!--
       This has been relocated to sakai-kernel-util
@@ -40,10 +32,6 @@
       <artifactId>sakai-site-manage-util</artifactId>
     </dependency>
 <!-- Commons JARS put in shared/lib by Sakai -->
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>

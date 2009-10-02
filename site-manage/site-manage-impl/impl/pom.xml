@@ -25,10 +25,6 @@
       <artifactId>sakai-kernel-util</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring</artifactId>
     </dependency>
@@ -51,34 +47,17 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-site-manage-hbm</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-coursemanagement-api</artifactId>
-    </dependency>
 <!--org.sakaiprojectsakai-component-api${sakai.version}-->
 <!--org.sakaiprojectsakai-component${sakai.version}-->
 <!--org.sakaiprojectsakai-util-api${sakai.version}-->
 <!--org.sakaiprojectsakai-email-api${sakai.version}-->
 <!--org.sakaiprojectsakai-util${sakai.version}-->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-site-manage-util</artifactId>
-    </dependency>
 <!--org.sakaiprojectsakai-user-api${sakai.version}-->
 <!--org.sakaiprojectsakai-entity-api${sakai.version}-->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-coursemanagement-api</artifactId>
-    </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
-    </dependency>
-    <dependency>
-      <groupId>xerces</groupId>
-      <artifactId>xercesImpl</artifactId>
-      <version>2.6.2</version>
     </dependency>
     <dependency>
     	<groupId>org.sakaiproject.emailtemplateservice</groupId>
@@ -89,13 +68,6 @@
          <groupId>jdom</groupId>
          <version>1.0</version>
       </dependency>
-<!--${sakai.hibernate.groupId}${sakai.hibernate.artifactId}${sakai.hibernate.version}-->
-<!--${sakai.spring.groupId}${sakai.spring.artifactId}${sakai.spring.version}-->
-     <dependency>
-		<groupId>xerces</groupId>
-		<artifactId>xercesImpl</artifactId>
-		<version>2.6.2</version>
-	</dependency>
   </dependencies>
   <build>
     <resources>

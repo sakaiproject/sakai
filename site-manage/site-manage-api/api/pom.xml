@@ -29,10 +29,6 @@
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
 <!--org.sakaiprojectsakai-component${sakai.version}-->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-coursemanagement-api</artifactId>
-    </dependency>
 <!--org.sakaiprojectsakai-util-api${sakai.version}-->
 <!--org.sakaiprojectsakai-user-api${sakai.version}-->
   </dependencies>
