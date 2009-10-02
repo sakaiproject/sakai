@@ -19,6 +19,10 @@
 				</include>
 				<include>org.sakaiproject.common:sakai-common-composite-component-data:jar:*
 				</include>
+				<include>org.sakaiproject.common:sakai-privacy-hbm:jar:*
+				</include>
+				<include>org.sakaiproject.common:sakai-privacy-api:jar:*
+				</include>
 			</includes>
 		</dependencySet>
 		<!-- stuff that goes into components -->
@@ -27,6 +31,8 @@
 			<useTransitiveDependencies>false</useTransitiveDependencies>
 			<includes>
 				<include>org.sakaiproject.common:sakai-common-components:war:*
+				</include>
+				<include>org.sakaiproject.common:sakai-privacy-pack:war:*
 				</include>
 			</includes>
 			<unpack>true</unpack>

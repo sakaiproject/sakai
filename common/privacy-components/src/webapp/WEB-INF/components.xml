@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.privacy"
+		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+		<property name="mappingResources">
+			<list>
+				<value>
+					org/sakaiproject/hbm/privacy/PrivacyRecord.hbm.xml
+				</value>
+			</list>
+		</property>
+	</bean>
+
+<!--	<bean id="org.sakaiproject.api.privacy.PrivacyManager"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		
+		<property name="transactionManager">
+			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		</property>
+		<property name="target">
+			<bean id="org.sakaiproject.component.privacy.PrivacyManagerImpl"
+				class="org.sakaiproject.component.privacy.PrivacyManagerImpl"
+				singleton="true">
+				<property name="sessionFactory">
+					<ref
+						bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+				</property>
+			</bean>
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>-->
+
+  <bean id="org.sakaiproject.component.privacy.PrivacyManagerImpl"
+	  class="org.sakaiproject.component.privacy.PrivacyManagerImpl"
+		singleton="true">
+		<property name="sessionFactory">
+		 <ref
+			 bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+		</property>
+	</bean>
+	
+	<bean id="org.sakaiproject.api.privacy.PrivacyManager"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager">
+			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		</property>
+		<property name="target">
+		  <ref bean="org.sakaiproject.component.privacy.PrivacyManagerImpl" />
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>	
+
+	<!-- Cache is used to reduce the number of privacy lookups (IU observed roughly 1.5 million lookups per hour) -->
+	<bean id="org.sakaiproject.api.privacy.PrivacyManager.PrivacyQueryCache" 
+  		class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+	  	<property name="cacheManager"><ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/></property>
+    	<property name="cacheName"><value>org.sakaiproject.api.privacy.PrivacyManager.PrivacyQueryCache.queryGetPrivacy</value></property>
+		<!-- should be sized to max sessions per app server -->
+    	<property name="maxElementsInMemory" ><value>3000</value></property>
+    	<property name="diskPersistent" ><value>false</value></property>
+    	<property name="eternal" ><value>false</value></property>
+    	<!-- default time to live is 15 minutes -->
+    	<property name="timeToLive" ><value>900</value></property>
+    	<property name="timeToIdle" ><value>900</value></property>
+ 	</bean>
+</beans>

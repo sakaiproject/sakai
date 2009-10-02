@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+  <class
+    name="org.sakaiproject.hbm.privacy.PrivacyRecordImpl"
+    table="SAKAI_PRIVACY_RECORD" optimistic-lock="version">
+    
+    <id name="surrogateKey" type="long">
+      <column name="id" not-null="true" length="19" />
+      <generator class="native">
+        <param name="sequence">PrivacyRecordImpl_SEQ</param>
+      </generator>
+    </id>
+        
+    <version name="lockId" />               
+
+    <property name="contextId" column="contextId" type="string" not-null="true"  unique-key="uniquePrivacyRecord" length="100"/>
+
+    <property name="recordType" column="recordType" type="string" not-null="true" unique-key="uniquePrivacyRecord" length="100"/>
+
+    <property name="userId" column="userId" type="string" not-null="true" unique-key="uniquePrivacyRecord" length="100"/>
+
+    <property name="viewable" column="viewable" type="boolean" not-null="true"/>
+
+	</class>
+	
+  <query name="findPrivacyByUserIdContextIdType">
+    <![CDATA[from org.sakaiproject.hbm.privacy.PrivacyRecordImpl as privacy where privacy.userId = :userId and privacy.contextId = :contextId and privacy.recordType = :recordType]]>
+  </query>
+
+  <query name="findDisabledPrivacyUserIdContextIdType">
+    <![CDATA[from org.sakaiproject.hbm.privacy.PrivacyRecordImpl as privacy where privacy.userId = :userId and privacy.contextId = :contextId and privacy.recordType = :recordType and privacy.viewable = :viewable]]>
+  </query>
+  
+  <query name="finalPrivacyByContextViewableType">
+    <![CDATA[from org.sakaiproject.hbm.privacy.PrivacyRecordImpl as privacy where privacy.contextId = :contextId and privacy.viewable = :viewable and privacy.recordType = :recordType]]>  
+  </query>
+  
+  <query name="finalPrivacyByContextType">
+    <![CDATA[from org.sakaiproject.hbm.privacy.PrivacyRecordImpl as privacy where privacy.contextId = :contextId and privacy.recordType = :recordType]]>  
+  </query>
+  
+  <query name="finalPrivacyByContextViewableTypeUserList">
+    <![CDATA[from org.sakaiproject.hbm.privacy.PrivacyRecordImpl as privacy where privacy.contextId = :contextId and privacy.viewable = :viewable and privacy.recordType = :recordType and privacy.userId in (:userIds)]]>  
+  </query>
+
+  <query name="finalPrivacyByContextTypeAndUserIds">
+    <![CDATA[from org.sakaiproject.hbm.privacy.PrivacyRecordImpl as privacy where privacy.contextId = :contextId and privacy.recordType = :recordType and privacy.userId in (:userIds)]]>
+  </query>
+</hibernate-mapping>

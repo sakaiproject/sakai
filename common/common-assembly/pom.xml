@@ -16,7 +16,7 @@
 	<parent>
 		<artifactId>common</artifactId>
 		<groupId>org.sakaiproject.common</groupId>
-		<version>1.0-SNAPSHOT</version><!--entitybroker.version-->
+		<version>1.0-SNAPSHOT</version><!--common.version-->
 	</parent>
 
 	<dependencies>
@@ -51,17 +51,25 @@
 			<scope>compile</scope>
 			<type>war</type>
 		</dependency>
-		<!--
-			<dependency> <groupId>org.sakaiproject.common</groupId>
-			<artifactId>sakai-messageforums-tool</artifactId>
-			<version>${project.version}</version> <scope>compile</scope>
-			<type>war</type> </dependency> <dependency>
-			<groupId>org.sakaiproject.common</groupId>
-			<artifactId>sakai-messageforums-help</artifactId>
-			<scope>compile</scope> <version>${project.version}</version>
-			</dependency>
-		-->
-
+		<dependency>
+		 	<groupId>org.sakaiproject.common</groupId>
+        	<artifactId>sakai-privacy-hbm</artifactId>
+        	<version>${project.version}</version>
+       		<scope>compile</scope>
+      	</dependency>
+      	<dependency>
+        	<groupId>org.sakaiproject.common</groupId>
+        	<artifactId>sakai-privacy-api</artifactId>
+       		<version>${project.version}</version>
+       		<scope>compile</scope>
+      	</dependency>
+      	<dependency>
+        	<groupId>org.sakaiproject.common</groupId>
+        	<artifactId>sakai-privacy-pack</artifactId>
+       		<version>${project.version}</version>
+       		<scope>compile</scope>
+			<type>war</type>
+      	</dependency>
 	</dependencies>
 	<build>
 		<plugins>
