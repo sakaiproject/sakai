@@ -123,7 +123,7 @@
         <module>rwiki</module>
         <module>sam</module>
         <module>samples</module>
-        <module>search</module>
+        <module>search-deploy</module>
         <module>sections</module>
         <module>site</module>
         <module>site-manage</module>
