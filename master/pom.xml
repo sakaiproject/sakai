@@ -791,9 +791,9 @@ This is not needed now that pluto have been released
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
+        <groupId>org.sakaiproject.common</groupId>
         <artifactId>sakai-privacy-api</artifactId>
-        <version>${sakai.version}</version>
+        <version>${sakai.common.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
