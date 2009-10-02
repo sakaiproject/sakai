@@ -1,7 +1,7 @@
 <cfsetting enablecfoutputonly="true">
 <!---
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2009 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -67,7 +67,7 @@ function ChangeToolbar( toolbarName )
 </cfoutput>
 
 <cfif isDefined( "URL.Toolbar" )>
-	<cfset toolbarSet = HTMLEditFormat( URL.Toolbar )>
+	<cfset toolbarSet = REReplaceNoCase( URL.Toolbar, "[^a-z]", "", "all" )>
 <cfelse>
 	<cfset toolbarSet = "Default">
 </cfif>

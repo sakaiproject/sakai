@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2009 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -307,5 +307,41 @@ function CopyAttributes( oSource, oDest, oSkipAttributes )
 		}
 	}
 	// The style:
-	oDest.style.cssText = oSource.style.cssText ;
+	if ( oSource.style.cssText !== '' )
+		oDest.style.cssText = oSource.style.cssText ;
+}
+
+/**
+* Replaces a tag with another one, keeping its contents:
+* for example TD --> TH, and TH --> TD.
+* input: the original node, and the new tag name
+* http://www.w3.org/TR/DOM-Level-3-Core/core.html#Document3-renameNode
+*/
+function RenameNode( oNode , newTag )
+{
+	// TODO: if the browser natively supports document.renameNode call it.
+	// does any browser currently support it in order to test?
+
+	// Only rename element nodes.
+	if ( oNode.nodeType != 1 )
+		return null ;
+
+	// If it's already correct exit here.
+	if ( oNode.nodeName == newTag )
+		return oNode ;
+
+	var oDoc = oNode.ownerDocument ;
+	// Create the new node
+	var newNode = oDoc.createElement( newTag ) ;
+
+	// Copy all attributes
+	CopyAttributes( oNode, newNode, {} ) ;
+
+	// Move children to the new node
+	FCKDomTools.MoveChildren( oNode, newNode ) ;
+
+	// Finally replace the node and return the new one
+	oNode.parentNode.replaceChild( newNode, oNode ) ;
+
+	return newNode ;
 }

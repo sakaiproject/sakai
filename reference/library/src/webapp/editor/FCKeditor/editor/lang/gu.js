@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2009 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -44,6 +44,7 @@ RemoveFormat		: "ફૉર્મટ કાઢવું",
 InsertLinkLbl		: "સંબંધન, લિંક",
 InsertLink			: "લિંક ઇન્સર્ટ/દાખલ કરવી",
 RemoveLink			: "લિંક કાઢવી",
+VisitLink			: "Open Link",	//MISSING
 Anchor				: "ઍંકર ઇન્સર્ટ/દાખલ કરવી",
 AnchorDelete		: "ઍંકર કાઢવી",
 InsertImageLbl		: "ચિત્ર",
@@ -72,6 +73,9 @@ BlockJustify		: "બ્લૉક, અંતરાય જસ્ટિફાઇ",
 DecreaseIndent		: "ઇન્ડેન્ટ લીટીના આરંભમાં જગ્યા ઘટાડવી",
 IncreaseIndent		: "ઇન્ડેન્ટ, લીટીના આરંભમાં જગ્યા વધારવી",
 Blockquote			: "બ્લૉક-કોટ, અવતરણચિહ્નો",
+CreateDiv			: "Create Div Container",	//MISSING
+EditDiv				: "Edit Div Container",	//MISSING
+DeleteDiv			: "Remove Div Container",	//MISSING
 Undo				: "રદ કરવું; પહેલાં હતી એવી સ્થિતિ પાછી લાવવી",
 Redo				: "રિડૂ; પછી હતી એવી સ્થિતિ પાછી લાવવી",
 NumberedListLbl		: "સંખ્યાંકન સૂચિ",
@@ -157,6 +161,7 @@ UnknownToolbarSet	: "ટૂલબાર સેટ \"%1\" ઉપલબ્ધ ન�
 NoActiveX			: "તમારા બ્રાઉઝરની સુરક્ષા સેટિંગસ એડિટરના અમુક ફીચરને પરવાનગી આપતી નથી. કૃપયા \"Run ActiveX controls and plug-ins\" વિકલ્પને ઇનેબલ/સમર્થ કરો. તમારા બ્રાઉઝરમાં એરર ઇન્વિઝિબલ ફીચરનો અનુભવ થઈ શકે છે. કૃપયા પૉપ-અપ બ્લૉકર ડિસેબલ કરો.",
 BrowseServerBlocked : "રિસૉર્સ બ્રાઉઝર ખોલી ન સકાયું.",
 DialogBlocked		: "ડાયલૉગ વિન્ડો ખોલી ન સકાયું. કૃપયા પૉપ-અપ બ્લૉકર ડિસેબલ કરો.",
+VisitLinkBlocked	: "It was not possible to open a new window. Make sure all popup blockers are disabled.",	//MISSING
 
 // Dialogs
 DlgBtnOK			: "ઠીક છે",
@@ -303,6 +308,11 @@ DlgTableCellSpace	: "સેલ અંતર",
 DlgTableCellPad		: "સેલ પૅડિંગ",
 DlgTableCaption		: "મથાળું/કૅપ્શન ",
 DlgTableSummary		: "ટૂંકો એહેવાલ",
+DlgTableHeaders		: "Headers",	//MISSING
+DlgTableHeadersNone		: "None",	//MISSING
+DlgTableHeadersColumn	: "First column",	//MISSING
+DlgTableHeadersRow		: "First Row",	//MISSING
+DlgTableHeadersBoth		: "Both",	//MISSING
 
 // Table Cell Dialog
 DlgCellTitle		: "પંક્તિના ખાનાના ગુણ",
@@ -325,6 +335,9 @@ DlgCellVerAlignTop	: "ઉપર",
 DlgCellVerAlignMiddle	: "મધ્ય સેન્ટર",
 DlgCellVerAlignBottom	: "નીચે",
 DlgCellVerAlignBaseline	: "મૂળ રેખા",
+DlgCellType		: "Cell Type",	//MISSING
+DlgCellTypeData		: "Data",	//MISSING
+DlgCellTypeHeader	: "Header",	//MISSING
 DlgCellRowSpan		: "પંક્તિ સ્પાન",
 DlgCellCollSpan		: "કૉલમ/ઊભી કટાર સ્પાન",
 DlgCellBackColor	: "બૅકગ્રાઉન્ડ રંગ",
@@ -511,5 +524,11 @@ DlgAboutAboutTab	: "FCKEditor ના વિષે",
 DlgAboutBrowserInfoTab	: "બ્રાઉઝર ના વિષે",
 DlgAboutLicenseTab	: "લાઇસન્સ",
 DlgAboutVersion		: "વર્ઝન",
-DlgAboutInfo		: "વધારે માહિતી માટે:"
+DlgAboutInfo		: "વધારે માહિતી માટે:",
+
+// Div Dialog
+DlgDivGeneralTab	: "General",	//MISSING
+DlgDivAdvancedTab	: "Advanced",	//MISSING
+DlgDivStyle		: "Style",	//MISSING
+DlgDivInlineStyle	: "Inline Style"	//MISSING
 };

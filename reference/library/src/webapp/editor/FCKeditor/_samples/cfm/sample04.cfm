@@ -1,7 +1,7 @@
 <cfsetting enablecfoutputonly="true">
 <!---
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2009 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -77,7 +77,7 @@ function ChangeSkin( skinName )
 
 <cfset config = structNew()>
 <cfif isDefined( "URL.Skin" )>
-	<cfset config["SkinPath"] = basePath & 'editor/skins/' & HTMLEditFormat( URL.Skin ) & '/'>
+	<cfset config["SkinPath"] = basePath & 'editor/skins/' & REReplaceNoCase( URL.Skin, "[^a-z0-9]", "", "all" ) & '/'>
 </cfif>
 
 <cfmodule

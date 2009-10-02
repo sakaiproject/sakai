@@ -1,7 +1,7 @@
 <?php
 /*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2009 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -91,7 +91,7 @@ $oFCKeditor->BasePath = $sBasePath ;
 if ( isset($_GET['Lang']) )
 {
 	$oFCKeditor->Config['AutoDetectLanguage']	= false ;
-	$oFCKeditor->Config['DefaultLanguage']		= $_GET['Lang'] ;
+	$oFCKeditor->Config['DefaultLanguage']		= preg_replace("/[^a-z\-]/i", "", $_GET['Lang']) ;
 }
 else
 {

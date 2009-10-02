@@ -1,7 +1,7 @@
 <cfsetting enablecfoutputonly="true">
 <!---
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2009 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -81,7 +81,7 @@ function ChangeToolbar( toolbarName )
 		fckEditor.basePath		= basePath ;
 		if ( isDefined( "URL.Toolbar" ) )
 		{
-			fckEditor.ToolbarSet		= HTMLEditFormat( URL.Toolbar ) ;
+			fckEditor.ToolbarSet		= REReplaceNoCase( URL.Toolbar, "[^a-z]", "", "all" ) ;
 		}
 		fckEditor.create() ; // create the editor.
 	</cfscript>

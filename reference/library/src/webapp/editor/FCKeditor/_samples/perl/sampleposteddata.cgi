@@ -2,7 +2,7 @@
 
 #####
 #  FCKeditor - The text editor for Internet - http://www.fckeditor.net
-#  Copyright (C) 2003-2008 Frederico Caldeira Knabben
+#  Copyright (C) 2003-2009 Frederico Caldeira Knabben
 #
 #  == BEGIN LICENSE ==
 #
@@ -93,6 +93,7 @@ _HTML_TAG_
 
 	foreach $key (keys %FORM) {
 		$postedValue = &specialchar_cnv($FORM{$key});
+		$key = &specialchar_cnv($key);
 		print <<"_HTML_TAG_";
 			<tr>
 				<th>$key</th>

@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2009 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -142,7 +142,7 @@ CharacterCursor.prototype =
 		}
 
 		this._textNode = curNode ;
-		this._offset = curNode.length - 1 ;
+		this._offset = curNode && curNode.length - 1 ;
 		return crossed ;
 	},
 
@@ -185,7 +185,7 @@ CharacterRange.prototype =
 		var focusNode = domRange.StartNode ;
 		if ( focusNode.nodeType != 1 )
 			focusNode = focusNode.parentNode ;
-		focusNode.scrollIntoView( false ) ;
+		FCKDomTools.ScrollIntoView( focusNode, false ) ;
 		this._cursors = charRange._cursors ;
 	},
 
@@ -420,6 +420,8 @@ function GetMatchWord()
  */
 function CheckIsWordSeparator( c )
 {
+	if ( !c )
+		return true;
 	var code = c.charCodeAt( 0 );
 	if ( code >= 9 && code <= 0xd )
 		return true;

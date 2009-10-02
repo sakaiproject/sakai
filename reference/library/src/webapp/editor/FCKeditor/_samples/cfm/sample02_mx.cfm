@@ -1,7 +1,7 @@
 <cfsetting enablecfoutputonly="true">
 <!---
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2009 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -95,7 +95,7 @@ This sample shows the editor in all its available languages.
 		if ( isDefined( "URL.Lang" ) )
 		{
 			fckEditor.config["AutoDetectLanguage"]		= false ;
-			fckEditor.config["DefaultLanguage"]			= HTMLEditFormat( URL.Lang ) ;
+			fckEditor.config["DefaultLanguage"]			= REReplaceNoCase( URL.Lang, "[^a-z\-]", "", "all" ) ;
 		}
 		else
 		{

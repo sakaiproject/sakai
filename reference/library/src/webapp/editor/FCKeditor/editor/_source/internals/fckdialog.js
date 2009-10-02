@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2009 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -94,7 +94,7 @@ var FCKDialog = ( function()
 				TopWindow : topWindow
 			}
 
-			FCK.ToolbarSet.CurrentInstance.Selection.Save() ;
+			FCK.ToolbarSet.CurrentInstance.Selection.Save( true ) ;
 
 			// Calculate the dialog position, centering it on the screen.
 			var viewSize = FCKTools.GetViewPaneSize( topWindow ) ;

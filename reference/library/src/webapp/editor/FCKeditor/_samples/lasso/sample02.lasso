@@ -1,7 +1,7 @@
 [//lasso
 /*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2009 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -84,7 +84,7 @@ function ChangeLanguage( languageCode )
 	if(action_param('Lang'));
 		var('config') = array(
 			'AutoDetectLanguage' = 'false',
-			'DefaultLanguage' = action_param('Lang')
+			'DefaultLanguage' = (String_ReplaceRegExp: action_param('Lang'), -find='[^a-z\-]', -replace='')
 		);
 	else;
 		var('config') = array(

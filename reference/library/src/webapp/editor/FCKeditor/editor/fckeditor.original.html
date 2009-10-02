@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2009 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -30,6 +30,37 @@
 	<meta http-equiv="Cache-Control" content="public">
 	@Packager.RemoveLine -->
 	<script type="text/javascript">
+
+// #1645: Alert the user if opening FCKeditor in FF3 from local filesystem
+// without security.fileuri.strict_origin_policy disabled.
+if ( document.location.protocol == 'file:' )
+{
+	try
+	{
+		window.parent.document.domain ;
+	}
+	catch ( e )
+	{
+		window.addEventListener( 'load', function()
+			{
+				document.body.innerHTML = '\
+					<div style="border: 1px red solid; font-family: arial; font-size: 12px; color: red; padding:10px;">\
+						<p>\
+							<b>Your browser security settings don\'t allow FCKeditor to be opened from\
+							the local filesystem.<\/b>\
+						<\/p>\
+						<p>\
+							Please open the <b>about:config<\/b> page and disable the\
+							&quot;security.fileuri.strict_origin_policy&quot; option; then load this page again.\
+						<\/p>\
+						<p>\
+							Check our <a href="http://docs.fckeditor.net/FCKeditor_2.x/Developers_Guide/FAQ#ff3perms">FAQ<\/a>\
+							for more information.\
+						<\/p>\
+					<\/div>' ;
+			}, false ) ;
+	}
+}
 
 // Save a reference to the default domain.
 var FCK_ORIGINAL_DOMAIN ;
@@ -329,7 +360,8 @@ function WaitForActive( editorInstance, newStatus )
 		if ( FCKBrowserInfo.IsGecko )
 			FCKTools.RunFunction( window.onresize ) ;
 
-		_AttachFormSubmitToAPI() ;
+		if ( !FCKConfig.PreventSubmitHandler )
+			_AttachFormSubmitToAPI() ;
 
 		FCK.SetStatus( FCK_STATUS_COMPLETE ) ;
 

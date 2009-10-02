@@ -1,7 +1,7 @@
 <!---
 /*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2009 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -34,7 +34,6 @@
 		<h1>FCKeditor - Samples - Posted Data</h1>
 		This page lists all data posted by the form.
 		<hr>
-<cfif listFirst( server.coldFusion.productVersion ) LT 6>
 	<cfif isDefined( 'FORM.fieldnames' )>
 		<cfoutput>
 		<hr />
@@ -48,21 +47,24 @@
 			</thead>
 		<tr>
 			<th>FieldNames</th>
-			<td>#FORM.fieldNames#</td>
+			<td>#HTMLEditFormat( FORM.fieldNames )#</td>
 		</tr>
 		<cfloop list="#FORM.fieldnames#" index="key">
-		<tr>
-			<th>#key#</th>
-			<td><pre>#HTMLEditFormat( evaluate( "FORM.#key#" ) )#</pre></td>
-		</tr>
+			<tr>
+				<th>#HTMLEditFormat( key )#</th>
+				<td><pre>
+			<cftry>
+				<cfif isDefined( 'FORM.' & #key# ) and REFindNoCase("^[a-z0-9]+$", key)>
+					#HTMLEditFormat( evaluate( "FORM.#key#" ) )#
+				</cfif>
+			<cfcatch type="any">
+			</cfcatch>
+			</cftry>
+				</pre></td>
+			</tr>
 		</cfloop>
 		</table>
 		</cfoutput>
 	</cfif>
-<cfelse>
-	<cfdump var="#FORM#" label="Dump of FORM Variables">
-</cfif>
-
-
 	</body>
 </html>

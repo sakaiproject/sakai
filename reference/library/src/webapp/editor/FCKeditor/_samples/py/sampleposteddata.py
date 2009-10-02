@@ -2,7 +2,7 @@
 
 """
 FCKeditor - The text editor for Internet - http://www.fckeditor.net
-Copyright (C) 2003-2008 Frederico Caldeira Knabben
+Copyright (C) 2003-2009 Frederico Caldeira Knabben
 
 == BEGIN LICENSE ==
 
@@ -70,16 +70,16 @@ for key in form.keys():
 					<th>%s</th>
 					<td><pre>%s</pre></td>
 				</tr>
-			""" % (key, value)
+			""" % (cgi.escape(key), cgi.escape(value))
 	except Exception, e:
 		print e
 print "</table>"
 
 # For testing your environments
-print "<hr>"
-for key in os.environ.keys():
-	print "%s: %s<br>" % (key, os.environ.get(key, ""))
-print "<hr>"
+#print "<hr>"
+#for key in os.environ.keys():
+#	print "%s: %s<br>" % (key, os.environ.get(key, ""))
+#print "<hr>"
 
 # Document footer
 print """

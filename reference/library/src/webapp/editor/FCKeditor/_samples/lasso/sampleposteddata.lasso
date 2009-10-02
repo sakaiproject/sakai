@@ -1,7 +1,7 @@
 [//lasso
 /*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2009 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -44,8 +44,8 @@
 			</thead>
 [iterate(client_postparams, local('this'))]
 			<tr>
-				<th>[#this->first]</th>
-				<td><pre>[#this->second]</pre></td>
+				<th>[Encode_HTML: #this->first]</th>
+				<td><pre>[Encode_HTML: #this->second]</pre></td>
 			</tr>
 [/iterate]
 		</table>

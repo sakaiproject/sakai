@@ -2,7 +2,7 @@
 
 """
 FCKeditor - The text editor for Internet - http://www.fckeditor.net
-Copyright (C) 2003-2008 Frederico Caldeira Knabben
+Copyright (C) 2003-2009 Frederico Caldeira Knabben
 
 == BEGIN LICENSE ==
 
@@ -68,10 +68,10 @@ print """
 """
 
 # For testing your environments
-print "<hr>"
-for key in os.environ.keys():
-	print "%s: %s<br>" % (key, os.environ.get(key, ""))
-print "<hr>"
+#print "<hr>"
+#for key in os.environ.keys():
+#	print "%s: %s<br>" % (key, os.environ.get(key, ""))
+#print "<hr>"
 
 # Document footer
 print """

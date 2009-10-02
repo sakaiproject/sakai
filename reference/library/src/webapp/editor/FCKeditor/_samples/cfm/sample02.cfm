@@ -1,7 +1,7 @@
 <cfsetting enablecfoutputonly="true">
 <!---
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2009 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -82,7 +82,7 @@ This sample shows the editor in all its available languages.
 <cfset config = structNew()>
 <cfif isDefined( "URL.Lang" )>
 	<cfset config["AutoDetectLanguage"]		= false>
-	<cfset config["DefaultLanguage"]		= HTMLEditFormat( URL.Lang )>
+	<cfset config["DefaultLanguage"]		= REReplaceNoCase( URL.Lang, "[^a-z\-]", "", "all" )>
 <cfelse>
 	<cfset config["AutoDetectLanguage"]		= true>
 	<cfset config["DefaultLanguage"]		= 'en'>

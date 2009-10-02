@@ -1,7 +1,7 @@
 [//lasso
 /*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2009 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -81,7 +81,8 @@ function ChangeSkin( skinName )
 	);
 
 	if(action_param('Skin'));
-		$myeditor->config = array('SkinPath' = $basepath + 'editor/skins/' + action_param('Skin') + '/');
+		var('skin') = (String_ReplaceRegExp: action_param('Skin'), -find='[^a-zA-Z0-9]', -replace='');
+		$myeditor->config = array('SkinPath' = $basepath + 'editor/skins/' + $skin + '/');
 	/if;
 
 	$myeditor->create;

@@ -2,7 +2,7 @@
 
 #####
 #  FCKeditor - The text editor for Internet - http://www.fckeditor.net
-#  Copyright (C) 2003-2008 Frederico Caldeira Knabben
+#  Copyright (C) 2003-2009 Frederico Caldeira Knabben
 #
 #  == BEGIN LICENSE ==
 #
@@ -132,7 +132,8 @@ _HTML_TAG_
 	$BasePath = $sBasePath ;
 
 	if($FORM{'Toolbar'} ne "") {
-		$ToolbarSet = &specialchar_cnv( $FORM{'Toolbar'} );
+		$ToolbarSet = $FORM{'Toolbar'};
+		$ToolbarSet =~ s/[^a-z]//ig;
 	}
 	$Value = '<p>This is some <strong>sample text</strong>. You are using <a href="http://www.fckeditor.net/">FCKeditor</a>.</p>' ;
 	&Create();

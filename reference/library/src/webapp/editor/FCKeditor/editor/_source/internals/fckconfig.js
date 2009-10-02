@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2009 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -154,7 +154,7 @@ FCKConfig.Plugins.Items = new Array() ;
 
 FCKConfig.Plugins.Add = function( name, langs, path )
 {
-	FCKConfig.Plugins.Items.AddItem( [name, langs, path] ) ;
+	FCKConfig.Plugins.Items.push( [name, langs, path] ) ;
 }
 
 // FCKConfig.ProtectedSource: object that holds a collection of Regular
@@ -180,7 +180,7 @@ FCKConfig.ProtectedSource.RegexEntries = [
 
 FCKConfig.ProtectedSource.Add = function( regexPattern )
 {
-	this.RegexEntries.AddItem( regexPattern ) ;
+	this.RegexEntries.push( regexPattern ) ;
 }
 
 FCKConfig.ProtectedSource.Protect = function( html )

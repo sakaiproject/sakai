@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2009 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -64,7 +64,7 @@ window.onload = function ()
 
 		var eFrameSpace = document.getElementById( 'xFrameSpace' ) ;
 		eFrameSpace.innerHTML = '<iframe id="frmData" src="' + sFrameUrl + '" ' +
-					'height="98%" width="99%" frameborder="0" style="border: #000000 1px; background-color: #ffffff"></iframe>' ;
+					'height="98%" width="99%" frameborder="0" style="border: #000000 1px; background-color: #ffffff"><\/iframe>' ;
 
 		var oFrame = eFrameSpace.firstChild ;
 
@@ -87,6 +87,7 @@ window.onload = function ()
 	else
 	{
 		document.getElementById('txtData').style.display = '' ;
+		SelectField( 'txtData' ) ;
 	}
 
 	if ( sPastingType != 'Word' )
@@ -289,7 +290,7 @@ function CleanWord( oNode, bIgnoreFont, bRemoveStyles )
 		html = html.replace( /<\/H\d>/gi, '<\/font><\/b><\/div>' ) ;
 
 		// Transform <P> to <DIV>
-		var re = new RegExp( '(<P)([^>]*>[\\s\\S]*?)(<\/P>)', 'gi' ) ;  // Different because of a IE 5.0 error
+		var re = new RegExp( '(<P)([^>]*>[\\s\\S]*?)(<\/P>)', 'gi' ) ;	// Different because of a IE 5.0 error
 		html = html.replace( re, '<div$2<\/div>' ) ;
 
 		// Remove empty tags (three times, just to be sure).

@@ -1,6 +1,6 @@
 ﻿<%
  ' FCKeditor - The text editor for Internet - http://www.fckeditor.net
- ' Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ ' Copyright (C) 2003-2009 Frederico Caldeira Knabben
  '
  ' == BEGIN LICENSE ==
  '
@@ -22,6 +22,7 @@
 %>
 <%
 function CombinePaths( sBasePath, sFolder)
+	sFolder = replace(sFolder, "\", "/")
 	CombinePaths =  RemoveFromEnd( sBasePath, "/" ) & "/" & RemoveFromStart( sFolder, "/" )
 end function
 
@@ -151,7 +152,7 @@ End Function
 Function IsAllowedType( resourceType )
 	Dim oRE
 	Set oRE	= New RegExp
-	oRE.IgnoreCase	= True
+	oRE.IgnoreCase	= False
 	oRE.Global		= True
 	oRE.Pattern		= "^(" & ConfigAllowedTypes & ")$"
 
@@ -174,6 +175,8 @@ End Function
 
 function GetCurrentFolder()
 	dim sCurrentFolder
+	dim oRegex
+
 	sCurrentFolder = Request.QueryString("CurrentFolder")
 	If ( sCurrentFolder = "" ) Then sCurrentFolder = "/"
 
@@ -183,6 +186,14 @@ function GetCurrentFolder()
 
 	' Check for invalid folder paths (..)
 	If ( InStr( 1, sCurrentFolder, ".." ) <> 0 OR InStr( 1, sCurrentFolder, "\" ) <> 0) Then
+		SendError 102, ""
+	End If
+
+	Set oRegex = New RegExp
+	oRegex.Global		= True
+	oRegex.Pattern = "(/\.)|(//)|([\\:\*\?\""\<\>\|]|[\u0000-\u001F]|\u007F)"
+
+	if (oRegex.Test(sCurrentFolder)) Then
 		SendError 102, ""
 	End If
 

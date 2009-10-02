@@ -5,7 +5,7 @@
 	<version>1.0</version>
 	<filename>FCKeditor AIR Sample</filename>
 	<description>This is a sample AIR application including FCKeditor.</description>
-	<copyright>Copyright (C) 2003-2008 Frederico Caldeira Knabben</copyright>
+	<copyright>Copyright (C) 2003-2009 Frederico Caldeira Knabben</copyright>
 	<initialWindow>
 		<content>_samples/adobeair/sample01.html</content>
 		<title>FCKeditor AIR Sample</title>

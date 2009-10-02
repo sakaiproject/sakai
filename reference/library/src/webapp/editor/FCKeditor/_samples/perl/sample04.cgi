@@ -2,7 +2,7 @@
 
 #####
 #  FCKeditor - The text editor for Internet - http://www.fckeditor.net
-#  Copyright (C) 2003-2008 Frederico Caldeira Knabben
+#  Copyright (C) 2003-2009 Frederico Caldeira Knabben
 #
 #  == BEGIN LICENSE ==
 #
@@ -139,7 +139,9 @@ _HTML_TAG_
 	$BasePath = $sBasePath;
 
 	if($FORM{'Skin'} ne "") {
-		$Config{'SkinPath'} = $sBasePath . 'editor/skins/' . &specialchar_cnv( $FORM{'Skin'} ) . '/' ;
+		$skin = $FORM{'Skin'};
+		$skin =~ s/[^a-z0-9]//ig;
+		$Config{'SkinPath'} = $sBasePath . 'editor/skins/' . $skin . '/' ;
 	}
 	$Value = '<p>This is some <strong>sample text</strong>. You are using <a href="http://www.fckeditor.net/">FCKeditor</a>.</p>' ;
 	&Create() ;

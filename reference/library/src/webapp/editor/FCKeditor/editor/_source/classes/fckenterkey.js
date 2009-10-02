@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2009 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -531,7 +531,27 @@ FCKEnterKey.prototype._ExecuteEnterBlock = function( blockTag, range )
 		}
 
 		if ( FCKBrowserInfo.IsGeckoLike )
-			FCKDomTools.ScrollIntoView( eNextBlock || eNewBlock, false ) ;
+		{
+			if ( eNextBlock )
+			{
+				// If we have split the block, adds a temporary span at the
+				// range position and scroll relatively to it.
+				var tmpNode = this.Window.document.createElement( 'span' ) ;
+
+				// We need some content for Safari.
+				tmpNode.innerHTML = '&nbsp;';
+
+				oRange.InsertNode( tmpNode ) ;
+				FCKDomTools.ScrollIntoView( tmpNode, false ) ;
+				oRange.DeleteContents() ;
+			}
+			else
+			{
+				// We may use the above scroll logic for the new block case
+				// too, but it gives some weird result with Opera.
+				FCKDomTools.ScrollIntoView( eNextBlock || eNewBlock, false ) ;
+			}
+		}
 
 		oRange.Select() ;
 	}
@@ -614,10 +634,7 @@ FCKEnterKey.prototype._ExecuteEnterBr = function( blockTag )
 
 				eLineBreak.parentNode.insertBefore( dummy, eLineBreak.nextSibling ) ;
 
-				if ( FCKBrowserInfo.IsSafari )
-					FCKDomTools.ScrollIntoView( dummy, false ) ;
-				else
-					dummy.scrollIntoView( false ) ;
+				FCKDomTools.ScrollIntoView( dummy, false ) ;
 
 				dummy.parentNode.removeChild( dummy ) ;
 			}

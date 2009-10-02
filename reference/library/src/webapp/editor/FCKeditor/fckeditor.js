@@ -1,6 +1,6 @@
 /*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2009 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -59,8 +59,8 @@ FCKeditor.MinHeight = 200 ;
  */
 FCKeditor.MinWidth = 750 ;
 
-FCKeditor.prototype.Version			= '2.6.2' ;
-FCKeditor.prototype.VersionBuild	= '19417' ;
+FCKeditor.prototype.Version			= '2.6.4.1' ;
+FCKeditor.prototype.VersionBuild	= '23187' ;
 
 FCKeditor.prototype.Create = function()
 {
@@ -106,6 +106,8 @@ FCKeditor.prototype.CreateHtml = function()
 
 FCKeditor.prototype.ReplaceTextarea = function()
 {
+	if ( document.getElementById( this.InstanceName + '___Frame' ) )
+		return ;
 	if ( !this.CheckBrowser || this._IsCompatibleBrowser() )
 	{
 		// We must check the elements firstly using the Id and then the name.
@@ -175,7 +177,7 @@ FCKeditor.prototype._GetIFrameHtml = function()
 	if (this.ToolbarSet)
 		sLink += '&amp;Toolbar=' + this.ToolbarSet ;
 
-	html = '<iframe id="' + this.InstanceName +
+	var html = '<iframe id="' + this.InstanceName +
 		'___Frame" src="' + sLink +
 		'" width="' + this.Width +
 		'" height="' + this.Height ;

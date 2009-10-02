@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2009 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -86,7 +86,7 @@ window.focus() ;
 document.write( FCKTools.GetStyleHtml( FCKConfig.SkinDialogCSS ) ) ;
 
 // Sets the language direction.
-var langDir = document.documentElement.dir = E.FCKLang.Dir ;
+var langDir = E.FCKLang.Dir ;
 
 // For IE6-, the fck_dialog_ie6.js is loaded, used to fix limitations in the browser.
 if ( FCKBrowserInfo.IsIE && !FCKBrowserInfo.IsIE7 )
@@ -409,6 +409,11 @@ var Selection =
 	 */
 	EnsureSelection : function()
 	{
+		// Move the focus to the Cancel button so even if the dialog contains a
+		// contentEditable element the selection is properly restored in the editor #2496
+		window.focus() ;
+		$( 'btnCancel' ).focus() ;
+
 		FCK.Selection.Restore() ;
 	},
 
@@ -573,6 +578,8 @@ var onReadyRegister = function()
 	// Program entry point.
 	window.Init = function()
 	{
+		$( 'contents' ).dir = langDir;
+
 		// Start the throbber timer.
 		Throbber.Show( 1000 ) ;
 

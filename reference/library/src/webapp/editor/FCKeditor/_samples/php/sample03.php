@@ -1,7 +1,7 @@
 <?php
 /*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
- * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2009 Frederico Caldeira Knabben
  *
  * == BEGIN LICENSE ==
  *
@@ -77,7 +77,7 @@ $oFCKeditor = new FCKeditor('FCKeditor1') ;
 $oFCKeditor->BasePath = $sBasePath ;
 
 if ( isset($_GET['Toolbar']) )
-	$oFCKeditor->ToolbarSet = htmlspecialchars($_GET['Toolbar']);
+	$oFCKeditor->ToolbarSet = preg_replace("/[^a-z]/i", "", $_GET['Toolbar']);
 
 $oFCKeditor->Value = '<p>This is some <strong>sample text</strong>. You are using <a href="http://www.fckeditor.net/">FCKeditor</a>.</p>' ;
 $oFCKeditor->Create() ;
