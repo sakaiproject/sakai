@@ -115,7 +115,6 @@
         <module>postem</module>
         <module>presence</module>
         <module>presentation</module>
-        <module>privacy</module>
         <module>profile</module>
         <module>providers</module>
         <module>reference</module>
