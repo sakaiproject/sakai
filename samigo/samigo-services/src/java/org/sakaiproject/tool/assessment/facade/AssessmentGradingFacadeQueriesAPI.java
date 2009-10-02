@@ -52,6 +52,8 @@ public interface AssessmentGradingFacadeQueriesAPI
 
   public HashMap getItemScores(Long publishedId, Long itemId, String which);
 
+  public HashMap getItemScores(final Long itemId, List scores);
+  
   /**
    * This returns a hashmap of all the latest item entries, keyed by
    * item id for easy retrieval.

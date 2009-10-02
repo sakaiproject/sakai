@@ -216,9 +216,7 @@ public class HistogramListener
 		  //log.info("Has this many agents: " + scores.size());
 		  if (!iter.hasNext())
 			  return false;
-		  Object next = iter.next();
-		  AssessmentGradingData data = (AssessmentGradingData) next;
-
+		  
 		  /*
 		   * gopalrc - moved up from (1)
 		   */
@@ -246,9 +244,7 @@ public class HistogramListener
 					  submissionsSortedForDiscrim.get(numSubmissions-1-i)).getAgentId());
 		  }
 		  
-		  PublishedAssessmentIfc pub = (PublishedAssessmentIfc) pubService
-		  .getPublishedAssessment(data.getPublishedAssessmentId()
-				  .toString());
+		  PublishedAssessmentIfc pub = (PublishedAssessmentIfc) pubService.getPublishedAssessment(publishedId, false);
 		  
 		  if (pub != null) {
 			if (actionString != null && actionString.equals("reviewAssessment")){
@@ -265,12 +261,6 @@ public class HistogramListener
 			}
 
 			  assessmentName = pub.getTitle();
-			  //log.info("ASSESSMENT NAME= " + assessmentName);
-			  // if section set is null, initialize it - daisyf , 01/31/05
-			  HashSet sectionSet = PersistenceService.getInstance()
-			  .getPublishedAssessmentFacadeQueries()
-			  .getSectionSetForAssessment(pub);
-			  pub.setSectionSet(sectionSet);
 
 			  ArrayList parts = pub.getSectionArraySorted();
 			  ArrayList info = new ArrayList();
@@ -279,7 +269,7 @@ public class HistogramListener
 			  double totalpossible = 0;
 			  boolean hasRandompart = false;
 			  boolean isRandompart = false;
-
+			  
 			  HashMap itemScoresMap = delegate.getItemScores(Long.valueOf(publishedId), Long.valueOf(0), which);
 			  HashMap itemScores = new HashMap();
 			  			  

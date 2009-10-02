@@ -98,11 +98,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       // Hibernate OR map, so we need to initialize them. Unfortunately our
       // spring-1.0.2.jar does not support HibernateTemplate.intialize(Object)
       // so we need to do it ourselves
-      PublishedAssessmentData assessment =PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
-        loadPublishedAssessment(new Long(publishedId));
-      HashSet sectionSet = PersistenceService.getInstance().
-          getPublishedAssessmentFacadeQueries().getSectionSetForAssessment(assessment);
-      assessment.setSectionSet(sectionSet);
+      //PublishedAssessmentData assessment =PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().loadPublishedAssessment(new Long(publishedId));
+      //HashSet sectionSet = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().getSectionSetForAssessment(assessment);
+      //assessment.setSectionSet(sectionSet);
       // proceed to get totalScores
 //      Object[] objects = new Object[2];
 //      objects[0] = new Long(publishedId);
@@ -185,7 +183,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         String agentid = null;
         AssessmentGradingData data = (AssessmentGradingData) items.next();
         // daisyf add the following line on 12/15/04
-        data.setPublishedAssessmentId(assessment.getPublishedAssessmentId());
+        data.setPublishedAssessmentId(Long.valueOf(publishedId));
         agentid = data.getAgentId();
         newlist.add(data);
         while (items.hasNext()) {
@@ -252,8 +250,13 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
   public HashMap getItemScores(Long publishedId, final Long itemId, String which)
   {
+	  List scores = getTotalScores(publishedId.toString(), which);
+	  return getItemScores(itemId, scores);
+  }
+  
+  public HashMap getItemScores(final Long itemId, List scores)
+  {
     try {
-      List scores = getTotalScores(publishedId.toString(), which);
       HashMap map = new HashMap();
       //List list = new ArrayList();
 

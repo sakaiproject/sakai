@@ -195,6 +195,18 @@ public class PublishedAssessmentService extends AssessmentService{
     }
   }
   
+  public PublishedAssessmentFacade getPublishedAssessment(String assessmentId, boolean withGroupsInfo) {
+	    try {
+	      return PersistenceService.getInstance().
+	          getPublishedAssessmentFacadeQueries().
+	          getPublishedAssessment(Long.valueOf(assessmentId), withGroupsInfo);
+	    }
+	    catch (Exception e) {
+	      log.error(e);
+	      throw new RuntimeException(e);
+	    }
+  }
+  
   public AssessmentIfc getAssessment(Long assessmentId) {
 		try {
 			return PersistenceService.getInstance()

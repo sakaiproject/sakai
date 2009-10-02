@@ -323,6 +323,18 @@ public class GradingService
     }
   }
 
+  public HashMap getItemScores(Long itemId, List scores)
+  {
+    try {
+      return (HashMap) PersistenceService.getInstance().
+        getAssessmentGradingFacadeQueries()
+          .getItemScores(itemId, scores);
+    } catch (Exception e) {
+      e.printStackTrace();
+      return new HashMap();
+    }
+  }
+  
   /**
    * Get the last set of itemgradingdata for a student per assessment
    */
