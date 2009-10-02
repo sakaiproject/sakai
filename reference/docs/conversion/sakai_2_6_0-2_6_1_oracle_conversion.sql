@@ -16,37 +16,37 @@
 -- After the field is a clob continue with the updates
 -- Values pulled from gen.nograd in ./assignment-bundles/assignment_*.properties
 --assignment_zh_CN.properties
-update assignment_submission set xml = replace(xml,unistr('\65E0\8BC4\5206'),'gen.nograd') where xml like '%graded="true"%';
+update assignment_submission set xml = replace(xml,unistr('"\65E0\8BC4\5206"'),'"gen.nograd"') where xml like '%graded="true"%';
 --assignment_ar.properties
-update assignment_submission set xml = replace(xml,unistr('\0644\0627 \062A\0648\062C\062F \0623\064A \062F\0631\062C\0629.'),'gen.nograd') where xml like '%graded="true"%';
+update assignment_submission set xml = replace(xml,unistr('"\0644\0627 \062A\0648\062C\062F \0623\064A \062F\0631\062C\0629."'),'"gen.nograd"') where xml like '%graded="true"%';
 --assignment_pt_BR.properties
-update assignment_submission set xml = replace(xml,unistr('Nenhuma Avalia\00e7\00e3o'),'gen.nograd') where xml like '%graded="true"%';
+update assignment_submission set xml = replace(xml,unistr('"Nenhuma Avalia\00e7\00e3o"'),'"gen.nograd"') where xml like '%graded="true"%';
 --assignment_es.properties 
-update assignment_submission set xml = replace(xml,unistr('No hay calificaci\00F3n'),'gen.nograd') where xml like '%graded="true"%';
+update assignment_submission set xml = replace(xml,unistr('"No hay calificaci\00F3n"'),'"gen.nograd"') where xml like '%graded="true"%';
 --assignment_ko.properties
-update assignment_submission set xml = replace(xml,unistr('\d559\c810 \c5c6\c74c'),'gen.nograd') where xml like '%graded="true"%';
+update assignment_submission set xml = replace(xml,unistr('"\d559\c810 \c5c6\c74c"'),'"gen.nograd"') where xml like '%graded="true"%';
 --assignment_eu.propertie
-update assignment_submission set xml = replace(xml,unistr('Kalifikatu gabe'),'gen.nograd') where xml like '%graded="true"%';
+update assignment_submission set xml = replace(xml,unistr('"Kalifikatu gabe"'),'"gen.nograd"') where xml like '%graded="true"%';
 --assignment_nl.properties
-update assignment_submission set xml = replace(xml,unistr('Zonder beoordeling'),'gen.nograd') where xml like '%graded="true"%';
+update assignment_submission set xml = replace(xml,unistr('"Zonder beoordeling"'),'"gen.nograd"') where xml like '%graded="true"%';
 --assignment_fr_CA.properties
-update assignment_submission set xml = replace(xml,unistr('Aucune note'),'gen.nograd') where xml like '%graded="true"%';
+update assignment_submission set xml = replace(xml,unistr('"Aucune note"'),'"gen.nograd"') where xml like '%graded="true"%';
 --assignment_en_GB.properties
-update assignment_submission set xml = replace(xml,unistr('No Mark'),'gen.nograd') where xml like '%graded="true"%';
+update assignment_submission set xml = replace(xml,unistr('"No Mark"'),'"gen.nograd"') where xml like '%graded="true"%';
 --assignment.properties
-update assignment_submission set xml = replace(xml,unistr('No Grade'),'gen.nograd') where xml like '%graded="true"%';
+update assignment_submission set xml = replace(xml,unistr('"No Grade"'),'"gen.nograd"') where xml like '%graded="true"%';
 --assignment_ca.properties
-update assignment_submission set xml = replace(xml,unistr('No hi ha qualificació'),'gen.nograd') where xml like '%graded="true"%';
+update assignment_submission set xml = replace(xml,unistr('"No hi ha qualificació"'),'"gen.nograd"') where xml like '%graded="true"%';
 --assignment_pt_PT.properties
-update assignment_submission set xml = replace(xml,unistr('Sem avalia\00E7\00E3o'),'gen.nograd') where xml like '%graded="true"%';
+update assignment_submission set xml = replace(xml,unistr('"Sem avalia\00E7\00E3o"'),'"gen.nograd"') where xml like '%graded="true"%';
 --assignment_ru.properties
-update assignment_submission set xml = replace(xml,unistr('\0411\0435\0437 \043e\0446\0435\043d\043a\0438'),'gen.nograd') where xml like '%graded="true"%';
+update assignment_submission set xml = replace(xml,unistr('"\0411\0435\0437 \043e\0446\0435\043d\043a\0438"'),'"gen.nograd"') where xml like '%graded="true"%';
 --assignment_sv.properties
-update assignment_submission set xml = replace(xml,unistr('Betygs\00E4tts ej'),'gen.nograd') where xml like '%graded="true"%';
+update assignment_submission set xml = replace(xml,unistr('"Betygs\00E4tts ej"'),'"gen.nograd"') where xml like '%graded="true"%';
 --assignment_ja.properties
-update assignment_submission set xml = replace(xml,unistr('\63a1\70b9\3057\306a\3044'),'gen.nograd') where xml like '%graded="true"%';
+update assignment_submission set xml = replace(xml,unistr('"\63a1\70b9\3057\306a\3044"'),'"gen.nograd"') where xml like '%graded="true"%';
 --assignment_zh_TW.properties
-update assignment_submission set xml = replace(xml,unistr('\6c92\6709\8a55\5206'),'gen.nograd') where xml like '%graded="true"%';
+update assignment_submission set xml = replace(xml,unistr('"\6c92\6709\8a55\5206"'),'"gen.nograd"') where xml like '%graded="true"%';
 
 -- SAK-16847  asn.share.drafts permission should be added into 2.6.1 conversion script
 -- This might have been added with the 2.6.0 conversion but was added after release
