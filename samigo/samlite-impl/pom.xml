@@ -21,7 +21,16 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-samigo-api</artifactId>
     </dependency>
-<!-- Samigo Lite -->
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-samigo-services</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-samigo-hibernate</artifactId>
+    </dependency>
+
+    <!-- Samigo Lite -->
     <dependency>
       <groupId>ims</groupId>
       <artifactId>imsqti</artifactId>
