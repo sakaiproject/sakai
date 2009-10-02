@@ -113,7 +113,7 @@ document.links[newindex].onclick();
  <h:panelGrid columns="3" border="0" rendered="#{authorization.createAssessment}">
     <h:panelGroup>
 	  <f:verbatim><span class="new_assessment"></f:verbatim>
-      <h:outputLabel for="lable_create" value="#{authorFrontDoorMessages.assessment_create}"/>
+      <h:outputText value="#{authorFrontDoorMessages.assessment_create}"/>
       <f:verbatim></span></f:verbatim>
 	</h:panelGroup>
     <h:outputText value=" "/>
@@ -143,7 +143,7 @@ document.links[newindex].onclick();
 
     <h:panelGroup>
 	  <f:verbatim><span class="new_assessment"></f:verbatim>
-      <h:outputLabel for="label_or" value="#{authorFrontDoorMessages.label_or}"/>
+      <h:outputText value="#{authorFrontDoorMessages.label_or}"/>
       <f:verbatim></span></f:verbatim>
 	</h:panelGroup>
     <h:outputText value=" "/>
@@ -155,7 +155,7 @@ document.links[newindex].onclick();
 
     <h:panelGroup>
 	  <f:verbatim><span class="new_assessment"></f:verbatim>
-      <h:outputLabel for="import" value="#{authorFrontDoorMessages.assessment_import}"/>
+      <h:outputText value="#{authorFrontDoorMessages.assessment_import}"/>
       <f:verbatim></span></f:verbatim>
 	</h:panelGroup>
     <h:outputText value=" "/>
