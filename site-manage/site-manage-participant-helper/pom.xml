@@ -2,14 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>site-manage-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <artifactId>sitemanage</artifactId>
+    <groupId>org.sakaiproject.sitemanage</groupId>
     <version>2.7.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>sakai-site-manage-participant-helper</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-site-manage-participant-helper</artifactId>
+  <groupId>org.sakaiproject.sitemanage</groupId>
+  <artifactId>site-manage-participant-helper</artifactId>
   <organization>
     <name>The Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
@@ -40,12 +40,12 @@
       This has been relocated to sakai-kernel-util
       org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-site-manage-api</artifactId>
+      <groupId>org.sakaiproject.sitemanage</groupId>
+      <artifactId>site-manage-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-site-manage-util</artifactId>
+      <groupId>org.sakaiproject.sitemanage</groupId>
+      <artifactId>site-manage-util</artifactId>
     </dependency>
         <dependency>
       <groupId>org.sakaiproject.entitybroker</groupId>
@@ -78,8 +78,7 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
-    </dependency>
+     </dependency>
     <dependency>
 		<groupId>commons-validator</groupId>
 		<artifactId>commons-validator</artifactId>

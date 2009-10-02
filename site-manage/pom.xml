@@ -8,8 +8,8 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Site Manage Project</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>site-manage-base</artifactId>
+  <groupId>org.sakaiproject.sitemanage</groupId>
+  <artifactId>sitemanage</artifactId>
   <packaging>pom</packaging>
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/site-manage/trunk</connection>
@@ -57,29 +57,29 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-site-manage-api</artifactId>
+        <groupId>org.sakaiproject.sitemanage</groupId>
+        <artifactId>site-manage-api</artifactId>
         <version>2.7.0-SNAPSHOT</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-site-manage-util</artifactId>
+        <groupId>org.sakaiproject.sitemanage</groupId>
+        <artifactId>site-manage-util</artifactId>
         <version>2.7.0-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-site-manage-impl</artifactId>
+        <groupId>org.sakaiproject.sitemanage</groupId>
+        <artifactId>site-manage-impl</artifactId>
         <version>2.7.0-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-site-manage-group-section-role-helper</artifactId>
+        <groupId>org.sakaiproject.sitemanage</groupId>
+        <artifactId>site-manage-group-section-role-helper</artifactId>
         <version>2.7.0-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-site-manage-hbm</artifactId>
+        <groupId>org.sakaiproject.sitemanage</groupId>
+        <artifactId>site-manage-hbm</artifactId>
         <version>2.7.0-SNAPSHOT</version>
       </dependency>
       <dependency>
