@@ -910,7 +910,7 @@
 				</includes>
 			</testResource>
 			<testResource>
-				<directory>${basedir}/src/test/respources</directory>
+				<directory>${basedir}/src/test/resources</directory>
 				<includes>
 					<include>**/*</include>
 				</includes>
