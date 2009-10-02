@@ -9,7 +9,7 @@
   </parent>
   <name>site-manage-impl</name>
   <groupId>org.sakaiproject.sitemanage</groupId>
-  <artifactId>sakai-site-manage-impl</artifactId>
+  <artifactId>site-manage-impl</artifactId>
   <organization>
     <name>University of Michigan</name>
     <url>http://sakaiproject.org/</url>

@@ -7,9 +7,9 @@
     <version>2.7.0-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
-  <name>site-pageorder-helper</name>
+  <name>site-manage-pageorder-helper</name>
   <groupId>org.sakaiproject.sitemanage</groupId>
-  <artifactId>sakai-site-pageorder-helper</artifactId>
+  <artifactId>site-manage-pageorder-helper</artifactId>
   <organization>
     <name>The Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>

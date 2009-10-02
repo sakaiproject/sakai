@@ -10,7 +10,7 @@
   </parent>
   <name>site-manage-group-helper</name>
   <groupId>org.sakaiproject.sitemanage</groupId>
-  <artifactId>sakai-site-manage-group-helper</artifactId>
+  <artifactId>site-manage-group-helper</artifactId>
   <organization>
     <name>The Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
