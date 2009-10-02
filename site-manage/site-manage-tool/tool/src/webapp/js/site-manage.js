@@ -150,28 +150,29 @@ sakai.siteTypeSetup = function(){
 
     $('input[name="itemType"]').attr('checked', '');
     $('#copy').click(function(e){
-        $('#templateSettings').fadeIn('fast');
+        $('#templateSettings').show();
         $('#buildOwn').attr('checked', '');
-        $('#siteTypeList').fadeOut('fast');
-        $('#termList').fadeOut('fast');
+        $('#siteTypeList').hide();
+        $('#termList').hide();
         utils.resizeFrame('grow');
-        $('#submitFromTemplate').fadeIn('fast');
-        $('#submitBuildOwn').fadeOut('fast');
+        $('#submitFromTemplate').show();
+        $('#submitBuildOwn').hide();
         $('#submitBuildOwn').attr('disabled', 'disabled');
     });
     
     $('#buildOwn').click(function(e){
-        $('#templateSettings').fadeOut('fast');
+        $('#templateSettings').hide();
         $('#templateSettings input:checked').attr('checked', '');
         $('#siteTitleField').attr('value', '');
         $('input[id="copy"]').attr('checked', '');
         $('#templateSettings select').attr('selectedIndex', 0);
-        $('#templateSettings span').fadeOut('fast');
-        $('#siteTypeList').fadeIn('fast');
-        $('#submitFromTemplate').fadeOut('fast');
-        $('#submitFromTemplateCourse').fadeOut('fast');
-        $('#submitBuildOwn').fadeIn('fast');
-        $('#nextInstructions span').fadeOut('fast');
+        $('#templateSettings span').hide();
+        $('#siteTypeList').show();
+        $('#submitFromTemplate').hide();
+            $('#submitFromTemplate').attr('disabled', 'disabled');
+        $('#submitFromTemplateCourse').hide();
+        $('#submitBuildOwn').show();
+        $('#nextInstructions span').hide();
         utils.resizeFrame('grow');
     });
     $('#siteTitleField').keyup(function(e){
@@ -206,28 +207,30 @@ sakai.siteTypeSetup = function(){
         $('#submitFromTemplateCourse').attr('disabled', 'disabled');
         $('#submitFromTemplate').attr('disabled', 'disabled');
         if (this.selectedIndex === 0) {
-            $('#templateSettings span').fadeOut('fast');
+            $('#templateSettings span').hide();
             $('#templateSettings select').attr('selectedIndex', 0);
             $('#submitFromTemplateCourse').attr('disabled', 'disabled');
+                $('#siteTitleField').attr('value', '');
         }
         else {
         
             var type = $('#templateSiteId option:selected').attr('class');
-            $('#templateSettings span').fadeOut('fast');
-            $('#nextInstructions span').fadeOut('fast');
+            $('#templateSettings span').hide();
+            $('#nextInstructions span').hide();
             if (type == "course") {
-                $('#templateCourseInstruction').fadeIn('fast');
-                $('#submitFromTemplate').fadeOut('fast');
-                $('#submitFromTemplateCourse').fadeIn('fast');
-                $('#siteTerms').fadeIn('fast');
-                $('#siteTerms select').focus();
-                $('#siteTitleField').attr('value', '');
+              $('#templateCourseInstruction').show();
+              $('#submitFromTemplate').hide();
+			  $('#submitFromTemplateCourse').show();
+    		  $('#siteTerms').show();
+              $('#siteTitle').hide();	
+              $('#siteTerms select').focus();
+              $('#siteTitleField').attr('value', '');
             }
             else {
-                $('#submitFromTemplate').fadeIn('fast');
-                $('#submitFromTemplateCourse').fadeOut('fast');
-                $('#templateNonCourseInstruction').fadeIn('fast');
-                $('#siteTitle').fadeIn('fast');
+                $('#submitFromTemplate').show();
+                $('#submitFromTemplateCourse').hide();
+                $('#templateNonCourseInstruction').show();				
+                $('#siteTitle').show();	
                 $('#siteTerms select').attr('selectedIndex', 0);
                 $('#siteTitle input').focus();
             }
@@ -235,10 +238,10 @@ sakai.siteTypeSetup = function(){
     });
     $('#siteTypeList input').click(function(e){
         if ($(this).attr('id') == 'course') {
-            $('#termList').fadeIn('fast');
+            $('#termList').show();
         }
         else {
-            $('#termList').fadeOut('fast');
+            $('#termList').hide();
         }
         $('#submitBuildOwn').attr('disabled', '');
         
