@@ -50,7 +50,7 @@
       This has been relocated to sakai-kernel-util
       org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.common</groupId>
       <artifactId>sakai-privacy-api</artifactId>
     </dependency>
     <dependency>
