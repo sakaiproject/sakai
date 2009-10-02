@@ -90,7 +90,7 @@
         <module>calendar</module>
         <module>chat</module>
         <module>citations</module>
-        <module>common</module>
+        <module>common-deploy</module>
         <module>config</module>
         <module>content</module>
         <module>content-review</module>
