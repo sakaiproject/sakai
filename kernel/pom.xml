@@ -976,7 +976,7 @@
 				<inherited>true</inherited>
 				<groupId>org.sakaiproject.maven.plugins</groupId>
 				<artifactId>sakai</artifactId>
-				<version>1.1</version>
+				<version>1.2.0</version>
 				<extensions>true</extensions>
 				<configuration>
 					<deployDirectory>
