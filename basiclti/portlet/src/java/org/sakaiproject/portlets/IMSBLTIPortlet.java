@@ -108,6 +108,9 @@ public class IMSBLTIPortlet extends GenericPortlet {
         fieldList.add("debug");
         fieldList.add("pagetitle");
         fieldList.add("tooltitle");
+        fieldList.add("custom");
+        fieldList.add("releasename");
+        fieldList.add("releaseemail");
     }
 
     // Simple Debug Print Mechanism

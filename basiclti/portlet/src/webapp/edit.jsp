@@ -59,7 +59,8 @@ Properties sp = (Properties) rReq.getAttribute("imsti.properties");
 <% if ( allow(sp,"launch") || allow(sp,"key") || allow(sp,"secret") || 
         allow(sp,"xml") ||
         allow(sp,"pagetitle") || allow(sp,"tooltitle") ||
-        allow(sp,"resource") || allow(sp,"preferwidget") || allow(sp,"height") || allow(sp,"width") || allow(sp,"frameheight") ) { %>
+        allow(sp,"resource") || allow(sp,"preferwidget") || allow(sp,"height") || allow(sp,"width") || 
+        allow(sp,"frameheight") || allow(sp,"custom") || allow(sp, "releasename") || allow(sp,"releaseemail") ) { %>
 <form method="post" action="<%=launchURL.toString()%>">
 <% if ( allow(sp,"launch") || allow(sp,"key") || allow(sp,"secret") || allow(sp,"xml") ) { %>
 <fieldset>
@@ -125,6 +126,7 @@ function switchui()
 <script type="text/javascript">
 if ( document.getElementById("UISwitcher") ) switchui();
 </script>
+
 <% if ( allow(sp,"pagetitle") || allow(sp,"tooltitle") ) { %>
 <fieldset>
 <legend><%=rb.getString("display.information") %></legend>
@@ -169,6 +171,48 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <%=rb.getString("debug.launch.detail") %>
 </p>
 <% } %>
+</fieldset>
+<% } %>
+
+<% if ( allow(sp,"releasename") || allow(sp, "releaseemail") ) { %>
+<fieldset>
+<legend><%=rb.getString("launch.privacy") %></legend>
+<% if ( allow(sp,"releasename") ) { %>
+<p>
+<%=rb.getString("privacy.releasename") %>
+<input type="checkbox" size="10" name="imsti.releasename" 
+<% if ( ov.getProperty("imsti.releasename",null) != null ) { %>
+  checked="yes" />
+<% } else { %>
+   />
+<% } %>
+<% } %>
+<% if ( allow(sp,"releaseemail") ) { %>
+<p>
+<%=rb.getString("privacy.releaseemail") %>
+<input type="checkbox" size="10" name="imsti.releaseemail" 
+<% if ( ov.getProperty("imsti.releaseemail",null) != null ) { %>
+  checked="yes" />
+<% } else { %>
+   />
+<% } %>
+<%=rb.getString("launch.privacy.detail") %>
+</p>
+<% } %>
+<p>
+<input type="submit" value="<%=rb.getString("update.options")%>">
+</p>
+</fieldset>
+<% } %>
+<% if ( allow(sp,"custom") ) { %>
+<fieldset>
+<legend><%=rb.getString("launch.custom") %></legend>
+<p>
+<textarea rows="10" cols="60"  name="imsti.custom" >
+<%=ov.getProperty("imsti.custom","")%>
+</textarea>
+<%=rb.getString("launch.custom.detail") %>
+</p>
 <p>
 <input type="submit" value="<%=rb.getString("update.options")%>">
 </p>

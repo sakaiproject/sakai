@@ -73,18 +73,18 @@ public class SakaiBLTIUtil {
         return false;
     }
 
-   public static boolean sakaiInfo(Properties props, Placement placement)
+   public static boolean sakaiInfo(Properties props, Placement placement, ResourceLoader rb)
    {
 	dPrint("placement="+ placement.getId());
 	dPrint("placement title=" + placement.getTitle());
         String context = placement.getContext();
         dPrint("ContextID="+context);
 
-        return sakaiInfo(props, context, placement.getId());
+        return sakaiInfo(props, context, placement.getId(), rb);
    }
 
    // Retrieve the Sakai information about users, etc.
-   public static boolean sakaiInfo(Properties props, String context, String placementId)
+   public static boolean sakaiInfo(Properties props, String context, String placementId, ResourceLoader rb)
    {
 
         Site site = null;
@@ -100,16 +100,26 @@ public class SakaiBLTIUtil {
 	// Start setting the Basici LTI parameters
 	setProperty(props,"resource_link_id",placementId);
 
+	// Get the placement to see if we are to release information
+        ToolConfiguration placement = SiteService.findTool(placementId);
+	Properties config = placement.getConfig();
+        String releasename = toNull(config.getProperty("imsti.releasename", null));
+        String releaseemail = toNull(config.getProperty("imsti.releaseemail", null));
+
 	// TODO: Think about anonymus
 	if ( user != null )
 	{
 		setProperty(props,"user_id",user.getId());
-		setProperty(props,"launch_presentaion_locale","en_US"); // TODO: Really get this
-		setProperty(props,"lis_person_name_given",user.getFirstName());
-		setProperty(props,"lis_person_name_family",user.getLastName());
-		setProperty(props,"lis_person_name_full",user.getDisplayName());
-		setProperty(props,"lis_person_contact_emailprimary",user.getEmail());
-		setProperty(props,"lis_person_sourced_id",user.getEid());
+		setProperty(props,"launch_presentaion_locale",rb.getLocale().toString()); 
+		if ( "on".equals(releasename) ) {
+			setProperty(props,"lis_person_name_given",user.getFirstName());
+			setProperty(props,"lis_person_name_family",user.getLastName());
+			setProperty(props,"lis_person_name_full",user.getDisplayName());
+		}
+		if ( "on".equals(releaseemail) ) {
+			setProperty(props,"lis_person_contact_emailprimary",user.getEmail());
+			setProperty(props,"lis_person_sourced_id",user.getEid());
+		}
 	}
 
 	String theRole = "Learner";
@@ -172,7 +182,7 @@ public class SakaiBLTIUtil {
 
         // Add user, course, etc to the launch parameters
         Properties launch = new Properties();
-        if ( ! sakaiInfo(launch, contextId, resourceId) ) {
+        if ( ! sakaiInfo(launch, contextId, resourceId, rb) ) {
            return postError("<p>" + getRB(rb, "error.info.resource",
                 "Error, cannot load Sakai information for resource=")+resourceId+".</p>");
         }
@@ -196,7 +206,7 @@ public class SakaiBLTIUtil {
     
         // Add user, course, etc to the launch parameters
         Properties launch = new Properties();
-        if ( ! sakaiInfo(launch, placement) ) {
+        if ( ! sakaiInfo(launch, placement, rb) ) {
            return postError("<p>" + getRB(rb, "error.missing",
                 "Error, cannot load Sakai information for placement=")+placementId+".</p>");
         }

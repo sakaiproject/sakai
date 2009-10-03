@@ -35,6 +35,9 @@
                 <configuration name="imsti.newwindow" />
                 <configuration name="imsti.frameheight" />
                 <configuration name="imsti.debug" />
+                <configuration name="imsti.releasename" />
+                <configuration name="imsti.releaseemail" />
+                <configuration name="imsti.custom" />
 
                 <!-- Setting these to true means the corresponding above values 
 		     cannot be altered by by the instructor.  -->
@@ -47,6 +50,9 @@
                 <configuration name="final.newwindow" value="false"/>
                 <configuration name="final.frameheight" value="false"/>
                 <configuration name="final.debug" value="false"/>
+                <configuration name="final.releasename" value="false"/>
+                <configuration name="final.releaseemail" value="false"/>
+                <configuration name="final.custom" value="false"/>
 
         </tool>
 
