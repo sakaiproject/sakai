@@ -66,6 +66,28 @@ public class SakaiBLTIUtil {
         setProperty(info, "frameheight", config.getProperty("imsti.frameheight", null) );
         setProperty(info, "newwindow", config.getProperty("imsti.newwindow", null) );
         setProperty(info, "title", config.getProperty("imsti.tooltitle", null) );
+
+	// Pull in and parse the custom parameters
+	String customstr = toNull(config.getProperty("imsti.custom", null) );
+	if ( customstr != null ) {
+		String [] params = customstr.split("[\n;]");
+		for (int i = 0 ; i < params.length; i++ ) {
+			String param = params[i];
+			if ( param == null ) continue;
+			if ( param.length() < 1 ) continue;
+			int pos = param.indexOf("=");
+			if ( pos < 1 ) continue;
+			if ( pos+1 > param.length() ) continue;
+			String key = BasicLTIUtil.mapKeyName(param.substring(0,pos));
+			if ( key == null ) continue;
+			String value = param.substring(pos+1);
+			value = value.trim();
+			if ( value.length() < 1 ) continue;
+			if ( value == null ) continue;
+        		setProperty(info, "custom_"+key, value);
+		}
+	}
+
         if ( info.getProperty("launch_url", null) != null || 
              info.getProperty("secure_launch_url", null) != null ) {
             return true;
@@ -228,6 +250,15 @@ public class SakaiBLTIUtil {
 
 	String secret = toNull(info.getProperty("secret"));
 	String key = toNull(info.getProperty("key"));
+
+	// Pull in all of the custom parameters
+        for(Object okey : info.keySet() ) {
+                String skey = (String) okey;  
+		if ( ! skey.startsWith("custom_") ) continue;
+		String value = info.getProperty(skey);
+		if ( value == null ) continue;
+        	setProperty(launch, skey, value);
+	}
 
         String org_guid = ServerConfigurationService.getString("basiclti.consumer_instance_guid",null);
 	String org_name = ServerConfigurationService.getString("basiclti.consumer_instance_name",null);
