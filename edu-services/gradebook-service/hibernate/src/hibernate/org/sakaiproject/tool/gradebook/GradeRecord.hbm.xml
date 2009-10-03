@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-cascade="none" package="org.sakaiproject.tool.gradebook"
+	default-lazy="false">
+	<class name="org.sakaiproject.tool.gradebook.AbstractGradeRecord" table="GB_GRADE_RECORD_T" discriminator-value="0">
+
+		<id name="id" column="ID" type="long">
+			<generator class="native">
+				<param name="sequence">GB_GRADE_RECORD_S</param>
+			</generator>
+		</id>
+
+		<discriminator type="integer" column="OBJECT_TYPE_ID" />
+
+		<version name="version" type="integer" column="VERSION"/>
+
+		<many-to-one name="gradableObject">
+			<column name="GRADABLE_OBJECT_ID" not-null="true"
+				unique-key="gradeRecordKey" />
+		</many-to-one>
+		<property name="studentId" type="string">
+			<column name="STUDENT_ID" not-null="true"
+				unique-key="gradeRecordKey" index="GB_GRADE_RECORD_STUDENT_ID_IDX" />
+		</property>
+
+		<property name="graderId" column="GRADER_ID" type="string" not-null="true" />
+
+		<property name="dateRecorded" column="DATE_RECORDED" type="timestamp" not-null="true" />
+
+		<subclass name="org.sakaiproject.tool.gradebook.AssignmentGradeRecord"  discriminator-value="1">
+			<property name="pointsEarned" column="POINTS_EARNED" type="double" not-null="false" />
+			<property name="excludedFromGrade" column="IS_EXCLUDED_FROM_GRADE" type="boolean" not-null="false"/>
+		</subclass>
+
+		<subclass name="org.sakaiproject.tool.gradebook.CourseGradeRecord" discriminator-value="2">
+			<property name="enteredGrade" column="ENTERED_GRADE" type="string" not-null="false" />
+		</subclass>
+
+	</class>
+
+	<database-object>
+		<create>create index GB_GRADE_RECORD_G_O_IDX on GB_GRADE_RECORD_T (GRADABLE_OBJECT_ID)</create>
+		<drop></drop>
+		<!-- For MySQL and hsqldb, the index will be created automatically to enforce a constraint. -->
+		<dialect-scope name="org.hibernate.dialect.Oracle9Dialect"/>
+		<dialect-scope name="org.hibernate.dialect.OracleDialect"/>
+	</database-object>
+	<database-object>
+		<!-- Hibernate does not support the "index" attribute on "discriminator". -->
+		<create>create index GB_GRADE_RECORD_O_T_IDX on GB_GRADE_RECORD_T (OBJECT_TYPE_ID)</create>
+		<drop></drop>
+	</database-object>
+</hibernate-mapping>

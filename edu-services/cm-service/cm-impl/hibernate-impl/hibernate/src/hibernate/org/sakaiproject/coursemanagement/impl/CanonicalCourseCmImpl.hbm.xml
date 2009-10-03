@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-cascade="none" package="org.sakaiproject.coursemanagement.impl" default-lazy="true">
+	<subclass name="org.sakaiproject.coursemanagement.impl.CanonicalCourseCmImpl"
+		extends="org.sakaiproject.coursemanagement.impl.AbstractMembershipContainerCmImpl">
+
+		<many-to-one name="crossListing" column="CROSS_LISTING" class="org.sakaiproject.coursemanagement.impl.CrossListingCmImpl" />
+			
+		<set name="courseSets" table="CM_COURSE_SET_CANON_ASSOC_T" inverse="true">
+			<key column="CANON_COURSE" />
+			<many-to-many class="org.sakaiproject.coursemanagement.impl.CourseSetCmImpl" column="COURSE_SET" />
+		</set>
+	</subclass>
+
+    <query name="isCanonicalCourseDefined">
+        <![CDATA[
+        select count(cc) from CanonicalCourseCmImpl as cc where cc.eid=:eid
+        ]]>
+    </query>
+
+    <query name="findCanonicalCourseByEid">
+        <![CDATA[
+        from CanonicalCourseCmImpl as cc where cc.eid=:eid
+        ]]>
+    </query>
+
+</hibernate-mapping>

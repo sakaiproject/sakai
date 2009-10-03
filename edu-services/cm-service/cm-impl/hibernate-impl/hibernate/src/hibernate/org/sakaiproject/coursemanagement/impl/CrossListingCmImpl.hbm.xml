@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-cascade="none" package="org.sakaiproject.coursemanagement.impl" default-lazy="true">
+
+	<class name="org.sakaiproject.coursemanagement.impl.CrossListingCmImpl" table="CM_CROSS_LISTING_T">
+
+		<cache usage="nonstrict-read-write" />
+
+		<id name="key" column="CROSS_LISTING_ID" type="long">
+			<generator class="native">
+				<param name="sequence">CM_CROSS_LISTING_S</param>
+			</generator>
+		</id>
+
+		<version name="version" type="integer" column="VERSION" />
+
+		<property name="lastModifiedBy" column="LAST_MODIFIED_BY" />
+		<property name="lastModifiedDate" type="date" column="LAST_MODIFIED_DATE" />
+		<property name="createdBy" column="CREATED_BY" />
+		<property name="createdDate" type="date" column="CREATED_DATE" />
+
+		<set name="canonicalCourses" inverse="true">
+			<key column="CROSS_LISTING" />
+			<one-to-many class="org.sakaiproject.coursemanagement.impl.CanonicalCourseCmImpl"/>
+		</set>
+
+		<set name="courseOfferings" inverse="true">
+			<key column="CROSS_LISTING" />
+			<one-to-many class="org.sakaiproject.coursemanagement.impl.CourseOfferingCmImpl"/>
+		</set>
+
+	</class>
+
+    <query name="findEquivalentCanonicalCourses">
+        <![CDATA[
+        from CanonicalCourseCmImpl as cc where cc.crossListing=:crossListing and cc != :canonicalCourse
+        ]]>
+    </query>
+
+    <query name="findEquivalentCourseOfferings">
+        <![CDATA[
+        from CourseOfferingCmImpl as co where co.crossListing=:crossListing and co != :courseOffering
+        ]]>
+    </query>
+
+</hibernate-mapping>

@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-cascade="none" package="org.sakaiproject.coursemanagement.impl" default-lazy="true">
+
+	<class name="org.sakaiproject.coursemanagement.impl.EnrollmentSetCmImpl" table="CM_ENROLLMENT_SET_T">
+
+		<cache usage="nonstrict-read-write" />
+
+		<id name="key" column="ENROLLMENT_SET_ID" type="long">
+			<generator class="native">
+				<param name="sequence">CM_ENROLLMENT_SET_S</param>
+			</generator>
+		</id>
+
+		<version name="version" type="integer" column="VERSION" />
+
+		<property name="lastModifiedBy" column="LAST_MODIFIED_BY" />
+		<property name="lastModifiedDate" type="date" column="LAST_MODIFIED_DATE" />
+		<property name="createdBy" column="CREATED_BY" />
+		<property name="createdDate" type="date" column="CREATED_DATE" />
+
+		<property name="eid" column="ENTERPRISE_ID" type="string" unique="true" not-null="true" />
+		<property name="title" column="TITLE" type="string" not-null="true" />
+		<property name="description" column="DESCRIPTION" type="string" not-null="true" />
+		<property name="category" column="CATEGORY" type="string" not-null="true" />
+		<property name="defaultEnrollmentCredits" column="DEFAULT_CREDITS" type="string" not-null="true" />
+
+		<set name="officialInstructors" table="CM_OFFICIAL_INSTRUCTORS_T" cascade="all" lazy="false">
+			<key>
+				<column name="ENROLLMENT_SET_ID" unique-key="ES_INSTR" />
+			</key>
+			<element type="string">
+				<column name="INSTRUCTOR_ID" unique-key="ES_INSTR" index="CM_INSTR_IDX" />
+			</element>
+		</set>
+
+		<many-to-one name="courseOffering" column="COURSE_OFFERING" index="CM_ENR_SET_CO_IDX" class="org.sakaiproject.coursemanagement.impl.CourseOfferingCmImpl" />
+
+	</class>
+	
+	<query name="isEnrollmentSetDefined">
+        <![CDATA[
+        select count(es) from EnrollmentSetCmImpl as es where es.eid=:eid
+        ]]>
+    </query>
+	
+	<query name="findEnrollmentSetByEid">
+        <![CDATA[
+        from EnrollmentSetCmImpl as es where es.eid=:eid
+        ]]>
+    </query>
+
+
+	<query name="findEnrollmentSetsByCourseOffering">
+        <![CDATA[
+        from EnrollmentSetCmImpl as es where es.courseOffering.eid=:courseOfferingEid
+        ]]>
+    </query>
+
+	<query name="findCurrentlyInstructingEnrollmentSets">
+        <![CDATA[
+        from EnrollmentSetCmImpl as enrollmentSet where :userId in elements(enrollmentSet.officialInstructors) and
+        	(enrollmentSet.courseOffering.startDate is null or enrollmentSet.courseOffering.startDate <= current_date()) and
+        	(enrollmentSet.courseOffering.endDate is null or enrollmentSet.courseOffering.endDate >= current_date())
+        ]]>
+    </query>
+
+</hibernate-mapping>

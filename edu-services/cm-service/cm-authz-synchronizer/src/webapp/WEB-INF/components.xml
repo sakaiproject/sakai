@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="org.sakaiproject.coursemanagement.sample.AuthzSynchronizerJob"
+		class="org.sakaiproject.coursemanagement.sample.CourseManagementAuthzQuartzJob">
+		<property name="synchronizer">
+			<bean
+				class="org.sakaiproject.coursemanagement.sample.CourseManagementAuthzSynchronizer">
+				<property name="authzGroupService"
+					ref="org.sakaiproject.authz.api.AuthzGroupService" />
+				<property name="courseManagementService"
+					ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />
+				<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+				<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+				<property name="courseSiteType" value="${courseSiteType}" />
+
+				<!--
+					WARNING: This value is currently embedded in Site Info application
+					code, and not exposed by a supported public API! Make sure it's
+					correct for your local installation before deploying this service.
+				-->
+				<property name="termEidPropertyName" value="term_eid" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.coursemanagement.sample.AuthzSynchronizerJobWrapper"
+		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+		init-method="init">
+		<property name="beanId" value="org.sakaiproject.coursemanagement.sample.AuthzSynchronizerJob"/>
+		<property name="jobName" value="Synchronize course site memberships for all current terms, or specify Job Name as 'term=THE_TERM_EID'"/>
+		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+	</bean>
+
+</beans>

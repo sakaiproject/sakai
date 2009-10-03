@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-cascade="none" package="org.sakaiproject.coursemanagement.impl" default-lazy="true">
+	<subclass name="org.sakaiproject.coursemanagement.impl.SectionCmImpl"
+			extends="org.sakaiproject.coursemanagement.impl.AbstractMembershipContainerCmImpl">
+
+		<property name="category" column="CATEGORY" type="string" />
+
+		<many-to-one name="courseOffering" column="COURSE_OFFERING" index="CM_SECTION_COURSE_IDX" class="org.sakaiproject.coursemanagement.impl.CourseOfferingCmImpl" />
+		<many-to-one name="enrollmentSet" column="ENROLLMENT_SET" lazy="false" index="CM_SECTION_ENR_SET_IDX" class="org.sakaiproject.coursemanagement.impl.EnrollmentSetCmImpl" />
+		<many-to-one name="parent" column="PARENT_SECTION" lazy="false" index="CM_SECTION_PARENT_IDX" class="org.sakaiproject.coursemanagement.impl.SectionCmImpl" />
+
+		<set name="meetings" inverse="true" cascade="all" lazy="false">
+		    <key column="SECTION_ID"/>
+		    <one-to-many class="org.sakaiproject.coursemanagement.impl.MeetingCmImpl"/>
+		</set>
+
+		<property name="maxSize" type="integer" column="MAXSIZE" not-null="false" />
+
+	</subclass>
+
+    <query name="isSectionDefined">
+        <![CDATA[
+        select count(sec) from SectionCmImpl as sec where sec.eid=:eid
+        ]]>
+    </query>
+
+    <query name="findSectionByEid">
+        <![CDATA[
+        from SectionCmImpl as sec where sec.eid=:eid
+        ]]>
+    </query>
+
+    <query name="findTopLevelSectionsInCourseOffering">
+        <![CDATA[
+        from SectionCmImpl as sec where sec.courseOffering=:courseOffering and sec.parent is null
+        ]]>
+    </query>
+
+    <query name="findChildSections">
+        <![CDATA[
+        from SectionCmImpl as sec where sec.parent.eid=:parentEid
+        ]]>
+    </query>
+
+	<query name="findSectionRoles">
+        <![CDATA[
+        select section.eid, mbr.role from SectionCmImpl as section, MembershipCmImpl as mbr
+        	where mbr.userId=:userEid and
+        	mbr.memberContainer=section
+        ]]>
+    </query>
+
+	<query name="findInstructingSections">
+        <![CDATA[
+        select sec from SectionCmImpl as sec, EnrollmentSetCmImpl as es
+        	where :userId in elements(es.officialInstructors) and
+        	sec.enrollmentSet = es
+        ]]>
+    </query>
+
+	<query name="findInstructingSectionsByAcademicSession">
+        <![CDATA[
+        select sec from SectionCmImpl as sec, EnrollmentSetCmImpl as es
+        	where :userId in elements(es.officialInstructors) and
+        	sec.enrollmentSet = es and
+        	sec.courseOffering.academicSession.eid=:academicSessionEid
+        ]]>
+    </query>
+
+	<query name="findEnrolledSections">
+        <![CDATA[
+        select sec from SectionCmImpl as sec, EnrollmentCmImpl as enr
+        	where enr.userId = :userId and
+        	sec.enrollmentSet = enr.enrollmentSet and
+        	enr.dropped=false
+        ]]>
+    </query>
+
+</hibernate-mapping>

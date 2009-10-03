@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-cascade="none" package="org.sakaiproject.coursemanagement.impl" default-lazy="true">
+	<subclass name="org.sakaiproject.coursemanagement.impl.CourseOfferingCmImpl"
+			extends="org.sakaiproject.coursemanagement.impl.AbstractMembershipContainerCmImpl">
+
+        <property name="status" column="STATUS" type="string" />
+
+		<many-to-one name="crossListing" column="CROSS_LISTING" class="org.sakaiproject.coursemanagement.impl.CrossListingCmImpl" />
+        <property name="startDate" column="START_DATE" type="date" not-null="false" />
+        <property name="endDate" column="END_DATE" type="date" not-null="false" />
+
+		<many-to-one name="canonicalCourse" column="CANONICAL_COURSE" index="CM_CO_CANON_COURSE_IDX" class="org.sakaiproject.coursemanagement.impl.CanonicalCourseCmImpl" />
+		<many-to-one name="academicSession" column="ACADEMIC_SESSION" lazy="false" index="CM_CO_ACADEMIC_SESS_IDX" class="org.sakaiproject.coursemanagement.impl.AcademicSessionCmImpl" />
+
+		<set name="courseSets" table="CM_COURSE_SET_OFFERING_ASSOC_T" inverse="true">
+			<key column="COURSE_OFFERING" />
+			<many-to-many class="org.sakaiproject.coursemanagement.impl.CourseSetCmImpl" column="COURSE_SET" />
+		</set>
+
+	</subclass>
+
+    <query name="isCourseOfferingDefined">
+        <![CDATA[
+        select count(co) from CourseOfferingCmImpl as co where co.eid=:eid
+        ]]>
+    </query>
+
+    <query name="findCourseOfferingByEid">
+        <![CDATA[
+        from CourseOfferingCmImpl as co where co.eid=:eid
+        ]]>
+    </query>
+
+    <query name="findCourseOfferingsByCanonicalCourse">
+        <![CDATA[
+        from CourseOfferingCmImpl as co where co.canonicalCourse.eid=:canonicalCourseEid
+        ]]>
+    </query>
+
+    <query name="findCourseOfferingsByCourseSetAndAcademicSession">
+        <![CDATA[
+        select co from CourseOfferingCmImpl as co, CourseSetCmImpl as cs where
+        	cs.eid=:courseSetEid and
+        	co.academicSession.eid = :academicSessionEid and
+        	cs in elements(co.courseSets)
+        ]]>
+    </query>
+    
+    <query name="findCourseOfferingRoles">
+        <![CDATA[
+        select co.eid, mbr.role from  CourseOfferingCmImpl as co, MembershipCmImpl as mbr
+        	where mbr.userId=:userEid and
+        	mbr.memberContainer=co
+        ]]>
+    </query>
+
+</hibernate-mapping>

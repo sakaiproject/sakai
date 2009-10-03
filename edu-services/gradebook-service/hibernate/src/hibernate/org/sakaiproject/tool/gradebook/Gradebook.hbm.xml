@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-cascade="none" package="org.sakaiproject.tool.gradebook"
+	default-lazy="false">
+	<class name="org.sakaiproject.tool.gradebook.Gradebook" table="GB_GRADEBOOK_T">
+
+		<id name="id" column="ID" type="long">
+			<generator class="native">
+				<param name="sequence">GB_GRADEBOOK_S</param>
+			</generator>
+		</id>
+
+		<version name="version" type="integer" column="VERSION"/>
+
+		<property name="uid" column="GRADEBOOK_UID" type="string" unique="true" not-null="true"/>
+
+		<property name="name" column="NAME" type="string" not-null="true"/>
+
+		<many-to-one name="selectedGradeMapping" column="SELECTED_GRADE_MAPPING_ID" cascade="all" />
+
+		<set name="gradeMappings" inverse="true" lazy="true" cascade="all">
+			<key column="GRADEBOOK_ID"/>
+			<one-to-many class="org.sakaiproject.tool.gradebook.GradeMapping"/>
+		</set>
+
+		<property name="assignmentsDisplayed" column="ASSIGNMENTS_DISPLAYED" type="boolean" not-null="true"/>
+
+		<property name="courseGradeDisplayed" column="COURSE_GRADE_DISPLAYED" type="boolean" not-null="true"/>
+
+		<property name="allAssignmentsEntered" column="ALL_ASSIGNMENTS_ENTERED" type="boolean" not-null="true"/>
+
+		<property name="locked" column="LOCKED" type="boolean" not-null="true"/>
+
+		<property name="grade_type" column="GRADE_TYPE" type="integer" not-null="true"/>
+		
+		<property name="category_type" column="CATEGORY_TYPE" type="integer" not-null="true"/>
+
+	</class>
+</hibernate-mapping>

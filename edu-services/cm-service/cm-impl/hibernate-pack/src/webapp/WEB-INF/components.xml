@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!--
+		Decide on a Course Management service implementation based on the runtime
+		property "org.sakaiproject.coursemanagement.api.CourseManagementService".
+
+		WARNING: This property MUST be set externally! No default is currently set within
+		this module itself! The default "sakai.properties" file should contain the line:
+		org.sakaiproject.coursemanagement.api.CourseManagementService=org.sakaiproject.coursemanagement.impl.CourseManagementServiceFederatedImpl
+	-->
+	<bean id="org.sakaiproject.coursemanagement.api.CourseManagementService" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="targetName" value="${org.sakaiproject.coursemanagement.api.CourseManagementService}" />
+		<property name="proxyInterfaces">
+			<list>
+                <value>org.sakaiproject.coursemanagement.api.CourseManagementService</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.coursemanagement"
+		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+		<property name="mappingResources">
+			<list>
+                <value>org/sakaiproject/coursemanagement/impl/AcademicSessionCmImpl.hbm.xml</value>
+                <value>org/sakaiproject/coursemanagement/impl/MembershipContainerCmImpl.hbm.xml</value>
+                <value>org/sakaiproject/coursemanagement/impl/CanonicalCourseCmImpl.hbm.xml</value>
+                <value>org/sakaiproject/coursemanagement/impl/CourseOfferingCmImpl.hbm.xml</value>
+                <value>org/sakaiproject/coursemanagement/impl/CourseSetCmImpl.hbm.xml</value>
+                <value>org/sakaiproject/coursemanagement/impl/CrossListingCmImpl.hbm.xml</value>
+                <value>org/sakaiproject/coursemanagement/impl/EnrollmentCmImpl.hbm.xml</value>
+                <value>org/sakaiproject/coursemanagement/impl/EnrollmentSetCmImpl.hbm.xml</value>
+                <value>org/sakaiproject/coursemanagement/impl/MembershipCmImpl.hbm.xml</value>
+                <value>org/sakaiproject/coursemanagement/impl/SectionCmImpl.hbm.xml</value>
+                <value>org/sakaiproject/coursemanagement/impl/MeetingCmImpl.hbm.xml</value>
+                <value>org/sakaiproject/coursemanagement/impl/SectionCategoryCmImpl.hbm.xml</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.coursemanagement.impl.CourseManagementServiceFederatedImpl"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
+		lazy-init="true">
+		<property name="transactionManager">
+			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		</property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED,readOnly,+org.sakaiproject.coursemanagement.api.exception.IdNotFoundException</prop>
+            </props>
+        </property>
+        <property name="target">
+            <bean class="org.sakaiproject.coursemanagement.impl.CourseManagementServiceFederatedImpl">
+            	<property name="implList">
+            		<!-- List the implementations here, in descending order of authority -->
+            		<list>
+			            <!--
+			            	For testing, we use an impl that returns no data.  Replace this
+			            	sample chained impl with your custom impl, if any, or replace the
+			            	federated impl entirely with your own custom impl.
+			            -->
+			            <bean class="org.sakaiproject.coursemanagement.impl.CourseManagementServiceSampleChainImpl"/>
+
+            			<!-- The internal, hibernate-backed implementation -->
+						<bean class="org.sakaiproject.coursemanagement.impl.CourseManagementServiceHibernateImpl"
+							init-method="init" destroy-method="destroy">
+							<property name="sessionFactory">
+								<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+							</property>
+						</bean>
+					</list>
+            	</property>
+            </bean>
+        </property>
+	</bean>
+
+	<!--
+		This is a complex bean that's hard to read, so here's the "wrapper hierarchy":
+
+		Transaction Proxy
+			Authz Proxy
+				CM Admin Hibernate Impl
+
+		Note that is service operates only on the CM data managed by hibernate.  Any
+		other data that is federated with the hibernate data (see the
+		org.sakaiproject.coursemanagement.api.CourseManagementService bean for
+		details on federation) is not available for manipulation by the CM Admin service.
+	-->
+	<bean id="org.sakaiproject.coursemanagement.api.CourseManagementAdministration"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager">
+			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+		<property name="target">
+			<bean class="org.springframework.aop.framework.ProxyFactoryBean">
+				<property name="proxyInterfaces">
+					<value>org.sakaiproject.coursemanagement.api.CourseManagementAdministration</value>
+				</property>
+				<property name="interceptorNames">
+					<list><value>cmAdminAuthzAdvisor</value></list>
+				</property>
+				<property name="target">
+					<bean class="org.sakaiproject.coursemanagement.impl.CourseManagementAdministrationHibernateImpl"
+						init-method="init" destroy-method="destroy">
+						<property name="sessionFactory">
+							<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+						</property>
+		        		<property name="authn">
+		        			<bean class="org.sakaiproject.coursemanagement.impl.facade.SakaiAuthentication"/>
+		        		</property>
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+	<!-- Hibernate doesn't generate all of the indexes we need.  This bean will fill in the missing indexes -->
+	<bean id="cm_index_generator" class="org.sakaiproject.coursemanagement.impl.IndexGenerator" init-method="init" destroy-method="destroy">
+		<lookup-method name="sqlService" bean="org.sakaiproject.db.api.SqlService"/>
+		<lookup-method name="scs" bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+	</bean>
+
+	<!-- AOP Advisor performs Authz checks for the CM Admin service -->
+	<bean id="cmAdminAuthzAdvisor" class="org.sakaiproject.coursemanagement.impl.aop.CourseManagementAdministrationAuthzAdvisor">
+		<property name="securityService">
+			<ref bean="org.sakaiproject.authz.api.SecurityService" />
+		</property>
+	</bean>
+
+	<!--  Reconciliation Job for CM data -->
+<!--
+   <bean id="sampleCMSyncJob"
+   		class="org.sakaiproject.coursemanagement.impl.job.ClassPathCMSyncJob"
+   		init-method="init" destroy-method="destroy">
+   		<property name="cmService">
+   			<ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
+   		</property>
+   		<property name="cmAdmin">
+   			<ref bean="org.sakaiproject.coursemanagement.api.CourseManagementAdministration"/>
+   		</property>
+   		<property name="classPathToXml">
+   			<value>org/sakaiproject/coursemanagement/impl/job/sampleCMData.xml</value>
+   		</property>
+   	</bean>
+-->
+
+   <!-- this is the helper that will register the above bean with the job scheduler -->
+<!--
+   <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.SampleCMSyncJob"
+      class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+      singleton="true" init-method="init">
+      <property name="beanId">
+         <value>sampleCMSyncJob</value>
+      </property>
+      <property name="jobName">
+         <value>Sample CM Sync Job</value>
+      </property>
+      <property name="schedulerManager">
+         <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+      </property>
+   </bean>
+-->
+
+ </beans>
+

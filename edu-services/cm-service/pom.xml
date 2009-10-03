@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.sakaiproject.edu-services</groupId>
+    <artifactId>edu-services</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>Sakai Course Management Project</name>
+  <groupId>org.sakaiproject.edu-services.course-management</groupId>
+  <artifactId>course-management</artifactId>
+  <packaging>pom</packaging>
+  <modules>
+    <module>cm-api/api</module>
+    <module>cm-impl/hibernate-impl/hibernate</module>
+    <module>cm-impl/hibernate-impl/impl</module>
+    <module>cm-impl/hibernate-pack</module>
+  </modules>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.sakaiproject.edu-services.course-management</groupId>
+        <artifactId>coursemanagement-hibernate-model</artifactId>
+        <version>1.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.edu-services.course-management</groupId>
+        <artifactId>coursemanagement-hibernate-impl</artifactId>
+        <version>1.0-SNAPSHOT</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+</project>

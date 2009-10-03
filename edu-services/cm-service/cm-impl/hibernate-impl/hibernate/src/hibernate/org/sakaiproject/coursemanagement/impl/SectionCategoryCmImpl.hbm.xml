@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-cascade="none" package="org.sakaiproject.coursemanagement.impl" default-lazy="true">
+	<class name="org.sakaiproject.coursemanagement.impl.SectionCategoryCmImpl" table="CM_SEC_CATEGORY_T">
+
+		<cache usage="nonstrict-read-write" />
+
+        <id name="categoryCode" column="CAT_CODE" type="string">
+            <generator class="assigned"/>
+        </id>
+
+		<property name="categoryDescription" column="CAT_DESCR" type="string" />
+	</class>
+
+
+    <query name="findSectionCategories">
+        <![CDATA[
+        select categoryCode from SectionCategoryCmImpl as cat order by cat.categoryCode
+        ]]>
+    </query>
+
+</hibernate-mapping>

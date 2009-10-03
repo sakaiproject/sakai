@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-cascade="none" package="org.sakaiproject.coursemanagement.impl" default-lazy="true">
+
+	<class name="org.sakaiproject.coursemanagement.impl.EnrollmentCmImpl" table="CM_ENROLLMENT_T">
+
+		<cache usage="nonstrict-read-write" />
+
+		<id name="key" column="ENROLLMENT_ID" type="long">
+			<generator class="native">
+				<param name="sequence">CM_ENROLLMENT_S</param>
+			</generator>
+		</id>
+
+		<version name="version" type="integer" column="VERSION" />
+
+		<property name="lastModifiedBy" column="LAST_MODIFIED_BY" />
+		<property name="lastModifiedDate" type="date" column="LAST_MODIFIED_DATE" />
+		<property name="createdBy" column="CREATED_BY" />
+		<property name="createdDate" type="date" column="CREATED_DATE" />
+
+		<property name="userId" column="USER_ID" type="string" not-null="true" unique-key="CM_ENR" index="CM_ENR_USER"/>
+		<property name="enrollmentStatus" column="STATUS" type="string" not-null="true" />
+		<property name="credits" column="CREDITS" type="string" not-null="true" />
+		<property name="gradingScheme" column="GRADING_SCHEME" type="string" not-null="true" />
+		<property name="dropped" column="DROPPED" type="boolean" />
+
+		<many-to-one name="enrollmentSet" column="ENROLLMENT_SET" unique-key="CM_ENR" index="CM_ENR_ENR_SET_IDX" class="org.sakaiproject.coursemanagement.impl.EnrollmentSetCmImpl" />
+
+	</class>
+	
+	<query name="findEnrollments">
+        <![CDATA[
+        from EnrollmentCmImpl as enr where enr.enrollmentSet.eid=:enrollmentSetEid
+        ]]>
+    </query>
+
+	<query name="findEnrollment">
+        <![CDATA[
+        from EnrollmentCmImpl as enr where enr.enrollmentSet.eid=:enrollmentSetEid and enr.userId=:userId
+        ]]>
+    </query>
+
+	<query name="countEnrollments">
+        <![CDATA[
+        select count(enr) from EnrollmentCmImpl as enr where enr.userId=:userId and enr.enrollmentSet.eid in (:enrollmentSetEids) and enr.dropped=false
+        ]]>
+    </query>
+
+	<query name="findCurrentlyEnrolledEnrollmentSets">
+        <![CDATA[
+        select enr.enrollmentSet from EnrollmentCmImpl as enr where enr.userId=:userId and enr.dropped=false and
+        	(enr.enrollmentSet.courseOffering.startDate is null or enr.enrollmentSet.courseOffering.startDate <= current_date()) and
+        	(enr.enrollmentSet.courseOffering.endDate is null or enr.enrollmentSet.courseOffering.endDate >= current_date())
+        ]]>
+    </query>
+
+</hibernate-mapping>

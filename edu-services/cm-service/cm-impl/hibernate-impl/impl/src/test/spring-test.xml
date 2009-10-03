@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="cmDataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName"><value>${hibernate.connection.driver_class}</value></property>
+		<property name="url"><value>${hibernate.connection.url}</value></property>
+		<property name="username"><value>${hibernate.connection.username}</value></property>
+		<property name="password"><value>${hibernate.connection.password}</value></property>
+	</bean>
+    
+    <bean id="cmSessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+        <property name="dataSource"><ref bean="cmDataSource"/></property>
+        <property name="mappingResources">
+            <list>
+                <value>org/sakaiproject/coursemanagement/impl/AcademicSessionCmImpl.hbm.xml</value>
+                <value>org/sakaiproject/coursemanagement/impl/MembershipContainerCmImpl.hbm.xml</value>
+                <value>org/sakaiproject/coursemanagement/impl/CanonicalCourseCmImpl.hbm.xml</value>
+                <value>org/sakaiproject/coursemanagement/impl/CourseOfferingCmImpl.hbm.xml</value>
+                <value>org/sakaiproject/coursemanagement/impl/CourseSetCmImpl.hbm.xml</value>
+                <value>org/sakaiproject/coursemanagement/impl/CrossListingCmImpl.hbm.xml</value>
+                <value>org/sakaiproject/coursemanagement/impl/EnrollmentCmImpl.hbm.xml</value>
+                <value>org/sakaiproject/coursemanagement/impl/EnrollmentSetCmImpl.hbm.xml</value>
+                <value>org/sakaiproject/coursemanagement/impl/MembershipCmImpl.hbm.xml</value>
+                <value>org/sakaiproject/coursemanagement/impl/SectionCmImpl.hbm.xml</value>
+                <value>org/sakaiproject/coursemanagement/impl/SectionCategoryCmImpl.hbm.xml</value>
+                <value>org/sakaiproject/coursemanagement/impl/MeetingCmImpl.hbm.xml</value>
+            </list>
+        </property>
+        
+        <property name="hibernateProperties">
+          <props>
+            <prop key="hibernate.dialect">${hibernate.dialect}</prop>
+            <prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+            <prop key="hibernate.query.factory_class">${hibernate.query.factory_class}</prop>
+            <prop key="hibernate.cache.provider_class">${hibernate.cache.provider_class}</prop>
+            <prop key="hibernate.query.substitutions">true 1, false 0</prop>
+            <prop key="hibernate.hbm2ddl.auto">update</prop>
+          </props>
+        </property>
+    </bean>
+
+    <bean id="cmTransactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+        <property name="sessionFactory"><ref bean="cmSessionFactory"/></property>
+    </bean>
+    
+    <bean abstract="true" id="cmTxTemplate" lazy-init="true" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager"><ref bean="cmTransactionManager"/></property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property>
+    </bean>
+
+	<bean id="org.sakaiproject.coursemanagement.api.CourseManagementService" parent="cmTxTemplate">
+        <property name="target">
+            <bean class="org.sakaiproject.coursemanagement.impl.CourseManagementServiceFederatedImpl">
+            	<property name="implList">
+            		<!-- List the implementations here, in descending order of authority -->
+            		<list>
+			            <!-- 
+			            	For testing, we use an impl that returns no data.
+			            	Replace this sample chained impl with your custom impl, if any.
+			            -->
+			            <bean class="org.sakaiproject.coursemanagement.impl.CourseManagementServiceSampleChainImpl"/>
+
+            			<!-- The internal, hibernate-backed implementation -->
+						<bean class="org.sakaiproject.coursemanagement.impl.CourseManagementServiceHibernateImpl">
+							<property name="sessionFactory"><ref bean="cmSessionFactory"/></property>
+						</bean>
+					</list>
+            	</property>
+            </bean>
+        </property>
+	</bean>
+
+	
+	<bean id="org.sakaiproject.coursemanagement.impl.DataLoader" parent="cmTxTemplate">
+        <property name="target">
+            <bean class="org.sakaiproject.coursemanagement.test.HibernateTestDataLoader">
+        		<property name="sessionFactory"><ref bean="cmSessionFactory"/></property>
+        		<property name="courseManagementService"><ref local="org.sakaiproject.coursemanagement.api.CourseManagementService"/></property>
+            </bean>
+        </property>
+	</bean>
+	
+	<bean id="org.sakaiproject.coursemanagement.api.CourseManagementAdministration" parent="cmTxTemplate">
+        <property name="target">
+            <bean class="org.sakaiproject.coursemanagement.impl.CourseManagementAdministrationHibernateImpl">
+        		<property name="sessionFactory"><ref bean="cmSessionFactory"/></property>
+        		<property name="authn">
+        			<bean class="org.sakaiproject.coursemanagement.impl.facade.TestAuthentication"/>
+        		</property>
+        	</bean>
+        </property>
+	</bean>
+
+	<!--  Reconciliation Job for CM data -->   
+   <bean id="org.sakaiproject.coursemanagement.impl.job.ClassPathCMSyncJob"
+   		class="org.sakaiproject.coursemanagement.impl.job.ClassPathCMSyncJob"
+   		init-method="init" destroy-method="destroy">
+   		<property name="cmService">
+   			<ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
+   		</property>
+   		<property name="cmAdmin">
+   			<ref bean="org.sakaiproject.coursemanagement.api.CourseManagementAdministration"/>
+   		</property>
+   		<property name="classPathToXml">
+   			<value>org/sakaiproject/coursemanagement/impl/job/sampleCMData.xml</value>
+   		</property>
+   	</bean>
+
+</beans>

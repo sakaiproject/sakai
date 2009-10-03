@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-cascade="none" package="org.sakaiproject.coursemanagement.impl" default-lazy="true">
+	<subclass name="org.sakaiproject.coursemanagement.impl.CourseSetCmImpl"
+			extends="org.sakaiproject.coursemanagement.impl.AbstractMembershipContainerCmImpl">
+
+		<property name="category" column="CATEGORY" type="string" />
+
+		<many-to-one name="parent" column="PARENT_COURSE_SET" lazy="false" index="CM_COURSE_SET_PARENT_IDX" class="org.sakaiproject.coursemanagement.impl.CourseSetCmImpl" />
+	
+		<!-- 
+		The many-to-many relationship between CourseSets and CourseOfferings/CanonicalCourses
+		are managed on the CourseSetImpl.  If you modify the set of CourseSets on a
+		CourseOffering/CanonicalCourse, it will not be persisted.
+		-->
+		<set name="canonicalCourses" table="CM_COURSE_SET_CANON_ASSOC_T" inverse="false">
+			<key column="COURSE_SET" />
+			<many-to-many class="org.sakaiproject.coursemanagement.impl.CanonicalCourseCmImpl" column="CANON_COURSE" />
+		</set>
+
+		<set name="courseOfferings" table="CM_COURSE_SET_OFFERING_ASSOC_T" inverse="false">
+			<key column="COURSE_SET" />
+			<many-to-many class="org.sakaiproject.coursemanagement.impl.CourseOfferingCmImpl" column="COURSE_OFFERING" />
+		</set>
+		
+	</subclass>
+
+    <query name="isCourseSetDefined">
+        <![CDATA[
+        select count(cs) from CourseSetCmImpl as cs where cs.eid=:eid
+        ]]>
+    </query>
+
+    <query name="findCourseSetByEid">
+        <![CDATA[
+        from CourseSetCmImpl as courseSet where courseSet.eid=:eid
+        ]]>
+    </query>
+
+    <query name="findTopLevelCourseSets">
+        <![CDATA[
+        from CourseSetCmImpl as courseSet where courseSet.parent is null
+        ]]>
+    </query>
+
+    <query name="findChildCourseSets">
+        <![CDATA[
+        from CourseSetCmImpl as courseSet where courseSet.parent.eid=:parentEid
+        ]]>
+    </query>
+
+    <query name="findNonEmptyCourseSet">
+        <![CDATA[
+        from CourseSetCmImpl as cs where cs.eid=:eid and
+        	(size(cs.canonicalCourses) > 0 or size(cs.courseOfferings) > 0)
+        ]]>
+    </query>
+
+    <query name="findCourseSetByCategory">
+        <![CDATA[
+        from CourseSetCmImpl as cs where cs.category=:category order by cs.title
+        ]]>
+    </query>
+
+    <query name="findCourseSetRoles">
+        <![CDATA[
+        select cs.eid, mbr.role from  CourseSetCmImpl as cs, MembershipCmImpl as mbr
+        	where mbr.userId=:userEid and
+        	mbr.memberContainer=cs
+        ]]>
+    </query>
+
+</hibernate-mapping>

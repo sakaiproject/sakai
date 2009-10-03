@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-cascade="none" package="org.sakaiproject.coursemanagement.impl" default-lazy="true">
+	<class name="org.sakaiproject.coursemanagement.impl.MeetingCmImpl" table="CM_MEETING_T">
+
+		<cache usage="nonstrict-read-write" />
+
+        <id name="key" column="MEETING_ID" type="long">
+            <generator class="native">
+                <param name="sequence">CM_MEETING_S</param>
+            </generator>
+        </id>
+
+		<property name="location" column="LOCATION" type="string" />
+		<property name="startTime" type="time" column="START_TIME" />
+		<property name="finishTime" type="time" column="FINISH_TIME" />
+		<property name="notes" column="NOTES" type="string" />
+         <property name="monday" column="MONDAY" type="boolean"/>
+         <property name="tuesday" column="TUESDAY" type="boolean"/>
+         <property name="wednesday" column="WEDNESDAY" type="boolean"/>
+         <property name="thursday" column="THURSDAY" type="boolean"/>
+         <property name="friday" column="FRIDAY" type="boolean"/>
+         <property name="saturday" column="SATURDAY" type="boolean"/>
+         <property name="sunday" column="SUNDAY" type="boolean"/>
+
+		<many-to-one name="section" column="SECTION_ID" class="org.sakaiproject.coursemanagement.impl.SectionCmImpl" not-null="true"/>
+
+	</class>
+
+</hibernate-mapping>

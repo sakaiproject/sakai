@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-cascade="none" package="org.sakaiproject.coursemanagement.impl" default-lazy="true">
+
+    <class name="org.sakaiproject.coursemanagement.impl.AbstractMembershipContainerCmImpl"
+        table="CM_MEMBER_CONTAINER_T" discriminator-value="0">
+
+		<cache usage="nonstrict-read-write" />
+
+        <id name="key" column="MEMBER_CONTAINER_ID" type="long">
+            <generator class="native">
+                <param name="sequence">CM_MEMBER_CONATINER_S</param>
+            </generator>
+        </id>
+
+		<discriminator>
+			<column name="CLASS_DISCR" not-null="true" unique-key="CM_EID_IDX" length="100" />
+		</discriminator>
+		
+        <version name="version" type="integer" column="VERSION"/>
+
+		<property name="lastModifiedBy" column="LAST_MODIFIED_BY" />
+		<property name="lastModifiedDate" type="date" column="LAST_MODIFIED_DATE" />
+		<property name="createdBy" column="CREATED_BY" />
+		<property name="createdDate" type="date" column="CREATED_DATE" />
+
+        <property name="eid">
+        	<column name="ENTERPRISE_ID" not-null="true" unique-key="CM_EID_IDX" length="100"/>
+        </property>
+        
+        <property name="title" column="TITLE" type="string" not-null="true" />
+        <property name="description" column="DESCRIPTION" type="string" not-null="true" />
+
+		<set name="members" inverse="true">
+			<key column="MEMBER_CONTAINER_ID" />
+			<one-to-many class="org.sakaiproject.coursemanagement.impl.MembershipCmImpl" />
+		</set>
+
+    </class>
+    
+</hibernate-mapping>
