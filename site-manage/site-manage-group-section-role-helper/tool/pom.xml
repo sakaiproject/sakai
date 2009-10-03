@@ -52,7 +52,7 @@
   </dependencies>
   <build>
     <resources/>
-  </build>]
+  </build>
     <repositories>
         <repository>
             <id>caret-maven2-dev</id>
