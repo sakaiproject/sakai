@@ -30,21 +30,22 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
-<!--
-      This has been relocated to sakai-kernel-util
-      org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
       <groupId>org.sakaiproject.sitemanage</groupId>
       <artifactId>site-manage-util</artifactId>
     </dependency>
-<!--org.sakaiprojectsakai-content-api${sakai.version}-->
     <dependency>
       <groupId>uk.org.ponder.sakairsf</groupId>
       <artifactId>sakairsf</artifactId>
       <version>0.7.4-sakai_${sakairsf.sakai.version}</version>
     </dependency>
-<!-- Commons JARS put in shared/lib by Sakai -->
-    <dependency>
+	<dependency>
+		<groupId>uk.org.ponder.sakairsf</groupId>
+		<artifactId>SakaiRSFComponents-evolvers</artifactId>
+		<version>0.7.4-sakai_${sakairsf.sakai.version}</version>
+		<type>jar</type>
+	</dependency>
+	<dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
     </dependency>
