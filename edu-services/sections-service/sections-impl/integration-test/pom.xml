@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>sections</artifactId>
+    <groupId>org.sakaiproject.edu-services.sections</groupId>
+    <version>1.0-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+  <name>sakai-section-integration-test</name>
+  <groupId>org.sakaiproject.edu-services.sections</groupId>
+  <artifactId>section-integration-test</artifactId>
+  <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+<!--  Sakai plugin -->
+<!-- Test harness -->
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-test-harness</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+    </dependency>
+<!-- Logging -->
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.9</version>
+    </dependency>
+<!-- Sakai APIs (only those needed to compile the tests) -->
+    <dependency>
+      <groupId>org.sakaiproject.edu-services.sections</groupId>
+      <artifactId>sections-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.edu-services.sections</groupId>
+      <artifactId>sections-impl</artifactId>
+    </dependency>
+  </dependencies>
+  <build>
+    <resources/>
+    <testResources>
+<!--includes:  include: **/SectionIntegrationTestSuite.java -->
+    </testResources>
+  </build>
+</project>

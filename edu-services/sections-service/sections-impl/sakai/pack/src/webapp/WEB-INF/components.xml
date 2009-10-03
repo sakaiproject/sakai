@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+<!--
+    Provides read-only section information, including membership.
+-->
+    <bean id="org.sakaiproject.section.api.SectionAwareness"
+        class="org.sakaiproject.component.section.sakai.SectionAwarenessImpl"
+        init-method="init" destroy-method="destroy">
+        <property name="siteService">
+            <ref bean="org.sakaiproject.site.api.SiteService"/>
+        </property>
+        <property name="functionManager">
+            <ref bean="org.sakaiproject.authz.api.FunctionManager"/>
+        </property>
+        <property name="securityService">
+            <ref bean="org.sakaiproject.authz.api.SecurityService"/>
+        </property>
+        <property name="userDirectoryService">
+            <ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
+        </property>
+        <property name="entityManager">
+            <ref bean="org.sakaiproject.entity.api.EntityManager"/>
+        </property>
+    </bean>
+
+<!--
+    CourseManager allows for section-related metadata to be attached to a site.
+    For instance, if you decide to manage sections and their membership outside
+    Sakai (using the SectionManager interface), you could use CourseManager to
+    designate sites as "Externally Managed".  The Section Info tool will not allow
+    users to add, modify, or remove sections in externally managed sites.  Similarly,
+    users can not modify the enrollments in externally managed sites.
+    
+    Most installations will not need to use CourseManager.
+-->
+    <bean id="org.sakaiproject.section.api.CourseManager"
+        class="org.sakaiproject.component.section.sakai.CourseManagerImpl">
+    </bean>
+
+<!--
+	SectionManager provides read-write section information.  Unlike SectionAwareness,
+	SectionManager does not include informal (non-section) groups when queried for
+	lists of sections.
+-->
+    <bean id="org.sakaiproject.section.api.SectionManager"
+        class="org.sakaiproject.component.section.sakai.SectionManagerImpl"
+        init-method="init" destroy-method="destroy">
+
+		<lookup-method name="siteService" bean="org.sakaiproject.site.api.SiteService" />
+
+        <property name="authzGroupService">
+            <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
+        </property>
+        <property name="securityService">
+            <ref bean="org.sakaiproject.authz.api.SecurityService"/>
+        </property>
+        <property name="userDirectoryService">
+            <ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
+        </property>
+        <property name="entityManager">
+            <ref bean="org.sakaiproject.entity.api.EntityManager"/>
+        </property>
+        <property name="sessionManager">
+            <ref bean="org.sakaiproject.tool.api.SessionManager"/>
+        </property>
+        <property name="eventTrackingService">
+            <ref bean="org.sakaiproject.event.api.EventTrackingService"/>
+        </property>
+        <property name="courseManagementService">
+            <ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
+        </property>
+        <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager" />
+        <property name="config" value="AUTOMATIC_DEFAULT"/>
+        
+    </bean>
+
+
+   <bean id="org.sakaiproject.component.section.sakai.SectionCmMetadataSynchronizer"
+   		class="org.sakaiproject.component.section.sakai.SectionCmMetadataSynchronizer"
+   		init-method="init">
+   		<property name="cmService">
+   			<ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
+   		</property>
+   		<property name="siteService">
+   			<ref bean="org.sakaiproject.site.api.SiteService"/>
+   		</property>
+   	</bean>
+   	
+   <bean id="SectionCmMetadataSynchronizerJob"
+      class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+      singleton="true" init-method="init">
+      <property name="beanId">
+         <value>org.sakaiproject.component.section.sakai.SectionCmMetadataSynchronizer</value>
+      </property>
+      <property name="jobName">
+         <value>Section Metadata Sync Job</value>
+      </property>
+      <property name="schedulerManager">
+         <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+      </property>
+   </bean>
+
+</beans>

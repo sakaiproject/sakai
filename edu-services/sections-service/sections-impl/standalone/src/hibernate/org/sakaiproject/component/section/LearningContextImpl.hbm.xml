@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-cascade="none" package="org.sakaiproject.component.section"
+	default-lazy="false">
+
+    <class name="org.sakaiproject.component.section.LearningContextImpl"
+        table="SEC_LEARNING_CONTEXT_T">
+
+        <id name="id" column="ID" type="long">
+            <generator class="native">
+                <param name="sequence">SEC_LEARNING_CONTEXT_S</param>
+            </generator>
+        </id>
+
+        <version name="version" type="integer" column="VERSION"/>
+
+        <property name="uuid" column="LEARNING_CONTEXT_UUID" type="string" unique="true" not-null="true" />
+        <property name="title" column="TITLE" type="string" not-null="true" />
+
+        <joined-subclass name="org.sakaiproject.component.section.CourseImpl" table="SEC_COURSE_T">
+            <key column="ID"/>
+            <property name="siteContext" column="SITE_CONTEXT" type="string" not-null="true" unique="true"/>
+            <property name="externallyManaged" column="EXTERNAL_MGMT" type="boolean"/>
+            <property name="selfRegistrationAllowed" column="SELF_REG" type="boolean" />
+            <property name="selfSwitchingAllowed" column="SELF_SWITCH" type="boolean" />
+        </joined-subclass>
+
+        <joined-subclass name="org.sakaiproject.component.section.CourseSectionImpl" table="SEC_SECTION_T">
+            <key column="ID"/>
+            <many-to-one name="course" column="COURSE_ID" class="org.sakaiproject.component.section.CourseImpl"/>
+            <property name="category" column="CATEGORY" type="string"/>
+            <property name="maxEnrollments" column="MAX_ENROLLMENTS" type="java.lang.Integer"/>
+
+			<list name="meetings" 
+			        table="SEC_MEETING_T">
+			    <key column="ID"/>
+			    <list-index column="SEC_MEETING_INDEX_T"/>
+			    <composite-element class="org.sakaiproject.component.section.MeetingImpl">
+		            <property name="location" column="LOCATION" type="string"/>
+		            <property name="monday" column="MONDAY" type="boolean"/>
+		            <property name="tuesday" column="TUESDAY" type="boolean"/>
+		            <property name="wednesday" column="WEDNESDAY" type="boolean"/>
+		            <property name="thursday" column="THURSDAY" type="boolean"/>
+		            <property name="friday" column="FRIDAY" type="boolean"/>
+		            <property name="saturday" column="SATURDAY" type="boolean"/>
+		            <property name="sunday" column="SUNDAY" type="boolean"/>
+		            <property name="startTime" column="START_TIME" type="time"/>
+		            <property name="endTime" column="END_TIME" type="time"/>
+			    </composite-element>
+			</list>
+        </joined-subclass>
+    </class>
+
+    <query name="findSectionsBySiteContext">
+        <![CDATA[
+        from CourseSectionImpl as section where section.course.siteContext=:context
+            and section.category is not null order by section.category asc, section.title asc
+        ]]>
+    </query>
+
+    <query name="findTeamsBySiteContext">
+        <![CDATA[
+        from CourseSectionImpl as section where section.course.siteContext=:context
+            and section.category is null
+        ]]>
+    </query>
+
+    <query name="loadCourseBySiteContext">
+        <![CDATA[
+        from CourseImpl as course where course.siteContext=:siteContext
+        ]]>
+    </query>
+
+    <query name="loadCourseByUuid">
+        <![CDATA[
+        from CourseImpl as course where course.uuid=:uuid
+        ]]>
+    </query>
+
+    <query name="loadSectionByUuid">
+        <![CDATA[
+        from CourseSectionImpl as section where section.uuid=:uuid
+        ]]>
+    </query>
+
+    <query name="loadSectionName">
+        <![CDATA[
+        select section.title from CourseSectionImpl as section where section.uuid=:sectionUuid
+        ]]>
+    </query>
+
+    <query name="loadSectionCategory">
+        <![CDATA[
+        select section.category from CourseSectionImpl as section where section.uuid=:sectionUuid
+        ]]>
+    </query>
+
+    <query name="findSectionsByCategory">
+        <![CDATA[
+        from CourseSectionImpl as section where section.category=:categoryId and
+            section.course.siteContext=:siteContext order by section.category asc
+        ]]>
+    </query>
+
+</hibernate-mapping>

@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>sections</artifactId>
+    <groupId>org.sakaiproject.edu-services.sections</groupId>
+    <version>1.0-SNAPSHOT</version>
+    <relativePath>../../../pom.xml</relativePath>
+  </parent>
+  <name>sakai-sections-pack</name>
+  <groupId>org.sakaiproject.edu-services.sections</groupId>
+  <artifactId>sections-pack</artifactId>
+  <organization>
+    <name>Sakai Project</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2005</inceptionYear>
+<!-- Do not deploy this components package yet -->
+<!-- If this is uncommented, you must comment the equivalent in ../../sakai20/component-webapp -->
+  <packaging>sakai-component</packaging>
+  <properties>
+    <deploy.target>components</deploy.target>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject.edu-services.sections</groupId>
+      <artifactId>sections-impl</artifactId>
+    </dependency>
+  </dependencies>
+  <build>
+    <resources/>
+  </build>
+</project>
