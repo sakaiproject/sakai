@@ -79,8 +79,8 @@
 <!--org.sakaiprojectsakai-util-api${sakai.version}-->
 <!--org.sakaiprojectsakai-util${sakai.version}-->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-gradebook-service-api</artifactId>
+      <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+      <artifactId>gradebook-service-api</artifactId>
     </dependency>
     <dependency>
       <groupId>commons-beanutils</groupId>
@@ -100,7 +100,6 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
     </dependency>
     <dependency>
       <groupId>commons-codec</groupId>
