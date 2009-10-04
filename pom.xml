@@ -52,7 +52,7 @@
         <module>config</module>
         <module>content</module>
         <module>courier</module>
-        <module>course-management/cm-api/api</module>
+        <module>edu-services/cm-service/cm-api/api</module>
         <module>dav</module>
         <module>login</module>
         <module>master</module>
@@ -95,7 +95,7 @@
         <module>content</module>
         <module>content-review</module>
         <module>courier</module>
-        <module>course-management</module>
+        <module>edu-services</module>
         <module>dav</module>
         <module>emailtemplateservice</module>
         <module>gradebook</module>
