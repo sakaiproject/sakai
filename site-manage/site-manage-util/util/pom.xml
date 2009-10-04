@@ -45,8 +45,8 @@
 <!--org.sakaiprojectsakai-component-api${sakai.version}-->
 <!--org.sakaiprojectsakai-component${sakai.version}-->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-coursemanagement-api</artifactId>
+      <groupId>org.sakaiproject.edu-services.course-management</groupId>
+      <artifactId>coursemanagement-api</artifactId>
     </dependency>
 <!--org.sakaiprojectsakai-entity-api${sakai.version}-->
 <!--org.sakaiprojectsakai-site-api${sakai.version}-->
@@ -57,8 +57,7 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
-    </dependency>
+   </dependency>
   </dependencies>
   <build>
     <resources>

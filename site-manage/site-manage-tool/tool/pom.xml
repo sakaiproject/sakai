@@ -37,8 +37,8 @@
       This has been relocated to sakai-kernel-util
       org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-coursemanagement-api</artifactId>
+      <groupId>org.sakaiproject.edu-services.course-management</groupId>
+      <artifactId>coursemanagement-api</artifactId>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
