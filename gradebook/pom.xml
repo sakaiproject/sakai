@@ -20,7 +20,6 @@
     <module>help</module>
     <module>testservice-tool</module>
     <module>app</module>
-    <module>service</module>
     <module>sample-course-grade-converter</module>
   </modules>
   <dependencyManagement>
@@ -37,21 +36,15 @@
         <version>2.7.0-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-gradebook-service-api</artifactId>
-        <version>2.7.0-SNAPSHOT</version>
-        <scope>provided</scope>
+        <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+        <artifactId>gradebook-service-impl</artifactId>
+        <version>1.0-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-gradebook-service-hibernate</artifactId>
-        <version>2.7.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-gradebook-service-impl</artifactId>
-        <version>2.7.0-SNAPSHOT</version>
-      </dependency>
+      <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+      <artifactId>gradebook-service-hibernate</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-gradebook-service</artifactId>
@@ -60,15 +53,15 @@
       </dependency>
 <!-- other sakai dependencies-->
       <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-sections-impl-standalone</artifactId>
-        <version>2.7.0-SNAPSHOT</version>
+        <groupId>org.sakaiproject.edu-services.sections</groupId>
+        <artifactId>sections-impl-standalone</artifactId>
+        <version>1.0-SNAPSHOT</version>
       </dependency>
 <!-- Used only for test data. -->
       <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-sections-integrationsupport</artifactId>
-        <version>2.7.0-SNAPSHOT</version>
+        <groupId>org.sakaiproject.edu-services.sections</groupId>
+        <artifactId>sections-integrationsupport</artifactId>
+        <version>1.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>

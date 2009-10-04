@@ -55,16 +55,15 @@
 			The Gradebook application doesn't call the GradebookService,
 			but it does share some classes with the implementation.
 		-->
-    <dependency>
+    <!--<dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-service-impl</artifactId>
-    </dependency>
-<!--org.sakaiprojectsakai-util${sakai.version}-->
+    </dependency>-->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-gradebook-service-api</artifactId>
+      <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+      <artifactId>gradebook-service-api</artifactId>
     </dependency>
-    <dependency>
+    <!--<dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-service-hibernate</artifactId>
       <scope>provided</scope>
@@ -72,22 +71,22 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-service-impl</artifactId>
-    </dependency>
+    </dependency>-->
 <!-- Section Awareness -->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-sections-api</artifactId>
+      <groupId>org.sakaiproject.edu-services.sections</groupId>
+      <artifactId>sections-api</artifactId>
     </dependency>
 <!-- Standalone component -->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-sections-impl-standalone</artifactId>
+      <groupId>org.sakaiproject.edu-services.sections</groupId>
+      <artifactId>sections-impl-standalone</artifactId>
       <scope>provided</scope>
     </dependency>
 <!-- Used only for test data. -->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-sections-integrationsupport</artifactId>
+      <groupId>org.sakaiproject.edu-services.sections</groupId>
+      <artifactId>sections-integrationsupport</artifactId>
       <scope>test</scope>
     </dependency>
 <!-- this is required for any Sakai JSF tool -->

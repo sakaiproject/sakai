@@ -36,31 +36,31 @@
       <artifactId>sakai-kernel-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-gradebook-service-api</artifactId>
+      <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+      <artifactId>gradebook-service-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-gradebook-service-hibernate</artifactId>
+      <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+      <artifactId>gradebook-service-hibernate</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-gradebook-service-impl</artifactId>
+      <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+      <artifactId>gradebook-service-impl</artifactId>
     </dependency>
 <!-- Section Awareness -->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-sections-api</artifactId>
+      <groupId>org.sakaiproject.edu-services.sections</groupId>
+      <artifactId>sections-api</artifactId>
     </dependency>
 <!-- Standalone component -->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-sections-impl-standalone</artifactId>
+      <groupId>org.sakaiproject.edu-services.sections</groupId>
+      <artifactId>sections-impl-standalone</artifactId>
     </dependency>
 <!-- Used only for test data. -->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-sections-integrationsupport</artifactId>
+      <groupId>org.sakaiproject.edu-services.sections</groupId>
+      <artifactId>sections-integrationsupport</artifactId>
     </dependency>
 <!-- this is required for any Sakai JSF tool -->
     <dependency>

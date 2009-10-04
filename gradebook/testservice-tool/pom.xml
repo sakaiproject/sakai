@@ -20,8 +20,8 @@
       org.sakaiproject.kernel.utilsakai-util-->
 <!-- Gradebook service -->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-gradebook-service-api</artifactId>
+      <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+      <artifactId>gradebook-service-api</artifactId>
     </dependency>
 <!-- Sakai2 Dependencies -->
 <!--org.sakaiprojectsakai-util${sakai.version}-->
