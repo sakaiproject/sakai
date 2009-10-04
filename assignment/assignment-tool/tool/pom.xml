@@ -59,8 +59,8 @@
 <!--org.sakaiprojectsakai-entity-api${sakai.version}-->
 <!--org.sakaiprojectsakai-event-api${sakai.version}-->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-gradebook-service-api</artifactId>
+      <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+      <artifactId>gradebook-service-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
