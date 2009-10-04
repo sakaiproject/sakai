@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>base</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>2.7.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>Sakai educational Services Project</name>
+  <groupId>org.sakaiproject.edu-services</groupId>
+  <artifactId>edu-services</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/edu-services/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/edu-services/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/edu-services/trunk</url>
+  </scm>
+  <modules>
+    <module>gradebook-service</module>
+    <module>cm-service</module>
+    <module>sections-service</module>
+  </modules>
+  <dependencyManagement>
+    <dependencies>
+<!--internal dependencies -->
+      <dependency>
+        <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+        <artifactId>gradebook-service-api</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+        <artifactId>gradebook-service-hibernate</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+        <artifactId>gradebook-service-impl</artifactId>
+        <version>1.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+        <artifactId>gradebook-service</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <type>pom</type>
+      </dependency>
+
+<!-- Used only for test data. -->
+      <dependency>
+        <groupId>org.sakaiproject.edu-services.sections</groupId>
+        <artifactId>sections-integrationsupport</artifactId>
+        <version>1.0-SNAPSHOT</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+</project>
