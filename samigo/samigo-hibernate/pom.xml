@@ -58,8 +58,7 @@
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
-      <version>1.2.8</version>
-    </dependency>
+   </dependency>
     <dependency>
       <groupId>navigo</groupId>
       <artifactId>OKI-SPRING-HIBERNATE</artifactId>
@@ -91,9 +90,8 @@
 <!--org.sakaiprojectsakai-util${sakai.version}-->
 <!-- For integration with the gradebook -->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-gradebook-service-api</artifactId>
-<!--properties:  deploy.target: shared -->
+      <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+      <artifactId>gradebook-service-api</artifactId>
     </dependency>
 <!--  For the facades to call into Sakai legacy services (SiteService, RealmService, etc) -->
 <!--org.sakaiprojectsakai-component-api${sakai.version}-->
@@ -101,19 +99,19 @@
 <!-- end Sakai integration dependencies -->
 <!-- Section Awareness -->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-sections-api</artifactId>
+      <groupId>org.sakaiproject.edu-services.sections</groupId>
+      <artifactId>sections-api</artifactId>
     </dependency>
 <!-- TODO Come up with a way to make the dependencies deployment-sensitive. -->
 <!-- Standalone component -->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-sections-impl-standalone</artifactId>
+      <groupId>org.sakaiproject.edu-services.sections</groupId>
+      <artifactId>sections-impl-standalone</artifactId>
     </dependency>
 <!-- Sakai-embedded version -->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-sections-impl</artifactId>
+      <groupId>org.sakaiproject.edu-services.sections</groupId>
+      <artifactId>sections-impl</artifactId>
     </dependency>
 <!--**********************************************************-->
     <dependency>
@@ -135,7 +133,6 @@
     <dependency>
       <groupId>javax.activation</groupId>
       <artifactId>activation</artifactId>
-      <version>1.0.2</version>
     </dependency>
     <dependency>
       <groupId>axis</groupId>
@@ -185,7 +182,6 @@
     <dependency>
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>
-      <version>1.1.1</version>
     </dependency>
     <dependency>
       <groupId>commons-jxpath</groupId>
@@ -195,12 +191,10 @@
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
-      <version>${sakai.commons.lang.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
     </dependency>
     <dependency>
       <groupId>commons-pool</groupId>

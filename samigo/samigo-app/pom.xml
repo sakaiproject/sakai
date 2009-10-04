@@ -125,26 +125,26 @@
     </dependency>
 <!-- Section Awareness -->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-sections-api</artifactId>
+      <groupId>org.sakaiproject.edu-services.sections</groupId>
+      <artifactId>sections-api</artifactId>
 <!--properties:  deploy.target: shared -->
     </dependency>
 <!-- TODO Come up with a way to make the dependencies deployment-sensitive. -->
 <!-- Standalone component -->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-sections-impl-standalone</artifactId>
+      <groupId>org.sakaiproject.edu-services.sections</groupId>
+      <artifactId>sections-impl-standalone</artifactId>
       <scope>provided</scope>
 <!--properties:  war.bundle: standalone -->
     </dependency>
 <!-- Sakai-embedded version -->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-sections-impl</artifactId>
+      <groupId>org.sakaiproject.edu-services.sections</groupId>
+      <artifactId>sections-impl</artifactId>
       <exclusions>
         <exclusion>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-sections-model</artifactId>
+          <groupId>org.sakaiproject.edu-services.sections</groupId>
+          <artifactId>sections-model</artifactId>
         </exclusion>
       </exclusions>
 <!--properties:  war.bundle: integrated -->
@@ -224,8 +224,8 @@
 <!--org.sakaiprojectsakai-util${sakai.version}-->
 <!-- For integration with the gradebook -->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-gradebook-service-api</artifactId>
+      <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+      <artifactId>gradebook-service-api</artifactId>
 <!--properties:  war.bundle: false -->
     </dependency>
 <!--  For the facades to call into Sakai legacy services (SiteService, RealmService, etc) -->
@@ -272,7 +272,6 @@
     <dependency>
       <groupId>javax.activation</groupId>
       <artifactId>activation</artifactId>
-      <version>1.0.2</version>
       <scope>provided</scope>
 <!--properties:  war.bundle: standalone -->
     </dependency>
@@ -329,9 +328,7 @@
     <dependency>
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>
-      <version>1.1.1</version>
-<!--properties:  war.bundle: standalone -->
-    </dependency>
+     </dependency>
     <dependency>
       <groupId>commons-jxpath</groupId>
       <artifactId>commons-jxpath</artifactId>
@@ -346,19 +343,14 @@
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
-      <version>${sakai.commons.lang.version}</version>
-    </dependency>
+     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
-<!--properties:  war.bundle: standalone -->
     </dependency>
     <dependency>
       <groupId>commons-pool</groupId>
       <artifactId>commons-pool</artifactId>
-      <version>1.2</version>
-<!--properties:  war.bundle: standalone -->
     </dependency>
     <dependency>
       <groupId>commons-validator</groupId>
