@@ -829,11 +829,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	}
     public void updateExternalAssessment(String gradebookUid, String externalId, String externalUrl,
                                          String title, double points, Date dueDate) throws GradebookNotFoundException, AssessmentNotFoundException,AssignmentHasIllegalPointsException {
-    	externalAssessmentService.updateExternalAssessment(gradebookUid, externalId, externalUrl, title, new Double(points), dueDate, new Boolean(false));
+    	externalAssessmentService.updateExternalAssessment(gradebookUid, externalId, externalUrl, title, Double.valueOf(points), dueDate, Boolean.valueOf(false));
 	}
     public void updateExternalAssessment(String gradebookUid, String externalId, String externalUrl,
         String title, Double points, Date dueDate) throws GradebookNotFoundException, AssessmentNotFoundException,AssignmentHasIllegalPointsException {
-    	externalAssessmentService.updateExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate, new Boolean(false));
+    	externalAssessmentService.updateExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate, Boolean.valueOf(false));
     }
 	public void removeExternalAssessment(String gradebookUid,
             String externalId) throws GradebookNotFoundException, AssessmentNotFoundException {
@@ -1110,11 +1110,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   						literalTotalPointsEarned += pointsEarned.doubleValue();
   						if(cateScoreMap.get(cate.getId()) != null)
   						{
-  							cateScoreMap.put(cate.getId(), new Double(((Double)cateScoreMap.get(cate.getId())).doubleValue() + pointsEarned.doubleValue()));
+  							cateScoreMap.put(cate.getId(), Double.valueOf(((Double)cateScoreMap.get(cate.getId())).doubleValue() + pointsEarned.doubleValue()));
   						}
   						else
   						{
-  							cateScoreMap.put(cate.getId(), new Double(pointsEarned));
+  							cateScoreMap.put(cate.getId(), Double.valueOf(pointsEarned));
   						}
   						break;
   					}
@@ -1142,7 +1142,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   						}
   						else
   						{
-  							cateTotalScoreMap.put(cate.getId(), new Double(((Double)cateTotalScoreMap.get(cate.getId())).doubleValue() + asgn.getPointsPossible().doubleValue()));
+  							cateTotalScoreMap.put(cate.getId(), Double.valueOf(((Double)cateTotalScoreMap.get(cate.getId())).doubleValue() + asgn.getPointsPossible().doubleValue()));
   						}
   					}
   				}
@@ -1167,8 +1167,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
   	if (log.isDebugEnabled()) log.debug("getTotalPointsEarnedInternal for studentId=" + studentId + " returning " + totalPointsEarned);
   	List returnList = new ArrayList();
-  	returnList.add(new Double(totalPointsEarned));
-  	returnList.add(new Double(literalTotalPointsEarned));
+  	returnList.add(Double.valueOf(totalPointsEarned));
+  	returnList.add(Double.valueOf(literalTotalPointsEarned));
   	return returnList;
 	}
 
@@ -1635,7 +1635,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 	  boolean gradeIsValid = false;
 
-	  if (grade == null || grade.equals("")) {
+	  if (grade == null || "".equals(grade)) {
 
 		  gradeIsValid = true;
 
@@ -1926,7 +1926,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		  Double gbItemPointsPossible, String grade) throws InvalidGradeException {
 	  Double convertedValue = null;
 
-	  if (grade != null && !grade.equals("")) {
+	  if (grade != null && !"".equals(grade)) {
 		  if (gradeEntryType == GradebookService.GRADE_TYPE_POINTS) {
 			  try {
 				  Double pointValue = Double.parseDouble(grade);
@@ -2023,11 +2023,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   						literalTotalPointsEarned += fixingPointsEarned.doubleValue();
   						if(cateScoreMap.get(cate.getId()) != null)
   						{
-  							cateScoreMap.put(cate.getId(), new Double(((Double)cateScoreMap.get(cate.getId())).doubleValue() + fixingPointsEarned.doubleValue()));
+  							cateScoreMap.put(cate.getId(), Double.valueOf(((Double)cateScoreMap.get(cate.getId())).doubleValue() + fixingPointsEarned.doubleValue()));
   						}
   						else
   						{
-  							cateScoreMap.put(cate.getId(), new Double(fixingPointsEarned));
+  							cateScoreMap.put(cate.getId(), Double.valueOf(fixingPointsEarned));
   						}
   						break;
   					}
@@ -2055,7 +2055,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   						}
   						else
   						{
-  							cateTotalScoreMap.put(cate.getId(), new Double(((Double)cateTotalScoreMap.get(cate.getId())).doubleValue() + asgn.getPointsPossible().doubleValue()));
+  							cateTotalScoreMap.put(cate.getId(), Double.valueOf(((Double)cateTotalScoreMap.get(cate.getId())).doubleValue() + asgn.getPointsPossible().doubleValue()));
   						}
   					}
   				}
@@ -2080,8 +2080,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
   	if (log.isDebugEnabled()) log.debug("getTotalPointsEarnedInternal for studentId=" + studentId + " returning " + totalPointsEarned);
   	List returnList = new ArrayList();
-  	returnList.add(new Double(totalPointsEarned));
-  	returnList.add(new Double(literalTotalPointsEarned));
+  	returnList.add(Double.valueOf(totalPointsEarned));
+  	returnList.add(Double.valueOf(literalTotalPointsEarned));
   	return returnList;
 	}
 	
@@ -2102,7 +2102,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   			BigDecimal rightPercentBD = new BigDecimal(rightPercent);
   			BigDecimal pointPossibleBD = new BigDecimal(pointPossible);
   			
-				return new Double(rightPercentBD.multiply(pointPossibleBD).divide(new BigDecimal(new Double("100.0"))).doubleValue());
+				return Double.valueOf(rightPercentBD.multiply(pointPossibleBD).divide(new BigDecimal(Double.valueOf("100.0"))).doubleValue());
   		}
   	}
   	return null;
@@ -2461,7 +2461,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   	if (assignmentScore == null)
   		return null;
   	
-  	return new Double(assignmentScore).toString();
+  	return Double.valueOf(assignmentScore).toString();
   }
 
   public String getAssignmentScoreString(final String gradebookUid, final Long gbItemId, String studentUid) 
@@ -2507,11 +2507,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				AssignmentGradeRecord gradeRecord = getAssignmentGradeRecord(assignment, studentUid, session);
 				if (gradeRecord == null) {
 					// Creating a new grade record.
-					gradeRecord = new AssignmentGradeRecord(assignment, studentUid, new Double(score));
+					gradeRecord = new AssignmentGradeRecord(assignment, studentUid, Double.valueOf(score));
 					//TODO: test if it's ungraded item or not. if yes, set ungraded grade for this record. if not, need validation??
 				} else {
 					//TODO: test if it's ungraded item or not. if yes, set ungraded grade for this record. if not, need validation??
-					gradeRecord.setPointsEarned(new Double(score));
+					gradeRecord.setPointsEarned(Double.valueOf(score));
 				}
 				gradeRecord.setGraderId(graderId);
 				gradeRecord.setDateRecorded(now);

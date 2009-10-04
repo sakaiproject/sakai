@@ -238,7 +238,7 @@ public class HibernateTestDataLoader extends HibernateDaoSupport implements Data
 		section.setDescription("The lecture");
 		section.setEid("BIO101_F2006_01_SEC01");
 		section.setTitle("Main lecture");
-                section.setMaxSize(new Integer(100));
+                section.setMaxSize(Integer.valueOf(100));
 		getHibernateTemplate().save(section);
 
 		// Add a membership to this section
@@ -257,7 +257,7 @@ public class HibernateTestDataLoader extends HibernateDaoSupport implements Data
 		childSection.setEid("BIO101_F2006_01_SEC02");
 		childSection.setTitle("Joe's Monday Morning Biology Lab");
 		childSection.setParent(section);
-                childSection.setMaxSize(new Integer(100));
+                childSection.setMaxSize(Integer.valueOf(100));
 		getHibernateTemplate().save(childSection);
 
 		// Add a section for the future course offering
@@ -269,7 +269,7 @@ public class HibernateTestDataLoader extends HibernateDaoSupport implements Data
 		futureSection.setDescription("Future lab");
 		futureSection.setEid("CHEM101_F2006_01_SEC01");
 		futureSection.setTitle("Future Lab");
-                futureSection.setMaxSize(new Integer(100));
+                futureSection.setMaxSize(Integer.valueOf(100));
 		getHibernateTemplate().save(futureSection);
 
 		// Add a member to this future section

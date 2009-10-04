@@ -65,7 +65,7 @@ public class GradingScaleDefinition {
 				if (str.trim().length() == 0) {
 					obj = null;
 				} else {
-					obj = new Double((String)obj);
+					obj = Double.valueOf((String)obj);
 				}
 			}
 			doubleScores.add((Double)obj);

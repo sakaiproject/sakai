@@ -115,7 +115,7 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
         BigDecimal bdPointsEarned = new BigDecimal(pointsEarned.toString());
         BigDecimal bdPossible = new BigDecimal(((Assignment)getGradableObject()).getPointsPossible().toString());
         BigDecimal bdPercent = bdPointsEarned.divide(bdPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
-        return new Double(bdPercent.doubleValue());
+        return Double.valueOf(bdPercent.doubleValue());
     }
 
 	/**

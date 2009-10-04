@@ -271,7 +271,7 @@ public class CourseManagementAdministrationTest extends CourseManagementTestBase
 		cmAdmin.addOrUpdateEnrollment("josh", "es1", "enrolled", "4", "pass/fail");
 		
 		// Ensure that the hibernate version has been incremented
-		Assert.assertNotSame(new Integer(0), ((EnrollmentCmImpl)cm.getEnrollments("es1").iterator().next()).getVersion());
+		Assert.assertNotSame(Integer.valueOf(0), ((EnrollmentCmImpl)cm.getEnrollments("es1").iterator().next()).getVersion());
 	}
 	
 	public void testAddCourseSetMembership() throws Exception {

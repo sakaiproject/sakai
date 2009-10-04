@@ -183,7 +183,7 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 	public Double getNonNullAutoCalculatedGrade() {
 		Double percent = getAutoCalculatedGrade();
 		if (percent == null) {
-			percent = new Double(0);
+			percent = Double.valueOf(0);
 		}
 		return percent;
 	}
@@ -196,7 +196,7 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 		if (totalPointsPossible == 0.0) {
 			percentageEarned = null;
 		} else {
-			percentageEarned = new Double(bdTotalPointsEarned.divide(bdTotalPointsPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100")).doubleValue());
+			percentageEarned = Double.valueOf(bdTotalPointsEarned.divide(bdTotalPointsPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100")).doubleValue());
 		}
 		autoCalculatedGrade = percentageEarned;
 	}
@@ -211,7 +211,7 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 		if (totalPointsPossible <= 0.0) {
 			percentageEarned = null;
 		} else {
-			percentageEarned = new Double(bdTotalPointsEarned.divide(bdTotalPointsPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100")).doubleValue());
+			percentageEarned = Double.valueOf(bdTotalPointsEarned.divide(bdTotalPointsPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100")).doubleValue());
 		}
 		autoCalculatedGrade = percentageEarned;
 	}

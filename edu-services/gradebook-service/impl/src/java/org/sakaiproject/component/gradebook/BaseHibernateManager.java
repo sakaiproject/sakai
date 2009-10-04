@@ -339,17 +339,17 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
                     q.setLong("gradebookId", gradebookId.longValue());
                     q.setParameterList("studentUids", studentUids);
                     List totalList = (List)q.list();
-                    total = new Integer(totalList.size());
+                    total = Integer.valueOf(totalList.size());
                     if (log.isDebugEnabled()) log.debug("total number of explicitly entered course grade records = " + total);
                 } else {
-                    total = new Integer(0);
+                    total = Integer.valueOf(0);
                     Query q = session.createQuery(
                             "select cgr.studentId from CourseGradeRecord as cgr where cgr.enteredGrade is not null and cgr.gradableObject.gradebook.id=:gradebookId");
                     q.setLong("gradebookId", gradebookId.longValue());
                     for (Iterator iter = q.list().iterator(); iter.hasNext(); ) {
                         String studentId = (String)iter.next();
                         if (studentUids.contains(studentId)) {
-                            total = new Integer(1);
+                            total = Integer.valueOf(1);
                             break;
                         }
                     }
@@ -1242,7 +1242,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	BigDecimal pointsPossible = new BigDecimal(doublePointsPossible.toString());
 
     	BigDecimal equivPercent = pointsEarned.divide(pointsPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
-    	return new Double(equivPercent.doubleValue());
+    	return Double.valueOf(equivPercent.doubleValue());
     	
     }
    
@@ -1311,7 +1311,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	BigDecimal pointsPossible = new BigDecimal(doublePointsPossible.toString());
 		BigDecimal percentEarned = new BigDecimal(doublePercentEarned.toString());
 		BigDecimal equivPoints = pointsPossible.multiply(percentEarned.divide(new BigDecimal("100"), GradebookService.MATH_CONTEXT));
-		return new Double(equivPoints.doubleValue());
+		return Double.valueOf(equivPoints.doubleValue());
     }
     
     public List getComments(final Assignment assignment, final Collection studentIds) {
@@ -1365,12 +1365,12 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     					AssignmentGradeRecord gradeRecord = studentToGradeRecordMap.get(studentUid);
    						if (gradeRecord != null) {
    							if (gradeRecord.getPointsEarned() == null) {
-   								gradeRecord.setPointsEarned(new Double(0));
+   								gradeRecord.setPointsEarned(Double.valueOf(0));
    							} else {
    								continue;
    							}
    						} else {
-   							gradeRecord = new AssignmentGradeRecord(assignment, studentUid, new Double(0));
+   							gradeRecord = new AssignmentGradeRecord(assignment, studentUid, Double.valueOf(0));
    						}
 						gradeRecord.setGraderId(graderId);
 						gradeRecord.setDateRecorded(now);

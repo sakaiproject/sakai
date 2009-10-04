@@ -406,13 +406,13 @@ public class Assignment extends GradableObject {
         	BigDecimal bdNumScored = new BigDecimal(numScored);
         	if(!ungraded && pointsPossible > 0)
         	{
-        		mean = new Double(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
+        		mean = Double.valueOf(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
         	}
         	else
         	{
         		mean = null;
         	}
-        	averageTotal = new Double(pointsTotal.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
+        	averageTotal = Double.valueOf(pointsTotal.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
         }
     }
 

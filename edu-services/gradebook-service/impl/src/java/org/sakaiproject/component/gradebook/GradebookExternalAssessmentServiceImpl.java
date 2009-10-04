@@ -88,7 +88,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 				Gradebook gradebook = getGradebook(gradebookUid);
 
 				// Create the external assignment
-				Assignment asn = new Assignment(gradebook, title, new Double(points), dueDate);
+				Assignment asn = new Assignment(gradebook, title, Double.valueOf(points), dueDate);
 				asn.setExternallyMaintained(true);
 				asn.setExternalId(externalId);
 				asn.setExternalInstructorLink(externalUrl);
@@ -135,7 +135,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
                 asn.setDueDate(dueDate);
                 //support selective release
                 asn.setReleased(true);
-                asn.setPointsPossible(new Double(points));
+                asn.setPointsPossible(Double.valueOf(points));
                 session.update(asn);
                 if (log.isInfoEnabled()) log.info("External assessment updated in gradebookUid=" + gradebookUid + ", externalId=" + externalId + " by userUid=" + getUserUid());
                 return null;
@@ -351,12 +351,12 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 					Double oldPointsEarned = agr.getPointsEarned();
 					//Double newPointsEarned = (Double)studentUidsToScores.get(studentUid);
 					String newPointsEarnedString = (String)studentUidsToScores.get(studentUid);
-					Double newPointsEarned = (newPointsEarnedString == null) ? null : new Double(newPointsEarnedString); 
+					Double newPointsEarned = (newPointsEarnedString == null) ? null : Double.valueOf(newPointsEarnedString); 
 					if ( ((newPointsEarned != null) && (!newPointsEarned.equals(oldPointsEarned))) || ((newPointsEarned == null) && (oldPointsEarned != null)) ) {
 						agr.setDateRecorded(now);
 						agr.setGraderId(graderId);
 						if(newPointsEarned != null)
-							agr.setPointsEarned(new Double(newPointsEarned));
+							agr.setPointsEarned(Double.valueOf(newPointsEarned));
 						else
 							agr.setPointsEarned(null);
 						session.update(agr);
@@ -369,7 +369,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 					// Don't save unnecessary null scores.
 					String newPointsEarned = (String)studentUidsToScores.get(studentUid);
 					if (newPointsEarned != null) {
-						AssignmentGradeRecord agr = new AssignmentGradeRecord(assignment, studentUid, new Double(newPointsEarned));
+						AssignmentGradeRecord agr = new AssignmentGradeRecord(assignment, studentUid, Double.valueOf(newPointsEarned));
 						agr.setDateRecorded(now);
 						agr.setGraderId(graderId);
 						session.save(agr);
@@ -543,17 +543,17 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 				// score has actually changed.
 				//TODO: for ungraded items, needs to set ungraded-grades later...
 				Double oldPointsEarned = (agr == null) ? null : agr.getPointsEarned();
-				Double newPointsEarned = (points == null) ? null : new Double(points); 
+				Double newPointsEarned = (points == null) ? null : Double.valueOf(points); 
 				if ( ((newPointsEarned != null) && (!newPointsEarned.equals(oldPointsEarned))) ||
 						((newPointsEarned == null) && (oldPointsEarned != null)) ) {
 					if (agr == null) {
 						if(newPointsEarned != null)
-							agr = new AssignmentGradeRecord(asn, studentUid, new Double(newPointsEarned));
+							agr = new AssignmentGradeRecord(asn, studentUid, Double.valueOf(newPointsEarned));
 						else
 							agr = new AssignmentGradeRecord(asn, studentUid, null);
 					} else {
 						if(newPointsEarned != null)
-							agr.setPointsEarned(new Double(newPointsEarned));
+							agr.setPointsEarned(Double.valueOf(newPointsEarned));
 						else
 							agr.setPointsEarned(null);
 					}

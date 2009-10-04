@@ -60,19 +60,19 @@ public class LetterGradePlusMinusMapping extends GradeMapping {
         grades.add("F");
 
         defaultValues = new ArrayList();
-        defaultValues.add(new Double(100));
-        defaultValues.add(new Double(95));
-        defaultValues.add(new Double(90));
-        defaultValues.add(new Double(87));
-        defaultValues.add(new Double(83));
-        defaultValues.add(new Double(80));
-        defaultValues.add(new Double(77));
-        defaultValues.add(new Double(73));
-        defaultValues.add(new Double(70));
-        defaultValues.add(new Double(67));
-        defaultValues.add(new Double(63));
-        defaultValues.add(new Double(60));
-        defaultValues.add(new Double(00));
+        defaultValues.add(Double.valueOf(100));
+        defaultValues.add(Double.valueOf(95));
+        defaultValues.add(Double.valueOf(90));
+        defaultValues.add(Double.valueOf(87));
+        defaultValues.add(Double.valueOf(83));
+        defaultValues.add(Double.valueOf(80));
+        defaultValues.add(Double.valueOf(77));
+        defaultValues.add(Double.valueOf(73));
+        defaultValues.add(Double.valueOf(70));
+        defaultValues.add(Double.valueOf(67));
+        defaultValues.add(Double.valueOf(63));
+        defaultValues.add(Double.valueOf(60));
+        defaultValues.add(Double.valueOf(00));
     }
 
     /**

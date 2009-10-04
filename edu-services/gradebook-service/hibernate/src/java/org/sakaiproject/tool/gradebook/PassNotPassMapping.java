@@ -49,8 +49,8 @@ public class PassNotPassMapping extends GradeMapping {
         grades.add("NP");
 
         defaultValues = new ArrayList();
-        defaultValues.add(new Double(75));
-        defaultValues.add(new Double(0));
+        defaultValues.add(Double.valueOf(75));
+        defaultValues.add(Double.valueOf(0));
     }
 
 	/**

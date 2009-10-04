@@ -233,10 +233,10 @@ public class Category implements Serializable
     {
     	BigDecimal bdNumScored = new BigDecimal(numScored);
     	BigDecimal bdNumAssign = new BigDecimal(numOfAssignments);
-    	averageScore = new Double(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
-    	averageTotalPoints = new Double(totalPossible.divide(bdNumAssign, GradebookService.MATH_CONTEXT).doubleValue());
+    	averageScore = Double.valueOf(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
+    	averageTotalPoints = Double.valueOf(totalPossible.divide(bdNumAssign, GradebookService.MATH_CONTEXT).doubleValue());
     	BigDecimal value = total.divide(bdNumScored, GradebookService.MATH_CONTEXT).divide(new BigDecimal(averageTotalPoints.doubleValue()), GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
-    	mean = new Double(value.doubleValue()) ;
+    	mean = Double.valueOf(value.doubleValue()) ;
     }
 	}
 
@@ -294,11 +294,11 @@ public class Category implements Serializable
     {
     	BigDecimal bdNumScored = new BigDecimal(numScored);
     	BigDecimal bdNumAssign = new BigDecimal(numOfAssignments);
-    	averageScore = new Double(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
-    	averageTotalPoints = new Double(totalPossible.divide(bdNumAssign, GradebookService.MATH_CONTEXT).doubleValue());
+    	averageScore = Double.valueOf(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
+    	averageTotalPoints = Double.valueOf(totalPossible.divide(bdNumAssign, GradebookService.MATH_CONTEXT).doubleValue());
     	BigDecimal value = total.divide(bdNumScored, GradebookService.MATH_CONTEXT).divide((totalPossible.divide(bdNumAssign, GradebookService.MATH_CONTEXT)), GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
  
-    	mean = new Double(value.doubleValue()) ;
+    	mean = Double.valueOf(value.doubleValue()) ;
     }
 	}
 

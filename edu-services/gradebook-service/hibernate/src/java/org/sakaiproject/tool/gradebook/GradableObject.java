@@ -103,10 +103,10 @@ public abstract class GradableObject implements Serializable {
 	 * @return Returns the mean while protecting against displaying NaN.
 	 */
 	public Double getFormattedMean() {
-        if(mean == null || mean.equals(new Double(Double.NaN))) {
+        if(mean == null || mean.equals(Double.valueOf(Double.NaN))) {
         	return null;
         } else {
-            return new Double(mean.doubleValue() / 100.0);
+            return Double.valueOf(mean.doubleValue() / 100.0);
         }
 	}
 

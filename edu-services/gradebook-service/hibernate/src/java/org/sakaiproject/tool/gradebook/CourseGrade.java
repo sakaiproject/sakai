@@ -101,8 +101,8 @@ public class CourseGrade extends GradableObject {
         	mean = null;
         	averageScore = null;
         } else {
-        	mean = new Double(total.divide(new BigDecimal(numScored), GradebookService.MATH_CONTEXT).doubleValue());
-        	averageScore = new Double(average.divide(new BigDecimal(numScored), GradebookService.MATH_CONTEXT).doubleValue());
+        	mean = Double.valueOf(total.divide(new BigDecimal(numScored), GradebookService.MATH_CONTEXT).doubleValue());
+        	averageScore = Double.valueOf(average.divide(new BigDecimal(numScored), GradebookService.MATH_CONTEXT).doubleValue());
         }
     }
 

@@ -52,11 +52,11 @@ public class LetterGradeMapping extends GradeMapping {
         grades.add("F");
 
         defaultValues = new ArrayList();
-        defaultValues.add(new Double(90));
-        defaultValues.add(new Double(80));
-        defaultValues.add(new Double(70));
-        defaultValues.add(new Double(60));
-        defaultValues.add(new Double(00));
+        defaultValues.add(Double.valueOf(90));
+        defaultValues.add(Double.valueOf(80));
+        defaultValues.add(Double.valueOf(70));
+        defaultValues.add(Double.valueOf(60));
+        defaultValues.add(Double.valueOf(00));
 
         setDefaultValues();
     }
