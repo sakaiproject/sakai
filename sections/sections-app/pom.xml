@@ -49,30 +49,30 @@
       This has been relocated to sakai-kernel-util
       org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-sections-api</artifactId>
+      <groupId>org.sakaiproject.edu-services.sections</groupId>
+      <artifactId>sections-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-sections-impl-standalone</artifactId>
+      <groupId>org.sakaiproject.edu-services.sections</groupId>
+      <artifactId>sections-impl-standalone</artifactId>
       <scope>provided</scope>
 <!-- FIXME: is this required here ? -->
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-sections-model</artifactId>
+      <groupId>org.sakaiproject.edu-services.sections</groupId>
+      <artifactId>sections-model</artifactId>
       <scope>provided</scope>
 <!-- FIXME: is this required here ? -->
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-sections-impl</artifactId>
+      <groupId>org.sakaiproject.edu-services.sections</groupId>
+      <artifactId>sections-impl</artifactId>
       <scope>provided</scope>
 <!-- FIXME: is this required here ? -->
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-sections-integrationsupport</artifactId>
+      <groupId>org.sakaiproject.edu-services.sections</groupId>
+      <artifactId>sections-integrationsupport</artifactId>
       <scope>provided</scope>
 <!-- FIXME: is this required here ? -->
 <!--properties:	war.bundle: false -->
