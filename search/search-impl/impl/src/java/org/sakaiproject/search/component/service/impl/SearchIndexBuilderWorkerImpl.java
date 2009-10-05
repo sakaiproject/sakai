@@ -1464,7 +1464,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 		PreparedStatement selectNodeLock = null;
 		PreparedStatement clearLock = null;
 		ResultSet resultSet = null;
-		ArrayList locks = new ArrayList();
+		
 
 		try
 		{
