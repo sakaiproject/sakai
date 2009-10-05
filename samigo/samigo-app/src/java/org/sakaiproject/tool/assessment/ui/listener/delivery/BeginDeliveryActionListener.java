@@ -32,6 +32,7 @@ import javax.faces.event.ActionListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedFeedback;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
@@ -111,8 +112,17 @@ public class BeginDeliveryActionListener implements ActionListener
 
     // protocol = http://servername:8080/; deliverAudioRecording.jsp needs it
     delivery.setProtocol(ContextUtil.getProtocol());
-    
-    // set the published assessment
+
+    String paramValue = ServerConfigurationService.getString("samigo.sizeMax");
+    Long sizeMax = null;
+    float sizeMax_float = 0f;
+    if (paramValue != null) {
+    	sizeMax = Long.parseLong(paramValue);
+    	sizeMax_float = sizeMax.floatValue()/1024;
+    }
+    delivery.setFileUploadSizeMax(sizeMax_float);
+
+
     delivery.setPublishedAssessment(pub);
     
     // populate backing bean from published assessment

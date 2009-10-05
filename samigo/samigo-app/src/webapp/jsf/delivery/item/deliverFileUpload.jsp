@@ -31,7 +31,9 @@ should be included in file importing DeliveryMessages
 
 <h:panelGroup rendered="#{delivery.actionString=='takeAssessment' 
                        || delivery.actionString=='takeAssessmentViaUrl'}">
-  <h:outputText escape="false" value="#{deliveryMessages.upload_instruction} <br />" />
+  <h:outputText escape="false" value="#{deliveryMessages.upload_instruction} " />
+  <h:outputText escape="false" value=" (#{delivery.fileUploadSizeMax} #{deliveryMessages.file_limit}) <br />" styleClass="validate"/>
+
   <h:outputText value="#{deliveryMessages.file} " />
   <!-- note that target represent the location where the upload medis will be temporarily stored -->
   <!-- For ItemGradingData, it is very important that target must be in this format: -->
@@ -72,7 +74,7 @@ should be included in file importing DeliveryMessages
         </h:column>
         <h:column>
          <h:outputText value="#{deliveryMessages.open_bracket}"/>
-         	<h:outputText value="#{media.fileSizeKBFormat} kb"/>
+         	<h:outputText value="#{media.fileSizeKBFormat} KB"/>
          <h:outputText value="#{deliveryMessages.close_bracket}"/>
         </h:column>
         <h:column rendered="#{delivery.actionString=='takeAssessment' 

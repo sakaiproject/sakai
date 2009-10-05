@@ -231,6 +231,7 @@ public class DeliveryBean
   private Long assessmentGradingId;
   
   private boolean fromTableOfContents;
+  private float fileUploadSizeMax;
   
   /**
    * Creates a new DeliveryBean object.
@@ -1856,6 +1857,12 @@ public class DeliveryBean
   public String addMediaToItemGrading(String mediaLocation)
     {
     log.debug("****"+mediaLocation+" "+(new Date()));
+    
+    if (!mediaIsValid()) {
+    	reload = true;
+        return "takeAssessment";
+    }
+    
     GradingService gradingService = new GradingService();
     //PublishedAssessmentService publishedService = new PublishedAssessmentService();
     HashMap itemHash = getPublishedItemHash();
@@ -1912,8 +1919,7 @@ public class DeliveryBean
     gradingService.saveItemGrading(itemGradingData);
 
     //if media is uploaded, create media record and attach to itemGradingData
-    if (mediaIsValid())
-      saveMedia(agent, mediaLocation, itemGradingData, gradingService);
+    saveMedia(agent, mediaLocation, itemGradingData, gradingService);
 
     // 8. do whatever need doing
     DeliveryActionListener dlistener = new DeliveryActionListener();
@@ -3075,4 +3081,14 @@ public class DeliveryBean
   	    log.debug("auto save every " + s + " milliseconds");
 	    return s;
 	  }
+	  
+	  public void setFileUploadSizeMax(float fileUploadSizeMax)
+	  {
+	    this.fileUploadSizeMax = fileUploadSizeMax;
+	  }
+	  
+	  public float getFileUploadSizeMax()
+	  {
+	      return fileUploadSizeMax;
+	  }	  
 }

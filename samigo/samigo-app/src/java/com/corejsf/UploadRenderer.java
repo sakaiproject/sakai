@@ -75,7 +75,6 @@ public class UploadRenderer extends Renderer {
 
   public void decode(FacesContext context, UIComponent component){
     log.debug("**** decode =");
-    boolean mediaIsValid = true;
     ExternalContext external = context.getExternalContext();
     HttpServletRequest request = (HttpServletRequest) external.getRequest();
     String clientId = component.getClientId(context);
@@ -87,9 +86,9 @@ public class UploadRenderer extends Renderer {
     Long maxSize = (Long)((ServletContext)external.getContext()).getAttribute("FILEUPLOAD_SIZE_MAX");
     if (item==null || item.getSize()/1000 > maxSize.intValue()){
       ((ServletContext)external.getContext()).setAttribute("TEMP_FILEUPLOAD_SIZE", new Long(item.getSize()/1000));
-      mediaIsValid = false;
+      ((EditableValueHolder) component).setSubmittedValue("SizeTooBig");
+      return;
     }
-
 
     Object target;
     ValueBinding binding = component.getValueBinding("target");
@@ -117,7 +116,8 @@ public class UploadRenderer extends Renderer {
         File file = new File(dir.getPath()+"/"+filename);
         log.debug("**1. filename="+file.getPath());
         try {
-          if (mediaIsValid) item.write(file);
+          //if (mediaIsValid) item.write(file);
+        	item.write(file);
           // change value so we can evoke the listener
           ((EditableValueHolder) component).setSubmittedValue(file.getPath());
         }
