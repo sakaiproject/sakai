@@ -400,56 +400,44 @@ public class ClusterSegmentsStorage
 	 * @throws IOException
 	 */
 	private void addFile(File f, ZipOutputStream zout, byte[] buffer, long modtime)
-			throws IOException
+	throws IOException
 	{
-		FileInputStream fin = null;
-		try
+
+		if (f.isDirectory())
 		{
-			if (f.isDirectory())
+			File[] files = f.listFiles();
+			if (files != null)
 			{
-				File[] files = f.listFiles();
-				if (files != null)
+				for (int i = 0; i < files.length; i++)
 				{
-					for (int i = 0; i < files.length; i++)
+					if (files[i].isDirectory())
 					{
-						if (files[i].isDirectory())
+						addFile(files[i], zout, buffer, modtime);
+					}
+					else
+					{
+						if (files[i].lastModified() > modtime)
 						{
-							addFile(files[i], zout, buffer, modtime);
+							log.debug("               Add " + files[i].getPath());
+							addSingleFile(files[i], zout, buffer);
 						}
 						else
 						{
-							if (files[i].lastModified() > modtime)
-							{
-								log.debug("               Add " + files[i].getPath());
-								addSingleFile(files[i], zout, buffer);
-							}
-							else
-							{
-								log.debug("              Ignore " + files[i].getPath());
-							}
+							log.debug("              Ignore " + files[i].getPath());
 						}
 					}
 				}
 			}
-			else
-			{
-				if (f.lastModified() > modtime)
-				{
-					addSingleFile(f, zout, buffer);
-				}
-			}
 		}
-		finally
+		else
 		{
-			try
+			if (f.lastModified() > modtime)
 			{
-				fin.close();
-			}
-			catch (Exception e)
-			{
-				log.debug(e);
+				addSingleFile(f, zout, buffer);
 			}
 		}
+
+
 	}
 
 	private void addSingleFile(File file, ZipOutputStream zout, byte[] buffer)
