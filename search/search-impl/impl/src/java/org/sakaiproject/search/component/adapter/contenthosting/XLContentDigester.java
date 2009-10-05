@@ -35,6 +35,8 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.sakaiproject.content.api.ContentResource;
 
 /**
@@ -60,6 +62,10 @@ public class XLContentDigester extends BaseContentDigester
 				contentResource.getContentLength() > maxDigestSize  ) {
 			throw new RuntimeException("Attempt to get too much content as a string on "+contentResource.getReference());
 		}
+		if (contentResource == null) {
+			throw new RuntimeException("Null contentResource passed the loadContent");
+		}
+		
 		InputStream contentStream = null;
 	    try
 		{
@@ -71,11 +77,11 @@ public class XLContentDigester extends BaseContentDigester
             for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
                 HSSFSheet sheet = workbook.getSheetAt(i);
 
-                Iterator rows = sheet.rowIterator();
+                Iterator<Row> rows = sheet.rowIterator();
                 while (rows.hasNext()) {
                     HSSFRow row = (HSSFRow) rows.next();
 
-                    Iterator cells = row.cellIterator();
+                    Iterator<Cell> cells = row.cellIterator();
                     while (cells.hasNext()) {
                         HSSFCell cell = (HSSFCell) cells.next();
                         switch (cell.getCellType()) {
