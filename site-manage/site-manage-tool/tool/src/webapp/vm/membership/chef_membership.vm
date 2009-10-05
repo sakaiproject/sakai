@@ -6,9 +6,9 @@
 <script type="text/javascript" src="/library/js/jquery/jquery-ui/jqModal.js"></script>
 <link type="text/css" href="/library/js/jqmodal/jqModal.css" rel="stylesheet" media="screen" />
 -->
-<script type="text/javascript" src="/sakai-site-manage-tool/js/site-manage.js"></script>
+<script type="text/javascript" src="/site-manage-tool/js/site-manage.js"></script>
 
-<link type="text/css" href="/sakai-site-manage-tool/css/site-manage.css" rel="stylesheet" media="screen" />
+<link type="text/css" href="/site-manage-tool/css/site-manage.css" rel="stylesheet" media="screen" />
 <div id="dialog">
 </div>
 <script type="text/javascript">

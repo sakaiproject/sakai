@@ -1829,7 +1829,7 @@ public class SiteAction extends PagedResourceActionII {
 					if (!isMyWorkspace) {
 						// if the add participant helper is available, not
 						// stealthed and not hidden, show the link
-						if (notStealthOrHiddenTool("sakai-site-manage-participant-helper")) {
+						if (notStealthOrHiddenTool("site-manage-participant-helper")) {
 							b.add(new MenuEntry(rb.getString("java.addp"),
 									"doParticipantHelper"));
 						}
@@ -1854,9 +1854,9 @@ public class SiteAction extends PagedResourceActionII {
 						// if the manage group helper is available, not
 						// stealthed and not hidden, show the link
 						// read the helper name from configuration variable: wsetup.group.helper.name
-						// the default value is: "sakai-site-manage-group-section-role-helper"
-						// the older version of group helper which is not section/role aware is named:"sakai-site-manage-group-helper"
-						String groupHelper = ServerConfigurationService.getString("wsetup.group.helper.name", "sakai-site-manage-group-section-role-helper");
+						// the default value is: "site-manage-group-section-role-helper"
+						// the older version of group helper which is not section/role aware is named:"site-manage-group-helper"
+						String groupHelper = ServerConfigurationService.getString("wsetup.group.helper.name", "site-manage-group-section-role-helper");
 						if (setHelper("wsetup.groupHelper", groupHelper, state, STATE_GROUP_HELPER_ID)) {
 							b.add(new MenuEntry(rb.getString("java.group"),
 									"doManageGroupHelper"));
@@ -1868,7 +1868,7 @@ public class SiteAction extends PagedResourceActionII {
 				{
 					// show add parent sites menu
 					if (!isMyWorkspace) {
-						if (notStealthOrHiddenTool("sakai-site-manage-link-helper")) {
+						if (notStealthOrHiddenTool("site-manage-link-helper")) {
 							b.add(new MenuEntry(rb.getString("java.link"),
 									"doLinkHelper"));
 						}
@@ -3172,7 +3172,7 @@ public class SiteAction extends PagedResourceActionII {
 				HELPER_ID + ".siteId", ((Site) getStateSite(state)).getId());
 
 		// launch the helper
-		startHelper(data.getRequest(), "sakai-site-manage-participant-helper");
+		startHelper(data.getRequest(), "site-manage-participant-helper");
 	}
 	
 	/**
@@ -3190,7 +3190,7 @@ public class SiteAction extends PagedResourceActionII {
 				HELPER_ID + ".siteId", ((Site) getStateSite(state)).getId());
 
 		// launch the helper
-		startHelper(data.getRequest(), (String) state.getAttribute(STATE_GROUP_HELPER_ID));//"sakai-site-manage-group-helper");
+		startHelper(data.getRequest(), (String) state.getAttribute(STATE_GROUP_HELPER_ID));//"site-manage-group-helper");
 		
 	}
 
@@ -3210,7 +3210,7 @@ public class SiteAction extends PagedResourceActionII {
 				HELPER_ID + ".siteId", ((Site) getStateSite(state)).getId());
 
 		// launch the helper
-		startHelper(data.getRequest(), "sakai-site-manage-link-helper");
+		startHelper(data.getRequest(), "site-manage-link-helper");
 	}
 	
 	public boolean setHelper(String helperName, String defaultHelperId, SessionState state, String stateHelperString)
@@ -11473,7 +11473,7 @@ public class SiteAction extends PagedResourceActionII {
 	
 	private void putPrintParticipantLinkIntoContext(Context context, RunData data, Site site) {
 		// the status servlet reqest url
-		String url = Web.serverUrl(data.getRequest()) + "/sakai-site-manage-tool/tool/printparticipant/" + site.getId();
+		String url = Web.serverUrl(data.getRequest()) + "/site-manage-tool/tool/printparticipant/" + site.getId();
 		context.put("printParticipantUrl", url);
 	}
 	
