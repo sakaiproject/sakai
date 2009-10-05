@@ -1045,7 +1045,9 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 		{
 			try
 			{
-				pst.close();
+				if (pst != null) {
+					pst.close();
+				}
 			}
 			catch (Exception ex)
 			{

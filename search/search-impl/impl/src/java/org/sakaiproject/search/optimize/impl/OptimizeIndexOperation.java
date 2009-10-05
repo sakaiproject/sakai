@@ -104,7 +104,9 @@ public class OptimizeIndexOperation implements ManagementOperation
 						}
 						try
 						{
-							optimizeUpdateTransaction.rollback();
+							if (optimizeUpdateTransaction != null) {
+								optimizeUpdateTransaction.rollback();
+							}
 						}
 						catch (Exception ex)
 						{

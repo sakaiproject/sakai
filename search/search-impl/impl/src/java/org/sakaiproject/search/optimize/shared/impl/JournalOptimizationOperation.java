@@ -119,7 +119,9 @@ public class JournalOptimizationOperation implements ManagementOperation
 			}
 			try
 			{
-				journalOptimizationTransaction.rollback();
+				if (journalOptimizationTransaction != null) {
+					journalOptimizationTransaction.rollback();
+				}
 			}
 			catch (Exception ex)
 			{
@@ -132,7 +134,9 @@ public class JournalOptimizationOperation implements ManagementOperation
 			log.warn("Failed to compete optimize ", iupex);
 			try
 			{
-				journalOptimizationTransaction.rollback();
+				if (journalOptimizationTransaction != null) {
+					journalOptimizationTransaction.rollback();
+				}
 			}
 			catch (Exception ex)
 			{

@@ -1260,7 +1260,9 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		{
 			try
 			{
-				segmentDelete.close();
+				if (segmentDelete != null) {
+					segmentDelete.close();
+				}
 			}
 			catch (Exception ex)
 			{
