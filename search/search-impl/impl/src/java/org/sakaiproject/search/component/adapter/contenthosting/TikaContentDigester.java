@@ -50,7 +50,9 @@ public class TikaContentDigester extends BaseContentDigester
 	public String getContent(ContentResource contentResource)
 	{
 		log.debug("Digesting with TikaContentDigester");
-		
+		if (contentResource == null) {
+			throw new RuntimeException("Null contentResource passed to getContent");
+		}
 		if (contentResource != null && contentResource.getContentLength() > maxDigestSize)
 		{
 			throw new RuntimeException("Attempt to get too much content as a string on "
