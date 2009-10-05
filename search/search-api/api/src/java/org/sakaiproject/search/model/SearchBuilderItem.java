@@ -26,9 +26,9 @@ import java.io.IOException;
 import java.util.Date;
 
 /**
- * Represents an operation or stat of a document in the search engine. This
- * Object is used as a communication and persisntance mechanism between the
- * changes made to entities and the thread processing the indec updates
+ * Represents an operation or state of a document in the search engine. This
+ * Object is used as a communication and persistance mechanism between the
+ * changes made to entities and the thread processing the index updates
  * 
  * @author ieb
  */
@@ -52,7 +52,7 @@ public interface SearchBuilderItem
 
 	/**
 	 * A master record is used to override the indexer threa operation and avoid
-	 * hude updates to the database in the request cycle.
+	 * hide updates to the database in the request cycle.
 	 */
 	public static final String INDEX_MASTER = "_master_control";
 
@@ -71,7 +71,7 @@ public interface SearchBuilderItem
 	void setSearchaction(Integer searchaction);
 
 	/**
-	 * Action Unknown, usually becuase the record has just been created
+	 * Action Unknown, usually because the record has just been created
 	 */
 	public static final Integer ACTION_UNKNOWN = Integer.valueOf(0);
 
@@ -89,7 +89,7 @@ public interface SearchBuilderItem
 
 	/**
 	 * The action REBUILD causes the indexer thread to rebuild the index from
-	 * scratch, refetching all entities This sould only ever appear on the
+	 * scratch, re-fetching all entities This should only ever appear on the
 	 * master record
 	 */
 	public static final Integer ACTION_REBUILD = Integer.valueOf(11);

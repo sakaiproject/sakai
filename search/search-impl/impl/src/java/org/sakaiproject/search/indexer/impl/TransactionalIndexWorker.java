@@ -21,8 +21,12 @@
 
 package org.sakaiproject.search.indexer.impl;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -41,6 +45,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.search.api.StoredDigestContentProducer;
 import org.sakaiproject.search.api.rdf.RDFIndexException;
 import org.sakaiproject.search.api.rdf.RDFSearchService;
 import org.sakaiproject.search.indexer.api.IndexUpdateTransaction;
@@ -48,11 +53,11 @@ import org.sakaiproject.search.indexer.api.IndexWorker;
 import org.sakaiproject.search.indexer.api.IndexWorkerDocumentListener;
 import org.sakaiproject.search.indexer.api.IndexWorkerListener;
 import org.sakaiproject.search.indexer.api.NoItemsToIndexException;
-import org.sakaiproject.search.journal.impl.JournalSettings;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransactionException;
 import org.sakaiproject.search.transaction.api.TransactionIndexManager;
+import org.sakaiproject.search.util.DigestStorageUtil;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
@@ -64,6 +69,8 @@ import org.sakaiproject.thread_local.api.ThreadLocalManager;
  */
 public class TransactionalIndexWorker implements IndexWorker
 {
+
+	private static final String DIGEST_STORE_FOLDER = "/searchdigest/";
 
 	private static final Log log = LogFactory.getLog(TransactionalIndexWorker.class);
 
@@ -234,6 +241,7 @@ public class TransactionalIndexWorker implements IndexWorker
 							.getIndexReader();
 					int ndel = indexReader.deleteDocuments(new Term(
 							SearchService.FIELD_REFERENCE, sbi.getName()));
+					//TODO delete the digest saved to file
 
 					nprocessed++;
 				}
@@ -356,9 +364,16 @@ public class TransactionalIndexWorker implements IndexWorker
 										log.debug("Adding Content for " + ref + " as ["
 												+ content + "]");
 									}
+									int docCount = getDocCount(ref) + 1;
 									doc.add(new Field(SearchService.FIELD_CONTENTS,
 											filterNull(content), Field.Store.NO,
 											Field.Index.TOKENIZED, Field.TermVector.YES));
+							if (sep instanceof StoredDigestContentProducer) {
+										doc.add(new Field(SearchService.FIELD_DIGEST_COUNT,
+												Integer.valueOf(docCount).toString(), Field.Store.COMPRESS, Field.Index.NO, Field.TermVector.NO));
+										saveContentToStore(ref, content, docCount);
+									}
+
 								}
 
 								doc.add(new Field(SearchService.FIELD_TITLE,
@@ -515,6 +530,95 @@ public class TransactionalIndexWorker implements IndexWorker
 		return nprocessed;
 
 	}
+
+	private int getDocCount(String ref) {
+		String storePath = serverConfigurationService.getString("bodyPath@org.sakaiproject.content.api.ContentHostingService");
+		int count = 0;
+		if (storePath != null ) {
+			storePath += DIGEST_STORE_FOLDER;
+			String exPath = DigestStorageUtil.getPath(ref);
+			String filePath = storePath + exPath;
+			if (new File(filePath).exists()) {
+				File dir = new File(filePath);
+				String[] children = dir.list();
+				if (children == null) {
+					return 0;
+				} else {
+					for (int i=0; i<children.length; i++) {
+						String fileName = children[i];
+						if (fileName.contains(".")) {
+							String countStr = fileName.substring(fileName.lastIndexOf('.') + 1 , fileName.length());
+							log.debug("count string is: " + countStr);
+							try {
+								Integer countIn = Integer.valueOf(countStr);
+								if (countIn.intValue() > count) {
+									count = countIn.intValue();
+								}
+							} 
+							catch (NumberFormatException nfe) {
+								log.warn("filename:  " + fileName + "has nonNumeric exension");
+							}
+						}
+					}
+					return count;
+				}
+
+				
+			}
+		}
+		
+
+		return 0;
+	}
+
+	/**
+	 * Save the digested content to a disc store
+	 * @param ref
+	 * @param content
+	 */
+	private void saveContentToStore(String ref, String content, int version) {
+		String storePath = serverConfigurationService.getString("bodyPath@org.sakaiproject.content.api.ContentHostingService");
+		if (storePath != null ) {
+			storePath += DIGEST_STORE_FOLDER;
+			FileOutputStream fileOutput = null;
+			try {
+				if (!new File(storePath).exists())
+					new File(storePath).mkdirs();
+				String exPath = DigestStorageUtil.getPath(ref);
+				String filePath = storePath + exPath;
+				
+				if (!new File(filePath).exists()) {
+					log.debug("creating folder" + filePath);
+					new File(filePath).mkdirs();
+				}
+					
+								
+				log.debug("filePath: " + filePath);
+				fileOutput = new FileOutputStream(filePath + "/digest." + version);
+				fileOutput.write(content.getBytes("UTF8"));
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
+			finally {
+				try {
+					if(fileOutput != null) fileOutput.close();
+				} catch (IOException e) {
+					log.error("Exception in finally block: "+e);
+				}
+			}
+		}
+	}
+
+
+
+
 
 	private String filterPunctuation(String term) {
 		if ( term == null ) {

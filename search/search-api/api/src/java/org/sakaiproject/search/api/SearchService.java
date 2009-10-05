@@ -117,6 +117,9 @@ public interface SearchService extends Diagnosable
 	 * Search field The reference of the entity
 	 */
 	public static final String FIELD_REFERENCE = "reference";
+	
+	
+	public static final String FIELD_DIGEST_COUNT = "digestCount";
 
 	public static final String DATE_STAMP = "indexdate";
 

@@ -21,6 +21,9 @@
 
 package org.sakaiproject.search.component.service.impl;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
@@ -43,13 +46,16 @@ import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.Scorer;
 import org.apache.lucene.search.highlight.SimpleHTMLEncoder;
 import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.PortalUrlEnabledProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchResult;
 import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.search.api.StoredDigestContentProducer;
 import org.sakaiproject.search.api.TermFrequency;
 import org.sakaiproject.search.component.Messages;
+import org.sakaiproject.search.util.DigestStorageUtil;
 
 /**
  * @author ieb
@@ -74,13 +80,13 @@ public class SearchResultImpl implements SearchResult
 	private SearchIndexBuilder searchIndexBuilder;
 
 	private SearchService searchService;
-	
+
 	private String url;
-	
+
 	public SearchResultImpl(Hits h, int index, Query query, Analyzer analyzer,
-			 SearchIndexBuilder searchIndexBuilder,
+			SearchIndexBuilder searchIndexBuilder,
 			SearchService searchService) throws IOException
-	{
+			{
 		this.h = h;
 		this.index = index;
 		this.doc = h.doc(index);
@@ -88,7 +94,7 @@ public class SearchResultImpl implements SearchResult
 		this.analyzer = analyzer;
 		this.searchIndexBuilder = searchIndexBuilder;
 		this.searchService = searchService;
-	}
+			}
 
 	public float getScore()
 	{
@@ -188,13 +194,65 @@ public class SearchResultImpl implements SearchResult
 				for (int i = 0; i < references.length; i++)
 				{
 					EntityContentProducer sep = searchIndexBuilder
-							.newEntityContentProducer(references[i]);
+					.newEntityContentProducer(references[i]);
 					if ( sep != null ) {
-					    sb.append(sep.getContent(references[i]));
+						//does this ecp store on the FS?
+						if (sep instanceof StoredDigestContentProducer) {
+							String digestCount = doc.get(SearchService.FIELD_DIGEST_COUNT);
+							if (digestCount != null) {
+								log.info("This file possibly has FS digests with index of " + digestCount);
+								//FileInputStream fis = new FileInputStream(DigestStorageUtil.getPath(doc.get(SearchService.FIELD_REFERENCE)));
+								BufferedReader input = null;
+								try {
+									String storePath = ServerConfigurationService.getString("bodyPath@org.sakaiproject.content.api.ContentHostingService");
+									storePath += "/searchdigest/";
+									String digestFilePath = storePath + DigestStorageUtil.getPath(doc.get(SearchService.FIELD_REFERENCE)) + "/digest." + digestCount;
+									log.info("opening: " + digestFilePath);
+
+									input =  new BufferedReader(new FileReader(digestFilePath));
+
+									String line = null; //not declared within while loop
+									/*
+									 * readLine is a bit quirky :
+									 * it returns the content of a line MINUS the newline.
+									 * it returns null only for the END of the stream.
+									 * it returns an empty String if two newlines appear in a row.
+									 */
+									while (( line = input.readLine()) != null){
+										sb.append(line);
+										sb.append(System.getProperty("line.separator"));
+									}
+								}
+								catch (FileNotFoundException e) {
+									log.warn("Unable to open digest for item: " + SearchService.FIELD_REFERENCE + " with count " + digestCount + " fileNotFound");
+								}
+								finally {
+									if (input != null) {
+										try {
+											input.close();
+										}
+										catch (IOException iox) {
+											log.debug("exeption in final block!");
+										}
+									} else  {
+										sb.append(sep.getContent(references[i]));
+							
+									}
+								}
+							} else {
+								sb.append(sep.getContent(references[i]));
+							
+							}
+
+
+
+						} else {
+							sb.append(sep.getContent(references[i]));
+							
+						}
 					}
 				}
 			}
-
 			String text = sb.toString();
 			TokenStream tokenStream = analyzer.tokenStream(
 					SearchService.FIELD_CONTENTS, new StringReader(text));
@@ -245,20 +303,20 @@ public class SearchResultImpl implements SearchResult
 		return false;
 	}
 
-	
+
 	public void setUrl(String newUrl) {
 		url = newUrl;
-		
+
 	}
 
 	public boolean hasPortalUrl() {
-		log.info("hasPortalUrl(" + getReference());
+		log.debug("hasPortalUrl(" + getReference());
 		EntityContentProducer sep = searchIndexBuilder
 		.newEntityContentProducer(getReference());
 		if (sep != null) {
-			log.info("got ECP for " + getReference());
+			log.debug("got ECP for " + getReference());
 			if (PortalUrlEnabledProducer.class.isAssignableFrom(sep.getClass())) {
-				log.info("has portalURL!");
+				log.debug("has portalURL!");
 				return true;
 			}
 		}

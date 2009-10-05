@@ -45,10 +45,11 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.search.api.StoredDigestContentProducer;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.SiteService;
 
-public class ContentHostingContentProducer implements EntityContentProducer
+public class ContentHostingContentProducer implements EntityContentProducer, StoredDigestContentProducer
 {
 
 	private static Log log = LogFactory.getLog(ContentHostingContentProducer.class);
@@ -469,25 +470,8 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		return r;
 	}
 
-	public List getSiteContent(String context)
-	{
-		boolean debug = log.isDebugEnabled();
-		String siteCollection = contentHostingService.getSiteCollection(context);
-		List siteContent = contentHostingService.getAllResources(siteCollection);
-		List<String> l = new ArrayList<String>();
-		for (Iterator i = siteContent.iterator(); i.hasNext();)
-		{
-			ContentResource resource = (ContentResource) i.next();
-			l.add(resource.getReference());
-		}
-		if (debug)
-		{
-			log.debug("ContentHosting.getSiteContent" + context + ":" + l.size());
-		}
-		return l;
-	}
 
-	public Iterator getSiteContentIterator(String context)
+	public Iterator<String> getSiteContentIterator(String context)
 	{
 		boolean debug = log.isDebugEnabled();
 
@@ -496,17 +480,17 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		{
 			log.debug("Getting content for site info " + siteCollection);
 		}
-		List siteContent = null;
+		List<ContentResource> siteContent = null;
 		if ("/".equals(siteCollection))
 		{
-			siteContent = new ArrayList();
+			siteContent = new ArrayList<ContentResource>();
 		}
 		else
 		{
 			siteContent = contentHostingService.getAllResources(siteCollection);
 		}
-		final Iterator scIterator = siteContent.iterator();
-		return new Iterator()
+		final Iterator<ContentResource> scIterator = siteContent.iterator();
+		return new Iterator<String>()
 		{
 
 			public boolean hasNext()
@@ -514,7 +498,7 @@ public class ContentHostingContentProducer implements EntityContentProducer
 				return scIterator.hasNext();
 			}
 
-			public Object next()
+			public String next()
 			{
 				ContentResource resource = (ContentResource) scIterator.next();
 				return resource.getReference();
@@ -637,7 +621,7 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		}
 	}
 
-	public Map getCustomProperties(String ref)
+	public Map<String, String[]> getCustomProperties(String ref)
 	{
 		try
 		{

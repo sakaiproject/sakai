@@ -23,7 +23,6 @@ package org.sakaiproject.search.api;
 
 import java.io.Reader;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.event.api.Event;
@@ -120,19 +119,11 @@ public interface EntityContentProducer
 	String getSiteId(String reference);
 
 	/**
-	 * get all the content associated with a site managed by this EntityContentProducer
-	 * @deprecated See {@link #getSiteContentIterator(String)}
-	 * @param context
-	 * @return
-	 */
-	List getSiteContent(String context);
-	
-	/**
 	 * Get the site content as an iterator
 	 * @param context
 	 * @return
 	 */
-	Iterator getSiteContentIterator(String context);
+	Iterator<String> getSiteContentIterator(String context);
 
 	/**
 	 * If the reference should be indexed, return true
@@ -151,13 +142,13 @@ public interface EntityContentProducer
 	/**
 	 * Gets a map of custom document properties. The names of the map map will contain 
 	 * the index name to which the value is added.
-	 * The value is expected to be a String or String[], containig the value, values to be
+	 * The value is expected to be a String or String[], containing the value, values to be
 	 * added. Before using this method in your entity producer, be certain that the value
 	 * is not already in the index. ( See SearchService for list of Fields)
 	 * If the key starts with a "T" then the index will be tokenized and the T removed to form the index name
 	 * @return
 	 */
-	Map getCustomProperties(String ref);
+	Map<String, ?> getCustomProperties(String ref);
 
 	/**
 	 * At the moment this is a placeholder, but eventually
