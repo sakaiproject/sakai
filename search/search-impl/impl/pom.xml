@@ -15,6 +15,7 @@
     <deploy.target/>
     <maven.test.jvmargs/>
     <poi.version>3.5-FINAL</poi.version>
+    <lucene.version>2.2.0</lucene.version>
   </properties>
   <profiles>
     <profile>
@@ -146,7 +147,13 @@
     <dependency>
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-core</artifactId>
-      <version>2.2.0</version>
+      <version>${lucene.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-highlighter</artifactId>
+      <version>${lucene.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
