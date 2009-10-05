@@ -3,7 +3,7 @@
 <registration>
 
 	<tool
-			id="sakai-site-manage-group-helper"
+			id="site-manage-group-helper"
 			title="Site Manage Groups"
 			description="Site Manage Groups Helper">
 			<category name="sakai.helper" />

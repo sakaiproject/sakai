@@ -3,7 +3,7 @@
 <registration>
 
 	<tool
-			id="sakai-site-manage-group-section-role-helper"
+			id="site-manage-group-section-role-helper"
 			title="Site Manage Groups based on sections and roles"
 			description="Site Manage Groups Helper With Section and Role Awareness">
 			<category name="sakai.helper" />
