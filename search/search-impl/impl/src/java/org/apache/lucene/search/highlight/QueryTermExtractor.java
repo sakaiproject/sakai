@@ -168,7 +168,7 @@ public final class QueryTermExtractor
 
 		for (i = 0; i < queryTerms.length; i++)
 		{
-			if ((fieldName == null) || (queryTerms[i].field() == fieldName))
+			if ((fieldName == null) || (queryTerms[i].field().equals(fieldName)))
 			{
 				terms.add(new WeightedTerm(query.getBoost(), queryTerms[i]
 						.text()));
@@ -179,7 +179,7 @@ public final class QueryTermExtractor
 	private static final void getTermsFromTermQuery(TermQuery query,
 			HashSet terms, String fieldName)
 	{
-		if ((fieldName == null) || (query.getTerm().field() == fieldName))
+		if ((fieldName == null) || (query.getTerm().field().equals(fieldName)))
 		{
 			terms
 					.add(new WeightedTerm(query.getBoost(), query.getTerm()
@@ -202,7 +202,7 @@ public final class QueryTermExtractor
 
 			String text = term.text();
 
-			if ((fieldName == null) || (term.field() == fieldName))
+			if ((fieldName == null) || (term.field().equals(fieldName)))
 			{
 				terms.add(new WeightedTerm(query.getBoost(), text));
 			}
