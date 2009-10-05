@@ -15,7 +15,7 @@
     <deploy.target/>
     <maven.test.jvmargs/>
     <poi.version>3.5-FINAL</poi.version>
-    <lucene.version>2.4.1</lucene.version>
+    <lucene.version>2.9.0</lucene.version>
   </properties>
   <profiles>
     <profile>

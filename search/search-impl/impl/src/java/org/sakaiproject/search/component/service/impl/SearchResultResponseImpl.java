@@ -35,6 +35,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.highlight.Highlighter;
+import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.Scorer;
 import org.apache.lucene.search.highlight.SimpleHTMLEncoder;
@@ -209,6 +210,8 @@ public class SearchResultResponseImpl implements SearchResult
 		catch (IOException e)
 		{
 			return Messages.getString("SearchResultResponseImpl.11") + e.getMessage(); //$NON-NLS-1$
+		} catch (InvalidTokenOffsetsException e) {
+			return Messages.getString("SearchResultResponseImpl.11") + e.getMessage(); 
 		}
 	}
 
