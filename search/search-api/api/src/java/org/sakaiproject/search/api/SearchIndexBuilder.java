@@ -133,41 +133,9 @@ public interface SearchIndexBuilder
 	 */
 	List getGlobalMasterSearchItems();
 
-	/**
-	 * get the current search lock
-	 * @return
-	 */
-	//SearchWriterLock getCurrentLock();
-
-	/**
-	 * provide a list of node statuses for all indexer nodes in a cluster
-	 * @return
-	 */
-	//List getNodeStatus();
-
-	/**
-	 * force the removal of a worker lock
-	 * @return
-	 */
-	//boolean removeWorkerLock();
-
-	//String getLastDocument();
-
-	//String getLastElapsed();
-
-	//String getCurrentDocument();
-
-	//String getCurrentElapsed();
-
 	boolean isOnlyIndexSearchToolSites();
 	
 	boolean isExcludeUserSites();
-
-	/**
-	 * @return
-	 */
-	//boolean isLocalLock();
-
 	
 
 }
