@@ -201,14 +201,14 @@ public class SearchResultImpl implements SearchResult
 						if (sep instanceof StoredDigestContentProducer) {
 							String digestCount = doc.get(SearchService.FIELD_DIGEST_COUNT);
 							if (digestCount != null) {
-								log.info("This file possibly has FS digests with index of " + digestCount);
+								log.debug("This file possibly has FS digests with index of " + digestCount);
 								//FileInputStream fis = new FileInputStream(DigestStorageUtil.getPath(doc.get(SearchService.FIELD_REFERENCE)));
 								BufferedReader input = null;
 								try {
 									String storePath = ServerConfigurationService.getString("bodyPath@org.sakaiproject.content.api.ContentHostingService");
 									storePath += "/searchdigest/";
 									String digestFilePath = storePath + DigestStorageUtil.getPath(doc.get(SearchService.FIELD_REFERENCE)) + "/digest." + digestCount;
-									log.info("opening: " + digestFilePath);
+									log.debug("opening: " + digestFilePath);
 
 									input =  new BufferedReader(new FileReader(digestFilePath));
 
