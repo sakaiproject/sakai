@@ -43,7 +43,10 @@ public class DefaultFullContentDigester extends DefaultContentDigester
 
 	public String getContent(ContentResource contentResource)
 	{
-		if ( contentResource != null && !isBinary(contentResource) &&  
+		if (contentResource == null) {
+			throw new RuntimeException("null contentResource passed to getContent");
+		}
+ 		if ( contentResource != null && !isBinary(contentResource) &&  
 				contentResource.getContentLength() > maxDigestSize ) {
 			throw new RuntimeException("Attempt to get too much content as a string on "+contentResource.getReference());
 		}
