@@ -139,7 +139,7 @@ public class SearchListResponseTest extends TestCase
 		SearchItemFilter filter = new NullSearchFilter();
 		SearchListResponseImpl slri = new SearchListResponseImpl(testString,
 				null, 0, 10, null, filter,  null, null);
-		for ( Iterator i = slri.iterator(); i.hasNext(); ) {
+		for ( Iterator<SearchResult> i = slri.iterator(); i.hasNext(); ) {
 			SearchResult sr = (SearchResult) i.next();
 			log.debug("    Id         :"+sr.getId());
 			log.debug("    Index      :"+sr.getIndex());
@@ -149,7 +149,7 @@ public class SearchListResponseTest extends TestCase
 			log.debug("    Tool       :"+sr.getTool());
 			log.debug("    Url        :"+sr.getUrl());
 			log.debug("    Terms      :"+sr.getTerms());
-			log.debug("    Field Names:"+sr.getFieldNames());
+			log.debug("    Field Names:");
 		}
 	}
 	
@@ -196,7 +196,7 @@ public class SearchListResponseTest extends TestCase
 		SearchItemFilter filter = new NullSearchFilter();
 		SearchListResponseImpl slri = new SearchListResponseImpl(testString,
 				null, 0, 10, null, filter,  null, null);
-		for ( Iterator i = slri.iterator(); i.hasNext(); ) {
+		for ( Iterator<SearchResult> i = slri.iterator(); i.hasNext(); ) {
 			SearchResult sr = (SearchResult) i.next();
 			log.debug("    Id         :"+sr.getId());
 			log.debug("    Index      :"+sr.getIndex());
@@ -206,7 +206,7 @@ public class SearchListResponseTest extends TestCase
 			log.debug("    Tool       :"+sr.getTool());
 			log.debug("    Url        :"+sr.getUrl());
 			log.debug("    Terms      :"+sr.getTerms());
-			log.debug("    Field Names:"+sr.getFieldNames());
+			log.debug("    Field Names:");
 		}
 	}
 
