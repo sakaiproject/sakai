@@ -4,7 +4,7 @@
   xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee 
 	  http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
   version="2.4">
-	<display-name>sakai-site-manage-group-helper</display-name>
+	<display-name>site-manage-group-helper</display-name>
 	<description>Sakai Manage Group Helper</description>
 
 <!-- CONFIG This is the name of the "punch-through" URL which will access the
@@ -16,7 +16,7 @@
     -->
   <context-param>
     <param-name>resourceurlbase</param-name>
-    <param-value>/sakai-site-manage-group-helper/</param-value>
+    <param-value>/site-manage-group-helper/</param-value>
   </context-param>
 
  <!-- Configure standard Spring application contexts. Be sure to mention
@@ -73,7 +73,7 @@
     <!-- This servlet was named ToolSinkTunnel. However was renamed
       so that sakai.flowtalk appears in UI for Sakai 2.0, with
       new Sakai dispatching architecture. Note that this must agree with tool id -->
-    <servlet-name>sakai-site-manage-group-helper</servlet-name>
+    <servlet-name>site-manage-group-helper</servlet-name>
     <servlet-class>
       uk.ac.cam.caret.sakai.rsf.servlet.ReasonableSakaiServlet
     </servlet-class>
@@ -82,7 +82,7 @@
   <!-- This is the mapping we would LIKE to apply, if it were supported by Sakai.
     Instead it is mocked up by SakaiRequestParser -->
   <servlet-mapping>
-    <servlet-name>sakai-site-manage-group-helper</servlet-name>
+    <servlet-name>site-manage-group-helper</servlet-name>
     <url-pattern>/faces/*</url-pattern>
   </servlet-mapping>
 	<listener>
