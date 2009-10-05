@@ -46,11 +46,11 @@ import org.sakaiproject.site.cover.SiteService;
  * Search index builder is expected to be registered in spring as
  * org.sakaiproject.search.api.SearchIndexBuilder as a singleton. It receives
  * resources which it adds to its list of pending documents to be indexed. A
- * seperate thread then runs thtough the list of entities to be indexed,
+ * Separate thread then runs through the list of entities to be indexed,
  * updating the index. Each time the index is updates an event is posted to
  * force the Search components that are using the index to reload. Incremental
  * updates to the Lucene index require that the searchers reload the index once
- * the idex writer has been built.
+ * the index writer has been built.
  * 
  * @author ieb
  */
@@ -65,7 +65,7 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	 */
 	private SearchBuilderItemDao searchBuilderItemDao = null;
 
-	private List producers = new ArrayList();
+	private List<EntityContentProducer> producers = new ArrayList<EntityContentProducer>();
 
 	private boolean onlyIndexSearchToolSites = false;
 
@@ -313,7 +313,7 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	public EntityContentProducer newEntityContentProducer(String ref)
 	{
 		log.debug(" new entitycontent producer");
-		for (Iterator i = producers.iterator(); i.hasNext();)
+		for (Iterator<EntityContentProducer> i = producers.iterator(); i.hasNext();)
 		{
 			EntityContentProducer ecp = (EntityContentProducer) i.next();
 			if (ecp.matches(ref))
@@ -333,7 +333,7 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	public EntityContentProducer newEntityContentProducer(Event event)
 	{
 		log.debug(" new entitycontent producer");
-		for (Iterator i = producers.iterator(); i.hasNext();)
+		for (Iterator<EntityContentProducer> i = producers.iterator(); i.hasNext();)
 		{
 			EntityContentProducer ecp = (EntityContentProducer) i.next();
 			if (ecp.matches(event))
@@ -386,9 +386,9 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	 * 
 	 * @return
 	 */
-	public List getContentProducers()
+	public List<EntityContentProducer> getContentProducers()
 	{
-		return new ArrayList(producers);
+		return new ArrayList<EntityContentProducer>(producers);
 	}
 
 	public int getPendingDocuments()
@@ -475,59 +475,23 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 					+ sb.getSearchaction() + " " + sb.getName());
 		}
 	}
-
-	public List getAllSearchItems()
+	
+	public List<SearchBuilderItem> getAllSearchItems()
 	{
 
 		return searchBuilderItemDao.getAll();
 	}
-
-	public List getGlobalMasterSearchItems()
+	
+	
+	public List<SearchBuilderItem> getGlobalMasterSearchItems()
 	{
 		return searchBuilderItemDao.getGlobalMasters();
 	}
 
-	public List getSiteMasterSearchItems()
+	public List<SearchBuilderItem> getSiteMasterSearchItems()
 	{
 		return searchBuilderItemDao.getSiteMasters();
 	}
-
-	/*
-	public SearchWriterLock getCurrentLock()
-	{
-		return searchIndexBuilderWorker.getCurrentLock();
-	}
-
-	public List getNodeStatus()
-	{
-		return searchIndexBuilderWorker.getNodeStatus();
-	}
-
-	public boolean removeWorkerLock()
-	{
-		return searchIndexBuilderWorker.removeWorkerLock();
-	}
-
-	public String getLastDocument()
-	{
-		return searchIndexBuilderWorker.getLastDocument();
-	}
-
-	public String getLastElapsed()
-	{
-		return searchIndexBuilderWorker.getLastElapsed();
-	}
-
-	public String getCurrentDocument()
-	{
-		return searchIndexBuilderWorker.getCurrentDocument();
-	}
-
-	public String getCurrentElapsed()
-	{
-		return searchIndexBuilderWorker.getCurrentElapsed();
-	}
-	*/
 
 	/**
 	 * @return the onlyIndexSearchToolSites
@@ -546,56 +510,6 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 		this.onlyIndexSearchToolSites = onlyIndexSearchToolSites;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.SearchIndexBuilder#isLocalLock()
-	 */
-	/*
-	public boolean isLocalLock()
-	{
-		return searchIndexBuilderWorker.isLocalLock();
-	}
-	*/
-	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.Diagnosable#disableDiagnostics()
-	 */
-	/*
-	public void disableDiagnostics()
-	{
-		diagnostics = false;
-		searchIndexBuilderWorker.enableDiagnostics();
-	}
-	*/
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.Diagnosable#enableDiagnostics()
-	 */
-	/*
-	public void enableDiagnostics()
-	{
-		diagnostics = true;
-		searchIndexBuilderWorker.disableDiagnostics();
-	}
-	*/
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.Diagnosable#hasDiagnostics()
-	 */
-	/*
-	public boolean hasDiagnostics()
-	{
-		return diagnostics;
-	}
-	*/
-	
 	
 	public void setExcludeUserSites(boolean excludeUserSites)
 	{

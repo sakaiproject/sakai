@@ -1375,13 +1375,13 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 	 * 
 	 * @see org.sakaiproject.search.component.service.impl.SearchIndexBuilderWorkerAPI#getNodeStatus()
 	 */
-	public List getNodeStatus()
+	public List<SearchWriterLock> getNodeStatus()
 	{
 		String nodeID = getNodeID();
 		Connection connection = null;
 		PreparedStatement selectLock = null;
 		ResultSet resultSet = null;
-		ArrayList locks = new ArrayList();
+		ArrayList<SearchWriterLock>locks = new ArrayList<SearchWriterLock>();
 
 		try
 		{

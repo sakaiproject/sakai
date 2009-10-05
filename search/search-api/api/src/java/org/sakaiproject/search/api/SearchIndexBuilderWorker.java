@@ -49,7 +49,7 @@ public interface SearchIndexBuilderWorker
 	 * get a list of node status records
 	 * @return
 	 */
-	List getNodeStatus();
+	List<SearchWriterLock> getNodeStatus();
 
 	/**
 	 * destroy the search index builder worker and release all resources

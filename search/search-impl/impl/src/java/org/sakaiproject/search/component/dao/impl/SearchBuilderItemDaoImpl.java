@@ -77,7 +77,7 @@ public class SearchBuilderItemDaoImpl extends HibernateDaoSupport implements
 	 * 
 	 * @{inheritDoc}
 	 */
-	public List getAll()
+	public List<SearchBuilderItem> getAll()
 	{
 		HibernateCallback callback = new HibernateCallback()
 		{
@@ -182,7 +182,7 @@ public class SearchBuilderItemDaoImpl extends HibernateDaoSupport implements
 		return ((Integer) getHibernateTemplate().execute(callback)).intValue();
 	}
 
-	public List getGlobalMasters()
+	public List<SearchBuilderItem> getGlobalMasters()
 	{
 		HibernateCallback callback = new HibernateCallback()
 		{
@@ -198,7 +198,7 @@ public class SearchBuilderItemDaoImpl extends HibernateDaoSupport implements
 		return (List) getHibernateTemplate().execute(callback);
 	}
 
-	public List getSiteMasters()
+	public List<SearchBuilderItem> getSiteMasters()
 	{
 		HibernateCallback callback = new HibernateCallback()
 		{

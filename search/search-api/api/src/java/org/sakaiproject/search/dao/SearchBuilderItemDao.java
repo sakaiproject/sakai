@@ -65,20 +65,21 @@ public interface SearchBuilderItemDao
 	 * 
 	 * @return
 	 */
-	List getAll();
+	List<SearchBuilderItem> getAll();
 
 	/**
 	 * get the global master items
 	 * 
 	 * @return
 	 */
-	List getGlobalMasters();
+	List<SearchBuilderItem> getGlobalMasters();
 
 	/**
 	 * get the site master items
 	 * 
 	 * @return
 	 */
-	List getSiteMasters();
+	List<SearchBuilderItem> getSiteMasters();
+	
 
 }
