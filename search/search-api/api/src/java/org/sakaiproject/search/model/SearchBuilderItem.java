@@ -51,13 +51,13 @@ public interface SearchBuilderItem
 	void setName(String name);
 
 	/**
-	 * A master record is used to override the indexer threa operation and avoid
+	 * A master record is used to override the indexer thread operation and avoid
 	 * hide updates to the database in the request cycle.
 	 */
 	public static final String INDEX_MASTER = "_master_control";
 
 	/**
-	 * The action being performent
+	 * The action being performed
 	 * 
 	 * @return
 	 */
@@ -97,7 +97,7 @@ public interface SearchBuilderItem
 	/**
 	 * The action REFRESH causes the indexer thread to refresh the search index
 	 * from the current set of entities. If a Rebuild is in progress, the
-	 * refresh will not overrise the rebuild
+	 * refresh will not override the rebuild
 	 */
 	public static final Integer ACTION_REFRESH = Integer.valueOf(10);
 
@@ -133,7 +133,7 @@ public interface SearchBuilderItem
 	public static final Integer STATE_PENDING_2 = Integer.valueOf(3);
 	
 	/**
-	 * Locked for processng
+	 * Locked for processing
 	 */
 	public static final Integer STATE_LOCKED = Integer.valueOf(5);
 	
