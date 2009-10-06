@@ -639,7 +639,7 @@ public interface SiteService extends EntityProducer
 	List<String> getSiteTypes();
 
 	/**
-	 * Access a list of Site objets that meet specified criteria.
+	 * Access a list of Site objects that meet specified criteria.
 	 * 
 	 * @param type
 	 *        The SelectionType specifying what sort of selection is intended.
