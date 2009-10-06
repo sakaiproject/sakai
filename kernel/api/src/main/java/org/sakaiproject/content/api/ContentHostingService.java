@@ -1383,7 +1383,22 @@ public interface ContentHostingService extends EntityProducer
 	public void setPubView(String id, boolean pubview);
 
 	/**
-	 * Find the resources this user has read access to from all worksites of the appropriate type.
+	 * Find all resources in specified sites that match the spcified type and mime type
+	 * 
+	 * @param type
+	 *        this is the ResourceProperties.PROP_STRUCTOBJ_TYPE for stuctured objects or ResourceProperties.FILE_TYPE for file resources or null for all resources.
+	 * @param primaryMimeType
+	 *        The primary mime type (ie. the "text" of "text/xml") This may be null to include all resources
+	 * @param subMimeType
+	 *        The sub type (ie, the "xml" of "text/xml") This may be null to include all resources of the primary mime type if specified.
+	 * @param contextIds	 
+	 *			 select resources where CONTENT_RESOURCE.CONTEXT in [context,...]
+	 * @return List of ContentResource objects that match the search criteria
+	 */
+	public List<ContentResource> findResources(String type, String primaryMimeType, String subMimeType,  Set<String> contextIds);
+  
+	/**
+	 * Find all resources in sites the current user can access that match the spcified type and mime type
 	 * 
 	 * @param type
 	 *        this is the ResourceProperties.PROP_STRUCTOBJ_TYPE for stuctured objects or ResourceProperties.FILE_TYPE for file resources or null for all resources.
@@ -1685,7 +1700,7 @@ public interface ContentHostingService extends EntityProducer
 	 * Retrieve a collection of ContentResource objects of a particular resource-type in a set of contexts
 	 *
 	 * @param resourceType select resources where CONTENT_RESOURCE.RESOURCE_TYPE_ID equals resourceType
-	 * @param context	 select resources where CONTENT_RESOURCE.CONTEXT in [context,...]
+	 * @param contextIds	 select resources where CONTENT_RESOURCE.CONTEXT in [context,...]
 	 * @return collection of ContentResource
 	 */
 	public Collection<ContentResource> getContextResourcesOfType(String resourceType, Set<String> contextIds);

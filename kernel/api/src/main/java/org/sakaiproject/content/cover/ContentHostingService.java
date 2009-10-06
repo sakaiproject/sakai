@@ -818,6 +818,14 @@ public class ContentHostingService
 		service.removeAllLocks(id);
 	}
 
+	public static java.util.List findResources(String type, String primaryMimeType, String subMimeType,  Set<String> contextIds)
+	{
+		org.sakaiproject.content.api.ContentHostingService service = getInstance();
+		if (service == null) return null;
+
+		return service.findResources(type, primaryMimeType, subMimeType);
+	}
+  
 	public static java.util.List findResources(String type, String primaryMimeType, String subMimeType)
 	{
 		org.sakaiproject.content.api.ContentHostingService service = getInstance();

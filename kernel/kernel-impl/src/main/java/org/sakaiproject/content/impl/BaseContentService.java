@@ -8747,6 +8747,24 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	/**
 	 * {@inheritDoc}
 	 */
+	public List findResources(String type, String primaryMimeType, String subMimeType,  Set<String> contextIds)
+	{
+		List globalList = new ArrayList();
+
+		Iterator siteIt = contextIds.iterator();
+		while (siteIt.hasNext())
+		{
+			String collId = getSiteCollection( (String)siteIt.next() );
+			List artifacts = getFlatResources(collId);
+			globalList.addAll(filterArtifacts(artifacts, type, primaryMimeType, subMimeType, true));
+		}
+
+		return globalList;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public List findResources(String type, String primaryMimeType, String subMimeType)
 	{
 		List globalList = new ArrayList();
@@ -8757,7 +8775,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		{
 			Entry entry = (Entry) siteIt.next();
 			String collId = (String) entry.getKey();
-			String displayName = (String) entry.getValue();
 			List artifacts = getFlatResources(collId);
 			globalList.addAll(filterArtifacts(artifacts, type, primaryMimeType, subMimeType, true));
 		}
