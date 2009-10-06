@@ -253,13 +253,13 @@ public class SearchBeanImpl implements SearchBean
 
 	private void loadTermVectors()
 	{
-		StringBuilder sb = new StringBuilder();
-		List searchResults = search();
+		
+		List<SearchResult> searchResults = search();
 		if (searchResults != null)
 		{
 			termsVectors = new ArrayList<TermFrequency>();
 			termList = null;
-			for (Iterator i = searchResults.iterator(); i.hasNext();)
+			for (Iterator<SearchResult> i = searchResults.iterator(); i.hasNext();)
 			{
 
 				SearchResult sr = (SearchResult) i.next();
@@ -938,10 +938,10 @@ public class SearchBeanImpl implements SearchBean
 		for (Iterator li = l.iterator(); li.hasNext();)
 		{
 			final TermHolder t = (TermHolder) li.next();
-			float f = (topTerms * t.frequency) / factor;
+			float f = (float)(topTerms * t.frequency) / factor;
 			if (relativeTerms)
 			{
-				f = (topTerms * (l.size() - t.position)) / l.size();
+				f = (float)(topTerms * (l.size() - t.position)) / l.size();
 			}
 			f = f / divisorTerms;
 			j--;
