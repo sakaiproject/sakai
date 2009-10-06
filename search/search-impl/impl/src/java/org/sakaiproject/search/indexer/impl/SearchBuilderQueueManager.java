@@ -120,7 +120,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 	 */
 	public void prepare(IndexTransaction transaction)
 	{
-		// At the moment I dont think that we need to do anything here, we could
+		// At the moment I dot think that we need to do anything here, we could
 		// brign the work of the
 		// commit phase in here leaving the final commit to the last method,
 		// but that would mean taking the connection over more than one cycle.
@@ -307,8 +307,8 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 				else
 				{
 					// get all site masters and perform the required action.
-					List siteMasters = getSiteMasterItems(connection);
-					for (Iterator i = siteMasters.iterator(); i.hasNext();)
+					List<SearchBuilderItem> siteMasters = getSiteMasterItems(connection);
+					for (Iterator<SearchBuilderItem> i = siteMasters.iterator(); i.hasNext();)
 					{
 						SearchBuilderItem siteMaster = (SearchBuilderItem) i.next();
 						try
@@ -783,13 +783,14 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			connection.commit();
 			log
 					.debug("ADD ALL RECORDS ==========================================================="); //$NON-NLS-1$
-			long lastupdate = System.currentTimeMillis();
+			
 			List<String> contextList = new ArrayList<String>();
 			if (SearchBuilderItem.GLOBAL_CONTEXT.equals(controlItem.getContext()))
 			{
 
-				for (Iterator i = SiteService.getSites(SelectionType.ANY, null, null,
-						null, SortType.NONE, null).iterator(); i.hasNext();)
+				List<Site> sites = SiteService.getSites(SelectionType.ANY, null, null,
+						null, SortType.NONE, null);
+				for (Iterator<Site> i = sites.iterator(); i.hasNext();)
 				{
 					Site s = (Site) i.next();
 					if (!SiteService.isSpecialSite(s.getId())
@@ -814,26 +815,35 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			{
 				contextList.add(controlItem.getContext());
 			}
-			for (Iterator c = contextList.iterator(); c.hasNext();)
+			
+			//These will never change
+			List<EntityContentProducer> contentProducers = searchIndexBuilder.getContentProducers();
+			
+			//Iterate through each site
+			for (Iterator<String> c = contextList.iterator(); c.hasNext();)
 			{
 				String siteContext = (String) c.next();
 				log.info("Rebuild for " + siteContext); //$NON-NLS-1$
-				for (Iterator i = searchIndexBuilder.getContentProducers().iterator(); i
+				
+				for (Iterator<EntityContentProducer> i = contentProducers.iterator(); i
 						.hasNext();)
 				{
 					EntityContentProducer ecp = (EntityContentProducer) i.next();
 
-					Iterator contentIterator = null;
+					Iterator<String> contentIterator = null;
 					try
 					{
 						contentIterator = ecp.getSiteContentIterator(siteContext);
-						log.debug("Using ECP " + ecp); //$NON-NLS-1$
+						if (log.isDebugEnabled())
+							log.debug("Using ECP " + ecp); //$NON-NLS-1$
 
 						int added = 0;
 						for (; contentIterator.hasNext();)
 						{
 							String resourceName = (String) contentIterator.next();
-							log.debug("Checking " + resourceName); //$NON-NLS-1$
+							if (log.isDebugEnabled())
+								log.debug("Checking " + resourceName); //$NON-NLS-1$
+							
 							if (resourceName == null || resourceName.length() > 255)
 							{
 								log
@@ -874,7 +884,8 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 							connection.commit();
 
 						}
-						log.debug(" Added " + added); //$NON-NLS-1$
+						if (log.isDebugEnabled())
+							log.debug(" Added " + added); //$NON-NLS-1$
 					}
 					catch (Exception ex)
 					{
