@@ -505,7 +505,7 @@ public class PublishedAssessmentFacade
     }
     else{ // add
       PublishedMetaData metadata = null;
-      if (!("").equals(entry.trim())){
+      if (entry!=null && !("").equals(entry.trim())){
         metadata = new PublishedMetaData(this.data, label, entry);
         this.publishedMetaDataSet.add(metadata);
       }

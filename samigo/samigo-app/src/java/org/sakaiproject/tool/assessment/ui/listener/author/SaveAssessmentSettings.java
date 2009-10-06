@@ -184,9 +184,10 @@ public class SaveAssessmentSettings
     // g. set password
     control.setPassword(FormattedText.convertPlaintextToFormattedText(assessmentSettings.getPassword()));
     // h. set finalPageUrl
-    String finalPageUrl = assessmentSettings.getFinalPageUrl();
-    if (finalPageUrl != null) {
-    	finalPageUrl = FormattedText.convertPlaintextToFormattedText(finalPageUrl.trim());
+
+    String finalPageUrl = "";
+    if (assessmentSettings.getFinalPageUrl() != null) {
+    	finalPageUrl = FormattedText.convertPlaintextToFormattedText(assessmentSettings.getFinalPageUrl().trim());
     	if (finalPageUrl.length() != 0 && !finalPageUrl.toLowerCase().startsWith("http")) {
     		finalPageUrl = "http://" + finalPageUrl;
     	}
