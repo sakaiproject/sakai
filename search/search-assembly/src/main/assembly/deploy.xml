@@ -13,9 +13,9 @@
             <outputDirectory>shared/lib</outputDirectory>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
-                <include>org.sakaiproject.search-api:*:jar:*</include>
-                <include>org.sakaiproject.search-model:*:jar:*</include>
-                <include>org.sakaiproject.search-help:*:jar:*</include>
+                <include>org.sakaiproject.search:search-api:jar:*</include>
+                <include>org.sakaiproject.search:search-model:jar:*</include>
+                <include>org.sakaiproject.search:search-help:jar:*</include>
             </includes>
         </dependencySet>
         <!-- stuff that goes into components -->
@@ -33,7 +33,7 @@
             <outputFileNameMapping>${artifact.artifactId}.war</outputFileNameMapping>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
-                <include>org.sakaiproject.search:search-tool:war:*</include>
+                <include>org.sakaiproject.search:sakai-search-tool:war:*</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>

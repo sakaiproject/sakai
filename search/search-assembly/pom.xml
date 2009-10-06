@@ -46,7 +46,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.search</groupId>
-			<artifactId>search-tool</artifactId>
+			<artifactId>sakai-search-tool</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
 			<type>war</type>
