@@ -307,26 +307,26 @@ public class TransactionalIndexWorker implements IndexWorker
 								if (container == null) container = ""; //$NON-NLS-1$
 								doc.add(new Field(SearchService.DATE_STAMP, String
 										.valueOf(System.currentTimeMillis()),
-										Field.Store.COMPRESS, Field.Index.UN_TOKENIZED));
+										Field.Store.COMPRESS, Field.Index.NOT_ANALYZED));
 								doc.add(new Field(SearchService.FIELD_CONTAINER,
 										filterNull(container), Field.Store.COMPRESS,
-										Field.Index.UN_TOKENIZED));
+										Field.Index.NOT_ANALYZED));
 								doc.add(new Field(SearchService.FIELD_ID, filterNull(sep
 										.getId(ref)), Field.Store.COMPRESS,
 										Field.Index.NO));
 								doc.add(new Field(SearchService.FIELD_TYPE,
 										filterNull(sep.getType(ref)),
-										Field.Store.COMPRESS, Field.Index.UN_TOKENIZED));
+										Field.Store.COMPRESS, Field.Index.NOT_ANALYZED));
 								doc.add(new Field(SearchService.FIELD_SUBTYPE,
 										filterNull(sep.getSubType(ref)),
-										Field.Store.COMPRESS, Field.Index.UN_TOKENIZED));
+										Field.Store.COMPRESS, Field.Index.NOT_ANALYZED));
 								doc.add(new Field(SearchService.FIELD_REFERENCE,
 										filterNull(ref), Field.Store.COMPRESS,
-										Field.Index.UN_TOKENIZED));
+										Field.Index.NOT_ANALYZED));
 
 								doc.add(new Field(SearchService.FIELD_CONTEXT,
 										filterNull(sep.getSiteId(ref)),
-										Field.Store.COMPRESS, Field.Index.UN_TOKENIZED));
+										Field.Store.COMPRESS, Field.Index.NOT_ANALYZED));
 								
 								// add last part of the index as this is the filename
 								String idIndex = sep.getId(ref);
@@ -337,13 +337,13 @@ public class TransactionalIndexWorker implements IndexWorker
 								
 								doc.add(new Field(SearchService.FIELD_CONTENTS,
 										idIndex, Field.Store.COMPRESS,
-										Field.Index.TOKENIZED, Field.TermVector.YES));
+										Field.Index.ANALYZED, Field.TermVector.YES));
 
 								// add the title 
 								String title = filterPunctuation(sep.getTitle(ref));
 								doc.add(new Field(SearchService.FIELD_CONTENTS,
 										title, Field.Store.COMPRESS,
-										Field.Index.TOKENIZED, Field.TermVector.YES));
+										Field.Index.ANALYZED, Field.TermVector.YES));
 
 								if (sep.isContentFromReader(ref))
 								{
@@ -367,7 +367,7 @@ public class TransactionalIndexWorker implements IndexWorker
 									int docCount = getDocCount(ref) + 1;
 									doc.add(new Field(SearchService.FIELD_CONTENTS,
 											filterNull(content), Field.Store.NO,
-											Field.Index.TOKENIZED, Field.TermVector.YES));
+											Field.Index.ANALYZED, Field.TermVector.YES));
 							if (sep instanceof StoredDigestContentProducer) {
 										doc.add(new Field(SearchService.FIELD_DIGEST_COUNT,
 												Integer.valueOf(docCount).toString(), Field.Store.COMPRESS, Field.Index.NO, Field.TermVector.NO));
@@ -378,17 +378,17 @@ public class TransactionalIndexWorker implements IndexWorker
 
 								doc.add(new Field(SearchService.FIELD_TITLE,
 										filterNull(sep.getTitle(ref)),
-										Field.Store.COMPRESS, Field.Index.TOKENIZED,
+										Field.Store.COMPRESS, Field.Index.ANALYZED,
 										Field.TermVector.YES));
 								doc.add(new Field(SearchService.FIELD_TOOL,
 										filterNull(sep.getTool()), Field.Store.COMPRESS,
-										Field.Index.UN_TOKENIZED));
+										Field.Index.NOT_ANALYZED));
 								doc.add(new Field(SearchService.FIELD_URL,
 										filterUrl(filterNull(sep.getUrl(ref))),
-										Field.Store.COMPRESS, Field.Index.UN_TOKENIZED));
+										Field.Store.COMPRESS, Field.Index.NOT_ANALYZED));
 								doc.add(new Field(SearchService.FIELD_SITEID,
 										filterNull(sep.getSiteId(ref)),
-										Field.Store.COMPRESS, Field.Index.UN_TOKENIZED));
+										Field.Store.COMPRESS, Field.Index.NOT_ANALYZED));
 
 								// add the custom properties
 
@@ -427,7 +427,7 @@ public class TransactionalIndexWorker implements IndexWorker
 													doc.add(new Field(key,
 															filterNull(values[i]),
 															Field.Store.COMPRESS,
-															Field.Index.TOKENIZED,
+															Field.Index.ANALYZED,
 															Field.TermVector.YES));
 												}
 												else
@@ -435,7 +435,7 @@ public class TransactionalIndexWorker implements IndexWorker
 													doc.add(new Field(key,
 															filterNull(values[i]),
 															Field.Store.COMPRESS,
-															Field.Index.UN_TOKENIZED));
+															Field.Index.NOT_ANALYZED));
 												}
 											}
 										}
