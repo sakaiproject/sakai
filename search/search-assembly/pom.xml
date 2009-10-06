@@ -16,7 +16,7 @@
     <parent>
         <artifactId>search</artifactId>
         <groupId>org.sakaiproject.search</groupId>
-        <version>1.2-SNAPSHOT</version><!--entitybroker.version-->
+        <version>1.2-SNAPSHOT</version>
     </parent>
     <dependencies>
         <dependency>
@@ -79,7 +79,6 @@
                     <execution>
                         <id>make-assembly</id> <!-- this is used for inheritance merges -->
                         <phase>package</phase> <!-- append to the packaging phase. -->
-                        <!-- <phase>install</phase> --> <!-- append to the install phase. -->
                         <goals>
                             <goal>attached</goal> <!-- goals == mojos -->
                         </goals>
