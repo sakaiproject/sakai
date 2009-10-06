@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.sakaiproject.search.model.SearchBuilderItem;
+
 
 /**
  * Provides a search interface
@@ -134,7 +136,7 @@ public interface SearchService extends Diagnosable
 	 * @param searchStart
 	 * @return
 	 */
-	SearchList search(String searchTerms, List contexts, int searchStart,
+	SearchList search(String searchTerms, List<String> contexts, int searchStart,
 			int searchEnd);
 
 	/**
@@ -151,7 +153,7 @@ public interface SearchService extends Diagnosable
 	 * @param sorterName a lucene sorter
 	 * @return
 	 */
-	public SearchList search(String searchTerms, List contexts, int start,
+	public SearchList search(String searchTerms, List<String> contexts, int start,
 			int end, String filterName, String sorterName);
 	/**
 	 * Adds a function for the SearchService to respond to and route to the
@@ -217,21 +219,21 @@ public interface SearchService extends Diagnosable
 	 * 
 	 * @return
 	 */
-	List getAllSearchItems();
+	List<SearchBuilderItem> getAllSearchItems();
 
 	/**
 	 * get the master itemf to sthe site
 	 * 
 	 * @return
 	 */
-	List getSiteMasterSearchItems();
+	List<SearchBuilderItem> getSiteMasterSearchItems();
 
 	/**
 	 * get the global master items
 	 * 
 	 * @return
 	 */
-	List getGlobalMasterSearchItems();
+	List<SearchBuilderItem> getGlobalMasterSearchItems();
 
 	/**
 	 * Get the status of the search engine

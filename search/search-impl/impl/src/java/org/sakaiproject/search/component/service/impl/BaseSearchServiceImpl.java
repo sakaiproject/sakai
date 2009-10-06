@@ -67,6 +67,7 @@ import org.sakaiproject.search.component.Messages;
 import org.sakaiproject.search.filter.SearchItemFilter;
 import org.sakaiproject.search.index.IndexReloadListener;
 import org.sakaiproject.search.index.IndexStorage;
+import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -308,7 +309,7 @@ public abstract class BaseSearchServiceImpl implements SearchService
 		return search(searchTerms, contexts, start, end, defaultFilter, defaultSorter);
 	}
 
-	public SearchList search(String searchTerms, List contexts, int start, int end,
+	public SearchList search(String searchTerms, List<String> contexts, int start, int end,
 			String filterName, String sorterName)
 	{
 		try
@@ -322,7 +323,7 @@ public abstract class BaseSearchServiceImpl implements SearchService
 			if (contexts != null && contexts.size() > 0)
 			{
 				BooleanQuery contextQuery = new BooleanQuery();
-				for (Iterator i = contexts.iterator(); i.hasNext();)
+				for (Iterator<String> i = contexts.iterator(); i.hasNext();)
 				{
 					// Setup query so that it will allow results from any
 					// included site, not all included sites.
@@ -347,7 +348,7 @@ public abstract class BaseSearchServiceImpl implements SearchService
 					PostMethod post = new PostMethod(searchServerUrl);
 					String userId = sessionManager.getCurrentSessionUserId();
 					StringBuilder sb = new StringBuilder();
-					for (Iterator ci = contexts.iterator(); ci.hasNext();)
+					for (Iterator<String> ci = contexts.iterator(); ci.hasNext();)
 					{
 						sb.append(ci.next()).append(";"); //$NON-NLS-1$
 					}
@@ -512,17 +513,17 @@ public abstract class BaseSearchServiceImpl implements SearchService
 		return searchIndexBuilder.getPendingDocuments();
 	}
 
-	public List getAllSearchItems()
+	public List<SearchBuilderItem> getAllSearchItems()
 	{
 		return searchIndexBuilder.getAllSearchItems();
 	}
 
-	public List getSiteMasterSearchItems()
+	public List<SearchBuilderItem> getSiteMasterSearchItems()
 	{
 		return searchIndexBuilder.getSiteMasterSearchItems();
 	}
 
-	public List getGlobalMasterSearchItems()
+	public List<SearchBuilderItem> getGlobalMasterSearchItems()
 	{
 		return searchIndexBuilder.getGlobalMasterSearchItems();
 	}
