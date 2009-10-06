@@ -52,9 +52,9 @@ update assignment_submission set xml = replace(xml,unistr('"\6c92\6709\8a55\5206
 -- This might have been added with the 2.6.0 conversion but was added after release
 
 MERGE INTO SAKAI_REALM_FUNCTION a USING (
-     SELECT 'test.function' as FUNCTION_NAME from dual) b
+     SELECT 'asn.share.drafts' as FUNCTION_NAME from dual) b
  ON (a.FUNCTION_NAME = b.FUNCTION_NAME)
- WHEN NOT MATCHED THEN INSERT (FUNCTION_KEY,FUNCTION_NAME) VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'test.function');
+ WHEN NOT MATCHED THEN INSERT (FUNCTION_KEY,FUNCTION_NAME) VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'asn.share.drafts');
 
 -- Two recent Jira's (http://jira.sakaiproject.org/browse/SAK-17061) and (http://jira.sakaiproject.org/browse/PRFL-97) 
 -- have uncovered that when the field 'locked' was added to the SAKAI_PERSON_T a while ago 
