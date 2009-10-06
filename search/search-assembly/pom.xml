@@ -64,7 +64,8 @@
 				<executions>
 					<execution>
 						<id>make-assembly</id> <!-- this is used for inheritance merges -->
-						<phase>install</phase> <!-- append to the install phase. -->
+                        <phase>package</phase> <!-- append to the packaging phase. -->
+						<!-- <phase>install</phase> --> <!-- append to the install phase. -->
 						<goals>
 							<goal>assembly</goal> <!-- goals == mojos -->
 						</goals>
