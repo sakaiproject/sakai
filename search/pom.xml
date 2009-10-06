@@ -141,7 +141,7 @@
                         <url>http://source.sakaiproject.org/maven2-snapshots
                         </url>
                         <snapshots>
-                                <enabled>false</enabled>
+                                <enabled>true</enabled>
                         </snapshots>
                 </repository>
 
