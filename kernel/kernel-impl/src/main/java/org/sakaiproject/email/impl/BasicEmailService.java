@@ -77,25 +77,28 @@ public class BasicEmailService implements EmailService
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BasicEmailService.class);
 
+	protected static final String PROTOCOL_SMTP = "smtp";
+	protected static final String PROTOCOL_SMTPS = "smtps";
+
 	protected static final String POSTMASTER = "postmaster";
 
 	/** As defined in the com.sun.mail.smtp part of javamail. */
 
 	/** The SMTP server to connect to. */
-	public static final String SMTP_HOST = "mail.smtp.host";
+	public static final String MAIL_HOST_T = "mail.%1$s.host";
 
 	/**
 	 * The SMTP server port to connect to, if the connect() method doesn't explicitly specify one.
 	 * Defaults to 25.
 	 */
-	public static final String SMTP_PORT = "mail.smtp.port";
+	public static final String MAIL_PORT_T = "mail.%1$s.port";
 
 	/**
 	 * Email address to use for SMTP MAIL command. This sets the envelope return address. Defaults
 	 * to msg.getFrom() or InternetAddress.getLocalAddress(). NOTE: mail.smtp.user was previously
 	 * used for this.
 	 */
-	public static final String SMTP_FROM = "mail.smtp.from";
+	public static final String MAIL_FROM_T = "mail.%1$s.from";
 
 	/**
 	 * If set to true, and a message has some valid and some invalid addresses, send the message
@@ -103,23 +106,36 @@ public class BasicEmailService implements EmailService
 	 * default), the message is not sent to any of the recipients if there is an invalid recipient
 	 * address.
 	 */
-	public static final String SMTP_SENDPARTIAL = "mail.smtp.sendpartial";
+	public static final String MAIL_SENDPARTIAL_T = "mail.%1$s.sendpartial";
 
 	/** Socket connection timeout value in milliseconds. Default is infinite timeout. */
-	public static final String SMTP_CONNECTIONTIMEOUT = "mail.smtp.connectiontimeout";
+	public static final String MAIL_CONNECTIONTIMEOUT_T = "mail.%1$s.connectiontimeout";
 
 	/** Socket I/O timeout value in milliseconds. Default is infinite timeout. */
-	public static final String SMTP_TIMEOUT = "mail.smtp.timeout";
+	public static final String MAIL_TIMEOUT_T = "mail.%1$s.timeout";
 
-	/**
-	 * Hostname used in outgoing SMTP HELO commands.
-	 */
-	public static final String SMTP_LOCALHOST = "mail.smtp.localhost";
+	/** Whether to authenticate when connecting to the mail server */
+	public static final String MAIL_AUTH_T = "mail.%1$s.auth";
+
+	/** Whether to enable the starting TLS */
+	public static final String MAIL_TLS_ENABLE_T = "mail.%1$s.starttls.enable";
+
+	/** What socket factory to use when connecting over SSL */
+	public static final String MAIL_SOCKET_FACTORY_CLASS_T = "mail.%1$s.socketFactory.class";
+
+	/** Whether to fallback to a different protocol if first attempt fails. */
+	public static final String MAIL_SOCKET_FACTORY_FALLBACK_T = "mail.%1$s.socketFactory.fallback";
+
+	/** Hostname used in outgoing SMTP HELO commands. */
+	public static final String MAIL_LOCALHOST_T = "mail.%1$s.localhost";
+
+	/** Class name of SSL socket factory */
+	public static final String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
+
+	/** Whether to turn on mail debugging */
+	public static final String MAIL_DEBUG = "mail.debug";
 
 	protected static final String CONTENT_TYPE = ContentType.TEXT_PLAIN;
-
-	/** Protocol name for smtp. */
-	protected static final String SMTP_PROTOCOL = "smtp";
 
 	protected ServerConfigurationService serverConfigurationService;
 
@@ -127,6 +143,9 @@ public class BasicEmailService implements EmailService
 	{
 		this.serverConfigurationService = serverConfigurationService;
 	}
+
+	/** The protocol to use when connecting to the mail server */
+	private String protocol;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Configuration Note: keep these in sync with the TestEmailService, to make switching between them easier -ggolden
@@ -188,18 +207,32 @@ public class BasicEmailService implements EmailService
 		m_smtpPassword = value;
 	}
 
-	/** Configuration: send over SSL (or not). */
-	protected boolean m_smtpUseSSL = false;
+ 	/** Configuration: send over SSL (or not) */
+ 	protected boolean m_smtpUseSSL;
 
 	/**
 	 * Configuration: send over SSL (or not)
 	 * 
+	 * @param useSSL
+	 *            The setting
+	 */
+	public void setSmtpUseSSL(boolean useSSL)
+	{
+		m_smtpUseSSL = useSSL;
+	}
+
+	/** Configuration: send using TLS (or not). */
+	protected boolean m_smtpUseTLS = false;
+
+	/**
+	 * Configuration: send using TLS (or not)
+	 * 
 	 * @param value
 	 *        The setting
 	 */
-	public void setSmtpUseSSL(boolean value)
+	public void setSmtpUseTLS(boolean value)
 	{
-		m_smtpUseSSL = value;
+		m_smtpUseTLS = value;
 	}
 
 	/** Configuration: set the mail.debug property so we can get proper output from javamail (or not). */
@@ -250,7 +283,7 @@ public class BasicEmailService implements EmailService
 	 * checks and validations that testMode = true does not.
 	 */
 	protected boolean allowTransport = true;
-	
+
 	public void setAllowTransport(boolean allowTransport)
 	{
 		this.allowTransport = allowTransport;
@@ -286,10 +319,10 @@ public class BasicEmailService implements EmailService
 	{
 		m_oneMessagePerConnection = value;
 	}
-	
+
 	/** Hostname to use for SMTP HELO commands */
 	protected String m_smtpLocalhost = null;
-	
+
 	/**
 	 * Hostname to use for SMTP HELO commands.
 	 * RFC1123 section 5.2.5 and RFC2821 section 4.1.1.1
@@ -301,7 +334,7 @@ public class BasicEmailService implements EmailService
 	{
 		m_smtpLocalhost = value;
 	}
-  
+
 	/** Configuration: Socket connection timeout value in milliseconds. Default is infinite timeout. */
 	protected String m_smtpConnectionTimeout = null;
 	
@@ -317,21 +350,41 @@ public class BasicEmailService implements EmailService
 	 */
 	public void init()
 	{
+		// set the protocol to be used
+		if (m_smtpUseSSL)
+		{
+			protocol = PROTOCOL_SMTPS;
+		}
+		else
+		{
+			protocol = PROTOCOL_SMTP;
+		}
+
 		// if no m_mailfrom set, set to the postmaster
 		if (m_smtpFrom == null)
 		{
 			m_smtpFrom = POSTMASTER + "@" + serverConfigurationService.getServerName();
 		}
-		// initialize smtp timeout values
-		m_smtpConnectionTimeout = serverConfigurationService.getString(SMTP_CONNECTIONTIMEOUT, null);
-		m_smtpTimeout = serverConfigurationService.getString(SMTP_TIMEOUT, null);
+		// initialize timeout values
+		m_smtpConnectionTimeout = serverConfigurationService.getString(propName(MAIL_CONNECTIONTIMEOUT_T), null);
+		m_smtpTimeout = serverConfigurationService.getString(propName(MAIL_TIMEOUT_T), null);
+
+		// check for smtp protocol labeled values for backwards compatibility
+		if (PROTOCOL_SMTPS.equals(protocol))
+		{
+			if (m_smtpConnectionTimeout == null)
+				m_smtpConnectionTimeout = serverConfigurationService.getString(propName(MAIL_CONNECTIONTIMEOUT_T, PROTOCOL_SMTP), null);
+		
+			if (m_smtpTimeout == null)
+				m_smtpTimeout = serverConfigurationService.getString(propName(MAIL_TIMEOUT_T, PROTOCOL_SMTP), null);
+		}
 
 		// promote these to the system properties, to keep others (James) from messing with them
-		if (m_smtp != null) System.setProperty(SMTP_HOST, m_smtp);
-		if (m_smtpPort != null) System.setProperty(SMTP_PORT, m_smtpPort);
-		System.setProperty(SMTP_FROM, m_smtpFrom);
-		if (m_smtpConnectionTimeout != null) System.setProperty(SMTP_CONNECTIONTIMEOUT, m_smtpConnectionTimeout);
-		if (m_smtpTimeout != null) System.setProperty(SMTP_TIMEOUT, m_smtpTimeout);
+		if (m_smtp != null) System.setProperty(propName(MAIL_HOST_T), m_smtp);
+		if (m_smtpPort != null) System.setProperty(propName(MAIL_PORT_T), m_smtpPort);
+		System.setProperty(propName(MAIL_FROM_T), m_smtpFrom);
+		if (m_smtpConnectionTimeout != null) System.setProperty(propName(MAIL_CONNECTIONTIMEOUT_T), m_smtpConnectionTimeout);
+		if (m_smtpTimeout != null) System.setProperty(propName(MAIL_TIMEOUT_T), m_smtpTimeout);
 
 		M_log.info("init(): smtp: " + m_smtp + ((m_smtpPort != null) ? (":" + m_smtpPort) : "") + " bounces to: " + m_smtpFrom
 				+ " maxRecipients: " + m_maxRecipients + " testMode: " + m_testMode
@@ -473,11 +526,11 @@ public class BasicEmailService implements EmailService
 			// the character set, for example, windows-1252 or UTF-8
 			String charset = extractCharset(contentTypeHeader);
 
-                       if (charset != null && canUseCharset(content, charset) && canUseCharset(subject, charset))
+			if (charset != null && canUseCharset(content, charset) && canUseCharset(subject, charset))
 			{
 				// use the charset from the Content-Type header
 			}
-                       else if (canUseCharset(content, CharacterSet.ISO_8859_1) && canUseCharset(subject, CharacterSet.ISO_8859_1))
+			else if (canUseCharset(content, CharacterSet.ISO_8859_1) && canUseCharset(subject, CharacterSet.ISO_8859_1))
 			{
 				if (contentTypeHeader != null && charset != null)
 					contentTypeHeader = contentTypeHeader.replaceAll(charset, CharacterSet.ISO_8859_1);
@@ -485,13 +538,13 @@ public class BasicEmailService implements EmailService
 					contentTypeHeader += "; charset=" + CharacterSet.ISO_8859_1;
 				charset = CharacterSet.ISO_8859_1;
 			}
-                       else if (canUseCharset(content, CharacterSet.WINDOWS_1252) && canUseCharset(subject, CharacterSet.WINDOWS_1252))
+			else if (canUseCharset(content, CharacterSet.WINDOWS_1252) && canUseCharset(subject, CharacterSet.WINDOWS_1252))
 			{
 				if (contentTypeHeader != null && charset != null)
 					contentTypeHeader = contentTypeHeader.replaceAll(charset, CharacterSet.WINDOWS_1252);
 				else if (contentTypeHeader != null)
 					contentTypeHeader += "; charset=" + CharacterSet.WINDOWS_1252;
-                               charset = CharacterSet.WINDOWS_1252;
+					charset = CharacterSet.WINDOWS_1252;
 			}
 			else
 			{
@@ -536,7 +589,7 @@ public class BasicEmailService implements EmailService
 					M_log.debug((String)allHeaders.nextElement());
 				}
 			}
-			
+
 			sendMessageAndLog(from, to, subject, headerTo, start, msg, session);
 		}
 		catch (MessagingException e)
@@ -638,7 +691,6 @@ public class BasicEmailService implements EmailService
 			return;
 		}
 
-
 		if (users == null)
 		{
 			M_log.warn("sendToUsers: null users");
@@ -723,7 +775,7 @@ public class BasicEmailService implements EmailService
 		try
 		{
 			if (M_log.isDebugEnabled()) time1 = System.currentTimeMillis();
-			Transport transport = session.getTransport(SMTP_PROTOCOL);
+			Transport transport = session.getTransport(protocol);
 
 			if (M_log.isDebugEnabled()) time2 = System.currentTimeMillis();
 			msg.saveChanges();
@@ -819,25 +871,31 @@ public class BasicEmailService implements EmailService
 	{
 		Properties props = new Properties();
 
-		props.put(SMTP_HOST, m_smtp);
+		props.put(propName(MAIL_HOST_T), m_smtp);
 		// Set localhost name
 		if (m_smtpLocalhost != null)
-			props.put(SMTP_LOCALHOST, m_smtpLocalhost);
-		if (m_smtpPort != null) props.put(SMTP_PORT, m_smtpPort);
-		props.put(SMTP_FROM, m_smtpFrom);
-		props.put(SMTP_SENDPARTIAL, "true");
-		if (m_smtpConnectionTimeout != null) props.put(SMTP_CONNECTIONTIMEOUT, m_smtpConnectionTimeout);
-		if (m_smtpTimeout != null) props.put(SMTP_TIMEOUT, m_smtpTimeout);
+			props.put(propName(MAIL_LOCALHOST_T), m_smtpLocalhost);
+		if (m_smtpPort != null) props.put(propName(MAIL_PORT_T), m_smtpPort);
+		props.put(propName(MAIL_FROM_T), m_smtpFrom);
+		props.put(propName(MAIL_SENDPARTIAL_T), Boolean.TRUE.toString());
+		if (m_smtpConnectionTimeout != null) props.put(propName(MAIL_CONNECTIONTIMEOUT_T), m_smtpConnectionTimeout);
+		if (m_smtpTimeout != null) props.put(propName(MAIL_TIMEOUT_T), m_smtpTimeout);
 
 		// smtpUser and smtpPassword are set, so assume mail.smtp.auth
 		if(m_smtpUser != null && m_smtpPassword != null)
-			props.put("mail.smtp.auth", "true");
+			props.put(propName(MAIL_AUTH_T), Boolean.TRUE.toString());
 
-		if(m_smtpUseSSL)
-			props.put("mail.smtp.starttls.enable", "true");
+		if(m_smtpUseTLS)
+			props.put(propName(MAIL_TLS_ENABLE_T), Boolean.TRUE.toString());
 
-		if(m_smtpDebug)
-			props.put("mail.debug", "true");
+		if (m_smtpUseSSL)
+		{
+			props.put(propName(MAIL_SOCKET_FACTORY_CLASS_T), SSL_FACTORY);
+			props.put(propName(MAIL_SOCKET_FACTORY_FALLBACK_T), Boolean.FALSE.toString());
+		}
+
+		if (m_smtpDebug)
+			props.put(MAIL_DEBUG, Boolean.TRUE.toString());
 
 		return props;
 	}
@@ -1232,9 +1290,9 @@ public class BasicEmailService implements EmailService
 		{
 			msg.saveChanges();
 
-			Transport transport = session.getTransport(SMTP_PROTOCOL);
+			Transport transport = session.getTransport(protocol);
 
-		    if(m_smtpUser != null && m_smtpPassword != null)
+			if(m_smtpUser != null && m_smtpPassword != null)
 				transport.connect(m_smtp,m_smtpUser,m_smtpPassword);
 			else
 				transport.connect();
@@ -1447,11 +1505,11 @@ public class BasicEmailService implements EmailService
 					}
 				}
 
-                               if (charset != null && canUseCharset(message, charset) && canUseCharset(getSubject(), charset))
+				if (charset != null && canUseCharset(message, charset) && canUseCharset(getSubject(), charset))
 				{
 					// use the charset from the Content-Type header
 				}
-                               else if (canUseCharset(message, CharacterSet.ISO_8859_1) && canUseCharset(getSubject(), CharacterSet.ISO_8859_1))
+				else if (canUseCharset(message, CharacterSet.ISO_8859_1) && canUseCharset(getSubject(), CharacterSet.ISO_8859_1))
 				{
 					if (contentType != null && charset != null)
 						contentType = contentType.replaceAll(charset, CharacterSet.ISO_8859_1);
@@ -1459,7 +1517,7 @@ public class BasicEmailService implements EmailService
 						contentType += "; charset=" + CharacterSet.ISO_8859_1;
 					charset = CharacterSet.ISO_8859_1;
 				}
-                               else if (canUseCharset(message, CharacterSet.WINDOWS_1252) && canUseCharset(getSubject(), CharacterSet.WINDOWS_1252))
+				else if (canUseCharset(message, CharacterSet.WINDOWS_1252) && canUseCharset(getSubject(), CharacterSet.WINDOWS_1252))
 				{
 					if (contentType != null && charset != null)
 						contentType = contentType.replaceAll(charset, CharacterSet.WINDOWS_1252);
@@ -1481,8 +1539,7 @@ public class BasicEmailService implements EmailService
 					charset = CharacterSet.UTF_8;
 				}
 				
-				if (contentType != null 
-				        && contentType.contains("multipart/")) {
+				if (contentType != null && contentType.contains("multipart/")) {
 					MimeMultipart multiPartContent = new MimeMultipart("alternative");
 					int indexOfStartOfBoundary = contentType.indexOf("boundary=\"") + 10;
 					String headerStartingWithBoundary = contentType.substring(indexOfStartOfBoundary);
@@ -1506,7 +1563,7 @@ public class BasicEmailService implements EmailService
 					// fill in the body of the message
 					setText(message, charset);
 				}
-            
+
 				// make sure correct charset is used for subject
 				if ( getSubject() != null ) 
 					setSubject(getSubject(), charset); 
@@ -1532,7 +1589,7 @@ public class BasicEmailService implements EmailService
 				setHeader("Message-Id", m_id);
 			}
 		}
-      
+
 		/** Encode (To,From,Cc) mail headers to safely include UTF-8 characters
 		 **/
 		private void addEncodedHeader(String header, String name) throws MessagingException 
@@ -1583,5 +1640,16 @@ public class BasicEmailService implements EmailService
 				  addHeaderLine(header);
 			 }
 		} 
+	}
+
+	public String propName(String propNameTemplate)
+	{
+		return propName(propNameTemplate, PROTOCOL_SMTP);
+	}
+
+	public String propName(String propNameTemplate, String protocol)
+	{
+		String formattedName = String.format(propNameTemplate, protocol);
+		return formattedName;
 	}
 }

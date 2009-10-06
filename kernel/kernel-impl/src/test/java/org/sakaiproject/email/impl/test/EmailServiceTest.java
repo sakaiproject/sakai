@@ -85,16 +85,6 @@ public class EmailServiceTest extends TestCase
 				log.info("Setting up test case...");
 				final ServerConfigurationService config = context
 						.mock(ServerConfigurationService.class);
-				context.checking(new Expectations() {{
-					allowing(config).getServerName();
-					will(returnValue("localhost"));
-
-					allowing(config).getString(BasicEmailService.SMTP_CONNECTIONTIMEOUT, null);
-					will(returnValue(null));
-
-					allowing(config).getString(BasicEmailService.SMTP_TIMEOUT, null);
-					will(returnValue(null));
-				}});
 
 				emailService = new BasicEmailService();
 				emailService.setServerConfigurationService(config);
@@ -104,6 +94,20 @@ public class EmailServiceTest extends TestCase
 				emailService.setMaxRecipients("100");
 				emailService.setOneMessagePerConnection(false);
 				emailService.setAllowTransport(ALLOW_TRANSPORT);
+
+				context.checking(new Expectations() {{
+					allowing(config).getServerName();
+					will(returnValue("localhost"));
+
+					String connTimeoutKey = emailService.propName(BasicEmailService.MAIL_CONNECTIONTIMEOUT_T);
+					allowing(config).getString(connTimeoutKey, null);
+					will(returnValue(null));
+
+					String timeoutKey = emailService.propName(BasicEmailService.MAIL_TIMEOUT_T);
+					allowing(config).getString(timeoutKey, null);
+					will(returnValue(null));
+				}});
+
 				System.err.println("Initing EmailService...");
 				emailService.init();
 				System.err.println("EmailService inited.");
