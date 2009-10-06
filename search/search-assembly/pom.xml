@@ -81,7 +81,7 @@
                         <phase>package</phase> <!-- append to the packaging phase. -->
                         <!-- <phase>install</phase> --> <!-- append to the install phase. -->
                         <goals>
-                            <goal>assembly</goal> <!-- goals == mojos -->
+                            <goal>attached</goal> <!-- goals == mojos -->
                         </goals>
                     </execution>
                 </executions>
