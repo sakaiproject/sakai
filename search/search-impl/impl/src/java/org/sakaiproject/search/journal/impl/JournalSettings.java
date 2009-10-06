@@ -50,8 +50,6 @@ public class JournalSettings
 
 	private String journalLocation;
 
-	private String sharedOptimizeCreateIndexWorkingSpace;
-
 	private int sharedMaxMergeFactor;
 
 	private int sharedMaxBufferedDocs;

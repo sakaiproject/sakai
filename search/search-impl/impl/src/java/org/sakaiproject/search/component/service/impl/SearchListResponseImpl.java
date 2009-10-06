@@ -76,7 +76,7 @@ public class SearchListResponseImpl implements SearchList, ContentHandler
 
 	private Stack stack;
 
-	private Object errorMessage;
+	private Object errorMessage = null;
 
 	private int size;
 

@@ -330,7 +330,7 @@ public class SegmentState
 			FileRecord fr = fileRecords.get(sfr.path);
 			if (fr == null)
 			{
-				sb.append("   Dropped ").append(fr).append("\n");
+				sb.append("   Dropped ").append("").append("\n");
 			}
 		}
 		if (logging)

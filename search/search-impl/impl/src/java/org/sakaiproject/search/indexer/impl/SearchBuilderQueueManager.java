@@ -703,11 +703,6 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 		}
 	}
 
-	private Integer getMasterAction(Connection connection) throws SQLException
-	{
-		return getMasterAction(getMasterItem(connection));
-	}
-
 	/**
 	 * get the master action of known master item
 	 * 

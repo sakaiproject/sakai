@@ -16,7 +16,7 @@ public class DigestStorageUtil {
 			md = MessageDigest.getInstance("MD5");
 			md.update(ref.getBytes());
 			// convert the binary md5 hash into hex
-			String md5 = "";
+			StringBuilder md5 = new StringBuilder();
 			byte[] b_arr = md.digest();
 
 			for (int i = 0; i < b_arr.length; i++) {
@@ -24,14 +24,14 @@ public class DigestStorageUtil {
 				byte b = b_arr[i];
 				b >>>= 4;
 				b &= 0x0f; // this clears the top half of the byte
-				md5 += Integer.toHexString(b);
+				md5.append(Integer.toHexString(b));
 
 				// convert the low nibble
 				b = b_arr[i];
 				b &= 0x0F;
-				md5 += Integer.toHexString(b);
+				md5.append(Integer.toHexString(b));
 			}
-			ret = md5;
+			ret = md5.toString();
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
