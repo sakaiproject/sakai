@@ -9,7 +9,7 @@
   </parent>
   <name>sakai-search-tool</name>
   <groupId>org.sakaiproject.search</groupId>
-  <artifactId>search-tool</artifactId>
+  <artifactId>sakai-search-tool</artifactId>
   <description>
     This project creates a WAR containing the Search Tool for Sakai.
   </description>
