@@ -15,37 +15,20 @@
     </organization>
     <packaging>pom</packaging>
 
-    <!-- Parent: Sakai master pom -->
     <parent>
-        <artifactId>master</artifactId>
-        <groupId>org.sakaiproject</groupId>
-        <!-- EDIT ME: Sakai Version -->
-        <version>2.7.0-SNAPSHOT</version>  <!-- For TRUNK -->
-        <!--<version>2.6.0RC1-SNAPSHOT</version>-->      <!-- For 2.6.x branch -->
-        <!--<version>2.6.0</version>-->           <!-- For 2.6.0 release -->
-        <!--<version>M2</version>-->              <!-- For 2.5.x branch -->
-        <!--<version>2.5.4</version>-->           <!-- For 2.5.4 release -->
-        <!--<version>2.5.3</version>-->           <!-- For 2.5.3 release -->
-        <!--<version>2.5.2</version>-->           <!-- For 2.5.2 release -->
-        <!--<version>2.5.1</version>-->           <!-- For 2.5.1 release -->
-        <!--<version>2.5.0</version>-->           <!-- For 2.5.0 release -->
+        <artifactId>sakai-standard-tool</artifactId>
+        <groupId>org.sakaiproject.purepoms</groupId>
+        <version>2.7.0-build02-SNAPSHOT</version>
     </parent>
 
     <!-- Project versions -->
     <properties>
-        <entitybroker.version>[1.3.5-SNAPSHOT,1.4.0]</entitybroker.version>
         <commons-digester.version>1.6</commons-digester.version>
         <commons-betwixt.version>0.8</commons-betwixt.version>
-        <commons-codec.version>1.3</commons-codec.version>
-        <commons-collection.version>3.1</commons-collection.version>
         <easymock.version>2.4</easymock.version>
-        <hsqldb.version>1.8.0.7</hsqldb.version>
         <h2.version>1.1.111</h2.version>
         <mysql.version>3.1.14</mysql.version>
-        <ojdbc.version>10.2.0.2.0</ojdbc.version>
-        <dom4j.version>1.6.1</dom4j.version>
-        <jta.version>h2.1.8</jta.version>
-        <cglib-nodep.version>2.1_3</cglib-nodep.version>
+        <!-- <ojdbc.version>10.2.0.2.0</ojdbc.version> -->
         <fop.version>0.95</fop.version>
         <poi.version>2.0-final-20040126</poi.version>
         <jfreechart.version>1.0.5</jfreechart.version>
@@ -115,7 +98,7 @@
             <url>http://confluence.sakaiproject.org/confluence/display/~arwhyte</url>
             <organization>Sakai Foundation / University of Michigan</organization>
             <roles>
-                <role>Contributor</role>
+                <role>POM plumber</role>
             </roles>
             <timezone>-5</timezone>
         </developer>
@@ -218,104 +201,6 @@
         </license>
     </licenses>
 
-    <!-- Profiles -->
-    <profiles>
-        <profile>
-            <!-- Binds to Sakai Kernel K1 - for Sakai 2.6.0+ -->
-            <id>K1</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-        </profile>
-        <profile>
-            <!-- Binds to Sakai pre Kernel K1 - for Sakai 2.4.x/2.5.x -->
-            <id>pre-K1</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <dependencyManagement>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.sakaiproject</groupId>
-                        <artifactId>sakai-site-api</artifactId>
-                        <version>${sakai.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.sakaiproject</groupId>
-                        <artifactId>sakai-user-api</artifactId>
-                        <version>${sakai.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.sakaiproject</groupId>
-                        <artifactId>sakai-content-api</artifactId>
-                        <version>${sakai.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.sakaiproject</groupId>
-                        <artifactId>sakai-authz-api</artifactId>
-                        <version>${sakai.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.sakaiproject</groupId>
-                        <artifactId>sakai-alias-api</artifactId>
-                        <version>${sakai.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.sakaiproject</groupId>
-                        <artifactId>sakai-memory-api</artifactId>
-                        <version>${sakai.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.sakaiproject</groupId>
-                        <artifactId>sakai-entity-api</artifactId>
-                        <version>${sakai.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.sakaiproject</groupId>
-                        <artifactId>sakai-db-api</artifactId>
-                        <version>${sakai.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.sakaiproject</groupId>
-                        <artifactId>sakai-tool-api</artifactId>
-                        <version>${sakai.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.sakaiproject</groupId>
-                        <artifactId>sakai-event-api</artifactId>
-                        <version>${sakai.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.sakaiproject</groupId>
-                        <artifactId>sakai-util-api</artifactId>
-                        <version>${sakai.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.sakaiproject</groupId>
-                        <artifactId>sakai-component-api</artifactId>
-                        <version>${sakai.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.sakaiproject</groupId>
-                        <artifactId>sakai-component</artifactId>
-                        <version>${sakai.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.sakaiproject</groupId>
-                        <artifactId>sakai-util</artifactId>
-                        <version>${sakai.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.sakaiproject.entitybroker</groupId>
-                        <artifactId>entitybroker-api</artifactId>
-                        <version>${entitybroker.version}</version>
-                        <scope>provided</scope>
-                    </dependency>
-                </dependencies>
-            </dependencyManagement>
-        </profile>
-    </profiles>
-
     <!-- Project related dependencies -->
     <dependencyManagement>
         <dependencies>
@@ -324,23 +209,44 @@
                 <groupId>org.sakaiproject.sitestats</groupId>
                 <artifactId>sitestats-api</artifactId>
                 <version>${project.version}</version>
+                <type>jar</type>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.sitestats</groupId>
                 <artifactId>sitestats-bundle</artifactId>
                 <version>${project.version}</version>
+                <type>jar</type>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.sitestats</groupId>
                 <artifactId>sitestats-impl</artifactId>
                 <version>${project.version}</version>
+                <type>jar</type>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.sitestats</groupId>
                 <artifactId>sitestats-impl-hib</artifactId>
                 <version>${project.version}</version>
+                <type>jar</type>
                 <scope>provided</scope>
+            </dependency>
+            
+            <!-- Sakai other -->
+            <dependency>
+                <groupId>org.sakaiproject</groupId>
+                <artifactId>sakai-comp-shared-scheduler</artifactId>
+                <version>2.7.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject</groupId>
+                <artifactId>sakai-mock</artifactId>
+                <version>2.7.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject</groupId>
+                <artifactId>sakai-scheduler-api</artifactId>
+                <version>2.7.0-SNAPSHOT</version>
             </dependency>
 
             <!-- Apache Commons -->
@@ -418,16 +324,6 @@
 
             <!-- Testing dependencies -->
             <dependency>
-                <groupId>${sakai.spring.groupId}</groupId>
-                <artifactId>${sakai.spring.test.artifactId}</artifactId>
-                <version>${sakai.spring.test.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>hsqldb</groupId>
-                <artifactId>hsqldb</artifactId>
-                <version>${hsqldb.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
                 <version>${h2.version}</version>
@@ -438,40 +334,11 @@
                 <version>${mysql.version}</version>
             </dependency>
             <!--
-                <dependency> <groupId>com.oracle</groupId>
+            <dependency> <groupId>com.oracle</groupId>
                 <artifactId>ojdbc14</artifactId>
-                <version>${ojdbc.version}</version> </dependency>
+                <version>${ojdbc.version}</version> 
+            </dependency>
             -->
-            <dependency>
-                <groupId>dom4j</groupId>
-                <artifactId>dom4j</artifactId>
-                <version>${dom4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>jta</groupId>
-                <artifactId>jta</artifactId>
-                <version>${jta.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>cglib</groupId>
-                <artifactId>cglib-nodep</artifactId>
-                <version>${cglib-nodep.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-codec</groupId>
-                <artifactId>commons-codec</artifactId>
-                <version>${commons-codec.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-collections</groupId>
-                <artifactId>commons-collections</artifactId>
-                <version>${commons-collection.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${sakai.ehcache.groupId}</groupId>
-                <artifactId>${sakai.ehcache.artifactId}</artifactId>
-                <version>${sakai.ehcache.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.easymock</groupId>
                 <artifactId>easymock</artifactId>
@@ -481,11 +348,6 @@
                 <groupId>org.easymock</groupId>
                 <artifactId>easymockclassextension</artifactId>
                 <version>${easymock.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-mock</artifactId>
-                <version>${sakai.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

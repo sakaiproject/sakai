@@ -20,98 +20,22 @@
   <!-- Packaging -->
   <packaging>jar</packaging>
   
-  <!-- Profiles -->
-  <profiles>
-    <profile>
-      <!-- Binds to Sakai Kernel K1 - for Sakai 2.6.0+ -->
-      <id>K1</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-kernel-api</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-kernel-util</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-component-manager</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
-    <profile>
-      <!-- Binds to Sakai pre Kernel K1 - for Sakai 2.4.x/2.5.x -->
-      <id>pre-K1</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-component</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-component-api</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-authz-api</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-alias-api</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-entity-api</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-util-api</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-tool-api</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-site-api</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-db-api</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-user-api</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-event-api</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-memory-api</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-content-api</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-util</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
-  </profiles>
-
   <!-- Dependencies -->
   <dependencies>
+    <!-- Kernel -->
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-util</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+    </dependency>
+    
     <!-- SiteStats -->
     <dependency>
       <groupId>org.sakaiproject.sitestats</groupId>
@@ -125,78 +49,12 @@
       <groupId>org.sakaiproject.sitestats</groupId>
       <artifactId>sitestats-bundle</artifactId>
     </dependency>
-
-    <!-- Sakai -->   
-    <!-- K1 Sakai deps -->
-    <!--
+    
+    <!-- Other Sakai -->
     <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-api</artifactId>
+      <groupId>org.sakaiproject.entitybroker</groupId>
+      <artifactId>entitybroker-api</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-util</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-component-manager</artifactId>
-    </dependency>
-    -->
-    <!-- Pre K1 Sakai deps -->
-    <!--
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-component</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-component-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-authz-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-entity-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-tool-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-site-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-db-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-user-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-event-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-memory-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-content-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util</artifactId>
-    </dependency>
-    -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-scheduler-api</artifactId>
@@ -205,19 +63,15 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-comp-shared-scheduler</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.entitybroker</groupId>
-      <artifactId>entitybroker-api</artifactId>
-    </dependency>
-
+    
     <!-- Spring & Hibernate -->
     <dependency>
-      <groupId>${sakai.spring.groupId}</groupId>
-      <artifactId>${sakai.spring.artifactId}</artifactId>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate</artifactId>
     </dependency>
     <dependency>
-      <groupId>${sakai.hibernate.groupId}</groupId>
-      <artifactId>${sakai.hibernate.artifactId}</artifactId>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring</artifactId>
     </dependency>
     
     <!-- Apache Commons -->
@@ -260,8 +114,10 @@
     
     <!-- Quartz -->
     <dependency>
-      <groupId>quartz</groupId>
-      <artifactId>quartz</artifactId>
+        <groupId>quartz</groupId>
+        <artifactId>quartz</artifactId>
+        <version>1.5.2</version>
+        <scope>provided</scope>
     </dependency>
     
     <!--  JFreeChart -->
@@ -270,11 +126,10 @@
       <artifactId>jfreechart</artifactId>
     </dependency>
 
-    
     <!-- Testing dependencies -->
     <dependency>
-      <groupId>${sakai.spring.groupId}</groupId>
-      <artifactId>${sakai.spring.test.artifactId}</artifactId>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -323,8 +178,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>${sakai.ehcache.groupId}</groupId>
-      <artifactId>${sakai.ehcache.artifactId}</artifactId>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -345,7 +200,7 @@
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
-      <version>${sakai.servletapi.version}</version>
+      <!-- <version>${sakai.servletapi.version}</version> -->
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -355,7 +210,6 @@
       <type>jar</type>
       <scope>test</scope>
     </dependency>
-    
   </dependencies>
 
   <!-- Build -->
@@ -399,8 +253,6 @@
           <include>hbm-db.xml</include>
         </includes>
       </testResource>
-    </testResources>
-    
+    </testResources>  
   </build>
-  
 </project>

@@ -20,82 +20,22 @@
   <!-- Packaging -->
   <packaging>war</packaging>
   
-  <!-- Profiles -->
-  <profiles>
-    <profile>
-      <!-- Binds to Sakai Kernel K1 - for Sakai 2.6.0+ -->
-      <id>K1</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-kernel-api</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-kernel-util</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.sakaiproject.kernel</groupId>
-          <artifactId>sakai-component-manager</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
-    <profile>
-      <!-- Binds to Sakai pre Kernel K1 - for Sakai 2.4.x/2.5.x -->
-      <id>pre-K1</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-component</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-component-api</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-authz-api</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-entity-api</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-util-api</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-tool-api</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-site-api</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-user-api</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-content-api</artifactId>
-        </dependency>
-          <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-util</artifactId>
-          </dependency>
-      </dependencies>
-    </profile>
-  </profiles>
-
   <!-- Dependencies -->
   <dependencies>
+    <!-- Kernel -->
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-util</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+    </dependency>
+    
     <!-- SiteStats -->
     <dependency>
       <groupId>org.sakaiproject.sitestats</groupId>
@@ -194,7 +134,6 @@
         </includes>
       </resource>
     </resources>
-    
 
     <plugins>
       <!-- Compress CSS Stylesheets and Javascript -->
@@ -225,7 +164,5 @@
         </configuration>
       </plugin>
     </plugins>
-    
   </build>
-  
 </project>
