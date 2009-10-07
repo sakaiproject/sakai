@@ -28,7 +28,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import javax.faces.context.FacesContext;
@@ -249,9 +251,11 @@ public class DeliveryActionListener
               // If this is a linear access and user clicks on Show Feedback, we do not
               // get data from db. Use delivery bean instead
               if (delivery.getNavigation().equals("1") && ae != null && "showFeedback".equals(ae.getComponent().getId())) {
-            	  log.debug("Do not get data from db if it is linear access and the action is show feedback");
+            	  log.debug("Do not get data from db if it is linear access and the action is show feedback but...");
+            	  log.debug("except file upload and audio questions");
             	  ag = delivery.getAssessmentGrading();
-            	  Iterator iter = ag.getItemGradingSet().iterator();
+            	  Set itemGradingSet = ag.getItemGradingSet();
+            	  Iterator iter = itemGradingSet.iterator();
             	  while (iter.hasNext())
             	  {
             		  ItemGradingData data = (ItemGradingData) iter.next();
@@ -261,6 +265,26 @@ public class DeliveryActionListener
             		  }
             		  thisone.add(data);
             		  itemGradingHash.put(data.getPublishedItemId(), thisone);
+            	  }
+
+            	  // For file upload and audio questions, adding the corresponding itemGradingData into itemGradingHash and itemGradingSet to display correctly in delivery
+            	  // this hash compose (itemGradingId, array list of MediaData)
+            	  HashMap mediaItemGradingHash = service.getMediaItemGradingHash(ag.getAssessmentGradingId()); 
+            	  Set<Map.Entry<Long, ArrayList>> set = mediaItemGradingHash.entrySet();
+            	  for (Map.Entry<Long, ArrayList> me : set) {
+            		  Long publishedItemId = (Long) me.getKey();
+            		  ArrayList al = (ArrayList) me.getValue();
+            		  ArrayList itemGradingArray = (ArrayList) itemGradingHash.get(publishedItemId);
+            		  if (itemGradingArray != null) {
+            			  itemGradingArray.addAll(al);
+            		  }
+            		  else {
+            			  itemGradingArray = new ArrayList();
+            			  itemGradingArray.addAll(al);
+            		  }
+            		  itemGradingHash.put(publishedItemId, itemGradingArray);
+            		  itemGradingSet.addAll(itemGradingArray);
+            		  ag.setItemGradingSet(itemGradingSet);
             	  }
               }
               else {

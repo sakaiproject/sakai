@@ -70,11 +70,19 @@ private static Log log = LogFactory.getLog(ShowMediaServlet.class);
   public void doPost(HttpServletRequest req, HttpServletResponse res)
       throws ServletException, IOException
   {
-    // get media
-    String mediaId = req.getParameter("mediaId");
-    if (mediaId == null || mediaId.equals("")) {
-    	return;
-    }
+	  String agentIdString = getAgentString(req, res);
+	  String mediaId = req.getParameter("mediaId");
+	  if (mediaId == null || mediaId.trim().equals("")) {
+		  if (agentIdString == null) {
+			  String path = "/jsf/delivery/mediaAccessDenied.faces";
+			  RequestDispatcher dispatcher = req.getRequestDispatcher(path);
+			  dispatcher.forward(req, res);
+		  } else {
+			  return;
+		  }
+	  }
+	  
+	// get media
     GradingService gradingService = new GradingService();
     MediaData mediaData = gradingService.getMedia(mediaId);
     String mediaLocation = mediaData.getLocation();
@@ -93,7 +101,6 @@ private static Log log = LogFactory.getLog(ShowMediaServlet.class);
     // a. if you are the creator.
     // b. if you have a assessment.grade.any or assessment.grade.own permission
     boolean accessDenied = true;
-    String agentIdString = getAgentString(req, res);
     String currentSiteId="";
     boolean isAudio = false;
     Long assessmentGradingId = mediaData.getItemGradingData().getAssessmentGradingId();

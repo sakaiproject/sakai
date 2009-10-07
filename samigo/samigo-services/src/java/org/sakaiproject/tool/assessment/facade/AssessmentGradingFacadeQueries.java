@@ -735,6 +735,32 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    return a;
   }
 
+  public HashMap getMediaItemGradingHash(final Long assessmentGradingId){
+	  log.debug("*** assessmentGradingId =" + assessmentGradingId);
+	  HashMap map = new HashMap();
+
+	  final HibernateCallback hcb = new HibernateCallback(){
+		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
+			  Query q = session.createQuery("select distinct i from MediaData m, ItemGradingData i " +
+			  		"where m.itemGradingData.itemGradingId = i.itemGradingId " +
+			  		"and i.assessmentGradingId = ? ");
+			  q.setLong(0, assessmentGradingId.longValue());
+			  return q.list();
+		  };
+	  };
+	  List list = getHibernateTemplate().executeFind(hcb);
+
+	  for (int i=0;i<list.size();i++){
+		  ItemGradingData itemGradingData = (ItemGradingData)list.get(i);
+		  ArrayList al = new ArrayList();
+		  al.add(itemGradingData);
+		  // There might be duplicate. But we just overwrite it with the same itemGradingData
+		  map.put(itemGradingData.getPublishedItemId(), al);
+	  }
+	  log.debug("*** no. of media =" + map.size());
+	  return map;
+  }
+
   public ArrayList getMediaArray(ItemGradingData item){
     ArrayList a = new ArrayList();
     List list = getHibernateTemplate().find(

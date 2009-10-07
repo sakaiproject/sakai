@@ -120,6 +120,8 @@ public interface AssessmentGradingFacadeQueriesAPI
 
   public ArrayList getMediaArray(ItemGradingData item);
 
+  public HashMap getMediaItemGradingHash(Long assessmentGradingId);
+  
   public List getMediaArray(Long publishedItemId, Long agentId, String which);
   
   public ItemGradingData getLastItemGradingDataByAgent(Long publishedItemId,
