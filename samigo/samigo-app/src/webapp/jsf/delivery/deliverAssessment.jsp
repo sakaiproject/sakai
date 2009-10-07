@@ -368,10 +368,10 @@ String.prototype.endsWith = function(txt)
   <%-- SAVE AND EXIT FOR LINEAR ACCESS --%>
   <h:commandButton type="submit" value="#{deliveryMessages.button_exit}"
     action="#{delivery.saveAndExit}" id="saveAndExit2"
-    rendered="#{delivery.actionString=='takeAssessment'
+    rendered="#{(delivery.actionString=='previewAssessment'  
+                 ||delivery.actionString=='takeAssessment')
             && delivery.navigation eq '1' && delivery.continue && !delivery.hasTimeLimit}"
-    onclick="disableSave2();" onkeypress=""
-    disabled="#{delivery.actionString=='previewAssessment'}"/>
+    onclick="disableSave2();" onkeypress=""/>
   </h:panelGrid>
 
   <h:panelGrid columns="1" width="100%" border="0" columnClasses="act">
