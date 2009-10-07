@@ -2925,4 +2925,11 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	public void saveOrUpdateAttachments(List list) {
 		getHibernateTemplate().saveOrUpdateAll(list);
 	}
+	
+	  public PublishedAssessmentFacade getPublishedAssessmentInfoForRemove(Long publishedAssessmentId) {
+		  PublishedAssessmentData a = (PublishedAssessmentData) getHibernateTemplate().load(
+				  PublishedAssessmentData.class, publishedAssessmentId);
+		  PublishedAssessmentFacade f = new PublishedAssessmentFacade(a.getAssessmentId(), a.getTitle(), a.getCreatedBy());
+		  return f;
+	  }  
 }
