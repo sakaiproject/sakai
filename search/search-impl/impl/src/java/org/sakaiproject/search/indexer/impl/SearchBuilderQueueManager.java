@@ -819,7 +819,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 				}
 				
 				String siteContext = (String) c.next();
-				log.info("Rebuild for " + siteContext + "(" + totalCount + "/" + contextList.size() +")"); //$NON-NLS-1$
+				log.info("Rebuild for " + siteContext + " (" + totalCount + "/" + contextList.size() +")"); //$NON-NLS-1$
 				
 				for (Iterator<EntityContentProducer> i = contentProducers.iterator(); i
 						.hasNext();)
@@ -880,7 +880,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 							connection.commit();
 							if (itemCount == itemSleepInterval) {
 								log.info("procced a block of " + itemSleepInterval + " sleeping to allow gc total items: " + itemCountTotal);
-								Thread.sleep(sleepInterval);
+								Thread.sleep(sleepTime);
 								itemCount = 0;
 							} else {
 								itemCount++;
