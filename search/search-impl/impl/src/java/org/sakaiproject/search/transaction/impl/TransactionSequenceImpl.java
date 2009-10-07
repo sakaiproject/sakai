@@ -222,7 +222,8 @@ public class TransactionSequenceImpl implements TransactionSequence
 			catch (Exception ex2)
 			{
 			}
-			log.error("Failed to get a transaction id ", ex);
+			log.warn("Failed to get a transaction id, ignore for HSQLDB pre-1.9+ versions. " + ex.getMessage());
+			// log.error("Failed to get a transaction id ", ex);
 			return -1;
 		}
 		finally
