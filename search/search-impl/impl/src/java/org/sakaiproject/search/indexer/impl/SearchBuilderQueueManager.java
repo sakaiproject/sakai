@@ -920,7 +920,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 		List<String> contextList = new ArrayList<String>();
 		if (SearchBuilderItem.GLOBAL_CONTEXT.equals(controlItem.getContext()))
 		{
-			int first = 0;
+			int first = 1;
 			int increment = 1000;
 			int last = increment;
 			boolean doAnother = true;
