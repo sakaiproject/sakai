@@ -87,13 +87,15 @@ public class AuthorSettingsListener implements ActionListener
 
     // pass authz, move on
     author.setIsEditPendingAssessmentFlow(true);
-    //if not duplicate name
+
     assessmentSettings.setAssessment(assessment);
     assessmentSettings.setAssessmentId(assessment.getAssessmentId());
     assessmentSettings.setAttachmentList(((AssessmentIfc)assessment.getData()).getAssessmentAttachmentList());
     assessmentSettings.setDisplayFormat(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_data_picker_w_sec"));
     assessmentSettings.resetIsValidDate();
     assessmentSettings.resetOriginalDateString();
+    assessmentSettings.setNoGroupSelectedError(false);
+    assessmentSettings.setBlockDivs("");
     
     // To unEscapeHtml for the fields that have been through ContextUtil.processFormattedText
     assessmentSettings.setTitle(FormattedText.unEscapeHtml(assessment.getTitle()));

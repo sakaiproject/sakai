@@ -37,6 +37,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -106,13 +107,44 @@ public class ConfirmPublishAssessmentListener
       error=true;
     }
     
+ // check if start date is valid
+    if(!assessmentSettings.getIsValidStartDate()){
+    	String startDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_start_date");
+    	context.addMessage(null,new FacesMessage(startDateErr));
+    	error=true;
+    }
+    // check if due date is valid
+    if(!assessmentSettings.getIsValidDueDate()){
+    	String dueDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_due_date");
+    	context.addMessage(null,new FacesMessage(dueDateErr));
+    	error=true;
+    }
+    // check if retract date is valid
+    if(!assessmentSettings.getIsValidRetractDate()){
+    	String retractDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_retrack_date");
+    	context.addMessage(null,new FacesMessage(retractDateErr));
+    	error=true;
+    }
+    
+    if (assessmentSettings.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
+    	String[] groupsAuthorized = assessmentSettings.getGroupsAuthorizedToSave(); //getGroupsAuthorized();
+    	if (groupsAuthorized == null || groupsAuthorized.length == 0) {
+    		String retractDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","choose_one_group");
+        	context.addMessage(null,new FacesMessage(retractDateErr));
+        	error=true;
+        	assessmentSettings.setNoGroupSelectedError(true);
+    	}
+    	else {
+    		assessmentSettings.setNoGroupSelectedError(false);
+    	}
+    }
+    
     //Gradebook right now only excep if total score >0 check if total score<=0 then throw error.
-   
     if(assessmentSettings.getToDefaultGradebook() != null && assessmentSettings.getToDefaultGradebook().equals("1"))
 	{
  	    if(assessmentBean.getTotalScore()<=0)
 		{
-                String gb_err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",							    "gradebook_exception_min_points");
+                String gb_err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_min_points");
 		context.addMessage(null, new FacesMessage(gb_err));
 		error=true;
 		}

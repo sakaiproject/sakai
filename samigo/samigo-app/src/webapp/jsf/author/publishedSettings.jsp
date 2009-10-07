@@ -192,7 +192,7 @@ function checkUncheckTimeBox(){
 <!-- content... -->
 <h:form id="assessmentSettingsAction" onsubmit="return editorCheck();">
   <h:inputHidden id="assessmentId" value="#{publishedSettings.assessmentId}"/>
-  <h:inputHidden id="blockDivs" value=""/>
+  <h:inputHidden id="blockDivs"value="#{publishedSettings.blockDivs}"/>
 
   <!-- HEADINGS -->
   <%@ include file="/jsf/author/allHeadings.jsp" %>
@@ -867,7 +867,7 @@ function checkUncheckTimeBox(){
   </h:commandButton>
   -->
   <!-- Save button -->
-  <h:commandButton accesskey="#{assessmentSettingsMessages.a_saveSettings}" type="submit" value="#{assessmentSettingsMessages.button_save_settings}" action="#{publishedSettings.getOutcome}"  styleClass="active" >
+  <h:commandButton accesskey="#{assessmentSettingsMessages.a_saveSettings}" type="submit" value="#{assessmentSettingsMessages.button_save_settings}" action="#{publishedSettings.getOutcome}"  styleClass="active" onclick="setBlockDivs();" >
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SavePublishedSettingsListener" />
   </h:commandButton>
   

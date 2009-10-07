@@ -198,6 +198,7 @@ public class PublishedAssessmentSettingsBean
   private boolean editPubAnonyGradingRestricted = false;
   
   private String releaseToGroupsAsString;
+  private String blockDivs;
   
   /*
    * Creates a new AssessmentBean object.
@@ -1513,6 +1514,14 @@ public class PublishedAssessmentSettingsBean
 
 	public String getReleaseToGroupsAsString() {
 		return releaseToGroupsAsString;
+	}
+
+	public void setBlockDivs(String blockDivs){
+		this.blockDivs = blockDivs;
+	}
+
+	public String getBlockDivs() {
+		return blockDivs;
 	}
 }
 

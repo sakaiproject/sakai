@@ -197,6 +197,7 @@ public class AssessmentSettingsBean
   private boolean isMarkForReview;
   
   private String releaseToGroupsAsString;
+  private String blockDivs;
   
   /**
    *  we use the calendar widget which uses 'MM/dd/yyyy hh:mm:ss a'
@@ -1588,6 +1589,7 @@ public class AssessmentSettingsBean
    * The authorized groups
    */
   private String[] groupsAuthorized;
+  private boolean noGroupSelectedError;
   
   /**
    * gopalrc Nov 2007
@@ -1596,6 +1598,9 @@ public class AssessmentSettingsBean
    */
   public String[] getGroupsAuthorized() {
 	 groupsAuthorized = null;
+	 if (noGroupSelectedError) {
+		 return groupsAuthorized;
+	 }
 	 AuthzQueriesFacadeAPI authz = PersistenceService.getInstance().getAuthzQueriesFacade();
 	 List authorizations = authz.getAuthorizationByFunctionAndQualifier("TAKE_ASSESSMENT", getAssessmentId().toString());
 	 if (authorizations != null && authorizations.size()>0) {
@@ -1612,6 +1617,10 @@ public class AssessmentSettingsBean
   
   public void setGroupsAuthorized(String[] groupsAuthorized){
 	  this.groupsAuthorized = groupsAuthorized;
+  }
+  
+  public void setNoGroupSelectedError(boolean noGroupSelectedError) {
+	  this.noGroupSelectedError = noGroupSelectedError;
   }
   
   /** 
@@ -1644,5 +1653,13 @@ public class AssessmentSettingsBean
   
   public String getReleaseToGroupsAsString() {
 	  return releaseToGroupsAsString;
+  }
+  
+  public void setBlockDivs(String blockDivs){
+	  this.blockDivs = blockDivs;
+  }
+  
+  public String getBlockDivs() {
+	  return blockDivs;
   }
 }

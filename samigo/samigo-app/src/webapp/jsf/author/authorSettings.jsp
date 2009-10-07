@@ -60,9 +60,9 @@ function validateUrl(){
 
 
 function validateUrl0(){
-  alert("hu");
+  //alert("hu");
   var finalPageUrl = document.getElementsById("assessmentSettingsAction:finalPageUrl");
-  alert("hello"+finalPageUrl.value);
+  //alert("hello"+finalPageUrl.value);
   window.open(finalPageUrl.value,'validateUrl');
 }
 
@@ -281,7 +281,7 @@ function setBlockDivs()
 <h:form id="assessmentSettingsAction" onsubmit="return editorCheck();">
 
   <h:inputHidden id="assessmentId" value="#{assessmentSettings.assessmentId}"/>
-  <h:inputHidden id="blockDivs" value=""/>
+  <h:inputHidden id="blockDivs" value="#{assessmentSettings.blockDivs}"/>
 
   <!-- HEADINGS -->
   <%@ include file="/jsf/author/allHeadings.jsp" %>
@@ -897,7 +897,7 @@ function setBlockDivs()
 
  <!-- save & publish -->
   <h:commandButton  value="#{assessmentSettingsMessages.button_unique_save_and_publish}" type="submit" styleClass="active" rendered="#{assessmentSettings.hasQuestions}"
-      action="#{assessmentSettings.getOutcomePublish}" disabled="#{not assessmentSettings.hasQuestions}">
+      action="#{assessmentSettings.getOutcomePublish}" disabled="#{not assessmentSettings.hasQuestions}" onclick="setBlockDivs();" >
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmPublishAssessmentListener" />
       <f:actionListener
         type="org.sakaiproject.tool.assessment.ui.listener.author.PublishAssessmentListener" />
@@ -909,14 +909,9 @@ function setBlockDivs()
   </h:commandButton>
 
 <!-- save -->
-<h:commandButton type="submit" value="#{assessmentSettingsMessages.button_save_settings}" action="#{assessmentSettings.getOutcomeSave}" rendered="#{not assessmentSettings.hasQuestions}" styleClass="active">
+  <h:commandButton type="submit" value="#{assessmentSettingsMessages.button_save_settings}" action="#{assessmentSettings.getOutcomeSave}"  onclick="setBlockDivs();">
       <f:param name="assessmentId" value="#{assessmentSettings.assessmentId}"/>
-      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentSettingsListener" />
-  </h:commandButton>
-
-  <h:commandButton type="submit" value="#{assessmentSettingsMessages.button_save_settings}" action="#{assessmentSettings.getOutcomeSave}" rendered="#{assessmentSettings.hasQuestions}">
-      <f:param name="assessmentId" value="#{assessmentSettings.assessmentId}"/>
-      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentSettingsListener" />
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentSettingsListener"/>
   </h:commandButton>
 
   <!-- cancel -->

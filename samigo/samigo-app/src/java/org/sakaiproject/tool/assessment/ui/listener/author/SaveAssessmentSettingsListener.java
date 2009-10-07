@@ -25,6 +25,7 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.TreeMap;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -34,9 +35,11 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -103,6 +106,19 @@ public class SaveAssessmentSettingsListener
     	String retractDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_retrack_date");
     	context.addMessage(null,new FacesMessage(retractDateErr));
     	error=true;
+    }
+    
+    if (assessmentSettings.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
+    	String[] groupsAuthorized = assessmentSettings.getGroupsAuthorizedToSave(); //getGroupsAuthorized();
+    	if (groupsAuthorized == null || groupsAuthorized.length == 0) {
+    		String retractDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","choose_one_group");
+        	context.addMessage(null,new FacesMessage(retractDateErr));
+        	error=true;
+        	assessmentSettings.setNoGroupSelectedError(true);
+    	}
+    	else {
+    		assessmentSettings.setNoGroupSelectedError(false);
+    	}
     }
     
     //  if timed assessment, does it has value for time
@@ -180,6 +196,8 @@ public class SaveAssessmentSettingsListener
     }
 
     if (error){
+      String blockDivs = ContextUtil.lookupParam("assessmentSettingsAction:blockDivs");
+      assessmentSettings.setBlockDivs(blockDivs);
       assessmentSettings.setOutcomeSave("editAssessmentSettings");
       return;
     }

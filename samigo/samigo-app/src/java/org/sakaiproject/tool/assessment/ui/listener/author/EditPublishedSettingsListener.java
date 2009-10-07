@@ -101,8 +101,9 @@ public class EditPublishedSettingsListener
     assessmentSettings.setObjectives(FormattedText.unEscapeHtml(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.OBJECTIVES)));
     assessmentSettings.setRubrics(FormattedText.unEscapeHtml(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.RUBRICS)));
     assessmentSettings.setUsername(FormattedText.unEscapeHtml(assessment.getAssessmentAccessControl().getUsername()));
-    assessmentSettings.setPassword(FormattedText.unEscapeHtml(assessment.getAssessmentAccessControl().getPassword()));
-        
+    assessmentSettings.setPassword(FormattedText.unEscapeHtml(assessment.getAssessmentAccessControl().getPassword()));        
+    assessmentSettings.setBlockDivs("");
+
     AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
     assessmentBean.setAssessmentId(assessmentId);
     
