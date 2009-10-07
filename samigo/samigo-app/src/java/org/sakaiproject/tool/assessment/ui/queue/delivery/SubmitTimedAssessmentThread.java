@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.queue.delivery;
 
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -102,8 +100,7 @@ public class SubmitTimedAssessmentThread extends TimerTask
           // set these two scores to 0 instaed of null
     	  if (ag.getFinalScore() == null) ag.setFinalScore(Float.valueOf("0"));
     	  if (ag.getTotalAutoScore() == null) ag.setTotalAutoScore(Float.valueOf("0"));
-    	  SubmitToGradingActionListener listener = new SubmitToGradingActionListener();
-    	  listener.completeItemGradingData(ag);
+    	  service.completeItemGradingData(ag);
           service.saveOrUpdateAssessmentGrading(ag);
           PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
           String siteId = publishedAssessmentService.getPublishedAssessmentOwner(ag.getPublishedAssessmentId());

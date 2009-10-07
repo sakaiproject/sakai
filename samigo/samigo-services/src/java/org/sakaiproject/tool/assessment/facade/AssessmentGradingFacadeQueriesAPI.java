@@ -227,6 +227,8 @@ public interface AssessmentGradingFacadeQueriesAPI
   public void saveOrUpdateAttachments(List list);
   
   public HashMap getInProgressCounts(String siteId);
-  
+
   public HashMap getSubmittedCounts(String siteId);
+
+  public void completeItemGradingData(AssessmentGradingData assessmentGradingData);	
 }

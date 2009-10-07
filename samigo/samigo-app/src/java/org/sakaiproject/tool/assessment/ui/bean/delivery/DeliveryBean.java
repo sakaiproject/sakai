@@ -1298,7 +1298,8 @@ public class DeliveryBean
     // We don't need to call completeItemGradingData to create new ItemGradingData for linear access
     // because each ItemGradingData is created when it is viewed/answered 
     if (!"1".equals(navigation)) {
-    	listener.completeItemGradingData();
+    	GradingService gradingService = new GradingService();
+    	gradingService.completeItemGradingData(adata);
     }
 
     // submission remaining and totalSubmissionPerAssessmentHash is updated inside 

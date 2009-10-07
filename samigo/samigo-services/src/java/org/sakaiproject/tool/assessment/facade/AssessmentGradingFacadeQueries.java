@@ -37,6 +37,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -71,11 +72,14 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
+import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -2541,6 +2545,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     				lastAgentId = adata.getAgentId();
 	    			if (Boolean.FALSE.equals(adata.getForGrade())) {
 	    				adata.setForGrade(Boolean.TRUE);
+	    				adata.setTotalAutoScore(0f);
 	    				adata.setIsAutoSubmitted(Boolean.TRUE);
 	    				adata.setSubmittedDate(new Date());
 	    				adata.setStatus(Integer.valueOf(1));
@@ -2553,13 +2558,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 				lastAgentId = adata.getAgentId();
 	    		if (Boolean.FALSE.equals(adata.getForGrade())) {
 	    			adata.setForGrade(Boolean.TRUE);
+	    			adata.setTotalAutoScore(0f);
 	    			adata.setIsAutoSubmitted(Boolean.TRUE);
 	    			adata.setSubmittedDate(new Date());
 	    			adata.setStatus(Integer.valueOf(1));
 	    			toBeAutoSubmittedList.add(adata);
 	    		}
 	    	}
-
+	    	completeItemGradingData(adata);
 	    }
 	      
 	    this.saveOrUpdateAll(toBeAutoSubmittedList);
@@ -2678,5 +2684,83 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 			  startedCountsMap.put(o[0], o[1]);
 		  }
 		  return startedCountsMap;
+	  }
+
+	  public void completeItemGradingData(AssessmentGradingData assessmentGradingData) {
+		  ArrayList answeredPublishedItemIdList = new ArrayList();
+		  GradingService gradingService = new GradingService();
+		  List itemGradingIds = gradingService.getItemGradingIds(assessmentGradingData.getAssessmentGradingId());
+		  Iterator iter = itemGradingIds.iterator();
+		  Long answeredPublishedItemId;
+		  while (iter.hasNext()) {
+			  answeredPublishedItemId = (Long) iter.next();
+			  log.debug("answeredPublishedItemId = " + answeredPublishedItemId);
+			  answeredPublishedItemIdList.add(answeredPublishedItemId);
+		  }
+
+		  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+		  HashSet sectionSet = publishedAssessmentService.getSectionSetForAssessment(assessmentGradingData.getPublishedAssessmentId());
+		  PublishedSectionData publishedSectionData;
+		  iter = sectionSet.iterator();
+		  while (iter.hasNext()) {
+			  ArrayList itemArrayList;
+			  Long publishedItemId;
+			  PublishedItemData publishedItemData;
+			  publishedSectionData = (PublishedSectionData) iter.next();
+			  log.debug("sectionId = " + publishedSectionData.getSectionId());
+			  String authorType = publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
+			  if (authorType != null && authorType.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
+				  log.debug("Random draw from questonpool");
+				  itemArrayList = publishedSectionData.getItemArray();
+				  long seed = (long) AgentFacade.getAgentString().hashCode();
+				  if (publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_TYPE) != null && publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_TYPE).equals(SectionDataIfc.PER_SUBMISSION)) {
+					  seed = (long) (assessmentGradingData.getAssessmentGradingId().toString() + "_" + publishedSectionData.getSectionId().toString()).hashCode();
+				  }
+
+				  Collections.shuffle(itemArrayList,  new Random(seed));
+
+				  Integer numberToBeDrawn = Integer.valueOf(0);
+				  if (publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
+					  numberToBeDrawn= Integer.valueOf(publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+				  }
+
+				  int samplesize = numberToBeDrawn.intValue();
+				  for (int i=0; i < samplesize; i++){
+					  publishedItemData = (PublishedItemData) itemArrayList.get(i);
+					  publishedItemId = publishedItemData.getItemId();
+					  log.debug("publishedItemId = " + publishedItemId); 
+					  if (!answeredPublishedItemIdList.contains(publishedItemId)) {
+						  saveItemGradingData(assessmentGradingData, publishedItemId);
+					  }
+				  }
+			  }
+			  else {
+				  log.debug("Not random draw from questonpool");
+				  itemArrayList = publishedSectionData.getItemArray();
+				  Iterator itemIter = itemArrayList.iterator();
+				  while (itemIter.hasNext()) {
+					  publishedItemData = (PublishedItemData) itemIter.next();
+					  publishedItemId = publishedItemData.getItemId();
+					  log.debug("publishedItemId = " + publishedItemId);
+					  if (!answeredPublishedItemIdList.contains(publishedItemId)) {
+						  saveItemGradingData(assessmentGradingData, publishedItemId);
+					  }
+				  }
+			  }
+		  }
+	  }
+
+	  private void saveItemGradingData(AssessmentGradingData assessmentGradingData, Long publishedItemId) {
+		  log.debug("Adding one ItemGradingData...");
+		  ItemGradingData itemGradingData = new ItemGradingData();
+		  itemGradingData.setAssessmentGradingId(assessmentGradingData.getAssessmentGradingId());
+		  itemGradingData.setAgentId(assessmentGradingData.getAgentId());
+		  itemGradingData.setPublishedItemId(publishedItemId);
+		  ItemService itemService = new ItemService();
+		  Long itemTextId = itemService.getItemTextId(publishedItemId);
+		  log.debug("itemTextId = " + itemTextId);
+		  itemGradingData.setPublishedItemTextId(itemTextId);
+		  GradingService gradingService = new GradingService();
+		  gradingService.saveItemGrading(itemGradingData);
 	  }
 }
