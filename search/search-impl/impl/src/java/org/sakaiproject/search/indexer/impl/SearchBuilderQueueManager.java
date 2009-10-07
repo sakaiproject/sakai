@@ -37,6 +37,7 @@ import javax.sql.DataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.db.cover.SqlService;
+import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.indexer.api.IndexUpdateTransactionListener;
@@ -919,27 +920,38 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 		List<String> contextList = new ArrayList<String>();
 		if (SearchBuilderItem.GLOBAL_CONTEXT.equals(controlItem.getContext()))
 		{
-
-			List<Site> sites = SiteService.getSites(SelectionType.ANY, null, null,
-					null, SortType.NONE, null);
-			for (Iterator<Site> i = sites.iterator(); i.hasNext();)
-			{
-				Site s = (Site) i.next();
-				if (!SiteService.isSpecialSite(s.getId())
-						|| SiteService.isUserSite(s.getId()))
+			int first = 0;
+			int increment = 1000;
+			int last = increment;
+			boolean doAnother = true;
+			while (doAnother) {
+				List<Site> sites = SiteService.getSites(SelectionType.ANY, null, null,
+						null, SortType.NONE, new PagingPosition(first, last));
+				for (Iterator<Site> i = sites.iterator(); i.hasNext();)
 				{
-					if (searchIndexBuilder.isOnlyIndexSearchToolSites())
+					Site s = (Site) i.next();
+					if (!SiteService.isSpecialSite(s.getId())
+							|| SiteService.isUserSite(s.getId()))
 					{
-						ToolConfiguration t = s.getToolForCommonId("sakai.search"); //$NON-NLS-1$
-						if (t != null)
+						if (searchIndexBuilder.isOnlyIndexSearchToolSites())
+						{
+							ToolConfiguration t = s.getToolForCommonId("sakai.search"); //$NON-NLS-1$
+							if (t != null)
+							{
+								contextList.add(s.getId());
+							}
+						}
+						else
 						{
 							contextList.add(s.getId());
 						}
 					}
-					else
-					{
-						contextList.add(s.getId());
-					}
+				}
+				if (sites.size() < increment) {
+					doAnother = false;
+				} else {
+					first = last +1;
+					last = last + increment;
 				}
 			}
 		}
