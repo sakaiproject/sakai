@@ -510,8 +510,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 				if (itemgrading.getItemGradingId() == null
 						|| itemgrading.getItemGradingId().intValue() <= 0) { // =>
 					// new answer
-					if (itemgrading.getPublishedAnswerId() != null) { // null=>
-						// skipping this  question
+					if (itemgrading.getPublishedAnswerId() != null || (itemgrading.getRationale() != null && !itemgrading.getRationale().trim().equals(""))) { 
 						answerModified = true;
 						break;
 					}
@@ -534,7 +533,9 @@ public class SubmitToGradingActionListener implements ActionListener {
 					} else {
 						// add new answer
 						if (itemgrading.getPublishedAnswerId() != null
-								|| itemgrading.getAnswerText() != null) {
+							|| itemgrading.getAnswerText() != null
+							|| (itemgrading.getRationale() != null 
+								&& !itemgrading.getRationale().trim().equals(""))) { 
 							// null=> skipping this question
 							itemgrading.setAgentId(AgentFacade.getAgentString());
 							itemgrading.setSubmittedDate(new Date());
@@ -561,18 +562,12 @@ public class SubmitToGradingActionListener implements ActionListener {
 			}
 			for (int m = 0; m < grading.size(); m++) {
 				ItemGradingData itemgrading = (ItemGradingData) grading.get(m);
-				if (itemgrading.getItemGradingId() != null
-						&& itemgrading.getItemGradingId().intValue() > 0) {
+				if ((itemgrading.getItemGradingId() != null	&& itemgrading.getItemGradingId().intValue() > 0) ||
+					(itemgrading.getPublishedAnswerId() != null || itemgrading.getAnswerText() != null) ||
+					(itemgrading.getRationale() != null && !itemgrading.getRationale().trim().equals(""))) {
 					adds.addAll(grading);
 					break;
-				} else if (itemgrading.getPublishedAnswerId() != null
-						|| itemgrading.getAnswerText() != null ) {
-					if (itemgrading.getRationale() != null && itemgrading.getRationale().length() > 0) {
-						itemgrading.setRationale(FormattedText.escapeHtml(itemgrading.getRationale(), false));
-					}
-					adds.addAll(grading);
-					break;
-				}
+				} 
 			}
 			break;
 		case 5: // SAQ
@@ -626,17 +621,23 @@ public class SubmitToGradingActionListener implements ActionListener {
 				if (itemgrading.getItemGradingId() != null
 						&& itemgrading.getItemGradingId().intValue() > 0) {
 					// old answer, check which one to keep, not keeping null  answer
-					if (itemgrading.getPublishedAnswerId() != null) {
+					if (itemgrading.getPublishedAnswerId() != null || 
+						(itemgrading.getRationale() != null && !itemgrading.getRationale().trim().equals(""))) {
 						itemgrading.setAgentId(AgentFacade.getAgentString());
 						itemgrading.setSubmittedDate(new Date());
 						adds.add(itemgrading);
 					} else {
 						removes.add(itemgrading);
 					}
-				} else if (itemgrading.getPublishedAnswerId() != null) { // new  addition  not accepting any new answer with null for MCMR
-					itemgrading.setAgentId(AgentFacade.getAgentString());
-					itemgrading.setSubmittedDate(new Date());
-					adds.add(itemgrading);
+				} else { 
+					 // new answer
+					if (itemgrading.getPublishedAnswerId() != null ||
+							(itemgrading.getRationale() != null && !itemgrading.getRationale().trim().equals(""))) {
+						// new  addition  not accepting any new answer with null for MCMR
+						itemgrading.setAgentId(AgentFacade.getAgentString());
+						itemgrading.setSubmittedDate(new Date());
+						adds.add(itemgrading);
+					}
 				}
 			}
 			break;

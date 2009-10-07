@@ -830,13 +830,20 @@ public class ItemContentsBean implements Serializable {
 
 	public void setRationale(String newRationale) {
 		int count = getItemGradingDataArray().size();
+		ItemGradingData data = null;
 		if (count <= 0) {
-		    // student didn't answer the question, so no itemgrading to save rationale, skip.
-			return;
+			data = new ItemGradingData();
+			data.setPublishedItemId(itemData.getItemId());
+			ItemTextIfc itemText = (ItemTextIfc) itemData.getItemTextSet().toArray()[0];
+			data.setPublishedItemTextId(itemText.getId());
+			ArrayList items = new ArrayList();
+			items.add(data);
+			setItemGradingDataArray(items);
+			data = (ItemGradingData) getItemGradingDataArray().toArray()[0];
 		}
-		ItemGradingData data = (ItemGradingData) getItemGradingDataArray()
-				.toArray()[count - 1];
-
+		else {
+		    data = (ItemGradingData) getItemGradingDataArray().toArray()[count - 1];
+		}
 		if ( getItemData().getTypeId().toString().equals(TypeIfc.TRUE_FALSE.toString())){
 			// for True false  
 			data.setRationale(newRationale);
