@@ -159,14 +159,14 @@ public class SiteInfoToolServlet extends HttpServlet
 		basicAuth.doLogin(req);
 		
 		// catch the login helper requests
-		// 1: Get site status: request url is of format https://server_name/site-manage-tool/tool/sitecopystatus/toolId
+		// 1: Get site status: request url is of format https://server_name/sakai-site-manage-tool/tool/sitecopystatus/toolId
 		String option = req.getPathInfo();
 		String[] parts = option.split("/");
 		if ((parts.length == 3) && (parts[0].equals("")) && (parts[1].equals("sitecopystatus")))
 		{
 			getSiteCopyStatus(parts[2], res);
 		}
-		// 2: Print site participant list: request url if of format https://server_name/site-manage-tool/tool/printparticipant/siteId
+		// 2: Print site participant list: request url if of format https://server_name/sakai-site-manage-tool/tool/printparticipant/siteId
 		else if ((parts.length == 3) && (parts[0].equals("")) && (parts[1].equals("printparticipant")))
 		{
 			getSiteParticipantList(parts[2], res);

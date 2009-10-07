@@ -9,7 +9,7 @@
   </parent>
   <name>site-manage-util</name>
   <groupId>org.sakaiproject.sitemanage</groupId>
-  <artifactId>site-manage-util</artifactId>
+  <artifactId>sakai-site-manage-util</artifactId>
   <organization>
     <name>University of Michigan</name>
     <url>http://sakaiproject.org/</url>
@@ -37,7 +37,7 @@
       org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
       <groupId>org.sakaiproject.sitemanage</groupId>
-      <artifactId>site-manage-api</artifactId>
+      <artifactId>sakai-site-manage-api</artifactId>
     </dependency>
 <!--org.sakaiprojectsakai-site-api${sakai.version}-->
 <!--org.sakaiprojectsakai-authz-api${sakai.version}-->

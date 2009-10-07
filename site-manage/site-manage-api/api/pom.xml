@@ -7,9 +7,9 @@
     <version>2.7.0-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
-  <name>site-manage-api</name>
+  <name>sakai-site-manage-api</name>
   <groupId>org.sakaiproject.sitemanage</groupId>
-  <artifactId>site-manage-api</artifactId>
+  <artifactId>sakai-site-manage-api</artifactId>
   <organization>
     <name>The Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
@@ -29,6 +29,10 @@
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
 <!--org.sakaiprojectsakai-component${sakai.version}-->
+    <dependency>
+      <groupId>org.sakaiproject.edu-services.course-management</groupId>
+      <artifactId>coursemanagement-api</artifactId>
+    </dependency>
 <!--org.sakaiprojectsakai-util-api${sakai.version}-->
 <!--org.sakaiprojectsakai-user-api${sakai.version}-->
   </dependencies>

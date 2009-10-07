@@ -9,7 +9,7 @@
   </parent>
   <name>site-manage-hbm</name>
   <groupId>org.sakaiproject.sitemanage</groupId>
-  <artifactId>site-manage-hbm</artifactId>
+  <artifactId>sakai-site-manage-hbm</artifactId>
   <organization>
     <name>The Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
@@ -22,7 +22,7 @@
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject.sitemanage</groupId>
-      <artifactId>site-manage-api</artifactId>
+      <artifactId>sakai-site-manage-api</artifactId>
     </dependency>
   </dependencies>
   <build>

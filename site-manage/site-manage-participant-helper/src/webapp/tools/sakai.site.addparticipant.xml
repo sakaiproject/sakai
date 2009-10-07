@@ -3,7 +3,7 @@
 <registration>
 
 	<tool
-			id="site-manage-participant-helper"
+			id="sakai-site-manage-participant-helper"
 			title="Site Add Participants Helper"
 			description="Site Add Participant Helper">
 			<category name="sakai.helper" />

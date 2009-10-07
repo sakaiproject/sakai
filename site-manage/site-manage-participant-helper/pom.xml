@@ -7,9 +7,9 @@
     <version>2.7.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>site-manage-participant-helper</name>
+  <name>sakai-site-manage-participant-helper</name>
   <groupId>org.sakaiproject.sitemanage</groupId>
-  <artifactId>site-manage-participant-helper</artifactId>
+  <artifactId>sakai-site-manage-participant-helper</artifactId>
   <organization>
     <name>The Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
@@ -41,11 +41,11 @@
       org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
       <groupId>org.sakaiproject.sitemanage</groupId>
-      <artifactId>site-manage-api</artifactId>
+      <artifactId>sakai-site-manage-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.sitemanage</groupId>
-      <artifactId>site-manage-util</artifactId>
+      <artifactId>sakai-site-manage-util</artifactId>
     </dependency>
         <dependency>
       <groupId>org.sakaiproject.entitybroker</groupId>
@@ -54,9 +54,19 @@
 <!--org.sakaiprojectsakai-content-api${sakai.version}-->
     <dependency>
       <groupId>uk.org.ponder.sakairsf</groupId>
+      <artifactId>SakaiRSFComponents-evolvers</artifactId>
+      <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>uk.org.ponder.sakairsf</groupId>
       <artifactId>sakairsf</artifactId>
       <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
       <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-velocity-tool-api</artifactId>
     </dependency>
 <!--org.sakaiprojectsakai-util-api${sakai.version}-->
 <!--org.sakaiprojectsakai-util${sakai.version}-->
@@ -76,6 +86,11 @@
 <!--org.sakaiprojectsakai-util-api${sakai.version}-->
 <!-- Commons JARS put in shared/lib by Sakai -->
     <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.1</version>
+    </dependency>
+    <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
      </dependency>
@@ -83,6 +98,11 @@
 		<groupId>commons-validator</groupId>
 		<artifactId>commons-validator</artifactId>
 		<version>1.3.1</version>
+	</dependency>
+	<dependency>
+		<groupId>oro</groupId>
+		<artifactId>oro</artifactId>
+		<version>2.0.8</version>
 	</dependency>
   </dependencies>
   <build>
