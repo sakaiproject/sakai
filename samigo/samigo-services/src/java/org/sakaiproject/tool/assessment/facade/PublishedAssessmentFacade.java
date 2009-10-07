@@ -105,6 +105,13 @@ public class PublishedAssessmentFacade
   public PublishedAssessmentFacade() {
   }
 
+  // constructor for remove published assessment
+  public PublishedAssessmentFacade(Long id, String title, String createdBy){
+	  this.publishedAssessmentId = id;
+	  this.title = title;
+	  this.createdBy = createdBy;
+  }
+
   // constructor that whole min. info, used for listing
   // amended by gopalrc Nov 2007 to include releaseToGroups
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,

@@ -370,4 +370,6 @@ public interface PublishedAssessmentFacadeQueriesAPI
   public void saveOrUpdateAttachments(List list);
   
   public TreeMap getGroupsForSite();
+  public PublishedAssessmentFacade getPublishedAssessmentInfoForRemove(Long publishedAssessmentId);
+  
 }

@@ -31,6 +31,7 @@ import javax.faces.event.ActionListener;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentBean;
@@ -68,7 +69,7 @@ public class ConfirmRemovePublishedAssessmentListener implements ActionListener
     PublishedAssessmentBean publishedAssessmentBean = (PublishedAssessmentBean) ContextUtil.lookupBean("publishedassessment");
     
     PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-    PublishedAssessmentData publishedAssessment = publishedAssessmentService.getBasicInfoOfPublishedAssessment(publishedAssessmentId);
+    PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessmentInfoForRemove(Long.valueOf(publishedAssessmentId));
     if (publishedAssessment != null) {
     	// #3 - permission checking before proceeding - daisyf
     	AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
@@ -94,7 +95,7 @@ public class ConfirmRemovePublishedAssessmentListener implements ActionListener
     boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
     if (!hasPrivilege){
       String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
-				     "denied_delete_assessment_error");
+				     "denied_delete_other_members_assessment_error");
       context.addMessage(null,new FacesMessage(err));
     }
     return hasPrivilege;

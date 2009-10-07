@@ -681,8 +681,13 @@ public class PublishedAssessmentService extends AssessmentService{
    }
    
    public TreeMap getGroupsForSite() {
-		return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
-				.getGroupsForSite();
-  }
+	   return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
+	   .getGroupsForSite();
+   }
+
+   public PublishedAssessmentFacade getPublishedAssessmentInfoForRemove(Long publishedAssessmentId) {
+	   return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
+	   .getPublishedAssessmentInfoForRemove(publishedAssessmentId);
+   }
    
 }
