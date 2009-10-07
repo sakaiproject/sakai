@@ -7598,28 +7598,30 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT, state.getAttribute(ATTACHMENTS));
 
 		String g = params.getCleanString(GRADE_SUBMISSION_GRADE);
-		// any change in grade
-		hasChange = !hasChange ? valueDiffFromStateAttribute(state, g, GRADE_SUBMISSION_GRADE):hasChange;
-		if (g != null)
-		{
-			state.setAttribute(GRADE_SUBMISSION_GRADE, g);
-		}
-		else
-		{
-			state.removeAttribute(GRADE_SUBMISSION_GRADE);
-		}
 
 		String sId = (String) state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID);
 		try
 		{
-			// for points grading, one have to enter number as the points
-			String grade = (String) state.getAttribute(GRADE_SUBMISSION_GRADE);
 
 			Assignment a = AssignmentService.getSubmission(sId).getAssignment();
 			typeOfGrade = a.getContent().getTypeOfGrade();
 
 			if (withGrade)
 			{
+				// any change in grade
+				hasChange = !hasChange ? (typeOfGrade == Assignment.SCORE_GRADE_TYPE?valueDiffFromStateAttribute(state, scalePointGrade(state, g), GRADE_SUBMISSION_GRADE):valueDiffFromStateAttribute(state, g, GRADE_SUBMISSION_GRADE)):hasChange;
+				if (g != null)
+				{
+					state.setAttribute(GRADE_SUBMISSION_GRADE, g);
+				}
+				else
+				{
+					state.removeAttribute(GRADE_SUBMISSION_GRADE);
+				}
+				
+				// for points grading, one have to enter number as the points
+				String grade = (String) state.getAttribute(GRADE_SUBMISSION_GRADE);
+				
 				// do grade validation only for Assignment with Grade tool
 				if (typeOfGrade == Assignment.SCORE_GRADE_TYPE)
 				{
