@@ -784,44 +784,37 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			log
 					.debug("ADD ALL RECORDS ==========================================================="); //$NON-NLS-1$
 			
-			List<String> contextList = new ArrayList<String>();
-			if (SearchBuilderItem.GLOBAL_CONTEXT.equals(controlItem.getContext()))
-			{
-
-				List<Site> sites = SiteService.getSites(SelectionType.ANY, null, null,
-						null, SortType.NONE, null);
-				for (Iterator<Site> i = sites.iterator(); i.hasNext();)
-				{
-					Site s = (Site) i.next();
-					if (!SiteService.isSpecialSite(s.getId())
-							|| SiteService.isUserSite(s.getId()))
-					{
-						if (searchIndexBuilder.isOnlyIndexSearchToolSites())
-						{
-							ToolConfiguration t = s.getToolForCommonId("sakai.search"); //$NON-NLS-1$
-							if (t != null)
-							{
-								contextList.add(s.getId());
-							}
-						}
-						else
-						{
-							contextList.add(s.getId());
-						}
-					}
-				}
-			}
-			else
-			{
-				contextList.add(controlItem.getContext());
-			}
+			List<String> contextList = getAllContentexts(controlItem);
 			
 			//These will never change
 			List<EntityContentProducer> contentProducers = searchIndexBuilder.getContentProducers();
 			
+			//how long and how often should we sleep?
+			long sleepTime = 1000*60;
+			long sleepInterval = 1000;
+			
+			long count = 0;
+			long totalCount = 0;
 			//Iterate through each site
 			for (Iterator<String> c = contextList.iterator(); c.hasNext();)
 			{
+				if (count == sleepInterval) {
+					log.info("sleeping to stop GC craziness");
+					log.info("done " + totalCount + "/" + contextList.size());
+					try {
+						Thread.sleep(sleepTime);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					count = 0;
+					totalCount ++;
+				} else {
+					count ++;
+					totalCount ++;
+					
+				}
+				
 				String siteContext = (String) c.next();
 				log.info("Rebuild for " + siteContext); //$NON-NLS-1$
 				
@@ -910,6 +903,41 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			}
 		}
 
+	}
+
+	private List<String> getAllContentexts(SearchBuilderItem controlItem) {
+		List<String> contextList = new ArrayList<String>();
+		if (SearchBuilderItem.GLOBAL_CONTEXT.equals(controlItem.getContext()))
+		{
+
+			List<Site> sites = SiteService.getSites(SelectionType.ANY, null, null,
+					null, SortType.NONE, null);
+			for (Iterator<Site> i = sites.iterator(); i.hasNext();)
+			{
+				Site s = (Site) i.next();
+				if (!SiteService.isSpecialSite(s.getId())
+						|| SiteService.isUserSite(s.getId()))
+				{
+					if (searchIndexBuilder.isOnlyIndexSearchToolSites())
+					{
+						ToolConfiguration t = s.getToolForCommonId("sakai.search"); //$NON-NLS-1$
+						if (t != null)
+						{
+							contextList.add(s.getId());
+						}
+					}
+					else
+					{
+						contextList.add(s.getId());
+					}
+				}
+			}
+		}
+		else
+		{
+			contextList.add(controlItem.getContext());
+		}
+		return contextList;
 	}
 
 	private void refreshIndex(Connection connection, SearchBuilderItem controlItem)
