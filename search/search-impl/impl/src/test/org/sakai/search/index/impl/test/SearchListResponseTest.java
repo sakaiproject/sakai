@@ -88,7 +88,13 @@ public class SearchListResponseTest extends TestCase
 		{
 			SearchListResponseImpl slri = new SearchListResponseImpl(testString,
 					null, 0, 10, null, null, null, null);
+			if (slri != null) {
+				//we should never get here but it stops FB flaging slri as a deadstore
+				System.out.println(slri.getFullSize());
+			}
+			
 			fail("Should have thrown an IOException ");
+			
 		}
 		catch (IOException ex)
 		{

@@ -1037,7 +1037,10 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		{
 			try
 			{
-				packetStream.close();
+				if (packetStream != null) 
+				{
+					packetStream.close();
+				}
 			}
 			catch (Exception ex)
 			{
@@ -1053,7 +1056,10 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			try
 			{
-				sharedStream.close();
+				if (sharedStream != null)
+				{
+					sharedStream.close();
+				}
 			}
 			catch (Exception ex)
 			{
