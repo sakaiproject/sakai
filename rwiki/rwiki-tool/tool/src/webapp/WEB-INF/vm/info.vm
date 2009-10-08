@@ -35,42 +35,67 @@
 #helppopup( "lastedithelp"  ${rlb.jsp_last_edited} ${rlb.jsp_last_edited_help})
 #helppopup( "digesthelp" ${rlb.jsp_sha1_digest} ${rlb.jsp_sha1_digest_help})
 #helppopup( "preferenceshelp"  ${rlb.jsp_notification_preferences} ${rlb.jsp_notification_preferences_help})
-
-
-
+#helppopup( "feedshelp"  ${rlb.jsp_feeds} ${rlb.jsp_notification_feeds_help})
 
 <div id="rwiki_container">
   <div class="portletBody">
-	<div class="navIntraTool">
 	  <form action="?#" method="get" class="rwiki_searchForm">
+	<ul class="navIntraTool">
+
 	    ##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
 	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
 	    ##  $homeBean $viewBean $resourceLoaderBean )
 	    ##            uhl  upl  uvl  vln    uel   uil  uhl  uwl  wn
 	  	 #commandlinks(true true true ${rlb.jsp_view}	true  true true true ${requestScope.Withnotification}	${homeBean} ${realmBean} ${rlb} ) 
-	    <span class="rwiki_searchBox">
-	      ${rlb.jsp_search}:	
+	    <li class="rwiki_searchBox">
+		  <label for="searchField">${rlb.jsp_search}:</label>
 	      <input type="hidden" name="action" value="${util.escapeHtml($requestScope.SearchTarget)}" />
 	      <input type="hidden" name="panel" value="Main" />
-	      <input type="text" name="search" />
-	    </span>
+	      <input type="text" id="searchField"  name="search" />
+	    </li>
+	</ul>
 	  </form>
-	</div>
 
-
-	
 	#if (${rightRenderBean.hasContent})
 		#set( $rwikiContentStyle = "withsidebar" )
 	#else
 		#set( $rwikiContentStyle = "nosidebar" )
 	#end
 	
-	#breadcrumbs()
-	<div id="rwiki_head" >				    
+		<div class="navPanel">
+			<div class="viewNav">
+				<h3 class="breadcrumb">
+					<span id="breadPref">${rlb.jsp_info}:&nbsp;</span><span id="breadCurr">${util.escapeHtml($renderBean.localisedPageName)}</span>
+				</h3>
+			</div>	
+			<div class="listNav specialLink">
+				<a href="#" class="visitedPagesOn" id="visitedPages" style="display:none">${rlb.jsp_visited_pages_link}</a>
+				<ul id="wikiCrumb" style="display:none">#breadcrumbs()</ul>
+			</div>
+		</div>
+
+
+	<script type="text/javascript">
+		$(document).ready(function(){
+			rearrangeBreadCrumb();
+			$('.rwiki_help_popup_link').hover(function(){
+				showPopupHere(this,this.name);
+				},
+				function(){
+					hidePopup(this.name)
+				});
+			$('.rwiki_help_popup_link').focus(function(){
+					showPopupHere(this,this.name);
+				});
+			$('.rwiki_help_popup_link').blur(function(){
+					hidePopup(this.name)
+				});
+			});
+	</script>
+	<div id="rwiki_head" ><!-- avoid min height in IEX-->
 		#sidebar_switcher()
 	</div>
 	<div id="rwiki_content" class="${rwikiContentStyle}" >
-		<h3>${rlb.jsp_info}: ${util.escapeHtml($realmBean.localName)}</h3>
 	 #if (${errorBean.errors} && ${errorBean.errors.size()} > 0 )
 	      <p class="validation" style="clear: none;">
 							#foreach( $error in ${errorBean.errors} )
@@ -119,28 +144,22 @@
 		    pmi++;
 		  #end
 		</script>
-		<table class="rwiki_info" cellspacing="0" summary="This table gives the permissions for this page. Column 1 gives the role name. Column 2 lists the status of the 'create' permission. Column 3 lists the status of the 'read' permission. Column 4 lists the status of the 'edit' permission. Column 5 lists the status of the 'admin' permission. Column 6 lists the status of the 'super-admin' permission. Edit, read and create permissions can be enabled and disabled on this page by checking and unchecking the checkboxes in the relevant column. This will change the status of the permission as given in the table.">
+		<table class="itemSummary rwiki_item_summary specialLink" cellspacing="0" summary="This table gives the permissions for this page. Column 1 gives the role name. Column 2 lists the status of the 'create' permission. Column 3 lists the status of the 'read' permission. Column 4 lists the status of the 'edit' permission. Column 5 lists the status of the 'admin' permission. Column 6 lists the status of the 'super-admin' permission. Edit, read and create permissions can be enabled and disabled on this page by checking and unchecking the checkboxes in the relevant column. This will change the status of the permission as given in the table.">
 		  <tbody>
 		    <tr id="permissions">
-		    	<th>${rlb.jsp_page_perms_by_role}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'permissionshelp'); return false;"
-		    		onMouseOut="hidePopup('permissionshelp');" >?</a></th>
-		    	<td>${rlb.jsp_permission_create}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'createhelp'); return false;"
-		    		onMouseOut="hidePopup('createhelp');" >?</a></td>
-		    	<td>${rlb.jsp_permission_read}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'readhelp'); return false;"
-		    		onMouseOut="hidePopup('readhelp');" >?</a></td>
-		    	<td>${rlb.jsp_permission_edit}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'updatehelp'); return false;"
-		    		onMouseOut="hidePopup('updatehelp');" >?</a></td>
-		    	<!--<td>${rlb.jsp_permission_delete}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'deletehelp'); return false;"
-		    		onMouseOut="hidePopup('deletehelp');" >?</a></td>-->
-		    	<td>${rlb.jsp_permission_admin}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'adminhelp'); return false;"
-		    		onMouseOut="hidePopup('adminhelp');" >?</a></td>
-		    	<td>${rlb.jsp_permission_super_admin}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'superadminhelp'); return false;"
-		    		onMouseOut="hidePopup('superadminhelp');" >?</a></td>
+		    	<th scope="col"><a href="#" class="rwiki_help_popup_link" name="permissionshelp" title="${rlb.jsp_page_perms_help_title}">${rlb.jsp_page_perms_by_role}</a></th>
+		    	<th scope="col"><a href="#" class="rwiki_help_popup_link" name="createhelp" title="${rlb.jsp_page_perms_help_title}">${rlb.jsp_permission_create}</a></th
+		    	<th scope="col"><a href="#" class="rwiki_help_popup_link" name="readhelp"  title="${rlb.jsp_page_perms_help_title}">${rlb.jsp_permission_read}</a></th>
+		    	<th scope="col"><a href="#" class="rwiki_help_popup_link" name="updatehelp"  title="${rlb.jsp_page_perms_help_title}">${rlb.jsp_permission_edit}</a></th>
+		    	<!--<td><a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'deletehelp'); return false;"
+		    		onMouseOut="hidePopup('deletehelp');"  title="${rlb.jsp_page_perms_help_title}">${rlb.jsp_permission_delete}</a></td>-->
+		    	<th scope="col"><a href="#" class="rwiki_help_popup_link" name="adminhelp"  title="${rlb.jsp_page_perms_help_title}">${rlb.jsp_permission_admin}</a></th>
+		    	<th scope="col"><a href="#" class="rwiki_help_popup_link" name="superadminhelp"  title="${rlb.jsp_page_perms_help_title}">${rlb.jsp_permission_super_admin}</a></th>
 		    </tr>
 		    #set( $pmcounter = 0 )		  		
 		    #foreach( $role in ${realmBean.roles} )
 		    <tr class="permissionsGroupRole">
-				     <th>${role.id}</th>
+				     <th scope="row">${role.id}</th>
 			      <td>
 			        <span id="permissions_${pmcounter}" class="rwiki_info_secure_granted" >
 			        #granted( ${role.secureCreate} false )
@@ -156,7 +175,7 @@
 			        <span id="permissions_${pmcounter}" class="rwiki_info_secure_denied" >
 			        #granted( ${role.secureRead} false )
 			        </span>
-         #end	
+		         #end	
 		       #set( $pmcounter = $pmcounter+1 )		  		
 			      </td>
 			      <td>
@@ -191,93 +210,92 @@
 			      </td>
 		    </tr>
 		    #end
+			
+			## begin admin permissions
+
 		    #if (${permissionsBean.adminAllowed})
 			   <tr id="permissionsGroup">
-			     <th>${rlb.jsp_enable_disable_page}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'siteenablehelp'); return false;"
-			      onMouseOut="hidePopup('siteenablehelp');" >?</a></th>
+			     <th><a href="#" class="rwiki_help_popup_link" name="siteenablehelp"  title="${rlb.jsp_page_perms_help_title}">${rlb.jsp_enable_disable_page}</a></th>
 			     <td></td>
 			     <td>
 			     #if (${currentRWikiObject.groupRead} )
-				       <input type="checkbox" name="groupRead" checked="checked" 
+				       <label class="skip"  for="groupReadId">${rlb.jsp_enable_disable_page}: ${rlb.jsp_permission_read}</label><input type="checkbox" name="groupRead" id="groupReadId"  checked="checked" 
 				          onClick="setPermissionDisplay('rwiki_info_secure_granted','rwiki_info_secure_denied',groupRead.checked,groupWrite.checked,groupAdmin.checked);"/>
 			     #else
-			        <input type="checkbox" name="groupRead" onClick="setPermissionDisplay('rwiki_info_secure_granted','rwiki_info_secure_denied',groupRead.checked,groupWrite.checked,groupAdmin.checked);"/>
+			        <label class="skip"  for="groupReadId">${rlb.jsp_enable_disable_page}: ${rlb.jsp_permission_read}</label><input type="checkbox" name="groupRead" id="groupReadId" onClick="setPermissionDisplay('rwiki_info_secure_granted','rwiki_info_secure_denied',groupRead.checked,groupWrite.checked,groupAdmin.checked);"/>
 			     #end
 			     </td>
 			     <td>
 			     #if (${currentRWikiObject.groupWrite} )
-				      <input type="checkbox" name="groupWrite" checked="checked" 
+				      <label class="skip"  for="groupWriteId">${rlb.jsp_enable_disable_page}: ${rlb.jsp_permission_edit}</label><input type="checkbox" name="groupWrite" id="groupWriteId" checked="checked" 
 				          onClick="setPermissionDisplay('rwiki_info_secure_granted','rwiki_info_secure_denied',groupRead.checked,groupWrite.checked,groupAdmin.checked);" />
 			     #else
-			     			<input type="checkbox" name="groupWrite" onClick="setPermissionDisplay('rwiki_info_secure_granted','rwiki_info_secure_denied',groupRead.checked,groupWrite.checked,groupAdmin.checked);" />
+			     		<label class="skip"  for="groupWriteId">${rlb.jsp_enable_disable_page}: ${rlb.jsp_permission_edit}</label>${rlb.jsp_permission_edit}<input type="checkbox" name="groupWrite" id="groupWriteId" onClick="setPermissionDisplay('rwiki_info_secure_granted','rwiki_info_secure_denied',groupRead.checked,groupWrite.checked,groupAdmin.checked);" />
 			     #end
 			     </td>
 			     <td>
 			     #if (${currentRWikiObject.groupAdmin} )
-				       <input type="checkbox" name="groupAdmin" checked="checked" onClick="setPermissionDisplay('rwiki_info_secure_granted','rwiki_info_secure_denied',groupRead.checked,groupWrite.checked,groupAdmin.checked);"/>
+				       <label class="skip"  for="groupAdminId">${rlb.jsp_enable_disable_page}: ${rlb.jsp_permission_admin}</label><input type="checkbox" name="groupAdmin" id="groupAdminId"  checked="checked" onClick="setPermissionDisplay('rwiki_info_secure_granted','rwiki_info_secure_denied',groupRead.checked,groupWrite.checked,groupAdmin.checked);"/>
 			     #else
-				       <input type="checkbox" name="groupAdmin" onClick="setPermissionDisplay('rwiki_info_secure_granted','rwiki_info_secure_denied',groupRead.checked,groupWrite.checked,groupAdmin.checked);"/>
+				       <label class="skip"  for="groupAdminId">${rlb.jsp_enable_disable_page}: ${rlb.jsp_permission_admin}</label><input type="checkbox" name="groupAdmin" id="groupAdminId" onClick="setPermissionDisplay('rwiki_info_secure_granted','rwiki_info_secure_denied',groupRead.checked,groupWrite.checked,groupAdmin.checked);"/>
 			     #end
 			     </td>
 			     <td></td>
 			   </tr>
 			   <tr id="permissionsAdditional">
-			      <th>${rlb.jsp_additional_page_permissions}</th>
-			      <td colspan="5">&nbsp;</td>
+			      <th class="exclude">${rlb.jsp_additional_page_permissions}</th>
+			      <td style="border-left:none;border-right:none" colspan="5">&nbsp;</td>
 			   </tr>
 			   <tr id="permissionsOwner">
-			      <th>${rlb.jsp_page_owner} <a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'pageownerhelp'); return false;"
-			      onMouseOut="hidePopup('pageownerhelp');" >?</a></th>
+			      <th scope="row"><a href="#" class="rwiki_help_popup_link" name="pageownerhelp"  title="${rlb.jsp_page_perms_help_title}">${rlb.jsp_page_owner}</a></th>
 			      <td>&nbsp;</td>
 			      <td>
 			      #if (${currentRWikiObject.ownerRead})
-				       <input type="checkbox" name="ownerRead" checked="checked"/>
+				       <label class="skip"  for="ownerReadId">${rlb.jsp_page_owner} ${rlb.jsp_permission_read}</label><input type="checkbox" name="ownerRead" id="ownerReadId" checked="checked"/>
 			      #else
-				       <input type="checkbox" name="ownerRead"/>
+				       <label class="skip"  for="ownerReadId">${rlb.jsp_page_owner} ${rlb.jsp_permission_read}</label><input type="checkbox" name="ownerRead" id="ownerReadId" />
 			      #end
 			      </td>
 			      <td>
 			      #if (${currentRWikiObject.ownerWrite})
-				       <input type="checkbox" name="ownerWrite" checked="checked" onClick="if (checked) ownerRead.checked = checked;"/>
+				       <label class="skip"  for="ownerWriteId">${rlb.jsp_page_owner} ${rlb.jsp_permission_edit}</label><input type="checkbox" name="ownerWrite" id="ownerWriteId" checked="checked" onClick="if (checked) ownerRead.checked = checked;"/>
 			      #else
-				       <input type="checkbox" name="ownerWrite" onClick="if (checked) ownerRead.checked = checked;"/>
+				       <label class="skip"  for="ownerWriteId">${rlb.jsp_page_owner} ${rlb.jsp_permission_edit}</label><input type="checkbox" name="ownerWrite" id="ownerWriteId" onClick="if (checked) ownerRead.checked = checked;"/>
 			      #end
 			      </td>
 			      <td>
 			      #if (${currentRWikiObject.ownerAdmin})
-				      <input type="checkbox" name="ownerAdmin" checked="checked" onClick="if ( checked ) { ownerRead.checked = checked; ownerWrite.checked = checked; }"/>
+				      <label class="skip"  for="ownerAdminId">${rlb.jsp_page_owner} ${rlb.jsp_permission_admin}</label><input type="checkbox" name="ownerAdmin" id="ownerAdminId"  checked="checked" onClick="if ( checked ) { ownerRead.checked = checked; ownerWrite.checked = checked; }"/>
 			      #else
-				      <input type="checkbox" name="ownerAdmin" onClick="if (checked) { ownerRead.checked = checked; ownerWrite.checked = checked; }"/>
+				      <label class="skip"  for="ownerAdminId">${rlb.jsp_page_owner} ${rlb.jsp_permission_admin}</label><input type="checkbox" name="ownerAdmin" id="ownerAdminId" onClick="if (checked) { ownerRead.checked = checked; ownerWrite.checked = checked; }"/>
 			      #end
 			      </td>
 			      <td>&nbsp;</td>
 			   </tr>
 			   <tr id="permissionsPublic">
-			     <th>${rlb.jsp_public}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'publichelp'); return false;"
-			      onMouseOut="hidePopup('publichelp');" >?</a></th>
+			     <th scope="row"><a href="#" class="rwiki_help_popup_link" name="publichelp"  title="${rlb.jsp_page_perms_help_title}">${rlb.jsp_public}</a></th>
 			     <td></td>
 			     <td>
 			     #if (${currentRWikiObject.publicRead})
-				      <input type="checkbox" name="publicRead" checked="checked"/>
+				      <label class="skip"  for="publicReadId">${rlb.jsp_public} ${rlb.jsp_permission_read}</label><input type="checkbox" name="publicRead" id="publicReadId" checked="checked"/>
 			     #else
-				      <input type="checkbox" name="publicRead"/>
+				      <label class="skip"  for="publicReadId">${rlb.jsp_public} ${rlb.jsp_permission_read}</label><input type="checkbox" name="publicRead" id="publicReadId"/>
 			     #end
 			     </td>
 			     <td>
 			     #if (${currentRWikiObject.publicWrite})
-				      <input type="checkbox" name="publicWrite" checked="checked" onClick="if ( checked) publicRead.checked = checked;"/>
+				      <label class="skip"  for="publicWriteId">${rlb.jsp_public} ${rlb.jsp_permission_edit}</label><input type="checkbox" name="publicWrite" id="publicWriteId" checked="checked" onClick="if ( checked) publicRead.checked = checked;"/>
 			     #else
-				      <input type="checkbox" name="publicWrite" onClick="if (checked) publicRead.checked = checked;"/>
+				      <label class="skip"  for="publicWriteId">${rlb.jsp_public} ${rlb.jsp_permission_edit}</label><input type="checkbox" name="publicWrite" id="publicWriteId" onClick="if (checked) publicRead.checked = checked;"/>
 			     #end
 			     </td>
 			     <td></td>
 			     <td></td>
-			     <td></td>
 			   </tr>
 			   <tr>
-			    <td colspan="7">
+			    <td colspan="7" class="exclude">
 			     <div class="rwiki_editControl">
-			      <p class="act">
+			      <p class="act" style="margin:0;padding:0">
 				       <input type="hidden" name="pageName" value="${util.escapeHtml($currentRWikiObject.name)}" />
 				       <input type="hidden" name="panel" value="Main"/>
 				       <input type="hidden" name="action" value="updatePermissions"/>
@@ -288,6 +306,7 @@
 				         ${rlb.jsp_edit_page_permissions_msg1} <a href="${util.escapeHtml(${realmBean.editRealmUrl})}" >${rlb.jsp_edit_page_permissions_msg2}</a>
 				       #end
 				     </p>
+
 			     </div>
 			    </td>
 			   </tr>
@@ -307,11 +326,12 @@
 			   #end
 			  #else
 			  ##
+			## end admin permissions
 		   ##  No Page edit allowed
 		   ##
+
 			   <tr id="permissionsGroup">
-			    <th>${rlb.jsp_enable_disable_page}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'siteenabledisphelp'); return false;"
-			      onMouseOut="hidePopup('siteenabledisphelp');" >?</a></th>
+			    <th><a href="#" class="rwiki_help_popup_link" name="siteenabledisphelp" >${rlb.jsp_enable_disable_page}</a></th>
 			    <td></td>
 			    <td>
 			  	  #granted( ${currentRWikiObject.groupRead} true )
@@ -325,13 +345,11 @@
 			    <td></td>
 			   </tr>
 			   <tr id="permissionsAdditional">
-			    <th>${rlb.jsp_additional_page_permissions}</th>
-			    <td colspan="5">&nbsp;</td>
+			    <th class="exclude">${rlb.jsp_additional_page_permissions}</th>
+			    <td colspan="5" style="border-left:none;border-right:none">&nbsp;</td>
 		   	</tr>
-			
 			   <tr id="permissionsOwner">
-			     <th>${rlb.jsp_page_owner}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'pageownerdisphelp'); return false;"
-			      onMouseOut="hidePopup('pageownerdisphelp');" >?</a></th>
+			     <th><a href="#" class="rwiki_help_popup_link" name="pageownerdisphelp" >${rlb.jsp_page_owner}</a></th>
 			     <td>&nbsp;</td>
 			     <td>
 			      #granted( ${currentRWikiObject.ownerRead} true)
@@ -345,8 +363,7 @@
 			     <td>&nbsp;</td>
 			   </tr>
 			   <tr id="permissionsPublic">
-			     <th>${rlb.jsp_public}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'publicdisphelp'); return false;"
-			      onMouseOut="hidePopup('publicdisphelp');" >?</a></th>
+			     <th><a href="#" class="rwiki_help_popup_link" name="publicdisphelp" >${rlb.jsp_public}</a></th>
 			     <td></td>
 			     <td>
 			      #granted( ${currentRWikiObject.publicRead} true)
@@ -356,61 +373,59 @@
 			     </td>
 			     <td></td>
 			     <td></td>
-			     <td></td>
 			   </tr>
 			   <tr>
-			     <td colspan="7">
+			     <td colspan="7" class="exclude">
 			     <div class="rwiki_editControl">
-			      <p class="act">
-					    #if (${realmBean.siteUpdateAllowed})
-				      ${rlb.jsp_edit_site_permissions1} <a href="${util.escapeHtml(${realmBean.editRealmUrl})}">${rlb.jsp_edit_site_permissions2}</a>
+				    #if (${realmBean.siteUpdateAllowed})
+					      <p class="act">
+						      ${rlb.jsp_edit_site_permissions1} <a href="${util.escapeHtml(${realmBean.editRealmUrl})}">${rlb.jsp_edit_site_permissions2}</a>
+					     </p>
 				     #end
-				     </p>
 			     </div>
 			     </td>
 			   </tr>
 			   #end
+	   		  </tbody>
 			  </table>
-					<table class="rwiki_info" cellspacing="0" summary="This table display information about this page. Column 1 gives a heading. Column 2 lists the relevant information.">
+
+			<table class="itemSummary lines specialLink" cellspacing="0" summary="This table display information about this page. Column 1 gives a heading. Column 2 lists the relevant information.">
+			<tbody>	
 		    <tr id="incommingStart" >
-		    	<th>${rlb.jsp_incomming}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'incomminghelp'); return false;"
-		    		onMouseOut="hidePopup('incomminghelp');" >?</a></th>
+		    	<th><a href="#" class="rwiki_help_popup_link" name="incomminghelp" >${rlb.jsp_incomming}</a></th>
 		     <td colspan="6">
 			       #set( $referencingLinks = ${referencesBean.referencingPageLinks} )
-			       #if (${freferencingLinks} && ${freferencingLinks.size()} > 0 )
+			       #if (${referencingLinks} && ${referencingLinks.size()} > 0 )
 			        <ul id="referencingLinks">
-			        #foreach( $item in ${referencingLinks} )
-			          <li>${item}</li>
-			        #end
+				        #foreach( $item in ${referencingLinks} )
+				          <li><span>${item}</span></li>
+				        #end
 			        </ul>
 			       #end
 		     </td>
 		   </tr>
 		   <tr>
-		    	<th>${rlb.jsp_outgoing}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'outgoinghelp'); return false;"
-		    		onMouseOut="hidePopup('outgoinghelp');" >?</a></th>
+		    	<th><a href="#" class="rwiki_help_popup_link" name="outgoinghelp" >${rlb.jsp_outgoing}</a></th>
 		     <td colspan="6">
 			    #set( $referencedLinks = ${referencesBean.referencedPageLinks} )
-			     #if( $referencedLinks && $referencedLinks.size() > 60) ##SAK-12115
-			      ${rlb.jsp_info_outgoing_manylinks}
-			    #end
-			    #if ( $referencedLinks && $referencedLinks.size() > 0 ) 
+				#if( $referencedLinks && $referencedLinks.size() > 60) ##SAK-12115
+					${rlb.jsp_info_outgoing_manylinks}
+				#end
+				#if ( $referencedLinks && $referencedLinks.size() > 0 && ( $referencedLinks && $referencedLinks.size()	<= 60)) 
 			      <ul id="referencedLinks">
 			      #foreach( $item in ${referencedLinks} )
-			        <li>${item}</li>
+			          <li><span>${item}</span></li>
 			      #end
 			      </ul>
 			    #end
-			   </td>
+			    </td>
 		   </tr>
-		   
 		   <tr>
-		    	<th>${rlb.jsp_comment}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'commenthelp'); return false;"
-		    		onMouseOut="hidePopup('outgoinghelp');" >?</a></th>
+		    	<th><a  class="rwiki_help_popup_link" href="#" name="commenthelp">${rlb.jsp_comment}</a></th>
 		     <td colspan="6">
 		      <ul id="commentLinks">
 			    #foreach( $comment in ${renderBean.comments} )
-			     <li>${comment.CommentPageLink}</li>
+			     <li><span>${comment.CommentPageLink}</span></li>
 			    #end
 			      </ul>
 			 </td>
@@ -419,20 +434,18 @@
 		   <!-- NOTIFICATION SUPPORT, wiki.notifications to enable -->
 			  #if (${requestScope.withnotification})
 		   <tr>
-		      <th>${rlb.jsp_notification_preferences}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'preferenceshelp'); return false;"
-		    		onMouseOut="hidePopup('preferenceshelp');" >?</a></th>
+		      <th><a href="#" class="rwiki_help_popup_link" name="preferenceshelp" >${rlb.jsp_notification_preferences}</a></th>
 		      <td colspan="7">
 			       <a href="${util.escapeHtml(${realmBean.preferencesUrl})}">${rlb.jsp_edit_notification_preferences}${realmBean.pageSpace}</a>
 		      </td>
 		   </tr>
 		   #end
 		   <tr>
-		    	<th>${rlb.jsp_feeds}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'feedshelp'); return false;"
-		    		onMouseOut="hidePopup('feedshelp');" >?</a></th>
+		    	<th><a href="#" class="rwiki_help_popup_link" name="feedshelp" >${rlb.jsp_feeds}</a></th>
 		     <td colspan="6">
 			      <ul id="feedsLinks">
 			       <li>
-			        <a href="${util.escapeHtml(${realmBean.printViewUrl})}" target="printview" >${rlb.jsp_printer_friendly}</a>
+					  <a href="${util.escapeHtml(${realmBean.printViewUrl})}" target="printview" >					  <img border="0" alt="${rlb.jsp_printer_friendly}" src="/library/image/silk/printer.png"/> ${rlb.jsp_printer_friendly}</a>
 			       </li>
 ##			       <li>
 ##			        <a href="${util.escapeHtml(${realmBean.publicViewUrl})}" target="publicview" >${rlb.jsp_public}</a>
@@ -440,7 +453,7 @@
 			       #set( $feedsLinks = ${referencesBean.feedsLinks} )
 			       #if ($feedsLinks && $feedsLinks.size() > 0)
 			        #foreach( $item in ${feedsLinks})
-			         <li>${item} </li>
+			         <li>${item}</li>
 			        #end
 			       #end
 			      </ul>
@@ -448,30 +461,25 @@
 		   </tr>
 		    
 		   <tr>
-		    	<th>${rlb.jsp_owner}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'ownerhelp'); return false;"
-		    		onMouseOut="hidePopup('ownerhelp');" >?</a></th>
+		    	<th><a href="#" class="rwiki_help_popup_link" name="ownerhelp">${rlb.jsp_owner}</a></th>
 		     <td colspan="6">
 		      	#formatDisplayName($currentRWikiObject.owner)
 		     </td>
 		   </tr>
 		   <tr>
-		    	<th>${rlb.jsp_global_name}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'globalhelp'); return false;"
-		    		onMouseOut="hidePopup('globalhelp');" >?</a></th>
+		    	<th><a href="#" class="rwiki_help_popup_link" name="globalhelp" >${rlb.jsp_global_name}</a></th>
 		      <td colspan="6">${util.escapeHtml($realmBean.pageName)}</td>
 		   </tr>
 		   <tr>
-		    	<th>${rlb.jsp_permission_section}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'realmhelp'); return false;"
-		    		onMouseOut="hidePopup('realmhelp');" >?</a></th>
+		    	<th><a href="#" class="rwiki_help_popup_link" name="realmhelp" >${rlb.jsp_permission_section}</a></th>
 		      <td colspan="6">${util.escapeHtml($currentRWikiObject.realm)}</td>
 		   </tr>
 		   <tr>
-		    	<th>${rlb.jsp_id}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'idhelp'); return false;"
-		    		onMouseOut="hidePopup('idhelp');" >?</a></th>
+		    	<th><a href="#" class="rwiki_help_popup_link" name="idhelp" >${rlb.jsp_id}</a></th>
 		     <td colspan="6">${util.escapeHtml($currentRWikiObject.id)}</td>
 		   </tr>
 		   <tr>
-		    	<th>${rlb.jsp_last_edited}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'lastedithelp'); return false;"
-		    		onMouseOut="hidePopup('lastedithelp');" >?</a></th>
+		    	<th><a href="#" class="rwiki_help_popup_link" name="lastedithelp" >${rlb.jsp_last_edited}</a></th>
 		      <td colspan="6">
 		      #formatDateTime(${currentRWikiObject.version}) 
 		      ${rlb.jsp_by} 
@@ -479,12 +487,18 @@
 		      </td>
 		   </tr>
 		   <tr>
-		    	<th>${rlb.jsp_hash_name}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'digesthelp'); return false;"
-		    		onMouseOut="hidePopup('digesthelp');" >?</a></th>
+		    	<th><a href="#" class="rwiki_help_popup_link" name="digesthelp" >${rlb.jsp_hash_name}</a></th>
 		      <td colspan="6">${util.escapeHtml($currentRWikiObject.sha1)}</td>
 		    </tr>
 		  </tbody>
 		</table>
+		<p>
+			&nbsp;
+		</p>
+		<p>
+			&nbsp;
+		</p>
+
 		<script type="text/javascript">
 		  setPermissionDisplay('rwiki_info_secure_granted','rwiki_info_secure_denied',${currentRWikiObject.groupRead}, ${currentRWikiObject.groupWrite}, ${currentRWikiObject.groupAdmin});
 		</script>

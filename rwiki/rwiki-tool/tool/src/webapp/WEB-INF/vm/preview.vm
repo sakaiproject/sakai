@@ -15,30 +15,33 @@
 #header(${title} false "" )  
 <div id="rwiki_container">
   <div class="portletBody">
-	<div class="navIntraTool">
 	  <form action="?#" method="get" class="rwiki_searchForm">
+		<ul class="navIntraTool">
 	    ##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
 	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
 	    ##  $homeBean $viewBean $resourceLoaderBean )
 	    ##            uhl  upl  uvl  vln    uel   uil  uhl  uwl  wn
 	  	 #commandlinks(true true true ${rlb.jsp_view}	false  true false false ${requestScope.Withnotification}	${homeBean} ${realmBean} ${rlb} ) 
-	    <span class="rwiki_searchBox">
+	    <li class="rwiki_searchBox">
+		  <label for="searchField">${rlb.jsp_search}:</label>
 	      ${rlb.jsp_search}:	
 	      <input type="hidden" name="action" value="${util.escapeHtml($requestScope.SearchTarget)}" />
 	      <input type="hidden" name="panel" value="Main" />
-	      <input type="text" name="search" />
-	    </span>
+	      <input type="text" id="searchField"  name="search" />
+	    </li>
+		</ul>
 	  </form>
-	</div>
 	
 	#if (${rightRenderBean.hasContent})
 		#set( $rwikiContentStyle = "withsidebar" )
 	#else
 		#set( $rwikiContentStyle = "nosidebar" )
 	#end
-	
-	#breadcrumbs()
-	<div id="rwiki_head" >				    
+	<h3 class="breadcrumb specialLink">
+		#breadcrumbs()
+	</h3>
+
+	<div id="rwiki_head" ><!-- avoid min height in IEX-->		    
 		#sidebar_switcher()
 	</div>
 	<div id="rwiki_content" class="${rwikiContentStyle}" >

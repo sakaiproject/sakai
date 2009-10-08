@@ -18,23 +18,24 @@
 #helppopup( "changedhelp" ${rlb.jsp_history_content} ${rlb.jsp_history_content_help} )
 #helppopup1( "permissionshelp" ${rlb.jsp_history_permissions_help} )
   	
-<div id="rwiki_container">
+<div id="rwiki_container" class="historyPage">
   <div class="portletBody">
-	<div class="navIntraTool">
 	  <form action="?#" method="get" class="rwiki_searchForm">
+		<ul class="navIntraTool">
 	    ##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
 	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
 	    ##  $homeBean $viewBean $resourceLoaderBean )
 	    ##            uhl  upl  uvl  vln    uel   uil  uhl  uwl  wn
 	  	 #commandlinks(true true true ${rlb.jsp_view}	true  true true true ${requestScope.Withnotification}	${homeBean} ${historyBean} ${rlb} ) 
-	    <span class="rwiki_searchBox">
-	      ${rlb.jsp_search}:	
+	    <li class="rwiki_searchBox">
+		  <label for="searchField">${rlb.jsp_search}:</label>
 	      <input type="hidden" name="action" value="${util.escapeHtml($requestScope.SearchTarget)}" />
 	      <input type="hidden" name="panel" value="Main" />
-	      <input type="text" name="search" />
-	    </span>
+	      <input type="text" id="searchField" name="search" />
+	    </li>
+		</ul>
 	  </form>
-	</div>
+
 	
 	#if (${rightRenderBean.hasContent})
 		#set( $rwikiContentStyle = "withsidebar" )
@@ -42,36 +43,56 @@
 		#set( $rwikiContentStyle = "nosidebar" )
 	#end
 	
-	#breadcrumbs()
-	<div id="rwiki_head" >				    
+	<div class="navPanel">
+			<div class="viewNav">
+				<h3 class="breadcrumb">
+					<span id="breadPref">${rlb.jsp_history}:&nbsp;</span><span id="breadCurr">${util.escapeHtml($renderBean.localisedPageName)}</span>
+				</h3>
+			</div>	
+			<div class="listNav specialLink">
+				<a href="#" class="visitedPagesOn" id="visitedPages" style="display:none">${rlb.jsp_visited_pages_link}</a>
+				<ul id="wikiCrumb" style="display:none">#breadcrumbs()</ul>
+			</div>
+		</div>
+
+	<script type="text/javascript">
+		$(document).ready(function(){
+			rearrangeBreadCrumb();
+			$('.rwiki_help_popup_link').hover(function(){
+				showPopupHere(this,this.name);
+				},
+				function(){
+					hidePopup(this.name)
+				});
+			$('.rwiki_help_popup_link').focus(function(){
+					showPopupHere(this,this.name);
+				});
+			$('.rwiki_help_popup_link').blur(function(){
+					hidePopup(this.name)
+				});
+			});
+	</script>		
+	<div id="rwiki_head" ><!-- avoid min height in IEX-->			    
 		#sidebar_switcher()
 	</div>
 	<div id="rwiki_content" class="${rwikiContentStyle}" >
-	 <h3>${rlb.jsp_history}: ${util.escapeHtml($historyBean.localName)}</h3>
 	 <div class="rwikirenderedContent">
-	  <table class="rwiki_history" summary="Page History">
+	  <table class="listHier lines centerLines" style="width:95%;margin-right:15em;font-size:90%" summary="${rlb.jsp_history_list_caption}">
 		  <tr>
-			  <th>${rlb.jsp_history_version}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'versionhelp'); return false;"
-				  onMouseOut="hidePopup('versionhelp');" >?</a></th>
-			  <th>${rlb.jsp_history_user}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'userhelp'); return false;"
-				  onMouseOut="hidePopup('userhelp');" >?</a></th>
-			  <th>${rlb.jsp_history_date}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'datehelp'); return false;"
-				  onMouseOut="hidePopup('datehelp');" >?</a></th>
-			  <th colspan="2">${rlb.jsp_history_changes}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'changeshelp'); return false;"
-				  onMouseOut="hidePopup('changeshelp');" >?</a></th>
+			  <th><a href="#" class="rwiki_help_popup_link" name="versionhelp" >${rlb.jsp_history_version}</a></th>
+			  <th><a href="#" class="rwiki_help_popup_link" name="userhelp" >${rlb.jsp_history_user}</a></th>
+			  <th><a href="#" class="rwiki_help_popup_link" name="datehelp" >${rlb.jsp_history_date}</a></th>
+			  <th><a href="#" class="rwiki_help_popup_link" name="changeshelp" >${rlb.jsp_history_changes}</a></th>
 		   <th>
      #if (${permissionsBean.updateAllowed})
-		  			${rlb.jsp_history_revert}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'reverthelp'); return false;"
-		  				onMouseOut="hidePopup('reverthelp');" >?</a>
+		  			<a href="#" class="rwiki_help_popup_link" name="reverthelp" >${rlb.jsp_history_revert}</a>
 		  	#else
 		  			&nbsp;
 		  	#end
 		   </th>
-			  <th>${rlb.jsp_history_changed} <a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'changedhelp'); return false;"
-				  onMouseOut="hidePopup('changedhelp');" >?</a>
+			  <th><a href="#" class="rwiki_help_popup_link" name="changedhelp" >${rlb.jsp_history_changed}</a>
 			  </th>
-			  <th>${rlb.jsp_history_permissions}  <a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'permissionshelp'); return false;"
-				  onMouseOut="hidePopup('permissionshelp');" >?</a>
+			  <th><a href="#" class="rwiki_help_popup_link" name="permissionshelp" >${rlb.jsp_history_permissions}</a>
 			  </th>
 		  </tr>
 		  <tr>
@@ -84,8 +105,10 @@
 		    #formatDisplayName(${renderBean.rwikiObject.user})
 		   </td>
 		   <td>&nbsp;</td>
-		   <td colspan="2">&nbsp;</td>
+		   <td >&nbsp;</td>
+		   <td >&nbsp;</td>
 		   <td>&nbsp;</td>
+  		   <td>&nbsp;</td>
 		  </tr>
 		  #foreach ( $historyObject in ${reverseHistoryHelperBean.reverseHistory} )
 		     #set( ${historyBean.interestedRevision} = ${historyObject.revision} )
@@ -105,10 +128,8 @@
 		      <a href="${util.escapeHtml(${historyBean.diffToCurrentUrl})}" >
 			       ${rlb.jsp_history_to_current}
 		      </a>
-		   </td>
-		   <td>
 		      #if (${historyObject.revision} > 0)
-			     <a href="${util.escapeHtml(${historyBean.diffToPreviousUrl})}" >
+			      | <a href="${util.escapeHtml(${historyBean.diffToPreviousUrl})}" >
 			      ${rlb.jsp_history_to_previous}
 			     </a>
 			     #end
@@ -127,7 +148,8 @@
 		  	<td>
 		  		 #if (${reverseHistoryHelperBean.theSame})
 		  		  #set ( $sameas = ${historyObject.revision} - 1 )
-			      ${rlb.jsp_history_content_same_as}${sameas}
+			      ${rlb.jsp_history_content_same_as} 
+##		  				Content same as V.${sameas}
 		  			#end
 		  	</td>
 		  	<td>

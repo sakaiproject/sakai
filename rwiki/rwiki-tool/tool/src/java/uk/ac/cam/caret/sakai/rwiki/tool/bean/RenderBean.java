@@ -354,7 +354,21 @@ public class RenderBean
 	{
 		return NameHelper.localizeName(rwo.getName(), rwo.getRealm());
 	}
-
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	/**
 	 * The localised name of the rwikiObject

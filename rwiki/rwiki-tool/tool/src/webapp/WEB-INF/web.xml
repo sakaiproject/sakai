@@ -85,6 +85,7 @@
 			<param-name>headerPreContent</param-name>
 			<param-value>
 				<![CDATA[
+				<script  type="text/javascript" src="/library/js/jquery/jquery-ui/js/jquery.js"> <!-- don't reduce this! --></script>
 				<link href="/sakai-rwiki-tool/styles/wikiStyle.css" type="text/css" rel="stylesheet" media="all" />
 				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/stateswitcher.js"> </script>
 				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/ajaxpopup.js" > </script>
@@ -92,6 +93,7 @@
 				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/logger.js" > </script>
 				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/autosave.js" > </script>
 				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/flashbridge.js" > </script>
+				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/utils.js" > </script>
 				<!--[if IE 6]>
 				<link href="/sakai-rwiki-tool/styles/wikiStyleIE6.css" type="text/css" rel="stylesheet" media="all" > </link>
 				<![endif]-->

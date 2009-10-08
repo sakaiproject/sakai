@@ -70,7 +70,7 @@ public class Table
 		tableAttributes.put("border", "0");
 		tableAttributes.put("cellspacing", "0");
 		tableAttributes.put("cellpadding", "0");
-		tableAttributes.put("class", "wiki-table");
+		tableAttributes.put("class", "listHier lines");
 
 	}
 	
@@ -266,7 +266,7 @@ public class Table
 			int colSize = outputCols.length;
 			for (int j = 0; j < colSize; j++)
 			{
-				writer.write(i == 0 ? "<th>" : "<td>");
+				writer.write(i == 0 ? "<th scope=\"col\">" : "<td>");
 				if (outputCols[j] == null || outputCols[j].trim().length() == 0)
 				{
 					writer.write("&#160;");

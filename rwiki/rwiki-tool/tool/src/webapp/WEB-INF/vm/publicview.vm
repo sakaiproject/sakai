@@ -12,14 +12,14 @@
 #header(${title} ${viewBean} "" )  
 <div id="rwiki_container">
   <div class="portletBody">
-  	
 	#if (${rightRenderBean.hasContent})
 		#set( $rwikiContentStyle = "withsidebar" )
 	#else
 		#set( $rwikiContentStyle = "nosidebar" )
 	#end
-	
+	<h3 class="breadcrumb specialLink" >
 	#publicbreadcrumbs()
+	</h3>
 	<div id="rwiki_head" >				    
 		#sidebar_switcher()
 	</div>

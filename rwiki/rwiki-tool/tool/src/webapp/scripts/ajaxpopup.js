@@ -3,13 +3,13 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006 Sakai Foundation
  *
- * Licensed under the Educational Community License, Version 1.0 (the "License");
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.opensource.org/licenses/ecl1.php
+ *       http://www.osedu.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,12 @@
  * limitations under the License.
  *
  **********************************************************************************/
+
+var sakai = sakai ||
+{};
+var utils = utils ||
+{};
+
 
 var popupDivStack = new Array();
 var frameHeightStack = new Array();
@@ -265,6 +271,7 @@ function ajaxRefPopup(element,url,poplevel) {
 function ajaxRefPopupPost(element,url,poplevel,tForm) {
 
 	
+
 	log("Doing popup on "+element+" URL "+url+" Level "+poplevel+" last "+popupindex);
 	if ( popupLoader == null ) 
 	{
@@ -305,6 +312,7 @@ function getAbsolutePos(el) {
 }
 
 function showPopupHere(el,divid) {
+		var onRight;
         var targetdiv;
         if ( document.all ) {
             targetdiv = document.all[divid];
@@ -316,10 +324,24 @@ function showPopupHere(el,divid) {
 			var width =  el.offsetWidth;
 			var height =  el.offsetHeight;
 			pos.y += height;
-			log("Width "+width+":"+height+":"+pos.y+":"+pos.x);
+			
+			//log("Width "+width+":"+height+":"+pos.y+":"+pos.x);
 			//targetdiv.style.width = width;
-			targetdiv.style.top = pos.y+"px ";
-			targetdiv.style.left = pos.x+"px ";
+			if (
+				  (
+					$('.portletBody').width()  - pos.x
+				  ) <= 400
+				){
+				onRight=true;
+			}
+			
+			if (onRight) {
+				targetdiv.style.left = (pos.x - 200) + "px ";
+			}
+			else {
+				targetdiv.style.left = pos.x + "px ";
+			}
+				targetdiv.style.top = pos.y + "px ";
 			targetdiv.style.bgolor = "#cccccc";		    
 		    targetdiv.style.visibility = "visible";		
 		} else {

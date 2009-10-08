@@ -11,23 +11,43 @@
 #header(${title} ${historyBean} "" )  
 <div id="rwiki_container">
   <div class="portletBody">
-	<div class="navIntraTool">
 	  <form action="?#" method="get" class="rwiki_searchForm">
+		<ul class="navIntraTool">	  	
 	    ##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
 	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
 	    ##  $homeBean $viewBean $resourceLoaderBean )
 	  	 #commandlinks(true true false ${rlb.jsp_view}	false  false true false false	${homeBean} ${historyBean} ${rlb} ) 
+		</ul>	 
 	  </form>
-	</div>
 	
 	#if (${rightRenderBean.hasContent})
 		#set( $rwikiContentStyle = "withsidebar" )
 	#else
 		#set( $rwikiContentStyle = "nosidebar" )
 	#end
-	
-	#breadcrumbs()
-	<div id="rwiki_head" >				    
+
+	<div class="navPanel">
+			<div class="viewNav">
+				<h3 class="breadcrumb" >
+					<span id="breadPref">${rlb.jsp_review}:&nbsp;</span><span id="breadCurr">${util.escapeHtml($renderBean.localisedPageName)}</span>
+				</h3>
+			</div>	
+			<div class="listNav specialLink">
+				<a href="#" class="visitedPagesOn" id="visitedPages" style="display:none">${rlb.jsp_visited_pages_link}</a>
+				<ul id="wikiCrumb" style="display:none">#breadcrumbs()</ul>
+			</div>
+		</div>
+	 <div class="lastmodified" >
+	 	<span style="font-weight:bold;color:#000">
+		 	${util.escapeHtml($renderBean.localisedPageName)}
+		</span>	
+	 	${rlb.jsp_last_modified_by} 
+	 	#formatDisplayName(${currentRWikiObject.user})
+	 	${rlb.jsp_on}
+	 	#formatDateTime(${currentRWikiObject.version}) 
+	 </div>
+  
+	<div id="rwiki_head" ><!-- avoid min height in IEX-->				    
 		#sidebar_switcher()
 	</div>
 	<div id="rwiki_content" class="${rwikiContentStyle}" >
@@ -37,13 +57,6 @@
 	      </div>
 	    </div>
 	  </div>
-	 <div class="lastmodified" >
-	 	${util.escapeHtml($renderBean.localisedPageName)}
-	 	${rlb.jsp_last_modified_by} 
-	 	#formatDisplayName(${currentRWikiObject.user})
-	 	${rlb.jsp_on}
-	 	#formatDateTime(${currentRWikiObject.version}) 
-	 </div>
 	 #sidebar()
 	 
   </div>

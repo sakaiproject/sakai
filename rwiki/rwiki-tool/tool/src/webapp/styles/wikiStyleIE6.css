@@ -47,3 +47,30 @@ a:hover.previewToolBar,
 .renderedContent table {
  table-layout: fixed;
 }
+
+.rwikicommentarrow{
+	display:none;
+}
+.commentHeader .itemAction li{
+	border:none !important;
+}
+
+.withsidebar{
+	width:73%;
+}
+
+#rwiki_sidebar {
+    width: 25%;
+    float:right;
+    padding:0;
+    margin:  -20px 0 0 0 ;
+    padding: 5px;
+    background:#eee;
+   -webkit-border-radius:5px ; 
+   -moz-border-radius:5px ; 
+
+}
+
+.historyPage table{
+	width:80% !important
+}

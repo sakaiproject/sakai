@@ -1,4 +1,3 @@
-
 a.editToolBar, 
 a:visited.editToolBar     {
     border: 1px solid #efefde;	
@@ -25,13 +24,16 @@ a:hover.previewToolBar,
     cursor: default;  
     padding: 8px 8px 5px 8px;
 }
-.rwiki_help_popup {
-  width: 25em;
-  margin-top: 4px;
-  margin-bottom: 4px;
-  padding: 5px 5px 5px 5px;
-  color: inherit;
-  background-color: #ffffcc;
-  border: 1px dotted #003366;
-  line-height: 100%;
+#rwiki_sidebar{
+	margin-top:-15px;
+}
+
+.rwikicommentarrow{
+	padding:0;
+	height:13px;
+	background:transparent url(../images/bubble-arrow.png) 3% 0  no-repeat;
+}
+
+.historyPage table{
+	width:80% !important
 }
