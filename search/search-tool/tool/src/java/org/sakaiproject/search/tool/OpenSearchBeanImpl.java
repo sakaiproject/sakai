@@ -31,7 +31,6 @@ import org.sakaiproject.search.tool.SearchBeanImpl.Scope;
 import org.sakaiproject.search.tool.api.OpenSearchBean;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.FormattedText;
 
@@ -41,21 +40,13 @@ import org.sakaiproject.util.FormattedText;
 public class OpenSearchBeanImpl implements OpenSearchBean
 {
 
-	private SearchService searchService;
-
 	private SiteService siteService;
 
 	private String placementId;
 
-	private String toolId;
-
 	private String siteId;
 
 	private Site currentSite;
-
-	private HttpServletRequest request;
-
-	private Placement placement;
 
 	private String baseURL;
 	private String scope = null;
@@ -63,12 +54,8 @@ public class OpenSearchBeanImpl implements OpenSearchBean
 			SearchService searchService, SiteService siteService,
 			ToolManager toolManager) throws IdUnusedException
 	{
-		this.request = request;
-		this.searchService = searchService;
 		this.siteService = siteService;
-		this.placement = toolManager.getCurrentPlacement();
 		this.placementId = toolManager.getCurrentPlacement().getId();
-		this.toolId = toolManager.getCurrentTool().getId();
 		this.siteId = toolManager.getCurrentPlacement().getContext();
 		this.currentSite = this.siteService.getSite(this.siteId);
 		if (siteService.isUserSite(siteId)) {

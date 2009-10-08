@@ -105,8 +105,6 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	
 	private SearchService searchService = null;
 
-	private SiteService siteService = null;
-
 	private String internCommand = null;
 
 	private String siteId;
@@ -148,7 +146,6 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 			throw new PermissionException(userName, "site.update", siteCheck);
 		}
 		this.searchService = searchService;
-		this.siteService = siteService;
 
 		// process any commands
 		String command = request.getParameter(COMMAND);
