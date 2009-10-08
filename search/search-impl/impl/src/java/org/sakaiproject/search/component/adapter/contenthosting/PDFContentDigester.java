@@ -33,6 +33,7 @@ import org.pdfbox.pdfparser.PDFParser;
 import org.pdfbox.pdmodel.PDDocument;
 import org.pdfbox.util.PDFTextStripper;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.search.api.SearchUtils;
 
 /**
@@ -41,7 +42,7 @@ import org.sakaiproject.search.api.SearchUtils;
 public class PDFContentDigester extends BaseContentDigester
 {
 	private static Log log = LogFactory.getLog(PDFContentDigester.class);
-	
+
 	public String getContent(ContentResource contentResource)
 	{
 		if (contentResource == null) {
@@ -54,29 +55,37 @@ public class PDFContentDigester extends BaseContentDigester
 
 		InputStream contentStream = null;
 		PDFParser parser = null;
-		try
-		{
+		try {
 			contentStream = contentResource.streamContent();
 			parser = new PDFParser(new BufferedInputStream(contentStream));
 			parser.parse();
 			PDDocument pddoc = parser.getPDDocument();
-			
+
 			PDFTextStripper stripper = new PDFTextStripper();
 			stripper.setLineSeparator("\n");		
 			CharArrayWriter cw = new CharArrayWriter();
 			stripper.writeText(pddoc, cw);
 			pddoc.close();
 			return SearchUtils.appendCleanString(cw.toCharArray(),null).toString();
+		} catch (ServerOverloadException e) {
+			String eMessage = e.getMessage();
+			if (eMessage == null) {
+				eMessage = e.toString();
+			}
+			throw new RuntimeException("Failed to get content for indexing: cause: ServerOverloadException: " + eMessage, e);
 		}
-		catch (Exception ex)
-		{
+		catch (IOException e) {
 			try {
 				PDDocument pddoc = parser.getPDDocument();
 				pddoc.close();
-			} catch ( Exception e ) {
-				log.debug(e);
+			} catch ( Exception ex ) {
+				log.debug(ex);
 			}
-			throw new RuntimeException("Failed to get content for indexing: cause: "+ex.getMessage(), ex);
+			String eMessage = e.getMessage();
+			if (eMessage == null) {
+				eMessage = e.toString();
+			}
+			throw new RuntimeException("Failed to get content for indexing: cause: IOException:  "+ eMessage , e);
 		}
 		finally
 		{
@@ -98,6 +107,6 @@ public class PDFContentDigester extends BaseContentDigester
 		return new StringReader(getContent(contentResource));
 	}
 
-	
+
 
 }
