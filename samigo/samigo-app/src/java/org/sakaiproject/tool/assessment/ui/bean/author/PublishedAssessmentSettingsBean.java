@@ -196,9 +196,11 @@ public class PublishedAssessmentSettingsBean
   private boolean isMarkForReview;
   private List attachmentList;
   private boolean editPubAnonyGradingRestricted = false;
-  
   private String releaseToGroupsAsString;
   private String blockDivs;
+  
+  private String bgColorSelect;
+  private String bgImageSelect;
   
   /*
    * Creates a new AssessmentBean object.
@@ -233,6 +235,16 @@ public class PublishedAssessmentSettingsBean
       this.bgImage = assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.
           BGIMAGE);
 
+      if((assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.BGIMAGE)!=null )
+    		  && (!assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.BGIMAGE).equals(""))){
+    	  this.bgImageSelect="1";
+    	  this.bgColorSelect=null;
+      }
+      else{
+    	  this.bgImageSelect=null;
+    	  this.bgColorSelect="1";
+      }
+      
       setDisplayFormat(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_data_picker_w_sec"));
       resetIsValidDate();
       resetOriginalDateString();
@@ -468,21 +480,32 @@ public class PublishedAssessmentSettingsBean
   }
 
   public String getBgColor() {
-    return this.bgColor;
+	  if((this.getBgColorSelect()!=null) && (this.getBgColorSelect().equals("1")))
+		  return this.bgColor;
+	  else
+		  return "";
   }
 
   public void setBgColor(String bgColor) {
-    this.bgColor = bgColor;
+	  if((this.getBgColorSelect()!=null) && (this.getBgColorSelect().equals("1")))
+		  this.bgColor = bgColor;
+	  else
+		  this.bgColor="";
   }
 
   public String getBgImage() {
-    return this.bgImage;
+	  if((this.getBgImageSelect()!=null) && (this.getBgImageSelect().equals("1")))
+		  return this.bgImage;
+	  else return "";
   }
 
   public void setBgImage(String bgImage) {
-    this.bgImage = bgImage;
-  }
+	  if((this.getBgImageSelect()!=null) && (this.getBgImageSelect().equals("1")))
 
+		  this.bgImage = bgImage;
+	  else this.bgImage="";
+  }
+  
   public boolean getHasQuestions() {
     return this.hasQuestions;
   }
@@ -918,14 +941,19 @@ public class PublishedAssessmentSettingsBean
       this.ipAddresses = "";
       Set ipAddressSet = assessment.getSecuredIPAddressSet();
       if (ipAddressSet != null){
-        Iterator iter = ipAddressSet.iterator();
-        while (iter.hasNext()) {
-          SecuredIPAddressIfc ip = (SecuredIPAddressIfc) iter.next();
-          this.ipAddresses = ip.getIpAddress()+"\n"+this.ipAddresses;
-        }
+    	  Iterator iter = ipAddressSet.iterator();
+    	  while (iter.hasNext()) {
+    		  SecuredIPAddressIfc ip = (SecuredIPAddressIfc) iter.next();
+    		  if (ip.getIpAddress()!=null)
+    			  this.ipAddresses = ip.getIpAddress()+"\n"+this.ipAddresses;
+    	  }
       }
   }
 
+  public void setIpAddresses(String ipAddresses) {
+	    this.ipAddresses = ipAddresses;
+  }
+  
   // the following methods are used to take the internal format from
   // calendar picker and move it transparently in and out of the date
   // properties
@@ -1522,6 +1550,26 @@ public class PublishedAssessmentSettingsBean
 
 	public String getBlockDivs() {
 		return blockDivs;
+	}
+
+	public String getBgColorSelect()
+	{
+		return this.bgColorSelect;
+	}
+	
+	public void setBgColorSelect(String bgColorSelect)
+	{
+		this.bgColorSelect=bgColorSelect;
+	}
+
+	public String getBgImageSelect()
+	{
+		return this.bgImageSelect;
+	}
+	
+	public void setBgImageSelect(String bgImageSelect)
+	{
+		this.bgImageSelect=bgImageSelect;
 	}
 }
 

@@ -119,11 +119,6 @@ public class SaveAssessmentSettings
     else
       control.setTimedAssessment(AssessmentAccessControl.DO_NOT_TIMED_ASSESSMENT);
 
-    if (assessmentSettings.getAutoSubmit())
-      control.setAutoSubmit(AssessmentAccessControl.AUTO_SUBMIT);
-    else
-      control.setAutoSubmit(AssessmentAccessControl.DO_NOT_AUTO_SUBMIT);
-
     // c. set Assessment Orgainzation
     if (assessmentSettings.getItemNavigation()!=null ) {
     	String nav = assessmentSettings.getItemNavigation();

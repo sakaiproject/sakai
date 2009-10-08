@@ -204,6 +204,8 @@ public interface PublishedAssessmentFacadeQueriesAPI
       String sortString, Integer status);
 
   public void removeAssessment(Long assessmentId, String action);
+  
+  public void deleteAllSecuredIP(PublishedAssessmentIfc assessment);
 
   public void saveOrUpdate(PublishedAssessmentIfc assessment) throws Exception;
 

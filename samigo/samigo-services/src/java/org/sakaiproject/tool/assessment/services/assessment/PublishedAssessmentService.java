@@ -248,6 +248,11 @@ public class PublishedAssessmentService extends AssessmentService{
       throw new RuntimeException(e);
     }
   }
+  
+  public void deleteAllSecuredIP(PublishedAssessmentIfc assessment) {
+		PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
+				.deleteAllSecuredIP(assessment);
+	}
 
   public void saveAssessment(PublishedAssessmentFacade assessment) {
     try{

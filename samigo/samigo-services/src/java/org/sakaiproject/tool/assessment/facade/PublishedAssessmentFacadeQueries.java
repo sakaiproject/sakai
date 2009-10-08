@@ -1111,6 +1111,32 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		}
 	}
 
+	public void deleteAllSecuredIP(PublishedAssessmentIfc assessment) {
+		int retryCount = PersistenceService.getInstance().getRetryCount()
+				.intValue();
+		while (retryCount > 0) {
+			try {
+				Long assessmentId = assessment.getPublishedAssessmentId();
+				List ip = getHibernateTemplate()
+						.find(
+								"from PublishedSecuredIPAddress s where s.assessment.publishedAssessmentId=?",
+								assessmentId);
+				if (ip.size() > 0) {
+					PublishedSecuredIPAddress s = (PublishedSecuredIPAddress) ip.get(0);
+					PublishedAssessmentData a = (PublishedAssessmentData) s.getAssessment();
+					a.setSecuredIPAddressSet(new HashSet());
+					getHibernateTemplate().deleteAll(ip);
+					retryCount = 0;
+				} else
+					retryCount = 0;
+			} catch (Exception e) {
+				log.warn("problem deleting ip address: " + e.getMessage());
+				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+						retryCount);
+			}
+		}
+	}
+	
 	public void saveOrUpdate(PublishedAssessmentIfc assessment)
 			throws Exception {
 		PublishedAssessmentData data;

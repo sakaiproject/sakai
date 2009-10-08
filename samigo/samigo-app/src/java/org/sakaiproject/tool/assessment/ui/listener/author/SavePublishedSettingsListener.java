@@ -26,6 +26,7 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -47,6 +48,8 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSecuredIPAddress;
+import org.sakaiproject.tool.assessment.data.dao.assessment.SecuredIPAddress;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
@@ -132,6 +135,26 @@ implements ActionListener
 		assessment.setLastModifiedDate(new Date());
 		assessmentService.saveAssessment(assessment); 
 		
+		// jj. save assessment first, then deal with ip
+	    assessmentService.saveAssessment(assessment);
+	    assessmentService.deleteAllSecuredIP(assessment);
+	    // k. set ipAddresses
+	    HashSet ipSet = new HashSet();
+	    String ipAddresses = assessmentSettings.getIpAddresses();
+	    if (ipAddresses == null)
+	      ipAddresses = "";
+	    
+	    String[] ip = ipAddresses.split("\\n");
+	    for (int j=0; j<ip.length;j++){
+	      if (ip[j]!=null && !ip[j].equals("\r")) {
+	    	  
+	        ipSet.add(new PublishedSecuredIPAddress(assessment.getData(),null,ip[j]));
+	      }
+	    }
+	    assessment.setSecuredIPAddressSet(ipSet);
+	    // l. FINALLY: save the assessment
+	    assessmentService.saveAssessment(assessment);
+	    
 		saveAssessmentSettings.updateAttachment(assessment.getAssessmentAttachmentList(), assessmentSettings.getAttachmentList(),(AssessmentIfc)assessment.getData(), false);
 		EventTrackingService.post(EventTrackingService.newEvent("sam.pubSetting.edit", "pubAssessmentId=" + assessmentSettings.getAssessmentId(), true));
 	    
@@ -298,6 +321,12 @@ implements ActionListener
 		else {
 			control.setTimedAssessment(AssessmentAccessControl.DO_NOT_TIMED_ASSESSMENT);
 		}
+		
+		if (assessmentSettings.getIsMarkForReview())
+	        control.setMarkForReview(AssessmentAccessControl.MARK_FOR_REVIEW);
+	    else {
+	    	control.setMarkForReview(AssessmentAccessControl.NOT_MARK_FOR_REVIEW);
+	    }
 
 		// set Submissions
 		if (assessmentSettings.getUnlimitedSubmissions()!=null){
@@ -330,6 +359,22 @@ implements ActionListener
 	    	control.setAutoSubmit(AssessmentAccessControl.DO_NOT_AUTO_SUBMIT);
 	    }
 		assessment.setAssessmentAccessControl(control);
+
+		// e. set Submission Messages
+	    control.setSubmissionMessage(assessmentSettings.getSubmissionMessage());
+	    // f. set username
+	    control.setUsername(FormattedText.convertPlaintextToFormattedText(assessmentSettings.getUsername()));
+	    // g. set password
+	    control.setPassword(FormattedText.convertPlaintextToFormattedText(assessmentSettings.getPassword()));
+	    // h. set finalPageUrl
+	    String finalPageUrl = "";
+	    if (assessmentSettings.getFinalPageUrl() != null) {
+	    	finalPageUrl = FormattedText.convertPlaintextToFormattedText(assessmentSettings.getFinalPageUrl().trim());
+	    	if (finalPageUrl.length() != 0 && !finalPageUrl.toLowerCase().startsWith("http")) {
+	    		finalPageUrl = "http://" + finalPageUrl;
+	    	}
+	    }
+	    control.setFinalPageUrl(finalPageUrl);
 
 		// set Feedback
 		AssessmentFeedbackIfc feedback = (AssessmentFeedbackIfc) assessment.getAssessmentFeedback();
@@ -382,6 +427,15 @@ implements ActionListener
 		// hasQuestionMetaData
 		HashMap h = assessmentSettings.getValueMap();
 		saveAssessmentSettings.updateMetaWithValueMap(assessment, h);
+		
+		// i. set Graphics
+		assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGCOLOR, FormattedText.convertPlaintextToFormattedText(assessmentSettings.getBgColor()));
+		assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGIMAGE, FormattedText.convertPlaintextToFormattedText(assessmentSettings.getBgImage()));
+
+	    // j. set objectives,rubrics,keywords
+		assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.KEYWORDS, FormattedText.convertPlaintextToFormattedText(assessmentSettings.getKeywords()));
+	    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.OBJECTIVES, FormattedText.convertPlaintextToFormattedText(assessmentSettings.getObjectives()));
+	    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.RUBRICS, FormattedText.convertPlaintextToFormattedText(assessmentSettings.getRubrics()));
 	}
 
 	public boolean checkScore(PublishedAssessmentSettingsBean assessmentSettings, PublishedAssessmentFacade assessment, FacesContext context) {

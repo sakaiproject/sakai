@@ -186,6 +186,32 @@ function checkUncheckTimeBox(){
     }
   }
 }
+
+function validateUrl(){
+  var list =document.getElementsByTagName("input");
+  for (var i=0; i<list.length; i++){
+    if (list[i].id.indexOf("finalPageUrl") >= 0){			
+      var finalPageUrl = list[i].value;
+	  if (finalPageUrl.substring(0,4).toLowerCase().indexOf("http") == -1)
+	  {
+		finalPageUrl = "http://" + finalPageUrl;
+	  }
+	  //alert(finalPageUrl);
+      window.open(finalPageUrl,'validateUrl');
+    }
+  }
+}
+
+function uncheckOther(field){
+ var fieldname = field.getAttribute("name");
+ var inputList = document.getElementsByTagName("INPUT");
+
+ for(i = 0; i < inputList.length; i++){
+    if((inputList[i].name.indexOf("background")>=0)&&(inputList[i].name != fieldname))
+         inputList[i].checked=false;
+      
+ }
+}
 </script>
 
 <f:verbatim><div class="portletBody"></f:verbatim>
@@ -312,23 +338,24 @@ function checkUncheckTimeBox(){
     <h:panelGrid border="0" columns="2" columnClasses="longtext"
         summary="#{templateMessages.high_security_sec}">
       <h:outputText value="#{assessmentSettingsMessages.high_security_allow_only_specified_ip}" rendered="#{publishedSettings.valueMap.ipAccessType_isInstructorEditable==true}"/>
-      <h:inputTextarea value="#{publishedSettings.ipAddresses}" cols="40" rows="5"
-        disabled="true" rendered="#{publishedSettings.valueMap.ipAccessType_isInstructorEditable==true}"/>
+	  <h:panelGroup rendered="#{publishedSettings.valueMap.ipAccessType_isInstructorEditable==true}">
+      <h:inputTextarea value="#{publishedSettings.ipAddresses}" cols="40" rows="5"/>
+ 	  <h:outputText escape="false" value="<br/>#{assessmentSettingsMessages.ip_note} <br/>#{assessmentSettingsMessages.ip_example}#{assessmentSettingsMessages.ip_ex}<br/>"/> 
+      </h:panelGroup>
+
       <h:outputText value="#{assessmentSettingsMessages.high_security_secondary_id_pw}" rendered="#{publishedSettings.valueMap.passwordRequired_isInstructorEditable==true}"/>
-      <h:panelGrid border="0" columns="2" rendered="#{publishedSettings.valueMap.passwordRequired_isInstructorEditable==true}" >
+      <h:panelGrid border="0" columns="2"  columnClasses="longtext"
+        rendered="#{publishedSettings.valueMap.passwordRequired_isInstructorEditable==true}">
         <h:outputLabel value="#{assessmentSettingsMessages.high_security_username}"/>
-        <h:inputText size="20" value="#{publishedSettings.username}"
-          disabled="true"/>
+        <h:inputText size="20" value="#{publishedSettings.username}"/>
 
         <h:outputLabel value="#{assessmentSettingsMessages.high_security_password}"/>
-        <h:inputText size="20" value="#{publishedSettings.password}"
-          disabled="true"/>
+        <h:inputText size="20" value="#{publishedSettings.password}"/>
       </h:panelGrid>
     </h:panelGrid>
 <f:verbatim></div></f:verbatim>
   </samigo:hideDivision>
 </h:panelGroup>
-
 
   <!-- *** TIMED *** -->
   <h:panelGroup rendered="#{publishedSettings.valueMap.timedAssessment_isInstructorEditable==true}" >
@@ -434,7 +461,7 @@ function checkUncheckTimeBox(){
     <f:verbatim><div class="tier2"></f:verbatim>
     <h:panelGrid columns="1">
       <h:panelGroup>
-        <h:selectBooleanCheckbox id="markForReview" value="#{publishedSettings.isMarkForReview}" disabled="true"/>
+        <h:selectBooleanCheckbox id="markForReview" value="#{publishedSettings.isMarkForReview}" />
         <h:outputLabel value="#{assessmentSettingsMessages.mark_for_review_label}"/>
 		<h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('markForReviewPopUp.faces','MarkForReview','width=250,height=220,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('markForReviewTipText.faces','MarkForReview','width=250,height=220,scrollbars=yes, resizable=yes');" >
           <h:outputText  value=" #{assessmentSettingsMessages.whats_this_link}"/>
@@ -531,34 +558,27 @@ function checkUncheckTimeBox(){
   </h:panelGroup>
 
   <!-- *** SUBMISSION MESSAGE *** -->
-<h:panelGroup rendered="#{publishedSettings.valueMap.submissionMessage_isInstructorEditable==true or publishedSettings.valueMap.finalPageURL_isInstructorEditable==true}" >
+  <h:panelGroup rendered="#{publishedSettings.valueMap.submissionMessage_isInstructorEditable==true or publishedSettings.valueMap.finalPageURL_isInstructorEditable==true}" >
   <samigo:hideDivision id="div8" title="#{assessmentSettingsMessages.t_submissionMessage}" >
-    <f:verbatim><div class="tier2"></f:verbatim>
+    <f:verbatim><div class="tier2"><div class="longtext"></f:verbatim>
     <h:panelGrid rendered="#{publishedSettings.valueMap.submissionMessage_isInstructorEditable==true}">
-	<f:verbatim><div class="longtext"></f:verbatim>
       <h:outputLabel value="#{assessmentSettingsMessages.submission_message}" />
-      <h:outputText value="<br />" escape="false"/>
-      <h:panelGrid width="630" border="1">
-        <h:outputText value="#{publishedSettings.submissionMessage}<br /><br /><br />"
-          escape="false"/>
-      </h:panelGrid>
-<%--
-      <h:inputTextarea cols="80" rows="5"  disabled="true"
-          value="#{publishedSettings.submissionMessage}" />
---%>
+        <samigo:wysiwyg rows="140" value="#{publishedSettings.submissionMessage}" hasToggle="yes" >
+         <f:validateLength maximum="4000"/>
+        </samigo:wysiwyg>
+	</h:panelGrid>
+	 <f:verbatim><br/></f:verbatim>
  <f:verbatim></div></f:verbatim>
- </h:panelGrid>
-  <h:panelGroup rendered="#{publishedSettings.valueMap.finalPageURL_isInstructorEditable==true}">
   <f:verbatim><div class="longtext"></f:verbatim>
-      <h:outputLabel value="#{assessmentSettingsMessages.submission_final_page_url}" />
-      <h:outputText value="<br />" escape="false"/>
-      <h:inputText size="80"  disabled="true" value="#{publishedSettings.finalPageUrl}" />
-<f:verbatim></div></f:verbatim>
- </h:panelGroup>
-<f:verbatim></div></f:verbatim>
-
+      <h:panelGroup rendered="#{publishedSettings.valueMap.finalPageURL_isInstructorEditable==true}">
+      <h:outputLabel value="#{assessmentSettingsMessages.submission_final_page_url}" /><f:verbatim><br/></f:verbatim>
+      <h:inputText size="80" id="finalPageUrl" value="#{publishedSettings.finalPageUrl}" />
+      <h:commandButton value="#{assessmentSettingsMessages.validateURL}" type="button" onclick="javascript:validateUrl();"/>
+      </h:panelGroup>
+<f:verbatim></div></div></f:verbatim>
   </samigo:hideDivision>
-</h:panelGroup>
+  </h:panelGroup>
+
 
   <!-- *** FEEDBACK *** -->
   <h:panelGroup rendered="#{publishedSettings.valueMap.feedbackAuthoring_isInstructorEditable==true or publishedSettings.valueMap.feedbackType_isInstructorEditable==true or publishedSettings.valueMap.feedbackComponents_isInstructorEditable==true}" >
@@ -801,52 +821,50 @@ function checkUncheckTimeBox(){
     </h:panelGroup>
   <f:verbatim></div></f:verbatim>
   </samigo:hideDivision>
+  </h:panelGroup>
 
   <!-- *** COLORS AND GRAPHICS	*** -->
+  <h:panelGroup rendered="#{publishedSettings.valueMap.bgColor_isInstructorEditable==true}" >
   <samigo:hideDivision id="div11" title="#{assessmentSettingsMessages.t_graphics}" >
-<f:verbatim><div class="tier2"></f:verbatim>
-    <h:panelGrid columns="2" columnClasses="shorttext" >
-      <h:outputLabel value="#{assessmentSettingsMessages.background_color}" />
-      <h:inputText size="80" value="#{publishedSettings.bgColor}"
-          disabled="true" />
+	<f:verbatim><div class="tier2"></f:verbatim>
+        <h:selectOneRadio onclick="uncheckOther(this)" id="background_color" value="#{publishedSettings.bgColorSelect}">
+          <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.background_color}"/>
+       </h:selectOneRadio>
 
-      <h:outputLabel value="#{assessmentSettingsMessages.background_image}"/>
-      <h:inputText size="80" value="#{publishedSettings.bgImage}"
-         disabled="true" />
-    </h:panelGrid>
+      <samigo:colorPicker value="#{publishedSettings.bgColor}" size="10" id="pickColor"/>
+       <h:selectOneRadio onclick="uncheckOther(this)" id="background_image" value="#{publishedSettings.bgImageSelect}"  >
+          <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.background_image}"/>
+       </h:selectOneRadio>  
+   
+       <h:inputText size="80" value="#{publishedSettings.bgImage}"/>
    <f:verbatim></div></f:verbatim>
   </samigo:hideDivision>
   </h:panelGroup>
 
-  <!-- *** META *** -->
-  <h:panelGroup rendered="#{publishedSettings.valueMap.metadataAssess_isInstructorEditable==true}">
+ <!-- *** META *** -->
+<h:panelGroup rendered="#{publishedSettings.valueMap.metadataAssess_isInstructorEditable==true}">
   <samigo:hideDivision title="#{assessmentSettingsMessages.t_metadata}" id="div13">
-   <f:verbatim><div class="tier2"><div class="longtext"></f:verbatim>
-   <h:outputLabel value="#{assessmentSettingsMessages.assessment_metadata}" /> 
-   <f:verbatim></div><div class="tier3"></f:verbatim>
+	<f:verbatim><div class="tier2"><div class="longtext"></f:verbatim>
+	<h:outputLabel value="#{assessmentSettingsMessages.assessment_metadata}" />
+	<f:verbatim></div><div class="tier3"></f:verbatim>
     <h:panelGrid columns="2" columnClasses="shorttext">
       <h:outputLabel value="#{assessmentSettingsMessages.metadata_keywords}"/>
-      <h:inputText size="80" value="#{publishedSettings.keywords}"  disabled="true"/>
+      <h:inputText size="80" value="#{publishedSettings.keywords}"/>
 
     <h:outputLabel value="#{assessmentSettingsMessages.metadata_objectives}"/>
-      <h:inputText size="80" value="#{publishedSettings.objectives}"  disabled="true"/>
+      <h:inputText size="80" value="#{publishedSettings.objectives}"/>
 
       <h:outputLabel value="#{assessmentSettingsMessages.metadata_rubrics}"/>
-      <h:inputText size="80" value="#{publishedSettings.rubrics}"  disabled="true"/>
+      <h:inputText size="80" value="#{publishedSettings.rubrics}"/>
     </h:panelGrid>
 	<f:verbatim></div></f:verbatim>
-    <f:verbatim><div class="longtext"></f:verbatim>
+
+    <f:verbatim><div class="longtext"></f:verbatim> 
 	<h:outputLabel value="#{assessmentSettingsMessages.record_metadata}" />
 	<f:verbatim></div><div class="tier3"></f:verbatim>
     <h:panelGrid columns="2"  >
-<%-- see bug# SAM-117 -- no longer required in Samigo
-     <h:selectBooleanCheckbox  disabled="true"
-       value="#{publishedSettings.valueMap.hasMetaDataForPart}"/>
-     <h:outputText value="#{assessmentSettingsMessages.metadata_parts}"/>
---%>
-     <h:selectBooleanCheckbox disabled="true"
-       value="#{publishedSettings.valueMap.hasMetaDataForQuestions}"/>
- <h:outputText value="#{assessmentSettingsMessages.metadata_questions}" />
+     <h:selectBooleanCheckbox value="#{publishedSettings.valueMap.hasMetaDataForQuestions}"/>
+     <h:outputText value="#{assessmentSettingsMessages.metadata_questions}" />
     </h:panelGrid>
 <f:verbatim></div></div></f:verbatim>
   </samigo:hideDivision>
@@ -855,17 +873,7 @@ function checkUncheckTimeBox(){
 <f:verbatim></div></f:verbatim>
 
 <p class="act">
-  <!-- Publish button -->
-  <!--
-  <h:commandButton id="publish" value="#{assessmentSettingsMessages.button_unique_save_and_publish}" type="submit" styleClass="active" action="saveSettingsAndConfirmPublish" rendered="#{author.isRetractedForEdit}">
-    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRepublishAssessmentListener" />
-    <f:param name="publishedAssessmentId" value="#{assessmentBean.assessmentId}"/>
-  </h:commandButton>
 
-  <h:commandButton id="publish2" value="#{assessmentSettingsMessages.button_unique_save_and_publish}" type="submit" styleClass="active" action="author" rendered="#{!author.isRetractedForEdit}">
-        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SavePublishedSettingsListener" />
-  </h:commandButton>
-  -->
   <!-- Save button -->
   <h:commandButton accesskey="#{assessmentSettingsMessages.a_saveSettings}" type="submit" value="#{assessmentSettingsMessages.button_save_settings}" action="#{publishedSettings.getOutcome}"  styleClass="active" onclick="setBlockDivs();" >
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SavePublishedSettingsListener" />
