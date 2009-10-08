@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.api.app.messageforums;
 
+import java.util.Collection;
 import java.util.List;
 
 
@@ -34,6 +35,14 @@ public interface MessageForumsForumManager {
     public List getTopicsByIdWithMessagesAndAttachments(final Long forumId);
     
     public List getTopicsByIdWithMessagesMembershipAndAttachments(final Long forumId);
+    
+    /**
+   * @return Returns a list of forums specific to the current site and with the necessary 
+   * information to be displayed on the main forums page (the page first displayed when the 
+   * forums tool is loaded).  This information includes the forums' topics, the forums' 
+   * attachments, and the topics' attachments.
+   */
+    public List<DiscussionForum> getForumsForMainPage();
   
     public Topic getTopicByIdWithMessages(final Long topicId);
     

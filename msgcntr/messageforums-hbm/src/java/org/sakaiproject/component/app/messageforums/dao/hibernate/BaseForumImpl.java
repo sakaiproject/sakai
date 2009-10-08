@@ -24,6 +24,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Iterator;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,6 +34,8 @@ import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.AttachmentByCreatedDateDesc;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.TopicBySortIndexAscAndCreatedDateDesc;
  
 public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
 
@@ -41,8 +45,8 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
     private String shortDescription;
     private String extendedDescription;
     private String typeUuid;
-    private Set attachmentsSet;// = new HashSet();
-    private Set topicsSet;// = new HashSet();
+    private SortedSet attachmentsSet;// = new HashSet();
+    private SortedSet topicsSet;// = new HashSet();
     private Set membershipItemSet;
     private Area area;
     private Integer sortIndex; 
@@ -52,7 +56,7 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
         return attachmentsSet;
     }
 
-    public void setAttachmentsSet(Set attachmentsSet) {
+    public void setAttachmentsSet(SortedSet attachmentsSet) {
         this.attachmentsSet = attachmentsSet;
     }
     
@@ -63,7 +67,8 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
 
     public void setAttachments(List attachments)
     {
-      this.attachmentsSet = Util.listToSet(attachments);
+      this.attachmentsSet = new TreeSet(new AttachmentByCreatedDateDesc());
+      this.attachmentsSet.addAll(attachments);
     }
 
     public String getExtendedDescription() {
@@ -117,14 +122,15 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
     }
 
     public void setTopics(List topics) {
-        this.topicsSet = Util.listToSet(topics);
+        this.topicsSet = new TreeSet(new TopicBySortIndexAscAndCreatedDateDesc());
+        this.topicsSet.addAll(topics);
     }
 
     public Set getTopicsSet() {
         return topicsSet;
     }
 
-    public void setTopicsSet(Set topicsSet) {
+    public void setTopicsSet(SortedSet topicsSet) {
         this.topicsSet = topicsSet;
     }
     
@@ -191,7 +197,7 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
         }
         
         if (topicsSet == null) {
-            topicsSet = new HashSet();
+            topicsSet = new TreeSet(new TopicBySortIndexAscAndCreatedDateDesc());
         }
         topic.setBaseForum(this);
         topicsSet.add(topic);
@@ -222,7 +228,7 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
         }
         
         if (attachmentsSet == null) {
-            attachmentsSet = new HashSet();
+            attachmentsSet = new TreeSet(new AttachmentByCreatedDateDesc());
         }
         attachment.setForum(this);
         attachmentsSet.add(attachment);

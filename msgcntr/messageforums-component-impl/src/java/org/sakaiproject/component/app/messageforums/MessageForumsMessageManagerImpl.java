@@ -78,6 +78,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     private static final String QUERY_BY_MESSAGE_ID_WITH_ATTACHMENTS = "findMessageByIdWithAttachments";
     private static final String QUERY_COUNT_BY_READ = "findReadMessageCountByTopicId";
     private static final String QUERY_COUNT_BY_AUTHORED = "findAuhtoredMessageCountByTopicId";
+    private static final String QUERY_MESSAGE_COUNTS_FOR_MAIN_PAGE = "findMessageCountsForMainPage";
+    private static final String QUERY_READ_MESSAGE_COUNTS_FOR_MAIN_PAGE = "findReadMessageCountsForMainPage";
     private static final String QUERY_BY_TOPIC_ID = "findMessagesByTopicId";
     private static final String QUERY_COUNT_VIEWABLE_BY_TOPIC_ID = "findViewableMessageCountByTopicIdByUserId";
     private static final String QUERY_COUNT_READ_VIEWABLE_BY_TOPIC_ID = "findReadViewableMessageCountByTopicIdByUserId";
@@ -592,6 +594,49 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         return ((Integer) getHibernateTemplate().execute(hcb)).intValue();        
     }
+    
+    /*
+    +     * (non-Javadoc)
+    +     * @see org.sakaiproject.api.app.messageforums.MessageForumsForumManager#findMessageCountsForMainPage(java.util.List)
+    +     */
+    public List<Object[]> findMessageCountsForMainPage(final Collection<Long> topicIds) {
+    	// have to manually check to make sure the Collection isn't empty to prevent Hibernate from 
+    	// producing the "unexpected end of subtree" error.  (SAKAI-399/357 [local UDayton] & SAK-16848)
+    	if (topicIds.isEmpty()) return new ArrayList<Object[]>();
+
+    	HibernateCallback hcb = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    			Query q = session.getNamedQuery(QUERY_MESSAGE_COUNTS_FOR_MAIN_PAGE);
+    			q.setParameterList("topicIds", topicIds);
+    			return q.list();
+    		}
+    	};
+
+    	return (List)getHibernateTemplate().execute(hcb);
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.sakaiproject.api.app.messageforums.MessageForumsMessageManager#findReadMessageCountsForMainPage(java.util.Collection)
+     */
+    public List<Object[]> findReadMessageCountsForMainPage(final Collection<Long> topicIds) {
+    	// have to manually check to make sure the Collection isn't empty to prevent Hibernate from 
+    	// producing the "unexpected end of subtree" error.  (SAKAI-399/357 [local UDayton] & SAK-16848)
+    	if (topicIds.isEmpty()) return new ArrayList<Object[]>();
+
+    	HibernateCallback hcb = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    			Query q = session.getNamedQuery(QUERY_READ_MESSAGE_COUNTS_FOR_MAIN_PAGE);
+    			q.setParameterList("topicIds", topicIds);
+    			q.setParameter("userId", getCurrentUser());
+    			return q.list();
+    		}
+    	};
+
+    	return (List)getHibernateTemplate().execute(hcb);
+    }
+
+
 
     public int findMessageCountTotal() {
     	HibernateCallback hcb = new HibernateCallback() {

@@ -22,6 +22,7 @@ package org.sakaiproject.api.app.messageforums;
 
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 
 public interface BaseForum extends MutableEntity {
 
@@ -53,7 +54,7 @@ public interface BaseForum extends MutableEntity {
     
     public Set getTopicsSet();
       
-    public void setTopicsSet(Set topicsSet);
+    public void setTopicsSet(SortedSet topicsSet);
    
     public String getTypeUuid();
 

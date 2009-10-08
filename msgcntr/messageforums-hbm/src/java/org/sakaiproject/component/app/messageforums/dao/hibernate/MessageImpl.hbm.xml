@@ -156,6 +156,27 @@
     <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.topic.id = :topicId and message.draft = false and message.deleted=false]]>
   </query>
   
+
+  <query name="findMessageCountsForMainPage"><![CDATA[
+    select topic.id, count(msg)
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+      left join topic.messagesSet msg
+        with msg.draft = false and msg.deleted = false
+    where topic.id in (:topicIds)
+    group by topic.id
+  ]]></query>
+  
+  <query name="findReadMessageCountsForMainPage"><![CDATA[
+    select topic.id, count(readMsg)
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+      left join topic.messagesSet msg
+        with msg.draft = false and msg.deleted = false,
+      org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl readMsg
+    where topic.id in (:topicIds) and (msg.id = readMsg.messageId and readMsg.userId = :userId)
+    group by topic.id
+  ]]></query>
+  
+
   <query name="findMessageCountTotal"><![CDATA[
     select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
       join message.topic topic
@@ -163,7 +184,7 @@
       join forum.area area
     where area.contextId = :contextId and message.draft = false and message.deleted = false
   ]]></query>
-  
+
   <query name="findViewableMessageCountByTopicIdByUserId">
     <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message 
     				where message.topic.id = :topicId and 

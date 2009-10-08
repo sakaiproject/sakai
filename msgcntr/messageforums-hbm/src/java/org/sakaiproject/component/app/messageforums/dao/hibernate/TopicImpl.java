@@ -25,6 +25,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,6 +38,8 @@ import org.sakaiproject.api.app.messageforums.OpenForum;
 import org.sakaiproject.api.app.messageforums.PermissionLevel;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.AttachmentByCreatedDateDesc;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.MessageByCreatedDateDesc;
 
 public abstract class TopicImpl extends MutableEntityImpl implements Topic {
 
@@ -44,12 +48,12 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
     private String title;
     private String shortDescription;
     private String extendedDescription;
-    private Set attachmentsSet;// = new HashSet();
+    private SortedSet attachmentsSet;// = new HashSet();
     private Boolean mutable;
     private Integer sortIndex;
     private String typeUuid;
     private BaseForum baseForum;
-    private Set messagesSet;// = new HashSet();
+    private SortedSet messagesSet;// = new HashSet();
     private Set membershipItemSet;
     private String defaultAssignName;
     private Boolean moderated;
@@ -67,14 +71,15 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
     }
 
     public void setMessages(List messages) {
-        this.messagesSet = Util.listToSet(messages);
+        this.messagesSet = new TreeSet(new MessageByCreatedDateDesc());
+        this.messagesSet.addAll(messages);
     }
 
     public Set getMessagesSet() {
         return messagesSet;
     }
 
-    public void setMessagesSet(Set messagesSet) {
+    public void setMessagesSet(SortedSet messagesSet) {
         this.messagesSet = messagesSet;
     }
 
@@ -82,7 +87,7 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
         return attachmentsSet;
     }
   
-    public void setAttachmentsSet(Set attachmentsSet) {
+    public void setAttachmentsSet(SortedSet attachmentsSet) {
         this.attachmentsSet = attachmentsSet;
     }
     
@@ -93,7 +98,8 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
   
     public void setAttachments(List attachments)
     {
-      this.attachmentsSet = Util.listToSet(attachments);
+      this.attachmentsSet = new TreeSet(new AttachmentByCreatedDateDesc());
+      this.attachmentsSet.addAll(attachments);
     }
     
     public Set getMembershipItemSet() {
@@ -240,7 +246,7 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
         }
         
         if (messagesSet == null) {
-            messagesSet = new HashSet();
+            messagesSet = new TreeSet(new MessageByCreatedDateDesc());
         }
         message.setTopic(this);
         messagesSet.add(message);
@@ -270,7 +276,7 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
         }
         
         if (attachmentsSet == null) {
-            attachmentsSet = new HashSet();
+            attachmentsSet = new TreeSet(new AttachmentByCreatedDateDesc());
         }
         attachment.setTopic(this);
         attachmentsSet.add(attachment);

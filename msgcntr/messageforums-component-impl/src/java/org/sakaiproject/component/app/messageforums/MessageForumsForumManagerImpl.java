@@ -60,6 +60,7 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.OpenTopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.Util;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.ForumBySortIndexAscAndCreatedDateDesc;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.id.api.IdManager;
@@ -112,6 +113,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     private static final String QUERY_TOPICS_WITH_MESSAGES_FOR_FORUM = "findTopicsWithMessagesForForum";
     private static final String QUERY_TOPICS_WITH_MESSAGES_AND_ATTACHMENTS_FOR_FORUM = "findTopicsWithMessagesAndAttachmentsForForum";
     private static final String QUERY_TOPICS_WITH_MSGS_AND_ATTACHMENTS_AND_MEMBERSHIPS_FOR_FORUM = "findTopicsWithMessagesMembershipAndAttachmentsForForum";
+
+    private static final String QUERY_FORUMS_FOR_MAIN_PAGE = "findForumsForMainPage";
             
     private static final String QUERY_BY_TOPIC_ID = "findTopicById";
     private static final String QUERY_OPEN_BY_TOPIC_AND_PARENT = "findOpenTopicAndParentById";
@@ -132,7 +135,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     //public static Comparator FORUM_CREATED_DATE_COMPARATOR;
     
     /** Sorts the forums by the sort index and if the same index then order by the creation date */
-    public static Comparator FORUM_SORT_INDEX_CREATED_DATE_COMPARATOR_DESC;
+    public static final Comparator FORUM_SORT_INDEX_CREATED_DATE_COMPARATOR_DESC = new ForumBySortIndexAscAndCreatedDateDesc();
 
     private IdManager idManager;
 
@@ -144,30 +147,6 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
     private EventTrackingService eventTrackingService;
     
-    static {
-    	FORUM_SORT_INDEX_CREATED_DATE_COMPARATOR_DESC = new Comparator()
-      {                                        
-        public int compare(Object forum, Object otherForum)
-        {
-          if (forum != null && otherForum != null
-              && forum instanceof OpenForum && otherForum instanceof OpenForum)
-          {
-             Integer index1=((OpenForum) forum).getSortIndex();
-             Integer index2=((OpenForum) otherForum).getSortIndex();
-             if(index1.intValue() != index2.intValue())
-                return index1.intValue() - index2.intValue();
-            Date date1=((OpenForum) forum).getCreated();
-            Date date2=((OpenForum) otherForum).getCreated();
-            return date2.compareTo(date1);
-          }
-          return -1;
-        }
-      };
-      
-      // remove 5.0 specific code
-      //FORUM_SORT_INDEX_CREATED_DATE_COMPARATOR_DESC = Collections.reverseOrder(FORUM_CREATED_DATE_COMPARATOR);
-    }
-
     public void init() {
        LOG.info("init()");
         ;
@@ -312,7 +291,24 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     }
     return Util.setToList(resultSet);    
   }
+  
+  /*
+   * (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.MessageForumsForumManager#getForumsForMainPage()
+   */
+  public List<DiscussionForum> getForumsForMainPage() {
+    HibernateCallback hcb = new HibernateCallback() {
+      public Object doInHibernate(Session session) throws HibernateException, SQLException {
+          Query q = session.getNamedQuery(QUERY_FORUMS_FOR_MAIN_PAGE);
+          q.setParameter("typeUuid", typeManager.getDiscussionForumType(), Hibernate.STRING);
+          q.setParameter("contextId", getContextId(), Hibernate.STRING);
+          return q.list();
+      }
+    };
     
+    return (List)getHibernateTemplate().execute(hcb);
+  }
+      
   public List getReceivedUuidByContextId(final List siteList) {
       if (siteList == null) {
           throw new IllegalArgumentException("Null Argument");

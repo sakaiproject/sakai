@@ -46,11 +46,13 @@
     <property name="typeUuid">
       <column name="TYPE_UUID" length="36" not-null="true" index="MFR_OPEN_FORUM_TYPE_I"/>
     </property>
-    <set name="attachmentsSet" lazy="true" order-by="created desc" cascade="all-delete-orphan">
+    <set name="attachmentsSet" lazy="true" cascade="all-delete-orphan"
+      sort="org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.AttachmentByCreatedDateDesc">
         <key column="of_urrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl"/>            
     </set>
-    <set name="topicsSet" lazy="true" order-by="SORT_INDEX asc, created desc" cascade="save-update">
+    <set name="topicsSet" lazy="true" cascade="save-update"
+      sort="org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.TopicBySortIndexAscAndCreatedDateDesc">
         <key column="of_surrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"/>            
     </set>
@@ -168,6 +170,15 @@
     ]]>
   </query>  
   
+  <query name="findForumsForMainPage"><![CDATA[
+  	select forum
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl forum
+      left outer join fetch forum.topicsSet topic
+      left outer join fetch topic.attachmentsSet
+      left outer join fetch forum.attachmentsSet
+    where forum.typeUuid = :typeUuid and forum.area.contextId = :contextId             
+  ]]></query>
+
   <query name="findForumByTypeAndContextWithAllInfo">
     <![CDATA[select f from org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl as f
              join f.area as a

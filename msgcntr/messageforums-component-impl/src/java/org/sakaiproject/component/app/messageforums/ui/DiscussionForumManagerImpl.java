@@ -155,6 +155,39 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     return forumManager.getTopicsByIdWithMessagesMembershipAndAttachments(forumId);
   }
 
+  /*
+   * (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getForumsForMainPage()
+   */
+  public List<DiscussionForum> getForumsForMainPage() {
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("getForumsForMainPage()");
+    }
+    return forumManager.getForumsForMainPage();
+  }
+  
+  /*
+   * (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getMessageCountsForMainPage(java.util.List)
+   */
+  public List<Object[]> getMessageCountsForMainPage(Collection<Long> topicIds) {
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("getMessageCountsForMainPage(" + topicIds + ")");
+    }
+    return messageManager.findMessageCountsForMainPage(topicIds);
+  }
+
+  /*
+   * (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getMessageCountsForMainPage(java.util.Collection)
+   */
+  public List<Object[]> getReadMessageCountsForMainPage(Collection<Long> topicIds) {
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("getReadMessageCountsForMainPage(" + topicIds + ")");
+    }
+    return messageManager.findReadMessageCountsForMainPage(topicIds);
+  }
+  
   public Topic getTopicByIdWithMessages(final Long topicId)
   {
     if (LOG.isDebugEnabled())

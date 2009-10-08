@@ -45,11 +45,13 @@
     <property name="extendedDescription" type="text">
       <column name="EXTENDED_DESCRIPTION" not-null="false" />
     </property>
-    <set name="attachmentsSet" lazy="true" order-by="created desc" cascade="all-delete-orphan">
+    <set name="attachmentsSet" lazy="true" cascade="all-delete-orphan"
+      sort="org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.AttachmentByCreatedDateDesc">
         <key column="t_surrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl"/>            
     </set>
-    <set name="messagesSet" lazy="true" order-by="created desc" cascade="save-update">
+    <set name="messagesSet" lazy="true" cascade="save-update"
+      sort="org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.MessageByCreatedDateDesc">
         <key column="surrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl"/>            
     </set>    

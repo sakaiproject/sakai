@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.api.app.messageforums;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -114,6 +115,25 @@ public interface MessageForumsMessageManager {
 
     public List<Object []> findDiscussionForumReadMessageCountsForTopicsWithMissingPermsForAllSites(final List<String> siteList);
 
+    /**
+     * @param topicIds The list of topic ids for which we want to gather the message counts.
+     *  
+     * @return A list of arrays where each array will contain exactly two values.  Index 0, a Long,
+     * will be the topicId and index 1, an Integer, will be the total number of messages
+     * under that topic (excluding any messages flagged as DRAFT or DELETED).    
+     */
+    public List<Object[]> findMessageCountsForMainPage(final Collection<Long> topicIds);
+
+    /**
+     * @param topicIds The list of topic ids for which we want to gather the message counts.
+     *  
+     * @return A list of arrays where each array will contain exactly two values.  Index 0, a Long,
+     * will be the topicId and index 1, an Integer, will be the total number of messages
+     * under that topic that the current user has read (excluding any messages flagged as DRAFT 
+     * or DELETED).    
+     */
+    public List<Object[]> findReadMessageCountsForMainPage(final Collection<Long> topicIds);
+    
     public List findMessagesByTopicId(Long topicId);
   
     public List findUndeletedMessagesByTopicId(Long topicId);

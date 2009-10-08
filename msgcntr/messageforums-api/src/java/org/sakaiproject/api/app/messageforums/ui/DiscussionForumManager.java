@@ -21,6 +21,7 @@
 package org.sakaiproject.api.app.messageforums.ui;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,6 +54,33 @@ public interface DiscussionForumManager
   public List getTopicsByIdWithMessagesAndAttachments(final Long forumId);
   
   public List getTopicsByIdWithMessagesMembershipAndAttachments(final Long forumId);
+  
+  /**
+   * @return Returns a list of forums specific to the current site and with the necessary 
+   * information to be displayed on the main forums page (the page first displayed when the 
+   * forums tool is loaded).  This information includes the forums' topics, the forums' 
+   * attachments, and the topics' attachments.
+   */
+  public List<DiscussionForum> getForumsForMainPage();
+  
+  /**
+   * @param topicIds The list of topic ids for which we want to gather the message counts.
+   *  
+   * @return A list of arrays where each array will contain exactly two values.  Index 0, a Long,
+   * will be the topicId and index 1, an Integer, will be the total number of messages
+   * under that topic (excluding any messages flagged as DRAFT or DELETED).    
+   */
+  public List<Object[]> getMessageCountsForMainPage(Collection<Long> topicIds);
+  
+  /**
+   * @param topicIds The list of topic ids for which we want to gather the message counts.
+   *  
+   * @return A list of arrays where each array will contain exactly two values.  Index 0, a Long,
+   * will be the topicId and index 1, an Integer, will be the total number of messages
+   * under that topic that the current user has read (excluding any messages flagged as DRAFT 
+   * or DELETED).    
+   */
+  public List<Object[]> getReadMessageCountsForMainPage(Collection<Long> topicIds);
   
   public Topic getTopicByIdWithMessages(final Long topicId);
   

@@ -30,6 +30,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIData;
@@ -57,10 +59,8 @@ import org.sakaiproject.api.app.messageforums.OpenForum;
 import org.sakaiproject.api.app.messageforums.PermissionLevel;
 import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
 import org.sakaiproject.api.app.messageforums.PermissionsMask;
-import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
-import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -68,6 +68,7 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.ForumBySortIndexAscAndCreatedDateDesc;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.FilePickerHelper;
@@ -263,7 +264,7 @@ public class DiscussionForumTool
   //grading 
   private static final String DEFAULT_GB_ITEM = "Default_0";
   private boolean gradeNotify = false; 
-  private List assignments = new ArrayList(); 
+  private List<SelectItem> assignments = new ArrayList<SelectItem>(); 
   private String selectedAssign = DEFAULT_GB_ITEM; 
   private String gradePoint; 
   private String gradeComment; 
@@ -420,141 +421,141 @@ public class DiscussionForumTool
    */
   public List getForums()
   {
-    LOG.debug("getForums()");
+	  LOG.debug("getForums()");
+	  
+	     if (forums != null && forums.size() > 0) {
+	       return forums;
+	     }
+	 
+	     // query the database for all of the forums that are associated with the current site
+	     List<DiscussionForum> tempForums = forumManager.getForumsForMainPage();
+	     if (tempForums == null || tempForums.size() < 1) {
+	       return null;
+	     }
+	 
+	     // establish some values that we will check multiple times to shave a few processing cycles
+	     boolean readFullDescription = "true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription"));
+	 
+	     // run through the topics once to get their parent forums, create the decorated topics that will be used later, and
+	     // possibly set the message count
+	     SortedSet<DiscussionForum> tempSortedForums = new TreeSet<DiscussionForum>(new ForumBySortIndexAscAndCreatedDateDesc());
+	     Map<Long, DiscussionTopicBean> topicBeans = new HashMap<Long, DiscussionTopicBean>();
+	     Set<Long> topicIdsForCounts = new HashSet<Long>();
+	     for (DiscussionForum forum: tempForums) {
+	       if (!forum.getDraft()
+	           || SecurityService.isSuperUser()
+	           || isInstructor()
+	           || forum.getCreatedBy().equals(getUserId()))
+	       { // this is the start of the big forum if
+	 
+	         tempSortedForums.add(forum);
+	 
+	         for (Iterator itor = forum.getTopicsSet().iterator(); itor.hasNext(); ) {
+	           DiscussionTopic currTopic = (DiscussionTopic)itor.next();
+	 
+	           if (currTopic.getDraft().equals(Boolean.FALSE)
+	               || isInstructor()
+	               || SecurityService.isSuperUser()
+	               || currTopic.getCreatedBy().equals(getUserId()))
+	           { // this is the start of the big topic if
+	             DiscussionTopicBean decoTopic = new DiscussionTopicBean(currTopic, (DiscussionForum)currTopic.getOpenForum(), uiPermissionsManager, forumManager);
+	             if (readFullDescription) decoTopic.setReadFullDesciption(true);
+	 
+	             // set the message count for moderated topics, otherwise it will be set later
+	             if (currTopic.getModerated() && !uiPermissionsManager.isModeratePostings(currTopic, (DiscussionForum)currTopic.getOpenForum())) {
+	               decoTopic.setTotalNoMessages(forumManager.getTotalViewableMessagesWhenMod(currTopic));
+	               decoTopic.setUnreadNoMessages(forumManager.getNumUnreadViewableMessagesWhenMod(currTopic));
+	             } else {
+	               topicIdsForCounts.add(currTopic.getId());
+	             }
+	 
+	             topicBeans.put(currTopic.getId(), decoTopic);
+	           } // end the big topic if
+	         }
+	       } // end the big forum if
+	     }
+	 
+	     // get the total message count of non-moderated topics and add them to the discussion topic bean and
+	     // initialize the unread number of messages to all of them.
+	     List<Object[]> topicMessageCounts = forumManager.getMessageCountsForMainPage(topicIdsForCounts);
+	     for (Object[] counts: topicMessageCounts) {
+	       DiscussionTopicBean decoTopic = topicBeans.get(counts[0]);
+	       decoTopic.setTotalNoMessages((Integer)counts[1]);
+	       decoTopic.setUnreadNoMessages((Integer)counts[1]);
+	     }
+	 
+	     // get the total read message count for the current user of non-moderated and add them to the discussion
+	     // topic bean as the number of unread messages.  I could've combined this with the previous query but
+	     // stupid Hibernate (3.x) won't let us properly outer join mapped entitys that do not have a direct
+	     // association.  BLURG!  Any topic not in the returned list means the user hasn't read any of the messages
+	     // in that topic which is why I set the default unread message count to all the messages in the previous
+	     // loop.
+	     topicMessageCounts = forumManager.getReadMessageCountsForMainPage(topicIdsForCounts);
+	     for (Object[] counts: topicMessageCounts) {
+	       DiscussionTopicBean decoTopic = topicBeans.get(counts[0]);
+	       decoTopic.setUnreadNoMessages(decoTopic.getTotalNoMessages() - (Integer)counts[1]);
+	     }
+	 
+	     // get the assignments for use later
+	     try {
+	       assignments = new ArrayList<SelectItem>();
+	       assignments.add(new SelectItem(DEFAULT_GB_ITEM, getResourceBundleString(SELECT_ASSIGN)));
+	 
+	       GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService)
+	       ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+	       if(getGradebookExist()) {
+	         List gradeAssignmentsBeforeFilter = gradebookService.getAssignments(ToolManager.getCurrentPlacement().getContext());
+	         for(int i=0; i<gradeAssignmentsBeforeFilter.size(); i++) {
+	           Assignment thisAssign = (Assignment) gradeAssignmentsBeforeFilter.get(i);
+	           if(!thisAssign.isExternallyMaintained()) {
+	             try {
+	               assignments.add(new SelectItem(Integer.toString(assignments.size()), thisAssign.getName()));
+	             } catch(Exception e) {
+	               LOG.error("DiscussionForumTool - processDfMsgGrd:" + e);
+	               e.printStackTrace();
+	             }
+	           }
+	         }
+	       }
+	     } catch(SecurityException se) {
+	       LOG.debug("SecurityException caught while getting assignments.", se);
+	     } catch(Exception e1) {
+	       LOG.error("DiscussionForumTool&processDfMsgGrad:" + e1);
+	       e1.printStackTrace();
+	     }
+	 
+	     // now loop through the forums that we found earlier and turn them into forums ready to be displayed to the end user
+	     forums = new ArrayList<DiscussionForumBean>();
+	     int sortIndex = 1;
+	     for (DiscussionForum forum: tempSortedForums) {
+	       // manually set the sort index now that the list is sorted
+	       forum.setSortIndex(new Integer(sortIndex));
+	       sortIndex++;
+	 
+	       DiscussionForumBean decoForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
+	       if (readFullDescription) decoForum.setReadFullDesciption(true);
+	 
+	       if (forum.getTopics() != null) {
+	         for (Iterator itor = forum.getTopics().iterator(); itor.hasNext(); ) {
+	           DiscussionTopic topic = (DiscussionTopic) itor.next();
+	           DiscussionTopicBean decoTopic = topicBeans.get(topic.getId());
+	           if (decoTopic != null) decoForum.addTopic(decoTopic);
+	         }
+	       }
+	 
+	       decoForum.setGradeAssign(DEFAULT_GB_ITEM);
+	       for(int i=0; i<assignments.size(); i++) {
+	         if (assignments.get(i).getLabel().equals(forum.getDefaultAssignName())) {
+	           decoForum.setGradeAssign(new Integer(i).toString());
+	           break;
+	         }
+	       }
+	 
+	       forums.add(decoForum);
+	     }
+	 
+	     return forums;
 
-    
-    
-    if (forums == null || forums.size() < 1)
-    {
-      try 
-      {
-    	//ensure the area is initialized
-    	Area area = areaManager.getDiscussionArea(ToolManager.getCurrentPlacement().getContext(), true);
-    	  
-    	assignments = new ArrayList(); 
-    	SelectItem item = new SelectItem(DEFAULT_GB_ITEM, getResourceBundleString(SELECT_ASSIGN)); 
-    	assignments.add(item); 
-    	  
-        GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService) 
-        ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService"); 
-        if(getGradebookExist())
-        {
-          List gradeAssignmentsBeforeFilter = gradebookService.getAssignments(ToolManager.getCurrentPlacement().getContext());
-          List gradeAssignments = new ArrayList();
-          for(int i=0; i<gradeAssignmentsBeforeFilter.size(); i++)
-          {
-            Assignment thisAssign = (Assignment) gradeAssignmentsBeforeFilter.get(i);
-            if(!thisAssign.isExternallyMaintained())
-            {
-              gradeAssignments.add(thisAssign);
-            }
-          }
-            
-          for(int i=0; i<gradeAssignments.size(); i++) 
-          { 
-            try 
-            { 
-              Assignment thisAssign = (Assignment) gradeAssignments.get(i); 
-            
-              String assignName = thisAssign.getName(); 
-            
-              item = new SelectItem((new Integer(i+1)).toString(), assignName); 
-              assignments.add(item); 
-            } 
-            catch(Exception e) 
-            { 
-              LOG.error("DiscussionForumTool - processDfMsgGrd:" + e); 
-              e.printStackTrace(); 
-            } 
-          }
-        }
-      } 
-      catch(SecurityException se)
-      {
-    	  // ignore - don't want to print out stacktrace every time a non-admin user uses MC
-      }
-      catch(Exception e1) 
-      { 
-        LOG.error("DiscussionForumTool&processDfMsgGrad:" + e1); 
-        e1.printStackTrace(); 
-      }
-      forums = new ArrayList();
-      //List tempForum = forumManager.getDiscussionForums();
-      List tempForum = forumManager.getDiscussionForumsWithTopics();
-      if (tempForum == null)
-      {
-        return null;
-      }
-      Iterator iterForum = tempForum.iterator();
-      List msgIds = new ArrayList();
-      while (iterForum.hasNext())
-      {
-      	DiscussionForum forum = (DiscussionForum) iterForum.next();
-      	if(forum != null)
-      	{
-      		List topicList = forum.getTopics();
-      		if(topicList != null)
-      		{
-      			for(int i=0; i<topicList.size(); i++)
-      			{
-      				Topic thisTopic = (Topic) topicList.get(i);
-      				if(thisTopic != null)
-      				{
-      					List msgList = thisTopic.getMessages();
-      					if(msgList != null)
-      					{
-      						for(int j=0; j<msgList.size(); j++)
-      						{
-      							Message tempMsg = (Message)msgList.get(j);
-      							if(tempMsg != null && !tempMsg.getDraft().booleanValue() && !tempMsg.getDeleted().booleanValue())
-      							{
-      								msgIds.add(tempMsg.getId());
-      							}
-      						}
-      					}
-      				}
-      			}
-      		}
-      	}
-      }
-      
-      Map msgIdReadStatusMap = forumManager.getReadStatusForMessagesWithId(msgIds, getUserId());
-
-      iterForum = tempForum.iterator();
-      while (iterForum.hasNext())
-      {
-      	DiscussionForum forum = (DiscussionForum) iterForum.next();
-        if (forum == null)
-        {
-          return forums;
-        }
-        List temp_topics = forum.getTopics();
-        if (temp_topics == null)
-        {
-          return forums;
-        }
-        // TODO: put this logic in database layer
-        if (forum.getDraft().equals(Boolean.FALSE)
-            	||SecurityService.isSuperUser()
-                ||isInstructor()
-                ||forumManager.isForumOwner(forum))
-        { 
-          //DiscussionForumBean decoForum = getDecoratedForum(forum);
-        	DiscussionForumBean decoForum = getDecoratedForumWithPersistentForumAndTopics(forum, msgIdReadStatusMap);
-        	decoForum.setGradeAssign(DEFAULT_GB_ITEM);
-          for(int i=0; i<assignments.size(); i++)
-          {
-            if(((String)((SelectItem)assignments.get(i)).getLabel()).equals(forum.getDefaultAssignName()))
-            {
-              decoForum.setGradeAssign(new Integer(i).toString());
-              break;
-            }
-          }
-          forums.add(decoForum);
-        } 
-      }
-    }
-    return forums;
   }
 
   /**
