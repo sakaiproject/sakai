@@ -200,15 +200,15 @@
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>org.apache.pdfbox</groupId>
+      <groupId>pdfbox</groupId>
       <artifactId>pdfbox</artifactId>
-      <version>0.8.0-incubating</version>
+      <version>0.7.3</version>
       <type>jar</type>
     </dependency>
     <dependency>
 	<groupId>org.apache.tika</groupId>
 	<artifactId>tika</artifactId>
-	<version>0.3</version>
+	<version>0.2</version>
 	</dependency>
     <dependency>
       <groupId>commons-codec</groupId>
