@@ -66,36 +66,38 @@ function handleEnterKeyPress(ev)
 		<input type="hidden" name="view" id="view" value="" />
 		
 		<div class="navPanel">
-			<div class="itemNav">
+		   <div class="viewNav highlight"
+		         style="width:70%;line-height:1.4em">
+				 		
+				<h3>
+					$assignment.title
+					<span class="highlight"> - 
+					#if ($withGrade)
+						#if (!$!submission.getGraded())
+							$tlang.getString("gen.grading")
+						#else
+							$tlang.getString("gen.regrading")
+						#end 
+					#else
+						$tlang.getString("gen.reviewing")
+					#end
+					</span>
+				</h3>
+
+				<strong> $tlang.getString("grading.reminder")</strong>
+				$tlang.getString("grading.reminder.body")
+
+		   </div>
+			<div class="itemNav highlightPanel" style="float:right;text-align:right;clear:right">
 				## prev button				
 				<input type="button" name="prevsubmission" value="$tlang.getString("nav.prev")" #if (!$!goPTButton) disabled="disabled" #end onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='prevsubmission';document.gradeForm.submit();return false;"/>
 				## back to list button
 				<input type="button" name="cancelgradesubmission" value="$tlang.getString("nav.list")" onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='cancelgradesubmission';document.gradeForm.submit();return false;"/>
 				## next button
 				<input type="button" name="nextsubmission" value="$tlang.getString("nav.next")" #if (!$!goNTButton)disabled="disabled"#end onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='nextsubmission';document.gradeForm.submit();return false;"/>
+				<div class="instruction textPanelFooter" style="text-align:center">$tlang.getString("nav.message")</div>
 			</div>
 		</div>
-		
-		<p>
-			<span class="highlight">
-				<b> $tlang.getString("grading.reminder")</b><br /><br />
-				$tlang.getString("grading.reminder.body")
-			</span>
-		</p>
-		<h3>
-			$assignment.title
-			<span class="highlight"> - 
-			#if ($withGrade)
-				#if (!$!submission.getGraded())
-					$tlang.getString("gen.grading")
-				#else
-					$tlang.getString("gen.regrading")
-				#end 
-			#else
-				$tlang.getString("gen.reviewing")
-			#end
-			</span>
-		</h3>
 		## 1- text only; 2-attachment only; 3-text and attachment; 4-Non-electronic
 		#set ( $submissionType = $assignment.Content.TypeOfSubmission)
 		<table class="itemSummary" cellspacing="0" summary="$tlang.getString("gen.assdet")">
@@ -567,14 +569,14 @@ function handleEnterKeyPress(ev)
 							#set($resubmitStyle="display:block")
 						#end
 						<p class="checkbox">
-							<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber==0) #else checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').style.display = 'block';document.getElementById('allowResubmitTime').style.display = 'block';}else{document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none'}" /> 
+							<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber==0) #else checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').style.display = 'inline';resizeFrame('grow');document.getElementById('allowResubmitTime').style.display = 'inline';}else{document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none';resizeFrame('shrink');}" /> 
 							<label for="allowResToggle">$tlang.getString("allowResubmit")</label>
 						</p>
-						<p class="shorttext" id="allowResubmitNumber" style="$!resubmitStyle">
-							<label for="allowResubmitNumber">
+						<span id="allowResubmitNumber" style="$!resubmitStyle">
+							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label for="allowResubmitNumberSelect">
 								$tlang.getString("allow.resubmit.number")
-							</label>
-							<select name="$name_allowResubmitNumber" id="allowResubmitNumber" onchange="if (document.getElementById('allowResubmitNumber').value!=0 && document.getElementById('closeTime') !=null){document.getElementById('closeTime').style.display = 'block';}else {document.getElementById('closeTime').style.display = 'none';}">
+							</label>&nbsp;
+							<select name="$name_allowResubmitNumber" id="allowResubmitNumberSelect" onchange="if (document.getElementById('allowResubmitNumber').value!=0 && document.getElementById('closeTime') !=null){document.getElementById('closeTime').style.display = 'block';}else {document.getElementById('closeTime').style.display = 'none';}">
 								#foreach ($i in [1..10])
 									<option value="$i" #if($i==$!value_allowResubmitNumber)selected="selected"#end>
 										$i
@@ -582,12 +584,13 @@ function handleEnterKeyPress(ev)
 								#end
 								<option value="-1" #if($!value_allowResubmitNumber == -1)selected="selected"#end>$tlang.getString("allow.resubmit.number.unlimited")</option>
 							</select>
-						</p>
-						<p class="shorttext" id="allowResubmitTime" style="$!resubmitStyle">
+						</span>
+						&nbsp;&nbsp;&nbsp;
+						<span id="allowResubmitTime" style="$!resubmitStyle">
 							## only show date selection when allowed to resubmit
 							<label for="$name_ResubmitMonth">
 								$tlang.getString("gen.acesubunt")
-							</label>
+							</label>&nbsp;
 							#chef_dateselectionwidget($name_ResubmitYear $name_ResubmitMonth $name_ResubmitDay $!value_year_from $!value_year_to $value_ResubmitYear $value_ResubmitMonth $value_ResubmitDay $dateFormat "")
 							$tlang.getString("gen.at") 
 							<select name="$name_ResubmitHour" id="$name_ResubmitHour">
@@ -613,28 +616,31 @@ function handleEnterKeyPress(ev)
 									#end
 								#end
 							</select>
-						</p>
+						</span>
 					#end
-			<p class="act">
-				<input type="button" accesskey="d" class="active"  name="save" value="$tlang.getString('gen.savdragra')" onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='savegrade';document.gradeForm.submit();return false;" title="$tlang.getString("gen.savdratit")" />
-				<input type="button" accesskey="s" name="return" value="$tlang.getString('gen.retustud')" onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='returngrade';document.gradeForm.submit();return false;" title="$tlang.getString("gen.retustudtit")" />	
-				<input type="button" accesskey="v" name="preview" value="$tlang.getString('gen.pre')" onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='previewgrade';document.gradeForm.submit();return false;" />
-				<input type="button" accesskey="x" name="cancel" value="$tlang.getString('cancel_changes')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='cancelgrade';document.gradeForm.submit();return false;" />
-			</p>
-		#if ($!prevSubmissionId)
-			<input type="hidden" name="prevSubmissionId" value = "$!prevSubmissionId" />
-		#end
-		#if ($!nextSubmissionId)
-			<input type="hidden" name="nextSubmissionId" value = "$!nextSubmissionId" />
-		#end
 		<div class="navPanel">
-			<div class="itemNav">
+		  <div class="viewNav highlight" style="width:70%;line-height:1.4em;padding-top:.75em;">
+				<span class="act">
+					<input type="button" accesskey="d" class="active"  name="save" value="$tlang.getString('gen.savdragra')" onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='savegrade';document.gradeForm.submit();return false;" title="$tlang.getString("gen.savdratit")" />
+					<input type="button" accesskey="s" name="return" value="$tlang.getString('gen.retustud')" onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='returngrade';document.gradeForm.submit();return false;" title="$tlang.getString("gen.retustudtit")" />	
+					<input type="button" accesskey="v" name="preview" value="$tlang.getString('gen.pre')" onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='previewgrade';document.gradeForm.submit();return false;" />
+					<input type="button" accesskey="x" name="cancel" value="$tlang.getString('cancel_changes')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='cancelgrade';document.gradeForm.submit();return false;" />
+					#if ($!prevSubmissionId)
+						<input type="hidden" name="prevSubmissionId" value = "$!prevSubmissionId" />
+					#end
+					#if ($!nextSubmissionId)
+						<input type="hidden" name="nextSubmissionId" value = "$!nextSubmissionId" />
+					#end
+				</span>		
+			</div>				
+			<div class="itemNav highlightPanel" style="float:right;text-align:right;clear:right;margin-top:0">
 				## prev button				
 				<input type="button" name="prevsubmission" value="$tlang.getString("nav.prev")" #if (!$!goPTButton) disabled="disabled" #end onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='prevsubmission';document.gradeForm.submit();return false;"/>
 				## back to list button
 				<input type="button" name="cancelgradesubmission" value="$tlang.getString("nav.list")" onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='cancelgradesubmission';document.gradeForm.submit();return false;"/>
 				## next button
 				<input type="button" name="nextsubmission" value="$tlang.getString("nav.next")" #if (!$!goNTButton)disabled="disabled"#end onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='nextsubmission';document.gradeForm.submit();return false;"/>
+				<div class="instruction textPanelFooter" style="text-align:center">$tlang.getString("nav.message")</div>				
 			</div>
 		</div>	
 	</form>
