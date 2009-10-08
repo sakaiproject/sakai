@@ -1600,20 +1600,16 @@ public class SiteAction extends PagedResourceActionII {
 				for (int i = 0; i < removals.length; i++) {
 					String id = (String) removals[i];
 					if (!(id.equals(workspace))) {
-						try {
-							site_title = SiteService.getSite(id).getTitle();
-						} catch (IdUnusedException e) {
-							M_log.warn(this + "buildContextForTemplate chef_site-siteDeleteConfirm.vm - IdUnusedException " + id, e);
-							addAlert(state, rb.getString("java.sitewith") + " "
-									+ id + " " + rb.getString("java.couldnt")
-									+ " ");
-						}
 						if (SiteService.allowRemoveSite(id)) {
 							try {
+								// check whether site exists
 								Site removeSite = SiteService.getSite(id);
 								remove.add(removeSite);
 							} catch (IdUnusedException e) {
-								M_log.warn(this + ".buildContextForTemplate chef_site-siteDeleteConfirm.vm: IdUnusedException", e);
+								M_log.warn(this + "buildContextForTemplate chef_site-siteDeleteConfirm.vm - IdUnusedException " + id + e.getMessage());
+								addAlert(state, rb.getString("java.sitewith") + " "
+										+ id + " " + rb.getString("java.couldnt")
+										+ " ");
 							}
 						} else {
 							addAlert(state, site_title + " "
@@ -3995,15 +3991,7 @@ public class SiteAction extends PagedResourceActionII {
 			for (ListIterator i = chosenList.listIterator(); i.hasNext();) {
 				String id = (String) i.next();
 				String site_title = NULL_STRING;
-				try {
-					site_title = SiteService.getSite(id).getTitle();
-				} catch (IdUnusedException e) {
-					M_log.warn(this + ".doSite_delete_confirmed - IdUnusedException " + id, e);
-					addAlert(state, rb.getString("java.sitewith") + " " + id
-							+ " " + rb.getString("java.couldnt") + " ");
-				}
 				if (SiteService.allowRemoveSite(id)) {
-
 					try {
 						Site site = SiteService.getSite(id);
 						site_title = site.getTitle();
