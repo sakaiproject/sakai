@@ -38,6 +38,7 @@ import org.apache.commons.httpclient.HttpConnectionManager;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
@@ -779,15 +780,15 @@ public abstract class BaseSearchServiceImpl implements SearchService
 			sb.append("<fault>"); //$NON-NLS-1$
 			sb.append("<request>"); //$NON-NLS-1$
 			sb.append("<![CDATA["); //$NON-NLS-1$
-			sb.append(" userid = ").append(StringUtils.xmlEscape(userid)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append(" userid = ").append(StringEscapeUtils.escapeXml(userid)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
 			sb
-					.append(" searchTerms = ").append(StringUtils.xmlEscape(searchTerms)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+					.append(" searchTerms = ").append(StringEscapeUtils.escapeXml(searchTerms)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
 			sb
-					.append(" checksum = ").append(StringUtils.xmlEscape(checksum)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+					.append(" checksum = ").append(StringEscapeUtils.escapeXml(checksum)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
 			sb
-					.append(" contexts = ").append(StringUtils.xmlEscape(contexts)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
-			sb.append(" ss = ").append(StringUtils.xmlEscape(ss)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
-			sb.append(" se = ").append(StringUtils.xmlEscape(se)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+					.append(" contexts = ").append(StringEscapeUtils.escapeXml(contexts)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append(" ss = ").append(StringEscapeUtils.escapeXml(ss)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append(" se = ").append(StringEscapeUtils.escapeXml(se)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
 			sb.append("]]>"); //$NON-NLS-1$
 			sb.append("</request>"); //$NON-NLS-1$
 			sb.append("<error>"); //$NON-NLS-1$
