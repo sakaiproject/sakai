@@ -64,20 +64,13 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-util</artifactId>
     </dependency>
-<!--
-      This has been relocated to sakai-kernel-util
-      org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
-      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.search</groupId>
       <artifactId>search-api</artifactId>
-      <type>jar</type>
     </dependency>
-<!--org.sakaiprojectsakai-util${sakai.version}jar-->
   </dependencies>
 </project>
