@@ -30,7 +30,7 @@
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{assessmentSettingsMessages.publish_assessment_confirmation}" /></title>
+      <title><h:outputText value="#{assessmentSettingsMessages.check_settings_and_add_notification}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
@@ -39,9 +39,7 @@
  <h:form id="publishAssessmentForm">
    <h:inputHidden id="assessmentId" value="#{assessmentSettings.assessmentId}"/>
    <h3>
-      <h:outputText  value="#{assessmentSettingsMessages.publish_assessment_confirmation}" rendered="#{author.isEditPendingAssessmentFlow}"/>
-      <h:outputText  value="#{assessmentSettingsMessages.republish_assessment_confirmation}" rendered="#{!author.isEditPendingAssessmentFlow && !author.isRepublishAndRegrade}"/>
-      <h:outputText  value="#{assessmentSettingsMessages.regrade_republish_assessment_confirmation}" rendered="#{!author.isEditPendingAssessmentFlow && author.isRepublishAndRegrade}"/>
+      <h:outputText  value="#{assessmentSettingsMessages.check_settings_and_add_notification}"/>
    </h3>
 <div class="tier1">
 
@@ -52,16 +50,16 @@
   <h:outputText value=" " />
   <h:panelGroup rendered="#{author.isEditPendingAssessmentFlow}">
     <h:panelGrid  columns="1">
-	   <h:outputText value="#{assessmentSettingsMessages.publish_confirm_message}" />
-       <h:outputText value="#{assessmentSettingsMessages.cancel_message}"/>
+	   <h:outputText value="#{assessmentSettingsMessages.publish_confirm_message_1} <b>#{assessmentSettingsMessages.publish_confirm_message_2}</b> #{assessmentSettingsMessages.publish_confirm_message_3}" escape="false"/>
+       <h:outputText value="#{assessmentSettingsMessages.cancel_message_1} <b>#{assessmentSettingsMessages.cancel_message_2}</b> #{assessmentSettingsMessages.cancel_message_3}" escape="false"/>
     </h:panelGrid>
   </h:panelGroup>
 
   <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow && !author.isRepublishAndRegrade}">
 	<h:panelGrid  columns="1">
-	   <h:outputText value="#{assessmentSettingsMessages.republish_confirm_message}" />
-       <h:outputText value="#{assessmentSettingsMessages.cancel_message}"/>
-    </h:panelGrid>
+   	   <h:outputText value="#{assessmentSettingsMessages.republish_confirm_message_1} <b>#{assessmentSettingsMessages.republish_confirm_message_2}</b> #{assessmentSettingsMessages.republish_confirm_message_3}" escape="false"/>
+       <h:outputText value="#{assessmentSettingsMessages.cancel_message_1} <b>#{assessmentSettingsMessages.cancel_message_2}</b> #{assessmentSettingsMessages.cancel_message_3}" escape="false"/>    
+	</h:panelGrid>
   </h:panelGroup>
 
   <h:outputText value="#{assessmentSettingsMessages.started_or_submitted}" rendered="#{!author.isEditPendingAssessmentFlow && author.isRepublishAndRegrade}" styleClass="validation"/> 
@@ -106,15 +104,16 @@
 
   <f:verbatim></p></f:verbatim>
 
+<h:panelGrid columns="1" border="0" width="38%" styleClass="settings">
 <h:panelGrid columns="1" border="0">
-  <h:outputText value="#{assessmentSettingsMessages.notification}" rendered="#{publishRepublishNotification.sendNotification}"/>
-  <h:outputText value="#{assessmentSettingsMessages.subject} #{publishRepublishNotification.notificationSubject}" rendered="#{publishRepublishNotification.sendNotification}"/>
+<h:panelGrid columns="1" border="0">
+<h:outputText value="#{assessmentSettingsMessages.notification}" styleClass="notification" rendered="#{publishRepublishNotification.sendNotification}" escape="false"/>
+<h:outputText value="#{assessmentSettingsMessages.subject} #{publishRepublishNotification.notificationSubject}" rendered="#{publishRepublishNotification.sendNotification}"/>
 
   <h:inputTextarea id="message1" value="#{publishRepublishNotification.prePopulateText}" styleClass='prePopulateText' onmousedown="clearText1()" rows="2" cols="70" rendered="#{publishRepublishNotification.sendNotification && author.isEditPendingAssessmentFlow}"/>
   <h:inputTextarea id="message2" value="#{publishRepublishNotification.prePopulateText}" styleClass='prePopulateText' onmousedown="clearText2()" rows="2" cols="70" rendered="#{publishRepublishNotification.sendNotification && !author.isEditPendingAssessmentFlow}"/>
 </h:panelGrid>
 
-<h:panelGrid columns="1" border="2" width="55%">
 <h:panelGrid columns="1" rowClasses="shorttextPadding" rendered="#{author.isEditPendingAssessmentFlow}" border="0">
      <h:outputText value="#{assessmentSettings.title}" rendered="#{assessmentSettings.title ne null}"/>
 
@@ -174,6 +173,9 @@
  	 <h:outputText value="#{assessmentSettingsMessages.released_to_3} #{publishedSettings.releaseToGroupsAsString}" rendered="#{publishedSettings.releaseTo eq 'Selected Groups'}"/>
 
 </h:panelGrid>
+</h:panelGrid>
+<h:panelGrid />
+<h:panelGrid />
 </h:panelGrid>
 
 <f:verbatim><p></p></f:verbatim>

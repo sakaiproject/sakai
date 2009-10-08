@@ -199,3 +199,14 @@ font-size:1.2em
 .whiteSpaceNoWrap {
 	white-space: nowrap;
 }
+
+table.settings {
+    border: 1px solid #bbb;
+}
+ 	  	 
+.notification {
+    color: #555;
+    font-size: 110%;
+    font-weight: bold;
+}
+
