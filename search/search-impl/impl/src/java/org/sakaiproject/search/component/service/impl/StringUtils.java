@@ -21,6 +21,8 @@ public class StringUtils
 	 * @param value
 	 * @param escapeNewlines
 	 * @return
+	 * 
+	 * deprecated use commons-lang StringEscapeUtils.escapeHTML
 	 */
 	public static String escapeHtml(String value, boolean escapeNewlines)
 	{
@@ -119,7 +121,14 @@ public class StringUtils
 		specialChars['"'] = "&#34;".toCharArray();
 		specialChars['\''] = "&#39;".toCharArray();
 	}
-
+	
+	/**
+	 * 
+	 * @param toEscape
+	 * @return
+	 * 
+	 * @deprecated Use Commons-lang StringEscapeUtils.escapeXML as this code might result in NPE's
+	 */
 	public static String xmlEscape(String toEscape)
 	{
 		char[] chars = toEscape.toCharArray();
