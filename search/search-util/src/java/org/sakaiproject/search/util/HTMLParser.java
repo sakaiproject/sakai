@@ -102,7 +102,6 @@ public class HTMLParser implements Iterator<String>
 	public String getTagName(String tag, int start)
 	{
 		tag = tag.substring(start);
-		char[] c = tag.toCharArray();
 		String[] words = tag.split("\\s", 2);
 		if (words != null && words.length != 0)
 		{
