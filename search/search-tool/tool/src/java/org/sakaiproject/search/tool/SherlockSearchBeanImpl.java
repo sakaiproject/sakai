@@ -19,7 +19,6 @@ import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.tool.api.SherlockSearchBean;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.FormattedText;
 
@@ -35,17 +34,9 @@ public class SherlockSearchBeanImpl implements SherlockSearchBean
 
 	static final String UPDATE_IMAGE = "/sakai.gif";
 
-	private HttpServletRequest request;
-
-	private SearchService searchService;
-
 	private SiteService siteService;
 
-	private Placement placement;
-
 	private String placementId;
-
-	private String toolId;
 
 	private String siteId;
 
@@ -62,15 +53,10 @@ public class SherlockSearchBeanImpl implements SherlockSearchBean
 			ToolManager toolManager) throws IdUnusedException
 	{
 		this.context = context;
-		this.request = request;
-		this.searchService = searchService;
 		this.siteService = siteService;
-		this.placement = toolManager.getCurrentPlacement();
 		this.placementId = toolManager.getCurrentPlacement().getId();
-		this.toolId = toolManager.getCurrentTool().getId();
 		this.siteId = toolManager.getCurrentPlacement().getContext();
 		this.currentSite = this.siteService.getSite(this.siteId);
-		String siteCheck = currentSite.getReference();
 		baseURL = getBaseURL();
 		portalBaseURL = getPortalBaseURL();
 	}

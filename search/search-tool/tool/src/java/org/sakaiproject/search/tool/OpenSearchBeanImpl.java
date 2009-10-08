@@ -76,7 +76,6 @@ public class OpenSearchBeanImpl implements OpenSearchBean
 		} else {
 			scope = Scope.SITE.name();
 		}
-		String siteCheck = currentSite.getReference();
 		baseURL = getBaseURL();
 	}
 
