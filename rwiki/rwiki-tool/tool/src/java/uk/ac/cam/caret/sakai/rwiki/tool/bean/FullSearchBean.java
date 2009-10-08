@@ -156,6 +156,21 @@ public class FullSearchBean
 		return searchTitle;
 	}
 	
+		/**
+	 * Perform the search
+	 * 
+	 * @return a list of page names that match the search criteria
+	 */
+	public List getSearchResults()
+	{
+		return search();
+	}
+
+	public String getTimeTaken()
+	{
+		int tt = (int) timeTaken;
+		return String.valueOf(tt);
+	}
 
 	/**
 	 * Perform the search
