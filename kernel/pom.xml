@@ -773,6 +773,7 @@
 			</configuration>
 		</plugin>
 		<plugin>
+            <groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-jxr-plugin</artifactId>
 			<configuration>
 				<aggregate>true</aggregate>
@@ -881,7 +882,8 @@
 			<artifactId>dashboard-maven-plugin</artifactId>
 		</plugin>
 		<plugin>
-			<artifactId>maven-changelog-plugin</artifactId>
+			<groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-changelog-plugin</artifactId>
 			<configuration>
 				<type>range</type>
 				<range>30</range>
@@ -1017,9 +1019,7 @@
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>
-						maven-remote-resources-plugin
-					</artifactId>
+					<artifactId>maven-remote-resources-plugin</artifactId>
 					<version>1.0-alpha-6</version>
 				</plugin>
 				<plugin>
