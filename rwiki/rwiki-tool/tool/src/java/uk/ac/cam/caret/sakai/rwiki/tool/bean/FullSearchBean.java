@@ -140,37 +140,6 @@ public class FullSearchBean
 	{
 		return realm;
 	}
-/**
-* Parse wiki page name from search title obtained from search api
-	*
-	* @return wiki page-name
-	*/
-	public String pageNameFromSearchTitle(String searchTitle)
-	{
-		if (searchTitle.startsWith(" /site/"))
-			{
-				String h = searchTitle.substring(searchTitle.lastIndexOf('/')+1);
-				return h;
-			}
-		return searchTitle;
-	}
-	/**
-
-	/**
-	 * Perform the search
-	 * 
-	 * @return a list of page names that match the search criteria
-	 */
-	public List getSearchResults()
-	{
-		return search();
-	}
-
-	public String getTimeTaken()
-	{
-		int tt = (int) timeTaken;
-		return String.valueOf(tt);
-	}
 	
 	/**
 	 * Parse wiki page name from search title obtained from search api
