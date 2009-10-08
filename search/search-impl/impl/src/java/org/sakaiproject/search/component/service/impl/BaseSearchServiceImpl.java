@@ -110,7 +110,7 @@ public abstract class BaseSearchServiceImpl implements SearchService
 	/**
 	 * Optional dependencies
 	 */
-	private List triggerFunctions;
+	private List<String> triggerFunctions;
 
 	/**
 	 * the notification object
@@ -203,7 +203,7 @@ public abstract class BaseSearchServiceImpl implements SearchService
 			notification.setFunction(SearchService.EVENT_TRIGGER_SEARCH);
 			if (triggerFunctions != null)
 			{
-				for (Iterator ifn = triggerFunctions.iterator(); ifn.hasNext();)
+				for (Iterator<String> ifn = triggerFunctions.iterator(); ifn.hasNext();)
 				{
 					String function = (String) ifn.next();
 					notification.addFunction(function);
@@ -271,7 +271,7 @@ public abstract class BaseSearchServiceImpl implements SearchService
 	/**
 	 * @return Returns the triggerFunctions.
 	 */
-	public List getTriggerFunctions()
+	public List<String> getTriggerFunctions()
 	{
 		return triggerFunctions;
 	}
@@ -280,7 +280,7 @@ public abstract class BaseSearchServiceImpl implements SearchService
 	 * @param triggerFunctions
 	 *        The triggerFunctions to set.
 	 */
-	public void setTriggerFunctions(List triggerFunctions)
+	public void setTriggerFunctions(List<String> triggerFunctions)
 	{
 		if (initComplete)
 			throw new RuntimeException(
@@ -305,7 +305,7 @@ public abstract class BaseSearchServiceImpl implements SearchService
 	 * 
 	 * @param indexFilter
 	 */
-	public SearchList search(String searchTerms, List contexts, int start, int end)
+	public SearchList search(String searchTerms, List<String> contexts, int start, int end)
 	{
 		return search(searchTerms, contexts, start, end, defaultFilter, defaultSorter);
 	}
@@ -758,7 +758,7 @@ public abstract class BaseSearchServiceImpl implements SearchService
 				sb.append(" start=\"").append(sl.getStart()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
 				sb.append(" size=\"").append(sl.size()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
 				sb.append(" >"); //$NON-NLS-1$
-				for (Iterator si = sl.iterator(); si.hasNext();)
+				for (Iterator<SearchResult> si = sl.iterator(); si.hasNext();)
 				{
 					SearchResult sr = (SearchResult) si.next();
 					sr.toXMLString(sb);
