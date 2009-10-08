@@ -16,6 +16,8 @@
 				#set($timeType = "am")
 			#elseif($hour == 12)
 				#set($timeType = "pm")
+			#elseif($hour < 12)
+				#set($timeType = "am")
 			#end
 			
 			<select name="${prefix}_hour" id="${prefix}_hour" onchange="hourChange('${prefix}_hour'); $!onChangeAction return false;">
