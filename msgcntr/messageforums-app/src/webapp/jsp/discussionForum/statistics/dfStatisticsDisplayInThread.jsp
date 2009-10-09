@@ -16,6 +16,7 @@
   	<h:form id="dfStatisticsForm">
   	    <script type="text/javascript" src="/library/js/jquery.js"></script>
        	<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
+       	<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
   	
   		<sakai:tool_bar>
 			<h:outputLink id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyDisplayInThread}');" title="#{msgs.cdfm_print}">
@@ -83,6 +84,7 @@
 				</h:panelGroup>
 				
 				<h:panelGroup rendered="#{ForumTool.selectedMsgId==msgDecorateBean.message.id}">
+				<f:verbatim><a name="boldMsg" /></f:verbatim>
    				<f:verbatim><div class="hierItemBlockBold"></f:verbatim>
 				<f:verbatim><h4 class="textPanelHeaderBold"></f:verbatim>
 				<f:verbatim><div class="specialLink" style="width:100%;float:left;text-align:left"></f:verbatim>
@@ -131,6 +133,26 @@
 			               title="#{mfStatisticsBean.buttonUserName}">			               			
 			</h:commandButton>
 		</h:panelGroup>
+		
+			<%
+				String thisId = request.getParameter("panel");
+				if (thisId == null) {
+					thisId = "Main"	+ org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
+				}
+			%>
+			<script type="text/javascript">
+				function resize(){
+  					mySetMainFrameHeight('<%=org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
+  				}
+			</script>
+
+			<script type="text/javascript">
+				resize();				
+			//find the anchor	
+				document.location.href=document.location.href + "#boldMsg";	
+			//Set attribute onload here to skip calling portal's setMainFrameHeight, otherwise the scroll bar will reset to go to the top. Put setFocus method here is because portal's onload has two methods. one is setMainFrameHeight, another is setFocus. 			
+				document.body.setAttribute("onload", "setFocus(focus_path)");
+			</script>
   	</h:form>
   </sakai:view>
  </f:view>
