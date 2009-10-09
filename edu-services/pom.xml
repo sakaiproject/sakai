@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>master</artifactId>
-    <groupId>org.sakaiproject.purepoms</groupId>
+    <groupId>org.sakaiproject</groupId>
     <version>2.7.0-SNAPSHOT</version>
     <relativePath>../master/pom.xml</relativePath>
   </parent>
