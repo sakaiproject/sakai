@@ -149,7 +149,8 @@
         </executions>        
         <configuration>
           <outputDirectory>${project.build.directory}/${project.build.finalName}</outputDirectory>
-          <nosuffix>true</nosuffix>        
+          <nosuffix>true</nosuffix>
+	  <jswarn>false</jswarn> 
           <excludes>
             <exclude>**/**/*.html</exclude>
             <exclude>**/**/*.xsl</exclude>
