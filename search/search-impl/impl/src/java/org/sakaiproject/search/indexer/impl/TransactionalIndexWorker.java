@@ -120,7 +120,6 @@ public class TransactionalIndexWorker implements IndexWorker
 	{
 		
 		// get a list to perform this transaction
-		List<SearchBuilderItem> runtimeToDo = null;
 		IndexTransaction t = null;
 		try
 		{
@@ -251,6 +250,7 @@ public class TransactionalIndexWorker implements IndexWorker
 			for (SearchBuilderItem sbi : finalState.values())
 			{
 
+				
 				Reader contentReader = null;
 				String ref = null;
 				try
