@@ -236,7 +236,7 @@
                 <module>content/content-help</module>
                 <module>content/content-tool/tool</module>
                 <module>courier</module>
-                <module>course-management/cm-api/api</module>
+                <module>edu-services/cm-service/cm-api/api</module>
                 <module>help</module>
                 <module>jobscheduler</module>
                 <module>jsf</module>
