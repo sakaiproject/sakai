@@ -538,6 +538,13 @@ This is not needed now that pluto have been released
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>org.sakaiproject.edu-services</groupId>
+        <artifactId>edu-services-assembly</artifactId>
+        <version>${sakai.edu-services.version}</version>
+        <classifier>tomcat-overlay</classifier>
+        <type>zip</type>
+      </dependency>
+      <dependency>
         <groupId>org.sakaiproject.edu-services.sections</groupId>
         <artifactId>sections-api</artifactId>
         <version>${sakai.edu-services.version}</version>
