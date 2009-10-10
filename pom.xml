@@ -95,7 +95,6 @@
                 <module>content</module>
                 <module>content-review</module>
                 <module>courier</module>
-                <module>edu-services</module>
                 <module>dav</module>
                 <module>emailtemplateservice</module>
                 <module>gradebook</module>

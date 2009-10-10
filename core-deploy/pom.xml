@@ -27,7 +27,10 @@
                 <clean.targets>
                     components/sakai-common-components;
                     components/sakai-privacy-pack;
-                    components/search-pack
+                    components/search-pack;
+                    components/coursemanagement-hibernate-pack;
+                    components/gradebook-service-pack;
+                    components/sections-pack
                 </clean.targets>
                 <deploy.target>tomcat-overlay</deploy.target>
             </properties>
@@ -36,6 +39,12 @@
                     <groupId>org.sakaiproject.common</groupId>
                     <artifactId>sakai-common-assembly</artifactId>
                     <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                	<groupId>org.sakaiproject.edu-services</groupId>
+                	<artifactId>edu-services-assembly</artifactId>
+                	<classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
                 <dependency>
@@ -54,6 +63,9 @@
                     components/sakai-msgcntr-component;
                     components/sakai-privacy-pack;
                     components/search-pack;
+                    components/coursemanagement-hibernate-pack;
+                    components/gradebook-service-pack;
+                    components/sections-pack;
                     components/sitestats-component
                 </clean.targets>
                 <deploy.target>tomcat-overlay</deploy.target>
@@ -63,6 +75,12 @@
                     <groupId>org.sakaiproject.common</groupId>
                     <artifactId>sakai-common-assembly</artifactId>
                     <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                	<groupId>org.sakaiproject.edu-services</groupId>
+                	<artifactId>edu-services-assembly</artifactId>
+                	<classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
                 <dependency>
