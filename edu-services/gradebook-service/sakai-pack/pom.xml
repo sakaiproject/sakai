@@ -7,7 +7,7 @@
     <version>1.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <groupId>org.sakaiproject.edu-services</groupId>
+  <groupId>org.sakaiproject.edu-services.gradebook</groupId>
   <artifactId>gradebook-service-pack</artifactId>
   <name>gradebook-service-pack</name>
   <packaging>sakai-component</packaging>

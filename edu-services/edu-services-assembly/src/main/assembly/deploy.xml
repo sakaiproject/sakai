@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+	<id>tomcat-overlay</id>
+	<formats>
+		<format>zip</format>
+	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+	<dependencySets>
+		<!-- stuff that goes into shared -->
+		<dependencySet>
+			<outputDirectory>shared/lib</outputDirectory>
+			<useTransitiveDependencies>false</useTransitiveDependencies>
+			<includes>
+				<include>org.sakaiproject.edu-services.course-management:coursemanagement-api:jar:*
+				</include>
+				<include>org.sakaiproject.edu-services.course-management:coursemanagement-hibernate-model:jar:*
+				</include>
+				<include>org.sakaiproject.edu-services.gradebook:gradebook-service-api:jar:*
+				</include>
+				<include>org.sakaiproject.edu-services.gradebook:gradebook-service-hibernate:jar:*
+				</include>
+				<include>org.sakaiproject.edu-services.sections:sections-api:jar:*
+				</include>
+				<include>org.sakaiproject.edu-services.sections:sections-model:jar:*
+				</include>
+			</includes>
+		</dependencySet>
+		<!-- stuff that goes into components -->
+		<dependencySet>
+			<outputDirectory>components/coursemanagement-hibernate-pack</outputDirectory>
+			<useTransitiveDependencies>false</useTransitiveDependencies>
+			<includes>
+				<include>org.sakaiproject.edu-services.course-management:coursemanagement-hibernate-pack:war:*
+				</include>
+			</includes>
+			<unpack>true</unpack>
+		</dependencySet>
+				<dependencySet>
+			<outputDirectory>components/gradebook-service-pack</outputDirectory>
+			<useTransitiveDependencies>false</useTransitiveDependencies>
+			<includes>
+				<include>org.sakaiproject.edu-services.gradebook:gradebook-service-pack:war:*
+				</include>
+			</includes>
+			<unpack>true</unpack>
+		</dependencySet>
+		<dependencySet>
+			<outputDirectory>components/sections-pack</outputDirectory>
+			<useTransitiveDependencies>false</useTransitiveDependencies>
+			<includes>
+				<include>org.sakaiproject.edu-services.sections:sections-pack:war:*
+				</include>
+			</includes>
+			<unpack>true</unpack>
+		</dependencySet>
+	</dependencySets>
+	<fileSets>
+		<fileSet>
+			<outputDirectory></outputDirectory>
+			<includes>
+				<include>${project.basedir}/README*</include>
+			</includes>
+		</fileSet>
+	</fileSets>
+</assembly>

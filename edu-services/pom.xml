@@ -31,6 +31,7 @@
     <module>gradebook-service</module>
     <module>cm-service</module>
     <module>sections-service</module>
+    <module>edu-services-assembly</module>
   </modules>
   <dependencyManagement>
     <dependencies>

@@ -8,7 +8,7 @@
     <relativePath>../../../pom.xml</relativePath>
   </parent>
   <name>coursemanagement-hibernate-model</name>
-  <groupId>org.sakaiproject..edu-services.course-management</groupId>
+  <groupId>org.sakaiproject.edu-services.course-management</groupId>
   <artifactId>coursemanagement-hibernate-model</artifactId>
   <organization>
     <name>Sakai Project</name>
