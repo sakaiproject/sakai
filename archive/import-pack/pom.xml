@@ -9,7 +9,7 @@
   </parent>
   <name>Sakai Import Components Package</name>
   <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-import</artifactId>
+  <artifactId>sakai-anouncement-import</artifactId>
   <organization>
     <name>Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
@@ -20,22 +20,6 @@
     <deploy.target>components</deploy.target>
   </properties>
   <dependencies>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-import-impl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-import-content</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-common-cartridge</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-archive-import</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-import-announcement</artifactId>

@@ -17,18 +17,9 @@
     <url>https://source.sakaiproject.org/svn/archive/trunk</url>
   </scm>
   <modules>
-    <module>archive-api/api</module>
-    <module>archive-impl/impl</module>
-    <module>archive-impl/impl2</module>
-    <module>archive-impl/pack</module>
     <module>archive-tool/tool</module>
-    <module>import-api</module>
     <module>import-handlers/announcement-handlers</module>
-    <module>import-handlers/content-handlers</module>
-    <module>import-impl</module>
     <module>import-pack</module>
-    <module>import-parsers/common-cartridge</module>
-    <module>import-parsers/sakai-archive</module>
   </modules>
   <dependencyManagement>
     <dependencies>
