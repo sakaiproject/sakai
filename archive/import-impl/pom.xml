@@ -27,7 +27,6 @@
     <dependency>
       <groupId>javax.activation</groupId>
       <artifactId>activation</artifactId>
-      <version>1.0.2</version>
     </dependency>
     <dependency>
       <groupId>jaxen</groupId>
@@ -42,15 +41,13 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
     </dependency>
 <!-- Sakai dependencies -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-archive-api</artifactId>
     </dependency>
-<!--org.sakaiprojectsakai-component-api${sakai.version}-->
-    <dependency>
+   <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-import-api</artifactId>
     </dependency>
