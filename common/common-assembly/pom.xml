@@ -70,6 +70,33 @@
        		<scope>compile</scope>
 			<type>war</type>
       	</dependency>
+      	<dependency>
+        	<groupId>org.sakaiproject.common</groupId>
+        	<artifactId>archive-api</artifactId>
+       		<version>${project.version}</version>
+       		<scope>compile</scope>
+	  	</dependency>
+	  	<dependency>
+        	<groupId>org.sakaiproject.common</groupId>
+        	<artifactId>archive-pack</artifactId>
+       		<version>${project.version}</version>
+       		<scope>compile</scope>
+			<type>war</type>
+      	</dependency>
+      	<dependency>
+        	<groupId>org.sakaiproject.common</groupId>
+        	<artifactId>sakai-privacy-pack</artifactId>
+       		<version>${project.version}</version>
+       		<scope>compile</scope>
+			<type>war</type>
+      	</dependency>
+      	<dependency>
+        	<groupId>org.sakaiproject.common</groupId>
+        	<artifactId>import-pack</artifactId>
+       		<version>${project.version}</version>
+       		<scope>compile</scope>
+			<type>war</type>
+      	</dependency>
 	</dependencies>
 	<build>
 		<plugins>

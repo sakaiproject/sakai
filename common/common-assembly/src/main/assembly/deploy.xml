@@ -23,6 +23,8 @@
 				</include>
 				<include>org.sakaiproject.common:sakai-privacy-api:jar:*
 				</include>
+				<include>org.sakaiproject.common:archive-api:jar:*
+				</include>
 			</includes>
 		</dependencySet>
 		<!-- stuff that goes into components -->
@@ -35,11 +37,29 @@
 			</includes>
 			<unpack>true</unpack>
 		</dependencySet>
-				<dependencySet>
+		<dependencySet>
 			<outputDirectory>components/sakai-privacy-pack</outputDirectory>
 			<useTransitiveDependencies>false</useTransitiveDependencies>
 			<includes>
 				<include>org.sakaiproject.common:sakai-privacy-pack:war:*
+				</include>
+			</includes>
+			<unpack>true</unpack>
+		</dependencySet>
+		<dependencySet>
+			<outputDirectory>components/archive-pack</outputDirectory>
+			<useTransitiveDependencies>false</useTransitiveDependencies>
+			<includes>
+				<include>org.sakaiproject.common:archive-pack:war:*
+				</include>
+			</includes>
+			<unpack>true</unpack>
+		</dependencySet>
+		<dependencySet>
+			<outputDirectory>components/import-pack</outputDirectory>
+			<useTransitiveDependencies>false</useTransitiveDependencies>
+			<includes>
+				<include>org.sakaiproject.common:import-pack:war:*
 				</include>
 			</includes>
 			<unpack>true</unpack>
