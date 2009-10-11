@@ -25,12 +25,12 @@
       <artifactId>sakai-kernel-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-import-api</artifactId>
+      <groupId>org.sakaiproject.common</groupId>
+      <artifactId>archive-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-import-impl</artifactId>
+      <groupId>org.sakaiproject.common</groupId>
+      <artifactId>import-impl</artifactId>
     </dependency>
 <!--org.sakaiprojectsakai-tool-api${sakai.version}-->
     <dependency>
