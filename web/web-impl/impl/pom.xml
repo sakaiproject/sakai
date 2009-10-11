@@ -59,8 +59,8 @@
 <!--org.sakaiprojectsakai-user-api${sakai.version}-->
 <!--org.sakaiprojectsakai-email-api${sakai.version}-->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-archive-api</artifactId>
+      <groupId>org.sakaiproject.common</groupId>
+      <artifactId>archive-api</artifactId>
     </dependency>
 <!--org.sakaiprojectsakai-content-api${sakai.version}-->
 <!--org.sakaiprojectsakai-authz-api${sakai.version}-->
@@ -70,7 +70,6 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
     </dependency>
 <!--org.sakaiprojectsakai-util${sakai.version}-->
 <!--org.sakaiprojectsakai-component${sakai.version}-->
