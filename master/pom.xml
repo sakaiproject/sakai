@@ -490,6 +490,11 @@ This is not needed now that pluto have been released
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>org.sakaiproject.common</groupId>
+        <artifactId>import-impl</artifactId>
+        <version>${sakai.common.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-comp-shared-help</artifactId>
         <version>${sakai.version}</version>
