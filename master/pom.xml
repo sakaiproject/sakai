@@ -484,9 +484,9 @@ This is not needed now that pluto have been released
       </dependency>
 <!-- Sakai apis -->
       <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-archive-api</artifactId>
-        <version>${sakai.version}</version>
+        <groupId>org.sakaiproject.common</groupId>
+        <artifactId>archive-api</artifactId>
+        <version>${sakai.common.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -516,12 +516,6 @@ This is not needed now that pluto have been released
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-help-content</artifactId>
-        <version>${sakai.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-import-api</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
