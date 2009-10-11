@@ -2,14 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>archive-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
-    <version>2.7.0-SNAPSHOT</version>
+    <artifactId>common</artifactId>
+    <groupId>org.sakaiproject.common</groupId>
+    <version>1.0-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
-  <name>sakai-archive-impl2</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-archive-impl2</artifactId>
+  <name>archive-impl2</name>
+  <groupId>org.sakaiproject.common</groupId>
+  <artifactId>archive-impl2</artifactId>
   <organization>
     <name>Sakai Project</name>
     <url>http://sakaiproject.org/</url>
@@ -33,9 +33,10 @@
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-archive-api</artifactId>
-    </dependency>    <dependency>
+      <groupId>org.sakaiproject.common</groupId>
+      <artifactId>archive-api</artifactId>
+    </dependency> 
+   <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
     </dependency>
