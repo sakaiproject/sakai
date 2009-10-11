@@ -2,18 +2,19 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>archive-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
-    <version>2.7.0-SNAPSHOT</version>
+    <artifactId>common</artifactId>
+    <groupId>org.sakaiproject.common</groupId>
+    <version>1.0-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
-  <name>sakai-archive-pack</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-archive-pack</artifactId>
+  <name>archive-pack</name>
+  <groupId>org.sakaiproject.common</groupId>
+  <artifactId>archive-pack</artifactId>
   <organization>
-    <name>University of Michigan</name>
+  	<name>Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
   </organization>
+  <description>									</description>
   <inceptionYear>2003</inceptionYear>
   <packaging>sakai-component</packaging>
   <properties>
@@ -21,12 +22,8 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-archive-impl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-archive-impl2</artifactId>
+      <groupId>org.sakaiproject.common</groupId>
+      <artifactId>archive-impl2</artifactId>
     </dependency>
   </dependencies>
   <build>
