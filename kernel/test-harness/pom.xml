@@ -8,8 +8,8 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Test Harness</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-test-harness</artifactId>
+  <groupId>org.sakaiproject.kernel</groupId>
+  <artifactId>test-harness</artifactId>
   <packaging>jar</packaging>
   <properties>
     <skipLongTests>true</skipLongTests>
