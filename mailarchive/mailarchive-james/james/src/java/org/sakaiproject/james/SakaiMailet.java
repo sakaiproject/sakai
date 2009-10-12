@@ -317,10 +317,12 @@ public class SakaiMailet extends GenericMailet
 					}
 					catch (MessagingException e)
 					{
+					    e.printStackTrace();
 						M_log.warn("service(): msg.getContent() threw: " + e);
 					}
 					catch (IOException e)
 					{
+					    e.printStackTrace();
 						M_log.warn("service(): msg.getContent() threw: " + e);
 					}
 					
@@ -536,7 +538,15 @@ public class SakaiMailet extends GenericMailet
 		// add plain text to bodyBuf[0]
 		else if (p.isMimeType("text/plain") && p.getFileName() == null)
 		{
-			Object o = p.getContent();
+		        Object o = null;
+			// let them convert to text if possible
+			// but if bad encaps get the stream and do it ourselves
+			try {
+			    o = p.getContent();
+			} catch (java.io.UnsupportedEncodingException ignore) {
+			    o = p.getInputStream();
+			}
+
 			String txt = null;
 			String innerContentType = p.getContentType();
 
@@ -555,7 +565,17 @@ public class SakaiMailet extends GenericMailet
 				for (int len = in.read(buf); len != -1; len = in.read(buf))
 					out.write(buf, 0, len);
 				String charset = (new ContentType(innerContentType)).getParameter("charset");
-				txt = out.toString(MimeUtility.javaCharset(charset));
+				// RFC 2045 says if no char set specified use US-ASCII.
+				// If specified but illegal that's less clear. The common case is X-UNKNOWN.
+				// my sense is that UTF-8 is most likely these days but the sample we got
+				// was actually ISO 8859-1. Could also justify using US-ASCII. Duh...
+				if (charset == null)
+				    charset = "us-ascii";
+				try {
+				    txt = out.toString(MimeUtility.javaCharset(charset));
+				} catch (java.io.UnsupportedEncodingException ignore) {
+				    txt = out.toString("UTF-8");
+				}
 				if (bodyContentType != null && bodyContentType.length() == 0) 
 					bodyContentType.append(innerContentType);
 			}
@@ -574,7 +594,14 @@ public class SakaiMailet extends GenericMailet
 		// add html text to bodyBuf[1]
 		else if (p.isMimeType("text/html") && p.getFileName() == null)
 		{
-			Object o = p.getContent();
+		        Object o = null;
+			// let them convert to text if possible
+			// but if bad encaps get the stream and do it ourselves
+			try {
+			    o = p.getContent();
+			} catch (java.io.UnsupportedEncodingException ignore) {
+			    o = p.getInputStream();
+			}
 			String txt = null;
 			String innerContentType = p.getContentType();
 
@@ -593,7 +620,13 @@ public class SakaiMailet extends GenericMailet
 				for (int len = in.read(buf); len != -1; len = in.read(buf))
 					out.write(buf, 0, len);
 				String charset = (new ContentType(innerContentType)).getParameter("charset");
-				txt = out.toString(MimeUtility.javaCharset(charset));
+				if (charset == null)
+				    charset = "us-ascii";
+				try {
+				    txt = out.toString(MimeUtility.javaCharset(charset));
+				} catch (java.io.UnsupportedEncodingException ignore) {
+				    txt = out.toString("UTF-8");
+				}
 				if (bodyContentType != null && bodyContentType.length() == 0) 
 					bodyContentType.append(innerContentType);
 			}
