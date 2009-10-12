@@ -4443,41 +4443,48 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				// buffered stream input
 				InputStream content = resource.streamContent();
 				byte data[] = new byte[1024 * 10];
-				BufferedInputStream bContent = new BufferedInputStream(content, data.length);
-				
-				ZipEntry attachmentEntry = new ZipEntry(sSubAttachmentFolder + displayName);
-				out.putNextEntry(attachmentEntry);
-				int bCount = -1;
-				while ((bCount = bContent.read(data, 0, data.length)) != -1) 
-				{
-					out.write(data, 0, bCount);
-				}
-				
 				try
 				{
-					out.closeEntry(); // The zip entry need to be closed
+					BufferedInputStream bContent = new BufferedInputStream(content, data.length);
+					
+					ZipEntry attachmentEntry = new ZipEntry(sSubAttachmentFolder + displayName);
+					out.putNextEntry(attachmentEntry);
+					int bCount = -1;
+					while ((bCount = bContent.read(data, 0, data.length)) != -1) 
+					{
+						out.write(data, 0, bCount);
+					}
+					
+					try
+					{
+						out.closeEntry(); // The zip entry need to be closed
+					}
+					catch (IOException ioException)
+					{
+						M_log.warn(this + ":zipAttachments: problem closing zip entry " + ioException.getMessage());
+					}
+					
+					try
+					{
+						bContent.close(); // The BufferedInputStream needs to be closed
+					}
+					catch (IOException ioException)
+					{
+						M_log.warn(this + ":zipAttachments: problem closing FileChannel " + ioException.getMessage());
+					}
+					
+					try
+					{
+						content.close(); // The input stream needs to be closed
+					}
+					catch (IOException ioException)
+					{
+						M_log.warn(this + ":zipAttachments: problem closing Inputstream content " + ioException.getMessage());
+					}
 				}
-				catch (IOException ioException)
+				catch (IllegalArgumentException iException)
 				{
-					M_log.warn(this + ":zipAttachments: problem closing zip entry " + ioException.getMessage());
-				}
-				
-				try
-				{
-					bContent.close(); // The BufferedInputStream needs to be closed
-				}
-				catch (IOException ioException)
-				{
-					M_log.warn(this + ":zipAttachments: problem closing FileChannel " + ioException.getMessage());
-				}
-				
-				try
-				{
-					content.close(); // The input stream needs to be closed
-				}
-				catch (IOException ioException)
-				{
-					M_log.warn(this + ":zipAttachments: problem closing Inputstream content " + ioException.getMessage());
+					M_log.warn(this + ":zipAttachments: problem creating BufferedInputStream with content and length " + data.length + iException.getMessage());
 				}
 			}
 			catch (PermissionException e)
