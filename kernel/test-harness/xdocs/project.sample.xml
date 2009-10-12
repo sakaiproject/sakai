@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+    <pomVersion>3</pomVersion>
+    <extend>../../master/project.xml</extend>
+    <name>My Integration Tests</name>
+    <groupId>sakaiproject</groupId>
+    <id>sakai-my-integration-test</id>
+    <currentVersion>${sakai.version}</currentVersion>
+
+    <dependencies>
+        <!--  Sakai plugin -->
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai</artifactId>
+            <version>${sakai.plugin.version}</version>
+            <type>plugin</type>
+        </dependency>
+
+        <!-- Test harness -->
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-test-harness</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+
+		<!-- Add any APIs your tests need -->
+		<!-- ... -->
+
+    </dependencies>
+
+    <build>
+        <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+        <unitTest>
+            <includes>
+                <include>**/*Test.java</include>
+            </includes>
+        </unitTest>
+    </build>
+</project>

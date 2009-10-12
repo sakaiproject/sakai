@@ -6,6 +6,8 @@
 	<packaging>pom</packaging>
 	<name>Sakai Kernel</name>
 	<version>1.1.0-beta02-SNAPSHOT</version>
+	<url>http://source.sakaiproject.org/release/kernel/${project.version}</url>
+	<description>The Sakai kernel provides core functionality for the Sakai framework</description>
 	<organization>
 		<name>Sakai Project</name>
 		<url>http://sakaiproject.org/</url>
@@ -759,7 +761,7 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-	<reporting>
+<reporting>
 	<plugins>
 		<plugin>
 			<groupId>com.xebia.mojo</groupId>
@@ -1090,6 +1092,7 @@
 		<module>loader</module>
 		<module>deploy</module>
 		<module>kernel-site</module>
+		<module>test-harness</module>
 	</modules>
 	<profiles>
 		<profile>
