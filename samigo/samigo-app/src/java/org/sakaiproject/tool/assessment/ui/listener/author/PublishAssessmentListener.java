@@ -153,10 +153,10 @@ public class PublishAssessmentListener
 
        if (sendNotification) {
     	   sendNotification(pub, publishedAssessmentService, publishRepublishNotification,
-    			   assessmentSettings.getReleaseTo(), assessmentSettings.getTitle(), 
+    			   assessmentSettings.getReleaseTo(), assessmentSettings.getReleaseToGroupsAsString(), assessmentSettings.getTitle(), assessmentSettings.getPublishedUrl(),
     			   assessmentSettings.getStartDateString(), assessmentSettings.getDueDateString(), assessmentSettings.getRetractDateString(),
     			   assessmentSettings.getTimedHours(), assessmentSettings.getTimedMinutes(), assessmentSettings.getUnlimitedSubmissions(),
-    			   assessmentSettings.getSubmissionsAllowed(), assessmentSettings.getFeedbackDelivery(), assessmentSettings.getFeedbackDateString());
+    			   assessmentSettings.getSubmissionsAllowed(), assessmentSettings.getScoringType(), assessmentSettings.getFeedbackDelivery(), assessmentSettings.getFeedbackDateString());
        }
        EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.publish", "assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + pub.getPublishedAssessmentId(), true));
     } catch (AssignmentHasIllegalPointsException gbe) {
@@ -229,8 +229,8 @@ public class PublishAssessmentListener
   }
   
   public void sendNotification(PublishedAssessmentFacade pub, PublishedAssessmentService service, PublishRepublishNotificationBean publishRepublishNotification,
-		  String releaseTo, String title, String startDateString, String dueDateString, String retractDateString, 
-		  Integer timedHours, Integer timedMinutes, String unlimitedSubmissions, String submissionsAllowed,
+		  String releaseTo, String releaseToGroupsAsString, String title, String publishedURL, String startDateString, String dueDateString, String retractDateString, 
+		  Integer timedHours, Integer timedMinutes, String unlimitedSubmissions, String submissionsAllowed, String scoringType,
 		  String feedbackDelivery, String feedbackDateString) {
 	  TotalScoresBean totalScoresBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
 	  ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
@@ -261,18 +261,7 @@ public class PublishAssessmentListener
 	  String subject = publishRepublishNotification.getNotificationSubject();
 	  String siteTitle = publishRepublishNotification.getSiteTitle();
 	  String newline = "<br />\n";
-	  StringBuilder message = new StringBuilder(rl.getString("notification_content_1"));
-	  message.append(" \"");
-	  message.append(siteTitle);
-	  message.append("\" ");
-	  message.append(rl.getString("notification_content_2"));
-	  message.append(" (<a href=\"");
-	  message.append(ServerConfigurationService.getPortalUrl());
-	  message.append("\">");
-	  message.append(ServerConfigurationService.getPortalUrl());
-	  message.append("</a>)");
-	  message.append(newline);
-	  message.append(newline);
+	  StringBuilder message = new StringBuilder();
 
 	  String prePopulateText = publishRepublishNotification.getPrePopulateText();
 	  if (prePopulateText != null && !prePopulateText.trim().equals("") && 
@@ -285,39 +274,50 @@ public class PublishAssessmentListener
 	  }
 
 	  message.append(title);
-	  message.append(newline);
-	  message.append(newline);
-
+	  message.append(" ");
+	  
 	  if (startDateString != null && !startDateString.trim().equals("")) {
-		  message.append(rl.getString("available"));
+		  message.append(rl.getString("will_be_available_on"));
 		  message.append(" ");
 		  message.append(startDateString);
 	  }
 	  else {
-		  message.append(rl.getString("available_immediately"));
+		  message.append(rl.getString("is_available_immediately"));
 	  }
 	  message.append(newline);
-	  message.append(newline);
+	  
+	  if ("Anonymous Users".equals(releaseTo)) {
+		  message.append(rl.getString("to_take_anonymously"));
+	  }
+	  if (AssessmentAccessControlIfc.RELEASE_TO_SELECTED_GROUPS.equals(releaseTo)) {
+		  message.append(rl.getString("to"));
+		  message.append(" ");
+		  message.append(releaseToGroupsAsString);
+		  message.append(startDateString);
+	  }
+	  else {
+		  message.append(rl.getString("to_the_entire_class"));
+	  }
+	  
+	  message.append(" ");
+	  message.append(rl.getString("at"));
+	  message.append(" ");
+	  message.append(publishedURL);
 
 	  if (dueDateString != null && !dueDateString.trim().equals("")) {
-		  message.append(rl.getString("due"));
+		  message.append(newline);
+		  message.append(rl.getString("it_is_due"));
 		  message.append(" ");
 		  message.append(dueDateString);
-		  message.append(newline);
-		  message.append(newline);
+		  message.append(". ");
 	  }
+	  
+	  message.append(newline);
+	  message.append(newline);
 
-	  if (retractDateString != null && !retractDateString.trim().equals("")) {
-		  message.append(rl.getString("retract"));
-		  message.append(" ");
-		  message.append(retractDateString);
-
-		  message.append(newline);
-		  message.append(newline);
-	  }
-
+	  // Time limited
 	  if (timedHours > 0 || timedMinutes > 0) {
-		  message.append(rl.getString("time_assessment_1"));
+		  message.append(rl.getString("the_time_limit_is"));
 		  message.append(" ");
 		  message.append(timedHours);
 		  message.append(" ");
@@ -329,34 +329,46 @@ public class PublishAssessmentListener
 			  message.append(rl.getString("minutes"));
 		  }
 		  message.append(". ");
-		  message.append(rl.getString("time_assessment_2"));
-
-		  message.append(newline);
-		  message.append(newline);
+		  message.append(rl.getString("submit_when_time_is_up"));
 	  }
 	  else {
-		  message.append(rl.getString("no_time_limit"));
-
-		  message.append(newline);
-		  message.append(newline);
+		  message.append(rl.getString("there_is_no_time_limit"));
 	  }
 
+	  message.append(" ");
+	  
+	  // Number of submissions
 	  if ("1".equals(unlimitedSubmissions)) {
-		  message.append(rl.getString("unlimited_submission_allowed"));
+		  message.append(rl.getString("student_submit_unlimited_times"));
 	  }
 	  else {
+		  message.append(rl.getString("student_submit"));
+		  message.append(" ");
 		  message.append(submissionsAllowed);
 		  message.append(" ");
-		  message.append(rl.getString("submission_allowed"));
+		  message.append(rl.getString("times"));
 	  }
+
+	  // Scoring type
+	  message.append(" ");
+	  if ("1".equals(scoringType)) {
+		  message.append(rl.getString("record_highest"));
+	  }
+	  else {
+		  message.append(rl.getString("record_last"));
+	  }
+	  
 	  message.append(newline);
 	  message.append(newline);
 
+	  // Feedback
+	  message.append(rl.getString("students_will_receive"));
+	  message.append(" ");
 	  if ("1".equals(feedbackDelivery)) {
 		  message.append(rl.getString("immediate_feedback"));
 	  }
 	  else if ("4".equals(feedbackDelivery)) {
-		  message.append(rl.getString("feedback_on_submission"));
+		  message.append(rl.getString("feedback_on_submission_1"));
 	  }
 	  else if ("3".equals(feedbackDelivery)) {
 		  message.append(rl.getString("no_feedback_short"));
@@ -366,6 +378,22 @@ public class PublishAssessmentListener
 		  message.append(" ");
 		  message.append(feedbackDateString);
 	  }
+	  message.append(". ");
+	  message.append(newline);
+	  message.append(newline);
+	  
+	  
+	  message.append(rl.getString("notification_content_1"));
+	  message.append(" \"");
+	  message.append(siteTitle);
+	  message.append("\" ");
+	  message.append(rl.getString("notification_content_2"));
+	  message.append(" <a href=\"");
+	  message.append(ServerConfigurationService.getPortalUrl());
+	  message.append("\">");
+	  message.append(ServerConfigurationService.getPortalUrl());
+	  message.append("</a>");
+	  message.append(newline);
 	  message.append(newline);
 
 	  SamigoEmailService emailService = new SamigoEmailService(instructor.getEmail(), toEmailAddressList, "no", subject.toString(), message.toString());

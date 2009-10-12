@@ -74,10 +74,10 @@ public class RepublishAssessmentListener implements ActionListener {
 			PublishedAssessmentSettingsBean publishedAssessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean("publishedSettings");
 			PublishAssessmentListener publishAssessmentListener = new PublishAssessmentListener();
 			publishAssessmentListener.sendNotification(assessment, publishedAssessmentService, publishRepublishNotification,
-					publishedAssessmentSettings.getReleaseTo(), publishedAssessmentSettings.getTitle(),
+					publishedAssessmentSettings.getReleaseTo(), publishedAssessmentSettings.getReleaseToGroupsAsString(), publishedAssessmentSettings.getTitle(), publishedAssessmentSettings.getPublishedUrl(),
 					publishedAssessmentSettings.getStartDateString(), publishedAssessmentSettings.getDueDateString(), publishedAssessmentSettings.getRetractDateString(),
 					publishedAssessmentSettings.getTimedHours(), publishedAssessmentSettings.getTimedMinutes(), publishedAssessmentSettings.getUnlimitedSubmissions(),
-					publishedAssessmentSettings.getSubmissionsAllowed(), publishedAssessmentSettings.getFeedbackDelivery(), publishedAssessmentSettings.getFeedbackDateString());
+					publishedAssessmentSettings.getSubmissionsAllowed(), publishedAssessmentSettings.getScoringType(), publishedAssessmentSettings.getFeedbackDelivery(), publishedAssessmentSettings.getFeedbackDateString());
 		}
 		
 		GradingService gradingService = new GradingService();

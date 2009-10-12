@@ -98,10 +98,10 @@ public class PublishRepublishNotificationListener implements ValueChangeListener
 			subject.append(" ");
 			if (isEditPendingAssessmentFlow) {
 				if (startDateString == null || startDateString.trim().equals("")) {
-					subject.append(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "available_immediately"));
+					subject.append(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "is_available_immediately"));
 				}
 				else {
-					subject.append(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "available"));
+					subject.append(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "will_be_available_on"));
 					subject.append(" ");
 					subject.append(startDateString);
 				}

@@ -104,7 +104,7 @@
 
   <f:verbatim></p></f:verbatim>
 
-<h:panelGrid columns="1" border="0" width="38%" styleClass="settings">
+<h:panelGrid columns="1" border="0" width="78%" styleClass="settings">
 <h:panelGrid columns="1" border="0">
 <h:panelGrid columns="1" border="0">
 <h:outputText value="#{assessmentSettingsMessages.notification}" styleClass="notification" rendered="#{publishRepublishNotification.sendNotification}" escape="false"/>
@@ -115,63 +115,87 @@
 </h:panelGrid>
 
 <h:panelGrid columns="1" rowClasses="shorttextPadding" rendered="#{author.isEditPendingAssessmentFlow}" border="0">
-     <h:outputText value="#{assessmentSettings.title}" rendered="#{assessmentSettings.title ne null}"/>
+	<h:panelGroup>
+		<h:outputText value=" #{assessmentSettings.title}" rendered="#{assessmentSettings.title ne null}"/>
+		<h:outputText value=" #{assessmentSettingsMessages.will_be_available_on} #{assessmentSettings.startDateString}" rendered="#{assessmentSettings.startDate ne null}" />
+		<h:outputText rendered="#{assessmentSettings.startDate eq null}" value=" #{assessmentSettingsMessages.is_available_immediately}" />
+	</h:panelGroup>
+    
+	<h:panelGroup> 
+		<h:outputLabel value="#{assessmentSettingsMessages.to_take_anonymously}" rendered="#{assessmentSettings.releaseTo eq 'Anonymous Users'}"/>
+		<h:outputLabel value="#{assessmentSettingsMessages.to_the_entire_class}" rendered="#{assessmentSettings.releaseTo ne 'Anonymous Users' && assessmentSettings.releaseTo ne 'Selected Groups'}"/>
+		<h:outputLabel value="#{assessmentSettingsMessages.to} #{assessmentSettings.releaseToGroupsAsString}" rendered="#{assessmentSettings.releaseTo eq 'Selected Groups'}"/>
+		<h:outputText value=" #{assessmentSettingsMessages.at} #{assessmentSettings.publishedUrl}" />
+	</h:panelGroup>
+	
+	<h:outputText value="#{assessmentSettingsMessages.it_is_due} #{assessmentSettings.dueDateString}." rendered="#{assessmentSettings.dueDate ne null}" />
 
-     <h:outputText value="#{assessmentSettingsMessages.available} #{assessmentSettings.startDateString}" rendered="#{assessmentSettings.startDate ne null}" />
-     <h:outputText rendered="#{assessmentSettings.startDate eq null}" value="#{assessmentSettingsMessages.available_immediately}" />
-     <h:outputText value="#{assessmentSettingsMessages.due} #{assessmentSettings.dueDateString}" rendered="#{assessmentSettings.dueDate ne null}" />
-     <h:outputText value="#{assessmentSettingsMessages.retract} #{assessmentSettings.retractDateString}" rendered="#{assessmentSettings.retractDate ne null}" />
+	<f:verbatim><br/></f:verbatim>    
 
-     <h:outputText value="#{assessmentSettingsMessages.time_assessment_1} #{assessmentSettings.timedHours} #{assessmentSettingsMessages.hours}, #{assessmentSettings.timedMinutes} #{assessmentSettingsMessages.minutes}. #{assessmentSettingsMessages.time_assessment_2}" rendered="#{assessmentSettings.valueMap.hasTimeAssessment eq 'true' && assessmentSettings.timedMinutes != 0}"/>
-     <h:outputText value="#{assessmentSettingsMessages.time_assessment_1} #{assessmentSettings.timedHours} #{assessmentSettingsMessages.hours}. #{assessmentSettingsMessages.time_assessment_2}" rendered="#{assessmentSettings.valueMap.hasTimeAssessment eq 'true' && assessmentSettings.timedMinutes == 0}"/>
-	 <h:outputText rendered="#{assessmentSettings.valueMap.hasTimeAssessment ne 'true'}" value="#{assessmentSettingsMessages.no_time_limit}" />
+	<h:panelGroup>
+	<h:outputText value="#{assessmentSettingsMessages.the_time_limit_is} #{assessmentSettings.timedHours} #{assessmentSettingsMessages.hours}, #{assessmentSettings.timedMinutes} #{assessmentSettingsMessages.minutes}. #{assessmentSettingsMessages.submit_when_time_is_up}" rendered="#{assessmentSettings.valueMap.hasTimeAssessment eq 'true' && assessmentSettings.timedMinutes != 0}"/>
+	<h:outputText value="#{assessmentSettingsMessages.the_time_limit_is} #{assessmentSettings.timedHours} #{assessmentSettingsMessages.hours}. #{assessmentSettingsMessages.submit_when_time_is_up}" rendered="#{assessmentSettings.valueMap.hasTimeAssessment eq 'true' && assessmentSettings.timedMinutes == 0}"/>
+	<h:outputText rendered="#{assessmentSettings.valueMap.hasTimeAssessment ne 'true'}" value="#{assessmentSettingsMessages.there_is_no_time_limit}" />
+		
+		<h:outputText value=" #{assessmentSettingsMessages.student_submit_unlimited_times}" rendered="#{assessmentSettings.unlimitedSubmissions eq '1'}" />
+		<h:outputText value=" #{assessmentSettingsMessages.student_submit} #{assessmentSettings.submissionsAllowed} #{assessmentSettingsMessages.times}" rendered="#{assessmentSettings.unlimitedSubmissions eq '0'}" />	
+		<h:outputText value=" #{assessmentSettingsMessages.record_highest}" rendered="#{assessmentSettings.scoringType eq '1'}" />	
+		<h:outputText value=" #{assessmentSettingsMessages.record_last}" rendered="#{assessmentSettings.scoringType eq '2'}" />	
+	</h:panelGroup>
+		
+	<f:verbatim><br/></f:verbatim>   
+		
+	<h:panelGroup>
+		<h:outputText value=" #{assessmentSettingsMessages.students_will_receive}"/>
+		<h:outputText value=" #{assessmentSettingsMessages.immediate_feedback}" rendered="#{assessmentSettings.feedbackDelivery eq '1'}" />
+		<h:outputText value=" #{assessmentSettingsMessages.feedback_on_submission_1}" rendered="#{assessmentSettings.feedbackDelivery eq '4'}" />
+		<h:outputText value=" #{assessmentSettingsMessages.no_feedback_short}" rendered="#{assessmentSettings.feedbackDelivery eq '3'}" />
+		<h:outputText value=" #{assessmentSettingsMessages.feedback_available_on} #{assessmentSettings.feedbackDateString}"
+          rendered="#{assessmentSettings.feedbackDelivery eq '2'}" />
+		<h:outputText value="." />
+	</h:panelGroup>
 
-     <h:outputText value="#{assessmentSettingsMessages.unlimited_submission_allowed}" rendered="#{assessmentSettings.unlimitedSubmissions eq '1'}" />
-     <h:outputText value="#{assessmentSettings.submissionsAllowed} #{assessmentSettingsMessages.submission_allowed}" rendered="#{assessmentSettings.unlimitedSubmissions eq '0'}" />
-
-     <h:panelGroup>
-       <h:outputText value=" #{assessmentSettingsMessages.immediate_feedback}" rendered="#{assessmentSettings.feedbackDelivery eq '1'}" />
-       <h:outputText value=" #{assessmentSettingsMessages.feedback_on_submission}" rendered="#{assessmentSettings.feedbackDelivery eq '4'}" />
-       <h:outputText value=" #{assessmentSettingsMessages.no_feedback_short}" rendered="#{assessmentSettings.feedbackDelivery eq '3'}" />
-       <h:outputText value=" #{assessmentSettingsMessages.feedback_available_on} #{assessmentSettings.feedbackDateString}"
-          rendered="#{assessmentSettings.feedbackDelivery eq '2'}" >
-       </h:outputText>
-     </h:panelGroup>
-
-     <h:outputLabel value="#{assessmentSettingsMessages.released_to_3} #{authorFrontDoorMessages.entire_site}" rendered="#{assessmentSettings.releaseTo ne 'Anonymous Users' && assessmentSettings.releaseTo ne 'Selected Groups'}"/>
-	 <h:outputLabel value="#{assessmentSettingsMessages.released_to_3} #{assessmentSettings.releaseToGroupsAsString}" rendered="#{assessmentSettings.releaseTo eq 'Selected Groups'}"/>
 	</h:panelGrid>
 
 	<h:panelGrid columns="1" rowClasses="shorttextPadding" rendered="#{!author.isEditPendingAssessmentFlow}" border="0">
-	 <h:outputText value="#{publishedSettings.title}" rendered="#{publishedSettings.title ne null}"/>
+		<h:panelGroup>
+			<h:outputText value=" #{publishedSettings.title}" rendered="#{publishedSettings.title ne null}"/>
+			<h:outputText value=" #{assessmentSettingsMessages.will_be_available_on} #{publishedSettings.startDateString}" rendered="#{publishedSettings.startDate ne null}" />
+			<h:outputText rendered="#{publishedSettings.startDate eq null}" value=" #{assessmentSettingsMessages.is_available_immediately}" />
+		</h:panelGroup>
 
-	 <h:outputText value="#{assessmentSettingsMessages.available} #{publishedSettings.startDateString}" rendered="#{publishedSettings.startDate ne null}" />
-     <h:outputText rendered="#{publishedSettings.startDate eq null}" value="#{assessmentSettingsMessages.available_immediately}" />
+		<h:panelGroup> 
+			<h:outputLabel value="#{assessmentSettingsMessages.to_take_anonymously}" rendered="#{publishedSettings.releaseTo eq 'Anonymous Users'}"/>
+			<h:outputLabel value="#{assessmentSettingsMessages.to_the_entire_class}" rendered="#{publishedSettings.releaseTo ne 'Anonymous Users' && publishedSettings.releaseTo ne 'Selected Groups'}"/>
+			<h:outputLabel value="#{assessmentSettingsMessages.to} #{publishedSettings.releaseToGroupsAsString}" rendered="#{publishedSettings.releaseTo eq 'Selected Groups'}"/>
+			<h:outputText value=" #{assessmentSettingsMessages.at} #{publishedSettings.publishedUrl}" />
+		</h:panelGroup>
 
+		<h:outputText value="#{assessmentSettingsMessages.it_is_due} #{publishedSettings.dueDateString}." rendered="#{publishedSettings.dueDate ne null}" />
 
-     <h:outputText value="#{assessmentSettingsMessages.due} #{publishedSettings.dueDateString}" rendered="#{publishedSettings.dueDate ne null}" />
+		<f:verbatim><br/></f:verbatim>
+		
+		<h:panelGroup>
+		<h:outputText value="#{assessmentSettingsMessages.the_time_limit_is} #{publishedSettings.timedHours} #{assessmentSettingsMessages.hours}, #{publishedSettings.timedMinutes} #{assessmentSettingsMessages.minutes}. #{assessmentSettingsMessages.submit_when_time_is_up}" rendered="#{publishedSettings.valueMap.hasTimeAssessment eq 'true' && publishedSettings.timedMinutes != 0}"/>
+		<h:outputText value="#{assessmentSettingsMessages.the_time_limit_is} #{publishedSettings.timedHours} #{assessmentSettingsMessages.hours}. #{assessmentSettingsMessages.submit_when_time_is_up}" rendered="#{publishedSettings.valueMap.hasTimeAssessment eq 'true' && publishedSettings.timedMinutes == 0}"/>
+		<h:outputText rendered="#{publishedSettings.valueMap.hasTimeAssessment ne 'true'}" value="#{assessmentSettingsMessages.there_is_no_time_limit}" />
 
-     <h:outputText value="#{assessmentSettingsMessages.retract} #{publishedSettings.retractDateString}" rendered="#{publishedSettings.retractDate ne null}" />
-
-     <h:outputText value="#{assessmentSettingsMessages.time_assessment_1} #{publishedSettings.timedHours} #{assessmentSettingsMessages.hours}, #{publishedSettings.timedMinutes} #{assessmentSettingsMessages.minutes}. #{assessmentSettingsMessages.time_assessment_2}" rendered="#{publishedSettings.valueMap.hasTimeAssessment eq 'true' && publishedSettings.timedMinutes != 0}"/>
-	   <h:outputText value="#{assessmentSettingsMessages.time_assessment_1} #{publishedSettings.timedHours} #{assessmentSettingsMessages.hours}. #{assessmentSettingsMessages.time_assessment_2}" rendered="#{publishedSettings.valueMap.hasTimeAssessment eq 'true' && publishedSettings.timedMinutes == 0}"/>
-	 <h:outputText rendered="#{publishedSettings.valueMap.hasTimeAssessment ne 'true'}" value="#{assessmentSettingsMessages.no_time_limit}" />
-
-     <h:outputText value="#{assessmentSettingsMessages.unlimited_submission_allowed}" rendered="#{publishedSettings.unlimitedSubmissions eq '1'}" />
-     <h:outputText value="#{publishedSettings.submissionsAllowed} #{assessmentSettingsMessages.submission_allowed}" rendered="#{publishedSettings.unlimitedSubmissions eq '0'}" />
-
-     <h:panelGroup>
-       <h:outputText value=" #{assessmentSettingsMessages.immediate_feedback}" rendered="#{publishedSettings.feedbackDelivery eq '1'}" />
-       <h:outputText value=" #{assessmentSettingsMessages.feedback_on_submission}" rendered="#{publishedSettings.feedbackDelivery eq '4'}" />
-       <h:outputText value=" #{assessmentSettingsMessages.no_feedback_short}" rendered="#{publishedSettings.feedbackDelivery eq '3'}" />
-       <h:outputText value=" #{assessmentSettingsMessages.feedback_available_on} #{publishedSettings.feedbackDateString}"
-          rendered="#{publishedSettings.feedbackDelivery eq '2'}" >
-       </h:outputText>
-     </h:panelGroup>
-
-     <h:outputText value="#{assessmentSettingsMessages.released_to_3} #{authorFrontDoorMessages.entire_site}" rendered="#{publishedSettings.releaseTo ne 'Anonymous Users' && publishedSettings.releaseTo ne 'Selected Groups'}"/>
- 	 <h:outputText value="#{assessmentSettingsMessages.released_to_3} #{publishedSettings.releaseToGroupsAsString}" rendered="#{publishedSettings.releaseTo eq 'Selected Groups'}"/>
-
+			<h:outputText value=" #{assessmentSettingsMessages.student_submit_unlimited_times}" rendered="#{publishedSettings.unlimitedSubmissions eq '1'}" />
+			<h:outputText value=" #{assessmentSettingsMessages.student_submit} #{publishedSettings.submissionsAllowed} #{assessmentSettingsMessages.times}" rendered="#{publishedSettings.unlimitedSubmissions eq '0'}" />	
+			<h:outputText value=" #{assessmentSettingsMessages.record_highest}" rendered="#{publishedSettings.scoringType eq '1'}" />	
+			<h:outputText value=" #{assessmentSettingsMessages.record_last}" rendered="#{publishedSettings.scoringType eq '2'}" />	
+		</h:panelGroup>
+		
+		<h:panelGroup>
+			<h:outputText value=" #{assessmentSettingsMessages.students_will_receive}"/>
+			<h:outputText value=" #{assessmentSettingsMessages.immediate_feedback}" rendered="#{publishedSettings.feedbackDelivery eq '1'}" />
+			<h:outputText value=" #{assessmentSettingsMessages.feedback_on_submission_1}" rendered="#{publishedSettings.feedbackDelivery eq '4'}" />
+			<h:outputText value=" #{assessmentSettingsMessages.no_feedback_short}" rendered="#{publishedSettings.feedbackDelivery eq '3'}" />
+			<h:outputText value=" #{assessmentSettingsMessages.feedback_available_on} #{publishedSettings.feedbackDateString}"
+	          rendered="#{publishedSettings.feedbackDelivery eq '2'}" />
+			<h:outputText value="." />
+		</h:panelGroup>
+		
 </h:panelGrid>
 </h:panelGrid>
 <h:panelGrid />
