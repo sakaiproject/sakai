@@ -109,10 +109,10 @@ public class HideDivisionRenderer extends Renderer
     String foldImage = foldDiv ? FOLD_IMG_HIDE : FOLD_IMG_SHOW;
     writer.write("<" + BARTAG + " class=\"" + BARSTYLE + "\">");
     writer.write("<table style=\"width: 100%;\" class=\"discTria\" cellpadding=\"0\" cellspacing=\"0\" summary=\"layout\">");
-    writer.write("<tr><td  class=\"discTria\">");
+    writer.write("<tr><td  class=\"discTria\" onclick=\"javascript:showHideDivBlock('" + id +
+        "', '" +  RESOURCE_PATH + "');\">" );
     writer.write("  <img id=\"" + id + "__img_hide_division_" + "\" alt=\"" +
-        title + "\"" + " onclick=\"javascript:showHideDivBlock('" + id +
-        "', '" +  RESOURCE_PATH + "');\"");
+        title + "\"");
     writer.write("    src=\""   + foldImage + "\" style=\"" + CURSOR + "\" />");
     writer.write("<h4>"  + title + "</h4>");
     writer.write("</td><td class=\"discTria\">&nbsp;</td>");

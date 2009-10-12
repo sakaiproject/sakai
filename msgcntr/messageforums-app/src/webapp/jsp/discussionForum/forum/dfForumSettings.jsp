@@ -9,46 +9,66 @@
 </jsp:useBean>
 
 <f:view>
-   <sakai:view>
-
+	<sakai:view toolCssHref="/sakai-messageforums-tool/css/msgcntr.css">
       <h:form id="revise">
-             		<script type="text/javascript" src="/library/js/jquery.js"></script>
+            <script type="text/javascript" src="/library/js/jquery.js"></script>
+
+       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
+			<%--			--%>
        		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
+
+		<script type="text/javascript">
+			$(document).ready(function(){
+				//fade permission block 
+				// $('#permissionReadOnly').fadeTo("fast", 0.50);
+				// and then disable all the inputs/selects in the permission include so as not to confuse people
+				// cannot seem to be able to submit this if these inputs are disabled :-(
+				// $('#permissionReadOnly input, #permissionReadOnly select').attr('disabled', 'disabled');
+				//toggle the long description, hiding the hide link, then toggling the hide, show links and description
+				$('a#hide').hide();
+				$('#toggle').hide();
+				$('a#show,a#hide').click(function(){
+					$('#toggle,a#hide,a#show').toggle();
+					resizeFrame('grow');
+					return false;
+				});
+			});
+		</script>
 <!--jsp/discussionForum/forum/dfForumSettings.jsp-->
-        <sakai:tool_bar_message value="#{msgs.cdfm_discussion_forum_settings}" />
-         <h:outputText styleClass="alertMessage" value="#{msgs.cdfm_delete_forum}" rendered="#{ForumTool.selectedForum.markForDeletion}"/>	
-
-			<table summary="" class="itemSummary">
+		<sakai:tool_bar_message value="#{msgs.cdfm_delete_forum_title}" />
+		<%--//designNote: this just feels weird - presenting somehting that sort of looks like the form used to create the forum (with an editable permissions block!) to comfirm deletion --%>
+		<h:outputText styleClass="messageAlert" value="#{msgs.cdfm_delete_forum}" rendered="#{ForumTool.selectedForum.markForDeletion}" style="display:block" />	
+		<table class="forumHeader">
 			  <tr>
-			    <th>
-			      <h:outputText value="#{msgs.cdfm_forum_title}"/>	
-				  </th>
 					<td>
+				<h:graphicImage url="/images/silk/lock.png" alt="#{msgs.cdfm_forum_locked}" rendered="#{ForumTool.selectedForum.locked=='true'}"  style="margin-right:.3em"/>
+				<h:graphicImage url="/images/silk/lock_open.png" alt="#{msgs.cdfm_forum_locked}" rendered="#{ForumTool.selectedForum.locked=='false'}"  style="margin-right:.3em"/>
+				<span class="title">
 				    <h:outputText id="forum_title"  value="#{ForumTool.selectedForum.forum.title}"/>
-				  </td>
-				</tr>
-         <tr>
-				  <th>
-				    <h:outputText value="#{msgs.cdfm_shortDescription}"/>	
-				  </th>
-				  <td>
+				</span>
+				<h:outputText   value="#{msgs.cdfm_openb}"/>
+					<h:outputText   value="#{msgs.cdfm_moderated}"  rendered="#{ForumTool.selectedForum.moderated=='true'}" />
+					<h:outputText   value="#{msgs.cdfm_notmoderated}"  rendered="#{ForumTool.selectedForum.moderated=='false'}" />
+				<h:outputText   value="#{msgs.cdfm_closeb}"/>
+			<p class="textPanel">
 				    <h:outputText id="forum_shortDescription"  value="#{ForumTool.selectedForum.forum.shortDescription}"/>
-				  </td>
-				</tr>
-				<tr>
-				  <th><h:outputText value="#{msgs.cdfm_fullDescription}" />
-				  </th>
-				  <td><mf:htmlShowArea  id="forum_fullDescription" hideBorder="true" value="#{ForumTool.selectedForum.forum.extendedDescription}"/>
-				  </td>
-				</tr>
-   		</table>
-
-			  <h:dataTable value="#{ForumTool.selectedForum.attachList}" var="eachAttach" rendered="#{!empty ForumTool.selectedForum.attachList}" styleClass="listHier" columnClasses="attach,bogus">
+			</p>
+			<p>
+				<a id="show" class="show"  href="#">
+					<h:graphicImage url="/images/collapse.gif" /><h:outputText   value="#{msgs.cdfm_full_description}"/>
+				</a>
+			</p>
+			<p>
+				<a id="hide" class="hide"  href="#">
+					<h:graphicImage url="/images/expand.gif" /><h:outputText   value="#{msgs.cdfm_full_description}"/>
+				</a>
+			</p>
+			<div class="textPanel toggle" id="toggle">
+				<mf:htmlShowArea  id="forum_fullDescription" hideBorder="true" value="#{ForumTool.selectedForum.forum.extendedDescription}"/>
+				<h:dataTable value="#{ForumTool.selectedForum.attachList}" var="eachAttach" rendered="#{!empty ForumTool.selectedForum.attachList}" styleClass="listHier" columnClasses="bogus">
 			    <h:column>
 			    	<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
 					<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />						
-					</h:column>
-				  <h:column>	
 <%--  				  <h:outputLink value="#{eachAttach.attachmentUrl}" target="_new_window">
 	  				  <h:outputText value="#{eachAttach.attachmentName}"  style="text-decoration:underline;"/>
 		  		  </h:outputLink>--%>
@@ -57,9 +77,12 @@
 		  		  </h:outputLink>
 			    </h:column>
 			  </h:dataTable>
-	
-    <h4><h:outputText  value="#{msgs.cdfm_forum_posting}"/></h4>
-
+			</div>
+		</div>	
+		</td>
+		</tr>
+		</table>
+		<%--
 			<h:panelGrid columns="2">
 				<h:panelGroup><h:outputLabel for="lock_forum"  value="#{msgs.cdfm_lock_forum}" styleClass="shorttext"/>	</h:panelGroup>
 				<h:panelGroup>
@@ -76,8 +99,7 @@
   					</h:selectOneRadio>
 				</h:panelGroup>
 			</h:panelGrid>
-
-		
+		--%>
      <%--
 	 <mf:forumHideDivision title="#{msgs.cdfm_access}" id="access_perm" hideByDefault="true">
       <p class="shorttext">
@@ -164,9 +186,13 @@
 			</h:column>			 		
 		</h:dataTable>		 	
       </mf:forumHideDivision>
-      --%>
+
+		<div id="permissionReadOnlyW">
+		<div id="permissionReadOnly">	
       <%@include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
-      
+		</div>	
+		</div>
+      --%>      
        <div class="act">
           <h:commandButton id ="revise" rendered="#{!ForumTool.selectedForum.markForDeletion}" 
                            immediate="true"  action="#{ForumTool.processActionReviseForumSettings}" 

@@ -1,6 +1,6 @@
 
 
-    <h:panelGroup styleClass="specialLink">
+    <h:panelGroup styleClass="specialLink" style="display:block;height:100%;overflow:hidden;clear:both">
     	<h:outputText value="#{msgs.df_view} " styleClass="unreadMsg" />
     	<h:selectOneMenu id="select_label" onchange="this.form.submit();"  valueChangeListener="#{ForumTool.processValueChangedForMessageOrganize}" value="#{ForumTool.selectedMessageView}">
 			<f:selectItem itemValue="thread" itemLabel="#{msgs.msg_organize_thread}" />

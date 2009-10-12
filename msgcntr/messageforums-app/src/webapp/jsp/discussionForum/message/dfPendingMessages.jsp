@@ -7,13 +7,14 @@
 </jsp:useBean>
 
 <f:view>
-<sakai:view>
-	<h:form id="msgForum">
+	<sakai:view toolCssHref="/sakai-messageforums-tool/css/msgcntr.css">
+		<h:form id="msgForum" styleClass="specialLink">
+			
 	       		<script type="text/javascript" src="/library/js/jquery.js"></script>
        		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
 		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
 
-		<div class="breadCrumb specialLink">
+
 			<h3>
 				<h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
 			      		rendered="#{ForumTool.messagesandForums}" />
@@ -22,27 +23,53 @@
       	<h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
 				<h:outputText value="#{msgs.cdfm_msg_pending_queue_title}" />
 			</h3>
-		</div>
+			<script type="text/javascript">
+				$(document).ready(function() {
+				$('.listHier tr th a').fadeTo("fast",0.50)	
+			    //deactivate remove link if nothing checked
+			    $(':checkbox').click(function(){
+			        var makeActive = false
+			        $('tr').removeClass('selectedSelected');
+			        $('td :checkbox').each(function(){
+			            if (this.checked) {
+			                makeActive = true
+			                $(this).parents("tr").addClass('selectedSelected');
+			            }
+			        });
+			        if (makeActive) {
+						$('.listHier tr th a').fadeTo("fast",1)
+			        }
+			        else {
+						$('.listHier tr th a').fadeTo("fast",0.50)			        }
 
+			    });
+
+
+
+
+				});
+			</script>
+			
 		<div class="instruction">
+				<p>	
 			<h:outputText value="#{msgs.cdfm_deny_with_comments_msg}" rendered="#{ForumTool.numPendingMessages > 0}" />
 	  	<h:outputText value="#{msgs.cdfm_no_pending_msgs}" rendered="#{ForumTool.numPendingMessages < 1}" />
+				</p>	
 	  </div>
 	  
 	  <h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" />
 	  
 		<h:dataTable id="pendingMsgs" value="#{ForumTool.pendingMessages}" width="100%" var="message" 
-									columnClasses="attach,bogus" styleClass="listHier" rendered="#{ForumTool.numPendingMessages >0 }">
+				columnClasses="bogus,nopadd" styleClass="listHier specialLink" rendered="#{ForumTool.numPendingMessages >0 }" cellpadding="0" cellspacing="0">
 			<h:column>
 				<f:facet name="header">
 					<h:selectBooleanCheckbox title="#{msgs.cdfm_checkall}" id="mainCheckbox" onclick="javascript:selectDeselectCheckboxes(this.id, document.forms[0]);"/>
 				</f:facet>
 					<h:selectBooleanCheckbox value="#{message.selected}" id="childCheckbox" onclick="javascript:resetMainCheckbox('msgForum:pendingMsgs:mainCheckbox');"/>
 			</h:column>
-			
 			<h:column>
 				<f:facet name="header">
-					<h:panelGroup style="text-align: right; float:right;">
+						<h:panelGroup   styleClass="messageActions">
 						<h:commandLink id="denyMsgs" title="#{msgs.cdfm_button_bar_deny}" action="#{ForumTool.markCheckedAsDenied}">
 		  				<h:graphicImage value="/../../library/image/silk/cross.png" alt="#{msgs.cdfm_button_bar_deny}" />
 		  				<h:outputText value=" #{msgs.cdfm_button_bar_deny} " />
@@ -53,41 +80,47 @@
 		  		</h:commandLink>
 					</h:panelGroup>
 				</f:facet>
+<%--					<f:verbatim><div class="title"></f:verbatim>
 				
-				<f:verbatim><div class="hierItemBlock"><h4 class="specialLink textPanelHeader"><div class="unreadMsg"></f:verbatim>
-				<h:commandLink action="#{ForumTool.processActionDisplayForum}"  value="#{message.message.topic.openForum.title}" title=" #{message.message.topic.openForum.title}">
+						<h:commandLink action="#{ForumTool.processActionDisplayForum}"  value="#{message.message.topic.openForum.title}" title=" #{message.message.topic.openForum.title}" styleClass="title">
 		        <f:param value="#{message.message.topic.openForum.id}" name="forumId"/>
 	      </h:commandLink>
-					<h:outputText value=" / " />
-			  <h:commandLink action="#{ForumTool.processActionDisplayTopic}" id="topic_title" value="#{message.message.topic.title}" title=" #{message.message.topic.title}">
+						<h:outputText value=" / " styleClass="title"/>
+						<h:commandLink action="#{ForumTool.processActionDisplayTopic}" id="topic_title" value="#{message.message.topic.title}" title=" #{message.message.topic.title}" styleClass="title">
 					      <f:param value="#{message.message.topic.id}" name="topicId"/>
 					      <f:param value="#{message.message.topic.openForum.id}" name="forumId"/>
 				      </h:commandLink>
-				<f:verbatim></div><div style="padding-top: 1.0em"></f:verbatim>
-				
-				<h:commandLink action="#{ForumTool.processActionDisplayMessage}" title="#{message.message.title}">
+--%>						
+						<f:verbatim></div><div class="pendingApproval" style="padding-left:.5em;width:98%;"></f:verbatim> 
+					<h:commandLink action="#{ForumTool.processActionDisplayMessage}" title="#{message.message.title}" styleClass="title">
 					<h:outputText value="#{message.message.title}" />
 					<f:param value="#{message.message.id}" name="messageId"/>
 		      <f:param value="#{message.message.topic.id}" name="topicId"/>
 		      <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 				</h:commandLink>
-				<h:outputText value=" #{msgs.cdfm_dash} " />
-				<h:outputText value="#{message.message.author}" />
-				<h:outputText value=" #{msgs.cdfm_openb}" />
-				<h:outputText value="#{message.message.created}">
+					<h:outputText value=" #{msgs.cdfm_dash} " styleClass="textPanelFooter"/>
+					<h:outputText value="#{message.message.author}" styleClass="textPanelFooter"/>
+					<h:outputText value=" #{msgs.cdfm_openb}" styleClass="textPanelFooter"/>
+					<h:outputText value="#{message.message.created}" styleClass="textPanelFooter">
 			  	<f:convertDateTime pattern="#{msgs.date_format}" />
 			  </h:outputText>
 				<h:outputText value="#{msgs.cdfm_closeb}" />
-				<f:verbatim></div></h4><div></f:verbatim>
-					<h:outputText value="#{message.message.body}" escape="false" />
-				<f:verbatim></div></div></f:verbatim>
-				
+					<%--designNote: need to i18N --%>
+					<h:outputText value=" - in  "/>
+					<h:commandLink action="#{ForumTool.processActionDisplayForum}"  value="#{message.message.topic.openForum.title}" title=" #{message.message.topic.openForum.title}">
+						<f:param value="#{message.message.topic.openForum.id}" name="forumId"/>
+					</h:commandLink>
+					<h:outputText value=" / " />
+					<h:commandLink action="#{ForumTool.processActionDisplayTopic}" id="topic_title" value="#{message.message.topic.title}" title=" #{message.message.topic.title}">
+						<f:param value="#{message.message.topic.id}" name="topicId"/>
+						<f:param value="#{message.message.topic.openForum.id}" name="forumId"/>
+					</h:commandLink>
+					<%--designNote:  sort of useless to check for message.message.body as it always seems to exist *if only with a line break*--%>
+					<h:outputText value="#{message.message.body}" escape="false"  rendered= "#{message.message.body}" styleClass="textPanel" style="display:block"/>
+					<%--designNote: how about attachments? --%>
+					<f:verbatim></div></f:verbatim>
 			</h:column>
-			
 		</h:dataTable>
-			  
-			  
-		
 	</h:form>
 </sakai:view>
 </f:view>

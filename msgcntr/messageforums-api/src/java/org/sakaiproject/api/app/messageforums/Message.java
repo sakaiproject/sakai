@@ -47,6 +47,8 @@ public interface Message extends MutableEntity {
     public void setAuthor(String author);
     public String getBody();
     public void setBody(String body);
+    public int getWordCount();
+    public void setWordCount(int wordCount);
     public String getGradebook();
     public void setGradebook(String gradebook);
     public String getGradebookAssignment();

@@ -1,0 +1,462 @@
+/*PART 1 - FORUM AND TOPIC LISTINGS*/
+.forumHeader{
+	/*panel holding all forum metadata in forum list view*/
+	width: 99%;
+	background: #ffe;
+	border: 1px solid #fc6;
+	margin-bottom: 1em;
+}
+.forumHeader td{
+	/*inner container forum metadata in forum list view*/
+	padding: .25em .5em;
+	vertical-align: text-top;
+}
+.forumHeader td .title{
+	/*forum title in forum list view*/
+	font-weight: bold;
+	font-size: 1.3em;
+}
+.forumHeader .actionLinks,.topicBloc .actionLinks{
+	/*a spacer between title + metadata and the links*/
+	padding-left: 1em;
+}
+.topicBloc a.show,.topicBloc a.hide,.forumHeader a.show,.forumHeader a.hide,.singleMessage a.show,.singleMessage a.hide, .singleMessageReply a.show,.singleMessageReply a.hide{
+	/*show and hide descr links in various places*/
+/*	color: #f55 !important;*/
+	font-size: 95%;
+	text-decoration: none !important;
+	margin: .4em 0;
+	vertical-align: middle;
+}
+.topicBloc a.show img,.topicBloc a.hide img,.forumHeader a.show img,.forumHeader a.hide img, .singleMessage a.show img,.singleMessage a.hide img,  .singleMessageReply a.show img,.singleMessageReply a.hide img{
+	/*image associated with show and hide descr links in various places*/
+	vertical-align: middle;
+	padding: 2px 0;
+}
+.toggle{
+/*	long description toggled container*/
+	padding-left:0;
+	font-size: .92em;
+	line-height: 1.5em;
+}
+.topicBloc{
+	/*inner container topic metadata in forum list view, or single topic view*/
+	margin: .5em 0 1em 1em;
+	border-left: 2px solid #fc6;
+	width: 95%;
+}
+.topicBloc td{
+	padding-left: .5em;
+}
+.topicBloc td td{
+	padding-left: 0;
+}
+.topicBlocLone{
+	/*inner container topic metadata adjutments in single topic view*/
+	margin: .5em 0 1em 0;
+}
+.singleMessage .title, .singleMessageReply .title, .topicBloc .title,.pendingApproval .title{
+	/*	title for all the above cases*/
+	font-weight: bold;
+	font-size: 1.2em;
+}
+.forumHeader .shortDescription,.topicBloc .shortDescription{
+	/*	short description whenever one occurs - do not use padding */
+	display: block;
+	margin: .5em 0;
+}
+.messageNew{
+	color: #000;
+	font: .84em/1em verdana, arial,sans-serif;
+	background: #fe9;
+	outline:1px solid #fff; 
+	padding: 1px 2px;
+	margin-right: 5px;
+	/*	display:none; - uncomment to hide the "new" message */
+}
+.childrenNew{
+	color: #e90;
+	font-size:87%;
+	font-weight:bold;
+	padding: 1px 2px;
+	margin: 5px;
+	/*	display:none; - uncomment to hide the message associated with parents of new messages*/
+}
+#messNavHolder{
+	float:none;
+	display:block;
+	line-height: 2em;
+	height:100%;
+	overflow:hidden;
+	padding:2px 0;
+	margin:.3em 0;
+	clear:both;
+	}
+.jumpToNew{
+	padding:2px;
+}
+.jumpToNew a {
+	border:1px solid #ccc;
+	padding:3px;
+	padding-left:18px;
+	background: #eee url(../images/silk/arrow_down.png) center left no-repeat;
+}
+.topicIcon{
+/*	display:none; 	comment to hide blue or orange speech balloons by topics in Forum list view */
+}
+/* PART 2 - TOPIC/THREAD VIEWS*/
+.messagePending{
+	background: #bf9;
+	font: .84em/1em verdana, arial,sans-serif;
+	color: #000;
+	outline:1px solid #fff; 
+	padding: 1px 2px;
+	margin-right: 5px;
+}
+.messageDenied{
+	color: #000;
+	font: .84em/1em verdana, arial,sans-serif;
+	background: #f9a;
+	outline:1px solid #fff; 	
+	padding: 1px 2px;
+	margin-right: 5px;
+}
+.markAsReadIcon{
+	cursor: pointer;
+	margin-left:.5em;
+	background: #fff url(../images/silk/email.png) center left no-repeat
+}
+.markAsReadIcon:hover{
+	background: #fff url(../images/silk/email_open.png) center left no-repeat
+}
+.messagesFlat,.messagesThreaded{
+	width: 98% !important;
+	margin: 1em 0 !important;
+/*	border-spacing: .5em;*/
+}
+.messagesFlat  tbody tr div,.messagesThreaded tbody tr div{
+	border: none
+}
+.messagesFlat tbody tr td div.hierItemBlock,.messagesThreaded tbody tr td div.hierItemBlock{
+	padding: 0 0 0 .5em !important;
+	border-left: 2px solid #cd5 !important;
+	width: 95%;
+	margin: .5em !important;
+}
+.messagesThreaded tbody tr td{
+	padding-top: 0;
+	padding-bottom: 0;
+}
+.messagesThreaded tbody tr td div.hierItemBlock .textPanel{
+	width: 60%;
+}
+.titleBarBorder{
+	/*create an underline under message title + metadata in view body thread view*/
+	background: #fff;
+	margin: 2px 0 0 0;
+}
+.messagesThreaded tbody tr.hierItemBlock td.bogus:first-child{
+	padding: 0 !important;
+	border-left: 2px solid #69d;
+	width: 100%;
+}
+.messagesThreaded tbody tr.hierItemBlock td.bogus:first-child > div{
+	margin: 0;
+	border: none !important;
+}
+.messagesFlat tbody .title,.messagesThreaded tbody .title{
+	font-weight: bold;
+	font-size: 1.1em;
+}
+.messagesThreaded tbody tr.hierItemBlock td.bogus:first-child .title{
+	font-weight: bold;
+	font-size: 1.2em;
+}
+.messagesThreaded tbody tr.hierItemBlock td.bogus:first-child{
+	/*first message in thread in visible body view*/
+	padding: 0;
+	border-left: 2px solid #69d;
+	width: 100%;
+}
+.messagesThreaded tbody tr.hierItemBlock td.bogus:first-child > div{
+	margin: 0;
+}
+.messagesThreaded tbody tr.hierItemBlock td.bogus:first-child .title{
+	/*message title of first message in thread + body view*/
+	font-weight: bold;
+	font-size: 1.2em;
+}
+.itemToolBar{
+	/*	parent of all links associated with an item in thread + body view*/
+	padding-left: .5em;
+	font-size: .9em;
+}
+.itemToolBar a{
+	/*	all links associated with an item in thread + body view*/
+	text-decoration: none !important;
+}
+.otherActions{
+	/*parent of all links in the "other actions" link list*/
+	padding: 0 !important;
+	color:#ccc;
+	text-align: left;
+	white-space: nowrap;
+	font-size: .87em;
+}
+.otherActions a{
+	
+	}
+.allMessages .messageTitle .firstChild{
+	/*first post in a thread in topic listing (no body)*/
+	border-left: 1px solid #cd5;
+	padding-left: 5px;
+}
+.allMessages .hierItemBlock .messageTitle .firstChild{
+	/*first post in a thread in topic listing ( + body) */
+	border-left: 1px solid #69d;
+	padding-left: 5px;
+}
+
+.allMessages td.attach{
+	vertical-align:middle;
+}
+.pendingApproval{
+	/*listing of a message pending aproval*/
+	border-left: 2px solid #ccc;
+	margin: 0;
+}
+/*PART 3 - SINGLE MESSAGE DISPLAY*/
+.singleMessage{
+	/*title + metadata block of a single message display*/
+	border-left: 2px solid #ccc;
+	background:#fff;
+	margin-top: 1em;
+	padding:.3em  .5em;
+}
+.singleMessageReply{
+	/*title + metadata block of a single message display*/
+	border:1px solid #ccc;
+	background:#ffe;
+	margin-top: 1em;
+	padding:.3em  .5em;
+}
+table.messageActions {
+	/*single message action links top container*/
+	background: #eee;
+}
+table.messageActions td{
+	/*single message action links inner container*/
+	padding: 6px;
+	vertical-align: middle;
+	background: #eee;
+}
+.messageActions a{
+	/*single message action links*/
+	text-decoration: none !important;
+	border: 1px solid #ccc !important;
+	background: #fff;
+	padding: 2px 5px;
+	vertical-align: middle;
+	margin: 0 .3em 0 0;
+}
+.messageActions a:hover{
+	border: 1px solid #aaa  !important;
+}
+.messageActions td.otherOtherActions {
+	/*rightmost column of single message action links - not used*/
+	text-align: right;
+}
+.messageActions a img{
+	vertical-align: middle;
+}
+/*PART $ MESSAGE TYPES */
+.messageAlert{
+	background: #FFEEEE url(../images/exclamation.gif) 5px 5px no-repeat;
+	border: 1px solid #FF5555;
+	color: #FF5555;
+	margin: .5em 0;
+	padding: 4px 0 4px 2em;
+}
+.messageInformation{
+	background: #ffe url(../images/asterisk_yellow.gif) 5px 5px no-repeat;
+	border: 1px solid #d93;
+	color: #d93;
+	margin: .5em 0;
+	padding: 4px 0 4px 2em;
+}
+.messageComfirm{
+	background: #cd5 url(../images/accept.gif) 5px 5px no-repeat;
+	border: 1px solid #790;
+	color: #779900;
+	margin: .5em 0;
+	padding: 4px 0 4px 2em;
+}
+span.messageAlert,span.messageInformation,.messageComfirm{
+	padding-right: 1em;
+}
+/*utils, special cases, sakai overrides*/
+.upLevel{
+	/*go up one level link, uncomment to show*/
+	/*display:none*/
+}
+td.attach{
+	vertical-align: middle;
+	padding: 2px 0;
+}
+td div.title{
+	font-weight: bold;
+	font-size: 1.3em;
+}
+.unreadMsg a:link,.unreadMsg a:visited{
+	color: #f55 !important;
+	text-decoration: none;
+}
+.selChanged{
+	/*flag an item as changed in organize view*/
+	border: 1px solid #aaa;
+	background: #fc6;
+	padding: 1px;
+}
+.attachPanel{
+/*panel listing attachmetns when in edit mode for forum/topic/message*/
+	border: 1px solid #eee;
+	background: #fff;
+	font-size: 1em;
+}
+.attachPanel tr:hover{
+	background: none !important;
+}
+.attachPanel th{
+	background: #ffe;
+	border-bottom: 1px solid #eee;
+	text-align: left;
+	font-weight: normal;
+	padding: .2em .5em;
+}
+.attachPanel td{
+	padding: .2em .5em;
+	vertical-align: top;
+}
+.attachPanel td.attach{
+	width: 1em;
+}
+.permissionPanel{
+	/*permission panel in template settings, forum settings, topic settings*/
+}
+.permissionPanel td{
+}
+.permissionPanel .colored td{
+	padding-left: .3em;
+	padding-right: 3em;
+	background: #ffe;
+}
+.permissionPanel .last{
+	border-bottom: 1px solid #eee;
+}
+.permissionPanel td.first{
+	border-left: 1px solid #eee;
+}
+.permissionPanel td.second{
+	border-right: 1px solid #eee;
+}
+.permissionPanel .blank td{
+	border: none !important;
+}
+.permissionPanel .header td{
+	border-bottom: 1px solid #eee;
+	border-right: none;
+	border-left: none;
+}
+.permissionPanel tr:hover{
+	background: #fff !important;
+}
+table.discTria{
+	/*some adjustments to sakai discTria - to make whole clickable looking*/
+	border: none;
+	background: #ddd;
+	border:1px solid #ddd
+}
+table.discTria h4{
+	display: inline;
+	margin: 0;
+	padding: 3px;
+}
+table.discTria img {
+	vertical-align: middle;
+}
+table.discTria:hover{
+	cursor: pointer;
+	border:1px solid #aaa
+}
+.discTria{
+	background: transparent;
+}
+.inactive{
+	color: #aaa;
+}
+.printBlock{
+	/*top  most parent of any printable block - used in print previews/pretty prints*/
+	margin: 1em;
+	padding: .5em;
+	font-size: 93%;
+	font-family: Georgia,"Times New Roman",Times,serif;
+}
+.printTable td{
+}
+.printTable td .title{
+	font-weight: bold;
+}
+.printBlock .bordered{
+	border-color: #ccc;
+}
+.printBlock .messagePending{
+	background: #ccc;
+	color: #000;
+	padding: 2px;
+	margin-right: 5px;
+	border: 1px solid #000;
+}
+.printBlock .messageDenied{
+	color: #fff;
+	background: #000;
+	padding: 3px;
+	margin-right: 5px;
+}
+.itemNav{
+	border: 1px solid #fff;
+	white-space: nowrap;
+	padding: 0 .3em;
+	background: #fff;
+}
+.itemNav:hover{
+	border: 1px solid #eee;
+	white-space: nowrap;
+	padding: 0 .3em;
+	background: #ffe;
+}
+.messageMetadata{
+	padding:1px 0
+}
+.messageMetadata span.md{
+	border-bottom:1px solid #ccc;
+}
+
+.lastRevise{
+	margin:.3em 0;
+	padding:.3em 0;		
+}
+form{margin-bottom:0;}
+
+.messageCommentWrap{
+	border:1px solid  #ddd !important;
+	background: #ffd;
+	padding:3px 5px;
+	margin-bottom:10px
+}
+.messageCommentMD{
+	font-size:.9em;
+	text-decoration: underline;
+	margin-bottom:3px
+}
+.messageCommentBody{
+}

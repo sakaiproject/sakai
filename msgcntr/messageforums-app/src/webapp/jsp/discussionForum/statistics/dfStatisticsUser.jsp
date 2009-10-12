@@ -13,7 +13,7 @@
   	
   		<h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel  specialLink">
           <h:panelGroup>
-          	 <f:verbatim><div class="breadCrumb"><h3></f:verbatim>
+          	 <f:verbatim><h3></f:verbatim>
 			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
 			      		rendered="#{ForumTool.messagesandForums}" />
 			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
@@ -22,7 +22,7 @@
 			      <h:commandLink action="#{ForumTool.processActionStatistics}" value="#{msgs.stat_list}" title="#{msgs.stat_list}"/>
 			      <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
 			      <h:outputText value="#{mfStatisticsBean.selectedSiteUser}" />
-			    <f:verbatim></h3></div></f:verbatim>
+			    <f:verbatim></div></f:verbatim>
           </h:panelGroup>
           <h:panelGroup styleClass="itemNav specialLink">	
 				<h:commandButton action="#{mfStatisticsBean.processDisplayPreviousParticipant}" value="#{msgs.stat_forum_prev_participant}"  

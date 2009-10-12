@@ -12,14 +12,14 @@
        		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
   		<h:panelGrid columns="1" summary="layout" width="100%" styleClass="navPanel  specialLink">
           <h:panelGroup>
-          	 <f:verbatim><div class="breadCrumb"><h3></f:verbatim>
+          	 <f:verbatim><h3></f:verbatim>
 			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
 			      		rendered="#{ForumTool.messagesandForums}" />
 			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
 			      		rendered="#{ForumTool.forumsTool}" />
 			      <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
 			      <h:outputText value="#{msgs.stat_list}" />
-			    <f:verbatim></h3></div></f:verbatim>
+			    <f:verbatim></h3></f:verbatim>
           </h:panelGroup>
         </h:panelGrid>
   	

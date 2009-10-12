@@ -3,6 +3,8 @@ function setPanelId(thisid)
 {
   panelId = thisid;
 }
+
+
 function showHideDivBlock(hideDivisionNo, context)
 {
   var tmpdiv = hideDivisionNo + "__hide_division_";
@@ -10,6 +12,7 @@ function showHideDivBlock(hideDivisionNo, context)
   var divisionNo = getTheElement(tmpdiv);
   var imgNo = getTheElement(tmpimg);
   if(divisionNo)
+ 
   {
     if(divisionNo.style.display =="block")
     {
@@ -29,10 +32,56 @@ function showHideDivBlock(hideDivisionNo, context)
     }
     if(panelId != null)
     {
-      setMainFrameHeight(panelId);
+      resizeFrame('grow');
     }
   }
 }
+
+
+//this function needs jquery 1.1.2 or later - it resizes the parent iframe without bringing the scroll to the top
+	function resizeFrame(updown)
+	{
+		if (top.location != self.location) 	 {
+			var frame = parent.document.getElementById(window.name);
+		}
+			if( frame )
+		{
+			if(updown=='shrink')
+			{
+				var clientH = document.body.clientHeight - 30;
+			}
+			else
+			{
+				var clientH = document.body.clientHeight + 30;
+			}
+			$( frame ).height( clientH );
+		}
+		else
+		{
+			throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
+		}
+	}
+
+
+/*
+
+function showHideDivBlock(hideDivisionNo, context){
+
+  var tmpdiv = hideDivisionNo + "__hide_division_";
+  var tmpimg = hideDivisionNo + "__img_hide_division_";
+  var divisionNo = getTheElement(tmpdiv);
+  var imgNo = getTheElement(tmpimg);
+
+
+	if (divisionNo.style.display == "block") {
+		imgNo.src = context + "/images/right_arrow.gif";
+	}
+	else {
+		imgNo.src = context + "/images/down_arrow.gif";
+	}
+}
+
+*/
 function showHideDiv(hideDivisionNo, context)
 {
   var tmpdiv = hideDivisionNo + "__hide_division_";
@@ -120,6 +169,19 @@ function toggleDisplay(obj) {
 	return;    
 }
 
+
+jQuery.fn.fadeToggle = function(speed, easing, callback) {
+   return this.animate({opacity: 'toggle'}, speed, easing, callback);
+
+}; 
+function toggleDisplayInline(obj) {
+//	resize();
+//		$("#" + obj).slideToggle("normal", resize);
+		$("#" + obj).fadeToggle();
+
+	return;
+}
+
 function toggleHide(obj){
 	if(obj.innerHTML.match(/hide/i)){
 		obj.innerHTML = obj.innerHTML.replace('Hide ', '');
@@ -127,6 +189,7 @@ function toggleHide(obj){
 		obj.innerHTML = obj.innerHTML.replace(/(<.+>)([^<>]+)/i, "$1 Hide $2");
 	}
 }
+
 function getScrollDist(obj){
 	var curtop = 0;
 	if (obj.offsetParent) {
@@ -209,12 +272,50 @@ function mySetMainFrameHeight(id)
 	}
 }
 
+
+function setupMessageNav(messageType){
+  	if ($("." + messageType).size() >= 1) {
+		if (messageType =="messageNew"){
+			tofirst=$("#firstNewItemTitleHolder").text();
+			tonext=$("#nextNewItemTitleHolder").text();
+			last=$("#lastNewItemTitleHolder").text();
+		}
+		else{
+			tofirst=$("#firstPendingItemTitleHolder").text();
+			tonext=$("#nextPendingItemTitleHolder").text();
+			last=$("#lastPendingItemTitleHolder").text();
+		}
+		$('#messNavHolder').append("<span class='jumpToNew specialLink'><a href='#" + messageType + "newMess0'>" + tofirst + "</a></span>");
+  		$("." + messageType).each(function(intIndex){
+  			$(this).after("<a name='" + messageType + "newMess" + intIndex + "'></a>");
+  			if (intIndex !== ($("." + messageType).size() - 1)) {
+  				$(this).css({
+  					cursor: "pointer"
+  				});
+					$(this).attr("title",tonext);
+  					$(this).click(function(){
+  					document.location = "#" + messageType + "newMess" + (intIndex + 1);
+  				});
+  			}
+				else{
+					$(this).attr("title",last);
+				}
+  		});
+  	}
+  	if ($(".messageNew").size() < 1 && $(".messagePending").size() < 1) {
+		$('#messNavHolder').remove()
+	}
+  }
+
+
 function doAjax(messageId, topicId, self){
  	$(self).attr('src', '/library/image/sakai/spinner.gif');
 	$.ajax({ type: "GET", url: document.forms[0].action , data: "ajax=true&action=markMessageAsRead&messageId=" + messageId + "&topicId=" + topicId,
       success: function(msg){
          if(msg.match(/SUCCESS/)){
      		setTimeout(function(){
+							$(self).parents("tr").children("td").children("span").children("span.messageNew").hide();
+							$(self).parents("div").parents("div").children("span.messageNew").hide();
               $(self).remove();
                $("#" + messageId).parents("tr:first").children("td").each(function(){this.innerHTML = this.innerHTML.replace(/unreadMsg/g, 'bogus'); });
             }, 500);

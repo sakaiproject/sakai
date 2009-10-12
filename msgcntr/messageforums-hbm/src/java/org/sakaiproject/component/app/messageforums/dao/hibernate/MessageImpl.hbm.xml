@@ -40,6 +40,9 @@
     <property name="body" type="text">
       <column name="BODY" not-null="false" />
     </property>
+    <property name="wordCount">
+      <column name="WORDCOUNT" length="26" not-null="true" index="MFR_MESSAGE_WORDCOUNT_I"/>
+    </property>
     <property name="author">
       <column name="AUTHOR" length="255" not-null="true" index="MFR_MESSAGE_AUTHOR_I" />
     </property>
