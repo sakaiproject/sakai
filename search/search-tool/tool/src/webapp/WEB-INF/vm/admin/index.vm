@@ -3,7 +3,7 @@
     	
     <div class="navIntraTool">
 	    <!-- Home Link -->
-	    <a href="../index">Search</a>
+	    <a href="../index">${rlb.searchadmin_index_search}</a>
 	    #foreach( $option in ${adminModel.optons} )
 	    			<a href="${option.url}" ${option.attributes} >${option.name}</a>
 	    #end
@@ -12,18 +12,18 @@
 
     <p>
  #set( $searchStatus = ${adminModel.getSearchStatus()} )
-	Last loaded at ${adminModel.searchStatus.lastLoad} in ${searchStatus.loadTime} <br /> 
-	Being indexed by ${searchStatus.currentWorker} expected fo finish before ${searchStatus.currentWorkerETC} <br /> 
-	Index contains ${searchStatus.nDocuments} documents and ${searchStatus.pDocuments} pending
+	${rlb.vm_searchadmin_last_loaded} ${adminModel.searchStatus.lastLoad} ${rlb.vm_searchadmin_in} ${searchStatus.loadTime} <br /> 
+	${rlb.vm_searchadmin_being_indexed} ${searchStatus.currentWorker} ${rlb.vm_searchadmin_expected_before} ${searchStatus.currentWorkerETC} <br /> 
+	${rlb.vm_searchadmin_index_contains} ${searchStatus.nDocuments} ${rlb.vm_searchadmin_documents} ${searchStatus.pDocuments} ${rlb.vm_searchadmin_pending}
     </p>
 	
-	<table summary="Master Control Records that control all sites" >
-	<tr><th colspan="4">Master Control Records</th></tr>
+	<table summary="${rlb.searchadmin_index_master_control_records}" >
+	<tr><th colspan="4">${rlb.searchadmin_index_master_control_records}</th></tr>
 	<tr>
-	 <td>Context</td>
-	 <td>Operation</td>
-	 <td>Current Status</td>
-	 <td>Last Update</td>
+	 <td>${rlb.searchadmin_index_context}</td>
+	 <td>${rlb.searchadmin_index_operation}</td>
+	 <td>${rlb.searchadmin_index_current_status}</td>
+	 <td>${rlb.searchadmin_index_last_update}</td>
 	</tr>
 #foreach( $record in ${adminModel.globalMasterRecords} )
 	<tr>
@@ -34,13 +34,13 @@
 	</tr>
 #end
 	</table>
-	<table summary="Site Control records that control just this site">
-	<tr><th colspan="4">Site Control Records</th></tr>
+	<table summary="${rlb.searchadmin_index_site_control_records}">
+	<tr><th colspan="4">${rlb.searchadmin_index_site_control_records}</th></tr>
 	<tr>
-	 <td>Context</td>
-	 <td>Operation</td>
-	 <td>Current Status</td>
-	 <td>Last Update</td>
+	 <td>${rlb.searchadmin_index_context}</td>
+	 <td>${rlb.searchadmin_index_operation}</td>
+	 <td>${rlb.searchadmin_index_current_status}</td>
+	 <td>${rlb.searchadmin_index_last_update}</td>
 	</tr>
 #foreach( $record in ${adminModel.siteMasterRecords} )
 	<tr>
@@ -51,14 +51,14 @@
 	</tr>
 #end
 	</table>
-	<table summary="A list of index workers" >
+	<table summary="${rlb.searchadmin_index_list_index}">
 	<tr>
-		<th colspan="3">Indexer Workers</th>
+		<th colspan="3">${rlb.searchadmin_index_indexer_workers}</th>
 	</tr>
 	<tr>
-		<td>Worker Thread</td>
-		<td>Due Before</td>
-		<td>Status</td>
+		<td>${rlb.searchadmin_index_worker_thread}</td>
+		<td>${rlb.searchadmin_index_due_before}</td>
+		<td>${rlb.searchadmin_index_status}</td>
 	</tr>
 #foreach( $thread in ${adminModel.workerThreads} )
 	<tr>
@@ -68,14 +68,14 @@
 	</tr>
 #end
 	</table>
-	<table summary="A list index segments" >
+	<table summary="${rlb.searchadmin_index_list_segments}" >
 	<tr>
-		<th colspan="3">Segments</th>
+		<th colspan="3">${rlb.searchadmin_index_segments}</th>
 	</tr>
 	<tr>
-		<td>Segment Name</td>
-		<td>Size</td>
-		<td>Last Update</td>
+		<td>${rlb.searchadmin_index_segment_name}</td>
+		<td>${rlb.searchadmin_index_segment_size}</td>
+		<td>${rlb.searchadmin_index_segment_last_update}</td>
 	</tr>
 #foreach( $thread in ${adminModel.segments} )
 	<tr>

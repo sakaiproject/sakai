@@ -6,7 +6,7 @@
 	org.sakaiproject.search.tool.SearchAdminBean searchAdminBean = searchBeanFactory.newSearchAdminBean(request);
 	
 	String adminOptionsFormat = "<a href=\"{0}\" {2} >{1}</a>"; 
-	String indexStatusFormat = "Last loaded at {0} in {1} <br /> Being indexed by {2} expected fo finish before {3} <br /> Index contains {4} documents and {5} pending  ";
+	String indexStatusFormat = org.sakaiproject.search.tool.Messages.getString("jsp_searchadmin_index_last_loaded") + " ";
 	String masterRowFormat = "<tr><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td></tr>";
 	String workerRowFormat = "<tr><td>{0}</td><td>{1}</td><td>{2}</td></tr>";
 	String segmentInfoRowFormat = "<tr><td>{0}</td><td>{1}</td><td>{2}</td></tr>";
@@ -16,7 +16,7 @@
   <head>
      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
      <meta http-equiv="Content-Style-Type" content="text/css" />
-     <title>Admin Search: <%= searchAdminBean.getTitle() %></title>
+     <title><%=org.sakaiproject.search.tool.Messages.getString("searchadmin_index_adminsearch")%> <%= searchAdminBean.getTitle() %></title>
       <%= request.getAttribute("sakai.html.head") %>
     </head>
     <body 
@@ -27,7 +27,7 @@
     	
     <div class="navIntraTool">
 	    <!-- Home Link -->
-	    <a href="../index">Search</a>
+	    <a href="../index"><%=org.sakaiproject.search.tool.Messages.getString("searchadmin_index_search")%></a>
     		<%= searchAdminBean.getAdminOptions(adminOptionsFormat) %>
     </div>
     
@@ -37,24 +37,42 @@
 	<%= searchAdminBean.getIndexStatus(indexStatusFormat) %>
 	</p>
 	
-	<table summary="Master Control Records that control all sites" >
-	<tr><th colspan="4">Master Control Records</th></tr>
-	<tr><td>Context</td><td>Operation</td><td>Current Status</td><td>Last Update</td></tr>
+	<table summary="<%=org.sakaiproject.search.tool.Messages.getString("searchadmin_index_master_control_records")%>" >
+	<tr><th colspan="4"><%=org.sakaiproject.search.tool.Messages.getString("searchadmin_index_master_control_records")%></th></tr>
+	<tr>
+		<td><%=org.sakaiproject.search.tool.Messages.getString("searchadmin_index_context")%></td>
+		<td><%=org.sakaiproject.search.tool.Messages.getString("searchadmin_index_operation")%></td>
+		<td><%=org.sakaiproject.search.tool.Messages.getString("searchadmin_index_current_status")%></td>
+		<td><%=org.sakaiproject.search.tool.Messages.getString("searchadmin_index_last_update")%></td>
+	</tr>
 	<%= searchAdminBean.getGlobalMasterDocuments(masterRowFormat) %>
 	</table>
-	<table summary="Site Control records that control just this site">
-	<tr><th colspan="4">Site Control Records</th></tr>
-	<tr><td>Context</td><td>Operation</td><td>Current Status</td><td>Last Update</td></tr>
+	<table summary="<%=org.sakaiproject.search.tool.Messages.getString("searchadmin_index_site_control_records")%>">
+	<tr><th colspan="4"><%=org.sakaiproject.search.tool.Messages.getString("searchadmin_index_site_control_records")%></th></tr>
+	<tr>
+		<td><%=org.sakaiproject.search.tool.Messages.getString("searchadmin_index_context")%></td>
+		<td><%=org.sakaiproject.search.tool.Messages.getString("searchadmin_index_operation")%></td>
+		<td><%=org.sakaiproject.search.tool.Messages.getString("searchadmin_index_current_status")%></td>
+		<td><%=org.sakaiproject.search.tool.Messages.getString("searchadmin_index_last_update")%></td>
+	</tr>
 	<%= searchAdminBean.getSiteMasterDocuments(masterRowFormat) %>
 	</table>
-	<table summary="A list of index workers" >
-	<tr><th colspan="3">Indexer Workers</th></tr>
-	<tr><td>Worker Thread</td><td>Due Before</td><td>Status</td></tr>
+	<table summary="<%=org.sakaiproject.search.tool.Messages.getString("searchadmin_index_list_index")%>">
+	<tr><th colspan="3"><%=org.sakaiproject.search.tool.Messages.getString("searchadmin_index_indexer_workers")%></th></tr>
+	<tr>
+		<td><%=org.sakaiproject.search.tool.Messages.getString("searchadmin_index_worker_thread")%></td>
+		<td><%=org.sakaiproject.search.tool.Messages.getString("searchadmin_index_due_before")%></td>
+		<td><%=org.sakaiproject.search.tool.Messages.getString("searchadmin_index_status")%></td>
+	</tr>
 	<%= searchAdminBean.getWorkers(workerRowFormat) %>
 	</table>
-	<table summary="A list index segments" >
-	<tr><th colspan="3">Segments</th></tr>
-	<tr><td>Segment Name</td><td>Size</td><td>Last Update</td></tr>
+	<table summary="<%=org.sakaiproject.search.tool.Messages.getString("searchadmin_index_list_segments")%>" >
+	<tr><th colspan="3"><%=org.sakaiproject.search.tool.Messages.getString("searchadmin_index_segments")%></th></tr>
+	<tr>
+		<td><%=org.sakaiproject.search.tool.Messages.getString("searchadmin_index_segment_name")%></td>
+		<td><%=org.sakaiproject.search.tool.Messages.getString("searchadmin_index_segment_size")%></td>
+		<td><%=org.sakaiproject.search.tool.Messages.getString("searchadmin_index_segment_last_update")%></td>
+	</tr>
 	<%= searchAdminBean.getSegmentInfo(segmentInfoRowFormat) %>
 	</table>
     </div>
