@@ -151,7 +151,7 @@ public class DigestStorageUtil {
 							if (countIn.intValue() > count) {
 								count = countIn.intValue();
 							}
-						
+
 						}
 					}
 					return count;
@@ -178,15 +178,15 @@ public class DigestStorageUtil {
 		}
 		return countIn;
 	}
-	
+
 	public static void cleanOldDigests(String ref) {
 		String storePath = ServerConfigurationService.getString("bodyPath@org.sakaiproject.content.api.ContentHostingService");
 		int docCount = getDigestCount(ref);
-		
+
 		Calendar cal = new GregorianCalendar();
 		cal.add(Calendar.DAY_OF_MONTH, -1);
 		Date yesterDay = cal.getTime();
-		
+
 		if (storePath != null ) {
 			storePath += DIGEST_STORE_FOLDER;
 			String exPath = DigestStorageUtil.getPath(ref);
@@ -201,23 +201,34 @@ public class DigestStorageUtil {
 						String fileName = children[i];
 						if (docCount > getCountFromFileName(fileName)) {
 							File file = new File(filePath + "/" + fileName);
-							if (file != null) {
+							if (file.exists()) {
 								Date lastMod = new Date(file.lastModified());
 								//is this more than a day old?
 								if (lastMod.before(yesterDay)) {
 									file.delete();
 								}
-								
+
 
 							}
 						}
 					}
-					
 				}
-
-
 			}
 		}
-
 	}
+	
+	
+	public static void deleteAllDigests(String reference) {
+		String storePath = ServerConfigurationService.getString("bodyPath@org.sakaiproject.content.api.ContentHostingService");
+		if (storePath != null ) {
+			storePath += DIGEST_STORE_FOLDER;
+			String exPath = DigestStorageUtil.getPath(reference);
+			String filePath = storePath + exPath;
+			File dir = new File(filePath);
+			if (dir.exists()) {
+				dir.delete();
+			}
+			}
+	}
+	
 }

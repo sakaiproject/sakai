@@ -240,8 +240,9 @@ public class TransactionalIndexWorker implements IndexWorker
 							.getIndexReader();
 					int ndel = indexReader.deleteDocuments(new Term(
 							SearchService.FIELD_REFERENCE, sbi.getName()));
-					//TODO delete the digest saved to file
-
+					DigestStorageUtil.deleteAllDigests(sbi.getName());
+					
+					
 					nprocessed++;
 				}
 
