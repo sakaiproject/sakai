@@ -7,10 +7,14 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.poi.hssf.record.formula.functions.Countif;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.search.api.SearchService;
 
@@ -18,21 +22,21 @@ public class DigestStorageUtil {
 
 	private static final String DIGEST_STORE_FOLDER = "/searchdigest/";
 	private static final Log log = LogFactory.getLog(DigestStorageUtil.class);
-	
+
 
 	private static String getHashOfFile(String ref) {
 		return DigestUtils.md5Hex(ref);
 	}
-	
+
 	public static String getPath(String reference) {
 		log.debug("getPath(" + reference);
 		String ret = "";
-		
+
 		reference = getHashOfFile(reference);
 		ret = reference.substring(0, 1) + "/" + reference.substring(0, 3) + "/" + reference;
 		return ret;
 	}
-	
+
 	public static int getDigestCount(String reference) {
 		return 1;
 	}
@@ -58,7 +62,7 @@ public class DigestStorageUtil {
 			while (( line = input.readLine()) != null){
 				sb.append(line);
 				sb.append(System.getProperty("line.separator"));
-				
+
 			}
 		}
 		catch (FileNotFoundException e) {
@@ -77,10 +81,10 @@ public class DigestStorageUtil {
 				}
 			}
 		}
-			
+
 		return sb;
 	}
-	
+
 	/**
 	 * Save the digested content to a disc store
 	 * @param ref
@@ -96,13 +100,13 @@ public class DigestStorageUtil {
 					new File(storePath).mkdirs();
 				String exPath = DigestStorageUtil.getPath(ref);
 				String filePath = storePath + exPath;
-				
+
 				if (!new File(filePath).exists()) {
 					log.debug("creating folder" + filePath);
 					new File(filePath).mkdirs();
 				}
-					
-								
+
+
 				log.debug("filePath: " + filePath);
 				fileOutput = new FileOutputStream(filePath + "/digest." + version);
 				fileOutput.write(content.getBytes("UTF8"));
@@ -124,5 +128,96 @@ public class DigestStorageUtil {
 				}
 			}
 		}
+	}
+
+
+	public static int getDocCount(String ref) {
+		String storePath = ServerConfigurationService.getString("bodyPath@org.sakaiproject.content.api.ContentHostingService");
+		int count = 0;
+		if (storePath != null ) {
+			storePath += DIGEST_STORE_FOLDER;
+			String exPath = DigestStorageUtil.getPath(ref);
+			String filePath = storePath + exPath;
+			if (new File(filePath).exists()) {
+				File dir = new File(filePath);
+				String[] children = dir.list();
+				if (children == null) {
+					return 0;
+				} else {
+					for (int i=0; i<children.length; i++) {
+						String fileName = children[i];
+						if (fileName.contains(".")) {
+							Integer countIn = getCountFromFileName(fileName);
+							if (countIn.intValue() > count) {
+								count = countIn.intValue();
+							}
+						
+						}
+					}
+					return count;
+				}
+
+
+			}
+		}
+		return 0;
+	}
+
+	private static Integer getCountFromFileName(String fileName) {
+		if (!fileName.contains(".")) {
+			return null;
+		}
+		Integer countIn = null;
+		String countStr = fileName.substring(fileName.lastIndexOf('.') + 1 , fileName.length());
+		log.debug("count string is: " + countStr);
+		try {
+			countIn = Integer.valueOf(countStr);
+		} 
+		catch (NumberFormatException nfe) {
+			log.warn("filename:  " + fileName + "has nonNumeric exension");
+		}
+		return countIn;
+	}
+	
+	public static void cleanOldDigests(String ref) {
+		String storePath = ServerConfigurationService.getString("bodyPath@org.sakaiproject.content.api.ContentHostingService");
+		int docCount = getDigestCount(ref);
+		
+		Calendar cal = new GregorianCalendar();
+		cal.add(Calendar.DAY_OF_MONTH, -1);
+		Date yesterDay = cal.getTime();
+		
+		if (storePath != null ) {
+			storePath += DIGEST_STORE_FOLDER;
+			String exPath = DigestStorageUtil.getPath(ref);
+			String filePath = storePath + exPath;
+			if (new File(filePath).exists()) {
+				File dir = new File(filePath);
+				String[] children = dir.list();
+				if (children == null) {
+					return;
+				} else {
+					for (int i=0; i<children.length; i++) {
+						String fileName = children[i];
+						if (docCount > getCountFromFileName(fileName)) {
+							File file = new File(filePath + "/" + fileName);
+							if (file != null) {
+								Date lastMod = new Date(file.lastModified());
+								//is this more than a day old?
+								if (lastMod.before(yesterDay)) {
+									file.delete();
+								}
+								
+
+							}
+						}
+					}
+					
+				}
+
+
+			}
+		}
+
 	}
 }

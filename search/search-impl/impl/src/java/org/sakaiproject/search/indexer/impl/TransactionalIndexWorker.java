@@ -364,7 +364,7 @@ public class TransactionalIndexWorker implements IndexWorker
 										log.debug("Adding Content for " + ref + " as ["
 												+ content + "]");
 									}
-									int docCount = getDocCount(ref) + 1;
+									int docCount = DigestStorageUtil.getDocCount(ref) + 1;
 									doc.add(new Field(SearchService.FIELD_CONTENTS,
 											filterNull(content), Field.Store.NO,
 											Field.Index.ANALYZED, Field.TermVector.YES));
@@ -372,6 +372,9 @@ public class TransactionalIndexWorker implements IndexWorker
 										doc.add(new Field(SearchService.FIELD_DIGEST_COUNT,
 												Integer.valueOf(docCount).toString(), Field.Store.COMPRESS, Field.Index.NO, Field.TermVector.NO));
 										DigestStorageUtil.saveContentToStore(ref, content, docCount);
+										if (docCount > 2) {
+											DigestStorageUtil.cleanOldDigests(ref);
+										}
 									}
 
 								}
@@ -531,45 +534,6 @@ public class TransactionalIndexWorker implements IndexWorker
 
 	}
 
-	private int getDocCount(String ref) {
-		String storePath = serverConfigurationService.getString("bodyPath@org.sakaiproject.content.api.ContentHostingService");
-		int count = 0;
-		if (storePath != null ) {
-			storePath += DIGEST_STORE_FOLDER;
-			String exPath = DigestStorageUtil.getPath(ref);
-			String filePath = storePath + exPath;
-			if (new File(filePath).exists()) {
-				File dir = new File(filePath);
-				String[] children = dir.list();
-				if (children == null) {
-					return 0;
-				} else {
-					for (int i=0; i<children.length; i++) {
-						String fileName = children[i];
-						if (fileName.contains(".")) {
-							String countStr = fileName.substring(fileName.lastIndexOf('.') + 1 , fileName.length());
-							log.debug("count string is: " + countStr);
-							try {
-								Integer countIn = Integer.valueOf(countStr);
-								if (countIn.intValue() > count) {
-									count = countIn.intValue();
-								}
-							} 
-							catch (NumberFormatException nfe) {
-								log.warn("filename:  " + fileName + "has nonNumeric exension");
-							}
-						}
-					}
-					return count;
-				}
-
-				
-			}
-		}
-		
-
-		return 0;
-	}
 
 
 
