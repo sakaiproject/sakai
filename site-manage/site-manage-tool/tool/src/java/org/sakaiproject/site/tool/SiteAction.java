@@ -6538,10 +6538,14 @@ public class SiteAction extends PagedResourceActionII {
 							if (user != null)
 							{
 								String userId = user.getId();
-								Role userRole = realmEdit.getUserRole(userId);
-								if (userRole != null)
+								Member userMember = realmEdit.getMember(userId);
+								if (userMember != null)
 								{
-									roles.add(userRole.getId());
+									Role role = userMember.getRole();
+									if (role != null)
+									{
+										roles.add(role.getId());
+									}
 									realmEdit.removeMember(userId);
 								}
 							}
