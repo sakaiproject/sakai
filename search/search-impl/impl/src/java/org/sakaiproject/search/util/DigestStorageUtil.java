@@ -224,9 +224,13 @@ public class DigestStorageUtil {
 			storePath += DIGEST_STORE_FOLDER;
 			String exPath = DigestStorageUtil.getPath(reference);
 			String filePath = storePath + exPath;
+			
 			File dir = new File(filePath);
 			if (dir.exists()) {
-				dir.delete();
+				log.info("about to delete: " + filePath);
+				if (!dir.delete()) {
+					log.warn("unable to delete: " + filePath);
+				}
 			}
 			}
 	}
