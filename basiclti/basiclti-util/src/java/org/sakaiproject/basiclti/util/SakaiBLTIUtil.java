@@ -1,4 +1,4 @@
-package org.sakaiproject.basiclti;
+package org.sakaiproject.basiclti.util;
 
 import java.util.Map;
 import java.util.Properties;
