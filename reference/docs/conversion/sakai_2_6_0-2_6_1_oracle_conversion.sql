@@ -1,11 +1,29 @@
---SAK-16548 - Incorrect internationalization showing the grade NO GRADE
-
 -- NOTE: It is possible that your xml column in assignment_submission may be a long type. You need to convert it to a clob if this is the case.
 --       The following SQL will fail to run if the column is a long.
 
---       This seems to be randomly clob or long
+--       This seems to be either clob or long (It needs to be a clob)
 
---alter table assignment_submission modify xml clob;
+-- alter table assignment_submission modify xml clob;
+
+-- SAK-16668
+-- If you upgraded to 2.6.0 PRIOR TO September 1st 2009, you will need to run the conversions in the comments. It converts some additional assignment columns to clob.
+ 
+-- asn_note_item_t note column needs to be clob but is probably varchar
+-- asn_ma_item_t text column needs to be clob but is probably varchar
+ 
+/*
+ alter table asn_note_item_t add note_clob clob;
+ update asn_note_item_t set note_clob = note;
+ alter table asn_note_item_t drop column note;
+ alter table asn_note_item_t rename column note_clob to note;
+*/
+ 
+/*
+ alter table asn_ma_item_t add text_clob clob;
+ update asn_ma_item_t set text_clob = text;
+ alter table asn_ma_item_t drop column text;
+ alter table asn_ma_item_t rename column text_clob to text;
+*/
 
 -- Note after performing a conversion to clob your indexes may be in an invalid/unusable state. 
 -- You will need to run ths following statement, and manually execute the generated 'alter indexes' and re-gather statistics on this table.
@@ -13,7 +31,9 @@
 
 -- select 'alter index '||index_name||' rebuild online;' from user_indexes where status = 'INVALID' or status = 'UNUSABLE'; 
 
--- After the field is a clob continue with the updates
+-- After the field(s) are clobs continue with the updates
+
+--SAK-16548 - Incorrect internationalization showing the grade NO GRADE
 -- Values pulled from gen.nograd in ./assignment-bundles/assignment_*.properties
 --assignment_zh_CN.properties
 update assignment_submission set xml = replace(xml,unistr('"\65E0\8BC4\5206"'),'"gen.nograd"') where xml like '%graded="true"%';

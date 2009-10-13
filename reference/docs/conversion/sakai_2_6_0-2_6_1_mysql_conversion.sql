@@ -1,3 +1,10 @@
+-- SAK-16668
+-- Note: If you upgraded to sakai 2.6.0 PRIOR TO September 1st 2009 you'll need to run this column conversion.
+-- You should probably check your columns as they should be converted from varchar to text
+-- (Or just run them anyway as it is safe to rerun, which is why they are uncommented)
+ALTER TABLE ASN_MA_ITEM_T CHANGE TEXT TEXT TEXT;
+ALTER TABLE ASN_NOTE_ITEM_T CHANGE NOTE NOTE TEXT;
+
 --SAK-16548 - Incorrect internationalization showing the grade NO GRADE
 
 -- Note these are all mostly hex replacements as I could not find a better way to do it in mysql like in oracle.
