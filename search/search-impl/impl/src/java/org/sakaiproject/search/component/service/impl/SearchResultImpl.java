@@ -201,55 +201,26 @@ public class SearchResultImpl implements SearchResult
 						if (sep instanceof StoredDigestContentProducer) {
 							String digestCount = doc.get(SearchService.FIELD_DIGEST_COUNT);
 							if (digestCount != null) {
-								log.debug("This file possibly has FS digests with index of " + digestCount);
-								//FileInputStream fis = new FileInputStream(DigestStorageUtil.getPath(doc.get(SearchService.FIELD_REFERENCE)));
-								BufferedReader input = null;
-								try {
-									String storePath = ServerConfigurationService.getString("bodyPath@org.sakaiproject.content.api.ContentHostingService");
-									storePath += "/searchdigest/";
-									String digestFilePath = storePath + DigestStorageUtil.getPath(doc.get(SearchService.FIELD_REFERENCE)) + "/digest." + digestCount;
-									log.debug("opening: " + digestFilePath);
+								digestCount = "1";
+							}
+							log.debug("This file possibly has FS digests with index of " + digestCount);
+							StringBuilder sb1 = DigestStorageUtil.getFileContents(doc.get(SearchService.FIELD_REFERENCE), digestCount);
+							if (sb1.length() > 0) {
+								sb.append(sb1);
 
-									input =  new BufferedReader(new FileReader(digestFilePath));
-
-									String line = null; //not declared within while loop
-									/*
-									 * readLine is a bit quirky :
-									 * it returns the content of a line MINUS the newline.
-									 * it returns null only for the END of the stream.
-									 * it returns an empty String if two newlines appear in a row.
-									 */
-									while (( line = input.readLine()) != null){
-										sb.append(line);
-										sb.append(System.getProperty("line.separator"));
-									}
-								}
-								catch (FileNotFoundException e) {
-									log.warn("Unable to open digest for item: " + SearchService.FIELD_REFERENCE + " with count " + digestCount + " fileNotFound");
-								}
-								finally {
-									if (input != null) {
-										try {
-											input.close();
-										}
-										catch (IOException iox) {
-											log.debug("exeption in final block!");
-										}
-									} else  {
-										sb.append(sep.getContent(references[i]));
-							
-									}
-								}
 							} else {
-								sb.append(sep.getContent(references[i]));
-							
+								String digest = sep.getContent(references[i]);
+								sb.append(digest);
+								//we need to save this
+								DigestStorageUtil.saveContentToStore(doc.get(SearchService.FIELD_REFERENCE), sb.toString(), 1);
+
 							}
 
 
 
 						} else {
 							sb.append(sep.getContent(references[i]));
-							
+
 						}
 					}
 				}

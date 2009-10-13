@@ -371,7 +371,7 @@ public class TransactionalIndexWorker implements IndexWorker
 							if (sep instanceof StoredDigestContentProducer) {
 										doc.add(new Field(SearchService.FIELD_DIGEST_COUNT,
 												Integer.valueOf(docCount).toString(), Field.Store.COMPRESS, Field.Index.NO, Field.TermVector.NO));
-										saveContentToStore(ref, content, docCount);
+										DigestStorageUtil.saveContentToStore(ref, content, docCount);
 									}
 
 								}
@@ -571,50 +571,7 @@ public class TransactionalIndexWorker implements IndexWorker
 		return 0;
 	}
 
-	/**
-	 * Save the digested content to a disc store
-	 * @param ref
-	 * @param content
-	 */
-	private void saveContentToStore(String ref, String content, int version) {
-		String storePath = serverConfigurationService.getString("bodyPath@org.sakaiproject.content.api.ContentHostingService");
-		if (storePath != null ) {
-			storePath += DIGEST_STORE_FOLDER;
-			FileOutputStream fileOutput = null;
-			try {
-				if (!new File(storePath).exists())
-					new File(storePath).mkdirs();
-				String exPath = DigestStorageUtil.getPath(ref);
-				String filePath = storePath + exPath;
-				
-				if (!new File(filePath).exists()) {
-					log.debug("creating folder" + filePath);
-					new File(filePath).mkdirs();
-				}
-					
-								
-				log.debug("filePath: " + filePath);
-				fileOutput = new FileOutputStream(filePath + "/digest." + version);
-				fileOutput.write(content.getBytes("UTF8"));
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} 
-			finally {
-				try {
-					if(fileOutput != null) fileOutput.close();
-				} catch (IOException e) {
-					log.error("Exception in finally block: "+e);
-				}
-			}
-		}
-	}
+
 
 
 
