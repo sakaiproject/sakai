@@ -156,8 +156,8 @@ languages, as follows:
     Local ID:km_KH 
     
 25) French (France)
-   Status: (target release 2.6 or earlier)
-   Translated by: n/a
+   Status: First release in 2.6.x/2.6.1, 2.6.x maintained
+   Translated by: (see files comments)
    Contact: Jean-Francois Leveque (jean-francois.leveque@upmc.fr)
    Local ID: fr_FR
 
