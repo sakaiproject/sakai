@@ -30,7 +30,7 @@
 
 		<!--  GENERIC SAKAI DEPENDENCIES -->
 		<dependency>
-			<groupId>org.sakaiproject</groupId>
+			<groupId>org.sakaiproject.common</groupId>
 			<artifactId>sakai-common-edu-person-api</artifactId>
 			<scope>provided</scope>
     	</dependency>
