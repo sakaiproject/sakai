@@ -72,8 +72,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-test-harness</artifactId>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>test-harness</artifactId>
     </dependency>
 <!--org.sakaiprojectsakai-component${sakai.version}-->
 <!--org.sakaiprojectsakai-entity-api${sakai.version}-->

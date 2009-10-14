@@ -20,8 +20,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-test-harness</artifactId>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>test-harness</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
