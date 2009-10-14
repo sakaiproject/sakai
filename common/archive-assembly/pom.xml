@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<name>Sakai Common Assembly</name>
+	<groupId>org.sakaiproject.common</groupId>
+	<artifactId>sakai-common-assembly</artifactId>
+	<organization>
+		<name>Sakai Project</name>
+		<url>http://sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2007</inceptionYear>
+	<packaging>pom</packaging>
+
+	<!-- the base is parent -->
+	<parent>
+		<artifactId>common</artifactId>
+		<groupId>org.sakaiproject.common</groupId>
+		<version>1.0-SNAPSHOT</version><!--common.version-->
+	</parent>
+
+	<dependencies>
+
+      	<dependency>
+        	<groupId>org.sakaiproject.common</groupId>
+        	<artifactId>archive-api</artifactId>
+       		<version>${project.version}</version>
+       		<scope>compile</scope>
+	</dependency>
+	<dependency>
+        	<groupId>org.sakaiproject.common</groupId>
+        	<artifactId>archive-pack</artifactId>
+       		<version>${project.version}</version>
+       		<scope>compile</scope>
+			<type>war</type>
+      	</dependency>
+ 	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<descriptors>
+						<descriptor>src/main/assembly/deploy.xml</descriptor>
+					</descriptors>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id> <!-- this is used for inheritance merges -->
+						<phase>package</phase> <!-- append to the packaging phase. -->
+						<goals>
+							<goal>attached</goal> <!-- goals == mojos -->
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>2.2-beta-2</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-install-plugin</artifactId>
+					<version>2.2</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+</project>
