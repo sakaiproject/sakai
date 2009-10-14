@@ -4,8 +4,8 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<name>Profile2 API</name>
-	<groupId>org.sakaiproject</groupId>
-	<artifactId>sakai-profile2-api</artifactId>
+	<groupId>org.sakaiproject.profile2</groupId>
+	<artifactId>profile2-api</artifactId>
 
 	<packaging>jar</packaging>
 
@@ -14,8 +14,8 @@
   	</properties>
   	
 	<parent>
-		<groupId>org.sakaiproject</groupId>
-		<artifactId>profile2-base</artifactId>
+		<groupId>org.sakaiproject.profile2</groupId>
+		<artifactId>profile2</artifactId>
 	    <version>1.3-SNAPSHOT</version>
 	</parent>
 
