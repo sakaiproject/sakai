@@ -20,7 +20,7 @@ public class ResourceWrapper {
 	private String resourceID;
 	private byte[] bytes;
 	private String mimeType;
-	private int length;
+	private long length;
 	private boolean isExternal;
 	
 	/**
@@ -36,7 +36,7 @@ public class ResourceWrapper {
 	 * @param mimeType
 	 * @param isExternal
 	 */
-	public ResourceWrapper(String resourceID, byte[] bytes, String mimeType, int length, boolean isExternal) {
+	public ResourceWrapper(String resourceID, byte[] bytes, String mimeType, long length, boolean isExternal) {
 		super();
 		this.resourceID = resourceID;
 		this.bytes = bytes;
@@ -69,11 +69,11 @@ public class ResourceWrapper {
 		this.mimeType = mimeType;
 	}
 
-	public int getLength() {
+	public long getLength() {
 		return length;
 	}
 
-	public void setLength(int length) {
+	public void setLength(long length) {
 		this.length = length;
 	}
 

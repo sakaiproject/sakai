@@ -422,7 +422,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 				wrapper.setBytes(resource.getContent());
 				wrapper.setMimeType(resource.getContentType());
 				wrapper.setResourceID(resourceId);
-				wrapper.setLength(resource.getContentLength());
+				//wrapper.setLength(resource.getContentLength());
 			}
 			catch(Exception e){
 				log.error("SakaiProxy.getResourceWrapped() failed for resourceId: " + resourceId + " : " + e.getClass() + " : " + e.getMessage());
