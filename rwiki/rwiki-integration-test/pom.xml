@@ -15,8 +15,8 @@
 <!--  Sakai plugin -->
 <!-- Test harness -->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-test-harness</artifactId>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>test-harness</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
