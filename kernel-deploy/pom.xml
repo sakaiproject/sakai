@@ -45,6 +45,31 @@
 				</dependency>
 			</dependencies>
 		</profile>
+        <profile>
+            <id>experimental</id>
+            <properties>
+                <clean.targets>
+                    components/sakai-kernel-component;components/entitybroker-pack
+                </clean.targets>
+                <deploy.target>tomcat-overlay</deploy.target>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.sakaiproject.kernel.deploy
+                    </groupId>
+                    <artifactId>kernel-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.entitybroker
+                    </groupId>
+                    <artifactId>entitybroker-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+            </dependencies>
+        </profile>
 		<profile>
 			<id>framework</id>
 			<properties>
