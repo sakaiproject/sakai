@@ -133,8 +133,8 @@
       <version>1.2.1</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-import-api</artifactId>
+      <groupId>org.sakaiproject.common</groupId>
+      <artifactId>archive-api</artifactId>
     </dependency>
   </dependencies>
 </project>
