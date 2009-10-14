@@ -46,6 +46,7 @@ import org.sakaiproject.search.journal.impl.DbJournalManager;
 import org.sakaiproject.search.journal.impl.JournalSettings;
 import org.sakaiproject.search.journal.impl.SharedFilesystemJournalStorage;
 import org.sakaiproject.search.mock.MockSearchIndexBuilder;
+import org.sakaiproject.search.mock.MockSearchService;
 import org.sakaiproject.search.mock.MockServerConfigurationService;
 import org.sakaiproject.search.mock.MockThreadLocalManager;
 import org.sakaiproject.search.model.SearchBuilderItem;
@@ -209,11 +210,16 @@ public class TransactionalIndexWorkerTest extends TestCase
 	 */
 	private void doInit()
 	{
+		MockSearchService searchService = new MockSearchService();
+		searchService.setDatasource(tds.getDataSource());
+		searchService.setServerConfigurationService(new MockServerConfigurationService());
+		
 		tiw = new TransactionalIndexWorker();
 		tiw.setSearchIndexBuilder(mockSearchIndexBuilder);
 		tiw.setServerConfigurationService(mockServerConfigurationService);
 		tiw.setTransactionIndexManager(transactionIndexManager);
 		tiw.setThreadLocalManager(mockThreadLocalManager);
+		tiw.setSearchService(searchService);
 		tiw.addIndexWorkerDocumentListener(new DebugIndexWorkerDocumentListener());
 		tiw.addIndexWorkerListener(new DebugIndexWorkerListener());
 		tiw.init();

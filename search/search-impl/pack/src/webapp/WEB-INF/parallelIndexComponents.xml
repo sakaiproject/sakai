@@ -431,6 +431,7 @@
 			<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService" /></property>
 			<property name="transactionIndexManager"><ref bean="org.sakaiproject.search.api.SearchService.parallel.index.transactionIndexManager" /></property>
 			<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager" /></property>
+			<property name="searchService" ref="org.sakaiproject.search.api.SearchService"/>
     </bean>
     
     

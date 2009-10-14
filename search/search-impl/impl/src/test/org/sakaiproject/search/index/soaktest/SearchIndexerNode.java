@@ -36,6 +36,7 @@ import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TermQuery;
 import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.search.component.service.impl.SearchServiceImpl;
 import org.sakaiproject.search.index.impl.StandardAnalyzerFactory;
 import org.sakaiproject.search.indexer.debug.DebugIndexWorkerListener;
 import org.sakaiproject.search.indexer.impl.ConcurrentSearchIndexBuilderWorkerImpl;
@@ -260,10 +261,18 @@ public class SearchIndexerNode
 		// transactionIndexManager.addTransactionListener(new
 		// DebugTransactionListener());
 
+		
+		
+		
+		MockSearchService searchService = new MockSearchService();
+		searchService.setDatasource(tds.getDataSource());
+		searchService.setServerConfigurationService(new MockServerConfigurationService());
+		
 		tiw = new TransactionalIndexWorker();
 		tiw.setSearchIndexBuilder(mockSearchIndexBuilder);
 		tiw.setServerConfigurationService(serverConfigurationService);
 		tiw.setTransactionIndexManager(transactionIndexManager);
+		tiw.setSearchService(searchService);
 		tiw.setThreadLocalManager(threadLocalManager);
 		// tiw.addIndexWorkerDocumentListener(new
 		// DebugIndexWorkerDocumentListener());
@@ -295,8 +304,7 @@ public class SearchIndexerNode
 
 		MockComponentManager componentManager = new MockComponentManager();
 		MockEventTrackingService eventTrackingService = new MockEventTrackingService();
-		MockSearchService searchService = new MockSearchService();
-		searchService.setDatasource(tds.getDataSource());
+		
 		MockSessionManager sessionManager = new MockSessionManager();
 		MockUserDirectoryService userDirectoryService = new MockUserDirectoryService();
 		MockSecurityService securityService = new MockSecurityService();

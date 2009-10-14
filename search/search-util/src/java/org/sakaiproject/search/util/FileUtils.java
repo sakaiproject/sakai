@@ -81,10 +81,12 @@ public class FileUtils
 		{
 			public void doFile(File file) throws IOException
 			{
-				file.delete();
-				if (file.exists())
-				{
-					throw new IOException("Failed to delete  " + file.getPath());
+				if (file != null) {
+					file.delete();
+					if (file.exists())
+					{
+						throw new IOException("Failed to delete  " + file.getPath());
+					}
 				}
 			}
 
@@ -101,7 +103,7 @@ public class FileUtils
 	public static void recurse(File f, RecurseAction action) throws IOException
 	{
 		action.doBeforeFile(f);
-		if (f.isDirectory())
+		if (f !=null && f.isDirectory())
 		{
 			File[] files = f.listFiles();
 			if (files != null)

@@ -67,6 +67,7 @@ public class SearchServiceImpl extends BaseSearchServiceImpl
 
 	private long reloadEnd;
 
+	private static final String DIGEST_STORE_FOLDER = "/searchdigest/";
 
 	/**
 	 * Register a notification action to listen to events and modify the search
@@ -235,9 +236,6 @@ public class SearchServiceImpl extends BaseSearchServiceImpl
 		this.searchIndexBuilderWorker = searchIndexBuilderWorker;
 	}
 
-
-
-	
 	
 
 }

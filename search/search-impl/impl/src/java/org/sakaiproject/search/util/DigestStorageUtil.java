@@ -14,40 +14,45 @@ import java.util.GregorianCalendar;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.hssf.record.formula.functions.Countif;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.search.api.SearchService;
 
 public class DigestStorageUtil {
 
-	private static final String DIGEST_STORE_FOLDER = "/searchdigest/";
+	
 	private static final Log log = LogFactory.getLog(DigestStorageUtil.class);
 
+	private SearchService searchService;
+	
+	
+	public DigestStorageUtil(SearchService searchService) {
+	
+		this.searchService = searchService;
+		if (searchService == null) {
+			throw new IllegalArgumentException("SearchService can't be null");
+		}
+	}
 
-	private static String getHashOfFile(String ref) {
+	private  String getHashOfFile(String ref) {
 		return DigestUtils.md5Hex(ref);
 	}
 
-	public static String getPath(String reference) {
+	public  String getPath(String reference) {
 		log.debug("getPath(" + reference);
 		String ret = "";
-
 		reference = getHashOfFile(reference);
 		ret = reference.substring(0, 1) + "/" + reference.substring(0, 3) + "/" + reference;
 		return ret;
 	}
 
-	public static int getDigestCount(String reference) {
-		return 1;
-	}
-
-	public static StringBuilder getFileContents(String ref, String digestCount) {
+	public  StringBuilder getFileContents(String ref, String digestCount) {
 		StringBuilder sb = new StringBuilder();
 		BufferedReader input = null;
 		try {
-			String storePath = ServerConfigurationService.getString("bodyPath@org.sakaiproject.content.api.ContentHostingService");
-			storePath += DIGEST_STORE_FOLDER;
-			String digestFilePath = storePath + DigestStorageUtil.getPath(ref) + "/digest." + digestCount;
+			String storePath = searchService.getDigestStoragePath();
+			if (storePath == null) {
+				return null;
+			}
+			String digestFilePath = storePath + getPath(ref) + "/digest." + digestCount;
 			log.debug("opening: " + digestFilePath);
 
 			input =  new BufferedReader(new FileReader(digestFilePath));
@@ -90,20 +95,25 @@ public class DigestStorageUtil {
 	 * @param ref
 	 * @param content
 	 */
-	public static void saveContentToStore(String ref, String content, int version) {
-		String storePath = ServerConfigurationService.getString("bodyPath@org.sakaiproject.content.api.ContentHostingService");
+	public  void saveContentToStore(String ref, String content, int version) {
+		String storePath = searchService.getDigestStoragePath();
 		if (storePath != null ) {
-			storePath += DIGEST_STORE_FOLDER;
 			FileOutputStream fileOutput = null;
 			try {
 				if (!new File(storePath).exists())
-					new File(storePath).mkdirs();
-				String exPath = DigestStorageUtil.getPath(ref);
+					if (!new File(storePath).mkdirs()) {
+						log.error("error creating digestStorePath: " + storePath);
+						return;
+					}
+				String exPath = getPath(ref);
 				String filePath = storePath + exPath;
 
 				if (!new File(filePath).exists()) {
 					log.debug("creating folder" + filePath);
-					new File(filePath).mkdirs();
+					if (!new File(filePath).mkdirs()) {
+						log.error("error creating  digest file path " + filePath);
+						return;
+					}
 				}
 
 
@@ -131,12 +141,11 @@ public class DigestStorageUtil {
 	}
 
 
-	public static int getDocCount(String ref) {
-		String storePath = ServerConfigurationService.getString("bodyPath@org.sakaiproject.content.api.ContentHostingService");
+	public  int getDocCount(String ref) {
+		String storePath = searchService.getDigestStoragePath();
 		int count = 0;
 		if (storePath != null ) {
-			storePath += DIGEST_STORE_FOLDER;
-			String exPath = DigestStorageUtil.getPath(ref);
+			String exPath = getPath(ref);
 			String filePath = storePath + exPath;
 			if (new File(filePath).exists()) {
 				File dir = new File(filePath);
@@ -163,7 +172,7 @@ public class DigestStorageUtil {
 		return 0;
 	}
 
-	private static Integer getCountFromFileName(String fileName) {
+	private  Integer getCountFromFileName(String fileName) {
 		if (!fileName.contains(".")) {
 			return null;
 		}
@@ -179,17 +188,16 @@ public class DigestStorageUtil {
 		return countIn;
 	}
 
-	public static void cleanOldDigests(String ref) {
-		String storePath = ServerConfigurationService.getString("bodyPath@org.sakaiproject.content.api.ContentHostingService");
-		int docCount = getDigestCount(ref);
+	public  void cleanOldDigests(String ref) {
+		String storePath = searchService.getDigestStoragePath();
+		int docCount = getDocCount(ref);
 
 		Calendar cal = new GregorianCalendar();
 		cal.add(Calendar.DAY_OF_MONTH, -1);
 		Date yesterDay = cal.getTime();
 
 		if (storePath != null ) {
-			storePath += DIGEST_STORE_FOLDER;
-			String exPath = DigestStorageUtil.getPath(ref);
+			String exPath = getPath(ref);
 			String filePath = storePath + exPath;
 			if (new File(filePath).exists()) {
 				File dir = new File(filePath);
@@ -205,7 +213,9 @@ public class DigestStorageUtil {
 								Date lastMod = new Date(file.lastModified());
 								//is this more than a day old?
 								if (lastMod.before(yesterDay)) {
-									file.delete();
+									if (!file.delete()) {
+										log.warn("cleanOldDigests: unable to delete digest: " +filePath + "/" + fileName);
+									}
 								}
 
 
@@ -216,23 +226,35 @@ public class DigestStorageUtil {
 			}
 		}
 	}
-	
-	
-	public static void deleteAllDigests(String reference) {
-		String storePath = ServerConfigurationService.getString("bodyPath@org.sakaiproject.content.api.ContentHostingService");
+
+
+	public  void deleteAllDigests(String reference) {
+		String storePath = searchService.getDigestStoragePath();
 		if (storePath != null ) {
-			storePath += DIGEST_STORE_FOLDER;
-			String exPath = DigestStorageUtil.getPath(reference);
+			String exPath = getPath(reference);
 			String filePath = storePath + exPath;
-			
+
 			File dir = new File(filePath);
 			if (dir.exists()) {
-				log.info("about to delete: " + filePath);
+				//delete the files in the dir
+				String[] children = dir.list();
+				if (children != null) {
+					for (int i=0; i<children.length; i++) {
+						String fileName = children[i];
+						File file = new File(filePath + "/" + fileName);
+						if (!file.delete()) {
+							log.warn("unable to delete file: " + filePath + "/" + fileName);
+						}
+						
+					}
+				}
+				log.debug("about to delete: " + filePath);
 				if (!dir.delete()) {
 					log.warn("unable to delete: " + filePath);
 				}
+
 			}
-			}
+		}
 	}
-	
+
 }

@@ -278,5 +278,11 @@ public interface SearchService extends Diagnosable
 	 */
 	boolean isEnabled();
 
-
+	/**
+	 * Get the storage location for Digested content. Will return null if system is
+	 * Not set up to store content on the fs
+	 * @return
+	 */
+	public String getDigestStoragePath();
+	
 }

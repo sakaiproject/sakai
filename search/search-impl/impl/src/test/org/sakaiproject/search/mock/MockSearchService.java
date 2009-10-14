@@ -32,6 +32,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchStatus;
@@ -379,4 +380,16 @@ public class MockSearchService implements SearchService
 		return true;
 	}
 
+
+	public String getDigestStoragePath() {
+		return null;
+	}
+	
+	private ServerConfigurationService serverConfigurationService;
+
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
+	
 }

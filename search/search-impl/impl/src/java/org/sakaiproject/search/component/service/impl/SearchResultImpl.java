@@ -21,9 +21,6 @@
 
 package org.sakaiproject.search.component.service.impl;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
@@ -47,7 +44,7 @@ import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.Scorer;
 import org.apache.lucene.search.highlight.SimpleHTMLEncoder;
 import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.PortalUrlEnabledProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
@@ -188,7 +185,7 @@ public class SearchResultImpl implements SearchResult
 			// fetch it from the EntityContentProducer
 
 			String[] references = doc.getValues(SearchService.FIELD_REFERENCE);
-
+			DigestStorageUtil digestStorageUtil = new DigestStorageUtil(searchService);
 			if (references != null && references.length > 0)
 			{
 
@@ -204,7 +201,7 @@ public class SearchResultImpl implements SearchResult
 								digestCount = "1";
 							}
 							log.debug("This file possibly has FS digests with index of " + digestCount);
-							StringBuilder sb1 = DigestStorageUtil.getFileContents(doc.get(SearchService.FIELD_REFERENCE), digestCount);
+							StringBuilder sb1 = digestStorageUtil.getFileContents(doc.get(SearchService.FIELD_REFERENCE), digestCount);
 							if (sb1.length() > 0) {
 								sb.append(sb1);
 
@@ -212,7 +209,7 @@ public class SearchResultImpl implements SearchResult
 								String digest = sep.getContent(references[i]);
 								sb.append(digest);
 								//we need to save this
-								DigestStorageUtil.saveContentToStore(doc.get(SearchService.FIELD_REFERENCE), sb.toString(), 1);
+								digestStorageUtil.saveContentToStore(doc.get(SearchService.FIELD_REFERENCE), sb.toString(), 1);
 
 							}
 

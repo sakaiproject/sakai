@@ -21,12 +21,8 @@
 
 package org.sakaiproject.search.indexer.impl;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -70,8 +66,6 @@ import org.sakaiproject.thread_local.api.ThreadLocalManager;
 public class TransactionalIndexWorker implements IndexWorker
 {
 
-	private static final String DIGEST_STORE_FOLDER = "/searchdigest/";
-
 	private static final Log log = LogFactory.getLog(TransactionalIndexWorker.class);
 
 	/**
@@ -93,6 +87,13 @@ public class TransactionalIndexWorker implements IndexWorker
 	 * dependency
 	 */
 	private RDFSearchService rdfSearchService;
+
+	
+	private SearchService searchService;
+	
+	public void setSearchService(SearchService searchService) {
+		this.searchService = searchService;
+	}
 
 	/**
 	 * dependency
@@ -202,6 +203,7 @@ public class TransactionalIndexWorker implements IndexWorker
 		IndexWriter indexWrite = null;
 		IndexReader indexReader = null;
 		int nprocessed = 0;
+		DigestStorageUtil digestStorageUtil = new DigestStorageUtil(searchService);
 		try
 		{
 			fireIndexStart();
@@ -240,7 +242,7 @@ public class TransactionalIndexWorker implements IndexWorker
 							.getIndexReader();
 					int ndel = indexReader.deleteDocuments(new Term(
 							SearchService.FIELD_REFERENCE, sbi.getName()));
-					DigestStorageUtil.deleteAllDigests(sbi.getName());
+					digestStorageUtil.deleteAllDigests(sbi.getName());
 					
 					
 					nprocessed++;
@@ -365,16 +367,16 @@ public class TransactionalIndexWorker implements IndexWorker
 										log.debug("Adding Content for " + ref + " as ["
 												+ content + "]");
 									}
-									int docCount = DigestStorageUtil.getDocCount(ref) + 1;
+									int docCount = digestStorageUtil.getDocCount(ref) + 1;
 									doc.add(new Field(SearchService.FIELD_CONTENTS,
 											filterNull(content), Field.Store.NO,
 											Field.Index.ANALYZED, Field.TermVector.YES));
 							if (sep instanceof StoredDigestContentProducer) {
 										doc.add(new Field(SearchService.FIELD_DIGEST_COUNT,
 												Integer.valueOf(docCount).toString(), Field.Store.COMPRESS, Field.Index.NO, Field.TermVector.NO));
-										DigestStorageUtil.saveContentToStore(ref, content, docCount);
+										digestStorageUtil.saveContentToStore(ref, content, docCount);
 										if (docCount > 2) {
-											DigestStorageUtil.cleanOldDigests(ref);
+											digestStorageUtil.cleanOldDigests(ref);
 										}
 									}
 
