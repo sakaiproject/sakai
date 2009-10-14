@@ -220,22 +220,12 @@
                 <module>announcement/announcement-api/api</module>
                 <module>announcement/announcement-impl/impl</module>
                 <module>announcement/announcement-impl/pack</module>
-                <module>archive/archive-api/api</module>
-                <module>archive/archive-impl/impl</module>
-                <module>archive/archive-tool/tool</module>
-                <module>archive/import-api</module>
-                <module>archive/import-handlers/announcement-handlers</module>
-                <module>archive/import-handlers/content-handlers</module>
-                <module>archive/import-impl</module>
-                <module>archive/import-pack</module>
-                <module>archive/import-parsers/common-cartridge</module>
-                <module>archive/import-parsers/sakai-archive</module>
+                <module>archive</module>
                 <module>authz</module>
                 <module>config</module>
                 <module>content/content-help</module>
                 <module>content/content-tool/tool</module>
                 <module>courier</module>
-                <module>edu-services/cm-service/cm-api/api</module>
                 <module>help</module>
                 <module>jobscheduler</module>
                 <module>jsf</module>
@@ -254,6 +244,7 @@
                 <module>user/user-tool/tool</module>
                 <module>velocity</module>
                 <module>emailtemplateservice</module>
+                <module>core-deploy</module>
             </modules>
         </profile>
         <profile>
