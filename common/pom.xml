@@ -38,6 +38,7 @@
     <!-- archive and import -->
     <module>archive-api</module>
     <module>archive-impl/impl2</module>
+    <module>archive-impl/impl</module>
     <module>archive-impl/pack</module>
     <module>import-impl</module>
     <module>import-handlers/content-handlers</module>
@@ -149,6 +150,11 @@
 	<dependency>
 		<groupId>org.sakaiproject.common</groupId>
 		<artifactId>archive-impl2</artifactId>
+		<version>1.0-SNAPSHOT</version>
+	</dependency>
+	<dependency>
+		<groupId>org.sakaiproject.common</groupId>
+		<artifactId>archive-impl</artifactId>
 		<version>1.0-SNAPSHOT</version>
 	</dependency>
 	<dependency>

@@ -25,6 +25,10 @@
       <groupId>org.sakaiproject.common</groupId>
       <artifactId>archive-impl2</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.common</groupId>
+      <artifactId>archive-impl</artifactId>
+    </dependency>
   </dependencies>
   <build>
     <resources/>
