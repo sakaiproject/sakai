@@ -59,6 +59,7 @@
             <id>experimental</id>
             <properties>
                 <clean.targets>
+                    components/basiclti-pack;
                     components/sakai-common-components;
                     components/sakai-msgcntr-component;
                     components/sakai-privacy-pack;
@@ -71,6 +72,13 @@
                 <deploy.target>tomcat-overlay</deploy.target>
             </properties>
             <dependencies>
+                <dependency>
+                    <groupId>org.sakaiproject.basiclti</groupId>
+                    <artifactId>basiclti-assembly</artifactId>
+                    <version>1.0-SNAPSHOT</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
                 <dependency>
                     <groupId>org.sakaiproject.common</groupId>
                     <artifactId>sakai-common-assembly</artifactId>
