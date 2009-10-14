@@ -26,9 +26,8 @@
 
 		<!-- For running via Maven -->
 		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-test-harness</artifactId>
-			<version>${project.version}</version>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>test-harness</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>${sakai.spring.groupId}</groupId>
