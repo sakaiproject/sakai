@@ -53,7 +53,7 @@
 			<uniqueVersion>false</uniqueVersion>
 			<id>sakai-maven-snapshots</id>
 			<name>Sakai snapshot Repo</name>
-			<url>dav:http://source.sakaiproject.org/maven2-snapshots</url>
+			<url>dav:https://source.sakaiproject.org/maven2-snapshots</url>
 			<layout>default</layout>
 		</snapshotRepository>
 		<repository>
