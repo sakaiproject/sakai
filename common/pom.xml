@@ -41,7 +41,7 @@
     <module>archive-impl/impl</module>
     <module>archive-impl/pack</module>
     <module>import-impl</module>
-    <module>archive-assebly</module>
+    <module>archive-assembly</module>
     <module>import-handlers/content-handlers</module>
     <module>import-pack</module>
     <module>import-parsers/common-cartridge</module>
