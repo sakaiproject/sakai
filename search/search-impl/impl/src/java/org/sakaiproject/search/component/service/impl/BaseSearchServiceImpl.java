@@ -1061,15 +1061,12 @@ public abstract class BaseSearchServiceImpl implements SearchService
 	 */
 	public boolean isEnabled()
 	{
-		enabled = "true".equals(serverConfigurationService.getString("search.enable",
-		"false"));
+		enabled = serverConfigurationService.getBoolean("search.enable",false);
 
 		log.info("Enable = "
 				+ serverConfigurationService.getString("search.enable", "false"));
 
-		enabled = enabled
-			& "true".equals(serverConfigurationService.getString("search.indexbuild",
-				"true"));
+		enabled = enabled && serverConfigurationService.getBoolean("search.indexbuild",true);
 		return enabled;
 	}
 	
