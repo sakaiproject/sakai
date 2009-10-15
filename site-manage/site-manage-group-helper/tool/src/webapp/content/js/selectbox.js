@@ -115,8 +115,8 @@ function sortSelect(obj) {
 	if (o.length==0) { return; }
 	o = o.sort( 
 		function(a,b) { 
-			if ((a.text+"") < (b.text+"")) { return -1; }
-			if ((a.text+"") > (b.text+"")) { return 1; }
+			if ((a.text.toLowerCase()+"") < (b.text.toLowerCase()+"")) { return -1; }
+			if ((a.text.toLowerCase()+"") > (b.text.toLowerCase()+"")) { return 1; }
 			return 0;
 			} 
 		);

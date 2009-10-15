@@ -129,8 +129,8 @@ function sortSelect(obj) {
 			}
 			else if ((aIsSpecialString && bIsSpecialString) || (!aIsSpecialString && !bIsSpecialString))
 			{
-				if ((a.text+"") < (b.text+"")) { return -1; }
-				if ((a.text+"") > (b.text+"")) { return 1; }
+				if ((a.text.toLowerCase()+"") < (b.text.toLowerCase()+"")) { return -1; }
+				if ((a.text.toLowerCase()+"") > (b.text.toLowerCase()+"")) { return 1; }
 			}
 			return 0;
 			} 
