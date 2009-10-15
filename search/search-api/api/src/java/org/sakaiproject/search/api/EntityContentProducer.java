@@ -30,7 +30,7 @@ import org.sakaiproject.search.model.SearchBuilderItem;
 
 /**
  * This is a special class than handles ContentResources for the purposes of
- * search. This must be impelented in a thread safe way. The aim is to map the
+ * search. This must be implemented in a thread safe way. The aim is to map the
  * content handler to the mime type
  * 
  * @author ieb
@@ -39,10 +39,10 @@ public interface EntityContentProducer
 {
 
 	/**
-	 * Should the consumer use the reader or is it Ok to use a memory copy of
+	 * Should the consumer use the reader or is it OK to use a memory copy of
 	 * the content
 	 * 
-	 * @param cr
+	 * @param reference
 	 * @return
 	 */
 	boolean isContentFromReader(String reference);
@@ -50,7 +50,7 @@ public interface EntityContentProducer
 	/**
 	 * Get a reader for the supplied content resource
 	 * 
-	 * @param cr 
+	 * @param reference 
 	 * @return
 	 */
 	Reader getContentReader(String reference);
@@ -67,7 +67,7 @@ public interface EntityContentProducer
 	/**
 	 * get the title for the content
 	 * 
-	 * @param cr
+	 * @param reference
 	 * @return
 	 */
 	String getTitle(String reference);
@@ -75,7 +75,7 @@ public interface EntityContentProducer
 	/**
 	 * Gets the url that displays the entity
 	 * 
-	 * @param entity
+	 * @param reference
 	 * @return
 	 */
 	String getUrl(String reference);
@@ -83,7 +83,7 @@ public interface EntityContentProducer
 	/**
 	 * If the reference matches this EntityContentProducer return true
 	 * 
-	 * @param ref
+	 * @param reference
 	 * @return
 	 */
 	boolean matches(String reference);
@@ -113,7 +113,7 @@ public interface EntityContentProducer
 	
 	/**
 	 * get the site ID from the resource Name
-	 * @param resourceName
+	 * @param reference
 	 * @return
 	 */
 	String getSiteId(String reference);
@@ -127,14 +127,14 @@ public interface EntityContentProducer
 
 	/**
 	 * If the reference should be indexed, return true
-	 * @param ref
+	 * @param reference
 	 * @return
 	 */
 	boolean isForIndex(String reference);
 
 	/**
 	 * returns true if the current user can view the search result
-	 * @param ref 
+	 * @param reference 
 	 * @return
 	 */
 	boolean canRead(String reference);

@@ -259,7 +259,7 @@ public interface SearchService extends Diagnosable
 
 	/**
 	 * get the term vector for this document, where document is the 
-	 * @param doc
+	 * @param documentId
 	 * @return
 	 * @throws IOException 
 	 */
@@ -267,7 +267,7 @@ public interface SearchService extends Diagnosable
 
 
 	/**
-	 * generates a block of XML representign the search results
+	 * generates a block of XML representing the search results
 	 * @param parameterMap
 	 * @return
 	 */

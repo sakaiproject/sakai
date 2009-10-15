@@ -34,7 +34,7 @@ public interface SearchBuilderItemDao
 	/**
 	 * create a new item
 	 * 
-	 * @return
+	 * @return the search builder item
 	 */
 	SearchBuilderItem create();
 
@@ -56,7 +56,7 @@ public interface SearchBuilderItemDao
 	/**
 	 * count the number of entries pending
 	 * 
-	 * @return
+	 * @return number of pending items
 	 */
 	int countPending();
 

@@ -66,7 +66,7 @@ public interface SearchBuilderItem
 	/**
 	 * The action being performed
 	 * 
-	 * @param action
+	 * @param searchaction
 	 */
 	void setSearchaction(Integer searchaction);
 
@@ -111,7 +111,7 @@ public interface SearchBuilderItem
 	/**
 	 * The state of the record
 	 * 
-	 * @param state
+	 * @param searchstate
 	 */
 	void setSearchstate(Integer searchstate);
 
@@ -156,7 +156,7 @@ public interface SearchBuilderItem
 	/**
 	 * The last update to the record
 	 * 
-	 * @param lastupdate
+	 * @param version
 	 */
 	void setVersion(Date version);
 	

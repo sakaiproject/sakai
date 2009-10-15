@@ -31,9 +31,8 @@ public interface SearchIndexBuilderWorkerDao
 
 	/**
 	 * This method processes the list of document modifications in the list
-	 * @param worker 
 	 * 
-	 * @param runtimeToDo
+	 * @param worker
 	 * @param indexBatchSize
 	 * @throws IOException
 	 * @throws HibernateException
@@ -55,7 +54,7 @@ public interface SearchIndexBuilderWorkerDao
 
 	/**
 	 * create the index with a minimal profile
-	 * @param impl
+	 * @param worker
 	 */
 	void createIndexTransaction(SearchIndexBuilderWorker worker);
 
