@@ -8,7 +8,7 @@
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>Sakai Content Import Handlers</name>
-  <groupId>org.sakaiproject.content</groupId>
+  <groupId>org.sakaiproject.common</groupId>
   <artifactId>sakai-import-content</artifactId>
   <organization>
     <name>Sakai Foundation</name>

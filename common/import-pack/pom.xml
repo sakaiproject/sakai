@@ -28,7 +28,7 @@
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.common</groupId>
-      <artifactId>import-content</artifactId>
+      <artifactId>sakai-import-content</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.common</groupId>
