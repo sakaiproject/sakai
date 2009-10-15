@@ -10,7 +10,7 @@
   <name>Sakai educational Services Project</name>
   <groupId>org.sakaiproject.edu-services</groupId>
   <artifactId>edu-services</artifactId>
-  <version>1.0.0-beta01</version>
+  <version>1.0.0-beta02-SNAPSHOT</version>
   <packaging>pom</packaging>
   	<properties>
 		<!--<url.localsite>dav:http://source.sakaiproject.org/release/kernel/${project.version}</url.localsite>-->
@@ -23,9 +23,9 @@
     <sakai.spring.test.version>2.5.6.SEC01</sakai.spring.test.version>
 	</properties>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/edu-services/tags/edu-services-1.0.0-beta01</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/edu-services/tags/edu-services-1.0.0-beta01</developerConnection>
-    <url>https://source.sakaiproject.org/svn/edu-services/tags/edu-services-1.0.0-beta01</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/edu-services/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/edu-services/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/edu-services/trunk</url>
   </scm>
   <modules>
     <module>gradebook-service</module>
@@ -39,35 +39,35 @@
       <dependency>
         <groupId>org.sakaiproject.edu-services.gradebook</groupId>
         <artifactId>gradebook-service-api</artifactId>
-        <version>1.0.0-beta01</version>
+        <version>1.0.0-beta02-SNAPSHOT</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.edu-services.gradebook</groupId>
         <artifactId>gradebook-service-hibernate</artifactId>
-        <version>1.0.0-beta01</version>
+        <version>1.0.0-beta02-SNAPSHOT</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.edu-services.gradebook</groupId>
         <artifactId>gradebook-service-impl</artifactId>
-        <version>1.0.0-beta01</version>
+        <version>1.0.0-beta02-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.edu-services.gradebook</groupId>
         <artifactId>gradebook-service</artifactId>
-        <version>1.0.0-beta01</version>
+        <version>1.0.0-beta02-SNAPSHOT</version>
         <type>pom</type>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.edu-services.sections</groupId>
         <artifactId>sections-api</artifactId>
-        <version>1.0.0-beta01</version>
+        <version>1.0.0-beta02-SNAPSHOT</version>
       </dependency>
        <dependency>
         <groupId>org.sakaiproject.edu-services.course-management</groupId>
         <artifactId>coursemanagement-api</artifactId>
-        <version>1.0.0-beta01</version>
+        <version>1.0.0-beta02-SNAPSHOT</version>
       </dependency>
 
 
@@ -82,7 +82,7 @@
       <dependency>
         <groupId>org.sakaiproject.edu-services.sections</groupId>
         <artifactId>sections-integrationsupport</artifactId>
-        <version>1.0.0-beta01</version>
+        <version>1.0.0-beta02-SNAPSHOT</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

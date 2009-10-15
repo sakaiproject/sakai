@@ -4,7 +4,7 @@
   <parent>
     <artifactId>edu-services</artifactId>
     <groupId>org.sakaiproject.edu-services</groupId>
-    <version>1.0.0-beta01</version>
+    <version>1.0.0-beta02-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Sections Project</name>
@@ -25,24 +25,24 @@
       <dependency>
         <groupId>org.sakaiproject.edu-services.sections</groupId>
         <artifactId>sections-impl-standalone</artifactId>
-        <version>1.0.0-beta01</version>
+        <version>1.0.0-beta02-SNAPSHOT</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.edu-services.sections</groupId>
         <artifactId>sections-model</artifactId>
-        <version>1.0.0-beta01</version>
+        <version>1.0.0-beta02-SNAPSHOT</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.edu-services.sections</groupId>
         <artifactId>sections-impl</artifactId>
-        <version>1.0.0-beta01</version>
+        <version>1.0.0-beta02-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.edu-services.sections</groupId>
         <artifactId>sections-integrationsupport</artifactId>
-        <version>1.0.0-beta01</version>
+        <version>1.0.0-beta02-SNAPSHOT</version>
         <scope>provided</scope>
       </dependency>
      </dependencies>

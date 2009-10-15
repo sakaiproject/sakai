@@ -4,7 +4,7 @@
   <parent>
     <artifactId>sections</artifactId>
     <groupId>org.sakaiproject.edu-services.sections</groupId>
-    <version>1.0.0-beta01</version>
+    <version>1.0.0-beta02-SNAPSHOT</version>
     <relativePath>../../../pom.xml</relativePath>
   </parent>
   <name>sakai-sections-model</name>
