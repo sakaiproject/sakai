@@ -36,7 +36,7 @@
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.common</groupId>
-      <artifactId>archive-import</artifactId>
+      <artifactId>sakai-archive-import</artifactId>
     </dependency>
   </dependencies>
   <build>

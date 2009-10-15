@@ -175,7 +175,7 @@
 	</dependency>
 	<dependency>
 		<groupId>org.sakaiproject.common</groupId>
-		<artifactId>archive-import</artifactId>
+		<artifactId>sakai-archive-import</artifactId>
 		<version>1.0-SNAPSHOT</version>
 	</dependency>
 	

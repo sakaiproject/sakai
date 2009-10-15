@@ -8,8 +8,8 @@
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>Sakai Import Common Cartridge</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-common-cartridge</artifactId>
+  <groupId>org.sakaiproject.common</groupId>
+  <artifactId>common-cartridge</artifactId>
   <organization>
     <name>Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
