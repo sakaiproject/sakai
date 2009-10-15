@@ -52,7 +52,6 @@
                 <module>config</module>
                 <module>content</module>
                 <module>courier</module>
-                <module>edu-services/cm-service/cm-api/api</module>
                 <module>dav</module>
                 <module>login</module>
                 <module>master</module>
