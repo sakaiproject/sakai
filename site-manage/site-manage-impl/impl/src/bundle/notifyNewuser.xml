@@ -14,7 +14,7 @@
 	2) Login using:
 		User Id: 	${userEid}
 		password: 	${newPassword} 
- You can change your password ater you have logged  in, using the Account tool in your MyWorksace.
+ You can change your password after you have logged  in, using the Account tool in your MyWorksace.
  
  (This is an automated message from ${localSakaiName}.)
 </message>
