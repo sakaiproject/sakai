@@ -210,6 +210,11 @@ This is not needed now that pluto have been released
         <artifactId>sakai-kernel-util</artifactId>
         <version>${sakai.kernel.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.kernel</groupId>
+        <artifactId>test-harness</artifactId>
+        <version>${sakai.kernel.version}</version>
+      </dependency>
 <!-- provided by the JDK, here to ensure its not packaged in child poms 
      child poms may still override if necessary
 -->
