@@ -209,9 +209,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 		enabled = "true".equals(serverConfigurationService.getString("search.enable",
 				"false"));
 
-		enabled = enabled
-				& "true".equals(serverConfigurationService.getString("search.indexbuild",
-						"true"));
+		enabled = enabled && serverConfigurationService.getBoolean("search.indexbuild",true);
 		
 
 		try
