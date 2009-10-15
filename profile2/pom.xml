@@ -192,8 +192,8 @@
 				<version>${log4j.version}</version>
 			</dependency>
 			<dependency>
-      			<groupId>org.sakaiproject</groupId>
-      			<artifactId>sakai-tinyurl-api</artifactId>
+      			<groupId>org.sakaiproject.tinyurl</groupId>
+      			<artifactId>tinyurl-api</artifactId>
      			<version>${tinyurl.version}</version>
 				<scope>provided</scope>
    			</dependency>

@@ -52,8 +52,8 @@
       		<scope>provided</scope>
    		</dependency>
 		<dependency>
-      		<groupId>org.sakaiproject</groupId>
-      		<artifactId>sakai-tinyurl-api</artifactId>
+      		<groupId>org.sakaiproject.tinyurl</groupId>
+      		<artifactId>tinyurl-api</artifactId>
       		<scope>provided</scope>
    		</dependency>
    		
