@@ -208,7 +208,6 @@ public class TransactionalIndexWorker implements IndexWorker
 		{
 			fireIndexStart();
 
-			long last = System.currentTimeMillis();
 			Map<String, SearchBuilderItem> finalState = new HashMap<String, SearchBuilderItem>();
 			for (Iterator<SearchBuilderItem> tditer = ((IndexUpdateTransaction) transaction)
 					.lockedItemIterator(); tditer.hasNext();)
@@ -230,6 +229,9 @@ public class TransactionalIndexWorker implements IndexWorker
 					indexReader = ((IndexUpdateTransaction) transaction).getIndexReader();
 					int ndel = indexReader.deleteDocuments(new Term(
 							SearchService.FIELD_REFERENCE, sbi.getName()));
+					if (log.isDebugEnabled()) {
+						log.debug(ndel + " index documents deleted");
+					}
 				}
 				else if (SearchBuilderItem.ACTION_DELETE
 						.equals(sbi.getSearchaction()))
@@ -242,6 +244,9 @@ public class TransactionalIndexWorker implements IndexWorker
 							.getIndexReader();
 					int ndel = indexReader.deleteDocuments(new Term(
 							SearchService.FIELD_REFERENCE, sbi.getName()));
+					if (log.isDebugEnabled()) {
+						log.debug(ndel + " index documents deleted");
+					}
 					digestStorageUtil.deleteAllDigests(sbi.getName());
 					
 					
