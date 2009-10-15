@@ -63,7 +63,7 @@ public interface SearchWriterLock
 
 	/**
 	 * The date when the lock will expire
-	 * @param exopiry
+	 * @param expires
 	 */
 	void setExpires(Date expires);
 	
