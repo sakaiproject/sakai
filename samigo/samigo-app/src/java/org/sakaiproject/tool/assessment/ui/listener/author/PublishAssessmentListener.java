@@ -261,6 +261,8 @@ public class PublishAssessmentListener
 	  String subject = publishRepublishNotification.getNotificationSubject();
 	  String siteTitle = publishRepublishNotification.getSiteTitle();
 	  String newline = "<br />\n";
+	  String bold_open = "<b>";
+	  String bold_close = "</b>";
 	  StringBuilder message = new StringBuilder();
 
 	  String prePopulateText = publishRepublishNotification.getPrePopulateText();
@@ -273,17 +275,30 @@ public class PublishAssessmentListener
 		  message.append(newline);
 	  }
 
+	  message.append("\"");
+	  message.append(bold_open);
 	  message.append(title);
+	  message.append(bold_close);
+	  message.append("\"");
 	  message.append(" ");
 	  
 	  if (startDateString != null && !startDateString.trim().equals("")) {
-		  message.append(rl.getString("will_be_available_on"));
+		  message.append(rl.getString("will_be"));
+		  message.append(" ");
+		  message.append(bold_open);
+		  message.append(rl.getString("available_on"));
 		  message.append(" ");
 		  message.append(startDateString);
+		  message.append(bold_close);
 	  }
 	  else {
-		  message.append(rl.getString("is_available_immediately"));
+		  message.append(rl.getString("is"));
+		  message.append(" ");
+		  message.append(bold_open);
+		  message.append(rl.getString("available_immediately_2"));
+		  message.append(bold_close);
 	  }
+	  message.append(". ");
 	  message.append(newline);
 	  
 	  if ("Anonymous Users".equals(releaseTo)) {
@@ -303,12 +318,17 @@ public class PublishAssessmentListener
 	  message.append(rl.getString("at"));
 	  message.append(" ");
 	  message.append(publishedURL);
-
+	  message.append(". ");
+	  
 	  if (dueDateString != null && !dueDateString.trim().equals("")) {
 		  message.append(newline);
-		  message.append(rl.getString("it_is_due"));
+		  message.append(rl.getString("it_is"));
+		  message.append(" ");
+		  message.append(bold_open);
+		  message.append(rl.getString("due"));
 		  message.append(" ");
 		  message.append(dueDateString);
+		  message.append(bold_close);
 		  message.append(". ");
 	  }
 	  
@@ -365,18 +385,30 @@ public class PublishAssessmentListener
 	  message.append(rl.getString("students_will_receive"));
 	  message.append(" ");
 	  if ("1".equals(feedbackDelivery)) {
-		  message.append(rl.getString("immediate_feedback"));
+		  message.append(bold_open);
+		  message.append(rl.getString("immediate_feedback_2"));
+		  message.append(bold_close);
 	  }
 	  else if ("4".equals(feedbackDelivery)) {
+		  message.append(bold_open);
 		  message.append(rl.getString("feedback_on_submission_1"));
+		  message.append(bold_close);
 	  }
 	  else if ("3".equals(feedbackDelivery)) {
-		  message.append(rl.getString("no_feedback_short"));
+		  message.append(bold_open);
+		  message.append(rl.getString("no_feedback_short_2"));
+		  message.append(bold_close);
 	  }
 	  else {
-		  message.append(rl.getString("feedback_available_on"));
+		  message.append(bold_open);
+		  message.append(rl.getString("feedback_2"));
+		  message.append(bold_close);
 		  message.append(" ");
+		  message.append(rl.getString("at"));
+		  message.append(" ");
+		  message.append(bold_open);
 		  message.append(feedbackDateString);
+		  message.append(bold_close);
 	  }
 	  message.append(". ");
 	  message.append(newline);
@@ -393,6 +425,7 @@ public class PublishAssessmentListener
 	  message.append("\">");
 	  message.append(ServerConfigurationService.getPortalUrl());
 	  message.append("</a>");
+	  message.append(".");
 	  message.append(newline);
 	  message.append(newline);
 

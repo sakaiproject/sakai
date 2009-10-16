@@ -116,20 +116,42 @@
 
 <h:panelGrid columns="1" rowClasses="shorttextPadding" rendered="#{author.isEditPendingAssessmentFlow}" border="0">
 	<h:panelGroup>
-		<h:outputText value=" #{assessmentSettings.title}" rendered="#{assessmentSettings.title ne null}"/>
-		<h:outputText value=" #{assessmentSettingsMessages.will_be_available_on} #{assessmentSettings.startDateString}" rendered="#{assessmentSettings.startDate ne null}" />
-		<h:outputText rendered="#{assessmentSettings.startDate eq null}" value=" #{assessmentSettingsMessages.is_available_immediately}" />
+		<h:panelGroup rendered="#{assessmentSettings.title ne null}"> 
+			<f:verbatim><b></f:verbatim>
+			<h:outputText value="\"#{assessmentSettings.title}\"" />
+			<f:verbatim></b></f:verbatim>
+		</h:panelGroup>
+		
+		<h:panelGroup rendered="#{assessmentSettings.startDate ne null}">
+			<h:outputText value=" #{assessmentSettingsMessages.will_be}" />
+			<f:verbatim><b></f:verbatim>
+			<h:outputText value=" #{assessmentSettingsMessages.available_on} #{assessmentSettings.startDateString}" />
+			<f:verbatim></b></f:verbatim>
+		</h:panelGroup>
+		
+		<h:panelGroup rendered="#{assessmentSettings.startDate eq null}" >
+			<h:outputText value=" #{assessmentSettingsMessages.is}" />
+			<f:verbatim><b></f:verbatim>
+			<h:outputText value=" #{assessmentSettingsMessages.available_immediately_2}" />
+			<f:verbatim></b></f:verbatim>
+		</h:panelGroup>
+		<h:outputText value="." />
 	</h:panelGroup>
     
 	<h:panelGroup> 
 		<h:outputLabel value="#{assessmentSettingsMessages.to_take_anonymously}" rendered="#{assessmentSettings.releaseTo eq 'Anonymous Users'}"/>
 		<h:outputLabel value="#{assessmentSettingsMessages.to_the_entire_class}" rendered="#{assessmentSettings.releaseTo ne 'Anonymous Users' && assessmentSettings.releaseTo ne 'Selected Groups'}"/>
 		<h:outputLabel value="#{assessmentSettingsMessages.to} #{assessmentSettings.releaseToGroupsAsString}" rendered="#{assessmentSettings.releaseTo eq 'Selected Groups'}"/>
-		<h:outputText value=" #{assessmentSettingsMessages.at} #{assessmentSettings.publishedUrl}" />
+		<h:outputText value=" #{assessmentSettingsMessages.at} #{assessmentSettings.publishedUrl}." />
 	</h:panelGroup>
 	
-	<h:outputText value="#{assessmentSettingsMessages.it_is_due} #{assessmentSettings.dueDateString}." rendered="#{assessmentSettings.dueDate ne null}" />
-
+	<h:panelGroup  rendered="#{assessmentSettings.dueDate ne null}" > 
+		<h:outputText value="#{assessmentSettingsMessages.it_is}"/>
+		<f:verbatim><b></f:verbatim>
+		<h:outputText value=" #{assessmentSettingsMessages.due} #{assessmentSettings.dueDateString}"/>
+		<f:verbatim></b></f:verbatim>
+		<h:outputText value="." />
+	</h:panelGroup>
 	<f:verbatim><br/></f:verbatim>    
 
 	<h:panelGroup>
@@ -147,11 +169,23 @@
 		
 	<h:panelGroup>
 		<h:outputText value=" #{assessmentSettingsMessages.students_will_receive}"/>
-		<h:outputText value=" #{assessmentSettingsMessages.immediate_feedback}" rendered="#{assessmentSettings.feedbackDelivery eq '1'}" />
-		<h:outputText value=" #{assessmentSettingsMessages.feedback_on_submission_1}" rendered="#{assessmentSettings.feedbackDelivery eq '4'}" />
-		<h:outputText value=" #{assessmentSettingsMessages.no_feedback_short}" rendered="#{assessmentSettings.feedbackDelivery eq '3'}" />
-		<h:outputText value=" #{assessmentSettingsMessages.feedback_available_on} #{assessmentSettings.feedbackDateString}"
-          rendered="#{assessmentSettings.feedbackDelivery eq '2'}" />
+		<h:panelGroup rendered="#{assessmentSettings.feedbackDelivery ne '2'}">
+			<f:verbatim><b></f:verbatim>
+			<h:outputText value=" #{assessmentSettingsMessages.immediate_feedback_2}" rendered="#{assessmentSettings.feedbackDelivery eq '1'}" />
+			<h:outputText value=" #{assessmentSettingsMessages.feedback_on_submission_1}" rendered="#{assessmentSettings.feedbackDelivery eq '4'}" />
+			<h:outputText value=" #{assessmentSettingsMessages.no_feedback_short_2}" rendered="#{assessmentSettings.feedbackDelivery eq '3'}" />
+			<f:verbatim></b></f:verbatim>
+		</h:panelGroup>
+				
+		<h:panelGroup rendered="#{assessmentSettings.feedbackDelivery eq '2'}" >
+			<f:verbatim><b></f:verbatim>
+			<h:outputText value=" #{assessmentSettingsMessages.feedback_2}" />
+			<f:verbatim></b></f:verbatim>
+			<h:outputText value=" #{assessmentSettingsMessages.at}" />
+			<f:verbatim><b></f:verbatim>
+			<h:outputText value=" #{assessmentSettings.feedbackDateString}" />
+			<f:verbatim></b></f:verbatim>
+		</h:panelGroup>
 		<h:outputText value="." />
 	</h:panelGroup>
 
@@ -159,20 +193,42 @@
 
 	<h:panelGrid columns="1" rowClasses="shorttextPadding" rendered="#{!author.isEditPendingAssessmentFlow}" border="0">
 		<h:panelGroup>
-			<h:outputText value=" #{publishedSettings.title}" rendered="#{publishedSettings.title ne null}"/>
-			<h:outputText value=" #{assessmentSettingsMessages.will_be_available_on} #{publishedSettings.startDateString}" rendered="#{publishedSettings.startDate ne null}" />
-			<h:outputText rendered="#{publishedSettings.startDate eq null}" value=" #{assessmentSettingsMessages.is_available_immediately}" />
-		</h:panelGroup>
+			<h:panelGroup rendered="#{publishedSettings.title ne null}"> 
+				<f:verbatim><b></f:verbatim>
+				<h:outputText value="\"#{publishedSettings.title}\"" />
+				<f:verbatim></b></f:verbatim>
+			</h:panelGroup>
 
+			<h:panelGroup rendered="#{publishedSettings.startDate ne null}">
+				<h:outputText value=" #{assessmentSettingsMessages.will_be}" />
+				<f:verbatim><b></f:verbatim>
+				<h:outputText value=" #{assessmentSettingsMessages.available_on} #{publishedSettings.startDateString}" />
+				<f:verbatim></b></f:verbatim>
+			</h:panelGroup>
+
+			<h:panelGroup rendered="#{publishedSettings.startDate eq null}" >
+				<h:outputText value=" #{assessmentSettingsMessages.is}" />
+				<f:verbatim><b></f:verbatim>
+				<h:outputText value=" #{assessmentSettingsMessages.available_immediately_2}" />
+				<f:verbatim></b></f:verbatim>
+			</h:panelGroup>
+			<h:outputText value="." />
+		</h:panelGroup>
+		
 		<h:panelGroup> 
 			<h:outputLabel value="#{assessmentSettingsMessages.to_take_anonymously}" rendered="#{publishedSettings.releaseTo eq 'Anonymous Users'}"/>
 			<h:outputLabel value="#{assessmentSettingsMessages.to_the_entire_class}" rendered="#{publishedSettings.releaseTo ne 'Anonymous Users' && publishedSettings.releaseTo ne 'Selected Groups'}"/>
 			<h:outputLabel value="#{assessmentSettingsMessages.to} #{publishedSettings.releaseToGroupsAsString}" rendered="#{publishedSettings.releaseTo eq 'Selected Groups'}"/>
-			<h:outputText value=" #{assessmentSettingsMessages.at} #{publishedSettings.publishedUrl}" />
+			<h:outputText value=" #{assessmentSettingsMessages.at} #{publishedSettings.publishedUrl}." />
 		</h:panelGroup>
 
-		<h:outputText value="#{assessmentSettingsMessages.it_is_due} #{publishedSettings.dueDateString}." rendered="#{publishedSettings.dueDate ne null}" />
-
+		<h:panelGroup  rendered="#{publishedSettings.dueDate ne null}" > 
+			<h:outputText value="#{assessmentSettingsMessages.it_is}"/>
+			<f:verbatim><b></f:verbatim>
+			<h:outputText value=" #{assessmentSettingsMessages.due} #{publishedSettings.dueDateString}"/>
+			<f:verbatim></b></f:verbatim>
+			<h:outputText value="." />
+		</h:panelGroup>
 		<f:verbatim><br/></f:verbatim>
 		
 		<h:panelGroup>
@@ -188,11 +244,23 @@
 		
 		<h:panelGroup>
 			<h:outputText value=" #{assessmentSettingsMessages.students_will_receive}"/>
-			<h:outputText value=" #{assessmentSettingsMessages.immediate_feedback}" rendered="#{publishedSettings.feedbackDelivery eq '1'}" />
-			<h:outputText value=" #{assessmentSettingsMessages.feedback_on_submission_1}" rendered="#{publishedSettings.feedbackDelivery eq '4'}" />
-			<h:outputText value=" #{assessmentSettingsMessages.no_feedback_short}" rendered="#{publishedSettings.feedbackDelivery eq '3'}" />
-			<h:outputText value=" #{assessmentSettingsMessages.feedback_available_on} #{publishedSettings.feedbackDateString}"
-	          rendered="#{publishedSettings.feedbackDelivery eq '2'}" />
+			<h:panelGroup rendered="#{publishedSettings.feedbackDelivery ne '2'}">
+				<f:verbatim><b></f:verbatim>
+				<h:outputText value=" #{assessmentSettingsMessages.immediate_feedback_2}" rendered="#{publishedSettings.feedbackDelivery eq '1'}" />
+				<h:outputText value=" #{assessmentSettingsMessages.feedback_on_submission_1}" rendered="#{publishedSettings.feedbackDelivery eq '4'}" />
+				<h:outputText value=" #{assessmentSettingsMessages.no_feedback_short_2}" rendered="#{publishedSettings.feedbackDelivery eq '3'}" />
+				<f:verbatim></b></f:verbatim>
+			</h:panelGroup>
+				
+			<h:panelGroup rendered="#{publishedSettings.feedbackDelivery eq '2'}" >
+				<f:verbatim><b></f:verbatim>
+				<h:outputText value=" #{assessmentSettingsMessages.feedback_2}" />
+				<f:verbatim></b></f:verbatim>
+				<h:outputText value=" #{assessmentSettingsMessages.at}" />
+				<f:verbatim><b></f:verbatim>
+				<h:outputText value=" #{publishedSettings.feedbackDateString}" />
+				<f:verbatim></b></f:verbatim>
+			</h:panelGroup>
 			<h:outputText value="." />
 		</h:panelGroup>
 		

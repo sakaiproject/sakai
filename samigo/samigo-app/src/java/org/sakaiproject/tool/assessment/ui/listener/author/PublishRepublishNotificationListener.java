@@ -93,9 +93,9 @@ public class PublishRepublishNotificationListener implements ValueChangeListener
 			publishRepublishNotification.setSendNotification(true);
 			StringBuilder subject = new StringBuilder("[");
 			subject.append(siteTitle);
-			subject.append("] ");
+			subject.append("] \"");
 			subject.append(title);
-			subject.append(" ");
+			subject.append("\" ");
 			if (isEditPendingAssessmentFlow) {
 				if (startDateString == null || startDateString.trim().equals("")) {
 					subject.append(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "is_available_immediately"));
