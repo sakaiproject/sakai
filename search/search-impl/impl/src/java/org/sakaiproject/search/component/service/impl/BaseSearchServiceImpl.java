@@ -54,7 +54,7 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TermQuery;
-import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
@@ -105,8 +105,6 @@ public abstract class BaseSearchServiceImpl implements SearchService
 	 * dependency
 	 */
 	private SessionManager sessionManager;
-
-	private ServerConfigurationService serverConfigurationService;
 
 	private static final String DIGEST_STORE_FOLDER = "/searchdigest/";
 
@@ -986,12 +984,6 @@ public abstract class BaseSearchServiceImpl implements SearchService
 	}
 	
 	
-	public void setServerConfigurationService(
-			ServerConfigurationService serverConfigurationService) {
-		this.serverConfigurationService = serverConfigurationService;
-	}
-
-
 	/**
 	 * @return Returns the indexStorage.
 	 */
@@ -1061,12 +1053,12 @@ public abstract class BaseSearchServiceImpl implements SearchService
 	 */
 	public boolean isEnabled()
 	{
-		enabled = serverConfigurationService.getBoolean("search.enable",false);
+		enabled = ServerConfigurationService.getBoolean("search.enable",false);
 
 		log.info("Enable = "
-				+ serverConfigurationService.getString("search.enable", "false"));
+				+ ServerConfigurationService.getString("search.enable", "false"));
 
-		enabled = enabled && serverConfigurationService.getBoolean("search.indexbuild",true);
+		enabled = enabled && ServerConfigurationService.getBoolean("search.indexbuild",true);
 		return enabled;
 	}
 	
@@ -1074,7 +1066,7 @@ public abstract class BaseSearchServiceImpl implements SearchService
 
 
 	public String getDigestStoragePath() {
-		String storePath = serverConfigurationService.getString("bodyPath@org.sakaiproject.content.api.ContentHostingService");
+		String storePath = ServerConfigurationService.getString("bodyPath@org.sakaiproject.content.api.ContentHostingService");
 		if (storePath == null) {
 			return null;
 		}
