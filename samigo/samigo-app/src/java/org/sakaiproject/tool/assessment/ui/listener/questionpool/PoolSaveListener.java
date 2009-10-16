@@ -156,7 +156,7 @@ public class PoolSaveListener implements ActionListener
       QuestionPoolFacade questionpool =
         new QuestionPoolFacade (beanid, parentid);
       questionpool.updateDisplayName(FormattedText.convertPlaintextToFormattedText(bean.getDisplayName()));
-      questionpool.updateDescription(FormattedText.escapeHtml(bean.getDescription(), false));
+      questionpool.updateDescription(FormattedText.convertPlaintextToFormattedText(bean.getDescription()));
       questionpool.setOrganizationName(FormattedText.convertPlaintextToFormattedText(bean.getOrganizationName()));
       questionpool.setObjectives(FormattedText.convertPlaintextToFormattedText(bean.getObjectives()));
       questionpool.setKeywords(FormattedText.convertPlaintextToFormattedText(bean.getKeywords()));

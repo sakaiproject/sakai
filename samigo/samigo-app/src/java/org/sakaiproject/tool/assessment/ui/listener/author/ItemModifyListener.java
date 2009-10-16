@@ -522,13 +522,13 @@ public class ItemModifyListener implements ActionListener
     while (iter.hasNext()){
     	ItemMetaDataIfc meta= (ItemMetaDataIfc) iter.next();
        if (meta.getLabel().equals(ItemMetaDataIfc.OBJECTIVE)){
-	 bean.setObjective(FormattedText.unEscapeHtml(meta.getEntry()));
+	 bean.setObjective(FormattedText.convertFormattedTextToPlaintext(meta.getEntry()));
        }
        if (meta.getLabel().equals(ItemMetaDataIfc.KEYWORD)){
-	 bean.setKeyword(FormattedText.unEscapeHtml(meta.getEntry()));
+	 bean.setKeyword(FormattedText.convertFormattedTextToPlaintext(meta.getEntry()));
        }
        if (meta.getLabel().equals(ItemMetaDataIfc.RUBRIC)){
-	 bean.setRubric(FormattedText.unEscapeHtml(meta.getEntry()));
+	 bean.setRubric(FormattedText.convertFormattedTextToPlaintext(meta.getEntry()));
        }
        if (meta.getLabel().equals(ItemMetaDataIfc.RANDOMIZE)){
 	 bean.setRandomized(meta.getEntry());

@@ -237,7 +237,7 @@ public class ConfirmPublishAssessmentListener
     //#3 now u can proceed to save core assessment
     assessment = s.save(assessmentSettings);
     //unEscape the FormattedText.convertPlaintextToFormattedText in s.save()
-    assessment.setTitle(FormattedText.unEscapeHtml(assessment.getTitle()));
+    assessment.setTitle(FormattedText.convertFormattedTextToPlaintext(assessment.getTitle()));
     assessmentSettings.setAssessment(assessment);
 
     //  we need a publishedUrl, this is the url used by anonymous user

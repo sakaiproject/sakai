@@ -29,6 +29,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
@@ -97,17 +98,17 @@ public class AuthorSettingsListener implements ActionListener
     assessmentSettings.setNoGroupSelectedError(false);
     assessmentSettings.setBlockDivs("");
     
-    // To unEscapeHtml for the fields that have been through ContextUtil.processFormattedText
-    assessmentSettings.setTitle(FormattedText.unEscapeHtml(assessment.getTitle()));
-    assessmentSettings.setAuthors(FormattedText.unEscapeHtml(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.AUTHORS)));
-    assessmentSettings.setFinalPageUrl(FormattedText.unEscapeHtml(assessment.getAssessmentAccessControl().getFinalPageUrl()));
-    assessmentSettings.setBgColor(FormattedText.unEscapeHtml(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.BGCOLOR)));
-    assessmentSettings.setBgImage(FormattedText.unEscapeHtml(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.BGIMAGE)));
-    assessmentSettings.setKeywords(FormattedText.unEscapeHtml(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.KEYWORDS)));
-    assessmentSettings.setObjectives(FormattedText.unEscapeHtml(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.OBJECTIVES)));
-    assessmentSettings.setRubrics(FormattedText.unEscapeHtml(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.RUBRICS)));
-    assessmentSettings.setUsername(FormattedText.unEscapeHtml(assessment.getAssessmentAccessControl().getUsername()));
-    assessmentSettings.setPassword(FormattedText.unEscapeHtml(assessment.getAssessmentAccessControl().getPassword()));
+    // To convertFormattedTextToPlaintext for the fields that have been through convertPlaintextToFormattedText
+    assessmentSettings.setTitle(FormattedText.convertFormattedTextToPlaintext(assessment.getTitle()));
+    assessmentSettings.setAuthors(FormattedText.convertFormattedTextToPlaintext(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.AUTHORS)));
+    assessmentSettings.setFinalPageUrl(FormattedText.convertFormattedTextToPlaintext(assessment.getAssessmentAccessControl().getFinalPageUrl()));
+    assessmentSettings.setBgColor(FormattedText.convertFormattedTextToPlaintext(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.BGCOLOR)));
+    assessmentSettings.setBgImage(FormattedText.convertFormattedTextToPlaintext(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.BGIMAGE)));
+    assessmentSettings.setKeywords(FormattedText.convertFormattedTextToPlaintext(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.KEYWORDS)));
+    assessmentSettings.setObjectives(FormattedText.convertFormattedTextToPlaintext(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.OBJECTIVES)));
+    assessmentSettings.setRubrics(FormattedText.convertFormattedTextToPlaintext(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.RUBRICS)));
+    assessmentSettings.setUsername(FormattedText.convertFormattedTextToPlaintext(assessment.getAssessmentAccessControl().getUsername()));
+    assessmentSettings.setPassword(FormattedText.convertFormattedTextToPlaintext(assessment.getAssessmentAccessControl().getPassword()));
     
     // else throw error
 

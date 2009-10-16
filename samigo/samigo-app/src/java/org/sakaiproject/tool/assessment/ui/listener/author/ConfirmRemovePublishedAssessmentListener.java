@@ -80,7 +80,7 @@ public class ConfirmRemovePublishedAssessmentListener implements ActionListener
     	author.setOutcome("confirmRemovePublishedAssessment");
     	
     	publishedAssessmentBean.setAssessmentId(publishedAssessmentId);
-    	publishedAssessmentBean.setTitle(FormattedText.unEscapeHtml(publishedAssessment.getTitle()));
+    	publishedAssessmentBean.setTitle(FormattedText.convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
     }
     else {
     	log.warn("publishedAssessment is null");

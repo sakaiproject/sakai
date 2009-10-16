@@ -54,7 +54,7 @@ public class PDFPartBean {
 	 * @param intro
 	 */
 	public void setIntro(String intro) {
-		this.intro = FormattedText.unEscapeHtml(intro);
+		this.intro = FormattedText.convertFormattedTextToPlaintext(intro);
 	}
 
 	/**

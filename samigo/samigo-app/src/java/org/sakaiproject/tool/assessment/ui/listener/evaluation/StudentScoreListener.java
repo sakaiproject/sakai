@@ -140,12 +140,12 @@ public class StudentScoreListener
           {
         	  ItemContentsBean question = (ItemContentsBean) iter2.next();
         	  if (question.getGradingComment() != null && !question.getGradingComment().equals("")) {
-        		  question.setGradingComment(FormattedText.unEscapeHtml(question.getGradingComment()));
+        		  question.setGradingComment(FormattedText.convertFormattedTextToPlaintext(question.getGradingComment()));
         	  }
           }
       } // End of SAK-13930
 
-      bean.setComments(FormattedText.unEscapeHtml(adata.getComments()));
+      bean.setComments(FormattedText.convertFormattedTextToPlaintext(adata.getComments()));
       buildItemContentsMap(dbean);
 
       return true;

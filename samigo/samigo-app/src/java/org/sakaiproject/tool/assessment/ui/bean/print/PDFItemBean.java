@@ -45,7 +45,7 @@ public class PDFItemBean {
 	 * @param content
 	 */
 	public void setContent(String content) {
-		this.content = FormattedText.unEscapeHtml(content);
+		this.content = FormattedText.convertFormattedTextToPlaintext(content);
 	}
 
 	/**

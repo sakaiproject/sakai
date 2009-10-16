@@ -695,7 +695,7 @@ public class ItemAuthorBean
           selection.setLabel(rb.getString("p")+" "+ i );
         }
         else {
-          selection.setLabel(rb.getString("p")+" " + i + " - " + FormattedText.unEscapeHtml(part.getTitle()));
+          selection.setLabel(rb.getString("p")+" " + i + " - " + FormattedText.convertFormattedTextToPlaintext(part.getTitle()));
         }
         selection.setValue(part.getSectionId());
         list.add(selection);
@@ -786,7 +786,7 @@ public class ItemAuthorBean
       while(iter.hasNext())
       {
         QuestionPoolFacade pool = (QuestionPoolFacade) iter.next();
-        poolListSelectItems.add(new SelectItem((pool.getQuestionPoolId().toString()), FormattedText.unEscapeHtml(pool.getDisplayName())));
+        poolListSelectItems.add(new SelectItem((pool.getQuestionPoolId().toString()), FormattedText.convertFormattedTextToPlaintext(pool.getDisplayName())));
 
       }
 

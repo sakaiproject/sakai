@@ -30,7 +30,7 @@ public class ConfirmRepublishAssessmentListener implements ActionListener {
 		PublishedAssessmentService assessmentService = new PublishedAssessmentService();
 		SavePublishedSettingsListener savePublishedSettingsListener = new SavePublishedSettingsListener();
 		PublishedAssessmentSettingsBean assessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean("publishedSettings");
-		assessmentSettings.setTitle(FormattedText.unEscapeHtml(assessmentSettings.getTitle()));
+		assessmentSettings.setTitle(FormattedText.convertFormattedTextToPlaintext(assessmentSettings.getTitle()));
 		Long assessmentId = assessmentSettings.getAssessmentId();
 		PublishedAssessmentFacade assessment = assessmentService.getPublishedAssessment(assessmentId.toString());
 		/*

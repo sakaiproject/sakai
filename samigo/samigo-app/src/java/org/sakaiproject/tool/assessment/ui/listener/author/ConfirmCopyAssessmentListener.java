@@ -35,6 +35,6 @@ public class ConfirmCopyAssessmentListener implements ActionListener {
 		}
 
 		assessmentBean.setAssessmentId(assessment.getAssessmentBaseId().toString());
-		assessmentBean.setTitle(FormattedText.unEscapeHtml(assessment.getTitle()));
+		assessmentBean.setTitle(FormattedText.convertFormattedTextToPlaintext(assessment.getTitle()));
 	}
 }

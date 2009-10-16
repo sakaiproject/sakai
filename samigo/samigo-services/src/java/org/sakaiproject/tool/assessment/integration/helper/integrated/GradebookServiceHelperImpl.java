@@ -23,6 +23,7 @@ package org.sakaiproject.tool.assessment.integration.helper.integrated;
 
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -195,7 +196,7 @@ public void removeExternalAssessment(String gradebookUId,
         appName = tool.getTitle();
       }
 
-      String title = unEscapeHtml(publishedAssessment.getTitle());
+      String title = StringEscapeUtils.unescapeHtml(publishedAssessment.getTitle());
       if(!g.isAssignmentDefined(gradebookUId, title))
       {
         g.addExternalAssessment(gradebookUId,
@@ -210,16 +211,6 @@ public void removeExternalAssessment(String gradebookUId,
       }
     }
     return added;
-  }
-
-  private String unEscapeHtml(String value)
-  {
-	  if (value == null || value.equals("")) return "";
-	  value = value.replaceAll("&lt;", "<");
-	  value = value.replaceAll("&gt;", ">");
-	  value = value.replaceAll("&amp;", "&");
-	  value = value.replaceAll("&quot;", "\"");
-	  return value;
   }
 
   /**

@@ -269,7 +269,7 @@ public class XMLImportBean implements Serializable
     Iterator iter = list.iterator();
 	while (iter.hasNext()) {
 		AssessmentFacade assessmentFacade= (AssessmentFacade) iter.next();
-		assessmentFacade.setTitle(FormattedText.unEscapeHtml(assessmentFacade.getTitle()));
+		assessmentFacade.setTitle(FormattedText.convertFormattedTextToPlaintext(assessmentFacade.getTitle()));
 	}
     authorBean.setAssessments(list);
 

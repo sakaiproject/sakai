@@ -673,7 +673,7 @@ public class QuestionScoreListener implements ActionListener,
 						} else {
 							results.setTotalAutoScore(Float.toString(0));
 						}
-						results.setComments(FormattedText.unEscapeHtml(gdata.getComments()));
+						results.setComments(FormattedText.convertFormattedTextToPlaintext(gdata.getComments()));
 						results.setAnswer(answerText);
 						results.setFullAnswer(fullAnswerText);
 						results.setRationale(rationale);

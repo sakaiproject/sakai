@@ -214,7 +214,7 @@ public class SaveAssessmentSettingsListener
     Iterator iter = assessmentList.iterator();
 	while (iter.hasNext()) {
 		AssessmentFacade assessmentFacade= (AssessmentFacade) iter.next();
-		assessmentFacade.setTitle(FormattedText.unEscapeHtml(assessmentFacade.getTitle()));
+		assessmentFacade.setTitle(FormattedText.convertFormattedTextToPlaintext(assessmentFacade.getTitle()));
 	}
     // get the managed bean, author and set the list
     author.setAssessments(assessmentList);

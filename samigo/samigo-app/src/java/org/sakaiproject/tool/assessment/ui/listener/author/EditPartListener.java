@@ -96,7 +96,7 @@ public class EditPartListener
     section = assessmentService.getSection(sectionId);
     section.setAssessment(assessmentBean.getAssessment());
     sectionBean.setSection(section);
-    sectionBean.setSectionTitle(FormattedText.unEscapeHtml(section.getTitle()));
+    sectionBean.setSectionTitle(FormattedText.convertFormattedTextToPlaintext(section.getTitle()));
     sectionBean.setSectionDescription(section.getDescription());
 
     sectionBean.setNoOfItems(String.valueOf(section.getItemSet().size()));
@@ -144,13 +144,13 @@ public class EditPartListener
     while (iter.hasNext()){
     SectionMetaDataIfc meta= (SectionMetaDataIfc) iter.next();
        if (meta.getLabel().equals(SectionMetaDataIfc.OBJECTIVES)){
-         bean.setObjective(FormattedText.unEscapeHtml(meta.getEntry()));
+         bean.setObjective(FormattedText.convertFormattedTextToPlaintext(meta.getEntry()));
        }
        if (meta.getLabel().equals(SectionMetaDataIfc.KEYWORDS)){
-         bean.setKeyword(FormattedText.unEscapeHtml(meta.getEntry()));
+         bean.setKeyword(FormattedText.convertFormattedTextToPlaintext(meta.getEntry()));
        }
        if (meta.getLabel().equals(SectionMetaDataIfc.RUBRICS)){
-         bean.setRubric(FormattedText.unEscapeHtml(meta.getEntry()));
+         bean.setRubric(FormattedText.convertFormattedTextToPlaintext(meta.getEntry()));
        }
 
        if (meta.getLabel().equals(SectionDataIfc.AUTHOR_TYPE)){

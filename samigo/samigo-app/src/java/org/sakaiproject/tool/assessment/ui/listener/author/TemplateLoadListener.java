@@ -98,8 +98,8 @@ public class TemplateLoadListener
         (templateId);
 
       templateBean.setIdString(templateId);
-      templateBean.setTemplateName(FormattedText.unEscapeHtml(template.getTitle()));
-      templateBean.setTemplateAuthor(FormattedText.unEscapeHtml((String) template.getAssessmentMetaDataMap(template.getAssessmentMetaDataSet()).get("author")));
+      templateBean.setTemplateName(FormattedText.convertFormattedTextToPlaintext(template.getTitle()));
+      templateBean.setTemplateAuthor(FormattedText.convertFormattedTextToPlaintext((String) template.getAssessmentMetaDataMap(template.getAssessmentMetaDataSet()).get("author")));
       templateBean.setTemplateDescription(template.getDescription());
 
       // Assessment Access Control

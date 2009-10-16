@@ -123,7 +123,7 @@ public class QuestionPoolDataBean
    */
   public String getDisplayName()
   {
-    return FormattedText.unEscapeHtml(displayName);
+    return FormattedText.convertFormattedTextToPlaintext(displayName);
   }
 
   /**
@@ -167,7 +167,7 @@ public class QuestionPoolDataBean
    */
   public String getDescription()
   {
-    return FormattedText.unEscapeHtml(description);
+    return FormattedText.convertFormattedTextToPlaintext(description);
   }
 
   /**
@@ -186,7 +186,7 @@ public class QuestionPoolDataBean
    */
   public String getOrganizationName()
   {
-    return FormattedText.unEscapeHtml(organizationName);
+    return FormattedText.convertFormattedTextToPlaintext(organizationName);
   }
 
   /**
@@ -206,7 +206,7 @@ public class QuestionPoolDataBean
    */
   public String getKeywords()
   {
-    return FormattedText.unEscapeHtml(keywords);
+    return FormattedText.convertFormattedTextToPlaintext(keywords);
   }
 
   /**
@@ -226,7 +226,7 @@ public class QuestionPoolDataBean
    */
   public String getObjectives()
   {
-    return FormattedText.unEscapeHtml(objectives);
+    return FormattedText.convertFormattedTextToPlaintext(objectives);
   }
 
   /**

@@ -51,9 +51,9 @@ public class SamLiteBean implements Serializable {
 	}
 	
 	public void parse() {
-		questionGroup = samLiteService.parse(FormattedText.escapeHtml(name, false), 
-				FormattedText.escapeHtml(description, false), 
-				FormattedText.escapeHtml(data, false));
+		questionGroup = samLiteService.parse(FormattedText.convertPlaintextToFormattedText(name), 
+				FormattedText.convertPlaintextToFormattedText(description), 
+				FormattedText.convertPlaintextToFormattedText(data));
 	}
 	
 	public Document createDocument() {
@@ -72,7 +72,7 @@ public class SamLiteBean implements Serializable {
 	    Iterator iter = list.iterator();
 		while (iter.hasNext()) {
 			AssessmentFacade assessmentFacade= (AssessmentFacade) iter.next();
-			assessmentFacade.setTitle(FormattedText.unEscapeHtml(assessmentFacade.getTitle()));
+			assessmentFacade.setTitle(FormattedText.convertFormattedTextToPlaintext(assessmentFacade.getTitle()));
 		}
 	    authorBean.setAssessments(list);
 	}

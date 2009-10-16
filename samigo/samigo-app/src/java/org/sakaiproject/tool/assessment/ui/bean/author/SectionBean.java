@@ -364,7 +364,7 @@ private List attachmentList;
       //Huong's new
       int items = delegate.getCountItems(pool.getQuestionPoolId() );	
       if(items>0){
-    	  String resultListName= FormattedText.unEscapeHtml(pool.getDisplayName())+"("+ items +")" ;	
+    	  String resultListName= FormattedText.convertFormattedTextToPlaintext(pool.getDisplayName())+"("+ items +")" ;	
     	  resultPoolList.add(new SelectItem((pool.getQuestionPoolId().toString()),resultListName) );
       }
     }
@@ -379,7 +379,7 @@ private List attachmentList;
           // if the pool still exists, it's possible that the pool has been deleted  
           int currItems = delegate.getCountItems(currPool.getQuestionPoolId());
           if(currItems>0){
-        	String currPoolName= FormattedText.unEscapeHtml(currPool.getDisplayName())+"("+ currItems +")" ;
+        	String currPoolName= FormattedText.convertFormattedTextToPlaintext(currPool.getDisplayName())+"("+ currItems +")" ;
             resultPoolList.add(new SelectItem((currPool.getQuestionPoolId().toString()), currPoolName));  
           }
         }
