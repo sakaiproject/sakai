@@ -197,7 +197,7 @@ public class SearchResultImpl implements SearchResult
 						//does this ecp store on the FS?
 						if (sep instanceof StoredDigestContentProducer) {
 							String digestCount = doc.get(SearchService.FIELD_DIGEST_COUNT);
-							if (digestCount != null) {
+							if (digestCount == null) {
 								digestCount = "1";
 							}
 							log.debug("This file possibly has FS digests with index of " + digestCount);
