@@ -249,6 +249,9 @@ public class ContentHostingContentProducer implements EntityContentProducer, Sto
 
 	public String getContent(String ref, int minWordLenght)
 	{
+
+		log.info("Digesting " + ref);
+	
 		boolean debug = log.isDebugEnabled();
 		ContentResource contentResource;
 		try
