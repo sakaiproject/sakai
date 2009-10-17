@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>2.7.0-SNAPSHOT</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+  <description>Shared Deployment Descriptor for Samigo</description>
+  <name>sakai-famework-shared-deploy</name>
+  <groupId>org.sakaiproject.famework</groupId>
+  <artifactId>framework-shared-deploy</artifactId>
+  <organization>
+    <name>Sakai Project</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2007</inceptionYear>
+  <packaging>pom</packaging>
+  <properties>
+    <deploy.target>shared</deploy.target>
+  </properties>
+<!-- Share the O.K.I. OSID -->
+  <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject.edu-services.course-management</groupId>
+       <artifactId>coursemanagement-api</artifactId>
+       <scope>compile</scope>
+    </dependency>
+  </dependencies>
+</project>
