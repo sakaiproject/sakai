@@ -43,6 +43,7 @@
             <id>framework</id>
             <modules>
                 <module>kernel-deploy</module>
+		<module>framework-shared-deploy</module>
                 <module>access</module>
                 <module>alias</module>
                 <module>announcement/announcement-api/api</module>
@@ -210,6 +211,7 @@
             <id>cafe</id>
             <modules>
                 <module>kernel-deploy</module>
+		<module>framework-shared-deploy</module>
                 <module>access</module>
                 <module>alias</module>
                 <module>announcement/announcement-api/api</module>
