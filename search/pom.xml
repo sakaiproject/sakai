@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>sakai-standard-tool</artifactId>
@@ -10,14 +10,14 @@
 	<name>Sakai Search Project</name>
 	<groupId>org.sakaiproject.search</groupId>
 	<artifactId>search</artifactId>
-	<version>1.2-SNAPSHOT</version>
+	<version>1.2-beta01</version>
 	<scm>
-		<connection>scm:svn:https://source.sakaiproject.org/svn/search/trunk
+		<connection>scm:svn:https://source.sakaiproject.org/svn/search/tags/search-1.2-beta01
 		</connection>
 		<developerConnection>
-			scm:svn:https://source.sakaiproject.org/svn/search/trunk
+			scm:svn:https://source.sakaiproject.org/svn/search/tags/search-1.2-beta01
 		</developerConnection>
-		<url>https://source.sakaiproject.org/svn/search/trunk
+		<url>https://source.sakaiproject.org/svn/search/tags/search-1.2-beta01
 		</url>
 	</scm>
 	<packaging>pom</packaging>
@@ -63,26 +63,26 @@
 			<dependency>
 				<groupId>org.sakaiproject.search</groupId>
 				<artifactId>search-api</artifactId>
-				<version>1.2-SNAPSHOT</version>
+				<version>1.2-beta01</version>
 				<type>jar</type>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.sakaiproject.search</groupId>
 				<artifactId>search-model</artifactId>
-				<version>1.2-SNAPSHOT</version>
+				<version>1.2-beta01</version>
 				<type>jar</type>
 			</dependency>
 			<dependency>
 				<groupId>org.sakaiproject.search</groupId>
 				<artifactId>search-impl</artifactId>
-				<version>1.2-SNAPSHOT</version>
+				<version>1.2-beta01</version>
 				<type>jar</type>
 			</dependency>
 			<dependency>
 				<groupId>org.sakaiproject.search</groupId>
 				<artifactId>search-util</artifactId>
-				<version>1.2-SNAPSHOT</version>
+				<version>1.2-beta01</version>
 				<type>jar</type>
 			</dependency>
 			<dependency>

@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>search</artifactId>
     <groupId>org.sakaiproject.search</groupId>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.2-beta01</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>search-impl</name>
@@ -12,8 +12,8 @@
   <artifactId>search-impl</artifactId>
   <packaging>jar</packaging>
   <properties>
-    <deploy.target/>
-    <maven.test.jvmargs/>
+    <deploy.target />
+    <maven.test.jvmargs />
     <poi.version>3.5-FINAL</poi.version>
     <lucene.version>2.9.0</lucene.version>
   </properties>
