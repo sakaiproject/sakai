@@ -290,23 +290,28 @@
 			<artifactId>cobertura-maven-plugin</artifactId>
 			<version>2.2</version>
 			<configuration>
-				<formats>
-					<format>xml</format>
-					<format>html</format>
-				</formats>
+	<formats>
+		<format>xml</format>
+		<format>html</format>
+	</formats>
 			</configuration>
 		</plugin>
 		<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-javadoc-plugin</artifactId>
-			<configuration>
-				<links>
-					<link> http://java.sun.com/j2se/1.5.0/docs/api </link>
-					<link> http://java.sun.com/products/servlet/2.3/javadoc/ </link>
-				</links>
-				<breakiterator>true</breakiterator>
-				<verbose>false</verbose>
-			</configuration>
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-javadoc-plugin</artifactId>
+	<configuration>
+		<links>
+			<link> http://java.sun.com/j2se/1.5.0/docs/api </link>
+			<link> http://java.sun.com/products/servlet/2.3/javadoc/ </link>
+			<link>http://lucene.apache.org/java/2_9_0/api/all</link>
+		</links>
+		<breakiterator>true</breakiterator>
+		<verbose>false</verbose>
+		<detectLinks>true</detectLinks>
+		<reports>
+			<report>aggregate</report>
+		</reports>
+	</configuration>
 		</plugin>
 		<plugin>
 			<groupId>org.codehaus.mojo</groupId>
@@ -328,7 +333,7 @@
 			<groupId>org.codehaus.mojo</groupId>
 			<artifactId>dashboard-maven-plugin</artifactId>
 		</plugin>
-		<plugin>
+		<!--<plugin>
 			<artifactId>maven-changelog-plugin</artifactId>
 			<configuration>
 				<type>range</type>
@@ -336,7 +341,7 @@
 				<headingDateFormat>yyyy-MM-dd</headingDateFormat>
 				<aggregate>true</aggregate>
 			</configuration>
-		</plugin>
+		</plugin>-->
 	</plugins>
 </reporting>
 <build>
