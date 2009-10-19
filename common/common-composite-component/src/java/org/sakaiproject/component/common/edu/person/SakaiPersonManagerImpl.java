@@ -362,7 +362,7 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 	}
 
 	private String getReference(SakaiPerson spi) {
-		String ref = "/Profile/type/" + spi.getTypeUuid() + "/id/" + spi.getAgentUuid();
+		String ref = "/profile/type/" + spi.getTypeUuid() + "/id/" + spi.getAgentUuid();
 		return ref;
 	}
 
