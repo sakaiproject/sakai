@@ -63,7 +63,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-import org.w3c.dom.events.EventTarget;
+
 
 /**
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
