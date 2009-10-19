@@ -9072,12 +9072,40 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	private void setTemplateListForContext(Context context, SessionState state)
 	{   
-		// We're searching for template sites and these are marked by a property
-		// called 'template' with a value of true
-		Map templateCriteria = new HashMap(1);
-		templateCriteria.put("template", "true");
+		List templateSites = new ArrayList();
 		
-		List templateSites = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ANY, null, null, templateCriteria, SortType.TYPE_ASC, null);
+		boolean allowedForTemplateSites = true;
+		
+		// system wide setting for disable site creation based on template sites
+		if (ServerConfigurationService.getString("wsetup.enableSiteTemplate", "true").equalsIgnoreCase(Boolean.FALSE.toString()))
+		{
+			allowedForTemplateSites = false;
+		}
+		else
+		{
+			if (ServerConfigurationService.getStrings("wsetup.enableSiteTemplate.userType") != null) {
+				List<String> userTypes = new ArrayList(Arrays.asList(ServerConfigurationService.getStrings("wsetup.enableSiteTemplate.userType")));
+				if (userTypes != null & userTypes.size() > 0)
+				{
+					User u = UserDirectoryService.getCurrentUser();
+					if (!(u != null && (SecurityService.isSuperUser() || userTypes.contains(u.getType()))))
+					{
+						// be an admin type user or any type of users defined in the configuration
+						allowedForTemplateSites = false;
+					}
+				}
+			}
+		}
+				
+		if (allowedForTemplateSites)
+		{
+			// We're searching for template sites and these are marked by a property
+			// called 'template' with a value of true
+			Map templateCriteria = new HashMap(1);
+			templateCriteria.put("template", "true");
+			
+			templateSites = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ANY, null, null, templateCriteria, SortType.TYPE_ASC, null);
+		}
 		
 		// If no templates could be found, stick an empty list in the context
 		if(templateSites == null || templateSites.size() <= 0)
