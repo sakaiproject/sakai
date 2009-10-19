@@ -10,7 +10,6 @@ import org.sakaiproject.site.tool.helper.participant.impl.SiteAddParticipantHand
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.ResourceLoader;
 
 import uk.ac.cam.caret.sakai.rsf.producers.FrameAdjustingProducer;
 import uk.ac.cam.caret.sakai.rsf.util.SakaiURLUtil;
@@ -51,8 +50,6 @@ public class AddProducer implements ViewComponentProducer, NavigationCaseReporte
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(AddProducer.class);
 
-    private static ResourceLoader rl = new ResourceLoader("org.sakaiproject.site.tool.participant.bundle.sitesetupgeneric");
-	
     public SiteAddParticipantHandler handler;
     public static final String VIEW_ID = "Add";
     public MessageLocator messageLocator;
@@ -97,9 +94,9 @@ public class AddProducer implements ViewComponentProducer, NavigationCaseReporte
     	
     	// official participant
     	UIInput.make(participantForm, "officialAccountParticipant", "#{siteAddParticipantHandler.officialAccountParticipant}", handler.officialAccountParticipant);
-    	UIOutput.make(participantForm, "officialAccountSectionTitle", rl.getString("officialAccountSectionTitle"));
-    	UIOutput.make(participantForm, "officialAccountName", rl.getString("officialAccountName"));
-    	UIOutput.make(participantForm, "officialAccountLabel", rl.getString("officialAccountLabel"));
+    	UIOutput.make(participantForm, "officialAccountSectionTitle", messageLocator.getMessage("officialAccountSectionTitle"));
+    	UIOutput.make(participantForm, "officialAccountName", messageLocator.getMessage("officialAccountName"));
+    	UIOutput.make(participantForm, "officialAccountLabel", messageLocator.getMessage("officialAccountLabel"));
     	
     	String pickerAction = handler.getServerConfigurationString("officialAccountPickerAction");
 		if (pickerAction != null && !"".equals(pickerAction))
@@ -113,10 +110,10 @@ public class AddProducer implements ViewComponentProducer, NavigationCaseReporte
     	if (allowAddNonOfficialParticipant.equalsIgnoreCase("true"))
     	{
     		UIInput.make(participantForm, "nonOfficialAccountParticipant", "#{siteAddParticipantHandler.nonOfficialAccountParticipant}", handler.nonOfficialAccountParticipant);
-	    	UIOutput.make(participantForm, "nonOfficialAccountSectionTitle", rl.getString("nonOfficialAccountSectionTitle"));
-	    	UIOutput.make(participantForm, "nonOfficialAccountName", rl.getString("nonOfficialAccountName"));
-	    	UIOutput.make(participantForm, "nonOfficialAccountLabel", rl.getString("nonOfficialAccountLabel"));
-	    	UIMessage.make(participantForm, "nonOfficialAddMultiple", "add.multiple.nonofficial");
+	    	UIOutput.make(participantForm, "nonOfficialAccountSectionTitle", messageLocator.getMessage("nonOfficialAccountSectionTitle"));
+	    	UIOutput.make(participantForm, "nonOfficialAccountName", messageLocator.getMessage("nonOfficialAccountName"));
+	    	UIOutput.make(participantForm, "nonOfficialAccountLabel", messageLocator.getMessage("nonOfficialAccountLabel"));
+     		UIMessage.make(participantForm, "nonOfficialAddMultiple", "add.multiple.nonofficial");
     	}
     	
     	// role choice
