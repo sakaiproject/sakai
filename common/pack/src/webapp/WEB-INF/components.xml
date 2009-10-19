@@ -58,6 +58,7 @@
         <property name="sessionFactory">
           <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
         </property>
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
         <property name="typeManager">
           <ref bean="org.sakaiproject.api.common.type.TypeManager" />
         </property>

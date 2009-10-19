@@ -54,6 +54,7 @@ import org.sakaiproject.api.common.type.TypeManager;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.common.manager.PersistableHelper;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -62,6 +63,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.w3c.dom.events.EventTarget;
 
 /**
  * @author <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
@@ -137,6 +139,13 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 		this.userDirectoryService = userDirectoryService;
 	}
 
+	
+	private EventTrackingService eventTrackingService;
+	
+	public void setEventTrackingService(EventTrackingService eventTrackingService) {
+		this.eventTrackingService = eventTrackingService;
+	}
+
 	private PhotoService photoService;
 	public void setPhotoService(PhotoService ps) {
 		this.photoService = ps;
@@ -190,6 +199,10 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 		spi.setTypeUuid(recordType.getUuid());
 		spi.setLocked(Boolean.valueOf(false));
 		this.getHibernateTemplate().save(spi);
+		
+		//log the event
+		String ref = getReference(spi);
+		eventTrackingService.post(eventTrackingService.newEvent("profile.new", ref, true));
 		
 		//do not do this for system profiles 
 		if (serverConfigurationService.getBoolean("profile.updateUser",false)) {
@@ -310,12 +323,22 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 				spi.setJpegPhoto(null);
 			} 
 			
+	
+			
 			// use update(..) method to ensure someone does not try to insert a
 			// prototype.
 			getHibernateTemplate().update(spi);
 			
+			//set the event
+			String ref = getReference(spi);
+			LOG.debug("got ref of: " + ref + " about to set events");
 			
-			LOG.debug("User record updated for Id :-" + spi.getAgentUuid());
+				
+			
+			eventTrackingService.post(eventTrackingService.newEvent("profile.update", ref, true));
+			
+			
+			LOG.info("User record updated for Id :-" + spi.getAgentUuid());
 			//update the account too -only if not system profile 
 			if (serverConfigurationService.getBoolean("profile.updateUser",false) && spi.getTypeUuid().equals(this.userMutableType.getUuid()) )
 			{
@@ -336,6 +359,11 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 			
 			
 		}
+	}
+
+	private String getReference(SakaiPerson spi) {
+		String ref = "/Profile/type/" + spi.getTypeUuid() + "/id/" + spi.getAgentUuid();
+		return ref;
 	}
 
 	/**
@@ -561,9 +589,11 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 			LOG.debug("delete(SakaiPerson " + sakaiPerson + ")");
 		}
 		if (sakaiPerson == null) throw new IllegalArgumentException("Illegal sakaiPerson argument passed!");
-
+		String ref =  getReference(sakaiPerson);
 		LOG.debug("getHibernateTemplate().delete(sakaiPerson);");
 		getHibernateTemplate().delete(sakaiPerson);
+		eventTrackingService.post(eventTrackingService.newEvent("profile.delete", ref, true));
+		
 	}
 
 	private boolean isSupportedType(Type recordType)
