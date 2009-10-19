@@ -117,7 +117,6 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 	/**
 	 * The number of items to process in a batch, default = 100
 	 */
-	private int indexBatchSize = 100;
 
 	private boolean enabled = false;
 
@@ -131,7 +130,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 
 	private boolean runThreads = false;
 
-	private ThreadLocal nodeIDHolder = new ThreadLocal();
+	private ThreadLocal<String> nodeIDHolder = new ThreadLocal<String>();
 
 	private SearchIndexBuilderWorkerDao searchIndexBuilderWorkerDao = null;
 
@@ -154,7 +153,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 	private boolean indexExists = false;
 	
 
-	private static HashMap nodeIDList = new HashMap();;
+	private static HashMap<String, String> nodeIDList = new HashMap<String, String>();;
 
 	private static String lockedTo = null;
 
@@ -321,7 +320,6 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 			while (runThreads)
 			{
 				log.debug("Run Processing Thread");
-				boolean locked = false;
 				org.sakaiproject.tool.api.Session s = null;
 				if (s == null)
 				{
@@ -583,7 +581,6 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 		try
 		{
 			connection = dataSource.getConnection();
-			boolean savedautocommen = connection.getAutoCommit();
 			connection.setAutoCommit(false);
 
 			updateNodeLock = connection.prepareStatement(UPDATE_NODE_LOCK_SQL);
@@ -1274,7 +1271,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 	 */
 	public SearchWriterLock getCurrentLock()
 	{
-		String nodeID = getNodeID();
+		getNodeID();
 		Connection connection = null;
 		PreparedStatement selectLock = null;
 		ResultSet resultSet = null;
@@ -1375,7 +1372,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 	 */
 	public List<SearchWriterLock> getNodeStatus()
 	{
-		String nodeID = getNodeID();
+		getNodeID();
 		Connection connection = null;
 		PreparedStatement selectLock = null;
 		ResultSet resultSet = null;
