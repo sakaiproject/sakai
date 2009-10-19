@@ -113,7 +113,7 @@ public class ControllerServlet2 extends HttpServlet
 		{
 			throw new ServletException("Unable to get " + SessionManager.class.getName());
 		}
-		
+
 		ServerConfigurationService  serverConfigurationService = (ServerConfigurationService) wac.getBean(ServerConfigurationService.class.getName());
 		if (serverConfigurationService == null)
 		{
@@ -192,9 +192,9 @@ public class ControllerServlet2 extends HttpServlet
 		}
 		else
 		{
-			
-			
-			
+
+
+
 			String path = request.getPathInfo();
 			if (path == null || path.length() == 0)
 			{
@@ -202,7 +202,9 @@ public class ControllerServlet2 extends HttpServlet
 			}
 			if (path.startsWith("/"))
 			{
-				// SAK-13408 - Websphere must be told to look in a different directory for .vm files. 
+				path = path.substring(1);
+
+				// SAK-13408, SAK-16278 - Websphere must be told to look in a different directory for .vm files.
 				// This fix forces the class to use the default directory and file when using WebSphere.
 				ServerConfigurationService  serverConfigurationService
 					 = (ServerConfigurationService) wac.getBean(ServerConfigurationService.class.getName());
@@ -211,9 +213,25 @@ public class ControllerServlet2 extends HttpServlet
 					throw new ServletException("Unable to get " + ServerConfigurationService.class.getName());
 				}
 				if ("websphere".equals(serverConfigurationService.getString("servlet.container")))
-					path = "index";
-				else
-					path = path.substring(1);
+				{
+					// expecting path like: "tool/fe2bb974-dbd4-4a08-b75b-d69f3cdcacea" or
+					//                      "tool/fe2bb974-dbd4-4a08-b75b-d69f3cdcacea/admin/index"
+					if (path.indexOf("/") >= 0) {
+						path = path.substring(path.indexOf("/"));
+					}
+					if (path.startsWith("/")) {
+						path = path.substring(1);
+					}
+					if (path.indexOf("/") >= 0) {
+						path = path.substring(path.indexOf("/"));
+						if (path.startsWith("/")) {
+							path = path.substring(1);
+						}
+					} else
+					{
+						path = "index";
+					}
+				}
 			}
 			template = path;
 		}
@@ -267,9 +285,9 @@ public class ControllerServlet2 extends HttpServlet
 		}
 		try
 		{
-			
 
-			
+
+
 			String filePath = "/WEB-INF/vm/" + template + ".vm";
 			String contentType = contentTypes.get(template);
 			if (contentType == null)
@@ -305,7 +323,7 @@ public class ControllerServlet2 extends HttpServlet
 	 * Boolean.TRUE. These MUST be checked by anything that modifies state, to
 	 * ensure that a reinitialisation of Tool state does not result in a repost
 	 * of data.
-	 * 
+	 *
 	 * @param request
 	 * @return
 	 */
@@ -332,7 +350,7 @@ public class ControllerServlet2 extends HttpServlet
 	 * Check to see if the reques represents the Tool default page. This is not
 	 * the same as the view Home. It is the same as first entry into a Tool or
 	 * when the page is refreshed
-	 * 
+	 *
 	 * @param request
 	 * @return true if the page is the Tool default page
 	 */
@@ -350,7 +368,7 @@ public class ControllerServlet2 extends HttpServlet
 	/**
 	 * Check to see if the request represents a page that can act as a restor
 	 * point.
-	 * 
+	 *
 	 * @param request
 	 * @return true if it is possible to restore to this point.
 	 */
