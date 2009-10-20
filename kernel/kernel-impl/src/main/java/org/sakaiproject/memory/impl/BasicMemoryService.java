@@ -33,7 +33,6 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.event.CacheManagerEventListener;
-import net.sf.ehcache.hibernate.EhCache;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
