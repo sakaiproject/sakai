@@ -44,7 +44,6 @@ import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.Scorer;
 import org.apache.lucene.search.highlight.SimpleHTMLEncoder;
 import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.PortalUrlEnabledProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
