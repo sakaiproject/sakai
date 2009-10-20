@@ -253,7 +253,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			// which segments exist locally but not in the DB, these should
 			// be
 			// removed
-			for (Iterator i = localSegments.iterator(); i.hasNext();)
+			for (Iterator<SegmentInfo> i = localSegments.iterator(); i.hasNext();)
 			{
 
 				SegmentInfo local_si = (SegmentInfo) i.next();
@@ -262,7 +262,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				{
 					boolean found = false;
 					String name = local_si.getName();
-					for (Iterator j = dbSegments.iterator(); j.hasNext();)
+					for (Iterator<SegmentInfo> j = dbSegments.iterator(); j.hasNext();)
 					{
 						SegmentInfo db_si = (SegmentInfo) j.next();
 						if (name.equals(db_si.getName()))
@@ -286,7 +286,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 			// if we could mark the local segment for deletion so that
 			// its is only deleted the next time a lock is taken on the index
-			for (Iterator i = removeLocalSegments.iterator(); i.hasNext();)
+			for (Iterator<SegmentInfo> i = removeLocalSegments.iterator(); i.hasNext();)
 			{
 				SegmentInfo rmsi = (SegmentInfo) i.next();
 				removeLocalSegment(rmsi);
@@ -297,12 +297,12 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			// dont update them, then perform the update.
 			try
 			{
-				for (Iterator i = updateLocalSegments.iterator(); i.hasNext();)
+				for (Iterator<SegmentInfo> i = updateLocalSegments.iterator(); i.hasNext();)
 				{
 					SegmentInfo addsi = (SegmentInfo) i.next();
 					addsi.lockLocalSegment();
 				}
-				for (Iterator i = updateLocalSegments.iterator(); i.hasNext();)
+				for (Iterator<SegmentInfo> i = updateLocalSegments.iterator(); i.hasNext();)
 				{
 					SegmentInfo addsi = (SegmentInfo) i.next();
 					try
@@ -337,7 +337,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			finally
 			{
-				for (Iterator i = updateLocalSegments.iterator(); i.hasNext();)
+				for (Iterator<SegmentInfo> i = updateLocalSegments.iterator(); i.hasNext();)
 				{
 					SegmentInfo addsi = (SegmentInfo) i.next();
 					addsi.unlockLocalSegment();
@@ -351,7 +351,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 
 			// build the list putting the current segment at the end
-			for (Iterator i = dbSegments.iterator(); i.hasNext();)
+			for (Iterator<SegmentInfo> i = dbSegments.iterator(); i.hasNext();)
 			{
 				SegmentInfo si = (SegmentInfo) i.next();
 				File f = si.getSegmentLocation();
@@ -422,12 +422,12 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			List<SegmentInfo> currentDBSegments = new ArrayList<SegmentInfo>();
 
 			// which segments exist inthe db but not locally
-			for (Iterator i = dbSegments.iterator(); i.hasNext();)
+			for (Iterator<SegmentInfo> i = dbSegments.iterator(); i.hasNext();)
 			{
 				SegmentInfo db_si = (SegmentInfo) i.next();
 				boolean found = false;
 				String name = db_si.getName();
-				for (Iterator j = localSegments.iterator(); j.hasNext();)
+				for (Iterator<SegmentInfo> j = localSegments.iterator(); j.hasNext();)
 				{
 					SegmentInfo local_si = (SegmentInfo) j.next();
 					if (name.equals(local_si.getName()))
@@ -439,9 +439,9 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				// dont delete bad segments from the DB
 				if (!found)
 				{
-					for (Iterator j = badLocalSegments.iterator(); j.hasNext();)
+					for (Iterator<SegmentInfo> j = badLocalSegments.iterator(); j.hasNext();)
 					{
-						File local_file = (File) j.next();
+						SegmentInfo local_file = (SegmentInfo) j.next();
 						if (name.equals(local_file.getName()))
 						{
 							found = true;
@@ -466,12 +466,12 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			List<SegmentInfo> updateDBSegments = new ArrayList<SegmentInfo>();
 			// which of the localSegments are not in the db
 
-			for (Iterator i = localSegments.iterator(); i.hasNext();)
+			for (Iterator<SegmentInfo> i = localSegments.iterator(); i.hasNext();)
 			{
 				SegmentInfo local_si = (SegmentInfo) i.next();
 				boolean found = false;
 				String name = local_si.getName();
-				for (Iterator j = dbSegments.iterator(); j.hasNext();)
+				for (Iterator<SegmentInfo> j = dbSegments.iterator(); j.hasNext();)
 				{
 					SegmentInfo db_si = (SegmentInfo) j.next();
 					if (name.equals(db_si.getName()))
@@ -495,13 +495,13 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 
 			// which of the localSegments have been modified
-			for (Iterator i = localSegments.iterator(); i.hasNext();)
+			for (Iterator<SegmentInfo> i = localSegments.iterator(); i.hasNext();)
 			{
 				SegmentInfo local_si = (SegmentInfo) i.next();
 				boolean found = false;
 				String name = local_si.getName();
 				long version = local_si.getVersion();
-				for (Iterator j = dbSegments.iterator(); j.hasNext();)
+				for (Iterator<SegmentInfo> j = dbSegments.iterator(); j.hasNext();)
 				{
 					SegmentInfo db_si = (SegmentInfo) j.next();
 					if (name.equals(db_si.getName()) && version > db_si.getVersion())
@@ -522,7 +522,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 
 			// process the get list
-			for (Iterator i = updateDBSegments.iterator(); i.hasNext();)
+			for (Iterator<SegmentInfo> i = updateDBSegments.iterator(); i.hasNext();)
 			{
 				SegmentInfo addsi = (SegmentInfo) i.next();
 				updateDBSegment(connection, addsi);
@@ -530,7 +530,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			// build the list putting the current segment at the end
 			updateDBPatch(connection);
 
-			for (Iterator i = updateDBSegments.iterator(); i.hasNext();)
+			for (Iterator<SegmentInfo> i = updateDBSegments.iterator(); i.hasNext();)
 			{
 				SegmentInfo si = (SegmentInfo) i.next();
 				File f = si.getSegmentLocation();
@@ -541,7 +541,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 			// process the remove list, the update was Ok so we can remove all
 			// the old segments
-			for (Iterator i = removeDBSegments.iterator(); i.hasNext();)
+			for (Iterator<SegmentInfo> i = removeDBSegments.iterator(); i.hasNext();)
 			{
 				SegmentInfo rmsi = (SegmentInfo) i.next();
 				removeDBSegment(connection, rmsi);
@@ -593,13 +593,13 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			List<SegmentInfo> updateDBSegments = new ArrayList<SegmentInfo>();
 			// which of the localSegments are not in the db
 
-			for (Iterator i = localSegments.iterator(); i.hasNext();)
+			for (Iterator<SegmentInfo> i = localSegments.iterator(); i.hasNext();)
 			{
 				SegmentInfo local_si = (SegmentInfo) i.next();
 
 				boolean found = false;
 				String name = local_si.getName();
-				for (Iterator j = dbSegments.iterator(); j.hasNext();)
+				for (Iterator<SegmentInfo> j = dbSegments.iterator(); j.hasNext();)
 				{
 					SegmentInfo db_si = (SegmentInfo) j.next();
 					if (name.equals(db_si.getName()))
@@ -611,9 +611,9 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				// dont delete bad segments from the DB
 				if (!found)
 				{
-					for (Iterator j = badLocalSegments.iterator(); j.hasNext();)
+					for (Iterator<SegmentInfo> j = badLocalSegments.iterator(); j.hasNext();)
 					{
-						File local_file = (File) j.next();
+						SegmentInfo local_file = (SegmentInfo) j.next();
 						if (name.equals(local_file.getName()))
 						{
 							found = true;
@@ -629,12 +629,12 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 
 			// the db segments
-			for (Iterator i = localSegments.iterator(); i.hasNext();)
+			for (Iterator<SegmentInfo> i = localSegments.iterator(); i.hasNext();)
 			{
 				SegmentInfo local_si = (SegmentInfo) i.next();
 				String name = local_si.getName();
-				long version = local_si.getVersion();
-				for (Iterator j = dbSegments.iterator(); j.hasNext();)
+				
+				for (Iterator<SegmentInfo> j = dbSegments.iterator(); j.hasNext();)
 				{
 					SegmentInfo db_si = (SegmentInfo) j.next();
 					if (name.equals(db_si.getName()))
@@ -646,14 +646,14 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 
 			// process the get list
-			for (Iterator i = updateDBSegments.iterator(); i.hasNext();)
+			for (Iterator<SegmentInfo> i = updateDBSegments.iterator(); i.hasNext();)
 			{
 				SegmentInfo addsi = (SegmentInfo) i.next();
 				updateDBSegment(connection, addsi);
 			}
 			// build the list putting the current segment at the end
 
-			for (Iterator i = updateDBSegments.iterator(); i.hasNext();)
+			for (Iterator<SegmentInfo> i = updateDBSegments.iterator(); i.hasNext();)
 			{
 				SegmentInfo si = (SegmentInfo) i.next();
 				segmentList.add(si);

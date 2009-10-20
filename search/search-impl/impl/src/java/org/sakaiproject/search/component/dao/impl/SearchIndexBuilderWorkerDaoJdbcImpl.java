@@ -220,7 +220,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 
 
 	private void processDeletes(SearchIndexBuilderWorker worker, Connection connection,
-			List runtimeToDo) throws SQLException, IOException
+			List<SearchBuilderItem> runtimeToDo) throws SQLException, IOException
 	{
 
 		if (indexStorage.indexExists())
@@ -231,7 +231,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 				indexReader = indexStorage.getIndexReader();
 
 				// Open the index
-				for (Iterator tditer = runtimeToDo.iterator(); worker.isRunning()
+				for (Iterator<SearchBuilderItem> tditer = runtimeToDo.iterator(); worker.isRunning()
 						&& tditer.hasNext();)
 				{
 					SearchBuilderItem sbi = (SearchBuilderItem) tditer.next();
@@ -288,7 +288,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 	}
 
 	private void processAdd(SearchIndexBuilderWorker worker, Connection connection,
-			List runtimeToDo) throws Exception
+			List<SearchBuilderItem> runtimeToDo) throws Exception
 	{
 		IndexWriter indexWrite = null;
 		try
@@ -299,7 +299,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			}
 			long last = System.currentTimeMillis();
 
-			for (Iterator tditer = runtimeToDo.iterator(); worker.isRunning()
+			for (Iterator<SearchBuilderItem> tditer = runtimeToDo.iterator(); worker.isRunning()
 					&& tditer.hasNext();)
 			{
 

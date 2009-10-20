@@ -374,8 +374,8 @@ public class ClusterSegmentsStorage
 		}
 		// itertate over all segments present locally
 
-		List l = clusterIndexStore.getLocalSegments();
-		for (Iterator li = l.iterator(); li.hasNext();)
+		List<SegmentInfo> l = clusterIndexStore.getLocalSegments();
+		for (Iterator<SegmentInfo> li = l.iterator(); li.hasNext();)
 		{
 			SegmentInfoImpl sgi = (SegmentInfoImpl) li.next();
 			if (sgi.isCreated())
