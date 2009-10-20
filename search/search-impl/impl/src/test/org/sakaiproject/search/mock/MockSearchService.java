@@ -391,5 +391,10 @@ public class MockSearchService implements SearchService
 			ServerConfigurationService serverConfigurationService) {
 		this.serverConfigurationService = serverConfigurationService;
 	}
+
+	public String getSearchSuggestion(String searchString) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }

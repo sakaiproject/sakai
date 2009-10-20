@@ -1072,5 +1072,11 @@ public abstract class BaseSearchServiceImpl implements SearchService
 		}
 		return storePath + "/" + DIGEST_STORE_FOLDER;
 	}
+	
+	
+	public String getSearchSuggestion(String searchString) {
+		return null;
+	}
+
 
 }

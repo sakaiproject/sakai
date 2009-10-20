@@ -285,4 +285,11 @@ public interface SearchService extends Diagnosable
 	 */
 	public String getDigestStoragePath();
 	
+	/**
+	 *  Get a suggestion for spelling errors etc
+	 * @param searchString
+	 * @return a suggestion
+	 */
+	public String getSearchSuggestion(String searchString);
+	
 }

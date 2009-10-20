@@ -23,7 +23,11 @@
 				<input id="searchMine" type="radio" name="scope" value="MINE" #if($searchModel.isScope('MINE')) checked="true" #end "/>
 				<label for="searchMine">${rlb.jsp_all_my_sites}</label>
 			</form>
+			#if (${searchModel.hasSuggestion()})
+				<div>${rlb.jsp_did_u_mean}:  ${searchModel.getSuggestion()}</div>
+			#end
 		</div>
+		
 	</div>
 	<div class="searchHeader">
 	<span id="sherlockButtonHolder" >
@@ -63,6 +67,7 @@
     <div class="searchResultsContainer" >
 		  <div id="resultsTab" class="tabOn" >
 
+	
   #if ( ${searchModel.hasError()} ) 
 		  	<div class=\"alertMessage\" >${searchModel.errorMessage}</div>
   #else

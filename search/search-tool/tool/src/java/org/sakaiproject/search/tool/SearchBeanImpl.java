@@ -172,6 +172,9 @@ public class SearchBeanImpl implements SearchBean
 
 	private List<SearchOutputItem> outputItems;
 	
+	
+	private String searchTermSuggestion = null;
+	
 	// Empty constructor to aid in testing.
 	 
 	public SearchBeanImpl(String siteId, SearchService ss, String search,ToolManager tm) {
@@ -483,6 +486,12 @@ public class SearchBeanImpl implements SearchBean
 				{
 					searchResults = searchService.search(search, l, searchStart,
 							searchEnd, filterName, sortName);
+					if (searchResults != null) {
+						log.info("closest match: " + searchResults.get(0).getScore());
+						String sug = searchService.getSearchSuggestion(search);
+						log.info("got suggestion: " + sug);
+						this.searchTermSuggestion = sug;
+					}
 				}
 				catch (Exception ex)
 				{
@@ -497,6 +506,7 @@ public class SearchBeanImpl implements SearchBean
 				timeTaken = 0.001 * (end - start);
 			}
 		}
+
 		return searchResults;
 	}
 
@@ -1068,5 +1078,16 @@ public class SearchBeanImpl implements SearchBean
 	public int getCensoredResultCount() {
 		getResults();
 		return censoredResults;
+	}
+
+	public String getSuggestion() {
+		return searchTermSuggestion;
+	}
+
+	public boolean hasSuggestion() {
+		if (searchTermSuggestion != null) {
+			return true;
+		}
+		return false;
 	}
 }

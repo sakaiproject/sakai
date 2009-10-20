@@ -191,6 +191,10 @@ public interface SearchBean
 
 	boolean isScope(String scope);
 	
+	String getSuggestion();
+	
+	boolean hasSuggestion();
+	
 
 	
 }
