@@ -503,6 +503,12 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-spreadsheet</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.myfaces.core</groupId>
+          <artifactId>myfaces-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 <!-- for spreadsheet support -->
     <dependency>
@@ -510,7 +516,7 @@
       <artifactId>poi</artifactId>
       <version>2.5.1</version>
     </dependency>
-	<dependency>
+    <dependency>
       <groupId>org.apache.myfaces.tomahawk</groupId>
       <artifactId>tomahawk</artifactId>
       <version>1.1.6</version>
