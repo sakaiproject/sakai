@@ -215,7 +215,7 @@ public class FSIndexStorage extends BaseIndexStorage
 
 	public List getSegmentInfoList()
 	{
-		List l = new ArrayList();
+		List<Object[]> l = new ArrayList<Object[]>();
 		l
 				.add(new Object[] {
 						"Index Segment Info is not implemented for Local file system index stores",

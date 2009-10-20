@@ -26,11 +26,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Timer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.lucene.search.IndexSearcher;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.db.cover.SqlService;
@@ -53,21 +51,12 @@ public class SearchServiceImpl extends BaseSearchServiceImpl
 	 * The index builder dependency
 	 */
 	private SearchIndexBuilderWorker searchIndexBuilderWorker;
-	/**
-	 * the currently running index searcher
-	 */
-	private IndexSearcher runningIndexSearcher;
-
-
-	private Object reloadObjectSemaphore = new Object();
-
-	private Timer indexCloseTimer = new Timer(true);
 
 	private long reloadStart;
 
 	private long reloadEnd;
 
-	private static final String DIGEST_STORE_FOLDER = "/searchdigest/";
+	
 
 	/**
 	 * Register a notification action to listen to events and modify the search
@@ -131,7 +120,7 @@ public class SearchServiceImpl extends BaseSearchServiceImpl
 		final String lastLoad = ll;
 		final String loadTime = lt;
 		final SearchWriterLock lock = searchIndexBuilderWorker.getCurrentLock();
-		final List lockNodes = searchIndexBuilderWorker.getNodeStatus();
+		final List<SearchWriterLock> lockNodes = searchIndexBuilderWorker.getNodeStatus();
 		final String pdocs = String.valueOf(getPendingDocs());
 		final String ndocs = String.valueOf(getNDocs());
 
@@ -173,10 +162,10 @@ public class SearchServiceImpl extends BaseSearchServiceImpl
 				}
 			}
 
-			public List getWorkerNodes()
+			public List<Object[]> getWorkerNodes()
 			{
-				List l = new ArrayList();
-				for (Iterator i = lockNodes.iterator(); i.hasNext();)
+				List<Object[]> l = new ArrayList<Object[]>();
+				for (Iterator<SearchWriterLock> i = lockNodes.iterator(); i.hasNext();)
 				{
 					SearchWriterLock swl = (SearchWriterLock) i.next();
 					Object[] result = new Object[3];

@@ -905,7 +905,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			pst.clearParameters();
 			pst.setInt(1, SearchBuilderItem.ITEM_SITE_MASTER.intValue());
 			rst = pst.executeQuery();
-			ArrayList a = new ArrayList();
+			ArrayList<SearchBuilderItemImpl> a = new ArrayList<SearchBuilderItemImpl>();
 			while (rst.next())
 			{
 				SearchBuilderItemImpl sbi = new SearchBuilderItemImpl();
@@ -1238,7 +1238,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 				pst.setInt(1, SearchBuilderItem.STATE_PENDING.intValue());
 				pst.setInt(2, SearchBuilderItem.ITEM.intValue());
 				rst = pst.executeQuery();
-				ArrayList a = new ArrayList();
+				ArrayList<SearchBuilderItemImpl> a = new ArrayList<SearchBuilderItemImpl>();
 				while (rst.next() && a.size() < batchSize)
 				{
 
@@ -1367,11 +1367,11 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			log
 					.debug("ADD ALL RECORDS ==========================================================="); //$NON-NLS-1$
 			long lastupdate = System.currentTimeMillis();
-			List contextList = new ArrayList();
+			List<String> contextList = new ArrayList<String>();
 			if (SearchBuilderItem.GLOBAL_CONTEXT.equals(controlItem.getContext()))
 			{
 
-				for (Iterator i = SiteService.getSites(SelectionType.ANY, null, null,
+				for (Iterator<Site> i = SiteService.getSites(SelectionType.ANY, null, null,
 						null, SortType.NONE, null).iterator(); i.hasNext();)
 				{
 					Site s = (Site) i.next();
@@ -1396,16 +1396,16 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			{
 				contextList.add(controlItem.getContext());
 			}
-			for (Iterator c = contextList.iterator(); c.hasNext();)
+			for (Iterator<String> c = contextList.iterator(); c.hasNext();)
 			{
 				String siteContext = (String) c.next();
 				log.debug("Rebuild for " + siteContext); //$NON-NLS-1$
-				for (Iterator i = searchIndexBuilder.getContentProducers().iterator(); i
+				for (Iterator<EntityContentProducer> i = searchIndexBuilder.getContentProducers().iterator(); i
 						.hasNext();)
 				{
 					EntityContentProducer ecp = (EntityContentProducer) i.next();
 
-					Iterator contentIterator = null;
+					Iterator<String> contentIterator = null;
 					contentIterator = ecp.getSiteContentIterator(siteContext);
 					log.debug("Using ECP " + ecp); //$NON-NLS-1$
 
