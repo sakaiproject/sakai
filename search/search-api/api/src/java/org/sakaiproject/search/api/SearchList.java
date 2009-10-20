@@ -39,7 +39,8 @@ public interface SearchList extends List<SearchResult>
 	Iterator<SearchResult> iterator(int startAt);
 
 	/**
-	 * @return
+	 * 
+	 * @return Get the full size of all the search results
 	 */
 	int getFullSize();
 
