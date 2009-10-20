@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * @author ieb
  */
-public interface SearchList extends List
+public interface SearchList extends List<SearchResult>
 {
 
 	/**
@@ -36,7 +36,7 @@ public interface SearchList extends List
 	 * @param startAt
 	 * @return
 	 */
-	Iterator iterator(int startAt);
+	Iterator<SearchResult> iterator(int startAt);
 
 	/**
 	 * @return

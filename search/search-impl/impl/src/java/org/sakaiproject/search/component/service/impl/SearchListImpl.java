@@ -83,9 +83,9 @@ public class SearchListImpl implements SearchList
 	/**
 	 * @{inheritDoc}
 	 */
-	public Iterator iterator(final int startAt)
+	public Iterator<SearchResult> iterator(final int startAt)
 	{
-		return new Iterator()
+		return new Iterator<SearchResult>()
 		{
 			int counter = Math.max(startAt, start);
 
@@ -94,7 +94,7 @@ public class SearchListImpl implements SearchList
 				return counter < Math.min(h.length(), end);
 			}
 
-			public Object next()
+			public SearchResult next()
 			{
 
 				try
@@ -163,7 +163,7 @@ public class SearchListImpl implements SearchList
 		throw new UnsupportedOperationException("Not Implemented");
 	}
 
-	public Iterator iterator()
+	public Iterator<SearchResult> iterator()
 	{
 		return iterator(0);
 	}
@@ -197,7 +197,7 @@ public class SearchListImpl implements SearchList
 		return null;
 	}
 
-	public boolean add(Object arg0)
+	public boolean add(SearchResult arg0)
 	{
 		throw new UnsupportedOperationException("Not Implemented");
 	}
@@ -237,7 +237,7 @@ public class SearchListImpl implements SearchList
 		throw new UnsupportedOperationException("Not Implemented");
 	}
 
-	public Object get(int arg0)
+	public SearchResult get(int arg0)
 	{
 		try
 		{
@@ -251,18 +251,18 @@ public class SearchListImpl implements SearchList
 
 	}
 
-	public Object set(int arg0, Object arg1)
+	public SearchResult set(int arg0, SearchResult arg1)
 	{
 		throw new UnsupportedOperationException("Not Implemented");
 	}
 
-	public void add(int arg0, Object arg1)
+	public void add(int arg0, SearchResult arg1)
 	{
 		throw new UnsupportedOperationException("Not Implemented");
 
 	}
 
-	public Object remove(int arg0)
+	public SearchResult remove(int arg0)
 	{
 		throw new UnsupportedOperationException("Not Implemented");
 	}
@@ -277,17 +277,17 @@ public class SearchListImpl implements SearchList
 		throw new UnsupportedOperationException("Not Implemented");
 	}
 
-	public ListIterator listIterator()
+	public ListIterator<SearchResult> listIterator()
 	{
 		throw new UnsupportedOperationException("Not Implemented");
 	}
 
-	public ListIterator listIterator(int arg0)
+	public ListIterator<SearchResult> listIterator(int arg0)
 	{
 		throw new UnsupportedOperationException("Not Implemented");
 	}
 
-	public List subList(int arg0, int arg1)
+	public List<SearchResult> subList(int arg0, int arg1)
 	{
 		throw new UnsupportedOperationException("Not Implemented");
 	}
