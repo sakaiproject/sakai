@@ -24,16 +24,20 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * <p>Description: SortCoreAssessmentListener</p>
@@ -67,6 +71,11 @@ public class SortCoreAssessmentListener
       assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(
         this.getCoreOrderBy(author), author.isCoreAscending());
 
+    Iterator iter = assessmentList.iterator();
+  	while (iter.hasNext()) {
+  		AssessmentFacade assessmentFacade= (AssessmentFacade) iter.next();
+  		assessmentFacade.setTitle(FormattedText.convertFormattedTextToPlaintext(assessmentFacade.getTitle()));
+  	}
     // get the managed bean, author and set the list
     author.setAssessments(assessmentList);
 
