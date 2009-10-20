@@ -252,10 +252,13 @@ public class RequestFilter implements Filter
 	
 	/** Is this a Terracotta clustered environment? */
 	protected boolean TERRACOTTA_CLUSTER = false;
-
-                                                                                                             
-    /** The name of the cookie we use to keep sakai session. */                                            
-    protected String cookieName = "JSESSIONID";                                                            
+                                                                                                      
+	/**
+	 * The name of the cookie we use to keep sakai session. Can be overridden
+	 * with a system property org.sakaiproject.requestfilter.SESSION_COOKIE_NAME
+	 * e.g. -Dorg.sakaiproject.requestfilter.SESSION_COOKIE_NAME=SAKAI2SESSIONID
+	 */
+	protected String cookieName = "JSESSIONID";
                                                                                                               
     protected String cookieDomain = null; 
 	
@@ -883,6 +886,11 @@ public class RequestFilter implements Filter
 		String clusterTerracotta = System.getProperty("sakai.cluster.terracotta");
 		TERRACOTTA_CLUSTER = "true".equals(clusterTerracotta);
 		
+		String cookieName = System
+				.getProperty("org.sakaiproject.requestfilter.SESSION_COOKIE_NAME");
+		if (cookieName != null) {
+			this.cookieName = cookieName;
+		}
 	}
 
 	/**
