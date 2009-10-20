@@ -57,7 +57,7 @@ public interface SakaiPersonManager
 	 *        username
 	 * @return List of SakaiPerson objects incuding both system and user mutable Types.
 	 */
-	public List findSakaiPersonByUid(String uid);
+	public List<SakaiPerson> findSakaiPersonByUid(String uid);
 
 	/**
 	 * Query-by-Example finder signature.
@@ -66,7 +66,7 @@ public interface SakaiPersonManager
 	 *        A SakaiPerson protoype. All non-null preoperties will be searched using a logical AND.
 	 * @return
 	 */
-	public List findSakaiPerson(SakaiPerson queryByExample);
+	public List<SakaiPerson> findSakaiPerson(SakaiPerson queryByExample);
 
 	/**
 	 * Assumes current user. If you would like to specify the user, see {@link #findSakaiPerson(String, Type)}.
@@ -132,7 +132,7 @@ public interface SakaiPersonManager
 	 *        String used to search for SakaiPerson objects where the following properties are like this String: uid, givenName, surname.
 	 * @return
 	 */
-	public List findSakaiPerson(String simpleSearchCriteria);
+	public List<SakaiPerson> findSakaiPerson(String simpleSearchCriteria);
 
 	/**
 	 * Composite call to determine if a Set of Agents have the FERPA flag enabled.
@@ -140,14 +140,14 @@ public interface SakaiPersonManager
 	 * @param agentUuids
 	 * @return A List of agentUuid Strings where FERPA is enabled.
 	 */
-	public List isFerpaEnabled(Collection agentUuids);
+	public List<String> isFerpaEnabled(Collection<String> agentUuids);
 
 	/**
 	 * Find all SakaiPerson objects where ferpaEnabled == TRUE.
 	 * 
 	 * @return A List of SakaiPerson objects where ferpaEnabled == TRUE.
 	 */
-	public List findAllFerpaEnabled();
+	public List<SakaiPerson> findAllFerpaEnabled();
 	
 	
 }
