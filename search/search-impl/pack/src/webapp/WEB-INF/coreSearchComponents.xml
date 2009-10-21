@@ -38,6 +38,7 @@
     <property name="searchIndexBuilderWorker"><ref bean="org.sakaiproject.search.api.SearchIndexBuilderWorker" /></property>
 	<property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
     <property name="indexStorage"><ref bean="org.sakaiproject.search.index.IndexStorage" /></property>
+    
         
     
     <property name="autoDdl"><value>${auto.ddl}</value></property>

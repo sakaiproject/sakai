@@ -116,6 +116,7 @@
         <entry key="dateRelevanceSort"><ref bean="dateRelevanceSort"/></entry>
       </map>
     </property>
+    <property name="journalSettings" ref="org.sakaiproject.search.api.JournalSettings"/>
   </bean> 
      
   <bean id="org.sakaiproject.search.api.SearchIndexBuilder"

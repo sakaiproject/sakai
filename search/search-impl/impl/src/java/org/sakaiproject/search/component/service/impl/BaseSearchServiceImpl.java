@@ -21,6 +21,7 @@
 
 package org.sakaiproject.search.component.service.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -42,6 +43,8 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermFreqVector;
 import org.apache.lucene.queryParser.ParseException;
@@ -54,6 +57,11 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.spell.Dictionary;
+import org.apache.lucene.search.spell.LuceneDictionary;
+import org.apache.lucene.search.spell.SpellChecker;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.SimpleFSDirectory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationEdit;
@@ -68,7 +76,9 @@ import org.sakaiproject.search.component.Messages;
 import org.sakaiproject.search.filter.SearchItemFilter;
 import org.sakaiproject.search.index.IndexReloadListener;
 import org.sakaiproject.search.index.IndexStorage;
+import org.sakaiproject.search.journal.impl.JournalSettings;
 import org.sakaiproject.search.model.SearchBuilderItem;
+import org.sakaiproject.search.util.DidYouMeanParser;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -161,8 +171,12 @@ public abstract class BaseSearchServiceImpl implements SearchService
 
 	private boolean enabled;
 
-
+	private JournalSettings journalSettings;
 	
+	public void setJournalSettings(JournalSettings journalSettings) {
+		this.journalSettings = journalSettings;
+	}
+
 	public abstract String getStatus();
 	
 	public abstract SearchStatus getSearchStatus();
@@ -266,7 +280,7 @@ public abstract class BaseSearchServiceImpl implements SearchService
 		{
 			log.error("Failed to start ", t); //$NON-NLS-1$
 		}
-
+		createSpellIndex();
 	}
 
 	/**
@@ -1074,9 +1088,98 @@ public abstract class BaseSearchServiceImpl implements SearchService
 	}
 	
 	
-	public String getSearchSuggestion(String searchString) {
+	public String getSearchSuggestion(String queryString) {
+		log.info("getSearchSuggestion( " + queryString + ")");
+		
+		if (spellIndexDirectory == null) {
+			createSpellIndex();
+		}
+		
+		//the reader to the origional index:
+		IndexReader indexReaderOrigional = null;
+		try {
+			indexReaderOrigional = IndexReader.open(new SimpleFSDirectory(new File(journalSettings.getSearchIndexDirectory())), true);
+		} catch (CorruptIndexException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		DidYouMeanParser parser = new DidYouMeanParser(SearchService.FIELD_CONTENTS, spellIndexDirectory, indexReaderOrigional);
+		
+		try {
+			Query query = parser.suggest(queryString);
+			//the service may have no suggestions
+			if (query != null) {
+				return query.toString(SearchService.FIELD_CONTENTS);
+			}
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return null;
+		/*
+		TermQuery query = new TermQuery(new Term(SearchService.FIELD_CONTENTS, queryString));
+        try {
+            SpellChecker spellChecker = new SpellChecker(spellIndexDirectory);
+            if (spellChecker.exist(queryString)) {
+            	log.warn("spellchecker doesn't exist");
+                return null;
+            }
+           // String[] similarWords = spellChecker.suggestSimilar(queryString, 1);
+            
+            
+            if (similarWords.length == 0) {
+            	log.info("no similar workds found!");
+                return null;
+            }
+            TermQuery tq = new TermQuery(new Term(SearchService.FIELD_CONTENTS, similarWords[0]));
+            log.info("Got suggestion: " + tq.toString());
+            return tq.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+		
+		return null;*/
 	}
 
+	Directory spellIndexDirectory = null;
+	private void createSpellIndex() {
+		log.info("create Spell Index");
+		IndexReader indexReader = null;
+		Long start = System.currentTimeMillis();
+		try {
+			
+			log.info("main index is in: " + journalSettings.getSearchIndexDirectory());
+			log.info("local base is: " + journalSettings.getLocalIndexBase());
+			spellIndexDirectory = new SimpleFSDirectory(new File(journalSettings.getLocalIndexBase() + "/spellindex"));
+			indexReader = IndexReader.open(new SimpleFSDirectory(new File(journalSettings.getSearchIndexDirectory())), true);
+			Dictionary dictionary = new LuceneDictionary(indexReader, SearchService.FIELD_CONTENTS);
+			SpellChecker spellChecker = new SpellChecker(spellIndexDirectory);
+			spellChecker.indexDictionary(dictionary);
+			log.info("New Spell dictionary constructed in "  + (System.currentTimeMillis() - start));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+
+		}
+		finally {
+			if (indexReader !=null) {
+				try {
+
+					indexReader.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		log.info("All done in "  + (System.currentTimeMillis() - start));
+
+
+	}
 
 }

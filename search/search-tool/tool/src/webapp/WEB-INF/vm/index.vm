@@ -27,7 +27,6 @@
 				<div>${rlb.jsp_did_u_mean}:  ${searchModel.getSuggestion()}</div>
 			#end
 		</div>
-		
 	</div>
 	<div class="searchHeader">
 	<span id="sherlockButtonHolder" >

@@ -157,6 +157,12 @@
       <type>jar</type>
     </dependency>
     <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-spellchecker</artifactId>
+      <version>${lucene.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
     </dependency>
