@@ -785,23 +785,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		}
 
 		/**
-		 * {@inheritDoc}
-		 */
-		public AuthzGroup edit(String id)
-		{
-			BaseAuthzGroup edit = (BaseAuthzGroup) super.editResource(id);
-
-			if (edit != null)
-			{
-				edit.activate();
-				completeGet(null, edit, true);
-			}
-
-			return edit;
-
-		}
-
-		/**
 		 * @inheritDoc
 		 */
 		public void addNewUser(final AuthzGroup azGroup, final String userId, final String role, final int maxSize) throws GroupFullException
