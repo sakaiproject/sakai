@@ -44,9 +44,10 @@ public interface GroupProvider
 	/**
 	 * Access the user id - role name map for all users in the external group.
 	 * 
-	 * @param id
-	 *        The external group id.
-	 * @return the user id - role name map for all users in the external group (may be empty).
+	 * @param id The external group id. This will need to be unpacked if the provider supports packing.
+	 * This may be <code>null</code> if the context doesn't have a provider ID set.. 
+	 * @return the user id - role name map for all users in the external group, if id isn't found or is null
+	 * then an empty collection should be returned.
 	 */
 	Map<String, String> getUserRolesForGroup(String id);
 
@@ -71,8 +72,9 @@ public interface GroupProvider
 	 * Unpack a possibly compound id into it's component ids, returning at least the id unchanged if not compound.
 	 * 
 	 * @param id
-	 *        The external realm id.
-	 * @return a String array of one or more ids upacked from this possibly compound id.
+	 *        The external realm id. This may be <code>null</code>.
+	 * @return a String array of one or more ids upacked from this possibly compound id, if <code>null</code> was supplied 
+	 * return an empty array.
 	 */
 	String[] unpackId(String id);
 	
