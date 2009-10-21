@@ -140,7 +140,7 @@ public class SakaiBLTIUtil {
 		}
 		if ( "on".equals(releaseemail) ) {
 			setProperty(props,"lis_person_contact_emailprimary",user.getEmail());
-			setProperty(props,"lis_person_sourced_id",user.getEid());
+			setProperty(props,"lis_person_sourcedid",user.getEid());
 		}
 	}
 
