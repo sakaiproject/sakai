@@ -154,7 +154,7 @@ public class ParallelIndexStorage implements IndexStorage
 	public IndexReader getIndexReader() throws IOException
 	{
 		
-		throw new UnsupportedOperationException("Index Reader is not available ");
+		return indexStorageProvider.getIndexReader();
 	}
 
 	/*

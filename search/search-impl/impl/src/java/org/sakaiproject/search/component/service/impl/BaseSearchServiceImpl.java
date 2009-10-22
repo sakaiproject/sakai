@@ -280,7 +280,7 @@ public abstract class BaseSearchServiceImpl implements SearchService
 		{
 			log.error("Failed to start ", t); //$NON-NLS-1$
 		}
-		createSpellIndex();
+		
 	}
 
 	/**
@@ -1095,6 +1095,12 @@ public abstract class BaseSearchServiceImpl implements SearchService
 			createSpellIndex();
 		}
 		
+		//if its still null we we'rent able to create a spellindex
+		if (spellIndexDirectory == null) {
+			return null;
+		}
+		
+		
 		//the reader to the origional index:
 		IndexReader indexReaderOrigional = null;
 		try {
@@ -1120,30 +1126,7 @@ public abstract class BaseSearchServiceImpl implements SearchService
 			e.printStackTrace();
 		}
 		return null;
-		/*
-		TermQuery query = new TermQuery(new Term(SearchService.FIELD_CONTENTS, queryString));
-        try {
-            SpellChecker spellChecker = new SpellChecker(spellIndexDirectory);
-            if (spellChecker.exist(queryString)) {
-            	log.warn("spellchecker doesn't exist");
-                return null;
-            }
-           // String[] similarWords = spellChecker.suggestSimilar(queryString, 1);
-            
-            
-            if (similarWords.length == 0) {
-            	log.info("no similar workds found!");
-                return null;
-            }
-            TermQuery tq = new TermQuery(new Term(SearchService.FIELD_CONTENTS, similarWords[0]));
-            log.info("Got suggestion: " + tq.toString());
-            return tq.toString();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
-		
-		return null;*/
 	}
 
 	Directory spellIndexDirectory = null;
@@ -1156,7 +1139,11 @@ public abstract class BaseSearchServiceImpl implements SearchService
 			log.info("main index is in: " + journalSettings.getSearchIndexDirectory());
 			log.info("local base is: " + journalSettings.getLocalIndexBase());
 			spellIndexDirectory = new SimpleFSDirectory(new File(journalSettings.getLocalIndexBase() + "/spellindex"));
-			indexReader = IndexReader.open(new SimpleFSDirectory(new File(journalSettings.getSearchIndexDirectory())), true);
+			indexReader = indexStorage.getIndexReader();
+			if (indexReader == null) {
+				log.info("unable to get index reader aborting spellindex creation");
+				return;
+			}
 			Dictionary dictionary = new LuceneDictionary(indexReader, SearchService.FIELD_CONTENTS);
 			SpellChecker spellChecker = new SpellChecker(spellIndexDirectory);
 			spellChecker.indexDictionary(dictionary);

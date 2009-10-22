@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
 
 /**
@@ -68,5 +69,12 @@ public interface IndexStorageProvider
 	 * @param indexListener
 	 */
 	void addIndexListener(IndexListener indexListener);
+	
+	/**
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
+	public IndexReader getIndexReader()  throws IOException;
 
 }
