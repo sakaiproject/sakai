@@ -116,15 +116,15 @@ public class SearchResultImpl implements SearchResult
 		{
 			return fieldNames;
 		}
-		HashMap al = new HashMap();
-		for (Enumeration e = doc.fields(); e.hasMoreElements();)
+		HashMap<String, Field> al = new HashMap<String, Field>();
+		for (Enumeration<Field> e = doc.fields(); e.hasMoreElements();)
 		{
 			Field f = (Field) e.nextElement();
 			al.put(f.name(), f);
 		}
 		fieldNames = new String[al.size()];
 		int ii = 0;
-		for (Iterator i = al.keySet().iterator(); i.hasNext();)
+		for (Iterator<String> i = al.keySet().iterator(); i.hasNext();)
 		{
 			fieldNames[ii++] = (String) i.next();
 		}
