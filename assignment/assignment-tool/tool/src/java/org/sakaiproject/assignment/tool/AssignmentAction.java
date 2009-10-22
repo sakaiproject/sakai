@@ -5058,6 +5058,7 @@ public class AssignmentAction extends PagedResourceActionII
 								try
 								{
 									AssignmentSubmissionEdit sEdit = AssignmentService.editSubmission(s.getReference());
+									ResourcePropertiesEdit sPropertiesEdit = sEdit.getPropertiesEdit();
 									if (bool_change_from_non_electronic)
 									{
 										sEdit.setSubmitted(false);
@@ -5073,8 +5074,17 @@ public class AssignmentAction extends PagedResourceActionII
 									}
 									if (bool_change_resubmit_option)
 									{
-										sEdit.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, a.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER));
-										sEdit.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME, a.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME));
+										String aAllowResubmitNumber = a.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
+										if (aAllowResubmitNumber == null || aAllowResubmitNumber.isEmpty() || aAllowResubmitNumber.equals("0"))
+										{
+											sPropertiesEdit.removeProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
+											sPropertiesEdit.removeProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
+										}
+										else
+										{
+											sPropertiesEdit.addProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, a.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER));
+											sPropertiesEdit.addProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME, a.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME));
+										}
 									}
 									AssignmentService.commitEdit(sEdit);
 								}
