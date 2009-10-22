@@ -718,18 +718,6 @@ public class RequestFilter implements Filter
 				M_log.debug("request timing (ms): " + elapsedTime + " for " + sb);
 			}
 		}
-		
-		// retrieve the configured cookie name, if any
-		if (System.getProperty(SAKAI_COOKIE_NAME) != null)
-		{
-			cookieName = System.getProperty(SAKAI_COOKIE_NAME);
-		}
-
-		// retrieve the configured cookie domain, if any
-		if (System.getProperty(SAKAI_COOKIE_NAME) != null)
-		{
-			cookieDomain = System.getProperty(SAKAI_COOKIE_DOMAIN);
-		}
 	}
 
 	/**
@@ -883,6 +871,17 @@ public class RequestFilter implements Filter
 		String clusterTerracotta = System.getProperty("sakai.cluster.terracotta");
 		TERRACOTTA_CLUSTER = "true".equals(clusterTerracotta);
 		
+		// retrieve the configured cookie name, if any
+		if (System.getProperty(SAKAI_COOKIE_NAME) != null)
+		{
+			cookieName = System.getProperty(SAKAI_COOKIE_NAME);
+		}
+
+		// retrieve the configured cookie domain, if any
+		if (System.getProperty(SAKAI_COOKIE_NAME) != null)
+		{
+			cookieDomain = System.getProperty(SAKAI_COOKIE_DOMAIN);
+		}
 	}
 
 	/**
