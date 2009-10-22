@@ -21,9 +21,9 @@
 	#set($closeTime = false)
 	#set($closeTime = $assignment.CloseTime)
 	#set($allowResubmitNumber="0")
-	#set($allowResubmitNumber = $assignment.getProperties().getProperty("allow_resubmit_number"))
+	#set($allowResubmitNumber = $submission.getProperties().getProperty("allow_resubmit_number"))
 	#if(!$!allowResubmitNumber.equals("0"))
-		#set($allowResubmitCloseTimeString=$assignment.getProperties().getProperty("allow_resubmit_closeTime"))
+		#set($allowResubmitCloseTimeString=$submission.getProperties().getProperty("allow_resubmit_closeTime"))
 		#if($!allowResubmitCloseTimeString)
 			#set($allowResubmitCloseTime=$!TimeService.newTime($!LongObject.parseLong($!allowResubmitCloseTimeString)))
 		#end
@@ -134,7 +134,7 @@
 					</td>
 				</tr>
 				##resubmit number
-				#if($!resubmitNumber)
+				#if($!resubmitNumber && !$!resubmitNumber.equals("0") )
 					<tr>
 						<th>
 							$tlang.getString("allow.resubmit.number")
@@ -143,9 +143,7 @@
 							$resubmitNumber
 						</td>
 					</tr>
-				#end
-				## resubmit close time
-				#if ($!resubmitCloseTime)
+					## resubmit close time
 					<tr>
 						<th>
 							$tlang.getString("allow.resubmit.closeTime")
