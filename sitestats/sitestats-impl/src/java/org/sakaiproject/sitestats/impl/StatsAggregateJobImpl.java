@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -119,20 +119,16 @@ public class StatsAggregateJobImpl implements StatefulJob {
 		String result = null;
 		String jobName = context.getJobDetail().getFullName();
 		
-		// WAIT if job is currently running in this cluster node.
+		// ABORT if job is currently running in this cluster node.
 		//  -> Required as StatefullJob is only correctly supported in trunk!
 		// WARNING: I cannot currently check if this is running in OTHER cluster nodes!!!
 		try{
-			long sleepTime = 10 * 60 * 1000; // 10 min
 			while(isJobCurrentlyRunning(context)) {
 				String beanId = context.getJobDetail().getJobDataMap().getString(SpringJobBeanWrapper.SPRING_BEAN_NAME);
-				LOG.warn("An instance of "+beanId+" is currently running. Trying again in 10min...");
-				Thread.sleep(sleepTime);
+				LOG.warn("Another instance of "+beanId+" is currently running - Execution aborted.");
+				return;
 			}
 		}catch(SchedulerException e){
-			LOG.error("Aborting job execution due to "+e.toString(), e);
-			return;
-		}catch(InterruptedException e){
 			LOG.error("Aborting job execution due to "+e.toString(), e);
 			return;
 		}
@@ -142,7 +138,7 @@ public class StatsAggregateJobImpl implements StatefulJob {
 		// check for SAKAI_EVENT.CONTEXT column
 		try{
 			checkForContextColumn();
-			LOG.info("SAKAI_EVENT.CONTEXT exists? "+isEventContextSupported);
+			LOG.debug("SAKAI_EVENT.CONTEXT exists? "+isEventContextSupported);
 		}catch(SQLException e1){
 			LOG.warn("Unable to check existence of SAKAI_EVENT.CONTEXT", e1);
 		}
@@ -160,7 +156,7 @@ public class StatsAggregateJobImpl implements StatefulJob {
 		if(lastJobRun != null){
 			jobRun.setStartEventId(lastJobRun.getEndEventId() + 1);
 		}else if(getStartEventId() >= 0){
-			LOG.warn("First job run: using 'startEventId' ("+getStartEventId()+") specified in sakai.properties. This value is for the first job run only.");
+			LOG.info("First job run: using 'startEventId' ("+getStartEventId()+") specified in sakai.properties. This value is for the first job run only.");
 			jobRun.setStartEventId(getStartEventId());
 		}else{
 			long lastEventIdInTable = 0;
@@ -169,7 +165,7 @@ public class StatsAggregateJobImpl implements StatefulJob {
 			}catch(SQLException e){
 				LOG.warn("Unable to check last eventId in table SAKAI_EVENT --> assuming 0.", e);
 			}
-			LOG.warn("First job run: no 'startEventId' specified in sakai.properties; using last SAKAI_EVENT.EVENT_ID (id = "+lastEventIdInTable+"). This value is for the first job run only.");
+			LOG.info("First job run: no 'startEventId' specified in sakai.properties; using last SAKAI_EVENT.EVENT_ID (id = "+lastEventIdInTable+"). This value is for the first job run only.");
 			jobRun.setStartEventId(lastEventIdInTable);
 		}
 
@@ -181,8 +177,7 @@ public class StatsAggregateJobImpl implements StatefulJob {
 			LOG.error("Summary: job run failed", e);
 		}
 
-		// persist job info
-		saveJobRun(jobRun);
+		// finish		
 		LOG.info("Finishing job: " + jobName);
 	}
 
@@ -292,7 +287,7 @@ public class StatsAggregateJobImpl implements StatefulJob {
 						lastProcessedEventId = rs.getInt("EVENT_ID");
 						lastEventDate = date;
 						if(firstEventIdProcessed == -1)
-							firstEventIdProcessed = lastProcessedEventId;
+							firstEventIdProcessed = jobRun.getStartEventId(); //was: lastProcessedEventId;
 						if(firstEventIdProcessedInBlock == -1)
 							firstEventIdProcessedInBlock = lastProcessedEventId;
 					}catch(Exception e){
@@ -361,21 +356,22 @@ public class StatsAggregateJobImpl implements StatefulJob {
 			return returnMessage; 
 		}
 		
+		long processingTime = (System.currentTimeMillis() - start) / 1000;
+		
 		if(firstEventIdProcessed == -1 && jobRun != null){
-			LOG.warn("No events were returned - nothing to do.");
-			// no data was processed
-			long eventId = jobRun.getEndEventId();
-			firstEventIdProcessed = eventId;
-			lastProcessedEventIdWithSuccess = eventId;
-			jobRun.setStartEventId(eventId);
-			jobRun.setEndEventId(eventId);
-			jobRun.setLastEventDate(null);
-			jobRun.setJobEndDate(new Date(System.currentTimeMillis()));
+			// no data was processed: do not persist to DB
+//			long eventId = jobRun.getEndEventId();
+//			firstEventIdProcessed = eventId;
+//			lastProcessedEventIdWithSuccess = eventId;
+//			jobRun.setEndEventId(lastProcessedEventId > 0 ? lastProcessedEventId : jobRun.getStartEventId());
+//			jobRun.setLastEventDate(lastEventDate != null ? lastEventDate : null);
+//			jobRun.setJobEndDate(new Date(System.currentTimeMillis()));
+			return "0 events processed in "+processingTime+"s (no entry will be added to SST_JOB_RUN; only events associated with a session are processed)";
+		}else{
 			saveJobRun(jobRun);
 		}
 		
-		long end = System.currentTimeMillis();
-		return counter + " events processed (ids: "+firstEventIdProcessed+" - "+lastProcessedEventIdWithSuccess+") in "+((end-start)/1000)+"s";
+		return counter + " events processed (ids: "+firstEventIdProcessed+" - "+lastProcessedEventIdWithSuccess+") in "+processingTime+"s (only events associated with a session are processed)";
 	}
 
 	private long getEventIdLowerLimit() {
