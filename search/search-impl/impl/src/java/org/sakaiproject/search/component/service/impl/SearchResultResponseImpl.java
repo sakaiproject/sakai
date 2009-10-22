@@ -145,9 +145,9 @@ public class SearchResultResponseImpl implements SearchResult
 	/**
 	 * {@inheritDoc}
 	 */
-	public Map getValueMap()
+	public Map<String, String[]> getValueMap()
 	{
-		HashMap hm = new HashMap();
+		Map<String, String[]> hm = new HashMap<String, String[]>();
 		String[] fieldNames = getFieldNames();
 		for (int i = 0; i < fieldNames.length; i++)
 		{

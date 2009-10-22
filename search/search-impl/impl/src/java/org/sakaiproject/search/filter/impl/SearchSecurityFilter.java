@@ -140,9 +140,9 @@ public class SearchSecurityFilter implements SearchItemFilter
 			return new String[0];
 		}
 
-		public Map getValueMap()
+		public Map<String, String[]> getValueMap()
 		{
-			return new HashMap();
+			return new HashMap<String, String[]>();
 		}
 
 		public String getUrl()

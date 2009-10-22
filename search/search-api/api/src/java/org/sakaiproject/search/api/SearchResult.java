@@ -64,7 +64,7 @@ public interface SearchResult
 	 * 
 	 * @return
 	 */
-	Map getValueMap();
+	Map<String, String[]> getValueMap();
 
 	/**
 	 * An absolute URL to the resource (no host, protocol or port)

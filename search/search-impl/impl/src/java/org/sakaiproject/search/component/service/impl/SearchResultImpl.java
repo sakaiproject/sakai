@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
@@ -139,9 +140,9 @@ public class SearchResultImpl implements SearchResult
 	/**
 	 * {@inheritDoc}
 	 */
-	public Map getValueMap()
+	public Map<String, String[]> getValueMap()
 	{
-		HashMap hm = new HashMap();
+		Map<String, String[]> hm = new HashMap<String, String[]>();
 		String[] fieldNames = getFieldNames();
 		for (int i = 0; i < fieldNames.length; i++)
 		{
@@ -249,9 +250,9 @@ public class SearchResultImpl implements SearchResult
 		sb.append("<result"); //$NON-NLS-1$
 		sb.append(" index=\"").append(getIndex()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
 		sb.append(" score=\"").append(getScore()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
-		sb.append(" sid=\"").append(StringUtils.xmlEscape(getId())).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
-		sb.append(" site=\"").append(StringUtils.xmlEscape(getSiteId())).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
-		sb.append(" reference=\"").append(StringUtils.xmlEscape(getReference())).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append(" sid=\"").append(StringEscapeUtils.escapeXml(getId())).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append(" site=\"").append(StringEscapeUtils.escapeXml(getSiteId())).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append(" reference=\"").append(StringEscapeUtils.escapeXml(getReference())).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
 		try
 		{
 			sb.append(" title=\"").append( //$NON-NLS-1$
@@ -259,10 +260,10 @@ public class SearchResultImpl implements SearchResult
 		}
 		catch (UnsupportedEncodingException e)
 		{
-			sb.append(" title=\"").append(StringUtils.xmlEscape(getTitle())).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append(" title=\"").append(StringEscapeUtils.escapeXml(getTitle())).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		sb.append(" tool=\"").append(StringUtils.xmlEscape(getTool())).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
-		sb.append(" url=\"").append(StringUtils.xmlEscape(getUrl())).append("\" />"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append(" tool=\"").append(StringEscapeUtils.escapeXml(getTool())).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append(" url=\"").append(StringEscapeUtils.escapeXml(getUrl())).append("\" />"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public String getSiteId() {
