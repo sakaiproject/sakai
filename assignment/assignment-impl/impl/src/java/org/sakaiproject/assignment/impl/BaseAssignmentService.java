@@ -5704,10 +5704,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			AssignmentSubmission submission = null;
 			
 			submission = getSubmission(a.getReference(), u);
-			if (submission != null)
-			{
-				closeTime = submission.getCloseTime();
-			}
 			
 			if (submission == null || (submission != null && submission.getTimeSubmitted() == null))
 			{
