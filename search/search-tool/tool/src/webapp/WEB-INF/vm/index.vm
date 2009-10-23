@@ -24,7 +24,7 @@
 				<label for="searchMine">${rlb.jsp_all_my_sites}</label>
 			</form>
 			#if (${searchModel.hasSuggestion()})
-				<div>${rlb.jsp_did_u_mean}:  ${searchModel.getSuggestion()}</div>
+				<div>${rlb.jsp_did_u_mean}:  <a href="${searchModel.getSuggestionUrl()}">${searchModel.getSuggestion()}</a></div>
 			#end
 		</div>
 	</div>

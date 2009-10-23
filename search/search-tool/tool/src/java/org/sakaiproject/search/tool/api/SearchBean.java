@@ -195,6 +195,6 @@ public interface SearchBean
 	
 	boolean hasSuggestion();
 	
-
+	String getSuggestionUrl();
 	
 }

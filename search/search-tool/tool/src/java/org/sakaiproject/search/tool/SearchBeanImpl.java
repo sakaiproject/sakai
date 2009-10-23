@@ -1102,4 +1102,19 @@ public class SearchBeanImpl implements SearchBean
 		}
 		return false;
 	}
+
+	public String getSuggestionUrl() {
+		String searchURL;
+		try {
+			searchURL = "?search="
+				+ URLEncoder.encode(searchTermSuggestion, "UTF-8") + "&scope=" + this.scope;
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+		return FormattedText.escapeHtml(searchURL, false);
+		
+		
+	}
 }
