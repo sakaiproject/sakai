@@ -1091,6 +1091,10 @@ public abstract class BaseSearchServiceImpl implements SearchService
 	public String getSearchSuggestion(String queryString) {
 		log.info("getSearchSuggestion( " + queryString + ")");
 		
+		if (!ServerConfigurationService.getBoolean("search.experimental.didyoumean", false)) {
+			return null;
+		}
+		
 		if (spellIndexDirectory == null) {
 			createSpellIndex();
 		}
@@ -1131,6 +1135,11 @@ public abstract class BaseSearchServiceImpl implements SearchService
 
 	Directory spellIndexDirectory = null;
 	private void createSpellIndex() {
+		if (!ServerConfigurationService.getBoolean("search.experimental.didyoumean", false)) {
+			return;
+		}
+		
+		
 		log.info("create Spell Index");
 		IndexReader indexReader = null;
 		Long start = System.currentTimeMillis();
