@@ -30,6 +30,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.store.Directory;
 import org.sakaiproject.search.index.IndexReloadListener;
 import org.sakaiproject.search.index.IndexStorage;
 import org.sakaiproject.search.journal.api.IndexStorageProvider;
@@ -298,6 +299,11 @@ public class ParallelIndexStorage implements IndexStorage
 	public void setIndexStorageProvider(IndexStorageProvider indexStorageProvider)
 	{
 		this.indexStorageProvider = indexStorageProvider;
+	}
+
+	public Directory getSpellDirectory() {
+		return indexStorageProvider.getSpellDirectory();
+		
 	}
 
 }

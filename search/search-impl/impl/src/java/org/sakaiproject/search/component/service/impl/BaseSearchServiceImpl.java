@@ -1087,6 +1087,7 @@ public abstract class BaseSearchServiceImpl implements SearchService
 		return storePath + "/" + DIGEST_STORE_FOLDER;
 	}
 	
+	Directory spellIndexDirectory = null;
 	
 	public String getSearchSuggestion(String queryString) {
 		log.info("getSearchSuggestion( " + queryString + ")");
@@ -1096,7 +1097,8 @@ public abstract class BaseSearchServiceImpl implements SearchService
 		}
 		
 		if (spellIndexDirectory == null) {
-			createSpellIndex();
+			spellIndexDirectory = indexStorage.getSpellDirectory();
+			
 		}
 		
 		//if its still null we we'rent able to create a spellindex
@@ -1105,10 +1107,10 @@ public abstract class BaseSearchServiceImpl implements SearchService
 		}
 		
 		
-		//the reader to the origional index:
+		//the reader to the original index:
 		IndexReader indexReaderOrigional = null;
 		try {
-			indexReaderOrigional = IndexReader.open(new SimpleFSDirectory(new File(journalSettings.getSearchIndexDirectory())), true);
+			indexReaderOrigional = indexStorage.getIndexReader();
 		} catch (CorruptIndexException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -1133,49 +1135,7 @@ public abstract class BaseSearchServiceImpl implements SearchService
 
 	}
 
-	Directory spellIndexDirectory = null;
-	private void createSpellIndex() {
-		if (!ServerConfigurationService.getBoolean("search.experimental.didyoumean", false)) {
-			return;
-		}
-		
-		
-		log.info("create Spell Index");
-		IndexReader indexReader = null;
-		Long start = System.currentTimeMillis();
-		try {
-			
-			log.info("main index is in: " + journalSettings.getSearchIndexDirectory());
-			log.info("local base is: " + journalSettings.getLocalIndexBase());
-			spellIndexDirectory = new SimpleFSDirectory(new File(journalSettings.getLocalIndexBase() + "/spellindex"));
-			indexReader = indexStorage.getIndexReader();
-			if (indexReader == null) {
-				log.info("unable to get index reader aborting spellindex creation");
-				return;
-			}
-			Dictionary dictionary = new LuceneDictionary(indexReader, SearchService.FIELD_CONTENTS);
-			SpellChecker spellChecker = new SpellChecker(spellIndexDirectory);
-			spellChecker.indexDictionary(dictionary);
-			log.info("New Spell dictionary constructed in "  + (System.currentTimeMillis() - start));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	
 
-		}
-		finally {
-			if (indexReader !=null) {
-				try {
-
-					indexReader.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
-		log.info("All done in "  + (System.currentTimeMillis() - start));
-
-
-	}
 
 }

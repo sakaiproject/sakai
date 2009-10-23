@@ -28,6 +28,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.store.Directory;
 import org.sakaiproject.search.api.Diagnosable;
 
 /**
@@ -166,5 +167,11 @@ public interface IndexStorage extends Diagnosable
 	 * 
 	 */
 	void forceNextReload();
+	
+	/**
+	 * get the spell index directory
+	 * @return
+	 */
+	Directory getSpellDirectory();
 
 }

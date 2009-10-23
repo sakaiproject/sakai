@@ -35,6 +35,7 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.sakaiproject.search.api.SearchService;
 
@@ -287,6 +288,11 @@ public class FSIndexStorage extends BaseIndexStorage
 	public boolean centralIndexExists()
 	{
 		return indexExists();
+	}
+
+	private Directory spellDirectory = null;
+	public Directory getSpellDirectory() {
+		return spellDirectory;
 	}
 
 }

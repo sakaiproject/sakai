@@ -27,6 +27,7 @@ import java.util.List;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.store.Directory;
 
 /**
  * @author ieb
@@ -77,4 +78,9 @@ public interface IndexStorageProvider
 	 */
 	public IndexReader getIndexReader()  throws IOException;
 
+	/**
+	 * Get the SpellIndexDirectory
+	 * @return
+	 */
+	public Directory getSpellDirectory();
 }

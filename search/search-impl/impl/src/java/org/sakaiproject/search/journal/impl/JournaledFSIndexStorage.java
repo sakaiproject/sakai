@@ -45,10 +45,16 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.MultiReader;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.spell.Dictionary;
+import org.apache.lucene.search.spell.LuceneDictionary;
+import org.apache.lucene.search.spell.SpellChecker;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.NIOFSDirectory;
+import org.apache.lucene.store.SimpleFSDirectory;
 import org.sakaiproject.cluster.api.ClusterService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.index.AnalyzerFactory;
 import org.sakaiproject.search.journal.api.IndexListener;
 import org.sakaiproject.search.journal.api.IndexMonitorListener;
@@ -64,7 +70,7 @@ import org.sakaiproject.thread_local.api.ThreadLocalManager;
 /**
  * <pre>
  *                 This is a Journaled savePoint of the local FSIndexStorage. It will merge in new
- *                 savePoints from the jorunal. This is going to be performed in a non
+ *                 savePoints from the journal. This is going to be performed in a non
  *                 transactional way for the moment. 
  *                 
  *                 The index reader must maintain a single
@@ -531,6 +537,10 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 		final IndexReader ir = getIndexReader();
 
 		log.debug("index reader is: " + ir);
+		
+		if (spellIndexDirectory == null) {
+			this.createSpellIndex(ir);
+		}
 
 		if (tmpIndexReader != ir || indexSearcher == null)
 		{
@@ -548,6 +558,8 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 			log.debug("Opened index Searcher in " + (end - start) + " ms");
 			fireIndexSearcherOpen(indexSearcher);
 		}
+		
+		
 	}
 
 	/*
@@ -1484,4 +1496,42 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 		this.threadLocalManager = threadLocalManager;
 	}
 
+	Directory spellIndexDirectory = null;
+	private void createSpellIndex(IndexReader indexReader) {
+		if (!serverConfigurationService.getBoolean("search.experimental.didyoumean", false)) {
+			return;
+		}
+		
+		
+		log.info("create Spell Index");
+		
+		Long start = System.currentTimeMillis();
+		try {
+			
+			log.info("main index is in: " + journalSettings.getSearchIndexDirectory());
+			log.info("local base is: " + journalSettings.getLocalIndexBase());
+			spellIndexDirectory = new NIOFSDirectory(new File(journalSettings.getLocalIndexBase() + "/spellindex"));
+			if (indexReader == null) {
+				log.info("unable to get index reader aborting spellindex creation");
+				return;
+			}
+			Dictionary dictionary = new LuceneDictionary(indexReader, SearchService.FIELD_CONTENTS);
+			SpellChecker spellChecker = new SpellChecker(spellIndexDirectory);
+			spellChecker.indexDictionary(dictionary);
+			log.info("New Spell dictionary constructed in "  + (System.currentTimeMillis() - start));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+
+		}
+
+		log.info("All done in "  + (System.currentTimeMillis() - start));
+
+		
+	}
+
+	public Directory getSpellDirectory() {
+		return spellIndexDirectory;
+	}
+	
 }

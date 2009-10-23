@@ -42,12 +42,12 @@ import org.sakaiproject.search.index.ClusterFilesystem;
 import org.sakaiproject.search.index.SegmentInfo;
 
 /**
- * Inpmelemtation of IndexStorage using a Cluster File system. This
- * implementation perfoms all index write operations in a new temporary segment.
+ * Implementation of IndexStorage using a Cluster File system. This
+ * implementation performs all index write operations in a new temporary segment.
  * On completion of the index operation it is merged with the current segment.
  * If the current segment is larger than the threshold, a new segment is
  * created. Managing the segments and how they relate to the cluster is
- * delegateed to the ClusterFilesystem
+ * delegated to the ClusterFilesystem
  * 
  * @author ieb
  */
@@ -888,5 +888,10 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 	public boolean centralIndexExists()
 	{
 		return clusterFS.centralIndexExists();
+	}
+
+	public Directory getSpellDirectory() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

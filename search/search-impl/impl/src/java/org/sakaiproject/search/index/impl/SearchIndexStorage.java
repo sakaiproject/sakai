@@ -31,6 +31,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.store.Directory;
 import org.sakaiproject.search.index.IndexReloadListener;
 import org.sakaiproject.search.index.IndexStorage;
 
@@ -315,6 +316,11 @@ public class SearchIndexStorage implements IndexStorage
 	{
 		runningIndexStorage.removeReloadListener(indexReloadListener);
 
+	}
+
+	public Directory getSpellDirectory() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
