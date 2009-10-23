@@ -1517,6 +1517,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 			}
 			Dictionary dictionary = new LuceneDictionary(indexReader, SearchService.FIELD_CONTENTS);
 			SpellChecker spellChecker = new SpellChecker(spellIndexDirectory);
+			spellChecker.clearIndex();
 			spellChecker.indexDictionary(dictionary);
 			log.info("New Spell dictionary constructed in "  + (System.currentTimeMillis() - start));
 		} catch (IOException e) {
