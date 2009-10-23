@@ -41,7 +41,7 @@ import org.sakaiproject.search.api.SearchService;
 
 /**
  * A local only filestore implementation. This is a simple IndexImplementation
- * that performs all its indexing in a single, unoptimzed segment on the local
+ * that performs all its indexing in a single, unoptimized segment on the local
  * filesystem To set the location use
  * location@org.sakaiproject.search.api.SearchService.LocalIndexStorage in
  * sakai.properties Check that the bean name is correct in the spring
