@@ -11,6 +11,8 @@
     <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
     <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
     <property name="targettedMessageList" ref="targettedMessageList" />
+    <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+    <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
   </bean>
    
   <bean id="GroupEditProdcuer" 

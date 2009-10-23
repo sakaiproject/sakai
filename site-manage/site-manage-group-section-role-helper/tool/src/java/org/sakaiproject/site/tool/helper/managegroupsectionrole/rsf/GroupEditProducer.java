@@ -206,7 +206,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 	     // group members
 	     List<Member> groupMembersCopy = new Vector<Member>();
 	     groupMembersCopy.addAll(groupMembers);
-	     for (Iterator<Member> gItr=groupMembersCopy.iterator(); gItr.hasNext();i++){
+	     for (Iterator<Member> gItr=groupMembersCopy.iterator(); gItr.hasNext();){
         	Member p = (Member) gItr.next();
         	
         	// exclude those user with provided roles and rosters
@@ -222,6 +222,8 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
         	catch (Exception e)
         	{
         		M_log.warn(this + "fillInComponent: cannot find user with id " + userId);
+        		// need to remove the group member
+        		groupMembers.remove(p);
         	}
 	     }
 	     if (groupMembers != null)

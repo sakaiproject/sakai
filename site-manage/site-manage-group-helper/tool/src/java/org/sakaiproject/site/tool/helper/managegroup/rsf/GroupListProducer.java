@@ -1,15 +1,23 @@
 package org.sakaiproject.site.tool.helper.managegroup.rsf;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.tool.helper.managegroup.impl.SiteManageGroupHandler;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 
 import uk.ac.cam.caret.sakai.rsf.producers.FrameAdjustingProducer;
 import uk.ac.cam.caret.sakai.rsf.util.SakaiURLUtil;
@@ -60,6 +68,18 @@ public class GroupListProducer
         return VIEW_ID;
     }
     
+	private UserDirectoryService userDirectoryService;
+	public void setUserDiretoryService(UserDirectoryService userDirectoryService)
+	{
+		this.userDirectoryService = userDirectoryService;
+	}
+	
+	private AuthzGroupService authzGroupService;
+	public void setAuthzGroupService(AuthzGroupService authzGroupService)
+	{
+		this.authzGroupService = authzGroupService;
+	}
+    
     private TargettedMessageList tml;
 	public void setTargettedMessageList(TargettedMessageList tml) {
 		this.tml = tml;
@@ -106,7 +126,37 @@ public class GroupListProducer
                 
                 nameLabel.decorate(new UILabelTargetDecorator(name));
     			UIOutput.make(grouprow,"group-title",group.getTitle());
-    			UIOutput.make(grouprow,"group-size",String.valueOf(group.getMembers().size()));
+    			int size = 0;
+    			try
+    			{
+    				AuthzGroup g = authzGroupService.getAuthzGroup(group.getReference()); 
+    				Collection<Member> gMembers = g != null ? g.getMembers():new Vector<Member>();
+    				size = gMembers.size();
+    				if (size > 0)
+    				{
+	    				for (Iterator<Member> gItr=gMembers.iterator(); gItr.hasNext();){
+	    		        	Member p = (Member) gItr.next();
+	    		        	
+	    		        	// exclude those user with provided roles and rosters
+	    		        	String userId = p.getUserId();
+		    				try
+		    				{
+		    					User u = userDirectoryService.getUser(userId);
+		    				}
+		    	        	catch (Exception e)
+		    	        	{
+		    	        		M_log.warn(this + "fillInComponent: cannot find user with id " + userId);
+		    	        		// need to remove the group member
+		    	        		size--;
+		    	        	}
+	    				}
+    				}
+    			}
+    			catch (GroupNotDefinedException e)
+    			{
+    				M_log.debug(this + "fillComponent: cannot find group " + group.getReference());
+    			}
+				UIOutput.make(grouprow,"group-size",String.valueOf(size));
 
     			UIInternalLink editLink = UIInternalLink.make(grouprow,"group-revise",messageLocator.getMessage("editgroup.revise"),  
     						new GroupEditViewParameters(GroupEditProducer.VIEW_ID, groupId));

@@ -150,7 +150,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 		 UISelect groupMember = UISelect.make(groupForm,"groupMembers",groupMemberValues,groupMemberLabels,null);
 		 i =0;
 		 Iterator<Member> gIterator = new SortedIterator(groupMembers.iterator(), new SiteComparator(SiteConstants.SORTED_BY_MEMBER_NAME, Boolean.TRUE.toString()));
-	     for (; gIterator.hasNext();i++){
+	     for (; gIterator.hasNext();){
 	        	Member p = (Member) gIterator.next();
 	        	String userId = p.getUserId();
 	        	try
@@ -161,6 +161,8 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 	        	catch (Exception e)
 	        	{
 	        		M_log.warn(this + ":fillComponents: cannot find user " + userId);
+	        		// need to remove the group member
+	        		groupMembers.remove(p);
 	        	}
 				groupMemberValues[i] = userId;
 	        }
