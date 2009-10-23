@@ -25,11 +25,11 @@
 			</activation>
 			<properties>
 				<clean.targets>
+                    components/coursemanagement-hibernate-pack;
+                    components/gradebook-service-pack;
 					components/sakai-common-components;
 					components/sakai-privacy-pack;
 					components/search-pack;
-					components/coursemanagement-hibernate-pack;
-					components/gradebook-service-pack;
 					components/sections-pack
                 </clean.targets>
 				<deploy.target>tomcat-overlay</deploy.target>
@@ -60,14 +60,16 @@
 			<properties>
 				<clean.targets>
 					components/basiclti-pack;
+                    components/coursemanagement-hibernate-pack;
+                    components/gradebook-service-pack;
+                    components/profile2-pack;
 					components/sakai-common-components;
 					components/sakai-msgcntr-component;
 					components/sakai-privacy-pack;
 					components/search-pack;
-					components/coursemanagement-hibernate-pack;
-					components/gradebook-service-pack;
 					components/sections-pack;
-					components/sitestats-component
+					components/sitestats-component;
+                    components/tinyurl-pack
                 </clean.targets>
 				<deploy.target>tomcat-overlay</deploy.target>
 			</properties>
@@ -98,6 +100,13 @@
 					<classifier>tomcat-overlay</classifier>
 					<type>zip</type>
 				</dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.profile2</groupId>
+                    <artifactId>profile2-assembly</artifactId>
+                    <version>1.3-SNAPSHOT</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
 				<dependency>
 					<groupId>org.sakaiproject.search</groupId>
 					<artifactId>search-assembly</artifactId>
@@ -111,6 +120,13 @@
 					<classifier>tomcat-overlay</classifier>
 					<type>zip</type>
 				</dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.tinyurl</groupId>
+                    <artifactId>tinyurl-assembly</artifactId>
+                    <version>0.9-SNAPSHOT</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
 			</dependencies>
 		</profile>
 		<profile>
