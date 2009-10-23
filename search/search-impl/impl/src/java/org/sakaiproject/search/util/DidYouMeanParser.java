@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Vector;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.Token;
 import org.apache.lucene.analysis.TokenStream;
@@ -18,8 +20,11 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.spell.SpellChecker;
 import org.apache.lucene.store.Directory;
 
+
+
 public class DidYouMeanParser {
 	
+	private static Log log = LogFactory.getLog(DidYouMeanParser.class);
 	
 	private String defaultField;
 	private Directory spellIndexDirectory;
@@ -46,7 +51,11 @@ public class DidYouMeanParser {
 		QuerySuggester querySuggester = new QuerySuggester(defaultField, new StandardAnalyzer());
 		querySuggester.setDefaultOperator(QueryParser.Operator.AND);
 		Query query = querySuggester.parse(queryString);
-		return querySuggester.hasSuggestedQuery() ? query : null;
+		if (querySuggester.hasSuggestedQuery()) {
+			log.info("got a suggestion: " + query.toString());
+			return query;
+		}
+		return null;
 	}
 	
 	
@@ -93,6 +102,7 @@ public class DidYouMeanParser {
 			}
 		}
 		private Term getTerm(String field, String queryText) throws ParseException {
+			log.info("getting similar terms for: " + queryText);
 			SpellChecker spellChecker = null;
 			try {
 				spellChecker = new SpellChecker(spellIndexDirectory);
@@ -106,9 +116,12 @@ public class DidYouMeanParser {
 					similarWords = spellChecker.suggestSimilar(queryText, 1, origionalIndex, defaultField, true);
 				}
 				if (similarWords.length == 0) {
+					log.info("no suggestions found");
 					return new Term(field, queryText);
 				}			
 				suggestedQuery = true;
+				log.info("got a suggestion!");
+						
 				return new Term(field, similarWords[0]);
 			} catch (IOException e) {
 				throw new ParseException(e.getMessage());

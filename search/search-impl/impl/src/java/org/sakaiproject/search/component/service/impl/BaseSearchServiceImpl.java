@@ -21,7 +21,6 @@
 
 package org.sakaiproject.search.component.service.impl;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -57,11 +56,7 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.spell.Dictionary;
-import org.apache.lucene.search.spell.LuceneDictionary;
-import org.apache.lucene.search.spell.SpellChecker;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.SimpleFSDirectory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationEdit;
@@ -1093,6 +1088,7 @@ public abstract class BaseSearchServiceImpl implements SearchService
 		log.info("getSearchSuggestion( " + queryString + ")");
 		
 		if (!ServerConfigurationService.getBoolean("search.experimental.didyoumean", false)) {
+			log.info("did you mean feature is not enabled");
 			return null;
 		}
 		
@@ -1103,6 +1099,7 @@ public abstract class BaseSearchServiceImpl implements SearchService
 		
 		//if its still null we we'rent able to create a spellindex
 		if (spellIndexDirectory == null) {
+			log.info("Spell index is not available");
 			return null;
 		}
 		
@@ -1125,6 +1122,7 @@ public abstract class BaseSearchServiceImpl implements SearchService
 			Query query = parser.suggest(queryString);
 			//the service may have no suggestions
 			if (query != null) {
+				log.debug("got suggestion: " + query.toString(SearchService.FIELD_CONTENTS));
 				return query.toString(SearchService.FIELD_CONTENTS);
 			}
 		} catch (ParseException e) {

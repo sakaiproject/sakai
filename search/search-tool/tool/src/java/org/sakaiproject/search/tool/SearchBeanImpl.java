@@ -493,7 +493,9 @@ public class SearchBeanImpl implements SearchBean
 							log.info("got suggestion: " + sug);
 							this.searchTermSuggestion = sug;
 						} else if (searchResults.size() == 0) {
+							log.info("No hits getting suggestion");
 							String sug = searchService.getSearchSuggestion(search);
+							log.info("got suggestion: " + sug);
 							this.searchTermSuggestion = sug;
 						}
 					} else if (searchResults == null || searchResults.size() == 0) {
