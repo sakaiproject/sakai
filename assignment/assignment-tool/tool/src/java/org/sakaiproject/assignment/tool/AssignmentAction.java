@@ -5075,7 +5075,7 @@ public class AssignmentAction extends PagedResourceActionII
 									if (bool_change_resubmit_option)
 									{
 										String aAllowResubmitNumber = a.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
-										if (aAllowResubmitNumber == null || aAllowResubmitNumber.isEmpty() || aAllowResubmitNumber.equals("0"))
+										if (aAllowResubmitNumber == null || aAllowResubmitNumber.length() == 0 || aAllowResubmitNumber.equals("0"))
 										{
 											sPropertiesEdit.removeProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
 											sPropertiesEdit.removeProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
