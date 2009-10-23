@@ -16,9 +16,6 @@ add_assignment_counted..text.md5=qFHGWKBwe8AI71LD3AeC2Q\=\=
 add_assignment_counted_detail..text.author=cyril
 add_assignment_counted_detail..text.changed=20090326172204
 add_assignment_counted_detail..text.md5=YznLxpllVBsFIXBROtPVZw\=\=
-add_assignment_date_format..text.author=cyril
-add_assignment_date_format..text.changed=20090326172209
-add_assignment_date_format..text.md5=5N5kPj2BbFGXBMqmFHfaag\=\=
 add_assignment_due_date..text.author=cyril
 add_assignment_due_date..text.changed=20090326172213
 add_assignment_due_date..text.md5=Bem5MAclIQ9ZrEY/NzlDJg\=\=
@@ -415,9 +412,6 @@ course_grade_name..text.md5=g324g3V0sDVtu107MW1nwg\=\=
 course_grade_percent_display..text.author=cyril
 course_grade_percent_display..text.changed=20090329140411
 course_grade_percent_display..text.md5=DqjKf9MaFiJAzyOzmdQBwg\=\=
-date_entry_format_description..text.author=cyril
-date_entry_format_description..text.changed=20090329140416
-date_entry_format_description..text.md5=5N5kPj2BbFGXBMqmFHfaag\=\=
 date_entry_today_is..text.author=cyril
 date_entry_today_is..text.changed=20090329140419
 date_entry_today_is..text.md5=kYZ8bJV0mpc9QGRYkfHCpQ\=\=
