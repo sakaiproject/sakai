@@ -71,7 +71,7 @@ public class TikaContentDigester extends BaseContentDigester
 			Parser parser = new AutoDetectParser();
 				
 			parser.parse(contentStream, handler, metadata);
-
+			
 			return handler.toString();
 		}
 		catch (Exception e)
