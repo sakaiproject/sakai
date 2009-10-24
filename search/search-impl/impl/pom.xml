@@ -213,8 +213,8 @@
     </dependency>
     <dependency>
 	<groupId>org.apache.tika</groupId>
-	<artifactId>tika</artifactId>
-	<version>0.2</version>
+	<artifactId>tika-app</artifactId>
+	<version>0.4</version>
 	</dependency>
     <dependency>
       <groupId>commons-codec</groupId>
@@ -253,6 +253,10 @@
       <version>2.4</version>
       <type>jar</type>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+    	<groupId>commons-lang</groupId>
+    	<artifactId>commons-lang</artifactId>
     </dependency>
   </dependencies>
 </project>
