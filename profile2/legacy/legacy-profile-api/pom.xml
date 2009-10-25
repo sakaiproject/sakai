@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<!-- 
+	This is the legacy Profile API and its artifact name must stay as the original
+	in order to maintain backwards compatibility with other services that use it.
+	
+	Only this one needs to remain as is, the other legacy profile artifacts can be renamed.
+	-->
+	
+	<name>Profile2 Legacy Bundle API</name>
+	<groupId>org.sakaiproject</groupId>
+  	<artifactId>sakai-profile-api</artifactId>
+
+	<packaging>jar</packaging>
+	
+	<properties>
+    	<deploy.target>shared</deploy.target>
+  	</properties>
+	
+	<parent>
+		<groupId>org.sakaiproject.profile2</groupId>
+		<artifactId>legacy</artifactId>
+	    <version>1.3-SNAPSHOT</version>
+	</parent>
+
+
+  	<dependencies>
+    	<dependency>
+      		<groupId>org.sakaiproject.common</groupId>
+      		<artifactId>sakai-common-edu-person-api</artifactId>
+    	</dependency>
+  	</dependencies>
+  
+</project>

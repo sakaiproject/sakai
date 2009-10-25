@@ -214,6 +214,7 @@
 	    <module>pack</module>
 	    <module>tool</module>
 	    <module>assembly</module>
+	    <module>legacy</module>
 	</modules>
        
     <profiles>

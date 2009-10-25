@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<name>Profile2 Legacy Bundle IMPL</name>
+	<groupId>org.sakaiproject.profile2</groupId>
+  	<artifactId>profile2-legacy-profile-impl</artifactId>
+
+	<packaging>jar</packaging>
+	
+	<!-- the original was deployed to shared. fix it -->
+	
+	<parent>
+		<groupId>org.sakaiproject.profile2</groupId>
+		<artifactId>legacy</artifactId>
+	    <version>1.3-SNAPSHOT</version>
+	</parent>
+
+  	<dependencies>
+  	
+  		<!-- INTERNAL DEPENDENCIES -->
+  		<dependency>
+      		<groupId>org.sakaiproject</groupId>
+      		<artifactId>sakai-profile-api</artifactId>
+    	</dependency>
+    	
+    	<!--  GENERIC SAKAI DEPENDENCIES -->
+    	<dependency>
+      		<groupId>org.sakaiproject.common</groupId>
+      		<artifactId>sakai-common-edu-person-api</artifactId>
+    	</dependency>
+    	<dependency>
+      		<groupId>org.sakaiproject.common</groupId>
+      		<artifactId>sakai-common-manager-api</artifactId>
+    	</dependency>
+    	<dependency>
+      		<groupId>org.sakaiproject.common</groupId>
+      		<artifactId>sakai-common-type-api</artifactId>
+    	</dependency>
+    	
+    	<!-- EXTERNAL DEPENDENCIES -->
+    	<dependency>
+      		<groupId>commons-logging</groupId>
+      		<artifactId>commons-logging</artifactId>
+      		<version>1.0.4</version>
+    	</dependency>
+    	
+  	</dependencies>
+  
+  	<profiles>
+        <profile>
+            <id>pre-K1</id>
+            <activation>
+	        	<file>
+	          		<missing>../../master/../kernel-deploy/pom.xml</missing>
+	        	</file>
+	      	</activation>
+            <!-- Sakai 2.5.x specific dependencies -->
+			<dependencies>
+				<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-tool-api</artifactId>
+					<scope>provided</scope>
+		    	</dependency>
+		    	<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-user-api</artifactId>
+					<scope>provided</scope>
+		    	</dependency>
+		    	<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-authz-api</artifactId>
+					<scope>provided</scope>
+		    	</dependency>
+		    	<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-site-api</artifactId>
+					<scope>provided</scope>
+		    	</dependency>
+		    	<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-entity-api</artifactId>
+					<scope>provided</scope>
+		    	</dependency>
+		    	<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-component-api</artifactId>
+					<scope>provided</scope>
+		    	</dependency>
+				<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-content-api</artifactId>
+					<scope>provided</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+        <profile>
+            <id>K1</id>
+            <activation>
+	        	<file>
+	          		<exists>../../master/../kernel-deploy/pom.xml</exists>
+	        	</file>
+	      	</activation>
+            <!-- Sakai 2.6+ specific dependencies -->
+            <dependencies>
+		        <dependency>
+		            <groupId>org.sakaiproject.kernel</groupId>
+		            <artifactId>sakai-kernel-api</artifactId>
+		        </dependency>
+		        <dependency>
+		            <groupId>org.sakaiproject.kernel</groupId>
+		            <artifactId>sakai-component-manager</artifactId>
+		        </dependency>
+			</dependencies> 
+        </profile>
+    </profiles>
+  
+</project>
+
+

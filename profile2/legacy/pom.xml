@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<name>Profile2 Legacy Bundle</name>
+	<groupId>org.sakaiproject.profile2</groupId>
+	<artifactId>legacy</artifactId>
+
+	<parent>
+		<groupId>org.sakaiproject.profile2</groupId>
+		<artifactId>profile2</artifactId>
+	    <version>1.3-SNAPSHOT</version>
+	</parent>
+
+  	<packaging>pom</packaging>
+  
+  	<modules>
+    	<module>legacy-profile-api</module>
+    	<module>legacy-profile-impl</module>
+    	<module>legacy-profile-pack</module>
+  	</modules>
+
+  	<dependencyManagement>
+    	<dependencies>
+      		<dependency>
+				<groupId>org.sakaiproject</groupId>
+  				<artifactId>sakai-profile-api</artifactId>
+      			<version>${tool.version}</version>
+      			<scope>provided</scope>
+      		</dependency>
+      		<dependency>
+        		<groupId>org.sakaiproject.profile2</groupId>
+        		<artifactId>profile2-legacy-profile-impl</artifactId>
+        		<version>${tool.version}</version>
+      			<scope>runtime</scope>
+      		</dependency>
+    	</dependencies>
+  	</dependencyManagement>
+  	
+  	<profiles>
+	    <profile>
+	      	<!-- Binds to Sakai Kernel K1 - for Sakai 2.6.0+ -->
+	      	<id>K1</id>
+	      	<activation>
+	        	<file>
+	          		<exists>../../master/../kernel-deploy/pom.xml</exists>
+	        	</file>
+	      	</activation>
+	    </profile>
+	    <profile>
+			<!-- Binds to Sakai pre Kernel K1 - for Sakai 2.4.x/2.5.x -->
+			<id>pre-K1</id>
+	      	<activation>
+	        	<file>
+	          		<missing>../../master/../kernel-deploy/pom.xml</missing>
+	        	</file>
+	      	</activation>
+	    </profile>
+	</profiles>
+  	
+  	
+</project>

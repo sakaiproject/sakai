@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<name>Profile2 Legacy Bundle PACK</name>
+	<groupId>org.sakaiproject.profile2</groupId>
+  	<artifactId>profile2-legacy-profile-pack</artifactId>
+
+	<packaging>sakai-component</packaging>
+	
+	<parent>
+		<groupId>org.sakaiproject.profile2</groupId>
+		<artifactId>legacy</artifactId>
+	    <version>1.3-SNAPSHOT</version>
+	</parent>
+
+	<properties>
+    	<deploy.target>components</deploy.target>
+  	</properties>
+
+	<dependencies>
+
+        <!-- internal dependencies -->
+        <dependency>
+            <groupId>org.sakaiproject.profile2</groupId>
+            <artifactId>profile2-legacy-profile-impl</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <build />
+
+</project>
