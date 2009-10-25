@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<!-- 
-	This is the legacy Profile API and its artifact name must stay as the original
+	This is the legacy Profile API and its artifact coordinates must stay as the original
 	in order to maintain backwards compatibility with other services that use it.
 	
 	Only this one needs to remain as is, the other legacy profile artifacts can be renamed.
@@ -14,6 +14,7 @@
 	<name>Profile2 Legacy Bundle API</name>
 	<groupId>org.sakaiproject</groupId>
   	<artifactId>sakai-profile-api</artifactId>
+  	<version>${sakai.version}</version>
 
 	<packaging>jar</packaging>
 	
