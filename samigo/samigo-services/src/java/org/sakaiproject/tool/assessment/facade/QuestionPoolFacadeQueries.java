@@ -153,7 +153,9 @@ public class QuestionPoolFacadeQueries
     	Iterator i1 = getSubPoolSizes(agentId).iterator();
     	while (i1.hasNext()) {
     		Object[]result = (Object [])i1.next();
-    		counts.put( Long.valueOf(((BigDecimal)result[0]).longValue()), Integer.valueOf(((BigDecimal)result[1]).intValue()));
+    		//counts.put( Long.valueOf(((Integer)result[0]).longValue()), Integer.valueOf(((Integer)result[1]).intValue()));
+    		counts.put((Long) result[0], (Integer)result[1]);
+        	
     	}    	
 
     	Iterator j = poolList.iterator();
@@ -950,7 +952,9 @@ public class QuestionPoolFacadeQueries
   public List getSubPoolSizes(final String agent) {
 	  final HibernateCallback hcb = new HibernateCallback(){
 		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
-			  SQLQuery q = session.createSQLQuery("select a.QUESTIONPOOLID,(select count(*) from SAM_QUESTIONPOOL_T b where b.PARENTPOOLID=a.QUESTIONPOOLID) from SAM_QUESTIONPOOL_T a where a.OWNERID=?");
+			  //SQLQuery q = session.createSQLQuery("select a.QUESTIONPOOLID,(select count(*) from SAM_QUESTIONPOOL_T b where b.PARENTPOOLID=a.QUESTIONPOOLID) from SAM_QUESTIONPOOL_T a where a.OWNERID=?");
+			  Query q = session.createQuery("select a.questionPoolId, (select count(*) from QuestionPoolData b where b.parentPoolId=a.questionPoolId) " +
+			  		"from QuestionPoolData a where a.ownerId=?");
 			  q.setString(0, agent);
 			  return q.list();
 		  };
