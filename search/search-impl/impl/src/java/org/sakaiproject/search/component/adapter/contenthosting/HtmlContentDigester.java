@@ -58,10 +58,6 @@ public class HtmlContentDigester extends BaseContentDigester
 		{
 			throw new RuntimeException("null contentResource passed to getContent");
 		}
-		if (contentResource != null && contentResource.getContentLength() > maxDigestSize)
-		{
-			throw new RuntimeException("Attempt to get too much content as a string on " + contentResource.getReference());
-		}
 		if (useDirectParser)
 		{
 			try

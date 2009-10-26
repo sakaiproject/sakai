@@ -60,11 +60,6 @@ public class PPTContentDigester extends BaseContentDigester
 		if (contentResource == null) {
 			throw new RuntimeException("Null contentResource passed to getContent");
 		}
-		if (contentResource != null && contentResource.getContentLength() > maxDigestSize)
-		{
-			throw new RuntimeException("Attempt to get too much content as a string on "
-					+ contentResource.getReference());
-		}
 		InputStream contentStream = null;
 
 		try
