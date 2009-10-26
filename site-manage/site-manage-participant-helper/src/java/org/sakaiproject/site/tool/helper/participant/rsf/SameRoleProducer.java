@@ -3,6 +3,7 @@ package org.sakaiproject.site.tool.helper.participant.rsf;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -91,13 +92,16 @@ public class SameRoleProducer implements ViewComponentProducer, NavigationCaseRe
 	    List<Role> roles = handler.getRoles();
 	    for (int i = 0; i < roles.size(); ++i) {
 	    	Role r = roles.get(i);
-		    UIBranchContainer roleRow = UIBranchContainer.make(sameRoleForm,"role-row:", Integer.toString(i));
-            
-            UISelectLabel lb = UISelectLabel.make(roleRow, "role-label", selectID, i);
-            UISelectChoice choice =UISelectChoice.make(roleRow, "role-select", selectID, i);
-            UILabelTargetDecorator.targetLabel(lb, choice);
-            
-            roleItems.add(r.getId());
+	    	if (!r.isProviderOnly())
+	    	{
+			    UIBranchContainer roleRow = UIBranchContainer.make(sameRoleForm,"role-row:", Integer.toString(i));
+	            
+	            UISelectLabel lb = UISelectLabel.make(roleRow, "role-label", selectID, i);
+	            UISelectChoice choice =UISelectChoice.make(roleRow, "role-select", selectID, i);
+	            UILabelTargetDecorator.targetLabel(lb, choice);
+	            
+	            roleItems.add(r.getId());
+	    	}
         }
         roleSelect.optionlist.setValue(roleItems.toStringArray()); 
         

@@ -426,14 +426,24 @@ function printPreview(target){
 							#elseif ($allowUpdateSiteMembership)
 								<label class="skip" for="role$uniqname">$tlang.getString("sitegen.siteinfolist.role.select")  $participant.getDisplayId()</label>
 								<select id="role$uniqname" name="role$uniqname">
+								    #set($hasRestrictedRole = "false")
+								    #foreach($role in $roles)
+								        #if(($role.Id == $uRole) && $role.isProviderOnly())
+								            #set($hasRestrictedRole = "true")
+								        #end
+								    #end
 									#foreach($r in $roles)
-										<option value ="$r.Id"
-											#if($r.Id == $uRole)
-												selected="selected"
-											#end
-										>
+										#if($r.Id == $uRole)
+										<option value ="$r.Id" selected>
 											$r.Id
 										</option>
+										#else
+											#if(!($r.isProviderOnly() || ($hasRestrictedRole == "true")))
+											<option value ="$r.Id">
+												$r.Id 
+											</option>
+											#end
+										#end
 									#end
 								</select>
 							#else

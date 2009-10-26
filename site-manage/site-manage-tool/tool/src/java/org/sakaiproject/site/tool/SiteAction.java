@@ -207,7 +207,7 @@ public class SiteAction extends PagedResourceActionII {
 			"",// combined with 13
 			"-editFeatures",
 			"",
-			"-addParticipant",
+			"",// moved to participant helper
 			"",
 			"",
 			"-siteDeleteConfirm",
@@ -1519,72 +1519,6 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("homeToolId", TOOL_ID_HOME);
 			
 			return (String) getContext(data).get("template") + TEMPLATE[3];
-		case 5:
-			/*
-			 * buildContextForTemplate chef_site-addParticipant.vm
-			 * 
-			 */
-			context.put("title", site.getTitle());
-			roles = getRoles(state);
-			context.put("roles", roles);
-			
-			String siteType = (String) state.getAttribute(STATE_SITE_TYPE);
-			context.put("isCourseSite", siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))?Boolean.TRUE:Boolean.FALSE);
-			
-			// Note that (for now) these strings are in both sakai.properties
-			// and sitesetupgeneric.properties
-			context.put("officialAccountSectionTitle", ServerConfigurationService
-					.getString("officialAccountSectionTitle"));
-			context.put("officialAccountName", ServerConfigurationService
-					.getString("officialAccountName"));
-			context.put("officialAccountLabel", ServerConfigurationService
-					.getString("officialAccountLabel"));
-			String pickerAction = ServerConfigurationService.getString("officialAccountPickerAction");
-			if (pickerAction != null && !"".equals(pickerAction))
-			{
-				context.put("hasPickerDefined", Boolean.TRUE);
-				context.put("officialAccountPickerLabel", ServerConfigurationService
-					.getString("officialAccountPickerLabel"));
-				context.put("officialAccountPickerAction", pickerAction);
-			}
-			if (state.getAttribute("officialAccountValue") != null) {
-				context.put("officialAccountValue", (String) state
-						.getAttribute("officialAccountValue"));
-			}
-			
-			// whether to show the non-official participant section or not
-			String addNonOfficialParticipant = (String) state.getAttribute(ADD_NON_OFFICIAL_PARTICIPANT);
-			if (addNonOfficialParticipant != null)
-			{
-				if (addNonOfficialParticipant.equalsIgnoreCase("true"))
-				{
-					context.put("nonOfficialAccount", Boolean.TRUE);
-					context.put("nonOfficialAccountSectionTitle", ServerConfigurationService
-							.getString("nonOfficialAccountSectionTitle"));
-					context.put("nonOfficialAccountName", ServerConfigurationService
-							.getString("nonOfficialAccountName"));
-					context.put("nonOfficialAccountLabel", ServerConfigurationService
-							.getString("nonOfficialAccountLabel"));
-					if (state.getAttribute("nonOfficialAccountValue") != null) {
-						context.put("nonOfficialAccountValue", (String) state
-								.getAttribute("nonOfficialAccountValue"));
-					}
-				}
-				else
-				{
-					context.put("nonOfficialAccount", Boolean.FALSE);
-				}
-			}
-
-
-			if (state.getAttribute("form_same_role") != null) {
-				context.put("form_same_role", ((Boolean) state
-						.getAttribute("form_same_role")).toString());
-			} else {
-				context.put("form_same_role", Boolean.TRUE.toString());
-			}
-			context.put("backIndex", "12");
-			return (String) getContext(data).get("template") + TEMPLATE[5];
 		case 8:
 			/*
 			 * buildContextForTemplate chef_site-siteDeleteConfirm.vm
@@ -1631,7 +1565,7 @@ public class SiteAction extends PagedResourceActionII {
 			 * 
 			 */
 			siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
-			siteType = (String) state.getAttribute(STATE_SITE_TYPE);
+			String siteType = (String) state.getAttribute(STATE_SITE_TYPE);
 			if (siteType.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 				context.put("isCourseSite", Boolean.TRUE);
 				context.put("disableCourseSelection", ServerConfigurationService.getString("disable.course.site.skin.selection", "false").equals("true")?Boolean.TRUE:Boolean.FALSE);
@@ -5982,32 +5916,6 @@ public class SiteAction extends PagedResourceActionII {
 	} // doSave_revised_features
 
 	/**
-	 * doMenu_add_participant
-	 */
-	public void doMenu_add_participant(RunData data) {
-		SessionState state = ((JetspeedRunData) data)
-				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		state.removeAttribute(STATE_SELECTED_USER_LIST);
-		state.setAttribute(STATE_TEMPLATE_INDEX, "5");
-
-	} // doMenu_add_participant
-
-	/**
-	 * doMenu_siteInfo_addParticipant
-	 */
-	public void doMenu_siteInfo_addParticipant(RunData data) {
-		SessionState state = ((JetspeedRunData) data)
-				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-
-		state.removeAttribute(STATE_SELECTED_USER_LIST);
-
-		if (state.getAttribute(STATE_MESSAGE) == null) {
-			state.setAttribute(STATE_TEMPLATE_INDEX, "5");
-		}
-
-	} // doMenu_siteInfo_addParticipant
-
-	/**
 	 * doMenu_siteInfo_cancel_access
 	 */
 	public void doMenu_siteInfo_cancel_access(RunData data) {
@@ -6844,18 +6752,6 @@ public class SiteAction extends PagedResourceActionII {
 				Site site = getStateSite(state);
 				getFeatures(params, state, site==null?"18":"15");
 			}
-			break;
-		case 5:
-			/*
-			 * actionForTemplate chef_site-addParticipant.vm
-			 * 
-			 */
-			/*if (forward) {
-				checkAddParticipant(params, state);
-			} else {
-				// remove related state variables
-				removeAddParticipantContext(state);
-			}*/
 			break;
 		case 8:
 			/*

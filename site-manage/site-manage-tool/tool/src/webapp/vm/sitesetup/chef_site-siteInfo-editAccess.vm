@@ -105,13 +105,15 @@
 				<select name="joinerRole" id="joinerRole">
 					<option value="">$tlang.getString("ediacc.plesel")</option>
 					#foreach($r in $roles)
-						<option value ="$r.Id"
-							#if($r.Id == $joinerRole)
-								selected="selected"
-							#end
-						>
-							$r.Id
-						</option>
+						#if (!$r.isProviderOnly())
+							<option value ="$r.Id"
+								#if($r.Id == $joinerRole)
+									selected="selected"
+								#end
+							>
+								$r.Id
+							</option>
+						#end
 					#end
 				</select>
 			</p>
