@@ -23,7 +23,7 @@ ALTER TABLE ASN_NOTE_ITEM_T CHANGE NOTE NOTE TEXT;
 
 --SAK-16548 - Incorrect internationalization showing the grade NO GRADE (Speed improved version)
 
--- I would recommend making a backup of the assignment_submission table prior to running this. I've tested it quite a bit in development, 
+-- I would recommend making a backup of the ASSIGNMENT_SUBMISSION table prior to running this. I've tested it quite a bit in development, 
 -- but we only ran the Oracle version in production at Michigan.
 
 -- Note these are all mostly hex replacements as I could not find a better way to do it in mysql like in oracle.
@@ -32,7 +32,7 @@ ALTER TABLE ASN_NOTE_ITEM_T CHANGE NOTE NOTE TEXT;
 -- You don't need to bring down the server to run this, it can be run live. (The UI will just display a blank area instead of "No Grade" until the update finishes)
 
 -- Step 1: Create table with the ids that will need to be updated
-create table assignment_submission_id_temp (select submission_id from assignment_submission where graded='true' and (
+create table ASSIGNMENT_SUBMISSION_ID_TEMP (select submission_id from ASSIGNMENT_SUBMISSION where graded='true' and (
 --assignment.properties
 	instr(xml,'"No Grade"') != 0 or
 --assignment_zh_CN.properties
@@ -71,7 +71,7 @@ create table assignment_submission_id_temp (select submission_id from assignment
 -- This is only replacing on the previously filtered values so is faster than doing full table scans for the values and safer because less rows will be locked.
 -- Ideally, the select statement would know which replacement it would need to do for each case, but that seemed difficult to write. In oracle this is accomplished with a 
 -- regular expression. The update for Michigan with 2 million rows on Oracle was still minimal.
-update assignment_submission set 
+update ASSIGNMENT_SUBMISSION set 
 --assignment.properties
     xml = replace(xml,'"No Grade"','"gen.nograd"'), 
 --assignment_zh_CN.properties
@@ -102,9 +102,9 @@ update assignment_submission set
     xml = unhex(replace(hex(xml),'22E68EA1E782B9E38197E381AAE3818422',hex('"gen.nograd"'))),
 --assignment_zh_TW.properties
     xml = unhex(replace(hex(xml),'22E6B292E69C89E8A995E5888622',hex('"gen.nograd"')))
-where submission_id in (select submission_id from assignment_submission_id_temp);
+where submission_id in (select submission_id from ASSIGNMENT_SUBMISSION_ID_TEMP);
 
 -- Step 3: Drop the temp table
-drop table assignment_submission_id_temp;
+drop table ASSIGNMENT_SUBMISSION_ID_TEMP;
 
 
