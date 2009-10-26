@@ -100,7 +100,7 @@
 			<uniqueVersion>false</uniqueVersion>
 			<id>sakai-maven-snapshots-scp</id>
 			<name>Sakai snapshot Repo</name>
-			<url>scp://source.sakaiproject.org/var/www/html/maven2--snapshots</url>
+			<url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
 			<layout>default</layout>
 		</snapshotRepository>
 		<repository>
