@@ -14,6 +14,7 @@ $(document).ready(function() {
 		border:1px solid #69d;
 		padding: 0  1.5em 1em 1.5em;
 		width:50%;
+		min-width:500px;
 	}
 	.extraNodeLink{
 		cursor:pointer;
