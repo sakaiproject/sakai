@@ -121,6 +121,7 @@ public class CollectionAccessFormatter
 
 			// System.out.println("after sort have " + members.size());
 
+			// xi Will all be ContentResources
 			Iterator xi = members.iterator();
 
 			res.setContentType("text/html; charset=UTF-8");
@@ -249,13 +250,15 @@ public class CollectionAccessFormatter
 
 			while (xi.hasNext())
 			{
-				// System.out.println("hasnext");
-				Entity nextres = (Entity) xi.next();
-				ResourceProperties properties = nextres.getProperties();
-				boolean isCollection = properties.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
-				String xs = nextres.getId();
+				ContentResource content = (ContentResource)xi.next();
+				// Don't display ones that aren't available.
+				if (!ContentHostingService.isAvailable(content.getId()))
+					continue;
 
-				ContentResource content = null;
+				ResourceProperties properties = content.getProperties();
+				boolean isCollection = content.isCollection();
+				String xs = content.getId();
+
 				if (isCollection)
 				{
 					xs = xs.substring(0, xs.length() - 1);
@@ -263,11 +266,8 @@ public class CollectionAccessFormatter
 				}
 				else
 				{
-					content = (ContentResource) nextres;
 					xs = xs.substring(xs.lastIndexOf('/') + 1);
 				}
-
-				// System.out.println("id " + xs);
 
 				try
 				{

@@ -1106,6 +1106,17 @@ public class ContentHostingService
 		return service.getResourcesOfType(resourceType, pageSize, page);
 	}
 
+	/**
+	 * @see org.sakaiproject.content.api.ContentHostingService#isAvailable(String)
+	 */
+	public static boolean isAvailable(String entityId)
+	{
+		org.sakaiproject.content.api.ContentHostingService service = getInstance();
+		if (service == null) return false;
+
+		return service.isAvailable(entityId);
+	}
+
 	public static Collection<ContentResource> getContextResourcesOfType(String resourceType, Set<String> contextIds)
 	{
 		org.sakaiproject.content.api.ContentHostingService service = getInstance();
