@@ -21,6 +21,7 @@
 
 package org.sakaiproject.memory.impl;
 
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
@@ -55,6 +56,14 @@ public class MemoryServiceTest extends BasicMemoryService
 	 * @return the UsageSessionService collaborator.
 	 */
 	protected UsageSessionService usageSessionService()
+	{
+		return null;
+	}
+	
+	/**
+	 * @return the AuthzGroupService collaborator.
+	 */
+	protected AuthzGroupService authzGroupService()
 	{
 		return null;
 	}

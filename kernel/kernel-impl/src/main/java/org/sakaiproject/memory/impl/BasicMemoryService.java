@@ -36,6 +36,7 @@ import net.sf.ehcache.event.CacheManagerEventListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.Event;
@@ -86,6 +87,11 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 	 * @return the UsageSessionService collaborator.
 	 */
 	protected abstract UsageSessionService usageSessionService();
+
+	/**
+	 * @return the AuthzGroupService collaborator.
+	 */
+	protected abstract AuthzGroupService authzGroupService();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Configuration
@@ -403,6 +409,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 		return new MultiRefCacheImpl(
 				this,
 				eventTrackingService(),
+				authzGroupService(),
 				instantiateCache("MultiRefCache"));
 	}
 
@@ -546,6 +553,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 		return new MultiRefCacheImpl(
 				this,
 				eventTrackingService(),
+				authzGroupService(),
 				instantiateCache(cacheName));
 	}
 

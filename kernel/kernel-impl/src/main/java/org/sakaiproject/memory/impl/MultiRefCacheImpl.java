@@ -37,7 +37,7 @@ import net.sf.ehcache.event.CacheEventListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.MultiRefCache;
@@ -61,6 +61,8 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache,
 	/** Map of reference string -> Collection of cache keys. */
 	protected final Map<String, Map<Object, Object>> m_refsStore = new ConcurrentHashMap<String, Map<Object, Object>>();
 
+	/** AuthzGroupService used when putting items into the cache. */
+	private AuthzGroupService m_authzGroupService;
 
 	protected class MultiRefCacheEntry extends CacheEntry
 	{
@@ -97,23 +99,27 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache,
 
 	/**
 	 * Construct the Cache - checks for expiration periodically.
+	 * @param authzGroupService TODO
 	 * @deprecated long sleep no longer used with ehcache
 	 */
 	public MultiRefCacheImpl(BasicMemoryService memoryService,
-			EventTrackingService eventTrackingService, long sleep, Ehcache cache)
+			EventTrackingService eventTrackingService, AuthzGroupService authzGroupService, long sleep, Ehcache cache)
 	{
 		super(memoryService, eventTrackingService, sleep, "", cache);
+		this.m_authzGroupService = authzGroupService;
 		cache.getCacheEventNotificationService().registerListener(this);
 		
 	}
 
 	/**
 	 * Construct the Cache - checks for expiration periodically.
+	 * @param authzGroupService TODO
 	 */
 	public MultiRefCacheImpl(BasicMemoryService memoryService,
-			EventTrackingService eventTrackingService, Ehcache cache)
+			EventTrackingService eventTrackingService, AuthzGroupService authzGroupService, Ehcache cache)
 	{
 		super(memoryService, eventTrackingService, "", cache);
+		this.m_authzGroupService = authzGroupService;
 		cache.getCacheEventNotificationService().registerListener(this);
 
 	}
@@ -139,7 +145,7 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache,
 			for (Iterator i = azgIds.iterator(); i.hasNext();)
 			{
 				String azgId = (String) i.next();
-				azgRefs.add(AuthzGroupService.authzGroupReference(azgId));
+				azgRefs.add(m_authzGroupService.authzGroupReference(azgId));
 			}
 		}
 
@@ -188,6 +194,7 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache,
 	protected void addRefCachedKey(String ref, Object key)
 	{
 		Map<Object,Object> cachedKeys = m_refsStore.get(ref);
+		// Isn't this a threading issue. Two thread hit this and both put their own data into m_refsStore.
 		if ( cachedKeys == null ) {
 			cachedKeys = new ConcurrentHashMap<Object, Object>();
 			m_refsStore.put(ref, cachedKeys);

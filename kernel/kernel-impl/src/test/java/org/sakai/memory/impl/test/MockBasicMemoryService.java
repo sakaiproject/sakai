@@ -21,6 +21,7 @@
 
 package org.sakai.memory.impl.test;
 
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
@@ -36,15 +37,17 @@ public class MockBasicMemoryService extends BasicMemoryService
 	private EventTrackingService eventTrackingService;
 	private SecurityService securityService;
 	private UsageSessionService usageSessionService;
+	private AuthzGroupService authzGroupService;
 
 	/**
 	 * 
 	 */
-	public MockBasicMemoryService(EventTrackingService eventTrackingService, SecurityService securityService, UsageSessionService usageSessionService)
+	public MockBasicMemoryService(EventTrackingService eventTrackingService, SecurityService securityService, UsageSessionService usageSessionService, AuthzGroupService authzGroupService)
 	{
 		this.eventTrackingService = eventTrackingService;
 		this.securityService = securityService;
 		this.usageSessionService = usageSessionService;
+		this.authzGroupService = authzGroupService;
 	}
 
 	/* (non-Javadoc)
@@ -72,6 +75,12 @@ public class MockBasicMemoryService extends BasicMemoryService
 	protected UsageSessionService usageSessionService()
 	{
 		return usageSessionService;
+	}
+	
+	@Override
+	protected AuthzGroupService authzGroupService()
+	{
+		return authzGroupService;
 	}
 
 }

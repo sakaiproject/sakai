@@ -28,6 +28,7 @@ import net.sf.ehcache.CacheManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
@@ -45,6 +46,7 @@ public class MemoryServiceTest extends TestCase
 	private EventTrackingService eventTrackingService;
 	private UsageSessionService usageSessionService;
 	private SecurityService securityService;
+	private AuthzGroupService authzGroupService;
 	private BasicMemoryService basicMemoryService;
 	private CacheManager cacheManager;
 
@@ -66,7 +68,8 @@ public class MemoryServiceTest extends TestCase
 		eventTrackingService = new MockEventTrackingService();
 		securityService = new MockSecurityService();
 		usageSessionService = new MockUsageSessionService();
-		basicMemoryService = new MockBasicMemoryService(eventTrackingService, securityService, usageSessionService );
+		authzGroupService = new MockAuthzGroupService();
+		basicMemoryService = new MockBasicMemoryService(eventTrackingService, securityService, usageSessionService, authzGroupService );
 		cacheManager = new CacheManager(this.getClass().getResourceAsStream("ehcache.xml"));
 		basicMemoryService.setCacheManager(cacheManager);
 	}

@@ -12,6 +12,7 @@
  		<lookup-method name="eventTrackingService" bean="org.sakaiproject.event.api.EventTrackingService" />
  		<lookup-method name="securityService" bean="org.sakaiproject.authz.api.SecurityService" />
  		<lookup-method name="usageSessionService" bean="org.sakaiproject.event.api.UsageSessionService" />
+ 		<lookup-method name="authzGroupService" bean="org.sakaiproject.authz.api.AuthzGroupService" />
 
  		<property name="cacheLogging"><value>false</value></property>
  		
