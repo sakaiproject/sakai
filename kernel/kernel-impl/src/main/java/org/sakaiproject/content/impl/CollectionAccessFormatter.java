@@ -148,7 +148,10 @@ public class CollectionAccessFormatter
 				String webappRoot = ServerConfigurationService.getServerUrl();
 				out.println("<link href=\"" + webappRoot
 						+ "/library/skin/default/access.css\" type=\"text/css\" rel=\"stylesheet\" media=\"screen\" />");
-				if (basedir != null)
+				out.println("<script src=\"" + webappRoot
+						+ "/library/js/jquery.js\" type=\"text/javascript\">");
+				out.println("</script>");
+						if (basedir != null)
 				{
 					out.println("<script type=\"text/javascript\">");
 					out.println("function seturl(url) {");
@@ -157,19 +160,25 @@ public class CollectionAccessFormatter
 					out.println("</script>");
 				}
 
-				out.println("</head><body>");
+				out.println("</head><body class=\"specialLink\">");
+				
+				out.println("<script type=\"text/javascript\">$(document).ready(function(){resizeFrame();function resizeFrame(){if (window.name != \"\") {var frame = parent.document.getElementById(window.name);if (frame) {var clientH = document.body.clientHeight + 10;$(frame).height(clientH);}}}jQuery.fn.fadeToggle = function(speed, easing, callback){return this.animate({opacity: \'toggle\'}, speed, easing, callback);};if ($(\'.textPanel\').size() < 1){$(\'a#toggler\').hide();}$(\'a#toggler\').click(function(){$(\'.textPanel\').fadeToggle(\'1000\', \'\', \'resizeFrame\');});\n$(\'.file a\').each(function (i){\n$(this).addClass(getFileExtension($(this).attr(\'href\')));\n})\nfunction getFileExtension(filename)\n{\nvar ext = /^.+\\.([^.]+)$/.exec(filename);\nreturn ext == null ? \"\" : ext[1].toLowerCase();\n}\n});</script>");				
 				out.println("<div class=\"directoryIndex\">");
 				// for content listing it's best to use a real title
 				if (basedir != null)
-					out.println("<h2>Contents of " + access + path + "</h2>");
+					out.println("<h3>Contents of " + access + path + "</h3>");
 				else
 				{
-					out.println("<h2>" + pl.getProperty(ResourceProperties.PROP_DISPLAY_NAME) + "</h2>");
+					out.println("<h3>" + pl.getProperty(ResourceProperties.PROP_DISPLAY_NAME) + "</h3><p id=\"toggle\"><a id=\"toggler\" href=\"#\">Show/hide descriptions</a></p>");
 					String desc = pl.getProperty(ResourceProperties.PROP_DESCRIPTION);
-					if (desc != null && !desc.equals("")) out.println("<p>" + desc + "</p>");
+					if (desc != null && !desc.equals("")) out.println("<div class=\"textPanel\">" + desc + "</div>");
 				}
-
-				out.println("<table summary=\"Directory index\">");
+				if (sferyx)
+					out.println("<table>");
+				else
+					out.println("<ul>");
+					out.println("<li style=\"display:none\">");
+					out.println("</li>");
 				printedHeader = true;
 				printedDiv = true;
 			}
@@ -239,10 +248,9 @@ public class CollectionAccessFormatter
 									+ baseparam
 									+ "\">Up one level</a></b></td><td width=\"20%\"></td><td width=\"30%\"></td></tr><form name=\"fileSelections\">");
 				else if (basedir != null)
-					out.println("<tr><td><a href=\"../" + baseparam + "\">Up one level</a></td><td><b>Folder</b>" + "</td><td>"
-							+ "</td><td>" + "</td><td>" + "</td></tr>");
+					out.println("<li class=\"upfolder\"><a href=\"../" + baseparam + "\"><img src=\"/library/image/sakai/folder-up.gif\" />Up one level</a></span></li>");
 				else
-					out.println("<tr><td><a href=\"../\">Up one level</a> [Folder]</td><td></td></tr>");
+					out.println("<li class=\"upfolder\"><a href=\"../\"><img src=\"/library/image/sakai/folder-up.gif\" />Up one level</a></span></li>");
 			}
 			else if (sferyx)
 				out
@@ -283,18 +291,19 @@ public class CollectionAccessFormatter
 											+ Validator.escapeHtml(xs)
 											+ "</a></font></td><td bgcolor=\"#FFF678\" align=\"RIGHT\"><font face=\"Arial\" size=\"3\" color=\"#000000\">File Folder</font></td><td>&nbsp;</td></tr>");
 						else if (basedir != null)
-							out.println("<tr><td><button type=button onclick=\"seturl('" + filepref + Validator.escapeHtml(xs)
+							out.println("<li><button type=button onclick=\"seturl('" + filepref + Validator.escapeHtml(xs)
 									+ "')\">Choose</button>&nbsp;<a href=\"" + Validator.escapeUrl(xs) + baseparam + "\">"
-									+ Validator.escapeHtml(xs) + "</a></td><td><b>Folder</b>" + "</td><td>" + "</td><td>"
-									+ "</td><td>" + "</td></tr>");
+									+ Validator.escapeHtml(xs) + "</a></li>");
 						else
 						{
 							String desc = properties.getProperty(ResourceProperties.PROP_DESCRIPTION);
-							if (desc == null) desc = "";
-
-							out.println("<tr><td><a href=\"" + Validator.escapeUrl(xs) + baseparam + "\">"
+							if ((desc == null)  || desc.equals(""))
+									desc = "";
+							else
+								desc = "<div class=\"textPanel\">" +  Validator.escapeHtml(desc) + "</div>";
+							out.println("<li class=\"folder\"><a href=\"" + Validator.escapeUrl(xs) + baseparam + "\">"
 									+ Validator.escapeHtml(properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME))
-									+ "</a> [Folder]</td><td>" + Validator.escapeHtml(desc) + "</td></tr>");
+									+ "</a>" + desc + "</li>");
 						}
 					}
 					else
@@ -315,17 +324,21 @@ public class CollectionAccessFormatter
 											+ "</font></td><td bgcolor=\"#FFFFFF\" align=\"LEFT\"><font face=\"Arial\" size=\"3\">&nbsp;&nbsp;"
 											+ modifiedTime + "</font></td></tr>");
 						else if (basedir != null)
-							out.println("<tr><td><button type=button onclick=\"seturl('" + filepref + Validator.escapeHtml(xs)
-									+ "')\">Choose</button>&nbsp;&nbsp;" + Validator.escapeHtml(xs) + "</td><td>" + filesize
-									+ "</td><td>" + createdBy + "</td><td>" + filetype + "</td><td>" + modifiedTime + "</td></tr>");
+							out.println("<li><button type=button onclick=\"seturl('" + filepref + Validator.escapeHtml(xs)
+									+ "')\">Choose</button>&nbsp;&nbsp;" + Validator.escapeHtml(xs) + "<span class=\"textPanelFooter\">" + filesize
+									+ ", " + createdBy + ", " + filetype + ", " + modifiedTime + "</li>");
 						else
 						{
 							String desc = properties.getProperty(ResourceProperties.PROP_DESCRIPTION);
-							if (desc == null) desc = "";
-
-							out.println("<tr><td><a href=\"" + Validator.escapeUrl(xs) + "\" target=_blank>"
+							if ((desc == null) || desc.equals(""))
+								desc = "";
+							else
+								desc = "<div class=\"textPanel\">" + Validator.escapeHtml(desc) + "</div>";
+							String resourceType = contentResource.getResourceType().replace('.', '_');
+							out.println("<li class=\"file\"><a href=\"" + Validator.escapeUrl(xs) + "\" target=_blank class=\""
+									+ resourceType+"\">"
 									+ Validator.escapeHtml(properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME))
-									+ "</a></td><td>" + Validator.escapeHtml(desc) + "</td></tr>");
+									+ "</a>" + desc + "</li>");
 						}
 					}
 				}
@@ -338,12 +351,11 @@ public class CollectionAccessFormatter
 										+ Validator.escapeHtml(xs)
 										+ "\"></td><td bgcolor=\"#FFFFFF\" align=\"RIGHT\"><font face=\"Arial\" size=\"3\">&nbsp</font></td><td bgcolor=\"#FFFFFF\" align=\"LEFT\"><font face=\"Arial\" size=\"3\">&nbsp;&nbsp;</font></td></tr>");
 					else if (basedir != null)
-						out.println("<tr><td><button type=button onclick=\"seturl('" + filepref + Validator.escapeHtml(xs)
-								+ "')\">Choose</button>&nbsp;&nbsp;" + Validator.escapeHtml(xs) + "</td><td>" + "</td><td>"
-								+ "</td><td>" + "</td><td>" + "</td></tr>");
+						out.println("<li><button type=button onclick=\"seturl('" + filepref + Validator.escapeHtml(xs)
+								+ "')\">Choose</button>&nbsp;&nbsp;" + Validator.escapeHtml(xs) + "</li>");
 					else
-						out.println("<tr><td><a href=\"" + Validator.escapeUrl(xs) + "\" target=_blank>" + Validator.escapeHtml(xs)
-								+ "</a></td><td></tr>");
+						out.println("<li class=\"file\"><a href=\"" + Validator.escapeUrl(xs) + "\" target=_blank>" + Validator.escapeHtml(xs)
+								+ "</a></li>");
 				}
 			}
 
@@ -354,9 +366,12 @@ public class CollectionAccessFormatter
 
 		if (out != null && printedHeader)
 		{
-			out.println("</table>");
+			if (sferyx)
+				out.println("<table>");
+			else
+				out.println("</ul>");
 			if (printedDiv) out.println("</div>");
-			out.println("</body></html>");
+				out.println("</body></html>");
 		}
 	}
 
