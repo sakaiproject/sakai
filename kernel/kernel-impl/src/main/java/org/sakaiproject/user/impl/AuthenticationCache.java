@@ -22,6 +22,9 @@ package org.sakaiproject.user.impl;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
@@ -39,6 +42,9 @@ import org.sakaiproject.user.api.AuthenticationException;
  * <p>
  * There's nothing DAV-specific about this class, and it's also independent of
  * any Sakai classes other than the "Authentication" user ID and EID holder.
+ * 
+ * We salt password so precomputed dictionaries can't be used against a dump of the
+ * authentication cache.
  *
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
@@ -47,6 +53,15 @@ public class AuthenticationCache {
 
 	private Cache authCache = null;
 
+	/**
+	 * List of algorithms to attempt to use, best ones should come first.
+	 */
+	private List<String> algorithms = Arrays.asList(new String[]{"SHA2","SHA1"});
+	
+	private Random saltGenerator = new Random();
+	
+	private int saltLength = 8;
+	
 	/**
 	* The central cache object, should be injected
 	*/
@@ -58,9 +73,13 @@ public class AuthenticationCache {
 	public Authentication getAuthentication(String authenticationId, String password)
 			throws AuthenticationException {
 		Authentication auth = null;
-		try {
-			AuthenticationRecord record = (AuthenticationRecord) authCache.get(authenticationId).getObjectValue();
-			if (MessageDigest.isEqual(record.encodedPassword, getEncrypted(password))) {
+		Element element =  authCache.get(authenticationId);
+		if (element != null) {
+			AuthenticationRecord record = (AuthenticationRecord)element.getObjectValue();
+			byte[] salt = new byte[saltLength];
+			System.arraycopy(record.encodedPassword, 0, salt, 0, salt.length);
+			byte[] encodedPassword = getEncrypted(password, salt);
+			if (MessageDigest.isEqual(record.encodedPassword, encodedPassword)) {
 				if (record.authentication == null) {
 					if (log.isDebugEnabled()) log.debug("getAuthentication: replaying authentication failure for authenticationId=" + authenticationId);
 					throw new AuthenticationException("repeated invalid login");
@@ -74,9 +93,6 @@ public class AuthenticationCache {
 				if (log.isDebugEnabled()) log.debug("getAuthentication: record for authenticationId=" + authenticationId + " failed password check");
 				authCache.remove(authenticationId);
 			}
-		} catch (NullPointerException e) {
-			// this is ok and generally expected to indicate the value is not in the cache
-			auth = null;
 		}
 		return auth;
 	}
@@ -95,22 +111,33 @@ public class AuthenticationCache {
 			// Don't indefinitely renew the cached record -- we want to force
 			// real authentication after the timeout.
 		} else {
+			byte[] salt = new byte[saltLength];
+			saltGenerator.nextBytes(salt);
+			byte[] encrypted = getEncrypted(password, salt);
 			authCache.put( new Element(authenticationId,
-					new AuthenticationRecord(getEncrypted(password), authentication, System.currentTimeMillis()) ) );
+					new AuthenticationRecord(encrypted, authentication) ) );
 		}
 	}
 
-	private byte[] getEncrypted(String plaintext) {
-		try {
-			MessageDigest messageDigest = MessageDigest.getInstance("SHA");
-			messageDigest.update(plaintext.getBytes("UTF-8"));
-			return messageDigest.digest();
-		} catch (NoSuchAlgorithmException e) {
-			// This seems highly unlikely.
-			throw new RuntimeException(e);
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
+	private byte[] getEncrypted(String plaintext, byte[] salt) {
+		Exception lastException = null;
+		for (String algorithm : algorithms) {
+			try {
+				MessageDigest messageDigest = MessageDigest.getInstance(algorithm);
+				messageDigest.update(salt);
+				messageDigest.update(plaintext.getBytes("UTF-8"));
+				byte[] encrypted = messageDigest.digest();
+				byte[] saltEncrypted = new byte[salt.length+ encrypted.length];
+				System.arraycopy(salt, 0, saltEncrypted, 0, salt.length);
+				System.arraycopy(encrypted, 0, saltEncrypted, salt.length, encrypted.length);
+				return saltEncrypted;
+			} catch (NoSuchAlgorithmException e) {
+				lastException = e;
+			} catch (UnsupportedEncodingException e) {
+				lastException = e;
+			}
 		}
+		throw new RuntimeException(lastException);
 	}
 
 	/**
@@ -142,12 +169,10 @@ public class AuthenticationCache {
 	static class AuthenticationRecord {
 		byte[] encodedPassword;
 		Authentication authentication;	// Null for failed authentication
-		long createTimeInMs;
 
-		public AuthenticationRecord(byte[] encodedPassword, Authentication authentication, long createTimeInMs) {
+		public AuthenticationRecord(byte[] encodedPassword, Authentication authentication) {
 			this.encodedPassword = encodedPassword;
 			this.authentication = authentication;
-			this.createTimeInMs = createTimeInMs;
 		}
 	}
 
