@@ -168,4 +168,17 @@
        </property>
     </bean> 
   
+  <bean id="org.sakaiproject.search.component.adapter.contenthosting.SanslanContentDigester" 
+  	class="org.sakaiproject.search.component.adapter.contenthosting.SanslanContentDigester"
+  	init-method="init" 
+     destroy-method="destroy"
+     >
+  	<property name="contentProducer" ><ref bean="org.sakaiproject.search.component.adapter.contenthosting.ContentHostingContentProducer" /></property>
+  	<property name="mimeTypes">
+  		<map>
+	  		<entry key="image/jpeg"><value>images/jpeg</value> </entry>
+  			<entry key="image/jpg"><value>images/jpg</value> </entry>
+  		</map>
+  	</property>
+  	</bean>
 </beans>
