@@ -33,7 +33,7 @@
 	</ciManagement>
 	<inceptionYear>2003</inceptionYear>
 	<prerequisites>
-		<maven>2.0.6</maven>
+		<maven>2.0.10</maven>
 	</prerequisites>
 	<properties>
 		<!--<url.localsite>dav:http://source.sakaiproject.org/release/kernel/${project.version}</url.localsite>-->
