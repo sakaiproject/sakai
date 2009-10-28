@@ -541,7 +541,7 @@ public class EntityBatchHandler {
          **/
 
         // create the result object to encode and place into the final response
-        if (error == null) {
+        if (error == null && entityResponse != null) {
             // all ok, create the result for the response object
             // all cookies go into the main response
             Cookie[] cookies = entityResponse.getCookies();

@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -92,7 +94,7 @@ public class HttpRESTUtils {
      * @throws RuntimeException if the request cannot be processed for some reason (this is unrecoverable)
      */
     public static HttpResponse fireRequest(String URL, Method method, Map<String, String> params) {
-        return fireRequest(null, URL, method, params, null, false);
+        return fireRequest(null, URL, method, params, null, null, false);
     }
 
     /**
@@ -110,7 +112,26 @@ public class HttpRESTUtils {
      * @throws RuntimeException if the request cannot be processed for some reason (this is unrecoverable)
      */
     public static HttpResponse fireRequest(String URL, Method method, Map<String, String> params, Object data, boolean guaranteeSSL) {
-        return fireRequest(null, URL, method, params, data, guaranteeSSL);
+        return fireRequest(null, URL, method, params, null, data, guaranteeSSL);
+    }
+
+    /**
+     * Fire off a request to a URL using the specified method,
+     * include optional params, headers, and data in the request,
+     * the response data will be returned in the object if the request can be carried out
+     * 
+     * @param URL the url to send the request to (absolute or relative, can include query params)
+     * @param method the method to use (e.g. GET, POST, etc.)
+     * @param params (optional) params to send along with the request, will be encoded in the query string or in the body depending on the method
+     * @param params (optional) headers to send along with the request, will be encoded in the headers
+     * @param data (optional) data to send along in the body of the request, this only works for POST and PUT requests, ignored for the other types
+     * @param guaranteeSSL if this is true then the request is sent in a mode which will allow self signed certs to work,
+     * otherwise https requests will fail if the certs cannot be centrally verified
+     * @return an object representing the response, includes data about the response
+     * @throws RuntimeException if the request cannot be processed for some reason (this is unrecoverable)
+     */
+    public static HttpResponse fireRequest(String URL, Method method, Map<String, String> params, Map<String, String> headers, Object data, boolean guaranteeSSL) {
+        return fireRequest(null, URL, method, params, headers, data, guaranteeSSL);
     }
 
     /**
@@ -130,8 +151,30 @@ public class HttpRESTUtils {
      * @return an object representing the response, includes data about the response
      * @throws RuntimeException if the request cannot be processed for some reason (this is unrecoverable)
      */
-    @SuppressWarnings("deprecation")
     public static HttpResponse fireRequest(HttpClientWrapper httpClientWrapper, String URL, Method method, Map<String, String> params, Object data, boolean guaranteeSSL) {
+        return fireRequest(httpClientWrapper, URL, method, params, null, data, guaranteeSSL);
+    }
+
+    /**
+     * Fire off a request to a URL using the specified method but reuse the client for efficiency,
+     * include optional params and data in the request,
+     * the response data will be returned in the object if the request can be carried out
+     * 
+     * @param httpClientWrapper (optional) allows the http client to be reused for efficiency,
+     * if null a new one will be created each time, use {@link #makeReusableHttpClient(boolean, int)} to
+     * create a reusable instance
+     * @param URL the url to send the request to (absolute or relative, can include query params)
+     * @param method the method to use (e.g. GET, POST, etc.)
+     * @param params (optional) params to send along with the request, will be encoded in the query string or in the body depending on the method
+     * @param params (optional) headers to send along with the request, will be encoded in the headers
+     * @param data (optional) data to send along in the body of the request, this only works for POST and PUT requests, ignored for the other types
+     * @param guaranteeSSL if this is true then the request is sent in a mode which will allow self signed certs to work,
+     * otherwise https requests will fail if the certs cannot be centrally verified
+     * @return an object representing the response, includes data about the response
+     * @throws RuntimeException if the request cannot be processed for some reason (this is unrecoverable)
+     */
+    @SuppressWarnings("deprecation")
+    public static HttpResponse fireRequest(HttpClientWrapper httpClientWrapper, String URL, Method method, Map<String, String> params, Map<String, String> headers, Object data, boolean guaranteeSSL) {
         if (guaranteeSSL) {
             // added this to attempt to force the SSL self signed certs to work
             Protocol myhttps = new Protocol("https", new EasySSLProtocolSocketFactory(), 443);
@@ -151,6 +194,7 @@ public class HttpRESTUtils {
             if (data != null) {
                 System.out.println("WARN: data cannot be passed in GET requests, data will be ignored (org.sakaiproject.entitybroker.util.http.HttpUtils#fireRequest)");
             }
+            gm.setFollowRedirects(true);
             httpMethod = gm;
         } else if (method.equals(Method.POST)) {
             PostMethod pm = new PostMethod(URL);
@@ -187,9 +231,12 @@ public class HttpRESTUtils {
         } else {
             throw new IllegalArgumentException("Cannot handle method: " + method);
         }
-
-        // set the standard stuff we use for all requests
-        httpMethod.setFollowRedirects(true);
+        // set the headers for the request
+        if (headers != null) {
+            for (Entry<String, String> entry : headers.entrySet()) {
+                httpMethod.addRequestHeader(entry.getKey(), entry.getValue());
+            }
+        }
 
         HttpResponse response = null;
         try {
@@ -204,9 +251,9 @@ public class HttpRESTUtils {
             response.setResponseMessage(httpMethod.getStatusText());
             // now get the headers
             HashMap<String, String[]> responseHeaders = new HashMap<String, String[]>();
-            Header[] headers = httpMethod.getResponseHeaders();
-            for (int i = 0; i < headers.length; i++) {
-                Header header = headers[i];
+            Header[] respHeaders = httpMethod.getResponseHeaders();
+            for (int i = 0; i < respHeaders.length; i++) {
+                Header header = respHeaders[i];
                 // now we convert the headers from these odd pairs into something more like servlets expect
                 HeaderElement[] elements = header.getElements();
                 if (elements == null || elements.length == 0) {
@@ -422,6 +469,20 @@ public class HttpRESTUtils {
         client.getParams().setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, true);
         wrapper = new HttpClientWrapper(client, connectionManager, initialState);
         return wrapper;
+    }
+
+    /**
+     * Encode a date into an http date string
+     * @param date the date
+     * @return the date string or an empty string if the date is null
+     */
+    public static String encodeDateHttp(Date date) {
+        String str = "";
+        if (date != null) {
+            SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z"); // RFC 2822
+            str = sdf.format(date);
+        }
+        return str;
     }
 
 }
