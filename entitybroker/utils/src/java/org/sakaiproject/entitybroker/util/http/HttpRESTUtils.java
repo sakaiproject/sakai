@@ -76,7 +76,7 @@ public class HttpRESTUtils {
      * @param URL the url to send the request to (absolute or relative, can include query params)
      * @param method the method to use (e.g. GET, POST, etc.)
      * @return an object representing the response, includes data about the response
-     * @throws RuntimeException if the request cannot be processed for some reason (this is unrecoverable)
+     * @throws HttpRequestException if the request cannot be processed for some reason (this is unrecoverable)
      */
     public static HttpResponse fireRequest(String URL, Method method) {
         return fireRequest(URL, method, null, null, false);
@@ -91,7 +91,7 @@ public class HttpRESTUtils {
      * @param method the method to use (e.g. GET, POST, etc.)
      * @param params (optional) params to send along with the request, will be encoded in the query string or in the body depending on the method
      * @return an object representing the response, includes data about the response
-     * @throws RuntimeException if the request cannot be processed for some reason (this is unrecoverable)
+     * @throws HttpRequestException if the request cannot be processed for some reason (this is unrecoverable)
      */
     public static HttpResponse fireRequest(String URL, Method method, Map<String, String> params) {
         return fireRequest(null, URL, method, params, null, null, false);
@@ -109,7 +109,7 @@ public class HttpRESTUtils {
      * @param guaranteeSSL if this is true then the request is sent in a mode which will allow self signed certs to work,
      * otherwise https requests will fail if the certs cannot be centrally verified
      * @return an object representing the response, includes data about the response
-     * @throws RuntimeException if the request cannot be processed for some reason (this is unrecoverable)
+     * @throws HttpRequestException if the request cannot be processed for some reason (this is unrecoverable)
      */
     public static HttpResponse fireRequest(String URL, Method method, Map<String, String> params, Object data, boolean guaranteeSSL) {
         return fireRequest(null, URL, method, params, null, data, guaranteeSSL);
@@ -128,7 +128,7 @@ public class HttpRESTUtils {
      * @param guaranteeSSL if this is true then the request is sent in a mode which will allow self signed certs to work,
      * otherwise https requests will fail if the certs cannot be centrally verified
      * @return an object representing the response, includes data about the response
-     * @throws RuntimeException if the request cannot be processed for some reason (this is unrecoverable)
+     * @throws HttpRequestException if the request cannot be processed for some reason (this is unrecoverable)
      */
     public static HttpResponse fireRequest(String URL, Method method, Map<String, String> params, Map<String, String> headers, Object data, boolean guaranteeSSL) {
         return fireRequest(null, URL, method, params, headers, data, guaranteeSSL);
@@ -149,7 +149,7 @@ public class HttpRESTUtils {
      * @param guaranteeSSL if this is true then the request is sent in a mode which will allow self signed certs to work,
      * otherwise https requests will fail if the certs cannot be centrally verified
      * @return an object representing the response, includes data about the response
-     * @throws RuntimeException if the request cannot be processed for some reason (this is unrecoverable)
+     * @throws HttpRequestException if the request cannot be processed for some reason (this is unrecoverable)
      */
     public static HttpResponse fireRequest(HttpClientWrapper httpClientWrapper, String URL, Method method, Map<String, String> params, Object data, boolean guaranteeSSL) {
         return fireRequest(httpClientWrapper, URL, method, params, null, data, guaranteeSSL);
@@ -171,7 +171,7 @@ public class HttpRESTUtils {
      * @param guaranteeSSL if this is true then the request is sent in a mode which will allow self signed certs to work,
      * otherwise https requests will fail if the certs cannot be centrally verified
      * @return an object representing the response, includes data about the response
-     * @throws RuntimeException if the request cannot be processed for some reason (this is unrecoverable)
+     * @throws HttpRequestException if the request cannot be processed for some reason (this is unrecoverable)
      */
     @SuppressWarnings("deprecation")
     public static HttpResponse fireRequest(HttpClientWrapper httpClientWrapper, String URL, Method method, Map<String, String> params, Map<String, String> headers, Object data, boolean guaranteeSSL) {
@@ -277,12 +277,12 @@ public class HttpRESTUtils {
         }
         catch (HttpException he) {
             // error contained in he.getMessage()
-            throw new RuntimeException("Fatal HTTP Request Error: " +
+            throw new HttpRequestException("Fatal HTTP Request Error: " +
                     "Could not sucessfully fire request to url ("+URL+") using method ("+method+")  :: " + he.getMessage(), he);
         }
         catch (IOException ioe) {
             // other exception
-            throw new RuntimeException("IOException (transport/connection) Error: " +
+            throw new HttpIOException("IOException (transport/connection) Error: " +
                     "Could not sucessfully fire request to url ("+URL+") using method ("+method+")  :: " + ioe.getMessage(), ioe);
         } finally {
             httpMethod.releaseConnection();
@@ -358,7 +358,7 @@ public class HttpRESTUtils {
             try {
                 encoded = URLEncoder.encode(toEncode, ENCODING_UTF8);
             } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException("Encoding to URL using UTF8 failed for: " + toEncode + " :: " + e.getMessage(), e);
+                throw new HttpIOException("Encoding to URL using UTF8 failed for: " + toEncode + " :: " + e.getMessage(), e);
             }
         }
         return encoded;
@@ -381,7 +381,7 @@ public class HttpRESTUtils {
                 try {
                     re = new StringRequestEntity(data.toString(), "text/xml", ENCODING_UTF8);
                 } catch (UnsupportedEncodingException e) {
-                    throw new RuntimeException("Encoding data using UTF8 failed :: " + e.getMessage(), e);
+                    throw new HttpIOException("Encoding data using UTF8 failed :: " + e.getMessage(), e);
                 }
             }
             method.setRequestEntity(re);
@@ -483,6 +483,24 @@ public class HttpRESTUtils {
             str = sdf.format(date);
         }
         return str;
+    }
+
+    /**
+     * Indicates a general failure
+     */
+    public static class HttpRequestException extends RuntimeException {
+        public HttpRequestException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
+
+    /**
+     * Indicates an IO failure
+     */
+    public static class HttpIOException extends RuntimeException {
+        public HttpIOException(String message, Throwable cause) {
+            super(message, cause);
+        }
     }
 
 }
