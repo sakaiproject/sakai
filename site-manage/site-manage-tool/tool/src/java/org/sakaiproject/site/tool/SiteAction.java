@@ -635,6 +635,8 @@ public class SiteAction extends PagedResourceActionII {
 	private final static String NEWS_TOOL_CHANNEL_CONFIG = "channel-url";
 	private final static String NEWS_TOOL_CHANNEL_CONFIG_VALUE = "http://www.sakaiproject.org/news-rss-feed";
 	
+	private final static int UUID_LENGTH = 36;
+	
 	/**
 	 * what are the tool ids within Home page?
 	 * If this is for a newly added Home tool, get the tool ids from template site or system set default
@@ -5763,13 +5765,19 @@ public class SiteAction extends PagedResourceActionII {
 
 	private String originalToolId(String toolId, String toolRegistrationId) {
 		String rv = null;
-		
-		if (toolId.indexOf(toolRegistrationId) != -1)
+		if (toolId.equals(toolRegistrationId))
 		{
-			// the multiple tool id format is of TOOL_IDx, where x is an intger >= 1
+			rv = toolRegistrationId;
+		}
+		else if (toolId.indexOf(toolRegistrationId) != -1 && isMultipleInstancesAllowed(toolRegistrationId))
+		{
+			// the multiple tool id format is of SITE_IDTOOL_IDx, where x is an intger >= 1
 			if (toolId.endsWith(toolRegistrationId))
 			{
-				rv = toolRegistrationId;
+				// get the site id part out
+				String uuid = toolId.replaceFirst(toolRegistrationId, "");
+				if (uuid != null && uuid.length() == UUID_LENGTH)
+					rv = toolRegistrationId;
 			} else
 			{
 				String suffix = toolId.substring(toolId.indexOf(toolRegistrationId) + toolRegistrationId.length());
