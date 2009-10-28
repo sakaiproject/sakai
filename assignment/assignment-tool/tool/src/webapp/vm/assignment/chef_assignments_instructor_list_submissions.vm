@@ -325,7 +325,7 @@
 					</ul>
 				</div>
 			#end
-			<div id="allowResubmission_hidden" #if ($!showAllowResubmission)style="display:none"#else style="display:block"#end>
+			<div id="allowResubmission_hidden" #if (!$!showAllowResubmission && $!value_SubmissionType != 4)style="display:block"#else style="display:none"#end>
 				<input type="hidden" name = "allowResToggle" id = "allowResToggle" value="checked" />
 				<p class="discTria">
 					<a href="#" onclick="javascript:showAllowResubmission();">
@@ -333,7 +333,7 @@
 						$tlang.getString("allowResubmission.label")
 				</p>
 			</div>
-			<div id="allowResubmission_shown" #if ($!showAllowResubmission)style="display:block"#else style="display:none"#end>
+			<div id="allowResubmission_shown" #if ($!showAllowResubmission && $!value_SubmissionType != 4)style="display:block"#else style="display:none"#end>
 				<p class="discTria">
 					<a href="#" onclick="javascript:hideAllowResubmission();">
 					<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("allowResubmission.hide")" border="0" width="13" height="13" align="top" /></a>

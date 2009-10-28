@@ -107,9 +107,6 @@
 						$resubmitNumber
 					</td>
 				</tr>
-			#end
-			## resubmit close time
-			#if ($!resubmitCloseTime)
 				<tr>
 					<th>
 						$tlang.getString("allow.resubmit.closeTime")

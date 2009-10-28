@@ -520,30 +520,30 @@ function handleEnterKeyPress(ev)
 									<p class="shorttext">
 										<label for="grade">$tlang.getString("gen.gra2")</label>
 										<select name="$name_grade" id="grade">
-											<option  value="" #if($value_grade.equals(""))selected="selected"#end>ungraded</option>
+											<option  value="" #if($!value_grade.equals(""))selected="selected"#end>ungraded</option>
 											#foreach ($i in ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "D-", "E", "F"])
-												<option  value="$i" #if ($value_grade.equals($i))selected="selected"#end>$i</option>
+												<option  value="$i" #if ($!value_grade.equals($i))selected="selected"#end>$i</option>
 											#end
 										</select>
 									</p>	
 								#elseif ($gradeType == 3)
 									<p class="shorttext">
 										<label for="grade">$tlang.getString("gen.gra2")</label>
-										<input type="text" name="$name_grade" size="5" maxlength="11" value="$value_grade" id="grade" onkeypress="return handleEnterKeyPress(event);" /> <span class="instruction">($tlang.getString("grade.max") $assignment.getContent().getMaxGradePointDisplay())</span>
+										<input type="text" name="$name_grade" size="5" maxlength="11" value="$!value_grade" id="grade" onkeypress="return handleEnterKeyPress(event);" /> <span class="instruction">($tlang.getString("grade.max") $assignment.getContent().getMaxGradePointDisplay())</span>
 									</p>	
 								#elseif ($gradeType == 4)
 									<p class="shorttext">
 										<label for="grade">$tlang.getString("gen.gra2")</label>
 										<select name="$name_grade" id="grade" >
-											<option  value="" #if($value_grade.equals(""))selected="selected"#end>$tlang.getString("ungra")</option>
+											<option  value="" #if($!value_grade.equals(""))selected="selected"#end>$tlang.getString("ungra")</option>
 											#foreach ($i in ["Pass", "Fail"])
-													<option  value="$i" #if ($value_grade.equalsIgnoreCase($i))selected="selected"#end>#if ($i=="Pass") $tlang.getString("pass3") #elseif ($i=="Fail") $tlang.getString("fail") #end</option>
+													<option  value="$i" #if ($!value_grade.equalsIgnoreCase($i))selected="selected"#end>#if ($i=="Pass") $tlang.getString("pass3") #elseif ($i=="Fail") $tlang.getString("fail") #end</option>
 											#end
 										</select>
 									</p>	
 								#elseif ($gradeType == 5)
 									<p class="checkbox">
-											<input name="$name_grade" type="checkbox" value="Checked" #if ($value_grade.equals("Checked"))checked="checked"#end id="gradeChecked"  /> <label for="gradeChecked">$tlang.getString("gen.gra2") $tlang.getString("gen.checked")</label>
+											<input name="$name_grade" type="checkbox" value="Checked" #if ($!value_grade.equals("Checked"))checked="checked"#end id="gradeChecked"  /> <label for="gradeChecked">$tlang.getString("gen.gra2") $tlang.getString("gen.checked")</label>
 									</p>	
 								#end
 							</div>	
@@ -563,15 +563,15 @@ function handleEnterKeyPress(ev)
 						<input type="hidden" name="$name_allowResubmitNumber" id="allowResubmitNumber" value="0" />
 					#else
 						##show it only for those assignments not of type non-electronic submission
-						#if($!value_allowResubmitNumber==0)
-							#set($resubmitStyle="display:none")
-						#else 
+						#if($!value_allowResubmitNumber && $value_SubmissionType != 4)
 							#set($resubmitStyle="display:block")
+						#else 
+							#set($resubmitStyle="display:none")
 						#end
-						<p class="checkbox">
-							<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber==0) #else checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').style.display = 'inline';resizeFrame('grow');document.getElementById('allowResubmitTime').style.display = 'inline';}else{document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none';resizeFrame('shrink');}" /> 
+						<p class="checkbox" id="tempAllowRes" #if ($value_SubmissionType == 4) style = "display:none"#end>
+							<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber && $value_SubmissionType != 4) checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').style.display = 'block';document.getElementById('allowResubmitTime').style.display = 'block';resizeFrame();}else{document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none'}" /> 
 							<label for="allowResToggle">$tlang.getString("allowResubmit")</label>
-						</p>
+	    				</p>
 						<span id="allowResubmitNumber" style="$!resubmitStyle">
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label for="allowResubmitNumberSelect">
 								$tlang.getString("allow.resubmit.number")

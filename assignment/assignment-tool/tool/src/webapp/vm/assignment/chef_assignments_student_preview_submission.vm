@@ -149,10 +149,13 @@
 		<input type="hidden" name="assignmentId" value="$assignment.Id" />
 		<input type="hidden" name="eventSubmit_doRead_add_submission_form" value="x" />
 		<input type="hidden" name="option" value="cancel" />
+		## submission information
+		#set($timeSubmitted=false)
+		#set($timeSubmitted=$submission.TimeSubmitted)
+		#set($submitted=false)
+		#set($submitted=$submission.getSubmitted())
 		<div class="act">
-			#set($timeSubmitted=false)
-			#set($timeSubmitted=$submission.TimeSubmitted)
-			#if ($!submission && $submission.getSubmitted() && $!timeSubmitted && !$submission.Returned)
+			#if (!$!canSubmit)
 					<input name="eventSubmit_doSave_submission" type="submit" value="$tlang.getString("gen.sav")" disabled="disabled" />
 					<input name="eventSubmit_doPost_submission" type="submit" value="$tlang.getString("gen.subm3")" disabled="disabled" />
 					<input name="eventSubmit_doCancel_show_submission" type="submit" value="$tlang.getString("gen.revi")" disabled="disabled" />
@@ -160,10 +163,10 @@
 				<input
 					type="button"
 					class="active"
-					#if (!$submission.getSubmitted())
-						#set($name = $tlang.getString("gen.subm3"))
-					#else
+					#if ($submitted && $!timeSubmitted)
 						#set($name=$tlang.getString("resubmit"))
+					#else
+						#set($name=$tlang.getString("gen.subm3"))
 					#end
 					name="post"
 					accesskey="s"
