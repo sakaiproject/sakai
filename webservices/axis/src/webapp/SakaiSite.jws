@@ -10,6 +10,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 
@@ -33,20 +36,20 @@ import org.sakaiproject.exception.IdUnusedException;
  */
 public class SakaiSite {
 
+	private static final Log LOG = LogFactory.getLog("org.sakaiproject.axis.SakaiSite");
+
+
    private Session establishSession(String id)
       throws AxisFault 
    {
-      // System.out.println("SakaiSites session id="+id);
       
       // Establish Session
       Session s = SessionManager.getSession(id);
       
       if (s == null)
       {
-         System.out.println("Throwing axis fault");
          throw new AxisFault("Session "+id+" is not active");
       }
-      // System.out.println("User ID="+s.getUserId());
       SessionManager.setCurrentSession(s);
       return s;
    }
@@ -68,7 +71,6 @@ public class SakaiSite {
    
    private List getSiteList(String search, int first, int last)
    {
-      // System.out.println("Search="+search+" first="+first+" last="+last);
       
       List siteList = SiteService.getSites(
                                            org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
@@ -95,7 +97,6 @@ public class SakaiSite {
       for ( Iterator i = openSites.iterator(); i.hasNext(); ) 
       {
          Site theSite = (Site) i.next();
-         // System.out.println("Site "+theSite.getId());
          
          // Ignore the mercury site
          if ( "mercury".equalsIgnoreCase(theSite.getId()) ) continue;
@@ -108,7 +109,7 @@ public class SakaiSite {
          }
          catch (Exception  e)
          {
-            System.out.println("SakaiSite.joinAllSites: Failure joining site "+ theSite.getId()+" error "+e);
+            LOG.error("SakaiSite.joinAllSites: Failure joining site "+ theSite.getId()+" error "+e);
          }
       }
       return count + " sites joined.";
@@ -169,7 +170,6 @@ public class SakaiSite {
       }
       
       String retVal = Xml.writeDocumentToString(dom);
-      // System.out.println("XML = "+retVal);
       return retVal;
    }
    

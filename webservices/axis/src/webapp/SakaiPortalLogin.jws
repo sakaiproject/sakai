@@ -80,9 +80,9 @@ public class SakaiPortalLogin {
 			// Set password to something unguessable - they can set a new PW once they are logged in
 			String hiddenPW = IdManager.createUuid();
  			UserDirectoryService.addUser(null,id,firstName,lastName,eMail,hiddenPW,"registered", null);
-                        System.out.println("User Created...");
+                        LOG.debug("User Created...");
 		} catch(Exception e) {
-			System.out.println("Unable to create user...");
+			LOG.error("Unable to create user...");
         		throw new AxisFault("Failed login");
 		}
         	user = getSakaiUser(id,pw);
@@ -94,7 +94,6 @@ public class SakaiPortalLogin {
                 SessionManager.setCurrentSession(s);
                 if (s == null)
                 {
-                        // System.out.println("no session established");
                         LOG.warn("Web Services Login failed to establish session for id="+id+" ip="+ipAddress);
                         throw new AxisFault("Unable to establish session");
                 }

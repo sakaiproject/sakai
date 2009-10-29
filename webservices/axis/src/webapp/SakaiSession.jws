@@ -1,5 +1,8 @@
 import java.util.Date;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 
@@ -8,12 +11,14 @@ import org.sakaiproject.tool.cover.SessionManager;
  */
 public class SakaiSession {
 
+ 	private static final Log LOG = LogFactory.getLog("org.sakaiproject.axis.SakaiSession");
+
     public String checkSession(String id) {
-	System.out.println("session id="+id);
+		LOG.debug("session id="+id);
         Session s = SessionManager.getSession(id);
         if (s == null)
         {
-        	System.out.println("no session established");
+        	LOG.debug("no session established");
 		return "Session Null";
         }
         else
@@ -24,7 +29,7 @@ public class SakaiSession {
         		+ " started: " + new Date(s.getCreationTime()).toLocaleString()
         		+ " accessed: " + new Date(s.getLastAccessedTime()).toLocaleString()
         		+ " inactive after: " + s.getMaxInactiveInterval();
-        	System.out.println(resp);
+        	LOG.debug(resp);
 		return resp;
         }
     }
@@ -33,12 +38,12 @@ public class SakaiSession {
         Session s = SessionManager.getSession(id);
         if (s == null)
         {
-		System.out.println("getSessionUser session id="+id+" Has no user");
+		LOG.debug("getSessionUser session id="+id+" Has no user");
 		return "";
         }
         else
         {
-		System.out.println("getSessionUser session id="+id+" eid="+s.getUserEid());
+		LOG.debug("getSessionUser session id="+id+" eid="+s.getUserEid());
 		return s.getUserEid();
         }
     }
