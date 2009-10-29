@@ -297,8 +297,8 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 			throw new IllegalAccessError("System mutable records cannot be updated.");
 		}
 
-		// if it is a user mutable record, enusre the user is updating their own record
-		if (getUserMutableType().getUuid().equals(sakaiPerson.getTypeUuid()))
+		// if it is a user mutable record, ensure the user is updating their own record
+		if (!SessionManager.getCurrentSessionUserId().equals(sakaiPerson.getAgentUuid()) && !SecurityService.isSuperUser())
 		{
 			// AuthZ - Ensure the current user is updating their own record
 			if (!SessionManager.getCurrentSessionUserId().equals(sakaiPerson.getAgentUuid()))
