@@ -1025,7 +1025,7 @@ public class GradingService
     	// return (float) 0;
     	// Para que descuente (For discount)
     	if ((TypeIfc.MULTIPLE_CHOICE).equals(itemType)||(TypeIfc.TRUE_FALSE).equals(itemType)){
-    		return (answer.getDiscount().floatValue() * ((float) -1));
+    		return (Math.abs(answer.getDiscount().floatValue()) * ((float) -1));
     	}else{
     		return (float) 0;
     	}
