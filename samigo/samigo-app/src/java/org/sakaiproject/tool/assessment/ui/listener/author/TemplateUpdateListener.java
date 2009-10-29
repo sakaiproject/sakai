@@ -88,10 +88,10 @@ public class TemplateUpdateListener
 
 
     
-    String tempName=templateBean.getTemplateName();
+    String tempName = FormattedText.convertPlaintextToFormattedText(templateBean.getTemplateName());
     AssessmentService assessmentService = new AssessmentService();
 
-    boolean isUnique=assessmentService.assessmentTitleIsUnique(templateBean.getIdString(),tempName,true);
+    boolean isUnique = assessmentService.assessmentTitleIsUnique(templateBean.getIdString(),tempName,true);
     //log.debug("*** is unique="+isUnique);
     if(tempName!=null && (tempName.trim()).equals("")){
      	String err1=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.TemplateMessages","templateName_empty");
@@ -123,7 +123,7 @@ public class TemplateUpdateListener
     		}
    		}
    	}
-    
+    templateBean.setTemplateName(tempName);
     updateAssessment(templateBean);
 
     // reset the sortedTemplateList in IndexBean - daisyf

@@ -95,7 +95,7 @@ public class ConfirmPublishAssessmentListener
     //#2a - look for error: check if core assessment title is unique
     boolean error=false;
 
-    String assessmentName=assessmentSettings.getTitle();
+    String assessmentName=FormattedText.convertPlaintextToFormattedText(assessmentSettings.getTitle());
     if(assessmentName!=null &&(assessmentName.trim()).equals("")){
      	String nameEmpty_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_empty");
 	context.addMessage(null,new FacesMessage(nameEmpty_err));

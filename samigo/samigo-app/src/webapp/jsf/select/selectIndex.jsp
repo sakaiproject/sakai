@@ -266,8 +266,8 @@ sorting actions for table:
       </h:panelGroup>
       </f:facet>
 
-	<h:outputText value="#{reviewable.assessmentTitle}" styleClass="currentSort" rendered="#{(reviewable.feedback != 'true' || reviewable.isAssessmentRetractForEdit) && reviewable.recordedAssessment}"/>
-	<h:outputText value="#{reviewable.assessmentTitle}" rendered="#{(reviewable.feedback != 'true' || reviewable.isAssessmentRetractForEdit) && !reviewable.recordedAssessment}"/>
+	<h:outputText value="#{reviewable.assessmentTitle}" styleClass="currentSort" rendered="#{(reviewable.feedback != 'true' || reviewable.isAssessmentRetractForEdit) && reviewable.recordedAssessment}" escape="false"/>
+	<h:outputText value="#{reviewable.assessmentTitle}" rendered="#{(reviewable.feedback != 'true' || reviewable.isAssessmentRetractForEdit) && !reviewable.recordedAssessment}" escape="false"/>
 
     <h:commandLink title="#{selectIndexMessages.t_reviewAssessment}" action="#{delivery.getOutcome}" immediate="true"  
         rendered="#{reviewable.feedback == 'true' && !reviewable.isAssessmentRetractForEdit}" onmouseup="disableLinks(this);">
@@ -279,8 +279,8 @@ sorting actions for table:
            type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
-		<h:outputText styleClass="currentSort" value="#{reviewable.assessmentTitle}" rendered="#{reviewable.recordedAssessment}"/> 
-	    <h:outputText value="#{reviewable.assessmentTitle}" rendered="#{!reviewable.recordedAssessment}"/> 
+		<h:outputText styleClass="currentSort" value="#{reviewable.assessmentTitle}" rendered="#{reviewable.recordedAssessment}" escape="false"/> 
+	    <h:outputText value="#{reviewable.assessmentTitle}" rendered="#{!reviewable.recordedAssessment}" escape="false"/> 
     </h:commandLink>
 
 	<h:outputText value="#{selectIndexMessages.asterisk_2}" rendered="#{reviewable.feedback == 'true' && !reviewable.isAssessmentRetractForEdit && reviewable.hasAssessmentBeenModified}" styleClass="validate"/> 

@@ -92,7 +92,7 @@ function clickSubmitForGrade(){
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 
-<h3><h:outputText value="#{delivery.assessmentTitle} " /></h3>
+<h3><h:outputText value="#{delivery.assessmentTitle} " escape="false"/></h3>
 
 <h:panelGroup rendered="#{(delivery.actionString=='takeAssessment'
                            || delivery.actionString=='takeAssessmentViaUrl') 

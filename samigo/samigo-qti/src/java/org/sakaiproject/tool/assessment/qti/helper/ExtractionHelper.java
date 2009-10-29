@@ -1648,7 +1648,7 @@ public class ExtractionHelper
     for (int a = 0; a < answerList.size(); a++)
     {
       Answer answer = new Answer();
-      String answerText = XmlUtil.processFormattedText(log, (String) answerList.get(a));
+      String answerText = processUnicode(XmlUtil.processFormattedText(log, (String) answerList.get(a)));
       // these are not supposed to be empty
       if (notNullOrEmpty(answerText))
       {
@@ -2024,5 +2024,42 @@ public class ExtractionHelper
   public void setUnzipLocation(String unzipLocation)
   {
     this.unzipLocation = unzipLocation;
+  }
+
+  private String processUnicode(String value)
+  {
+	  if (value == null) return "";
+
+	  try
+	  {
+		  StringBuilder buf = new StringBuilder();
+		  final int len = value.length();
+		  for (int i = 0; i < len; i++)
+		  {
+			  char c = value.charAt(i);
+			  {
+				  if (c < 128)
+				  {
+					  if (buf != null) buf.append(c);
+				  }
+				  else
+				  {
+					  // escape higher Unicode characters using an
+					  // HTML numeric character entity reference like "&#15672;"
+					  if (buf == null) buf = new StringBuilder(value.substring(0, i));
+					  buf.append("&#");
+					  buf.append(Integer.toString((int) c));
+					  buf.append(";");
+				  }
+			  }
+		  }
+
+		  return (buf == null) ? value : buf.toString();
+	  }
+	  catch (Exception e)
+	  {
+		  log.warn("processUnicode: ", e);
+		  return "";
+	  }
   }
 }

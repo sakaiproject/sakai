@@ -1415,9 +1415,16 @@ public class DeliveryActionListener
     {
       populateFin(item, itemBean);
     }
-    else if (item.getTypeId().equals(TypeIfc.ESSAY_QUESTION)) //numeric response
+    else if (item.getTypeId().equals(TypeIfc.ESSAY_QUESTION)) 
     {
       itemBean.setResponseText(FormattedText.convertFormattedTextToPlaintext(itemBean.getResponseText()));
+    }
+    else if (item.getTypeId().equals(TypeIfc.TRUE_FALSE) || 
+    		item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE) ||
+            item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) ||
+            item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION) ) 
+    {
+      itemBean.setRationale(FormattedText.convertFormattedTextToPlaintext(itemBean.getRationale()));
     }
 
     return itemBean;

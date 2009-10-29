@@ -201,7 +201,8 @@ public class PublishAssessmentListener
       FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(publish_error));
       error=true;
     }
-    if (!assessmentService.assessmentTitleIsUnique(assessmentId,assessmentName,false)){
+    
+    if (!assessmentService.assessmentTitleIsUnique(assessmentId, FormattedText.convertPlaintextToFormattedText(assessmentName), false)){
       error=true;
       String nameUnique_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
       FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(nameUnique_err));
