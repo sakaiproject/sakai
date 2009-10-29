@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="profile2_overview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>profile2_overview</value></property>
+      <property name="name"><value>Profile2 Overview</value></property>
+      <property name="location"><value>/sakai_profile2/profile2_overview.html</value></property>
+      <property name="defaultForTool"><value>sakai.profile2</value></property>
+   </bean>
+
+   <bean id="profile2_myprofile" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>profile2_myprofile</value></property>
+      <property name="name"><value>Your Profile</value></property>
+      <property name="location"><value>/sakai_profile2/profile2_myprofile.html</value></property>
+   </bean>
+  
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="announcementCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Profile2</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="profile2_overview"/>
+                     <ref bean="profile2_myprofile"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
