@@ -2421,6 +2421,80 @@ public String copyRole( String sessionid, String authzgroupid1, String authzgrou
 }
 
 
+/** 
+ * Gets all user accounts as XML. Currently returns userId, eid, displayName and type.
+ *
+ * @param	sessionid		the id of a valid session for the admin user
+ * @return		        	XML or exception
+ * @throws	AxisFault		
+ *
+ * Optional sakai.properties:
+ * 	#specify the list of users to ignore separated by a comma, no spaces. Defaults to 'admin,postmaster'.
+ *	webservice.specialUsers=admin,postmaster
+ *
+ */
+public String getAllUsers(String sessionid) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	//check that ONLY admin is accessing this	
+	if(!session.getUserId().equals(UserDirectoryService.ADMIN_ID)) {
+		LOG.warn("WS getAllUsers() failed. Restricted to admin user.");
+		throw new AxisFault("WS failed. Restricted to admin user.");
+	}
+	
+	try {
+	
+		//get special users
+		String config = ServerConfigurationService.getString("webservice.specialUsers", "admin,postmaster");
+		String[] items = StringUtils.split(config, ',');
+		List<String> specialUsers = Arrays.asList(items);
+		
+		//get all users
+		List<User> allUsers = UserDirectoryService.getUsers();
+		
+		//check size
+		if(allUsers == null || allUsers.size() == 0) {
+			return "<list/>";
+		}
+		
+		Document dom = Xml.createDocument();
+		Node list = dom.createElement("list");
+		dom.appendChild(list);
+		for (Iterator i = allUsers.iterator(); i.hasNext();) { 
+			User user = (User) i.next();
+			
+			//skip if this user is in the specialUser list
+			if(specialUsers.contains(user.getEid())) {
+				continue;
+			}
+			
+			Node item = dom.createElement("item");
+			Node userId = dom.createElement("userId");
+			userId.appendChild(dom.createTextNode(user.getId()));
+			Node eid = dom.createElement("eid");
+			eid.appendChild(dom.createTextNode(user.getEid()));
+			Node displayName = dom.createElement("displayName");
+			displayName.appendChild(dom.createTextNode(user.getDisplayName()));
+			Node type = dom.createElement("type");
+			type.appendChild(dom.createTextNode(user.getType()));
+			
+			item.appendChild(userId);
+			item.appendChild(eid);
+			item.appendChild(displayName);
+			item.appendChild(type);
+			list.appendChild(item);
+		}
+		
+		return Xml.writeDocumentToString(dom);
+
+	}
+	catch (Exception e) {  
+		LOG.error("WS getAllUsers(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return "<exception/>";
+	}
+	
+}
 
 
 }
