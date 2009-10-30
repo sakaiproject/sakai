@@ -1,5 +1,5 @@
 /*
- *   SakaiScript.jws - updated for Sakai 2.5
+ *   SakaiScript.jws - updated for Sakai 2.7
  *
  */
  
@@ -2164,6 +2164,28 @@ public String copyCalendarEvents(String sessionid, String sourceSiteId, String t
 	} 
 	return "success"; 
 } 
+
+/** 
+* Get a user's type (for their account)
+* 
+* @param	sessionid	the id of a valid session
+* @param	userid		the userid of the person you want the type for
+* @return				type if set or blank
+* @throws	AxisFault 
+* 
+*/ 
+public String getUserType( String sessionid, String userid ) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	try {
+		User user = UserDirectoryService.getUserByEid(userid);
+		return user.getType();
+	} catch (Exception e) {  
+	 	LOG.warn("WS getUserType() failed for user: " + userid);
+		return "";
+	}
+	
+}
 
 
 
