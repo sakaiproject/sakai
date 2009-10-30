@@ -5,6 +5,7 @@
  
 import java.util.Date;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Iterator;
 import java.util.Set;
@@ -15,6 +16,7 @@ import org.sakaiproject.exception.IdUnusedException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang.StringUtils;
 
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Role;
@@ -33,6 +35,7 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -2185,6 +2188,104 @@ public String getUserType( String sessionid, String userid ) throws AxisFault
 		return "";
 	}
 	
+}
+
+
+/** 
+ * Adds a tool to all My Workspace sites
+ *
+ * @param	sessionid		the id of a valid session for the admin user
+ * @param	toolid			the id of the tool you want to add (ie sakai.profile2)
+ * @param	pagetitle		the title of the page shown in the site navigation
+ * @param	tooltitle		the title of the tool shown in the main portlet
+ * @param 	pagelayout 		single or double column (0 or 1). Any other value will revert to 0.
+ * @param	position		integer specifying the position within other pages on the site (0 means top, for right at the bottom a large enough number, ie 99)
+ * @param	popup			boolean for if it should be a popup window or not
+ *
+ * @return		        	success or exception
+ * @throws	AxisFault		
+ *
+ * Sakai properties:
+ * 	#specify the list of users to ignore separated by a comma, no spaces. Defaults to 'admin,postmaster'.
+ *	webservice.specialUsers=admin,postmaster
+ *
+ */
+public String addNewToolToAllWorkspaces(String sessionid, String toolid, String pagetitle, String tooltitle, int pagelayout, int position, boolean popup) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	//check that ONLY admin is accessing this	
+	if(!session.getUserId().equals(UserDirectoryService.ADMIN_ID)) {
+		LOG.warn("WS addNewToolToAllWorkspaces() failed. Restricted to admin user.");
+		throw new AxisFault("WS failed. Restricted to admin user.");
+	}
+	
+	try {
+	
+		//get special users
+		String config = ServerConfigurationService.getString("webservice.specialUsers", "admin,postmaster");
+		String[] items = StringUtils.split(config, ',');
+		List<String> specialUsers = Arrays.asList(items);
+		
+		//now get all users
+		List<String> allUsers = new ArrayList<String>();
+		List<User> users = UserDirectoryService.getUsers();
+		for (Iterator i = users.iterator(); i.hasNext();) { 
+			User user = (User) i.next();
+			allUsers.add(user.getId());
+		}
+		
+		//remove special users
+		allUsers.removeAll(specialUsers);
+		
+		//now add a page to each site, and the tool to that page
+		for (Iterator j = allUsers.iterator(); j.hasNext();) { 
+			String userid = StringUtils.trim((String)j.next());
+			
+			LOG.info("Processing user:" + userid);
+		
+			String myWorkspaceId = SiteService.getUserSiteId(userid);
+		
+			Site siteEdit = null;
+			SitePage sitePageEdit = null;
+			
+			try {
+				siteEdit = SiteService.getSite(myWorkspaceId);
+			} catch (IdUnusedException e) {
+				LOG.error("No workspace for user: " + myWorkspaceId + ", skipping...");
+				continue;
+			}
+			
+			sitePageEdit = siteEdit.addPage();
+			sitePageEdit.setTitle(pagetitle);
+			sitePageEdit.setLayout(pagelayout);
+			
+			//KNL-250, SAK-16819 - if position too large, will throw ArrayIndexOutOfBoundsException
+			//deal with this here and just set to the number of pages - 1 so its at the bottom.
+			int numPages = siteEdit.getPages().size();
+			if(position > numPages) {
+				position = numPages-1;
+			}
+			
+			sitePageEdit.setPosition(position);
+			sitePageEdit.setPopup(popup);
+			
+			ToolConfiguration tool = sitePageEdit.addTool();
+			Tool t = tool.getTool();
+			
+			tool.setTool(toolid, ToolManager.getTool(toolid));
+			tool.setTitle(tooltitle);
+			
+			SiteService.save(siteEdit);
+			LOG.info("Page added for user:" + userid);
+
+		}
+		return "success";
+	}
+	catch (Exception e) {  
+		LOG.error("WS addNewToolToAllWorkspaces(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
 }
 
 
