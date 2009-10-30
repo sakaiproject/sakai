@@ -2288,6 +2288,138 @@ public String addNewToolToAllWorkspaces(String sessionid, String toolid, String 
 	}
 }
 
+/**
+ * Copies a role from one authzgroup to another. Useful for mass population/synchronisation 
+ *
+ * The sessionid argument must be a valid session for the admin user ONLY otherwise it will fail.
+ * The authzgroup arguments for sites should start with /site/SITEID, likewise for site groups etc
+ * 
+ * @param	sessionid		the sessionid of a valid session for the admin user
+ * @param	authzgroupid1	the authgroupid of the site you want to copy the role FROM
+ * @param	authzgroupid2	the authgroupid of the site you want to copy the role TO
+ * @param	roleid			the id of the role you want to copy
+ * @param	description		the description of the new role
+ * @return					success or AxisFault
+ * @throws	AxisFault		if not admin user, if new role cannot be created, if functions differ after the new role is made
+ *
+ *
+ */
+
+public String copyRole( String sessionid, String authzgroupid1, String authzgroupid2, String roleid, String description) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	Set existingfunctions;
+	Set newfunctions;
+	Set existingroles;
+	ArrayList existingroleids;
+	Iterator iRoles;
+	boolean createRole = false;
+	Role role2;
+	
+	//check only admin
+	if(!session.getUserId().equals(UserDirectoryService.ADMIN_ID)) {
+		LOG.warn("WS copyRole(): Permission denied. Restricted to admin user.");
+		throw new AxisFault("WS copyRole(): Permission denied. Restricted to admin user.");
+	}
+
+	try {
+		//open authzgroup1
+		AuthzGroup authzgroup1 = AuthzGroupService.getAuthzGroup(authzgroupid1);
+		//get role that we want to copy
+		Role role1 = authzgroup1.getRole(roleid);
+		//get functions that are in this role
+		existingfunctions = role1.getAllowedFunctions();
+		
+		LOG.warn("WS copyRole(): existing functions in role " + roleid + " in " + authzgroupid1 + ": " + new ArrayList(existingfunctions).toString());
+		
+		//open authzgroup2
+		AuthzGroup authzgroup2 = AuthzGroupService.getAuthzGroup(authzgroupid2);
+		//get roles in authzgroup2
+		existingroles = authzgroup2.getRoles();
+		
+		existingroleids = new ArrayList();
+
+		//iterate over roles, get the roleId from the role, add to arraylist for checking
+		for (iRoles = existingroles.iterator(); iRoles.hasNext();) {
+	    	Role existingrole = (Role)iRoles.next();
+	    	existingroleids.add(existingrole.getId());
+        }
+		LOG.warn("WS copyRole(): existing roles in " + authzgroupid2 + ": " + existingroleids.toString());
+
+	
+		//if this roleid exists in the authzgroup already...
+		if(existingroleids.contains(roleid)) {
+			LOG.warn("WS copyRole(): role " + roleid + " exists in " + authzgroupid2 + ". This role will updated.");
+		} else {
+			LOG.warn("WS copyRole(): role " + roleid + " does not exist in " + authzgroupid2 + ". This role will be created.");
+		
+			//create this role in authzgroup2
+			role2 = authzgroup2.addRole(roleid);
+			//save authzgroup change
+			AuthzGroupService.save(authzgroup2);
+			
+			//reopen authzgroup2 for checking
+			authzgroup2 = AuthzGroupService.getAuthzGroup(authzgroupid2);
+			
+			//check the role was actually created by getting set again and iterating
+			existingroles = authzgroup2.getRoles();
+			
+			existingroleids = new ArrayList();
+
+			//iterate over roles, get the roleId from the role, add to arraylist for checking
+			for (iRoles = existingroles.iterator(); iRoles.hasNext();) {
+				Role existingrole = (Role)iRoles.next();
+				existingroleids.add(existingrole.getId());
+			}
+
+			LOG.warn("WS copyRole(): existing roles in " + authzgroupid2 + " after addition: " + existingroleids.toString());
+			
+			//if role now exists, ok, else fault.
+			if(existingroleids.contains(roleid)) {
+				LOG.warn("WS copyRole(): role " + roleid + " was created in " + authzgroupid2 + ".");
+			} else {
+				LOG.warn("WS copyRole(): role " + roleid + " could not be created in " + authzgroupid2 + ".");
+				throw new AxisFault("WS copyRole(): role " + roleid + " could not be created in " + authzgroupid2 + ".");
+			}
+		
+		}
+		
+		//get this role
+		role2 = authzgroup2.getRole(roleid);
+
+		//add Set of functions to this role
+		role2.allowFunctions(existingfunctions);
+		
+		//set description
+		role2.setDescription(description);
+		
+		//save authzgroup change
+		AuthzGroupService.save(authzgroup2);
+		
+		//reopen authzgroup2 for checking
+		authzgroup2 = AuthzGroupService.getAuthzGroup(authzgroupid2);
+		
+		//get role we want to check
+		role2 = authzgroup2.getRole(roleid);
+		//get Set of functions that are now in this role
+		newfunctions = role2.getAllowedFunctions();
+		
+		//compare existingfunctions with newfunctions to see that they match
+		if(newfunctions.containsAll(existingfunctions)) {
+			LOG.warn("WS copyRole(): functions added successfully to role " + roleid + " in " + authzgroupid2 + ".");
+		} else {
+			LOG.warn("WS copyRole(): functions in roles differ after addition.");
+			throw new AxisFault("WS copyRole(): functions in roles differ after addition.");
+		}
+	
+	}
+	catch (Exception e) {  
+		 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
 
 
 
