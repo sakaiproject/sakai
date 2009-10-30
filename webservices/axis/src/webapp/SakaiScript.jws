@@ -50,6 +50,12 @@ import org.sakaiproject.time.api.TimeService;
 import java.util.Properties;
 import org.apache.axis.AxisFault;
 
+import org.apache.axis.Constants;
+import org.apache.axis.MessageContext;
+import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.event.cover.EventTrackingService;
+
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -2495,6 +2501,78 @@ public String getAllUsers(String sessionid) throws AxisFault
 	}
 	
 }
+
+/**
+ * Creates and returns the session ID for a given user. 
+ *
+ * The sessionid argument must be a valid session for the admin user ONLY otherwise it will fail.
+ * The userid argument must be the EID (ie jsmith) of a valid user.
+ * This new sessionid can then be used with getSitesUserCanAccess() to get the sites for the given user.
+ * 
+ * @param	sessionid	the sessionid of a valid session for the admin user
+ * @param	userid		the eid of the user you want to create a session for
+ * @return				the sessionid for the user specified
+ * @throws	AxisFault	if any data is missing,
+ * 						not admin user initially, 
+ * 						or session cannot be established
+ */
+
+public String getSessionForUser(String sessionid, String userid) throws AxisFault
+{
+
+	Session session = establishSession(sessionid);
+	
+	//check that ONLY admin is accessing this	
+	if(!session.getUserId().equals(UserDirectoryService.ADMIN_ID)) {
+		LOG.warn("WS getSessionForUser() failed. Restricted to admin user.");
+		throw new AxisFault("WS failed. Restricted to admin user.");
+	}
+	
+	try {
+				
+		//check for empty userid
+		if (StringUtils.isBlank(userid)) {
+			LOG.warn("WS getSessionForUser() failed. Param userid empty.");
+			throw new AxisFault("WS failed. Param userid empty.");
+		}
+		
+		//get ip address for establishing session
+		MessageContext messageContext = MessageContext.getCurrentContext(); 
+		String ipAddress = messageContext.getStrProp(Constants.MC_REMOTE_ADDR);
+		
+		//start a new session
+		Session newsession = SessionManager.startSession();
+        SessionManager.setCurrentSession(newsession);
+		
+		//inject this session with new user values
+		User user = UserDirectoryService.getUserByEid(userid);
+		newsession.setUserEid(userid);
+		newsession.setUserId(user.getId());
+		
+		//register the session with presence
+        UsageSession usagesession = UsageSessionService.startSession(user.getId(),ipAddress,"SakaiScript.jws getSessionForUser()");
+        
+        // update the user's externally provided realm definitions
+        AuthzGroupService.refreshUser(user.getId());
+
+        // post the login event
+        EventTrackingService.post(EventTrackingService.newEvent("user.login", null, true));
+		
+		if (newsession == null){
+			LOG.warn("WS getSessionForUser() failed. Unable to establish session for userid=" + userid + ", ipAddress=" + ipAddress);
+			throw new AxisFault("WS failed. Unable to establish session");
+		} else {
+			LOG.warn("WS getSessionForUser() OK. Established session for userid=" + userid + ", session=" + newsession.getId() + ", ipAddress=" + ipAddress);
+			return newsession.getId();
+		}
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	
+}
+
+
 
 
 }
