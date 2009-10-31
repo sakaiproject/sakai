@@ -16,7 +16,11 @@
 	</p>
 	<p class="indnt3">
 		#if (($oldSelectedHome) && (!$check_home))
-			$tlang.getString("java.home")<br />
+			$tlang.getString("java.home")
+			#if ($!allowPageOrderHelper)
+				($validator.escapeHtml($!toolRegistrationTitleList.get("home")))
+			#end
+			<br />
 			<script type="text/javascript">
 				document.getElementById('removedInstruction').style.display='block'
 			</script>
@@ -51,6 +55,9 @@
 				#else
 					$!oldToolTitle
 				#end
+				#if ($!allowPageOrderHelper)
+					($validator.escapeHtml($!toolRegistrationTitleList.get($!oldTool)))
+				#end
 				<br />
 			#end
 		#end
@@ -61,9 +68,14 @@
 	<p class="indnt3">
 		#if ($check_home)
 			#if (!$oldSelectedHome)
-				<span class="highlight">$tlang.getString("java.home")</span>
-			#else
-				$tlang.getString("java.home")
+				<span class="highlight">
+			#end
+			$tlang.getString("java.home")
+			#if ($!allowPageOrderHelper)
+				($validator.escapeHtml($!toolRegistrationTitleList.get("home")))
+			#end
+			#if (!$oldSelectedHome)
+				</span>
 			#end
 		#end
 		#foreach ($newTool in $selectedTools)
@@ -83,10 +95,17 @@
 				<span class="highlight">
 			#end
 			#if ($newTool == "sakai.mailbox")
-				$!newToolTitle: $!emailId@$serverName
+				$!newToolTitle 
+				#if ($!allowPageOrderHelper)
+					($validator.escapeHtml($!toolRegistrationTitleList.get($!newTool)))
+				#end
+				: $!emailId@$serverName
 			#elseif ($!multipleToolIdTitleMap.containsKey($newTool))
 				## show tool title
 				$validator.escapeHtml($!multipleToolIdTitleMap.get($newTool))
+				#if ($!allowPageOrderHelper)
+					($validator.escapeHtml($!toolRegistrationTitleList.get($!newTool)))
+				#end
 				## show tool configuration
 				#if ($!multipleToolIdTitleMap.containsKey($toolId))
 					#set($properties = $!multipleToolConfiguration.get($toolId))
@@ -104,6 +123,10 @@
 					#end)
 			#else
 				$!newToolTitle
+				## exclude Home tool 
+				#if (!$!newTool.equals("home") && $!allowPageOrderHelper)
+					($validator.escapeHtml($!toolRegistrationTitleList.get($!newTool)))
+				#end
 			#end
 			#if (!$found)
 				</span>

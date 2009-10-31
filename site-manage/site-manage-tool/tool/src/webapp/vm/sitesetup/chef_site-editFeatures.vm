@@ -50,6 +50,9 @@
 					<td>
 						<label for="home">
 							$tlang.getString("java.home")
+							#if ($!allowPageOrderHelper)
+								($validator.escapeHtml($!toolRegistrationTitleList.get("home")))
+							#end
 						</label>
 					</td>	
 					<td>
@@ -91,6 +94,9 @@
 										$validator.escapeHtml($!multipleToolIdTitleMap.get($toolId))
 									#else
 										$validator.escapeHtml($tool.getTitle())
+									#end
+									#if ($!allowPageOrderHelper)
+										($validator.escapeHtml($!toolRegistrationTitleList.get($toolId)))
 									#end
 								</label>
 						</td>
