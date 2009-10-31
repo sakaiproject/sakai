@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
 
+import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -1094,7 +1095,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @exception ServerOverloadException
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
 	 */
-	public void commitResource(ContentResourceEdit edit) throws OverQuotaException, ServerOverloadException;
+	public void commitResource(ContentResourceEdit edit) throws OverQuotaException, ServerOverloadException, VirusFoundException;
 
 	/**
 	 * Commit the changes made, and release the lock. The Object is disabled, and not to be used after this call.
@@ -1108,7 +1109,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @exception ServerOverloadException
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
 	 */
-	public void commitResource(ContentResourceEdit edit, int priority) throws OverQuotaException, ServerOverloadException;
+	public void commitResource(ContentResourceEdit edit, int priority) throws OverQuotaException, ServerOverloadException, VirusFoundException;
 
 	/**
 	 * Cancel the changes made object, and release the lock. The Object is disabled, and not to be used after this call.

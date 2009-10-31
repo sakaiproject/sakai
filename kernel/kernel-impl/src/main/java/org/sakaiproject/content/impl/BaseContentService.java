@@ -55,6 +55,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.api.AliasService;
+import org.sakaiproject.antivirus.api.VirusFoundException;
+import org.sakaiproject.antivirus.api.VirusScanner;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
@@ -345,6 +347,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		catch (Throwable t)
 		{
 		}
+	}
+	
+	
+	private VirusScanner virusScanner;
+
+	public void setVirusScanner(VirusScanner virusScanner) {
+		this.virusScanner = virusScanner;
 	}
 
 	/** Configuration: cache, or not. */
@@ -5525,7 +5534,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	 * @exception ServerOverloadException
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
 	 */
-	public void commitResource(ContentResourceEdit edit, int priority) throws OverQuotaException, ServerOverloadException
+	public void commitResource(ContentResourceEdit edit, int priority) throws OverQuotaException, ServerOverloadException, VirusFoundException
 	{
 
 		// check for closed edit
@@ -5543,6 +5552,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			throw new OverQuotaException(edit.getReference());
 		}
 
+		virusScanner.scan(edit.streamContent());
+		
 		commitResourceEdit(edit, priority);
 
 		if(! readyToUseFilesizeColumn())

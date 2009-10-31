@@ -323,6 +323,17 @@
             <timezone>0</timezone>
             <properties />
         </contributor>
+        <contributor>
+            <name>John Bush</name>
+            <email>jbush@rsmart.com</email>
+            <organization>rSmart</organization>
+            <organizationUrl>http://www.rsmart.com</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-5</timezone>
+            <properties />
+        </contributor>
     </contributors>
 	<scm>
 		<connection>

@@ -25,7 +25,7 @@
         <property name="lockManager">                <ref bean="org.sakaiproject.content.api.LockManager"/>                  </property>
         <property name="authzGroupService">          <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>              </property>
         <property name="resourceTypeRegistry">       <ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/>         </property>
-        
+        <property name="virusScanner">				<ref bean="org.sakaiproject.antivirus.api.VirusScanner"/>				</property>
         <!--
         <property name="contentHostingHandlerResolver"><ref bean="org.sakaiproject.content.api.ContentHostingHandlerResolver"/></property>
 		-->
