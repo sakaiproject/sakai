@@ -8,9 +8,9 @@
     <version>1.0-SNAPSHOT</version> 
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>basiclti-portlet</name>
+  <name>imsblti</name>
   <groupId>org.sakaiproject.basiclti</groupId>
-  <artifactId>basiclti-portlet</artifactId>
+  <artifactId>imsblti</artifactId>
   <organization>
     <name>Charles Severance</name>
     <url>http://www.dr-chuck.com/</url>
