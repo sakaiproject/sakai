@@ -97,10 +97,11 @@ public class ProducerServlet extends HttpServlet {
                 SecurityService.popAdvisor();
         }
 
-	public void doError(HttpServletResponse response, String s)
+	public void doError(HttpServletResponse response, String s, String message, Exception e)
 		throws java.io.IOException
 	{
 		PrintWriter out = response.getWriter();
+		M_log.info(rb.getString(s));
   		out.println(rb.getString(s));
 	}
 
@@ -136,14 +137,14 @@ public class ProducerServlet extends HttpServlet {
 		if ( ! "basic-lti-launch-request".equals(request.getParameter("lti_message_type")) ||
 		    ! "LTI-1p0".equals(request.getParameter("lti_version")) ||
 		    oauth_consumer_key == null || resource_link_id == null ) {
-			doError(response, "launch.missing");
+			doError(response, "launch.missing", null, null);
 			return;
 		}
 
 		// Check the Tool ID
 		String tool_id = request.getPathInfo();
 		if ( tool_id == null ) {
-			doError(response, "launch.tool_id.required");
+			doError(response, "launch.tool_id.required", null, null);
 			return;
 		}
 
@@ -151,20 +152,26 @@ public class ProducerServlet extends HttpServlet {
 		tool_id = tool_id.substring(1).trim();
 		String allowedTools = ServerConfigurationService.getString("imsblti.producer.allowedtools", null);
 		if ( allowedTools != null && allowedTools.indexOf(tool_id) < 0 ) {
-			doError(response, "launch.tool.notallowed");
+			doError(response, "launch.tool.notallowed", tool_id, null);
 			return;
 		}
 		Tool toolCheck = ToolManager.getTool(tool_id);
 		if ( toolCheck == null ) {
-			doError(response,"launch.bad.notfound");
+			doError(response,"launch.bad.notfound", tool_id, null);
 			return;
 		}
+
+		// Contextualize the context_id with the OAuth consumer key
+		// Also use the resource_link_id for the context_id if we did not
+		// get a context_id
+        	if ( context_id == null ) context_id = "res:" + resource_link_id;
+		context_id = oauth_consumer_key + ":" + context_id;
 
 		// Lookup the secret
 		String configPrefix = "imsblti.producer." + oauth_consumer_key + ".";
 		String oauth_secret = ServerConfigurationService.getString(configPrefix + "secret", null);
 		if ( oauth_secret == null ) {
-			doError(response,"launch.key.notfound");
+			doError(response,"launch.key.notfound", oauth_consumer_key, null);
 			return;
 		}
 		OAuthMessage oam = OAuthServlet.getMessage(request, null);
@@ -174,22 +181,25 @@ public class ProducerServlet extends HttpServlet {
 
 		OAuthAccessor acc = new OAuthAccessor(cons);
 
-		PrintWriter out = response.getWriter();
+		String base_string = null;
+		try {
+			base_string = OAuthSignatureMethod.getBaseString(oam);
+		} catch (Exception e) {
+			base_string = null;
+		}
 
 		try {
-			out.println("\n<b>Base Message</b>\n</pre><p>\n");
-			out.println(OAuthSignatureMethod.getBaseString(oam));
-			out.println("<pre>\n");
 			oav.validateMessage(oam,acc);
-			out.println("Message validated");
+			M_log.info("Message validated");
 		} catch(Exception e) {
-			out.println("<b>Error while valdating message:</b>\n");
-			out.println(e);
+			M_log.warn("Producer failed to validate message");
+			M_log.warn(e.getMessage());
+			if ( base_string != null ) M_log.warn(base_string);
 		}
 
 		Session sess = SessionManager.getCurrentSession();
 		if ( sess == null ) {
-			doError(response,"launch.no.session");
+			doError(response,"launch.no.session", context_id, null);
 			return;
 		}
 		System.out.println("Session ID="+sess.getId());
@@ -231,7 +241,8 @@ public class ProducerServlet extends HttpServlet {
                                 	user = UserDirectoryService.getUserByEid(eid);
                         	}
                         	catch(Exception e) {
-                                	out.println("Unable to create user.");
+					doError(response,"launch.create.user", "context="+context_id+" user="+user_id, null);
+					return;
                         	}
 
                 	}
@@ -241,27 +252,18 @@ public class ProducerServlet extends HttpServlet {
                        	sess.setUserId(user.getId());
                        	sess.setUserEid(user.getEid());
 
-                       	// update the user's externally provided realm definitions
-                       	// authzGroupService().refreshUser(user.getUid());
-
                        	// post the login event
                        	// eventTrackingService().post(eventTrackingService().newEvent(EVENT_LOGIN, null, true));
-
-                       	out.println("YAYAYAY");
 		}
 
-		// Contextualize the context_id with the OAuth consumer key
-		// Also use the resource_link_id for the context_id if we did not
-		// get a context_id
-        	if ( context_id == null ) context_id = "res:" + resource_link_id;
-		context_id = oauth_consumer_key + ":" + context_id;
-
+		// Load the site based on the context_id if it exists
 		Site thesite = null;
 		try {
 			thesite = SiteService.getSite(context_id);
 		}
 		catch (Exception e) {  
-			System.out.println("CRAP");
+			doError(response,"launch.no.site", null, null);
+			return;
 		}
 
 		// Create the site if it does not exist
@@ -278,21 +280,17 @@ public class ProducerServlet extends HttpServlet {
 				Site siteEdit = null;
 				siteEdit = SiteService.addSite(context_id, sakai_type);
 				if ( context_title != null ) siteEdit.setTitle(context_title);
-				// siteEdit.setDescription(description);
 				if ( context_label != null ) siteEdit.setShortDescription(context_label);
-				//siteEdit.setIconUrl(iconurl);
-				//siteEdit.setInfoUrl(infourl);
 				siteEdit.setJoinable(false);
-				//siteEdit.setJoinerRole(joinerrole);
 				siteEdit.setPublished(true);
 				siteEdit.setPubView(false);
-				// siteEdit.setSkin(skin);
 				siteEdit.setType(sakai_type);
 	System.out.println("Creating a new site...");
 				SiteService.save(siteEdit);
 			}
 			catch (Exception e) {  
-				System.out.println("CRAP");
+				doError(response,"launch.create.site", context_id, null);
+				return;
 			}
   		}
 
@@ -331,7 +329,8 @@ public class ProducerServlet extends HttpServlet {
 					CHECK_JOINED = false;
 				}
 		} catch(Exception e) {
-			System.out.println("Could not join site " + context_id);
+			doError(response,"launch.join.site", context_id, e);
+			return;
 		}
 
 		// See if we already have created the tool
@@ -360,7 +359,8 @@ public class ProducerServlet extends HttpServlet {
 
         	}
         	catch (Exception e) {
-			System.out.println("SLKASLKJSALKSAJLK");
+			doError(response,"launch.page.search", "site:"+ context_id + " tool="+tool_id, e);
+			return;
         	}
 
 		// If the tool is not in the site, add the tool
@@ -378,25 +378,29 @@ public class ProducerServlet extends HttpServlet {
 				Properties propsedit = tool.getPlacementConfig();
 				propsedit.setProperty(BASICLTI_RESOURCE_LINK, resource_link_id);
 				pushAdvisor();
+				boolean saved = false;
 				try {
                 			SiteService.save(thesite);
+					saved = true;
 				}
         			catch (Exception e) {
-					System.out.println("Site Save Failed "+e);
+					doError(response,"launch.site.save", "site:"+ context_id + " tool="+tool_id, e);
         			}
             			finally
                 		{
                         		popAdvisor();
                 		}
+				if ( ! saved ) return;
 				placement_id = tool.getId();
         		}
         		catch (Exception e) {
-				System.out.println("Page add Failed "+e);
+				doError(response,"launch.tool.add", "site:"+ context_id + " tool="+tool_id, e);
+				return;
         		}
 		}
 
 		String toolLink = ServerConfigurationService.getPortalUrl() + "/tool-reset/" + placement_id + "?panel=Main";
-		System.out.println("DAMN="+toolLink);
+		PrintWriter out = response.getWriter();
 		out.println("<a href=\""+toolLink+"\" target=\"_new\">"+toolLink+"</a>");
 		out.close();
 
