@@ -75,7 +75,7 @@
         <sakai.commons.fileupload.version>1.2.1</sakai.commons.fileupload.version>
         <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
         <sakai.ehcache.artifactId>ehcache</sakai.ehcache.artifactId>
-        <sakai.ehcache.version>1.3.0</sakai.ehcache.version>
+        <sakai.ehcache.version>1.6.1</sakai.ehcache.version>
         <sakai.hibernate.groupId>org.hibernate</sakai.hibernate.groupId>
         <sakai.hibernate.artifactId>hibernate</sakai.hibernate.artifactId>
         <sakai.hibernate.version>3.2.7.ga</sakai.hibernate.version>
