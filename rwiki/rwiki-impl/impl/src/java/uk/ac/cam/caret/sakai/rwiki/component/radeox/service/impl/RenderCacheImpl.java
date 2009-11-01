@@ -71,14 +71,7 @@ public class RenderCacheImpl implements RenderCache
 
 	public void init()
 	{
-		log.info(cache.getName()+" cache is " +
-				"Max Elements in Memory=["+cache.getMaxElementsInMemory()+"]"+
-				"Max Elements on Disk=["+cache.getMaxElementsOnDisk()+"]"+
-				"Time to Idle (seconds)=["+cache.getTimeToIdleSeconds()+"]"+
-				"Time to Live (seconds)=["+cache.getTimeToLiveSeconds()+"]"+
-				"Memory Store Eviction Policy=["+cache.getMemoryStoreEvictionPolicy()+"]");
-
-	}
+		log.info(cache.getName()+" cache is ");}
 
 	/**
 	 * @return the cache
