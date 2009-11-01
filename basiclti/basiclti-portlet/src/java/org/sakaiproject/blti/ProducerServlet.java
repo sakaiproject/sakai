@@ -3,17 +3,21 @@ package org.sakaiproject.blti;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import java.util.Enumeration;
+import java.util.Set;
+import java.util.List;
+import java.util.Iterator;
+import java.util.Properties;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.util.Enumeration;
-import java.util.Set;
-import java.util.List;
-import java.util.Iterator;
-import java.util.Properties;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import net.oauth.OAuth;
 import net.oauth.OAuthMessage;
 import net.oauth.OAuthConsumer;
@@ -24,6 +28,7 @@ import net.oauth.signature.OAuthSignatureMethod;
 import net.oauth.server.HttpRequestMessage;
 import net.oauth.server.OAuthServlet;
 import net.oauth.signature.OAuthSignatureMethod;
+
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -42,7 +47,28 @@ import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
+/** Notes:
+
+	This program is directly exposed as a URL to receive IMS Basic LTI
+        launches so it must be carefully reviewed and any changes must 
+	be looked at carefully. Here are some issues:
+
+	- This uses the RemoteHostFilter so by default it only accepts
+	local IP addresses.  This configuration can be changed in 
+	web.xml or using the webservices.allow, etc (see RemoteHostFilter)
+
+        - This will only function when it is enabled via sakai.properties
+
+	- This servlet makes use of security advisors - once an advisor
+	has been added, it must be removed - often in a finally.  Also
+	the code below only adds the advisor for very short segments of
+	code to allow for easier review.
+
+*/
+
 public class ProducerServlet extends HttpServlet {
+
+	private static Log M_log = LogFactory.getLog(ProducerServlet.class);
 
 	private static ResourceLoader rb = new ResourceLoader("basiclti");
 
@@ -83,18 +109,20 @@ public class ProducerServlet extends HttpServlet {
 		super.init(config);
 	}
 
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+		throws ServletException, IOException 
+	{
+		doPost(request, response);
+	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) 
 		throws ServletException, IOException 
 	{
-		Session sess = SessionManager.getCurrentSession();
-		if ( sess == null ) {
-		PrintWriter out = response.getWriter();
-			doError(response,"launch.no.session");
+		String enabled = ServerConfigurationService.getString("imsblti.producer.enabled", null);
+		if ( enabled == null || ! ("true".equals(enabled)) ) {
+			response.setStatus(response.SC_FORBIDDEN);
 			return;
 		}
-
-		if ( sess != null ) System.out.println("ID="+sess.getId());
 
 		// response.setContentType("text/html");
 
@@ -113,22 +141,60 @@ public class ProducerServlet extends HttpServlet {
 		}
 
 		// Check the Tool ID
-		String tool_id = request.getParameter("tool_id");
-		Tool toolCheck = null;
-		if ( tool_id != null ) {
-			toolCheck = ToolManager.getTool(tool_id);
-		}
-		if ( toolCheck == null ) {
-			doError(response,"launch.bad.tool_id");
+		String tool_id = request.getPathInfo();
+		if ( tool_id == null ) {
+			doError(response, "launch.tool_id.required");
 			return;
 		}
 
-		// Construct the eid
-		String eid = null;
-		if ( user_id != null ) {
-			eid = oauth_consumer_key + ":" + user_id;
+		// Trim off the leading slash and any trailing space
+		tool_id = tool_id.substring(1).trim();
+		String allowedTools = ServerConfigurationService.getString("imsblti.producer.allowedtools", null);
+		if ( allowedTools != null && allowedTools.indexOf(tool_id) < 0 ) {
+			doError(response, "launch.tool.notallowed");
+			return;
+		}
+		Tool toolCheck = ToolManager.getTool(tool_id);
+		if ( toolCheck == null ) {
+			doError(response,"launch.bad.notfound");
+			return;
 		}
 
+		// Lookup the secret
+		String configPrefix = "imsblti.producer." + oauth_consumer_key + ".";
+		String oauth_secret = ServerConfigurationService.getString(configPrefix + "secret", null);
+		if ( oauth_secret == null ) {
+			doError(response,"launch.key.notfound");
+			return;
+		}
+		OAuthMessage oam = OAuthServlet.getMessage(request, null);
+		OAuthValidator oav = new SimpleOAuthValidator();
+		OAuthConsumer cons = new OAuthConsumer("about:blank#OAuth+CallBack+NotUsed", 
+			oauth_consumer_key, oauth_secret, null);
+
+		OAuthAccessor acc = new OAuthAccessor(cons);
+
+		PrintWriter out = response.getWriter();
+
+		try {
+			out.println("\n<b>Base Message</b>\n</pre><p>\n");
+			out.println(OAuthSignatureMethod.getBaseString(oam));
+			out.println("<pre>\n");
+			oav.validateMessage(oam,acc);
+			out.println("Message validated");
+		} catch(Exception e) {
+			out.println("<b>Error while valdating message:</b>\n");
+			out.println(e);
+		}
+
+		Session sess = SessionManager.getCurrentSession();
+		if ( sess == null ) {
+			doError(response,"launch.no.session");
+			return;
+		}
+		System.out.println("Session ID="+sess.getId());
+
+		// If we did not get first and last name, split name_full
 		String fullname = request.getParameter("lis_person_name_full");
 		if ( fname == null && lname == null && fullname != null ) {
 			int ipos = fullname.trim().lastIndexOf(' ');
@@ -140,31 +206,10 @@ public class ProducerServlet extends HttpServlet {
 			}
 		}
 
-		PrintWriter out = response.getWriter();
-
-		OAuthMessage oam = OAuthServlet.getMessage(request, null);
-		OAuthValidator oav = new SimpleOAuthValidator();
-		OAuthConsumer cons = null;
-		if ( "lmsng.school.edu".equals(oauth_consumer_key) ) {
-			cons = new OAuthConsumer("http://call.back.url.com/", "lmsng.school.edu", "secret", null);
-		} else if ( "12345".equals(oauth_consumer_key) ) {
-			cons = new OAuthConsumer("http://call.back.url.com/", "12345", "secret", null);
-		} else {
-			out.println("<b>oauth_consumer_key="+oauth_consumer_key+" not found.</b>\n");
-			return;
-		}
-
-		OAuthAccessor acc = new OAuthAccessor(cons);
-
-		try {
-			out.println("\n<b>Base Message</b>\n</pre><p>\n");
-			out.println(OAuthSignatureMethod.getBaseString(oam));
-			out.println("<pre>\n");
-			oav.validateMessage(oam,acc);
-			out.println("Message validated");
-		} catch(Exception e) {
-			out.println("<b>Error while valdating message:</b>\n");
-			out.println(e);
+		// Construct the eid
+		String eid = null;
+		if ( user_id != null ) {
+			eid = oauth_consumer_key + ":" + user_id;
 		}
 
 		// Create the User's account if it does not exist
@@ -191,7 +236,7 @@ public class ProducerServlet extends HttpServlet {
 
                 	}
 
-                       	String ipAddress = request.getRemoteAddr();
+			String ipAddress = request.getRemoteAddr();
                        	UsageSessionService.login(user.getId(), eid, ipAddress, null, UsageSessionService.EVENT_LOGIN_WS);
                        	sess.setUserId(user.getId());
                        	sess.setUserEid(user.getEid());
