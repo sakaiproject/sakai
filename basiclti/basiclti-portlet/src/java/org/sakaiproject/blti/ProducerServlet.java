@@ -126,7 +126,6 @@ public class ProducerServlet extends HttpServlet {
 		}
 
 		boolean saved = false;
-		// response.setContentType("text/html");
 
 		String oauth_consumer_key = request.getParameter("oauth_consumer_key");
 		String user_id = request.getParameter("user_id");
@@ -310,6 +309,7 @@ public class ProducerServlet extends HttpServlet {
 
 		// Add the current user to the site with the proper role
 		// TODO: Check The Role and don't double add
+		// TODO: A better job of picking the non-instructor role
 		try {
 			thesite = SiteService.getSite(context_id);
 			Set<Role> roles = thesite.getRoles();
@@ -325,7 +325,7 @@ System.out.println("roles="+roles);
 			else {
 				for (Role r : roles) {
 System.out.println("Role="+r.getId());
-					//scan available roles and join with requested role if possible
+					// Scan available roles and join with requested role if possible
 					// TODO: parse roles from Consumer more flexibly
 					if (r.getId().equalsIgnoreCase(userrole)) {
 						try {
@@ -442,8 +442,25 @@ System.out.println("Role="+r.getId());
 		}
 
 		String toolLink = ServerConfigurationService.getPortalUrl() + "/tool-reset/" + placement_id + "?panel=Main";
+		// Compensate for bug in getPortalUrl()
+		toolLink = toolLink.replace("IMS BLTI Portlet", "portal");
+
+		response.setContentType("text/html");
+
 		PrintWriter out = response.getWriter();
-		out.println("<a href=\""+toolLink+"\" target=\"_new\">"+toolLink+"</a>");
+		out.println("<body><div style=\"text-align: center\">");
+		out.println("&nbsp;<br/>&nbsp;<br/>&nbsp;<br/>&nbsp;<br/>");
+		out.println("&nbsp;<br/>&nbsp;<br/>&nbsp;<br/>&nbsp;<br/>");
+		out.println("<a href=\""+toolLink+"\">");
+		out.println("<span id=\"hideme\">Continue To Tool</span>");
+		out.println("</a>");
+		out.println(
+                    " <script language=\"javascript\"> \n" +
+                    "    document.getElementById(\"hideme\").style.display = \"none\";\n" +
+                    "    location.href=\""+toolLink+"\";\n" +
+                    " </script> \n");
+		out.println("</div>");
+		out.println("</body>");
 		out.close();
 
 	}
