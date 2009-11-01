@@ -125,6 +125,7 @@ public class ProducerServlet extends HttpServlet {
 			return;
 		}
 
+		boolean saved = false;
 		// response.setContentType("text/html");
 
 		String oauth_consumer_key = request.getParameter("oauth_consumer_key");
@@ -262,8 +263,7 @@ public class ProducerServlet extends HttpServlet {
 			thesite = SiteService.getSite(context_id);
 		}
 		catch (Exception e) {  
-			doError(response,"launch.no.site", null, null);
-			return;
+			thesite = null;
 		}
 
 		// Create the site if it does not exist
@@ -286,7 +286,21 @@ public class ProducerServlet extends HttpServlet {
 				siteEdit.setPubView(false);
 				siteEdit.setType(sakai_type);
 	System.out.println("Creating a new site...");
-				SiteService.save(siteEdit);
+				saved = false;
+				pushAdvisor();
+				try {
+                			SiteService.save(siteEdit);
+					M_log.info("Created  site="+context_id+" label="+context_label+" type="+sakai_type+" title="+context_title);
+					saved = true;
+				}
+        			catch (Exception e) {
+					doError(response,"launch.site.save", "site="+ context_id + " tool="+tool_id, e);
+        			}
+            			finally
+                		{
+                        		popAdvisor();
+                		}
+				if ( ! saved ) return;
 			}
 			catch (Exception e) {  
 				doError(response,"launch.create.site", context_id, null);
@@ -295,23 +309,28 @@ public class ProducerServlet extends HttpServlet {
   		}
 
 		// Add the current user to the site with the proper role
+		// TODO: Check The Role and don't double add
 		try {
 			thesite = SiteService.getSite(context_id);
 			Set<Role> roles = thesite.getRoles();
+System.out.println("roles="+roles);
 
 			User theuser = UserDirectoryService.getUserByEid(eid);
 			String userrole = request.getParameter("roles");
 			boolean CHECK_JOINED = false;
 			if ("instructor".equalsIgnoreCase(userrole) ) {
-				thesite.addMember(theuser.getId(), "maintain", true, true);
+				thesite.addMember(theuser.getId(), "maintain", true, false);
 				CHECK_JOINED = true;
 			}
 			else {
 				for (Role r : roles) {
+System.out.println("Role="+r.getId());
 					//scan available roles and join with requested role if possible
+					// TODO: parse roles from Consumer more flexibly
 					if (r.getId().equalsIgnoreCase(userrole)) {
 						try {
 							thesite.addMember(theuser.getId(), userrole, true, true);
+							M_log.info("Added role="+userrole+" user="+user_id+" site="+context_id);
 							CHECK_JOINED = true;
 						}catch(Exception e) {
 							CHECK_JOINED = false;
@@ -321,13 +340,35 @@ public class ProducerServlet extends HttpServlet {
 			}
 
 			//last ditch effort to join the site
-			if (!CHECK_JOINED) 
+			if (!CHECK_JOINED) try {
+				SiteService.join(context_id);
+				M_log.info("Added role="+userrole+" user="+user_id+" site="+context_id);
+				CHECK_JOINED = true;
+			} catch (Exception e) {
+				M_log.warn("Could not add role="+userrole+" user="+user_id+" site="+context_id);
+				M_log.warn("Exception: "+e);
+				doError(response,"launch.join.site", context_id, e);
+				return;
+			}
+
+			if ( CHECK_JOINED ) {
+				saved = false;
+				pushAdvisor();
 				try {
-					SiteService.join(context_id);
+               				SiteService.save(thesite);
+					M_log.info("Site save with role, user="+user_id+" site="+context_id);
+					saved = true;
 					CHECK_JOINED = true;
-				} catch (Exception e) {
-					CHECK_JOINED = false;
 				}
+       				catch (Exception e) {
+					doError(response,"launch.site.save", "site="+ context_id + " tool="+tool_id, e);
+       				}
+       				finally
+               			{
+                       			popAdvisor();
+               			}
+				if ( ! saved ) return;
+			}
 		} catch(Exception e) {
 			doError(response,"launch.join.site", context_id, e);
 			return;
@@ -378,9 +419,10 @@ public class ProducerServlet extends HttpServlet {
 				Properties propsedit = tool.getPlacementConfig();
 				propsedit.setProperty(BASICLTI_RESOURCE_LINK, resource_link_id);
 				pushAdvisor();
-				boolean saved = false;
+				saved = false;
 				try {
                 			SiteService.save(thesite);
+					M_log.info("Tool added site="+context_id+" tool_id="+tool_id);
 					saved = true;
 				}
         			catch (Exception e) {
