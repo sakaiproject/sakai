@@ -151,13 +151,8 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 				public void notifyCacheAdded(String name)
 				{
 					Ehcache cache = cacheManager.getEhcache(name);
-					M_log.info("Added Cache name ["+name+"] as Cache [" + cache.getName() +"] " +
-							"Max Elements in Memory ["+cache.getMaxElementsInMemory()+"] "+
-							"Max Elements on Disk ["+cache.getMaxElementsOnDisk()+"] "+
-							"Time to Idle (seconds) ["+cache.getTimeToIdleSeconds()+"] "+
-							"Time to Live (seconds) ["+cache.getTimeToLiveSeconds()+"] "+
-							"Memory Store Eviction Policy ["+cache.getMemoryStoreEvictionPolicy()+"] ");
-
+					M_log.info("Added Cache name ["+name+"] as Cache [" + cache.getName() +"]");
+						
 				}
 
 				public void notifyCacheRemoved(String name)

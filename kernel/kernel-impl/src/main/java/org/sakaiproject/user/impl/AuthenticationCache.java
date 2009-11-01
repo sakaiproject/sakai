@@ -67,7 +67,7 @@ public class AuthenticationCache {
 	*/
 	public void setAuthCache(Cache authCache) {
 		this.authCache = authCache;
-		if (log.isDebugEnabled() && (authCache != null)) log.debug("authCache timeToLiveSeconds=" + authCache.getTimeToLiveSeconds() + ", timeToIdleSeconds=" + authCache.getTimeToIdleSeconds());
+		if (log.isDebugEnabled() && (authCache != null)) log.debug("authCache ");
 	}
 
 	public Authentication getAuthentication(String authenticationId, String password)
