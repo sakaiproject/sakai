@@ -209,6 +209,7 @@
 
  	<modules>
 	    <module>api</module>
+	    <module>help</module>
 	    <module>impl</module>
 	    <module>util</module>
 	    <module>pack</module>

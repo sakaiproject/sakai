@@ -2,34 +2,82 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
-   <bean id="profile2_overview" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>profile2_overview</value></property>
-      <property name="name"><value>Profile2 Overview</value></property>
-      <property name="location"><value>/sakai_profile2/profile2_overview.html</value></property>
-      <property name="defaultForTool"><value>sakai.profile2</value></property>
-   </bean>
+	<bean id="profile2_overview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId"><value>profile2_overview</value></property>
+		<property name="name"><value>Profile2 Overview</value></property>
+		<property name="location"><value>/sakai_profile2/profile2_overview.html</value></property>
+      	<property name="defaultForTool"><value>sakai.profile2</value></property>
+   	</bean>
 
-   <bean id="profile2_myprofile" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>profile2_myprofile</value></property>
-      <property name="name"><value>Your Profile</value></property>
-      <property name="location"><value>/sakai_profile2/profile2_myprofile.html</value></property>
-   </bean>
+	<bean id="profile2_myprofile" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      	<property name="docId"><value>profile2_myprofile</value></property>
+      	<property name="name"><value>Your Profile</value></property>
+      	<property name="location"><value>/sakai_profile2/profile2_myprofile.html</value></property>
+	</bean>
+	
+	<bean id="profile2_addimage" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      	<property name="docId"><value>profile2_addimage</value></property>
+      	<property name="name"><value>Adding an image</value></property>
+      	<property name="location"><value>/sakai_profile2/profile2_addimage.html</value></property>
+	</bean>
+	
+	<bean id="profile2_status" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      	<property name="docId"><value>profile2_status</value></property>
+      	<property name="name"><value>Updating your status</value></property>
+      	<property name="location"><value>/sakai_profile2/profile2_status.html</value></property>
+	</bean>
+	
+	<bean id="profile2_search" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      	<property name="docId"><value>profile2_search</value></property>
+      	<property name="name"><value>Searching for connections</value></property>
+      	<property name="location"><value>/sakai_profile2/profile2_search.html</value></property>
+	</bean>
+	
+	<bean id="profile2_connections" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      	<property name="docId"><value>profile2_connections</value></property>
+      	<property name="name"><value>Managing your connections</value></property>
+      	<property name="location"><value>/sakai_profile2/profile2_connections.html</value></property>
+	</bean>
+	
+	<bean id="profile2_view" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      	<property name="docId"><value>profile2_view</value></property>
+      	<property name="name"><value>Viewing other peoples profiles</value></property>
+      	<property name="location"><value>/sakai_profile2/profile2_view.html</value></property>
+	</bean>
+	
+	<bean id="profile2_privacy" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      	<property name="docId"><value>profile2_privacy</value></property>
+      	<property name="name"><value>Privacy controls</value></property>
+      	<property name="location"><value>/sakai_profile2/profile2_privacy.html</value></property>
+	</bean>
+	
+	<bean id="profile2_preferences" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      	<property name="docId"><value>profile2_preferences</value></property>
+      	<property name="name"><value>Preferences</value></property>
+      	<property name="location"><value>/sakai_profile2/profile2_preferences.html</value></property>
+	</bean>
   
-    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
-          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
-      <property name="name"><value>root</value></property>
-      <property name="categories">
-         <list>
-            <bean id="announcementCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
-               <property name="name"><value>Profile2</value></property>
-               <property name="resources">
-                  <list>
-                     <ref bean="profile2_overview"/>
-                     <ref bean="profile2_myprofile"/>
-                  </list>
-               </property>
-            </bean>
-           </list>
-         </property>
-       </bean>
+	<bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      	<property name="name"><value>root</value></property>
+     		<property name="categories">
+         	<list>
+            	<bean id="announcementCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               		<property name="name"><value>Profile2</value></property>
+               		<property name="resources">
+                  		<list>
+                     		<ref bean="profile2_overview"/>
+                     		<ref bean="profile2_myprofile"/>
+                     		<ref bean="profile2_addimage"/>
+                     		<ref bean="profile2_status"/>
+                     		<ref bean="profile2_search"/>
+                     		<ref bean="profile2_connections"/>
+                     		<ref bean="profile2_view"/>
+                     		<ref bean="profile2_privacy"/>
+                     		<ref bean="profile2_preferences"/>
+                 		</list>
+               		</property>
+            	</bean>
+			</list>
+        	</property>
+      </bean>
 </beans>
