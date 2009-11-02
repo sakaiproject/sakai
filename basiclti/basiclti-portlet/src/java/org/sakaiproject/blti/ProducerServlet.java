@@ -119,8 +119,11 @@ public class ProducerServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) 
 		throws ServletException, IOException 
 	{
+		String ipAddress = request.getRemoteAddr();
+
 		String enabled = ServerConfigurationService.getString("imsblti.producer.enabled", null);
 		if ( enabled == null || ! ("true".equals(enabled)) ) {
+			M_log.warn("BasicLTI Producer is Disabled IP="+ipAddress);
 			response.setStatus(response.SC_FORBIDDEN);
 			return;
 		}
@@ -202,7 +205,6 @@ public class ProducerServlet extends HttpServlet {
 			doError(response,"launch.no.session", context_id, null);
 			return;
 		}
-		System.out.println("Session ID="+sess.getId());
 
 		// If we did not get first and last name, split name_full
 		String fullname = request.getParameter("lis_person_name_full");
@@ -247,7 +249,6 @@ public class ProducerServlet extends HttpServlet {
 
                 	}
 
-			String ipAddress = request.getRemoteAddr();
                        	UsageSessionService.login(user.getId(), eid, ipAddress, null, UsageSessionService.EVENT_LOGIN_WS);
                        	sess.setUserId(user.getId());
                        	sess.setUserEid(user.getEid());
