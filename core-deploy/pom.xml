@@ -132,7 +132,7 @@
 		<profile>
 			<id>cafe</id>
 			<properties>
-				<clean.targets>archive-pack</clean.targets>
+				<clean.targets>components/archive-pack</clean.targets>
 				<deploy.target>tomcat-overlay</deploy.target>
 			</properties>
 			<dependencies>
