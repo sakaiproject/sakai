@@ -1473,7 +1473,7 @@ public class SiteAction extends PagedResourceActionII {
 			
 			context.put(STATE_TOOL_REGISTRATION_LIST, state.getAttribute(STATE_TOOL_REGISTRATION_LIST));
 			// put tool title into context if PageOrderHelper is enabled
-			pageOrderToolTitleIntoContext(context, state, type);
+			pageOrderToolTitleIntoContext(context, state, type, (site == null));
 
 			// all info related to multiple tools
 			multipleToolIntoContext(context, state);
@@ -2180,7 +2180,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put(STATE_TOOL_REGISTRATION_LIST, state
 					.getAttribute(STATE_TOOL_REGISTRATION_LIST));
 			// put tool title into context if PageOrderHelper is enabled
-			pageOrderToolTitleIntoContext(context, state, site_type);
+			pageOrderToolTitleIntoContext(context, state, site_type, false);
 
 			context.put("check_home", state
 					.getAttribute(STATE_TOOL_HOME_SELECTED));
@@ -2954,14 +2954,15 @@ public class SiteAction extends PagedResourceActionII {
 	}
 
 	/**
-	 * put customized page title into context if PageOrderTool is enabled
+	 * put customized page title into context during an editing process for an existing site and the PageOrder tool is enabled for this site
 	 * @param context
 	 * @param state
 	 * @param siteType
+	 * @param newSite
 	 */
-	private void pageOrderToolTitleIntoContext(Context context, SessionState state, String siteType) {
-		// check if PageOrder is enabled for the site. If so, show tool title
-		if (notStealthOrHiddenTool("sakai-site-pageorder-helper") && isPageOrderAllowed(siteType))
+	private void pageOrderToolTitleIntoContext(Context context, SessionState state, String siteType, boolean newSite) {
+		// check if this is an existing site and PageOrder is enabled for the site. If so, show tool title
+		if (!newSite && notStealthOrHiddenTool("sakai-site-pageorder-helper") && isPageOrderAllowed(siteType))
 		{
 			// the actual page titles
 			context.put(STATE_TOOL_REGISTRATION_TITLE_LIST, state.getAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST));
