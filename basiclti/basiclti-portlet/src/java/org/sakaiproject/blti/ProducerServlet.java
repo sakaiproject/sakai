@@ -387,6 +387,7 @@ System.out.println("Role="+r.getId());
                         	{
                                 	ToolConfiguration tool = (ToolConfiguration) j.next();
                                 	Tool t = tool.getTool();
+					if ( ! tool_id.equals(t.getId()) ) continue;
                                 	Properties propsedit = tool.getPlacementConfig();
 					String rli = propsedit.getProperty(BASICLTI_RESOURCE_LINK, null);
 					if ( resource_link_id.equals(rli) ) {
