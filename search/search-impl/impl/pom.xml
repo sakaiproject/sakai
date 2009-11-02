@@ -211,9 +211,9 @@
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>pdfbox</groupId>
+      <groupId>org.apache.pdfbox</groupId>
       <artifactId>pdfbox</artifactId>
-      <version>0.7.3</version>
+      <version>0.8.0-incubating</version>
       <type>jar</type>
     </dependency>
     <dependency>

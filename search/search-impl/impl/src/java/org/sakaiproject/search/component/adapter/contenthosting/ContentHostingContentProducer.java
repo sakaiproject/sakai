@@ -284,7 +284,10 @@ public class ContentHostingContentProducer implements EntityContentProducer, Sto
 		catch (Exception ex)
 		{
 			log.debug("Failed to digest "+ref+" with " + digester, ex);
-			log.warn("Failed to digest "+ref+" with " + digester + " cause: " + ex.getMessage());
+			log.warn("Failed to digest "+ref+" with " + digester + " cause: " + ex);
+			if (log.isDebugEnabled()) {
+				ex.printStackTrace();
+			}
 			if (!digester.equals(defaultDigester))
 			{
 				try

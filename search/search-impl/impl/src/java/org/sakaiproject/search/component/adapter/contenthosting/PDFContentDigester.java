@@ -56,13 +56,14 @@ public class PDFContentDigester extends BaseContentDigester
 			parser = new PDFParser(new BufferedInputStream(contentStream));
 			parser.parse();
 			PDDocument pddoc = parser.getPDDocument();
-
-			PDFTextStripper stripper = new PDFTextStripper();
-			stripper.setLineSeparator("\n");		
-			CharArrayWriter cw = new CharArrayWriter();
-			stripper.writeText(pddoc, cw);
-			pddoc.close();
-			return SearchUtils.appendCleanString(cw.toCharArray(),null).toString();
+			if (pddoc != null) {
+				PDFTextStripper stripper = new PDFTextStripper();
+				stripper.setLineSeparator("\n");		
+				CharArrayWriter cw = new CharArrayWriter();
+				stripper.writeText(pddoc, cw);
+				pddoc.close();
+				return SearchUtils.appendCleanString(cw.toCharArray(),null).toString();
+			}
 		} catch (ServerOverloadException e) {
 			String eMessage = e.getMessage();
 			if (eMessage == null) {
@@ -97,6 +98,7 @@ public class PDFContentDigester extends BaseContentDigester
 				}
 			}
 		}
+		return null;
 	}
 	public Reader getContentReader(ContentResource contentResource)
 	{
