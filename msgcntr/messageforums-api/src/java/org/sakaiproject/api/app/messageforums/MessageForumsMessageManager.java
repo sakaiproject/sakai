@@ -74,6 +74,13 @@ public interface MessageForumsMessageManager {
     public int findAuthoredMessageCountForStudent(final String userId);
     
     /**
+     * @param studentId The id of the student whose authored messages we are searching for.
+     * @return A list of all of the messages that the student has authored and are not flagged
+     * as DRAFT or DELETED.
+     */
+    public List<Message> findAuthoredMessagesForStudent(String studentId);
+    
+    /**
      * @return Each item in the list will be an array consisting of two elements.  The element
      * at index 0 will correspond to the student's id and the element at index 1 will correspond
      * to the number of messages that student has authored in the site.
@@ -100,6 +107,13 @@ public interface MessageForumsMessageManager {
      * to the number of messages that student has read in the site.
      */
     public List<Object[]> findReadMessageCountForAllStudents();
+    
+    /**
+     * @param studentId The id of the student whose read messages we are searching for.
+     * @return A list of all of the messages that the student has read and are not flagged
+     * as DRAFT or DELETED.
+     */
+    public List<Message> findReadMessagesForStudent(String studentId);
     
     public int findReadViewableMessageCountByTopicId(Long topicId);
 

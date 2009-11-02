@@ -372,8 +372,6 @@ public class MessageForumStatisticsBean {
 	public static Comparator ForumDateComparatorDesc;
 	public static Comparator ForumSubjectComparatorAsc;
 	public static Comparator ForumSubjectComparatorDesc;
-	
-	
 
 	
 	public Map getCourseMemberMap(){
@@ -507,106 +505,67 @@ public class MessageForumStatisticsBean {
 		sortStatistics(statistics);
 		return statistics;
 	}
-	
+
 	public List getUserAuthoredStatistics(){
-		final List statistics = new ArrayList();
-		
-		//get all of the forum topics user has authored
-		final List topicsList = forumManager.getDiscussionForums();
+		final List<DecoratedCompiledUserStatistics> statistics = new ArrayList<DecoratedCompiledUserStatistics>();
 
-		final Iterator forumIter = topicsList.iterator();
+		List<Message> messages = messageManager.findAuthoredMessagesForStudent(selectedSiteUserId);
+		if (messages == null) return statistics;
 
-		while (forumIter.hasNext()) {
-			final DiscussionForum df = (DiscussionForum) forumIter.next();
-
-			final List topics = df.getTopics();
-			final Iterator topicIter = topics.iterator();
-
-			while (topicIter.hasNext()) {
-				final Topic topic = (Topic) topicIter.next();
-				
-				if (uiPermissionsManager.isRead((DiscussionTopic) topic, df)) {
-					List messageList = messageManager.findUndeletedMessagesByTopicId(topic.getId());
-					final Iterator messageIter = messageList.iterator();
-					while(messageIter.hasNext()){
-						final Message mes = (Message) messageIter.next();
-						
-						if(mes.getCreatedBy().equals(selectedSiteUserId)){
-							userAuthoredInfo = new DecoratedCompiledUserStatistics();
-							userAuthoredInfo.setSiteUserId(selectedSiteUserId);
-							userAuthoredInfo.setForumTitle(df.getTitle());
-							userAuthoredInfo.setTopicTitle(topic.getTitle());
-							userAuthoredInfo.setForumDate(mes.getCreated());
-							userAuthoredInfo.setForumSubject(mes.getTitle());
-							userAuthoredInfo.setMsgId(Long.toString(mes.getId()));
-							userAuthoredInfo.setTopicId(Long.toString(topic.getId()));
-							userAuthoredInfo.setForumId(Long.toString(df.getId()));
-							statistics.add(userAuthoredInfo);
-						}
-					}
-				}
-			}
+		for (Message msg: messages) {
+			userAuthoredInfo = new DecoratedCompiledUserStatistics();
+			userAuthoredInfo.setSiteUserId(selectedSiteUserId);
+			userAuthoredInfo.setForumTitle(msg.getTopic().getOpenForum().getTitle());
+			userAuthoredInfo.setTopicTitle(msg.getTopic().getTitle());
+			userAuthoredInfo.setForumDate(msg.getCreated());
+			userAuthoredInfo.setForumSubject(msg.getTitle());
+			userAuthoredInfo.setMsgId(Long.toString(msg.getId()));
+			userAuthoredInfo.setTopicId(Long.toString(msg.getTopic().getId()));
+			userAuthoredInfo.setForumId(Long.toString(msg.getTopic().getOpenForum().getId()));
+			statistics.add(userAuthoredInfo);
 		}
+
 		sortStatisticsByUser(statistics);
 		return statistics;
 	}
-	
-	public List getUserAuthoredStatistics2(){
-		final List statistics = new ArrayList();
 		
-		//get all of the forum topics user has authored
-		final List topicsList = forumManager.getDiscussionForums();
+	public List getUserAuthoredStatistics2(){
+		final List<DecoratedCompiledUserStatistics> statistics = new ArrayList<DecoratedCompiledUserStatistics>();
 
-		final Iterator forumIter = topicsList.iterator();
+		List<Message> messages = messageManager.findAuthoredMessagesForStudent(selectedSiteUserId);
+		if (messages == null) return statistics;
 
-		while (forumIter.hasNext()) {
-			final DiscussionForum df = (DiscussionForum) forumIter.next();
-
-			final List topics = df.getTopics();
-			final Iterator topicIter = topics.iterator();
-
-			while (topicIter.hasNext()) {
-				final Topic topic = (Topic) topicIter.next();
-				
-				if (uiPermissionsManager.isRead((DiscussionTopic) topic, df)) {
-					List messageList = messageManager.findUndeletedMessagesByTopicId(topic.getId());
-					final Iterator messageIter = messageList.iterator();
-					while(messageIter.hasNext()){
-						final Message mes = (Message) messageIter.next();
-						
-						if(mes.getCreatedBy().equals(selectedSiteUserId)){
-							Message mesWithAttach = (Message)messageManager.getMessageByIdWithAttachments(mes.getId()); 
-							List decoAttachList = new ArrayList();
-							List attachList = mesWithAttach.getAttachments();
-							if(attachList != null ) {
-								 for(int i=0; i<attachList.size(); i++)
-								  {
-									  DecoratedAttachment decoAttach = new DecoratedAttachment((Attachment)attachList.get(i));
-									  decoAttachList.add(decoAttach);
-								  }
-							}
-							userAuthoredInfo = new DecoratedCompiledUserStatistics();
-							userAuthoredInfo.setSiteUserId(selectedSiteUserId);
-							userAuthoredInfo.setForumTitle(df.getTitle());
-							userAuthoredInfo.setTopicTitle(topic.getTitle());
-							userAuthoredInfo.setForumDate(mes.getCreated());
-							userAuthoredInfo.setForumSubject(mes.getTitle());
-							userAuthoredInfo.setMessage(mes.getBody());
-							userAuthoredInfo.setMsgId(Long.toString(mes.getId()));
-							userAuthoredInfo.setTopicId(Long.toString(topic.getId()));
-							userAuthoredInfo.setForumId(Long.toString(df.getId()));
-							userAuthoredInfo.setMsgDeleted(mes.getDeleted());
-							userAuthoredInfo.setDecoAttachmentsList(decoAttachList);
-							
-							messageManager.markMessageReadForUser(topic.getId(), mes.getId(), true, getCurrentUserId());
-							
-							statistics.add(userAuthoredInfo);
-						}
-					}
+		for (Message msg: messages) {
+			Message mesWithAttach = (Message)messageManager.getMessageByIdWithAttachments(msg.getId());
+			List decoAttachList = new ArrayList();
+			List attachList = mesWithAttach.getAttachments();
+			if(attachList != null ) {
+				for(int i=0; i<attachList.size(); i++)
+				{
+					DecoratedAttachment decoAttach = new DecoratedAttachment((Attachment)attachList.get(i));
+					decoAttachList.add(decoAttach);
 				}
 			}
+			
+			userAuthoredInfo = new DecoratedCompiledUserStatistics();
+			userAuthoredInfo.setSiteUserId(selectedSiteUserId);
+			userAuthoredInfo.setForumTitle(msg.getTopic().getOpenForum().getTitle());
+			userAuthoredInfo.setTopicTitle(msg.getTopic().getTitle());
+			userAuthoredInfo.setForumDate(msg.getCreated());
+			userAuthoredInfo.setForumSubject(msg.getTitle());
+			userAuthoredInfo.setMessage(msg.getBody());
+			userAuthoredInfo.setMsgId(Long.toString(msg.getId()));
+			userAuthoredInfo.setTopicId(Long.toString(msg.getTopic().getId()));
+			userAuthoredInfo.setForumId(Long.toString(msg.getTopic().getOpenForum().getId()));
+			userAuthoredInfo.setMsgDeleted(msg.getDeleted());
+			userAuthoredInfo.setDecoAttachmentsList(decoAttachList);
+						
+			messageManager.markMessageReadForUser(msg.getTopic().getId(), msg.getId(), true, getCurrentUserId());
+			
+			statistics.add(userAuthoredInfo);
 		}
-		sortStatisticsByUser3(statistics);
+
+		sortStatisticsByUser(statistics);
 		return statistics;
 	}
 	
@@ -618,100 +577,102 @@ public class MessageForumStatisticsBean {
 	public List getUserSubjectMsgBody(){
 		final List statistics = new ArrayList();
 		
-		//get all of the forum topics user has authored
-		final List topicsList = forumManager.getDiscussionForums();
+		if(selectedMsgId != null){
+			try{
+				Long msgId = new Long(selectedMsgId);			
+			
+				Message mesWithAttach = (Message)messageManager.getMessageByIdWithAttachments(msgId);
+				Topic t = forumManager.getTopicById(mesWithAttach.getTopic().getId());
+				DiscussionForum d = forumManager.getForumById(t.getOpenForum().getId());
 
-		final Iterator forumIter = topicsList.iterator();
-
-		while (forumIter.hasNext()) {
-			final DiscussionForum df = (DiscussionForum) forumIter.next();
-
-			final List topics = df.getTopics();
-			final Iterator topicIter = topics.iterator();
-
-			while (topicIter.hasNext()) {
-				final Topic topic = (Topic) topicIter.next();
 				
-				if (uiPermissionsManager.isRead((DiscussionTopic) topic, df)) {
-					List messageList = messageManager.findUndeletedMessagesByTopicId(topic.getId());
-					final Iterator messageIter = messageList.iterator();
-					while(messageIter.hasNext()){
-						final Message mes = (Message) messageIter.next();
-						
-						if(mes.getId().equals((new Long(selectedMsgId)))){
-							Message mesWithAttach = (Message)messageManager.getMessageByIdWithAttachments(mes.getId()); 
-							List decoAttachList = new ArrayList();
-							List attachList = mesWithAttach.getAttachments();
-							if(attachList != null ) {
-								 for(int i=0; i<attachList.size(); i++)
-								  {
-									  DecoratedAttachment decoAttach = new DecoratedAttachment((Attachment)attachList.get(i));
-									  decoAttachList.add(decoAttach);
-								  }
-							}							
-							userAuthoredInfo = new DecoratedCompiledUserStatistics();
-							userAuthoredInfo.setSiteUserId(selectedSiteUserId);
-							userAuthoredInfo.setForumTitle(df.getTitle());
-							userAuthoredInfo.setTopicTitle(topic.getTitle());
-							userAuthoredInfo.setForumDate(mes.getCreated());
-							userAuthoredInfo.setForumSubject(mes.getTitle());
-							userAuthoredInfo.setMessage(mes.getBody());
-							userAuthoredInfo.setMsgId(selectedMsgId);
-							userAuthoredInfo.setTopicId(Long.toString(topic.getId()));
-							userAuthoredInfo.setForumId(Long.toString(df.getId()));
-							userAuthoredInfo.setMsgDeleted(mes.getDeleted());
-							userAuthoredInfo.setDecoAttachmentsList(decoAttachList);
-							
-							messageManager.markMessageReadForUser(topic.getId(), mes.getId(), true, getCurrentUserId());
-														
-							statistics.add(userAuthoredInfo);
-						}
+				List decoAttachList = new ArrayList();
+				List attachList = mesWithAttach.getAttachments();
+				if(attachList != null ) {
+					for(int i=0; i<attachList.size(); i++)
+					{
+						DecoratedAttachment decoAttach = new DecoratedAttachment((Attachment)attachList.get(i));
+						decoAttachList.add(decoAttach);
 					}
-				}
+				}							
+				userAuthoredInfo = new DecoratedCompiledUserStatistics();
+				userAuthoredInfo.setSiteUserId(selectedSiteUserId);
+				userAuthoredInfo.setForumTitle(d.getTitle());
+				userAuthoredInfo.setTopicTitle(t.getTitle());
+				userAuthoredInfo.setForumDate(mesWithAttach.getCreated());
+				userAuthoredInfo.setForumSubject(mesWithAttach.getTitle());
+				userAuthoredInfo.setMessage(mesWithAttach.getBody());
+				userAuthoredInfo.setMsgId(selectedMsgId);
+				userAuthoredInfo.setTopicId(Long.toString(t.getId()));
+				userAuthoredInfo.setForumId(Long.toString(d.getId()));
+				userAuthoredInfo.setMsgDeleted(mesWithAttach.getDeleted());
+				userAuthoredInfo.setDecoAttachmentsList(decoAttachList);
+
+				messageManager.markMessageReadForUser(t.getId(), mesWithAttach.getId(), true, getCurrentUserId());
+
+				statistics.add(userAuthoredInfo);
+			}catch(Exception e){
+				LOG.error("MessageForumsStatisticsBean: getUserSubjectMsgBody: selected message Id was not of type Long");
 			}
 		}
 		return statistics;
 	}
-	
+
 	public List getUserReadStatistics(){
-		final List statistics = new ArrayList();
-		
-		//get all of the forum topics user has authored
-		final List topicsList = forumManager.getDiscussionForums();
+		final List<DecoratedCompiledUserStatistics> statistics = new ArrayList();
 
-		final Iterator forumIter = topicsList.iterator();
+		List<Message> messages = messageManager.findReadMessagesForStudent(selectedSiteUserId);
+		if (messages == null) return statistics;
 
-		while (forumIter.hasNext()) {
-			final DiscussionForum df = (DiscussionForum) forumIter.next();
-
-			final List topics = df.getTopics();
-			final Iterator topicIter = topics.iterator();
-
-			while (topicIter.hasNext()) {
-				final Topic topic = (Topic) topicIter.next();
-				
-				if (uiPermissionsManager.isRead((DiscussionTopic) topic, df)) {
-					List messageList = messageManager.findUndeletedMessagesByTopicId(topic.getId());
-					final Iterator messageIter = messageList.iterator();
-					while(messageIter.hasNext()){
-						final Message mes = (Message) messageIter.next();
-						UnreadStatus status = messageManager.findUnreadStatusByUserId(topic.getId(), mes.getId(), selectedSiteUserId);
-						
-						if(status != null){
-							userAuthoredInfo = new DecoratedCompiledUserStatistics();
-							userAuthoredInfo.setSiteUserId(selectedSiteUserId);
-							userAuthoredInfo.setForumTitle(df.getTitle());
-							userAuthoredInfo.setTopicTitle(topic.getTitle());
-							userAuthoredInfo.setForumDate(mes.getCreated());
-							userAuthoredInfo.setForumSubject(mes.getTitle());
-							statistics.add(userAuthoredInfo);
-						}
-					}
-				}
-			}
+		for (Message msg: messages) {
+			userAuthoredInfo = new DecoratedCompiledUserStatistics();
+			userAuthoredInfo.setSiteUserId(selectedSiteUserId);
+			userAuthoredInfo.setForumTitle(msg.getTopic().getOpenForum().getTitle());
+			userAuthoredInfo.setTopicTitle(msg.getTopic().getTitle());
+			userAuthoredInfo.setForumDate(msg.getCreated());
+			userAuthoredInfo.setForumSubject(msg.getTitle());
+			statistics.add(userAuthoredInfo);
 		}
+
 		sortStatisticsByUser2(statistics);
 		return statistics;
+	}
+	
+	public class dMessageStatusInfo{
+		private String forumTitle;
+		private String topicTitle;
+		private Long messageId;
+		private Date messageCreated;
+		private String messageTitle;
+		
+		public dMessageStatusInfo(String forumTitle, String topicTitle, Long messageId, Date messageCreated, String messageTitle){
+			this.forumTitle = forumTitle;
+			this.topicTitle = topicTitle;
+			this.messageId = messageId;
+			this.messageCreated = messageCreated;
+			this.messageTitle = messageTitle;
+		}
+
+		public String getForumTitle() {
+			return forumTitle;
+		}
+
+		public String getTopicTitle() {
+			return topicTitle;
+		}
+
+		public Long getMessageId() {
+			return messageId;
+		}
+
+		public Date getMessageCreated() {
+			return messageCreated;
+		}
+
+		public String getMessageTitle() {
+			return messageTitle;
+		}
+
 	}
 	
 	/**

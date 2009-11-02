@@ -323,6 +323,25 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         return ((Integer) getHibernateTemplate().execute(hcb)).intValue();     	
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.sakaiproject.api.app.messageforums.MessageForumsMessageManager#findAuthoredMessagesForStudent(java.lang.String)
+     */
+    public List<Message> findAuthoredMessagesForStudent(final String studentId) {
+      if (LOG.isDebugEnabled()) LOG.debug("findReadMessagesForCurrentStudent()");
+      
+      HibernateCallback hcb = new HibernateCallback() {
+        public Object doInHibernate(Session session) throws HibernateException, SQLException {
+            Query q = session.getNamedQuery("findAuthoredMessagesForStudent");
+            q.setParameter("contextId", getContextId(), Hibernate.STRING);
+            q.setParameter("userId", studentId, Hibernate.STRING);
+            return q.list();
+        }
+      };
+      
+      return (List)getHibernateTemplate().execute(hcb);
+    }
+    
     public List<Object[]> findAuthoredMessageCountForAllStudents() {
     	if (LOG.isDebugEnabled()) LOG.debug("findAuthoredMessageCountForAllStudents executing");
     	
@@ -377,6 +396,25 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         };
 
         return ((Integer) getHibernateTemplate().execute(hcb)).intValue();        
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.sakaiproject.api.app.messageforums.MessageForumsMessageManager#findReadMessagesForStudent()
+     */
+    public List<Message> findReadMessagesForStudent(final String studentId) {
+      if (LOG.isDebugEnabled()) LOG.debug("findReadMessagesForCurrentStudent()");
+      
+      HibernateCallback hcb = new HibernateCallback() {
+        public Object doInHibernate(Session session) throws HibernateException, SQLException {
+            Query q = session.getNamedQuery("findReadMessagesForStudent");
+            q.setParameter("contextId", getContextId(), Hibernate.STRING);
+            q.setParameter("userId", studentId, Hibernate.STRING);
+            return q.list();
+        }
+      };
+      
+      return (List)getHibernateTemplate().execute(hcb);
     }
     
     public List<Object[]> findReadMessageCountForAllStudents() {
