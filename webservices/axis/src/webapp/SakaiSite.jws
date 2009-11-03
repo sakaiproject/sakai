@@ -140,7 +140,7 @@ public class SakaiSite {
       dom.appendChild(allSites);
       
       String portalUrl = ServerConfigurationService.getPortalUrl();
-      String serverUrl = ServerConfigurationService.getServerUrl();
+      String serverUrl = ServerConfigurationService.getString("serverUrl");
       
       Node portalNode = dom.createElement("portal");
       allSites.appendChild(portalNode);
@@ -273,7 +273,7 @@ public class SakaiSite {
       Document dom = Xml.createDocument();
       Node siteNode = dom.createElement("site");
       dom.appendChild(siteNode);
-      String serverUrl = ServerConfigurationService.getServerUrl();
+      String serverUrl = ServerConfigurationService.getString("serverUrl");
       Site theSite;
       
       try {
