@@ -5,6 +5,407 @@
     $(document).ready(function(){
         setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
     });
+    
+    var DOT = "_";
+    	
+	function attachEventHandlers()
+	{
+		for(var i = 0; i < document.links.length; i++)
+		{
+			var link = document.links[i];
+			if(link.id)
+			{
+				if(link.id.match(/^removeTrigger_\d+$/))
+				{
+					link.onclick = handleRemoveFileItem;
+				}
+			}
+		}
+	  return false;
+	}
+	function removeFileItem(index)
+	{
+	alert("in remove file item index = " + index);
+		var fileInputDiv = document.getElementById("fileInputDiv");
+		var prev = document.getElementById("prev_" + index);
+		var next = document.getElementById("next_" + index);
+		alert("prev" + prev.value + " next=" + next.value);
+		if(prev && next )
+		{
+			if(prev.value && prev.value != "")
+			{
+				if(next.value && next.value != "")
+				{
+					var nextPrev = document.getElementById("prev_" + next.value);
+					if(nextPrev)
+					{
+						nextPrev.value = prev.value;
+					}
+					var prevNext = document.getElementById("next_" + prev.value);
+					if(prevNext)
+					{
+						prevNext.value = next.value;
+					}
+				}
+				else
+				{
+					var prevNext = document.getElementById("next_" + prev.value);
+					if(prevNext)
+					{
+						prevNext.value = "";
+					}
+				}
+			}
+			else
+			{
+				if(next.value && next.value != "")
+				{
+					var nextPrev = document.getElementById("prev_" + next.value);
+					if(nextPrev)
+					{
+						nextPrev.value = "";
+					}
+				}
+				else
+				{
+					// can't delete
+					return;
+				}
+			}
+		}
+		else
+		{
+			// can't delete
+			return;
+		}
+		
+		var counter = document.getElementById("fileCount");
+		var count = new Number(counter.value) - 1;
+		counter.value = count;
+
+		var indexer = document.getElementById("lastIndex");
+		if(index == indexer.value)
+		{
+			indexer.value = prev.value;
+		}
+		
+		var fileInputDiv = document.getElementById("fileInputDiv");
+		
+		var contentDiv = document.getElementById("contentDiv_" + index);
+		if(contentDiv)
+		{
+			removeTree(contentDiv);
+			fileInputDiv.removeChild(contentDiv);
+		}
+		
+		resizeFrame('grow');
+		return false;
+	}
+	function removeTree(nodeRef)
+	{
+		if(nodeRef && nodeRef.childNodes && nodeRef.childNodes.length && nodeRef.childNodes.length > 0)
+		{
+			for(var i = 0; i < nodeRef.childNodes.length; i++)
+			{
+				removeTree(nodeRef.childNodes[i]);
+				nodeRef.removeChild(nodeRef.childNodes[i]);
+			}
+		}
+		return false;
+	}
+	function deleteFileItem(element)
+	{
+		if(element && element.id)
+		{
+			var dot = element.id.lastIndexOf("_");
+			if(dot >= 0)
+			{
+				var index = element.id.substr(dot + 1);
+				removeFileItem(index);
+			}
+		}
+		else if(element.parentNode != null && element.parentNode != element)
+		{
+			deleteFileItem(element.parentNode);
+		}
+		return false;
+	}
+	function handleRemoveFileItem(evt)
+	{
+		evt = (evt) ? evt : ((event) ? event : null);
+		if(evt)
+		{
+			evt.cancelBubble = true;
+			var element = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null)
+			if(element)
+			{
+				element = (element.nodeType == 1 || element.nodeType == 9) ? element : element.parentNode;
+				deleteFileItem(element);
+			}
+		}
+		return false;
+	}
+	function handleEnterKey(evt) 
+	{
+		evt = (evt) ? evt : ((event) ? event : null);
+		if(evt)
+		{
+			evt.cancelBubble = true;
+			var keyCode = event.keyCode ? evt.keyCode : evt.which ? evt.which : evt.charCode;
+			if (keyCode == 13) 
+			{
+				return false;
+			} 
+			else
+			{
+				return true;
+			}
+		}
+	}
+    function addFileInput()
+	{
+		var counter = document.getElementById("fileCount");
+		var indexer = document.getElementById("lastIndex");
+		var fileInputDiv = document.getElementById("fileInputDiv");
+		alert(counter.value);
+		var count = new Number(counter.value) + 1;
+		counter.value = count;
+		var prevIndex = indexer.value;
+		var index = new Number(indexer.value) + 1;
+		indexer.value = index;
+		alert("prevIndex=" + prevIndex + " index=" + index);
+		var modelContentDiv = document.getElementById("contentDiv_" + prevIndex);
+		
+		alert(modelContentDiv);
+
+		if(modelContentDiv)
+		{
+			var newContentDiv = copyTree(modelContentDiv, index);
+			fileInputDiv.appendChild(newContentDiv);
+		}
+		
+		var prevNext = document.getElementById("next_" + prevIndex);
+		if(prevNext)
+		{
+			prevNext.value = index;
+		}
+		
+		var thisPrev = document.getElementById("prev_" + index);
+		if(thisPrev)
+		{
+			thisPrev.value = prevIndex;
+		}
+		
+		attachEventHandlers();
+		
+		var debug_guy = document.getElementById("debugger");
+		if(debug_guy)
+		{
+			debug_guy.value = fileInputDiv.innerHTML;
+		}
+		
+		resizeFrame('grow');
+		return false;
+	}
+	
+	function copyTree(root, index)
+	{
+	alert("copytree" + root + " index=" + index);
+		var newElement;
+		if(!root || typeof root == "undefined")
+		{
+			return null;
+		}
+		var newName = "";
+		if(root && root.name)
+		{
+			//alert("copy 01 " + root.name + " " +  index);
+			newName = updateId(root.name, index);
+		}
+		if(root && root.nodeName)
+		{
+		alert("inside root " + newName + root.name);
+			if(newName == "" || newName == root.name)
+			{
+				newElement = root.cloneNode(false);
+				updateAttributes(newElement, index);
+			}
+			else
+			{
+				newElement = createNamedElement(root.nodeName, newName);
+				copyAttributes(root, newElement);
+			}
+			if(root.id && root.id != "")
+			{
+				newElement.id = updateId(root.id, index);
+			}
+								
+			if(root && root.childNodes)
+			{
+				for(var i = 0; i < root.childNodes.length; i++)
+				{
+					var newChild = copyTree(root.childNodes[i], index);
+					if(newChild)
+					{
+						newElement.appendChild(newChild);
+					}
+				}
+			}
+		}
+		return newElement;
+	}
+	function updateId(old_id, index)
+	{
+		if(old_id)
+		{
+			var dotPos = old_id.lastIndexOf(DOT);
+			if(dotPos >= 0)
+			{
+				var baseName = old_id.substr(0,dotPos);
+				if(baseName)
+				{
+				alert("update id basename=" +baseName + DOT + index )
+					return baseName + DOT + index;
+				}
+			}
+		}
+		return old_id;
+	}
+	function copyAttributes(oldElement, newElement)
+	{
+		if(oldElement.nodeType == 1)
+		{
+			if(oldElement.accesskey)
+			{
+				newElement.accesskey = oldElement.accesskey;
+			}
+			if(oldElement.className)
+			{
+				newElement.className = oldElement.className;
+			}
+			if(oldElement.style.width)
+			{
+				newElement.style.width = oldElement.style.width;
+			}
+			if(oldElement.title)
+			{
+				newElement.title = oldElement.title;
+			}
+			if(oldElement.nodeName.toLowerCase() == "input")
+			{
+				newElement.type = oldElement.type;
+				if(oldElement.type == "text")
+				{
+					if(oldElement.size)
+					{
+						newElement.size = oldElement.size;
+					}
+					if(oldElement.defaultValue)
+					{
+						newElement.defaultValue = oldElement.defaultValue;
+					}
+					if(oldElement.maxLength && oldElement.maxLength > 0)
+					{
+						newElement.maxLength = oldElement.maxLength;
+					}
+				}
+				else if(oldElement.type == "file")
+				{
+					if(oldElement.accept)
+					{
+						newElement.accept = oldElement.accept;
+					}
+					if(oldElement.size)
+					{
+						newElement.size = oldElement.size;
+					}
+				}
+				else if(oldElement.type == "radio")
+				{
+					newElement.defaultChecked = oldElement.defaultChecked;
+					newElement.value = oldElement.value;
+				}
+				else if(oldElement.type == "checkbox")
+				{
+					newElement.defaultChecked = oldElement.defaultChecked;
+					newElement.value = oldElement.value;
+				}
+				else if(oldElement.type == "button")
+				{
+				}
+				else if(oldElement.type == "submit")
+				{
+				}
+				else if(oldElement.type == "reset")
+				{
+				}
+				else if(oldElement.type == "hidden")
+				{
+				}
+				else if(oldElement.type == "image")
+				{
+					if(oldElement.alt)
+					{
+						newElement.alt = oldElement.alt;
+					}
+					if(oldElement.src)
+					{
+						newElement.src = oldElement.src;
+					}
+					if(oldElement.useMap)
+					{
+						newElement.useMap = oldElement.useMap;
+					}
+					
+				}
+				else if(oldElement.type == "password")
+				{
+				}
+				
+			}
+			else if(oldElement.nodeName.toLowerCase() == "option")
+			{
+				newElement.defaultSelected = oldElement.defaultSelected;
+				newElement.text = oldElement.text;
+				newElement.value = oldElement.value;
+			}
+			else if(oldElement.nodeName.toLowerCase() == "textarea")
+			{
+				if(oldElement.cols && oldElement.cols >= 0)
+				{
+					newElement.cols = oldElement.cols;
+				}
+				if(oldElement.rows && oldElement.rows >= 0)
+				{
+					newElement.rows = oldElement.rows;
+				}
+				if(oldElement.defaultValue)
+				{
+					newElement.defaultValue = oldElement.defaultValue;
+				}
+				if(oldElement.wrap)
+				{
+					newElement.wrap = oldElement.wrap;
+				}
+			}
+			
+		}
+	}
+	function updateAttributes(newElement, index)
+	{
+		if(newElement && newElement.nodeType == 1)
+		{
+			if(newElement.headers)
+			{
+				newElement.headers = updateId(newElement.headers, index);
+			}
+			
+			if(newElement.htmlFor)
+			{
+				newElement.htmlFor = updateId(newElement.htmlFor, index);
+			}
+		}
+	}
 </script>
 
 
@@ -543,9 +944,10 @@
 						#end
 					</p>
 				#end	
-				<h3>
-					$tlang.getString("gen.stuatt") 
-				</h3>	
+				<div class="highlightPanel" style="background:#ffe">
+					<h3 style="margin-top:0;margin-bottom:.5em">
+						Attachments  <span class="highlight">(attached, but not submitted)</span>
+					</h3>	
 					#set ($size = 0)
 					#set ($props = false)
 					#foreach ($attachment in $attachments) 
@@ -557,49 +959,93 @@
 					#if ($size == 0)
 						<p class="instruction">$tlang.getString("gen.noatt")</p>
 					#else
-						<ul class="attachList indnt1">
+						<table class="attachList listHier indnt1 centerLines" style="margin-bottom:.5em;margin-top:0; width:auto">
 							#foreach ($attachment in $attachments) 
 								#set ($props = false)
 								#set ($props = $attachment.Properties) 
 								#if ($!props)
-									<li>
-										#if ($props.getBooleanProperty($props.NamePropIsCollection))
-											<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
-										#else
-											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
-										#end
-										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
-										#if (!$props.getBooleanProperty($props.NamePropIsCollection))
-											($props.getPropertyFormatted($props.NamePropContentLength))
-										#end
-									</li>
+									<tr>
+										<td>
+											#if ($props.getBooleanProperty($props.NamePropIsCollection))
+												<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+											#else
+												<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+											#end
+											<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+										</td>
+										<td>
+											#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+												($props.getPropertyFormatted($props.NamePropContentLength))
+											#end
+										</td>
+										<td class="itemAction">
+											<a href="#">Remove</a>
+										</td>
+									</tr>
 								#end
 							#end
-						</ul>
+						</table>
 					#end	 
-					<p class="act">
+					
+		<input type="hidden" name="fileCount" id="fileCount" value="1" />
+		<input type="hidden" name="lastIndex" id="lastIndex" value="0" />
+		#set($lastIndex = 1 - 1)
+		#set($total = 1)
+		<div id="fileInputDiv">
+			#set($i = -1)
+			##foreach($pipe in $total)
+				
+				#set($prev = $i)
+				#set($i = $i + 1)
+				#set($next = $i + 1)
+				
+				<div id="contentDiv_$i" class="actionitem highlightPanel">
+					<input type="hidden" name="exists_$i" id="exists_$i" value="true" />
+					<p class="shorttext" style="border:none">
+						<label for="content_$i">Upload</label>
+						<input type="file" name="content_$i" id="content_$i" class="upload" />
+						<a class="indnt2" href="#" id="removeTrigger_$i" >
+							<img src="#imageLink("sakai/cross.png")" title="remove" />
+						</a>
+						<input type="hidden" id="prev_$i" name="prev_$i" value="#if($prev >= 0)${prev}#end" />
+						<input type="hidden" id="next_$i" name="next_$i" value="#if($next < $total.size())${next}#end" />
+					</p>
+				</div>
+			##end
+		</div>
+		<p class="act">
+			<a href="#" onclick="javascript:addFileInput();return false">Upload Another File</a>
+		</p>
+					<p class="highlightPanel specialLink" style="margin:0;padding-bottom:.5em;background:#fff">
 						#if ($!deleted.equalsIgnoreCase("true")) 	 
-	    		##if the assignment has been deleted, disable the action button 	 
-	     	<input type="submit" name="eventSubmit_doAttachments" value="Attachment" accesskey="a" disabled="disabled" /> 	 
-	     #else
+	    					##if the assignment has been deleted, disable the action button 	 
+	     					<input type="submit" name="eventSubmit_doAttachments" value="Attachment" accesskey="a" disabled="disabled" /> 	 
+	     				#else
 							#if ($!canSubmit)
-										<input
-											class="disableme" 
-											type="button" 
-											name="attach" 
-											id="attach"
-											#if ($size==0) 
-												value="$tlang.getString("gen.addatt")"
-											#else
-												value="$tlang.getString("gen.adddroatt2")"
-											#end
-											accesskey="a" #if(!$allowSubmit)disabled="disabled"#end
-											onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='attach'; document.addSubmissionForm.submit(); return false;"
-										/>
+								#if ($size==0) 
+									#set($howManySubAtts="Select a file from")
+								#else
+									#set($howManySubAtts="Select more files from")
+								#end
+
+								<label for="upload1">$howManySubAtts computer </label>
+								<input type="file" name="upload" id="upload1" class="upload"/>  or 
+								<span class="navIntraToolLink">
+									<input
+										class="disableme enabled" 
+										type="button" 
+										value="$howManySubAtts workspace or site"
+										name="attach" 
+										id="attach"
+										accesskey="a" #if(!$allowSubmit)disabled="disabled"#end
+										onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='attach'; document.addSubmissionForm.submit(); return false;"
+									/>
+								</span>	
+							#end
 						#end
-					#end
-				</p>
+					</p>
 				#end
+				</div>
 				## for single file upload case
 				#if ($submissionType==5)
 					<div class="highlightPanel">
@@ -741,8 +1187,9 @@
 						$tlang.getString("gen.youmus")
 					</p>
 				#end
-			<div class="act">
+				<div
 					#if ($!deleted.equalsIgnoreCase("true") || !$!canSubmit)
+					 class="act">
 						<input 
 							type="button" 
 							name="cancel"
@@ -752,6 +1199,7 @@
 							onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='cancel'; document.addSubmissionForm.submit(); return false;"
 						/>
 					#else
+					 class="act messageInformation">
 							<input
 								type="button"
 								class="active"
@@ -796,6 +1244,7 @@
 								value="$tlang.getString("gen.can")"
 								onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='cancel'; document.addSubmissionForm.submit(); return false;"
 							/>
+							<span class="messageInformation">Don't forget to save or submit</span>
 					#end
 				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 			</div>
