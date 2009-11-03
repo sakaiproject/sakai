@@ -338,22 +338,22 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     // INTERNAL
 
     private boolean pollCanDelete(Poll poll) {
-        if (externalLogic.isUserAdmin() || this.isSiteOwner())
+        if (externalLogic.isUserAdmin() || this.isSiteOwner(poll.getSiteId()))
             return true;
-        if (externalLogic.isAllowedInLocation(PERMISSION_DELETE_ANY, externalLogic.getCurrentLocationReference()))
+        if (externalLogic.isAllowedInLocation(PERMISSION_DELETE_ANY, externalLogic.getSiteRefFromId(poll.getSiteId())))
             return true;
 
-        if (externalLogic.isAllowedInLocation(PERMISSION_DELETE_OWN, externalLogic.getCurrentLocationReference())
+        if (externalLogic.isAllowedInLocation(PERMISSION_DELETE_OWN, externalLogic.getSiteRefFromId(poll.getSiteId()))
         		&& poll.getOwner().equals(externalLogic.getCurrentuserReference()))
             return true;
 
         return false;
     }
 
-    private boolean isSiteOwner() {
+    private boolean isSiteOwner(String siteId) {
         if (externalLogic.isUserAdmin())
             return true;
-        else if (externalLogic.isAllowedInLocation("site.upd", externalLogic.getCurrentLocationReference()))
+        else if (externalLogic.isAllowedInLocation("site.upd", externalLogic.getSiteRefFromId(siteId)))
         	return true;
         else
         	return false;

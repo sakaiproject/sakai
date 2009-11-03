@@ -25,6 +25,7 @@ package org.sakaiproject.poll.logic;
 import java.util.List;
 import java.util.Map;
 
+import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
 
@@ -77,5 +78,20 @@ public interface PollVoteManager {
      * @return the map of poll ID => list of votes for that poll for this user
      */
     public Map<Long, List<Vote>> getVotesForUser(String userId, Long[] pollIds);
+    
+    /**
+     * Get all votes for Option
+     * @param option
+     * @return
+     */
+    public List<Vote> getAllVotesForOption(Option option);
+    
+    /**
+     * Is the current user able to vote on this poll?
+     *
+     * @param poll
+     * @return
+     */
+    public boolean pollIsVotable(Poll poll);
 
 }

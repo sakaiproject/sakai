@@ -28,6 +28,11 @@ public class Option {
     private String text;
     private String status;
     private String uuid;
+	private Boolean deleted;
+	
+	
+    
+
 
     public Option() {}
 
@@ -90,4 +95,13 @@ public class Option {
     public void setId(Long id) {
         this.id = id;
     }
+    
+    public Boolean getDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(Boolean deleted) {
+		this.deleted = deleted;
+	}
+
 }

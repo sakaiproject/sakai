@@ -28,6 +28,7 @@
 		lazy-init="true">
 		<property name="dao" ref="org.sakaiproject.poll.dao.PollDao"/>
 		<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
+		<property name="pollListManager" ref="org.sakaiproject.tool.poll.api.PollListManager"/>
 	</bean>
 
 	<bean id="org.sakaiproject.poll.logic.ExternalLogic" class="org.sakaiproject.poll.logic.impl.ExternalLogicImpl">
@@ -42,6 +43,7 @@
 			ref="org.sakaiproject.time.api.TimeService" />
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+		
 	</bean>
 
 </beans>
