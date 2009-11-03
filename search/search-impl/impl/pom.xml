@@ -210,15 +210,22 @@
       <version>${poi.version}</version>
       <type>jar</type>
     </dependency>
+    <!-- Due to tika we can't upgrade this till Tika does a 
+    new release -->
     <dependency>
-      <groupId>org.apache.pdfbox</groupId>
+      <groupId>pdfbox</groupId>
       <artifactId>pdfbox</artifactId>
-      <version>0.8.0-incubating</version>
+      <version>0.7.3</version>
       <type>jar</type>
     </dependency>
     <dependency>
 	<groupId>org.apache.tika</groupId>
-	<artifactId>tika-app</artifactId>
+	<artifactId>tika-core</artifactId>
+	<version>0.4</version>
+	</dependency>
+    <dependency>
+	<groupId>org.apache.tika</groupId>
+	<artifactId>tika-parsers</artifactId>
 	<version>0.4</version>
 	</dependency>
     <dependency>
