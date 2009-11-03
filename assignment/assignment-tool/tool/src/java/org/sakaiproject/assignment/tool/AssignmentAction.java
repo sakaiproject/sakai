@@ -3928,6 +3928,9 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 				else if (submissionType == 2)
 				{
+					// dealing with single file uplaod
+					doAttachUpload(data);
+					
 					// for the attachment only submission
 					Vector v = (Vector) state.getAttribute(ATTACHMENTS);
 					if ((v == null) || (v.size() == 0))
@@ -3937,6 +3940,9 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 				else if (submissionType == 3)
 				{
+					// dealing with single file uplaod
+					doAttachUpload(data);
+					
 					// for the inline and attachment submission
 					Vector v = (Vector) state.getAttribute(ATTACHMENTS);
 					if ((text.length() == 0) && ((v == null) || (v.size() == 0)))
