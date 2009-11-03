@@ -51,11 +51,12 @@ public class PDFContentDigester extends BaseContentDigester
 
 		InputStream contentStream = null;
 		PDFParser parser = null;
+		PDDocument pddoc = null;
 		try {
 			contentStream = contentResource.streamContent();
 			parser = new PDFParser(new BufferedInputStream(contentStream));
 			parser.parse();
-			PDDocument pddoc = parser.getPDDocument();
+			pddoc = parser.getPDDocument();
 			if (pddoc != null) {
 				PDFTextStripper stripper = new PDFTextStripper();
 				stripper.setLineSeparator("\n");		
@@ -73,8 +74,9 @@ public class PDFContentDigester extends BaseContentDigester
 		}
 		catch (IOException e) {
 			try {
-				PDDocument pddoc = parser.getPDDocument();
-				pddoc.close();
+				if (pddoc != null) {
+					pddoc.close();
+				}
 			} catch ( Exception ex ) {
 				log.debug(ex);
 			}
