@@ -2573,6 +2573,50 @@ public String getSessionForUser(String sessionid, String userid) throws AxisFaul
 }
 
 
+/**
+ * Create a new page in a site. A page holds one or more tools and is shown in the main navigation section. You will still need to add tools to this page.
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	siteid 			the id of the site to add the page to
+ * @param 	pagetitle 		the title of the new page
+ * @param 	pagelayout 		single or double column (0 or 1). Any other value will revert to 0.
+ * @param	position		and integer specifying the position within other pages on the site (0 means top, for right at the bottom a large enough number, ie 99)
+ * @param	popup			boolean for if it should be a popup window or not
+ * @return					success or exception message
+ *
+ */
+public String addNewPageToSite(String sessionid, String siteid, String pagetitle, int pagelayout, int position, boolean popup) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		Site siteEdit = null;
+		SitePage sitePageEdit = null;
+		siteEdit = SiteService.getSite(siteid);
+		sitePageEdit = siteEdit.addPage();
+		sitePageEdit.setTitle(pagetitle);
+		sitePageEdit.setLayout(pagelayout);
+		
+		//KNL-250, SAK-16819 - if position too large, will throw ArrayIndexOutOfBoundsException
+		//deal with this here and just set to the number of pages - 1 so its at the bottom.
+		int numPages = siteEdit.getPages().size();
+		if(position > numPages) {
+			position = numPages-1;
+		}		
+		
+		sitePageEdit.setPosition(position);
+		sitePageEdit.setPopup(popup);
+		SiteService.save(siteEdit);
+	
+	}
+	catch (Exception e) {  
+		return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+
 
 
 }
