@@ -2,9 +2,32 @@
 <link href="/sakai-assignment-tool/css/assignment.css" type="text/css" rel="stylesheet" media="all" />
 <script type="text/javascript"  src="/sakai-assignment-tool/js/assignments.js"></script>
 <script type="text/javascript">
-    $(document).ready(function(){
-        setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
+$(document).ready(function(){
+    setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
+    $('#submissionFileCount').val(1);
+    $('#addMoreAttachmentControls').click(function(e){
+        e.preventDefault();
+        if ($('#submissionFileCount').val() < 5) {
+            $('#clonableUpload').clone().removeAttr('id').addClass('cloned').appendTo('#clonedHolder').children('input').val('');
+            $('#submissionFileCount').val(parseInt($('#submissionFileCount').val(), 10) + 1);
+            if ($('#submissionFileCount').val() == 5) {
+                $('#addMoreAttachmentControls').hide();
+                $('#addMoreAttachmentControlsInactive').show();
+            }
+        }
+        $('.cloned a').show();
+        resizeFrame('grow');
     });
+    
+});
+var notifyDeleteControl = function(){
+    $('#submissionFileCount').val(parseInt($('#submissionFileCount').val(), 10) - 1);
+    if ($('#submissionFileCount').val() < 5) {
+        $('#addMoreAttachmentControls').show();
+        $('#addMoreAttachmentControlsInactive').hide();
+    }
+};
+		
 </script>
 
 
@@ -545,7 +568,7 @@
 				#end	
 				<div class="highlightPanel" style="background:#ffe">
 					<h3 style="margin-top:0;margin-bottom:.5em">
-						Attachments  <span class="highlight">(attached, but not submitted)</span>
+						$tlang.getString("stuviewsubm.submissatt2")
 					</h3>	
 					#set ($size = 0)
 					#set ($props = false)
@@ -578,41 +601,72 @@
 											#end
 										</td>
 										<td class="itemAction">
-											<a href="#">Remove</a>
+											<a href="#">
+												$tlang.getString("stuviewsubm.removeatt")
+											</a>
 										</td>
 									</tr>
 								#end
 							#end
 						</table>
 					#end	 
-					<p class="highlightPanel specialLink" style="margin:0;padding-bottom:.5em;background:#fff">
+					<div class="highlightPanel specialLink" style="margin:0;padding-bottom:.5em;background:#fff">
 						#if ($!deleted.equalsIgnoreCase("true")) 	 
 	    					##if the assignment has been deleted, disable the action button 	 
 	     					<input type="submit" name="eventSubmit_doAttachments" value="Attachment" accesskey="a" disabled="disabled" /> 	 
 	     				#else
 							#if ($!canSubmit)
 								#if ($size==0) 
-									#set($howManySubAtts="Select a file from")
+									#set($howManySubAtts=$tlang.getString("stuviewsubm.attfromcomputerlabel"))
+									#set($howManySubAttsLinks=$tlang.getString("stuviewsubm.attfromserverlabel"))
 								#else
-									#set($howManySubAtts="Select more files from")
+									#set($howManySubAtts=$tlang.getString("stuviewsubm.attfromserverlabelmore"))
+									#set($howManySubAttsLinks=$tlang.getString("stuviewsubm.attfromserverlabelmore"))
 								#end
+								<input type="hidden" name="submissionFileCount" id="submissionFileCount" value="1"/>
+								<table border="0" cellpadding="0" cellspacing="0" class="listHier  centerLines" style="width:auto;margin:0">
+									<tr>
+										<td>
+											<span>$howManySubAtts</span>
+										</td>
+										<td>
 
-								<label for="upload1">$howManySubAtts computer </label>
-								<input type="file" name="upload" id="upload1" class="upload"/>  or 
-								<span class="navIntraToolLink">
-									<input
-										class="disableme enabled" 
-										type="button" 
-										value="$howManySubAtts workspace or site"
-										name="attach" 
-										id="attach"
-										accesskey="a" #if(!$allowSubmit)disabled="disabled"#end
-										onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='attach'; document.addSubmissionForm.submit(); return false;"
-									/>
-								</span>	
+											<div id="clonableUpload"> 
+												<input type="file" name="upload" class="upload" id="clonableUpload"/><a class="removeAttachmentControl" onclick="event.preventDefault();$(this).parent('div').remove();resizeFrame('shrink');notifyDeleteControl()" href="#"  style="display:none"><img alt="expand" class="expand" src="/library/image/silk/delete.png" alt="(-)" title="Delete this file" /> </a>
+											</div>
+										</td>
+										<td><a href="#" id="addMoreAttachmentControls">
+												<img src="/library/image/silk/add.png" alt="+" title="Add another file" /> 
+											</a>
+											<span class="inactive" id="addMoreAttachmentControlsInactive" style="display:none">
+												<img src="/library/image/silk/add.png" alt="+" title="Add another file"  style="opacity:0.4;filter:alpha(opacity=40) !important;"/> 
+											</span>
+										</td>
+										<td>
+											<span class="navIntraToolLink">
+												<input
+													class="disableme enabled" 
+													type="button" 
+													value="$howManySubAttsLinks"
+													name="attach" 
+													id="attach"
+													accesskey="a" #if(!$allowSubmit) disabled="disabled"#end
+													onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='attach'; document.addSubmissionForm.submit(); return false;"
+												/>
+											</span>	
+										</td>
+									</tr>	
+									<tr>
+										<td></td>
+										<td id="clonedHolder"></td>
+										<td></td>
+										<td></td>										
+										</tr>
+								</table>	
+								
 							#end
 						#end
-					</p>
+					</div>
 				#end
 				</div>
 				## for single file upload case
@@ -813,7 +867,7 @@
 								value="$tlang.getString("gen.can")"
 								onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='cancel'; document.addSubmissionForm.submit(); return false;"
 							/>
-							<span class="messageInformation">Don't forget to save or submit</span>
+							<span class="messageInformation">$tlang.getString("stuviewsubm.submitreminder")</span>
 					#end
 				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 			</div>
