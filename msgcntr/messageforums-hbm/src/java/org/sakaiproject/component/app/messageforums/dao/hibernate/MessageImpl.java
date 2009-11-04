@@ -35,437 +35,417 @@ import org.sakaiproject.api.app.messageforums.Topic;
 public class MessageImpl extends MutableEntityImpl implements Message
 {
 
-  private static final Log LOG = LogFactory.getLog(MessageImpl.class);
+	private static final Log LOG = LogFactory.getLog(MessageImpl.class);
 
-  private String title;
-  private String body;
-  private String author;
-  private Set attachmentsSet; // = new HashSet();
-  private String label;
-  private Message inReplyTo;
-  private String gradebook;
-  private String gradebookAssignment;
-  private String typeUuid;
-  private Boolean approved;
-  private Boolean draft;
-  private Topic topic;
-  private Boolean hasAttachments = Boolean.FALSE;
-  private String gradeComment;
-  private String gradeAssignmentName; 
-  private Boolean deleted;
-  private Long threadId;
+	private String title;
+	private String body;
+	private String author;
+	private Set attachmentsSet; // = new HashSet();
+	private String label;
+	private Message inReplyTo;
+	private String gradebook;
+	private String gradebookAssignment;
+	private String typeUuid;
+	private Boolean approved;
+	private Boolean draft;
+	private Topic topic;
+	private Boolean hasAttachments = Boolean.FALSE;
+	private String gradeComment;
+	private String gradeAssignmentName; 
+	private Boolean deleted;
+	private Long threadId;
   private Date threadLastUpdated;
   private Long lastTreadPostId;
   private Integer numReaders;
   
-  public static Comparator ATTACHMENT_COMPARATOR;
-  public static Comparator SUBJECT_COMPARATOR;
-  public static Comparator DATE_COMPARATOR;
-  public static Comparator LABEL_COMPARATOR;
-  public static Comparator AUTHORED_BY_COMPARATOR;
+	public static Comparator ATTACHMENT_COMPARATOR;
+	public static Comparator SUBJECT_COMPARATOR;
+	public static Comparator DATE_COMPARATOR;
+	public static Comparator LABEL_COMPARATOR;
+	public static Comparator AUTHORED_BY_COMPARATOR;
 
-  public static Comparator ATTACHMENT_COMPARATOR_DESC;
-  public static Comparator SUBJECT_COMPARATOR_DESC;
-  public static Comparator DATE_COMPARATOR_DESC;
-  public static Comparator LABEL_COMPARATOR_DESC;
-  public static Comparator AUTHORED_BY_COMPARATOR_DESC;
-  
-  // indecies for hibernate
-  //private int tindex;
+	public static Comparator ATTACHMENT_COMPARATOR_DESC;
+	public static Comparator SUBJECT_COMPARATOR_DESC;
+	public static Comparator DATE_COMPARATOR_DESC;
+	public static Comparator LABEL_COMPARATOR_DESC;
+	public static Comparator AUTHORED_BY_COMPARATOR_DESC;
 
-  public Topic getTopic()
-  {
-    return topic;
-  }
+	// indecies for hibernate
+	//private int tindex;
 
-  public void setTopic(Topic topic)
-  {
-    this.topic = topic;
-  }
+	public Topic getTopic()
+	{
+		return topic;
+	}
 
-  public MessageImpl()
-  {
-    attachmentsSet = new HashSet();
-  }
+	public void setTopic(Topic topic)
+	{
+		this.topic = topic;
+	}
 
-  public Boolean getDraft()
-  {
-    return draft;
-  }
+	public MessageImpl()
+	{
+		attachmentsSet = new HashSet();
+	}
 
-  public void setDraft(Boolean draft)
-  {
-    this.draft = draft;
-  }
+	public Boolean getDraft()
+	{
+		return draft;
+	}
 
-  public Boolean getHasAttachments()
-  {
-    return hasAttachments;
-  }
+	public void setDraft(Boolean draft)
+	{
+		this.draft = draft;
+	}
 
-  public void setHasAttachments(Boolean hasAttachments)
-  {
-    this.hasAttachments = hasAttachments;
-  }
-  
-  public Boolean getApproved()
-  {
-    return approved;
-  }
+	public Boolean getHasAttachments()
+	{
+		return hasAttachments;
+	}
 
-  public void setApproved(Boolean approved)
-  {
-    this.approved = approved;
-  }
+	public void setHasAttachments(Boolean hasAttachments)
+	{
+		this.hasAttachments = hasAttachments;
+	}
 
-  public Set getAttachmentsSet() {
-      return attachmentsSet;
-  }
+	public Boolean getApproved()
+	{
+		return approved;
+	}
 
-  public void setAttachmentsSet(Set attachmentsSet) {
-      this.attachmentsSet = attachmentsSet;
-  }
-  
-  public List getAttachments()
-  {
-    return Util.setToList(attachmentsSet);
-  }
+	public void setApproved(Boolean approved)
+	{
+		this.approved = approved;
+	}
 
-  public void setAttachments(List attachments)
-  {
-    this.attachmentsSet = Util.listToSet(attachments);
-  }
+	public Set getAttachmentsSet() {
+		return attachmentsSet;
+	}
 
-  public String getAuthor()
-  {
-    return author;
-  }
+	public void setAttachmentsSet(Set attachmentsSet) {
+		this.attachmentsSet = attachmentsSet;
+	}
 
-  public void setAuthor(String author)
-  {
-    this.author = author;
-  }
+	public List getAttachments()
+	{
+		return Util.setToList(attachmentsSet);
+	}
 
-  public String getBody()
-  {
-    return body;
-  }
+	public void setAttachments(List attachments)
+	{
+		this.attachmentsSet = Util.listToSet(attachments);
+	}
 
-  public void setBody(String body)
-  {
-    this.body = body;
-  }
+	public String getAuthor()
+	{
+		return author;
+	}
 
-  public String getGradebook()
-  {
-    return gradebook;
-  }
+	public void setAuthor(String author)
+	{
+		this.author = author;
+	}
 
-  public void setGradebook(String gradebook)
-  {
-    this.gradebook = gradebook;
-  }
+	public String getBody()
+	{
+		return body;
+	}
 
-  public String getGradebookAssignment()
-  {
-    return gradebookAssignment;
-  }
+	public void setBody(String body)
+	{
+		this.body = body;
+	}
 
-  public void setGradebookAssignment(String gradebookAssignment)
-  {
-    this.gradebookAssignment = gradebookAssignment;
-  }
+	public String getGradebook()
+	{
+		return gradebook;
+	}
 
-  public Message getInReplyTo()
-  {
-    return inReplyTo;
-  }
+	public void setGradebook(String gradebook)
+	{
+		this.gradebook = gradebook;
+	}
 
-  public void setInReplyTo(Message inReplyTo)
-  {
-    this.inReplyTo = inReplyTo;
-  }
+	public String getGradebookAssignment()
+	{
+		return gradebookAssignment;
+	}
 
-  public String getLabel()
-  {
-    return label;
-  }
+	public void setGradebookAssignment(String gradebookAssignment)
+	{
+		this.gradebookAssignment = gradebookAssignment;
+	}
 
-  public void setLabel(String label)
-  {
-    this.label = label;
-  }
+	public Message getInReplyTo()
+	{
+		return inReplyTo;
+	}
 
-  public String getTitle()
-  {
-    return title;
-  }
+	public void setInReplyTo(Message inReplyTo)
+	{
+		this.inReplyTo = inReplyTo;
+	}
 
-  public void setTitle(String title)
-  {
-    this.title = title;
-  }
+	public String getLabel()
+	{
+		return label;
+	}
 
-  public String getTypeUuid()
-  {
-    return typeUuid;
-  }
+	public void setLabel(String label)
+	{
+		this.label = label;
+	}
 
-  public void setTypeUuid(String typeUuid)
-  {
-    this.typeUuid = typeUuid;
-  }
+	public String getTitle()
+	{
+		return title;
+	}
 
-  public Boolean getDeleted() {
-	  return deleted;
-  }
+	public void setTitle(String title)
+	{
+		this.title = title;
+	}
 
-  public void setDeleted(Boolean deleted) 
-  {
-	this.deleted = deleted;
-  }
+	public String getTypeUuid()
+	{
+		return typeUuid;
+	}
 
-  public String toString()
-  {
-  	return "Message/" + id;
-    //return "Message.id:" + id;
-  }
-  
-  public boolean equals(Object obj) {
-      if (obj != null && obj instanceof Message) {
-          return getId().equals(((Message)obj).getId());
-      }
-      return false;
-  }
+	public void setTypeUuid(String typeUuid)
+	{
+		this.typeUuid = typeUuid;
+	}
 
-  // needs a better impl
-  public int hashCode() {
-      return getId() == null ? 0 : getId().hashCode();
-  }
+	public Boolean getDeleted() {
+		return deleted;
+	}
 
-  // //////////////////////////////////////////////////////////////////////
-  // helper methods for collections
-  // //////////////////////////////////////////////////////////////////////
+	public void setDeleted(Boolean deleted) 
+	{
+		this.deleted = deleted;
+	}
+
+	public String toString()
+	{
+		return "Message/" + id;
+		//return "Message.id:" + id;
+	}
+
+	public boolean equals(Object obj) {
+		if (obj != null && obj instanceof Message) {
+			return getId().equals(((Message)obj).getId());
+		}
+		return false;
+	}
+
+	// needs a better impl
+	public int hashCode() {
+		return getId() == null ? 0 : getId().hashCode();
+	}
+
+	// //////////////////////////////////////////////////////////////////////
+	// helper methods for collections
+	// //////////////////////////////////////////////////////////////////////
 
 
 
-  public void addAttachment(Attachment attachment)
-  {
-    if (LOG.isDebugEnabled())
-    {
-      LOG.debug("addAttachment(Attachment " + attachment + ")");
-    }
+	public void addAttachment(Attachment attachment)
+	{
+		if (LOG.isDebugEnabled())
+		{
+			LOG.debug("addAttachment(Attachment " + attachment + ")");
+		}
 
-    if (attachment == null)
-    {
-      throw new IllegalArgumentException("attachment == null");
-    }
+		if (attachment == null)
+		{
+			throw new IllegalArgumentException("attachment == null");
+		}
 
-    attachment.setMessage(this);
-    attachmentsSet.add(attachment);
-    
-    if (!hasAttachments.booleanValue()){
-      hasAttachments = Boolean.TRUE;
-    }
-    
-  }
+		attachment.setMessage(this);
+		attachmentsSet.add(attachment);
 
-  public void removeAttachment(Attachment attachment)
-  {
-    if (LOG.isDebugEnabled())
-    {
-      LOG.debug("removeAttachment(Attachment " + attachment + ")");
-    }
+		if (!hasAttachments.booleanValue()){
+			hasAttachments = Boolean.TRUE;
+		}
 
-    if (attachment == null)
-    {
-      throw new IllegalArgumentException("Illegal attachment argument passed!");
-    }
+	}
 
-    attachment.setMessage(null);
-    attachmentsSet.remove(attachment);  
-    
-    if (attachmentsSet.size() == 0){
-      hasAttachments = Boolean.FALSE;
-    }
-  }
+	public void removeAttachment(Attachment attachment)
+	{
+		if (LOG.isDebugEnabled())
+		{
+			LOG.debug("removeAttachment(Attachment " + attachment + ")");
+		}
 
-//  public int getTindex()
-//  {
-//    try
-//    {
-//      return getTopic().getMessages().indexOf(this);
-//    }
-//    catch (Exception e)
-//    {
-//      return tindex;
-//    }
-//  }
-//
-//  public void setTindex(int tindex)
-//  {
-//    this.tindex = tindex;
-//  }
+		if (attachment == null)
+		{
+			throw new IllegalArgumentException("Illegal attachment argument passed!");
+		}
 
-  // ============================================
-  static
-  {
-    SUBJECT_COMPARATOR = new Comparator()
-    {
-      public int compare(Object message, Object otherMessage)
-      {
-        if (message != null && otherMessage != null
-            && message instanceof Message && otherMessage instanceof Message)
-        {
-          String msg = ((Message) message).getTitle();
-          String msg2 = ((Message) otherMessage).getTitle();
-          return msg.compareTo(msg2);
-        }
-        return -1;
+		attachment.setMessage(null);
+		attachmentsSet.remove(attachment);  
 
-      }
-    };
+		if (attachmentsSet.size() == 0){
+			hasAttachments = Boolean.FALSE;
+		}
+	}
 
-    DATE_COMPARATOR = new Comparator()
-    {
-      public int compare(Object message, Object otherMessage)
-      {
-        if (message != null && otherMessage != null
-            && message instanceof Message && otherMessage instanceof Message)
-        {
-          Date msg = ((Message) message).getCreated();
-          Date msg2 = ((Message) otherMessage).getCreated();
-          return msg.compareTo(msg2);
-        }
-        return -1;
-      }
-    };
+	//  public int getTindex()
+	//  {
+	//    try
+	//    {
+	//      return getTopic().getMessages().indexOf(this);
+	//    }
+	//    catch (Exception e)
+	//    {
+	//      return tindex;
+	//    }
+	//  }
+	//
+	//  public void setTindex(int tindex)
+	//  {
+	//    this.tindex = tindex;
+	//  }
 
-    AUTHORED_BY_COMPARATOR = new Comparator()
-    {
-      public int compare(Object message, Object otherMessage)
-      {
-        if (message != null && otherMessage != null
-            && message instanceof Message && otherMessage instanceof Message)
-        {
-          String msg = ((Message) message).getAuthor();
-          String msg2 = ((Message) otherMessage).getAuthor();
-          return msg.compareTo(msg2);
-        }
-        return -1;
-      }
-    };
+	// ============================================
+	static
+	{
+		SUBJECT_COMPARATOR = new Comparator()
+		{
+			public int compare(Object message, Object otherMessage)
+			{
+				if (message != null && otherMessage != null
+						&& message instanceof Message && otherMessage instanceof Message)
+				{
+					String msg = ((Message) message).getTitle();
+					String msg2 = ((Message) otherMessage).getTitle();
+					return msg.compareTo(msg2);
+				}
+				return -1;
 
-    LABEL_COMPARATOR = new Comparator()
-    {
+			}
+		};
 
-      public int compare(Object message, Object otherMessage)
-      {
-        if (message != null && otherMessage != null
-            && message instanceof Message && otherMessage instanceof Message)
-        {
-          String msg = ((Message) message).getLabel();
-          String msg2 = ((Message) otherMessage).getLabel();
-          return msg.compareTo(msg2);
-        }
-        return -1;
-      }
+		DATE_COMPARATOR = new Comparator()
+		{
+			public int compare(Object message, Object otherMessage)
+			{
+				if (message != null && otherMessage != null
+						&& message instanceof Message && otherMessage instanceof Message)
+				{
+					Date msg = ((Message) message).getCreated();
+					Date msg2 = ((Message) otherMessage).getCreated();
+					return msg.compareTo(msg2);
+				}
+				return -1;
+			}
+		};
 
-    };
+		AUTHORED_BY_COMPARATOR = new Comparator()
+		{
+			public int compare(Object message, Object otherMessage)
+			{
+				if (message != null && otherMessage != null
+						&& message instanceof Message && otherMessage instanceof Message)
+				{
+					String msg = ((Message) message).getAuthor();
+					String msg2 = ((Message) otherMessage).getAuthor();
+					return msg.compareTo(msg2);
+				}
+				return -1;
+			}
+		};
 
-    
-    // TODO: make more generic and reuse the above
-    
-    SUBJECT_COMPARATOR_DESC = new Comparator()
-    {
-      public int compare(Object message, Object otherMessage)
-      {
-        if (message != null && otherMessage != null
-            && message instanceof Message && otherMessage instanceof Message)
-        {
-          String msg2 = ((Message) message).getTitle();
-          String msg = ((Message) otherMessage).getTitle();
-          return msg.compareTo(msg2);
-        }
-        return -1;
+		LABEL_COMPARATOR = new Comparator()
+		{
 
-      }
-    };
+			public int compare(Object message, Object otherMessage)
+			{
+				if (message != null && otherMessage != null
+						&& message instanceof Message && otherMessage instanceof Message)
+				{
+					String msg = ((Message) message).getLabel();
+					String msg2 = ((Message) otherMessage).getLabel();
+					return msg.compareTo(msg2);
+				}
+				return -1;
+			}
 
-    DATE_COMPARATOR_DESC = new Comparator()
-    {
-      public int compare(Object message, Object otherMessage)
-      {
-        if (message != null && otherMessage != null
-            && message instanceof Message && otherMessage instanceof Message)
-        {
-          Date msg2 = ((Message) message).getCreated();
-          Date msg = ((Message) otherMessage).getCreated();
-          return msg.compareTo(msg2);
-        }
-        return -1;
-      }
-    };
+		};
 
-    AUTHORED_BY_COMPARATOR_DESC = new Comparator()
-    {
-      public int compare(Object message, Object otherMessage)
-      {
-        if (message != null && otherMessage != null
-            && message instanceof Message && otherMessage instanceof Message)
-        {
-          String msg2 = ((Message) message).getAuthor();
-          String msg = ((Message) otherMessage).getAuthor();
-          return msg.compareTo(msg2);
-        }
-        return -1;
-      }
-    };
 
-    LABEL_COMPARATOR_DESC = new Comparator()
-    {
+		// TODO: make more generic and reuse the above
 
-      public int compare(Object message, Object otherMessage)
-      {
-        if (message != null && otherMessage != null
-            && message instanceof Message && otherMessage instanceof Message)
-        {
-          String msg2 = ((Message) message).getLabel();
-          String msg = ((Message) otherMessage).getLabel();
-          return msg.compareTo(msg2);
-        }
-        return -1;
-      }
+		SUBJECT_COMPARATOR_DESC = new Comparator()
+		{
+			public int compare(Object message, Object otherMessage)
+			{
+				if (message != null && otherMessage != null
+						&& message instanceof Message && otherMessage instanceof Message)
+				{
+					String msg2 = ((Message) message).getTitle();
+					String msg = ((Message) otherMessage).getTitle();
+					return msg.compareTo(msg2);
+				}
+				return -1;
 
-    };
+			}
+		};
 
-  }
+		DATE_COMPARATOR_DESC = new Comparator()
+		{
+			public int compare(Object message, Object otherMessage)
+			{
+				if (message != null && otherMessage != null
+						&& message instanceof Message && otherMessage instanceof Message)
+				{
+					Date msg2 = ((Message) message).getCreated();
+					Date msg = ((Message) otherMessage).getCreated();
+					return msg.compareTo(msg2);
+				}
+				return -1;
+			}
+		};
+		AUTHORED_BY_COMPARATOR_DESC = new Comparator()
+		{
+			public int compare(Object message, Object otherMessage)
+			{
+				if (message != null && otherMessage != null
+						&& message instanceof Message && otherMessage instanceof Message)
+				{
+					String msg2 = ((Message) message).getAuthor();
+					String msg = ((Message) otherMessage).getAuthor();
+					return msg.compareTo(msg2);
+				}
+				return -1;
+			}
+		};
 
-  public String getGradeComment()
-  {
-    return gradeComment;
-  }
+		LABEL_COMPARATOR_DESC = new Comparator()
+		{
 
-  public void setGradeComment(String gradeComment)
-  {
-    this.gradeComment = gradeComment;
-  }
+			public int compare(Object message, Object otherMessage)
+			{
+				if (message != null && otherMessage != null
+						&& message instanceof Message && otherMessage instanceof Message)
+				{
+					String msg2 = ((Message) message).getLabel();
+					String msg = ((Message) otherMessage).getLabel();
+					return msg.compareTo(msg2);
+				}
+				return -1;
+			}
 
-  public String getGradeAssignmentName()
-  {
-    return gradeAssignmentName;
-  }
+		};
 
-  public void setGradeAssignmentName(String gradeAssignmentName)
-  {
-    this.gradeAssignmentName = gradeAssignmentName;
-  }
+	}
 
  
 	public Date getDateThreadlastUpdated() {
 		
 		return threadLastUpdated;
 	}
+
 
 	public Long getThreadId() {
 		
@@ -491,15 +471,36 @@ public class MessageImpl extends MutableEntityImpl implements Message
 		
 	}
 
+	public String getGradeComment()
+	{
+		return gradeComment;
+	}
+
+	public void setGradeComment(String gradeComment)
+	{
+		this.gradeComment = gradeComment;
+	}
+
+	public String getGradeAssignmentName()
+	{
+		return gradeAssignmentName;
+	}
+
+	public void setGradeAssignmentName(String gradeAssignmentName)
+	{
+		this.gradeAssignmentName = gradeAssignmentName;
+	}
+
+
 	public Integer getNumReaders() {
-	
 		return numReaders;
 	}
 
 	public void setNumReaders(Integer numReaders) {
 		this.numReaders = numReaders;
-		
+
 	}
+
 
 }
 

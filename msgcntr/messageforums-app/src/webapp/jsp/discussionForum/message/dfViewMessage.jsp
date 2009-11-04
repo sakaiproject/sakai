@@ -183,6 +183,12 @@
 						</h:outputText>
 						<h:outputText value=" #{msgs.cdfm_closeb}"  styleClass="textPanelFooter" />
  		</h:panelGroup>
+	                 <h:outputText value="" />
+	  	 
+ 	  	                 <h:outputText value="#{msgs.cdfm_readby}" />
+ 	  	                 <h:panelGroup>
+ 	  	                         <h:outputText value="#{ForumTool.selectedMessage.message.numReaders}" />
+	  	                 </h:panelGroup>
 					<%--navigation cell --%>
 					<h:panelGroup styleClass="itemNav">
     		<h:commandLink action="#{ForumTool.processDisplayPreviousMsg}" rendered="#{ForumTool.selectedMessage.hasPre}" 

@@ -206,6 +206,7 @@ public interface MessageForumsMessageManager {
 	 * @return
 	 */
 	public List getPendingMsgsInTopic(final Long topicId);
+
 	
 	/**
 	 * Get all forum messages in a site

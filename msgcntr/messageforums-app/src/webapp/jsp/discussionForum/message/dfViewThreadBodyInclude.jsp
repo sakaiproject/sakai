@@ -47,7 +47,10 @@
 			onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);"
 			onmouseover="this.src=this.src.replace(/email\.png/, 'email_open.png');"
 			onmouseout="this.src=this.src.replace(/email_open\.png/, 'email.png');" />
-	
+
+		<h:outputText value="#{msgs.cdfm_readby}" />
+		<h:outputText value="#{message.message.numReaders}" />	
+
 		<h:outputText value="<br />" escape="false" rendered="#{!empty message.attachList}" />
 		<h:panelGroup rendered="#{!empty message.attachList}">
 			<h:dataTable value="#{message.attachList}" var="eachAttach" styleClass="attachListJSF" rendered="#{!empty message.attachList}">

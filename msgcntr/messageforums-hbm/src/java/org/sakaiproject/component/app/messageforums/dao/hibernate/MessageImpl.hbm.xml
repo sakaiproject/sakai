@@ -50,6 +50,8 @@
       <column name="GRADECOMMENT" not-null="false" />
     </property>
 	<property name="gradeAssignmentName" column="GRADEASSIGNMENTNAME" type="string" not-null="false"/>
+	<property name="numReaders" column="NUM_READERS" type="integer"/>
+
     
     <set name="attachmentsSet" lazy="true" order-by="created desc" cascade="all-delete-orphan">
         <key column="m_surrogateKey"/>                        

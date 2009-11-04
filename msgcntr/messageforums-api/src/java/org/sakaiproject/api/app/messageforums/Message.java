@@ -69,14 +69,6 @@ public interface Message extends MutableEntity {
     public String getGradeAssignmentName();
     public void setGradeAssignmentName(String gradeAssignmentName);
     
-
-
-    public void setNumReaders(Integer numReaders);
-    /**
-     * 
-     * @return the number of unique users who have read the message
-     */
-    public Integer getNumReaders();
     
     /**
      *  Set the threadId - efectivelly the id of the top level message in this thread
@@ -115,4 +107,20 @@ public interface Message extends MutableEntity {
      */
     public Long getThreadLastPost();
     
+    /**
+     * Set the number of Unique users who have read the message
+     * @param numReaders
+     */
+    
+    public void setNumReaders(Integer numReaders);
+    /**
+     * 
+     * @return the number of unique users who have read the message
+     */
+    public Integer getNumReaders();
+    
+    
+    
+    
+
 }

@@ -793,6 +793,20 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         if (trulyUnread) {
         	Message message = (Message) getMessageById(messageId);
+        	//increment the message count
+        	Integer nr = message.getNumReaders();
+        	if (nr == null)
+        		nr = new Integer(0);
+        	nr = new Integer(nr.intValue() + 1);
+        	message.setNumReaders(nr);
+        	LOG.debug("set Message readers count to: " + nr);
+        	//baseForum is probably null
+        	if (message.getTopic().getBaseForum()==null && message.getTopic().getOpenForum() != null)
+        		message.getTopic().setBaseForum((BaseForum) message.getTopic().getOpenForum());
+        	
+        	this.saveMessage(message);
+        	
+        	
         	if (isMessageFromForums(message))
         		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_READ, getEventMessage(message), false));
         	else
@@ -890,10 +904,11 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         {
         	LOG.error("null attribute(s) for saving message in MessageForumsMessageManagerImpl.saveMessage");
         }
-        
-        	
 
+        if (message.getNumReaders() == null)
+        	message.setNumReaders(0);
         
+
         getHibernateTemplate().saveOrUpdate(message);
     
         if (logEvent) {

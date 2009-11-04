@@ -6722,6 +6722,7 @@ public class DiscussionForumTool
 		 return showForumLinksInNav;
 	 }
 
+
 	 
 	 public String processActionShowFullTextForAll() {
 		 return "dfStatisticsAllAuthoredMessageForOneUser";
