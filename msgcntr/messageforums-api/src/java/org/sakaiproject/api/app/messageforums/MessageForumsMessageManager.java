@@ -206,4 +206,11 @@ public interface MessageForumsMessageManager {
 	 * @return
 	 */
 	public List getPendingMsgsInTopic(final Long topicId);
+	
+	/**
+	 * Get all forum messages in a site
+	 * @param siteId
+	 * @return a list of messages
+	 */
+	public List<Message> getAllMessagesInSite(String siteId);
 }

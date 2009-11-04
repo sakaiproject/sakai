@@ -469,6 +469,43 @@
     <bean id="org.sakaiproject.api.app.messageforums.ForumMessageEntityProvider" class="org.sakaiproject.component.app.messageforums.entity.ForumMessageEntityProviderImpl">
 		<property name="forumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
     </bean>
+
+	<bean id="forumsAdaptor"
+		class="org.sakaiproject.component.app.messageforums.entity.MessageForumsEntityContentProducer"
+		singleton="true" init-method="init">
+		<property name="searchService">
+			<ref bean="org.sakaiproject.search.api.SearchService" />
+		</property>
+		<property name="searchIndexBuilder">
+			<ref bean="org.sakaiproject.search.api.SearchIndexBuilder" />
+		</property>
+		<property name="serverConfigurationService">
+			<ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
+		</property>
+		<property name="toolName">
+			<value>forums</value>
+		</property>
+		<property name="entityBroker" ref="org.sakaiproject.entitybroker.EntityBroker" />
+		<property name="messageForumsMessageManager"
+			ref="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager" />
+		<property name="UIPermissionManager"
+			ref="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager" />
+		<property name="discussionForumManager"
+			ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
+		<property name="developerHelperService"
+			ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+		<property name="addEvents">
+			<list>
+				<value>forums.new</value>
+			</list>
+		</property>
+		<property name="removeEvents">
+			<list>
+				<value>forums.delete</value>
+			</list>
+		</property>
+	</bean>
+    
     
     <bean id="org.sakaiproject.api.app.messageforums.EmailNotificationManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager">
