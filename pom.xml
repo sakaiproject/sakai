@@ -124,7 +124,6 @@
                 <module>roster</module>
                 <module>rwiki</module>
                 <module>sakai-mock</module>
-                <module>sam</module>
                 <module>samples</module>
                 <module>sections</module>
                 <module>site</module>
@@ -190,7 +189,6 @@
                 <module>roster</module>
                 <module>rwiki</module>
                 <module>sakai-mock</module>
-                <module>sam</module>
                 <module>samples</module>
                 <module>sections</module>
                 <module>site</module>
@@ -211,7 +209,7 @@
             <id>cafe</id>
             <modules>
                 <module>kernel-deploy</module>
-		<module>framework-shared-deploy</module>
+		        <module>framework-shared-deploy</module>
                 <module>access</module>
                 <module>alias</module>
                 <module>announcement/announcement-api/api</module>
