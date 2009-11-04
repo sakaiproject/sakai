@@ -788,7 +788,14 @@ public class SiteAddParticipantHandler {
 				// the format of per user entry is: email address,first name,last name
 				// comma separated
 				String[] nonOfficialAccountParts  = nonOfficialAccountAll.split(",");
-				
+				if (nonOfficialAccountParts.length > 3)
+				{
+					// if the input contains more fields than "email address,first name,last name", show an alert
+					targettedMessageList.addMessage(new TargettedMessage("add.multiple.nonofficial.alert.more",
+			                new Object[] {nonOfficialAccountAll}, 
+			                TargettedMessage.SEVERITY_ERROR));
+					break;
+				}
 				String userEid = nonOfficialAccountParts[0];
 				// get last name, if any
 				String userLastName = "";
