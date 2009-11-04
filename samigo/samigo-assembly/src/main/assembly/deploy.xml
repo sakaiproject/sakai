@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+    <id>tomcat-overlay</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <dependencySets>
+        <!-- stuff that goes into shared -->
+        <dependencySet>
+            <outputDirectory>shared/lib</outputDirectory>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.sakaiproject.samigo:samigo-api:jar:*</include>
+                <include>org.sakaiproject.samigo:samigo-help:jar:*</include>
+                <include>org.sakaiproject.samigo:samigo-hibernate:jar:*</include>
+                <include>org.sakaiproject.samigo:samigo-services:jar:*</include>
+            </includes>
+        </dependencySet>
+        <!-- stuff that goes into components -->
+        <dependencySet>
+            <outputDirectory>components/samigo-pack</outputDirectory>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.sakaiproject.samigo:samigo-pack:war:*</include>
+            </includes>
+            <unpack>true</unpack>
+        </dependencySet>
+        <!-- stuff that goes into webapps -->
+        <dependencySet>
+            <outputDirectory>webapps</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}.war</outputFileNameMapping>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.sakaiproject.samigo:samigo-app:war:*</include>
+            </includes>
+            <unpack>false</unpack>
+        </dependencySet>
+    </dependencySets>
+    <fileSets>
+        <fileSet>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>${project.basedir}/README*</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+</assembly>
