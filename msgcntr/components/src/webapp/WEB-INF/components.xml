@@ -16,6 +16,8 @@
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/Label.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/DBMembershipItemImpl.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/PermissionLevelImpl.hbm.xml</value>
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/EmailNotification.hbm.xml</value>
+                  
             </list>
         </property>
     </bean>
@@ -468,4 +470,31 @@
 		<property name="forumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager" />
     </bean>
     
+    <bean id="org.sakaiproject.api.app.messageforums.EmailNotificationManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        </property>
+        <property name="target">
+            <bean class="org.sakaiproject.component.app.messageforums.EmailNotificationManagerImpl" singleton="true" init-method="init">
+                <property name="sessionFactory">
+                    <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+                </property>
+ 				<property name="userDirectoryService">
+				    <ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
+				</property>				
+		        <property name="eventTrackingService">
+        		    <ref bean="org.sakaiproject.event.api.EventTrackingService"/>
+		        </property>
+		        <property name="discussionForumManager">
+		        	<ref bean="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"/>
+		        </property>
+            </bean>           
+        </property>
+         <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property> 
+    </bean>
+ 
 </beans>

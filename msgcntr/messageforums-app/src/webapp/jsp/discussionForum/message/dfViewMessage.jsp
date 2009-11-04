@@ -141,6 +141,11 @@
 			  			<h:graphicImage value="/../../library/image/silk/award_star_gold_1.png" alt="#{msgs.cdfm_button_bar_grade}" />
 		  				<h:outputText value=" #{msgs.cdfm_button_bar_grade}" />
 		  			</h:commandLink>
+					<%-- Email --%>
+					<h:outputLink id="createEmail1" value="mailto:#{ForumTool.selectedMessage.authorEmail}?subject=Feedback on #{ForumTool.selectedMessage.message.title}"  rendered="#{ForumTool.selectedMessage.userCanEmail}"> 
+						<h:graphicImage value="/../../library/image/silk/email_edit.png" alt="#{msgs.cdfm_button_bar_email}" />
+  						<h:outputText value="#{msgs.cdfm_button_bar_email}"/>
+					</h:outputLink>					 
 			  	</h:panelGroup>
 				<h:panelGroup  style="display:block;white-space:nowrap;">
 			  		<h:commandLink title="#{msgs.cdfm_button_bar_deny}" action="#{ForumTool.processDfMsgDeny}" 

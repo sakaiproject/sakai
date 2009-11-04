@@ -1383,4 +1383,22 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 		      
 		      return bForum;      
 		}
+		
+		public Topic getTopicByIdWithMemberships(final Long topicId) {
+
+			if (topicId == null) {
+				throw new IllegalArgumentException("Null Argument");
+			}      
+
+			HibernateCallback hcb = new HibernateCallback() {
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
+					Query q = session.getNamedQuery("findTopicByIdWithMemberships");
+					q.setParameter("id", topicId, Hibernate.LONG);              
+					return q.uniqueResult();
+				}
+			};
+
+			return (Topic) getHibernateTemplate().execute(hcb);
+		} 
+
 }

@@ -87,6 +87,14 @@
 						"moderate" link when it is not a moderated context, or when the message is mine?) --%>
 				<h:outputText escape="false" value="<div id=\"#{message.message.id}_advanced_box\" class=\"otherActions\" style=\"margin:2px 0;\">" />
 					<%-- link to grade --%>
+                                        <%-- Email --%>
+                                        <h:panelGroup rendered="#{message.userCanEmail}">
+                                                <h:outputLink id="createEmail1" value="mailto:#{message.authorEmail}?subject=Feedback on #{message.message.title}">
+                                                        <h:outputText value="#{msgs.cdfm_button_bar_email}"/>
+                                                </h:outputLink>
+                                        <h:outputText value=" #{msgs.cdfm_toolbar_separator} " />
+                                        </h:panelGroup>
+
 	<h:panelGroup rendered="#{ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist}">
 		<h:commandLink action="#{ForumTool.processDfMsgGrdFromThread}" value="#{msgs.cdfm_button_bar_grade}">
 			<f:param value="#{message.message.id}" name="messageId" />
@@ -143,4 +151,7 @@
 	</h:panelGroup>
 		</h:panelGroup>
 	<%-- close the div with class of hierItemBlock --%>
-<h:outputText escape="false" value="</div>"  rendered="#{!message.deleted}"/>
+<h:outputText escape="false" value="</div>"  rendered="#{!message.deleted}"/>=======
+
+	<f:verbatim></div></f:verbatim>
+

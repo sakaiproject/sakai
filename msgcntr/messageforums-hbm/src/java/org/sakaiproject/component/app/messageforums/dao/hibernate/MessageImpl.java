@@ -53,7 +53,7 @@ public class MessageImpl extends MutableEntityImpl implements Message
   private String gradeComment;
   private String gradeAssignmentName; 
   private Boolean deleted;
-
+  
   public static Comparator ATTACHMENT_COMPARATOR;
   public static Comparator SUBJECT_COMPARATOR;
   public static Comparator DATE_COMPARATOR;
@@ -456,4 +456,8 @@ public class MessageImpl extends MutableEntityImpl implements Message
   {
     this.gradeAssignmentName = gradeAssignmentName;
   }
+
+ 
 }
+
+

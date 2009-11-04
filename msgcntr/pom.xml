@@ -31,6 +31,7 @@
         <groupId>org.sakaiproject.msgcntr</groupId>
         <artifactId>sakai-messageforums-api</artifactId>
         <version>1.5-SNAPSHOT</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.msgcntr</groupId>

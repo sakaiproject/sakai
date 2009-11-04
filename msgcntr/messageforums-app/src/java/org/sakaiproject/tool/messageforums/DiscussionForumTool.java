@@ -51,6 +51,8 @@ import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
+import org.sakaiproject.api.app.messageforums.EmailNotification;
+import org.sakaiproject.api.app.messageforums.EmailNotificationManager;
 import org.sakaiproject.api.app.messageforums.MembershipManager;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
@@ -77,8 +79,8 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -91,6 +93,7 @@ import org.sakaiproject.tool.messageforums.ui.DiscussionForumBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionMessageBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionTopicBean;
 import org.sakaiproject.tool.messageforums.ui.MessageForumStatisticsBean;
+import org.sakaiproject.tool.messageforums.ui.EmailNotificationBean;
 import org.sakaiproject.tool.messageforums.ui.PermissionBean;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -112,6 +115,7 @@ public class DiscussionForumTool
   private static final String FORUMS_MAIN = "forumsMain";
   private static final String TEMPLATE_SETTING = "dfTemplateSettings";
   private static final String TEMPLATE_ORGANIZE = "dfTemplateOrganize";
+  private static final String WATCH_SETTING = "dfWatchSettings";
   private static final String FORUM_DETAILS = "dfForumDetail";
   private static final String FORUM_SETTING = "dfForumSettings";
   private static final String FORUM_SETTING_REVISE = "dfReviseForumSettings";
@@ -290,10 +294,12 @@ public class DiscussionForumTool
   private UIPermissionsManager uiPermissionsManager;
   private MessageForumsTypeManager typeManager;
   private MembershipManager membershipManager;
-  private PermissionLevelManager permissionLevelManager;  
+  private PermissionLevelManager permissionLevelManager; 
+  private EmailNotificationManager emailNotificationManager;
   
   
   private Boolean instructor = null;
+  private Boolean sectionTA = null;
   private Boolean newForum = null;
   private Boolean displayPendingMsgQueue = null;
   private List siteRoles = null;
@@ -313,7 +319,11 @@ public class DiscussionForumTool
   private int functionClick = 0;
 
   
-  /**
+  // email notification options
+  private EmailNotificationBean watchSettingsBean;
+   
+
+   /**
    * 
    */
   public DiscussionForumTool()
@@ -397,6 +407,19 @@ public class DiscussionForumTool
     	instructor = forumManager.isInstructor();
     }
     return instructor.booleanValue();
+  }
+  
+  /**
+   * @return
+   */
+  public boolean isSectionTA()
+  {
+    LOG.debug("isSectionTA()");
+    if (sectionTA == null)
+    {
+    	sectionTA = forumManager.isSectionTA();
+    }
+    return sectionTA.booleanValue();
   }
 
   /**
@@ -2573,6 +2596,9 @@ public class DiscussionForumTool
           	decoMsg.setRevise(decoTopicGetIsReviseAny 
           			|| (decoTopicGetIsReviseOwn && isOwn));
           	decoMsg.setUserCanDelete(decoTopicGetIsDeleteAny || (isOwn && decoTopicGetIsDeleteOwn));
+      		LOG.debug("decoMsg.setUserCanEmail()");
+      		LOG.debug("isSectionTA()" + isSectionTA());
+          	decoMsg.setUserCanEmail(isInstructor() || isSectionTA());
           	decoTopic.addMessage(decoMsg);
           }
         }
@@ -2881,6 +2907,7 @@ public class DiscussionForumTool
 
   public String processDfMsgPost()
   {
+	LOG.debug("processDfMsgPost()");
     Message dMsg = constructMessage();
 
     if(selectedTopic == null)
@@ -2909,7 +2936,7 @@ public class DiscussionForumTool
 
     // refresh page with unread status     
     selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
-    
+    sendEmailNotification(dMsg,new DiscussionMessageBean(dMsg, messageManager));
     return ALL_MESSAGES;
   }
 
@@ -2945,6 +2972,7 @@ public class DiscussionForumTool
 
   public Message constructMessage()
   {
+    	LOG.debug("....in constructMessage()");
     Message aMsg;
 
     aMsg = messageManager.createDiscussionMessage();
@@ -3540,6 +3568,8 @@ public class DiscussionForumTool
 	    			messageManager);
 	    }
     }
+    
+    sendEmailNotification(dMsg,selectedThreadHead);
     return processActionGetDisplayThread();
   }
 
@@ -3964,6 +3994,8 @@ public class DiscussionForumTool
     selectedTopic.insertMessage(new DiscussionMessageBean(dMsg, messageManager));
     selectedTopic.getTopic().addMessage(dMsg);
 
+    //notify watchers
+    sendEmailNotification(dMsg,selectedThreadHead);
     this.composeBody = null;
     this.composeLabel = null;
     this.composeTitle = null;
@@ -6193,6 +6225,9 @@ public class DiscussionForumTool
   	  
   	  return getUserId();
 	}
+	
+ 	
+
 
 	public boolean isDisableLongDesc()
 	{
@@ -6469,6 +6504,7 @@ public class DiscussionForumTool
 		 selectedMessage.setRevise(selectedTopic.getIsReviseAny() 
 					|| (selectedTopic.getIsReviseOwn() && isOwn));  
 		 selectedMessage.setUserCanDelete(selectedTopic.getIsDeleteAny() || (isOwn && selectedTopic.getIsDeleteOwn()));
+		 selectedMessage.setUserCanEmail(isInstructor() || isSectionTA());
 	 }
 	 
 	 public boolean isAllowedToGradeItem() {
@@ -6484,6 +6520,7 @@ public class DiscussionForumTool
 	 public boolean getShowForumLinksInNav() {
 		 return showForumLinksInNav;
 	 }
+
 	 
 	 public String processActionShowFullTextForAll() {
 		 return "dfStatisticsAllAuthoredMessageForOneUser";
@@ -6534,4 +6571,169 @@ public class DiscussionForumTool
 	 
 	 
 	 
+	 
+	 // STANFORD: added for email notification feature 
+	public void setEmailNotificationManager(
+				EmailNotificationManager emailnotifyManager) {
+			this.emailNotificationManager = emailnotifyManager;
+	}
+		
+	public EmailNotificationBean getWatchSettingsBean() {
+		return watchSettingsBean;
+	}
+		
+	public void setWatchSettingsBean(EmailNotificationBean watchSettingsBean) {
+		this.watchSettingsBean = watchSettingsBean;
+	}
+
+	public String processActionWatch() {
+		LOG.debug("processActionWatch()");
+		User curruser = UserDirectoryService.getCurrentUser();
+		LOG.debug("got user: " + curruser.getDisplayId());
+		EmailNotification userwatchoption = emailNotificationManager.getEmailNotification(curruser.getId());
+		LOG.debug("userwatchoption = " + userwatchoption.getNotificationLevel());
+		if (watchSettingsBean == null){
+			LOG.debug("watchsettingbean = null");
+			watchSettingsBean = new EmailNotificationBean(userwatchoption);
+		}
+		watchSettingsBean.setEmailNotification(userwatchoption);
+		LOG.debug("watchsettingbean's user = " + watchSettingsBean.getEmailNotification().getUserId() + "  ,emailoption= " + 
+				watchSettingsBean.getEmailNotification().getNotificationLevel());
+		return WATCH_SETTING;
+	}
+	
+	
+	public String processActionSaveEmailNotificationOption() {
+		LOG.debug("ForumTool.processActionSaveEmailNotificationOption()");
+		if ((watchSettingsBean !=null) && (watchSettingsBean.getEmailNotification()!=null)){
+			LOG.debug("watchSettingsBean !=null) && (watchSettingsBean.getEmailNotification()!=null");
+			EmailNotification newoption = watchSettingsBean.getEmailNotification();
+			emailNotificationManager.saveEmailNotification(newoption);
+		}
+		else {
+			LOG.debug("ForumTool.processActionSaveEmailNotificationOption(): Can not save because watchSettingsBean is null");
+			// should come here
+		}
+		
+		return gotoMain();
+	}
+	
+	public List<String> getUserEmailsToBeNotifiedByLevel(List userlist) {
+		List<String> emaillist = new ArrayList<String>();
+		
+		
+		List<User> userMailList  = UserDirectoryService.getUsers(userlist);
+		for (int i = 0; i < userMailList.size(); i++) {
+			User user = userMailList.get(i); 
+
+
+			String useremail = user.getEmail();
+			if (useremail != null && !"".equalsIgnoreCase(useremail)) {
+				if (LOG.isDebugEnabled()) {
+					LOG.debug("Username = " + user.getDisplayId()
+							+ " , useremail : " + useremail);
+				}
+				emaillist.add(useremail);
+			}
+
+
+		}
+		
+		return emaillist;
+		
+	}
+	
+	public void  sendEmailNotification(Message reply, DiscussionMessageBean currthread){
+		LOG.debug("ForumTool.sendEmailNotification()");
+		
+		// get all users with notification level = 2
+		List<String> userlist = emailNotificationManager.getUsersToBeNotifiedByLevel( EmailNotification.EMAIL_REPLY_TO_ANY_MESSAGE);
+		
+		if (LOG.isDebugEnabled()){
+			LOG.debug("total count of Level 2 users = " + userlist.size());
+			Iterator iter1 = userlist.iterator();
+			while (iter1.hasNext()){
+				LOG.debug("level 2 users notify all msg:  sendEmailNotification: sending to  " + (String) iter1.next());
+			}
+		}
+		
+		// need to get a list of authors for all messages on the current thread, and then check their notification level. 
+		//selectedThread  is a list of DiscussionMessageBean in the current thread.
+		
+		Iterator iter = selectedThread.iterator();
+		while (iter.hasNext()){
+			DiscussionMessageBean decoMessage = (DiscussionMessageBean) iter.next();
+			String threadauthor = decoMessage.getMessage().getCreatedBy();
+			EmailNotification authorNotificationLevel = emailNotificationManager.getEmailNotification(threadauthor);
+			// only add level 1 users , since we've already got level2 users. 
+			if (EmailNotification.EMAIL_REPLY_TO_MY_MESSAGE.equalsIgnoreCase(authorNotificationLevel.getNotificationLevel())){
+				if (LOG.isDebugEnabled()){
+					LOG.debug("The author: " + threadauthor + " wants to be notified");
+				}
+				userlist.add(threadauthor);
+			}
+			
+		}
+		// now printing out all users = # of messages in the thread - level 2 users
+		
+		if (LOG.isDebugEnabled()){
+			LOG.debug("now printing out all users, including duplicates count = " + userlist.size());
+			Iterator iter1 = userlist.iterator();
+			while (iter1.hasNext()){
+				LOG.debug("sendEmailNotification: should include both level 1 and level 2 sending to  " + (String) iter1.next());
+			}
+		}
+		
+		// now we need to remove duplicates:
+		Set<String> set = new HashSet<String>();
+		set.addAll(userlist);
+		
+//		avoid overhead :D
+			LOG.debug("set size " + set.size());
+			LOG.debug("userlist size " + userlist.size());
+		if(set.size() < userlist.size()) {
+			userlist.clear();
+			userlist.addAll(set);
+		}
+		
+		// now printing out all users again after removing duplicate
+		
+		if (LOG.isDebugEnabled()){
+			LOG.debug("now printing out all users again after removing duplicate count = " + userlist.size());
+			Iterator iter1 = userlist.iterator();
+			while (iter1.hasNext()){
+				LOG.debug("" + (String) iter1.next());
+			}
+		}
+		
+		//now we need to filer the list\
+		if (LOG.isDebugEnabled())
+			LOG.debug("About to filter list");
+		List<String> finalList = emailNotificationManager.filterUsers(userlist, currthread.getMessage().getTopic());
+		
+		List<String> useremaillist =  getUserEmailsToBeNotifiedByLevel(finalList);
+		
+		
+		
+		if (LOG.isDebugEnabled()){
+			LOG.debug("now printint unique emails , count = " + useremaillist.size());
+			Iterator useremaillistiter = useremaillist.iterator();
+			while (useremaillistiter.hasNext()){
+				LOG.debug("sendEmailNotification: sending to  " + (String) useremaillistiter.next());
+			}
+		}
+		
+		if (userlist.isEmpty()) {
+			LOG.debug("No users need to notified.");
+			return;
+		}
+		
+		ForumsEmailService emailService = new ForumsEmailService(useremaillist, reply, currthread);
+		emailService.send();
+		
+		
+	}
+	
+	
 }
+

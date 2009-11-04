@@ -68,4 +68,6 @@ public interface Message extends MutableEntity {
     public String getGradeAssignmentName();
     public void setGradeAssignmentName(String gradeAssignmentName);
     
+ 
+    
 }

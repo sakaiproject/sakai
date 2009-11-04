@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+	<class name="org.sakaiproject.component.app.messageforums.dao.hibernate.EmailNotificationImpl" table="MFR_EMAIL_NOTIFICATION_T" optimistic-lock="version">
+
+		<id name="id">
+			<column name="ID" not-null="true" length="19" />
+			<generator class="native">
+				<param name="sequence">MFR_EMAIL_NOTIFICATION_S</param>
+			</generator>
+		</id>
+
+		<!--  Version number used for optimistic locking -->
+		<version name="version" column="VERSION" />
+
+		<property name="userId">
+			<column name="USER_ID" length="255" not-null="true" index="MFR_EMAIL_USER_ID_I" />
+		</property>
+		<property name="contextId">
+			<column name="CONTEXT_ID" length="255" not-null="true" index="MFR_EMAIL_CONTEXT_ID_I" />
+		</property>
+
+		<property name="notificationLevel">
+			<column name="NOTIFICATION_LEVEL" not-null="true" />
+		</property>
+
+	</class>
+
+	<query name="findEmailNotificationByUserId">
+		<![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.EmailNotificationImpl as us where us.userId = :userId and us.contextId = :contextId]]>
+	</query>
+
+ 	<query name="findUserIdsByNotificationLevel">
+		<![CDATA[select distinct us.userId from org.sakaiproject.component.app.messageforums.dao.hibernate.EmailNotificationImpl as us where us.contextId = :contextId and us.notificationLevel= :level]]>
+	</query>
+
+</hibernate-mapping>
+

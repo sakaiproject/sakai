@@ -323,6 +323,15 @@
         	<to-view-id>/jsp/discussionForum/message/dfPendingMessages.jsp</to-view-id>
         	<redirect/>
         </navigation-case>
+        
+        
+        <!--******************* navigation cases for setting watch forums options ***************************-->
+        <navigation-case>
+        	<from-outcome>dfWatchSettings</from-outcome>
+        	<to-view-id>/jsp/discussionForum/area/dfWatchSettings.jsp</to-view-id>
+        	<redirect />
+        </navigation-case>
+        
          
         <!--******************* navigation cases for synoptic ***************************-->
         <navigation-case>
@@ -410,6 +419,14 @@
             <property-name>areaManager</property-name>
             <value>#{Components["org.sakaiproject.api.app.messageforums.AreaManager"]}</value>
         </managed-property>  
+        
+         <managed-property>
+            <description>Email Notification Manager</description>
+            <property-name>emailNotificationManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.EmailNotificationManager"]}</value>
+        </managed-property>  
+        
+        
     </managed-bean>
     <managed-bean>
         <description>Private Messages Tool</description>

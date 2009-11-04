@@ -23,11 +23,15 @@ package org.sakaiproject.tool.messageforums.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.Message;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.messageforums.DiscussionForumTool;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 
 
@@ -39,6 +43,9 @@ import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
  */
 public class DiscussionMessageBean
 {
+	
+  private static final Log LOG = LogFactory.getLog(DiscussionForumTool.class);
+
   private boolean selected;
   private Message message;
   private boolean read;
@@ -57,6 +64,9 @@ public class DiscussionMessageBean
   private boolean revise;
   private boolean deleted;
   private boolean userCanDelete;
+  private boolean userCanEmail;
+  private String authorEmail;
+
 
   private MessageForumsMessageManager messageManager;
 
@@ -329,4 +339,33 @@ public class DiscussionMessageBean
   {
 	message.setDeleted(deleted);
   }
+  
+  public boolean isUserCanEmail() {
+	return userCanEmail;
+  }
+	
+  public void setUserCanEmail(boolean userCanEmail) {
+	this.userCanEmail = userCanEmail;
+  }
+  
+	public String getAuthorEmail()
+	{
+LOG.debug("... getAuthorEmail(): ");
+		String userEmail = "";
+		try
+		{
+			String currentUserId = this.getMessage().getCreatedBy();
+LOG.debug("... currentUserId : " + currentUserId);
+			
+			userEmail = UserDirectoryService.getUser(currentUserId).getEmail(); 		
+LOG.debug("... getAuthorEmail(): userEmail = " + userEmail);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+LOG.debug("... before return getAuthorEmail(): userEmail = " + userEmail);
+		
+		return userEmail;
+	}
 }

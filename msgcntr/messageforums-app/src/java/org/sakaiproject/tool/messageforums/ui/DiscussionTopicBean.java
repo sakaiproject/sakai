@@ -40,7 +40,7 @@ import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 public class DiscussionTopicBean
 {
   private static final Log LOG = LogFactory
-  .getLog(DiscussionForumBean.class);
+  .getLog(DiscussionTopicBean.class);
   private DiscussionTopic topic;
   private int totalNoMessages;
   private int unreadNoMessages;
