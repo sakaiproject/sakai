@@ -8,10 +8,22 @@
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
 </jsp:useBean>
 
+<%
+  	String thisId = request.getParameter("panel");
+  	if (thisId == null) 
+  	{
+    	thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
+ 	}
+%>
+
 <html>
 
 <head>
 <script src="js/frameAdjust.js" type="text/javascript"></script>
+<script type="text/javascript" src="/library/js/jquery.js"></script>
+
+
+
 <script language="Javascript"><!--
 	/*
 	 *	To use this, call this page with a GET parameter of "url"
@@ -63,37 +75,38 @@
 		if (notloading) {
 			notloading = false;
 		
-			// checking if ff browser since animated gif
-			// does not spin when href changed, so use AJAX
-			var agt=navigator.userAgent.toLowerCase();
 
-			if (agt.indexOf("firefox") != -1) {
-				getActualFile();
-			}
-			else {
+			setTimeout( function() {
+				var urlEl = getEl("longPageLoad");
+				var url = urlEl.value;
 
-				setTimeout( function() {
-					var urlEl = getEl("longPageLoad");
-					var url = urlEl.value;
+				// just page name, construct url from current href
+				if (isFilename(url)) {
+					var urlCurrent = window.location.href;
+					var lastSlash = urlCurrent.lastIndexOf('/');
 
-					// just page name, construct url from current href
-					if (isFilename(url)) {
-						var urlCurrent = window.location.href;
-						var lastSlash = urlCurrent.lastIndexOf('/');
-
-						if (lastSlash > 0) {
-							url = urlCurrent.substring(0, lastSlash) + '/' + url;
-						}
-						else {
-						// what to do? what to do?
-						}
-
-						// GET parameter added so other page will know it
-						// was called by this wait page (and not from iframe)
-						location.href = url + "?time=1";
+					if (lastSlash > 0) {
+						url = urlCurrent.substring(0, lastSlash) + '/' + url;
 					}
-				}, 300);
-			}
+					else {
+					// what to do? what to do?
+					}
+
+					// GET parameter added so other page will know it
+					// was called by this wait page (and not from iframe)
+					location.href = url + "?time=1";
+				}
+			}, 300);
+
+
+			SynMainLite.setupTableParsers();
+			SynMainLite.setupTableHeaders();
+			SynMainLite.setupTableSortImageOffset();
+			//hide all checkboxes that are used to reset original values
+			$(".unchangedValue").hide();
+			SynMainLite.toggleHiddenRows();
+
+		 	
 		}
 	}
 
@@ -104,6 +117,12 @@
 	function unload() {
 		// turn off animation when page finished
 		window.clearInterval(intervalid);
+		SynMainLite.setupTableParsers();
+		SynMainLite.setupTableHeaders();
+		SynMainLite.setupTableSortImageOffset();
+		//hide all checkboxes that are used to reset original values
+		$(".unchangedValue").hide();
+		SynMainLite.toggleHiddenRows();
 	}
 
 	/*
@@ -153,10 +172,170 @@
 
 <f:view>
   <sakai:view>
+  	  <sakai:script contextBase="/sakai-messageforums-tool" path="/js/jquery.tablesorter.js"/>
+	  <sakai:script contextBase="/sakai-messageforums-tool" path="/js/synopticLite.js"/>
   	  <sakai:script contextBase="/sakai-messageforums-tool" path="/js/popupscripts.js"/>
+  	  <script type="text/javascript">
+
+//this function (setupTableParsers) setting has to be in the jsp page b/c of the msgs.syn_no_messages string.
+var SynMainLite = SynMainLite || {};
+
+SynMainLite.setupTableHeaders = function (){
+	//since f:facet only allows one tag (no nested tags either) this will set up the hyperlink (only used to
+	//make the user realize they can click the headers for sorting) to have the correct text from the msgs variable
+	try{
+	$("#hideHeader")[0].innerHTML = "<h:outputText value="#{msgs.syn_hide}"/>";
+	$("#siteHeader")[0].innerHTML = '<h:outputText value="#{msgs.syn_site_heading}"/>';
+	$("#messagesHeader")[0].innerHTML = '<h:outputText value="#{msgs.syn_private_heading}"/>';
+	$("#forumsHeader")[0].innerHTML = '<h:outputText value="#{msgs.syn_discussion_heading}"/>';
+	$("#showOptions")[0].innerHTML = '<h:outputText value="#{msgs.syn_options}"/>';
+	}catch(e){
+	}
+};
+
+
+SynMainLite.setupTableParsers = function (){
+
+	 //add message count orderer
+	 $.tablesorter.addParser({
+	        id: 'newMessageCount',
+	        is: function(s) {
+	            return false;
+	        },
+	        format: function(s) {
+	            //this is used to parse out the number of messages from the html, or 
+	            //convert 'none' to the number 0, so we can order numberically
+	            return s.toLowerCase().replace('<h:outputText value="#{msgs.syn_no_messages}"/>',0).replace(new RegExp('</a>$'), '').replace(new RegExp('<a.*>'),'').replace(new RegExp('<img.*>'),'');           
+	        },
+	        type: "numeric"
+	    });  
+	 //add title sorter
+	    $.tablesorter.addParser({
+	        id: 'title',
+	        is: function(s) {
+	            return false;
+	        },
+	        format: function(s) {
+	            //this is used to parse out the number of messages from the html, or 
+	            //convert 'none' to the number 0, so we can order numberically
+	            return s.toLowerCase().replace(new RegExp('</a>$'), '').replace(new RegExp('<a.*>'),'');           
+	        },
+	        type: "text"
+	    });
+	    
+	    //add checkbox sorter
+	    $.tablesorter.addParser({
+	        id: 'checkbox',
+	        is: function(s) {
+	            return false;
+	        },
+	        format: function(s) {
+	            var integer = 0;
+	            if (s.toLowerCase().match(/<input[^>]*checked*/i)) {
+	                integer = 1;
+	            }
+	            return integer;
+	        },
+	        type: "numeric"
+	    }); 
+	    
+	    //apply orderers to workspaceTable
+	    $(".workspaceTable").tablesorter({ 
+		    
+	        headers: {
+	    	0: { 
+	    	    sorter:'checkbox' 
+	    	},
+	    	1: { 
+	 	       sorter:'title' 
+	    	}, 
+	    	2: { 
+		        sorter:'newMessageCount' 
+		    }, 
+	        3: { 
+	            sorter:'newMessageCount' 
+	        } 
+	        } 
+	    });
+
+	};
+
+
+
+
+
+
+
+	function resize(){
+		mySetMainFrameHeightViewCell('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
+	}
+	
+	
+function mySetMainFrameHeightViewCell(id)
+{
+	// run the script only if this window's name matches the id parameter
+	// this tells us that the iframe in parent by the name of 'id' is the one who spawned us
+	if (typeof window.name != "undefined" && id != window.name) return;
+
+	var frame = parent.document.getElementById(id);
+	if (frame)
+	{
+
+		var objToResize = (frame.style) ? frame.style : frame;
+  
+    // SAK-11014 revert           if ( false ) {
+
+		var height; 		
+		var offsetH = document.body.offsetHeight;
+		var innerDocScrollH = null;
+
+		if (typeof(frame.contentDocument) != 'undefined' || typeof(frame.contentWindow) != 'undefined')
+		{
+			// very special way to get the height from IE on Windows!
+			// note that the above special way of testing for undefined variables is necessary for older browsers
+			// (IE 5.5 Mac) to not choke on the undefined variables.
+ 			var innerDoc = (frame.contentDocument) ? frame.contentDocument : frame.contentWindow.document;
+			innerDocScrollH = (innerDoc != null) ? innerDoc.body.scrollHeight : null;
+		}
+	
+		if (document.all && innerDocScrollH != null)
+		{
+			// IE on Windows only
+			height = innerDocScrollH;
+		}
+		else
+		{
+			// every other browser!
+			height = offsetH;
+		}
+   // SAK-11014 revert		} 
+
+   // SAK-11014 revert             var height = getFrameHeight(frame);
+
+		// here we fudge to get a little bigger
+		var newHeight = height + 40;
+
+		// but not too big!
+		if (newHeight > 32760) newHeight = 32760;
+
+		// capture my current scroll position
+		var scroll = findScroll();
+
+		// resize parent frame (this resets the scroll as well)
+		objToResize.height=newHeight + "px";
+
+		// reset the scroll, unless it was y=0)
+		if (scroll[1] > 0)
+		{
+			var position = findPosition(frame);
+			parent.window.scrollTo(position[0]+scroll[0], position[1]+scroll[1]);
+		}
+	}
+}
+</script> 
   
   	<%-- Used to store where to redirect to so javascript can grab it. --%>
-    <h:inputHidden id="longPageLoad" value="#{msgs.longPageLoad}" />
+    <h:inputHidden id="longPageLoad" value="#{msgs.longPageLoadLite}" />
 
 	<%-- Firefox browser needs to use AJAX to get actual page. Retrieved page then
 		 stuffed into this div --%>
@@ -166,41 +345,44 @@
   /* if MyWorkspace, display wait gif and message. if not, just redirect to synMain. */
   FacesContext context = FacesContext.getCurrentInstance();
   Application app = context.getApplication();
-  ValueBinding binding = app.createValueBinding("#{mfSynopticBean}");
-  MessageForumSynopticBean mfsb = (MessageForumSynopticBean) binding.getValue(context);
+  ValueBinding binding = app.createValueBinding("#{mfSynopticBeanLite}");
+  MessageForumSynopticBeanLite mfsb = (MessageForumSynopticBeanLite) binding.getValue(context);
   
-  if (mfsb.isMyWorkspace()) {
+  if (mfsb.isMyWorkspace() && mfsb.isDisableMyWorkspace()){
+	  if(mfsb.getDisableMyWorkspaceDisabledMessage() != null && !"".equals(mfsb.getDisableMyWorkspaceDisabledMessage())){
+%>	  
+		<h:outputText value="#{mfSynopticBeanLite.disableMyWorkspaceDisabledMessage}"/>
+<%	  
+	  }else{
 %>
-<table width="99%" height="90%">
-<tr>
-	<td align="center" valign="middle">
-		<table cellpadding="0" cellspacing="0" width="16%">
-		<tr>
-		  <td>
-		  	<h:graphicImage value="#{msgs.wait_icon}" />
-		  </td>
-		  <td>&nbsp;&nbsp;</td>
-		  <td align="right" width="50">
-			<span id="progress">
-				<h:outputText value="#{msgs.loading_wait}" style="font-size: 14pt;" />
-			</span>
-		  </td>
-		</tr>
-		</table>
-	</td>
-</tr>
-</table>
+		<h:outputText value="#{msgs.synopticToolDisabled}"/>		  
+<%
+	  }
+  }else if (mfsb.isMyWorkspace() && mfsb.isUserRequestSynoptic()){
+%>
+<div>
+<br>
+<h:graphicImage url="#{mfSynopticBeanLite.serverUrl}/library/image/silk/email.png"/>
+&nbsp;<a href="#" onclick="load();"><h:outputText value="#{msgs.viewSynopticInfo}"/></a>
+</div>
+<% 
+	}else{
+%>
+	
+	<script language="JavaScript"> 
+	// Call javascript function to grab actual long loading page
+	load();
+	</script>
+<%
 
-<% } %>
-
-	<f:verbatim></div></f:verbatim>
+   }
+%>
+  <f:verbatim></div></f:verbatim>
 
   </sakai:view>
 </f:view>
 
-<script language="JavaScript"> 
-	// Call javascript function to grab actual long loading page
-	load();
-</script>
+
 
 </html>
+

@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+	<class 
+	    name="org.sakaiproject.component.app.messageforums.dao.hibernate.SynopticMsgcntrItemImpl"
+	    table="MFR_SYNOPTIC_ITEM"
+	    optimistic-lock="version">
+	
+	  <id name="id">
+	    <column name="SYNOPTIC_ITEM_ID" not-null="true" length="19" />
+	    <generator class="native">
+	      <param name="sequence">MFR_SYNOPTIC_ITEM_S</param>
+	    </generator>
+	  </id>
+	  
+	  <!--  Version number used for optimistic locking -->
+	  <version name="version" column="VERSION" />
+	
+	 	<property name="userId" column="USER_ID" length="36" not-null="true" index="MFR_SYN_STU_I" unique-key="MRF_SYN_UNIQUE"/>
+	 	<property name="siteId" column="SITE_ID" length="99" not-null="true" index="MFR_SYN_STU_I" unique-key="MRF_SYN_UNIQUE"/>
+	 	<property name="siteTitle" column="SITE_TITLE" type="string"/>
+	 	<property name="newMessagesCount" column="NEW_MESSAGES_COUNT" type="int"/>
+	 	<property name="messagesLastVisit" column="MESSAGES_LAST_VISIT_DT" type="java.util.Date"/>
+	 	<property name="newForumCount" column="NEW_FORUM_COUNT" type="int"/>
+	 	<property name="forumLastVisit" column="FORUM_LAST_VISIT_DT" type="java.util.Date"/>
+	 	<property name="hideItem" column="HIDE_ITEM" type="boolean"/>	     
+	</class>
+
+	<query name="findWorkspaceSynopticMsgcntrItems">
+	  <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.SynopticMsgcntrItemImpl as s where s.userId = :userId]]>
+	</query>
+	
+	<query name="findSiteSynopticMsgcntrItems">
+	  <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.SynopticMsgcntrItemImpl as s where s.userId = :userId and s.siteId = :siteId ]]>
+	</query>
+	
+	<query name="findSynopticMsgcntrItemById">
+	  <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.SynopticMsgcntrItemImpl as s where s.id = :id ]]>
+	</query>
+	
+	<query name="updateSiteTitles">
+		Update org.sakaiproject.component.app.messageforums.dao.hibernate.SynopticMsgcntrItemImpl set siteTitle = :siteTitle where siteId = :siteId
+	</query>
+	
+	<database-object>
+	  <create>create index MRF_SYN_USER on MFR_SYNOPTIC_ITEM (USER_ID)</create>
+	  <drop></drop>
+	  <dialect-scope name="org.hibernate.dialect.Oracle9Dialect"/>
+	 </database-object>
+	
+	
+
+</hibernate-mapping>
+

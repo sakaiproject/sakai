@@ -48,8 +48,10 @@ import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
+import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.UnreadStatus;
+import org.sakaiproject.api.app.messageforums.cover.SynopticMsgcntrManagerCover;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
@@ -64,9 +66,9 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class MessageForumsMessageManagerImpl extends HibernateDaoSupport implements MessageForumsMessageManager {
@@ -768,6 +770,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     {
     	// to only add to event log if not read
     	boolean trulyUnread;
+    	boolean originalReadStatus;
     	
     	if (messageId == null || topicId == null || userId == null) {
             LOG.error("markMessageReadForUser failed with topicId: " + topicId + ", messageId: " + messageId + ", userId: " + userId);
@@ -780,10 +783,12 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         if (status == null) {
             status = new UnreadStatusImpl();
             trulyUnread = true;
+            originalReadStatus = false;
         }
         else {
         	trulyUnread = status.getRead().booleanValue();
         	trulyUnread = !trulyUnread;
+        	originalReadStatus = status.getRead().booleanValue();
         }
         
         status.setTopicId(topicId);
@@ -791,8 +796,10 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         status.setUserId(userId);
         status.setRead(new Boolean(read));
 
+        Message message = (Message) getMessageById(messageId);
+        boolean isMessageFromForums = isMessageFromForums(message);
         if (trulyUnread) {
-        	Message message = (Message) getMessageById(messageId);
+
         	//increment the message count
         	Integer nr = message.getNumReaders();
         	if (nr == null)
@@ -803,17 +810,149 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         	//baseForum is probably null
         	if (message.getTopic().getBaseForum()==null && message.getTopic().getOpenForum() != null)
         		message.getTopic().setBaseForum((BaseForum) message.getTopic().getOpenForum());
-        	
+
         	this.saveMessage(message);
-        	
-        	
-        	if (isMessageFromForums(message))
+
+
+        	if (isMessageFromForums)
         		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_READ, getEventMessage(message), false));
         	else
         		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_READ, getEventMessage(message), false));
         }
-        	
+
         getHibernateTemplate().saveOrUpdate(status);
+
+        
+        if (isMessageFromForums){
+        	if(!originalReadStatus && read){
+        		//status is changing from Unread to Read, so decrement unread number for Synoptic Messages
+        		decrementForumSynopticToolInfo(userId, ToolManager.getCurrentPlacement().getContext(), SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+        	}else if(originalReadStatus && !read){
+        		//status is changing from Read to Unread, so increment unread number for Synoptic Messages
+        		incrementForumSynopticToolInfo(userId, ToolManager.getCurrentPlacement().getContext(), SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+        	}
+        }else{
+        	if(!originalReadStatus && read){
+        		//status is changing from Unread to Read, so decrement unread number for Synoptic Messages
+        		decrementMessagesSynopticToolInfo(userId, ToolManager.getCurrentPlacement().getContext(), SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+        	}else if(originalReadStatus && !read){
+        		//status is changing from Read to Unread, so increment unread number for Synoptic Messages
+        		incrementMessagesSynopticToolInfo(userId, ToolManager.getCurrentPlacement().getContext(), SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+        	}
+        }
+
+    }
+
+    public void decrementForumSynopticToolInfo(String userId, String siteId, int numOfAttempts) {
+    	try {
+    		SynopticMsgcntrManagerCover.decrementForumSynopticToolInfo(userId, siteId);
+    	} catch (HibernateOptimisticLockingFailureException holfe) {
+
+    		// failed, so wait and try again
+    		try {
+    			Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
+    		} catch (InterruptedException e) {
+    			e.printStackTrace();
+    		}
+
+    		numOfAttempts--;
+
+    		if (numOfAttempts <= 0) {
+    			System.out
+    			.println("MessageForumsMessageManagerImpl: decrementForumSynopticToolInfo: HibernateOptimisticLockingFailureException no more retries left");
+    			holfe.printStackTrace();
+    		} else {
+    			System.out
+    			.println("MessageForumsMessageManagerImpl: decrementForumSynopticToolInfo: HibernateOptimisticLockingFailureException: attempts left: "
+    					+ numOfAttempts);
+    			decrementForumSynopticToolInfo(userId, siteId, numOfAttempts);
+    		}
+    	}
+
+    }
+
+    public void incrementForumSynopticToolInfo(String userId, String siteId, int numOfAttempts) {
+    	try {
+    		SynopticMsgcntrManagerCover.incrementForumSynopticToolInfo(userId, siteId);
+    	} catch (HibernateOptimisticLockingFailureException holfe) {
+
+    		// failed, so wait and try again
+    		try {
+    			Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
+    		} catch (InterruptedException e) {
+    			e.printStackTrace();
+    		}
+
+    		numOfAttempts--;
+
+    		if (numOfAttempts <= 0) {
+    			System.out
+    			.println("MessageForumsMessageManagerImpl: incrementForumSynopticToolInfo: HibernateOptimisticLockingFailureException no more retries left");
+    			holfe.printStackTrace();
+    		} else {
+    			System.out
+    			.println("MessageForumsMessageManagerImpl: incrementForumSynopticToolInfo: HibernateOptimisticLockingFailureException: attempts left: "
+    					+ numOfAttempts);
+    			incrementForumSynopticToolInfo(userId, siteId, numOfAttempts);
+    		}
+    	}
+
+    }
+
+    public void decrementMessagesSynopticToolInfo(String userId, String siteId, int numOfAttempts) {
+    	try {
+    		SynopticMsgcntrManagerCover.decrementMessagesSynopticToolInfo(userId, siteId);
+    	} catch (HibernateOptimisticLockingFailureException holfe) {
+
+    		// failed, so wait and try again
+    		try {
+    			Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
+    		} catch (InterruptedException e) {
+    			e.printStackTrace();
+    		}
+
+    		numOfAttempts--;
+
+    		if (numOfAttempts <= 0) {
+    			System.out
+    			.println("MessageForumsMessageManagerImpl: decrementMessagesSynopticToolInfo: HibernateOptimisticLockingFailureException no more retries left");
+    			holfe.printStackTrace();
+    		} else {
+    			System.out
+    			.println("MessageForumsMessageManagerImpl: decrementMessagesSynopticToolInfo: HibernateOptimisticLockingFailureException: attempts left: "
+    					+ numOfAttempts);
+    			decrementMessagesSynopticToolInfo(userId, siteId, numOfAttempts);
+    		}
+    	}
+
+    }
+
+    public void incrementMessagesSynopticToolInfo(String userId, String siteId, int numOfAttempts) {
+    	try {
+    		SynopticMsgcntrManagerCover.incrementMessagesSynopticToolInfo(userId, siteId);
+    	} catch (HibernateOptimisticLockingFailureException holfe) {
+
+    		// failed, so wait and try again
+    		try {
+    			Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
+    		} catch (InterruptedException e) {
+    			e.printStackTrace();
+    		}
+
+    		numOfAttempts--;
+
+    		if (numOfAttempts <= 0) {
+    			System.out
+    			.println("MessageForumsMessageManagerImpl: incrementMessagesSynopticToolInfo: HibernateOptimisticLockingFailureException no more retries left");
+    			holfe.printStackTrace();
+    		} else {
+    			System.out
+    			.println("MessageForumsMessageManagerImpl: incrementMessagesSynopticToolInfo: HibernateOptimisticLockingFailureException: attempts left: "
+    					+ numOfAttempts);
+    			incrementMessagesSynopticToolInfo(userId, siteId, numOfAttempts);
+    		}
+    	}
+
     }
     
     public boolean isMessageReadForUser(final Long topicId, final Long messageId) {

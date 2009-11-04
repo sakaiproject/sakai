@@ -82,10 +82,17 @@ public interface PrivateMessageManager {
      * @return area
      */
     Area getPrivateMessageArea();
+    Area getPrivateMessageArea(String siteId);
+    
+    public PrivateForum initializePrivateMessageArea(Area area, List aggregateList, String userId, String siteId);
+    
+    public PrivateForum initializePrivateMessageArea(Area area, List aggregateList, String userId);  
     
     public PrivateForum initializePrivateMessageArea(Area area, List aggregateList);        
     
     public PrivateForum initializationHelper(PrivateForum forum, Area area);
+    
+    public PrivateForum initializationHelper(PrivateForum forum, Area area, String userId);
     
     /** 
      * create private message with type

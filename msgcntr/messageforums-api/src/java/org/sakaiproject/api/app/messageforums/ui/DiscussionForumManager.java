@@ -99,6 +99,7 @@ public interface DiscussionForumManager
    * @return
    */
   Area getDiscussionForumArea();
+  Area getDiscussionForumArea(String contextSiteId);
 
   /**
    * @param message
@@ -163,6 +164,7 @@ public interface DiscussionForumManager
    * @return
    */
   public List getDiscussionForums();
+  public List getDiscussionForums(String siteId);
   
   /**
    * @return
@@ -225,6 +227,7 @@ public interface DiscussionForumManager
    * @return
    */
   public boolean isInstructor();
+  public boolean isInstructor(String userId);
   
   /**
    * Tests if the user has instructor privileges to the site 
@@ -441,6 +444,7 @@ public interface DiscussionForumManager
   public DBMembershipItem getAreaDBMember(Set originalSet, String name, Integer type);
 
   public DBMembershipItem getDBMember(Set originalSet, String name, Integer type);
+  public DBMembershipItem getDBMember(Set originalSet, String name, Integer type, String contextSiteId);
   
   /**
    * 
@@ -519,7 +523,10 @@ public interface DiscussionForumManager
    * in role swap view this will always be false
    */
   public boolean isTopicOwner(DiscussionTopic topic);
- 	  	 
+  public boolean isTopicOwner(DiscussionTopic topic, String userId);
+  public boolean isTopicOwner(DiscussionTopic topic, String userId, String siteId);
+  public boolean isTopicOwner(Long topicId, String topicCreatedBy, String userId, String siteId);
+  
   /**
    *
    * @param forum
@@ -527,6 +534,9 @@ public interface DiscussionForumManager
    * in role swap view this will always be false
    */
   public boolean isForumOwner(DiscussionForum forum);
+  public boolean isForumOwner(DiscussionForum forum, String userId);
+  public boolean isForumOwner(DiscussionForum forum, String userId, String siteId);
+  public boolean isForumOwner(Long forumId, String forumCreatedBy, String userId, String siteId);
   
   /**
    * 

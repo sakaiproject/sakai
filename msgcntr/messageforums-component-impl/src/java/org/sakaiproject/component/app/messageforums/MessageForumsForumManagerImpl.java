@@ -42,16 +42,17 @@ import org.sakaiproject.api.app.messageforums.ActorPermissions;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
+import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
-import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.MessageForumsUser;
 import org.sakaiproject.api.app.messageforums.OpenForum;
 import org.sakaiproject.api.app.messageforums.OpenTopic;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.PrivateTopic;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionTopicImpl;
@@ -757,15 +758,19 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      * @see org.sakaiproject.api.app.messageforums.MessageForumsForumManager#createPrivateForum(java.lang.String)
      */
     public PrivateForum createPrivateForum(String title) {
+    	return createPrivateForum(title, getCurrentUser());
+    }
+    
+    public PrivateForum createPrivateForum(String title, String userId) {
         /** set all non-null properties in case hibernate flushes session before explicit save */
         PrivateForum forum = new PrivateForumImpl();        
         forum.setTitle(title);
         forum.setUuid(idManager.createUuid());
         forum.setAutoForwardEmail("");
-        forum.setOwner(getCurrentUser());        
+        forum.setOwner(userId);        
         forum.setUuid(getNextUuid());
         forum.setCreated(new Date());
-        forum.setCreatedBy(getCurrentUser());
+        forum.setCreatedBy(userId);
         forum.setSortIndex(new Integer(0));
         forum.setShortDescription("short-desc");
         forum.setExtendedDescription("ext desc");
@@ -773,8 +778,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         forum.setAutoForwardEmail("");
         forum.setPreviewPaneEnabled(Boolean.FALSE);
         forum.setModified(new Date());
-        if(getCurrentUser()!=null){
-        forum.setModifiedBy(getCurrentUser());
+        if(userId !=null){
+        	forum.setModifiedBy(userId);
         }
         forum.setTypeUuid(typeManager.getPrivateMessageAreaType());
         forum.setModerated(Boolean.FALSE);
@@ -786,6 +791,10 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
      * @see org.sakaiproject.api.app.messageforums.MessageForumsForumManager#savePrivateForum(org.sakaiproject.api.app.messageforums.PrivateForum)
      */
     public void savePrivateForum(PrivateForum forum) {
+    	savePrivateForum(forum, getCurrentUser());
+    }
+    
+    public void savePrivateForum(PrivateForum forum, String userId) {
         boolean isNew = forum.getId() == null;
 
         if (forum.getSortIndex() == null) {
@@ -793,10 +802,10 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         }
 
         forum.setModified(new Date());
-        if(getCurrentUser()!=null){
-        forum.setModifiedBy(getCurrentUser());
+        if(userId!=null){
+        forum.setModifiedBy(userId);
         }
-        forum.setOwner(getCurrentUser());
+        forum.setOwner(userId);
         getHibernateTemplate().saveOrUpdate(forum);
 
         LOG.debug("savePrivateForum executed with forumId: " + forum.getId());
@@ -954,8 +963,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         topic.setTitle(title);
         topic.setUuid(getNextUuid());        
         topic.setCreated(new Date());
-        if(getCurrentUser()!=null){
-        topic.setCreatedBy(getCurrentUser());
+        if(userId!=null){
+        topic.setCreatedBy(userId);
         }
         topic.setUserId(userId);
         topic.setShortDescription("short-desc");
@@ -963,8 +972,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         topic.setMutable(new Boolean(topicIsMutable));
         topic.setSortIndex(new Integer(0));
         topic.setModified(new Date());
-        if(getCurrentUser()!=null){
-        topic.setModifiedBy(getCurrentUser());
+        if(userId!=null){
+        topic.setModifiedBy(userId);
         }
         topic.setTypeUuid(typeManager.getPrivateMessageAreaType());
         topic.setModerated(Boolean.FALSE);
@@ -975,22 +984,31 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     /**
      * Save a private forum topic
      */
-    public void savePrivateForumTopic(PrivateTopic topic) {
-        boolean isNew = topic.getId() == null;
 
-        topic.setModified(new Date());
-        if(getCurrentUser()!=null){
-        topic.setModifiedBy(getCurrentUser());
-        }
-        getHibernateTemplate().saveOrUpdate(topic);
+    public void savePrivateForumTopic(PrivateTopic topic){
+    	savePrivateForumTopic(topic, getCurrentUser());
+    }
 
-        if (isNew) {
-            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FOLDER_ADD, getEventMessage(topic), false));
-        } else {
-            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FOLDER_REVISE, getEventMessage(topic), false));
-        }
+    public void savePrivateForumTopic(PrivateTopic topic, String userId) {
+    	savePrivateForumTopic(topic, userId, getContextId());
+    }
 
-        LOG.debug("savePrivateForumTopic executed with forumId: " + topic.getId());
+    public void savePrivateForumTopic(PrivateTopic topic, String userId, String siteId) {
+    	boolean isNew = topic.getId() == null;
+
+    	topic.setModified(new Date());
+    	if(userId != null){
+    		topic.setModifiedBy(userId);
+    	}
+    	getHibernateTemplate().saveOrUpdate(topic);
+
+    	if (isNew) {
+    		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FOLDER_ADD, getEventMessage(topic, siteId), false));
+    	} else {
+    		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FOLDER_REVISE, getEventMessage(topic, siteId), false));
+    	}
+
+    	LOG.debug("savePrivateForumTopic executed with forumId: " + topic.getId());
     }
 
     /**
@@ -1034,10 +1052,13 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         Area area = forum.getArea();
         area.removeDiscussionForum(forum);
         getHibernateTemplate().saveOrUpdate(area);
+        
+       
         //getHibernateTemplate().delete(forum);
         LOG.debug("deleteDiscussionForum executed with forumId: " + id);
     }
 
+    
     public Area getAreaByContextIdAndTypeId(final String typeId) {
         LOG.debug("getAreaByContextIdAndTypeId executing for current user: " + getCurrentUser());
         HibernateCallback hcb = new HibernateCallback() {
@@ -1069,6 +1090,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         BaseForum forum = finder.getBaseForum();
         forum.removeTopic(topic);
         getHibernateTemplate().saveOrUpdate(forum);
+        
         //getHibernateTemplate().delete(topic);
         LOG.debug("deleteOpenForumTopic executed with topicId: " + id);
     }
@@ -1079,6 +1101,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     public void deleteOpenForumTopic(OpenTopic topic) {
         eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_FORUM_REMOVE, getEventMessage(topic), false));
         getHibernateTemplate().delete(topic);
+        
         LOG.debug("deleteOpenForumTopic executed with forumId: " + topic.getId());
     }
 
@@ -1088,6 +1111,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     public void deletePrivateForumTopic(PrivateTopic topic) {
         eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FOLDER_REMOVE, getEventMessage(topic), false));
         getHibernateTemplate().delete(topic);
+        
         LOG.debug("deletePrivateForumTopic executed with forumId: " + topic.getId());
     }
 

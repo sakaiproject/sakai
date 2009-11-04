@@ -17,7 +17,7 @@
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/DBMembershipItemImpl.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/PermissionLevelImpl.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/EmailNotification.hbm.xml</value>
-                  
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/SynopticMsgcntrItem.hbm.xml</value>                  
             </list>
         </property>
     </bean>
@@ -532,6 +532,82 @@
                 <prop key="*">PROPAGATION_REQUIRED</prop>
             </props>
         </property> 
+    </bean>
+    
+    <bean id="org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager"     
+ 		  class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+         <property name="transactionManager">
+             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+         </property>
+ 		<property name="target">
+ 			<bean class="org.sakaiproject.component.app.messageforums.SynopticMsgcntrManagerImpl" singleton="true" init-method="init">
+ 				<property name="sessionFactory">
+                     <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+                 </property>
+                 <property name="pvtMessageManager">
+                     <ref bean="org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager"/>
+                 </property>   
+                
+                 <property name="uiPermissionsManager">
+                     <ref bean="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"/>
+                 </property>
+                 <property name="typeManager">
+                     <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+                 </property>
+                 <property name="forumManager">
+                     <ref bean="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"/>
+                 </property>
+                 <property name="messageManager">
+                     <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"/>
+                 </property>
+         	</bean>
+ 		</property>
+ 		
+ 		<property name="transactionAttributes">
+ 			<props>
+ 				<prop key="*">PROPAGATION_REQUIRED</prop>
+ 			</props>
+ 		</property>	
+ 
+ 	</bean>
+ 
+ 	
+ 	<bean id="org.sakaiproject.component.app.messageforums.jobs.UpdateSynopticMessageCounts"
+    		class="org.sakaiproject.component.app.messageforums.jobs.UpdateSynopticMessageCounts"
+    		init-method="init">   
+    		<property name="pvtMessageManager">
+             <ref bean="org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager"/>
+         </property>   
+        
+         <property name="uiPermissionsManager">
+             <ref bean="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"/>
+         </property>
+         <property name="typeManager">
+             <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+         </property>
+         <property name="forumManager">
+             <ref bean="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"/>
+         </property>
+         <property name="messageManager">
+             <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"/>
+         </property>
+         <property name="siteService">
+           <ref bean="org.sakaiproject.site.api.SiteService"/>
+         </property>
+    	</bean>
+    	
+    <bean id="UpdateSynopticMessageCountsJob"
+       class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+       singleton="true" init-method="init">
+       <property name="beanId">
+          <value>org.sakaiproject.component.app.messageforums.jobs.UpdateSynopticMessageCounts</value>
+       </property>
+       <property name="jobName">
+          <value>Update Synoptic Message Counts Job</value>
+       </property>
+       <property name="schedulerManager">
+          <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+       </property>
     </bean>
  
 </beans>

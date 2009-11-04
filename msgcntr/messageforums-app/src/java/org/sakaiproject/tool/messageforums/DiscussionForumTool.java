@@ -62,7 +62,9 @@ import org.sakaiproject.api.app.messageforums.OpenForum;
 import org.sakaiproject.api.app.messageforums.PermissionLevel;
 import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
 import org.sakaiproject.api.app.messageforums.PermissionsMask;
+import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.cover.SynopticMsgcntrManagerCover;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -82,6 +84,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -94,12 +97,13 @@ import org.sakaiproject.tool.messageforums.ui.DiscussionForumBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionMessageBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionTopicBean;
 import org.sakaiproject.tool.messageforums.ui.EmailNotificationBean;
-import org.sakaiproject.tool.messageforums.ui.MessageForumStatisticsBean;
 import org.sakaiproject.tool.messageforums.ui.PermissionBean;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
@@ -297,6 +301,7 @@ public class DiscussionForumTool
   private MembershipManager membershipManager;
   private PermissionLevelManager permissionLevelManager; 
   private EmailNotificationManager emailNotificationManager;
+  private SynopticMsgcntrManager synopticMsgcntrManager;
   
   
   private Boolean instructor = null;
@@ -314,8 +319,7 @@ public class DiscussionForumTool
   private int topicClickCount = 0;
   
   private String selectedMsgId;
-  private MessageForumStatisticsBean selectedStaticsUserInfo;
-  
+
   private int selectedMessageCount = 0;
   private int functionClick = 0;
 
@@ -551,6 +555,9 @@ public class DiscussionForumTool
 	     // now loop through the forums that we found earlier and turn them into forums ready to be displayed to the end user
 	     forums = new ArrayList<DiscussionForumBean>();
 	     int sortIndex = 1;
+	     int unreadMessagesCount = 0;
+	     userId = getUserId();
+
 	     for (DiscussionForum forum: tempSortedForums) {
 	       // manually set the sort index now that the list is sorted
 	       forum.setSortIndex(new Integer(sortIndex));
@@ -564,7 +571,19 @@ public class DiscussionForumTool
 	           DiscussionTopic topic = (DiscussionTopic) itor.next();
 	           DiscussionTopicBean decoTopic = topicBeans.get(topic.getId());
 	           if (decoTopic != null) decoForum.addTopic(decoTopic);
+	         }   	
+	         
+	         //itterate over all topics in the decoratedForum to add the unread message
+	         //counts to update the sypnoptic tool
+
+	         for (Iterator iterator = decoForum.getTopics().iterator(); iterator.hasNext();) {
+	        	 DiscussionTopicBean dTopicBean = (DiscussionTopicBean) iterator.next();
+	        	 //if user can read this forum topic, count the messages as well
+	        	 if(uiPermissionsManager.isRead(dTopicBean.getTopic(), decoForum.getForum(), userId)){        			
+	        		 unreadMessagesCount += dTopicBean.getUnreadNoMessages();
+	        	 }
 	         }
+
 	       }
 	 
 	       decoForum.setGradeAssign(DEFAULT_GB_ITEM);
@@ -574,11 +593,43 @@ public class DiscussionForumTool
 	           break;
 	         }
 	       }
-	 
 	       forums.add(decoForum);
 	     }
 	 
+	     //update synotpic info for forums only:
+		 setForumSynopticInfoHelper(userId, getSiteId(), unreadMessagesCount, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+		   
 	     return forums;
+  }
+  
+  public void setForumSynopticInfoHelper(String userId, String siteId,
+		  int unreadMessagesCount, int numOfAttempts) {
+	  try {
+		  // update synotpic info for forums only:
+		  getSynopticMsgcntrManager().setForumSynopticInfoHelper(userId, siteId, unreadMessagesCount);
+	  } catch (HibernateOptimisticLockingFailureException holfe) {
+
+		  // failed, so wait and try again
+		  try {
+			  Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
+		  } catch (InterruptedException e) {
+			  e.printStackTrace();
+		  }
+
+		  numOfAttempts--;
+
+		  if (numOfAttempts <= 0) {
+			  System.out
+			  .println("DiscussionForumTool: setForumSynopticInfoHelper: HibernateOptimisticLockingFailureException no more retries left");
+			  holfe.printStackTrace();
+		  } else {
+			  System.out
+			  .println("DiscussionForumTool: setForumSynopticInfoHelper: HibernateOptimisticLockingFailureException: attempts left: "
+					  + numOfAttempts);
+			  setForumSynopticInfoHelper(userId, siteId, 
+					  unreadMessagesCount, numOfAttempts);
+		  }
+	  }
 
   }
 
@@ -881,9 +932,49 @@ public class DiscussionForumTool
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEAGES_TO));
       return gotoMain();
    }
-    forumManager.deleteForum(selectedForum.getForum());
-    reset();
-    return gotoMain();
+    HashMap<String, Integer> beforeChangeHM = null;    
+    Long forumId = selectedForum.getForum().getId();
+    beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forumId, null);
+    
+   
+	  forumManager.deleteForum(selectedForum.getForum());
+
+	  if(beforeChangeHM != null)
+		  updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forumId, null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+
+	  reset();
+	  return gotoMain();
+  }
+  
+  public void updateSynopticMessagesForForumComparingOldMessagesCount(String siteId, Long forumId, Long topicId, HashMap<String, Integer> beforeChangeHM, int numOfAttempts) {
+	  try {
+		  // update synotpic info for forums only:
+		  SynopticMsgcntrManagerCover
+		  .updateSynopticMessagesForForumComparingOldMessagesCount(
+				  siteId, forumId, topicId, beforeChangeHM);
+	  } catch (HibernateOptimisticLockingFailureException holfe) {
+
+		  // failed, so wait and try again
+		  try {
+			  Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
+		  } catch (InterruptedException e) {
+			  e.printStackTrace();
+		  }
+
+		  numOfAttempts--;
+
+		  if (numOfAttempts <= 0) {
+			  System.out
+			  .println("DiscussionForumTool: updateSynopticMessagesForForumComparingOldMessagesCount: HibernateOptimisticLockingFailureException no more retries left");
+			  holfe.printStackTrace();
+		  } else {
+			  System.out
+			  .println("DiscussionForumTool: updateSynopticMessagesForForumComparingOldMessagesCount: HibernateOptimisticLockingFailureException: attempts left: "
+					  + numOfAttempts);
+			  updateSynopticMessagesForForumComparingOldMessagesCount(siteId,
+					  forumId, topicId, beforeChangeHM, numOfAttempts);
+		  }
+	  }
   }
 
   /**
@@ -1157,6 +1248,12 @@ public class DiscussionForumTool
       return null;
     }
     
+    boolean isNew = forum.getId() == null;
+    HashMap<String, Integer> beforeChangeHM = null;
+    if(!isNew){
+    	beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forum.getId(), null);
+    }
+    
     StringBuilder alertMsg = new StringBuilder();
     forum.setExtendedDescription(FormattedText.processFormattedText(forum.getExtendedDescription(), alertMsg));
     forum.setTitle(FormattedText.processFormattedText(forum.getTitle(), alertMsg));
@@ -1176,14 +1273,24 @@ public class DiscussionForumTool
       forumManager.saveForum(forum);
     //forumManager.saveForumControlPermissions(forum, forumControlPermissions);
     //forumManager.saveForumMessagePermissions(forum, forumMessagePermissions);
-    if (forum.getId() == null)
+    if (isNew)
     {
       String forumUuid = forum.getUuid();
       forum = null;
       forum = forumManager.getForumByUuid(forumUuid);
-    }    
+    }else{   
+    	//anytime a forum settings change, we should update synoptic info for forums
+    	//since permissions could have changed.
+    	if(beforeChangeHM != null)
+    		updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forum.getId(), null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+    }
+    
     return forum;
   }
+
+  
+  
+
 
   /**
    * @return Returns the selectedTopic.
@@ -1395,7 +1502,29 @@ public class DiscussionForumTool
     {
     	forumManager.approveAllPendingMessages(selectedTopic.getTopic().getId());
     }
+    
+    boolean updateSynopticCounts = false;
+    if(selectedForum != null && selectedTopic != null &&
+    		selectedForum.getForum().getDraft()){
+    	//due to the logic in M/F, when a topic is saved and not a draft, and the
+    	//forum is a draft, then the topic turns the forum as not a draft
+    	updateSynopticCounts = true;
+    }
+    
+    HashMap<String, Integer> beforeChangeHM = null;
+    if(updateSynopticCounts){    	    
+    	Long forumId = selectedForum.getForum().getId();
+    	beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forumId, null); 	
+    }
+
     saveTopicSettings(false);  
+
+    if(updateSynopticCounts){
+    	if(beforeChangeHM != null){
+    		Long forumId = selectedForum.getForum().getId();
+    		updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forumId, null, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+    	}
+    }
     
     return processReturnToOriginatingPage();
     //reset();
@@ -1453,6 +1582,12 @@ public class DiscussionForumTool
       DiscussionTopic topic = selectedTopic.getTopic();
       if (selectedForum != null)
       {
+	boolean isNew = topic.getId() == null;
+        HashMap<String, Integer> beforeChangeHM = null;
+        if(!isNew){
+		beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), topic.getBaseForum().getId(), topic.getId());
+        }
+
     	StringBuilder alertMsg = new StringBuilder();
     	topic.setTitle(FormattedText.processFormattedText(topic.getTitle(), alertMsg));
     	topic.setShortDescription(FormattedText.processFormattedText(topic.getShortDescription(), alertMsg));
@@ -1480,6 +1615,13 @@ public class DiscussionForumTool
         else
         {        	
           forumManager.saveTopic(topic);
+        }
+
+	//anytime a forum settings change, we should update synoptic info for forums
+        //since permissions could have changed.
+        if(!isNew){
+        	if(beforeChangeHM != null)
+			updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), topic.getBaseForum().getId(), topic.getId(), beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
         }        
         //forumManager
         //    .saveTopicControlPermissions(topic, topicControlPermissions);
@@ -1561,7 +1703,18 @@ public class DiscussionForumTool
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_NEW_TOPIC));
       return gotoMain();
     }
+  
+    HashMap<String, Integer> beforeChangeHM = null;    
+    Long forumId = selectedTopic.getTopic().getBaseForum().getId();
+    Long topicId = selectedTopic.getTopic().getId();
+    beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forumId, topicId);
+    
     forumManager.deleteTopic(selectedTopic.getTopic());
+    
+    if(beforeChangeHM != null)
+    	updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forumId, topicId, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+    
+    
     reset();
     return gotoMain();
   }
@@ -2944,6 +3097,8 @@ public class DiscussionForumTool
     selectedTopic.getTopic().addMessage(dMsg);
     
     /** mark message creator as having read the message */
+    //update synopticLite tool information:
+    incrementSynopticToolInfo(dMsg, true);
     messageManager.markMessageReadForUser(selectedTopic.getTopic().getId(), dMsg.getId(), true);        
 
     this.composeBody = null;
@@ -2956,6 +3111,83 @@ public class DiscussionForumTool
     selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
     sendEmailNotification(dMsg,new DiscussionMessageBean(dMsg, messageManager));
     return ALL_MESSAGES;
+  }
+  
+  /**
+   * if updateCurrentUser is set to true, then update the current user
+   * even if he is not in the recipients list
+   * 
+   * @param newMessage
+   * @param updateCurrentUser
+   */
+
+  public void incrementSynopticToolInfo(Message newMessage, boolean updateCurrentUser){
+	  Set<String> recipients = getRecipients(newMessage);
+
+	  String siteId = getSiteId();
+	  String currentUser = getUserId();
+	  
+	  //if updateCurrentUser is set to true, then update the current user
+	  //even if he is not in the recipients list, this is done b/c the current
+	  //user has a new message (their own) and it is quickly marked as read 
+	  //(so the current users count is decremented)
+	  if(updateCurrentUser && !recipients.contains(currentUser)){
+		  recipients.add(currentUser);
+	  }
+
+	  for (String user : recipients) {
+		  if(updateCurrentUser || (!updateCurrentUser && !currentUser.equals(user))){
+			  incrementForumSynopticToolInfo(user, siteId, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+		  }
+	  }
+  }
+  
+  public void incrementForumSynopticToolInfo(String userId, String siteId, int numOfAttempts){
+	  try {
+		  getSynopticMsgcntrManager().incrementForumSynopticToolInfo(userId, siteId);
+		} catch (HibernateOptimisticLockingFailureException holfe) {
+
+			// failed, so wait and try again
+			try {
+				Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			numOfAttempts--;
+
+			if (numOfAttempts <= 0) {
+				System.out
+						.println("DiscussionForumTool: incrementForumSynopticToolInfo: HibernateOptimisticLockingFailureException no more retries left");
+				holfe.printStackTrace();
+			} else {
+				System.out
+						.println("DiscussionForumTool: incrementForumSynopticToolInfo: HibernateOptimisticLockingFailureException: attempts left: "
+								+ numOfAttempts);
+				incrementForumSynopticToolInfo(userId, siteId, numOfAttempts);
+			}
+		}
+  }
+  
+  public Set<String> getRecipients(Message newMessage){
+	    Set<String> usersAbleToReadMessage;
+		String msgPostedBy;
+		try {
+			// get current user's name
+			msgPostedBy = UserDirectoryService.getUser(newMessage.getCreatedBy()).getDisplayName();
+		} catch (UserNotDefinedException unde) {
+			// user not found, so use author
+			msgPostedBy = newMessage.getAuthor();
+		}
+		
+		// if this message has not been approved, we may only let moderators view it
+		if (newMessage.getApproved() == null || !newMessage.getApproved()) {
+			usersAbleToReadMessage = forumManager.getUsersAllowedForTopic(newMessage.getTopic().getId(), true, true);	
+		} else {
+			usersAbleToReadMessage = forumManager.getUsersAllowedForTopic(newMessage.getTopic().getId(), true, false);	
+		}
+		
+		return usersAbleToReadMessage;
   }
 
   public String processDfMsgSaveDraft()
@@ -3567,6 +3799,9 @@ public class DiscussionForumTool
     dMsg.setInReplyTo(selectedMessage.getMessage());
     forumManager.saveMessage(dMsg);
     
+    //update synoptic tool info
+    incrementSynopticToolInfo(dMsg, true);
+    
     setSelectedForumForCurrentTopic(topicWithMsgs);
     selectedTopic.setTopic(topicWithMsgs);
     selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
@@ -4009,6 +4244,10 @@ public class DiscussionForumTool
     Message dMsg = constructMessage();
 
     forumManager.saveMessage(dMsg);
+    
+    //update synoptic tool info
+    incrementSynopticToolInfo(dMsg, false);
+    
     setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
         .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
     selectedTopic.setTopic((DiscussionTopic) forumManager
@@ -4119,6 +4358,14 @@ public class DiscussionForumTool
   	
 	  DiscussionTopic topic = selectedTopic.getTopic();
 	  DiscussionForum forum = selectedForum.getForum();
+	  
+	  //Synoptic Message/Forums tool
+	  HashMap<String, Integer> beforeChangeHM = null;    
+	    Long forumId = selectedTopic.getTopic().getBaseForum().getId();
+	    Long topicId = selectedTopic.getTopic().getId();
+	    beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forumId, topicId);
+	    
+	    
 	  if(!uiPermissionsManager.isDeleteAny(topic, forum) && !(selectedMessage.getIsOwn() && uiPermissionsManager.isDeleteOwn(topic, forum)))
 	  {
 		  setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_DELETE));
@@ -4146,6 +4393,12 @@ public class DiscussionForumTool
 
 	  this.deleteMsg = false;
 
+	  //Synoptic Message/Forums tool
+	  //Compare previous new message counts to current new message counts after
+	  //message was deleted for all users:
+	  if(beforeChangeHM != null)
+	    	updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), forumId, topicId, beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+	  
 	  // TODO: document it was done for tracking purposes
 	  EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_REMOVE, getEventReference(message), true));
 	  LOG.info("Forum message " + message.getId() + " has been deleted by " + getUserId());
@@ -4317,10 +4570,24 @@ public class DiscussionForumTool
 		  if (decoMessage.isSelected())
 		  {
 			  Message msg = decoMessage.getMessage();
-			  messageManager.markMessageApproval(msg.getId(), approved);
+			  if (selectedTopic != null) {
+				  // the topic is not initialized on the selectedMessage
+				  Topic topic = selectedTopic.getTopic();
+				  msg.setTopic(topic);			  			 	  
+			  }
+			  
+			  HashMap<String, Integer> beforeChangeHM = null;	    	  
+			  beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), msg.getTopic().getBaseForum().getId(), msg.getTopic().getId());
+			  
+			  messageManager.markMessageApproval(msg.getId(), approved);			  
+			  
 			  messageManager.markMessageReadForUser(msg.getTopic().getId(), msg.getId(), true);
 			  numSelected++;
 			  numPendingMessages--;
+
+			  if(beforeChangeHM != null)
+	        		updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), msg.getTopic().getBaseForum().getId(), msg.getTopic().getId(), beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+
 		  }
 	  }
 	  
@@ -4346,11 +4613,27 @@ public class DiscussionForumTool
 	  Long msgId = selectedMessage.getMessage().getId();
 	  if (msgId != null)
 	  {
+		  //grab the recipient list before denied status is saved, so we can
+		  //update their synoptic info
+		  Message msg = messageManager.getMessageById(msgId);
+		  if (selectedTopic != null) {
+			  // the topic is not initialized on the selectedMessage
+			  Topic topic = selectedTopic.getTopic();
+			  msg.setTopic(topic);			  			 	  
+		  }
+
+		  HashMap<String, Integer> beforeChangeHM = null;	    	  
+		  beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), msg.getTopic().getBaseForum().getId(), msg.getTopic().getId());
+
 		  messageManager.markMessageApproval(msgId, false);
 		  selectedMessage = new DiscussionMessageBean(messageManager.getMessageByIdWithAttachments(msgId), messageManager);
 		  refreshSelectedMessageSettings(selectedMessage.getMessage());
 		  setSuccessMessage(getResourceBundleString("cdfm_denied_alert"));
 		  getThreadFromMessage();
+		  
+		  if(beforeChangeHM != null)
+      		updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), msg.getTopic().getBaseForum().getId(), msg.getTopic().getId(), beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+	  
 	  }
 	  
 	  refreshPendingMsgs = true;
@@ -4367,9 +4650,25 @@ public class DiscussionForumTool
 	  Long msgId = selectedMessage.getMessage().getId();
 	  if (msgId != null)
 	  {
+		  //grab the recipient list before denied status is saved, so we can
+		  //update their synoptic info
+		  Message msg = messageManager.getMessageById(msgId);
+		  if (selectedTopic != null) {
+			  // the topic is not initialized on the selectedMessage
+			  Topic topic = selectedTopic.getTopic();
+			  msg.setTopic(topic);			  			 	  
+		  }
+		 
+		  HashMap<String, Integer> beforeChangeHM = null;	    	  
+		  beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), msg.getTopic().getBaseForum().getId(), msg.getTopic().getId());
+		  
 		  messageManager.markMessageApproval(msgId, false);
 		  selectedMessage = new DiscussionMessageBean(messageManager.getMessageByIdWithAttachments(msgId), messageManager);
 		  displayDeniedMsg = true;
+		  
+		  if(beforeChangeHM != null)
+	      		updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), msg.getTopic().getBaseForum().getId(), msg.getTopic().getId(), beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+		  
 	  }
 	  
 	  refreshPendingMsgs = true;
@@ -4386,11 +4685,28 @@ public class DiscussionForumTool
 	  Long msgId = selectedMessage.getMessage().getId();
 	  if (msgId != null)
 	  {
+		  Message msg = messageManager.getMessageById(msgId);
+		  if (selectedTopic != null) {
+			  // the topic is not initialized on the selectedMessage
+			  Topic topic = selectedTopic.getTopic();
+			  msg.setTopic(topic);			  			 	  
+		  }
+		  
+		  HashMap<String, Integer> beforeChangeHM = null;	    	  
+		  beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), msg.getTopic().getBaseForum().getId(), msg.getTopic().getId());
+		  
 		  messageManager.markMessageApproval(msgId, true);
+		  
+		    
+		  
+		  
 		  selectedMessage = new DiscussionMessageBean(messageManager.getMessageByIdWithAttachments(msgId), messageManager);
 		  refreshSelectedMessageSettings(selectedMessage.getMessage());
 		  setSuccessMessage(getResourceBundleString("cdfm_approved_alert"));
 		  getThreadFromMessage();
+		  
+		  if(beforeChangeHM != null)
+	      		updateSynopticMessagesForForumComparingOldMessagesCount(getSiteId(), msg.getTopic().getBaseForum().getId(), msg.getTopic().getId(), beforeChangeHM, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
 	  }
 	  
 	  refreshPendingMsgs = true;
@@ -6750,15 +7066,6 @@ public class DiscussionForumTool
 		 return "dfStatisticsDisplayInThread";
 	 }
 
-	 public MessageForumStatisticsBean getSelectedStaticsUserInfo() {
-		 return selectedStaticsUserInfo;
-	 }
-
-	 public void setSelectedStaticsUserInfo(
-			 MessageForumStatisticsBean selectedStaticsUserInfo) {
-		 this.selectedStaticsUserInfo = selectedStaticsUserInfo;
-	 }
-
 	 public String processActionDisplayFullText() {
 		 return "dfStatisticsFullTextForOne";
 	 }
@@ -6941,6 +7248,28 @@ public class DiscussionForumTool
 	    public int compare(DiscussionMessageBean dmb1, DiscussionMessageBean dmb2) {
 	        return dmb2.getMessage().getDateThreadlastUpdated().compareTo(dmb1.getMessage().getDateThreadlastUpdated());
 	    }
+	}
+	
+	private String getSiteTitle(){	  
+		try {
+			return SiteService.getSite(ToolManager.getCurrentPlacement().getContext()).getTitle();
+		} catch (IdUnusedException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+
+	private String getSiteId() {
+		return ToolManager.getCurrentPlacement().getContext();
+	}
+
+	public SynopticMsgcntrManager getSynopticMsgcntrManager() {
+		return synopticMsgcntrManager;
+	}
+
+	public void setSynopticMsgcntrManager(
+			SynopticMsgcntrManager synopticMsgcntrManager) {
+		this.synopticMsgcntrManager = synopticMsgcntrManager;
 	}
 }
 

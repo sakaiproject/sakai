@@ -22,7 +22,6 @@ package org.sakaiproject.tool.messageforums;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -49,33 +48,27 @@ import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
-import org.sakaiproject.api.app.messageforums.MessageForumsUser;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.PrivateMessageRecipient;
 import org.sakaiproject.api.app.messageforums.PrivateTopic;
+import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageRecipientImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.cover.TimeService;
-import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -83,13 +76,13 @@ import org.sakaiproject.tool.messageforums.ui.DecoratedAttachment;
 import org.sakaiproject.tool.messageforums.ui.PrivateForumDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateMessageDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateTopicDecoratedBean;
-import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Validator;
+
+import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
 
 public class PrivateMessagesTool
 {
@@ -152,6 +145,7 @@ public class PrivateMessagesTool
   private MessageForumsForumManager forumManager;
   private ErrorMessages errorMessages;
   private MembershipManager membershipManager;
+  private SynopticMsgcntrManager synopticMsgcntrManager;
     
   /** Dependency Injected   */
   private MessageForumsTypeManager typeManager;
@@ -430,6 +424,8 @@ public class PrivateMessagesTool
       
       
       /** only load topics/counts if area is enabled */	    	
+	    
+      int totalUnreadMessages = 0;
     	  
       if (getPvtAreaEnabled()){  
     	  
@@ -461,7 +457,7 @@ public class PrivateMessagesTool
             decoTopic.setTotalNoMessages(prtMsgManager.findMessageCount(typeUuid, aggregateList));
 
             decoTopic.setUnreadNoMessages(prtMsgManager.findUnreadMessageCount(typeUuid, aggregateList));
-
+            totalUnreadMessages += decoTopic.getUnreadNoMessages();
           
             decoratedForum.addTopic(decoTopic);
           }       
@@ -487,16 +483,50 @@ public class PrivateMessagesTool
                
                  decoTopic.setTotalNoMessages(prtMsgManager.findMessageCount(typeUuid, aggregateList));
                  decoTopic.setUnreadNoMessages(prtMsgManager.findUnreadMessageCount(typeUuid,aggregateList));
-               
+                 totalUnreadMessages += decoTopic.getUnreadNoMessages();
                  decoratedForum.addTopic(decoTopic);
                }          
         
         }
 
       }//if  getPvtAreaEnabled()
+      
+      
+      //update syntopic info:
+      setMessagesSynopticInfoHelper(getUserId(), getSiteId(), totalUnreadMessages, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+      
     return decoratedForum ;
   }
 
+  public void setMessagesSynopticInfoHelper(String userId, String siteId, int unreadMessagesCount, int numOfAttempts) {
+	  try {
+		  getSynopticMsgcntrManager().setMessagesSynopticInfoHelper(userId, siteId, unreadMessagesCount);
+	  } catch (HibernateOptimisticLockingFailureException holfe) {
+
+		  // failed, so wait and try again
+		  try {
+			  Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
+		  } catch (InterruptedException e) {
+			  e.printStackTrace();
+		  }
+
+		  numOfAttempts--;
+
+		  if (numOfAttempts <= 0) {
+			  System.out
+			  .println("PrivateMessagesTool: setMessagesSynopticInfoHelper: HibernateOptimisticLockingFailureException no more retries left");
+			  holfe.printStackTrace();
+		  } else {
+			  System.out
+			  .println("PrivateMessagesTool: setMessagesSynopticInfoHelper: HibernateOptimisticLockingFailureException: attempts left: "
+					  + numOfAttempts);
+			  setMessagesSynopticInfoHelper(userId, siteId, 
+					  unreadMessagesCount, numOfAttempts);
+		  }
+	  }
+
+  }
+  
   public List getDecoratedPvtMsgs()
   {
   	/** 
@@ -806,6 +836,15 @@ public class PrivateMessagesTool
   public List getSelectedComposeToList()
   {
     return selectedComposeToList;
+  }
+  
+  private String getSiteTitle(){	  
+	  try {
+		return SiteService.getSite(ToolManager.getCurrentPlacement().getContext()).getTitle();
+	} catch (IdUnusedException e) {
+		e.printStackTrace();
+	}
+	return "";
   }
   
   private String getSiteId() {
@@ -1770,13 +1809,19 @@ private   int   getNum(char letter,   String   a)
     
     PrivateMessage pMsg= constructMessage() ;
     
+    Set<User> recipients = getRecipients();
+    
     if(!getBooleanEmailOut())
     {
-      prtMsgManager.sendPrivateMessage(pMsg, getRecipients(), false); 
+      prtMsgManager.sendPrivateMessage(pMsg, recipients, false); 
     }
     else{
-      prtMsgManager.sendPrivateMessage(pMsg, getRecipients(), true);
+      prtMsgManager.sendPrivateMessage(pMsg, recipients, true);
     }
+    
+    //update synopticLite tool information:
+    
+    incrementSynopticToolInfo(recipients, false);
 
     //reset contents
     resetComposeContents();
@@ -1806,6 +1851,48 @@ private   int   getNum(char letter,   String   a)
     }
   }
      
+  
+  
+  public void incrementSynopticToolInfo(Set<User> recipients, boolean updateCurrentUser){
+  
+	  String siteId = getSiteId();
+	  String currentUser = getUserId();
+
+	  for (User user : recipients) {
+		  if(updateCurrentUser || (!updateCurrentUser && !currentUser.equals(user.getId())))
+			  incrementMessagesSynopticToolInfo(user.getId(), siteId, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+	  }
+  }
+  
+  public void incrementMessagesSynopticToolInfo(String userId, String siteId, int numOfAttempts) {
+		try {
+			getSynopticMsgcntrManager().incrementMessagesSynopticToolInfo(userId, siteId);
+		} catch (HibernateOptimisticLockingFailureException holfe) {
+
+			// failed, so wait and try again
+			try {
+				Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			numOfAttempts--;
+
+			if (numOfAttempts <= 0) {
+				System.out
+						.println("PrivateMessagesTool: incrementMessagesSynopticToolInfo: HibernateOptimisticLockingFailureException no more retries left");
+				holfe.printStackTrace();
+			} else {
+				System.out
+						.println("PrivateMessagesTool: incrementMessagesSynopticToolInfo: HibernateOptimisticLockingFailureException: attempts left: "
+								+ numOfAttempts);
+				incrementMessagesSynopticToolInfo(userId, siteId, numOfAttempts);
+			}
+		}
+
+	}
+		  
+  
   /**
    * process from Compose screen
    * @return - pvtMsg
@@ -2363,13 +2450,17 @@ private   int   getNum(char letter,   String   a)
     		prtMsgManager.addAttachToPvtMsg(rrepMsg, ((DecoratedAttachment)allAttachments.get(i)).getAttachment());         
     	}            
 
+    	Set<User> recipients = getRecipients();
+    	
     	if(!getBooleanEmailOut())
     	{
-    		prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients(), false);
+    		prtMsgManager.sendPrivateMessage(rrepMsg, recipients, false);
     	}
     	else{
-    		prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients(), true);
+    		prtMsgManager.sendPrivateMessage(rrepMsg, recipients, true);
     	}
+    	
+    	incrementSynopticToolInfo(recipients, false);
 
     	//reset contents
     	resetComposeContents();
@@ -2466,14 +2557,19 @@ private   int   getNum(char letter,   String   a)
     		prtMsgManager.addAttachToPvtMsg(rrepMsg, ((DecoratedAttachment)allAttachments.get(i)).getAttachment());         
     	}            
 
+    	Set<User> recipients = getRecipients();
+    	
     	if(!getBooleanEmailOut())
     	{
-    		prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients(), false);
+    		prtMsgManager.sendPrivateMessage(rrepMsg, recipients, false);
     	}
     	else{
-    		prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients(), true);
+    		prtMsgManager.sendPrivateMessage(rrepMsg, recipients, true);
     	}
 
+    	//update Synoptic tool info
+    	incrementSynopticToolInfo(recipients, false);
+    	
     	//reset contents
     	resetComposeContents();
 
@@ -2656,6 +2752,9 @@ private   int   getNum(char letter,   String   a)
     		prtMsgManager.sendPrivateMessage(rrepMsg, returnSet, true);//getRecipients()  replyalllist
     	}
 
+    	//update Synoptic tool info
+    	incrementSynopticToolInfo(returnSet, false);
+    	
     	//reset contents
     	resetComposeContents();
 
@@ -2743,14 +2842,19 @@ private   int   getNum(char letter,   String   a)
       prtMsgManager.addAttachToPvtMsg(drrepMsg, ((DecoratedAttachment)allAttachments.get(i)).getAttachment());         
     } 
     
+    Set<User> recipients =  getRecipients();
+    
     if(!getBooleanEmailOut())
     {
-     prtMsgManager.sendPrivateMessage(drrepMsg, getRecipients(), false);  
+     prtMsgManager.sendPrivateMessage(drrepMsg, recipients, false);  
     }
     else{
-      prtMsgManager.sendPrivateMessage(drrepMsg, getRecipients(), true);
+      prtMsgManager.sendPrivateMessage(drrepMsg, recipients, true);
     }
     
+    //update Synoptic tool info
+    incrementSynopticToolInfo(recipients, false);
+        
     //reset contents
     resetComposeContents();
     
@@ -4445,5 +4549,14 @@ private   int   getNum(char letter,   String   a)
 
 	public void setContentHostingService(ContentHostingService contentHostingService) {
 		this.contentHostingService = contentHostingService;
+	}
+
+	public SynopticMsgcntrManager getSynopticMsgcntrManager() {
+		return synopticMsgcntrManager;
+	}
+
+	public void setSynopticMsgcntrManager(
+			SynopticMsgcntrManager synopticMsgcntrManager) {
+		this.synopticMsgcntrManager = synopticMsgcntrManager;
 	}
 }

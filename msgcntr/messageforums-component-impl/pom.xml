@@ -87,6 +87,11 @@
     	<groupId>org.sakaiproject.search</groupId>
     	<artifactId>search-api</artifactId>
     </dependency>
+    <dependency>
+       <groupId>quartz</groupId>
+       <artifactId>quartz</artifactId>
+       <version>1.5.2</version>
+    </dependency>
   </dependencies>
   <build>
     <resources>

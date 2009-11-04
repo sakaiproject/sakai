@@ -30,14 +30,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
 import org.hibernate.Query;
 import org.hibernate.Session;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
@@ -50,40 +49,37 @@ import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.PrivateMessageRecipient;
 import org.sakaiproject.api.app.messageforums.PrivateTopic;
+import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.UniqueArrayList;
+import org.sakaiproject.api.app.messageforums.cover.SynopticMsgcntrManagerCover;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
-import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.site.api.ToolConfiguration;
-
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.app.messageforums.TestUtil;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageRecipientImpl;
-import org.sakaiproject.event.cover.EventTrackingService;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.email.api.EmailService;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
-
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.User;
-
 import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-
-
-//support for internationalization by huxt
-import org.sakaiproject.i18n.InternationalizedMessages;
 
 public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     PrivateMessageManager
@@ -166,6 +162,12 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   {
     return areaManager.getPrivateArea();    
   }
+  
+  public Area getPrivateMessageArea(String siteId)
+  {
+    return areaManager.getPrivateArea(siteId);    
+  }
+
 
   public void savePrivateMessageArea(Area area)
   {
@@ -178,26 +180,34 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
    */
   
   
+  public PrivateForum initializePrivateMessageArea(Area area, List aggregateList){
+	  return initializePrivateMessageArea(area, aggregateList, getCurrentUser());
+  }
+  
   //==============Need to be modified to support localization huxt
-  public PrivateForum initializePrivateMessageArea(Area area, List aggregateList)
+  public PrivateForum initializePrivateMessageArea(Area area, List aggregateList, String userId){
+	  return initializePrivateMessageArea(area, aggregateList, userId, getContextId());
+  }  
+  
+  public PrivateForum initializePrivateMessageArea(Area area, List aggregateList, String userId, String siteId)
   {
 
-    String userId = getCurrentUser();
+   // String userId = getCurrentUser();
     
     aggregateList.clear();
-    aggregateList.addAll(initializeMessageCounts());
+    aggregateList.addAll(initializeMessageCounts(userId, siteId));
     
     getHibernateTemplate().lock(area, LockMode.NONE);
     
     PrivateForum pf;
 
     /** create default user forum/topics if none exist */
-    if ((pf = forumManager.getPrivateForumByOwnerArea(getCurrentUser(), area)) == null)
+    if ((pf = forumManager.getPrivateForumByOwnerArea(userId, area)) == null)
     {      
       /** initialize collections */
       //getHibernateTemplate().initialize(area.getPrivateForumsSet());
             
-      pf = forumManager.createPrivateForum(getResourceBundleString(MESSAGES_TITLE));
+      pf = forumManager.createPrivateForum(getResourceBundleString(MESSAGES_TITLE), userId);
       
       //area.addPrivateForum(pf);
       //pf.setArea(area);
@@ -216,9 +226,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       //    userId, pf.getId());
     
       /** save individual topics - required to add to forum's topic set */
-      forumManager.savePrivateForumTopic(receivedTopic);
-      forumManager.savePrivateForumTopic(sentTopic);
-      forumManager.savePrivateForumTopic(deletedTopic);
+      forumManager.savePrivateForumTopic(receivedTopic, userId, siteId);
+      forumManager.savePrivateForumTopic(sentTopic, userId, siteId);
+      forumManager.savePrivateForumTopic(deletedTopic, userId, siteId);
       //forumManager.savePrivateForumTopic(draftTopic);
       
       pf.addTopic(receivedTopic);
@@ -228,9 +238,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       pf.setArea(area);  
       
       PrivateForum oldForum;
-      if ((oldForum = forumManager.getPrivateForumByOwnerAreaNull(getCurrentUser())) != null)
+      if ((oldForum = forumManager.getPrivateForumByOwnerAreaNull(userId)) != null)
       {
-    		oldForum = initializationHelper(oldForum);
+    		oldForum = initializationHelper(oldForum, userId);
 //    		getHibernateTemplate().initialize(oldForum.getTopicsSet());
     		List pvtTopics = oldForum.getTopics();
     		
@@ -243,7 +253,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     						&& !currentTopic.getTitle().equals(PVT_DRAFTS) && area.getContextId().equals(currentTopic.getContextId()))
     				{
     					currentTopic.setPrivateForum(pf);
-    		      forumManager.savePrivateForumTopic(currentTopic);
+    		      forumManager.savePrivateForumTopic(currentTopic, userId, siteId);
     					pf.addTopic(currentTopic);
     				}
     			}
@@ -258,32 +268,40 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     		}      
       }
       
-      forumManager.savePrivateForum(pf);            
+      forumManager.savePrivateForum(pf, userId);            
       
     }    
     else{      
        //getHibernateTemplate().initialize(pf.getTopicsSet());   
-    	 pf = forumManager.getPrivateForumByOwnerAreaWithAllTopics(getCurrentUser(), area);
+    	 pf = forumManager.getPrivateForumByOwnerAreaWithAllTopics(userId, area);
     }
    
     return pf;
   }
   
   public PrivateForum initializationHelper(PrivateForum forum){
+	  return initializationHelper(forum, getCurrentUser());
+  }
+  
+  public PrivateForum initializationHelper(PrivateForum forum, String userId){
     
     /** reget to load topic foreign keys */
   	//PrivateForum pf = forumManager.getPrivateForumByOwnerAreaNull(getCurrentUser());
     //getHibernateTemplate().initialize(pf.getTopicsSet());    
-  	PrivateForum pf = forumManager.getPrivateForumByOwnerAreaNullWithAllTopics(getCurrentUser());
+  	PrivateForum pf = forumManager.getPrivateForumByOwnerAreaNullWithAllTopics(userId);
     return pf;
   }
 
   public PrivateForum initializationHelper(PrivateForum forum, Area area){
+	  return initializationHelper(forum, area, getCurrentUser());
+  }
+  
+  public PrivateForum initializationHelper(PrivateForum forum, Area area, String userId){
     
     /** reget to load topic foreign keys */
   	//PrivateForum pf = forumManager.getPrivateForumByOwnerArea(getCurrentUser(), area);
     //getHibernateTemplate().initialize(pf.getTopicsSet());    
-  	PrivateForum pf = forumManager.getPrivateForumByOwnerAreaWithAllTopics(getCurrentUser(), area);
+  	PrivateForum pf = forumManager.getPrivateForumByOwnerAreaWithAllTopics(userId, area);
     return pf;
   }
 
@@ -861,8 +879,17 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
    * initialize message counts
    * @param typeUuid
    */
-  private List initializeMessageCounts()
+  private List initializeMessageCounts(){
+	  return initializeMessageCounts(getCurrentUser());
+  }
+  
+  private List initializeMessageCounts(final String userId)
   {    
+	  return initializeMessageCounts(userId, getContextId());
+  }
+  
+  private List initializeMessageCounts(final String userId, final String contextId)
+  {
     if (LOG.isDebugEnabled())
     {
       LOG.debug("initializeMessageCounts executing");
@@ -874,8 +901,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
           SQLException
       {
         Query q = session.getNamedQuery(QUERY_AGGREGATE_COUNT);        
-        q.setParameter("contextId", getContextId(), Hibernate.STRING);
-        q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
+        q.setParameter("contextId", contextId, Hibernate.STRING);
+        q.setParameter("userId", userId, Hibernate.STRING);
         return q.list();
       }
     };
@@ -971,8 +998,15 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
         if (indexDeleted == -1)
         {
-          pmrReturned.setRead(Boolean.TRUE);
-          pmrReturned.setTypeUuid(typeManager.getDeletedPrivateMessageType());
+        	boolean prevReadStatus = pmrReturned.getRead();
+        	pmrReturned.setRead(Boolean.TRUE);
+
+        	String contextId = getContextId();
+        	if(!prevReadStatus){
+        		decrementMessagesSynopticToolInfo(userId, contextId, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+        	}
+
+        	pmrReturned.setTypeUuid(typeManager.getDeletedPrivateMessageType());
         }
         else
         {
@@ -981,6 +1015,62 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       }
     }
   }
+  
+  public void decrementMessagesSynopticToolInfo(String userId, String siteId, int numOfAttempts) {
+		try {
+			SynopticMsgcntrManagerCover.decrementMessagesSynopticToolInfo(userId, siteId);
+		} catch (HibernateOptimisticLockingFailureException holfe) {
+
+			// failed, so wait and try again
+			try {
+				Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			numOfAttempts--;
+
+			if (numOfAttempts <= 0) {
+				System.out
+						.println("PrivateMessageManagerImpl: decrementMessagesSynopticToolInfo: HibernateOptimisticLockingFailureException no more retries left");
+				holfe.printStackTrace();
+			} else {
+				System.out
+						.println("PrivateMessageManagerImpl: decrementMessagesSynopticToolInfo: HibernateOptimisticLockingFailureException: attempts left: "
+								+ numOfAttempts);
+				decrementMessagesSynopticToolInfo(userId, siteId, numOfAttempts);
+			}
+		}
+
+	}
+
+  public void incrementMessagesSynopticToolInfo(String userId, String siteId , int numOfAttempts) {
+		try {
+			SynopticMsgcntrManagerCover.incrementMessagesSynopticToolInfo(userId, siteId);
+		} catch (HibernateOptimisticLockingFailureException holfe) {
+
+			// failed, so wait and try again
+			try {
+				Thread.sleep(SynopticMsgcntrManager.OPT_LOCK_WAIT);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			numOfAttempts--;
+
+			if (numOfAttempts <= 0) {
+				System.out
+						.println("PrivateMessageManagerImpl: incrementMessagesSynopticToolInfo: HibernateOptimisticLockingFailureException no more retries left");
+				holfe.printStackTrace();
+			} else {
+				System.out
+						.println("PrivateMessageManagerImpl: incrementMessagesSynopticToolInfo: HibernateOptimisticLockingFailureException: attempts left: "
+								+ numOfAttempts);
+				incrementMessagesSynopticToolInfo(userId, siteId, numOfAttempts);
+			}
+		}
+
+	}
 
   /**
    * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#sendPrivateMessage(org.sakaiproject.api.app.messageforums.PrivateMessage, java.util.Set, boolean)
@@ -1280,6 +1370,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     	if (! ((PrivateMessageRecipientImpl) recipientList.get(recordIndex)).getRead()) {
     		((PrivateMessageRecipientImpl) recipientList.get(recordIndex)).setRead(Boolean.TRUE);
     		
+    		decrementMessagesSynopticToolInfo(searchRecipient.getUserId(), contextId, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+
+    		
       	  EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_READ, getEventMessage(pvtMessage), false));
     	}
     }
@@ -1341,18 +1434,26 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 		  }      
 	  }
 
-	  if (recordIndex != -1)
-	  {
-		  if (((PrivateMessageRecipientImpl) recipientList.get(recordIndex))
-				  .getRead()) {
-			  ((PrivateMessageRecipientImpl) recipientList.get(recordIndex))
-			  .setRead(Boolean.FALSE);
-			  EventTrackingService.post(EventTrackingService.newEvent(
-					  DiscussionForumService.EVENT_MESSAGES_UNREAD,
-					  getEventMessage(pvtMessage), false));
-		  }
-	  }
-  }
+	  if (recordIndex != -1) {
+			if (((PrivateMessageRecipientImpl) recipientList.get(recordIndex))
+					.getRead()) {
+				((PrivateMessageRecipientImpl) recipientList.get(recordIndex))
+						.setRead(Boolean.FALSE);
+				Site currentSite;
+				try {
+					currentSite = SiteService.getSite(contextId);
+					incrementMessagesSynopticToolInfo(searchRecipient
+							.getUserId(), contextId,
+							SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+				} catch (IdUnusedException e) {
+					e.printStackTrace();
+				}
+				EventTrackingService.post(EventTrackingService.newEvent(
+						DiscussionForumService.EVENT_MESSAGES_UNREAD,
+						getEventMessage(pvtMessage), false));
+			}
+		}
+	}
 
   
 

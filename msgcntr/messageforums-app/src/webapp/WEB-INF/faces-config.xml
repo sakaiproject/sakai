@@ -344,6 +344,10 @@
         	<to-view-id>/jsp/synoptic/synMain.jsp</to-view-id>
         </navigation-case>
         <navigation-case>
+        	<from-outcome>synMainLite</from-outcome>
+        	<to-view-id>/jsp/synoptic/synMainLite.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
         	<from-outcome>synPvtMsg</from-outcome>
         	<to-view-id>/../privateMsg/pvtMsg.jsp</to-view-id>
         </navigation-case>
@@ -426,6 +430,11 @@
             <value>#{Components["org.sakaiproject.api.app.messageforums.EmailNotificationManager"]}</value>
         </managed-property>  
         
+        <managed-property>
+         	<description>Synoptic Msgcntr Manager</description>
+         	<property-name>synopticMsgcntrManager</property-name>
+         	<value>#{Components["org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager"]}</value>
+        </managed-property>
         
     </managed-bean>
     <managed-bean>
@@ -463,9 +472,49 @@
             <property-name>contentHostingService</property-name>
             <value>#{Components["org.sakaiproject.content.api.ContentHostingService"]}</value>
         </managed-property>
+        <managed-property>
+        	<description>Synoptic Msgcntr Manager</description>
+        	<property-name>synopticMsgcntrManager</property-name>
+        	<value>#{Components["org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager"]}</value>
+        </managed-property>
     </managed-bean>
     
     <!-- =================== Synoptic Managed Bean ============== -->
+
+   
+	<managed-bean>
+        <description>Synoptic Message Bean Lite</description>
+        <managed-bean-name>mfSynopticBeanLite</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.messageforums.ui.MessageForumSynopticBeanLite</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+        <managed-property>
+        	<description>Synoptic Msgcntr Manager</description>
+        	<property-name>synopticMsgcntrManager</property-name>
+        	<value>#{Components["org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager"]}</value>
+        </managed-property>  
+        <managed-property>
+        	<description>Forums Forum Manager</description>
+        	<property-name>forumsManager</property-name>
+        	<value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsForumManager"]}</value>
+        </managed-property>
+                <managed-property>
+            <description>Area Manager</description>
+            <property-name>areaManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.AreaManager"]}</value>
+        </managed-property>  
+        <managed-property>
+            <description>Message Type Manager</description>
+            <property-name>typeManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"]}</value>
+        </managed-property>
+        <managed-property>
+        	<description>Private Message Manager</description>
+        	<property-name>pvtMessageManager</property-name>
+        	<value>#{Components["org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager"]}</value>
+        </managed-property>
+ 	</managed-bean>
+
+
 
     <managed-bean>
         <description>Synoptic Message Bean</description>

@@ -86,6 +86,7 @@ public interface AreaManager
 	 * @return
 	 */
 	public Area getPrivateArea();
+	public Area getPrivateArea(String siteId);
 	
 	/**
 	 * Get the discussion are for this site

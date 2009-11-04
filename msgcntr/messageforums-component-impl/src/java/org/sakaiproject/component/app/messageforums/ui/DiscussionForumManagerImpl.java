@@ -82,6 +82,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 
@@ -381,13 +382,18 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    */
   public Area getDiscussionForumArea()
   {
+	return getDiscussionForumArea(ToolManager.getCurrentPlacement().getContext());  
+  }
+  
+  public Area getDiscussionForumArea(String siteId)
+  {
     LOG.debug("getDiscussionForumArea");
 
     if (usingHelper)
     {
       return helper.getDiscussionForumArea();
     }
-    return areaManager.getDiscusionArea();
+    return areaManager.getDiscussionArea(siteId);
   }
 
   /*
@@ -574,6 +580,17 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     }
     return forumManager.getForumByTypeAndContext(typeManager
         .getDiscussionForumType());
+    // return getDiscussionForumArea().getDiscussionForums();
+  }
+  public List getDiscussionForums(String siteId)
+  {
+    LOG.debug("getDiscussionForums(siteId)");
+    if (usingHelper)
+    {
+      return helper.getDiscussionForumArea().getDiscussionForums();
+    }
+    return forumManager.getForumByTypeAndContext(typeManager
+        .getDiscussionForumType(), siteId);
     // return getDiscussionForumArea().getDiscussionForums();
   }
   
@@ -866,10 +883,26 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     LOG.debug("isInstructor()");
     return isInstructor(userDirectoryService.getCurrentUser());
   }
+  
+  public boolean isInstructor(String userId)
+  {
+    LOG.debug("isInstructor()");
+    try {
+		return isInstructor(userDirectoryService.getUser(userId));
+	} catch (UserNotDefinedException e) {
+		LOG.error("DiscussionForumManagerImpl: isInstructor(String userId, String siteId): " + e.getMessage());
+		return false;
+	}
+  }
 
   public boolean isInstructor(String userId, String siteId) {
     LOG.debug("isInstructor(String " + userId + ", " + siteId + ")");
-    return isInstructor(userDirectoryService.getCurrentUser(), siteId);
+    try {
+		return isInstructor(userDirectoryService.getUser(userId), siteId);
+	} catch (UserNotDefinedException e) {
+		LOG.error("DiscussionForumManagerImpl: isInstructor(String userId, String siteId): " + e.getMessage());
+		return false;
+	}
   }
 
   /**
@@ -1656,13 +1689,28 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    * @param forum
    * @return
    */
-  public boolean isForumOwner(DiscussionForum forum)
+  
+  public boolean isForumOwner(DiscussionForum forum){
+	  return isForumOwner(forum, userDirectoryService.getCurrentUser().getId());
+  }
+  
+  public boolean isForumOwner(DiscussionForum forum, String userId)
+  {
+	return isForumOwner(forum, userId, getContextSiteId());
+  }
+  
+  public boolean isForumOwner(DiscussionForum forum, String userId, String siteId)
+  {
+	  return isForumOwner(forum.getId(), forum.getCreatedBy(), userId, siteId);
+  }
+  
+  public boolean isForumOwner(Long forumId, String forumCreatedBy, String userId, String siteId)
   {
     if (LOG.isDebugEnabled())
     {
-      LOG.debug("isForumOwner(DiscussionForum " + forum + ")");
+      LOG.debug("isForumOwner(DiscussionForum " + forumId + ")");
     }
-    if (forum.getCreatedBy().equals(userDirectoryService.getCurrentUser()) && !isRoleSwapView())
+    if (forumCreatedBy.equals(userId) && !isRoleSwapView(siteId))
     {
       return true;
     }
@@ -1671,20 +1719,39 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   
   private boolean isRoleSwapView()
   {	 
-  	return (securityService.getUserEffectiveRole(getContextSiteId()) != null);
+	return isRoleSwapView(getContextSiteId());
+  }
+  private boolean isRoleSwapView(String siteId)
+  {
+	return (securityService.getUserEffectiveRole(siteId) != null);
   }
 
   /**
    * @param topic
    * @return
    */
-  public boolean isTopicOwner(DiscussionTopic topic)
+  
+  public boolean isTopicOwner(DiscussionTopic topic){
+	  return isTopicOwner(topic, userDirectoryService.getCurrentUser().getId());
+  }
+  
+  public boolean isTopicOwner(DiscussionTopic topic, String userId)
+  {
+	  return isTopicOwner(topic, userId, getContextSiteId());
+  }
+  
+  public boolean isTopicOwner(DiscussionTopic topic, String userId, String siteId)
+  {
+	  return isTopicOwner(topic.getId(), topic.getCreatedBy(), userId, siteId);
+  }
+  
+  public boolean isTopicOwner(Long topicId, String topicCreatedBy, String userId, String siteId)
   {
     if (LOG.isDebugEnabled())
     {
-      LOG.debug("isTopicOwner(DiscussionTopic " + topic + ")");
+      LOG.debug("isTopicOwner(DiscussionTopic " + topicId + ")");
     }
-    if (topic.getCreatedBy().equals(userDirectoryService.getCurrentUser()) && !isRoleSwapView())
+    if (topicCreatedBy.equals(userId) && !isRoleSwapView(siteId))
     {
       return true;
     }
@@ -2123,9 +2190,14 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     DBMembershipItem newItem = getDBMember(originalSet, name, type);
     return newItem;
   }
+  
+  public DBMembershipItem getDBMember(Set originalSet, String name,
+			Integer type) {
+	  return getDBMember(originalSet, name, type, getContextSiteId());
+	}
 
   public DBMembershipItem getDBMember(Set originalSet, String name,
-      Integer type)
+      Integer type, String contextSiteId)
   {
       	
     DBMembershipItem membershipItem = null;
@@ -2171,7 +2243,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
         } 
         else{
         	Collection siteIds = new Vector();
-        	siteIds.add(getContextSiteId());        	
+        	siteIds.add(contextSiteId);        	
         	if (AuthzGroupService.getAllowedFunctions(name, siteIds)
         			.contains(SiteService.SECURE_UPDATE_SITE)){        			        	        	
         		level = permissionLevelManager.getDefaultOwnerPermissionLevel();
@@ -2435,5 +2507,5 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   		  
   	  return usersAllowed;
     }
-    
+       
 }
