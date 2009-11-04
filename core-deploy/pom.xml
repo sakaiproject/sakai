@@ -29,6 +29,7 @@
                     components/gradebook-service-pack;
 					components/sakai-common-components;
 					components/sakai-privacy-pack;
+                    components/samigo-pack;
 					components/search-pack;
 					components/sections-pack
                 </clean.targets>
@@ -47,6 +48,12 @@
 					<classifier>tomcat-overlay</classifier>
 					<type>zip</type>
 				</dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.samigo</groupId>
+                    <artifactId>samigo-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
 				<dependency>
 					<groupId>org.sakaiproject.search</groupId>
 					<artifactId>search-assembly</artifactId>
@@ -66,6 +73,7 @@
 					components/sakai-common-components;
 					components/sakai-msgcntr-component;
 					components/sakai-privacy-pack;
+                    components/samigo-pack;
 					components/search-pack;
 					components/sections-pack;
 					components/sitestats-component;
@@ -104,6 +112,12 @@
                     <groupId>org.sakaiproject.profile2</groupId>
                     <artifactId>profile2-assembly</artifactId>
                     <version>1.3-SNAPSHOT</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.samigo</groupId>
+                    <artifactId>samigo-assembly</artifactId>
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
