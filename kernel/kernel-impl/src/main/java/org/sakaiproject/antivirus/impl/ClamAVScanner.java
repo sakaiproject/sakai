@@ -93,6 +93,11 @@ public class ClamAVScanner implements VirusScanner {
 	}
 
 	public void scan(InputStream inputStream) throws VirusFoundException, VirusScanIncompleteException {
+		if(!enabled) {
+			logger.debug("Virus scanning not enabled.  Skipping scan");
+			return;
+		}
+		
 		doScan(inputStream);
 	}
 
