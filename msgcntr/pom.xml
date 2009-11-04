@@ -24,6 +24,7 @@
     <module>messageforums-component-impl</module>
     <module>messageforums-hbm</module>
     <module>messageforums-help</module>
+    <module>messageforums-assembly</module>
   </modules>
   <dependencyManagement>
     <dependencies>
