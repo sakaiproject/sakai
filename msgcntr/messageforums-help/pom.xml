@@ -2,12 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>msgcntr-base</artifactId>
+    <artifactId>msgcntr</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>2.7.0-SNAPSHOT</version>
+    <version>1.5-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Message Center Help</name>
+  <groupId>org.sakaiproject.msgcntr</groupId>
   <artifactId>sakai-messageforums-help</artifactId>
   <packaging>jar</packaging>
   <properties>
