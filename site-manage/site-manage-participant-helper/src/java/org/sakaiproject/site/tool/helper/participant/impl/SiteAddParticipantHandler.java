@@ -784,7 +784,7 @@ public class SiteAddParticipantHandler {
 		if (nonOfficialAccounts != null) {
 			String[] nonOfficialAccountArray = nonOfficialAccounts.split("\r\n");
 			for (i = 0; i < nonOfficialAccountArray.length; i++) {
-				String nonOfficialAccountAll = StringUtil.trimToNull(nonOfficialAccountArray[i].replaceAll("[ \t\r\n]", ""));
+				String nonOfficialAccountAll = StringUtil.trimToNull(nonOfficialAccountArray[i].replaceAll("[\t\r\n]", ""));
 				// the format of per user entry is: email address,first name,last name
 				// comma separated
 				String[] nonOfficialAccountParts  = nonOfficialAccountAll.split(",");
@@ -796,18 +796,18 @@ public class SiteAddParticipantHandler {
 			                TargettedMessage.SEVERITY_ERROR));
 					break;
 				}
-				String userEid = nonOfficialAccountParts[0];
+				String userEid = nonOfficialAccountParts[0].trim();
 				// get last name, if any
 				String userLastName = "";
 				if (nonOfficialAccountParts.length > 1)
 				{
-					userLastName = nonOfficialAccountParts[1];
+					userLastName = nonOfficialAccountParts[1].trim();
 				}
 				// get first name, if any
 				String userFirstName = "";
 				if (nonOfficialAccountParts.length > 2)
 				{
-					userFirstName = nonOfficialAccountParts[2];
+					userFirstName = nonOfficialAccountParts[2].trim();
 				}
 				// remove the trailing dots
 				while (userEid != null && userEid.endsWith(".")) {
