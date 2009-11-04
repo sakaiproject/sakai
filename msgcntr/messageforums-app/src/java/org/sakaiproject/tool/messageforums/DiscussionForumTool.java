@@ -936,7 +936,7 @@ public class DiscussionForumTool
       setErrorMessage(getResourceBundleString(INVALID_SELECTED_FORUM));
       return gotoMain();
     }
-    DiscussionForum forum = forumManager.getForumById(new Long(forumId));
+    DiscussionForum forum = forumManager.getForumById(Long.valueOf(forumId));
     if (forum == null)
     {
       setErrorMessage(getResourceBundleString(FORUM_NOT_FOUND));
@@ -1264,7 +1264,7 @@ public class DiscussionForumTool
 
     if (topic == null)
     {
-      topic = forumManager.getTopicById(new Long(
+      topic = forumManager.getTopicById(Long.valueOf(
           getExternalParameterByKey(TOPIC_ID)));
     }
     if (topic == null)
@@ -1580,7 +1580,7 @@ public class DiscussionForumTool
     DiscussionTopic topic = null;
     if(getExternalParameterByKey(TOPIC_ID) != null && !"".equals(getExternalParameterByKey(TOPIC_ID))){
 	    topic = (DiscussionTopic) forumManager
-	        .getTopicByIdWithAttachments(new Long(
+	        .getTopicByIdWithAttachments(Long.valueOf(
 	            getExternalParameterByKey(TOPIC_ID)));
     } else if(selectedTopic != null) {
     	topic = selectedTopic.getTopic();
@@ -1943,8 +1943,8 @@ public class DiscussionForumTool
 	      setErrorMessage(getResourceBundleString(TOPC_REFERENCE_NOT_FOUND));
 	      return gotoMain();
 	    }
-	    // Message message=forumManager.getMessageById(new Long(messageId));
-	    Message threadMessage = messageManager.getMessageByIdWithAttachments(new Long(
+	    // Message message=forumManager.getMessageById(Long.valueOf(messageId));
+	    Message threadMessage = messageManager.getMessageByIdWithAttachments(Long.valueOf(
 	        threadId));
 	    if (threadMessage == null)
 	    {
@@ -1959,7 +1959,7 @@ public class DiscussionForumTool
 	    	selectedThreadHead = new DiscussionMessageBean(
 	    			threadMessage, messageManager);
 	    }
-	    DiscussionTopic topic=forumManager.getTopicById(new Long(topicId));
+	    DiscussionTopic topic=forumManager.getTopicById(Long.valueOf(topicId));
 	    selectedMessage = selectedThreadHead;
 	    setSelectedForumForCurrentTopic(topic);
 	    selectedTopic = new DiscussionTopicBean(topic, selectedForum.getForum(),
@@ -1979,7 +1979,7 @@ public class DiscussionForumTool
 	        && (!"null".equals(currentForumId.trim())))
 	    {
 	      DiscussionForum forum = forumManager
-	          .getForumById(new Long(currentForumId));
+	          .getForumById(Long.valueOf(currentForumId));
 	      selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
 	      setForumBeanAssign();
 	      selectedTopic.getTopic().setBaseForum(forum);
@@ -2021,10 +2021,10 @@ public class DiscussionForumTool
       setErrorMessage(getResourceBundleString(TOPC_REFERENCE_NOT_FOUND));
       return gotoMain();
     }
-    // Message message=forumManager.getMessageById(new Long(messageId));
-    messageManager.markMessageReadForUser(new Long(topicId),
-            new Long(messageId), true);
-    Message message = messageManager.getMessageByIdWithAttachments(new Long(
+    // Message message=forumManager.getMessageById(Long.valueOf(messageId));
+    messageManager.markMessageReadForUser(Long.valueOf(topicId),
+            Long.valueOf(messageId), true);
+    Message message = messageManager.getMessageByIdWithAttachments(Long.valueOf(
         messageId));
 
     if (message == null)
@@ -2034,7 +2034,7 @@ public class DiscussionForumTool
     }
 
     selectedMessage = new DiscussionMessageBean(message, messageManager);
-    DiscussionTopic topic=forumManager.getTopicById(new Long(topicId));
+    DiscussionTopic topic=forumManager.getTopicById(Long.valueOf(topicId));
     setSelectedForumForCurrentTopic(topic);
     selectedTopic = new DiscussionTopicBean(topic, selectedForum.getForum(),
         uiPermissionsManager, forumManager);
@@ -2053,7 +2053,7 @@ public class DiscussionForumTool
         && (!"null".equals(currentForumId.trim())))
     {
       DiscussionForum forum = forumManager
-          .getForumById(new Long(currentForumId));
+          .getForumById(Long.valueOf(currentForumId));
       selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
       setForumBeanAssign();
       selectedTopic.getTopic().setBaseForum(forum);
@@ -2383,7 +2383,7 @@ public class DiscussionForumTool
     String forumId = getExternalParameterByKey(FORUM_ID);
     if ((forumId) != null)
     {
-      DiscussionForum forum = forumManager.getForumById(new Long(forumId));
+      DiscussionForum forum = forumManager.getForumById(Long.valueOf(forumId));
       if (forum == null)
       {
         return null;
@@ -2418,7 +2418,7 @@ public class DiscussionForumTool
                       .getForum()
                       .getId()
                       .equals(
-                          new Long(
+                          Long.valueOf(
                               getExternalParameterByKey("forumId_displayExtended"))))
               {
                 decoForumBean.setReadFullDesciption(true);
@@ -2428,7 +2428,7 @@ public class DiscussionForumTool
                   && getExternalParameterByKey("forumId_hideExtended").trim()
                       .length() > 0
                   && decoForumBean.getForum().getId().equals(
-                      new Long(
+                      Long.valueOf(
                           getExternalParameterByKey("forumId_hideExtended"))))
               {
                 decoForumBean.setReadFullDesciption(false);
@@ -2473,7 +2473,7 @@ public class DiscussionForumTool
                       .getTopic()
                       .getId()
                       .equals(
-                          new Long(
+                          Long.valueOf(
                               getExternalParameterByKey("topicId_displayExtended"))))
               {
                 decoTopicBean.setReadFullDesciption(true);
@@ -2483,7 +2483,7 @@ public class DiscussionForumTool
                   && getExternalParameterByKey("topicId_hideExtended").trim()
                       .length() > 0
                   && decoTopicBean.getTopic().getId().equals(
-                      new Long(
+                      Long.valueOf(
                           getExternalParameterByKey("topicId_hideExtended"))))
               {
                 decoTopicBean.setReadFullDesciption(false);
@@ -2640,7 +2640,7 @@ public class DiscussionForumTool
 	        try
 	        {
 	          Long.parseLong(topicId);
-	          topic = forumManager.getTopicById(new Long(topicId));
+	          topic = forumManager.getTopicById(Long.valueOf(topicId));
 	        }
 	        catch (NumberFormatException e)
 	        {
@@ -2715,7 +2715,7 @@ public class DiscussionForumTool
       setErrorMessage(getResourceBundleString(PARENT_TOPIC_NOT_FOUND));
       return null;
     }
-    return createTopic(new Long(forumId));
+    return createTopic(Long.valueOf(forumId));
   }
 
   /**
@@ -3171,11 +3171,11 @@ public class DiscussionForumTool
 	      setErrorMessage(getResourceBundleString(TOPC_REFERENCE_NOT_FOUND));
 	      return gotoMain();
 	    }
-	    // Message message=forumManager.getMessageById(new Long(messageId));
-	    Message message = messageManager.getMessageByIdWithAttachments(new Long(
+	    // Message message=forumManager.getMessageById(Long.valueOf(messageId));
+	    Message message = messageManager.getMessageByIdWithAttachments(Long.valueOf(
 	        messageId));
-	    messageManager.markMessageReadForUser(new Long(topicId),
-	        new Long(messageId), true);
+	    messageManager.markMessageReadForUser(Long.valueOf(topicId),
+	        Long.valueOf(messageId), true);
 	    if (message == null)
 	    {
 	      setErrorMessage(getResourceBundleString(MESSAGE_WITH_ID) + messageId + getResourceBundleString(NOT_FOUND_WITH_QUOTE));
@@ -3205,11 +3205,11 @@ public class DiscussionForumTool
 	      setErrorMessage(getResourceBundleString(TOPC_REFERENCE_NOT_FOUND));
 	      return gotoMain();
 	    }
-	    // Message message=forumManager.getMessageById(new Long(messageId));
-	    Message message = messageManager.getMessageByIdWithAttachments(new Long(
+	    // Message message=forumManager.getMessageById(Long.valueOf(messageId));
+	    Message message = messageManager.getMessageByIdWithAttachments(Long.valueOf(
 	        messageId));
-	    messageManager.markMessageReadForUser(new Long(topicId),
-	        new Long(messageId), true);
+	    messageManager.markMessageReadForUser(Long.valueOf(topicId),
+	        Long.valueOf(messageId), true);
 	    if (message == null)
 	    {
 	      setErrorMessage(getResourceBundleString(MESSAGE_WITH_ID) + messageId + getResourceBundleString(NOT_FOUND_WITH_QUOTE));
@@ -3232,10 +3232,10 @@ public class DiscussionForumTool
 	      setErrorMessage(getResourceBundleString(TOPC_REFERENCE_NOT_FOUND));
 	      return gotoMain();
 	    }
-	    // Message message=forumManager.getMessageById(new Long(messageId));
-	    messageManager.markMessageReadForUser(new Long(topicId),
-	        new Long(messageId), true);
-	    Message message = messageManager.getMessageByIdWithAttachments(new Long(
+	    // Message message=forumManager.getMessageById(Long.valueOf(messageId));
+	    messageManager.markMessageReadForUser(Long.valueOf(topicId),
+	        Long.valueOf(messageId), true);
+	    Message message = messageManager.getMessageByIdWithAttachments(Long.valueOf(
 		        messageId));
 	    if (message == null)
 	    {
@@ -3320,8 +3320,8 @@ public class DiscussionForumTool
 	      setErrorMessage(getResourceBundleString(TOPC_REFERENCE_NOT_FOUND));
 	      return gotoMain();
 	    }
-	    // Message message=forumManager.getMessageById(new Long(messageId));
-	    Message message = messageManager.getMessageByIdWithAttachments(new Long(
+	    // Message message=forumManager.getMessageById(Long.valueOf(messageId));
+	    Message message = messageManager.getMessageByIdWithAttachments(Long.valueOf(
 	        messageId));
 	    if (message == null)
 	    {
@@ -3441,8 +3441,8 @@ public class DiscussionForumTool
 	      setErrorMessage(getResourceBundleString(TOPC_REFERENCE_NOT_FOUND));
 	      return gotoMain();
 	    }
-	    // Message message=forumManager.getMessageById(new Long(messageId));
-	    Message message = messageManager.getMessageByIdWithAttachments(new Long(
+	    // Message message=forumManager.getMessageById(Long.valueOf(messageId));
+	    Message message = messageManager.getMessageByIdWithAttachments(Long.valueOf(
 	        messageId));
 	    if (message == null)
 	    {
@@ -5789,7 +5789,7 @@ public class DiscussionForumTool
         selectedForum = null;
         return;
       }
-      forum = forumManager.getForumById(new Long(forumId));
+      forum = forumManager.getForumById(Long.valueOf(forumId));
       if (forum == null)
       {
         selectedForum = null;
@@ -5940,120 +5940,120 @@ public class DiscussionForumTool
         DBMembershipItem membershipItem = permissionLevelManager.createDBMembershipItem(permBean.getItem().getName(), permBean.getSelectedLevel(), permBean.getItem().getType());
                 if (PermissionLevelManager.PERMISSION_LEVEL_NAME_OWNER.equals(membershipItem.getPermissionLevelName())){
         	            PermissionsMask mask = new PermissionsMask();                
-        	            mask.put(PermissionLevel.NEW_FORUM, new Boolean(permBean.getNewForum())); 
-        	            mask.put(PermissionLevel.NEW_TOPIC, new Boolean(permBean.getNewTopic()));
-        	            mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(permBean.getNewResponse()));
-        	            mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(permBean.getResponseToResponse()));
-        	            mask.put(PermissionLevel.MOVE_POSTING, new Boolean(permBean.getMovePosting()));
-        	            mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(permBean.getChangeSettings()));
-        	            mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(permBean.getPostToGradebook()));
-        	            mask.put(PermissionLevel.READ, new Boolean(permBean.getRead()));
-        	            mask.put(PermissionLevel.MARK_AS_READ,new Boolean(permBean.getMarkAsRead()));
-        	            mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(permBean.getModeratePostings()));
-        	            mask.put(PermissionLevel.DELETE_OWN, new Boolean(permBean.getDeleteOwn()));
-        	            mask.put(PermissionLevel.DELETE_ANY, new Boolean(permBean.getDeleteAny()));
-        	            mask.put(PermissionLevel.REVISE_OWN, new Boolean(permBean.getReviseOwn()));
-        	            mask.put(PermissionLevel.REVISE_ANY, new Boolean(permBean.getReviseAny()));
+        	            mask.put(PermissionLevel.NEW_FORUM, Boolean.valueOf(permBean.getNewForum())); 
+        	            mask.put(PermissionLevel.NEW_TOPIC, Boolean.valueOf(permBean.getNewTopic()));
+        	            mask.put(PermissionLevel.NEW_RESPONSE, Boolean.valueOf(permBean.getNewResponse()));
+        	            mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, Boolean.valueOf(permBean.getResponseToResponse()));
+        	            mask.put(PermissionLevel.MOVE_POSTING, Boolean.valueOf(permBean.getMovePosting()));
+        	            mask.put(PermissionLevel.CHANGE_SETTINGS,Boolean.valueOf(permBean.getChangeSettings()));
+        	            mask.put(PermissionLevel.POST_TO_GRADEBOOK, Boolean.valueOf(permBean.getPostToGradebook()));
+        	            mask.put(PermissionLevel.READ, Boolean.valueOf(permBean.getRead()));
+        	            mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(permBean.getMarkAsRead()));
+        	            mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(permBean.getModeratePostings()));
+        	            mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(permBean.getDeleteOwn()));
+        	            mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(permBean.getDeleteAny()));
+        	            mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(permBean.getReviseOwn()));
+        	            mask.put(PermissionLevel.REVISE_ANY, Boolean.valueOf(permBean.getReviseAny()));
         	            
         	            PermissionLevel level = permissionLevelManager.createPermissionLevel(permBean.getSelectedLevel(), typeManager.getCustomLevelType(), mask);
         	            membershipItem.setPermissionLevel(level);
         	          }
         	        if (PermissionLevelManager.PERMISSION_LEVEL_NAME_AUTHOR.equals(membershipItem.getPermissionLevelName())){
         	            PermissionsMask mask = new PermissionsMask();                
-        	            mask.put(PermissionLevel.NEW_FORUM, new Boolean(permBean.getNewForum())); 
-        	            mask.put(PermissionLevel.NEW_TOPIC, new Boolean(permBean.getNewTopic()));
-        	            mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(permBean.getNewResponse()));
-        	            mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(permBean.getResponseToResponse()));
-        	            mask.put(PermissionLevel.MOVE_POSTING, new Boolean(permBean.getMovePosting()));
-        	            mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(permBean.getChangeSettings()));
-        	            mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(permBean.getPostToGradebook()));
-        	            mask.put(PermissionLevel.READ, new Boolean(permBean.getRead()));
-        	            mask.put(PermissionLevel.MARK_AS_READ,new Boolean(permBean.getMarkAsRead()));
-        	            mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(permBean.getModeratePostings()));
-        	            mask.put(PermissionLevel.DELETE_OWN, new Boolean(permBean.getDeleteOwn()));
-        	            mask.put(PermissionLevel.DELETE_ANY, new Boolean(permBean.getDeleteAny()));
-        	            mask.put(PermissionLevel.REVISE_OWN, new Boolean(permBean.getReviseOwn()));
-        	            mask.put(PermissionLevel.REVISE_ANY, new Boolean(permBean.getReviseAny()));
+        	            mask.put(PermissionLevel.NEW_FORUM, Boolean.valueOf(permBean.getNewForum())); 
+        	            mask.put(PermissionLevel.NEW_TOPIC, Boolean.valueOf(permBean.getNewTopic()));
+        	            mask.put(PermissionLevel.NEW_RESPONSE, Boolean.valueOf(permBean.getNewResponse()));
+        	            mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, Boolean.valueOf(permBean.getResponseToResponse()));
+        	            mask.put(PermissionLevel.MOVE_POSTING, Boolean.valueOf(permBean.getMovePosting()));
+        	            mask.put(PermissionLevel.CHANGE_SETTINGS,Boolean.valueOf(permBean.getChangeSettings()));
+        	            mask.put(PermissionLevel.POST_TO_GRADEBOOK, Boolean.valueOf(permBean.getPostToGradebook()));
+        	            mask.put(PermissionLevel.READ, Boolean.valueOf(permBean.getRead()));
+        	            mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(permBean.getMarkAsRead()));
+        	            mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(permBean.getModeratePostings()));
+        	            mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(permBean.getDeleteOwn()));
+        	            mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(permBean.getDeleteAny()));
+        	            mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(permBean.getReviseOwn()));
+        	            mask.put(PermissionLevel.REVISE_ANY, Boolean.valueOf(permBean.getReviseAny()));
         	            
         	            PermissionLevel level = permissionLevelManager.createPermissionLevel(permBean.getSelectedLevel(), typeManager.getCustomLevelType(), mask);
         	            membershipItem.setPermissionLevel(level);
         	          }
         	        if (PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR.equals(membershipItem.getPermissionLevelName())){
         	            PermissionsMask mask = new PermissionsMask();                
-        	            mask.put(PermissionLevel.NEW_FORUM, new Boolean(permBean.getNewForum())); 
-        	           mask.put(PermissionLevel.NEW_TOPIC, new Boolean(permBean.getNewTopic()));
-        	           mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(permBean.getNewResponse()));
-        	            mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(permBean.getResponseToResponse()));
-        	            mask.put(PermissionLevel.MOVE_POSTING, new Boolean(permBean.getMovePosting()));
-        	            mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(permBean.getChangeSettings()));
-        	            mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(permBean.getPostToGradebook()));
-        	            mask.put(PermissionLevel.READ, new Boolean(permBean.getRead()));
-        	            mask.put(PermissionLevel.MARK_AS_READ,new Boolean(permBean.getMarkAsRead()));
-        	            mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(permBean.getModeratePostings()));
-        	            mask.put(PermissionLevel.DELETE_OWN, new Boolean(permBean.getDeleteOwn()));
-        	            mask.put(PermissionLevel.DELETE_ANY, new Boolean(permBean.getDeleteAny()));
-        	            mask.put(PermissionLevel.REVISE_OWN, new Boolean(permBean.getReviseOwn()));
-        	            mask.put(PermissionLevel.REVISE_ANY, new Boolean(permBean.getReviseAny()));
+        	            mask.put(PermissionLevel.NEW_FORUM, Boolean.valueOf(permBean.getNewForum())); 
+        	           mask.put(PermissionLevel.NEW_TOPIC, Boolean.valueOf(permBean.getNewTopic()));
+        	           mask.put(PermissionLevel.NEW_RESPONSE, Boolean.valueOf(permBean.getNewResponse()));
+        	            mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, Boolean.valueOf(permBean.getResponseToResponse()));
+        	            mask.put(PermissionLevel.MOVE_POSTING, Boolean.valueOf(permBean.getMovePosting()));
+        	            mask.put(PermissionLevel.CHANGE_SETTINGS,Boolean.valueOf(permBean.getChangeSettings()));
+        	            mask.put(PermissionLevel.POST_TO_GRADEBOOK, Boolean.valueOf(permBean.getPostToGradebook()));
+        	            mask.put(PermissionLevel.READ, Boolean.valueOf(permBean.getRead()));
+        	            mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(permBean.getMarkAsRead()));
+        	            mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(permBean.getModeratePostings()));
+        	            mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(permBean.getDeleteOwn()));
+        	            mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(permBean.getDeleteAny()));
+        	            mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(permBean.getReviseOwn()));
+        	            mask.put(PermissionLevel.REVISE_ANY, Boolean.valueOf(permBean.getReviseAny()));
         	            
         	            PermissionLevel level = permissionLevelManager.createPermissionLevel(permBean.getSelectedLevel(), typeManager.getCustomLevelType(), mask);
         	            membershipItem.setPermissionLevel(level);
         	          }
         	        if (PermissionLevelManager.PERMISSION_LEVEL_NAME_REVIEWER.equals(membershipItem.getPermissionLevelName())){
         	            PermissionsMask mask = new PermissionsMask();                
-        	            mask.put(PermissionLevel.NEW_FORUM, new Boolean(permBean.getNewForum())); 
-        	            mask.put(PermissionLevel.NEW_TOPIC, new Boolean(permBean.getNewTopic()));
-        	            mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(permBean.getNewResponse()));
-        	            mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(permBean.getResponseToResponse()));
-        	            mask.put(PermissionLevel.MOVE_POSTING, new Boolean(permBean.getMovePosting()));
-        	            mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(permBean.getChangeSettings()));
-        	            mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(permBean.getPostToGradebook()));
-        	            mask.put(PermissionLevel.READ, new Boolean(permBean.getRead()));
-        	            mask.put(PermissionLevel.MARK_AS_READ,new Boolean(permBean.getMarkAsRead()));
-        	            mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(permBean.getModeratePostings()));
-        	            mask.put(PermissionLevel.DELETE_OWN, new Boolean(permBean.getDeleteOwn()));
-        	            mask.put(PermissionLevel.DELETE_ANY, new Boolean(permBean.getDeleteAny()));
-        	            mask.put(PermissionLevel.REVISE_OWN, new Boolean(permBean.getReviseOwn()));
-        	            mask.put(PermissionLevel.REVISE_ANY, new Boolean(permBean.getReviseAny()));
+        	            mask.put(PermissionLevel.NEW_FORUM, Boolean.valueOf(permBean.getNewForum())); 
+        	            mask.put(PermissionLevel.NEW_TOPIC, Boolean.valueOf(permBean.getNewTopic()));
+        	            mask.put(PermissionLevel.NEW_RESPONSE, Boolean.valueOf(permBean.getNewResponse()));
+        	            mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, Boolean.valueOf(permBean.getResponseToResponse()));
+        	            mask.put(PermissionLevel.MOVE_POSTING, Boolean.valueOf(permBean.getMovePosting()));
+        	            mask.put(PermissionLevel.CHANGE_SETTINGS,Boolean.valueOf(permBean.getChangeSettings()));
+        	            mask.put(PermissionLevel.POST_TO_GRADEBOOK, Boolean.valueOf(permBean.getPostToGradebook()));
+        	            mask.put(PermissionLevel.READ, Boolean.valueOf(permBean.getRead()));
+        	            mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(permBean.getMarkAsRead()));
+        	            mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(permBean.getModeratePostings()));
+        	            mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(permBean.getDeleteOwn()));
+        	            mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(permBean.getDeleteAny()));
+        	            mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(permBean.getReviseOwn()));
+        	            mask.put(PermissionLevel.REVISE_ANY, Boolean.valueOf(permBean.getReviseAny()));
         	            
         	            PermissionLevel level = permissionLevelManager.createPermissionLevel(permBean.getSelectedLevel(), typeManager.getCustomLevelType(), mask);
         	            membershipItem.setPermissionLevel(level);
         	          }
         	        if (PermissionLevelManager.PERMISSION_LEVEL_NAME_NONEDITING_AUTHOR.equals(membershipItem.getPermissionLevelName())){
         	            PermissionsMask mask = new PermissionsMask();                
-        	            mask.put(PermissionLevel.NEW_FORUM, new Boolean(permBean.getNewForum())); 
-        	            mask.put(PermissionLevel.NEW_TOPIC, new Boolean(permBean.getNewTopic()));
-        	            mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(permBean.getNewResponse()));
-        	            mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(permBean.getResponseToResponse()));
-        	            mask.put(PermissionLevel.MOVE_POSTING, new Boolean(permBean.getMovePosting()));
-        	            mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(permBean.getChangeSettings()));
-        	            mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(permBean.getPostToGradebook()));
-        	            mask.put(PermissionLevel.READ, new Boolean(permBean.getRead()));
-        	            mask.put(PermissionLevel.MARK_AS_READ,new Boolean(permBean.getMarkAsRead()));
-        	            mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(permBean.getModeratePostings()));
-        	            mask.put(PermissionLevel.DELETE_OWN, new Boolean(permBean.getDeleteOwn()));
-        	            mask.put(PermissionLevel.DELETE_ANY, new Boolean(permBean.getDeleteAny()));
-        	            mask.put(PermissionLevel.REVISE_OWN, new Boolean(permBean.getReviseOwn()));
-        	            mask.put(PermissionLevel.REVISE_ANY, new Boolean(permBean.getReviseAny()));
+        	            mask.put(PermissionLevel.NEW_FORUM, Boolean.valueOf(permBean.getNewForum())); 
+        	            mask.put(PermissionLevel.NEW_TOPIC, Boolean.valueOf(permBean.getNewTopic()));
+        	            mask.put(PermissionLevel.NEW_RESPONSE, Boolean.valueOf(permBean.getNewResponse()));
+        	            mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, Boolean.valueOf(permBean.getResponseToResponse()));
+        	            mask.put(PermissionLevel.MOVE_POSTING, Boolean.valueOf(permBean.getMovePosting()));
+        	            mask.put(PermissionLevel.CHANGE_SETTINGS,Boolean.valueOf(permBean.getChangeSettings()));
+        	            mask.put(PermissionLevel.POST_TO_GRADEBOOK, Boolean.valueOf(permBean.getPostToGradebook()));
+        	            mask.put(PermissionLevel.READ, Boolean.valueOf(permBean.getRead()));
+        	            mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(permBean.getMarkAsRead()));
+        	            mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(permBean.getModeratePostings()));
+        	            mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(permBean.getDeleteOwn()));
+        	            mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(permBean.getDeleteAny()));
+        	            mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(permBean.getReviseOwn()));
+        	            mask.put(PermissionLevel.REVISE_ANY, Boolean.valueOf(permBean.getReviseAny()));
         	            
         	            PermissionLevel level = permissionLevelManager.createPermissionLevel(permBean.getSelectedLevel(), typeManager.getCustomLevelType(), mask);
         	            membershipItem.setPermissionLevel(level);
         	          }
         	        if (PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE.equals(membershipItem.getPermissionLevelName())){
         	            PermissionsMask mask = new PermissionsMask();                
-        	            mask.put(PermissionLevel.NEW_FORUM, new Boolean(permBean.getNewForum())); 
-        	            mask.put(PermissionLevel.NEW_TOPIC, new Boolean(permBean.getNewTopic()));
-        	            mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(permBean.getNewResponse()));
-        	            mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(permBean.getResponseToResponse()));
-        	            mask.put(PermissionLevel.MOVE_POSTING, new Boolean(permBean.getMovePosting()));
-        	            mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(permBean.getChangeSettings()));
-        	            mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(permBean.getPostToGradebook()));
-        	            mask.put(PermissionLevel.READ, new Boolean(permBean.getRead()));
-        	            mask.put(PermissionLevel.MARK_AS_READ,new Boolean(permBean.getMarkAsRead()));
-        	            mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(permBean.getModeratePostings()));
-        	            mask.put(PermissionLevel.DELETE_OWN, new Boolean(permBean.getDeleteOwn()));
-        	            mask.put(PermissionLevel.DELETE_ANY, new Boolean(permBean.getDeleteAny()));
-        	            mask.put(PermissionLevel.REVISE_OWN, new Boolean(permBean.getReviseOwn()));
-        	            mask.put(PermissionLevel.REVISE_ANY, new Boolean(permBean.getReviseAny()));
+        	            mask.put(PermissionLevel.NEW_FORUM, Boolean.valueOf(permBean.getNewForum())); 
+        	            mask.put(PermissionLevel.NEW_TOPIC, Boolean.valueOf(permBean.getNewTopic()));
+        	            mask.put(PermissionLevel.NEW_RESPONSE, Boolean.valueOf(permBean.getNewResponse()));
+        	            mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, Boolean.valueOf(permBean.getResponseToResponse()));
+        	            mask.put(PermissionLevel.MOVE_POSTING, Boolean.valueOf(permBean.getMovePosting()));
+        	            mask.put(PermissionLevel.CHANGE_SETTINGS,Boolean.valueOf(permBean.getChangeSettings()));
+        	            mask.put(PermissionLevel.POST_TO_GRADEBOOK, Boolean.valueOf(permBean.getPostToGradebook()));
+        	            mask.put(PermissionLevel.READ, Boolean.valueOf(permBean.getRead()));
+        	            mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(permBean.getMarkAsRead()));
+        	            mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(permBean.getModeratePostings()));
+        	            mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(permBean.getDeleteOwn()));
+        	            mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(permBean.getDeleteAny()));
+        	            mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(permBean.getReviseOwn()));
+        	            mask.put(PermissionLevel.REVISE_ANY, Boolean.valueOf(permBean.getReviseAny()));
         	            
         	            PermissionLevel level = permissionLevelManager.createPermissionLevel(permBean.getSelectedLevel(), typeManager.getCustomLevelType(), mask);
         	            membershipItem.setPermissionLevel(level);
@@ -6061,20 +6061,20 @@ public class DiscussionForumTool
         
         if (PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM.equals(membershipItem.getPermissionLevelName())){
           PermissionsMask mask = new PermissionsMask();                
-          mask.put(PermissionLevel.NEW_FORUM, new Boolean(permBean.getNewForum())); 
-          mask.put(PermissionLevel.NEW_TOPIC, new Boolean(permBean.getNewTopic()));
-          mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(permBean.getNewResponse()));
-          mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(permBean.getResponseToResponse()));
-          mask.put(PermissionLevel.MOVE_POSTING, new Boolean(permBean.getMovePosting()));
-          mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(permBean.getChangeSettings()));
-          mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(permBean.getPostToGradebook()));
-          mask.put(PermissionLevel.READ, new Boolean(permBean.getRead()));
-          mask.put(PermissionLevel.MARK_AS_READ,new Boolean(permBean.getMarkAsRead()));
-          mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(permBean.getModeratePostings()));
-          mask.put(PermissionLevel.DELETE_OWN, new Boolean(permBean.getDeleteOwn()));
-          mask.put(PermissionLevel.DELETE_ANY, new Boolean(permBean.getDeleteAny()));
-          mask.put(PermissionLevel.REVISE_OWN, new Boolean(permBean.getReviseOwn()));
-          mask.put(PermissionLevel.REVISE_ANY, new Boolean(permBean.getReviseAny()));
+          mask.put(PermissionLevel.NEW_FORUM, Boolean.valueOf(permBean.getNewForum())); 
+          mask.put(PermissionLevel.NEW_TOPIC, Boolean.valueOf(permBean.getNewTopic()));
+          mask.put(PermissionLevel.NEW_RESPONSE, Boolean.valueOf(permBean.getNewResponse()));
+          mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, Boolean.valueOf(permBean.getResponseToResponse()));
+          mask.put(PermissionLevel.MOVE_POSTING, Boolean.valueOf(permBean.getMovePosting()));
+          mask.put(PermissionLevel.CHANGE_SETTINGS,Boolean.valueOf(permBean.getChangeSettings()));
+          mask.put(PermissionLevel.POST_TO_GRADEBOOK, Boolean.valueOf(permBean.getPostToGradebook()));
+          mask.put(PermissionLevel.READ, Boolean.valueOf(permBean.getRead()));
+          mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(permBean.getMarkAsRead()));
+          mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(permBean.getModeratePostings()));
+          mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(permBean.getDeleteOwn()));
+          mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(permBean.getDeleteAny()));
+          mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(permBean.getReviseOwn()));
+          mask.put(PermissionLevel.REVISE_ANY, Boolean.valueOf(permBean.getReviseAny()));
           
           PermissionLevel level = permissionLevelManager.createPermissionLevel(permBean.getSelectedLevel(), typeManager.getCustomLevelType(), mask);
           membershipItem.setPermissionLevel(level);
@@ -6639,7 +6639,7 @@ public class DiscussionForumTool
 			 processActionGetDisplayThread();
 		 }
 		 //also go ahead and reset the the topic
-		 DiscussionTopic topic = forumManager.getTopicById(new Long(topicId));
+		 DiscussionTopic topic = forumManager.getTopicById(Long.valueOf(topicId));
 		 setSelectedForumForCurrentTopic(topic);
 		 selectedTopic = getDecoratedTopic(topic);
 		 setTopicBeanAssign();
