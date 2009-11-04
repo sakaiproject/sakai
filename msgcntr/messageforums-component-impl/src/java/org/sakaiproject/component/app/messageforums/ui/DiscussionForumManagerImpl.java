@@ -427,6 +427,15 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       message.setTopic(getTopicById(message.getTopic().getId()));
     }
+    if(this.getAnonRole()==true&&message.getCreatedBy()==null)
+    {
+    	message.setCreatedBy(".anon");
+    }
+    if(this.getAnonRole()==true&&message.getModifiedBy()==null)
+    {
+    	message.setModifiedBy(".anon");
+    }
+    
     messageManager.saveMessage(message, logEvent);
   }
 
@@ -1585,6 +1594,28 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     Collections.sort(roleList);
     return roleList.iterator();
   }
+  public boolean  getAnonRole()
+  {
+    LOG.debug("getAnonRoles()");
+   List roleList = new ArrayList();
+    AuthzGroup realm = null;
+   try
+    {
+      realm = AuthzGroupService.getAuthzGroup(getContextSiteId());      
+      Role anon = realm.getRole(".anon");
+     if (sessionManager.getCurrentSessionUserId()==null&&anon != null&&anon.getAllowedFunctions().contains("site.visit"))
+      {
+			return true;
+      }
+    }       
+
+    catch (GroupNotDefinedException e) {
+		
+		e.printStackTrace();
+		return false;
+	}      
+    return false; 
+  }
 
   public void markMessageAs(Message message, boolean readStatus)
   {
@@ -2228,19 +2259,25 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 	    return forumManager.getForumByTypeAndContextWithTopicsAllAttachments(dfType, contextId);
 	}
 
-	public Map getReadStatusForMessagesWithId(List msgIds, String userId)
+	public Map<Long, Boolean> getReadStatusForMessagesWithId(List<Long> msgIds, String userId)
 	{
 		LOG.debug("getDiscussionForumsWithTopics()");
-		if (userId == null) {
-			LOG.debug("empty map returns b/c no userId passed to getReadStatusForMessagesWithId");
-			return new HashMap(); 
-		}
+
 		
-		Map msgIdStatusMap = new HashMap();
+		Map<Long, Boolean> msgIdStatusMap = new HashMap<Long, Boolean>();
 		if (msgIds == null || msgIds.size() == 0) {
 			LOG.debug("empty map returns b/c no msgIds passed to getReadStatusForMessagesWithId");
 			return msgIdStatusMap;
 		}
+
+		if (userId == null) {
+			LOG.debug("empty user assume that all messages are read");
+			for (int i =0; i < msgIds.size(); i++) {
+				msgIdStatusMap.put(msgIds.get(i), Boolean.valueOf(true));
+			}
+			return msgIdStatusMap; 
+		}
+		
 		
 		if (msgIds.size() < MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
 			return messageManager.getReadStatusForMessagesWithId(msgIds, userId);
@@ -2256,7 +2293,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 				}
 				List tempMsgIdList = new ArrayList();
 				tempMsgIdList.addAll(msgIds.subList(begIndex, endIndex));
-				Map statusMap = messageManager.getReadStatusForMessagesWithId(tempMsgIdList, userId);
+				Map<Long, Boolean> statusMap = messageManager.getReadStatusForMessagesWithId(tempMsgIdList, userId);
 				msgIdStatusMap.putAll(statusMap);
 				begIndex = endIndex;
 			}

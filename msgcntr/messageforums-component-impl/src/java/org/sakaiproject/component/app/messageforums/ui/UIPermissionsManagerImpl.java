@@ -1062,10 +1062,22 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 		while(iter.hasNext())
 		{
 			DBMembershipItemImpl thisItem = (DBMembershipItemImpl)iter.next();
-			if(thisItem.getForum() != null && forum.getId().equals(thisItem.getForum().getId()))
+			if(thisItem.getForum() != null && forum.getId()!=null&&forum.getId().equals(thisItem.getForum().getId()))
 			{
 				thisForumItemSet.add((DBMembershipItem)thisItem);
 			}
+		}
+		if(thisForumItemSet.size()==0&&getAnonRole()==true&&forum.getCreatedBy().equals(".anon")&&forum.getTopicsSet()==null){
+			Set newForumMembershipset=forum.getMembershipItemSet();
+	        Iterator iterNewForum = newForumMembershipset.iterator();
+	        while (iterNewForum.hasNext())
+	        {
+	          DBMembershipItem item = (DBMembershipItem)iterNewForum.next();
+	          if (item.getName().equals(".anon"))
+	          {
+	        	  thisForumItemSet.add(item);
+	          }       
+	        }			
 		}
     
 //    DBMembershipItem item = forumManager.getDBMember(membershipItems, getCurrentUserRole(),
@@ -1284,6 +1296,9 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     {
       return "test-user";
     }
+    if(sessionManager.getCurrentSessionUserId()==null&&getAnonRole()==true){
+    	return ".anon";
+    }    	
 
     return sessionManager.getCurrentSessionUserId();
   }
@@ -1298,9 +1313,15 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
   private String getCurrentUserRole(String siteId)
   {
     LOG.debug("getCurrentUserRole()");
+    if(authzGroupService.getUserRole(getCurrentUserId(), "/site/" + siteId)==null&&sessionManager.getCurrentSessionUserId()==null&&getAnonRole()==true){
+    	return ".anon";
+    }
     return authzGroupService.getUserRole(getCurrentUserId(), "/site/" + siteId);
   }
-
+   public boolean  getAnonRole()
+    {
+	 return  forumManager.getAnonRole();	   
+    }
   /**
    * @return
    */

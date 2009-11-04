@@ -144,7 +144,11 @@ public class DiscussionMessageBean
    * @return Returns the read.
    */
   public boolean isRead()
-  {
+  {		
+	  //messages for the anon user are always read
+	  if (UserDirectoryService.getCurrentUser().equals(UserDirectoryService.getAnonymousUser()))
+		  return true;
+	  
     return read;
   }
 

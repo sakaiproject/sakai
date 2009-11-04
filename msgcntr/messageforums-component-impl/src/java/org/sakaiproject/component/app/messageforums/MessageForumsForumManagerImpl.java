@@ -727,7 +727,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         DiscussionForum forum = new DiscussionForumImpl();
         forum.setUuid(getNextUuid());
         forum.setCreated(new Date());
+        if(getCurrentUser()!=null){
         forum.setCreatedBy(getCurrentUser());
+        }
         forum.setLocked(Boolean.FALSE);
         forum.setDraft(Boolean.FALSE);
         forum.setTypeUuid(typeManager.getDiscussionForumType());                  
@@ -771,7 +773,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         forum.setAutoForwardEmail("");
         forum.setPreviewPaneEnabled(Boolean.FALSE);
         forum.setModified(new Date());
+        if(getCurrentUser()!=null){
         forum.setModifiedBy(getCurrentUser());
+        }
         forum.setTypeUuid(typeManager.getPrivateMessageAreaType());
         forum.setModerated(Boolean.FALSE);
         LOG.debug("createPrivateForum executed");
@@ -789,7 +793,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         }
 
         forum.setModified(new Date());
+        if(getCurrentUser()!=null){
         forum.setModifiedBy(getCurrentUser());
+        }
         forum.setOwner(getCurrentUser());
         getHibernateTemplate().saveOrUpdate(forum);
 
@@ -821,7 +827,12 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         }
         forum.setDraft(new Boolean(draft));
         forum.setModified(new Date());
+        if(getCurrentUser()!=null){
         forum.setModifiedBy(getCurrentUser());
+        }
+        else if(getCurrentUser()==null){
+        	 forum.setModifiedBy(forum.getCreatedBy());
+        }
         
         // If the topics were not loaded then there is no need to redo the sort index
         //     thus if it's a hibernate persistentset and initialized
@@ -864,7 +875,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         topic.setUuid(getNextUuid());
         topic.setTypeUuid(typeManager.getDiscussionForumType());
         topic.setCreated(new Date());
+        if(getCurrentUser()!=null){
         topic.setCreatedBy(getCurrentUser());
+        }
         topic.setBaseForum(forum);
         topic.setLocked(Boolean.FALSE);
         topic.setDraft(forum.getDraft());
@@ -891,7 +904,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
             topic.setSortIndex(new Integer(0));
         }
         topic.setModified(new Date());
+        if(getCurrentUser()!=null){
         topic.setModifiedBy(getCurrentUser());
+        }
         
         if (topic.getModerated() == null) {
         	topic.setModerated(Boolean.FALSE);
@@ -923,7 +938,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         topic.setUuid(getNextUuid());
         topic.setTypeUuid(typeManager.getOpenDiscussionForumType());
         topic.setCreated(new Date());
+        if(getCurrentUser()!=null){
         topic.setCreatedBy(getCurrentUser());
+        }
         topic.setLocked(Boolean.FALSE);
         topic.setModerated(Boolean.FALSE);
         topic.setDraft(forum.getDraft());
@@ -937,14 +954,18 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         topic.setTitle(title);
         topic.setUuid(getNextUuid());        
         topic.setCreated(new Date());
+        if(getCurrentUser()!=null){
         topic.setCreatedBy(getCurrentUser());
+        }
         topic.setUserId(userId);
         topic.setShortDescription("short-desc");
         topic.setExtendedDescription("ext-desc");
         topic.setMutable(new Boolean(topicIsMutable));
         topic.setSortIndex(new Integer(0));
         topic.setModified(new Date());
+        if(getCurrentUser()!=null){
         topic.setModifiedBy(getCurrentUser());
+        }
         topic.setTypeUuid(typeManager.getPrivateMessageAreaType());
         topic.setModerated(Boolean.FALSE);
         LOG.debug("createPrivateForumTopic executed");
@@ -958,7 +979,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         boolean isNew = topic.getId() == null;
 
         topic.setModified(new Date());
+        if(getCurrentUser()!=null){
         topic.setModifiedBy(getCurrentUser());
+        }
         getHibernateTemplate().saveOrUpdate(topic);
 
         if (isNew) {
@@ -977,7 +1000,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         boolean isNew = topic.getId() == null;
 
         topic.setModified(new Date());
+        if(getCurrentUser()!=null){
         topic.setModifiedBy(getCurrentUser());
+        }
         getHibernateTemplate().saveOrUpdate(topic);
 
         if (isNew) {

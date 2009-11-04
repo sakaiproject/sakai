@@ -191,7 +191,7 @@ public interface MessageForumsMessageManager {
     
 	public boolean isToolInSite(String siteId, String toolId);
 
-	public Map getReadStatusForMessagesWithId(List msgIds, String userId);
+	public Map<Long, Boolean> getReadStatusForMessagesWithId(List msgIds, String userId);
 	
 	/**
 	 * Returns list of all messages in site with Pending approval for which

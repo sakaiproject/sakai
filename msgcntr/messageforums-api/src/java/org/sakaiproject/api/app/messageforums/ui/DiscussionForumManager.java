@@ -450,7 +450,13 @@ public interface DiscussionForumManager
    */
   public Attachment createDFAttachment(String attachId, String name);
   
-  public Map getReadStatusForMessagesWithId(List msgIds, String userId);
+  /**
+   * Get the read status of a list of messages for a given user	  
+   * @param msgIds the msg ids to check
+   * @param userId the user - can be null
+   * @return a map of messages indicating their read status
+   */
+  public Map<Long, Boolean> getReadStatusForMessagesWithId(List<Long> msgIds, String userId);
   
   public List getDiscussionForumsWithTopicsMembershipNoAttachments(String contextId);
   
@@ -504,6 +510,7 @@ public interface DiscussionForumManager
    * @return forumId
    */
   public String ForumIdForMessage(Long messageId);
+  public boolean  getAnonRole();
   
   /**
    *

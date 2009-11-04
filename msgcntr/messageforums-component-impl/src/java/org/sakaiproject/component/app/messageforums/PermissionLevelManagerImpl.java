@@ -767,6 +767,30 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 				{
 					permissionLevels.add((PermissionLevel)item.getPermissionLevel());
 				}
+				if(item != null && item.getPermissionLevel() != null && PermissionLevelManager.PERMISSION_LEVEL_NAME_OWNER.equals(item.getPermissionLevelName()))
+									{
+										permissionLevels.add((PermissionLevel)item.getPermissionLevel());
+									}
+									if(item != null && item.getPermissionLevel() != null && PermissionLevelManager.PERMISSION_LEVEL_NAME_AUTHOR.equals(item.getPermissionLevelName()))
+									{
+										permissionLevels.add((PermissionLevel)item.getPermissionLevel());
+									}
+									if(item != null && item.getPermissionLevel() != null && PermissionLevelManager.PERMISSION_LEVEL_NAME_NONEDITING_AUTHOR.equals(item.getPermissionLevelName()))
+									{
+										permissionLevels.add((PermissionLevel)item.getPermissionLevel());
+									}
+									if(item != null && item.getPermissionLevel() != null && PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR.equals(item.getPermissionLevelName()))
+									{
+										permissionLevels.add((PermissionLevel)item.getPermissionLevel());
+									}
+									if(item != null && item.getPermissionLevel() != null && PermissionLevelManager.PERMISSION_LEVEL_NAME_REVIEWER.equals(item.getPermissionLevelName()))
+									{
+										permissionLevels.add((PermissionLevel)item.getPermissionLevel());
+									}
+									if(item != null && item.getPermissionLevel() != null && PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE.equals(item.getPermissionLevelName()))
+									{
+										permissionLevels.add((PermissionLevel)item.getPermissionLevel());
+									}				
 			}
 			getHibernateTemplate().deleteAll(membershipSet);
 			getHibernateTemplate().deleteAll(permissionLevels);
