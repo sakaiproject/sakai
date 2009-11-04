@@ -23,6 +23,7 @@ package org.sakaiproject.tool.messageforums;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -4836,38 +4837,81 @@ public class DiscussionForumTool
   
   public void rearrageTopicMsgsThreaded()
   {
-	if (selectedTopic != null)
-	{
-  
-	  	List msgsList = selectedTopic.getMessages();
-	  	Collections.reverse(msgsList);
-	  	if (msgsList != null && !msgsList.isEmpty())
-	  		msgsList = filterModeratedMessages(msgsList, selectedTopic.getTopic(), (DiscussionForum)selectedTopic.getTopic().getBaseForum());
-	  	
-	  	List orderedList = new ArrayList();
-	  	List threadList = new ArrayList();
-	  	
-	  	if(msgsList != null)
-	  	{
-	  		for(int i=0; i<msgsList.size(); i++)
-	  		{
-	  			DiscussionMessageBean dmb = (DiscussionMessageBean)msgsList.get(i);
-	  			if(dmb.getMessage().getInReplyTo() == null)
-	  			{
-	  				threadList.add(dmb);
-	  				dmb.setDepth(0);
-	  				orderedList.add(dmb);
-	  				//for performance speed - operate with existing selectedTopic msgs instead of getting from manager through DB again 
-	  				//use arrays so as to pass by reference during recursion
-	  				recursiveGetThreadedMsgsFromListWithCounts(msgsList, orderedList, dmb, new int[1], new int[1]);
-	  			}
-	  		}
-	  	}
-	  	
-	  	selectedTopic.setMessages(orderedList);
-	}
- 
+	  if (selectedTopic != null)
+	  {
+
+
+
+
+
+		  List msgsList = selectedTopic.getMessages();
+		  Collections.reverse(msgsList);
+		  if (msgsList != null && !msgsList.isEmpty())
+			  msgsList = filterModeratedMessages(msgsList, selectedTopic.getTopic(), (DiscussionForum)selectedTopic.getTopic().getBaseForum());
+
+		  List orderedList = new ArrayList();
+		  List threadList = new ArrayList();
+
+		  if (!ServerConfigurationService.getBoolean("msgcntr.sort.thread.update", false)) {
+
+			  if(msgsList != null)
+			  {
+				  for(int i=0; i<msgsList.size(); i++)
+				  {
+					  DiscussionMessageBean dmb = (DiscussionMessageBean)msgsList.get(i);
+					  if(dmb.getMessage().getInReplyTo() == null)
+					  {
+						  threadList.add(dmb);
+						  dmb.setDepth(0);
+						  orderedList.add(dmb);
+						  //for performance speed - operate with existing selectedTopic msgs instead of getting from manager through DB again 
+						  //use arrays so as to pass by reference during recursion
+						  recursiveGetThreadedMsgsFromListWithCounts(msgsList, orderedList, dmb, new int[1], new int[1]);
+					  }
+				  }
+			  }
+
+
+
+		  } else {
+			  if(msgsList != null)
+			  {
+				  for(int i=0; i<msgsList.size(); i++)
+				  {
+					  DiscussionMessageBean dmb = (DiscussionMessageBean)msgsList.get(i);
+					  if(dmb.getMessage().getInReplyTo() == null)
+					  {
+						  threadList.add(dmb);
+					  }
+				  }
+
+				  sortThreadListByUpdate(threadList);
+				  for(int i=0; i<threadList.size(); i++)
+				  {
+					  DiscussionMessageBean dmb = (DiscussionMessageBean)threadList.get(i);
+					  dmb.setDepth(0);
+					  	orderedList.add(dmb);
+						  //for performance speed - operate with existing selectedTopic msgs instead of getting from manager through DB again 
+						  //use arrays so as to pass by reference during recursion
+						  recursiveGetThreadedMsgsFromListWithCounts(msgsList, orderedList, dmb, new int[1], new int[1]);
+					  
+				  }
+			  }
+			  
+		  }
+		  selectedTopic.setMessages(orderedList);
+	  }
   }
+  
+  private List sortThreadListByUpdate(List threadList) {
+	  
+	  
+	  Collections.sort(threadList, new ThreadUpdateSorter());
+	  
+	  
+	  return threadList;
+  }
+  
   
   private void recursiveGetThreadedMsgsFromList(List msgsList, List returnList,
 	      DiscussionMessageBean currentMsg)
@@ -6891,6 +6935,11 @@ public class DiscussionForumTool
 		
 	}
 	
-	
+	private class ThreadUpdateSorter implements Comparator<DiscussionMessageBean>{
+
+	    public int compare(DiscussionMessageBean dmb1, DiscussionMessageBean dmb2) {
+	        return dmb2.getMessage().getDateThreadlastUpdated().compareTo(dmb1.getMessage().getDateThreadlastUpdated());
+	    }
+	}
 }
 

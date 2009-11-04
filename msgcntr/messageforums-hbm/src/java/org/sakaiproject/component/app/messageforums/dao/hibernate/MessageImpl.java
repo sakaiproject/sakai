@@ -53,6 +53,10 @@ public class MessageImpl extends MutableEntityImpl implements Message
   private String gradeComment;
   private String gradeAssignmentName; 
   private Boolean deleted;
+  private Long threadId;
+  private Date threadLastUpdated;
+  private Long lastTreadPostId;
+  private Integer numReaders;
   
   public static Comparator ATTACHMENT_COMPARATOR;
   public static Comparator SUBJECT_COMPARATOR;
@@ -458,6 +462,45 @@ public class MessageImpl extends MutableEntityImpl implements Message
   }
 
  
+	public Date getDateThreadlastUpdated() {
+		
+		return threadLastUpdated;
+	}
+
+	public Long getThreadId() {
+		
+		return threadId;
+	}
+
+	public void setDateThreadlastUpdated(Date date) {
+		this.threadLastUpdated = date;
+		
+	}
+
+	public void setThreadId(Long threadid) {
+		this.threadId = threadid;
+		
+	}
+
+	public Long getThreadLastPost() {
+		return lastTreadPostId;
+	}
+
+	public void setThreadLastPost(Long messageId) {
+		this.lastTreadPostId = messageId;
+		
+	}
+
+	public Integer getNumReaders() {
+	
+		return numReaders;
+	}
+
+	public void setNumReaders(Integer numReaders) {
+		this.numReaders = numReaders;
+		
+	}
+
 }
 
 

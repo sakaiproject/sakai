@@ -890,6 +890,10 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         {
         	LOG.error("null attribute(s) for saving message in MessageForumsMessageManagerImpl.saveMessage");
         }
+        
+        	
+
+        
         getHibernateTemplate().saveOrUpdate(message);
     
         if (logEvent) {
@@ -904,9 +908,32 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         		else
         			eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(message), false));
         	}
+            
+        	//we don't need to do this on non log events
+        	message.setDateThreadlastUpdated(new Date());
+            if (message.getInReplyTo() != null) {
+            	message.setThreadId(message.getInReplyTo().getThreadId());
+            }
+            if (message.getInReplyTo() != null) {
+            	Message m = null;
+            	if (message.getThreadId() != null)
+            		m = this.getMessageById(message.getThreadId());
+            	else 
+            		m = message.getInReplyTo();
+            	//otherwise we get an NPE when we try to save this message
+            	Topic topic = message.getTopic();
+            	BaseForum bf  = topic.getBaseForum();
+            	m.setTopic(topic);
+            	m.getTopic().setBaseForum(bf);
+            	m.setThreadLastPost(message.getId());
+            	m.setDateThreadlastUpdated(new Date());
+            	this.saveMessage(m, false);
+            }
+            
         }
         
         LOG.info("message " + message.getId() + " saved successfully");
+        
     }
 
     public void deleteMessage(Message message) {

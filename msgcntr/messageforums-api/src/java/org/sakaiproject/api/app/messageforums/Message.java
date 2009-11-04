@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.api.app.messageforums;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -68,6 +69,50 @@ public interface Message extends MutableEntity {
     public String getGradeAssignmentName();
     public void setGradeAssignmentName(String gradeAssignmentName);
     
- 
+
+
+    public void setNumReaders(Integer numReaders);
+    /**
+     * 
+     * @return the number of unique users who have read the message
+     */
+    public Integer getNumReaders();
+    
+    /**
+     *  Set the threadId - efectivelly the id of the top level message in this thread
+     * @param theadid
+     */
+    public void setThreadId(Long threadid);
+    
+    /**
+     * the Id of the thread the message is in - null for top level messages
+     * @return
+     */
+    public Long getThreadId();
+    
+    /**
+     * The date that this thread was last updated 
+     * @param date
+     */
+    public void setDateThreadlastUpdated(Date date);
+    
+    /**
+     * 
+     * @return
+     */
+    public Date getDateThreadlastUpdated();
+    
+    
+    /**
+     * Set the id of the last message posted in the tread
+     * @param messageId
+     */
+    public void setThreadLastPost(Long messageId);
+    
+    /**
+     * 
+     * @return
+     */
+    public Long getThreadLastPost();
     
 }
