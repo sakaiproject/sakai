@@ -2,12 +2,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <name>basiclti base pom</name>
+    <name>BasicLTI base pom (basiclti)</name>
     <groupId>org.sakaiproject.basiclti</groupId>
     <artifactId>basiclti</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    
+
     <!-- Change this to the Sakai released version you're running -->
     <!-- Unreleased or snapshot tags may require the entire source -->
     <!-- example: <version>2.6.1</version> -->
@@ -16,11 +16,11 @@
         <groupId>org.sakaiproject</groupId>
         <version>2.7.0-SNAPSHOT</version>
     </parent>
-    
+
     <properties>
         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/basiclti/${project.version}</url.localsite>
     </properties>
-    
+
     <modules>
         <module>basiclti-assembly</module>
         <module>basiclti-impl</module>
@@ -29,15 +29,15 @@
         <module>basiclti-util</module>
         <module>portlet-util</module>
     </modules>
-    
+
     <scm>
         <connection>scm:svn:https://source.sakaiproject.org/contrib/ims/basiclti/trunk</connection>
         <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/ims/basiclti/trunk</developerConnection>
         <url>https://source.sakaiproject.org/contrib/ims/basiclti/trunk</url>
     </scm>
-    
+
     <distributionManagement>
-      <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
+        <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
         <snapshotRepository>
             <uniqueVersion>false</uniqueVersion>
             <id>sakai-maven-snapshots</id>
@@ -58,7 +58,7 @@
             <url>${url.localsite}</url>
         </site>
     </distributionManagement>
-    
+
     <repositories>
         <repository>
             <id>sakai-maven</id>
@@ -88,6 +88,7 @@
             </snapshots>
         </repository>
     </repositories>
+    
     <dependencyManagement>
         <dependencies>
             <dependency>
