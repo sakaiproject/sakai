@@ -25,11 +25,11 @@
     
     <dependencies>
         <dependency>
-            <groupId>org.sakaiproject.basiclti</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>basiclti-util</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.basiclti</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>basiclti-impl</artifactId>
         </dependency>
     </dependencies>
