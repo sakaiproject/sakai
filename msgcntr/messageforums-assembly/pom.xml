@@ -15,7 +15,7 @@
     <!-- the base is parent -->
     <parent>
         <artifactId>msgcntr</artifactId>
-        <groupId>org.sakaiproject</groupId>
+        <groupId>org.sakaiproject.msgcntr</groupId>
         <version>1.5-SNAPSHOT</version><!--entitybroker.version-->
     </parent>
 
