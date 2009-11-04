@@ -1,77 +1,75 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>sam-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
-    <version>2.7.0-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
-  </parent>
-  <name>sakai-samigo-pack</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-samigo-pack</artifactId>
-  <organization>
-    <name>Sakai Project</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2004</inceptionYear>
-  <packaging>sakai-component</packaging>
-  <properties>
-    <deploy.target>components</deploy.target>
-  </properties>
-  <dependencies>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-util</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-component-manager</artifactId>
-    </dependency>
-<!--
-      This has been relocated to sakai-kernel-util
-      org.sakaiproject.kernel.utilsakai-util-->
-<!--org.sakaiprojectsakai-util${sakai.version}-->
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
-    </dependency>
-<!--org.sakaiprojectsakai-db-api${sakai.version}-->
-<!--org.sakaiprojectsakai-component-api${sakai.version}-->
-<!-- Samigo Lite -->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-samlite-impl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>ims</groupId>
-      <artifactId>imsqti</artifactId>
-      <version>1.2</version>
-    </dependency>
-    <dependency>
-      <groupId>xmlbeans</groupId>
-      <artifactId>xbean</artifactId>
-      <version>2.2.0</version>
-    </dependency>
-    <dependency>
-      <groupId>xmlbeans</groupId>
-      <artifactId>jsr173</artifactId>
-      <version>1.0_api</version>
-    </dependency>
-  </dependencies>
-  <build>
-    <resources>
-      <resource>
-        <directory>src/sql</directory>
-        <includes>
-          <include>**/*.sql</include>
-        </includes>
-      </resource>
-    </resources>
-  </build>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+    
+	<parent>
+		<groupId>org.sakaiproject.samigo</groupId>
+		<artifactId>samigo</artifactId>
+		<version>2.7.0-SNAPSHOT</version>
+	</parent>
+    
+	<name>Sakai Samigo Component Package (samigo-pack)</name>
+	<groupId>org.sakaiproject.samigo</groupId>
+	<artifactId>samigo-pack</artifactId>
+	<organization>
+		<name>Sakai Project</name>
+		<url>http://sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2004</inceptionYear>
+	<packaging>sakai-component</packaging>
+    
+	<properties>
+		<deploy.target>components</deploy.target>
+	</properties>
+    
+	<dependencies>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-util</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-component-manager</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+		<!-- Samigo Lite -->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>samlite-impl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ims</groupId>
+			<artifactId>imsqti</artifactId>
+			<version>1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>xmlbeans</groupId>
+			<artifactId>xbean</artifactId>
+			<version>2.2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>xmlbeans</groupId>
+			<artifactId>jsr173</artifactId>
+			<version>1.0_api</version>
+		</dependency>
+	</dependencies>
+    
+	<build>
+		<resources>
+			<resource>
+				<directory>src/sql</directory>
+				<includes>
+					<include>**/*.sql</include>
+				</includes>
+			</resource>
+		</resources>
+	</build>
 </project>

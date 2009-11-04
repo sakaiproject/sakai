@@ -1,598 +1,541 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>sam-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
-    <version>2.7.0-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
-  </parent>
-  <name>Sakai Samigo Tool</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>samigo</artifactId>
-  <organization>
-    <name>Sakai Project</name>
-    <url>http://www.sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2005</inceptionYear>
-  <packaging>war</packaging>
-  <properties>
-    <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
-    <rsfutil.version>0.7.4</rsfutil.version>
-  </properties>
-  <repositories>
-    <repository>
-      <id>caret-dev</id>
-      <name>Caret Dev Repo</name>
-      <layout>default</layout>
-      <url>http://www2.caret.cam.ac.uk/maven2dev</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
-  <dependencies>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-util</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-component-manager</artifactId>
-    </dependency>
-<!--
-      This has been relocated to sakai-kernel-util
-      org.sakaiproject.kernel.utilsakai-util-->
-    <dependency>
-      <groupId>uk.org.ponder.sakairsf</groupId>
-      <artifactId>SakaiRSFComponents-templates</artifactId>
-      <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
-      <type>war</type>
-    </dependency>
-    <dependency>
-      <groupId>uk.org.ponder.sakairsf</groupId>
-      <artifactId>SakaiRSFComponents-evolvers</artifactId>
-      <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>uk.org.ponder.sakairsf</groupId>
-      <artifactId>sakairsf</artifactId>
-      <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>2.4</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>uk.org.ponder.rsfutil</groupId>
-      <artifactId>RSFComponents-templates</artifactId>
-      <version>${rsfutil.version}</version>
-      <type>war</type>
-    </dependency>
-<!-- Samigo API -->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-samigo-api</artifactId>
-    </dependency>
-<!-- Samigo IMPL -->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-samigo-hibernate</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-samigo-services</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-samigo-qti</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-samigo-cp</artifactId>
-    </dependency>
-<!-- Samigo AUDIO applet jar -->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-samigo-audio</artifactId>
-      <scope>provided</scope>
-<!--properties:  war.target.path: applets -->
-    </dependency>
-<!-- Section Awareness -->
-    <dependency>
-      <groupId>org.sakaiproject.edu-services.sections</groupId>
-      <artifactId>sections-api</artifactId>
-<!--properties:  deploy.target: shared -->
-    </dependency>
-<!-- TODO Come up with a way to make the dependencies deployment-sensitive. -->
-<!-- Standalone component -->
-    <dependency>
-      <groupId>org.sakaiproject.edu-services.sections</groupId>
-      <artifactId>sections-impl-standalone</artifactId>
-      <scope>provided</scope>
-<!--properties:  war.bundle: standalone -->
-    </dependency>
-<!-- Sakai-embedded version -->
-    <dependency>
-      <groupId>org.sakaiproject.edu-services.sections</groupId>
-      <artifactId>sections-impl</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.sakaiproject.edu-services.sections</groupId>
-          <artifactId>sections-model</artifactId>
-        </exclusion>
-      </exclusions>
-<!--properties:  war.bundle: integrated -->
-    </dependency>
-<!--
-	The following is included as a dependency of the standalone Sections
-	integration support JAR.
-	-->
-<!-- Uuid generator -->
-<!--
-	<dependency>
-	  <groupId>org.sakaiproject</groupId>
-		<artifactId>sakai-common-uuid-component</artifactId>
-		
-            <properties>
-                <war.bundle>standalone</war.bundle>
-            </properties>
-	</dependency>
-	<dependency>
-		<groupId>org.sakaiproject</groupId>
-		<artifactId>sakai-common-uuid-api</artifactId>
-		
-            <properties>
-                <war.bundle>standalone</war.bundle>
-            </properties>
-	</dependency>
--->
-<!-- Sakai plugin for building inside Sakai -->
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.8</version>
-<!--properties:  war.bundle: standalone -->
-    </dependency>
-    <dependency>
-      <groupId>navigo</groupId>
-      <artifactId>OKI-SPRING-HIBERNATE</artifactId>
-      <version>0</version>
-    </dependency>
-    <dependency>
-      <groupId>navigo</groupId>
-      <artifactId>SakaiBaseFramework</artifactId>
-      <version>1.0.a1</version>
-    </dependency>
-<!--org.sakaiprojectsakai-authz-api${sakai.version}-->
-<!--org.sakaiprojectsakai-entity-api${sakai.version}-->
-<!--
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-entity-impl</artifactId>
-      
-    </dependency>
--->
-<!-- need to use ToolManager, ToolSession, Placement -->
-    <dependency>
-      <groupId>org.sakaiproject.entitybroker</groupId>
-      <artifactId>entitybroker-api</artifactId>
-    </dependency>
-<!--org.sakaiprojectsakai-tool-api${sakai.version}-->
-<!-- this is required for any Sakai JSF tool -->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-jsf-tool</artifactId>
-<!--properties:  war.bundle: integrated -->
-    </dependency>
-<!-- these (jsf-app and util-web) are options to get full Sakai JSF integration -->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-jsf-app</artifactId>
-<!--properties:  war.bundle: integrated -->
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-depend-jsf-widgets-sun</artifactId>
-      <type>pom</type>
-    </dependency>
-<!--org.sakaiprojectsakai-util${sakai.version}-->
-<!-- For integration with the gradebook -->
-    <dependency>
-      <groupId>org.sakaiproject.edu-services.gradebook</groupId>
-      <artifactId>gradebook-service-api</artifactId>
-<!--properties:  war.bundle: false -->
-    </dependency>
-<!--  For the facades to call into Sakai legacy services (SiteService, RealmService, etc) -->
-<!--org.sakaiprojectsakai-site-api${sakai.version}-->
-<!--org.sakaiprojectsakai-user-api${sakai.version}-->
-<!--org.sakaiprojectsakai-db-api${sakai.version}-->
-<!--org.sakaiprojectsakai-component-api${sakai.version}-->
-<!--org.sakaiprojectsakai-component${sakai.version}-->
-<!-- need to registering samigo functions with sakai -->
-<!-- doesn't need this 
-    <dependency>
-       <groupId>org.sakaiproject</groupId>
-       <artifactId>sakai-function</artifactId>
-       
-    </dependency>
--->
-<!-- Uuid generator -->
-<!--org.sakaiprojectsakai-util-api${sakai.version}-->
-<!--
-      sakai-util-impl is a part of the kernel implementation, p:dependency removed
-      org.sakaiprojectsakai-util-impl${sakai.version}provided-->
-<!--org.sakaiprojectsakai-event-api${sakai.version}-->
-<!-- end Sakai integration dependencies -->
-<!--**********************************************************-->
-    <dependency>
-      <groupId>OKI</groupId>
-      <artifactId>OkiOSID</artifactId>
-      <version>2.0</version>
-    </dependency>
-<!-- has trouble download this one for some reason -->
-    <dependency>
-      <groupId>OKI</groupId>
-      <artifactId>OkiSID</artifactId>
-      <version>rc6.1</version>
-    </dependency>
-<!-- This is just for Eclipse compiling; Maven compiling doesn't need it but its here for Eclipse -->
-    <dependency>
-      <groupId>aopalliance</groupId>
-      <artifactId>aopalliance</artifactId>
-      <version>1.0</version>
-      <scope>provided</scope>
-<!--properties:  war.bundle: standalone -->
-    </dependency>
-    <dependency>
-      <groupId>javax.activation</groupId>
-      <artifactId>activation</artifactId>
-      <scope>provided</scope>
-<!--properties:  war.bundle: standalone -->
-    </dependency>
-    <dependency>
-      <groupId>axis</groupId>
-      <artifactId>axis</artifactId>
-      <version>1.1</version>
-    </dependency>
-    <dependency>
-      <groupId>axis</groupId>
-      <artifactId>axis-ant</artifactId>
-      <version>1.1</version>
-    </dependency>
-    <dependency>
-      <groupId>cglib</groupId>
-      <artifactId>cglib-full</artifactId>
-      <version>2.0.2</version>
-      <scope>provided</scope>
-<!--properties:  war.bundle: standalone -->
-    </dependency>
-    <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
-      <version>1.2</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-beanutils</groupId>
-      <artifactId>commons-beanutils</artifactId>
-      <version>1.7.0</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-      <version>3.1</version>
-<!--properties:  war.bundle: standalone -->
-    </dependency>
-    <dependency>
-      <groupId>commons-dbcp</groupId>
-      <artifactId>commons-dbcp</artifactId>
-      <version>1.2.2</version>
-      <scope>provided</scope>
-<!--properties:  war.bundle: standalone -->
-    </dependency>
-    <dependency>
-      <groupId>commons-digester</groupId>
-      <artifactId>commons-digester</artifactId>
-      <version>1.6</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-discovery</groupId>
-      <artifactId>commons-discovery</artifactId>
-      <version>0.2</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-fileupload</groupId>
-      <artifactId>commons-fileupload</artifactId>
-     </dependency>
-    <dependency>
-      <groupId>commons-jxpath</groupId>
-      <artifactId>commons-jxpath</artifactId>
-      <version>1.1</version>
-      <exclusions>
-        <exclusion>
-          <groupId>xerces</groupId>
-          <artifactId>xerces</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-     </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-pool</groupId>
-      <artifactId>commons-pool</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-validator</groupId>
-      <artifactId>commons-validator</artifactId>
-      <version>1.0.2</version>
-    </dependency>
-    <dependency>
-      <groupId>dom4j</groupId>
-      <artifactId>dom4j</artifactId>
-      <version>1.4</version>
-<!--properties:  war.bundle: standalone -->
-    </dependency>
-<!--${sakai.ehcache.groupId}${sakai.ehcache.artifactId}${sakai.ehcache.version}-->
-    <dependency>
-      <groupId>fop</groupId>
-      <artifactId>fop</artifactId>
-      <version>0.20.5</version>
-    </dependency>
-<!--${sakai.hibernate.groupId}${sakai.hibernate.artifactId}${sakai.hibernate.version}-->
-    <dependency>
-      <groupId>hsqldb</groupId>
-      <artifactId>hsqldb</artifactId>
-      <version>1.8.0.5</version>
-<!--properties:  war.bundle: standalone -->
-    </dependency>
-    <dependency>
-      <groupId>jaxen</groupId>
-      <artifactId>jaxen</artifactId>
-      <version>1.0-FCS-full</version>
-    </dependency>
-    <dependency>
-      <groupId>jdom</groupId>
-      <artifactId>jdom</artifactId>
-      <version>1.0</version>
-<!--properties:  war.bundle: standalone -->
-    </dependency>
-    <dependency>
-      <groupId>jsf</groupId>
-      <artifactId>jsf-impl</artifactId>
-      <version>1.1.01</version>
-    </dependency>
-    <dependency>
-      <groupId>jsf</groupId>
-      <artifactId>jsf-api</artifactId>
-      <version>1.1.01</version>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>jstl</artifactId>
-      <version>1.1.2</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>jta</groupId>
-      <artifactId>jta</artifactId>
-      <version>h2.1.8</version>
-<!--properties:  war.bundle: standalone -->
-    </dependency>
-<!--
-    <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
-      <version>3.0.10-stable-bin</version>
-      <properties>
-        <war.bundle>standalone</war.bundle>
-      </properties>
-    </dependency>
--->
-    <dependency>
-      <groupId>ojb</groupId>
-      <artifactId>db-ojb</artifactId>
-      <version>1.0.rc6</version>
-    </dependency>
-    <dependency>
-      <groupId>odmg</groupId>
-      <artifactId>odmg</artifactId>
-      <version>3.0</version>
-      <scope>provided</scope>
-<!--properties:  war.bundle: standalone -->
-    </dependency>
-    <dependency>
-      <groupId>oro</groupId>
-      <artifactId>oro</artifactId>
-      <version>2.0.7</version>
-    </dependency>
-    <dependency>
-      <groupId>saxpath</groupId>
-      <artifactId>saxpath</artifactId>
-      <version>1.0-FCS</version>
-    </dependency>
-<!--javax.servletservlet-api${sakai.servletapi.version}-->
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>jsp-api</artifactId>
-      <version>2.0</version>
-    </dependency>
-    <dependency>
-      <groupId>axis</groupId>
-      <artifactId>axis-saaj</artifactId>
-      <version>1.2-RC1</version>
-    </dependency>
-<!--${sakai.spring.groupId}${sakai.spring.artifactId}${sakai.spring.version}provided-->
-    <dependency>
-      <groupId>struts</groupId>
-      <artifactId>struts</artifactId>
-      <version>1.1</version>
-    </dependency>
-    <dependency>
-      <groupId>taglibs</groupId>
-      <artifactId>standard</artifactId>
-      <version>1.0.4</version>
-    </dependency>
-    <dependency>
-      <groupId>wsdl4j</groupId>
-      <artifactId>wsdl4j</artifactId>
-      <version>1.4</version>
-    </dependency>
-<!--org.sakaiprojectsakai-content-api${sakai.version}-->
-    <dependency>
-      <groupId>javax.mail</groupId>
-      <artifactId>mail</artifactId>
-      <version>1.3.1</version>
-<!--properties:  war.bundle: standalone -->
-    </dependency>
-<!-- ask Lydia -->
-    <dependency>
-      <groupId>axis</groupId>
-      <artifactId>axis-jaxrpc</artifactId>
-      <version>1.2-RC1</version>
-    </dependency>
-<!-- transtive deps being excluded -->
-<!-- provided deps that would otherwise be bundled -->
-    <dependency>
-      <groupId>xml-apis</groupId>
-      <artifactId>xml-apis</artifactId>
-      <version>2.0.2</version>
-    </dependency>
-    <dependency>
-      <groupId>javax.sql</groupId>
-      <artifactId>jdbc-stdext</artifactId>
-      <version>2.0</version>
-    </dependency>
-    <dependency>
-      <groupId>xalan</groupId>
-      <artifactId>xalan</artifactId>
-      <version>2.6.0</version>
-      <type>jar</type>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-jsf-spreadsheet</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.myfaces.core</groupId>
-          <artifactId>myfaces-api</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-<!-- for spreadsheet support -->
-    <dependency>
-      <groupId>poi</groupId>
-      <artifactId>poi</artifactId>
-      <version>2.5.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.myfaces.tomahawk</groupId>
-      <artifactId>tomahawk</artifactId>
-      <version>1.1.6</version>
-    </dependency>
-    <dependency>
-      <groupId>com.lowagie</groupId>
-      <artifactId>itext</artifactId>
-      <version>2.0.7</version>
-      </dependency>
-  </dependencies>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-war-plugin</artifactId>
-        <version>2.0</version>
-        <configuration>
-<!-- the resources order is important the first take precidence -->
-          <webResources>
-            <resource>
-              <directory>${basedir}/sakai-samigo/webapp</directory>
-              <includes>
-                <include>**/*.*</include>
-              </includes>
-            </resource>
-            <resource>
-              <directory>${basedir}/src/webapp</directory>
-              <includes>
-                <include>**/*.*</include>
-              </includes>
-            </resource>
-          </webResources>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>process-resources</phase>
-            <configuration>
-              <tasks>
-                <echo message="project.build.directory=${project.build.directory}"/>
-                <echo message="basedir=${basedir}"/>
-                <echo message="basedir=${project.version}"/>
-                <copy file="${basedir}/../samigo-audio/target/sakai-samigo-audio-${project.version}.jar" tofile="${project.build.directory}/samigo-${project.version}/applets/sakai-samigo-audio-dev.jar"/>
-              </tasks>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-    <resources>
-      <resource>
-        <directory>${basedir}/src/java</directory>
-        <excludes>
-          <exclude>**/*.java</exclude>
-        </excludes>
-      </resource>
-      <resource>
-        <directory>${basedir}/src/sql</directory>
-        <includes>
-          <include>**/*.sql</include>
-        </includes>
-      </resource>
-    </resources>
-   <!--  <sourceDirectory>src</sourceDirectory> -->
-<!-- <unitTestSourceDirectory>src/test</unitTestSourceDirectory> -->
-<!--
-      <unitTest>
-      <includes>
-      <include>**/*Test.java</include>
-      </includes>
-      </unitTest>
-    -->
-  </build>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+    
+	<parent>
+		<groupId>org.sakaiproject.samigo</groupId>
+		<artifactId>samigo</artifactId>
+		<version>2.7.0-SNAPSHOT</version>
+	</parent>
+    
+	<name>Sakai Samigo Tool (samigo-app)</name>
+	<groupId>org.sakaiproject.samigo</groupId>
+	<artifactId>samigo-app</artifactId>
+	<organization>
+		<name>Sakai Project</name>
+		<url>http://www.sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2005</inceptionYear>
+	<packaging>war</packaging>
+    
+	<properties>
+		<sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
+		<rsfutil.version>0.7.4</rsfutil.version>
+	</properties>
+    
+	<repositories>
+		<repository>
+			<id>caret-dev</id>
+			<name>Caret Dev Repo</name>
+			<layout>default</layout>
+			<url>http://www2.caret.cam.ac.uk/maven2dev</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+    
+	<dependencies>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-util</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.ehcache</groupId>
+			<artifactId>ehcache</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-component-manager</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>uk.org.ponder.sakairsf</groupId>
+			<artifactId>SakaiRSFComponents-templates</artifactId>
+			<version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
+			<type>war</type>
+		</dependency>
+		<dependency>
+			<groupId>uk.org.ponder.sakairsf</groupId>
+			<artifactId>SakaiRSFComponents-evolvers</artifactId>
+			<version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>uk.org.ponder.sakairsf</groupId>
+			<artifactId>sakairsf</artifactId>
+			<version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.4</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>uk.org.ponder.rsfutil</groupId>
+			<artifactId>RSFComponents-templates</artifactId>
+			<version>${rsfutil.version}</version>
+			<type>war</type>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>samigo-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>samigo-hibernate</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>samigo-services</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>samigo-qti</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>samigo-cp</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>samigo-audio</artifactId>
+			<scope>provided</scope>
+			<!--properties:  war.target.path: applets -->
+		</dependency>
+		<!-- Section Awareness -->
+		<dependency>
+			<groupId>org.sakaiproject.edu-services.sections</groupId>
+			<artifactId>sections-api</artifactId>
+            <version>${sakai.edu-services.version}</version>
+			<!--properties:  deploy.target: shared -->
+		</dependency>
+		<!--
+			TODO Come up with a way to make the dependencies
+			deployment-sensitive.
+		-->
+		<!-- Standalone component -->
+		<dependency>
+			<groupId>org.sakaiproject.edu-services.sections</groupId>
+			<artifactId>sections-impl-standalone</artifactId>
+            <version>${sakai.edu-services.version}</version>
+			<scope>provided</scope>
+			<!--properties:  war.bundle: standalone -->
+		</dependency>
+		<!-- Sakai-embedded version -->
+		<dependency>
+			<groupId>org.sakaiproject.edu-services.sections</groupId>
+			<artifactId>sections-impl</artifactId>
+            <version>${sakai.edu-services.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.sakaiproject.edu-services.sections</groupId>
+					<artifactId>sections-model</artifactId>
+				</exclusion>
+			</exclusions>
+			<!--properties:  war.bundle: integrated -->
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.8</version>
+			<!--properties:  war.bundle: standalone -->
+		</dependency>
+		<dependency>
+			<groupId>navigo</groupId>
+			<artifactId>OKI-SPRING-HIBERNATE</artifactId>
+			<version>0</version>
+		</dependency>
+		<dependency>
+			<groupId>navigo</groupId>
+			<artifactId>SakaiBaseFramework</artifactId>
+			<version>1.0.a1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.entitybroker</groupId>
+			<artifactId>entitybroker-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-jsf-tool</artifactId>
+			<!--properties:  war.bundle: integrated -->
+		</dependency>
+		<!--
+			these (jsf-app and util-web) are options to get full Sakai JSF
+			integration
+		-->
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-jsf-app</artifactId>
+			<!--properties:  war.bundle: integrated -->
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-depend-jsf-widgets-sun</artifactId>
+			<type>pom</type>
+		</dependency>
+		<!-- For integration with the gradebook -->
+		<dependency>
+			<groupId>org.sakaiproject.edu-services.gradebook</groupId>
+			<artifactId>gradebook-service-api</artifactId>
+            <version>${sakai.edu-services.version}</version>
+			<!--properties:  war.bundle: false -->
+		</dependency>
+		<dependency>
+			<groupId>OKI</groupId>
+			<artifactId>OkiOSID</artifactId>
+			<version>2.0</version>
+		</dependency>
+		<!-- has trouble download this one for some reason -->
+		<dependency>
+			<groupId>OKI</groupId>
+			<artifactId>OkiSID</artifactId>
+			<version>rc6.1</version>
+		</dependency>
+		<!--
+			This is just for Eclipse compiling; Maven compiling doesn't need it
+			but its here for Eclipse
+		-->
+		<dependency>
+			<groupId>aopalliance</groupId>
+			<artifactId>aopalliance</artifactId>
+			<version>1.0</version>
+			<scope>provided</scope>
+			<!--properties:  war.bundle: standalone -->
+		</dependency>
+		<dependency>
+			<groupId>javax.activation</groupId>
+			<artifactId>activation</artifactId>
+			<scope>provided</scope>
+			<!--properties:  war.bundle: standalone -->
+		</dependency>
+		<dependency>
+			<groupId>axis</groupId>
+			<artifactId>axis</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>axis</groupId>
+			<artifactId>axis-ant</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib-full</artifactId>
+			<version>2.0.2</version>
+			<scope>provided</scope>
+			<!--properties:  war.bundle: standalone -->
+		</dependency>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>1.7.0</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>3.1</version>
+			<!--properties:  war.bundle: standalone -->
+		</dependency>
+		<dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+			<version>1.2.2</version>
+			<scope>provided</scope>
+			<!--properties:  war.bundle: standalone -->
+		</dependency>
+		<dependency>
+			<groupId>commons-digester</groupId>
+			<artifactId>commons-digester</artifactId>
+			<version>1.6</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-discovery</groupId>
+			<artifactId>commons-discovery</artifactId>
+			<version>0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-jxpath</groupId>
+			<artifactId>commons-jxpath</artifactId>
+			<version>1.1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>xerces</groupId>
+					<artifactId>xerces</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-pool</groupId>
+			<artifactId>commons-pool</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-validator</groupId>
+			<artifactId>commons-validator</artifactId>
+			<version>1.0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>dom4j</groupId>
+			<artifactId>dom4j</artifactId>
+			<version>1.4</version>
+			<!--properties:  war.bundle: standalone -->
+		</dependency>
+		<dependency>
+			<groupId>fop</groupId>
+			<artifactId>fop</artifactId>
+			<version>0.20.5</version>
+		</dependency>
+		<dependency>
+			<groupId>hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>1.8.0.5</version>
+			<!--properties:  war.bundle: standalone -->
+		</dependency>
+		<dependency>
+			<groupId>jaxen</groupId>
+			<artifactId>jaxen</artifactId>
+			<version>1.0-FCS-full</version>
+		</dependency>
+		<dependency>
+			<groupId>jdom</groupId>
+			<artifactId>jdom</artifactId>
+			<version>1.0</version>
+			<!--properties:  war.bundle: standalone -->
+		</dependency>
+		<dependency>
+			<groupId>jsf</groupId>
+			<artifactId>jsf-impl</artifactId>
+			<version>1.1.01</version>
+		</dependency>
+		<dependency>
+			<groupId>jsf</groupId>
+			<artifactId>jsf-api</artifactId>
+			<version>1.1.01</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+			<version>1.1.2</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>jta</groupId>
+			<artifactId>jta</artifactId>
+			<version>h2.1.8</version>
+			<!--properties:  war.bundle: standalone -->
+		</dependency>
+		<!--
+			<dependency> <groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>3.0.10-stable-bin</version> <properties>
+			<war.bundle>standalone</war.bundle> </properties> </dependency>
+		-->
+		<dependency>
+			<groupId>ojb</groupId>
+			<artifactId>db-ojb</artifactId>
+			<version>1.0.rc6</version>
+		</dependency>
+		<dependency>
+			<groupId>odmg</groupId>
+			<artifactId>odmg</artifactId>
+			<version>3.0</version>
+			<scope>provided</scope>
+			<!--properties:  war.bundle: standalone -->
+		</dependency>
+		<dependency>
+			<groupId>oro</groupId>
+			<artifactId>oro</artifactId>
+			<version>2.0.7</version>
+		</dependency>
+		<dependency>
+			<groupId>saxpath</groupId>
+			<artifactId>saxpath</artifactId>
+			<version>1.0-FCS</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jsp-api</artifactId>
+			<version>2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>axis</groupId>
+			<artifactId>axis-saaj</artifactId>
+			<version>1.2-RC1</version>
+		</dependency>
+		<dependency>
+			<groupId>struts</groupId>
+			<artifactId>struts</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>taglibs</groupId>
+			<artifactId>standard</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+		<dependency>
+			<groupId>wsdl4j</groupId>
+			<artifactId>wsdl4j</artifactId>
+			<version>1.4</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.mail</groupId>
+			<artifactId>mail</artifactId>
+			<version>1.3.1</version>
+			<!--properties:  war.bundle: standalone -->
+		</dependency>
+		<!-- ask Lydia -->
+		<dependency>
+			<groupId>axis</groupId>
+			<artifactId>axis-jaxrpc</artifactId>
+			<version>1.2-RC1</version>
+		</dependency>
+		<!-- transtive deps being excluded -->
+		<!-- provided deps that would otherwise be bundled -->
+		<dependency>
+			<groupId>xml-apis</groupId>
+			<artifactId>xml-apis</artifactId>
+			<version>2.0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.sql</groupId>
+			<artifactId>jdbc-stdext</artifactId>
+			<version>2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>xalan</groupId>
+			<artifactId>xalan</artifactId>
+			<version>2.6.0</version>
+			<type>jar</type>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-jsf-spreadsheet</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.myfaces.core</groupId>
+					<artifactId>myfaces-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<!-- for spreadsheet support -->
+		<dependency>
+			<groupId>poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>2.5.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.myfaces.tomahawk</groupId>
+			<artifactId>tomahawk</artifactId>
+			<version>1.1.6</version>
+		</dependency>
+		<dependency>
+			<groupId>com.lowagie</groupId>
+			<artifactId>itext</artifactId>
+			<version>2.0.7</version>
+		</dependency>
+	</dependencies>
+    
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.0</version>
+				<configuration>
+					<!-- the resources order is important the first take precidence -->
+					<webResources>
+						<resource>
+							<directory>${basedir}/sakai-samigo/webapp</directory>
+							<includes>
+								<include>**/*.*</include>
+							</includes>
+						</resource>
+						<resource>
+							<directory>${basedir}/src/webapp</directory>
+							<includes>
+								<include>**/*.*</include>
+							</includes>
+						</resource>
+					</webResources>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>process-resources</phase>
+						<configuration>
+							<tasks>
+								<echo message="project.build.directory=${project.build.directory}" />
+								<echo message="basedir=${basedir}" />
+								<echo message="basedir=${project.version}" />
+								<copy
+									file="${basedir}/../samigo-audio/target/samigo-audio-${project.version}.jar"
+									tofile="${project.build.directory}/samigo-app-${project.version}/applets/samigo-audio-dev.jar" />
+							</tasks>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+		<resources>
+			<resource>
+				<directory>${basedir}/src/java</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
+			<resource>
+				<directory>${basedir}/src/sql</directory>
+				<includes>
+					<include>**/*.sql</include>
+				</includes>
+			</resource>
+		</resources>
+		<!--  <sourceDirectory>src</sourceDirectory> -->
+		<!-- <unitTestSourceDirectory>src/test</unitTestSourceDirectory> -->
+		<!--
+			<unitTest> <includes> <include>**/*Test.java</include> </includes>
+			</unitTest>
+		-->
+	</build>
 </project>

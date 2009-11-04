@@ -1,70 +1,75 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>sam-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
-    <version>2.7.0-SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
-  </parent>
-  <name>Sakai Samigo Import Handlers</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-import-sam</artifactId>
-  <organization>
-    <name>Sakai Foundation</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2005</inceptionYear>
-  <packaging>jar</packaging>
-  <properties>
-    <deploy.target/>
-  </properties>
-  <dependencies>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.common</groupId>
-      <artifactId>archive-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.common</groupId>
-      <artifactId>import-impl</artifactId>
-    </dependency>
-<!--org.sakaiprojectsakai-tool-api${sakai.version}-->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-samigo-services</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-samigo-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-samigo-qti</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-samigo-hibernate</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>OKI</groupId>
-      <artifactId>OkiOSID</artifactId>
-      <version>2.0</version>
-    </dependency>
-  </dependencies>
-  <build>
-    <resources>
-      <resource>
-        <directory>${basedir}/src/config</directory>
-        <includes>
-          <include>**/*.properties</include>
-          <include>**/*.xml</include>
-        </includes>
-      </resource>
-    </resources>
-<!-- other resources for the jar - properties and xml files-->
-  </build>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+    
+	<parent>
+		<groupId>org.sakaiproject.samigo</groupId>
+		<artifactId>samigo</artifactId>
+		<version>2.7.0-SNAPSHOT</version>
+	</parent>
+    
+	<name>Sakai Samigo Import Handlers (samigo-import)</name>
+	<groupId>org.sakaiproject.samigo</groupId>
+	<artifactId>samigo-import</artifactId>
+	<organization>
+		<name>Sakai Foundation</name>
+		<url>http://sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2005</inceptionYear>
+	<packaging>jar</packaging>
+    
+	<properties>
+		<deploy.target />
+	</properties>
+    
+	<dependencies>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.common</groupId>
+			<artifactId>archive-api</artifactId>
+            <version>${sakai.common.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.common</groupId>
+			<artifactId>import-impl</artifactId>
+            <version>${sakai.common.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>samigo-services</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>samigo-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>samigo-qti</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>samigo-hibernate</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>OKI</groupId>
+			<artifactId>OkiOSID</artifactId>
+			<version>2.0</version>
+		</dependency>
+	</dependencies>
+    
+	<build>
+		<resources>
+			<resource>
+				<directory>${basedir}/src/config</directory>
+				<includes>
+					<include>**/*.properties</include>
+					<include>**/*.xml</include>
+				</includes>
+			</resource>
+		</resources>
+		<!-- other resources for the jar - properties and xml files-->
+	</build>
 </project>

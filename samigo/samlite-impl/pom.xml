@@ -1,63 +1,63 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>sam-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
-    <version>2.7.0-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
-  </parent>
-  <name>Sakai Samigo Lite Service Implementaiton</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-samlite-impl</artifactId>
-  <organization>
-    <name>Sakai Project</name>
-    <url>http://www.sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2007</inceptionYear>
-  <packaging>jar</packaging>
-  <dependencies>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-samigo-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-samigo-services</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-samigo-hibernate</artifactId>
-    </dependency>
-
-    <!-- Samigo Lite -->
-    <dependency>
-      <groupId>ims</groupId>
-      <artifactId>imsqti</artifactId>
-      <version>1.2</version>
-    </dependency>
-    <dependency>
-      <groupId>xmlbeans</groupId>
-      <artifactId>xbean</artifactId>
-      <version>2.2.0</version>
-    </dependency>
-    <dependency>
-      <groupId>xmlbeans</groupId>
-      <artifactId>jsr173</artifactId>
-      <version>1.0_api</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-component-manager</artifactId>
-    </dependency>
-	<dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-util</artifactId>
-    </dependency>
-  </dependencies>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+    
+	<parent>
+		<groupId>org.sakaiproject.samigo</groupId>
+		<artifactId>samigo</artifactId>
+		<version>2.7.0-SNAPSHOT</version>
+	</parent>
+    
+	<name>Sakai Samigo Lite Service Implementaiton (samlite-impl)</name>
+	<groupId>org.sakaiproject.samigo</groupId>
+	<artifactId>samlite-impl</artifactId>
+	<organization>
+		<name>Sakai Project</name>
+		<url>http://www.sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2007</inceptionYear>
+	<packaging>jar</packaging>
+    
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>samigo-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>samigo-services</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>samigo-hibernate</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ims</groupId>
+			<artifactId>imsqti</artifactId>
+			<version>1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>xmlbeans</groupId>
+			<artifactId>xbean</artifactId>
+			<version>2.2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>xmlbeans</groupId>
+			<artifactId>jsr173</artifactId>
+			<version>1.0_api</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-component-manager</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-util</artifactId>
+		</dependency>
+	</dependencies>
 </project>
