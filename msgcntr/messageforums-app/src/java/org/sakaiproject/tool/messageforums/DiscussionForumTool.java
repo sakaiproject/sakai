@@ -79,6 +79,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -7242,6 +7243,39 @@ public class DiscussionForumTool
 		
 		
 	}
+	
+	DeveloperHelperService developerHelperService;
+	
+	private DeveloperHelperService getDevelperHelperService() {
+		if (developerHelperService == null) {
+			developerHelperService = (DeveloperHelperService) ComponentManager.get("org.sakaiproject.entitybroker.DeveloperHelperService");
+		}
+		return developerHelperService;
+	}
+	
+	
+	public String getMessageURL() {
+		
+		String path = "/discussionForum/message/dfViewMessageDirect";
+		
+		Map<String, String> params = new HashMap<String, String>();
+		String msgId = getSelectedMessage().getMessage().getId().toString();
+		String topicId = getSelectedTopic().getTopic().getId().toString();
+		String forumId = getSelectedTopic().getTopic().getOpenForum().getId().toString();
+		params.put("messageId", msgId);
+		params.put("topicId", topicId);
+		params.put("forumId", forumId);
+		LOG.info("message: " + msgId + " topic: " + topicId + " forum: " + forumId);
+		
+		String context = SiteService.siteReference(ToolManager.getCurrentPlacement().getContext());
+		LOG.info("context: " + context);
+		
+		developerHelperService = getDevelperHelperService();
+		String url = developerHelperService.getToolViewURL("sakai.forums", path, params, context);
+		LOG.info("url: " + url);
+		return url;
+	}
+	
 	
 	private class ThreadUpdateSorter implements Comparator<DiscussionMessageBean>{
 

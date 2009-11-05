@@ -146,6 +146,12 @@
 						<h:graphicImage value="/../../library/image/silk/email_edit.png" alt="#{msgs.cdfm_button_bar_email}" />
   						<h:outputText value="#{msgs.cdfm_button_bar_email}"/>
 					</h:outputLink>					 
+					<%-- premalink --%>
+					<h:outputLink id="permalink1" value="#{ForumTool.messageURL}" target="_top"> 
+						<h:graphicImage value="/../../library/image/silk/folder_go.png" alt="#{msgs.cdfm_button_bar_permalink}" />
+  						<h:outputText value="#{msgs.cdfm_button_bar_permalink}"/>
+					</h:outputLink>
+
 			  	</h:panelGroup>
 				<h:panelGroup  style="display:block;white-space:nowrap;">
 			  		<h:commandLink title="#{msgs.cdfm_button_bar_deny}" action="#{ForumTool.processDfMsgDeny}" 
