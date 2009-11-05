@@ -70,16 +70,16 @@
 			<version>1.0.a1</version>
 		</dependency>
 		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-jsf-tool</artifactId>
+			<groupId>org.sakaiproject.jsf</groupId>
+			<artifactId>jsf-tool</artifactId>
 		</dependency>
 		<!--
 			these (jsf-app and util-web) are options to get full Sakai JSF
 			integration
 		-->
 		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-jsf-app</artifactId>
+			<groupId>org.sakaiproject.jsf</groupId>
+			<artifactId>jsf-app</artifactId>
 		</dependency>
 		<!-- For integration with the gradebook -->
 		<dependency>

@@ -174,8 +174,8 @@
 			<artifactId>entitybroker-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-jsf-tool</artifactId>
+			<groupId>org.sakaiproject.jsf</groupId>
+			<artifactId>jsf-tool</artifactId>
 			<!--properties:  war.bundle: integrated -->
 		</dependency>
 		<!--
@@ -183,13 +183,13 @@
 			integration
 		-->
 		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-jsf-app</artifactId>
+			<groupId>org.sakaiproject.jsf</groupId>
+			<artifactId>jsf-app</artifactId>
 			<!--properties:  war.bundle: integrated -->
 		</dependency>
 		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-depend-jsf-widgets-sun</artifactId>
+			<groupId>org.sakaiproject.jsf</groupId>
+			<artifactId>jsf-widgets-sun-depend</artifactId>
 			<type>pom</type>
 		</dependency>
 		<!-- For integration with the gradebook -->
@@ -444,8 +444,8 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-jsf-spreadsheet</artifactId>
+			<groupId>org.sakaiproject.jsf</groupId>
+			<artifactId>jsf-spreadsheet</artifactId>
 			<exclusions>
 				<exclusion>
 					<groupId>org.apache.myfaces.core</groupId>
