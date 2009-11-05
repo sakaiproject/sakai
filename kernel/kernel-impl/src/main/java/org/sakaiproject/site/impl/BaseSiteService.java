@@ -98,6 +98,22 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseSiteService.class);
 
+
+	/**
+	 * Security advisor when updating sites. We only have one so we can check we pop the same one off the stack
+	 * that we put on.
+	 */
+	private final static SecurityAdvisor ALLOW_ADVISOR;
+
+	static {
+		ALLOW_ADVISOR = new SecurityAdvisor(){
+			public SecurityAdvice isAllowed(String userId, String function, String reference)
+			{
+				return SecurityAdvice.ALLOWED;
+			}
+		};
+	}
+
 	/** The layouts in human readable form (localized) */
 	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.SiteImplProperties";
 	private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.siteimpl.site-impl";
@@ -821,9 +837,15 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			throw new IdUnusedException(site.getId());
 		}
 
-		enableAzgSecurityAdvisor();
-		saveSiteAzg(site);
-		securityService().clearAdvisors();
+		try
+		{
+			enableAzgSecurityAdvisor();
+			saveSiteAzg(site);
+		}
+		finally
+		{
+			disableAzgSecurityAdvisor();
+		}
 
 		// track it
 		eventTrackingService().post(eventTrackingService().newEvent(SECURE_UPDATE_SITE_MEMBERSHIP, site.getReference(), true));
@@ -845,9 +867,15 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			throw new IdUnusedException(site.getId());
 		}
 
-		enableAzgSecurityAdvisor();
-		saveGroupAzgs(site);
-		securityService().clearAdvisors();
+		try
+		{
+			enableAzgSecurityAdvisor();
+			saveGroupAzgs(site);
+		}
+		finally
+		{
+			disableAzgSecurityAdvisor();
+		}
 
 		// track it
 		eventTrackingService().post(eventTrackingService().newEvent(SECURE_UPDATE_GROUP_MEMBERSHIP, site.getReference(), true));
@@ -878,10 +906,16 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		m_storage.save(site);
 
 		// save any modified azgs
-		enableAzgSecurityAdvisor();
-		saveSiteAzg(site);
-		saveGroupAzgs(site);
-		securityService().clearAdvisors();
+		try
+		{
+			enableAzgSecurityAdvisor();
+			saveSiteAzg(site);
+			saveGroupAzgs(site);
+		}
+		finally
+		{
+			disableAzgSecurityAdvisor();
+		}
 
 		// sync up with all other services
 		// TODO: do this under the security advisor, too, so we don't need all the various service security on site creation? -ggolden
@@ -903,13 +937,26 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	{
 		// put in a security advisor so we can do our azg work without need of further permissions
 		// TODO: could make this more specific to the AuthzGroupService.SECURE_UPDATE_AUTHZ_GROUP permission -ggolden
-		securityService().pushAdvisor(new SecurityAdvisor()
-		{
-			public SecurityAdvice isAllowed(String userId, String function, String reference)
+		securityService().pushAdvisor(ALLOW_ADVISOR);
+	}
+
+	/**
+	 * Disabled the security advisor.
+	 */
+	protected void disableAzgSecurityAdvisor()
+	{
+		SecurityAdvisor popped = securityService().popAdvisor();
+		if (!ALLOW_ADVISOR.equals(popped)) {
+			if (popped == null)
 			{
-				return SecurityAdvice.ALLOWED;
+				M_log.warn("Someone has removed our advisor.");
 			}
-		});
+			else
+			{
+				M_log.warn("Removed someone elses advisor, adding it back.");
+				securityService().pushAdvisor(popped);
+			}
+		}
 	}
 
 	/**
@@ -1847,10 +1894,16 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			return;
 		}
 
-		// take care of our AuthzGroups
-		enableAzgSecurityAdvisor();
-		enableAzg(site);
-		securityService().clearAdvisors();
+		try
+		{
+			// take care of our AuthzGroups
+			enableAzgSecurityAdvisor();
+			enableAzg(site);
+		}
+		finally
+		{
+			disableAzgSecurityAdvisor();
+		}
 
 		// offer to all EntityProducers that are ContexObservers
 		for (Iterator i = entityManager().getEntityProducers().iterator(); i.hasNext();)
@@ -1919,9 +1972,15 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		}
 
 		// disable the azgs last, so permissions were in place for the above
-		enableAzgSecurityAdvisor();
-		disableAzg(site);
-		securityService().clearAdvisors();
+		try
+		{
+			enableAzgSecurityAdvisor();
+			disableAzg(site);
+		}
+		finally
+		{
+			disableAzgSecurityAdvisor();
+		}
 	}
 
 	/**
@@ -2817,10 +2876,16 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 				group.keepIntersection(site);
 			}
 
-			// save any changed group azg
-			enableAzgSecurityAdvisor();
-			saveGroupAzgs(site);
-			securityService().clearAdvisors();
+			try
+			{
+				// save any changed group azg
+				enableAzgSecurityAdvisor();
+				saveGroupAzgs(site);
+			}
+			finally
+			{
+				disableAzgSecurityAdvisor();
+			}
 		}
 		catch (IdUnusedException e)
 		{
