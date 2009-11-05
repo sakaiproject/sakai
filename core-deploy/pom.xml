@@ -49,6 +49,12 @@
 					<type>zip</type>
 				</dependency>
                 <dependency>
+                    <groupId>org.sakaiproject.jsf</groupId>
+                    <artifactId>jsf-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
                     <groupId>org.sakaiproject.samigo</groupId>
                     <artifactId>samigo-assembly</artifactId>
                     <classifier>tomcat-overlay</classifier>
@@ -101,6 +107,12 @@
 					<classifier>tomcat-overlay</classifier>
 					<type>zip</type>
 				</dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.jsf</groupId>
+                    <artifactId>jsf-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
 				<dependency>
 					<groupId>org.sakaiproject.msgcntr</groupId>
 					<artifactId>sakai-messageforums-assembly</artifactId>
@@ -156,6 +168,12 @@
 					<classifier>tomcat-overlay</classifier>
 					<type>zip</type>
 				</dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.jsf</groupId>
+                    <artifactId>jsf-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
 			</dependencies>
 		</profile>
 	</profiles>
