@@ -121,12 +121,6 @@
 			<artifactId>OkiOSID</artifactId>
 			<version>2.0</version>
 		</dependency>
-		<!-- has trouble download this one for some reason -->
-		<dependency>
-			<groupId>OKI</groupId>
-			<artifactId>OkiSID</artifactId>
-			<version>rc6.1</version>
-		</dependency>
 		<dependency>
 			<groupId>aopalliance</groupId>
 			<artifactId>aopalliance</artifactId>
