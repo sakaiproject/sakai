@@ -30,10 +30,10 @@
             <outputDirectory>webapps/</outputDirectory>
             <outputFileNameMapping>${artifact.artifactId}.war</outputFileNameMapping>
             <!-- <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping> -->
-            <!-- <outputFileNameMapping>sakai-blti-portlet.war</outputFileNameMapping> -->
+            <!-- <outputFileNameMapping>imsblti.war</outputFileNameMapping> -->
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
-                 <include>org.sakaiproject.basiclti:basiclti-portlet:war:*</include>
+                 <include>org.sakaiproject.basiclti:imsblti:war:*</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>
