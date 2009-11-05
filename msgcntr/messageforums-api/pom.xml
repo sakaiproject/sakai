@@ -28,7 +28,6 @@
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
-			<version>1.0.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.entitybroker</groupId>
@@ -36,10 +35,9 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-	       <groupId>org.sakaiproject</groupId>
-	       <artifactId>sakai-component</artifactId>
-	       <version>2.5.5</version>
- 	    </dependency>
+	       <groupId>org.sakaiproject.kernel</groupId>
+	       <artifactId>sakai-component-manager</artifactId>
+	    </dependency>
 	</dependencies>
 	<build>
 		<resources />
