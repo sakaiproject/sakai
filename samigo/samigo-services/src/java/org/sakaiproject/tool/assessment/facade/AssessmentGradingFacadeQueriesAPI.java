@@ -66,8 +66,8 @@ public interface AssessmentGradingFacadeQueriesAPI
    */
   public HashMap getStudentGradingData(String assessmentGradingId);
 
-  public HashMap getSubmitData(Long publishedId, String agentId, Integer scoringoption);
-
+  public HashMap getSubmitData(Long publishedId, String agentId, Integer scoringoption, Long assessmentGradingId);
+  
   // public void saveTotalScores(ArrayList data);
 
     //public void saveItemScores(ArrayList data, HashMap map);

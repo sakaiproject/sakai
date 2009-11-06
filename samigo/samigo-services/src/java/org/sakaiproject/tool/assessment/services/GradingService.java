@@ -343,7 +343,7 @@ public class GradingService
     try {
       return (HashMap) PersistenceService.getInstance().
         getAssessmentGradingFacadeQueries()
-          .getLastItemGradingData(new Long(publishedId), agentId);
+          .getLastItemGradingData(Long.valueOf(publishedId), agentId);
     } catch (Exception e) {
       e.printStackTrace();
       return new HashMap();
@@ -368,12 +368,13 @@ public class GradingService
   /**
    * Get the last submission for a student per assessment
    */
-  public HashMap getSubmitData(String publishedId, String agentId, Integer scoringoption)
+  public HashMap getSubmitData(String publishedId, String agentId, Integer scoringoption, String assessmentGradingId)
   {
     try {
+      Long gradingId = null;
+      if (assessmentGradingId != null) gradingId = Long.valueOf(assessmentGradingId);
       return (HashMap) PersistenceService.getInstance().
-        getAssessmentGradingFacadeQueries()
-          .getSubmitData(new Long(publishedId), agentId, scoringoption);
+        getAssessmentGradingFacadeQueries().getSubmitData(Long.valueOf(publishedId), agentId, scoringoption, gradingId);
     } catch (Exception e) {
       e.printStackTrace();
       return new HashMap();
@@ -393,7 +394,7 @@ public class GradingService
     try{
       return PersistenceService.getInstance().
           getAssessmentGradingFacadeQueries()
-          .getSubmissionSizeOfPublishedAssessment(new Long(
+          .getSubmissionSizeOfPublishedAssessment(Long.valueOf(
           publishedAssessmentId));
     } catch(Exception e) {
       e.printStackTrace();
@@ -423,17 +424,17 @@ public class GradingService
 
   public MediaData getMedia(String mediaId){
     return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-        getMedia(new Long(mediaId));
+        getMedia(Long.valueOf(mediaId));
   }
 
   public ArrayList getMediaArray(String itemGradingId){
     return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-        getMediaArray(new Long(itemGradingId));
+        getMediaArray(Long.valueOf(itemGradingId));
   }
   
   public ArrayList getMediaArray2(String itemGradingId){
 	    return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-	        getMediaArray2(new Long(itemGradingId));
+	        getMediaArray2(Long.valueOf(itemGradingId));
   }
 
   public ArrayList getMediaArray(ItemGradingData i){
@@ -448,14 +449,14 @@ public class GradingService
   
   public List getMediaArray(String publishedId, String publishItemId, String which){
 	    return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-	    getMediaArray(new Long(publishedId), new Long(publishItemId), which);
+	    getMediaArray(Long.valueOf(publishedId), Long.valueOf(publishItemId), which);
   }
   
   public ItemGradingData getLastItemGradingDataByAgent(String publishedItemId, String agentId)
   {
     try {
       return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-          getLastItemGradingDataByAgent(new Long(publishedItemId), agentId);
+          getLastItemGradingDataByAgent(Long.valueOf(publishedItemId), agentId);
     } catch (Exception e) {
       e.printStackTrace();
       return null;
@@ -466,7 +467,7 @@ public class GradingService
   {
     try {
       return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-          getItemGradingData(new Long(assessmentGradingId), new Long(publishedItemId));
+          getItemGradingData(Long.valueOf(assessmentGradingId), Long.valueOf(publishedItemId));
     } catch (Exception e) {
       e.printStackTrace();
       return null;
@@ -476,7 +477,7 @@ public class GradingService
   public AssessmentGradingData load(String assessmentGradingId) {
     try{
       return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-          load(new Long(assessmentGradingId));
+          load(Long.valueOf(assessmentGradingId));
     }
     catch(Exception e)
     {
@@ -487,7 +488,7 @@ public class GradingService
   public ItemGradingData getItemGrading(String itemGradingId) {
     try{
       return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-          getItemGrading(new Long(itemGradingId));
+          getItemGrading(Long.valueOf(itemGradingId));
     }
     catch(Exception e)
     {
@@ -498,7 +499,7 @@ public class GradingService
   public AssessmentGradingIfc getLastAssessmentGradingByAgentId(String publishedAssessmentId, String agentIdString) {
     try{
       return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-          getLastAssessmentGradingByAgentId(new Long(publishedAssessmentId), agentIdString);
+          getLastAssessmentGradingByAgentId(Long.valueOf(publishedAssessmentId), agentIdString);
     }
     catch(Exception e)
     {
@@ -509,23 +510,33 @@ public class GradingService
   public AssessmentGradingData getLastSavedAssessmentGradingByAgentId(String publishedAssessmentId, String agentIdString) {
     try{
       return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-          getLastSavedAssessmentGradingByAgentId(new Long(publishedAssessmentId), agentIdString);
+          getLastSavedAssessmentGradingByAgentId(Long.valueOf(publishedAssessmentId), agentIdString);
     }
     catch(Exception e)
     {
       log.error(e); throw new RuntimeException(e);
     }
   }
+  
+  public AssessmentGradingData getLastSubmittedAssessmentGradingByAgentId(String publishedAssessmentId, String agentIdString, String assessmentGradingId) {
 
-  public AssessmentGradingData getLastSubmittedAssessmentGradingByAgentId(String publishedAssessmentId, String agentIdString, Long assessmentGradingId) {
-	    try{
-	      return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-	      getLastSubmittedAssessmentGradingByAgentId(new Long(publishedAssessmentId), agentIdString, assessmentGradingId);
-	    }
-	    catch(Exception e)
-	    {
-	      log.error(e); throw new RuntimeException(e);
-	    }
+	  AssessmentGradingData assessmentGranding = null;
+	  try {
+		  if (assessmentGradingId != null) {
+			  assessmentGranding = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+			  getLastSubmittedAssessmentGradingByAgentId(Long.valueOf(publishedAssessmentId), agentIdString, Long.valueOf(assessmentGradingId));
+		  }
+		  else {
+			  assessmentGranding = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+			  getLastSubmittedAssessmentGradingByAgentId(Long.valueOf(publishedAssessmentId), agentIdString, null);
+		  }
+	  }
+	  catch(Exception e)
+	  {
+		  log.error(e); throw new RuntimeException(e);
+	  }
+
+	  return assessmentGranding;
   }
   
   public void saveItemGrading(ItemGradingIfc item)
@@ -595,7 +606,7 @@ public class GradingService
   public List getAssessmentGradingIds(String publishedItemId){
     try{
       return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-         getAssessmentGradingIds(new Long(publishedItemId));
+         getAssessmentGradingIds(Long.valueOf(publishedItemId));
     }
     catch(Exception e)
     {
@@ -606,33 +617,42 @@ public class GradingService
   public AssessmentGradingIfc getHighestAssessmentGrading(String publishedAssessmentId, String agentId){
     try{
       return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-	      getHighestAssessmentGrading(new Long(publishedAssessmentId), agentId);
+	      getHighestAssessmentGrading(Long.valueOf(publishedAssessmentId), agentId);
     }
     catch(Exception e)
     {
       log.error(e); throw new RuntimeException(e);
     }
   }
-
-  public AssessmentGradingIfc getHighestSubmittedAssessmentGrading(String publishedAssessmentId, String agentId, Long assessmentGradingId){
-	    try{
-	      return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-	      getHighestSubmittedAssessmentGrading(new Long(publishedAssessmentId), agentId, assessmentGradingId);
-	    }
-	    catch(Exception e)
-	    {
-	      log.error(e); throw new RuntimeException(e);
-	    }
+  
+  public AssessmentGradingIfc getHighestSubmittedAssessmentGrading(String publishedAssessmentId, String agentId, String assessmentGradingId){
+	  AssessmentGradingIfc assessmentGrading = null;
+	  try {
+		  if (assessmentGradingId != null) {
+			  assessmentGrading = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+			  getHighestSubmittedAssessmentGrading(Long.valueOf(publishedAssessmentId), agentId, Long.valueOf(assessmentGradingId));
+		  }
+		  else {
+			  assessmentGrading = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+			  getHighestSubmittedAssessmentGrading(Long.valueOf(publishedAssessmentId), agentId, null);
+		  }
 	  }
+	  catch(Exception e)
+	  {
+		  log.error(e); throw new RuntimeException(e);
+	  }
+
+	  return  assessmentGrading;
+  }
   
   public AssessmentGradingIfc getHighestSubmittedAssessmentGrading(String publishedAssessmentId, String agentId){
-	  return getHighestSubmittedAssessmentGrading(publishedAssessmentId, agentId, new Long(0));
+	  return getHighestSubmittedAssessmentGrading(publishedAssessmentId, agentId, null);
   }
   
   public Set getItemGradingSet(String assessmentGradingId){
     try{
       return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-               getItemGradingSet(new Long(assessmentGradingId));
+               getItemGradingSet(Long.valueOf(assessmentGradingId));
     }
     catch(Exception e){
       log.error(e); throw new RuntimeException(e);
@@ -642,7 +662,7 @@ public class GradingService
   public HashMap getAssessmentGradingByItemGradingId(String publishedAssessmentId){
     try{
       return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-               getAssessmentGradingByItemGradingId(new Long(publishedAssessmentId));
+               getAssessmentGradingByItemGradingId(Long.valueOf(publishedAssessmentId));
     }
     catch(Exception e){
       log.error(e); throw new RuntimeException(e);
@@ -1525,7 +1545,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     PublishedAssessmentIfc pub = null;
     try {
       pub = PersistenceService.getInstance().
-        getAssessmentGradingFacadeQueries().getPublishedAssessmentByAssessmentGradingId(new Long(id));
+        getAssessmentGradingFacadeQueries().getPublishedAssessmentByAssessmentGradingId(Long.valueOf(id));
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -1536,7 +1556,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    PublishedAssessmentIfc pub = null;
 	    try {
 	      pub = PersistenceService.getInstance().
-	        getAssessmentGradingFacadeQueries().getPublishedAssessmentByPublishedItemId(new Long(publishedItemId));
+	        getAssessmentGradingFacadeQueries().getPublishedAssessmentByPublishedItemId(Long.valueOf(publishedItemId));
 	    } catch (Exception e) {
 	      e.printStackTrace();
 	    }

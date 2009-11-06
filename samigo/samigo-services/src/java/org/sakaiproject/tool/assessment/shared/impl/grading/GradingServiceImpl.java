@@ -178,7 +178,7 @@ public class GradingServiceImpl implements GradingServiceAPI
     try
     {
       GradingService service = new GradingService();
-      return service.getSubmitData(publishedId, agentId,scoringoption );
+      return service.getSubmitData(publishedId, agentId,scoringoption, null);
     }
     catch (Exception ex)
     {

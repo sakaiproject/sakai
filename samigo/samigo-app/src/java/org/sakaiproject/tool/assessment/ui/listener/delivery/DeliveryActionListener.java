@@ -202,7 +202,7 @@ public class DeliveryActionListener
               if (("true").equals(delivery.getFeedback())){
                 itemGradingHash = new HashMap();
                 if (delivery.getFeedbackComponent().getShowResponse() || delivery.getFeedbackComponent().getShowStudentQuestionScore() || delivery.getFeedbackComponent().getShowGraderComment())
-                  itemGradingHash = service.getSubmitData(id, agent, scoringoption);
+                	itemGradingHash = service.getSubmitData(id, agent, scoringoption, assessmentGradingId);
                 ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, false);
                 delivery.setAssessmentGrading(ag);
 	      }
@@ -217,10 +217,10 @@ public class DeliveryActionListener
               delivery.setFeedbackComponent(component);
               AssessmentGradingData agData = null;
               if (EvaluationModelIfc.LAST_SCORE.equals(scoringoption)){
-            	  agData = (AssessmentGradingData) service.getLastSubmittedAssessmentGradingByAgentId(id, agent, new Long(assessmentGradingId));
+            	  agData = (AssessmentGradingData) service.getLastSubmittedAssessmentGradingByAgentId(id, agent, assessmentGradingId);
               }
               else {
-            	  agData = (AssessmentGradingData) service.getHighestSubmittedAssessmentGrading(id, agent, new Long(assessmentGradingId));
+            	  agData = (AssessmentGradingData) service.getHighestSubmittedAssessmentGrading(id, agent, assessmentGradingId);
               }
               if (agData == null) {
             	  delivery.setOutcome("reviewAssessmentError");
