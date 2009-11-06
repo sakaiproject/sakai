@@ -11740,101 +11740,119 @@ public class AssignmentAction extends PagedResourceActionII
 			max_bytes = 1024L * 1024L;
 		}
 
-		FileItem fileitem = null;
-		try
+		int submissionFileCount = 0;
+		String submissionFileCountString = params.getString("submissionFileCount");
+		if (params.getString("submissionFileCount") != null)
 		{
-			fileitem = params.getFileItem("upload");
-		}
-		catch(Exception e)
-		{
-
-		}
-		if(fileitem == null)
-		{
-			// "The user submitted a file to upload but it was too big!"
-			addAlert(state, rb.getFormattedMessage("size.exceeded", new Object[]{ max_file_size_mb }));
-			//addAlert(state, hrb.getString("size") + " " + max_file_size_mb + "MB " + hrb.getString("exceeded2"));
-		}
-		else if (singleFileUpload && (fileitem.getFileName() == null || fileitem.getFileName().length() == 0))
-		{
-			// only if in the single file upload case, need to warn user to upload a local file
-			addAlert(state, rb.getString("choosefile7"));
-		}
-		else if (fileitem.getFileName().length() > 0)
-		{
-			String filename = Validator.getFileName(fileitem.getFileName());
-			byte[] bytes = fileitem.get();
-			String contentType = fileitem.getContentType();
-
-			if(bytes.length >= max_bytes)
+			try
 			{
+				submissionFileCount = Integer.valueOf(params.getString("submissionFileCount"));
+			}
+			catch (NumberFormatException e)
+			{
+				M_log.warn(this + ".doAttachUpload: NumberFormatException " + params.getString("submissionFileCount"));
+			}
+		}
+		
+		// construct the state variable for attachment list
+		List attachments = EntityManager.newReferenceList();
+		
+		for (int i = 0; i<submissionFileCount; i++)
+		{
+		
+			FileItem fileitem = null;
+			try
+			{
+				fileitem = params.getFileItem("upload" + i);
+			}
+			catch(Exception e)
+			{
+	
+			}
+			if(fileitem == null)
+			{
+				// "The user submitted a file to upload but it was too big!"
 				addAlert(state, rb.getFormattedMessage("size.exceeded", new Object[]{ max_file_size_mb }));
-				// addAlert(state, hrb.getString("size") + " " + max_file_size_mb + "MB " + hrb.getString("exceeded2"));
+				//addAlert(state, hrb.getString("size") + " " + max_file_size_mb + "MB " + hrb.getString("exceeded2"));
 			}
-			else if(bytes.length > 0)
+			else if (singleFileUpload && (fileitem.getFileName() == null || fileitem.getFileName().length() == 0))
 			{
-				// we just want the file name part - strip off any drive and path stuff
-				String name = Validator.getFileName(filename);
-				String resourceId = Validator.escapeResourceName(name);
-
-				// make a set of properties to add for the new resource
-				ResourcePropertiesEdit props = m_contentHostingService.newResourceProperties();
-				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
-				props.addProperty(ResourceProperties.PROP_DESCRIPTION, filename);
-
-				// make an attachment resource for this URL
-				try
-				{
-					String siteId = ToolManager.getCurrentPlacement().getContext();
-					
-					// add attachment
-					enableSecurityAdvisor();
-					ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, getToolTitle(), contentType, bytes, props);
-					disableSecurityAdvisors();
-					
-					// construct the state variable for attachment list
-					List attachments = EntityManager.newReferenceList();
-					try
-					{
-						Reference ref = EntityManager.newReference(m_contentHostingService.getReference(attachment.getId()));
-						attachments.add(ref);
-					}
-					catch(Exception ee)
-					{
-						M_log.warn(this + "doAttachUpload cannot find reference for " + attachment.getId() + ee.getMessage());
-					}
-					state.setAttribute(ATTACHMENTS, attachments);
-				}
-				catch (PermissionException e)
-				{
-					addAlert(state, rb.getString("notpermis4"));
-				}
-				catch(RuntimeException e)
-				{
-					if(m_contentHostingService.ID_LENGTH_EXCEPTION.equals(e.getMessage()))
-					{
-						// couldn't we just truncate the resource-id instead of rejecting the upload?
-						addAlert(state, rb.getFormattedMessage("alert.toolong", new String[]{name}));
-					}
-					else
-					{
-						M_log.debug(this + ".doAttachupload ***** Runtime Exception ***** " + e.getMessage());
-						addAlert(state, rb.getString("failed"));
-					}
-				}
-
-				catch(Exception ignore)
-				{
-					// other exceptions should be caught earlier
-					M_log.debug(this + ".doAttachupload ***** Unknown Exception ***** " + ignore.getMessage());
-				}
-			}
-			else
-			{
+				// only if in the single file upload case, need to warn user to upload a local file
 				addAlert(state, rb.getString("choosefile7"));
 			}
+			else if (fileitem.getFileName().length() > 0)
+			{
+				String filename = Validator.getFileName(fileitem.getFileName());
+				byte[] bytes = fileitem.get();
+				String contentType = fileitem.getContentType();
+	
+				if(bytes.length >= max_bytes)
+				{
+					addAlert(state, rb.getFormattedMessage("size.exceeded", new Object[]{ max_file_size_mb }));
+					// addAlert(state, hrb.getString("size") + " " + max_file_size_mb + "MB " + hrb.getString("exceeded2"));
+				}
+				else if(bytes.length > 0)
+				{
+					// we just want the file name part - strip off any drive and path stuff
+					String name = Validator.getFileName(filename);
+					String resourceId = Validator.escapeResourceName(name);
+	
+					// make a set of properties to add for the new resource
+					ResourcePropertiesEdit props = m_contentHostingService.newResourceProperties();
+					props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+					props.addProperty(ResourceProperties.PROP_DESCRIPTION, filename);
+	
+					// make an attachment resource for this URL
+					try
+					{
+						String siteId = ToolManager.getCurrentPlacement().getContext();
+						
+						// add attachment
+						enableSecurityAdvisor();
+						ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, getToolTitle(), contentType, bytes, props);
+						disableSecurityAdvisors();
+						
+						try
+						{
+							Reference ref = EntityManager.newReference(m_contentHostingService.getReference(attachment.getId()));
+							attachments.add(ref);
+						}
+						catch(Exception ee)
+						{
+							M_log.warn(this + "doAttachUpload cannot find reference for " + attachment.getId() + ee.getMessage());
+						}
+						state.setAttribute(ATTACHMENTS, attachments);
+					}
+					catch (PermissionException e)
+					{
+						addAlert(state, rb.getString("notpermis4"));
+					}
+					catch(RuntimeException e)
+					{
+						if(m_contentHostingService.ID_LENGTH_EXCEPTION.equals(e.getMessage()))
+						{
+							// couldn't we just truncate the resource-id instead of rejecting the upload?
+							addAlert(state, rb.getFormattedMessage("alert.toolong", new String[]{name}));
+						}
+						else
+						{
+							M_log.debug(this + ".doAttachupload ***** Runtime Exception ***** " + e.getMessage());
+							addAlert(state, rb.getString("failed"));
+						}
+					}
+	
+					catch(Exception ignore)
+					{
+						// other exceptions should be caught earlier
+						M_log.debug(this + ".doAttachupload ***** Unknown Exception ***** " + ignore.getMessage());
+					}
+				}
+				else
+				{
+					addAlert(state, rb.getString("choosefile7"));
+				}
+			}
 		}
-
 
 	}	// doAttachupload
 	

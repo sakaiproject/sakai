@@ -8,7 +8,11 @@ $(document).ready(function(){
     $('#addMoreAttachmentControls').click(function(e){
         e.preventDefault();
         if ($('#submissionFileCount').val() < 5) {
-            $('#clonableUpload').clone().removeAttr('id').addClass('cloned').appendTo('#clonedHolder').children('input').val('');
+            var $input = $('#clonableUpload').clone().removeAttr('id').addClass('cloned').appendTo('#clonedHolder').children('input');
+            $input.val('');
+            var $count = $('#submissionFileCount').val();
+            var $nameCount = "upload"+$count;
+            $input.attr("name", $nameCount);
             $('#submissionFileCount').val(parseInt($('#submissionFileCount').val(), 10) + 1);
             if ($('#submissionFileCount').val() == 5) {
                 $('#addMoreAttachmentControls').hide();
@@ -632,7 +636,7 @@ var notifyDeleteControl = function(){
 										<td>
 
 											<div id="clonableUpload"> 
-												<input type="file" name="upload" class="upload" id="clonableUpload"/><a class="removeAttachmentControl" onclick="event.preventDefault();$(this).parent('div').remove();resizeFrame('shrink');notifyDeleteControl()" href="#"  style="display:none"><img alt="expand" class="expand" src="/library/image/silk/delete.png" alt="(-)" title="Delete this file" /> </a>
+												<input type="file" name="upload0" class="upload" id="clonableUpload"/><a class="removeAttachmentControl" onclick="event.preventDefault();$(this).parent('div').remove();resizeFrame('shrink');notifyDeleteControl()" href="#"  style="display:none"><img alt="expand" class="expand" src="/library/image/silk/delete.png" alt="(-)" title="Delete this file" /> </a>
 											</div>
 										</td>
 										<td><a href="#" id="addMoreAttachmentControls">
