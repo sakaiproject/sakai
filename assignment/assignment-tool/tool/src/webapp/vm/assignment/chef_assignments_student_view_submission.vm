@@ -2,9 +2,36 @@
 <link href="/sakai-assignment-tool/css/assignment.css" type="text/css" rel="stylesheet" media="all" />
 <script type="text/javascript"  src="/sakai-assignment-tool/js/assignments.js"></script>
 <script type="text/javascript">
-    $(document).ready(function(){
-        setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
+$(document).ready(function(){
+    setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
+    $('#submissionFileCount').val(1);
+    $('#addMoreAttachmentControls').click(function(e){
+        e.preventDefault();
+        if ($('#submissionFileCount').val() < 5) {
+            var $input = $('#clonableUpload').clone().removeAttr('id').addClass('cloned').appendTo('#clonedHolder').children('input');
+            $input.val('');
+            var $count = $('#submissionFileCount').val();
+            var $nameCount = "upload"+$count;
+            $input.attr("name", $nameCount);
+            $('#submissionFileCount').val(parseInt($('#submissionFileCount').val(), 10) + 1);
+            if ($('#submissionFileCount').val() == 5) {
+                $('#addMoreAttachmentControls').hide();
+                $('#addMoreAttachmentControlsInactive').show();
+            }
+        }
+        $('.cloned a').show();
+        resizeFrame('grow');
     });
+    
+});
+var notifyDeleteControl = function(){
+    $('#submissionFileCount').val(parseInt($('#submissionFileCount').val(), 10) - 1);
+    if ($('#submissionFileCount').val() < 5) {
+        $('#addMoreAttachmentControls').show();
+        $('#addMoreAttachmentControlsInactive').hide();
+    }
+};
+		
 </script>
 
 
@@ -463,6 +490,7 @@
 	<form name="addSubmissionForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;" enctype="multipart/form-data">
 		<input type="hidden" name="eventSubmit_doRead_add_submission_form" value="x" />
 		<input type="hidden" name="option" value="cancel" />
+		<input type="hidden" name="currentAttachment" value="" />
 		<input type="hidden" name="assignmentId" value="$assignment.Reference" />
 		#if ($!canSubmit)
 			## if a draft submission or the submission has been returned and has not yet submitted
@@ -543,9 +571,10 @@
 						#end
 					</p>
 				#end	
-				<h3>
-					$tlang.getString("gen.stuatt") 
-				</h3>	
+				<div class="highlightPanel" style="background:#ffe">
+					<h3 style="margin-top:0;margin-bottom:.5em">
+						$tlang.getString("stuviewsubm.submissatt2")
+					</h3>	
 					#set ($size = 0)
 					#set ($props = false)
 					#foreach ($attachment in $attachments) 
@@ -557,49 +586,94 @@
 					#if ($size == 0)
 						<p class="instruction">$tlang.getString("gen.noatt")</p>
 					#else
-						<ul class="attachList indnt1">
+						<table class="attachList listHier indnt1 centerLines" style="margin-bottom:.5em;margin-top:0; width:auto">
 							#foreach ($attachment in $attachments) 
 								#set ($props = false)
 								#set ($props = $attachment.Properties) 
 								#if ($!props)
-									<li>
-										#if ($props.getBooleanProperty($props.NamePropIsCollection))
-											<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
-										#else
-											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
-										#end
-										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
-										#if (!$props.getBooleanProperty($props.NamePropIsCollection))
-											($props.getPropertyFormatted($props.NamePropContentLength))
-										#end
-									</li>
+									<tr>
+										<td>
+											#if ($props.getBooleanProperty($props.NamePropIsCollection))
+												<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+											#else
+												<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+											#end
+											<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+										</td>
+										<td>
+											#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+												($props.getPropertyFormatted($props.NamePropContentLength))
+											#end
+										</td>
+										<td class="itemAction">
+											<a href="#" onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='removeAttachment'; document.addSubmissionForm.currentAttachment.value='$attachment.id'; document.addSubmissionForm.submit(); return false;">
+												$tlang.getString("stuviewsubm.removeatt")
+											</a>
+										</td>
+									</tr>
 								#end
 							#end
-						</ul>
+						</table>
 					#end	 
-					<p class="act">
+					<div class="highlightPanel specialLink" style="margin:0;padding-bottom:.5em;background:#fff">
 						#if ($!deleted.equalsIgnoreCase("true")) 	 
-	    		##if the assignment has been deleted, disable the action button 	 
-	     	<input type="submit" name="eventSubmit_doAttachments" value="Attachment" accesskey="a" disabled="disabled" /> 	 
-	     #else
+	    					##if the assignment has been deleted, disable the action button 	 
+	     					<input type="submit" name="eventSubmit_doAttachments" value="Attachment" accesskey="a" disabled="disabled" /> 	 
+	     				#else
 							#if ($!canSubmit)
-										<input
-											class="disableme" 
-											type="button" 
-											name="attach" 
-											id="attach"
-											#if ($size==0) 
-												value="$tlang.getString("gen.addatt")"
-											#else
-												value="$tlang.getString("gen.adddroatt2")"
-											#end
-											accesskey="a" #if(!$allowSubmit)disabled="disabled"#end
-											onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='attach'; document.addSubmissionForm.submit(); return false;"
-										/>
+								#if ($size==0) 
+									#set($howManySubAtts=$tlang.getString("stuviewsubm.attfromcomputerlabel"))
+									#set($howManySubAttsLinks=$tlang.getString("stuviewsubm.attfromserverlabel"))
+								#else
+									#set($howManySubAtts=$tlang.getString("stuviewsubm.attfromcomputerlabelmore"))
+									#set($howManySubAttsLinks=$tlang.getString("stuviewsubm.attfromserverlabelmore"))
+								#end
+								<input type="hidden" name="submissionFileCount" id="submissionFileCount" value="1"/>
+								<table border="0" cellpadding="0" cellspacing="0" class="listHier  centerLines" style="width:auto;margin:0">
+									<tr>
+										<td>
+											<span>$howManySubAtts</span>
+										</td>
+										<td>
+
+											<div id="clonableUpload"> 
+												<input type="file" name="upload0" class="upload" id="clonableUpload"/><a class="removeAttachmentControl" onclick="event.preventDefault();$(this).parent('div').remove();resizeFrame('shrink');notifyDeleteControl()" href="#"  style="display:none"><img alt="expand" class="expand" src="/library/image/silk/delete.png" alt="(-)" title="Delete this file" /> </a>
+											</div>
+										</td>
+										<td><a href="#" id="addMoreAttachmentControls">
+												<img src="/library/image/silk/add.png" alt="+" title="Add another file" /> 
+											</a>
+											<span class="inactive" id="addMoreAttachmentControlsInactive" style="display:none">
+												<img src="/library/image/silk/add.png" alt="+" title="Add another file"  style="opacity:0.4;filter:alpha(opacity=40) !important;"/> 
+											</span>
+										</td>
+										<td>
+											<span class="navIntraToolLink">
+												<input
+													class="disableme enabled" 
+													type="button" 
+													value="$howManySubAttsLinks"
+													name="attach" 
+													id="attach"
+													accesskey="a" #if(!$allowSubmit) disabled="disabled"#end
+													onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='attach'; document.addSubmissionForm.submit(); return false;"
+												/>
+											</span>	
+										</td>
+									</tr>	
+									<tr>
+										<td></td>
+										<td id="clonedHolder"></td>
+										<td></td>
+										<td></td>										
+										</tr>
+								</table>	
+								
+							#end
 						#end
-					#end
-				</p>
+					</div>
 				#end
+				</div>
 				## for single file upload case
 				#if ($submissionType==5)
 					<div class="highlightPanel">
@@ -741,8 +815,9 @@
 						$tlang.getString("gen.youmus")
 					</p>
 				#end
-			<div class="act">
+				<div
 					#if ($!deleted.equalsIgnoreCase("true") || !$!canSubmit)
+					 class="act">
 						<input 
 							type="button" 
 							name="cancel"
@@ -752,6 +827,7 @@
 							onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='cancel'; document.addSubmissionForm.submit(); return false;"
 						/>
 					#else
+					 class="act messageInformation">
 							<input
 								type="button"
 								class="active"
@@ -796,6 +872,7 @@
 								value="$tlang.getString("gen.can")"
 								onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='cancel'; document.addSubmissionForm.submit(); return false;"
 							/>
+							<span class="messageInformation">$tlang.getString("stuviewsubm.submitreminder")</span>
 					#end
 				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 			</div>

@@ -3701,131 +3701,8 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doSave_submission(RunData data)
 	{
-		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		ParameterParser params = data.getParameters();
-
-		// retrieve the submission text (as formatted text)
-		boolean checkForFormattingErrors = true; // the student is submitting something - so check for errors
-		String text = processFormattedTextFromBrowser(state, params.getCleanString(VIEW_SUBMISSION_TEXT), checkForFormattingErrors);
-
-		if (text == null)
-		{
-			text = (String) state.getAttribute(VIEW_SUBMISSION_TEXT);
-		}
-
-		String honorPledgeYes = params.getString(VIEW_SUBMISSION_HONOR_PLEDGE_YES);
-		if (honorPledgeYes == null)
-		{
-			honorPledgeYes = "false";
-		}
-
-		String aReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
-		User u = (User) state.getAttribute(STATE_USER);
-
-		if (state.getAttribute(STATE_MESSAGE) == null)
-		{
-			try
-			{
-				Assignment a = AssignmentService.getAssignment(aReference);
-				String assignmentId = a.getId();
-
-				AssignmentSubmission submission = AssignmentService.getSubmission(aReference, u);
-				if (submission != null)
-				{
-					// the submission already exists, change the text and honor pledge value, save as draft
-					try
-					{
-						AssignmentSubmissionEdit edit = AssignmentService.editSubmission(submission.getReference());
-						edit.setSubmittedText(text);
-						edit.setHonorPledgeFlag(Boolean.valueOf(honorPledgeYes).booleanValue());
-						edit.setSubmitted(false);
-						edit.setAssignment(a);
-
-						// add attachments
-						List attachments = (List) state.getAttribute(ATTACHMENTS);
-						if (attachments != null)
-						{
-							// clear the old attachments first
-							edit.clearSubmittedAttachments();
-
-							// add each new attachment
-							Iterator it = attachments.iterator();
-							while (it.hasNext())
-							{
-								edit.addSubmittedAttachment((Reference) it.next());
-							}
-						}
-						AssignmentService.commitEdit(edit);
-					}
-					catch (IdUnusedException e)
-					{
-						addAlert(state, rb.getString("cannotfin2") + " " + a.getTitle());
-						M_log.warn(this + ":doSave_submission " + e.getMessage());
-					}
-					catch (PermissionException e)
-					{
-						addAlert(state, rb.getString("youarenot12"));
-						M_log.warn(this + ":doSave_submission " + e.getMessage());
-					}
-					catch (InUseException e)
-					{
-						addAlert(state, rb.getString("somelsis") + " " + rb.getString("submiss"));
-						M_log.warn(this + ":doSave_submission " + e.getMessage());
-					}
-				}
-				else
-				{
-					// new submission, save as draft
-					try
-					{
-						AssignmentSubmissionEdit edit = AssignmentService.addSubmission((String) state
-								.getAttribute(STATE_CONTEXT_STRING), assignmentId, SessionManager.getCurrentSessionUserId());
-						edit.setSubmittedText(text);
-						edit.setHonorPledgeFlag(Boolean.valueOf(honorPledgeYes).booleanValue());
-						edit.setSubmitted(false);
-						edit.setAssignment(a);
-
-						// add attachments
-						List attachments = (List) state.getAttribute(ATTACHMENTS);
-						if (attachments != null)
-						{
-							// add each attachment
-							Iterator it = attachments.iterator();
-							while (it.hasNext())
-							{
-								edit.addSubmittedAttachment((Reference) it.next());
-							}
-						}
-						
-						// set the resubmission properties
-						setResubmissionProperties(a, edit);
-						
-						AssignmentService.commitEdit(edit);
-					}
-					catch (PermissionException e)
-					{
-						addAlert(state, rb.getString("youarenot4"));
-						M_log.warn(this + ":doSave_submission " + e.getMessage());
-					}
-				}
-			}
-			catch (IdUnusedException e)
-			{
-				addAlert(state, rb.getString("cannotfin5"));
-				M_log.warn(this + ":doSave_submission " + e.getMessage());
-			}
-			catch (PermissionException e)
-			{
-				addAlert(state, rb.getString("not_allowed_to_view"));
-				M_log.warn(this + ":doSave_submission " + e.getMessage());
-			}
-		}
-
-		if (state.getAttribute(STATE_MESSAGE) == null)
-		{
-			state.setAttribute(STATE_MODE, MODE_STUDENT_VIEW_SUBMISSION_CONFIRMATION);
-		}
-
+		// save submission
+		post_save_submission(data, false);
 	} // doSave_submission
 
 	/**
@@ -3853,6 +3730,18 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doPost_submission(RunData data)
 	{
+		// post submission
+		post_save_submission(data, true);
+		
+	}	// doPost_submission
+	
+	/**
+	 * Inner method used for post or save submission
+	 * @param data
+	 * @param post
+	 */
+	private void post_save_submission(RunData data, boolean post)
+	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
@@ -3865,12 +3754,12 @@ public class AssignmentAction extends PagedResourceActionII
 		catch (IdUnusedException e)
 		{
 			addAlert(state, rb.getString("cannotfin2"));
-			M_log.warn(this + ":doPost_submission " + e.getMessage());
+			M_log.warn(this + ":post_save_submission " + e.getMessage());
 		}
 		catch (PermissionException e)
 		{
 			addAlert(state, rb.getString("youarenot14"));
-			M_log.warn(this + ":doPost_submission " + e.getMessage());
+			M_log.warn(this + ":post_save_submission " + e.getMessage());
 		}
 		
 		if (AssignmentService.canSubmit(contextString, a))
@@ -3878,7 +3767,7 @@ public class AssignmentAction extends PagedResourceActionII
 			ParameterParser params = data.getParameters();
 	
 			// retrieve the submission text (as formatted text)
-			boolean checkForFormattingErrors = true; // the student is submitting something - so check for errors
+			boolean checkForFormattingErrors = true; // check formatting error whether the student is posting or saving
 			String text = processFormattedTextFromBrowser(state, params.getCleanString(VIEW_SUBMISSION_TEXT), checkForFormattingErrors);
 	
 			if (text == null)
@@ -3928,6 +3817,9 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 				else if (submissionType == 2)
 				{
+					// dealing with single file uplaod
+					doAttachUpload(data, false);
+					
 					// for the attachment only submission
 					Vector v = (Vector) state.getAttribute(ATTACHMENTS);
 					if ((v == null) || (v.size() == 0))
@@ -3937,9 +3829,12 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 				else if (submissionType == 3)
 				{
+					// dealing with single file uplaod
+					doAttachUpload(data, false);
+					
 					// for the inline and attachment submission
 					Vector v = (Vector) state.getAttribute(ATTACHMENTS);
-					if ((text.length() == 0) && ((v == null) || (v.size() == 0)))
+					if ((text.length() == 0 || text.equals("<br/>")) && ((v == null) || (v.size() == 0)))
 					{
 						addAlert(state, rb.getString("youmust2"));
 					}
@@ -3947,7 +3842,7 @@ public class AssignmentAction extends PagedResourceActionII
 				else if (submissionType == Assignment.SINGLE_ATTACHMENT_SUBMISSION)
 				{
 					// dealing with single file uplaod
-					doAttachUpload(data);
+					doAttachUpload(data, true);
 				}
 			}
 	
@@ -3979,7 +3874,7 @@ public class AssignmentAction extends PagedResourceActionII
 							sEdit.setSubmittedText(text);
 							sEdit.setHonorPledgeFlag(Boolean.valueOf(honorPledgeYes).booleanValue());
 							sEdit.setTimeSubmitted(TimeService.newTime());
-							sEdit.setSubmitted(true);
+							sEdit.setSubmitted(post);
 	
 							// for resubmissions
 							// when resubmit, keep the Returned flag on till the instructor grade again.
@@ -4103,29 +3998,29 @@ public class AssignmentAction extends PagedResourceActionII
 						catch (IdUnusedException e)
 						{
 							addAlert(state, rb.getString("cannotfin2") + " " + a.getTitle());
-							M_log.warn(this + ":doPost_submission " + e.getMessage());
+							M_log.warn(this + ":post_save_submission " + e.getMessage());
 						}
 						catch (PermissionException e)
 						{
 							addAlert(state, rb.getString("no_permissiion_to_edit_submission"));
-							M_log.warn(this + ":doPost_submission " + e.getMessage());
+							M_log.warn(this + ":post_save_submission " + e.getMessage());
 						}
 						catch (InUseException e)
 						{
 							addAlert(state, rb.getString("somelsis") + " " + rb.getString("submiss"));
-							M_log.warn(this + ":doPost_submission " + e.getMessage());
+							M_log.warn(this + ":post_save_submission " + e.getMessage());
 						}
 					}
 					else
 					{
-						// new submission, post it
+						// new submission
 						try
 						{
 							AssignmentSubmissionEdit edit = AssignmentService.addSubmission(contextString, assignmentId, SessionManager.getCurrentSessionUserId());
 							edit.setSubmittedText(text);
 							edit.setHonorPledgeFlag(Boolean.valueOf(honorPledgeYes).booleanValue());
 							edit.setTimeSubmitted(TimeService.newTime());
-							edit.setSubmitted(true);
+							edit.setSubmitted(post);
 							edit.setAssignment(a);
 	
 							// add attachments
@@ -4152,19 +4047,19 @@ public class AssignmentAction extends PagedResourceActionII
 						catch (PermissionException e)
 						{
 							addAlert(state, rb.getString("youarenot13"));
-							M_log.warn(this + ":doPost_submission " + e.getMessage());
+							M_log.warn(this + ":post_save_submission " + e.getMessage());
 						}
 					} // if -else
 				}
 				catch (IdUnusedException e)
 				{
 					addAlert(state, rb.getString("cannotfin5"));
-					M_log.warn(this + ":doPost_submission " + e.getMessage());
+					M_log.warn(this + ":post_save_submission " + e.getMessage());
 				}
 				catch (PermissionException e)
 				{
 					addAlert(state, rb.getString("not_allowed_to_view"));
-					M_log.warn(this + ":doPost_submission " + e.getMessage());
+					M_log.warn(this + ":post_save_submission " + e.getMessage());
 				}
 	
 			} // if
@@ -4175,7 +4070,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 		}	// if
 
-	} // doPost_submission
+	} // post_save_submission
 	
 	/**
 	 * Action is to confirm the submission and return to list view
@@ -7492,6 +7387,10 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				state.setAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES, "true");
 			}
+			
+			// need also to upload local file if any
+			doAttachUpload(data, false);
+			
 			// TODO: file picker to save in dropbox? -ggolden
 			// User[] users = { UserDirectoryService.getCurrentUser() };
 			// state.setAttribute(ResourcesAction.STATE_SAVE_ATTACHMENT_IN_DROPBOX, users);
@@ -10466,6 +10365,38 @@ public class AssignmentAction extends PagedResourceActionII
 	        toolSession.setAttribute(FilePickerHelper.DEFAULT_COLLECTION_ID, collectionId);
 			doAttachments(data);
 		}
+		else if (option.equals("removeAttachment"))
+		{
+			// remove selected attachment
+			doRemove_attachment(data);
+		}
+	}
+	
+	public void doRemove_attachment(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ()); 
+		ParameterParser params = data.getParameters();
+		String removeAttachmentId = params.getString("currentAttachment");
+		List attachments = state.getAttribute(ATTACHMENTS) == null?null:((List) state.getAttribute(ATTACHMENTS)).isEmpty()?null:(List) state.getAttribute(ATTACHMENTS);
+		if (attachments != null)
+		{
+			Reference found =  null;
+			for(Object attachment : attachments)
+			{
+				if (((Reference) attachment).getId().equals(removeAttachmentId))
+				{
+					found = (Reference) attachment;
+					break;
+				}
+			}
+			if (found != null)
+			{
+				attachments.remove(found);
+				// refresh state variable
+				state.setAttribute(ATTACHMENTS, attachments);	
+			}
+		}
+		
 	}
 	
 	/**
@@ -11819,10 +11750,11 @@ public class AssignmentAction extends PagedResourceActionII
 	}
 	
 	/**
-	 * upload a signle file into Attachment area.
+	 * upload local file for attachment
 	 * @param data
+	 * @param singleFileUpload
 	 */
-	public void doAttachUpload(RunData data)
+	public void doAttachUpload(RunData data, boolean singleFileUpload)
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
@@ -11844,100 +11776,119 @@ public class AssignmentAction extends PagedResourceActionII
 			max_bytes = 1024L * 1024L;
 		}
 
-		FileItem fileitem = null;
-		try
+		int submissionFileCount = 0;
+		String submissionFileCountString = params.getString("submissionFileCount");
+		if (params.getString("submissionFileCount") != null)
 		{
-			fileitem = params.getFileItem("upload");
-		}
-		catch(Exception e)
-		{
-
-		}
-		if(fileitem == null)
-		{
-			// "The user submitted a file to upload but it was too big!"
-			addAlert(state, rb.getFormattedMessage("size.exceeded", new Object[]{ max_file_size_mb }));
-			//addAlert(state, hrb.getString("size") + " " + max_file_size_mb + "MB " + hrb.getString("exceeded2"));
-		}
-		else if (fileitem.getFileName() == null || fileitem.getFileName().length() == 0)
-		{
-			addAlert(state, rb.getString("choosefile7"));
-		}
-		else if (fileitem.getFileName().length() > 0)
-		{
-			String filename = Validator.getFileName(fileitem.getFileName());
-			byte[] bytes = fileitem.get();
-			String contentType = fileitem.getContentType();
-
-			if(bytes.length >= max_bytes)
+			try
 			{
+				submissionFileCount = Integer.valueOf(params.getString("submissionFileCount"));
+			}
+			catch (NumberFormatException e)
+			{
+				M_log.warn(this + ".doAttachUpload: NumberFormatException " + params.getString("submissionFileCount"));
+			}
+		}
+		
+		// construct the state variable for attachment list
+		List attachments = EntityManager.newReferenceList();
+		
+		for (int i = 0; i<submissionFileCount; i++)
+		{
+		
+			FileItem fileitem = null;
+			try
+			{
+				fileitem = params.getFileItem("upload" + i);
+			}
+			catch(Exception e)
+			{
+	
+			}
+			if(fileitem == null)
+			{
+				// "The user submitted a file to upload but it was too big!"
 				addAlert(state, rb.getFormattedMessage("size.exceeded", new Object[]{ max_file_size_mb }));
-				// addAlert(state, hrb.getString("size") + " " + max_file_size_mb + "MB " + hrb.getString("exceeded2"));
+				//addAlert(state, hrb.getString("size") + " " + max_file_size_mb + "MB " + hrb.getString("exceeded2"));
 			}
-			else if(bytes.length > 0)
+			else if (singleFileUpload && (fileitem.getFileName() == null || fileitem.getFileName().length() == 0))
 			{
-				// we just want the file name part - strip off any drive and path stuff
-				String name = Validator.getFileName(filename);
-				String resourceId = Validator.escapeResourceName(name);
-
-				// make a set of properties to add for the new resource
-				ResourcePropertiesEdit props = m_contentHostingService.newResourceProperties();
-				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
-				props.addProperty(ResourceProperties.PROP_DESCRIPTION, filename);
-
-				// make an attachment resource for this URL
-				try
-				{
-					String siteId = ToolManager.getCurrentPlacement().getContext();
-					
-					// add attachment
-					enableSecurityAdvisor();
-					ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, getToolTitle(), contentType, bytes, props);
-					disableSecurityAdvisors();
-					
-					// construct the state variable for attachment list
-					List attachments = EntityManager.newReferenceList();
-					try
-					{
-						Reference ref = EntityManager.newReference(m_contentHostingService.getReference(attachment.getId()));
-						attachments.add(ref);
-					}
-					catch(Exception ee)
-					{
-						M_log.warn(this + "doAttachUpload cannot find reference for " + attachment.getId() + ee.getMessage());
-					}
-					state.setAttribute(ATTACHMENTS, attachments);
-				}
-				catch (PermissionException e)
-				{
-					addAlert(state, rb.getString("notpermis4"));
-				}
-				catch(RuntimeException e)
-				{
-					if(m_contentHostingService.ID_LENGTH_EXCEPTION.equals(e.getMessage()))
-					{
-						// couldn't we just truncate the resource-id instead of rejecting the upload?
-						addAlert(state, rb.getFormattedMessage("alert.toolong", new String[]{name}));
-					}
-					else
-					{
-						M_log.debug(this + ".doAttachupload ***** Runtime Exception ***** " + e.getMessage());
-						addAlert(state, rb.getString("failed"));
-					}
-				}
-
-				catch(Exception ignore)
-				{
-					// other exceptions should be caught earlier
-					M_log.debug(this + ".doAttachupload ***** Unknown Exception ***** " + ignore.getMessage());
-				}
-			}
-			else
-			{
+				// only if in the single file upload case, need to warn user to upload a local file
 				addAlert(state, rb.getString("choosefile7"));
 			}
+			else if (fileitem.getFileName().length() > 0)
+			{
+				String filename = Validator.getFileName(fileitem.getFileName());
+				byte[] bytes = fileitem.get();
+				String contentType = fileitem.getContentType();
+	
+				if(bytes.length >= max_bytes)
+				{
+					addAlert(state, rb.getFormattedMessage("size.exceeded", new Object[]{ max_file_size_mb }));
+					// addAlert(state, hrb.getString("size") + " " + max_file_size_mb + "MB " + hrb.getString("exceeded2"));
+				}
+				else if(bytes.length > 0)
+				{
+					// we just want the file name part - strip off any drive and path stuff
+					String name = Validator.getFileName(filename);
+					String resourceId = Validator.escapeResourceName(name);
+	
+					// make a set of properties to add for the new resource
+					ResourcePropertiesEdit props = m_contentHostingService.newResourceProperties();
+					props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+					props.addProperty(ResourceProperties.PROP_DESCRIPTION, filename);
+	
+					// make an attachment resource for this URL
+					try
+					{
+						String siteId = ToolManager.getCurrentPlacement().getContext();
+						
+						// add attachment
+						enableSecurityAdvisor();
+						ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, getToolTitle(), contentType, bytes, props);
+						disableSecurityAdvisors();
+						
+						try
+						{
+							Reference ref = EntityManager.newReference(m_contentHostingService.getReference(attachment.getId()));
+							attachments.add(ref);
+						}
+						catch(Exception ee)
+						{
+							M_log.warn(this + "doAttachUpload cannot find reference for " + attachment.getId() + ee.getMessage());
+						}
+						state.setAttribute(ATTACHMENTS, attachments);
+					}
+					catch (PermissionException e)
+					{
+						addAlert(state, rb.getString("notpermis4"));
+					}
+					catch(RuntimeException e)
+					{
+						if(m_contentHostingService.ID_LENGTH_EXCEPTION.equals(e.getMessage()))
+						{
+							// couldn't we just truncate the resource-id instead of rejecting the upload?
+							addAlert(state, rb.getFormattedMessage("alert.toolong", new String[]{name}));
+						}
+						else
+						{
+							M_log.debug(this + ".doAttachupload ***** Runtime Exception ***** " + e.getMessage());
+							addAlert(state, rb.getString("failed"));
+						}
+					}
+	
+					catch(Exception ignore)
+					{
+						// other exceptions should be caught earlier
+						M_log.debug(this + ".doAttachupload ***** Unknown Exception ***** " + ignore.getMessage());
+					}
+				}
+				else
+				{
+					addAlert(state, rb.getString("choosefile7"));
+				}
+			}
 		}
-
 
 	}	// doAttachupload
 	
