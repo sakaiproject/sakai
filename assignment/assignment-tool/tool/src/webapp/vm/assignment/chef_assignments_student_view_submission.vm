@@ -490,6 +490,7 @@ var notifyDeleteControl = function(){
 	<form name="addSubmissionForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;" enctype="multipart/form-data">
 		<input type="hidden" name="eventSubmit_doRead_add_submission_form" value="x" />
 		<input type="hidden" name="option" value="cancel" />
+		<input type="hidden" name="currentAttachment" value="" />
 		<input type="hidden" name="assignmentId" value="$assignment.Reference" />
 		#if ($!canSubmit)
 			## if a draft submission or the submission has been returned and has not yet submitted
@@ -605,7 +606,7 @@ var notifyDeleteControl = function(){
 											#end
 										</td>
 										<td class="itemAction">
-											<a href="#">
+											<a href="#" onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='removeAttachment'; document.addSubmissionForm.currentAttachment.value='$attachment.id'; document.addSubmissionForm.submit(); return false;">
 												$tlang.getString("stuviewsubm.removeatt")
 											</a>
 										</td>
@@ -624,7 +625,7 @@ var notifyDeleteControl = function(){
 									#set($howManySubAtts=$tlang.getString("stuviewsubm.attfromcomputerlabel"))
 									#set($howManySubAttsLinks=$tlang.getString("stuviewsubm.attfromserverlabel"))
 								#else
-									#set($howManySubAtts=$tlang.getString("stuviewsubm.attfromserverlabelmore"))
+									#set($howManySubAtts=$tlang.getString("stuviewsubm.attfromcomputerlabelmore"))
 									#set($howManySubAttsLinks=$tlang.getString("stuviewsubm.attfromserverlabelmore"))
 								#end
 								<input type="hidden" name="submissionFileCount" id="submissionFileCount" value="1"/>

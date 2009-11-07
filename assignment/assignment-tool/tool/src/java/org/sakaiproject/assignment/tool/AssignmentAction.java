@@ -3834,7 +3834,7 @@ public class AssignmentAction extends PagedResourceActionII
 					
 					// for the inline and attachment submission
 					Vector v = (Vector) state.getAttribute(ATTACHMENTS);
-					if ((text.length() == 0) && ((v == null) || (v.size() == 0)))
+					if ((text.length() == 0 || text.equals("<br/>")) && ((v == null) || (v.size() == 0)))
 					{
 						addAlert(state, rb.getString("youmust2"));
 					}
@@ -7387,6 +7387,10 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				state.setAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES, "true");
 			}
+			
+			// need also to upload local file if any
+			doAttachUpload(data, false);
+			
 			// TODO: file picker to save in dropbox? -ggolden
 			// User[] users = { UserDirectoryService.getCurrentUser() };
 			// state.setAttribute(ResourcesAction.STATE_SAVE_ATTACHMENT_IN_DROPBOX, users);
@@ -10361,6 +10365,38 @@ public class AssignmentAction extends PagedResourceActionII
 	        toolSession.setAttribute(FilePickerHelper.DEFAULT_COLLECTION_ID, collectionId);
 			doAttachments(data);
 		}
+		else if (option.equals("removeAttachment"))
+		{
+			// remove selected attachment
+			doRemove_attachment(data);
+		}
+	}
+	
+	public void doRemove_attachment(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ()); 
+		ParameterParser params = data.getParameters();
+		String removeAttachmentId = params.getString("currentAttachment");
+		List attachments = state.getAttribute(ATTACHMENTS) == null?null:((List) state.getAttribute(ATTACHMENTS)).isEmpty()?null:(List) state.getAttribute(ATTACHMENTS);
+		if (attachments != null)
+		{
+			Reference found =  null;
+			for(Object attachment : attachments)
+			{
+				if (((Reference) attachment).getId().equals(removeAttachmentId))
+				{
+					found = (Reference) attachment;
+					break;
+				}
+			}
+			if (found != null)
+			{
+				attachments.remove(found);
+				// refresh state variable
+				state.setAttribute(ATTACHMENTS, attachments);	
+			}
+		}
+		
 	}
 	
 	/**
