@@ -160,7 +160,7 @@ public class ProducerServlet extends HttpServlet {
 		}
 		Tool toolCheck = ToolManager.getTool(tool_id);
 		if ( toolCheck == null ) {
-			doError(response,"launch.bad.notfound", tool_id, null);
+			doError(response,"launch.tool.notfound", tool_id, null);
 			return;
 		}
 
@@ -198,6 +198,8 @@ public class ProducerServlet extends HttpServlet {
 			M_log.warn("Producer failed to validate message");
 			M_log.warn(e.getMessage());
 			if ( base_string != null ) M_log.warn(base_string);
+			doError(response,"launch.no.validate", context_id, null);
+			return;
 		}
 
 		Session sess = SessionManager.getCurrentSession();
@@ -217,6 +219,10 @@ public class ProducerServlet extends HttpServlet {
 				lname = fullname.substring(ipos+1);
 			}
 		}
+
+		String userrole = request.getParameter("roles");
+		if ( userrole == null ) userrole = "";
+		userrole = userrole.toLowerCase();
 
 		// Construct the eid
 		String eid = null;
@@ -285,7 +291,6 @@ public class ProducerServlet extends HttpServlet {
 				siteEdit.setPublished(true);
 				siteEdit.setPubView(false);
 				siteEdit.setType(sakai_type);
-	System.out.println("Creating a new site...");
 				saved = false;
 				pushAdvisor();
 				try {
@@ -309,68 +314,68 @@ public class ProducerServlet extends HttpServlet {
   		}
 
 		// Add the current user to the site with the proper role
-		// TODO: Check The Role and don't double add
-		// TODO: A better job of picking the non-instructor role
 		try {
 			thesite = SiteService.getSite(context_id);
 			Set<Role> roles = thesite.getRoles();
-System.out.println("roles="+roles);
+			String maintainRole = thesite.getMaintainRole();
+			String joinerRole = thesite.getJoinerRole();
 
-			User theuser = UserDirectoryService.getUserByEid(eid);
-			String userrole = request.getParameter("roles");
-			boolean CHECK_JOINED = false;
-			if ("instructor".equalsIgnoreCase(userrole) ) {
-				thesite.addMember(theuser.getId(), "maintain", true, false);
-				CHECK_JOINED = true;
-			}
-			else {
-				for (Role r : roles) {
-System.out.println("Role="+r.getId());
-					// Scan available roles and join with requested role if possible
-					// TODO: parse roles from Consumer more flexibly
-					if (r.getId().equalsIgnoreCase(userrole)) {
-						try {
-							thesite.addMember(theuser.getId(), userrole, true, true);
-							M_log.info("Added role="+userrole+" user="+user_id+" site="+context_id);
-							CHECK_JOINED = true;
-						}catch(Exception e) {
-							CHECK_JOINED = false;
-						}
-					}
+			for (Role r : roles) {
+				String roleId = r.getId();
+				if ( maintainRole == null && ( roleId.equalsIgnoreCase("maintain") || roleId.equalsIgnoreCase("instructor") ) ) {
+					maintainRole =  roleId; 
+				}
+
+				if ( joinerRole == null && ( roleId.equalsIgnoreCase("access") || roleId.equalsIgnoreCase("student") ) ) {
+					joinerRole =  roleId; 
 				}
 			}
 
-			//last ditch effort to join the site
-			if (!CHECK_JOINED) try {
-				SiteService.join(context_id);
-				M_log.info("Added role="+userrole+" user="+user_id+" site="+context_id);
-				CHECK_JOINED = true;
-			} catch (Exception e) {
-				M_log.warn("Could not add role="+userrole+" user="+user_id+" site="+context_id);
-				M_log.warn("Exception: "+e);
-				doError(response,"launch.join.site", context_id, e);
+			boolean isInstructor = userrole.indexOf("instructor") >= 0 ;
+			String newRole = joinerRole;
+			if ( isInstructor && maintainRole != null ) newRole = maintainRole;
+
+			if ( newRole == null ) {
+				M_log.warn("Could not find Sakai role role="+userrole+" user="+user_id+" site="+context_id);
+				doError(response,"launch.role.missing", context_id, null);
 				return;
 			}
 
-			if ( CHECK_JOINED ) {
+			User theuser = UserDirectoryService.getUserByEid(eid);
+
+	                Role currentRoleObject = thesite.getUserRole(theuser.getId());
+			String currentRole = null;
+			if ( currentRoleObject != null ) {
+				currentRole = currentRoleObject.getId();
+			}
+
+			if ( ! newRole.equals(currentRole) ) {
+				thesite.addMember(theuser.getId(), newRole, true, false);
+				if ( currentRole == null ) {
+					M_log.info("Added role="+newRole+" user="+user_id+" site="+context_id+" LMS Role="+userrole);
+				} else {
+					M_log.info("Old role="+currentRole+" New role="+newRole+" user="+user_id+" site="+context_id+" LMS Role="+userrole);
+				}
+
 				saved = false;
 				pushAdvisor();
 				try {
-               				SiteService.save(thesite);
-					M_log.info("Site save with role, user="+user_id+" site="+context_id);
+              				SiteService.save(thesite);
+					M_log.info("Site saved role="+newRole+" user="+user_id+" site="+context_id);
 					saved = true;
-					CHECK_JOINED = true;
 				}
        				catch (Exception e) {
 					doError(response,"launch.site.save", "site="+ context_id + " tool="+tool_id, e);
        				}
        				finally
-               			{
-                       			popAdvisor();
-               			}
+             			{
+                     			popAdvisor();
+              			}
 				if ( ! saved ) return;
 			}
 		} catch(Exception e) {
+			M_log.warn("Could not add user to site role="+userrole+" user="+user_id+" site="+context_id);
+			M_log.warn("Exception: "+e);
 			doError(response,"launch.join.site", context_id, e);
 			return;
 		}
@@ -393,7 +398,6 @@ System.out.println("Role="+r.getId());
 					String rli = propsedit.getProperty(BASICLTI_RESOURCE_LINK, null);
 					if ( resource_link_id.equals(rli) ) {
 						placement_id = tool.getId();
-						System.out.println("Found the placement="+placement_id);
 						break;
 					}
                         	}
@@ -402,14 +406,13 @@ System.out.println("Role="+r.getId());
 
         	}
         	catch (Exception e) {
-			doError(response,"launch.page.search", "site:"+ context_id + " tool="+tool_id, e);
+			doError(response,"launch.tool.search", "site:"+ context_id + " tool="+tool_id, e);
 			return;
         	}
 
 		// If the tool is not in the site, add the tool
 		if ( placement_id == null ) {
 			try {
-				System.out.println("Adding a page...");
                 		SitePage sitePageEdit = null;
                 		sitePageEdit = thesite.addPage();
                 		sitePageEdit.setTitle(tool_id);
@@ -454,7 +457,7 @@ System.out.println("Role="+r.getId());
 		out.println("&nbsp;<br/>&nbsp;<br/>&nbsp;<br/>&nbsp;<br/>");
 		out.println("&nbsp;<br/>&nbsp;<br/>&nbsp;<br/>&nbsp;<br/>");
 		out.println("<a href=\""+toolLink+"\">");
-		out.println("<span id=\"hideme\">Continue To Tool</span>");
+		out.println("<span id=\"hideme\">"+rb.getString("launch.continue")+"</span>");
 		out.println("</a>");
 		out.println(
                     " <script language=\"javascript\"> \n" +
