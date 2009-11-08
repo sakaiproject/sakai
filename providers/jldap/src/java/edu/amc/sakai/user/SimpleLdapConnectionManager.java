@@ -68,7 +68,14 @@ public class SimpleLdapConnectionManager implements LdapConnectionManager {
 			if ( M_log.isDebugEnabled() ) {
 				M_log.debug("getConnection(): auto-binding");
 			}
-			bind(conn, config.getLdapUser(), config.getLdapPassword());
+			try {
+				bind(conn, config.getLdapUser(), config.getLdapPassword());
+			} catch (LDAPException ldape) {
+				if (ldape.getResultCode() == LDAPException.INVALID_CREDENTIALS) {
+					M_log.warn("Failed to bind with user: "+ config.getLdapUser()+ " password: "+ config.getLdapPassword().replaceAll(".", "*"));
+				}
+				throw ldape;
+			}
 		}
 
 		return conn;
