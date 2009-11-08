@@ -121,9 +121,11 @@ public class ProducerServlet extends HttpServlet {
 	{
 		String ipAddress = request.getRemoteAddr();
 
+		M_log.debug("Basic LTI Producer request from IP="+ipAddress);
+
 		String enabled = ServerConfigurationService.getString("imsblti.producer.enabled", null);
 		if ( enabled == null || ! ("true".equals(enabled)) ) {
-			M_log.warn("BasicLTI Producer is Disabled IP="+ipAddress);
+			M_log.warn("Basic LTI Producer is Disabled IP="+ipAddress);
 			response.setStatus(response.SC_FORBIDDEN);
 			return;
 		}
@@ -193,7 +195,6 @@ public class ProducerServlet extends HttpServlet {
 
 		try {
 			oav.validateMessage(oam,acc);
-			M_log.info("Message validated");
 		} catch(Exception e) {
 			M_log.warn("Producer failed to validate message");
 			M_log.warn(e.getMessage());
@@ -246,6 +247,7 @@ public class ProducerServlet extends HttpServlet {
                         	try {
                                 	String hiddenPW = IdManager.createUuid();
                                 	UserDirectoryService.addUser(null,eid,fname,lname,email,hiddenPW,"registered", null);
+					M_log.info("Created user="+eid);
                                 	user = UserDirectoryService.getUserByEid(eid);
                         	}
                         	catch(Exception e) {
