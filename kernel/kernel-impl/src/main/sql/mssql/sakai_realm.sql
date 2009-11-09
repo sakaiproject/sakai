@@ -415,15 +415,24 @@ INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.help.glossary.delet
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.help.glossary.add')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.help.glossary.edit')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.help.glossary.export')
-INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.matrix.review')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.matrix.scaffolding.create')
-INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.matrix.scaffolding.edit')
-INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.matrix.scaffolding.delete')
-INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.matrix.scaffolding.publish')
-INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.matrix.scaffolding.export')
-INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.matrix.scaffolding.use')
-INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.matrix.evaluate')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.matrix.scaffolding.revise.any')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.matrix.scaffolding.revise.own')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.matrix.scaffolding.delete.any')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.matrix.scaffolding.delete.own')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.matrix.scaffolding.publish.any')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.matrix.scaffolding.publish.own')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.matrix.scaffolding.export.any')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.matrix.scaffolding.export.own')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.matrix.viewOwner')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.matrix.scaffoldingSpecific.accessAll')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.matrix.scaffoldingSpecific.viewEvalOther')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.matrix.scaffoldingSpecific.viewFeedbackOther')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.matrix.scaffoldingSpecific.manageStatus')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.matrix.scaffoldingSpecific.accessUserList')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.matrix.scaffoldingSpecific.viewAllGroups')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.matrix.scaffoldingSpecific.use')
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.portfolio.evaluation.use')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.presentation.create')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.presentation.edit')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'osp.presentation.delete')
@@ -588,10 +597,6 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @function_realm_del)
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @function_realm_upd)
 
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.use'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.evaluate'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.upd'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_user, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.upd.site.mbrshp'
@@ -770,8 +775,6 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_access, @f1)
 
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.create'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_access, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.use'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_access, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_access, @f1)
@@ -980,21 +983,27 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.h
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.export'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.edit'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.revise.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.evaluate'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.viewOwner'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.portfolio.evaluation.use'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
@@ -1238,21 +1247,27 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.h
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.export'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.edit'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.revise.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.evaluate'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.viewOwner'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.portfolio.evaluation.use'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_instructor, @f1)
@@ -1342,8 +1357,6 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_student, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_student, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.use'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_student, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_student, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.copy'
@@ -1408,8 +1421,6 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.create'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.use'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
@@ -1625,21 +1636,27 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.h
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.export'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.edit'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.revise.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.evaluate'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.viewOwner'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.portfolio.evaluation.use'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
@@ -1726,8 +1743,6 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.use'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.copy'
@@ -1785,8 +1800,6 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'secti
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.copy'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.comment'
@@ -1836,8 +1849,6 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'secti
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.evaluate'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.viewOwner'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.copy'
@@ -1868,8 +1879,6 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_access, @f1)
 
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.create'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_access, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.use'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_access, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_access, @f1)
@@ -1967,21 +1976,27 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.h
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.export'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.edit'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.revise.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.evaluate'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.viewOwner'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.portfolio.evaluation.use'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
@@ -2126,21 +2141,27 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.h
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.export'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.edit'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.revise.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.evaluate'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.viewOwner'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.portfolio.evaluation.use'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_instructor, @f1)
@@ -2204,8 +2225,6 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_student
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_student, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.create'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_student, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.use'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_student, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_student, @f1)
@@ -2283,8 +2302,6 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'reports.share'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.create'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.use'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
@@ -2496,21 +2513,27 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.h
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.export'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.edit'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.revise.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.evaluate'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.viewOwner'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.portfolio.evaluation.use'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
@@ -2597,8 +2620,6 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.use'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.copy'
@@ -2656,8 +2677,6 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'secti
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.copy'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.comment'
@@ -2706,8 +2725,6 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_eval
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'section.role.student'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.evaluate'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.viewOwner'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
@@ -2897,21 +2914,27 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.h
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.export'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.edit'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.revise.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.evaluate'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.viewOwner'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.portfolio.evaluation.use'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
@@ -3134,21 +3157,27 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.h
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.export'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
-INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.edit'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.revise.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.revise.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete.any'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
-select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.evaluate'
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export.own'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.viewOwner'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.portfolio.evaluation.use'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
@@ -5435,4 +5464,93 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.admin'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ts, @f1)
+
+
+
+
+--portfolio templates
+INSERT INTO SAKAI_REALM VALUES (/* DEFAULT, */ '!matrix.template.portfolio', '', @role_cig_coordinator, 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+
+declare @realm_matrix_portfolio_template int, @realm_matrix_course_template int, @realm_matrix_project_template int
+select @realm_matrix_portfolio_template=REALM_KEY from SAKAI_REALM where REALM_ID = '!matrix.template.portfolio'
+select @realm_matrix_course_template=REALM_KEY from SAKAI_REALM where REALM_ID = '!matrix.template.course'
+select @realm_matrix_project_template=REALM_KEY from SAKAI_REALM where REALM_ID = '!matrix.template.project'
+
+
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.accessAll'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_portfolio_template, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.viewEvalOther'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_portfolio_template, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.viewFeedbackOther'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_portfolio_template, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.manageStatus'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_portfolio_template, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.accessUserList'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_portfolio_template, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.viewAllGroups'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_portfolio_template, @role_cig_coordinator, @f1)
+
+
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.accessUserList'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_portfolio_template, @role_reviewer, @f1)
+
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.accessUserList'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_portfolio_template, @role_evaluator, @f1)
+
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.use'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_portfolio_template, @role_cig_participant, @f1)
+
+
+--course templates
+INSERT INTO SAKAI_REALM VALUES (/* DEFAULT, */ '!matrix.template.course', '', @role_instructor, 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.accessAll'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.viewEvalOther'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.viewFeedbackOther'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.manageStatus'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.accessUserList'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_course_template, @role_instructor, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.viewAllGroups'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_course_template, @role_instructor, @f1)
+
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.accessAll'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.viewEvalOther'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.viewFeedbackOther'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.manageStatus'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.accessUserList'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_course_template, @role_ta, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.viewAllGroups'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_course_template, @role_ta, @f1)
+
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.use'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_course_template, @role_student, @f1)
+
+
+
+--project templates
+INSERT INTO SAKAI_REALM VALUES (/* DEFAULT, */ '!matrix.template.project', '', @role_maintain, 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.accessAll'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_project_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.viewEvalOther'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_project_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.viewFeedbackOther'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_project_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.manageStatus'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_project_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.accessUserList'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_project_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.viewAllGroups'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_project_template, @role_maintain, @f1)
+
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffoldingSpecific.use'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_matrix_project_template, @role_access, @f1)
 ;
