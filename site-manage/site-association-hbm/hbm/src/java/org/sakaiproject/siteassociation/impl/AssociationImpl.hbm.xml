@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.sakaiproject.siteassociation.impl" auto-import="false">
+
+  <class name="AssociationImpl" 
+         table="SITEASSOC_CONTEXT_ASSOCIATION" optimistic-lock="version">
+
+    <cache usage="nonstrict-read-write"/>
+
+    <composite-id>
+      <key-property name="fromContext" column="FROM_CONTEXT" length="99" type="string"/>
+      <key-property name="toContext" column="TO_CONTEXT" length="99" type="string"/>
+    </composite-id>
+    
+    <version name="version" column="VERSION" />
+
+  </class>
+
+</hibernate-mapping>

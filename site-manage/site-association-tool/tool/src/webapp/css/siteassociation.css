@@ -1,0 +1,77 @@
+.dataTable {
+   border-spacing: 0px 0px;
+}
+
+.headerCell {
+   /*background-color: red;*/
+   font-weight: bold;
+   border-right: 1px solid gray;
+   vertical-align: bottom;
+   padding-right: 20px;
+   padding-left: 10px;
+}
+
+.footerCell {
+   /*background-color: red;*/
+   font-weight: bold;
+   border-top: 2px solid gray;
+   padding: 10px;
+}
+
+.dataColumn {
+   /*background-color: blue;*/
+   padding-bottom: 0px;
+   padding-top: 30px;
+   border-left: 1px solid gray;
+}
+
+.dataDiv {
+   vertical-align: bottom;
+   margin-top: 0px;
+   height: 25px;
+   width: 150px;
+   border: 1px;
+}
+
+/*open status*/
+.status0 {
+   background-color: green;
+}
+/*submitted status*/
+.status1 {
+   background-color: yellow;
+}
+/*complete status*/
+.status2 {
+   background-color: blue;
+}
+/*returned status*/
+.status3 {
+   background-color: brown;
+}
+
+/*dashboard legend table*/
+.legendTable table {
+   border: 1px;
+}
+.legendDiv {
+   width: 16px;
+   height: 16px;
+}
+
+/*dashboard breadcrumb formatting*/
+.breadcrumbs {
+   font-size: 150%;
+}
+
+
+.fieldsetVis{
+	border:1px solid #ccc;
+	padding:1em
+}
+.fieldsetVis legend{
+	border:1px solid #ccc;
+	font-size: 120%;
+	color:gray;
+	padding:.3em	
+}

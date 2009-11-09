@@ -30,6 +30,12 @@
         <module>site-manage-group-helper/tool</module>
 	<module>site-manage-participant-helper</module>
 	<module>site-manage-link-helper</module>
+    <module>site-association-api/api</module>
+    <module>site-association-hbm/hbm</module>
+    <module>site-association-impl/impl</module>
+    <module>site-association-impl/pack</module>
+    <module>site-association-tool/tool</module>
+    <module>site-association-util/util</module>
       </modules>
     </profile>
     <profile>
@@ -51,6 +57,12 @@
         <module>site-manage-group-section-role-helper/pack</module>
      	<module>site-manage-participant-helper</module> 
      	<module>site-manage-link-helper</module> 
+        <module>site-association-api/api</module>
+    <module>site-association-hbm/hbm</module>
+    <module>site-association-impl/impl</module>
+    <module>site-association-impl/pack</module>
+    <module>site-association-tool/tool</module>
+    <module>site-association-util/util</module>
      </modules>
     </profile>
   </profiles>
@@ -87,6 +99,56 @@
         <artifactId>sakai-velocity-tool</artifactId>
         <version>2.7.0-SNAPSHOT</version>
       </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-siteassociation-api</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-siteassociation-hbm</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-siteassociation-impl</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-siteassociation-util</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-jsf-tool</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-jsf-app</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.osp</groupId>
+        <artifactId>osp-depend-jsf-widgets-sun</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+        <type>pom</type>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-depend-jsf-widgets-sun</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+        <type>pom</type>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-depend-jsf-widgets-myfaces</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+        <type>pom</type>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 </project>

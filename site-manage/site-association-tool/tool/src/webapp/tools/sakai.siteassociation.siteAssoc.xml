@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<registration>
+  <tool
+    id="sakai.siteassociation.siteAssoc"
+    title="Site Association Helper"
+    description="For associating the current site with other sites.">
+
+    <category name="sakai.helper" />
+
+  </tool>	
+</registration>
