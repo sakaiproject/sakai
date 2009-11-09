@@ -22,10 +22,13 @@
 package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
@@ -154,6 +157,13 @@ public class DirectToolHandler extends BasePortalHandler
 			Site site = null;
 			try
 			{
+				Set<SecurityAdvisor> advisors = (Set<SecurityAdvisor>)session.getAttribute("sitevisit.security.advisor");
+				if (advisors != null) {
+					for (SecurityAdvisor advisor:advisors) {
+						SecurityService.pushAdvisor(advisor);
+						//session.removeAttribute("sitevisit.security.advisor");
+					}
+				}
 				site = SiteService.getSiteVisit(siteTool.getSiteId());
 			}
 			catch (IdUnusedException e)
