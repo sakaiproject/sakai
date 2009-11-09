@@ -47,11 +47,17 @@
                         <id>make-zipdocs-assembly</id> <!-- this is used for inheritance merges -->
                         <phase>package</phase> <!-- append to the packaging phase. -->
                         <goals>
-                            <goal>attached</goal>
+                            <goal>single</goal>
+                            <!-- <goal>attached</goal> -->
                         </goals>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>${basedir}/resources/docs</directory>
+            </resource>
+        </resources>
     </build>
 </project>
