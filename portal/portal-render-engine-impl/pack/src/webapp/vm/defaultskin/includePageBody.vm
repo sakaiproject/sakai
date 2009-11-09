@@ -175,11 +175,8 @@
 			<!-- include bottom -->
 			#if ( !$pagepopup)
 			<div id="footer">
-				<div class="footerExtNav" align="center">
-					|
-			#foreach ( $bn in $bottomNav )
-					${bn}  | 
-			#end
+				<div class="footerExtNav">
+					<ul id="footerLinks">#foreach ( $bn in $bottomNav )<li><span>${bn}</span></li>#end</ul>
 				</div>
 				<div id="footerInfo">
 			#foreach ( $pb in $bottomNavPoweredBy )
