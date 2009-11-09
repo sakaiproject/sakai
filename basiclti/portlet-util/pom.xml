@@ -16,7 +16,7 @@
         <name>University of Michigan</name>
         <url>http://sakaiproject.org/</url>
     </organization>
-    <inceptionYear>2007</inceptionYear>
+    <inceptionYear>2005</inceptionYear>
     <packaging>jar</packaging>
     
     <dependencies>

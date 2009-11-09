@@ -3,8 +3,6 @@
  * $Revision$
  * $Date$
  *
- * ====================================================================
- *
  *  Copyright 1999-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,15 +16,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- * ====================================================================
- *
- * This software consists of voluntary contributions made by many
- * individuals on behalf of the Apache Software Foundation.  For more
- * information on the Apache Software Foundation, please see
- * .
- *
- * [Additional notices, if required by prior licensing conditions]
- *
  */
 
 package org.imsglobal.basiclti;
