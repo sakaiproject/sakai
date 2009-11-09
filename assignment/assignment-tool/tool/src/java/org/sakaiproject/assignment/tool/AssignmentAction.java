@@ -133,6 +133,7 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -532,6 +533,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 	/** The student view of graded submission */
 	private static final String MODE_STUDENT_VIEW_GRADE = "Assignment.mode_student_view_grade";
+	
+	/** The student view of graded submission */
+	private static final String MODE_STUDENT_VIEW_GRADE_PRIVATE = "Assignment.mode_student_view_grade_private";
 
 	/** The student view of assignments */
 	private static final String MODE_STUDENT_VIEW_ASSIGNMENT = "Assignment.mode_student_view_assignment";
@@ -825,11 +829,14 @@ public class AssignmentAction extends PagedResourceActionII
 			// build the context for showing one assignment submission
 			template = build_student_preview_submission_context(portlet, context, data, state);
 		}
-		else if (mode.equals(MODE_STUDENT_VIEW_GRADE))
+		else if (mode.equals(MODE_STUDENT_VIEW_GRADE) || mode.equals(MODE_STUDENT_VIEW_GRADE_PRIVATE))
 		{
 			// disable auto-updates while leaving the list view
 			justDelivered(state);
 
+			if(mode.equals(MODE_STUDENT_VIEW_GRADE_PRIVATE)){
+				context.put("privateView", true);
+			}
 			// build the context for showing one graded submission
 			template = build_student_view_grade_context(portlet, context, data, state);
 		}
@@ -1268,6 +1275,34 @@ public class AssignmentAction extends PagedResourceActionII
 		Assignment assignment = null;
 		try
 		{
+			Session session = SessionManager.getCurrentSession();
+			SecurityAdvisor contentAdvisor = (SecurityAdvisor)session.getAttribute("assignment.content.security.advisor");
+			
+			String decoratedContentWrapper = (String)session.getAttribute("assignment.content.decoration.wrapper");
+			session.removeAttribute("assignment.content.decoration.wrapper");
+			
+			String[] contentRefs = (String[])session.getAttribute("assignment.content.decoration.wrapper.refs");
+			session.removeAttribute("assignment.content.decoration.wrapper.refs");
+			
+
+			if (contentAdvisor != null && contentRefs != null) {
+				SecurityService.pushAdvisor(contentAdvisor);
+				
+				Map urlMap = new HashMap();
+				for (String refStr:contentRefs) {
+					Reference ref = EntityManager.newReference(refStr);
+					String url = ref.getUrl();
+					urlMap.put(url, url.replaceFirst("access/content", "access/" + decoratedContentWrapper + "/content"));					
+				}
+				context.put("decoratedUrlMap", urlMap);
+			}
+			SecurityAdvisor asgnAdvisor = (SecurityAdvisor)session.getAttribute("assignment.security.advisor");
+			
+			if (asgnAdvisor != null) {
+				SecurityService.pushAdvisor(asgnAdvisor);
+	
+				session.removeAttribute("assignment.security.advisor");
+			}
 			submission = AssignmentService.getSubmission((String) state.getAttribute(VIEW_GRADE_SUBMISSION_ID));
 			assignment = submission.getAssignment();
 			context.put("assignment", assignment);
@@ -1279,6 +1314,9 @@ public class AssignmentAction extends PagedResourceActionII
 			
 			// can the student view model answer or not
 			canViewAssignmentIntoContext(context, assignment, submission);
+
+			SecurityService.popAdvisor(); 
+			//should be the asgnAdvisor that gets popped
 		}
 		catch (IdUnusedException e)
 		{
@@ -7091,6 +7129,21 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(STATE_MODE, MODE_STUDENT_VIEW_GRADE);
 
 	} // doView_grade
+	
+	/**
+	 * Action is to show the graded assignment submission while keeping specific information private
+	 */
+	public void doView_grade_private(RunData data)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		ParameterParser params = data.getParameters();
+
+		state.setAttribute(VIEW_GRADE_SUBMISSION_ID, params.getString("submissionId"));
+
+		state.setAttribute(STATE_MODE, MODE_STUDENT_VIEW_GRADE_PRIVATE);
+
+	} // doView_grade_private
 
 	/**
 	 * Action is to show the student submissions
@@ -11528,6 +11581,9 @@ public class AssignmentAction extends PagedResourceActionII
 				.get("org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer");
 		context.put("activity", assignmentActivityProducer
 				.getActivity(assignment));
+		
+		String placement = ToolManager.getCurrentPlacement().getId();
+		context.put("iframeId", Validator.escapeJavascript("Main" + placement));
 	}
 	
 	private void addItem(Context context, AssignmentSubmission submission, String userId)

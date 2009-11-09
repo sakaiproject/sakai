@@ -10,19 +10,32 @@ function saveChanges(formName, textAreaId) {
 	}
 }
 
+iframeId = '$iframeId';
+
 </script>
 <form name="form" action="#toolForm("AssignmentAction")" method="post">
 	<input type="hidden" name="sakai_action" value=""/>
 	<input type="hidden" name="providerId" value=""/>
 	<input type="hidden" name="criteria" value=""/>
 	<input type="hidden" name="savedText" value=""/>
+	#set ($firstFlag = true)
 	#foreach ($provider in $providers)
 		#if ($provider.getProvider().allowViewTags($activity.getContext()))
-			<h4>$provider.getProvider().getName() $tlang.getString("tag.tags")</h4>
+			#if ($firstFlag = true)
+				<br>
+				<br>
+				#set ($firstFlag = false)
+			#end
+			<div class="navPanel">
+				<div class="viewNav">
+					<h4>$provider.getProvider().getSimpleTextLabel()</h4>
+				</div>
 			#set ($tagList = $provider.getTags($activity))
 			#if (!$tagList.isEmpty())
+				#set ($pager = $provider.getPager())
+				#if ($pager.getTotalItems() > 5)
 				<div class="listNav">
-					#set ($pager = $provider.getPager())
+					
 					<div  class="instruction">
 						$tlang.getString("gen.viewing") $pager.getFirstItemNumber() - $pager.getLastItemNumber() $tlang.getString("gen.of") $pager.getTotalItems() $tlang.getString("gen.items")
 					</div>
@@ -69,6 +82,8 @@ function saveChanges(formName, textAreaId) {
 						#end
 					</div>
 				</div>
+				</div>
+				#end
 				<table class="listHier lines nolines" border="0" cellspacing="0" summary="$tlang.getString('tag.list.summary')">
 					#set ($columns = $provider.getColumns($activity))
 					<tr>

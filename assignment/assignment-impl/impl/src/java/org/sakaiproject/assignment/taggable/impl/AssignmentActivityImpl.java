@@ -22,6 +22,7 @@
 package org.sakaiproject.assignment.taggable.impl;
 
 import org.sakaiproject.assignment.api.Assignment;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.taggable.api.TaggableActivity;
 import org.sakaiproject.taggable.api.TaggableActivityProducer;
 
@@ -71,7 +72,14 @@ public class AssignmentActivityImpl implements TaggableActivity {
 
 	public String getActivityDetailUrl()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		//String url = assignment.getUrl();
+		String url = ServerConfigurationService.getServerUrl() + 
+			"/direct/assignment/" + assignment.getId() + "/doView_assignment?TB_iframe=true";
+		return url;
+	}
+
+	public String getTypeName()
+	{
+		return producer.getName();
 	}
 }

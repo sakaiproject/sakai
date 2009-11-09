@@ -65,7 +65,7 @@ public class AssignmentActivityProducerImpl implements
 	protected UserDirectoryService userDirectoryService;
 
 	public boolean allowGetItems(TaggableActivity activity,
-			TaggingProvider provider) {
+			TaggingProvider provider, boolean allowGetItems) {
 		// We aren't picky about the provider, so ignore that argument.
 		// Only allow this if the user can grade submissions
 		return assignmentService.allowGradeSubmission(activity.getReference());
@@ -140,7 +140,7 @@ public class AssignmentActivityProducerImpl implements
 						assignmentSubmission.getAssignment(), this));
 	}
 
-	public TaggableItem getItem(String itemRef, TaggingProvider provider) {
+	public TaggableItem getItem(String itemRef, TaggingProvider provider, boolean getMyItemsOnly) {
 		// We aren't picky about the provider, so ignore that argument.
 		TaggableItem item = null;
 		if (checkReference(itemRef)) {
@@ -160,7 +160,7 @@ public class AssignmentActivityProducerImpl implements
 	}
 
 	public List<TaggableItem> getItems(TaggableActivity activity,
-			String userId, TaggingProvider provider) {
+			String userId, TaggingProvider provider, boolean getMyItemsOnly) {
 		// We aren't picky about the provider, so ignore that argument.
 		List<TaggableItem> returned = new ArrayList<TaggableItem>();
 		try {
@@ -168,7 +168,7 @@ public class AssignmentActivityProducerImpl implements
 			AssignmentSubmission submission = assignmentService.getSubmission(
 					assignment.getReference(), userDirectoryService
 							.getUser(userId));
-			if (submission != null) {
+			if (submission != null && submission.getSubmitted()) {
 				TaggableItem item = new AssignmentItemImpl(submission, userId,
 						activity);
 				returned.add(item);
@@ -180,7 +180,7 @@ public class AssignmentActivityProducerImpl implements
 	}
 
 	public List<TaggableItem> getItems(TaggableActivity activity,
-			TaggingProvider provider) {
+			TaggingProvider provider, boolean getMyItemsOnly) {
 		// We aren't picky about the provider, so ignore that argument.
 		List<TaggableItem> items = new ArrayList<TaggableItem>();
 		Assignment assignment = (Assignment) activity.getObject();
@@ -193,13 +193,19 @@ public class AssignmentActivityProducerImpl implements
 			for (Iterator<AssignmentSubmission> i = assignmentService
 					.getSubmissions(assignment).iterator(); i.hasNext();) {
 				AssignmentSubmission submission = i.next();
-				for (Object submitterId : submission.getSubmitterIds()) {
-					items.add(new AssignmentItemImpl(submission,
-							(String) submitterId, activity));
+				if (submission != null && submission.getSubmitted()) {
+					for (Object submitterId : submission.getSubmitterIds()) {
+						items.add(new AssignmentItemImpl(submission,
+								(String) submitterId, activity));
+					}
 				}
 			}
 		}
 		return items;
+	}
+
+	public String getItemPermissionOverride() {
+		return AssignmentService.SECURE_ACCESS_ASSIGNMENT;
 	}
 
 	public String getName() {
@@ -243,5 +249,17 @@ public class AssignmentActivityProducerImpl implements
 	public void setUserDirectoryService(
 			UserDirectoryService userDirectoryService) {
 		this.userDirectoryService = userDirectoryService;
+	}
+
+	public boolean hasSubmissions(TaggableActivity activity,
+			TaggingProvider provider, boolean getMyItemsOnly) {
+		List<TaggableItem> items = getItems(activity, provider, getMyItemsOnly);
+		return items.size() > 0;
+	}
+	
+	public boolean hasSubmissions(TaggableActivity activity, String userId,
+			TaggingProvider provider, boolean getMyItemsOnly) {
+		List<TaggableItem> items = getItems(activity, userId, provider, getMyItemsOnly);
+		return items.size() > 0;
 	}
 }

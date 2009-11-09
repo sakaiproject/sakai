@@ -1,5 +1,5 @@
 <div class="portletBody" xmlns:wairole="http://www.w3.org/2005/01/wai-rdf/GUIRoleTaxonomy#"  xmlns:aaa="http://www.w3.org/2005/07/aaa">
-#if ($taggable)
+	#if ($taggable && $allowAddAssignment)
 		#if (!$activityHelpers.isEmpty())
 		<ul class="navIntraTool actionToolBar" role="menu">
 				#set ($first = true)

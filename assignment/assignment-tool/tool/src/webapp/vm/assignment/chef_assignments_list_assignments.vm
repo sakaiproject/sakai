@@ -332,7 +332,7 @@ function allowClick(object)
 											#set($prevAction=false)
 											#if ($!allowUpdateAssignment)#set($prevAction=true)<a href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">$!tlang.getString("revise")</a>#end
 											#if ($allowAddAssignment&&$!allowUpdateAssignment)#if($prevAction) | #else#set($prevAction=true)#end<a href="#toolLinkParam("$action" "doDuplicate_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">$!tlang.getString("dupli")</a>#end
-											#if ($taggable)
+											#if ($taggable && $allowAddAssignment)
 												#foreach ($provider in $providers)
 													#set ($helperInfo = false)
 													#set ($activity = $producer.getActivity($assignment))
@@ -403,7 +403,7 @@ function allowClick(object)
 												#else
 												 <h4><a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">$validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</a></h4>
 												#end
-												#if ($taggable)
+												#if ($taggable && $allowAddAssignment)
 													<div class="itemAction">
 														#set($prevAction=false)
 														#foreach ($provider in $providers)

@@ -99,6 +99,10 @@
       <artifactId>contentreview-service-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.sakaiproject.entitybroker</groupId>
+      <artifactId>entitybroker-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>poi</groupId>
       <artifactId>poi</artifactId>
       <version>2.5.1</version>
@@ -129,6 +133,14 @@
       <groupId>${sakai.spring.groupId}</groupId>
       <artifactId>${sakai.spring.artifactId}</artifactId>
       <version>${sakai.spring.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.osp</groupId>
+      <artifactId>osp-matrix-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.osp</groupId>
+      <artifactId>osp-common-api</artifactId>
     </dependency>
   </dependencies>
   <build>

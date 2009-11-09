@@ -55,9 +55,11 @@
 						$tlang.getString("gen.student")
 				 </th>
 					<td>
-						#set ($submitters = $submission.submitters)
-						#foreach ($submitter in $submitters)
-							$validator.escapeHtml($submitter.DisplayName)<br />
+						#if (!$privateView)
+							#set ($submitters = $submission.submitters)
+							#foreach ($submitter in $submitters)
+								$validator.escapeHtml($submitter.DisplayName)<br />
+							#end
 						#end
 					</td>
 				</tr>
@@ -165,7 +167,11 @@
 							#else
 								<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 							#end
-							<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+							#if ($decoratedUrlMap)
+								<a href="$decoratedUrlMap.get($attachment.Url)" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+							#else
+								<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+							#end
 							#if (!$props.getBooleanProperty($props.NamePropIsCollection))
 								($props.getPropertyFormatted($props.NamePropContentLength))
 							#end
@@ -307,7 +313,11 @@
 								#else
 									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 								#end
-								<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+								#if ($decoratedUrlMap)
+									<a href="$decoratedUrlMap.get($attachment.Url)" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+								#else
+									<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+								#end
 								#if (!$props.getBooleanProperty($props.NamePropIsCollection))
 									($props.getPropertyFormatted($props.NamePropContentLength))
 								#end
@@ -348,7 +358,11 @@
 									#else
 										<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 									#end
-									<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+									#if ($decoratedUrlMap)
+										<a href="$decoratedUrlMap.get($attachment.Url)" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+									#else
+										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+									#end
 									#if (!$props.getBooleanProperty($props.NamePropIsCollection))
 										($props.getPropertyFormatted($props.NamePropContentLength))
 									#end
@@ -360,7 +374,7 @@
 			#end
 		<form action="#toolForm("AssignmentAction")" method="post" >
 			<div class="act">
-				<input type="submit" accesskey="x" name="eventSubmit_doCancel_view_grade" value="$tlang.getString("gen.backtolist")" accesskey="x" class="active"/>
+				<input type="submit" accesskey="x" name="eventSubmit_doCancel_view_grade" value="$tlang.getString("gen.backtolist")" accesskey="x" class="active TB_hideControl"/>
 			</div>
 		</form>
 	</div>
