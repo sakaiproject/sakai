@@ -21,6 +21,7 @@
 
 package org.sakaiproject.content.api;
 
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -534,6 +535,37 @@ public interface ContentHostingService extends EntityProducer
 			ServerOverloadException;
 
 	/**
+	 * Create a new resource with the given properties.
+	 * 
+	 * @param id
+	 *        The id of the new resource.
+	 * @param type
+	 *        The mime type string of the resource.
+	 * @param content
+	 *        A stream containing the bytes of the resource's content.
+	 * @param properties
+	 *        A ResourceProperties object with the properties to add to the new resource.
+	 * @param priority
+	 *        The notification priority for this commit.
+	 * @exception PermissionException
+	 *            if the user does not have permission to add a resource to the containing collection.
+	 * @exception IdUsedException
+	 *            if the resource id is already in use.
+	 * @exception IdInvalidException
+	 *            if the resource id is invalid.
+	 * @exception InconsistentException
+	 *            if the containing collection does not exist.
+	 * @exception OverQuotaException
+	 *            if this would result in being over quota.
+	 * @exception ServerOverloadException
+	 *            if the server is configured to write the resource body to the filesystem and the save fails.
+	 * @return a new ContentResource object.
+	 */
+	public ContentResource addResource(String id, String type, InputStream content, ResourceProperties properties, int priority)
+		throws PermissionException, IdUsedException, IdInvalidException, InconsistentException, OverQuotaException,
+		ServerOverloadException;
+	
+	/**
 	 * Create a new resource with the given resource name used as a resource id within the
 	 * specified collection or (if that id is already in use) with a resource id based on
 	 * a variation on the name to achieve a unique id, provided a unique id can be found 
@@ -611,6 +643,40 @@ public interface ContentHostingService extends EntityProducer
 			throws PermissionException, IdUsedException, IdInvalidException, InconsistentException, OverQuotaException,
 			ServerOverloadException;
 
+	/**
+	 * Create a new resource with the given id and attributes, including group awareness.
+	 * 
+	 * @param id
+	 *        The id of the new resource.
+	 * @param type
+	 *        The mime type string of the resource.
+	 * @param content
+	 *        A stream containing the bytes of the resource's content.
+	 * @param properties
+	 *        A ResourceProperties object with the properties to add to the new resource.
+	 * @param groups
+	 *        A collection (String) of references to Group objects representing the site subgroups that should have access to this entity.
+	 *        May be empty to indicate access is not limited to a group or groups.
+	 * @param priority
+	 *        The notification priority for this commit.
+	 * @exception PermissionException
+	 *            if the user does not have permission to add a resource to the containing collection.
+	 * @exception IdUsedException
+	 *            if the resource id is already in use.
+	 * @exception IdInvalidException
+	 *            if the resource id is invalid.
+	 * @exception InconsistentException
+	 *            if the containing collection does not exist.
+	 * @exception OverQuotaException
+	 *            if this would result in being over quota.
+	 * @exception ServerOverloadException
+	 *            if the server is configured to write the resource body to the filesystem and the save fails.
+	 * @return a new ContentResource object.
+	 */
+	public ContentResource addResource(String id, String type, InputStream content, ResourceProperties properties, Collection groups, int priority)
+		throws PermissionException, IdUsedException, IdInvalidException, InconsistentException, OverQuotaException,
+		ServerOverloadException;
+	
 	/**
 	 * Create a new resource with the given resource name used as a resource id within the
 	 * specified collection or (if that id is already in use) with a resource id based on
@@ -708,6 +774,55 @@ public interface ContentHostingService extends EntityProducer
 			ServerOverloadException;
 
 	/**
+	 * Create a new resource with the given resource name used as a resource id within the
+	 * specified collection or (if that id is already in use) with a resource id based on
+	 * a variation on the name to achieve a unique id, provided a unique id can be found 
+	 * before a limit is reached on the number of attempts to achieve uniqueness.
+	 * 
+	 * @param name
+	 *        The name of the new resource (such as a filename).
+	 * @param collectionId
+	 *        The id of the collection to which the resource should be added.
+	 * @param limit
+	 *        The maximum number of attempts at finding a unique id based on the given id.
+	 * @param type
+	 *        The mime type string of the resource.
+	 * @param content
+	 *        An array containing the bytes of the resource's content.
+	 * @param properties
+	 *        A ResourceProperties object with the properties to add to the new resource.
+	 * @param groups
+	 *        A collection (String) of references to Group objects representing the site subgroups that should have access to this entity.
+	 *        May be empty to indicate access is not limited to a group or groups.
+	 * @param hidden
+	 *        A flag indicating that the entity should be hidden from users unless they created the entity or have permission to modify it.
+	 * @param releaseDate
+	 *        The time at which the entity becomes available to most users. The entity should be available immediately if this value is null.
+	 * @param retractDate
+	 *        The date after which the entity is no longer available to most users. The entity should be available indefinitely if this value is null.
+	 * @param priority
+	 *        The notification priority for this commit.
+	 * @exception PermissionException
+	 *            if the user does not have permission to add a resource to the containing collection.
+	 * @exception IdUniquenessException
+	 *            if a unique resource id cannot be found before the limit on the number of attempts is reached.
+	 * @exception IdLengthException
+	 *            if the resource id exceeds the maximum number of characters for a valid resource id.
+	 * @exception IdInvalidException
+	 *            if the resource id is invalid.
+	 * @exception InconsistentException
+	 *            if the containing collection does not exist.
+	 * @exception OverQuotaException
+	 *            if this would result in being over quota.
+	 * @exception ServerOverloadException
+	 *            if the server is configured to write the resource body to the filesystem and the save fails.
+	 * @return a new ContentResource object.
+	 */
+	public ContentResource addResource(String name, String collectionId, int limit, String type, InputStream content, ResourceProperties properties, Collection groups, boolean hidden, Time releaseDate, Time retractDate, int priority)
+			throws PermissionException, IdUniquenessException, IdLengthException, IdInvalidException, InconsistentException, IdLengthException, OverQuotaException,
+			ServerOverloadException;
+	
+	/**
 	 * Create a new resource with the given resource id, locked for update. Must commitResource() to make official, or cancelResource() when done!
 	 * 
 	 * @param id
@@ -744,7 +859,6 @@ public interface ContentHostingService extends EntityProducer
 	 */
 	public boolean isAttachmentResource(String id);
 
-
 	/**
 	 * Create a new resource as an attachment to some other resource in the system. The new resource will be placed 
 	 * into a newly created collecion in the attachment collection, with an auto-generated id, and given the specified 
@@ -755,7 +869,39 @@ public interface ContentHostingService extends EntityProducer
 	 * @param type
 	 *        The mime type string of the resource.
 	 * @param content
-	 *        An array containing the bytes of the resource's content.
+	 *        A stream containing the bytes of the resource's content.
+	 * @param properties
+	 *        A ResourceProperties object with the properties to add to the new resource.
+	 * @exception IdUsedException
+	 *            if the resource name is already in use (not likely, as the containing collection is auto-generated!)
+	 * @exception IdInvalidException
+	 *            if the resource name is invalid.
+	 * @exception InconsistentException
+	 *            if the containing collection (or it's containing collection...) does not exist.
+	 * @exception PermissionException
+	 *            if the user does not have permission to add a collection, or add a member to a collection.
+	 * @exception OverQuotaException
+	 *            if this would result in being over quota.
+	 * @exception ServerOverloadException
+	 *            if the server is configured to write the resource body to the filesystem and the save fails.
+	 * @return a new ContentResource object.
+	 * @deprecated Suggest use of {@link #addAttachmentResource(String, String, String, String, InputStream, ResourceProperties)}
+	 */
+	public ContentResource addAttachmentResource(String name, String type, byte[] content, ResourceProperties properties)
+		throws IdInvalidException, InconsistentException, IdUsedException, PermissionException, OverQuotaException,
+		ServerOverloadException;
+	
+	/**
+	 * Create a new resource as an attachment to some other resource in the system. The new resource will be placed 
+	 * into a newly created collecion in the attachment collection, with an auto-generated id, and given the specified 
+	 * resource name within this collection.
+	 * 
+	 * @param name
+	 *        The name of the new resource, i.e. a partial id relative to the collection where it will live.
+	 * @param type
+	 *        The mime type string of the resource.
+	 * @param content
+	 *        A stream containing the bytes of the resource's content.
 	 * @param properties
 	 *        A ResourceProperties object with the properties to add to the new resource.
 	 * @exception IdUsedException
@@ -772,7 +918,7 @@ public interface ContentHostingService extends EntityProducer
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
 	 * @return a new ContentResource object.
 	 */
-	public ContentResource addAttachmentResource(String name, String type, byte[] content, ResourceProperties properties)
+	public ContentResource addAttachmentResource(String name, String type, InputStream content, ResourceProperties properties)
 			throws IdInvalidException, InconsistentException, IdUsedException, PermissionException, OverQuotaException,
 			ServerOverloadException;
 
@@ -806,8 +952,44 @@ public interface ContentHostingService extends EntityProducer
 	 * @exception ServerOverloadException
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
 	 * @return a new ContentResource object.
+	 * @deprecated Suggest use of {@link #addAttachmentResource(String, String, InputStream, ResourceProperties)}
 	 */
 	public ContentResource addAttachmentResource(String name, String site, String tool, String type, byte[] content,
+			ResourceProperties properties) throws IdInvalidException, InconsistentException, IdUsedException, PermissionException,
+			OverQuotaException, ServerOverloadException;
+	
+	/**
+	 * Create a new resource as an attachment to some other resource in the system. The new resource will be placed 
+	 * into a newly created collection in the site collection within the attachment collection. The new collection 
+	 * will have an auto-generated id, and it will be given the specified resource name within the site collection.
+	 * 
+	 * @param name
+	 *        The name of the new resource, i.e. a partial id relative to the collection where it will live.
+	 * @param site
+	 *        The string identifier for the site where the attachment is being added within the attachments collection.
+	 * @param tool
+	 *        The display-name for the tool through which the attachment is being added within the site's attachments collection.
+	 * @param type
+	 *        The mime type string of the resource.
+	 * @param content
+	 *        A stream containing the bytes of the resource's content.
+	 * @param properties
+	 *        A ResourceProperties object with the properties to add to the new resource.
+	 * @exception IdUsedException
+	 *            if the resource name is already in use (not likely, as the containing collection is auto-generated!)
+	 * @exception IdInvalidException
+	 *            if the resource name is invalid.
+	 * @exception InconsistentException
+	 *            if the containing collection (or it's containing collection...) does not exist.
+	 * @exception PermissionException
+	 *            if the user does not have permission to add a collection, or add a member to a collection.
+	 * @exception OverQuotaException
+	 *            if this would result in being over quota.
+	 * @exception ServerOverloadException
+	 *            if the server is configured to write the resource body to the filesystem and the save fails.
+	 * @return a new ContentResource object.
+	 */
+	public ContentResource addAttachmentResource(String name, String site, String tool, String type, InputStream content,
 			ResourceProperties properties) throws IdInvalidException, InconsistentException, IdUsedException, PermissionException,
 			OverQuotaException, ServerOverloadException;
 

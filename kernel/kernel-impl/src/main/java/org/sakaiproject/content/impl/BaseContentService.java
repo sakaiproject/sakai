@@ -3016,36 +3016,20 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	} // allowAddResource
 
 	/**
-	 * Create a new resource with the given resource id and attributes, including group awareness.
-	 * 
-	 * @param id
-	 *        The id of the new resource.
-	 * @param type
-	 *        The mime type string of the resource.
-	 * @param content
-	 *        An array containing the bytes of the resource's content.
-	 * @param properties
-	 *        A java Properties object with the properties to add to the new resource.
-	 * @param groups
-	 *        A collection (String) of references to Group objects representing the site subgroups that should have access to this entity.
-	 *        May be empty to indicate access is not limited to a group or groups.
-	 * @param priority
-	 *        The notification priority for this commit.
-	 * @exception PermissionException
-	 *            if the user does not have permission to add a resource to the containing collection.
-	 * @exception IdUsedException
-	 *            if the resource id is already in use.
-	 * @exception IdInvalidException
-	 *            if the resource id is invalid.
-	 * @exception InconsistentException
-	 *            if the containing collection does not exist.
-	 * @exception OverQuotaException
-	 *            if this would result in being over quota.
-	 * @exception ServerOverloadException
-	 *            if the server is configured to write the resource body to the filesystem and the save fails.
-	 * @return a new ContentResource object.
+	 * @see org.sakaiproject.content.api.ContentHostingService#addResource(java.lang.String, java.lang.String, byte[], org.sakaiproject.entity.api.ResourceProperties, java.util.Collection, int)
 	 */
 	public ContentResource addResource(String id, String type, byte[] content, ResourceProperties properties, Collection groups, int priority)
+	throws PermissionException, IdUsedException, IdInvalidException, InconsistentException, OverQuotaException,
+	ServerOverloadException {
+	
+	ByteArrayInputStream contentStream = new ByteArrayInputStream(content);
+	return addResource(id, type, contentStream, properties, groups, priority);
+	}
+	
+	/**
+	* @see org.sakaiproject.content.api.ContentHostingService#addResource(java.lang.String, java.lang.String, java.io.InputStream, org.sakaiproject.entity.api.ResourceProperties, java.util.Collection, int)
+	*/
+	public ContentResource addResource(String id, String type, InputStream content, ResourceProperties properties, Collection groups, int priority)
 	throws PermissionException, IdUsedException, IdInvalidException, InconsistentException, OverQuotaException,
 	ServerOverloadException
 	{
@@ -3103,33 +3087,19 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	} // addResource
 
 	/**
-	 * Create a new resource with the given resource id and attributes but no group awareness.
-	 * 
-	 * @param id
-	 *        The id of the new resource.
-	 * @param type
-	 *        The mime type string of the resource.
-	 * @param content
-	 *        An array containing the bytes of the resource's content.
-	 * @param properties
-	 *        A java Properties object with the properties to add to the new resource.
-	 * @param priority
-	 *        The notification priority for this commit.
-	 * @exception PermissionException
-	 *            if the user does not have permission to add a resource to the containing collection.
-	 * @exception IdUsedException
-	 *            if the resource id is already in use.
-	 * @exception IdInvalidException
-	 *            if the resource id is invalid.
-	 * @exception InconsistentException
-	 *            if the containing collection does not exist.
-	 * @exception OverQuotaException
-	 *            if this would result in being over quota.
-	 * @exception ServerOverloadException
-	 *            if the server is configured to write the resource body to the filesystem and the save fails.
-	 * @return a new ContentResource object.
+	 * @see org.sakaiproject.content.api.ContentHostingService#addResource(java.lang.String, java.lang.String, byte[], org.sakaiproject.entity.api.ResourceProperties, int)
 	 */
 	public ContentResource addResource(String id, String type, byte[] content, ResourceProperties properties, int priority)
+	throws PermissionException, IdUsedException, IdInvalidException, InconsistentException, OverQuotaException,
+	ServerOverloadException {
+		ByteArrayInputStream contentStream = new ByteArrayInputStream(content);
+		return addResource(id, type, contentStream, properties, priority);
+	}
+	
+	/**
+	 * @see org.sakaiproject.content.api.ContentHostingService#addResource(java.lang.String, java.lang.String, java.io.InputStream, org.sakaiproject.entity.api.ResourceProperties, int)
+	 */
+	public ContentResource addResource(String id, String type, InputStream content, ResourceProperties properties, int priority)
 	throws PermissionException, IdUsedException, IdInvalidException, InconsistentException, OverQuotaException,
 	ServerOverloadException
 	{
@@ -3138,45 +3108,24 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	}
 
 	/**
-	 * Create a new resource with the given resource name used as a resource id within the specified collection or (if that id is already in use) with a resource id based on a variation on the name to achieve a unique id, provided a unique id can be found
-	 * before a limit is reached on the number of attempts to achieve uniqueness.  Used to create a group-aware resource.
-	 * 
-	 * @param name
-	 *        The name of the new resource (such as a filename).
-	 * @param collectionId
-	 *        The id of the collection to which the resource should be added.
-	 * @param limit
-	 *        The maximum number of attempts at finding a unique id based on the given name.
-	 * @param type
-	 *        The mime type string of the resource.
-	 * @param content
-	 *        An array containing the bytes of the resource's content.
-	 * @param properties
-	 *        A ResourceProperties object with the properties to add to the new resource.
-	 * @param groups
-	 *        A collection (String) of references to Group objects representing the site subgroups that should have access to this entity.
-	 *        May be empty to indicate access is not limited to a group or groups.
-	 * @param priority
-	 *        The notification priority for this commit.
-	 * @exception PermissionException
-	 *            if the user does not have permission to add a resource to the containing collection.
-	 * @exception IdUniquenessException
-	 *            if a unique resource id cannot be found before the limit on the number of attempts is reached.
-	 * @exception IdLengthException
-	 *            if the resource id exceeds the maximum number of characters for a valid resource id.
-	 * @exception IdInvalidException
-	 *            if the resource id is invalid.
-	 * @exception InconsistentException
-	 *            if the containing collection does not exist.
-	 * @exception OverQuotaException
-	 *            if this would result in being over quota.
-	 * @exception ServerOverloadException
-	 *            if the server is configured to write the resource body to the filesystem and the save fails.
-	 * @return a new ContentResource object.
+	 * @see org.sakaiproject.content.api.ContentHostingService#addResource(java.lang.String, java.lang.String, int, java.lang.String, byte[], org.sakaiproject.entity.api.ResourceProperties, java.util.Collection, boolean, org.sakaiproject.time.api.Time, org.sakaiproject.time.api.Time, int)
 	 */
 	public ContentResource addResource(String name, String collectionId, int limit, String type, byte[] content,
 			ResourceProperties properties, Collection groups, boolean hidden, Time releaseDate, Time retractDate, int priority) 
-	throws PermissionException, IdUniquenessException, IdLengthException, IdInvalidException, 
+			throws PermissionException, IdUniquenessException, IdLengthException, IdInvalidException, 
+			InconsistentException, OverQuotaException, ServerOverloadException {
+		
+		ByteArrayInputStream contentStream = new ByteArrayInputStream(content);
+		return addResource(name, collectionId, limit, type, contentStream, properties, groups,
+				hidden, releaseDate, retractDate, priority);
+	}
+
+	/**
+	 * @see org.sakaiproject.content.api.ContentHostingService#addResource(java.lang.String, java.lang.String, int, java.lang.String, java.io.InputStream, org.sakaiproject.entity.api.ResourceProperties, java.util.Collection, boolean, org.sakaiproject.time.api.Time, org.sakaiproject.time.api.Time, int)
+	 */
+	public ContentResource addResource(String name, String collectionId, int limit, String type, InputStream content,
+			ResourceProperties properties, Collection groups, boolean hidden, Time releaseDate, Time retractDate, int priority) 
+	 		throws PermissionException, IdUniquenessException, IdLengthException, IdInvalidException, 
 	InconsistentException, OverQuotaException, ServerOverloadException
 	{
 		try
@@ -3789,33 +3738,21 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	}
 
 	/**
-	 * Create a new resource as an attachment to some other resource in the system. The new resource will be placed into a newly created collecion in the attachment collection, with an auto-generated id, and given the specified resource name within this
-	 * collection.
-	 * 
-	 * @param name
-	 *        The name of the new resource, i.e. a partial id relative to the collection where it will live.
-	 * @param type
-	 *        The mime type string of the resource.
-	 * @param content
-	 *        An array containing the bytes of the resource's content.
-	 * @param properties
-	 *        A ResourceProperties object with the properties to add to the new resource.
-	 * @exception IdUsedException
-	 *            if the resource name is already in use (not likely, as the containing collection is auto-generated!)
-	 * @exception IdInvalidException
-	 *            if the resource name is invalid.
-	 * @exception InconsistentException
-	 *            if the containing collection (or it's containing collection...) does not exist.
-	 * @exception PermissionException
-	 *            if the user does not have permission to add a collection, or add a member to a collection.
-	 * @exception OverQuotaException
-	 *            if this would result in being over quota.
-	 * @exception ServerOverloadException
-	 *            if the server is configured to write the resource body to the filesystem and the save fails.
-	 * @return a new ContentResource object.
+	 * @see org.sakaiproject.content.api.ContentHostingService#addAttachmentResource(java.lang.String, java.lang.String, byte[], org.sakaiproject.entity.api.ResourceProperties)
 	 */
 	public ContentResource addAttachmentResource(String name, String type, byte[] content, ResourceProperties properties)
-	throws IdInvalidException, InconsistentException, IdUsedException, PermissionException, OverQuotaException,
+		throws IdInvalidException, InconsistentException, IdUsedException, PermissionException, OverQuotaException,
+		ServerOverloadException {
+		
+		ByteArrayInputStream contentStream = new ByteArrayInputStream(content);
+		return addAttachmentResource(name, type, contentStream, properties);
+	}
+	
+	/**
+	 * @see org.sakaiproject.content.api.ContentHostingService#addAttachmentResource(java.lang.String, java.lang.String, InputStream, org.sakaiproject.entity.api.ResourceProperties)
+	 */
+	public ContentResource addAttachmentResource(String name, String type, InputStream content, ResourceProperties properties)
+	 			throws IdInvalidException, InconsistentException, IdUsedException, PermissionException, OverQuotaException,
 	ServerOverloadException
 	{
 		// make sure the name is valid
@@ -3847,39 +3784,24 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	} // addAttachmentResource
 
 	/**
-	 * Create a new resource as an attachment to some other resource in the system. The new resource will be placed into a newly created collecion in the attachment collection, with an auto-generated id, and given the specified resource name within this
-	 * collection.
-	 * 
-	 * @param name
-	 *        The name of the new resource, i.e. a partial id relative to the collection where it will live.
-	 * @param site
-	 *        The string identifier for the site where the attachment is being added.
-	 * @param tool
-	 *        The display-name for the tool through which the attachment is being added within the site's attachments collection.
-	 * @param type
-	 *        The mime type string of the resource.
-	 * @param content
-	 *        An array containing the bytes of the resource's content.
-	 * @param properties
-	 *        A ResourceProperties object with the properties to add to the new resource.
-	 * @exception IdUsedException
-	 *            if the resource name is already in use (not likely, as the containing collection is auto-generated!)
-	 * @exception IdInvalidException
-	 *            if the resource name is invalid.
-	 * @exception InconsistentException
-	 *            if the containing collection (or it's containing collection...) does not exist.
-	 * @exception PermissionException
-	 *            if the user does not have permission to add a collection, or add a member to a collection.
-	 * @exception OverQuotaException
-	 *            if this would result in being over quota.
-	 * @exception ServerOverloadException
-	 *            if the server is configured to write the resource body to the filesystem and the save fails.
-	 * @return a new ContentResource object.
+	 * @see org.sakaiproject.content.api.ContentHostingService#addAttachmentResource(java.lang.String, java.lang.String, java.lang.String, java.lang.String, byte[], org.sakaiproject.entity.api.ResourceProperties)
 	 */
 	public ContentResource addAttachmentResource(String name, String site, String tool, String type, byte[] content,
 			ResourceProperties properties) throws IdInvalidException, InconsistentException, IdUsedException, PermissionException,
 			OverQuotaException, ServerOverloadException
-			{
+	{
+		ByteArrayInputStream contentStream = new ByteArrayInputStream(content);
+		return addAttachmentResource(name, site, tool, type, contentStream, properties);
+	}
+	
+	/**
+	 * @see org.sakaiproject.content.api.ContentHostingService#addAttachmentResource(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.io.InputStream, org.sakaiproject.entity.api.ResourceProperties)
+	 */
+	public ContentResource addAttachmentResource(String name, String site, String tool, String type, InputStream content,
+			ResourceProperties properties) throws IdInvalidException, InconsistentException, IdUsedException, PermissionException,
+			OverQuotaException, ServerOverloadException
+	{
+	
 		// ignore site if it is not valid
 		if (site == null || site.trim().equals(""))
 		{
