@@ -27,9 +27,11 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.taggable.api.Link;
 import org.sakaiproject.taggable.api.Tag;
 import org.sakaiproject.taggable.api.TagList;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.taggable.api.TagColumn;
 
@@ -64,8 +66,21 @@ public class TagImpl implements Tag
 		String field;
 		Reference ref = EntityManager.newReference(link.getTagCriteriaRef());
 		Entity entity = ref.getEntity();
+		
+		if (entity == null) return null;
+		
 		if (TagList.WORKSITE.equals(column)) {
-			field = siteService.getSiteDisplay(ref.getContext());
+			try
+			{
+				Site site = siteService.getSite(ref.getContext());
+				field = site.getTitle();
+			}
+			catch (IdUnusedException e)
+			{
+				//couldn't find the site, so just leave the title blank
+				field = "";
+			}
+			
 		} else if (TagList.PARENT.equals(column)) {
 			//field = link.getTagCriteria().getParentTitle();
 			//field = ">>>>PARENT TITLE SHOULD GO HERE<<<<";
@@ -73,7 +88,18 @@ public class TagImpl implements Tag
 		} else if (TagList.CRITERIA.equals(column)) {
 			//field = link.getTagCriteria().getTitle();
 			//field = ">>>>CRITERIA SHOULD GO HERE<<<<";
-			field = (String)entity.getProperties().get(TagList.CRITERIA);
+			//make it a link?
+			String url = entity.getUrl();
+			if (url != null) {
+				
+				field = (String)entity.getProperties().get(TagList.THICKBOX_INCLUDE);
+				field +="<a href=\"" + url + "\" class=\"thickbox\">";
+				field += (String)entity.getProperties().get(TagList.CRITERIA);
+				field += "</a>";
+			}
+			else
+				field = (String)entity.getProperties().get(TagList.CRITERIA);
+			
 		} else if (TagList.RUBRIC.equals(column)) {
 			field = link.getRubric();
 		} else if (TagList.RATIONALE.equals(column)) {
@@ -90,13 +116,15 @@ public class TagImpl implements Tag
 
 	public List<String> getFields() {
 		List<String> fields = new ArrayList<String>();
-		fields.add(getField(TagList.WORKSITE));
-		fields.add(getField(TagList.PARENT));
 		fields.add(getField(TagList.CRITERIA));
+		fields.add(getField(TagList.PARENT));
+		fields.add(getField(TagList.WORKSITE));
+		/*
 		fields.add(getField(TagList.RUBRIC));
 		fields.add(getField(TagList.RATIONALE));
 		fields.add(getField(TagList.VISIBLE));
 		fields.add(getField(TagList.EXPORTABLE));
+		*/
 		return fields;
 	}
 }

@@ -87,5 +87,10 @@
                link.tagCriteriaRef = :tagCriteriaRef and
                link.visible = :visible]]>
   </query>
+  
+  <query name="deleteLinksByActivityRef">
+  	<![CDATA[delete org.sakaiproject.taggable.impl.LinkImpl link where 
+  				link.activityRef = :activityRef]]>
+  </query>
  
 </hibernate-mapping>

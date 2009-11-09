@@ -104,6 +104,12 @@ public interface TaggingProvider {
 	 * @return A displayable name for this provider.
 	 */
 	String getName();
+	
+	/**
+	 * Method to get a displayable text label for the provider.  For example "This item is linked to:" 
+	 * @return
+	 */
+	String getSimpleTextLabel();
 
 	/**
 	 * Method to remove all tags from this activity. This method should check

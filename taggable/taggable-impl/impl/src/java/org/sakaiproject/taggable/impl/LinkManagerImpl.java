@@ -47,7 +47,8 @@ public class LinkManagerImpl extends HibernateDaoSupport implements LinkManager
 			QUERY_LINKS_BY_ACTIVITY_CONTEXT = "findLinksByActivityRefContext",
 			QUERY_LINKS_BY_ACTIVITY_CONTEXT_VISIBLE = "findLinksByActivityRefContextVisible",
 			QUERY_LINKS_BY_CRITERIA = "findLinksByCriteriaRef",
-			QUERY_LINKS_BY_CRITERIA_VISIBLE = "findLinksByCriteriaRefVisible";
+			QUERY_LINKS_BY_CRITERIA_VISIBLE = "findLinksByCriteriaRefVisible", 
+			QUERY_DELETE_LINKS_BY_ACTIVITY_REF = "deleteLinksByActivityRef";
 
 	public Link persistLink(String activityRef, String tagCriteriaRef, String rationale,
 			String rubric, boolean visible, boolean locked) {
@@ -136,6 +137,30 @@ public class LinkManagerImpl extends HibernateDaoSupport implements LinkManager
 				
 				return q.list();
 				
+			}
+		});
+	}
+	
+	public void removeLink(Link link) {
+		if (link == null) {
+			throw new IllegalArgumentException(NULL_ARG);
+		}
+
+		getHibernateTemplate().delete(link);
+	}
+	
+	public void removeLinks(final String activityRef) {
+		if (activityRef == null) {
+			throw new IllegalArgumentException(NULL_ARG);
+		}
+
+		getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) {
+				Query q = session.getNamedQuery(QUERY_DELETE_LINKS_BY_ACTIVITY_REF);
+				q.setParameter(ACTIVITY_REF, activityRef);
+				q.executeUpdate();
+				
+				return null;
 			}
 		});
 	}

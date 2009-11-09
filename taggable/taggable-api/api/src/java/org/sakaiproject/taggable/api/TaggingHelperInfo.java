@@ -56,9 +56,5 @@ public interface TaggingHelperInfo {
 	 * @return A map of parameter names and values to pass to the helper.
 	 */
 	public Map<String, ? extends Object> getParameterMap();
-	
-	/**
-	 * @return Get the tool placement id
-	 */
-	public String getPlacement();
+
 }

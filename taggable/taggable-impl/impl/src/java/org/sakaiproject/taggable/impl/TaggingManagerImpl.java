@@ -29,10 +29,10 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.taggable.impl.LinkImpl;
 import org.sakaiproject.taggable.api.Link;
 import org.sakaiproject.taggable.api.LinkManager;
 import org.sakaiproject.taggable.api.Tag;
+import org.sakaiproject.taggable.api.TagColumn;
 import org.sakaiproject.taggable.api.TagList;
 import org.sakaiproject.taggable.api.TaggableActivity;
 import org.sakaiproject.taggable.api.TaggableItem;
@@ -40,6 +40,8 @@ import org.sakaiproject.taggable.api.TaggingHelperInfo;
 import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.taggable.api.TaggableActivityProducer;
 import org.sakaiproject.taggable.api.TaggingProvider;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.cover.UserDirectoryService;
 
 public class TaggingManagerImpl implements TaggingManager {
 
@@ -119,17 +121,17 @@ public class TaggingManagerImpl implements TaggingManager {
 		return taggingProviders;
 	}
 
-	public TaggableItem getItem(String itemRef, TaggingProvider provider) {
-		return findProducerByRef(itemRef).getItem(itemRef, provider);
+	public TaggableItem getItem(String itemRef, TaggingProvider provider, boolean getMyItemOnly) {
+		return findProducerByRef(itemRef).getItem(itemRef, provider, getMyItemOnly);
 	}
 
 	public List<TaggableItem> getItems(String activityRef,
-			TaggingProvider provider) {
+			TaggingProvider provider, boolean getMyItemsOnly) {
 		List<TaggableItem> items = new ArrayList<TaggableItem>();
 		TaggableActivityProducer producer = findProducerByRef(activityRef);
 		if (producer != null) {
 			items = producer.getItems(getActivity(activityRef, provider),
-					provider);
+					provider, getMyItemsOnly);
 		}
 		return items;
 	}
@@ -190,16 +192,51 @@ public class TaggingManagerImpl implements TaggingManager {
 	
 	public TaggingHelperInfo createTaggingHelperInfoObject(String helperId, String name,
 			String description, Map<String, ? extends Object> parameterMap,
-			TaggingProvider provider, String placement) {
-		return new TaggingHelperInfoImpl(helperId, name, description, parameterMap, provider, placement);
+			TaggingProvider provider) {
+		return new TaggingHelperInfoImpl(helperId, name, description, parameterMap, provider);
 	}
 	
 	public TagList createTagList() {
 		return new TagListImpl();
 	}
 	
+	public TagList createTagList(List<TagColumn> columns)
+	{
+		return new TagListImpl(columns);
+	}
+	
 	public Tag createTag(Link link) {
 		return new TagImpl(link);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * Permission is checked against the producer of the activity via
+	 * {@link TaggableActivityProducer#allowRemoveTags(TaggableActivity)}.
+	 */
+	public void removeLinks(TaggableActivity activity)
+			throws PermissionException
+	{
+		TaggableActivityProducer producer = activity.getProducer();
+		if (producer.allowRemoveTags(activity)) {
+			getLinkManager().removeLinks(activity.getReference());
+		}
+		else {
+			throw new PermissionException(getUser().getEid(), producer
+					.getClass().getName()
+					+ ".allowRemoveTags()", activity.getReference());
+		}
+	}
+	
+	public TagColumn createTagColumn(String name, String displayName, String description,
+			boolean sortable)
+	{
+		return new TagColumnImpl(name, displayName, description, sortable);
+	}
+
+	protected User getUser() {
+		return UserDirectoryService.getCurrentUser();
 	}
 
 	public LinkManager getLinkManager()

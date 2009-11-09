@@ -28,7 +28,7 @@ import org.sakaiproject.taggable.api.TaggingProvider;
 
 public class TaggingHelperInfoImpl implements TaggingHelperInfo {
 
-	String helperId, description, name, placement;
+	String helperId, description, name;
 
 	Map<String, ? extends Object> parameterMap;
 
@@ -36,13 +36,12 @@ public class TaggingHelperInfoImpl implements TaggingHelperInfo {
 
 	public TaggingHelperInfoImpl(String helperId, String name,
 			String description, Map<String, ? extends Object> parameterMap,
-			TaggingProvider provider, String placement) {
+			TaggingProvider provider) {
 		this.helperId = helperId;
 		this.name = name;
 		this.description = description;
 		this.parameterMap = parameterMap;
 		this.provider = provider;
-		this.placement = placement;
 	}
 
 	public String getHelperId() {
@@ -64,8 +63,5 @@ public class TaggingHelperInfoImpl implements TaggingHelperInfo {
 	public Map<String, ? extends Object> getParameterMap() {
 		return parameterMap;
 	}
-	
-	public String getPlacement() {
-		return this.placement;
-	}
+
 }

@@ -40,10 +40,12 @@ public interface TaggableActivityProducer {
 	 *            The activity that contains the items.
 	 * @param provider
 	 *            The provider that is checking for permission.
+	 * @param getMyItemsOnly
+	 * 			  This flag will return only items where the owner matches userId
 	 * @return True if the current user can get all of the items for the given
 	 *         activity, false otherwise.
 	 */
-	boolean allowGetItems(TaggableActivity activity, TaggingProvider provider);
+	boolean allowGetItems(TaggableActivity activity, TaggingProvider provider, boolean getMyItemsOnly);
 
 	/**
 	 * Method to determine if the current user has permission to remove tags
@@ -165,10 +167,12 @@ public interface TaggableActivityProducer {
 	 *            The provider that is getting the items. This allows the
 	 *            producer to selectively return different lists of items
 	 *            depending on the given provider.
+	 * @param getMyItemsOnly
+	 * 			  This flag will return only items where the owner matches userId
 	 * @return A list of items for the given activity.
 	 */
 	List<TaggableItem> getItems(TaggableActivity activity,
-			TaggingProvider provider);
+			TaggingProvider provider, boolean getMyItemsOnly);
 
 	/**
 	 * Method to get a list of items belonging to a specific user for an
@@ -183,11 +187,13 @@ public interface TaggableActivityProducer {
 	 *            The provider that is getting the items. This allows the
 	 *            producer to selectively return different lists of items
 	 *            depending on the given provider.
+	 * @param getMyItemsOnly
+	 * 			  This flag will return only items where the owner matches userId
 	 * @return A list of items submitted by the specified user for the given
 	 *         activity.
 	 */
 	List<TaggableItem> getItems(TaggableActivity activity, String userId,
-			TaggingProvider provider);
+			TaggingProvider provider, boolean getMyItemsOnly);
 
 	/**
 	 * Method to get a taggable item by reference string.
@@ -198,8 +204,31 @@ public interface TaggableActivityProducer {
 	 *            The provider that is getting the item. This allows the
 	 *            producer to selectively return an item, or none at all,
 	 *            depending on the given provider.
+	 *@param getMyItemOnly
+	 * 			  This flag will return only items where the owner matches userId
 	 * @return The taggable item, or null if no such item exists or the provider
 	 *         cannot access it.
 	 */
-	TaggableItem getItem(String itemRef, TaggingProvider provider);
+	TaggableItem getItem(String itemRef, TaggingProvider provider, boolean getMyItemOnly);
+	
+	/**
+	 * Method to get the permission to add to a secirity advisor so we can 
+	 * view the item (in case we don't have normal permissions)
+	 * @return
+	 */
+	String getItemPermissionOverride();
+	
+	/**
+	 * Method to figure out if there are any submissions
+	 * @return
+	 */
+	boolean hasSubmissions(TaggableActivity activity,
+			TaggingProvider provider, boolean getMyItemsOnly);
+	
+	/**
+	 * Method to figure out if there are any submissions
+	 * @return
+	 */
+	boolean hasSubmissions(TaggableActivity activity, String userId,
+			TaggingProvider provider, boolean getMyItemsOnly);
 }

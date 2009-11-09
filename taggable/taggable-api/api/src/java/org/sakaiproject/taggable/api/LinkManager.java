@@ -121,5 +121,17 @@ public interface LinkManager
 	 * @throws PermissionException
 	 */
 	public List<Link> getLinks(String criteriaRef, boolean any) throws PermissionException;
+	
+	/**
+	 * Method to remove individual links
+	 * @param link The link to remove.
+	 */
+	public void removeLink(Link link);
+	
+	/**
+	 * Method to remove all links for a specific activity
+	 * @param activityRef The activity's reference
+	 */
+	public void removeLinks(String activityRef);
 
 }

@@ -66,4 +66,10 @@ public interface TaggableActivity {
 	 * @return
 	 */
 	public String getActivityDetailUrl();
+	
+	/**
+	 * Get the name for the type of activity
+	 * @return
+	 */
+	public String getTypeName();
 }

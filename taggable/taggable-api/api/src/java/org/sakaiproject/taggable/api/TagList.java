@@ -38,6 +38,8 @@ public interface TagList extends List<Tag> {
 			CRITERIA = "tagCriteria", RUBRIC = "rubric", RATIONALE = "rationale",
 			VISIBLE = "visible", EXPORTABLE = "exportable";
 	
+	public static final String THICKBOX_INCLUDE = "thickbox.include";
+	
 	/**
 	 * Method to get a particular {@link TagColumn} object from the list of
 	 * columns identified by the given name.
