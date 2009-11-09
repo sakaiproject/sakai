@@ -7,6 +7,7 @@
     <artifactId>basiclti</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
+    <inceptionYear>2009</inceptionYear>
 
     <!-- Change this to the Sakai released version you're running -->
     <!-- Unreleased or snapshot tags may require the entire source -->
@@ -23,6 +24,7 @@
 
     <modules>
         <module>basiclti-assembly</module>
+        <module>basiclti-docs</module>
         <module>basiclti-impl</module>
         <module>basiclti-pack</module>
         <module>basiclti-portlet</module>
@@ -58,6 +60,14 @@
             <url>${url.localsite}</url>
         </site>
     </distributionManagement>
+    
+    <pluginRepositories>
+        <pluginRepository>
+            <id>maven2-central-repo</id>
+            <name>Maven2 Central Repo</name>
+            <url>http://repo1.maven.org/maven2/</url>
+        </pluginRepository>
+    </pluginRepositories>
 
     <repositories>
         <repository>
@@ -129,4 +139,64 @@
             </plugin>
         </plugins>
     </reporting>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.mycila.maven-license-plugin</groupId>
+                <artifactId>maven-license-plugin</artifactId>
+                <version>1.5.0</version>
+                <configuration>
+                    <basedir>${basedir}</basedir>
+                    <!-- THIS IS A BRITTLE; IMPLEMENT REMOTE RESOURCE PLUGIN TO GET THIS FILE -->
+                    <header>https://source.sakaiproject.org/svn/sakai/trunk/ECLv2-header-template.txt</header>
+                    <!-- <header>${user.home}/.m2/license-template.txt</header> -->
+                    <quiet>false</quiet>
+                    <failIfMissing>true</failIfMissing>
+                    <aggregate>false</aggregate>
+                    <includes>
+                        <include>**/org/sakaiproject/**/*.java</include>
+                        <include>**/test/**/*.java</include>
+                        <include>src/webapp/**/*.css</include>
+                        <include>src/webapp/**/*.htm</include>
+                        <include>src/webapp/**/*.html</include>
+                        <include>src/webapp/**/*.js</include>
+                        <include>src/webapp/**/*.jsp</include>
+                    </includes>
+                    <excludes>
+                        <exclude>src/java/net/**</exclude>
+                        <exclude>src/java/org/imsglobal/**</exclude>
+                        <exclude>target/**</exclude>
+                        <exclude>m2-target/**</exclude>
+                        <exclude>**/*.doc</exclude>
+                        <exclude>**/*.properties</exclude>
+                        <exclude>**/*.txt</exclude>
+                        <exclude>**/*.xml</exclude>
+                        <exclude>src/webapp/images/**</exclude>
+                    </excludes>
+                    <useDefaultExcludes>true</useDefaultExcludes>
+                    <useDefaultMapping>true</useDefaultMapping>
+                    <properties>
+                        <!-- <name>${project.name}</name> -->
+                        <year>${project.inceptionYear}-2009</year>
+                        <holder>The Sakai Foundation</holder>
+                        <!-- <contact>info@sakaiproject.org</contact> -->
+                    </properties>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+                <!-- Disable: plugin ${year} variable causes build failure if a single year is encountered.  -->
+                <!--
+                <executions>
+                    <execution>
+                        <id>check-headers</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                -->
+            </plugin>
+        </plugins>
+    </build>
 </project>
