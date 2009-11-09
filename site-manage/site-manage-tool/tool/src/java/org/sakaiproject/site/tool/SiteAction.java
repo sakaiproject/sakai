@@ -573,6 +573,21 @@ public class SiteAction extends PagedResourceActionII {
 	// the string for course site type
 	private static final String STATE_COURSE_SITE_TYPE = "state_course_site_type";
 	
+	/**
+	 * {@link org.sakaiproject.component.api.ServerConfigurationService} property.
+	 * If <code>false</code>, ensures that a site's joinability settings are not affected should
+	 * that site be <em>edited</em> after its type has been enumerated by a
+	 * "wsetup.disable.joinable" property. Code should cause this prop value to
+	 * default to <code>true</code> to preserve backward compatibility. Property
+	 * naming tries to match mini-convention established by "wsetup.disable.joinable"
+	 * (which has no corresponding constant).
+	 * 
+	 * <p>Has no effect on the site creation process -- only site editing</p>
+	 * 
+	 * @see #doUpdate_site_access_joinable(RunData, SessionState, ParameterParser, Site)
+	 */
+	public static final String CONVERT_NULL_JOINABLE_TO_UNJOINABLE = "wsetup.convert.null.joinable.to.unjoinable";
+	
 	private static final String SITE_TEMPLATE_PREFIX = "template";
 	
 	private static final String STATE_TYPE_SELECTED = "state_type_selected";
@@ -6623,7 +6638,6 @@ public class SiteAction extends PagedResourceActionII {
 		ParameterParser params = data.getParameters();
 		String publishUnpublish = params.getString("publishunpublish");
 		String include = params.getString("include");
-		String joinable = params.getString("joinable");
 
 		if (sEdit != null) {
 			// editing existing site
@@ -6658,25 +6672,7 @@ public class SiteAction extends PagedResourceActionII {
 				sEdit.setPubView(false);
 			}
 
-			// publish site or not
-			if (joinable != null && joinable.equalsIgnoreCase("true")) {
-				state.setAttribute(STATE_JOINABLE, Boolean.TRUE);
-				sEdit.setJoinable(true);
-				String joinerRole = StringUtil.trimToNull(params
-						.getString("joinerRole"));
-				if (joinerRole != null) {
-					state.setAttribute(STATE_JOINERROLE, joinerRole);
-					sEdit.setJoinerRole(joinerRole);
-				} else {
-					state.setAttribute(STATE_JOINERROLE, "");
-					addAlert(state, rb.getString("java.joinsite") + " ");
-				}
-			} else {
-				state.setAttribute(STATE_JOINABLE, Boolean.FALSE);
-				state.removeAttribute(STATE_JOINERROLE);
-				sEdit.setJoinable(false);
-				sEdit.setJoinerRole(null);
-			}
+			doUpdate_site_access_joinable(data, state, params, sEdit);
 
 			if (state.getAttribute(STATE_MESSAGE) == null) {
 				commitSite(sEdit);
@@ -6726,6 +6722,7 @@ public class SiteAction extends PagedResourceActionII {
 				}
 
 				// joinable site or not
+				String joinable = params.getString("joinable");
 				if (joinable != null && joinable.equalsIgnoreCase("true")) {
 					siteInfo.joinable = true;
 					String joinerRole = StringUtil.trimToNull(params
@@ -6750,6 +6747,55 @@ public class SiteAction extends PagedResourceActionII {
 
 	} // doUpdate_site_access
 
+	/**
+	 * Apply requested changes to a site's joinability. Only relevant for
+	 * site edits, not new site creation.
+	 * 
+	 * <p>Not intended for direct execution from a Velocity-rendered form
+	 * submit.</p>
+	 * 
+	 * <p>Originally extracted from {@link #doUpdate_site_access(RunData)} to 
+	 * increase testability when adding special handling for an unspecified
+	 * joinability parameter. The <code>sEdit</code> param is passed in
+	 * to avoid repeated hits to the <code>SiteService</code> from
+	 * {@link #getStateSite(SessionState)}. (It's called <code>sEdit</code> to
+	 * reduce the scope of the refactoring diff just slightly.) <code>state</code> 
+	 * is passed in to avoid more proliferation of <code>RunData</code> 
+	 * downcasts.</p>
+	 * 
+	 * @see #CONVERT_NULL_JOINABLE_TO_UNJOINABLE
+	 * @param data request context -- must not be <code>null</code>
+	 * @param state session state -- must not be <code>null</code>
+	 * @param params request parameter facade -- must not be <code>null</code>
+	 * @param sEdit site to be edited -- must not be <code>null</code>
+	 */
+	void doUpdate_site_access_joinable(RunData data,
+			SessionState state, ParameterParser params, Site sEdit) {
+		
+		String joinable = params.getString("joinable");
+		
+		if (joinable != null && joinable.equalsIgnoreCase("true")) {
+			state.setAttribute(STATE_JOINABLE, Boolean.TRUE);
+			sEdit.setJoinable(true);
+			String joinerRole = StringUtil.trimToNull(params
+					.getString("joinerRole"));
+			if (joinerRole != null) {
+				state.setAttribute(STATE_JOINERROLE, joinerRole);
+				sEdit.setJoinerRole(joinerRole);
+			} else {
+				state.setAttribute(STATE_JOINERROLE, "");
+				addAlert(state, rb.getString("java.joinsite") + " ");
+			}
+		} else if ( (joinable != null && !(joinable.equalsIgnoreCase("true"))) || 
+				(joinable == null && ServerConfigurationService.getBoolean(CONVERT_NULL_JOINABLE_TO_UNJOINABLE, true))) {
+			state.setAttribute(STATE_JOINABLE, Boolean.FALSE);
+			state.removeAttribute(STATE_JOINERROLE);
+			sEdit.setJoinable(false);
+			sEdit.setJoinerRole(null);
+		} // else just leave joinability alone
+		
+	}
+	
 	/**
 	 * /* Actions for vm templates under the "chef_site" root. This method is
 	 * called by doContinue. Each template has a hidden field with the value of
