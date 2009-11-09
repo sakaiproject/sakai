@@ -25,7 +25,7 @@ body{
 	height:100%;
 }
 #headerMin{
-	border-bottom:2px solid #09C
+	border-bottom:2px solid #09C;
 	overflow:hidden;
 }
 
@@ -106,6 +106,17 @@ site types are a local setting - adjust */
 	border-top: 1px solid #09c;
 	text-align: center;
 }
+#footerLinks li{
+	margin:0;
+	border-right:1px solid #ccc;
+	display: inline;
+	list-style-type: none;
+	padding:0;
+}
+#footerLinks li:last-child{
+	border:none;
+}
+
 
 /*PART 2 - HEADER IFRAME SETTINGS*/	
 /*iframe sizes for different states*/

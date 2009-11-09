@@ -84,6 +84,16 @@ site types are a local setting - adjust */
 	border-top: 1px solid #09c;
 	text-align: center;
 }
+#footerLinks li{
+	margin:0;
+	border-right:1px solid #ccc;
+	display: inline;
+	list-style-type: none;
+	padding:0;
+}
+#footerLinks li:last-child{
+	border:none;
+}
 
 /*PART 2 - HEADER IFRAME SETTINGS*/	
 /*iframe sizes for different states*/
@@ -299,7 +309,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 #siteLinkList{
 /*	white-space: nowrap;*/
 	line-height:2em;
-	list-style: none none none;
+	list-style: none;
 	font-size: 1em;
 	margin: 0;	
 	padding: 4px 0;

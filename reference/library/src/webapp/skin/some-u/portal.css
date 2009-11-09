@@ -62,6 +62,17 @@ body{
 	border-top: 1px solid #CB2DCC;
 	text-align: center;
 }
+#footerLinks li{
+	margin:0;
+	border-right:1px solid #ccc;
+	display: inline;
+	list-style-type: none;
+	padding:0;
+}
+#footerLinks li:last-child{
+	border:none;
+}
+
 
 /*PART 2 - HEADER IFRAME SETTINGS*/	
 /*iframe sizes for different states*/
@@ -260,7 +271,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 /*a ul - the li below are outer wrappers for the links to sites */
 #siteLinkList{
 /*	white-space: nowrap;*/
-	list-style: none none none;
+	list-style: none;
 	font-size: .8em;
 	margin: 0;	
 	padding: 4px 0;
