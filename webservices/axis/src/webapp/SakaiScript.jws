@@ -2129,8 +2129,8 @@ public String getUsersInAuthzGroup(String sessionid, String authzgroupid) throws
  * Copy the calendar events from one site to another
  *
  * @param	sessionid		the id of a valid session
- * @param	sourceSiteId	the id of the site containing the calendar entries you want copied
- * @param	targetSiteId	the roles that you want to filter on (string with spaces as delimiters)
+ * @param	sourceSiteId	the id of the site containing the calendar entries you want copied from
+ * @param	targetSiteId	the id of the site you want to copy the calendar entries to
  * @return		        	success or exception
  * @throws	AxisFault		
  *
