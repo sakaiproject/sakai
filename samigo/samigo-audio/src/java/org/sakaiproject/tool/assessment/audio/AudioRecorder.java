@@ -341,9 +341,9 @@ public class AudioRecorder extends JPanel implements ActionListener,
 	public void open() {
 		/*
 		 * daisy test code - pls do not delete String mediaUrl =
-		 * "http://sakai-l.stanford.edu:8080/samigo/servlet/ShowMedia?mediaId=107";
+		 * "http://sakai-l.stanford.edu:8080/samigo-app/servlet/ShowMedia?mediaId=107";
 		 * //String mediaUrl =
-		 * "http://sakai-l.stanford.edu:8080/samigo/spacemusic.au";
+		 * "http://sakai-l.stanford.edu:8080/samigo-app/spacemusic.au";
 		 * System.out.println("*****open applet="+mediaUrl);
 		 * createAudioInputStream(mediaUrl, true);
 		 */

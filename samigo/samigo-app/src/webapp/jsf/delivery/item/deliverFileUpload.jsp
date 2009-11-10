@@ -68,7 +68,7 @@ should be included in file importing DeliveryMessages
       <h:dataTable value="#{question.mediaArray}" var="media">
         <h:column>
           <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-          <h:outputLink title="#{deliveryMessages.t_uploadedFile}" value="/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}&sam_fileupload_siteId=#{delivery.siteId}" target="new_window">
+          <h:outputLink title="#{deliveryMessages.t_uploadedFile}" value="/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}&sam_fileupload_siteId=#{delivery.siteId}" target="new_window">
              <h:outputText escape="false" value="#{media.filename}" />
           </h:outputLink>
         </h:column>
@@ -83,7 +83,7 @@ should be included in file importing DeliveryMessages
             id="removeMedia" onmouseup="saveTime();">
             <h:outputText value="#{deliveryMessages.remove}" />
             <f:param name="mediaId" value="#{media.mediaId}"/>
-            <f:param name="mediaUrl" value="/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}"/>
+            <f:param name="mediaUrl" value="/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}"/>
             <f:param name="mediaFilename" value="#{media.filename}"/>
             <f:param name="itemGradingId" value="#{media.itemGradingData.itemGradingId}"/>
             <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.shared.ConfirmRemoveMediaListener" />

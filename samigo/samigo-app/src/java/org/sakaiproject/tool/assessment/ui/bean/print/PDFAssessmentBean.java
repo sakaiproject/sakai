@@ -265,9 +265,9 @@ public class PDFAssessmentBean implements Serializable {
 								!item.getItemData().getTypeId().equals(TypeIfc.FILL_IN_NUMERIC) &&
 								!item.getItemData().getTypeId().equals(TypeIfc.ESSAY_QUESTION)) {
 
-							String srcImage = "/samigo/images/radiounchecked.gif";
+							String srcImage = "/samigo-app/images/radiounchecked.gif";
 							if (item.getItemData().getTypeId().equals(TypeIfc.MULTIPLE_CORRECT)) {
-								srcImage = "/samigo/images/unchecked.gif";
+								srcImage = "/samigo-app/images/unchecked.gif";
 							}
 
 							content += "<table cols='20' width='100%'><tr><td colspan='1'><img src='" + srcImage +"' /></td>";

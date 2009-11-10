@@ -179,7 +179,7 @@ private static Log log = LogFactory.getLog(RecordingData.class);
     // we will probably want to migrate these images to the
     // main image directory, the current directory is an artifact of
     // Stanford/Indiana code merge
-    imageURL = "/samigo/jsp/aam/images/";  }
+    imageURL = "/samigo-app/jsp/aam/images/";  }
 
   /**
    * Accessor for agent (creator) name.

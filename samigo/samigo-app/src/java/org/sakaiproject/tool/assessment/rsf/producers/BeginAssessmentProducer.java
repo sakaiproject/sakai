@@ -185,7 +185,7 @@ public class BeginAssessmentProducer implements ViewComponentProducer,
 
         UIForm form = UIForm.make(tofill, "takeAssessmentForm:");
 
-        String url = "/samigo/servlet/Login?id="
+        String url = "/samigo-app/servlet/Login?id="
           + pub.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.ALIAS)
           + "&fromDirect=true";
 

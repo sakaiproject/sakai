@@ -403,7 +403,7 @@ public class PublishedAssessmentSettingsBean
           AssessmentMetaDataIfc.ALIAS);
       String server = ( (javax.servlet.http.HttpServletRequest) extContext.
                        getRequest()).getRequestURL().toString();
-      int index = server.indexOf(extContext.getRequestContextPath() + "/"); // "/samigo/"
+      int index = server.indexOf(extContext.getRequestContextPath() + "/"); // "/samigo-app/"
       server = server.substring(0, index);
       String url = server + extContext.getRequestContextPath();
       this.publishedUrl = url + "/servlet/Login?id=" + this.alias;

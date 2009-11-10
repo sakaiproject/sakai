@@ -86,7 +86,7 @@ document.links[newindex].onclick();
 </script>
 
 <script type="text/javascript" language="JavaScript" src="/library/js/jquery-1.1.2.js"></script>
-<script type="text/javascript" language="JavaScript" src="/samigo/js/info.js"></script>
+<script type="text/javascript" language="JavaScript" src="/samigo-app/js/info.js"></script>
 
 <!-- content... -->
 

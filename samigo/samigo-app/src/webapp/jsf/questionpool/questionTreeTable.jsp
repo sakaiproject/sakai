@@ -88,25 +88,6 @@ table.checkall td {padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bott
   <h:outputText id="move" value="#{questionPoolMessages.move}"/>
     <f:param name="itemid" value="#{question.itemId}"/>
 </h:commandLink>
-<%-- export to same page --%>
-<%--
-<h:commandLink title="#{questionPoolMessages.t_exportQuestion}" rendered="#{questionpool.importToAuthoring != 'true'}"  id="exportlink" immediate="true" action="xmlDisplay" target="_qti_export">
-  <h:outputText id="export" value="#{questionPoolMessages.export}"/>
-  <f:param name="itemId" value="#{question.itemId}"/>
-  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ExportItemListener" />
-</h:commandLink>
---%>
-<%-- export to popup --%>
-<%-- 
-<h:outputText rendered="#{questionpool.importToAuthoring != 'true'}"  value=" #{questionPoolMessages.separator} " />
-<h:outputLink title="#{questionPoolMessages.t_exportQuestion}" value="#" rendered="#{questionpool.importToAuthoring != 'true'}"
- onclick=
- "window.open( '/samigo/jsf/qti/exportItem.faces?exportItemId=#{question.itemId}','_qti_export', 'toolbar=no,menubar=yes,personalbar=no,width=600,height=190,scrollbars=no,resizable=no');"
-onkeypress=
- "window.open( '/samigo/jsf/qti/exportItem.faces?exportItemId=#{question.itemId}','_qti_export', 'toolbar=no,menubar=yes,personalbar=no,width=600,height=190,scrollbars=no,resizable=no');"
-  ><h:outputText id="export" value="#{questionPoolMessages.export}"/>
-</h:outputLink>
- --%>
 
 <h:outputText rendered="#{questionpool.importToAuthoring != 'true'}"  value=" #{questionPoolMessages.separator} " />
 

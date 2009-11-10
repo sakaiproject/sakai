@@ -25,7 +25,7 @@ should be included in file importing DeliveryMessages
   <h:outputText escape="false" value="#{itemContents.itemData.text}" />
   <f:verbatim><br/>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
   <h:outputLink
-     value="javascript:window.open('/samigo/jsp/aam/applet/soundRecorder.jsp','ha_fullscreen','toolbar=no,location=no,directories=no,status=no,menubar=yes,'scrollbars=yes,resizable=yes,width=640,height=480');">
+     value="javascript:window.open('/samigo-app/jsp/aam/applet/soundRecorder.jsp','ha_fullscreen','toolbar=no,location=no,directories=no,status=no,menubar=yes,'scrollbars=yes,resizable=yes,width=640,height=480');">
     <h:graphicImage id="image" alt="#{authorMessages.audio_recording}."
        url="/images/recordresponse.gif" />
   </h:outputLink>

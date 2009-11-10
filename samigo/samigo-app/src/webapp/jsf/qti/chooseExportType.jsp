@@ -84,7 +84,7 @@ function getSelectedType(qtiUrl, cpUrl){
     <br/>
      <%-- activates the valueChangeListener --%>
      <h:commandButton value="#{authorImportExport.export}" type="submit"
-       style="act" onclick="getSelectedType( '/samigo/jsf/qti/exportAssessment.xml?exportAssessmentId=#{assessmentBean.assessmentId}','/samigo/servlet/DownloadCP?&assessmentId=#{assessmentBean.assessmentId}'); return false;" />
+       style="act" onclick="getSelectedType( '/samigo-app/jsf/qti/exportAssessment.xml?exportAssessmentId=#{assessmentBean.assessmentId}','/samigo-app/servlet/DownloadCP?&assessmentId=#{assessmentBean.assessmentId}'); return false;" />
      <%-- immediate=true bypasses the valueChangeListener --%>
      <h:commandButton value="#{authorImportExport.export_cancel_action}" type="submit"
        style="act" action="author" immediate="true"/>

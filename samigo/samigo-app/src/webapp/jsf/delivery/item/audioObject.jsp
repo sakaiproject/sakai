@@ -27,8 +27,8 @@
   codebase = "http://java.sun.com/update/1.5.0/jinstall-1_5-windows-i586.cab#Version=1,5,0,0"
   WIDTH = "570" HEIGHT = "400" NAME = "Test Audio Applet" ALIGN = "middle" VSPACE = "2" HSPACE = "2" >
   <PARAM NAME = CODE VALUE = "org.sakaiproject.tool.assessment.audio.AudioRecorderApplet.class" >
-  <PARAM NAME = ARCHIVE VALUE = "sakai-samigo-audio-dev.jar" >
-  <PARAM NAME = CODEBASE VALUE = "/samigo/applets/" >
+  <PARAM NAME = ARCHIVE VALUE = "samigo-audio-dev.jar" >
+  <PARAM NAME = CODEBASE VALUE = "/samigo-app/applets/" >
 </f:verbatim>
 
   <%@ include file="/jsf/delivery/item/audioSettings.jsp" %>
@@ -37,8 +37,8 @@
    <embed
       type = "application/x-java-applet;version=1.5" \
       CODE = "org.sakaiproject.tool.assessment.audio.AudioRecorderApplet.class" \
-      JAVA_CODEBASE = "/samigo/applets/" \
-      ARCHIVE = "sakai-samigo-audio-dev.jar"
+      JAVA_CODEBASE = "/samigo-app/applets/" \
+      ARCHIVE = "samigo-audio-dev.jar"
       NAME = "Record Audio" \
       WIDTH = "570" \
       HEIGHT = "400" \
@@ -51,8 +51,8 @@
       saveToUrl ="</f:verbatim><h:outputText value="true" rendered="#{delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl'}"/><h:outputText value="false" rendered="#{delivery.actionString!='takeAssessment' && delivery.actionString!='takeAssessmentViaUrl'}"/><f:verbatim>" \
       fileName ="audio_#{delivery.assessmentGrading.assessmentGradingId}_#{param.questionId}" \
       url ="</f:verbatim><h:outputText
-     value="#{delivery.protocol}/samigo/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{param.questionId}/#{person.eid}/audio_#{delivery.assessmentGrading.assessmentGradingId}_#{param.questionId}" /><f:verbatim>" \
-      imageUrl ="</f:verbatim><h:outputText value="#{delivery.protocol}/samigo/images/" /><f:verbatim>" \
+     value="#{delivery.protocol}/samigo-app/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{param.questionId}/#{person.eid}/audio_#{delivery.assessmentGrading.assessmentGradingId}_#{param.questionId}" /><f:verbatim>" \
+      imageUrl ="</f:verbatim><h:outputText value="#{delivery.protocol}/samigo-app/images/" /><f:verbatim>" \
       compression ="linear" \
       frequency ="16000" \
       bits ="8" \

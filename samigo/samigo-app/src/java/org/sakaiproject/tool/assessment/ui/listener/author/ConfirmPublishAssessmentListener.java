@@ -249,7 +249,7 @@ public class ConfirmPublishAssessmentListener
       //log.info("servletPath=" + extContext.getRequestServletPath());
       String server = ( (javax.servlet.http.HttpServletRequest) extContext.
 			      getRequest()).getRequestURL().toString();
-      int index = server.indexOf(extContext.getRequestContextPath() + "/"); // "/samigo/"
+      int index = server.indexOf(extContext.getRequestContextPath() + "/"); // "/samigo-app/"
       server = server.substring(0, index);
       //log.info("servletPath=" + server);
       String url = server + extContext.getRequestContextPath();

@@ -31,7 +31,7 @@ should be included in file importing DeliveryMessages
 	  <h:dataTable value="#{itemGradingArrayList.mediaArray}" var="media">
 	    <h:column>
       <h:outputText escape="false" value="
-         <embed src=\"/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}\"
+         <embed src=\"/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}\"
                 volume=\"50\" height=\"25\" width=\"300\" autostart=\"false\"/>
          " />
 
@@ -47,7 +47,7 @@ should be included in file importing DeliveryMessages
 	  
 	  <div>
       <h:outputText value="#{evaluationMessages.can_you_hear_1}"  escape="false"/>
-      <h:outputLink value="/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}&setMimeType=false">
+      <h:outputLink value="/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}&setMimeType=false">
         <h:outputText value=" #{evaluationMessages.can_you_hear_2} " escape="false" />
       </h:outputLink>
       <h:outputText value="#{evaluationMessages.can_you_hear_3}"  escape="false"/>

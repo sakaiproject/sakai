@@ -307,7 +307,7 @@ function retainHideUnhideStatus(action)
   			     var exceptionImgId = "__img" + exceptionIdArray[j].substring(1);
 				 var imgNo = getTheElement(exceptionImgId);
 				 if(imgNo) {
-					 imgNo.src = "/samigo/images/down_arrow.gif";
+					 imgNo.src = "/samigo-app/images/down_arrow.gif";
 				 }
 				 break;
 			 }
@@ -441,13 +441,13 @@ function toggleDiv(idNo)
             { 
             eleDiv.style.display='block';
             if (imgEle)
-               imgEle.src = "/samigo/images/down_arrow.gif";
+               imgEle.src = "/samigo-app/images/down_arrow.gif";
             }
            else
             { 
              eleDiv.style.display='none';
              if (imgEle)
-               imgEle.src = "/samigo/images/right_arrow.gif";
+               imgEle.src = "/samigo-app/images/right_arrow.gif";
             }
         }
     }
