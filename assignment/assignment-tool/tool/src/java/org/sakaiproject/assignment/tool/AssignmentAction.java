@@ -11210,14 +11210,11 @@ public class AssignmentAction extends PagedResourceActionII
 					{
 						extension = parts[parts.length - 1];
 					}
-					
-					File entryFile = storeTempFile(zin);
-					FileInputStream entryFileStream = new FileInputStream(entryFile);
-					
+
 					try {
 						String contentType = ((ContentTypeImageService) state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE)).getContentType(extension);
 						ContentResourceEdit attachment = m_contentHostingService.addAttachmentResource(fName);
-						attachment.setContent(entryFileStream);
+						attachment.setContent(zin);
 						attachment.setContentType(contentType);
 						attachment.getPropertiesEdit().addAll(properties);
 						m_contentHostingService.commitResource(attachment);
@@ -11238,10 +11235,6 @@ public class AssignmentAction extends PagedResourceActionII
 					catch (Exception e)
 					{
 						M_log.warn(this + ":doUploadZipAttachments problem commit resource " + e.getMessage());
-					}
-					finally {
-						//delete the file before the next zipEntry
-						entryFile.delete();
 					}
 				}
 		}
@@ -11277,46 +11270,6 @@ public class AssignmentAction extends PagedResourceActionII
 		return rv;
 	}
 
-	/**
-	* This method is used to store the ZipInputStream's contents to a file *without
-	* closing the entire stream*. The stream needs to stay open to maintain the state of
-	* the zip entry enumerator.
-	* 
-	* The temp file's input stream can then be used to read the content of the file
-	* and can be safely closed by the content service.
-	*
-	* @param zin   The ZipInputStream, open to the entry to save
-	* @return
-	*              A file pointing to the temp file that was saved.
-	* @throws IOException
-	*              If there is a problem creating the temp file.
-	*/
-	private File storeTempFile(InputStream zin) throws IOException {
-		File tmp = null;
-		
-		//just copying the parameters from the temp file created in readIntoBytes.
-		tmp = File.createTempFile("asgnup", "tmp");
-		FileOutputStream toFile = null;
-		
-		try {
-			toFile = new FileOutputStream(tmp);
-			
-			//read the stream into the file
-			byte[] buffer = new byte[INPUT_BUFFER_SIZE];
-			while (zin.read(buffer) > 0) {
-				toFile.write(buffer);
-			}
-		} finally {
-			if (toFile != null) {
-				toFile.flush();
-				toFile.close();
-				zin.close();
-			}
-		}
-		
-		return tmp;
-	}
-	 
 	private byte[] readIntoBytes(InputStream zin, String fName, long length) throws IOException {
 			
 			byte[] buffer = new byte[4096];
