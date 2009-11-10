@@ -11875,15 +11875,16 @@ public class AssignmentAction extends PagedResourceActionII
 			else if (fileitem.getFileName().length() > 0)
 			{
 				String filename = Validator.getFileName(fileitem.getFileName());
-				byte[] bytes = fileitem.get();
+				InputStream fileContentStream = fileitem.getInputStream();
+				int contentLength = data.getRequest().getContentLength();
 				String contentType = fileitem.getContentType();
 	
-				if(bytes.length >= max_bytes)
+				if(contentLength >= max_bytes)
 				{
 					addAlert(state, rb.getFormattedMessage("size.exceeded", new Object[]{ max_file_size_mb }));
 					// addAlert(state, hrb.getString("size") + " " + max_file_size_mb + "MB " + hrb.getString("exceeded2"));
 				}
-				else if(bytes.length > 0)
+				else if(fileContentStream != null)
 				{
 					// we just want the file name part - strip off any drive and path stuff
 					String name = Validator.getFileName(filename);
@@ -11901,7 +11902,7 @@ public class AssignmentAction extends PagedResourceActionII
 						
 						// add attachment
 						enableSecurityAdvisor();
-						ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, getToolTitle(), contentType, bytes, props);
+						ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, getToolTitle(), contentType, fileContentStream, props);
 						disableSecurityAdvisors();
 						
 						try
