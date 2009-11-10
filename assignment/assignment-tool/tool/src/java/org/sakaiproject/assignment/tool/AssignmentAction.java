@@ -734,6 +734,8 @@ public class AssignmentAction extends PagedResourceActionII
 	
 	private static final String SHOW_ALLOW_RESUBMISSION = "show_allow_resubmission";
 	
+	private static final int INPUT_BUFFER_SIZE = 102400;
+	
 	/**
 	 * central place for dispatching the build routines based on the state name
 	 */
@@ -10812,13 +10814,14 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 				else
 				{
-					byte[] fileData = fileFromUpload.get();
-					    
-					if(fileData.length >= max_bytes)
+					InputStream fileContentStream = fileFromUpload.getInputStream();
+					int contentLength = data.getRequest().getContentLength();
+					
+					if(contentLength >= max_bytes)
 					{
 						addAlert(state, rb.getString("uploadall.size") + " " + max_file_size_mb + "MB " + rb.getString("uploadall.exceeded"));
 					}
-					else if(fileData.length > 0)
+					else if(fileContentStream != null)
 					{	
 						// a flag value for checking whether the zip file is of proper format: 
 						// should have a grades.csv file if there is no user folders
@@ -10833,7 +10836,7 @@ public class AssignmentAction extends PagedResourceActionII
 							File f = File.createTempFile(String.valueOf(System.currentTimeMillis()),"");
 							
 							tmpFileOut = new FileOutputStream(f);
-							tmpFileOut.write(fileData);
+							writeToStream(fileContentStream, tmpFileOut);
 							tmpFileOut.flush();
 							tmpFileOut.close();
 
@@ -11013,7 +11016,15 @@ public class AssignmentAction extends PagedResourceActionII
 								try {
 									tmpFileOut.close();
 								} catch (IOException e) {
-									M_log.warn(this + ": Error closing temp file output stream: " + e.toString());
+									M_log.warn(this + "doUpload_all: Error closing temp file output stream: " + e.toString());
+								}
+							}
+							
+							if (fileContentStream != null) {
+								try {
+									fileContentStream.close();
+								} catch (IOException e) {
+									M_log.warn(this + "doUpload_all: Error closing file upload stream: " + e.toString());
 								}
 							}
 						}
@@ -11199,25 +11210,39 @@ public class AssignmentAction extends PagedResourceActionII
 					{
 						extension = parts[parts.length - 1];
 					}
-					String contentType = ((ContentTypeImageService) state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE)).getContentType(extension);
-					ContentResourceEdit attachment = m_contentHostingService.addAttachmentResource(fName);
-					attachment.setContent(readIntoBytes(zin, entryName, entry.getSize()));
-					attachment.setContentType(contentType);
-					attachment.getPropertiesEdit().addAll(properties);
-					m_contentHostingService.commitResource(attachment);
 					
-		    		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
-		    		List attachments = submissionOrFeedback.equals("submission")?r.getSubmissionAttachments():r.getFeedbackAttachments();
-		    		attachments.add(EntityManager.newReference(attachment.getReference()));
-		    		if (submissionOrFeedback.equals("submission"))
-		    		{
-		    			r.setSubmissionAttachments(attachments);
-		    		}
-		    		else
-		    		{
-		    			r.setFeedbackAttachments(attachments);
-		    		}
-		    		submissionTable.put(userEid, r);
+					File entryFile = storeTempFile(zin);
+					FileInputStream entryFileStream = new FileInputStream(entryFile);
+					
+					try {
+						String contentType = ((ContentTypeImageService) state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE)).getContentType(extension);
+						ContentResourceEdit attachment = m_contentHostingService.addAttachmentResource(fName);
+						attachment.setContent(entryFileStream);
+						attachment.setContentType(contentType);
+						attachment.getPropertiesEdit().addAll(properties);
+						m_contentHostingService.commitResource(attachment);
+						
+			    		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
+			    		List attachments = submissionOrFeedback.equals("submission")?r.getSubmissionAttachments():r.getFeedbackAttachments();
+			    		attachments.add(EntityManager.newReference(attachment.getReference()));
+			    		if (submissionOrFeedback.equals("submission"))
+			    		{
+			    			r.setSubmissionAttachments(attachments);
+			    		}
+			    		else
+			    		{
+			    			r.setFeedbackAttachments(attachments);
+			    		}
+			    		submissionTable.put(userEid, r);
+					}
+					catch (Exception e)
+					{
+						M_log.warn(this + ":doUploadZipAttachments problem commit resource " + e.getMessage());
+					}
+					finally {
+						//delete the file before the next zipEntry
+						entryFile.delete();
+					}
 				}
 		}
 		catch (Exception ee)
@@ -11252,6 +11277,46 @@ public class AssignmentAction extends PagedResourceActionII
 		return rv;
 	}
 
+	/**
+	* This method is used to store the ZipInputStream's contents to a file *without
+	* closing the entire stream*. The stream needs to stay open to maintain the state of
+	* the zip entry enumerator.
+	* 
+	* The temp file's input stream can then be used to read the content of the file
+	* and can be safely closed by the content service.
+	*
+	* @param zin   The ZipInputStream, open to the entry to save
+	* @return
+	*              A file pointing to the temp file that was saved.
+	* @throws IOException
+	*              If there is a problem creating the temp file.
+	*/
+	private File storeTempFile(InputStream zin) throws IOException {
+		File tmp = null;
+		
+		//just copying the parameters from the temp file created in readIntoBytes.
+		tmp = File.createTempFile("asgnup", "tmp");
+		FileOutputStream toFile = null;
+		
+		try {
+			toFile = new FileOutputStream(tmp);
+			
+			//read the stream into the file
+			byte[] buffer = new byte[INPUT_BUFFER_SIZE];
+			while (zin.read(buffer) > 0) {
+				toFile.write(buffer);
+			}
+		} finally {
+			if (toFile != null) {
+				toFile.flush();
+				toFile.close();
+				zin.close();
+			}
+		}
+		
+		return tmp;
+	}
+	 
 	private byte[] readIntoBytes(InputStream zin, String fName, long length) throws IOException {
 			
 			byte[] buffer = new byte[4096];
@@ -11948,6 +12013,30 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 	}	// doAttachupload
+	
+	
+	/**
+	 * Simply take as much as possible out of 'in', and write it to 'out'. Don't
+	 * close the streams, just transfer the data.
+	 * 
+	 * @param in
+	 * 		The data provider
+	 * @param out
+	 * 		The data output
+	 * @throws IOException
+	 * 		Thrown if there is an IOException transfering the data
+	 */
+	private void writeToStream(InputStream in, OutputStream out) throws IOException {
+		byte[] buffer = new byte[INPUT_BUFFER_SIZE];
+		
+		try {
+			while (in.read(buffer) > 0) {
+				out.write(buffer);
+			}
+		} catch (IOException e) {
+			throw e;
+		}
+	}
 	
     /**
      * remove all security advisors
