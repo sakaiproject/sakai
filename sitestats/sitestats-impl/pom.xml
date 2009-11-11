@@ -101,6 +101,10 @@
       <groupId>commons-betwixt</groupId>
       <artifactId>commons-betwixt</artifactId>
     </dependency>
+    <dependency>
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils-core</artifactId>
+    </dependency>
     
     <!-- Apache others -->
     <dependency>
