@@ -118,16 +118,16 @@
       <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
         <snapshotRepository>
             <uniqueVersion>false</uniqueVersion>
-            <id>sakai-maven-snapshots</id>
+            <id>sakai-maven-snapshots-scp</id>
             <name>Sakai snapshot Repo</name>
-            <url>dav:http://source.sakaiproject.org/maven2-snapshots</url>
+            <url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
             <layout>default</layout>
         </snapshotRepository>
         <repository>
             <uniqueVersion>false</uniqueVersion>
-            <id>sakai-maven2</id>
+            <id>sakai-maven2-scp</id>
             <name>Sakai maven2 repository</name>
-            <url>dav:https://source.sakaiproject.org/maven2</url>
+            <url>scp://source.sakaiproject.org/var/www/html/maven2</url>
             <layout>default</layout>
         </repository>
         <site>
