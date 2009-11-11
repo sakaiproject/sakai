@@ -36,58 +36,31 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
-<!--
-      This has been relocated to sakai-kernel-util
-      org.sakaiproject.kernel.utilsakai-entity-util-->
-<!--
-      This has been relocated to sakai-kernel-util
-      org.sakaiproject.kernel.utilsakai-event-util-->
-<!--
-      This has been relocated to sakai-kernel-util
-      org.sakaiproject.kernel.utilsakai-util-->
-<!--
+    <!--
    If you find an import for javax.faces.context either remove it or uncomment this
     <dependency>
-      
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-jsf-sun-ri-tool</artifactId>
-      
+      <groupId>org.sakaiproject.jsf</groupId>
+      <artifactId>jsf-tool-sun</artifactId>
       <type>pom</type>
     </dependency>
--->
+    -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-podcasts-api</artifactId>
     </dependency>
-<!--org.sakaiprojectsakai-entity-api${sakai.version}-->
-<!--org.sakaiprojectsakai-entity-util${sakai.version}-->
-<!--org.sakaiprojectsakai-user-api${sakai.version}-->
-<!--org.sakaiprojectsakai-event-api${sakai.version}-->
-<!--org.sakaiprojectsakai-event-util${sakai.version}-->
-<!--org.sakaiprojectsakai-component-api${sakai.version}-->
-<!--org.sakaiprojectsakai-site-api${sakai.version}-->
-<!--org.sakaiprojectsakai-email-api${sakai.version}-->
     <dependency>
       <groupId>org.sakaiproject.common</groupId>
       <artifactId>archive-api</artifactId>
     </dependency>
-<!--org.sakaiprojectsakai-content-api${sakai.version}-->
-<!--org.sakaiprojectsakai-authz-api${sakai.version}-->
-<!--org.sakaiprojectsakai-alias-api${sakai.version}-->
-<!--org.sakaiprojectsakai-tool-api${sakai.version}-->
-<!--org.sakaiprojectsakai-util-api${sakai.version}-->
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
     </dependency>
-<!--org.sakaiprojectsakai-util${sakai.version}-->
-<!--org.sakaiprojectsakai-component${sakai.version}-->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring</artifactId>
       <version>${sakai.spring.version}</version>
     </dependency>
-<!--${sakai.spring.groupId}${sakai.spring.artifactId}${sakai.spring.version}jar-->
 <!--		Needed to construct the actual feed -->
     <dependency>
       <groupId>rome</groupId>
