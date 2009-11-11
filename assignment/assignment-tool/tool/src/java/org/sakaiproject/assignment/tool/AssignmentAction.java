@@ -4493,7 +4493,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (Exception e)
 		{
-			M_log.warn(this + ":postOrSaveAssignment " + e.toString() + "error finding authzGroup for = " + siteId);
+			M_log.warn(this + ":setNewAssignmentParameters" + e.toString() + "error finding authzGroup for = " + siteId);
 		}
 		state.setAttribute(ALLPURPOSE_ACCESS, accessList);
 		
@@ -4682,7 +4682,7 @@ public class AssignmentAction extends PagedResourceActionII
 	public void doPost_assignment(RunData data)
 	{
 		// post assignment
-		postOrSaveAssignment(data, "post");
+		post_save_assignment(data, "post");
 
 	} // doPost_assignment
 
@@ -4780,7 +4780,7 @@ public class AssignmentAction extends PagedResourceActionII
 	/**
 	 * post or save assignment
 	 */
-	private void postOrSaveAssignment(RunData data, String postOrSave)
+	private void post_save_assignment(RunData data, String postOrSave)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		
@@ -4877,7 +4877,6 @@ public class AssignmentAction extends PagedResourceActionII
 			
 			// the attachments
 			List attachments = (List) state.getAttribute(ATTACHMENTS);
-			List attachments1 = EntityManager.newReferenceList(attachments);
 			
 			// set group property
 			String range = (String) state.getAttribute(NEW_ASSIGNMENT_RANGE);
@@ -4902,7 +4901,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			catch (Exception e)
 			{
-				M_log.warn(this + ":postOrSaveAssignment " + e.getMessage());
+				M_log.warn(this + ":post_save_assignment " + e.getMessage());
 			}
 
 
@@ -4915,7 +4914,7 @@ public class AssignmentAction extends PagedResourceActionII
 				Time oldDueTime = a.getDueTime();
 				
 				// commit the changes to AssignmentContent object
-				commitAssignmentContentEdit(state, ac, title, submissionType,useReviewService,allowStudentViewReport, gradeType, gradePoints, description, checkAddHonorPledge, attachments1);
+				commitAssignmentContentEdit(state, ac, title, submissionType,useReviewService,allowStudentViewReport, gradeType, gradePoints, description, checkAddHonorPledge, attachments);
 				
 				// set the Assignment Properties object
 				ResourcePropertiesEdit aPropertiesEdit = a.getPropertiesEdit();
@@ -4978,7 +4977,7 @@ public class AssignmentAction extends PagedResourceActionII
 								}
 								catch (Exception e)
 								{
-									M_log.warn(this + ":postOrSaveAssignment " + e.getMessage() + s.getReference());
+									M_log.warn(this + ":post_save_assignment " + e.getMessage() + s.getReference());
 								}
 							}
 						}
@@ -5121,7 +5120,7 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 					catch (Exception e)
 					{
-						M_log.warn(this + ":postOrSaveAssignment " + e.toString() + "error finding authzGroup for = " + siteId);
+						M_log.warn(this + ":post_save_assignment " + e.toString() + "error finding authzGroup for = " + siteId);
 					}
 					nAllPurpose.setAccessSet(accessSet);
 					m_assignmentSupplementItemService.saveAllPurposeItem(nAllPurpose);
@@ -5151,7 +5150,7 @@ public class AssignmentAction extends PagedResourceActionII
 					catch (AssignmentHasIllegalPointsException e)
 					{
 						addAlert(state, rb.getString("addtogradebook.illegalPoints"));
-						M_log.warn(this + ":postOrSaveAssignment " + e.getMessage());
+						M_log.warn(this + ":post_save_assignment " + e.getMessage());
 					}
 				}
 
@@ -5159,7 +5158,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		} // if
 		
-	} // postOrSaveAssignment
+	} // post_save_assignment
 
 
 	private Set<AssignmentSupplementItemAttachment> getAssignmentSupplementItemAttachment(SessionState state, AssignmentSupplementItemWithAttachment mItem, String attachmentString) {
@@ -5833,7 +5832,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 	}
 
-	private void commitAssignmentContentEdit(SessionState state, AssignmentContentEdit ac, String title, int submissionType,boolean useReviewService, boolean allowStudentViewReport, int gradeType, String gradePoints, String description, String checkAddHonorPledge, List attachments1) 
+	private void commitAssignmentContentEdit(SessionState state, AssignmentContentEdit ac, String title, int submissionType,boolean useReviewService, boolean allowStudentViewReport, int gradeType, String gradePoints, String description, String checkAddHonorPledge, List attachments) 
 	{
 		ac.setTitle(title);
 		ac.setInstructions(description);
@@ -5869,12 +5868,15 @@ public class AssignmentAction extends PagedResourceActionII
 		// clear attachments
 		ac.clearAttachments();
 
-		// add each attachment
-		Iterator it = EntityManager.newReferenceList(attachments1).iterator();
-		while (it.hasNext())
+		if (attachments != null)
 		{
-			Reference r = (Reference) it.next();
-			ac.addAttachment(r);
+			// add each attachment
+			Iterator it = EntityManager.newReferenceList(attachments).iterator();
+			while (it.hasNext())
+			{
+				Reference r = (Reference) it.next();
+				ac.addAttachment(r);
+			}
 		}
 		state.setAttribute(ATTACHMENTS_MODIFIED, new Boolean(false));
 
@@ -6055,7 +6057,7 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doSave_assignment(RunData data)
 	{
-		postOrSaveAssignment(data, "save");
+		post_save_assignment(data, "save");
 
 	} // doSave_assignment
 	
