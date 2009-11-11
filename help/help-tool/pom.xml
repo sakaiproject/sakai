@@ -34,8 +34,8 @@
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-jsf-sun-ri-tool</artifactId>
+      <groupId>org.sakaiproject.jsf</groupId>
+      <artifactId>jsf-tool-sun</artifactId>
       <type>pom</type>
     </dependency>
     <dependency>

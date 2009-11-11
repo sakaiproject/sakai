@@ -26,9 +26,9 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-jsf-sun-ri-tool</artifactId>
-        <version>2.7.0-SNAPSHOT</version>
+        <groupId>org.sakaiproject.jsf</groupId>
+        <artifactId>jsf-tool-sun</artifactId>
+        <version>${sakai.jsf.version}</version>
         <type>pom</type>
       </dependency>
     </dependencies>
