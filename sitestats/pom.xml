@@ -140,9 +140,9 @@
     <!-- Project repositories -->
     <pluginRepositories>
         <pluginRepository>
-            <id>mc-release</id>
-            <name>Maven License Plugin</name>
-            <url>http://mc-repo.googlecode.com/svn/maven2/releases</url>
+            <id>maven2-central-repo</id>
+            <name>Maven2 Central Repo</name>
+            <url>http://repo1.maven.org/maven2/</url>
         </pluginRepository>
     </pluginRepositories>
     
@@ -372,8 +372,9 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>com.google.code.maven-license-plugin</groupId>
+                <groupId>com.mycila.maven-license-plugin</groupId>
                 <artifactId>maven-license-plugin</artifactId>
+                <version>1.5.0</version>
                 <configuration>
                     <basedir>${basedir}</basedir>
                     <!-- THIS IS A BRITTLE; IMPLEMENT REMOTE RESOURCE PLUGIN TO GET THIS FILE -->
@@ -397,7 +398,7 @@
                         <exclude>**/*.sql</exclude>
                         <exclude>**/*.TXT</exclude>
                         <exclude>**/*.xml</exclude>
-                        <include>src/webapp/**/jquery*.js</include>
+                        <exclude>src/webapp/**/jquery*.js</exclude>
                     </excludes>
                     <useDefaultExcludes>true</useDefaultExcludes>
                     <useDefaultMapping>true</useDefaultMapping>
@@ -411,6 +412,8 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <id>check-headers</id>
+                        <phase>verify</phase>
                         <goals>
                             <goal>check</goal>
                         </goals>
