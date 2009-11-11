@@ -83,8 +83,8 @@ Kerberos Provider" in the "<dependency>" section of:
 
     providers/component/pom.xml
 
-Then, change the domain parameter from "mydomain.edu" to your domain 
-and, if necessary, the value of the cachettl parameter in
+Then, change the domain parameter from "mydomain.edu" to your 
+domain in:
 
     providers/component/src/webapp/WEB-INF/components.xml
 
@@ -132,7 +132,6 @@ org.sakaiproject.component.kerberos.user.KerberosUserDirectoryProvider@1fd9cd5.i
 Domain=mydomain.edu
 LoginContext=SakaiAuthentication
 RequireLocalAccount=true KnownUserMsg=Integrity check on decrypted field failed
-CacheTTL=300000
 
 - Extended information (wrapped/edited for clarity)
 
@@ -152,7 +151,7 @@ Kerberos password.
 
 **ADVANCED OPTIONS**
 
-The Kerberos UserDirectoryProvider takes 5 configuration properties in 
+The Kerberos UserDirectoryProvider takes 4 configuration properties in 
 its components.xml:
 
 domain -- the 2nd-level domain name of the user's e-mail address
@@ -194,7 +193,7 @@ In this case, we'll use "Integrity check on decrypted field failed" as
 the string to compare (the provider compares the first part of the 
 string).
 
-2) In
+2) In:
 
     providers/component/src/webapp/WEB-INF/components.xml
 

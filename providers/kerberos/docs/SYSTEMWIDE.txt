@@ -92,8 +92,8 @@ Kerberos Provider" in the "<dependency>" section of:
 
     providers/component/pom.xml
 
-Then, change the domain parameter from "mydomain.edu" to your domain 
-and, if necessary, the value of the cachettl parameter in
+Then, change the domain parameter from "mydomain.edu" to your 
+domain in:
 
     providers/component/src/webapp/WEB-INF/components.xml
 
