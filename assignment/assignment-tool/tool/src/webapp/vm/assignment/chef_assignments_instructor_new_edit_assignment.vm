@@ -673,6 +673,17 @@ $(document).ready(function() {
 				<label for="sendnotifsummary">$tlang.getString('receive.confirm.submission.email.digest')</label>
 			</p>
 		#end
+		## whether to notify student about released grade
+		<h4>
+			$tlang.getString("send.submission.releasegrade.email.options")
+		</h4>
+		<p class="checkbox  indnt2">
+			<input type="radio" name="$!name_assignment_releasegrade_notification" id="notsendreleasegradenotif" value="$!value_assignment_releasegrade_notification_none" #if($!value_assignment_releasegrade_notification.equals($!value_assignment_releasegrade_notification_none))checked="checked" #end />
+			<label for="notsendreleasegradenotif">$tlang.getString('send.submission.releasegrade.email.none')</label>
+			<br/>
+			<input type="radio" name="$!name_assignment_releasegrade_notification" id="sendreleasegradenotif" value="$!value_assignment_releasegrade_notification_each" #if($!value_assignment_releasegrade_notification.equals($!value_assignment_releasegrade_notification_each))checked="checked" #end />
+			<label for="sendreleasegradenotif">$tlang.getString('send.submission.releasegrade.email')</label>
+		</p>
 		## attachments
 		<h4>
 			$tlang.getString("gen.addres")

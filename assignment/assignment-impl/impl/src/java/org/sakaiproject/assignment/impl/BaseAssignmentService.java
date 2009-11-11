@@ -25,6 +25,8 @@ import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -2356,6 +2358,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			{
 				// releasing a submitted assignment or releasing grade to an unsubmitted assignment
 				EventTrackingService.post(EventTrackingService.newEvent(EVENT_GRADE_ASSIGNMENT_SUBMISSION, submissionRef, true));
+				
+				// if this is releasing grade, depending on the release grade notification setting, send email notification to student
+				sendGradeReleaseNotification(s.getGradeReleased(), a.getProperties().getProperty(Assignment.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE), s.getSubmitters(), s);
 			}
 			else if (submittedTime == null) /*grading non-submission*/
 			{
@@ -2390,6 +2395,20 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 
 	} // commitEdit(Submission)
+	
+	protected void sendGradeReleaseNotification(boolean released, String notificationSetting, User[] submitters, AssignmentSubmission s)
+	{
+		if (released && notificationSetting != null && notificationSetting.equals(Assignment.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_EACH))
+		{
+			// send email to every submitters
+			if (submitters != null)
+			{
+				// send the message immidiately
+				EmailService.sendToUsers(new ArrayList(Arrays.asList(submitters)), getHeaders(null, "releasegrade"),  getNotificationMessage(s, "releasegrade"));
+			}
+		}
+	}
+	
 
 	/**
 	 * send notification to instructor type of users if necessary
@@ -2449,23 +2468,23 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				finalReceivers.addAll(receivers);
 			}
 			
-			String messageBody = getNotificationMessage(s);
+			String messageBody = getNotificationMessage(s, "submission");
 			
 			if (notiOption.equals(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_EACH))
 			{
 				// send the message immidiately
-				EmailService.sendToUsers(finalReceivers, getHeaders(null), messageBody);
+				EmailService.sendToUsers(finalReceivers, getHeaders(null, "submission"), messageBody);
 			}
 			else if (notiOption.equals(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DIGEST))
 			{
 				// just send plain/text version for now
-				String digestMsgBody = getPlainTextNotificationMessage(s);
+				String digestMsgBody = getPlainTextNotificationMessage(s, "submission");
 				
 				// digest the message to each user
 				for (Iterator iReceivers = finalReceivers.iterator(); iReceivers.hasNext();)
 				{
 					User user = (User) iReceivers.next();
-					DigestService.digest(user.getId(), getSubject(), digestMsgBody);
+					DigestService.digest(user.getId(), getSubject("submission"), digestMsgBody);
 				}
 			}
 		}
@@ -2476,10 +2495,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 * @param s
 	 * @return
 	 */
-	protected String getPlainTextNotificationMessage(AssignmentSubmission s)
+	protected String getPlainTextNotificationMessage(AssignmentSubmission s, String submissionOrReleaseGrade)
 	{
 		StringBuilder message = new StringBuilder();
-		message.append(plainTextContent(s));
+		message.append(plainTextContent(s, submissionOrReleaseGrade));
 		return message.toString();
 	}
 
@@ -2499,19 +2518,19 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				List receivers = new Vector();
 				receivers.add(u);
 				
-				EmailService.sendToUsers(receivers, getHeaders(u.getEmail()), getNotificationMessage(s));
+				EmailService.sendToUsers(receivers, getHeaders(u.getEmail(), "submission"), getNotificationMessage(s, "submission"));
 			}
 		}
 	}
 	
-	protected List<String> getHeaders(String receiverEmail)
+	protected List<String> getHeaders(String receiverEmail, String submissionOrReleaseGrade)
 	{
 		List<String> rv = new Vector<String>();
 		
 		rv.add("MIME-Version: 1.0");
 		rv.add("Content-Type: multipart/alternative; boundary=\""+MULTIPART_BOUNDARY+"\"");
 		// set the subject
-		rv.add(getSubject());
+		rv.add(getSubject(submissionOrReleaseGrade));
 
 		// from
 		rv.add(getFrom());
@@ -2525,9 +2544,31 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		return rv;
 	}
 	
-	protected String getSubject()
+	protected List<String> getReleaseGradeHeaders(String receiverEmail)
 	{
-		return rb.getString("noti.subject.label") + " " + rb.getString("noti.subject.content");
+		List<String> rv = new Vector<String>();
+		
+		rv.add("MIME-Version: 1.0");
+		rv.add("Content-Type: multipart/alternative; boundary=\""+MULTIPART_BOUNDARY+"\"");
+		// set the subject
+		rv.add(getSubject("releasegrade"));
+
+		// from
+		rv.add(getFrom());
+		
+		// to
+		if (StringUtil.trimToNull(receiverEmail) != null)
+		{
+			rv.add("To: " + receiverEmail);
+		}
+		
+		return rv;
+	}
+	
+	protected String getSubject(String submissionOrReleaseGrade)
+	{
+		String subject = "submission".equals(submissionOrReleaseGrade)?rb.getString("noti.subject.content"):rb.getString("noti.releasegrade.subject.content");
+		return rb.getString("noti.subject.label") + " " + subject ;
 	}
 	
 	protected String getFrom()
@@ -2547,17 +2588,17 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 *        The event that matched criteria to cause the notification.
 	 * @return the message for the email.
 	 */
-	protected String getNotificationMessage(AssignmentSubmission s)
+	protected String getNotificationMessage(AssignmentSubmission s, String submissionOrReleaseGrade)
 	{	
 		StringBuilder message = new StringBuilder();
 		message.append(MIME_ADVISORY);
 		message.append(BOUNDARY_LINE);
 		message.append(plainTextHeaders());
-		message.append(plainTextContent(s));
+		message.append(plainTextContent(s, submissionOrReleaseGrade));
 		message.append(BOUNDARY_LINE);
 		message.append(htmlHeaders());
-		message.append(htmlPreamble());
-		message.append(htmlContent(s));
+		message.append(htmlPreamble(submissionOrReleaseGrade));
+		message.append("submission".equals(submissionOrReleaseGrade) ? htmlContent(s) : htmlContentReleaseGrade(s));
 		message.append(htmlEnd());
 		message.append(TERMINATION_LINE);
 		return message.toString();
@@ -2567,21 +2608,21 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		return "Content-Type: text/plain\n\n";
 	}
 	
-	protected String plainTextContent(AssignmentSubmission s) {
-		return FormattedText.convertFormattedTextToPlaintext(htmlContent(s));
+	protected String plainTextContent(AssignmentSubmission s, String submissionOrReleaseGrade) {
+		return FormattedText.convertFormattedTextToPlaintext("submission".equals(submissionOrReleaseGrade) ? htmlContent(s) : htmlContentReleaseGrade(s));
 	}
 	
 	protected String htmlHeaders() {
 		return "Content-Type: text/html\n\n";
 	}
 	
-	protected String htmlPreamble() {
+	protected String htmlPreamble(String submissionOrReleaseGrade) {
 		StringBuilder buf = new StringBuilder();
 		buf.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n");
 		buf.append("    \"http://www.w3.org/TR/html4/loose.dtd\">\n");
 		buf.append("<html>\n");
 		buf.append("  <head><title>");
-		buf.append(getSubject());
+		buf.append(getSubject(submissionOrReleaseGrade));
 		buf.append("</title></head>\n");
 		buf.append("  <body>\n");
 		return buf.toString();
@@ -2665,6 +2706,37 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				buffer.append(r.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME) + "(" + r.getProperties().getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH)+ ")\n");
 			}
 		}
+		
+		return buffer.toString();
+	}
+	
+	private String htmlContentReleaseGrade(AssignmentSubmission s) 
+	{
+		String newline = "<br />\n";
+		
+		Assignment a = s.getAssignment();
+		
+		String context = s.getContext();
+		
+		String siteTitle = "";
+		String siteId = "";
+		try
+		{
+			Site site = SiteService.getSite(context);
+			siteTitle = site.getTitle();
+			siteId = site.getId();
+		}
+		catch (Exception ee)
+		{
+			M_log.warn(this + " htmlContentReleaseGrade(), site id =" + context + " " + ee.getMessage());
+		}
+		
+		StringBuilder buffer = new StringBuilder();
+		// site title and id
+		buffer.append(rb.getString("noti.site.title") + " " + siteTitle + newline);
+		buffer.append(rb.getString("noti.site.id") + " " + siteId +newline + newline);
+		// notification text
+		buffer.append(rb.getFormattedMessage("noti.releasegrade.text", new String[]{a.getTitle()}));
 		
 		return buffer.toString();
 	}

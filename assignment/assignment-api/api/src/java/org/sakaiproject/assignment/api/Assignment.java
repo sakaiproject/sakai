@@ -96,7 +96,7 @@ public interface Assignment extends Entity, Comparable
 	/** Honor Pledge not yet set */
 	public static final int HONOR_PLEDGE_ENGINEERING = 2;
 	
-	// the option setting per assignment
+	// the option of email notification setting per assignment about student submissions
 	public static final String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE= "assignment_instructor_notifications_value";
 	
 	// no email to instructor
@@ -107,6 +107,15 @@ public interface Assignment extends Entity, Comparable
 	
 	// send email in digest form
 	public static final String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DIGEST = "assignment_instructor_notifications_digest";
+	
+	// the option of student email notification setting per assignment about released grades
+	public static final String ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE = "assignment_releasegrade_notification_value";
+
+	// do NOT send student email notification when the grade is released
+	public static final String ASSIGNMENT_RELEASEGRADE_NOTIFICATION_NONE = "assignment_releasegrade_notification_none";
+	
+	// send student email notification when the grade is released
+	public static final String ASSIGNMENT_RELEASEGRADE_NOTIFICATION_EACH = "assignment_releasegrade_notification_each";
 
 	/**
 	 * Access the AssignmentContent of this Assignment.

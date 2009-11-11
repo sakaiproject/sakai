@@ -680,6 +680,9 @@ public class AssignmentAction extends PagedResourceActionII
 	// default for whether or how the instructor receive submission notification emails, none(default)|each|digest
 	private static final String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DEFAULT = "assignment.instructor.notifications.default";
 	
+	// name for release grade notification
+	private static final String ASSIGNMENT_RELEASEGRADE_NOTIFICATION = "assignment.releasegrade.notification";
+	
 	/****************************** Upload all screen ***************************/
 	private static final String UPLOAD_ALL_HAS_SUBMISSION_TEXT = "upload_all_has_submission_text";
 	private static final String UPLOAD_ALL_HAS_SUBMISSION_ATTACHMENT = "upload_all_has_submission_attachment";
@@ -1785,6 +1788,9 @@ public class AssignmentAction extends PagedResourceActionII
 			context.put("value_assignment_instructor_notifications_digest", Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DIGEST);
 		}
 		
+		// release grade notification option
+		putReleaseGradeNotificationOptionIntoContext(state, context);
+		
 		// the supplement information
 		// model answers		
 		context.put("modelanswer", state.getAttribute(MODELANSWER) != null?Boolean.TRUE:Boolean.FALSE);
@@ -1848,6 +1854,26 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		
 	} // setAssignmentFormContext
+
+
+	/**
+	 * put the release grade notification options into context
+	 * @param state
+	 * @param context
+	 */
+	private void putReleaseGradeNotificationOptionIntoContext(SessionState state, Context context) {
+		if (state.getAttribute(Assignment.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE) == null)
+		{
+			// set the notification value using site default to be none: no email will be sent to student when the grade is released
+			state.setAttribute(Assignment.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE, Assignment.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_NONE);
+		}
+		// input fields
+		context.put("name_assignment_releasegrade_notification", ASSIGNMENT_RELEASEGRADE_NOTIFICATION);
+		context.put("value_assignment_releasegrade_notification", state.getAttribute(Assignment.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE));
+		// the option values
+		context.put("value_assignment_releasegrade_notification_none", Assignment.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_NONE);
+		context.put("value_assignment_releasegrade_notification_each", Assignment.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_EACH);
+	}
 	
 	/**
 	 * build the instructor view of create a new assignment
@@ -4034,6 +4060,7 @@ public class AssignmentAction extends PagedResourceActionII
 							}
 	
 							AssignmentService.commitEdit(sEdit);
+							
 						}
 						catch (IdUnusedException e)
 						{
@@ -4409,6 +4436,13 @@ public class AssignmentAction extends PagedResourceActionII
 		if (notiOption != null)
 		{
 			state.setAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE, notiOption);
+		}
+		
+		// release grade notification option
+		String releaseGradeOption = params.getString(ASSIGNMENT_RELEASEGRADE_NOTIFICATION);
+		if (releaseGradeOption != null)
+		{
+			state.setAttribute(Assignment.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE, releaseGradeOption);
 		}
 		
 		if (StringUtil.trimToNull(params.getString("modelanswer_text")) != null)
@@ -4925,6 +4959,12 @@ public class AssignmentAction extends PagedResourceActionII
 				if (state.getAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE) != null)
 				{
 					aPropertiesEdit.addProperty(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE, (String) state.getAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE));
+				}
+				
+				// the release grade notification option
+				if (state.getAttribute(Assignment.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE) != null)
+				{
+					aPropertiesEdit.addProperty(Assignment.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE, (String) state.getAttribute(Assignment.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE));
 				}
 				
 				// comment the changes to Assignment object
@@ -6268,10 +6308,15 @@ public class AssignmentAction extends PagedResourceActionII
 			
 			state.setAttribute(ATTACHMENTS, a.getContent().getAttachments());
 			
-			// notification option
+			// submission notification option
 			if (properties.getProperty(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE) != null)
 			{
 				state.setAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE, properties.getProperty(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE));
+			}
+			// release grade notification option
+			if (properties.getProperty(Assignment.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE) != null)
+			{
+				state.setAttribute(Assignment.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE, properties.getProperty(Assignment.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE));
 			}
 
 			// group setting
