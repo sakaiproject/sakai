@@ -45,9 +45,6 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-api</artifactId>
     </dependency>
-<!--
-      This has been relocated to sakai-kernel-util
-      org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
       <groupId>org.sakaiproject.edu-services.sections</groupId>
       <artifactId>sections-api</artifactId>
@@ -81,21 +78,17 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-app-util</artifactId>
     </dependency>
-<!--org.sakaiprojectsakai-tool-api${sakai.version}-->
-<!--org.sakaiprojectsakai-authz-api${sakai.version}-->
-<!--org.sakaiprojectsakai-site-api${sakai.version}-->
-<!--org.sakaiprojectsakai-user-api${sakai.version}-->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-jsf-tool</artifactId>
+      <groupId>org.sakaiproject.jsf</groupId>
+      <artifactId>jsf-tool</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-jsf-spreadsheet</artifactId>
+      <groupId>org.sakaiproject.jsf</groupId>
+      <artifactId>jsf-spreadsheet</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-jsf-app</artifactId>
+      <groupId>org.sakaiproject.jsf</groupId>
+      <artifactId>jsf-app</artifactId>
       <exclusions>
         <exclusion>
 <!-- we are pulling the myfaces version of this api -->
@@ -104,14 +97,6 @@
         </exclusion>
       </exclusions>
     </dependency>
-<!--org.sakaiprojectsakai-util${sakai.version}-->
-<!--org.sakaiprojectsakai-util-api${sakai.version}-->
-<!--org.sakaiprojectsakai-entity-api${sakai.version}-->
-<!-- Uuid generator -->
-<!--org.sakaiprojectsakai-util-api${sakai.version}-->
-<!--
-      sakai-util-impl is a part of the kernel implementation, p:dependency removed
-      org.sakaiprojectsakai-util-impl${sakai.version}provided-->
 <!-- Sakai plugin -->
 <!-- End Sakai2 Dependencies -->
 <!-- Database dependencies -->
@@ -134,7 +119,6 @@
 			</dependency>
 		-->
 <!-- End database dependencies -->
-<!--${sakai.spring.groupId}${sakai.spring.artifactId}${sakai.spring.version}-->
     <dependency>
       <groupId>${sakai.spring.groupId}</groupId>
       <artifactId>${sakai.spring.test.artifactId}</artifactId>
@@ -154,8 +138,6 @@
       <artifactId>jta</artifactId>
       <version>h2.1.8</version>
     </dependency>
-<!--${sakai.hibernate.groupId}${sakai.hibernate.artifactId}${sakai.hibernate.version}-->
-<!--${sakai.ehcache.groupId}${sakai.ehcache.artifactId}${sakai.ehcache.version}-->
     <dependency>
       <groupId>cglib</groupId>
       <artifactId>cglib-nodep</artifactId>
@@ -249,8 +231,8 @@
     </dependency>
 <!-- Sakai tag library -->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-depend-jsf-widgets-myfaces</artifactId>
+      <groupId>org.sakaiproject.jsf</groupId>
+      <artifactId>myfaces-widgets-depend</artifactId>
       <type>pom</type>
     </dependency>
     <dependency>
@@ -268,12 +250,11 @@
       <artifactId>standard</artifactId>
       <version>1.1.2</version>
     </dependency>
-<!--javax.servletservlet-api${sakai.servletapi.version}-->
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>jsp-api</artifactId>
       <version>2.0</version>
-<!--properties:	war.bundle: false -->
+      <!--properties: war.bundle: false -->
     </dependency>
   </dependencies>
   <reports/>
@@ -286,7 +267,7 @@
         <configuration>
           <webResources>
             <resource>
-<!-- this is relative to the this pom.xml directory -->
+              <!-- this is relative to the this pom.xml directory -->
               <directory>${basedir}/src/webapp/sakai</directory>
               <includes>
                 <include>**/*.*</include>

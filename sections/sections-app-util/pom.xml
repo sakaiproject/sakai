@@ -24,9 +24,6 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-util</artifactId>
     </dependency>
-<!--
-      This has been relocated to sakai-kernel-util
-      org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
       <groupId>org.sakaiproject.edu-services.sections</groupId>
       <artifactId>sections-api</artifactId>
@@ -60,11 +57,10 @@
       <version>1.1.6</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-depend-jsf-widgets-myfaces</artifactId>
+      <groupId>org.sakaiproject.jsf</groupId>
+      <artifactId>myfaces-widgets-depend</artifactId>
       <type>pom</type>
     </dependency>
-<!--org.sakaiprojectsakai-util${sakai.version}-->
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>jsp-api</artifactId>
