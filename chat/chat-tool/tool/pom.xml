@@ -33,9 +33,6 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
-<!--
-      This has been relocated to sakai-kernel-util
-      org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-chat-api</artifactId>
@@ -44,16 +41,10 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-chat-impl</artifactId>
     </dependency>
-<!--org.sakaiprojectsakai-authz-api${sakai.version}-->
-<!--org.sakaiprojectsakai-alias-api${sakai.version}-->
-<!--org.sakaiprojectsakai-component-api${sakai.version}-->
-<!--org.sakaiprojectsakai-content-api${sakai.version}-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-courier-api</artifactId>
     </dependency>
-<!--org.sakaiprojectsakai-entity-api${sakai.version}-->
-<!--org.sakaiprojectsakai-event-api${sakai.version}-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-message-api</artifactId>
@@ -62,10 +53,6 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-presence-api</artifactId>
     </dependency>
-<!--org.sakaiprojectsakai-site-api${sakai.version}-->
-<!--org.sakaiprojectsakai-tool-api${sakai.version}-->
-<!--org.sakaiprojectsakai-user-api${sakai.version}-->
-<!--org.sakaiprojectsakai-util-api${sakai.version}-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-presence-util</artifactId>
@@ -82,7 +69,6 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-velocity-tool-api</artifactId>
     </dependency>
-<!--org.sakaiprojectsakai-util${sakai.version}-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-velocity-tool</artifactId>
@@ -102,24 +88,23 @@
       <artifactId>jsp-api</artifactId>
       <version>2.0</version>
     </dependency>
-<!--javax.servletservlet-api${sakai.servletapi.version}-->
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>jstl</artifactId>
       <version>1.0.2</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-jsf-tool</artifactId>
+      <groupId>org.sakaiproject.jsf</groupId>
+      <artifactId>jsf-tool</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-jsf-app</artifactId>
+      <groupId>org.sakaiproject.jsf</groupId>
+      <artifactId>jsf-app</artifactId>
     </dependency>
 <!-- this will pull the correct dependency set for a Sun Widget Set -->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-depend-jsf-widgets-sun</artifactId>
+      <groupId>org.sakaiproject.jsf</groupId>
+      <artifactId>jsf-widgets-sun-depend</artifactId>
       <type>pom</type>
     </dependency>
 <!-- tomahawk tags are being used, so we have to pull them seperately -->
@@ -170,7 +155,6 @@
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
     </dependency>
-<!--javax.servletservlet-api${sakai.servletapi.version}-->
   </dependencies>
   <build>
     <resources>
