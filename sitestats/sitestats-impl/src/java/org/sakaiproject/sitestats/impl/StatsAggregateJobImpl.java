@@ -65,6 +65,8 @@ public class StatsAggregateJobImpl implements StatefulJob {
 	private final static String LAST_EVENT_ID		= "select max(EVENT_ID) LAST_ID from SAKAI_EVENT";
 	private final static String MYSQL_DEFAULT_COLUMNS  = "EVENT_ID as EVENT_ID,EVENT_DATE as EVENT_DATE,EVENT as EVENT,REF as REF,SESSION_USER as SESSION_USER,e.SESSION_ID as SESSION_ID";
 	private final static String ORACLE_DEFAULT_COLUMNS = "EVENT_ID,EVENT_DATE,EVENT,REF,SESSION_USER,e.SESSION_ID SESSION_ID";
+	private final static String MYSQL_CHECK_FOR_CONTEXT = "show columns from SAKAI_EVENT like 'CONTEXT'";
+	private final static String ORACLE_CHECK_FOR_CONTEXT = "select column_name from USER_TAB_COLUMNS where table_name='SAKAI_EVENT' and column_name='CONTEXT'";
 	private final static String MYSQL_CONTEXT_COLUMN   = ",CONTEXT as CONTEXT";
 	private final static String ORACLE_CONTEXT_COLUMN  = ",CONTEXT";
 	private String MYSQL_GET_EVENT					= "select " + MYSQL_DEFAULT_COLUMNS + MYSQL_CONTEXT_COLUMN + " " +
@@ -478,31 +480,25 @@ public class StatsAggregateJobImpl implements StatefulJob {
 		// Check for SAKAI_EVENT.CONTEXT table column
 		Connection connection = null;
 		PreparedStatement st = null;
-		ResultSet rs = null;	
+		ResultSet rs = null;
+		String sqlCheckForContext = null;
 		try{
 			connection = getEventDbConnection();
 			if(isOracle)
-				sqlGetEvent = ORACLE_GET_EVENT;
+				sqlCheckForContext = ORACLE_CHECK_FOR_CONTEXT;
 			else
-				sqlGetEvent = MYSQL_GET_EVENT;
-			st = connection.prepareStatement(sqlGetEvent);
-			if(!isOracle){
-				st.setLong(1, 0);	// MySQL >= startId	
-				st.setLong(2, 1);	// MySQL < endId
-			}else{
-				st.setLong(1, 0);	// Oracle lower limit	
-				st.setLong(2, 0);	// Oracle offset
-				st.setLong(3, 1);	// Oracle limit	
-			}
+				sqlCheckForContext = MYSQL_CHECK_FOR_CONTEXT;
+			st = connection.prepareStatement(sqlCheckForContext);
 			rs = st.executeQuery();			
 			if(rs.next()){
-				rs.getString("CONTEXT");
+				LOG.debug("SAKAI_EVENT.CONTEXT IS present.");
+				isEventContextSupported = true;
+			} else {
+				LOG.debug("SAKAI_EVENT.CONTEXT is NOT present.");
+				isEventContextSupported = false;
 			}
-			
-			isEventContextSupported = true;
-			LOG.debug("SAKAI_EVENT.CONTEXT IS present.");
 		}catch(SQLException e){
-			LOG.debug("SAKAI_EVENT.CONTEXT is NOT present.");
+			LOG.error("Unable to determine if SAKAI_EVENT.CONTEXT is present", e);
 			isEventContextSupported = false;
 		}finally{
 			try{
