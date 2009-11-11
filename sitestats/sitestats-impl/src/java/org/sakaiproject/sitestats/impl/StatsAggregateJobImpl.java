@@ -327,13 +327,13 @@ public class StatsAggregateJobImpl implements StatefulJob {
 
 		}catch(SQLException e){
 			sqlError = true;
-			if(returnMessage != null) {
+			if(returnMessage == null) {
 				returnMessage = "Unable to retrieve events due to: " + e.getMessage();
 				LOG.error("Unable to retrieve events", e);
 			}
 		}catch(Exception e){
 			sqlError = true;
-			if(returnMessage != null) {
+			if(returnMessage == null) {
 				returnMessage = "Unable to retrieve events due to: " + e.getMessage(); 
 				LOG.error("Unable to retrieve events due to an unknown cause", e);
 			}
