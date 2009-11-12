@@ -158,13 +158,12 @@ public class SimpleLdapConnectionManager implements LdapConnectionManager {
 			System.getProperty(KEYSTORE_PASSWORD_SYS_PROP_KEY);
 		if ( sysKeystorePassword == null ) {
 			String configuredKeystorePassword = config.getKeystorePassword();
-			if ( configuredKeystorePassword == null){
-				throw new NullPointerException("Must specify a keystore password for secure LDAP connections");
+			if ( configuredKeystorePassword != null){
+				if ( M_log.isDebugEnabled() ) {
+					M_log.debug("initKeystorePassword(): setting system property");
+				}
+				System.setProperty(KEYSTORE_PASSWORD_SYS_PROP_KEY, configuredKeystorePassword);
 			}
-			if ( M_log.isDebugEnabled() ) {
-				M_log.debug("initKeystorePassword(): setting system property");
-			}
-			System.setProperty(KEYSTORE_PASSWORD_SYS_PROP_KEY, configuredKeystorePassword);
 		} else {
 			if ( M_log.isDebugEnabled() ) {
 				M_log.debug("initKeystorePassword(): retained existing system property");
@@ -192,14 +191,13 @@ public class SimpleLdapConnectionManager implements LdapConnectionManager {
 			System.getProperty(KEYSTORE_LOCATION_SYS_PROP_KEY);
 		if ( sysKeystoreLocation == null ) {
 			String configuredKeystoreLocation = config.getKeystoreLocation();
-			if ( configuredKeystoreLocation == null){
-				throw new NullPointerException("Must specify a keystore location for secure LDAP connections");
+			if ( configuredKeystoreLocation != null){
+				if ( M_log.isDebugEnabled() ) {
+					M_log.debug("initKeystoreLocation(): setting system property [location = " + 
+							configuredKeystoreLocation + "]");
+				}
+				System.setProperty(KEYSTORE_LOCATION_SYS_PROP_KEY, configuredKeystoreLocation);
 			}
-			if ( M_log.isDebugEnabled() ) {
-				M_log.debug("initKeystoreLocation(): setting system property [location = " + 
-						configuredKeystoreLocation + "]");
-			}
-			System.setProperty(KEYSTORE_LOCATION_SYS_PROP_KEY, configuredKeystoreLocation);
 		} else {
 			if ( M_log.isDebugEnabled() ) {
 				M_log.debug("initKeystoreLocation(): retained existing system property [location = " + 
