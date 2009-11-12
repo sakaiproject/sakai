@@ -1,0 +1,20 @@
+/* stylesheet for the profile2 help to add some tweaks */
+
+li.profile {
+	list-style-image:url("/library/image/silk/vcard.png");
+}
+li.image {
+	list-style-image:url("/library/image/silk/photo.png");
+}
+li.status {
+	list-style-image:url("/library/image/silk/transmit.png");
+}
+li.connections {
+	list-style-image:url("/library/image/silk/magnifier.png");
+}
+li.privacy {
+	list-style-image:url("/library/image/silk/lock.png");
+}
+li.preferences {
+	list-style-image:url("/library/image/silk/cog.png");
+}
