@@ -15,8 +15,6 @@
 	    <version>1.3-SNAPSHOT</version>
 	</parent>
 
-	
-
 	<dependencies>
 		<!-- all internal modules -->
 		<dependency>
