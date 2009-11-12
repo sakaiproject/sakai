@@ -62,6 +62,7 @@ import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.assignment.api.AssignmentContent;
 import org.sakaiproject.assignment.api.AssignmentContentEdit;
 import org.sakaiproject.assignment.api.AssignmentEdit;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
@@ -6654,15 +6655,20 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 		}
 		
-		try
+		AssignmentContent aContent = aEdit.getContent();
+		if (aContent != null)
 		{
-			// remove the assignment content
-			AssignmentService.removeAssignmentContent(AssignmentService.editAssignmentContent(aEdit.getContent().getReference()));
-		}
-		catch (Exception ee)
-		{
-			addAlert(state, rb.getString("youarenot11_c") + " " + aEdit.getContentReference() + ". ");
-			M_log.warn(this + ":deleteAssignmentObjects " + ee.getMessage());
+			try
+			{
+				
+				// remove the assignment content
+				AssignmentService.removeAssignmentContent(AssignmentService.editAssignmentContent(aContent.getReference()));
+			}
+			catch (Exception ee)
+			{
+				addAlert(state, rb.getString("youarenot11_c") + " " + aEdit.getContentReference() + ". ");
+				M_log.warn(this + ":deleteAssignmentObjects " + ee.getMessage());
+			}
 		}
 		
 		try
