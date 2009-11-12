@@ -22,17 +22,10 @@
 package org.sakaiproject.component.kerberos.user;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 
-import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.ConfirmationCallback;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.TextOutputCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
@@ -56,10 +49,9 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(KerberosUserDirectoryProvider.class);
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Dependencies and their setter methods
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
+	// Should we attempt ticket verification?
+	private boolean m_verifyTicket;
+	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Configuration options and their setter methods
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -90,6 +82,33 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 	public void setLoginContext(String logincontext)
 	{
 		m_logincontext = logincontext;
+	}
+	
+	/** Configuration: ServiceLoginContext */
+	protected String m_servicelogincontext = "ServiceKerberosAuthentication";
+	
+	/**
+	 * Configuration: Service Authentication Name
+	 * 
+	 * @param serviceLoginContext
+	 *        The context for the service to be used from the login.config file - default "ServiceKerberosAuthentication" 
+	 */
+	public void setServiceLoginContext(String serviceLoginContext)
+	{
+		m_servicelogincontext = serviceLoginContext;
+	}
+	
+	/** Configuration: ServicePrincipal */
+	protected String m_serviceprincipal;
+
+	/**
+	 * Configuration: GSSAPI Service Principal
+	 * 
+	 * @param serviceprincipal
+	 *        The name of the service principal for GSSAPI. Needs to be set.
+	 */
+	public void setServicePrincipal(String serviceprincipal) {
+		this.m_serviceprincipal = serviceprincipal;
 	}
 
 	/** Configuration: RequireLocalAccount */
@@ -186,8 +205,11 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 			}
 		}
 
+		// Check if we're configured to verify service tickets.
+		m_verifyTicket = (m_serviceprincipal != null && m_servicelogincontext != null);
+
 		M_log.info(this + ".init()" + " Domain=" + m_domain + " LoginContext=" + m_logincontext + " RequireLocalAccount="
-				+ m_requirelocalaccount + " KnownUserMsg=" + m_knownusermsg );
+				+ m_requirelocalaccount + " KnownUserMsg=" + m_knownusermsg + " VerifyServiceTicket="+ m_verifyTicket );
 
 		// show the whole config if set
 		// system locations will read NULL if not set (system defaults will be used)
@@ -196,8 +218,12 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 			M_log.info(this + ".init()" + " SakaiHome=" + sakaihomepath + " SakaiPropertyKrb5Conf=" + kerberoskrb5conf
 					+ " SakaiPropertyAuthLoginConfig=" + kerberosauthloginconfig + " SystemPropertyKrb5Conf="
 					+ System.getProperty("java.security.krb5.conf") + " SystemPropertyAuthLoginConfig="
-					+ System.getProperty("java.security.auth.login.config"));
+					+ System.getProperty("java.security.auth.login.config")
+					+ " ServicePrincipal=" + m_serviceprincipal
+					+ " ServiceLoginContext="+ m_servicelogincontext
+			);
 		}
+
 		if (!m_requirelocalaccount && m_domain == null)
 		{
 			throw new IllegalStateException("If you don't require local accounts, you must set the domain for e-mail addresses. See docs/INSTALL.txt in the Kerberos provider source for more information.");
@@ -207,7 +233,7 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 	} // init
 
 	/**
-	 * Returns to uninitialized state. You can use this method to release resources thet your Service allocated when Turbine shuts down.
+	 * Returns to uninitialized state. You can use this method to release resources that your Service allocated when Spring shuts down.
 	 */
 	public void destroy()
 	{
@@ -243,11 +269,11 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 	 * @param users
 	 *        The UserEdit objects (with id set) to fill in or remove.
 	 */
-	public void getUsers(Collection users)
+	public void getUsers(Collection<UserEdit> users)
 	{
-		for (Iterator i = users.iterator(); i.hasNext();)
+		for (Iterator<UserEdit> i = users.iterator(); i.hasNext();)
 		{
-			UserEdit user = (UserEdit) i.next();
+			UserEdit user = i.next();
 			if (!getUser(user))
 			{
 				i.remove();
@@ -295,13 +321,18 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 	{
 		try
 		{
-			boolean authKerb = authenticateKerberos(userId, password);
-
+			JassAuthenticate jass;
+			if (m_verifyTicket) {
+				jass = new JassAuthenticate(m_serviceprincipal, m_servicelogincontext, m_logincontext);
+			} else {
+				jass = new JassAuthenticate(m_logincontext);
+			}
+			boolean authKerb = jass.attemptAuthentication(userId, password);
 			return authKerb;
 		}
 		catch (Exception e)
 		{
-			if (M_log.isDebugEnabled()) M_log.debug("authenticateUser(): exception: " + e);
+			M_log.warn("authenticateUser(): exception: ", e);
 			return false;
 		}
 	} // authenticateUser
@@ -309,63 +340,6 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Kerberos stuff
 	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/**
-	 * Authenticate the user id and pw with Kerberos.
-	 * 
-	 * @param user
-	 *        The user id.
-	 * @param password
-	 *        the user supplied password.
-	 * @return true if successful, false if not.
-	 */
-	protected boolean authenticateKerberos(String user, String pw)
-	{
-		// assure some length to the password
-		if ((pw == null) || (pw.length() == 0)) return false;
-
-		// Obtain a LoginContext, needed for authentication. Tell it
-		// to use the LoginModule implementation specified by the
-		// appropriate entry in the JAAS login configuration
-		// file and to also use the specified CallbackHandler.
-		LoginContext lc = null;
-		try
-		{
-			SakaiCallbackHandler t = new SakaiCallbackHandler();
-			t.setId(user);
-			t.setPw(pw);
-			lc = new LoginContext(m_logincontext, t);
-		}
-		catch (LoginException le)
-		{
-			if (M_log.isDebugEnabled()) M_log.debug("authenticateKerberos(): " + le.toString());
-			return false;
-		}
-		catch (SecurityException se)
-		{
-			if (M_log.isDebugEnabled()) M_log.debug("authenticateKerberos(): " + se.toString());
-			return false;
-		}
-
-		try
-		{
-			// attempt authentication
-			lc.login();
-			lc.logout();
-
-			if (M_log.isDebugEnabled()) M_log.debug("authenticateKerberos(" + user + ", pw): Kerberos auth success");
-
-			return true;
-		}
-		catch (LoginException le)
-		{
-			if (M_log.isDebugEnabled())
-				M_log.debug("authenticateKerberos(" + user + ", pw): Kerberos auth failed: " + le.toString());
-
-			return false;
-		}
-
-	} // authenticateKerberos
 
 	/**
 	 * Check if the user id is known to kerberos.
@@ -386,9 +360,7 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 		LoginContext lc = null;
 		try
 		{
-			SakaiCallbackHandler t = new SakaiCallbackHandler();
-			t.setId(user);
-			t.setPw(pw);
+			CallbackHandler t = new UsernamePasswordCallback(user, pw);
 			lc = new LoginContext(m_logincontext, t);
 		}
 		catch (LoginException le)
@@ -431,102 +403,6 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 		}
 
 	} // userKnownToKerberos
-
-	/**
-	 * Inner Class SakaiCallbackHandler Get the user id and password information for authentication purpose. This can be used by a JAAS application to instantiate a CallbackHandler.
-	 * 
-	 * @see javax.security.auth.callback
-	 */
-	protected class SakaiCallbackHandler implements CallbackHandler
-	{
-		private String m_id;
-
-		private String m_pw;
-
-		/** constructor */
-		public SakaiCallbackHandler()
-		{
-			m_id = new String("");
-			m_pw = new String("");
-
-		} // SakaiCallbackHandler
-
-		/**
-		 * Handles the specified set of callbacks.
-		 * 
-		 * @param callbacks
-		 *        the callbacks to handle
-		 * @throws IOException
-		 *         if an input or output error occurs.
-		 * @throws UnsupportedCallbackException
-		 *         if the callback is not an instance of NameCallback or PasswordCallback
-		 */
-		public void handle(Callback[] callbacks) throws java.io.IOException, UnsupportedCallbackException
-		{
-			for (int i = 0; i < callbacks.length; i++)
-			{
-				if (callbacks[i] instanceof TextOutputCallback)
-				{
-					if (M_log.isDebugEnabled()) M_log.debug("SakaiCallbackHandler: TextOutputCallback");
-				}
-
-				else if (callbacks[i] instanceof NameCallback)
-				{
-					NameCallback nc = (NameCallback) callbacks[i];
-
-					String result = getId();
-					if (result.equals(""))
-					{
-						result = nc.getDefaultName();
-					}
-
-					nc.setName(result);
-				}
-
-				else if (callbacks[i] instanceof PasswordCallback)
-				{
-					PasswordCallback pc = (PasswordCallback) callbacks[i];
-					pc.setPassword(getPw());
-				}
-
-				else if (callbacks[i] instanceof ConfirmationCallback)
-				{
-					if (M_log.isDebugEnabled()) M_log.debug("SakaiCallbackHandler: ConfirmationCallback");
-				}
-
-				else
-				{
-					throw new UnsupportedCallbackException(callbacks[i], "SakaiCallbackHandler: Unrecognized Callback");
-				}
-			}
-
-		} // handle
-
-		void setId(String id)
-		{
-			m_id = id;
-
-		} // setId
-
-		private String getId()
-		{
-			return m_id;
-
-		} // getid
-
-		void setPw(String pw)
-		{
-			m_pw = pw;
-
-		} // setPw
-
-		private char[] getPw()
-		{
-			return m_pw.toCharArray();
-
-		} // getPw
-
-	} // SakaiCallbackHandler
 
 	/**
 	 * {@inheritDoc}
