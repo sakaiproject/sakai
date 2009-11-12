@@ -117,13 +117,13 @@
     </dependency>
 <!-- this is required for any Sakai JSF tool -->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-jsf-tool</artifactId>
+      <groupId>org.sakaiproject.jsf</groupId>
+      <artifactId>jsf-tool</artifactId>
     </dependency>
 <!-- these are to get full Sakai integration -->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-jsf-app</artifactId>
+      <groupId>org.sakaiproject.jsf</groupId>
+      <artifactId>jsf-app</artifactId>
     </dependency>
 <!-- sakai2 plugin -->
 <!--
@@ -131,19 +131,13 @@
 			The following is included as a dependency of the standalone Sections
 			integration support JAR.
 		-->
-<!-- Uuid generator -->
-<!--org.sakaiprojectsakai-util-api${sakai.version}-->
 <!--
       sakai-util-impl is a part of the kernel implementation, p:dependency removed
       org.sakaiprojectsakai-util-impl${sakai.version}-->
-<!--org.sakaiprojectsakai-component-api${sakai.version}-->
     <dependency>
       <groupId>org.sakaiproject.entitybroker</groupId>
       <artifactId>entitybroker-api</artifactId>
     </dependency>
-<!--org.sakaiprojectsakai-entity-api${sakai.version}provided-->
-<!--org.sakaiprojectsakai-site-api${sakai.version}provided-->
-<!--org.sakaiprojectsakai-user-api${sakai.version}provided-->
 <!-- End Sakai2 Dependencies -->
 <!-- Database dependencies used for integration testing and schema generation -->
 <!-- Please contact the gradebook development team before removing these -->
@@ -309,13 +303,13 @@
     </dependency>
 <!-- Sakai tag library -->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-depend-jsf-widgets-myfaces</artifactId>
+      <groupId>org.sakaiproject.jsf</groupId>
+      <artifactId>myfaces-widgets-depend</artifactId>
       <type>pom</type>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-jsf-spreadsheet</artifactId>
+      <groupId>org.sakaiproject.jsf</groupId>
+      <artifactId>jsf-spreadsheet</artifactId>
     </dependency>
   </dependencies>
 </project>
