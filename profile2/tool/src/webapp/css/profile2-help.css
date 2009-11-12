@@ -10,11 +10,14 @@ li.status {
 	list-style-image:url("/library/image/silk/transmit.png");
 }
 li.connections {
-	list-style-image:url("/library/image/silk/magnifier.png");
+	list-style-image:url("/library/image/silk/group.png");
 }
 li.privacy {
 	list-style-image:url("/library/image/silk/lock.png");
 }
 li.preferences {
 	list-style-image:url("/library/image/silk/cog.png");
+}
+li.search {
+	list-style-image:url("/library/image/silk/magnifier.png");
 }

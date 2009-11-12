@@ -29,7 +29,7 @@
 	
 	<bean id="profile2_search" class="org.sakaiproject.component.app.help.model.ResourceBean">
       	<property name="docId"><value>profile2_search</value></property>
-      	<property name="name"><value>Searching for connections</value></property>
+      	<property name="name"><value>Searching for people</value></property>
       	<property name="location"><value>/sakai_profile2/profile2_search.html</value></property>
 	</bean>
 	
