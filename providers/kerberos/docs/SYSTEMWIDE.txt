@@ -64,7 +64,9 @@ jaas.conf with the following content:
  */
 
 KerberosAuthentication {
-   com.sun.security.auth.module.Krb5LoginModule required;
+	com.sun.security.auth.module.Krb5LoginModule required;
+		storeKey="true"
+		useTicketCache="false";
 };
 
 The UserDirectoryProvider uses the KerberosAuthentication context by 
