@@ -65,7 +65,7 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/** Configuration: Domain */
-	protected String m_domain = "domain.tld";
+	protected String m_domain = null;
 
 	/**
 	 * Configuration: Domain Name (for E-Mail Addresses)
@@ -141,72 +141,68 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 	 */
 	public void init()
 	{
-		try
+		// Full paths only from the file
+		String kerberoskrb5conf = ServerConfigurationService.getString("provider.kerberos.krb5.conf", null);
+		String kerberosauthloginconfig = ServerConfigurationService.getString("provider.kerberos.auth.login.config", null);
+		boolean kerberosshowconfig = ServerConfigurationService.getBoolean("provider.kerberos.showconfig", false);
+		String sakaihomepath = System.getProperty("sakai.home");
+
+		// if locations are configured in sakai.properties, use them in place of the current system locations
+		// if the location specified exists and is readable, use full absolute path
+		// otherwise, try file path relative to sakai.home
+		// if files are readable use them, otherwise print warning and use system defaults
+		if (kerberoskrb5conf != null)
+		{
+			if (new File(kerberoskrb5conf).canRead())
+			{
+				System.setProperty("java.security.krb5.conf", kerberoskrb5conf);
+			}
+			else if (new File(sakaihomepath, kerberoskrb5conf).canRead())
+			{
+				System.setProperty("java.security.krb5.conf", sakaihomepath + kerberoskrb5conf);
+			}
+			else
+			{
+				M_log.warn(this + ".init(): Cannot find krb5.conf at specified location - Using default rules for krb5.conf location.");
+				kerberoskrb5conf = null;
+			}
+		}
+
+		if (kerberosauthloginconfig != null)
 		{
 
-			// Full paths only from the file
-			String kerberoskrb5conf = ServerConfigurationService.getString("provider.kerberos.krb5.conf", null);
-			String kerberosauthloginconfig = ServerConfigurationService.getString("provider.kerberos.auth.login.config", null);
-			boolean kerberosshowconfig = ServerConfigurationService.getBoolean("provider.kerberos.showconfig", false);
-			String sakaihomepath = System.getProperty("sakai.home");
-
-			// if locations are configured in sakai.properties, use them in place of the current system locations
-			// if the location specified exists and is readable, use full absolute path
-			// otherwise, try file path relative to sakai.home
-			// if files are readable use the, otherwise print warning and use system defaults
-			if (kerberoskrb5conf != null)
+			if (new File(kerberosauthloginconfig).canRead())
 			{
-				if (new File(kerberoskrb5conf).canRead())
-				{
-					System.setProperty("java.security.krb5.conf", kerberoskrb5conf);
-				}
-				else if (new File(sakaihomepath + kerberoskrb5conf).canRead())
-				{
-					System.setProperty("java.security.krb5.conf", sakaihomepath + kerberoskrb5conf);
-				}
-				else
-				{
-					M_log.warn(this + ".init(): Cannot set krb5conf location");
-					kerberoskrb5conf = null;
-				}
+				System.setProperty("java.security.auth.login.config", kerberosauthloginconfig);
 			}
-
-			if (kerberosauthloginconfig != null)
+			else if (new File(sakaihomepath, kerberosauthloginconfig).canRead())
 			{
-
-				if (new File(kerberosauthloginconfig).canRead())
-				{
-					System.setProperty("java.security.auth.login.config", kerberosauthloginconfig);
-				}
-				else if (new File(sakaihomepath + kerberosauthloginconfig).canRead())
-				{
-					System.setProperty("java.security.auth.login.config", sakaihomepath + kerberosauthloginconfig);
-				}
-				else
-				{
-					M_log.warn(this + ".init(): Cannot set kerberosauthloginconfig location");
-					kerberosauthloginconfig = null;
-				}
+				System.setProperty("java.security.auth.login.config", sakaihomepath + kerberosauthloginconfig);
 			}
-
-			M_log.info(this + ".init()" + " Domain=" + m_domain + " LoginContext=" + m_logincontext + " RequireLocalAccount="
-					+ m_requirelocalaccount + " KnownUserMsg=" + m_knownusermsg );
-
-			// show the whole config if set
-			// system locations will read NULL if not set (system defaults will be used)
-			if (kerberosshowconfig)
+			else
 			{
-				M_log.info(this + ".init()" + " SakaiHome=" + sakaihomepath + " SakaiPropertyKrb5Conf=" + kerberoskrb5conf
-						+ " SakaiPropertyAuthLoginConfig=" + kerberosauthloginconfig + " SystemPropertyKrb5Conf="
-						+ System.getProperty("java.security.krb5.conf") + " SystemPropertyAuthLoginConfig="
-						+ System.getProperty("java.security.auth.login.config"));
+				M_log.warn(this + ".init(): Cannot set kerberosauthloginconfig location");
+				kerberosauthloginconfig = null;
 			}
-
 		}
-		catch (Throwable t)
+
+		M_log.info(this + ".init()" + " Domain=" + m_domain + " LoginContext=" + m_logincontext + " RequireLocalAccount="
+				+ m_requirelocalaccount + " KnownUserMsg=" + m_knownusermsg );
+
+		// show the whole config if set
+		// system locations will read NULL if not set (system defaults will be used)
+		if (kerberosshowconfig)
 		{
-			M_log.warn(this + ".init(): ", t);
+			M_log.info(this + ".init()" + " SakaiHome=" + sakaihomepath + " SakaiPropertyKrb5Conf=" + kerberoskrb5conf
+					+ " SakaiPropertyAuthLoginConfig=" + kerberosauthloginconfig + " SystemPropertyKrb5Conf="
+					+ System.getProperty("java.security.krb5.conf") + " SystemPropertyAuthLoginConfig="
+					+ System.getProperty("java.security.auth.login.config"));
 		}
+		if (!m_requirelocalaccount && m_domain == null)
+		{
+			throw new IllegalStateException("If you don't require local accounts, you must set the domain for e-mail addresses. See docs/INSTALL.txt in the Kerberos provider source for more information.");
+		}
+
 
 	} // init
 
@@ -268,6 +264,7 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 	 */
 	public boolean findUserByEmail(UserEdit edit, String email)
 	{
+		if (m_requirelocalaccount) return false;
 		// lets not get messed up with spaces or cases
 		String test = email.toLowerCase().trim();
 
