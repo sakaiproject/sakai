@@ -2688,7 +2688,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		buffer.append(rb.getString("noti.site.title") + " " + siteTitle + newline);
 		buffer.append(rb.getString("noti.site.id") + " " + siteId +newline + newline);
 		// notification text
-		buffer.append(rb.getFormattedMessage("noti.releasegrade.text", new String[]{a.getTitle()}));
+		buffer.append(rb.getFormattedMessage("noti.releasegrade.text", new String[]{a.getTitle(), siteTitle}));
 		
 		return buffer.toString();
 	}
