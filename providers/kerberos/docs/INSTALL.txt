@@ -6,7 +6,7 @@ steps in SYSTEMWIDE.txt. By default, most JDKs are NOT configured for
 use with Kerberos.
 
 By default, the provider provides authentication ONLY for existing 
-accounts in the local Sakai user database (where Sakai user ids and 
+accounts in the local Sakai user database (where Sakai EIDs and 
 Kerberos principals are the same). If you wish to allow anyone with a 
 valid Kerberos principal to use Sakai, follow the instructions below 
 under ADVANCED OPTIONS.
@@ -83,8 +83,8 @@ Kerberos Provider" in the "<dependency>" section of:
 
     providers/component/pom.xml
 
-Then, change the domain parameter from "mydomain.edu" to your 
-domain in:
+Then, uncomment the configuration section for the 
+KerberosUserDirectoryProvider in:
 
     providers/component/src/webapp/WEB-INF/components.xml
 
@@ -129,7 +129,7 @@ configuration about the provider's settings in the catalina.out logs:
 
 INFO:
 org.sakaiproject.component.kerberos.user.KerberosUserDirectoryProvider@1fd9cd5.init()
-Domain=mydomain.edu
+Domain=null
 LoginContext=SakaiAuthentication
 RequireLocalAccount=true KnownUserMsg=Integrity check on decrypted field failed
 
@@ -146,7 +146,7 @@ SystemPropertyAuthLoginConfig=/usr/local/sakai/sakai-demo/sakai/kerberos/sakai.j
 In the above, "null" entries indicate the use of systemwide defaults.
 
 5) After startup, create a new Sakai account with your Kerberos 
-principal as the user id. You should then be able to login using your 
+principal as the user EID. You should then be able to login using your 
 Kerberos password.
 
 **ADVANCED OPTIONS**
@@ -154,18 +154,19 @@ Kerberos password.
 The Kerberos UserDirectoryProvider takes 4 configuration properties in 
 its components.xml:
 
-domain -- the 2nd-level domain name of the user's e-mail address
 loginContext -- the name of the JAAS LoginContext to use
 requireLocalAccount -- require a local account to login (true/false)
 knownUserMsg -- error message used to determine valid Kerberos principal
+domain -- the 2nd-level domain name of the user's e-mail address
 
 In addition, all of the properties can be set in the sakai.properties
 file by specifying a value in this format:
 
 <PROPERTY>@org.sakaiproject.user.api.UserDirectoryProvider=<VALUE>
 
-If you wish to allow anyone with a valid Kerberos principal to login 
-into Sakai without a local account, you must configure the last two.
+To allow anyone with a valid Kerberos principal to login into 
+Sakai without a local account, you MUST configure the 
+"requireLocalAccount", "knownUserMsg", and "domain" properties.
 
 To do so:
 
@@ -197,13 +198,21 @@ string).
 
     providers/component/src/webapp/WEB-INF/components.xml
 
-add these two lines:
+configure the settings or provide values for 
+"requireLocalAccount", "knownUserMsg", and "domain":
 
 <property name="requireLocalAccount"><value>false</value></property> 
 <property name="knownUserMsg"><value>STRING</value></property>
+<property name="domain"><value>DOMAIN</value></property> 
 
 where STRING is replaced by "Integrity check on decrypted field 
-failed" Note: This string is the default, culled from RFC 1510.
+failed" (the default, culled from RFC 1510) and DOMAIN is the 
+2nd-level domain name of the user's e-mail address.
 
 These properties can also be specified in the sakai.properties file as
 noted above.
+
+NOTE: Starting in Sakai 2.7, the default value for the "domain" 
+property is NULL. If "requireLocalAccount" is set to "true", a 
+value for the "domain" property MUST be set or Sakai will halt at 
+startup.

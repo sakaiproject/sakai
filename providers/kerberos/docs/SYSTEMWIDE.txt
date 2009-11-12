@@ -13,7 +13,7 @@ your administrator can show you how to select the appropriate
 LoginContext for use with Sakai.
 
 By default, the provider provides authentication ONLY for existing
-accounts in the local Sakai user database (where Sakai user ids and
+accounts in the local Sakai user database (where Sakai EIDs and
 Kerberos principals are the same). If you wish to allow anyone with a
 valid Kerberos principal to use Sakai, follow the instructions below
 under ADVANCED OPTIONS in the accompanying INSTALL.txt.
@@ -92,8 +92,8 @@ Kerberos Provider" in the "<dependency>" section of:
 
     providers/component/pom.xml
 
-Then, change the domain parameter from "mydomain.edu" to your 
-domain in:
+Then, uncomment the configuration section for the 
+KerberosUserDirectoryProvider in:
 
     providers/component/src/webapp/WEB-INF/components.xml
 
@@ -102,6 +102,6 @@ After deployment, you can also edit this file:
 $TOMCAT_HOME/components/sakai-provider-pack/WEB-INF/components.xml 
 
 4) After deployment and startup, create a new Sakai account with your 
-Kerberos principal as the user id. You should then be able to login 
+Kerberos principal as the user EID. You should then be able to login 
 using your Kerberos password.
 
