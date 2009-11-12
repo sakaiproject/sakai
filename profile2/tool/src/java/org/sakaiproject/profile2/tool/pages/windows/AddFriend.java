@@ -124,6 +124,9 @@ public class AddFriend extends Panel {
 				        //tinyUrl
 				        final String tinyUrl = profileLogic.generateTinyUrl(url);
 				        
+				        //get toolName
+				        final String toolName = sakaiProxy.getCurrentToolTitle();
+				        
 						//subject
 						final String subject = new StringResourceModel("email.friend.request.subject", null, new Object[]{ currentUserName, serviceName } ).getObject().toString();
 						
@@ -144,7 +147,7 @@ public class AddFriend extends Panel {
 						message.append(newline);
 						message.append(new StringResourceModel("email.footer.2", null, new Object[]{ serviceName, portalUrl } ).getObject().toString());
 						message.append(newline);
-						message.append(new StringResourceModel("email.footer.3", this, null).getString());
+						message.append(new StringResourceModel("email.footer.3", null, new Object[]{ toolName }).getObject().toString());
 	
 						//send email (this method will format it properly, then send it)
 						sakaiProxy.sendEmail(userY, subject, message.toString());

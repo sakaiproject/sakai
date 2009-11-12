@@ -79,6 +79,12 @@ public interface SakaiProxy {
 	public boolean checkForUserByEid(String eid);
 	
 	/**
+	 * Get the title of the current tool
+	 * @return
+	 */
+	public String getCurrentToolTitle();
+	
+	/**
 	 * Get a SakaiPerson for a user
 	 * @param userId
 	 * @return
@@ -367,4 +373,6 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public HashMap<String, Object> getOverriddenPrivacySettings();
+	
+	
 }

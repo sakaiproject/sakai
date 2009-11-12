@@ -178,6 +178,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
  	* {@inheritDoc}
  	*/
+	public String getCurrentToolTitle() {
+		return toolManager.getCurrentTool().getTitle();
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public SakaiPerson getSakaiPerson(String userId) {
 		
 		SakaiPerson sakaiPerson = null;
