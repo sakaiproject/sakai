@@ -114,7 +114,7 @@ public class ChangeProfilePictureUrl extends Panel{
         	} 
     		
         };
-        submitButton.setModel(new ResourceModel("button.upload"));
+        submitButton.setModel(new ResourceModel("button.url.add"));
 		form.add(submitButton);
 		
 		
