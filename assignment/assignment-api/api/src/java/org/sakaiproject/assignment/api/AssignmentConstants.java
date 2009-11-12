@@ -44,4 +44,53 @@ public class AssignmentConstants {
 	
 	public final static int NOTE_READ_AND_WRITE_BY_OTHER = 3;
 
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * EVENT STRINGS
+	 *********************************************************************************************************************************************************************************************************************************************************/
+
+	/** Event for adding an assignment. */
+	public static final String EVENT_ADD_ASSIGNMENT = "asn.new.assignment";
+
+	/** Event for adding an assignment. */
+	public static final String EVENT_ADD_ASSIGNMENT_CONTENT = "asn.new.assignmentcontent";
+
+	/** Event for adding an assignment submission. */
+	public static final String EVENT_ADD_ASSIGNMENT_SUBMISSION = "asn.new.submission";
+
+	/** Event for removing an assignment. */
+	public static final String EVENT_REMOVE_ASSIGNMENT = "asn.delete.assignment";
+
+	/** Event for removing an assignment content. */
+	public static final String EVENT_REMOVE_ASSIGNMENT_CONTENT = "asn.delete.assignmentcontent";
+
+	/** Event for removing an assignment submission. */
+	public static final String EVENT_REMOVE_ASSIGNMENT_SUBMISSION = "asn.delete.submission";
+
+	/** Event for accessing an assignment. */
+	public static final String EVENT_ACCESS_ASSIGNMENT = "asn.read.assignment";
+
+	/** Event for accessing an assignment content. */
+	public static final String EVENT_ACCESS_ASSIGNMENT_CONTENT = "asn.read.assignmentcontent";
+
+	/** Event for accessing an assignment submission. */
+	public static final String EVENT_ACCESS_ASSIGNMENT_SUBMISSION = "asn.read.submission";
+
+	/** Event for updating an assignment. */
+	public static final String EVENT_UPDATE_ASSIGNMENT = "asn.revise.assignment";
+
+	/** Event for updating an assignment content. */
+	public static final String EVENT_UPDATE_ASSIGNMENT_CONTENT = "asn.revise.assignmentcontent";
+
+	/** Event for updating an assignment submission. */
+	public static final String EVENT_UPDATE_ASSIGNMENT_SUBMISSION = "asn.revise.submission";
+
+	/** Event for saving an assignment submission. */
+	public static final String EVENT_SAVE_ASSIGNMENT_SUBMISSION = "asn.save.submission";
+
+	/** Event for submitting an assignment submission. */
+	public static final String EVENT_SUBMIT_ASSIGNMENT_SUBMISSION = "asn.submit.submission";
+	
+	/** Event for grading an assignment submission. */
+	public static final String EVENT_GRADE_ASSIGNMENT_SUBMISSION = "asn.grade.submission";
+
 }

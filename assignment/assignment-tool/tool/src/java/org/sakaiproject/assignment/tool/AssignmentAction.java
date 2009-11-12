@@ -61,6 +61,7 @@ import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.assignment.api.Assignment;
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentContentEdit;
 import org.sakaiproject.assignment.api.AssignmentEdit;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
@@ -113,7 +114,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.SessionState;
-import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -699,6 +700,8 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String VIEW_SUBMISSION_LIST_OPTION = "view_submission_list_option";
 	
 	private ContentHostingService m_contentHostingService = null;
+	
+	private EventTrackingService m_eventTrackingService = null;
 	
 	/********************** Supplement item ************************/
 	private AssignmentSupplementItemService m_assignmentSupplementItemService = null;
@@ -3232,6 +3235,17 @@ public class AssignmentAction extends PagedResourceActionII
 			assignment_resubmission_option_into_state(a, submission, state);
 			
 			state.setAttribute(STATE_MODE, MODE_STUDENT_VIEW_SUBMISSION);
+			
+			if (submission != null)
+			{
+				// submission read event
+				m_eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT_SUBMISSION, submission.getId(), false);
+			}
+			else
+			{
+				// otherwise, the student just read assignment description and prepare for submission
+				m_eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT, a.getId(), false);
+			}
 		}
 		catch (IdUnusedException e)
 		{
@@ -6155,6 +6169,9 @@ public class AssignmentAction extends PagedResourceActionII
 			
 			// get resubmission option into state
 			assignment_resubmission_option_into_state(a, null, state);
+			
+			// assignment read event
+			m_eventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT, assignmentId, false);
 		}
 		catch (IdUnusedException e)
 		{
@@ -7793,6 +7810,11 @@ public class AssignmentAction extends PagedResourceActionII
 		if (m_assignmentSupplementItemService == null)
 		{
 			m_assignmentSupplementItemService = (AssignmentSupplementItemService) ComponentManager.get("org.sakaiproject.assignment.api.model.AssignmentSupplementItemService");
+		}
+		
+		if (m_eventTrackingService == null)
+		{
+			m_eventTrackingService = (EventTrackingService) ComponentManager.get("org.sakaiproject.event.api.EventTrackingService");
 		}
 
 		String siteId = ToolManager.getCurrentPlacement().getContext();
