@@ -284,13 +284,8 @@
                     <breakiterator>true</breakiterator>
                     <verbose>false</verbose>
                     <aggregate>true</aggregate>
-                    <!--
-                        allows javadocs builds to succeed (put params on single line)
                         <maxmemory>512m</maxmemory>
-                        <additionalJOption>-J-Xms168m -J-Xmx512m
-                        -J-XX:PermSize=128m
-                        -J-XX:NewSize=64m</additionalJOption>
-                    -->
+                        <additionalJOption>-J-Xms168m -J-Xmx512m -J-XX:PermSize=128m -J-XX:NewSize=64m</additionalJOption>
                 </configuration>
             </plugin>
             <!--
