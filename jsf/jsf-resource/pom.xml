@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject.jsf</groupId>
+        <artifactId>jsf</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+    </parent>
+
+    <name>Sakai JSF widgets resources (sakai-jsf-resource)</name>
+    <groupId>org.sakaiproject.jsf</groupId>
+    <artifactId>jsf-resource</artifactId>
+    <organization>
+        <name>University of Michigan</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2003</inceptionYear>
+    <packaging>war</packaging>
+
+    <description>
+        This is the Maven project for the web resources used by the custom JSF
+        widgets.  These resources will be deployed as a war file.
+        This includes things like external JavaScript, HTML, CSS, etc.
+        The widgets and the resource projects are closely tied together.
+        Web applications that use the Sakai JSF components will also need this
+        webapp deployed.	
+	</description>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/webapp</directory>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+</project>

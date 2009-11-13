@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject.jsf</groupId>
+        <artifactId>jsf</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+    </parent>
+
+    <name>Sakai JSF widget dependencies for Sun's RI
+        (sakai-depend-jsf-widgets-sun)</name>
+    <groupId>org.sakaiproject.jsf</groupId>
+    <artifactId>jsf-widgets-sun-depend</artifactId>
+    <organization>
+        <name>University of Michigan</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2003</inceptionYear>
+    <packaging>pom</packaging>
+
+    <description>
+        This pom defines dependencies for a Sun based JSF
+        Widget Set.
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jsf-widgets-sun</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jsf-widgets</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>myfaces-widgets</artifactId>
+                </exclusion>
+                <!-- why does a dependency include an exclusion on itself? Comment it out.  -->
+                <!--
+                <exclusion>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>jsf-widgets</artifactId>
+                </exclusion>
+                -->
+                <exclusion>
+                    <groupId>org.apache.myfaces.core</groupId>
+                    <artifactId>myfaces-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.myfaces.tomahawk</groupId>
+                    <artifactId>tomahawk</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.myfaces.core</groupId>
+                    <artifactId>myfaces-impl</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+</project>
