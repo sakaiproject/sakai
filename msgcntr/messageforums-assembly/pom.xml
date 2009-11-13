@@ -20,33 +20,38 @@
     </parent>
 
     <dependencies>
-       <dependency>
-				<groupId>org.sakaiproject.msgcntr</groupId>
-				<artifactId>sakai-messageforums-api</artifactId>
-				<version>${project.version}</version>
-				<scope>compile</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.sakaiproject.msgcntr</groupId>
-				<artifactId>sakai-messageforums-components</artifactId>
-				<version>${project.version}</version>
-				<scope>compile</scope>
-				<type>war</type>
-			</dependency>
-			<dependency>
-				<groupId>org.sakaiproject.msgcntr</groupId>
-				<artifactId>sakai-messageforums-tool</artifactId>
-				<version>${project.version}</version>
-				<scope>compile</scope>
-				<type>war</type>
-			</dependency>
-			<dependency>
-				<groupId>org.sakaiproject.msgcntr</groupId>
-  				<artifactId>sakai-messageforums-help</artifactId>
-				<scope>compile</scope>
-				<version>${project.version}</version>
-			</dependency>
-			
+        <dependency>
+            <groupId>org.sakaiproject.msgcntr</groupId>
+            <artifactId>sakai-messageforums-api</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.msgcntr</groupId>
+            <artifactId>sakai-messageforums-components</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.msgcntr</groupId>
+            <artifactId>sakai-messageforums-hbm</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.msgcntr</groupId>
+            <artifactId>sakai-messageforums-tool</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.msgcntr</groupId>
+            <artifactId>sakai-messageforums-help</artifactId>
+            <scope>compile</scope>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
