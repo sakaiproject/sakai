@@ -45,7 +45,8 @@ public class Assignment extends GradableObject {
     public static String SORT_BY_RELEASED ="released";
     public static String SORT_BY_COUNTED = "counted";
     public static String SORT_BY_EDITOR = "gradeEditor";
-    public static String DEFAULT_SORT = SORT_BY_DATE;
+    public static String SORT_BY_SORTING = "sorting";
+    public static String DEFAULT_SORT = SORT_BY_SORTING;
 
     public static Comparator dateComparator;
     public static Comparator nameComparator;
@@ -80,9 +81,8 @@ public class Assignment extends GradableObject {
 
                 // Sort by name if no date on either
                 if(one.getDueDate() == null && two.getDueDate() == null) {
-                    return one.getName().compareTo(two.getName());
+                    return one.getName().toLowerCase().compareTo(two.getName().toLowerCase());
                 }
-
                 // Null dates are last
                 if(one.getDueDate() == null) {
                     return 1;
@@ -90,20 +90,29 @@ public class Assignment extends GradableObject {
                 if(two.getDueDate() == null) {
                     return -1;
                 }
-
                 // Sort by name if both assignments have the same date
                 int comp = (one.getDueDate().compareTo(two.getDueDate()));
                 if(comp == 0) {
-                    return one.getName().compareTo(two.getName());
+                    return one.getName().toLowerCase().compareTo(two.getName().toLowerCase());
                 } else {
                     return comp;
                 }
             }
+            @Override
+            public String toString() {
+                return "Assignment.dateComparator";
+            }
         };
         nameComparator = new Comparator() {
 			public int compare(Object o1, Object o2) {
-                return ((Assignment)o1).getName().toLowerCase().compareTo(((Assignment)o2).getName().toLowerCase());
+                Assignment one = (Assignment)o1;
+                Assignment two = (Assignment)o2;
+                return one.getName().toLowerCase().compareTo(two.getName().toLowerCase());
 			}
+            @Override
+            public String toString() {
+                return "Assignment.nameComparator";
+            }
         };
         pointsComparator = new Comparator() {
             public int compare(Object o1, Object o2) {
@@ -113,10 +122,14 @@ public class Assignment extends GradableObject {
 
                 int comp = one.getPointsPossible().compareTo(two.getPointsPossible());
                 if(comp == 0) {
-                    return one.getName().compareTo(two.getName());
+                    return one.getName().toLowerCase().compareTo(two.getName().toLowerCase());
                 } else {
                     return comp;
                 }
+            }
+            @Override
+            public String toString() {
+                return "Assignment.pointsComparator";
             }
         };
         meanComparator = new Comparator() {
@@ -128,7 +141,7 @@ public class Assignment extends GradableObject {
                 Double mean1 = one.getMean();
                 Double mean2 = two.getMean();
                 if(mean1 == null && mean2 == null) {
-                    return 0;
+                    return one.getName().toLowerCase().compareTo(two.getName().toLowerCase());
                 }
                 if(mean1 != null && mean2 == null) {
                     return 1;
@@ -138,10 +151,14 @@ public class Assignment extends GradableObject {
                 }
                 int comp = mean1.compareTo(mean2);
                 if(comp == 0) {
-                    return one.getName().compareTo(two.getName());
+                    return one.getName().toLowerCase().compareTo(two.getName().toLowerCase());
                 } else {
                     return comp;
                 }
+            }
+            @Override
+            public String toString() {
+                return "Assignment.meanComparator";
             }
         };
 
@@ -158,6 +175,10 @@ public class Assignment extends GradableObject {
                     return comp;
                 }
             }
+            @Override
+            public String toString() {
+                return "Assignment.releasedComparator";
+            }
         };
         
         countedComparator = new Comparator() {
@@ -173,6 +194,10 @@ public class Assignment extends GradableObject {
                     return comp;
                 }
             }
+            @Override
+            public String toString() {
+                return "Assignment.countedComparator";
+            }
         };
         
         gradeEditorComparator = new Comparator() {
@@ -187,6 +212,10 @@ public class Assignment extends GradableObject {
                 } else {
                     return comp;
                 }
+            }
+            @Override
+            public String toString() {
+                return "Assignment.gradeEditorComparator";
             }
         };
     }
