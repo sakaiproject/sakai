@@ -27,6 +27,7 @@
 				<clean.targets>
                     components/coursemanagement-hibernate-pack;
                     components/gradebook-service-pack;
+                    components/sakai-msgcntr-component;
 					components/sakai-common-components;
 					components/sakai-privacy-pack;
                     components/samigo-pack;
@@ -51,6 +52,12 @@
                 <dependency>
                     <groupId>org.sakaiproject.jsf</groupId>
                     <artifactId>jsf-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.msgcntr</groupId>
+                    <artifactId>sakai-messageforums-assembly</artifactId>
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
@@ -116,7 +123,6 @@
 				<dependency>
 					<groupId>org.sakaiproject.msgcntr</groupId>
 					<artifactId>sakai-messageforums-assembly</artifactId>
-					<version>1.5-SNAPSHOT</version>
 					<classifier>tomcat-overlay</classifier>
 					<type>zip</type>
 				</dependency>
