@@ -2,18 +2,15 @@
 <emailTemplates>
 	<emailTemplate>
 		<subject>${localSakaiName} Site Notification</subject>
-		<message>${currentUserDisplayName}:
+		<message>
+${currentUserDisplayName}:
 
-&lt;#if newNonOfficialAccount == "true" &gt;
-	Once you have your guest account, you can log in to ${localSakaiName}:
-&lt;#else&gt;
-	To login:
-&lt;/#if&gt;
-1. Open   ${localSakaiName} : ${localSakaiURL}
+&lt;#if newNonOfficialAccount == "true" &gt;Once you have your guest account, you can log in to ${localSakaiName}:&lt;#else&gt;To login:&lt;/#if&gt;
+
+1. Open ${localSakaiName}: ${localSakaiURL}
 2. Click the Login button.
 3. Type your guest account login and password, and click Login.
 4. Go to the site, click on the site tab. (You will see two or more tabs in a row across the upper part of the screen.)
-
 
 </message>
  <locale></locale>
