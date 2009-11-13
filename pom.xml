@@ -99,7 +99,6 @@
                 <module>gradebook</module>
                 <module>help</module>
                 <module>jobscheduler</module>
-                <module>jsf</module>
                 <module>linktool</module>
                 <module>login</module>
                 <module>mailarchive</module>
@@ -165,7 +164,6 @@
                 <module>gradebook</module>
                 <module>help</module>
                 <module>jobscheduler</module>
-                <module>jsf</module>
                 <module>linktool</module>
                 <module>login</module>
                 <module>mailarchive</module>
@@ -223,7 +221,6 @@
                 <module>courier</module>
                 <module>help</module>
                 <module>jobscheduler</module>
-                <module>jsf</module>
                 <module>login</module>
                 <module>master</module>
                 <module>message</module>
@@ -246,7 +243,7 @@
             <modules>
                 <module>gradebook/app/ui</module>
                 <module>help/help-tool</module>
-                <module>jsf/widgets</module>
+                <!-- <module>jsf/jsf-widgets</module> -->
                 <module>mailtool/mailtool</module>
                 <module>metaobj/metaobj-util/tool-lib</module>
                 <module>msgcntr/messageforums-app</module>
@@ -259,7 +256,7 @@
                 <module>profile/profile-app</module>
                 <module>roster/roster-app</module>
                 <module>rwiki/rwiki-tool/tool</module>
-                <module>sam/samigo-app</module>
+                <!-- <module>sam/samigo-app</module> -->
                 <module>sections/sections-app</module>
                 <module>sections/sections-app-util</module>
                 <module>syllabus/syllabus-app</module>
