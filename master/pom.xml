@@ -96,6 +96,7 @@
         <sakai.ets.version>0.4-SNAPSHOT</sakai.ets.version>
         <sakai.entitybroker.version>1.3.7-SNAPSHOT</sakai.entitybroker.version>
         <sakai.jsf.version>2.7.0-SNAPSHOT</sakai.jsf.version>
+        <sakai.msgcntr.version>2.7.0-SNAPSHOT</sakai.msgcntr.version>
         <sakai.polls.version>1.3-SNAPSHOT</sakai.polls.version>
         <sakai.samigo.version>2.7.0-SNAPSHOT</sakai.samigo.version>
         <sakai.search.version>1.2-SNAPSHOT</sakai.search.version>
@@ -227,6 +228,13 @@
                 <groupId>org.sakaiproject.jsf</groupId>
                 <artifactId>jsf-assembly</artifactId>
                 <version>${sakai.jsf.version}</version>
+                <classifier>tomcat-overlay</classifier>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.msgcntr</groupId>
+                <artifactId>sakai-messageforums-assembly</artifactId>
+                <version>${sakai.msgcntr.version}</version>
                 <classifier>tomcat-overlay</classifier>
                 <type>zip</type>
             </dependency>
@@ -783,7 +791,7 @@
             <dependency>
                 <groupId>org.sakaiproject</groupId>
                 <artifactId>sakai-messageforums-api</artifactId>
-                <version>${sakai.version}</version>
+                <version>${sakai.msgcntr.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
