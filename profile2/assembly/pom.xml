@@ -49,6 +49,28 @@
    			<version>${project.version}</version>
    			<scope>compile</scope>
    		</dependency>
+   		
+   		<!-- legacy profile artifacts -->
+   		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-profile-api</artifactId>
+      		<version>${sakai.version}</version>
+      		<scope>compile</scope>
+      	</dependency>
+      	<dependency>
+        	<groupId>org.sakaiproject.profile2</groupId>
+        	<artifactId>profile2-legacy-profile-impl</artifactId>
+        	<version>${project.version}</version>
+      		<scope>compile</scope>
+      	</dependency>
+      	<dependency>
+        	<groupId>org.sakaiproject.profile2</groupId>
+  			<artifactId>profile2-legacy-profile-pack</artifactId>
+			<version>${project.version}</version>
+      		<scope>compile</scope>
+			<type>war</type>
+      	</dependency>
+   		
 	</dependencies>
 	<build>
 		<pluginManagement>

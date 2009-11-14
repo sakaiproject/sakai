@@ -12,6 +12,7 @@
 			<useTransitiveDependencies>false</useTransitiveDependencies>
 			<includes>
 				<include>org.sakaiproject.profile2:profile2-api:jar:*</include>
+				<include>org.sakaiproject:sakai-profile-api:jar:*</include>
 			</includes>
 		</dependencySet>
 		<!-- components -->
@@ -20,6 +21,14 @@
 			<useTransitiveDependencies>false</useTransitiveDependencies>
 			<includes>
 				<include>org.sakaiproject.profile2:profile2-pack:war:*</include>
+			</includes>
+			<unpack>true</unpack>
+		</dependencySet>
+		<dependencySet>
+			<outputDirectory>components/profile2-legacy-profile-pack</outputDirectory>
+			<useTransitiveDependencies>false</useTransitiveDependencies>
+			<includes>
+				<include>org.sakaiproject.profile2:profile2-legacy-profile-pack:war:*</include>
 			</includes>
 			<unpack>true</unpack>
 		</dependencySet>

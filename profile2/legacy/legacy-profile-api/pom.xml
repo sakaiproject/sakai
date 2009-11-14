@@ -8,7 +8,7 @@
 	This is the legacy Profile API and its artifact coordinates must stay as the original
 	in order to maintain backwards compatibility with other services that use it.
 	
-	Only this one needs to remain as is, the other legacy profile artifacts can be renamed.
+	Only this one needs to remain as is, the other legacy profile artifacts have been renamed.
 	-->
 	
 	<name>Profile2 Legacy Bundle API</name>
