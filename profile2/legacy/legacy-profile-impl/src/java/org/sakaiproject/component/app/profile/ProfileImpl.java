@@ -33,7 +33,7 @@ public class ProfileImpl implements Profile
 	private String lastName;
 	private String nickName;
 	private String homePhone;
-	private String homePage;
+	private String homepage;
 	private String otherInformation;
 	private String pictureUrl; //never set this, maybe set this from ResourceWrapper?
 	private String position;
@@ -88,11 +88,11 @@ public class ProfileImpl implements Profile
 	public void setHomePhone(String homePhone) {
 		this.homePhone = homePhone;
 	}
-	public String getHomePage() {
-		return homePage;
+	public String getHomepage() {
+		return homepage;
 	}
-	public void setHomePage(String homePage) {
-		this.homePage = homePage;
+	public void setHomepage(String homepage) {
+		this.homepage = homepage;
 	}
 	public String getOtherInformation() {
 		return otherInformation;

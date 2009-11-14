@@ -41,8 +41,8 @@ public interface Profile
 	public void setNickName(String nickName);
 	public String getHomePhone();
 	public void setHomePhone(String homePhone);
-	public String getHomePage();
-	public void setHomePage(String homePage);
+	public String getHomepage();
+	public void setHomepage(String homepage);
 	public String getOtherInformation();
 	public void setOtherInformation(String otherInformation);
 	public String getPictureUrl();

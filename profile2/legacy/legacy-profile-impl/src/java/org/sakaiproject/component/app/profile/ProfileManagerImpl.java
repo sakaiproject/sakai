@@ -195,7 +195,7 @@ public class ProfileManagerImpl implements ProfileManager {
 		p.setFirstName(sakaiProxy.getUserFirstName(userUuid));
 		p.setLastName(sakaiProxy.getUserLastName(userUuid));
 		p.setEmail(sakaiProxy.getUserEmail(userUuid));
-		p.setHomePage(sp.getLabeledURI());
+		p.setHomepage(sp.getLabeledURI());
 		p.setHomePhone(sp.getHomePhone());
 		p.setWorkPhone(sp.getTelephoneNumber());
 		p.setDepartment(sp.getOrganizationalUnit());
