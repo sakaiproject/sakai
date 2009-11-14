@@ -12,6 +12,7 @@
 			<useTransitiveDependencies>false</useTransitiveDependencies>
 			<includes>
 				<include>org.sakaiproject.profile2:profile2-api:jar:*</include>
+				<include>org.sakaiproject.profile2:profile2-help:jar:*</include>
 				<include>org.sakaiproject:sakai-profile-api:jar:*</include>
 			</includes>
 		</dependencySet>

@@ -50,6 +50,13 @@
    			<scope>compile</scope>
    		</dependency>
    		
+   		<dependency>
+   			<groupId>org.sakaiproject.profile2</groupId>
+			<artifactId>profile2-help</artifactId>
+   			<version>${project.version}</version>
+   			<scope>compile</scope>
+   		</dependency>
+   		
    		<!-- legacy profile artifacts -->
    		<dependency>
 			<groupId>org.sakaiproject</groupId>
