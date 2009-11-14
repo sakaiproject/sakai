@@ -1,123 +1,172 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>sakai-standard-tool</artifactId>
-    <groupId>org.sakaiproject/purepoms</groupId>
-    <version>2.7.0-build02</version>
-    <relativePath>../master/pom.xml</relativePath>
-  </parent>
-  <name>Sakai educational Services Project</name>
-  <groupId>org.sakaiproject.edu-services</groupId>
-  <artifactId>edu-services</artifactId>
-  <version>1.0.0-beta02-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  	<properties>
-		<!--<url.localsite>dav:http://source.sakaiproject.org/release/kernel/${project.version}</url.localsite>-->
-		<url.localsite>scp://source.sakaiproject.org/var/www/html/release/edu-services/${project.version}</url.localsite>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-		   <sakai.spring.groupId>org.springframework</sakai.spring.groupId>
-    <sakai.spring.artifactId>spring</sakai.spring.artifactId>
-    <sakai.spring.version>2.5.6.SEC01</sakai.spring.version>
-    <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
-    <sakai.spring.test.version>2.5.6.SEC01</sakai.spring.test.version>
-	</properties>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/edu-services/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/edu-services/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/edu-services/trunk</url>
-  </scm>
-  <modules>
-    <module>gradebook-service</module>
-    <module>cm-service</module>
-    <module>sections-service</module>
-    <module>edu-services-assembly</module>
-  </modules>
-  <dependencyManagement>
-    <dependencies>
-<!--internal dependencies -->
-      <dependency>
-        <groupId>org.sakaiproject.edu-services.gradebook</groupId>
-        <artifactId>gradebook-service-api</artifactId>
-        <version>1.0.0-beta02-SNAPSHOT</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.edu-services.gradebook</groupId>
-        <artifactId>gradebook-service-hibernate</artifactId>
-        <version>1.0.0-beta02-SNAPSHOT</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.edu-services.gradebook</groupId>
-        <artifactId>gradebook-service-impl</artifactId>
-        <version>1.0.0-beta02-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.edu-services.gradebook</groupId>
-        <artifactId>gradebook-service</artifactId>
-        <version>1.0.0-beta02-SNAPSHOT</version>
-        <type>pom</type>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.edu-services.sections</groupId>
-        <artifactId>sections-api</artifactId>
-        <version>1.0.0-beta02-SNAPSHOT</version>
-      </dependency>
-       <dependency>
-        <groupId>org.sakaiproject.edu-services.course-management</groupId>
-        <artifactId>coursemanagement-api</artifactId>
-        <version>1.0.0-beta02-SNAPSHOT</version>
-      </dependency>
+    <parent>
+        <groupId>org.sakaiproject.purepoms</groupId>
+        <artifactId>sakai-standard-tool</artifactId>
+        <version>2.7.0-build03</version>
+    </parent>
 
+    <name>Sakai educational Services Project</name>
+    <groupId>org.sakaiproject.edu-services</groupId>
+    <artifactId>edu-services</artifactId>
+    <version>1.0.0-beta02-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
-      <dependency>
-        <groupId>org.sakaiproject.common</groupId>
-        <artifactId>archive-api</artifactId>
-        <version>1.0.0-beta01</version>
-      </dependency>
+    <properties>
+        <!--
+            <url.localsite>dav:http://source.sakaiproject.org/release/kernel/${project.version}</url.localsite>
+        -->
+        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/edu-services/${project.version}</url.localsite>
 
+        <sakai.spring.groupId>org.springframework</sakai.spring.groupId>
+        <sakai.spring.artifactId>spring</sakai.spring.artifactId>
+        <sakai.spring.version>2.5.6.SEC01</sakai.spring.version>
+        <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
+        <sakai.spring.test.version>2.5.6.SEC01</sakai.spring.test.version>
+    </properties>
 
-<!-- Used only for test data. -->
-      <dependency>
-        <groupId>org.sakaiproject.edu-services.sections</groupId>
-        <artifactId>sections-integrationsupport</artifactId>
-        <version>1.0.0-beta02-SNAPSHOT</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-    	<distributionManagement>
-	  <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
-		<snapshotRepository>
-			<uniqueVersion>false</uniqueVersion>
-			<id>sakai-maven-snapshots-scp</id>
-			<name>Sakai snapshot Repo</name>
-			<url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
-			<layout>default</layout>
-		</snapshotRepository>
-		<repository>
-			<uniqueVersion>false</uniqueVersion>
-			<id>sakai-maven2-scp</id>
-			<name>Sakai maven2 repository</name>
-			<url>scp://source.sakaiproject.org/var/www/html/maven2</url>
-			<layout>default</layout>
-		</repository>
-		<site>
-			<id>sakai-site</id>
-			<name>Sakai release Site</name>
-			<url>${url.localsite}</url>
-		</site>
-	</distributionManagement>
-<repositories>
-      <repository>
-      <id>apache-repo</id>
-      <name>apache-repo</name>
-      <layout>default</layout>
-      <url>http://myfaces.zones.apache.org/dist/maven-repository</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
-  
+    <scm>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/edu-services/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/edu-services/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/edu-services/trunk</url>
+    </scm>
+
+    <modules>
+        <module>gradebook-service</module>
+        <module>cm-service</module>
+        <module>sections-service</module>
+        <module>edu-services-assembly</module>
+    </modules>
+
+    <distributionManagement>
+        <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
+        <snapshotRepository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>sakai-maven-snapshots-scp</id>
+            <name>Sakai snapshot Repo</name>
+            <url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
+            <layout>default</layout>
+        </snapshotRepository>
+        <repository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>sakai-maven2-scp</id>
+            <name>Sakai maven2 repository</name>
+            <url>scp://source.sakaiproject.org/var/www/html/maven2</url>
+            <layout>default</layout>
+        </repository>
+        <site>
+            <id>sakai-site</id>
+            <name>Sakai release Site</name>
+            <url>${url.localsite}</url>
+        </site>
+    </distributionManagement>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>maven2-central-repo</id>
+            <name>Maven2 Central Repo</name>
+            <url>http://repo1.maven.org/maven2/</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>Sakai Plugin Repo</id>
+            <url>http://source.sakaiproject.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <repositories>
+        <repository>
+            <id>sakai-maven2</id>
+            <name>Sakai Maven Repository</name>
+            <layout>default</layout>
+            <url>http://source.sakaiproject.org/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>sakai-maven2-snapshots</id>
+            <name>Sakai Maven Repo Snapshots</name>
+            <layout>default</layout>
+            <url>http://source.sakaiproject.org/maven2-snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>default</id>
+            <name>Maven Repository Switchboard</name>
+            <layout>default</layout>
+            <url>http://repo1.maven.org/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>apache-repo</id>
+            <name>apache-repo</name>
+            <layout>default</layout>
+            <url>http://myfaces.zones.apache.org/dist/maven-repository</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <!--internal dependencies -->
+            <dependency>
+                <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+                <artifactId>gradebook-service-api</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+                <artifactId>gradebook-service-hibernate</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+                <artifactId>gradebook-service-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+                <artifactId>gradebook-service</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.edu-services.sections</groupId>
+                <artifactId>sections-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.edu-services.course-management</groupId>
+                <artifactId>coursemanagement-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.sakaiproject.common</groupId>
+                <artifactId>archive-api</artifactId>
+                <version>1.0.0-beta01</version>
+            </dependency>
+
+            <!-- Used only for test data. -->
+            <dependency>
+                <groupId>org.sakaiproject.edu-services.sections</groupId>
+                <artifactId>sections-integrationsupport</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>
