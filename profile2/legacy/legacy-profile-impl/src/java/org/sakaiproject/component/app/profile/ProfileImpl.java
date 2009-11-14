@@ -22,422 +22,137 @@
 package org.sakaiproject.component.app.profile;
 
 import org.sakaiproject.api.app.profile.Profile;
-import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
-/**
- * @author rshastri
- */
+
 public class ProfileImpl implements Profile
 {
-	private SakaiPerson sakaiPerson;
-
-	public ProfileImpl()
-	{
-	}
-
-	/**
-	 * @param eduPerson
-	 */
-	public ProfileImpl(SakaiPerson sakaiPerson)
-	{
-		this.sakaiPerson = sakaiPerson;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#getDepartment()
-	 */
-	public String getDepartment()
-	{
-		return sakaiPerson.getOrganizationalUnit();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#setDepartment(java.lang.String)
-	 */
-	public void setDepartment(String department)
-	{
-		sakaiPerson.setOrganizationalUnit(department);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#getEmail()
-	 */
-	public String getEmail()
-	{
-		return sakaiPerson.getMail();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#setEmail(java.lang.String)
-	 */
-	public void setEmail(String email)
-	{
-		sakaiPerson.setMail(email);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#getFirstName()
-	 */
-	public String getFirstName()
-	{
-		return sakaiPerson.getGivenName();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#setFirstName(java.lang.String)
-	 */
-	public void setFirstName(String firstName)
-	{
-		sakaiPerson.setGivenName(firstName);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#getNickName()
-	 */
-	public String getNickName()
-	{
-		return sakaiPerson.getNickname();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#setNickName(java.lang.String)
-	 */
-	public void setNickName(String nickName)
-	{
-		sakaiPerson.setNickname(nickName);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#getHomePhone()
-	 */
-	public String getHomePhone()
-	{
-		return sakaiPerson.getHomePhone();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#setHomePhone(java.lang.String)
-	 */
-	public void setHomePhone(String homePhone)
-	{
-		sakaiPerson.setHomePhone(homePhone);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#getHomepage()
-	 */
-	public String getHomepage()
-	{
-		// to account for the time when we weren't checking for valid urls
-		String homepage =  sakaiPerson.getLabeledURI();
-		if (homepage == null || homepage.equals (""))
-		{
-			// ignore the empty url field
-		}
-		else if (homepage.indexOf ("://") == -1)
-		{
-			// if it's missing the transport, add http://
-			homepage = "http://" + homepage;
-		}
-		
-		return homepage;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#setHomepage(java.lang.String)
-	 */
-	public void setHomepage(String homepage)
-	{
-		sakaiPerson.setLabeledURI(homepage);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#getLastName()
-	 */
-	public String getLastName()
-	{
-		return sakaiPerson.getSurname();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#setLastName(java.lang.String)
-	 */
-	public void setLastName(String lastName)
-	{
-		sakaiPerson.setSurname(lastName);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#getOtherInformation()
-	 */
-	public String getOtherInformation()
-	{
-		return sakaiPerson.getNotes();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#setOtherInformation(java.lang.String)
-	 */
-	public void setOtherInformation(String otherInformation)
-	{
-		sakaiPerson.setNotes(otherInformation);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#getPictureURL()
-	 */
-	public String getPictureUrl()
-	{
-		return sakaiPerson.getPictureUrl();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#setPictureURL(java.lang.String)
-	 */
-	public void setPictureUrl(String pictureUrl)
-	{
-		sakaiPerson.setPictureUrl(pictureUrl);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#getPosition()
-	 */
-	public String getPosition()
-	{
-		return sakaiPerson.getTitle();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#setPosition(java.lang.String)
-	 */
-	public void setPosition(String position)
-	{
-		sakaiPerson.setTitle(position);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#getRoom()
-	 */
-	public String getRoom()
-	{
-		return sakaiPerson.getRoomNumber();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#setRoom(java.lang.String)
-	 */
-	public void setRoom(String room)
-	{
-		sakaiPerson.setRoomNumber(room);
-	}
-
-	public String getSchool()
-	{
-		return sakaiPerson.getCampus();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#setSchool(java.lang.String)
-	 */
-	public void setSchool(String school)
-	{
-		sakaiPerson.setCampus(school);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#getWorkPhone()
-	 */
-	public String getWorkPhone()
-	{
-		return sakaiPerson.getTelephoneNumber();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#setWorkPhone(java.lang.String)
-	 */
-	public void setWorkPhone(String workPhone)
-	{
-		sakaiPerson.setTelephoneNumber(workPhone);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#getNetworkID()
-	 */
-	public String getUserId()
-	{
-		return sakaiPerson.getUid();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#setNetworkID(java.lang.String)
-	 */
-	public void setUserID(String userID)
-	{
-		sakaiPerson.setUid(userID);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#isInstitutionalPictureIDSelected()
-	 */
-	public Boolean isInstitutionalPictureIdPreferred()
-	{
-		return sakaiPerson.isSystemPicturePreferred();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#setInstitutionalPictureIDSelected(boolean)
-	 */
-	public void setInstitutionalPictureIdPreferred(Boolean institutionalPictureIdPreferred)
-	{
-		sakaiPerson.setSystemPicturePreferred(institutionalPictureIdPreferred);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#getInstitutionalPicture()
-	 */
-
-	public byte[] getInstitutionalPicture()
-	{
-		return sakaiPerson.getJpegPhoto();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#isPrivateInfoViewable()
-	 */
-	public Boolean getHidePrivateInfo()
-	{
-		return sakaiPerson.getHidePrivateInfo();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#setPrivateInfoViewable(java.lang.Boolean)
-	 */
-	public void setHidePrivateInfo(Boolean hidePrivateInfo)
-	{
-		sakaiPerson.setHidePrivateInfo(hidePrivateInfo);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#isPublicInfoViewable()
-	 */
-	public Boolean getHidePublicInfo()
-	{
-		return sakaiPerson.getHidePublicInfo();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#setPublicInfoViewable(java.lang.Boolean)
-	 */
-	public void setHidePublicInfo(Boolean hidePublicInfo)
-	{
-		sakaiPerson.setHidePublicInfo(hidePublicInfo);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#getSakaiPerson()
-	 */
-	public SakaiPerson getSakaiPerson()
-	{
-		return sakaiPerson;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.api.app.profile.Profile#setSakaiPerson(org.sakaiproject.api.app.profile.SakaiPerson)
-	 */
-	public void setSakaiPerson(SakaiPerson sakaiPerson)
-	{
-		this.sakaiPerson = sakaiPerson;
-	}
-
+	private String userId;
+	private String department;
+	private String email;
+	private String firstName;
+	private String lastName;
+	private String nickName;
+	private String homePhone;
+	private String homePage;
+	private String otherInformation;
+	private String pictureUrl; //never set this, maybe set this from ResourceWrapper?
+	private String position;
+	private String room;
+	private String school;
+	private String workPhone;
+	private Boolean institutionalPictureIdPreferred;
+	private byte[] institutionalPicture; //never set this, dont even have a setter
+	private Boolean hidePrivateInfo; //set to default of false because Profile2 Privacy is used
+	private Boolean hidePublicInfo; //set to default of false because Profile2 Privacy is used
 	
-	  public String getMobile()
-	  {
-		  return sakaiPerson.getMobile();
-	  }
-	  
-	  public void setMobile(String mobile)
-	  {
-		  sakaiPerson.setMobile(mobile);
-		  
-	  }
 	
-	// public String toString()
-	// {
-	// return sakaiPerson.toString();
-	// }
-	  public Boolean getLocked() {
-		  return sakaiPerson.getLocked();
-	  }
+	public String getUserId() {
+		return userId;
+	}
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+	public String getDepartment() {
+		return department;
+	}
+	public void setDepartment(String department) {
+		this.department = department;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	public String getFirstName() {
+		return firstName;
+	}
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+	public String getLastName() {
+		return lastName;
+	}
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+	public String getNickName() {
+		return nickName;
+	}
+	public void setNickName(String nickName) {
+		this.nickName = nickName;
+	}
+	public String getHomePhone() {
+		return homePhone;
+	}
+	public void setHomePhone(String homePhone) {
+		this.homePhone = homePhone;
+	}
+	public String getHomePage() {
+		return homePage;
+	}
+	public void setHomePage(String homePage) {
+		this.homePage = homePage;
+	}
+	public String getOtherInformation() {
+		return otherInformation;
+	}
+	public void setOtherInformation(String otherInformation) {
+		this.otherInformation = otherInformation;
+	}
+	public String getPictureUrl() {
+		return pictureUrl;
+	}
+	public void setPictureUrl(String pictureUrl) {
+		this.pictureUrl = pictureUrl;
+	}
+	public String getPosition() {
+		return position;
+	}
+	public void setPosition(String position) {
+		this.position = position;
+	}
+	public String getRoom() {
+		return room;
+	}
+	public void setRoom(String room) {
+		this.room = room;
+	}
+	public String getSchool() {
+		return school;
+	}
+	public void setSchool(String school) {
+		this.school = school;
+	}
+	public String getWorkPhone() {
+		return workPhone;
+	}
+	public void setWorkPhone(String workPhone) {
+		this.workPhone = workPhone;
+	}
+	public Boolean isInstitutionalPictureIdPreferred() {
+		return institutionalPictureIdPreferred;
+	}
+	public void setInstitutionalPictureIdPreferred(
+			Boolean institutionalPictureIdPreferred) {
+		this.institutionalPictureIdPreferred = institutionalPictureIdPreferred;
+	}
+	public byte[] getInstitutionalPicture() {
+		return institutionalPicture;
+	}
+	public void setInstitutionalPicture(byte[] institutionalPicture) {
+		this.institutionalPicture = institutionalPicture;
+	}
+	public Boolean getHidePrivateInfo() {
+		return hidePrivateInfo;
+	}
+	public void setHidePrivateInfo(Boolean hidePrivateInfo) {
+		this.hidePrivateInfo = hidePrivateInfo;
+	}
+	public Boolean getHidePublicInfo() {
+		return hidePublicInfo;
+	}
+	public void setHidePublicInfo(Boolean hidePublicInfo) {
+		this.hidePublicInfo = hidePublicInfo;
+	}
 }

@@ -79,6 +79,12 @@ public interface SakaiProxy {
 	public boolean checkForUserByEid(String eid);
 	
 	/**
+	 * Is the current user a superUser?
+	 * @return
+	 */
+	public boolean isSuperUser();
+	
+	/**
 	 * Get the title of the current tool
 	 * @return
 	 */

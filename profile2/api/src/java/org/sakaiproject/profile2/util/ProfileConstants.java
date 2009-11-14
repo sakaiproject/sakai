@@ -41,7 +41,7 @@ public class ProfileConstants {
 	
 	//default images for certain things
 	public static final String UNAVAILABLE_IMAGE = "images/no_image.gif";
-	public static final String UNAVAILABLE_IMAGE_FULL = "/sakai-profile2-tool/images/no_image.gif";
+	public static final String UNAVAILABLE_IMAGE_FULL = "/profile2-tool/images/no_image.gif";
 	public static final String CLOSE_IMAGE = "/library/image/silk/cross.png";
 	public static final String INFO_IMAGE = "/library/image/silk/information.png";
 

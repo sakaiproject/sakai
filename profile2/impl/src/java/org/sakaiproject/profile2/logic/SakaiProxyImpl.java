@@ -178,6 +178,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
  	* {@inheritDoc}
  	*/
+	public boolean isSuperUser() {
+		return securityService.isSuperUser();
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public String getCurrentToolTitle() {
 		return toolManager.getCurrentTool().getTitle();
 	}

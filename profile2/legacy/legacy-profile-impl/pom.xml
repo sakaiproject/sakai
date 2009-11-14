@@ -46,6 +46,20 @@
       		<artifactId>commons-logging</artifactId>
       		<version>1.0.4</version>
     	</dependency>
+    	<dependency>
+      		<groupId>commons-lang</groupId>
+      		<artifactId>commons-lang</artifactId>
+    	</dependency>
+    	
+    	<!--  PROFILE2 DEPENDENCIES -->
+    	<dependency>
+			<groupId>org.sakaiproject.profile2</groupId>
+			<artifactId>profile2-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.profile2</groupId>
+			<artifactId>profile2-util</artifactId>
+		</dependency>
     	
   	</dependencies>
   

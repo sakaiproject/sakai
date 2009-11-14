@@ -21,7 +21,6 @@
 
 package org.sakaiproject.api.app.profile;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,20 +34,6 @@ public interface ProfileManager
 	public void destroy();
 
 	/**
-	 * Save or Update an existing profile
-	 * 
-	 * @param profile
-	 */
-	public void save(Profile profile);
-
-	/**
-	 * Returns user mutable profile of currently logged in user
-	 * 
-	 * @return
-	 */
-	public Profile getProfile();
-
-	/**
 	 * Returns a map of user IDs to Profiles.
 	 * 
 	 * @param userIds A collection of user IDs
@@ -56,22 +41,6 @@ public interface ProfileManager
 	 */
 	public Map<String, Profile> getProfiles(Set<String> userIds);
 	
-	/**
-	 * Searches the list of user profiles matching given search criteria
-	 * 
-	 * @param searchString
-	 * @return
-	 */
-	public List findProfiles(String searchString);
-
-	/**
-	 * Searches the university photo for given username
-	 * 
-	 * @param uid
-	 * @return
-	 */
-	public byte[] getInstitutionalPhotoByUserId(String uid);
-
 	/**
 	 * Allow user with update access to site view id photo of member users
 	 * 
@@ -88,44 +57,6 @@ public interface ProfileManager
 	 */
 	public boolean displayCompleteProfile(Profile profile);
 
-	/**
-	 * @param profile
-	 * @return
-	 */
-	public boolean isCurrentUserProfile(Profile profile);
-
-	/**
-	 * @param profile
-	 * @return
-	 */
-	public boolean isDisplayPictureURL(Profile profile);
-
-	/**
-	 * @param profile
-	 * @return
-	 */
-	public boolean isDisplayUniversityPhoto(Profile profile);
-
-	/**
-	 * @param profile
-	 * @return
-	 */
-	public boolean isDisplayUniversityPhotoUnavailable(Profile profile);
-
-	/**
-	 * @param profile
-	 * @return
-	 */
-	public boolean isDisplayNoPhoto(Profile profile);
-
-	/**
-	 * @param profile
-	 * @return
-	 */
-	public boolean isShowTool();
-
-   public boolean isShowSearch();
-   
 	/**
 	 * @param id
 	 * @return

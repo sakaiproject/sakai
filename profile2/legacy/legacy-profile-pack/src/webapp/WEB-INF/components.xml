@@ -23,6 +23,16 @@
 		        	<ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
 		        </property>
 		        
+		        <!-- Profile2 additions -->
+		        <property name="profileImageService">
+		        	<ref bean="org.sakaiproject.profile2.service.ProfileImageService"/>
+		        </property>
+		        <property name="profilePrivacyService">
+		        	<ref bean="org.sakaiproject.profile2.service.ProfilePrivacyService"/>
+		        </property>
+		        <property name="sakaiProxy">
+		        	<ref bean="org.sakaiproject.profile2.logic.SakaiProxy"/>
+		        </property>
 	    	</bean>
 	    </property>
 	</bean>

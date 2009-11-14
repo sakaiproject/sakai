@@ -23,216 +23,44 @@ package org.sakaiproject.api.app.profile;
 
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
-/**
- * @author rshastri <a href="mailto:rshastri@iupui.edu ">Rashmi Shastri</a>
- */
+
 public interface Profile
 {
-	/**
-	 * @return
-	 */
-
-	// public Long getId();
-	/**
-	 * @return
-	 */
-	public String getUserId();
-
-	/**
-	 * @param userID
-	 */
-	public void setUserID(String userID);
-
-	/**
-	 * @return
-	 */
-
-	// public Integer getVersion();
-	/**
-	 * @return
-	 */
-	public String getDepartment();
-
-	/**
-	 * @param department
-	 */
-	public void setDepartment(String department);
-
-	/**
-	 * @return
-	 */
-	public String getEmail();
-
-	/**
-	 * @param email
-	 */
-	public void setEmail(String email);
-
-	/**
-	 * @return
-	 */
-	public String getFirstName();
-
-	/**
-	 * @param firstName
-	 */
-	public void setFirstName(String firstName);
-
-	/**
-	 * @return
-	 */
-	public String getNickName();
-
-	/**
-	 * @param firstName
-	 */
-	public void setNickName(String nickName);
-
-	/**
-	 * @return
-	 */
-	public String getHomePhone();
-
-	/**
-	 * @param homePhone
-	 */
-	public void setHomePhone(String homePhone);
-
-	/**
-	 * @return
-	 */
-	public String getHomepage();
-
-	/**
-	 * @param homepage
-	 */
-	public void setHomepage(String homepage);
-
-	/**
-	 * @return
-	 */
-	public String getLastName();
-
-	/**
-	 * @param lastName
-	 */
-	public void setLastName(String lastName);
-
-	/**
-	 * @return
-	 */
-	public String getOtherInformation();
-
-	/**
-	 * @param otherInformation
-	 */
-	public void setOtherInformation(String otherInformation);
-
-	/**
-	 * @return
-	 */
-	public String getPictureUrl();
-
-	/**
-	 * @param pictureUrl
-	 */
-	public void setPictureUrl(String pictureUrl);
-
-	/**
-	 * @return
-	 */
-	public String getPosition();
-
-	/**
-	 * @param position
-	 */
-	public void setPosition(String position);
-
-	/**
-	 * @return
-	 */
-	public String getRoom();
-
-	/**
-	 * @param room
-	 */
-	public void setRoom(String room);
-
-	/**
-	 * @return
-	 */
-	public String getSchool();
-
-	/**
-	 * @param school
-	 */
-	public void setSchool(String school);
-
-	/**
-	 * @return
-	 */
-	public String getWorkPhone();
-
-	/**
-	 * @param workPhone
-	 */
-	public void setWorkPhone(String workPhone);
-
-	/**
-	 * @return
-	 */
-	public Boolean isInstitutionalPictureIdPreferred();
-
-	/**
-	 * @param institutionalPictureIdPreferred
-	 */
-	public void setInstitutionalPictureIdPreferred(Boolean institutionalPictureIdPreferred);
-
-	/**
-	 * @return
-	 */
-	public byte[] getInstitutionalPicture();
-
-	/**
-	 * @param institutionalPicture
-	 */
-	// Can not allow users to set institutiona picture.
-	// public void setInstitutionalPicture(byte[] institutionalPicture);
-	/**
-	 * @return
-	 */
-	public SakaiPerson getSakaiPerson();
-
-	/**
-	 * @param sakaiPerson
-	 */
-	public void setSakaiPerson(SakaiPerson sakaiPerson);
-
-	/**
-	 * @return
-	 */
-	public Boolean getHidePrivateInfo();
-
-	/**
-	 * Person's preference to allow read access to private information
-	 * 
-	 * @param hidePrivateInfo
-	 */
-	public void setHidePrivateInfo(Boolean hidePrivateInfo);
-
-	/**
-	 * Person's preference to allow read access to public information
-	 * 
-	 * @return
-	 */
-	public Boolean getHidePublicInfo();
-
-	/**
-	 * Person's preference to allow read access to public information
-	 * 
-	 * @param hidePublicInfo
-	 */
-	public void setHidePublicInfo(Boolean hidePublicInfo);
 	
-	public Boolean getLocked();
+	public String getUserId();
+	public void setUserId(String userId);
+	public String getDepartment();
+	public void setDepartment(String department);
+	public String getEmail();
+	public void setEmail(String email);
+	public String getFirstName();
+	public void setFirstName(String firstName);
+	public String getLastName();
+	public void setLastName(String lastName);
+	public String getNickName();
+	public void setNickName(String nickName);
+	public String getHomePhone();
+	public void setHomePhone(String homePhone);
+	public String getHomePage();
+	public void setHomePage(String homePage);
+	public String getOtherInformation();
+	public void setOtherInformation(String otherInformation);
+	public String getPictureUrl();
+	public void setPictureUrl(String pictureUrl);
+	public String getPosition();
+	public void setPosition(String position);
+	public String getRoom();
+	public void setRoom(String room);
+	public String getSchool();
+	public void setSchool(String school);
+	public String getWorkPhone();
+	public void setWorkPhone(String workPhone);
+	public Boolean isInstitutionalPictureIdPreferred();
+	public void setInstitutionalPictureIdPreferred(Boolean institutionalPictureIdPreferred);
+	public byte[] getInstitutionalPicture();
+	public void setInstitutionalPicture(byte[] institutionalPicture);
+	public Boolean getHidePrivateInfo();
+	public void setHidePrivateInfo(Boolean hidePrivateInfo);
+	public Boolean getHidePublicInfo();
+	public void setHidePublicInfo(Boolean hidePublicInfo);
 }
