@@ -2036,7 +2036,6 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			if (m_lastName != null) user.setAttribute("last-name", m_lastName);
 			if (m_type != null) user.setAttribute("type", m_type);
 			user.setAttribute("email", getEmail());
-			user.setAttribute("pw", m_pw);
 			user.setAttribute("created-id", m_createdUserId);
 			user.setAttribute("modified-id", m_lastModifiedUserId);
 			user.setAttribute("created-time", m_createdTime.toString());
