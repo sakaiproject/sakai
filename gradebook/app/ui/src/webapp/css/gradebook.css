@@ -181,3 +181,23 @@ td.gbMessageAboveNumber {vertical-align:top; text-align:right; padding-right:2em
    padding: 5px;
    width: 100%;
 }
+
+.sortSpacer {
+    padding: 0px 10px;
+}
+
+.sortUp {
+    padding: 0px 10px;
+    background-image: url('../images/sortascending.gif');
+    background-repeat: no-repeat;
+    background-position: center center;
+    text-decoration: none;
+}
+
+.sortDown {
+    padding: 0px 10px;
+    background-image: url('../images/sortdescending.gif');
+    background-repeat: no-repeat;
+    background-position: center center;
+    text-decoration: none !important;
+}

@@ -1,3 +1,7 @@
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
+<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <f:view>
   <div class="portletBody">
 	<h:form id="gbForm">
@@ -26,7 +30,6 @@
   		</sakai:tool_bar>
   		
   						
-  	
   	<h:panelGrid cellpadding="0" cellspacing="0" columns="2"
 			columnClasses="itemName"
 			styleClass="itemSummary gbSection"
@@ -57,19 +60,27 @@
 		</h:panelGroup>
 
 		<h4><h:outputText value="#{msgs.overview_assignments_title}"/></h4>
-		<div class="instruction">
-			<h:outputText value="#{msgs.overview_instruction}" escape="false"/>
-		</div>
+        <div style="width: 100%;">
+        	<div class="instruction" style="float:left;">
+        		<h:outputText value="#{msgs.overview_instruction}" escape="false"/>
+        	</div>
+            <div class="instruction" style="float:right;">
+                <h:commandButton action="#{overviewBean.saveCurrentSort}" 
+                    disabled="#{!overviewBean.enabledSaveSort}"
+                    immediate="true" value="#{msgs.overview_save_current_sort}" />
+            </div>
+        </div>
+    
 		<gbx:gradebookItemTable cellpadding="0" cellspacing="0"
 			value="#{overviewBean.gradebookItemList}"
 			var="gradebookItem"
 			sortColumn="#{overviewBean.assignmentSortColumn}"
       sortAscending="#{overviewBean.assignmentSortAscending}"
-      columnClasses="attach,left,center,center,center,center,center,center,external"
+      columnClasses="attach,left,center,center,center,center,center,center,center,external,center"
 			styleClass="listHier lines nolines"
 			expanded="true"
 			rowClasses="#{overviewBean.rowStyles}"
-			headerClasses="attach,left,center,center,center,center,center,center,external">
+			headerClasses="attach,left,center,center,center,center,center,center,center,external,center">
 			
 			<h:column id="_toggle" rendered="#{overviewBean.categoriesEnabled}">
 				<f:facet name="header">
@@ -170,6 +181,34 @@
 				<h:outputText value="#{msgs.overview_included_in_cum_true}" rendered="#{gradebookItem.assignment && gradebookItem.counted == true }"/>
 				<h:outputText value="#{msgs.overview_included_in_cum_false}" rendered="#{gradebookItem.assignment && gradebookItem.counted == false}"/>
 			</h:column>
+
+            <h:column id="_sort">
+                <f:facet name="header">
+                    <t:commandSortHeader columnName="sorting" propertyName="sorting" immediate="true" arrow="true">
+                        <h:outputText value="#{msgs.overview_assignments_header_sorting}" />
+                    </t:commandSortHeader>
+                </f:facet>
+                <h:panelGroup rendered="#{gradebookItem.assignment}">
+                    <h:outputText value="#{gradebookItem.sortPosition != null ? (gradebookItem.sortPosition+1) : (gradebookItem.sortOrder+1)} " 
+                        title="#{gradebookItem.sortPosition}" styleClass="sortSpacer" />
+                    <h:inputHidden id="assignmentId" value="#{gradebookItem.id}" />
+                    <h:inputHidden id="sortOrder" value="#{gradebookItem.sortOrder}" />
+                    <%/* -AZ- hacks needed for safari: style="text-decoration: none !important;" 
+                         AND <h:outputText value="&nbsp;" escape="false" /> */%>
+                    <h:commandLink action="#{overviewBean.sortUp}" rendered="#{!gradebookItem.first}" 
+                            title="Sort Up" styleClass="sortUp" style="text-decoration: none !important;">
+                        <f:param name="assignmentId" value="#{gradebookItem.id}"/>
+                        <h:outputText value="&nbsp;" escape="false" />
+                    </h:commandLink>
+                    <h:outputText value="&nbsp;" escape="false" rendered="#{gradebookItem.first}" styleClass="sortSpacer" />
+                    <h:commandLink action="#{overviewBean.sortDown}" rendered="#{!gradebookItem.last}" 
+                            title="Sort Down" styleClass="sortDown" style="text-decoration: none !important;">
+                        <f:param name="assignmentId" value="#{gradebookItem.id}"/>
+                        <h:outputText value="&nbsp;" escape="false" />
+                    </h:commandLink>
+                    <h:outputText value="&nbsp;" escape="false" rendered="#{gradebookItem.last}" styleClass="sortSpacer" />
+                </h:panelGroup>
+            </h:column>
 			
 			<h:column rendered="#{overviewBean.displayGradeEditorCol}">
 				<f:facet name="header">
@@ -180,6 +219,7 @@
         </f:facet>
 				<h:outputText value="#{msgs.overview_from} #{gradebookItem.externalAppName}" rendered="#{gradebookItem.assignment && ! empty gradebookItem.externalAppName}"/>
 			</h:column>
+
 		</gbx:gradebookItemTable>
 
 	  </h:form>

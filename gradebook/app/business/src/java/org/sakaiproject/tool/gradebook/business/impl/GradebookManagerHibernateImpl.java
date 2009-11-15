@@ -1554,25 +1554,33 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
      * @param ascending
      */
     private void sortAssignments(List assignments, String sortBy, boolean ascending) {
+        // WARNING: AZ - this method is duplicated in GradebookManagerHibernateImpl
         Comparator comp;
-        if(Assignment.SORT_BY_NAME.equals(sortBy)) {
-            comp = Assignment.nameComparator;
+        if (Assignment.SORT_BY_NAME.equals(sortBy)) {
+            comp = GradableObject.nameComparator;
+        } else if(Assignment.SORT_BY_DATE.equals(sortBy)){
+            comp = GradableObject.dateComparator;
         } else if(Assignment.SORT_BY_MEAN.equals(sortBy)) {
-            comp = Assignment.meanComparator;
+            comp = GradableObject.meanComparator;
         } else if(Assignment.SORT_BY_POINTS.equals(sortBy)) {
             comp = Assignment.pointsComparator;
-        }else if(Assignment.SORT_BY_RELEASED.equals(sortBy)){
+        } else if(Assignment.SORT_BY_RELEASED.equals(sortBy)){
             comp = Assignment.releasedComparator;
         } else if(Assignment.SORT_BY_COUNTED.equals(sortBy)){
             comp = Assignment.countedComparator;
         } else if(Assignment.SORT_BY_EDITOR.equals(sortBy)){
             comp = Assignment.gradeEditorComparator;
+        } else if (Assignment.SORT_BY_SORTING.equals(sortBy)) {
+            comp = GradableObject.sortingComparator;
         } else {
-            comp = Assignment.dateComparator;
+            comp = GradableObject.defaultComparator;
         }
         Collections.sort(assignments, comp);
         if(!ascending) {
             Collections.reverse(assignments);
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("sortAssignments: ordering by "+sortBy+" ("+comp+"), ascending="+ascending);
         }
     }
 
@@ -2526,7 +2534,12 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		Assignment assignment = (Assignment)iter.next();
     		assignment.calculateStatistics(gradeRecords);
     	}
-
+    	// AZ - fixing bug, sorts based on stats need to be resorted
+        if (assignmentSort != null) {
+            sortAssignments(assignments, assignmentSort, assignAscending);
+        } else {
+            sortAssignments(assignments, Assignment.DEFAULT_SORT, assignAscending);
+        }
     	return assignments;
     }
 

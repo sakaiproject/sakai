@@ -104,6 +104,11 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 			inactive = (!gradableObject.isCourseGrade() && !((Assignment)gradableObject).isReleased() ? true : false);
 		}
 
+		@Override
+		public String toString() {
+		    return name+":("+id+"):"+assignmentId; // AZ - better debugging
+		}
+
 		public Long getId() {
 			return id;
 		}

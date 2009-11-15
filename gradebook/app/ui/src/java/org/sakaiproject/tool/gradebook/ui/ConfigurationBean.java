@@ -73,6 +73,22 @@ public class ConfigurationBean implements ApplicationContextAware{
 		return target;
 	}
 
+	public String getConfig(String name, String defaultValue) {
+	    String val = defaultValue;
+	    if (serverConfigurationService != null) {
+	        val = serverConfigurationService.getString(name, defaultValue);
+	    }
+	    return val;
+	}
+
+	public boolean getBooleanConfig(String name, boolean defaultValue) {
+        boolean val = defaultValue;
+        if (serverConfigurationService != null) {
+            val = serverConfigurationService.getBoolean(name, defaultValue);
+        }
+        return val;
+    }
+
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext = applicationContext;
 	}

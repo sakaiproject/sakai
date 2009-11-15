@@ -65,7 +65,7 @@ public class PreferencesBean {
 	 */
 	protected void loadPreferences() {
         assignmentSortAscending = true;
-        assignmentSortColumn = Assignment.SORT_BY_DATE;
+        assignmentSortColumn = Assignment.DEFAULT_SORT;
         
         categorySortAscending = true;
         categorySortColumn = Category.SORT_BY_NAME;

@@ -24,11 +24,17 @@ package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,7 +44,6 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.CourseGrade;
-import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
@@ -58,14 +63,15 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 
     static {
         columnSortMap = new HashMap();
-        columnSortMap.put(Assignment.SORT_BY_NAME, Assignment.nameComparator);
-        columnSortMap.put(Assignment.SORT_BY_DATE, Assignment.dateComparator);
+        columnSortMap.put(Assignment.SORT_BY_NAME, GradableObject.nameComparator);
+        columnSortMap.put(Assignment.SORT_BY_DATE, GradableObject.dateComparator);
         columnSortMap.put(Assignment.SORT_BY_RELEASED,Assignment.releasedComparator);
-        columnSortMap.put(Assignment.SORT_BY_MEAN, Assignment.meanComparator);
+        columnSortMap.put(Assignment.SORT_BY_MEAN, GradableObject.meanComparator);
         columnSortMap.put(Assignment.SORT_BY_POINTS, Assignment.pointsComparator);
         columnSortMap.put(Assignment.SORT_BY_COUNTED, Assignment.countedComparator);
         columnSortMap.put(Assignment.SORT_BY_EDITOR, Assignment.gradeEditorComparator);
-
+        columnSortMap.put(Assignment.SORT_BY_SORTING, GradableObject.sortingComparator);
+        columnSortMap.put("default", GradableObject.defaultComparator);
     }
 
 	public List getGradebookItemList() {
@@ -133,6 +139,7 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 								displayGradeEditorCol = true;
 							gradebookItemList.add(assign);
 						}
+						ensureAssignmentsSorted(assignmentList, GradableObject.sortingComparator, false);
 					}
 				}
 			}
@@ -159,8 +166,9 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 						gradebookItemList.add(assignWithNoCat);
 					}
 				}
+                ensureAssignmentsSorted(unassignedList, GradableObject.sortingComparator, false);
 			}
-	        
+
 		} else {
 			// Get the list of assignments for this gradebook, sorted as defined in the overview page.
 			List goList = getGradebookManager().getAssignmentsAndCourseGradeWithStats(getGradebookId(),
@@ -178,6 +186,7 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 						gradebookItemList.add(assign);
 					}
 				}
+                ensureAssignmentsSorted(goList, GradableObject.sortingComparator, false);
 			}
 		}
 		
@@ -330,4 +339,244 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 		}
 		return false;
 	}
+
+	@SuppressWarnings("unchecked")
+    public void sortUp() {
+	    Long assignmentId = getAssignmentIdFromParam();
+	    if (logger.isDebugEnabled()) {
+	        logger.debug("Sort: sorting up: " + assignmentId);
+	    }
+        List<Assignment> assignments = getGradebookManager().getAssignments(getGradebookId());
+        if (assignments.size() > 1) {
+            ensureAssignmentsSorted(assignments, GradableObject.sortingComparator, true);
+            // now adjust the numbering
+            for (int i = 0; i < assignments.size(); i++) {
+                Assignment a1 = assignments.get(i);
+                if (a1.getId().equals(assignmentId)) {
+                    if (i > 0) {
+                        Assignment a2 = assignments.get(i-1);
+                        // only swap items which are in the same category
+                        if ( (a1.getCategory() == null && a2.getCategory() == null)
+                                || (a1.getCategory().equals(a2.getCategory())) ) {
+                            // swap the ordering of this item and the item below it
+                            Integer holder = a1.getSortOrder();
+                            a1.setSortOrder(a2.getSortOrder());
+                            a2.setSortOrder(holder);
+                            logger.info("Sort: UP swapping: "+a1.getId()+" (to "+a1.getSortOrder()+" from "+holder+") with "+a2.getId());
+                            // save the new orders
+                            getGradebookManager().updateAssignment(a1);
+                            getGradebookManager().updateAssignment(a2);
+                        } else {
+                            logger.info("Sort: UP: unable to swap items ("+a1.getId()+","+a2.getId()+") in different categories");
+                        }
+
+                    }
+                    break;
+                }
+            }
+        }
+	}
+
+    @SuppressWarnings("unchecked")
+    public void sortDown() {
+        Long assignmentId = getAssignmentIdFromParam();
+        if (logger.isDebugEnabled()) {
+            logger.debug("Sort: sorting down: " + assignmentId);
+        }
+        List<Assignment> assignments = getGradebookManager().getAssignments(getGradebookId());
+        if (assignments.size() > 1) {
+            ensureAssignmentsSorted(assignments, GradableObject.sortingComparator, true);
+            // now adjust the numbering
+            for (int i = 0; i < assignments.size(); i++) {
+                Assignment a1 = assignments.get(i);
+                if (a1.getId().equals(assignmentId)) {
+                    if (i < (assignments.size() - 1)) {
+                        Assignment a2 = assignments.get(i+1);
+                        // only swap items which are in the same category
+                        if ( (a1.getCategory() == null && a2.getCategory() == null)
+                                || (a1.getCategory().equals(a2.getCategory())) ) {
+                            // swap the ordering of this item and the item below it
+                            Integer holder = a1.getSortOrder();
+                            a1.setSortOrder(a2.getSortOrder());
+                            a2.setSortOrder(holder);
+                            logger.info("Sort: DOWN swapping: "+a1.getId()+" (to "+a1.getSortOrder()+" from "+holder+") with "+a2.getId());
+                            // save the new orders
+                            getGradebookManager().updateAssignment(a1);
+                            getGradebookManager().updateAssignment(a2);
+                        } else {
+                            logger.info("Sort: DOWN: unable to swap items ("+a1.getId()+","+a2.getId()+") in different categories");
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public void saveCurrentSort() {
+        String sortColumn = getAssignmentSortColumn();
+        if (sortColumn == null) {
+            sortColumn = Assignment.DEFAULT_SORT;
+        }
+        boolean ascending = isAssignmentSortAscending();
+        if (logger.isDebugEnabled()) {
+            logger.debug("saveCurrentSort: saving current sort order ("+sortColumn+", "+ascending+") for gradebook: " + getGradebookId());
+        }
+        List<Assignment> assignments = getGradebookManager().getAssignmentsAndCourseGradeWithStats(getGradebookId(), sortColumn, ascending); //getAssignmentsWithNoCategoryWithStats(getGradebookId(), sortColumn, ascending);
+        if (logger.isDebugEnabled()) {
+            logger.debug("saveCurrentSort: current order ("+assignments.size()+"): " + Arrays.toString(assignments.toArray()));
+        }
+        // now ensure the numbering is set and correct
+        ensureAssignmentsSorted(assignments, new NoChangeMarkerComparator(), true);
+        if (logger.isDebugEnabled()) {
+            logger.debug("saveCurrentSort: final order ("+assignments.size()+"): " + Arrays.toString(assignments.toArray()));
+        }
+        logger.info("Sort: Saved current sort order ("+sortColumn+") [asc="+ascending+"] for gradebook ("+assignments.size()+" items): " + getGradebookId());
+        // force sorting back to defaults
+        setAssignmentSortColumn(Assignment.DEFAULT_SORT);
+        setAssignmentSortAscending(true);
+    }
+
+    @SuppressWarnings("unchecked")
+    public boolean getEnabledSaveSort() {
+        boolean enabled = false;
+        String sortColumn = getAssignmentSortColumn();
+        boolean ascending = isAssignmentSortAscending();
+        // if default sort is set, no save allowed
+        if (sortColumn != null 
+                && (! Assignment.DEFAULT_SORT.equals(sortColumn)
+                    || (Assignment.DEFAULT_SORT.equals(sortColumn) && !ascending) ) ) {
+            enabled = true;
+        }
+        if (enabled) {
+            // if allowed then check that there are enough assignments
+            List<Assignment> assignments = getGradebookManager().getAssignments(getGradebookId());
+            if (assignments.size() > 2) { // factor out the category
+                enabled = true;
+            } else {
+                enabled = false;
+            }
+        }
+        return enabled;
+    }
+
+	private Long getAssignmentIdFromParam() {
+        FacesContext context = FacesContext.getCurrentInstance();
+        String[] assignmentIds = (String[]) context.getExternalContext().getRequestParameterValuesMap().get("assignmentId");
+        if (assignmentIds == null || assignmentIds.length == 0) {
+            throw new IllegalArgumentException("assignmentId must be set");
+        }
+        Long assignmentId = Long.valueOf(assignmentIds[0]);
+        return assignmentId;
+	}
+
+	@SuppressWarnings("unchecked")
+    private void ensureAssignmentsSorted(List assignments, Comparator comparator, boolean save) {
+	    if (logger.isDebugEnabled()) {
+	        logger.debug("ensureAssignmentsSorted: comparator="+comparator+", save="+save+", assignments= "+Arrays.toString(assignments.toArray()));
+	    }
+	    // remove any non-assignments first
+	    List gradeables = new ArrayList();
+        for (Iterator iterator = assignments.iterator(); iterator.hasNext();) {
+            GradableObject go = (GradableObject) iterator.next();
+            if (! (go instanceof Assignment)) { // ! go.isAssignment()) {
+                gradeables.add(go);
+                iterator.remove();
+            }
+        }
+        Collections.sort(gradeables, GradableObject.nameComparator);
+
+        // put everything in the established sort order first (if needed)
+        if (comparator == null) {
+            comparator = GradableObject.dateComparator;
+            if (logger.isDebugEnabled()) {
+                logger.debug("ensureAssignmentsSorted: setting default comparator="+comparator);
+            }
+        }
+        if (! NoChangeMarkerComparator.class.isAssignableFrom(comparator.getClass())) {
+            // only sort if this is not the no-sort marker
+            if (logger.isDebugEnabled()) {
+                logger.debug("ensureAssignmentsSorted: sorting with comparator="+comparator);
+            }
+            Collections.sort(assignments, comparator);
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug("ensureAssignmentsSorted: no sort, using NoChangeMarkerComparator="+comparator);
+            }
+        }
+        // always need to sort by category
+        Collections.sort(assignments, GradableObject.categoryComparator);
+        // now ensure the numbering is set and correct
+        int saveCount = 0;
+        int updateCount = 0;
+        for (int i = 0; i < assignments.size(); i++) {
+            Assignment assignment = (Assignment) assignments.get(i);
+            Integer curOrder = assignment.getSortOrder();
+            if (logger.isDebugEnabled()) {
+                logger.debug("ensureAssignmentsSorted: checking if current order ("+curOrder+") matches correct order ("+i+") for assignment: "+assignment);
+            }
+            if (curOrder == null || i != curOrder.intValue()) {
+                // no match so we need to update it (else it is already set correctly, only save if needed)
+                assignment.setSortOrder(i);
+                updateCount++;
+                if (logger.isDebugEnabled()) {
+                    logger.debug("ensureAssignmentsSorted: setting sort order ("+i+") for assignment: "+assignment);
+                }
+                if (save) {
+                    getGradebookManager().updateAssignment(assignment);
+                    saveCount++;
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("ensureAssignmentsSorted: saving assignment: "+assignment);
+                    }
+                }
+            }
+        }
+
+        // set the ordering up in the assignment with support for categories
+        Map<String, List<Assignment>> categoryAssignments = new LinkedHashMap<String, List<Assignment>>();
+        for (Assignment assignment : (List<Assignment>) assignments) {
+            String category = "NULL";
+            if (assignment.getCategory() != null) {
+                category = assignment.getCategory().getName();
+            }
+            if (! categoryAssignments.containsKey(category)) {
+                categoryAssignments.put(category, new ArrayList<Assignment>());
+            }
+            categoryAssignments.get(category).add(assignment);
+            //assignment.assignSorting(assignments.size(), i);
+        }
+        for (Entry<String, List<Assignment>> entry : categoryAssignments.entrySet()) {
+            List<Assignment> l = entry.getValue();
+            for (int i = 0; i < l.size(); i++) {
+                Assignment assignment = l.get(i);
+                // assign the counter for ordering
+                assignment.assignSorting(l.size(), i);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("ensureAssignmentsSorted: ordered: "+i+" : "+assignment);
+                }
+            }
+        }
+        // add back in the gradeables to the end
+        for (Object gradeable : gradeables) {
+            assignments.add(gradeable);
+        }
+        if (logger.isDebugEnabled()) {
+            logger.debug("ensureAssignmentsSorted: sorted assignments (updated="+updateCount+", saved="+saveCount+"): "+Arrays.toString(assignments.toArray()));
+        }
+    }
+
+	/**
+	 * Special marker class to preserve the order when saving the sort order
+	 */
+	public static class NoChangeMarkerComparator implements Comparator<GradableObject> {
+        public int compare(GradableObject o1, GradableObject o2) {
+            return -1; // preserve the existing order
+        }
+        @Override
+        public String toString() {
+            return "NoChangeMarkerComparator";
+        }
+	}
+
 }

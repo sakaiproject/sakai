@@ -83,6 +83,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     protected static final String SORT_BY_POINTS_EARNED = "pointsEarned";
     protected static final String SORT_BY_GRADE = "grade";
     protected static final String SORT_BY_ITEM_VALUE = "itemValue";
+    protected static final String SORT_BY_SORTING = "sorting";
     public static Comparator nameComparator;
     public static Comparator dateComparator;
     public static Comparator pointsPossibleComparator;
@@ -91,7 +92,13 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     private static Comparator doubleOrNothingComparator;
     private static Comparator itemValueComparator;
     private static Comparator gradeEditorComparator;
+    public static Comparator sortingComparator;
     static {
+        sortingComparator = new Comparator() {
+            public int compare(Object o1, Object o2) {
+                return GradableObject.sortingComparator.compare(((AssignmentGradeRow)o1).getAssociatedAssignment(), ((AssignmentGradeRow)o2).getAssociatedAssignment());
+            }
+        };
         nameComparator = new Comparator() {
             public int compare(Object o1, Object o2) {
                 return Assignment.nameComparator.compare(((AssignmentGradeRow)o1).getAssociatedAssignment(), ((AssignmentGradeRow)o2).getAssociatedAssignment());
@@ -162,6 +169,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
         };
 
         columnSortMap = new HashMap();
+        columnSortMap.put(SORT_BY_SORTING, ViewByStudentBean.sortingComparator);
         columnSortMap.put(SORT_BY_NAME, ViewByStudentBean.nameComparator);
         columnSortMap.put(SORT_BY_DATE, ViewByStudentBean.dateComparator);
         columnSortMap.put(SORT_BY_POINTS_POSSIBLE, ViewByStudentBean.pointsPossibleComparator);
@@ -176,8 +184,17 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
      * sort preferences, we need to define the defaults locally.
      */
     public ViewByStudentBean() {
-        sortAscending = true;
-        sortColumn = SORT_BY_DATE;
+        // SAK-15311 - setup so students view can use sorting if configured
+        boolean useSort = getGradebookBean().getConfigurationBean().getBooleanConfig("gradebook.students.use.sorting", false);
+        if (useSort) {
+            // use sorting order
+            sortAscending = true;
+            sortColumn = SORT_BY_SORTING;
+        } else {
+            // use old default
+            sortAscending = true;
+            sortColumn = SORT_BY_DATE;
+        }
     }
 
     /**
