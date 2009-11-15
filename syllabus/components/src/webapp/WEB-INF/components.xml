@@ -62,4 +62,31 @@
 		</property>
 	</bean>
 
+	<bean id="FixPublicSyllabusAttachmentsJob"
+		  class="org.sakaiproject.component.app.syllabus.FixPublicSyllabusAttachmentsJob">
+ 		<property name="syllabusManager">
+			<ref bean="org.sakaiproject.api.app.syllabus.SyllabusManager" />
+		</property>
+		<!-- This is the userId the job will run under.  This user must have
+		the appropriate permissions to create new permissions/realms for any site in the system -->
+		<property name="userId" value="admin" />
+	</bean>
+
+	<bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.helloWorld"
+		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+		singleton="true" init-method="init">
+		
+		<property name="beanId">
+			<value>FixPublicSyllabusAttachmentsJob</value>
+		</property>
+      
+		<property name="jobName">
+			<value>Fix Public Syllabus Attachments Job</value>
+		</property>
+		
+      	<property name="schedulerManager">
+			<ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+		</property>
+   </bean>
+
 </beans>

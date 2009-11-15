@@ -21,6 +21,7 @@
 package org.sakaiproject.component.app.syllabus;
 
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -60,6 +61,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
   private static final String USER_ID = "userId";
   private static final String CONTEXT_ID = "contextId";
   private static final String SURROGATE_KEY = "surrogateKey";
+  private static final String VIEW = "view";
   private static final String SYLLABI = "syllabi";  
   private static final String FOREIGN_KEY = "foreignKey";
   private static final String QUERY_BY_SYLLABUSDATAID = "findSyllabusDataByDataIds";
@@ -269,6 +271,23 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
     return (SyllabusItem) getHibernateTemplate().execute(hcb);
   }
   
+  @SuppressWarnings("unchecked")
+  public Set<SyllabusData> findPublicSyllabusData() {
+      HibernateCallback hcb = new HibernateCallback()
+      {
+        public Object doInHibernate(Session session) throws HibernateException,
+            SQLException
+        {
+          Criteria crit = session.createCriteria(SyllabusDataImpl.class)
+                      .add(Expression.eq(VIEW, "yes"))
+                      .setFetchMode(ATTACHMENTS, FetchMode.EAGER);
+
+          return crit.list();
+        }
+      };
+      return new HashSet<SyllabusData>(getHibernateTemplate().executeFind(hcb));
+  }
+  
   /**
    * getSyllabusItemByUserAndContextIds finds a SyllabusItem
    * @param userId
@@ -368,7 +387,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
    * 
    * @param syllabusData the SyllabusData object to check for publicness
    */
-  private void updateSyllabusAttachmentsViewState(final SyllabusData syllabusData)
+  public void updateSyllabusAttachmentsViewState(final SyllabusData syllabusData)
   {
 	boolean publicView = "yes".equalsIgnoreCase(syllabusData.getView());
     Set<?> attachments = syllabusData.getAttachments();

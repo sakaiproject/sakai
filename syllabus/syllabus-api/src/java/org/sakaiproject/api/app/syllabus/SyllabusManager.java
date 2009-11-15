@@ -70,5 +70,9 @@ public interface SyllabusManager
 
   public SyllabusAttachment getSyllabusAttachment(final String syllabusAttachId);
   
+  public Set<SyllabusData> findPublicSyllabusData();
+
+  public void updateSyllabusAttachmentsViewState(final SyllabusData syllabusData);
+  
   //public SyllabusAttachment creatSyllabusAttachmentResource(String attachId, String name);
 }
