@@ -52,7 +52,9 @@
 							     <h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStar"/>
 					<h:outputText value="#{msgs.cdfm_reply_title}" />
 				</h:outputLabel>
-					   <h:inputText value="#{ForumTool.composeTitle}" size="40" required="true" id="df_compose_title" />
+					   <h:inputText value="#{ForumTool.composeTitle}" size="40" required="true" id="df_compose_title">
+						 <f:validateLength minimum="1" maximum="255"/>
+					   </h:inputText>
 				   </h:panelGroup>
 		</h:panelGrid>
 
@@ -63,7 +65,9 @@
 			<span  id="counttotal" class="highlight"> </span>
 			<h:outputText value="#{msgs.cdfm_message_count_update}" styleClass="msg-updatecount skip"/>		
 
-	            <sakai:rich_text_area value="#{ForumTool.composeBody}" rows="17" columns="70"/>
+	            <sakai:inputRichText value="#{ForumTool.composeBody}" id="df_compose_body" rows="22" cols="120">
+					<f:validateLength maximum="65000"/>
+				</sakai:inputRichText>
 			<script language="javascript" type="text/javascript">
 			 function countStuff() 
 			 {

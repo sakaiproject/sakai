@@ -74,12 +74,16 @@
 					<h:outputLabel for="subject"><h:outputText value="#{msgs.pvt_subject}" /></h:outputLabel>
 				</h:panelGroup>
 				<h:panelGroup styleClass="shorttext">
-					<h:inputText value="#{PrivateMessagesTool.composeSubject}" id="subject" size="45" />
+					<h:inputText value="#{PrivateMessagesTool.composeSubject}" id="subject" size="45">
+					  <f:validateLength minimum="1" maximum="255"/>
+					</h:inputText>
 				</h:panelGroup>
 			</h:panelGrid>       
 		  
 		  <h4><h:outputText value="#{msgs.pvt_message}" /></h4>
-	          <sakai:rich_text_area value="#{PrivateMessagesTool.composeBody}" rows="17" columns="70"/> 
+			<sakai:inputRichText value="#{PrivateMessagesTool.composeBody}" id="pvt_message_body" rows="22" cols="120"> 
+				<f:validateLength maximum="65000"/>
+			</sakai:inputRichText>
 	    
 <%--********************* Attachment *********************--%>	
 			  <h4>

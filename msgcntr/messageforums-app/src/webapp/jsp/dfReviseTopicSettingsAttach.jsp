@@ -30,7 +30,9 @@
 					<h:outputText id="req_star"  value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline" style="padding-right:3px"/>
 					<h:outputText value="#{msgs.cdfm_topic_title}" />
 				</h:outputLabel>	 
-				<h:inputText size="50" id="topic_title"  value="#{ForumTool.selectedTopic.topic.title}"/>
+				<h:inputText size="50" id="topic_title"  value="#{ForumTool.selectedTopic.topic.title}">
+					<f:validateLength minimum="1" maximum="255"/>
+				</h:inputText>
 			</h:panelGroup>	
 			</h:panelGrid>
 			<h:panelGrid columns="1"  columnClasses="longtext">
@@ -52,7 +54,9 @@
 			<%--RTEditor area - if enabled--%>
 		<h:panelGroup rendered="#{! ForumTool.disableLongDesc}">
 				<h:outputText id="outputLabel2"   value="#{msgs.cdfm_fullDescription}" style="display:block;padding:.5em 0"/>
-			<sakai:rich_text_area rows="10" columns="70"  value="#{ForumTool.selectedTopic.topic.extendedDescription}"/>
+			<sakai:inputRichText rows="12" cols="120" id="topic_description" value="#{ForumTool.selectedTopic.topic.extendedDescription}">
+				<f:validateLength maximum="65000"/>
+			</sakai:inputRichText>
 		</h:panelGroup>
 		
 			<%--Attachment area  --%>

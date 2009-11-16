@@ -106,10 +106,13 @@
 	   			     <h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStar"/>
 					<h:outputText value="#{msgs.cdfm_reply_title}" />
 				</h:outputLabel>
-					<h:inputText value="#{ForumTool.composeTitle}" style="width: 30em;" required="true" id="df_compose_title" />
+					<h:inputText value="#{ForumTool.composeTitle}" style="width: 30em;" required="true" id="df_compose_title">
+					 <f:validateLength minimum="1" maximum="255"/>
+				   </h:inputText>
  					  </h:panelGroup>
           </h:panelGrid>
           
+	  <p><h:message for="df_compose_body" styleClass="messageAlert" id="bodyErrorMessage" /></p>
 	  <div style="padding:.5em 0;white-space:nowrap">
 			<h:outputText value="#{msgs.cdfm_message}" style="padding:.5em 0"/> 
 		    <h:inputHidden id="msgHidden" value="#{ForumTool.selectedMessage.message.body}" />
@@ -123,7 +126,9 @@
 				<span  id="counttotal" class="highlight"> </span>
 				<h:outputText value="#{msgs.cdfm_message_count_update}" styleClass="msg-updatecount skip"/>		
 		   	</div>
-            <sakai:rich_text_area value="#{ForumTool.composeBody}" rows="17" columns="70"/>
+            <sakai:inputRichText value="#{ForumTool.composeBody}" id="df_compose_body" rows="22" cols="120">
+				<f:validateLength maximum="65000"/>
+			</sakai:inputRichText>
             <script language="javascript" type="text/javascript">
 			 function countStuff() 
 			 {

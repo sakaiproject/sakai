@@ -61,14 +61,19 @@
 			  </h:panelGroup>
             <h:panelGroup styleClass="shorttext">
 					   <f:verbatim><h:outputText value=" " /></f:verbatim>
-					   <h:inputText value="#{ForumTool.composeTitle}"  required="true" id="df_compose_title" size="40" />
+					   <h:inputText value="#{ForumTool.composeTitle}"  required="true" id="df_compose_title" size="40">
+						 <f:validateLength minimum="1" maximum="255"/>
+					   </h:inputText>
 					   
 				   </h:panelGroup>
           </h:panelGrid>
 		  <f:verbatim><h4></f:verbatim>
 	            <h:outputText value="#{msgs.cdfm_message}" />
 			<f:verbatim></h4></f:verbatim>	
-            <sakai:rich_text_area value="#{ForumTool.composeBody}" rows="17" columns="70"/>
+			<h:message for="df_compose_body" styleClass="messageAlert" id="bodyErrorMessages" />
+            <sakai:inputRichText value="#{ForumTool.composeBody}" id="df_compose_body" rows="22" cols="120">
+				<f:validateLength maximum="65000"/>
+			</sakai:inputRichText>
 	      
 <%--********************* Attachment *********************--%>	
 

@@ -85,17 +85,21 @@
 				</h:outputLabel>
 					   <h:inputText value="#{ForumTool.composeTitle}" style="width:30em;" required="true" id="df_compose_title">
 					     <f:validator validatorId="MessageTitle" />
+						 <f:validateLength minimum="1" maximum="255"/>
 					   </h:inputText>
 				   </h:panelGroup>
           </h:panelGrid>
 
 
+				<p><h:message for="df_compose_body" styleClass="messageAlert" id="bodyErrorMessages" /></p>
 	            <h:outputText value="#{msgs.cdfm_message}" />
 			<a  id="countme" href="#" style="margin-left:3em"><img src="/library/image/silk/table_add.png" /> <span id="countmetitle"><h:outputText value="#{msgs.cdfm_message_count}" /></span></a>
 			<span  id="counttotal" class="highlight"> </span>
 			<h:outputText value="#{msgs.cdfm_message_count_update}" styleClass="msg-updatecount skip"/>		
 
-	            <sakai:rich_text_area value="#{ForumTool.composeBody}" rows="17" columns="70"/>
+	            <sakai:inputRichText value="#{ForumTool.composeBody}" id="df_compose_body" rows="22" cols="120">
+					<f:validateLength maximum="65000"/>
+				</sakai:inputRichText>
 			<script language="javascript" type="text/javascript">
 			 function countStuff() 
 			 {
