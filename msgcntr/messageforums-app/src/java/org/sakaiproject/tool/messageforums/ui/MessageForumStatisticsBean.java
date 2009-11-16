@@ -77,6 +77,9 @@ import org.sakaiproject.tool.messageforums.ui.MessageForumSynopticBean.Decorated
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.tool.cover.SessionManager;
 
@@ -573,19 +576,19 @@ public class MessageForumStatisticsBean {
 		String currentUserId = SessionManager.getCurrentSessionUserId();;
 		return currentUserId;
 	}
-	
+
 	public List getUserSubjectMsgBody(){
 		final List statistics = new ArrayList();
-		
+
 		if(selectedMsgId != null){
 			try{
 				Long msgId = new Long(selectedMsgId);			
-			
+
 				Message mesWithAttach = (Message)messageManager.getMessageByIdWithAttachments(msgId);
 				Topic t = forumManager.getTopicById(mesWithAttach.getTopic().getId());
 				DiscussionForum d = forumManager.getForumById(t.getOpenForum().getId());
 
-				
+
 				List decoAttachList = new ArrayList();
 				List attachList = mesWithAttach.getAttachments();
 				if(attachList != null ) {
@@ -1227,7 +1230,7 @@ public class MessageForumStatisticsBean {
 		LOG.debug("processActionStatisticsUser");
 		
 		selectedSiteUserId = getExternalParameterByKey(SITE_USER_ID);
-		selectedSiteUser = getExternalParameterByKey(SITE_USER);
+		selectedSiteUser = getUserName(selectedSiteUserId);
 		
 		isLastParticipant = false;
 		isFirstParticipant = false;
@@ -1245,6 +1248,30 @@ public class MessageForumStatisticsBean {
 		}
 		
 		return FORUM_STATISTICS_USER;
+	}
+
+
+	private String getUserName(String userId) {
+		String userName="";
+		try
+		{
+			User user=UserDirectoryService.getUser(userId) ;
+			if (ServerConfigurationService.getBoolean("msg.displayEid", true)) {
+				if(user != null) {
+					userName= user.getLastName() + ", " + user.getFirstName() + " (" + user.getDisplayId() + ")" ;
+				}
+			} else {
+				if(user != null) {
+					userName = user.getLastName() + ", " + user.getFirstName();
+				}
+			}
+		}
+		catch (UserNotDefinedException e) {
+
+			e.printStackTrace();
+		}
+		
+		return userName;
 	}
 	
 	public String processActionBackToUser() {

@@ -36,7 +36,6 @@
   				</f:facet>
   				<h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true" title=" #{stat.siteUser}">
   				    <f:param value="#{stat.siteUserId}" name="siteUserId"/>
-  				    <f:param value="#{stat.siteUser}" name="siteUser"/>
 				   	<h:outputText value="#{stat.siteUser}" />
 	          	</h:commandLink>
 			</h:column>
