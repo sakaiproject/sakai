@@ -1614,8 +1614,19 @@ public class ItemHelper12Impl extends ItemHelperBase
             isInsert = false;
           }
 
-          addAnswerFeedback(itemXml, value,
-                            isInsert, xpathIndex, "" + label);
+          if(itemXml.isMCSC()){
+        	  //MC Single Correct 
+        	  if(answer.getIsCorrect().booleanValue()){
+        		  answer.setPartialCredit(100f);
+        	  }
+       		  addAnswerFeedbackPartialCredit(itemXml, value,
+        				  isInsert, xpathIndex, "" + label, Float.valueOf(((answer.getItem().getScore().floatValue())*answer.getPartialCredit().floatValue())/100f)); //--mustansar
+          }
+          else 
+          { // for MC Mulitiple Correct
+        	  addAnswerFeedback(itemXml, value,
+        			  isInsert, xpathIndex, "" + label  ); 
+          }
           label++;
           xpathIndex++;
         }
@@ -1935,4 +1946,33 @@ public class ItemHelper12Impl extends ItemHelperBase
     }
   }
 
+  /**
+   * Adds feedback with ident referencing answer ident.
+   *
+   * @param itemXml
+   * @param value
+   * @param isInsert
+   * @param responseNo
+   * @param responseLabel
+   */
+  private void addAnswerFeedbackPartialCredit(Item itemXml, String value,
+		  boolean isInsert, int responseNo,
+		  String responseLabel, Float partialCredit)
+  {
+	  log.debug("addAnswerFeedback()");
+	  log.debug("answer feedback value: " + value);
+	  if (value == null) {
+		  value = "<![CDATA[]]>";
+	  }
+	  else {
+		  value = "<![CDATA[" + value + "]]>";
+	  }
+	  String respCond = "item/resprocessing/respcondition[" + responseNo + "]";
+
+	  //  updateItemXml(itemXml, respCond + "/setvar", "" + currentPerItemScore);
+	  updateItemXml(itemXml, respCond + "/setvar", "" + partialCredit);
+	  updateItemXml(itemXml,
+			  respCond + "/displayfeedback[2]/@linkrefid", "AnswerFeedback");
+	  updateItemXml(itemXml, respCond + "/displayfeedback[2]", value);
+  }
 }

@@ -2110,7 +2110,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 							.getLastModifiedBy(), item.getLastModifiedDate(),
 					null, null, null, // set ItemTextSet, itemMetaDataSet and
 					// itemFeedbackSet later
-					item.getTriesAllowed());
+					item.getTriesAllowed(), item.getPartialCreditFlag());
 			Set newItemTextSet = prepareItemTextSet(newItem, item
 					.getItemTextSet());
 			Set newItemMetaDataSet = prepareItemMetaDataSet(newItem, item
@@ -2272,7 +2272,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			Answer answer = (Answer) l.next();
 			Answer newAnswer = new Answer(newItemText, answer.getText(), answer
 					.getSequence(), answer.getLabel(), answer.getIsCorrect(),
-					answer.getGrade(), answer.getScore(), answer.getDiscount(), null);
+					answer.getGrade(), answer.getScore(), answer.getPartialCredit(), answer.getDiscount(), null);
 			Set newAnswerFeedbackSet = prepareAnswerFeedbackSet(newAnswer,
 					answer.getAnswerFeedbackSet());
 			newAnswer.setAnswerFeedbackSet(newAnswerFeedbackSet);

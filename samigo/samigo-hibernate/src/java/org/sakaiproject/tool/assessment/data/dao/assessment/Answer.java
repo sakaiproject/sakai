@@ -50,13 +50,14 @@ public class Answer
   private String grade;
   private Float score;
   private Float discount;
+  private Float  partialCredit; //partial credit
   private Set answerFeedbackSet;
   private HashMap answerFeedbackMap;
   private ItemData dat=new ItemData();
   public Answer() {}
 
   public Answer(ItemTextIfc itemText, String text, Long sequence, String label,
-                Boolean isCorrect, String grade, Float score, Float discount) {
+                Boolean isCorrect, String grade, Float score, Float partialCredit, Float discount) {
     this.itemText = itemText;
     this.item = itemText.getItem();
     this.text = text;
@@ -66,10 +67,11 @@ public class Answer
     this.grade = grade;
     this.score = score;
     this.discount=discount;
+    this.partialCredit=partialCredit;
   }
 
   public Answer(ItemTextIfc itemText, String text, Long sequence, String label,
-                Boolean isCorrect, String grade, Float score, Float discount,
+                Boolean isCorrect, String grade, Float score, Float partialCredit, Float discount,
                 Set answerFeedbackSet) {
     this.itemText = itemText;
     this.item = itemText.getItem();
@@ -81,6 +83,7 @@ public class Answer
     this.score = score;
     this.discount=discount;
     this.answerFeedbackSet = answerFeedbackSet;
+    this.partialCredit=partialCredit;
   }
 
   public Long getId() {
@@ -233,28 +236,35 @@ public class Answer
       return sequence.compareTo(a.sequence);
   }
 
-    //Huong's adding for checking not empty feedback
- public boolean getGeneralAnswerFbIsNotEmpty(){
+  //Huong's adding for checking not empty feedback
+  public boolean getGeneralAnswerFbIsNotEmpty(){
 
-   return dat.isNotEmpty(getGeneralAnswerFeedback());
-     
+	  return dat.isNotEmpty(getGeneralAnswerFeedback());
+
   }
 
-public boolean getCorrectAnswerFbIsNotEmpty(){
+  public boolean getCorrectAnswerFbIsNotEmpty(){
 
-   return dat.isNotEmpty(getCorrectAnswerFeedback());
-     
+	  return dat.isNotEmpty(getCorrectAnswerFeedback());
+
   }
-public boolean getIncorrectAnswerFbIsNotEmpty(){
+  public boolean getIncorrectAnswerFbIsNotEmpty(){
 
-   return dat.isNotEmpty(getInCorrectAnswerFeedback());
-     
-  }
+	  return dat.isNotEmpty(getInCorrectAnswerFeedback());
 
- public boolean getTextIsNotEmpty(){
-  
-    return dat.isNotEmpty(getText());
   }
 
+  public boolean getTextIsNotEmpty(){
 
+	  return dat.isNotEmpty(getText());
+  }
+
+  //--mustansar for partial credit
+  public Float getPartialCredit(){
+	  return partialCredit;
+  }
+
+  public void setPartialCredit(Float pCredit ){
+	  this.partialCredit=pCredit;
+  } 
 }

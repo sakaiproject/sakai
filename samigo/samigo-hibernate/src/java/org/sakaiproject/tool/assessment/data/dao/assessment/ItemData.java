@@ -44,6 +44,7 @@ public class ItemData
   private String hint;
   private Boolean hasRationale;
   private Integer status;
+  private Boolean partialCreditFlag;
   private String createdBy;
   private Date createdDate;
   private String lastModifiedBy;
@@ -64,7 +65,7 @@ public class ItemData
                   Boolean hasRationale, Integer status, String createdBy,
                   Date createdDate, String lastModifiedBy,
                   Date lastModifiedDate,
-                  Set itemTextSet, Set itemMetaDataSet, Set itemFeedbackSet) {
+                  Set itemTextSet, Set itemMetaDataSet, Set itemFeedbackSet, Boolean partialCreditFlag ) {
     this.section = section;
     this.sequence = sequence;
     this.duration = duration;
@@ -84,6 +85,7 @@ public class ItemData
     this.itemTextSet = itemTextSet;
     this.itemMetaDataSet = itemMetaDataSet;
     this.itemFeedbackSet = itemFeedbackSet;
+    this.partialCreditFlag=partialCreditFlag;
   }
 
   public ItemData(SectionDataIfc section, Integer sequence,
@@ -93,7 +95,7 @@ public class ItemData
                   Date createdDate, String lastModifiedBy,
                   Date lastModifiedDate,
                   Set itemTextSet, Set itemMetaDataSet, Set itemFeedbackSet,
-                  Integer triesAllowed) {
+                  Integer triesAllowed, Boolean partialCreditFlag) {
     this.section = section;
     this.sequence = sequence;
     this.duration = duration;
@@ -114,6 +116,7 @@ public class ItemData
     this.itemMetaDataSet = itemMetaDataSet;
     this.itemFeedbackSet = itemFeedbackSet;
     this.triesAllowed = triesAllowed;
+    this.partialCreditFlag=partialCreditFlag;
   }
 
     /*
@@ -761,6 +764,12 @@ public class ItemData
     return list;
   }
 
+  public Boolean getPartialCreditFlag() {
+	  return this.partialCreditFlag;
+  }
 
+  public void setPartialCreditFlag(Boolean particalCreditFlag) {
+	  this.partialCreditFlag=particalCreditFlag;	
+  }
 
 }

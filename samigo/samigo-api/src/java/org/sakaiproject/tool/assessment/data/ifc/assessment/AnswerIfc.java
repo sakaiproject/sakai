@@ -69,6 +69,11 @@ public  interface AnswerIfc
   Float getScore();
 
   void setScore(Float score);
+  
+  // to incorporate partial credit we need to add field for partial credit
+  void setPartialCredit(Float partialCredit);
+  
+  Float getPartialCredit();
 
   Set getAnswerFeedbackSet();
 

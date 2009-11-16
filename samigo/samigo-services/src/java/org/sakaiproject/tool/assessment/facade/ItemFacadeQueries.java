@@ -65,54 +65,6 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
   public IdImpl getItemId(long id){
     return new IdImpl(id);
   }
-
-  /*
-  public static void main(String[] args) throws DataFacadeException {
-    ItemFacadeQueriesAPI instance = new ItemFacadeQueries();
-    // add an item
-    if (args[0].equals("add")) {
-      Long itemId = instance.add();
-      //log.debug("**Item #" + itemId);
-      instance.show(itemId);
-    }
-    if (args[0].equals("f_add")) {
-      Long itemId = new Long(-1);
-      itemId = instance.facadeAdd();
-      //log.debug("**Item #" + itemId);
-      instance.ifcShow(itemId);
-    }
-    if (args[0].equals("show")) {
-      instance.show(new Long(args[1]));
-    }
-    if (args[0].equals("showtype")) {
-      instance.showType(new Long(args[1]));
-    }
-    if (args[0].equals("remove")) {
-      instance.remove(new Long(args[1]));
-    }
-    if (args[0].equals("listtype")) {
-      instance.listType();
-    }
-    if (args[0].equals("list")) {
-      instance.list();
-      List items = instance.list();
-      for (int i = 0; i < items.size(); i++) {
-        ItemData item = (ItemData) items.get(i);
-        log.debug("Item #" + item.getItemId() + " has rationale= " +
-                           item.getHasRationale());
-      }
-    }
-    if (args[0].equals("getQPItems")) {
-      List items = instance.getQPItems(new Long(args[1])); // poolId
-      for (int i = 0; i < items.size(); i++) {
-        ItemData item = (ItemData) items.get(i);
-        log.debug("Item #" + item.getItemId() + " has rationale= " +
-                           item.getHasRationale());
-      }
-    }
-    System.exit(0);
-  }
-  */
   
   public Long add() {
     ItemData item = new ItemData();
@@ -369,14 +321,14 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     HashSet answerSet1 = new HashSet();
     HashSet answerFeedbackSet1 = new HashSet();
     Answer answer1 = new Answer(text1, "2 legs", Long.valueOf(1), "i",
-    		Boolean.FALSE, null, Float.valueOf(0), Float.valueOf(0));
+    		Boolean.FALSE, null, Float.valueOf(0), Float.valueOf(0), Float.valueOf(0));
     answerFeedbackSet1.add(new AnswerFeedback(answer1, "incorrect", "sorry"));
     answer1.setAnswerFeedbackSet(answerFeedbackSet1);
     answerSet1.add(answer1);
     answerSet1.add(new Answer(text1, "3 legs", Long.valueOf(2), "ii",
-    		Boolean.FALSE, null, Float.valueOf(0), Float.valueOf(0)));
+    		Boolean.FALSE, null, Float.valueOf(0), Float.valueOf(0), Float.valueOf(0)));
     answerSet1.add(new Answer(text1, "4 legs", Long.valueOf(3), "iii",
-    		Boolean.TRUE, null, Float.valueOf(5), Float.valueOf(0)));
+    		Boolean.TRUE, null, Float.valueOf(5), Float.valueOf(0), Float.valueOf(0)));
     text1.setAnswerSet(answerSet1);
 
     textSet.add(text1);
@@ -387,11 +339,11 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     text2.setText("chicken has");
     HashSet answerSet2 = new HashSet();
     answerSet2.add(new Answer(text2, "2 legs", Long.valueOf(1), "i",
-    		Boolean.TRUE, null, Float.valueOf(5), Float.valueOf(0)));
+    		Boolean.TRUE, null, Float.valueOf(5), Float.valueOf(0), Float.valueOf(0)));
     answerSet2.add(new Answer(text2, "3 legs", Long.valueOf(2), "ii",
-    		Boolean.FALSE, null, Float.valueOf(0), Float.valueOf(0)));
+    		Boolean.FALSE, null, Float.valueOf(0), Float.valueOf(0), Float.valueOf(0)));
     answerSet2.add(new Answer(text2, "4 legs", Long.valueOf(3), "iii",
-    		Boolean.FALSE, null, Float.valueOf(0), Float.valueOf(0)));
+    		Boolean.FALSE, null, Float.valueOf(0), Float.valueOf(0), Float.valueOf(0)));
     text2.setAnswerSet(answerSet2);
     textSet.add(text2);
 
@@ -401,11 +353,11 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     text3.setText("baby has");
     HashSet answerSet3 = new HashSet();
     answerSet3.add(new Answer(text3, "2 legs", Long.valueOf(1), "i",
-    		Boolean.FALSE, null,  Float.valueOf(0), Float.valueOf(0)));
+    		Boolean.FALSE, null,  Float.valueOf(0), Float.valueOf(0), Float.valueOf(0)));
     answerSet3.add(new Answer(text3, "3 legs", Long.valueOf(2), "ii",
-    		Boolean.FALSE, null, Float.valueOf(0), Float.valueOf(0)));
+    		Boolean.FALSE, null, Float.valueOf(0), Float.valueOf(0), Float.valueOf(0)));
     answerSet3.add(new Answer(text3, "4 legs", Long.valueOf(3), "iii",
-    		Boolean.TRUE, null, Float.valueOf(5), Float.valueOf(0)));
+    		Boolean.TRUE, null, Float.valueOf(5), Float.valueOf(0), Float.valueOf(0)));
     text3.setAnswerSet(answerSet3);
     textSet.add(text3);
     return textSet;
@@ -538,29 +490,6 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     log.debug("****ItemType = " +
                        f.getItemType().getKeyword());
   }
-
-    /**
-  private void exportXml(ItemDataIfc item) {
-    XStream xstream = new XStream();
-    xstream = new XStream(new DomDriver());
-    xstream.alias("item", ItemData.class);
-    xstream.alias("itemText", ItemText.class);
-    xstream.alias("itemFeedback", ItemFeedback.class);
-    xstream.alias("itemMetaData", ItemMetaData.class);
-    xstream.alias("answer", Answer.class);
-    xstream.alias("answerFeedback", AnswerFeedback.class);
-    String xml = xstream.toXML(item);
-    byte[] b = xml.getBytes();
-    try {
-      FileOutputStream out = new FileOutputStream("out");
-      out.write(b);
-    }
-    catch (FileNotFoundException ex) {
-    }
-    catch (IOException ex1) {
-    }
-  }
-    */
 
   public ItemFacade getItem(Long itemId) {
     ItemData item = (ItemData) getHibernateTemplate().load(ItemData.class, itemId);

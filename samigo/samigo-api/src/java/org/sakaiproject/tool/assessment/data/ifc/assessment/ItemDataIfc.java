@@ -90,6 +90,10 @@ public interface ItemDataIfc extends java.io.Serializable {
   Boolean getHasRationale();
 
   void setHasRationale(Boolean hasRationale);
+  
+  void setPartialCreditFlag(Boolean particalCreditFlag);
+  
+  Boolean getPartialCreditFlag();
 
   Integer getStatus();
 

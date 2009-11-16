@@ -76,6 +76,7 @@ public class PublishedItemData
   private HashMap itemFeedbackMap = new HashMap();
   private ItemGradingData lastItemGradingDataByAgent;
   private Set itemAttachmentSet;
+  private Boolean partialCreditFlag;
 
   public PublishedItemData() {}
 
@@ -86,7 +87,7 @@ public class PublishedItemData
                   Boolean hasRationale, Integer status, String createdBy,
                   Date createdDate, String lastModifiedBy,
                   Date lastModifiedDate,
-                  Set itemTextSet, Set itemMetaDataSet, Set itemFeedbackSet) {
+                  Set itemTextSet, Set itemMetaDataSet, Set itemFeedbackSet, Boolean partialCrditFlag) {
     this.section = section;
     this.sequence = sequence;
     this.duration = duration;
@@ -106,6 +107,7 @@ public class PublishedItemData
     this.itemTextSet = itemTextSet;
     this.itemMetaDataSet = itemMetaDataSet;
     this.itemFeedbackSet = itemFeedbackSet;
+    this.partialCreditFlag=partialCreditFlag;
   }
 
   public PublishedItemData(SectionDataIfc section, Integer sequence,
@@ -115,7 +117,7 @@ public class PublishedItemData
                   Date createdDate, String lastModifiedBy,
                   Date lastModifiedDate,
                   Set itemTextSet, Set itemMetaDataSet, Set itemFeedbackSet,
-                  Integer triesAllowed) {
+                  Integer triesAllowed, Boolean partialCreditFlag) {
     this.section = section;
     this.sequence = sequence;
     this.duration = duration;
@@ -136,6 +138,7 @@ public class PublishedItemData
     this.itemMetaDataSet = itemMetaDataSet;
     this.itemFeedbackSet = itemFeedbackSet;
     this.triesAllowed = triesAllowed;
+    this.partialCreditFlag=partialCreditFlag;
   }
 
   public Long getItemId() {
@@ -679,4 +682,11 @@ public class PublishedItemData
     return list;
   }
 
+  public Boolean getPartialCreditFlag() {
+	  return partialCreditFlag;
+  }
+
+  public void setPartialCreditFlag(Boolean partialCreditFlag) {
+	  this.partialCreditFlag = partialCreditFlag;
+  }
 }

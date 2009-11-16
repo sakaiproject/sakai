@@ -913,7 +913,17 @@ public class GradingService
     Long itemId = item.getItemId();
     int type = itemType.intValue();
     switch (type){ 
-      case 1: // MC Single Correct
+    case 1: // MC Single Correct
+    	if(item.getPartialCreditFlag())
+    		autoScore = getAnswerScoreMCQ(itemGrading, publishedAnswerHash);
+    	else{
+    		autoScore = getAnswerScore(itemGrading, publishedAnswerHash);
+    	}
+    	//overridescore
+    	if (itemGrading.getOverrideScore() != null)
+    		autoScore += itemGrading.getOverrideScore().floatValue();
+    	totalItems.put(itemId, new Float(autoScore));
+    	break;// MC Single Correct
       case 12: // MC Multiple Correct Single Selection    	  
       case 3: // MC Survey
       case 4: // True/False     	  
@@ -1865,6 +1875,27 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
       completeItemGradingData(assessmentGradingData);
   }
+  
+  /**
+   * This grades multiple choice and true false questions.  Since
+   * multiple choice/multiple select has a separate ItemGradingIfc for
+   * each choice, they're graded the same way the single choice are.
+   * BUT since we have Partial Credit stuff around we have to have a separate method here  --mustansar
+   * Choices should be given negative score values if one wants them
+   * to lose points for the wrong choice.
+   */
+  public float getAnswerScoreMCQ(ItemGradingIfc data, HashMap publishedAnswerHash)
+  {
+	  AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
+	  if (answer == null || answer.getScore() == null) {
+		  return 0f;
+	  }
+	  else if (answer.getIsCorrect().booleanValue()){ // instead of using answer score Item score needs to be used here 
+		  return (answer.getItem().getScore().floatValue()); //--mustansar 
+	  }
+	  return (answer.getItem().getScore().floatValue()*answer.getPartialCredit().floatValue())/100f;
+  }
+
 }
 
 

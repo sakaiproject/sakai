@@ -52,16 +52,13 @@ public class IndexBean implements Serializable
   private final static long serialVersionUID = 7919219404875270127L;
   private Collection templateNames;
   private Collection templateIds;
-//  private Collection studentAssessmentList;
-//  private Collection assessmentList;
-//  private Collection assessmentTypeList;
   private String assessmentTypeChoice;
   private String course_id;
   private String agent_id;
   private String templateOrderBy= "templateName";
   private boolean templateAscending= true;
   private boolean automaticSubmissionEnabled = false;
-
+  
   private static Log log = LogFactory.getLog(IndexBean.class);
 
   /**
@@ -184,134 +181,6 @@ public class IndexBean implements Serializable
     templateIds = ids;
   }
 
-//  /**
-//   * This is designed to quickly and efficiently obtain a small number of
-//   * pieces of information in the assessment list.  Specifically, you will not
-//   * be able to obtain properties from the getData() method.  To get a more
-//   * complete, but less efficient list, use getStudentAssessmentList()
-//   * instead.
-//   *
-//   * @return bare Collection of assessments
-//   */
-//  public Collection getAssessmentList()
-//  {
-//    try
-//    {
-//      AssessmentServiceDelegate delegate = new AssessmentServiceDelegate();
-//      AssessmentIterator aiter = null;
-//      try
-//      {
-//        aiter = delegate.getAssessments((new Long(course_id)).longValue());
-//      }
-//      catch(Exception e)
-//      {
-//        log.warn("No Course ID specified.");
-//        aiter = delegate.getAssessments();
-//      }
-//
-//      assessmentList = new ArrayList();
-//
-//      while(aiter.hasNext())
-//      {
-//        Assessment assessment = (Assessment) aiter.next();
-//        assessmentList.add(assessment);
-//      }
-//    }
-//    catch(Exception e)
-//    {
-//      log.error(e);
-//      if(assessmentList == null)
-//      {
-//        assessmentList = new ArrayList();
-//      }
-//    }
-//
-//    return assessmentList;
-//  }
-//
-//  /**
-//   * This is designed to obtain a list of assessments and their properties.
-//   *
-//   * @return Collection of assessments
-//   */
-//  public Collection getStudentAssessmentList()
-//  {
-//    try
-//    {
-//      AssessmentServiceDelegate delegate = new AssessmentServiceDelegate();
-//      Collection coll = null;
-//      try
-//      {
-//        SharedManager sm = OsidManagerFactory.createSharedManager();
-//        AuthenticationManager am =
-//          OsidManagerFactory.createAuthenticationManager(
-//            OsidManagerFactory.getOsidOwner());
-//        Agent agent =
-//          sm.getAgent(
-//            am.getUserId(new TypeImpl("Stanford", "AAM", "agent", "sunetid")));
-//        long courseId = new Long(course_id).longValue();
-//        coll = delegate.getStudentView(courseId, agent);
-//      }
-//      catch(Exception e)
-//      {
-//        log.warn("Either No Course ID or Agent ID or Both.");
-//        coll = delegate.getStudentView(0, null);
-//      }
-//
-//      studentAssessmentList = new ArrayList(coll);
-//    }
-//    catch(Exception e)
-//    {
-//      log.error(e);
-//      if(studentAssessmentList == null)
-//      {
-//        studentAssessmentList = new ArrayList();
-//      }
-//    }
-//
-//    return studentAssessmentList;
-//  }
-
-//  /**
-//   * DOCUMENTATION PENDING
-//   *
-//   * @param assessmentList DOCUMENTATION PENDING
-//   */
-//  public void setStudentAssessmentList(Collection assessmentList)
-//  {
-//    studentAssessmentList = assessmentList;
-//  }
-//
-//  /**
-//   * DOCUMENTATION PENDING
-//   *
-//   * @param assessmentList DOCUMENTATION PENDING
-//   */
-//  public void setAssessmentList(Collection assessmentList)
-//  {
-//    this.assessmentList = assessmentList;
-//  }
-
-//  /**
-//   * DOCUMENTATION PENDING
-//   *
-//   * @return DOCUMENTATION PENDING
-//   */
-//  public Collection getAssessmentTypeList()
-//  {
-//    return assessmentTypeList;
-//  }
-//
-//  /**
-//   * DOCUMENTATION PENDING
-//   *
-//   * @param assessmentTypeList DOCUMENTATION PENDING
-//   */
-//  public void setAssessmentTypeList(Collection assessmentTypeList)
-//  {
-//    this.assessmentTypeList = assessmentTypeList;
-//  }
-
   /**
    * DOCUMENTATION PENDING
    *
@@ -415,4 +284,5 @@ public class IndexBean implements Serializable
   public boolean getAutomaticSubmissionEnabled(){
 	  return automaticSubmissionEnabled;
   }
+  
 }

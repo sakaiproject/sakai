@@ -1280,10 +1280,11 @@ public class ExtractionHelper
 
     String score = (String) itemMap.get("score");
     String discount = (String) itemMap.get("discount");
-    String hasRationale =  item.getItemMetaDataByLabel("hasRationale");//rshastri :SAK-1824
+    String hasRationale = (String) item.getItemMetaDataByLabel("hasRationale");//rshastri :SAK-1824
     String status = (String) itemMap.get("status");
     String createdBy = (String) itemMap.get("createdBy");
-
+    String partialCreditFlag= (String) item.getItemMetaDataByLabel("PARTIAL_CREDIT");
+    
     // created by is not nullable
     if (createdBy == null)
     {
@@ -1292,18 +1293,6 @@ public class ExtractionHelper
 
     String createdDate = (String) itemMap.get("createdDate");
     
-    // get Duration and TriesAllowed from metadata.
-    /*
-       if (notNullOrEmpty(duration))
-      {
-        item.setDuration(new Integer(duration));
-      }
-      if (notNullOrEmpty(triesAllowed))
-      {
-        item.setTriesAllowed(new Integer(triesAllowed));
-      }
-      */
-  
     item.setInstruction( (String) itemMap.get("instruction"));
     if (notNullOrEmpty(score))
     {
@@ -1321,6 +1310,14 @@ public class ExtractionHelper
     	item.setDiscount(Float.valueOf(0));
     }
 
+    if (notNullOrEmpty( partialCreditFlag))
+    {
+    	item.setPartialCreditFlag((Boolean.parseBoolean( partialCreditFlag)));
+    }
+    else {
+    	item.setPartialCreditFlag((Boolean.FALSE));
+    }
+    
     item.setHint( (String) itemMap.get("hint"));
     if (notNullOrEmpty(hasRationale))
     {
@@ -1444,6 +1441,10 @@ public class ExtractionHelper
       List answerList = new ArrayList();
       List aList = (List) itemMap.get("itemAnswer");
       answerList = aList == null ? answerList : aList;
+      boolean MCSC=itemMap.get("itemIntrospect").equals("Multiple Choice");
+      List answerScoreList = new ArrayList(); //--mustansar
+      List sList = (List) itemMap.get("answerScore"); //--mustansar
+      answerScoreList = sList == null ? answerScoreList : sList; //--mustansar
       HashSet answerSet = new HashSet();
       char answerLabel = 'A';
       List answerFeedbackList = (List) itemMap.get("itemAnswerFeedback");
@@ -1520,6 +1521,20 @@ public class ExtractionHelper
             }
           }
 
+          if(MCSC){
+        	  long index = answer.getSequence().longValue(); 
+        	  index = index - 1L;
+        	  int indexInteger = Long.valueOf(index).intValue();
+        	  String strPCredit = (String) answerScoreList.get(indexInteger);
+        	  float fltPCredit = Float.parseFloat(strPCredit);
+        	  Float pCredit = (fltPCredit/(item.getScore().floatValue()))*100;
+        	  if (pCredit.isNaN()){
+        		  answer.setPartialCredit(0F);
+        	  }
+        	  else{
+        		  answer.setPartialCredit(pCredit);
+        	  }
+          }
           answerSet.add(answer);
         }
       }

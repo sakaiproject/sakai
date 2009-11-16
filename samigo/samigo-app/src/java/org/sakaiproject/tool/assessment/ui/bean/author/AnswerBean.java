@@ -35,6 +35,7 @@ public class AnswerBean implements Serializable{
   private String label;
   private String feedback;
   private Boolean isCorrect;
+  private Float partialCredit = Float.valueOf(0);  //to incorporate partial credit
   private static ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 
   public static final String choiceLabels = rb.getString("choice_labels"); 
@@ -93,5 +94,24 @@ public class AnswerBean implements Serializable{
 	  String[] lables = choiceLabels.split(":");
 	  return lables;
   }
+  
+  // additional constroctor for partial credit
+	public AnswerBean(String ptext, Long pseq, String plabel, String pfdbk,
+			Boolean pcorr, String pgrade, Float pscore, Float pCredit) {
+		this.text = ptext;
+		this.sequence = pseq;
+		this.label = plabel;
+		this.feedback = pfdbk;
+		this.isCorrect = pcorr;
+		this.partialCredit = pCredit;
+	}
 
+	// --mustansar for partial credit
+	public Float getPartialCredit() {
+		return partialCredit;
+	}
+
+	public void setPartialCredit(Float pCredit) {
+		this.partialCredit = pCredit;
+	}
 }

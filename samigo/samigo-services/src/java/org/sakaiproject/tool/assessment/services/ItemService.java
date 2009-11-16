@@ -235,7 +235,7 @@ public class ItemService
         item.getDescription(),item.getTypeId(),item.getGrade(),item.getScore(), item.getDiscount(),
         item.getHint(),item.getHasRationale(),item.getStatus(),item.getCreatedBy(),
         item.getCreatedDate(),item.getLastModifiedBy(),item.getLastModifiedDate(),
-        null, null, null, item.getTriesAllowed());
+        null, null, null, item.getTriesAllowed(), item.getPartialCreditFlag());
 
     // perform deep copy, set ItemTextSet, itemMetaDataSet and itemFeedbackSet
     Set newItemTextSet = copyItemTextSet(cloned, item.getItemTextSet());
@@ -271,7 +271,7 @@ public class ItemService
       Answer newAnswer = new Answer(
           newItemText, answer.getText(), answer.getSequence(),
           answer.getLabel(),
-      	  answer.getIsCorrect(), answer.getGrade(), answer.getScore(), answer.getDiscount(), null);
+      	  answer.getIsCorrect(), answer.getGrade(), answer.getScore(), answer.getPartialCredit(), answer.getDiscount(), null);
       Set newAnswerFeedbackSet = copyAnswerFeedbackSet(
           newAnswer, answer.getAnswerFeedbackSet());
       newAnswer.setAnswerFeedbackSet(newAnswerFeedbackSet);

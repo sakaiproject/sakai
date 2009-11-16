@@ -33,6 +33,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
@@ -49,6 +50,8 @@ public class ItemBean
   // internal use
   private static final String answerNumbers =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  private static boolean partialCreditEnabledChecked = false;
+  private static boolean partialCreditEnabled = false;
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 8266438770394956874L;
 
@@ -57,18 +60,16 @@ public class ItemBean
   private String itemId;
   private String itemType;
   private String itemScore= "0";
-  private String itemDiscount= "0";
+  private String itemDiscount = "0";
+  private String partialCreditFlag = "Defualt";
   private String[] answers;
   private String[] answerLabels;  //  such as A, B, C
   private String[] corrAnswers;  // store checkbox values(labels) for multiple correct answers, as in mcmc type
   private String corrAnswer;  // store text value for single correct answer, as in true/false , mcsc, also used for essay's model answer
   private ArrayList multipleChoiceAnswers;  // store List of answers multiple choice items, ArrayList of AnswerBean
   private String additionalChoices = "0";  // additonal multiple choice answers to be add. for the select menu
-
-
-
-
-
+  private int totalMCAsnwers;
+  
   private boolean[] choiceCorrectArray;
   private String maxRecordingTime;
   private String maxNumberRecordings;
@@ -1372,7 +1373,95 @@ public class ItemBean
       this.showMutuallyExclusiveForFinCheckbox= param;
     }
 
+    /**@author Mustansar Mehmood 
+     * 
+     */
+    public void  setPartialCreditFlag(String partialCreditFlag){
+    		   this.partialCreditFlag=partialCreditFlag;
+    }
+    
+    /**
+	 * @author Mustansar Mehmood
+	 * 
+	 * @return
+	 */
+	public String getPartialCreditFlag() {
+		if (this.isPartialCreditEnabled()) {
+			return partialCreditFlag;
+		} else {
+			return "false";
+		}
+	}
 
+	public boolean isPartialCreditEnabled() {
+		if (partialCreditEnabledChecked) {
+			return partialCreditEnabled;
+		}
+		partialCreditEnabledChecked = true;
+		String partialCreditEnabledString = ServerConfigurationService.getString("samigo.partialCreditEnabled");
+		if (partialCreditEnabledString.equalsIgnoreCase("true")){
+			partialCreditEnabled = true;
+		}
+		else {
+			partialCreditEnabled = false;
+		}
+		return partialCreditEnabled;
+	}
+    
+	public void togglePartialCredit(ValueChangeEvent event) {
 
+		String switchEvent = (String) event.getNewValue();
 
+		if (Boolean.parseBoolean(switchEvent)) {
+			setPartialCreditFlag("true");
+		}
+		else if ("False".equalsIgnoreCase(switchEvent)) {
+			setPartialCreditFlag("false");
+		} else {
+			setPartialCreditFlag("Default");
+		}
+	}
+
+	public void resetPartialCreditValues() {
+
+		ArrayList answersList = this.getMultipleChoiceAnswers();
+		Iterator iter = answersList.iterator();
+		// information about about the correct answer is not available here so
+		// checking whether the answer is correct
+		// simply leads to NPE.
+		while (iter.hasNext()) {
+			AnswerBean answerBean = (AnswerBean) iter.next();
+			if (answerBean.getPartialCredit().floatValue() < 100.00) {
+				answerBean.setPartialCredit(0f);
+			} else if (answerBean.getPartialCredit().floatValue() == 100.00)
+				;
+			answerBean.setIsCorrect(true);
+
+		}
+		this.setMultipleChoiceAnswers(answersList);
+	}
+
+	public String resetToDefaultGradingLogic() {
+		// String switchEvent = (String) event.getNewValue();
+		partialCreditFlag = "Default";
+		ArrayList answersList = this.getMultipleChoiceAnswers();
+		Iterator iter = answersList.iterator();
+		// information about about the correct answer is not available here so
+		// checking whether the answer is correct
+		// simply leads to NPE.
+		while (iter.hasNext()) {
+			AnswerBean answerBean = (AnswerBean) iter.next();
+			answerBean.setPartialCredit(0f);
+		}
+		this.setMultipleChoiceAnswers(answersList);
+		return null;
+	}
+
+	public int gettotalMCAnswers() {
+		return this.multipleChoiceAnswers.size();
+	}
+
+	public void settotalMCAnswers() {
+		this.totalMCAsnwers = this.multipleChoiceAnswers.size();
+	}
 }

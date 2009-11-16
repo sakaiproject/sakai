@@ -407,7 +407,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 							.getLastModifiedBy(), item.getLastModifiedDate(),
 					null, null, null, // set ItemTextSet, itemMetaDataSet and
 					// itemFeedbackSet later
-					item.getTriesAllowed());
+					item.getTriesAllowed(), item.getPartialCreditFlag());
 			Set publishedItemTextSet = preparePublishedItemTextSet(
 					publishedItem, item.getItemTextSet());
 			Set publishedItemMetaDataSet = preparePublishedItemMetaDataSet(
@@ -608,7 +608,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			PublishedAnswer publishedAnswer = new PublishedAnswer(
 					publishedItemText, answer.getText(), answer.getSequence(),
 					answer.getLabel(), answer.getIsCorrect(),
-					answer.getGrade(), answer.getScore(), answer.getDiscount(), null);
+					answer.getGrade(), answer.getScore(), answer.getPartialCredit(), answer.getDiscount(), null);
 			Set publishedAnswerFeedbackSet = preparePublishedAnswerFeedbackSet(
 					publishedAnswer, answer.getAnswerFeedbackSet());
 			publishedAnswer.setAnswerFeedbackSet(publishedAnswerFeedbackSet);

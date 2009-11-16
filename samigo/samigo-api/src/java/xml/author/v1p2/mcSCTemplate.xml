@@ -36,6 +36,10 @@
         <fieldentry>false</fieldentry>
       </qtimetadatafield>
       <qtimetadatafield>
+        <fieldlabel>PARTIAL_CREDIT</fieldlabel>
+        <fieldentry>false</fieldentry>
+      </qtimetadatafield>
+      <qtimetadatafield>
         <fieldlabel>RANDOMIZE</fieldlabel>
         <fieldentry>false</fieldentry>
       </qtimetadatafield>

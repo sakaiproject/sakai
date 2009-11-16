@@ -25,6 +25,7 @@
     <property name="discount" type="float" column="DISCOUNT" not-null="false" />
     <property name="hint" type="string" length="4000" column="HINT" not-null="false" />
     <property name="hasRationale" type="boolean" column="HASRATIONALE" not-null="false" />
+    <property name="partialCreditFlag" type="boolean" column="PARTIAL_CREDIT_FLAG" not-null="true"/>
     <property name="status" type="integer" column="STATUS" not-null="true" />
     <property name="createdBy" type="string" length="255" column="CREATEDBY" not-null="true" />
     <property name="createdDate" type="timestamp" column="CREATEDDATE" not-null="true" />
@@ -105,6 +106,7 @@
     <property name="isCorrect" column="ISCORRECT" not-null="false" />
     <property name="grade" type="string" length="80" column="GRADE" not-null="false" />
     <property name="score" type="float" column="SCORE" not-null="false" />
+    <property name="partialCredit" type="float" column="PARTIAL_CREDIT" not-null="true" /> 
     <property name="discount" type="float" column="DISCOUNT" not-null="false" />
     <set name="answerFeedbackSet" table="SAM_PUBLISHEDANSWERFEEDBACK_T" cascade="all" inverse="true" lazy="false">
       <key column="ANSWERID" />

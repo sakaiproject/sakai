@@ -36,7 +36,7 @@
       <!-- AUTHORING -->
       <samigo:script path="/js/authoring.js"/>
       </head>
-<body onload="resetInsertAnswerSelectMenus();<%= request.getAttribute("html.body.onload") %>">
+<body onload="resetInsertAnswerSelectMenus();disablePartialCreditField();<%= request.getAttribute("html.body.onload") %>">
 
 <div class="portletBody">
 <!-- content... -->
@@ -87,23 +87,69 @@
 </div>
 <br/>
 
-<!-- DISCOUNT -->
+<!-- 1 ANSWER -->
 <div class="longtext">
-<h:panelGrid columns="2" border="0" rendered="#{itemauthor.currentItem.itemType == 1}">
-  <h:panelGrid border="0">
-    <h:outputLabel value="#{authorMessages.negative_point_value}"/>
-    <h:outputText value="&nbsp;" escape="false"/>
-  </h:panelGrid>
-  <h:panelGrid border="0">
-    <h:panelGroup>
-    <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true" >
-  	  <f:validateDoubleRange />
-    </h:inputText>
-    <h:message for="answerdsc" styleClass="validate"/>
-    </h:panelGroup>
-    <h:outputText value="#{authorMessages.note_negative_point_value_question}" />
-  </h:panelGrid>
-</h:panelGrid>
+  <h:outputLabel value="#{authorMessages.answer} " />  
+</div>
+<!-- need to add a listener, for the radio button below,to toggle between single and multiple correct-->
+<div  id= class="tier2">
+  <h:selectOneRadio id="chooseAnswerTypeForMC" layout="pageDirection"
+	 		        onclick="this.form.onsubmit();this.form.submit();"
+                    onkeypress="this.form.onsubmit();this.form.submit();"
+                    value="#{itemauthor.currentItem.itemType}"
+	                valueChangeListener="#{itemauthor.currentItem.toggleChoiceTypes}" >
+    <f:selectItem itemValue="1" itemLabel="#{authorMessages.single}" />  
+    <f:selectItem itemValue="12" itemLabel="#{authorMessages.multipl_mc_ss}" />
+    <f:selectItem itemValue="2"   itemLabel="#{authorMessages.multipl_mc_ms}" />
+  </h:selectOneRadio>
+</div>
+<!-- partial credit vs negative marking -->
+<div id="partialCredit_toggle" class="tier3">
+  <h:panelGroup id="partialCredit_JSF_toggle" 
+   				rendered="#{itemauthor.currentItem.itemType == 1 && itemauthor.currentItem.partialCreditEnabled==true}">
+    <h:selectOneRadio id="partialCreadit_NegativeMarking"
+					  layout="pageDirection"
+					  onclick="this.form.onsubmit();this.form.submit();"
+					  onkeypress="this.form.onsubmit();this.form.submit();"
+					  value="#{itemauthor.currentItem.partialCreditFlag}"
+					  valueChangeListener="#{itemauthor.currentItem.togglePartialCredit}">
+      <f:selectItem itemValue="false" itemLabel="#{authorMessages.enable_nagative_marking}"  />
+      <f:selectItem itemValue="true" itemLabel="#{authorMessages.enable_partial_credit}"  />
+    </h:selectOneRadio>
+  <h:panelGroup>
+	<h:outputText value="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" escape="false" />
+    <h:commandLink  title="#{authorMessages.reset_grading_logic}"
+					id="resetlink"
+					rendered="#{itemauthor.currentItem.itemType == 1}"
+					onkeypress="this.form.onsubmit();this.form.submit();"
+					action="#{itemauthor.currentItem.resetToDefaultGradingLogic}">
+      <h:outputText id="resetLinkText" value="#{authorMessages.reset_grading_logic}"  />
+    </h:commandLink><!-- TODO  Need to un-check all the radio buttons as well-->
+  </h:panelGroup>
+  </h:panelGroup>
+</div>
+    
+<div id="discountDiv" class="longtext">
+  <h:panelGroup id="discountTable"
+        rendered="#{itemauthor.currentItem.itemType==1 &&(itemauthor.currentItem.partialCreditFlag=='false'||itemauthor.currentItem.partialCreditEnabled==false)}">
+  <h:outputText value="&nbsp;&nbsp;" escape="false" />
+  <h:outputLabel value="#{authorMessages.negative_point_value}"/>
+  <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true" >
+    <f:validateDoubleRange />
+  </h:inputText>
+  <f:verbatim> <script type="text/javascript">
+        var discDiv=document.getElementById('discountDiv');
+        var toggleDiv=document.getElementById('itemForm:partialCreadit_NegativeMarking');
+        if( typeof(toggleDiv) != 'undefined' && toggleDiv != null){
+        toggleDiv.rows[0].cells[0].appendChild(discDiv);
+        }
+        else {
+       	 var QtypeTable=document.getElementById('itemForm:chooseAnswerTypeForMC');
+       	 QtypeTable.rows[0].cells[0].appendChild(discDiv);
+             }
+    </script>
+  </f:verbatim>
+</h:panelGroup>
 </div>
 
 
@@ -123,30 +169,11 @@
   <!-- 2a ATTACHMENTS -->
   <%@ include file="/jsf/author/item/attachment.jsp" %>
 
-  <!-- 3 ANSWER -->
-  <div class="longtext">
-    <h:outputLabel value="#{authorMessages.answer} " />  </div>
-  <!-- need to add a listener, for the radio button below,to toggle between single and multiple correct-->
-<div class="tier2">
-    <h:selectOneRadio layout="pageDirection"
-		onclick="this.form.onsubmit();this.form.submit();"
-                onkeypress="this.form.onsubmit();this.form.submit();"
-           value="#{itemauthor.currentItem.itemType}"
-	valueChangeListener="#{itemauthor.currentItem.toggleChoiceTypes}" >
-      <f:selectItem itemValue="1"
-        itemLabel="#{authorMessages.single}" />
-      <f:selectItem itemValue="12"
-        itemLabel="#{authorMessages.multipl_mc_ss}" />
-      <f:selectItem itemValue="2"
-        itemLabel="#{authorMessages.multipl_mc_ms}" />
-    </h:selectOneRadio>
-</div>
-
 	<!-- dynamicaly generate rows of answers based on number of answers-->
 <div class="tier2">
  <h:dataTable id="mcchoices" value="#{itemauthor.currentItem.multipleChoiceAnswers}" var="answer" headerClass="navView longtext">
 <h:column>
-<h:panelGrid columns="2">
+<h:panelGrid columns="2" border="0">
 <h:panelGroup>
       
 
@@ -180,6 +207,7 @@
  </h:panelGroup>
         <!-- WYSIWYG -->
  <h:panelGrid>
+
    <samigo:wysiwyg rows="140" value="#{answer.text}" hasToggle="yes" >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
@@ -194,6 +222,36 @@
          </samigo:wysiwyg>
   </h:panelGrid>
         </h:panelGrid>
+
+	</h:column>
+	
+	<h:column rendered="#{itemauthor.currentItem.itemType==1 && itemauthor.currentItem.partialCreditFlag=='true'}"> 
+	<h:panelGrid id="partialCreditInput" >
+	<h:commandLink  title="#{authorMessages.reset_score_values}" 
+	                rendered="#{answer.sequence==1}"
+	                action="#{itemauthor.currentItem.resetPartialCreditValues}">
+	  <h:outputText value="#{authorMessages.reset_score_values}"/>
+	</h:commandLink> 
+	
+	
+	<f:verbatim ><br/><br/></f:verbatim>
+	
+	<!-- Begin changes made for Partial Credit --> 
+	<h:outputText value="#{authorMessages.percentange_vaue}" />
+	    <h:inputText id="partialCredit" size="2" value="#{answer.partialCredit}">
+	    <f:validateDoubleRange  minimum="0.00" maximum="100.00"/> </h:inputText>
+	    <h:outputText id="partialCreditReminder" value="#{authorMessages.enter_new_pc_value}" style="visibility:hidden;" />
+	    <h:message for="partialCredit" styleClass="validate"/>
+	<!-- end of partial credit -->
+	<f:verbatim><br/><br/></f:verbatim>
+	
+	<h:commandLink  title="#{authorMessages.reset_score_values}" 
+	                rendered="#{itemauthor.currentItem.totalMCAnswers==answer.sequence}" 
+	                action="#{itemauthor.currentItem.resetPartialCreditValues}">
+	  <h:outputText  value="#{authorMessages.reset_score_values}"/>
+	</h:commandLink>
+	</h:panelGrid>
+
 </h:column>
 </h:dataTable>
 

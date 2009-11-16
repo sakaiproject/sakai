@@ -158,6 +158,14 @@ public class ItemModifyListener implements ActionListener
       }
       bean.setItemDiscount(discount);
 
+      // partical credit flag
+      String partialCreditFlag= "FALSE";
+      Boolean hasPartialCredit = itemfacade.getPartialCreditFlag();
+      if (hasPartialCredit != null) {
+    	  partialCreditFlag = hasPartialCredit.toString();
+      } 
+      bean.setPartialCreditFlag(partialCreditFlag);
+           
       if (itemfacade.getHasRationale() !=null) {
         bean.setRationale(itemfacade.getHasRationale().toString());
       }
@@ -426,7 +434,11 @@ public class ItemModifyListener implements ActionListener
                     answerbean.getIsCorrect().booleanValue()) {
 		  correctlist.add(answerbean);
 		}
-                answerbeanlist.add(answerbean);
+		// making sure if there is any partial credit in place we account for that --mustansar
+		if  (Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CHOICE)) {
+			answerbean.setPartialCredit(answerArray[i].getPartialCredit()); 
+		}
+		answerbeanlist.add(answerbean);
          }
 
 	// set correct choice for single correct

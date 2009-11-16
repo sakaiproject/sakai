@@ -79,6 +79,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
   protected Float score;
   protected Float discount;
   protected String hint;
+  protected Boolean partialCreditFlag;
   protected Boolean hasRationale;
   protected Integer status;
   protected String createdBy;
@@ -1071,5 +1072,21 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
   
   public String getItemAttachmentMetaData() {
 	  return itemAttachmentMetaData;
+  }
+  
+  public void setPartialCreditFlag(Boolean partialCreditFlag){
+	  this.partialCreditFlag=partialCreditFlag;
+	  this.data.setPartialCreditFlag(partialCreditFlag);
+
+  }
+
+  public Boolean getPartialCreditFlag(){
+	  try {
+		  this.data = (ItemDataIfc) item.getData();
+	  }
+	  catch (AssessmentException ex) {
+		  throw new DataFacadeException(ex.getMessage());
+	  }
+	  return this.data.getPartialCreditFlag();
   }
 }

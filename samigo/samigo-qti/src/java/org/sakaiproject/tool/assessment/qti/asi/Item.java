@@ -183,6 +183,12 @@ public class Item extends ASIBaseClass
     {	
     	setFieldentry("hasRationale", item.getHasRationale().toString());
     }
+    if(item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE)&&item.getPartialCreditFlag()){
+    	setFieldentry("PARTIAL_CREDIT", "TRUE");
+
+    }else{
+    	setFieldentry("PARTIAL_CREDIT", "FALSE");
+    }
     //  rshastri: SAK-1824
     // item data
 //    ItemHelper helper = new ItemHelper();

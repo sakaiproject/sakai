@@ -104,21 +104,53 @@ function uncheck(field){
 function uncheckOthers(field){
  var fieldname = field.getAttribute("name");
  var tables= document.getElementsByTagName("TABLE");
+ var prevCorrectBtn=null;
 
-  for (var i = 0; i < tables.length; i++) {
-        if ( tables[i].id.indexOf("mcradiobtn") >=0){
- 		var radiobtn = tables[i].getElementsByTagName("INPUT")[0];
-// go through the radio buttons, if it's the one clicked on, uncheck all others
-	if (fieldname!=radiobtn.getAttribute("name")){
-		radiobtn.checked = false;
-}
-        } 
-  }
+ for (var i = 0; i < tables.length; i++) {
+    if ( tables[i].id.indexOf("mcradiobtn") >=0){
+       var radiobtn = tables[i].getElementsByTagName("INPUT")[0];
+       if (fieldname!=radiobtn.getAttribute("name")){
+          if (radiobtn.checked){
+             prevCorrectBtn=radiobtn.getAttribute("name");
+          }
+          radiobtn.checked = false;
+       }
+    }
+ }
  
 var selectId =  field.getAttribute("value");
 var inputhidden = document.getElementById("itemForm:selectedRadioBtn");
 inputhidden.setAttribute("value", selectId);
- 
+swtichPartialCredit(fieldname,prevCorrectBtn); 
+}
+
+function swtichPartialCredit(newCorrect,oldCorrect){
+   var toggleDiv=document.getElementById('partialCredit_toggle');
+   if( typeof(toggleDiv) == 'undefined' ||toggleDiv == null){
+      return;
+   }
+   else{
+       //setting old one to zero
+       if(oldCorrect!=null && oldCorrect!='undefined'){
+             var position= oldCorrect.split(":");
+             var  prevcorrId="itemForm:mcchoices:"+position[2]+":partialCredit";
+             var pInput= document.getElementById(prevcorrId);
+             pInput.valueOf().value=0;
+             pInput.style.borderStyle = "solid double";
+             pInput.style.borderColor="red";
+			 pInput.disabled=false;
+             pInput.focus();
+             var reminderTextId="itemForm:mcchoices:"+position[2]+":partialCreditReminder";
+             var reminderTexElement= document.getElementById(reminderTextId);
+             reminderTexElement.style.visibility="visible";
+         }
+         //setting new one to 100 
+         position= newCorrect.split(":");
+         var currCorrId="itemForm:mcchoices:"+position[2]+":partialCredit";
+         var correctPInput= document.getElementById(currCorrId);
+         correctPInput.valueOf().value=100;
+		 correctPInput.disabled=true;
+  }
 }
 
 function resetInsertAnswerSelectMenus(){
@@ -129,8 +161,30 @@ function resetInsertAnswerSelectMenus(){
           selectlist[i].value = 0;
         }
   }
+
+  var toggleDiv=document.getElementById('partialCredit_toggle');
+  if( typeof(toggleDiv) == 'undefined' || toggleDiv == null){ return;}
+  else{
+    var QtypeTable=document.getElementById('itemForm:chooseAnswerTypeForMC');
+    QtypeTable.rows[0].cells[0].appendChild(toggleDiv); 
+  }
 }
 
+function disablePartialCreditField(){
+ var inputs= document.getElementsByTagName("INPUT");
+
+ for (var i = 0; i < inputs.length; i++) {
+    if (inputs[i].name.indexOf("mcradiobtn") >= 0){
+	   var radiobtn = inputs[i];
+       if (radiobtn.checked){
+          var subElement= radiobtn.name.split(":");
+          var currCorrId="itemForm:mcchoices:"+subElement[2]+":partialCredit";
+		  var correctPInput= document.getElementById(currCorrId);
+          correctPInput.disabled=true;
+       }   
+    }
+ }
+}
 
 function clickAddChoiceLink(){
 
