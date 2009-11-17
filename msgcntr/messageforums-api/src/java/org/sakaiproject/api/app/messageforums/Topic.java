@@ -93,4 +93,7 @@ public interface Topic extends MutableEntity {
 
     public void setModerated(Boolean moderated);
 
+    public Boolean getAutoMarkThreadsRead();
+    
+    public void setAutoMarkThreadsRead(Boolean autoMarkThreadsRead);
 }

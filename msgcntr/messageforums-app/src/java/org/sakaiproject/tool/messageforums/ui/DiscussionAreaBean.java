@@ -81,6 +81,36 @@ public class DiscussionAreaBean
 	  }
 	  
 	  /**
+	   * Returns whether or not the forum automatically marks messages in topics as read.
+	   */
+	  public String getAutoMarkThreadsRead() {
+		  LOG.debug("getAutoMarkThreadsRead()");
+		  if (area == null || area.getAutoMarkThreadsRead() == null || !area.getAutoMarkThreadsRead())
+		  {
+			  return Boolean.FALSE.toString();
+		  }
+		  else
+		  {
+			  return Boolean.TRUE.toString();
+		  }
+	  }
+	  
+	  /**
+	   * Set the automatically mark topics as read value on the forum.
+	   */
+	  public void setAutoMarkThreadsRead(String autoMarkThreadsRead) {
+		  LOG.debug("setMarkThreadsRead(String)");
+		  if (autoMarkThreadsRead.equals(Boolean.TRUE.toString()))
+		  {
+			  area.setAutoMarkThreadsRead(new Boolean(true));
+		  }
+		  else
+		  {
+			  area.setAutoMarkThreadsRead(new Boolean(false));
+		  }
+	  }
+	  
+	  /**
 	   * 
 	   * @return
 	   */

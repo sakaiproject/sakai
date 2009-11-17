@@ -35,7 +35,6 @@ import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
-import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
@@ -48,7 +47,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -74,10 +72,11 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     private MessageForumsTypeManager typeManager;
 
     private UserPermissionManager userPermissionManager;
-    
-    private SiteService siteService;
 
     private ServerConfigurationService serverConfigurationService;
+    private Boolean DEFAULT_AUTO_MARK_READ = false;    
+
+    private SiteService siteService;
     
     public void setServerConfigurationService(
 			ServerConfigurationService serverConfigurationService) {
@@ -90,7 +89,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 
 	public void init() {
        LOG.info("init()");
-        ;
+       DEFAULT_AUTO_MARK_READ = serverConfigurationService.getBoolean("msgcntr.forums.default.auto.mark.threads.read", false);
     }
 
     public UserPermissionManager getUserPermissionManager() {
@@ -139,6 +138,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
             area.setHidden(Boolean.TRUE);
             area.setLocked(Boolean.FALSE);
             area.setModerated(Boolean.FALSE);
+	    area.setAutoMarkThreadsRead(DEFAULT_AUTO_MARK_READ);
             area.setSendEmailOut(Boolean.TRUE);
             saveArea(area);
         }
@@ -170,7 +170,8 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
             area.setHidden(Boolean.TRUE);
             area.setLocked(Boolean.FALSE);
             area.setModerated(Boolean.FALSE);
-            area.setSendEmailOut(Boolean.TRUE);
+            area.setAutoMarkThreadsRead(DEFAULT_AUTO_MARK_READ);
+	    area.setSendEmailOut(Boolean.TRUE);
             saveArea(area);
             //if set populate the default Forum and topic
             if  (serverConfigurationService.getBoolean("forums.setDefault.forum", true) && populateDefaults) {
@@ -197,7 +198,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     	forum.setTitle(getResourceBundleString("default_forum", new Object[]{(Object)siteTitle}));
     	forum.setDraft(false);
     	forum.setModerated(area.getModerated());
-    	forumManager.saveDiscussionForum(forum);
+        forumManager.saveDiscussionForum(forum);
     	DiscussionTopic topic = forumManager.createDiscussionForumTopic(forum);
     	topic.setTitle(getResourceBundleString("default_topic"));
     	forumManager.saveDiscussionForumTopic(topic, false);

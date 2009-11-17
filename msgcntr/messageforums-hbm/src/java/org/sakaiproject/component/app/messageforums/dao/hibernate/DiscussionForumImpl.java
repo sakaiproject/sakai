@@ -38,6 +38,7 @@ public class DiscussionForumImpl extends OpenForumImpl implements DiscussionForu
     private DateRestrictions dateRestrictions;
     private ActorPermissions actorPermissions;
     private int areaindex;
+    private Boolean autoMarkThreadsRead;
     
     public int getAreaindex() {
         try {
@@ -104,5 +105,13 @@ public class DiscussionForumImpl extends OpenForumImpl implements DiscussionForu
         label.setDiscussionForum(null);
         labels.remove(label);
     }
+
+	public Boolean getAutoMarkThreadsRead() {
+		return autoMarkThreadsRead;
+	}
+
+	public void setAutoMarkThreadsRead(Boolean autoMarkThreadsRead) {
+		this.autoMarkThreadsRead = autoMarkThreadsRead;
+	}
 
 }

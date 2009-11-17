@@ -207,6 +207,24 @@ public class DiscussionForumBean
 		  forum.setModerated(new Boolean(false));
 	  }
   }
+  
+  /**
+   * Return whether or not the forum automatically marks all posts in a topic as read.
+   */
+  public String getAutoMarkThreadsRead()
+  {
+	  LOG.debug("getAutoMarkThreadsRead()");
+	  return Boolean.toString(forum.getAutoMarkThreadsRead());
+  }
+  
+  /**
+   * Set the autoMarkThreadsRead setting for the forum.
+   */
+  public void setAutoMarkThreadsRead(String autoMarkThreadsRead)
+  {
+	  LOG.debug("setAutoMarkThreadsRead()");
+	  forum.setAutoMarkThreadsRead(Boolean.parseBoolean(autoMarkThreadsRead));
+  }
 
   /**
    * @return Returns the markForDeletion.

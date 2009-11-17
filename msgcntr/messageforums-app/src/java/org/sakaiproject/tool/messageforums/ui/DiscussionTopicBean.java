@@ -414,6 +414,32 @@ public class DiscussionTopicBean
       topic.setModerated(new Boolean(false));
     }
   }
+  
+  /**
+   * Returns the autoMarkThreadsRead value.
+   */
+  public String getAutoMarkThreadsRead()
+  {
+    LOG.debug("getAutoMarkThreadsRead()");
+    if (topic == null || topic.getAutoMarkThreadsRead() == null) {
+      return Boolean.FALSE.toString();
+    } else {
+      return topic.getAutoMarkThreadsRead().toString();
+    }
+  }
+  
+  /**
+   * Set the autoMarkThreadsRead value for this Discussion Topic.
+   */
+  public void setAutoMarkThreadsRead(String autoMarkThreadsRead)
+  {
+    if (LOG.isDebugEnabled()) 
+    {
+      LOG.debug("setAutoMarkThreadsRead(String " + autoMarkThreadsRead + ")");
+    }
+    
+    topic.setAutoMarkThreadsRead(Boolean.parseBoolean(autoMarkThreadsRead));
+  }
 
   public void removeMessage(DiscussionMessageBean decoMessage)
   {

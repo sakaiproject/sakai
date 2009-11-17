@@ -63,6 +63,8 @@
 	<property name="moderated">
 		<column name="MODERATED" not-null="true" />
 	</property>
+	
+	<property name="autoMarkThreadsRead" column="AUTO_MARK_THREADS_READ" not-null="true" />
 
    	<!-- 
  	<list name="attachments" lazy="true" table="MFR_ATTACHMENT_T" cascade="all">

@@ -424,6 +424,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 					newForum.setDraft(fromForum.getDraft());
 					newForum.setLocked(fromForum.getLocked());
 					newForum.setModerated(fromForum.getModerated());
+					newForum.setAutoMarkThreadsRead(fromForum.getAutoMarkThreadsRead());
 					
 					// set the forum order. any existing forums will be first
 					// if the "from" forum has a 0 sort index, there is no sort order
@@ -515,6 +516,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 							newTopic.setDraft(fromTopic.getDraft());
 							newTopic.setModerated(fromTopic.getModerated());
 							newTopic.setSortIndex(fromTopic.getSortIndex());
+							newTopic.setAutoMarkThreadsRead(fromTopic.getAutoMarkThreadsRead());
 
 							// Get/set the topic's permissions
 							Set topicMembershipItemSet = fromTopic.getMembershipItemSet();

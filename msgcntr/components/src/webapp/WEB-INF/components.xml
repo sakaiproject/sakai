@@ -256,6 +256,7 @@
 		        <property name="eventTrackingService">
         		    <ref bean="org.sakaiproject.event.api.EventTrackingService"/>
 		        </property>
+		        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
         	</bean>
 		</property>
 		

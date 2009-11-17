@@ -51,6 +51,9 @@
     <property name="moderated">
       <column name="MODERATED" not-null="true" />
     </property>
+    <property name="autoMarkThreadsRead">
+      <column name="AUTO_MARK_THREADS_READ" not-null="true" />
+    </property>
     <set name="openForumsSet" lazy="true" order-by="SORT_INDEX, created desc" cascade="save-update">
         <key column="surrogateKey"/>                        
         <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl"/>            

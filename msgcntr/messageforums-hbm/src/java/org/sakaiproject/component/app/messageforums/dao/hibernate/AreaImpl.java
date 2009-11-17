@@ -46,6 +46,8 @@ public class AreaImpl extends MutableEntityImpl implements Area
   
   private Boolean moderated;
   
+  private Boolean autoMarkThreadsRead;
+  
   private Boolean enabled;
   
   private Boolean sendEmailOut;
@@ -177,7 +179,15 @@ public class AreaImpl extends MutableEntityImpl implements Area
 	  this.moderated = moderated;
   }
 
-  public Set getDiscussionForumsSet() {
+  public Boolean getAutoMarkThreadsRead() {
+	return autoMarkThreadsRead;
+}
+
+public void setAutoMarkThreadsRead(Boolean autoMarkThreadsRead) {
+	this.autoMarkThreadsRead = autoMarkThreadsRead;
+}
+
+public Set getDiscussionForumsSet() {
       return discussionForumsSet;
   }
 

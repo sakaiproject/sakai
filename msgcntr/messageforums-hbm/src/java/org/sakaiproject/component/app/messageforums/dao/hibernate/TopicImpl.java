@@ -57,6 +57,7 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
     private Set membershipItemSet;
     private String defaultAssignName;
     private Boolean moderated;
+    private Boolean autoMarkThreadsRead;
     
     // foreign keys for hibernate
     private PrivateForum privateForum;
@@ -188,6 +189,14 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
     
     public void setModerated(Boolean moderated) {
     	this.moderated = moderated;
+    }
+    
+    public Boolean getAutoMarkThreadsRead() {
+    	return autoMarkThreadsRead;
+    }
+    
+    public void setAutoMarkThreadsRead(Boolean autoMarkThreadsRead) {
+    	this.autoMarkThreadsRead = autoMarkThreadsRead;
     }
         
 

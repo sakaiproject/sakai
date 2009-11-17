@@ -39,4 +39,8 @@ public interface DiscussionForum extends OpenForum {
     public void addLabel(Label label);
 
     public void removeLabel(Label label);
+    
+    public Boolean getAutoMarkThreadsRead();
+    
+    public void setAutoMarkThreadsRead(Boolean autoMarkThreadsRead);
 }

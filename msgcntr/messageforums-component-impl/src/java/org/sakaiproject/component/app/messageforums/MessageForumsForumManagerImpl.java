@@ -52,6 +52,7 @@ import org.sakaiproject.api.app.messageforums.OpenTopic;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.PrivateTopic;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl;
@@ -142,6 +143,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
     private SessionManager sessionManager;
 
+    private ServerConfigurationService serverConfigurationService;
+    private Boolean DEFAULT_AUTO_MARK_READ = false; 
+
     private MessageForumsTypeManager typeManager;
 
     public MessageForumsForumManagerImpl() {}
@@ -150,7 +154,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     
     public void init() {
        LOG.info("init()");
-        ;
+       DEFAULT_AUTO_MARK_READ = serverConfigurationService.getBoolean("msgcntr.forums.auto.mark.threads.read", false);
     }
 
     public EventTrackingService getEventTrackingService() {
@@ -177,7 +181,12 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         this.idManager = idManager;
     }
 
-    public IdManager getIdManager() {
+    public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
+
+	public IdManager getIdManager() {
         return idManager;
     }
 
@@ -736,6 +745,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         forum.setTypeUuid(typeManager.getDiscussionForumType());                  
         forum.setActorPermissions(createDefaultActorPermissions());
         forum.setModerated(Boolean.FALSE);
+        forum.setAutoMarkThreadsRead(DEFAULT_AUTO_MARK_READ);
         LOG.debug("createDiscussionForum executed");
         return forum;
     }
@@ -891,6 +901,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         topic.setLocked(Boolean.FALSE);
         topic.setDraft(forum.getDraft());
         topic.setModerated(Boolean.FALSE);
+        topic.setAutoMarkThreadsRead(forum.getAutoMarkThreadsRead());
         LOG.debug("createDiscussionForumTopic executed");
         return topic;
     }
@@ -977,6 +988,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         }
         topic.setTypeUuid(typeManager.getPrivateMessageAreaType());
         topic.setModerated(Boolean.FALSE);
+        topic.setAutoMarkThreadsRead(DEFAULT_AUTO_MARK_READ);
         LOG.debug("createPrivateForumTopic executed");
         return topic;
     }

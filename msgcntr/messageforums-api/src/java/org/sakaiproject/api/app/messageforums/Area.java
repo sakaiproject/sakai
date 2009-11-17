@@ -87,6 +87,10 @@ public interface Area extends MutableEntity {
     
     public void setModerated(Boolean moderated);
     
+    public Boolean getAutoMarkThreadsRead();
+    
+    public void setAutoMarkThreadsRead(Boolean autoMarkThreadsRead);
+    
     public Set getMembershipItemSet();
 			
 	public void setMembershipItemSet(Set membershipItemSet);

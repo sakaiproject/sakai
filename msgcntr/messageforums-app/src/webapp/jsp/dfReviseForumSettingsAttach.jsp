@@ -158,8 +158,24 @@
   					</h:selectOneRadio>
 				</h:panelGroup>
 			</h:panelGrid>
-			</div>
-	   <%@include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
+ 		</div>
+
+		<div class="instruction" style="padding: 0.5em; margin-top:0.8em;"><h4>
+       			<h:outputText value="#{msgs.cdfm_forum_mark_read}"/>
+       		</h4></div>
+         	<h:panelGrid columns="2" >
+         		<h:panelGroup styleClass="shorttext">
+           			<h:outputLabel for="autoMarkThreadsRead" value="#{msgs.cdfm_auto_mark_threads_read}" styleClass="shorttext"/>
+         		</h:panelGroup>
+         		<h:panelGroup>
+           			<h:selectOneRadio layout="lineDirection" id="autoMarkThreadsRead" value="#{ForumTool.selectedForum.autoMarkThreadsRead}" styleClass="checkbox inlineForm">
+             				<f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_yes}"/>
+             				<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_no}"/>
+           			</h:selectOneRadio>
+         		</h:panelGroup>
+	       </h:panelGrid>
+
+ 	 	<%@include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
 	      
       <div class="act">
           <h:commandButton action="#{ForumTool.processActionSaveForumSettings}" value="#{msgs.cdfm_button_bar_save_setting}"

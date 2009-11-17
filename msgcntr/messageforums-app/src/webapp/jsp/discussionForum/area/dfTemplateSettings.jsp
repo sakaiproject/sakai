@@ -36,7 +36,21 @@
   					</h:selectOneRadio>
 				  </h:panelGroup>
 			  </h:panelGrid>
-				
+
+				<div class="instruction" style="padding: 0.5em;"><h4>
+					<h:outputText  value="#{msgs.cdfm_forum_mark_read}" />
+				</h4></div>
+				<h:panelGrid columns="2" columnClasses="shorttext,checkbox">
+				  <h:panelGroup><h:outputLabel id="outputLabel5" for="autoMarkThreadsRead"  value="#{msgs.cdfm_auto_mark_threads_read}"/>	</h:panelGroup>
+				  <h:panelGroup>
+					  <h:selectOneRadio layout="lineDirection" disabled="#{not ForumTool.editMode}" id="autoMarkThreadsRead" 
+					    value="#{ForumTool.template.autoMarkThreadsRead}" onclick="javascript:disableOrEnableModeratePerm();">
+    					<f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_yes}"/>
+    					<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_no}"/>
+  					</h:selectOneRadio>
+				  </h:panelGroup>
+			    </h:panelGrid>
+			  
 		 		<%@include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
 		 		
         <div class="act">
