@@ -979,7 +979,7 @@ public class ItemAddListener
 									.getSequence(), answerbean.getLabel(),
 							Boolean.TRUE, null, Float.valueOf(bean.getItemScore()), Float.valueOf(100f), Float.valueOf(bean.getItemDiscount()));
 				} else {
-					if (item.getTypeId().equals(TypeFacade.MULTIPLE_CHOICE)&&item.getPartialCreditFlag()){
+					if (item.getTypeId().equals(TypeFacade.MULTIPLE_CHOICE) && item.getPartialCreditFlag()){
 						Float pc =  answerbean.getPartialCredit(); //--mustansar
 						if (pc == null) {
 							pc = Float.valueOf(0f);

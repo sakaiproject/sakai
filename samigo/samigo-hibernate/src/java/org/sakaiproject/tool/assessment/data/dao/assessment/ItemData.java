@@ -765,11 +765,14 @@ public class ItemData
   }
 
   public Boolean getPartialCreditFlag() {
-	  return this.partialCreditFlag;
+	  if (partialCreditFlag == null) {
+		  return Boolean.FALSE;
+	  }
+	  return partialCreditFlag;
   }
 
   public void setPartialCreditFlag(Boolean particalCreditFlag) {
-	  this.partialCreditFlag=particalCreditFlag;	
+	  this.partialCreditFlag = particalCreditFlag;	
   }
 
 }

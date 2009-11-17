@@ -683,6 +683,9 @@ public class PublishedItemData
   }
 
   public Boolean getPartialCreditFlag() {
+	  if (partialCreditFlag == null) {
+		  return Boolean.FALSE;
+	  }
 	  return partialCreditFlag;
   }
 

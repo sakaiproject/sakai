@@ -183,7 +183,7 @@ public class Item extends ASIBaseClass
     {	
     	setFieldentry("hasRationale", item.getHasRationale().toString());
     }
-    if(item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE)&&item.getPartialCreditFlag()){
+    if(item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE) && item.getPartialCreditFlag()){
     	setFieldentry("PARTIAL_CREDIT", "TRUE");
 
     }else{
