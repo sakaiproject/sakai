@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
-import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,7 +40,7 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
@@ -66,7 +65,6 @@ public class SiteManageGroupSectionRoleHandler {
     public ToolManager toolManager = null;
     public SessionManager sessionManager = null;
     public ServerConfigurationService serverConfigurationService;
-    public UserDirectoryService userDirectoryService;
     private List<Group> groups = null;
     private Set unhideables = null;
     public String memberList = "";
@@ -450,37 +448,6 @@ public class SiteManageGroupSectionRoleHandler {
     	}
     	
     	return rv;
-    }
-    
-    public HashMap<String, Collection<String>> getSiteUserGroupsMap()
-    {
-    	HashMap<String, Collection<String>> userGroupsMap = new HashMap<String, Collection<String>>(); 
-    	if (site != null)
-    	{
-    		Collection groups = site.getGroups();
-	    	for (Object g : groups) {
-	    		Group group = (Group) g;
-	    		for (Object m : group.getMembers()) {
-	    			Member member = (Member) m;
-	    			String uid = member.getUserId();
-	    			String uName = "";
-	    			try
-	    			{
-	    				User u = userDirectoryService.getUser(uid);
-	    				uName = u != null? u.getSortName() : uid;
-	    			}
-	    			catch (Exception e)
-	    			{
-	    				M_log.warn(this + " getSiteUserGroupsMap: cannot get user with id = " + uid + ".");
-	    			}
-	    			if(userGroupsMap.get(uName) == null) 
-	    				userGroupsMap.put(uName, new TreeSet<String>());
-	    			
-	    			userGroupsMap.get(uName).add(group.getTitle() != null? group.getTitle() : group.getId());
-	    		}
-	    	}
-    	}
-    	return userGroupsMap;
     }
     
     public List<Member> getGroupParticipant()

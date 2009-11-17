@@ -12,16 +12,16 @@
 	<script type="text/javascript" src="../js/optionTransfer.js" rsf:id="scr=rewrite-url"></script>
 	<script type="text/javascript" src="../js/util.js" rsf:id="scr=rewrite-url"></script>
 	<SCRIPT LANGUAGE="JavaScript">
-		var opt = new OptionTransfer("siteMembers-selection","groupMembers-selection");
-		opt.setAutoSort(true);
-		opt.setDelimiter(",");
-		opt.setStaticOptionRegex("^(Bill|Bob|Matt)$");
-		opt.saveRemovedLeftOptions("removedLeft");
-		opt.saveRemovedRightOptions("removedRight");
-		opt.saveAddedLeftOptions("addedLeft");
-		opt.saveAddedRightOptions("addedRight");
-		opt.saveNewLeftOptions("newLeft");
-		opt.saveNewRightOptions("newRight");
+	var opt = new OptionTransfer("siteMembers-selection","groupMembers-selection");
+	opt.setAutoSort(true);
+	opt.setDelimiter(",");
+	opt.setStaticOptionRegex("^(Bill|Bob|Matt)$");
+	opt.saveRemovedLeftOptions("removedLeft");
+	opt.saveRemovedRightOptions("removedRight");
+	opt.saveAddedLeftOptions("addedLeft");
+	opt.saveAddedRightOptions("addedRight");
+	opt.saveNewLeftOptions("newLeft");
+	opt.saveNewRightOptions("newRight");
 	</SCRIPT>
 </head>
 <body>
@@ -47,14 +47,14 @@
 	<h4 rsf:id="membership_label"></h4>
 		<table class="sidebyside" cellpadding="0" cellspacing="0" style="margin:0">
 			<tr>
-				<td valign="top" style="padding:0">
+				<td style="padding:0">
 					<h4 rsf:id="membership_site_label" style="margin:0;padding:0"></h4>
-					<select rsf:id="siteMemberSelect:" name="siteMemberSelect" id="siteMemberSelect" onchange="javascript:fixMyDiv();" ondblClick="opt.transferRight()">
+					<select rsf:id="siteMemberSelect:" name="siteMemberSelect" id="siteMemberSelect" ondblClick="opt.transferRight()">
 					</select>
 				  <select multiple="multiple" size="20" rsf:id="siteMembers" id="siteMembers-selection" name="siteMembers-selection" >
 					</select>	
 				</td>
-				<td valign="top" style="padding:.3em;text-align:center;vertical-align:top">
+				<td style="padding:.3em;text-align:center;vertical-align:bottom">
 					<input type="button" name="right" value="&gt;" onclick="opt.transferRight()" /><br /><br />
 					<input type="button" name="left" value="&lt;" onclick="opt.transferLeft()" /><br /><br /><br /><br />
 					<input type="button" name="right" value="&gt;&gt;" onclick="opt.transferAllRight()" /><br /><br />
@@ -62,30 +62,8 @@
 				</td>
 				<td valign="top" style="padding:0">
 					<h4 rsf:id="membership_group_label" style="margin:0;padding:0"></h4>
-					<select multiple="multiple" rsf:id="groupMembers" id = "groupMembers-selection" name="groupMembers-selection" size="20" onchange="javascript:fixMyDiv();" ondblclick="opt.transferLeft()" >
+					<select multiple="multiple" rsf:id="groupMembers" id = "groupMembers-selection" name="groupMembers-selection" size="20" ondblclick="opt.transferLeft()" >
 					</select>
-				</td>
-				<td valign="top" style="margin-left:5em;">
-					<table class="listHier lines nolines centerLines" border="0" cellspacing="0">
-					  <thead>
-					    <tr> 
-					      	<th rsf:id="userrow-user-title">
-							</th>
-							<th rsf:id="userrow-group-title">
-							</th>
-					    </tr>
-					  </thead>
-					  <tbody>
-					
-					    <tr rsf:id="user-row:"> 
-					       <td><span rsf:id="user-title">User Name</span>
-					       </td>
-					      <td rsf:id="user-groups">
-					      	User Groups
-					      </td>
-					    </tr>
-					  </tbody>
-					</table>
 				</td>
 			</tr>
 		</table>
@@ -99,7 +77,6 @@
 	</form>
 	<SCRIPT LANGUAGE="JavaScript">
 		opt.init(document.forms[0]);
-		fixMyDiv();
 	</SCRIPT>
 </div>
 </body>

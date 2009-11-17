@@ -3,7 +3,6 @@ package org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf;
 import java.util.Collection;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -145,27 +144,6 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 		 UIOutput.make(groupForm, "membership_label", messageLocator.getMessage("editgroup.membership"));
 		 UIOutput.make(groupForm, "membership_site_label", messageLocator.getMessage("editgroup.generallist"));
 		 UIOutput.make(groupForm, "membership_group_label", messageLocator.getMessage("editgroup.grouplist"));
-		 
-		 /*************************** this is to display user-group association **********/
-		 UIMessage.make(groupForm, "userrow-user-title","userrow.user.title");
-		 UIMessage.make(groupForm, "userrow-group-title", "userrow.group.title");
-		 
-		 HashMap<String, Collection<String>> siteUserGroupsMap = handler.getSiteUserGroupsMap();
-		 for (Iterator<String> it = siteUserGroupsMap.keySet().iterator(); it.hasNext(); ) {
-         	String userName = it.next();
-         	Collection<String> groups = siteUserGroupsMap.get(userName);
-         	String groupTitles = "";
-         	for(String gTitle : groups)
-         	{
-         		groupTitles += groupTitles.length() != 0?", ":"";
-         		groupTitles += gTitle;
-         	}
-         	
-            UIBranchContainer userRow = UIBranchContainer.make(groupForm, "user-row:", userName);
-            UIOutput.make(userRow, "user-title", userName);
-            UIOutput.make(userRow, "user-groups", groupTitles);
-		 }
-		 /***************************************************************************/
 		 
 		 /********************** for the site members list **************************/
 		 List<String> siteRosters= handler.getSiteRosters(g);
