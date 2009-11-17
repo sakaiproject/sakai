@@ -479,7 +479,7 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Users
 			}
 		} else if ( nextProvider != null ) {
 			UserEdit edit = factory.newUser();
-			if ( myProvider.findUserByEmail(edit,email) ) {
+			if ( nextProvider.findUserByEmail(edit,email) ) {
 				if (m_logger.isDebugEnabled()) {
 					m_logger.debug("nextProvider - found user "+edit.getId()+" for "+email + " as " + providerID);
 				}
