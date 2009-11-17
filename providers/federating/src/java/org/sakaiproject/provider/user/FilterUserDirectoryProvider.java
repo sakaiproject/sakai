@@ -158,12 +158,16 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Users
 	 */
 	public boolean getUser(UserEdit edit)
 	{
-		m_logger.debug("FUDP: getUser(" + edit.getId() + " eid:" + edit.getEid()  + ") as "+providerID);
-		m_logger.debug("FUDP: doing myProvider.getUser() as " + providerID);
+		if (m_logger.isDebugEnabled()) {
+			m_logger.debug("FUDP: getUser(" + edit.getId() + " eid:" + edit.getEid()  + ") as "+providerID);
+			m_logger.debug("FUDP: doing myProvider.getUser() as " + providerID);
+		}
 		if (  myProvider.getUser(edit) ) {
 			return true;
 		} else if ( nextProvider != null ) {
-			m_logger.debug("FUDP: doing nextProvider.getUser() as " + providerID);
+			if (m_logger.isDebugEnabled()) {
+				m_logger.debug("FUDP: doing nextProvider.getUser() as " + providerID);
+			}
 			return nextProvider.getUser(edit);
 		}
 		return false;
@@ -176,7 +180,9 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Users
 	 */
 	public void getUsers(Collection users)
 	{
-		m_logger.debug("getUsers() size()=" + users.size() + " as "+providerID);
+		if (m_logger.isDebugEnabled()) {
+			m_logger.debug("getUsers() size()=" + users.size() + " as "+providerID);
+		}
 		if (nextProvider != null) {
 			// We need to be clever and wrap the collection
 			GetUsersCollectionWrapper wrapper = new GetUsersCollectionWrapper(users);
@@ -184,14 +190,14 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Users
 				m_logger.debug("using wrapper on " + myProvider + " as " + providerID);
 			}
 			myProvider.getUsers(wrapper.firstPassCollection());
-			m_logger.debug("Passing myProvider removals collection to nextProvider size()=" + wrapper.secondPassCollection.size() + " as " + providerID);
 			if (m_logger.isDebugEnabled()) {
+				m_logger.debug("Passing myProvider removals collection to nextProvider size()=" + wrapper.secondPassCollection.size() + " as " + providerID);
 				m_logger.debug("using second wrapper on " + nextProvider);
 			}
 			
 			nextProvider.getUsers(wrapper.secondPassCollection());
-			m_logger.debug("Total number of removals from users collection=" + wrapper.realRemovals.size() + " as " + providerID);
 			if (m_logger.isDebugEnabled()) {
+				m_logger.debug("Total number of removals from users collection=" + wrapper.realRemovals.size() + " as " + providerID);
 				m_logger.debug("Applying Changes");
 			}
 			wrapper.apply();			
@@ -445,26 +451,38 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Users
 		Collection rv = new Vector();
 		if ( myProvider instanceof UsersShareEmailUDP ) {
 			UsersShareEmailUDP ushare = (UsersShareEmailUDP) myProvider;
-			m_logger.debug("myProvider Multiple lookup on "+email+" for "+ushare + " as " + providerID);
+			if (m_logger.isDebugEnabled()) {
+				m_logger.debug("myProvider Multiple lookup on "+email+" for "+ushare + " as " + providerID);
+			}
 			rv.addAll(ushare.findUsersByEmail(email,factory));
-			m_logger.debug("myProvider - got "+rv.size()+" matches" + " as " + providerID);
+			if (m_logger.isDebugEnabled()) {
+				m_logger.debug("myProvider - got "+rv.size()+" matches" + " as " + providerID);
+			}
 		} else {
 			UserEdit edit = factory.newUser();
 			if ( myProvider.findUserByEmail(edit,email) ) {
-				m_logger.debug("myProvider - found user "+edit.getId()+" for "+email + " as " + providerID);
+				if (m_logger.isDebugEnabled()) {
+					m_logger.debug("myProvider - found user "+edit.getId()+" for "+email + " as " + providerID);
+				}
 				rv.add(edit);
 			}
 		}
 
 		if ( nextProvider instanceof UsersShareEmailUDP) {
 			UsersShareEmailUDP ushare = (UsersShareEmailUDP) nextProvider;
-			m_logger.debug("nextProvider Multiple lookup on "+email+" for "+ushare + " as " + providerID);
+			if (m_logger.isDebugEnabled()) {
+				m_logger.debug("nextProvider Multiple lookup on "+email+" for "+ushare + " as " + providerID);
+			}
 			rv.addAll(ushare.findUsersByEmail(email,factory));
-			m_logger.debug("nextProvider - got "+rv.size()+" matches" + " as " + providerID);
+			if (m_logger.isDebugEnabled()) {
+				m_logger.debug("nextProvider - got "+rv.size()+" matches" + " as " + providerID);
+			}
 		} else if ( nextProvider != null ) {
 			UserEdit edit = factory.newUser();
 			if ( myProvider.findUserByEmail(edit,email) ) {
-				m_logger.debug("nextProvider - found user "+edit.getId()+" for "+email + " as " + providerID);
+				if (m_logger.isDebugEnabled()) {
+					m_logger.debug("nextProvider - found user "+edit.getId()+" for "+email + " as " + providerID);
+				}
 				rv.add(edit);
 			}
 		}
