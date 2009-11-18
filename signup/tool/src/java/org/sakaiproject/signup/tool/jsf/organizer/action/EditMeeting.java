@@ -25,14 +25,17 @@ package org.sakaiproject.signup.tool.jsf.organizer.action;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import org.sakaiproject.signup.logic.SignupMeetingService;
 import org.sakaiproject.signup.logic.SignupUserActionException;
 import org.sakaiproject.signup.logic.messages.SignupEventTrackingInfoImpl;
 import org.sakaiproject.signup.model.MeetingTypes;
+import org.sakaiproject.signup.model.SignupAttachment;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.tool.jsf.attachment.AttachmentHandler;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.signup.util.SignupDateFormat;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -79,10 +82,18 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 	private Date firstRecurMeetingModifyDate = null;
 
 	private Date lastRecurMeetingModifyDate = null;
+	
+	private List<SignupAttachment> currentAttachList;
+	
+	private List<SignupAttachment> needToCleanUpAttachInContentHS = new ArrayList<SignupAttachment>();
+	
+	private List<SignupAttachment> attachsForFutureRecurrences = new ArrayList<SignupAttachment>();
 
-	public EditMeeting(String userId, String siteId, SignupMeetingService signupMeetingService, boolean isOrganizer) {
+	private AttachmentHandler attachmentHandler;
+
+	public EditMeeting(String userId, String siteId, SignupMeetingService signupMeetingService, AttachmentHandler attachmentHandler, boolean isOrganizer) {
 		super(userId, siteId, signupMeetingService, isOrganizer);
-		// TODO Auto-generated constructor stub
+		this.attachmentHandler = attachmentHandler;
 	}
 
 	public void saveModifiedMeeting(SignupMeeting meeting) throws Exception {
@@ -102,6 +113,13 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 		if (getMaxNumOfAttendees() > this.originalMeetingCopy.getMaxNumberOfAttendees())
 			logger.info("Meeting Name:" + meeting.getTitle() + " - UserId:" + userId
 					+ this.signupEventTrackingInfo.getAllAttendeeTransferLogInfo());
+		
+		/*cleanup unused attachments*/
+		if(needToCleanUpAttachInContentHS !=null){
+			for (SignupAttachment one : needToCleanUpAttachInContentHS) {			
+				getAttachmentHandler().removeAttachmentInContentHost(one);
+			}
+		}
 	}
 
 	/*
@@ -167,6 +185,7 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 		checkPreCondition(upToDateMatchOne);
 
 		Calendar calendar = Calendar.getInstance();
+		int recurNum=0;
 		for (SignupMeeting upTodateOrginMeeting : upTodateOrginMeetings) {
 
 			SignupMeeting newlyModifyMeeting = upTodateOrginMeeting;
@@ -180,15 +199,15 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 			calendar.setTimeInMillis(upTodateOrginMeeting.getStartTime().getTime() + startTimeChangeDiff);
 
 			/* pass user changes */
-			passModifiedValues(modifyMeeting, calendar, newlyModifyMeeting);
-
+			passModifiedValues(modifyMeeting, calendar, newlyModifyMeeting, recurNum);
+			recurNum++;
 			newlyModifyMeetings.add(newlyModifyMeeting);
 		}
 
 		return newlyModifyMeetings;
 	}
 
-	private void passModifiedValues(SignupMeeting modifyMeeting, Calendar calendar, SignupMeeting newlyModifyMeeting)
+	private void passModifiedValues(SignupMeeting modifyMeeting, Calendar calendar, SignupMeeting newlyModifyMeeting, int recurNum)
 			throws Exception {
 		newlyModifyMeeting.setTitle(modifyMeeting.getTitle());
 		newlyModifyMeeting.setLocation(modifyMeeting.getLocation());
@@ -197,6 +216,17 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 		newlyModifyMeeting.setLocked(modifyMeeting.isLocked());
 		newlyModifyMeeting.setCanceled(modifyMeeting.isCanceled());
 		newlyModifyMeeting.setReceiveEmailByOwner(modifyMeeting.isReceiveEmailByOwner());
+		newlyModifyMeeting.setAllowWaitList(modifyMeeting.isAllowWaitList());
+		newlyModifyMeeting.setAllowComment(modifyMeeting.isAllowComment());
+		newlyModifyMeeting.setAutoReminder(modifyMeeting.isAutoReminder());
+		newlyModifyMeeting.setEidInputMode(modifyMeeting.isEidInputMode());
+		
+		/*new attachments changes*/
+		if(this.currentAttachList !=null){
+			updateWithOrigalAttachments(newlyModifyMeeting, this.currentAttachList, recurNum);//what to do with recurrence
+		}
+		
+	
 
 		if (newlyModifyMeeting.getMeetingType().equals(INDIVIDUAL)) {
 			List<SignupTimeslot> timeslots = newlyModifyMeeting.getSignupTimeSlots();
@@ -215,6 +245,9 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 				timeslot.setStartTime(calendar.getTime());
 				calendar.add(Calendar.MINUTE, timeSlotDuration);
 				timeslot.setEndTime(calendar.getTime());
+				if(!newlyModifyMeeting.isAllowWaitList()){
+					timeslot.setWaitingList(null);
+				}
 			}
 		}
 
@@ -228,6 +261,9 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 			timeslot.setDisplayAttendees(showAttendeeName);
 			int maxAttendees = (unlimited) ? SignupTimeslot.UNLIMITED : maxNumOfAttendees;
 			timeslot.setMaxNoOfAttendees(maxAttendees);
+			if(!newlyModifyMeeting.isAllowWaitList()){
+				timeslot.setWaitingList(null);
+			}
 		}
 
 		if (newlyModifyMeeting.getMeetingType().equals(ANNOUNCEMENT)) {
@@ -308,11 +344,31 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 				|| originalMeetingCopy.getNoOfTimeSlots() != upTodateMeeting.getNoOfTimeSlots()
 				|| !((originalMeetingCopy.getDescription() == null && upTodateMeeting.getDescription() == null) || (originalMeetingCopy
 						.getDescription() != null && upTodateMeeting.getDescription() != null)
-						&& (originalMeetingCopy.getDescription().length() == upTodateMeeting.getDescription().length()))) {
+						&& (originalMeetingCopy.getDescription().length() == upTodateMeeting.getDescription().length()))
+				|| checkAttachmentsChanges(upTodateMeeting)) {
 			throw new SignupUserActionException(Utilities.rb.getString("someone.modified.event.content"));
 		}
 	}
 
+	private boolean checkAttachmentsChanges(SignupMeeting latestOne){
+		//TODO excluding attendee's attachment???
+		List<SignupAttachment> latestList = getEventMainAttachments(latestOne.getSignupAttachments());
+		List<SignupAttachment> orignalAttachList = getEventMainAttachments(this.originalMeetingCopy.getSignupAttachments());
+		if(latestList.isEmpty() != orignalAttachList.isEmpty()){
+			return true;
+		}
+		if(latestList.size() != orignalAttachList.size()){
+			return true;
+		}
+		for (int i = 0; i < latestList.size(); i++) {
+			Date latest = latestList.get(i).getLastModifiedDate();
+			Date orignal = orignalAttachList.get(i).getLastModifiedDate();
+			if(!latest.equals(orignal))
+				return true;
+		}
+		
+		return false;
+	}
 	/**
 	 * setup the event/meeting's signup begin and deadline time and validate it
 	 * too
@@ -440,7 +496,26 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 		this.savedMeetings = savedMeetings;
 	}
 
+	public List<SignupAttachment> getCurrentAttachList() {
+		return currentAttachList;
+	}
+
+	public void setCurrentAttachList(List<SignupAttachment> currentAttachList) {
+		this.currentAttachList = currentAttachList;
+	}
+	
+	public AttachmentHandler getAttachmentHandler() {
+		return attachmentHandler;
+	}
+
 	private void retrieveRecurrenceData(List<SignupMeeting> upTodateOrginMeetings) {
+		String repeatType = upTodateOrginMeetings.get(0).getRepeatType();
+		if(repeatType !=null && !ONCE_ONLY.equals(repeatType)){
+			setRecurringType(repeatType);
+			return;
+		}
+			
+		/*The following code is to make it old version backward compatible*/
 		setFirstRecurMeetingModifyDate(null);
 		setLastRecurMeetingModifyDate(null);
 		if (upTodateOrginMeetings == null || upTodateOrginMeetings.isEmpty())
@@ -473,6 +548,8 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 				setRecurringType(WEEKLY);
 			else if (daysDiff == perBiweek)
 				setRecurringType(BIWEEKLY);
+			else if(daysDiff ==3 && calFirst.get(Calendar.DAY_OF_WEEK)== Calendar.FRIDAY)
+				setRecurringType(WEEKDAYS);
 		}
 	}
 
@@ -499,5 +576,83 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 	private void setRecurringType(String recurringType) {
 		this.recurringType = recurringType;
 	}
-
+	
+	
+	private void updateWithOrigalAttachments(SignupMeeting sMeeting, List<SignupAttachment> currentAttachList, int recurNum){
+		List<SignupAttachment> upToDateList = sMeeting.getSignupAttachments();
+		if(upToDateList ==null)
+			upToDateList = new ArrayList<SignupAttachment>();
+		
+		if(currentAttachList ==null)
+			currentAttachList = new ArrayList<SignupAttachment>();
+		
+		/*case: original one has no attachments*/
+		if(upToDateList.isEmpty()){
+			for (SignupAttachment curAttach : currentAttachList) {
+				upToDateList.add(getAttachmentHandler().copySignupAttachment(sMeeting,true,curAttach, ATTACH_MODIFY + recurNum));
+			}
+			sMeeting.setSignupAttachments(upToDateList);
+			return;
+		}
+		
+		if(recurNum == 0){
+			for (int i = upToDateList.size()-1; i >=0; i--) {
+				String upToDateResourceId = upToDateList.get(i).getResourceId();
+				int index = upToDateResourceId.lastIndexOf("/");
+				if(index > -1){
+					upToDateResourceId = upToDateResourceId.substring(0,index+1) + ATTACH_TEMP +"/" + upToDateResourceId.substring(index+1, upToDateResourceId.length());
+				}
+				boolean found=false;
+				for (Iterator iter = currentAttachList.iterator(); iter.hasNext();) {
+					SignupAttachment mdOne = (SignupAttachment) iter.next();
+					String tm=mdOne.getResourceId();
+					if(upToDateResourceId.equals(mdOne.getResourceId())){
+						found=true;
+						this.needToCleanUpAttachInContentHS.add(mdOne);
+						/*duplicated one with original and keep original one*/
+						iter.remove();
+						break;
+					}
+				}
+				if(!found){
+					if(upToDateList.get(i).getTimeslotId() ==null){
+						/*not there any more but not the attendee's attachments*/
+						this.needToCleanUpAttachInContentHS.add(upToDateList.get(i));
+						upToDateList.remove(i);
+					}
+				}
+			}
+			/*unchanged attachments needed to copy over for recurrence events purpose*/
+			List<SignupAttachment> tempList = new ArrayList<SignupAttachment>(upToDateList);
+			
+			for (SignupAttachment curAttach : currentAttachList) {
+				upToDateList.add(getAttachmentHandler().copySignupAttachment(sMeeting,true,curAttach, ATTACH_MODIFY + recurNum));
+			}
+			/*get currentAttachList contain all and ready for upcoming recurring events*/
+			for (SignupAttachment tmp : tempList) {
+				if(tmp.getTimeslotId() ==null)
+					currentAttachList.add(getAttachmentHandler().copySignupAttachment(sMeeting,true,tmp, ATTACH_TEMP ));//recurring purpose
+			}
+			
+		}
+		else{
+			/*case: after first recurring events */
+			/*clean up*/
+			if(upToDateList.size()>0){
+				for (int i = upToDateList.size()-1; i >=0; i--) {
+					SignupAttachment one = upToDateList.get(i);			
+					if(one.getTimeslotId()==null){//only cleanup the main attachments
+						this.needToCleanUpAttachInContentHS.add(one);
+						upToDateList.remove(i);
+					}
+				}
+			}
+			for (SignupAttachment curAttach : currentAttachList) {
+				upToDateList.add(getAttachmentHandler().copySignupAttachment(sMeeting,true,curAttach, ATTACH_MODIFY + recurNum));
+			}
+		}
+		
+	}
 }
+
+

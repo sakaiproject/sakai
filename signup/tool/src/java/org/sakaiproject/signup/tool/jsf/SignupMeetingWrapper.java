@@ -22,11 +22,13 @@
  **********************************************************************************/
 package org.sakaiproject.signup.tool.jsf;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import org.sakaiproject.signup.logic.SakaiFacade;
+import org.sakaiproject.signup.model.SignupAttachment;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.util.SignupBeanConstants;
@@ -46,6 +48,8 @@ public class SignupMeetingWrapper implements SignupBeanConstants {
 	private final String currentUserId;
 
 	private boolean selected;
+	
+	private boolean toDownload;
 
 	private SakaiFacade sakaiFacade;
 
@@ -64,6 +68,10 @@ public class SignupMeetingWrapper implements SignupBeanConstants {
 	private boolean showMyAppointmentTimeFrame = false;
 
 	private String availableStatus = null;
+	
+	private List<SignupAttachment> attendeeAttachments = new ArrayList<SignupAttachment>();
+	
+	private List<SignupAttachment> eventMainAttachments = new ArrayList<SignupAttachment>();
 
 	/**
 	 * Constructor
@@ -83,6 +91,8 @@ public class SignupMeetingWrapper implements SignupBeanConstants {
 		this.sakaiFacade = sakaiFacade;
 		this.selected = false;
 		this.subRecurringMeeting = false;
+		this.toDownload = false;
+		processSignupAttachments(signupMeeting.getSignupAttachments());
 	}
 
 	/**
@@ -113,6 +123,23 @@ public class SignupMeetingWrapper implements SignupBeanConstants {
 			this.availableStatus = Utilities.retrieveAvailStatus(meeting, currentUserId, getSakaiFacade());
 		}
 		return this.availableStatus;
+	}
+	
+	/**
+	 * This is a getter method for UI
+	 * @return an string with additional style for displayed message.
+	 */
+	public String getStatusStyle(){
+		String style="";
+		if(Utilities.rb.getString("event.inProgress").equals(getAvailableStatus())){
+			style="font-weight:bold;";
+		}
+		else if(Utilities.rb.getString("event.youSignedUp").equals(getAvailableStatus()) 
+		   || Utilities.rb.getString("event.youOnWaitList").equals(getAvailableStatus())){
+			style = "color:red;";
+		}
+		
+		return style;
 	}
 
 	/**
@@ -149,6 +176,7 @@ public class SignupMeetingWrapper implements SignupBeanConstants {
 	public void setMeeting(SignupMeeting meeting) {
 		this.meeting = meeting;
 		setLastUpdatedTime(new Date().getTime());
+		processSignupAttachments(meeting.getSignupAttachments());
 	}
 
 	/**
@@ -168,6 +196,14 @@ public class SignupMeetingWrapper implements SignupBeanConstants {
 	 */
 	public void setSelected(boolean selected) {
 		this.selected = selected;
+	}
+
+	public boolean isToDownload() {
+		return toDownload;
+	}
+
+	public void setToDownload(boolean toDownload) {
+		this.toDownload = toDownload;
 	}
 
 	/**
@@ -342,4 +378,48 @@ public class SignupMeetingWrapper implements SignupBeanConstants {
 		return (startingDay != endingDay);
 	}
 
+	public List<SignupAttachment> getAttendeeAttachments() {
+		return attendeeAttachments;
+	}
+
+	public void setAttendeeAttachments(List<SignupAttachment> attendeeAttachments) {
+		this.attendeeAttachments = attendeeAttachments;
+	}
+
+	public List<SignupAttachment> getEventMainAttachments() {
+		return eventMainAttachments;
+	}
+
+	public void setEventMainAttachments(List<SignupAttachment> eventMainAttachments) {
+		this.eventMainAttachments = eventMainAttachments;
+	}
+	
+	public boolean getEmptyEventMainAttachment(){
+		if (this.eventMainAttachments ==null || this.eventMainAttachments.isEmpty())
+			return true;
+		else 
+			return false;
+	}
+	
+	public boolean getEmptyAttendeeAttachment(){
+		if (this.attendeeAttachments == null || this.attendeeAttachments.isEmpty())
+			return true;
+		else
+			return false;
+	}
+	
+	private void processSignupAttachments(List<SignupAttachment> attachments){
+		if(attachments != null){
+			eventMainAttachments.clear();
+			attendeeAttachments.clear();
+			for (SignupAttachment attach: attachments) {
+				if(attach.getTimeslotId() !=null && ! attach.getViewByAll())
+					this.attendeeAttachments.add(attach);
+				else if( attach.getViewByAll())
+					this.eventMainAttachments.add(attach);
+				
+				//TODO other cases: such as attachment for a specific time slot only.
+			}
+		}
+	}
 }

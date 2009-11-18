@@ -34,6 +34,7 @@ import javax.faces.model.SelectItem;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.SignupUser;
 import org.sakaiproject.signup.logic.SignupUserActionException;
+import org.sakaiproject.signup.model.SignupAttachment;
 import org.sakaiproject.signup.model.SignupAttendee;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupTimeslot;
@@ -97,8 +98,8 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	private boolean assignParicitpantsToAllRecurEvents;
 
 	private boolean validationError;
-
-	private boolean recurrence;
+	
+	private boolean repeatTypeUnknown=true;
 
 	private List<SelectItem> meetingTypeRadioBttns;
 
@@ -118,12 +119,21 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		calendar.set(Calendar.SECOND, 0);
 		repeatUntil = calendar.getTime();
 		repeatType = ONCE_ONLY;
+		repeatTypeUnknown=true;
 		showAttendeeName = false;
 		truncateAttendee = false;
 		missingSitGroupWarning = false;
+		
+		/*cleanup previously unused attachments in CHS*/
+		if(this.signupMeeting !=null)
+			cleanUpUnusedAttachmentCopies(this.signupMeeting.getSignupAttachments());
 
 		this.signupMeeting = signupMeetingService.loadSignupMeeting(meetingWrapper.getMeeting().getId(), sakaiFacade
 				.getCurrentUserId(), sakaiFacade.getCurrentLocationId());
+		
+		/*prepare new attachments*/		
+		assignMainAttachmentsCopyToSignupMeeting();
+		//TODO not consider copy time slot attachment yet
 
 		List<SignupTimeslot> signupTimeSlots = signupMeeting.getSignupTimeSlots();
 
@@ -140,10 +150,13 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		}
 
 		populateDataForBeginDeadline(this.signupMeeting);
+		
+		/*Case: recurrence events*/
+		prepareRecurredEvents();
 
 		/* Initialize site/groups for current organizer */
 		initializeSitesGroups();
-
+		
 	}
 
 	/* process the relative time for Signup begin/deadline */
@@ -195,9 +208,12 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 			CreateMeetings createMeeting = new CreateMeetings(sMeeting, sendEmail, keepAttendees
 					&& !assignParicitpantsToAllRecurEvents, keepAttendees && assignParicitpantsToAllRecurEvents,
 					getSignupBegins(), getSignupBeginsType(), getDeadlineTime(), getDeadlineTimeType(), sakaiFacade,
-					signupMeetingService, sakaiFacade.getCurrentUserId(), sakaiFacade.getCurrentLocationId(), true);
+					signupMeetingService, getAttachmentHandler(), sakaiFacade.getCurrentUserId(), sakaiFacade.getCurrentLocationId(), true);
 
 			createMeeting.processSaveMeetings();
+			
+			/*make sure that they don't get cleaned up in CHS when saved successfully*/
+			this.signupMeeting.getSignupAttachments().clear();
 
 		} catch (PermissionException e) {
 			logger.info(Utilities.rb.getString("no.permission_create_event") + " - " + e.getMessage());
@@ -234,7 +250,7 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		if (!(getRepeatType().equals(ONCE_ONLY))) {
 			int repeatNum = CreateMeetings.getNumOfRecurrence(getRepeatType(), signupMeeting.getStartTime(),
 					getRepeatUntil());
-			if (signupMeeting.isMeetingCrossDays() && DAILY.equals(getRepeatType())) {
+			if (DAILY.equals(getRepeatType()) && isMeetingLengthOver24Hours(this.signupMeeting)) {
 				validationError = true;
 				Utilities.addErrorMessage(Utilities.rb.getString("crossDay.event.repeat.daily.problem"));
 				return;
@@ -252,6 +268,20 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 			Utilities.addErrorMessage(Utilities.rb.getString("select.atleast.oneGroup.for.copyMeeting"));
 
 		}
+	}
+	
+	/**
+	 * This method is called by JSP page for adding/removing attachments action.
+	 * @return null.
+	 */
+	public String addRemoveAttachments(){
+		getAttachmentHandler().processAddAttachRedirect(this.signupMeeting.getSignupAttachments(),null,true);
+		return null;
+	}
+	
+	public String doCancelAction(){
+		cleanUpUnusedAttachmentCopies(this.signupMeeting.getSignupAttachments());
+		return ORGANIZER_MEETING_PAGE_URL;
 	}
 
 	/**
@@ -291,7 +321,7 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		calendar.setTime(meeting.getStartTime());
 
 		/* Announcement type */
-		if (isAnnouncementType() || timeslots == null || timeslots.isEmpty()) {
+		if (getAnnouncementType() || timeslots == null || timeslots.isEmpty()) {
 			calendar.add(Calendar.MINUTE, getTimeSlotDuration());
 			meeting.setMeetingType(ANNOUNCEMENT);
 			meeting.setSignupTimeSlots(null);
@@ -728,5 +758,130 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	public List<SelectItem> getMeetingTypeRadioBttns() {
 		this.meetingTypeRadioBttns = Utilities.getMeetingTypeSelectItems(getSignupMeeting().getMeetingType(), true);
 		return meetingTypeRadioBttns;
+	}
+	
+	private void prepareRecurredEvents(){
+		Long recurrenceId = this.signupMeeting.getRecurrenceId();
+		if (recurrenceId != null && recurrenceId.longValue() > 0 ) {
+
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(this.signupMeeting.getStartTime());
+			/*backward to one month and make sure we could get some recurrence events 
+			 * if it's not the only one existed
+			 * */
+			cal.add(Calendar.HOUR,-24*31);
+			List<SignupMeeting> recurredMeetings = signupMeetingService.getRecurringSignupMeetings(getSakaiFacade().getCurrentLocationId(), getSakaiFacade().getCurrentUserId(), recurrenceId,
+					cal.getTime());
+			retrieveRecurrenceData(recurredMeetings);
+		}
+	}
+	
+	/*This method only provide a most possible repeatType, not with 100% accuracy*/
+	private void retrieveRecurrenceData(List<SignupMeeting> upTodateOrginMeetings) {
+		Date lastDate=new Date();
+		if (upTodateOrginMeetings == null || upTodateOrginMeetings.isEmpty())
+			return;
+		
+		/*if this is the last one*/
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(this.signupMeeting.getStartTime());
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		setRepeatUntil(cal.getTime());
+		
+		int listSize = upTodateOrginMeetings.size();
+		if (listSize > 1) {
+			/*set last recurred Date for recurrence events*/
+			lastDate = upTodateOrginMeetings.get(listSize -1).getStartTime();			
+			cal.setTime(lastDate);
+			cal.set(Calendar.MINUTE, 0);
+			cal.set(Calendar.SECOND, 0);
+			setRepeatUntil(cal.getTime());
+			
+			String repeatType = upTodateOrginMeetings.get(listSize -1).getRepeatType();
+			if(repeatType !=null && !ONCE_ONLY.equals(repeatType)){
+				setRepeatType(repeatType);
+				setRepeatTypeUnknown(false);
+				return;
+			}
+			
+			/*The following code is to make it old version backward compatible
+			 * It will be cleaned after a while.
+			 */
+			Calendar calFirst = Calendar.getInstance();
+			Calendar calSecond = Calendar.getInstance();							
+			/*The following code is to make it old version backward compatible*/
+			
+			/*
+			 * we can only get approximate estimation by assuming it's a
+			 * succession. take the last two which are more likely be in a sequence
+			 */
+			calFirst.setTime(upTodateOrginMeetings.get(listSize - 2).getStartTime());
+			calFirst.set(Calendar.SECOND, 0);
+			calFirst.set(Calendar.MILLISECOND, 0);
+			calSecond.setTime(upTodateOrginMeetings.get(listSize - 1).getStartTime());
+			calSecond.set(Calendar.SECOND, 0);
+			calSecond.set(Calendar.MILLISECOND, 0);
+			int tmp = calSecond.get(Calendar.DATE);
+			int daysDiff = (int) (calSecond.getTimeInMillis() - calFirst.getTimeInMillis()) / DAY_IN_MILLISEC;
+			setRepeatTypeUnknown(false);
+			if (daysDiff == perDay)//could have weekdays get into this one, not very accurate.
+				setRepeatType(DAILY);
+			else if (daysDiff == perWeek)
+				setRepeatType(WEEKLY);
+			else if (daysDiff == perBiweek)
+				setRepeatType(BIWEEKLY);
+			else if(daysDiff ==3 && calFirst.get(Calendar.DAY_OF_WEEK)== Calendar.FRIDAY)
+				setRepeatType(WEEKDAYS);
+			else{
+				/*case:unknown repeatType*/
+				setRepeatTypeUnknown(true);
+			}
+		}
+	}
+		
+	/**
+	 * This is a getter for UI and it is used for controlling the 
+	 * recurring meeting warning message.
+	 * @return true if the repeatType is unknown for a repeatable event.
+	 */
+	public boolean getRepeatTypeUnknown() {
+		return repeatTypeUnknown;
+	}
+
+	public void setRepeatTypeUnknown(boolean repeatTypeUnknown) {
+		this.repeatTypeUnknown = repeatTypeUnknown;
+	}
+
+	private void assignMainAttachmentsCopyToSignupMeeting(){
+		List<SignupAttachment> attachList = new ArrayList<SignupAttachment>();
+		if(attachList != null){
+			for (SignupAttachment attach: this.signupMeeting.getSignupAttachments()) {
+				if(attach.getTimeslotId() ==null && attach.getViewByAll())
+					attachList.add(attach);
+				
+				//TODO Later: how about time slot attachment?.
+			}
+		}
+				
+		List<SignupAttachment> cpList = new ArrayList<SignupAttachment>();
+		if(attachList.size() > 0){			
+			for (SignupAttachment attach : attachList) {
+				cpList.add(getAttachmentHandler().copySignupAttachment(this.signupMeeting,true,attach,ATTACH_COPY +this.signupMeeting.getId().toString()));
+			}
+		}
+		
+		this.signupMeeting.setSignupAttachments(cpList);
+	}
+	
+	/*Overwrite default one*/
+	public boolean getSignupAttachmentEmpty(){
+		if(this.signupMeeting ==null)
+			return true;
+		
+		if(this.signupMeeting.getSignupAttachments() ==null || this.signupMeeting.getSignupAttachments().isEmpty())
+			return true;
+		else
+			return false;
 	}
 }

@@ -20,9 +20,11 @@
 			<sakai:tool_bar>
 				<sakai:tool_bar_item value="#{msgs.modify_event}" action="#{OrganizerSignupMBean.modifyMeeting}" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}" />
 				<sakai:tool_bar_item value="#{msgs.copy_event}" action="#{OrganizerSignupMBean.copyMeeting}" />
-				<h:outputLink id="print" value="javascript:window.print();">
+				<sakai:tool_bar_item value="#{msgs.event_pageTop_link_for_download}" action="#{DownloadEventBean.downloadOneEvent}" />
+				<h:outputLink id="print" value="javascript:window.print();" style="vertical-align:bottom;">
 						<h:graphicImage url="/images/printer.png"
 							alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" styleClass="openCloseImageIcon"/>
+						<h:outputText value="#{msgs.print_event}" escape="false"/>
 				</h:outputLink>
 			</sakai:tool_bar>
 		</h:form>
@@ -161,6 +163,23 @@
 								
 								<h:outputText value="#{msgs.event_description}" styleClass="titleText" escape="false"/>
 								<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.description}" escape="false" styleClass="longtext"/>																											
+								
+								<h:outputText  value="#{msgs.attachments}" styleClass="titleText" escape="false" rendered="#{!OrganizerSignupMBean.meetingWrapper.emptyEventMainAttachment}"/>
+			         			<h:panelGrid columns="1" rendered="#{!OrganizerSignupMBean.meetingWrapper.emptyEventMainAttachment}">
+			         				<t:dataTable value="#{OrganizerSignupMBean.meetingWrapper.eventMainAttachments}" var="attach" >
+			         					<t:column>
+	        								<%@ include file="/signup/common/mimeIcon.jsp" %>
+	      								</t:column>
+			         					<t:column>
+			         						<h:outputLink  value="#{attach.location}" target="new_window">
+			         							<h:outputText value="#{attach.filename}"/>
+			         						</h:outputLink>
+			         					</t:column>
+			         					<t:column>
+			         						<h:outputText escape="false" value="(#{attach.fileSize}kb)" rendered="#{!attach.isLink}"/>
+			         					</t:column>
+			         				</t:dataTable>			         				
+				         		</h:panelGrid>
 								
 								<h:outputText value="&nbsp;" escape="false" rendered="#{!OrganizerSignupMBean.announcementType}"/>
 								<h:outputText value="&nbsp;" escape="false" rendered="#{!OrganizerSignupMBean.announcementType}"/>
@@ -400,8 +419,19 @@
 						   		</h:panelGroup>	
 					   		</h:column>
 					   		
-					   		   						   						   		
-					   		<h:column>		   
+					   		<h:column rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.allowWaitList}">		   
+								<f:facet name="header">
+									<h:panelGroup>
+										<h:outputText value="#{msgs.tab_waiting_list}" escape="false"/>
+										<h:outputText value="#{msgs.tab_waiting_list_disabled}" escape="false" style="color:gray;" />
+									</h:panelGroup>
+								</f:facet>
+								<h:panelGroup style="margin-left: 1px;">
+								   		<h:graphicImage value="/images/addDisabled.png"  alt="Disabled: add an waiter" title="#{msgs.event_tool_tips_action_option_disabled_label}" style="border:none" />
+								   		<h:outputText value="#{msgs.event_add_attendee}" title="#{msgs.event_tool_tips_action_option_disabled_label}" escape="false" styleClass="disabledAddAttendee" style="color:gray;"/>
+								</h:panelGroup>
+							</h:column>  						   						   		
+					   		<h:column rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.allowWaitList}">		   
 								<f:facet name="header">
 									<h:outputText value="#{msgs.tab_waiting_list}" escape="false"/>
 								</f:facet>

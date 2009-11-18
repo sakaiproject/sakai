@@ -28,6 +28,7 @@ import java.util.List;
 
 import org.sakaiproject.signup.logic.Permission;
 import org.sakaiproject.signup.logic.SakaiFacade;
+import org.sakaiproject.signup.model.SignupAttachment;
 import org.sakaiproject.signup.model.SignupAttendee;
 import org.sakaiproject.signup.model.SignupGroup;
 import org.sakaiproject.signup.model.SignupMeeting;
@@ -71,15 +72,21 @@ public class SignupObjectConverter {
 		se.setId(sm.getId() + "");
 		se.setMeetingType(sm.getMeetingType());
 		se.setRecurrenceId(sm.getRecurrenceId());
+		se.setRepeatType(sm.getRepeatType());
 		se.setPermission(new Permission(sm.getPermission().isAttend(), sm.getPermission().isUpdate(), sm
 				.getPermission().isDelete()));
 		se.setSiteId(currentSiteId);// keep tracking siteId
 		se.setAvailableStatus(Utilities.retrieveAvailStatus(sm, userId, sakaiFacade));
 		se.setSignupSiteItems(null);
+		se.setAllowWaitList(sm.isAllowWaitList());
+		se.setAllowComment(sm.isAllowComment());
+		se.setAutoReminder(sm.isAutoReminder());
+		se.setEidInputMode(sm.isEidInputMode());
 		if (isDeepCopy) {
 			se.setSignupTimeSlotItems(getSignupTimeslotItems(sm.getSignupTimeSlots(), sm.getPermission().isUpdate(),
 					sakaiFacade));
 			se.setSignupSiteItems(SignupObjectConverter.getSignupSiteItems(sm.getSignupSites()));
+			se.setSignupMainEventAttachItems(SignupObjectConverter.getSignupMainEventAttachmentItems(sm));
 			se.setAllowedUserActionTypes(SignupEvent.USER_ATION_Types);
 		}
 		if (Utilities.rb.getString("event.youSignedUp").equals(se.getAvailableStatus())) {
@@ -170,6 +177,20 @@ public class SignupObjectConverter {
 		}
 
 		return participants;
+	}
+	
+	public static List<SignupAttachment> getSignupMainEventAttachmentItems(SignupMeeting sm){
+		List<SignupAttachment> eventMainAttachments = new ArrayList<SignupAttachment>();
+		if(sm.getSignupAttachments() != null){
+			for (SignupAttachment attach: sm.getSignupAttachments()) {
+				if(attach.getTimeslotId() ==null && attach.getViewByAll())
+					eventMainAttachments.add(attach);
+				
+				//TODO other cases: such as attachment for a specific time slot only or attendee's attachments.
+			}
+		}
+		
+		return eventMainAttachments;
 	}
 
 }

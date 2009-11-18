@@ -65,12 +65,25 @@ public class SignupMeeting implements MeetingTypes {
 	private boolean locked;
 
 	private String meetingType;
+	
+	/*once,daily,weekdays,weekly,biweekly */
+	private String repeatType; 
+	
+	private boolean allowWaitList;
+	
+	private boolean allowComment;
+	
+	private boolean autoReminder;
+	
+	private boolean eidInputMode;
 
 	private boolean receiveEmailByOwner;
 
 	private List<SignupTimeslot> signupTimeSlots;
 
 	private List<SignupSite> signupSites;
+	
+	private List<SignupAttachment> signupAttachments;
 
 	private Permission permission;
 
@@ -532,7 +545,7 @@ public class SignupMeeting implements MeetingTypes {
 
 	public boolean isRecurredMeeting() {
 		if (recurrenceId != null || DAILY.equals(getRepeatType()) || WEEKLY.equals(getRepeatType())
-				|| BIWEEKLY.equals(getRepeatType()))
+				|| BIWEEKLY.equals(getRepeatType()) || WEEKDAYS.equals(getRepeatType()))
 			return true;
 		else
 			return false;
@@ -558,8 +571,6 @@ public class SignupMeeting implements MeetingTypes {
 	public void setRepeatUntil(Date r) {
 		repeatUntil = r;
 	}
-
-	private String repeatType; // once,daily,weekly,biweekly
 
 	/**
 	 * It's a getter for UI or email part.
@@ -612,6 +623,53 @@ public class SignupMeeting implements MeetingTypes {
 	public void setCurrentSiteId(String currentSiteId) {
 		this.currentSiteId = currentSiteId;
 	}
-	
 
+	public boolean isAllowWaitList() {
+		return allowWaitList;
+	}
+
+	public void setAllowWaitList(boolean allowWaitList) {
+		this.allowWaitList = allowWaitList;
+	}
+
+	public boolean isAllowComment() {
+		return allowComment;
+	}
+
+	public void setAllowComment(boolean allowComment) {
+		this.allowComment = allowComment;
+	}
+
+	public boolean isAutoReminder() {
+		return autoReminder;
+	}
+
+	public void setAutoReminder(boolean autoReminder) {
+		this.autoReminder = autoReminder;
+	}	
+
+	public boolean isEidInputMode() {
+		return eidInputMode;
+	}
+
+	public void setEidInputMode(boolean eidInputMode) {
+		this.eidInputMode = eidInputMode;
+	}
+
+	public List<SignupAttachment> getSignupAttachments() {
+		return signupAttachments;
+	}
+
+	public void setSignupAttachments(List<SignupAttachment> signupAttachments) {
+		this.signupAttachments = signupAttachments;
+	}
+	
+	public boolean hasSignupAttachments(){
+		if(this.signupAttachments ==null || this.signupAttachments.isEmpty())
+			return false;
+		else
+			return true;
+	}
+	
+	
 }

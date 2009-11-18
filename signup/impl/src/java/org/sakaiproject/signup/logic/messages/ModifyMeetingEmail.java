@@ -108,15 +108,7 @@ public class ModifyMeetingEmail extends SignupEmailBase {
 
 		if (meeting.getRecurrenceId() != null) {
 			message.append(newline + newline + "<b>Attention:</b>");
-			String recurFrqs = "";
-			if (DAILY.equals(meeting.getRepeatType()))
-				recurFrqs = rb.getString("body.meeting.repeatDaily");
-			else if (WEEKLY.equals(meeting.getRepeatType()))
-				recurFrqs = rb.getString("body.meeting.repeatWeekly");
-			else if (BIWEEKLY.equals(meeting.getRepeatType()))
-				recurFrqs = rb.getString("body.meeting.repeatBiWeekly");
-			else
-				recurFrqs = rb.getString("body.meeting.unknown.repeatType");
+			String recurFrqs = getRepeatTypeMessage(meeting);
 
 			Object[] paramsRecur = new Object[] { recurFrqs, getTime(meeting.getRepeatUntil()).toStringLocalDate() };
 			message.append(newline + "  - "

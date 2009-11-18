@@ -22,6 +22,7 @@
  **********************************************************************************/
 package org.sakaiproject.signup.tool.jsf.organizer;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +33,7 @@ import javax.faces.model.SelectItemGroup;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.LogFactoryImpl;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.signup.logic.SignupUser;
 import org.sakaiproject.signup.logic.SignupUserActionException;
 import org.sakaiproject.signup.logic.messages.SignupEventTrackingInfo;
@@ -52,6 +54,7 @@ import org.sakaiproject.signup.tool.jsf.organizer.action.RemoveWaiter;
 import org.sakaiproject.signup.tool.jsf.organizer.action.ReplaceAttendee;
 import org.sakaiproject.signup.tool.jsf.organizer.action.SwapAttendee;
 import org.sakaiproject.signup.tool.util.Utilities;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
@@ -126,9 +129,9 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 	 *            a SignupMeetingWrapper object.
 	 */
 	public void init(SignupMeetingWrapper meetingWrapper) throws Exception {
-		reset(meetingWrapper);
 		this.eidInputMode = false;
 		this.collapsedMeetingInfo = false;
+		reset(meetingWrapper);
 		loadAllAttendees(meetingWrapper.getMeeting());
 	}
 
@@ -142,6 +145,7 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 	public void reset(SignupMeetingWrapper meetingWrapper) {
 		setMeetingWrapper(meetingWrapper);
 		updateTimeSlotWrappers(meetingWrapper);
+		setEidInputMode(meetingWrapper.getMeeting().isEidInputMode());
 
 	}
 
@@ -279,14 +283,11 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 	}
 
 	private String getAttendeeRole(String attendeeUserId) {
-		if (this.allSignupUsers == null & this.allSignupUsers.isEmpty())
+		SignupUser sUser = getSakaiFacade().getSignupUser(getMeetingWrapper().getMeeting(), attendeeUserId);		
+		if (sUser == null)
 			return "unknown";
-
-		for (SignupUser user : allSignupUsers) {
-			if (user.getInternalUserId().equals(attendeeUserId))
-				return user.getUserRole().getId();
-		}
-		return "unknown";
+		else
+			return sUser.getUserRole().getId();
 	}
 
 	private String cancelRestoreTimeslot() {
@@ -391,13 +392,17 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 			userEid = (String) replacedAttendeeEid.getValue();
 
 		String replacerUserId = sakaiFacade.getUserId(userEid);
-
+		SignupUser replSignUser = getSakaiFacade().getSignupUser(getMeetingWrapper().getMeeting(), replacerUserId);
+		if(replSignUser ==null){
+			throw new SignupUserActionException(MessageFormat.format(Utilities.rb.getString("user.has.no.permission.attend"), new Object[] {userEid}));
+		}
+		
 		TimeslotWrapper wrapper = (TimeslotWrapper) timeslotWrapperTable.getRowData();
 
 		ReplaceAttendee replaceAttendee = new ReplaceAttendee(this.currentUserId(), this.currentSiteId(),
-				signupMeetingService);
+				signupMeetingService);		
 		replaceAttendee.replace(getMeetingWrapper().getMeeting(), wrapper.getTimeSlot(), this.selectedFirstUser,
-				replacerUserId, this.allSignupUsers);
+				replacerUserId, replSignUser.getMainSiteId());
 
 		return replaceAttendee.getSignupEventTrackingInfo();
 	}
@@ -424,6 +429,31 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 	 *            a SignupMeeting object.
 	 */
 	public void loadAllAttendees(SignupMeeting meeting) {
+		if(meeting.isEidInputMode()){
+			setEidInputMode(true);
+			return;
+		}
+			
+
+		try {
+			Site site = getSakaiFacade().getSiteService().getSite(getSakaiFacade().getCurrentLocationId());
+			if(site !=null){
+				int allMemeberSize = site.getMembers()!=null? site.getMembers().size() : 0;
+				/*
+				 * due to efficiency, user has to input EID instead of using dropdown
+				 * user name list
+				 */
+				/*First check to avoid load all site member up if there is ten of thousends*/
+				if(allMemeberSize > MAX_NUM_PARTICIPANTS_FOR_DROPDOWN_BEFORE_AUTO_SWITCH_TO_EID_INPUT_MODE){
+					setEidInputMode(true);		
+					return;
+				}
+			}
+		} catch (IdUnusedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		this.allSignupUsers = sakaiFacade.getAllUsers(meeting);
 		/*
 		 * due to efficiency, user has to input EID instead of using dropdown
@@ -560,9 +590,14 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 			Utilities.addErrorMessage(Utilities.rb.getString("exception.no.such.user") + newAttendeeEid);
 			return ORGANIZER_MEETING_PAGE_URL;
 		}
+		
+		SignupUser newAttendeeSignUser = getSakaiFacade().getSignupUser(getMeetingWrapper().getMeeting(), newUserId);
+		if(newAttendeeSignUser ==null){
+			Utilities.addErrorMessage(MessageFormat.format(Utilities.rb.getString("user.has.no.permission.attend"), new Object[] {newAttendeeEid}));
+			return ORGANIZER_MEETING_PAGE_URL;
+		}
 
-		SignupAttendee newAttendee = new SignupAttendee(newUserId, getAttendeeMainActiveSiteId(newUserId,
-				this.allSignupUsers, getSakaiFacade().getCurrentLocationId()));
+		SignupAttendee newAttendee = new SignupAttendee(newUserId, newAttendeeSignUser.getMainSiteId());
 		timeslotWrapper.setNewAttendee(newAttendee);
 
 		SignupMeeting meeting = null;
@@ -679,9 +714,13 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 			logger.warn(Utilities.rb.getString("exception.no.such.user") + newWaiterEid + "  -- " + e.getMessage());
 			return ORGANIZER_MEETING_PAGE_URL;
 		}
-
-		SignupAttendee newWaiter = new SignupAttendee(waiterUserId, getAttendeeMainActiveSiteId(waiterUserId,
-				allSignupUsers, getSakaiFacade().getCurrentLocationId()));
+		SignupUser waiterSignUser = getSakaiFacade().getSignupUser(getMeetingWrapper().getMeeting(), waiterUserId);
+		if(waiterSignUser ==null){
+			Utilities.addErrorMessage(MessageFormat.format(Utilities.rb.getString("user.has.no.permission.attend"), new Object[] {newWaiterEid}));
+			return ORGANIZER_MEETING_PAGE_URL;
+		}
+		
+		SignupAttendee newWaiter = new SignupAttendee(waiterUserId, waiterSignUser.getMainSiteId());
 		SignupMeeting meeting = null;
 		try {
 			AddWaiter addWaiter = new AddWaiter(signupMeetingService, currentUserId(), currentSiteId(),

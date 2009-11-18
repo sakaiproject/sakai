@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.model.SignupMeeting;
@@ -33,6 +34,7 @@ import org.sakaiproject.signup.model.SignupSite;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
@@ -74,6 +76,8 @@ public interface SakaiFacade {
 	public static final String SIGNUP_UPDATE_GROUP_ALL = "signup.update.group.all";
 
 	public static final String STUDENT_ROLE_ID = "student";
+	
+	public static final String REALM_ID_FOR_LOGIN_REQUIRED_ONLY =".auth";
 
 	/**
 	 * check to see if the user is Admin
@@ -165,6 +169,15 @@ public interface SakaiFacade {
 	 *             throw if user is not found
 	 */
 	public String getUserId(String eid) throws UserNotDefinedException;
+	
+	/**
+	 * get the User object
+	 * 
+	 * @param userId
+	 *            a sakai internal user Id
+	 * @return an User object
+	 */
+	public User getUser(String userId);
 
 	/**
 	 * get all users, who have joined in the event/meeting
@@ -246,10 +259,28 @@ public interface SakaiFacade {
 	public String getSiteSignupPageId(String siteId);
 
 	/**
-	 * get a TimeService object from one of the Sakai service
+	 * get a TimeService object from one of the Sakai services
 	 * 
 	 * @return a TimeService object.
 	 */
 	public TimeService getTimeService();
+	
+	/**
+	 * get a ContentHostingService from one of the Sakai services
+	 * @return a ContentHostingService object.
+	 */
+	public ContentHostingService getContentHostingService();
+	
+	
+	/**
+	 * get the user, who has permission to attend the meeting
+	 * @param meeting
+	 * 		a SignupMeeting object
+	 * @param userId
+	 * 		userId the internal user id (not username)
+	 * @return
+	 * 		a SignupUser object
+	 */
+	public SignupUser getSignupUser(SignupMeeting meeting, String userId);
 
 }

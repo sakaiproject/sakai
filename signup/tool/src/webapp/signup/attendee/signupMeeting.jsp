@@ -20,9 +20,11 @@
 			
 		<h:form id="signupMeeting">
 			<sakai:tool_bar>
-				<h:outputLink id="print" value="javascript:window.print();">
+				<sakai:tool_bar_item value="#{msgs.event_pageTop_link_for_download}" action="#{DownloadEventBean.downloadOneEvent}" />
+				<h:outputLink id="print" value="javascript:window.print();" style="vertical-align:bottom;">
 					<h:graphicImage url="/images/printer.png"
 							alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
+					<h:outputText value="#{msgs.print_event}" escape="false"/>
 				</h:outputLink>
 			</sakai:tool_bar>
 		</h:form>
@@ -108,7 +110,7 @@
 									<f:convertDateTime pattern="EEEEEEEE, " />
 								</h:outputText>
 								<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.signupBegins}" styleClass="longtext">
-									<f:convertDateTime dateStyle="long"/>
+									<f:convertDateTime dateStyle="long" />
 								</h:outputText>
 								<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.signupBegins}" styleClass="longtext">
 									<f:convertDateTime pattern=", h:mm a" />
@@ -169,6 +171,23 @@
 								value="#{AttendeeSignupMBean.meetingWrapper.meeting.description}"
 								escape="false" styleClass="longtext" />
 								
+							<h:outputText  value="#{msgs.attachments}" styleClass="titleText" escape="false" rendered="#{!AttendeeSignupMBean.meetingWrapper.emptyEventMainAttachment}"/>
+			         			<h:panelGrid columns="1" rendered="#{!AttendeeSignupMBean.meetingWrapper.emptyEventMainAttachment}">
+			         				<t:dataTable value="#{AttendeeSignupMBean.meetingWrapper.eventMainAttachments}" var="attach" >
+			         					<t:column>
+	        								<%@ include file="/signup/common/mimeIcon.jsp" %>
+	      								</t:column>
+			         					<t:column>
+			         						<h:outputLink  value="#{attach.location}" target="new_window">
+			         							<h:outputText value="#{attach.filename}"/>
+			         						</h:outputLink>
+			         					</t:column>
+			         					<t:column>
+			         						<h:outputText escape="false" value="(#{attach.fileSize}kb)" rendered="#{!attach.isLink}"/>
+			         					</t:column>
+			         				</t:dataTable>			         				
+				         		</h:panelGrid>	
+								
 							<h:outputText value="&nbsp;" escape="false"/>
 							<h:outputText value="&nbsp;" escape="false"/>
 						</h:panelGrid>
@@ -207,14 +226,17 @@
 							<h:graphicImage value="/images/spacer.gif" width="15" height="13" alt="spacer" style="border:none" rendered="#{!timeSlotWrapper.timeSlot.locked && !timeSlotWrapper.timeSlot.canceled && AttendeeSignupMBean.meetingWrapper.atleastOneTimeslotLockedOrCanceled}"/>
 							<h:graphicImage value="/images/lock.gif"  alt="#{msgs.event_tool_tip_ts_locked}" title="#{msgs.event_tool_tip_ts_locked}" style="border:none" rendered="#{timeSlotWrapper.timeSlot.locked && !timeSlotWrapper.timeSlot.canceled}"/>
 							<h:graphicImage value="/images/cancelled.gif"  alt="#{msgs.event_tool_tip_ts_cancelled}" title="#{msgs.event_tool_tip_ts_cancelled}" style="border:none" rendered="#{timeSlotWrapper.timeSlot.canceled}"/>							
-							<h:outputText value="#{timeSlotWrapper.timeSlot.startTime}" styleClass="longtext">
+							<h:outputText value="#{timeSlotWrapper.timeSlot.startTime}"
+								styleClass="longtext">
 								<f:convertDateTime pattern="h:mm a"/>
 							</h:outputText>
 							<h:outputText value="#{timeSlotWrapper.timeSlot.startTime}" rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
 								<f:convertDateTime pattern=", EEE" />
 							</h:outputText>	
-							<h:outputText value="#{msgs.timeperiod_divider}" escape="false" styleClass="longtext" />
-							<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}" styleClass="longtext">
+							<h:outputText value="#{msgs.timeperiod_divider}" escape="false"
+								styleClass="longtext" />
+							<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}"
+								styleClass="longtext">
 								<f:convertDateTime pattern="h:mm a"/>
 							</h:outputText>
 							<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}" rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
@@ -303,7 +325,7 @@
 						<sakai:button_bar_item id="addMeOnWaitingList" styleClass="actButton"
 							action="#{AttendeeSignupMBean.attendeeAddToWaitingList}" value="#{msgs.add_waitlist_button}" title="#{msgs.tool_tip_add_waitlist}"
 							rendered="#{!timeSlotWrapper.currentUserOnWaitingList && !timeSlotWrapper.availableForSignup && !timeSlotWrapper.currentUserSignedUp}" 
-							disabled="#{!AttendeeSignupMBean.meetingWrapper.meeting.startToSignUp || timeSlotWrapper.timeSlot.locked || timeSlotWrapper.timeSlot.canceled ||AttendeeSignupMBean.meetingWrapper.meeting.passedDeadline}"/>
+							disabled="#{!AttendeeSignupMBean.meetingWrapper.meeting.allowWaitList || !AttendeeSignupMBean.meetingWrapper.meeting.startToSignUp || timeSlotWrapper.timeSlot.locked || timeSlotWrapper.timeSlot.canceled ||AttendeeSignupMBean.meetingWrapper.meeting.passedDeadline}"/>
 						<sakai:button_bar_item id="CancelWaitingList" styleClass="actButton"
 							action="#{AttendeeSignupMBean.attendeeRemoveFromWaitingList}" value="#{msgs.remove_waitlist_button}"
 							rendered="#{timeSlotWrapper.currentUserOnWaitingList}" 

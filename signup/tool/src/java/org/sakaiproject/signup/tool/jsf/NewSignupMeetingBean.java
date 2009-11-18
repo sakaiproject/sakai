@@ -36,20 +36,24 @@ import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.logic.SignupMeetingService;
 import org.sakaiproject.signup.logic.SignupMessageTypes;
 import org.sakaiproject.signup.logic.SignupUser;
 import org.sakaiproject.signup.model.MeetingTypes;
+import org.sakaiproject.signup.model.SignupAttachment;
 import org.sakaiproject.signup.model.SignupAttendee;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupSite;
 import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.tool.jsf.attachment.AttachmentHandler;
 import org.sakaiproject.signup.tool.jsf.organizer.action.CreateMeetings;
 import org.sakaiproject.signup.tool.jsf.organizer.action.CreateSitesGroups;
 import org.sakaiproject.signup.tool.util.SignupBeanConstants;
 import org.sakaiproject.signup.tool.util.Utilities;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
@@ -102,12 +106,31 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 	private List<SignupSiteWrapper> otherSites;
 
-	private static boolean DEFAULT_SEND_EMAIL = "true".equalsIgnoreCase(Utilities.rb
-			.getString("default.email.notification")) ? true : false;
+	private static boolean DEFAULT_SEND_EMAIL = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal("signup.default.email.notification", "true")) ? true : false;
 
 	protected boolean sendEmail = DEFAULT_SEND_EMAIL;
 
 	private boolean receiveEmail;
+	
+	private static boolean DEFAULT_ALLOW_WAITLIST = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal("signup.default.allow.waitlist", "true")) ? true : false;
+		
+	private static boolean DEFAULT_ALLOW_COMMENT = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal("signup.default.allow.comment", "true")) ? true : false;
+	
+	private static boolean DEFAULT_AUTO_RIMINDER = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal("signup.event.default.auto.reminder", "true")) ? true : false;
+	
+	private static boolean DEFAULT_AUTO_RMINDER_OPTION_CHOICE = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal("signup.autoRiminder.option.choice.setting", "true")) ? true : false;
+	
+	private static boolean DEFAULT_USERID_INPUT_MODE_OPTION_CHOICE = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal("signup.userId.inputMode.choiceOption.setting", "true")) ? true : false;
+	
+	private boolean allowWaitList = DEFAULT_ALLOW_WAITLIST;
+	
+	private boolean allowComment = DEFAULT_ALLOW_COMMENT;
+	
+	private boolean autoReminder = DEFAULT_AUTO_RIMINDER;
+	
+	private boolean autoReminderOptionChoice = DEFAULT_AUTO_RMINDER_OPTION_CHOICE;
+	
+	private boolean userIdInputModeOptionChoice = DEFAULT_USERID_INPUT_MODE_OPTION_CHOICE;
 
 	private List<TimeslotWrapper> timeSlotWrappers;
 
@@ -133,6 +156,10 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	private Boolean publishedSite;
 	
 	private boolean endTimeAutoAdjusted=false;
+	
+	private List<SignupAttachment> attachments;
+	
+	private AttachmentHandler attachmentHandler;
 
 	private Log logger = LogFactory.getLog(getClass());
 
@@ -194,11 +221,24 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		validationError = false;
 		sendEmail = DEFAULT_SEND_EMAIL;
 		receiveEmail = false;
+		allowComment = DEFAULT_ALLOW_COMMENT;
+		allowWaitList = DEFAULT_ALLOW_WAITLIST;
+		autoReminder = DEFAULT_AUTO_RIMINDER;
 		currentStepHiddenInfo = null;
 		eidInputMode = false;
 		repeatType = ONCE_ONLY;
 		repeatUntil = calendar.getTime();
 		this.publishedSite = null;
+		
+		/*cleanup unused attachments in CHS*/
+		if(this.attachments !=null && this.attachments.size()>0){
+			for (SignupAttachment attach : attachments) {
+				getAttachmentHandler().removeAttachmentInContentHost(attach);
+			}
+			this.attachments.clear();
+		}
+		else
+			this.attachments = new ArrayList<SignupAttachment>();
 	}
 
 	public void reset() {
@@ -238,6 +278,15 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 		return "";
 	}
+	
+	/**
+	 * This method is called by JSP page for adding/removing attachments action.
+	 * @return null.
+	 */
+	public String addRemoveAttachments(){
+		getAttachmentHandler().processAddAttachRedirect(this.attachments, this.signupMeeting,true);
+		return null;
+	}
 
 	/**
 	 * This is a validator to make sure that the event/meeting starting time is
@@ -265,7 +314,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			if (!(getRepeatType().equals(ONCE_ONLY))) {
 				int repeatNum = CreateMeetings.getNumOfRecurrence(getRepeatType(), signupMeeting.getStartTime(),
 						getRepeatUntil());
-				if (signupMeeting.isMeetingCrossDays() && DAILY.equals(getRepeatType())) {
+				if (isMeetingLengthOver24Hours(this.signupMeeting) && DAILY.equals(getRepeatType())) {
 					validationError = true;
 					Utilities.addErrorMessage(Utilities.rb.getString("crossDay.event.repeat.daily.problem"));
 					return;
@@ -326,6 +375,14 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			Utilities.addMessage(Utilities.rb.getString("warning.event.crossed_twoMonths"));
 		if (startYear != endYear)
 			Utilities.addMessage(Utilities.rb.getString("warning.event.crossed_twoYears"));
+	}
+	
+	private boolean isMeetingLengthOver24Hours(SignupMeeting sm){
+		long duration= sm.getEndTime().getTime()- sm.getStartTime().getTime();
+		if( 24 - duration /(MINUTE_IN_MILLISEC * Hour_In_MINUTES) >= 0  )
+			return false;
+		
+		return true;
 	}
 
 	/**
@@ -442,6 +499,12 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 		signupMeeting.setCreatorUserId(sakaiFacade.getCurrentUserId());
 		signupMeeting.setReceiveEmailByOwner(receiveEmail);
+		signupMeeting.setAllowWaitList(this.allowWaitList);
+		signupMeeting.setAllowComment(this.allowComment);
+		signupMeeting.setAutoReminder(this.autoReminder);
+		signupMeeting.setEidInputMode(this.eidInputMode);
+		/* add attachments */
+		signupMeeting.setSignupAttachments(this.attachments);
 	}
 
 	/**
@@ -491,8 +554,15 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			Utilities.addErrorMessage(Utilities.rb.getString("exception.no.such.user") + attendeeEid);
 			return "";
 		}
-		SignupAttendee attendee = new SignupAttendee(attendeeUserId, SignupUIBaseBean.getAttendeeMainActiveSiteId(
-				attendeeUserId, this.allSignupUsers, getSakaiFacade().getCurrentLocationId()));
+		
+		SignupUser attendeeSignUser = getSakaiFacade().getSignupUser(this.signupMeeting, attendeeUserId);
+		if(attendeeSignUser ==null){
+			Utilities.addErrorMessage(Utilities.rb.getString("user.has.no.permission.attend") + attendeeEid);
+			return "";
+		}
+		
+		SignupAttendee attendee = new SignupAttendee(attendeeUserId, attendeeSignUser.getMainSiteId());
+
 		if (isDuplicateAttendee(timeslotWrapper.getTimeSlot(), attendee))
 			Utilities.addErrorMessage(Utilities.rb.getString("attendee.already.in.timeslot"));
 		else {
@@ -1046,6 +1116,28 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	}
 
 	private void loadAllAttendees(SignupMeeting meeting) {
+		if(isEidInputMode())
+			return;
+		
+		try {
+			Site site = getSakaiFacade().getSiteService().getSite(getSakaiFacade().getCurrentLocationId());
+			if(site !=null){
+				int allMemeberSize = site.getMembers()!=null? site.getMembers().size() : 0;
+				/*
+				 * due to efficiency, user has to input EID instead of using dropdown
+				 * user name list
+				 */
+				/*First check to avoid load all site member up if there is ten of thousends*/
+				if(allMemeberSize > MAX_NUM_PARTICIPANTS_FOR_DROPDOWN_BEFORE_AUTO_SWITCH_TO_EID_INPUT_MODE){
+					setEidInputMode(true);		
+					return;
+				}
+			}
+		} catch (IdUnusedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		this.allSignupUsers = sakaiFacade.getAllUsers(meeting);
 
 		if (allSignupUsers != null
@@ -1228,16 +1320,21 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		CreateMeetings createMeeting = new CreateMeetings(signupMeeting, sendEmail,
 				!assignParicitpantsToAllRecurEvents, assignParicitpantsToAllRecurEvents, getSignupBegins(),
 				getSignupBeginsType(), getDeadlineTime(), getDeadlineTimeType(), sakaiFacade, signupMeetingService,
-				sakaiFacade.getCurrentUserId(), sakaiFacade.getCurrentLocationId(), true);
+				getAttachmentHandler(), sakaiFacade.getCurrentUserId(), sakaiFacade.getCurrentLocationId(), true);
 
 		try {
 			createMeeting.processSaveMeetings();
+			
+			/*handle attachments and it should not be cleaned up in CHS*/
+			this.attachments.clear();
+			
 		} catch (PermissionException e) {
 			logger.info(Utilities.rb.getString("no.permission_create_event") + " - " + e.getMessage());
 		} catch (Exception e) {
 			logger.error(Utilities.rb.getString("error.occurred_try_again") + " - " + e.getMessage());
 			Utilities.addMessage(Utilities.rb.getString("error.occurred_try_again"));
 		}
+	
 	}
 
 	/**
@@ -1270,6 +1367,8 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		eventFreqType = "";
 		if (getRepeatType().equals(DAILY))
 			eventFreqType = Utilities.rb.getString("label_daily");
+		else if (getRepeatType().equals(WEEKDAYS))
+			eventFreqType = Utilities.rb.getString("label_weekdays");
 		else if (getRepeatType().equals(WEEKLY))
 			eventFreqType = Utilities.rb.getString("label_weekly");
 		else if (getRepeatType().equals(BIWEEKLY))
@@ -1335,6 +1434,68 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	public void setEndTimeAutoAdjusted(boolean endTimeAutoAdjusted) {
 		this.endTimeAutoAdjusted = endTimeAutoAdjusted;
 	}
-		
 
+	public boolean isAllowWaitList() {
+		return allowWaitList;
+	}
+
+	public void setAllowWaitList(boolean allowWaitList) {
+		this.allowWaitList = allowWaitList;
+	}
+
+	public boolean isAllowComment() {
+		return allowComment;
+	}
+
+	public void setAllowComment(boolean allowComment) {
+		this.allowComment = allowComment;
+	}
+
+	public boolean isAutoReminder() {
+		return autoReminder;
+	}
+
+	public void setAutoReminder(boolean autoReminder) {
+		this.autoReminder = autoReminder;
+	}
+
+	public boolean isAutoReminderOptionChoice() {
+		return autoReminderOptionChoice;
+	}
+
+	public void setAutoReminderOptionChoice(boolean autoReminderOptionChoice) {
+		this.autoReminderOptionChoice = autoReminderOptionChoice;
+	}
+	
+	public boolean isUserIdInputModeOptionChoice() {
+		return userIdInputModeOptionChoice;
+	}
+
+	public void setUserIdInputModeOptionChoice(boolean userIdInputModeOptionChoice) {
+		this.userIdInputModeOptionChoice = userIdInputModeOptionChoice;
+	}
+
+	public List<SignupAttachment> getAttachments() {
+		return attachments;
+	}
+
+	public void setAttachments(List<SignupAttachment> attachments) {
+		this.attachments = attachments;
+	}
+
+	public AttachmentHandler getAttachmentHandler() {
+		return attachmentHandler;
+	}
+
+	public void setAttachmentHandler(AttachmentHandler attachmentHandler) {
+		this.attachmentHandler = attachmentHandler;
+	}
+	
+	public boolean isAttachmentsEmpty(){
+		if (this.attachments !=null && this.attachments.size()>0)
+			return false;
+		else
+			return true;
+	}
+			
 }

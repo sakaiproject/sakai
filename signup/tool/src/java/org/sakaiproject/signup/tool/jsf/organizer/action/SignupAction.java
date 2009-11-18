@@ -22,6 +22,7 @@
  **********************************************************************************/
 package org.sakaiproject.signup.tool.jsf.organizer.action;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -32,6 +33,7 @@ import org.sakaiproject.signup.logic.SignupMeetingService;
 import org.sakaiproject.signup.logic.SignupMessageTypes;
 import org.sakaiproject.signup.logic.messages.SignupEventTrackingInfo;
 import org.sakaiproject.signup.logic.messages.SignupEventTrackingInfoImpl;
+import org.sakaiproject.signup.model.SignupAttachment;
 import org.sakaiproject.signup.model.SignupAttendee;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupTimeslot;
@@ -192,6 +194,34 @@ public abstract class SignupAction implements SignupBeanConstants{
 	 */
 	public void setSignupEventTrackingInfo(SignupEventTrackingInfo signupEventTrackingInfo) {
 		this.signupEventTrackingInfo = signupEventTrackingInfo;
+	}
+	
+	public List<SignupAttachment> getAttendeeAttachments(List<SignupAttachment> sAttachList) {
+		return getCorrespondingAttachment(sAttachList, false);
+	}
+
+
+	public List<SignupAttachment> getEventMainAttachments(List<SignupAttachment> sAttachList) {
+		return getCorrespondingAttachment(sAttachList, true);
+	}
+	
+	private List<SignupAttachment> getCorrespondingAttachment(List<SignupAttachment> sAttachList, boolean isMainEventAttachs){
+		List<SignupAttachment> tmp = new ArrayList<SignupAttachment>();
+		if(sAttachList != null){
+			for (SignupAttachment attach: sAttachList) {
+				if(isMainEventAttachs){
+					if( attach.getTimeslotId() ==null)
+						tmp.add(attach);
+				}else {
+					if(attach.getTimeslotId() !=null && ! attach.getViewByAll())
+						tmp.add(attach);
+				}
+					
+				
+				//TODO other cases: such as attachment for a specific time slot only.
+			}
+		}
+		return tmp;
 	}
 
 }

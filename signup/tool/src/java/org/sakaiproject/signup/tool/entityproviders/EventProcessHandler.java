@@ -171,19 +171,25 @@ public class EventProcessHandler implements SignupBeanConstants {
 	private SignupEvent userAddToWaitList(SignupEvent event) {
 		String userActionWarningMsg = null;
 		SignupMeeting meeting = null;
+									
 		try {
 			meeting = getSignupMeeting(event);
-			AddWaiter addWaiter = new AddWaiter(signupMeetingService, getSakaiFacade().getCurrentUserId(), event
-					.getSiteId(), ON_BOTTOM_LIST, false);
-			SignupAttendee newWaiter = new SignupAttendee(sakaiFacade.getCurrentUserId(), event.getSiteId());
-			SignupTimeslot timeSlot = getSignupTimeSlot(meeting, event.getAllocToTSid());
-			meeting = addWaiter.addToWaitingList(meeting, timeSlot, newWaiter);
-
-			if (ToolManager.getCurrentPlacement() == null)
-				Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_ADD_ATTENDEE_WL_S, event.getSiteId()
-						+ " meetingId:" + meeting.getId() + " -added to wlist on TS:"
-						+ SignupDateFormat.format_date_h_mm_a(timeSlot.getStartTime()));
-
+			/*check if it's allowed to add to the waitlist*/
+			if(meeting.isAllowWaitList()){
+				AddWaiter addWaiter = new AddWaiter(signupMeetingService, getSakaiFacade().getCurrentUserId(), event
+						.getSiteId(), ON_BOTTOM_LIST, false);
+				SignupAttendee newWaiter = new SignupAttendee(sakaiFacade.getCurrentUserId(), event.getSiteId());
+				SignupTimeslot timeSlot = getSignupTimeSlot(meeting, event.getAllocToTSid());
+				meeting = addWaiter.addToWaitingList(meeting, timeSlot, newWaiter);
+	
+				if (ToolManager.getCurrentPlacement() == null)
+					Utilities.postEventTracking(SignupEventTypes.EVENT_SIGNUP_ADD_ATTENDEE_WL_S, event.getSiteId()
+							+ " meetingId:" + meeting.getId() + " -added to wlist on TS:"
+							+ SignupDateFormat.format_date_h_mm_a(timeSlot.getStartTime()));
+			}
+			else{
+				userActionWarningMsg = Utilities.rb.getString("user.not.allowed.to.waitlist");
+			}
 		} catch (SignupUserActionException ue) {
 			userActionWarningMsg = ue.getMessage();
 		} catch (Exception e) {

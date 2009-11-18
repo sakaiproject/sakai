@@ -8,7 +8,7 @@ img{
 	display: none;
 }
 
-.addAttendee, .addWaiter{
+.addAttendee, .addWaiter, .disabledAddAttendee{
 	display: none;
 }
 .instruction{

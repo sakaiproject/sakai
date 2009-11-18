@@ -33,10 +33,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.model.SignupGroup;
@@ -276,7 +278,14 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	public String getSiteSignupPageId(String siteId) {
 		try {
 			Site appliedSite = siteService.getSite(siteId);
-			String signupToolId = toolManager.getCurrentPlacement().getToolId();
+			String signupToolId=null;
+			try{
+				signupToolId = toolManager.getCurrentPlacement().getToolId();
+			}
+			catch (Exception e){
+				/*for case: cronJob or web-service etc.*/
+				signupToolId = toolManager.getTool("sakai.signup").getId();
+			}
 
 			SitePage page = null;
 			List pageList = appliedSite.getPages();
@@ -319,8 +328,33 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	 */
 	public List<SignupSite> getUserSites(String userId) {
 		List<SignupSite> signupSites = new ArrayList<SignupSite>();
-		List tempL = siteService.getSites(SiteService.SelectionType.ACCESS, null, null, null,
+		List<Site> tempL = siteService.getSites(SiteService.SelectionType.ACCESS, null, null, null,
 				SiteService.SortType.TITLE_ASC, null);
+		
+		/*Case: Admin is not a member of current site and add it 
+		 * in order to let Admin create meetings*/
+		if(isUserAdmin(getCurrentUserId())){
+			String currentSitId = getCurrentLocationId();
+			Site curSite=null;
+			try {
+				curSite =getSiteService().getSite(currentSitId);
+			} catch (IdUnusedException e) {
+				log.warn("IdUnusedException:" + e.getMessage());
+			}
+			if(currentSitId !=null && curSite !=null){
+				boolean foundSite=false;
+				for (Site s : tempL) {
+					if(currentSitId.equals(s.getId())){
+						foundSite=true;
+						break;
+					}						
+				}
+				if(!foundSite){
+					tempL.add(curSite);
+				}
+			}
+		}
+		
 		for (Iterator iter = tempL.iterator(); iter.hasNext();) {
 			Site element = (Site) iter.next();
 			// exclude my workspace & admin related sites
@@ -383,7 +417,6 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	 * {@inheritDoc}
 	 */
 	@SuppressWarnings("unchecked")
-	// TODO: should we check view permission for each attendee(user)
 	public List<SignupUser> getAllUsers(SignupMeeting meeting) {
 		List<SignupSite> signupSites = meeting.getSignupSites();
 		Set<SignupUser> signupUsers = new TreeSet<SignupUser>();
@@ -399,6 +432,113 @@ public class SakaiFacadeImpl implements SakaiFacade {
 
 		}
 		return new ArrayList<SignupUser>(signupUsers);
+	}
+	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public SignupUser getSignupUser(SignupMeeting meeting, String userId){
+		SignupUser signupUser=null;
+		List<SignupSite> signupSites = meeting.getSignupSites();
+		SignupSite currentSignupSite=null;
+		for (SignupSite signupSite : signupSites) {
+			Site site = null;
+			try {
+				site = siteService.getSite(signupSite.getSiteId());
+			} catch (IdUnusedException e) {
+				log.error(e.getMessage(), e);
+			}
+
+			if (site == null)
+				continue;
+			
+			if(site.getId().equals(signupSite.getSiteId()))
+				currentSignupSite=signupSite;
+			
+			/*Case 1: User is required to be a site member*/
+			Member member = site.getMember(userId);
+			if (member ==null || !member.isActive())
+				continue;
+			
+			if (hasPermissionToAttend(signupSite,userId)) {
+				User user = getUser(member.getUserId());
+				if (user != null) {
+					SignupUser sUser = new SignupUser(member.getUserEid(), member.getUserId(), "", member.getUserEid(),
+							member.getRole(), site.getId(), site.isPublished());
+
+					if(signupUser ==null ){
+						signupUser =sUser;
+					}
+					else if(sUser.isPublishedSite() && sUser.getMainSiteId().equals(getCurrentLocationId())){
+						return sUser;
+					}
+					else if(!signupUser.isPublishedSite() && sUser.isPublishedSite())
+							signupUser =sUser;
+				}
+				else
+					log.info("user is not found from 'userDirectoryService' for userId:" + member.getUserId());
+			}
+			
+		}//end of for
+		
+		/*Case 2: site has '.auth' roleId and user is not required to be a site member*/
+		if(signupUser ==null){
+			signupUser = getSignupUserForLoginRequiredOnlySite(currentSignupSite,userId);
+		}
+		
+		return signupUser;
+	}
+		
+	private boolean hasPermissionToAttend(SignupSite site, String userId){
+		if(isAllowedSite(userId, SIGNUP_ATTEND_ALL, site.getSiteId()))
+			return true;
+	
+		if (site.isSiteScope()) {
+			if (isAllowedSite(userId, SIGNUP_ATTEND, site.getSiteId()))
+				return true;
+		} else {
+			List<SignupGroup> signupGroups = site.getSignupGroups();
+			for (SignupGroup group : signupGroups) {
+				if(isAllowedGroup(userId, SIGNUP_ATTEND, site.getSiteId(), group.getGroupId()))
+					return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	/*If site has roleId '.auth', any user is OK if logged in*/
+	private SignupUser getSignupUserForLoginRequiredOnlySite(SignupSite signupSite, String userId){
+		SignupUser signupUser=null;
+		Site site=null;
+		try {
+			site = siteService.getSite(signupSite.getSiteId());
+		} catch (IdUnusedException e) {
+			log.error(e.getMessage(), e);
+		}
+
+		if (site == null)
+			return null;
+		
+		Set siteRoles = site.getRoles();
+		if(siteRoles !=null){
+			for (Iterator iter = siteRoles.iterator(); iter.hasNext();) {
+				Role role = (Role) iter.next();
+				if(REALM_ID_FOR_LOGIN_REQUIRED_ONLY.equals(role.getId())){
+					if(hasPermissionToAttend(signupSite,userId)){
+						User user = getUser(userId);
+						if(user !=null)
+							signupUser = new SignupUser(user.getEid(), userId, user.getFirstName(), user.getLastName(),
+								role, site.getId(), site.isPublished());
+						break;
+					}
+				}
+				
+			}
+		}
+		
+		return signupUser;
 	}
 
 	/* get all users in a specific group */
@@ -459,7 +599,6 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		if (site == null)
 			return;
 
-		boolean isSitePublished = site.isPublished();
 		SignupUser signupUser = null;
 		Set<Member> members = site.getMembers();
 		for (Member member : members) {
@@ -556,6 +695,24 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	 */
 	public void setTimeService(TimeService timeService) {
 		this.timeService = timeService;
+	}
+	
+	private ContentHostingService contentHostingService;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public ContentHostingService getContentHostingService() {
+		return contentHostingService;
+	}
+
+	/**
+	 * This is a setter.
+	 * @param contentHostingService
+	 * 			a ContentHostingService object
+	 */
+	public void setContentHostingService(ContentHostingService contentHostingService) {
+		this.contentHostingService = contentHostingService;
 	}
 
 }

@@ -47,12 +47,14 @@ public interface MeetingTypes {
 	 */
 	static final String ANNOUNCEMENT = "announcement";
 	
-	static final String DAILY = "1";
+	static final String DAILY = "daily";
 	
-	static final String WEEKLY = "2";
+	static final String WEEKDAYS = "wkdays_mon-fri";
 	
-	static final String BIWEEKLY = "3";
+	static final String WEEKLY = "weekly";
 	
-	static final String ONCE_ONLY = "0";
+	static final String BIWEEKLY = "biweekly";
+	
+	static final String ONCE_ONLY = "no_repeat";
 
 }

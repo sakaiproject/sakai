@@ -136,7 +136,7 @@ public class AddWaiter extends SignupAction implements SignupBeanConstants {
 
 		/* Meantime, if a spot becomes available again */
 		if (attendees == null || attendees.size() < currentTimeSlot.getMaxNoOfAttendees()) {
-			if (attendees == null){
+			if (attendees == null) {
 				attendees = new ArrayList<SignupAttendee>();
 				currentTimeSlot.setAttendees(attendees);
 			}
@@ -147,7 +147,12 @@ public class AddWaiter extends SignupAction implements SignupBeanConstants {
 			removeAttendeeFromAttendeesList(meeting, currentTimeSlot, newWaiter);
 			return;
 		}
-
+		
+		/*Case: no waitlist option - for situation: if user has a old meeting instance to get here this far*/
+		if(!meeting.isAllowWaitList()){
+			throw new SignupUserActionException(Utilities.rb.getString("waitlist.option.just.turn.off"));
+		}
+		
 		List<SignupAttendee> waiters = currentTimeSlot.getWaitingList();
 
 		if (waiters == null) {

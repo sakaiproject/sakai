@@ -33,6 +33,7 @@ import org.sakaiproject.signup.logic.messages.AddAttendeeEmail;
 import org.sakaiproject.signup.logic.messages.AttendeeCancellationEmail;
 import org.sakaiproject.signup.logic.messages.AttendeeSignupEmail;
 import org.sakaiproject.signup.logic.messages.CancellationEmail;
+import org.sakaiproject.signup.logic.messages.EmailDeliverer;
 import org.sakaiproject.signup.logic.messages.ModifyMeetingEmail;
 import org.sakaiproject.signup.logic.messages.MoveAttendeeEmail;
 import org.sakaiproject.signup.logic.messages.NewMeetingEmail;
@@ -265,8 +266,20 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 					email = new ModifyMeetingEmail(organizer, meeting, this.sakaiFacade, emailUserSiteGroup.getSiteId());
 				}
 
-				if (email != null)
-					emailService.sendToUsers(sakaiUsers, email.getHeader(), email.getMessage());
+				if (email != null){
+					if(sakaiUsers.size()> 200){
+						/*Currently, use this only for heavy case.
+						 * One drawback: the organizer don't know weather the email is really sent away or not.
+						 * There is no error message for user if an unexpected exception happens.
+						 * Will add the email-send-error notification at near future time.
+						 * */
+						EmailDeliverer deliverer = new EmailDeliverer(sakaiUsers, email.getHeader(),email.getMessage(),emailService);
+						Thread t = new Thread(deliverer);
+						t.start();
+					}
+					else
+						emailService.sendToUsers(sakaiUsers, email.getHeader(), email.getMessage());
+				}
 
 			} catch (UserNotDefinedException ue) {
 				isException = true;

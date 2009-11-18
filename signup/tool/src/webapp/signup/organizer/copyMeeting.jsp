@@ -58,6 +58,27 @@
 							<h:outputText value="#{msgs.event_description}" styleClass="titleText" escape="false"/>
 							<sakai:rich_text_area value="#{CopyMeetingSignupMBean.signupMeeting.description}" width="720" height="200" rows="5" columns="80"/>
 							
+							<h:outputText  value="" styleClass="titleText" escape="false" />
+		         			<h:panelGrid columns="1">
+		         				<t:dataTable value="#{CopyMeetingSignupMBean.signupMeeting.signupAttachments}" var="attach" rendered="#{!CopyMeetingSignupMBean.signupAttachmentEmpty}">
+		         					<t:column>
+        								<%@ include file="/signup/common/mimeIcon.jsp" %>
+      								</t:column>
+		         					<t:column>
+		         						<h:outputLink  value="#{attach.location}" target="new_window">
+		         							<h:outputText value="#{attach.filename}"/>
+		         						</h:outputLink>
+		         					</t:column>
+		         					<t:column>
+		         						<h:outputText escape="false" value="(#{attach.fileSize}kb)" rendered="#{!attach.isLink}"/>
+		         					</t:column>
+		         				</t:dataTable>
+		         				
+		         				<h:commandButton action="#{CopyMeetingSignupMBean.addRemoveAttachments}" value="#{msgs.add_attachments}" rendered="#{CopyMeetingSignupMBean.signupAttachmentEmpty}"/>		
+		         				<h:commandButton action="#{CopyMeetingSignupMBean.addRemoveAttachments}" value="#{msgs.add_remove_attachments}" rendered="#{!CopyMeetingSignupMBean.signupAttachmentEmpty}"/>		         			
+		         			</h:panelGrid>
+							
+							
 							<h:panelGroup styleClass="titleText" style="margin-top: 20px;">
 								<h:outputText value="#{msgs.star_character}" style="color:#B11;"/>
 								<h:outputText value="#{msgs.event_start_time}"  escape="false"/>
@@ -78,13 +99,17 @@
 										<h:message for="endTime" errorClass="alertMessageInline"/>
 							</h:panelGroup>
 							
+							<h:outputText id="recurWarnLabel_1" value="" escape="false" rendered="#{!CopyMeetingSignupMBean.repeatTypeUnknown}"/>
+							<h:outputText id="recurWarnLabel_2" value="#{msgs.warn_copy_recurred_event}" styleClass="alertMessage" style="width:95%" escape="false" rendered="#{!CopyMeetingSignupMBean.repeatTypeUnknown}"/>
+							
 							<h:outputText styleClass="titleText" value="#{msgs.event_recurrence}"  />                                          
 		                     <h:panelGroup>                            
-		                            <h:selectOneMenu id="recurSelector" value="#{CopyMeetingSignupMBean.repeatType}" styleClass="titleText" onchange="isShowCalendar(value); isShowAssignToAllChoice(); return false;">
-		                                <f:selectItem itemValue="0" itemLabel="#{msgs.label_once}"/>
-		                                <f:selectItem itemValue="1" itemLabel="#{msgs.label_daily}"/>
-		                                <f:selectItem itemValue="2" itemLabel="#{msgs.label_weekly}"/>
-		                                <f:selectItem itemValue="3" itemLabel="#{msgs.label_biweekly}"/>                           
+		                            <h:selectOneMenu id="recurSelector" value="#{CopyMeetingSignupMBean.repeatType}" styleClass="titleText" onchange="isShowCalendar(value); isShowAssignToAllChoice(); isCopyRecurEvents(value); return false;">
+		                                <f:selectItem itemValue="no_repeat" itemLabel="#{msgs.label_once}"/>
+		                                <f:selectItem itemValue="daily" itemLabel="#{msgs.label_daily}"/>
+		                                <f:selectItem itemValue="wkdays_mon-fri" itemLabel="#{msgs.label_weekdays}"/>
+		                                <f:selectItem itemValue="weekly" itemLabel="#{msgs.label_weekly}"/>
+		                                <f:selectItem itemValue="biweekly" itemLabel="#{msgs.label_biweekly}"/>                           
 		                             </h:selectOneMenu>
 		                                                
 		                            <h:panelGroup id="utilCalendar" style="margin-left:35px; display:none;">
@@ -230,17 +255,17 @@
 				           			<h:outputText value="#{msgs.star_character}"  style="color:#B11;"/>
 				            		<h:outputText value ="#{msgs.event_type_title}" />
 				           	</h:panelGroup>	
-				            <h:panelGrid columns="2" style="vertical-align: top;">                
+				            <h:panelGrid columns="2" columnClasses="miCol1,miCol2">                
 					                   <h:panelGroup id="radios" styleClass="rs">                  
 					                        <h:selectOneRadio id="meetingType" value="#{CopyMeetingSignupMBean.signupMeeting.meetingType}"    layout="pageDirection" styleClass="rs" >
 					                          	<f:selectItems value="#{CopyMeetingSignupMBean.meetingTypeRadioBttns}"/>                	                      	         	 
 					                 	   </h:selectOneRadio> 
 					                   </h:panelGroup>
 				                      
-					               	   <h:panelGrid columns="1" style="vertical-align: top;">       
+					               	   <h:panelGrid columns="1" columnClasses="miCol1">       
 					               			<%-- multiple: --%>           
-						               				<h:panelGroup style="vertical-align: top;" rendered="#{CopyMeetingSignupMBean.individualType}">            
-								                        	<h:panelGrid columns="2" styleClass="mi">                                                
+						               				<h:panelGroup rendered="#{CopyMeetingSignupMBean.individualType}">            
+								                        	<h:panelGrid columns="2" styleClass="mi" columnClasses="miCol1,miCol2">                                                
 											                        <h:outputText value="#{msgs.event_num_slot_avail_for_signup}" />
 												                    <h:inputText  id="numberOfSlot" value="#{CopyMeetingSignupMBean.numberOfSlots}" size="2" styleClass="editText" onkeyup="getSignupDuration();return false;" style="margin-left:12px" />
 											                        <h:outputText value="#{msgs.event_num_participant_per_timeslot}" styleClass="titleText" escape="false"/>                    
@@ -253,14 +278,14 @@
 					               
 						            				<%-- single: --%>
 						               
-								                	<h:panelGroup style="vertical-align: top;" rendered="#{CopyMeetingSignupMBean.groupType}">                
-									                        <h:panelGrid columns="2" rendered="true" styleClass="si">                
+								                	<h:panelGroup rendered="#{CopyMeetingSignupMBean.groupType}">                
+									                        <h:panelGrid columns="2" rendered="true" styleClass="si" columnClasses="miCol1,miCol2">                
 												                    <h:selectOneRadio id="groupSubradio" value="#{CopyMeetingSignupMBean.unlimited}"  onclick="switchSingle(value)" styleClass="meetingRadioBtn" layout="pageDirection" >
 												                        <f:selectItem itemValue="#{false}" itemLabel="#{msgs.tab_max_attendee}"/>                    
 												                        <f:selectItem itemValue="#{true}" itemLabel="#{msgs.unlimited_num_attendee}"/>                            
 												                    </h:selectOneRadio>
 												                                    
-										                   			<h:panelGrid columns="1">       
+										                   			<h:panelGrid columns="1" columnClasses="miCol1">       
 												                     	<h:panelGroup  styleClass="meetingMaxAttd" >                      
 												                            <h:inputText id="maxAttendee" value="#{CopyMeetingSignupMBean.maxNumOfAttendees}" size="2" styleClass="editText" onkeyup="validateParticipants();return false;"/>	                                 
 												                        </h:panelGroup>
@@ -311,7 +336,7 @@
 										
 				<sakai:button_bar>
 					<h:commandButton id="copy" action="#{CopyMeetingSignupMBean.processSaveCopy}" actionListener="#{CopyMeetingSignupMBean.validateCopyMeeting}" value="#{msgs.publish_new_evnt_button}" onclick="return alertTruncatedAttendees('#{msgs.event_alert_truncate_attendee}')"/> 			
-					<h:commandButton id="cancel" action="organizerMeeting" value="#{msgs.cancel_button}"  immediate="true"/>  
+					<h:commandButton id="cancel" action="#{CopyMeetingSignupMBean.doCancelAction}" value="#{msgs.cancel_button}" />  
                 </sakai:button_bar>
 
 			 </h:form>
@@ -381,9 +406,24 @@
         		}
 	        }
 	        
+	        function isCopyRecurEvents(value){
+	        	var recurWarnTag1 = document.getElementById('meeting:recurWarnLabel_1');
+	        	var recurWarnTag2 = document.getElementById('meeting:recurWarnLabel_2');
+	        	if(recurWarnTag1 && recurWarnTag2){
+		        	if(value == 'no_repeat'){
+		        		recurWarnTag1.style.display="none";
+		        		recurWarnTag2.style.display="none";
+	        		}
+	        		else{
+	        			recurWarnTag1.style.display="";
+		        		recurWarnTag2.style.display="";
+	        		}
+        		}
+	        }
+	        
 	        function initRepeatCalendar(){
 				var recurSelectorTag = document.getElementById("meeting:recurSelector");
-				if( recurSelectorTag && recurSelectorTag.value !=0)
+				if( recurSelectorTag && recurSelectorTag.value !='no_repeat')
 					document.getElementById('meeting:utilCalendar').style.display="";
 				else
 					document.getElementById('meeting:utilCalendar').style.display="none";

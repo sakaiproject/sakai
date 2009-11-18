@@ -764,7 +764,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry {
 		signupEmailFacade.sendEmailToParticipantsByOrganizerAction(signupEventTrackingInfo);
 
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */

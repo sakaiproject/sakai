@@ -17,9 +17,10 @@
 		
 			<h:form id="viewComment">
 				<sakai:tool_bar>
-					<h:outputLink id="print" value="javascript:window.print();">
+					<h:outputLink id="print" value="javascript:window.print();" style="vertical-align:bottom;">
 						<h:graphicImage url="/images/printer.png"
 							alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
+						<h:outputText value="#{msgs.print_event}" escape="false"/>
 					</h:outputLink>
 				</sakai:tool_bar>
 			</h:form>
@@ -47,14 +48,9 @@
 					<h:outputText value="#{ViewCommentSignupMBean.attendeeWraper.timeslotPeriod}" styleClass="longtext" escape="false"/>
 					
 					<h:outputText value="#{msgs.event_appointment_date}" styleClass="titleText" escape="false"/>
-					<h:panelGroup>
-						<h:outputText value="#{ViewCommentSignupMBean.meetingWrapper.meeting.startTime}" styleClass="longtext">
-						 	<f:convertDateTime pattern="EEEEEEEE, " />
-						</h:outputText>
-						<h:outputText value="#{ViewCommentSignupMBean.meetingWrapper.meeting.startTime}" styleClass="longtext">
-						 	<f:convertDateTime dateStyle="long" />
-						</h:outputText>
-					</h:panelGroup>	
+					<h:outputText value="#{ViewCommentSignupMBean.meetingWrapper.meeting.startTime}" styleClass="longtext">
+					 	<f:convertDateTime dateStyle="full" />
+					</h:outputText>	
 					
 					<h:outputText value="&nbsp" escape="false"/>
 					<h:outputText value="&nbsp" escape="false"/>

@@ -15,6 +15,7 @@
 	
 	
 	  <script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>
+	  <script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/jquery.js"></script>
 		
 		<sakai:view_content>
 			<h:outputText value="#{msgs.event_error_alerts} #{errorMessageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{errorMessageUIBean.error}"/>      			
@@ -38,6 +39,23 @@
 								
 								<h:outputText value="#{msgs.event_description}" styleClass="titleText" escape="false"/>
 								<h:outputText value="#{NewSignupMeetingBean.signupMeeting.description}" styleClass="longtext" escape="false"/>
+								
+								<h:outputText  value="#{msgs.attachments}" styleClass="titleText" escape="false" rendered="#{!NewSignupMeetingBean.attachmentsEmpty}"/>
+			         			<h:panelGrid columns="1" rendered="#{!NewSignupMeetingBean.attachmentsEmpty}">
+			         				<t:dataTable value="#{NewSignupMeetingBean.attachments}" var="attach" >
+			         					<t:column>
+	        								<%@ include file="/signup/common/mimeIcon.jsp" %>
+	      								</t:column>
+			         					<t:column>
+			         						<h:outputLink  value="#{attach.location}" target="new_window">
+			         							<h:outputText value="#{attach.filename}"/>
+			         						</h:outputLink>
+			         					</t:column>
+			         					<t:column>
+			         						<h:outputText escape="false" value="(#{attach.fileSize}kb)" rendered="#{!attach.isLink}"/>
+			         					</t:column>
+			         				</t:dataTable>			         				
+				         		</h:panelGrid>
 								
 								<h:outputText value="#{msgs.event_start_time}" styleClass="titleText" escape="false"/>
 								<h:panelGroup>
@@ -151,9 +169,15 @@
 										</h:panelGroup>							
 									</h:column>
 								</h:dataTable>
+																
+								<h:outputText value="&nbsp;" escape="false"/>
+								<h:outputText value="&nbsp;" escape="false"/>
 								
-								<h:outputText value="&nbsp;" escape="false"/>
-								<h:outputText value="&nbsp;" escape="false"/>
+								<h:outputText value="#{msgs.event_publish_attendee_name}" styleClass="titleText" escape="false"/>
+								<h:panelGroup styleClass="longtext">
+									<h:selectBooleanCheckbox value="#{NewSignupMeetingBean.showParticipants}"/>
+									<h:outputText value="#{msgs.event_yes_show_attendee_public}" escape="false"/>
+								</h:panelGroup>
 								
 								<h:outputText value="#{msgs.event_receive_notification}" styleClass="titleText" escape="false"/>
 								<h:panelGroup styleClass="longtext">
@@ -169,12 +193,45 @@
 								<h:panelGroup styleClass="longtext" rendered="#{!NewSignupMeetingBean.publishedSite}">
 									<h:selectBooleanCheckbox value="#{NewSignupMeetingBean.sendEmail}" disabled="true"/>
 									<h:outputText value="#{msgs.event_email_not_send_out_label}" escape="false" style="color:#b11"/>
+								</h:panelGroup>																
+								
+								<h:outputText value="&nbsp;" escape="false"/>
+								<h:outputText value="&nbsp;" escape="false"/>
+								
+								<h:outputText value="#{msgs.event_other_default_setting}" escape="false" styleClass="titleText"/>
+								<h:panelGroup >	
+				   	    				<h:outputLabel  id="imageOpen_otherSetting" style="display:none" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_otherSetting','meeting:imageClose_otherSetting','meeting:otherSetting');">
+					   	    				<h:graphicImage value="/images/open.gif"  alt="open" title="Click to hide details." style="border:none;" styleClass="openCloseImageIcon"/>
+					   	    				<h:outputText value="#{msgs.event_close_other_default_setting}" escape="false" style="vertical-align: top;"/>
+				   	    				</h:outputLabel>
+				   	    				<h:outputLabel id="imageClose_otherSetting" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_otherSetting','meeting:imageClose_otherSetting','meeting:otherSetting');">
+				   	    					<h:graphicImage value="/images/closed.gif" alt="close" title="Click to show details." style="border:none;vertical-align:top;" styleClass="openCloseImageIcon"/>
+				   	    					<h:outputText value="#{msgs.event_show_other_default_setting}" escape="false" style="vertical-align: top;"/>
+				   	    				</h:outputLabel>
+							   </h:panelGroup>
+
+							   	<h:outputText id="otherSetting_1" style="display:none" value="#{msgs.event_allow_waitList}" styleClass="titleText" escape="false" rendered="#{!NewSignupMeetingBean.announcementType}"/>
+								<h:panelGroup id="otherSetting_2" style="display:none" styleClass="longtext" rendered="#{!NewSignupMeetingBean.announcementType}">
+									<h:selectBooleanCheckbox value="#{NewSignupMeetingBean.allowWaitList}"/>
+									<h:outputText value="#{msgs.event_yes_to_allow_waitList}" escape="false"/>
 								</h:panelGroup>
 								
-								<h:outputText value="#{msgs.event_publish_attendee_name}" styleClass="titleText" escape="false"/>
-								<h:panelGroup styleClass="longtext">
-									<h:selectBooleanCheckbox value="#{NewSignupMeetingBean.showParticipants}"/>
-									<h:outputText value="#{msgs.event_yes_show_attendee_public}" escape="false"/>
+								<h:outputText id="otherSetting_3" style="display:none" value="#{msgs.event_allow_addComment}" styleClass="titleText" escape="false" rendered="#{!NewSignupMeetingBean.announcementType}"/>
+								<h:panelGroup id="otherSetting_4" style="display:none" styleClass="longtext" rendered="#{!NewSignupMeetingBean.announcementType}">
+									<h:selectBooleanCheckbox value="#{NewSignupMeetingBean.allowComment}"/>
+									<h:outputText value="#{msgs.event_yes_to_allow_addComment}" escape="false"/>
+								</h:panelGroup>
+								
+								<h:outputText id="otherSetting_5" style="display:none" value="#{msgs.event_use_eid_input_mode}" styleClass="titleText" escape="false" rendered="#{!NewSignupMeetingBean.announcementType && NewSignupMeetingBean.userIdInputModeOptionChoice}"/>
+								<h:panelGroup id="otherSetting_6" style="display:none" styleClass="longtext" rendered="#{!NewSignupMeetingBean.announcementType && NewSignupMeetingBean.userIdInputModeOptionChoice}">
+									<h:selectBooleanCheckbox value="#{NewSignupMeetingBean.eidInputMode}"/>
+									<h:outputText value="#{msgs.event_yes_to_use_eid_input_mode}" escape="false"/>
+								</h:panelGroup>
+								
+								<h:outputText id="otherSetting_7" style="display:none" value="#{msgs.event_email_autoReminder}" styleClass="titleText" escape="false"  rendered="#{!NewSignupMeetingBean.announcementType && NewSignupMeetingBean.autoReminderOptionChoice}"/>
+								<h:panelGroup id="otherSetting_8" style="display:none" styleClass="longtext" rendered="#{!NewSignupMeetingBean.announcementType && NewSignupMeetingBean.autoReminderOptionChoice}">
+									<h:selectBooleanCheckbox value="#{NewSignupMeetingBean.autoReminder}"/>
+									<h:outputText value="#{msgs.event_yes_email_autoReminer_to_attendees}" escape="false"/>
 								</h:panelGroup>
 								
 						</h:panelGrid>
@@ -195,4 +252,19 @@
 			 </h:form>
   		</sakai:view_content>	
 	</sakai:view_container>
+	
+	<f:verbatim>
+	<script>
+			//just introduce jquery slideUp/Down visual effect to overwrite top function
+			function switchShowOrHide(tag){
+				if(tag){
+					if(tag.style.display=="none")
+						$(tag).slideDown("fast");
+					else
+						$(tag).slideUp("fast");
+				}
+			}			
+						
+		</script>
+	</f:verbatim>
 </f:view> 

@@ -16,7 +16,7 @@
          }                                          
 
 		var recurSelectorVal = document.getElementById("meeting:recurSelector").value;
-		if(recurSelectorVal ==0)
+		if(recurSelectorVal =='no_repeat')
 			document.getElementById('meeting:utilCalendar').style.display="none";
 		else
 			document.getElementById('meeting:utilCalendar').style.display="";

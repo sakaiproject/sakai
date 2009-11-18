@@ -240,4 +240,8 @@ public class SignupSorter {
 	public String getLocationColumn() {
 		return LOCATION_COLUMN;
 	}
+	
+	public String getStatusColumn(){
+		return STATUS_COLUMN;
+	}
 }

@@ -32,12 +32,13 @@ import org.apache.commons.logging.impl.LogFactoryImpl;
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.logic.SignupMeetingService;
 import org.sakaiproject.signup.logic.SignupMessageTypes;
-import org.sakaiproject.signup.logic.SignupUser;
 import org.sakaiproject.signup.logic.SignupUserActionException;
 import org.sakaiproject.signup.model.MeetingTypes;
+import org.sakaiproject.signup.model.SignupAttachment;
 import org.sakaiproject.signup.model.SignupAttendee;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.tool.jsf.attachment.AttachmentHandler;
 import org.sakaiproject.signup.tool.util.SignupBeanConstants;
 import org.sakaiproject.signup.tool.util.Utilities;
 
@@ -53,6 +54,8 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	protected SakaiFacade sakaiFacade;
 
 	protected SignupMeetingService signupMeetingService;
+	
+	private AttachmentHandler attachmentHandler;
 
 	protected SignupMeetingWrapper meetingWrapper;
 
@@ -62,8 +65,8 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 
 	protected boolean currentUserSignedup;
 
-	protected static boolean DEFAULT_SEND_EMAIL = "true".equalsIgnoreCase(Utilities.rb
-			.getString("default.email.notification")) ? true : false;
+	protected static boolean DEFAULT_SEND_EMAIL = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal(
+										"signup.default.email.notification", "true")) ? true : false;
 
 	protected boolean sendEmail = DEFAULT_SEND_EMAIL;
 
@@ -142,6 +145,10 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 			return MAIN_EVENTS_LIST_PAGE_URL;
 		}
 	}
+	
+	protected void updateSignupAttachmentWrapper(SignupMeeting meeting){
+		
+	}
 
 	/**
 	 * setup the event/meeting's signup begin and deadline time and validate it
@@ -163,6 +170,14 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 			throw new SignupUserActionException(Utilities.rb.getString("signup.deadline.is.before.signup.begin"));
 
 		meeting.setSignupDeadline(sDeadline);
+	}
+	
+	protected boolean isMeetingLengthOver24Hours(SignupMeeting sm){
+		long duration= sm.getEndTime().getTime()- sm.getStartTime().getTime();
+		if( 24 - duration /(MINUTE_IN_MILLISEC * Hour_In_MINUTES) >= 0  )
+			return false;
+		
+		return true;
 	}
 
 	/** convert SignupAttendee to AttendeeWrapper object */
@@ -282,7 +297,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	 * This is only for UI purpose to check if the event/meeting is an open
 	 * session style and signup is not required.
 	 */
-	public boolean isAnnouncementType() {
+	public boolean getAnnouncementType() {
 		return ANNOUNCEMENT.equals(meetingWrapper.getMeeting().getMeetingType());
 	}
 
@@ -290,7 +305,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	 * This is only for UI purpose to check if the event/meeting is an
 	 * individual style (manay time slots) and it requires signup.
 	 */
-	public boolean isIndividualType() {
+	public boolean getIndividualType() {
 		return INDIVIDUAL.equals(meetingWrapper.getMeeting().getMeetingType());
 	}
 
@@ -298,7 +313,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	 * This is only for UI purpose to check if the event/meeting is an group
 	 * style (only one time slot) and it requires signup.
 	 */
-	public boolean isGroupType() {
+	public boolean getGroupType() {
 		return GROUP.equals(meetingWrapper.getMeeting().getMeetingType());
 	}
 
@@ -392,29 +407,26 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		return publishedSite.booleanValue();
 	}
 
-	/**
-	 * This method provides the correct SiteId, which the user has access to the
-	 * published meeting in the sign-up tool at that site
-	 * 
-	 * @param internalUserId
-	 *            an unique userId
-	 * @param allSignupUsers
-	 *            a list of SignupUser object.
-	 * @param defaultSiteId
-	 *            a unique SiteId, which the user belongs to.
-	 * @return a unique siteId
-	 */
-	public static String getAttendeeMainActiveSiteId(String internalUserId, List<SignupUser> allSignupUsers,
-			String defaultSiteId) {
-		if (allSignupUsers != null) {
-			for (SignupUser signupUser : allSignupUsers) {
-				if (internalUserId.equals(signupUser.getInternalUserId())) {
-					return signupUser.getMainSiteId();
-				}
+
+	public void cleanUpUnusedAttachmentCopies(List<SignupAttachment> attachList){
+		if(attachList !=null){
+			for (SignupAttachment attach : attachList) {
+				getAttachmentHandler().removeAttachmentInContentHost(attach);
 			}
+			attachList.clear();
 		}
-		/* default */
-		return defaultSiteId;
 	}
+	
+	public boolean getSignupAttachmentEmpty(){
+		return this.meetingWrapper.getEmptyEventMainAttachment();
+	}
+
+	public AttachmentHandler getAttachmentHandler() {
+		return attachmentHandler;
+	}
+
+	public void setAttachmentHandler(AttachmentHandler attachmentHandler) {
+		this.attachmentHandler = attachmentHandler;
+	}	
 
 }

@@ -39,6 +39,7 @@ import org.sakaiproject.signup.logic.Permission;
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.logic.SignupEventTypes;
 import org.sakaiproject.signup.logic.SignupMeetingService;
+import org.sakaiproject.signup.model.SignupAttachment;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.tool.jsf.attendee.AttendeeSignupMBean;
 import org.sakaiproject.signup.tool.jsf.organizer.OrganizerSignupMBean;
@@ -58,33 +59,33 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 
 	private static Log log = LogFactory.getLog(SignupMeetingsBean.class);
 
-	private UIData meetingTable;
+	protected UIData meetingTable;
 
-	private String viewDateRang = ALL_FUTURE;// default setting
+	protected String viewDateRang = ALL_FUTURE;// default setting
 
-	private SignupMeetingService signupMeetingService;
+	protected SignupMeetingService signupMeetingService;
 
-	private List<SignupMeetingWrapper> signupMeetings;
+	protected List<SignupMeetingWrapper> signupMeetings;
 
-	private SakaiFacade sakaiFacade;
+	protected SakaiFacade sakaiFacade;
 
-	private AttendeeSignupMBean attendeeSignupMBean;
+	protected AttendeeSignupMBean attendeeSignupMBean;
 
-	private OrganizerSignupMBean organizerSignupMBean;
+	protected OrganizerSignupMBean organizerSignupMBean;
 
 	private NewSignupMeetingBean newSignupMeetingBean;
 
-	private SignupSorter signupSorter = new SignupSorter();
+	protected SignupSorter signupSorter = new SignupSorter();
 
-	private boolean showAllRecurMeetings = false;// default
+	protected boolean showAllRecurMeetings = false;// default
 
-	private boolean enableExpandOption = false;
+	protected boolean enableExpandOption = false;
 
-	private List<SelectItem> viewDropDownList;
+	protected List<SelectItem> viewDropDownList;
 
-	private final String disabledSelectView = "none";
+	protected final String disabledSelectView = "none";
 
-	private String meetingUnavailableMessages;
+	protected String meetingUnavailableMessages;
 
 	/**
 	 * Default Constructor
@@ -150,6 +151,15 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 			} catch (Exception e) {
 				Utilities.addErrorMessage(Utilities.rb.getString("error.calendarEvent.removal_failed"));
 				log.error(Utilities.rb.getString("error.calendarEvent.removal_failed") + " - " + e.getMessage());
+			}
+			/*cleanup attachments in contentHS*/
+			for (SignupMeeting m : meetings) {
+				List<SignupAttachment> attachs= m.getSignupAttachments();
+				if(attachs !=null){
+					for (SignupAttachment attach : attachs) {
+						getNewSignupMeetingBean().getAttachmentHandler().removeAttachmentInContentHost(attach);
+					}
+				}
 			}
 
 		} catch (Exception e) {
@@ -349,6 +359,11 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 
 	private List<SignupMeetingWrapper> getMeetingWrapper(String viewRange) {
 		String currentUserId = sakaiFacade.getCurrentUserId();
+		if(!isUserLoggedInStatus()){
+			/*Let user log-in first*/
+			return null;
+		}
+		
 		List<SignupMeeting> signupMeetings = null;
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(new Date());
@@ -783,6 +798,19 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 			return true;
 
 		return false;
+	}
+	
+	
+	private boolean userLoggedInStatus = false;
+	public boolean isUserLoggedInStatus(){
+		if(!userLoggedInStatus){
+			if(getSakaiFacade().getCurrentUserId()!=null)
+				this.userLoggedInStatus=true;
+			else{
+				return false;
+			}
+		}
+		return userLoggedInStatus;
 	}
 
 }

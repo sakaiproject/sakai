@@ -1,7 +1,7 @@
 /**********************************************************************************
  * $URL$
  * $Id$
-***********************************************************************************
+ ***********************************************************************************
  *
  * Copyright (c) 2007, 2008, 2009 Yale University
  * 
@@ -33,6 +33,7 @@ import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.LogFactoryImpl;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.UsageSessionService;
@@ -56,6 +57,11 @@ public final class Utilities implements SignupBeanConstants, MeetingTypes {
 	 * Get the resource bundle for messages.properties file
 	 */
 	public static ResourceLoader rb = new ResourceLoader("messages");
+	
+	/**
+	 * Get the resource bundle for signupConfig.properties file
+	 */
+	public static ResourceLoader rbConf = new ResourceLoader("signupConfig");
 
 	/**
 	 * Defined a constant name for errorMessageUIBean
@@ -274,8 +280,7 @@ public final class Utilities implements SignupBeanConstants, MeetingTypes {
 		return meetingTypeItems;
 	}
 
-	private static boolean postToDatabase = "false".equals(rb
-			.getString("post.eventTracking.info.to.DB")) ? false : true;
+	private static boolean postToDatabase = "false".equals(getSignupConfigParamVal("signup.post.eventTracking.info.to.DB", "true")) ? false : true;
 
 	/**
 	 * This method will post user action event to DB by using
@@ -383,5 +388,26 @@ public final class Utilities implements SignupBeanConstants, MeetingTypes {
 		cal.setTime(new Date());
 		cal.add(Calendar.HOUR, 24 * days);
 		return cal.getTime();
+	}
+	
+	public static String getSignupConfigParamVal(String paramName, String defaultValue) {
+		/* first look at sakai.properties and the tool bundle*/
+		String myConfigValue=defaultValue;
+		if (paramName != null) {
+			try {
+				myConfigValue = ServerConfigurationService.getString(paramName);
+				if(myConfigValue ==null || myConfigValue.trim().length() < 1){
+					myConfigValue = rbConf.getString(paramName);
+					int index = myConfigValue.indexOf("missing key");/*return value by rb if no key defined-- hard coded!!!*/
+					if (index >=0)
+						myConfigValue = defaultValue;
+				}
+			} catch (Exception e) {
+				myConfigValue = defaultValue;
+			}
+		}
+
+		return myConfigValue;
+
 	}
 }

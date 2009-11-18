@@ -77,10 +77,9 @@ public class ReplaceAttendee extends SignupAction {
 	 *             throw if anything goes wrong.
 	 */
 	public void replace(SignupMeeting meeting, SignupTimeslot currentTimeslot, String toBeReplacedUserId,
-			String replacerUserId, List<SignupUser> allSignupUsers) throws Exception {
+			String replacerUserId,String replacerMainActiveSiteId) throws Exception {
 
-		SignupAttendee replacer = new SignupAttendee(replacerUserId, SignupUIBaseBean.getAttendeeMainActiveSiteId(
-				replacerUserId, allSignupUsers, this.siteId));
+		SignupAttendee replacer = new SignupAttendee(replacerUserId, replacerMainActiveSiteId);
 
 		try {
 			handleVersion(meeting, currentTimeslot, toBeReplacedUserId, replacer);

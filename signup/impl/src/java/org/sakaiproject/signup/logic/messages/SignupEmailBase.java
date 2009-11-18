@@ -26,9 +26,12 @@ import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
 
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.model.MeetingTypes;
 import org.sakaiproject.signup.model.SignupMeeting;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -49,6 +52,8 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 	public static final String newline = "<BR>\r\n"; // System.getProperty("line.separator");\r\n
 
 	public static final String space = " ";
+	
+	private static final int SITE_DESCRIPTION_DISPLAY_LENGTH=20;
 
 	/* footer for the email */
 	protected String getFooter(String newline) {
@@ -139,12 +144,14 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 
 	/* get the site name */
 	protected String getSiteTitle() {
-		return getSakaiFacade().getLocationTitle(getSiteId());
+		String title = getSakaiFacade().getLocationTitle(getSiteId());
+		title +=getShortDescription(getSiteId());
+		return title;
 	}
 
 	/* get the site name */
 	protected String getSiteTitle(String targetSiteId) {
-		return getSakaiFacade().getLocationTitle(targetSiteId);
+		return getSakaiFacade().getLocationTitle(targetSiteId) + getShortDescription(targetSiteId);
 	}
 
 	/* get the site name with a quotation mark */
@@ -204,11 +211,12 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 	static private String myServiceName = null;
 
 	protected String getServiceName() {
-		/* first look at email bundle since it's not a Sakai core tool yet */
+		/* first look at email bundle and then sakai.properties. 
+		 * it will allow user to define different 'ui.service' value */
 		if (myServiceName == null) {
 			try {
 				myServiceName = rb.getString("ui.service");
-				int index = myServiceName.indexOf("missing key");
+				int index = myServiceName.indexOf("missing key");/*return value by rb if no key defined-- hard coded!!!*/
 				if (index >=0)
 					myServiceName = getSakaiFacade().getServerConfigurationService().getString("ui.service",
 							"Sakai Service");
@@ -221,4 +229,39 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 		return myServiceName;
 
 	}
+	
+	private String getShortDescription(String siteId)
+    {
+		Site site;
+		try {
+			site = SiteService.getSite(siteId);
+		} catch (IdUnusedException e) {
+			return "";
+		}
+        String shortDescription = "";
+        if (site.getShortDescription() != null && !"".equals(site.getShortDescription()))
+        {
+            shortDescription = site.getShortDescription();
+            if (shortDescription.length() > SITE_DESCRIPTION_DISPLAY_LENGTH) shortDescription = shortDescription.substring(0, 20);
+            shortDescription = ": " + shortDescription;
+        }
+        return shortDescription;
+    }
+	
+	protected String getRepeatTypeMessage(SignupMeeting meeting){
+		String recurFrqs ="";
+		if (DAILY.equals(meeting.getRepeatType()))
+			recurFrqs = rb.getString("body.meeting.repeatDaily");
+		else if (WEEKDAYS.equals(meeting.getRepeatType()))
+			recurFrqs = rb.getString("body.meeting.repeatWeekdays");
+		else if (WEEKLY.equals(meeting.getRepeatType()))
+			recurFrqs = rb.getString("body.meeting.repeatWeekly");
+		else if (BIWEEKLY.equals(meeting.getRepeatType()))
+			recurFrqs = rb.getString("body.meeting.repeatBiWeekly");
+		else
+			recurFrqs = rb.getString("body.meeting.unknown.repeatType");
+		
+		return recurFrqs;
+	}
+	
 }

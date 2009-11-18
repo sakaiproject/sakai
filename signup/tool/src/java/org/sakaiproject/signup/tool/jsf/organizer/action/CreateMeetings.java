@@ -25,6 +25,7 @@ package org.sakaiproject.signup.tool.jsf.organizer.action;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import org.sakaiproject.exception.PermissionException;
@@ -33,11 +34,13 @@ import org.sakaiproject.signup.logic.SignupEventTypes;
 import org.sakaiproject.signup.logic.SignupMeetingService;
 import org.sakaiproject.signup.logic.SignupMessageTypes;
 import org.sakaiproject.signup.model.MeetingTypes;
+import org.sakaiproject.signup.model.SignupAttachment;
 import org.sakaiproject.signup.model.SignupAttendee;
 import org.sakaiproject.signup.model.SignupGroup;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupSite;
 import org.sakaiproject.signup.model.SignupTimeslot;
+import org.sakaiproject.signup.tool.jsf.attachment.AttachmentHandler;
 import org.sakaiproject.signup.tool.util.SignupBeanConstants;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -57,6 +60,8 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 	private boolean sendEmail;
 
 	private final SakaiFacade sakaiFacade;
+	
+	private AttachmentHandler attachmentHandler;
 
 	private boolean assignParticitpantsToAllEvents;
 
@@ -110,7 +115,7 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 	 */
 	public CreateMeetings(SignupMeeting signupMeeting, boolean sendEmail, boolean assignParticatpantsToFirstOne,
 			boolean assignParicitpantsToAllEvents, int signupBegin, String signupBeginType, int signupDeadline,
-			String signupDeadlineType, SakaiFacade sakaiFacade, SignupMeetingService signupMeetingService,
+			String signupDeadlineType, SakaiFacade sakaiFacade, SignupMeetingService signupMeetingService, AttachmentHandler attachmentHandler,
 			String currentUserId, String currentSiteId, boolean isOrganizer) {
 		super(currentUserId, currentSiteId, signupMeetingService, isOrganizer);
 		this.signupMeeting = signupMeeting;
@@ -123,6 +128,7 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 		this.deadlineTimeType = signupDeadlineType;
 		this.sakaiFacade = sakaiFacade;
 		this.signupMeetings = new ArrayList<SignupMeeting>();
+		this.attachmentHandler = attachmentHandler;
 
 	}
 
@@ -147,7 +153,10 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 		// recurrence = true;
 		if (DAILY.equals(signupMeeting.getRepeatType())) {
 			createRecurMeetings(calendar, numOfRecurs, perDay);
-		} else if (WEEKLY.equals(signupMeeting.getRepeatType())) {
+		} else if (WEEKDAYS.equals(signupMeeting.getRepeatType())) {
+			createRecurMeetings(calendar, numOfRecurs, perDay);
+			removeWeekendDays();
+		}else if (WEEKLY.equals(signupMeeting.getRepeatType())) {
 			createRecurMeetings(calendar, numOfRecurs, perWeek);
 		} else if (BIWEEKLY.equals(signupMeeting.getRepeatType())) {
 			createRecurMeetings(calendar, numOfRecurs, perBiweek);
@@ -180,12 +189,21 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 		untilCal.set(Calendar.SECOND, 59);
 		availDaysForRepeat = (int) ((untilCal.getTimeInMillis() - firstMeetingEndTime) / DAY_IN_MILLISEC);
 
-		if (DAILY.equals(recurType)) {
+		if (DAILY.equals(recurType) || WEEKDAYS.equals(recurType)) {
 			numOfRecurs = availDaysForRepeat / perDay;
 		} else if (WEEKLY.equals(recurType)) {
 			numOfRecurs = availDaysForRepeat / perWeek;
 		} else if (BIWEEKLY.equals(recurType)) {
 			numOfRecurs = availDaysForRepeat / perBiweek;
+		}
+		
+		/*Case: weekdays*/
+		if(WEEKDAYS.equals(recurType) && numOfRecurs < 2){
+			Calendar startCal = Calendar.getInstance();
+			startCal.setTime(effectiveDate);
+			int dayname = startCal.get(Calendar.DAY_OF_WEEK);
+			if(dayname == Calendar.SATURDAY)
+				numOfRecurs =0;//no weekdays are there
 		}
 		return numOfRecurs;
 	}
@@ -205,7 +223,7 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 
 		for (int i = 0; i <= numOfRecurs; i++) {
 			SignupMeeting beta = new SignupMeeting();
-			beta = prepareCopy(this.signupMeeting);
+			beta = prepareDeepCopy(this.signupMeeting, i * intervalOfRecurs);
 			calendar.setTime(this.signupMeeting.getStartTime());
 			sday = calendar.get(Calendar.DATE) + i * intervalOfRecurs;
 			calendar.set(Calendar.DATE, sday);
@@ -223,6 +241,9 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 			edday = calendar.get(Calendar.DATE) + i * intervalOfRecurs;
 			calendar.set(Calendar.DATE, edday);
 			beta.setSignupDeadline(calendar.getTime());
+			
+			/*set attachments*/
+			beta.setSignupAttachments(copyAttachments(this.signupMeeting, numOfRecurs, i));			
 
 			if (this.assignParticatpantsToFirstOne) {
 				/* Turn off after first one copy */
@@ -231,6 +252,45 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 			}
 
 			this.signupMeetings.add(beta);
+		}
+	}
+	
+	private void removeWeekendDays(){
+		if(this.signupMeetings !=null && !this.signupMeetings.isEmpty()){
+			for (int i = signupMeetings.size()-1; i >= 0; i--) {		
+				SignupMeeting sm = (SignupMeeting) signupMeetings.get(i);				
+				Calendar startCal = Calendar.getInstance();
+				startCal.setTime(sm.getStartTime());
+				int dayOfweek = startCal.get(Calendar.DAY_OF_WEEK);
+				if(dayOfweek == Calendar.SATURDAY || dayOfweek == Calendar.SUNDAY)
+					signupMeetings.remove(i);
+			}
+		}
+	}
+	
+	private List<SignupAttachment> copyAttachments(SignupMeeting sm, long numOfRecurs, int index){
+		if(numOfRecurs ==0){
+			List<SignupAttachment> attachs = sm.getSignupAttachments();
+			if(attachs !=null){
+				/*case: published to other site only*/
+				for (SignupAttachment attach : attachs) {
+					this.attachmentHandler.determineAndAssignPublicView(sm, attach);
+				}	
+			}
+			return sm.getSignupAttachments();
+		}
+		else{
+			List<SignupAttachment> newOnes = new ArrayList<SignupAttachment>();
+			List<SignupAttachment> olds = sm.getSignupAttachments();
+			if (olds !=null){
+				for (SignupAttachment old : olds) {
+					SignupAttachment newOne = this.attachmentHandler.copySignupAttachment(sm, true,old,ATTACH_RECURRING + index);
+					newOne.setTimeslotId(old.getTimeslotId());
+					newOne.setViewByAll(old.getViewByAll());
+					newOnes.add(newOne);
+				}
+			}
+			return newOnes;
 		}
 	}
 
@@ -317,9 +377,11 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 	 * 
 	 * @param s
 	 *            a SignupMeeting object for copy
+	 * @param addDaysForRecurringLength
+	 *            number of days, which will be added to each time-slot due to recurrences
 	 * @return a deep-copied SignupMeeting object.
 	 */
-	public SignupMeeting prepareCopy(SignupMeeting s) {
+	public SignupMeeting prepareDeepCopy(SignupMeeting s, int addDaysForRecurringLength) {
 
 		List<SignupSite> copySites = s.getSignupSites();
 		List<SignupSite> indivSite = new ArrayList<SignupSite>();
@@ -349,13 +411,22 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 		List<SignupTimeslot> origSlots = s.getSignupTimeSlots();
 		List<SignupTimeslot> timeSlots = new ArrayList<SignupTimeslot>();
 		if (origSlots != null && !origSlots.isEmpty()) {
-
+			Calendar cal = Calendar.getInstance();
+			int sday, eday;
 			for (int t = 0; t < origSlots.size(); t++) {
 
 				SignupTimeslot slot = new SignupTimeslot();
 				slot.setMaxNoOfAttendees(s.getMaxNumberOfAttendees());
-				slot.setStartTime(origSlots.get(t).getStartTime());
-				slot.setEndTime(origSlots.get(t).getEndTime());
+				cal.setTime(origSlots.get(t).getStartTime());
+				sday = cal.get(Calendar.DATE) + addDaysForRecurringLength;
+				cal.set(Calendar.DATE, sday);				
+				slot.setStartTime(cal.getTime());
+				
+				cal.setTime(origSlots.get(t).getEndTime());
+				eday = cal.get(Calendar.DATE) + addDaysForRecurringLength;
+				cal.set(Calendar.DATE, eday);	
+				slot.setEndTime(cal.getTime());
+				
 				slot.setLocked(origSlots.get(t).isLocked());
 				slot.setCanceled(origSlots.get(t).isCanceled());
 				slot.setDisplayAttendees(origSlots.get(t).isDisplayAttendees());
@@ -398,6 +469,10 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 		copy.setRepeatType(s.getRepeatType());
 		copy.setRepeatUntil(s.getRepeatUntil());
 		copy.setReceiveEmailByOwner(s.isReceiveEmailByOwner());
+		copy.setAllowWaitList(s.isAllowWaitList());
+		copy.setAllowComment(s.isAllowComment());
+		copy.setAutoReminder(s.isAutoReminder());
+		copy.setEidInputMode(s.isEidInputMode());
 
 		return copy;
 

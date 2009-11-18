@@ -44,6 +44,16 @@
 				
 				var image2 = document.getElementById(imagefolderName2);
 				switchShowOrHide(image2);
+				
+				//control multiple blocks with sequence number starting from 1 to 30 max righ Now
+				var i=1;
+				while (i < 30){					
+						var tag = document.getElementById(ContentTagName +"_" +i)
+					if (tag !=null){					
+						switchShowOrHide(tag);
+					}
+					i++;
+				}
 								
 	}
 	
@@ -170,7 +180,7 @@
         
         function isShowCalendar(value){
         	var untilCalendarTag = document.getElementById('meeting:utilCalendar');
-        	if(value == 0)
+        	if(value == 'no_repeat')
         		untilCalendarTag.style.display = "none";
         	else
         		untilCalendarTag.style.display = "";

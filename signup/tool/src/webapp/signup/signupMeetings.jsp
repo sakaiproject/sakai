@@ -15,6 +15,7 @@
 			<sakai:tool_bar>
 				<sakai:tool_bar_item value="#{msgs.add_new_event}" action="#{SignupMeetingsBean.addMeeting}" rendered="#{SignupMeetingsBean.allowedToCreate}"/>
 				<sakai:tool_bar_item value="#{msgs.permission_feature_link}" action="#{SignupPermissionsUpdateBean.processPermission}" rendered="#{SignupPermissionsUpdateBean.showPermissionLink}"/>
+				<sakai:tool_bar_item value="#{msgs.event_pageTop_link_for_download}" action="#{DownloadEventBean.downloadSelections}" />
 			</sakai:tool_bar>
 		</h:form>
 
@@ -48,8 +49,11 @@
 					<h:outputText value="&nbsp;" escape="false"/>
 					<h:outputText value="&nbsp;" escape="false"/>
 				</h:panelGrid>
-				<h:panelGrid columns="1" styleClass="noMeetingsWarn">
-					<h:outputText value="#{SignupMeetingsBean.meetingUnavailableMessages}" rendered="#{!SignupMeetingsBean.meetingsAvailable}" escape="false"/>
+				<h:panelGrid columns="1" styleClass="noMeetingsWarn" rendered="#{!SignupMeetingsBean.meetingsAvailable}" >
+					<h:panelGroup>
+						<h:outputText value="#{SignupMeetingsBean.meetingUnavailableMessages}" escape="false" rendered="#{SignupMeetingsBean.userLoggedInStatus}"/>
+						<h:outputText value=" #{msgs.you_need_to_login}" rendered="#{!SignupMeetingsBean.userLoggedInStatus}" escape="false"/>
+					</h:panelGroup>
 				</h:panelGrid>	
 				<h:panelGroup rendered="#{SignupMeetingsBean.meetingsAvailable}">
 								 	
@@ -63,7 +67,7 @@
 				 		rowId="#{wrapper.recurId}"
 				 		rowStyle="#{wrapper.hideStyle}"
 				 		rowClasses="oddRow,evenRow"
-				 		columnClasses="titleCol, creatorCol, locationCol, dateCol, timeCol, statusCol, removeCol"
+				 		columnClasses="removeCol, titleCol, creatorCol, locationCol, dateCol, timeCol, statusCol"
 				 		styleClass="signupTable">
 	
 						<t:column defaultSorted="true" sortable="true">
@@ -83,13 +87,9 @@
 		   	    				
 		   	    				<h:outputText value="&nbsp;" escape="false"/>
 		   	    			</h:panelGroup>
-							<h:commandLink action="#{SignupMeetingsBean.processSignup}" rendered="#{wrapper.subRecurringMeeting}">
+							<h:commandLink action="#{SignupMeetingsBean.processSignup}">
 								<h:outputText value="#{wrapper.meeting.title}" />
-							</h:commandLink>
-							
-							<h:commandLink action="#{SignupMeetingsBean.processSignup}" rendered="#{!wrapper.meeting.recurredMeeting || wrapper.firstOneRecurMeeting}">
-								<h:outputText value="#{wrapper.meeting.title}" />
-							</h:commandLink>
+							</h:commandLink>							
 						</t:column>
 						
 						<t:column sortable="true">
@@ -172,9 +172,11 @@
 						
 						<t:column>
 							<f:facet name="header">
-								<h:outputText value="#{msgs.tab_event_availability}" escape="false"/>
+								<t:commandSortHeader columnName="#{SignupMeetingsBean.signupSorter.statusColumn}" immediate="true" arrow="true">
+									<h:outputText value="#{msgs.tab_event_availability}" escape="false"/>
+								</t:commandSortHeader>
 							</f:facet>
-							<h:outputText value="#{wrapper.availableStatus}" escape="false"/>												
+							<h:outputText value="#{wrapper.availableStatus}" style="#{wrapper.statusStyle}" escape="false"/>												
 						</t:column>	
 						
 						<t:column rendered="#{SignupMeetingsBean.allowedToDelete}">
@@ -262,7 +264,7 @@
 					i++;
 				}
 				//reSize the iFrame
-				signup_resetIFrameHeight(iFrameId);			
+				//signup_resetIFrameHeight(iFrameId);//no refresh			
 			}
 			
 			function resetRecurRows(recurRowId){

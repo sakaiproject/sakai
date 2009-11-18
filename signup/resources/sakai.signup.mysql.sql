@@ -3,12 +3,14 @@ alter table signup_sites drop foreign key FKCCD4AC25CB1E8A17;
 alter table signup_ts drop foreign key FK41154B06CB1E8A17;
 alter table signup_ts_attendees drop foreign key FKBAB08100CDB30B3D;
 alter table signup_ts_waitinglist drop foreign key FK3AB9A8B2CDB30B3D;
+alter table signup_attachments drop foreign key FK3BCB709CB1E8A17;
 drop table if exists signup_meetings;
 drop table if exists signup_site_groups;
 drop table if exists signup_sites;
 drop table if exists signup_ts;
 drop table if exists signup_ts_attendees;
 drop table if exists signup_ts_waitinglist;
+drop table if exists signup_attachments;
 
 create table signup_meetings (
 	id bigint not null auto_increment, 
@@ -24,7 +26,12 @@ create table signup_meetings (
 	signup_deadline datetime, 
 	canceled bit, locked bit, 
 	receive_email_owner bit default false, 
-	recurrence_id bigint, 
+	recurrence_id bigint,
+	repeat_type varchar(20) default null,
+	allow_waitList bit(1) default 1,
+  	allow_comment bit(1) default 1,
+  	eid_input_mode bit(1) default '\0',
+  	auto_reminder bit(1) default '\0', 
 	primary key (id)
 ) type=InnoDB;
 
@@ -85,6 +92,27 @@ create table signup_ts_waitinglist (
 	primary key (timeslot_id, list_index)
 ) type=InnoDB;
 
+
+CREATE TABLE  signup_attachments (
+  	meeting_id bigint(20) NOT NULL,
+  	resource_Id varchar(255) default NULL,
+  	file_name varchar(255) default NULL,
+  	mime_type varchar(80) default NULL,
+  	fileSize bigint(20) default NULL,
+  	location text,
+  	isLink bit(1) default NULL,
+  	timeslot_id bigint(20) default NULL,
+  	view_by_all bit(1) default 1,
+  	created_by varchar(255) NOT NULL,
+  	created_date datetime NOT NULL,
+  	last_modified_by varchar(255) NOT NULL,
+  	last_modified_date datetime NOT NULL,
+  	list_index integer not null,
+  PRIMARY KEY  (meeting_id,list_index),
+) ENGINE=InnoDB
+
+
+
 alter table signup_site_groups 
 	add index FKC72B75255084316 (signup_site_id), 
 	add constraint FKC72B75255084316 
@@ -110,3 +138,9 @@ alter table signup_ts_waitinglist
 	add constraint FK3AB9A8B2CDB30B3D 
 	foreign key (timeslot_id) 
 	references signup_ts (id);
+alter table signup_attachments 
+	add index FK3BCB709CB1E8A17 (meeting_id), 
+	add constraint FK3BCB709CB1E8A17 
+	foreign key (meeting_id) 
+	references signup_meetings (id);
+

@@ -33,6 +33,8 @@
 			ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 		<property name="timeService" 
 			ref="org.sakaiproject.time.api.TimeService" />
+		<property name="contentHostingService" 
+			ref="org.sakaiproject.content.api.ContentHostingService" />
 	</bean>
 
 	<!-- create a logic bean, give it the dao from above -->
@@ -54,6 +56,31 @@
 			ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="sakaiFacade" ref="org.sakaiproject.signup.logic.SakaiFacade"/>		
 	</bean>
+	
+	<!--  Quartz Job auto-remind attendee's next upcoming appointment job  -->
+	<bean id="org.sakaiproject.signup.logic.SignupNotifyJob"
+   		class="org.sakaiproject.signup.logic.SignupNotifyJob"
+   		init-method="init" destroy-method="destroy">   		
+   		<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />  		
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />             
+        <property name="signupMeetingDao" ref="org.sakaiproject.signup.dao.SignupMeetingDao" />
+        <property name="sakaiFacade" ref="org.sakaiproject.signup.logic.SakaiFacade" />		  		
+   </bean>
+   
+   <!-- this is the helper that will register the above bean with the job scheduler -->
+   <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.signupNotifyJob"
+      class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+      singleton="true" init-method="init">
+      <property name="beanId">
+         <value>org.sakaiproject.signup.logic.SignupNotifyJob</value>
+      </property>
+      <property name="jobName">
+         <value>Sign-up Auto Reminder Notification</value>
+      </property>
+      <property name="schedulerManager">
+         <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+      </property>
+   </bean>
 
 </beans>
 

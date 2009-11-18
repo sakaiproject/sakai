@@ -1,71 +1,131 @@
-CREATE TABLE  `signup_meetings` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `title` varchar(255) NOT NULL,
-  `description` text default NULL,
-  `creator_id` varchar(255) NOT NULL,
-  `start_time` datetime NOT NULL,
-  `end_time` datetime NOT NULL,
-  `no_of_time_slots` int(11) default NULL,
-  `signup_begins` datetime default NULL,
-  `signup_deadline` datetime default NULL,
-  `cancel` tinyint(1) default NULL,
-  `locked` tinyint(1) default NULL,
-  `recurrence_id` bigint(20) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+create table signup_meetings (
+	id bigint not null auto_increment, 
+	version integer not null, 
+	title varchar(255) not null, 
+	description text, 
+	location varchar(255) not null, 
+	meeting_type varchar(50) not null, 
+	creator_user_id varchar(255) not null, 
+	start_time datetime not null, 
+	end_time datetime not null, 
+	signup_begins datetime, 
+	signup_deadline datetime, 
+	canceled bit, locked bit, 
+	receive_email_owner bit default false, 
+	recurrence_id bigint,
+	repeat_type varchar(20) default null,
+	allow_waitList bit(1) default 1,
+  	allow_comment bit(1) default 1,
+  	eid_input_mode bit(1) default '\0',
+  	auto_reminder bit(1) default '\0', 
+	primary key (id)
+) type=InnoDB;
+
+create table signup_site_groups (
+	signup_site_id bigint not null, 
+	title varchar(255), 
+	group_id varchar(255) not null, 
+	calendar_event_id varchar(255), 
+	calendar_id varchar(255), 
+	list_index integer not null, 
+	primary key (signup_site_id, list_index)
+) type=InnoDB;
+
+create table signup_sites (
+	id bigint not null auto_increment, 
+	version integer not null, 
+	title varchar(255), 
+	site_id varchar(255) not null, 
+	calendar_event_id varchar(255), 
+	calendar_id varchar(255), 
+	meeting_id bigint not null, 
+	list_index integer, 
+	primary key (id)
+) type=InnoDB;
+
+create table signup_ts (
+	id bigint not null auto_increment, 
+	version integer not null, 
+	start_time datetime not null, 
+	end_time datetime not null, 
+	max_no_of_attendees integer, 
+	display_attendees bit, 
+	canceled bit, locked bit, 
+	meeting_id bigint not null, 
+	list_index integer, 
+	primary key (id)
+) type=InnoDB;
+
+create table signup_ts_attendees (
+	timeslot_id bigint not null, 
+	attendee_user_id varchar(255) not null, 
+	comments text, 
+	signup_site_id varchar(255) not null, 
+	calendar_event_id varchar(255), 
+	calendar_id varchar(255), 
+	list_index integer not null, 
+	primary key (timeslot_id, list_index)
+) type=InnoDB;
+
+create table signup_ts_waitinglist (
+	timeslot_id bigint not null, 
+	attendee_user_id varchar(255) not null, 
+	comments text, 
+	signup_site_id varchar(255) not null, 
+	calendar_event_id varchar(255), 
+	calendar_id varchar(255), 
+	list_index integer not null, 
+	primary key (timeslot_id, list_index)
+) type=InnoDB;
 
 
-CREATE TABLE  `signup_sites` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `title` varchar(255) default NULL,
-  `site_id` varchar(255) NOT NULL default '',
-  `calendar_event_id` varchar(255) default NULL,
-  `calendar_id` varchar(255) default NULL,
-  `meeting_id` bigint(20) NOT NULL,
-  `list_index` int(11) default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `FK_MEETING_S` (`meeting_id`),
-  CONSTRAINT `FK_MEETING_S` FOREIGN KEY (`meeting_id`) REFERENCES `signup_meetings` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE  `signup_timeslots` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `start_time` datetime NOT NULL,
-  `end_time` datetime NOT NULL,
-  `no_of_attendees` int(11) default NULL,
-  `cancel` tinyint(1) default NULL,
-  `locked` tinyint(1) default NULL,
-  `meeting_id` bigint(20) NOT NULL ,
-  `list_index` int(11) default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `FK_MEETING_TS` (`meeting_id`),
-  CONSTRAINT `FK_MEETING_TS` FOREIGN KEY (`meeting_id`) REFERENCES `signup_meetings` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-CREATE TABLE  `signup_attendees` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `attendee_id` varchar(255) NOT NULL,
-  `comment` text default NULL,
-  `calendar_event_id` varchar(255) default NULL,
-  `calendar_id` varchar(255) default NULL,
-  `timeslot_id` bigint(20) NOT NULL,
-  `list_index` int(11) default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `FK_TIMESLOT` (`timeslot_id`),
-  CONSTRAINT `FK_TIMESLOT` FOREIGN KEY (`timeslot_id`) REFERENCES `signup_timeslots` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE  `signup_groups` (
-  `id` bigint(20) NOT NULL auto_increment,
-  `title` varchar(255) default NULL,
-  `group_id` varchar(255) NOT NULL,
-  `signup_site_id` bigint(20) NOT NULL,
-  `list_index` int(11) default NULL,
-  PRIMARY KEY  (`id`),
-  KEY `FK_SITE` (`signup_site_id`),
-  CONSTRAINT `FK_SITE` FOREIGN KEY (`signup_site_id`) REFERENCES `signup_sites` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE  signup_attachments (
+  	meeting_id bigint(20) NOT NULL,
+  	resource_Id varchar(255) default NULL,
+  	file_name varchar(255) default NULL,
+  	mime_type varchar(80) default NULL,
+  	fileSize bigint(20) default NULL,
+  	location text,
+  	isLink bit(1) default NULL,
+  	timeslot_id bigint(20) default NULL,
+  	view_by_all bit(1) default 1,
+  	created_by varchar(255) NOT NULL,
+  	created_date datetime NOT NULL,
+  	last_modified_by varchar(255) NOT NULL,
+  	last_modified_date datetime NOT NULL,
+  	list_index integer not null,
+  PRIMARY KEY  (meeting_id,list_index),
+) ENGINE=InnoDB
 
 
 
+alter table signup_site_groups 
+	add index FKC72B75255084316 (signup_site_id), 
+	add constraint FKC72B75255084316 
+	foreign key (signup_site_id) 
+	references signup_sites (id);
+alter table signup_sites 
+	add index FKCCD4AC25CB1E8A17 (meeting_id), 
+	add constraint FKCCD4AC25CB1E8A17 
+	foreign key (meeting_id) 
+	references signup_meetings (id);
+alter table signup_ts 
+	add index FK41154B06CB1E8A17 (meeting_id), 
+	add constraint FK41154B06CB1E8A17 
+	foreign key (meeting_id) 
+	references signup_meetings (id);
+alter table signup_ts_attendees 
+	add index FKBAB08100CDB30B3D (timeslot_id), 
+	add constraint FKBAB08100CDB30B3D 
+	foreign key (timeslot_id) 
+	references signup_ts (id);
+alter table signup_ts_waitinglist 
+	add index FK3AB9A8B2CDB30B3D (timeslot_id), 
+	add constraint FK3AB9A8B2CDB30B3D 
+	foreign key (timeslot_id) 
+	references signup_ts (id);
+alter table signup_attachments 
+	add index FK3BCB709CB1E8A17 (meeting_id), 
+	add constraint FK3BCB709CB1E8A17 
+	foreign key (meeting_id) 
+	references signup_meetings (id);

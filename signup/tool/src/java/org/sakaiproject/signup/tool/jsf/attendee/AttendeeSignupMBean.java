@@ -79,8 +79,11 @@ public class AttendeeSignupMBean extends SignupUIBaseBean {
 		newAttendee.setAttendeeUserId(currentUserId);
 		newAttendee.setSignupSiteId(sakaiFacade.getCurrentLocationId());
 		timeslotWrapper.setNewAttendee(newAttendee);
-
-		return ATTENDEE_ADD_COMMENT_PAGE_URL;
+		
+		if(this.meetingWrapper.getMeeting().isAllowComment())
+			return ATTENDEE_ADD_COMMENT_PAGE_URL;
+		else
+			return attendeeSaveSignup();//skip comment page
 
 	}
 

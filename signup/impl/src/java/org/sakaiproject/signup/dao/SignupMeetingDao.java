@@ -88,6 +88,19 @@ public interface SignupMeetingDao extends GeneralGenericDao {
 	List<SignupMeeting> getRecurringSignupMeetings(String currentSiteId, Long recurrenceId, Date startDate);
 
 	/**
+	 * This returns a subset list of SignupMeeting from startDate to endDate for
+	 * the sites, which have auto-reminder setting
+	 * 
+	 * @param startDate
+	 *            date,which constraints the search starting date.
+	 * @param endDate
+	 *            date,which constraints the search ending date.
+	 * @return a list of SignupMeeting objects
+	 */
+	List<SignupMeeting> getAutoReminderSignupMeetings(Date startDate, Date endDate);
+
+
+	/**
 	 * This saves meeting object into database
 	 * 
 	 * @param signupMeeting
@@ -151,5 +164,15 @@ public interface SignupMeetingDao extends GeneralGenericDao {
 	 * @return true if the event is existed.
 	 */
 	boolean isEventExisted(Long evnetId);
+	
+	/**
+	 * Get total Events record-Counts for auto-reminder process
+	 * @param startDate
+	 * 			search starting date
+	 * @param endDate
+	 * 			search ending date
+	 * @return the total record counts
+	 */
+	int getAutoReminderTotalEventCounts(Date startDate, Date endDate);
 
 }

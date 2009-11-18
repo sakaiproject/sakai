@@ -22,7 +22,9 @@
  **********************************************************************************/
 package org.sakaiproject.signup.tool.jsf.organizer;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.faces.context.FacesContext;
@@ -32,6 +34,8 @@ import javax.faces.model.SelectItem;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.SignupEventTypes;
 import org.sakaiproject.signup.logic.SignupUserActionException;
+import org.sakaiproject.signup.model.SignupAttachment;
+import org.sakaiproject.signup.model.SignupAttendee;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.jsf.SignupMeetingWrapper;
@@ -67,6 +71,10 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 	private int numberOfSlots;
 
 	private SignupMeeting originalMeetingCopy;
+	
+	private List<SignupAttachment> readyToModifyAttachmentCopyList;
+	
+	private boolean intentionToModfyAttachment;
 
 	private String signupBeginsType;
 
@@ -85,6 +93,12 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 	private List<SelectItem> meetingTypeRadioBttns;
 
 	private boolean validationError;
+	
+	private boolean someoneSignedUp;
+	
+	private boolean autoReminderOptionChoice = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal("signup.autoRiminder.option.choice.setting", "true")) ? true : false;
+
+	private boolean userIdInputModeOptionChoice = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal("signup.userId.inputMode.choiceOption.setting", "true")) ? true : false;
 
 	/**
 	 * This method will reset everything to orignal value and also initialize
@@ -102,12 +116,17 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		editMeeting = null;
 
 		convertToNoRecurrent = false;
-
+		
 		this.signupMeeting = reloadMeeting(meetingWrapper.getMeeting());
 		/* for check pre-condition purpose */
 		this.originalMeetingCopy = reloadMeeting(meetingWrapper.getMeeting());
 		// keep the last version need a deep copy?
 
+		/*process attachments*/
+		cleanUpUnusedAttachmentCopies(this.readyToModifyAttachmentCopyList);//using browser back click
+		this.readyToModifyAttachmentCopyList = createTempAttachmentCopies(meetingWrapper.getEventMainAttachments());
+		this.intentionToModfyAttachment=false;
+		
 		List<SignupTimeslot> signupTimeSlots = getSignupMeeting().getSignupTimeSlots();
 
 		if (signupTimeSlots != null && !signupTimeSlots.isEmpty()) {
@@ -123,6 +142,9 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 
 		}
 		populateDataForBeginDeadline(this.signupMeeting);
+		
+		/*warning organizer if someone already signed up during rescheduling event*/
+		someoneSignedUp = initSomeoneSignupInfo();
 
 	}
 
@@ -144,6 +166,64 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		this.deadlineTime = Utilities.getRelativeTimeValue(deadlineTimeType, signupDeadLineBeforMeetingEnd);
 
 	}
+	
+	private boolean initSomeoneSignupInfo(){
+		boolean someoneSignedUp = false;
+		
+		if(this.signupMeeting.isRecurredMeeting()){		
+			/* only check the future recurring meeting from now: today */
+			List<SignupMeeting> recurringMeetings = signupMeetingService.getRecurringSignupMeetings(sakaiFacade.getCurrentLocationId(), sakaiFacade.getCurrentUserId(), this.signupMeeting.getRecurrenceId(),
+					new Date());
+			for (SignupMeeting sm : recurringMeetings) {
+				if(hasAttendeeInMeeting(sm))
+					return true;
+			}
+		}
+		/*no recurring event*/
+		someoneSignedUp = hasAttendeeInMeeting(this.signupMeeting);		
+		
+		return someoneSignedUp;
+	}
+	
+	private boolean hasAttendeeInMeeting(SignupMeeting sm){
+		List<SignupTimeslot> tsItems = sm.getSignupTimeSlots();
+		if(tsItems !=null){
+			for (SignupTimeslot ts : tsItems) {
+				List<SignupAttendee> attendees = ts.getAttendees();
+				if(attendees !=null && !attendees.isEmpty()){
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	public String doCancelAction(){
+		cleanUpUnusedAttachmentCopies(this.readyToModifyAttachmentCopyList);
+		return ORGANIZER_MEETING_PAGE_URL;
+	}
+	
+	/**
+	 * This method is called by JSP page for adding/removing attachments action.
+	 * @return null.
+	 */
+	public String addRemoveAttachments(){
+		this.intentionToModfyAttachment=true;
+		getAttachmentHandler().processAddAttachRedirect(this.readyToModifyAttachmentCopyList, this.signupMeeting,true);
+		return null;
+	}
+	
+	private List<SignupAttachment> createTempAttachmentCopies(List<SignupAttachment> attachList){
+		List<SignupAttachment> tempList = new ArrayList<SignupAttachment>();
+		if(attachList !=null){
+			for (SignupAttachment attach : attachList) {
+				tempList.add(getAttachmentHandler().copySignupAttachment(this.signupMeeting,true,attach, ATTACH_TEMP));
+			}
+		}
+
+		return tempList;
+	}
 
 	/**
 	 * This is a JSF action call method by UI to modify the event/meeting.
@@ -160,7 +240,7 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 			SignupMeeting meeting = getSignupMeeting();
 
 			EditMeeting editMeeting = new EditMeeting(getSakaiFacade().getCurrentUserId(), getSakaiFacade()
-					.getCurrentLocationId(), getSignupMeetingService(), true);
+					.getCurrentLocationId(), getSignupMeetingService(),getAttachmentHandler(), true);
 			/* Pass modified data */
 			editMeeting.setCurrentNumberOfSlots(getNumberOfSlots());// (getAddMoreTimeslots());
 			editMeeting.setSignupBegins(getSignupBegins());
@@ -175,11 +255,19 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 			// editMeeting.setTotalEventDuration(getTotalEventDuration());
 			/* disable the association with other related recurrence events */
 			editMeeting.setConvertToNoRecurrent(convertToNoRecurrent);
+			
+			/*set latest attachments changes*/
+			/*pre-check if there is any attachment changes*/
+			if(!areAttachmentChanges())
+				editMeeting.setCurrentAttachList(null);
+			else
+				editMeeting.setCurrentAttachList(this.readyToModifyAttachmentCopyList);
+			
 			/* update to DB */
 			editMeeting.saveModifiedMeeting(meeting);
 			
 			/*give warning to user in the next page if the event ending time get auto adjusted due to not even-division*/
-			if (isIndividualType() && getNumberOfSlots()!=0) {
+			if (getIndividualType() && getNumberOfSlots()!=0) {
 				double duration = (double)(getSignupMeeting().getEndTime().getTime() - getSignupMeeting().getStartTime().getTime())
 						/ (double)(MINUTE_IN_MILLISEC * getNumberOfSlots());				
 				if (duration != Math.floor(duration))
@@ -243,8 +331,46 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 			return MAIN_EVENTS_LIST_PAGE_URL;
 		}
 		reloadMeetingWrapperInOrganizerPage();
+		
+		cleanUpUnusedAttachmentCopies(this.readyToModifyAttachmentCopyList);//using browser back click
 
 		return ORGANIZER_MEETING_PAGE_URL;
+	}
+	
+	private boolean areAttachmentChanges(){
+		List<SignupAttachment> origList = this.originalMeetingCopy.getSignupAttachments();
+		
+		if(!intentionToModfyAttachment){
+			return false;
+		}
+		
+		if(!(readyToModifyAttachmentCopyList ==null || readyToModifyAttachmentCopyList.isEmpty()) == (origList ==null || origList.isEmpty())){
+			return true;
+		}
+		if(readyToModifyAttachmentCopyList.size() != origList.size()){
+			return true;
+		}
+		
+		for (SignupAttachment tempOne : readyToModifyAttachmentCopyList) {
+			boolean found=false;
+			for (SignupAttachment orig : origList) {
+				String resourceId = orig.getResourceId();
+				int index = resourceId.lastIndexOf("/");
+				if(index > -1){
+					resourceId = resourceId.substring(0,index+1) + ATTACH_TEMP +"/" + resourceId.substring(index+1, resourceId.length());
+				}
+				if(resourceId.equals(tempOne.getResourceId())){
+					found=true;
+					break;
+				}
+			}//for
+			
+			if(!found){
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 	private void reloadMeetingWrapperInOrganizerPage() {
@@ -276,6 +402,14 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 			Utilities.addErrorMessage(Utilities.rb.getString("event.endTime_should_after_startTime"));
 			return;
 		}
+		
+			
+		if (DAILY.equals(this.signupMeeting.getRepeatType()) && isMeetingLengthOver24Hours(this.signupMeeting)) {
+			validationError = true;
+			Utilities.addErrorMessage(Utilities.rb.getString("crossDay.event.repeat.daily.problem"));
+			return;
+		}		
+		
 		int timeduration = getTimeSlotDuration();
 		if (timeduration < 1) {
 			validationError = true;
@@ -507,6 +641,42 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 
 	public void setValidationError(boolean validationError) {
 		this.validationError = validationError;
+	}
+
+	public boolean getAutoReminderOptionChoice() {
+		return autoReminderOptionChoice;
+	}
+
+	public void setAutoReminderOptionChoice(boolean autoReminderOptionChoice) {
+		this.autoReminderOptionChoice = autoReminderOptionChoice;
+	}
+	
+	public boolean getUserIdInputModeOptionChoice() {
+		return userIdInputModeOptionChoice;
+	}
+
+	public void setUserIdInputModeOptionChoice(boolean userIdInputModeOptionChoice) {
+		this.userIdInputModeOptionChoice = userIdInputModeOptionChoice;
+	}
+
+	/*Overwrite default one*/
+	public boolean getSignupAttachmentEmpty(){
+		if (this.readyToModifyAttachmentCopyList ==null || this.readyToModifyAttachmentCopyList.isEmpty())
+			return true;
+		else
+			return false;
+	}
+
+	/**
+	 * This is a getter for UI
+	 * @return a list of SignupAttachment objects
+	 */
+	public List<SignupAttachment> getTempAttachmentCopyList() {
+		return this.readyToModifyAttachmentCopyList;
+	}
+
+	public boolean getSomeoneSignedUp() {
+		return someoneSignedUp;
 	}
 
 }

@@ -25,10 +25,23 @@
 		<property name="signupDeadline" column="signup_deadline" type="java.util.Date" not-null="false" />
 		<property name="canceled" column="canceled" type="boolean" />
 		<property name="locked" column="locked" type="boolean" />
+		<property name="allowWaitList"  type="boolean" >
+			<column name="allow_waitList" default="1"/>
+		</property>
+		<property name="allowComment"  type="boolean" >
+			<column name="allow_comment" default="1"/>
+		</property>		
+		<property name="autoReminder"  type="boolean" >
+			<column name="auto_reminder" default="0"/>
+		</property>
+		<property name="eidInputMode"  type="boolean" >
+			<column name="eid_input_mode" default="0"/>
+		</property>				
 		<property name="receiveEmailByOwner" type="boolean" >
-			<column name="receive_email_owner" default="false"/>
+			<column name="receive_email_owner" default="0"/>
 		</property>
 		<property name="recurrenceId"  column="recurrence_id" type="long" not-null="false"/>
+		<property name="repeatType" column="repeat_type" type="string" length="20" not-null="false" />
 		
 		<list name="signupTimeSlots" cascade="save-update,delete" fetch="join">
 			<key column="meeting_id" not-null="true"/>
@@ -42,6 +55,27 @@
 			<list-index column="list_index" />
 			<one-to-many
 				class="org.sakaiproject.signup.model.SignupSite" />
+		</list>
+		
+		<list name="signupAttachments" cascade="save-update,delete" table="signup_attachments" fetch="join">
+			<key column="meeting_id" not-null="true"/>
+			<list-index column="list_index" />
+			<composite-element class="org.sakaiproject.signup.model.SignupAttachment" >
+				<property name="resourceId" type="string" length="255" column="resource_Id" not-null="false" />
+			    <property name="filename" type="string" length="255" column="file_name" not-null="false" />
+			    <property name="mimeType" type="string" length="80"  column="mime_type" not-null="false" />
+			    <property name="fileSize" type="long" column="fileSize" not-null="false" />
+			    <property name="location" type="string" length="4000" column="location" not-null="false" />
+			    <property name="isLink" type="boolean" column="isLink" not-null="false" />
+			    <property name="timeslotId" column="timeslot_id" type="java.lang.Long" not-null="false"/>
+			    <property name="viewByAll" type="boolean" >
+			    	<column  name="view_by_all" default="1" not-null="false"/>
+			    </property>
+			    <property name="createdBy" type="string" length="255" column="created_by" not-null="true" />
+			    <property name="createdDate" type="timestamp" column="created_date" not-null="true" />
+			    <property name="lastModifiedBy" type="string" length="255" column="last_modified_by" not-null="true" />
+			    <property name="lastModifiedDate" type="timestamp" column="last_modified_date" not-null="true" />
+			</composite-element>	
 		</list>
 		
 	</class>

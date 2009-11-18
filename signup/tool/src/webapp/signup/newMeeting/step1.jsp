@@ -57,7 +57,26 @@
 		                    <h:outputText value="#{msgs.event_description}" styleClass="titleText"  escape="false"/>
 		                    <sakai:rich_text_area value="#{NewSignupMeetingBean.signupMeeting.description}"  width="720" height="180" rows="8" columns="80" />
 		       
-		         
+		         			<h:outputText value="" escape="false" />
+		         			<h:panelGrid columns="1">
+		         				<t:dataTable value="#{NewSignupMeetingBean.attachments}" var="attach" rendered="#{!NewSignupMeetingBean.attachmentsEmpty}">
+		         					<t:column>
+        								<%@ include file="/signup/common/mimeIcon.jsp" %>
+      								</t:column>
+		         					<t:column>
+		         						<h:outputLink  value="#{attach.location}" target="new_window">
+		         							<h:outputText value="#{attach.filename}"/>
+		         						</h:outputLink>
+		         					</t:column>
+		         					<t:column>
+		         						<h:outputText escape="false" value="(#{attach.fileSize}kb)" rendered="#{!attach.isLink}"/>
+		         					</t:column>
+		         				</t:dataTable>
+		         				
+		         				<h:commandButton action="#{NewSignupMeetingBean.addRemoveAttachments}" value="#{msgs.add_attachments}" rendered="#{NewSignupMeetingBean.attachmentsEmpty}"/>		
+		         				<h:commandButton action="#{NewSignupMeetingBean.addRemoveAttachments}" value="#{msgs.add_remove_attachments}" rendered="#{!NewSignupMeetingBean.attachmentsEmpty}"/>		         			
+		         			</h:panelGrid>
+		         			
 		             		<h:panelGroup styleClass="titleText">
 								<h:outputText value="#{msgs.star_character}" style="color:#B11;" />
 								<h:outputText value="#{msgs.event_start_time}"  escape="false"/>
@@ -83,10 +102,11 @@
 		                     <h:outputText styleClass="titleText" value="#{msgs.event_recurrence}"  />                                          
 		                     <h:panelGroup>                            
 		                            <h:selectOneMenu id="recurSelector" value="#{NewSignupMeetingBean.repeatType}" styleClass="titleText" onchange="isShowCalendar(value); return false;">
-		                                <f:selectItem itemValue="0" itemLabel="#{msgs.label_once}"/>
-		                                <f:selectItem itemValue="1" itemLabel="#{msgs.label_daily}"/>
-		                                <f:selectItem itemValue="2" itemLabel="#{msgs.label_weekly}"/>
-		                                <f:selectItem itemValue="3" itemLabel="#{msgs.label_biweekly}"/>                           
+		                                <f:selectItem itemValue="no_repeat" itemLabel="#{msgs.label_once}"/>
+		                                <f:selectItem itemValue="daily" itemLabel="#{msgs.label_daily}"/>
+		                                <f:selectItem itemValue="wkdays_mon-fri" itemLabel="#{msgs.label_weekdays}"/>
+		                                <f:selectItem itemValue="weekly" itemLabel="#{msgs.label_weekly}"/>
+		                                <f:selectItem itemValue="biweekly" itemLabel="#{msgs.label_biweekly}"/>                           
 		                             </h:selectOneMenu>
 		                                                
 		                            <h:panelGroup id="utilCalendar" style="margin-left:35px;">
@@ -192,19 +212,19 @@
 				           			<h:outputText value="#{msgs.star_character}"  style="color:#B11;"/>
 				            		<h:outputText value ="#{msgs.event_type_title}" />
 				           	</h:panelGroup>	
-				            <h:panelGrid columns="2" style="vertical-align: top;">                
+				            <h:panelGrid columns="2" columnClasses="miCol1,miCol2" >                
 					                   <h:panelGroup id="radios" styleClass="rs">                  
 					                        <h:selectOneRadio id="meetingType" value="#{NewSignupMeetingBean.signupMeeting.meetingType}"  valueChangeListener="#{NewSignupMeetingBean.processSelectedType}" onclick="switMeetingType(value);" layout="pageDirection" styleClass="rs" >
 					                          	<f:selectItems value="#{NewSignupMeetingBean.meetingTypeRadioBttns}"/>                	                      	         	 
 					                 	   </h:selectOneRadio> 
 					                   </h:panelGroup>
 				                      
-					               	   <h:panelGrid columns="1" style="vertical-align: top;">       
+					               	   <h:panelGrid columns="1" columnClasses="miCol1">       
 					               			<%-- multiple: --%>           
-						               				<h:panelGroup style="vertical-align: top;">            
+						               				<h:panelGroup>            
 						                        		<h:outputText value="<div id='multiple' styleClass='mi' >" escape="false"/>
 						                           
-								                        	<h:panelGrid columns="2" styleClass="mi">                                                
+								                        	<h:panelGrid columns="2" styleClass="mi" columnClasses="miCol1,miCol2">                                                
 											                        <h:outputText value="#{msgs.event_num_slot_avail_for_signup}" />
 												                    <h:inputText  id="numberOfSlot" value="#{NewSignupMeetingBean.numberOfSlots}" size="2" styleClass="editText" onkeyup="getSignupDuration();return false;" style="margin-left:12px" />
 											                        <h:outputText value="#{msgs.event_num_participant_per_timeslot}" styleClass="titleText" escape="false"/>                    
@@ -218,10 +238,10 @@
 					               
 						            				<%-- single: --%>
 						               
-								                	<h:panelGroup style="vertical-align: top;">                
+								                	<h:panelGroup>                
 								                        <h:outputText value="<div id='single' style='display:none' styleClass='si' >" escape="false"/>
 								                       
-									                        <h:panelGrid columns="2" rendered="true" styleClass="si">                
+									                        <h:panelGrid columns="2" rendered="true" styleClass="si" columnClasses="miCol1,miCol2">                
 												                    <h:selectOneRadio id="groupSubradio" value="#{NewSignupMeetingBean.unlimited}" valueChangeListener="#{NewSignupMeetingBean.processGroup}" onclick="switchSingle(value)" styleClass="meetingRadioBtn" layout="pageDirection">
 												                        <f:selectItem itemValue="#{false}" itemLabel="#{msgs.tab_max_attendee}"/>                    
 												                        <f:selectItem itemValue="#{true}" itemLabel="#{msgs.unlimited_num_attendee}"/>                            

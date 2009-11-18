@@ -101,7 +101,7 @@ table.organizerAction td {
 	width: 32%;
 }
 
-.orgWaiterStatusCo {
+.orgWaiterStatusCol {
 	width: 32%;
 }
 
@@ -123,6 +123,18 @@ table.organizerAction td {
 
 .actButton {
 	padding: .2em 1;
+	text-align: center;
+}
+
+.downloadSelection{
+	margin-top:20px;
+}
+	
+.dwVersionRadioBtn{
+	margin-left: 10px;
+}
+	
+.downloadBttn{	
 	text-align: center;
 }
 
@@ -203,6 +215,10 @@ table.organizer td {
 	background: #e7eef5;
 	color: #e7eef5;
 	width: 350px;
+}
+
+.miCol1, .miCol2{
+	vertical-align: top;
 }
 
 .alertMessage {

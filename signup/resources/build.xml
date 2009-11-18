@@ -3,7 +3,7 @@
 	<!--WARNING This is a hack to generate the schema scripts. Please use maven hibernate plugin with maven2 for generic 
 		approach.
 	 -->
-	<property name="maven.repo" value="C:/Documents and Settings/gl256/.maven/repository/" />
+	<property name="maven.repo" value="C:/Documents and Settings/gl256/.m2/repository/" />
 	
 	<path id="classpath">
 		<filelist dir="${maven.repo}">
