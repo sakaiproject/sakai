@@ -67,7 +67,7 @@
 </xsl:variable>
 
 <xsl:variable name="hoursPerPage" select="10"/>
-<xsl:variable name="lengthPerHour" select="2.0"/> 
+<xsl:variable name="lengthPerHour" select="2.4"/> 
 <xsl:variable name="heightPerTimeslot" select="0.5"/>
 <xsl:variable name="heightLineHeader" select="0.4"/>
 
