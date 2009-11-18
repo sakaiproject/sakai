@@ -61,8 +61,8 @@ public class SignupPermissionsUpdateBean {
 
 	private Boolean showPermissionLink = null;
 
-	/* in sakai.properties file */
-	private static final String ENABLE_PERMISSION_FEATURE_FLAG = "signup.permission.update.enabled";
+	/* in Sakai.properties file  then sakaiConfig file*/
+	private static final boolean ENABLE_PERMISSION_FEATURE_FLAG = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal("signup.permission.update.enabled", "true")) ? true : false;
 
 	/**
 	 * Default Constructor
@@ -183,8 +183,7 @@ public class SignupPermissionsUpdateBean {
 		if (this.showPermissionLink == null) {
 			boolean show = false;
 			if (allowedToUpdate == null) {
-				allowedToUpdate = new Boolean("true".equalsIgnoreCase(getSakaiFacade().getServerConfigurationService()
-						.getString(ENABLE_PERMISSION_FEATURE_FLAG, "false")));
+				allowedToUpdate = new Boolean(ENABLE_PERMISSION_FEATURE_FLAG);
 			}
 
 			if (sakaiFacade.isUserAdmin(sakaiFacade.getCurrentUserId())
