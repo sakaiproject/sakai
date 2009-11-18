@@ -22,7 +22,7 @@
     <property name="typeId" type="long" column="TYPEID" not-null="true" />
     <property name="grade" type="string" length="80" column="GRADE" not-null="false" />
     <property name="score" type="float" column="SCORE" not-null="false" />
-    <property name="partialCreditFlag" type="boolean" column="PARTIAL_CREDIT_FLAG" not-null="true"/>
+    <property name="partialCreditFlag" type="boolean" column="PARTIAL_CREDIT_FLAG" not-null="false"/>
     <property name="discount" type="float" column="DISCOUNT" not-null="false" />
     <property name="hint" type="string" length="4000" column="HINT" not-null="false" />
     <property name="hasRationale" type="boolean" column="HASRATIONALE" not-null="false" />
@@ -117,7 +117,7 @@
     <property name="grade" type="string" length="80" column="GRADE" not-null="false" />
     <property name="score" type="float" column="SCORE" not-null="false" />
     <property name="discount" type="float" column="DISCOUNT" not-null="false" />
-    <property name="partialCredit" type="float" column="PARTIAL_CREDIT" not-null="true" />
+    <property name="partialCredit" type="float" column="PARTIAL_CREDIT" not-null="false" />
     <set name="answerFeedbackSet" table="SAM_ANSWERFEEDBACK_T" cascade="all" inverse="true" lazy="false">
       <key column="ANSWERID" />
       <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback" />
