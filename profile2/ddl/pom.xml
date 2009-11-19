@@ -27,7 +27,7 @@
         <dependency>
 			<groupId>org.sakaiproject.profile2</groupId>
 			<artifactId>profile2-api</artifactId>
-			<version>${parent.version}</version>
+			<version>${project.version}</version>
 			<scope>provided</scope>
 		</dependency>
 

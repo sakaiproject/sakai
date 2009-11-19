@@ -33,7 +33,7 @@
       		<dependency>
         		<groupId>org.sakaiproject.profile2</groupId>
         		<artifactId>profile2-legacy-profile-impl</artifactId>
-        		<version>${tool.version}</version>
+        		<version>${project.version}</version>
       			<scope>runtime</scope>
       		</dependency>
     	</dependencies>
