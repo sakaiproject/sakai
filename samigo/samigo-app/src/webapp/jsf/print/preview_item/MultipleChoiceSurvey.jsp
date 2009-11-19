@@ -35,11 +35,25 @@ should be included in file importing DeliveryMessages
       <%-- answerBlock --%>
       <h:dataTable styleClass="inputBlock" value="#{itemText.answerArraySorted}" var="answer">
         <h:column>
-          <h:graphicImage id="image2"
-             alt="#{msg.not_correct}" url="/images/radiounchecked.gif" >
-          </h:graphicImage>
+          <%-- Show answer text --%>
+		  <h:graphicImage id="image1" url="/images/radiounchecked.gif"/>
           <h:outputText escape="false" value="#{answer.text}" />
+	    </h:column>
+	    <h:column>
+	       <%-- Show feedback answer --%>
+	       <h:panelGroup styleClass="feedbackBlock" rendered="#{printSettings.showKeysFeedback && answer.text !=null && answer.text!=''}">
+	  	      <h:outputLabel value="#{printMessages.feedback}: " />
+	  	      <h:outputText escape="false" value="#{answer.generalAnswerFeedback}" rendered="#{answer.generalAnswerFeedback != null && answer.generalAnswerFeedback != ''}"/>
+	  		  <h:outputText escape="false" value="--------" rendered="#{answer.generalAnswerFeedback == null || answer.generalAnswerFeedback == ''}"/>
+	  	   </h:panelGroup>
         </h:column>
       </h:dataTable>
    </h:column>
   </h:dataTable>
+
+<%-- answerBlock --%>
+<h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeys || printSettings.showKeysFeedback}">
+   <h:outputLabel value="#{printMessages.answer_point}: "/>
+   <h:outputText escape="false" value="0 #{authorMessages.points_lower_case}" />
+   <h:outputText value="<br />" escape="false" />
+</h:panelGroup>

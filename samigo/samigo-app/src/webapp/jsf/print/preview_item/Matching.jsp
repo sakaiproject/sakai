@@ -42,21 +42,31 @@ should be included in file importing DeliveryMessages
     <h:panelGroup>
       <h:dataTable styleClass="inputBlock" value="#{question.answers}" var="answer">
         <h:column>
-          <h:outputText value="" escape="false" />
           <h:outputText value="#{answer}" escape="false" />
         </h:column>
       </h:dataTable>
     </h:panelGroup>
   </h:panelGrid>
 
-  <h:outputText escape="false" value="<hr />" rendered="#{printSettings.showKeys}" />
-  <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeys}">
-    <h:outputLabel value="#{msg.answerKey}: "/>
-
-    <%-- answers from items to choices --%>
+  <%-- answerBlock --%>
+  <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeys || printSettings.showKeysFeedback}">
+  	<h:outputLabel value="#{printMessages.answer_point}: "/>
+  	<h:outputText escape="false" value="#{question.itemData.score} #{authorMessages.points_lower_case}" />
+  	<h:outputText value="<br />" escape="false" />
+    <h:outputLabel value="#{printMessages.answer_key}: "/>
     <h:outputText escape="false" value="#{question.key}" />
-    <h:outputText escape="false" value="<br/>" />
+    <h:outputText value="<br />" escape="false" />
+  </h:panelGroup>
 
-    <%-- answers from choices to items --%>
-    <h:outputText escape="false" value="#{question.itemData.answerKey}" />
+
+  <%-- feedbackBlock --%>
+  <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeysFeedback}">
+	<h:outputLabel value="#{printMessages.correct_feedback}: "/>
+	<h:outputText escape="false" value="#{question.itemData.correctItemFeedback}" rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback != ''}"/>
+	<h:outputText escape="false" value="--------" rendered="#{question.itemData.correctItemFeedback == null || question.itemData.correctItemFeedback == ''}"/>
+  	<h:outputText value="<br />" escape="false" />
+  	<h:outputLabel value="#{printMessages.incorrect_feedback}: "/>
+    <h:outputText escape="false" value="#{question.itemData.inCorrectItemFeedback}" rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback != ''}"/>
+    <h:outputText escape="false" value="--------" rendered="#{question.itemData.inCorrectItemFeedback == null || question.itemData.inCorrectItemFeedback == ''}"/>
+    <h:outputText value="<br />" escape="false" />
   </h:panelGroup>

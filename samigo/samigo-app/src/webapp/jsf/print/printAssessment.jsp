@@ -65,9 +65,9 @@ document.links[newindex].onclick();
   
   <!-- HEADINGS (NOT PRINTED) -->
       <p class="navIntraTool">        
-        <h:commandLink action="editAssessment">
-          <h:graphicImage value="#{printMessages.img_back}" alt="#{printMessages.quit}" />
-          <h:outputText value="#{printMessages.back_to_assessmt}" escape="false" />
+        <h:commandLink action="#{pdfAssessment.getActionString}">
+          <h:outputText value="#{printMessages.back_to_assessmt}" rendered="#{pdfAssessment.actionString == 'editAssessment'}" escape="false" />
+		  <h:outputText value="#{printMessages.back_to_landingpage}" rendered="#{pdfAssessment.actionString != 'editAssessment'}" escape="false" />
         </h:commandLink>
       </p>
       
@@ -84,6 +84,13 @@ document.links[newindex].onclick();
         &nbsp;&nbsp;&nbsp;
         
         <label>
+		  <h:selectBooleanCheckbox id="showFeedback" value="#{printSettings.showKeysFeedback}" />
+		  <h:outputText value="#{printMessages.show_answer_feedback}" />
+		</label>
+		      
+		&nbsp;&nbsp;&nbsp;
+		        
+		<label>
           <h:selectBooleanCheckbox id="showPartIntros" value="#{printSettings.showPartIntros}" />
           <h:outputText value="#{printMessages.show_intros_titles}" />
         </label>
@@ -101,7 +108,7 @@ document.links[newindex].onclick();
         
         &nbsp;&nbsp;&nbsp;
         
-        <h:commandButton action="print" value="#{printMessages.apply_settings}" />
+        <h:commandButton action="#{pdfAssessment.prepDocumentPDF}" value="#{printMessages.apply_settings}" />
         <br />
         
         <h:outputText value="<input type='button' onclick='print(); return false;' value='#{printMessages.print_html}' />" escape="false" />
@@ -116,46 +123,32 @@ document.links[newindex].onclick();
     <h:outputText escape="false" value="<div id='quizWrapper' style='font-size: 21px;'>" rendered="#{printSettings.fontSize == '4'}" />
     <h:outputText escape="false" value="<div id='quizWrapper' style='font-size: 26px;'>" rendered="#{printSettings.fontSize == '5'}" />
     
-    <h1 id="assessmentForm:title">
-      <h:outputText value="#{pdfAssessmentBean.title}" />
-    </h1>
-    
     <div id="assessmentForm:meta" class="assessment_meta">
       <p>
         <h:outputText value="#{printMessages.print_name_form}" />
         <br />
         <h:outputText value="#{printMessages.print_score_form}" />
+        <br />
       </p>
     </div>
     
-    <div class="quiz">
-        <h:outputText 
-          value="<div id='assessmentForm:intro' class='assessment_intro'>#{pdfAssessment.intro}</div>" 
-          escape="false" rendered="#{pdfAssessment.intro != null && printSettings.showPartIntros}" />
-      </div>
+    <div id="assessmentForm:title" class="assessment_title">
+	  <h:outputText value="#{pdfAssessment.title}" escape="false"/>
+	</div>
+	    
+	<div class="assessment_intro, quiz">
+	  <h:outputText id="assessmentIntro" value="#{pdfAssessment.intro}" 
+	          escape="false" rendered="#{printSettings.showPartIntros && pdfAssessment.intro != ''}" />
+	</div>
       
-      <h:dataTable id="parts" width="100%" headerClass="regHeading"
-      value="#{pdfAssessment.deliveryParts}" var="partBean" rowClasses="part">
+      <h:dataTable id="parts" width="100%" value="#{pdfAssessment.deliveryParts}" var="partBean">
         <%-- note that partBean is ui/delivery/SectionContentsBean not ui/author/SectionBean --%>
         <h:column>
-          <h:panelGroup id="fullTitle" rendered="#{printSettings.showPartIntros || printSettings.showKeys}">
-            <h:panelGroup id="partIntro" rendered="#{printSettings.showPartIntros}">
-              <h:outputText value="<h2>" escape="false" />
-                <h:outputText id="number" value="#{authorMessages.p} #{partBean.number}:" escape="false" />
-                <h:outputText value=": " />
-                <h:outputText id="title" value="#{partBean.title}" escape="false" />
-              <h:outputText value="</h2>" escape="false" />
-              <h:outputText id="intro" value="#{partBean.description}" escape="false" />
-              <%--<h:outputText id="random_draw_msg" rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '2'}"
-                  value="#{msg.random_draw_msg}" escape="false" />--%>
+          <h:panelGroup id="fullTitle">
+		    <h:panelGroup id="partIntro" styleClass="part_title" rendered="#{printSettings.showPartIntros && pdfAssessment.sizeDeliveryParts > 1}">
+		      <h:outputText id="number" value="#{authorMessages.p} #{partBean.number}: " escape="false" />
+		      <h:outputText id="title" value="#{partBean.title}" escape="false" />
             </h:panelGroup>
-            <h:dataTable id="pdf_parts" value="#{pdfAssessment.parts}" var="pdfPart">
-              <h:column rendered="#{pdfPart.sectionId == partBean.sectionId}">
-                <h:outputText value="<!-- resources for this section / part -->" escape="false"/>
-                <h:inputHidden id="pdf_intro" value="#{pdfPart.intro}" />
-                
-              </h:column>
-            </h:dataTable>
           </h:panelGroup>
           
           <!-- BEGIN ASSESSMENT PARTS & QUESTIONS -->
@@ -166,7 +159,6 @@ document.links[newindex].onclick();
               <h:outputText value="<h3>" escape="false" />
                 <h:outputText id="number" escape="false" value="#{question.number}" />
               <h:outputText value="</h3>" escape="false" />
-              <h:outputText id="type" styleClass="hidden" escape="false" value="#{question.itemData.typeId}" />
             </h:column>
               
             <h:column>
@@ -203,22 +195,14 @@ document.links[newindex].onclick();
                 <h:panelGroup rendered="#{question.itemData.typeId == 1 || question.itemData.typeId == 12}">
                   <%@ include file="/jsf/print/preview_item/MultipleChoiceSingleCorrect.jsp" %>
                 </h:panelGroup>
-                <h:outputText value="</div>" escape="false" />
-                <h:outputText escape="false" value="<hr />" rendered="#{printSettings.showKeys}" /> 
-                
-                <h:outputText value="<div class='points-wrapper'>" escape="false" />
-                  <h:outputText id="points" escape="false" value="#{question.itemData.score} #{authorMessages.points_lower_case}" rendered="#{printSettings.showKeys}" />
-                <h:outputText value="</div>" escape="false" />
-                
-                
+                <h:outputText escape="false" value="<hr />"
+					rendered="#{!(partBean.number == pdfAssessment.sizeDeliveryParts && question.number == pdfAssessment.totalQuestions) && (printSettings.showKeys || printSettings.showKeysFeedback) }" />
               </h:panelGroup>
             </h:column>
           </h:dataTable>
         </h:column>
       </h:dataTable>
-      
-    </div>
-  </div>
+
   </h:form>
   </body>
   </html>

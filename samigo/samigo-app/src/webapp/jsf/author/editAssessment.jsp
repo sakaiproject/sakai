@@ -118,12 +118,7 @@ document.links[newindex].onclick();
         <f:param name="actionString" value="previewAssessment" />
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" />
       </h:commandLink>
-    <h:outputText value=" #{authorMessages.separator} " rendered="#{author.isEditPendingAssessmentFlow}"/>
-	<h:commandLink title="#{authorMessages.t_settings}" id="editAssessmentSettings_editAssessment" action="editAssessmentSettings" immediate="true" rendered="#{author.isEditPendingAssessmentFlow}">
-      <h:outputText value="#{authorMessages.subnav_settings}" />
-      <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
-      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorSettingsListener" />
-    </h:commandLink>
+    
 	<h:commandLink title="#{authorFrontDoorMessages.t_editSettings}" id="editPublishedAssessmentSettings_editAssessment" immediate="true"
           rendered="#{!author.isEditPendingAssessmentFlow}"
           action="#{author.getOutcome}">
@@ -147,7 +142,16 @@ document.links[newindex].onclick();
 	</h:commandLink>
 	<h:commandLink action="#{pdfAssessment.prepPDF}" rendered="#{assessmentBean.showPrintLink eq 'true' && assessmentBean.showPrintAssessment eq 'true'}">
 		<f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
+		<f:param name="actionString" value="editAssessment"/>
 		<h:outputText value="#{printMessages.print}" escape="false" />
+	</h:commandLink>
+	
+	<h:outputText value=" #{authorMessages.separator} " rendered="#{author.isEditPendingAssessmentFlow}"/>
+	
+	<h:commandLink title="#{authorMessages.t_settings}" id="editAssessmentSettings_editAssessment" action="editAssessmentSettings" immediate="true" rendered="#{author.isEditPendingAssessmentFlow}">
+        <h:outputText value="#{authorMessages.subnav_settings}" />
+	    <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
+	    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorSettingsListener" />
 	</h:commandLink>
   </p>
 

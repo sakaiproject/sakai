@@ -37,6 +37,7 @@ import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  * General authoring information.
@@ -650,6 +651,9 @@ public class AuthorBean implements Serializable
 	  if (isEditAnyAssessment || isEditOwnAssessment) {
 		  pendingActionList.add(new SelectItem("edit_pending", res.getString("action_edit")));
 		  pendingActionList.add(new SelectItem("preview_pending", res.getString("action_preview")));
+		  if (Boolean.parseBoolean(ServerConfigurationService.getString("samigo.printAssessment"))) {
+			  pendingActionList.add(new SelectItem("print_pending", res.getString("action_print")));
+		  }
 		  pendingActionList.add(new SelectItem("settings_pending", res.getString("action_settings")));
 		  pendingActionList.add(new SelectItem("publish", res.getString("action_publish")));
 		  pendingActionList.add(new SelectItem("duplicate", res.getString("action_duplicate")));
@@ -670,20 +674,17 @@ public class AuthorBean implements Serializable
 	  AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
 	  	  
 	  publishedActionList = new ArrayList<SelectItem>();
-	  //boolean isGradeAnyAssessment = authorizationBean.getGradeAnyAssessment();
-	  //boolean isGradeOwnAssessment = authorizationBean.getGradeOwnAssessment();
 	  boolean isEditAnyAssessment = authorizationBean.getEditAnyAssessment();
 	  boolean isEditOwnAssessment = authorizationBean.getEditOwnAssessment();
 	  boolean isDeleteAnyAssessment = authorizationBean.getDeleteAnyAssessment();
 	  boolean isDeleteOwnAssessment = authorizationBean.getDeleteOwnAssessment();
 
-	  //publishedActionList.add(new SelectItem("select", res.getString("select_action")));
-	  //if (isGradeAnyAssessment || isGradeOwnAssessment) {
-		  //publishedActionList.add(new SelectItem("scores", res.getString("action_scores")));
-	  //}
+	  
 	  if (isEditAnyAssessment || isEditOwnAssessment) {
-		  //publishedActionList.add(new SelectItem("edit_published", res.getString("action_edit")));
 		  publishedActionList.add(new SelectItem("preview_published", res.getString("action_preview")));
+		  if (Boolean.parseBoolean(ServerConfigurationService.getString("samigo.printAssessment"))) {
+			  publishedActionList.add(new SelectItem("print_published", res.getString("action_print")));
+		  }
 		  publishedActionList.add(new SelectItem("settings_published", res.getString("action_settings")));
 	  }
 	  if (isDeleteAnyAssessment || isDeleteOwnAssessment) {

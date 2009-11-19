@@ -18,7 +18,7 @@ should be included in file importing DeliveryMessages
 *
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
 * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
- AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *
@@ -26,23 +26,23 @@ should be included in file importing DeliveryMessages
 --%>
 -->
   <h:outputText id="questionBlock" escape="false" value="#{question.itemData.text}" />
-  <f:verbatim><br/>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-  <h:outputText escape="false" value="#{msg.time_allowed_seconds} #{question.itemData.duration}" />
-  <f:verbatim><br/>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-  <h:outputText escape="false" value="#{msg.number_of_tries}: " />
-  <h:panelGroup rendered="#{question.itemData.triesAllowed > 10}">
-    <h:outputText escape="false" value="Unlimited" />
+  
+  <h:outputText value="<br />" escape="false" />
+  <h:outputText escape="false" value="#{printMessages.time_allowed_seconds}: #{question.itemData.duration}" />
+  <h:outputText value="<br />" escape="false" />
+  <h:outputText escape="false" value="#{printMessages.number_of_tries}: #{question.itemData.triesAllowed}" />
+  <h:outputText value="<br />" escape="false" />
+  
+  
+  <%-- answerBlock --%>
+  <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeys || printSettings.showKeysFeedback}">
+  	<h:outputText escape="false" value="#{printMessages.answer_point}: #{question.itemData.score} #{authorMessages.points_lower_case}" />
+  	<h:outputText value="<br />" escape="false" />
   </h:panelGroup>
-  <h:panelGroup rendered="#{question.itemData.triesAllowed <= 10}">
-    <h:outputText escape="false" value="#{question.itemData.triesAllowed}" />
+  
+  <%-- Show feedback answer --%>
+  <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeysFeedback}">
+  	<h:outputLabel value="#{printMessages.feedback}: " />
+  	<h:outputText escape="false" value="#{question.itemData.generalItemFeedback}" rendered="#{question.itemData.generalItemFeedback != null && question.itemData.generalItemFeedback != ''}"/>
+  	<h:outputText escape="false" value="--------" rendered="#{question.itemData.generalItemFeedback == null || question.itemData.generalItemFeedback == ''}"/>
   </h:panelGroup>
-  <h:dataTable id="answerBlock" value="#{question.itemData.itemTextArraySorted}" var="itemText">
-    <h:column>
-      <h:dataTable value="#{itemText.answerArray}" var="answer">
-        <h:column>
-          <h:outputLabel rendered="#{answer.textIsNotEmpty}" value="#{msg.preview_model_short_answer}" />
-          <h:outputText escape="false" value="#{answer.text}" />
-        </h:column>
-      </h:dataTable>
-    </h:column>
-  </h:dataTable>

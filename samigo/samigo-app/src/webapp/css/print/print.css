@@ -1,9 +1,66 @@
-/**
-*   Print view styles
-* 
-*   **Note:** 
-*   Styles for actually printing (via a printer) the page are at the bottom**
-**/
+/* Reseteamos casi todos los css */
+/*
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p,
+blockquote, pre, a, abbr, acronym, address, big,
+cite, code, del, dfn, em, font, img,
+ins, kbd, q, s, samp, small, strike,
+strong, sub, sup, tt, var, dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+center, u, b, i {
+     margin: 0;
+     padding: 0;
+     border: 0;
+     outline: 0;
+     font-weight: normal;
+     font-style: normal;
+     font-size: 100%;
+     font-family: inherit;
+     vertical-align: baseline
+}*/
+
+body {
+     line-height: 1
+}
+
+:focus {
+     outline: 0
+}
+
+ol, ul {
+     list-style: none
+}
+
+table {
+     border-collapse: collapse;
+     border-spacing: 0
+}
+
+blockquote:before, blockquote:after, q:before, q:after {
+     content: ""
+}
+
+blockquote, q {
+     quotes: "" ""
+}
+
+input, textarea {
+     margin: 0;
+     padding: 0
+}
+
+hr {
+     margin: 0;
+     padding: 0;
+     border: 0;
+     color: #000;
+     background-color: #000;
+     height: 1px
+}
+	
+/* ESTILOS */
+
 strong {
   font-weight:bold;
 }
@@ -20,62 +77,23 @@ blockquote {
   display:none;
 }
 
+
+
 #qb_print {
 	background-color:#eeeeee;
 }
+
+#qb_print #header {
+	text-align:center;
+	padding:2px;
+}
+
 #qb_print #quizWrapper {
 	border:1px solid #999999;
 	background-color:#ffffff;
 	margin:25px;
 	padding:25px;
 	font-size:16px;
-}
-#qb_print .quiz tr.part td {
-	vertical-align:top;
-	padding:5px 10px 5px 0;
-}
-#qb_print .col-printQNum {
-	width:3em;
-	text-align:right;
-	vertical-align:top;
-	padding-right:10px;
-}
-#qb_print .col-printQNum h3 {
-	margin:0;
-}
-#qb_print #header {
-	text-align:center;
-	padding:2px;
-}
-
-#qb_print h1 {
-	font-size:3em;
-	margin:0 0 .25em 0;
-}
-#qb_print h2 {
-	font-size:2em;
-	margin:1.5em 0 .5em 0;
-}
-#qb_print h3 {
-	font-size:2.5em;
-	color:#cccccc;
-}
-
-#qb_print .col-printQNum h3 {
-	margin:20px 0 0 0;
-}
-#qb_print .question {
-	padding:25px 0 0 0;
-}
-
-#qb_print .assessment_intro {
-	margin:1em;
-	padding:1em;
-}
-
-#qb_print .assessment_meta {
-  line-height:1.5em;
-  margin-bottom:1em;
 }
 
 #qb_print .navModeAction {
@@ -86,52 +104,99 @@ blockquote {
 	border: 1px solid #999;
 }
 
-#qb_print .item_inputTextBoxWrapper {
-	width:98%;
-	height:150px;
-	padding:2em 0 1em 0;
-	color:#000;
-	font-weight:bold;
-}
-#qb_print .item_inputTextBox {
-	width:98%;
-	height:100px;
+#qb_print .assessment_meta {
+  line-height:1.5em;
+  margin-bottom:1em;
 }
 
-#qb_print .answerBlock {
-  display:block;
+#qb_print .assessment_title {
+    font-size:1.2em;
+    padding:1em 3em 1em 1em;
+    margin-bottom:0em;
+    color:#01a5cb;
+    font-weight:normal;
+    background-color:transparent !important;
 }
 
-.shortAnswerWritingArea {
-  border:1px solid #000;  
-  height:100px;
-  margin:1em;
+
+#qb_print .assessment_intro {
+    padding: 0em 3em 1em 1em;
+    font-weight: normal;
 }
 
-#qb_print #resourcesBlock {
-	margin: 0 1em;
-	padding: 1em;
-	border: 1px solid orange;
-	background: #ffffcc;
-}
-#qb_print #resourcesBlock h2 {
-	margin: 0 0 .5em 0;
-}
-#qb_print #resourcesBlock ul {
-	margin: 1em;
-	list-style-type: disc;
-}
-#qb_print #resourcesBlock li {
-	margin: 0 0 0 1em;
+.quiz{
+    margin-bottom:.5em;
+	margin-left:3em;
 }
 
-.points-wrapper {
+#qb_print .part_title {
+    font-size: 1.2em;
+    color: #01a5cb;
+    padding: 3em 3em 1em 1em;
+    font-weight: normal;
+
+}
+
+#qb_print .quiz {
+    padding-bottom:1em;
+
+}
+#qb_print.quiz tr.part td{
+    vertical-align:top;
+    padding:5px 10px 5px 0;
+}
+
+#qb_print .question {
+    padding: 1.5em 0 0 0;
+}
+
+#qb_print .col-printQNum {
+    width:3em;
+    text-align:right;
+    vertical-align:top;
+    padding-right:10px;
+}
+
+#qb_print .col-printQNum h3 {
+    margin: 0 0 0 0;
+    font-size: 1.5em;
+    color: #cccccc;
+}
+
+#qb_print .answerBlock{
+    font-size: 0.85em;
+    font-style: italic;
+}
+
+#qb_print .feedbackBlock {
+  margin:3em;
+  font-size:0.85em;
   font-style:italic;
 }
 
+#qb_print .question {
+    padding: 0.75em 0 0 0;
+
+}
+
+#qb_print .column1 {
+	width:20%;
+}
+#qb_print .column2 {
+	width:80%;
+}
+
+hr{
+    margin-top:1em;
+    margin-bottom:1em;
+}
+
+table{
+    margin-bottom:0.5em;
+}
 
 /**
-* Print via printer
+* Style for printer
 **/
 @media print {
 	#qb_print .navIntraTool {
@@ -152,3 +217,4 @@ blockquote {
 		display: none;
 	}
 }
+

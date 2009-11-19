@@ -34,31 +34,32 @@ should be included in file importing DeliveryMessages
     <h:column>
      <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
         <h:column>
-          <%-- if answer key is being shown --%>
-      	  <h:graphicImage id="image1" rendered="#{answer.isCorrect && printSettings.showKeys}" alt="#{msg.correct}" url="/images/radiochecked.gif"/>
-          <h:graphicImage id="image2" rendered="#{!answer.isCorrect && printSettings.showKeys}" alt="#{msg.not_correct}" url="/images/radiounchecked.gif"/>
-          
-          <%-- if answer key isn't being shown --%>
-          <h:graphicImage id="image3" rendered="#{!printSettings.showKeys}" url="/images/radiounchecked.gif"/>
-         
-          <h:outputText escape="false" value="#{answer.text}" />
+          	<%-- Show true/false radio buttons --%>
+			<h:graphicImage id="image1" url="/images/radiounchecked.gif"/>
+			<h:outputText escape="false" value=" #{answer.text}" />
         </h:column>
       </h:dataTable>
     </h:column>
   </h:dataTable>
 
   <%-- answerBlock --%>
-  <h:outputText escape="false" value="<hr />" rendered="#{printSettings.showKeys}"/>
-  <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeys}">
-      <h:dataTable styleClass="inputBlock" value="#{question.itemData.itemTextArraySorted}" var="itemText">
-        <h:column>
-        <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
-          <h:column rendered="#{answer.isCorrect && printSettings.showKeys}">
-           <%-- if answer key is being shown --%>
-            <h:outputLabel value="#{msg.answerKey}: "/>
-            <h:outputText escape="false" value="#{answer.text}" />
-          </h:column>
-        </h:dataTable>
-      </h:column>
-    </h:dataTable>
+  <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeys || printSettings.showKeysFeedback}">
+    <h:outputLabel value="#{printMessages.answer_point}: "/>
+    <h:outputText escape="false" value="#{question.itemData.score} #{authorMessages.points_lower_case}" />
+  	<h:outputText value="<br />" escape="false" />
+    <h:outputLabel value="#{printMessages.answer_key}: "/>
+    <h:outputText escape="false" value="#{question.key}" />
+    <h:outputText value="<br />" escape="false" />
+  </h:panelGroup>
+
+  <%-- feedbackBlock --%>
+  <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeysFeedback}">
+	<h:outputLabel value="#{printMessages.correct_feedback}: "/>
+	<h:outputText escape="false" value="#{question.itemData.correctItemFeedback}" rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback != ''}"/>
+	<h:outputText escape="false" value="--------" rendered="#{question.itemData.correctItemFeedback == null || question.itemData.correctItemFeedback == ''}"/>
+  	<h:outputText value="<br />" escape="false" />
+  	<h:outputLabel value="#{printMessages.incorrect_feedback}: "/>
+    <h:outputText escape="false" value="#{question.itemData.inCorrectItemFeedback}" rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback != ''}"/>
+    <h:outputText escape="false" value="--------" rendered="#{question.itemData.inCorrectItemFeedback == null || question.itemData.inCorrectItemFeedback == ''}"/>
+    <h:outputText value="<br />" escape="false" />
   </h:panelGroup>

@@ -25,34 +25,33 @@ should be included in file importing DeliveryMessages
 **********************************************************************************/
 --%>
 -->
-  <%@ taglib uri="http://java.sun.com/upload" prefix="corejsf" %>
   <%-- questionBlock --%>
   <h:outputText styleClass="questionBlock" escape="false" value="#{question.itemData.text}" />
 
   <%-- inputBlock --%>
- <h:panelGrid styleClass="inputBlock" columns="1" width="100%">
-    <h:outputText escape="false" value="#{msg.upload_instruction}" />
+  <h:panelGrid styleClass="inputBlock" columns="1" width="100%">
+    <h:outputText escape="false" value="#{printMessages.upload_instruction}" />
     <h:panelGroup>
-      <h:outputText value="File:" />
-	<%--
-      <corejsf:upload target="test_fileupload/"/>
-		--%>
+      <h:outputText value="#{printMessages.file}:" />
+		
       <h:inputText size="50" />
       <h:outputText value="  " />
-     <h:commandButton value="Browse" type="button"/>
+      <h:commandButton value="#{printMessages.browse}:" type="button"/>
       <h:outputText value="  " />
-      <h:commandButton value="Upload" type="button"/>
+      <h:commandButton value="#{printMessages.upload}:" type="button"/>
     </h:panelGroup>
   </h:panelGrid>
 
- <%-- answerBlock --%>
-  <h:dataTable styleClass="answerBlock" value="#{question.itemData.itemTextArraySorted}" var="itemText">
-    <h:column>
-      <h:dataTable value="#{itemText.answerArray}" var="answer">
-        <h:column>
-          <h:outputLabel rendered="#{answer.textIsNotEmpty}" value="#{msg.preview_model_short_answer}" />
-          <h:outputText rendered="#{answer.textIsNotEmpty}" escape="false" value="#{answer.text}" />
-        </h:column>
-      </h:dataTable>
-    </h:column>
-  </h:dataTable>
+  <%-- answerBlock --%>
+  <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeys || printSettings.showKeysFeedback}">
+  	<h:outputText escape="false" value="#{printMessages.answer_point}: #{question.itemData.score} #{authorMessages.points_lower_case}" />
+  	<h:outputText value="<br />" escape="false" />
+  </h:panelGroup>
+  
+  <%-- feedbackBlock --%>
+  <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeysFeedback}">
+  	<h:outputLabel value="#{printMessages.feedback}: " />
+  	<h:outputText escape="false" value="#{question.itemData.generalItemFeedback}" rendered="#{question.itemData.generalItemFeedback != null && question.itemData.generalItemFeedback != ''}"/>
+  	<h:outputText escape="false" value="--------" rendered="#{question.itemData.generalItemFeedback == null || question.itemData.generalItemFeedback == ''}"/>
+  </h:panelGroup>
+

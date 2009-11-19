@@ -11,9 +11,10 @@ public class PrintSettingsBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private Boolean showKeys = new Boolean(false);
+	private Boolean showKeys = Boolean.FALSE;
 	private String fontSize = "3";
-	private Boolean showPartIntros = new Boolean(false);
+	private Boolean showPartIntros = Boolean.TRUE;
+	private Boolean showKeysFeedback = Boolean.FALSE;
 
 	public PrintSettingsBean() {
 		//nothing
@@ -63,4 +64,19 @@ public class PrintSettingsBean implements Serializable {
 	public void setShowKeys(Boolean hasKeys) {
 		this.showKeys = hasKeys;
 	}
+
+	/**
+	 * @return true if keys & feedback should be shown
+	 */
+	public Boolean getShowKeysFeedback() {
+		return showKeysFeedback;
+	}
+
+	/**
+	 * @param set if the keys & feedback should be show
+	 */
+	public void setShowKeysFeedback(Boolean showKeysFeedback) {
+		this.showKeysFeedback = showKeysFeedback;
+	}
+
 }

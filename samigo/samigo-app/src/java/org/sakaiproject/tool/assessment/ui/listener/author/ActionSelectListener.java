@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
+import org.sakaiproject.tool.assessment.ui.bean.print.PDFAssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener;
@@ -70,6 +71,17 @@ public class ActionSelectListener implements ValueChangeListener {
 			BeginDeliveryActionListener beginDeliveryActionListener = new BeginDeliveryActionListener();
 			beginDeliveryActionListener.processAction(null);
 			author.setOutcome("beginAssessment");
+		}
+		else if ("print_pending".equals(newValue) || "print_published".equals(newValue)) {
+			delivery.setActionString("previewAssessment");
+			author.setIsEditPendingAssessmentFlow(true);
+			if ("print_published".equals(newValue)) {
+				author.setIsEditPendingAssessmentFlow(false);
+			}
+			PDFAssessmentBean pdfBean = (PDFAssessmentBean)ContextUtil.lookupBean("pdfAssessment");
+			pdfBean.prepPDF();
+			pdfBean.setActionString("author");
+			author.setOutcome("print");
 		}
 		else if ("settings_pending".equals(newValue) || "publish".equals(newValue)) {
 			AuthorSettingsListener authorSettingsListener = new AuthorSettingsListener();

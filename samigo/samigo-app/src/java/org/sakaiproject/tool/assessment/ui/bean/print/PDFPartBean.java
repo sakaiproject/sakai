@@ -2,8 +2,6 @@ package org.sakaiproject.tool.assessment.ui.bean.print;
 
 import java.util.ArrayList;
 
-import org.sakaiproject.util.FormattedText;
-
 /**
  * 
  * @author Joshua Ryan <a href="mailto:joshua.ryan@asu.edu">joshua.ryan@asu.edu</a>
@@ -54,7 +52,7 @@ public class PDFPartBean {
 	 * @param intro
 	 */
 	public void setIntro(String intro) {
-		this.intro = FormattedText.convertFormattedTextToPlaintext(intro);
+		this.intro = intro;
 	}
 
 	/**

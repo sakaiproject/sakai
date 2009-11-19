@@ -27,30 +27,23 @@ should be included in file importing DeliveryMessages
 -->
   <%-- questionBlock --%>
   <h:outputText styleClass="questionBlock" escape="false" value="#{question.itemData.text}" />
+  <h:outputText value="<br />" escape="false" />
+  
+  <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeys || printSettings.showKeysFeedback}">
+    <h:outputLabel value="#{printMessages.answer_point}: "/>
+  	<h:outputText escape="false" value="#{question.itemData.score} #{authorMessages.points_lower_case}" />
+  	<h:outputText value="<br />" escape="false" />
+    <h:outputLabel value="#{printMessages.answer_model}: "/>
+    <h:outputText rendered="#{question.key != null && question.key != ''}" escape="false" value="#{question.key}" />
+    <h:outputText rendered="#{question.key == null || question.key == ''}" escape="false" value="--------" />
+    <f:verbatim><br/></f:verbatim>
+  </h:panelGroup>
+  
+  <%-- Show feedback answer --%>
+  <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeysFeedback}">
+  	<h:outputLabel value="#{printMessages.feedback}: " />
+  	<h:outputText escape="false" value="#{question.itemData.generalItemFeedback}" rendered="#{question.itemData.generalItemFeedback != null && question.itemData.generalItemFeedback != ''}"/>
+  	<h:outputText escape="false" value="--------" rendered="#{question.itemData.generalItemFeedback == null || question.itemData.generalItemFeedback == ''}"/>
+  </h:panelGroup>
+  
 
-    <%-- inputBlock --%>
-  <h:dataTable styleClass="inputBlock" value="#{question.itemData.itemTextArraySorted}" var="itemText">
-    <h:column>
-    </h:column>
-  </h:dataTable>
-
-  <h:outputText escape="false" value="<hr />" />
-
-  <h:outputText escape="false" value="<div><br /><br /><br /><br /><div>" rendered="#{!printSettings.showKeys}" />
-
-  <%-- answerBlock --%>
-  <h:dataTable styleClass="answerBlock" value="#{question.itemData.itemTextArraySorted}" var="itemText" rendered="#{printSettings.showKeys}">
-    <h:column>
-      <h:dataTable value="#{itemText.answerArray}" var="answer">
-        <h:column>
-          <h:outputLabel value="#{msg.answerKey}: "/>
-          <f:verbatim><br/></f:verbatim>
-          <h:outputText rendered="#{answer.itemText != null}" escape="false" value="#{answer.text}" />
-          <f:verbatim><br/></f:verbatim>
-
-        </h:column>
-      </h:dataTable>
-    </h:column>
-  </h:dataTable>
-
-  <h:outputText escape="false" value="<hr />" rendered="#{!printSettings.showKeys}"/>

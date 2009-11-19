@@ -1865,7 +1865,7 @@ public class DeliveryActionListener
 
   public String getPublishedAssessmentId(DeliveryBean delivery){
     String id = ContextUtil.lookupParam("publishedId");
-    if (id == null){
+    if (id == null || id.equals("")){
       id = delivery.getAssessmentId();
     }
     return id;

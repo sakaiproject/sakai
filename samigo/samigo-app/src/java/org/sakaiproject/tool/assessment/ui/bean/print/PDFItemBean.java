@@ -1,7 +1,5 @@
 package org.sakaiproject.tool.assessment.ui.bean.print;
 
-import org.sakaiproject.util.FormattedText;
-
 /**
  * 
  * @author Joshua Ryan <a href="mailto:joshua.ryan@asu.edu">joshua.ryan@asu.edu</a> alt^I
@@ -45,7 +43,7 @@ public class PDFItemBean {
 	 * @param content
 	 */
 	public void setContent(String content) {
-		this.content = FormattedText.convertFormattedTextToPlaintext(content);
+		this.content = content;
 	}
 
 	/**

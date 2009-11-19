@@ -1,7 +1,7 @@
 <%-- 
-+include file for delivering multiple choice questions
-+should be included in file importing DeliveryMessages
-+--%>
+include file for delivering multiple choice questions
+should be included in file importing DeliveryMessages
+--%>
 <!--
 <%--
 ***********************************************************************************
@@ -32,23 +32,52 @@
     <h:column>
       <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
         <h:column> 
-       <%-- inputBlock --%>
-         <h:panelGroup styleClass="inputBlock" rendered="#{answer.text != null && answer.text ne ''}">
-          <%-- 
-          <h:graphicImage id="image1" rendered="#{answer.isCorrect}"
-             alt="#{msg.correct}" url="/images/checked.gif" />--%>         
-          <h:graphicImage id="image2" 
-             alt="#{msg.not_correct}" url="/images/unchecked.gif"/>      
-          <h:outputText escape="false" value="#{answer.label}. #{answer.text}" /> 
-        </h:panelGroup>
+          <%-- inputBlock --%>
+          <h:panelGroup styleClass="inputBlock" rendered="#{answer.text != null && answer.text ne ''}">
+                     
+            <%-- Show answer text --%>
+            <h:graphicImage id="image1" url="/images/unchecked.gif"/>
+            <h:outputText escape="false" value="#{answer.label}. #{answer.text}" />
+            
+          </h:panelGroup>
+        </h:column>
+        <h:column>
+          <%-- Show feedback answer --%>
+          <h:panelGroup styleClass="feedbackBlock" rendered="#{printSettings.showKeysFeedback && answer.text !=null && answer.text!=''}">
+  			<h:outputLabel value="#{printMessages.feedback}: " />
+  			<h:outputText escape="false" value="#{answer.generalAnswerFeedback}" 
+  				rendered="#{answer.generalAnswerFeedback != null && answer.generalAnswerFeedback != '' && answer.generalAnswerFeedback != '&nbsp;'}"/>
+  			<h:outputText escape="false" value="--------" 
+  				rendered="#{answer.generalAnswerFeedback == null || answer.generalAnswerFeedback == '' || answer.generalAnswerFeedback == '&nbsp;'}"/>
+  	 	  </h:panelGroup>
         </h:column>
       </h:dataTable>
     </h:column>
   </h:dataTable>
 
   <%-- answerBlock --%>
-  <h:outputText escape="false" value="<hr />" rendered="#{printSettings.showKeys}"/>
-  <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeys}">
-    <h:outputLabel value="#{msg.answerKey}: "/>
+  <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeys || printSettings.showKeysFeedback}">
+  	<h:outputLabel value="#{printMessages.answer_point}: "/>
+  	<h:outputText escape="false" value="#{question.itemData.score} #{authorMessages.points_lower_case}" />
+  	<h:outputText value="<br />" escape="false" />
+    <h:outputLabel value="#{printMessages.answer_key}: "/>
     <h:outputText escape="false" value="#{question.key}" />
+    <h:outputText value="<br />" escape="false" />
   </h:panelGroup>
+  
+  <%-- feedbackBlock --%>
+  <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeysFeedback}">
+	<h:outputLabel value="#{printMessages.correct_feedback}: "/>
+	<h:outputText escape="false" value="#{question.itemData.correctItemFeedback}" 
+		rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback != '' && question.itemData.correctItemFeedback != '&nbsp;'}"/>
+	<h:outputText escape="false" value="--------" 
+		rendered="#{question.itemData.correctItemFeedback == null || question.itemData.correctItemFeedback == '' || question.itemData.correctItemFeedback == '&nbsp;'}"/>
+  	<h:outputText value="<br />" escape="false" />
+  	<h:outputLabel value="#{printMessages.incorrect_feedback}: "/>
+    <h:outputText escape="false" value="#{question.itemData.inCorrectItemFeedback}" 
+    	rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback != '' && question.itemData.inCorrectItemFeedback != '&nbsp;'}"/>
+    <h:outputText escape="false" value="--------" 
+    	rendered="#{question.itemData.inCorrectItemFeedback == null || question.itemData.inCorrectItemFeedback == '' || question.itemData.inCorrectItemFeedback == '&nbsp;'}"/>
+    <h:outputText value="<br />" escape="false" />
+  </h:panelGroup>
+  
