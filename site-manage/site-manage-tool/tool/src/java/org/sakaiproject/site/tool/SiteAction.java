@@ -7077,49 +7077,35 @@ public class SiteAction extends PagedResourceActionII {
 							{
 								site.setIconUrl(transferSiteResource(oSiteId, nSiteId, site.getIconUrl()));
 							}
+
+							// set title
+							site.setTitle(title);
 							
 							try {
 								SiteService.save(site);
-							} catch (IdUnusedException e) {
-								// TODO:
-							} catch (PermissionException e) {
-								// TODO:
-							}
-
-							try {
-								site = SiteService.getSite(nSiteId);
-
-								// set title
-								site.setTitle(title);
-								
+							
 								// import tool content
 								importToolContent(oSiteId, site, false);
-
-							} catch (Exception e1) {
-								// if goes here, IdService
-								// or SiteService has done
-								// something wrong.
-								M_log.warn(this + ".actionForTemplate chef_siteinfo-duplicate: " + e1 + ":" + nSiteId + "when duplicating site", e1);
-							}
-
-							if (site.getType().equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
-								// for course site, need to
-								// read in the input for
-								// term information
-								String termId = StringUtil.trimToNull(params
-										.getString("selectTerm"));
-								if (termId != null) {
-									AcademicSession term = cms.getAcademicSession(termId);
-									if (term != null) {
-										ResourcePropertiesEdit rp = site.getPropertiesEdit();
-										rp.addProperty(PROP_SITE_TERM, term.getTitle());
-										rp.addProperty(PROP_SITE_TERM_EID, term.getEid());
-									} else {
-										M_log.warn("termId=" + termId + " not found");
+	
+								if (site.getType().equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
+									// for course site, need to
+									// read in the input for
+									// term information
+									String termId = StringUtil.trimToNull(params
+											.getString("selectTerm"));
+									if (termId != null) {
+										AcademicSession term = cms.getAcademicSession(termId);
+										if (term != null) {
+											ResourcePropertiesEdit rp = site.getPropertiesEdit();
+											rp.addProperty(PROP_SITE_TERM, term.getTitle());
+											rp.addProperty(PROP_SITE_TERM_EID, term.getEid());
+										} else {
+											M_log.warn("termId=" + termId + " not found");
+										}
 									}
 								}
-							}
-							try {
+								
+								// save again
 								SiteService.save(site);
 								
 								if (site.getType().equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) 
@@ -7139,10 +7125,11 @@ public class SiteAction extends PagedResourceActionII {
 										M_log.warn(this + ".actionForTemplate chef_siteinfo-duplicate: " + rb.getString("java.problem"), e);
 									}
 								}
+							
 							} catch (IdUnusedException e) {
-								// TODO:
+								M_log.warn(this + " actionForTemplate chef_siteinfo-duplicate:: IdUnusedException when saving " + nSiteId);
 							} catch (PermissionException e) {
-								// TODO:
+								M_log.warn(this + " actionForTemplate chef_siteinfo-duplicate:: PermissionException when saving " + nSiteId);
 							}
 
 							// TODO: hard coding this frame id
