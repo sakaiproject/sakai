@@ -40,8 +40,8 @@
     <property name="shortDescription">
       <column name="SHORT_DESCRIPTION" length="255" not-null="false" />
     </property>
-    <property name="extendedDescription" type="text">
-      <column name="EXTENDED_DESCRIPTION" not-null="false" />
+    <property name="extendedDescription" type="text" >
+      <column name="EXTENDED_DESCRIPTION" not-null="false" length="100000000"/>
     </property>
     <property name="typeUuid">
       <column name="TYPE_UUID" length="36" not-null="true" index="MFR_OPEN_FORUM_TYPE_I"/>
