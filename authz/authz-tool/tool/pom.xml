@@ -61,10 +61,6 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-velocity-tool</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.edu-services.course-management</groupId>
-      <artifactId>coursemanagement-api</artifactId>
-    </dependency>
 <!--org.sakaiprojectsakai-component${sakai.version}-->
 <!-- velocity and dependencies (logkit, oro, collections) -->
     <dependency>
