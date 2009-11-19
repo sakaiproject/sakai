@@ -2,10 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>base</artifactId>
-        <groupId>org.sakaiproject</groupId>
-        <version>2.7.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
+        <artifactId>sakai-standard-tool</artifactId>
+        <groupId>org.sakaiproject.purepoms</groupId>
+        <version>2.7.0-build03</version>
     </parent>
     <name>Sakai Message Center Project</name>
     <groupId>org.sakaiproject.msgcntr</groupId>
@@ -22,8 +21,9 @@
         <module>messageforums-assembly</module>
     </modules>
     <properties>
-        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/msgcntr/${project.version}
-        </url.localsite>
+        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/msgcntr/${project.version}</url.localsite>
+        <sakai.common.version>1.0.0-beta01</sakai.common.version>
+        <sakai.jsf.version>2.7.0-SNAPSHOT</sakai.jsf.version>
     </properties>
     <scm>
         <connection>scm:svn:https://source.sakaiproject.org/svn/msgcntr/trunk
@@ -90,19 +90,19 @@
             <dependency>
                 <groupId>org.sakaiproject.msgcntr</groupId>
                 <artifactId>sakai-messageforums-api</artifactId>
-                <version>${sakai.msgcntr.version}</version>
+                <version>2.7.0-SNAPSHOT</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.msgcntr</groupId>
                 <artifactId>sakai-messageforums-component-impl
                 </artifactId>
-                <version>${sakai.msgcntr.version}</version>
+                <version>2.7.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.msgcntr</groupId>
                 <artifactId>sakai-messageforums-hbm</artifactId>
-                <version>${sakai.msgcntr.version}</version>
+                <version>2.7.0-SNAPSHOT</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -110,6 +110,31 @@
                 <artifactId>jsf-tool-sun</artifactId>
                 <version>${sakai.jsf.version}</version>
                 <type>pom</type>
+            </dependency>
+            <dependency>
+            	<groupId>org.sakaiproject.edu-services.gradebook</groupId>
+            	<artifactId>gradebook-service-api</artifactId>
+            	<version>1.0.0-beta01</version>
+            </dependency>
+            <dependency>
+            	<groupId>org.sakaiproject.common</groupId>
+            	<artifactId>sakai-privacy-api</artifactId>
+            	<version>${sakai.common.version}</version>
+            </dependency>
+            <dependency>
+            	<groupId>org.sakaiproject.common</groupId>
+            	<artifactId>sakai-common-type-api</artifactId>
+            	<version>${sakai.common.version}</version>
+            </dependency>
+            <dependency>
+            	<groupId>org.sakaiproject.common</groupId>
+            	<artifactId>sakai-common-manager-api</artifactId>
+            	<version>${sakai.common.version}</version>
+            </dependency>
+            <dependency>
+            	<groupId>org.sakaiproject.search</groupId>
+            	<artifactId>search-api</artifactId>
+            	<version>1.2-beta01</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
