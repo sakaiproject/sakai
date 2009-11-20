@@ -8375,6 +8375,7 @@ public class SiteAction extends PagedResourceActionII {
 				(String) state.getAttribute(STATE_SITE_TYPE), chosenList)
 				.listIterator(); j.hasNext();) {
 			String toolId = (String) j.next();
+			boolean multiAllowed = isMultipleInstancesAllowed(findOriginalToolId(state, toolId));
 			// exclude Home tool
 			if (!toolId.equals(TOOL_ID_HOME))
 			{
@@ -8392,7 +8393,7 @@ public class SiteAction extends PagedResourceActionII {
 				if (pageToolId.equals(toolId)) {
 					inWSetupPageList = true;
 					// but for tool of multiple instances, need to change the title
-					if (isMultipleInstancesAllowed(findOriginalToolId(state, toolId))) {
+					if (multiAllowed) {
 						SitePage pEdit = (SitePage) site
 								.getPage(wSetupPage.pageId);
 						pEdit.setTitle((String) multipleToolIdTitleMap.get(toolId));
@@ -8426,7 +8427,7 @@ public class SiteAction extends PagedResourceActionII {
 						toolRegFound = toolReg;
 						break;
 					}
-					else if (toolId.startsWith(toolRegId))
+					else if (multiAllowed && toolId.startsWith(toolRegId))
 					{
 						try
 						{
@@ -8447,7 +8448,7 @@ public class SiteAction extends PagedResourceActionII {
 					WorksiteSetupPage addPage = new WorksiteSetupPage();
 					SitePage page = site.addPage();
 					addPage.pageId = page.getId();
-					if (isMultipleInstancesAllowed(findOriginalToolId(state, toolId))) {
+					if (multiAllowed) {
 						// set tool title
 						page.setTitle((String) multipleToolIdTitleMap.get(toolId));
 						page.setTitleCustom(true);
@@ -8462,7 +8463,7 @@ public class SiteAction extends PagedResourceActionII {
 					wSetupPageList.add(addPage);
 
 					// set tool title
-					if (isMultipleInstancesAllowed(findOriginalToolId(state, toolId))) {
+					if (multiAllowed) {
 						// set tool title
 						tool.setTitle((String) multipleToolIdTitleMap.get(toolId));
 						// save tool configuration
