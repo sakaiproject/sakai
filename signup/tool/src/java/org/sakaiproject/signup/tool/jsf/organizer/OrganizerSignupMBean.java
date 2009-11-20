@@ -146,6 +146,9 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 		setMeetingWrapper(meetingWrapper);
 		updateTimeSlotWrappers(meetingWrapper);
 		setEidInputMode(meetingWrapper.getMeeting().isEidInputMode());
+		if(!isEidInputMode() && (getAllAttendees()==null || getAllAttendees().isEmpty())){
+			loadAllAttendees(meetingWrapper.getMeeting());
+		}
 
 	}
 

@@ -101,6 +101,7 @@ public class AutoReminderEmail extends SignupEmailBase {
 				+ MessageFormat.format(rb.getString("body.auto.reminder.part"), params));
 		message.append(newline + newline
 				+ MessageFormat.format(rb.getString("body.meetingTopic.part"), new Object[] { meeting.getTitle() }));
+		message.append(newline + rb.getString("body.meeting.place") + space + meeting.getLocation());
 		if (!meeting.isMeetingCrossDays()) {
 			Object[] paramsTimeframe = new Object[] {
 					getTime(item.getStartTime()).toStringLocalTime(),
