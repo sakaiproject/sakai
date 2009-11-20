@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2005, 2006, 2007, 2008 The Sakai Foundation
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,9 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -47,14 +45,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.PagedResourceHelperAction;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
-import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
@@ -113,6 +109,9 @@ import org.sakaiproject.util.Validator;
  */
 public class FilePickerAction extends PagedResourceHelperAction
 {
+	/** Version */
+	private static final long serialVersionUID = 1L;
+
 	/** Resource bundle using current language locale */
 	private static ResourceLoader hrb = new ResourceLoader("helper");
 
@@ -210,6 +209,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	 * @param state
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
 		initState(state, portlet, data);
@@ -291,18 +291,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 		{
 			template = buildAddMetadataContext(portlet, context, data, state);
 		}
-//		else if(MODE_ATTACHMENT_CREATE_INIT.equals(helper_mode))
-//		{
-//			template = buildCreateContext(portlet, context, data, state);
-//		}
-//		else if(MODE_ATTACHMENT_NEW_ITEM_INIT.equals(helper_mode))
-//		{
-//			template = buildItemTypeContext(portlet, context, data, state);
-//		}
-//		else if(MODE_ATTACHMENT_EDIT_ITEM_INIT.equals(helper_mode))
-//		{
-//			template = buildCreateContext(portlet, context, data, state);
-//		}
 
 		return template;
 
@@ -342,8 +330,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 				toolSession.setAttribute(STATE_DEFAULT_COPYRIGHT, defaultCopyrightStatus);
 			}
 
-			String encoding = data.getRequest().getCharacterEncoding();
-
 			Time defaultRetractDate = (Time) toolSession.getAttribute(STATE_DEFAULT_RETRACT_TIME);
 			if(defaultRetractDate == null)
 			{
@@ -365,7 +351,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 			ListItem item = new ListItem(pipe, parent, defaultRetractDate);
 
 			String typeId = pipe.getAction().getTypeId();
-			//List items = newEditItems(collection.getId(), typeId, encoding, defaultCopyrightStatus, preventPublicDisplay.booleanValue(), defaultRetractDate, new Integer(1));
 
 			context.put("item", item);
 
@@ -407,6 +392,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	 * @param toolSession
 	 * @param pipe
 	 */
+	@SuppressWarnings("unchecked")
 	protected void finishAction(SessionState state, ToolSession toolSession, ResourceToolActionPipe pipe)
 	{
 		ResourceTypeRegistry registry = (ResourceTypeRegistry) toolSession.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
@@ -502,7 +488,8 @@ public class FilePickerAction extends PagedResourceHelperAction
      * @param state
      * @return
      */
-    protected String buildSelectAttachmentContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
+    @SuppressWarnings({ "unchecked", "deprecation" })
+	protected String buildSelectAttachmentContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
     {
 		context.put("tlang",hrb);
 
@@ -547,14 +534,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 			context.put("list_has_changed", Boolean.TRUE.toString());
 		}
 
-		boolean inMyWorkspace = SiteService.isUserSite(ToolManager.getCurrentPlacement().getContext());
-		// context.put("inMyWorkspace", Boolean.toString(inMyWorkspace));
-
-		boolean atHome = false;
-
-		// %%STATE_MODE_RESOURCES%%
-		//boolean dropboxMode = RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) toolSession.getAttribute(STATE_MODE_RESOURCES));
-
 		String homeCollectionId = (String) toolSession.getAttribute(STATE_HOME_COLLECTION_ID);
 		if(homeCollectionId == null)
 		{
@@ -571,14 +550,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 		}
 
 		context.put ("collectionId", collectionId);
-		String navRoot = (String) toolSession.getAttribute(STATE_NAVIGATION_ROOT);
-
-		// String siteTitle = (String) toolSession.getAttribute (STATE_SITE_TITLE);
-		if (collectionId.equals(homeCollectionId))
-		{
-			atHome = true;
-			//context.put ("collectionDisplayName", toolSession.getAttribute (STATE_HOME_COLLECTION_DISPLAY_NAME));
-		}
 
 		Comparator userSelectedSort = (Comparator) toolSession.getAttribute(STATE_LIST_VIEW_SORT);
 
@@ -656,8 +627,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 			ContentResourceFilter filter = (ContentResourceFilter) state.getAttribute(STATE_ATTACHMENT_FILTER);
 			
-			//state.removeAttribute(STATE_PASTE_ALLOWED_FLAG);
-
 			List<ListItem> this_site = new Vector<ListItem>();
 
 			if(contentService.isInDropbox(collectionId))
@@ -695,16 +664,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 								}
 								this_site.addAll(items);
 
-	//							List dbox = getListView(dbId, highlightedItems, (ResourcesBrowseItem) null, false, state);
-	//							getBrowseItems(dbId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ResourcesBrowseItem) null, false, state);
-	//							if(dbox != null && dbox.size() > 0)
-	//							{
-	//								ResourcesBrowseItem root = (ResourcesBrowseItem) dbox.remove(0);
-	//								// context.put("site", root);
-	//								root.setName(submitter.getDisplayName() + " " + rb.getString("gen.drop"));
-	//								root.addMembers(dbox);
-	//								this_site.add(root);
-	//							}
 							}
 							catch(IdUnusedException e)
 							{
@@ -721,17 +680,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 							ListItem item = ListItem.getListItem(db, null, registry, expandAll, expandedCollections, null, null, 0, null, false, null);
 							this_site.addAll(item.convert2list());
-
-	//						List dbox = getListView(dropboxId, highlightedItems, (ResourcesBrowseItem) null, false, state);
-	//						// List dbox = getBrowseItems(dropboxId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ResourcesBrowseItem) null, false, state);
-	//						if(dbox != null && dbox.size() > 0)
-	//						{
-	//							ResourcesBrowseItem root = (ResourcesBrowseItem) dbox.remove(0);
-	//							// context.put("site", root);
-	//							root.setName(ContentHostingService.getDropboxDisplayName());
-	//							root.addMembers(dbox);
-	//							this_site.add(root);
-	//						}
 						}
 						catch(IdUnusedException e)
 						{
@@ -753,29 +701,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 				
 			}
 			
-			
-//			List members = getListView(collectionId, highlightedItems, (ResourcesBrowseItem) null, navRoot.equals(homeCollectionId), state);
-//			// List members = getBrowseItems(collectionId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ResourcesBrowseItem) null, navRoot.equals(homeCollectionId), state);
-//			if(members != null && members.size() > 0)
-//			{
-//				ResourcesBrowseItem root = (ResourcesBrowseItem) members.remove(0);
-//				if(atHome && dropboxMode)
-//				{
-//					root.setName(siteTitle + " " + rb.getString("gen.drop"));
-//				}
-//				else if(atHome)
-//				{
-//					root.setName(siteTitle + " " + rb.getString("gen.reso"));
-//				}
-//				context.put("site", root);
-//				root.addMembers(members);
-//				this_site.add(root);
-//			}
-
-
 			context.put ("this_site", this_site);
 
-			List other_sites = new Vector();
 			boolean show_all_sites = false;
 
 			String allowed_to_see_other_sites = (String) toolSession.getAttribute(STATE_SHOW_ALL_SITES);
@@ -790,7 +717,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 			if(show_all_sites)
 			{
 				// TODO move this to a separate class used by ResourcesAction and FilePickerAction to support paging
-				
 				
 				List<ListItem> siteCollections = prepPage(state);
 				List<ListItem> otherSites = new Vector<ListItem>();
@@ -828,25 +754,11 @@ public class FilePickerAction extends PagedResourceHelperAction
 				boolean goNPButton = toolSession.getAttribute(STATE_NEXT_PAGE_EXISTS) != null;
 				context.put("goNPButton", Boolean.toString(goNPButton));
 
-				/*
-				boolean goFPButton = toolSession.getAttribute(STATE_FIRST_PAGE_EXISTS) != null;
-				context.put("goFPButton", Boolean.toString(goFPButton));
-				boolean goLPButton = toolSession.getAttribute(STATE_LAST_PAGE_EXISTS) != null;
-				context.put("goLPButton", Boolean.toString(goLPButton));
-				*/
-
 				context.put("pagesize", toolSession.getAttribute(STATE_PAGESIZE));
-				// context.put("pagesizes", PAGESIZES);
 
 			}
-
 			
-			//context.put("listActions", listActions);
 			context.put("counter", new EntityCounter());
-
-			// context.put ("other_sites", other_sites);
-			//toolSession.setAttribute(STATE_COLLECTION_ROOTS, all_roots);
-			// context.put ("root", root);
 
 			if(show_all_sites)
 			{
@@ -881,18 +793,9 @@ public class FilePickerAction extends PagedResourceHelperAction
 				boolean goNPButton = toolSession.getAttribute(STATE_NEXT_PAGE_EXISTS) != null;
 				context.put("goNPButton", Boolean.toString(goNPButton));
 
-				/*
-				boolean goFPButton = toolSession.getAttribute(STATE_FIRST_PAGE_EXISTS) != null;
-				context.put("goFPButton", Boolean.toString(goFPButton));
-				boolean goLPButton = toolSession.getAttribute(STATE_LAST_PAGE_EXISTS) != null;
-				context.put("goLPButton", Boolean.toString(goLPButton));
-				*/
-
 				context.put("pagesize", toolSession.getAttribute(STATE_PAGESIZE));
-				// context.put("pagesizes", PAGESIZES);
 			}
 
-			// context.put ("root", root);
 			context.put("expandedCollections", expandedCollections);
 			toolSession.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
 		}
@@ -913,7 +816,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 		}
 
 		context.put("homeCollection", (String) toolSession.getAttribute (STATE_HOME_COLLECTION_ID));
-//		context.put("siteTitle", toolSession.getAttribute(STATE_SITE_TITLE));
 		context.put ("resourceProperties", contentService.newResourceProperties ());
 
 		try
@@ -1000,10 +902,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 	{
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		
-		Enumeration attributeNames = toolSession.getAttributeNames();
+		Enumeration<String> attributeNames = toolSession.getAttributeNames();
 		while(attributeNames.hasMoreElements())
 		{
-			String attributeName = (String) attributeNames.nextElement();
+			String attributeName = attributeNames.nextElement();
 			if(attributeName.startsWith(PREFIX))
 			{
 				state.removeAttribute(attributeName);
@@ -1025,6 +927,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	 * @param toolSession
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	protected String initHelperAction(SessionState state, ToolSession toolSession)
 	{
 		toolSession.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
@@ -1037,7 +940,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 		ResourceTypeRegistry registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
 		toolSession.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
 		
-		//ResourceType type = registry.getType(typeId); 
 		// start with a copy of the original attachment list
 		List attachments = (List) toolSession.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
 		if (attachments == null)
@@ -1057,10 +959,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 		}
 		
 		List<AttachItem> new_items = new Vector<AttachItem>();
-		Iterator attachmentIt = attachments.iterator();
+		Iterator<Reference> attachmentIt = attachments.iterator();
 		while(attachmentIt.hasNext())
 		{
-			Reference ref = (Reference) attachmentIt.next();
+			Reference ref = attachmentIt.next();
 			try
             {
 				ContentResource res = (ContentResource) ref.getEntity();
@@ -1197,6 +1099,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	/**
 	 * @param data
 	 */
+	@SuppressWarnings("unchecked")
 	public void doAttachitem(RunData data)
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
@@ -1242,6 +1145,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	/**
 	 * @param data
 	 */
+	@SuppressWarnings("unchecked")
 	public void doAttachupload(RunData data)
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
@@ -1254,7 +1158,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
 			toolSession.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
 		}
-		//ResourceType type = registry.getType(typeId); 
 		
 		String max_file_size_mb = (String) toolSession.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
 		long max_bytes = 1024L * 1024L;
@@ -1283,7 +1186,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 		{
 			// "The user submitted a file to upload but it was too big!"
 			addAlert(state, trb.getFormattedMessage("size.exceeded", new Object[]{ max_file_size_mb }));
-			//addAlert(state, hrb.getString("size") + " " + max_file_size_mb + "MB " + hrb.getString("exceeded2"));
 		}
 		else if (fileitem.getFileName() == null || fileitem.getFileName().length() == 0)
 		{
@@ -1390,7 +1292,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 				}
 				catch(RuntimeException e)
 				{
-					if(contentService.ID_LENGTH_EXCEPTION.equals(e.getMessage()))
+					if(ContentHostingService.ID_LENGTH_EXCEPTION.equals(e.getMessage()))
 					{
 						// couldn't we just truncate the resource-id instead of rejecting the upload?
 						addAlert(state, trb.getFormattedMessage("alert.toolong", new String[]{name}));
@@ -1415,6 +1317,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	/**
 	 * @param data
 	 */
+	@SuppressWarnings("unchecked")
 	public void doAttachurl(RunData data)
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
@@ -1509,7 +1412,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 		}
 		catch(RuntimeException e)
 		{
-			if(contentService.ID_LENGTH_EXCEPTION.equals(e.getMessage()))
+			if(ContentHostingService.ID_LENGTH_EXCEPTION.equals(e.getMessage()))
 			{
 				// couldn't we just truncate the resource-id instead of rejecting the upload?
 				addAlert(state, trb.getFormattedMessage("alert.toolong", new String[]{url}));
@@ -1530,11 +1433,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 	*/
 	public void doCancel ( RunData data)
 	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		
-		//cleanup(state);
-
 		toolSession.setAttribute(STATE_HELPER_CANCELED_BY_USER, Boolean.TRUE.toString());
 
 		toolSession.setAttribute(STATE_FILEPICKER_MODE, MODE_ATTACHMENT_DONE);
@@ -1543,13 +1443,11 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 
 
+	@SuppressWarnings("unchecked")
 	public void doRemoveitem(RunData data)
 	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ParameterParser params = data.getParameters ();
-
-		//toolSession.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
 
 		String itemId = params.getString("itemId");
 
@@ -1584,27 +1482,13 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 	}	// doRemoveitem
 
+	@SuppressWarnings("unchecked")
 	public void doAddattachments(RunData data)
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
-		ParameterParser params = data.getParameters ();
 
 		ContentHostingService contentService = (ContentHostingService) toolSession.getAttribute (STATE_CONTENT_SERVICE);
-
-//		// cancel copy if there is one in progress
-//		if(! Boolean.FALSE.toString().equals(toolSession.getAttribute (STATE_COPY_FLAG)))
-//		{
-//			initCopyContext(state);
-//		}
-//
-//		// cancel move if there is one in progress
-//		if(! Boolean.FALSE.toString().equals(toolSession.getAttribute (STATE_MOVE_FLAG)))
-//		{
-//			initMoveContext(state);
-//		}
-
-//		toolSession.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
 
 		List<AttachItem> new_items = (List<AttachItem>) toolSession.getAttribute(STATE_ADDED_ITEMS);
 		if(new_items == null)
@@ -1663,12 +1547,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 		}
 		
 		state.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, original_attachments);
-		// cleanupState(state);
-
-		// end up in main mode
-//		resetCurrentMode(state);
-
-		String field = null;
 
 		// if there is at least one attachment
 		if (original_attachments.size() > 0)
@@ -1679,48 +1557,13 @@ public class FilePickerAction extends PagedResourceHelperAction
 		
 		toolSession.setAttribute(STATE_FILEPICKER_MODE, MODE_ATTACHMENT_DONE);
 
-//		if(field != null)
-//		{
-//			int index = 0;
-//			String fieldname = field;
-//			Matcher matcher = INDEXED_FORM_FIELD_PATTERN.matcher(field.trim());
-//			if(matcher.matches())
-//			{
-//				fieldname = matcher.group(0);
-//				index = Integer.parseInt(matcher.group(1));
-//			}
-//
-//			// we are trying to attach a link to a form field and there is at least one attachment
-//			if(new_items == null)
-//			{
-//				new_items = (List) current_stack_frame.get(ResourcesAction.STATE_HELPER_NEW_ITEMS);
-//				if(new_items == null)
-//				{
-//					new_items = (List) toolSession.getAttribute(ResourcesAction.STATE_HELPER_NEW_ITEMS);
-//				}
-//			}
-//			ResourcesEditItem edit_item = null;
-//			List edit_items = (List) current_stack_frame.get(ResourcesAction.STATE_STACK_CREATE_ITEMS);
-//			if(edit_items == null)
-//			{
-//				edit_item = (ResourcesEditItem) current_stack_frame.get(ResourcesAction.STATE_STACK_EDIT_ITEM);
-//			}
-//			else
-//			{
-//				edit_item = (ResourcesEditItem) edit_items.get(0);
-//			}
-//			if(edit_item != null)
-//			{
-//				Reference ref = (Reference) attachments.get(0);
-//				edit_item.setPropertyValue(fieldname, index, ref);
-//			}
-//		}
 	}
 
 	/**
 	 * @param itemId
 	 * @param state
 	 */
+	@SuppressWarnings("unchecked")
 	public void attachCopy(String itemId, SessionState state)
 	{
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
@@ -1731,7 +1574,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
 			toolSession.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
 		}
-		//ResourceType type = registry.getType(typeId); 
 
 		List<AttachItem> new_items = (List<AttachItem>) toolSession.getAttribute(STATE_ADDED_ITEMS);
 		if(new_items == null)
@@ -1779,8 +1621,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 				{
 					// TODO: why would the copy action be null?
 					logger.warn("copyAction null. typeId == " + typeId + " itemId == " + itemId);
-					//addAlert(state, "TODO: Unable to attach this item");
-					//return;
 				}
 				else if(copyAction instanceof ServiceLevelAction)
 				{
@@ -1901,6 +1741,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	 * @param itemId
 	 * @param state
 	 */
+	@SuppressWarnings("unchecked")
 	public void attachLink(String itemId, SessionState state)
 	{
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
@@ -1911,7 +1752,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
 			toolSession.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
 		}
-		//ResourceType type = registry.getType(typeId); 
 
 		List<AttachItem> new_items = (List<AttachItem>) toolSession.getAttribute(STATE_ADDED_ITEMS);
 		if(new_items == null)
@@ -2013,6 +1853,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.cheftool.VelocityPortletPaneledAction#toolModeDispatch(java.lang.String, java.lang.String, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
+	@SuppressWarnings("unchecked")
 	protected void toolModeDispatch(String methodBase, String methodExt, HttpServletRequest req, HttpServletResponse res)
 			throws ToolException
 	{
@@ -2071,6 +1912,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	/**
 	 * @param data
 	 */
+	@SuppressWarnings("unchecked")
 	public void doCompleteCreateWizard(RunData data)
 	{
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
@@ -2085,7 +1927,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
 			toolSession.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
 		}
-		//ResourceType type = registry.getType(typeId); 
 		
 		ListItem item = (ListItem) toolSession.getAttribute(STATE_NEW_ATTACHMENT);
 		
@@ -2112,7 +1953,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 				// title
 				displayName = item.getName();
 					
-					//params.getString("name" + ListItem.DOT + "0");
 				String basename = displayName.trim();
 				String extension = "";
 				if(displayName.contains("."))
@@ -2179,12 +2019,12 @@ public class FilePickerAction extends PagedResourceHelperAction
 				ResourcePropertiesEdit resourceProperties = resource.getPropertiesEdit();
 				resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
 				
-				Map values = pipe.getRevisedResourceProperties();
-				Iterator valueIt = values.keySet().iterator();
+				Map<String,String> values = pipe.getRevisedResourceProperties();
+				Iterator<String> valueIt = values.keySet().iterator();
 				while(valueIt.hasNext())
 				{
-					String pname = (String) valueIt.next();
-					String pvalue = (String) values.get(pname);
+					String pname = valueIt.next();
+					String pvalue = values.get(pname);
 					resourceProperties.addProperty(pname, pvalue);
 				}
 				
@@ -2251,12 +2091,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 			catch (ServerOverloadException e) 
 			{
 				addAlert(state, crb.getString("failed"));
-				//logger.warn("ServerOverloadException", e);
 			}
 			catch (OverQuotaException e)
 			{
 				addAlert(state, crb.getString("overquota"));
-				//logger.warn("OverQuotaException ", e);
 			}
             catch (IdUniquenessException e)
             {
@@ -2295,10 +2133,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 	/**
 	 * @param data
 	 */
+	@SuppressWarnings("unchecked")
 	public void doDispatchAction(RunData data)
 	{
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		
 		// find the ContentHosting service
 		ContentHostingService contentService = (ContentHostingService) toolSession.getAttribute (STATE_CONTENT_SERVICE);
@@ -2348,10 +2186,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 			List propKeys = iAction.getRequiredPropertyKeys();
 			if(propKeys != null)
 			{
-				Iterator it = propKeys.iterator();
+				Iterator<String> it = propKeys.iterator();
 				while(it.hasNext())
 				{
-					String key = (String) it.next();
+					String key = it.next();
 					Object value = props.get(key);
 					if(value == null)
 					{
@@ -2465,10 +2303,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 	 * @throws TypeException
 	 * @throws IdUnusedException
 	*/
+	@SuppressWarnings("unchecked")
 	public void doExpand_collection(RunData data) throws IdUnusedException, TypeException, PermissionException
 	{
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		SortedSet expandedItems = (SortedSet) toolSession.getAttribute(STATE_EXPANDED_COLLECTIONS);
 		if(expandedItems == null)
 		{
@@ -2487,44 +2325,30 @@ public class FilePickerAction extends PagedResourceHelperAction
 	/**
 	* Remove the collection id from the expanded collection list
 	*/
+	@SuppressWarnings("unchecked")
 	public void doCollapse_collection(RunData data)
 	{
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		SortedSet expandedItems = (SortedSet) toolSession.getAttribute(STATE_EXPANDED_COLLECTIONS);
 		if(expandedItems == null)
 		{
 			expandedItems = new TreeSet();
 		}
-//		Map folderSortMap = (Map) toolSession.getAttribute(STATE_EXPANDED_FOLDER_SORT_MAP);
-//		if(folderSortMap == null)
-//		{
-//			folderSortMap = new Hashtable();
-//			toolSession.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, folderSortMap);
-//		}
 
 		//get the ParameterParser from RunData
 		ParameterParser params = data.getParameters ();
 		String collectionId = params.getString("collectionId");
 
 		SortedSet newSet = new TreeSet();
-		Iterator l = expandedItems.iterator();
+		Iterator<String> l = expandedItems.iterator();
 		while (l.hasNext ())
 		{
-			// remove the collection id and all of the subcollections
-//		    Resource collection = (Resource) l.next();
-//			String id = (String) collection.getId();
-		    String id = (String) l.next();
+		    String id = l.next();
 
 			if (id.indexOf (collectionId)==-1)
 			{
-	//			newSet.put(id,collection);
 				newSet.add(id);
 			}
-//			else
-//			{
-//				folderSortMap.remove(id);
-//			}
 		}
 
 		toolSession.setAttribute(STATE_EXPANDED_COLLECTIONS, newSet);
@@ -2534,11 +2358,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 	/**
 	* Expand all the collection resources.
 	*/
+	@SuppressWarnings("unchecked")
 	public void doExpandall ( RunData data)
 	{
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
-		// get the state object
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 
 		//get the ParameterParser from RunData
 		ParameterParser params = data.getParameters ();
@@ -2561,11 +2384,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 	/**
 	* Unexpand all the collection resources
 	*/
+	@SuppressWarnings("unchecked")
 	public void doUnexpandall ( RunData data)
 	{
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
-		// get the state object
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 
 		//get the ParameterParser from RunData
 		ParameterParser params = data.getParameters ();
@@ -2580,7 +2402,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 		toolSession.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
 
 		toolSession.setAttribute(STATE_EXPANDED_COLLECTIONS, new TreeSet());
-		// toolSession.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, new Hashtable());
 		toolSession.setAttribute(STATE_EXPAND_ALL_FLAG, Boolean.FALSE.toString());
 
 	}	// doUnexpandall
@@ -2588,10 +2409,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 	/**
 	 * @param data
 	 */
+	@SuppressWarnings("unchecked")
 	public void doShowOtherSites(RunData data)
 	{
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 
 		//get the ParameterParser from RunData
 		ParameterParser params = data.getParameters ();
@@ -2611,10 +2432,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 	/**
 	 * @param data
 	 */
+	@SuppressWarnings("unchecked")
 	public void doHideOtherSites(RunData data)
 	{
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 
 		toolSession.setAttribute(STATE_SHOW_OTHER_SITES, Boolean.FALSE.toString());
 
@@ -2691,6 +2512,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			{
 				// test to see if the input validates as a URL.
 				// Checks string for format only.
+				@SuppressWarnings("unused")
 				URL u = new URL(url);
 			}
 			catch (MalformedURLException e1)
@@ -2703,6 +2525,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 					{
 						// if URL has "unknown" protocol, check remaider with
 						// "http" protocol and accept input if that validates.
+						@SuppressWarnings("unused")
 						URL test = new URL("http://" + matcher.group(2));
 					}
 					else
@@ -3036,7 +2859,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 		// compute the end to a page size, adjusted for the number of messages available
 		int posEnd = posStart + (pageSize-1);
 		if (posEnd >= numMessages) posEnd = numMessages-1;
-		int numMessagesOnThisPage = (posEnd - posStart) + 1;
 
 		// select the messages on this page
 		for (int i = posStart; i <= posEnd; i++)
@@ -3133,6 +2955,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	* Develop a list of all the site collections that there are to page.
 	* Sort them as appropriate, and apply search criteria.
 	*/
+	@SuppressWarnings("unchecked")
 	protected List<ListItem> readAllResources(SessionState state)
 	{
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
@@ -3167,14 +2990,9 @@ public class FilePickerAction extends PagedResourceHelperAction
 		
 		ContentResourceFilter filter = (ContentResourceFilter) state.getAttribute(STATE_ATTACHMENT_FILTER);
 		
-		// set the sort values
-		String sortedBy = (String) toolSession.getAttribute (STATE_SORT_BY);
-		String sortedAsc = (String) toolSession.getAttribute (STATE_SORT_ASC);
-		
 		// add user's personal workspace
 		User user = UserDirectoryService.getCurrentUser();
 		String userId = user.getId();
-		String userName = user.getDisplayName();
 		String wsId = SiteService.getUserSiteId(userId);
 		String wsCollectionId = contentService.getSiteCollection(wsId);
 		
@@ -3210,19 +3028,19 @@ public class FilePickerAction extends PagedResourceHelperAction
 		 *       would result in too big a display to render in html.
 		 */
 		Map othersites = contentService.getCollectionMap();
-		Iterator siteIt = othersites.keySet().iterator();
+		Iterator<String> siteIt = othersites.keySet().iterator();
 		SortedSet sort = new TreeSet();
 		while(siteIt.hasNext())
 		{
-              String collId = (String) siteIt.next();
+              String collId = siteIt.next();
               String displayName = (String) othersites.get(collId);
               sort.add(displayName + ResourcesAction.DELIM + collId);
 		}
 		
-		Iterator sortIt = sort.iterator();
+		Iterator<String> sortIt = sort.iterator();
 		while(sortIt.hasNext())
 		{
-			String keyvalue = (String) sortIt.next();
+			String keyvalue = sortIt.next();
 			String displayName = keyvalue.substring(0, keyvalue.lastIndexOf(ResourcesAction.DELIM));
 			String collId = keyvalue.substring(keyvalue.lastIndexOf(ResourcesAction.DELIM) + 1);
 			if(! collectionId.equals(collId) && ! wsCollectionId.equals(collId))
@@ -3260,6 +3078,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	/**
 	* Navigate in the resource hireachy
 	*/
+	@SuppressWarnings("unchecked")
 	public void doNavigate ( RunData data )
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
@@ -3337,6 +3156,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	* @param id The message id.
 	* @return The index position in the list of the message with this id, or -1 if not found.
 	*/
+	@SuppressWarnings("unchecked")
 	protected int findResourceInList(List resources, String id)
 	{
 		for (int i = 0; i < resources.size(); i++)
