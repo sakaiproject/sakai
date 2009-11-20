@@ -147,6 +147,98 @@ public class GradebookServiceTest extends GradebookTestBase {
         }
         Assert.assertEquals(asn.getPointsPossible(), new Double(floatingPoints));
     }
+    
+    public void testCreateExternalAssessmentWithCategory() throws Exception {
+        String categoryName = "My favorite category";
+        Long gbId = gradebookManager.getGradebook(GRADEBOOK_UID).getId();
+        Long catId = gradebookManager.createCategory(gbId, categoryName, new Double(0), 0);
+        Assert.assertTrue(gradebookFrameworkService.isGradebookDefined(GRADEBOOK_UID));
+        
+        // Make sure the service knows that the external id has not been defined
+        Assert.assertFalse(gradebookExternalAssessmentService.isExternalAssignmentDefined(GRADEBOOK_UID, EXT_ID_1));
+        
+        gradebookExternalAssessmentService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1, new Double(10), new Date(), "Samigo", new Boolean(false), catId);
+
+        // Make sure the service knows that the external id has been defined
+        Assert.assertTrue(gradebookExternalAssessmentService.isExternalAssignmentDefined(GRADEBOOK_UID, EXT_ID_1));
+
+        // let's retrieve the assignment and double check the category setting
+        // due to security in GradebookService, we need to retrieve all assign and then iterate through to find this one
+        List<Assignment> allAssigns = gradebookManager.getAssignments(gbId);
+        boolean assignFound = false;
+        for (Assignment assign : allAssigns) {
+            if (assign.isExternallyMaintained() && EXT_ID_1.equals(assign.getExternalId())) {
+                assignFound = true;
+                // double check the category
+                if (assign.getCategory() == null || !catId.equals(assign.getCategory().getId())) {
+                    fail("Category was not saved via addExternalAssessment");
+                }
+            }
+        }
+        
+        if (!assignFound) {
+            fail("Could not retrieve newly added external assignment");
+        }
+        
+        // double check that leaving category null leaves category unassigned
+        String externalId2 = "external ID 2";
+        String externalTitle = "Another externally maintained one";
+        gradebookExternalAssessmentService.addExternalAssessment(GRADEBOOK_UID, externalId2, null, externalTitle, new Double(10), new Date(), "Samigo", new Boolean(false), null);
+        // Make sure the service knows that the external id has been defined
+        Assert.assertTrue(gradebookExternalAssessmentService.isExternalAssignmentDefined(GRADEBOOK_UID, externalId2));
+        // let's retrieve the assignment and double check the category setting
+        // due to security in GradebookService, we need to retrieve all assign and then iterate through to find this one
+        allAssigns = gradebookManager.getAssignments(gbId);
+        assignFound = false;
+        for (Assignment assign : allAssigns) {
+            if (assign.isExternallyMaintained() && externalId2.equals(assign.getExternalId())) {
+                assignFound = true;
+                // double check the category
+                if (assign.getCategory() != null) {
+                    fail("Category should be null for external assignment added via addExternalAssessment");
+                }
+            }
+        }
+
+        if (!assignFound) {
+            fail("Could not retrieve newly added external assignment without a category");
+        }
+        
+        // Make sure that internal name conflicts are detected
+        try {
+            gradebookExternalAssessmentService.addExternalAssessment(GRADEBOOK_UID, "A unique external id", null, ASN_1, new Double(10), new Date(), "Samigo", new Boolean(false), catId);
+            fail();
+        } catch (ConflictingAssignmentNameException e) {}
+
+        // Make sure that external name conflicts are detected
+        try {
+            gradebookExternalAssessmentService.addExternalAssessment(GRADEBOOK_UID, "Another unique external id", null, EXT_TITLE_1, new Double(10), new Date(), "Samigo", new Boolean(false), catId);
+            fail();
+        } catch (ConflictingAssignmentNameException e) {}
+
+        // Make sure that external id conflicts are detected
+        try {
+            gradebookExternalAssessmentService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, "A unique title", new Double(10), new Date(), "Samigo", new Boolean(false), catId);
+            fail();
+        } catch (ConflictingExternalIdException e) {}
+
+        // Test a floating value.
+        double floatingPoints = 10.66666;
+        String floatingExtId = "Just another external ID";
+        gradebookExternalAssessmentService.addExternalAssessment(GRADEBOOK_UID, floatingExtId, null, "AFractionalAssessment", new Double(floatingPoints), new Date(), "Samigo", new Boolean(false), catId);
+
+        // Find the assessment and ensure that it has been updated
+        Assignment asn = null;
+        List assignments = gradebookManager.getAssignments(gbId);
+        for(Iterator iter = assignments.iterator(); iter.hasNext();) {
+            Assignment tmp = (Assignment)iter.next();
+            if(tmp.getExternalId() != null && tmp.getExternalId().equals(floatingExtId)) {
+                asn = tmp;
+                break;
+            }
+        }
+        Assert.assertEquals(asn.getPointsPossible(), new Double(floatingPoints));
+    }
 
     public void testModifyExternalAssessment() throws Exception {
         Assert.assertTrue(gradebookFrameworkService.isGradebookDefined(GRADEBOOK_UID));

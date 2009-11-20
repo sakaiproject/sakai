@@ -55,6 +55,7 @@ import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
@@ -994,4 +995,37 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 	    lowestPointsPossible = gradebookService.getLowestPossibleGradeForGbItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat);
 	    assertNull(lowestPointsPossible);
 	}
+	
+	public void testGetCategoryDefinitions() throws Exception {
+	    try {
+	        gradebookService.getCategoryDefinitions(null);
+	        fail("Did not catch null gradebookUid passed to getCategoryDefinitions");
+	    } catch (IllegalArgumentException iae) {}
+	    
+	    authn.setAuthnContext(STUDENT_IN_SECTION_UID1);
+	    try {
+	        gradebookService.getCategoryDefinitions(GRADEBOOK_UID_WITH_CAT);
+            fail("Did not catch student accessing category information");
+        } catch (SecurityException se) {}
+        
+        authn.setAuthnContext(INSTRUCTOR_UID);
+        List<CategoryDefinition> catDefs = gradebookService.getCategoryDefinitions(GRADEBOOK_UID_WITH_CAT);
+        assertEquals(2, catDefs.size());
+        for (CategoryDefinition def : catDefs) {
+            if (def.getId().equals(cat1Id)) {
+                assertEquals(CAT1_NAME, def.getName());
+                assertEquals(0D, def.getWeight());
+            } else if (def.getId().equals(cat2Id)) {
+                assertEquals(CAT2_NAME, def.getName());
+                assertEquals(0D, def.getWeight());
+            } else {
+                fail("Unknown category returned by getCategoryDefs");
+            }
+        }
+        
+        // now try a gradebook w/o categories
+        catDefs = gradebookService.getCategoryDefinitions(GRADEBOOK_UID_NO_CAT);
+        assertEquals(0, catDefs.size());
+	}
+	
 }
