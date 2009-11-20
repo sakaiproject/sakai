@@ -73,8 +73,8 @@
 		         					</t:column>
 		         				</t:dataTable>
 		         				
-		         				<h:commandButton action="#{NewSignupMeetingBean.addRemoveAttachments}" value="#{msgs.add_attachments}" rendered="#{NewSignupMeetingBean.attachmentsEmpty}"/>		
-		         				<h:commandButton action="#{NewSignupMeetingBean.addRemoveAttachments}" value="#{msgs.add_remove_attachments}" rendered="#{!NewSignupMeetingBean.attachmentsEmpty}"/>		         			
+		         				<h:commandButton action="#{NewSignupMeetingBean.addRemoveAttachments}" value="#{msgs.add_attachments}" immediate="true" rendered="#{NewSignupMeetingBean.attachmentsEmpty}"/>		
+		         				<h:commandButton action="#{NewSignupMeetingBean.addRemoveAttachments}" value="#{msgs.add_remove_attachments}" immediate="true" rendered="#{!NewSignupMeetingBean.attachmentsEmpty}"/>		         			
 		         			</h:panelGrid>
 		         			
 		             		<h:panelGroup styleClass="titleText">

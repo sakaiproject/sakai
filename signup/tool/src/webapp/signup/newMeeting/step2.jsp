@@ -173,14 +173,14 @@
 								<h:outputText value="&nbsp;" escape="false"/>
 								<h:outputText value="&nbsp;" escape="false"/>
 								
-								<h:outputText value="#{msgs.event_publish_attendee_name}" styleClass="titleText" escape="false"/>
-								<h:panelGroup styleClass="longtext">
+								<h:outputText value="#{msgs.event_publish_attendee_name}" styleClass="titleText" escape="false" rendered="#{!NewSignupMeetingBean.announcementType}"/>
+								<h:panelGroup styleClass="longtext" rendered="#{!NewSignupMeetingBean.announcementType}">
 									<h:selectBooleanCheckbox value="#{NewSignupMeetingBean.showParticipants}"/>
 									<h:outputText value="#{msgs.event_yes_show_attendee_public}" escape="false"/>
 								</h:panelGroup>
 								
-								<h:outputText value="#{msgs.event_receive_notification}" styleClass="titleText" escape="false"/>
-								<h:panelGroup styleClass="longtext">
+								<h:outputText value="#{msgs.event_receive_notification}" styleClass="titleText" escape="false" rendered="#{!NewSignupMeetingBean.announcementType}"/>
+								<h:panelGroup styleClass="longtext" rendered="#{!NewSignupMeetingBean.announcementType}">
 									<h:selectBooleanCheckbox value="#{NewSignupMeetingBean.receiveEmail}"/>
 									<h:outputText value="#{msgs.event_yes_receive_notification}" escape="false"/>
 								</h:panelGroup>
@@ -198,8 +198,8 @@
 								<h:outputText value="&nbsp;" escape="false"/>
 								<h:outputText value="&nbsp;" escape="false"/>
 								
-								<h:outputText value="#{msgs.event_other_default_setting}" escape="false" styleClass="titleText"/>
-								<h:panelGroup >	
+								<h:outputText value="#{msgs.event_other_default_setting}" escape="false" styleClass="titleText" rendered="#{!NewSignupMeetingBean.announcementType}"/>
+								<h:panelGroup rendered="#{!NewSignupMeetingBean.announcementType}">	
 				   	    				<h:outputLabel  id="imageOpen_otherSetting" style="display:none" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_otherSetting','meeting:imageClose_otherSetting','meeting:otherSetting');">
 					   	    				<h:graphicImage value="/images/open.gif"  alt="open" title="Click to hide details." style="border:none;" styleClass="openCloseImageIcon"/>
 					   	    				<h:outputText value="#{msgs.event_close_other_default_setting}" escape="false" style="vertical-align: top;"/>

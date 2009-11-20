@@ -204,8 +204,8 @@
 								<h:outputText value="#{msgs.event_yes_show_attendee_public}" escape="false"/>
 							</h:panelGroup>
 							
-							<h:outputText value="#{msgs.event_receive_notification}" styleClass="titleText" escape="false"/>
-							<h:panelGroup styleClass="editText">
+							<h:outputText value="#{msgs.event_receive_notification}" styleClass="titleText" escape="false" rendered="#{!EditMeetingSignupMBean.announcementType}"/>
+							<h:panelGroup styleClass="editText" rendered="#{!EditMeetingSignupMBean.announcementType}">
 								<h:selectBooleanCheckbox value="#{EditMeetingSignupMBean.signupMeeting.receiveEmailByOwner}"/>
 								<h:outputText value="#{msgs.event_yes_receive_notification}" escape="false"/>
 							</h:panelGroup>
@@ -223,8 +223,8 @@
 							<h:outputText value="&nbsp;" escape="false"/>
 							<h:outputText value="&nbsp;" escape="false"/>
 							
-							<h:outputText value="#{msgs.event_other_default_setting}" escape="false" styleClass="titleText"/>
-							<h:panelGroup >	
+							<h:outputText value="#{msgs.event_other_default_setting}" escape="false" styleClass="titleText" rendered="#{!EditMeetingSignupMBean.announcementType}"/>
+							<h:panelGroup rendered="#{!EditMeetingSignupMBean.announcementType}">	
 			   	    				<h:outputLabel  id="imageOpen_otherSetting" style="display:none" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_otherSetting','meeting:imageClose_otherSetting','meeting:otherSetting');">
 				   	    				<h:graphicImage value="/images/open.gif"  alt="open" title="Click to hide details." style="border:none;" styleClass="openCloseImageIcon"/>
 				   	    				<h:outputText value="#{msgs.event_close_other_default_setting}" escape="false" style="vertical-align: top;"/>
