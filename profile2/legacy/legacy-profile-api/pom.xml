@@ -14,7 +14,7 @@
 	<name>Profile2 Legacy Bundle API</name>
 	<groupId>org.sakaiproject</groupId>
   	<artifactId>sakai-profile-api</artifactId>
-  	<version>${sakai.version}</version>
+  	<version>${legacy.profile.version}</version>
 
 	<packaging>jar</packaging>
 	

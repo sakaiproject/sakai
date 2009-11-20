@@ -61,7 +61,7 @@
    		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-profile-api</artifactId>
-      		<version>${sakai.version}</version>
+      		<version>${legacy.profile.version}</version>
       		<scope>compile</scope>
       	</dependency>
       	<dependency>
