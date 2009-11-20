@@ -47,6 +47,13 @@ import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.sakaiproject.jsf.model.PhaseAware;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -274,15 +281,25 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
     
     
 	public void writeDataToResponse(List<List<Object>> spreadsheetData, String fileName, HttpServletResponse response) {
-		response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+		String mimetype = "application/vnd.ms-excel;charset=UTF-8";
+		String extension = ".xls";
+		int columns = findColumnSize(spreadsheetData);
+		if (columns >= 255) {
+			// allows for greater than 255 columns - SAK-16560
+			mimetype = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+			extension = ".xlsx";
+			log.info("Samigo export ("+columns+" columns): Using xlsx mimetype: " + mimetype);
+		}
+		response.setContentType(mimetype);
+		
 		String escapedFilename = org.sakaiproject.util.Validator.escapeUrl(fileName);
         HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
 		String userAgent = request.getHeader("User-Agent"); 
 		if (userAgent != null && userAgent.contains("MSIE")) { 
-            response.setHeader("Content-disposition", "attachment; filename=" + escapedFilename + ".xls");
+            response.setHeader("Content-disposition", "attachment; filename=" + escapedFilename + extension);
 		}
 		else {
-        	response.setHeader("Content-disposition", "attachment; filename*=utf-8''" + escapedFilename + ".xls");
+        	response.setHeader("Content-disposition", "attachment; filename*=utf-8''" + escapedFilename + extension);
         }
 		
 		OutputStream out = null;
@@ -301,16 +318,57 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 		}
 	}
 	
-	private HSSFWorkbook getAsWorkbook(List<List<Object>> spreadsheetData) {
-		HSSFWorkbook wb = new HSSFWorkbook();
+	protected Workbook getAsWorkbookTest(List<List<Object>> spreadsheetData) {
+		Workbook wb = new HSSFWorkbook();
+		Sheet sheet = wb.createSheet();
+		Iterator<List<Object>> dataIter = spreadsheetData.iterator();
 
-		HSSFCellStyle boldStyle = wb.createCellStyle();
-		HSSFFont font = wb.createFont();
-		font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+		// By convention, the first list in the list contains column headers.
+		Row headerRow = sheet.createRow((short)0);
+		List<Object> headerList = dataIter.next();
+		for (short i = 0; i < headerList.size(); i++) {
+			createCell(headerRow, i, null).setCellValue(headerList.get(i).toString());
+		}
+		short rowPos = 1;
+		while (dataIter.hasNext()) {
+			List<Object> rowData = dataIter.next();
+			Row row = sheet.createRow(rowPos++);
+			for (short i = 0; i < rowData.size(); i++) {
+				Cell cell = createCell(row, i, null);
+				Object data = rowData.get(i);
+				if (data != null) {
+					if (data instanceof Double) {
+						cell.setCellValue(((Double)data).doubleValue());
+					} 
+					else {
+						cell.setCellValue(data.toString());
+					}
+				}
+			}
+		}
+		return wb;
+	}
+	
+	protected Workbook getAsWorkbook(List<List<Object>> spreadsheetData) {
+        // outer list is rows, inner list is columns (cells in the row)
+	    int columns = findColumnSize(spreadsheetData);
+		Workbook wb;
+		if (columns < 255) {
+            log.info("Samigo export ("+columns+" columns): Using xsl format");
+		    wb = new HSSFWorkbook();
+		} else {
+		    // allows for greater than 255 columns - SAK-16560
+		    log.info("Samigo export ("+columns+" columns): Using xslx format");
+		    wb = new XSSFWorkbook();
+		}
+
+		CellStyle boldStyle = wb.createCellStyle();
+		Font font = wb.createFont();
+		font.setBoldweight(Font.BOLDWEIGHT_BOLD);
 		boldStyle.setFont(font);
-		HSSFCellStyle headerStyle = boldStyle;
+		CellStyle headerStyle = boldStyle;
 		
-		HSSFSheet sheet = null;
+		Sheet sheet = null;
 
 		Iterator<List<Object>> dataIter = spreadsheetData.iterator();
 		
@@ -325,18 +383,24 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 			// By convention, the first list in the list contains column headers.
 			// This should only happen once and usually only in a single-sheet workbook
 			else if (rowData.get(0).toString().equals(HEADER_MARKER)) {
-				HSSFRow headerRow = sheet.createRow(rowPos++);
+			    if (sheet == null) {
+		              sheet = wb.createSheet("responses"); // avoid NPE
+			    }
+				Row headerRow = sheet.createRow(rowPos++);
 				for (short i = 0; i < rowData.size()-1; i++) {
 					createCell(headerRow, i, headerStyle).setCellValue(rowData.get(i+1).toString());
 				}
 			}
 			else {
-				HSSFRow row = sheet.createRow(rowPos++);
+			    if (sheet == null) {
+			        sheet = wb.createSheet("responses"); // avoid NPE
+			    }
+				Row row = sheet.createRow(rowPos++);
 				short colPos = 0;
 				Iterator colIter = rowData.iterator();
 				while (colIter.hasNext()) {
 				//for (short i = 0; i < rowData.size(); i++) {
-					HSSFCell cell = null;
+					Cell cell = null;
 					
 					//Object data = rowData.get(i);
 					Object data = colIter.next();
@@ -350,13 +414,10 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 						else {
 							cell = createCell(row, colPos++, null);
 						}
-						
-						if (cell != null) {
-							if (data instanceof Double) {
-								cell.setCellValue(((Double)data).doubleValue());
-							} else {
-								cell.setCellValue(FormattedText.convertFormattedTextToPlaintext(data.toString()));
-							}
+						if (data instanceof Double) {
+							cell.setCellValue(((Double)data).doubleValue());
+						} else {
+							cell.setCellValue(data.toString());
 						}
 					}
 				}
@@ -367,11 +428,19 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 		return wb;
 	}
 
+	private int findColumnSize(List<List<Object>> spreadsheetData) {
+        int columns = 0; // the largest number of columns required for a row
+	    for (List<Object> list : spreadsheetData) {
+            if (list != null && list.size() > columns) {
+                columns = list.size();
+            }
+        }
+        return columns;
+    }
 	
-	private HSSFCell createCell(HSSFRow row, short column, HSSFCellStyle cellStyle) {
-		HSSFCell cell = row.createCell(column);
-		cell.setEncoding(HSSFCell.ENCODING_UTF_16);
-		
+	private Cell createCell(Row row, short column, CellStyle cellStyle) {
+		Cell cell = row.createCell(column);
+		//cell.setEncoding(HSSFCell.ENCODING_UTF_16);	
 		if (cellStyle != null) {
 			cell.setCellStyle(cellStyle);
 		}
