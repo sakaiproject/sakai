@@ -112,6 +112,7 @@
     	<entitybroker.version>1.3.6</entitybroker.version>
     	<wicket.tinymce.version>1.3-SNAPSHOT</wicket.tinymce.version>
     	<sakai.common.version>1.0.0-beta02-SNAPSHOT</sakai.common.version>
+    	<legacy.profile.version>2.7.0-SNAPSHOT</legacy.profile.version>
     </properties>
     
     <!-- Profile2 related dependencies -->
