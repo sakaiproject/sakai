@@ -13,7 +13,7 @@ import org.sakaiproject.profile2.model.SearchResult;
 /**
  * This is the internal API to be used by the Profile2 tool and entities only. 
  * 
- * DO NOT IMPLEMENT THIS YOURSELF, use the {@link ProfileService} instead
+ * DO NOT IMPLEMENT THIS YOURSELF, use the {@link org.sakaiproject.profile2.service.ProfileService} instead
  * 
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *

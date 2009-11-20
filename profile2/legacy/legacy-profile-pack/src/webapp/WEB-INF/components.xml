@@ -24,6 +24,9 @@
 		        </property>
 		        
 		        <!-- Profile2 additions -->
+		        <property name="profileService">
+		        	<ref bean="org.sakaiproject.profile2.service.ProfileService"/>
+		        </property>
 		        <property name="profileImageService">
 		        	<ref bean="org.sakaiproject.profile2.service.ProfileImageService"/>
 		        </property>

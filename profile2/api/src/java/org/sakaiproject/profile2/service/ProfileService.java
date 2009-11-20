@@ -61,6 +61,20 @@ public interface ProfileService {
 	 */
 	public UserProfile getAcademicUserProfile(String userId);
 	
+	/**
+	 * Get the legacy UserProfile for a user.
+	 * 
+	 * <p>DO NOT USE THIS METHOD. It has been added here to provide support for the legacy API and will be removed
+	 *  when that legacy module is dropped. I've automatically deprecated it.</p>
+	 * <p>You must be logged-in in order to make requests to this method as the content returned will be tailored
+	 * to be visible for the currently logged in user.</p>
+	 * 
+	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
+	 * @return UserProfile for the user, that is visible to the requesting user
+	 * 
+	 * @deprecated This is for the legacy bundle only. DO NOT USE.
+	 */
+	public UserProfile getLegacyUserProfile(String userId);
 	
 	/**
 	 * Get a customised profile for a user. The type must match one of the ProfileConstants.ENTITY_PROFILE_*

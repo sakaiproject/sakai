@@ -228,6 +228,85 @@ public class ProfileServiceImpl implements ProfileService {
 		
 		return userProfile;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public UserProfile getLegacyUserProfile(String userId) {
+
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if(currentUserUuid == null) {
+			throw new SecurityException("Must be logged in.");
+		}
+		
+		String userUuid = sakaiProxy.getUuidForUserId(userId);
+		if(userUuid == null) {
+			log.error("Invalid userId: " + userId);
+			return null;
+		}
+		
+		UserProfile userProfile = null;
+		
+		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
+		if(sakaiPerson == null) {
+			userProfile = getPrototype(userUuid);
+			return userProfile;
+		}
+		
+		userProfile = transformSakaiPersonToUserProfile(sakaiPerson);
+		
+		if(userUuid.equals(currentUserUuid)) {
+			log.debug("userId is current user");
+			return userProfile;
+		}
+		
+		ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(userUuid);
+		ProfilePreferences preferences = profileLogic.getPreferencesRecordForUser(userUuid);
+		boolean friend = profileLogic.isUserXFriendOfUserY(userUuid, currentUserUuid);
+		
+		if(!profileLogic.isUserXBasicInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+			userProfile.setNickname(null);
+			userProfile.setDateOfBirth(null);
+		}
+		
+		if(!profileLogic.isUserXContactInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+			userProfile.setEmail(null);
+			userProfile.setHomepage(null);
+			userProfile.setHomephone(null);
+			userProfile.setWorkphone(null);
+			userProfile.setMobilephone(null);
+			userProfile.setFacsimile(null);
+		}
+		
+		if(!profileLogic.isUserXAcademicInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+			userProfile.setPosition(null);
+			userProfile.setDepartment(null);
+			userProfile.setSchool(null);
+			userProfile.setRoom(null);
+			userProfile.setCourse(null);
+			userProfile.setSubjects(null);
+		}
+		
+		if(!profileLogic.isUserXPersonalInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+			userProfile.setFavouriteBooks(null);
+			userProfile.setFavouriteTvShows(null);
+			userProfile.setFavouriteMovies(null);
+			userProfile.setFavouriteQuotes(null);
+			userProfile.setOtherInformation(null);
+		}
+
+		//unset info that isn't used by the legacy Profile
+		userProfile.setDateOfBirth(null);
+		userProfile.setCourse(null);
+		userProfile.setSubjects(null);
+		userProfile.setFavouriteBooks(null);
+		userProfile.setFavouriteTvShows(null);
+		userProfile.setFavouriteMovies(null);
+		userProfile.setFavouriteQuotes(null);
+		
+		
+		return userProfile;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -722,19 +801,60 @@ public class ProfileServiceImpl implements ProfileService {
 	/**
 	 * This is a helper method to take the values from SakaiPerson and add to UserProfile
 	 * 
-	 * TODO have one of these helpers for each block of info we get from SakaiPerson? is this needed?
+	 * TODO have one of these helpers for each block of info we get from SakaiPerson and abstract methods to use these.
+	 * The blocks have been added below they just need to be used
 	 * 
 	 * @param userProfile
-	 * @param sakaiPerson
+	 * @param sp
 	 */
-	private void addAcademicInfoToProfile(UserProfile userProfile, SakaiPerson sakaiPerson) {
-		userProfile.setDepartment(sakaiPerson.getOrganizationalUnit());
-		userProfile.setPosition(sakaiPerson.getTitle());
-		userProfile.setSchool(sakaiPerson.getCampus());
-		userProfile.setRoom(sakaiPerson.getRoomNumber());
-		userProfile.setCourse(sakaiPerson.getEducationCourse());
-		userProfile.setSubjects(sakaiPerson.getEducationSubjects());
+	private void addAcademicInfoToProfile(UserProfile userProfile, SakaiPerson sp) {
+		userProfile.setDepartment(sp.getOrganizationalUnit());
+		userProfile.setPosition(sp.getTitle());
+		userProfile.setSchool(sp.getCampus());
+		userProfile.setRoom(sp.getRoomNumber());
+		userProfile.setCourse(sp.getEducationCourse());
+		userProfile.setSubjects(sp.getEducationSubjects());
 	}
+	
+	/**
+	 * Helper method to set contact info into profile
+	 * @param userProfile
+	 * @param sp
+	 */
+	private void addContactInfoToProfile(UserProfile userProfile, SakaiPerson sp) {
+		String userUuid = userProfile.getUserUuid();
+		userProfile.setEmail(sakaiProxy.getUserEmail(userUuid));
+		userProfile.setHomepage(sp.getLabeledURI());
+		userProfile.setWorkphone(sp.getTelephoneNumber());
+		userProfile.setHomephone(sp.getHomePhone());
+		userProfile.setMobilephone(sp.getMobile());
+		userProfile.setFacsimile(sp.getFacsimileTelephoneNumber());
+	}
+	
+	/**
+	 * Helper method to set basic info into profile
+	 * @param userProfile
+	 * @param sp
+	 */
+	private void addBasicInfoToProfile(UserProfile userProfile, SakaiPerson sp) {
+		userProfile.setNickname(sp.getNickname());
+		userProfile.setDateOfBirth(sp.getDateOfBirth());
+	}
+	
+	/**
+	 * Helper method to set personal info into profile
+	 * @param userProfile
+	 * @param sp
+	 */
+	private void addPersonalInfoToProfile(UserProfile userProfile, SakaiPerson sp) {
+		userProfile.setFavouriteBooks(sp.getFavouriteBooks());
+		userProfile.setFavouriteTvShows(sp.getFavouriteTvShows());
+		userProfile.setFavouriteMovies(sp.getFavouriteMovies());
+		userProfile.setFavouriteQuotes(sp.getFavouriteQuotes());
+		userProfile.setOtherInformation(sp.getNotes());
+	}
+	
+	
 	
 	/**
 	 * This is a helper method to take care of setting the various relevant properties into a user's profile.

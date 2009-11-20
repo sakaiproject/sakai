@@ -33,18 +33,15 @@ import org.sakaiproject.api.app.profile.Profile;
 import org.sakaiproject.api.app.profile.ProfileManager;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
-import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.app.profile.ProfileImpl;
+import org.sakaiproject.profile2.entity.model.UserProfile;
 import org.sakaiproject.profile2.logic.SakaiProxy;
-import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ResourceWrapper;
 import org.sakaiproject.profile2.service.ProfileImageService;
 import org.sakaiproject.profile2.service.ProfilePrivacyService;
+import org.sakaiproject.profile2.service.ProfileService;
 import org.sakaiproject.profile2.util.ProfileConstants;
-import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
 
 
 public class ProfileManagerImpl implements ProfileManager {
@@ -54,20 +51,13 @@ public class ProfileManagerImpl implements ProfileManager {
 	/**
  	* {@inheritDoc}
  	*/
-	public Profile getUserProfileById(String id){
+	public Profile getUserProfileById(String userId){
 		
-		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(id);
-		if (sakaiPerson == null){
-			return null;
-		}
+		UserProfile userProfile = profileService.getFullUserProfile(userId);
 		
 		//transform the profile
-		Profile profile = transformSakaiPersontoProfile(sakaiPerson);
+		Profile profile = transformUserProfiletoLegacyProfile(userProfile);
 		
-		//get the privacy object for the user
-		//ProfilePrivacy privacy = profilePrivacyService.getProfilePrivacyRecord(id); 
-		
-		//run the privacy check to blank fields
 		
 		//return
 		return profile;
@@ -83,7 +73,7 @@ public class ProfileManagerImpl implements ProfileManager {
 			return false;
 		}
 		
-		//the profile will already be cleaned.
+		//the profile will already be cleaned by the Profile2 Privacy methods.
 		return true;
 	}
 
@@ -97,70 +87,23 @@ public class ProfileManagerImpl implements ProfileManager {
 	/**
  	* {@inheritDoc}
  	*/
-	public byte[] getInstitutionalPhotoByUserId(String userId, boolean viewerHasPermission)
-	{
-		if (log.isDebugEnabled())
-		{
-			log.debug("getInstitutionalPhoto(" + userId + ")");
+	public byte[] getInstitutionalPhotoByUserId(String userId, boolean viewerHasPermission) {
+		
+		if (StringUtils.isBlank(userId)) {
+			throw new IllegalArgumentException("Illegal userId argument passed!");
 		}
-		if (userId == null || userId.length() < 1) throw new IllegalArgumentException("Illegal userId argument passed!");
 
-		/* Profile2 modifications */
 		ResourceWrapper resource = new ResourceWrapper();
 		resource = profileImageService.getProfileImage(userId, ProfileConstants.PROFILE_IMAGE_MAIN);
 		return resource.getBytes();
-		
-		/* Legacy Profile method
-		
-		SakaiPerson sakaiSystemPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getSystemMutableType());
-		SakaiPerson sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
-		Profile profile = null;
-
-		if ((sakaiSystemPerson == null))
-		{
-			try
-			{
-				userDirectoryService.getUser(userId);
-			}
-			catch (UserNotDefinedException unde)
-			{
-				log.warn("User " + userId + " does not exist. ", unde);
-				return null;
-			}
-			sakaiSystemPerson = sakaiPersonManager.create(userId, sakaiPersonManager.getSystemMutableType());
-		}
-		Profile systemProfile = new ProfileImpl(sakaiSystemPerson);
-		
-		// Fetch current users institutional photo for either the user or super user
-		if (getCurrentUserId().equals(userId) || SecurityService.isSuperUser() || viewerHasPermission)
-		{
-			if(log.isDebugEnabled()) log.debug("Official Photo fetched for userId " + userId);
-			return systemProfile.getInstitutionalPicture();	
-		}
-
-		// if the public information && private information is viewable and user uses to display institutional picture id.
-		if (sakaiPerson != null)
-		{
-			profile = new ProfileImpl(sakaiPerson);
-			if (sakaiPerson != null && (profile.getHidePublicInfo() != null)
-					&& (profile.getHidePublicInfo().booleanValue() == false) && profile.getHidePrivateInfo() != null
-					&& profile.getHidePrivateInfo().booleanValue() == false
-					&& profile.isInstitutionalPictureIdPreferred() != null
-					&& profile.isInstitutionalPictureIdPreferred().booleanValue() == true)
-			{
-				if(log.isDebugEnabled()) log.debug("Official Photo fetched for userId " + userId);			
-				return systemProfile.getInstitutionalPicture();				
-			}
-
-		}
-		return null;
-		*/
 		
 	}
 
 	
 	
-	
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public Map<String, Profile> getProfiles(Set<String> userIds) {
 		Map<String, Profile> profiles = new HashMap<String, Profile>();
 		if(userIds == null || userIds.isEmpty()) {
@@ -172,45 +115,45 @@ public class ProfileManagerImpl implements ProfileManager {
 			profiles.put(userId, getUserProfileById(userId));
 		}
 		
-		if(log.isDebugEnabled()) log.debug("Returning profiles for " + profiles.keySet().size() + " users");
 		return profiles;
 	}
 	
 	
 	/**
-	 * Convenience method to map a SakaiPerson object onto a Profile
+	 * Convenience method to map a UserProfile object onto a legacy Profile object
 	 * 
 	 * @param sp 		input SakaiPerson
 	 * @return			returns a Profile representation of the SakaiPerson object
 	 */
-	private Profile transformSakaiPersontoProfile(SakaiPerson sp) {
+	private Profile transformUserProfiletoLegacyProfile(UserProfile up) {
 	
-		String userUuid = sp.getAgentUuid();
+		String userUuid = up.getUserUuid();
 		
 		Profile p = new ProfileImpl();
 		
 		//transform the fields
-		p.setUserId(sp.getAgentUuid());
-		p.setNickName(sp.getNickname());
+		p.setUserId(userUuid);
+		p.setNickName(up.getNickname());
 		p.setFirstName(sakaiProxy.getUserFirstName(userUuid));
 		p.setLastName(sakaiProxy.getUserLastName(userUuid));
 		p.setEmail(sakaiProxy.getUserEmail(userUuid));
-		p.setHomepage(sp.getLabeledURI());
-		p.setHomePhone(sp.getHomePhone());
-		p.setWorkPhone(sp.getTelephoneNumber());
-		p.setDepartment(sp.getOrganizationalUnit());
-		p.setPosition(sp.getTitle());
-		p.setSchool(sp.getCampus());
-		p.setRoom(sp.getRoomNumber());
-		p.setOtherInformation(sp.getNotes());
+		p.setHomepage(up.getHomepage());
+		p.setHomePhone(up.getHomephone());
+		p.setWorkPhone(up.getWorkphone());
+		p.setDepartment(up.getDepartment());
+		p.setPosition(up.getPosition());
+		p.setSchool(up.getSchool());
+		p.setRoom(up.getRoom());
+		p.setOtherInformation(up.getOtherInformation());
 		
 		//Set the defaults for public and private info. These are not used, stricter privacy settings from Profile2 are instead.
 		//However these need to be set so Roster doesn't barf.
 		p.setHidePrivateInfo(Boolean.valueOf(false));
 		p.setHidePublicInfo(Boolean.valueOf(false));
 		
-		//set default for this so it uses the value from the byte[] it will look up
-		p.setInstitutionalPictureIdPreferred(Boolean.valueOf(false));
+		//set this to true so we only ever use the byte[] version of the image. profileImageService always puts the correct image
+		//in here, it doesn't matter if image type is set to upload or url.
+		p.setInstitutionalPictureIdPreferred(Boolean.valueOf(true));
 		
 		return p;
 	}
@@ -229,11 +172,11 @@ public class ProfileManagerImpl implements ProfileManager {
 	
 	
 	public void init(){
-		log.info("init()");
+		log.info("Legacy ProfileManager: init()");
 	}
 
 	public void destroy(){
-		log.debug("destroy()");
+		log.debug("Legacy ProfileManager: destroy()");
 	}
 	
 	private ServerConfigurationService serverConfigurationService;
@@ -249,6 +192,11 @@ public class ProfileManagerImpl implements ProfileManager {
 	private UserDirectoryService userDirectoryService;
 	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
 		this.userDirectoryService = userDirectoryService;
+	}
+	
+	private ProfileService profileService;
+	public void setProfileService(ProfileService profileService) {
+		this.profileService = profileService;
 	}
 	
 	private ProfileImageService profileImageService;
