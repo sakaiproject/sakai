@@ -125,8 +125,8 @@ public class ForumsEmailService {
 					new Object[]{ServerConfigurationService.getString("serverName", "localhost")});
 			log.info(fromEmailAddress);
 			
-			String subject = DiscussionForumTool
-					.getResourceBundleString("email.subject");
+			String subject = DiscussionForumTool.getResourceBundleString("email.subject", 
+					new Object[]{fromName, reply.getAuthor()});
 
 			InternetAddress fromIA = new InternetAddress(fromEmailAddress,
 					fromName);
