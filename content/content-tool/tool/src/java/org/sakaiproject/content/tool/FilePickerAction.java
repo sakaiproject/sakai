@@ -1292,15 +1292,18 @@ public class FilePickerAction extends PagedResourceHelperAction
 		else if (fileitem.getFileName().length() > 0)
 		{
 			String filename = Validator.getFileName(fileitem.getFileName());
-			byte[] bytes = fileitem.get();
+			InputStream fileContentStream = fileitem.getInputStream();
+			
+			// Store contentLength as long for future-proofing, though in many cases this
+			// may simply be -1 (unknown), so the length check is of limited use
+			long contentLength = data.getRequest().getContentLength();
 			String contentType = fileitem.getContentType();
 
-			if(bytes.length >= max_bytes)
+			if(contentLength >= max_bytes)
 			{
 				addAlert(state, trb.getFormattedMessage("size.exceeded", new Object[]{ max_file_size_mb }));
-				// addAlert(state, hrb.getString("size") + " " + max_file_size_mb + "MB " + hrb.getString("exceeded2"));
 			}
-			else if(bytes.length > 0)
+			else if(fileContentStream != null)
 			{
 				// we just want the file name part - strip off any drive and path stuff
 				String name = Validator.getFileName(filename);
@@ -1326,7 +1329,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 					}
 
 					enableSecurityAdvisor();
-					ContentResource attachment = contentService.addAttachmentResource(resourceId, siteId, toolName, contentType, bytes, props);
+					ContentResource attachment = contentService.addAttachmentResource(resourceId, siteId, toolName, contentType, fileContentStream, props);
 					
 					ContentResourceFilter filter = (ContentResourceFilter) state.getAttribute(STATE_ATTACHMENT_FILTER);
 					if(filter == null || filter.allowSelect(attachment))
