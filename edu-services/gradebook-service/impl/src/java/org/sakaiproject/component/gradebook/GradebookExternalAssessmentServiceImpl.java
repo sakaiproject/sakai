@@ -40,8 +40,10 @@ import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameExcept
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.service.gradebook.shared.InvalidCategoryException;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
+import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -420,9 +422,19 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
         	}
         });
 	}
-
+	
+	/**
+	 * Wrapper created when category was added for assignments tool
+	 */
 	public void addExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl, final String title, final Double points, 
-		final Date dueDate, final String externalServiceDescription, final Boolean ungraded) 
+			final Date dueDate, final String externalServiceDescription, final Boolean ungraded) 
+			throws GradebookNotFoundException, ConflictingAssignmentNameException, ConflictingExternalIdException, AssignmentHasIllegalPointsException
+	{
+		addExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate, externalServiceDescription, ungraded, null);
+	}
+	
+	public void addExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl, final String title, final Double points, 
+		final Date dueDate, final String externalServiceDescription, final Boolean ungraded, final Long categoryId) 
 		throws GradebookNotFoundException, ConflictingAssignmentNameException, ConflictingExternalIdException, AssignmentHasIllegalPointsException
 	{
 		// Ensure that the required strings are not empty
@@ -457,6 +469,17 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 
 				// Get the gradebook
 				Gradebook gradebook = getGradebook(gradebookUid);
+				
+				// if a category was indicated, double check that it is valid
+				Category persistedCategory = null;
+				if (categoryId != null) {
+				    persistedCategory = getCategory(categoryId);
+				    if (persistedCategory == null || persistedCategory.isRemoved() ||
+				            !persistedCategory.getGradebook().getId().equals(gradebook.getId())) {
+				        throw new InvalidCategoryException("The category with id " + categoryId + 
+				                " is not valid for gradebook " + gradebook.getUid());
+				    }
+				}
 
 				// Create the external assignment
 				Assignment asn = new Assignment(gradebook, title, points, dueDate);
@@ -465,6 +488,9 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 				asn.setExternalInstructorLink(externalUrl);
 				asn.setExternalStudentLink(externalUrl);
 				asn.setExternalAppName(externalServiceDescription);
+				if (persistedCategory != null) { 
+					asn.setCategory(persistedCategory);
+				}
 				//set released to be true to support selective release
 				asn.setReleased(true);
 				if(ungraded != null)

@@ -84,7 +84,31 @@ public interface GradebookExternalAssessmentService {
 			String title, Double points, Date dueDate, String externalServiceDescription, Boolean ungraded)
             throws GradebookNotFoundException, ConflictingAssignmentNameException,
             ConflictingExternalIdException, AssignmentHasIllegalPointsException;
-
+	
+	/**
+	 * This method is identical to {@link #addExternalAssessment(String, String, String, String, Double, Date, String, Boolean)} but
+	 * allows you to also specify the associated Category for this assignment. If the gradebook is set up for categories and
+	 * categoryId is null, assignment category will be unassigned
+	 * @param gradebookUid
+	 * @param externalId
+	 * @param externalUrl
+	 * @param title
+	 * @param points
+	 * @param dueDate
+	 * @param externalServiceDescription
+	 * @param ungraded
+	 * @param categoryId
+	 * @throws GradebookNotFoundException
+	 * @throws ConflictingAssignmentNameException
+	 * @throws ConflictingExternalIdException
+	 * @throws AssignmentHasIllegalPointsException
+	 * @throws InvalidCategoryException
+	 */
+    public void addExternalAssessment(String gradebookUid, String externalId, String externalUrl,
+            String title, Double points, Date dueDate, String externalServiceDescription, Boolean ungraded, Long categoryId)
+            throws GradebookNotFoundException, ConflictingAssignmentNameException,
+            ConflictingExternalIdException, AssignmentHasIllegalPointsException, InvalidCategoryException;
+	
 		/**
 		 * @deprecated Replaced by
 		 *		{@link updateExternalAssessment(String, String, String, String, Double, Date, Boolean)}

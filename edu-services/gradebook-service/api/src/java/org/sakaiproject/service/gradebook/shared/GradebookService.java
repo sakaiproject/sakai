@@ -340,13 +340,25 @@ public interface GradebookService {
      */
     public void removeAssignment(Long assignmentId) throws StaleObjectModificationException;
     
-    /**method to get all categories for a gradebook
-    *
-    * @param gradebookId
-    * @return List of categories
-    * @throws HibernateException
-    */
+    /**method to get all categories for a gradebook. This method cannot be used outside
+     * of the gradebook because it returns the org.sakaiproject.tool.gradebook.Category object.
+     * If you require info on the categories from a consumer outside the gradebook, use 
+     * {@link #getCategoryDefinitions(String)}
+     *
+     * @param gradebookId
+     * @return List of categories
+     * @throws HibernateException
+     */
     public List getCategories(final Long gradebookId);
+    
+    /**
+	 * 
+	 * @param gradebookUid
+	 * @return {@link CategoryDefinition}s for the categories defined for the given gradebook.
+	 * Returns an empty list if the gradebook does not have categories.
+	 * @throws GradebookNotFoundException
+	 */
+	public List<CategoryDefinition> getCategoryDefinitions(String gradebookUid);
     
     /**
      * remove category from gradebook

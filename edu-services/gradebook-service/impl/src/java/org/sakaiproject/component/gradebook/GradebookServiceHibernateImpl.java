@@ -44,6 +44,7 @@ import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
@@ -2585,5 +2586,38 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	    }
 	    
 	    return lowestPossibleGrade;
+	}
+	
+	public List<CategoryDefinition> getCategoryDefinitions(String gradebookUid) {
+	    if (gradebookUid == null) {
+	        throw new IllegalArgumentException("Null gradebookUid passed to getCategoryDefinitions");
+	    }
+
+	    if (!isUserAbleToViewAssignments(gradebookUid)) {
+	        log.warn("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to retrieve all categories without permission");
+	        throw new SecurityException("You do not have permission to perform this operation");
+	    }
+
+	    List<CategoryDefinition> categoryDefList = new ArrayList<CategoryDefinition>();
+
+	    List<Category> gbCategories = getCategories(getGradebook(gradebookUid).getId());
+	    if (gbCategories != null) {
+	        for (Category category : gbCategories) {
+	            categoryDefList.add(getCategoryDefinition(category));
+	        }
+	    }
+
+	    return categoryDefList;
+	}
+
+	private CategoryDefinition getCategoryDefinition(Category category) {
+	    CategoryDefinition categoryDef = new CategoryDefinition();
+	    if (category != null) {
+	        categoryDef.setId(category.getId());
+	        categoryDef.setName(category.getName());
+	        categoryDef.setWeight(category.getWeight());
+	    }
+
+	    return categoryDef;
 	}
 }
