@@ -233,6 +233,7 @@
 	    <module>tool</module>
 	    <module>assembly</module>
 	    <module>legacy</module>
+	    <module>deploy</module>
 	</modules>
        
     <profiles>
