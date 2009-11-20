@@ -1317,7 +1317,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	/**
 	 * @param data
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "deprecation" })
 	public void doAttachurl(RunData data)
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
@@ -1649,8 +1649,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 				ResourcePropertiesEdit newprops = contentService.newResourceProperties();
 				newprops.set(props);
 
-				// TODO: should use stream instead of byte array here
-				byte[] bytes = resource.getContent();
+				InputStream contentStream = resource.streamContent();
 				String contentType = resource.getContentType();
 				String filename = Validator.getFileName(itemId);
 				String resourceId = Validator.escapeResourceName(filename);
@@ -1663,7 +1662,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 				}
 			
 				enableSecurityAdvisor();
-				attachment = contentService.addAttachmentResource(resourceId, siteId, toolName, contentType, bytes, props);
+				attachment = contentService.addAttachmentResource(resourceId, siteId, toolName, contentType, contentStream, props);
 
 				String displayName = newprops.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
 				String containerId = contentService.getContainingCollectionId (attachment.getId());
