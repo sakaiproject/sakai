@@ -127,11 +127,6 @@ public class BeginDeliveryActionListener implements ActionListener
     
     // populate backing bean from published assessment
     populateBeanFromPub(delivery, pub);
-
-    // add in course management system info
-    //CourseManagementBean course = (CourseManagementBean) ContextUtil.lookupBean("course");
-    populateBeanFromCourse(pub, delivery);  //, course);
-
   }
 
   private PublishedAssessmentFacade lookupPublishedAssessment(String id,
@@ -178,22 +173,6 @@ public class BeginDeliveryActionListener implements ActionListener
       delivery.setFeedbackOnDate(true); 
     }
     delivery.setAttachmentList(pubAssessment.getAssessmentAttachmentList());
-  }
-
-  /**
-   * This takes the course information and puts it in the delivery
-   * bean.  Just getting course and instructor for now, could be extended later.
-   * @param delivery the delivery bean
-   * @param course the course info bean
-   */
-  private void populateBeanFromCourse(PublishedAssessmentIfc pub, DeliveryBean delivery)
-  //    CourseManagementBean course)
-  {
-    PublishedAssessmentService service = new PublishedAssessmentService();
-    String ownerSiteId = service.getPublishedAssessmentOwner(pub.getPublishedAssessmentId());
-    String ownerSiteName = AgentFacade.getSiteName(ownerSiteId);
-    delivery.setCourseName(ownerSiteName);
-    delivery.setInstructorName(AgentFacade.getDisplayNameByAgentId(pub.getCreatedBy()));
   }
 
   /**
