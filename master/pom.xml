@@ -179,7 +179,7 @@
             <snapshots> <enabled>false</enabled> </snapshots>
             </repository>
         -->
-        
+        <!--
         <repository>
             <id>apache-repo</id>
             <name>apache-repo</name>
@@ -189,7 +189,7 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-        
+        --> 
     </repositories>
     
     <dependencyManagement>
