@@ -31,6 +31,7 @@ import org.sakaiproject.profile2.model.SearchResult;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.tinyurl.api.TinyUrlService;
+import org.sakaiproject.user.api.User;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -1832,7 +1833,19 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		//otherwise create SearchResult record and add to list
 		for(Iterator<String> i = userUuids.iterator(); i.hasNext();){
 			String userUuid = (String)i.next();
-				
+			
+			//get User object
+			User u = sakaiProxy.getUserQuietly(userUuid);
+			
+			//if they don't exist, skip
+			if(u == null) {
+				continue;
+			}
+			
+			//get User details
+			String displayName = u.getDisplayName();
+			String userType = u.getType();
+			
 			//friend?
 			boolean friend = isUserXFriendOfUserY(userUuid, userId);
 			
@@ -1871,6 +1884,8 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 			//make object
 			SearchResult searchResult = new SearchResult(
 					userUuid,
+					displayName,
+					userType,
 					friend,
 					profileImageAllowed,
 					statusVisible,

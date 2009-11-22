@@ -6,6 +6,7 @@ import java.util.List;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.model.ResourceWrapper;
 import org.sakaiproject.profile2.service.ProfileService;
+import org.sakaiproject.user.api.User;
 /**
  * This is a helper API used by the Profile2 tool and entities only.
  * 
@@ -85,10 +86,27 @@ public interface SakaiProxy {
 	public boolean isSuperUser();
 	
 	/**
+	 * Get the type of this user's account
+	 * @param userId
+	 * @return
+	 */
+	public String getUserType(String userId);
+	
+	/**
+	 * Get the User object for the given userId.
+	 * <p>This will not log errors so that we can quietly use it to check if a User exists for a given profile,
+	 *  ie in a search result, for example.</p>
+	 * @param userId
+	 * @return
+	 */
+	public User getUserQuietly(String userId);
+	
+	/**
 	 * Get the title of the current tool
 	 * @return
 	 */
 	public String getCurrentToolTitle();
+
 	
 	/**
 	 * Get a SakaiPerson for a user

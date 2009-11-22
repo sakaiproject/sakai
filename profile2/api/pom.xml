@@ -52,9 +52,14 @@
 	        	</file>
 	      	</activation>
             <!-- Sakai 2.5.x specific dependencies -->
-			<dependencies>
+           	<dependencies>
+            	<dependency>
+					<groupId>org.sakaiproject</groupId>
+					<artifactId>sakai-user-api</artifactId>
+					<scope>provided</scope>
+		    	</dependency>
+		    </dependencies>
 				
-			</dependencies>
 		</profile>
         <profile>
             <id>K1</id>
@@ -65,7 +70,10 @@
 	      	</activation>
             <!-- Sakai 2.6+ specific dependencies -->
             <dependencies>
-		        
+		        <dependency>
+		            <groupId>org.sakaiproject.kernel</groupId>
+		            <artifactId>sakai-kernel-api</artifactId>
+		        </dependency>
 			</dependencies> 
         </profile>
     </profiles>

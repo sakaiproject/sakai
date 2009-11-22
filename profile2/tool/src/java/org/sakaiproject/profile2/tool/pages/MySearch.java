@@ -168,11 +168,9 @@ public class MySearch extends BasePage {
 		    	//this contains info like if they are a friend and if their profile is visible etc
 		    	SearchResult searchResult = (SearchResult)item.getModelObject();
 		    	
-		    	//get userUuid
+		    	//get basic values
 		    	final String userUuid = searchResult.getUserUuid();
-		    		
-		    	//setup basic values
-		    	String displayName = sakaiProxy.getUserDisplayName(userUuid);
+		    	final String displayName = searchResult.getDisplayName();
 				
 				//image
 				item.add(new ProfileImageRenderer("result-photo", userUuid, searchResult.isProfileImageAllowed(), ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false));

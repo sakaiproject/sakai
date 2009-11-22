@@ -185,6 +185,33 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
  	* {@inheritDoc}
  	*/
+	public String getUserType(String userId) {
+		String type = null;
+		try {
+			type = userDirectoryService.getUser(userId).getType();
+		} catch (UserNotDefinedException e) {
+			log.info("User with eid: " + userId + " does not exist : " + e.getClass() + " : " + e.getMessage());
+		}
+		return type;
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public User getUserQuietly(String userId) {
+		User u = null;
+		try {
+			u = userDirectoryService.getUser(userId);
+		} catch (UserNotDefinedException e) {
+			//carry on, no log output. see javadoc for reason.
+		}
+		return u;
+	}
+
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public String getCurrentToolTitle() {
 		return toolManager.getCurrentTool().getTitle();
 	}
