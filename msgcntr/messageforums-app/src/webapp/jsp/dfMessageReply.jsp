@@ -106,7 +106,7 @@
 	   			     <h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStar"/>
 					<h:outputText value="#{msgs.cdfm_reply_title}" />
 				</h:outputLabel>
-					<h:inputText value="#{ForumTool.composeTitle}" style="width: 30em;" required="true" id="df_compose_title">
+					<h:inputText value="#{ForumTool.composeTitle}" style="width: 30em;" maxlength="250" required="true" id="df_compose_title">
 					 <f:validateLength minimum="1" maximum="255"/>
 				   </h:inputText>
  					  </h:panelGroup>

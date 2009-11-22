@@ -240,8 +240,8 @@ function mySetMainFrameHeightViewCell(id)
 			
 		  	<f:verbatim>
 	 			<div class="hideInfo" style="display: none;"> 			
-	 		</f:verbatim>
-				<h:outputText styleClass="information" value="#{msgs.syn_hide_info}"/>
+	 		</f:verbatim> 
+				<h:outputText styleClass="information" value="#{msgs.syn_hide_info}"/><h:outputText styleClass="highlight" value="#{msgs.syn_hide_info_hidden_msg}"/>
 		  	<f:verbatim>
 		  		</div>
 		  	</f:verbatim>

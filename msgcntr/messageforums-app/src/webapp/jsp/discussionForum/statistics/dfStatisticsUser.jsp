@@ -8,6 +8,7 @@
 <f:view>
   <sakai:view>
   	<h:form id="dfStatisticsForm">
+		<!--discussionForum/statistics/dfStatisticsUser.jsp-->
   	       		<script type="text/javascript" src="/library/js/jquery.js"></script>
        		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
   	
@@ -45,18 +46,19 @@
 
         </h:panelGrid>
 
-	  	<h:panelGrid columns="2" summary="layout" width="100%">
+	  	<h:panelGrid columns="2" summary="layout" width="100%" style="margin:0">
    			<h:panelGroup>
-    			<p class="textPanel">
+    			<f:verbatim><h4 style="margin:0;padding:0"></f:verbatim>
 		   		<h:outputText value="#{msgs.stat_forum_authored}" />
-			</p>
+    			<f:verbatim></h4></f:verbatim>
 			</h:panelGroup>
 			<h:panelGroup styleClass="itemNav specialLink">
-				<h:commandLink action="#{ForumTool.processActionShowFullTextForAll}" value="#{msgs.stat_show_all}" title=" #{msgs.stat_show_all}"/>	
+				<h:commandLink action="#{ForumTool.processActionShowFullTextForAll}" value="#{msgs.stat_show_all}" title=" #{msgs.stat_show_all}" rendered="#{!empty mfStatisticsBean.userAuthoredStatistics}"/>	
 			</h:panelGroup>
 		</h:panelGrid>
-		
-  		<h:dataTable styleClass="listHier lines nolines" id="members" value="#{mfStatisticsBean.userAuthoredStatistics}" var="stat" rendered="true"
+		<h:outputText rendered="#{empty mfStatisticsBean.userAuthoredStatistics}" value="#{msgs.stat_no_authored_message}" styleClass="instruction" style="display:block"/>
+
+  		<h:dataTable styleClass="listHier lines nolines" id="members" value="#{mfStatisticsBean.userAuthoredStatistics}" var="stat" rendered="#{!empty mfStatisticsBean.userAuthoredStatistics}"
    	 		columnClasses="bogus,bogus,bogus,bogus,bogus" cellpadding="0" cellspacing="0">
   			<h:column>
   				<f:facet name="header"> 				
@@ -114,12 +116,11 @@
   			</h:column>
   		</h:dataTable>
   		
-  		<br /><br />
-  		
-  		<p class="textPanel">
+  			<f:verbatim><h4></f:verbatim>
 		   <h:outputText value="#{msgs.stat_forum_read}" />
-		</p>
-  		<h:dataTable styleClass="listHier lines nolines" id="members2" value="#{mfStatisticsBean.userReadStatistics}" var="stat2" rendered="true"
+  			<f:verbatim></h4></f:verbatim>
+		<h:outputText rendered="#{empty mfStatisticsBean.userReadStatistics}" value="#{msgs.stat_no_read_message}" styleClass="instruction" style="display:block"/>
+  		<h:dataTable styleClass="listHier lines nolines" id="members2" value="#{mfStatisticsBean.userReadStatistics}" var="stat2" rendered="#{!empty mfStatisticsBean.userReadStatistics}"
    	 	 columnClasses="bogus,bogus,bogus,bogus,bogus,bogus" cellpadding="0" cellspacing="0">
   			<h:column>
   				<f:facet name="header">

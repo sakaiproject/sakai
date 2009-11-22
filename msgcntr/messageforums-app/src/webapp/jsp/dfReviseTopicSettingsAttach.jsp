@@ -30,7 +30,7 @@
 					<h:outputText id="req_star"  value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline" style="padding-right:3px"/>
 					<h:outputText value="#{msgs.cdfm_topic_title}" />
 				</h:outputLabel>	 
-				<h:inputText size="50" id="topic_title"  value="#{ForumTool.selectedTopic.topic.title}">
+				<h:inputText size="50" id="topic_title"  maxlength="250" value="#{ForumTool.selectedTopic.topic.title}">
 					<f:validateLength minimum="1" maximum="255"/>
 				</h:inputText>
 			</h:panelGroup>	

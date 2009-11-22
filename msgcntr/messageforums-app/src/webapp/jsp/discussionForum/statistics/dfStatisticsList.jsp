@@ -8,7 +8,8 @@
 <f:view>
   <sakai:view>
   	<h:form id="dfStatisticsForm">
-  		       		<script type="text/javascript" src="/library/js/jquery.js"></script>
+<!-- discussionForum/statistics/dfStatisticsList.jsp-->
+       		<script type="text/javascript" src="/library/js/jquery.js"></script>
        		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
   		<h:panelGrid columns="1" summary="layout" width="100%" styleClass="navPanel  specialLink">
           <h:panelGroup>
@@ -23,7 +24,7 @@
           </h:panelGroup>
         </h:panelGrid>
   	
-  	
+
   		<h:dataTable styleClass="listHier lines nolines" id="members" value="#{mfStatisticsBean.allUserStatistics}" var="stat" rendered="true"
    	 		columnClasses="specialLink,bogus,bogus,bogus,bogus" cellpadding="0" cellspacing="0">
   			<h:column>
@@ -36,6 +37,7 @@
   				</f:facet>
   				<h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true" title=" #{stat.siteUser}">
   				    <f:param value="#{stat.siteUserId}" name="siteUserId"/>
+  				    <f:param value="#{stat.siteUser}" name="siteUser"/>
 				   	<h:outputText value="#{stat.siteUser}" />
 	          	</h:commandLink>
 			</h:column>

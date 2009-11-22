@@ -8,13 +8,17 @@
 <f:view>
   <sakai:view>
   
-  <script language="JavaScript">
-	function printFriendly(url) {
-		window.open(url,'mywindow','width=960,height=1100'); 		
-	}
-</script>
+  	<script language="JavaScript">
+		function printFriendly(url) {
+			printwindow=window.open(url,'mywindow','width=960,height=1100,resizable=yes,scrollbars=yes,');	
+			if (window.focus) {
+				printwindow.focus();
+			}
+		}
+	</script>
  
   	<h:form id="dfStatisticsForm">
+		<!-- discussionForum/statistics/dfStatisticsFullTextForOne.jsp -->
   	       	<script type="text/javascript" src="/library/js/jquery.js"></script>
        		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
   	
@@ -43,21 +47,33 @@
   
   		<h:dataTable id="subjectBody" value="#{mfStatisticsBean.userSubjectMsgBody}" var="stat" styleClass="listHier" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">	
    			<h:column rendered="#{!stat.msgDeleted}">
-   				<f:verbatim><div class="hierItemBlock"></f:verbatim>
-				<f:verbatim><h4 class="textPanelHeader"></f:verbatim>
-				<f:verbatim><div class="specialLink" style="width:65%;float:left;text-align:left"></f:verbatim>
 				<h:panelGroup>
-					<h:outputText value="#{stat.forumTitle}" />
-					 <f:verbatim><h:outputText value="/" /></f:verbatim>
-					<h:outputText value="#{stat.topicTitle}" />
-					 <f:verbatim><h:outputText value="/" /></f:verbatim>
-					<h:outputText  value= "#{stat.forumSubject} " />
-					<h:outputText value="#{stat.forumDate}">
-						<f:convertDateTime pattern="#{msgs.date_format_paren}" />
-					</h:outputText>
-					<h:outputText value="<br />" escape="false" rendered="#{!empty stat.decoAttachmentsList}" />
-					<h:panelGroup rendered="#{!empty stat.decoAttachmentsList}">
-						<h:dataTable value="#{stat.decoAttachmentsList}" var="eachAttach" styleClass="attachListJSF" rendered="#{!empty stat.decoAttachmentsList}">
+					<f:verbatim><div style="border-bottom:1px solid #ccc;padding-bottom:5px;height:100%;overflow:hidden"></f:verbatim>
+						<f:verbatim><p style="width:80%;float:left;margin:0;padding:0;font-size:110%;color:#000;font-weight:bold"></f:verbatim>
+							<h:outputText value="#{stat.forumTitle}" />
+							 <f:verbatim><h:outputText value="/" /></f:verbatim>
+							<h:outputText value="#{stat.topicTitle}" />
+							 <f:verbatim><h:outputText value="/" /></f:verbatim>
+							<h:outputText  value= "#{stat.forumSubject} " />
+							<h:outputText value="#{stat.forumDate}">
+								<f:convertDateTime pattern="#{msgs.date_format_paren}" />
+							</h:outputText>
+						<f:verbatim></p></f:verbatim>						
+						<h:panelGroup style="display:block;float:right;width:15%;text-align:right;font-weight:bold">
+							<h:commandLink action="#{ForumTool.processActionDisplayInThread}" title=" #{msgs.stat_display_in_thread}" >
+								<f:param value="#{stat.forumId}" name="forumId"/>
+		  				  		<f:param value="#{stat.topicId}" name="topicId"/>
+		  				  		<f:param value="#{stat.msgId}" name="msgId"/>
+								<h:outputText value="#{msgs.stat_display_in_thread}" />
+							</h:commandLink>
+						</h:panelGroup>
+					<f:verbatim></div></f:verbatim>						
+				</h:panelGroup>
+			
+			
+				<mf:htmlShowArea value="#{stat.message}" hideBorder="true" />
+				<h:panelGroup rendered="#{!empty stat.decoAttachmentsList}" style="display:block" styleClass="indnt1">
+					<h:dataTable value="#{stat.decoAttachmentsList}" var="eachAttach" styleClass="attachListJSF" rendered="#{!empty stat.decoAttachmentsList}">
 						<h:column rendered="#{!empty stat.decoAttachmentsList}">
 							<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>		
 							<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />							
@@ -65,26 +81,8 @@
 								<h:outputText value="#{eachAttach.attachment.attachmentName}" />
 							</h:outputLink>								
 						</h:column>
-						</h:dataTable>
+					</h:dataTable>
 				</h:panelGroup>
-				<f:verbatim></div ></f:verbatim>
-				<f:verbatim><div style="width:30%;float:right;text-align:right"	class="specialLink"></f:verbatim>
-				</h:panelGroup>
-			
-				<h:panelGroup>
-					<h:commandLink action="#{ForumTool.processActionDisplayInThread}" title=" #{msgs.stat_display_in_thread}" >
-						<f:param value="#{stat.forumId}" name="forumId"/>
-  				  		<f:param value="#{stat.topicId}" name="topicId"/>
-  				  		<f:param value="#{stat.msgId}" name="msgId"/>
-						<h:outputText value="#{msgs.stat_display_in_thread}" />
-					</h:commandLink>
-				</h:panelGroup>
-			
-				<f:verbatim></div ></f:verbatim>
-				<f:verbatim><div style="clear:both;height:.1em;width:100%;"></div></f:verbatim>
-				<f:verbatim></h4></f:verbatim>
-				<mf:htmlShowArea value="#{stat.message}" hideBorder="true" />
-				<f:verbatim></div></f:verbatim>
   			</h:column>
   			
   			<h:column rendered="#{stat.msgDeleted}">

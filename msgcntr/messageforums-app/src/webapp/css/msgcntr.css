@@ -201,7 +201,7 @@
 	color:#ccc;
 	text-align: left;
 	white-space: nowrap;
-	font-size: .87em;
+	font-size: .95em;
 }
 .otherActions a{
 	
@@ -260,7 +260,22 @@ table.messageActions td{
 	margin: 0 .3em 0 0;
 }
 .messageActions a:hover{
-	border: 1px solid #aaa  !important;
+	border: 1px solid #555  !important;
+	text-decoration: none !important;
+}
+#permalinkHolder{
+	border:1px solid #ccc;
+	display:none;
+	background:#ffe;
+	position:absolute;
+	padding:5px;
+}
+
+#permalinkHolder a{
+	font-weight:bold;
+	top:0;right:4px;
+	outline:none;padding:0;
+	display:block;position:absolute;
 }
 .messageActions td.otherOtherActions {
 	/*rightmost column of single message action links - not used*/
@@ -400,9 +415,19 @@ table.discTria:hover{
 	padding: .5em;
 	font-size: 93%;
 	font-family: Georgia,"Times New Roman",Times,serif;
+	line-height:1.5em;
 }
 .printTable td{
 }
+
+.printBlock .textPanel a{
+		
+}
+.printBlock .textPanel  a:after{
+	content: " (" attr(href) ")";
+}
+
+
 .printTable td .title{
 	font-weight: bold;
 }
@@ -435,7 +460,7 @@ table.discTria:hover{
 	background: #ffe;
 }
 .messageMetadata{
-	padding:1px 0
+	padding:1px 0;
 }
 .messageMetadata span.md{
 	border-bottom:1px solid #ccc;

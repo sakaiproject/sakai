@@ -7,13 +7,16 @@
 </jsp:useBean>
 <f:view>
   <sakai:view>
-   <script language="JavaScript">
+  	<script language="JavaScript">
 		function printFriendly(url) {
-			window.open(url,'mywindow','width=960,height=1100'); 		
+			printwindow=window.open(url,'mywindow','width=960,height=1100,resizable=yes,scrollbars=yes,');	
+			if (window.focus) {
+				printwindow.focus();
+			}
 		}
-	</script>
-  
+	</script>  
   	<h:form id="dfStatisticsForm">
+				<!-- discussionForum/statistics/dfStatisticsDisplayInThread.jsp -->
   	    <script type="text/javascript" src="/library/js/jquery.js"></script>
        	<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
        	<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
@@ -45,90 +48,76 @@
           	  
   		<mf:hierDataTable id="allMessagesForOneTopic" value="#{ForumTool.messages}" var="msgDecorateBean" noarrows="true" styleClass="listHier" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">	
    			<h:column id="_msg_subject" >
-   			<h:panelGroup rendered="#{ForumTool.selectedMsgId!=msgDecorateBean.message.id}">
-   				<f:verbatim><div class="hierItemBlock"></f:verbatim>
-				<f:verbatim><h4 class="textPanelHeader"></f:verbatim>
-				<f:verbatim><div class="specialLink" style="width:65%;float:left;text-align:left"></f:verbatim>
-				<h:panelGroup rendered="#{!msgDecorateBean.message.deleted}">
-					<h:outputText value="#{msgDecorateBean.message.title}" />
-					<h:outputText  value= " - #{msgDecorateBean.message.author} " />		
-					<h:outputText value="#{msgDecorateBean.message.created}">
-						<f:convertDateTime pattern="#{msgs.date_format_paren}" />
-					</h:outputText>
-					<h:panelGroup rendered="#{!empty msgDecorateBean.attachList}">
-						<h:dataTable value="#{msgDecorateBean.attachList}" var="eachAttach" styleClass="attachListJSF" rendered="#{!empty msgDecorateBean.attachList}">
-						<h:column rendered="#{!empty msgDecorateBean.attachList}">
-							<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>		
-							<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />							
-							<h:outputLink value="#{eachAttach.url}" target="_blank">
-								<h:outputText value="#{eachAttach.attachment.attachmentName}" />
-							</h:outputLink>								
-						</h:column>
-						</h:dataTable>
-				</h:panelGroup>
-				<f:verbatim></div ></f:verbatim>			
-				</h:panelGroup>
-				
+   			<h:panelGroup rendered="#{ForumTool.selectedMsgId!=msgDecorateBean.message.id}" style="display:block;padding:0 5px;">
+				<f:verbatim><p style="border-bottom:1px solid #ccc;padding-bottom:5px;height:100%;overflow:hidden;font-size:110% !important;color:#000;font-weight:bold"></f:verbatim>
+					<h:panelGroup rendered="#{!msgDecorateBean.message.deleted}">
+						<h:outputText value="#{msgDecorateBean.message.title}" />
+						<h:outputText  value= " - #{msgDecorateBean.message.author} " />		
+						<h:outputText value="#{msgDecorateBean.message.created}">
+							<f:convertDateTime pattern="#{msgs.date_format_paren}" />
+						</h:outputText>
+					</h:panelGroup>
+				<f:verbatim></p></f:verbatim>				
+				<%-- more deleted message stub rendering --%>
 				<h:panelGroup styleClass="inactive" rendered="#{msgDecorateBean.message.deleted}">
-				 	<f:verbatim><span></f:verbatim>
 					<h:outputText value="#{msgs.cdfm_msg_deleted_label}" />
-					<f:verbatim></span></f:verbatim>
-				<f:verbatim></div ></f:verbatim>				
 				</h:panelGroup>
-						
-				<f:verbatim><div style="clear:both;height:.1em;width:100%;"></div></f:verbatim>
-				<f:verbatim></h4></f:verbatim>
 				<mf:htmlShowArea value="#{msgDecorateBean.message.body}" hideBorder="true" rendered="#{!msgDecorateBean.message.deleted}"/>
 				<mf:htmlShowArea value="" hideBorder="true" rendered="#{msgDecorateBean.message.deleted}"/>	
-				<f:verbatim></div></f:verbatim>
-				</h:panelGroup>
-				
-				<h:panelGroup rendered="#{ForumTool.selectedMsgId==msgDecorateBean.message.id}">
-				<f:verbatim><a name="boldMsg" /></f:verbatim>
-   				<f:verbatim><div class="hierItemBlockBold"></f:verbatim>
-				<f:verbatim><h4 class="textPanelHeaderBold"></f:verbatim>
-				<f:verbatim><div class="specialLink" style="width:100%;float:left;text-align:left"></f:verbatim>
-				<h:panelGroup rendered="#{!msgDecorateBean.message.deleted}">
-					<h:outputText value="#{msgDecorateBean.message.title}" />
-					<h:outputText  value= " - #{msgDecorateBean.message.author} " />			
-					<h:outputText value="#{msgDecorateBean.message.created}">
-						<f:convertDateTime pattern="#{msgs.date_format_paren}" />
-					</h:outputText>
-					<h:panelGroup rendered="#{!empty msgDecorateBean.attachList}">
-						<h:dataTable value="#{msgDecorateBean.attachList}" var="eachAttach" styleClass="attachListJSF" rendered="#{!empty msgDecorateBean.attachList}">
-						<h:column rendered="#{!empty msgDecorateBean.attachList}">
-							<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>		
-							<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />							
-							<h:outputLink value="#{eachAttach.url}" target="_blank">
-								<h:outputText value="#{eachAttach.attachment.attachmentName}" />
-							</h:outputLink>								
-						</h:column>
-						</h:dataTable>
-				</h:panelGroup>
-				<f:verbatim></div ></f:verbatim>			
-				</h:panelGroup>
-				
+			</h:panelGroup>
+
+			<h:dataTable value="#{msgDecorateBean.attachList}" var="eachAttach" styleClass="attachListJSF indnt1"  style="margin-bottom:5px" rendered="#{!empty msgDecorateBean.attachList}">
+				<h:column rendered="#{!empty msgDecorateBean.attachList}">
+					<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>		
+					<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />							
+					<h:outputLink value="#{eachAttach.url}" target="_blank">
+						<h:outputText value="#{eachAttach.attachment.attachmentName}" />
+					</h:outputLink>								
+				</h:column>
+			</h:dataTable>
+	
+
+			<%-- the message the user wanted to see in the thread context --%>
+			<h:panelGroup rendered="#{ForumTool.selectedMsgId==msgDecorateBean.message.id}">
+				<f:verbatim><a name="boldMsg"></a></f:verbatim>
+				<f:verbatim><div style="border:1px solid #fc6;background:#ffe;padding:0 5px"></f:verbatim>
+					<f:verbatim><a name="boldMsg"></a></f:verbatim>
+					<f:verbatim><p style="border-bottom:1px solid #ccc;padding-bottom:5px;height:100%;overflow:hidden;font-size:110% !important;color:#000;font-weight:bold"></f:verbatim>
+						<h:panelGroup rendered="#{!msgDecorateBean.message.deleted}">
+							<h:outputText value="#{msgDecorateBean.message.title}" />
+							<h:outputText  value= " - #{msgDecorateBean.message.author} " />			
+							<h:outputText value="#{msgDecorateBean.message.created}">
+								<f:convertDateTime pattern="#{msgs.date_format_paren}" />
+							</h:outputText>
+						</h:panelGroup>
+					<f:verbatim></p></f:verbatim>								
 				<h:panelGroup styleClass="inactive" rendered="#{msgDecorateBean.message.deleted}">
 					<f:verbatim><span></f:verbatim>
 						<h:outputText value="#{msgs.cdfm_msg_deleted_label}" />
 					<f:verbatim></span></f:verbatim>
-					<f:verbatim></div ></f:verbatim>				
 				</h:panelGroup>
-			
-				
-				<f:verbatim><div style="clear:both;height:.1em;width:100%;"></div></f:verbatim>
-				<f:verbatim></h4></f:verbatim>
 				<mf:htmlShowArea value="#{msgDecorateBean.message.body}" hideBorder="true" rendered="#{!msgDecorateBean.message.deleted}"/>
 				<mf:htmlShowArea value="" hideBorder="true" rendered="#{msgDecorateBean.message.deleted}"/>
-				
+				<h:panelGroup rendered="#{!empty msgDecorateBean.attachList}">
+					<h:dataTable value="#{msgDecorateBean.attachList}" var="eachAttach" styleClass="attachListJSF indnt1" rendered="#{!empty msgDecorateBean.attachList}">
+						<h:column rendered="#{!empty msgDecorateBean.attachList}">
+							<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>		
+							<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />							
+							<h:outputLink value="#{eachAttach.url}" target="_blank">
+								<h:outputText value="#{eachAttach.attachment.attachmentName}" />
+							</h:outputLink>								
+						</h:column>
+						</h:dataTable>
+				</h:panelGroup>
+
 				<f:verbatim></div></f:verbatim>
 				</h:panelGroup>				
   			
  		</h:column>
 	</mf:hierDataTable>
 
-  		<br /><br />
-  		<h:panelGroup>
+
+  		<h:panelGroup styleClass="act" style="display:block">
   			<h:commandButton action="#{mfStatisticsBean.processActionBackToUser}" value="#{mfStatisticsBean.buttonUserName}"  
 			               title="#{mfStatisticsBean.buttonUserName}">			               			
 			</h:commandButton>
