@@ -1834,6 +1834,11 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		for(Iterator<String> i = userUuids.iterator(); i.hasNext();){
 			String userUuid = (String)i.next();
 			
+			//if user is in the list of invisible users, skip
+			if(sakaiProxy.getInvisibleUsers().contains(userUuid)){
+				continue;
+			}
+			
 			//get User object
 			User u = sakaiProxy.getUserQuietly(userUuid);
 			
@@ -1841,6 +1846,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 			if(u == null) {
 				continue;
 			}
+			
 			
 			//get User details
 			String displayName = u.getDisplayName();

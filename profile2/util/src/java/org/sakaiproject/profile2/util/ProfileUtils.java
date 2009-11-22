@@ -10,13 +10,16 @@ import java.io.IOException;
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import javax.swing.ImageIcon;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jasypt.util.text.BasicTextEncryptor;
 import org.sakaiproject.util.ResourceLoader;
@@ -330,9 +333,19 @@ public class ProfileUtils {
 		return (map.containsKey(key) ? map.get(key) : defaultValue);
 	}
 	
+	/**
+	 * Method to chop a String into it's parts based on the separator and return as a List. Useful for multi valued Sakai properties
+	 * @param s 	the String to split
+	 * @param separator	separator character
+	 * @return
+	 */
+	public static List<String> getListFromString(String str, char separator) {
+		String[] items = StringUtils.split(str, separator);
+		return Arrays.asList(items);
+	}
 	
 	/**
-	 * Encrypt the string
+	 * Decrypt the string
 	 * @param encryptedText
 	 * @return
 	 */
@@ -343,7 +356,7 @@ public class ProfileUtils {
 	}
 	
 	/**
-	 * Decrypt the string
+	 * Encrypt the string
 	 * @param plainText
 	 * @return
 	 */
@@ -355,7 +368,7 @@ public class ProfileUtils {
 	
 	
 	/**
-	 * the user's password needs to be decrypted and sent to Twitter for updates
+	 * The user's password needs to be decrypted and sent to Twitter for updates
 	 * so we can't just one-way encrypt it. 
 	 * 
 	 * Note to casual observers:

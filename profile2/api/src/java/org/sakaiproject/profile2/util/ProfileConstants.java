@@ -121,8 +121,15 @@ public class ProfileConstants {
 	public static final String PROP_BIRTH_YEAR_VISIBLE="birthYearVisible";
 
 	
+	/*
+	 * DEFAULT SAKAI PROPERTIES
+	 */
 	
-	/**
+	public static final String SAKAI_PROP_INVISIBLE_USERS = "postmaster"; //string, comma separated
+	public static final char SAKAI_PROP_LIST_SEPARATOR = ','; //char used to separate multi value lists
+	
+	
+	/*
 	 * MISC
 	 */
 	
@@ -188,5 +195,7 @@ public class ProfileConstants {
 	
 	//entity css
 	public static final String ENTITY_CSS_PROFILE = "/sakai-profile2-tool/css/profile2-profile-entity.css";
+	
+	
 	
 }

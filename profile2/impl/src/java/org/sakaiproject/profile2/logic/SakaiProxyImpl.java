@@ -28,6 +28,7 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.profile2.model.ResourceWrapper;
 import org.sakaiproject.profile2.util.ProfileConstants;
+import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;
@@ -872,6 +873,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 		props.put("myStatus", serverConfigurationService.getInt("profile2.privacy.default.myStatus", ProfileConstants.DEFAULT_PRIVACY_OPTION_MYSTATUS));
 
 		return props;
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public List<String> getInvisibleUsers() {
+		String config = serverConfigurationService.getString("profile2.invisible.users", ProfileConstants.SAKAI_PROP_INVISIBLE_USERS);
+		return ProfileUtils.getListFromString(config, ProfileConstants.SAKAI_PROP_LIST_SEPARATOR);
 	}
 	
 	

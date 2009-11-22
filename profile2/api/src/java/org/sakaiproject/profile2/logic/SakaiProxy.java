@@ -398,5 +398,10 @@ public interface SakaiProxy {
 	 */
 	public HashMap<String, Object> getOverriddenPrivacySettings();
 	
+	/**
+	 * Gets the profile2.invisible.users List for user's that should never show in searches or connection lists
+	 * @return
+	 */
+	public List<String> getInvisibleUsers();
 	
 }
