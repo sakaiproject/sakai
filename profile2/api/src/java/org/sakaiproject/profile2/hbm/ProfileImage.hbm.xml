@@ -14,24 +14,23 @@
 			</generator>
 	    </id>
 	    
-		<property name="userUuid" column="USER_UUID" length="99" not-null="true" />
+		<property name="userUuid" column="USER_UUID" length="99" not-null="true" index="PROFILE_IMAGES_USER_UUID_I" />
 		<property name="mainResource" column="RESOURCE_MAIN" not-null="true" />
 		<property name="thumbnailResource" column="RESOURCE_THUMB" not-null="true" />
-		<property name="current" column="IS_CURRENT" not-null="true" />
+		<property name="current" column="IS_CURRENT" not-null="true" index="PROFILE_IMAGES_IS_CURRENT_I" />
 
   	</class>
   	
-  	<!-- get the current profileImage record. if the db is out of sync and there are multiple, only get the latest -->
+  	<!-- get the current profileImage record. if there are multiple current records, only get the latest -->
 	<query name="getCurrentProfileImageRecord">
     	<![CDATA[from ProfileImage image WHERE image.userUuid = :userUuid AND image.current = true ORDER BY image.id desc]]>
 	</query>
 	 
-	<!-- get any other profile iamge records. used where the user can choose their profile image -->
+	<!-- get any other profile image records. used where the user can choose their profile image -->
 	<query name="getOtherProfileImageRecords">
     	<![CDATA[from ProfileImage image WHERE image.userUuid = :userUuid AND image.current = false]]>
 	</query>
 	
-	<!-- add indexes, bug in Hibernate with MySQL doesn't create them automatically. Will create for all dialects -->
   	<database-object> 
 		<create>create index PROFILE_IMAGES_USER_UUID_I on PROFILE_IMAGES_T (USER_UUID)</create> 
 		<drop></drop> 

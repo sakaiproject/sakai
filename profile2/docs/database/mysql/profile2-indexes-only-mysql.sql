@@ -2,8 +2,8 @@
 Profile2 indexes only (MySQL)
 -----------------------------
 
-If you didn't run any of the conversion scripts, run this SQL to add the required indexes to the database tables. 
-If you are upgrading Profile2, use the proper conversion scripts instead
+If you didn't run any of the conversion scripts (ie have auto.ddl=true), run this SQL to add the required indexes to the database tables. 
+If you are upgrading Profile2, use the appropriate conversion scripts instead as they contain these indexes already.
 
 */
 
