@@ -415,6 +415,7 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
+        <!--
 		<repository>
 			<id>apache-repo</id>
 			<name>apache-repo</name>
@@ -426,6 +427,7 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
+        -->
 		<!--  contains the javax.mail artefacts -->
 		<repository>
 			<id>maven2-repository.dev.java.net</id>
