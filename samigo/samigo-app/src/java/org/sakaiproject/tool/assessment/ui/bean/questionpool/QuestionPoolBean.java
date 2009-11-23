@@ -594,12 +594,9 @@ public class QuestionPoolBean implements Serializable
 
   public ItemFacade getItemToPreview()
   {
-
-/*
- * String result = previewQuestion();
- */
     return itemToPreview;
   }
+  
   public void setItemToPreview(ItemFacade param)
   {
     itemToPreview= param ;
@@ -1900,31 +1897,6 @@ String poolId = ContextUtil.lookupParam("qpid");
   public String doit(){
     return outcome;
   }
-
- public void previewQuestion(ActionEvent event){
-
-        ItemService delegate = new ItemService();
-        String itemId= ContextUtil.lookupParam("itemid");
-
-        ItemFacade itemf = delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
-        ArrayList itemFacades = new ArrayList();
-        itemFacades.add(itemf);
-        setCurrentItems(itemFacades);
-  }
-
- public String previewQuestion(){
-
-        ItemService delegate = new ItemService();
-        String itemId= ContextUtil.lookupParam("itemid");
-
-        ItemFacade itemf = delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
-        ArrayList itemFacades = new ArrayList();
-        itemFacades.add(itemf);
-        setCurrentItems(itemFacades);
-
-    return "previewItem";
-  }
-
 
   public String cancelImport(){
 

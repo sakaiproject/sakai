@@ -89,13 +89,6 @@ table.checkall td {padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bott
     <f:param name="itemid" value="#{question.itemId}"/>
 </h:commandLink>
 
-<h:outputText rendered="#{questionpool.importToAuthoring != 'true'}"  value=" #{questionPoolMessages.separator} " />
-
-<h:commandLink title="#{questionPoolMessages.t_previewQuestion}" rendered="#{questionpool.importToAuthoring != 'true'}" id="previewlink" immediate="true" action="previewQuestion">
-  <h:outputText id="preview" value="#{questionPoolMessages.preview}"/>
-    <f:param name="itemid" value="#{question.itemId}"/>
-    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.PreviewAssessmentListener" />
-</h:commandLink>
  <f:verbatim></span></f:verbatim>
     </h:column>
 

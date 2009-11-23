@@ -79,7 +79,7 @@ public class SamigoToolWebService {
     		Item item = new Item();
     		item.setItemid(idstring);
     		item.setItemtext(itemtext);
-    		item.setUrl(showItem(idstring));
+    		//item.setUrl(showItem(idstring));
     		itemArray[i]= item;
     		i++;
     	}
@@ -91,12 +91,12 @@ public class SamigoToolWebService {
 
 
 
-
+  /*
   public java.lang.String showItem(java.lang.String itemid) {
     String ret = "jsf/test/previewQuestion.faces?itemid="+itemid;
     return ret;
     }
-
+  */
 
     public String download(String[] idStringArray, String qtiVersion)
     {
