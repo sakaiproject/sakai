@@ -586,7 +586,8 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    
    
    public String processActionBackToRoom() {
-	   String filter = getCurrentChannel().getChatChannel().getFilterType();
+	   DecoratedChatChannel dChannel = getCurrentChannel();
+	   String filter = dChannel != null ? dChannel.getChatChannel().getFilterType() : "";
 	   if(filter.equals(ChatChannel.FILTER_ALL)){
 		   setMessageOptions(Integer.toString(MESSAGEOPTIONS_ALL_MESSAGES));
 	   }else if(filter.equals(ChatChannel.FILTER_BY_NUMBER)){
@@ -665,49 +666,57 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    public String processActionEditRoomSave()
    {
       //Set the filter param here
-      ChatChannel channel = getCurrentChannelEdit().getChatChannel();
-      boolean directEdit = getCurrentChannelEdit().isDirectEdit();     
-      
-      //set default number and time values based on the decordatedChannel class
-      channel.setNumberParam(getCurrentChannelEdit().getFilterParamLast());
-      channel.setTimeParam(getCurrentChannelEdit().getFilterParamPast());
-      
-      if (channel.getFilterType().equals(ChatChannel.FILTER_BY_NUMBER)) {
-         channel.setFilterParam(getCurrentChannelEdit().getFilterParamLast());
-      }
-      else if (channel.getFilterType().equals(ChatChannel.FILTER_BY_TIME)) {
-         channel.setFilterParam(getCurrentChannelEdit().getFilterParamPast());
-      }
-      else if (channel.getFilterType().equals(ChatChannel.FILTER_NONE)) {
-         channel.setFilterParam(0);
-      }
-      String retView = PAGE_LIST_ROOMS;
-      
-      if (directEdit)
-         retView = PAGE_ENTER_ROOM;
-      else
-         retView = PAGE_LIST_ROOMS;
-      
-      if (validateChannel(channel))
-         try {
-            getChatManager().updateChannel(channel, true);
-            
-            if (getCurrentChannel() != null && getCurrentChannel().getChatChannel().getId().equals(channel.getId())) {
-               setCurrentChannel(new DecoratedChatChannel(this, channel));
-            }
-            setCurrentChannelEdit(null);
-            
-         }
-         catch (PermissionException e) {
-            setErrorMessage(PERMISSION_ERROR, new String[] {ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL});
-            return "";
-         }
-      else {
-         //Message should get set in the validateChannel method
-         //setErrorMessage(VALIDATION_ERROR, new String[] {ChatFunctions.CHAT_FUNCTION_DELETE_PREFIX});
-         retView = "";
-      }
-      return retView;
+	  DecoratedChatChannel dChannel = getCurrentChannelEdit();
+	  if (dChannel != null)
+	  {
+	      ChatChannel channel = dChannel.getChatChannel();
+	      boolean directEdit = dChannel.isDirectEdit();     
+	      
+	      //set default number and time values based on the decordatedChannel class
+	      channel.setNumberParam(dChannel.getFilterParamLast());
+	      channel.setTimeParam(dChannel.getFilterParamPast());
+	      
+	      if (channel.getFilterType().equals(ChatChannel.FILTER_BY_NUMBER)) {
+	         channel.setFilterParam(dChannel.getFilterParamLast());
+	      }
+	      else if (channel.getFilterType().equals(ChatChannel.FILTER_BY_TIME)) {
+	         channel.setFilterParam(dChannel.getFilterParamPast());
+	      }
+	      else if (channel.getFilterType().equals(ChatChannel.FILTER_NONE)) {
+	         channel.setFilterParam(0);
+	      }
+	      String retView = PAGE_LIST_ROOMS;
+	      
+	      if (directEdit)
+	         retView = PAGE_ENTER_ROOM;
+	      else
+	         retView = PAGE_LIST_ROOMS;
+	      
+	      if (validateChannel(channel))
+	         try {
+	            getChatManager().updateChannel(channel, true);
+	            
+	            if (dChannel != null && dChannel.getChatChannel().getId().equals(channel.getId())) {
+	               setCurrentChannel(new DecoratedChatChannel(this, channel));
+	            }
+	            setCurrentChannelEdit(null);
+	            
+	         }
+	         catch (PermissionException e) {
+	            setErrorMessage(PERMISSION_ERROR, new String[] {ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL});
+	            return "";
+	         }
+	      else {
+	         //Message should get set in the validateChannel method
+	         //setErrorMessage(VALIDATION_ERROR, new String[] {ChatFunctions.CHAT_FUNCTION_DELETE_PREFIX});
+	         retView = "";
+	      }
+	      return retView;
+	  }
+	  else
+	  {
+		  return "";
+	  }
    }
    
    /**
@@ -716,7 +725,8 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     */
    public String processActionEditRoomCancel()
    {
-      boolean directEdit = getCurrentChannelEdit().isDirectEdit();
+	  DecoratedChatChannel dChannel = getCurrentChannelEdit();
+      boolean directEdit = dChannel != null ? dChannel.isDirectEdit() : false;
       setCurrentChannelEdit(null);
       
       if (directEdit)
@@ -1102,16 +1112,17 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    protected int initMessageOptions() {
       
       int result = MESSAGEOPTIONS_ALL_MESSAGES;
-      if (getCurrentChannel().getChatChannel().getFilterType().equals(ChatChannel.FILTER_ALL)) {
+      DecoratedChatChannel dChannel = getCurrentChannel();
+      if (dChannel != null && dChannel.getChatChannel().getFilterType().equals(ChatChannel.FILTER_ALL)) {
          result = MESSAGEOPTIONS_ALL_MESSAGES;
       }
-      else if (getCurrentChannel().getChatChannel().getFilterType().equals(ChatChannel.FILTER_BY_NUMBER)) {
+      else if (dChannel != null && dChannel.getChatChannel().getFilterType().equals(ChatChannel.FILTER_BY_NUMBER)) {
          result = MESSAGEOPTIONS_MESSAGES_BY_NUMBER;
       }
-      else if (getCurrentChannel().getChatChannel().getFilterType().equals(ChatChannel.FILTER_BY_TIME)) {
+      else if (dChannel != null && dChannel.getChatChannel().getFilterType().equals(ChatChannel.FILTER_BY_TIME)) {
          result = MESSAGEOPTIONS_MESSAGES_BY_DATE;
       }
-      else if (getCurrentChannel().getChatChannel().getFilterType().equals(ChatChannel.FILTER_NONE)) {
+      else if (dChannel != null && dChannel.getChatChannel().getFilterType().equals(ChatChannel.FILTER_NONE)) {
          result = MESSAGEOPTIONS_NO_MESSAGES;
       }
       return result;
@@ -1185,33 +1196,38 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    }
    
    public boolean getCanRenderAllMessages() {
-      return (!getCanRenderMessageOptions() &&
-         getCurrentChannel().getChatChannel().getFilterType().equals(ChatChannel.FILTER_ALL)) ||
+	   DecoratedChatChannel dChannel = getCurrentChannel();
+	   return (!getCanRenderMessageOptions() &&
+         dChannel != null && dChannel.getChatChannel().getFilterType().equals(ChatChannel.FILTER_ALL)) ||
          (getCanRenderMessageOptions() && messageOptions == MESSAGEOPTIONS_ALL_MESSAGES);
    }
 
    public boolean getCanRenderDateMessages() {
+	  DecoratedChatChannel dChannel = getCurrentChannel();
       return (!getCanRenderMessageOptions() && 
-         getCurrentChannel().getChatChannel().getFilterType().equals(ChatChannel.FILTER_BY_TIME)) ||
+    	 dChannel != null && dChannel.getChatChannel().getFilterType().equals(ChatChannel.FILTER_BY_TIME)) ||
          (getCanRenderMessageOptions() && messageOptions == MESSAGEOPTIONS_MESSAGES_BY_DATE);
    }
    
    public boolean getCanRenderNumberMessages() {
+	  DecoratedChatChannel dChannel = getCurrentChannel();
       return (!getCanRenderMessageOptions() && 
-         getCurrentChannel().getChatChannel().getFilterType().equals(ChatChannel.FILTER_BY_NUMBER)) ||
+         dChannel != null && dChannel.getChatChannel().getFilterType().equals(ChatChannel.FILTER_BY_NUMBER)) ||
          (getCanRenderMessageOptions() && messageOptions == MESSAGEOPTIONS_MESSAGES_BY_NUMBER);
    }
    
    public boolean getCanRenderNoMessages() {
+	  DecoratedChatChannel dChannel = getCurrentChannel();
       return (!getCanRenderMessageOptions() && 
-         getCurrentChannel().getChatChannel().getFilterType().equals(ChatChannel.FILTER_NONE)) ||
+         dChannel != null && dChannel.getChatChannel().getFilterType().equals(ChatChannel.FILTER_NONE)) ||
          (getCanRenderMessageOptions() && messageOptions == MESSAGEOPTIONS_NO_MESSAGES);
    }
    
    public List<SelectItem> getMessageOptionsList() {
 	   List<SelectItem> messageOptions = new ArrayList<SelectItem>();
-	   int numberParam = getCurrentChannel().getChatChannel().getNumberParam();
-	   int timeParam = getCurrentChannel().getChatChannel().getTimeParam();
+	   DecoratedChatChannel dChannel = getCurrentChannel();
+	   int numberParam = dChannel != null ? dChannel.getChatChannel().getNumberParam() : 0;
+	   int timeParam = dChannel != null ? dChannel.getChatChannel().getTimeParam() : 0;
 	   
 	   if(getCanRenderMessageOptions()){
 
@@ -1225,7 +1241,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
 		   messageOptions.add(item3);
 		   messageOptions.add(item4);
 	   }else{
-		   String filter = getCurrentChannel().getChatChannel().getFilterType();
+		   String filter = dChannel != null ? dChannel.getChatChannel().getFilterType() : "";
 		   SelectItem item = null;
 		   if(filter.equals(ChatChannel.FILTER_ALL)){
 			   item = new SelectItem(Integer.toString(MESSAGEOPTIONS_ALL_MESSAGES), getMessageFromBundle("allMessages"));
@@ -1246,7 +1262,8 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     * @return
     */
    public boolean getCanRenderMessageOptions() {
-      return getCurrentChannel().getChatChannel().isEnableUserOverride();
+	  DecoratedChatChannel dChannel = getCurrentChannel();
+      return dChannel != null? dChannel.getChatChannel().isEnableUserOverride() : false;
    }
    
    protected String getCustomOptionValue(String filterType) {
@@ -1291,14 +1308,15 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    {
       Date xDaysOld = null;
       int maxMessages = 0;
-
+      DecoratedChatChannel dChannel = getCurrentChannel();
+      
       if (Integer.parseInt(getMessageOptions()) == MESSAGEOPTIONS_MESSAGES_BY_DATE) {
-    	  int x = getCurrentChannel().getChatChannel().getTimeParam();
+    	  int x = dChannel != null? dChannel.getChatChannel().getTimeParam():0;
          xDaysOld = getChatManager().calculateDateByOffset(x);
          maxMessages = ChatChannel.MAX_MESSAGES;
       }
       else if (Integer.parseInt(getMessageOptions()) == MESSAGEOPTIONS_MESSAGES_BY_NUMBER) {
-    	  int x = getCurrentChannel().getChatChannel().getNumberParam();
+    	  int x = dChannel != null?dChannel.getChatChannel().getNumberParam():0;
          maxMessages = x;
       }
       else if (Integer.parseInt(getMessageOptions()) == MESSAGEOPTIONS_ALL_MESSAGES) {
@@ -1419,9 +1437,10 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    
    public String getViewingChatRoomText() {
       String title = null;
-      if (getCurrentChannel() != null && getCurrentChannel().getChatChannel() != null)
+      DecoratedChatChannel dChannel = getCurrentChannel();
+      if (dChannel != null && dChannel.getChatChannel() != null)
       {
-         title = getCurrentChannel().getChatChannel().getTitle();
+         title = dChannel.getChatChannel().getTitle();
       }
       return getMessageFromBundle("viewingChatRoomText", new Object[]{title});
    }
