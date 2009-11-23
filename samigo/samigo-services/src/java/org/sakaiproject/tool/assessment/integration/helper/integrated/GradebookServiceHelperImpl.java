@@ -111,7 +111,10 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 				toolId = ((ToolConfiguration) pageToolList.get(0)).getTool().getId();
 				if (toolId.equalsIgnoreCase("sakai.gradebook.tool")) {
 					return true;
+				} else if (toolId.equalsIgnoreCase("sakai.gradebook.gwt.rpc")) {
+					return true;
 				}
+
 			}
 		} catch (Exception e) {
 			log.warn(e.getMessage());
