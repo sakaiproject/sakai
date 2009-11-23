@@ -84,7 +84,7 @@
 
 
 
-  <h:outputText id="poolnametext" value="#{pool.displayName}"/>
+  <h:outputText id="poolnametext" value="aa#{pool.displayName}" escape="false"/>
 
 </h:panelGroup>
     </h:column>
