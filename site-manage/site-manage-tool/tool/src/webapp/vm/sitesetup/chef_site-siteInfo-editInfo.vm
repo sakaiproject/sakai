@@ -263,7 +263,7 @@ function submitRemoveSection(index){
 				onclick="resetOption('continue');" />
 		#if(!$existingSite)
 			## have the back button for creating site wizard
-			<input type="submit" accesskey="b" class= "active" name="eventSubmit_doBack" value="$tlang.getString("gen.back")" />
+			<input type="submit" accesskey="b" class= "active" name="eventSubmit_doBack" value="$tlang.getString("gen.back")" onclick="resetOption('back')" />
 		#end
 		<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitediinf.can")" />
 	</div>
