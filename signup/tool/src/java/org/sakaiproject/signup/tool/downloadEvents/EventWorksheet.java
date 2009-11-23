@@ -234,7 +234,8 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 			List<SignupTimeslot> tsItems = wrp.getMeeting().getSignupTimeSlots();
 			if (tsItems != null) {
 				for (SignupTimeslot tsItem : tsItems) {
-					List<SignupAttendee> attendees = tsItem.getAttendees();
+					/*strange thing happen for hibernate, tsItem can be null for mySql 4.x*/
+					List<SignupAttendee> attendees = tsItem == null ? null : tsItem.getAttendees();
 					if (attendees != null) {
 						for (SignupAttendee att : attendees) {
 							Row row = sheet.createRow(rowNum++);
@@ -384,7 +385,8 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 				cell.setCellStyle(styles.get("item_left_wrap"));
 				cell.setCellValue(wrp.getMeeting().getTitle());
 				Hyperlink sheetLink = createHelper.createHyperlink(Hyperlink.LINK_DOCUMENT);
-				String hlinkAddr = "'" + wrp.getMeeting().getTitle() + " (" + seqNum + ")'" + "!A1";
+				String validSheetName = CreateValidWorksheetName(wrp.getMeeting().getTitle(), seqNum, true);
+				String hlinkAddr = "'" + validSheetName + "'" + "!A1";
 				sheetLink.setAddress(hlinkAddr);
 				cell.setHyperlink(sheetLink);
 				cell.setCellStyle(styles.get("hyperLink"));
@@ -427,12 +429,9 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 	 * Create a full version excel worksheet
 	 */
 	private void createWorksheet(SignupMeetingWrapper wrapper, int serialNum, boolean hasSerialNum) {
-		String eventTitle = wrapper.getMeeting().getTitle();
-		if (hasSerialNum) {
-			eventTitle = eventTitle + " (" + serialNum + ")";
-		}
-
-		Sheet sheet = wb.createSheet(eventTitle);
+		String validSheetName = CreateValidWorksheetName(wrapper.getMeeting().getTitle(),serialNum,hasSerialNum);
+			
+		Sheet sheet = wb.createSheet(validSheetName);
 		PrintSetup printSetup = sheet.getPrintSetup();
 		printSetup.setLandscape(true);
 		sheet.setFitToPage(true);
@@ -453,7 +452,7 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 			titleRow.createCell(i).setCellStyle(styles.get("title"));
 		}
 		Cell titleCell = titleRow.getCell(2);
-		titleCell.setCellValue(eventTitle);
+		titleCell.setCellValue(wrapper.getMeeting().getTitle());
 		sheet.addMergedRegion(CellRangeAddress.valueOf("$C$1:$H$1"));
 
 		// owner row
@@ -617,6 +616,11 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 		List<SignupTimeslot> tsItems = wrapper.getMeeting().getSignupTimeSlots();
 		if (tsItems != null) {
 			for (SignupTimeslot tsItem : tsItems) {
+				/*strange thing happen for hibernate, it can be null for mySql 4.x*/
+				if (tsItem == null) {
+					continue;
+				}
+
 				row = sheet.createRow(rowNum);
 				int rowHighNum = 1;
 				rowNum++;
@@ -715,7 +719,8 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 		boolean hasComment = false;
 		if (tsItems != null) {
 			for (SignupTimeslot ts : tsItems) {
-				List<SignupAttendee> attendees = ts.getAttendees();
+				/*strange thing happen for hibernate, it can be null for mySql 4.x*/
+				List<SignupAttendee> attendees = ts != null ? ts.getAttendees() : null;
 				if (attendees != null) {
 					for (SignupAttendee att : attendees) {
 						if (isOrganizer(wrapper.getMeeting()) || isViewerSelf(att)) {
@@ -991,6 +996,44 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 		tabTitles_shortVersion[3] = rb.getString("tab_event_date", "Date");
 		tabTitles_shortVersion[4] = rb.getString("tab_event_time", "Time");
 		tabTitles_shortVersion[5] = rb.getString("tab_event_availability", "Status");
+	}
+
+	static private String CreateValidWorksheetName(String name, int serialNum, boolean hasSerialNum) {
+		// Worksheet name cannot be longer than 31 characters.
+		if (name == null || name.trim().length() < 1) {
+			name="sheet";
+		}
+		
+		String suffix = "";
+		if(hasSerialNum)
+			suffix = " (" + serialNum + ")";
+		
+		StringBuilder escapedString = new StringBuilder();
+
+		for (int i = 0; i < name.length(); i++) {
+			char escapedStringCur_char = name.charAt(i);
+
+			if (escapedStringCur_char == ':' || escapedStringCur_char == '\\'
+					|| escapedStringCur_char == '/' || escapedStringCur_char == '?'
+					|| escapedStringCur_char == '*' || escapedStringCur_char == '['
+					|| escapedStringCur_char == ']') {
+
+				escapedString.append('_');
+			} else {
+				escapedString.append(escapedStringCur_char);
+			}
+		}
+		/*
+		 * there will be another 6 serial number characters: ' (xxx)' appending
+		 * and add together to 31 characters (Excel sheet name limit)
+		 */
+		String validSheetName = escapedString.toString().length() <= 31-suffix.length() ? escapedString.toString() : escapedString
+				.substring(31-suffix.length());
+		
+		validSheetName = validSheetName + suffix;
+		
+		return validSheetName;
+
 	}
 
 }
