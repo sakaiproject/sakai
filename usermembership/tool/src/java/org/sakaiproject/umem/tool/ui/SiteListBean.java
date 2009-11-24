@@ -44,7 +44,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
@@ -95,10 +95,11 @@ public class SiteListBean {
 	private SiteService					M_site				= (SiteService) ComponentManager.get(SiteService.class.getName());
 	private ToolManager					M_tm				= (ToolManager) ComponentManager.get(ToolManager.class.getName());
 	private Authz						authz				= (Authz) ComponentManager.get(Authz.class.getName());
+	private ServerConfigurationService			M_scf				= (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class.getName());
 	/** Private vars */
 	private Collator					collator			= Collator.getInstance();
 	private long						timeSpentInGroups	= 0;
-	private static String				portalURL			= ServerConfigurationService.getPortalUrl();
+	private String						portalURL			= M_scf.getPortalUrl();
 	private String						message				= "";
 
 	// ######################################################################################
