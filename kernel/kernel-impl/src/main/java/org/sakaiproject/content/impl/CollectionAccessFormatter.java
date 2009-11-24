@@ -125,9 +125,9 @@ public class CollectionAccessFormatter
 				out.println("<html><head>");
 				out.println("<title>" + "Index of " + pl.getProperty(ResourceProperties.PROP_DISPLAY_NAME) + "</title>");
 				String webappRoot = ServerConfigurationService.getServerUrl();
-				String skinRepo = ServerConfigurationService.getString("skin.repo", "/library/skins");
+				String skinRepo = ServerConfigurationService.getString("skin.repo", "/library/skin");
 				out.println("<link href=\"" + webappRoot
-						+ skinRepo+ "/default/access.css\" type=\"text/css\" rel=\"stylesheet\" media=\"screen\" />");
+						+ skinRepo+ "/default/access.css\" type=\"text/css\" rel=\"stylesheet\" media=\"screen\">");
 				out.println("<script src=\"" + webappRoot
 						+ "/library/js/jquery.js\" type=\"text/javascript\">");
 				out.println("</script>");
@@ -234,9 +234,9 @@ public class CollectionAccessFormatter
 									+ baseparam
 									+ "\">Up one level</a></b></td><td width=\"20%\"></td><td width=\"30%\"></td></tr><form name=\"fileSelections\">");
 				else if (basedir != null)
-					out.println("<li class=\"upfolder\"><a href=\"../" + baseparam + "\"><img src=\"/library/image/sakai/folder-up.gif\" />Up one level</a></span></li>");
+					out.println("<li class=\"upfolder\"><a href=\"../" + baseparam + "\"><img alt=\"Up folder\" src=\"/library/image/sakai/folder-up.gif\">Up one level</a></li>");
 				else
-					out.println("<li class=\"upfolder\"><a href=\"../\"><img src=\"/library/image/sakai/folder-up.gif\" />Up one level</a></span></li>");
+					out.println("<li class=\"upfolder\"><a href=\"../\"><img alt=\"Up folder\" src=\"/library/image/sakai/folder-up.gif\">Up one level</a></li>");
 			}
 			else if (sferyx)
 				out
@@ -345,7 +345,7 @@ public class CollectionAccessFormatter
 						else if (basedir != null)
 							out.println("<li><button type=button onclick=\"seturl('" + filepref + Validator.escapeHtml(xs)
 									+ "')\">Choose</button>&nbsp;&nbsp;" + Validator.escapeHtml(xs) + "<span class=\"textPanelFooter\">" + filesize
-									+ ", " + createdBy + ", " + filetype + ", " + modifiedTime + "</li>");
+									+ ", " + createdBy + ", " + filetype + ", " + modifiedTime + "</span></li>");
 						else
 						{
 							String desc = properties.getProperty(ResourceProperties.PROP_DESCRIPTION);
