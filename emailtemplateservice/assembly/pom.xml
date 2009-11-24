@@ -27,6 +27,22 @@
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>emailtemplateservice-pack</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
+            <!-- <type>sakai-component</type> -->
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>emailtemplateservice-tool</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
+            <scope>compile</scope>
+        </dependency>
+        
     </dependencies>
 
     <build>
