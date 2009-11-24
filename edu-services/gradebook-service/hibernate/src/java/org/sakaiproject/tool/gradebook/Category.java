@@ -22,6 +22,10 @@ public class Category implements Serializable
 	private List assignmentList;
 	private int assignmentCount;
 	private Boolean extraCredit;
+	private Boolean unweighted;
+	private Boolean equalWeightAssignments;
+	private Integer categoryOrder;
+	private Boolean enforcePointWeighting;
 	
 	public static Comparator nameComparator;
 	public static Comparator averageScoreComparator;
@@ -350,5 +354,37 @@ public class Category implements Serializable
 
 	public void setExtraCredit(Boolean isExtraCredit) {
 		this.extraCredit = isExtraCredit;
+	}
+	
+	public Boolean isUnweighted() {
+		return unweighted;
+	}
+
+	public void setUnweighted(Boolean unweighted) {
+		this.unweighted = unweighted;
+	}
+
+	public Boolean isEqualWeightAssignments() {
+		return equalWeightAssignments;
+	}
+
+	public void setEqualWeightAssignments(Boolean equalWeightAssignments) {
+		this.equalWeightAssignments = equalWeightAssignments;
+	}
+
+	public Integer getCategoryOrder() {
+		return categoryOrder;
+	}
+
+	public void setCategoryOrder(Integer categoryOrder) {
+		this.categoryOrder = categoryOrder;
+	}
+
+	public Boolean isEnforcePointWeighting() {
+		return enforcePointWeighting;
+	}
+
+	public void setEnforcePointWeighting(Boolean enforcePointWeighting) {
+		this.enforcePointWeighting = enforcePointWeighting;
 	}
 }

@@ -36,5 +36,20 @@
 		
 		<property name="category_type" column="CATEGORY_TYPE" type="integer" not-null="true"/>
 
+		<property name="equalWeightCategories" column="IS_EQUAL_WEIGHT_CATS" type="boolean" not-null="false"/>
+
+		<property name="scaledExtraCredit" column="IS_SCALED_EXTRA_CREDIT" type="boolean" not-null="false"/>
+
+		<property name="showMean" column="DO_SHOW_MEAN" type="boolean" not-null="false"/>
+		
+		<property name="showMedian" column="DO_SHOW_MEDIAN" type="boolean" not-null="false"/>
+		
+		<property name="showMode" column="DO_SHOW_MODE" type="boolean" not-null="false"/>
+		
+		<property name="showRank" column="DO_SHOW_RANK" type="boolean" not-null="false"/>
+		
+		<property name="showItemStatistics" column="DO_SHOW_ITEM_STATS" type="boolean" not-null="false"/>
+		
+
 	</class>
 </hibernate-mapping>

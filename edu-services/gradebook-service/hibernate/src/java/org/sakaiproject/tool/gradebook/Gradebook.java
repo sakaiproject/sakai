@@ -49,6 +49,13 @@ public class Gradebook implements Serializable {
     private boolean locked;
     private int grade_type;
     private int category_type;
+    private Boolean equalWeightCategories;
+    private Boolean scaledExtraCredit;
+    private Boolean showMean;
+    private Boolean showMedian;
+    private Boolean showMode;
+    private Boolean showRank;
+    private Boolean showItemStatistics;
 
     /**
      * Default no-arg constructor needed for persistence
@@ -251,6 +258,66 @@ public class Gradebook implements Serializable {
 		public void setGrade_type(int grade_type)
 		{
 			this.grade_type = grade_type;
+		}
+
+		public Boolean isEqualWeightCategories() {
+			return equalWeightCategories;
+		}
+
+		public void setEqualWeightCategories(Boolean equalWeightCategories) {
+			this.equalWeightCategories = equalWeightCategories;
+		}
+
+		public Boolean isScaledExtraCredit() {
+			return scaledExtraCredit;
+		}
+
+		public void setScaledExtraCredit(Boolean scaledExtraCredit) {
+			this.scaledExtraCredit = scaledExtraCredit;
+		}
+
+		public Boolean getShowMean() {
+			return showMean;
+		}
+
+		public void setShowMean(Boolean showMean) {
+			this.showMean = showMean;
+		}
+
+		public Boolean getShowMedian() {
+			return showMedian;
+		}
+
+		public void setShowMedian(Boolean showMedian) {
+			this.showMedian = showMedian;
+		}
+
+		public Boolean getShowMode() {
+			return showMode;
+		}
+
+		public void setShowMode(Boolean showMode) {
+			this.showMode = showMode;
+		}
+
+		public Boolean getShowRank() {
+			return showRank;
+		}
+
+		public void setShowRank(Boolean showRank) {
+			this.showRank = showRank;
+		}
+
+		public Boolean getShowItemStatistics() {
+			return showItemStatistics;
+		}
+
+		public void setShowItemStatistics(Boolean showItemStatistics) {
+			this.showItemStatistics = showItemStatistics;
+		}
+
+		public Boolean getScaledExtraCredit() {
+			return scaledExtraCredit;
 		}
 }
 

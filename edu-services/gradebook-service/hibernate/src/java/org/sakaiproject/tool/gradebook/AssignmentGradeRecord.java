@@ -39,6 +39,9 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
     private Double percentEarned;
     private boolean userAbleToView;
     private Boolean excludedFromGrade;
+    private transient BigDecimal earnedWeightedPercentage;
+    private transient BigDecimal overallWeight;
+    private transient Boolean isDropped;
 
     public AssignmentGradeRecord() {
         super();
@@ -173,6 +176,30 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
 
 	public void setExcludedFromGrade(Boolean isExcludedFromGrade) {
 		this.excludedFromGrade = isExcludedFromGrade;
+	}
+	
+	public BigDecimal getEarnedWeightedPercentage() {
+		return earnedWeightedPercentage;
+	}
+	
+	public void setEarnedWeightedPercentage(BigDecimal earnedWeightedPercentage) {
+		this.earnedWeightedPercentage = earnedWeightedPercentage;
+	}
+	
+	public Boolean isDropped() {
+		return isDropped;
+	}
+	
+	public void setDropped(Boolean isDropped) {
+		this.isDropped = isDropped;
+	}
+	
+	public BigDecimal getOverallWeight() {
+		return overallWeight;
+	}
+	
+	public void setOverallWeight(BigDecimal overallWeight) {
+		this.overallWeight = overallWeight;
 	}
 }
 

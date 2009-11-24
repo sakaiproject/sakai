@@ -38,7 +38,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 public class CourseGradeRecord extends AbstractGradeRecord {
     private String enteredGrade;
     private Double autoCalculatedGrade;  // Not persisted
-    private Double calculatedPointsEarned;	// Not persisted
+	private Double calculatedPointsEarned;	// Not persisted
 
     public static Comparator<CourseGradeRecord> calcComparator;
 
@@ -214,5 +214,11 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 			percentageEarned = Double.valueOf(bdTotalPointsEarned.divide(bdTotalPointsPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100")).doubleValue());
 		}
 		autoCalculatedGrade = percentageEarned;
+	}
+	public Double getCalculatedPointsEarned() {
+		return calculatedPointsEarned;
+	}
+	public void setAutoCalculatedGrade(Double autoCalculatedGrade) {
+		this.autoCalculatedGrade = autoCalculatedGrade;
 	}
 }

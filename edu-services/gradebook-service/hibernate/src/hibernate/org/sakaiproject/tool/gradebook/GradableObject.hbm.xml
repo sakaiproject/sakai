@@ -37,6 +37,7 @@
       <property name="released" column="RELEASED" type="boolean"/>
       <many-to-one name="category" column="CATEGORY_ID" class="org.sakaiproject.tool.gradebook.Category" not-null="false"/>
       <property name="ungraded" column="UNGRADED" type="boolean"/>
+      <property name="countNullsAsZeros" column="IS_NULL_ZERO" type="boolean" not-null="false"/>
     </subclass>
 
 		<subclass name="org.sakaiproject.tool.gradebook.CourseGrade" extends="org.sakaiproject.tool.gradebook.GradableObject" discriminator-value="2">

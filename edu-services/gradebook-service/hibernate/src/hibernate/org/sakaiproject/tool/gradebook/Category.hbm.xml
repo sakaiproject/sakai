@@ -26,6 +26,15 @@
 		<property name="removed" column="REMOVED" type="boolean" />
 		
 		<property name="extraCredit" column="IS_EXTRA_CREDIT" type="boolean" not-null="false" />
+		
+		<property name="equalWeightAssignments" column="IS_EQUAL_WEIGHT_ASSNS" type="boolean" not-null="false" />
+   
+   		<property name="unweighted" column="IS_UNWEIGHTED" type="boolean" not-null="false" />
+   
+   		<property name="categoryOrder" column="CATEGORY_ORDER" type="integer" not-null="false" />
+   
+   		<property name="enforcePointWeighting" column="ENFORCE_POINT_WEIGHTING" type="boolean" not-null="false" />
+   		
   </class>
   
  	<database-object>

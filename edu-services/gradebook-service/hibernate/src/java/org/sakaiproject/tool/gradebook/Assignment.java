@@ -70,7 +70,7 @@ public class Assignment extends GradableObject {
     private boolean ungraded;
     private Boolean extraCredit;
 	private Double assignmentWeighting;
-
+	private Boolean countNullsAsZeros;
 
 	static {
         dateComparator = new Comparator() {
@@ -492,5 +492,14 @@ public class Assignment extends GradableObject {
 
 		public void setAssignmentWeighting(Double assignmentWeighting) {
 			this.assignmentWeighting = assignmentWeighting;
+		}
+
+		public Boolean getCountNullsAsZeros() {
+			return countNullsAsZeros;
+		}
+
+
+		public void setCountNullsAsZeros(Boolean countNullsAsZeros) {
+			this.countNullsAsZeros = countNullsAsZeros;
 		}
 }
