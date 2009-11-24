@@ -23,7 +23,6 @@ package org.sakaiproject.content.impl;
 
 import java.io.PrintWriter;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -49,6 +48,7 @@ import org.sakaiproject.util.Validator;
  * CollectionAccessFormatter is formatter for collection access.
  * </p>
  */
+@SuppressWarnings("deprecation")
 public class CollectionAccessFormatter
 {
 	private static final Log M_log = LogFactory.getLog(CollectionAccessFormatter.class);
@@ -57,6 +57,7 @@ public class CollectionAccessFormatter
 	/**
 	 * Format the collection as an HTML display.
 	 */
+	@SuppressWarnings({ "unchecked" })
 	public static void format(ContentCollection x, Reference ref, HttpServletRequest req, HttpServletResponse res,
 			String accessPointTrue, String accessPointFalse)
 	{
@@ -82,10 +83,7 @@ public class CollectionAccessFormatter
 
 		String path = ref.getId();
 		String basedir = req.getParameter("sbasedir");
-		// path may have been transformed by an alias
-		// we need origpath to check whether there was as trailing /
-		String origpath = req.getPathInfo();
-		String querystring = req.getQueryString();
+
 		// set access to /access/content, must skip http://host
 		String access = accessPointFalse;
 		int i = access.indexOf("://");
@@ -106,29 +104,6 @@ public class CollectionAccessFormatter
 
 		try
 		{
-			List members = x.getMemberResources();
-			// we will need resources. getting them once makes the sort a whole lot faster
-			// System.out.println("before sort have " + members.size());
-
-			boolean hasCustomSort = false;
-			try {
-			    hasCustomSort = x.getProperties().getBooleanProperty(ResourceProperties.PROP_HAS_CUSTOM_SORT);
-			} catch (Exception e) {
-			    // use false that's already there
-			}
-
-			if (sferyx || basedir != null)
-			    Collections.sort(members, new ContentHostingComparator(ResourceProperties.PROP_DISPLAY_NAME, true));
-			else if (hasCustomSort)
-			    Collections.sort(members, new ContentHostingComparator(ResourceProperties.PROP_CONTENT_PRIORITY, true));
-			else
-			    Collections.sort(members, new ContentHostingComparator(ResourceProperties.PROP_DISPLAY_NAME, true));
-
-			// System.out.println("after sort have " + members.size());
-
-			// xi Will all be ContentEntity
-			Iterator xi = members.iterator();
-
 			res.setContentType("text/html; charset=UTF-8");
 
 			out = res.getWriter();
@@ -146,8 +121,7 @@ public class CollectionAccessFormatter
 			else
 			{
 				ResourceProperties pl = x.getProperties();
-				out
-						.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">");
+				out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">");
 				out.println("<html><head>");
 				out.println("<title>" + "Index of " + pl.getProperty(ResourceProperties.PROP_DISPLAY_NAME) + "</title>");
 				String webappRoot = ServerConfigurationService.getServerUrl();
@@ -170,6 +144,7 @@ public class CollectionAccessFormatter
 				
 				out.println("<script type=\"text/javascript\">$(document).ready(function(){resizeFrame();function resizeFrame(){if (window.name != \"\") {var frame = parent.document.getElementById(window.name);if (frame) {var clientH = document.body.clientHeight + 10;$(frame).height(clientH);}}}jQuery.fn.fadeToggle = function(speed, easing, callback){return this.animate({opacity: \'toggle\'}, speed, easing, callback);};if ($(\'.textPanel\').size() < 1){$(\'a#toggler\').hide();}$(\'a#toggler\').click(function(){$(\'.textPanel\').fadeToggle(\'1000\', \'\', \'resizeFrame\');});\n$(\'.file a\').each(function (i){\n$(this).addClass(getFileExtension($(this).attr(\'href\')));\n})\nfunction getFileExtension(filename)\n{\nvar ext = /^.+\\.([^.]+)$/.exec(filename);\nreturn ext == null ? \"\" : ext[1].toLowerCase();\n}\n});</script>");				
 				out.println("<div class=\"directoryIndex\">");
+				
 				// for content listing it's best to use a real title
 				if (basedir != null)
 					out.println("<h3>Contents of " + access + path + "</h3>");
@@ -179,12 +154,17 @@ public class CollectionAccessFormatter
 					String desc = pl.getProperty(ResourceProperties.PROP_DESCRIPTION);
 					if (desc != null && !desc.equals("")) out.println("<div class=\"textPanel\">" + desc + "</div>");
 				}
-				if (sferyx)
+				
+				if (sferyx) {
 					out.println("<table>");
+				}
 				else
+				{
 					out.println("<ul>");
 					out.println("<li style=\"display:none\">");
 					out.println("</li>");
+				}
+				
 				printedHeader = true;
 				printedDiv = true;
 			}
@@ -262,13 +242,32 @@ public class CollectionAccessFormatter
 				out
 						.println("<tr><td align=\"center\" left=\"50%\" height=\"20\">&nbsp;</td><td width=\"20%\"></td><td width=\"30%\"></td></tr><form name=\"fileSelections\">");
 
-			while (xi.hasNext())
-			{
-				ContentEntity content = (ContentEntity)xi.next();
+			// Sort the collection items
+			
+			List<ContentEntity> members = x.getMemberResources();
 
+			boolean hasCustomSort = false;
+			try {
+			    hasCustomSort = x.getProperties().getBooleanProperty(ResourceProperties.PROP_HAS_CUSTOM_SORT);
+			} catch (Exception e) {
+			    // use false that's already there
+			}
+
+			if (sferyx || basedir != null)
+			    Collections.sort(members, new ContentHostingComparator(ResourceProperties.PROP_DISPLAY_NAME, true));
+			else if (hasCustomSort)
+			    Collections.sort(members, new ContentHostingComparator(ResourceProperties.PROP_CONTENT_PRIORITY, true));
+			else
+			    Collections.sort(members, new ContentHostingComparator(ResourceProperties.PROP_DISPLAY_NAME, true));
+
+			// Iterate through content items
+			
+			for (ContentEntity content : members) {
+				
 				ResourceProperties properties = content.getProperties();
 				boolean isCollection = content.isCollection();
 				String xs = content.getId();
+				String contentUrl = content.getUrl();
 
 				// These both perform the same check in the implementation but we should observe the API.
 				// This also checks to see if a resource is hidden or time limited.
@@ -297,17 +296,19 @@ public class CollectionAccessFormatter
 
 					if (isCollection)
 					{
+						// Folder
+						
 						if (sferyx)
 							out
 									.println("<tr><td bgcolor=\"#FFF678\" align=\"LEFT\"><font face=\"Arial\" size=\"3\">&nbsp;<a href=\""
-											+ Validator.escapeUrl(xs)
+											+ contentUrl
 											+ baseparam
 											+ "\">"
 											+ Validator.escapeHtml(xs)
 											+ "</a></font></td><td bgcolor=\"#FFF678\" align=\"RIGHT\"><font face=\"Arial\" size=\"3\" color=\"#000000\">File Folder</font></td><td>&nbsp;</td></tr>");
 						else if (basedir != null)
 							out.println("<li><button type=button onclick=\"seturl('" + filepref + Validator.escapeHtml(xs)
-									+ "')\">Choose</button>&nbsp;<a href=\"" + Validator.escapeUrl(xs) + baseparam + "\">"
+									+ "')\">Choose</button>&nbsp;<a href=\"" + contentUrl + baseparam + "\">"
 									+ Validator.escapeHtml(xs) + "</a></li>");
 						else
 						{
@@ -316,14 +317,16 @@ public class CollectionAccessFormatter
 									desc = "";
 							else
 								desc = "<div class=\"textPanel\">" +  Validator.escapeHtml(desc) + "</div>";
-							out.println("<li class=\"folder\"><a href=\"" + Validator.escapeUrl(xs) + baseparam + "\">"
+							out.println("<li class=\"folder\"><a href=\"" + contentUrl + baseparam + "\">"
 									+ Validator.escapeHtml(properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME))
 									+ "</a>" + desc + "</li>");
 						}
 					}
 					else
 					{
-						ContentResource contentResource = (ContentResource)content;
+						// File
+						
+						ContentResource contentResource = (ContentResource) content;
 						long filesize = ((contentResource.getContentLength() - 1) / 1024) + 1;
 						String createdBy = getUserProperty(properties, ResourceProperties.PROP_CREATOR).getDisplayName();
 						Time modTime = properties.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE);
@@ -351,7 +354,7 @@ public class CollectionAccessFormatter
 							else
 								desc = "<div class=\"textPanel\">" + Validator.escapeHtml(desc) + "</div>";
 							String resourceType = content.getResourceType().replace('.', '_');
-							out.println("<li class=\"file\"><a href=\"" + Validator.escapeUrl(xs) + "\" target=_blank class=\""
+							out.println("<li class=\"file\"><a href=\"" + contentUrl + "\" target=_blank class=\""
 									+ resourceType+"\">"
 									+ Validator.escapeHtml(properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME))
 									+ "</a>" + desc + "</li>");
@@ -360,6 +363,8 @@ public class CollectionAccessFormatter
 				}
 				catch (Throwable ignore)
 				{
+					// TODO - what types of fails are being caught here?
+					
 					if (sferyx)
 						out
 								.println("<tr><td bgcolor=\"#FFFFFF\" align=\"LEFT\"><font face=\"Arial\" size=\"3\">&nbsp;&nbsp;</font><input type=\"submit\" name=\"selectedFiles\" value=\""
@@ -370,7 +375,7 @@ public class CollectionAccessFormatter
 						out.println("<li><button type=button onclick=\"seturl('" + filepref + Validator.escapeHtml(xs)
 								+ "')\">Choose</button>&nbsp;&nbsp;" + Validator.escapeHtml(xs) + "</li>");
 					else
-						out.println("<li class=\"file\"><a href=\"" + Validator.escapeUrl(xs) + "\" target=_blank>" + Validator.escapeHtml(xs)
+						out.println("<li class=\"file\"><a href=\"" + contentUrl + "\" target=_blank>" + Validator.escapeHtml(xs)
 								+ "</a></li>");
 				}
 			}
@@ -387,8 +392,9 @@ public class CollectionAccessFormatter
 				out.println("<table>");
 			else
 				out.println("</ul>");
+			
 			if (printedDiv) out.println("</div>");
-				out.println("</body></html>");
+			out.println("</body></html>");
 		}
 	}
 
