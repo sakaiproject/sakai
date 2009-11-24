@@ -1,54 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<artifactId>base</artifactId>
-		<groupId>org.sakaiproject</groupId>
-		<version>2.8-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
-	<name>Sakai Core Deploy</name>
-	<groupId>org.sakaiproject</groupId>
-	<artifactId>core-deploy</artifactId>
-	<packaging>pom</packaging>
-	<version>2.8-SNAPSHOT</version>
-	<organization>
-		<name>Sakai Project</name>
-		<url>http://sakaiproject.org/</url>
-	</organization>
-	<profiles>
-		<profile>
-			<id>full</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<properties>
-				<clean.targets>
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>base</artifactId>
+        <groupId>org.sakaiproject</groupId>
+        <version>2.8-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <name>Sakai Core Deploy</name>
+    <groupId>org.sakaiproject</groupId>
+    <artifactId>core-deploy</artifactId>
+    <packaging>pom</packaging>
+    <version>2.8-SNAPSHOT</version>
+    <organization>
+        <name>Sakai Project</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <profiles>
+        <profile>
+            <id>full</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <clean.targets>
+                    components/emailtemplateservice-pack;
                     components/coursemanagement-hibernate-pack;
                     components/gradebook-service-pack;
                     components/sakai-msgcntr-component;
-					components/sakai-common-components;
-					components/sakai-privacy-pack;
+                    components/sakai-common-components;
+                    components/sakai-privacy-pack;
                     components/samigo-pack;
-					components/search-pack;
-					components/sections-pack
+                    components/search-pack;
+                    components/sections-pack
                 </clean.targets>
-				<deploy.target>tomcat-overlay</deploy.target>
-			</properties>
-			<dependencies>
-				<dependency>
-					<groupId>org.sakaiproject.common</groupId>
-					<artifactId>sakai-common-assembly</artifactId>
-					<classifier>tomcat-overlay</classifier>
-					<type>zip</type>
-				</dependency>
-				<dependency>
-					<groupId>org.sakaiproject.edu-services</groupId>
-					<artifactId>edu-services-assembly</artifactId>
-					<classifier>tomcat-overlay</classifier>
-					<type>zip</type>
-				</dependency>
+                <deploy.target>tomcat-overlay</deploy.target>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.sakaiproject.common</groupId>
+                    <artifactId>sakai-common-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.edu-services</groupId>
+                    <artifactId>edu-services-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.emailtemplateservice</groupId>
+                    <artifactId>emailtemplateservice-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
                 <dependency>
                     <groupId>org.sakaiproject.jsf</groupId>
                     <artifactId>jsf-assembly</artifactId>
@@ -67,65 +74,72 @@
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
-				<dependency>
-					<groupId>org.sakaiproject.search</groupId>
-					<artifactId>search-assembly</artifactId>
-					<classifier>tomcat-overlay</classifier>
-					<type>zip</type>
-				</dependency>
-			</dependencies>
-		</profile>
-		<profile>
-			<id>experimental</id>
-			<properties>
-				<clean.targets>
-					components/basiclti-pack;
+                <dependency>
+                    <groupId>org.sakaiproject.search</groupId>
+                    <artifactId>search-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>experimental</id>
+            <properties>
+                <clean.targets>
+                    components/basiclti-pack;
                     components/coursemanagement-hibernate-pack;
+                    components/emailtemplateservice-pack;
                     components/gradebook-service-pack;
                     components/profile2-pack;
-					components/sakai-common-components;
-					components/sakai-msgcntr-component;
-					components/sakai-privacy-pack;
+                    components/sakai-common-components;
+                    components/sakai-msgcntr-component;
+                    components/sakai-privacy-pack;
                     components/samigo-pack;
-					components/search-pack;
-					components/sections-pack;
-					components/sitestats-component;
+                    components/search-pack;
+                    components/sections-pack;
+                    components/sitestats-component;
                     components/tinyurl-pack
                 </clean.targets>
-				<deploy.target>tomcat-overlay</deploy.target>
-			</properties>
-			<dependencies>
-				<dependency>
-					<groupId>org.sakaiproject.basiclti</groupId>
-					<artifactId>basiclti-assembly</artifactId>
-					<version>1.0-SNAPSHOT</version>
-					<classifier>tomcat-overlay</classifier>
-					<type>zip</type>
-				</dependency>
-				<dependency>
-					<groupId>org.sakaiproject.common</groupId>
-					<artifactId>sakai-common-assembly</artifactId>
-					<classifier>tomcat-overlay</classifier>
-					<type>zip</type>
-				</dependency>
-				<dependency>
-					<groupId>org.sakaiproject.edu-services</groupId>
-					<artifactId>edu-services-assembly</artifactId>
-					<classifier>tomcat-overlay</classifier>
-					<type>zip</type>
-				</dependency>
+                <deploy.target>tomcat-overlay</deploy.target>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.sakaiproject.basiclti</groupId>
+                    <artifactId>basiclti-assembly</artifactId>
+                    <version>1.0-SNAPSHOT</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.common</groupId>
+                    <artifactId>sakai-common-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.edu-services</groupId>
+                    <artifactId>edu-services-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.emailtemplateservice</groupId>
+                    <artifactId>emailtemplateservice-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
                 <dependency>
                     <groupId>org.sakaiproject.jsf</groupId>
                     <artifactId>jsf-assembly</artifactId>
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
-				<dependency>
-					<groupId>org.sakaiproject.msgcntr</groupId>
-					<artifactId>sakai-messageforums-assembly</artifactId>
-					<classifier>tomcat-overlay</classifier>
-					<type>zip</type>
-				</dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.msgcntr</groupId>
+                    <artifactId>sakai-messageforums-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
                 <dependency>
                     <groupId>org.sakaiproject.profile2</groupId>
                     <artifactId>profile2-assembly</artifactId>
@@ -139,19 +153,19 @@
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
-				<dependency>
-					<groupId>org.sakaiproject.search</groupId>
-					<artifactId>search-assembly</artifactId>
-					<classifier>tomcat-overlay</classifier>
-					<type>zip</type>
-				</dependency>
-				<dependency>
-					<groupId>org.sakaiproject.sitestats</groupId>
-					<artifactId>sitestats-assembly</artifactId>
-					<version>2.1-SNAPSHOT</version>
-					<classifier>tomcat-overlay</classifier>
-					<type>zip</type>
-				</dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.search</groupId>
+                    <artifactId>search-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.sitestats</groupId>
+                    <artifactId>sitestats-assembly</artifactId>
+                    <version>2.1-SNAPSHOT</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
                 <dependency>
                     <groupId>org.sakaiproject.tinyurl</groupId>
                     <artifactId>tinyurl-assembly</artifactId>
@@ -159,28 +173,36 @@
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
-			</dependencies>
-		</profile>
-		<profile>
-			<id>cafe</id>
-			<properties>
-				<clean.targets>components/archive-pack</clean.targets>
-				<deploy.target>tomcat-overlay</deploy.target>
-			</properties>
-			<dependencies>
-				<dependency>
-					<groupId>org.sakaiproject.common</groupId>
-					<artifactId>archive-assembly</artifactId>
-					<classifier>tomcat-overlay</classifier>
-					<type>zip</type>
-				</dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>cafe</id>
+            <properties>
+                <clean.targets>components/archive-pack;
+                    components/emailtemplateservice-pack
+                </clean.targets>
+                <deploy.target>tomcat-overlay</deploy.target>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.sakaiproject.common</groupId>
+                    <artifactId>archive-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.emailtemplateservice</groupId>
+                    <artifactId>emailtemplateservice-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
                 <dependency>
                     <groupId>org.sakaiproject.jsf</groupId>
                     <artifactId>jsf-assembly</artifactId>
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
-			</dependencies>
-		</profile>
-	</profiles>
+            </dependencies>
+        </profile>
+    </profiles>
 </project>

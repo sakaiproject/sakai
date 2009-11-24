@@ -95,7 +95,6 @@
                 <module>content-review</module>
                 <module>courier</module>
                 <module>dav</module>
-                <module>emailtemplateservice</module>
                 <module>gradebook</module>
                 <module>help</module>
                 <module>jobscheduler</module>
@@ -159,7 +158,6 @@
                 <module>content-review</module>
                 <module>courier</module>
                 <module>dav</module>
-                <module>emailtemplateservice</module>
                 <module>gradebook</module>
                 <module>help</module>
                 <module>jobscheduler</module>
@@ -206,6 +204,7 @@
             <id>cafe</id>
             <modules>
                 <module>kernel-deploy</module>
+                <module>core-deploy</module>
 		        <module>framework-shared-deploy</module>
                 <module>access</module>
                 <module>alias</module>
@@ -233,8 +232,6 @@
                 <module>tool</module>
                 <module>user/user-tool/tool</module>
                 <module>velocity</module>
-                <module>emailtemplateservice</module>
-                <module>core-deploy</module>
             </modules>
         </profile>
         <profile>
