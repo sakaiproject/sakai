@@ -57,7 +57,8 @@ $(document).ready(function() {
 		{ 
 			obj_textfield.disabled = true;
 			obj_textfield.style.backgroundColor = '#eee';
-			document.getElementById('req-$name_GradePoints').style.display="none"
+			document.getElementById('req-$name_GradePoints').style.display="none";
+			document.getElementById('new_assignment_grade_points').value="";
 		}
 	}
 
@@ -505,13 +506,53 @@ $(document).ready(function() {
 				<div style="display:$!addToGBDisplay">
 				<div class="checkbox  indnt2" style="display:$!addToGBDisplay">
 					## hide the assignment list from Gradebook when clicked
-					<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_no" value="$!gradebookChoice_no" #if($!gradebookChoice.equals("$!gradebookChoice_no"))checked#end onclick="if (document.getElementById('gradebookList')) $('#gradebookList').fadeOut('slow');" >
+					<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_no" value="$!gradebookChoice_no" #if($!gradebookChoice.equals("$!gradebookChoice_no"))checked#end onclick="if (document.getElementById('gradebookList')) {$('#gradebookList').fadeOut('slow');$('#categoryList').fadeOut('slow');}" >
 					<label for="$!gradebookChoice_no">#if(!$!noAddToGradebookChoice)$tlang.getString("grading.no")#else$tlang.getString("grading.no2")#end</label>
 					<br/>
 					#if (!$!noAddToGradebookChoice)
 						## hide the assignment list from Gradebook when clicked
-						<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_add" value="$!gradebookChoice_add" #if($!gradebookChoice.equals("$!gradebookChoice_add"))checked#end onclick="if (document.getElementById('gradebookList')) $('#gradebookList').fadeOut('slow');" >
+						<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_add" value="$!gradebookChoice_add" #if($!gradebookChoice.equals("$!gradebookChoice_add"))checked#end 
+							onclick="
+							if ($('#new_assignment_grade_points').attr('value'))
+							{
+								if (document.getElementById('categoryList')) 
+								{
+									## show the gradebook assignment list
+									if (document.getElementById('gradebookList'))
+										$('#gradebookList').fadeOut('slow'); 
+									if($!value_totalCategories > 1) 
+										$('#categoryList').fadeIn('slow');
+								}
+								else
+								{
+									if (document.getElementById('gradebookList'))
+										$('#gradebookList').fadeOut('slow');
+									if (document.getElementById('associate'))
+										$('#associate').attr('checked',false);
+								}
+							}
+							else
+							{
+								## show alert since gradebook integration is only allowed for point-based assignment
+								$('#no').attr('checked',true);
+								if (document.getElementById('categoryList'))
+									$('#categoryList').fadeOut('slow');
+								if (document.getElementById('gradebookList'))
+									$('#gradebookList').fadeOut('slow');
+								if (document.getElementById('associate'))
+									$('#associate').attr('checked',false);
+								if (document.getElementById('gradebookListWarnAssoc'))
+								{
+					       	 		$('#gradebookListWarnAssoc' ).fadeIn('slow');
+					        		$('#gradebookListWarnAssoc').animate({opacity: 1.0}, 2500)
+					  				$('#gradebookListWarnAssoc' ).fadeOut('slow',function () 
+					  				{
+										$('#new_assignment_grade_type').focus();
+							      	});
+							     }
+							}" >
 						<label for="$!gradebookChoice_add">$tlang.getString("grading.add")</label>
+						<span id="gradebookListWarnAssoc" class="alertMessageInline" style="display:none;border:none">$tlang.getString("grading.associate.warn")</span>
 						<br/>
 					#end
 					## if there exists properiate assignment entries in Gradebook
@@ -527,22 +568,23 @@ $(document).ready(function() {
 								{
 									if ($('#new_assignment_grade_points').attr('value')) 
 									{
+										## show the gradebook assignment list
+										$('#categoryList').fadeOut('slow');
 										$('#gradebookList').fadeIn('slow');
-								
 									}
 									else
 									{
+										## show alert since gradebook integration is only allowed for point-based assignment
 										$('#no').attr('checked',true);
+										$('#categoryList').fadeOut('slow');
+										$('#gradebookList').fadeOut('slow');
 										$('#associate').attr('checked',false);
-						        $('#gradebookListWarn' ).fadeIn('slow');
-						        $('#gradebookListWarn').animate({
-						           opacity: 1.0
-      						  }, 2500)
-						  			$('#gradebookListWarn' ).fadeOut('slow',function () {
-//								        alert('a');
-												$('#new_assignment_grade_type').focus();
-								      });
-
+						       	 		$('#gradebookListWarn' ).fadeIn('slow');
+						        		$('#gradebookListWarn').animate({opacity: 1.0}, 2500)
+						  				$('#gradebookListWarn' ).fadeOut('slow',function () 
+						  				{
+											$('#new_assignment_grade_type').focus();
+								      	});
 									}	
 								}" >
 						<label for="$!gradebookChoice_associate">$tlang.getString("grading.associate")</label>
@@ -569,6 +611,18 @@ $(document).ready(function() {
 								## for internal assignment
 								<option  value="$validator.escapeHtml($aAssignment.Name)" #if($!associateGradebookAssignment.equals($aAssignment.Name))selected="selected"#end)>$aAssignment.Name</option>
 							#end
+						#end
+					</select>
+				</p>
+				
+				## show the "Category list" choices or not
+				<p id="categoryList" class="checkbox  indnt4" #if($!gradebookChoice.equals("$!gradebookChoice_add"))style="display:block" #else style="display:none" #end>
+					<label for="category">
+						$tlang.getString("grading.categorylist")
+					</label>
+					<select name="$name_Category" id="category">
+						#foreach ($i in $categoryKeys)
+							<option value="$i" #if ($i == $!value_Category)selected="selected"#end>$categoryTable.get($i)</option>
 						#end
 					</select>
 				</p>

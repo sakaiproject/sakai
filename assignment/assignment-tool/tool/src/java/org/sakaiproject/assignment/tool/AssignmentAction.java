@@ -124,6 +124,7 @@ import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
@@ -465,6 +466,8 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String NEW_ASSIGNMENT_SECTION = "new_assignment_section";
 
 	private static final String NEW_ASSIGNMENT_SUBMISSION_TYPE = "new_assignment_submission_type";
+	
+	private static final String NEW_ASSIGNMENT_CATEGORY = "new_assignment_category";
 
 	private static final String NEW_ASSIGNMENT_GRADE_TYPE = "new_assignment_grade_type";
 
@@ -1584,6 +1587,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		context.put("name_Section", NEW_ASSIGNMENT_SECTION);
 		context.put("name_SubmissionType", NEW_ASSIGNMENT_SUBMISSION_TYPE);
+		context.put("name_Category", NEW_ASSIGNMENT_CATEGORY);
 		context.put("name_GradeType", NEW_ASSIGNMENT_GRADE_TYPE);
 		context.put("name_GradePoints", NEW_ASSIGNMENT_GRADE_POINTS);
 		context.put("name_Description", NEW_ASSIGNMENT_DESCRIPTION);
@@ -1620,6 +1624,10 @@ public class AssignmentAction extends PagedResourceActionII
 
 		context.put("value_Sections", state.getAttribute(NEW_ASSIGNMENT_SECTION));
 		context.put("value_SubmissionType", state.getAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE));
+		
+		// information related to gradebook categories
+		putGradebookCategoryInfoIntoContext(state, context);
+		
 		context.put("value_totalSubmissionTypes", Assignment.SUBMISSION_TYPES.length);
 		context.put("value_GradeType", state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE));
 		// format to show one decimal place
@@ -1647,7 +1655,7 @@ public class AssignmentAction extends PagedResourceActionII
 		// put resubmission option into context
 		assignment_resubmission_option_into_context(context, state);
 
-		// get all available assignments from Gradebook tool except for those created from
+		// get all available assignments from Gradebook tool except for those created fromcategoryTable
 		boolean gradebookExists = isGradebookDefined();
 		if (gradebookExists)
 		{
@@ -1862,6 +1870,33 @@ public class AssignmentAction extends PagedResourceActionII
 	} // setAssignmentFormContext
 
 
+	private void putGradebookCategoryInfoIntoContext(SessionState state,
+			Context context) {
+		Hashtable<Long, String> categoryTable = categoryTable();
+		if (categoryTable != null)
+		{
+			context.put("value_totalCategories", Integer.valueOf(categoryTable.size()));
+
+			// selected category
+			context.put("value_Category", state.getAttribute(NEW_ASSIGNMENT_CATEGORY));
+			
+			Enumeration<Long> categories = categoryTable.keys();
+			List<Long> categoryList = new Vector<Long>();
+			while(categories.hasMoreElements())
+			{
+				categoryList.add(categories.nextElement());
+			}
+			Collections.sort(categoryList);
+			context.put("categoryKeys", categoryList);
+			context.put("categoryTable", categoryTable());
+		}
+		else
+		{
+			context.put("value_totalCategories", Integer.valueOf(0));
+		}
+	}
+
+
 	/**
 	 * put the release grade notification options into context
 	 * @param state
@@ -1927,6 +1962,9 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			context.put("gradebookChoice", state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK));
 			context.put("associateGradebookAssignment", state.getAttribute(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+		
+			// information related to gradebook categories
+			putGradebookCategoryInfoIntoContext(state, context);
 		}
 
 		context.put("monthTable", monthTable());
@@ -2925,8 +2963,8 @@ public class AssignmentAction extends PagedResourceActionII
 	 * @param submissionRef Any submission grade need to be updated? Do bulk update if null
 	 * @param updateRemoveSubmission "update" for update submission;"remove" for remove submission
 	 */
-	protected void integrateGradebook (SessionState state, String assignmentRef, String associateGradebookAssignment, String addUpdateRemoveAssignment, String oldAssignment_title, String newAssignment_title, int newAssignment_maxPoints, Time newAssignment_dueTime, String submissionRef, String updateRemoveSubmission)
-	{
+   protected void integrateGradebook (SessionState state, String assignmentRef, String associateGradebookAssignment, String addUpdateRemoveAssignment, String oldAssignment_title, String newAssignment_title, int newAssignment_maxPoints, Time newAssignment_dueTime, String submissionRef, String updateRemoveSubmission, long category)
+   {
 		associateGradebookAssignment = StringUtil.trimToNull(associateGradebookAssignment);
 
 		// add or remove external grades to gradebook
@@ -2955,7 +2993,7 @@ public class AssignmentAction extends PagedResourceActionII
 					try
 					{
 						// add assignment to gradebook
-						gExternal.addExternalAssessment(gradebookUid, assignmentRef, null, newAssignment_title, newAssignment_maxPoints/10.0, new Date(newAssignment_dueTime.getTime()), assignmentToolTitle, false);
+						gExternal.addExternalAssessment(gradebookUid, assignmentRef, null, newAssignment_title, newAssignment_maxPoints/10.0, new Date(newAssignment_dueTime.getTime()), assignmentToolTitle, false, category != -1?Long.valueOf(category):null);
 					}
 					catch (AssignmentHasIllegalPointsException e)
 					{
@@ -2991,8 +3029,6 @@ public class AssignmentAction extends PagedResourceActionII
 						// if there is an external entry created in Gradebook based on this assignment, update it
 						try
 						{
-						    Assignment a = AssignmentService.getAssignment(associateGradebookAssignment);
-
 						    // update attributes if the GB assignment was created for the assignment
 						    gExternal.updateExternalAssessment(gradebookUid, associateGradebookAssignment, null, newAssignment_title, newAssignment_maxPoints/10.0, new Date(newAssignment_dueTime.getTime()), false);
 						}
@@ -3743,12 +3779,12 @@ public class AssignmentAction extends PagedResourceActionII
 			if (gradeOption.equals("release") || gradeOption.equals("return"))
 			{
 				// update grade in gradebook
-				integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, sReference, "update");
+				integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, sReference, "update", -1);
 			}
 			else
 			{
 				// remove grade from gradebook
-				integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, sReference, "remove");
+				integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, sReference, "remove", -1);
 			}
 		}
 		catch (IdUnusedException e)
@@ -4289,6 +4325,12 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(NEW_ASSIGNMENT_SECTION, sections_string);
 		state.setAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE, new Integer(params.getString(NEW_ASSIGNMENT_SUBMISSION_TYPE)));
 
+		// Skip category if it was never set.
+		Long catInt = Long.valueOf(-1);
+		if(params.getString(NEW_ASSIGNMENT_CATEGORY) != null) 
+			catInt = new Long(params.getString(NEW_ASSIGNMENT_CATEGORY));
+			state.setAttribute(NEW_ASSIGNMENT_CATEGORY, catInt);
+		
 		int gradeType = -1;
 
 		// grade type and grade points
@@ -4913,6 +4955,8 @@ public class AssignmentAction extends PagedResourceActionII
 
 			String addtoGradebook = state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK) != null?(String) state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK):"" ;
 
+			long category = state.getAttribute(NEW_ASSIGNMENT_CATEGORY) != null ? ((Long) state.getAttribute(NEW_ASSIGNMENT_CATEGORY)).longValue() : -1;
+			
 			String associateGradebookAssignment = (String) state.getAttribute(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
 			
 			String allowResubmitNumber = state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null?(String) state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER):null;
@@ -5202,7 +5246,7 @@ public class AssignmentAction extends PagedResourceActionII
 					// integrate with Gradebook
 					try
 					{
-						initIntegrateWithGradebook(state, siteId, aOldTitle, oAssociateGradebookAssignment, a, title, dueTime, gradeType, gradePoints, addtoGradebook, associateGradebookAssignment, range);
+						initIntegrateWithGradebook(state, siteId, aOldTitle, oAssociateGradebookAssignment, a, title, dueTime, gradeType, gradePoints, addtoGradebook, associateGradebookAssignment, range, category);
 					}
 					catch (AssignmentHasIllegalPointsException e)
 					{
@@ -5386,7 +5430,7 @@ public class AssignmentAction extends PagedResourceActionII
 		
 	}
 	
-	private void initIntegrateWithGradebook(SessionState state, String siteId, String aOldTitle, String oAssociateGradebookAssignment, AssignmentEdit a, String title, Time dueTime, int gradeType, String gradePoints, String addtoGradebook, String associateGradebookAssignment, String range) {
+	private void initIntegrateWithGradebook(SessionState state, String siteId, String aOldTitle, String oAssociateGradebookAssignment, AssignmentEdit a, String title, Time dueTime, int gradeType, String gradePoints, String addtoGradebook, String associateGradebookAssignment, String range, long category) {
 
 		GradebookExternalAssessmentService gExternal = (GradebookExternalAssessmentService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
 		
@@ -5422,7 +5466,7 @@ public class AssignmentAction extends PagedResourceActionII
 						// ignore the exception
 						M_log.warn(this + ":initIntegratewithGradebook " + rb.getString("cannotfin2") + ref);
 					}
-					integrateGradebook(state, aReference, associateGradebookAssignment, "remove", null, null, -1, null, null, null);
+					integrateGradebook(state, aReference, associateGradebookAssignment, "remove", null, null, -1, null, null, null, category);
 				}
 				else
 				{
@@ -5439,10 +5483,10 @@ public class AssignmentAction extends PagedResourceActionII
 					{
 						try
 						{
-							integrateGradebook(state, aReference, associateGradebookAssignment, addUpdateRemoveAssignment, aOldTitle, title, Integer.parseInt (gradePoints), dueTime, null, null);
+							integrateGradebook(state, aReference, associateGradebookAssignment, addUpdateRemoveAssignment, aOldTitle, title, Integer.parseInt (gradePoints), dueTime, null, null, category);
 	
 							// add all existing grades, if any, into Gradebook
-							integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, null, "update");
+							integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, null, "update", category);
 	
 							// if the assignment has been assoicated with a different entry in gradebook before, remove those grades from the entry in Gradebook
 							if (StringUtil.trimToNull(oAssociateGradebookAssignment) != null && !oAssociateGradebookAssignment.equals(associateGradebookAssignment))
@@ -5459,7 +5503,7 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 					else
 					{
-						integrateGradebook(state, aReference, associateGradebookAssignment, "remove", null, null, -1, null, null, null);
+						integrateGradebook(state, aReference, associateGradebookAssignment, "remove", null, null, -1, null, null, null, category);
 					}
 				}
 			}
@@ -6308,6 +6352,7 @@ public class AssignmentAction extends PagedResourceActionII
 			state.setAttribute(NEW_ASSIGNMENT_SECTION, a.getSection());
 
 			state.setAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE, new Integer(a.getContent().getTypeOfSubmission()));
+			state.setAttribute(NEW_ASSIGNMENT_CATEGORY, getAssignmentCategoryAsInt(a));
 			int typeOfGrade = a.getContent().getTypeOfGrade();
 			state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE, new Integer(typeOfGrade));
 			if (typeOfGrade == 3)
@@ -6568,7 +6613,7 @@ public class AssignmentAction extends PagedResourceActionII
 				deleteAssignmentObjects(state, aEdit, true);
 
 				// remove from Gradebook
-				integrateGradebook(state, (String) ids.get (i), associateGradebookAssignment, "remove", null, null, -1, null, null, null);
+				integrateGradebook(state, (String) ids.get (i), associateGradebookAssignment, "remove", null, null, -1, null, null, null, -1);
 			}
 			catch (InUseException e)
 			{
@@ -7047,7 +7092,7 @@ public class AssignmentAction extends PagedResourceActionII
 				// integrate with Gradebook
 				String associateGradebookAssignment = StringUtil.trimToNull(a.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
 
-				integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, null, "update");
+				integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, null, "update", -1);
 			}
 		}
 		catch (IdUnusedException e)
@@ -8353,6 +8398,31 @@ public class AssignmentAction extends PagedResourceActionII
 		return n;
 
 	} // submissionTypeTable
+	
+	/**
+	* Add the list of categories from the gradebook tool
+	* construct a Hashtable using the integer as the key and category String as the value
+	* @return
+	*/
+	private Hashtable<Long, String> categoryTable()
+	{
+		boolean gradebookExists = isGradebookDefined();
+		Hashtable<Long, String> catTable = new Hashtable<Long, String>();
+		if (gradebookExists) {
+			
+			GradebookService g = (GradebookService)  ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+			String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
+			
+			List<CategoryDefinition> categoryDefinitions = g.getCategoryDefinitions(gradebookUid);
+			
+			catTable.put(Long.valueOf(-1), rb.getString("grading.unassigned"));
+			for (CategoryDefinition category: categoryDefinitions) {
+				catTable.put(category.getId(), category.getName());
+			}
+		}
+		return catTable;
+		
+	} // categoryTable
 
 	/**
 	 * Sort based on the given property
@@ -11240,7 +11310,7 @@ public class AssignmentAction extends PagedResourceActionII
 										// update grade in gradebook
 										if (associateGradebookAssignment != null)
 										{
-											integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, sReference, "update");
+											integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, sReference, "update", -1);
 										}
 									}
 									
@@ -12099,5 +12169,20 @@ public class AssignmentAction extends PagedResourceActionII
           return SecurityAdvice.ALLOWED;
         }
       });
+    }
+    
+    /**
+     * Categories are represented as Integers. Right now this feature only will
+     * be active for new assignments, so we'll just always return 0 for the 
+     * unassigned category. In the future we may (or not) want to update this 
+     * to return categories for existing gradebook items.
+     * @param assignment
+     * @return
+     */
+    private int getAssignmentCategoryAsInt(Assignment assignment) {
+    	int categoryAsInt;
+    	categoryAsInt = 0; // zero for unassigned
+    	
+    	return categoryAsInt;
     }
 }	
