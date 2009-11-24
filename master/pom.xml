@@ -225,7 +225,13 @@
             </dependency>
             
             <!-- Other Assemblies -->
-            
+            <dependency>
+                <groupId>org.sakaiproject.emailtemplateservice</groupId>
+                <artifactId>emailtemplateservice-assembly</artifactId>
+                <version>${sakai.ets.version}</version>
+                <classifier>tomcat-overlay</classifier>
+                <type>zip</type>
+            </dependency>
             <dependency>
                 <groupId>org.sakaiproject.jsf</groupId>
                 <artifactId>jsf-assembly</artifactId>
