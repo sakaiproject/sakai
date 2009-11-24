@@ -10208,7 +10208,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		 */
 		public String getUrl(boolean relative)
 		{
-			return getAccessPoint(relative) + convertIdToUserEid(m_id);
+			return getAccessPoint(relative) + Web.escapeUrl(convertIdToUserEid(m_id));
 		}
 
 		/**
@@ -11384,8 +11384,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		public String getUrl(boolean relative, String rootProperty)
 		{
 			return (relative ? m_serverConfigurationService.getAccessPath() : m_serverConfigurationService.getAccessUrl()) 
-			+ getAlternateReferenceRoot(rootProperty) + m_relativeAccessPoint
-			+ convertIdToUserEid(m_id);
+			+ Web.escapeUrl(getAlternateReferenceRoot(rootProperty) + m_relativeAccessPoint
+			+ convertIdToUserEid(m_id));
 		}
 
 		/**
