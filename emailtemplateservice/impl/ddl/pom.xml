@@ -1,20 +1,17 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <!-- adjust these name,groupId,artifactId to match your project -->
-    <name>Sakai Hierarchy DB DDL generator</name>
+
+    <parent>
+        <groupId>org.sakaiproject.emailtemplateservice</groupId>
+        <artifactId>emailtemplateservice</artifactId>
+        <version>0.4-SNAPSHOT</version>
+    </parent>
+
+    <name>Sakai Hierarchy DB DDL generator (hierarchy-ddl-generator)</name>
     <groupId>org.sakaiproject.hierarchy</groupId>
     <artifactId>hierarchy-ddl-generator</artifactId>
     <packaging>pom</packaging>
-
-    <!-- this should refer to your project base POM (remove if not needed) -->
-        <parent>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>emailtemplateservice</artifactId>
-        <version>0.4-SNAPSHOT</version>
-        <relativePath>../../pom.xml</relativePath>
-    </parent>
 
     <properties>
         <!-- change this to reflect the name to use for the ddl files -->
@@ -22,15 +19,10 @@
     </properties>
 
     <dependencies>
-
-        <!-- pull in your hibernate persistent objects -->
         <dependency>
-        	<groupId>org.sakaiproject.emailtemplateservice</groupId>
-        	<artifactId>emailtemplateservice-api</artifactId>
-        	<version>0.4-SNAPSHOT</version><!--hierarchy.version-->
-        	<scope>provided</scope>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>emailtemplateservice-api</artifactId>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -44,7 +36,6 @@
                 <filtering>false</filtering>
             </resource>
         </resources>
-
         <plugins>
             <plugin>
                 <!-- hibernate ddl generation -->
@@ -159,5 +150,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

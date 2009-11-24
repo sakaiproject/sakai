@@ -1,89 +1,175 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-      <licenses>
-      <license>
-          <name>ECL-2.0</name>
-          <url>http://www.osedu.org/licenses/ECL-2.0</url>
-          <distribution>repo</distribution>
-          <comments>Copyright 2003, 2004, 2005, 2006, 2007 Sakai Foundation</comments>
-      </license>
-  </licenses>
-    <name>Sakai Emailtemplateservice</name>
-    <groupId>org.sakaiproject</groupId>
+
+    <parent>
+        <groupId>org.sakaiproject.purepoms</groupId>
+        <artifactId>sakai-standard-tool</artifactId>
+        <version>2.7.0-build03</version>
+    </parent>
+
+    <name>Sakai Emailtemplateservice Base POM (emailtemplateservice)</name>
+    <groupId>org.sakaiproject.emailtemplateservice</groupId>
     <artifactId>emailtemplateservice</artifactId>
+    <packaging>pom</packaging>
+    <version>0.4-SNAPSHOT</version>
     <organization>
         <name>Sakai Project</name>
         <url>http://sakaiproject.org/</url>
     </organization>
     <inceptionYear>2007</inceptionYear>
-    <packaging>pom</packaging>
-    <version>0.4-SNAPSHOT</version><!--emailtemplateservice.version-->
-    <parent>
-        <artifactId>master</artifactId>
-        <groupId>org.sakaiproject</groupId>
-        <version>2.8-SNAPSHOT</version>
-       <!-- <version>2.5.0</version>-->
-        <relativePath>../master/pom.xml</relativePath>
-    </parent>
-<repositories>
-    <repository>
-      <id>sakai-maven</id>
-      <name>Sakai Maven Repo</name>
-      <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    </repositories>
+
+    <licenses>
+        <license>
+            <name>ECL-2.0</name>
+            <url>http://www.osedu.org/licenses/ECL-2.0</url>
+            <distribution>repo</distribution>
+            <comments>Copyright 2007-2009 Sakai Foundation</comments>
+        </license>
+    </licenses>
+
     <modules>
         <module>api</module>
         <module>impl/logic</module>
         <module>pack</module>
-        <module>tool</module> 
+        <module>tool</module>
     </modules>
+    
+    <properties>
+        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/emailtemplateservice/${project.version}</url.localsite>
+    </properties>
 
-    <!-- handles the management of all related dependencies -->
+    <pluginRepositories>
+        <pluginRepository>
+            <id>maven2-central-repo</id>
+            <name>Maven2 Central Repo</name>
+            <url>http://repo1.maven.org/maven2/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+        <pluginRepository>
+            <id>Sakai Plugin Repo</id>
+            <url>http://source.sakaiproject.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <repositories>
+        <repository>
+            <id>sakai-maven2</id>
+            <name>Sakai Maven Repository</name>
+            <layout>default</layout>
+            <url>http://source.sakaiproject.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>sakai-maven2-snapshots</id>
+            <name>Sakai Maven Repo Snapshots</name>
+            <layout>default</layout>
+            <url>http://source.sakaiproject.org/maven2-snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>default</id>
+            <name>Maven Repository Switchboard</name>
+            <layout>default</layout>
+            <url>http://repo1.maven.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <scm>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/emailtemplateservice/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/emailtemplateservice/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/emailtemplateservice/trunk</url>
+    </scm>
+
+    <distributionManagement>
+        <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
+        <snapshotRepository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>sakai-maven-snapshots-scp</id>
+            <name>Sakai snapshot Repo</name>
+            <url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
+            <layout>default</layout>
+        </snapshotRepository>
+        <repository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>sakai-maven2-scp</id>
+            <name>Sakai maven2 repository</name>
+            <url>scp://source.sakaiproject.org/var/www/html/maven2</url>
+            <layout>default</layout>
+        </repository>
+        <site>
+            <id>sakai-site</id>
+            <name>Sakai release Site</name>
+            <url>${url.localsite}</url>
+        </site>
+    </distributionManagement>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.sakaiproject.emailtemplateservice</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>emailtemplateservice-api</artifactId>
-                <version>0.4-SNAPSHOT</version><!--emailtemplateservice.version-->
+                <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>org.sakaiproject.emailtemplateservice</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>emailtemplateservice-impl</artifactId>
-                <version>0.4-SNAPSHOT</version><!--emailtemplateservice.version-->
+                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
-    <!-- define source code repository location -->
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/emailtemplateservice/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/emailtemplateservice/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/emailtemplateservice/trunk</url>
-  </scm>
-	<distributionManagement>
-		<snapshotRepository>
-			<uniqueVersion>false</uniqueVersion>
-			<id>sakai-maven-snapshots</id>
-			<name>Sakai snapshot Repo</name>
-			<url>dav:https://source.sakaiproject.org/maven2-snapshots</url>
-			<layout>default</layout>
-		</snapshotRepository>
-		<repository>
-			<uniqueVersion>false</uniqueVersion>
-			<id>sakai-maven2</id>
-			<name>Local Test</name>
-			<url>dav:http://source.sakaiproject.org/maven2</url>
-			<layout>default</layout>
-		</repository>
-		<site>
-			<id>local</id>
-			<name>Local Test</name>
-			<url>file:///tmp/site</url>
-		</site>
-        </distributionManagement>
+    
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <reportSets>
+                  <reportSet>
+                    <id>aggregate</id>
+                    <configuration>
+                      <aggregate>true</aggregate>
+                          <source>1.5</source>
+                      <encoding>UTF-8</encoding>
+                        <links>
+                        <link>http://java.sun.com/j2se/1.5.0/docs/api</link>
+                        <link>http://java.sun.com/products/servlet/2.3/javadoc/</link>
+                      </links>
+                      <breakiterator>true</breakiterator>
+                      <verbose>false</verbose>
+                      <maxmemory>512m</maxmemory>
+                      <additionalJOption>
+                        -J-Xms168m -J-Xmx512m -J-XX:PermSize=128m -J-XX:NewSize=64m
+                      </additionalJOption>
+                    </configuration>
+                    <reports>
+                      <report>aggregate</report>
+                    </reports>
+                  </reportSet>
+                </reportSets>   
+            </plugin>
+        </plugins>
+    </reporting>
 </project>
