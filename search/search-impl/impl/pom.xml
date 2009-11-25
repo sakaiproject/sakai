@@ -210,29 +210,27 @@
       <version>${poi.version}</version>
       <type>jar</type>
     </dependency>
-    <!-- Due to tika we can't upgrade this till Tika does a 
-    new release -->
+    <!-- As Tika is uses PDFbox the 2 versions need to 
+    be co-ordinated -->
     <dependency>
-      <groupId>pdfbox</groupId>
+      <groupId>org.apache.pdfbox</groupId>
       <artifactId>pdfbox</artifactId>
-      <version>0.7.3</version>
+      <version>0.8.0-incubating</version>
       <type>jar</type>
     </dependency>
     <dependency>
 	<groupId>org.apache.tika</groupId>
 	<artifactId>tika-core</artifactId>
-	<version>0.4</version>
+	<version>0.5</version>
 	</dependency>
     <dependency>
 	<groupId>org.apache.tika</groupId>
 	<artifactId>tika-parsers</artifactId>
-	<version>0.4</version>
+	<version>0.5</version>
 	</dependency>
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
-      <version>1.3</version>
-      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>commons-httpclient</groupId>
