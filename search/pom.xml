@@ -12,12 +12,12 @@
 	<artifactId>search</artifactId>
 	<version>1.2-beta02-SNAPSHOT</version>
 	<scm>
-		<connection>scm:svn:https://source.sakaiproject.org/svn/search/trunk
+		<connection>scm:svn:https://source.sakaiproject.org/svn/search/branches/search_1.2
 		</connection>
 		<developerConnection>
-			scm:svn:https://source.sakaiproject.org/svn/search/trunk
+			scm:svn:https://source.sakaiproject.org/svn/search/branches/search_1.2
 		</developerConnection>
-		<url>https://source.sakaiproject.org/svn/search/trunk
+		<url>https://source.sakaiproject.org/svn/search/branches/search_1.2
 		</url>
 	</scm>
 	<packaging>pom</packaging>
