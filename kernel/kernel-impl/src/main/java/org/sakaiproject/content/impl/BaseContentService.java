@@ -6482,7 +6482,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		try
 		{
 			// use the helper
-			CollectionAccessFormatter.format(collection, ref, req, res, getAccessPoint(true), getAccessPoint(false));
+			CollectionAccessFormatter.format(collection, ref, req, res, rb, getAccessPoint(true), getAccessPoint(false));
 
 			// track event
 			// EventTrackingService.post(EventTrackingService.newEvent(EVENT_RESOURCE_READ, collection.getReference(), false));
