@@ -10,14 +10,14 @@
 	<name>Sakai Search Project</name>
 	<groupId>org.sakaiproject.search</groupId>
 	<artifactId>search</artifactId>
-	<version>1.2-beta02-SNAPSHOT</version>
+	<version>1.3.0-SNAPSHOT</version>
 	<scm>
-		<connection>scm:svn:https://source.sakaiproject.org/svn/search/branches/search_1.2
+		<connection>scm:svn:https://source.sakaiproject.org/svn/search/trunk
 		</connection>
 		<developerConnection>
-			scm:svn:https://source.sakaiproject.org/svn/search/branches/search_1.2
+			scm:svn:https://source.sakaiproject.org/svn/search/trunk
 		</developerConnection>
-		<url>https://source.sakaiproject.org/svn/search/branches/search_1.2
+		<url>https://source.sakaiproject.org/svn/search/trunk
 		</url>
 	</scm>
 	<packaging>pom</packaging>
@@ -63,26 +63,26 @@
 			<dependency>
 				<groupId>org.sakaiproject.search</groupId>
 				<artifactId>search-api</artifactId>
-				<version>1.2-beta02-SNAPSHOT</version>
+				<version>1.3.0-SNAPSHOT</version>
 				<type>jar</type>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.sakaiproject.search</groupId>
 				<artifactId>search-model</artifactId>
-				<version>1.2-beta02-SNAPSHOT</version>
+				<version>1.3.0-SNAPSHOT</version>
 				<type>jar</type>
 			</dependency>
 			<dependency>
 				<groupId>org.sakaiproject.search</groupId>
 				<artifactId>search-impl</artifactId>
-				<version>1.2-beta02-SNAPSHOT</version>
+				<version>1.3.0-SNAPSHOT</version>
 				<type>jar</type>
 			</dependency>
 			<dependency>
 				<groupId>org.sakaiproject.search</groupId>
 				<artifactId>search-util</artifactId>
-				<version>1.2-beta02-SNAPSHOT</version>
+				<version>1.3.0-SNAPSHOT</version>
 				<type>jar</type>
 			</dependency>
 			<dependency>
