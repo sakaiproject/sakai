@@ -1423,19 +1423,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
   {
   	try
   	{
-		String link = contentHostingService.getResource(id).getUrl(false);
-  		Pattern pattern = Pattern.compile("^(https?://[^/]+)(.+/)([^/]+)$");
-  		Matcher matcher = pattern.matcher(link);
-  		
-  		if(matcher.matches()){
-  			String host = matcher.group(1);
-  			String path = matcher.group(2).replace(" ", "%20");
-  			String file = matcher.group(3);
-  			String encoded = URLEncoder.encode(file, "UTF-8").replace("+", "%20");
-  			return (host + path + encoded);
-  		}else{
-  			return link;
-  		}
+		return contentHostingService.getResource(id).getUrl(false);
   	}
   	catch(Exception e)
   	{
@@ -1447,9 +1435,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
   public String getAttachmentRelativeUrl(String id) {
       try
       {
-          String tempString = contentHostingService.getResource(id).getUrl(true);
-          String newString = org.sakaiproject.util.Web.escapeUrl(tempString);
-          return newString;
+          return contentHostingService.getResource(id).getUrl(true);
       }
       catch(Exception e)
       {
