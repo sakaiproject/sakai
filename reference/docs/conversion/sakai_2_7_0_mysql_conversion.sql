@@ -17,3 +17,9 @@ ALTER TABLE SAM_PUBLISHEDASSESSMENT_T ADD LASTNEEDRESUBMITDATE DATE NULL;
 
 -- SAK-16880 collaborative portfolio editing
 ALTER TABLE osp_presentation ADD isCollab tinyint NOT NULL DEFAULT '0';
+
+-- SAK-16984 new column in sakai-Person
+alter table SAKAI_PERSON_T add column NORMALIZEDMOBILE varchar(255);
+
+-- SAK-17447
+alter table EMAIL_TEMPLATE_ITEM add column HTMLMESSAGE text;
