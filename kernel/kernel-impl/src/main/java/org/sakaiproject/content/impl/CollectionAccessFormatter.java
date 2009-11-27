@@ -22,6 +22,7 @@
 package org.sakaiproject.content.impl;
 
 import java.io.PrintWriter;
+import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 
@@ -147,7 +148,7 @@ public class CollectionAccessFormatter
 			if (parts.length > 2)
 			{
 				// go up a level
-				out.println("<li class=\"upfolder\"><a href=\"../\"><img src=\"/library/image/sakai/folder-up.gif\" alt=\"" + rb.getString("colformat.uplevel.alttext") + "\"/>" + rb.getString("colformat.uplevel") + "</a></span></li>");
+				out.println("<li class=\"upfolder\"><a href=\"../\"><img src=\"/library/image/sakai/folder-up.gif\" alt=\"" + rb.getString("colformat.uplevel.alttext") + "\"/>" + rb.getString("colformat.uplevel") + "</a></li>");
 			}
 
 			// Sort the collection items
@@ -168,6 +169,8 @@ public class CollectionAccessFormatter
 
 			// Iterate through content items
 
+			URI baseUri = new URI(x.getUrl());
+						
 			for (ContentEntity content : members) {
 
 				ResourceProperties properties = content.getProperties();
@@ -199,7 +202,13 @@ public class CollectionAccessFormatter
 
 				try
 				{
-
+					// Relativize the URL (canonical item URL relative to canonical collection URL). 
+					// Inter alias this will preserve alternate access paths via aliases, e.g. /web/
+					
+					URI contentUri = new URI(contentUrl);			
+					URI relativeUri = baseUri.relativize(contentUri);
+					contentUrl = relativeUri.toString();
+					
 					if (isCollection)
 					{
 						// Folder
