@@ -62,5 +62,29 @@
 		<lookup-method name="threadLocalManager" bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
 
 	</bean>
+	
+	<!-- Export active session data over JMX -->
+	<bean id="org.sakaiproject.tool.api.MBeanExporter" class="org.springframework.jmx.export.MBeanExporter"
+		lazy-init="false">
+		<property name="beans">
+			<map>
+				<entry key="org.sakaiproject:name=Sessions" value-ref="org.sakaiproject.tool.impl.JMXSessionComponent" />
+			</map>
+		</property>
+		<property name="assembler">
+			<bean
+				class="org.springframework.jmx.export.assembler.MethodNameBasedMBeanInfoAssembler">
+				<property name="managedMethods">
+					<value>getActive5Min,getActive10Min,getActive15Min,getActive</value>
+				</property>
+			</bean>
+		</property>
+	</bean>
 
+	<bean id="org.sakaiproject.tool.impl.JMXSessionComponent" class="org.sakaiproject.tool.impl.JMXSessionComponent">
+		<property name="sessionManager">
+			<ref bean="org.sakaiproject.tool.api.SessionManager" />
+		</property>
+	</bean>
+	
 </beans>
