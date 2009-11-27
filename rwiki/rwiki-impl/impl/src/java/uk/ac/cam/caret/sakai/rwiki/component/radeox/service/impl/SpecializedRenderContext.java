@@ -22,6 +22,7 @@
 package uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl;
 
 import org.radeox.engine.context.BaseRenderContext;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
@@ -59,16 +60,20 @@ public class SpecializedRenderContext extends BaseRenderContext implements
 
 	private SiteService siteService;
 
+	private EntityManager entityManager;
+
 	public SpecializedRenderContext(RWikiObject rwikiObject,
 			RWikiObjectService objectService,
 			RWikiSecurityService securityService,
-			SiteService siteService)
+			SiteService siteService,
+			EntityManager entityManager)
 	{
 		this.rwikiObject = rwikiObject;
 
 		this.objectService = objectService;
 		this.securityService = securityService;
 		this.siteService = siteService;
+		this.entityManager = entityManager;
 		
 		this.set(RWikiObject.class.getName(), rwikiObject);
 		this.set(RWikiObject.class.getName().concat(".name"), rwikiObject.getName()); //$NON-NLS-1$
@@ -182,13 +187,13 @@ public class SpecializedRenderContext extends BaseRenderContext implements
 				if ( remLink.startsWith("~") ) { //$NON-NLS-1$
 					remLink = remLink.substring(1);
 				}
-				link = "/access/content/user/" //$NON-NLS-1$
+				link = "/content/user/" //$NON-NLS-1$
 						+ remLink;
 
 			}
 			else
 			{
-				link = "/access/content/group/" //$NON-NLS-1$
+				link = "/content/group/" //$NON-NLS-1$
 						+ link.substring("sakai:/".length()); //$NON-NLS-1$
 			}
 		}
@@ -216,13 +221,13 @@ public class SpecializedRenderContext extends BaseRenderContext implements
 				if ( remLink.startsWith("~") ) { //$NON-NLS-1$
 					remLink = remLink.substring(1);
 				}
-				link = "/access/content/group-user/" //$NON-NLS-1$
+				link = "/content/group-user/" //$NON-NLS-1$
 						+ remLink;
 
 			}
 			else
 			{
-				link = "/access/content/group-user/" //$NON-NLS-1$
+				link = "/content/group-user/" //$NON-NLS-1$
 						+ link.substring("sakai-dropbox:/".length()); //$NON-NLS-1$
 			}
 		}
@@ -237,13 +242,13 @@ public class SpecializedRenderContext extends BaseRenderContext implements
 				if ( siteId.startsWith("~") ) { //$NON-NLS-1$
 					siteId = siteId.substring(1);
 				}
-				link = "/access/content/user/" + siteId + "/" //$NON-NLS-1$ //$NON-NLS-2$
+				link = "/content/user/" + siteId + "/" //$NON-NLS-1$ //$NON-NLS-2$
 						+ link.substring("worksite:/".length()); //$NON-NLS-1$
 
 			}
 			else
 			{
-				link = "/access/content/group/" + siteId + "/" //$NON-NLS-1$ //$NON-NLS-2$
+				link = "/content/group/" + siteId + "/" //$NON-NLS-1$ //$NON-NLS-2$
 						+ link.substring("worksite:/".length()); //$NON-NLS-1$
 			}
 
@@ -259,15 +264,31 @@ public class SpecializedRenderContext extends BaseRenderContext implements
 				if ( siteId.startsWith("~") ) { //$NON-NLS-1$
 					siteId = siteId.substring(1);
 				}
-				link = "/access/content/group-user/" + siteId + "/" //$NON-NLS-1$ //$NON-NLS-2$
+				link = "/content/group-user/" + siteId + "/" //$NON-NLS-1$ //$NON-NLS-2$
 						+ link.substring("dropbox:/".length()); //$NON-NLS-1$
 
 			}
 			else
 			{
-				link = "/access/content/group-user/" + siteId + "/" //$NON-NLS-1$ //$NON-NLS-2$
+				link = "/content/group-user/" + siteId + "/" //$NON-NLS-1$ //$NON-NLS-2$
 						+ link.substring("dropbox:/".length()); //$NON-NLS-1$
 			}
+
+		}
+		try
+		{
+			Reference r = entityManager.newReference(link);
+			if (r != null)
+			{
+				String s = r.getUrl();
+				if (s != null)
+				{
+					link = s;
+				}
+			}
+		}
+		catch (Exception ex)
+		{
 
 		}
 		return link;

@@ -26,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.context.RenderContext;
 import org.sakaiproject.component.api.ComponentManager;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.site.api.SiteService;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
@@ -47,6 +48,8 @@ public class RenderContextFactoryImpl implements RenderContextFactory
 
 	private SiteService siteService;
 
+	private EntityManager entityManager;
+
 	public void init()
 	{
 		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
@@ -56,6 +59,7 @@ public class RenderContextFactoryImpl implements RenderContextFactory
 		securityService = (RWikiSecurityService) load(cm,
 				RWikiSecurityService.class.getName());
 		siteService = (SiteService) load(cm, SiteService.class.getName());
+		entityManager = (EntityManager) load(cm, EntityManager.class.getName());
 	}
 
 	private Object load(ComponentManager cm, String name)
@@ -79,7 +83,7 @@ public class RenderContextFactoryImpl implements RenderContextFactory
 	{
 
 		SpecializedRenderContext context = new SpecializedRenderContext(rwo,
-				objectService, securityService, siteService);
+				objectService, securityService, siteService, entityManager);
 		context.setRenderEngine(renderEngine);
 		return context;
 	}
