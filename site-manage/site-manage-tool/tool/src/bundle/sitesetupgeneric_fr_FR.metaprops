@@ -361,9 +361,6 @@ editgroup.removegroups..text.md5=jpTXargO1EMsI+CZLkRFqg\=\=
 editgroup.removemember..text.author=cyril
 editgroup.removemember..text.changed=20090329091532
 editgroup.removemember..text.md5=EnTLvsE5uKoRnyvPBZwipQ\=\=
-editgroup.revise..text.author=cyril
-editgroup.revise..text.changed=20090329091528
-editgroup.revise..text.md5=5MgGoruQPrayFsVbdJZioQ\=\=
 editgroup.selectremovechecked..text.author=cyril
 editgroup.selectremovechecked..text.changed=20090329091525
 editgroup.selectremovechecked..text.md5=TOELK3dE1tRtx6ZfovqOsA\=\=
@@ -784,9 +781,6 @@ java.permeditsite..text.md5=J7Swzgl2g7aR9F5E47y+MQ\=\=
 java.permission..text.author=cyril
 java.permission..text.changed=20090329085620
 java.permission..text.md5=7I+5D0GnjiPjwfzLWdJnrw\=\=
-java.please..text.author=cyril
-java.please..text.changed=20090329085617
-java.please..text.md5=Uz//YwLnf4Z+v/IWihYxvw\=\=
 java.pleasech..text.author=cyril
 java.pleasech..text.changed=20090329085557
 java.pleasech..text.md5=kiakuw2k0Vg3zPBvNx/chg\=\=
@@ -835,9 +829,6 @@ java.reqmiss..text.md5=nCZsQ42F6mOzZ2kXQ6Z42g\=\=
 java.respond..text.author=cyril
 java.respond..text.changed=20090329085244
 java.respond..text.md5=8tIjI/YmlhRcXj6he5TgZQ\=\=
-java.revise..text.author=cyril
-java.revise..text.changed=20090329085239
-java.revise..text.md5=5MgGoruQPrayFsVbdJZioQ\=\=
 java.rolefor..text.author=cyril
 java.rolefor..text.changed=20090329085231
 java.rolefor..text.md5=y7h8wx2AYGOOZFl+Z4uCAA\=\=
@@ -1255,9 +1246,6 @@ newsc.no..text.md5=ZnnmXJMrLFrZgIDuIaTw1A\=\=
 newsc.other.confirm..text.author=cyril
 newsc.other.confirm..text.changed=20090329001136
 newsc.other.confirm..text.md5=aIqDGFHXZLbvkRN3Skdcxw\=\=
-newsc.please..text.author=cyril
-newsc.please..text.changed=20090329001040
-newsc.please..text.md5=Hy4qLCcKkb7/r6zAxrXRQw\=\=
 newsc.project.confirm..text.author=cyril
 newsc.project.confirm..text.changed=20090329001129
 newsc.project.confirm..text.md5=aIqDGFHXZLbvkRN3Skdcxw\=\=
@@ -1792,9 +1780,6 @@ sitegen.removpart.following..text.md5=m4wmouQX7ZIyHuYaXYTSsw\=\=
 sitegen.removpart.name..text.author=cyril
 sitegen.removpart.name..text.changed=20090328234411
 sitegen.removpart.name..text.md5=1HALaXpU+9Q6GmE9MmlOfw\=\=
-sitegen.removpart.participant..text.author=cyril
-sitegen.removpart.participant..text.changed=20090328234407
-sitegen.removpart.participant..text.md5=472pdm5PvCwA4DaFSHVPWg\=\=
 sitegen.removpart.role..text.author=cyril
 sitegen.removpart.role..text.changed=20090328234400
 sitegen.removpart.role..text.md5=GXcqlP+GNsIb4C6Dn7yaCQ\=\=
