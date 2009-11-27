@@ -292,9 +292,6 @@ gen.subject..text.md5=mCwP1IddHBGlhMO6Hx42zA\=\=
 gen.tablecaptionsite..text.author=cyril
 gen.tablecaptionsite..text.changed=20090324140917
 gen.tablecaptionsite..text.md5=Flw5nZ4hlKFk5rkpUfEJtA\=\=
-gen.tablecaptionsitebody..text.author=cyril
-gen.tablecaptionsitebody..text.changed=20090324140926
-gen.tablecaptionsitebody..text.md5=OZN3PbuM5yDf1zgKdKACpQ\=\=
 gen.tablecaptionworksp..text.author=cyril
 gen.tablecaptionworksp..text.changed=20090324140934
 gen.tablecaptionworksp..text.md5=V9KIJ+xlgzcCdYy8a7ZoGQ\=\=
@@ -352,9 +349,6 @@ java.alert.dupalias..text.md5=SGURXymepWOWdBBtGv2sLA\=\=
 java.alert.nodates..text.author=cyril
 java.alert.nodates..text.changed=20090324141458
 java.alert.nodates..text.md5=IoaOcw0nTyGVorefv4H9Ig\=\=
-java.alert.pleasechoose..text.author=cyril
-java.alert.pleasechoose..text.changed=20090324141620
-java.alert.pleasechoose..text.md5=lljvshzryiQJKIr5bJ3U/w\=\=
 java.alert.thisis..text.author=cyril
 java.alert.thisis..text.changed=20090324141641
 java.alert.thisis..text.md5=L0JakjMTAEREV6mqSZrM0g\=\=
