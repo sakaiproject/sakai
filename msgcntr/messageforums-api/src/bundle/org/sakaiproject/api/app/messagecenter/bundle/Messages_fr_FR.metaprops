@@ -517,9 +517,6 @@ cdfm_replyto..text.md5=0L+M9WRuFoBLpQBMfX06aQ\=\=
 cdfm_required..text.author=cyril
 cdfm_required..text.changed=20090706124237
 cdfm_required..text.md5=IJmy2FhnyG8QIv2oiykQmg\=\=
-cdfm_revise_forum_msg..text.author=cyril
-cdfm_revise_forum_msg..text.changed=20090402132902
-cdfm_revise_forum_msg..text.md5=yjH51ZVo2jygc0bUY3q3hA\=\=
 cdfm_select_assign..text.author=cyril
 cdfm_select_assign..text.changed=20090402132858
 cdfm_select_assign..text.md5=YMleJxs3AN8cu9/izF6Jmg\=\=
@@ -760,15 +757,6 @@ perm_read..text.md5=YDaxeUhMn/qVxx0pqcJ9TA\=\=
 perm_response_to_response..text.author=cyril
 perm_response_to_response..text.changed=20090402125310
 perm_response_to_response..text.md5=CyZNI3v7eUgsuYMp1ekjRw\=\=
-perm_revise_any..text.author=cyril
-perm_revise_any..text.changed=20090402125307
-perm_revise_any..text.md5=Avd7cvH1UQs3dBwwK/656w\=\=
-perm_revise_own..text.author=cyril
-perm_revise_own..text.changed=20090402125302
-perm_revise_own..text.md5=66DDfvqPExUWvZmWk0FVsA\=\=
-perm_revise_postings..text.author=cyril
-perm_revise_postings..text.changed=20090402125257
-perm_revise_postings..text.md5=hhS0kNY7LimPYqy5H7GZdA\=\=
 perm_role..text.author=cyril
 perm_role..text.changed=20090402125254
 perm_role..text.md5=h6gxvJkGDFW1Db6Rxqq26Q\=\=
@@ -1051,9 +1039,6 @@ pvt_next_msg..text.md5=UCj2W4syzRuhT/LqgdEmIA\=\=
 pvt_no..text.author=cyril
 pvt_no..text.changed=20090402110917
 pvt_no..text.md5=ZnnmXJMrLFrZgIDuIaTw1A\=\=
-pvt_no_delete_revise_folder..text.author=cyril
-pvt_no_delete_revise_folder..text.changed=20090402110914
-pvt_no_delete_revise_folder..text.md5=migiDxcahoc7HU2oHxrclA\=\=
 pvt_no_match_found..text.author=cyril
 pvt_no_match_found..text.changed=20090402110910
 pvt_no_match_found..text.md5=sJ+TkQIJHMoXYnA9r3e9lw\=\=
@@ -1141,9 +1126,6 @@ pvt_repmsg..text.md5=pfeoY7N5yfTMxz0WWah8Sw\=\=
 pvt_repmsg_ALL..text.author=cyril
 pvt_repmsg_ALL..text.changed=20090402110421
 pvt_repmsg_ALL..text.md5=9GXK6QW9XPlDusSBvpXUYg\=\=
-pvt_revise..text.author=cyril
-pvt_revise..text.changed=20090402110410
-pvt_revise..text.md5=5MgGoruQPrayFsVbdJZioQ\=\=
 pvt_savedraft..text.author=cyril
 pvt_savedraft..text.changed=20090402110407
 pvt_savedraft..text.md5=1grZr4r3IYfXRisF+whctw\=\=
