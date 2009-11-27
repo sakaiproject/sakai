@@ -57,6 +57,13 @@ public class SpringCompMgr implements ComponentManager {
 	 * loss of our last child (if not set).
 	 */
 	protected final static String CLOSE_ON_SHUTDOWN = "sakai.component.closeonshutdown";
+	
+	/**
+	 * System property to control if we close the jvm on a error occurring at startup.
+	 * This is useful to set in development so that it's clearer when the component manager
+	 * failed to startup.
+	 */
+	protected final static String SHUTDOWN_ON_ERROR = "sakai.component.shutdownonerror";
 
 	/**
 	 * The Sakai configuration component package, which must be the last
@@ -147,7 +154,14 @@ public class SpringCompMgr implements ComponentManager {
 				m_ac.refresh();
 				m_ac.publishEvent(new SakaiComponentEvent(this, SakaiComponentEvent.Type.STARTED));
 			} catch (Throwable t) {
-				M_log.warn(t.getMessage(), t);
+				if (Boolean.valueOf(System.getProperty(SHUTDOWN_ON_ERROR,
+						"false"))) {
+					M_log.fatal(t.getMessage(), t);
+					M_log.fatal("Shutting down JVM");
+					System.exit(1);
+				} else {
+					M_log.warn(t.getMessage(), t);
+				}
 			}
 		}
 	}
