@@ -273,16 +273,7 @@ public class podHomeBean {
 		 */
 		public String getFileURL() {
 			try {
-//				return podcastService.getPodcastFileURL(resourceId);
-				/* SAK-13059: added url escaping filename due to files with spaces
-				 *   and other non-friendly url characters need to be but if entire
-				 *   url returned by podcastService is escaped, it is interpreted as
-				 *   a relative url and not an absolute one.
-				 */ 
-				String fullUrl = podcastService.getPodcastFileURL(resourceId);
-				String filenameEscaped = Validator.escapeUrl(filename);
-				
-				return fullUrl.substring(0, fullUrl.lastIndexOf(Entity.SEPARATOR) + 1) + filenameEscaped;
+				return podcastService.getPodcastFileURL(resourceId);
 			} 
 			catch (PermissionException e) {
 				LOG.info("PermissionException getting file URL for "
