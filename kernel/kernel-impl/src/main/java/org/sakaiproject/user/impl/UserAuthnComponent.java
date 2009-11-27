@@ -26,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationException;
 import org.sakaiproject.user.api.AuthenticationManager;
+import org.sakaiproject.user.api.AuthenticationMissingException;
 import org.sakaiproject.user.api.AuthenticationUnknownException;
 import org.sakaiproject.user.api.Evidence;
 import org.sakaiproject.user.api.ExternalTrustedEvidence;
@@ -141,7 +142,7 @@ public abstract class UserAuthnComponent implements AuthenticationManager
 			{
 				// reject if the user is not defined
 				// TODO: create the user record here?
-				throw new AuthenticationException("Invalid Login: User not found in directory.");
+				throw new AuthenticationMissingException(e);
 			}
 		}
 
