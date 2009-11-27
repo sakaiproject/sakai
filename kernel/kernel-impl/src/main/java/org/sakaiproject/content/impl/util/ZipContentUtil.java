@@ -4,6 +4,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -196,10 +197,18 @@ public class ZipContentUtil {
 	 */
 	private void storeContentResource(String rootId, ContentResource resource, ZipOutputStream out) throws Exception {		
 		String filename = resource.getId().substring(rootId.length(),resource.getId().length());				
-		ZipEntry zipEntry = new ZipEntry(filename);				
+		ZipEntry zipEntry = new ZipEntry(filename);
 		zipEntry.setSize(resource.getContentLength());
-		out.putNextEntry(zipEntry);		
-		IOUtils.copy(resource.streamContent(),out);
+		out.putNextEntry(zipEntry);
+		InputStream contentStream = null;
+		try {
+			contentStream = resource.streamContent();
+			IOUtils.copy(contentStream, out);
+		} finally {
+			if (contentStream != null) {
+				contentStream.close();
+			}
+		}
 	}
 	
 	private String extractZipCollectionPrefix(ContentResource resource) {
