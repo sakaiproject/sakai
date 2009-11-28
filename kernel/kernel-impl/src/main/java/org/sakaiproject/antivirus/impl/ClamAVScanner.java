@@ -191,10 +191,6 @@ public class ClamAVScanner implements VirusScanner {
 					writer.close();
 			} catch (Throwable t) { }
 			try {
-				if(in != null)
-					in.close();
-			} catch (Throwable t) { }
-			try {
 				if(streamSocket != null)
 					streamSocket.close();
 			} catch (Throwable t) { }
