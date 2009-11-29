@@ -23,3 +23,11 @@ alter table SAKAI_PERSON_T add column NORMALIZEDMOBILE varchar(255);
 
 -- SAK-17447
 alter table EMAIL_TEMPLATE_ITEM add column HTMLMESSAGE text;
+
+-- SAK-15165 new fields for SakaiPerson
+alter table SAKAI_PERSON_T add FAVOURITE_BOOKS text; 
+alter table SAKAI_PERSON_T add FAVOURITE_TV_SHOWS text; 
+alter table SAKAI_PERSON_T add FAVOURITE_MOVIES text; 
+alter table SAKAI_PERSON_T add FAVOURITE_QUOTES text; 
+alter table SAKAI_PERSON_T add EDUCATION_COURSE text; 
+alter table SAKAI_PERSON_T add EDUCATION_SUBJECTS text; 

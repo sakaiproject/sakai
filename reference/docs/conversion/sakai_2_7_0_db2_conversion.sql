@@ -17,3 +17,11 @@ ALTER TABLE SAM_PUBLISHEDASSESSMENT_T ADD LASTNEEDRESUBMITDATE DATE NULL;
 
 -- SAK-16880 collaborative portfolio editing
 -- tbd
+
+-- SAK-15165 new fields for SakaiPerson
+alter table SAKAI_PERSON_T add FAVOURITE_BOOKS varchar(4000); 
+alter table SAKAI_PERSON_T add FAVOURITE_TV_SHOWS varchar(4000); 
+alter table SAKAI_PERSON_T add FAVOURITE_MOVIES varchar(4000); 
+alter table SAKAI_PERSON_T add FAVOURITE_QUOTES varchar(4000); 
+alter table SAKAI_PERSON_T add EDUCATION_COURSE varchar(4000); 
+alter table SAKAI_PERSON_T add EDUCATION_SUBJECTS varchar(4000);
