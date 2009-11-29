@@ -25,3 +25,6 @@ alter table SAKAI_PERSON_T add FAVOURITE_MOVIES varchar(4000);
 alter table SAKAI_PERSON_T add FAVOURITE_QUOTES varchar(4000); 
 alter table SAKAI_PERSON_T add EDUCATION_COURSE varchar(4000); 
 alter table SAKAI_PERSON_T add EDUCATION_SUBJECTS varchar(4000);
+
+-- SAK-16984 new column in sakai-Person
+alter TABLE SAKAI_PERSON_T add NORMALIZEDMOBILE varchar(255);
