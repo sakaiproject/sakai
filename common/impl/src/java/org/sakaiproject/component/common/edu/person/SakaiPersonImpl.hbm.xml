@@ -121,13 +121,13 @@
             <property name="dateOfBirth" column="dateOfBirth" type="date" />
             <property name="locked" column="locked" type="boolean" />
             
-            <property name="favouriteBooks" column="FAVOURITE_BOOKS" type="text" />
-            <property name="favouriteTvShows" column="FAVOURITE_TV_SHOWS" type="text" />
-            <property name="favouriteMovies" column="FAVOURITE_MOVIES" type="text" />
-            <property name="favouriteQuotes" column="FAVOURITE_QUOTES" type="text" />
+            <property name="favouriteBooks" column="FAVOURITE_BOOKS" length="4000" />
+            <property name="favouriteTvShows" column="FAVOURITE_TV_SHOWS" length="4000" />
+            <property name="favouriteMovies" column="FAVOURITE_MOVIES" length="4000" />
+            <property name="favouriteQuotes" column="FAVOURITE_QUOTES" length="4000" />
             
-            <property name="educationCourse" column="EDUCATION_COURSE" type="text" />
-            <property name="educationSubjects" column="EDUCATION_SUBJECTS" type="text" />
+            <property name="educationCourse" column="EDUCATION_COURSE" length="4000" />
+            <property name="educationSubjects" column="EDUCATION_SUBJECTS" length="4000" />
             <property name="normalizedMobile" column="NORMALIZEDMOBILE" />
             
           </subclass>
