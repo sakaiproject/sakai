@@ -334,6 +334,17 @@
             <timezone>-5</timezone>
             <properties />
         </contributor>
+        <contributor>
+            <name>Zach Thomas</name>
+            <email>zach@aeroplanesoftware.com</email>
+            <organization>Aeroplane Software</organization>
+            <organizationUrl>http://www.aeroplanesoftware.com</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-5</timezone>
+            <properties />
+        </contributor>
     </contributors>
 	<scm>
 		<connection>
