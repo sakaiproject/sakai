@@ -66,6 +66,7 @@ import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
 import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.conditions.api.ConditionService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
@@ -9887,6 +9888,21 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		public void setResourceType(String type)
 		{
 			m_resourceType = type;
+		}
+
+
+		public boolean isConditionallyReleased() {
+			try {
+				return this.m_properties.getBooleanProperty(ConditionService.PROP_CONDITIONAL_RELEASE);
+			} catch (EntityPropertyNotDefinedException e) {
+				return false;
+			} catch (EntityPropertyTypeException e) {
+				return false;
+			}
+		}
+
+		public void setConditionallyReleased(boolean isConditionallyReleased) {
+			m_properties.addProperty(ConditionService.PROP_CONDITIONAL_RELEASE, Boolean.toString(isConditionallyReleased));
 		}
 
 	}	// BasicGroupAwareEntity

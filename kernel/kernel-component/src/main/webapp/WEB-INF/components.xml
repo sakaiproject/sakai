@@ -17,6 +17,7 @@ Uncomment to enable JCR Content
 -->
 <!-- Comment Out to enable JCR Content 
 -->
+     <import resource="conditions-components.xml" />
      <import resource="content-components.xml" />
      <import resource="entity-components.xml" />
      <import resource="jackrabbit-components.xml" />

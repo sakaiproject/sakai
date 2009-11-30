@@ -1044,7 +1044,18 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 						// create the class
 						try
 						{
-							m_action = (NotificationAction) Class.forName(className).newInstance();
+							Class<?> actionClass;
+							try {
+								actionClass = Class.forName(className);
+							} catch (ClassNotFoundException cnfe) {
+								// we're trying to access a class not in the event pack's classloader
+								// So ask the ComponentManager
+								Object obj = ComponentManager.get(className);
+								if (obj == null) throw new ClassNotFoundException("Cannot reconstitute the NotificationAction named as " + className);
+								else actionClass = obj.getClass();
+							}
+								
+							m_action = (NotificationAction) actionClass.newInstance();
 
 							// let it pick up it's settings
 							m_action.set(element);

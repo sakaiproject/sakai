@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+	<beans>
+	    <bean id="org.sakaiproject.conditions.api.ConditionService"
+			class="org.sakaiproject.conditions.impl.BaseConditionService"
+			init-method="init"
+			singleton="true">
+		</bean>
+		
+		<!--  simple job that fires a Datetime event -->   
+	   <bean id="datetimeJob"
+	   		class="org.sakaiproject.conditions.impl.job.DatetimeEventJob">
+	   	</bean>
+	   	
+	   	<bean id="org.sakaiproject.conditions.impl.ResourceReleaseRule"
+	   		class="org.sakaiproject.conditions.impl.ResourceReleaseRule">
+	   	</bean>
+
+	   <!-- this is the helper that will register the above bean with the job scheduler -->
+	   <!-- FIXME job scheduler is not available in the kernel -->
+	   <!--
+	   <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.DatetimeEventJob"
+	      class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+	      singleton="true" init-method="init">
+	      <property name="beanId">
+	         <value>datetimeJob</value>
+	      </property>
+	      <property name="jobName">
+	         <value>Conditional Release Datetime Job</value>
+	      </property>
+	      <property name="schedulerManager">
+	         <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+	      </property>
+	   </bean>
+	   -->
+	
+	</beans>
