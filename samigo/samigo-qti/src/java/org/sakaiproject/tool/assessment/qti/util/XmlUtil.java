@@ -626,4 +626,25 @@ public final class XmlUtil
 	  }
 	  return finalValue;
   }
+  
+  public static String convertStrforCDATA(String myString)
+  {
+	  StringBuffer sbuff = new StringBuffer("<![CDATA[");
+	  String sTemp = null;
+
+	  String escapeStr = myString.replaceAll("]]>", "]]&gt;");
+
+	  for (int i = 0; i < escapeStr.length(); i++){
+		  if (escapeStr.charAt(i) < 32 || escapeStr.charAt(i) == 127){
+			  sTemp = "]]>&#"+ (int)escapeStr.charAt(i)+ ";<![CDATA[";
+		  }
+		  else{
+			  sTemp = Character.toString(escapeStr.charAt(i));
+		  }
+		  sbuff.append(sTemp);
+		  sTemp =null;
+	  }
+	  sbuff.append("]]>");
+	  return sbuff.toString();
+  } 
 }

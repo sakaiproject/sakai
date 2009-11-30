@@ -46,6 +46,7 @@ import org.sakaiproject.tool.assessment.qti.asi.Section;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
 import org.sakaiproject.tool.assessment.qti.util.Iso8601DateFormat;
 import org.sakaiproject.tool.assessment.qti.util.Iso8601TimeInterval;
+import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import org.xml.sax.SAXException;
 
 /**
@@ -262,7 +263,7 @@ public abstract class AssessmentHelperBase
     	  log.debug("description is null");
     	  description = "";
       }
-      description =  "<![CDATA[" + description + "]]>";
+      description = XmlUtil.convertStrforCDATA(description);
       assessmentXml.update(xpath, description);
     }
     catch (Exception ex)
@@ -335,7 +336,7 @@ public abstract class AssessmentHelperBase
     // submissions
     if (submissionMessage != null)
     {
-      String wrappedSubmissionMessage = "<![CDATA[" + submissionMessage + "]]>";
+      String wrappedSubmissionMessage = XmlUtil.convertStrforCDATA(submissionMessage);
       assessmentXml.setFieldentry("SUBMISSION_MESSAGE", wrappedSubmissionMessage, true);
     }
     if (finalPageUrl != null)
