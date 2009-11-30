@@ -44,6 +44,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
@@ -1265,6 +1266,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 					disableSecurityAdvisors();
 					
 					toolSession.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
+				}
+				catch (VirusFoundException vfe)
+				{
+					addAlert(state, trb.getFormattedMessage("alert.virusfound", new String[] {vfe.getMessage()}));
 				}
 				catch (PermissionException e)
 				{
