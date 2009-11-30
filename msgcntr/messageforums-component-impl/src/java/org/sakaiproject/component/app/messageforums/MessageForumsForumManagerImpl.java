@@ -154,7 +154,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     
     public void init() {
        LOG.info("init()");
-       DEFAULT_AUTO_MARK_READ = serverConfigurationService.getBoolean("msgcntr.forums.auto.mark.threads.read", false);
+       DEFAULT_AUTO_MARK_READ = serverConfigurationService.getBoolean("msgcntr.forums.default.auto.mark.threads.read", false);
     }
 
     public EventTrackingService getEventTrackingService() {
