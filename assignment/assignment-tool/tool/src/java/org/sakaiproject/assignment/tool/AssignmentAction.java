@@ -716,10 +716,13 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String MODELANSWER_TEXT = "modelAnswer.text";
 	private static final String MODELANSWER_SHOWTO = "modelAnswer.showTo";
 	private static final String MODELANSWER_ATTACHMENTS = "modelanswer_attachments";
+	private static final String MODELANSWER_TO_DELETE = "modelanswer.toDelete";
 	/******** Note ***********/
 	private static final String NOTE = "note";
 	private static final String NOTE_TEXT = "note.text";
 	private static final String NOTE_SHAREWITH = "note.shareWith";
+	private static final String NOTE_TO_DELETE = "note.toDelete";
+	
 	/******** AllPurpose *******/
 	private static final String ALLPURPOSE = "allPurpose";
 	private static final String ALLPURPOSE_TITLE = "allPurpose.title";
@@ -743,6 +746,7 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String ALLPURPOSE_RETRACT_HOUR = "allPurpose.retractHour";
 	private static final String ALLPURPOSE_RETRACT_MIN = "allPurpose.retractMin";
 	private static final String ALLPURPOSE_RETRACT_AMPM = "allPurpose.retractAMPM";
+	private static final String ALLPURPOSE_TO_DELETE = "allPurpose.toDelete";
 	
 	private static final String SHOW_ALLOW_RESUBMISSION = "show_allow_resubmission";
 	
@@ -4504,31 +4508,143 @@ public class AssignmentAction extends PagedResourceActionII
 			state.setAttribute(Assignment.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE, releaseGradeOption);
 		}
 		
-		if (StringUtil.trimToNull(params.getString("modelanswer_text")) != null)
+		// read inputs for supplement items
+		setNewAssignmentParametersSupplementItems(validify, state, params);
+		
+		if (state.getAttribute(WITH_GRADES) != null && ((Boolean) state.getAttribute(WITH_GRADES)).booleanValue())
 		{
-			state.setAttribute(MODELANSWER_TEXT, params.getString("modelanswer_text"));
-		}
-		if (StringUtil.trimToNull(params.getString("modelanswer_showto")) != null)
-		{
-			state.setAttribute(MODELANSWER_SHOWTO, params.getString("modelanswer_showto"));
+			// the grade point
+			String gradePoints = params.getString(NEW_ASSIGNMENT_GRADE_POINTS);
+			state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
+			if (gradePoints != null)
+			{
+				if (gradeType == 3)
+				{
+					if ((gradePoints.length() == 0))
+					{
+						// in case of point grade assignment, user must specify maximum grade point
+						addAlert(state, rb.getString("plespethe3"));
+					}
+					else
+					{
+						validPointGrade(state, gradePoints);
+						// when scale is points, grade must be integer and less than maximum value
+						if (state.getAttribute(STATE_MESSAGE) == null)
+						{
+							gradePoints = scalePointGrade(state, gradePoints);
+						}
+						state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
+					}
+				}
+			}
 		}
 		
-		if (StringUtil.trimToNull(params.getString("note_text")) != null)
+	} // setNewAssignmentParameters
+
+	/**
+	 * read inputs for supplement items
+	 * @param validify
+	 * @param state
+	 * @param params
+	 */
+	private void setNewAssignmentParametersSupplementItems(boolean validify,
+			SessionState state, ParameterParser params) {
+		/********************* MODEL ANSWER ITEM *********************/
+		String modelAnswer_to_delete = StringUtil.trimToNull(params.getString("modelanswer_to_delete"));
+		if (modelAnswer_to_delete != null)
 		{
-			state.setAttribute(NOTE_TEXT, StringUtil.trimToNull(params.getString("note_text")));
+			state.setAttribute(MODELANSWER_TO_DELETE, modelAnswer_to_delete);
 		}
-		if (StringUtil.trimToNull(params.getString("note_to")) != null)
+		String modelAnswer_text = StringUtil.trimToNull(params.getString("modelanswer_text"));
+		if (modelAnswer_text != null)
 		{
-			state.setAttribute(NOTE_SHAREWITH, StringUtil.trimToNull(params.getString("note_to")));
+			state.setAttribute(MODELANSWER_TEXT, modelAnswer_text);
+		}
+		String modelAnswer_showto = StringUtil.trimToNull(params.getString("modelanswer_showto"));
+		if (modelAnswer_showto != null)
+		{
+			state.setAttribute(MODELANSWER_SHOWTO, modelAnswer_showto);
+		}
+		if (modelAnswer_text != null || !"0".equals(modelAnswer_showto) || state.getAttribute(MODELANSWER_ATTACHMENTS) != null)
+		{
+			// there is Model Answer input
+			state.setAttribute(MODELANSWER, Boolean.TRUE);
+			
+			if (validify && !"true".equalsIgnoreCase(modelAnswer_to_delete))
+			{
+				// show alert when there is no model answer input
+				if (modelAnswer_text == null)
+				{
+					addAlert(state, rb.getString("modelAnswer.alert.modelAnswer"));
+				}
+				// show alert when user didn't select show-to option
+				if ("0".equals(modelAnswer_showto))
+				{
+					addAlert(state, rb.getString("modelAnswer.alert.showto"));
+				}
+			}
+		}
+		else
+		{
+			state.removeAttribute(MODELANSWER);
 		}
 		
-		if (StringUtil.trimToNull(params.getString("allPurposeTitle")) != null)
+		/**************** NOTE ITEM ********************/
+		String note_to_delete = StringUtil.trimToNull(params.getString("note_to_delete"));
+		if (note_to_delete != null)
 		{
-			state.setAttribute(ALLPURPOSE_TITLE, StringUtil.trimToNull(params.getString("allPurposeTitle")));
+			state.setAttribute(NOTE_TO_DELETE, note_to_delete);
 		}
-		if (StringUtil.trimToNull(params.getString("allPurposeText")) != null)
+		String note_text = StringUtil.trimToNull(params.getString("note_text"));
+		if (note_text != null)
 		{
-			state.setAttribute(ALLPURPOSE_TEXT, StringUtil.trimToNull(params.getString("allPurposeText")));
+			state.setAttribute(NOTE_TEXT, note_text);
+		}
+		String note_to = StringUtil.trimToNull(params.getString("note_to"));
+		if (note_to != null)
+		{
+			state.setAttribute(NOTE_SHAREWITH, note_to);
+		}
+		if (note_text != null || !"0".equals(note_to))
+		{
+			// there is Note Item input
+			state.setAttribute(NOTE, Boolean.TRUE);
+			
+			if (validify && !"true".equalsIgnoreCase(note_to_delete))
+			{
+				// show alert when there is no note text
+				if (note_text == null)
+				{
+					addAlert(state, rb.getString("note.alert.text"));
+				}
+				// show alert when there is no share option
+				if ("0".equals(note_to))
+				{
+					addAlert(state, rb.getString("note.alert.to"));
+				}
+			}
+		}
+		else
+		{
+			state.removeAttribute(NOTE);
+		}
+		
+		
+		/****************** ALL PURPOSE ITEM **********************/
+		String allPurpose_to_delete = StringUtil.trimToNull(params.getString("allPurpose_to_delete"));
+		if ( allPurpose_to_delete != null)
+		{
+			state.setAttribute(ALLPURPOSE_TO_DELETE, allPurpose_to_delete);
+		}
+		String allPurposeTitle = StringUtil.trimToNull(params.getString("allPurposeTitle"));
+		if (allPurposeTitle != null)
+		{
+			state.setAttribute(ALLPURPOSE_TITLE, allPurposeTitle);
+		}
+		String allPurposeText = StringUtil.trimToNull(params.getString("allPurposeText"));
+		if (allPurposeText != null)
+		{
+			state.setAttribute(ALLPURPOSE_TEXT, allPurposeText);
 		}
 		if (StringUtil.trimToNull(params.getString("allPurposeHide")) != null)
 		{
@@ -4589,36 +4705,36 @@ public class AssignmentAction extends PagedResourceActionII
 			M_log.warn(this + ":setNewAssignmentParameters" + e.toString() + "error finding authzGroup for = " + siteId);
 		}
 		state.setAttribute(ALLPURPOSE_ACCESS, accessList);
-		
-		if (state.getAttribute(WITH_GRADES) != null && ((Boolean) state.getAttribute(WITH_GRADES)).booleanValue())
+	
+		if (allPurposeTitle != null || allPurposeText != null || (accessList != null && !accessList.isEmpty()) || state.getAttribute(ALLPURPOSE_ATTACHMENTS) != null)
 		{
-			// the grade point
-			String gradePoints = params.getString(NEW_ASSIGNMENT_GRADE_POINTS);
-			state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
-			if (gradePoints != null)
+			// there is allpupose item input
+			state.setAttribute(ALLPURPOSE, Boolean.TRUE);
+			
+			if (validify && !"true".equalsIgnoreCase(allPurpose_to_delete))
 			{
-				if (gradeType == 3)
+				if (allPurposeTitle == null)
 				{
-					if ((gradePoints.length() == 0))
-					{
-						// in case of point grade assignment, user must specify maximum grade point
-						addAlert(state, rb.getString("plespethe3"));
-					}
-					else
-					{
-						validPointGrade(state, gradePoints);
-						// when scale is points, grade must be integer and less than maximum value
-						if (state.getAttribute(STATE_MESSAGE) == null)
-						{
-							gradePoints = scalePointGrade(state, gradePoints);
-						}
-						state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
-					}
+					// missing title
+					addAlert(state, rb.getString("allPurpose.alert.title"));
+				}
+				if (allPurposeText == null)
+				{
+					// missing text
+					addAlert(state, rb.getString("allPurpose.alert.text"));
+				}
+				if (accessList == null || accessList.isEmpty())
+				{
+					// missing access choice
+					addAlert(state, rb.getString("allPurpose.alert.access"));
 				}
 			}
 		}
-		
-	} // setNewAssignmentParameters
+		else
+		{
+			state.removeAttribute(ALLPURPOSE);
+		}
+	}
 	
 	/**
 	 * read time input and assign it to state attributes
@@ -5087,145 +5203,8 @@ public class AssignmentAction extends PagedResourceActionII
 	
 				} //if
 				
-				// assignment supplement items
-				String aId = a.getId();
-				//model answer
-				if ("true".equals(params.getString("modelanswer_to_delete")))
-				{
-					// to delete the model answer
-					AssignmentModelAnswerItem mAnswer = m_assignmentSupplementItemService.getModelAnswer(aId);
-					if (mAnswer != null)
-						m_assignmentSupplementItemService.removeModelAnswer(mAnswer);
-				}
-				else if (StringUtil.trimToNull(params.getString("modelanswer_text")) != null)
-				{
-					// edit/add model answer
-					AssignmentModelAnswerItem mAnswer = m_assignmentSupplementItemService.getModelAnswer(aId);
-					if (mAnswer == null)
-					{
-						mAnswer = m_assignmentSupplementItemService.newModelAnswer();
-						m_assignmentSupplementItemService.saveModelAnswer(mAnswer);
-					}
-					mAnswer.setAssignmentId(a.getId());
-					mAnswer.setText(StringUtil.trimToNull(params.getString("modelanswer_text")));
-					mAnswer.setShowTo(params.getInt("modelanswer_showto"));
-					mAnswer.setAttachmentSet(getAssignmentSupplementItemAttachment(state, mAnswer, MODELANSWER_ATTACHMENTS));
-					m_assignmentSupplementItemService.saveModelAnswer(mAnswer);
-				}
-				// note
-				if ("true".equals(params.getString("note_to_delete")))
-				{
-					// to remove note item
-					AssignmentNoteItem nNote = m_assignmentSupplementItemService.getNoteItem(aId);
-					if (nNote != null)
-						m_assignmentSupplementItemService.removeNoteItem(nNote);
-				}
-				else if (StringUtil.trimToNull(params.getString("note_text")) != null)
-				{
-					// edit/add private note
-					AssignmentNoteItem nNote = m_assignmentSupplementItemService.getNoteItem(aId);
-					if (nNote == null)
-						nNote = m_assignmentSupplementItemService.newNoteItem();
-					nNote.setAssignmentId(a.getId());
-					nNote.setNote(StringUtil.trimToNull(params.getString("note_text")));
-					nNote.setShareWith(params.getInt("note_to"));
-					nNote.setCreatorId(UserDirectoryService.getCurrentUser().getId());
-					m_assignmentSupplementItemService.saveNoteItem(nNote);
-				}
-				// all purpose
-				if ("true".equals(params.getString("allPurpose_to_delete")))
-				{
-					// to remove allPurpose item
-					AssignmentAllPurposeItem nAllPurpose = m_assignmentSupplementItemService.getAllPurposeItem(aId);
-					if (nAllPurpose != null)
-						m_assignmentSupplementItemService.removeAllPurposeItem(nAllPurpose);
-				}
-				else if (StringUtil.trimToNull(params.getString("allPurposeTitle")) != null)
-				{
-					// edit/add private note
-					AssignmentAllPurposeItem nAllPurpose = m_assignmentSupplementItemService.getAllPurposeItem(aId);
-					if (nAllPurpose == null)
-					{
-						nAllPurpose = m_assignmentSupplementItemService.newAllPurposeItem();
-						m_assignmentSupplementItemService.saveAllPurposeItem(nAllPurpose);
-					}
-					nAllPurpose.setAssignmentId(a.getId());
-					nAllPurpose.setTitle(StringUtil.trimToNull(params.getString("allPurposeTitle")));
-					nAllPurpose.setText(StringUtil.trimToNull(params.getString("allPurposeText")));
-					nAllPurpose.setHide(params.getBoolean("allPurposeHide"));
-					
-					// save the release and retract dates
-					if (params.getBoolean("allPurposeShowFrom") && !params.getBoolean("allPurposeHide"))
-					{
-						// save release date
-						Time releaseTime = getTimeFromState(state, ALLPURPOSE_RELEASE_MONTH, ALLPURPOSE_RELEASE_DAY, ALLPURPOSE_RELEASE_YEAR, ALLPURPOSE_RELEASE_HOUR, ALLPURPOSE_RELEASE_MIN, ALLPURPOSE_RELEASE_AMPM);
-						GregorianCalendar cal = new GregorianCalendar();
-						cal.setTimeInMillis(releaseTime.getTime());
-						nAllPurpose.setReleaseDate(cal.getTime());
-					}
-					else
-					{
-						nAllPurpose.setReleaseDate(null);
-					}
-					if (params.getBoolean("allPurposeShowTo") && !params.getBoolean("allPurposeHide"))
-					{
-						// save retract date
-						Time retractTime = getTimeFromState(state, ALLPURPOSE_RETRACT_MONTH, ALLPURPOSE_RETRACT_DAY, ALLPURPOSE_RETRACT_YEAR, ALLPURPOSE_RETRACT_HOUR, ALLPURPOSE_RETRACT_MIN, ALLPURPOSE_RETRACT_AMPM);
-						GregorianCalendar cal = new GregorianCalendar();
-						cal.setTimeInMillis(retractTime.getTime());
-						nAllPurpose.setRetractDate(cal.getTime());
-					}
-					else
-					{
-						nAllPurpose.setRetractDate(null);
-					}
-					nAllPurpose.setAttachmentSet(getAssignmentSupplementItemAttachment(state, nAllPurpose, ALLPURPOSE_ATTACHMENTS));
-					
-					// clean the access list first
-					m_assignmentSupplementItemService.cleanAllPurposeItemAccess(nAllPurpose);
-					Set<AssignmentAllPurposeItemAccess> accessSet = new HashSet<AssignmentAllPurposeItemAccess>();
-					try
-					{
-						AuthzGroup realm = AuthzGroupService.getAuthzGroup(SiteService.siteReference(siteId));
-						Set<Role> roles = realm.getRoles();
-						for(Iterator iRoles = roles.iterator(); iRoles.hasNext();)
-						{
-							// iterator through roles first
-							Role r = (Role) iRoles.next();
-							if (params.getString("allPurpose_" + r.getId()) != null)
-							{
-								AssignmentAllPurposeItemAccess access = m_assignmentSupplementItemService.newAllPurposeItemAccess();
-								access.setAccess(r.getId());
-								access.setAssignmentAllPurposeItem(nAllPurpose);
-								m_assignmentSupplementItemService.saveAllPurposeItemAccess(access);
-								accessSet.add(access);
-							}
-							else
-							{
-								// if the role is not selected, iterate through the users with this role
-								Set userIds = realm.getUsersHasRole(r.getId());
-								for(Iterator iUserIds = userIds.iterator(); iUserIds.hasNext();)
-								{
-									String userId = (String) iUserIds.next();
-									if (params.getString("allPurpose_" + userId) != null)
-									{
-										AssignmentAllPurposeItemAccess access = m_assignmentSupplementItemService.newAllPurposeItemAccess();
-										access.setAccess(userId);
-										access.setAssignmentAllPurposeItem(nAllPurpose);
-										m_assignmentSupplementItemService.saveAllPurposeItemAccess(access);
-										accessSet.add(access);
-									}
-								}
-							}
-						}
-					}
-					catch (Exception e)
-					{
-						M_log.warn(this + ":post_save_assignment " + e.toString() + "error finding authzGroup for = " + siteId);
-					}
-					nAllPurpose.setAccessSet(accessSet);
-					m_assignmentSupplementItemService.saveAllPurposeItem(nAllPurpose);
-				}
+				// save supplement item information
+				saveAssignmentSupplementItem(state, params, siteId, a);
 				
 				// set default sorting
 				setDefaultSort(state);
@@ -5260,6 +5239,165 @@ public class AssignmentAction extends PagedResourceActionII
 		} // if
 		
 	} // post_save_assignment
+
+	/**
+	 * supplement item related information
+	 * @param state
+	 * @param params
+	 * @param siteId
+	 * @param a
+	 */
+	private void saveAssignmentSupplementItem(SessionState state,
+			ParameterParser params, String siteId, AssignmentEdit a) {
+		// assignment supplement items
+		String aId = a.getId();
+		//model answer
+		if (state.getAttribute(MODELANSWER_TO_DELETE) != null && "true".equals((String) state.getAttribute(MODELANSWER_TO_DELETE)))
+		{
+			// to delete the model answer
+			AssignmentModelAnswerItem mAnswer = m_assignmentSupplementItemService.getModelAnswer(aId);
+			if (mAnswer != null)
+				m_assignmentSupplementItemService.removeModelAnswer(mAnswer);
+		}
+		else if (state.getAttribute(MODELANSWER_TEXT) != null)
+		{
+			// edit/add model answer
+			AssignmentModelAnswerItem mAnswer = m_assignmentSupplementItemService.getModelAnswer(aId);
+			if (mAnswer == null)
+			{
+				mAnswer = m_assignmentSupplementItemService.newModelAnswer();
+				m_assignmentSupplementItemService.saveModelAnswer(mAnswer);
+			}
+			mAnswer.setAssignmentId(a.getId());
+			mAnswer.setText((String) state.getAttribute(MODELANSWER_TEXT));
+			mAnswer.setShowTo(state.getAttribute(MODELANSWER_SHOWTO) != null ? Integer.parseInt((String) state.getAttribute(MODELANSWER_SHOWTO)) : 0);
+			mAnswer.setAttachmentSet(getAssignmentSupplementItemAttachment(state, mAnswer, MODELANSWER_ATTACHMENTS));
+			m_assignmentSupplementItemService.saveModelAnswer(mAnswer);
+		}
+		// note
+		if (state.getAttribute(NOTE_TO_DELETE) != null &&  "true".equals((String) state.getAttribute(NOTE_TO_DELETE)))
+		{
+			// to remove note item
+			AssignmentNoteItem nNote = m_assignmentSupplementItemService.getNoteItem(aId);
+			if (nNote != null)
+				m_assignmentSupplementItemService.removeNoteItem(nNote);
+		}
+		else if (state.getAttribute(NOTE_TEXT) != null)
+		{
+			// edit/add private note
+			AssignmentNoteItem nNote = m_assignmentSupplementItemService.getNoteItem(aId);
+			if (nNote == null)
+				nNote = m_assignmentSupplementItemService.newNoteItem();
+			nNote.setAssignmentId(a.getId());
+			nNote.setNote((String) state.getAttribute(NOTE_TEXT));
+			nNote.setShareWith(state.getAttribute(NOTE_SHAREWITH) != null ? Integer.parseInt((String) state.getAttribute(NOTE_SHAREWITH)) : 0);
+			nNote.setCreatorId(UserDirectoryService.getCurrentUser().getId());
+			m_assignmentSupplementItemService.saveNoteItem(nNote);
+		}
+		// all purpose
+		if (state.getAttribute(ALLPURPOSE_TO_DELETE) != null && "true".equals((String) state.getAttribute(ALLPURPOSE_TO_DELETE)))
+		{
+			// to remove allPurpose item
+			AssignmentAllPurposeItem nAllPurpose = m_assignmentSupplementItemService.getAllPurposeItem(aId);
+			if (nAllPurpose != null)
+				m_assignmentSupplementItemService.removeAllPurposeItem(nAllPurpose);
+		}
+		else if (state.getAttribute(ALLPURPOSE_TITLE) != null)
+		{
+			// edit/add private note
+			AssignmentAllPurposeItem nAllPurpose = m_assignmentSupplementItemService.getAllPurposeItem(aId);
+			if (nAllPurpose == null)
+			{
+				nAllPurpose = m_assignmentSupplementItemService.newAllPurposeItem();
+				m_assignmentSupplementItemService.saveAllPurposeItem(nAllPurpose);
+			}
+			nAllPurpose.setAssignmentId(a.getId());
+			nAllPurpose.setTitle((String) state.getAttribute(ALLPURPOSE_TITLE));
+			nAllPurpose.setText((String) state.getAttribute(ALLPURPOSE_TEXT));
+			
+			boolean allPurposeShowFrom = state.getAttribute(ALLPURPOSE_SHOW_FROM) != null ? ((Boolean) state.getAttribute(ALLPURPOSE_SHOW_FROM)).booleanValue() : false;
+			boolean allPurposeShowTo = state.getAttribute(ALLPURPOSE_SHOW_TO) != null ? ((Boolean) state.getAttribute(ALLPURPOSE_SHOW_TO)).booleanValue() : false;
+			boolean allPurposeHide = state.getAttribute(ALLPURPOSE_HIDE) != null ? ((Boolean) state.getAttribute(ALLPURPOSE_HIDE)).booleanValue() : false;
+			nAllPurpose.setHide(allPurposeHide);
+			// save the release and retract dates
+			if (allPurposeShowFrom && !allPurposeHide)
+			{
+				// save release date
+				Time releaseTime = getTimeFromState(state, ALLPURPOSE_RELEASE_MONTH, ALLPURPOSE_RELEASE_DAY, ALLPURPOSE_RELEASE_YEAR, ALLPURPOSE_RELEASE_HOUR, ALLPURPOSE_RELEASE_MIN, ALLPURPOSE_RELEASE_AMPM);
+				GregorianCalendar cal = new GregorianCalendar();
+				cal.setTimeInMillis(releaseTime.getTime());
+				nAllPurpose.setReleaseDate(cal.getTime());
+			}
+			else
+			{
+				nAllPurpose.setReleaseDate(null);
+			}
+			if (allPurposeShowTo && !allPurposeHide)
+			{
+				// save retract date
+				Time retractTime = getTimeFromState(state, ALLPURPOSE_RETRACT_MONTH, ALLPURPOSE_RETRACT_DAY, ALLPURPOSE_RETRACT_YEAR, ALLPURPOSE_RETRACT_HOUR, ALLPURPOSE_RETRACT_MIN, ALLPURPOSE_RETRACT_AMPM);
+				GregorianCalendar cal = new GregorianCalendar();
+				cal.setTimeInMillis(retractTime.getTime());
+				nAllPurpose.setRetractDate(cal.getTime());
+			}
+			else
+			{
+				nAllPurpose.setRetractDate(null);
+			}
+			nAllPurpose.setAttachmentSet(getAssignmentSupplementItemAttachment(state, nAllPurpose, ALLPURPOSE_ATTACHMENTS));
+			
+			// clean the access list first
+			if (state.getAttribute(ALLPURPOSE_ACCESS) != null)
+			{
+				// get the access settings
+				List<String> accessList = (List<String>) state.getAttribute(ALLPURPOSE_ACCESS);
+				
+				m_assignmentSupplementItemService.cleanAllPurposeItemAccess(nAllPurpose);
+				Set<AssignmentAllPurposeItemAccess> accessSet = new HashSet<AssignmentAllPurposeItemAccess>();
+				try
+				{
+					AuthzGroup realm = AuthzGroupService.getAuthzGroup(SiteService.siteReference(siteId));
+					Set<Role> roles = realm.getRoles();
+					for(Iterator iRoles = roles.iterator(); iRoles.hasNext();)
+					{
+						// iterator through roles first
+						Role r = (Role) iRoles.next();
+						if (accessList.contains(r.getId()))
+						{
+							AssignmentAllPurposeItemAccess access = m_assignmentSupplementItemService.newAllPurposeItemAccess();
+							access.setAccess(r.getId());
+							access.setAssignmentAllPurposeItem(nAllPurpose);
+							m_assignmentSupplementItemService.saveAllPurposeItemAccess(access);
+							accessSet.add(access);
+						}
+						else
+						{
+							// if the role is not selected, iterate through the users with this role
+							Set userIds = realm.getUsersHasRole(r.getId());
+							for(Iterator iUserIds = userIds.iterator(); iUserIds.hasNext();)
+							{
+								String userId = (String) iUserIds.next();
+								if (accessList.contains(userId))
+								{
+									AssignmentAllPurposeItemAccess access = m_assignmentSupplementItemService.newAllPurposeItemAccess();
+									access.setAccess(userId);
+									access.setAssignmentAllPurposeItem(nAllPurpose);
+									m_assignmentSupplementItemService.saveAllPurposeItemAccess(access);
+									accessSet.add(access);
+								}
+							}
+						}
+					}
+				}
+				catch (Exception e)
+				{
+					M_log.warn(this + ":post_save_assignment " + e.toString() + "error finding authzGroup for = " + siteId);
+				}
+				nAllPurpose.setAccessSet(accessSet);
+			}
+			m_assignmentSupplementItemService.saveAllPurposeItem(nAllPurpose);
+		}
+	}
 
 
 	private Set<AssignmentSupplementItemAttachment> getAssignmentSupplementItemAttachment(SessionState state, AssignmentSupplementItemWithAttachment mItem, String attachmentString) {
@@ -6177,7 +6315,7 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
-		setNewAssignmentParameters(data, false);
+		setNewAssignmentParameters(data, true);
 
 		String assignmentId = data.getParameters().getString("assignmentId");
 		state.setAttribute(PREVIEW_ASSIGNMENT_ASSIGNMENT_ID, assignmentId);
