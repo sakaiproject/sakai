@@ -111,7 +111,7 @@ $(document).ready(function() {
 		#end
 		#if (($allowAllGroups) && ($assignmentscheck))
 			<li  role="menuitem">		
-				<span><a href="#toolLink("$action" "doReorder")" title="$tlang.getString('gen.reorder')">$tlang.getString('gen.reorder')</a></span>
+				<span><a href="#" title="$tlang.getString('gen.reorder')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='reorderNavigation';document.newAssignmentForm.submit();return false;">$tlang.getString('gen.reorder')</a></span>
 			</li>
 		#end
 		#if ($allowUpdateSite)

@@ -42,7 +42,7 @@ function handleEnterKeyPress(ev)
 		#end
 		#if (($allowAllGroups) && ($assignmentscheck))
 			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end role="menuitem">
-				<span><a href="#toolLink("$action" "doReorder")" title="$tlang.getString('gen.reorder')">$tlang.getString('gen.reorder')</a></span>
+				<span><a href="#" title="$tlang.getString('gen.reorder')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='reorderNavigation';document.gradeForm.submit();return false;">$tlang.getString('gen.reorder')</a></span>
 			</li>	
 		#end
 		#if ($allowUpdateSite)

@@ -4227,6 +4227,12 @@ public class AssignmentAction extends PagedResourceActionII
 				addAlert(state, rb.getString("youarenot2"));
 				state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
 			}
+			
+			// reset the global navigaion alert flag
+			if (state.getAttribute(ALERT_GLOBAL_NAVIGATION) != null)
+			{
+				state.removeAttribute(ALERT_GLOBAL_NAVIGATION);
+			}
 		}
 
 	} // doNew_Assignment
@@ -4254,6 +4260,12 @@ public class AssignmentAction extends PagedResourceActionII
 				addAlert(state, rb.getString("youarenot19"));
 				state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
 			}
+			
+			// reset the global navigaion alert flag
+			if (state.getAttribute(ALERT_GLOBAL_NAVIGATION) != null)
+			{
+				state.removeAttribute(ALERT_GLOBAL_NAVIGATION);
+			}
 		}
 
 	} // doReorder
@@ -4277,7 +4289,7 @@ public class AssignmentAction extends PagedResourceActionII
 		String order = params.getString(NEW_ASSIGNMENT_ORDER);
 		state.setAttribute(NEW_ASSIGNMENT_ORDER, order);
 
-		if (title.length() == 0)
+		if (title == null || title.length() == 0)
 		{
 			// empty assignment title
 			addAlert(state, rb.getString("plespethe1"));
@@ -7571,6 +7583,11 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				// back to the list view
 				doBack_to_submission_list(data);
+			}
+			else if (option.equals("reorderNavigation"))
+			{
+				// save and do reorder
+				doReorder(data);
 			}
 
 
