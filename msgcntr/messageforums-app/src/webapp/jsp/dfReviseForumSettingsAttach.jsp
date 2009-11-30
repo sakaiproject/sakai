@@ -23,7 +23,28 @@
 					container: ".charsRemaining",
 					format: charRemFormat
 				 });
-			 });				 
+			 });			
+
+            $("#revise").keypress(function (k) {
+                if (k.which == 13) {
+                    var $t = $(k.target);
+
+                    if (!$t.is("textarea") && !$t.is(":button,:submit")) {
+                        var nextFocus = false;
+                        $(this).find(":input:visible:not([disabled],[readonly]), a").each(function(){
+                            if (this === k.target) {
+                                nextFocus = true;
+                            }
+                            else if (nextFocus){
+                                $(this).focus();
+                                return false;
+                            }
+                        });
+
+                        return false;
+                    }
+                 }
+             }); 	 
         </script>
       <sakai:tool_bar_message value="#{msgs.cdfm_discussion_forum_settings}" />
 		<div class="instruction">
