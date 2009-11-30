@@ -1235,7 +1235,7 @@ $(document).ready(function() {
 					</td>
 				</tr>
 			</table>
-			<span class="reqStar">*</span><h4>$tlang.getString("allPurpose.show.to")</h4>
+			<h4><span class="reqStar">*</span>$tlang.getString("allPurpose.show.to")</h4>
 			<div class="validationError alertMessage" id="allPurpose_userselect">
 				$tlang.getString("extraNodesRequired")
 			</div>	
