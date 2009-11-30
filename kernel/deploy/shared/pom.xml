@@ -4,23 +4,23 @@
   <parent>
     <artifactId>kernel</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>1.1.0-beta04</version>
+    <version>1.1.0-beta05-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <description>Kernel Direct Shared Deployer</description>
   <name>Kernel Direct Shared Deployer</name>
   <groupId>org.sakaiproject.kernel.deploy</groupId>
   <artifactId>shared</artifactId>
-  <version>1.1.0-beta04</version>
+  <version>1.1.0-beta05-SNAPSHOT</version>
   <organization>
     <name>Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/tags/kernel-1.1.0-beta04/deploy/shared</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/tags/kernel-1.1.0-beta04/deploy/shared</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/tags/kernel-1.1.0-beta04/deploy/shared</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy/shared</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy/shared</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/trunk/deploy/shared</url>
   </scm>
 
   <packaging>pom</packaging>
