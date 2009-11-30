@@ -244,7 +244,7 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 				Set<String> acl = new HashSet<String>();
 				for (Member member : members) {
 					boolean shouldBeAvailable = false;
-					if (member.getRole().equals(group.getMaintainRole())) {
+					if (member.getRole().toString().equals(group.getMaintainRole())) {
 						shouldBeAvailable = true;
 					} else {
 						AssignmentGrading grading = produceAssignmentGrading(assignmentRefParts[2],assignmentRefParts[3],member.getUserId());
