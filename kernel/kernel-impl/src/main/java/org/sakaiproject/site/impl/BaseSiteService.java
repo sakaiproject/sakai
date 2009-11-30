@@ -550,7 +550,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 
 		// check the cache
 		String ref = siteReference(id);
-		if ((m_siteCache != null) && (m_siteCache.containsKey(ref)))
+		if (m_siteCache != null)
 		{
 			// some cached things are Booleans (site exists), not sites
 			Object o = m_siteCache.get(ref);
@@ -614,7 +614,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		{
 			// check the cache
 			String ref = siteReference(id);
-			if ((m_siteCache != null) && (m_siteCache.containsKey(ref)))
+			if (m_siteCache != null)
 			{
 				Object o = m_siteCache.get(ref);
 				if (o != null)
