@@ -4928,6 +4928,11 @@ public class SiteAction extends PagedResourceActionII {
 				// update the site and related realm based on the rosters chosen or requested
 				updateCourseSiteSections(state, siteId, rp, term);
 			}
+			else
+			{
+				// for non course type site, send notification email
+				sendSiteNotification(state, getStateSite(state), null);
+			}
 
 			// commit site
 			commitSite(site);
@@ -5096,7 +5101,7 @@ public class SiteAction extends PagedResourceActionII {
 				M_log.warn(this + ".updateCourseSiteSections: " + rb.getString("java.problem"), e);
 			}
 
-			sendSiteNotification(state, providerCourseList);
+			sendSiteNotification(state, getStateSite(state), providerCourseList);
 		}
 
 		if (manualAddNumber != 0) {
@@ -5503,12 +5508,13 @@ public class SiteAction extends PagedResourceActionII {
 	 * Notification sent when a course site is set up automatcally
 	 * 
 	 */
-	private void sendSiteNotification(SessionState state, List notifySites) {
+	private void sendSiteNotification(SessionState state, Site site, List notifySites) {
+		boolean courseSite = site.getType() != null && site.getType().equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE));
+		
 		// get the request email from configuration
 		String requestEmail = getSetupRequestEmailAddress();
 		if (requestEmail != null) {
 			// send emails
-			Site site = getStateSite(state);
 			String id = site.getId();
 			String title = site.getTitle();
 			Time time = TimeService.newTime();
@@ -5519,9 +5525,9 @@ public class SiteAction extends PagedResourceActionII {
 				term_name = ((AcademicSession) state
 						.getAttribute(STATE_TERM_SELECTED)).getEid();
 			}
-			String message_subject = rb.getString("java.official") + " "
+			String message_subject = courseSite ? rb.getString("java.official") + " "
 					+ UserDirectoryService.getCurrentUser().getDisplayName()
-					+ " " + rb.getString("java.for") + " " + term_name;
+					+ " " + rb.getString("java.for") + " " + term_name : rb.getString("java.site.createdBy") + " " + UserDirectoryService.getCurrentUser().getDisplayName();
 
 			String from = NULL_STRING;
 			String to = NULL_STRING;
@@ -5548,25 +5554,32 @@ public class SiteAction extends PagedResourceActionII {
 			buf.append("\n" + rb.getString("java.fromwork") + " "
 					+ ServerConfigurationService.getServerName() + " "
 					+ rb.getString("java.supp") + ":\n\n");
-			buf.append(rb.getString("java.off") + " '" + title + "' (id " + id
+			buf.append(courseSite ? rb.getString("java.off") : rb.getString("java.site"));
+			buf.append(" '" + title + "' (id " + id
 					+ "), " + rb.getString("java.wasset") + " ");
 			buf.append(sender + " (" + userId + ", "
 					+ rb.getString("java.email2") + " " + replyTo + ") ");
 			buf.append(rb.getString("java.on") + " " + local_date + " "
 					+ rb.getString("java.at") + " " + local_time + " ");
-			buf.append(rb.getString("java.for") + " " + term_name + ", ");
-			int nbr_sections = notifySites.size();
-			if (nbr_sections > 1) {
-				buf.append(rb.getString("java.withrost") + " "
-						+ Integer.toString(nbr_sections) + " "
-						+ rb.getString("java.sections") + "\n\n");
-			} else {
-				buf.append(" " + rb.getString("java.withrost2") + "\n\n");
+			if (courseSite)
+			{
+				buf.append(rb.getString("java.for") + " " + term_name + ", ");
 			}
-
-			for (int i = 0; i < nbr_sections; i++) {
-				String course = (String) notifySites.get(i);
-				buf.append(rb.getString("java.course2") + " " + course + "\n");
+			if (notifySites!= null)
+			{
+				int nbr_sections = notifySites.size();
+				if (nbr_sections > 1) {
+					buf.append(rb.getString("java.withrost") + " "
+							+ Integer.toString(nbr_sections) + " "
+							+ rb.getString("java.sections") + "\n\n");
+				} else {
+					buf.append(" " + rb.getString("java.withrost2") + "\n\n");
+				}
+	
+				for (int i = 0; i < nbr_sections; i++) {
+					String course = (String) notifySites.get(i);
+					buf.append(rb.getString("java.course2") + " " + course + "\n");
+				}
 			}
 			String content = buf.toString();
 			EmailService.send(from, to, message_subject, content, headerTo,
@@ -7143,6 +7156,9 @@ public class SiteAction extends PagedResourceActionII {
 							// needs to be fixed -ggolden
 							// schedulePeerFrameRefresh("sitenav");
 							scheduleTopRefresh();
+							
+							// send site notification
+							sendSiteNotification(state, site, null);
 
 							state.setAttribute(SITE_DUPLICATED, Boolean.TRUE);
 						} catch (IdInvalidException e) {
@@ -7716,7 +7732,7 @@ public class SiteAction extends PagedResourceActionII {
 		if (notifyClasses != null && notifyClasses.size() > 0) {
 			try {
 				// send out class access confirmation notifications
-				sendSiteNotification(state, notifyClasses);
+				sendSiteNotification(state, getStateSite(state), notifyClasses);
 			} catch (Exception e) {
 				M_log.warn(this + ".updateCourseClasses:" + e.toString(), e);
 			}
