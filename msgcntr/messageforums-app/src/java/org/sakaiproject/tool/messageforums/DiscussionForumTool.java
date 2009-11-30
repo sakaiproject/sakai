@@ -2099,12 +2099,12 @@ public class DiscussionForumTool
 	    threadAnchorMessageId = null;
 	    String threadId = getExternalParameterByKey(MESSAGE_ID);
 	    String topicId = getExternalParameterByKey(TOPIC_ID);
-	    if ("".equals(threadId))
+	    if ("".equals(threadId) || null == threadId || "null".equals(threadId))
 	    {
 	      setErrorMessage(getResourceBundleString(MESSAGE_REFERENCE_NOT_FOUND));
 	      return gotoMain();
 	    }
-	    if ("".equals(topicId))
+	    if ("".equals(topicId) || null == topicId || "null".equals(topicId))
 	    {
 	      setErrorMessage(getResourceBundleString(TOPC_REFERENCE_NOT_FOUND));
 	      return gotoMain();
