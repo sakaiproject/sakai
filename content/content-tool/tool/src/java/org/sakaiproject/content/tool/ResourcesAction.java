@@ -46,6 +46,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -55,7 +56,6 @@ import org.sakaiproject.cheftool.PagedResourceHelperAction;
 import org.sakaiproject.cheftool.PortletConfig;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
-import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
@@ -1376,6 +1376,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					ContentHostingService.commitResource(resource, notification);
 					item_added = true;
 					new_resources.add(resource);
+				}
+				catch(VirusFoundException vfe) 
+				{
+					addAlert(trb.getFormattedMessage("alert.virusfound", new String[]{vfe.getMessage()}));
+					ContentHostingService.cancelResource(resource);
 				}
 				catch(OverQuotaException e)
 				{
