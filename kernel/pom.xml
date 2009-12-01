@@ -628,7 +628,7 @@
 			<dependency>
 				<groupId>commons-pool</groupId>
 				<artifactId>commons-pool</artifactId>
-				<version>1.5.3</version>
+				<version>1.5.4</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -705,7 +705,7 @@
 			<dependency>
 				<groupId>javax.mail</groupId>
 				<artifactId>mail</artifactId>
-				<version>1.4.2</version>
+				<version>1.4.3</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
