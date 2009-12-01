@@ -138,9 +138,6 @@ function switchui()
 <%=rb.getString("tool.secret.detail") %>
 </p>
 <% } %>
-<p>
-<input type="submit" value="<%=rb.getString("update.options")%>">
-</p>
 </fieldset>
 <% } %>
 <script type="text/javascript">
@@ -164,9 +161,6 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <%=rb.getString("tool.title.detail") %>
 </p>
 <% } %>
-<p>
-<input type="submit" value="<%=rb.getString("update.options")%>">
-</p>
 </fieldset>
 <% } %>
 <% if ( allow(sp,"frameheight") || allow(sp, "debug") ) { %>
@@ -219,9 +213,6 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <%=rb.getString("launch.privacy.detail") %>
 </p>
 <% } %>
-<p>
-<input type="submit" value="<%=rb.getString("update.options")%>">
-</p>
 </fieldset>
 <% } %>
 <% if ( allow(sp,"custom") ) { %>
@@ -233,11 +224,13 @@ if ( document.getElementById("UISwitcher") ) switchui();
 </textarea>
 <%=rb.getString("launch.custom.detail") %>
 </p>
-<p>
-<input type="submit" value="<%=rb.getString("update.options")%>">
-</p>
 </fieldset>
 <% } %>
+<p>
+<input type="submit" value="<%=rb.getString("update.options")%>">
+<input type="submit" value="<%=rb.getString("edit.exit")%>" 
+    onclick="window.location='<%=viewURL.toString()%>'; return false;"/>
+</p>
 </form>
 <% } else { %>
 <p>Configuration has been pre-set and cannot be edited for this placement.</p>
