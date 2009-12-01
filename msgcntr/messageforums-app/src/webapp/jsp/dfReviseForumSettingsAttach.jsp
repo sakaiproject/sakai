@@ -8,12 +8,13 @@
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
 </jsp:useBean>
 <f:view>
+	<sakai:view title="#{msgs.cdfm_discussion_forum_settings}" toolCssHref="/sakai-messageforums-tool/css/msgcntr.css">
 	<script type="text/javascript" src="/library/js/jquery.js"></script>
 	<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>      
 	<script type="text/javascript" src="/sakai-messageforums-tool/js/jquery.charcounter.js"> </script>
 	<sakai:script contextBase="/sakai-messageforums-tool" path="/js/permissions_header.js"/>
 	<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
-	<sakai:view title="#{msgs.cdfm_discussion_forum_settings}" toolCssHref="/sakai-messageforums-tool/css/msgcntr.css">
+
   <!-- Y:\msgcntr\messageforums-app\src\webapp\jsp\dfReviseForumSettingsAttach.jsp -->
     <h:form id="revise">
 		  <script type="text/javascript">
@@ -23,28 +24,7 @@
 					container: ".charsRemaining",
 					format: charRemFormat
 				 });
-			 });			
-
-            $("#revise").keypress(function (k) {
-                if (k.which == 13) {
-                    var $t = $(k.target);
-
-                    if (!$t.is("textarea") && !$t.is(":button,:submit")) {
-                        var nextFocus = false;
-                        $(this).find(":input:visible:not([disabled],[readonly]), a").each(function(){
-                            if (this === k.target) {
-                                nextFocus = true;
-                            }
-                            else if (nextFocus){
-                                $(this).focus();
-                                return false;
-                            }
-                        });
-
-                        return false;
-                    }
-                 }
-             }); 	 
+			 });				 
         </script>
       <sakai:tool_bar_message value="#{msgs.cdfm_discussion_forum_settings}" />
 		<div class="instruction">
