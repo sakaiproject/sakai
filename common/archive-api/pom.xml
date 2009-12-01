@@ -10,7 +10,7 @@
   <groupId>org.sakaiproject.common</groupId>
   <artifactId>archive-api</artifactId>
   <organization>
-    <name>University of Michigan</name>
+    <name>Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
