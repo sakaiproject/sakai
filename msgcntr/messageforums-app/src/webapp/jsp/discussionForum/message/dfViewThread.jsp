@@ -8,14 +8,6 @@
 
 <f:view>
 <sakai:view toolCssHref="/sakai-messageforums-tool/css/msgcntr.css">
-<script type="text/javascript" language="JavaScript">
-	// open print preview in another browser window so can size approx what actual
-	// print out will look like
-	function printFriendly(url) {
-	newwindow=window.open(url,'mywindow','width=960,height=1100');
-	if (window.focus) {newwindow.focus()}
-	}
-</script>
 	<span class="skip" id="firstPendingItemTitleHolder"><h:outputText value="#{msgs.cdfm_gotofirstpendingtitle}" /></span>
 	<span class="skip" id="nextPendingItemTitleHolder"><h:outputText value="#{msgs.cdfm_gotopendtitle}" /></span>
 	<span class="skip" id="lastPendingItemTitleHolder"><h:outputText value="#{msgs.cdfm_lastpendtitle}" /></span>

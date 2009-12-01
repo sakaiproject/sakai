@@ -8,19 +8,11 @@
 <f:view>
   <sakai:view>
   
-  	<script language="JavaScript">
-		function printFriendly(url) {
-			printwindow=window.open(url,'mywindow','width=960,height=1100,resizable=yes,scrollbars=yes,');	
-			if (window.focus) {
-				printwindow.focus();
-			}
-		}
-	</script>
- 
   	<h:form id="dfStatisticsForm">
 		<!-- discussionForum/statistics/dfStatisticsFullTextForOne.jsp -->
   	       	<script type="text/javascript" src="/library/js/jquery.js"></script>
        		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
+			<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
   	
   		<sakai:tool_bar>				
 			<h:outputLink id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyFullTextForOne}');" title="#{msgs.cdfm_print}">

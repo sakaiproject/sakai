@@ -360,3 +360,46 @@ js.setAttribute('language', 'javascript');
 js.setAttribute('type', 'text/javascript');
 js.setAttribute('src','/sakai-messageforums-tool/js/sak-10625.js');
 document.getElementsByTagName('head').item(0).appendChild(js);*/
+
+// open print preview in another browser window so can size approx what actual
+// print out will look like
+function printFriendly(url) {
+	newwindow=window.open(url,'mywindow','width=960,height=1100,scrollbars=yes,resizable=yes');
+	if (window.focus) {newwindow.focus()}
+}
+
+function countStuff() {
+	var textInfo
+	var textareas = document.getElementsByTagName("textarea");
+	var rteId = textareas.item(0).id;
+	var oEditor = FCKeditorAPI.GetInstance(rteId) ;
+	var oDOM = oEditor.EditorDocument ;
+	if ( document.all ) // If Internet Explorer.
+	{
+		 wordCount=oDOM.body.innerText.split(" ").length;
+	}
+	else // If Gecko.
+	{
+		var r = oDOM.createRange();	
+		r.selectNodeContents(oDOM.body);
+		wordCount = r.toString().split(" ").length;
+	}
+	msgupdatecounts = $('.msg-updatecount').text();
+	textInfo =  "(" + wordCount + ")";
+	return textInfo;
+}
+
+function InsertHTML() { 
+	// These lines will write to the original textarea and makes the quoting work when FCK is not present
+	var finalhtml = '<b><i>Original Message:</i></b><br/><b><i><h:outputText value="#{msgs.cdfm_from}" /></i></b> <i><h:outputText value="#{ForumTool.selectedMessage.message.author}" /><h:outputText value=" #{msgs.cdfm_openb}" /><h:outputText value="#{ForumTool.selectedMessage.message.created}" ><f:convertDateTime pattern="#{msgs.date_format}" /></h:outputText><h:outputText value="#{msgs.cdfm_closeb}" /></i><br/><b><i><h:outputText value="#{msgs.cdfm_subject}" /></i></b> <i>' + titletext + '</i><br/><br/><i>' + messagetext + '</i><br/><br/>';
+	document.forms['dfCompose'].elements[rteId].value = finalhtml;
+	// Get the editor instance that we want to interact with.
+	var oEditor = FCKeditorAPI.GetInstance(rteId);
+	// Check the active editing mode.
+	if ( oEditor.EditMode == FCK_EDITMODE_WYSIWYG )
+	{
+	// Insert the desired HTML.
+		oEditor.InsertHtml( finalhtml );
+	}
+	else alert( 'You must be on WYSIWYG mode!' );
+}

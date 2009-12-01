@@ -15,6 +15,7 @@
 			</style>
 	       		<script type="text/javascript" src="/library/js/jquery.js"></script>
        		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
+       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
 			<script type="text/javascript">
 				$(document).ready(function() {
 					$('#countme').click(function(e){
@@ -68,29 +69,6 @@
 	            <sakai:inputRichText value="#{ForumTool.composeBody}" id="df_compose_body" rows="22" cols="120">
 					<f:validateLength maximum="65000"/>
 				</sakai:inputRichText>
-			<script language="javascript" type="text/javascript">
-			 function countStuff() 
-			 {
-				var textInfo
-					var textareas = document.getElementsByTagName("textarea");
-					var rteId = textareas.item(0).id;
-					var oEditor = FCKeditorAPI.GetInstance(rteId) ;
-					var oDOM = oEditor.EditorDocument ;
-					if ( document.all ) // If Internet Explorer.
-					{
-						 wordCount=oDOM.body.innerText.split(" ").length;
-					}
-					else // If Gecko.
-					{
-						var r = oDOM.createRange();	
-						r.selectNodeContents(oDOM.body);
-						wordCount = r.toString().split(" ").length;
-					}
-					msgupdatecounts = $('.msg-updatecount').text();
-					textInfo = "(" + wordCount + ")"; 
-					return textInfo;
-				}
-			</script>		
 <%--********************* Attachment *********************--%>	
 	        <h4>
 	          <h:outputText value="#{msgs.cdfm_att}"/>

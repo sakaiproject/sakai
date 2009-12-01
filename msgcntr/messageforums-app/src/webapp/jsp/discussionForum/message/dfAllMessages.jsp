@@ -8,15 +8,6 @@
 
 <f:view>
 	<sakai:view toolCssHref="/sakai-messageforums-tool/css/msgcntr.css">
-		<script type="text/javascript">
-	// open print preview in another browser window so can size approx what actual
-	// print out will look like
-	function printFriendly(url) {
-			newwindow=window.open(url,'mywindow','width=960,height=1100,scrollbars=yes,resizable=yes');
-			if (window.focus) {newwindow.focus()}
-	}
-</script>
-		
 	<h:form id="msgForum" rendered="#{!ForumTool.selectedTopic.topic.draft || ForumTool.selectedTopic.topic.createdBy == ForumTool.userId}">
 <!--jsp/discussionForum/message/dfAllMessages.jsp-->
 	

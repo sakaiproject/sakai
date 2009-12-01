@@ -7,14 +7,6 @@
 </jsp:useBean>
 <f:view>
   <sakai:view>
-  	<script language="JavaScript">
-		function printFriendly(url) {
-			printwindow=window.open(url,'mywindow','width=960,height=1100,resizable=yes,scrollbars=yes,');	
-			if (window.focus) {
-				printwindow.focus();
-			}
-		}
-	</script>  
   	<h:form id="dfStatisticsForm">
 				<!-- discussionForum/statistics/dfStatisticsDisplayInThread.jsp -->
   	    <script type="text/javascript" src="/library/js/jquery.js"></script>
