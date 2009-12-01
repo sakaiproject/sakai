@@ -25,6 +25,7 @@
             </activation>
             <properties>
                 <clean.targets>
+                    components/basiclti-pack;
                     components/emailtemplateservice-pack;
                     components/coursemanagement-hibernate-pack;
                     components/gradebook-service-pack;
@@ -33,11 +34,18 @@
                     components/sakai-privacy-pack;
                     components/samigo-pack;
                     components/search-pack;
-                    components/sections-pack
+                    components/sections-pack;
+                    components/sitestats-component
                 </clean.targets>
                 <deploy.target>tomcat-overlay</deploy.target>
             </properties>
             <dependencies>
+                <dependency>
+                    <groupId>org.sakaiproject.basiclti</groupId>
+                    <artifactId>basiclti-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
                 <dependency>
                     <groupId>org.sakaiproject.common</groupId>
                     <artifactId>sakai-common-assembly</artifactId>
@@ -80,6 +88,12 @@
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.sitestats</groupId>
+                    <artifactId>sitestats-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
             </dependencies>
         </profile>
         <profile>
@@ -106,7 +120,6 @@
                 <dependency>
                     <groupId>org.sakaiproject.basiclti</groupId>
                     <artifactId>basiclti-assembly</artifactId>
-                    <version>1.0-SNAPSHOT</version>
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
@@ -162,7 +175,6 @@
                 <dependency>
                     <groupId>org.sakaiproject.sitestats</groupId>
                     <artifactId>sitestats-assembly</artifactId>
-                    <version>2.1-SNAPSHOT</version>
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
