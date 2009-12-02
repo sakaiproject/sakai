@@ -32,6 +32,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 
 import org.apache.commons.logging.Log;
@@ -54,6 +55,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.w3c.dom.Document;
 
  
@@ -77,7 +79,7 @@ public class XMLImportBean implements Serializable
   private ItemAuthorBean itemAuthorBean;
   private QuestionPoolBean questionPoolBean;
   private boolean isCP;
-
+  
   private static final GradebookServiceHelper gbsHelper =
       IntegrationContextFactory.getInstance().getGradebookServiceHelper();
   private static final boolean integrated =
@@ -97,65 +99,65 @@ public class XMLImportBean implements Serializable
 
   public void importAssessment(ValueChangeEvent e)
   {
+	  String sourceType = ContextUtil.lookupParam("sourceType");
 	  String uploadFile = (String) e.getNewValue();
-	  if(uploadFile.toLowerCase().endsWith(".zip")) {
-		  isCP = true;
-		  importFromCP(uploadFile);
+	  if ("respondus".equals(sourceType)) {
+		  if(uploadFile.toLowerCase().endsWith(".zip")) {
+			  isCP = true;
+			  importAssessment(uploadFile, true, true);
+		  }
+		  else {
+			  isCP = false;
+			  importAssessment(uploadFile, false, true);
+		  }
 	  }
 	  else {
-		  isCP = false;
-		  importFromQti(uploadFile);
+		  if(uploadFile.toLowerCase().endsWith(".zip")) {
+			  isCP = true;
+			  importAssessment(uploadFile,true, false);
+		  }
+		  else {
+			  isCP = false;
+			  importAssessment(uploadFile, false, false);
+		  }
 	  }
   }
-  /**
-   * Value change on upload
-   * @param e the event
-   */
-  public void importFromQti(String uploadFile)
-  {
-    try
-    {
-      processFile(uploadFile);
-    }
-    catch (Exception ex)
-    {
-      ResourceLoader rb =new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
-      FacesMessage message = new FacesMessage( rb.getString("import_err") + ex );
-      FacesContext.getCurrentInstance().addMessage(null, message);
-      // remove unsuccessful file
-      log.debug("****remove unsuccessful uplaodFile="+uploadFile);
-      File upload = new File(uploadFile);
-      upload.delete();
-    }
-  }
   
   /**
    * Value change on upload
    * @param e the event
    */
   
-  public void importFromCP(String uploadFile)
+  public void importAssessment(String uploadFile, boolean isCP, boolean isRespondus)
   {
-    ImportService importService = new ImportService();
-    String unzipLocation = importService.unzipImportFile(uploadFile);
-    String filename = unzipLocation + "/" + importService.getQTIFilename();
+	String filename = uploadFile;
+	String unzipLocation = null;
+	if (isCP) {
+		ImportService importService = new ImportService();
+		unzipLocation = importService.unzipImportFile(uploadFile);
+		filename = unzipLocation + "/" + importService.getQTIFilename();
+	}
     try
     {
-      processFile(filename, uploadFile, unzipLocation);
+      processFile(filename, isRespondus);
     }
     catch (Exception ex)
     {
       ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
       FacesMessage message = new FacesMessage( rb.getString("import_err") + ex );
       FacesContext.getCurrentInstance().addMessage(null, message);
+    }
+    finally {
       // remove unsuccessful file
       log.debug("****remove unsuccessful filename="+filename);
       File f1 = new File(filename);
       f1.delete();
-      File f2 = new File(uploadFile);
-      f2.delete();
-      File f3 = new File(unzipLocation);
-      deleteDirectory(f3);
+      if (isCP) {
+    	  File f2 = new File(uploadFile);
+    	  f2.delete();
+    	  File f3 = new File(unzipLocation);
+    	  deleteDirectory(f3);
+      }
     }
   }
 
@@ -217,17 +219,13 @@ public class XMLImportBean implements Serializable
     this.importType = importType;
   }
 
-  private void processFile(String fileName)
-  {
-	  processFile(fileName, null, null);
-  }
-  private void processFile(String fileName, String uploadFile, String unzipLocation)
+  private void processFile(String fileName, boolean isRespondus)
   {
     itemAuthorBean.setTarget(ItemAuthorBean.FROM_ASSESSMENT); // save to assessment
 
     AssessmentService assessmentService = new AssessmentService();
     // Create an assessment based on the uploaded file
-    AssessmentFacade assessment = createImportedAssessment(fileName, qtiVersion);
+    AssessmentFacade assessment = createImportedAssessment(fileName, qtiVersion, isRespondus);
 
     
     // change grading book settings if there is no gradebook in the site
@@ -272,20 +270,6 @@ public class XMLImportBean implements Serializable
 		assessmentFacade.setTitle(FormattedText.convertFormattedTextToPlaintext(assessmentFacade.getTitle()));
 	}
     authorBean.setAssessments(list);
-
-    // remove uploaded file
-    try{
-      //log.debug("****filename="+fileName);
-      File f1 = new File(fileName);
-      f1.delete();
-      File f2 = new File(uploadFile);
-      f2.delete();
-      File f3 = new File(unzipLocation);
-      deleteDirectory(f3);
-    }
-    catch(Exception e){
-      log.error(e.getMessage());
-    }
   }
   
   private void deleteDirectory(File directory) {
@@ -311,14 +295,19 @@ public class XMLImportBean implements Serializable
    */
   private AssessmentFacade createImportedAssessment(String fullFileName, int qti)
   {
+	  return createImportedAssessment(fullFileName, qti, false);
+  }
+  
+  private AssessmentFacade createImportedAssessment(String fullFileName, int qti, boolean isRespondus)
+  {
     //trim = true so that xml processing instruction at top line, even if not.
     Document document = XmlUtil.readDocument(fullFileName, true);
     QTIService qtiService = new QTIService();
     if (isCP) {
-    	return qtiService.createImportedAssessment(document, qti, fullFileName.substring(0, fullFileName.lastIndexOf("/")));
+    	return qtiService.createImportedAssessment(document, qti, fullFileName.substring(0, fullFileName.lastIndexOf("/")), isRespondus);
     }
     else {
-    	return qtiService.createImportedAssessment(document, qti, null);
+    	return qtiService.createImportedAssessment(document, qti, null, isRespondus);
     }
   }
 
