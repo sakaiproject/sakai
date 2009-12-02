@@ -22,9 +22,9 @@
     <version>1.3.7-SNAPSHOT</version><!--entitybroker.version-->
 <!-- Sakai master pom is parent -->
     <parent>
-        <artifactId>master</artifactId>
-        <groupId>org.sakaiproject</groupId>
-        <version>2.7.0-SNAPSHOT</version>
+        <artifactId>sakai-basic-tool</artifactId>
+        <groupId>org.sakaiproject.purepoms</groupId>
+        <version>2.7.0-build04</version>
 <!--        <version>sakai-2.5.4</version>-->
 <!--        <version>M2</version>--><!-- 2.5.x -->
         <relativePath>../master/pom.xml</relativePath>
@@ -131,6 +131,16 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+        <repository>
+            <id>sakai-maven-snapshots</id>
+            <name>Sakai Maven Repo Snapshots</name>
+            <layout>default</layout>
+            <url>http://source.sakaiproject.org/maven2-snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+
         <repository>
             <id>default</id>
             <name>Maven Repository Switchboard</name>

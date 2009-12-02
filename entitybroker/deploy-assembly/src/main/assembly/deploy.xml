@@ -2,7 +2,7 @@
 <assembly>
     <id>tomcat-overlay</id>
     <formats>
-        <format>dir</format>
+        <!--<format>dir</format>-->
         <format>zip</format>
         <format>tar.gz</format>
     </formats>
