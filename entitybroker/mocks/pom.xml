@@ -14,7 +14,7 @@
   <parent>
     <artifactId>entitybroker</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>1.3.7-SNAPSHOT</version><!--entitybroker.version-->
+    <version>1.3.7</version><!--entitybroker.version-->
   </parent>
 <!-- needed until maven 2.0.7 upgrade - http://jira.codehaus.org/browse/MNG-2919 -->
   <dependencyManagement>
@@ -22,7 +22,7 @@
       <dependency>
         <groupId>org.sakaiproject.entitybroker</groupId>
         <artifactId>entitybroker-mocks</artifactId>
-        <version>1.3.7-SNAPSHOT</version><!--entitybroker.version-->
+        <version>1.3.7</version><!--entitybroker.version-->
         <scope>compile</scope>
       </dependency>
     </dependencies>
