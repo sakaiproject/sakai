@@ -31,3 +31,8 @@ alter table SAKAI_PERSON_T add FAVOURITE_MOVIES text;
 alter table SAKAI_PERSON_T add FAVOURITE_QUOTES text; 
 alter table SAKAI_PERSON_T add EDUCATION_COURSE text; 
 alter table SAKAI_PERSON_T add EDUCATION_SUBJECTS text; 
+
+
+-- SAK-17485/SAK-10559
+alter table MFR_MESSAGE_T add column NUM_READERS int;
+update MFR_MESSAGE_T set NUM_READERS = 0;

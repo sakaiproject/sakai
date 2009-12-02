@@ -28,3 +28,11 @@ alter table SAKAI_PERSON_T add EDUCATION_SUBJECTS varchar(4000);
 
 -- SAK-16984 new column in sakai-Person
 alter TABLE SAKAI_PERSON_T add NORMALIZEDMOBILE varchar(255);
+
+
+
+-- SAK-17485/SAK-10559
+alter table MFR_MESSAGE_T add NUM_READERS int;
+update MFR_MESSAGE_T set NUM_READERS = 0; 
+
+

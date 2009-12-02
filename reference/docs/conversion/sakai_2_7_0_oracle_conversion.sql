@@ -32,3 +32,6 @@ alter table SAKAI_PERSON_T add FAVOURITE_QUOTES varchar2(4000);
 alter table SAKAI_PERSON_T add EDUCATION_COURSE varchar2(4000); 
 alter table SAKAI_PERSON_T add EDUCATION_SUBJECTS varchar2(4000);
 
+-- SAK-17485/SAK-10559
+alter table MFR_MESSAGE_T add NUM_READERS int;
+update MFR_MESSAGE_T set NUM_READERS = 0; 
