@@ -28,6 +28,39 @@
         </license>
     </licenses>
 
+    <developers>
+        <developer>
+            <id>dhorwitz</id>
+            <name>David Horwitz</name>
+            <organization>University of Cape Town</organization>
+            <email>david.horwitz@uct.ac.za</email>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>arwhyte</id>
+            <name>Anthony Whyte</name>
+            <organization>Sakai Foundation/University of Michigan</organization>
+            <email>arwhyte@umich.edu</email>
+            <roles>
+                <role>POM plumber</role>
+                <role>Release Manager</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <contributors>
+        <contributor>
+            <name>Beth Kirschner</name>
+            <organization>University of Michigan</organization>
+            <email>bkirschn@umich.edu</email>
+            <roles>
+                <role>Language bundles</role>
+            </roles>
+        </contributor>
+    </contributors>
+    
     <modules>
         <module>api</module>
         <module>assembly</module>
