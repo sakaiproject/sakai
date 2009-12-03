@@ -11516,11 +11516,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			if (rv == null)
 			{
 				// todo: try to get the body from the stream
-				if (m_contentLength > 0)
+				if (m_contentLength == 0)
 				{
 					rv = new byte[0];
 				} 
-				else
+				else if (m_contentLength > 0)
 				{
 					// TODO: we do not store the body with the object, so as not to cache the body bytes -ggolden
 					rv = m_storage.getResourceBody(this);
