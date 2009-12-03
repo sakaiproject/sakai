@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -184,6 +184,7 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		((StatsManagerImpl)M_sm).setContentHostingService(M_chs);
 		((StatsManagerImpl)M_sm).setContentTypeImageService(M_ctis);
 		((StatsManagerImpl)M_sm).setResourceLoader(msgs);
+		((StatsManagerImpl)M_sm).setCountFilesUsingCHS(false);
 		((StatsUpdateManagerImpl)M_sum).setSiteService(M_ss);
 		((StatsUpdateManagerImpl)M_sum).setStatsManager(M_sm);
 	}
