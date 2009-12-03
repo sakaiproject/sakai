@@ -130,9 +130,9 @@
     </repositories>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/emailtemplateservice/branches/emailtemplateservice-0.4.x</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/emailtemplateservice/branches/emailtemplateservice-0.4.x</developerConnection>
-        <url>https://source.sakaiproject.org/svn/emailtemplateservice/branches/emailtemplateservice-0.4.x</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/emailtemplateservice/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/emailtemplateservice/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/emailtemplateservice/trunk</url>
     </scm>
 
     <distributionManagement>
