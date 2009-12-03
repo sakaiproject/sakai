@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -660,7 +660,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	public byte[] getReportAsExcel(Report report, String sheetName) {
 		List<Stat> statsObjects = report.getReportData();
 		HSSFWorkbook wb = new HSSFWorkbook();
-		HSSFSheet sheet = wb.createSheet(sheetName);
+		HSSFSheet sheet = wb.createSheet(getFixedExcelSheetName(sheetName));
 		HSSFRow headerRow = sheet.createRow((short) 0);
 
 		// Add the column headers
@@ -773,6 +773,20 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			}
 		}
 		return wb.getBytes();
+	}
+	
+	private String getFixedExcelSheetName(String sheetName) {
+		if(sheetName == null || sheetName.trim().length() == 0) {
+			return "Sheet";
+		}else{
+			sheetName = sheetName.replaceAll("\\/", "_").replaceAll("\\\\", "_")
+								.replaceAll("\\*", "_").replaceAll("\\?", "_")
+								.replaceAll("\\[", "(").replaceAll("\\]", ")");
+			if(sheetName.length() > 31) {
+				sheetName = sheetName.substring(0, 31);
+			}
+			return sheetName;
+		}
 	}
 
 	/* (non-Javadoc)
