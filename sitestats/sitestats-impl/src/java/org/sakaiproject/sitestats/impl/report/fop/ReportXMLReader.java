@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -378,6 +378,66 @@ public class ReportXMLReader extends AbstractObjectReader {
 	            handler.element("totalUnique", String.valueOf(ss.getTotalUnique()));
             }
             
+            handler.endElement("datarow");
+        }
+        
+        // empty report
+        if(data.size() == 0) {        	
+        	String messageNoData = msgs.getString("no_data");
+
+        	handler.startElement("datarow");
+            // set column display info
+            setColumnDisplayInfo(params);
+            
+            if(showSite) {
+            	handler.element("site", messageNoData);
+            	messageNoData = "";
+            }
+            if(showUser) {
+	            handler.element("userid", messageNoData);
+            	messageNoData = "";
+	            handler.element("username", messageNoData);
+            }
+            if(showTool) {
+            	handler.element("tool", messageNoData);
+            	messageNoData = "";
+            	handler.element("showToolIcon", "");
+            	handler.element("toolicon", "");            	
+            }
+            if(showEvent) {
+            	handler.element("event", messageNoData);
+            	messageNoData = "";
+            	handler.element("showToolEventIcon", "false");
+            }
+            if(showResource) {
+	        	handler.element("resource", messageNoData);
+            	messageNoData = "";
+	            handler.element("resourceimg", "");            	
+            }
+            if(showResourceAction) {
+            	handler.element("action", messageNoData);
+            	messageNoData = "";	            
+            }
+            if(showDate) {
+            	handler.element("date", messageNoData);
+            	messageNoData = "";
+            }
+            if(showLastDate) {
+            	handler.element("lastdate", messageNoData);
+            	messageNoData = "";
+            }
+            if(showTotal) {
+	            handler.element("total", messageNoData);
+            	messageNoData = "";
+            }
+            if(showTotalVisits) {
+	            handler.element("totalVisits", messageNoData);
+            	messageNoData = "";
+            }
+            if(showTotalUnique) {
+	            handler.element("totalUnique", messageNoData);
+            	messageNoData = "";
+            }            
             handler.endElement("datarow");
         }
 	}
