@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -104,7 +104,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	private Boolean						enableResourceStats						= null;
 	private Boolean 				    visitsInfoAvailable						= null;
 	private boolean						enableServerWideStats					= false;
-	private boolean						countFilesUsingCHS						= false;
+	private boolean						countFilesUsingCHS						= true;
 	private String						chartBackgroundColor					= "white";
 	private boolean						chartIn3D								= true;
 	private float						chartTransparency						= 0.80f;
