@@ -662,42 +662,42 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		List<Stat> statsObjects = report.getReportData();
 		HSSFWorkbook wb = new HSSFWorkbook();
 		HSSFSheet sheet = wb.createSheet(getFixedExcelSheetName(sheetName));
-		HSSFRow headerRow = sheet.createRow((short) 0);
+		HSSFRow headerRow = sheet.createRow(0);
 
 		// Add the column headers
 		int ix = 0;
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_USER)) {
-			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_id"));
-			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_user"));
+			headerRow.createCell(ix++).setCellValue(msgs.getString("th_id"));
+			headerRow.createCell(ix++).setCellValue(msgs.getString("th_user"));
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_TOOL)) {
-			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_tool"));
+			headerRow.createCell(ix++).setCellValue(msgs.getString("th_tool"));
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_EVENT)) {
-			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_event"));
+			headerRow.createCell(ix++).setCellValue(msgs.getString("th_event"));
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_RESOURCE)) {
-			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_resource"));
+			headerRow.createCell(ix++).setCellValue(msgs.getString("th_resource"));
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_RESOURCE_ACTION)) {
-			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_action"));
+			headerRow.createCell(ix++).setCellValue(msgs.getString("th_action"));
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATE)
 			|| isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATEMONTH)
 			|| isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATEYEAR)) {
-			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_date"));
+			headerRow.createCell(ix++).setCellValue(msgs.getString("th_date"));
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_LASTDATE)) {
-			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_lastdate"));
+			headerRow.createCell(ix++).setCellValue(msgs.getString("th_lastdate"));
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_TOTAL)) {
-			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_total"));
+			headerRow.createCell(ix++).setCellValue(msgs.getString("th_total"));
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_VISITS)) {
-			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_visits"));
+			headerRow.createCell(ix++).setCellValue(msgs.getString("th_visits"));
 		}
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_UNIQUEVISITS)) {
-			headerRow.createCell((short) (ix++)).setCellValue(msgs.getString("th_uniquevisitors"));
+			headerRow.createCell(ix++).setCellValue(msgs.getString("th_uniquevisitors"));
 		}
 
 		// Fill the spreadsheet cells
@@ -730,47 +730,47 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	    		}else{
 	    			userName = msgs.getString("user_unknown");
 	    		}
-				row.createCell((short) ix++).setCellValue(userEid);
-				row.createCell((short) ix++).setCellValue(userName);
+				row.createCell(ix++).setCellValue(userEid);
+				row.createCell(ix++).setCellValue(userName);
 			}
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_TOOL)) {
 				EventStat es = (EventStat) se;
-				row.createCell((short) ix++).setCellValue(M_ers.getToolName(es.getToolId()));
+				row.createCell(ix++).setCellValue(M_ers.getToolName(es.getToolId()));
 			}
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_EVENT)) {
 				EventStat es = (EventStat) se;
-				row.createCell((short) ix++).setCellValue(M_ers.getEventName(es.getEventId()));
+				row.createCell(ix++).setCellValue(M_ers.getEventName(es.getEventId()));
 			}
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_RESOURCE)) {
 				ResourceStat rs = (ResourceStat) se;
-				row.createCell((short) ix++).setCellValue(rs.getResourceRef());				
+				row.createCell(ix++).setCellValue(rs.getResourceRef());		
 			}
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_RESOURCE_ACTION)) {
 				ResourceStat rs = (ResourceStat) se;
-				row.createCell((short) ix++).setCellValue(rs.getResourceAction());				
+				row.createCell(ix++).setCellValue(rs.getResourceAction());			
 			}
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATE)) {
-				row.createCell((short) ix++).setCellValue(se.getDate().toString());				
+				row.createCell(ix++).setCellValue(se.getDate().toString());			
 			}
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATEMONTH)) {
-				row.createCell((short) ix++).setCellValue(dateMonthFrmt.format(se.getDate()));			
+				row.createCell(ix++).setCellValue(dateMonthFrmt.format(se.getDate()));			
 			}
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_DATEYEAR)) {
-				row.createCell((short) ix++).setCellValue(dateYearFrmt.format(se.getDate()));			
+				row.createCell(ix++).setCellValue(dateYearFrmt.format(se.getDate()));		
 			}
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_LASTDATE)) {
-				row.createCell((short) ix++).setCellValue(se.getDate().toString());				
+				row.createCell(ix++).setCellValue(se.getDate().toString());			
 			}
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_TOTAL)) {
-				row.createCell((short) ix++).setCellValue(se.getCount());				
+				row.createCell(ix++).setCellValue(se.getCount());		
 			}
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_VISITS)) {
 				SiteVisits sv = (SiteVisits) se;
-				row.createCell((short) ix++).setCellValue(sv.getTotalVisits());				
+				row.createCell(ix++).setCellValue(sv.getTotalVisits());
 			}
 			if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_UNIQUEVISITS)) {
 				SiteVisits sv = (SiteVisits) se;
-				row.createCell((short) ix++).setCellValue(sv.getTotalUnique());				
+				row.createCell(ix++).setCellValue(sv.getTotalUnique());
 			}
 		}
 		return wb.getBytes();

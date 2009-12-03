@@ -112,7 +112,7 @@
       <artifactId>fop</artifactId>
     </dependency>
     <dependency>
-      <groupId>poi</groupId>
+      <groupId>org.apache.poi</groupId>
       <artifactId>poi</artifactId>
     </dependency>
     
