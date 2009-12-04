@@ -168,7 +168,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 	Placement placement = ToolManager.getCurrentPlacement();
 
 	// Get the optional values from session
-	String frameHeight = (String) pSession.getAttribute("sakai.frameheight");
+        String frameHeight =  getCorrectProperty(request, "frameheight", null);
 	dPrint("fh="+frameHeight);
         String iframeUrl = "/access/basiclti/site/"+context+"/"+placement.getId();
 
