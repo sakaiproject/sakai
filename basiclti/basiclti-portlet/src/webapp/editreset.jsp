@@ -41,7 +41,7 @@ noURL.setParameter("sakai.action","edit");
 
 <%= rb.getString("are.you.sure") %>
 <p>
-<a href="<%= yesURL.toString() %>">YES</a>
+<a href="<%= yesURL.toString() %>"><%= rb.getString("edit.clear.yes") %></a>
 |
-<a href="<%= noURL.toString() %>">NO</a>
+<a href="<%= noURL.toString() %>"><%= rb.getString("edit.clear.no") %></a>
 </p>

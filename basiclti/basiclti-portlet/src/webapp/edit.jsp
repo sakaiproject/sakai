@@ -72,8 +72,6 @@ Properties sp = (Properties) rReq.getAttribute("imsti.properties");
 
 <a href="<%=viewURL.toString()%>"><%=rb.getString("edit.exit")%></a>
  | 
-<a href="<%=clearURL.toString()%>"><%=rb.getString("edit.clear.session")%></a>
- | 
 <a href="<%=resetURL.toString()%>"><%=rb.getString("edit.clear.prefs")%></a>
 <p/>
 <% if ( allow(sp,"launch") || allow(sp,"key") || allow(sp,"secret") || 
