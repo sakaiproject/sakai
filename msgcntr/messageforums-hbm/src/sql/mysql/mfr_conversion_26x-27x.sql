@@ -58,8 +58,8 @@ alter table MFR_TOPIC_T modify column AUTO_MARK_THREADS_READ bit not null;
 --// View who has read a message
 --////////////////////////////////////////////////////
 
---Pending...
-
+alter table MFR_MESSAGE_T add column NUM_READERS int;
+update MFR_MESSAGE_T set NUM_READERS = 0;
 
 --////////////////////////////////////////////////////
 --// SAK-15655

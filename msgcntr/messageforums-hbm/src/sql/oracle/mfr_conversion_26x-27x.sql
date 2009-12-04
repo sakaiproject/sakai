@@ -66,8 +66,8 @@ alter table MFR_TOPIC_T modify (AUTO_MARK_THREADS_READ NUMBER(1,0) not null);
 --// View who has read a message
 --////////////////////////////////////////////////////
 
---Pending...
-
+alter table MFR_MESSAGE_T add NUM_READERS int;
+update MFR_MESSAGE_T set NUM_READERS = 0;
 
 
 --////////////////////////////////////////////////////
