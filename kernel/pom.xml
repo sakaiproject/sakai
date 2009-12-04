@@ -5,7 +5,7 @@
 	<artifactId>kernel</artifactId>
 	<packaging>pom</packaging>
 	<name>Sakai Kernel</name>
-	<version>1.1.0-beta05-SNAPSHOT</version>
+	<version>1.1.0-beta05</version>
 	<url>http://source.sakaiproject.org/release/kernel/${project.version}</url>
 	<description>The Sakai kernel provides core functionality for the Sakai framework</description>
 	<organization>
@@ -348,12 +348,12 @@
     </contributors>
 	<scm>
 		<connection>
-			scm:svn:https://source.sakaiproject.org/svn/kernel/trunk
+			scm:svn:https://source.sakaiproject.org/svn/kernel/tags/kernel-1.1.0-beta05
 		</connection>
 		<developerConnection>
-			scm:svn:https://source.sakaiproject.org/svn/kernel/trunk
+			scm:svn:https://source.sakaiproject.org/svn/kernel/tags/kernel-1.1.0-beta05
 		</developerConnection>
-		<url>https://source.sakaiproject.org/svn/kernel/trunk</url>
+		<url>https://source.sakaiproject.org/svn/kernel/tags/kernel-1.1.0-beta05</url>
 	</scm>
 	<distributionManagement>
 	  <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
