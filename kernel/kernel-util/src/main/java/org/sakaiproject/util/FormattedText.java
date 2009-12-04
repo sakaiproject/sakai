@@ -29,6 +29,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Element;
 
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.util.ResourceLoader;
+
 /**
  * FormattedText provides support for user entry of formatted text; the formatted text is HTML. This includes text formatting in user input such as bold, underline, and fonts.
  */
@@ -37,38 +40,10 @@ public class FormattedText
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(FormattedText.class);
 
-	/**
-	 * This list of good and evil tags was extracted from:
-	 * 
-	 * @link http://www.blooberry.com/indexdot/html/tagindex/all.htm
-	 */
-	private static String[] M_goodTags = {"a", "abbr", "acronym", "address", "b", "big", "blockquote", "br", "center", "cite", "code", 
-                        "dd", "del", "dir", "div", "dl", "dt", "em", "font", "hr", "h1", "h2", "h3", "h4", "h5", "h6", "i", "ins",
-                        "kbd", "li", "marquee", "menu", "nobr", "noembed", "ol", "p", "pre", "q", "rt", "ruby", "rbc", "rb", "rtc", "rp",
-                        "s", "samp", "small", "span", "strike", "strong", "sub", "sup", "tt", "u", "ul", "var", "xmp", "img", "embed",
-                        "object", "table", "tr", "td", "th", "tbody", "caption", "thead", "tfoot", "colgroup", "col"};
-
-        private static String[] M_goodAttributes = {"abbr", "accept", "accesskey", "align", "alink", "alt", "axis", "background",
-        	"bgcolor", "border", "cellpadding", "cellspacing", "char", "charoff", "charset", "checked", "cite", "class", "classid",
-        	"clear", "color", "cols", "colspan", "compact", "content", "coords", "datetime", "dir", "disabled", "enctype", "face",
-        	"for", "header", "height", "href", "hreflang", "hspace", "id", "ismap", "label", "lang", "longdesc", "maxlength", "multiple",
-        	"name", "noshade", "nowrap", "profile", "readonly", "rel", "rev", "rows", "rowspan", "rules", "scope", "selected", "shape",
-        	"size", "span", "src", "start", "style", "summary", "tabindex", "target", "text", "title", "type", "usemap", "valign",
-        	"value", "vlink", "vspace", "width"};
-
-        private static String[] M_evilValues = {"javascript:", "behavior:", "vbscript:", "mocha:", "livescript:", "expression"};
-
-
-	/**
-	 * These evil HTML tags are disallowed when the user inputs formatted text; this protects the system from broken pages as well as Cross-Site Scripting (XSS) attacks.
-	 */
-	private static String[] M_evilTags = { "applet", "base", "body", "bgsound", "button", "col", "colgroup", "comment",  
-			"dfn", "fieldset", "form", "frame", "frameset", "head", "html", "iframe", "ilayer", "inlineinput",
-			"isindex", "input", "keygen", "label", "layer", "legend", "link", "listing", "map", "meta", "multicol", "nextid",
-			"noframes", "nolayer", "noscript", "optgroup", "option", "param", "plaintext", "script", "select",
-			"sound", "spacer", "spell", "submit", "textarea", "title", "wbr" };
-
-
+	/** Resource bundle and class for retrieving good and bad html tags, attributes and values */
+	private static String RESOURCE_BUNDLE = "org.sakaiproject.localization.bundle.content_type.formattedtext";
+	private static String RESOURCE_CLASS  = "org.sakaiproject.localization.util.ContentTypeProperties"; 
+	
 	/** An array of regular expression pattern-matchers, that will match the tags given in M_evilTags */
 	private static Pattern[] M_evilTagsPatterns;
 
@@ -91,6 +66,17 @@ public class FormattedText
 
 	private static void init()
 	{
+		try {
+			ResourceLoader properties = new ResourceLoader(RESOURCE_BUNDLE, ComponentManager.get(RESOURCE_CLASS).getClass().getClassLoader());
+			M_evilTags = properties.getString("evilTags").split(",");
+			M_goodTags = properties.getString("goodTags").split(",");
+			M_goodAttributes = properties.getString("goodAttributes").split(",");
+			M_evilValues = properties.getString("evilValues").split(",");
+		} 
+		catch (Exception e) {
+			M_log.warn("Error collecting formattedtext.properties (using defaults)", e);
+		}
+		
 		M_evilTagsPatterns = new Pattern[M_evilTags.length];
 		for (int i = 0; i < M_evilTags.length; i++)
 		{
@@ -1079,5 +1065,34 @@ public class FormattedText
 			8773, 8776, 8800, 8801, 8804, 8805, 8834, 8835, 8836, 8838, 8839, 8853, 8855, 8869, 8901, 8968, 8969, 8970, 8971, 9001,
 			9002, 9674, 9824, 9827, 9829, 9830, 34, 38, 60, 62, 338, 339, 352, 353, 376, 710, 732, 8194, 8195, 8201, 8204, 8205,
 			8206, 8207, 8211, 8212, 8216, 8217, 8218, 8220, 8221, 8222, 8224, 8225, 8240, 8249, 8250, 8364 };
+         
+         
+	/* The following default values will only be used if formattedtext.properties is not found 
+	*/
+	
+	// Original list of good and evil tags was extracted from: http://www.blooberry.com/indexdot/html/tagindex/all.htm
+	private static String[] M_goodTags = {"a", "abbr", "acronym", "address", "b", "big", "blockquote", "br", "center", "cite", "code", 
+                        "dd", "del", "dir", "div", "dl", "dt", "em", "font", "hr", "h1", "h2", "h3", "h4", "h5", "h6", "i", "ins",
+                        "kbd", "li", "marquee", "menu", "nobr", "noembed", "ol", "p", "pre", "q", "rt", "ruby", "rbc", "rb", "rtc", "rp",
+                        "s", "samp", "small", "span", "strike", "strong", "sub", "sup", "tt", "u", "ul", "var", "xmp", "img", "embed",
+                        "object", "table", "tr", "td", "th", "tbody", "caption", "thead", "tfoot", "colgroup", "col"};
+
+	private static String[] M_goodAttributes = {"abbr", "accept", "accesskey", "align", "alink", "alt", "axis", "background",
+        	"bgcolor", "border", "cellpadding", "cellspacing", "char", "charoff", "charset", "checked", "cite", "class", "classid",
+        	"clear", "color", "cols", "colspan", "compact", "content", "coords", "datetime", "dir", "disabled", "enctype", "face",
+        	"for", "header", "height", "href", "hreflang", "hspace", "id", "ismap", "label", "lang", "longdesc", "maxlength", "multiple",
+        	"name", "noshade", "nowrap", "profile", "readonly", "rel", "rev", "rows", "rowspan", "rules", "scope", "selected", "shape",
+        	"size", "span", "src", "start", "style", "summary", "tabindex", "target", "text", "title", "type", "usemap", "valign",
+        	"value", "vlink", "vspace", "width"};
+
+	private static String[] M_evilValues = {"javascript:", "behavior:", "vbscript:", "mocha:", "livescript:", "expression"};
+
+
+	 // These evil HTML tags are disallowed when the user inputs formatted text; this protects the system from broken pages as well as Cross-Site Scripting (XSS) attacks.
+	private static String[] M_evilTags = { "applet", "base", "body", "bgsound", "button", "col", "colgroup", "comment",  
+			"dfn", "fieldset", "form", "frame", "frameset", "head", "html", "iframe", "ilayer", "inlineinput",
+			"isindex", "input", "keygen", "label", "layer", "legend", "link", "listing", "map", "meta", "multicol", "nextid",
+			"noframes", "nolayer", "noscript", "optgroup", "option", "param", "plaintext", "script", "select",
+			"sound", "spacer", "spell", "submit", "textarea", "title", "wbr" };
 
 }
