@@ -87,16 +87,6 @@
 			<version>1.0-FCS</version>
 		</dependency>
 		<dependency>
-			<groupId>jsf</groupId>
-			<artifactId>jsf-impl</artifactId>
-			<version>1.1.01</version>
-		</dependency>
-		<dependency>
-			<groupId>jsf</groupId>
-			<artifactId>jsf-api</artifactId>
-			<version>1.1.01</version>
-		</dependency>
-		<dependency>
 			<groupId>javax.activation</groupId>
 			<artifactId>activation</artifactId>
 			<version>1.0.2</version>

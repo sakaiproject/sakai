@@ -41,11 +41,13 @@
 			<artifactId>xbean</artifactId>
 			<version>2.2.0</version>
 		</dependency>
+        <!--
 		<dependency>
 			<groupId>xmlbeans</groupId>
 			<artifactId>jsr173</artifactId>
 			<version>1.0_api</version>
 		</dependency>
+        -->
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
