@@ -22,8 +22,20 @@ package org.sakaiproject.conditions.api;
 
 import org.sakaiproject.event.api.Event;
 
+/**
+ * an interface for the Command pattern that uses a Sakai <code>Event</code> object in the <code>execute</code> method
+ * @author Zach A. Thomas <zach@aeroplanesoftware.com>
+ *
+ */
 public interface EvaluationAction {
 	
+	/**
+	 * execute this command with the given Sakai <code>Event</code>.
+	 * @param e
+	 * @param evalResult a boolean that can be used to choose whether to perform an action or not
+	 * e.g. whether or not to make a file available in the Resources tool
+	 * @throws Exception
+	 */
 	public void execute(Event e, boolean evalResult) throws Exception;
 
 }

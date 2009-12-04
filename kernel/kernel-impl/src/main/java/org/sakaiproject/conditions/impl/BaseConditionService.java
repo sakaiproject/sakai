@@ -71,11 +71,6 @@ public class BaseConditionService implements ConditionService, Observer {
 		// TODO Auto-generated method stub
 		
 	}
-
-	public Condition makeCondition(Map<String, String> params) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 	
 	public Map<String, String> getEntitiesForServiceAndContext(String serviceName, String contextId) {
 		return registeredProviders.get(serviceName).getEntitiesForContext(contextId);

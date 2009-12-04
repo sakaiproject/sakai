@@ -23,14 +23,36 @@ package org.sakaiproject.conditions.api;
 
 import org.apache.commons.collections.Predicate;
 
+/**
+ * extension of <code>org.apache.commons.collections.Predicate</code> to include all the operations we need to 
+ * evaluate a condition like "gradebook grade is less than 79"
+ * @author Zach A. Thomas <zach@aeroplanesoftware.com>
+ *
+ */
 public interface Condition extends Predicate {
-		
+	/**
+	 * get this condition's boolean operator, e.g. less_than, greater_than_or_equal, etc.	
+	 * @return <code>String</code> representation of the operator
+	 */
 	public String getOperator();
 	
+	/**
+	 * a class name of the data object that will be paired with this <code>Condition</code> at evaulation time
+	 * @return class name of the object that will be used to evaluate this condition
+	 */
 	public String getReceiver();
 	
+	/**
+	 * the name of the method that will be called on the receiver to evaluate the condition
+	 * @return name of the method to call on the receiver to evaluate this condition
+	 */
 	public String getMethod();
 	
+	/**
+	 * get the object that represents the argument to this condition.
+	 * e.g. in the condition 'assignment 2 grade is less than 79' the argument is 79
+	 * @return the argument that has been stored with this condition to evaluate it
+	 */
 	public Object getArgument();
 
 }

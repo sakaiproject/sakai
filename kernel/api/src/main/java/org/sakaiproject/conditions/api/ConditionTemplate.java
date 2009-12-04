@@ -22,8 +22,19 @@ package org.sakaiproject.conditions.api;
 
 import java.util.Map;
 
+/**
+ * An interface to define the contract for a template that can be used to produce new <code>Condition</code>s
+ * @author Zach A. Thomas <zach@aeroplanesoftware.com>
+ *
+ */
 public interface ConditionTemplate {
 	
+	/**
+	 * a <code>ConditionTemplate</code> must be able to produce a new <code>Condition</code> from
+	 * a <code>Map</code> of parameters
+	 * @param params
+	 * @return
+	 */
 	public Condition conditionFromParameters(Map<String, String> params);
 
 }

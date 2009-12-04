@@ -24,9 +24,6 @@ import org.apache.commons.collections.Predicate;
 import org.sakaiproject.event.api.NotificationAction;
 
 /**
- * 
- * @author Zach A. Thomas <zach@aeroplanesoftware.com>
- * 
  * A Rule extends <code>org.apache.commons.collections.Predicate</code> and
  * decorates it with an enum that represents the relationship among the
  * Predicates within the rule: the Predicates that make up a rule are
@@ -34,7 +31,8 @@ import org.sakaiproject.event.api.NotificationAction;
  * 
  * A Rule is also a <code>Command</code>, which means it has an execute method that can
  * be invoked to perform some action.
- *
+ * 
+ * @author Zach A. Thomas <zach@aeroplanesoftware.com>
  */
 public interface Rule extends Predicate, NotificationAction {
 

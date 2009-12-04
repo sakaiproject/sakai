@@ -22,12 +22,30 @@ package org.sakaiproject.conditions.api;
 
 import java.util.Set;
 
+/**
+ * A <code>Set</code> of <code>ConditionTemplate</code>, decorated with methods for getting
+ * an id and a display name
+ * @author Zach A. Thomas <zach@aeroplanesoftware.com>
+ *
+ */
 public interface ConditionTemplateSet {
 	
+	/**
+	 * get the wrapped <code>Set</code> of <code>ConditionTemplate</code>s
+	 * @return
+	 */
 	public Set<ConditionTemplate> getConditionTemplates();
 	
+	/**
+	 * get a unique name for this <code>Set</code>
+	 * @return
+	 */
 	public String getId();
 	
+	/**
+	 * get a display-friendly name for this <code>Set</code>
+	 * @return
+	 */
 	public String getDisplayName();
 
 }

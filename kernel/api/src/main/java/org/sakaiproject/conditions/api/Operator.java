@@ -20,7 +20,17 @@
  **********************************************************************************/
 package org.sakaiproject.conditions.api;
 /**
- * @author Zach A. Thomas
+ * @author Zach A. Thomas <zach@aeroplanesoftware.com>
+ * 
+ * This interface encapsulates an operator used in a boolean expression.
+ * An object that implements this interface will implement a getType method
+ * which will return one of the following:
+ * 
+ * LESS_THAN
+ * GREATER_THAN
+ * EQUAL_TO
+ * GREATER_THAN_EQUAL_TO
+ * NO_OP
  *
  */
 public interface Operator {
@@ -31,6 +41,10 @@ public interface Operator {
 	public static final int GREATER_THAN_EQUAL_TO = 4;
 	public static final int NO_OP = 5;
 	
+	/**
+	 * return the type of Operator this is, using integer constants defined on this interface
+	 * @return
+	 */
 	public int getType();
 
 }

@@ -22,11 +22,36 @@ package org.sakaiproject.conditions.api;
 
 import java.util.Map;
 
+/**
+ * interface to specify the contract for a service to make conditions available to any other tool or service 
+ * @author Zach A. Thomas <zach@aeroplanesoftware.com>
+ *
+ */
 public interface ConditionProvider {
 	
+	/**
+	 * just a unique name that each <code>ConditionProvider</code> can be accessed by
+	 * @return unique name of this <code>ConditionProvider</code>
+	 */
 	String getId();
 	
+	/**
+	 * return a <code>Map</code> of entities for the specified context
+	 * where the context is a Sakai site id,
+	 * and the entities are specific to the service this <code>ConditionProvider</code> represents,
+	 * e.g. for the gradebook <code>ConditionProvider</code>, the entities will be the assignments for
+	 * the specified context.
+	 * 
+	 * @param contextId
+	 * @return
+	 */
 	Map<String, String> getEntitiesForContext(String contextId);
 	
+	/**
+	 * get a <code>Map</code> of event names, e.g. 'gradebook.updateItemScore'
+	 * to the name of the class concerned with that event, e.g. 'org.sakaiproject.conditions.impl.AssignmentGrading'
+	 * @return the names of events this <code>ConditionProvider</code> is concerned with,
+	 * and the names of classes that correspond to those events
+	 */
 	Map<String, String> getEventToDomainClassMapping();
 }
