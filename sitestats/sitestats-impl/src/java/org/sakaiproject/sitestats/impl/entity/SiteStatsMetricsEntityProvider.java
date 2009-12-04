@@ -82,7 +82,7 @@ public class SiteStatsMetricsEntityProvider implements AutoRegisterEntityProvide
 			map.put("Total_time_ellapsed_since_reset", statsUpdateManager.getTotalTimeEllapsedSinceReset() + " ms");
 			map.put("Total_time_spent_processing_events", statsUpdateManager.getTotalTimeInEventProcessing() + " ms");
 			map.put("Number_of_events_processed_per_sec", statsUpdateManager.getNumberOfEventsProcessedPerSec());
-			map.put("Number_of_events_genereated_in_Sakai_per_sec", statsUpdateManager.getNumberOfEventsGeneratedPerSec());
+			map.put("Number_of_events_generated_in_Sakai_per_sec", statsUpdateManager.getNumberOfEventsGeneratedPerSec());
 			map.put("Average_time_spent_in_event_processing_per_event", statsUpdateManager.getAverageTimeInEventProcessingPerEvent() + " ms");
 			map.put("Event_queue_size", statsUpdateManager.getQueueSize());
 			map.put("Idle", statsUpdateManager.isIdle());
