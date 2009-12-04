@@ -123,19 +123,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     	
     	localGradebook = getGradebook();
 
-        //initialize rosteMap which is map of displayid and user objects
-        rosterMap = new HashMap();
-        List  enrollments = new ArrayList(findMatchingEnrollmentsForAllItems(null, null).keySet());
-        if(logger.isDebugEnabled()) logger.debug("enrollment size " +enrollments.size());
-
-        Iterator iter;
-        iter = enrollments.iterator();
-        while(iter.hasNext()){
-            EnrollmentRecord enr;
-            enr = (EnrollmentRecord)iter.next();
-            if(logger.isDebugEnabled()) logger.debug("displayid "+enr.getUser().getDisplayId() + "  userid "+enr.getUser().getUserUid());
-            rosterMap.put(enr.getUser().getDisplayId().toLowerCase(),enr.getUser());
-        }
+        initializeRosterMap();
         
         selectedCategory = AssignmentBean.UNASSIGNED_CATEGORY;
         categoriesSelectList = new ArrayList();
@@ -152,6 +140,22 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 			}
 		}
 
+    }
+    
+    private void initializeRosterMap() {
+      //initialize rosteMap which is map of displayid and user objects
+        rosterMap = new HashMap();
+        List  enrollments = new ArrayList(findMatchingEnrollmentsForAllItems(null, null).keySet());
+        if(logger.isDebugEnabled()) logger.debug("enrollment size " +enrollments.size());
+
+        Iterator iter;
+        iter = enrollments.iterator();
+        while(iter.hasNext()){
+            EnrollmentRecord enr;
+            enr = (EnrollmentRecord)iter.next();
+            if(logger.isDebugEnabled()) logger.debug("displayid "+enr.getUser().getDisplayId() + "  userid "+enr.getUser().getUserUid());
+            rosterMap.put(enr.getUser().getDisplayId().toLowerCase(),enr.getUser());
+        }
     }
 
     public String getTitle() {
@@ -1771,7 +1775,12 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         private boolean isKnown;
 
         public SpreadsheetRow(String source) {
-
+            
+            // this may be instantiated before SpreadsheetUploadBean is initialized, so make sure
+            // the rosterMap is populated
+            if (rosterMap == null) {
+                initializeRosterMap();
+            }
 
             if(logger.isDebugEnabled()) logger.debug("creating row from string " + source);
             rowcontent = new ArrayList();
