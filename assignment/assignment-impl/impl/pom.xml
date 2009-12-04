@@ -134,14 +134,6 @@
       <artifactId>${sakai.spring.artifactId}</artifactId>
       <version>${sakai.spring.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.osp</groupId>
-      <artifactId>osp-matrix-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.osp</groupId>
-      <artifactId>osp-common-api</artifactId>
-    </dependency>
   </dependencies>
   <build>
     <resources>

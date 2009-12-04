@@ -14,22 +14,23 @@ import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.PropertyProvideable;
+import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.theospi.portfolio.matrix.MatrixManager;
 
 public class AssignmentEntityProviderImpl implements AssignmentEntityProvider,
 CoreEntityProvider, AutoRegisterEntityProvider, PropertyProvideable {
 
   private AssignmentService assignmentService;
   private SiteService siteService;
-  private MatrixManager matrixManager;
+  private EntityBroker entityBroker;
   
   public void setAssignmentService(AssignmentService assignmentService) {
     this.assignmentService = assignmentService;
@@ -111,8 +112,19 @@ CoreEntityProvider, AutoRegisterEntityProvider, PropertyProvideable {
     }
     
     String assignmentId = parsedRef;
-    
-    if(decWrapperTag.equals("ospMatrix") && matrixManager.canUserAccessWizardPageAndLinkedArtifcact(decSiteId, decPageId, submissionId)){
+    boolean canUserAccessWizardPageAndLinkedArtifcact = false;
+    if (!"".equals(decSiteId) && !"".equals(decPageId) && !"".equals(submissionId)) {
+	    Map<String, Object> params = new HashMap<String, Object>();
+	    params.put("siteId", decSiteId);
+	    params.put("pageId", decPageId);
+	    params.put("linkedArtifactId", submissionId);
+	    ActionReturn ret = getEntityBroker().executeCustomAction("/matrixcell/" + decPageId, "canUserAccessWizardPageAndLinkedArtifcact", params, null);
+	    if (ret != null && ret.getEntityData() != null) {
+	    	Object returnData = ret.getEntityData().getData();
+	    	canUserAccessWizardPageAndLinkedArtifcact = (Boolean)returnData;
+	    }
+    }
+    if((decWrapperTag.equals("ospMatrix") && canUserAccessWizardPageAndLinkedArtifcact) || "".equals(submissionId)){
 
     	try {
     		Assignment assignment = assignmentService.getAssignment(assignmentId);
@@ -247,12 +259,12 @@ CoreEntityProvider, AutoRegisterEntityProvider, PropertyProvideable {
 	  }
   }
 
-public MatrixManager getMatrixManager() {
-	return matrixManager;
-}
+  public EntityBroker getEntityBroker() {
+	  return entityBroker;
+  }
 
-public void setMatrixManager(MatrixManager matrixManager) {
-	this.matrixManager = matrixManager;
-}
+  public void setEntityBroker(EntityBroker entityBroker) {
+	  this.entityBroker = entityBroker;
+  }
 
 }
