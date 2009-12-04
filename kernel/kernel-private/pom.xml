@@ -4,22 +4,22 @@
   <parent>
     <artifactId>kernel</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>1.1.0-beta05</version>
+    <version>1.1.0-beta06-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Kernel Private Package</name>
   <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>sakai-kernel-private</artifactId>
-  <version>1.1.0-beta05</version>
+  <version>1.1.0-beta06-SNAPSHOT</version>
   <organization>
     <name>The Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/tags/kernel-1.1.0-beta05/kernel-private</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/tags/kernel-1.1.0-beta05/kernel-private</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/tags/kernel-1.1.0-beta05/kernel-private</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-private</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-private</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/trunk/kernel-private</url>
   </scm>
 
   <packaging>jar</packaging>
