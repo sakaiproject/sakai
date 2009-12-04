@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -101,11 +101,17 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	private Map<String, SiteVisits>			visitsMap							= Collections.synchronizedMap(new HashMap<String, SiteVisits>());
 	private Map<UniqueVisitsKey, Integer>	uniqueVisitsMap						= Collections.synchronizedMap(new HashMap<UniqueVisitsKey, Integer>());
 
-	private Collection<String>					registeredEvents					= null;
+	private Collection<String>				registeredEvents					= null;
 	private Map<String, ToolInfo>			eventIdToolMap						= null;
 	private boolean							initialized 						= false;
 	
 	private final ReentrantLock				lock								= new ReentrantLock();
+	
+	/** Metrics */
+	private boolean							isIdle								= true;
+	private long							totalEventsProcessed				= 0;
+	private long							totalTimeInEventProcessing			= 0;
+	private long							resetTime					= System.currentTimeMillis();
 
 
 	
@@ -239,10 +245,14 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	public boolean collectEvent(Event e) {
 		if(e != null) {
 			long startTime = System.currentTimeMillis();
+			isIdle = false;
 			preProcessEvent(e);
-			long endTime = System.currentTimeMillis();
-			LOG.debug("Time spent pre-processing 1 event: " + (endTime-startTime) + " ms");
-			return doUpdateConsolidatedEvents();
+			//long endTime = System.currentTimeMillis();
+			//LOG.debug("Time spent pre-processing 1 event: " + (endTime-startTime) + " ms");
+			boolean success = doUpdateConsolidatedEvents();
+			isIdle = true;
+			totalTimeInEventProcessing += (System.currentTimeMillis() - startTime);
+			return success;
 		}
 		return true;
 	}
@@ -268,14 +278,18 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			int eventCount = events.length;
 			if(eventCount > 0) {
 				long startTime = System.currentTimeMillis();
+				isIdle = false;
 				for(int i=0; i<events.length; i++){
 					if(events[i] != null) {
 						preProcessEvent(events[i]);
 					}
 				}
-				long endTime = System.currentTimeMillis();
-				LOG.debug("Time spent pre-processing " + eventCount + " event(s): " + (endTime-startTime) + " ms");
-				return doUpdateConsolidatedEvents();
+				//long endTime = System.currentTimeMillis();
+				//LOG.debug("Time spent pre-processing " + eventCount + " event(s): " + (endTime-startTime) + " ms");
+				boolean success = doUpdateConsolidatedEvents();
+				isIdle = true;
+				totalTimeInEventProcessing += (System.currentTimeMillis() - startTime);
+				return success;
 			}
 		}
 		return true;
@@ -347,6 +361,100 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		return (Date) r;
 	}
 	
+	
+	// ################################################################
+	// Metrics related methods
+	// ################################################################	
+	public int getQueueSize() {
+		return collectThreadQueue.size();
+	}
+	
+	public boolean isIdle() {
+		return this.isIdle && getQueueSize() == 0;
+	}
+	
+	public void resetMetrics() {
+		totalEventsProcessed = 0;
+		totalTimeInEventProcessing = 0;
+		resetTime = System.currentTimeMillis();
+	}
+	
+	public long getNumberOfEventsProcessed() {
+		return totalEventsProcessed;
+	}
+	
+	public long getTotalTimeInEventProcessing() {
+		return totalTimeInEventProcessing;
+	}
+	
+	public long getResetTime() {
+		return resetTime;
+	}
+	
+	public long getTotalTimeEllapsedSinceReset() {
+		return System.currentTimeMillis() - resetTime;
+	}
+	
+	public double getNumberOfEventsProcessedPerSec() {
+		if(totalTimeInEventProcessing > 0) {
+			return round((double)totalEventsProcessed / ((double)totalTimeInEventProcessing/1000), 3);
+		}else{
+			return round((double)totalEventsProcessed / 0.001, 3); // => will assume 1ms instead of 0ms
+		}
+	}
+	
+	public double getNumberOfEventsGeneratedPerSec() {
+		double ellapsed = (double) getTotalTimeEllapsedSinceReset();
+		if(ellapsed > 0) {
+			return round((double)totalEventsProcessed / (ellapsed/1000), 3);
+		}else{
+			return round((double)totalEventsProcessed / 0.001, 3); // => will assume 1ms instead of 0ms
+		}
+	}
+	
+	public long getAverageTimeInEventProcessingPerEvent() {
+		if(totalEventsProcessed > 0) {
+			return totalTimeInEventProcessing / totalEventsProcessed;
+		}else{
+			return 0;
+		}
+	}
+	
+	public String getMetricsSummary(boolean compact) {
+		StringBuilder sb = new StringBuilder();
+		if(!compact) {
+			sb.append("SiteStats Event aggregation metrics summary:\n");
+			sb.append("\t\tNumber of total events processed: ").append(getNumberOfEventsProcessed()).append("\n");
+			sb.append("\t\tReset/init time: ").append(new Date(getResetTime())).append("\n");
+			sb.append("\t\tTotal time ellapsed since reset: ").append(getTotalTimeEllapsedSinceReset()).append(" ms\n");
+			sb.append("\t\tTotal time spent processing events: ").append(getTotalTimeInEventProcessing()).append(" ms\n");
+			sb.append("\t\tNumber of events processed per sec: ").append(getNumberOfEventsProcessedPerSec()).append("\n");
+			sb.append("\t\tNumber of events genereated in Sakai per sec: ").append(getNumberOfEventsGeneratedPerSec()).append("\n");
+			sb.append("\t\tAverage time spent in event processing per event: ").append(getAverageTimeInEventProcessingPerEvent()).append(" ms\n");
+			sb.append("\t\tEvent queue size: ").append(getQueueSize()).append("\n");
+			sb.append("\t\tIdle: ").append(isIdle());
+		}else{
+			sb.append("#Events processed: ").append(getNumberOfEventsProcessed()).append(", ");
+			sb.append("Time ellapsed since reset: ").append(getTotalTimeEllapsedSinceReset()).append(" ms, ");
+			sb.append("Time spent processing events: ").append(getTotalTimeInEventProcessing()).append(" ms, ");
+			sb.append("#Events processed/sec: ").append(getNumberOfEventsProcessedPerSec()).append(", ");
+			sb.append("Avg. Time/event: ").append(getAverageTimeInEventProcessingPerEvent()).append(" ms, ");
+			sb.append("Event queue size: ").append(getQueueSize()).append(", ");
+			sb.append("Idle: ").append(isIdle());
+		}
+		return sb.toString();
+	}
+	
+	private static double round(double val, int places) {
+		long factor = (long) Math.pow(10, places);
+		// Shift the decimal the correct number of places to the right.
+		val = val * factor;
+		// Round to the nearest integer.
+		long tmp = Math.round(val);
+		// Shift the decimal the correct number of places back to the left.
+		return (double) tmp / factor;
+	}
+	
 
 	// ################################################################
 	// Update thread related methods
@@ -364,16 +472,20 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			LOG.debug("Started statistics update thread");
 			while(collectThreadRunning){
 				// do update job
+				isIdle = false;
+				long startTime = System.currentTimeMillis();
 				int eventCount = collectThreadQueue.size();
 				if(eventCount > 0) {
-					long startTime = System.currentTimeMillis();
+					//long startTime2 = System.currentTimeMillis();
 					while(collectThreadQueue.size() > 0){
 						preProcessEvent(collectThreadQueue.remove(0));
 					}
-					long endTime = System.currentTimeMillis();
-					LOG.debug("Time spent pre-processing " + eventCount + " event(s): " + (endTime-startTime) + " ms");
+					//long endTime2 = System.currentTimeMillis();
+					//LOG.debug("Time spent pre-processing " + eventCount + " event(s): " + (endTime2-startTime2) + " ms");
 				}
 				doUpdateConsolidatedEvents();
+				isIdle = true;
+				totalTimeInEventProcessing += (System.currentTimeMillis() - startTime);
 				
 				// sleep if no work to do
 				if(!collectThreadRunning) break;
@@ -418,6 +530,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	// Event process methods
 	// ################################################################	
 	private void preProcessEvent(Event e) {
+		totalEventsProcessed++;
 		String userId = e.getUserId();
 		e = fixMalFormedEvents(e);
 		if(registeredEvents.contains(e.getEvent()) && isValidEvent(e)){

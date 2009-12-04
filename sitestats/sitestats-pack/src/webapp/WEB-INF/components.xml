@@ -168,7 +168,7 @@
         <property name="reportManager" ref="org.sakaiproject.sitestats.api.report.ReportManager" />
         <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
     </bean>
-    <!-- ReportDefEntityProducerer _________________________________________________________________ -->
+    <!-- ReportDefEntityProducer ___________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.report.ReportDefEntityProducer"
         class="org.sakaiproject.sitestats.impl.report.ReportDefEntityProducer"
         init-method="init">        
@@ -232,6 +232,12 @@
 			<props><prop key="*">PROPAGATION_REQUIRED</prop></props>
 		</property>
 	</bean>
+	
+	<!-- SiteStatsMetricsEntityProvider ___________________________________________________________________ -->
+    <bean class="org.sakaiproject.sitestats.impl.entity.SiteStatsMetricsEntityProvider">
+    	<property name="statsUpdateManager" ref="org.sakaiproject.sitestats.api.StatsUpdateManager"/>
+        <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+    </bean>
 	
 
 	<!-- ServerWideReportManager ____________________________________________________________________________ -->
