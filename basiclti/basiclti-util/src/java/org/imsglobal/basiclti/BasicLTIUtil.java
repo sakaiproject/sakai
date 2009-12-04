@@ -130,7 +130,8 @@ public class BasicLTIUtil {
 
     // Add the necessary fields and sign
     public static Properties signProperties(Properties postProp, String url, String method, 
-        String key, String secret, String org_secret, String org_id, String org_desc)
+        String oauth_consumer_key, String oauth_consumer_secret, 
+	String org_id, String org_desc, String org_url)
     {
         postProp = BasicLTIUtil.cleanupProperties(postProp);
         postProp.setProperty("lti_version","LTI-1p0");
@@ -141,13 +142,7 @@ public class BasicLTIUtil {
         }
         if ( org_id != null ) postProp.setProperty("tool_consumer_instance_guid", org_id);
         if ( org_desc != null ) postProp.setProperty("tool_consumer_instance_description", org_desc);
-
-        String oauth_consumer_key = key;
-        String oauth_consumer_secret = secret;
-        if ( org_secret != null ) {
-            oauth_consumer_secret = org_secret;
-            oauth_consumer_key = org_id;
-        }
+        if ( org_url != null ) postProp.setProperty("tool_consumer_instance_url", org_desc);
 
         if ( postProp.getProperty("oauth_callback") == null ) postProp.setProperty("oauth_callback","about:blank");
 
