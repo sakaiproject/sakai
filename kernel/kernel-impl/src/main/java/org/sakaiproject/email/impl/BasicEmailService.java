@@ -1554,7 +1554,7 @@ public class BasicEmailService implements EmailService
 						}
 						MimeBodyPart bodyPart = new MimeBodyPart();
 						String mimeType = partLines[0].contains("text/html") ? "text/html" : "text/plain";
-						mimeType += " ; charset="+charset;
+						mimeType += "; charset="+charset;
 						bodyPart.setContent(partText.toString(), mimeType);
 						multiPartContent.addBodyPart(bodyPart);
 					}
