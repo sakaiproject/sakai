@@ -432,7 +432,7 @@
 						document.getElementById('fileURLHolder').focus();document.getElementById('fileURLHolder').select();">$tlang.getString("props.select")</a>
 						| <a class="textPanelFooter" href="$model.accessUrl" target ="_blank">$tlang.getString("props.open")</a>
 					</div>
-					<textarea id="fileURLHolder" rows="2" cols="50" style="overflow:hidden">$model.accessUrl</textarea>						
+					<textarea id="fileURLHolder" rows="3" cols="50" style="overflow:auto">$model.accessUrl</textarea>						
 
 				</td>
 			</tr>
