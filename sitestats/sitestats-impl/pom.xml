@@ -20,6 +20,17 @@
   <!-- Packaging -->
   <packaging>jar</packaging>
   
+  <!-- Profiles -->
+  <profiles>
+    <profile>
+      <!-- Execute performance tests (instead) -->
+      <id>perftests</id>
+      <properties>
+        <perftests.includes>**/*TestPerf.java</perftests.includes>
+      </properties>
+    </profile>
+  </profiles>
+  
   <!-- Dependencies -->
   <dependencies>
     <!-- Kernel -->
@@ -235,12 +246,12 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <!--
-            By default, the surefire plugin will automatically include all test classes with the following wildcard patterns:
-            "**/Test*.java" - includes all of its subdirectory and all java filenames that start with "Test".
-            "**/*Test.java" - includes all of its subdirectory and all java filenames that end with "Test".
-            "**/*TestCase.java" - includes all of its subdirectory and all java filenames that end with "TestCase".
-        -->
+        <configuration>
+          <includes>
+          	<include>**/*Test.java</include>
+            <include>${perftests.includes}</include>
+          </includes>
+        </configuration>
       </plugin>
     </plugins>
     <testResources>

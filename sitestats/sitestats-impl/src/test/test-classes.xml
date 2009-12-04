@@ -37,6 +37,13 @@
         <property name="serverConfigurationService" ref="org.sakaiproject.sitestats.test.mocks.FakeServerConfigurationService"/>
         <property name="db" ref="org.sakaiproject.sitestats.test.DB"/>
     </bean>
+    
+    <bean id="org.sakaiproject.sitestats.test.EventAggregatorTestPerf"
+        class="org.sakaiproject.sitestats.test.EventAggregatorTestPerf">
+        <property name="statsManager" ref="org.sakaiproject.sitestats.test.StatsManager"/>
+        <property name="statsUpdateManager" ref="org.sakaiproject.sitestats.test.StatsUpdateManager"/>
+        <property name="eventTrackingService" ref="org.sakaiproject.sitestats.test.mocks.FakeEventTrackingService"/>
+    </bean>
     <!-- [END] Classes that will test others -->
     
     

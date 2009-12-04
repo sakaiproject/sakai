@@ -35,6 +35,7 @@
         <jfreechart.version>1.0.5</jfreechart.version>
         <sst.wicket.version>1.3.7</sst.wicket.version>
         <sst.slf4j.version>1.4.3</sst.slf4j.version>
+        <perftests.includes></perftests.includes>
         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/sitestats/${project.version}</url.localsite>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -204,6 +205,17 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+    
+    <!-- Profiles -->
+    <profiles>
+      <profile>
+        <!-- Execute performance tests (instead) -->
+        <id>perftests</id>
+        <properties>
+          <perftests.includes>**/*TestPerf.java</perftests.includes>
+        </properties>
+      </profile>
+    </profiles>
 
     <!-- Project related dependencies -->
     <dependencyManagement>

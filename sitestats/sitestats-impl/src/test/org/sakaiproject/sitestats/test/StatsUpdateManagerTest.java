@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -409,10 +409,12 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 			Thread.sleep(200);			
 		}catch(Exception e) {}
 		M_ets.post(e1);
-		try{
-			// give it time to process event
-			Thread.sleep(500);			
-		}catch(Exception e) {}
+		while(!M_sum.isIdle()) {
+			try{
+				// give it time to process event
+				Thread.sleep(300);			
+			}catch(Exception e) {}
+		}
 		results = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
 		assertEquals(1, results.size());
 	}
