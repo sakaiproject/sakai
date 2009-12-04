@@ -158,7 +158,7 @@
             <url>scp://source.sakaiproject.org/var/www/html/maven2</url>
         </repository>
         <snapshotRepository>
-            <id>sakai-maven-snapshots</id>
+            <id>sakai-maven-snapshots-scp</id>
             <name>Sakaiproject Maven 2 snapshot repository</name>
             <url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
         </snapshotRepository>
