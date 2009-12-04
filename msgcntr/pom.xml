@@ -28,9 +28,9 @@
         <sakai.search.version>1.2.0-rc01</sakai.search.version>
     </properties>
     <scm>
-      <connection>scm:svn:https://source.sakaiproject.org/svn/pure-poms/branches/msgcntr-2.7.x</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/pure-poms/branches/msgcntr-2.7.x</developerConnection>
-    <url>https://source.sakaiproject.org/svn/pure-poms/branches/msgcntr-2.7.x</url>
+      <connection>scm:svn:https://source.sakaiproject.org/svn/msgcntr/trunk/</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/msgcntr/trunk/</developerConnection>
+    <url>https://source.sakaiproject.org/svn/msgcntr/trunk/</url>
   </scm>
     <distributionManagement>
         <downloadUrl>http://source.sakaiproject.org/maven2/
