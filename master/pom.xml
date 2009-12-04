@@ -72,7 +72,7 @@
     
     <properties>
         <sakai.version>2.8-SNAPSHOT</sakai.version>
-        <sakai.kernel.version>1.1.0-beta04-SNAPSHOT</sakai.kernel.version>
+        <sakai.kernel.version>1.1.0-beta06-SNAPSHOT</sakai.kernel.version>
         <!-- Standard dependency versions -->
         <sakai.commons.lang.version>2.4</sakai.commons.lang.version>
         <sakai.commons.fileupload.version>1.2.1</sakai.commons.fileupload.version>
