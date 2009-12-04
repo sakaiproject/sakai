@@ -162,7 +162,7 @@ public class BasicLTIUtil {
         OAuthAccessor acc = new OAuthAccessor(cons);
         try {
             oam.addRequiredParameters(acc);
-            System.out.println("Base Message String\n"+OAuthSignatureMethod.getBaseString(oam)+"\n");
+            // System.out.println("Base Message String\n"+OAuthSignatureMethod.getBaseString(oam)+"\n");
 
             List<Map.Entry<String, String>> params = oam.getParameters();
     
