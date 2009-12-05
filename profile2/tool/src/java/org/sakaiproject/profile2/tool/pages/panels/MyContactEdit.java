@@ -20,6 +20,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
 import org.apache.wicket.validation.validator.UrlValidator;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
@@ -58,6 +59,16 @@ public class MyContactEdit extends Panel {
 		//setup form	
 		Form form = new Form("form", new Model(userProfile));
 		form.setOutputMarkupId(true);
+		
+		//add warning message if superUser and not editing own profile
+		Label editWarning = new Label("editWarning");
+		editWarning.setVisible(false);
+		if(sakaiProxy.isSuperUserAndProxiedToUser(userProfile.getUserId())) {
+			editWarning.setModel(new StringResourceModel("text.edit.other.warning", null, new Object[]{ userProfile.getDisplayName() } ));
+			editWarning.setEscapeModelStrings(false);
+			editWarning.setVisible(true);
+		}
+		form.add(editWarning);
 		
 		//We don't need to get the info from userProfile, we load it into the form with a property model
 	    //just make sure that the form element id's match those in the model
@@ -213,10 +224,10 @@ public class MyContactEdit extends Panel {
 		//get the backing model
 		UserProfile userProfile = (UserProfile) form.getModelObject();
 		
-		//get sakaiProxy, then get userId from sakaiProxy, then get sakaiperson for that userId
+		//get SakaiProxy, get userId from the UserProfile (because admin could be editing), then get existing SakaiPerson for that userId
 		SakaiProxy sakaiProxy = getSakaiProxy();
 		
-		String userId = sakaiProxy.getCurrentUserId();
+		String userId = userProfile.getUserId();
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
 	
 		//set the attributes from userProfile that this form dealt with, into sakaiPerson

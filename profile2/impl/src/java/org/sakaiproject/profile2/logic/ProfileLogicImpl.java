@@ -1834,8 +1834,8 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		for(Iterator<String> i = userUuids.iterator(); i.hasNext();){
 			String userUuid = (String)i.next();
 			
-			//if user is in the list of invisible users, skip
-			if(sakaiProxy.getInvisibleUsers().contains(userUuid)){
+			//if user is in the list of invisible users, skip unless current user is admin
+			if(!sakaiProxy.isSuperUser() && sakaiProxy.getInvisibleUsers().contains(userUuid)){
 				continue;
 			}
 			
@@ -1872,20 +1872,28 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 			//get privacy record
 			ProfilePrivacy privacy = getPrivacyRecordForUser(userUuid);
 			
-			//is this user visible in searches by this user? if not, skip
-			if(!isUserXVisibleInSearchesByUserY(userUuid, privacy, userId, friend)) {
+			//is this user visible in searches by this user? if not, skip unless admin user
+			if(!sakaiProxy.isSuperUser() && !isUserXVisibleInSearchesByUserY(userUuid, privacy, userId, friend)) {
 				continue; 
 			}
 			
-			//is profile photo visible to this user
-			boolean profileImageAllowed = isUserXProfileImageVisibleByUserY(userUuid, privacy, userId, friend);
+			//is profile photo visible to this user?
+			//is status visible to this user?
+			//is friends list visible to this user?
+			//all true if super user, otherwise run the check.
+			boolean profileImageAllowed;
+			boolean statusVisible;
+			boolean friendsListVisible;
 			
-			//is status visible to this user
-			boolean statusVisible = isUserXStatusVisibleByUserY(userUuid, privacy, userId, friend);
-			
-			//is friends list visible to this user
-			boolean friendsListVisible = isUserXFriendsListVisibleByUserY(userUuid, privacy, userId, friend);
-			
+			if (sakaiProxy.isSuperUser()) {
+				profileImageAllowed = true;
+				statusVisible = true;
+				friendsListVisible = true;
+			} else {
+				profileImageAllowed = isUserXProfileImageVisibleByUserY(userUuid, privacy, userId, friend);
+				statusVisible = isUserXStatusVisibleByUserY(userUuid, privacy, userId, friend);
+				friendsListVisible = isUserXFriendsListVisibleByUserY(userUuid, privacy, userId, friend);
+			}	
 			
 			//make object
 			SearchResult searchResult = new SearchResult(

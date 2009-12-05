@@ -3,7 +3,9 @@ package org.sakaiproject.profile2.tool.pages.panels;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.basic.Label;
@@ -32,23 +34,58 @@ public class ChangeProfilePictureUrl extends Panel{
     private transient ProfileLogic profileLogic;
 	private static final Logger log = Logger.getLogger(ChangeProfilePictureUrl.class);
 
-	public ChangeProfilePictureUrl(String id) {  
-        super(id);  
-        
-        log.debug("ChangeProfilePictureUrl()");
-        
+	/**
+	 * Default constructor if modifying own
+	 */
+	public ChangeProfilePictureUrl(String id)   {
+		super(id);
+		log.warn("ChangeProfilePictureUpload()");
+
+		sakaiProxy = getSakaiProxy();
+		
+		//get user for this profile and render it
+		String userUuid = sakaiProxy.getCurrentUserId();
+		renderChangeProfilePictureUrl(userUuid);
+	}
+    
+	/**
+	 * This constructor is only called if we were a superuser editing someone else's picture.
+	 * An additional catch is also in place.
+	 * @param parameters 
+	 */
+	public ChangeProfilePictureUrl(String id, String userUuid)   {
+		super(id);
+		log.warn("ChangeProfilePictureUpload(" + userUuid +")");
+		
+		sakaiProxy = getSakaiProxy();
+		
+		//double check only super users
+		if(!sakaiProxy.isSuperUser()) {
+			log.error("ChangeProfilePictureUrl: user " + sakaiProxy.getCurrentUserId() + " attempted to access ChangeProfilePictureUrl for " + userUuid + ". Redirecting...");
+			throw new RestartResponseException(new MyProfile());
+		}
+		//render for given user
+		renderChangeProfilePictureUrl(userUuid);
+	}
+	
+	
+	
+	
+	/**
+	 * Does the actual rendering of the panel
+	 * @param userUuid
+	 */
+	private void renderChangeProfilePictureUrl(final String userUuid) {  
+                
         //get API's
 		sakaiProxy = getSakaiProxy();
 		profileLogic = getProfileLogic();
 			
-		//get userId
-		final String userId = sakaiProxy.getCurrentUserId();
-		
 		//setup SimpleText object to back the single form field 
 		SimpleText simpleText = new SimpleText();
 		
 		//do they already have a URL that should be loaded in here?
-		String externalUrl = profileLogic.getExternalImageUrl(userId, ProfileConstants.PROFILE_IMAGE_MAIN);
+		String externalUrl = profileLogic.getExternalImageUrl(userUuid, ProfileConstants.PROFILE_IMAGE_MAIN);
 		
 		if(externalUrl != null) {
 			simpleText.setText(externalUrl);
@@ -59,6 +96,16 @@ public class ChangeProfilePictureUrl extends Panel{
 		Form form = new Form("form", new Model(simpleText));
 		form.setOutputMarkupId(true);
         
+		//add warning message if superUser and not editing own image
+		Label editWarning = new Label("editWarning");
+		editWarning.setVisible(false);
+		if(sakaiProxy.isSuperUserAndProxiedToUser(userUuid)) {
+			editWarning.setModel(new StringResourceModel("text.edit.other.warning", null, new Object[]{ sakaiProxy.getUserDisplayName(userUuid) } ));
+			editWarning.setEscapeModelStrings(false);
+			editWarning.setVisible(true);
+		}
+		form.add(editWarning);
+		
         //close button component
         CloseButton closeButton = new CloseButton("closeButton", this);
         closeButton.setOutputMarkupId(true);
@@ -91,15 +138,19 @@ public class ChangeProfilePictureUrl extends Panel{
         		String url = simpleText.getText();
         		
         		//save via ProfileImageService
-				if(getProfileImageService().setProfileImage(userId, url, null)) {
+				if(getProfileImageService().setProfileImage(userUuid, url, null)) {
 					//log it
-					log.info("User " + userId + " successfully changed profile picture by url.");
+					log.info("User " + userUuid + " successfully changed profile picture by url.");
 					
 					//post update event
-					sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_IMAGE_CHANGE_URL, "/profile/"+userId, true);
+					sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_IMAGE_CHANGE_URL, "/profile/"+userUuid, true);
 					
 					//refresh image data
-					setResponsePage(new MyProfile());
+					if(sakaiProxy.isSuperUserAndProxiedToUser(userUuid)){
+						setResponsePage(new MyProfile(userUuid));
+					} else {
+						setResponsePage(new MyProfile());
+					}
 				} else {
 					error(new StringResourceModel("error.url.save.failed", this, null).getString());
         			return;

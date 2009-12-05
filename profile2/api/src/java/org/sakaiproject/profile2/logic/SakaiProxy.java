@@ -86,6 +86,12 @@ public interface SakaiProxy {
 	public boolean isSuperUser();
 	
 	/**
+	 * Is the current user a superUser and are they performing an action on another user's profile?
+	 * @param userId - userId of other user
+	 * @return
+	 */
+	public boolean isSuperUserAndProxiedToUser(String userId);
+	/**
 	 * Get the type of this user's account
 	 * @param userId
 	 * @return

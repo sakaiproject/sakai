@@ -77,8 +77,8 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 			return false;
 		}
 		
-		//check currentUser and object uuid match
-		if(!StringUtils.equals(currentUserUuid, userUuid)) {
+		//check admin, or the currentUser and object uuid match
+		if(!sakaiProxy.isSuperUser() && !StringUtils.equals(currentUserUuid, userUuid)) {
 			throw new SecurityException("Not allowed to save.");
 		}
 		
@@ -147,8 +147,8 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 			return false;
 		}
 		
-		//check currentUser and object uuid match
-		if(!StringUtils.equals(currentUserUuid, userUuid)) {
+		//check admin, or the currentUser and object uuid match
+		if(!sakaiProxy.isSuperUser() && !StringUtils.equals(currentUserUuid, userUuid)) {
 			throw new SecurityException("Not allowed to save.");
 		}
 		

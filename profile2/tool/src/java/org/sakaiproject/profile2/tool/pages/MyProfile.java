@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.PageParameters;
+import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
 import org.apache.wicket.markup.html.basic.Label;
@@ -32,17 +34,45 @@ public class MyProfile extends BasePage {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(MyProfile.class);
 
+	/**
+	 * Default constructor if viewing own
+	 */
 	public MyProfile()   {
-		
 		log.debug("MyProfile()");
+
+		//get user for this profile and render it
+		String userUuid = sakaiProxy.getCurrentUserId();
+		renderMyProfile(userUuid);
+	}
+	
+	/**
+	 * This constructor is called if we are viewing someone elses but in edit mode.
+	 * This will only be called if we were a superuser editing someone else's profile.
+	 * An additional catch is also in place.
+	 * @param parameters 
+	 */
+	public MyProfile(String userUuid)   {
+		log.debug("MyProfile(" + userUuid +")");
 		
+		//double check only super users
+		if(!sakaiProxy.isSuperUser()) {
+			log.error("MyProfile: user " + sakaiProxy.getCurrentUserId() + " attempted to access MyProfile for " + userUuid + ". Redirecting...");
+			throw new RestartResponseException(new MyProfile());
+		}
+		//render for given user
+		renderMyProfile(userUuid);
+	}
+	
+	/**
+	 * Does the actual rendering of the page
+	 * @param userUuid
+	 */
+	private void renderMyProfile(String userUuid) {
+				
 		//add the feedback panel for any error messages
 		FeedbackPanel feedbackPanel = new FeedbackPanel("feedbackPanel");
 		add(feedbackPanel);
 		feedbackPanel.setVisible(false); //hide by default
-
-		//get user for this profile
-		String userUuid = sakaiProxy.getCurrentUserId();
 		
 		//get SakaiPerson for this user
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
@@ -122,11 +152,20 @@ public class MyProfile extends BasePage {
 		//change picture panel (upload or url depending on property)
 		final Panel changePicture;
 		
-		//if upload
+		//render appropriate panel with appropriate constructor ie if superUser etc
 		if(profilePictureType == ProfileConstants.PICTURE_SETTING_UPLOAD) {
-			changePicture = new ChangeProfilePictureUpload("changePicture");
+			
+			if(sakaiProxy.isSuperUserAndProxiedToUser(userUuid)){
+				changePicture = new ChangeProfilePictureUpload("changePicture", userUuid);
+			} else {
+				changePicture = new ChangeProfilePictureUpload("changePicture");
+			}
 		} else if (profilePictureType == ProfileConstants.PICTURE_SETTING_URL) {
-			changePicture = new ChangeProfilePictureUrl("changePicture");
+			if(sakaiProxy.isSuperUserAndProxiedToUser(userUuid)){
+				changePicture = new ChangeProfilePictureUrl("changePicture", userUuid);
+			} else {
+				changePicture = new ChangeProfilePictureUrl("changePicture");
+			}
 		} else {
 			//no valid option for changing picture was returned from the Profile2 API.
 			log.error("Invalid picture type returned: " + profilePictureType);
@@ -167,9 +206,7 @@ public class MyProfile extends BasePage {
 			changePictureLink.setVisible(false);
 		}
 		add(changePictureLink);
-		
-		//END OF TODO FROM ABOVE
-		
+				
 		//status panel
 		Panel myStatusPanel = new MyStatusPanel("myStatusPanel", userProfile);
 		add(myStatusPanel);
@@ -204,6 +241,9 @@ public class MyProfile extends BasePage {
 
 	}
 	
+	
+		
+	
 	/* reinit for deserialisation (ie back button) */
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		in.defaultReadObject();
@@ -212,7 +252,6 @@ public class MyProfile extends BasePage {
 		profileLogic = getProfileLogic();
 		sakaiProxy = getSakaiProxy();
 	}	
-	
 	
 	
 }

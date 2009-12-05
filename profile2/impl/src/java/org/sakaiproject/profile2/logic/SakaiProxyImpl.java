@@ -186,6 +186,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
  	* {@inheritDoc}
  	*/
+	public boolean isSuperUserAndProxiedToUser(String userId) {
+		return (isSuperUser() && !StringUtils.equals(userId, getCurrentUserId()));
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public String getUserType(String userId) {
 		String type = null;
 		try {

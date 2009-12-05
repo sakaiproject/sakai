@@ -52,6 +52,12 @@ public class ViewProfile extends BasePage {
 			throw new RestartResponseException(new MyProfile());
 		}
 		
+		//check if super user, to grant editing rights to another user's profile
+		if(sakaiProxy.isSuperUser()) {
+			log.warn("ViewProfile: superUser " + currentUserId + " accessed ViewProfile for " + userUuid + ". Redirecting to allow edit.");
+			throw new RestartResponseException(new MyProfile(userUuid));
+		}
+		
 		//post view event
 		sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_VIEW_OTHER, "/profile/"+userUuid, false);
 		

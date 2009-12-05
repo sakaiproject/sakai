@@ -9,6 +9,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
 import org.apache.wicket.behavior.StringHeaderContributor;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
@@ -49,6 +50,14 @@ public class MyStatusPanel extends Panel {
 		final String userId = userProfile.getUserId();
 		final String currentUserId = sakaiProxy.getCurrentUserId();
 		
+		//if superUser and proxied, can't update
+		boolean editable = true;
+		if(sakaiProxy.isSuperUserAndProxiedToUser(userId)) {
+			editable = false;
+		}
+		
+		
+		
 		//name
 		Label profileName = new Label("profileName", displayName);
 		add(profileName);
@@ -58,6 +67,7 @@ public class MyStatusPanel extends Panel {
 		status.setOutputMarkupId(true);
 		add(status);
 		
+		WebMarkupContainer statusFormContainer = new WebMarkupContainer("statusFormContainer");
 		
 				
 		//setup SimpleText object to back the single form field 
@@ -103,8 +113,8 @@ public class MyStatusPanel extends Panel {
 		clearLink.setOutputMarkupPlaceholderTag(true);
 		clearLink.add(new Label("clearLabel",new ResourceModel("link.status.clear")));
 	
-		//set visibility of clear link
-		if(!status.isVisible()) {
+		//set visibility of clear link based on status and if it's editable
+		if(!status.isVisible() || !editable) {
 			clearLink.setVisible(false);
 		}
 		add(clearLink);
@@ -169,8 +179,17 @@ public class MyStatusPanel extends Panel {
 		submitButton.setModel(new ResourceModel("button.sayit"));
 		form.add(submitButton);
 		
-        //add form
-		add(form);
+        //add form to container
+		statusFormContainer.add(form);
+		
+		//if not editable, hide the entire form
+		if(!editable) {
+			statusFormContainer.setVisible(false);
+		}
+		
+		
+		add(statusFormContainer);
+		
 		
 	}
 	

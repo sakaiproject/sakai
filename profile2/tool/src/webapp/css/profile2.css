@@ -798,5 +798,20 @@ span.wicket-ajax-indicator img {
 	vertical-align: middle;
 }
 
+.editOtherWarning {
+	display:block;
+	border: 2px solid #ffcc33;
+	background-color: #fff9e6 !important;
+	background-image: url(/library/image/silk/error.png) !important;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	padding-right: 10px;
+	padding-left: 24px;
+	background-position: 4px center;
+    background-repeat: no-repeat;
+    color: #5D5D5D;
+}
+
+
 
 		
