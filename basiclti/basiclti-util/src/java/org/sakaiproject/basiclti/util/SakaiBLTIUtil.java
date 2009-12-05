@@ -267,8 +267,13 @@ public class SakaiBLTIUtil {
 	if ( launch_url == null ) launch_url = info.getProperty("launch_url");
         if ( launch_url == null ) return postError("<p>" + getRB(rb, "error.missing" ,"Not configured")+"</p>");
 
-	// Look up the LMS-wide secret and key
+	String org_guid = ServerConfigurationService.getString("basiclti.consumer_instance_guid",null);
+	String org_name = ServerConfigurationService.getString("basiclti.consumer_instance_name",null);
+	String org_url = ServerConfigurationService.getString("basiclti.consumer_instance_url",null);
+        
+	// Look up the LMS-wide secret and key - default key is guid
 	String key = getToolConsumerInfo(launch_url,"key");
+	if ( key == null ) key = org_guid;
 	String secret = getToolConsumerInfo(launch_url,"secret");
 
 	// Demand key/secret in a pair
@@ -292,10 +297,6 @@ public class SakaiBLTIUtil {
         	setProperty(launch, skey, value);
 	}
 
-        String org_guid = ServerConfigurationService.getString("basiclti.consumer_instance_guid",null);
-	String org_name = ServerConfigurationService.getString("basiclti.consumer_instance_name",null);
-	String org_url = ServerConfigurationService.getString("basiclti.consumer_instance_url",null);
-        
         String oauth_callback = ServerConfigurationService.getString("basiclti.oauth_callback",null);
 	// Too bad there is not a better default callback url for OAuth
         // Actually since we are using signing-only, there is really not much point 
