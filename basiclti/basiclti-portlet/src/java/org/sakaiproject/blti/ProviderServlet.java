@@ -85,9 +85,9 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 
 */
 
-public class ProducerServlet extends HttpServlet {
+public class ProviderServlet extends HttpServlet {
 
-	private static Log M_log = LogFactory.getLog(ProducerServlet.class);
+	private static Log M_log = LogFactory.getLog(ProviderServlet.class);
 
 	private static ResourceLoader rb = new ResourceLoader("basiclti");
 
@@ -140,11 +140,11 @@ public class ProducerServlet extends HttpServlet {
 	{
 		String ipAddress = request.getRemoteAddr();
 
-		M_log.debug("Basic LTI Producer request from IP="+ipAddress);
+		M_log.debug("Basic LTI Provider request from IP="+ipAddress);
 
-		String enabled = ServerConfigurationService.getString("imsblti.producer.enabled", null);
+		String enabled = ServerConfigurationService.getString("imsblti.provider.enabled", null);
 		if ( enabled == null || ! ("true".equals(enabled)) ) {
-			M_log.warn("Basic LTI Producer is Disabled IP="+ipAddress);
+			M_log.warn("Basic LTI Provider is Disabled IP="+ipAddress);
 			response.setStatus(response.SC_FORBIDDEN);
 			return;
 		}
@@ -174,7 +174,7 @@ public class ProducerServlet extends HttpServlet {
 
 		// Trim off the leading slash and any trailing space
 		tool_id = tool_id.substring(1).trim();
-		String allowedTools = ServerConfigurationService.getString("imsblti.producer.allowedtools", null);
+		String allowedTools = ServerConfigurationService.getString("imsblti.provider.allowedtools", null);
 		if ( allowedTools != null && allowedTools.indexOf(tool_id) < 0 ) {
 			doError(response, "launch.tool.notallowed", tool_id, null);
 			return;
@@ -192,7 +192,7 @@ public class ProducerServlet extends HttpServlet {
 		context_id = oauth_consumer_key + ":" + context_id;
 
 		// Lookup the secret
-		String configPrefix = "imsblti.producer." + oauth_consumer_key + ".";
+		String configPrefix = "imsblti.provider." + oauth_consumer_key + ".";
 		String oauth_secret = ServerConfigurationService.getString(configPrefix + "secret", null);
 		if ( oauth_secret == null ) {
 			doError(response,"launch.key.notfound", oauth_consumer_key, null);
@@ -215,7 +215,7 @@ public class ProducerServlet extends HttpServlet {
 		try {
 			oav.validateMessage(oam,acc);
 		} catch(Exception e) {
-			M_log.warn("Producer failed to validate message");
+			M_log.warn("Provider failed to validate message");
 			M_log.warn(e.getMessage());
 			if ( base_string != null ) M_log.warn(base_string);
 			doError(response,"launch.no.validate", context_id, null);

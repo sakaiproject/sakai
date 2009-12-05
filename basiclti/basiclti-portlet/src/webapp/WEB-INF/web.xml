@@ -47,13 +47,13 @@
 
   <filter-mapping>
     <filter-name>sakai.request</filter-name>
-    <servlet-name>ProducerServlet</servlet-name>
+    <servlet-name>ProviderServlet</servlet-name>
     <dispatcher>REQUEST</dispatcher>
   </filter-mapping>
 
   <filter-mapping>
     <filter-name>RemoteHostFilter</filter-name>
-    <servlet-name>ProducerServlet</servlet-name>
+    <servlet-name>ProviderServlet</servlet-name>
     <dispatcher>REQUEST</dispatcher>
     <dispatcher>FORWARD</dispatcher>
     <dispatcher>INCLUDE</dispatcher>
@@ -71,8 +71,8 @@
   </servlet>
 
   <servlet>
-    <servlet-name>ProducerServlet</servlet-name>
-    <servlet-class>org.sakaiproject.blti.ProducerServlet</servlet-class>
+    <servlet-name>ProviderServlet</servlet-name>
+    <servlet-class>org.sakaiproject.blti.ProviderServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>
@@ -81,8 +81,8 @@
   </servlet-mapping>
 
   <servlet-mapping>
-    <servlet-name>ProducerServlet</servlet-name>
-    <url-pattern>/producer/*</url-pattern>
+    <servlet-name>ProviderServlet</servlet-name>
+    <url-pattern>/provider/*</url-pattern>
   </servlet-mapping>
 
 </web-app>
