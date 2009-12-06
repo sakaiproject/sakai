@@ -469,9 +469,9 @@ public class ViewProfile extends BasePage {
 		
 		/* SIDELINKS */
 		WebMarkupContainer sideLinks = new WebMarkupContainer("sideLinks");
+		int visibleSideLinksCount = 0;
 		
 		WebMarkupContainer addFriendContainer = new WebMarkupContainer("addFriendContainer");
-		
 		
 		//ADD FRIEND MODAL WINDOW
 		final ModalWindow addFriendWindow = new ModalWindow("addFriendWindow");
@@ -530,12 +530,20 @@ public class ViewProfile extends BasePage {
 		
 		add(addFriendWindow);
 		
-		//hide if not allowed
+		//hide connection link if not allowed
 		if(!isConnectionAllowed) {
 			addFriendContainer.setVisible(false);
+		} else {
+			visibleSideLinksCount++;
+		}
+		
+		//hide entire list if no links to show
+		if(visibleSideLinksCount == 0) {
+			sideLinks.setVisible(false);
 		}
 		
 		add(sideLinks);
+		
 		
 		
 		
