@@ -895,6 +895,10 @@ public class SakaiProxyImpl implements SakaiProxy {
  	*/
 	public boolean isConnectionAllowedBetweenUserTypes(String requestingUserType, String targetUserType) {
 		
+		if(isSuperUser()){
+			return true;
+		}
+		
 		String configuration = serverConfigurationService.getString("profile2.allowed.connection.usertypes." + requestingUserType);
 		if(StringUtils.isBlank(configuration)) {
 			return true;

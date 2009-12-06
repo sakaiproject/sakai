@@ -29,9 +29,9 @@ import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.ConfirmedFriendsDataProvider;
 import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
-import org.sakaiproject.profile2.tool.pages.windows.IgnoreFriend;
 import org.sakaiproject.profile2.tool.pages.windows.RemoveFriend;
 import org.sakaiproject.profile2.util.ProfileConstants;
+import org.sakaiproject.user.api.User;
 
 public class ConfirmedFriends extends Panel {
 	
@@ -55,8 +55,10 @@ public class ConfirmedFriends extends Panel {
 		//setup model to store the actions in the modal windows
 		final FriendAction friendActionModel = new FriendAction();
 		
-		//get id of user viewing this page (will be the same if user is viewing own list, different if viewing someone else's)
+		//get info for user viewing this page (will be the same if user is viewing own list, different if viewing someone else's)
 		final String currentUserUuid = sakaiProxy.getCurrentUserId();
+		User currentUser = sakaiProxy.getUserQuietly(currentUserUuid);
+		final String currentUserType = currentUser.getType(); //to be used for checking if connection between users is allowed, when this is added
 		
 		//if viewing own friends, you can manage them.
 		if(userUuid.equals(currentUserUuid)) {
@@ -130,7 +132,8 @@ public class ConfirmedFriends extends Panel {
 		    	final String friendUuid = (String)item.getModelObject();
 		    			    	
 		    	//setup values
-		    	String displayName = sakaiProxy.getUserDisplayName(friendUuid);
+		    	User friendUser = sakaiProxy.getUserQuietly(friendUuid);
+		    	String displayName = friendUser.getDisplayName();
 		    	boolean friend;
 		    	
 		    	//get friend status

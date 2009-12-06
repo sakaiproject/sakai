@@ -30,6 +30,7 @@ import org.sakaiproject.profile2.tool.pages.panels.FriendsFeed;
 import org.sakaiproject.profile2.tool.pages.windows.AddFriend;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
+import org.sakaiproject.user.api.User;
 
 
 public class ViewProfile extends BasePage {
@@ -43,9 +44,11 @@ public class ViewProfile extends BasePage {
 		//setup model to store the actions in the modal windows
 		final FriendAction friendActionModel = new FriendAction();
 		
-		//get current user Id
-		String currentUserId = sakaiProxy.getCurrentUserId();
-				
+		//get current user info
+		User currentUser = sakaiProxy.getUserQuietly(sakaiProxy.getCurrentUserId());
+		String currentUserId = currentUser.getId();
+		String currentUserType = currentUser.getType();
+		
 		//double check, if somehow got to own ViewPage, redirect to MyProfile instead
 		if(userUuid.equals(currentUserId)) {
 			log.warn("ViewProfile: user " + userUuid + " accessed ViewProfile for self. Redirecting...");
@@ -61,35 +64,6 @@ public class ViewProfile extends BasePage {
 		//post view event
 		sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_VIEW_OTHER, "/profile/"+userUuid, false);
 		
-		//init
-		boolean friend = false;
-		boolean friendRequestToThisPerson = false;
-		boolean friendRequestFromThisPerson = false;
-
-		//friend?
-		friend = profileLogic.isUserXFriendOfUserY(userUuid, currentUserId);
-
-		//if not friend, has a friend request already been made to this person?
-		if(!friend) {
-			friendRequestToThisPerson = profileLogic.isFriendRequestPending(currentUserId, userUuid);
-		}
-		
-		//if not friend and no friend request to this person, has a friend request been made from this person to the current user?
-		if(!friend && !friendRequestToThisPerson) {
-			friendRequestFromThisPerson = profileLogic.isFriendRequestPending(userUuid, currentUserId);
-		}
-		
-		//privacy checks
-		ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(userUuid);
-		
-		
-		boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(userUuid, privacy, currentUserId, friend);
-		boolean isBasicInfoAllowed = profileLogic.isUserXBasicInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
-		boolean isContactInfoAllowed = profileLogic.isUserXContactInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
-		boolean isAcademicInfoAllowed = profileLogic.isUserXAcademicInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
-		boolean isPersonalInfoAllowed = profileLogic.isUserXPersonalInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
-		boolean isFriendsListVisible = profileLogic.isUserXFriendsListVisibleByUserY(userUuid, privacy, currentUserId, friend);
-
 		/* DEPRECATED via PRFL-24 when privacy was relaxed
 		if(!isProfileAllowed) {
 			throw new ProfileIllegalAccessException("User: " + currentUserId + " is not allowed to view profile for: " + userUuid);
@@ -113,7 +87,38 @@ public class ViewProfile extends BasePage {
 		
 		//get some values from SakaiPerson or SakaiProxy if empty
 		//SakaiPerson returns NULL strings if value is not set, not blank ones
-		String userDisplayName = sakaiProxy.getUserDisplayName(userUuid);
+		User user = sakaiProxy.getUserQuietly(userUuid);
+		String userDisplayName = user.getDisplayName();
+		String userType = user.getType();
+		
+		//init
+		boolean friend = false;
+		boolean friendRequestToThisPerson = false;
+		boolean friendRequestFromThisPerson = false;
+
+		//friend?
+		friend = profileLogic.isUserXFriendOfUserY(userUuid, currentUserId);
+
+		//if not friend, has a friend request already been made to this person?
+		if(!friend) {
+			friendRequestToThisPerson = profileLogic.isFriendRequestPending(currentUserId, userUuid);
+		}
+		
+		//if not friend and no friend request to this person, has a friend request been made from this person to the current user?
+		if(!friend && !friendRequestToThisPerson) {
+			friendRequestFromThisPerson = profileLogic.isFriendRequestPending(userUuid, currentUserId);
+		}
+		
+		//privacy checks
+		ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(userUuid);
+		
+		boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isBasicInfoAllowed = profileLogic.isUserXBasicInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isContactInfoAllowed = profileLogic.isUserXContactInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isAcademicInfoAllowed = profileLogic.isUserXAcademicInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isPersonalInfoAllowed = profileLogic.isUserXPersonalInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isFriendsListVisible = profileLogic.isUserXFriendsListVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isConnectionAllowed = sakaiProxy.isConnectionAllowedBetweenUserTypes(currentUserType, userType);
 		
 		/* IMAGE */
 		add(new ProfileImageRenderer("photo", userUuid, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_MAIN, true));
@@ -126,7 +131,6 @@ public class ViewProfile extends BasePage {
 		ProfileStatusRenderer status = new ProfileStatusRenderer("status", userUuid, privacy, currentUserId, friend, null, "tiny");
 		status.setOutputMarkupId(true);
 		add(status);
-		
 		
 		/* BASIC INFO */
 		WebMarkupContainer basicInfoContainer = new WebMarkupContainer("mainSectionContainer_basic");
@@ -181,8 +185,6 @@ public class ViewProfile extends BasePage {
 		} else {
 			visibleContainerCount++;
 		}
-		
-		
 		
 		/* CONTACT INFO */
 		WebMarkupContainer contactInfoContainer = new WebMarkupContainer("mainSectionContainer_contact");
@@ -468,6 +470,9 @@ public class ViewProfile extends BasePage {
 		/* SIDELINKS */
 		WebMarkupContainer sideLinks = new WebMarkupContainer("sideLinks");
 		
+		WebMarkupContainer addFriendContainer = new WebMarkupContainer("addFriendContainer");
+		
+		
 		//ADD FRIEND MODAL WINDOW
 		final ModalWindow addFriendWindow = new ModalWindow("addFriendWindow");
 
@@ -482,6 +487,8 @@ public class ViewProfile extends BasePage {
 		
 		final Label addFriendLabel = new Label("addFriendLabel");
 		addFriendLink.add(addFriendLabel);
+		
+		addFriendContainer.add(addFriendLink);
 		
 		//setup link/label and windows
 		if(friend) {
@@ -503,7 +510,7 @@ public class ViewProfile extends BasePage {
 			addFriendLabel.setModel(new StringResourceModel("link.friend.add.name", null, new Object[]{ nickname } ));
 			addFriendWindow.setContent(new AddFriend(addFriendWindow.getContentId(), addFriendWindow, friendActionModel, currentUserId, userUuid)); 
 		}
-		sideLinks.add(addFriendLink);
+		sideLinks.add(addFriendContainer);
 		
 		
 		//ADD FRIEND MODAL WINDOW HANDLER 
@@ -522,6 +529,11 @@ public class ViewProfile extends BasePage {
         });
 		
 		add(addFriendWindow);
+		
+		//hide if not allowed
+		if(!isConnectionAllowed) {
+			addFriendContainer.setVisible(false);
+		}
 		
 		add(sideLinks);
 		
