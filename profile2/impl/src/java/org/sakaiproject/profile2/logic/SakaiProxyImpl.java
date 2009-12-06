@@ -890,6 +890,26 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return ProfileUtils.getListFromString(config, ProfileConstants.SAKAI_PROP_LIST_SEPARATOR);
 	}
 	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public boolean isConnectionAllowedBetweenUserTypes(String requestingUserType, String targetUserType) {
+		
+		String configuration = serverConfigurationService.getString("profile2.allowed.connection.usertypes." + requestingUserType);
+		if(StringUtils.isBlank(configuration)) {
+			return true;
+		}
+		
+		String[] values = StringUtils.split(configuration, ',');
+		List<String> valueList = Arrays.asList(values);
+
+		if(valueList.contains(targetUserType)){
+			return true;
+		}
+		
+		return false;
+	}
+	
 	
 	// PRIVATE METHODS FOR SAKAIPROXY
 	

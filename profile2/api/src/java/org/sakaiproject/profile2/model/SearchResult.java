@@ -33,11 +33,12 @@ public class SearchResult implements Serializable {
 	private boolean friendsListVisible;
 	private boolean friendRequestToThisPerson;
 	private boolean friendRequestFromThisPerson;
+	private boolean connectionAllowed;
 	
 	/* 
 	 * Constructor to create a SearchResult object in one go
 	 */
-	public SearchResult(String userUuid, String displayName, String userType, boolean friend, boolean profileImageAllowed, boolean statusAllowed, boolean friendsListVisible, boolean friendRequestToThisPerson, boolean friendRequestFromThisPerson) {
+	public SearchResult(String userUuid, String displayName, String userType, boolean friend, boolean profileImageAllowed, boolean statusAllowed, boolean friendsListVisible, boolean friendRequestToThisPerson, boolean friendRequestFromThisPerson, boolean connectionAllowed) {
 		super();
 		this.userUuid = userUuid;
 		this.displayName = displayName;
@@ -48,6 +49,7 @@ public class SearchResult implements Serializable {
 		this.friendsListVisible = friendsListVisible;
 		this.friendRequestToThisPerson = friendRequestToThisPerson;
 		this.friendRequestFromThisPerson = friendRequestFromThisPerson;
+		this.connectionAllowed = connectionAllowed;
 	}
 	
 	public String getUserUuid() {
@@ -104,4 +106,11 @@ public class SearchResult implements Serializable {
 	public void setFriendRequestFromThisPerson(boolean friendRequestFromThisPerson) {
 		this.friendRequestFromThisPerson = friendRequestFromThisPerson;
 	}
+	public boolean isConnectionAllowed() {
+		return connectionAllowed;
+	}
+	public void setConnectionAllowed(boolean connectionAllowed) {
+		this.connectionAllowed = connectionAllowed;
+	}
+	
 }

@@ -1827,7 +1827,13 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	private List<SearchResult> createSearchResultRecordsFromSearch(List<String> userUuids, String userId) {
 
 		List<SearchResult> results = new ArrayList<SearchResult>();
-				
+			
+		//TODO get the list of Users via getUsers(userUuids) instead of individually in the iterator below?
+		//Is this an issue? Its cached?
+		
+		//get type of requesting user so we can check if they are allowed to connect to the users found
+		String searchingUserType = sakaiProxy.getUserType(userId);
+		
 		//for each userUuid, is userId a friend?
 		//also, get privacy record for the userUuid. if searches not allowed for this user pair, skip to next
 		//otherwise create SearchResult record and add to list
@@ -1880,20 +1886,25 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 			//is profile photo visible to this user?
 			//is status visible to this user?
 			//is friends list visible to this user?
+			//is connection allowed between these user types?
 			//all true if super user, otherwise run the check.
 			boolean profileImageAllowed;
 			boolean statusVisible;
 			boolean friendsListVisible;
+			boolean connectionAllowed;
 			
 			if (sakaiProxy.isSuperUser()) {
 				profileImageAllowed = true;
 				statusVisible = true;
 				friendsListVisible = true;
+				connectionAllowed = true;
 			} else {
 				profileImageAllowed = isUserXProfileImageVisibleByUserY(userUuid, privacy, userId, friend);
 				statusVisible = isUserXStatusVisibleByUserY(userUuid, privacy, userId, friend);
 				friendsListVisible = isUserXFriendsListVisibleByUserY(userUuid, privacy, userId, friend);
+				connectionAllowed = sakaiProxy.isConnectionAllowedBetweenUserTypes(searchingUserType, userType);
 			}	
+		
 			
 			//make object
 			SearchResult searchResult = new SearchResult(
@@ -1905,7 +1916,8 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 					statusVisible,
 					friendsListVisible,
 					friendRequestToThisPerson,
-					friendRequestFromThisPerson
+					friendRequestFromThisPerson,
+					connectionAllowed
 					);
 			
 			results.add(searchResult);

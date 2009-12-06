@@ -410,4 +410,15 @@ public interface SakaiProxy {
 	 */
 	public List<String> getInvisibleUsers();
 	
+	/**
+	 * Gets the list of usertypes from profile2.allowed.connection.usertypes.TYPE.
+	 * <p>This defines what user types can connect to each other. The <b>requestingUserType</b> is appended to the property string
+	 * and the list retrieved. If targetUserType is in the list, they can connect (true). If not, false.</p>
+	 * <p>If the property does not exist for that userType, they can connect, to maintain backward compatibility and keep it open.</p>
+	 *
+	 * @param requestingUserType
+	 * @param targetUserType
+	 * @return
+	 */
+	public boolean isConnectionAllowedBetweenUserTypes(String requestingUserType, String targetUserType);
 }

@@ -215,74 +215,88 @@ public class MySearch extends BasePage {
 		    	boolean friendRequestToThisPerson = searchResult.isFriendRequestToThisPerson();
 				boolean friendRequestFromThisPerson = searchResult.isFriendRequestFromThisPerson();
 				boolean isFriendsListVisible = searchResult.isFriendsListVisible();
+				boolean isConnectionAllowed = searchResult.isConnectionAllowed();
 		    	
 
 		    	//ADD CONNECTION LINK
-		    	final WebMarkupContainer connectionContainer = new WebMarkupContainer("connectionContainer");
-		    	connectionContainer.setOutputMarkupId(true);
-		    	
-		    	final Label connectionLabel = new Label("connectionLabel");
-				connectionLabel.setOutputMarkupId(true);
-				
-		    	final AjaxLink connectionLink = new AjaxLink("connectionLink") {
-					private static final long serialVersionUID = 1L;
-					public void onClick(AjaxRequestTarget target) {
-						
-						//get this item, reinit some values and set content for modal
-				    	SearchResult this_searchResult = (SearchResult)getParent().getParent().getModelObject();
-				    	final String userUuid = this_searchResult.getUserUuid();
-				    	connectionWindow.setContent(new AddFriend(connectionWindow.getContentId(), connectionWindow, friendActionModel, currentUserUuid, userUuid)); 
-						
-				    	// connection modal window handler 
-						connectionWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-							private static final long serialVersionUID = 1L;
-							public void onClose(AjaxRequestTarget target){
-				            	if(friendActionModel.isRequested()) { 
-				            		connectionLabel.setModel(new ResourceModel("text.friend.requested"));
-				            		add(new AttributeModifier("class", true, new Model("instruction")));
-				            		setEnabled(false);
-				            		target.addComponent(connectionContainer);
-				            	}
-				            }
-				        });						
-						//in preparation for the window being closed, update the text. this will only
-						//be put into effect if its a successful model update from the window close
-				    	//connectionLabel.setModel(new ResourceModel("text.friend.requested"));
-						//this.add(new AttributeModifier("class", true, new Model("instruction")));
-						//this.setEnabled(false);
-						//friendActionModel.setUpdateThisComponentOnSuccess(this);
-						
-						connectionWindow.show(target);
-						target.appendJavascript("fixWindowVertical();"); 
-		            	
-					}
-				};
-				
-				connectionLink.add(connectionLabel);
-				
-				//setup 'add friend' link
-				if(StringUtils.equals(userUuid, currentUserUuid)) {
-					connectionLabel.setModel(new ResourceModel("text.friend.self"));
-					connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
-					connectionLink.setEnabled(false);
-				} else if(friend) {
-					connectionLabel.setModel(new ResourceModel("text.friend.confirmed"));
-					connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
-					connectionLink.setEnabled(false);
-				} else if (friendRequestToThisPerson) {
-					connectionLabel.setModel(new ResourceModel("text.friend.requested"));
-					connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
-					connectionLink.setEnabled(false);					
-				} else if (friendRequestFromThisPerson) {
-					connectionLabel.setModel(new ResourceModel("text.friend.pending"));
-					connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
-					connectionLink.setEnabled(false);
+		    	final WebMarkupContainer c1 = new WebMarkupContainer("connectionContainer");
+		    	c1.setOutputMarkupId(true);
+
+				if(!isConnectionAllowed){
+					//add blank components - TODO turn this into an EmptyLink component
+					AjaxLink emptyLink = new AjaxLink("connectionLink"){
+						public void onClick(AjaxRequestTarget target) {
+						}
+					};
+					emptyLink.add(new Label("connectionLabel"));
+					c1.add(emptyLink);
+					c1.setVisible(false);
 				} else {
-					connectionLabel.setModel(new ResourceModel("link.friend.add"));
+					//render the link
+			    	final Label connectionLabel = new Label("connectionLabel");
+					connectionLabel.setOutputMarkupId(true);
+					
+			    	final AjaxLink connectionLink = new AjaxLink("connectionLink") {
+						private static final long serialVersionUID = 1L;
+						public void onClick(AjaxRequestTarget target) {
+							
+							//get this item, reinit some values and set content for modal
+					    	SearchResult this_searchResult = (SearchResult)getParent().getParent().getModelObject();
+					    	final String userUuid = this_searchResult.getUserUuid();
+					    	connectionWindow.setContent(new AddFriend(connectionWindow.getContentId(), connectionWindow, friendActionModel, currentUserUuid, userUuid)); 
+							
+					    	// connection modal window handler 
+							connectionWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+								private static final long serialVersionUID = 1L;
+								public void onClose(AjaxRequestTarget target){
+					            	if(friendActionModel.isRequested()) { 
+					            		connectionLabel.setModel(new ResourceModel("text.friend.requested"));
+					            		add(new AttributeModifier("class", true, new Model("instruction")));
+					            		setEnabled(false);
+					            		target.addComponent(c1);
+					            	}
+					            }
+					        });						
+							//in preparation for the window being closed, update the text. this will only
+							//be put into effect if its a successful model update from the window close
+					    	//connectionLabel.setModel(new ResourceModel("text.friend.requested"));
+							//this.add(new AttributeModifier("class", true, new Model("instruction")));
+							//this.setEnabled(false);
+							//friendActionModel.setUpdateThisComponentOnSuccess(this);
+							
+							connectionWindow.show(target);
+							target.appendJavascript("fixWindowVertical();"); 
+			            	
+						}
+					};
+					
+					connectionLink.add(connectionLabel);
+					
+					//setup 'add connection' link
+					if(StringUtils.equals(userUuid, currentUserUuid)) {
+						connectionLabel.setModel(new ResourceModel("text.friend.self"));
+						connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
+						connectionLink.setEnabled(false);
+					} else if(friend) {
+						connectionLabel.setModel(new ResourceModel("text.friend.confirmed"));
+						connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
+						connectionLink.setEnabled(false);
+					} else if (friendRequestToThisPerson) {
+						connectionLabel.setModel(new ResourceModel("text.friend.requested"));
+						connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
+						connectionLink.setEnabled(false);					
+					} else if (friendRequestFromThisPerson) {
+						connectionLabel.setModel(new ResourceModel("text.friend.pending"));
+						connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
+						connectionLink.setEnabled(false);
+					} else {
+						connectionLabel.setModel(new ResourceModel("link.friend.add"));
+					}
+					connectionLink.setOutputMarkupId(true);
+					c1.add(connectionLink);
 				}
-				connectionLink.setOutputMarkupId(true);
-				connectionContainer.add(connectionLink);
-				item.add(connectionContainer);
+				
+				item.add(c1);
 				
 				
 				//VIEW FRIENDS LINK
