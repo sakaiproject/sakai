@@ -5,9 +5,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
@@ -32,6 +35,7 @@ public class MyProfile extends BasePage {
 
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(MyProfile.class);
+	
 
 	/**
 	 * Default constructor if viewing own
@@ -50,7 +54,7 @@ public class MyProfile extends BasePage {
 	 * An additional catch is also in place.
 	 * @param parameters 
 	 */
-	public MyProfile(String userUuid)   {
+	public MyProfile(final String userUuid)   {
 		log.debug("MyProfile(" + userUuid +")");
 		
 		//double check only super users
@@ -66,7 +70,7 @@ public class MyProfile extends BasePage {
 	 * Does the actual rendering of the page
 	 * @param userUuid
 	 */
-	private void renderMyProfile(String userUuid) {
+	private void renderMyProfile(final String userUuid) {
 				
 		//add the feedback panel for any error messages
 		FeedbackPanel feedbackPanel = new FeedbackPanel("feedbackPanel");
@@ -141,9 +145,12 @@ public class MyProfile extends BasePage {
 		//PRFL-97 workaround. SakaiPerson table needs to be upgraded so locked is not null, but this handles it if not upgraded.
 		if(sakaiPerson.getLocked() == null) {
 			userProfile.setLocked(false);
+			this.setLocked(false);
 		} else {
-			userProfile.setLocked(sakaiPerson.getLocked());
+			this.setLocked(sakaiPerson.getLocked());
+			userProfile.setLocked(this.isLocked());
 		}
+		
 	
 		//what type of picture changing method do we use?
 		int profilePictureType = sakaiProxy.getProfilePictureType();
@@ -178,7 +185,7 @@ public class MyProfile extends BasePage {
 		add(new ProfileImageRenderer("photo", userUuid, true, ProfileConstants.PROFILE_IMAGE_MAIN, true));
 		
 		//change profile image button
-		AjaxFallbackLink changePictureLink = new AjaxFallbackLink("changePictureLink") {
+		AjaxLink changePictureLink = new AjaxLink("changePictureLink") {
 			private static final long serialVersionUID = 1L;
 
 			public void onClick(AjaxRequestTarget target) {
@@ -205,7 +212,70 @@ public class MyProfile extends BasePage {
 			changePictureLink.setVisible(false);
 		}
 		add(changePictureLink);
+		
+		
+		/* SIDELINKS */
+		WebMarkupContainer sideLinks = new WebMarkupContainer("sideLinks");
+		int visibleSideLinksCount = 0;
+		
+		WebMarkupContainer lockProfileContainer = new WebMarkupContainer("lockProfileContainer");
+		
+		//ADMIN: LOCK/UNLOCK A PROFILE
+		final Label lockProfileLabel = new Label("lockProfileLabel");
+		
+		final AjaxLink lockProfileLink = new AjaxLink("lockProfileLink") {
+			private static final long serialVersionUID = 1L;
+
+			public void onClick(AjaxRequestTarget target) {
+				//toggle it to be opposite of what it currently is, update labels
+				boolean locked = isLocked();
+    			if(sakaiProxy.toggleProfileLocked(userUuid, !locked)) {
+    				setLocked(!locked);
+    				log.info("MyProfile(): SuperUser toggled lock status of profile for " + userUuid + " to " + !locked);
+    				lockProfileLabel.setModel(new ResourceModel("link.profile.locked." + isLocked()));
+    				this.add(new AttributeModifier("title", true, new ResourceModel("text.profile.locked." + isLocked())));
+    				target.addComponent(this);
+    			}
+			}
+		};
+		
+		lockProfileLink.add(lockProfileLabel);
 				
+		//setup link/label and windows with special property based on locked status
+		lockProfileLabel.setModel(new ResourceModel("link.profile.locked." + isLocked()));
+		lockProfileLink.add(new AttributeModifier("title", true, new ResourceModel("text.profile.locked." + isLocked())));
+		
+		lockProfileContainer.add(lockProfileLink);
+		
+		//show lock/unlock link to superUser and only if not own profile
+		if(!sakaiProxy.isSuperUserAndProxiedToUser(userUuid)) {
+			lockProfileContainer.setVisible(false);
+		} else {
+			visibleSideLinksCount++;
+		}
+		
+		//hide entire list if no links to show
+		if(visibleSideLinksCount == 0) {
+			sideLinks.setVisible(false);
+		}
+		
+		sideLinks.add(lockProfileContainer);
+		add(sideLinks);
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		//status panel
 		Panel myStatusPanel = new MyStatusPanel("myStatusPanel", userProfile);
 		add(myStatusPanel);
@@ -252,5 +322,13 @@ public class MyProfile extends BasePage {
 		sakaiProxy = getSakaiProxy();
 	}	
 	
+	
+	private boolean locked;
+	public boolean isLocked() {
+		return locked;
+	}
+	public void setLocked(boolean locked) {
+		this.locked = locked;
+	}
 	
 }

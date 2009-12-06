@@ -914,6 +914,21 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return false;
 	}
 	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public boolean toggleProfileLocked(String userId, boolean locked) {
+		SakaiPerson sp = getSakaiPerson(userId);
+		if(sp == null) {
+			return false;
+		}
+		sp.setLocked(locked);
+		if(updateSakaiPerson(sp)){
+			return true;
+		}
+		return false;
+	}
+	
 	
 	// PRIVATE METHODS FOR SAKAIPROXY
 	

@@ -421,4 +421,13 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public boolean isConnectionAllowedBetweenUserTypes(String requestingUserType, String targetUserType);
+	
+	/**
+	 * Toggle a profile's locked status.
+	 * @param userId
+	 * @param locked
+	 * @return
+	 */
+	public boolean toggleProfileLocked(String userId, boolean locked);
+	
 }
