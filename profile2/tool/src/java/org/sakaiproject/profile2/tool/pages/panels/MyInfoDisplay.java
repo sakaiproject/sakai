@@ -16,6 +16,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.models.UserProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -26,6 +27,7 @@ public class MyInfoDisplay extends Panel {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(MyInfoDisplay.class);
 	private transient ProfileLogic profileLogic;
+	private transient SakaiProxy sakaiProxy;
 	private int visibleFieldCount = 0;
 	private String birthday = ""; 
 	private String birthdayDisplay = "";
@@ -40,6 +42,7 @@ public class MyInfoDisplay extends Panel {
 		
 		//get API's
 		profileLogic = getProfileLogic();
+		sakaiProxy = getSakaiProxy();
 		
 		//get userId of this profile
 		String userId = userProfile.getUserId();
@@ -156,7 +159,7 @@ public class MyInfoDisplay extends Panel {
 		editButton.add(new Label("editButtonLabel", new ResourceModel("button.edit")));
 		editButton.setOutputMarkupId(true);
 		
-		if(userProfile.isLocked()) {
+		if(userProfile.isLocked() && !sakaiProxy.isSuperUser()) {
 			editButton.setVisible(false);
 		}
 		
@@ -176,10 +179,15 @@ public class MyInfoDisplay extends Panel {
 		log.debug("MyInfoDisplay has been deserialized.");
 		//re-init our transient objects
 		profileLogic = getProfileLogic();
+		sakaiProxy = getSakaiProxy();
 	}
 	
 	private ProfileLogic getProfileLogic() {
 		return Locator.getProfileLogic();
+	}
+	
+	private SakaiProxy getSakaiProxy() {
+		return Locator.getSakaiProxy();
 	}
 	
 }

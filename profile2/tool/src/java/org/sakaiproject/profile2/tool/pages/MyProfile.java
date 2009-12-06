@@ -207,7 +207,7 @@ public class MyProfile extends BasePage {
 		changePictureLink.add(new Label("changePictureLabel", new ResourceModel("link.change.profile.picture")));
 		
 		//is picture changing disabled?
-		if(!sakaiProxy.isProfilePictureChangeEnabled() || userProfile.isLocked()) {
+		if((!sakaiProxy.isProfilePictureChangeEnabled() || userProfile.isLocked()) && !sakaiProxy.isSuperUser()) {
 			changePictureLink.setEnabled(false);
 			changePictureLink.setVisible(false);
 		}

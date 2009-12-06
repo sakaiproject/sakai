@@ -1,6 +1,10 @@
 package org.sakaiproject.profile2.tool.pages.panels;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
@@ -8,12 +12,16 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
+import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.models.UserProfile;
 
 public class MyContactDisplay extends Panel {
 	
 	private static final long serialVersionUID = 1L;
+	private static final Logger log = Logger.getLogger(MyInfoDisplay.class);
 	private int visibleFieldCount = 0;
+	private transient SakaiProxy sakaiProxy;
 	
 	public MyContactDisplay(final String id, final UserProfile userProfile) {
 		super(id);
@@ -21,6 +29,9 @@ public class MyContactDisplay extends Panel {
 		//this panel stuff
 		final Component thisPanel = this;
 			
+		//get API's
+		sakaiProxy = getSakaiProxy();
+		
 		//get info from userProfile since we need to validate it and turn things off if not set.
 		//otherwise we could just use a propertymodel
 		String email = userProfile.getEmail();
@@ -120,7 +131,7 @@ public class MyContactDisplay extends Panel {
 		editButton.add(new Label("editButtonLabel", new ResourceModel("button.edit")));
 		editButton.setOutputMarkupId(true);
 		
-		if(userProfile.isLocked()) {
+		if(userProfile.isLocked() && !sakaiProxy.isSuperUser()) {
 			editButton.setVisible(false);
 		}
 		
@@ -132,6 +143,19 @@ public class MyContactDisplay extends Panel {
 		if(visibleFieldCount > 0) {
 			noFieldsMessage.setVisible(false);
 		}
+	}
+	
+	/* reinit for deserialisation (ie back button) */
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		log.debug("MyContactDisplay has been deserialized.");
+		//re-init our transient objects
+		sakaiProxy = getSakaiProxy();
+	}
+
+	
+	private SakaiProxy getSakaiProxy() {
+		return Locator.getSakaiProxy();
 	}
 	
 }
