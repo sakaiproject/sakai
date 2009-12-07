@@ -29,7 +29,7 @@
                     components/emailtemplateservice-pack;
                     components/coursemanagement-hibernate-pack;
                     components/gradebook-service-pack;
-                    components/sakai-msgcntr-component;
+                    components/msgcntr-component;
                     components/sakai-common-components;
                     components/sakai-privacy-pack;
                     components/samigo-pack;
@@ -72,7 +72,7 @@
                 </dependency>
                 <dependency>
                     <groupId>org.sakaiproject.msgcntr</groupId>
-                    <artifactId>sakai-messageforums-assembly</artifactId>
+                    <artifactId>messageforums-assembly</artifactId>
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
@@ -106,7 +106,7 @@
                     components/gradebook-service-pack;
                     components/profile2-pack;
                     components/sakai-common-components;
-                    components/sakai-msgcntr-component;
+                    components/msgcntr-component;
                     components/sakai-privacy-pack;
                     components/samigo-pack;
                     components/search-pack;
@@ -149,7 +149,7 @@
                 </dependency>
                 <dependency>
                     <groupId>org.sakaiproject.msgcntr</groupId>
-                    <artifactId>sakai-messageforums-assembly</artifactId>
+                    <artifactId>messageforums-assembly</artifactId>
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
