@@ -281,7 +281,7 @@
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.msgcntr</groupId>
-                <artifactId>sakai-messageforums-assembly</artifactId>
+                <artifactId>messageforums-assembly</artifactId>
                 <version>${sakai.msgcntr.version}</version>
                 <classifier>tomcat-overlay</classifier>
                 <type>zip</type>
@@ -828,7 +828,7 @@
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-messageforums-api</artifactId>
+                <artifactId>messageforums-api</artifactId>
                 <version>${sakai.msgcntr.version}</version>
                 <scope>provided</scope>
             </dependency>
