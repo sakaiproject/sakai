@@ -75,68 +75,45 @@
       		<scope>provided</scope>
     	</dependency>
 	   
-    	
+	   <!-- Sakai 2.5.x specific dependencies -->
+	   <!--
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-component-api</artifactId>
+			<scope>provided</scope>
+    	</dependency>
+    	<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-site-api</artifactId>
+			<scope>provided</scope>
+    	</dependency>
+    	<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-tool-api</artifactId>
+			<scope>provided</scope>
+    	</dependency>
+    	<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-util</artifactId>
+			<version>${sakai.version}</version>
+    	</dependency>
+    	-->
+    
+		<!-- Sakai 2.6+ specific dependencies -->
+       	<dependency>
+           	<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-component-manager</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-util</artifactId>
+		</dependency>
+
 	</dependencies>
-	
-	
-	<profiles>
-        <profile>
-            <id>pre-K1</id>
-            <activation>
-	        	<file>
-	          		<missing>../master/../kernel-deploy/pom.xml</missing>
-	        	</file>
-	      	</activation>
-            <!-- Sakai 2.5.x specific dependencies -->
-			<dependencies>
-				<dependency>
-					<groupId>org.sakaiproject</groupId>
-					<artifactId>sakai-component-api</artifactId>
-					<scope>provided</scope>
-		    	</dependency>
-		    	<dependency>
-					<groupId>org.sakaiproject</groupId>
-					<artifactId>sakai-site-api</artifactId>
-					<scope>provided</scope>
-		    	</dependency>
-		    	<dependency>
-					<groupId>org.sakaiproject</groupId>
-					<artifactId>sakai-tool-api</artifactId>
-					<scope>provided</scope>
-		    	</dependency>
-		    	<dependency>
-					<groupId>org.sakaiproject</groupId>
-					<artifactId>sakai-util</artifactId>
-					<version>${sakai.version}</version>
-		    	</dependency>
-			</dependencies>
-        </profile>
-        <profile>
-            <id>K1</id>
-            <activation>
-	        	<file>
-	          		<exists>../master/../kernel-deploy/pom.xml</exists>
-	        	</file>
-	      	</activation>
-            <!-- Sakai 2.6+ specific dependencies -->
-            <dependencies>
-		        <dependency>
-		            <groupId>org.sakaiproject.kernel</groupId>
-		            <artifactId>sakai-kernel-api</artifactId>
-		        </dependency>
-		        <dependency>
-		            <groupId>org.sakaiproject.kernel</groupId>
-		            <artifactId>sakai-component-manager</artifactId>
-		        </dependency>
-		        <dependency>
-		            <groupId>org.sakaiproject.kernel</groupId>
-		            <artifactId>sakai-kernel-util</artifactId>
-		        </dependency>
-			</dependencies> 
-        </profile>
-    </profiles>
-	
-		
 	
 
 	<build>
