@@ -28,6 +28,7 @@ import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.ConfirmedFriendsDataProvider;
 import org.sakaiproject.profile2.tool.models.FriendAction;
+import org.sakaiproject.profile2.tool.pages.MyProfile;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
 import org.sakaiproject.profile2.tool.pages.windows.RemoveFriend;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -149,9 +150,18 @@ public class ConfirmedFriends extends Panel {
 		    	//is profile image allowed to be viewed by this user/friend?
 				final boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(friendUuid, privacy, currentUserUuid, friend);
 				
+				//image wrapper, links to profile
+		    	Link friendItem = new Link("friendPhotoWrap") {
+					private static final long serialVersionUID = 1L;
+					public void onClick() {
+						setResponsePage(new ViewProfile(friendUuid));
+					}
+				};
+				
 				//image
-				item.add(new ProfileImageRenderer("result-photo", friendUuid, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
-			
+				friendItem.add(new ProfileImageRenderer("result-photo", friendUuid, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
+				item.add(friendItem);
+				
 		    	//name and link to profile
 		    	Link profileLink = new Link("result-profileLink") {
 					private static final long serialVersionUID = 1L;

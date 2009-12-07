@@ -172,8 +172,17 @@ public class MySearch extends BasePage {
 		    	final String userUuid = searchResult.getUserUuid();
 		    	final String displayName = searchResult.getDisplayName();
 				
+		    	//image wrapper, links to profile
+		    	Link friendItem = new Link("friendPhotoWrap") {
+					private static final long serialVersionUID = 1L;
+					public void onClick() {
+						setResponsePage(new ViewProfile(userUuid));
+					}
+				};
+				
 				//image
-				item.add(new ProfileImageRenderer("result-photo", userUuid, searchResult.isProfileImageAllowed(), ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false));
+				friendItem.add(new ProfileImageRenderer("result-photo", userUuid, searchResult.isProfileImageAllowed(), ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false));
+				item.add(friendItem);
 		    	
 		    	//name and link to profile (if allowed or no link)
 		    	Link profileLink = new Link("result-profileLink") {

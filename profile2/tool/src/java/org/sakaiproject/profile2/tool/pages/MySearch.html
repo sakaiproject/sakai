@@ -77,7 +77,9 @@
 			
 			<div class="friendsList" wicket:id="searchResultsContainer">
 				<div wicket:id="results-list" class="friendsListItem">
-					<div class="friendsListPhoto" wicket:id="result-photo"/>
+					<a wicket:id="friendPhotoWrap">
+						<span class="friendsListPhoto" wicket:id="result-photo"/>
+					</a>
 			    	
 			    	<div class="friendsListInfo">
 			    		<a href="#" wicket:id="result-profileLink"><span wicket:id="result-name" class="friendsListInfoName">[name]</span></a>
