@@ -12,9 +12,9 @@
     <artifactId>msgcntr</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>components</module>
         <module>messageforums-api</module>
         <module>messageforums-app</module>
+        <module>messageforums-components</module>
         <module>messageforums-component-impl</module>
         <module>messageforums-hbm</module>
         <module>messageforums-help</module>
