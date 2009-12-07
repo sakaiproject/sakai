@@ -107,19 +107,19 @@
         <dependencies>
             <dependency>
                 <groupId>org.sakaiproject.msgcntr</groupId>
-                <artifactId>sakai-messageforums-api</artifactId>
+                <artifactId>messageforums-api</artifactId>
                 <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.msgcntr</groupId>
-                <artifactId>sakai-messageforums-component-impl
+                <artifactId>messageforums-component-impl
                 </artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.msgcntr</groupId>
-                <artifactId>sakai-messageforums-hbm</artifactId>
+                <artifactId>messageforums-hbm</artifactId>
                 <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>

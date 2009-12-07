@@ -3,13 +3,12 @@
   <modelVersion>4.0.0</modelVersion>
   <name>sakai-messageforums-hbm</name>
   <parent>
-    <artifactId>msgcntr</artifactId>
     <groupId>org.sakaiproject.msgcntr</groupId>
+    <artifactId>msgcntr</artifactId>
     <version>2.7.0-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
   </parent>
   <groupId>org.sakaiproject.msgcntr</groupId>
-  <artifactId>sakai-messageforums-hbm</artifactId>
+  <artifactId>messageforums-hbm</artifactId>
   <organization>
     <name>Sakai Project</name>
     <url>http://sakaiproject.org/</url>
@@ -26,7 +25,7 @@
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.msgcntr</groupId>
-      <artifactId>sakai-messageforums-api</artifactId>
+      <artifactId>messageforums-api</artifactId>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>

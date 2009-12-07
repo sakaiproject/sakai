@@ -11,17 +11,17 @@
             <outputDirectory>shared/lib</outputDirectory>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
-                <include>org.sakaiproject.msgcntr:sakai-messageforums-api:jar:*</include>
-                <include>org.sakaiproject.msgcntr:sakai-messageforums-hbm:jar:*</include>
-                <include>org.sakaiproject.msgcntr:sakai-messageforums-help:jar:*</include>
+                <include>org.sakaiproject.msgcntr:messageforums-api:jar:*</include>
+                <include>org.sakaiproject.msgcntr:messageforums-hbm:jar:*</include>
+                <include>org.sakaiproject.msgcntr:messageforums-help:jar:*</include>
             </includes>
         </dependencySet>
         <!-- stuff that goes into components -->
         <dependencySet>
-            <outputDirectory>components/sakai-messageforums-components</outputDirectory>
+            <outputDirectory>components/messageforums-components</outputDirectory>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
-                <include>org.sakaiproject.msgcntr:sakai-messageforums-components:war:*</include>
+                <include>org.sakaiproject.msgcntr:messageforums-components:war:*</include>
             </includes>
             <unpack>true</unpack>
         </dependencySet>
@@ -31,7 +31,7 @@
             <outputFileNameMapping>${artifact.artifactId}.war</outputFileNameMapping>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
-                <include>org.sakaiproject.msgcntr:sakai-messageforums-tool:war:*</include>
+                <include>org.sakaiproject.msgcntr:messageforums-tool:war:*</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>
