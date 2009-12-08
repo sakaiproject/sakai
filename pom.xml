@@ -62,7 +62,6 @@
                 <module>presence/presence-api/api</module>
                 <module>jobscheduler/scheduler-api</module>
                 <module>reference/library</module>
-                <module>sakai-mock</module>
                 <module>site</module>
                 <module>site-manage</module>
                 <module>tool</module>
@@ -120,7 +119,6 @@
                 <module>rights</module>
                 <module>roster</module>
                 <module>rwiki</module>
-                <module>sakai-mock</module>
                 <module>samples</module>
                 <module>sections</module>
                 <module>site</module>
@@ -183,7 +181,6 @@
                 <module>rights</module>
                 <module>roster</module>
                 <module>rwiki</module>
-                <module>sakai-mock</module>
                 <module>samples</module>
                 <module>sections</module>
                 <module>site</module>
@@ -226,7 +223,6 @@
                 <module>portal</module>
                 <module>presence/presence-api/api</module>
                 <module>reference</module>
-                <module>sakai-mock</module>
                 <module>site</module>
                 <module>site-manage</module>
                 <module>tool</module>
