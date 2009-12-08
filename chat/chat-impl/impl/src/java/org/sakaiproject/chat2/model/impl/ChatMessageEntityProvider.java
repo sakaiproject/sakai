@@ -84,6 +84,10 @@ public class ChatMessageEntityProvider implements CoreEntityProvider,
 			return context;
 		}
 
+		public void setContext(String context) {
+			this.context = context;
+		}
+	
 		public String getOwner() {
 			return owner;
 		}
@@ -153,8 +157,17 @@ public class ChatMessageEntityProvider implements CoreEntityProvider,
 
 		SimpleChatMessage inmsg = (SimpleChatMessage) entity;
 
-		ChatChannel channel = chatManager.getChatChannel(inmsg.getChatChannelId());
-
+		String channelId = inmsg.getChatChannelId();
+		String context = inmsg.getContext();
+		
+		ChatChannel channel = null;
+		
+		if (channelId != null) {
+			channel = chatManager.getChatChannel(channelId);
+		} else if (context != null) {
+			channel = chatManager.getDefaultChannel(context, null);
+		}
+		
 		if (channel == null) {
 			throw new IllegalArgumentException("Invalid channel id");
 		}

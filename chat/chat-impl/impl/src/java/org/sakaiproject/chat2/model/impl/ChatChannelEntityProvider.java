@@ -34,6 +34,7 @@ public class ChatChannelEntityProvider implements CoreEntityProvider, AutoRegist
 		private String context;
 		private String title;
 		private String description;
+		private boolean defaultForContext;
 		
 		public SimpleChatChannel()
 		{
@@ -46,6 +47,7 @@ public class ChatChannelEntityProvider implements CoreEntityProvider, AutoRegist
 			this.context = channel.getContext();
 			this.title = channel.getTitle();
 			this.description = channel.getDescription();
+			this.defaultForContext = false;
 		}
 		
 		public String getId() {
@@ -74,6 +76,14 @@ public class ChatChannelEntityProvider implements CoreEntityProvider, AutoRegist
 		}
 		public String getDescription() {
 			return description;
+		}
+
+		public void setDefaultForContext(boolean defaultForContext) {
+			this.defaultForContext = defaultForContext;
+		}
+
+		public boolean isDefaultForContext() {
+			return defaultForContext;
 		}
 
 	}
@@ -141,11 +151,17 @@ public class ChatChannelEntityProvider implements CoreEntityProvider, AutoRegist
         	String location = locRes.getStringValue();
         	String context = new EntityReference(location).getId();
             
+        	ChatChannel defaultChannel = getChatManager().getDefaultChannel(context, null);
+        	
 			List<ChatChannel> contextChannels = getChatManager().getContextChannels(context, true);
 		
 			for (ChatChannel c : contextChannels) {
 	        	if (getChatManager().getCanReadMessage(c)) {
-	        		channels.add(new SimpleChatChannel(c));
+	        		SimpleChatChannel sc = new SimpleChatChannel(c);
+	        		if (defaultChannel != null && sc.getId().equals(defaultChannel.getId())) {
+	        			sc.setDefaultForContext(true);
+	        		}
+	        		channels.add(sc);
 	        	}
 			}
         }
