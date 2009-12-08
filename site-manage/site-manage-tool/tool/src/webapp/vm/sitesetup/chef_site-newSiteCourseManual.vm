@@ -41,14 +41,14 @@
 				#end
 				#foreach($id in $!manualCourseList)
 					<p class="indnt2">
-						$id <span class="highlight">$tlang.getString("man.requested")</span>
+						$id $tlang.getString("man.requested")
 					</p>
 				#end
 			#end
 			#if ($!editSite)
 							#foreach($section in $!cmRequestedSections)
 								<p class="indnt2">
-										$section.title <span class="highlight">$tlang.getString("man.requested")</span>
+										$section.title $tlang.getString("man.requested")
 								</p>
 							#end
 				#end
@@ -75,7 +75,7 @@
 							#foreach($section in $!cmRequestedSections)
 								<tr>
 									<td>
-											$section.title
+											$section.title $tlang.getString("man.requested")
 									</td>
 									<td>
 										<span class="itemAction">
@@ -92,7 +92,7 @@
 							#foreach($s in $!cmSelectedSections)
 								<tr>
 									<td>
-										$s.title
+										$s.title $tlang.getString("man.requested")
 									</td>
 									<td>
 									<span class="itemAction">

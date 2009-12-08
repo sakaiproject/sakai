@@ -87,13 +87,7 @@ function submitRemoveSection(index){
 					#set ($selectedProviderCourse-num=1)
 					$!selectedProviderCourseTitles.get($item)
 					</td>
-					<td>
-					<!-- Remove Section -->
-					
-					##gsilver: am surprised this works at all, the ids may not be valid
-					<span class="itemAction"><a href="#" onclick="javascript:submitRemoveSection('$item');">$tlang.getString("sinfo.removeSections")</a></span>
-					<input type="hidden" id="removeSection$item" name="removeSection$item" value="" />
-				</td></tr>
+				</tr>
 			#end
 			<tr>
 				<td style="height:0;display:none">
@@ -104,35 +98,41 @@ function submitRemoveSection(index){
 			</tr>
 			#end								
 		#end
+		#foreach($id in $!providerCourseTitles.keys())
+			<tr>
+				<td style="padding-left:1em">
+					$!providerCourseTitles.get($id)
+				</td>
+			</tr>
+		#end
 		#if ($!cmAuthorizerSections || $!cmRequestedSections || $!manualAddNumber)
 			<tr class="exclude"><td colspan="2" style="padding:.4em 0">
 			<h4><span class="instruction">$tlang.getString("sinfo.requestedSections")</span></h4>
 			#foreach ($sect in $!cmRequestedSections)
 				<tr>
 					<td style="padding-left:1em">
-						$sect.title
-					</td>
-					<td>
-						<!-- Remove Section -->
-						<span class="itemAction"><a href="#" onclick="javascript:submitRemoveSection('$sect.eid');">$tlang.getString("sinfo.removeSections")</a></span>
-						<input type="hidden" id="removeSection$sect.eid" name="removeSection$sect.eid" value="" />
+						$sect.title $tlang.getString("man.requested")
 					</td>
 				</tr>	
 			#end
-   #foreach ($sect in $!cmAuthorizerSections)
-    <tr>
+		   #foreach ($sect in $!cmAuthorizerSections)
+		    	<tr>
 					<td style="padding-left:1em">
 						$sect.eid: $sect.title, $sect.categoryDescription (Pending approval by $sect.authorizer)
 					</td>
-					<td>
-						<span class="itemAction">
-							<a href="#" onclick="javascript:submitRemoveSection('$sect.eid');">$tlang.getString("sinfo.removeSections")</a>
-                            <input type="hidden" id="removeSection$sect.eid" name="removeSection$sect.eid" value="" />
-						</span>	
-					</td>
 				</tr>	
 			#end
-			#foreach ($k in [0..$manualAddNumber])
+			#if($existingSite)
+				#foreach($id in $!manualCourseList)
+						<tr>
+						<td style="padding-left:1em">
+							$id $tlang.getString("man.requested")
+						</td>
+						</tr>
+				#end
+			#else
+				## for new site
+				#foreach ($k in [0..$manualAddNumber])
 					#set($courseFieldValues = $!fieldValues.get($k))
 					#set($bound = $!form_requiredFields.size())
 					#set($bound = $bound - 1)
@@ -143,15 +143,10 @@ function submitRemoveSection(index){
 							#set($courseFieldString=$courseFieldString.concat($!courseFieldValues.get($fieldCount).getValue()).concat(" "))
 						#end
 						#set($courseFieldString=$courseFieldString.trim())
-						$courseFieldString
-					</td>
-					<td>
-						<span class="itemAction">
-							<a href="#" onclick="javascript:submitRemoveSection('$!courseFieldString');">$tlang.getString("sinfo.removeSections")</a>
-                            <input type="hidden" id="removeSection$!courseFieldString" name="removeSection$!courseFieldString" value="" />
-						</span>	
+						$courseFieldString $tlang.getString("man.requested")
 					</td>
 					</tr>
+			#end
 			#end
 		#end
 		</table>

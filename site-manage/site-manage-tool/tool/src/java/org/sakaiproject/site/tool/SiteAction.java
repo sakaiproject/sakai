@@ -2063,6 +2063,9 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("manualAddFields", state
 							.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS));
 				} else {
+					if (site != null)
+						coursesIntoContext(state, context, site);
+
 					if (courseManagementIsImplemented()) {
 					} else {
 						context.put("templateIndex", "37");
@@ -2759,6 +2762,10 @@ public class SiteAction extends PagedResourceActionII {
 			{
 				context.put("cmSelectedSections", state.getAttribute(STATE_CM_SELECTED_SECTIONS));
 			}
+			if (state.getAttribute(STATE_CM_REQUESTED_SECTIONS) != null)
+			{
+				context.put("cmRequestedSections", state.getAttribute(STATE_CM_REQUESTED_SECTIONS));
+			}
 			if (state.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER) != null) {
 				int addNumber = ((Integer) state
 						.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER))
@@ -2838,7 +2845,7 @@ public class SiteAction extends PagedResourceActionII {
 				cmLevels = getCMLevelLabels();
 			}
 
-			SectionObject selectedSect = (SectionObject) state
+			List<SectionObject> selectedSect = (List<SectionObject>) state
 					.getAttribute(STATE_CM_SELECTED_SECTION);
 			List<SectionObject> requestedSections = (List<SectionObject>) state
 					.getAttribute(STATE_CM_REQUESTED_SECTIONS);
@@ -2877,8 +2884,26 @@ public class SiteAction extends PagedResourceActionII {
 				}
 				// always set the top level 
 				Set<CourseSet> courseSets = filterCourseSetList(cms.getCourseSets());
-				
-				levelOpts[0] = sortCmObject(courseSets);
+				// if the level of selection is greater than 3(CourseSet, CourseOffering, Section), which means that we need to choose from the CourseSet Hierarchy, too
+				// then choose from CourseSet Categories first
+				if (cmLevelSize > 3)
+				{
+					List<String> courseSetCategories = new Vector<String>();
+					for(CourseSet cSet : courseSets)
+					{
+						String cSetCategory = cSet.getCategory();
+						if (cSetCategory != null && !courseSetCategories.contains(cSetCategory))
+						{
+							courseSetCategories.add(cSetCategory);
+						}
+					}
+					Collections.sort(courseSetCategories);
+					levelOpts[0] = courseSetCategories;
+				}
+				else
+				{
+					levelOpts[0] = sortCmObject(courseSets);
+				}
 				// clean further element inside the array
 				for (int i = numSelections + 1; i<cmLevelSize; i++)
 				{
@@ -2886,6 +2911,8 @@ public class SiteAction extends PagedResourceActionII {
 				}
 
 				context.put("cmLevelOptions", Arrays.asList(levelOpts));
+				context.put("cmBaseCourseSetLevel", Integer.valueOf((levelOpts.length-3) >= 0 ? (levelOpts.length-3) : 0)); // staring from that selection level, the lookup will be for CourseSet, CourseOffering, and Section
+				context.put("maxSelectionDepth", Integer.valueOf(levelOpts.length-1));
 				state.setAttribute(STATE_CM_LEVEL_OPTS, levelOpts);
 			}
 
@@ -2930,8 +2957,8 @@ public class SiteAction extends PagedResourceActionII {
 
 			context.put("authzGroupService", AuthzGroupService.getInstance());
 			
-			if (selectedSect !=null){
-				context.put("value_uniqname", selectedSect.getAuthorizer());
+			if (selectedSect !=null && !selectedSect.isEmpty()){
+				context.put("value_uniqname", selectedSect.get(0).getAuthorizer());
 			}
 			else {
 				context.put("value_uniqname", "");
@@ -3523,7 +3550,7 @@ public class SiteAction extends PagedResourceActionII {
 	}
 
 	private void courseListFromStringIntoContext(SessionState state, Context context, Site site, String site_prop_name, String state_attribute_string, String context_string) {
-		String courseListString = StringUtil.trimToNull(site.getProperties().getProperty(site_prop_name));
+		String courseListString = StringUtil.trimToNull(site != null?site.getProperties().getProperty(site_prop_name):null);
 		if (courseListString != null) {
 			List courseList = new Vector();
 			if (courseListString.indexOf("+") != -1) {
@@ -4558,7 +4585,7 @@ public class SiteAction extends PagedResourceActionII {
 				addAlert(state, rb.getString("java.miss"));
 			} 
 			// valid input, adjust the add course number
-			state.setAttribute(STATE_MANUAL_ADD_COURSE_NUMBER, new Integer(	validInputSites>1?validInputSites:1));
+			state.setAttribute(STATE_MANUAL_ADD_COURSE_NUMBER, new Integer(	validInputSites>1?validInputSites:1)); 
 		}
 
 		// set state attributes
@@ -4569,27 +4596,29 @@ public class SiteAction extends PagedResourceActionII {
 		if (state.getAttribute(STATE_SITE_INFO) != null) {
 			siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
 		}
-		List providerCourseList = (List) state
-				.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN);
-		// store the manually requested sections in one site property
-		if ((providerCourseList == null || providerCourseList.size() == 0)
-				&& multiCourseInputs.size() > 0) {
-			AcademicSession t = (AcademicSession) state
-					.getAttribute(STATE_TERM_SELECTED);
-			String sectionEid = sectionFieldProvider.getSectionEid(t.getEid(),
-					(List) multiCourseInputs.get(0));
-			// default title
-			String title = sectionFieldProvider.getSectionTitle(t.getEid(), (List) multiCourseInputs.get(0));
-			try {
-				Section s = cms.getSection(sectionEid);
-				title = s != null?s.getTitle():title;
-			} catch (IdNotFoundException e) {
-				// cannot find section, use the default title 
-				M_log.warn(this + ":readCourseSectionInfo: cannot find section with eid=" + sectionEid);
+		if (siteInfo.title == null || siteInfo.title.length() == 0)
+		{
+			// if SiteInfo doesn't have title, construct the title
+			List providerCourseList = (List) state
+					.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN);
+			AcademicSession t = (AcademicSession) state.getAttribute(STATE_TERM_SELECTED);
+			if ((providerCourseList == null || providerCourseList.size() == 0)
+					&& multiCourseInputs.size() > 0) {
+				String sectionEid = sectionFieldProvider.getSectionEid(t.getEid(),
+						(List) multiCourseInputs.get(0));
+				// default title
+				String title = sectionFieldProvider.getSectionTitle(t.getEid(), (List) multiCourseInputs.get(0));
+				try {
+					Section s = cms.getSection(sectionEid);
+					title = s != null?s.getTitle():title;
+				} catch (IdNotFoundException e) {
+					// cannot find section, use the default title 
+					M_log.warn(this + ":readCourseSectionInfo: cannot find section with eid=" + sectionEid);
+				}
+				siteInfo.title = title;
+				state.setAttribute(STATE_SITE_INFO, siteInfo);
 			}
-			siteInfo.title = title;
 		}
-		state.setAttribute(STATE_SITE_INFO, siteInfo);
 
 	} // readCourseSectionInfo
 
@@ -7699,9 +7728,9 @@ public class SiteAction extends PagedResourceActionII {
 				if (gProviderId != null)
 				{ 
 					if ((manualCourseSectionList== null && cmRequestedCourseList == null)
-						|| (manualCourseSectionList != null && !manualCourseSectionList.contains(gProviderId) && cmRequestedCourseList == null)
-						|| (manualCourseSectionList == null && cmRequestedCourseList != null && !cmRequestedCourseList.contains(gProviderId))
-						|| (manualCourseSectionList != null && !manualCourseSectionList.contains(gProviderId) && cmRequestedCourseList != null && !cmRequestedCourseList.contains(gProviderId)))
+						|| (manualCourseSectionList != null && !listContainsString(manualCourseSectionList, gProviderId) && cmRequestedCourseList == null)
+						|| (manualCourseSectionList == null && cmRequestedCourseList != null && !listContainsString(cmRequestedCourseList, gProviderId))
+						|| (manualCourseSectionList != null && !listContainsString(manualCourseSectionList, gProviderId) && cmRequestedCourseList != null && !listContainsString(cmRequestedCourseList, gProviderId)))
 					{
 						AuthzGroupService.removeAuthzGroup(group.getReference());
 					}
@@ -7739,13 +7768,51 @@ public class SiteAction extends PagedResourceActionII {
 		}
 	} // updateCourseClasses
 
+	/**
+	 * test whether 
+	 * @param list
+	 * @param providerId
+	 * @return
+	 */
+	boolean listContainsString(List list, String s)
+	{
+		boolean rv = false;
+		if (list != null && !list.isEmpty() && s != null && s.length() != 0)
+		{
+			for (Object o : list)
+			{
+				// deals with different object type
+				if (o instanceof SectionObject)
+				{
+					rv = ((SectionObject) o).getEid().equals(s);
+				}
+				else if (o instanceof String)
+				{
+					rv = ((String) o).equals(s);
+				}
+				
+				// exit when find match
+				if (rv)
+					break;
+			}
+		}
+		return rv;
+	}
 	private void setSiteSectionProperty(List courseSectionList, Site site, String propertyName) {
 		if ((courseSectionList != null) && (courseSectionList.size() != 0)) {
 			// store the requested sections in one site property
 			String sections = "";
 			for (int j = 0; j < courseSectionList.size();) {
-				sections = sections
-						+ (String) courseSectionList.get(j);
+				if (courseSectionList.get(j) instanceof SectionObject)
+				{
+					SectionObject so = (SectionObject) courseSectionList.get(j);
+					sections = sections + so.getEid();
+				}
+				else if (courseSectionList.get(j) instanceof String)
+				{
+					sections = sections + (String) courseSectionList.get(j);
+				}
+					
 				j++;
 				if (j < courseSectionList.size()) {
 					sections = sections + "+";
@@ -11035,8 +11102,11 @@ public class SiteAction extends PagedResourceActionII {
 
 		if (cms != null) {
 			Set sections = cms.getSections(offeringEid);
-			Collection c = sortCmObject(new ArrayList(sections));
-			return (List) c;
+			if (sections != null)
+			{
+				Collection c = sortCmObject(new ArrayList(sections));
+				return (List) c;
+			}
 		}
 
 		return new ArrayList(0);
@@ -11051,13 +11121,16 @@ public class SiteAction extends PagedResourceActionII {
 			Set offerings = cms.getCourseOfferingsInCourseSet(subjectEid);// ,
 			// termID);
 			ArrayList returnList = new ArrayList();
-			Iterator coIt = offerings.iterator();
-
-			while (coIt.hasNext()) {
-				CourseOffering co = (CourseOffering) coIt.next();
-				AcademicSession as = co.getAcademicSession();
-				if (as != null && as.getEid().equals(termID))
-					returnList.add(co);
+			if (offerings != null)
+			{
+				Iterator coIt = offerings.iterator();
+	
+				while (coIt.hasNext()) {
+					CourseOffering co = (CourseOffering) coIt.next();
+					AcademicSession as = co.getAcademicSession();
+					if (as != null && as.getEid().equals(termID))
+						returnList.add(co);
+				}
 			}
 			Collection c = sortCmObject(returnList);
 
@@ -11071,13 +11144,18 @@ public class SiteAction extends PagedResourceActionII {
 		List<String> rv = new Vector<String>();
 		Set courseSets = cms.getCourseSets();
 		String currentLevel = "";
-		
 		if (courseSets != null)
 		{
-			// CourseSet, CourseOffering and Section are three levels in CourseManagementService
-			rv.add(rb.getString("cm.level.courseSet"));
-			rv.add(rb.getString("cm.level.course"));
-			rv.add(rb.getString("cm.level.section"));
+			// Hieriarchy of CourseSet, CourseOffering and Section are multiple levels in CourseManagementService
+			if (courseSets != null)
+			{
+				// Hieriarchy of CourseSet, CourseOffering and Section are multiple levels in CourseManagementService
+				List<SectionField> sectionFields = sectionFieldProvider.getRequiredFields();
+				for (SectionField field : sectionFields)
+				{
+					rv.add(field.getLabelKey());
+				}
+			}
 		}
 		return rv;
 	}
@@ -11131,15 +11209,24 @@ public class SiteAction extends PagedResourceActionII {
 				return;
 			}
 		
-			if (selections != null && selections.size() == lvlSz) {
-				Section sect = cms.getSection((String) selections.get(selections
-						.size() - 1));
-				if (sect != null)
+			if (selections != null && selections.size() >= lvlSz) {
+				// multiple selections for the section level
+				List<SectionObject> soList = new Vector<SectionObject>();
+				for (int k = cmLevels.size() -1; k < selections.size(); k++)
 				{
-					SectionObject so = new SectionObject(sect);
-			
-					state.setAttribute(STATE_CM_SELECTED_SECTION, so);
+					String string = (String) selections.get(k);
+					if (string != null && string.length() > 0)
+					{
+						Section sect = cms.getSection(string);
+						if (sect != null)
+						{
+							SectionObject so = new SectionObject(sect);
+							soList.add(so);
+						}
+					}
 				}
+				
+				state.setAttribute(STATE_CM_SELECTED_SECTION, soList);
 			} else
 				state.removeAttribute(STATE_CM_SELECTED_SECTION);
 		
@@ -11154,63 +11241,67 @@ public class SiteAction extends PagedResourceActionII {
 	}
 
 	private void addRequestedSection(SessionState state) {
-		SectionObject so = (SectionObject) state
+		List<SectionObject> soList = (List<SectionObject>) state
 				.getAttribute(STATE_CM_SELECTED_SECTION);
 		String uniqueName = (String) state
 				.getAttribute(STATE_SITE_QUEST_UNIQNAME);
 
-		if (so == null)
+		if (soList == null || soList.isEmpty())
 			return;
-		so.setAuthorizer(uniqueName);
 		
 		if (getStateSite(state) == null)
 		{
 			// creating new site
 			List<SectionObject> requestedSections = (List<SectionObject>) state.getAttribute(STATE_CM_REQUESTED_SECTIONS);
-	
-			if (requestedSections == null) {
-				requestedSections = new ArrayList<SectionObject>();
-			}
-	
-			// don't add duplicates
-			if (!requestedSections.contains(so))
-				requestedSections.add(so);
-	
-			// if the title has not yet been set and there is just
-			// one section, set the title to that section's EID
-			if (requestedSections.size() == 1) {
-				SiteInfo siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
-	
-				if (siteInfo == null) {
-					siteInfo = new SiteInfo();
+		
+			for (SectionObject so : soList)
+			{
+				so.setAuthorizer(uniqueName);
+		
+				if (requestedSections == null) {
+					requestedSections = new ArrayList<SectionObject>();
 				}
-	
-				if (siteInfo.title == null || siteInfo.title.trim().length() == 0) {
-					siteInfo.title = so.getEid();
-				}
-	
-				state.setAttribute(STATE_SITE_INFO, siteInfo);
+		
+				// don't add duplicates
+				if (!requestedSections.contains(so))
+					requestedSections.add(so);
 			}
 	
 			state.setAttribute(STATE_CM_REQUESTED_SECTIONS, requestedSections);
 			state.removeAttribute(STATE_CM_SELECTED_SECTION);
+			
+			// if the title has not yet been set and there is just
+			// one section, set the title to that section's EID
+			SiteInfo siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
+			if (siteInfo == null) {
+				siteInfo = new SiteInfo();
+			}
+			if (siteInfo.title == null || siteInfo.title.trim().length() == 0) {
+				if (requestedSections.size() == 1) {
+					siteInfo.title = requestedSections.get(0).getTitle();
+					state.setAttribute(STATE_SITE_INFO, siteInfo);
+				}
+			}
 		}
 		else
 		{
-			// editing site
-			state.setAttribute(STATE_CM_SELECTED_SECTION, so);
+			// editing site		
+			for (SectionObject so : soList)
+			{
+				so.setAuthorizer(uniqueName);
 			
-			List<SectionObject> cmSelectedSections = (List<SectionObject>) state.getAttribute(STATE_CM_SELECTED_SECTIONS);
-			
-			if (cmSelectedSections == null) {
-				cmSelectedSections = new ArrayList<SectionObject>();
+				List<SectionObject> cmSelectedSections = (List<SectionObject>) state.getAttribute(STATE_CM_SELECTED_SECTIONS);
+				
+				if (cmSelectedSections == null) {
+					cmSelectedSections = new ArrayList<SectionObject>();
+				}
+		
+				// don't add duplicates
+				if (!cmSelectedSections.contains(so))
+					cmSelectedSections.add(so);
+				state.setAttribute(STATE_CM_SELECTED_SECTIONS, cmSelectedSections);
+				state.removeAttribute(STATE_CM_SELECTED_SECTION);
 			}
-	
-			// don't add duplicates
-			if (!cmSelectedSections.contains(so))
-				cmSelectedSections.add(so);
-			state.setAttribute(STATE_CM_SELECTED_SECTIONS, cmSelectedSections);
-			state.removeAttribute(STATE_CM_SELECTED_SECTION);
 		}
 		state.removeAttribute(STATE_CM_LEVEL_SELECTIONS);
 	}
@@ -11221,7 +11312,7 @@ public class SiteAction extends PagedResourceActionII {
 		final ParameterParser params = data.getParameters();
 		final String option = params.get("option");
 
-		if (option != null) 
+		if (option != null && option.length() > 0) 
 		{
 			if ("continue".equals(option)) 
 			{
@@ -11315,19 +11406,29 @@ public class SiteAction extends PagedResourceActionII {
 		final List selections = new ArrayList(3);
 
 		int cmLevel = getCMLevelLabels().size();
-		String deptChanged = params.get("deptChanged");
-		if ("true".equals(deptChanged)) {
-			// when dept changes, remove selection on courseOffering and
-			// courseSection
-			cmLevel = 1;
+		String cmLevelChanged = params.get("cmLevelChanged");
+		if ("true".equals(cmLevelChanged)) {
+			// when cm level changes, set the focus to the new level
+			String cmChangedLevel = params.get("cmChangedLevel");
+			cmLevel = cmChangedLevel != null ? Integer.valueOf(cmChangedLevel).intValue() + 1:cmLevel;
 		}
 		for (int i = 0; i < cmLevel; i++) {
-			String val = params.get("idField_" + i);
+			String[] val = params.getStrings("idField_" + i);
 
-			if (val == null || val.trim().length() < 1) {
+			if (val == null || val.length == 0) {
 				break;
 			}
-			selections.add(val);
+			if (val.length == 1)
+			{
+				selections.add(val[0]);
+			}
+			else
+			{
+				for (int k=0; k<val.length;k++)
+				{
+					selections.add(val[k]);
+				}
+			}
 		}
 
 		state.setAttribute(STATE_CM_LEVEL_SELECTIONS, selections);

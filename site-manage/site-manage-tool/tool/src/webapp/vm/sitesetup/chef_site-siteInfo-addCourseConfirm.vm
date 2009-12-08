@@ -45,11 +45,11 @@
 			</li>
 		#end
 	</ul>
-	#foreach ($c in $!cmSelectedSections)
+		#foreach ($c in $!cmSelectedSections)
 			<ul class="attachList indnt2">
-				## for cm request section based on course lookup
+				## for cm select section based on course lookup
 				<li>
-						$c.title
+						$c.title $tlang.getString("man.requested")
 					</li>
 			</ul>
 		#end	
@@ -63,6 +63,7 @@
 							#foreach ($fieldCount in [0..$!bound])
 								$!courseFieldValues.get($fieldCount).getValue()
 							#end
+							$tlang.getString("man.requested")
 						</li>
 				#end
 			</ul>

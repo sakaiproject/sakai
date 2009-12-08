@@ -14,13 +14,9 @@
 		return false;
 	}
 
-	function changeDept(level){
-		if (level == 0){
-			document.getElementById("deptChanged").value="true";
-		}
-		else{
-			document.getElementById("deptChanged").value="false";
-		}
+	function changeLevel(level){
+		document.getElementById("cmLevelChanged").value="true";
+		document.getElementById("cmChangedLevel").value=level;
 	}
 
 
@@ -38,7 +34,7 @@
 	</p>
 		
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
-		    #if ($selectedProviderCourse || $requestedSections)
+		   #if ($selectedProviderCourse || $cmRequestedSections)
 				<p class="instruction">
 					$tlang.getString("sitegen.addcourse.you")
 				</p>	
@@ -65,7 +61,7 @@
 							#foreach($section in $!cmRequestedSections)
 								<tr>
 									<td>
-											$section.Title
+											$section.Title $tlang.getString("man.requested")
 									</td>
 									<td>
 										<!-- Remove Section -->
@@ -80,7 +76,7 @@
 							#foreach($s in $!cmSelectedSections)
 								<tr>
 									<td>
-											$s.title
+											$s.title $tlang.getString("man.requested")
 									</td>
 									<td>
 										<!-- Remove Section -->
@@ -100,10 +96,11 @@
 	<form name = "findCourseForm" method="post" action="#toolForm($action)">
 		
 		<!-- loop through course identifier fields -->
-			<!-- these are place holders for the actual fields - they should
-			      be dynamically labelled based on the config. -->
-			#set ($i=0)
-			#foreach ($level in $cmLevels)
+		<!-- these are place holders for the actual fields - they should
+		      be dynamically labelled based on the config. -->
+		#set ($i=0)
+		#set($maxLevel = $cmLevels.size() - 1)
+		#foreach ($level in $cmLevels)
 		  <p class="shorttext">
 			  #set($fieldName="idField_$i")
 				<label for="id-$fieldName">
@@ -113,68 +110,85 @@
 			
 ##   Removed the manual entry page.  This is handled instead by template #37 from within
 ##   SiteAction.  This was preserved because of its ability to handle multiple levels
-##   of ID fields, whereas find course is spec'd to use only three levels:
+##   of ID fields, whereas find course is spec'd to use more than three levels:
+##			CourseSetCategories I
+##			CourseSetCategories II
+##			....
+##			CourseSetCategories X
 ##			CourseSet (filtered to match deployer configured category)
 ##			CourseOffering
 ##			Section
 ##
-##
-##			  #if ($manualEntry)
-##			    <!-- text entry field for manual entry-->
-##			  	<input type="text" name="$fieldName"
-##			  	#if ($cmLevelSelections.size() > $i)
-##				 value="$cmLevelSelections.get($i)"
-##				#end
-##				/>
-##				#if($i == 2 && $cmsAvailable)
-##				<a href="#" onclick="javascript:blur();document.findCourseForm.option.value='useCMS';document.findCourseForm.submit();">
-##				   $tlang.getString("nscourse.findCourse.useCMS")
-##				</a>
-##				#end
-##				
-##				<br/>
-##			  #else
 			  	<!-- use dropdown list to select from coursemanagement service provided options -->
-				  <input type=hidden name="deptChanged" id="deptChanged" value="false" />
+				  <input type=hidden name="cmLevelChanged" id="cmLevelChanged" value="false" />
+				  <input type=hidden name="cmChangedLevel" id="cmChangedLevel" value="-1" />
 				  #if ($i == 0 || $i < $cmLevelSelections.size() + 1)
-					  <select name="$fieldName" onchange="blur();changeDept($i);document.findCourseForm.submit();" id="id-$fieldName">
+					  <select name="$fieldName" id="id-$fieldName" 
+					  	#if ($i == $maxSelectionDepth) 
+					  		onchange="blur();document.findCourseForm.submit();" multiple 
+					  	#else
+					  		onchange="blur();changeLevel($i);document.findCourseForm.submit();"
+					  	#end>
 				  #else
-				  	  <select name="$fieldName" disabled="true" id="id$fieldName">
+				  	  <select name="$fieldName" disabled="true" id="id$fieldName" >
 				  #end
 				  <option value="">$tlang.getString("nscourse.findCourse.select")</option>
-				  #if ($i < $cmLevelOptions.size())
-					#if ($i < $cmLevelSelections.size())
-						#set ($selectedItem = $cmLevelSelections.get($i))
-					#end
-				      #foreach ($coursething in $cmLevelOptions.get($i))
-					    <option value="$coursething.eid" 
-					    #if ($i < $cmLevelSelections.size() && $coursething.eid == $selectedItem) 
-					    	selected="true" 
+					#if ($i < $cmLevelOptions.size())
+					    #if ($i < $cmLevelSelections.size())
+							#set ($selectedItem = $cmLevelSelections.get($i))
 					    #end
-					    >
-						        $coursething.title 
-					    </option>
-				      #end
-				  #end
+                        #foreach ($coursething in $cmLevelOptions.get($i))
+					        #if ($i < $!cmBaseCourseSetLevel)
+					     		## at the level of CourseSet category selections
+								<option value="$coursething" 
+						    		#if ($coursething == $selectedItem) 
+						    			selected="true" 
+						    		#end
+						    	>
+							        $coursething
+						    	</option>
+							#else
+								## down at the final three levels: CourseSet, CourseOffering, Section
+						    	<option value="$coursething.eid" 
+						    		#if (($i == $maxLevel && $cmLevelSelections.lastIndexOf($coursething.eid) >= $i) || ($i < $maxLevel && $coursething.eid == $selectedItem))						   ###if ($i < $cmLevelSelections.size() && $!selectedItem.contains($coursething.eid))) 
+						    			selected="true" 
+						    		#end
+						    	>
+									$coursething.title 
+						    	</option>
+							#end
+				    	#end
+				     #end
 			      <!-- end population of select options -->
-				      </select>
-##			  #end
+				  </select>
 	      </p>
 			  <!-- end creation of select box -->
 			  #set($i = $i + 1)
 		   #end
-		    $tlang.getString("nscourse.findCourse.selected")
-			<span class="highlight">
+		   <div class="shorttext">
+		   	<label for ="selectedSections">
+		    	$tlang.getString("nscourse.findCourse.selected")
+		    </label>
+			<span class="highlight" id="selectedSections">
 			  #if ($selectedCourse)
-			        $selectedCourse.title
-						     #set($authGroupSet=$!authzGroupService.getAuthzGroupIds($selectedCourse.eid))
-											#if ($!authGroupSet && !$!authGroupSet.isEmpty())
-												$tlang.getString("nscourse.site_exists") <a href="#" onclick="javascript:document.getElementById('continueButton').disabled=false;document.getElementById('sectionInfo').style.display = 'block';utils.resizeFrame();">$tlang.getString("nscourse.select_anyways")</a></span>
-											#end
-			    #else
-				    None
-			    #end
+			  	<table class="listHier lines nolines indnt1" style="width:auto" border="0">
+				  	#foreach($course in $selectedCourse)
+				        <tr>
+				        	<td>
+				        		$course.title $tlang.getString("man.requested")
+				        		#set($authGroupSet=$!authzGroupService.getAuthzGroupIds($selectedCourse.eid))
+								#if ($!authGroupSet && !$!authGroupSet.isEmpty())
+									$tlang.getString("nscourse.site_exists") <a href="#" onclick="javascript:document.getElementById('continueButton').disabled=false;document.getElementById('sectionInfo').style.display = 'block';utils.resizeFrame();">$tlang.getString("nscourse.select_anyways")</a></span>
+								#end
+							</td>
+						</tr>
+					#end
+				</table>
+			  #else
+				$tlang.getString("java.none")
+			  #end
 		 	</span>
+		 </div>
 		<div id="sectionInfo" #if ($selectedCourse && !($!authGroupSet && !$!authGroupSet.isEmpty())) style="display:block;clear:both" #else style="display:none" #end>
 
 					<div class="shorttext required">

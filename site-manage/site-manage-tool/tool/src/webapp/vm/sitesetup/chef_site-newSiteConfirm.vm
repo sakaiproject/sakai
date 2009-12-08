@@ -42,14 +42,15 @@
 						#set($bound = $bound - 1)
 						<li>
 							#foreach ($fieldCount in [0..$!bound])
-								$!courseFieldValues.get($fieldCount).getValue()
+								$!courseFieldValues.get($fieldCount).getValue() 
 							#end
+							$tlang.getString("man.requested")
 						</li>
 				#end
 		#end
 			#foreach ($sect in $!selectedRequestedCourse)
 				<li>
-					$sect.title
+					$sect.title $tlang.getString("man.requested")
 				</li>
 				#end
 			#foreach ($item in $!selectedAuthorizerCourse)
