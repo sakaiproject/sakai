@@ -255,9 +255,9 @@
                 <version>2.7.0-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.mock</groupId>
                 <artifactId>sakai-mock</artifactId>
-                <version>2.7.0-SNAPSHOT</version>
+                <version>2.7.0-b01</version>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject</groupId>
