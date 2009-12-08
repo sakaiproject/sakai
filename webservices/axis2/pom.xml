@@ -173,9 +173,9 @@
 <!--org.sakaiprojectsakai-entity-api${sakai.version}-->
 <!--org.sakaiprojectsakai-event-api${sakai.version}-->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.mock</groupId>
       <artifactId>sakai-mock</artifactId>
-      <version>${sakai.version}</version>
+      <version>${sakai.sakai-mock.version}</version>
     </dependency>
 <!--org.sakaiprojectsakai-site-api${sakai.version}-->
 <!--org.sakaiprojectsakai-tool-api${sakai.version}-->
