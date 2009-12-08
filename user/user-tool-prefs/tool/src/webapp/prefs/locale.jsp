@@ -7,8 +7,16 @@
 
 <f:view>
 	<sakai:view_container title="#{msgs.prefs_title}">
+	<sakai:stylesheet path="/css/prefs.css"/>
 	<sakai:view_content>
 		<h:form id="locale_form">
+		<script type="text/javascript" language="JavaScript" src="/library/js/jquery.js"></script>
+		<script type="text/javascript" language="JavaScript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
+		<script type="text/javascript">
+			$(document).ready(function(){
+				setupPrefsGen();
+			});
+		</script>
 
 				
 				<%--h:outputText value="User ID: "/><h:inputText value="#{AdminPrefsTool.userId}" /--%>	
@@ -49,14 +57,16 @@
 	
 				<sakai:messages />
 				
-				<h3><h:outputText value="#{msgs.prefs_lang_title}" /></h3>
+				<h3>
+					<h:outputText value="#{msgs.prefs_lang_title}" />
+					<h:panelGroup rendered="#{UserPrefsTool.locUpdated}" style="margin:0 3em;font-weight:normal">
+						<jsp:include page="prefUpdatedMsg.jsp"/>	
+					</h:panelGroup>
+				</h3>
 
-				<h:panelGroup rendered="#{UserPrefsTool.locUpdated}">
-					<jsp:include page="prefUpdatedMsg.jsp"/>	
-				</h:panelGroup>
 
 				
-				<p class="instruction"><h:outputText value="#{msgs.locale_msg}"/> <h:outputText value="#{UserPrefsTool.selectedLocaleName}"/></p>
+				<p class="instruction"><h:outputText value="#{msgs.locale_msg}"/> <h:outputText value="#{UserPrefsTool.selectedLocaleName}"  styleClass="highlight" style="font-weight:bold !important;"/></p>
 				
     			 <h:selectOneListbox 
                       value="#{UserPrefsTool.selectedLocaleString}"
@@ -64,8 +74,10 @@
 				    <f:selectItems value="#{UserPrefsTool.prefLocales}" />
 				 </h:selectOneListbox>
 			    <div class="act">
-				    <h:commandButton accesskey="s" id="submit" styleClass="active" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionLocSave}"></h:commandButton>
-					<h:commandButton accesskey="x" id="cancel"  value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionLocCancel}"></h:commandButton>
+				    <h:commandButton accesskey="s" id="submit" styleClass="active formButton" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionLocSave}"></h:commandButton>
+					<h:commandButton accesskey="x" id="cancel"  styleClass="formButton" value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionLocCancel}"></h:commandButton>
+					<h:commandButton type="button"  styleClass="dummy blocked" value="#{msgs.update_pref}" style="display:none"></h:commandButton>
+					<h:commandButton type="button"  styleClass="dummy blocked" value="#{msgs.cancel_pref}" style="display:none"></h:commandButton>
 			    </div>
 		 </h:form>
 	</sakai:view_content>

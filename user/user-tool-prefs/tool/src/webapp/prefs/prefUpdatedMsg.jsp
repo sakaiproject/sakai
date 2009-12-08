@@ -2,5 +2,5 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %> 
  
-<h:outputText styleClass="information" value="#{msgs.update_success}" />
+<h:outputText styleClass="messageSuccess success" value="#{msgs.update_success}" style="display:inline"/>
 

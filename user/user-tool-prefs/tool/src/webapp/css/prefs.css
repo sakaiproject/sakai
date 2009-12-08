@@ -1,0 +1,9 @@
+.blocked {
+    opacity: 0.2;
+    filter: alpha( opacity = 20);
+	cursor:text !important;
+	outline:none;
+}
+.blocked img {
+    filter: alpha( opacity = 20);
+}

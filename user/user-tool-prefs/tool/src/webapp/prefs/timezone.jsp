@@ -7,8 +7,17 @@
 
 <f:view>
 	<sakai:view_container title="#{msgs.prefs_title}">
+    <sakai:stylesheet path="/css/prefs.css"/>
 	<sakai:view_content>
 		<h:form id="timezone_form">
+		<script type="text/javascript" language="JavaScript" src="/library/js/jquery.js"></script>
+		<script type="text/javascript" language="JavaScript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
+		<script type="text/javascript">
+			$(document).ready(function(){
+				setupPrefsGen();
+			})  
+		</script>
+
 
 				
 				<%--h:outputText value="User ID: "/><h:inputText value="#{AdminPrefsTool.userId}" /--%>	
@@ -48,15 +57,17 @@
 				
 
 
+				
 				<sakai:messages />
-				
-				<h3><h:outputText value="#{msgs.prefs_timezone_title}" /></h3>
+				<h3>
+					<h:outputText value="#{msgs.prefs_timezone_title}" />
+					<h:panelGroup rendered="#{UserPrefsTool.tzUpdated}"   style="margin:0 3em;font-weight:normal">
+						<jsp:include page="prefUpdatedMsg.jsp"/>	
+					</h:panelGroup>
+				</h3>
 
-				<h:panelGroup rendered="#{UserPrefsTool.tzUpdated}">
-					<jsp:include page="prefUpdatedMsg.jsp"/>	
-				</h:panelGroup>
 				
-				<p class="instruction"><h:outputText value="#{msgs.time_inst_1}"/> <h:outputText value="#{UserPrefsTool.selectedTimeZone}"/> <h:outputText value="#{msgs.time_inst_2}"/></p>
+				<p class="instruction"><h:outputText value="#{msgs.time_inst_1}"/> <h:outputText value="#{UserPrefsTool.selectedTimeZone}" styleClass="highlight" style="font-weight:bold !important;"/> <h:outputText value="#{msgs.time_inst_2}"/></p>
 					
     			 <h:selectOneListbox 
                       value="#{UserPrefsTool.selectedTimeZone}"
@@ -65,8 +76,11 @@
 				 </h:selectOneListbox>
 
 			    <div class="act">
-			    <h:commandButton accesskey="s" id="submit" styleClass="active" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionTzSave}"></h:commandButton>
-				<h:commandButton accesskey="x" id="cancel"  value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionTzCancel}"></h:commandButton>
+			    <h:commandButton accesskey="s" id="submit" styleClass="active formButton" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionTzSave}"></h:commandButton>
+				<h:commandButton accesskey="x" id="cancel" styleClass="formButton" value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionTzCancel}"></h:commandButton>
+				<h:commandButton type="button"  styleClass="dummy blocked" value="#{msgs.update_pref}" style="display:none"></h:commandButton>
+				<h:commandButton type="button"  styleClass="dummy blocked" value="#{msgs.cancel_pref}" style="display:none"></h:commandButton>
+
 			    </div>
 		 </h:form>
 	</sakai:view_content>

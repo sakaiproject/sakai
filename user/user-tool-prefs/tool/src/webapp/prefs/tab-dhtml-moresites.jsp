@@ -7,9 +7,19 @@
 <f:view>
     <sakai:view_container title="#{msgs.prefs_title}">
     <sakai:stylesheet path="/css/useDHTMLMore.css"/>
+    <sakai:stylesheet path="/css/prefs.css"/>
     <sakai:view_content>
         <h:form id="prefs_form">
                 
+		<script type="text/javascript" language="JavaScript" src="/library/js/jquery.js">//</script>
+		<script type="text/javascript" language="JavaScript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
+		<script type="text/javascript">
+			$(document).ready(function(){
+				setupPrefsGen();
+				setupPrefsTabs('sl','sr');				
+			})  
+		</script>
+		
               <sakai:tool_bar>
               <%--sakai:tool_bar_item action="#{UserPrefsTool.processActionRefreshFrmEdit}" value="Refresh" /--%>
  		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionNotiFrmEdit}" value="#{msgs.prefs_noti_title}" rendered="#{UserPrefsTool.noti_selection == 1}"/>
@@ -36,11 +46,12 @@
               
               </sakai:tool_bar>
                 
-                <h3><h:outputText value="#{msgs.prefs_tab_title}" /></h3>
-                
-                <h:panelGroup rendered="#{UserPrefsTool.tabUpdated}">
-                    <jsp:include page="prefUpdatedMsg.jsp"/>    
+                <h3>
+                	<h:outputText value="#{msgs.prefs_tab_title}" />
+	                <h:panelGroup rendered="#{UserPrefsTool.tabUpdated}"  style="margin:0 3em;font-weight:normal">
+    	                <jsp:include page="prefUpdatedMsg.jsp"/>    
                     </h:panelGroup>
+				</h3>
                 
                 <sakai:messages />
     <div id="tab-dhtml-more-sites">
@@ -54,9 +65,8 @@
     <table cellspacing="0" cellpadding="5%" class="sidebyside" summary="layout">
         <tr>
             <td id="sites-active-button" class='buttoncell'>
-                <h:commandLink action="#{UserPrefsTool.processActionMoveUp}" title="#{msgs.tab_move_up}"> <h:graphicImage value="prefs/Up-Arrow.gif"/> </h:commandLink>
-                <br />
-                <h:commandLink action="#{UserPrefsTool.processActionMoveDown}" title="#{msgs.tab_move_down}"> <h:graphicImage value="prefs/Down-Arrow.gif"/> </h:commandLink>
+  		 	   	<p style="margin:5px 0 0  0;"><h:commandLink id="moveUp" action="#{UserPrefsTool.processActionMoveUp}" title="#{msgs.tab_move_up}" styleClass="blockable ud"> <h:graphicImage value="prefs/up.png" alt="#{msgs.tab_move_up}" /> </h:commandLink></p>
+		 	  	<p style="margin:0 0 5px 0;"><h:commandLink id="moveDown" action="#{UserPrefsTool.processActionMoveDown}" title="#{msgs.tab_move_down}" styleClass="blockable ud"> <h:graphicImage value="prefs/down.png" alt="#{msgs.tab_move_down}" /> </h:commandLink></p>
             </td>
             <td id="sites-active">
                 <b><h:outputText value="#{msgs.tab_inst_3_alt}"/></b>
@@ -68,19 +78,20 @@
 								<b><h:outputText value="#{msgs.tab_count}"/></b>
 								<h:inputText size="2" value="#{UserPrefsTool.tabCount}" />
                 <br />
-                <h:selectManyListbox value="#{UserPrefsTool.selectedOrderItems}" size="10">
+                <h:selectManyListbox value="#{UserPrefsTool.selectedOrderItems}" size="10" styleClass="sr">
                     <f:selectItems value="#{UserPrefsTool.prefOrderItems}" />
                 </h:selectManyListbox>
             </td>
-            <td class='buttoncell' style="text-align: center;">                     
-              <h:commandButton id="add" value="#{msgs.tab_move_lone}" action="#{UserPrefsTool.processActionAdd}" title="#{msgs.tab_move_inst}"></h:commandButton>
-              <br />
-              <h:commandButton id="remove" value="#{msgs.tab_move_rone}" action="#{UserPrefsTool.processActionRemove}" title="#{msgs.tab_move_inst_re}"></h:commandButton>
-              <br />
-              <br />
-              <h:commandButton id="removeAll" value="#{msgs.tab_move_rall}" action="#{UserPrefsTool.processActionRemoveAll}" title="#{msgs.tab_move_all_inst_re}"></h:commandButton>
-              <br />
-              <h:commandButton id="addAll" value="#{msgs.tab_move_lall}" action="#{UserPrefsTool.processActionAddAll}" title="#{msgs.tab_move_all_inst}"></h:commandButton>
+            <td class='buttoncell' style="text-align: center;">       
+  						<div style="margin-bottom:1.5em">
+						  <h:commandLink id="remove" action="#{UserPrefsTool.processActionAdd}" title="#{msgs.tab_move_inst}" styleClass="blockable br"><h:graphicImage value="prefs/to-left.png" alt="#{msgs.tab_move_inst_re}" /></h:commandLink>
+						  <h:commandLink id="add" action="#{UserPrefsTool.processActionRemove}" title="#{msgs.tab_move_inst_re}" styleClass="blockable bl"><h:graphicImage value="prefs/to-right.png" alt="#{msgs.tab_move_inst}" /></h:commandLink>
+						</div>
+						<div>
+							<h:commandLink id="removeAll" action="#{UserPrefsTool.processActionAddAll}" title="#{msgs.tab_move_all_inst}" styleClass="blockable br"><h:graphicImage value="prefs/all-to-left.png" alt="#{msgs.tab_move_all_inst_re}" /></h:commandLink>
+							<h:commandLink id="addAll" action="#{UserPrefsTool.processActionRemoveAll}" title="#{msgs.tab_move_all_inst_re}" styleClass="blockable bl"><h:graphicImage value="prefs/all-to-right.png" alt="#{msgs.tab_move_all_inst}" /></h:commandLink>
+						</div>	
+
             </td>
             <td id="sites-hidden">
                 <b><h:outputText value="#{msgs.tab_inst_5_alt}"/>   </b>
@@ -91,16 +102,18 @@
                 <br />
           
                 
-                <h:selectManyListbox value="#{UserPrefsTool.selectedExcludeItems}" size="10">
+                <h:selectManyListbox value="#{UserPrefsTool.selectedExcludeItems}" size="10" styleClass="sl">
                     <f:selectItems value="#{UserPrefsTool.prefExcludeItems}" />
                 </h:selectManyListbox>
             </td>
         </tr>
     </table>
-
                 <p class="act">
-                    <h:commandButton accesskey="s" id="submit" styleClass="active" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionSave}"></h:commandButton>
-                     <h:commandButton accesskey="x" id="cancel"  value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionCancel}"></h:commandButton>
+                    <h:commandButton accesskey="s" id="submit" styleClass="active formButton" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionSave}"></h:commandButton>
+                     <h:commandButton accesskey="x" id="cancel" styleClass="formButton" value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionCancel}"></h:commandButton>
+					<h:commandButton type="button" styleClass="dummy blocked" value="#{msgs.update_pref}"  style="display:none"/>
+					<h:commandButton type="button" styleClass="dummy blocked" value="#{msgs.cancel_pref}"  style="display:none"/>
+
                 </p>
 
         </div>

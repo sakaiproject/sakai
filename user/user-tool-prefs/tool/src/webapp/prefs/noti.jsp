@@ -7,11 +7,19 @@
 
 <f:view>
 	<sakai:view_container title="#{msgs.prefs_title}">
+    <sakai:stylesheet path="/css/prefs.css"/>
 	<sakai:view_content>
 	
 		<h:form id="options_form">
 
 				
+		<script type="text/javascript" language="JavaScript" src="/library/js/jquery.js"></script>
+		<script type="text/javascript" language="JavaScript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
+		<script type="text/javascript">
+			$(document).ready(function(){
+				setupPrefsGen();
+			})  
+		</script>
 				<%--h:outputText value="User ID: "/><h:inputText value="#{AdminPrefsTool.userId}" /--%>	
 				<sakai:tool_bar>
 			  <%--sakai:tool_bar_item action="#{UserPrefsTool.processActionRefreshFrmNoti}" value="Refresh" /--%>
@@ -47,11 +55,13 @@
  		    
  			</sakai:tool_bar>
 				
-				<h3><h:outputText value="#{msgs.prefs_noti_title}" /></h3>
+				<h3>
+					<h:outputText value="#{msgs.prefs_noti_title}" />
+					<h:panelGroup rendered="#{UserPrefsTool.notiUpdated}"  style="margin:0 3em;font-weight:normal">
+						<jsp:include page="prefUpdatedMsg.jsp"/>	
+					</h:panelGroup>
+				</h3>
 
-				<h:panelGroup rendered="#{UserPrefsTool.notiUpdated}">
-					<jsp:include page="prefUpdatedMsg.jsp"/>	
-				</h:panelGroup>
 	
 				<sakai:messages />
 				
@@ -89,8 +99,10 @@
 			</f:subview>
   				
 				<p class="act">
-				<h:commandButton accesskey="s" id="submit" styleClass="active" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionNotiSave}"></h:commandButton>
-				<h:commandButton accesskey="x" id="cancel"  value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionNotiCancel}"></h:commandButton>
+				<h:commandButton accesskey="s" id="submit" styleClass="active formButton" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionNotiSave}"></h:commandButton>
+				<h:commandButton accesskey="x" id="cancel" styleClass="formButton"  value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionNotiCancel}"></h:commandButton>
+				<h:commandButton type="button"  styleClass="dummy blocked" value="#{msgs.update_pref}" style="display:none"></h:commandButton>
+				<h:commandButton type="button"  styleClass="dummy blocked" value="#{msgs.cancel_pref}" style="display:none"></h:commandButton>
 				</p>	
 		 </h:form>
 	</sakai:view_content>
