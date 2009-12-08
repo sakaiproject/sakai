@@ -6,16 +6,16 @@
   <custom>
     <parameter key="isbn">9780596800697</parameter>
   </custom>
-  <launch_url>http://www.dr-chuck.com/ims/php-simple/tool.php</launch_url>
+  <launch_url>http://developers.imsglobal.org/BLTI/tool.php</launch_url>
   <vendor>
-    <code>www.dr-chuck.com</code>
-    <name>Dr. Chuck</name>
+    <code>www.imsglobal.org</code>
+    <name>IMS Global Learning Consortium</name>
     <description>
-      A simple validity checker. Takes key=12345 secret=secret.
+      A simple validity checker. Takes key=lmsng.school.edu secret=secret.
     </description>
     <contact>
       <email>cseverance@imsglobal.org</email>
     </contact>
-    <url>http://www.dr-chuck.com/</url>
+    <url>http://www.imsglobal.org/</url>
   </vendor>
 </basic_lti_link>
