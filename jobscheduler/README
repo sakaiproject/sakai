@@ -2,7 +2,7 @@ Scheduler is a thin wrapper around quartz developed as a Sakai JSF tool. There w
 to  Quartz up with Sakai. First in the component directory there is a quartz.properties file. This
 file has been modified to use a particular database vendor. On startup this scheduler tool will:
 
-1. Replace the instnace name quartz uses in a cluster with the property serverId from a call
+1. Replace the instance name quartz uses in a cluster with the property serverId from a call
    to ServerConfigurationService via a Spring MethodInvokingFactoryBean. This step ensures that
    all nodes in a cluster will have a unique name. 
    Note: when using scheduler in a cluster set the quartz property org.quartz.jobStore.isClustered = true
