@@ -2545,10 +2545,23 @@ public class SiteAction extends PagedResourceActionII {
 
 				List<AcademicSession> terms = setTermListForContext(context, state, true); // true -> upcoming only
 				AcademicSession t = (AcademicSession) state.getAttribute(STATE_TERM_SELECTED);
-				if (terms != null && terms.size() > 0 && !terms.contains(t))
+				
+				if (terms != null && terms.size() > 0)
 				{
-					// if the term is no longer listed in the term list, choose the first term in the list instead
-					t = terms.get(0);
+					boolean foundTerm = false;
+					for(AcademicSession testTerm : terms)
+					{
+						if (testTerm.getEid().equals(t.getEid()))
+						{
+							foundTerm = true;
+							break;
+						}
+					}
+					if (!foundTerm)
+					{
+						// if the term is no longer listed in the term list, choose the first term in the list instead
+						t = terms.get(0);
+					}
 				}
 				context.put("term", t);
 				if (t != null) {
