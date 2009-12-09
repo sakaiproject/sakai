@@ -278,7 +278,7 @@ public class PublishAssessmentListener
 
 	  message.append("\"");
 	  message.append(bold_open);
-	  message.append(title);
+	  message.append(FormattedText.convertPlaintextToFormattedText(title));
 	  message.append(bold_close);
 	  message.append("\"");
 	  message.append(" ");
