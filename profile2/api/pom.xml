@@ -40,43 +40,22 @@
     		<artifactId>entitybroker-api</artifactId>
     		<scope>provided</scope>
 		</dependency>
+		
+		<!-- Sakai 2.5.x specific dependencies -->
+		<!-- 
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-user-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		 -->
+		 
+		 <!-- Sakai 2.6+ specific dependencies -->
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
 	    
 	</dependencies>
 	 
-	<profiles>
-		<profile>
-            <id>pre-K1</id>
-            <activation>
-	        	<file>
-	          		<missing>../master/../kernel-deploy/pom.xml</missing>
-	        	</file>
-	      	</activation>
-            <!-- Sakai 2.5.x specific dependencies -->
-           	<dependencies>
-            	<dependency>
-					<groupId>org.sakaiproject</groupId>
-					<artifactId>sakai-user-api</artifactId>
-					<scope>provided</scope>
-		    	</dependency>
-		    </dependencies>
-				
-		</profile>
-        <profile>
-            <id>K1</id>
-            <activation>
-	        	<file>
-	          		<exists>../master/../kernel-deploy/pom.xml</exists>
-	        	</file>
-	      	</activation>
-            <!-- Sakai 2.6+ specific dependencies -->
-            <dependencies>
-		        <dependency>
-		            <groupId>org.sakaiproject.kernel</groupId>
-		            <artifactId>sakai-kernel-api</artifactId>
-		        </dependency>
-			</dependencies> 
-        </profile>
-    </profiles>
-	 	
-
 </project>
