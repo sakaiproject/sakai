@@ -373,7 +373,7 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 					SQLException {
 				gradebook.setStudents(null);
 				Criteria crit = session.createCriteria(StudentGradesImpl.class).add(
-						Expression.eq("gradebook", gradebook)).add(Expression.eq("username", username));
+						Expression.eq("gradebook", gradebook)).add(Expression.eq("username", username).ignoreCase());
 
 				StudentGrades student = (StudentGrades)crit.uniqueResult();
 				

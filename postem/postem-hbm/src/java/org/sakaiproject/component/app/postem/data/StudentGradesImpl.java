@@ -55,7 +55,8 @@ public class StudentGradesImpl implements StudentGrades, Comparable,
 	}
 
 	public StudentGradesImpl(String username, List grades) {
-		this.username = username.trim();
+	    // ensure the usernames are trimmed and lowercase
+		this.username = username.trim().toLowerCase();
 		this.grades = grades;
 	}
 
