@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <name>Sakai SiteStats</name>
@@ -36,7 +35,7 @@
         <jfreechart.version>1.0.5</jfreechart.version>
         <sst.wicket.version>1.3.7</sst.wicket.version>
         <sst.slf4j.version>1.4.3</sst.slf4j.version>
-        <perftests.includes></perftests.includes>
+        <perftests.includes />
         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/sitestats/${project.version}</url.localsite>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -110,9 +109,9 @@
     
     <!-- Source code repository location -->
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/contrib/ufp/sitestats/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/ufp/sitestats/trunk</developerConnection>
-        <url>http://source.sakaiproject.org/viewsvn/ufp/sitestats/?root=contrib</url>
+        <connection>scm:svn:https://source.sakaiproject.org/contrib/ufp/sitestats/branches/sitestats-2.1.x</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/ufp/sitestats/branches/sitestats-2.1.x</developerConnection>
+        <url>http://source.sakaiproject.org/viewsvn/ufp/sitestats/branches/sitestats-2.1.x?root=contrib</url>
     </scm>
     
     <!-- Distribution Management -->
