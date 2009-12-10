@@ -4301,14 +4301,6 @@ extends VelocityPortletStateAction
 		String peid = ((JetspeedRunData)data).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)data).getPortletSessionState(peid);
 		
-		state.setPrevState(state.getState());
-		
-		// store the state coming from, like day view, week view, month view or list view
-		String returnState = state.getState();
-		state.setReturnState(returnState);
-		
-		state.setState("description");
-		
 		// "crack" the reference (a.k.a dereference, i.e. make a Reference)
 		// and get the event id and calendar reference
 		Reference ref = EntityManager.newReference(data.getParameters().getString(EVENT_REFERENCE_PARAMETER));
@@ -4318,9 +4310,6 @@ extends VelocityPortletStateAction
 			calId = CalendarService.calendarSubscriptionReference(ref.getContext(), ref.getContainer());
 		else
 			calId = CalendarService.calendarReference(ref.getContext(), ref.getContainer());
-		
-		state.setAttachments(null);
-		state.setCalendarEventId(calId, eventId);
 		
 		// %%% get the event object from the reference new Reference(data.getParameters().getString(EVENT_REFERENCE_PARAMETER)).getResource() -ggolden
 		try
@@ -4348,20 +4337,33 @@ extends VelocityPortletStateAction
 				state.setCalendarEventId("", "");
 				String errorCode = rb.getString("java.error");
 				addAlert(sstate, errorCode);
+				return;
 			}
 			catch (PermissionException err)
 			{
+				addAlert(sstate, rb.getString("java.alert.youcreate"));
 				M_log.debug(".PermissionException " + err);
+				return;
 			}
 		}
 		catch (IdUnusedException  e)
 		{
 			addAlert(sstate, rb.getString("java.alert.noexist"));
+			return;
 		}
 		catch (PermissionException	 e)
 		{
 			addAlert(sstate, rb.getString("java.alert.youcreate"));
+			return;
 		}
+		
+		// store the state coming from, like day view, week view, month view or list view
+		String returnState = state.getState();
+		state.setPrevState(returnState);
+		state.setReturnState(returnState);
+		state.setState("description");
+		state.setAttachments(null);
+		state.setCalendarEventId(calId, eventId);
 	}		// doDescription
 	
 	
