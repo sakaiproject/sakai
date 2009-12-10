@@ -106,7 +106,7 @@
         <sakai.samigo.version>2.8-SNAPSHOT</sakai.samigo.version>
         <sakai.scheduler.version>2.7.0-b01</sakai.scheduler.version>
         <sakai.search.version>1.3.0-SNAPSHOT</sakai.search.version>
-        <sakai.sitestats.version>2.1-SNAPSHOT</sakai.sitestats.version>
+        <sakai.sitestats.version>2.2-SNAPSHOT</sakai.sitestats.version>
     </properties>
     
     <distributionManagement>
