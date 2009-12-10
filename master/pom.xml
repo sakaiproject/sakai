@@ -90,7 +90,7 @@
         <sakai.spring.version>2.5.6.SEC01</sakai.spring.version>
         <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
         <sakai.spring.test.version>2.5.6.SEC01</sakai.spring.test.version>
-        <sakai.tomcat.version>tomcat-5.5.26</sakai.tomcat.version>
+        <sakai.tomcat.version>tomcat-5.5.28</sakai.tomcat.version>
         <sakai.xerces.impl.version>2.6.2</sakai.xerces.impl.version>
         <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
         <!-- Sakai modules that are versioned separately -->
