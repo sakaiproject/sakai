@@ -104,6 +104,7 @@
         <sakai.polls.version>1.3-SNAPSHOT</sakai.polls.version>
         <sakai.sakai-mock.version>2.7.0-b01</sakai.sakai-mock.version>
         <sakai.samigo.version>2.8-SNAPSHOT</sakai.samigo.version>
+        <sakai.scheduler.version>2.7.0-b01</sakai.scheduler.version>
         <sakai.search.version>1.3.0-SNAPSHOT</sakai.search.version>
         <sakai.sitestats.version>2.1-SNAPSHOT</sakai.sitestats.version>
     </properties>
@@ -291,6 +292,13 @@
                 <groupId>org.sakaiproject.samigo</groupId>
                 <artifactId>samigo-assembly</artifactId>
                 <version>${sakai.samigo.version}</version>
+                <classifier>tomcat-overlay</classifier>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.scheduler</groupId>
+                <artifactId>scheduler-assembly</artifactId>
+                <version>${sakai.scheduler.version}</version>
                 <classifier>tomcat-overlay</classifier>
                 <type>zip</type>
             </dependency>
@@ -762,12 +770,6 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-comp-shared-scheduler</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
                 <groupId>org.sakaiproject.contentreview</groupId>
                 <artifactId>contentreview-model-api</artifactId>
                 <version>${sakai.version}</version>
@@ -924,9 +926,15 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-scheduler-api</artifactId>
-                <version>${sakai.version}</version>
+                <groupId>org.sakaiproject.scheduler</groupId>
+                <artifactId>scheduler-api</artifactId>
+                <version>${sakai.scheduler.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.scheduler</groupId>
+                <artifactId>scheduler-component-shared</artifactId>
+                <version>${sakai.scheduler.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
