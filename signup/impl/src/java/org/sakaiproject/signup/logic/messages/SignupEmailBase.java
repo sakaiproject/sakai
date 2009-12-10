@@ -153,6 +153,11 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 	protected String getSiteTitle(String targetSiteId) {
 		return getSakaiFacade().getLocationTitle(targetSiteId) + getShortDescription(targetSiteId);
 	}
+	
+	/* get the site name */
+	protected String getShortSiteTitle(String targetSiteId) {
+		return getSakaiFacade().getLocationTitle(targetSiteId);
+	}
 
 	/* get the site name with a quotation mark */
 	protected String getSiteTitleWithQuote() {
@@ -162,6 +167,11 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 	/* get the site name with a quotation mark */
 	protected String getSiteTitleWithQuote(String targetSiteId) {
 		return "\"" + getSiteTitle(targetSiteId) + "\"";
+	}
+	
+	/* get the site name with a quotation mark */
+	protected String getShortSiteTitleWithQuote(String targetSiteId) {
+		return "\"" + getShortSiteTitle(targetSiteId) + "\"";
 	}
 
 	/* get the link to access the current-site signup tool page in a site */

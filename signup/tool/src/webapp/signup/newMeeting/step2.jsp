@@ -185,10 +185,10 @@
 									<h:outputText value="#{msgs.event_yes_receive_notification}" escape="false"/>
 								</h:panelGroup>
 								
-								<h:outputText value="#{msgs.event_email_notification}" styleClass="titleText" escape="false"/>
+								<h:outputText value="#{msgs.event_create_email_notification}" styleClass="titleText" escape="false"/>
 								<h:panelGroup styleClass="longtext" rendered="#{NewSignupMeetingBean.publishedSite}">
 									<h:selectBooleanCheckbox value="#{NewSignupMeetingBean.sendEmail}"/>
-									<h:outputText value="#{msgs.event_yes_email_notification}" escape="false"/>
+									<h:outputText value="#{msgs.event_yes_create_email_notification}" escape="false"/>
 								</h:panelGroup>
 								<h:panelGroup styleClass="longtext" rendered="#{!NewSignupMeetingBean.publishedSite}">
 									<h:selectBooleanCheckbox value="#{NewSignupMeetingBean.sendEmail}" disabled="true"/>

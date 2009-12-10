@@ -14,12 +14,16 @@
                 if (inp[0].checked &&  i ==1)
                       document.getElementById("meeting:maxAttendee").style.display="none";
          }                                          
-
+		//init repeat Calendar
 		var recurSelectorVal = document.getElementById("meeting:recurSelector").value;
 		if(recurSelectorVal =='no_repeat')
 			document.getElementById('meeting:utilCalendar').style.display="none";
 		else
 			document.getElementById('meeting:utilCalendar').style.display="";
+		
+		//init signupBegin
+		var signupBeginVal = document.getElementById("meeting:signupBeginsType").value;
+		isSignUpBeginStartNow(signupBeginVal);
 			
 		var m = document.getElementById('multiple');
         var s = document.getElementById('single');

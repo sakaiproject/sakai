@@ -314,7 +314,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			if (!(getRepeatType().equals(ONCE_ONLY))) {
 				int repeatNum = CreateMeetings.getNumOfRecurrence(getRepeatType(), signupMeeting.getStartTime(),
 						getRepeatUntil());
-				if (isMeetingLengthOver24Hours(this.signupMeeting) && DAILY.equals(getRepeatType())) {
+				if ((DAILY.equals(getRepeatType()) || WEEKDAYS.equals(getRepeatType())) && isMeetingLengthOver24Hours(this.signupMeeting)) {
 					validationError = true;
 					Utilities.addErrorMessage(Utilities.rb.getString("crossDay.event.repeat.daily.problem"));
 					return;

@@ -80,7 +80,8 @@ public class AutoReminderEmail extends SignupEmailBase {
 		// Set the content type of the message body to HTML
 		rv.add("Content-Type: text/html; charset=UTF-8");
 		rv.add("Subject: "
-				+ MessageFormat.format(rb.getString("subject.auto.reminder.appointment.field"), new Object[] {getShortWeekDayName(meeting.getStartTime()), getTime(meeting.getStartTime()).toStringLocalDate() }));
+				+ MessageFormat.format(rb.getString("subject.auto.reminder.appointment.field"), new Object[] {getShortWeekDayName(meeting.getStartTime()), getTime(meeting.getStartTime()).toStringLocalDate(),
+					getTime(item.getStartTime()).toStringLocalTime() }));
 		rv.add("From: " + getServiceName() +" <" + rb.getString("noReply@") + getSakaiFacade().getServerConfigurationService().getServerName() + ">");
 		rv.add("To: " + attendee.getEmail());
 

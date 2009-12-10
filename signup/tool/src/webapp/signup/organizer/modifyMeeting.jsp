@@ -114,12 +114,13 @@
 							<h:panelGrid columns="2" columnClasses="editText,timeSelectTab" rendered="#{!EditMeetingSignupMBean.announcementType}">
 									<h:panelGroup>
 										<h:inputText id="signupBegins" value="#{EditMeetingSignupMBean.signupBegins}" size="3" required="true">
-											<f:validateLongRange minimum="0" maximum="1000"/>
+											<f:validateLongRange minimum="0" maximum="99999"/>
 										</h:inputText>
-										<h:selectOneMenu value="#{EditMeetingSignupMBean.signupBeginsType}" >
+										<h:selectOneMenu id="signupBeginsType" value="#{EditMeetingSignupMBean.signupBeginsType}" onchange="isSignUpBeginStartNow(value);">
 											<f:selectItem itemValue="minutes" itemLabel="#{msgs.label_minutes}"/>
 											<f:selectItem itemValue="hours" itemLabel="#{msgs.label_hours}"/>
 											<f:selectItem itemValue="days" itemLabel="#{msgs.label_days}"/>
+											<f:selectItem itemValue="startNow" itemLabel="#{msgs.label_startNow}"/>
 										</h:selectOneMenu>
 									</h:panelGroup>
 									<h:panelGroup>

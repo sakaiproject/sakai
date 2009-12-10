@@ -67,6 +67,8 @@ public interface SignupBeanConstants {
 	public static final String HOURS = "hours";
 
 	public static final String MINUTES = "minutes";
+	
+	public static final String START_NOW="startNow";
 
 	public static final int MAX_NUMBER_OF_RETRY = 20;
 

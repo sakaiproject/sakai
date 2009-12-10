@@ -70,7 +70,8 @@ public class ModifyMeetingEmail extends SignupEmailBase {
 		rv.add("Content-Type: text/html; charset=UTF-8");
 		rv.add("Subject: "
 				+ MessageFormat.format(rb.getString("subject.meeting.modification.field"), new Object[] {
-						organizer.getDisplayName(), getTime(meeting.getStartTime()).toStringLocalDate() }));
+						organizer.getDisplayName(), getShortSiteTitleWithQuote(emailReturnSiteId), getTime(meeting.getStartTime()).toStringLocalDate(),
+						getTime(meeting.getStartTime()).toStringLocalTime() }));
 		rv.add("From: " + organizer.getEmail());
 		rv.add("To: " + rb.getString("noReply@") + getSakaiFacade().getServerConfigurationService().getServerName());
 

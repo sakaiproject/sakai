@@ -236,7 +236,13 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 			calendar.setTime(this.signupMeeting.getSignupBegins());
 			sdday = calendar.get(Calendar.DATE) + i * intervalOfRecurs;
 			calendar.set(Calendar.DATE, sdday);
-			beta.setSignupBegins(calendar.getTime());
+			if(START_NOW.equals(this.signupBeginType)){
+				beta.setSignupBegins(Utilities.subTractTimeToDate(new Date(), 6,
+						START_NOW));
+			}
+			else{
+				beta.setSignupBegins(calendar.getTime());
+			}
 			calendar.setTime(this.signupMeeting.getSignupDeadline());
 			edday = calendar.get(Calendar.DATE) + i * intervalOfRecurs;
 			calendar.set(Calendar.DATE, edday);
@@ -288,6 +294,7 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 					newOne.setTimeslotId(old.getTimeslotId());
 					newOne.setViewByAll(old.getViewByAll());
 					newOnes.add(newOne);
+					//TODO need remove unused attachments?
 				}
 			}
 			return newOnes;

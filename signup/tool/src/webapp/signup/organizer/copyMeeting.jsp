@@ -124,12 +124,13 @@
 							<h:panelGrid columns="2" columnClasses="editText,timeSelectTab" rendered="#{!CopyMeetingSignupMBean.announcementType}" >
 									<h:panelGroup>
 										<h:inputText id="signupBegins" value="#{CopyMeetingSignupMBean.signupBegins}" size="3" required="true">
-											<f:validateLongRange minimum="0" maximum="1000"/>
+											<f:validateLongRange minimum="0" maximum="99999"/>
 										</h:inputText>
-										<h:selectOneMenu value="#{CopyMeetingSignupMBean.signupBeginsType}" >
+										<h:selectOneMenu id="signupBeginsType" value="#{CopyMeetingSignupMBean.signupBeginsType}" onchange="isSignUpBeginStartNow(value);">
 											<f:selectItem itemValue="minutes" itemLabel="#{msgs.label_minutes}"/>
 											<f:selectItem itemValue="hours" itemLabel="#{msgs.label_hours}"/>
 											<f:selectItem itemValue="days" itemLabel="#{msgs.label_days}"/>
+											<f:selectItem itemValue="startNow" itemLabel="#{msgs.label_startNow}"/>
 										</h:selectOneMenu>
 									</h:panelGroup>
 									<h:panelGroup>
@@ -316,10 +317,10 @@
 								</h:panelGrid>
 							</h:panelGroup>
 							
-							<h:outputText value="#{msgs.event_email_notification}" styleClass="titleText" escape="false"/>
+							<h:outputText value="#{msgs.event_create_email_notification}" styleClass="titleText" escape="false"/>
 							<h:panelGroup styleClass="longtext" rendered="#{CopyMeetingSignupMBean.publishedSite}">
 								<h:selectBooleanCheckbox value="#{CopyMeetingSignupMBean.sendEmail}" />
-								<h:outputText value="#{msgs.event_yes_email_notification}" escape="false"/>
+								<h:outputText value="#{msgs.event_yes_create_email_notification}" escape="false"/>
 							</h:panelGroup>
 							<h:panelGroup styleClass="longtext" rendered="#{!CopyMeetingSignupMBean.publishedSite}">
 								<h:selectBooleanCheckbox value="#{CopyMeetingSignupMBean.sendEmail}" disabled="true"/>
@@ -359,6 +360,10 @@
 	    	 var groupMaxAttendeeTag = document.getElementById('meeting:maxAttendee');
 	    	 var origGroupMaxAttendees = groupMaxAttendeeTag? groupMaxAttendeeTag.value : 0;
 	    	 var untilCalendarTag = document.getElementById('meeting:utilCalendar');
+	    	 
+	    	 //init signupBegin
+			 var signupBeginVal = document.getElementById("meeting:signupBeginsType").value;
+			 isSignUpBeginStartNow(signupBeginVal);
 	    	 
 	    	 initRepeatCalendar();
 	    	 isShowAssignToAllChoice();
@@ -428,8 +433,7 @@
 				else
 					document.getElementById('meeting:utilCalendar').style.display="none";
 			}
-	        
-	         
+			
 		</script>
     </f:verbatim>
 </f:view> 

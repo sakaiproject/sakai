@@ -126,10 +126,11 @@
 		                       		 <h:inputText id="signupBegins" value="#{NewSignupMeetingBean.signupBegins}" size="2" required="true">
 		                            	<f:validateLongRange minimum="0" maximum="1000"/>
 		                        	</h:inputText>
-		                        	<h:selectOneMenu value="#{NewSignupMeetingBean.signupBeginsType}" style="padding-left:5px; margin-right:5px">
+		                        	<h:selectOneMenu id="signupBeginsType" value="#{NewSignupMeetingBean.signupBeginsType}" onchange="isSignUpBeginStartNow(value);" style="padding-left:5px; margin-right:5px">
 		                            	<f:selectItem itemValue="minutes" itemLabel="#{msgs.label_minutes}"/>
 		                            	<f:selectItem itemValue="hours" itemLabel="#{msgs.label_hours}"/>
 		                            	<f:selectItem itemValue="days" itemLabel="#{msgs.label_days}"/>
+		                            	<f:selectItem itemValue="startNow" itemLabel="#{msgs.label_startNow}"/>
 		                        	</h:selectOneMenu>
 		                        	<h:outputText value="#{msgs.before_event_start}" escape="false" style="margin-left:18px"/>
 		                        	<h:message for="signupBegins" errorClass="alertMessageInline" />

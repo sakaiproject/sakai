@@ -159,7 +159,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		Date sBegin = Utilities.subTractTimeToDate(meeting.getStartTime(), signupBegin, signupBeginType);
 		Date sDeadline = Utilities.subTractTimeToDate(meeting.getEndTime(), signupDeadline, signupDeadlineType);
 
-		if (sBegin.before(new Date())) {
+		if (!START_NOW.equals(signupBeginType) && sBegin.before(new Date())) {
 			// a warning for user
 			Utilities.addErrorMessage(Utilities.rb.getString("warning.your.event.singup.begin.time.passed.today.time"));
 		}

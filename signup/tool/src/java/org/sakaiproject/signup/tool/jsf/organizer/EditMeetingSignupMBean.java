@@ -149,6 +149,10 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 	}
 
 	/* get the relative time out */
+	private int copyDisplaySignupBegins;
+	private String copyDisplaySignupBeginsType;
+	private int originalSignupBegins;
+	private String originalSignupBeginsType;
 	private void populateDataForBeginDeadline(SignupMeeting sMeeting) {
 		long signupBeginsTime = sMeeting.getSignupBegins() == null ? new Date().getTime() : sMeeting.getSignupBegins()
 				.getTime();
@@ -164,7 +168,29 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 
 		this.deadlineTimeType = Utilities.getTimeScaleType(signupDeadLineBeforMeetingEnd);
 		this.deadlineTime = Utilities.getRelativeTimeValue(deadlineTimeType, signupDeadLineBeforMeetingEnd);
+		
+		/*user readability case for 'start now'*/
+		this.originalSignupBegins=this.signupBegins;
+		this.originalSignupBeginsType=this.signupBeginsType;
+		if(MINUTES.equals(this.signupBeginsType) && sMeeting.getSignupBegins().before(new Date())
+				&& this.signupBegins > 500){
+			/*we assume it has to be 'start now' before and we convert it to round to days*/			
+			this.signupBeginsType=DAYS;
+			this.signupBegins = Utilities.getRelativeTimeValue(DAYS, signupBeginBeforMeeting);
+			if(this.signupBegins == 0)
+				this.signupBegins = 1; //add a day					
+		}
+		/*keep a copy to detect if user has modified this field*/
+		this.copyDisplaySignupBegins=this.signupBegins;
+		this.copyDisplaySignupBeginsType=this.signupBeginsType;
 
+	}
+	
+	boolean hasUserChangedSignupBeginTime(){
+		if(this.copyDisplaySignupBegins == getSignupBegins() && getSignupBeginsType().equals(this.copyDisplaySignupBeginsType))
+			return false;
+		else
+			return true;
 	}
 	
 	private boolean initSomeoneSignupInfo(){
@@ -243,8 +269,16 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 					.getCurrentLocationId(), getSignupMeetingService(),getAttachmentHandler(), true);
 			/* Pass modified data */
 			editMeeting.setCurrentNumberOfSlots(getNumberOfSlots());// (getAddMoreTimeslots());
-			editMeeting.setSignupBegins(getSignupBegins());
-			editMeeting.setSignupBeginsType(getSignupBeginsType());
+			if(hasUserChangedSignupBeginTime()){
+				editMeeting.setSignupBegins(getSignupBegins());
+				editMeeting.setSignupBeginsType(getSignupBeginsType());
+				editMeeting.setSignupBeginModifiedByUser(true);
+			}else{
+				/*no changes*/
+				editMeeting.setSignupBegins(this.originalSignupBegins);
+				editMeeting.setSignupBeginsType(this.originalSignupBeginsType);
+				editMeeting.setSignupBeginModifiedByUser(false);
+			}
 			editMeeting.setDeadlineTime(getDeadlineTime());
 			editMeeting.setDeadlineTimeType(getDeadlineTimeType());
 			editMeeting.setTimeSlotDuration(getTimeSlotDuration());

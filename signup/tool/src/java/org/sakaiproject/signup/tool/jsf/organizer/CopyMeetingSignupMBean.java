@@ -65,7 +65,7 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 
 	/* singup can start before this minutes/hours/days */
 	private int signupBegins;
-
+	
 	private String deadlineTimeType;
 
 	/* singup deadline before this minutes/hours/days */
@@ -175,6 +175,16 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 
 		this.deadlineTimeType = Utilities.getTimeScaleType(signupDeadLineBeforMeetingEnd);
 		this.deadlineTime = Utilities.getRelativeTimeValue(deadlineTimeType, signupDeadLineBeforMeetingEnd);
+		
+		/*user readability case for big numbers of minutes*/
+		if(MINUTES.equals(this.signupBeginsType) && sMeeting.getSignupBegins().before(new Date())
+				&& this.signupBegins > 500){
+			/*we assume it has to be 'start now' before and we convert it to round to days*/			
+			this.signupBeginsType=DAYS;
+			this.signupBegins = Utilities.getRelativeTimeValue(DAYS, signupBeginBeforMeeting);
+			if(this.signupBegins == 0)
+				this.signupBegins = 1; //add a day					
+		}
 
 	}
 
@@ -250,7 +260,7 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		if (!(getRepeatType().equals(ONCE_ONLY))) {
 			int repeatNum = CreateMeetings.getNumOfRecurrence(getRepeatType(), signupMeeting.getStartTime(),
 					getRepeatUntil());
-			if (DAILY.equals(getRepeatType()) && isMeetingLengthOver24Hours(this.signupMeeting)) {
+			if ((DAILY.equals(getRepeatType())|| WEEKDAYS.equals(getRepeatType())) && isMeetingLengthOver24Hours(this.signupMeeting)) {
 				validationError = true;
 				Utilities.addErrorMessage(Utilities.rb.getString("crossDay.event.repeat.daily.problem"));
 				return;
@@ -778,6 +788,12 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	
 	/*This method only provide a most possible repeatType, not with 100% accuracy*/
 	private void retrieveRecurrenceData(List<SignupMeeting> upTodateOrginMeetings) {
+		/*to see if the recurring events have a 'Start_Now' type already*/
+		if(Utilities.testSignupBeginStartNowType(upTodateOrginMeetings)){
+			setSignupBeginsType(START_NOW);//overwrite previous value
+			setSignupBegins(6);//default value; not used
+		}
+		 
 		Date lastDate=new Date();
 		if (upTodateOrginMeetings == null || upTodateOrginMeetings.isEmpty())
 			return;

@@ -197,7 +197,13 @@ public final class Utilities implements SignupBeanConstants, MeetingTypes {
 			type = Calendar.MINUTE;
 		else if (dateType.equals(HOURS))
 			type = Calendar.HOUR;
-		else {// days{
+		else if (dateType.equals(START_NOW)){
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(new Date());
+			cal.set(Calendar.SECOND, 0);
+			cal.set(Calendar.MILLISECOND, 0);
+			return cal.getTime();
+		}else {// days{
 			time = 24 * time; // convert to hours
 			type = Calendar.HOUR;
 		}
@@ -242,6 +248,35 @@ public final class Utilities implements SignupBeanConstants, MeetingTypes {
 			rValue = timeLength / Hour_In_MINUTES;
 
 		return (int) rValue;
+	}
+	
+	/**
+	 * This method will determine whether the recurring events have been previously setup by 'Start_Now'
+	 * type.
+	 * @param recurringMeetings
+	 * 				a list of SignupMeeting objects.
+	 * @return true if the events have been set up as 'start_now' type previously
+	 */
+	public static boolean testSignupBeginStartNowType(List<SignupMeeting> recurringMeetings){
+		boolean isStartNowTypeForRecurEvents=false;
+		if(recurringMeetings !=null && recurringMeetings.size()>1){
+			long signupBeginsTimeSecLastOne = recurringMeetings.get(recurringMeetings.size()-2).getSignupBegins() == null ? new Date().getTime() : recurringMeetings.get(recurringMeetings.size()-2).getSignupBegins()
+					.getTime();
+			long signupBeginsTimeLastOne = recurringMeetings.get(recurringMeetings.size()-1).getSignupBegins() == null ? new Date().getTime() : recurringMeetings.get(recurringMeetings.size()-1).getSignupBegins()
+					.getTime();
+			//check for SignupBegin time and it should be the same.
+			if(signupBeginsTimeSecLastOne ==signupBeginsTimeLastOne){
+				isStartNowTypeForRecurEvents=true;
+				for (SignupMeeting sm : recurringMeetings) {
+					//double check, it has to be started now for sign-up process
+					if (!sm.getSignupBegins().before(new Date())){
+						isStartNowTypeForRecurEvents=false;
+						break;
+					}
+				}
+			}
+		}
+		return isStartNowTypeForRecurEvents;
 	}
 
 	/**

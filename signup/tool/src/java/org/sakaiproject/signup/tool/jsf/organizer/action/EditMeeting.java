@@ -66,6 +66,11 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 
 	/* singup can start before this minutes/hours/days */
 	private int signupBegins;
+	
+	/*True means that the current recurring events have already start_Now Type*/
+	private boolean isStartNowTypeForRecurEvents=false;
+	
+	private boolean signupBeginModifiedByUser;
 
 	private String deadlineTimeType;
 
@@ -380,12 +385,17 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 
 		boolean origSignupStarted = originalMeetingCopy.getSignupBegins().before(new Date());// ????
 		/* TODO have to pass it in?? */
-		if (sBegin.before(new Date()) && !origSignupStarted) {
+		if (!START_NOW.equals(signupBeginType) && sBegin.before(new Date()) && !origSignupStarted) {
 			// a warning for user
 			Utilities.addErrorMessage(Utilities.rb.getString("warning.your.event.singup.begin.time.passed.today.time"));
 		}
 
-		meeting.setSignupBegins(sBegin);
+		if(!isSignupBeginModifiedByUser() && this.isStartNowTypeForRecurEvents){
+			/*do nothing and keep the original value since the Sign-up process is already started
+			 * No need to re-assign a new start_now value*/
+		}else {
+			meeting.setSignupBegins(sBegin);		
+		}
 
 		if (sBegin.after(sDeadline))
 			throw new SignupUserActionException(Utilities.rb.getString("signup.deadline.is.before.signup.begin"));
@@ -507,10 +517,23 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 	public AttachmentHandler getAttachmentHandler() {
 		return attachmentHandler;
 	}
+	
+	public boolean isSignupBeginModifiedByUser() {
+		return signupBeginModifiedByUser;
+	}
+
+	public void setSignupBeginModifiedByUser(boolean signupBeginModifiedByUser) {
+		this.signupBeginModifiedByUser = signupBeginModifiedByUser;
+	}
 
 	private void retrieveRecurrenceData(List<SignupMeeting> upTodateOrginMeetings) {
+		/*to see if the recurring events have a 'Start_Now' type already*/
+		this.isStartNowTypeForRecurEvents = Utilities.testSignupBeginStartNowType(upTodateOrginMeetings);
+		 
 		String repeatType = upTodateOrginMeetings.get(0).getRepeatType();
 		if(repeatType !=null && !ONCE_ONLY.equals(repeatType)){
+			int lSize = upTodateOrginMeetings.size();
+			setLastRecurMeetingModifyDate(upTodateOrginMeetings.get(lSize - 1).getStartTime());
 			setRecurringType(repeatType);
 			return;
 		}

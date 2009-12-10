@@ -185,7 +185,25 @@
         	else
         		untilCalendarTag.style.display = "";
         } 
-  
+        
+        var orig_sBegin = 6;
+        function isSignUpBeginStartNow(value){
+        	var signupBeginsTag = document.getElementById('meeting:signupBegins');
+        	if(!signupBeginsTag)
+        		return;
+        	if(value == 'startNow'){
+				orig_sBegin=signupBeginsTag.value;
+				signupBeginsTag.value ='';
+        		signupBeginsTag.disabled = true;
+			
+        	}else{
+        		signupBeginsTag.disabled = false;
+				if(signupBeginsTag.value =='')
+					signupBeginsTag.value = orig_sBegin;
+			}
+        } 
+
+         
 		var prev_participants =10;//default   
 		function validateParticipants() {
   			var participants = document.getElementById("meeting:maxAttendee");   
