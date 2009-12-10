@@ -33,7 +33,6 @@
 		<module>samigo-cp</module>
 		<module>samigo-archive/sam-handlers</module>
 		<module>samlite-impl</module>
-		<module>samigo-shared-deploy</module>
 	</modules>
 	
 	<scm>
