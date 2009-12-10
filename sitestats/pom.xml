@@ -109,9 +109,9 @@
     
     <!-- Source code repository location -->
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/contrib/ufp/sitestats/branches/sitestats-2.1.x</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/ufp/sitestats/branches/sitestats-2.1.x</developerConnection>
-        <url>http://source.sakaiproject.org/viewsvn/ufp/sitestats/branches/sitestats-2.1.x?root=contrib</url>
+        <connection>scm:svn:https://source.sakaiproject.org/contrib/ufp/sitestats/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/ufp/sitestats/trunk</developerConnection>
+        <url>http://source.sakaiproject.org/viewsvn/ufp/sitestats/trunk</url>
     </scm>
     
     <!-- Distribution Management -->
