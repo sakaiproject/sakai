@@ -67,12 +67,12 @@
       <artifactId>entitybroker-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-scheduler-api</artifactId>
+      <groupId>org.sakaiproject.scheduler</groupId>
+      <artifactId>scheduler-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-comp-shared-scheduler</artifactId>
+      <groupId>org.sakaiproject.scheduler</groupId>
+      <artifactId>scheduler-component-shared</artifactId>
     </dependency>
     
     <!-- Spring & Hibernate -->
@@ -208,7 +208,7 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.mock</groupId>
       <artifactId>sakai-mock</artifactId>
       <scope>test</scope>
     </dependency>
