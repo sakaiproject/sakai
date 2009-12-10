@@ -2887,14 +2887,17 @@ extends VelocityPortletStateAction
 							ToolConfiguration fromTool = site.getToolForCommonId("sakai.assignment.grades");
 							boolean allowAddAssignment = assignmentService.allowAddAssignment(assignmentContext); // this checks for the asn.new permission and determines the url we present the user
 							
-							// Two different urls to be rendered depending on the user's permission
-							if (allowAddAssignment)
+							if (fromTool != null)
 							{
-								context.put("assignmenturl", ServerConfigurationService.getPortalUrl() + "/directtool/" + fromTool.getId() + "?assignmentId=" + a.getReference() + "&panel=Main&sakai_action=doView_assignment");
-							}
-							else
-							{
-								context.put("assignmenturl", ServerConfigurationService.getPortalUrl() + "/directtool/" + fromTool.getId() + "?assignmentReference=" + a.getReference() + "&panel=Main&sakai_action=doView_submission");
+								// Two different urls to be rendered depending on the user's permission
+								if (allowAddAssignment)
+								{
+									context.put("assignmenturl", ServerConfigurationService.getPortalUrl() + "/directtool/" + fromTool.getId() + "?assignmentId=" + a.getReference() + "&panel=Main&sakai_action=doView_assignment");
+								}
+								else
+								{
+									context.put("assignmenturl", ServerConfigurationService.getPortalUrl() + "/directtool/" + fromTool.getId() + "?assignmentReference=" + a.getReference() + "&panel=Main&sakai_action=doView_submission");
+								}
 							}
 						}
 						
