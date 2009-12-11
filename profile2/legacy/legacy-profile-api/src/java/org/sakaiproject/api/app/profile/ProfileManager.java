@@ -69,6 +69,14 @@ public interface ProfileManager
 	public Map<String, Profile> getProfiles(Set<String> userIds);
 	
 	/**
+	 * Gets the photo as a byte[] for a user.
+	 * 
+	 * @param userId
+	 * @return
+	 */
+	public byte[] getInstitutionalPhotoByUserId(String userId);
+	
+	/**
 	 * Gets the photo as a byte[] for a user. Ignores siteMaintainer field as the stricter ProfilePrivacy methods are used instead
 	 * 
 	 * @param userId

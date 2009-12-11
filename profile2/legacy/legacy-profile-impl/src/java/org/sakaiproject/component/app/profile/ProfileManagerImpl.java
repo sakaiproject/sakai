@@ -79,7 +79,21 @@ public class ProfileManagerImpl implements ProfileManager {
 
 	
 
-	
+
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public byte[] getInstitutionalPhotoByUserId(String userId) {
+		
+		if (StringUtils.isBlank(userId)) {
+			throw new IllegalArgumentException("Illegal userId argument passed!");
+		}
+
+		ResourceWrapper resource = new ResourceWrapper();
+		resource = profileImageService.getProfileImage(userId, ProfileConstants.PROFILE_IMAGE_MAIN);
+		return resource.getBytes();
+		
+	}
 
 
 	
@@ -89,13 +103,7 @@ public class ProfileManagerImpl implements ProfileManager {
  	*/
 	public byte[] getInstitutionalPhotoByUserId(String userId, boolean viewerHasPermission) {
 		
-		if (StringUtils.isBlank(userId)) {
-			throw new IllegalArgumentException("Illegal userId argument passed!");
-		}
-
-		ResourceWrapper resource = new ResourceWrapper();
-		resource = profileImageService.getProfileImage(userId, ProfileConstants.PROFILE_IMAGE_MAIN);
-		return resource.getBytes();
+		return getInstitutionalPhotoByUserId(userId);
 		
 	}
 
