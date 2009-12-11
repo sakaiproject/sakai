@@ -445,10 +445,12 @@ public class UserPrefsTool
 	private Locale getLocaleFromString(String localeString)
 	{
 		String[] locValues = localeString.trim().split("_");
-		if (locValues.length > 1)
+		if (locValues.length >= 3)
+			return new Locale(locValues[0], locValues[1], locValues[2]); // language, country, variant
+		else if (locValues.length == 2)
 			return new Locale(locValues[0], locValues[1]); // language, country
 		else if (locValues.length == 1)
-			return new Locale(locValues[0]); // just language
+			return new Locale(locValues[0]); // language
 		else
 			return Locale.getDefault();
 	}
