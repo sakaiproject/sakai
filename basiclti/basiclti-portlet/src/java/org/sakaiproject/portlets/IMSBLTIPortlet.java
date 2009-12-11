@@ -155,7 +155,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
 	dPrint("==== doView called ====");
 
-        response.setContentType("text/html");
+        response.setContentType("text/html; charset=UTF-8");
 
         PrintWriter out = response.getWriter();
         PortletSession pSession = request.getPortletSession(true);
