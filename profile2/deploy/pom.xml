@@ -20,9 +20,6 @@
 	</parent>
 	
 	<properties>
-		<sakai.common.version>1.0.0-beta02-SNAPSHOT</sakai.common.version>
-		<tinyurl.version>0.9-SNAPSHOT</tinyurl.version>
-		
 		<clean.targets>
 			components/sakai-common-components;
 			components/tinyurl-pack
