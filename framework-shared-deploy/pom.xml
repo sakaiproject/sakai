@@ -7,7 +7,6 @@
     <version>2.8-SNAPSHOT</version>
     <relativePath>../master/pom.xml</relativePath>
   </parent>
-  <description>Shared Deployment Descriptor for Samigo</description>
   <name>sakai-famework-shared-deploy</name>
   <groupId>org.sakaiproject.famework</groupId>
   <artifactId>framework-shared-deploy</artifactId>
@@ -17,10 +16,10 @@
   </organization>
   <inceptionYear>2007</inceptionYear>
   <packaging>pom</packaging>
+  <description>This pom deploys the course management api jar to shared/lib.  It is included in both the framework and cafe profiles.</description>
   <properties>
     <deploy.target>shared</deploy.target>
   </properties>
-<!-- Share the O.K.I. OSID -->
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject.edu-services.course-management</groupId>
