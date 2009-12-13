@@ -71,6 +71,9 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
@@ -136,16 +139,12 @@ public class AdminSitesAction extends PagedResourceActionII
 		else if (userId != null)
 		{
 			List rv = new Vector();
-			try
-			{
-				Site userSite = SiteService.getSite(SiteService.getUserSiteId(userId));
-				rv.add(userSite);
-			}
-			catch (IdUnusedException e)
-			{
-			}
-
-			return rv;
+            Site userSite = findUserSiteByUserIdCriteria(userId);
+            if ( userSite == null ) {
+                return rv;
+            }
+            rv.add(userSite);
+            return rv;
 		}
 
 		// search for non-user sites, using the criteria
@@ -190,16 +189,11 @@ public class AdminSitesAction extends PagedResourceActionII
 
 		else if (userId != null)
 		{
-			try
-			{
-				Site userSite = SiteService.getSite(SiteService.getUserSiteId(userId));
-				return 1;
-			}
-			catch (IdUnusedException e)
-			{
-			}
-
-			return 0;
+		    Site userSite = findUserSiteByUserIdCriteria(userId);
+            if ( userSite == null ) {
+                return 0;
+            }
+            return 1;
 		}
 
 		else if (search != null)
@@ -213,6 +207,108 @@ public class AdminSitesAction extends PagedResourceActionII
 		}
 	}
 
+    /**
+     * Searches for a user's workspace site by resolving the given ID to
+     * a {@link User} object and calculating the target {@link Site}'s
+     * ID from that object. As implemented, supports user PK and EID
+     * inputs. Be aware that searching for users by EID can result in
+     * the lazy creation of Sakai user records, or at least user ID
+     * mapping records.
+     * 
+     * @see #findUserByPk(String)
+     * @see #findUserByEid(String)
+     * @see #findUserSite(User)
+     * @param formSubmittedUserId typically end-user provided search
+     *   criteria; must not be <code>null</code>
+     * @return the user's workspace site or <code>null</code> if no
+     *   such user or no such site
+     */
+    protected Site findUserSiteByUserIdCriteria(String formSubmittedUserId) {
+        
+        User user = findUserByPk(formSubmittedUserId);
+        if ( user == null ) {
+            user = findUserByEid(formSubmittedUserId); // be warned, this might lazily create a user record
+        }
+        
+        if ( user == null ) {
+            return null;
+        }
+        
+        Site userSite = findUserSite(user);
+        return userSite;
+        
+    }
+	
+    /**
+     * Search for a {@link User} object by primary key (i.e. <code>User.id</code>).
+     * 
+     * @see UserDirectoryService#getUser(String)
+     * @param userPk a String to be treated as a user's Sakai-internal primary key;
+     *   must not be <code>null</code>
+     * @return a resolved {@link User} or <code>null</code>, signifying no results
+     */
+    protected User findUserByPk(String userPk) {
+        
+        try {
+            User user = UserDirectoryService.getUser(userPk);
+            return user;
+        } catch ( UserNotDefinedException e ) {
+            if ( Log.isDebugEnabled() ) {
+                Log.debug("chef", "Failed to find a user record by PK [pk = " + userPk + "]", 
+                        e);
+            }
+            return null;
+        }
+        
+    }
+
+    /**
+     * Search for a {@link User} object by user "enterprise identifier", 
+     * (i.e. <code>User.eid</code>).
+     * 
+     * @see UserDirectoryService#getUserByEid(String)
+     * @param eid a String to be treated as a user's "enterprise identifier";
+     *   must not be <code>null</code>
+     * @return a resolved {@link User} or <code>null</code>, signifying no results
+     */
+    protected User findUserByEid(String eid) {
+        
+        try {
+            User user = UserDirectoryService.getUserByEid(eid);
+            return user;
+        } catch ( UserNotDefinedException e ) {
+            if ( Log.isDebugEnabled() ) {
+                Log.debug("chef", "Failed to find a user record by EID [eid = " + eid + "]", 
+                        e);
+            }
+            return null;
+        }
+        
+    }    
+    /**
+     * Search for the given {@link User}'s workspace {@link Site}.
+     * 
+     * @param knownUser user having a Sakai primary key (doesn't necessarily
+     *   mean the user has actually signed in yet). Must not be <code>null</code>
+     * @return the user's workspace site or <code>null<code> if no such thing, e.g.
+     *   if the user has not yet logged in.
+     */
+    protected Site findUserSite(User knownUser) {
+        String userDbId =  knownUser.getId();
+        String userEid = knownUser.getEid();
+        String userMyWorkspaceSiteDbId = SiteService.getUserSiteId(userDbId);
+        try {
+            Site userSite = SiteService.getSite(userMyWorkspaceSiteDbId); // exceptional if no results
+            return userSite;
+        } catch ( IdUnusedException e ) {
+            if ( Log.isDebugEnabled() ) {
+                Log.debug("chef", "Failed to locate a workspace for user [user id = " + userDbId + 
+                        "][user eid = " + userEid + "][site id = " + userMyWorkspaceSiteDbId + "]", e);
+            }
+            return null;
+        }
+    }    
+    
 	/**
 	 * Populate the state object, if needed.
 	 */
