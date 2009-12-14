@@ -210,55 +210,46 @@ public class ProfileManagerImpl implements ProfileManager {
 
 	
 	/** additional methods from original profile API which we don't need real implementations of as they are specific to the Profile tool */
-	@Override
 	public List findProfiles(String arg0) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public Profile getProfile() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public boolean isDisplayNoPhoto(Profile arg0) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
-	@Override
 	public boolean isDisplayPictureURL(Profile arg0) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
-	@Override
 	public boolean isDisplayUniversityPhoto(Profile arg0) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
-	@Override
 	public boolean isDisplayUniversityPhotoUnavailable(Profile arg0) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
-	@Override
 	public boolean isShowSearch() {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
-	@Override
 	public boolean isShowTool() {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
-	@Override
 	public void save(Profile arg0) {
 		// TODO Auto-generated method stub
 		

@@ -50,9 +50,12 @@ public class ProfileImpl implements Profile
 	public String getUserId() {
 		return userId;
 	}
-	public void setUserID(String userId) {
-		this.userId = userId;
+	@Override
+	public void setUserID(String arg0) {
+		this.userId = arg0;
+		
 	}
+	
 	public String getDepartment() {
 		return department;
 	}
@@ -165,9 +168,11 @@ public class ProfileImpl implements Profile
 	public SakaiPerson getSakaiPerson() {
 		return null;
 	}
-	@Override
 	public void setSakaiPerson(SakaiPerson arg0) {
 	}
+
+
+	
 	
 	
 }
