@@ -17,19 +17,22 @@
   	<packaging>pom</packaging>
   
   	<modules>
-    	<module>legacy-profile-api</module>
+    	<!-- <module>legacy-profile-api</module>-->
     	<module>legacy-profile-impl</module>
     	<module>legacy-profile-pack</module>
   	</modules>
 
   	<dependencyManagement>
     	<dependencies>
+    		
+    		<!-- Don't need to pull in own API, we have dependency on original API
       		<dependency>
 				<groupId>org.sakaiproject</groupId>
   				<artifactId>sakai-profile-api</artifactId>
       			<version>${legacy.profile.version}</version>
       			<scope>provided</scope>
       		</dependency>
+      		-->
       		<dependency>
         		<groupId>org.sakaiproject.profile2</groupId>
         		<artifactId>profile2-legacy-profile-impl</artifactId>

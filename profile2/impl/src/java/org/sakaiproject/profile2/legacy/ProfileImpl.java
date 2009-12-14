@@ -19,9 +19,10 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.component.app.profile;
+package org.sakaiproject.profile2.legacy;
 
 import org.sakaiproject.api.app.profile.Profile;
+import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
 
 public class ProfileImpl implements Profile
@@ -35,7 +36,7 @@ public class ProfileImpl implements Profile
 	private String homePhone;
 	private String homepage;
 	private String otherInformation;
-	private String pictureUrl; //never set this, maybe set this from ResourceWrapper?
+	private String pictureUrl; //maybe set this from ResourceWrapper?
 	private String position;
 	private String room;
 	private String school;
@@ -49,7 +50,7 @@ public class ProfileImpl implements Profile
 	public String getUserId() {
 		return userId;
 	}
-	public void setUserId(String userId) {
+	public void setUserID(String userId) {
 		this.userId = userId;
 	}
 	public String getDepartment() {
@@ -155,4 +156,18 @@ public class ProfileImpl implements Profile
 	public void setHidePublicInfo(Boolean hidePublicInfo) {
 		this.hidePublicInfo = hidePublicInfo;
 	}
+	
+	
+	/** additional methods from original Profile API but are just stubs as we don't use them */
+	public Boolean getLocked() {
+		return null;
+	}
+	public SakaiPerson getSakaiPerson() {
+		return null;
+	}
+	@Override
+	public void setSakaiPerson(SakaiPerson arg0) {
+	}
+	
+	
 }

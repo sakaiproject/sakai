@@ -13,7 +13,7 @@
 			<includes>
 				<include>org.sakaiproject.profile2:profile2-api:jar:*</include>
 				<include>org.sakaiproject.profile2:profile2-help:jar:*</include>
-				<include>org.sakaiproject:sakai-profile-api:jar:*</include>
+				<!--  <include>org.sakaiproject:sakai-profile-api:jar:*</include>-->
 			</includes>
 		</dependencySet>
 		<!-- components -->
@@ -25,6 +25,7 @@
 			</includes>
 			<unpack>true</unpack>
 		</dependencySet>
+		<!-- 
 		<dependencySet>
 			<outputDirectory>components/profile2-legacy-profile-pack</outputDirectory>
 			<useTransitiveDependencies>false</useTransitiveDependencies>
@@ -33,6 +34,7 @@
 			</includes>
 			<unpack>true</unpack>
 		</dependencySet>
+		-->
 		<!-- webapps -->
 		<dependencySet>
             <outputDirectory>webapps/</outputDirectory>

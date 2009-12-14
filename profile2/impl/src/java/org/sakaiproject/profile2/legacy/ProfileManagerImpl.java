@@ -19,10 +19,11 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.component.app.profile;
+package org.sakaiproject.profile2.legacy;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,19 +32,23 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.profile.Profile;
 import org.sakaiproject.api.app.profile.ProfileManager;
-import org.sakaiproject.api.common.edu.person.SakaiPerson;
-import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.profile2.entity.model.UserProfile;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.ResourceWrapper;
 import org.sakaiproject.profile2.service.ProfileImageService;
-import org.sakaiproject.profile2.service.ProfilePrivacyService;
 import org.sakaiproject.profile2.service.ProfileService;
 import org.sakaiproject.profile2.util.ProfileConstants;
-import org.sakaiproject.user.api.UserDirectoryService;
 
-
+/**
+ * This is the implementation of the original ProfileManager, but modified to get its data from Profile2.
+ * 
+ * You can activate this in sakai.properties via:
+ * profile.manager.integration.bean=org.sakaiproject.profile.legacy.ProfileManager 
+ * 
+ * Note it will not allow you to write any data, only retrieve, so is useful for integrations
+ * that use the existing ProfileManager, eg Roster, YAFT, etc and you want to be compatible with both Profile and Profile2.
+ *
+ */
 public class ProfileManagerImpl implements ProfileManager {
 	
 	private static final Log log = LogFactory.getLog(ProfileManagerImpl.class);
@@ -140,7 +145,7 @@ public class ProfileManagerImpl implements ProfileManager {
 		Profile p = new ProfileImpl();
 		
 		//transform the fields
-		p.setUserId(userUuid);
+		p.setUserID(userUuid);
 		p.setNickName(up.getNickname());
 		p.setFirstName(sakaiProxy.getUserFirstName(userUuid));
 		p.setLastName(sakaiProxy.getUserLastName(userUuid));
@@ -172,7 +177,7 @@ public class ProfileManagerImpl implements ProfileManager {
 	 * @param profile
 	 * @return
 	 */
-	private boolean isCurrentUserProfile(Profile profile){
+	public boolean isCurrentUserProfile(Profile profile){
 		return((profile != null) && StringUtils.equals(profile.getUserId(), sakaiProxy.getCurrentUserId()));
 	}
 	
@@ -180,27 +185,13 @@ public class ProfileManagerImpl implements ProfileManager {
 	
 	
 	public void init(){
-		log.info("Legacy ProfileManager: init()");
+		log.info("Profile2's LegacyProfileManager: init()");
 	}
 
 	public void destroy(){
-		log.debug("Legacy ProfileManager: destroy()");
+		log.debug("Profile2's LegacyProfileManager: destroy()");
 	}
 	
-	private ServerConfigurationService serverConfigurationService;
-	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-		this.serverConfigurationService = serverConfigurationService;
-	}
-	
-	private SakaiPersonManager sakaiPersonManager;
-	public void setSakaiPersonManager(SakaiPersonManager sakaiPersonManager) {
-		this.sakaiPersonManager = sakaiPersonManager;
-	}
-	
-	private UserDirectoryService userDirectoryService;
-	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-		this.userDirectoryService = userDirectoryService;
-	}
 	
 	private ProfileService profileService;
 	public void setProfileService(ProfileService profileService) {
@@ -212,14 +203,65 @@ public class ProfileManagerImpl implements ProfileManager {
 		this.profileImageService = profileImageService;
 	}
 	
-	private ProfilePrivacyService profilePrivacyService;
-	public void setProfilePrivacyService(ProfilePrivacyService profilePrivacyService) {
-		this.profilePrivacyService = profilePrivacyService;
-	}
-	
 	private SakaiProxy sakaiProxy;
 	public void setSakaiProxy(SakaiProxy sakaiProxy) {
 		this.sakaiProxy = sakaiProxy;
+	}
+
+	
+	/** additional methods from original profile API which we don't need real implementations of as they are specific to the Profile tool */
+	@Override
+	public List findProfiles(String arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Profile getProfile() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isDisplayNoPhoto(Profile arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isDisplayPictureURL(Profile arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isDisplayUniversityPhoto(Profile arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isDisplayUniversityPhotoUnavailable(Profile arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isShowSearch() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isShowTool() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void save(Profile arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	
