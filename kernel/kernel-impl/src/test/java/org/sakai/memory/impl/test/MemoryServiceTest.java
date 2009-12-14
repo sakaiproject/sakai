@@ -100,10 +100,8 @@ public class MemoryServiceTest extends TestCase
 		}
 		log.info("Hits ="+hit+" Misses="+miss);
 	}
-	public void XtestGetLong() {
+	public void xtestGetLong() {
 		Cache cache = basicMemoryService.newCache("org.sakaiproject.alias.api.AliasService.callCache","");
-		int hit = 0;
-		int miss = 0;
 		for ( int i = 0; i < 100; i++) {
 			cache.put(i, i);
 		}
