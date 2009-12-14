@@ -26,6 +26,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -714,7 +715,10 @@ public class DbContentService extends BaseContentService
 		try
 		{
 			// get a connection for the updates
-			final Connection connection = m_sqlService.borrowConnection();
+			Connection connection;
+
+			connection = m_sqlService.borrowConnection();
+
 			boolean wasCommit = connection.getAutoCommit();
 			connection.setAutoCommit(false);
 
@@ -734,10 +738,8 @@ public class DbContentService extends BaseContentService
 			connection.commit();
 			connection.setAutoCommit(wasCommit);
 			m_sqlService.returnConnection(connection);
-		}
-		catch (Throwable t)
-		{
-			M_log.warn("setUuid: failed: " + t);
+		} catch (SQLException e) {
+			M_log.warn("setUuid: failed: " + e);
 		}
 	}
 
@@ -775,8 +777,6 @@ public class DbContentService extends BaseContentService
 
 		String id = null;
 
-		try
-		{
 			String sql = contentServiceSql.getResourceId1Sql();
 			Object[] fields = new Object[1];
 			fields[0] = uuid;
@@ -791,11 +791,7 @@ public class DbContentService extends BaseContentService
 					id = (String) iter.next();
 				}
 			}
-		}
-		catch (Throwable t)
-		{
-			M_log.warn("resolveUuid: failed: " + t);
-		}
+		
 		return id;
 	}
 
@@ -1918,7 +1914,7 @@ public class DbContentService extends BaseContentService
 				M_log.warn(": resource too large to read into byte array: " + resource.getId() + " len: " + ((BaseResourceEdit) resource).m_contentLength);
 				throw new ServerOverloadException("content too large to read from filesystem into byte array");
 			}
-			
+
 			// form the file name
 			File file = new File(externalResourceFileName(resource));
 
@@ -1926,15 +1922,15 @@ public class DbContentService extends BaseContentService
 			try
 			{
 				byte[] body = new byte[(int) ((BaseResourceEdit) resource).m_contentLength];
-				FileInputStream in = new FileInputStream(file);
+				FileInputStream in;
+				in = new FileInputStream(file);
+
 
 				in.read(body);
 				in.close();
 
 				return body;
-			}
-			catch (Throwable t)
-			{
+			} catch (FileNotFoundException e) {
 				// If there is not supposed to be data in the file - simply return zero length byte array
 				if (((BaseResourceEdit) resource).m_contentLength == 0)
 				{
@@ -1942,7 +1938,18 @@ public class DbContentService extends BaseContentService
 				}
 
 				// If we have a non-zero body length and reading failed, it is an error worth of note
-				M_log.warn(": failed to read resource: " + resource.getId() + " len: " + ((BaseResourceEdit) resource).m_contentLength + " : " + t);
+				M_log.warn(": failed to read resource: " + resource.getId() + " len: " + ((BaseResourceEdit) resource).m_contentLength + " : " + e);
+				throw new ServerOverloadException("failed to read resource");			
+			}
+			catch (IOException e) {
+				// If there is not supposed to be data in the file - simply return zero length byte array
+				if (((BaseResourceEdit) resource).m_contentLength == 0)
+				{
+					return new byte[0];
+				}
+
+				// If we have a non-zero body length and reading failed, it is an error worth of note
+				M_log.warn(": failed to read resource: " + resource.getId() + " len: " + ((BaseResourceEdit) resource).m_contentLength + " : " + e);
 				throw new ServerOverloadException("failed to read resource");
 			}
 
@@ -2011,7 +2018,7 @@ public class DbContentService extends BaseContentService
 				FileInputStream in = new FileInputStream(file);
 				return in;
 			}
-			catch (Throwable t)
+			catch (FileNotFoundException t)
 			{
 				// If there is not supposed to be data in the file - simply return null
 				if (((BaseResourceEdit) resource).m_contentLength == 0)
@@ -2198,11 +2205,6 @@ public class DbContentService extends BaseContentService
 					props.addProperty(ResourceProperties.PROP_CONTENT_TYPE, resource.getContentType());
 				}
 			}
-			// catch (Throwable t)
-			// {
-			// M_log.warn(": failed to write resource: " + resource.getId() + " : " + t);
-			// return false;
-			// }
 			catch (IOException e)
 			{
 				M_log.warn("IOException", e);
@@ -2275,12 +2277,15 @@ public class DbContentService extends BaseContentService
 
 				// write the file
 				FileOutputStream out = new FileOutputStream(file);
+
 				out.write(body);
 				out.close();
+			} catch (FileNotFoundException e) {
+				M_log.warn(": failed to write resource: " + resource.getId() + " : " + e);
+				return false;
 			}
-			catch (Throwable t)
-			{
-				M_log.warn(": failed to write resource: " + resource.getId() + " : " + t);
+			catch (IOException e) {
+				M_log.warn(": failed to write resource: " + resource.getId() + " : " + e);
 				return false;
 			}
 
@@ -2369,36 +2374,24 @@ public class DbContentService extends BaseContentService
 		public Collection<String> getMemberCollectionIds(String collectionId)
 		{
 			List list = null;
-			try
-			{
-				String sql = contentServiceSql.getCollectionIdSql(m_collectionTableName);
-				Object[] fields = new Object[1];
-				fields[0] = collectionId;
+			String sql = contentServiceSql.getCollectionIdSql(m_collectionTableName);
+			Object[] fields = new Object[1];
+			fields[0] = collectionId;
 
-				list = m_sqlService.dbRead(sql, fields, null);
-			}
-			catch (Throwable t)
-			{
-				M_log.warn("getMemberCollectionIds: failed: " + t);
-			}
+			list = m_sqlService.dbRead(sql, fields, null);
+
 			return (Collection<String>) list;
 		}
 
 		public Collection<String> getMemberResourceIds(String collectionId)
 		{
 			List list = null;
-			try
-			{
-				String sql = contentServiceSql.getResourceId3Sql(m_resourceTableName);
-				Object[] fields = new Object[1];
-				fields[0] = collectionId;
 
-				list = m_sqlService.dbRead(sql, fields, null);
-			}
-			catch (Throwable t)
-			{
-				M_log.warn("getMemberResourceIds: failed: " + t);
-			}
+			String sql = contentServiceSql.getResourceId3Sql(m_resourceTableName);
+			Object[] fields = new Object[1];
+			fields[0] = collectionId;
+
+			list = m_sqlService.dbRead(sql, fields, null);
 			return (Collection<String>) list;
 		}
 
@@ -2825,8 +2818,7 @@ public class DbContentService extends BaseContentService
 						M_log.debug("convertToFile(): EntityParseException for " + id);
 						return null;
 					}
-					catch (Throwable e)
-					{
+					catch (SQLException e) {
 						M_log.info(" ** exception converting : " + id + " : ", e);
 						return null;
 					}
