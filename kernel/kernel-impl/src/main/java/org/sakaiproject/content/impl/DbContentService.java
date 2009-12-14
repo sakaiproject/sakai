@@ -43,20 +43,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.LockManager;
-import org.sakaiproject.content.impl.BaseContentService.BaseResourceEdit;
 import org.sakaiproject.content.impl.serialize.impl.conversion.Type1BlobCollectionConversionHandler;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
@@ -3189,31 +3186,13 @@ public class DbContentService extends BaseContentService
 	private void validateUTF8Db() throws Exception
 	{
 			Connection connection = m_sqlService.borrowConnection();
-			Statement statement = null;
-			String tempTableName = "utf8test"+System.currentTimeMillis();
 			try
 			{
 				testUTF8Transport(connection);
 			}
 			finally
 			{
-				
-				try
-				{
-					statement.close();
-				}
-				catch (Exception ex)
-				{
-
-				}
-				try
-				{
 					m_sqlService.returnConnection(connection);
-				}
-				catch (Exception ex)
-				{
-
-				}
 			}
 
 		}	
