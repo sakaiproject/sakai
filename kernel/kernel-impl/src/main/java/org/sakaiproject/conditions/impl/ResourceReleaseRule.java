@@ -202,7 +202,7 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 					resource = ContentHostingService.editResource(this.resourceId);
 				}
 				ResourceProperties resourceProps = resource.getProperties();
-				resourceProps.addProperty(SATISFIES_RULE, new Boolean(shouldBeAvailable).toString());
+				resourceProps.addProperty(SATISFIES_RULE, Boolean.valueOf(shouldBeAvailable).toString());
 				if (ContentHostingService.isCollection(this.resourceId)) {
 					ContentHostingService.commitCollection((ContentCollectionEdit)resource);
 				} else {

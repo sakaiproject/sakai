@@ -418,7 +418,7 @@ public class DbContentService extends BaseContentService
 					+ m_groupTableName + " locks-in-db: " + m_locksInDb + " bodyPath: " + m_bodyPath + " storage: " + m_storage);
 					
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			M_log.warn("init(): ", t);
 		}
@@ -2834,7 +2834,7 @@ public class DbContentService extends BaseContentService
 			connection.setAutoCommit(wasCommit);
 			m_sqlService.returnConnection(connection);
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			M_log.warn("convertToFile: failed: " + t);
 		}
