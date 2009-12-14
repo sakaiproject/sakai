@@ -5,7 +5,6 @@ package org.sakaiproject.profile2.tool.pages.panels;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -24,6 +23,11 @@ import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.models.UserProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
+import org.sakaiproject.profile2.util.ProfileUtils;
+
+import wicket.contrib.tinymce.TinyMceBehavior;
+import wicket.contrib.tinymce.ajax.TinyMceAjaxSubmitModifier;
+import wicket.contrib.tinymce.settings.TinyMCESettings;
 
 public class MyInterestsEdit extends Panel {
 	
@@ -94,7 +98,12 @@ public class MyInterestsEdit extends Panel {
 		WebMarkupContainer otherContainer = new WebMarkupContainer("otherContainer");
 		otherContainer.add(new Label("otherLabel", new ResourceModel("profile.other")));
 		TextArea otherInformation = new TextArea("otherInformation", new PropertyModel(userProfile, "otherInformation"));
-		//otherInformation.add(new TinyMceBehavior());
+		
+		//add TinyMCE control
+		TinyMCESettings settings = new TinyMCESettings();
+		settings.setToolbarLocation(TinyMCESettings.Location.top);
+		otherInformation.add(new TinyMceBehavior(settings));
+		
 		otherContainer.add(otherInformation);
 		form.add(otherContainer);
 		
@@ -125,6 +134,7 @@ public class MyInterestsEdit extends Panel {
 				}
             }
 		};
+		submitButton.add(new TinyMceAjaxSubmitModifier());
 		form.add(submitButton);
 		
         
@@ -178,7 +188,7 @@ public class MyInterestsEdit extends Panel {
 		sakaiPerson.setFavouriteTvShows(userProfile.getFavouriteTvShows());
 		sakaiPerson.setFavouriteMovies(userProfile.getFavouriteMovies());
 		sakaiPerson.setFavouriteQuotes(userProfile.getFavouriteQuotes());
-		sakaiPerson.setNotes(userProfile.getOtherInformation());
+		sakaiPerson.setNotes(ProfileUtils.escapeHtml(userProfile.getOtherInformation()));
 
 		//update SakaiPerson
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {

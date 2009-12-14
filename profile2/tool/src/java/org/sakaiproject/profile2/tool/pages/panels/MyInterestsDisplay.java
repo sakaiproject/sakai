@@ -15,6 +15,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.models.UserProfile;
+import org.sakaiproject.profile2.util.ProfileUtils;
 
 public class MyInterestsDisplay extends Panel {
 	
@@ -41,7 +42,7 @@ public class MyInterestsDisplay extends Panel {
 		String favouriteTvShows = userProfile.getFavouriteTvShows();
 		String favouriteMovies = userProfile.getFavouriteMovies();
 		String favouriteQuotes = userProfile.getFavouriteQuotes();
-		String otherInformation = userProfile.getOtherInformation();
+		String otherInformation = ProfileUtils.unescapeHtml(userProfile.getOtherInformation());
 		
 		//heading
 		add(new Label("heading", new ResourceModel("heading.interests")));
@@ -93,7 +94,7 @@ public class MyInterestsDisplay extends Panel {
 		//other info
 		WebMarkupContainer otherContainer = new WebMarkupContainer("otherContainer");
 		otherContainer.add(new Label("otherLabel", new ResourceModel("profile.other")));
-		otherContainer.add(new Label("otherInformation", otherInformation));
+		otherContainer.add(new Label("otherInformation", otherInformation).setEscapeModelStrings(false));
 		add(otherContainer);
 		if(StringUtils.isBlank(otherInformation)) {
 			otherContainer.setVisible(false);

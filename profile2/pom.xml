@@ -108,7 +108,7 @@
     	<tinyurl.version>1.0</tinyurl.version>
     	<commons.lang.version>2.1</commons.lang.version>
     	<entitybroker.version>1.3.6</entitybroker.version>
-    	<wicket.tinymce.version>1.3-SNAPSHOT</wicket.tinymce.version>
+    	<wicketstuff.tinymce.version>1.4.1</wicketstuff.tinymce.version>
     	<sakai.common.version>1.0.0-b03-SNAPSHOT</sakai.common.version>
     	<legacy.profile.api.version>2.8-SNAPSHOT</legacy.profile.api.version>
     </properties>
@@ -164,8 +164,8 @@
 	    	</dependency>
 	    	<dependency>
 	    		<groupId>org.wicketstuff</groupId>
-  				<artifactId>wicket-contrib-tinymce</artifactId>
-  				<version>${wicket.tinymce.version}</version>
+  				<artifactId>tinymce</artifactId>
+  				<version>${wicketstuff.tinymce.version}</version>
   			</dependency>
 	    	<dependency>
 	      		<groupId>org.jasypt</groupId>

@@ -17,6 +17,8 @@ import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.SessionManager;
 
+import wicket.contrib.tinymce.settings.TinyMCESettings;
+
 
 public class BasePage extends WebPage implements IHeaderContributor {
 
@@ -186,6 +188,9 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		
 		//for color plugin
 		//response.renderJavascriptReference("javascript/jquery.color.js");
+		
+		//wicketstuff TinyMCE
+		response.renderJavascriptReference(TinyMCESettings.javaScriptReference());
 		
 		//Tool additions (at end so we can override if required)
 		response.renderString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");

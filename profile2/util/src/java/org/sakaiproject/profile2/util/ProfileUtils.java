@@ -19,6 +19,7 @@ import java.util.Map;
 
 import javax.swing.ImageIcon;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jasypt.util.text.BasicTextEncryptor;
@@ -343,6 +344,16 @@ public class ProfileUtils {
 		String[] items = StringUtils.split(str, separator);
 		return Arrays.asList(items);
 	}
+	
+	
+	public static String escapeHtml(String s){
+		return StringEscapeUtils.escapeHtml(s);
+	}
+	
+	public static String unescapeHtml(String s){
+		return StringEscapeUtils.unescapeHtml(s);
+	}
+	
 	
 	/**
 	 * Decrypt the string
