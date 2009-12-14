@@ -1,6 +1,8 @@
 package org.sakaiproject.chat2.model.impl;
 
 import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -11,19 +13,25 @@ import org.sakaiproject.chat2.model.ChatMessage;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Createable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
+import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
+import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 
 public class ChatMessageEntityProvider implements CoreEntityProvider,
 		AutoRegisterEntityProvider, Outputable, Inputable, Resolvable,
-		Describeable, Createable {
+		Describeable, Createable, CollectionResolvable {
 
 	private ChatManager chatManager;
 
@@ -40,6 +48,8 @@ public class ChatMessageEntityProvider implements CoreEntityProvider,
 		private String chatChannelId;
 		private String context;
 		private String owner;
+		private String ownerDisplayId;
+		private String ownerDisplayName;
 		private Date messageDate;
 		private String body;
 
@@ -54,6 +64,14 @@ public class ChatMessageEntityProvider implements CoreEntityProvider,
 			this.messageDate = msg.getMessageDate();
 			this.chatChannelId = msg.getChatChannel().getId();
 			this.context = msg.getChatChannel().getContext();
+			
+			try {
+				User msgowner = UserDirectoryService.getUser(this.owner);
+				this.ownerDisplayId = msgowner.getDisplayId();
+				this.ownerDisplayName = msgowner.getDisplayName();
+			} catch (UserNotDefinedException e) {
+				// user not found - ignore
+			}
 		}
 		
 		public String getBody() {
@@ -90,6 +108,22 @@ public class ChatMessageEntityProvider implements CoreEntityProvider,
 	
 		public String getOwner() {
 			return owner;
+		}
+
+		public void setOwnerDisplayId(String ownerDisplayId) {
+			this.ownerDisplayId = ownerDisplayId;
+		}
+
+		public String getOwnerDisplayId() {
+			return ownerDisplayId;
+		}
+
+		public void setOwnerDisplayName(String ownerDisplayName) {
+			this.ownerDisplayName = ownerDisplayName;
+		}
+
+		public String getOwnerDisplayName() {
+			return ownerDisplayName;
 		}
 
 	}
@@ -154,7 +188,7 @@ public class ChatMessageEntityProvider implements CoreEntityProvider,
 
 	public String createEntity(EntityReference ref, Object entity,
 			Map<String, Object> params) {
-
+		
 		SimpleChatMessage inmsg = (SimpleChatMessage) entity;
 
 		String channelId = inmsg.getChatChannelId();
@@ -191,6 +225,81 @@ public class ChatMessageEntityProvider implements CoreEntityProvider,
 		chatManager.sendMessage(message);
 
 		return message.getId();
+	}
+
+	public List<SimpleChatMessage> getEntities(EntityReference ref, Search search) {
+
+		List<SimpleChatMessage> msglist = new ArrayList<SimpleChatMessage>();
+
+		String channelId = null;
+		String context = null;
+		
+		// by channel id
+		
+		Restriction channelRes = search.getRestrictionByProperty("channelId");
+
+		if (channelRes != null) {
+			channelId = channelRes.getStringValue();
+		}
+
+		// by context (site)
+		
+		Restriction locRes = search.getRestrictionByProperty(CollectionResolvable.SEARCH_LOCATION_REFERENCE);
+
+        if (locRes != null) {
+        	String location = locRes.getStringValue();
+        	context = new EntityReference(location).getId();
+        }
+
+        // number of messages
+        
+		Restriction itemRes = search.getRestrictionByProperty("items");
+
+		int items = 10;
+		
+		if (itemRes != null) {
+			// set item count
+			try {
+				items = Integer.valueOf(itemRes.getStringValue()).intValue();
+			} catch (NumberFormatException nfe) {
+				throw new IllegalArgumentException("Invalid items format - please specify an integer");
+			}
+		}
+
+		// messages since this date (timestamp)
+
+		Date fromdate = null;
+
+		Restriction dateRes = search.getRestrictionByProperty("messageDate");
+		if (dateRes != null) {
+			try {
+				long timestamp = Long.valueOf(dateRes.getStringValue()).longValue();
+				fromdate = new Date(timestamp);
+			} catch (NumberFormatException nfe) {
+				throw new IllegalArgumentException("Invalid timestamp format - please specify in milliseconds since epoch format");
+			}
+		}
+		
+		ChatChannel channel = null;
+		
+		if (channelId != null) {
+			channel = chatManager.getChatChannel(channelId);
+		}
+		
+		boolean sortAsc = true;
+		
+		try {
+			List<ChatMessage> chatmsgs = chatManager.getChannelMessages(channel, context, fromdate, items, sortAsc);
+			
+			for (ChatMessage c : chatmsgs) {
+				msglist.add(new SimpleChatMessage(c));
+			}
+
+		} catch (PermissionException e) {
+			throw new SecurityException("No permission to read messages from this channel or context");
+		}	
+		
+		return msglist;
 	}
 
 }
