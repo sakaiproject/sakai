@@ -75,21 +75,17 @@ public class SiteStatsMetricsEntityProvider implements AutoRegisterEntityProvide
 	// --- ActionsExecutable (ALL measures) ------------------------------------------
 	@EntityCustomAction(action = "get-all-metrics", viewKey = EntityView.VIEW_LIST)
 	public ActionReturn getAllMetrics(Search search, Map<String, Object> params) {
-		if(developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference())) {
-			Map<String,Object> map = new HashMap<String, Object>();
-			map.put("Number_of_total_events_processed", statsUpdateManager.getNumberOfEventsProcessed());
-			map.put("Reset_or_Init_time", (new Date(statsUpdateManager.getResetTime()).toString()) + "( " + statsUpdateManager.getResetTime() + " ms)");
-			map.put("Total_time_ellapsed_since_reset", statsUpdateManager.getTotalTimeEllapsedSinceReset() + " ms");
-			map.put("Total_time_spent_processing_events", statsUpdateManager.getTotalTimeInEventProcessing() + " ms");
-			map.put("Number_of_events_processed_per_sec", statsUpdateManager.getNumberOfEventsProcessedPerSec());
-			map.put("Number_of_events_generated_in_Sakai_per_sec", statsUpdateManager.getNumberOfEventsGeneratedPerSec());
-			map.put("Average_time_spent_in_event_processing_per_event", statsUpdateManager.getAverageTimeInEventProcessingPerEvent() + " ms");
-			map.put("Event_queue_size", statsUpdateManager.getQueueSize());
-			map.put("Idle", statsUpdateManager.isIdle());
-			return new ActionReturn(map);
-		}else{
-			throw new SecurityException("Only administrator can perform this action.");
-		}
+		Map<String,Object> map = new HashMap<String, Object>();
+		map.put("Number_of_total_events_processed", statsUpdateManager.getNumberOfEventsProcessed());
+		map.put("Reset_or_Init_time", (new Date(statsUpdateManager.getResetTime()).toString()) + "( " + statsUpdateManager.getResetTime() + " ms)");
+		map.put("Total_time_ellapsed_since_reset", statsUpdateManager.getTotalTimeEllapsedSinceReset() + " ms");
+		map.put("Total_time_spent_processing_events", statsUpdateManager.getTotalTimeInEventProcessing() + " ms");
+		map.put("Number_of_events_processed_per_sec", statsUpdateManager.getNumberOfEventsProcessedPerSec());
+		map.put("Number_of_events_generated_in_Sakai_per_sec", statsUpdateManager.getNumberOfEventsGeneratedPerSec());
+		map.put("Average_time_spent_in_event_processing_per_event", statsUpdateManager.getAverageTimeInEventProcessingPerEvent() + " ms");
+		map.put("Event_queue_size", statsUpdateManager.getQueueSize());
+		map.put("Idle", statsUpdateManager.isIdle());
+		return new ActionReturn(map);
 	}
 	
 	@EntityCustomAction(action = "reset-all-metrics", viewKey = EntityView.VIEW_LIST)
@@ -106,83 +102,47 @@ public class SiteStatsMetricsEntityProvider implements AutoRegisterEntityProvide
 	// --- ActionsExecutable (individual measures) -----------------------------------
 	@EntityCustomAction(action = "get-total-events-processed", viewKey = EntityView.VIEW_LIST)
 	public ActionReturn getTotalEventsProcessed(Search search, Map<String, Object> params) {
-		if(developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference())) {
-			return new ActionReturn(statsUpdateManager.getNumberOfEventsProcessed());
-		}else{
-			throw new SecurityException("Only administrator can perform this action.");
-		}
+		return new ActionReturn(statsUpdateManager.getNumberOfEventsProcessed());
 	}
 	
 	@EntityCustomAction(action = "get-reset-time", viewKey = EntityView.VIEW_LIST)
 	public ActionReturn getResetTime(Search search, Map<String, Object> params) {
-		if(developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference())) {
-			return new ActionReturn(statsUpdateManager.getResetTime());
-		}else{
-			throw new SecurityException("Only administrator can perform this action.");
-		}
+		return new ActionReturn(statsUpdateManager.getResetTime());
 	}
 	
 	@EntityCustomAction(action = "get-time-ellapsed-since-reset", viewKey = EntityView.VIEW_LIST)
 	public ActionReturn getTimeEllapsedSinceReset(Search search, Map<String, Object> params) {
-		if(developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference())) {
-			return new ActionReturn(statsUpdateManager.getTotalTimeEllapsedSinceReset());
-		}else{
-			throw new SecurityException("Only administrator can perform this action.");
-		}
+		return new ActionReturn(statsUpdateManager.getTotalTimeEllapsedSinceReset());
 	}
 	
 	@EntityCustomAction(action = "get-time-spent-processing-events", viewKey = EntityView.VIEW_LIST)
 	public ActionReturn getTimeSpentProcessingEvents(Search search, Map<String, Object> params) {
-		if(developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference())) {
-			return new ActionReturn(statsUpdateManager.getTotalTimeInEventProcessing());
-		}else{
-			throw new SecurityException("Only administrator can perform this action.");
-		}
+		return new ActionReturn(statsUpdateManager.getTotalTimeInEventProcessing());
 	}
 	
 	@EntityCustomAction(action = "get-events-processed-per-sec", viewKey = EntityView.VIEW_LIST)
 	public ActionReturn getEventsProcessedPerSec(Search search, Map<String, Object> params) {
-		if(developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference())) {
-			return new ActionReturn(statsUpdateManager.getNumberOfEventsProcessedPerSec());
-		}else{
-			throw new SecurityException("Only administrator can perform this action.");
-		}
+		return new ActionReturn(statsUpdateManager.getNumberOfEventsProcessedPerSec());
 	}
 	
 	@EntityCustomAction(action = "get-events-generated-per-sec", viewKey = EntityView.VIEW_LIST)
 	public ActionReturn getEventsGeneratedPerSec(Search search, Map<String, Object> params) {
-		if(developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference())) {
-			return new ActionReturn(statsUpdateManager.getNumberOfEventsGeneratedPerSec());
-		}else{
-			throw new SecurityException("Only administrator can perform this action.");
-		}
+		return new ActionReturn(statsUpdateManager.getNumberOfEventsGeneratedPerSec());
 	}
 	
 	@EntityCustomAction(action = "get-average-time-event-processing-per-event", viewKey = EntityView.VIEW_LIST)
 	public ActionReturn getAverageTimeInEventProcessingPerEvent(Search search, Map<String, Object> params) {
-		if(developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference())) {
-			return new ActionReturn(statsUpdateManager.getAverageTimeInEventProcessingPerEvent());
-		}else{
-			throw new SecurityException("Only administrator can perform this action.");
-		}
+		return new ActionReturn(statsUpdateManager.getAverageTimeInEventProcessingPerEvent());
 	}
 	
 	@EntityCustomAction(action = "get-queue-size", viewKey = EntityView.VIEW_LIST)
 	public ActionReturn getQueueSize(Search search, Map<String, Object> params) {
-		if(developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference())) {
-			return new ActionReturn(statsUpdateManager.getQueueSize());
-		}else{
-			throw new SecurityException("Only administrator can perform this action.");
-		}
+		return new ActionReturn(statsUpdateManager.getQueueSize());
 	}
 	
 	@EntityCustomAction(action = "is-idle", viewKey = EntityView.VIEW_LIST)
 	public ActionReturn isIdle(Search search, Map<String, Object> params) {
-		if(developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference())) {
-			return new ActionReturn(statsUpdateManager.isIdle());
-		}else{
-			throw new SecurityException("Only administrator can perform this action.");
-		}
+		return new ActionReturn(statsUpdateManager.isIdle());
 	}
 	
 }
