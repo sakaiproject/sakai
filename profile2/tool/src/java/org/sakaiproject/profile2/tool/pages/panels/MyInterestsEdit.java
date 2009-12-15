@@ -21,6 +21,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.tool.Locator;
+import org.sakaiproject.profile2.tool.components.TextareaTinyMceSettings;
 import org.sakaiproject.profile2.tool.models.UserProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -100,9 +101,7 @@ public class MyInterestsEdit extends Panel {
 		TextArea otherInformation = new TextArea("otherInformation", new PropertyModel(userProfile, "otherInformation"));
 		
 		//add TinyMCE control
-		TinyMCESettings settings = new TinyMCESettings();
-		settings.setToolbarLocation(TinyMCESettings.Location.top);
-		otherInformation.add(new TinyMceBehavior(settings));
+		otherInformation.add(new TinyMceBehavior(new TextareaTinyMceSettings()));
 		
 		otherContainer.add(otherInformation);
 		form.add(otherContainer);
@@ -188,7 +187,7 @@ public class MyInterestsEdit extends Panel {
 		sakaiPerson.setFavouriteTvShows(userProfile.getFavouriteTvShows());
 		sakaiPerson.setFavouriteMovies(userProfile.getFavouriteMovies());
 		sakaiPerson.setFavouriteQuotes(userProfile.getFavouriteQuotes());
-		sakaiPerson.setNotes(ProfileUtils.escapeHtml(userProfile.getOtherInformation()));
+		sakaiPerson.setNotes(ProfileUtils.processHtml(userProfile.getOtherInformation()));
 
 		//update SakaiPerson
 		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {

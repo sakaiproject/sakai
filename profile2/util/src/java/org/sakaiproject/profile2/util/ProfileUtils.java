@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jasypt.util.text.BasicTextEncryptor;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
 import com.sun.image.codec.jpeg.JPEGCodec;
@@ -345,11 +346,29 @@ public class ProfileUtils {
 		return Arrays.asList(items);
 	}
 	
+	/**
+	 * Processes HTML and strips evils tags, also converts newlines to proper HTML breaks.
+	 * @param s
+	 * @return
+	 */
+	public static String processHtml(String s){
+		return FormattedText.processFormattedText(s, new StringBuilder(), true, true);
+	}
 	
+	/**
+	 * Escapes HTML to the HTML entity equivalents
+	 * @param s
+	 * @return
+	 */
 	public static String escapeHtml(String s){
 		return StringEscapeUtils.escapeHtml(s);
 	}
 	
+	/**
+	 * Unescapes HTML entities back to original characters
+	 * @param s
+	 * @return
+	 */
 	public static String unescapeHtml(String s){
 		return StringEscapeUtils.unescapeHtml(s);
 	}
