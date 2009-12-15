@@ -6,6 +6,10 @@ import java.util.List;
 import wicket.contrib.tinymce.settings.Button;
 import wicket.contrib.tinymce.settings.TinyMCESettings;
 
+/**
+ * A configuration class for the TinyMCE Wicket component, used by textareas.
+ * If more are required for different purposes, create a new class.
+ */
 public class TextareaTinyMceSettings extends TinyMCESettings {
 
 	private static final long serialVersionUID = 1L;
