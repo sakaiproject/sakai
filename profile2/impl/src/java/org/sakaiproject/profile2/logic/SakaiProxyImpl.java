@@ -652,7 +652,7 @@ public class SakaiProxyImpl implements SakaiProxy {
  	* {@inheritDoc}
  	*/
 	public String getServiceName() {
-		return serverConfigurationService.getString("ui.service", "Sakai");
+		return serverConfigurationService.getString("ui.service", ProfileConstants.SAKAI_PROP_SERVICE_NAME);
 	}
 	
 	/**
@@ -760,28 +760,28 @@ public class SakaiProxyImpl implements SakaiProxy {
  	* {@inheritDoc}
  	*/
 	public boolean isProfileConversionEnabled() {
-		return serverConfigurationService.getBoolean("profile2.convert", false);
+		return serverConfigurationService.getBoolean("profile2.convert", ProfileConstants.SAKAI_PROP_PROFILE2_CONVERSION_ENABLED);
 	}
 	
 	/**
  	* {@inheritDoc}
  	*/
 	public boolean isTwitterIntegrationEnabledGlobally() {
-		return serverConfigurationService.getBoolean("profile2.integration.twitter.enabled", true);
+		return serverConfigurationService.getBoolean("profile2.integration.twitter.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_TWITTER_INTEGRATION_ENABLED);
 	}
 	
 	/**
  	* {@inheritDoc}
  	*/
 	public String getTwitterSource() {
-		return serverConfigurationService.getString("profile2.integration.twitter.source", "profile2");
+		return serverConfigurationService.getString("profile2.integration.twitter.source", ProfileConstants.SAKAI_PROP_PROFILE2_TWITTER_INTEGRATION_SOURCE);
 	}
 	
 	/**
  	* {@inheritDoc}
  	*/
 	public boolean isProfilePictureChangeEnabled() {
-		return serverConfigurationService.getBoolean("profile2.picture.change.enabled", true);
+		return serverConfigurationService.getBoolean("profile2.picture.change.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_PICTURE_CHANGE_ENABLED);
 	}
 	
 	/**
@@ -859,7 +859,7 @@ public class SakaiProxyImpl implements SakaiProxy {
  	* {@inheritDoc}
  	*/
 	public boolean isPrivacyChangeAllowedGlobally() {
-		return serverConfigurationService.getBoolean("profile2.privacy.change.enabled", true);
+		return serverConfigurationService.getBoolean("profile2.privacy.change.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_PRIVACY_CHANGE_ENABLED);
 	}
 	
 	

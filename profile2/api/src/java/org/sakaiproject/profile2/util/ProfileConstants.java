@@ -127,7 +127,12 @@ public class ProfileConstants {
 	
 	public static final String SAKAI_PROP_INVISIBLE_USERS = "postmaster"; //string, comma separated
 	public static final char SAKAI_PROP_LIST_SEPARATOR = ','; //char used to separate multi value lists
-	
+	public static final String SAKAI_PROP_SERVICE_NAME = "Sakai"; //ui.service
+	public static final boolean SAKAI_PROP_PROFILE2_CONVERSION_ENABLED = false; //profile2.convert
+	public static final boolean SAKAI_PROP_PROFILE2_TWITTER_INTEGRATION_ENABLED = true; //profile2.integration.twitter.enabled
+	public static final String SAKAI_PROP_PROFILE2_TWITTER_INTEGRATION_SOURCE = "Profile2"; //profile2.integration.twitter.source
+	public static final boolean SAKAI_PROP_PROFILE2_PICTURE_CHANGE_ENABLED = true; //profile2.picture.change.enabled
+	public static final boolean SAKAI_PROP_PROFILE2_PRIVACY_CHANGE_ENABLED = true; //profile2.privacy.change.enabled
 	
 	/*
 	 * MISC
