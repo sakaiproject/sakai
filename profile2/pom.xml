@@ -28,12 +28,38 @@
 		<developer>
 			<name>Steve Swinsburg</name>
 			<email>s.swinsburg@gmail.com</email>
+			<timezone>10</timezone>
 		</developer>
 		<developer>
 			<name>Adrian Fish</name>
 			<email>a.fish@lancaster.ac.uk</email>
+			<timezone>0</timezone>
+		</developer>
+		<developer>
+			<name>Daniel Robinson</name>
+			<email>d.b.robinson@lancaster.ac.uk</email>
+			<timezone>0</timezone>
 		</developer>
 	</developers>
+	
+	<contributors>
+		<contributor>
+			<name>Mark Breuker</name>
+			<email>mbreuker@loi.nl</email>
+		</contributor>
+		<contributor>
+			<name>Mike Ozornin</name>
+			<email>mike.ozornin@gmail.com</email>
+		</contributor>
+		<contributor>
+			<name>Nuno Fernandes</name>
+			<email>nuno@ufp.edu.pt</email>
+		</contributor>
+		<contributor>
+			<name>Yuanhua Qu</name>
+			<email>yq12@txstate.edu</email>
+		</contributor>
+	</contributors>
 
 	<licenses>
 		<license>
