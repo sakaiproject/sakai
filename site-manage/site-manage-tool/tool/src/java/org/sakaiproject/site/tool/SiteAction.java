@@ -620,6 +620,8 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String TOOL_ID_SYNOPTIC_ANNOUNCEMENT = "sakai.synoptic.announcement";
 	private static final String TOOL_ID_SYNOPTIC_CHAT = "sakai.synoptic.chat";
 	private static final String TOOL_ID_SYNOPTIC_MESSAGECENTER = "sakai.synoptic.messagecenter";
+	private static final String TOOL_ID_SYNOPTIC_DISCUSSION = "sakai.synoptic.discussion";
+	
 	// map of synoptic tool and the related tool ids
 	private final static Map<String, List<String>> SYNOPTIC_TOOL_ID_MAP;
 	static
@@ -629,6 +631,7 @@ public class SiteAction extends PagedResourceActionII {
 		SYNOPTIC_TOOL_ID_MAP.put(TOOL_ID_SYNOPTIC_ANNOUNCEMENT, new ArrayList(Arrays.asList("sakai.announcements")));
 		SYNOPTIC_TOOL_ID_MAP.put(TOOL_ID_SYNOPTIC_CHAT, new ArrayList(Arrays.asList("sakai.chat")));
 		SYNOPTIC_TOOL_ID_MAP.put(TOOL_ID_SYNOPTIC_MESSAGECENTER, new ArrayList(Arrays.asList("sakai.messages", "sakai.forums", "sakai.messagecenter")));
+		SYNOPTIC_TOOL_ID_MAP.put(TOOL_ID_SYNOPTIC_DISCUSSION, new ArrayList(Arrays.asList("sakai.discussion")));
 	}
 	
 	// map of synoptic tool and message bundle properties, used to lookup an internationalized tool title
@@ -640,6 +643,7 @@ public class SiteAction extends PagedResourceActionII {
 		SYNOPTIC_TOOL_TITLE_MAP.put(TOOL_ID_SYNOPTIC_ANNOUNCEMENT, "java.recann");
 		SYNOPTIC_TOOL_TITLE_MAP.put(TOOL_ID_SYNOPTIC_CHAT, "java.recent");
 		SYNOPTIC_TOOL_TITLE_MAP.put(TOOL_ID_SYNOPTIC_MESSAGECENTER, "java.recmsg");
+		SYNOPTIC_TOOL_TITLE_MAP.put(TOOL_ID_SYNOPTIC_DISCUSSION, "java.recdis");
 	}
 	
 	/** the web content tool id **/
