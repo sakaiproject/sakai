@@ -285,7 +285,7 @@ public class RefCountMultiReader extends MultiReader implements ThreadBound,
 			count++;
 			tlm.set(String.valueOf(this), this);
 			if (log.isDebugEnabled())
-				log.debug("Bind " + this + " " + indexReaders + " " + count);
+				log.debug("Bind " + this + " " + count);
 		}
 		else if (o != this)
 		{

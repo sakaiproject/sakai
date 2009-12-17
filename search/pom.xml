@@ -353,4 +353,26 @@
 		</plugins>
 	</pluginManagement>
 </build>
+<pluginRepositories>
+		<pluginRepository>
+			<id>codehaus snapshot repository</id>
+			<url>http://snapshots.repository.codehaus.org/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</pluginRepository>
+		<pluginRepository>
+			<id>Sakai Plugin Repo</id>
+			<url>http://source.sakaiproject.org/maven2</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</pluginRepository>
+		<pluginRepository>
+			<id>xebia-maven2</id>
+			<name>Xebia Maven2 Repository</name>
+			<url>http://mojo.os.xebia.com/repository</url>
+		</pluginRepository>
+	</pluginRepositories>
+
 </project>
