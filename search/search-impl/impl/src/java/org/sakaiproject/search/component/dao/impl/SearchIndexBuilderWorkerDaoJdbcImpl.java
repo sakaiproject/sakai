@@ -841,16 +841,19 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			{
 				indexWrite = indexStorage.getIndexWriter(false);
 			}
-			long last = System.currentTimeMillis();
-
-			Document doc = new Document();
-			doc
-					.add(new Field(SearchService.DATE_STAMP, String.valueOf(System
-							.currentTimeMillis()), Field.Store.COMPRESS,
-							Field.Index.UN_TOKENIZED));
-			doc.add(new Field(SearchService.FIELD_ID, "---INDEX-CREATED---",
-					Field.Store.COMPRESS, Field.Index.UN_TOKENIZED));
-			indexWrite.addDocument(doc);
+			if (indexWrite != null)
+			{
+				Document doc = new Document();
+				doc
+				.add(new Field(SearchService.DATE_STAMP, String.valueOf(System
+						.currentTimeMillis()), Field.Store.COMPRESS,
+						Field.Index.UN_TOKENIZED));
+				doc.add(new Field(SearchService.FIELD_ID, "---INDEX-CREATED---",
+						Field.Store.COMPRESS, Field.Index.UN_TOKENIZED));
+				indexWrite.addDocument(doc);
+			} else {
+				log.error("Couldn't get indexWriter to add document!");
+			}
 
 		}
 		catch (Exception ex)
