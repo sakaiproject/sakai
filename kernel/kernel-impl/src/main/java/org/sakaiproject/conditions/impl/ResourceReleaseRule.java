@@ -28,25 +28,26 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
 
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.conditions.api.Condition;
-import org.sakaiproject.conditions.api.Rule;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections.PredicateUtils;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.conditions.api.Condition;
+import org.sakaiproject.conditions.api.Rule;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.GroupAwareEdit;
-import org.sakaiproject.event.api.Obsoletable;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationAction;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.event.api.Obsoletable;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.OverQuotaException;
@@ -56,8 +57,6 @@ import org.sakaiproject.exception.TypeException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.apache.commons.collections.Predicate;
-import org.apache.commons.collections.PredicateUtils;
 
 /**
  * @author zach
@@ -69,6 +68,11 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 	private String resourceId;
 	private List<Condition> predicates;
 	private Conjunction conj;
+	
+	private ContentHostingService chs;
+	public void setContentHostingService(ContentHostingService chs) {
+		this.chs = chs;
+	}
 		
 	// we need a no-arg constructor so BaseNotificationService can instantiate these things with Class.forName(className).newInstance();
 	public ResourceReleaseRule() {
@@ -127,10 +131,10 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 			// update access control list on ContentHostingService here
 			try {
 				GroupAwareEdit resource = null;
-				if (ContentHostingService.isCollection(this.resourceId)) {
-					resource = ContentHostingService.editCollection(this.resourceId);
+				if (chs.isCollection(this.resourceId)) {
+					resource = chs.editCollection(this.resourceId);
 				} else {
-					resource = ContentHostingService.editResource(this.resourceId);
+					resource = chs.editResource(this.resourceId);
 				}
 				ResourceProperties resourceProps = resource.getProperties();
 				// since we're following a per-user event now, the global rule property should be removed
@@ -141,10 +145,10 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 				if ((shouldBeAvailable && acl.contains(grading.getUserId()))
 					|| (!shouldBeAvailable && !acl.contains(grading.getUserId()))) {
 					 // no change to the ACL necessary, but we still have to commit the change to SATISFIES_RULE
-					if (ContentHostingService.isCollection(this.resourceId)) {
-						ContentHostingService.commitCollection((ContentCollectionEdit)resource);
+					if (chs.isCollection(this.resourceId)) {
+						chs.commitCollection((ContentCollectionEdit)resource);
 					} else {
-						ContentHostingService.commitResource((ContentResourceEdit)resource, NotificationService.NOTI_NONE);
+						chs.commitResource((ContentResourceEdit)resource, NotificationService.NOTI_NONE);
 					}
 					SecurityService.popAdvisor();
 					return;
@@ -163,10 +167,10 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 					resourceProps.addPropertyToList(ContentHostingService.CONDITIONAL_ACCESS_LIST, grading.getUserId());
 				}
 				
-				if (ContentHostingService.isCollection(this.resourceId)) {
-					ContentHostingService.commitCollection((ContentCollectionEdit)resource);
+				if (chs.isCollection(this.resourceId)) {
+					chs.commitCollection((ContentCollectionEdit)resource);
 				} else {
-					ContentHostingService.commitResource((ContentResourceEdit)resource, NotificationService.NOTI_NONE);
+					chs.commitResource((ContentResourceEdit)resource, NotificationService.NOTI_NONE);
 				}
 			} catch (PermissionException e) {
 				// TODO Auto-generated catch block
@@ -196,17 +200,17 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 			boolean shouldBeAvailable = this.evaluate(update);
 			try {
 				GroupAwareEdit resource = null;
-				if (ContentHostingService.isCollection(this.resourceId)) {
-					resource = ContentHostingService.editCollection(this.resourceId);
+				if (chs.isCollection(this.resourceId)) {
+					resource = chs.editCollection(this.resourceId);
 				} else {
-					resource = ContentHostingService.editResource(this.resourceId);
+					resource = chs.editResource(this.resourceId);
 				}
 				ResourceProperties resourceProps = resource.getProperties();
 				resourceProps.addProperty(SATISFIES_RULE, Boolean.valueOf(shouldBeAvailable).toString());
-				if (ContentHostingService.isCollection(this.resourceId)) {
-					ContentHostingService.commitCollection((ContentCollectionEdit)resource);
+				if (chs.isCollection(this.resourceId)) {
+					chs.commitCollection((ContentCollectionEdit)resource);
 				} else {
-					ContentHostingService.commitResource((ContentResourceEdit)resource, NotificationService.NOTI_NONE);
+					chs.commitResource((ContentResourceEdit)resource, NotificationService.NOTI_NONE);
 				}
 			} catch (PermissionException e) {
 				// TODO Auto-generated catch block
@@ -255,10 +259,10 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 				
 				// update state on this resource
 				GroupAwareEdit resource = null;
-				if (ContentHostingService.isCollection(this.resourceId)) {
-					resource = ContentHostingService.editCollection(this.resourceId);
+				if (chs.isCollection(this.resourceId)) {
+					resource = chs.editCollection(this.resourceId);
 				} else {
-					resource = ContentHostingService.editResource(this.resourceId);
+					resource = chs.editResource(this.resourceId);
 				}
 				ResourceProperties resourceProps = resource.getProperties();
 				// since we're following a per-user event now, the global rule property should be removed
@@ -268,10 +272,10 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 					resourceProps.addPropertyToList(ContentHostingService.CONDITIONAL_ACCESS_LIST, id);
 				}
 				
-				if (ContentHostingService.isCollection(this.resourceId)) {
-					ContentHostingService.commitCollection((ContentCollectionEdit)resource);
+				if (chs.isCollection(this.resourceId)) {
+					chs.commitCollection((ContentCollectionEdit)resource);
 				} else {
-					ContentHostingService.commitResource((ContentResourceEdit)resource, NotificationService.NOTI_NONE);
+					chs.commitResource((ContentResourceEdit)resource, NotificationService.NOTI_NONE);
 				}
 				
 				
@@ -313,7 +317,7 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 			}
 		});
 		try {
-			ContentHostingService.getProperties(this.resourceId);
+			chs.getProperties(this.resourceId);
 			return false;
 		} catch (PermissionException e1) {
 			return true;
