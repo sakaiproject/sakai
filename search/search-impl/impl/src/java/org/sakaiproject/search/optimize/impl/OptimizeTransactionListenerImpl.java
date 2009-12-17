@@ -172,12 +172,11 @@ public class OptimizeTransactionListenerImpl implements OptimizeTransactionListe
 			iw.optimize();
 			log.info("LocalOptimize: Optimized "+optimzableSegments.length+" segments in to local master ");
 			for ( Directory d : directories ) {
-				if ( d instanceof FSDirectory ) {
-					FSDirectory fsd = (FSDirectory) d;
-					File f = fsd.getFile();
-					File deleteMarker = new File(f,JournaledIndex.DELETE_ON_CLOSE_FILE);
-					FileUtils.createMarkerFile(deleteMarker);
-				}
+				FSDirectory fsd = (FSDirectory) d;
+				File f = fsd.getFile();
+				File deleteMarker = new File(f,JournaledIndex.DELETE_ON_CLOSE_FILE);
+				FileUtils.createMarkerFile(deleteMarker);
+
 			}
 		}
 		catch (IOException e)
