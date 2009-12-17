@@ -168,7 +168,7 @@ public class OptimizeTransactionListenerImpl implements OptimizeTransactionListe
 				
 				directories[i++] = FSDirectory.getDirectory(f, false);
 			}
-			iw.addIndexes(directories);
+			iw.addIndexesNoOptimize(directories);
 			iw.optimize();
 			log.info("LocalOptimize: Optimized "+optimzableSegments.length+" segments in to local master ");
 			for ( Directory d : directories ) {
