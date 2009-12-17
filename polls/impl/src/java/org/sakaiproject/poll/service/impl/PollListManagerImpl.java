@@ -180,11 +180,6 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             t.setId(idManager.createUuid());
         }
 
-        // we may need to truncate the description field - Should no longer be needed
-        /*
-        if (t.getDetails().length() > 254)
-            t.setDetails(t.getDetails().substring(0, 254));
-		*/
         try {
             dao.save(t);
 
