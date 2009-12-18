@@ -122,7 +122,7 @@ public class AddFriend extends Panel {
 				        final String url = sakaiProxy.getDirectUrlToUserProfile(userY, urlFor(MyFriends.class, null).toString());
 	
 				        //tinyUrl
-				        final String tinyUrl = profileLogic.generateTinyUrl(url);
+				        //final String tinyUrl = profileLogic.generateTinyUrl(url);
 				        
 				        //get toolName
 				        final String toolName = sakaiProxy.getCurrentToolTitle();
@@ -140,7 +140,7 @@ public class AddFriend extends Panel {
 						message.append(newline);
 						message.append(new StringResourceModel("email.friend.request.link", null, new Object[]{ currentUserName }).getObject().toString());
 						message.append(newline);
-						message.append(new StringResourceModel("email.friend.request.link.href", null, new Object[]{ tinyUrl }).getObject().toString());
+						message.append(new StringResourceModel("email.friend.request.link.href", null, new Object[]{ url }).getObject().toString());
 						message.append(newline);
 						message.append(newline);
 						message.append(new StringResourceModel("email.footer.1", this, null).getString());

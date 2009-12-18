@@ -30,7 +30,7 @@ import org.sakaiproject.profile2.model.ResourceWrapper;
 import org.sakaiproject.profile2.model.SearchResult;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
-import org.sakaiproject.tinyurl.api.TinyUrlService;
+//import org.sakaiproject.tinyurl.api.TinyUrlService;
 import org.sakaiproject.user.api.User;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -1465,9 +1465,11 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
+	/*
 	public String generateTinyUrl(final String url) {
 		return tinyUrlService.generateTinyUrl(url);
 	}
+	*/
 	
 	
 	/**
@@ -2053,10 +2055,12 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 
 	
 	//setup TinyUrlService API
+	/*
 	private TinyUrlService tinyUrlService;
 	public void setTinyUrlService(TinyUrlService tinyUrlService) {
 		this.tinyUrlService = tinyUrlService;
 	}
+	*/
 	
 	
 	

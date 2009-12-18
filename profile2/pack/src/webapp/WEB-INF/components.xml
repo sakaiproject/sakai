@@ -27,7 +27,7 @@
     	init-method="init">
 		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
-		<property name="tinyUrlService"><ref bean="org.sakaiproject.tinyurl.api.TinyUrlService"/></property>
+		<!-- <property name="tinyUrlService"><ref bean="org.sakaiproject.tinyurl.api.TinyUrlService"/></property>-->
 	</bean>
 	
 	

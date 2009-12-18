@@ -34,6 +34,7 @@
 			<classifier>tomcat-overlay</classifier>
 			<type>zip</type>
 		</dependency>
+		<!-- 
 		<dependency>
 			<groupId>org.sakaiproject.tinyurl</groupId>
 			<artifactId>tinyurl-assembly</artifactId>
@@ -41,6 +42,7 @@
 			<classifier>tomcat-overlay</classifier>
 			<type>zip</type>
 		</dependency>
+		-->
 	</dependencies>
 
 </project>

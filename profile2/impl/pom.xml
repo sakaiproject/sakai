@@ -49,11 +49,13 @@
       		<artifactId>commons-lang</artifactId>
       		<scope>provided</scope>
    		</dependency>
+   		<!-- 
 		<dependency>
       		<groupId>org.sakaiproject.tinyurl</groupId>
       		<artifactId>tinyurl-api</artifactId>
       		<scope>provided</scope>
    		</dependency>
+   		-->
    		
    		   				
 		<!--  GENERIC SAKAI DEPENDENCIES -->

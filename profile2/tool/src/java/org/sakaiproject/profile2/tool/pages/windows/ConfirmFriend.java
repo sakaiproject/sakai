@@ -116,7 +116,7 @@ public class ConfirmFriend extends Panel {
 				        String url = sakaiProxy.getDirectUrlToUserProfile(userY, urlFor(ViewProfile.class, new PageParameters("id=" + userX)).toString());
 				        
 				        //tinyurl
-				        final String tinyUrl = profileLogic.generateTinyUrl(url);
+				       // final String tinyUrl = profileLogic.generateTinyUrl(url);
 				        
 				        //toolName
 				        final String toolName = sakaiProxy.getCurrentToolTitle();
@@ -125,7 +125,7 @@ public class ConfirmFriend extends Panel {
 						message.append(newline);
 				        message.append(new StringResourceModel("email.friend.confirm.link", null, new Object[]{ currentUserName} ).getObject().toString());
 				        message.append(newline);
-						message.append(new StringResourceModel("email.friend.confirm.link.href", null, new Object[]{ tinyUrl }).getObject().toString());
+						message.append(new StringResourceModel("email.friend.confirm.link.href", null, new Object[]{ url }).getObject().toString());
 						
 						//standard footer
 						message.append(newline);

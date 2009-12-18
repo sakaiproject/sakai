@@ -614,7 +614,7 @@ public interface ProfileLogic {
 	 * @param url
 	 * @return
 	 */
-	public String generateTinyUrl(final String url);
+	//public String generateTinyUrl(final String url);
 	
 	/**
 	 * Is this type of notification to be sent as an email to the given user?

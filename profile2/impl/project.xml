@@ -79,11 +79,13 @@
    		</dependency>
   	
   		<!-- tinyurl -->
+  		<!-- 
 		<dependency>
       		<groupId>org.sakaiproject</groupId>
       		<artifactId>sakai-tinyurl-api</artifactId>
      		<version>0.9-SNAPSHOT</version>
    		</dependency>
+   		-->
 
 		<!--  Sakai dependencies -->
 		<dependency>

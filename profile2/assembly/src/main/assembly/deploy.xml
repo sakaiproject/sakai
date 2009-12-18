@@ -6,6 +6,7 @@
 	</formats>
 	<includeBaseDirectory>false</includeBaseDirectory>
 	<dependencySets>
+		
 		<!-- shared -->
 		<dependencySet>
 			<outputDirectory>shared/lib</outputDirectory>
@@ -13,9 +14,9 @@
 			<includes>
 				<include>org.sakaiproject.profile2:profile2-api:jar:*</include>
 				<include>org.sakaiproject.profile2:profile2-help:jar:*</include>
-				<!--  <include>org.sakaiproject:sakai-profile-api:jar:*</include>-->
 			</includes>
 		</dependencySet>
+		
 		<!-- components -->
 		<dependencySet>
 			<outputDirectory>components/profile2-pack</outputDirectory>
@@ -25,16 +26,7 @@
 			</includes>
 			<unpack>true</unpack>
 		</dependencySet>
-		<!-- 
-		<dependencySet>
-			<outputDirectory>components/profile2-legacy-profile-pack</outputDirectory>
-			<useTransitiveDependencies>false</useTransitiveDependencies>
-			<includes>
-				<include>org.sakaiproject.profile2:profile2-legacy-profile-pack:war:*</include>
-			</includes>
-			<unpack>true</unpack>
-		</dependencySet>
-		-->
+		
 		<!-- webapps -->
 		<dependencySet>
             <outputDirectory>webapps/</outputDirectory>
@@ -45,6 +37,7 @@
             </includes>
             <unpack>false</unpack>
         </dependencySet>
+        
 	</dependencySets>
 	<!-- additional files -->
 	<fileSets>
