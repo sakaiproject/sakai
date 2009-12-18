@@ -2,22 +2,20 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <!-- adjust these name,groupId,artifactId to match your project -->
+
     <name>Profile2 DB DDL generator</name>
     <groupId>org.sakaiproject.profile2</groupId>
     <artifactId>profile2-ddl-generator</artifactId>
     <packaging>pom</packaging>
 
-    <!-- this should refer to your project base POM (remove if not needed) -->
     <parent>
 		<groupId>org.sakaiproject.profile2</groupId>
 		<artifactId>profile2</artifactId>
-	    <version>1.3-SNAPSHOT</version>
+	    <version>1.4-SNAPSHOT</version>
 	    <relativePath>../pom.xml</relativePath>
 	</parent>
 
     <properties>
-        <!-- change this to reflect the name to use for the ddl files -->
         <project.ddl.name>profile2-ddl</project.ddl.name>
     </properties>
 
