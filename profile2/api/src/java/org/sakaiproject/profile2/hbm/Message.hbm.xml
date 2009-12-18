@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.sakaiproject.profile2.model">
+
+	<class name="Message" table="PROFILE_MESSAGES_T">
+
+	    <id name="id">
+	      <column name="ID" not-null="true" length="19" />
+	      <generator class="native">
+	        <param name="sequence">PROFILE_MESSAGES_S</param>
+	      </generator>
+	    </id>
+
+	    <property name="to" column="UUID_TO" length="99" not-null="true" index="PROFILE_FRIENDS_TO_I" />
+	    <property name="from" column="UUID_FROM" length="99" not-null="true" index="PROFILE_FRIENDS_FROM_I" />
+		<property name="subject" column="MESSAGE_SUBJECT" length="255" not-null="true" />
+		<property name="message" column="MESSAGE_BODY" length="4000" not-null="true" />
+		<property name="inReplyTo" column="IN_REPLY_TO" length="99" not-null="false" />
+	    <property name="read" column="MESSAGE_READ" not-null="true" index="PROFILE_FRIENDS_READ_I" />
+		<property name="datePosted" column="DATE_POSTED" not-null="true" index="PROFILE_FRIENDS_DATE_POSTED_I" />
+
+  	</class>
+  	
+	
+	<query name="getUnreadMessageCount">
+    	<![CDATA[select count(*) from Message as message where (message.to = :to and message.read = :false)]]>
+	</query>
+	
+  	<database-object> 
+		<create>create index PROFILE_FRIENDS_TO_I on PROFILE_MESSAGES_T (TO)</create> 
+		<drop></drop>
+	</database-object>
+	<database-object> 
+		<create>create index PROFILE_FRIENDS_FROM_I on PROFILE_MESSAGES_T (FROM)</create> 
+		<drop></drop>
+	</database-object>
+	<database-object> 
+		<create>create index PROFILE_FRIENDS_READ_I on PROFILE_MESSAGES_T (READ)</create> 
+		<drop></drop>
+	</database-object>
+	<database-object> 
+		<create>create index PROFILE_FRIENDS_DATE_POSTED_I on PROFILE_MESSAGES_T (DATE_POSTED)</create> 
+		<drop></drop>
+	</database-object>
+
+</hibernate-mapping>

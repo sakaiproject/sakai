@@ -1,6 +1,5 @@
 package org.sakaiproject.profile2.logic;
 
-import java.util.Date;
 import java.util.List;
 
 import org.sakaiproject.profile2.model.ProfileImageExternal;
@@ -97,13 +96,6 @@ public interface ProfileLogic {
 	 * Note that they could be in either column
 	 */
 	public boolean removeFriend(String userId, String friendId);
-	
-	/**
-	 * Get the number of unread messages
-	 *
-	 * @param userId		uuid of the user to retrieve the count for
-	 */
-	public int getUnreadMessagesCount(String userId);
 	
 	/**
 	 * Get the status (message and date) of a user
@@ -667,5 +659,13 @@ public interface ProfileLogic {
 	 * @return
 	 */
 	public String getUnavailableImageURL();
+	
+	
+	/**
+	 * Get the number of unread messages
+	 *
+	 * @param userId		uuid of the user to retrieve the count for
+	 */
+	public int getUnreadMessagesCount(String userId);
 	
 }

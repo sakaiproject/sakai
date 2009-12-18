@@ -8,6 +8,7 @@ import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.profile2.logic.ProfileLogic;
@@ -61,7 +62,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		add(myFriendsLink);
 		
 		
-		/*
+		
 		//messages link
     	Link myMessagesLink = new Link("myMessagesLink") {
 			public void onClick() {
@@ -71,18 +72,17 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		myMessagesLink.add(new Label("myMessagesLabel",new ResourceModel("link.my.messages")));
 		
 		//calculate new messages
-		int unreadMessages = profile.getUnreadMessagesCount(sakaiProxy.getCurrentUserId());
-		Label unreadMessagesLabel = new Label("unreadMessagesLabel", new Model(unreadMessages));
+		int count = profileLogic.getUnreadMessagesCount(sakaiProxy.getCurrentUserId());
+		Label unreadMessagesLabel = new Label("unreadMessagesLabel", new Model(count));
 		myMessagesLink.add(unreadMessagesLabel);
 
-		if(unreadMessages == 0) {
+		if(count == 0) {
 			unreadMessagesLabel.setVisible(false);
 		}
 		
 		add(myMessagesLink);
-		myMessagesLink.setVisible(false);
-
 		
+		/*
 		//photos link
     	Link myPhotosLink = new Link("myPhotosLink") {
 			public void onClick() {
@@ -92,7 +92,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		myPhotosLink.add(new Label("myPhotosLabel",new ResourceModel("link.my.photos")));
 		add(myPhotosLink);
 		myPhotosLink.setVisible(false);
-	*/
+		*/
 	
 		//privacy link
     	Link myPrivacyLink = new Link("myPrivacyLink") {

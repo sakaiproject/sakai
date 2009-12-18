@@ -102,6 +102,7 @@
 	       	<value>org/sakaiproject/profile2/hbm/SakaiPersonMeta.hbm.xml</value>
 	       	<value>org/sakaiproject/profile2/hbm/ProfilePreferences.hbm.xml</value>
 	       	<value>org/sakaiproject/profile2/hbm/ProfileImageExternal.hbm.xml</value>
+	       	<value>org/sakaiproject/profile2/hbm/Message.hbm.xml</value>
 	      </list>
 	    </property>
 

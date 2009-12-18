@@ -63,14 +63,17 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	private static final String QUERY_LIST_ALL_SAKAI_PERSONS = "listAllSakaiPersons"; //$NON-NLS-1$
 	private static final String QUERY_GET_PREFERENCES_RECORD = "getPreferencesRecord"; //$NON-NLS-1$
 	private static final String QUERY_GET_EXTERNAL_IMAGE_RECORD = "getProfileImageExternalRecord"; //$NON-NLS-1$
-
+	private static final String QUERY_GET_UNREAD_MESSAGE_COUNT="getUnreadMessageCount";
+	
 	// Hibernate object fields
 	private static final String USER_UUID = "userUuid"; //$NON-NLS-1$
 	private static final String FRIEND_UUID = "friendUuid"; //$NON-NLS-1$
 	private static final String CONFIRMED = "confirmed"; //$NON-NLS-1$
 	private static final String OLDEST_STATUS_DATE = "oldestStatusDate"; //$NON-NLS-1$
 	private static final String SEARCH = "search"; //$NON-NLS-1$
-	
+	private static final String TO = "to";
+	private static final String READ = "read";
+
 	
 
 	
@@ -293,19 +296,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		return (ProfileFriend) getHibernateTemplate().execute(hcb);
 	
 	}
-	
-	
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public int getUnreadMessagesCount(String userId) {
-		int unreadMessages = 0;
-		return unreadMessages;
-		
-	}
-	
-	
+
 	
 	/**
  	 * {@inheritDoc}
@@ -1644,6 +1635,33 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		return path.toString();
 	}
 
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public int getUnreadMessagesCount(final String userId) {
+		
+		int count = 0;
+		
+		//get 
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_GET_UNREAD_MESSAGE_COUNT);
+	  			//Query q = session.createQuery("select count(*) from Message message WHERE (message.to = :to AND message.read = :false)");
+	  			q.setParameter(TO, userId, Hibernate.STRING);
+	  			q.setBoolean("false", Boolean.FALSE);
+	  			return q.uniqueResult();
+	  		}
+	  	};
+	  	
+	  	count = ((Integer)getHibernateTemplate().execute(hcb)).intValue();
+	
+	  	return count;
+	}
+	
+
+	
 	
 	
 	// helper method to check if all required twitter fields are set properly
