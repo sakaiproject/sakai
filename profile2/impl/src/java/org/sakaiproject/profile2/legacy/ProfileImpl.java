@@ -50,7 +50,7 @@ public class ProfileImpl implements Profile
 	public String getUserId() {
 		return userId;
 	}
-	@Override
+
 	public void setUserID(String arg0) {
 		this.userId = arg0;
 		
