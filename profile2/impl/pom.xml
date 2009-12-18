@@ -219,10 +219,10 @@
   			<artifactId>sakai-kernel-util</artifactId>
 		</dependency>
 		
-		<!-- legacy dependency -->
+		<!-- legacy dependencies -->
 		<dependency>
-			<groupId>org.sakaiproject</groupId>
-  			<artifactId>sakai-profile-api</artifactId>
+			<groupId>org.sakaiproject.profile</groupId>
+  			<artifactId>profile-api</artifactId>
 		</dependency>
 		<dependency>
       		<groupId>commons-logging</groupId>
