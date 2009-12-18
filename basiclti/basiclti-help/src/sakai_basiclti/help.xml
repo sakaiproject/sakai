@@ -5,8 +5,9 @@
    <bean id="basicltiOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>basicltiOverview</value></property>
       <property name="name"><value>BasicLTI Overview</value></property>
-      <property name="location"><value>/sakai-basiclti/overview.html</value></property>
-      <property name="defaultForTool"><value>IMSBLTIPortlet</value></property>      
+      <property name="location"><value>/sakai_basiclti/overview.html</value></property>
+      <property name="defaultForTool"><value>sakai.basiclti</value></property>   
+      <!-- <property name="defaultForTool"><value>IMSBLTIPortlet</value></property> -->      
    </bean>
    
    <bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
