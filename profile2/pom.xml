@@ -132,11 +132,13 @@
 			<url>dav:https://source.sakaiproject.org/maven2</url>
 			<layout>default</layout>
 		</repository>
+		<!--
 		<site>
 			<id>sakai-site</id>
 			<name>Sakai release Site</name>
 			<url>scp://source.sakaiproject.org/var/www/html/release/profile2/${project.version}</url>
 		</site>
+		-->
 	</distributionManagement>
 	    
     <properties>
