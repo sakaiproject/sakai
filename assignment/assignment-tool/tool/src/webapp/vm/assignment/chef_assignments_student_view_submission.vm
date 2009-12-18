@@ -266,7 +266,7 @@ var notifyDeleteControl = function(){
 						</td>
 					</tr>
 				#end
-				#if($allowReviewService && $assignment.getContent().AllowReviewService && $assignment.getContent().AllowStudentViewReport)
+				#if($!submitted && $!timeSubmitted $allowReviewService && $assignment.getContent().AllowReviewService && $assignment.getContent().AllowStudentViewReport)
 					<tr>
 						<th>
 							$tlang.getString("review.report")
