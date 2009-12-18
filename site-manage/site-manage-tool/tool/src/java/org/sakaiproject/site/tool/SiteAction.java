@@ -609,6 +609,8 @@ public class SiteAction extends PagedResourceActionII {
 	// used in the configuration file to specify which tool attributes are configurable through WSetup tool, and what are the default value for them.
 	private String CONFIG_TOOL_ATTRIBUTE = "wsetup.config.tool.attribute_";
 	private String CONFIG_TOOL_ATTRIBUTE_DEFAULT = "wsetup.config.tool.attribute.default_";
+	// used in the configuration file to specify the default tool title 
+	private String CONFIG_TOOL_TITLE = "wsetup.config.tool.title_";
 	
 	// home tool id
 	private static final String TOOL_ID_HOME = "home";
@@ -4696,9 +4698,9 @@ public class SiteAction extends PagedResourceActionII {
 			Tool tr = (Tool) i.next();
 			MyTool newTool = new MyTool();
 			newTool.title = tr.getTitle();
+			
 			newTool.id = tr.getId();
 			newTool.description = tr.getDescription();
-			tools.add(newTool);
 			
 			String originalToolId = findOriginalToolId(state, tr.getId());
 			if (isMultipleInstancesAllowed(originalToolId))
@@ -4709,7 +4711,15 @@ public class SiteAction extends PagedResourceActionII {
 				// get the configuration for multiple instance
 				HashMap<String, String> toolConfigurations = getMultiToolConfiguration(originalToolId, null);
 				multipleToolConfiguration.put(tr.getId(), toolConfigurations);
+				
+				// reset tool title if there is a different title config setting
+				String titleConfig = ServerConfigurationService.getString(CONFIG_TOOL_TITLE + originalToolId);
+				if (titleConfig != null && titleConfig.length() > 0 )
+				{
+					newTool.title = titleConfig;
+				}
 			}
+			tools.add(newTool);
 		}
 		
 		state.setAttribute(STATE_TOOL_REGISTRATION_LIST, tools);
@@ -8751,7 +8761,18 @@ public class SiteAction extends PagedResourceActionII {
 							if (!multipleToolIdSet.contains(toolId))
 								multipleToolIdSet.add(toolId);
 							if (!multipleToolIdTitleMap.containsKey(toolId))
-								multipleToolIdTitleMap.put(toolId, ToolManager.getTool(originId).getTitle());
+							{
+								// reset tool title if there is a different title config setting
+								String titleConfig = ServerConfigurationService.getString(CONFIG_TOOL_TITLE + originId);
+								if (titleConfig != null && titleConfig.length() > 0 )
+								{
+									multipleToolIdTitleMap.put(toolId, titleConfig);
+								}
+								else
+								{
+									multipleToolIdTitleMap.put(toolId, ToolManager.getTool(originId).getTitle());
+								}
+							}
 						}
 					}
 					else if (toolId.equals("sakai.mailbox") && !existTools.contains(toolId)) {
@@ -9441,7 +9462,17 @@ public class SiteAction extends PagedResourceActionII {
 							multipleToolIdAttributeMap.put(mId, toolConfigurations);
 							
 							MyTool newTool = new MyTool();
-							newTool.title = ToolManager.getTool(wSetupTool).getTitle();
+							String titleConfig = ServerConfigurationService.getString(CONFIG_TOOL_TITLE + mId);
+							if (titleConfig != null && titleConfig.length() > 0)
+							{
+								// check whether there is a different title setting
+								newTool.title = titleConfig;
+							}
+							else
+							{
+								// use the default
+								newTool.title = ToolManager.getTool(wSetupTool).getTitle();
+							}
 							newTool.id = mId;
 							newTool.selected = false;
 
@@ -9764,6 +9795,8 @@ public class SiteAction extends PagedResourceActionII {
 	private void updateSelectedToolList(SessionState state, ParameterParser params, boolean updateConfigVariables) {
 		List selectedTools = new ArrayList(Arrays.asList(params
 				.getStrings("selectedTools")));
+
+		HashMap<String, String> toolTitles = state.getAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST) != null ? (HashMap<String, String>) state.getAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST) : new HashMap<String, String>();
 		Set multipleToolIdSet = (Set) state.getAttribute(STATE_MULTIPLE_TOOL_ID_SET);
 		Map multipleToolIdTitleMap = state.getAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP) != null? (Map) state.getAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP):new HashMap();
 		HashMap<String, HashMap<String, String>> multipleToolConfiguration = state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION) != null?(HashMap<String, HashMap<String, String>>) state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION):new HashMap<String, HashMap<String, String>>();
@@ -9822,6 +9855,7 @@ public class SiteAction extends PagedResourceActionII {
 					// save the titles entered
 					multipleToolIdTitleMap.put(id, title);
 				}
+				toolTitles.put(id, title);
 				
 				// get the attribute input
 				HashMap<String, String> attributes = multipleToolConfiguration.get(id);
@@ -9852,6 +9886,7 @@ public class SiteAction extends PagedResourceActionII {
 		state.setAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP, multipleToolIdTitleMap);
 		state.setAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION, multipleToolConfiguration);
 		state.setAttribute(STATE_TOOL_HOME_SELECTED, new Boolean(has_home));
+		state.setAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST, toolTitles);
 	} // updateSelectedToolList
 
 	/**
@@ -9865,6 +9900,8 @@ public class SiteAction extends PagedResourceActionII {
 	private void insertTool(SessionState state, String toolId, String defaultTitle, String defaultDescription, int insertTimes) {
 		// the list of available tools
 		List toolList = (List) state.getAttribute(STATE_TOOL_REGISTRATION_LIST);
+		HashMap<String, String> toolTitles = state.getAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST) != null ? (HashMap<String, String>) state.getAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST) : new HashMap<String, String>();
+		
 		List oTools = state.getAttribute(STATE_TOOL_REGISTRATION_OLD_SELECTED_LIST) == null? new Vector():(List) state.getAttribute(STATE_TOOL_REGISTRATION_OLD_SELECTED_LIST);
 		
 		// get the map of titles of multiple tool instances
@@ -9910,6 +9947,12 @@ public class SiteAction extends PagedResourceActionII {
 			// tool entries have been selected
 			String newToolId = toolId + toolListedTimes;
 			MyTool newTool = new MyTool();
+			String titleConfig = ServerConfigurationService.getString(CONFIG_TOOL_TITLE + toolId);
+			if (titleConfig != null && titleConfig.length() > 0)
+			{
+				// check whether there is a different title setting
+				defaultTitle = titleConfig;
+			}
 			newTool.title = defaultTitle;
 			newTool.id = newToolId;
 			newTool.description = defaultDescription;
@@ -9917,7 +9960,8 @@ public class SiteAction extends PagedResourceActionII {
 			toolListedTimes++;
 			
 			// add title
-			multipleToolIdTitleMap.put(newTool.id, defaultTitle);
+			multipleToolIdTitleMap.put(newToolId, defaultTitle);
+			toolTitles.put(newToolId, defaultTitle);
 			
 			// get the attribute input
 			HashMap<String, String> attributes = multipleToolConfiguration.get(newToolId);
@@ -9932,6 +9976,7 @@ public class SiteAction extends PagedResourceActionII {
 		state.setAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP, multipleToolIdTitleMap);
 		state.setAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION, multipleToolConfiguration);
 		state.setAttribute(STATE_TOOL_REGISTRATION_LIST, toolList);
+		state.setAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST, toolTitles);
 		state.setAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST, toolSelected);
 
 	} // insertTool
