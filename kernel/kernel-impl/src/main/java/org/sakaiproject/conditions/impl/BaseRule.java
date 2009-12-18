@@ -47,7 +47,7 @@ public class BaseRule implements Rule, NotificationAction {
 	}
 
 	public boolean evaluate(Object arg0) {
-		Predicate judgement = null;
+		Predicate judgement = new NullPredicate();
 		if (predicates.size() == 1) {
 			judgement = predicates.get(0);
 		} else {

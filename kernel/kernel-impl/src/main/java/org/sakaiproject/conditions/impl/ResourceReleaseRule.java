@@ -89,7 +89,7 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 	 * @see org.apache.commons.collections.Predicate#evaluate(java.lang.Object)
 	 */
 	public boolean evaluate(Object arg0) {
-		Predicate judgement = null;
+		Predicate judgement = new NullPredicate();
 		if (predicates.size() == 1) {
 			judgement = predicates.get(0);
 		} else {
