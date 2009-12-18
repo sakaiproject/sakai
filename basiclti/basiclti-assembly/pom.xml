@@ -32,12 +32,14 @@
             <groupId>org.sakaiproject.basiclti</groupId>
             <artifactId>basiclti-util</artifactId>
             <version>${project.version}</version>
+            <type>jar</type>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.basiclti</groupId>
             <artifactId>portlet-util</artifactId>
             <version>${project.version}</version>
+            <type>jar</type>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -47,12 +49,13 @@
             <type>war</type>
             <scope>compile</scope>
         </dependency>
-        <!--
-            <dependency> <groupId>org.sakaiproject.basiclti</groupId>
+        <dependency>
+            <groupId>org.sakaiproject.basiclti</groupId>
             <artifactId>basiclti-help</artifactId>
-            <version>${project.version}</version> <scope>compile</scope>
-            </dependency>
-        -->
+            <version>${project.version}</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>

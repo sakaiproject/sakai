@@ -6,8 +6,6 @@
     </formats>
     <includeBaseDirectory>false</includeBaseDirectory>
     <dependencySets>
-        <!-- No artifacts go into /shared/lib at present, but maybe some day -->
-        <!--
         <dependencySet>
             <outputDirectory>shared/lib/</outputDirectory>
             <useTransitiveDependencies>false
@@ -17,7 +15,6 @@
             </includes>
             <unpack>false</unpack>
         </dependencySet>
-        -->
         <dependencySet>
             <outputDirectory>components/basiclti-pack</outputDirectory>
             <useTransitiveDependencies>false</useTransitiveDependencies>
