@@ -20,6 +20,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileFriend;
 import org.sakaiproject.profile2.model.ProfileImage;
 import org.sakaiproject.profile2.model.ProfileImageExternal;
@@ -32,6 +33,7 @@ import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 //import org.sakaiproject.tinyurl.api.TinyUrlService;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -40,7 +42,7 @@ import twitter4j.Twitter;
 /**
  * This is the Profile2 API Implementation to be used by the Profile2 tool only. 
  * 
- * DO NOT USE THIS YOURSELF, use the ProfileService instead (todo)
+ * DO NOT USE THIS YOURSELF, use the ProfileServices instead
  * 
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
@@ -179,6 +181,8 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 			log.debug("Profile.isFriendRequestPending: No pending friend request from userId: " + fromUser + " to friendId: " + toUser + " found."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			return false;
 		}
+		
+		Person person = new Person();
 		return true;
 	}
 	
@@ -1661,6 +1665,16 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	}
 	
 
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<User> getConnectionsForUser(String userId) {
+		
+		List<User> connections = new ArrayList<User>();
+		connections = UserDirectoryService.getUsers(getConfirmedFriendUserIdsForUser(userId));
+		
+		return connections;
+	}
 	
 	
 	
@@ -2070,6 +2084,8 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	public void setSakaiProxy(SakaiProxy sakaiProxy) {
 		this.sakaiProxy = sakaiProxy;
 	}
+
+	
 
 	
 	//setup TinyUrlService API

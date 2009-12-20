@@ -8,6 +8,7 @@ import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
 import org.sakaiproject.profile2.model.ResourceWrapper;
 import org.sakaiproject.profile2.model.SearchResult;
+import org.sakaiproject.user.api.User;
 
 /**
  * This is the internal API to be used by the Profile2 tool and entities only. 
@@ -33,8 +34,9 @@ public interface ProfileLogic {
 	 * Get a list of confirmed friends for a given user. Uses a native SQL query so we can use unions
 	 * Returns: (all those where userId is the user_uuid and confirmed=true) & (all those where user is friend_uuid and confirmed=true)
 	 *
-	 * This only returns userIds, as I havent had a need for getting Friend objects yet (ie more than one param returned)
-	 * If required, simply implement this again, with a modified HBM query to add the extra fields
+	 * This only returns userIds. If you want a list of user objects, see getConnectionsForUser()
+	 * 
+	 * If required, one could simply implement this again, with a modified HBM query to add the extra fields
 	 * and Transform to Friend object.
 	 * ie q.setResultTransformer(Transformers.aliasToBean(Friend.class));
 	 * 
@@ -666,6 +668,16 @@ public interface ProfileLogic {
 	 *
 	 * @param userId		uuid of the user to retrieve the count for
 	 */
-	public int getUnreadMessagesCount(String userId);
+	public int getUnreadMessagesCount(final String userId);
+	
+	/**
+	 * Gets a list of User's that are connected to this user. 
+	 * 
+	 * <p>Useful for when more than just the userId is needed, ie displayName as well</p>
+	 * 
+	 * @param userId		uuid of the user to retrieve the list of connections for
+	 * @return
+	 */
+	public List<User> getConnectionsForUser(final String userId);
 	
 }
