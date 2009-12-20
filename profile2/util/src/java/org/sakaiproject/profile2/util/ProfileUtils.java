@@ -352,7 +352,11 @@ public class ProfileUtils {
 	 * @return
 	 */
 	public static String processHtml(String s){
-		return FormattedText.processFormattedText(s, new StringBuilder(), true, true);
+		return FormattedText.processFormattedText(s, new StringBuilder(), true, false);
+	}
+	
+	public static String escapeHtmlForDisplay(String s) {
+		return FormattedText.escapeHtmlFormattedText(s);
 	}
 	
 	/**

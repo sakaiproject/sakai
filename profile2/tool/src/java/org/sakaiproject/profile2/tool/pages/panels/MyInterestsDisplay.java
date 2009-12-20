@@ -94,7 +94,7 @@ public class MyInterestsDisplay extends Panel {
 		//other info
 		WebMarkupContainer otherContainer = new WebMarkupContainer("otherContainer");
 		otherContainer.add(new Label("otherLabel", new ResourceModel("profile.other")));
-		otherContainer.add(new Label("otherInformation", otherInformation).setEscapeModelStrings(false));
+		otherContainer.add(new Label("otherInformation", ProfileUtils.escapeHtmlForDisplay(otherInformation)).setEscapeModelStrings(false));
 		add(otherContainer);
 		if(StringUtils.isBlank(otherInformation)) {
 			otherContainer.setVisible(false);
