@@ -1676,6 +1676,22 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		return connections;
 	}
 	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<User> getConnectionsSubsetForSearch(List<User> connections, String search) {
+		
+		List<User> subList = new ArrayList<User>();
+		
+		for(Iterator<User> i = connections.iterator(); i.hasNext();){
+			User user = (User)i.next();
+			
+			if(StringUtils.startsWith(user.getDisplayName(), search)) {
+				subList.add(user);
+			}
+		}
+		return subList;
+	}
 	
 	
 	// helper method to check if all required twitter fields are set properly

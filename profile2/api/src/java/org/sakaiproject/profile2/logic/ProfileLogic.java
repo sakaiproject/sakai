@@ -680,4 +680,12 @@ public interface ProfileLogic {
 	 */
 	public List<User> getConnectionsForUser(final String userId);
 	
+	/**
+	 * Gets a subset of the connection list, based on the search string matching the beginning of the displayName
+	 * @param connections	list of connections
+	 * @param search		search string to match on
+	 * @return
+	 */
+	public List<User> getConnectionsSubsetForSearch(List<User> connections, String search);
+	
 }
