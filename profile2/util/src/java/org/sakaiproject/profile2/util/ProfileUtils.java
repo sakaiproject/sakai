@@ -355,6 +355,11 @@ public class ProfileUtils {
 		return FormattedText.processFormattedText(s, new StringBuilder(), true, false);
 	}
 	
+	/**
+	 * Escape HTML so it can be displayed on screen, will stop evil tags from displaying.
+	 * @param s
+	 * @return
+	 */
 	public static String escapeHtmlForDisplay(String s) {
 		return FormattedText.escapeHtmlFormattedText(s);
 	}
