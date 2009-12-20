@@ -1,28 +1,26 @@
-package org.sakaiproject.profile2.entity.model;
+package org.sakaiproject.profile2.model;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
-import org.sakaiproject.entitybroker.entityprovider.annotations.EntityOwner;
-import org.sakaiproject.entitybroker.entityprovider.annotations.EntityTitle;
-
 /**
- * This is the model for a user's profile, used by the ProfileEntityProvider
+ * This is the model for a user's profile
  * 
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
  */
-public class UserProfile {
+public class UserProfile implements Serializable {
 
-	@EntityId
+	private static final long serialVersionUID = 1L;
+
 	private String userUuid;
-	
-	@EntityTitle @EntityOwner
 	private String displayName;
 	private String nickname;
 	private Date dateOfBirth;
+	private String birthday;
+	private String birthdayDisplay;
 	private String email;
 	private String position;
 	private String department;
@@ -41,6 +39,9 @@ public class UserProfile {
 	private String course;
 	private String subjects;
 	private boolean locked;
+	
+	
+	
 	
 	private String statusMessage;
 	private Date statusDate;
@@ -92,6 +93,22 @@ public class UserProfile {
 	
 	public String getDisplayName() {
 		return displayName;
+	}
+
+	public String getBirthday() {
+		return birthday;
+	}
+
+	public void setBirthday(String birthday) {
+		this.birthday = birthday;
+	}
+
+	public String getBirthdayDisplay() {
+		return birthdayDisplay;
+	}
+
+	public void setBirthdayDisplay(String birthdayDisplay) {
+		this.birthdayDisplay = birthdayDisplay;
 	}
 
 	public String getEmail() {
