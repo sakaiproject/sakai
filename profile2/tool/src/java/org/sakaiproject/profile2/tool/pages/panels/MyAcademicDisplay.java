@@ -13,8 +13,8 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.tool.Locator;
-import org.sakaiproject.profile2.tool.models.UserProfile;
 
 public class MyAcademicDisplay extends Panel {
 	

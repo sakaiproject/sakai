@@ -39,7 +39,7 @@ public class ChangeProfilePictureUrl extends Panel{
 	 */
 	public ChangeProfilePictureUrl(String id)   {
 		super(id);
-		log.warn("ChangeProfilePictureUpload()");
+		log.debug("ChangeProfilePictureUpload()");
 
 		sakaiProxy = getSakaiProxy();
 		
@@ -55,7 +55,7 @@ public class ChangeProfilePictureUrl extends Panel{
 	 */
 	public ChangeProfilePictureUrl(String id, String userUuid)   {
 		super(id);
-		log.warn("ChangeProfilePictureUpload(" + userUuid +")");
+		log.debug("ChangeProfilePictureUpload(" + userUuid +")");
 		
 		sakaiProxy = getSakaiProxy();
 		

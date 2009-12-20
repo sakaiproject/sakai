@@ -19,10 +19,10 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.models.SimpleText;
-import org.sakaiproject.profile2.tool.models.UserProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 public class MyStatusPanel extends Panel {
@@ -47,7 +47,7 @@ public class MyStatusPanel extends Panel {
 				
 		//get info
 		final String displayName = userProfile.getDisplayName();
-		final String userId = userProfile.getUserId();
+		final String userId = userProfile.getUserUuid();
 		final String currentUserId = sakaiProxy.getCurrentUserId();
 		
 		//if superUser and proxied, can't update

@@ -9,9 +9,6 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.behavior.HeaderContributor;
-import org.apache.wicket.markup.html.IHeaderContributor;
-import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
@@ -20,8 +17,8 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.exception.ProfileNotDefinedException;
+import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
-import org.sakaiproject.profile2.tool.models.UserProfile;
 import org.sakaiproject.profile2.tool.pages.panels.ChangeProfilePictureUpload;
 import org.sakaiproject.profile2.tool.pages.panels.ChangeProfilePictureUrl;
 import org.sakaiproject.profile2.tool.pages.panels.FriendsFeed;
@@ -32,8 +29,6 @@ import org.sakaiproject.profile2.tool.pages.panels.MyInterestsDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyStatusPanel;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
-
-import wicket.contrib.tinymce.settings.TinyMCESettings;
 
 
 public class MyProfile extends BasePage {
@@ -117,7 +112,7 @@ public class MyProfile extends BasePage {
 		UserProfile userProfile = new UserProfile();
 				
 		//get rest of values from SakaiPerson and setup UserProfile
-		userProfile.setUserId(userUuid);
+		userProfile.setUserUuid(userUuid);
 		
 		userProfile.setNickname(sakaiPerson.getNickname());
 		userProfile.setDateOfBirth(sakaiPerson.getDateOfBirth());

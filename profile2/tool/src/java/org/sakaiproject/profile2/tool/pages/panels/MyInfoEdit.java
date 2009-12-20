@@ -22,9 +22,9 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
-import org.sakaiproject.profile2.tool.models.UserProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
@@ -46,7 +46,7 @@ public class MyInfoEdit extends Panel {
 		final Component thisPanel = this;
 		
 		//get userId
-		//final String userId = userProfile.getUserId();
+		final String userId = userProfile.getUserUuid();
 		
 		
 		//updates back to Account for some fields allowed?
@@ -62,7 +62,7 @@ public class MyInfoEdit extends Panel {
 		//add warning message if superUser and not editing own profile
 		Label editWarning = new Label("editWarning");
 		editWarning.setVisible(false);
-		if(sakaiProxy.isSuperUserAndProxiedToUser(userProfile.getUserId())) {
+		if(sakaiProxy.isSuperUserAndProxiedToUser(userId)) {
 			editWarning.setModel(new StringResourceModel("text.edit.other.warning", null, new Object[]{ userProfile.getDisplayName() } ));
 			editWarning.setEscapeModelStrings(false);
 			editWarning.setVisible(true);
@@ -140,7 +140,7 @@ public class MyInfoEdit extends Panel {
 				if(save(form)) {
 					
 					//post update event
-					sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_INFO_UPDATE, "/profile/"+userProfile.getUserId(), true);
+					sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_INFO_UPDATE, "/profile/"+userId, true);
 					
 					//repaint panel
 					Component newPanel = new MyInfoDisplay(id, userProfile);
@@ -206,7 +206,7 @@ public class MyInfoEdit extends Panel {
 		//get SakaiProxy, get userId from the UserProfile (because admin could be editing), then get existing SakaiPerson for that userId
 		SakaiProxy sakaiProxy = getSakaiProxy();
 		
-		String userId = userProfile.getUserId();
+		String userId = userProfile.getUserUuid();
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userId);
 	
 		//set the attributes from userProfile that this form dealt with, into sakaiPerson

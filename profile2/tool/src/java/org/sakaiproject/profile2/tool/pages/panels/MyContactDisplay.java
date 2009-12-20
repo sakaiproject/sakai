@@ -13,8 +13,8 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.tool.Locator;
-import org.sakaiproject.profile2.tool.models.UserProfile;
 
 public class MyContactDisplay extends Panel {
 	
@@ -33,7 +33,6 @@ public class MyContactDisplay extends Panel {
 		sakaiProxy = getSakaiProxy();
 		
 		//get info from userProfile since we need to validate it and turn things off if not set.
-		//otherwise we could just use a propertymodel
 		String email = userProfile.getEmail();
 		String homepage = userProfile.getHomepage();
 		String workphone = userProfile.getWorkphone();

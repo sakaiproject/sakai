@@ -17,8 +17,8 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.tool.Locator;
-import org.sakaiproject.profile2.tool.models.UserProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
@@ -45,7 +45,7 @@ public class MyInfoDisplay extends Panel {
 		sakaiProxy = getSakaiProxy();
 		
 		//get userId of this profile
-		String userId = userProfile.getUserId();
+		String userId = userProfile.getUserUuid();
 		
 		//get info from userProfile since we need to validate it and turn things off if not set.
 		//otherwise we could just use a propertymodel

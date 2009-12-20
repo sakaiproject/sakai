@@ -9,6 +9,8 @@ import org.sakaiproject.entitybroker.entityprovider.annotations.EntityTitle;
  * 
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
+ *
+ *TODO this can just become a USER object. Or Person.
  */
 public class Connection {
 
