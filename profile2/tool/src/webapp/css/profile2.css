@@ -816,6 +816,34 @@ span.wicket-ajax-indicator img {
     color: #5D5D5D;
 }
 
+/* autocomplete styling */
+div.wicket-aa {
+	font-size: 12px;
+	background-color: white;
+	border-color: #cccccc;
+	border-width: 1px;
+	border-style: solid;
+	margin: 1px 0 0 0;
+	text-align:left;
+}
+ 
+div.wicket-aa ul {
+	list-style:none;
+	margin-top: 0 !important;
+	margin-bottom: 0 !important;
+}
 
+div.wicket-aa li {
+	list-style:none;
+	margin-left: -40px; /*strip the default margin */
+	padding-left: 5px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+
+div.wicket-aa ul li.selected {
+	background-color: #ffff77;
+}
+	
 
 		

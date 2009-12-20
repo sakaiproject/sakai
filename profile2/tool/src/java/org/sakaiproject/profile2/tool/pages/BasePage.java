@@ -66,7 +66,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		//messages link
     	Link myMessagesLink = new Link("myMessagesLink") {
 			public void onClick() {
-				//setResponsePage(new MyFriends());
+				setResponsePage(new MyMessages());
 			}
 		};
 		myMessagesLink.add(new Label("myMessagesLabel",new ResourceModel("link.my.messages")));
