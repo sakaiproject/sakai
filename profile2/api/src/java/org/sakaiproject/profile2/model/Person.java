@@ -19,12 +19,15 @@ import org.sakaiproject.user.api.User;
  *
  */
 public class Person implements Serializable {
-
+	
+	private static final long serialVersionUID = 1L;
+	
 	private String uuid;
 	private String displayName;
 	private String type;
 	
-	private User user;
+	
+	private transient User user;
 	private UserProfile profile;
 	private ProfilePrivacy privacy;
 	private ProfilePreferences preferences;

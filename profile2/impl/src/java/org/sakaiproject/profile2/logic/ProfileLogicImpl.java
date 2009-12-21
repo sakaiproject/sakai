@@ -19,7 +19,6 @@ import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileFriend;
 import org.sakaiproject.profile2.model.ProfileImage;
@@ -31,7 +30,6 @@ import org.sakaiproject.profile2.model.ResourceWrapper;
 import org.sakaiproject.profile2.model.SearchResult;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
-//import org.sakaiproject.tinyurl.api.TinyUrlService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -1686,7 +1684,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		for(Iterator<User> i = connections.iterator(); i.hasNext();){
 			User user = (User)i.next();
 			
-			if(StringUtils.startsWith(user.getDisplayName(), search)) {
+			if(StringUtils.startsWithIgnoreCase(user.getDisplayName(), search)) {
 				subList.add(user);
 			}
 		}

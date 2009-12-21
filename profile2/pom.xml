@@ -151,7 +151,7 @@
     	<commons.lang.version>2.1</commons.lang.version>
     	<entitybroker.version>1.3.7</entitybroker.version>
     	<wicketstuff.tinymce.version>1.4.1</wicketstuff.tinymce.version>
-    	<wicketstuff.objectautocomplete.version>1.4.1</wicketstuff.objectautocomplete.version>
+    	<!--  <wicketstuff.objectautocomplete.version>1.4.1</wicketstuff.objectautocomplete.version>-->
     	<sakai.common.version>1.0.0-b02</sakai.common.version>
     	<legacy.profile.api.version>2.7.0-b01</legacy.profile.api.version>
 		<url.localsite>scp://source.sakaiproject.org/var/www/html/release/profile2/${project.version}</url.localsite>
@@ -206,11 +206,13 @@
   				<artifactId>tinymce</artifactId>
   				<version>${wicketstuff.tinymce.version}</version>
   			</dependency>
+  			<!-- 
   			<dependency>
 	    		<groupId>org.wicketstuff</groupId>
   				<artifactId>objectautocomplete</artifactId>
   				<version>${wicketstuff.objectautocomplete.version}</version>
   			</dependency>
+  			-->
 	    	<dependency>
 	      		<groupId>org.jasypt</groupId>
 	      		<artifactId>jasypt</artifactId>

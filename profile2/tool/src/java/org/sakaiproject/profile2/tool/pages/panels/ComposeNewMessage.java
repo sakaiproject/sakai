@@ -1,22 +1,20 @@
 package org.sakaiproject.profile2.tool.pages.panels;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTextField;
+import org.apache.wicket.Response;
+import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AbstractAutoCompleteRenderer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.util.string.Strings;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.tool.Locator;
+import org.sakaiproject.profile2.tool.components.AbstractAutoCompleteTextField;
 import org.sakaiproject.user.api.User;
 
 public class ComposeNewMessage extends Panel {
@@ -53,37 +51,39 @@ public class ComposeNewMessage extends Panel {
 		//to label
 		form.add(new Label("toLabel", new ResourceModel("message.to")));
 		
-		final List list = new ArrayList();
-		list.add("item 1");
-		list.add("item 2");
-		list.add("item 3");
+		//get connections
+		final List<User> connections = profileLogic.getConnectionsForUser(userId);
+
+		//renderer - required when not using simple strings
+		AbstractAutoCompleteRenderer autoCompleteRenderer = new AbstractAutoCompleteRenderer() {
+			protected final String getTextValue(final Object object) {
+				User user = (User) object;
+				return user.getDisplayName();
+			}
+			protected final void renderChoice(final Object object, final Response response, final String criteria) {
+				response.write(getTextValue(object));
+			}
+			
+		};
 		
-		//get conenctions
-		List<User> connections = profileLogic.getConnectionsForUser(userId);
-
 		
-		
-		final AutoCompleteTextField toField = new AutoCompleteTextField("toField", new PropertyModel(message, "to")) {
-			private static final long serialVersionUID = 1L;
+		// textfield
+		AbstractAutoCompleteTextField<User> toField = new AbstractAutoCompleteTextField<User>("toField", new PropertyModel(message, "to"), autoCompleteRenderer) {
+			protected final List<User> getChoiceList(final String input) {
+				return profileLogic.getConnectionsSubsetForSearch(connections, input);
+			}
 
-			@Override
-			protected Iterator<String> getChoices(String input) {
-				if (Strings.isEmpty(input)) {
-					List<String> emptyList = Collections.emptyList();
-					return emptyList.iterator();
-				}
-
-				List<String> keyMatches = new ArrayList<String>(10);
-
-				return list.iterator();
+			protected final String getChoiceValue(final User choice) throws Throwable {
+				return choice.getEid();
 			}
 		};
+		
+		
 		form.add(toField);
-		
-		
 		add(form);
 		
 	}
+	
 	
 	/* reinit for deserialisation (ie back button) */
 	/*

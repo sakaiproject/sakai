@@ -671,7 +671,7 @@ public interface ProfileLogic {
 	public int getUnreadMessagesCount(final String userId);
 	
 	/**
-	 * Gets a list of User's that are connected to this user. 
+	 * Gets a list of Persons's that are connected to this user
 	 * 
 	 * <p>Useful for when more than just the userId is needed, ie displayName as well</p>
 	 * 
