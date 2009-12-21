@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
@@ -91,7 +92,7 @@ public class MyPrivacy extends BasePage {
 		
 		//model that wraps our options
 		IModel dropDownModelStrict = new Model() {
-			public Object getObject() {
+			public ArrayList<String> getObject() {
 				 return new ArrayList(privacySettingsStrict.keySet());
 			} 
 		};
@@ -103,7 +104,7 @@ public class MyPrivacy extends BasePage {
 		
 		//model that wraps our options
 		IModel dropDownModelRelaxed = new Model() {
-			public Object getObject() {
+			public ArrayList<String> getObject() {
 				 return new ArrayList(privacySettingsRelaxed.keySet());
 			} 
 		};
@@ -268,14 +269,14 @@ public class MyPrivacy extends BasePage {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				//save() form, show feedback. perhaps redirect back to main page after a short while?
 				if(save(form)){
-					formFeedback.setModel(new ResourceModel("success.privacy.save.ok"));
+					formFeedback.setDefaultModel(new ResourceModel("success.privacy.save.ok"));
 					formFeedback.add(new AttributeModifier("class", true, new Model("success")));
 					
 					//post update event
 					sakaiProxy.postEvent(ProfileConstants.EVENT_PRIVACY_UPDATE, "/profile/"+userUuid, true);
 
 				} else {
-					formFeedback.setModel(new ResourceModel("error.privacy.save.failed"));
+					formFeedback.setDefaultModel(new ResourceModel("error.privacy.save.failed"));
 					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));	
 				}
 				target.addComponent(formFeedback);
@@ -297,7 +298,7 @@ public class MyPrivacy extends BasePage {
 		*/
 		
 		if(!sakaiProxy.isPrivacyChangeAllowedGlobally()){
-			infoLocked.setModel(new ResourceModel("text.privacy.cannot.modify"));
+			infoLocked.setDefaultModel(new ResourceModel("text.privacy.cannot.modify"));
 			infoLocked.setVisible(true);
 
 			profileImageChoice.setEnabled(false);

@@ -63,7 +63,7 @@ public class MyInfoEdit extends Panel {
 		Label editWarning = new Label("editWarning");
 		editWarning.setVisible(false);
 		if(sakaiProxy.isSuperUserAndProxiedToUser(userId)) {
-			editWarning.setModel(new StringResourceModel("text.edit.other.warning", null, new Object[]{ userProfile.getDisplayName() } ));
+			editWarning.setDefaultModel(new StringResourceModel("text.edit.other.warning", null, new Object[]{ userProfile.getDisplayName() } ));
 			editWarning.setEscapeModelStrings(false);
 			editWarning.setVisible(true);
 		}

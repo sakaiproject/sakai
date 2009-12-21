@@ -100,7 +100,7 @@ public class ChangeProfilePictureUrl extends Panel{
 		Label editWarning = new Label("editWarning");
 		editWarning.setVisible(false);
 		if(sakaiProxy.isSuperUserAndProxiedToUser(userUuid)) {
-			editWarning.setModel(new StringResourceModel("text.edit.other.warning", null, new Object[]{ sakaiProxy.getUserDisplayName(userUuid) } ));
+			editWarning.setDefaultModel(new StringResourceModel("text.edit.other.warning", null, new Object[]{ sakaiProxy.getUserDisplayName(userUuid) } ));
 			editWarning.setEscapeModelStrings(false);
 			editWarning.setVisible(true);
 		}

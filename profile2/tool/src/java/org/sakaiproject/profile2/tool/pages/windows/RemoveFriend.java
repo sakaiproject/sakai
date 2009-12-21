@@ -76,7 +76,7 @@ public class RemoveFriend extends Panel {
 				boolean friend = profileLogic.isUserXFriendOfUserY(userX, userY);
 				
 				if(!friend) {
-					text.setModel(new StringResourceModel("error.friend.not.friend", null, new Object[]{ friendName } ));
+					text.setDefaultModel(new StringResourceModel("error.friend.not.friend", null, new Object[]{ friendName } ));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", true, new Model("disabled")));
 					target.addComponent(text);
@@ -94,7 +94,7 @@ public class RemoveFriend extends Panel {
 					
 					window.close(target);
 				} else {
-					text.setModel(new StringResourceModel("error.friend.remove.failed", null, new Object[]{ friendName } ));
+					text.setDefaultModel(new StringResourceModel("error.friend.remove.failed", null, new Object[]{ friendName } ));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", true, new Model("disabled")));
 					target.addComponent(text);

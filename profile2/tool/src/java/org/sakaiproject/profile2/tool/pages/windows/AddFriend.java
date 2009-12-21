@@ -75,7 +75,7 @@ public class AddFriend extends Panel {
 				
 				//friend?
 				if(profileLogic.isUserXFriendOfUserY(userX, userY)) {
-					text.setModel(new StringResourceModel("error.friend.already.confirmed", null, new Object[]{ friendName } ));
+					text.setDefaultModel(new StringResourceModel("error.friend.already.confirmed", null, new Object[]{ friendName } ));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", true, new Model("disabled")));
 					target.addComponent(text);
@@ -85,7 +85,7 @@ public class AddFriend extends Panel {
 				
 				//has a friend request already been made to this person?
 				if(profileLogic.isFriendRequestPending(userX, userY)) {
-					text.setModel(new StringResourceModel("error.friend.already.pending", null, new Object[]{ friendName } ));
+					text.setDefaultModel(new StringResourceModel("error.friend.already.pending", null, new Object[]{ friendName } ));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", true, new Model("disabled")));
 					target.addComponent(text);
@@ -95,7 +95,7 @@ public class AddFriend extends Panel {
 				
 				//has a friend request been made from this person to the current user?
 				if(profileLogic.isFriendRequestPending(userY, userX)) {
-					text.setModel(new StringResourceModel("error.friend.already.pending", null, new Object[]{ friendName } ));
+					text.setDefaultModel(new StringResourceModel("error.friend.already.pending", null, new Object[]{ friendName } ));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", true, new Model("disabled")));
 					target.addComponent(text);
@@ -155,7 +155,7 @@ public class AddFriend extends Panel {
 					
 					window.close(target);
 				} else {
-					text.setModel(new StringResourceModel("error.friend.add.failed", null, new Object[]{ friendName } ));
+					text.setDefaultModel(new StringResourceModel("error.friend.add.failed", null, new Object[]{ friendName } ));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", true, new Model("disabled")));
 					target.addComponent(text);

@@ -40,7 +40,7 @@ public class ConfirmedFriends extends Panel {
 	private static final Logger log = Logger.getLogger(ConfirmedFriends.class);
     private transient SakaiProxy sakaiProxy;
     private transient ProfileLogic profileLogic;
-	private int numConfirmedFriends = 0;
+	private Integer numConfirmedFriends = 0;
 	private boolean ownList = false;
 	
 	
@@ -76,7 +76,7 @@ public class ConfirmedFriends extends Panel {
 		IModel numConfirmedFriendsModel = new Model() {
 			private static final long serialVersionUID = 1L;
 
-			public Object getObject() {
+			public Integer getObject() {
 				return numConfirmedFriends;
 			} 
 		};
@@ -86,10 +86,10 @@ public class ConfirmedFriends extends Panel {
 		Label confirmedFriendsLabel = new Label("confirmedFriendsLabel");
 		//if viewing own list, "my friends", else, "their name's friends"
 		if(ownList) {
-			confirmedFriendsLabel.setModel(new ResourceModel("heading.friends.my"));
+			confirmedFriendsLabel.setDefaultModel(new ResourceModel("heading.friends.my"));
 		} else {
 			String displayName = sakaiProxy.getUserDisplayName(userUuid);
-			confirmedFriendsLabel.setModel(new StringResourceModel("heading.friends.view", null, new Object[]{ displayName } ));
+			confirmedFriendsLabel.setDefaultModel(new StringResourceModel("heading.friends.view", null, new Object[]{ displayName } ));
 		}
 		confirmedFriendsHeading.add(confirmedFriendsLabel);
 		confirmedFriendsHeading.add(new Label("confirmedFriendsNumber", numConfirmedFriendsModel));
@@ -188,7 +188,7 @@ public class ConfirmedFriends extends Panel {
 					public void onClick(AjaxRequestTarget target) {
 						
 						//get this item, and set content for modalwindow
-				    	String friendUuid = (String)getParent().getModelObject();
+				    	String friendUuid = (String)getParent().getDefaultModelObject();
 						connectionWindow.setContent(new RemoveFriend(connectionWindow.getContentId(), connectionWindow, friendActionModel, userUuid, friendUuid)); 
 						
 						//modalwindow handler 

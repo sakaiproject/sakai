@@ -58,10 +58,10 @@ public class FriendsFeed extends Panel {
 		Label heading = new Label("heading");
 		
 		if(viewingUserId.equals(ownerUserId)) {
-			heading.setModel(new ResourceModel("heading.feed.my.friends"));
+			heading.setDefaultModel(new ResourceModel("heading.feed.my.friends"));
 		} else {
 			String displayName = sakaiProxy.getUserDisplayName(ownerUserId);
-			heading.setModel(new StringResourceModel("heading.feed.view.friends", null, new Object[]{ displayName } ));
+			heading.setDefaultModel(new StringResourceModel("heading.feed.view.friends", null, new Object[]{ displayName } ));
 		}
 		add(heading);
 		
@@ -172,20 +172,20 @@ public class FriendsFeed extends Panel {
 		
 		/* TESTS FOR THE ABOVE to change labels and links */
 		if(numFriends == 0) {
-			numFriendsLabel.setModel(new ResourceModel("text.friend.feed.num.none"));
+			numFriendsLabel.setDefaultModel(new ResourceModel("text.friend.feed.num.none"));
 			//numFriendsLabel.setVisible(false);
 			//if own FriendsFeed, show search link, otherwise hide
 			if(viewingUserId.equals(ownerUserId)) {
-				viewFriendsLabel.setModel(new ResourceModel("link.friend.feed.search"));
+				viewFriendsLabel.setDefaultModel(new ResourceModel("link.friend.feed.search"));
 			} else {
 				viewFriendsLink.setVisible(false);
 			}
 		} else if (numFriends == 1) {
-			numFriendsLabel.setModel(new ResourceModel("text.friend.feed.num.one"));
+			numFriendsLabel.setDefaultModel(new ResourceModel("text.friend.feed.num.one"));
 			viewFriendsLink.setVisible(false);
 		} else {
-			numFriendsLabel.setModel(new StringResourceModel("text.friend.feed.num.many", null, new Object[]{ numFriends }));
-			viewFriendsLabel.setModel(new ResourceModel("link.friend.feed.view"));
+			numFriendsLabel.setDefaultModel(new StringResourceModel("text.friend.feed.num.many", null, new Object[]{ numFriends }));
+			viewFriendsLabel.setDefaultModel(new ResourceModel("link.friend.feed.view"));
 		}
 	
 	}

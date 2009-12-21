@@ -234,7 +234,7 @@ public class MyPreferences extends BasePage{
 				//get the backing model
 				ProfilePreferences profilePreferences = (ProfilePreferences) form.getModelObject();
 				
-				formFeedback.setModel(new ResourceModel("success.preferences.save.ok"));
+				formFeedback.setDefaultModel(new ResourceModel("success.preferences.save.ok"));
 				formFeedback.add(new AttributeModifier("class", true, new Model("success")));
 				
 				//special case. if twitterEnabled is disabled, make sure the model fields are cleared and the form fields updated as well
@@ -255,18 +255,18 @@ public class MyPreferences extends BasePage{
 					twitterUsername.validate();
 					twitterPassword.validate();
 					if(!twitterUsername.isValid() || !twitterPassword.isValid()) {
-						formFeedback.setModel(new ResourceModel("error.twitter.details.required"));
+						formFeedback.setDefaultModel(new ResourceModel("error.twitter.details.required"));
 						formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));	
 						target.addComponent(formFeedback);
 						return;
 					}
 					
 					//PRFL-27 validate actual username/password details with Twitter itself
-					String twitterUsernameEntered = twitterUsername.getModelObjectAsString();
-					String twitterPasswordEntered = twitterPassword.getModelObjectAsString();
+					String twitterUsernameEntered = twitterUsername.getDefaultModelObjectAsString();
+					String twitterPasswordEntered = twitterPassword.getDefaultModelObjectAsString();
 
 					if(!profileLogic.validateTwitterCredentials(twitterUsernameEntered, twitterPasswordEntered)) {
-						formFeedback.setModel(new ResourceModel("error.twitter.details.invalid"));
+						formFeedback.setDefaultModel(new ResourceModel("error.twitter.details.invalid"));
 						formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));	
 						target.addComponent(formFeedback);
 						return;
@@ -280,7 +280,7 @@ public class MyPreferences extends BasePage{
 				
 				if(profileLogic.savePreferencesRecord(profilePreferences)) {
 					log.info("Saved ProfilePreferences for: " + profilePreferences.getUserUuid());
-					formFeedback.setModel(new ResourceModel("success.preferences.save.ok"));
+					formFeedback.setDefaultModel(new ResourceModel("success.preferences.save.ok"));
 					formFeedback.add(new AttributeModifier("class", true, new Model("success")));
 					
 					//post update event
@@ -289,7 +289,7 @@ public class MyPreferences extends BasePage{
 					
 				} else {
 					log.info("Couldn't save ProfilePreferences for: " + profilePreferences.getUserUuid());
-					formFeedback.setModel(new ResourceModel("error.preferences.save.failed"));
+					formFeedback.setDefaultModel(new ResourceModel("error.preferences.save.failed"));
 					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));	
 				}
 				

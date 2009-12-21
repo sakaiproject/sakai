@@ -250,7 +250,7 @@ public class MySearch extends BasePage {
 						public void onClick(AjaxRequestTarget target) {
 							
 							//get this item, reinit some values and set content for modal
-					    	SearchResult this_searchResult = (SearchResult)getParent().getParent().getModelObject();
+					    	SearchResult this_searchResult = (SearchResult)getParent().getParent().getDefaultModelObject();
 					    	final String userUuid = this_searchResult.getUserUuid();
 					    	connectionWindow.setContent(new AddFriend(connectionWindow.getContentId(), connectionWindow, friendActionModel, currentUserUuid, userUuid)); 
 							
@@ -259,7 +259,7 @@ public class MySearch extends BasePage {
 								private static final long serialVersionUID = 1L;
 								public void onClose(AjaxRequestTarget target){
 					            	if(friendActionModel.isRequested()) { 
-					            		connectionLabel.setModel(new ResourceModel("text.friend.requested"));
+					            		connectionLabel.setDefaultModel(new ResourceModel("text.friend.requested"));
 					            		add(new AttributeModifier("class", true, new Model("instruction")));
 					            		setEnabled(false);
 					            		target.addComponent(c1);
@@ -283,23 +283,23 @@ public class MySearch extends BasePage {
 					
 					//setup 'add connection' link
 					if(StringUtils.equals(userUuid, currentUserUuid)) {
-						connectionLabel.setModel(new ResourceModel("text.friend.self"));
+						connectionLabel.setDefaultModel(new ResourceModel("text.friend.self"));
 						connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
 						connectionLink.setEnabled(false);
 					} else if(friend) {
-						connectionLabel.setModel(new ResourceModel("text.friend.confirmed"));
+						connectionLabel.setDefaultModel(new ResourceModel("text.friend.confirmed"));
 						connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
 						connectionLink.setEnabled(false);
 					} else if (friendRequestToThisPerson) {
-						connectionLabel.setModel(new ResourceModel("text.friend.requested"));
+						connectionLabel.setDefaultModel(new ResourceModel("text.friend.requested"));
 						connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
 						connectionLink.setEnabled(false);					
 					} else if (friendRequestFromThisPerson) {
-						connectionLabel.setModel(new ResourceModel("text.friend.pending"));
+						connectionLabel.setDefaultModel(new ResourceModel("text.friend.pending"));
 						connectionLink.add(new AttributeModifier("class", true, new Model("instruction")));
 						connectionLink.setEnabled(false);
 					} else {
-						connectionLabel.setModel(new ResourceModel("link.friend.add"));
+						connectionLabel.setDefaultModel(new ResourceModel("link.friend.add"));
 					}
 					connectionLink.setOutputMarkupId(true);
 					c1.add(connectionLink);
@@ -388,16 +388,16 @@ public class MySearch extends BasePage {
 					
 					//text
 					if(numResults == 0) {
-						numSearchResults.setModel(new StringResourceModel("text.search.byname.no.results", null, new Object[]{ searchText } ));
+						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.no.results", null, new Object[]{ searchText } ));
 						resultsContainer.setVisible(false);
 					} else if (numResults == 1) {
-						numSearchResults.setModel(new StringResourceModel("text.search.byname.one.result", null, new Object[]{ searchText } ));
+						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.one.result", null, new Object[]{ searchText } ));
 						resultsContainer.setVisible(true);
 					} else if (numResults == maxResults) {
-						numSearchResults.setModel(new StringResourceModel("text.search.toomany.results", null, new Object[]{ searchText, maxResults } ));
+						numSearchResults.setDefaultModel(new StringResourceModel("text.search.toomany.results", null, new Object[]{ searchText, maxResults } ));
 						resultsContainer.setVisible(true);
 					} else {
-						numSearchResults.setModel(new StringResourceModel("text.search.byname.all.results", null, new Object[]{ numResults, searchText } ));
+						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byname.all.results", null, new Object[]{ numResults, searchText } ));
 						resultsContainer.setVisible(true);
 					}
 					
@@ -453,16 +453,16 @@ public class MySearch extends BasePage {
 
 					//text
 					if(numResults == 0) {
-						numSearchResults.setModel(new StringResourceModel("text.search.byinterest.no.results", null, new Object[]{ searchText } ));
+						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.no.results", null, new Object[]{ searchText } ));
 						resultsContainer.setVisible(false);
 					} else if (numResults == 1) {
-						numSearchResults.setModel(new StringResourceModel("text.search.byinterest.one.result", null, new Object[]{ searchText } ));
+						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.one.result", null, new Object[]{ searchText } ));
 						resultsContainer.setVisible(true);
 					} else if (numResults == maxResults) {
-						numSearchResults.setModel(new StringResourceModel("text.search.toomany.results", null, new Object[]{ searchText, maxResults } ));
+						numSearchResults.setDefaultModel(new StringResourceModel("text.search.toomany.results", null, new Object[]{ searchText, maxResults } ));
 						resultsContainer.setVisible(true);
 					} else {
-						numSearchResults.setModel(new StringResourceModel("text.search.byinterest.all.results", null, new Object[]{ numResults, searchText } ));
+						numSearchResults.setDefaultModel(new StringResourceModel("text.search.byinterest.all.results", null, new Object[]{ numResults, searchText } ));
 						resultsContainer.setVisible(true);
 					}
 					

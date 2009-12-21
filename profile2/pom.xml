@@ -140,7 +140,7 @@
     </distributionManagement>
 	    
     <properties>
-    	<wicket.version>1.3.6</wicket.version>
+    	<wicket.version>1.4.5</wicket.version>
 		<jetty.version>6.1.4</jetty.version>
     	<log4j.version>1.2.14</log4j.version>
     	<slf4j.version>1.4.2</slf4j.version>
@@ -200,11 +200,6 @@
 				<groupId>org.apache.wicket</groupId>
 				<artifactId>wicket-spring</artifactId>
 				<version>${wicket.version}</version>
-	    	</dependency>
-	    	<dependency>
-	      		<groupId>org.apache.wicket</groupId>
-	      		<artifactId>wicket-spring-annot</artifactId>
-	      		<version>${wicket.version}</version>
 	    	</dependency>
 	    	<dependency>
 	    		<groupId>org.wicketstuff</groupId>

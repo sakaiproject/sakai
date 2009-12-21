@@ -492,22 +492,22 @@ public class ViewProfile extends BasePage {
 		
 		//setup link/label and windows
 		if(friend) {
-			addFriendLabel.setModel(new ResourceModel("text.friend.confirmed"));
+			addFriendLabel.setDefaultModel(new ResourceModel("text.friend.confirmed"));
     		addFriendLink.add(new AttributeModifier("class", true, new Model("instruction")));
 			addFriendLink.setEnabled(false);
 		} else if (friendRequestToThisPerson) {
-			addFriendLabel.setModel(new ResourceModel("text.friend.requested"));
+			addFriendLabel.setDefaultModel(new ResourceModel("text.friend.requested"));
     		addFriendLink.add(new AttributeModifier("class", true, new Model("instruction")));
 			addFriendLink.setEnabled(false);
 		} else if (friendRequestFromThisPerson) {
 			//TODO (confirm pending friend request link)
 			//could be done by setting the content off the addFriendWindow.
 			//will need to rename some links to make more generic and set the onClick and setContent in here for link and window
-			addFriendLabel.setModel(new ResourceModel("text.friend.pending"));
+			addFriendLabel.setDefaultModel(new ResourceModel("text.friend.pending"));
     		addFriendLink.add(new AttributeModifier("class", true, new Model("instruction")));
 			addFriendLink.setEnabled(false);
 		}  else {
-			addFriendLabel.setModel(new StringResourceModel("link.friend.add.name", null, new Object[]{ nickname } ));
+			addFriendLabel.setDefaultModel(new StringResourceModel("link.friend.add.name", null, new Object[]{ nickname } ));
 			addFriendWindow.setContent(new AddFriend(addFriendWindow.getContentId(), addFriendWindow, friendActionModel, currentUserId, userUuid)); 
 		}
 		sideLinks.add(addFriendContainer);
@@ -520,7 +520,7 @@ public class ViewProfile extends BasePage {
 			public void onClose(AjaxRequestTarget target){
             	if(friendActionModel.isRequested()) { 
             		//friend was successfully requested, update label and link
-            		addFriendLabel.setModel(new ResourceModel("text.friend.requested"));
+            		addFriendLabel.setDefaultModel(new ResourceModel("text.friend.requested"));
             		addFriendLink.add(new AttributeModifier("class", true, new Model("instruction")));
             		addFriendLink.setEnabled(false);
             		target.addComponent(addFriendLink);

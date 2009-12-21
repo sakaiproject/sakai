@@ -98,18 +98,18 @@ public class FeedbackLabel extends Label {
     @Override
     protected void onBeforeRender() {
         super.onBeforeRender();
-        this.setModel(null);
+        this.setDefaultModel(null);
 
         if(component.getFeedbackMessage()!=null){
             if(this.text!=null){
-                this.setModel(text);
+                this.setDefaultModel(text);
             } else {
-                this.setModel(new Model(component.getFeedbackMessage().getMessage()));
+                this.setDefaultModel(new Model(component.getFeedbackMessage().getMessage()));
             }
 
             this.add(new AttributeModifier("class", true, new Model("feedbackLabel " + component.getFeedbackMessage().getLevelAsString())));
         } else {
-            this.setModel(null);
+            this.setDefaultModel(null);
         }
       
     }

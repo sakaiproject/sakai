@@ -76,7 +76,7 @@ public class IgnoreFriend extends Panel {
 				boolean friendRequestFromThisPerson = profileLogic.isFriendRequestPending(userY, userX);
 				
 				if(!friendRequestFromThisPerson) {
-					text.setModel(new StringResourceModel("error.friend.not.pending.ignore", null, new Object[]{ friendName } ));
+					text.setDefaultModel(new StringResourceModel("error.friend.not.pending.ignore", null, new Object[]{ friendName } ));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", true, new Model("disabled")));
 					target.addComponent(text);
@@ -94,7 +94,7 @@ public class IgnoreFriend extends Panel {
 					
 					window.close(target);
 				} else {
-					text.setModel(new StringResourceModel("error.friend.ignore.failed", null, new Object[]{ friendName } ));
+					text.setDefaultModel(new StringResourceModel("error.friend.ignore.failed", null, new Object[]{ friendName } ));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", true, new Model("disabled")));
 					target.addComponent(text);

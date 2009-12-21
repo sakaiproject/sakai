@@ -232,7 +232,7 @@ public class MyProfile extends BasePage {
     			if(sakaiProxy.toggleProfileLocked(userUuid, !locked)) {
     				setLocked(!locked);
     				log.info("MyProfile(): SuperUser toggled lock status of profile for " + userUuid + " to " + !locked);
-    				lockProfileLabel.setModel(new ResourceModel("link.profile.locked." + isLocked()));
+    				lockProfileLabel.setDefaultModel(new ResourceModel("link.profile.locked." + isLocked()));
     				this.add(new AttributeModifier("title", true, new ResourceModel("text.profile.locked." + isLocked())));
     				target.addComponent(this);
     			}
@@ -242,7 +242,7 @@ public class MyProfile extends BasePage {
 		lockProfileLink.add(lockProfileLabel);
 				
 		//setup link/label and windows with special property based on locked status
-		lockProfileLabel.setModel(new ResourceModel("link.profile.locked." + isLocked()));
+		lockProfileLabel.setDefaultModel(new ResourceModel("link.profile.locked." + isLocked()));
 		lockProfileLink.add(new AttributeModifier("title", true, new ResourceModel("text.profile.locked." + isLocked())));
 		
 		lockProfileContainer.add(lockProfileLink);

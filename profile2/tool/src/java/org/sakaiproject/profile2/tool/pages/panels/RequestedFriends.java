@@ -39,7 +39,7 @@ public class RequestedFriends extends Panel {
 	private static final Logger log = Logger.getLogger(RequestedFriends.class);
 	private transient SakaiProxy sakaiProxy;
 	private transient ProfileLogic profileLogic; 
-	private int numRequestedFriends = 0;
+	private Integer numRequestedFriends = 0;
 	
 	public RequestedFriends(final String id, final MyFriends parent, final String userUuid) {
 		super(id);
@@ -63,7 +63,7 @@ public class RequestedFriends extends Panel {
 		IModel numRequestedFriendsModel = new Model() {
 			private static final long serialVersionUID = 1L;
 
-			public Object getObject() {
+			public Integer getObject() {
 				return numRequestedFriends;
 			} 
 		};
@@ -135,7 +135,7 @@ public class RequestedFriends extends Panel {
 					public void onClick(AjaxRequestTarget target) {
 						
 						//get this item, and set content for modalwindow
-				    	String friendUuid = (String)getParent().getModelObject();
+				    	String friendUuid = (String)getParent().getDefaultModelObject();
 						connectionWindow.setContent(new IgnoreFriend(connectionWindow.getContentId(), connectionWindow, friendActionModel, userUuid, friendUuid)); 
 
 						//modalwindow handler 
@@ -177,7 +177,7 @@ public class RequestedFriends extends Panel {
 					public void onClick(AjaxRequestTarget target) {
 						
 						//get this item, and set content for modalwindow
-				    	String friendUuid = (String)getParent().getModelObject();
+				    	String friendUuid = (String)getParent().getDefaultModelObject();
 						connectionWindow.setContent(new ConfirmFriend(connectionWindow.getContentId(), connectionWindow, friendActionModel, userUuid, friendUuid)); 
 
 						//modalwindow handler 

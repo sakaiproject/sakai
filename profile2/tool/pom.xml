@@ -30,10 +30,6 @@
 			<artifactId>wicket-spring</artifactId>
     	</dependency>
     	<dependency>
-      		<groupId>org.apache.wicket</groupId>
-      		<artifactId>wicket-spring-annot</artifactId>
-    	</dependency>
-    	<dependency>
 	    	<groupId>org.wicketstuff</groupId>
   			<artifactId>tinymce</artifactId>
   		</dependency>
