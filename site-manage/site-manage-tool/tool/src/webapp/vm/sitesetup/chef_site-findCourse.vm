@@ -138,25 +138,14 @@
 							#set ($selectedItem = $cmLevelSelections.get($i))
 					    #end
                         #foreach ($coursething in $cmLevelOptions.get($i))
-					        #if ($i < $!cmBaseCourseSetLevel)
-					     		## at the level of CourseSet category selections
-								<option value="$coursething" 
-						    		#if ($coursething == $selectedItem) 
-						    			selected="true" 
-						    		#end
-						    	>
-							        $coursething
-						    	</option>
-							#else
-								## down at the final three levels: CourseSet, CourseOffering, Section
-						    	<option value="$coursething.eid" 
-						    		#if (($i == $maxLevel && $cmLevelSelections.lastIndexOf($coursething.eid) >= $i) || ($i < $maxLevel && $coursething.eid == $selectedItem))						   ###if ($i < $cmLevelSelections.size() && $!selectedItem.contains($coursething.eid))) 
-						    			selected="true" 
-						    		#end
-						    	>
-									$coursething.title 
-						    	</option>
-							#end
+							## down at the final three levels: CourseSet, CourseOffering, Section
+							<option value="$coursething.eid" 
+						   		#if (($i == $maxLevel && $cmLevelSelections.lastIndexOf($coursething.eid) >= $i) || ($i < $maxLevel && $coursething.eid == $selectedItem))						   ###if ($i < $cmLevelSelections.size() && $!selectedItem.contains($coursething.eid))) 
+						    		selected="true" 
+						 		#end
+							>
+								$coursething.title 
+							</option>
 				    	#end
 				     #end
 			      <!-- end population of select options -->

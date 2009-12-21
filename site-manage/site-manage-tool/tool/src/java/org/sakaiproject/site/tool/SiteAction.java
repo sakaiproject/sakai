@@ -660,6 +660,9 @@ public class SiteAction extends PagedResourceActionII {
 	
 	private final static int UUID_LENGTH = 36;
 	
+	/** the course set definition from CourseManagementService **/
+	private final static String STATE_COURSE_SET = "state_course_set";
+	
 	/**
 	 * what are the tool ids within Home page?
 	 * If this is for a newly added Home tool, get the tool ids from template site or system set default
@@ -2861,7 +2864,7 @@ public class SiteAction extends PagedResourceActionII {
 			
 			if (cmLevels == null)
 			{
-				cmLevels = getCMLevelLabels();
+				cmLevels = getCMLevelLabels(state);
 			}
 
 			List<SectionObject> selectedSect = (List<SectionObject>) state
@@ -2888,41 +2891,26 @@ public class SiteAction extends PagedResourceActionII {
 					numSelections = selections.size();
 				}
 
-				// execution will fall through these statements based on number of selections already made
-				if (numSelections == cmLevelSize - 1)
+				if (numSelections != 0)
 				{
-					levelOpts[numSelections] = getCMSections((String) selections.get(numSelections-1));
-				}
-				else if (numSelections == cmLevelSize - 2)
-				{
-					levelOpts[numSelections] = getCMCourseOfferings((String) selections.get(numSelections-1), t.getEid());
-				}
-				else if (numSelections < cmLevelSize)
-				{
-					levelOpts[numSelections] = sortCmObject(cms.findCourseSets((String) cmLevels.get(numSelections==0?0:numSelections-1)));
-				}
-				// always set the top level 
-				Set<CourseSet> courseSets = filterCourseSetList(cms.getCourseSets());
-				// if the level of selection is greater than 3(CourseSet, CourseOffering, Section), which means that we need to choose from the CourseSet Hierarchy, too
-				// then choose from CourseSet Categories first
-				if (cmLevelSize > 3)
-				{
-					List<String> courseSetCategories = new Vector<String>();
-					for(CourseSet cSet : courseSets)
+					// execution will fall through these statements based on number of selections already made
+					if (numSelections == cmLevelSize - 1)
 					{
-						String cSetCategory = cSet.getCategory();
-						if (cSetCategory != null && !courseSetCategories.contains(cSetCategory))
-						{
-							courseSetCategories.add(cSetCategory);
-						}
+						levelOpts[numSelections] = getCMSections((String) selections.get(numSelections-1));
 					}
-					Collections.sort(courseSetCategories);
-					levelOpts[0] = courseSetCategories;
+					else if (numSelections == cmLevelSize - 2)
+					{
+						levelOpts[numSelections] = getCMCourseOfferings(getSelectionString(selections, numSelections), t.getEid());
+					}
+					else if (numSelections < cmLevelSize)
+					{
+						levelOpts[numSelections] = sortCmObject(cms.findCourseSets(getSelectionString(selections, numSelections)));
+					}
 				}
-				else
-				{
-					levelOpts[0] = sortCmObject(courseSets);
-				}
+				// always set the top level
+				Set<CourseSet> courseSets = filterCourseSetList(getCourseSet(state));
+				levelOpts[0] = sortCmObject(courseSets);
+				
 				// clean further element inside the array
 				for (int i = numSelections + 1; i<cmLevelSize; i++)
 				{
@@ -3012,6 +3000,37 @@ public class SiteAction extends PagedResourceActionII {
 		// should never be reached
 		return (String) getContext(data).get("template") + TEMPLATE[0];
 
+	}
+
+	private String getSelectionString(List selections, int numSelections) {
+		String eid = "";
+		for (int i = 0; i < numSelections;i++)
+		{
+			eid = eid + selections.get(i) + ",";
+		}
+		// trim off last ","
+		if (eid.endsWith(","))
+			eid = eid.substring(0, eid.lastIndexOf(","));
+		return eid;
+	}
+
+	/**
+	 * get CourseSet from CourseManagementService and update state attribute
+	 * @param state
+	 * @return
+	 */
+	private Set getCourseSet(SessionState state) {
+		Set courseSet = null;
+		if (state.getAttribute(STATE_COURSE_SET) != null)
+		{
+			courseSet = (Set) state.getAttribute(STATE_COURSE_SET);
+		}
+		else
+		{
+			courseSet = cms.getCourseSets();
+			state.setAttribute(STATE_COURSE_SET, courseSet);
+		}
+		return courseSet;
 	}
 
 	/**
@@ -11202,9 +11221,11 @@ public class SiteAction extends PagedResourceActionII {
 		return new ArrayList(0);
 	}
 
-	private List<String> getCMLevelLabels() {
+	private List<String> getCMLevelLabels(SessionState state) {
 		List<String> rv = new Vector<String>();
-		Set courseSets = cms.getCourseSets();
+
+		// get CourseSet
+		Set courseSets = getCourseSet(state);
 		String currentLevel = "";
 		if (courseSets != null)
 		{
@@ -11263,7 +11284,7 @@ public class SiteAction extends PagedResourceActionII {
 			state.setAttribute(STATE_TEMPLATE_INDEX, "53");
 			
 			// get cm levels
-			final List cmLevels = getCMLevelLabels(), selections = (List) state.getAttribute(STATE_CM_LEVEL_SELECTIONS);
+			final List cmLevels = getCMLevelLabels(state), selections = (List) state.getAttribute(STATE_CM_LEVEL_SELECTIONS);
 			int lvlSz = 0;
 		
 			if (cmLevels == null || (lvlSz = cmLevels.size()) < 1) {
@@ -11467,7 +11488,7 @@ public class SiteAction extends PagedResourceActionII {
 
 		final List selections = new ArrayList(3);
 
-		int cmLevel = getCMLevelLabels().size();
+		int cmLevel = getCMLevelLabels(state).size();
 		String cmLevelChanged = params.get("cmLevelChanged");
 		if ("true".equals(cmLevelChanged)) {
 			// when cm level changes, set the focus to the new level
