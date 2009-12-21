@@ -26,8 +26,24 @@
 				<td class="content"><input type="text" wicket:id="toField" class="formInputField" /></td>
 			</tr>
 			
-		</table>
-		
+			<!-- subject -->
+			<tr>
+				<td class="label" wicket:id="subjectLabel">[subjectLabel]</td>
+				<td class="content"><input type="text" wicket:id="subjectField" class="formInputField" /></td>
+			</tr>
+			
+			<!-- message -->
+			<tr>
+				<td class="label" wicket:id="messageLabel">[messageLabel]</td>
+				<td class="content"><textarea wicket:id="messageField" class="formInputArea" rows="4" cols="40">[messageField]</textarea></td>
+			</tr>
+			
+			</table>
+				
+			<div class="profileFormButtons">
+				<input type="submit" wicket:id="sendButton" value="[Send]" />
+			</div>
+			
 	</form>
 </wicket:panel>
 
