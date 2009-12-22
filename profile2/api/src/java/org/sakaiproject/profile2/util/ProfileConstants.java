@@ -51,6 +51,8 @@ public class ProfileConstants {
 	public static final String CANCEL_IMG = "/library/image/silk/cancel.png";
 	public static final String DELETE_IMG = "/library/image/silk/delete.png";
 	public static final String CROSS_IMG = "/library/image/silk/cross.png";
+	public static final String CROSS_IMG_LOCAL = "images/cross.png";
+
 	
 	//profile picture settings for use in API and tool and their values for sakai.properties
 	//and the default if not specified or invalid one specified

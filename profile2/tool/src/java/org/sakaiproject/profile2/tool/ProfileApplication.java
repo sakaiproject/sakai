@@ -36,7 +36,8 @@ public class ProfileApplication extends WebApplication {
 		/* a component that is disabled by Wicket will normally have <em> surrounding it. This makes it null */
 		getMarkupSettings().setDefaultBeforeDisabledLink(null);
 		getMarkupSettings().setDefaultAfterDisabledLink(null);
-
+		
+		
 		/* mount pages so we can make nice aliased URLs to them */
 		//mountBookmarkablePage("/myFriends", MyFriends.class);
 		//mountBookmarkablePage("/viewProfile", ViewProfile.class);

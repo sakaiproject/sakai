@@ -2,13 +2,13 @@ package org.sakaiproject.profile2.logic;
 
 import java.util.List;
 
+import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileImageExternal;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
 import org.sakaiproject.profile2.model.ResourceWrapper;
 import org.sakaiproject.profile2.model.SearchResult;
-import org.sakaiproject.user.api.User;
 
 /**
  * This is the internal API to be used by the Profile2 tool and entities only. 
@@ -678,7 +678,7 @@ public interface ProfileLogic {
 	 * @param userId		uuid of the user to retrieve the list of connections for
 	 * @return
 	 */
-	public List<User> getConnectionsForUser(final String userId);
+	public List<Person> getConnectionsForUser(final String userId);
 	
 	/**
 	 * Gets a subset of the connection list, based on the search string matching the beginning of the displayName
@@ -686,6 +686,6 @@ public interface ProfileLogic {
 	 * @param search		search string to match on
 	 * @return
 	 */
-	public List<User> getConnectionsSubsetForSearch(List<User> connections, String search);
+	public List<Person> getConnectionsSubsetForSearch(List<Person> connections, String search);
 	
 }

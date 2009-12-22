@@ -2,8 +2,6 @@ package org.sakaiproject.profile2.model;
 
 import java.io.Serializable;
 
-import org.sakaiproject.user.api.User;
-
 
 /** 
  * This the main object that represents a person in Profile2. It is essentially a wrapper object around several other objects.
@@ -14,6 +12,9 @@ import org.sakaiproject.user.api.User;
  * you should check for their existence before using. If not set, and you need it, you can get it for a person
  * from the appropriate method in ProfileLogic. If you need it for a whole list, check your method that creates the List
  * of persons, you might be able to get all of the info you need from a different method.</p>
+ * 
+ * <p>Note about serialisation. the user object is not serialisable and does not contain a no-arg constructor so cannot be manually serialised via
+ * the serializable methods (readObject, writeObject). So the values it provides are extracted and set into this object.
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
@@ -27,7 +28,7 @@ public class Person implements Serializable {
 	private String type;
 	
 	
-	private transient User user;
+	//private transient User user;
 	private UserProfile profile;
 	private ProfilePrivacy privacy;
 	private ProfilePreferences preferences;
@@ -36,6 +37,17 @@ public class Person implements Serializable {
 	 * No-arg constructor
 	 */
 	public Person() {
+	}
+	
+	/**
+	 * Basic constructor
+	 * 
+	 * @param uuid
+	 * @param displayName
+	 */
+	public Person(String uuid, String displayName) {
+		this.uuid = uuid;
+		this.displayName=displayName;
 	}
 
 	public String getUuid() {
@@ -62,6 +74,7 @@ public class Person implements Serializable {
 		this.type = type;
 	}
 
+	/*
 	public User getUser() {
 		return user;
 	}
@@ -69,6 +82,7 @@ public class Person implements Serializable {
 	public void setUser(User user) {
 		this.user = user;
 	}
+	*/
 
 	public UserProfile getProfile() {
 		return profile;

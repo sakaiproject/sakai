@@ -1666,10 +1666,15 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	public List<User> getConnectionsForUser(String userId) {
+	public List<Person> getConnectionsForUser(String userId) {
 		
-		List<User> connections = new ArrayList<User>();
-		connections = UserDirectoryService.getUsers(getConfirmedFriendUserIdsForUser(userId));
+		List<User> users = new ArrayList<User>();
+		List<Person> connections = new ArrayList<Person>();
+		users = UserDirectoryService.getUsers(getConfirmedFriendUserIdsForUser(userId));
+		
+		for(User u: users) {
+			connections.add(new Person(u.getId(), u.getDisplayName()));
+		}
 		
 		return connections;
 	}
@@ -1677,15 +1682,13 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	public List<User> getConnectionsSubsetForSearch(List<User> connections, String search) {
+	public List<Person> getConnectionsSubsetForSearch(List<Person> connections, String search) {
 		
-		List<User> subList = new ArrayList<User>();
+		List<Person> subList = new ArrayList<Person>();
 		
-		for(Iterator<User> i = connections.iterator(); i.hasNext();){
-			User user = (User)i.next();
-			
-			if(StringUtils.startsWithIgnoreCase(user.getDisplayName(), search)) {
-				subList.add(user);
+		for(Person p : connections){
+			if(StringUtils.startsWithIgnoreCase(p.getDisplayName(), search)) {
+				subList.add(p);
 			}
 		}
 		return subList;

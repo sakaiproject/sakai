@@ -1,12 +1,12 @@
 package org.sakaiproject.profile2.tool.pages.panels;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.apache.wicket.Response;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
-import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AbstractAutoCompleteRenderer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextArea;
@@ -18,9 +18,13 @@ import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Message;
+import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.tool.Locator;
-import org.sakaiproject.profile2.tool.components.AbstractAutoCompleteTextField;
-import org.sakaiproject.user.api.User;
+import org.sakaiproject.profile2.tool.components.ResourceReferences;
+import org.wicketstuff.objectautocomplete.AutoCompletionChoicesProvider;
+import org.wicketstuff.objectautocomplete.ObjectAutoCompleteBuilder;
+import org.wicketstuff.objectautocomplete.ObjectAutoCompleteField;
+import org.wicketstuff.objectautocomplete.ObjectAutoCompleteRenderer;
 
 public class ComposeNewMessage extends Panel {
 
@@ -58,15 +62,16 @@ public class ComposeNewMessage extends Panel {
 		form.add(new Label("toLabel", new ResourceModel("message.to")));
 		
 		//get connections
-		final List<User> connections = profileLogic.getConnectionsForUser(userId);
+		final List<Person> connections = profileLogic.getConnectionsForUser(userId);
 
 		//toField autocompleterenderer - required when not using simple strings
+		/*
 		AbstractAutoCompleteRenderer autoCompleteRenderer = new AbstractAutoCompleteRenderer() {
 			protected final String getTextValue(final Object object) {
-				User user = (User) object;
+				Person p = (Person) object;
 				//workaround to track the ID so we can use it.
-				setToValue(user.getId());
-				return user.getDisplayName();
+				setToValue(p.getUuid());
+				return p.getDisplayName();
 			}
 			protected final void renderChoice(final Object object, final Response response, final String criteria) {
 				response.write(getTextValue(object));
@@ -75,27 +80,60 @@ public class ComposeNewMessage extends Panel {
 		};
 		
 		// toField
-		final AbstractAutoCompleteTextField<User> toField = new AbstractAutoCompleteTextField<User>("toField", new PropertyModel(message, "to"), autoCompleteRenderer) {
-			protected final List<User> getChoiceList(final String input) {
+		final AbstractAutoCompleteTextField<Person> toField = new AbstractAutoCompleteTextField<Person>("toField", new PropertyModel(message, "to"), autoCompleteRenderer) {
+			protected final List<Person> getChoiceList(final String input) {
 				return profileLogic.getConnectionsSubsetForSearch(connections, input);
 			}
 
-			protected final String getChoiceValue(final User choice) throws Throwable {
+			protected final String getChoiceValue(final Person choice) throws Throwable {
 				//this is never called when renderer is being used
-				return choice.getId();
+				return choice.getUuid();
 			}
 		};
-		form.add(toField);
+		*/
+		
+		
+		AutoCompletionChoicesProvider<Person> provider = new AutoCompletionChoicesProvider<Person>() {
+			private static final long serialVersionUID = 1L;
+
+			public Iterator<Person> getChoices(String input) {
+            	return profileLogic.getConnectionsSubsetForSearch(connections, input).iterator();
+            }
+        };
+        
+        ObjectAutoCompleteRenderer<Person> renderer = new ObjectAutoCompleteRenderer<Person>(){
+			private static final long serialVersionUID = 1L;
+			
+        	protected String getIdValue(Person p) {
+            	return p.getUuid();
+            }
+        	protected String getTextValue(Person p) {
+            	return p.getDisplayName();
+            }
+        };
+        	
+        
+		
+		ObjectAutoCompleteBuilder<Person,String> builder = new ObjectAutoCompleteBuilder<Person,String>(provider);
+		builder.autoCompleteRenderer(renderer);
+		builder.searchLinkImage(ResourceReferences.CROSS_IMG_LOCAL);
+		
+		ObjectAutoCompleteField<Person, String> autocompleteField = builder.build("toField", new PropertyModel<String>(message, "to"));
+		TextField<String> toField = autocompleteField.getSearchTextField();
+		toField.add(new AttributeModifier("class", true, new Model<String>("formInputField")));
+		
+		
+		form.add(autocompleteField);
 
 		
 		//subject label
 		form.add(new Label("subjectLabel", new ResourceModel("message.subject")));
-		TextField<String> subjectField = new TextField<String>("subjectField", new PropertyModel(message, "subject"));
+		TextField<String> subjectField = new TextField<String>("subjectField", new PropertyModel<String>(message, "subject"));
 		form.add(subjectField);
 		
 		//subject label
 		form.add(new Label("messageLabel", new ResourceModel("message.message")));
-		TextArea<String> messageField = new TextArea<String>("messageField", new PropertyModel(message, "message"));
+		TextArea<String> messageField = new TextArea<String>("messageField", new PropertyModel<String>(message, "message"));
 		form.add(messageField);
 		
 		
@@ -110,7 +148,7 @@ public class ComposeNewMessage extends Panel {
 				System.out.println("from: " + message.getFrom());
 				System.out.println("to: " + message.getTo());
 				System.out.println("toValue: " + getToValue());
-				System.out.println("findChoice: " + toField.findChoice().getId());
+				//System.out.println("findChoice: " + toField.findChoice().getUuid());
 				
 				System.out.println(message.getSubject());
 				System.out.println(message.getMessage());
