@@ -125,13 +125,20 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 
 		at.setServletContext(context);
 
-		// try getting the RequestDispatcher, just to test - but DON'T SAVE IT!
-		// Tomcat's RequestDispatcher is NOT thread safe and must be gotten from the context
-		// every time its needed!
-		RequestDispatcher dispatcher = context.getNamedDispatcher(at.getId());
-		if (dispatcher == null)
+		// KNL-352 - in Websphere ServletContext.getNamedDispatcher(...) will initialize the given Servlet.
+		// However Websphere's normal Servlet initialization happens later at com.ibm.ws.wswebcontainer.webapp.WebApp.initialize(WebApp.java:293).
+		// As a result, Websphere ends up trying to initialize the Servlet twice, causing the observed mapping clash exceptions.
+
+		if (!"websphere".equals(ServerConfigurationService.getString("servlet.container")))
 		{
-			M_log.warn("missing dispatcher for tool: " + at.getId());
+			// try getting the RequestDispatcher, just to test - but DON'T SAVE IT!
+			// Tomcat's RequestDispatcher is NOT thread safe and must be gotten from the context
+			// every time its needed!
+			RequestDispatcher dispatcher = context.getNamedDispatcher(at.getId());
+			if (dispatcher == null)
+			{
+				M_log.warn("missing dispatcher for tool: " + at.getId());
+			}
 		}
 
 		m_tools.put(at.getId(), at);
