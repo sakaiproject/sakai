@@ -291,7 +291,9 @@ public abstract class StaticHandler extends BasePortalHandler
 	 */
 	private void sendContent(HttpServletResponse res, StaticCache sc) throws IOException
 	{
-		res.setContentType(sc.contenttype);
+		if (sc.contenttype != null) {
+			res.setContentType(sc.contenttype);
+		}
 		res.addDateHeader("Last-Modified", sc.lastModified);
 		res.setContentLength(sc.buffer.length);
 		res.getOutputStream().write(sc.buffer);
