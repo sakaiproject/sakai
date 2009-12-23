@@ -110,7 +110,6 @@
                 <module>postem</module>
                 <module>presence</module>
                 <module>presentation</module>
-                <module>profile</module>
                 <module>providers</module>
                 <module>reference</module>
                 <module>reports</module>
@@ -171,7 +170,6 @@
                 <module>postem</module>
                 <module>presence</module>
                 <module>presentation</module>
-                <module>profile</module>
                 <module>providers</module>
                 <module>reference</module>
                 <module>reports</module>
@@ -242,7 +240,7 @@
                 <module>osp/presentation/tool-lib</module>
                 <module>podcasts/podcasts-app</module>
                 <module>postem/postem-app</module>
-                <module>profile/profile-app</module>
+                <!-- <module>profile/profile-app</module> -->
                 <module>roster/roster-app</module>
                 <module>rwiki/rwiki-tool/tool</module>
                 <!-- <module>sam/samigo-app</module> -->
