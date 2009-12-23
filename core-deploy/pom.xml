@@ -17,7 +17,7 @@
         <name>Sakai Project</name>
         <url>http://sakaiproject.org/</url>
     </organization>
-     <profiles>
+    <profiles>
         <profile>
             <id>full</id>
             <activation>
@@ -30,6 +30,8 @@
                     components/coursemanagement-hibernate-pack;
                     components/gradebook-service-pack;
                     components/msgcntr-component;
+                    components/profile-component;
+                    components/profile2-pack;
                     components/sakai-common-components;
                     components/sakai-privacy-pack;
                     components/samigo-pack;
@@ -78,6 +80,18 @@
                     <type>zip</type>
                 </dependency>
                 <dependency>
+                    <groupId>org.sakaiproject.profile</groupId>
+                    <artifactId>profile-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.profile2</groupId>
+                    <artifactId>profile2-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
                     <groupId>org.sakaiproject.samigo</groupId>
                     <artifactId>samigo-assembly</artifactId>
                     <classifier>tomcat-overlay</classifier>
@@ -111,6 +125,7 @@
                     components/coursemanagement-hibernate-pack;
                     components/emailtemplateservice-pack;
                     components/gradebook-service-pack;
+                    components/profile-component;
                     components/profile2-pack;
                     components/sakai-common-components;
                     components/msgcntr-component;
@@ -119,8 +134,7 @@
                     components/scheduler-component;
                     components/search-pack;
                     components/sections-pack;
-                    components/sitestats-component;
-                    components/tinyurl-pack
+                    components/sitestats-component
                 </clean.targets>
                 <deploy.target>tomcat-overlay</deploy.target>
             </properties>
@@ -162,9 +176,14 @@
                     <type>zip</type>
                 </dependency>
                 <dependency>
+                    <groupId>org.sakaiproject.profile</groupId>
+                    <artifactId>profile-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
                     <groupId>org.sakaiproject.profile2</groupId>
                     <artifactId>profile2-assembly</artifactId>
-                    <version>1.3-SNAPSHOT</version>
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
@@ -189,13 +208,6 @@
                 <dependency>
                     <groupId>org.sakaiproject.sitestats</groupId>
                     <artifactId>sitestats-assembly</artifactId>
-                    <classifier>tomcat-overlay</classifier>
-                    <type>zip</type>
-                </dependency>
-                <dependency>
-                    <groupId>org.sakaiproject.tinyurl</groupId>
-                    <artifactId>tinyurl-assembly</artifactId>
-                    <version>0.9-SNAPSHOT</version>
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
