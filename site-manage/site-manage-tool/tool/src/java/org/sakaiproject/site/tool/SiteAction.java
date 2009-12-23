@@ -2560,7 +2560,7 @@ public class SiteAction extends PagedResourceActionII {
 					boolean foundTerm = false;
 					for(AcademicSession testTerm : terms)
 					{
-						if (testTerm.getEid().equals(t.getEid()))
+						if (t != null && testTerm.getEid().equals(t.getEid()))
 						{
 							foundTerm = true;
 							break;
@@ -4383,7 +4383,7 @@ public class SiteAction extends PagedResourceActionII {
 		} catch (Exception ignore) {
 		}
 
-		if (t.getStartDate() != null && c.getTimeInMillis() < t.getStartDate().getTime()) {
+		if (t != null && t.getStartDate() != null && c.getTimeInMillis() < t.getStartDate().getTime()) {
 			// if a future term is selected
 			state.setAttribute(STATE_FUTURE_TERM_SELECTED,
 					Boolean.TRUE);
