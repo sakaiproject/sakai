@@ -102,6 +102,8 @@
         <sakai.jsf.version>2.8-SNAPSHOT</sakai.jsf.version>
         <sakai.msgcntr.version>2.8-SNAPSHOT</sakai.msgcntr.version>
         <sakai.polls.version>1.3-SNAPSHOT</sakai.polls.version>
+        <sakai.profile.version>2.7.0-b01</sakai.profile.version>
+        <sakai.profile2.version>1.4-SNAPSHOT</sakai.profile2.version>
         <sakai.sakai-mock.version>2.7.0-b01</sakai.sakai-mock.version>
         <sakai.samigo.version>2.8-SNAPSHOT</sakai.samigo.version>
         <sakai.scheduler.version>2.7.0-b01</sakai.scheduler.version>
@@ -285,6 +287,20 @@
                 <groupId>org.sakaiproject.msgcntr</groupId>
                 <artifactId>messageforums-assembly</artifactId>
                 <version>${sakai.msgcntr.version}</version>
+                <classifier>tomcat-overlay</classifier>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.profile</groupId>
+                <artifactId>profile-assembly</artifactId>
+                <version>${sakai.profile.version}</version>
+                <classifier>tomcat-overlay</classifier>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.profile2</groupId>
+                <artifactId>profile2-assembly</artifactId>
+                <version>${sakai.profile2.version}</version>
                 <classifier>tomcat-overlay</classifier>
                 <type>zip</type>
             </dependency>
@@ -884,15 +900,21 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-profile-api</artifactId>
-                <version>${sakai.version}</version>
+                <groupId>org.sakaiproject.profile</groupId>
+                <artifactId>profile-api</artifactId>
+                <version>${sakai.profile.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>sakai-profile-component-shared</artifactId>
-                <version>${sakai.version}</version>
+                <groupId>org.sakaiproject.profile</groupId>
+                <artifactId>profile-component-shared</artifactId>
+                <version>${sakai.profile.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.profile2</groupId>
+                <artifactId>profile2-api</artifactId>
+                <version>${sakai.profile2.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
