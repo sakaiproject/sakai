@@ -62,7 +62,6 @@ public class PDFContentDigester extends BaseContentDigester
 				stripper.setLineSeparator("\n");		
 				CharArrayWriter cw = new CharArrayWriter();
 				stripper.writeText(pddoc, cw);
-				pddoc.close();
 				return SearchUtils.appendCleanString(cw.toCharArray(),null).toString();
 			}
 		} catch (ServerOverloadException e) {
@@ -88,6 +87,15 @@ public class PDFContentDigester extends BaseContentDigester
 		}
 		finally
 		{
+			if (pddoc != null) {
+				try {
+					pddoc.close();
+				} 
+				catch (IOException e) {
+
+				}
+			}
+			
 			if (contentStream != null)
 			{
 				try
