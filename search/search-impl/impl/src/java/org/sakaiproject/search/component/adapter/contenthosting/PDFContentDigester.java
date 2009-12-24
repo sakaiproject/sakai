@@ -72,13 +72,6 @@ public class PDFContentDigester extends BaseContentDigester
 			throw new RuntimeException("Failed to get content for indexing: cause: ServerOverloadException: " + eMessage, e);
 		}
 		catch (IOException e) {
-			try {
-				if (pddoc != null) {
-					pddoc.close();
-				}
-			} catch ( Exception ex ) {
-				log.debug(ex);
-			}
 			String eMessage = e.getMessage();
 			if (eMessage == null) {
 				eMessage = e.toString();
@@ -92,7 +85,7 @@ public class PDFContentDigester extends BaseContentDigester
 					pddoc.close();
 				} 
 				catch (IOException e) {
-
+					log.debug(e);
 				}
 			}
 			
