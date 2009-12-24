@@ -47,7 +47,7 @@ import org.sakaiproject.search.transaction.impl.TransactionManagerImpl;
 import org.sakaiproject.search.util.FileUtils;
 
 /**
- * A trnasaction to manage the 2PC of a journaled indexing operation, this is
+ * A transaction to manage the 2PC of a journaled indexing operation, this is
  * created by a Transaction Manager
  * 
  * @author ieb Unit test
@@ -115,11 +115,11 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 
 			Document savepointMarker = new Document();
 			savepointMarker.add(new Field("_txid", String.valueOf(transactionId),
-					Store.YES, Index.UN_TOKENIZED));
+					Store.YES, Index.NOT_ANALYZED));
 			savepointMarker.add(new Field("_txts", String.valueOf(System
-					.currentTimeMillis()), Store.YES, Index.UN_TOKENIZED));
+					.currentTimeMillis()), Store.YES, Index.NOT_ANALYZED));
 			savepointMarker.add(new Field("_worker", String.valueOf(Thread
-					.currentThread().getName()), Store.YES, Index.UN_TOKENIZED));
+					.currentThread().getName()), Store.YES, Index.NOT_ANALYZED));
 			getInternalIndexWriter();
 			indexWriter.addDocument(savepointMarker);
 

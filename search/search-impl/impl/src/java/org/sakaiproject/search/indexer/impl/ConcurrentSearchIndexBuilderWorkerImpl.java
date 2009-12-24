@@ -37,7 +37,6 @@ import org.sakaiproject.search.indexer.api.IndexWorker;
 import org.sakaiproject.search.indexer.api.IndexWorkerDocumentListener;
 import org.sakaiproject.search.journal.api.ManagementOperation;
 import org.sakaiproject.search.journal.impl.JournalSettings;
-import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.UserDirectoryService;
 
 /**
@@ -186,8 +185,6 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 		}
 
 		log.debug("Run Processing Thread");
-		boolean locked = false;
-
 		int totalDocs = searchService.getPendingDocs();
 
 		long now = System.currentTimeMillis();
@@ -259,7 +256,7 @@ public class ConcurrentSearchIndexBuilderWorkerImpl implements ManagementOperati
 				{
 					batchSize = 1000;
 				}
-				Session oldSession = null;
+				
 				securityService.pushAdvisor(new SecurityAdvisor() {
 
 					public SecurityAdvice isAllowed(String userId, String function, String reference)
