@@ -1353,7 +1353,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 	  if(authzGroupService.getUserRole(getCurrentUserId(), "/site/" + siteId)==null&&sessionManager.getCurrentSessionUserId()==null&&getAnonRole()==true){
 		  return ".anon";
 	  }
-	  return authzGroupService.getUserRole(getCurrentUserId(), siteId);
+	  return authzGroupService.getUserRole(getCurrentUserId(), "/site/" + siteId);
   }
 
   private String getUserRole(String siteId, String userId)
