@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <registration>
 	<tool id="sakai.profile2" 
-		title="Profile2" 
-		description="Edit your Profile, search for people with common interests, view their profile and add them as friends">
+		title="Profile" 
+		description="Edit your profile, post status updates, search for people with common interests, view their profile and add them as connections">
 
       	<category name="myworkspace" />
 
