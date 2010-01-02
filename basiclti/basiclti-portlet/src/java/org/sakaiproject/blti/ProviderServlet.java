@@ -22,6 +22,7 @@ package org.sakaiproject.blti;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import java.net.URLEncoder;
 import java.util.Enumeration;
 import java.util.Set;
 import java.util.List;
@@ -116,11 +117,22 @@ public class ProviderServlet extends HttpServlet {
                 SecurityService.popAdvisor();
         }
 
-	public void doError(HttpServletResponse response, String s, String message, Exception e)
+	public void doError(HttpServletRequest request, HttpServletResponse response, 
+                            String s, String message, Exception e)
 		throws java.io.IOException
 	{
-		PrintWriter out = response.getWriter();
 		M_log.info(rb.getString(s));
+		String return_url = request.getParameter("launch_presentation_return_url");
+                if ( return_url != null && return_url.length() > 1 ) {
+			if ( return_url.indexOf('?') > 1 ) {
+				return_url += "&lti_msg=" + URLEncoder.encode(rb.getString(s));
+			} else {
+				return_url += "?lti_msg=" + URLEncoder.encode(rb.getString(s));
+			}
+			response.sendRedirect(return_url);
+			return;
+                }
+		PrintWriter out = response.getWriter();
   		out.println(rb.getString(s));
 	}
 
@@ -161,14 +173,14 @@ public class ProviderServlet extends HttpServlet {
 		if ( ! "basic-lti-launch-request".equals(request.getParameter("lti_message_type")) ||
 		    ! "LTI-1p0".equals(request.getParameter("lti_version")) ||
 		    oauth_consumer_key == null || resource_link_id == null ) {
-			doError(response, "launch.missing", null, null);
+			doError(request, response, "launch.missing", null, null);
 			return;
 		}
 
 		// Check the Tool ID
 		String tool_id = request.getPathInfo();
 		if ( tool_id == null ) {
-			doError(response, "launch.tool_id.required", null, null);
+			doError(request, response, "launch.tool_id.required", null, null);
 			return;
 		}
 
@@ -176,12 +188,12 @@ public class ProviderServlet extends HttpServlet {
 		tool_id = tool_id.substring(1).trim();
 		String allowedTools = ServerConfigurationService.getString("imsblti.provider.allowedtools", null);
 		if ( allowedTools != null && allowedTools.indexOf(tool_id) < 0 ) {
-			doError(response, "launch.tool.notallowed", tool_id, null);
+			doError(request, response, "launch.tool.notallowed", tool_id, null);
 			return;
 		}
 		Tool toolCheck = ToolManager.getTool(tool_id);
 		if ( toolCheck == null ) {
-			doError(response,"launch.tool.notfound", tool_id, null);
+			doError(request, response,"launch.tool.notfound", tool_id, null);
 			return;
 		}
 
@@ -195,7 +207,7 @@ public class ProviderServlet extends HttpServlet {
 		String configPrefix = "imsblti.provider." + oauth_consumer_key + ".";
 		String oauth_secret = ServerConfigurationService.getString(configPrefix + "secret", null);
 		if ( oauth_secret == null ) {
-			doError(response,"launch.key.notfound", oauth_consumer_key, null);
+			doError(request, response,"launch.key.notfound", oauth_consumer_key, null);
 			return;
 		}
 		OAuthMessage oam = OAuthServlet.getMessage(request, null);
@@ -218,13 +230,13 @@ public class ProviderServlet extends HttpServlet {
 			M_log.warn("Provider failed to validate message");
 			M_log.warn(e.getMessage());
 			if ( base_string != null ) M_log.warn(base_string);
-			doError(response,"launch.no.validate", context_id, null);
+			doError(request, response,"launch.no.validate", context_id, null);
 			return;
 		}
 
 		Session sess = SessionManager.getCurrentSession();
 		if ( sess == null ) {
-			doError(response,"launch.no.session", context_id, null);
+			doError(request, response,"launch.no.session", context_id, null);
 			return;
 		}
 
@@ -270,7 +282,7 @@ public class ProviderServlet extends HttpServlet {
                                 	user = UserDirectoryService.getUserByEid(eid);
                         	}
                         	catch(Exception e) {
-					doError(response,"launch.create.user", "context="+context_id+" user="+user_id, null);
+					doError(request, response,"launch.create.user", "context="+context_id+" user="+user_id, null);
 					return;
                         	}
 
@@ -320,7 +332,7 @@ public class ProviderServlet extends HttpServlet {
 					saved = true;
 				}
         			catch (Exception e) {
-					doError(response,"launch.site.save", "site="+ context_id + " tool="+tool_id, e);
+					doError(request, response,"launch.site.save", "site="+ context_id + " tool="+tool_id, e);
         			}
             			finally
                 		{
@@ -329,7 +341,7 @@ public class ProviderServlet extends HttpServlet {
 				if ( ! saved ) return;
 			}
 			catch (Exception e) {  
-				doError(response,"launch.create.site", context_id, null);
+				doError(request, response,"launch.create.site", context_id, null);
 				return;
 			}
   		}
@@ -358,7 +370,7 @@ public class ProviderServlet extends HttpServlet {
 
 			if ( newRole == null ) {
 				M_log.warn("Could not find Sakai role role="+userrole+" user="+user_id+" site="+context_id);
-				doError(response,"launch.role.missing", context_id, null);
+				doError(request, response,"launch.role.missing", context_id, null);
 				return;
 			}
 
@@ -386,7 +398,7 @@ public class ProviderServlet extends HttpServlet {
 					saved = true;
 				}
        				catch (Exception e) {
-					doError(response,"launch.site.save", "site="+ context_id + " tool="+tool_id, e);
+					doError(request, response,"launch.site.save", "site="+ context_id + " tool="+tool_id, e);
        				}
        				finally
              			{
@@ -397,7 +409,7 @@ public class ProviderServlet extends HttpServlet {
 		} catch(Exception e) {
 			M_log.warn("Could not add user to site role="+userrole+" user="+user_id+" site="+context_id);
 			M_log.warn("Exception: "+e);
-			doError(response,"launch.join.site", context_id, e);
+			doError(request, response,"launch.join.site", context_id, e);
 			return;
 		}
 
@@ -427,7 +439,7 @@ public class ProviderServlet extends HttpServlet {
 
         	}
         	catch (Exception e) {
-			doError(response,"launch.tool.search", "site:"+ context_id + " tool="+tool_id, e);
+			doError(request, response,"launch.tool.search", "site:"+ context_id + " tool="+tool_id, e);
 			return;
         	}
 
@@ -452,7 +464,7 @@ public class ProviderServlet extends HttpServlet {
 					saved = true;
 				}
         			catch (Exception e) {
-					doError(response,"launch.site.save", "site:"+ context_id + " tool="+tool_id, e);
+					doError(request, response,"launch.site.save", "site:"+ context_id + " tool="+tool_id, e);
         			}
             			finally
                 		{
@@ -462,7 +474,7 @@ public class ProviderServlet extends HttpServlet {
 				placement_id = tool.getId();
         		}
         		catch (Exception e) {
-				doError(response,"launch.tool.add", "site:"+ context_id + " tool="+tool_id, e);
+				doError(request, response,"launch.tool.add", "site:"+ context_id + " tool="+tool_id, e);
 				return;
         		}
 		}
