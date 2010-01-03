@@ -1078,6 +1078,10 @@ background-image: url(../../image/silk/comment.png);
     background-image : url(../../image/silk/webcam.png);
 }
 
+.icon-sakai-profile2 { 
+	background-image: url(../../image/silk/vcard.png); 
+} 
+
 /*admin tools*/
 .icon-sakai-users{
 	background-image: url(../../image/silk/folder_user.png);
