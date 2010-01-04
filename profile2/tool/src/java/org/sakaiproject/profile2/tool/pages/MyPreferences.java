@@ -118,6 +118,20 @@ public class MyPreferences extends BasePage{
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
+		
+		//private message emails
+		final RadioGroup emailPrivateMessage = new RadioGroup("privateMessageEmailEnabled", new PropertyModel(preferencesModel, "privateMessageEmailEnabled"));
+		emailPrivateMessage.add(new Radio("privateMessageOn", new Model(new Boolean(true))));
+		emailPrivateMessage.add(new Radio("privateMessageOff", new Model(new Boolean(false))));
+		emailPrivateMessage.add(new Label("privateMessageLabel", new ResourceModel("preferences.email.privatemessage")));
+		form.add(emailPrivateMessage);
+		
+		//updater
+		emailPrivateMessage.add(new AjaxFormChoiceComponentUpdatingBehavior() {
+            protected void onUpdate(AjaxRequestTarget target) {
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
         
 		
 		// TWITTER SECTION

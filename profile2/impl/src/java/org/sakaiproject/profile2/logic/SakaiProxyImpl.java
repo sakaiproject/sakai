@@ -929,6 +929,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return false;
 	}
 	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public String generateUuid() {
+		return idManager.createUuid();
+	}
+	
 	
 	// PRIVATE METHODS FOR SAKAIPROXY
 	

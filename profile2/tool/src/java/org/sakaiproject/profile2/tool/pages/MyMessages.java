@@ -31,8 +31,13 @@ public class MyMessages extends BasePage {
 		IndicatingAjaxButton newMessageButton = new IndicatingAjaxButton("newMessage", form) {
 		
 			public void onSubmit(AjaxRequestTarget target, Form form) {
-				target.addComponent(newMessagePanel);
+				//show panel
 				newMessagePanel.setVisible(true);
+				target.addComponent(newMessagePanel);
+				
+				//disable this button
+				this.setEnabled(false);
+				target.addComponent(this);
 				
 				//resize iframe
 				target.prependJavascript("setMainFrameHeight(window.name);");

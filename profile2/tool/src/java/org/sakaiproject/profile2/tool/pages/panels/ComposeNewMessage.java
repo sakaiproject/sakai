@@ -6,7 +6,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextArea;
@@ -20,7 +20,9 @@ import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.tool.Locator;
+import org.sakaiproject.profile2.tool.components.CloseButton;
 import org.sakaiproject.profile2.tool.components.ResourceReferences;
+import org.sakaiproject.profile2.util.ProfileConstants;
 import org.wicketstuff.objectautocomplete.AutoCompletionChoicesProvider;
 import org.wicketstuff.objectautocomplete.ObjectAutoCompleteBuilder;
 import org.wicketstuff.objectautocomplete.ObjectAutoCompleteField;
@@ -48,15 +50,15 @@ public class ComposeNewMessage extends Panel {
 		Message message = new Message();
 		message.setFrom(userId);		
 		
+		//feedback for form submit action
+		final Label formFeedback = new Label("formFeedback");
+		formFeedback.setOutputMarkupPlaceholderTag(true);
+		final String formFeedbackId = formFeedback.getMarkupId();
+		add(formFeedback);
+		
 		
 		//setup form	
-		Form<Message> form = new Form<Message>("form", new Model(message)) {
-			private static final long serialVersionUID = 1L;
-
-			public void onSubmit(){
-			}
-		};
-		
+		Form<Message> form = new Form<Message>("form", new Model<Message>(message));
 		
 		//to label
 		form.add(new Label("toLabel", new ResourceModel("message.to")));
@@ -64,35 +66,7 @@ public class ComposeNewMessage extends Panel {
 		//get connections
 		final List<Person> connections = profileLogic.getConnectionsForUser(userId);
 
-		//toField autocompleterenderer - required when not using simple strings
-		/*
-		AbstractAutoCompleteRenderer autoCompleteRenderer = new AbstractAutoCompleteRenderer() {
-			protected final String getTextValue(final Object object) {
-				Person p = (Person) object;
-				//workaround to track the ID so we can use it.
-				setToValue(p.getUuid());
-				return p.getDisplayName();
-			}
-			protected final void renderChoice(final Object object, final Response response, final String criteria) {
-				response.write(getTextValue(object));
-			}
-			
-		};
-		
-		// toField
-		final AbstractAutoCompleteTextField<Person> toField = new AbstractAutoCompleteTextField<Person>("toField", new PropertyModel(message, "to"), autoCompleteRenderer) {
-			protected final List<Person> getChoiceList(final String input) {
-				return profileLogic.getConnectionsSubsetForSearch(connections, input);
-			}
-
-			protected final String getChoiceValue(final Person choice) throws Throwable {
-				//this is never called when renderer is being used
-				return choice.getUuid();
-			}
-		};
-		*/
-		
-		
+		// list provider
 		AutoCompletionChoicesProvider<Person> provider = new AutoCompletionChoicesProvider<Person>() {
 			private static final long serialVersionUID = 1L;
 
@@ -101,6 +75,7 @@ public class ComposeNewMessage extends Panel {
             }
         };
         
+        //renderer
         ObjectAutoCompleteRenderer<Person> renderer = new ObjectAutoCompleteRenderer<Person>(){
 			private static final long serialVersionUID = 1L;
 			
@@ -113,54 +88,90 @@ public class ComposeNewMessage extends Panel {
         };
         	
         
-		
+		//autocompletefield builder
 		ObjectAutoCompleteBuilder<Person,String> builder = new ObjectAutoCompleteBuilder<Person,String>(provider);
 		builder.autoCompleteRenderer(renderer);
 		builder.searchLinkImage(ResourceReferences.CROSS_IMG_LOCAL);
 		
+		//autocompletefield
 		ObjectAutoCompleteField<Person, String> autocompleteField = builder.build("toField", new PropertyModel<String>(message, "to"));
-		TextField<String> toField = autocompleteField.getSearchTextField();
+		final TextField<String> toField = autocompleteField.getSearchTextField();
 		toField.add(new AttributeModifier("class", true, new Model<String>("formInputField")));
-		
-		
+		toField.setRequired(true);
 		form.add(autocompleteField);
 
 		
-		//subject label
+		//subject
 		form.add(new Label("subjectLabel", new ResourceModel("message.subject")));
 		TextField<String> subjectField = new TextField<String>("subjectField", new PropertyModel<String>(message, "subject"));
 		form.add(subjectField);
 		
-		//subject label
+		//body
 		form.add(new Label("messageLabel", new ResourceModel("message.message")));
-		TextArea<String> messageField = new TextArea<String>("messageField", new PropertyModel<String>(message, "message"));
+		final TextArea<String> messageField = new TextArea<String>("messageField", new PropertyModel<String>(message, "message"));
+		messageField.setRequired(true);
 		form.add(messageField);
 		
 		
 		//send button
-		AjaxFallbackButton sendButton = new AjaxFallbackButton("sendButton", new ResourceModel("button.message.send"), form) {
+		IndicatingAjaxButton sendButton = new IndicatingAjaxButton("sendButton", form) {
 			private static final long serialVersionUID = 1L;
 
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				
+				//get the backing model
 				Message message = (Message) form.getModelObject();
 				
-				System.out.println("from: " + message.getFrom());
-				System.out.println("to: " + message.getTo());
-				System.out.println("toValue: " + getToValue());
-				//System.out.println("findChoice: " + toField.findChoice().getUuid());
+				//add a new uuid for this thread
+				message.setThread(sakaiProxy.generateUuid());
 				
-				System.out.println(message.getSubject());
-				System.out.println(message.getMessage());
-
+				//send the message
+				if(profileLogic.sendPrivateMessage(message)) {
+					
+					//post event
+					sakaiProxy.postEvent(ProfileConstants.EVENT_MESSAGE_SENT, "/profile/"+message.getFrom(), true);
+					
+					//if email is enabled for this message type, send email
+					if(profileLogic.isEmailEnabledForThisMessageType(message.getTo(), ProfileConstants.EMAIL_NOTIFICATION_PRIVATE_MESSAGE)) {
+						//message sending goes here, use the ETS
+					}
+					
+					//success
+					formFeedback.setDefaultModel(new ResourceModel("success.preferences.save.ok"));
+					formFeedback.add(new AttributeModifier("class", true, new Model("success")));
+					
+				} else {
+					//error
+					formFeedback.setDefaultModel(new ResourceModel("success.preferences.save.ok"));
+					formFeedback.add(new AttributeModifier("class", true, new Model("success")));
+				}
 				
+				target.addComponent(formFeedback);
             }
+			
+			protected void onError(AjaxRequestTarget target, Form form) {
+				
+				//check which item didn't validate and update the feedback model
+				if(!toField.isValid()) {
+					formFeedback.setDefaultModel(new ResourceModel("error.message.required.to"));
+				}
+				if(!messageField.isValid()) {
+					formFeedback.setDefaultModel(new ResourceModel("error.message.required.body"));
+				}
+				formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));	
+
+				target.addComponent(formFeedback);
+			}
 		};
 		form.add(sendButton);
-		
-		
+		sendButton.setModel(new ResourceModel("button.message.send"));
 		
 		add(form);
+		
+		List<Message> messages = profileLogic.getMessageThreadHeaders(userId);
+		for(Message msg : messages) {
+			System.out.println(msg.getId());
+		}
 		
 	}
 	

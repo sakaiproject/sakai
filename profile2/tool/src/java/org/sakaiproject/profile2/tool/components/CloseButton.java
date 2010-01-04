@@ -32,8 +32,6 @@ public class CloseButton extends Panel{
 
 					//do we also need to remove the component as well?
 					
-					//resize iframe
-					//target.appendJavascript("setMainFrameHeight(window.name);");
 				}
 			}
 						

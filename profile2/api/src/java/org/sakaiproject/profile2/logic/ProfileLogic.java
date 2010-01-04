@@ -2,6 +2,7 @@ package org.sakaiproject.profile2.logic;
 
 import java.util.List;
 
+import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileImageExternal;
 import org.sakaiproject.profile2.model.ProfilePreferences;
@@ -687,5 +688,26 @@ public interface ProfileLogic {
 	 * @return
 	 */
 	public List<Person> getConnectionsSubsetForSearch(List<Person> connections, String search);
+	
+	/**
+	 * Send a message
+	 * @param message	Message object to send.
+	 * @return
+	 */
+	public boolean sendPrivateMessage(Message message);
+	
+	/**
+	 * Gets a list of most Messages that will form the list. This is a reverse date sorted list of the most recent message in each thread
+	 * @param userId	user to get the list of messages for
+	 * @return
+	 */
+	public List<Message> getMessageThreadHeaders(final String userId);
+	
+	/**
+	 * Gets a list of the messages contained in this thread, reverse sorted by date.
+	 * @param threadId	id of the thread to get the messages for
+	 * @return
+	 */
+	public List<Message> getMessagesForThread(final String threadId);
 	
 }

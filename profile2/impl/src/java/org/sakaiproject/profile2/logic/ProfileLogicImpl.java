@@ -19,6 +19,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileFriend;
 import org.sakaiproject.profile2.model.ProfileImage;
@@ -64,6 +65,8 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	private static final String QUERY_GET_PREFERENCES_RECORD = "getPreferencesRecord"; //$NON-NLS-1$
 	private static final String QUERY_GET_EXTERNAL_IMAGE_RECORD = "getProfileImageExternalRecord"; //$NON-NLS-1$
 	private static final String QUERY_GET_UNREAD_MESSAGE_COUNT="getUnreadMessageCount";
+	
+	private static final String QUERY_GET_MESSAGE_THREAD_HEADERS="getMessageThreadHeaders";
 	
 	// Hibernate object fields
 	private static final String USER_UUID = "userUuid"; //$NON-NLS-1$
@@ -342,10 +345,8 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	
 	
 	/**
-	 * Set user status
-	 *
-	 * @param profileStatus		ProfileStatus object for the user
-	 */
+ 	 * {@inheritDoc}
+ 	 */
 	public boolean setUserStatus(ProfileStatus profileStatus) {
 		
 		try {
@@ -1267,6 +1268,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 				userId,
 				ProfileConstants.DEFAULT_EMAIL_REQUEST_SETTING,
 				ProfileConstants.DEFAULT_EMAIL_CONFIRM_SETTING,
+				ProfileConstants.DEFAULT_EMAIL_PRIVATE_MESSAGE_SETTING,
 				ProfileConstants.DEFAULT_TWITTER_SETTING);
 		
 			return prefs;
@@ -1488,6 +1490,11 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
     		return true;
     	}
     	
+    	//if its a private message and private messages enabled, true
+    	if(messageType == ProfileConstants.EMAIL_NOTIFICATION_PRIVATE_MESSAGE && profilePreferences.isPrivateMessageEmailEnabled()) {
+    		return true;
+    	}
+    	
     	//add more cases here as need progresses
     	
     	//no notification for this message type, return false 	
@@ -1688,11 +1695,67 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		
 		for(Person p : connections){
 			if(StringUtils.startsWithIgnoreCase(p.getDisplayName(), search)) {
+				if(subList.size() == ProfileConstants.MAX_CONNECTIONS_PER_SEARCH) {
+					break;
+				}
 				subList.add(p);
 			}
 		}
 		return subList;
 	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean sendPrivateMessage(Message message) {
+		
+		//add the extra fields
+		message.setRead(false);
+		message.setDatePosted(new Date());
+		
+		//save the message
+		try {
+			getHibernateTemplate().saveOrUpdate(message);
+			log.info("Message sent: " + message.toString()); 
+			return true;
+		} catch (Exception e) {
+			log.error("Profile.setUserStatus() failed. " + e.getClass() + ": " + e.getMessage()); 
+			return false;
+		}
+			
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<Message> getMessageThreadHeaders(final String userId) {
+		
+		List<Message> messages = new ArrayList<Message>();
+		
+		//get 
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  		
+	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGE_THREAD_HEADERS);
+	  			q.setParameter(TO, userId, Hibernate.STRING);
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	messages = (List<Message>) getHibernateTemplate().executeFind(hcb);
+	
+	  	return messages;
+		
+	}
+
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<Message> getMessagesForThread(String threadId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	
 	
 	// helper method to check if all required twitter fields are set properly
@@ -2102,6 +2165,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		this.sakaiProxy = sakaiProxy;
 	}
 
+	
 	
 
 	

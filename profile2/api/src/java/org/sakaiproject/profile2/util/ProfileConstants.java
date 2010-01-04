@@ -70,10 +70,13 @@ public class ProfileConstants {
 	//types of messages
 	public static final int EMAIL_NOTIFICATION_REQUEST = 1;
 	public static final int EMAIL_NOTIFICATION_CONFIRM = 2;
+	public static final int EMAIL_NOTIFICATION_PRIVATE_MESSAGE = 3;
+
 
 	//these values are used when creating a default privacy record for a user
 	public static final boolean DEFAULT_EMAIL_REQUEST_SETTING = true;
 	public static final boolean DEFAULT_EMAIL_CONFIRM_SETTING = true;
+	public static final boolean DEFAULT_EMAIL_PRIVATE_MESSAGE_SETTING = true;
 	public static final boolean DEFAULT_TWITTER_SETTING = false;
 
 	//if no record, this is the default for sending email messages
@@ -154,6 +157,9 @@ public class ProfileConstants {
 	public static final int FIRST_RECORD = 0;		
 	public static final int MAX_RECORDS = 99;
 	
+	//max number of connections that can be shown in an autocomplete search that match the criteria
+	public static final int MAX_CONNECTIONS_PER_SEARCH = 15;
+	
 	public static final String TOOL_ID = "sakai.profile2";
 		
 	//email constants
@@ -190,6 +196,8 @@ public class ProfileConstants {
 
 	public static final String EVENT_STATUS_UPDATE = "profile.status.update";
 	public static final String EVENT_TWITTER_UPDATE = "profile.twitter.update";
+	
+	public static final String EVENT_MESSAGE_SENT = "profile.message.sent";
 
 	//custom entity types
 	public static final int ENTITY_PROFILE_FULL = 0;

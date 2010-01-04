@@ -23,6 +23,7 @@ public class ProfilePreferences implements Serializable {
 	private String twitterUsername;
 	private String twitterPasswordEncrypted; //this is persisted
 	private String twitterPasswordDecrypted; //this is used for display. When updating, it is encrypted and set into the encrypted field
+	private boolean privateMessageEmailEnabled;
 
 	
 	/** 
@@ -34,10 +35,11 @@ public class ProfilePreferences implements Serializable {
 	/**
 	 * Basic constructor for creating default records
 	 */
-	public ProfilePreferences(String userUuid, boolean requestEmailEnabled, boolean confirmEmailEnabled, boolean twitterEnabled){
+	public ProfilePreferences(String userUuid, boolean requestEmailEnabled, boolean confirmEmailEnabled, boolean privateMessageEmailEnabled, boolean twitterEnabled){
 		this.userUuid=userUuid;
 		this.requestEmailEnabled=requestEmailEnabled;
 		this.confirmEmailEnabled=confirmEmailEnabled;
+		this.privateMessageEmailEnabled=privateMessageEmailEnabled;
 		this.twitterEnabled=twitterEnabled;
 	}
 	
@@ -65,6 +67,14 @@ public class ProfilePreferences implements Serializable {
 
 	public boolean isConfirmEmailEnabled() {
 		return confirmEmailEnabled;
+	}
+	
+	public boolean isPrivateMessageEmailEnabled() {
+		return privateMessageEmailEnabled;
+	}
+
+	public void setPrivateMessageEmailEnabled(boolean privateMessageEmailEnabled) {
+		this.privateMessageEmailEnabled = privateMessageEmailEnabled;
 	}
 
 	public boolean isTwitterEnabled() {
@@ -99,5 +109,7 @@ public class ProfilePreferences implements Serializable {
 	public void setTwitterPasswordDecrypted(String twitterPasswordDecrypted) {
 		this.twitterPasswordDecrypted = twitterPasswordDecrypted;
 	}
+
+	
 
 }

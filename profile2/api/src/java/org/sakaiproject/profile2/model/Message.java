@@ -2,6 +2,8 @@ package org.sakaiproject.profile2.model;
 
 import java.io.Serializable;
 import java.util.Date;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 /**
  * Message.java
  * 
@@ -15,13 +17,44 @@ public class Message implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * autoincrement ID for this message
+	 */
 	private long id;
+	
+	/**
+	 * uuid to
+	 */
 	private String to;
+	
+	/**
+	 * uuid from
+	 */
 	private String from;
+	
+	/**
+	 * subject of the message
+	 */
 	private String subject;
+	
+	/**
+	 * body of the message
+	 */
 	private String message;
-	private long inReplyTo;
+	
+	/**
+	 * what thread ID this message is associated with
+	 */
+	private String thread;
+	
+	/**
+	 * Has this message been read?
+	 */
 	private boolean read;
+	
+	/**
+	 * date this message was posted
+	 */
 	private Date datePosted;
 	
 	/**
@@ -60,11 +93,11 @@ public class Message implements Serializable {
 	public void setMessage(String message) {
 		this.message = message;
 	}
-	public long getInReplyTo() {
-		return inReplyTo;
+	public String getThread() {
+		return thread;
 	}
-	public void setInReplyTo(long inReplyTo) {
-		this.inReplyTo = inReplyTo;
+	public void setThread(String thread) {
+		this.thread = thread;
 	}
 	public boolean isRead() {
 		return read;
@@ -79,5 +112,18 @@ public class Message implements Serializable {
 		this.datePosted = datePosted;
 	}
 	
+	@Override 
+	public String toString() {
+		return new ToStringBuilder(this).
+			append("id", id).
+			append("to", to).
+			append("from", from).
+			append("subject", subject).
+			append("message", message).
+			append("thread", thread).
+			append("read", read).
+			append("datePosted", datePosted).
+			toString();
+	   }
 	
 }
