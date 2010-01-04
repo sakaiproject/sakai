@@ -1775,7 +1775,10 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				{
 					try
 					{
-						packetStream.close();
+						if (packetStream != null)
+						{
+							packetStream.close();
+						}
 					}
 					catch (Exception ex)
 					{
