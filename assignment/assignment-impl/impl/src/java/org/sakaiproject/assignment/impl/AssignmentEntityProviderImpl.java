@@ -124,7 +124,7 @@ CoreEntityProvider, AutoRegisterEntityProvider, PropertyProvideable {
 	    	canUserAccessWizardPageAndLinkedArtifcact = (Boolean)returnData;
 	    }
     }
-    if((decWrapperTag.equals("ospMatrix") && canUserAccessWizardPageAndLinkedArtifcact) || "".equals(submissionId)){
+    if(("ospMatrix".equals(decWrapperTag) && canUserAccessWizardPageAndLinkedArtifcact) || "".equals(submissionId)){
 
     	try {
     		Assignment assignment = assignmentService.getAssignment(assignmentId);

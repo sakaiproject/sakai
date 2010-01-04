@@ -140,7 +140,7 @@ public class DbAssignmentService extends BaseAssignmentService
 	 */
 	public void setLocksInDb(String value)
 	{
-		m_locksInDb = new Boolean(value).booleanValue();
+		m_locksInDb = Boolean.valueOf(value).booleanValue();
 	}
 
 	/** Set if we are to run the to-context conversion. */
@@ -154,7 +154,7 @@ public class DbAssignmentService extends BaseAssignmentService
 	 */
 	public void setConvertToContext(String value)
 	{
-		m_convertToContext = new Boolean(value).booleanValue();
+		m_convertToContext = Boolean.valueOf(value).booleanValue();
 	}
 
 	/** Configuration: to run the ddl on init or not. */
@@ -168,7 +168,7 @@ public class DbAssignmentService extends BaseAssignmentService
 	 */
 	public void setAutoDdl(String value)
 	{
-		m_autoDdl = new Boolean(value).booleanValue();
+		m_autoDdl = Boolean.valueOf(value).booleanValue();
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************

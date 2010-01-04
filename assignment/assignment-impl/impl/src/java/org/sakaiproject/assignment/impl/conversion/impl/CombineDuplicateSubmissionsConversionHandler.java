@@ -401,19 +401,19 @@ public class CombineDuplicateSubmissionsConversionHandler implements SchemaConve
 		if (grade == null)
 		{
 		}
-		else if (grade.equals("00"))
+		else if ("00".equals(grade))
 		{
 		}	
-		else if (grade.equals("0"))
+		else if ("0".equals(grade))
 		{
 		}	
-		else if (grade.equals("no grade"))
+		else if ("no grade".equals(grade))
 		{
 		}
-		else if (grade.equals("ungraded"))
+		else if ("ungraded".equals(grade))
 		{
 		}
-		else if (grade.equals("Fail"))
+		else if ("Fail".equals(grade))
 		{
 		}
 		else

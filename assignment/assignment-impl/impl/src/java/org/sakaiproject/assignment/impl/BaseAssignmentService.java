@@ -490,7 +490,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public void setCaching(String value)
 	{
-		m_caching = new Boolean(value).booleanValue();
+		m_caching = Boolean.valueOf(value).booleanValue();
 	}
 
 	/** Dependency: EntityManager. */
@@ -3075,7 +3075,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						|| (context.equals(getGroupNameFromContext(tempAssignment.getContext()))))
 				{
 					String deleted = tempAssignment.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED);
-					if (deleted == null || deleted.equals(""))
+					if (deleted == null || "".equals(deleted))
 					{
 						// not deleted, show it
 						if (tempAssignment.getDraft())
@@ -3950,7 +3950,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					// create the column for user first
 					row = sheet.createRow(rowNum);
 					// update user_row Hashtable
-					user_row.put(u.getId(), new Integer(rowNum));
+					user_row.put(u.getId(), Integer.valueOf(rowNum));
 					// increase row
 					rowNum++;
 					// put user displayid and sortname in the first two cells
@@ -5900,7 +5900,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_position_order = 0; // prevents null pointer if there is no position_order defined as well as helps with the sorting
 			try
 			{
-				m_position_order = new Long(el.getAttribute("position_order")).intValue();
+				m_position_order = Long.valueOf(el.getAttribute("position_order")).intValue();
 			}
 			catch (Exception e)
 			{
@@ -6022,7 +6022,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							m_position_order = 0; // prevents null pointer if there is no position_order defined as well as helps with the sorting
 							try
 							{
-								m_position_order = new Long(attributes.getValue("position_order")).intValue();
+								m_position_order = Long.valueOf(attributes.getValue("position_order")).intValue();
 							}
 							catch (Exception e)
 							{
@@ -6121,7 +6121,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			assignment.setAttribute("duedate", getTimeString(m_dueTime));
 			assignment.setAttribute("dropdeaddate", getTimeString(m_dropDeadTime));
 			assignment.setAttribute("closedate", getTimeString(m_closeTime));
-			assignment.setAttribute("position_order", new Long(m_position_order).toString().trim());
+			assignment.setAttribute("position_order", Long.valueOf(m_position_order).toString().trim());
 
 			
 				M_log.debug(this + " BASE ASSIGNMENT : TOXML : saved regular properties");
@@ -8454,7 +8454,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		
 		public String getReviewIconUrl() {
 			if (m_reviewIconUrl == null )
-				m_reviewIconUrl = contentReviewService.getIconUrlforScore(new Long(this.getReviewScore()));
+				m_reviewIconUrl = contentReviewService.getIconUrlforScore(Long.valueOf(this.getReviewScore()));
 				
 			return m_reviewIconUrl;
 		}
@@ -9345,7 +9345,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			String grade = getGrade();
 			if (m.getContent().getTypeOfGrade() == Assignment.SCORE_GRADE_TYPE)
 			{
-				if (grade != null && grade.length() > 0 && !grade.equals("0"))
+				if (grade != null && grade.length() > 0 && !"0".equals(grade))
 				{
 					try
 					{
@@ -11661,7 +11661,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			int result = -1;
 
 			/** *********** fo sorting assignments ****************** */
-			if (m_criteria.equals("duedate"))
+			if ("duedate".equals(m_criteria))
 			{
 				// sorted by the assignment due date
 				Time t1 = ((Assignment) o1).getDueTime();
@@ -11684,7 +11684,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					result = 1;
 				}
 			}
-			else if (m_criteria.equals("sortname"))
+			else if ("sortname".equals(m_criteria))
 			{
 				// sorted by the user's display name
 				String s1 = null;
