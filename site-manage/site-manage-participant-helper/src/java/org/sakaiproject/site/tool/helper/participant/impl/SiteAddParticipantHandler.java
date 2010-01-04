@@ -423,7 +423,7 @@ public class SiteAddParticipantHandler {
      */
     public String processEmailNotiBack() {
     	resetTargettedMessageList();
-    	if (roleChoice.equals("sameRole"))
+    	if ("sameRole".equals(roleChoice))
     	{
     		return "backSameRole";
     	}
@@ -621,7 +621,7 @@ public class SiteAddParticipantHandler {
 		}
 
 		if (addedParticipantEIds.size() != 0
-				&& (!notAddedOfficialAccounts.equals("") || !notAddedNonOfficialAccounts.equals(""))) {
+				&& (!"".equals(notAddedOfficialAccounts) || !"".equals(notAddedNonOfficialAccounts))) {
 			// at lease one officialAccount account or an nonOfficialAccount
 			// account added, and there are also failures
 			targettedMessageList.addMessage(new TargettedMessage("java.allusers", null, TargettedMessage.SEVERITY_INFO));
@@ -919,7 +919,7 @@ public class SiteAddParticipantHandler {
 			} // 	
 		} // nonOfficialAccounts
 
-		if (roleChoice.equals("same_role")) {
+		if ("same_role".equals(roleChoice)) {
 			targettedMessageList.addMessage(new TargettedMessage("java.roletype", null, TargettedMessage.SEVERITY_ERROR));
 		}
 
@@ -971,7 +971,7 @@ public class SiteAddParticipantHandler {
 	}
     
 	private boolean isValidMail(String email) {
-		if (email == null || email.equals(""))
+		if (email == null || "".equals(email))
 			return false;
 		
 		email = email.trim();

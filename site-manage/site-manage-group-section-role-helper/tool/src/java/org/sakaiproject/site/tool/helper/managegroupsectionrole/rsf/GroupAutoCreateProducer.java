@@ -175,7 +175,7 @@ public class GroupAutoCreateProducer implements ViewComponentProducer, ActionRes
          tml = handler.messages;
          if (tml.size() > 0) {
  			for (i = 0; i < tml.size(); i ++ ) {
- 				UIBranchContainer errorRow = UIBranchContainer.make(arg0,"error-row:", new Integer(i).toString());
+ 				UIBranchContainer errorRow = UIBranchContainer.make(arg0,"error-row:", Integer.valueOf(i).toString());
  				if (tml.messageAt(i).args != null ) {	    		
  					UIMessage.make(errorRow,"error",tml.messageAt(i).acquireMessageCode(),(String[])tml.messageAt(i).args[0]);
  				} else {

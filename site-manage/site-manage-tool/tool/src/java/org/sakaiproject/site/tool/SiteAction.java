@@ -932,7 +932,7 @@ public class SiteAction extends PagedResourceActionII {
 		}
 
 		if (state.getAttribute(STATE_TOP_PAGE_MESSAGE) == null) {
-			state.setAttribute(STATE_TOP_PAGE_MESSAGE, new Integer(0));
+			state.setAttribute(STATE_TOP_PAGE_MESSAGE, Integer.valueOf(0));
 		}
 
 		// skins if any
@@ -1362,7 +1362,7 @@ public class SiteAction extends PagedResourceActionII {
 			state.setAttribute(STATE_SITES, sites);
 			context.put("sites", sites);
 
-			context.put("totalPageNumber", new Integer(totalPageNumber(state)));
+			context.put("totalPageNumber", Integer.valueOf(totalPageNumber(state)));
 			context.put("searchString", state.getAttribute(STATE_SEARCH));
 			context.put("form_search", FORM_SEARCH);
 			context.put("formPageNumber", FORM_PAGE_NUMBER);
@@ -1418,7 +1418,7 @@ public class SiteAction extends PagedResourceActionII {
 							.getCurrentSessionUserId());
 
 					// am I a UM grad student?
-					Boolean isGradStudent = new Boolean(
+					Boolean isGradStudent = Boolean.valueOf(
 							isGradToolsCandidate(userId));
 					context.put("isGradStudent", isGradStudent);
 
@@ -1427,9 +1427,7 @@ public class SiteAction extends PagedResourceActionII {
 					boolean noGradToolsSite = true;
 					if (hasGradToolsStudentSite(userId))
 						noGradToolsSite = false;
-					context
-							.put("noGradToolsSite",
-									new Boolean(noGradToolsSite));
+					context.put("noGradToolsSite", Boolean.valueOf(noGradToolsSite));
 				} catch (Exception e) {
 					M_log.warn(this + "buildContextForTemplate chef_site-type.vm ", e);
 				}
@@ -1493,7 +1491,7 @@ public class SiteAction extends PagedResourceActionII {
 				myworkspace_site = true;
 				type = "myworkspace";
 			}
-			context.put("myworkspace_site", new Boolean(myworkspace_site));
+			context.put("myworkspace_site", Boolean.valueOf(myworkspace_site));
 			
 			context.put(STATE_TOOL_REGISTRATION_LIST, state.getAttribute(STATE_TOOL_REGISTRATION_LIST));
 			// put tool title into context if PageOrderHelper is enabled
@@ -1613,7 +1611,7 @@ public class SiteAction extends PagedResourceActionII {
 					int number = ((Integer) state
 							.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER))
 							.intValue();
-					context.put("manualAddNumber", new Integer(number - 1));
+					context.put("manualAddNumber", Integer.valueOf(number - 1));
 					context.put("manualAddFields", state
 							.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS));
 				}
@@ -1661,9 +1659,9 @@ public class SiteAction extends PagedResourceActionII {
 							.getAttribute(STATE_TOOL_EMAIL_ADDRESS));
 			context.put("serverName", ServerConfigurationService
 					.getServerName());
-			context.put("include", new Boolean(siteInfo.include));
-			context.put("published", new Boolean(siteInfo.published));
-			context.put("joinable", new Boolean(siteInfo.joinable));
+			context.put("include", Boolean.valueOf(siteInfo.include));
+			context.put("published", Boolean.valueOf(siteInfo.published));
+			context.put("joinable", Boolean.valueOf(siteInfo.joinable));
 			context.put("joinerRole", siteInfo.joinerRole);
 
 			context.put("importSiteTools", state
@@ -1730,7 +1728,7 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("siteId", site.getId());
 				if (unJoinableSiteTypes != null && !unJoinableSiteTypes.contains(siteType))
 				{
-					context.put("siteJoinable", new Boolean(site.isJoinable()));
+					context.put("siteJoinable", Boolean.valueOf(site.isJoinable()));
 				}
 
 				if (site.isPublished()) {
@@ -1953,7 +1951,7 @@ public class SiteAction extends PagedResourceActionII {
 						context.put("currentSortedBy", sortedBy);
 					if (sortedAsc != null)
 						context.put("currentSortAsc", sortedAsc);
-					context.put("participantListSize", new Integer(participantsCollection.size()));
+					context.put("participantListSize", Integer.valueOf(participantsCollection.size()));
 					context.put("participantList", prepPage(state));
 					pagingInfoToContext(state, context);
 				}
@@ -2068,7 +2066,7 @@ public class SiteAction extends PagedResourceActionII {
 					int number = ((Integer) state
 							.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER))
 							.intValue();
-					context.put("manualAddNumber", new Integer(number - 1));
+					context.put("manualAddNumber", Integer.valueOf(number - 1));
 					context.put("manualAddFields", state
 							.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS));
 				} else {
@@ -2686,10 +2684,10 @@ public class SiteAction extends PagedResourceActionII {
 				number = ((Integer) state
 						.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER))
 						.intValue();
-				context.put("currentNumber", new Integer(number));
+				context.put("currentNumber", Integer.valueOf(number));
 			}
-			context.put("currentNumber", new Integer(number));
-			context.put("listSize", number>0?new Integer(number - 1):0);
+			context.put("currentNumber", Integer.valueOf(number));
+			context.put("listSize", number>0?Integer.valueOf(number - 1):0);
 			if (state.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS) != null && ((List) state.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS)).size() > 0)
 			{
 				context.put("fieldValues", state.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS));
@@ -2749,7 +2747,7 @@ public class SiteAction extends PagedResourceActionII {
 							.getAttribute(STATE_TOOL_EMAIL_ADDRESS));
 			context.put("serverName", ServerConfigurationService
 					.getServerName());
-			context.put("include", new Boolean(siteInfo.include));
+			context.put("include", Boolean.valueOf(siteInfo.include));
 			return (String) getContext(data).get("template") + TEMPLATE[42];
 		case 43:
 			/*
@@ -2792,7 +2790,7 @@ public class SiteAction extends PagedResourceActionII {
 				int addNumber = ((Integer) state
 						.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER))
 						.intValue() - 1;
-				context.put("manualAddNumber", new Integer(addNumber));
+				context.put("manualAddNumber", Integer.valueOf(addNumber));
 				context.put("requestFields", state
 						.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS));
 				context.put("backIndex", "37");
@@ -2873,7 +2871,7 @@ public class SiteAction extends PagedResourceActionII {
 					.getAttribute(STATE_CM_REQUESTED_SECTIONS);
 
 			if (courseManagementIsImplemented() && cms != null) {
-				context.put("cmsAvailable", new Boolean(true));
+				context.put("cmsAvailable", Boolean.valueOf(true));
 			}
 			
 			int cmLevelSize = 0;
@@ -2929,7 +2927,7 @@ public class SiteAction extends PagedResourceActionII {
 				int courseInd = ((Integer) state
 						.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER))
 						.intValue();
-				context.put("manualAddNumber", new Integer(courseInd - 1));
+				context.put("manualAddNumber", Integer.valueOf(courseInd - 1));
 				context.put("manualAddFields", state
 						.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS));
 			}
@@ -3125,7 +3123,7 @@ public class SiteAction extends PagedResourceActionII {
 				}
 			}
 			context.put("selectedProviderCourseTitles", providerSectionListTitles);
-			context.put("size", new Integer(providerSectionList.size() - 1));
+			context.put("size", Integer.valueOf(providerSectionList.size() - 1));
 		}
 	}
 
@@ -3771,7 +3769,7 @@ public class SiteAction extends PagedResourceActionII {
 			// get sort type
 			SortType sortType = null;
 			String sortBy = (String) state.getAttribute(SORTED_BY);
-			boolean sortAsc = (new Boolean((String) state
+			boolean sortAsc = (Boolean.valueOf((String) state
 					.getAttribute(SORTED_ASC))).booleanValue();
 			if (sortBy.equals(SortType.TITLE_ASC.toString())) {
 				sortType = sortAsc ? SortType.TITLE_ASC : SortType.TITLE_DESC;
@@ -3967,7 +3965,7 @@ public class SiteAction extends PagedResourceActionII {
 		{
 			for (int i = 0; i < toolList.size() && !fromENW; i++) {
 				String toolId = (String) toolList.get(i);
-				if (toolId.equals("sakai.mailbox")
+				if ("sakai.mailbox".equals(toolId)
 						|| isMultipleInstancesAllowed(findOriginalToolId(state, toolId))) {
 					if (oTools == null) {
 						// if during site creation proces
@@ -4143,10 +4141,10 @@ public class SiteAction extends PagedResourceActionII {
 		if (!h.containsKey(siteId)) {
 			// when first entered Site Info, set the participant list size to
 			// 200 as default
-			state.setAttribute(STATE_PAGESIZE, new Integer(200));
+			state.setAttribute(STATE_PAGESIZE, Integer.valueOf(200));
 
 			// update
-			h.put(siteId, new Integer(200));
+			h.put(siteId, Integer.valueOf(200));
 			state.setAttribute(STATE_PAGESIZE_SITEINFO, h);
 		} else {
 			// restore the page size in site info tool
@@ -4240,7 +4238,7 @@ public class SiteAction extends PagedResourceActionII {
 			if (type.equalsIgnoreCase((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 				// redirect
 				redirectCourseCreation(params, state, "selectTerm");
-			} else if (type.equals("project")) {
+			} else if ("project".equals(type)) {
 				state.setAttribute(STATE_TEMPLATE_INDEX, "13");
 			} else if (type.equals(SITE_TYPE_GRADTOOLS_STUDENT)) {
 				// if a GradTools site use pre-defined site info and exclude
@@ -4600,7 +4598,7 @@ public class SiteAction extends PagedResourceActionII {
 		if (option.equalsIgnoreCase("change")) {
 			if (params.getString("number") != null) {
 				int newNumber = Integer.parseInt(params.getString("number"));
-				state.setAttribute(STATE_MANUAL_ADD_COURSE_NUMBER, new Integer(oldNumber + newNumber));
+				state.setAttribute(STATE_MANUAL_ADD_COURSE_NUMBER, Integer.valueOf(oldNumber + newNumber));
 
 				List requiredFields = sectionFieldProvider.getRequiredFields();
 				for (int j = 0; j < newNumber; j++) {
@@ -4623,7 +4621,7 @@ public class SiteAction extends PagedResourceActionII {
 				addAlert(state, rb.getString("java.miss"));
 			} 
 			// valid input, adjust the add course number
-			state.setAttribute(STATE_MANUAL_ADD_COURSE_NUMBER, new Integer(	validInputSites>1?validInputSites:1)); 
+			state.setAttribute(STATE_MANUAL_ADD_COURSE_NUMBER, Integer.valueOf(	validInputSites>1?validInputSites:1)); 
 		}
 
 		// set state attributes
@@ -4675,7 +4673,7 @@ public class SiteAction extends PagedResourceActionII {
 		state.setAttribute(STATE_SITE_INFO, siteInfo);
 
 		// set tool registration list
-		if (!type.equals("copy"))
+		if (!"copy".equals(type))
 		{
 			setToolRegistrationList(state, type);
 		}
@@ -4857,13 +4855,13 @@ public class SiteAction extends PagedResourceActionII {
 		ParameterParser params = data.getParameters();
 		
 		String option = data.getParameters().getString("option");
-		if (option.equals("continue")) {
+		if ("continue".equals(option)) {
 			doContinue(data);
-		} else if (option.equals("cancel")) {
+		} else if ("cancel".equals(option)) {
 			doCancel_create(data);
-		} else if (option.equals("back")) {
+		} else if ("back".equals(option)) {
 			doBack(data);
-		} else if (option.equals("cancel")) {
+		} else if ("cancel".equals(option)) {
 			doCancel_create(data);
 		}
 		else if (option.equalsIgnoreCase("change")) {
@@ -5357,7 +5355,7 @@ public class SiteAction extends PagedResourceActionII {
 
 			String sessionUserName = cUser.getDisplayName();
 			String additional = NULL_STRING;
-			if (request.equals("new")) {
+			if ("new".equals(request)) {
 				additional = siteInfo.getAdditional();
 			} else {
 				additional = (String) state.getAttribute(FORM_ADDITIONAL);
@@ -5413,11 +5411,11 @@ public class SiteAction extends PagedResourceActionII {
 							}
 	
 							// requested sections
-							if (fromContext.equals("manual"))
+							if ("manual".equals(fromContext))
 							{
 								addRequestedSectionIntoNotification(state, requestFields, buf);
 							}
-							else if (fromContext.equals("cmRequest"))
+							else if ("cmRequest".equals(fromContext))
 							{
 								addRequestedCMSectionIntoNotification(state, requestFields, buf);
 							}
@@ -5465,7 +5463,7 @@ public class SiteAction extends PagedResourceActionII {
 					+ " " + rb.getString("java.supp") + "\n");
 			buf.append("\n" + rb.getString("java.from") + "\t"
 					+ sessionUserName + "\n");
-			if (request.equals("new")) {
+			if ("new".equals(request)) {
 				buf.append(rb.getString("java.subj") + "\t"
 						+ rb.getString("java.sitereq") + "\n");
 			} else {
@@ -5474,7 +5472,7 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			buf.append(rb.getString("java.date") + "\t" + local_date + " "
 					+ local_time + "\n\n");
-			if (request.equals("new")) {
+			if ("new".equals(request)) {
 				buf.append(rb.getString("java.approval") + " "
 						+ productionSiteName + " "
 						+ rb.getString("java.coursesite") + " ");
@@ -5495,11 +5493,11 @@ public class SiteAction extends PagedResourceActionII {
 			}
 
 			// requested sections
-			if (fromContext.equals("manual"))
+			if ("manual".equals(fromContext))
 			{
 				addRequestedSectionIntoNotification(state, requestFields, buf);
 			}
-			else if (fromContext.equals("cmRequest"))
+			else if ("cmRequest".equals(fromContext))
 			{
 				addRequestedCMSectionIntoNotification(state, requestFields, buf);
 			}
@@ -5544,7 +5542,7 @@ public class SiteAction extends PagedResourceActionII {
 					replyTo, null);
 			// revert the locale to system default
 			rb.setContextLocale(Locale.getDefault());
-			state.setAttribute(REQUEST_SENT, new Boolean(true));
+			state.setAttribute(REQUEST_SENT, Boolean.valueOf(true));
 
 		} // if
 		
@@ -5712,23 +5710,23 @@ public class SiteAction extends PagedResourceActionII {
 		String backIndex = params.getString("back");
 		state.setAttribute(STATE_TEMPLATE_INDEX, backIndex);
 
-		if (currentIndex.equals("3")) {
+		if ("3".equals(currentIndex)) {
 			state.removeAttribute(STATE_TOOL_EMAIL_ADDRESS);
 			state.removeAttribute(STATE_MESSAGE);
 			removeEditToolState(state);
-		} else if (getStateSite(state) != null && (currentIndex.equals("13") || currentIndex.equals("14"))) {
+		} else if (getStateSite(state) != null && ("13".equals(currentIndex) || "14".equals(currentIndex))) {
 			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
-		} else if (currentIndex.equals("15")) {
+		} else if ("15".equals(currentIndex)) {
 			params = data.getParameters();
 			state.setAttribute(STATE_TEMPLATE_INDEX, params
 					.getString("cancelIndex"));
 			removeEditToolState(state);
 		}
-		// htripath: added 'currentIndex.equals("45")' for import from file
+		// htripath: added '"45".equals(currentIndex)' for import from file
 		// cancel
-		else if (currentIndex.equals("45")) {
+		else if ("45".equals(currentIndex)) {
 			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
-		} else if (currentIndex.equals("3")) {
+		} else if ("3".equals(currentIndex)) {
 			// from adding class
 			if (((String) state.getAttribute(STATE_SITE_MODE))
 					.equalsIgnoreCase(SITE_MODE_SITESETUP)) {
@@ -5737,7 +5735,7 @@ public class SiteAction extends PagedResourceActionII {
 					.equalsIgnoreCase(SITE_MODE_SITEINFO)) {
 				state.setAttribute(STATE_TEMPLATE_INDEX, "18");
 			}
-		} else if (currentIndex.equals("27") || currentIndex.equals("28") || currentIndex.equals("59") || currentIndex.equals("60")) {
+		} else if ("27".equals(currentIndex) || "28".equals(currentIndex) || "59".equals(currentIndex) || "60".equals(currentIndex)) {
 			// from import
 			if (((String) state.getAttribute(STATE_SITE_MODE))
 					.equalsIgnoreCase(SITE_MODE_SITESETUP)) {
@@ -5756,7 +5754,7 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			state.removeAttribute(STATE_IMPORT_SITE_TOOL);
 			state.removeAttribute(STATE_IMPORT_SITES);
-		} else if (currentIndex.equals("26")) {
+		} else if ("26".equals(currentIndex)) {
 			if (((String) state.getAttribute(STATE_SITE_MODE))
 					.equalsIgnoreCase(SITE_MODE_SITESETUP)
 					&& getStateSite(state) == null) {
@@ -5767,7 +5765,7 @@ public class SiteAction extends PagedResourceActionII {
 				state.setAttribute(STATE_TEMPLATE_INDEX, "12");
 			}
 			removeEditToolState(state);
-		} else if (currentIndex.equals("37") || currentIndex.equals("44") || currentIndex.equals("53") || currentIndex.equals("36")) {
+		} else if ("37".equals(currentIndex) || "44".equals(currentIndex) || "53".equals(currentIndex) || "36".equals(currentIndex)) {
 			// cancel back to edit class view
 			state.removeAttribute(STATE_TERM_SELECTED);
 			removeAddClassContext(state);
@@ -6394,9 +6392,9 @@ public class SiteAction extends PagedResourceActionII {
 					.getAttribute(STATE_PAGESIZE_SITEINFO);
 			if (!h.containsKey(siteId)) {
 				// update
-				h.put(siteId, new Integer(200));
+				h.put(siteId, Integer.valueOf(200));
 				state.setAttribute(STATE_PAGESIZE_SITEINFO, h);
-				state.setAttribute(STATE_PAGESIZE, new Integer(200));
+				state.setAttribute(STATE_PAGESIZE, Integer.valueOf(200));
 			}
 		}
 		if (state.getAttribute(STATE_SITE_TYPES) == null) {
@@ -6909,7 +6907,7 @@ public class SiteAction extends PagedResourceActionII {
 			ParameterParser params, SessionState state, RunData data) {
 		// Continue - make any permanent changes, Back - keep any data entered
 		// on the form
-		boolean forward = direction.equals("continue") ? true : false;
+		boolean forward = "continue".equals(direction) ? true : false;
 
 		SiteInfo siteInfo = new SiteInfo();
 
@@ -7317,7 +7315,7 @@ public class SiteAction extends PagedResourceActionII {
 					collectNewSiteInfo(state, params, providerChosenList);
 					
 					String find_course = params.getString("find_course");
-					if (state.getAttribute(STATE_TEMPLATE_SITE) != null && (find_course == null || !find_course.equals("true")))
+					if (state.getAttribute(STATE_TEMPLATE_SITE) != null && (find_course == null || !"true".equals(find_course)))
 					{
 						// creating based on template
 						doFinish(data);
@@ -7344,7 +7342,7 @@ public class SiteAction extends PagedResourceActionII {
 				if (params.getStrings("providerClassDeletes") == null
 						&& params.getStrings("manualClassDeletes") == null
 						&& params.getStrings("cmRequestedClassDeletes") == null
-						&& !direction.equals("back")) {
+						&& !"back".equals(direction)) {
 					addAlert(state, rb.getString("java.classes"));
 				}
 
@@ -8281,7 +8279,7 @@ public class SiteAction extends PagedResourceActionII {
 		// see if Home was chosen
 		for (ListIterator j = chosenList.listIterator(); j.hasNext();) {
 			String choice = (String) j.next();
-			if (choice.equals("sakai.mailbox")) {
+			if ("sakai.mailbox".equals(choice)) {
 				hasEmail = true;
 				String alias = StringUtil.trimToNull((String) state
 						.getAttribute(STATE_TOOL_EMAIL_ADDRESS));
@@ -8794,7 +8792,7 @@ public class SiteAction extends PagedResourceActionII {
 							}
 						}
 					}
-					else if (toolId.equals("sakai.mailbox") && !existTools.contains(toolId)) {
+					else if ("sakai.mailbox".equals(toolId) && !existTools.contains(toolId)) {
 						// get the email alias when an Email Archive tool
 						// has been selected
 						goToToolConfigPage = true;
@@ -8808,7 +8806,7 @@ public class SiteAction extends PagedResourceActionII {
 
 			}
 
-			state.setAttribute(STATE_TOOL_HOME_SELECTED, new Boolean(
+			state.setAttribute(STATE_TOOL_HOME_SELECTED, Boolean.valueOf(
 					homeSelected));
 		}
 
@@ -9528,7 +9526,7 @@ public class SiteAction extends PagedResourceActionII {
 		
 		state.setAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP, multipleToolIdTitleMap);
 		state.setAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION, multipleToolIdAttributeMap);
-		state.setAttribute(STATE_TOOL_HOME_SELECTED, new Boolean(check_home));
+		state.setAttribute(STATE_TOOL_HOME_SELECTED, Boolean.valueOf(check_home));
 		state.setAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST, idSelected); // List
 		state.setAttribute(STATE_TOOL_REGISTRATION_LIST, toolRegList);
 		state.setAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST, toolTitles);
@@ -9904,7 +9902,7 @@ public class SiteAction extends PagedResourceActionII {
 		// update the state objects
 		state.setAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP, multipleToolIdTitleMap);
 		state.setAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION, multipleToolConfiguration);
-		state.setAttribute(STATE_TOOL_HOME_SELECTED, new Boolean(has_home));
+		state.setAttribute(STATE_TOOL_HOME_SELECTED, Boolean.valueOf(has_home));
 		state.setAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST, toolTitles);
 	} // updateSelectedToolList
 
@@ -10368,11 +10366,11 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	public void doAdd_site_option(RunData data) {
 		String option = data.getParameters().getString("option");
-		if (option.equals("finish")) {
+		if ("finish".equals(option)) {
 			doFinish(data);
-		} else if (option.equals("cancel")) {
+		} else if ("cancel".equals(option)) {
 			doCancel_create(data);
-		} else if (option.equals("back")) {
+		} else if ("back".equals(option)) {
 			doBack(data);
 		}
 	} // doAdd_site_option
@@ -10383,11 +10381,11 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	public void doDuplicate_site_option(RunData data) {
 		String option = data.getParameters().getString("option");
-		if (option.equals("duplicate")) {
+		if ("duplicate".equals(option)) {
 			doContinue(data);
-		} else if (option.equals("cancel")) {
+		} else if ("cancel".equals(option)) {
 			doCancel(data);
-		} else if (option.equals("finish")) {
+		} else if ("finish".equals(option)) {
 			doContinue(data);
 		}
 	} // doDuplicate_site_option
@@ -11136,7 +11134,7 @@ public class SiteAction extends PagedResourceActionII {
 				// if creating a new site
 				state.setAttribute(STATE_TEMPLATE_INDEX, "37");
 
-				state.setAttribute(STATE_MANUAL_ADD_COURSE_NUMBER, new Integer(
+				state.setAttribute(STATE_MANUAL_ADD_COURSE_NUMBER, Integer.valueOf(
 						1));
 
 			} else if (params.getString("find_course") != null
@@ -11471,18 +11469,18 @@ public class SiteAction extends PagedResourceActionII {
 					doCancel(data);// cancel from site info editing
 				}
 				return;
-			} else if (option.equals("add")) {
+			} else if ("add".equals(option)) {
 				addRequestedSection(state);
 				return;
-			} else if (option.equals("manual")) {
+			} else if ("manual".equals(option)) {
 				// TODO: send to case 37
 				state.setAttribute(STATE_TEMPLATE_INDEX, "37");
 
-				state.setAttribute(STATE_MANUAL_ADD_COURSE_NUMBER, new Integer(
+				state.setAttribute(STATE_MANUAL_ADD_COURSE_NUMBER, Integer.valueOf(
 						1));
 
 				return;
-			} else if (option.equals("remove"))
+			} else if ("remove".equals(option))
 				removeAnyFlagedSection(state, params);
 		}
 
@@ -11709,19 +11707,19 @@ public class SiteAction extends PagedResourceActionII {
 		
 		if (option != null)
 		{
-			if (option.equals("cancel"))
+			if ("cancel".equals(option))
 			{
 				doCancel_create(data);
 			}
-			else if (option.equals("siteType"))
+			else if ("siteType".equals(option))
 			{
 				doSite_type(data);
 			}
-			else if (option.equals("createOnTemplate"))
+			else if ("createOnTemplate".equals(option))
 			{
 				doSite_copyFromTemplate(data);
 			}
-			else if (option.equals("createCourseOnTemplate"))
+			else if ("createCourseOnTemplate".equals(option))
 			{
 				doSite_copyFromCourseTemplate(data);
 			}
@@ -11866,17 +11864,17 @@ public class SiteAction extends PagedResourceActionII {
 		ParameterParser params = data.getParameters();
 
 		String option = params.getString("option");
-		if (option.equals("removeSection"))
+		if ("removeSection".equals(option))
 		{
 			// remove section
 			removeAnyFlagedSection(state, params);
 		}
-		else if (option.equals("continue"))
+		else if ("continue".equals(option))
 		{
 			// continue with site information edit
 			doContinue(data);
 		}
-		else if (option.equals("back"))
+		else if ("back".equals(option))
 		{
 			// go back to previous pages
 			doBack(data);

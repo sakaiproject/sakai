@@ -168,7 +168,7 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 	{
 		super.initState(state, portlet, rundata);
 
-		state.setAttribute(STATE_PAGESIZE, new Integer(DEFAULT_PAGE_SIZE));
+		state.setAttribute(STATE_PAGESIZE, Integer.valueOf(DEFAULT_PAGE_SIZE));
 
 		// if site type which requires term search exists
 		// get all term-search related data from configuration,
@@ -234,7 +234,7 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 		{
 			template = buildListContext(state, context);
 		}
-		else if (mode.equals("visit"))
+		else if ("visit".equals(mode))
 		{
 			template = buildVisitContext(state, context);
 		}
@@ -256,7 +256,7 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 		// put the service in the context (used for allow update calls on each site)
 		context.put("service", SiteService.getInstance());
 		
-		context.put("helperMode", new Boolean(state.getAttribute(Tool.HELPER_DONE_URL) != null));
+		context.put("helperMode", Boolean.valueOf(state.getAttribute(Tool.HELPER_DONE_URL) != null));
 
 		context.put("termProp", (String) state.getAttribute(SEARCH_TERM_PROP));
 		context.put("searchText", (String) state.getAttribute(STATE_SEARCH));
@@ -273,8 +273,8 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 		}
 		else
 		{
-			state.setAttribute(STATE_PAGESIZE, new Integer(DEFAULT_PAGE_SIZE));
-			context.put("pagesize", new Integer(DEFAULT_PAGE_SIZE));
+			state.setAttribute(STATE_PAGESIZE, Integer.valueOf(DEFAULT_PAGE_SIZE));
+			context.put("pagesize", Integer.valueOf(DEFAULT_PAGE_SIZE));
 		}
 
 		// prepare the paging of realms
@@ -629,7 +629,7 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 
 		state.setAttribute(MODE, LIST_VIEW);
 
-		state.setAttribute(STATE_PAGESIZE, new Integer(DEFAULT_PAGE_SIZE));
+		state.setAttribute(STATE_PAGESIZE, Integer.valueOf(DEFAULT_PAGE_SIZE));
 		state.removeAttribute(INTER_SIZE);
 
 	} // doSearch

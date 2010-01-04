@@ -180,7 +180,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
          tml = handler.messages;
          if (tml.size() > 0) {
  			for (i = 0; i < tml.size(); i ++ ) {
- 				UIBranchContainer errorRow = UIBranchContainer.make(arg0,"error-row:", new Integer(i).toString());
+ 				UIBranchContainer errorRow = UIBranchContainer.make(arg0,"error-row:", Integer.valueOf(i).toString());
  				TargettedMessage msg = tml.messageAt(i);
 		    	if (msg.args != null ) 
 		    	{

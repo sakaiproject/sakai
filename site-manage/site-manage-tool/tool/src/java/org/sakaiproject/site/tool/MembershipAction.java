@@ -471,7 +471,7 @@ public class MembershipAction extends PagedResourceActionII
 
 		if (state.getAttribute(SORT_ASC) != null)
 		{
-			state.setAttribute(SORT_ASC, new Boolean(!((Boolean) state.getAttribute(SORT_ASC)).booleanValue()));
+			state.setAttribute(SORT_ASC, Boolean.valueOf(!((Boolean) state.getAttribute(SORT_ASC)).booleanValue()));
 		}
 	} // doToggle_sort
 
@@ -484,7 +484,7 @@ public class MembershipAction extends PagedResourceActionII
 
 		if (state.getAttribute(JOINABLE_SORT_ASC) != null)
 		{
-			state.setAttribute(JOINABLE_SORT_ASC, new Boolean(!((Boolean) state.getAttribute(JOINABLE_SORT_ASC)).booleanValue()));
+			state.setAttribute(JOINABLE_SORT_ASC, Boolean.valueOf(!((Boolean) state.getAttribute(JOINABLE_SORT_ASC)).booleanValue()));
 		}
 	}
 }
