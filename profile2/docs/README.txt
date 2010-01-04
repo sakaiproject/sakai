@@ -36,6 +36,8 @@ Note: I have only tested the MySQL and Oracle conversion scripts. I do not have 
 have not been able to test the conversion scripts. They are provided here in good faith only (or might be missing entirely).
 Please check them before you run them, preferably with a DBA for your particular database vendor.
 
+Note also: There is NO upgrade required for moving from 1.2 to 1.3 as no database tables were modified. Hence no SQL scripts for this upgrade.
+
 INDEXES:
 --------
 Database table indexes are provided in a separate script. For new installs these should be run manually as Hibernate is not adding them.
