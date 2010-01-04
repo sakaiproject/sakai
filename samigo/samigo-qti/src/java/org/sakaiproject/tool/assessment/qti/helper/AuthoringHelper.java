@@ -40,6 +40,9 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
@@ -527,8 +530,31 @@ public class AuthoringHelper
       }
 
       // update the remaining assessment properties
-      exHelper.updateAssessment(assessment, assessmentMap);
+      if (isRespondus) {
+    	  AssessmentAccessControl control =
+    		  (AssessmentAccessControl)assessment.getAssessmentAccessControl();
+    	  if (control == null){
+    		  control = new AssessmentAccessControl();
+    		  control.setAssessmentBase(assessment.getData());
+    	  }
 
+    	  EvaluationModel evaluationModel =
+    		  (EvaluationModel) assessment.getEvaluationModel();
+    	  if (evaluationModel == null){
+    		  evaluationModel = new EvaluationModel();
+    		  evaluationModel.setAssessmentBase(assessment.getData());
+    	  }
+
+    	  AssessmentFeedback feedback =
+    		  (AssessmentFeedback) assessment.getAssessmentFeedback();
+    	  if (feedback == null){
+    		  feedback = new AssessmentFeedback();
+    		  feedback.setAssessmentBase(assessment.getData());
+    	  }
+      }
+      else {
+    	  exHelper.updateAssessment(assessment, assessmentMap);
+      }
       // make sure required fields are set
       assessment.setCreatedBy(me);
       assessment.setCreatedDate(assessment.getCreatedDate());

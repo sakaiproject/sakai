@@ -92,8 +92,13 @@
   </xsl:for-each>
 
   <!-- feedback -->
-  <xsl:for-each select="//itemfeedback">
-    <allFeedbacks type="list"><xsl:value-of select="@ident"/>:::<xsl:value-of select="material/mattext"/></allFeedbacks>
+  <xsl:for-each select="//itemfeedback/material/*">
+    <allFeedbacks type="list">
+		<xsl:choose>
+			<xsl:when test="name()='mattext'"><xsl:value-of select="../../@ident"/>:::mattext:::<xsl:value-of select="." /></xsl:when>
+		    <xsl:when test="name()='matimage'"><xsl:value-of select="../../@ident"/>:::matimage:::<xsl:value-of select="@imagtype" />:::<xsl:value-of select="@uri" /></xsl:when>
+	    </xsl:choose>
+	</allFeedbacks>
   </xsl:for-each>
 
   <!-- varequal linkrefid mapping -->

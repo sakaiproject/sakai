@@ -51,6 +51,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ItemFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
@@ -259,6 +260,9 @@ public class ManifestGenerator {
 			while (itemIter.hasNext()) {
 				itemData = (ItemData) itemIter.next();
 				// Question Text
+				if (itemData.getTypeId().equals(TypeIfc.MATCHING)) {
+					processDescription(itemData.getInstruction());
+				}
 				Set itemTextSet = itemData.getItemTextSet();
 				ItemText itemText = null;
 				Iterator itemTextIter = itemTextSet.iterator();
