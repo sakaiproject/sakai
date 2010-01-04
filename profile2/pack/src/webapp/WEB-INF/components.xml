@@ -12,11 +12,12 @@
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
         <property name="sakaiPersonManager" ref="org.sakaiproject.api.common.edu.person.SakaiPersonManager" />
-		<property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
-		<property name="idManager"><ref bean="org.sakaiproject.id.api.IdManager"/></property>
-		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
-		<property name="emailService"><ref bean="org.sakaiproject.email.api.EmailService"/></property>
-		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+		<property name="idManager" ref="org.sakaiproject.id.api.IdManager" />
+		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
+		<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService" />
 	</bean>
 	
         
@@ -107,7 +108,7 @@
 	    </property>
 
   	</bean>
-	
+  	
 	
 	<!-- Legacy bean that implements the original ProfileManager interface -->
 	<bean id="org.sakaiproject.profile2.legacy.ProfileManager" class="org.sakaiproject.profile2.legacy.ProfileManagerImpl" init-method="init" destroy-method="destroy">

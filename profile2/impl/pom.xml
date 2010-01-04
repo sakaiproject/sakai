@@ -79,6 +79,11 @@
       		<artifactId>entitybroker-api</artifactId>
       		<scope>provided</scope>
    		</dependency>
+   		<dependency>
+    		<groupId>org.sakaiproject.emailtemplateservice</groupId>
+    		<artifactId>emailtemplateservice-api</artifactId>
+    		<scope>provided</scope>
+    	</dependency>
 	    
 	    <!-- TESTING DEPENDENCIES -->
 	    <!-- 

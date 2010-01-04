@@ -19,6 +19,7 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -997,8 +998,21 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 */
 	public void init() {
 		log.debug("Profile2 SakaiProxy init()");
+		
+		
+		//get the email templates
+		//DOMParser parser = new DOMParser();
+		//parser.parse(new InputSource(new StringReader(xml)));
+		//Document doc = parser.getDocument();
+		
+		//check sakai.property to see if we need to update the templates 
+		
+		//if required, update db with the templates from the file
+		
+		
 	}
 
+	
 	
 	
 	
@@ -1059,5 +1073,9 @@ public class SakaiProxyImpl implements SakaiProxy {
 		this.serverConfigurationService = serverConfigurationService;
 	}
 
+	private EmailTemplateService emailTemplateService;
+	public void setEmailTemplateService(EmailTemplateService emailTemplateService) {
+		emailTemplateService = emailTemplateService;
+	}
 	
 }

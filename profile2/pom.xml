@@ -154,6 +154,7 @@
     	<wicketstuff.objectautocomplete.version>1.4.1</wicketstuff.objectautocomplete.version>
     	<sakai.common.version>1.0.0-b02</sakai.common.version>
     	<legacy.profile.api.version>2.7.0-b01</legacy.profile.api.version>
+    	<sakai.ets.version>0.4.0</sakai.ets.version>
 		<url.localsite>scp://source.sakaiproject.org/var/www/html/release/profile2/${project.version}</url.localsite>
 	</properties>
     
@@ -264,6 +265,13 @@
 		      	<version>${sakai.common.version}</version>
 		      	<scope>provided</scope>
 		    </dependency>
+		    
+		    <dependency>
+    			<groupId>org.sakaiproject.emailtemplateservice</groupId>
+    			<artifactId>emailtemplateservice-api</artifactId>
+    			<version>${sakai.ets.version}</version>
+    			<scope>provided</scope>
+    		</dependency>
 		    
 		    <!-- legacy dependency-->
 		    <dependency>
