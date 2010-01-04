@@ -60,7 +60,9 @@ public class FileUtilsTest extends TestCase
 		testSpace = new File("target");
 		testSpace = new File(testSpace,"FileUtilsTestDir");
 		testSpace = new File(testSpace,"work");
-		testSpace.mkdirs();
+		if (!testSpace.mkdirs()) {
+			log.warn("setup: failed to create directories");
+		}
 		
 		super.setUp();
 		
@@ -119,7 +121,9 @@ public class FileUtilsTest extends TestCase
 			for ( int j = 0; j < name.length(); j++ ) {
 				f = new File(f,String.valueOf(name.charAt(j)));
 			}
-			f.getParentFile().mkdirs();
+			if (!f.getParentFile().mkdirs()){
+				log.warn("createFiles: couldn't create parent files");
+			}
 			FileOutputStream fw = new FileOutputStream(f);
 			random.nextBytes(buffer);
 			fw.write(buffer);
@@ -137,7 +141,9 @@ public class FileUtilsTest extends TestCase
 		for ( int i = 0; i < 20; i++ ) {
 			String name = FileUtils.digest(String.valueOf(System.currentTimeMillis()+i));
 			File f = new File(base,name);
-			f.getParentFile().mkdirs();
+			if (!f.getParentFile().mkdirs()) {
+				log.warn("createFlatFiles: can't create parent folders");
+			}
 			FileOutputStream fw = new FileOutputStream(f);
 			random.nextBytes(buffer);
 			fw.write(buffer);

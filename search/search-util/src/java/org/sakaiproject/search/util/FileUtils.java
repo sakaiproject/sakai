@@ -82,8 +82,7 @@ public class FileUtils
 			public void doFile(File file) throws IOException
 			{
 				if (file != null) {
-					file.delete();
-					if (file.exists())
+					if (!file.delete() && file.exists())
 					{
 						throw new IOException("Failed to delete  " + file.getPath());
 					}
@@ -275,7 +274,10 @@ public class FileUtils
 				File f = new File(destination, zipEntry.getName());
 				if (log.isDebugEnabled())
 					log.debug("         Unpack " + f.getAbsolutePath());
-				f.getParentFile().mkdirs();
+				if (!f.getParentFile().mkdirs())
+				{
+					log.warn("unpack(): Failed to create parent folders!");
+				}
 
 				fout = new FileOutputStream(f);
 				int len;
@@ -285,7 +287,10 @@ public class FileUtils
 				}
 				zin.closeEntry();
 				fout.close();
-				f.setLastModified(ts);
+				if (!f.setLastModified(ts))
+				{
+					log.warn("upack(): failes to set modifiers");
+				}
 			}
 		}
 		finally
