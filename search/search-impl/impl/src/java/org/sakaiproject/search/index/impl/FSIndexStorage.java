@@ -70,7 +70,10 @@ public class FSIndexStorage extends BaseIndexStorage
 		File f = new File(searchIndexDirectory);
 		if (!f.exists())
 		{
-			f.mkdirs();
+			if (!f.mkdirs())
+			{
+				log.warn("doPreIndexUpdate() couldn't delete " + f.getPath());
+			}
 			log.debug("Indexing in " + f.getAbsolutePath());
 		}
 
@@ -120,7 +123,10 @@ public class FSIndexStorage extends BaseIndexStorage
 			File indexDirectoryFile = new File(searchIndexDirectory);
 			if (!indexDirectoryFile.exists())
 			{
-				indexDirectoryFile.mkdirs();
+				if (!indexDirectoryFile.mkdirs())
+				{
+					log.warn("getIdexSearch couldn't create directory " + indexDirectoryFile.getPath());
+				}
 			}
 
 			indexSearcher = new IndexSearcher(searchIndexDirectory);

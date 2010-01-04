@@ -264,18 +264,27 @@ public class SegmentInfoImpl implements SegmentInfo
 			}
 			if (deletedFile.exists())
 			{
-				deletedFile.delete();
+				if (!deletedFile.delete())
+				{
+					log.warn("Can't delete file " + deletedFile.getPath());
+				}
 			}
 		}
 		if (state == STATE_CREATED)
 		{
 			if (deletedFile.exists())
 			{
-				deletedFile.delete();
+				if (!deletedFile.delete())
+				{
+					log.warn("can't delete file " + deletedFile.getPath());
+				}
 			}
 			if (newFile.exists())
 			{
-				newFile.delete();
+				if (!newFile.delete())
+				{
+					log.warn("Can't delte file " + newFile.getPath());
+				}
 			}
 		}
 		if (state == STATE_DELETED)
@@ -284,8 +293,14 @@ public class SegmentInfoImpl implements SegmentInfo
 			{
 				try
 				{
-					deletedFile.getParentFile().mkdirs();
-					deletedFile.createNewFile();
+					if (!deletedFile.getParentFile().mkdirs())
+					{
+						log.warn("Unable to create directory" + deletedFile.getParentFile().getPath());
+					}
+					if (!deletedFile.createNewFile())
+					{
+						log.warn("can't create file: " + deletedFile.getPath());
+					}
 				}
 				catch (IOException e)
 				{
@@ -296,7 +311,10 @@ public class SegmentInfoImpl implements SegmentInfo
 			}
 			if (newFile.exists())
 			{
-				newFile.delete();
+				if (!newFile.delete())
+				{
+					log.warn("can't delete file " + newFile.getPath());
+				}
 			}
 		}
 	}
@@ -386,7 +404,10 @@ public class SegmentInfoImpl implements SegmentInfo
 		liveSegmentState.analyze(this);
 		liveSegmentState.setTimeStamp(l);
 		liveSegmentState.save(timestampFile);
-		timestampFile.setLastModified(l);
+		if (!timestampFile.setLastModified(l))
+		{
+			log.warn("Couldn't set file modification time on " + timestampFile.getPath());
+		}
 	}
 
 	public boolean isClusterSegment()
@@ -554,19 +575,23 @@ public class SegmentInfoImpl implements SegmentInfo
 					}
 					else
 					{
-						files[i].delete();
-						if (files[i].exists())
+						if (!files[i].delete())
 						{
-							log.warn("Failed to delete  " + files[i].getPath());
+							if (files[i].exists())
+							{
+								log.warn("Failed to delete  " + files[i].getPath());
+							}
 						}
 					}
 				}
 			}
 		}
-		f.delete();
-		if (f.exists())
+		if (!f.delete()) 
 		{
-			log.warn("Failed to delete  " + f.getPath());
+			if (f.exists())
+			{
+				log.warn("Failed to delete  " + f.getPath());
+			}
 		}
 	}
 

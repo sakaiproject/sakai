@@ -109,7 +109,10 @@ public class SearchBuilderItemSerializer
 		File transactionList = new File(indexDirectory, TRANSACTION_LIST);
 		if (transactionList.exists())
 		{
-			transactionList.delete();
+			if (!transactionList.delete())
+			{
+				log.warn("couldn't delete transaction list " + transactionList.getPath());
+			}
 		}
 	}
 
