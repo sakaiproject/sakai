@@ -172,7 +172,6 @@ public class SakaiMailet extends GenericMailet
 			Date sent = msg.getSentDate();
 
 			String subject = StringUtil.trimToNull(msg.getSubject());
-			if (subject == null) subject = "<no subject>";
 
 			Enumeration headers = msg.getAllHeaderLines();
 			List mailHeaders = new Vector();
@@ -185,8 +184,17 @@ public class SakaiMailet extends GenericMailet
 					String contentType = line.substring(0, MailArchiveService.HEADER_CONTENT_TYPE.length() );
 					mailHeaders.add(line.replaceAll(contentType, MailArchiveService.HEADER_OUTER_CONTENT_TYPE));
 				}
-				mailHeaders.add(line);
+				// don't copy null subject lines. we'll add a real one below
+				if (!(line.regionMatches(true, 0, MailArchiveService.HEADER_SUBJECT, 0, MailArchiveService.HEADER_SUBJECT.length()) &&
+				      subject == null))
+				    mailHeaders.add(line);
+
 			}
+
+			if (subject == null) {
+			    subject = rb.getString("err_no_subject");
+			}
+			mailHeaders.add(MailArchiveService.HEADER_SUBJECT + ": <"+ subject +">");
 
 			M_log.debug(id + " : mail: from:" + from + " sent: " + TimeService.newTime(sent.getTime()).toStringLocalFull() + " subject: "
 					+ subject);

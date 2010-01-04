@@ -100,6 +100,7 @@ public interface MailArchiveService extends MessageService
 	// Common mail headers -- always use a case-insensitive test against these
 	public static final String HEADER_CONTENT_TYPE = "Content-Type";
 	public static final String HEADER_RETURN_PATH  = "Return-Path";
+	public static final String HEADER_SUBJECT = "Subject";
 	public static final String HEADER_CONTENT_TRANSFER_ENCODING = "Content-Transfer-Encoding";
 
 	/**
