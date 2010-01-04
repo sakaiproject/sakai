@@ -590,6 +590,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 					}
 					else
 					{
+						// both releaseDate and retract date are not null
 						// has both release and retract dates
 						rv = now.getTime() > releaseDate.getTime() && now.getTime() < retractDate.getTime();
 					}

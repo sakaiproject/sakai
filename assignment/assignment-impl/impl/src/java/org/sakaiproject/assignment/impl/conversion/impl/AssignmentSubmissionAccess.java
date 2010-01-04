@@ -467,16 +467,6 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 		});	
 	}
 
-	/**
-	 * @param sax2
-	 * @throws Exception
-	 */
-	public void check(SerializableSubmissionAccess sax2) throws Exception
-	{
-		StringBuilder sb = new StringBuilder();
-	}
-
-
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getId()
 	 */

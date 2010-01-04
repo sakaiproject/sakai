@@ -896,7 +896,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		
 			M_log.debug(this + " ADD DUPLICATE ASSIGNMENT : LEAVING ADD DUPLICATE ASSIGNMENT WITH ID : "
-					+ retVal.getId());
+					+ retVal != null ? retVal.getId() : "");
 
 		return retVal;
 	}
@@ -1782,7 +1782,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 
 		
-			M_log.debug(this + " LEAVING ADD DUPLICATE CONTENT WITH ID : " + retVal.getId());
+			M_log.debug(this + " LEAVING ADD DUPLICATE CONTENT WITH ID : " + retVal != null ? retVal.getId() : "");
 
 		return retVal;
 	}
@@ -4361,9 +4361,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 										String sSubAttachmentFolder = submittersName + rb.getString("download.submission.attachment") + "/";
 										ZipEntry sSubAttachmentFolderEntry = new ZipEntry(sSubAttachmentFolder);
 										out.putNextEntry(sSubAttachmentFolderEntry);
-										out.closeEntry();
 										// add all submission attachment into the submission attachment folder
 										zipAttachments(out, submittersName, sSubAttachmentFolder, s.getSubmittedAttachments());
+										out.closeEntry();
 									}
 								}
 								
@@ -4384,9 +4384,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 									String feedbackSubAttachmentFolder = submittersName + rb.getString("download.feedback.attachment") + "/";
 									ZipEntry feedbackSubAttachmentFolderEntry = new ZipEntry(feedbackSubAttachmentFolder);
 									out.putNextEntry(feedbackSubAttachmentFolderEntry);
-									out.closeEntry();
 									// add all feedback attachment folder
 									zipAttachments(out, submittersName, feedbackSubAttachmentFolder, s.getFeedbackAttachments());
+									out.closeEntry();
 								}
 							} // if
 						}
@@ -7154,7 +7154,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						maxGradePoint = maxGradePoint + "0";
 					}
 				}
-				m_maxGradePoint = Integer.parseInt(maxGradePoint);
+				m_maxGradePoint = maxGradePoint != null ? Integer.parseInt(maxGradePoint) : m_maxGradePoint;
 			}
 			catch (Exception e)
 			{
@@ -7331,7 +7331,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 										maxGradePoint = maxGradePoint + "0";
 									}
 								}
-								m_maxGradePoint = Integer.parseInt(maxGradePoint);
+								m_maxGradePoint = maxGradePoint != null ? Integer.parseInt(maxGradePoint) : m_maxGradePoint;
 							}
 							catch (Exception e)
 							{

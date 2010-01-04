@@ -1421,7 +1421,6 @@ public class AssignmentAction extends PagedResourceActionII
 			context.put("view", state.getAttribute(STATE_SELECTED_VIEW));
 		}
 
-		Hashtable assignments_submissions = new Hashtable();
 		List assignments = prepPage(state);
 
 		context.put("assignments", assignments.iterator());
@@ -5088,7 +5087,7 @@ public class AssignmentAction extends PagedResourceActionII
 			String associateGradebookAssignment = (String) state.getAttribute(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
 			
 			String allowResubmitNumber = state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null?(String) state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER):null;
-			if (ac == null && ac.getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
+			if (ac != null && ac.getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
 			{
 				// resubmit option is not allowed for non-electronic type
 				allowResubmitNumber = null;
@@ -5732,72 +5731,75 @@ public class AssignmentAction extends PagedResourceActionII
 					try
 					{
 						AnnouncementMessageEdit message = channel.addAnnouncementMessage();
-						AnnouncementMessageHeaderEdit header = message.getAnnouncementHeaderEdit();
-						header.setDraft(/* draft */false);
-						header.replaceAttachments(/* attachment */EntityManager.newReferenceList());
-	
-						if (openDateAnnounced == null)
+						if (message != null)
 						{
-							// making new announcement
-							header.setSubject(/* subject */rb.getString("assig6") + " " + title);
-						}
-						else
-						{
-							// updated title
-							header.setSubject(/* subject */rb.getString("assig5") + " " + title);
-						}
-						
-						if (updatedOpenDate)
-						{
-							// revised assignment open date
-							message.setBody(/* body */rb.getString("newope") + " "
-									+ FormattedText.convertPlaintextToFormattedText(title) + " " + rb.getString("is") + " "
-									+ openTime.toStringLocalFull() + ". ");
-						}
-						else
-						{
-							// assignment open date
-							message.setBody(/* body */rb.getString("opedat") + " "
-									+ FormattedText.convertPlaintextToFormattedText(title) + " " + rb.getString("is") + " "
-									+ openTime.toStringLocalFull() + ". ");
-						}
-	
-						// group information
-						if (a.getAccess().equals(Assignment.AssignmentAccess.GROUPED))
-						{
-							try
+							AnnouncementMessageHeaderEdit header = message.getAnnouncementHeaderEdit();
+							header.setDraft(/* draft */false);
+							header.replaceAttachments(/* attachment */EntityManager.newReferenceList());
+		
+							if (openDateAnnounced == null)
 							{
-								// get the group ids selected
-								Collection groupRefs = a.getGroups();
-	
-								// make a collection of Group objects
-								Collection groups = new Vector();
-	
-								//make a collection of Group objects from the collection of group ref strings
-								Site site = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
-								for (Iterator iGroupRefs = groupRefs.iterator(); iGroupRefs.hasNext();)
+								// making new announcement
+								header.setSubject(/* subject */rb.getString("assig6") + " " + title);
+							}
+							else
+							{
+								// updated title
+								header.setSubject(/* subject */rb.getString("assig5") + " " + title);
+							}
+							
+							if (updatedOpenDate)
+							{
+								// revised assignment open date
+								message.setBody(/* body */rb.getString("newope") + " "
+										+ FormattedText.convertPlaintextToFormattedText(title) + " " + rb.getString("is") + " "
+										+ openTime.toStringLocalFull() + ". ");
+							}
+							else
+							{
+								// assignment open date
+								message.setBody(/* body */rb.getString("opedat") + " "
+										+ FormattedText.convertPlaintextToFormattedText(title) + " " + rb.getString("is") + " "
+										+ openTime.toStringLocalFull() + ". ");
+							}
+		
+							// group information
+							if (a.getAccess().equals(Assignment.AssignmentAccess.GROUPED))
+							{
+								try
 								{
-									String groupRef = (String) iGroupRefs.next();
-									groups.add(site.getGroup(groupRef));
+									// get the group ids selected
+									Collection groupRefs = a.getGroups();
+		
+									// make a collection of Group objects
+									Collection groups = new Vector();
+		
+									//make a collection of Group objects from the collection of group ref strings
+									Site site = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+									for (Iterator iGroupRefs = groupRefs.iterator(); iGroupRefs.hasNext();)
+									{
+										String groupRef = (String) iGroupRefs.next();
+										groups.add(site.getGroup(groupRef));
+									}
+		
+									// set access
+									header.setGroupAccess(groups);
 								}
-	
-								// set access
-								header.setGroupAccess(groups);
+								catch (Exception exception)
+								{
+									// log
+									M_log.warn(this + ":integrateWithAnnouncement " + exception.getMessage());
+								}
 							}
-							catch (Exception exception)
+							else
 							{
-								// log
-								M_log.warn(this + ":integrateWithAnnouncement " + exception.getMessage());
+								// site announcement
+								header.clearGroupAccess();
 							}
+		
+		
+							channel.commitMessage(message, m_notificationService.NOTI_NONE);
 						}
-						else
-						{
-							// site announcement
-							header.clearGroupAccess();
-						}
-	
-	
-						channel.commitMessage(message, m_notificationService.NOTI_NONE);
 	
 						// commit related properties into Assignment object
 						String ref = "";
@@ -8993,19 +8995,21 @@ public class AssignmentAction extends PagedResourceActionII
 					{
 						result = 1;
 					}
-					else if (t1.equals(t2))
+					else 
 					{
-						t1 = ((Assignment) o1).getTimeCreated();
-						t2 = ((Assignment) o2).getTimeCreated();
-					}
-					
-					if (t1!=null && t2!=null && t1.before(t2))
-					{
-						result = 1;
-					}
-					else
-					{
-						result = -1;
+						if (t1.equals(t2))
+						{
+							t1 = ((Assignment) o1).getTimeCreated();
+							t2 = ((Assignment) o2).getTimeCreated();
+						}
+						else if (t1.before(t2))
+						{
+							result = 1;
+						}
+						else
+						{
+							result = -1;
+						}
 					}
 				}				
 				else if ( s1 == 0 && s2 > 0 ) // order has not been set on this object, so put it at the bottom of the list
@@ -9072,7 +9076,7 @@ public class AssignmentAction extends PagedResourceActionII
 				{
 					result = 1;
 				}
-				if (t1.before(t2))
+				else if (t1.before(t2))
 				{
 					result = -1;
 				}
@@ -11182,8 +11186,10 @@ public class AssignmentAction extends PagedResourceActionII
 									        		lines = result.split("\r");
 									        else if (result.indexOf("\n") != -1)
 								        			lines = result.split("\n");
-									        for (int i = 3; i<lines.length; i++)
+									        if (lines != null )
 									        {
+										        for (int i = 3; i<lines.length; i++)
+										        {
 									        		// escape the first three header lines
 									        		String[] items = lines[i].split(",");
 									        		if (items.length > 4)
@@ -11222,6 +11228,7 @@ public class AssignmentAction extends PagedResourceActionII
 									        		}
 										        }
 											}
+										}
 									}
 									else 
 									{
@@ -12151,8 +12158,6 @@ public class AssignmentAction extends PagedResourceActionII
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ParameterParser params = data.getParameters ();
 
-		ResourceTypeRegistry registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
-		
 		String max_file_size_mb = ServerConfigurationService.getString("content.upload.max", "1");
 		long max_bytes = 1024L * 1024L;
 		try

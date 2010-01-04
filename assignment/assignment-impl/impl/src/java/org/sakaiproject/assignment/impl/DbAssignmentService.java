@@ -465,7 +465,7 @@ public class DbAssignmentService extends BaseAssignmentService
 				for (Object o : l) {
 					AssignmentSubmission assignmentSubmission = (AssignmentSubmission)o;
 					String userId = assignmentSubmission.getSubmitterIdString();
-					Member member = site.getMember(userId);
+					Member member = site != null ? site.getMember(userId) : null;
 					if(member != null && member.isActive()) 
 					{	
 						if (asgGroups != null)

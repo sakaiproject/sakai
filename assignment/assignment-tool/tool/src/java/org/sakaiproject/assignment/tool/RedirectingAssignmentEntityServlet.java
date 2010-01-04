@@ -149,11 +149,13 @@ public class RedirectingAssignmentEntityServlet extends HttpServlet
 		  if (mine.m_userId == null && m_userId != null) return false;
 		  if (mine.m_function == null && m_function != null) return false;
 		  if (mine.m_references == null && m_references != null) return false;
-		  if (mine.m_references.isEmpty() && !m_references.isEmpty()) return false;
+		  if (mine.m_references != null && mine.m_references.isEmpty() && m_references != null && !m_references.isEmpty()) return false;
 		  if (mine.m_userId != null && m_userId == null) return false;
 		  if (mine.m_function != null && m_function == null) return false;
 		  if (mine.m_references != null && m_references == null) return false;
-		  if (!mine.m_references.isEmpty() && m_references.isEmpty()) return false;
+		  if (mine.m_references != null && !mine.m_references.isEmpty() && m_references!= null && m_references.isEmpty()) return false;
+		  // if both m_references == null, return true?
+		  if (mine.m_references == null && m_references == null) return true;
 
 		  Set<String> mineSet = new HashSet<String>(mine.m_references);
 		  Set<String> thisSet = new HashSet<String>(m_references);
