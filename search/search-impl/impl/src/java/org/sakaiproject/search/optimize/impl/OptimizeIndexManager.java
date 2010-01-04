@@ -129,7 +129,10 @@ public class OptimizeIndexManager extends TransactionManagerImpl
 		{
 			throw new IOException("Failed to create index transaction working space ");
 		}
-		f.mkdirs();
+		if (!f.mkdirs())
+		{
+			throw new IOException("Failed to create index transaction working space ");
+		}
 		return f;
 	}
 

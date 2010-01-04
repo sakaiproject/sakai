@@ -47,7 +47,9 @@ public class SegmentListWriter
 	{
 		
 		if ( ! out.exists() && !out.getParentFile().exists() ) {
-			out.getParentFile().mkdirs();
+			if (!out.getParentFile().mkdirs()) {
+				throw new IOException("Can't create folder " + out.getParentFile().getPath());
+			}
 		}
 		FileOutputStream fout = new FileOutputStream(out);
 		DataOutputStream dout = new DataOutputStream(fout);

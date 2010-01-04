@@ -794,7 +794,9 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 		Directory d = null;
 		if (!f.exists())
 		{
-			f.mkdirs();
+			if (!f.mkdirs()) {
+				throw new IOException("can't create index directory " + f.getPath());
+			}
 			log.debug("Indexing in " + f.getAbsolutePath());
 			d = FSDirectory.getDirectory(journalSettings.getSearchIndexDirectory(), true);
 		}
@@ -1285,7 +1287,9 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 				Directory d = null;
 				if (!f.exists())
 				{
-					f.mkdirs();
+					if (!f.mkdirs()) {
+						throw new IOException("can't create index folder " + f.getPath());
+					}
 					log.debug("Indexing in " + f.getAbsolutePath());
 					d = FSDirectory.getDirectory(journalSettings
 							.getSearchIndexDirectory(), true);

@@ -92,11 +92,11 @@ public class TransactionIndexManagerImpl extends TransactionManagerImpl
 		// with the db
 		File f = null;
 		f = new File(journalSettings.getIndexerWorkingDirectory(), TEMP_INDEX_NAME + txid);
-		if (f.exists())
+		if (f.exists() || !f.mkdirs())
 		{
 			throw new IOException("Failed to create index transaction working space ");
 		}
-		f.mkdirs();
+		
 		return f;
 	}
 

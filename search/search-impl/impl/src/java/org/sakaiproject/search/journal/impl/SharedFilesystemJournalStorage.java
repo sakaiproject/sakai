@@ -121,7 +121,10 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 		log.info("++++++ Saving " + indexLocation + " to shared");
 		File tmpZip = new File(journalSettings.getJournalLocation(), transactionId
 				+ ".zip." + System.currentTimeMillis());
-		tmpZip.getParentFile().mkdirs();
+		if (!tmpZip.getParentFile().mkdirs())
+		{
+			log.warn("Couldn't create directory " + tmpZip.getParentFile().getPath());
+		}
 		String basePath = indexLocation.getPath();
 		String replacePath = String.valueOf(transactionId);
 
@@ -145,7 +148,10 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 	{
 		File journalZip = ((JournalStorageStateImpl) jss).journalZip;
 		File tmpZip = ((JournalStorageStateImpl) jss).tmpZip;
-		tmpZip.renameTo(journalZip);
+		if (!tmpZip.renameTo(journalZip))
+		{
+			log.warn("couldn't rename "  + tmpZip.getPath() + " to " + journalZip.getPath());
+		}
 	}
 
 	/*
@@ -161,11 +167,17 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 			File tmpZip = ((JournalStorageStateImpl) jss).tmpZip;
 			if (tmpZip != null && tmpZip.exists())
 			{
-				tmpZip.delete();
+				if (!tmpZip.delete())
+				{
+					log.warn("counldn't delete " + tmpZip.getPath());
+				}
 			}
 			if (journalZip != null && journalZip.exists())
 			{
-				journalZip.delete();
+				if (!journalZip.delete())
+				{
+					log.warn("counldn't delete " + journalZip.getPath());
+				}
 			}
 		}
 	}
@@ -179,7 +191,10 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 	public void retrieveSavePoint(long savePoint, String workingSpace) throws IOException
 	{
 		File ws = new File(workingSpace);
-		ws.mkdirs();
+		if (!ws.mkdirs())
+		{
+			log.warn("Couldn't create directory " + ws.getPath());
+		}
 		File[] f = getTransactionFile(savePoint);
 		// retrieve the existing transaction file
 		if (!f[0].exists())
