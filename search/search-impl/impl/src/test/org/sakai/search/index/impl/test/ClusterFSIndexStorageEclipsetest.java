@@ -170,11 +170,11 @@ public class ClusterFSIndexStorageEclipsetest extends TestCase
 		assertNotNull(iw);
 		Document doc = new Document();
 		doc.add(new Field("id", String.valueOf(System.currentTimeMillis()),
-				Field.Store.YES, Field.Index.UN_TOKENIZED));
+				Field.Store.YES, Field.Index.NOT_ANALYZED));
 		doc.add(new Field("contents", "some content about something",
-				Field.Store.YES, Field.Index.TOKENIZED));
+				Field.Store.YES, Field.Index.ANALYZED));
 		doc.add(new Field("name", "AName", Field.Store.YES,
-				Field.Index.UN_TOKENIZED));
+				Field.Index.NOT_ANALYZED));
 		iw.addDocument(doc);
 		iw.close();
 		cfs.doPostIndexUpdate();
@@ -357,9 +357,9 @@ public class ClusterFSIndexStorageEclipsetest extends TestCase
 		}
 		Document doc = new Document();
 		doc.add(new Field("name", file.getAbsolutePath(), Field.Store.YES,
-				Field.Index.UN_TOKENIZED));
+				Field.Index.NOT_ANALYZED));
 		doc.add(new Field("contents", sb.toString(), Field.Store.YES,
-				Field.Index.TOKENIZED));
+				Field.Index.ANALYZED));
 		iw.addDocument(doc);
 		br.close();
 		return iw;
