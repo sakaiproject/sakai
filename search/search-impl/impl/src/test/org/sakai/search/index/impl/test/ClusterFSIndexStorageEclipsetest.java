@@ -361,6 +361,7 @@ public class ClusterFSIndexStorageEclipsetest extends TestCase
 		doc.add(new Field("contents", sb.toString(), Field.Store.YES,
 				Field.Index.TOKENIZED));
 		iw.addDocument(doc);
+		br.close();
 		return iw;
 
 	}
