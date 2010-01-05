@@ -1823,7 +1823,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		  // these are the records that will need to be updated. iterate through
 		  // everything and then we'll save it all at once
 		  Set<AssignmentGradeRecord> agrToUpdate = new HashSet<AssignmentGradeRecord>();
-		  Set<Comment> commentsToUpdate = new HashSet<Comment>();
+		  // do not use a HashSet b/c you may have multiple Comments with null id and the same comment at this point.
+		  // the Comment object defines objects as equal if they have the same id, comment text, and gb item. the
+		  // only difference may be the student ids
+		  List<Comment> commentsToUpdate = new ArrayList<Comment>();
 		  Set<GradingEvent> eventsToAdd = new HashSet<GradingEvent>();
 
 		  for (GradeDefinition gradeDef : gradeDefList) {
