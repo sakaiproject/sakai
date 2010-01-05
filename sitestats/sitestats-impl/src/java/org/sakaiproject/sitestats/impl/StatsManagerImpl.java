@@ -111,6 +111,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	private boolean						itemLabelsVisible						= false;
 	private boolean						lastJobRunDateVisible					= true;
 	private boolean						isEventContextSupported					= false;
+	private boolean						enableReportExport						= true;
 
 	/** Controller fields */
 	private boolean						showAnonymousAccessEvents				= true;
@@ -284,6 +285,14 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	/** This one is needed for unit testing */
 	public void setResourceLoader(ResourceLoader msgs) {
 		this.msgs = msgs;
+	}
+	
+	public void setEnableReportExport(boolean enableReportExport) {
+		this.enableReportExport = enableReportExport;
+	}
+
+	public boolean isEnableReportExport() {
+		return enableReportExport;
 	}
 
 	

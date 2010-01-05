@@ -264,7 +264,7 @@ public class ReportDataPage extends BasePage {
 			public void onSubmit() {
 				super.onSubmit();
 			}
-		}.setDefaultFormProcessing(false).setVisible(!inPrintVersion));
+		}.setDefaultFormProcessing(false).setVisible(Locator.getFacade().getStatsManager().isEnableReportExport() && !inPrintVersion));
 		form.add(new Button("exportXls") {
 			@Override
 			public void onSubmit() {

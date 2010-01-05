@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -310,6 +310,11 @@ public class FakeStatsManager implements StatsManager {
 	public boolean isVisitsInfoAvailable() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	public boolean isEnableReportExport() {
+		// TODO Auto-generated method stub
+		return true;
 	}
 
 	public void logEvent(Object object, String logAction) {

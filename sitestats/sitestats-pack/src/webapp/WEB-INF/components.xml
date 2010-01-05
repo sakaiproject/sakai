@@ -58,6 +58,9 @@
 			<!-- Show last quartz job run date in tool overview page? 
 				(default: false if collectThreadEnabled@org.sakaiproject.sitestats.api.StatsUpdateManager=true, true otherwise) -->
 			<!-- <property name="lastJobRunDateVisible" value="true" /> -->
+      
+      <!-- Enable/disable if reports are allowed to be exported -->
+      <property name="enableReportExport" value="true" />
 		<!-- /OPTIONS -->				
 		
 		<!-- Sakai services -->

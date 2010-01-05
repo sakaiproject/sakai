@@ -129,6 +129,9 @@ public interface StatsManager {
 	/** Are events triggered by anomymous access aggregated and displayable on SiteStats tool. */
 	public boolean isShowAnonymousAccessEvents();
 	
+	/** Are exporting reports enabled? */
+	public boolean isEnableReportExport();
+	
 	// ################################################################
 	// Preferences
 	// ################################################################
