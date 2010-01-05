@@ -12,9 +12,9 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.tool.Locator;
-import org.sakaiproject.profile2.tool.ProfileApplication;
-import org.sakaiproject.profile2.tool.models.DetachableStringModel;
+import org.sakaiproject.profile2.tool.models.DetachablePersonModel;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 /**
@@ -24,7 +24,7 @@ import org.sakaiproject.profile2.util.ProfileConstants;
  * January 2009
  * 
  * This implementation of Wicket's IDataProvider gets a list of friends of userX
- * 
+ * as Person objects
  */
 
 
@@ -33,7 +33,7 @@ public class FriendsFeedDataProvider implements IDataProvider, Serializable {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(FriendsFeedDataProvider.class); 
 	private transient ProfileLogic profileLogic;
-	private transient List<String> friends = new ArrayList<String>();
+	private transient List<Person> friends = new ArrayList<Person>();
 	private String userId;
 	
 	public FriendsFeedDataProvider(final String userId) {
@@ -49,12 +49,12 @@ public class FriendsFeedDataProvider implements IDataProvider, Serializable {
 	}
 	
 	//this is a helper method to process our friends list
-	private List<String> getFriendsForUser(final String userId) {
+	private List<Person> getFriendsForUser(final String userId) {
 		
-		List<String> allFriends = new ArrayList<String>();
+		List<Person> allFriends = new ArrayList<Person>();
 		
 		//get all friends of userX visible by userY
-		allFriends = profileLogic.getConfirmedFriendUserIdsForUser(userId);
+		allFriends = profileLogic.getConnectionsForUser(userId);
 		
 		//randomise this list
 		Collections.shuffle(allFriends);
@@ -76,9 +76,9 @@ public class FriendsFeedDataProvider implements IDataProvider, Serializable {
 	
 	
 	
-	public Iterator<String> iterator(int first, int count) {
+	public Iterator<Person> iterator(int first, int count) {
 		try {
-			List<String> slice = friends.subList(first, first + count);
+			List<Person> slice = friends.subList(first, first + count);
 			return slice.iterator();
 		}
 		catch (Exception e) {
@@ -95,8 +95,8 @@ public class FriendsFeedDataProvider implements IDataProvider, Serializable {
 	}
 
     public IModel model(Object object) {
-            return new DetachableStringModel((String)object);
-    }
+    	return new DetachablePersonModel((Person)object);
+	}
     
     public void detach() {}
 	

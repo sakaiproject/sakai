@@ -1,7 +1,5 @@
 package org.sakaiproject.profile2.tool.pages.panels;
 
-
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
@@ -17,9 +15,9 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.Locator;
-import org.sakaiproject.profile2.tool.ProfileApplication;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.FriendsFeedDataProvider;
 import org.sakaiproject.profile2.tool.pages.MyFriends;
@@ -71,7 +69,7 @@ public class FriendsFeed extends Panel {
 		//so what it returns will always be clean
 		FriendsFeedDataProvider provider = new FriendsFeedDataProvider(ownerUserId);
 		
-		GridView dataView = new GridView("rows", provider) {
+		GridView<Person> dataView = new GridView<Person>("rows", provider) {
 			
 			private static final long serialVersionUID = 1L;
 
@@ -92,10 +90,12 @@ public class FriendsFeed extends Panel {
 			
 			protected void populateItem(Item item)
 			{
-				final String friendId = (String)item.getModelObject();
+				final Person person = (Person)item.getDefaultModelObject();
+				
+				final String friendId = person.getUuid();
 				
 				//setup info
-				String displayName = sakaiProxy.getUserDisplayName(friendId);
+				String displayName = person.getDisplayName();
 		    	boolean friend;
 		    	
 		    	

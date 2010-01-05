@@ -160,6 +160,10 @@ public class ProfileConstants {
 	//max number of connections that can be shown in an autocomplete search that match the criteria
 	public static final int MAX_CONNECTIONS_PER_SEARCH = 15;
 	
+	public static final String DEFAULT_PRIVATE_MESSAGE_SUBJECT = "(no subject)";
+	
+	
+	
 	public static final String TOOL_ID = "sakai.profile2";
 		
 	//email constants

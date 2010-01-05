@@ -5,16 +5,17 @@ import java.io.Serializable;
 
 /** 
  * This the main object that represents a person in Profile2. It is essentially a wrapper object around several other objects.
- * <p>There are standard fields and a User object that will always be set.<br />
- * There are also extended objects that you can get access to like their submitted Profile, Image, Status, Privacy and Preferences.</p>
+ * <p>There are standard fields that will always be set.<br />
+ * There are also extended objects that you can get access to.</p>
  *  
  * <p>Depending on how you request this object, these extended objects are not guaranteed to be set so
  * you should check for their existence before using. If not set, and you need it, you can get it for a person
  * from the appropriate method in ProfileLogic. If you need it for a whole list, check your method that creates the List
  * of persons, you might be able to get all of the info you need from a different method.</p>
  * 
- * <p>Note about serialisation. the user object is not serialisable and does not contain a no-arg constructor so cannot be manually serialised via
- * the serializable methods (readObject, writeObject). So the values it provides are extracted and set into this object.
+ * <p>Note about serialisation. The User object is not serialisable and does not contain a no-arg constructor so cannot be manually serialised via
+ * the serializable methods (readObject, writeObject). Hence why it is not just included.
+ * So the most useful values it provides are extracted and set into this object.
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *

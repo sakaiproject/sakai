@@ -48,7 +48,9 @@ public class ComposeNewMessage extends Panel {
 		
 		//setup model
 		Message message = new Message();
-		message.setFrom(userId);		
+		message.setFrom(userId);	
+		//add a new uuid since it's a new thread
+		message.setThread(sakaiProxy.generateUuid());
 		
 		//feedback for form submit action
 		final Label formFeedback = new Label("formFeedback");
@@ -121,9 +123,6 @@ public class ComposeNewMessage extends Panel {
 				
 				//get the backing model
 				Message message = (Message) form.getModelObject();
-				
-				//add a new uuid for this thread
-				message.setThread(sakaiProxy.generateUuid());
 				
 				//send the message
 				if(profileLogic.sendPrivateMessage(message)) {

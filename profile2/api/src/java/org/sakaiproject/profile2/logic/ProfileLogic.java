@@ -35,7 +35,7 @@ public interface ProfileLogic {
 	 * Get a list of confirmed friends for a given user. Uses a native SQL query so we can use unions
 	 * Returns: (all those where userId is the user_uuid and confirmed=true) & (all those where user is friend_uuid and confirmed=true)
 	 *
-	 * This only returns userIds. If you want a list of user objects, see getConnectionsForUser()
+	 * This only returns userIds. If you want a list of Person objects, see getConnectionsForUser()
 	 * 
 	 * If required, one could simply implement this again, with a modified HBM query to add the extra fields
 	 * and Transform to Friend object.
@@ -47,7 +47,7 @@ public interface ProfileLogic {
 		
 	/**
 	 * get total number of confirmed friends (used by FriendsFeed to get total, not just the number in the grid)
-	 * @param userId of person to get count of froiends for
+	 * @param userId of person to get count of friends for
 	 * @return
 	 */
 	public int countConfirmedFriendUserIdsForUser(final String userId);
@@ -674,7 +674,7 @@ public interface ProfileLogic {
 	/**
 	 * Gets a list of Persons's that are connected to this user
 	 * 
-	 * <p>Useful for when more than just the userId is needed, ie displayName as well</p>
+	 * <p>Useful for when more than just the userId is needed, ie displayName etc as well</p>
 	 * 
 	 * @param userId		uuid of the user to retrieve the list of connections for
 	 * @return

@@ -1680,7 +1680,12 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		users = UserDirectoryService.getUsers(getConfirmedFriendUserIdsForUser(userId));
 		
 		for(User u: users) {
-			connections.add(new Person(u.getId(), u.getDisplayName()));
+			Person p = new Person();
+			p.setUuid(u.getId());
+			p.setDisplayName(u.getDisplayName());
+			p.setType(u.getType());
+				
+			connections.add(p);
 		}
 		
 		return connections;
@@ -1712,6 +1717,9 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		//add the extra fields
 		message.setRead(false);
 		message.setDatePosted(new Date());
+		if(StringUtils.isBlank(message.getSubject())) {
+			message.setSubject(ProfileConstants.DEFAULT_PRIVATE_MESSAGE_SUBJECT);
+		}
 		
 		//save the message
 		try {
@@ -1719,7 +1727,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 			log.info("Message sent: " + message.toString()); 
 			return true;
 		} catch (Exception e) {
-			log.error("Profile.setUserStatus() failed. " + e.getClass() + ": " + e.getMessage()); 
+			log.error("Profile.sendPrivateMessage() failed. " + e.getClass() + ": " + e.getMessage()); 
 			return false;
 		}
 			
