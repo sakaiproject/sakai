@@ -773,7 +773,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 			log.info("Index Load aquire " + (r2 - r1) + " ms");
 			log.info("Read Lock Release " + (f2 - f3) + " ms");
 		}
-		if (multiReader instanceof ThreadBinder)
+		if (multiReader != null)
 		{
 			((ThreadBinder) multiReader).bind(threadLocalManager);
 		}

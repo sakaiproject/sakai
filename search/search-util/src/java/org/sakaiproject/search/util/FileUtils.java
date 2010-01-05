@@ -423,9 +423,14 @@ public class FileUtils
 	 */
 	public static void createMarkerFile(File file) throws IOException
 	{
-		FileWriter fw = new FileWriter(file);
-		fw.write("File Touched at "+(new Date()));
-		fw.close();
+		FileWriter fw = null;
+		try {
+			fw = new FileWriter(file);
+			fw.write("File Touched at "+(new Date()));
+		}
+		finally {
+			fw.close();
+		}
 		
 	}
 
