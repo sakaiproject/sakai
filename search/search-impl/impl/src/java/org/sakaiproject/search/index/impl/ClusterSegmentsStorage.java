@@ -249,8 +249,11 @@ public class ClusterSegmentsStorage
 			if (!f.delete())
 			{
 				log.warn("deleteAll(): failed to delete " + f.getPath());
+			} 
+			else 
+			{
+				log.debug("          deleted " + f.getPath());
 			}
-			log.debug("          deleted " + f.getPath());
 		}
 		else
 		{
@@ -258,7 +261,10 @@ public class ClusterSegmentsStorage
 			{
 				log.warn("deleteAll(): failed to delete " + f.getPath());
 			}
-			log.debug("          deleted " + f.getPath());
+			else
+			{
+				log.debug("          deleted " + f.getPath());
+			}
 		}
 	}
 
