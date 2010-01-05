@@ -71,7 +71,9 @@ public class SearchBuilderItemSerializerTest extends TestCase
 		testBase = new File("target");
 		testBase = new File(testBase, "SearchBuilderItemSerializerTest");
 		work = new File(testBase, "work");
-		work.mkdirs();
+		if (!work.mkdirs()) {
+			log.warn("Couldn't creatre directory " + work.getPath());
+		}
 
 	}
 
@@ -97,7 +99,9 @@ public class SearchBuilderItemSerializerTest extends TestCase
 		log.info("================================== "+this.getClass().getName()+".testSaveTransactionList");
 		List<SearchBuilderItem> testList = newSearchBuilderItemList();
 		File f = new File(work, "testSaveTransactionList");
-		f.mkdirs();
+		if (!f.mkdirs()) {
+			log.warn("Could not create directory " + f.getPath());
+		}
 		sbis.saveTransactionList(f, testList);
 		log.info("==PASSED========================== "+this.getClass().getName()+".testSaveTransactionList");
 
@@ -135,7 +139,10 @@ public class SearchBuilderItemSerializerTest extends TestCase
 		log.info("================================== "+this.getClass().getName()+".testLoadTransactionList");
 		List<SearchBuilderItem> testList = newSearchBuilderItemList();
 		File f = new File(work, "testLoadTransactionList");
-		f.mkdirs();
+		if (!f.mkdirs()) 
+		{
+			log.warn("Could not create directory " + f.getPath());
+		}
 		sbis.saveTransactionList(f, testList);
 		List<SearchBuilderItem> loadedList = sbis.loadTransactionList(f);
 		assertEquals("Size of locaded list not the same", testList.size(), loadedList

@@ -121,7 +121,9 @@ public class LoadSaveSegmentListTest extends TestCase
 	public final void testInitLoad() throws IOException
 	{
 		FileUtils.deleteAll(testBase);
-		new File(journalSettings.getSearchIndexDirectory()).mkdirs();
+		if (!new File(journalSettings.getSearchIndexDirectory()).mkdirs())	{
+			System.out.println("Could not create folder: " + journalSettings.getSearchIndexDirectory());
+		}
 
 		List<File> tl = new ArrayList<File>();
 		for ( int i = 0; i < 100; i++ ) {
@@ -148,7 +150,9 @@ public class LoadSaveSegmentListTest extends TestCase
 	public final void testInitNoLoad() throws IOException
 	{
 		FileUtils.deleteAll(testBase);
-		new File(journalSettings.getSearchIndexDirectory()).mkdirs();
+		if (!new File(journalSettings.getSearchIndexDirectory()).mkdirs()) {
+			System.out.println("Couldn't crearte directory " + journalSettings.getSearchIndexDirectory());	
+		}
 		
 		journaledFSIndexStorage.init();
 		File[] f = journaledFSIndexStorage.getSegments();
@@ -164,7 +168,9 @@ public class LoadSaveSegmentListTest extends TestCase
 	public final void testSaveSegmentList() throws IOException
 	{
 		FileUtils.deleteAll(testBase);
-		new File(journalSettings.getSearchIndexDirectory()).mkdirs();
+		if (!new File(journalSettings.getSearchIndexDirectory()).mkdirs()) {
+			System.out.println("couldn't create directory " + journalSettings.getSearchIndexDirectory());
+		}
 		
 		journaledFSIndexStorage.setSegments(new ArrayList<File>());
 		journaledFSIndexStorage.saveSegmentList();
@@ -184,7 +190,10 @@ public class LoadSaveSegmentListTest extends TestCase
 	public final void testLoadSegmentList() throws IOException
 	{
 		FileUtils.deleteAll(testBase);
-		new File(journalSettings.getSearchIndexDirectory()).mkdirs();
+		if (!new File(journalSettings.getSearchIndexDirectory()).mkdirs()) {
+			System.out.println("couldn't create directory " + journalSettings.getSearchIndexDirectory());
+		}
+			
 		
 		journaledFSIndexStorage.setSegments(new ArrayList<File>());
 		journaledFSIndexStorage.saveSegmentList();
