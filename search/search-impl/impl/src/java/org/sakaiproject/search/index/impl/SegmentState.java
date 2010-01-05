@@ -81,18 +81,29 @@ public class SegmentState
 	public void save(File checksumFile) throws IOException
 	{
 		File tmpFile = new File(checksumFile.getAbsolutePath() + ".tmp");
-		FileWriter fw = new FileWriter(tmpFile);
-		fw.append(VERSION).append("\n");
-		fw.append(String.valueOf(timeStamp)).append("\n");
-		for (Iterator<FileRecord> i = fileRecords.values().iterator(); i.hasNext();)
-		{
-			FileRecord fr = i.next();
-			fw.append(fr.path).append(";");
-			fw.append(fr.checksum).append(";");
-			fw.append(String.valueOf(fr.length)).append(";");
-			fw.append(String.valueOf(fr.lastMod)).append(";\n");
+		FileWriter fw = null;
+		try {
+			fw = new FileWriter(tmpFile);
+
+			fw.append(VERSION).append("\n");
+			fw.append(String.valueOf(timeStamp)).append("\n");
+			for (Iterator<FileRecord> i = fileRecords.values().iterator(); i.hasNext();)
+			{
+				FileRecord fr = i.next();
+				fw.append(fr.path).append(";");
+				fw.append(fr.checksum).append(";");
+				fw.append(String.valueOf(fr.length)).append(";");
+				fw.append(String.valueOf(fr.lastMod)).append(";\n");
+			}
+			
+		} catch (IOException e) {
+			throw new IOException();
 		}
-		fw.close();
+		finally {
+			if (fw != null) {
+				fw.close();
+			}
+		}
 		if (!tmpFile.renameTo(checksumFile))
 		{
 			log.warn("unable to rename " + tmpFile.getPath() + " to " + checksumFile.getPath());
