@@ -690,9 +690,9 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 		long r2 = start2;
 		long f2 = start2;
 		long f3 = start2;
-		long x2 = start2;
+		
 
-		long tlock = 0;
+		
 
 		log.debug("Check 1: modified="  + modified + " multiReader=" + multiReader + " current=" + current);
 
@@ -761,7 +761,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 				f1 = System.currentTimeMillis();
 				log.warn("Failed to get read lock on index ");
 			}
-			x2 = System.currentTimeMillis();
+			
 		}
 		long f = System.currentTimeMillis();
 		if ((f - start) > 1000)
@@ -771,7 +771,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 							+ " ms");
 			log.info("Read Lock aquire " + (f1 - x1) + " ms");
 			log.info("Index Load aquire " + (r2 - r1) + " ms");
-			log.info("Read Lock Release " + (f3 - f3) + " ms");
+			log.info("Read Lock Release " + (f2 - f3) + " ms");
 		}
 		if (multiReader instanceof ThreadBinder)
 		{

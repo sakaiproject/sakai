@@ -307,10 +307,7 @@ public class RefCountMultiReader extends MultiReader implements ThreadBound,
 	 */
 	public boolean canClose()
 	{
-		synchronized (parents) {
 			return (count <= 0 && doclose && parents.size() == 0);
-			
-		}
 	}
 
 	/*
@@ -320,10 +317,7 @@ public class RefCountMultiReader extends MultiReader implements ThreadBound,
 	 */
 	public void addParent(Object searcher)
 	{
-		synchronized (parents) {
 			parents.put(searcher, searcher);
-		}
-
 	}
 
 	/*
@@ -333,10 +327,7 @@ public class RefCountMultiReader extends MultiReader implements ThreadBound,
 	 */
 	public void removeParent(Object searcher)
 	{
-		synchronized (parents) {
 			parents.remove(searcher);			
-		}
-
 	}
 
 	/**
