@@ -13,8 +13,8 @@ import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.tool.Locator;
-import org.sakaiproject.profile2.tool.ProfileApplication;
 
 /**
  * RequestedFriendsDataProvider.java
@@ -36,7 +36,7 @@ public class RequestedFriendsDataProvider implements IDataProvider, Serializable
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(RequestedFriendsDataProvider.class); 
 
-	private transient List<String> requests = new ArrayList<String>();
+	private transient List<Person> requests = new ArrayList<Person>();
 	private transient ProfileLogic profileLogic;
 	private String userId;
 	
@@ -53,14 +53,14 @@ public class RequestedFriendsDataProvider implements IDataProvider, Serializable
 	}
 	
 	//this is a helper method to process our friends list
-	private List<String> getFriendsForUser(final String userId) {
-		requests = profileLogic.getFriendRequestsForUser(userId);
+	private List<Person> getFriendsForUser(final String userId) {
+		requests = profileLogic.getConnectionRequestsForUser(userId);
 		return requests;
 	}
 
-	public Iterator<String> iterator(int first, int count) {
+	public Iterator<Person> iterator(int first, int count) {
 		try {
-			List<String> slice = requests.subList(first, first + count);
+			List<Person> slice = requests.subList(first, first + count);
 			return slice.iterator();
 		}
 		catch (Exception e) {
@@ -77,7 +77,7 @@ public class RequestedFriendsDataProvider implements IDataProvider, Serializable
 	}
 
     public IModel model(Object object) {
-            return new Model((String)object);
+            return new Model((Person)object);
     }
     
     public void detach() {}

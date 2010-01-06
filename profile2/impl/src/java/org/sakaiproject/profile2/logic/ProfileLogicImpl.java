@@ -78,73 +78,73 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	private static final String READ = "read";
 
 	
-
-	
 	/**
  	 * {@inheritDoc}
  	 */
-	public List<String> getFriendRequestsForUser(final String userId) {
+	public List<Person> getConnectionsForUser(String userId) {
 		
-		if(userId == null){
-	  		throw new IllegalArgumentException("Null Argument in Profile.getFriendRequestsForUser()"); //$NON-NLS-1$
-	  	}
+		List<User> users = new ArrayList<User>();
+		List<Person> connections = new ArrayList<Person>();
+		users = UserDirectoryService.getUsers(getConfirmedConnectionUserIdsForUser(userId));
 		
-		List<String> requests = new ArrayList<String>();
+		for(User u: users) {
+			Person p = new Person();
+			p.setUuid(u.getId());
+			p.setDisplayName(u.getDisplayName());
+			p.setType(u.getType());
+				
+			connections.add(p);
+		}
 		
-		//get friends of this user [and map it automatically to the Friend object]
-		//updated: now just returns a List of Strings
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_GET_FRIEND_REQUESTS_FOR_USER);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setBoolean("false", Boolean.FALSE); //$NON-NLS-1$
-	  			//q.setResultTransformer(Transformers.aliasToBean(Friend.class));
-	  			
-	  			return q.list();
-	  		}
-	  	};
-	  	
-	  	requests = (List<String>) getHibernateTemplate().executeFind(hcb);
-	  	
-	  	return requests;
-	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public List<String> getConfirmedFriendUserIdsForUser(final String userId) {
-		
-		List<String> userUuids = new ArrayList<String>();
-		
-		//get 
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  		
-	  			Query q = session.getNamedQuery(QUERY_GET_CONFIRMED_FRIEND_USERIDS_FOR_USER);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setBoolean("true", Boolean.TRUE); //$NON-NLS-1$
-	  			return q.list();
-	  		}
-	  	};
-	  	
-	  	userUuids = (List<String>) getHibernateTemplate().executeFind(hcb);
-	
-	  	return userUuids;
+		return connections;
 	}
 	
 	
 	/**
  	 * {@inheritDoc}
  	 */	
-	public int countConfirmedFriendUserIdsForUser(final String userId) {
-		
-		//this should operhaps be a count(*) query but since we need to use unions, hmm.
-		List<String> userUuids = new ArrayList<String>(getConfirmedFriendUserIdsForUser(userId));
-		int count = userUuids.size();
+	public int getCountConnectionsForUser(final String userId) {
+		return getConnectionsForUser(userId).size();
+	}
 	
-	  	return count;
+	/**
+ 	 * {@inheritDoc}
+ 	 */	
+	public List<Person> getConnectionRequestsForUser(final String userId) {
+		
+		List<User> users = new ArrayList<User>();
+		List<Person> requests = new ArrayList<Person>();
+		users = UserDirectoryService.getUsers(getRequestedConnectionUserIdsForUser(userId));
+		
+		for(User u: users) {
+			Person p = new Person();
+			p.setUuid(u.getId());
+			p.setDisplayName(u.getDisplayName());
+			p.setType(u.getType());
+				
+			requests.add(p);
+		}
+		
+		return requests;
+	}
+
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<Person> getConnectionsSubsetForSearch(List<Person> connections, String search) {
+		
+		List<Person> subList = new ArrayList<Person>();
+		
+		for(Person p : connections){
+			if(StringUtils.startsWithIgnoreCase(p.getDisplayName(), search)) {
+				if(subList.size() == ProfileConstants.MAX_CONNECTIONS_PER_SEARCH) {
+					break;
+				}
+				subList.add(p);
+			}
+		}
+		return subList;
 	}
 	
 	
@@ -615,7 +615,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		
 		//get friends of current user
 		//TODO change this to be a single lookup rather than iterating over a list
-		List<String> friendUuids = new ArrayList<String>(getConfirmedFriendUserIdsForUser(userY));
+		List<String> friendUuids = new ArrayList<String>(getConfirmedConnectionUserIdsForUser(userY));
 		
 		//if list of confirmed friends contains this user, they are a friend
 		if(friendUuids.contains(userX)) {
@@ -1670,44 +1670,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	}
 	
 
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public List<Person> getConnectionsForUser(String userId) {
-		
-		List<User> users = new ArrayList<User>();
-		List<Person> connections = new ArrayList<Person>();
-		users = UserDirectoryService.getUsers(getConfirmedFriendUserIdsForUser(userId));
-		
-		for(User u: users) {
-			Person p = new Person();
-			p.setUuid(u.getId());
-			p.setDisplayName(u.getDisplayName());
-			p.setType(u.getType());
-				
-			connections.add(p);
-		}
-		
-		return connections;
-	}
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public List<Person> getConnectionsSubsetForSearch(List<Person> connections, String search) {
-		
-		List<Person> subList = new ArrayList<Person>();
-		
-		for(Person p : connections){
-			if(StringUtils.startsWithIgnoreCase(p.getDisplayName(), search)) {
-				if(subList.size() == ProfileConstants.MAX_CONNECTIONS_PER_SEARCH) {
-					break;
-				}
-				subList.add(p);
-			}
-		}
-		return subList;
-	}
 	
 	/**
  	 * {@inheritDoc}
@@ -1764,6 +1727,70 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		return null;
 	}
 
+	
+	/**
+	 * Get a list of unconfirmed Friend requests for a given user. Uses a native SQL query
+	 * Returns: (all those where userId is the friend_uuid and confirmed=false)
+	 *
+	 * @param userId		uuid of the user to retrieve the list of friends for
+	 */
+	private List<String> getRequestedConnectionUserIdsForUser(final String userId) {
+		
+		if(userId == null){
+	  		throw new IllegalArgumentException("Null Argument in Profile.getFriendRequestsForUser()"); //$NON-NLS-1$
+	  	}
+		
+		List<String> requests = new ArrayList<String>();
+		
+		//get friends of this user [and map it automatically to the Friend object]
+		//updated: now just returns a List of Strings
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_GET_FRIEND_REQUESTS_FOR_USER);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setBoolean("false", Boolean.FALSE); //$NON-NLS-1$
+	  			//q.setResultTransformer(Transformers.aliasToBean(Friend.class));
+	  			
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	requests = (List<String>) getHibernateTemplate().executeFind(hcb);
+	  	
+	  	return requests;
+	}
+	
+	/**
+	 * Get a list of confirmed connections for a given user. Uses a native SQL query so we can use unions
+	 * Returns: (all those where userId is the user_uuid and confirmed=true) & (all those where user is friend_uuid and confirmed=true)
+	 *
+	 * This only returns userIds. If you want a list of Person objects, see getConnectionsForUser()
+	 * 
+	 * @param userId		uuid of the user to retrieve the list of friends for
+	 */
+	private List<String> getConfirmedConnectionUserIdsForUser(final String userId) {
+		
+		List<String> userUuids = new ArrayList<String>();
+		
+		//get 
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  		
+	  			Query q = session.getNamedQuery(QUERY_GET_CONFIRMED_FRIEND_USERIDS_FOR_USER);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setBoolean("true", Boolean.TRUE); //$NON-NLS-1$
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	userUuids = (List<String>) getHibernateTemplate().executeFind(hcb);
+	
+	  	return userUuids;
+	}
+	
+	
 	
 	
 	// helper method to check if all required twitter fields are set properly
@@ -2047,6 +2074,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		
 		return results;
 	}
+	
 	
 	
 	//init method called when Tomcat starts up

@@ -6,10 +6,10 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
-import org.sakaiproject.profile2.entity.model.Connection;
 import org.sakaiproject.profile2.exception.ProfileNotDefinedException;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
@@ -329,7 +329,7 @@ public class ProfileServiceImpl implements ProfileService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<String> getConnectionIdsForUser(String userId) {
+	public List<Person> getConnectionsForUser(String userId) {
 		
 		//check auth and get currentUserUuid
 		String currentUserUuid = sakaiProxy.getCurrentUserId();
@@ -347,36 +347,14 @@ public class ProfileServiceImpl implements ProfileService {
 		//check friend status
 		boolean friend = profileLogic.isUserXFriendOfUserY(userUuid, currentUserUuid);
 		
-		List<String> connectionIds = new ArrayList<String>();
+		List<Person> connections = new ArrayList<Person>();
 		
 		if(profileLogic.isUserXFriendsListVisibleByUserY(userUuid, currentUserUuid, friend)) {
-			connectionIds = profileLogic.getConfirmedFriendUserIdsForUser(userUuid);
+			connections = profileLogic.getConnectionsForUser(userUuid);
 		}
-		return connectionIds;
-	}
-	
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public List<Connection> getConnectionsForUser(String userId) {
-		
-		//pass off to get the list of uuids. Checks done in above method
-		List<String> connectionIds = new ArrayList<String>();
-		connectionIds = getConnectionIdsForUser(userId);
-		
-		if(connectionIds == null) {
-			return null;
-		}
-		
-		//convert userIds to Connections
-		List<Connection> connections = new ArrayList<Connection>();
-		for(String connectionId: connectionIds) {
-			connections.add(new Connection(connectionId, sakaiProxy.getUserDisplayName(connectionId)));
-		}
-		
 		return connections;
 	}
+	
 	
 	/**
 	 * {@inheritDoc}

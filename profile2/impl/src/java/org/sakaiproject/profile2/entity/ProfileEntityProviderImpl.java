@@ -20,7 +20,7 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
-import org.sakaiproject.profile2.entity.model.Connection;
+import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ResourceWrapper;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.service.ProfileImageService;
@@ -139,7 +139,7 @@ public class ProfileEntityProviderImpl implements ProfileEntityProvider, CoreEnt
 	public Object getConnections(EntityView view, EntityReference ref) {
 				
 		//get list of connections
-		List<Connection> connections = profileService.getConnectionsForUser(ref.getId());
+		List<Person> connections = profileService.getConnectionsForUser(ref.getId());
 		if(connections == null) {
 			throw new EntityException("Error retrieving connections for " + ref.getId(), ref.getReference());
 		}

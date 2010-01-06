@@ -2,7 +2,7 @@ package org.sakaiproject.profile2.service;
 
 import java.util.List;
 
-import org.sakaiproject.profile2.entity.model.Connection;
+import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.UserProfile;
 
 /**
@@ -111,24 +111,14 @@ public interface ProfileService {
 	public boolean checkUserProfileExists(String userId);
 		
 	/**
-	 * Get a list of connections (as userIds) for the given user.
+	 * Get a list of connections (as Persons) for the given user.
 	 * 
 	 * <p>You must be logged-in in order to make requests to this method.</p>
 	 * 
 	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
 	 * @return List of uuids or null if error
 	 */
-	public List<String> getConnectionIdsForUser(String userId);
-	
-	/**
-	 * Get a list of Connections (as Connection objects) for the given user.
-	 * 
-	 * <p>You must be logged-in in order to make requests to this method.</p>
-	 * 
-	 * @param userId - either internal user id (6ec73d2a-b4d9-41d2-b049-24ea5da03fca) or eid (jsmith26)
-	 * @return List of Connections or null if error
-	 */
-	public List<Connection> getConnectionsForUser(String userId);
+	public List<Person> getConnectionsForUser(String userId);
 	
 	/**
 	 * Convert a UserProfile object into a fragment of HTML.

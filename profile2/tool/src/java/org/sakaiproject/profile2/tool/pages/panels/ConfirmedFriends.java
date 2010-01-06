@@ -22,6 +22,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
@@ -124,17 +125,16 @@ public class ConfirmedFriends extends Panel {
 		final ModalWindow connectionWindow = new ModalWindow("connectionWindow");
 
 		//results
-		DataView confirmedFriendsDataView = new DataView("results-list", provider) {
+		DataView<Person> confirmedFriendsDataView = new DataView<Person>("results-list", provider) {
 			private static final long serialVersionUID = 1L;
 
-			protected void populateItem(final Item item) {
+			protected void populateItem(final Item<Person> item) {
 		        
-		    	//get friendUuid
-		    	final String friendUuid = (String)item.getModelObject();
+				final Person person = (Person)item.getDefaultModelObject();
+				final String friendUuid = person.getUuid();
 		    			    	
 		    	//setup values
-		    	User friendUser = sakaiProxy.getUserQuietly(friendUuid);
-		    	String displayName = friendUser.getDisplayName();
+		    	String displayName = person.getDisplayName();
 		    	boolean friend;
 		    	
 		    	//get friend status
@@ -188,7 +188,9 @@ public class ConfirmedFriends extends Panel {
 					public void onClick(AjaxRequestTarget target) {
 						
 						//get this item, and set content for modalwindow
-				    	String friendUuid = (String)getParent().getDefaultModelObject();
+						Person person = (Person)getParent().getDefaultModelObject();
+				    	String friendUuid = person.getUuid();
+				    	
 						connectionWindow.setContent(new RemoveFriend(connectionWindow.getContentId(), connectionWindow, friendActionModel, userUuid, friendUuid)); 
 						
 						//modalwindow handler 

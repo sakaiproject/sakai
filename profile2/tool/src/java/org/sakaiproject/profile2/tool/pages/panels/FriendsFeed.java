@@ -74,7 +74,7 @@ public class FriendsFeed extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void populateEmptyItem(Item item)
+			protected void populateEmptyItem(Item<Person> item)
 			{
 				Link friendItem = new Link("friendsFeedItem") {
 					private static final long serialVersionUID = 1L;
@@ -88,10 +88,9 @@ public class FriendsFeed extends Panel {
 				friendItem.setVisible(false);
 			}
 			
-			protected void populateItem(Item item)
+			protected void populateItem(Item<Person> item)
 			{
 				final Person person = (Person)item.getDefaultModelObject();
-				
 				final String friendId = person.getUuid();
 				
 				//setup info
@@ -141,8 +140,8 @@ public class FriendsFeed extends Panel {
 		dataView.setColumns(3);
 		add(dataView);
 		
-		/* NUM FRIENDS LABEL (can't just use provider as it only ever returns 6, unless we modify it to return a slice. */
-		final int numFriends = profileLogic.countConfirmedFriendUserIdsForUser(ownerUserId);
+		/* NUM FRIENDS LABEL (can't just use provider as it only ever returns the number in the grid */
+		final int numFriends = profileLogic.getCountConnectionsForUser(ownerUserId);
 		Label numFriendsLabel = new Label("numFriendsLabel");
 		add(numFriendsLabel);
 		
