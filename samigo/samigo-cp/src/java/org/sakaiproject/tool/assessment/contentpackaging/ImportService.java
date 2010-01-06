@@ -70,7 +70,9 @@ public class ImportService {
 
 			File dir = new File(unzipLocation.toString()); // directory where file would be saved
 			if (!dir.exists()) {
-				dir.mkdirs();
+				if (dir.mkdirs()) {
+					log.error("unable to mkdir " + dir.getPath());
+				}
 			}
 
 			Set dirsMade = new TreeSet();

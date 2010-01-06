@@ -109,6 +109,9 @@ public class ShowAttachmentMediaServlet extends HttpServlet
 		// create a copy of the resource
 		cr = AssessmentService.getContentHostingService().getResource(resourceId);
 		media = cr.getContent();
+		if (media == null) {
+			return;
+		}
 	    log.debug("**** media.length = " + media.length);
 		
 	} catch (PermissionException e) {

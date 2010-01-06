@@ -87,7 +87,7 @@ public class PublishedItemData
                   Boolean hasRationale, Integer status, String createdBy,
                   Date createdDate, String lastModifiedBy,
                   Date lastModifiedDate,
-                  Set itemTextSet, Set itemMetaDataSet, Set itemFeedbackSet, Boolean partialCrditFlag) {
+                  Set itemTextSet, Set itemMetaDataSet, Set itemFeedbackSet, Boolean partialCreditFlag) {
     this.section = section;
     this.sequence = sequence;
     this.duration = duration;

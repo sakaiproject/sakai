@@ -1460,7 +1460,6 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	// This is for instructors view (author index page)
 	public ArrayList getBasicInfoOfAllPublishedAssessments2(
 			String sortString, boolean ascending, final String siteAgentId) {
-		Date currentDate = new Date();
 		String orderBy = getOrderBy(sortString);
 		
 		String query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "

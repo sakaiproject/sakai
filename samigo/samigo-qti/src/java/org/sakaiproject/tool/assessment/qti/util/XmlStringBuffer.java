@@ -26,6 +26,7 @@ package org.sakaiproject.tool.assessment.qti.util;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
@@ -430,47 +431,38 @@ public class XmlStringBuffer
    */
   public final List selectNodes(String xpath)
   {
-    if(log.isDebugEnabled())
-    {
-      log.debug("selectNodes(String " + xpath + ")");
-    }
+	  if(log.isDebugEnabled())
+	  {
+		  log.debug("selectNodes(String " + xpath + ")");
+	  }
 
-    // First try retrieving it from the cache
-    List result = null;
-    result = (List) this.getCache().get(xpath);
+	  List result = null;
+	  try
+	  {
+		  XPath path = new DOMXPath(xpath);
+		  result = path.selectNodes(this.getDocument());
+	  }
+	  catch(JaxenException je)
+	  {
+		  log.error(je.getMessage(), je);
+	  }
+	  catch(ParserConfigurationException e)
+	  {
+		  log.error(e.getMessage(), e);
+	  }
+	  catch(SAXException e)
+	  {
+		  log.error(e.getMessage(), e);
+	  }
+	  catch(IOException e)
+	  {
+		  log.error(e.getMessage(), e);
+	  }
 
-    //  TODO need to invalidate cache when underlying document changes!
-    result = null;
-    if(result == null)
-    {
-      try
-      {
-        XPath path = new DOMXPath(xpath);
-        result = path.selectNodes(this.getDocument());
-      }
-      catch(JaxenException je)
-      {
-        log.error(je.getMessage(), je);
-      }
-      catch(ParserConfigurationException e)
-      {
-        log.error(e.getMessage(), e);
-      }
-      catch(SAXException e)
-      {
-        log.error(e.getMessage(), e);
-      }
-      catch(IOException e)
-      {
-        log.error(e.getMessage(), e);
-      }
-    }
-    else
-    {
-      log.debug("found in cache");
-    }
-
-    return result;
+	  if (result == null) {
+		  result = new ArrayList();
+	  }
+	  return result;
   }
 
   /**

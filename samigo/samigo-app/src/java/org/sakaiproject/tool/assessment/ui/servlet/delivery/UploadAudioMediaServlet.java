@@ -96,7 +96,6 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
       suffix = "au";
     String mediaLocation = req.getParameter("media")+"."+suffix;
     log.debug("****media location="+mediaLocation);
-    String zip_mediaLocation=null;
     String response = "empty";
 
     // test for nonemptiness first
@@ -119,9 +118,6 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
       // note that this delivery bean is empty. this is not the same one created for the
       // user during take assessment.
       try{
-        if (zip_mediaLocation != null)
-        response = submitMediaAsAnswer(req, zip_mediaLocation, saveToDb);
-        else
         response = submitMediaAsAnswer(req, mediaLocation, saveToDb);
         log.info("Audio has been saved and submitted as answer to the question. Any old recordings have been removed from the system.");
       }

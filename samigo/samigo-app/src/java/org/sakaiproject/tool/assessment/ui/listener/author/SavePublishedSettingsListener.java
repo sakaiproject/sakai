@@ -180,13 +180,14 @@ implements ActionListener
 			context.addMessage(null, new FacesMessage(nameEmpty_err));
 			error=true;
 		}
-
-		assessmentName = FormattedText.convertPlaintextToFormattedText(assessmentName.trim());
-		// check if name is unique 
-		if(!assessmentService.publishedAssessmentTitleIsUnique(assessmentSettings.getAssessmentId().toString(), assessmentName)){
-			String nameUnique_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
-			context.addMessage(null, new FacesMessage(nameUnique_err));
-			error=true;
+		else {
+			assessmentName = FormattedText.convertPlaintextToFormattedText(assessmentName.trim());
+			// check if name is unique 
+			if(!assessmentService.publishedAssessmentTitleIsUnique(assessmentSettings.getAssessmentId().toString(), assessmentName)){
+				String nameUnique_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
+				context.addMessage(null, new FacesMessage(nameUnique_err));
+				error=true;
+			}
 		}
 
 		// check if start date is valid

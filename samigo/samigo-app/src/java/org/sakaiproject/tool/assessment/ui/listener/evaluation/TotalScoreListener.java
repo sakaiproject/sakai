@@ -122,9 +122,8 @@ public class TotalScoreListener
     // reset scoringType based on evaluationModel,scoringType if coming from authorIndex
     if (ae == null || (ae != null && ae.getComponent().getId().startsWith("authorIndexToScore"))) {
     	log.debug("coming from authorIndex");
-    	EvaluationModelIfc model = pubAssessment.getEvaluationModel();
-    	if (model != null && model.getScoringType()!=null){
-    		String allSubmissions = model.getScoringType().toString();
+    	if (pubAssessment != null && pubAssessment.getEvaluationModel() != null && pubAssessment.getEvaluationModel().getScoringType() != null){
+    		String allSubmissions = pubAssessment.getEvaluationModel().getScoringType().toString();
     		bean.setAllSubmissions(allSubmissions);
     		questionbean.setAllSubmissions(allSubmissions);
     		histobean.setAllSubmissions(allSubmissions);

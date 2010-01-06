@@ -354,8 +354,8 @@ public class BeginDeliveryActionListener implements ActionListener
         if (pub == null)
           throw new AbortProcessingException(
              "taking: publishedAsessmentId null or blank");
-        else
-          publishedId = pub.getPublishedAssessmentId().toString();
+        //else
+          //publishedId = pub.getPublishedAssessmentId().toString();
         break;
 
     case 1: //delivery.TAKE_ASSESSMENT

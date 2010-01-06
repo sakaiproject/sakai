@@ -1426,17 +1426,13 @@ public class ItemBean
 
 		ArrayList answersList = this.getMultipleChoiceAnswers();
 		Iterator iter = answersList.iterator();
-		// information about about the correct answer is not available here so
-		// checking whether the answer is correct
-		// simply leads to NPE.
+		// information about the correct answer is not available here so
+		// checking whether the answer is correct simply leads to NPE.
 		while (iter.hasNext()) {
 			AnswerBean answerBean = (AnswerBean) iter.next();
 			if (answerBean.getPartialCredit().floatValue() < 100.00) {
 				answerBean.setPartialCredit(0f);
-			} else if (answerBean.getPartialCredit().floatValue() == 100.00)
-				;
-			answerBean.setIsCorrect(true);
-
+			}
 		}
 		this.setMultipleChoiceAnswers(answersList);
 	}

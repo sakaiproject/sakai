@@ -686,14 +686,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     		}
     	} 
     }
-    try{
-      if (mediaLocation != null){
+    if (mediaLocation != null){
         File mediaFile = new File(mediaLocation);
-        mediaFile.delete();
-      }
-    }
-    catch (Exception e) {
-      log.warn("problem removing file="+e.getMessage());
+        if (mediaFile.delete()) {
+        	log.warn("problem removing file. mediaLocation = " + mediaLocation);
+        }
     }
     
     if (itemGradingId != null) {

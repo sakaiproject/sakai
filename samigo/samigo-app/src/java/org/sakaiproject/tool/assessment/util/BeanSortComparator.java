@@ -132,7 +132,7 @@ public class BeanSortComparator
    */
   protected Map describeBean(Object o)
   {
-    Map m= new HashMap();
+    Map m = null;
 
     try
     {

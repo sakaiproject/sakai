@@ -163,7 +163,7 @@ public class QuestionScoresBean
 			matchingAgents = allAgents;
 		}
 		scoreDataRows = matchingAgents.size();
-		ArrayList newAgents = new ArrayList();
+		ArrayList newAgents = null;
 		if (maxDisplayedScoreRows == 0) {
 			newAgents = matchingAgents;
 		} else {

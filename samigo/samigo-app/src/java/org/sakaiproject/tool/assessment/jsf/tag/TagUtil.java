@@ -296,7 +296,7 @@ public class TagUtil
   {
     if (expression == null)
     {
-      return null;
+      return Boolean.FALSE;
     }
     if (UIComponentTag.isValueReference(expression))
     {
@@ -305,7 +305,7 @@ public class TagUtil
       Object r = app.createValueBinding(expression).getValue(context);
       if (r == null)
       {
-        return null;
+        return Boolean.FALSE;
       }
       else if (r instanceof Boolean)
       {
