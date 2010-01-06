@@ -22,7 +22,6 @@
 package org.sakaiproject.search.journal.api;
 
 import org.sakaiproject.search.indexer.api.IndexJournalException;
-import org.sakaiproject.search.indexer.api.LockTimeoutException;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
 
 /**

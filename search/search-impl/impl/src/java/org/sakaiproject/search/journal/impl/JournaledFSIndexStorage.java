@@ -44,6 +44,7 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.MultiReader;
+import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.spell.Dictionary;
 import org.apache.lucene.search.spell.LuceneDictionary;
@@ -51,7 +52,6 @@ import org.apache.lucene.search.spell.SpellChecker;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.NIOFSDirectory;
-import org.apache.lucene.store.SimpleFSDirectory;
 import org.sakaiproject.cluster.api.ClusterService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.search.api.SearchService;
@@ -798,15 +798,15 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 				throw new IOException("can't create index directory " + f.getPath());
 			}
 			log.debug("Indexing in " + f.getAbsolutePath());
-			d = FSDirectory.getDirectory(journalSettings.getSearchIndexDirectory(), true);
+			d = FSDirectory.open(new File(journalSettings.getSearchIndexDirectory()));
 		}
 		else
 		{
 			d = FSDirectory
-					.getDirectory(journalSettings.getSearchIndexDirectory(), false);
+					.open(new File(journalSettings.getSearchIndexDirectory()));
 		}
 
-		if (IndexReader.isLocked(d))
+		if (IndexWriter.isLocked(d))
 		{
 			// this could be dangerous, I am assuming that
 			// the locking mechanism implemented here is
@@ -814,35 +814,35 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 			// already prevents multiple modifiers.
 			// A more
 
-			IndexReader.unlock(d);
+			IndexWriter.unlock(d);
 			log.warn("Unlocked Lucene Directory for update, hope this is Ok");
 		}
 		if (!d.fileExists("segments.gen"))
 		{
-			IndexWriter iw = new IndexWriter(f, getAnalyzer(), true);
+			IndexWriter iw = new IndexWriter(FSDirectory.open(f), getAnalyzer(), MaxFieldLength.UNLIMITED);
 			iw.setUseCompoundFile(true);
 			iw.setMaxMergeDocs(journalSettings.getLocalMaxMergeDocs());
 			iw.setMaxBufferedDocs(journalSettings.getLocalMaxBufferedDocs());
 			iw.setMergeFactor(journalSettings.getLocalMaxMergeFactor());
 			Document doc = new Document();
 			doc.add(new Field("indexcreated", (new Date()).toString(), Field.Store.YES,
-					Field.Index.UN_TOKENIZED, Field.TermVector.NO));
+					Field.Index.NOT_ANALYZED, Field.TermVector.NO));
 			iw.addDocument(doc);
 			iw.close();
 		}
 
 		final IndexReader[] indexReaders = new IndexReader[segments.size() + 1];
-		indexReaders[0] = IndexReader.open(d);
+		indexReaders[0] = IndexReader.open(d, false);
 		int i = 1;
 		for (File s : segments)
 		{
-			FSDirectory fsd = FSDirectory.getDirectory(s, false);
-			if (IndexReader.isLocked(fsd))
+			FSDirectory fsd = FSDirectory.open(s);
+			if (IndexWriter.isLocked(fsd))
 			{
 				log.warn("++++++++++++++++++Unlocking Index " + fsd.toString());
-				IndexReader.unlock(fsd);
+				IndexWriter.unlock(fsd);
 			}
-			indexReaders[i] = IndexReader.open(s);
+			indexReaders[i] = IndexReader.open(FSDirectory.open(s), false);
 			i++;
 		}
 		RefCountMultiReader newMultiReader = new RefCountMultiReader(indexReaders, this);
