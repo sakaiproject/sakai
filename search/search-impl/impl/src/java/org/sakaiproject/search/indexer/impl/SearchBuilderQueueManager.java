@@ -51,7 +51,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.SiteService;
 
 /**
  * This class manages the Search Build Queue, it retrieves the
@@ -87,6 +87,9 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 	private int nodeLock;
 
 	private TransactionSequence sequence;
+	
+	
+	private SiteService siteService;
 
 	/** Configuration: to run the ddl on init or not. */
 	protected boolean autoDdl = false;
@@ -915,7 +918,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 		}
 
 	}
-	@SuppressWarnings("unchecked")
+	
 	private List<String> getAllContentexts(SearchBuilderItem controlItem) {
 		List<String> contextList = new ArrayList<String>();
 		if (SearchBuilderItem.GLOBAL_CONTEXT.equals(controlItem.getContext()))
@@ -925,13 +928,13 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 			int last = increment;
 			boolean doAnother = true;
 			while (doAnother) {
-				List<Site> sites = SiteService.getSites(SelectionType.ANY, null, null,
+				List<Site> sites = siteService.getSites(SelectionType.ANY, null, null,
 						null, SortType.NONE, new PagingPosition(first, last));
 				for (Iterator<Site> i = sites.iterator(); i.hasNext();)
 				{
 					Site s = (Site) i.next();
-					if (!SiteService.isSpecialSite(s.getId())
-							|| SiteService.isUserSite(s.getId()))
+					if (!siteService.isSpecialSite(s.getId())
+							|| siteService.isUserSite(s.getId()))
 					{
 						if (searchIndexBuilder.isOnlyIndexSearchToolSites())
 						{
@@ -1116,6 +1119,11 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 		this.datasource = datasource;
 	}
 
+	
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
+	
 	/**
 	 * @return the sequence
 	 */
