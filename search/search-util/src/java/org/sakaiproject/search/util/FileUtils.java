@@ -274,9 +274,12 @@ public class FileUtils
 				File f = new File(destination, zipEntry.getName());
 				if (log.isDebugEnabled())
 					log.debug("         Unpack " + f.getAbsolutePath());
-				if (!f.getParentFile().mkdirs())
+				if (!f.getParentFile().exists())
 				{
-					log.warn("unpack(): Failed to create parent folders!");
+					if (!f.getParentFile().mkdirs())
+					{
+						log.warn("unpack(): Failed to create parent folder: " + f.getParentFile().getPath());
+					}
 				}
 
 				fout = new FileOutputStream(f);
@@ -289,7 +292,7 @@ public class FileUtils
 				fout.close();
 				if (!f.setLastModified(ts))
 				{
-					log.warn("upack(): failes to set modifiers");
+					log.warn("upack(): failes to set modified date on " + f.getPath());
 				}
 			}
 		}

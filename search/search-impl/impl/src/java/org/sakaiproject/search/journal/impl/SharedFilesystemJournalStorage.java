@@ -121,9 +121,14 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 		log.info("++++++ Saving " + indexLocation + " to shared");
 		File tmpZip = new File(journalSettings.getJournalLocation(), transactionId
 				+ ".zip." + System.currentTimeMillis());
-		if (!tmpZip.getParentFile().mkdirs())
+		
+		//this will fail if the parent dirs exist
+		if (!tmpZip.getParentFile().exists())
 		{
-			log.warn("Couldn't create directory " + tmpZip.getParentFile().getPath());
+			if (!tmpZip.getParentFile().mkdirs())
+			{
+				log.warn("Couldn't create directory " + tmpZip.getParentFile().getPath());
+			}
 		}
 		String basePath = indexLocation.getPath();
 		String replacePath = String.valueOf(transactionId);
@@ -191,9 +196,12 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 	public void retrieveSavePoint(long savePoint, String workingSpace) throws IOException
 	{
 		File ws = new File(workingSpace);
-		if (!ws.mkdirs())
-		{
-			log.warn("Couldn't create directory " + ws.getPath());
+		if (!ws.exists())
+		{	
+			if (!ws.mkdirs())
+			{
+				log.warn("Couldn't create directory " + ws.getPath());
+			}
 		}
 		File[] f = getTransactionFile(savePoint);
 		// retrieve the existing transaction file
