@@ -36,6 +36,8 @@ import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriter.MaxFieldLength;
+import org.apache.lucene.store.NIOFSDirectory;
 import org.sakaiproject.search.indexer.api.IndexUpdateTransaction;
 import org.sakaiproject.search.indexer.api.NoItemsToIndexException;
 import org.sakaiproject.search.journal.impl.JournalSettings;
@@ -184,13 +186,13 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 				}
 				if (new File(tempIndex,"segments.gen").exists())
 				{
-					indexWriter = new IndexWriter(tempIndex,
-							((TransactionIndexManagerImpl) manager).getAnalyzer(), false);
+					indexWriter = new IndexWriter(new NIOFSDirectory(tempIndex),
+							((TransactionIndexManagerImpl) manager).getAnalyzer(), false, MaxFieldLength.UNLIMITED);
 				}
 				else
 				{
-					indexWriter = new IndexWriter(tempIndex,
-							((TransactionIndexManagerImpl) manager).getAnalyzer(), true);
+					indexWriter = new IndexWriter(new NIOFSDirectory(tempIndex),
+							((TransactionIndexManagerImpl) manager).getAnalyzer(), true, MaxFieldLength.UNLIMITED);
 				}
 				indexWriter.setUseCompoundFile(true);
 				// indexWriter.setInfoStream(System.out);
@@ -340,7 +342,7 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 					indexWriter.close();
 					indexWriter = null;
 				}
-				indexReader = IndexReader.open(tempIndex);
+				indexReader = IndexReader.open(new NIOFSDirectory(tempIndex), false);
 			}
 			catch (IOException ex)
 			{

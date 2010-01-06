@@ -310,7 +310,7 @@ public class TransactionalIndexWorker implements IndexWorker
 							{
 
 								Document doc = new Document();
-								Reference r;
+								
 								String container = sep.getContainer(ref);
 								if (container == null) container = ""; //$NON-NLS-1$
 								doc.add(new Field(SearchService.DATE_STAMP, String

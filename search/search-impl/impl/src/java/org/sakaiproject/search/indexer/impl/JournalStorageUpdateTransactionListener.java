@@ -23,7 +23,6 @@ package org.sakaiproject.search.indexer.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.search.index.impl.ClusterFSIndexStorage;
 import org.sakaiproject.search.indexer.api.IndexJournalException;
 import org.sakaiproject.search.indexer.api.IndexUpdateTransaction;
 import org.sakaiproject.search.indexer.api.IndexUpdateTransactionListener;

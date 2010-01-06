@@ -915,7 +915,7 @@ public class SearchBuilderQueueManager implements IndexUpdateTransactionListener
 		}
 
 	}
-
+	@SuppressWarnings("unchecked")
 	private List<String> getAllContentexts(SearchBuilderItem controlItem) {
 		List<String> contextList = new ArrayList<String>();
 		if (SearchBuilderItem.GLOBAL_CONTEXT.equals(controlItem.getContext()))
