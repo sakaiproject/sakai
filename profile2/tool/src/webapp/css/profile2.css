@@ -845,5 +845,81 @@ div.wicket-aa ul li.selected {
 	background-color: #ffff77;
 }
 	
+	
+/* message list styles */
+.messageThreadListContainer {
+	border-top: 1px solid #d0d0df;
+	width: 500px;
+}
+
+
+.messageThreadListItem {
+	display:block;
+	position: relative;
+	left: 0;
+	top: 0;
+	border-bottom: 1px solid #d0d0df;
+	border-collapse: collapse;
+	height: 60px;
+	padding-top: 5px;
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-bottom: 5px;
+	overflow: hidden; /* to crop bigger pictures that might overhang */
+}
+
+
+.messageThreadListItem:hover {
+	/*background-color: #ffc;*/
+	/*background-color: #FFFFE6;*/
+	/*background-color: #fafdff; */
+	background-color: #FFFFE6;
+}
+
+.messageListPhoto {
+	float:left;
+}
+
+.messageListPhoto img{
+	max-width: 50px;
+	width: expression(Math.min(parseInt(this.offsetWidth), 50 ) + "px"); /* ie6 max-width hack */
+	/*border: 1px solid #666666;
+	padding: 2px;*/
+}
+
+
+.messageDetails {
+	float:left;
+	margin-left: 10px;
+}
+
+
+.messageFromName {
+	display: block;
+	font-size: 90%;
+}
+
+.messageDate {
+	display: block;
+	font-size: 70%;
+	color: #5D5D5D;
+}
+
+.messageSubject {
+	display: block;
+	font-size: 90%;
+}
+
+.messageBody {
+	display: block;
+	font-size: 90%;
+	color: #5D5D5D;
+}
+
+/* misc combo classes */
+.padleft {
+	margin-left: 20px;
+}
+
 
 		

@@ -19,17 +19,29 @@
 				<span class="messageListPhoto" wicket:id="messageItemPhoto"/>
 			</a>
 	    	 -->
+	    	<a href="blah.com">
+	    		<span class="messageListPhoto">
+					<img src="http://www.google.com.au/intl/en_au/images/logo.gif" />
+				</span>
+			</a>
 	    	
 	    	<div class="messageDetails">
 	    		<a href="#" wicket:id="messageFromLink"><span wicket:id="messageFromName" class="messageFromName">[name]</span></a>
-	    		<span wicket:id="messageDate">[04 January at 10:36]</span>
+	    		<span wicket:id="messageDate" class="messageDate">[04 January at 10:36]</span>
 	    	</div>
+	    	
 	    	<!-- 
-	    	<div class="messageDetails">
+	    	<div class="messageDetails padleft">
 	    		<a href="#" wicket:id="messageSubjectLink"><span wicket:id="messageSubject" class="messageSubject">[subject]</span></a>
-	    		<span wicket:id="messageBody">[truncated message goes here]</span>
+	    		<span wicket:id="messageBody" class="messageBody">[truncated message goes here]</span>
 	    	</div>
 	    	-->
+	    	
+	    	<div class="messageDetails padleft">
+	    		<a href="#"><span class="messageSubject">[subject]</span></a>
+	    		<span class="messageBody">[truncated message goes here]</span>
+	    	</div>
+	    	
 	  	</div>
 	</div>
 	

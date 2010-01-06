@@ -136,13 +136,13 @@ public class ComposeNewMessage extends Panel {
 					}
 					
 					//success
-					formFeedback.setDefaultModel(new ResourceModel("success.preferences.save.ok"));
+					formFeedback.setDefaultModel(new ResourceModel("success.message.sent.ok"));
 					formFeedback.add(new AttributeModifier("class", true, new Model("success")));
 					
 				} else {
 					//error
-					formFeedback.setDefaultModel(new ResourceModel("success.preferences.save.ok"));
-					formFeedback.add(new AttributeModifier("class", true, new Model("success")));
+					formFeedback.setDefaultModel(new ResourceModel("error.message.send.failed"));
+					formFeedback.add(new AttributeModifier("class", true, new Model("alert")));
 				}
 				
 				target.addComponent(formFeedback);
