@@ -140,6 +140,19 @@ public class ProfileConstants {
 	public static final boolean SAKAI_PROP_PROFILE2_PRIVACY_CHANGE_ENABLED = true; //profile2.privacy.change.enabled
 	
 	/*
+	 * MESSAGING
+	 */
+	//max number of connections that can be shown in an autocomplete search that match the criteria
+	public static final int MAX_CONNECTIONS_PER_SEARCH = 15;
+	
+	//default subject if none supplied
+	public static final String DEFAULT_PRIVATE_MESSAGE_SUBJECT = "(no subject)";
+	
+	//max number of messages to show per page
+	public static final int MAX_MESSAGES_PER_PAGE = 15;
+	
+	
+	/*
 	 * MISC
 	 */
 	
@@ -157,10 +170,7 @@ public class ProfileConstants {
 	public static final int FIRST_RECORD = 0;		
 	public static final int MAX_RECORDS = 99;
 	
-	//max number of connections that can be shown in an autocomplete search that match the criteria
-	public static final int MAX_CONNECTIONS_PER_SEARCH = 15;
 	
-	public static final String DEFAULT_PRIVATE_MESSAGE_SUBJECT = "(no subject)";
 	
 	
 	

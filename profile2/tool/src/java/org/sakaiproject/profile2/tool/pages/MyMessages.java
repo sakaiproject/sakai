@@ -9,6 +9,7 @@ import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.tool.pages.panels.ComposeNewMessage;
+import org.sakaiproject.profile2.tool.pages.panels.MessageThreadList;
 
 public class MyMessages extends BasePage {
 
@@ -48,6 +49,8 @@ public class MyMessages extends BasePage {
 		form.add(newMessageButton);
 		add(form);
 		
+		//message list panel
+		add(new MessageThreadList("messageThreadList"));
 		
 		
 		
