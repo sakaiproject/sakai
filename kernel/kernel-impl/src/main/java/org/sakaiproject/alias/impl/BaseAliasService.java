@@ -533,8 +533,8 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 			throw new PermissionException(sessionManager().getCurrentSessionUserId(), SECURE_REMOVE_ALIAS, target);
 		}
 
-		List all = getAliases(target);
-		for (Iterator iAll = all.iterator(); iAll.hasNext();)
+		List<Alias> all = getAliases(target);
+		for (Iterator<Alias> iAll = all.iterator(); iAll.hasNext();)
 		{
 			Alias alias = (Alias) iAll.next();
 			try
