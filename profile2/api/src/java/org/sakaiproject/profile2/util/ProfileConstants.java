@@ -151,6 +151,10 @@ public class ProfileConstants {
 	//max number of messages to show per page
 	public static final int MAX_MESSAGES_PER_PAGE = 15;
 	
+	//date format display for messages
+	public static final String MESSAGE_DISPLAY_DATE_FORMAT = "dd MMMM 'at' HH:mm";
+
+	
 	
 	/*
 	 * MISC
@@ -158,7 +162,8 @@ public class ProfileConstants {
 	
 	//date format display
 	public static final String DEFAULT_DATE_FORMAT = "dd MMMM yyyy"; 
-	public static final String DEFAULT_DATE_FORMAT_HIDE_YEAR = "dd MMMM"; 
+	public static final String DEFAULT_DATE_FORMAT_HIDE_YEAR = "dd MMMM";
+
 
 	//max number of search result items before its limited
 	public static final int MAX_SEARCH_RESULTS = 30;

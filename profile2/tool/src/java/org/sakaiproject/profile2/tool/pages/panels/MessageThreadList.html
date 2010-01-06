@@ -14,7 +14,22 @@
 	<div class="messageThreadListContainer" wicket:id="messageThreadListContainer">
 		
 		<div wicket:id="messageThreadList" class="messageThreadListItem">
-			
+			<!-- 
+			<a wicket:id="photoWrap">
+				<span class="messageListPhoto" wicket:id="messageItemPhoto"/>
+			</a>
+	    	 -->
+	    	
+	    	<div class="messageDetails">
+	    		<a href="#" wicket:id="messageFromLink"><span wicket:id="messageFromName" class="messageFromName">[name]</span></a>
+	    		<span wicket:id="messageDate">[04 January at 10:36]</span>
+	    	</div>
+	    	<!-- 
+	    	<div class="messageDetails">
+	    		<a href="#" wicket:id="messageSubjectLink"><span wicket:id="messageSubject" class="messageSubject">[subject]</span></a>
+	    		<span wicket:id="messageBody">[truncated message goes here]</span>
+	    	</div>
+	    	-->
 	  	</div>
 	</div>
 	
