@@ -1783,7 +1783,6 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				siteId, null, null, showAnonymousAccessEvents, resourceAction, resourceIds, 
 				iDate, fDate, userIds, inverseUserSelection, null, true);
 		final String hql = sqlBuilder.getHQL();
-		final Map<Integer,Integer> columnMap = sqlBuilder.getHQLColumnMap();
 
 		HibernateCallback hcb = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException, SQLException {

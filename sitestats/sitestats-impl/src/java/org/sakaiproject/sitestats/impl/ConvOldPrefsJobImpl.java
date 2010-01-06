@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -169,10 +169,10 @@ public class ConvOldPrefsJobImpl implements StatefulJob {
 				LOG.error("Unable to get list of sites from SST_PREFS.", e);
 			}finally{
 				if(rs != null){
-					rs.close();
+					try{ rs.close(); }catch(SQLException e){ /* ignore */ }
 				}
 				if(s != null){
-					s.close();
+					try{ s.close(); }catch(SQLException e){ /* ignore */ }
 				}
 			}
 		}catch(SQLException e){
@@ -203,10 +203,10 @@ public class ConvOldPrefsJobImpl implements StatefulJob {
 				present = false;
 			}finally{
 				if(rs != null){
-					rs.close();
+					try{ rs.close(); }catch(SQLException e){ /* ignore */ }
 				}
 				if(s != null){
-					s.close();
+					try{ s.close(); }catch(SQLException e){ /* ignore */ }
 				}
 			}
 			// Check for SST_PREFERENCES
@@ -221,10 +221,10 @@ public class ConvOldPrefsJobImpl implements StatefulJob {
 				present = false;
 			}finally{
 				if(rs != null){
-					rs.close();
+					try{ rs.close(); }catch(SQLException e){ /* ignore */ }
 				}
 				if(s != null){
-					s.close();
+					try{ s.close(); }catch(SQLException e){ /* ignore */ }
 				}
 			}
 		}catch(SQLException e){
