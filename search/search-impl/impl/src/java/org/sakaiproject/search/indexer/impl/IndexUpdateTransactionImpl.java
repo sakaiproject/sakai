@@ -37,7 +37,7 @@ import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriter.MaxFieldLength;
-import org.apache.lucene.store.NIOFSDirectory;
+import org.apache.lucene.store.FSDirectory;
 import org.sakaiproject.search.indexer.api.IndexUpdateTransaction;
 import org.sakaiproject.search.indexer.api.NoItemsToIndexException;
 import org.sakaiproject.search.journal.impl.JournalSettings;
@@ -186,12 +186,12 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 				}
 				if (new File(tempIndex,"segments.gen").exists())
 				{
-					indexWriter = new IndexWriter(new NIOFSDirectory(tempIndex),
+					indexWriter = new IndexWriter(FSDirectory.open(tempIndex),
 							((TransactionIndexManagerImpl) manager).getAnalyzer(), false, MaxFieldLength.UNLIMITED);
 				}
 				else
 				{
-					indexWriter = new IndexWriter(new NIOFSDirectory(tempIndex),
+					indexWriter = new IndexWriter(FSDirectory.open(tempIndex),
 							((TransactionIndexManagerImpl) manager).getAnalyzer(), true, MaxFieldLength.UNLIMITED);
 				}
 				indexWriter.setUseCompoundFile(true);
@@ -210,7 +210,7 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 	}
 
 	/**
-	 * The name of the temp index shouldbe used to locate the index, and NOT the
+	 * The name of the temp index should be used to locate the index, and NOT the
 	 * transaction ID.
 	 * 
 	 * @see org.sakaiproject.search.component.service.index.transactional.api.IndexUpdateTransaction#getTempIndex()
@@ -342,7 +342,7 @@ public class IndexUpdateTransactionImpl extends IndexItemsTransactionImpl implem
 					indexWriter.close();
 					indexWriter = null;
 				}
-				indexReader = IndexReader.open(new NIOFSDirectory(tempIndex), false);
+				indexReader = IndexReader.open(FSDirectory.open(tempIndex), false);
 			}
 			catch (IOException ex)
 			{

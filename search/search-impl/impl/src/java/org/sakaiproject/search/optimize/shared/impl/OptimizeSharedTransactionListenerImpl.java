@@ -162,7 +162,7 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 			File workingSegment = new File(indexWorkingSpace, targetSavePoint + "."
 					+ System.currentTimeMillis());
 			jtransaction.setWorkingSegment(workingSegment);
-			Directory workingDirectory = FSDirectory.getDirectory(workingSegment, true);
+			Directory workingDirectory = FSDirectory.open(workingSegment);
 			/*
 			 * For merge to work correctly we must create a target segment, and
 			 * then merge into that target, perforing deletes first and then
@@ -187,7 +187,7 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 				for (int i = optimizableSegments.size() - 1; i >= 0; i--)
 				{
 					File f = optimizableSegments.get(i);
-					Directory d = FSDirectory.getDirectory(f, false);
+					Directory d = FSDirectory.open(f);
 
 					long start = System.currentTimeMillis();
 					
@@ -232,7 +232,7 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 
 				for (File f : optimizableSegments)
 				{
-					Directory d = FSDirectory.getDirectory(f, false);
+					Directory d = FSDirectory.open(f);
 
 					long start = System.currentTimeMillis();
 
