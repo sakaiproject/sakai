@@ -749,6 +749,23 @@ public class ItemContentsBean implements Serializable {
 			return responseText;
 		}
 	}
+	
+	public String getResponseTextForDisplay() {
+		log.debug("itemcontentbean.getResponseText");
+		try {
+			String response = responseText;
+			Iterator iter = getItemGradingDataArray().iterator();
+			if (iter.hasNext()) {
+				ItemGradingData data = (ItemGradingData) iter.next();
+				response = data.getAnswerText();
+			}
+			response = response.replaceAll("(\r\n|\r)", "<br/>");
+			return response;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return responseText;
+		}
+	}
 
 	public void setResponseText(String presponseId) {
 		log.debug("itemcontentbean.setResponseText");
@@ -886,15 +903,21 @@ public class ItemContentsBean implements Serializable {
 	}
 
 	public String getRationale() {
-		// Iterator iter = getItemGradingDataArray().iterator();
-		// if (iter.hasNext())
-		// {
 		int count = getItemGradingDataArray().size();
 		if (count > 0) {
 			ItemGradingData data = (ItemGradingData) getItemGradingDataArray()
 					.toArray()[count - 1];
-			// ItemGradingData data = (ItemGradingData) iter.next();
-			rationale = FormattedText.unEscapeHtml(data.getRationale());
+			rationale = data.getRationale();
+		}
+		return Validator.check(rationale, "");
+	}
+	
+	public String getRationaleForDisplay() {
+		int count = getItemGradingDataArray().size();
+		if (count > 0) {
+			ItemGradingData data = (ItemGradingData) getItemGradingDataArray()
+					.toArray()[count - 1];
+			rationale = data.getRationale().replaceAll("(\r\n|\r)", "<br/>");
 		}
 		return Validator.check(rationale, "");
 	}

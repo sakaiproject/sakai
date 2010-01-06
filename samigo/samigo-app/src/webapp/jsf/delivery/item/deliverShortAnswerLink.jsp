@@ -41,9 +41,9 @@ should be included in file importing DeliveryMessages
             && delivery.actionString!='gradeAssessment'}" >
 <f:validateLength maximum="4000"/>
 </h:inputTextarea>
-<h:outputText value="#{question.responseText}" 
+<h:outputText value="#{question.responseTextForDisplay}" 
    rendered="#{delivery.actionString=='reviewAssessment'
-            || delivery.actionString=='gradeAssessment'}"/>
+            || delivery.actionString=='gradeAssessment'}" escape="false"/>
 
 
 <f:verbatim><br /></f:verbatim>

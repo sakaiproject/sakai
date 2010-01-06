@@ -1417,14 +1417,16 @@ public class DeliveryActionListener
     }
     else if (item.getTypeId().equals(TypeIfc.ESSAY_QUESTION)) 
     {
-      itemBean.setResponseText(FormattedText.convertFormattedTextToPlaintext(itemBean.getResponseText()));
+      String responseText = itemBean.getResponseText();
+      itemBean.setResponseText(FormattedText.convertFormattedTextToPlaintext(responseText));
     }
     else if (item.getTypeId().equals(TypeIfc.TRUE_FALSE) || 
     		item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE) ||
             item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) ||
             item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION) ) 
     {
-      itemBean.setRationale(FormattedText.convertFormattedTextToPlaintext(itemBean.getRationale()));
+      String rationale = itemBean.getRationale();
+      itemBean.setRationale(FormattedText.convertFormattedTextToPlaintext(rationale));
     }
 
     return itemBean;

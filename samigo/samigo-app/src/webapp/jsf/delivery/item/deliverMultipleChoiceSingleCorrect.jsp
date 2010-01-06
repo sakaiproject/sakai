@@ -87,9 +87,9 @@ should be included in file importing DeliveryMessages
     <h:inputTextarea id="rationale" value="#{question.rationale}" rows="5" cols="40" 
         rendered="#{delivery.actionString!='reviewAssessment' 
                  && delivery.actionString!='gradeAssessment'}" />
-    <h:outputText id="rationale2" value="#{question.rationale}" 
+    <h:outputText id="rationale2" value="#{question.rationaleForDisplay}" 
         rendered="#{delivery.actionString=='reviewAssessment'
-                 || delivery.actionString=='gradeAssessment'}"/>
+                 || delivery.actionString=='gradeAssessment'}" escape="false"/>
   </h:panelGroup>
 
 <h:commandLink id="cmdclean" value="#{deliveryMessages.reset_selection}" action="#{delivery.cleanRadioButton}" 

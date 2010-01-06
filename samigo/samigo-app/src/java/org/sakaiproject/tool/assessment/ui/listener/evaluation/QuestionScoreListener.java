@@ -614,8 +614,9 @@ public class QuestionScoreListener implements ActionListener,
 					}
 					// Huong's temp commandout
 					// answerText = answerText.replaceAll("<.*?>", "");
-					answerText = answerText.replaceAll("\r\n", "<br/>");
+					answerText = answerText.replaceAll("(\r\n|\r)", "<br/>");
 					rationale = rationale.replaceAll("<.*?>", "");
+					rationale = rationale.replaceAll("(\r\n|\r)", "<br/>");
 					fullAnswerText = answerText; // this is the
 					// non-abbreviated answers
 					// for essay questions
