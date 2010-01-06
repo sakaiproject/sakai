@@ -970,6 +970,30 @@ public class DbContentService extends BaseContentService
 								"up with migrate data disabled. Failure to do this could loose \n" +
 								"updates since this database was upgraded \n");
 						M_log.fatal("STOP ============================================");
+						/*we need to close these here otherwise the system exit will lead them to being left open
+						 * While this may be harmful is bad practice and prevents us identifying real issues
+						 */
+						try {
+							rs.close();
+						}
+						catch (SQLException e) {
+							
+						}
+						try {
+							statement.close();
+							
+						}
+						catch (SQLException e) {
+							
+						}
+						try {
+							if (selectStatement != null)
+							selectStatement.close();
+							
+						}
+						catch (SQLException e) {
+							
+						}
 						System.exit(-10);
 					}
 				}
@@ -987,6 +1011,29 @@ public class DbContentService extends BaseContentService
 								"up with migrate data disabled. Failure to do this could loose \n" +
 								"updates since this database was upgraded \n");
 						M_log.fatal("STOP ============================================");
+						/*we need to close these here otherwise the system exit will lead them to being left open
+						 * While this may be harmful is bad practice and prevents us identifying real issues
+						 */
+						try {
+							rs.close();
+						}
+						catch (SQLException e) {
+							
+						}
+						try {
+							statement.close();
+							
+						}
+						catch (SQLException e) {
+							
+						}
+						try {
+							selectStatement.close();
+							
+						}
+						catch (SQLException e) {
+							
+						}
 						System.exit(-10);
 					}
 				}
@@ -1004,6 +1051,29 @@ public class DbContentService extends BaseContentService
 								"up with migrate data disabled. Failure to do this could loose \n" +
 								"updates since this database was upgraded \n");
 						M_log.fatal("STOP ============================================");
+						/*we need to close these here otherwise the system exit will lead them to being left open
+						 * While this may be harmful is bad practice and prevents us identifying real issues
+						 */
+						try {
+							rs.close();
+						}
+						catch (SQLException e) {
+							
+						}
+						try {
+							statement.close();
+							
+						}
+						catch (SQLException e) {
+							
+						}
+						try {
+							selectStatement.close();
+							
+						}
+						catch (SQLException e) {
+							
+						}
 						System.exit(-10);
 					}
 				}
@@ -1014,10 +1084,10 @@ public class DbContentService extends BaseContentService
 				M_log.warn("Unable to get database setatemnt ",e);
 				
 			} finally {
-				try { rs.close(); } catch ( Exception ex ) {}
-				try { statement.close(); } catch ( Exception ex ) {}
-				try { selectStatement.close(); } catch ( Exception ex ) {}
-				try { updateStatement.close(); } catch ( Exception ex ) {}
+				try { rs.close(); } catch ( SQLException ex ) {}
+				try { statement.close(); } catch ( SQLException ex ) {}
+				try { selectStatement.close(); } catch ( SQLException ex ) {}
+				try { updateStatement.close(); } catch ( SQLException ex ) {}
 				m_sqlService.returnConnection(connection);
 			}
 			

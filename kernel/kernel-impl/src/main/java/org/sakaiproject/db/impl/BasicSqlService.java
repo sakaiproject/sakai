@@ -586,12 +586,24 @@ public abstract class BasicSqlService implements SqlService
 		{
 			if (m_showSql) resultsTime = System.currentTimeMillis() - start;
 
-			try
+			if (null != result)
 			{
-				if (null != result) result.close();
-				if (null != pstmt) pstmt.close();
+				try {
+					result.close();
+				} catch (SQLException e) {
+					LOG.warn("Sql.dbRead: sql: " + sql + debugFields(fields), e);
+				}
+			}
+			if (null != pstmt)
+			{
+				try {
+					pstmt.close();
+				} catch (SQLException e) {
+					LOG.warn("Sql.dbRead: sql: " + sql + debugFields(fields), e);
+				}
+			}
 
-				// return the connection only if we have borrowed a new one for this call
+			// return the connection only if we have borrowed a new one for this call
 				if (callerConn == null)
 				{
 					if (null != conn)
@@ -599,17 +611,17 @@ public abstract class BasicSqlService implements SqlService
 						// if we commit on read
 						if (m_commitAfterRead)
 						{
-							conn.commit();
+							try {
+								conn.commit();
+							} catch (SQLException e) {
+								LOG.warn("Sql.dbRead: sql: " + sql + debugFields(fields), e);
+							}
 						}
 
 						returnConnection(conn);
 					}
 				}
-			}
-			catch (Exception e)
-			{
-				LOG.warn("Sql.dbRead: sql: " + sql + debugFields(fields), e);
-			}
+			
 		}
 
 		if (m_showSql) debug("Sql.dbRead: time: " + connectionTime + " / " + stmtTime + " / " + resultsTime + " #: " + count, sql, fields);
@@ -988,30 +1000,49 @@ public abstract class BasicSqlService implements SqlService
 		}
 		finally
 		{
-			try
+			//try
+			//{
+			if (null != pstmt)
 			{
-				if (null != pstmt) pstmt.close();
-				varStream.close();
+				try {
+					pstmt.close();
+				} catch (SQLException e) {
+					LOG.warn("Sql.dbWriteBinary(): " + e);
+				}
+			}
+			if (null != varStream)
+			{
+				try {
+					varStream.close();
+				} catch (IOException e) {
+					LOG.warn("Sql.dbWriteBinary(): " + e);
+				}
+			}
+			
 				if (null != conn)
 				{
 					// rollback on failure
 					if (!success)
 					{
-						conn.rollback();
+						try {
+							conn.rollback();
+						} catch (SQLException e) {
+							LOG.warn("Sql.dbWriteBinary(): " + e);
+						}
 					}
 
 					// if we changed the auto commit, reset here
 					if (resetAutoCommit)
 					{
-						conn.setAutoCommit(autoCommit);
+						try {
+							conn.setAutoCommit(autoCommit);
+						} catch (SQLException e) {
+							LOG.warn("Sql.dbWriteBinary(): " + e);
+						}
 					}
 					returnConnection(conn);
 				}
-			}
-			catch (Exception e)
-			{
-				LOG.warn("Sql.dbWriteBinary(): " + e);
-			}
+
 		}
 
 		if (m_showSql)
@@ -1562,7 +1593,7 @@ public abstract class BasicSqlService implements SqlService
 					Object[] params = new Object[0];
 					os = (OutputStream) getBinaryOutputStreamMethod.invoke(blob, params);
 					os.write(content);
-					os.close();
+					
 				}
 				catch (NoSuchMethodException ex)
 				{
@@ -1584,25 +1615,44 @@ public abstract class BasicSqlService implements SqlService
 		}
 		finally
 		{
-			try
-			{
-				if (null != result) result.close();
-				if (null != stmt) stmt.close();
+			if (null != os) {
+				try {
+					os.close();
+				} catch (IOException e) {
+					LOG.warn("Sql.dbRead(): " + e);
+				}
+			}
+				if (null != result)
+				{
+					try {
+						result.close();
+					} catch (SQLException e) {
+						LOG.warn("Sql.dbRead(): " + e);
+					}
+				}
+				if (null != stmt)
+				{
+					try {
+						stmt.close();
+					} catch (SQLException e) {
+						LOG.warn("Sql.dbRead(): " + e);
+					}
+				}
 				if (null != conn)
 				{
 					// if we commit on read
 					if (m_commitAfterRead)
 					{
-						conn.commit();
+						try {
+							conn.commit();
+						} catch (SQLException e) {
+							LOG.warn("Sql.dbRead(): " + e);
+						}
 					}
 
 					returnConnection(conn);
 				}
-			}
-			catch (Exception e)
-			{
-				LOG.warn("Sql.dbRead(): " + e);
-			}
+			
 		}
 
 		if (m_showSql)
