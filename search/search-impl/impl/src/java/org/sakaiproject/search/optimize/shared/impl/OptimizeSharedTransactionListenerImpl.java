@@ -23,7 +23,6 @@ package org.sakaiproject.search.optimize.shared.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.sakaiproject.search.api.SearchService;
@@ -48,7 +48,7 @@ import org.sakaiproject.search.util.FileUtils;
 
 /**
  * An OptimizationTransactionListener that optimizes the index. It first
- * collects the segments that could be optimized. If ther are more than the
+ * collects the segments that could be optimized. If there are more than the
  * mergeSize then it will perform the merge into a temporary segment and if that
  * is successfull that index will be merged in the commit phase into the
  * permanent index
@@ -154,7 +154,6 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 			
 			JournalOptimizationTransaction jtransaction = (JournalOptimizationTransaction) transaction;
 
-			File targetSegment = jtransaction.getTargetSegment();
 			String indexWorkingSpace = jtransaction.getWorkingSpace();
 			long targetSavePoint = jtransaction.getTargetSavePoint();
 			List<File> optimizableSegments = jtransaction.getMergeSegmentList();
@@ -171,7 +170,7 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 			long mergeStart = System.currentTimeMillis();
 
 			indexWriter = new IndexWriter(workingDirectory, jtransaction.getAnalyzer(),
-					true);
+					true, MaxFieldLength.UNLIMITED);
 			indexWriter.setUseCompoundFile(true);
 			// indexWriter.setInfoStream(System.out);
 			indexWriter.setMaxMergeDocs(journalSettings.getSharedMaxMergeDocs());
@@ -191,7 +190,7 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 
 					long start = System.currentTimeMillis();
 					
-					reader = IndexReader.open(d);
+					reader = IndexReader.open(d, false);
 					// apply later deletes to this segment
 					for (String toDelete : deletedReferences.values())
 					{
@@ -202,8 +201,8 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 
 					// merge the next index into temporary space
 
-					indexWriter.addIndexes(new Directory[] { d });
-
+					indexWriter.addIndexesNoOptimize(new Directory[] { d });
+					indexWriter.optimize();
 
 					// collect additional delete references to be applied to earlier segments
 					List<SearchBuilderItem> deleteDocuments = searchBuilderItemSerializer
@@ -236,7 +235,7 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 
 					long start = System.currentTimeMillis();
 
-					reader = IndexReader.open(d);
+					reader = IndexReader.open(d, false);
 					// collect additional delete references
 					List<SearchBuilderItem> deleteDocuments = searchBuilderItemSerializer
 							.loadTransactionList(f);
@@ -252,7 +251,8 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 
 					// merge the next index into temporary space
 
-					indexWriter.addIndexes(new Directory[] { d });
+					indexWriter.addIndexesNoOptimize(new Directory[] { d });
+					indexWriter.optimize();
 
 					searchBuilderItemSerializer.removeTransactionList(f);
 					long end = System.currentTimeMillis();

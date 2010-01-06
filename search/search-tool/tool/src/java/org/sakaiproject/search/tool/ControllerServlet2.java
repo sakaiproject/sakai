@@ -22,6 +22,7 @@
 package org.sakaiproject.search.tool;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -124,6 +125,7 @@ public class ControllerServlet2 extends HttpServlet
 		searchBeanFactory.setContext(sc);
 
 		inlineMacros = MACROS;
+		InputStream is = null;
 		try
 		{
 			vengine = new VelocityEngine();
@@ -131,7 +133,8 @@ public class ControllerServlet2 extends HttpServlet
 			vengine.setApplicationAttribute(ServletContext.class.getName(), sc);
 
 			Properties p = new Properties();
-			p.load(this.getClass().getResourceAsStream("searchvelocity.config"));
+			is = this.getClass().getResourceAsStream("searchvelocity.config");
+			p.load(is);
 			vengine.init(p);
 			vengine.getTemplate(inlineMacros);
 
@@ -139,6 +142,17 @@ public class ControllerServlet2 extends HttpServlet
 		catch (Exception ex)
 		{
 			throw new ServletException(ex);
+		}
+		finally
+		{
+			if (is !=null)
+			{
+				try {
+					is.close();
+				} catch (IOException e) {
+					log.debug("exception thrown in Finally block");
+				}
+			}
 		}
 		contentTypes.put("opensearch", "application/opensearchdescription+xml");
 		contentTypes.put("sakai.src", "application/opensearchdescription+xml" );
