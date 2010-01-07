@@ -197,7 +197,7 @@ public class TDataSource
 		{
 			log.warn("Create Table Said :" + ex.getMessage());
 		}
-
+		s.close();
 		connection.commit();
 		connection.close();
 	}

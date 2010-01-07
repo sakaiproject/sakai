@@ -191,7 +191,10 @@ public class DbJournalManagerTest extends TestCase
 			log.info("Record:" + rs.getString(1) + ":" + rs.getLong(2)+":"+rs.getString(3));
 		}
 		log.info("Record ----------");
+		s.close();
+		s.close();
 		rs.close();
+		connection.close();
 	}
 
 }

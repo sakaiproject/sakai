@@ -198,7 +198,7 @@ public class SharedTestDataSource
 		{
 			log.warn("Create Table Said :" + ex.getMessage());
 		}
-
+		s.close();
 		connection.commit();
 		connection.close();
 	}
@@ -275,6 +275,12 @@ public class SharedTestDataSource
 			catch (Exception ex2)
 			{
 				log.debug(ex2);
+			}
+			try {
+				deletePST.close();
+			} 
+			catch (Exception e) {
+				log.debug(e);
 			}
 			try
 			{
