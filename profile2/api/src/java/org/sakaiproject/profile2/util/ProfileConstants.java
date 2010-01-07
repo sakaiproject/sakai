@@ -230,7 +230,7 @@ public class ProfileConstants {
 	public static final String ENTITY_SET_MINIMAL = "displayName,statusMessage,statusDate";
 	
 	//entity css
-	public static final String ENTITY_CSS_PROFILE = "/sakai-profile2-tool/css/profile2-profile-entity.css";
+	public static final String ENTITY_CSS_PROFILE = "/profile2-tool/css/profile2-profile-entity.css";
 	
 	
 	
