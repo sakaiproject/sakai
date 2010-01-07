@@ -71,7 +71,7 @@ public class JobDetailWrapperImpl implements JobDetailWrapper
    */
   public void setTriggerWrapperList(List triggerWrapperList)
   {
-    this.triggerCount = new Integer(triggerWrapperList.size());
+    this.triggerCount = Integer.valueOf(triggerWrapperList.size());
     this.triggerWrapperList = triggerWrapperList;
   }
 

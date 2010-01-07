@@ -66,22 +66,22 @@ public interface SchedulerManager
   /**
    * @return Returns the qrtzQualifiedJobs.
    */
-  public Map getQrtzQualifiedJobs();
+  public Map<String, String> getQrtzQualifiedJobs();
 
   /**
    * @param qrtzQualifiedJobs The qrtzQualifiedJobs to set.
    */
-  public void setQrtzQualifiedJobs(Map qrtzQualifiedJobs);
+  public void setQrtzQualifiedJobs(Map<String, String> qrtzQualifiedJobs);
 
   /**
    * @return Returns the qrtzJobs.
    */
-  public Set getQrtzJobs();
+  public Set<String>getQrtzJobs();
 
   /**
    * @param qrtzJobs The qrtzJobs to set.
    */
-  public void setQrtzJobs(Set qrtzJobs);
+  public void setQrtzJobs(Set<String> qrtzJobs);
 
   /**
    * @return Returns the qrtzPropFile.
@@ -108,7 +108,7 @@ public interface SchedulerManager
    */
   public void setAutoDdl(Boolean b);
 
-   public Map getBeanJobs();
+   public Map<String, JobBeanWrapper> getBeanJobs();
 
    public void registerBeanJob(String jobName, JobBeanWrapper job);
 

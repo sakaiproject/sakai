@@ -23,9 +23,15 @@ package org.sakaiproject.component.app.scheduler;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeMap;
 
 import javax.sql.DataSource;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.JobDetail;
@@ -34,8 +40,8 @@ import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
 import org.quartz.TriggerListener;
 import org.quartz.impl.StdSchedulerFactory;
-import org.sakaiproject.api.app.scheduler.SchedulerManager;
 import org.sakaiproject.api.app.scheduler.JobBeanWrapper;
+import org.sakaiproject.api.app.scheduler.SchedulerManager;
 import org.sakaiproject.db.api.SqlService;
 
 public class SchedulerManagerImpl implements SchedulerManager
@@ -43,13 +49,13 @@ public class SchedulerManagerImpl implements SchedulerManager
 
   private DataSource dataSource;
   private String serverId;
-  private Set qrtzJobs;
-  private Map qrtzQualifiedJobs = new TreeMap(); // map for SelectItems
+  private Set<String> qrtzJobs;
+  private Map<String, String> qrtzQualifiedJobs = new TreeMap<String, String>(); // map for SelectItems
   private String qrtzPropFile;
   private Properties qrtzProperties;
   private TriggerListener globalTriggerListener;
   private Boolean autoDdl;
-   private Map beanJobs = new Hashtable();
+  private Map<String, JobBeanWrapper> beanJobs = new Hashtable<String, JobBeanWrapper>();
 
   private static final String JOB_INTERFACE = "org.quartz.Job";
   private static final String STATEFULJOB_INTERFACE = "org.quartz.StatefulJob";
@@ -271,7 +277,7 @@ public void init()
   /**
    * @return Returns the qrtzQualifiedJobs.
    */
-  public Map getQrtzQualifiedJobs()
+  public Map<String, String> getQrtzQualifiedJobs()
   {
     return qrtzQualifiedJobs;
   }
@@ -279,7 +285,7 @@ public void init()
   /**
    * @param qrtzQualifiedJobs The qrtzQualifiedJobs to set.
    */
-  public void setQrtzQualifiedJobs(Map qrtzQualifiedJobs)
+  public void setQrtzQualifiedJobs(Map<String, String> qrtzQualifiedJobs)
   {
     this.qrtzQualifiedJobs = qrtzQualifiedJobs;
   }
@@ -287,7 +293,7 @@ public void init()
   /**
    * @return Returns the qrtzJobs.
    */
-  public Set getQrtzJobs()
+  public Set<String> getQrtzJobs()
   {
     return qrtzJobs;
   }
@@ -295,7 +301,7 @@ public void init()
   /**
    * @param qrtzJobs The qrtzJobs to set.
    */
-  public void setQrtzJobs(Set qrtzJobs)
+  public void setQrtzJobs(Set<String> qrtzJobs)
   {
     this.qrtzJobs = qrtzJobs;
   }
@@ -340,7 +346,7 @@ public void init()
     autoDdl = b;
   }
 
-   public Map getBeanJobs() {
+   public Map<String, JobBeanWrapper> getBeanJobs() {
       return beanJobs;
    }
 
@@ -351,4 +357,5 @@ public void init()
    public JobBeanWrapper getJobBeanWrapper(String beanWrapperId) {
       return (JobBeanWrapper) getBeanJobs().get(beanWrapperId);
    }
+   
 }

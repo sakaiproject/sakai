@@ -331,7 +331,7 @@ public class SchedulerTool
       selectedJobDetailWrapper.getTriggerWrapperList().add(tempTriggerWrapper);
       int currentTriggerCount = selectedJobDetailWrapper.getTriggerCount()
           .intValue();
-      selectedJobDetailWrapper.setTriggerCount(new Integer(
+      selectedJobDetailWrapper.setTriggerCount(Integer.valueOf(
           currentTriggerCount + 1));
 
       triggerName = null;
