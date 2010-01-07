@@ -33,7 +33,7 @@ public class ProfileImageRenderer extends Panel {
 		
 		//if we aren't allowed to view it, no use processing, just show default
 		if(!allowed) {
-			add(new ContextImage("img",new Model(getDefaultImage())));
+			add(new ContextImage("img",new Model<String>(getDefaultImage())));
 			return;
 		}
 		
@@ -53,6 +53,8 @@ public class ProfileImageRenderer extends Panel {
 			if(bytes != null && bytes.length > 0){
 			
 				BufferedDynamicImageResource photoResource = new BufferedDynamicImageResource(){
+					private static final long serialVersionUID = 1L;
+
 					protected byte[] getImageData() {
 						return bytes;
 					}
@@ -63,7 +65,7 @@ public class ProfileImageRenderer extends Panel {
 					add(new NonCachingImage("img",photoResource));
 				}
 			} else {
-				add(new ContextImage("img",new Model(getDefaultImage())));
+				add(new ContextImage("img",new Model<String>(getDefaultImage())));
 			}
 		
 		//EXTERNAL IMAGE
@@ -75,12 +77,12 @@ public class ProfileImageRenderer extends Panel {
 			if(url != null) {
 				add(new ExternalImage("img",url));
 			} else {
-				add(new ContextImage("img",new Model(getDefaultImage())));
+				add(new ContextImage("img",new Model<String>(getDefaultImage())));
 			}
 			
 		//INVALID TYPE, SHOW DEFAULT
 		} else {
-			add(new ContextImage("img",new Model(getDefaultImage())));
+			add(new ContextImage("img",new Model<String>(getDefaultImage())));
 		}
 		
 	}
@@ -95,7 +97,7 @@ public class ProfileImageRenderer extends Panel {
 	}
 	
 	/**
-	 * API helper hethods
+	 * API helper methods
 	 * @return
 	 */
 	private SakaiProxy getSakaiProxy() {

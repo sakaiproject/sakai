@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en">
+        
+<body>
+<wicket:extend>	
+	
+	<div id="pageWrapper">
+	
+		<!-- 
+		<div id="leftPanel">
+	    
+	    </div>
+		-->
+		
+		<div id="fullWidth">
+			
+			<form wicket:id="buttonsForm">		
+           		<input type="submit" wicket:id="backButton" value="[Back to List]" />
+           	</form>
+			
+			<div wicket:id="messageListContainer" class="message-list-wrap">
+				
+				<div wicket:id="messageList" class="message-item">
+					<table>
+						<tr>
+							<td class="message-photo-wrap">	
+						    	<a wicket:id="photoLink">
+						    		<span wicket:id="messagePhoto" class="message-photo" />
+								</a>
+							</td>
+						    	
+					    	<td class="message-info-wrap">
+						    	<div class="message-from-wrap">
+						    		<a href="#" wicket:id="messageFromLink"><span wicket:id="messageFromName" class="message-from-name">[name]</span></a>
+						    		<span wicket:id="messageDate" class="message-date">[04 January at 10:36]</span>
+							    </div>
+						    	
+							   	<div wicket:id="messageBody" class="message-body">[message goes here]</div>
+					    	</td>
+			    		</tr>
+			  		</table>
+				</div>
+				
+			</div>
+			
+			<form wicket:id="replyForm">
+				<span class="replyLabel" wicket:id="replyLabel">[reply]</span>
+				<textarea wicket:id="replyField" class="formInputArea" rows="6" cols="80">[reply field]</textarea>
+				<div class="pageFormButtons">
+					<input type="submit" wicket:id="replyButton" value="[reply]" />
+				</div>
+          	</form>
+           		
+           	<div wicket:id="formFeedback">[formFeedback]</div>
+					
+					
+		</div>
+		
+		<!-- <div id="rightPanel"></div> -->
+	
+	
+	</div>
+	
+	<!--  general scripting -->
+	<script type="text/javascript">
+
+		//init
+		$(document).ready(function(){ 
+			//resize iframe
+			setMainFrameHeight(window.name);
+
+		});
+
+	</script>
+
+</wicket:extend>
+</body>
+</html>
+

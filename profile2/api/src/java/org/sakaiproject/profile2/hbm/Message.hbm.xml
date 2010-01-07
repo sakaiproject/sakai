@@ -39,7 +39,11 @@
 	</query>
 	
 	<query name="getMessagesForThread">
-    	<![CDATA[from Message as message where message.thread = :thread order by message.datePosted desc]]>
+    	<![CDATA[from Message as message where message.thread = :thread order by message.datePosted asc]]>
+	</query>
+	
+	<query name="getMessagesForThreadCount">
+    	<![CDATA[select count(distinct message.id) from Message as message where message.thread = :thread]]>
 	</query>
 	
 	<query name="getMessage">

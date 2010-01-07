@@ -69,6 +69,8 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	private static final String QUERY_GET_MESSAGE_THREAD_HEADERS="getMessageThreadHeaders";
 	private static final String QUERY_GET_MESSAGE_THREAD_HEADERS_COUNT="getMessageThreadHeadersCount";
 	private static final String QUERY_GET_MESSAGES_FOR_THREAD="getMessagesForThread";
+	private static final String QUERY_GET_MESSAGES_FOR_THREAD_COUNT="getMessagesForThreadCount";
+	
 	private static final String QUERY_GET_MESSAGE="getMessage";
 
 
@@ -1742,8 +1744,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	  	count = ((Integer)getHibernateTemplate().execute(hcb)).intValue();
 	  	return count;
 	}
-
-
+	
 	/**
  	 * {@inheritDoc}
  	 */
@@ -1765,6 +1766,29 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	
 	  	return messages;
 	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public int getMessagesForThreadCount(final String threadId) {
+		
+		int count = 0;
+		
+		//get 
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  		
+	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGES_FOR_THREAD_COUNT);
+	  			q.setParameter(THREAD, threadId, Hibernate.STRING);
+	  			return q.uniqueResult();
+	  		}
+	  	};
+	  	
+	  	count = ((Integer)getHibernateTemplate().execute(hcb)).intValue();
+	  	return count;
+	}
+	
+	
 	
 	/**
  	 * {@inheritDoc}

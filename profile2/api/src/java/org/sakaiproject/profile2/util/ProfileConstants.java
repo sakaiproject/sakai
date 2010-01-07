@@ -153,7 +153,9 @@ public class ProfileConstants {
 	
 	//date format display for messages
 	public static final String MESSAGE_DISPLAY_DATE_FORMAT = "dd MMMM 'at' HH:mm";
-
+	
+	//max length of the preview of a message
+	public static final int MESSAGE_PREVIEW_MAX_LENGTH = 150;
 	
 	
 	/*

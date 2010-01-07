@@ -48,9 +48,6 @@ public class ComposeNewMessage extends Panel {
 		
 		//setup model
 		Message message = new Message();
-		message.setFrom(userId);	
-		//add a new uuid since it's a new thread
-		message.setThread(sakaiProxy.generateUuid());
 		
 		//feedback for form submit action
 		final Label formFeedback = new Label("formFeedback");
@@ -124,6 +121,10 @@ public class ComposeNewMessage extends Panel {
 				//get the backing model
 				Message message = (Message) form.getModelObject();
 				
+				//add other info
+				message.setThread(sakaiProxy.generateUuid());
+				message.setFrom(userId);	
+				
 				//send the message
 				if(profileLogic.sendPrivateMessage(message)) {
 					
@@ -136,13 +137,13 @@ public class ComposeNewMessage extends Panel {
 					}
 					
 					//success
-					formFeedback.setDefaultModel(new ResourceModel("success.message.sent.ok"));
-					formFeedback.add(new AttributeModifier("class", true, new Model("success")));
+					formFeedback.setDefaultModel(new ResourceModel("success.message.send.ok"));
+					formFeedback.add(new AttributeModifier("class", true, new Model<String>("success")));
 					
 				} else {
 					//error
 					formFeedback.setDefaultModel(new ResourceModel("error.message.send.failed"));
-					formFeedback.add(new AttributeModifier("class", true, new Model("alert")));
+					formFeedback.add(new AttributeModifier("class", true, new Model<String>("alert")));
 				}
 				
 				target.addComponent(formFeedback);
@@ -157,7 +158,7 @@ public class ComposeNewMessage extends Panel {
 				if(!messageField.isValid()) {
 					formFeedback.setDefaultModel(new ResourceModel("error.message.required.body"));
 				}
-				formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));	
+				formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));	
 
 				target.addComponent(formFeedback);
 			}
@@ -166,11 +167,6 @@ public class ComposeNewMessage extends Panel {
 		sendButton.setModel(new ResourceModel("button.message.send"));
 		
 		add(form);
-		
-		List<Message> messages = profileLogic.getMessageThreadHeaders(userId);
-		for(Message msg : messages) {
-			System.out.println(msg.getId());
-		}
 		
 	}
 	
@@ -186,15 +182,6 @@ public class ComposeNewMessage extends Panel {
 	}
 	*/
 	
-	public void setToValue(String toValue) {
-		this.toValue = toValue;
-	}
-
-
-	public String getToValue() {
-		return toValue;
-	}
-
 
 	private SakaiProxy getSakaiProxy() {
 		return Locator.getSakaiProxy();

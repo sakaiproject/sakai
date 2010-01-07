@@ -846,21 +846,21 @@ div.wicket-aa ul li.selected {
 }
 	
 	
-/* message list styles */
-.messageThreadListContainer {
+/* message threads styles */
+.message-thread-list-wrap {
 	border-top: 1px solid #d0d0df;
-	width: 500px;
+	width: 700px;
 }
 
 
-.messageThreadListItem {
+.message-thread-item {
 	display:block;
 	position: relative;
 	left: 0;
 	top: 0;
 	border-bottom: 1px solid #d0d0df;
 	border-collapse: collapse;
-	height: 60px;
+	height: 50px;
 	padding-top: 5px;
 	padding-left: 5px;
 	padding-right: 5px;
@@ -869,57 +869,149 @@ div.wicket-aa ul li.selected {
 }
 
 
-.messageThreadListItem:hover {
-	/*background-color: #ffc;*/
-	/*background-color: #FFFFE6;*/
-	/*background-color: #fafdff; */
+.message-thread-item:hover {
 	background-color: #FFFFE6;
 }
 
-.messageListPhoto {
+.message-thread-photo-wrap {
+	display:table-cell;
+	vertical-align:top;	
+}
+
+.message-thread-photo {
 	float:left;
 }
 
-.messageListPhoto img{
+.message-thread-photo img{
 	max-width: 50px;
 	width: expression(Math.min(parseInt(this.offsetWidth), 50 ) + "px"); /* ie6 max-width hack */
-	/*border: 1px solid #666666;
-	padding: 2px;*/
 }
 
 
-.messageDetails {
-	float:left;
-	margin-left: 10px;
+.message-thread-from-wrap, .message-thread-details-wrap {
+	display: table-cell;
+	overflow:hidden;
+	vertical-align: top;
+	font-size: 100%;
+	padding-left: 10px;
 }
 
+.message-thread-from-wrap {
+	width: 150px;
+}
 
-.messageFromName {
+.message-thread-details-wrap {
+}
+
+.message-thread-from-name {
 	display: block;
 	font-size: 90%;
 }
 
-.messageDate {
+.message-thread-date {
 	display: block;
 	font-size: 70%;
 	color: #5D5D5D;
 }
 
-.messageSubject {
+.message-thread-subject {
 	display: block;
 	font-size: 90%;
 }
 
-.messageBody {
+.message-thread-body {
 	display: block;
 	font-size: 90%;
 	color: #5D5D5D;
 }
 
-/* misc combo classes */
-.padleft {
-	margin-left: 20px;
+
+
+
+/* message view styles */
+.message-list-wrap {
+	border-top: 1px solid #d0d0df;
+	width: 700px;
 }
 
+.message-item {
+	display:block;
+	position: relative;
+	left: 0;
+	top: 0;
+	border-bottom: 1px solid #d0d0df;
+	border-collapse: collapse;
+	padding-top: 5px;
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-bottom: 5px;
+	overflow: hidden; /* to crop bigger pictures that might overhang */
+}
+
+.message-item:hover {
+}
+
+.message-photo-wrap {
+	display:table-cell;
+	vertical-align:top;	
+}
+
+.message-photo {
+	float:left;
+}
+
+.message-photo img{
+	max-width: 55px;
+	width: expression(Math.min(parseInt(this.offsetWidth), 55 ) + "px"); /* ie6 max-width hack */
+}
+
+.message-info-wrap {
+	display: table-cell;
+	overflow:hidden;
+	vertical-align: top;
+	font-size: 100%;
+	padding-left: 10px;
+}
+
+.message-from-wrap {
+	display: block;
+}
+
+.message-from-name {
+	display: inline;
+}
+
+.message-date {
+	display: inline;
+	font-size: 70%;
+	color: #5D5D5D;
+}
+
+.message-subject {
+}
+
+.message-body {
+	display: block;
+	width: 100%;
+	padding-top:5px;
+	font-size: 90%;
+	color: #5D5D5D;
+}
+
+.replyLabel {
+	width: 50px;
+	float: left;
+	color: #5D5D5D;
+	vertical-align: top;
+	font-weight: normal;
+}
+
+.unread-message {
+	background-color: #e9edff;
+}
+
+.unread-message:hover {
+	background-color: #e9edff;
+}
 
 		

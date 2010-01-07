@@ -698,11 +698,18 @@ public interface ProfileLogic {
 	public int getMessageThreadHeadersCount(final String userId);
 	
 	/**
-	 * Gets a list of the messages contained in this thread, reverse sorted by date.
+	 * Gets a list of the messages contained in this thread, sorted by date.
 	 * @param threadId	id of the thread to get the messages for
 	 * @return
 	 */
 	public List<Message> getMessagesForThread(final String threadId);
+	
+	/**
+	 * Gets the count of the messages in a thread
+	 * @param threadId	thread to get the count for
+	 * @return
+	 */
+	public int getMessagesForThreadCount(final String threadId);
 	
 	/**
 	 * Gets a Message from the DB
