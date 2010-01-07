@@ -695,4 +695,8 @@ public class PublishedAssessmentService extends AssessmentService{
 	   .getPublishedAssessmentInfoForRemove(publishedAssessmentId);
    }
    
+   public HashMap getToGradebookPublishedAssessmentSiteIdMap() {
+	   return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
+	   .getToGradebookPublishedAssessmentSiteIdMap();
+   }
 }

@@ -21,6 +21,7 @@
 
 package org.sakaiproject.tool.assessment.integration.helper.ifc;
 import java.io.Serializable;
+import java.util.Map;
 
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
@@ -57,4 +58,7 @@ public interface GradebookServiceHelper extends Serializable
 
   public void updateExternalAssessmentScore(AssessmentGradingIfc ag,
     GradebookService g) throws Exception;
+  
+  public void updateExternalAssessmentScores(Long publishedAssessmentId, final Map studentUidsToScores,
+		    GradebookService g) throws Exception;
 }

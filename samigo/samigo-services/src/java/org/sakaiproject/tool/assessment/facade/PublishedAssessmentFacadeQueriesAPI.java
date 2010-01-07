@@ -374,4 +374,6 @@ public interface PublishedAssessmentFacadeQueriesAPI
   public TreeMap getGroupsForSite();
   public PublishedAssessmentFacade getPublishedAssessmentInfoForRemove(Long publishedAssessmentId);
   
+  public HashMap getToGradebookPublishedAssessmentSiteIdMap();
+  
 }

@@ -21,6 +21,8 @@
 
 package org.sakaiproject.tool.assessment.integration.helper.standalone;
 
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -121,6 +123,10 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 	{
 	}
 
+	public void updateExternalAssessmentScores(Long publishedAssessmentId, final Map studentUidsToScores,
+			  GradebookService g) throws Exception {
+	}
+	
 	public boolean updateGradebook(PublishedAssessmentIfc publishedAssessment, GradebookService g) throws Exception
 	{
 		// TODO Auto-generated method stub

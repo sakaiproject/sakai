@@ -2957,4 +2957,21 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		  PublishedAssessmentFacade f = new PublishedAssessmentFacade(a.getAssessmentId(), a.getTitle(), a.getCreatedBy());
 		  return f;
 	  }  
+
+	  public HashMap getToGradebookPublishedAssessmentSiteIdMap() {
+		  String query = "select em.assessment.publishedAssessmentId, a.agentIdString " +
+		  "from PublishedEvaluationModel em, AuthorizationData a " +
+		  "where a.functionId = 'OWN_PUBLISHED_ASSESSMENT' " +
+		  "and em.assessment.publishedAssessmentId = a.qualifierId " +
+		  "and em.toGradeBook = ?";
+
+		  List l = getHibernateTemplate().find(query, "1");
+		  HashMap toGradebookPublishedAssessmentSiteIdMap = new HashMap();
+		  Iterator iter = l.iterator();
+		  while (iter.hasNext()) {
+			  Object o[] = (Object[]) iter.next(); 
+			  toGradebookPublishedAssessmentSiteIdMap.put(o[0], o[1]);
+		  }
+		  return toGradebookPublishedAssessmentSiteIdMap;
+	  }	  
 }

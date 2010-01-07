@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -58,6 +59,8 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
@@ -68,6 +71,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -78,6 +82,9 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingAttachmentIf
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
+import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
@@ -2590,6 +2597,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    String lastAgentId = "";
 	    Long lastPublishedAssessmentId = Long.valueOf(0);
 	    ArrayList toBeAutoSubmittedList = new ArrayList();
+	    HashMap sectionSetMap = new HashMap();
+	    HashMap gradebookMap = new HashMap();
+	    HashMap studentUidsToScores = new HashMap();
+	    ArrayList toGradebookAssessmentsList = new ArrayList();
 	    while (iter.hasNext()) {
 	    	AssessmentGradingData adata = (AssessmentGradingData) iter.next();
 	    	if (lastPublishedAssessmentId.equals(adata.getPublishedAssessmentId())) {
@@ -2597,30 +2608,45 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     				lastAgentId = adata.getAgentId();
 	    			if (Boolean.FALSE.equals(adata.getForGrade())) {
 	    				adata.setForGrade(Boolean.TRUE);
-	    				adata.setTotalAutoScore(0f);
+	    				if (adata.getTotalAutoScore() == null) {
+	    					adata.setTotalAutoScore(0f);
+	    				}
+	    				if (adata.getFinalScore() == null) {
+	    					adata.setFinalScore(0f);
+	    				}
 	    				adata.setIsAutoSubmitted(Boolean.TRUE);
 	    				adata.setSubmittedDate(new Date());
 	    				adata.setStatus(Integer.valueOf(1));
 	    				toBeAutoSubmittedList.add(adata);
+	    				completeItemGradingData(adata, sectionSetMap);
+	    				updateGradebookMap(adata, studentUidsToScores, gradebookMap);
 	    			}
 	    		}
 	    	}
 	    	else {
+	    		studentUidsToScores = new HashMap();
 	    		lastPublishedAssessmentId = adata.getPublishedAssessmentId();
 				lastAgentId = adata.getAgentId();
 	    		if (Boolean.FALSE.equals(adata.getForGrade())) {
 	    			adata.setForGrade(Boolean.TRUE);
-	    			adata.setTotalAutoScore(0f);
+	    			if (adata.getTotalAutoScore() == null) {
+    					adata.setTotalAutoScore(0f);
+    				}
+	    			if (adata.getFinalScore() == null) {
+    					adata.setFinalScore(0f);
+    				}
 	    			adata.setIsAutoSubmitted(Boolean.TRUE);
 	    			adata.setSubmittedDate(new Date());
 	    			adata.setStatus(Integer.valueOf(1));
 	    			toBeAutoSubmittedList.add(adata);
+	    			completeItemGradingData(adata, sectionSetMap);
+	    			updateGradebookMap(adata, studentUidsToScores, gradebookMap);
 	    		}
 	    	}
-	    	completeItemGradingData(adata);
 	    }
 	      
 	    this.saveOrUpdateAll(toBeAutoSubmittedList);
+	    notifyGradebook(gradebookMap);
 	}
 
 	private String makeHeader(String question, String headerType, int questionNumber) {
@@ -2630,6 +2656,55 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		sb.append(" ");
 		sb.append(headerType);
 		return sb.toString();
+	}
+	
+	private void updateGradebookMap(AssessmentGradingData adata, HashMap studentUidsToScores, HashMap gradebookMap) throws GradebookServiceException {
+		studentUidsToScores.put(adata.getAgentId(),Double.valueOf(adata.getFinalScore()));
+		Long publishedAssessmentId = adata.getPublishedAssessmentId();
+		if (!gradebookMap.containsKey(publishedAssessmentId)) {
+			gradebookMap.put(adata.getPublishedAssessmentId(), studentUidsToScores);
+		}
+	}
+	
+	private void notifyGradebook(HashMap gradebookMap) throws GradebookServiceException {
+		Set set = gradebookMap.entrySet();
+		Iterator it = set.iterator();
+		Entry entry = null;
+		AssessmentGradingData assessmentGradingData = null;
+		Long publishedAssessmentId = null;
+		GradingService gradingService = new GradingService();
+		GradebookService g = null;
+		boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
+		if (integrated) {
+			g = (GradebookService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.service.gradebook.GradebookService");
+		}
+		GradebookServiceHelper gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+		PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+		HashMap toGradebookPublishedAssessmentSiteIdMap = publishedAssessmentService.getToGradebookPublishedAssessmentSiteIdMap();
+		while (it.hasNext()) {
+			entry = (Entry) it.next();
+			publishedAssessmentId = (Long) entry.getKey();
+			if (!toGradebookPublishedAssessmentSiteIdMap.containsKey(publishedAssessmentId)) {
+				continue;
+			}
+			String currentSiteId = (String) toGradebookPublishedAssessmentSiteIdMap.get(publishedAssessmentId);
+			if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(currentSiteId), g)){
+				int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+				while (retryCount > 0){
+					try {
+						gbsHelper.updateExternalAssessmentScores(publishedAssessmentId, (HashMap) entry.getValue(), g);
+						retryCount = 0;
+					}
+					catch (Exception e) {
+						log.warn("problem delete assessmentAttachment: " + e.getMessage());
+						retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+					}
+				}
+			} else {
+				if(log.isDebugEnabled()) log.debug("Not updating the gradebook.");
+			}
+		}
+
 	}
 	
 	public ItemGradingAttachmentIfc createItemGradingtAttachment(ItemGradingIfc itemGrading, String resourceId, String filename, String protocol) {
@@ -2739,11 +2814,15 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	  }
 
 	  public void completeItemGradingData(AssessmentGradingData assessmentGradingData) {
+		  completeItemGradingData(assessmentGradingData, null);
+	  }
+			
+	  
+	  public void completeItemGradingData(AssessmentGradingData assessmentGradingData, HashMap sectionSetMap) {
 		  ArrayList answeredPublishedItemIdList = new ArrayList();
-		  GradingService gradingService = new GradingService();
-		  List itemGradingIds = gradingService.getItemGradingIds(assessmentGradingData.getAssessmentGradingId());
+		  List itemGradingIds = getItemGradingIds(assessmentGradingData.getAssessmentGradingId());
 		  Iterator iter = itemGradingIds.iterator();
-		  Long answeredPublishedItemId;
+		  Long answeredPublishedItemId = Long.valueOf(0l);
 		  while (iter.hasNext()) {
 			  answeredPublishedItemId = (Long) iter.next();
 			  log.debug("answeredPublishedItemId = " + answeredPublishedItemId);
@@ -2751,15 +2830,31 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  }
 
 		  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-		  HashSet sectionSet = publishedAssessmentService.getSectionSetForAssessment(assessmentGradingData.getPublishedAssessmentId());
-		  PublishedSectionData publishedSectionData;
+		  Long publishedAssessmentId = assessmentGradingData.getPublishedAssessmentId();
+		  HashSet sectionSet = null;
+		  if (sectionSetMap == null || !sectionSetMap.containsKey(publishedAssessmentId)) {
+			  sectionSet = publishedAssessmentService.getSectionSetForAssessment(publishedAssessmentId);
+			  if (sectionSetMap != null) {
+				  sectionSetMap.put(publishedAssessmentId, sectionSet);
+			  }
+		  }
+		  else {
+			  sectionSet = (HashSet) sectionSetMap.get(publishedAssessmentId);
+		  }
+
+		  if (sectionSet == null) {
+			  return;
+		  }
+
+		  PublishedSectionData publishedSectionData = null;
+		  ArrayList itemArrayList = null;
+		  Long publishedItemId = Long.valueOf(0l);
+		  PublishedItemData publishedItemData = null;
 		  iter = sectionSet.iterator();
 		  while (iter.hasNext()) {
-			  ArrayList itemArrayList;
-			  Long publishedItemId;
-			  PublishedItemData publishedItemData;
 			  publishedSectionData = (PublishedSectionData) iter.next();
 			  log.debug("sectionId = " + publishedSectionData.getSectionId());
+			  
 			  String authorType = publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
 			  if (authorType != null && authorType.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
 				  log.debug("Random draw from questonpool");
