@@ -70,7 +70,7 @@ function disableAllFeedbackCheck(feedbackType)
         if (feedbacks[i].type == 'checkbox')
 		{
           feedbacks[i].checked = false;
-          feedbacks[i].disabled = true;
+		  feedbacks[i].disabled = true;
         }
         else if (feedbacks[i].type == 'text')
         {
@@ -717,48 +717,48 @@ function uncheckOther(field){
 	<h:panelGroup rendered="#{publishedSettings.valueMap.feedbackComponents_isInstructorEditable==true}">
       <h:panelGrid columns="2"  >
        <h:panelGroup>
-          <h:selectBooleanCheckbox id="feedbackCheckbox21"
+          <h:selectBooleanCheckbox id="feedbackCheckbox21" disabled="#{publishedSettings.feedbackDelivery==3}"
               value="#{publishedSettings.showStudentResponse}"/>
           <h:outputText value="#{assessmentSettingsMessages.student_response}" />
         </h:panelGroup>
        <h:panelGroup>
-          <h:selectBooleanCheckbox id="feedbackCheckbox22"
+          <h:selectBooleanCheckbox id="feedbackCheckbox22" disabled="#{publishedSettings.feedbackDelivery==3}"
               value="#{publishedSettings.showQuestionLevelFeedback}"/>
           <h:outputText value="#{assessmentSettingsMessages.question_level_feedback}" />
        </h:panelGroup>
 
         <h:panelGroup>
-          <h:selectBooleanCheckbox id="feedbackCheckbox23"
+          <h:selectBooleanCheckbox id="feedbackCheckbox23" disabled="#{publishedSettings.feedbackDelivery==3}"
               value="#{publishedSettings.showCorrectResponse}"/>
           <h:outputText value="#{assessmentSettingsMessages.correct_response}" />
         </h:panelGroup>
 
        <h:panelGroup>
-          <h:selectBooleanCheckbox id="feedbackCheckbox24"
+          <h:selectBooleanCheckbox id="feedbackCheckbox24" disabled="#{publishedSettings.feedbackDelivery==3}"
              value="#{publishedSettings.showSelectionLevelFeedback}"/>
           <h:outputText value="#{assessmentSettingsMessages.selection_level_feedback}" />
         </h:panelGroup>
 
         <h:panelGroup>
-          <h:selectBooleanCheckbox id="feedbackCheckbox25"
+          <h:selectBooleanCheckbox id="feedbackCheckbox25" disabled="#{publishedSettings.feedbackDelivery==3}"
               value="#{publishedSettings.showStudentScore}"/>
           <h:outputText value="#{assessmentSettingsMessages.student_assessment_score}" />
         </h:panelGroup>
 
         <h:panelGroup>
-          <h:selectBooleanCheckbox id="feedbackCheckbox26"
+          <h:selectBooleanCheckbox id="feedbackCheckbox26" disabled="#{publishedSettings.feedbackDelivery==3}"
               value="#{publishedSettings.showGraderComments}"/>
           <h:outputText value="#{assessmentSettingsMessages.grader_comments}" />
         </h:panelGroup>
 
         <h:panelGroup>
-          <h:selectBooleanCheckbox id="feedbackCheckbox27"
+          <h:selectBooleanCheckbox id="feedbackCheckbox27" disabled="#{publishedSettings.feedbackDelivery==3}"
               value="#{publishedSettings.showStudentQuestionScore}"/>
           <h:outputText value="#{assessmentSettingsMessages.student_question_score}" />
         </h:panelGroup>
        
         <h:panelGroup>
-          <h:selectBooleanCheckbox id="feedbackCheckbox28"
+          <h:selectBooleanCheckbox id="feedbackCheckbox28" disabled="#{publishedSettings.feedbackDelivery==3}"
               value="#{publishedSettings.showStatistics}"/>
           <h:outputText value="#{assessmentSettingsMessages.statistics_and_histogram}" />
         </h:panelGroup>
