@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.ResourceBundle;
 import java.util.Vector;
 
+import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
@@ -158,12 +159,35 @@ public class SiteEmailNotificationSyllabus extends SiteEmailNotification
 		if (SyllabusService.EVENT_SYLLABUS_POST_NEW.equals(event.getEvent())
 				|| SyllabusService.EVENT_SYLLABUS_POST_CHANGE.equals(event.getEvent()))
 		{
-
-			buf.append(syllabusData.getAsset() + newline);
+			String content = syllabusData.getAsset();
+			
+			//Set of type SyllabusAttachment
+			Set attachments = syllabusManager.getSyllabusAttachmentsForSyllabusData(syllabusData); 
+			
+			//don't let the word 'null' get through to the email
+			if (content != null) {
+				buf.append(content + newline + newline);
+			}
+			
+			if (attachments != null && attachments.size() > 0) {
+				buf.append(rb.getString("syllabus.attachments.list") + newline);
+				buf.append("<ul>");
+				
+				for (Iterator i = attachments.iterator(); i.hasNext();) {
+					SyllabusAttachment attachment = (SyllabusAttachment) i.next();
+					String url = attachment.getUrl();
+					
+					buf.append("<li>\t");
+					buf.append("<a href=\"" + url + "\">");
+					buf.append(url);
+					buf.append("</a></li>" + newline);
+				}
+				
+				buf.append("</ul>" + newline);
+			}
 		}
 		else if (SyllabusService.EVENT_SYLLABUS_DELETE_POST.equals(event.getEvent()))
 		{
-
 			buf.append(" Syllabus Item - ");
 			buf.append(syllabusData.getTitle());
 			buf.append(" for Site - ");
