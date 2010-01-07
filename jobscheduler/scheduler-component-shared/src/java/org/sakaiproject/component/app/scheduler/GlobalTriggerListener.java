@@ -36,8 +36,8 @@ import org.quartz.TriggerListener;
 public class GlobalTriggerListener implements TriggerListener
 {
 
-  private List triggerEvents = new ArrayList();
-  private List todaysTriggerEvents = new ArrayList();
+  private List<TriggerEvent> triggerEvents = new ArrayList<TriggerEvent>();
+  private List<TriggerEvent> todaysTriggerEvents = new ArrayList<TriggerEvent>();
   private boolean isViewAllSelected = false;
 
   private static final Log LOG = LogFactory.getLog(GlobalTriggerListener.class);
@@ -80,7 +80,7 @@ public class GlobalTriggerListener implements TriggerListener
   /**
    * @return Returns the triggerEvents.
    */
-  public List getTriggerEvents()
+  public List<TriggerEvent> getTriggerEvents()
   {
     if (isViewAllSelected)
     {
@@ -88,7 +88,7 @@ public class GlobalTriggerListener implements TriggerListener
     }
     else
     {
-      todaysTriggerEvents = new ArrayList();      
+      todaysTriggerEvents = new ArrayList<TriggerEvent>();      
       Calendar cal = Calendar.getInstance();
       cal.set(Calendar.HOUR_OF_DAY, 0);
       cal.set(Calendar.MINUTE, 0);
@@ -96,7 +96,7 @@ public class GlobalTriggerListener implements TriggerListener
       
       Date midnightToday = new Date(cal.getTimeInMillis());      
       
-      for (Iterator i = triggerEvents.iterator(); i.hasNext();)
+      for (Iterator<TriggerEvent> i = triggerEvents.iterator(); i.hasNext();)
       {
         TriggerEvent te = (TriggerEvent) i.next();
         if (te.getTime().after(midnightToday))
@@ -111,7 +111,7 @@ public class GlobalTriggerListener implements TriggerListener
   /**
    * @param triggerEvents The triggerEvents to set.
    */
-  public void setTriggerEvents(List triggerEvents)
+  public void setTriggerEvents(List<TriggerEvent> triggerEvents)
   {
     this.triggerEvents = triggerEvents;
   }
