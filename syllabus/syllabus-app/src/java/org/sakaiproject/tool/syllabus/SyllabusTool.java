@@ -61,6 +61,9 @@ import org.apache.commons.logging.LogFactory;
 
 import com.sun.faces.util.MessageFactory;
 
+import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.event.api.Event;
+
 //sakai2 - no need to import org.sakaiproject.jsf.ToolBean here as sakai does.
 
 /**
@@ -360,6 +363,12 @@ public class SyllabusTool
     {
       this.displayNoEntryMsg = false;
     }
+
+    //Registramos el evento de que se ha accedido a Syllabus
+    //Register the event when the syllabus is accessed
+    Event event = EventTrackingService.newEvent("syllabus.read","/syllabus/"+currentSiteId+"/1", true, 0);
+    EventTrackingService.post(event);
+    
     return entries;
   }
 
