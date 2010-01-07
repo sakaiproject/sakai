@@ -79,6 +79,7 @@ import org.sakaiproject.tool.messageforums.ui.PrivateTopicDecoratedBean;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 
@@ -1949,8 +1950,9 @@ private   int   getNum(char letter,   String   a)
     
     if (aMsg != null)
     {
-      aMsg.setTitle(getComposeSubject());
-      aMsg.setBody(getComposeBody());
+      StringBuilder alertMsg = new StringBuilder();
+      aMsg.setTitle(FormattedText.processFormattedText(getComposeSubject(), alertMsg));
+      aMsg.setBody(FormattedText.processFormattedText(getComposeBody(), alertMsg));
       
       aMsg.setAuthor(getAuthorString());
       aMsg.setDraft(Boolean.FALSE);      
