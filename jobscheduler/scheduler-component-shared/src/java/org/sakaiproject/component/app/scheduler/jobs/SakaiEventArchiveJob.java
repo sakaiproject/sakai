@@ -34,6 +34,7 @@ public class SakaiEventArchiveJob implements Job {
 			
 			Connection sakaiConnection = null;
 			PreparedStatement sakaiStatement = null;
+			PreparedStatement sakaiStatement2 = null;
 			String sql;
 		
 			Timestamp	archiveDate = new Timestamp(System.currentTimeMillis()- archiveLength);
@@ -69,9 +70,9 @@ public class SakaiEventArchiveJob implements Job {
 			    sql = "INSERT INTO SAKAI_EVENT_ARCHIVE (SELECT * FROM SAKAI_EVENT WHERE EVENT_DATE < ?)";
 		    	LOG.info("sql="+sql);
 		    	
-		    	sakaiStatement = sakaiConnection.prepareStatement(sql);
-		    	sakaiStatement.setTimestamp(1, archiveDate);
-		    	sakaiStatement.execute(sql);
+		    	sakaiStatement2 = sakaiConnection.prepareStatement(sql);
+		    	sakaiStatement2.setTimestamp(1, archiveDate);
+		    	sakaiStatement2.execute(sql);
 		    	
 		    	sql = "DELETE FROM SAKAI_EVENT WHERE EVENT_DATE < ?";   	
 			    LOG.info("sql="+sql);
@@ -87,6 +88,11 @@ public class SakaiEventArchiveJob implements Job {
 			} finally {
                 try {
                     if(sakaiStatement != null) sakaiStatement.close();
+                } catch (SQLException e) {
+                    LOG.error("SQLException in finally block: " +e);
+                }
+                try {
+                    if(sakaiStatement2 != null) sakaiStatement2.close();
                 } catch (SQLException e) {
                     LOG.error("SQLException in finally block: " +e);
                 }

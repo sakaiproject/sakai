@@ -21,6 +21,7 @@
 
 package org.sakaiproject.component.app.scheduler;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
@@ -62,6 +63,7 @@ public class SchedulerManagerImpl implements SchedulerManager
 public void init()
   {
 
+	InputStream propertiesInputStream = null;
     try
     {
 
@@ -69,7 +71,7 @@ public void init()
       .getInstance();
 
       // load quartz properties file
-      InputStream propertiesInputStream = this.getClass().getResourceAsStream(
+      propertiesInputStream = this.getClass().getResourceAsStream(
           qrtzPropFile);
       qrtzProperties = new Properties();
       qrtzProperties.load(propertiesInputStream);
@@ -105,7 +107,7 @@ public void init()
 
       // find quartz jobs from specified 'qrtzJobs' and verify they
       // that these jobs implement the Job interface
-      Iterator qrtzJobsIterator = qrtzJobs.iterator();
+      Iterator<String> qrtzJobsIterator = qrtzJobs.iterator();
       while (qrtzJobsIterator.hasNext())
       {
         String className = (String) qrtzJobsIterator.next();
@@ -175,6 +177,17 @@ public void init()
       e.printStackTrace();
       throw new Error("Scheduler cannot start!");
     }
+    finally {
+    	if (propertiesInputStream != null) {
+    		try {
+				propertiesInputStream.close();
+			} catch (IOException e) {
+				LOG.debug("exception in finaly block closing input stream");
+
+			}
+    	}
+    }
+    
 
   }  private boolean doesImplementJobInterface(Class cl)
   {
