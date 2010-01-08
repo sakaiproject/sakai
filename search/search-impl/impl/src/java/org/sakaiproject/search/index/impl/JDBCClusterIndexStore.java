@@ -2329,7 +2329,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 	}
 
-	public long getSegmentInfoList(File searchDir, List seginfo)
+	public long getSegmentInfoList(File searchDir, List<Object[]> seginfo)
 	{
 
 		File[] files = searchDir.listFiles();
@@ -2391,8 +2391,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			{
 				connection = dataSource.getConnection();
 
-				List l = getDBSegments(connection);
-				for (Iterator li = l.iterator(); li.hasNext();)
+				List<SegmentInfo> l = getDBSegments(connection);
+				for (Iterator<SegmentInfo> li = l.iterator(); li.hasNext();)
 				{
 					SegmentInfo si = (SegmentInfo) li.next();
 					String shared = getSharedFileName(si.getName(),
