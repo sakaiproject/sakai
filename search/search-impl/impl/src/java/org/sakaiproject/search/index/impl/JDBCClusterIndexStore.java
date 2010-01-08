@@ -168,7 +168,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		try
 		{
 			connection = dataSource.getConnection();
-			List dbSegments = getDBSegments(connection);
+			List<SegmentInfo> dbSegments = getDBSegments(connection);
 			if (log.isDebugEnabled())
 				log.debug("Update: DB Segments = " + dbSegments.size());
 			// remove files not in the dbSegmentList
@@ -196,12 +196,12 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 			// which of the dbSegments are not present locally
 			List<SegmentInfo> updateLocalSegments = new ArrayList<SegmentInfo>();
-			for (Iterator i = dbSegments.iterator(); i.hasNext();)
+			for (Iterator<SegmentInfo> i = dbSegments.iterator(); i.hasNext();)
 			{
 				SegmentInfo db_si = (SegmentInfo) i.next();
 				boolean found = false;
 				String name = db_si.getName();
-				for (Iterator j = localSegments.iterator(); j.hasNext();)
+				for (Iterator<SegmentInfo> j = localSegments.iterator(); j.hasNext();)
 				{
 					SegmentInfo local_si = (SegmentInfo) j.next();
 					if (name.equals(local_si.getName()))
@@ -223,13 +223,13 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 
 			// which of the dbsegmetnts are newer than local versions
-			for (Iterator i = localSegments.iterator(); i.hasNext();)
+			for (Iterator<SegmentInfo> i = localSegments.iterator(); i.hasNext();)
 			{
 				SegmentInfo current_si = (SegmentInfo) i.next();
 				boolean found = false;
 				String name = current_si.getName();
 				long version = current_si.getVersion();
-				for (Iterator j = dbSegments.iterator(); j.hasNext();)
+				for (Iterator<SegmentInfo> j = dbSegments.iterator(); j.hasNext();)
 				{
 					SegmentInfo db_si = (SegmentInfo) j.next();
 					if (name.equals(db_si.getName()) && db_si.getVersion() > version)
@@ -2295,9 +2295,9 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		}
 	}
 
-	public List getSegmentInfoList()
+	public List<Object[]> getSegmentInfoList()
 	{
-		List seginfo = new ArrayList();
+		List<Object[]> seginfo = new ArrayList<Object[]>();
 		try
 		{
 
@@ -2322,8 +2322,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		}
 		catch (Exception ex)
 		{
-			seginfo.add("Failed to get Segment Info list " + ex.getClass().getName()
-					+ " " + ex.getMessage());
+			seginfo.add(new Object[] {"Failed to get Segment Info list " + ex.getClass().getName()
+					+ " " + ex.getMessage()});
 		}
 		return seginfo;
 
