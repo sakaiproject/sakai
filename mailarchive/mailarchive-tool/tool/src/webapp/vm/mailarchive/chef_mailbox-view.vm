@@ -22,6 +22,9 @@
 	</div>	
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	
+   #if ("$email.Header.Subject" == "")
+       #set ($email.Header.Subject = $tlang.getString("err_no_subject"))
+   #end
 	<table class ="itemSummary" summary="$tlang.getString('view.summary')">
 		<tr>
 			<th>$tlang.getString("gen.dat")</th>

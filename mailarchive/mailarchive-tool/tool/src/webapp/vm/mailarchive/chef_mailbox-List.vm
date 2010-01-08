@@ -136,6 +136,9 @@
 			</tr>
 			#set($msgPos=$topMsgPosInt)
 			#foreach ($item in $messages)
+           #if ("$item.Header.Subject" == "")
+               #set ($item.Header.Subject = $tlang.getString("err_no_subject"))
+           #end
 				<tr>
 					<td headers="from">$validator.escapeHtml($item.Header.FromAddress)</td>
 					<td headers="subject">
