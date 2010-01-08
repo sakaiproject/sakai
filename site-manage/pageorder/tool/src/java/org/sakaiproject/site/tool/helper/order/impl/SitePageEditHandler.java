@@ -131,14 +131,14 @@ public class SitePageEditHandler {
             
             try {    
                 site = siteService.getSite(siteId);
+                update = siteService.allowUpdateSite(site.getId());
+                title = site.getTitle();
             
             } catch (IdUnusedException e) {
                 // The siteId we were given was bogus
                 e.printStackTrace();
             }
         }
-        update = siteService.allowUpdateSite(site.getId());
-        title = site.getTitle();
         
         String conf = serverConfigurationService.getString(UNHIDEABLES_CFG);
         if (conf != null) {
@@ -204,18 +204,18 @@ public class SitePageEditHandler {
         SortedIterator i = new SortedIterator(toolRegistrations.iterator(), new ToolComparator());
         for (; i.hasNext();)
         {
-            Tool tr = (Tool) i.next();
-            Properties config = tr.getRegisteredConfig();
-            String allowMultiple = config.getProperty(TOOL_CFG_MULTI);
+        	Tool tr = (Tool) i.next();
 
-            if (tr != null) {
-                if (multiPlacementToolIds.contains(tr.getId()) || "true".equals(allowMultiple)) {
-                    tools.add(tr);
-                }
-                else if (site.getToolForCommonId(tr.getId()) == null) {
-                    tools.add(tr);
-                }
-            }
+        	if (tr != null) {
+        		Properties config = tr.getRegisteredConfig();
+        		String allowMultiple = config.getProperty(TOOL_CFG_MULTI);
+        		if (multiPlacementToolIds.contains(tr.getId()) || "true".equals(allowMultiple)) {
+        			tools.add(tr);
+        		}
+        		else if (site.getToolForCommonId(tr.getId()) == null) {
+        			tools.add(tr);
+        		}
+        	}
         }
         
         return tools;

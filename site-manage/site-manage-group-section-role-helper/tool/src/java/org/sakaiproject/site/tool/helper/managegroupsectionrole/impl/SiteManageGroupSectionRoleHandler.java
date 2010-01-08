@@ -390,13 +390,13 @@ public class SiteManageGroupSectionRoleHandler {
             
             try {    
                 site = siteService.getSite(siteId);
+                update = siteService.allowUpdateSite(site.getId());
             
             } catch (IdUnusedException e) {
                 // The siteId we were given was bogus
                 e.printStackTrace();
             }
         }
-        update = siteService.allowUpdateSite(site.getId());
         title = "";
         
         String conf = serverConfigurationService.getString(UNHIDEABLES_CFG);

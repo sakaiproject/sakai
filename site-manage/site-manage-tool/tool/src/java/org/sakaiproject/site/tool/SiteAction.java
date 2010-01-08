@@ -1462,7 +1462,7 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("isProjectSite", Boolean.FALSE);
 			} else {
 				context.put("isCourseSite", Boolean.FALSE);
-				if (type.equalsIgnoreCase("project")) {
+				if (type != null && type.equalsIgnoreCase("project")) {
 					context.put("isProjectSite", Boolean.TRUE);
 				}
 			}
@@ -2335,7 +2335,7 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("isProjectSite", Boolean.FALSE);
 				} else {
 					context.put("isCourseSite", Boolean.FALSE);
-					if (siteType.equalsIgnoreCase("project")) {
+					if (siteType != null && siteType.equalsIgnoreCase("project")) {
 						context.put("isProjectSite", Boolean.TRUE);
 					}
 				}
@@ -3121,9 +3121,9 @@ public class SiteAction extends PagedResourceActionII {
 						M_log.warn(this + ".putSelectedProviderCourseIntoContext " + e.getMessage() + " sectionId=" + providerSectionId, e);
 					}
 				}
+				context.put("size", Integer.valueOf(providerSectionList.size() - 1));
 			}
-			context.put("selectedProviderCourseTitles", providerSectionListTitles);
-			context.put("size", Integer.valueOf(providerSectionList.size() - 1));
+			context.put("selectedProviderCourseTitles", providerSectionListTitles);		
 		}
 	}
 
@@ -7845,25 +7845,17 @@ public class SiteAction extends PagedResourceActionII {
 	private void setSiteSectionProperty(List courseSectionList, Site site, String propertyName) {
 		if ((courseSectionList != null) && (courseSectionList.size() != 0)) {
 			// store the requested sections in one site property
-			String sections = "";
+			StringBuffer sections = new StringBuffer(); 
+			sections.append("");
 			for (int j = 0; j < courseSectionList.size();) {
-				if (courseSectionList.get(j) instanceof SectionObject)
-				{
-					SectionObject so = (SectionObject) courseSectionList.get(j);
-					sections = sections + so.getEid();
-				}
-				else if (courseSectionList.get(j) instanceof String)
-				{
-					sections = sections + (String) courseSectionList.get(j);
-				}
-					
+				sections = sections.append(courseSectionList.get(j));
 				j++;
 				if (j < courseSectionList.size()) {
-					sections = sections + "+";
+					sections = sections.append("+");
 				}
 			}
 			ResourcePropertiesEdit rp = site.getPropertiesEdit();
-			rp.addProperty(propertyName, sections);
+			rp.addProperty(propertyName, sections.toString());
 		} else {
 			ResourcePropertiesEdit rp = site.getPropertiesEdit();
 			rp.removeProperty(propertyName);
@@ -9203,7 +9195,7 @@ public class SiteAction extends PagedResourceActionII {
 		{
 			if (ServerConfigurationService.getStrings("wsetup.enableSiteTemplate.userType") != null) {
 				List<String> userTypes = new ArrayList(Arrays.asList(ServerConfigurationService.getStrings("wsetup.enableSiteTemplate.userType")));
-				if (userTypes != null & userTypes.size() > 0)
+				if (userTypes != null && userTypes.size() > 0)
 				{
 					User u = UserDirectoryService.getCurrentUser();
 					if (!(u != null && (SecurityService.isSuperUser() || userTypes.contains(u.getType()))))

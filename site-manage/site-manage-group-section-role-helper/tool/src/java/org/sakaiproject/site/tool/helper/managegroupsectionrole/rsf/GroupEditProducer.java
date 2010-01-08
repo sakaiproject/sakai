@@ -256,21 +256,24 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 			 }
 		 }
 		 // add the members last
-		 Iterator<Member> gIterator = new SortedIterator(groupMembers.iterator(), new SiteComparator(SiteConstants.SORTED_BY_MEMBER_NAME, Boolean.TRUE.toString()));
-	     for (; gIterator.hasNext();i++){
-        	Member p = (Member) gIterator.next();
-        	String userId = p.getUserId();
-        	try
-        	{
-        		User u = userDirectoryService.getUser(userId);
-        		groupMemberLabels[i] = u.getSortName() + " (" + u.getDisplayId() + ")";
-        	}
-        	catch (Exception e)
-        	{
-        		M_log.warn(this + ":fillComponents: cannot find user " + userId);
-        	}
-			groupMemberValues[i] = userId;
-		}
+		 if (groupMembers != null)
+		 {
+			 Iterator<Member> gIterator = new SortedIterator(groupMembers.iterator(), new SiteComparator(SiteConstants.SORTED_BY_MEMBER_NAME, Boolean.TRUE.toString()));
+			 for (; gIterator.hasNext();i++){
+				 Member p = (Member) gIterator.next();
+				 String userId = p.getUserId();
+				 try
+				 {
+					 User u = userDirectoryService.getUser(userId);
+					 groupMemberLabels[i] = u.getSortName() + " (" + u.getDisplayId() + ")";
+				 }
+				 catch (Exception e)
+				 {
+					 M_log.warn(this + ":fillComponents: cannot find user " + userId);
+				 }
+				 groupMemberValues[i] = userId;
+			 }
+		 }
 	        
     	 UICommand.make(groupForm, "save", addUpdateButtonName, "#{SiteManageGroupSectionRoleHandler.processAddGroup}");
 
