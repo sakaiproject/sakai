@@ -22,7 +22,7 @@ import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
-import org.sakaiproject.profile2.tool.models.SimpleText;
+import org.sakaiproject.profile2.tool.models.StringModel;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 public class MyStatusPanel extends Panel {
@@ -71,14 +71,14 @@ public class MyStatusPanel extends Panel {
 		
 				
 		//setup SimpleText object to back the single form field 
-		SimpleText simpleText = new SimpleText();
+		StringModel stringModel = new StringModel();
 				
 		//status form
-		Form form = new Form("form", new Model(simpleText));
+		Form form = new Form("form", new Model(stringModel));
 		form.setOutputMarkupId(true);
         		
 		//status field
-		final TextField statusField = new TextField("message", new PropertyModel(simpleText, "text"));
+		final TextField statusField = new TextField("message", new PropertyModel(stringModel, "string"));
         statusField.setOutputMarkupPlaceholderTag(true);
         form.add(statusField);
         
@@ -131,13 +131,13 @@ public class MyStatusPanel extends Panel {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				
 				//get the backing model
-        		SimpleText simpleText = (SimpleText) form.getModelObject();
+        		StringModel stringModel = (StringModel) form.getModelObject();
 				
 				//get userId from sakaiProxy
 				String userId = sakaiProxy.getCurrentUserId();
 				
 				//get the status. if its the default text, do not update, although we should clear the model
-				String statusMessage = simpleText.getText().trim();
+				String statusMessage = stringModel.getString().trim();
 				if(statusMessage.equals(defaultStatus)) {
 					log.warn("Status for userId: " + userId + " was not updated because they didn't enter anything.");
 					return;

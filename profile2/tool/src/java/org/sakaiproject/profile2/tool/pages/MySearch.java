@@ -13,7 +13,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -21,20 +20,18 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
-import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.profile2.model.SearchResult;
-import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import org.sakaiproject.profile2.tool.components.FeedbackLabel;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.models.FriendAction;
-import org.sakaiproject.profile2.tool.models.Search;
+import org.sakaiproject.profile2.tool.models.StringModel;
 import org.sakaiproject.profile2.tool.pages.windows.AddFriend;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.util.FormattedText;
@@ -42,7 +39,6 @@ import org.sakaiproject.util.FormattedText;
 
 public class MySearch extends BasePage {
 
-	private transient Search search;
 	private List<SearchResult> results = new ArrayList<SearchResult>();
 	private static final Logger log = Logger.getLogger(MySearch.class); 
 	
@@ -56,18 +52,6 @@ public class MySearch extends BasePage {
 		//get current user
 		final String currentUserUuid = sakaiProxy.getCurrentUserId();
 		
-		// FeedbackPanel - so we activate feedback
-        final FeedbackPanel feedback = new FeedbackPanel("feedback");
-        feedback.setOutputMarkupId(true);
-        add(feedback);
-        // filteredErrorLevels will not be shown in the FeedbackPanel
-        int[] filteredErrorLevels = new int[]{FeedbackMessage.ERROR};
-        feedback.setFilter(new ErrorLevelsFeedbackMessageFilter(filteredErrorLevels));
-     
-        //create model for form
-		search = new Search();
-		CompoundPropertyModel searchModel = new CompoundPropertyModel(search);
-        
 		/* 
 		 * 
 		 * SEARCH BY NAME FORM
@@ -78,24 +62,18 @@ public class MySearch extends BasePage {
 		Label sbnHeading = new Label("sbnHeading", new ResourceModel("heading.search.byname"));
 		add(sbnHeading);
 		
-		//setup form		
-		Form sbnForm = new Form("sbnForm", searchModel);
+		//setup form	
+		StringModel sbnStringModel = new StringModel();
+		Form sbnForm = new Form("sbnForm", new Model(sbnStringModel));
 		sbnForm.setOutputMarkupId(true);
 		
 		//search field
         sbnForm.add(new Label("sbnNameLabel", new ResourceModel("text.search.byname")));
-		final TextField sbnNameField = new TextField("searchName");
+		final TextField sbnNameField = new TextField("searchName", new PropertyModel(sbnStringModel, "string"));
 		sbnNameField.setRequired(true);
 		sbnNameField.setOutputMarkupId(true);
 		sbnForm.add(sbnNameField);
 		sbnForm.add(new IconWithClueTip("sbnNameToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.search.byname.tooltip")));
-		
-		//search feedback
-        final FeedbackLabel sbnNameFeedback = new FeedbackLabel("searchNameFeedback", sbnNameField, new ResourceModel("text.search.nothing"));
-        sbnNameFeedback.setOutputMarkupId(true);
-        //sbnNameField.add(new ComponentVisualErrorBehavior("onblur", sbnNameFeedback)); //removed for now
-        sbnForm.add(sbnNameFeedback);
-		
 		
 		/* 
 		 * 
@@ -108,25 +86,18 @@ public class MySearch extends BasePage {
 		add(sbiHeading);
 		
 		
-		//setup form		
-		Form sbiForm = new Form("sbiForm", searchModel);
+		//setup form
+		StringModel sbiStringModel = new StringModel();
+		Form sbiForm = new Form("sbiForm", new Model(sbiStringModel));
 		sbiForm.setOutputMarkupId(true);
 		
 		//search field
         sbiForm.add(new Label("sbiInterestLabel", new ResourceModel("text.search.byinterest")));
-		final TextField sbiInterestField = new TextField("searchInterest");
+		final TextField sbiInterestField = new TextField("searchInterest", new PropertyModel(sbiStringModel, "string"));
 		sbiInterestField.setRequired(true);
 		sbiInterestField.setOutputMarkupId(true);
 		sbiForm.add(sbiInterestField);
 		sbiForm.add(new IconWithClueTip("sbiInterestToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.search.byinterest.tooltip")));
-		
-		//search feedback
-        final FeedbackLabel sbiInterestFeedback = new FeedbackLabel("searchInterestFeedback", sbiInterestField, new ResourceModel("text.search.nothing"));
-        sbiInterestFeedback.setOutputMarkupId(true);
-        //sbnNameField.add(new ComponentVisualErrorBehavior("onblur", sbnNameFeedback)); //removed for now
-        sbiForm.add(sbiInterestFeedback);
-		
-		
 		
 		
 		/* 
@@ -369,18 +340,17 @@ public class MySearch extends BasePage {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 
 				if(target != null) {
-					//get the model
-					Search search = (Search) form.getModelObject();
 					
-					//get search field
-					String searchText = FormattedText.processFormattedText(search.getSearchName(), new StringBuffer());
+					//get the model and text entered
+	        		StringModel stringModel = (StringModel) form.getModelObject();
+					String searchText = FormattedText.processFormattedText(stringModel.getString(), new StringBuffer());
 					
 					log.debug("MySearch() search.getSearchName(): " + searchText);
 				
-					//clear the interest search field in model and repaint to clear value
-					search.setSearchInterest("");
+					//clear the interest search field
+					sbiInterestField.clearInput();
 					
-					//search both UDB and Sakaiperson for matches.
+					//search both UDP and SakaiPerson for matches.
 					results = new ArrayList<SearchResult>(profileLogic.findUsersByNameOrEmail(searchText, currentUserUuid));
 	
 					int numResults = results.size();
@@ -434,16 +404,15 @@ public class MySearch extends BasePage {
         	protected void onSubmit(AjaxRequestTarget target, Form form) {
 
 				if(target != null) {
-					//get the model
-					Search search = (Search) form.getModelObject();
 					
-					//get search field
-					String searchText = FormattedText.processFormattedText(search.getSearchInterest(), new StringBuffer());
+					//get the model and text entered
+	        		StringModel stringModel = (StringModel) form.getModelObject();
+					String searchText = FormattedText.processFormattedText(stringModel.getString(), new StringBuffer());
 
 					log.debug("MySearch() search.getSearchInterest(): " + searchText);
 					
-					//clear the name search field in model and repaint to clear value
-					search.setSearchName("");
+					//clear the name search field
+					sbnNameField.clearInput();
 					
 					//search SakaiPerson for matches
 					results = new ArrayList<SearchResult>(profileLogic.findUsersByInterest(searchText, currentUserUuid));

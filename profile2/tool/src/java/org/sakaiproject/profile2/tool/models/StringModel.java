@@ -9,23 +9,23 @@ import java.io.Serializable;
  *
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  */
-public class SimpleText implements Serializable {
+public class StringModel implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
-	private String text;
+	private String string;
 	
-	public void setText(String text) {
-		this.text = text;
+	public void setString(String string) {
+		this.string = string;
 	}
-	public String getText() {
-		return text;
+	public String getString() {
+		return string;
 	}
 	
 	
 	/**
 	 * Default constructor
 	 */
-	public SimpleText() {
+	public StringModel() {
 	
 	}
 	

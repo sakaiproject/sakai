@@ -23,7 +23,7 @@ import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.service.ProfileImageService;
 import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.CloseButton;
-import org.sakaiproject.profile2.tool.models.SimpleText;
+import org.sakaiproject.profile2.tool.models.StringModel;
 import org.sakaiproject.profile2.tool.pages.MyProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
@@ -82,18 +82,18 @@ public class ChangeProfilePictureUrl extends Panel{
 		profileLogic = getProfileLogic();
 			
 		//setup SimpleText object to back the single form field 
-		SimpleText simpleText = new SimpleText();
+		StringModel stringModel = new StringModel();
 		
 		//do they already have a URL that should be loaded in here?
 		String externalUrl = profileLogic.getExternalImageUrl(userUuid, ProfileConstants.PROFILE_IMAGE_MAIN);
 		
 		if(externalUrl != null) {
-			simpleText.setText(externalUrl);
+			stringModel.setString(externalUrl);
 		}
 		
 		
         //setup form	
-		Form form = new Form("form", new Model(simpleText));
+		Form form = new Form("form", new Model(stringModel));
 		form.setOutputMarkupId(true);
         
 		//add warning message if superUser and not editing own image
@@ -116,7 +116,7 @@ public class ChangeProfilePictureUrl extends Panel{
 		form.add(textEnterUrl);
 		
 		//upload
-		TextField urlField = new TextField("urlField", new PropertyModel(simpleText, "text"));
+		TextField urlField = new TextField("urlField", new PropertyModel(stringModel, "string"));
 		urlField.setRequired(true);
 		urlField.add(new UrlValidator(new String[]{"http", "https"}, UrlValidator.ALLOW_2_SLASHES));
 		form.add(urlField);
@@ -132,10 +132,10 @@ public class ChangeProfilePictureUrl extends Panel{
         	protected void onSubmit(AjaxRequestTarget target, Form form) {
 
 				//get the model (already validated)
-        		SimpleText simpleText = (SimpleText) form.getModelObject();
+        		StringModel stringModel = (StringModel) form.getModelObject();
         		
         		//get the url
-        		String url = simpleText.getText();
+        		String url = stringModel.getString();
         		
         		//save via ProfileImageService
 				if(getProfileImageService().setProfileImage(userUuid, url, null)) {
