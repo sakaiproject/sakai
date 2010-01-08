@@ -1942,7 +1942,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 			  int sectionScoreColumnStart = responseList.size();
 			  if (showPartAndTotalScoreSpreadsheetColumns) {
 				  Float finalScore = assessmentGradingData.getFinalScore();
-				  responseList.add((Double)finalScore.doubleValue()); // gopal - cast for spreadsheet numerics
+				  if (finalScore != null) {
+                      responseList.add((Double)finalScore.doubleValue()); // gopal - cast for spreadsheet numerics
+				  } else {
+					  log.debug("finalScore is NULL");
+					  responseList.add(0d); 
+				  } 
 			  }
 
 			  Long assessmentGradingId = assessmentGradingData.getAssessmentGradingId();
