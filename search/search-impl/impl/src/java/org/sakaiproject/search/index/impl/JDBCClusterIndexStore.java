@@ -2408,14 +2408,9 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 							log.warn("couldn't create directory: " + fnew.getParentFile().getPath());
 						}
 						log.info("Moving " + f.getPath() + " to " + fnew.getPath());
-						try
+						if(!f.renameTo(fnew))
 						{
-							f.renameTo(fnew);
-						}
-						catch (Exception ex)
-						{
-							log.warn("Failed " + ex.getMessage());
-							if (log.isDebugEnabled()) log.debug("Debug Failure ", ex);
+							log.warn("Failed rename " + f.getPath() + " to " + fnew.getPath());
 						}
 					}
 				}
@@ -2466,14 +2461,9 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					log.warn("couldn't create directory " + fnew.getParentFile().getPath());
 				}
 				log.info("Moving " + f.getPath() + " to " + fnew.getPath());
-				try
+				if (!f.renameTo(fnew))
 				{
-					f.renameTo(fnew);
-				}
-				catch (Exception ex)
-				{
-					log.warn("Failed " + ex.getMessage());
-					if (log.isDebugEnabled()) log.debug("Debug Failure ", ex);
+					log.warn("Failed to rename " + f.getPath() + " to " + fnew.getPath());
 				}
 			}
 		}
