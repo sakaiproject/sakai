@@ -41,6 +41,7 @@ import javax.sql.DataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.store.FSDirectory;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.index.ClusterFilesystem;
 import org.sakaiproject.search.index.SegmentInfo;
@@ -1353,7 +1354,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 							localStructuredStorage, searchIndexDirectory);
 					if (sgi.isClusterSegment())
 					{
-						if (IndexReader.indexExists(files[i]))
+						if (IndexReader.indexExists(FSDirectory.open(files[i])))
 						{
 
 							if (sgi.isCreated())
@@ -1435,7 +1436,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					{
 						if (sgi.isCreated())
 						{
-							if (!IndexReader.indexExists(files[i]))
+							if (!IndexReader.indexExists(FSDirectory.open(files[i])))
 							{
 								l.add(sgi);
 							}
