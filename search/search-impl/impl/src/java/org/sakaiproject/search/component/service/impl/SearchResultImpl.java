@@ -37,8 +37,9 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.search.Hits;
+import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
 import org.apache.lucene.search.highlight.QueryScorer;
@@ -63,7 +64,7 @@ public class SearchResultImpl implements SearchResult
 
 	private static Log log = LogFactory.getLog(SearchResultImpl.class);
 
-	private Hits h;
+	private TopDocs topDoc;
 
 	private int index;
 
@@ -80,14 +81,17 @@ public class SearchResultImpl implements SearchResult
 	private SearchService searchService;
 
 	private String url;
+	
+	private IndexSearcher indexSearcher;
 
-	public SearchResultImpl(Hits h, int index, Query query, Analyzer analyzer,
+	public SearchResultImpl(TopDocs h, int index, Query query, Analyzer analyzer,
 			SearchIndexBuilder searchIndexBuilder,
-			SearchService searchService) throws IOException
+			SearchService searchService, IndexSearcher indexSearcher) throws IOException
 			{
-		this.h = h;
+		this.topDoc = h;
 		this.index = index;
-		this.doc = h.doc(index);
+		this.indexSearcher = indexSearcher;
+		this.doc =  this.indexSearcher.doc(index);//h.scoreDocs[index];
 		this.query = query;
 		this.analyzer = analyzer;
 		this.searchIndexBuilder = searchIndexBuilder;
@@ -96,14 +100,9 @@ public class SearchResultImpl implements SearchResult
 
 	public float getScore()
 	{
-		try
-		{
-			return h.score(index);
-		}
-		catch (IOException e)
-		{
-			throw new RuntimeException("Cant determine score ", e); //$NON-NLS-1$
-		}
+		
+			return topDoc.scoreDocs[index].score;
+		
 	}
 
 	public String getId()
@@ -243,7 +242,7 @@ public class SearchResultImpl implements SearchResult
 
 	public TermFrequency getTerms() throws IOException
 	{
-		return searchService.getTerms(h.id(index));
+		return searchService.getTerms(topDoc.scoreDocs[index].doc);
 	}
 
 	public void toXMLString(StringBuilder sb)
