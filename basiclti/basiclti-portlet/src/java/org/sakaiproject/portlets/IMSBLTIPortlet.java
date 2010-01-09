@@ -221,11 +221,18 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
         // Hand up the old values
        	Properties oldValues = new Properties();
-	addProperty(oldValues, request, "launch", "http://simplelti.appspot.com/launch");
+	addProperty(oldValues, request, "launch", "http://developers.imsglobal.org/BLTI/tool.php");
 	for (String element : fieldList) {
 		if ( "launch".equals(element) ) continue;
-		addProperty(oldValues, request, element, null);
-	}
+		// addProperty(oldValues, request, element, null);
+		String propValue = getCorrectProperty(request, element, null);
+		if ( propValue != null ) {
+                        if ( "xml".equals(element)) {
+				propValue = propValue.replace("&amp;","&amp;amp;");
+			}
+			oldValues.setProperty("imsti."+element,propValue);
+		}
+        }
 
 	request.setAttribute("imsti.oldvalues", oldValues);
     }
