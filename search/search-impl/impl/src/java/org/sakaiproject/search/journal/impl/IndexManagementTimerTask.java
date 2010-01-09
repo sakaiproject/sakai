@@ -48,8 +48,6 @@ public class IndexManagementTimerTask extends TimerTask
 
 	private boolean closed = false;
 
-	private ConcurrentIndexManager manager;
-
 	private ThreadLocalManager threadLocalManager;
 
 	/**

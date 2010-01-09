@@ -213,7 +213,7 @@ public class ParallelIndexStorage implements IndexStorage
 	 * 
 	 * @see org.sakaiproject.search.index.IndexStorage#getSegmentInfoList()
 	 */
-	public List getSegmentInfoList()
+	public List<Object[]> getSegmentInfoList()
 	{
 		return indexStorageProvider.getSegmentInfoList();
 	}

@@ -48,7 +48,8 @@ public class SegmentListReader
 		FileInputStream fout = new FileInputStream(in);
 		DataInputStream din = new DataInputStream(fout);
 		byte[] sig = new byte[SegmentListStore.SEGMENT_LIST_SIGNATURE.length];
-		din.read(sig);
+		if (din.read(sig) > -1)
+		{
 		for (int i = 0; i < sig.length; i++)
 		{
 			if (sig[i] != SegmentListStore.SEGMENT_LIST_SIGNATURE[i])
@@ -56,6 +57,7 @@ public class SegmentListReader
 				throw new IOException(
 						"Segment List file is corrupt, please remove segments and recover from journal");
 			}
+		}
 		}
 		int version = din.readInt();
 		if (version == SegmentListStore.VERSION_SIGNATURE)

@@ -50,8 +50,6 @@ public class ConcurrentIndexManager implements IndexListener
 
 	private List<IndexManagementTimerTask> tasks;
 
-	private boolean closed = false;
-
 	private int nsopen = 0;
 
 	private int nropen = 0;
@@ -118,7 +116,6 @@ public class ConcurrentIndexManager implements IndexListener
 	public void cleanup()
 	{
 		indexListenerCloser.cleanup();
-		closed = true;
 
 		log.debug("N Searchers is " + nsopen);
 		log.debug("N Readers is " + nropen);

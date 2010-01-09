@@ -57,6 +57,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.store.Directory;
+import org.apache.lucene.util.Version;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationEdit;
@@ -327,7 +328,7 @@ public abstract class BaseSearchServiceImpl implements SearchService
 		{
 			BooleanQuery query = new BooleanQuery();
 
-			QueryParser qp = new QueryParser(SearchService.FIELD_CONTENTS, getAnalyzer());
+			QueryParser qp = new QueryParser(Version.LUCENE_29,SearchService.FIELD_CONTENTS, getAnalyzer());
 			Query textQuery = qp.parse(searchTerms);
 			                       
 		    // Support cross context searches

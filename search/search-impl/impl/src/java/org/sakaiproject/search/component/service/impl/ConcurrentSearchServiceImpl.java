@@ -158,9 +158,9 @@ public class ConcurrentSearchServiceImpl extends BaseSearchServiceImpl
 				}
 			}
 
-			public List getWorkerNodes()
+			public List<Object[]> getWorkerNodes()
 			{
-				List<Object> l = new ArrayList<Object>();
+				List<Object[]> l = new ArrayList<Object[]>();
 				l.add(new Object[] { "NodeName", new Date(), "running status " });
 				/*
 				 * for (Iterator i = lockNodes.iterator(); i.hasNext();) {

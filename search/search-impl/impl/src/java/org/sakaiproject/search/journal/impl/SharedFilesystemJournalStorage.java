@@ -53,7 +53,7 @@ public class SharedFilesystemJournalStorage implements JournalStorage
 	/**
 	 * @author ieb
 	 */
-	public class JournalStorageStateImpl implements JournalStorageState
+	private static class JournalStorageStateImpl implements JournalStorageState
 	{
 
 		protected File tmpZip;
