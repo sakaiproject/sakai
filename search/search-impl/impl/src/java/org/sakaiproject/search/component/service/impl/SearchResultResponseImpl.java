@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
@@ -68,11 +69,10 @@ public class SearchResultResponseImpl implements SearchResult
 	private String url;
 	private SearchIndexBuilder searchIndexBuilder;
 
-	private SearchService searchService;
 
-	private Map attributes;
+	private Map<String, String> attributes;
 
-	public SearchResultResponseImpl(Map attributes, Query query,
+	public SearchResultResponseImpl(Map<String, String> attributes, Query query,
 			Analyzer analyzer, 
 			SearchIndexBuilder searchIndexBuilder, SearchService searchService)
 			throws IOException
@@ -82,14 +82,14 @@ public class SearchResultResponseImpl implements SearchResult
 		this.query = query;
 		this.analyzer = analyzer;
 		this.searchIndexBuilder = searchIndexBuilder;
-		this.searchService = searchService;
+		
 	}
 	public SearchResultResponseImpl(Attributes atts, Query query,
 			Analyzer analyzer, 
 			SearchIndexBuilder searchIndexBuilder, SearchService searchService)
 			throws IOException
 	{
-		Map m = new HashMap();
+		Map<String, String> m = new HashMap<String, String>();
 		for ( int i = 0; i < atts.getLength(); i++ ) {
 			m.put(atts.getLocalName(i),atts.getValue(i));
 		}
@@ -108,7 +108,7 @@ public class SearchResultResponseImpl implements SearchResult
 		this.query = query;
 		this.analyzer = analyzer;
 		this.searchIndexBuilder = searchIndexBuilder;
-		this.searchService = searchService;
+		
 	}
 
 	public float getScore()
@@ -130,7 +130,7 @@ public class SearchResultResponseImpl implements SearchResult
 		}
 		fieldNames = new String[attributes.size()];
 		int ii = 0;
-		for (Iterator i = attributes.keySet().iterator(); i.hasNext();)
+		for (Iterator<String> i = attributes.keySet().iterator(); i.hasNext();)
 		{
 			fieldNames[ii++] = (String) i.next();
 		}
@@ -230,8 +230,8 @@ public class SearchResultResponseImpl implements SearchResult
 		sb.append("<result"); //$NON-NLS-1$
 		sb.append(" index=\"").append(getIndex()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
 		sb.append(" score=\"").append(getScore()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
-		sb.append(" sid=\"").append(StringUtils.xmlEscape(getId())).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
-		sb.append(" reference=\"").append(StringUtils.xmlEscape(getReference())).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append(" sid=\"").append(StringEscapeUtils.escapeXml(getId())).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append(" reference=\"").append(StringEscapeUtils.escapeXml(getReference())).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
 		try
 		{
 			sb.append(" title=\"").append( //$NON-NLS-1$
@@ -239,10 +239,10 @@ public class SearchResultResponseImpl implements SearchResult
 		}
 		catch (UnsupportedEncodingException e)
 		{
-			sb.append(" title=\"").append(StringUtils.xmlEscape(getTitle())).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append(" title=\"").append(StringEscapeUtils.escapeXml(getTitle())).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		sb.append(" tool=\"").append(StringUtils.xmlEscape(getTool())).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
-		sb.append(" url=\"").append(StringUtils.xmlEscape(getUrl())).append("\" />"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append(" tool=\"").append(StringEscapeUtils.escapeXml(getTool())).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append(" url=\"").append(StringEscapeUtils.escapeXml(getUrl())).append("\" />"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	public String getSiteId() {

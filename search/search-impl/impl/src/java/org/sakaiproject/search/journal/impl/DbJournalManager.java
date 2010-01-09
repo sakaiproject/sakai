@@ -52,7 +52,7 @@ public class DbJournalManager implements JournalManager
 	/**
 	 * @author ieb
 	 */
-	public class JournalManagerStateImpl implements JournalManagerState
+	private static class JournalManagerStateImpl implements JournalManagerState
 	{
 
 		private long transactionId;

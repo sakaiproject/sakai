@@ -517,7 +517,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 		{
 			loadIndexSearcherInternal();
 		}
-		if (indexSearcher instanceof ThreadBinder)
+		if (indexSearcher != null)
 		{
 			log.debug("getIndexSearcher(): " + indexSearcher + " threadbinder");
 			((ThreadBinder) indexSearcher).bind(threadLocalManager);
@@ -890,10 +890,10 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 	 * 
 	 * @see org.sakaiproject.search.index.IndexStorage#getSegmentInfoList()
 	 */
-	public List getSegmentInfoList()
+	public List<Object[]> getSegmentInfoList()
 	{
 
-		List<Object> seginfo = new ArrayList<Object>();
+		List<Object[]> seginfo = new ArrayList<Object[]>();
 		try
 		{
 			SizeAction sa = new SizeAction();
@@ -916,8 +916,8 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 			if (log.isDebugEnabled()) {
 				ex.printStackTrace();
 			}
-			seginfo.add("Failed to get Segment Info list " + ex.getClass().getName()
-					+ " " + ex.getMessage());
+			seginfo.add(new Object[] {"Failed to get Segment Info list " + ex.getClass().getName()
+					+ " " + ex.getMessage()});
 
 		}
 		return seginfo;
@@ -952,7 +952,7 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 		log.warn("Recover Indexes not implemented, yet");
 	}
 
-	public class SizeAction implements FileUtils.RecurseAction
+	private static class SizeAction implements FileUtils.RecurseAction
 	{
 
 		private long size = 0;
@@ -1291,25 +1291,24 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 						throw new IOException("can't create index folder " + f.getPath());
 					}
 					log.debug("Indexing in " + f.getAbsolutePath());
-					d = FSDirectory.getDirectory(journalSettings
-							.getSearchIndexDirectory(), true);
+					d = FSDirectory.open(new File(journalSettings.getSearchIndexDirectory()));
 				}
 				else
 				{
-					d = FSDirectory.getDirectory(journalSettings
-							.getSearchIndexDirectory(), false);
+					d = FSDirectory.open(new File(journalSettings
+							.getSearchIndexDirectory()));
 				}
 
 				if (!d.fileExists("segments.gen"))
 				{
-					permanentIndexWriter = new IndexWriter(f, getAnalyzer(), true);
+					permanentIndexWriter = new IndexWriter(FSDirectory.open(f), getAnalyzer(), true, MaxFieldLength.UNLIMITED);
 					permanentIndexWriter.setUseCompoundFile(true);
 					permanentIndexWriter.setMaxMergeDocs(journalSettings.getLocalMaxMergeDocs());
 					permanentIndexWriter.setMaxBufferedDocs(journalSettings.getLocalMaxBufferedDocs());
 					permanentIndexWriter.setMergeFactor(journalSettings.getLocalMaxMergeFactor());
 					Document doc = new Document();
 					doc.add(new Field("indexcreated", (new Date()).toString(),
-							Field.Store.YES, Field.Index.UN_TOKENIZED,
+							Field.Store.YES, Field.Index.NOT_ANALYZED,
 							Field.TermVector.NO));
 					permanentIndexWriter.addDocument(doc);
 					permanentIndexWriter.close();

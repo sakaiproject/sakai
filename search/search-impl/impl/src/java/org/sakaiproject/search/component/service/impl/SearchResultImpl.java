@@ -24,9 +24,9 @@ package org.sakaiproject.search.component.service.impl;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.codec.binary.Base64;
@@ -118,9 +118,10 @@ public class SearchResultImpl implements SearchResult
 			return fieldNames;
 		}
 		HashMap<String, Field> al = new HashMap<String, Field>();
-		for (Enumeration<Field> e = doc.fields(); e.hasMoreElements();)
+		List<Field> e = doc.getFields();
+		for (int i =0 ; i < e.size(); i++)
 		{
-			Field f = (Field) e.nextElement();
+			Field f = (Field) e.get(i);
 			al.put(f.name(), f);
 		}
 		fieldNames = new String[al.size()];

@@ -127,7 +127,7 @@ public class StringUtils
 	 * @param toEscape
 	 * @return
 	 * 
-	 * @deprecated Use Commons-lang StringEscapeUtils.escapeXML as this code might result in NPE's
+	 * @deprecated Use Commons-lang StringEscapeUtils.escapeXml as this code might result in NPE's
 	 */
 	public static String xmlEscape(String toEscape)
 	{
