@@ -124,6 +124,10 @@ public class MyMessageThreads extends BasePage {
 				AjaxLink<Void> messageSubjectLink = new AjaxLink<Void>("messageSubjectLink") {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
+						//mark as read
+						if(!message.isRead()) {
+							profileLogic.toggleMessageRead(message, true);
+						}
 						//load messageview panel
 						setResponsePage(new MyMessageView(userUuid, message.getThread()));
 						

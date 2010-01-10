@@ -8,7 +8,7 @@ import org.sakaiproject.profile2.model.ResourceWrapper;
 import org.sakaiproject.profile2.service.ProfileService;
 import org.sakaiproject.user.api.User;
 /**
- * This is a helper API used by the Profile2 tool and entities only.
+ * This is an internal helper API used by the Profile2 tool and entities only.
  * 
  * DO NOT IMPLEMENT THIS YOURSELF, use the {@link ProfileService} instead
  * 

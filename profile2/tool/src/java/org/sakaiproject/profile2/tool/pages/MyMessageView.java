@@ -21,7 +21,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.MessageThreadDataProvider;
-import org.sakaiproject.profile2.tool.models.SimpleText;
+import org.sakaiproject.profile2.tool.models.StringModel;
 import org.sakaiproject.profile2.tool.pages.panels.ConfirmedFriends;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -71,10 +71,7 @@ public class MyMessageView extends BasePage {
 		        
 				final Message message = (Message)item.getDefaultModelObject();
 				final String messageFromUuid = message.getFrom();
-				
-				System.out.println("message:" + message.getId());
-				
-				
+								
 				//friend?
 				boolean friend = profileLogic.isUserXFriendOfUserY(messageFromUuid, userUuid);
 				
@@ -118,8 +115,8 @@ public class MyMessageView extends BasePage {
 		add(messageListContainer);
 		
 		//reply form
-		SimpleText simpleText = new SimpleText();
-		Form<SimpleText> replyForm = new Form<SimpleText>("replyForm", new Model<SimpleText>(simpleText));
+		StringModel stringModel = new StringModel();
+		Form<StringModel> replyForm = new Form<StringModel>("replyForm", new Model<StringModel>(stringModel));
 		
 		//form feedback
 		final Label formFeedback = new Label("formFeedback");
@@ -128,7 +125,7 @@ public class MyMessageView extends BasePage {
 		
 		//reply field
 		replyForm.add(new Label("replyLabel", new ResourceModel("message.reply")));
-		final TextArea<SimpleText> replyField = new TextArea<SimpleText>("replyField", new PropertyModel<SimpleText>(simpleText, "text"));
+		final TextArea<StringModel> replyField = new TextArea<StringModel>("replyField", new PropertyModel<StringModel>(stringModel, "string"));
 		replyField.setRequired(true);
 		replyForm.add(replyField);
 		
@@ -138,8 +135,8 @@ public class MyMessageView extends BasePage {
 
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				
-        		SimpleText simpleText = (SimpleText) form.getModelObject();
-        		String reply = simpleText.getText();
+        		StringModel stringModel = (StringModel) form.getModelObject();
+        		String reply = stringModel.getString();
 				
         		//create a Message object for a reply to this thread
         		Message message = new Message();

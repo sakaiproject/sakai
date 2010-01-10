@@ -71,8 +71,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		};
 		myMessagesLink.add(new Label("myMessagesLabel",new ResourceModel("link.my.messages")));
 		
-		//calculate new messages
-		int count = profileLogic.getUnreadMessagesCount(sakaiProxy.getCurrentUserId());
+		//calculate new messages grouped by thread
+		int count = profileLogic.getThreadsWithUnreadMessagesCount(sakaiProxy.getCurrentUserId());
 		Label unreadMessagesLabel = new Label("unreadMessagesLabel", new Model(count));
 		myMessagesLink.add(unreadMessagesLabel);
 

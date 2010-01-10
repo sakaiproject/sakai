@@ -7,7 +7,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 /**
  * Message.java
  * 
- * A message object to represent a message posted to someone
+ * An object to represent a message posted to someone
  * This is a persistent Hibernate model
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)

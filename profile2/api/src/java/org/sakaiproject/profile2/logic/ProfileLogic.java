@@ -1,6 +1,5 @@
 package org.sakaiproject.profile2.logic;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.sakaiproject.profile2.model.Message;
@@ -668,12 +667,21 @@ public interface ProfileLogic {
 	
 	
 	/**
-	 * Get the number of unread messages
+	 * Get the number of all unread messages for this user, across all all message threads.
 	 *
 	 * @param userId		uuid of the user to retrieve the count for
 	 */
-	public int getUnreadMessagesCount(final String userId);
+	public int getAllUnreadMessagesCount(final String userId);
 	
+	/**
+	 * Get the number of threads with unread messages.
+	 * <p>For instance, if a user has two message threads, each with one unread message in each thread, this will return 2, as expected.
+	 * <br />However, if a user has two message threads, each with 5 unread messages in each thread, this will return 2, not 10.
+	 * <br />This is because we are interested in the number of threads with unread messages not the total unread messages. See {@link ProfileLogic#getAllUnreadMessagesCount(String)} if you want that instead.</p>
+	 * @param userId		uuid of the user to retrieve the count for
+	 * @return
+	 */
+	public int getThreadsWithUnreadMessagesCount(final String userId);
 	
 	
 	/**
@@ -712,10 +720,27 @@ public interface ProfileLogic {
 	public int getMessagesForThreadCount(final String threadId);
 	
 	/**
-	 * Gets a Message from the DB
+	 * Gets a Message from the database
 	 * @param id	id of the message
 	 * @return
 	 */
-	public Message getMessage(long id);
+	public Message getMessage(final long id);
+	
+	/**
+	 * Toggle a single message as read/unread
+	 * @param message	the message
+	 * @param read		boolean if to be toggled as read/unread
+	 * @return
+	 */
+	public boolean toggleMessageRead(Message message, final boolean read);
+	
+	/**
+	 * Toggle all messages in the given thread, that are to the given user, as read/unread
+	 * @param threadId		id of the message thread
+	 * @param userUuid		user to mark the messages read for
+	 * @param read			boolean if to be toggled as read/unread
+	 * @return
+	 */
+	public boolean toggleAllMessagesInThreadAsRead(final String threadId, final String userUuid, final boolean read);
 	
 }
