@@ -67,6 +67,8 @@ import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.tool.assessment.util.AttachmentUtil;
 import org.sakaiproject.tool.cover.SessionManager;
 
+import org.sakaiproject.util.ResourceLoader;
+
 /**
  * <p>
  * This bean represents an item
@@ -80,6 +82,8 @@ public class ItemContentsBean implements Serializable {
 	private static final long serialVersionUID = 6270034338280029897L;
 
 	private static Log log = LogFactory.getLog(ItemContentsBean.class);
+
+	private static ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
 
 	// private static ContextUtil cu;
 
@@ -1150,6 +1154,14 @@ public class ItemContentsBean implements Serializable {
   public boolean getHasNoMedia() {
 	return getMediaArray().size() < 1;
   }
+
+  public String getAnswerKeyTF() {
+ 	String answerKey = itemData.getAnswerKey();
+	if ("true".equals(answerKey)) answerKey = rb.getString("true_msg"); 
+	if ("false".equals(answerKey)) answerKey = rb.getString("false_msg");
+	return answerKey;
+  }
+
   
   public void setAttachment(Long itemGradingId){
 	  List itemGradingAttachmentList = new ArrayList();

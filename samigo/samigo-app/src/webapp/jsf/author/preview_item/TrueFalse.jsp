@@ -47,7 +47,7 @@ should be included in file importing DeliveryMessages
 
 <h:panelGroup>
   <h:outputLabel value="#{authorMessages.answerKey}: "/>
-  <h:outputText escape="false" value="#{question.itemData.answerKey}" />
+  <h:outputText escape="false" value="#{question.answerKeyTF}" />
 <f:verbatim><br/></f:verbatim>
 </h:panelGroup>
 <h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2'}">
