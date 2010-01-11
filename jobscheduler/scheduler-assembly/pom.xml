@@ -44,7 +44,7 @@
         </dependency>
         <!-- Substitute for now redundant scheduler-shared-deploy pom that put quartz in shared. arwhyte 9 Dec. 2009  -->
         <dependency>
-            <groupId>quartz</groupId>
+            <groupId>org.opensymphony.quartz</groupId>
             <artifactId>quartz</artifactId>
             <scope>compile</scope>
             <type>jar</type>

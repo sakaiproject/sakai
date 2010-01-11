@@ -41,7 +41,7 @@
             <artifactId>commons-logging</artifactId>
         </dependency>
         <dependency>
-            <groupId>quartz</groupId>
+            <groupId>org.opensymphony.quartz</groupId>
             <artifactId>quartz</artifactId>
         </dependency>
     </dependencies>
