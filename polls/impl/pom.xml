@@ -1,193 +1,185 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>polls</artifactId>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject.polls</groupId>
+        <artifactId>polls</artifactId>
+        <version>1.4-SNAPSHOT</version>
+    </parent>
+
+    <name>Sakai Polls Implementation Module (polls-impl)</name>
     <groupId>org.sakaiproject.polls</groupId>
-    <version>1.3-SNAPSHOT</version><!-- polls.version -->
-    <relativePath>../pom.xml</relativePath>
-  </parent>
-  <name>sakai-poll-impl</name>
-  <groupId>org.sakaiproject.polls</groupId>
-  <artifactId>poll-impl</artifactId>
-  <description>
-    This project creates the impl used by the Sakai Poll Tool
+    <artifactId>polls-impl</artifactId>
+    <packaging>jar</packaging>
+
+    <description>
+    This project provides the implementation used by the Sakai Poll Tool.
   </description>
-  <packaging>jar</packaging>
-  <dependencies>
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-component-manager</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.entitybroker</groupId>
-      <artifactId>entitybroker-api</artifactId>
-    </dependency>
-    <dependency>
-    	<groupId>org.sakaiproject</groupId>
-    	<artifactId>generic-dao</artifactId>
-    	<version>0.9.17</version>
-    </dependency>
-<!-- internal dependencies -->
-    <dependency>
-      <groupId>org.sakaiproject.polls</groupId>
-      <artifactId>poll-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>antlr</groupId>
-      <artifactId>antlr</artifactId>
-      <version>2.7.6</version>
-    </dependency>
-<!-- Various Sakai dependencies -->
-<!-- Apache commons dependencies -->
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
-      <!-- testing dependencies -->
-      <dependency>
-         <groupId>org.springframework</groupId>
-         <artifactId>spring-test</artifactId>
-        <version>2.5.6.SEC01</version> 
-         <scope>test</scope>
-      </dependency>
 
-      <dependency>
-         <groupId>hsqldb</groupId>
-         <artifactId>hsqldb</artifactId>
-         <version>1.8.0.5</version>
-         <scope>provided</scope>
-      </dependency>
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>polls-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.entitybroker</groupId>
+            <artifactId>entitybroker-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>generic-dao</artifactId>
+            <version>0.9.17</version>
+        </dependency>
+        <dependency>
+            <groupId>antlr</groupId>
+            <artifactId>antlr</artifactId>
+            <version>2.7.6</version>
+        </dependency>
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-nodep</artifactId>
+            <version>2.1_3</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.3</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.2</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+            <version>1.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+            <version>1.6.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <version>1.2_Java1.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>1.8.0.5</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>jta</groupId>
+            <artifactId>jta</artifactId>
+            <version>h2.1.8</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>2.5.6.SEC01</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>oro</groupId>
+            <artifactId>oro</artifactId>
+            <version>2.0.8</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <!-- <version>${sakai.ehcache.version}</version> -->
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
-      <dependency>
-         <groupId>dom4j</groupId>
-         <artifactId>dom4j</artifactId>
-         <version>1.6.1</version>
-         <scope>provided</scope>
-      </dependency>
-
-      <dependency>
-         <groupId>jta</groupId>
-         <artifactId>jta</artifactId>
-         <version>h2.1.8</version>
-         <scope>provided</scope>
-      </dependency>
-
-      <dependency>
-         <groupId>cglib</groupId>
-         <artifactId>cglib-nodep</artifactId>
-         <version>2.1_3</version>
-      </dependency>
-
-      <dependency>
-         <groupId>commons-codec</groupId>
-         <artifactId>commons-codec</artifactId>
-         <version>1.3</version>
-      </dependency>
-
-      <dependency>
-         <groupId>commons-collections</groupId>
-         <artifactId>commons-collections</artifactId>
-         <version>3.2</version>
-      </dependency>
-
-      <dependency>
-         <groupId>net.sf.ehcache</groupId>
-         <artifactId>ehcache</artifactId>
-         <!-- <version>${sakai.ehcache.version}</version> -->
-         <scope>provided</scope>
-      </dependency>
-
-      <dependency>
-         <groupId>easymock</groupId>
-         <artifactId>easymock</artifactId>
-         <version>1.2_Java1.3</version>
-         <scope>test</scope>
-      </dependency>
-
-      <dependency>
-         <groupId>junit</groupId>
-         <artifactId>junit</artifactId>
-         <version>3.8.1</version>
-      </dependency>
-
-      <dependency>
-      	<groupId>commons-validator</groupId>
-      	<artifactId>commons-validator</artifactId>
-      	<version>1.3.1</version>
-      </dependency>
-
-	  <dependency>
-	  	<groupId>oro</groupId>
-	  	<artifactId>oro</artifactId>
-	  	<version>2.0.8</version>
-	  </dependency>
-   
-  </dependencies>
-  <build>
-    <resources>
-      <resource>
-        <directory>${basedir}/src/bundle</directory>
-        <includes>
-          <include>**/*.*</include>
-        </includes>
-        <filtering>false</filtering>
-      </resource>
-      <resource>
-        <directory>${basedir}/src/java</directory>
-        <includes>
-          <include>**/*.xml</include>
-          <include>**/*.xslt</include>
-        </includes>
-        <filtering>false</filtering>
-      </resource>
-    </resources>
-      <!-- unit testing -->
-      <plugins>
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <!--
-               By default, the surefire plugin will automatically include all test classes with the following wildcard patterns:
-               "**/Test*.java" - includes all of its subdirectory and all java filenames that start with "Test".
-               "**/*Test.java" - includes all of its subdirectory and all java filenames that end with "Test".
-               "**/*TestCase.java" - includes all of its subdirectory and all java filenames that end with "TestCase".
-            -->
-         </plugin>
-      </plugins>
-      <testResources>
-         <testResource>
-            <directory>${basedir}/../pack/src/webapp/WEB-INF</directory>
-            <includes>
-               <include>spring-hibernate.xml</include>
-               <include>logic-support.xml</include>
-            </includes>
-         </testResource>
-         <testResource>
-            <directory>${basedir}/src/test</directory>
-            <includes>
-               <include>hibernate-test.xml</include>
-               <include>hibernate.properties</include>
-            </includes>
-         </testResource>
-      </testResources>
-   
-
-  </build>
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/bundle</directory>
+                <includes>
+                    <include>**/*.*</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                    <include>**/*.xslt</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+        <!-- unit testing -->
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <!--
+                    By default, the surefire plugin will automatically
+                    include all test classes with the following wildcard
+                    patterns: "**/Test*.java" - includes all of its
+                    subdirectory and all java filenames that start with
+                    "Test". "**/*Test.java" - includes all of its
+                    subdirectory and all java filenames that end with
+                    "Test". "**/*TestCase.java" - includes all of its
+                    subdirectory and all java filenames that end with
+                    "TestCase".
+                -->
+            </plugin>
+        </plugins>
+        <testResources>
+            <testResource>
+                <directory>${basedir}/../pack/src/webapp/WEB-INF</directory>
+                <includes>
+                    <include>spring-hibernate.xml</include>
+                    <include>logic-support.xml</include>
+                </includes>
+            </testResource>
+            <testResource>
+                <directory>${basedir}/src/test</directory>
+                <includes>
+                    <include>hibernate-test.xml</include>
+                    <include>hibernate.properties</include>
+                </includes>
+            </testResource>
+        </testResources>
+    </build>
 </project>

@@ -1,75 +1,157 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.sakaiproject.polls</groupId>
-  <artifactId>polls</artifactId>
-  <name>Sakai Polls Project</name>
-  <packaging>pom</packaging>
-  <version>1.3-SNAPSHOT</version>
-<!-- polls.version -->
-  <licenses>
-    <license>
-      <name>ECL-2.0</name>
-      <url>http://www.osedu.org/licenses/ECL-2.0</url>
-      <distribution>repo</distribution>
-      <comments>Copyright 2003, 2004, 2005, 2006, 2007 Sakai Foundation</comments>
-    </license>
-  </licenses>
-<!-- parent is sakai master -->
-  <parent>
-    <artifactId>master</artifactId>
-    <groupId>org.sakaiproject</groupId>
-    <version>2.8-SNAPSHOT</version>
-    <relativePath>../master/pom.xml</relativePath>
-  </parent>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/polls/branches/SAK-16313</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/polls/branches/SAK-16313</developerConnection>
-    <url>https://source.sakaiproject.org/svn/polls/branches/SAK-16313</url>
-  </scm>
-	<distributionManagement>
-		<snapshotRepository>
-			<uniqueVersion>false</uniqueVersion>
-			<id>sakai-maven-snapshots</id>
-			<name>Sakai snapshot Repo</name>
-			<url>dav:https://source.sakaiproject.org/maven2-snapshots</url>
-			<layout>default</layout>
-		</snapshotRepository>
-		<repository>
-			<uniqueVersion>false</uniqueVersion>
-			<id>sakai-maven2</id>
-			<name>Local Test</name>
-			<url>dav:http://source.sakaiproject.org/maven2</url>
-			<layout>default</layout>
-		</repository>
-		<site>
-			<id>local</id>
-			<name>Local Test</name>
-			<url>file:///tmp/site</url>
-		</site>
-        </distributionManagement>
-  <modules>
-    <module>api</module>
-    <module>poll-help</module>
-    <module>impl</module>
-    <module>pack</module>
-    <module>tool</module>
-  </modules>
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.sakaiproject.polls</groupId>
-        <artifactId>poll-api</artifactId>
-        <version>1.3-SNAPSHOT</version>
-<!-- polls.version -->
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.polls</groupId>
-        <artifactId>poll-impl</artifactId>
-        <version>1.3-SNAPSHOT</version>
-<!-- polls.version -->
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject.purepoms</groupId>
+        <artifactId>sakai-standard-tool</artifactId>
+        <version>2.7.0-build05-SNAPSHOT</version>
+    </parent>
+
+    <name>Sakai Polls Project base pom (polls)</name>
+    <groupId>org.sakaiproject.polls</groupId>
+    <artifactId>polls</artifactId>
+    <packaging>pom</packaging>
+    <version>1.4-SNAPSHOT</version>
+
+    <licenses>
+        <license>
+            <name>ECL-2.0</name>
+            <url>http://www.osedu.org/licenses/ECL-2.0</url>
+            <distribution>repo</distribution>
+            <comments>Copyright 2003-2010 Sakai Foundation</comments>
+        </license>
+    </licenses>
+
+    <modules>
+        <module>api</module>
+        <module>assembly</module>
+        <module>impl</module>
+        <module>pack</module>
+        <module>poll-help</module>
+        <module>tool</module>
+    </modules>
+    
+    <properties>
+        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/polls/${project.version}</url.localsite>
+    </properties>
+
+    <scm>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/polls/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/polls/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/polls/trunk</url>
+    </scm>
+
+    <distributionManagement>
+        <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
+        <snapshotRepository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>sakai-maven-snapshots-scp</id>
+            <name>Sakai snapshot Repo</name>
+            <url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
+            <layout>default</layout>
+        </snapshotRepository>
+        <repository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>sakai-maven2-scp</id>
+            <name>Sakai maven2 repository</name>
+            <url>scp://source.sakaiproject.org/var/www/html/maven2</url>
+            <layout>default</layout>
+        </repository>
+        <site>
+            <id>sakai-site</id>
+            <name>Sakai release Site</name>
+            <url>${url.localsite}</url>
+        </site>
+    </distributionManagement>
+    
+    <pluginRepositories>
+        <pluginRepository>
+            <id>Sakai Plugin Repo</id>
+            <url>http://source.sakaiproject.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <repositories>
+        <repository>
+            <id>sakai-maven2</id>
+            <name>Sakai Maven Repository</name>
+            <layout>default</layout>
+            <url>http://source.sakaiproject.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>sakai-maven2-snapshots</id>
+            <name>Sakai Maven Repo Snapshots</name>
+            <layout>default</layout>
+            <url>http://source.sakaiproject.org/maven2-snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>default</id>
+            <name>Maven Repository Switchboard</name>
+            <layout>default</layout>
+            <url>http://repo1.maven.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>polls-api</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>polls-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.6.1</version>
+                <configuration>
+                    <debug>true</debug>
+                    <links>
+                        <link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
+                    </links>
+                    <breakiterator>true</breakiterator>
+                    <verbose>false</verbose>
+                    <aggregate>true</aggregate>
+                    <maxmemory>512m</maxmemory>
+                    <additionalJOption>-J-Xms168m -J-Xmx512m -J-XX:PermSize=128m -J-XX:NewSize=64m</additionalJOption>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
 </project>

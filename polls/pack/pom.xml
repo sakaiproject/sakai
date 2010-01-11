@@ -1,26 +1,31 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>polls</artifactId>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject.polls</groupId>
+        <artifactId>polls</artifactId>
+        <version>1.4-SNAPSHOT</version>
+    </parent>
+
+    <name>Sakai Polls Component Package (polls-pack)</name>
     <groupId>org.sakaiproject.polls</groupId>
-    <version>1.3-SNAPSHOT</version><!-- polls.version -->
-    <relativePath>../pom.xml</relativePath>
-  </parent>
-  <name>sakai-poll-pack</name>
-  <groupId>org.sakaiproject.polls</groupId>
-  <artifactId>sakai-poll-pack</artifactId>
-  <description>
+    <artifactId>polls-pack</artifactId>
+    <packaging>sakai-component</packaging>
+
+    <description>
     This project creates the pack used by the Sakai Poll Tool
-  </description>
-  <packaging>sakai-component</packaging>
-  <properties>
-    <deploy.target>components</deploy.target>
-  </properties>
-  <dependencies>
-    <dependency>
-      <groupId>org.sakaiproject.polls</groupId>
-      <artifactId>poll-impl</artifactId>
-    </dependency>
-  </dependencies>
+    </description>
+
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>polls-impl</artifactId>
+        </dependency>
+    </dependencies>
 </project>
