@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -55,7 +56,8 @@ public class ConfirmedFriendsDataProvider implements IDataProvider, Serializable
 		//get list of friends for user
 		friends = getFriendsForUser(userId);
 		
-		//TODO sort list here based on some criteria.
+		//sort list based on natural sort of Person model
+		Collections.sort(friends);
 	}
 	
 	//this is a helper method to process our friends list

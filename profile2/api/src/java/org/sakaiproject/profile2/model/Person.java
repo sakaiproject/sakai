@@ -1,6 +1,7 @@
 package org.sakaiproject.profile2.model;
 
 import java.io.Serializable;
+import java.util.Comparator;
 
 
 /** 
@@ -20,7 +21,7 @@ import java.io.Serializable;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class Person implements Serializable {
+public class Person implements Serializable, Comparable {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -109,6 +110,12 @@ public class Person implements Serializable {
 		this.preferences = preferences;
 	}
 	
+	//default sort
+	public int compareTo(Object o) {
+		String field = ((Person)o).getDisplayName();
+        int lastCmp = displayName.compareTo(field);
+        return (lastCmp != 0 ? lastCmp : displayName.compareTo(field));
+	}
 	
 	
 }

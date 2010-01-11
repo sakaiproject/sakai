@@ -50,6 +50,9 @@ public class RequestedFriendsDataProvider implements IDataProvider, Serializable
 		
 		//get list of requests for user
 		requests = getFriendsForUser(userId);
+		
+		//sort list based on natural sort of Person model
+		Collections.sort(requests);
 	}
 	
 	//this is a helper method to process our friends list
