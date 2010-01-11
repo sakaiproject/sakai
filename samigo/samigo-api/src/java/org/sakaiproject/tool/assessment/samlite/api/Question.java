@@ -19,6 +19,7 @@ public class Question {
 	private String correctAnswer;
 	private List answers;
 	private boolean hasPoints;
+	private String questionTypeAsString;
 	
 	public Question() {
 		this.questionNumber = 0;
@@ -28,6 +29,7 @@ public class Question {
 		this.correctAnswer = "";
 		this.answers = new LinkedList();
 		this.hasPoints = false;
+		this.questionTypeAsString = "";
 	}
 
 	public void addAnswer(String id, String text, boolean isCorrect) {
@@ -95,31 +97,20 @@ public class Question {
 		return hasPoints;
 	}
 
-	public String getQuestionTypeAsString() {
-		switch (questionType) {
-		case MULTIPLE_CHOICE_QUESTION:
-			return "Multiple Choice";
-		case MULTIPLE_CHOICE_MULTIPLE_ANSWER_QUESTION:
-			return "Multiple Correct Choices";
-		case FILL_IN_THE_BLANK_QUESTION:
-			return "Fill in the Blank";
-		case TRUE_FALSE_QUESTION:
-			return "True/False";
-		case SHORT_ESSAY_QUESTION:
-			return "Short Essay";
-		};
-		return "Unrecognized Type";
-	}
-	
 	public int getQuestionType() {
 		return questionType;
 	}
-
 
 	public void setQuestionType(int questionType) {
 		this.questionType = questionType;
 	}
 	
-	
+	public String getQuestionTypeAsString() {
+		return questionTypeAsString;
+	}
+
+	public void setQuestionTypeAsString(String questionTypeAsString) {
+		this.questionTypeAsString = questionTypeAsString;
+	}
 	
 }
