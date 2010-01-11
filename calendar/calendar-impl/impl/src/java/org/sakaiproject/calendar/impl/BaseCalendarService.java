@@ -1714,8 +1714,6 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
 			Set userListAllowImport)
 	{
-		Map ids = new HashMap();
-
 		// prepare the buffer for the results log
 		StringBuilder results = new StringBuilder();
 
@@ -6006,7 +6004,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			String baseDir = getClass().getClassLoader().getResource(FOP_FONTBASEDIR).toString();
 			Configuration.put("fontBaseDir", baseDir);
 			InputStream userConfig = getClass().getClassLoader().getResourceAsStream(FOP_USERCONFIG);
-			Options options = new Options(userConfig);
+			new Options(userConfig);
 		}
       catch (FOPException fe){
 			M_log.warn(this+".generatePDF: ", fe);

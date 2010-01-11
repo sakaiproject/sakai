@@ -203,20 +203,22 @@ public class EventSummary implements Serializable {
 		setHasAttachments(attachments != null && attachments.size() > 0); 
 		this.attachmentsWrp = new ArrayList();
 		if(attachments == null){
-			attachments		= new ArrayList();
+			this.attachments = new ArrayList();
 			return;
 		}
 		this.attachments = attachments;
 		Iterator it = attachments.iterator();
 		while(it.hasNext()){
 			Reference ref = (Reference) it.next();
-			try{
-				AttachmentWrapper aw = new AttachmentWrapper();
-				aw.setUrl(ref.getUrl());
-				aw.setDisplayName(ref.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME));
-				attachmentsWrp.add(aw);
-			}catch(Exception e) {
-				// Ignore malformed/forbidden/invalid attachment
+			if(ref != null){
+				ResourceProperties resProp = ref.getProperties();
+				if(resProp != null) {
+					String displayName = resProp.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+					AttachmentWrapper aw = new AttachmentWrapper();
+					aw.setUrl(ref.getUrl());
+					aw.setDisplayName(displayName);
+					attachmentsWrp.add(aw);
+				}
 			}
 		}
 	}

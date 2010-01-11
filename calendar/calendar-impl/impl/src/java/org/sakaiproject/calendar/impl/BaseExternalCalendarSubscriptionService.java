@@ -820,6 +820,16 @@ public class BaseExternalCalendarSubscriptionService implements
 						((BaseExternalSubscription) o).getReference());
 			return false;
 		}
+		
+		@Override
+		public int hashCode() {
+			int hashCode = super.hashCode(); 
+			if (getReference() != null)
+			{
+				hashCode += getReference().hashCode();
+			};
+			return hashCode;
+		}
 
 		@Override
 		public String toString()
@@ -1110,7 +1120,7 @@ public class BaseExternalCalendarSubscriptionService implements
 
 		public void setName(String calendarName)
 		{
-			this.m_name = m_name;
+			this.m_name = calendarName;
 		}
 
 		/**
@@ -1569,7 +1579,8 @@ public class BaseExternalCalendarSubscriptionService implements
 
 		private Map<String, Long> cacheTime;
 
-		private SubscriptionExpiredListener listener = null;
+		private SubscriptionExpiredListener listener;
+		private Object listenerLock = new Object();
 
 		public SubscriptionCacheMap()
 		{
@@ -1600,20 +1611,15 @@ public class BaseExternalCalendarSubscriptionService implements
 
 		public void setSubscriptionExpiredListener(SubscriptionExpiredListener listener)
 		{
-			if(this.listener != null)
+			synchronized(listenerLock)
 			{
-				synchronized(this.listener)
-				{
-					this.listener = listener;
-				}
-			}
-			else
 				this.listener = listener;
+			}
 		}
 
 		public void removeSubscriptionExpiredListener()
 		{
-			synchronized(this.listener)
+			synchronized(listenerLock)
 			{
 				this.listener = null;
 			}
@@ -1622,11 +1628,7 @@ public class BaseExternalCalendarSubscriptionService implements
 		@Override
 		public ExternalSubscription get(Object arg0)
 		{
-			ExternalSubscription e = null;
-			synchronized (this)
-			{
-				e = super.get(arg0);
-			}
+			ExternalSubscription e = super.get(arg0);
 			return e;
 		}
 
@@ -1705,23 +1707,17 @@ public class BaseExternalCalendarSubscriptionService implements
 					// value (ExternalSubscription)
 					for (String key : toClear)
 					{
-						synchronized (this)
+						synchronized (listenerLock)
 						{
 							ExternalSubscription e = this.get(key);
-							if (e != null && e.getCalendar() != null)
+							if (e != null)
 							{
-								Calendar c = e.getCalendar();
 								e.setCalendar(null);
 								this.put(key, e);
-								m_log
-										.debug("Cleared cache for expired Calendar Subscription: "
-												+ key);
-								synchronized(listener)
+								m_log.debug("Cleared cache for expired Calendar Subscription: " + key);
+								if (listener != null)
 								{
-									if (listener != null)
-									{
-										listener.subscriptionExpired(key, e);
-									}
+									listener.subscriptionExpired(key, e);
 								}
 							}
 						}
@@ -1803,10 +1799,12 @@ public class BaseExternalCalendarSubscriptionService implements
 			{
 				// if is a User-specified calendar, re-load expired
 				m_log.debug("Re-loading user-specified calendar: " + subscriptionUrl);
-				ExternalSubscription s = loadCalendarSubscriptionFromUrl(subscriptionUrl,
+				if (subscription != null) {
+					ExternalSubscription s = loadCalendarSubscriptionFromUrl(subscriptionUrl,
 						subscription.getContext());
-				if (subscription != null)
-					userSubscriptions.put(subscriptionUrl, subscription);
+					//userSubscriptions.put(subscriptionUrl, subscription);
+					userSubscriptions.put(subscriptionUrl, s);
+				}
 			}
 		}
 	}

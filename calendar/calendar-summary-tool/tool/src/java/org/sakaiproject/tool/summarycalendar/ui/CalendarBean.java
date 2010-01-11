@@ -230,7 +230,7 @@ public class CalendarBean {
 	 **/
 	private MergedList loadChannels(String primaryCalendarReference, String initMergeList, MergedList.EntryProvider entryProvider) {
 		MergedList mergedCalendarList = new MergedList();
-		String[] channelArray = null;
+		String[] channelArray;
 		boolean isOnWorkspaceTab = M_ss.isUserSite(getSiteId());
 
 		// Figure out the list of channel references that we'll be using.
@@ -665,7 +665,7 @@ public class CalendarBean {
 			}
 			
 			for(int i=0; i<7; i++){
-				Day day = (Day) week1.getDay(i);
+				Day day;
 				boolean sameMonth = (selMonth == c.get(Calendar.MONTH));
 				boolean selected = (selectedDay != null) && (sameDay(c, selectedDay));
 
