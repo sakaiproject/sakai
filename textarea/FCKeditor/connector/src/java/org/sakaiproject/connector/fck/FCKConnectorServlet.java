@@ -464,6 +464,7 @@ public class FCKConnectorServlet extends HttpServlet {
                          if ( ("File".equals(type) && (ext != null) ) || 
                               ("Flash".equals(type) && ext.equalsIgnoreCase("application/x-shockwave-flash") ) ||
                               ("Image".equals(type) && ext.startsWith("image") ) ||
+                              ("Media".equals(type) && (ext.startsWith("video") || ext.startsWith("audio") || ext.equalsIgnoreCase("application/x-shockwave-flash")) ) ||
                               "Link".equals(type)) {
 
                               String id = current.getId();
