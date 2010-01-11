@@ -28,9 +28,9 @@ public class MessageThread implements Serializable {
 	
 	
 	/**
-	 * reference to the most recent message in this thread - not persisted.
+	 * the most recent message in this thread - not persisted.
 	 */
-	private long mostRecentMessageId;
+	private Message mostRecentMessage;
 	
 	
 	
@@ -54,11 +54,11 @@ public class MessageThread implements Serializable {
 		this.subject = subject;
 	}
 	
-	public long getMostRecentMessageId() {
-		return mostRecentMessageId;
+	public Message getMostRecentMessage() {
+		return mostRecentMessage;
 	}
-	public void setMostRecentMessageId(long mostRecentMessageId) {
-		this.mostRecentMessageId = mostRecentMessageId;
+	public void setMostRecentMessageId(Message mostRecentMessage) {
+		this.mostRecentMessage = mostRecentMessage;
 	}
 
 	
@@ -68,6 +68,7 @@ public class MessageThread implements Serializable {
 		return new ToStringBuilder(this).
 			append("id", id).
 			append("subject", subject).
+			append("message", mostRecentMessage.toString()).
 			toString();
 	}
 	

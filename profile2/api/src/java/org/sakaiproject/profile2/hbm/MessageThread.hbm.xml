@@ -16,5 +16,16 @@
 		
   	</class>
   	
+  	<query name="getThread">
+    	<![CDATA[from MessageThread as thread where thread.id = :id]]>
+	</query>
+	
+	<sql-query name="getMessageThreads">
+		<return alias="thread" class="MessageThread"/>
+    	<![CDATA[select {thread.*} from PROFILE_MESSAGE_THREADS_T thread inner join (select max(msg.ID) as id from PROFILE_MESSAGES_T msg group by msg.MESSAGE_THREAD) messages on messages.ID = thread.ID where message.UUID_TO=:to order by DATE_POSTED desc]]>
+	</sql-query>
+	
+	
+	
 
 </hibernate-mapping>

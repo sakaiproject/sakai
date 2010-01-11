@@ -20,6 +20,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.sakaiproject.profile2.model.Message;
+import org.sakaiproject.profile2.model.MessageThread;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileFriend;
 import org.sakaiproject.profile2.model.ProfileImage;
@@ -66,16 +67,15 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	private static final String QUERY_LIST_ALL_SAKAI_PERSONS = "listAllSakaiPersons"; 
 	private static final String QUERY_GET_PREFERENCES_RECORD = "getPreferencesRecord"; 
 	private static final String QUERY_GET_EXTERNAL_IMAGE_RECORD = "getProfileImageExternalRecord"; 
-	private static final String QUERY_GET_ALL_UNREAD_MESSAGES_COUNT="getAllUnreadMessagesCount";
-	private static final String QUERY_GET_THREADS_WITH_UNREAD_MESSAGES_COUNT="getThreadsWithUnreadMessagesCount";
-
-	
-	private static final String QUERY_GET_MESSAGE_THREAD_HEADERS="getMessageThreadHeaders";
-	private static final String QUERY_GET_MESSAGE_THREAD_HEADERS_COUNT="getMessageThreadHeadersCount";
-	private static final String QUERY_GET_MESSAGES_FOR_THREAD="getMessagesForThread";
-	private static final String QUERY_GET_MESSAGES_FOR_THREAD_COUNT="getMessagesForThreadCount";
-	
+	private static final String QUERY_GET_ALL_UNREAD_MESSAGES_COUNT = "getAllUnreadMessagesCount";
+	private static final String QUERY_GET_THREADS_WITH_UNREAD_MESSAGES_COUNT = "getThreadsWithUnreadMessagesCount";
+	private static final String QUERY_GET_LATEST_MESSAGE_IN_THREAD = "getLatestMessageInThread";
+	private static final String QUERY_GET_MESSAGE_THREADS="getMessageThreads";
+	private static final String QUERY_GET_MESSAGE_THREADS_COUNT="getMessageThreadsCount";
+	private static final String QUERY_GET_MESSAGES_IN_THREAD="getMessagesInThread";
+	private static final String QUERY_GET_MESSAGES_IN_THREAD_COUNT="getMessagesInThreadCount";
 	private static final String QUERY_GET_MESSAGE="getMessage";
+	private static final String QUERY_GET_THREAD="getThread";
 
 
 	// Hibernate object fields
@@ -1732,28 +1732,28 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	public List<Message> getMessageThreadHeaders(final String userId) {
+	public List<MessageThread> getMessageThreads(final String userId) {
 		
-		List<Message> messages = new ArrayList<Message>();
+		List<MessageThread> threads = new ArrayList<MessageThread>();
 		
 		//get 
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  		
-	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGE_THREAD_HEADERS);
+	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGE_THREADS);
 	  			q.setParameter(TO, userId, Hibernate.STRING);
 	  			return q.list();
 	  		}
 	  	};
 	  	
-	  	messages = (List<Message>) getHibernateTemplate().executeFind(hcb);
-	  	return messages;
+	  	threads = (List<MessageThread>) getHibernateTemplate().executeFind(hcb);
+	  	return threads;
 	}
 	
 	/**
  	 * {@inheritDoc}
  	 */
-	public int getMessageThreadHeadersCount(final String userId) {
+	public int getMessageThreadsCount(final String userId) {
 		
 		int count = 0;
 		
@@ -1761,7 +1761,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  		
-	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGE_THREAD_HEADERS_COUNT);
+	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGE_THREADS_COUNT);
 	  			q.setParameter(TO, userId, Hibernate.STRING);
 	  			return q.uniqueResult();
 	  		}
@@ -1774,7 +1774,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	public List<Message> getMessagesForThread(final String threadId) {
+	public List<Message> getMessagesInThread(final String threadId) {
 		
 		List<Message> messages = new ArrayList<Message>();
 		
@@ -1782,7 +1782,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  		
-	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGES_FOR_THREAD);
+	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGES_IN_THREAD);
 	  			q.setParameter(THREAD, threadId, Hibernate.STRING);
 	  			return q.list();
 	  		}
@@ -1796,7 +1796,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	public int getMessagesForThreadCount(final String threadId) {
+	public int getMessagesInThreadCount(final String threadId) {
 		
 		int count = 0;
 		
@@ -1804,7 +1804,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  		
-	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGES_FOR_THREAD_COUNT);
+	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGES_IN_THREAD_COUNT);
 	  			q.setParameter(THREAD, threadId, Hibernate.STRING);
 	  			return q.uniqueResult();
 	  		}
@@ -1832,6 +1832,50 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	
 		return (Message) getHibernateTemplate().execute(hcb);
 	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public MessageThread getMessageThread(final String threadId) {
+		
+		MessageThread thread = null;
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_THREAD);
+	  			q.setParameter(ID, threadId, Hibernate.STRING);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		thread = (MessageThread)getHibernateTemplate().execute(hcb);
+		if(thread == null) {
+			return null;
+		}
+		
+		//add the latest message for this thread
+		thread.setMostRecentMessageId(getLatestMessageInThread(threadId));
+		
+		return thread;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public Message getLatestMessageInThread(final String threadId) {
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_LATEST_MESSAGE_IN_THREAD);
+	  			q.setParameter(ID, threadId, Hibernate.STRING);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		return (Message) getHibernateTemplate().execute(hcb);
+	}
+
 	
 	/**
  	 * {@inheritDoc}
@@ -2334,8 +2378,6 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	public void setSakaiProxy(SakaiProxy sakaiProxy) {
 		this.sakaiProxy = sakaiProxy;
 	}
-
-	
 
 	
 	//setup TinyUrlService API

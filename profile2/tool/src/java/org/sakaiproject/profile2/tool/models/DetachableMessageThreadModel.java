@@ -1,20 +1,21 @@
 package org.sakaiproject.profile2.tool.models;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.sakaiproject.profile2.logic.ProfileLogic;
-import org.sakaiproject.profile2.model.Message;
+import org.sakaiproject.profile2.model.MessageThread;
 import org.sakaiproject.profile2.tool.Locator;
 
 /**
- * Detachable model for an instance of Message
+ * Detachable model for an instance of MessageThread
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  * 
  */
-public class DetachableMessageModel extends LoadableDetachableModel<Message>{
+public class DetachableMessageThreadModel extends LoadableDetachableModel<MessageThread>{
 
 	private static final long serialVersionUID = 1L;
-	private final long id;
+	private final String threadId;
 
 	protected ProfileLogic getProfileLogic(){
 		return Locator.getProfileLogic();
@@ -23,25 +24,25 @@ public class DetachableMessageModel extends LoadableDetachableModel<Message>{
 	/**
 	 * @param c
 	 */
-	public DetachableMessageModel(Message m){
-		this.id = m.getId();
+	public DetachableMessageThreadModel(MessageThread m){
+		this.threadId = m.getId();
 	}
 	
 	/**
 	 * @param id
 	 */
-	public DetachableMessageModel(long id){
-		if (id == 0) {
+	public DetachableMessageThreadModel(String threadId){
+		if (StringUtils.isBlank(threadId)) {
 			throw new IllegalArgumentException();
 		}
-		this.id = id;
+		this.threadId = threadId;
 	}
 	
 	/**
 	 * @see java.lang.Object#hashCode()
 	 */
 	public int hashCode() {
-		return Long.valueOf(id).hashCode();
+		return threadId.hashCode();
 	}
 	
 	/**
@@ -58,8 +59,8 @@ public class DetachableMessageModel extends LoadableDetachableModel<Message>{
 			return false;
 		}
 		else if (obj instanceof DetachableMessageModel) {
-			DetachableMessageModel other = (DetachableMessageModel)obj;
-			return other.id == id;
+			DetachableMessageThreadModel other = (DetachableMessageThreadModel)obj;
+			return other.threadId == threadId;
 		}
 		return false;
 	}
@@ -67,8 +68,7 @@ public class DetachableMessageModel extends LoadableDetachableModel<Message>{
 	/**
 	 * @see org.apache.wicket.model.LoadableDetachableModel#load()
 	 */
-	protected Message load(){
-		// loads message from the database
-		return getProfileLogic().getMessage(id);
+	protected MessageThread load(){
+		return getProfileLogic().getMessageThread(threadId);
 	}
 }

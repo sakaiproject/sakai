@@ -16,7 +16,6 @@
 
 	    <property name="to" column="UUID_TO" length="99" not-null="true" index="PROFILE_MESSAGES_TO_I" />
 	    <property name="from" column="UUID_FROM" length="99" not-null="true" index="PROFILE_MESSAGES_FROM_I" />
-		<property name="subject" column="MESSAGE_SUBJECT" length="255" not-null="true" />
 		<property name="message" column="MESSAGE_BODY" length="4000" not-null="true"/>
 		<property name="thread" column="MESSAGE_THREAD" length="99" not-null="true" index="PROFILE_MESSAGES_THREAD_I" />
 	    <property name="read" column="MESSAGE_READ" not-null="true" index="PROFILE_MESSAGES_READ_I" />
@@ -33,20 +32,27 @@
     	<![CDATA[select count(distinct message.thread) from Message as message where (message.to = :to and message.read = :false)]]>
 	</query>
 	
-	<sql-query name="getMessageThreadHeaders">
+	<!-- 
+	<sql-query name="getMessageThreads">
 		<return alias="message" class="Message"/>
     	<![CDATA[select {message.*} from PROFILE_MESSAGES_T message inner join (select max(msg.ID) as id from PROFILE_MESSAGES_T msg group by msg.MESSAGE_THREAD) messages on message.ID = messages.ID where message.UUID_TO=:to order by DATE_POSTED desc]]>
 	</sql-query>
+	-->
 	
-	<query name="getMessageThreadHeadersCount">
+	<query name="getLatestMessageInThread">
+    	<![CDATA[from Message as message where message.thread = :thread order by message.datePosted desc]]>
+	</query>
+	
+	<!--  even though this counts MessageThreads, we use the Message table because all info we need is there -->
+	<query name="getMessageThreadsCount">
     	<![CDATA[select count(distinct message.thread) from Message as message where message.to = :to]]>
 	</query>
 	
-	<query name="getMessagesForThread">
+	<query name="getMessagesInThread">
     	<![CDATA[from Message as message where message.thread = :thread order by message.datePosted asc]]>
 	</query>
 	
-	<query name="getMessagesForThreadCount">
+	<query name="getMessagesInThreadCount">
     	<![CDATA[select count(distinct message.id) from Message as message where message.thread = :thread]]>
 	</query>
 	

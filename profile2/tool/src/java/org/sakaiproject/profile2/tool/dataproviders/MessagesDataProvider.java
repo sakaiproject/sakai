@@ -12,19 +12,19 @@ import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.models.DetachableMessageModel;
 
 /**
- * Implementation of IDataProvider that retrieves the latest message in each thread
+ * Implementation of IDataProvider that retrieves messages in a given thread
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  * 
  */
 
-public class MessageThreadHeadersDataProvider implements IDataProvider<Message> {
+public class MessagesDataProvider implements IDataProvider<Message> {
     
 	private static final long serialVersionUID = 1L;
-	private final String userUuid;
+	private final String threadId;
 	
-	public MessageThreadHeadersDataProvider(String userUuid) {
-		this.userUuid = userUuid;
+	public MessagesDataProvider(String threadId) {
+		this.threadId = threadId;
 	}
 	
 	protected ProfileLogic getProfileLogic(){
@@ -39,7 +39,7 @@ public class MessageThreadHeadersDataProvider implements IDataProvider<Message> 
 	public Iterator<Message> iterator(int first, int count){
 		
 		try {
-			List<Message> slice = getProfileLogic().getMessageThreadHeaders(userUuid).subList(first, first + count);
+			List<Message> slice = getProfileLogic().getMessagesInThread(threadId).subList(first, first + count);
 			return slice.iterator();
 		}
 		catch (Exception e) {
@@ -54,7 +54,7 @@ public class MessageThreadHeadersDataProvider implements IDataProvider<Message> 
 	 * @see org.apache.wicket.markup.repeater.data.IDataProvider#size()
 	 */
 	public int size(){
-		return getProfileLogic().getMessageThreadHeadersCount(userUuid);
+		return getProfileLogic().getMessagesInThreadCount(threadId);
 	}
 
 	/**

@@ -18,8 +18,9 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.model.Message;
+import org.sakaiproject.profile2.model.MessageThread;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
-import org.sakaiproject.profile2.tool.dataproviders.MessageThreadHeadersDataProvider;
+import org.sakaiproject.profile2.tool.dataproviders.MessageThreadsDataProvider;
 import org.sakaiproject.profile2.tool.pages.panels.ComposeNewMessage;
 import org.sakaiproject.profile2.tool.pages.panels.ConfirmedFriends;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -76,17 +77,19 @@ public class MyMessageThreads extends BasePage {
 		final WebMarkupContainer messageThreadListContainer = new WebMarkupContainer("messageThreadListContainer");
 		messageThreadListContainer.setOutputMarkupId(true);
 		
-		//get our list of messages as an IDataProvider
-		final MessageThreadHeadersDataProvider provider = new MessageThreadHeadersDataProvider(userUuid);
+		//get our list of messages
+		final MessageThreadsDataProvider provider = new MessageThreadsDataProvider(userUuid);
 		int numMessages = provider.size();
 		
 		//message list
-		DataView<Message> messageThreadList = new DataView<Message>("messageThreadList", provider) {
+		DataView<MessageThread> messageThreadList = new DataView<MessageThread>("messageThreadList", provider) {
 			private static final long serialVersionUID = 1L;
 
-			protected void populateItem(final Item<Message> item) {
+			protected void populateItem(final Item<MessageThread> item) {
 		        
-				final Message message = (Message)item.getDefaultModelObject();
+				final MessageThread thread = (MessageThread)item.getDefaultModelObject();
+				
+				final Message message = thread.getMostRecentMessage();
 				final String messageFromUuid = message.getFrom();
 				
 				//friend?
@@ -125,16 +128,16 @@ public class MyMessageThreads extends BasePage {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
 						//mark as read
-						if(!message.isRead()) {
-							profileLogic.toggleMessageRead(message, true);
-						}
+						//if(!message.isRead()) {
+						//	profileLogic.toggleMessageRead(message, true);
+						//}
 						//load messageview panel
 						setResponsePage(new MyMessageView(userUuid, message.getThread()));
 						
 					}
 					
 				};
-				messageSubjectLink.add(new Label("messageSubject", new Model<String>(message.getSubject())));
+				messageSubjectLink.add(new Label("messageSubject", new Model<String>(thread.getSubject())));
 				item.add(messageSubjectLink);
 				
 				//message body

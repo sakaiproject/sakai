@@ -7,24 +7,24 @@ import java.util.List;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.sakaiproject.profile2.logic.ProfileLogic;
-import org.sakaiproject.profile2.model.Message;
+import org.sakaiproject.profile2.model.MessageThread;
 import org.sakaiproject.profile2.tool.Locator;
-import org.sakaiproject.profile2.tool.models.DetachableMessageModel;
+import org.sakaiproject.profile2.tool.models.DetachableMessageThreadModel;
 
 /**
- * Implementation of IDataProvider that retrieves messages in a given thread
+ * Implementation of IDataProvider that retrieves the MessageThreads for a user, containing the most recent message in each
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  * 
  */
 
-public class MessageThreadDataProvider implements IDataProvider<Message> {
+public class MessageThreadsDataProvider implements IDataProvider<MessageThread> {
     
 	private static final long serialVersionUID = 1L;
-	private final String threadId;
+	private final String userUuid;
 	
-	public MessageThreadDataProvider(String threadId) {
-		this.threadId = threadId;
+	public MessageThreadsDataProvider(String userUuid) {
+		this.userUuid = userUuid;
 	}
 	
 	protected ProfileLogic getProfileLogic(){
@@ -32,14 +32,14 @@ public class MessageThreadDataProvider implements IDataProvider<Message> {
 	}
 
 	/**
-	 * retrieves messages from database, gets the sublist and returns an iterator for that sublist
+	 * retrieves threads from database, gets the sublist and returns an iterator for that sublist
 	 * 
 	 * @see org.apache.wicket.markup.repeater.data.IDataProvider#iterator(int, int)
 	 */
-	public Iterator<Message> iterator(int first, int count){
+	public Iterator<MessageThread> iterator(int first, int count){
 		
 		try {
-			List<Message> slice = getProfileLogic().getMessagesForThread(threadId).subList(first, first + count);
+			List<MessageThread> slice = getProfileLogic().getMessageThreads(userUuid).subList(first, first + count);
 			return slice.iterator();
 		}
 		catch (Exception e) {
@@ -54,7 +54,7 @@ public class MessageThreadDataProvider implements IDataProvider<Message> {
 	 * @see org.apache.wicket.markup.repeater.data.IDataProvider#size()
 	 */
 	public int size(){
-		return getProfileLogic().getMessagesForThreadCount(threadId);
+		return getProfileLogic().getMessageThreadsCount(userUuid);
 	}
 
 	/**
@@ -62,8 +62,8 @@ public class MessageThreadDataProvider implements IDataProvider<Message> {
 	 * 
 	 * @see org.apache.wicket.markup.repeater.data.IDataProvider#model(java.lang.Object)
 	 */
-	public IModel<Message> model(Message object){
-		return new DetachableMessageModel(object);
+	public IModel<MessageThread> model(MessageThread object){
+		return new DetachableMessageThreadModel(object);
 	}
 
 	/**

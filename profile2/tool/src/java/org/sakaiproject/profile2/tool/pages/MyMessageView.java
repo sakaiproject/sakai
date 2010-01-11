@@ -20,7 +20,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
-import org.sakaiproject.profile2.tool.dataproviders.MessageThreadDataProvider;
+import org.sakaiproject.profile2.tool.dataproviders.MessagesDataProvider;
 import org.sakaiproject.profile2.tool.models.StringModel;
 import org.sakaiproject.profile2.tool.pages.panels.ConfirmedFriends;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -42,7 +42,6 @@ public class MyMessageView extends BasePage {
 		log.error(userUuid);
 		log.error(threadId);
 		
-		
 		//buttons
 		Form<Void> buttonsForm = new Form<Void>("buttonsForm");
 		
@@ -61,8 +60,8 @@ public class MyMessageView extends BasePage {
 		final WebMarkupContainer messageListContainer = new WebMarkupContainer("messageListContainer");
 		messageListContainer.setOutputMarkupId(true);
 		
-		//get our list of messages as an IDataProvider
-		final MessageThreadDataProvider provider = new MessageThreadDataProvider(threadId);
+		//get our list of messages
+		final MessagesDataProvider provider = new MessagesDataProvider(threadId);
 		
 		DataView<Message> messageList = new DataView<Message>("messageList", provider) {
 			private static final long serialVersionUID = 1L;

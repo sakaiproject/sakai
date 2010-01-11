@@ -3,6 +3,7 @@ package org.sakaiproject.profile2.logic;
 import java.util.List;
 
 import org.sakaiproject.profile2.model.Message;
+import org.sakaiproject.profile2.model.MessageThread;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileImageExternal;
 import org.sakaiproject.profile2.model.ProfilePreferences;
@@ -692,32 +693,32 @@ public interface ProfileLogic {
 	public boolean sendPrivateMessage(Message message);
 	
 	/**
-	 * Gets a list of most Messages that will form the list. This is a reverse date sorted list of the most recent message in each thread
+	 * Gets a list of MessageThreads, each containing the most recent messages in each thread
 	 * @param userId	user to get the list of messages for
 	 * @return
 	 */
-	public List<Message> getMessageThreadHeaders(final String userId);
+	public List<MessageThread> getMessageThreads(final String userId);
 	
 	/**
-	 * Gets the count of the message thread headers
-	 * @param userId	user to get the count of messages for
+	 * Gets the count of the message threads for a user
+	 * @param userId	user to get the count of message threads for
 	 * @return
 	 */
-	public int getMessageThreadHeadersCount(final String userId);
+	public int getMessageThreadsCount(final String userId);
 	
 	/**
 	 * Gets a list of the messages contained in this thread, sorted by date.
 	 * @param threadId	id of the thread to get the messages for
 	 * @return
 	 */
-	public List<Message> getMessagesForThread(final String threadId);
+	public List<Message> getMessagesInThread(final String threadId);
 	
 	/**
 	 * Gets the count of the messages in a thread
 	 * @param threadId	thread to get the count for
 	 * @return
 	 */
-	public int getMessagesForThreadCount(final String threadId);
+	public int getMessagesInThreadCount(final String threadId);
 	
 	/**
 	 * Gets a Message from the database
@@ -726,6 +727,19 @@ public interface ProfileLogic {
 	 */
 	public Message getMessage(final long id);
 	
+	/**
+	 * Gets a MessageThread, first gets the item, then injects the latest Message into it before returning
+	 * @param id	id of the thread
+	 * @return
+	 */
+	public MessageThread getMessageThread(final String threadId);
+	
+	/**
+	 * Get the latest Message in a MessageThread
+	 * @param threadId 	id of the thread
+	 * @return
+	 */
+	public Message getLatestMessageInThread(final String threadId);
 	/**
 	 * Toggle a single message as read/unread
 	 * @param message	the message
