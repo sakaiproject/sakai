@@ -30,6 +30,7 @@
                     components/coursemanagement-hibernate-pack;
                     components/gradebook-service-pack;
                     components/msgcntr-component;
+                    components/polls-pack;
                     components/profile-component;
                     components/profile2-pack;
                     components/sakai-common-components;
@@ -76,6 +77,12 @@
                 <dependency>
                     <groupId>org.sakaiproject.msgcntr</groupId>
                     <artifactId>messageforums-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.polls</groupId>
+                    <artifactId>polls-assembly</artifactId>
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
@@ -125,6 +132,7 @@
                     components/coursemanagement-hibernate-pack;
                     components/emailtemplateservice-pack;
                     components/gradebook-service-pack;
+                    components/polls-pack;
                     components/profile-component;
                     components/profile2-pack;
                     components/sakai-common-components;
@@ -172,6 +180,12 @@
                 <dependency>
                     <groupId>org.sakaiproject.msgcntr</groupId>
                     <artifactId>messageforums-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.polls</groupId>
+                    <artifactId>polls-assembly</artifactId>
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
