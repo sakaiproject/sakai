@@ -5,7 +5,10 @@
 
 	<!--  SakaiProxy -->
  	<bean id="org.sakaiproject.profile2.logic.SakaiProxy"
-    	class="org.sakaiproject.profile2.logic.SakaiProxyImpl">
+    	class="org.sakaiproject.profile2.logic.SakaiProxyImpl"
+        singleton="true"
+        init-method="init">
+        <!-- API injection -->
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
@@ -18,6 +21,10 @@
 		<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 		<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService" />
+		
+		<!-- Inject other resources -->
+		<property name="emailTemplates" ref="org.sakaiproject.profile2.emailtemplates.List" />
+		
 	</bean>
 	
         
@@ -124,5 +131,16 @@
         	<ref bean="org.sakaiproject.profile2.logic.SakaiProxy"/>
         </property>
 	</bean>
+	
+	<!-- Setup email templates -->
+	<bean id="org.sakaiproject.profile2.emailtemplates.List" class="java.util.ArrayList">
+		<constructor-arg>
+      		<list>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-privateMessage.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-connectionRequest.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-connectionConfirm.xml</value>
+      		</list>      
+    	</constructor-arg>
+  	</bean>
 
 </beans>

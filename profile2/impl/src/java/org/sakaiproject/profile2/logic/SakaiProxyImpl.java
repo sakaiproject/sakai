@@ -1,14 +1,23 @@
 package org.sakaiproject.profile2.logic;
 
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
@@ -19,6 +28,7 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -32,6 +42,7 @@ import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -986,29 +997,127 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 	}
 	
-	
-	
-	
-	
-	
+	/**
+	 * Process the supplied template XML into an EmailTemplate object and save it
+	 * @param templatePath
+	 * @return
+	 * @throws IOException
+	 * @throws XMLStreamException
+	 */
+	private void processEmailTemplate(String templatePath) {
+		
+		final String ELEM_SUBJECT = "subject";
+		final String ELEM_MESSAGE = "message";
+		final String ELEM_LOCALE = "locale";
+		final String ELEM_VERSION = "version";
+		final String ELEM_OWNER = "owner";
+		final String ELEM_KEY = "key";
+		final String ADMIN = "admin";
+		
+		InputStream in = SakaiProxy.class.getClassLoader().getResourceAsStream(templatePath);
+		XMLInputFactory factory = (XMLInputFactory)XMLInputFactory.newInstance();
+		XMLStreamReader staxXmlReader = null;
+		EmailTemplate template = new EmailTemplate();
+
+		try {
+			staxXmlReader = (XMLStreamReader) factory.createXMLStreamReader(in);
+		
+			for (int event = staxXmlReader.next(); event != XMLStreamConstants.END_DOCUMENT; event = staxXmlReader.next()) {
+
+				if (event == XMLStreamConstants.START_ELEMENT) {
+					String element = staxXmlReader.getLocalName();
+			    
+				    //subject
+				    if(StringUtils.equals(element, ELEM_SUBJECT)) {
+				    	template.setSubject(staxXmlReader.getElementText());
+				    }
+				    //message
+				    if(StringUtils.equals(element, ELEM_MESSAGE)) {
+				    	template.setMessage(staxXmlReader.getElementText());
+				    }
+				    //locale
+				    if(StringUtils.equals(element, ELEM_LOCALE)) {
+				    	template.setLocale(staxXmlReader.getElementText());
+				    }
+				    //version - SAK-17637
+				    //(uncomment when SAK-17679 is resolved and use 0.5-SNAPSHOT version ETS)
+				    /*
+				    if(StringUtils.equals(element, ELEM_VERSION)) {
+				    	template.setVersion(NumberUtils.toInt(staxXmlReader.getElementText(), 0));
+				    }
+				    */
+				    //owner
+				    if(StringUtils.equals(element, ELEM_OWNER)) {
+				    	template.setOwner(staxXmlReader.getElementText());
+				    }
+				    //key
+				    if(StringUtils.equals(element, ELEM_KEY)) {
+				    	template.setKey(staxXmlReader.getElementText());
+				    }
+				}
+			}
+		} catch (XMLStreamException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				staxXmlReader.close();
+			} catch (XMLStreamException e) {
+				e.printStackTrace();
+			}
+			try {
+				in.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		//check if we have an existing template of this key and locale
+		EmailTemplate existingTemplate = emailTemplateService.getEmailTemplate(template.getKey(), new Locale(template.getLocale()));
+		if(existingTemplate == null){
+			//no existing, save this one
+			Session sakaiSession = sessionManager.getCurrentSession();
+			sakaiSession.setUserId(ADMIN);
+			sakaiSession.setUserEid(ADMIN);
+			emailTemplateService.saveTemplate(template);
+			sakaiSession.setUserId(null);
+			sakaiSession.setUserId(null);
+			log.info("Saved email template: " + template.getKey() + " with locale: " + template.getLocale());
+			return;
+		} 
+		
+		//check version, if local one is newer, update it. (uncomment when SAK-17679 is resolved and use 0.5-SNAPSHOT version ETS)
+		/*
+		if(template.getVersion() != null && template.getVersion() > existingTemplate.getVersion()) {
+
+			existingTemplate.setSubject(template.getSubject());
+			existingTemplate.setMessage(template.getMessage());
+			existingTemplate.setVersion(template.getVersion());
+			existingTemplate.setOwner(template.getOwner());
+
+			Session sakaiSession = sessionManager.getCurrentSession();
+			sakaiSession.setUserId(ADMIN);
+			sakaiSession.setUserEid(ADMIN);
+			emailTemplateService.updateTemplate(existingTemplate);
+			sakaiSession.setUserId(null);
+			sakaiSession.setUserId(null);
+			log.info("Updated email template: " + template.getKey() + " with locale: " + template.getLocale());
+		}
+		*/
+		
+	}
 	
 	
 	/**
 	 * init
 	 */
 	public void init() {
-		log.debug("Profile2 SakaiProxy init()");
+		log.error("Profile2 SakaiProxy init()");
 		
-		
-		//get the email templates
-		//DOMParser parser = new DOMParser();
-		//parser.parse(new InputSource(new StringReader(xml)));
-		//Document doc = parser.getDocument();
-		
-		//check sakai.property to see if we need to update the templates 
-		
-		//if required, update db with the templates from the file
-		
+		//process the email templates
+		for(String emailTemplate: emailTemplates){
+			processEmailTemplate(emailTemplate);
+			
+		}
 		
 	}
 
@@ -1016,8 +1125,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	
 	
-	// SETUP SAKAI API'S
-	
+	// INJECT API'S
 	private ToolManager toolManager;
 	public void setToolManager(ToolManager toolManager) {
 		this.toolManager = toolManager;
@@ -1075,7 +1183,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	private EmailTemplateService emailTemplateService;
 	public void setEmailTemplateService(EmailTemplateService emailTemplateService) {
-		emailTemplateService = emailTemplateService;
+		this.emailTemplateService = emailTemplateService;
 	}
 	
+
+	//INJECT OTHER RESOURCES
+	private ArrayList<String> emailTemplates;
+	public void setEmailTemplates(ArrayList<String> emailTemplates) {
+		this.emailTemplates = emailTemplates;
+	}
+
 }

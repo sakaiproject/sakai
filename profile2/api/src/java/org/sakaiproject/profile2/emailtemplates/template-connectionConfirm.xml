@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplate>
+	<subject>${senderDisplayName} confirmed your connection request on ${localSakaiName}</subject>
+	<message>
+${senderDisplayName} confirmed your connection request on ${localSakaiName}
+
+To view {senderDisplayName}'s profile, follow the url below:
+${connectionLink}
+
+---
+This automatic notification message was sent by {localSakaiName} ({localSakaiUrl})
+Control what email notifications you receive from connections at My Workspace > {toolName} > Preferences
+	</message>
+	<locale>en</locale>
+	<version>1</version>
+	<owner>admin</owner>
+	<key>profile2.connectionConfirm</key>
+</emailTemplate>

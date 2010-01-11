@@ -55,5 +55,18 @@
         </dependency>
 	    
 	</dependencies>
+	
+	<!-- include email templates -->
+	<build>
+		<resources>
+            <resource>
+                <directory>${basedir}/src/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+	</build>
 	 
 </project>
