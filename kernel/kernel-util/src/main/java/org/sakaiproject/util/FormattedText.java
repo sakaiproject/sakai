@@ -59,11 +59,6 @@ public class FormattedText
 	/** An array of regular expression pattern-matchers, that will match the attributes given in M_evilValues */
 	private static Pattern[] M_evilValuePatterns;
 	
-	static
-	{
-		init();
-	}
-
 	private static void init()
 	{
 		try {
@@ -583,6 +578,9 @@ public class FormattedText
 
 	private static String processHtml(final String source, StringBuilder errorMessages)
 	{
+		if ( M_evilTags == null )
+			init();
+			
 		// normalize all variants of the "<br>" HTML tag to be "<br />\n"
 		// TODO call a method to do this in each process routine
 		String Html = M_patternTagBr.matcher(source).replaceAll("<br />");
@@ -623,6 +621,9 @@ public class FormattedText
 
 	private static String checkTag (final String tag, StringBuilder errorMessages)
 	{
+		if ( M_goodTags == null )
+			init();
+			
 		StringBuilder buf = new StringBuilder();
 		boolean escape = true;
 
@@ -672,6 +673,9 @@ public class FormattedText
 	
 	private static String checkAttributes(final String tag, StringBuilder errorMessages)
 	{
+		if ( M_goodAttributes == null )
+			init();
+			
 		Matcher fullTag = M_patternTagPieces.matcher(tag);
 		String close = "";
 		StringBuilder buf = new StringBuilder();
@@ -725,8 +729,10 @@ public class FormattedText
 
 	private static boolean checkValue(final String value, StringBuilder errorMessages)
 	{
+		if ( M_evilValues == null )
+			init();
+			
 		boolean pass = true;
-
 		Matcher matcher;
 		for (int i = 0; i < M_evilValuePatterns.length; i++)
 		{
@@ -1066,33 +1072,8 @@ public class FormattedText
 			9002, 9674, 9824, 9827, 9829, 9830, 34, 38, 60, 62, 338, 339, 352, 353, 376, 710, 732, 8194, 8195, 8201, 8204, 8205,
 			8206, 8207, 8211, 8212, 8216, 8217, 8218, 8220, 8221, 8222, 8224, 8225, 8240, 8249, 8250, 8364 };
          
-         
-	/* The following default values will only be used if formattedtext.properties is not found 
-	*/
-	
-	// Original list of good and evil tags was extracted from: http://www.blooberry.com/indexdot/html/tagindex/all.htm
-	private static String[] M_goodTags = {"a", "abbr", "acronym", "address", "b", "big", "blockquote", "br", "center", "cite", "code", 
-                        "dd", "del", "dir", "div", "dl", "dt", "em", "font", "hr", "h1", "h2", "h3", "h4", "h5", "h6", "i", "ins",
-                        "kbd", "li", "marquee", "menu", "nobr", "noembed", "ol", "p", "pre", "q", "rt", "ruby", "rbc", "rb", "rtc", "rp",
-                        "s", "samp", "small", "span", "strike", "strong", "sub", "sup", "tt", "u", "ul", "var", "xmp", "img", "embed",
-                        "object", "table", "tr", "td", "th", "tbody", "caption", "thead", "tfoot", "colgroup", "col"};
-
-	private static String[] M_goodAttributes = {"abbr", "accept", "accesskey", "align", "alink", "alt", "axis", "background",
-        	"bgcolor", "border", "cellpadding", "cellspacing", "char", "charoff", "charset", "checked", "cite", "class", "classid",
-        	"clear", "color", "cols", "colspan", "compact", "content", "coords", "datetime", "dir", "disabled", "enctype", "face",
-        	"for", "header", "height", "href", "hreflang", "hspace", "id", "ismap", "label", "lang", "longdesc", "maxlength", "multiple",
-        	"name", "noshade", "nowrap", "profile", "readonly", "rel", "rev", "rows", "rowspan", "rules", "scope", "selected", "shape",
-        	"size", "span", "src", "start", "style", "summary", "tabindex", "target", "text", "title", "type", "usemap", "valign",
-        	"value", "vlink", "vspace", "width"};
-
-	private static String[] M_evilValues = {"javascript:", "behavior:", "vbscript:", "mocha:", "livescript:", "expression"};
-
-
-	 // These evil HTML tags are disallowed when the user inputs formatted text; this protects the system from broken pages as well as Cross-Site Scripting (XSS) attacks.
-	private static String[] M_evilTags = { "applet", "base", "body", "bgsound", "button", "col", "colgroup", "comment",  
-			"dfn", "fieldset", "form", "frame", "frameset", "head", "html", "iframe", "ilayer", "inlineinput",
-			"isindex", "input", "keygen", "label", "layer", "legend", "link", "listing", "map", "meta", "multicol", "nextid",
-			"noframes", "nolayer", "noscript", "optgroup", "option", "param", "plaintext", "script", "select",
-			"sound", "spacer", "spell", "submit", "textarea", "title", "wbr" };
-
+	private static String[] M_goodTags = null;
+	private static String[] M_goodAttributes = null;
+	private static String[] M_evilValues =  null;
+	private static String[] M_evilTags = null;
 }
