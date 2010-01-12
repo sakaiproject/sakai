@@ -8,10 +8,12 @@ import java.util.Date;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.extensions.ajax.markup.html.AjaxLazyLoadPanel;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -37,7 +39,7 @@ public class ViewProfile extends BasePage {
 
 	private static final Logger log = Logger.getLogger(ViewProfile.class);
 	
-	public ViewProfile(String userUuid)   {
+	public ViewProfile(final String userUuid)   {
 		
 		log.debug("ViewProfile()");
 
@@ -46,7 +48,7 @@ public class ViewProfile extends BasePage {
 		
 		//get current user info
 		User currentUser = sakaiProxy.getUserQuietly(sakaiProxy.getCurrentUserId());
-		String currentUserId = currentUser.getId();
+		final String currentUserId = currentUser.getId();
 		String currentUserType = currentUser.getType();
 		
 		//double check, if somehow got to own ViewPage, redirect to MyProfile instead
@@ -548,17 +550,19 @@ public class ViewProfile extends BasePage {
 		
 		
 		
-		/* FRIEND FEED PANEL */
-		Panel friendsFeed;
+		/* FRIENDS FEED PANEL */
 		if(isFriendsListVisible) {
-			friendsFeed = new FriendsFeed("friendsFeed", userUuid, currentUserId);
+			add(new AjaxLazyLoadPanel("friendsFeed") {
+	            
+				@Override
+	            public Component getLazyLoadComponent(String id) {
+	            	return new FriendsFeed(id, userUuid, currentUserId);
+	            }
+				
+	        });
 		} else {
-			friendsFeed = new EmptyPanel("friendsFeed");
-			friendsFeed.setVisible(false);
+			add(new EmptyPanel("friendsFeed")).setVisible(false);
 		}
-		friendsFeed.setOutputMarkupId(true);
-		
-		add(friendsFeed);
 	
 	}
 	
