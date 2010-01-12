@@ -1,9 +1,42 @@
 package org.sakaiproject.profile2.service;
 
+import java.util.List;
+
+import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.model.ResourceWrapper;
 
 public interface ProfileImageService {
 
+	/**
+	 * Add a profile gallery image for the specified user.
+	 * 
+	 * @param userId the ID of the user.
+	 * @param imageBytes the image bytes.
+	 * @param mimeType the MIME type of the image.
+	 * @param fileName the filename of the image.
+	 * @return <code>true</code> if the gallery image is successfully added,
+	 *         <code>false</code> if the gallery image is not added.
+	 */
+	public boolean addProfileGalleryImage(String userId, byte[] imageBytes,
+			String mimeType, String fileName);
+
+	/**
+	 * Retrieves all profile gallery images for the specified user.
+	 * 
+	 * @param userId the ID of the user.
+	 * @return all profile gallery images for the specified user.
+	 */
+	public List<GalleryImage> getProfileGalleryImages(String userId);
+
+	/**
+	 * Remove the specified profile gallery image.
+	 * 
+	 * @param userId the ID of the user.
+	 * @param image the image to remove.
+	 * @return <code>true</code> if the gallery image is successfully removed,
+	 *         <code>false</code> if the gallery image is not removed.
+	 */
+	public boolean removeProfileGalleryImage(String userId, GalleryImage image);
 	
 	/**
 	 * Get the profile image for a user
@@ -45,4 +78,5 @@ public interface ProfileImageService {
 	 * @return
 	 */
 	public boolean setProfileImage(String userId, String url, String thumbnail);
+	
 }

@@ -20,7 +20,13 @@
       	<property name="name"><value>Adding an image</value></property>
       	<property name="location"><value>/sakai_profile2/profile2_addimage.html</value></property>
 	</bean>
-	
+
+  	<bean id="profile2_pictures" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      	<property name="docId"><value>profile2_pictures</value></property>
+      	<property name="name"><value>Managing your pictures</value></property>
+      	<property name="location"><value>/sakai_profile2/profile2_pictures.html</value></property>
+	</bean>
+		
 	<bean id="profile2_status" class="org.sakaiproject.component.app.help.model.ResourceBean">
       	<property name="docId"><value>profile2_status</value></property>
       	<property name="name"><value>Updating your status</value></property>
@@ -56,7 +62,7 @@
       	<property name="name"><value>Preferences</value></property>
       	<property name="location"><value>/sakai_profile2/profile2_preferences.html</value></property>
 	</bean>
-  
+	
 	<bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
       	<property name="name"><value>root</value></property>
      		<property name="categories">
@@ -68,6 +74,7 @@
                      		<ref bean="profile2_overview"/>
                      		<ref bean="profile2_myprofile"/>
                      		<ref bean="profile2_addimage"/>
+                     		<ref bean="profile2_pictures"/>
                      		<ref bean="profile2_status"/>
                      		<ref bean="profile2_search"/>
                      		<ref bean="profile2_connections"/>

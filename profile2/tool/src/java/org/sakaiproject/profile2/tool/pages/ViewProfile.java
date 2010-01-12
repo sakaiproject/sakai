@@ -29,6 +29,7 @@ import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.tool.pages.panels.FriendsFeed;
+import org.sakaiproject.profile2.tool.pages.panels.GalleryFeed;
 import org.sakaiproject.profile2.tool.pages.windows.AddFriend;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -120,6 +121,7 @@ public class ViewProfile extends BasePage {
 		boolean isAcademicInfoAllowed = profileLogic.isUserXAcademicInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		boolean isPersonalInfoAllowed = profileLogic.isUserXPersonalInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		boolean isFriendsListVisible = profileLogic.isUserXFriendsListVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isGalleryVisible = profileLogic.isUserXGalleryVisibleByUser(userUuid, privacy, currentUserId, friend);
 		boolean isConnectionAllowed = sakaiProxy.isConnectionAllowedBetweenUserTypes(currentUserType, userType);
 		
 		/* IMAGE */
@@ -563,6 +565,18 @@ public class ViewProfile extends BasePage {
 		} else {
 			add(new EmptyPanel("friendsFeed")).setVisible(false);
 		}
+		
+		/* Gallery feed panel */
+		Panel galleryFeed;
+		if (isGalleryVisible) {
+			galleryFeed = new GalleryFeed("galleryFeed", userUuid, currentUserId);
+		} else {
+			galleryFeed = new EmptyPanel("galleryFeed");
+			galleryFeed.setVisible(false);
+		}
+		
+		galleryFeed.setOutputMarkupId(true);
+		add(galleryFeed);
 	
 	}
 	

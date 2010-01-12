@@ -49,9 +49,9 @@
       		<artifactId>commons-lang</artifactId>
       		<scope>provided</scope>
    		</dependency>
-   		<dependency>
-    		<groupId>stax</groupId>
-    		<artifactId>stax-api</artifactId>
+		<dependency>
+			<groupId>stax</groupId>
+			<artifactId>stax-api</artifactId>
 		</dependency>
    		<!-- 
 		<dependency>

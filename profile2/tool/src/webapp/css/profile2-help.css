@@ -21,3 +21,6 @@ li.preferences {
 li.search {
 	list-style-image:url("/library/image/silk/magnifier.png");
 }
+li.pictures {
+	list-style-image:url("/library/image/silk/pictures.png");
+}

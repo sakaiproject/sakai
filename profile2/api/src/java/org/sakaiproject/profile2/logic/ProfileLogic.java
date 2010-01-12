@@ -2,6 +2,7 @@ package org.sakaiproject.profile2.logic;
 
 import java.util.List;
 
+import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageRecipient;
 import org.sakaiproject.profile2.model.MessageThread;
@@ -163,6 +164,28 @@ public interface ProfileLogic {
 	 * @param profilePrivacy	the record for the user
 	 */
 	public boolean savePrivacyRecord(ProfilePrivacy profilePrivacy);
+	
+	/**
+	 * Adds a new gallery image to the database.
+	 * 
+	 * @param galleryImage the gallery image to add.
+	 */
+	public boolean addNewGalleryImage(GalleryImage galleryImage);
+	
+	/**
+	 * Retrieves the gallery images from the database for the specified user.
+	 * 
+	 * @param userId the ID of the user to query by.
+	 */
+	public List<GalleryImage> getGalleryImages(String userId);
+	
+	/**
+	 * Removes the specified gallery image for the specified user.
+	 * 
+	 * @param userId the ID of the user to query by.
+	 * @param imageId the ID of the gallery image to remove.
+	 */
+	public boolean removeGalleryImage(String userId, String imageId);
 	
 	/**
 	 * Add a new profile image record to the database. Invalidates others before it adds itself.
@@ -442,6 +465,19 @@ public interface ProfileLogic {
 	 * 
 	 */
 	public boolean isUserXFriendsListVisibleByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend);
+	
+	/**
+	 * Has the user allowed viewing of their gallery pictures in their profile. 
+	 * 
+	 * @param userX the uuid of the user we are querying
+	 * @param profilePrivacy
+	 * @param userY the current user.
+	 * @param friend
+	 * @return <code>true</code> if the has user allowed viewing of their
+	 * gallery pictures in their profile, otherwise returns <code>false</code>.
+	 */
+	public boolean isUserXGalleryVisibleByUser(String userX,
+			ProfilePrivacy profilePrivacy, String userY, boolean friend);
 	
 	/**
 	 * Has the user allowed viewing of their status by the given user?

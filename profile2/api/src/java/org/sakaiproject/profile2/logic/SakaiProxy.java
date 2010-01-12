@@ -165,13 +165,30 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public int getMaxProfilePictureSize();
+		
+	/**
+	 * Returns the gallery resource path for the specified user and image.
+	 * 
+	 * @param userId the ID of the user.
+	 * @param imageId the ID of the image.
+	 * @return the gallery resource path for the specified user and image.
+	 */
+	public String getProfileGalleryImagePath(String userId, String imageId);
+	
+	/**
+	 * Returns the gallery resource path for the specified user and thumbnail.
+	 * 
+	 * @param userId the ID of the user.
+	 * @param imageId the ID of the thumbnail.
+	 * @return the gallery resource path for the specified user and image.
+	 */
+	public String getProfileGalleryThumbnailPath(String userId, String thumbnailId);
 	
 	/**
 	 * Get the location for a profileImage given the user and type
 	 * 
 	 * @param userId
 	 * @param type
-	 * @param fileName
 	 * @return
 	 */
 	public String getProfileImageResourcePath(String userId, int type);
@@ -201,6 +218,15 @@ public interface SakaiProxy {
 	 * @param resourceId	the full resourceId of the file
 	 */
 	public ResourceWrapper getResourceWrapped(String resourceId);
+	
+	/**
+	 * Removes the specified resource.
+	 * 
+	 * @param resourceId the ID of the resource to remove.
+	 * @return <code>true</code> if the resource is successfully removed,
+	 * <code>false</code> if the remove operation fails. 
+	 */
+	public boolean removeResource(String resourceId);
 	
 	/**
 	 * Search UserDirectoryService for a user that matches in name or email

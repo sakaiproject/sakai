@@ -50,7 +50,14 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		myProfileLink.add(new Label("myProfileLabel",new ResourceModel("link.my.profile")));
 		add(myProfileLink);
 		
-
+		//my pictures link
+		Link myPicturesLink = new Link("myPicturesLink") {
+			public void onClick() {
+				setResponsePage(new MyPictures());
+			}
+		};
+		myPicturesLink.add(new Label("myPicturesLabel", new ResourceModel("link.my.pictures")));
+		add(myPicturesLink);
 		
 		//my friends link
     	Link myFriendsLink = new Link("myFriendsLink") {

@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"
+	xml:lang="en" lang="en">
+
+<body>
+
+<wicket:panel>
+
+	<div class="sideBoxHeading" wicket:id="heading">[My pictures]</div>
+	<div class="sideBoxContent">
+
+	<div class="sideBoxLabels">
+		<span class="sideBoxItemCount" wicket:id="numPicturesLabel">[Num pictures]</span>
+		<a class="sideBoxMoreLink" wicket:id="viewPicturesLink">
+		<span wicket:id="viewPicturesLabel">[View pictures]</span>
+		</a>
+	</div>
+
+	<table id="galleryFeed">
+		<tbody>
+			<tr wicket:id="rows" class="even">
+				<td wicket:id="cols">
+				<div class="gallery-feed-item" wicket:id="galleryFeedItem">
+				<div class="gallery-feed-picture" wicket:id="galleryFeedPicture" />
+				</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	</div>
+</wicket:panel>
+
+</body>
+</html>
+

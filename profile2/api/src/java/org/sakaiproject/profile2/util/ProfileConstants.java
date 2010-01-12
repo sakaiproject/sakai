@@ -39,6 +39,13 @@ public class ProfileConstants {
 	public static final int PROFILE_IMAGE_MAIN = 1;		
 	public static final int PROFILE_IMAGE_THUMBNAIL = 2;
 	
+	//gallery-related constants
+	public static final String GALLERY_IMAGE_MAIN = "images";
+	public static final String GALLERY_IMAGE_THUMBNAILS = "thumbnails";
+	public static final String EVENT_GALLERY_IMAGE_UPLOAD = "gallery.image.upload";
+	public static final String GALLERY_IMAGE_DEFAULT_DESCRIPTION = "Gallery image";
+	public static final int MAX_GALLERY_THUMBNAIL_IMAGE_XY = 125;
+	
 	//default images for certain things
 	public static final String UNAVAILABLE_IMAGE = "images/no_image.gif";
 	public static final String UNAVAILABLE_IMAGE_FULL = "/profile2-tool/images/no_image.gif";
@@ -106,6 +113,7 @@ public class ProfileConstants {
 	public static final int DEFAULT_PRIVACY_OPTION_SEARCH = PRIVACY_OPTION_EVERYONE; 
 	public static final int DEFAULT_PRIVACY_OPTION_MYFRIENDS = PRIVACY_OPTION_EVERYONE; 
 	public static final int DEFAULT_PRIVACY_OPTION_MYSTATUS = PRIVACY_OPTION_EVERYONE; 
+	public static final int DEFAULT_PRIVACY_OPTION_MYPICTURES = PRIVACY_OPTION_EVERYONE;
 	
 	//if they have no privacy record, ie have not turned explicitly turned searches on or off
 	public static final boolean DEFAULT_SEARCH_VISIBILITY = true;
@@ -192,6 +200,7 @@ public class ProfileConstants {
 	public static final String EVENT_PROFILE_VIEW_OTHER = "profile.view.other";
 	public static final String EVENT_PROFILE_IMAGE_CHANGE_UPLOAD = "profile.image.change.upload";
 	public static final String EVENT_PROFILE_IMAGE_CHANGE_URL = "profile.image.change.url";
+	public static final String EVENT_PROFILE_IMAGE_UPLOAD = "profile.image.upload";
 	public static final String EVENT_PROFILE_NEW = "profile.new";
 		
 	public static final String EVENT_PROFILE_INFO_UPDATE = "profile.info.update";

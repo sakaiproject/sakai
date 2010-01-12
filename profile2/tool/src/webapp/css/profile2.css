@@ -713,6 +713,9 @@ h2 {
 .profileIcon {
 	background-image: url(/library/image/silk/vcard.png);
 }
+.pictures-icon {
+	background-image: url(/library/image/silk/pictures.png);
+}
 .friendsIcon {
 	background-image: url(/library/image/silk/group.png);
 }
@@ -1028,4 +1031,76 @@ div.wicket-aa ul li.selected {
 	background-color: #e9edff;
 }
 
-		
+/* gallery-related */
+
+.add-picture-icon {
+	background-image: url(/library/image/silk/picture_add.png);
+}
+
+.gallery-form {
+	position: relative;
+}
+
+.gallery-image-panel {
+	position: relative;
+}
+
+.gallery-main-image-form {
+	position: relative;
+}
+
+/* spacing between gallery images in grid */
+.gallery-form table, th, td
+{
+	border: 5px;
+	border-spacing: 5px;
+	padding: 5px;
+}
+
+.gallery-view-image-button {
+	position:absolute;
+	right:0;
+	top:0;
+	background-color: #ffffff;
+	text-decoration: none;
+	font-size: x-small;
+	padding-left: 24px;
+	padding-bottom: 4px;
+	padding-top: 4px;
+	padding-right: 2px;
+	margin-top: 0;
+	margin-right: 0;
+	background-repeat: no-repeat;
+	background-position: 4px center;
+	background-image: url("/library/image/silk/picture.png");
+	border-top: thin solid #09c;
+	border-right: thin solid #09c;
+	border-bottom: thin solid #09c;
+	border-left: thin solid #09c;
+}
+
+#gallery-feed {
+	display: block;
+	border: none;
+	margin: auto;
+	padding:auto;
+}
+
+.gallery-feed-item {
+	vertical-align: top;
+	width: 55px;
+	max-width: 55px;
+	overflow: hidden;
+	margin: 1px;
+	text-align: center;
+}
+
+.gallery-feed-picture img {
+	max-width: 55px;
+	width: expression(Math.min(parseInt(this.offsetWidth), 55 ) + "px"); /* ie6 max-width hack */
+	/* centre the image inside this cell */
+	display:block;
+   	margin:auto;
+   	/* end centreing */
+   	/* cursor: pointer; */
+}

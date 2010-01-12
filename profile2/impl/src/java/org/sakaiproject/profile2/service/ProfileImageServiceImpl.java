@@ -1,9 +1,13 @@
 package org.sakaiproject.profile2.service;
 
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.model.ResourceWrapper;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -11,6 +15,128 @@ import org.sakaiproject.profile2.util.ProfileUtils;
 public class ProfileImageServiceImpl implements ProfileImageService {
 
 	private static final Logger log = Logger.getLogger(ProfileImageServiceImpl.class);
+		
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean addProfileGalleryImage(String userId, byte[] imageBytes,
+			String mimeType, String fileName) {
+
+		// check auth and get currentUserUuid
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if (currentUserUuid == null) {
+			throw new SecurityException(
+					"You must be logged in to add a gallery image.");
+		}
+
+		// convert userId into uuid
+		String userUuid = sakaiProxy.getUuidForUserId(userId);
+		if (userUuid == null) {
+			log.error("Invalid userId: " + userId);
+			return false;
+		}
+
+		// check admin, or the currentUser and object uuid match
+		if (!sakaiProxy.isSuperUser()
+				&& !StringUtils.equals(currentUserUuid, userUuid)) {
+			throw new SecurityException(
+					"You are not allowed to add a gallery image.");
+		}
+
+		String imageId = IdManager.createUuid();
+
+		// create resource ID
+		String mainResourcePath = sakaiProxy.getProfileGalleryImagePath(userUuid,
+				imageId);
+
+		// save image
+		if (!sakaiProxy.saveFile(mainResourcePath, userId, fileName, mimeType,
+				imageBytes)) {
+
+			log.error("Couldn't add gallery image to CHS. Aborting.");
+			return false;
+		}
+
+		// create thumbnail
+		byte[] thumbnailBytes = ProfileUtils.scaleImage(imageBytes,
+				ProfileConstants.MAX_GALLERY_THUMBNAIL_IMAGE_XY);
+
+		String thumbnailResourcePath = sakaiProxy.getProfileGalleryThumbnailPath(userId,
+				imageId);
+
+		sakaiProxy.saveFile(thumbnailResourcePath, userId, fileName, mimeType,
+				thumbnailBytes);
+
+		if (profileLogic.addNewGalleryImage(new GalleryImage(userUuid,
+				mainResourcePath, thumbnailResourcePath, fileName))) {
+			return true;
+		}
+		
+		return false;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<GalleryImage> getProfileGalleryImages(String userId) {
+
+		// check auth and get currentUserUuid
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if (currentUserUuid == null) {
+			throw new SecurityException(
+					"You must be logged in to make a request for a user's gallery images.");
+		}
+
+		// convert userId into uuid
+		String userUuid = sakaiProxy.getUuidForUserId(userId);
+		if (userUuid == null) {
+			log.error("Invalid userId: " + userId);
+			return null;
+		}
+
+		return profileLogic.getGalleryImages(userId);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean removeProfileGalleryImage(String userId, GalleryImage image) {
+
+		// check auth and get currentUserUuid
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if (currentUserUuid == null) {
+			throw new SecurityException(
+					"You must be logged in to add a gallery image.");
+		}
+
+		// convert userId into uuid
+		String userUuid = sakaiProxy.getUuidForUserId(userId);
+		if (userUuid == null) {
+			log.error("Invalid userId: " + userId);
+			return false;
+		}
+
+		// check admin, or the currentUser and object uuid match
+		if (!sakaiProxy.isSuperUser()
+				&& !StringUtils.equals(currentUserUuid, userUuid)) {
+			throw new SecurityException(
+					"You are not allowed to add a gallery image.");
+		}
+
+		if (!sakaiProxy.removeResource(image.getMainResource())) {
+			log.error("Gallery image not removed: " + image.getMainResource());
+		}
+		
+		if (!sakaiProxy.removeResource(image.getThumbnailResource())) {
+			log.error("Gallery thumbnail not removed: " + image.getThumbnailResource());
+		}
+		
+		if (profileLogic.removeGalleryImage(userId, image.getId())) {
+			return true;
+		}
+		
+		return false;
+	}
 	
 	/**
 	 * {@inheritDoc}

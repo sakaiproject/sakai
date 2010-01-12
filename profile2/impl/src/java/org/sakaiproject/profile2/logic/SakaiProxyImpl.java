@@ -364,6 +364,46 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return serverConfigurationService.getInt("profile2.picture.max", ProfileConstants.MAX_PROFILE_IMAGE_UPLOAD_SIZE);
 	}
 	
+	private String getProfileGalleryPath(String userId) {
+		String slash = Entity.SEPARATOR;
+
+		StringBuilder path = new StringBuilder();
+		path.append(slash);
+		path.append("private");
+		path.append(slash);
+		path.append("profileGallery");
+		path.append(slash);
+		path.append(userId);
+		path.append(slash);
+
+		return path.toString();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getProfileGalleryImagePath(String userId, String imageId) {
+		
+		StringBuilder path = new StringBuilder(getProfileGalleryPath(userId));
+
+		path.append(ProfileConstants.GALLERY_IMAGE_MAIN);
+		path.append(Entity.SEPARATOR);
+		path.append(imageId);
+
+		return path.toString();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getProfileGalleryThumbnailPath(String userId, String imageId) {
+		StringBuilder path = new StringBuilder(getProfileGalleryPath(userId));
+		path.append(ProfileConstants.GALLERY_IMAGE_THUMBNAILS);
+		path.append(Entity.SEPARATOR);
+		path.append(imageId);
+
+		return path.toString();
+	}
 	
 	/**
  	* {@inheritDoc}
@@ -387,7 +427,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return path.toString();
 		
 	}
-	
 	
 	/**
  	* {@inheritDoc}
@@ -495,6 +534,30 @@ public class SakaiProxyImpl implements SakaiProxy {
 			disableSecurityAdvisor();
 		}
 		return wrapper;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean removeResource(String resourceId) {
+		
+		boolean result = false;
+		
+		try {
+			enableSecurityAdvisor();
+
+			contentHostingService.removeResource(resourceId);
+			
+			result = true;
+		} catch (Exception e) {
+			log.error("SakaiProxy.removeResource() failed for resourceId "
+					+ resourceId + ": " + e.getMessage());
+			return false;
+		} finally {
+			disableSecurityAdvisor();
+		}
+		
+		return result;
 	}
 	
 	/**
@@ -890,7 +953,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		props.put("search", serverConfigurationService.getInt("profile2.privacy.default.search", ProfileConstants.DEFAULT_PRIVACY_OPTION_SEARCH));
 		props.put("myFriends", serverConfigurationService.getInt("profile2.privacy.default.myFriends", ProfileConstants.DEFAULT_PRIVACY_OPTION_MYFRIENDS));
 		props.put("myStatus", serverConfigurationService.getInt("profile2.privacy.default.myStatus", ProfileConstants.DEFAULT_PRIVACY_OPTION_MYSTATUS));
-
+		props.put("myPictures", serverConfigurationService.getInt("profile2.privacy.default.myPictures", ProfileConstants.DEFAULT_PRIVACY_OPTION_MYPICTURES));
 		return props;
 	}
 	

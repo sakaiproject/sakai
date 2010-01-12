@@ -19,6 +19,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageRecipient;
 import org.sakaiproject.profile2.model.MessageThread;
@@ -55,6 +56,8 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	private static final Logger log = Logger.getLogger(ProfileLogicImpl.class);
 
 	// Hibernate query constants
+	private static final String QUERY_GALLERY_IMAGE_RECORDS = "getGalleryImageRecords";
+	private static final String QUERY_GET_GALLERY_RECORD = "getGalleryRecord";
 	private static final String QUERY_GET_FRIEND_REQUESTS_FOR_USER = "getFriendRequestsForUser"; 
 	private static final String QUERY_GET_CONFIRMED_FRIEND_USERIDS_FOR_USER = "getConfirmedFriendUserIdsForUser"; 
 	private static final String QUERY_GET_FRIEND_REQUEST = "getFriendRequest"; 
@@ -452,7 +455,8 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 				(Boolean)props.get("birthYear"),
 				(Integer)props.get("search"),
 				(Integer)props.get("myFriends"),
-				(Integer)props.get("myStatus")
+				(Integer)props.get("myStatus"),
+				(Integer)props.get("myPictures")
 		);
 		
 		return profilePrivacy;
@@ -511,7 +515,79 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		
 	}
 	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean addNewGalleryImage(final GalleryImage galleryImage) {
+		Boolean success = (Boolean) getHibernateTemplate().execute(
+				new HibernateCallback() {
 
+					public Object doInHibernate(Session session)
+							throws HibernateException, SQLException {
+
+						try {
+							session.save(galleryImage);
+							session.flush();
+						} catch (Exception e) {
+							log.error("ProfileLogicImpl.addNewGalleryImage() failed. "
+											+ e.getClass()
+											+ ": "
+											+ e.getMessage());
+							return false;
+						}
+						return true;
+					}
+
+				});
+
+		return success;
+	}
+
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<GalleryImage> getGalleryImages(final String userId) {
+		List<GalleryImage> galleryImages = new ArrayList<GalleryImage>();
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_GALLERY_IMAGE_RECORDS);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	galleryImages = (List<GalleryImage>) getHibernateTemplate().executeFind(hcb);
+	  	
+		return galleryImages;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean removeGalleryImage(String userId, String imageId) {
+		if(userId == null || imageId == null){
+	  		throw new IllegalArgumentException("Null argument in ProfileLogicImpl.removeGalleryImage()"); 
+	  	}
+		
+		GalleryImage galleryImage = getGalleryImageRecord(userId, imageId);
+		
+		if(galleryImage == null){
+			log.error("GalleryImage record does not exist for userId: " + userId + ", imageId: " + imageId);
+			return false;
+		}
+				
+		try {
+			getHibernateTemplate().delete(galleryImage);
+			log.info("User: " + userId + " removed gallery image: " + imageId);
+			return true;
+		} catch (Exception e) {
+			log.error("ProfileLogicImpl.removeGalleryImage() failed. " + e.getClass() + ": " + e.getMessage());
+			return false;
+		}
+	}
+	
 	/**
  	 * {@inheritDoc}
  	 */
@@ -1078,6 +1154,29 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
     	return false;
 	}
 	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean isUserXGalleryVisibleByUser(String userX,
+			ProfilePrivacy profilePrivacy, String userY, boolean friend) {
+		
+		// current user
+    	if(userY.equals(userX)) {
+    		return true;
+    	}
+    	
+    	// friend and friends allowed
+    	if (friend && profilePrivacy.getMyPictures() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+    		return true;
+    	}
+    	
+    	// everyone else
+    	if(profilePrivacy.getMyPictures() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
+    		return true;
+    	} else {
+    		return false;
+    	}
+	}
 	
 	/**
  	 * {@inheritDoc}
@@ -2154,6 +2253,23 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		return profileFriend;
 	}
 	
+	private GalleryImage getGalleryImageRecord(final String userId, final String imageId) {
+		GalleryImage galleryImage = null;
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_GALLERY_RECORD);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setParameter(ID, imageId, Hibernate.STRING);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		galleryImage = (GalleryImage) getHibernateTemplate().execute(hcb);
+	
+		return galleryImage;
+	}
 	
 	//private method to back the search methods. returns only uuids which then need to be checked for privacy settings etc.
 	private List<String> findUsersByNameOrEmail(String search) {

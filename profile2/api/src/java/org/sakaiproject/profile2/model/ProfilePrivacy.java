@@ -27,6 +27,7 @@ public class ProfilePrivacy implements Serializable {
 	private int search;
 	private int myFriends;
 	private int myStatus;
+	private int myPictures;
 	
 	/** 
 	 * Empty constructor
@@ -37,7 +38,7 @@ public class ProfilePrivacy implements Serializable {
 	/**
 	 * Constructor to allow creation of object in one go (ie for new entries when a profile is first created)
 	 */
-	public ProfilePrivacy(String userUuid, int profileImage, int basicInfo, int contactInfo, int academicInfo, int personalInfo, boolean showBirthYear, int search, int myFriends, int myStatus) {
+	public ProfilePrivacy(String userUuid, int profileImage, int basicInfo, int contactInfo, int academicInfo, int personalInfo, boolean showBirthYear, int search, int myFriends, int myStatus, int myPictures) {
 		super();
 		this.userUuid = userUuid;
 		this.profileImage = profileImage;
@@ -49,6 +50,7 @@ public class ProfilePrivacy implements Serializable {
 		this.search = search;
 		this.myFriends = myFriends;
 		this.myStatus = myStatus;
+		this.myPictures = myPictures;
 	}
 
 	public String getUserUuid() {
@@ -139,6 +141,14 @@ public class ProfilePrivacy implements Serializable {
 
 	public int getMyStatus() {
 		return myStatus;
+	}
+	
+	public void setMyPictures(int myPictures) {
+		this.myPictures = myPictures;
+	}
+	
+	public int getMyPictures() {
+		return myPictures;
 	}
 
 	@Override

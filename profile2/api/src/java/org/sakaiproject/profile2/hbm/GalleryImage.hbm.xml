@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.sakaiproject.profile2.model">
+
+	<class name="GalleryImage" table="GALLERY_IMAGES_T">
+
+		<id name="id">
+			<column name="ID" not-null="true" length="19" />
+			<generator class="native">
+				<param name="sequence">GALLERY_IMAGES_S</param>
+			</generator>
+	    </id>
+	    
+		<property name="userUuid" column="USER_UUID" length="99" not-null="true" index="GALLERY_IMAGES_USER_UUID_I" />
+		<property name="mainResource" column="RESOURCE_MAIN" not-null="true" />
+		<property name="thumbnailResource" column="RESOURCE_THUMB" not-null="true" />
+		<property name="displayName" column="DISPLAY_NAME" not-null="true" />
+
+  	</class>
+  		 
+	<!-- get gallery image records -->
+	<query name="getGalleryImageRecords">
+    	<![CDATA[from GalleryImage image WHERE image.userUuid = :userUuid]]>
+	</query>
+	
+	<query name="getGalleryRecord">
+    	<![CDATA[from GalleryImage image WHERE (image.userUuid = :userUuid AND image.id = :id)]]>
+	</query>
+	
+  	<database-object> 
+		<create>create index GALLERY_IMAGES_USER_UUID_I on GALLERY_IMAGES_T (USER_UUID)</create> 
+		<drop></drop> 
+	</database-object>
+	
+</hibernate-mapping>

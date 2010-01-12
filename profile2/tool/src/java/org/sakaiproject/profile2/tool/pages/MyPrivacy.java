@@ -212,7 +212,7 @@ public class MyPrivacy extends BasePage {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
-		
+				
 		//search privacy
 		WebMarkupContainer searchContainer = new WebMarkupContainer("searchContainer");
 		searchContainer.add(new Label("searchLabel", new ResourceModel("privacy.search")));
@@ -262,7 +262,20 @@ public class MyPrivacy extends BasePage {
             }
         });
 		
-		
+		// gallery privacy
+		WebMarkupContainer myPicturesContainer = new WebMarkupContainer("myPicturesContainer");
+		myPicturesContainer.add(new Label("myPicturesLabel", new ResourceModel("privacy.mypictures")));
+		DropDownChoice myPicturesChoice = new DropDownChoice("myPictures", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));             
+		myPicturesChoice.setOutputMarkupId(true);
+		myPicturesContainer.add(myPicturesChoice);
+		myPicturesContainer.add(new IconWithClueTip("myPicturesToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.mypictures.tooltip")));
+		form.add(myPicturesContainer);
+
+		myPicturesChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+            protected void onUpdate(AjaxRequestTarget target) {
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
 		
 		//submit button
 		IndicatingAjaxButton submitButton = new IndicatingAjaxButton("submit", form) {
@@ -310,6 +323,7 @@ public class MyPrivacy extends BasePage {
 			searchChoice.setEnabled(false);
 			myFriendsChoice.setEnabled(false);
 			myStatusChoice.setEnabled(false);
+			myPicturesChoice.setEnabled(false);
 			
 			submitButton.setEnabled(false);
 			submitButton.setVisible(false);

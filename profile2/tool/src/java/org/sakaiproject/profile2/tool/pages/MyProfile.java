@@ -24,6 +24,7 @@ import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.pages.panels.ChangeProfilePictureUpload;
 import org.sakaiproject.profile2.tool.pages.panels.ChangeProfilePictureUrl;
 import org.sakaiproject.profile2.tool.pages.panels.FriendsFeed;
+import org.sakaiproject.profile2.tool.pages.panels.GalleryFeed;
 import org.sakaiproject.profile2.tool.pages.panels.MyAcademicDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyContactDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyInfoDisplay;
@@ -314,6 +315,11 @@ public class MyProfile extends BasePage {
             }
 
         });
+		
+		/* Gallery feed panel */
+		Panel galleryFeed = new GalleryFeed("galleryFeed", userUuid, userUuid);
+		galleryFeed.setOutputMarkupId(true);
+		add(galleryFeed);
 		
 	}
 	
