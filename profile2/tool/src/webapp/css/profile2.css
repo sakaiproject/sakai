@@ -860,7 +860,8 @@ div.wicket-aa ul li.selected {
 	top: 0;
 	border-bottom: 1px solid #d0d0df;
 	border-collapse: collapse;
-	height: 50px;
+	/*height: 50px;*/ 
+	min-height: 50px; /*use min-height rather than fixed height as names might be long and spill over */
 	padding-top: 5px;
 	padding-left: 5px;
 	padding-right: 5px;
@@ -929,6 +930,20 @@ div.wicket-aa ul li.selected {
 
 
 /* message view styles */
+.message-details-wrap {
+	margin-top: 10px;
+	width: 700px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #999999;
+	margin-bottom: 1px;
+}
+
+.message-subject {
+	font-size: 140%;
+	font-weight: bold;
+	color: #5D5D5D;
+}
+
 .message-list-wrap {
 	border-top: 1px solid #d0d0df;
 	width: 700px;
@@ -987,8 +1002,7 @@ div.wicket-aa ul li.selected {
 	color: #5D5D5D;
 }
 
-.message-subject {
-}
+
 
 .message-body {
 	display: block;

@@ -1713,9 +1713,9 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		//add the extra fields
 		message.setRead(false);
 		message.setDatePosted(new Date());
-		if(StringUtils.isBlank(message.getSubject())) {
-			message.setSubject(ProfileConstants.DEFAULT_PRIVATE_MESSAGE_SUBJECT);
-		}
+		//if(StringUtils.isBlank(message.getSubject())) {
+		//	message.setSubject(ProfileConstants.DEFAULT_PRIVATE_MESSAGE_SUBJECT);
+		//}
 		
 		//save the message
 		try {
@@ -1736,7 +1736,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		
 		List<MessageThread> threads = new ArrayList<MessageThread>();
 		
-		//get 
+		//get threadIds
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  		
@@ -1747,6 +1747,12 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	  	};
 	  	
 	  	threads = (List<MessageThread>) getHibernateTemplate().executeFind(hcb);
+	  	
+	  	//get latest message for each thread
+	  	for(MessageThread thread : threads) {
+	  		thread.setMostRecentMessage(getLatestMessageInThread(thread.getId()));
+	  	}
+	  	
 	  	return threads;
 	}
 	
@@ -1855,7 +1861,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		}
 		
 		//add the latest message for this thread
-		thread.setMostRecentMessageId(getLatestMessageInThread(threadId));
+		thread.setMostRecentMessage(getLatestMessageInThread(threadId));
 		
 		return thread;
 	}
@@ -1867,7 +1873,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  			Query q = session.getNamedQuery(QUERY_GET_LATEST_MESSAGE_IN_THREAD);
-	  			q.setParameter(ID, threadId, Hibernate.STRING);
+	  			q.setParameter(THREAD, threadId, Hibernate.STRING);
 	  			q.setMaxResults(1);
 	  			return q.uniqueResult();
 			}

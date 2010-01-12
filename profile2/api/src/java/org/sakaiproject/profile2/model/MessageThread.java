@@ -57,7 +57,7 @@ public class MessageThread implements Serializable {
 	public Message getMostRecentMessage() {
 		return mostRecentMessage;
 	}
-	public void setMostRecentMessageId(Message mostRecentMessage) {
+	public void setMostRecentMessage(Message mostRecentMessage) {
 		this.mostRecentMessage = mostRecentMessage;
 	}
 

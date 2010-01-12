@@ -33,11 +33,6 @@ public class Message implements Serializable {
 	private String from;
 	
 	/**
-	 * subject of the message
-	 */
-	private String subject;
-	
-	/**
 	 * body of the message
 	 */
 	private String message;
@@ -81,12 +76,6 @@ public class Message implements Serializable {
 	public void setFrom(String from) {
 		this.from = from;
 	}
-	public String getSubject() {
-		return subject;
-	}
-	public void setSubject(String subject) {
-		this.subject = subject;
-	}
 	public String getMessage() {
 		return message;
 	}
@@ -118,7 +107,6 @@ public class Message implements Serializable {
 			append("id", id).
 			append("to", to).
 			append("from", from).
-			append("subject", subject).
 			append("message", message).
 			append("thread", thread).
 			append("read", read).

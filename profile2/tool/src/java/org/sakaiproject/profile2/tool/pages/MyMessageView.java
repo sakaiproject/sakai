@@ -31,7 +31,7 @@ public class MyMessageView extends BasePage {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(ConfirmedFriends.class);
 	
-	public MyMessageView(final String userUuid, final String threadId) {
+	public MyMessageView(final String userUuid, final String threadId, final String threadSubject) {
 		
 		log.debug("MyMessageView()");
 		
@@ -56,9 +56,20 @@ public class MyMessageView extends BasePage {
 		buttonsForm.add(backButton);
 		add(buttonsForm);
 		
-		//container which wraps list
+		//details container
+		WebMarkupContainer messageDetailsContainer = new WebMarkupContainer("messageDetailsContainer");
+		messageDetailsContainer.setOutputMarkupId(true);
+		
+		//thread subject
+		Label threadSubjectLabel = new Label("threadSubject", new Model<String>(threadSubject));
+		messageDetailsContainer.add(threadSubjectLabel);
+		
+		add(messageDetailsContainer);
+		
+		//list container
 		final WebMarkupContainer messageListContainer = new WebMarkupContainer("messageListContainer");
 		messageListContainer.setOutputMarkupId(true);
+		
 		
 		//get our list of messages
 		final MessagesDataProvider provider = new MessagesDataProvider(threadId);
@@ -105,7 +116,14 @@ public class MyMessageView extends BasePage {
 				//message body
 				item.add(new Label("messageBody", new Model<String>(message.getMessage())));
 				
+				//is being displayed, so mark it as read
+				if(!message.isRead()) {
+					profileLogic.toggleMessageRead(message, true);
+				}
+				
 				item.setOutputMarkupId(true);
+				
+				
 		    }
 			
 		};

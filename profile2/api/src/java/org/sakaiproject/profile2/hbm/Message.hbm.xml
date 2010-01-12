@@ -23,41 +23,49 @@
 
   	</class>
   	
-	
+	<!--  get a count of all unread messages for a given user -->
 	<query name="getAllUnreadMessagesCount">
     	<![CDATA[select count(*) from Message as message where (message.to = :to and message.read = :false)]]>
 	</query>
 	
+	<!--  get a count of all threads that have unread messages for a given user -->
 	<query name="getThreadsWithUnreadMessagesCount">
     	<![CDATA[select count(distinct message.thread) from Message as message where (message.to = :to and message.read = :false)]]>
 	</query>
 	
-	<!-- 
-	<sql-query name="getMessageThreads">
-		<return alias="message" class="Message"/>
-    	<![CDATA[select {message.*} from PROFILE_MESSAGES_T message inner join (select max(msg.ID) as id from PROFILE_MESSAGES_T msg group by msg.MESSAGE_THREAD) messages on message.ID = messages.ID where message.UUID_TO=:to order by DATE_POSTED desc]]>
-	</sql-query>
-	-->
-	
-	<query name="getLatestMessageInThread">
-    	<![CDATA[from Message as message where message.thread = :thread order by message.datePosted desc]]>
-	</query>
-	
-	<!--  even though this counts MessageThreads, we use the Message table because all info we need is there -->
-	<query name="getMessageThreadsCount">
-    	<![CDATA[select count(distinct message.thread) from Message as message where message.to = :to]]>
-	</query>
-	
+	<!--  get all messages in a thread -->
 	<query name="getMessagesInThread">
     	<![CDATA[from Message as message where message.thread = :thread order by message.datePosted asc]]>
 	</query>
 	
+	<!--  get a count of all messages in a thread -->
 	<query name="getMessagesInThreadCount">
     	<![CDATA[select count(distinct message.id) from Message as message where message.thread = :thread]]>
 	</query>
 	
+	<!--  get a single message -->
 	<query name="getMessage">
     	<![CDATA[from Message as message where message.id = :id]]>
+	</query>
+	
+	<!--  get the latest message in a thread -->
+	<query name="getLatestMessageInThread">
+    	<![CDATA[from Message as message where message.thread = :thread order by message.datePosted desc]]>
+	</query>
+	
+	<!--  gets all threads that a user has had messages sent to them in. afterwards, must be expanded to get latest message object, and then sorted. -->
+	<sql-query name="getMessageThreads">
+    	<return alias="thread" class="MessageThread"/>
+    	<![CDATA[
+    	SELECT thread.ID AS {thread.id}, thread.SUBJECT AS {thread.subject} from PROFILE_MESSAGE_THREADS_T thread, PROFILE_MESSAGES_T message where message.UUID_TO = :to and message.MESSAGE_THREAD=thread.ID group by message.MESSAGE_THREAD
+		]]>
+	</sql-query>
+	
+	
+	
+	<!--  get a count of all threads that a user has had messages sent to them in -->
+	<query name="getMessageThreadsCount">
+    	<![CDATA[select count(distinct message.thread) from Message as message where message.to = :to]]>
 	</query>
 	
 	

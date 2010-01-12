@@ -20,10 +20,13 @@
 			<form wicket:id="buttonsForm">		
            		<input type="submit" wicket:id="backButton" value="[Back to List]" />
            	</form>
+           	
+           	<div wicket:id="messageDetailsContainer" class="message-details-wrap">
+           		<div wicket:id="threadSubject" class="message-subject">[thread subject]</div>
+           	</div>
+           	
 			
 			<div wicket:id="messageListContainer" class="message-list-wrap">
-				
-				<div wicket:id="messageSubject" class="message-subject">[message subject]</div>
 				
 				<div wicket:id="messageList" class="message-item">
 					<table>

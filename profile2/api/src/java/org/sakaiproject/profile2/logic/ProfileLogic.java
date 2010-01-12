@@ -684,16 +684,23 @@ public interface ProfileLogic {
 	 */
 	public int getThreadsWithUnreadMessagesCount(final String userId);
 	
-	
 	/**
-	 * Send a message
-	 * @param message	Message object to send.
+	 * Gets a MessageThread, first gets the item, then injects the latest Message into it before returning
+	 * @param id	id of the thread
 	 * @return
 	 */
-	public boolean sendPrivateMessage(Message message);
+	public MessageThread getMessageThread(final String threadId);
 	
 	/**
-	 * Gets a list of MessageThreads, each containing the most recent messages in each thread
+	 * Get the latest Message in a MessageThread
+	 * @param threadId 	id of the thread
+	 * @return
+	 */
+	public Message getLatestMessageInThread(final String threadId);
+		
+	/**
+	 * Gets a list of MessageThreads with messages to a given user, each containing the most recent messages in each thread
+	 * TODO This needs to be optimised to get the latest message property in the same query.
 	 * @param userId	user to get the list of messages for
 	 * @return
 	 */
@@ -707,7 +714,7 @@ public interface ProfileLogic {
 	public int getMessageThreadsCount(final String userId);
 	
 	/**
-	 * Gets a list of the messages contained in this thread, sorted by date.
+	 * Gets a list of the messages contained in this thread, sorted by date posted.
 	 * @param threadId	id of the thread to get the messages for
 	 * @return
 	 */
@@ -728,18 +735,12 @@ public interface ProfileLogic {
 	public Message getMessage(final long id);
 	
 	/**
-	 * Gets a MessageThread, first gets the item, then injects the latest Message into it before returning
-	 * @param id	id of the thread
+	 * Send a message
+	 * @param message	Message object to send.
 	 * @return
 	 */
-	public MessageThread getMessageThread(final String threadId);
+	public boolean sendPrivateMessage(Message message);
 	
-	/**
-	 * Get the latest Message in a MessageThread
-	 * @param threadId 	id of the thread
-	 * @return
-	 */
-	public Message getLatestMessageInThread(final String threadId);
 	/**
 	 * Toggle a single message as read/unread
 	 * @param message	the message
