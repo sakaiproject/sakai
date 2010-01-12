@@ -7179,7 +7179,8 @@ public class SiteAction extends PagedResourceActionII {
 								// import tool content
 								importToolContent(oSiteId, site, false);
 	
-								if (site.getType().equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
+								String siteType = site.getType();
+								if (siteType != null && siteType.equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) {
 									// for course site, need to
 									// read in the input for
 									// term information
@@ -7200,7 +7201,7 @@ public class SiteAction extends PagedResourceActionII {
 								// save again
 								SiteService.save(site);
 								
-								if (site.getType().equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) 
+								if (siteType != null && siteType.equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) 
 								{
 									// also remove the provider id attribute if any
 									String realm = SiteService.siteReference(site.getId());
