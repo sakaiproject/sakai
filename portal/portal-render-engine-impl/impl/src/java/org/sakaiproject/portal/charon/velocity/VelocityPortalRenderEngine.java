@@ -21,6 +21,7 @@
 
 package org.sakaiproject.portal.charon.velocity;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -47,6 +48,8 @@ import org.sakaiproject.portal.api.StyleAbleProvider;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 
+import sun.tools.tree.FinallyStatement;
+
 /**
  * A velocity render engine adapter
  * 
@@ -63,7 +66,7 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 
 	private boolean debug = false;
 
-	private List availablePortalSkins;
+	private List<Map<String, String>> availablePortalSkins;
 
 	private ServletContext context;
 
@@ -104,7 +107,9 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 				"org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
 		vengine.setProperty("runtime.log.logsystem.log4j.category", "ve.portal");
 		Properties p = new Properties();
-		InputStream in = this.getClass().getResourceAsStream(portalConfig );
+		InputStream in = null;
+		try {
+		in = this.getClass().getResourceAsStream(portalConfig );
 		if ( in == null ) {
 			throw new RuntimeException("Unable to load configuration "+portalConfig);
 		} else {
@@ -112,8 +117,8 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		}
 		p.load(in);
 		vengine.init(p);
-		availablePortalSkins = new ArrayList();
-		Map m = new HashMap();
+		availablePortalSkins = new ArrayList<Map<String, String>>();
+		Map<String, String> m = new HashMap<String, String>();
 		m.put("name", "defaultskin");
 		m.put("display", "Default");
 		availablePortalSkins.add(m);
@@ -122,6 +127,19 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		 * Two"); availablePortalSkins.add(m);
 		 */
 		vengine.getTemplate("/vm/defaultskin/macros.vm");
+		}
+		catch (IOException e) {
+			throw new RuntimeException("Exception encounterd:  " + e, e);
+		}
+		finally {
+			if (in != null) {
+				try {
+					in.close();
+				} catch (IOException e) {
+					//not much to do
+				}
+			}
+		}
 
 	}
 
@@ -169,17 +187,28 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 			rc.put("pageCurrentSkin", "defaultskin");
 		}
 
+		InputStream stream = null;
 		try
 		{
 			Properties p = new Properties();
-			p.load(this.getClass().getResourceAsStream(
-					"/" + portalSkin + "/options.config"));
+			stream = this.getClass().getResourceAsStream(
+					"/" + portalSkin + "/options.config");
+			p.load(stream);
 			rc.setOptions(p);
 		}
 		catch (Exception ex)
 		{
 			log.info("No options loaded ", ex);
 
+		} 
+		finally {
+			if (stream != null) {
+				try {
+					stream.close();
+				} catch (IOException e) {
+					//not much to do in this case
+				}
+			}
 		}
 
 		return rc;
