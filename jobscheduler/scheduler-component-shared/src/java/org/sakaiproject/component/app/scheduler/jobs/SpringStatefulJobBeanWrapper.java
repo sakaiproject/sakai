@@ -4,14 +4,9 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.StatefulJob;
-import org.sakaiproject.api.app.scheduler.SchedulerManager;
 import org.sakaiproject.component.cover.ComponentManager;
 
 public class SpringStatefulJobBeanWrapper extends SpringJobBeanWrapper implements StatefulJob {
-
-	private String beanId;
-	private String jobName;
-	private SchedulerManager schedulerManager;
 
 	public SpringStatefulJobBeanWrapper() {
 		super();

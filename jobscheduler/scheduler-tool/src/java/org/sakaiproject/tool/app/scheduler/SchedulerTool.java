@@ -54,19 +54,18 @@ public class SchedulerTool
   private static final String CRON_CHECK_QUESTION_MARK = "??";
 
   private SchedulerManager schedulerManager;
-  private Set jobClasses;
   private String jobName;
   private String triggerName;
   private String triggerExpression;
   private String selectedClass;
 
-  private List jobDetailWrapperList;
-  private List filteredJobDetailWrapperList;
+  private List<JobDetailWrapper> jobDetailWrapperList;
+  private List<JobDetailWrapper> filteredJobDetailWrapperList;
   private JobDetailWrapper selectedJobDetailWrapper;
   private boolean isSelectAllJobsSelected = false;
   private boolean isSelectAllTriggersSelected = false;
 
-  private List filteredTriggersWrapperList;
+  private List<TriggerWrapper> filteredTriggersWrapperList;
 
   public SchedulerTool()
   {
@@ -75,7 +74,7 @@ public class SchedulerTool
   /**
    * @return Returns the filteredTriggersWrapperList.
    */
-  public List getFilteredTriggersWrapperList()
+  public List<TriggerWrapper> getFilteredTriggersWrapperList()
   {
     return filteredTriggersWrapperList;
   }
@@ -83,7 +82,7 @@ public class SchedulerTool
   /**
    * @param filteredTriggerWrapperList The filteredTriggersWrapperList to set.
    */
-  public void setFilteredTriggersWrapperList(List filteredTriggersWrapperList)
+  public void setFilteredTriggersWrapperList(List<TriggerWrapper> filteredTriggersWrapperList)
   {
     this.filteredTriggersWrapperList = filteredTriggersWrapperList;
   }
@@ -199,7 +198,7 @@ public class SchedulerTool
   /**
    * @return Returns the jobDetailWrapperList.
    */
-  public List getJobDetailWrapperList()
+  public List<JobDetailWrapper> getJobDetailWrapperList()
   {
     return jobDetailWrapperList;
   }
@@ -208,7 +207,7 @@ public class SchedulerTool
    * @param jobDetailWrapperList
    *          The jobDetailWrapperList to set.
    */
-  public void setJobDetailWrapperList(List jobDetailWrapperList)
+  public void setJobDetailWrapperList(List<JobDetailWrapper> jobDetailWrapperList)
   {
     this.jobDetailWrapperList = jobDetailWrapperList;
   }
@@ -398,7 +397,7 @@ public class SchedulerTool
     try
     {
       TriggerWrapper triggerWrapper;
-      for (Iterator i = filteredTriggersWrapperList.iterator(); i.hasNext();)
+      for (Iterator<TriggerWrapper> i = filteredTriggersWrapperList.iterator(); i.hasNext();)
       {
         triggerWrapper = (TriggerWrapper) i.next();
         schedulerManager.getScheduler().unscheduleJob(
@@ -427,7 +426,7 @@ public class SchedulerTool
             Scheduler.DEFAULT_GROUP));
         Trigger[] triggerArr = scheduler.getTriggersOfJob(jobNames[i],
             Scheduler.DEFAULT_GROUP);
-        List triggerWrapperList = new ArrayList();
+        List<TriggerWrapper> triggerWrapperList = new ArrayList<TriggerWrapper>();
         TriggerWrapper tw;
         for (int j = 0; j < triggerArr.length; j++)
         {
@@ -448,7 +447,7 @@ public class SchedulerTool
     // test for select all
     if (isSelectAllJobsSelected)
     {
-      for (Iterator i = jobDetailWrapperList.iterator(); i.hasNext();)
+      for (Iterator<JobDetailWrapper> i = jobDetailWrapperList.iterator(); i.hasNext();)
       {
         if (isSelectAllJobsSelected)
         {
@@ -493,8 +492,8 @@ public class SchedulerTool
 
   public String processRefreshFilteredJobs()
   {
-    filteredJobDetailWrapperList = new ArrayList();
-    for (Iterator i = jobDetailWrapperList.iterator(); i.hasNext();)
+    filteredJobDetailWrapperList = new ArrayList<JobDetailWrapper>();
+    for (Iterator<JobDetailWrapper> i = jobDetailWrapperList.iterator(); i.hasNext();)
     {
       JobDetailWrapper jobDetailWrapper = (JobDetailWrapper) i.next();
       if (jobDetailWrapper.getIsSelected())
@@ -507,8 +506,8 @@ public class SchedulerTool
 
   public String processRefreshFilteredTriggers()
   {
-    filteredTriggersWrapperList = new ArrayList();
-    for (Iterator i = selectedJobDetailWrapper.getTriggerWrapperList()
+    filteredTriggersWrapperList = new ArrayList<TriggerWrapper>();
+    for (Iterator<TriggerWrapper> i = selectedJobDetailWrapper.getTriggerWrapperList()
         .iterator(); i.hasNext();)
     {
       TriggerWrapper triggerWrapper = (TriggerWrapper) i.next();

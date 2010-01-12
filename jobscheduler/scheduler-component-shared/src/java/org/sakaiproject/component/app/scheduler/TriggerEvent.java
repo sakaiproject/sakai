@@ -23,9 +23,6 @@ package org.sakaiproject.component.app.scheduler;
 
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 public class TriggerEvent
 {
   private String jobName;
@@ -34,8 +31,6 @@ public class TriggerEvent
 
   protected static String TRIGGER_FIRED = "Fired";
   protected static String TRIGGER_COMPLETE = "Complete";
-
-  private static final Log LOG = LogFactory.getLog(TriggerEvent.class);
 
   /**
    * @return Returns the eventType.

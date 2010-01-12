@@ -24,6 +24,7 @@ public class ScheduledInvocationRunner implements StatefulJob {
 	/* (non-Javadoc)
 	 * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)
 	 */
+	@SuppressWarnings("unchecked")
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 
 		
@@ -37,9 +38,9 @@ public class ScheduledInvocationRunner implements StatefulJob {
 		fields[0] = now;
 
 		LOG.debug("SQL: " + sql + " NOW:" + now);
-		List invocations = sqlService.dbRead(sql, fields, new DelayedInvocationReader());
+		List<DelayedInvocation> invocations = sqlService.dbRead(sql, fields, new DelayedInvocationReader());
 
-		for (Iterator i = invocations.iterator(); i.hasNext();) {
+		for (Iterator<DelayedInvocation> i = invocations.iterator(); i.hasNext();) {
 
 			DelayedInvocation invocation = (DelayedInvocation) i.next();
 

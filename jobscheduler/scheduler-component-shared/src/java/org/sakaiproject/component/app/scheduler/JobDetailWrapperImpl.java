@@ -23,11 +23,9 @@ package org.sakaiproject.component.app.scheduler;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.quartz.JobDetail;
-import org.sakaiproject.api.app.scheduler.JobDetailWrapper;
 import org.sakaiproject.api.app.scheduler.JobBeanWrapper;
+import org.sakaiproject.api.app.scheduler.JobDetailWrapper;
 
 public class JobDetailWrapperImpl implements JobDetailWrapper
 {
@@ -36,7 +34,7 @@ public class JobDetailWrapperImpl implements JobDetailWrapper
   private List triggerWrapperList;
   private Integer triggerCount;
 
-  private static final Log LOG = LogFactory.getLog(JobDetailWrapperImpl.class);
+ 
 
   public JobDetailWrapperImpl()
   {

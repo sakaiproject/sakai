@@ -48,7 +48,7 @@ public class ScheduledInvocationTestJob implements Job {
 		m_sim.deleteDelayedInvocation(uuid);
 		
 		LOG.info("SimTester: Creating another delayed invocation");
-		uuid = m_sim.createDelayedInvocation(m_timeService.newTime(), "scheduledInvocationTestCommand", "Hello World!");
+		m_sim.createDelayedInvocation(m_timeService.newTime(), "scheduledInvocationTestCommand", "Hello World!");
 	
 
 	}

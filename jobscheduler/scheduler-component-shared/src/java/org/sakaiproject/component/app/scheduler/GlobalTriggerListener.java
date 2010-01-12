@@ -27,8 +27,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.quartz.JobExecutionContext;
 import org.quartz.Trigger;
 import org.quartz.TriggerListener;
@@ -39,8 +37,6 @@ public class GlobalTriggerListener implements TriggerListener
   private List<TriggerEvent> triggerEvents = new ArrayList<TriggerEvent>();
   private List<TriggerEvent> todaysTriggerEvents = new ArrayList<TriggerEvent>();
   private boolean isViewAllSelected = false;
-
-  private static final Log LOG = LogFactory.getLog(GlobalTriggerListener.class);
 
   public String getName()
   {

@@ -34,7 +34,6 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
@@ -164,7 +163,7 @@ public void init()
       {
         try
         {
-          JobDetail jd = scheduler.getJobDetail(arrJobs[i],
+          scheduler.getJobDetail(arrJobs[i],
               Scheduler.DEFAULT_GROUP);
         }
         catch (SchedulerException e)
