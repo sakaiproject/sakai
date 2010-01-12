@@ -259,9 +259,8 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 
 	public Iterator getSiteContentIterator(String context)
 	{
-		List allPages = objectService.findRWikiSubPages("/site/" + context);
-		List l = new ArrayList();
-		final Iterator allPagesIterator = allPages.iterator();
+		List<RWikiObject> allPages = objectService.findRWikiSubPages("/site/" + context);
+		final Iterator<RWikiObject> allPagesIterator = allPages.iterator();
 		return new Iterator()
 		{
 

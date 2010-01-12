@@ -82,46 +82,60 @@ public class SQLScriptMigration implements DataMigrationAgent
 			log.warn("Migration Script " + targetScript + " was not found ");
 			return current;
 		}
-
-		BufferedReader br = new BufferedReader(new InputStreamReader(inStream));
-		String line = br.readLine();
-		StringBuffer currentLine = new StringBuffer();
-		List lines = new ArrayList();
-		while (line != null)
-		{
-			if (line.trim().endsWith(";"))
+		InputStreamReader stream = null;
+		BufferedReader br = null;
+		
+		try {
+			stream = new InputStreamReader(inStream);
+			br = new BufferedReader(stream);
+			String line = br.readLine();
+			StringBuffer currentLine = new StringBuffer();
+			List<String> lines = new ArrayList<String>();
+			while (line != null)
 			{
-				currentLine.append(line);
-				String sqlcmd = currentLine.toString().trim();
-				sqlcmd = sqlcmd.substring(0, sqlcmd.length() - 1);
-				if (sqlcmd != null && sqlcmd.length() > 0)
+				if (line.trim().endsWith(";"))
 				{
-					lines.add(sqlcmd);
+					currentLine.append(line);
+					String sqlcmd = currentLine.toString().trim();
+					sqlcmd = sqlcmd.substring(0, sqlcmd.length() - 1);
+					if (sqlcmd != null && sqlcmd.length() > 0)
+					{
+						lines.add(sqlcmd);
+					}
+					currentLine = new StringBuffer();
 				}
-				currentLine = new StringBuffer();
+				else
+				{
+					currentLine.append(line);
+				}
+				line = br.readLine();
 			}
-			else
-			{
-				currentLine.append(line);
-			}
-			line = br.readLine();
-		}
-		final String[] sql = (String[]) lines.toArray(new String[lines.size()]);
+			final String[] sql = (String[]) lines.toArray(new String[lines.size()]);
 
-		HibernateTemplate hibernateTemplate = new HibernateTemplate(
-				sessionFactory);
-		hibernateTemplate.setFlushMode(HibernateTemplate.FLUSH_NEVER);
-		hibernateTemplate.execute(new HibernateCallback()
-		{
-			public Object doInHibernate(Session session)
-					throws HibernateException, SQLException
+			HibernateTemplate hibernateTemplate = new HibernateTemplate(
+					sessionFactory);
+			hibernateTemplate.setFlushMode(HibernateTemplate.FLUSH_NEVER);
+			hibernateTemplate.execute(new HibernateCallback()
 			{
-				Connection con = session.connection();
-				executeSchemaScript(con, sql, newdb);
-				return null;
+				public Object doInHibernate(Session session)
+				throws HibernateException, SQLException
+				{
+					Connection con = session.connection();
+					executeSchemaScript(con, sql, newdb);
+					return null;
+				}
+			});
+			return to;
+		}
+		finally {
+			if (stream != null) {
+				stream.close();
 			}
-		});
-		return to;
+			if (br != null) {
+				br.close();
+			}
+		}
+		
 	}
 
 	/**

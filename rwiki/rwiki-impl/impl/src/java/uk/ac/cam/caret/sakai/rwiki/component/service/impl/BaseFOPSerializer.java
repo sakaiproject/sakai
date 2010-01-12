@@ -22,6 +22,7 @@
 package uk.ac.cam.caret.sakai.rwiki.component.service.impl;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.net.URI;
@@ -130,11 +131,13 @@ public class BaseFOPSerializer extends ToXMLSAXHandler implements ContentHandler
 	{
 		if (fop == null)
 		{
+			InputStream stream = null;
 			try
 			{
 				DefaultConfigurationBuilder cfgBuild = new DefaultConfigurationBuilder();
-				Configuration cfg = cfgBuild.build(getClass()
-						.getResourceAsStream(configfile));
+				stream = getClass()
+				.getResourceAsStream(configfile);
+				Configuration cfg = cfgBuild.build(stream);
 				FopFactory ff = FopFactory.newInstance();
 				ff.setUserConfig(cfg);
 				FOUserAgent userAgent = new FOUserAgent(ff);
@@ -164,11 +167,7 @@ public class BaseFOPSerializer extends ToXMLSAXHandler implements ContentHandler
 											.newReference(path);
 									ContentResource resource = ContentHostingService
 											.getResource(ref.getId());
-									String headers = "Content-type: "
-											+ resource.getContentType()
-											+ "\nContent-length: "
-											+ resource.getContentLength()
-											+ "\n\n";
+									
 									return new StreamSource(resource
 											.streamContent());
 								}
@@ -192,6 +191,7 @@ public class BaseFOPSerializer extends ToXMLSAXHandler implements ContentHandler
 							throw new TransformerException("Failed to get "
 									+ href, ex);
 						}
+						
 						return source;
 					}
 
@@ -207,6 +207,11 @@ public class BaseFOPSerializer extends ToXMLSAXHandler implements ContentHandler
 				logger.error("Failed to create Handler ",e);
 				throw new IOException("Failed to create " + mimeType
 						+ " Serializer: " + e.getMessage());
+			}
+			finally {
+				if (stream != null) {
+					stream.close();
+				}
 			}
 		}
 		DefaultHandler dh;

@@ -26,7 +26,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import uk.ac.cam.caret.sakai.rwiki.tool.RequestScopeSuperBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ResourceLoaderHelperBean;
 import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 import uk.ac.cam.caret.sakai.rwiki.utils.XmlEscaper;
@@ -161,6 +160,9 @@ public class RecentlyVisitedBean
 
 	private class SearchVisit implements Visit
 	{
+
+
+
 		private String search;
 
 		private String realm;
@@ -204,29 +206,44 @@ public class RecentlyVisitedBean
 			return "";
 		}
 
-		public boolean equals(Object other)
-		{
-			if (other instanceof SearchVisit)
-			{
-				SearchVisit castOther = (SearchVisit) other;
-				if ((search == null && castOther.search == null)
-						|| search.equals(castOther.search))
-				{
-					if ((realm == null && castOther.realm == null)
-							|| realm.equals(castOther.realm))
-					{
-						return true;
-					}
-				}
-			}
-
-			return false;
+		private RecentlyVisitedBean getOuterType() {
+			return RecentlyVisitedBean.this;
+		}
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + getOuterType().hashCode();
+			result = prime * result + ((realm == null) ? 0 : realm.hashCode());
+			result = prime * result
+					+ ((search == null) ? 0 : search.hashCode());
+			return result;
 		}
 
-		public int hashCode()
-		{
-			return (realm + "." + search).hashCode();
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			SearchVisit other = (SearchVisit) obj;
+			if (!getOuterType().equals(other.getOuterType()))
+				return false;
+			if (realm == null) {
+				if (other.realm != null)
+					return false;
+			} else if (!realm.equals(other.realm))
+				return false;
+			if (search == null) {
+				if (other.search != null)
+					return false;
+			} else if (!search.equals(other.search))
+				return false;
+			return true;
 		}
+
 
 	}
 
