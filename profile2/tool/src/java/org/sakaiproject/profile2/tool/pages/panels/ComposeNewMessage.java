@@ -122,7 +122,7 @@ public class ComposeNewMessage extends Panel {
 				Message message = (Message) form.getModelObject();
 				
 				//add other info
-				message.setThread(sakaiProxy.generateUuid());
+				//message.setThread(sakaiProxy.generateUuid());
 				message.setFrom(userId);	
 				
 				//send the message
@@ -132,9 +132,11 @@ public class ComposeNewMessage extends Panel {
 					sakaiProxy.postEvent(ProfileConstants.EVENT_MESSAGE_SENT, "/profile/"+message.getFrom(), true);
 					
 					//if email is enabled for this message type, send email
+					/*
 					if(profileLogic.isEmailEnabledForThisMessageType(message.getTo(), ProfileConstants.EMAIL_NOTIFICATION_PRIVATE_MESSAGE)) {
 						//message sending goes here, use the ETS
 					}
+					*/
 					
 					//success
 					formFeedback.setDefaultModel(new ResourceModel("success.message.send.ok"));

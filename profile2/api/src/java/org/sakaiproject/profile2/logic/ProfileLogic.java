@@ -3,6 +3,7 @@ package org.sakaiproject.profile2.logic;
 import java.util.List;
 
 import org.sakaiproject.profile2.model.Message;
+import org.sakaiproject.profile2.model.MessageRecipient;
 import org.sakaiproject.profile2.model.MessageThread;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileImageExternal;
@@ -689,14 +690,14 @@ public interface ProfileLogic {
 	 * @param id	id of the thread
 	 * @return
 	 */
-	public MessageThread getMessageThread(final String threadId);
+	public MessageThread getMessageThread(final long threadId);
 	
 	/**
 	 * Get the latest Message in a MessageThread
 	 * @param threadId 	id of the thread
 	 * @return
 	 */
-	public Message getLatestMessageInThread(final String threadId);
+	public Message getLatestMessageInThread(final long threadId);
 		
 	/**
 	 * Gets a list of MessageThreads with messages to a given user, each containing the most recent messages in each thread
@@ -718,14 +719,14 @@ public interface ProfileLogic {
 	 * @param threadId	id of the thread to get the messages for
 	 * @return
 	 */
-	public List<Message> getMessagesInThread(final String threadId);
+	public List<Message> getMessagesInThread(final long threadId);
 	
 	/**
 	 * Gets the count of the messages in a thread
 	 * @param threadId	thread to get the count for
 	 * @return
 	 */
-	public int getMessagesInThreadCount(final String threadId);
+	public int getMessagesInThreadCount(final long threadId);
 	
 	/**
 	 * Gets a Message from the database
@@ -757,5 +758,12 @@ public interface ProfileLogic {
 	 * @return
 	 */
 	public boolean toggleAllMessagesInThreadAsRead(final String threadId, final String userUuid, final boolean read);
-	
+
+	/**
+	 * Get a MessageRecipient record
+	 * @param messageId		message id
+	 * @param userUuid		uuid
+	 * @return
+	 */
+	public MessageRecipient getMessageRecipient(final long messageId, final String userUuid);
 }

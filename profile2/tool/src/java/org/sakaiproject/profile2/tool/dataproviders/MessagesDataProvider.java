@@ -21,9 +21,9 @@ import org.sakaiproject.profile2.tool.models.DetachableMessageModel;
 public class MessagesDataProvider implements IDataProvider<Message> {
     
 	private static final long serialVersionUID = 1L;
-	private final String threadId;
+	private final long threadId;
 	
-	public MessagesDataProvider(String threadId) {
+	public MessagesDataProvider(long threadId) {
 		this.threadId = threadId;
 	}
 	

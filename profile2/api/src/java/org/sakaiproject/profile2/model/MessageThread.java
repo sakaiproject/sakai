@@ -1,6 +1,7 @@
 package org.sakaiproject.profile2.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 /**
@@ -19,13 +20,12 @@ public class MessageThread implements Serializable {
 	/**
 	 * ID for this thread.
 	 */
-	private String id;
+	private long id;
 	
 	/**
 	 * subject of the thread
 	 */
 	private String subject;
-	
 	
 	/**
 	 * the most recent message in this thread - not persisted.
@@ -40,10 +40,11 @@ public class MessageThread implements Serializable {
 	public MessageThread() {
 	}
 	
-	public String getId() {
+	
+	public long getId() {
 		return id;
 	}
-	public void setId(String id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 	
@@ -53,14 +54,14 @@ public class MessageThread implements Serializable {
 	public void setSubject(String subject) {
 		this.subject = subject;
 	}
-	
+
+
 	public Message getMostRecentMessage() {
 		return mostRecentMessage;
 	}
 	public void setMostRecentMessage(Message mostRecentMessage) {
 		this.mostRecentMessage = mostRecentMessage;
 	}
-
 	
 
 	@Override 

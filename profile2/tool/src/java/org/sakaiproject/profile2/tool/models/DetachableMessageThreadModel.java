@@ -15,7 +15,7 @@ import org.sakaiproject.profile2.tool.Locator;
 public class DetachableMessageThreadModel extends LoadableDetachableModel<MessageThread>{
 
 	private static final long serialVersionUID = 1L;
-	private final String threadId;
+	private final long threadId;
 
 	protected ProfileLogic getProfileLogic(){
 		return Locator.getProfileLogic();
@@ -31,10 +31,7 @@ public class DetachableMessageThreadModel extends LoadableDetachableModel<Messag
 	/**
 	 * @param id
 	 */
-	public DetachableMessageThreadModel(String threadId){
-		if (StringUtils.isBlank(threadId)) {
-			throw new IllegalArgumentException();
-		}
+	public DetachableMessageThreadModel(long threadId){
 		this.threadId = threadId;
 	}
 	
@@ -42,7 +39,7 @@ public class DetachableMessageThreadModel extends LoadableDetachableModel<Messag
 	 * @see java.lang.Object#hashCode()
 	 */
 	public int hashCode() {
-		return threadId.hashCode();
+		return new Long(threadId).hashCode();
 	}
 	
 	/**

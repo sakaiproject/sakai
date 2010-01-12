@@ -112,6 +112,7 @@
 	       	<value>org/sakaiproject/profile2/hbm/ProfileImageExternal.hbm.xml</value>
 	       	<value>org/sakaiproject/profile2/hbm/Message.hbm.xml</value>
 	       	<value>org/sakaiproject/profile2/hbm/MessageThread.hbm.xml</value>
+	       	<value>org/sakaiproject/profile2/hbm/MessageRecipient.hbm.xml</value>
 	      </list>
 	    </property>
 

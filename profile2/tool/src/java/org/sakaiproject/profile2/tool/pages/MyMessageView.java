@@ -31,7 +31,7 @@ public class MyMessageView extends BasePage {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(ConfirmedFriends.class);
 	
-	public MyMessageView(final String userUuid, final String threadId, final String threadSubject) {
+	public MyMessageView(final String userUuid, final long threadId, final String threadSubject) {
 		
 		log.debug("MyMessageView()");
 		
@@ -117,9 +117,9 @@ public class MyMessageView extends BasePage {
 				item.add(new Label("messageBody", new Model<String>(message.getMessage())));
 				
 				//is being displayed, so mark it as read
-				if(!message.isRead()) {
-					profileLogic.toggleMessageRead(message, true);
-				}
+				//if(!message.isRead()) {
+				//	profileLogic.toggleMessageRead(message, true);
+				//}
 				
 				item.setOutputMarkupId(true);
 				
@@ -157,6 +157,9 @@ public class MyMessageView extends BasePage {
 				
         		//create a Message object for a reply to this thread
         		Message message = new Message();
+        		
+        		
+        		
         		// ...
 				
 				

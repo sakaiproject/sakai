@@ -21,12 +21,7 @@ public class Message implements Serializable {
 	 * autoincrement ID for this message
 	 */
 	private long id;
-	
-	/**
-	 * uuid to
-	 */
-	private String to;
-	
+		
 	/**
 	 * uuid from
 	 */
@@ -40,12 +35,7 @@ public class Message implements Serializable {
 	/**
 	 * what thread ID this message is associated with
 	 */
-	private String thread;
-	
-	/**
-	 * Has this message been read?
-	 */
-	private boolean read;
+	private long thread;
 	
 	/**
 	 * date this message was posted
@@ -64,12 +54,6 @@ public class Message implements Serializable {
 	public void setId(long id) {
 		this.id = id;
 	}
-	public String getTo() {
-		return to;
-	}
-	public void setTo(String to) {
-		this.to = to;
-	}
 	public String getFrom() {
 		return from;
 	}
@@ -82,17 +66,11 @@ public class Message implements Serializable {
 	public void setMessage(String message) {
 		this.message = message;
 	}
-	public String getThread() {
+	public long getThread() {
 		return thread;
 	}
-	public void setThread(String thread) {
+	public void setThread(long thread) {
 		this.thread = thread;
-	}
-	public boolean isRead() {
-		return read;
-	}
-	public void setRead(boolean read) {
-		this.read = read;
 	}
 	public Date getDatePosted() {
 		return datePosted;
@@ -105,11 +83,9 @@ public class Message implements Serializable {
 	public String toString() {
 		return new ToStringBuilder(this).
 			append("id", id).
-			append("to", to).
 			append("from", from).
 			append("message", message).
 			append("thread", thread).
-			append("read", read).
 			append("datePosted", datePosted).
 			toString();
 	   }

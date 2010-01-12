@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.sakaiproject.profile2.model">
+
+	<class name="MessageRecipient" table="PROFILE_MESSAGE_RECIPIENTS_T">
+
+		<id name="id">
+	      <column name="ID" not-null="true" length="19" />
+	      <generator class="native">
+	        <param name="sequence">PROFILE_MESSAGE_RECIPIENTS_S</param>
+	      </generator>
+	    </id>
+	    
+	   	<property name="messageId" column="MESSAGE_ID" length="19" not-null="true" index="PROFILE_MESSAGE_RECIPIENT_MESSAGE_ID_I" />
+		<property name="to" column="UUID_TO" length="99" not-null="true" index="PROFILE_MESSAGE_RECIPIENT_UUID_TO_I" />
+	    <property name="read" column="MESSAGE_READ" not-null="true" index="PROFILE_MESSAGE_RECIPIENT_READ_I" />
+		<property name="deleted" column="MESSAGE_DELETED" not-null="true" index="PROFILE_MESSAGE_RECIPIENT_DELETED_I" />
+		
+  	</class>
+  	
+
+	<!-- gets the record for a message and uuid -->
+  	<query name="getMessageRecipientForMessageAndUuid">
+    	<![CDATA[from MessageRecipient as recipient where recipient.messageId = :messageId and recipient.to = :to]]>
+	</query>
+
+	<database-object> 
+		<create>create index PROFILE_MESSAGE_RECIPIENTS_MESSAGE_ID_I on PROFILE_MESSAGE_RECIPIENTS_T (MESSAGE_ID)</create> 
+		<drop></drop>
+	</database-object>	
+	<database-object> 
+		<create>create index PROFILE_MESSAGE_RECIPIENT_UUID_TO_I on PROFILE_MESSAGE_RECIPIENTS_T (UUID_TO)</create> 
+		<drop></drop>
+	</database-object>
+	<database-object> 
+		<create>create index PROFILE_MESSAGE_RECIPIENT_READ_I on PROFILE_MESSAGE_RECIPIENTS_T (MESSAGE_READ)</create> 
+		<drop></drop>
+	</database-object>
+	<database-object> 
+		<create>create index PROFILE_MESSAGE_RECIPIENT_DELETED_I on PROFILE_MESSAGE_RECIPIENTS_T (MESSAGE_DELETED)</create> 
+		<drop></drop>
+	</database-object>
+	
+</hibernate-mapping>
