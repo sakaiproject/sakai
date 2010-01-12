@@ -53,6 +53,10 @@
 			<groupId>stax</groupId>
 			<artifactId>stax-api</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>stax</groupId>
+			<artifactId>stax</artifactId>
+		</dependency>
    		<!-- 
 		<dependency>
       		<groupId>org.sakaiproject.tinyurl</groupId>
