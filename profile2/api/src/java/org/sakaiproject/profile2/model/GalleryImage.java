@@ -9,7 +9,7 @@ public class GalleryImage implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private String id;
+	private long id;
 	private String userUuid;
 	private String mainResource;
 	private String thumbnailResource;
@@ -34,11 +34,11 @@ public class GalleryImage implements Serializable {
 		this.displayName = displayName;
 	}
 
-	public String getId() {
+	public long getId() {
 		return id;
 	}
 	
-	public void setId(String id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 	

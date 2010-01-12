@@ -185,7 +185,7 @@ public interface ProfileLogic {
 	 * @param userId the ID of the user to query by.
 	 * @param imageId the ID of the gallery image to remove.
 	 */
-	public boolean removeGalleryImage(String userId, String imageId);
+	public boolean removeGalleryImage(String userId, long imageId);
 	
 	/**
 	 * Add a new profile image record to the database. Invalidates others before it adds itself.

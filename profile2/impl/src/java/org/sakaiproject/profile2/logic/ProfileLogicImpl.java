@@ -566,8 +566,8 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	public boolean removeGalleryImage(String userId, String imageId) {
-		if(userId == null || imageId == null){
+	public boolean removeGalleryImage(String userId, long imageId) {
+		if(userId == null || new Long(imageId) == null){
 	  		throw new IllegalArgumentException("Null argument in ProfileLogicImpl.removeGalleryImage()"); 
 	  	}
 		
@@ -2253,14 +2253,14 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		return profileFriend;
 	}
 	
-	private GalleryImage getGalleryImageRecord(final String userId, final String imageId) {
+	private GalleryImage getGalleryImageRecord(final String userId, final long imageId) {
 		GalleryImage galleryImage = null;
 		
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  			Query q = session.getNamedQuery(QUERY_GET_GALLERY_RECORD);
 	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setParameter(ID, imageId, Hibernate.STRING);
+	  			q.setParameter(ID, imageId, Hibernate.LONG);
 	  			q.setMaxResults(1);
 	  			return q.uniqueResult();
 			}
