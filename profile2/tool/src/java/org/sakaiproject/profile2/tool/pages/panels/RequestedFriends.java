@@ -21,6 +21,7 @@ import java.io.ObjectInputStream;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -38,7 +39,6 @@ import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
-import org.sakaiproject.profile2.model.SearchResult;
 import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
@@ -58,7 +58,7 @@ public class RequestedFriends extends Panel {
 	private transient ProfileLogic profileLogic; 
 	private Integer numRequestedFriends = 0;
 	
-	public RequestedFriends(final String id, final MyFriends parent, final String userUuid) {
+	public RequestedFriends(final String id, final String userUuid) {
 		super(id);
 		
 		log.debug("RequestedFriends()");
@@ -216,8 +216,8 @@ public class RequestedFriends extends Panel {
 				            		//update label
 				            		target.addComponent(requestedFriendsHeading);
 				            		
-				            		//repaint confirmed friends panel by calling method in MyFriends to repaint it for us
-				            		parent.updateConfirmedFriends(target, userUuid);
+				            		//get parent panel and repaint ConfirmedFriends panel via helper method in MyFriends 
+				            		findParent(MyFriends.class).updateConfirmedFriends(target, userUuid);
 				            		
 				            		//if none left, hide everything
 				            		if(numRequestedFriends==0) {
@@ -273,5 +273,6 @@ public class RequestedFriends extends Panel {
 	private ProfileLogic getProfileLogic() {
 		return Locator.getProfileLogic();
 	}
+	
 	
 }

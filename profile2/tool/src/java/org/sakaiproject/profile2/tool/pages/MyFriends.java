@@ -41,7 +41,7 @@ public class MyFriends extends BasePage {
 		final String userId = sakaiProxy.getCurrentUserId();
 
 		//friend requests panel
-		requestedFriends = new RequestedFriends("requestedFriends", this, userId);
+		requestedFriends = new RequestedFriends("requestedFriends", userId);
 		requestedFriends.setOutputMarkupId(true);
 		add(requestedFriends);
 		
