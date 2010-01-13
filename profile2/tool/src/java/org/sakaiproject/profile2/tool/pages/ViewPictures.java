@@ -80,7 +80,12 @@ public class ViewPictures extends BasePage {
 		gridView.setColumns(4);
 
 		galleryForm.add(gridView);
-		galleryForm.add(new PagingNavigator("navigator", gridView));
+		if (gridView.getItemCount() == 0) {
+			galleryForm.add(new PagingNavigator("navigator", gridView)
+					.setVisible(false));
+		} else {
+			galleryForm.add(new PagingNavigator("navigator", gridView));
+		}
 	}
 	
 	private void configureFeedback() {

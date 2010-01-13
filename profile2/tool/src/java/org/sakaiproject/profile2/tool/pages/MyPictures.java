@@ -200,7 +200,12 @@ public class MyPictures extends BasePage {
 		gridView.setColumns(4);
 
 		galleryForm.add(gridView);
-		galleryForm.add(new PagingNavigator("navigator", gridView));
+		if (gridView.getItemCount() == 0) {
+			galleryForm.add(new PagingNavigator("navigator", gridView)
+					.setVisible(false));
+		} else {
+			galleryForm.add(new PagingNavigator("navigator", gridView));
+		}
 
 		// set page to display
 		if (pageToDisplay > -1 && pageToDisplay < gridView.getPageCount()) {
