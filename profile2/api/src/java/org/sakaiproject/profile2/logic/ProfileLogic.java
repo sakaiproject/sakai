@@ -6,6 +6,7 @@ import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageRecipient;
 import org.sakaiproject.profile2.model.MessageThread;
+import org.sakaiproject.profile2.model.NewMessageHelper;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileImageExternal;
 import org.sakaiproject.profile2.model.ProfilePreferences;
@@ -773,10 +774,10 @@ public interface ProfileLogic {
 	
 	/**
 	 * Send a message
-	 * @param message	Message object to send.
+	 * @param messageHelper	NewMessageHelper object to send.
 	 * @return
 	 */
-	public boolean sendPrivateMessage(Message message);
+	public boolean sendNewMessage(NewMessageHelper messageHelper);
 	
 	/**
 	 * Toggle a single message as read/unread

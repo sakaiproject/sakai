@@ -1104,3 +1104,15 @@ div.wicket-aa ul li.selected {
    	/* end centreing */
    	/* cursor: pointer; */
 }
+
+
+
+/* close button */
+.closebutton {
+	float: right;
+	clear: none;
+	text-align: right;
+}
+.closebutton:hover {
+	background-color: #ffcccc;
+}

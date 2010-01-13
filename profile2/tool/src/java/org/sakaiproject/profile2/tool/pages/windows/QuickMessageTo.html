@@ -2,23 +2,21 @@
 <html xmlns="http://www.w3.org/1999/xhtml"  
       xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
       xml:lang="en"  
-      lang="en">
-        
+      lang="en"> 
+       
 <body>
 
 <wicket:panel>
-	<form wicket:id="form" class="profileForm">
-	
-		<div class="closebutton" wicket:id="closeButton">
-			<a href="" wicket:id="link"><img wicket:id="img"/></a>
-		</div>
+
+	<div class="modalWindowWrapper">
+		<form wicket:id="form">
 		
 		<table class="profileContent">
 					
 			<!-- to -->
 			<tr>
 				<td class="label" wicket:id="toLabel">[toLabel]</td>
-				<td class="content"><input type="text" wicket:id="toField" /></td>
+				<td class="content" wicket:id="toContent">[toContent]</td>
 			</tr>
 			
 			<!-- subject -->
@@ -34,20 +32,22 @@
 			</tr>
 			
 		</table>
-				
-		<div class="pageFormButtons">
+		
+						
+		<div class="modalWindowButtons">
 			<input type="submit" wicket:id="sendButton" value="[Send]" />
 		</div>
 			
 	</form>
-	
-	<div wicket:id="formFeedback">[formFeedback]</div>
-	
+		
+		
+		
+		
+		
+    </div>
+    
 </wicket:panel>
-
-
 
 	
 </body>
 </html>
-

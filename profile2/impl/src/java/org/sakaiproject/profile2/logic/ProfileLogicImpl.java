@@ -23,6 +23,7 @@ import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageRecipient;
 import org.sakaiproject.profile2.model.MessageThread;
+import org.sakaiproject.profile2.model.NewMessageHelper;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileFriend;
 import org.sakaiproject.profile2.model.ProfileImage;
@@ -1814,24 +1815,42 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	public boolean sendPrivateMessage(Message message) {
+	public boolean sendNewMessage(NewMessageHelper messageHelper) {
 		
-		//add the extra fields
-		//message.setRead(false);
-		//message.setDatePosted(new Date());
-		//if(StringUtils.isBlank(message.getSubject())) {
-		//	message.setSubject(ProfileConstants.DEFAULT_PRIVATE_MESSAGE_SUBJECT);
-		//}
-		
-		//save the message
+		//validate
+		if(StringUtils.isBlank(messageHelper.getSubject())) {
+			messageHelper.setSubject(ProfileConstants.DEFAULT_PRIVATE_MESSAGE_SUBJECT);
+		}
 		try {
-			getHibernateTemplate().saveOrUpdate(message);
-			log.info("Message sent: " + message.toString()); 
+			
+			//create the thread and save it
+			MessageThread thread = new MessageThread();
+			thread.setSubject(messageHelper.getSubject());
+			saveNewThread(thread);
+			
+			//create the message and save it
+			Message message = new Message();
+			message.setFrom(messageHelper.getFrom());
+			message.setMessage(messageHelper.getMessage());
+			message.setDatePosted(new Date());
+			message.setThread(thread.getId());
+			saveNewMessage(message);
+			
+	
+			//create the recipients and save (only able to have one recipient at the moment)
+			MessageRecipient recipient = new MessageRecipient();
+			recipient.setMessageId(message.getId());
+			recipient.setTo(messageHelper.getTo());
+			recipient.setRead(false);
+			recipient.setDeleted(false);
+			saveNewMessageRecipient(recipient);
+			
 			return true;
 		} catch (Exception e) {
-			log.error("ProfileLogic.sendPrivateMessage() failed. " + e.getClass() + ": " + e.getMessage()); 
-			return false;
+			log.error("ProfileLogic.sendNewMessage(): Couldn't save message: " + e.getClass() + " : " + e.getMessage());
 		}
+		
+		return true;
 			
 	}
 	
@@ -2392,6 +2411,46 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		}
 		
 		return results;
+	}
+	
+	
+	/*
+	 * Save a thread, obj now persistent and has id
+	 */
+	private void saveNewThread(MessageThread thread) {
+		
+		try {
+			getHibernateTemplate().save(thread);
+			log.info("MessageThread saved with id= " + thread.getId());  
+		} catch (Exception e) {
+			log.error("ProfileLogic.saveNewThread() failed. " + e.getClass() + ": " + e.getMessage());  
+		}
+	}
+	
+	/*
+	 * Save a message, obj now persistent and has id
+	 */
+	private void saveNewMessage(Message message) {
+		
+		try {
+			getHibernateTemplate().save(message);
+			log.info("Message saved with id= " + message.getId());  
+		} catch (Exception e) {
+			log.error("ProfileLogic.saveNewMessage() failed. " + e.getClass() + ": " + e.getMessage());  
+		}
+	}
+	
+	/*
+	 * Save a message recipient, obj now persistent and has id 
+	 */
+	private void saveNewMessageRecipient(MessageRecipient recipient) {
+		
+		try {
+			getHibernateTemplate().save(recipient);
+			log.info("MessageRecipient saved with id= " + recipient.getId());  
+		} catch (Exception e) {
+			log.error("ProfileLogic.saveNewMessageRecipient() failed. " + e.getClass() + ": " + e.getMessage());  
+		}
 	}
 	
 	

@@ -1,0 +1,106 @@
+package org.sakaiproject.profile2.tool.pages.windows;
+
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.TextArea;
+import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
+import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.model.Message;
+import org.sakaiproject.profile2.model.NewMessageHelper;
+import org.sakaiproject.profile2.tool.Locator;
+
+/**
+ * ModalWindow panel used when we know who we want to send the message to, ie when link is clicked from a user's profile or connection list
+ * Doesn't contain the AutoComplete Field as we already know who it is.
+ */
+public class QuickMessageTo extends Panel {
+
+	private static final long serialVersionUID = 1L;
+	private transient SakaiProxy sakaiProxy;
+	private transient ProfileLogic profileLogic;
+	
+	
+	public QuickMessageTo(String id, final ModalWindow window, final String uuidTo){
+        super(id);
+
+        //get API's
+		sakaiProxy = getSakaiProxy();
+		profileLogic = getProfileLogic();
+        
+        //window setup
+		window.setTitle(new ResourceModel("title.message.compose")); 
+		//window.setInitialHeight(150);
+		//window.setInitialWidth(500);
+		window.setResizable(false);
+		
+		//current userId
+		final String userId = sakaiProxy.getCurrentUserId();
+		
+		//setup model
+		NewMessageHelper messageHelper = new NewMessageHelper();
+		messageHelper.setTo(uuidTo);
+		messageHelper.setFrom(userId);
+		
+		//setup form	
+		Form<Message> form = new Form<Message>("form");
+		
+		//to label
+		form.add(new Label("toLabel", new ResourceModel("message.to")));
+		//to label
+		form.add(new Label("toContent", new Model<String>(sakaiProxy.getUserDisplayName(uuidTo))));
+		
+		
+		//subject
+		form.add(new Label("subjectLabel", new ResourceModel("message.subject")));
+		TextField<String> subjectField = new TextField<String>("subjectField");
+		form.add(subjectField);
+		
+		//body
+		form.add(new Label("messageLabel", new ResourceModel("message.message")));
+		final TextArea<String> messageField = new TextArea<String>("messageField");
+		messageField.setRequired(true);
+		form.add(messageField);
+		
+		//send button
+		IndicatingAjaxButton sendButton = new IndicatingAjaxButton("sendButton", form) {
+			private static final long serialVersionUID = 1L;
+
+			protected void onSubmit(AjaxRequestTarget target, Form form) {
+				
+				
+            }
+			
+			protected void onError(AjaxRequestTarget target, Form form) {
+				
+			
+			}
+		};
+		form.add(sendButton);
+		sendButton.setModel(new ResourceModel("button.message.send"));
+		
+		add(form);
+		
+        
+        
+    }
+	
+	private SakaiProxy getSakaiProxy() {
+		return Locator.getSakaiProxy();
+	}
+
+	private ProfileLogic getProfileLogic() {
+		return Locator.getProfileLogic();
+	}
+
+		
+}
+
+
+

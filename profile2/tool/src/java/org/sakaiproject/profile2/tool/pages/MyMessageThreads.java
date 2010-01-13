@@ -12,7 +12,6 @@ import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.Model;
@@ -21,6 +20,7 @@ import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageThread;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.MessageThreadsDataProvider;
+import org.sakaiproject.profile2.tool.pages.panels.ComposeNewMessage;
 import org.sakaiproject.profile2.tool.pages.panels.ConfirmedFriends;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -42,27 +42,24 @@ public class MyMessageThreads extends BasePage {
 		final String userUuid = sakaiProxy.getCurrentUserId();
 		
 		//new message panel
-		/*
 		final ComposeNewMessage newMessagePanel = new ComposeNewMessage("newMessagePanel");
 		newMessagePanel.setOutputMarkupPlaceholderTag(true);
 		newMessagePanel.setVisible(false);
 		add(newMessagePanel);
-		*/
-		add(new EmptyPanel("newMessagePanel"));
 		
+		//no messages label
+		Label noMessagesLabel = new Label("noMessagesLabel");
+		noMessagesLabel.setOutputMarkupPlaceholderTag(true);
+		add(noMessagesLabel);
 		
 		//new message button
-		Form form = new Form("form");
+		Form<Void> form = new Form<Void>("form");
 		IndicatingAjaxButton newMessageButton = new IndicatingAjaxButton("newMessage", form) {
 		
 			public void onSubmit(AjaxRequestTarget target, Form form) {
 				//show panel
-				//newMessagePanel.setVisible(true);
-				//target.addComponent(newMessagePanel);
-				
-				//disable this button
-				this.setEnabled(false);
-				target.addComponent(this);
+				newMessagePanel.setVisible(true);
+				target.addComponent(newMessagePanel);
 				
 				//resize iframe
 				target.prependJavascript("setMainFrameHeight(window.name);");
@@ -163,10 +160,13 @@ public class MyMessageThreads extends BasePage {
 		AjaxPagingNavigator pager = new AjaxPagingNavigator("navigator", messageThreadList);
 		add(pager);
 	
-		//initially, if no message threads to show, hide container and pager
+		//initially, if no message threads to show, hide container and pager, set and show label
 		if(numMessages == 0) {
 			messageThreadListContainer.setVisible(false);
 			pager.setVisible(false);
+			
+			noMessagesLabel.setDefaultModel(new ResourceModel("text.messages.none"));
+			noMessagesLabel.setVisible(true);
 		}
 		
 		//also, if num less than num required for pager, hide it
@@ -180,7 +180,7 @@ public class MyMessageThreads extends BasePage {
 	/* reinit for deserialisation (ie back button) */
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		in.defaultReadObject();
-		log.debug("MessageList has been deserialized.");
+		log.debug("MessageThreads has been deserialized.");
 		//re-init our transient objects
 		profileLogic = getProfileLogic();
 		sakaiProxy = getSakaiProxy();
