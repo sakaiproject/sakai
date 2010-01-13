@@ -118,6 +118,11 @@ public class GalleryFeed extends Panel {
 			numPicturesLabel.setDefaultModel(new ResourceModel("text.gallery.feed.num.none"));
 			viewPicturesLabel = new Label("viewPicturesLabel",
 					new ResourceModel("link.gallery.feed.addnew"));
+			
+			if (!viewingUserId.equals(ownerUserId)) {
+				viewPicturesLink.setVisible(false);
+			}
+			
 		} else {
 			numPicturesLabel.setVisible(false);
 			viewPicturesLabel = new Label("viewPicturesLabel",
