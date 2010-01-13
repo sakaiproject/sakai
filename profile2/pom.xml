@@ -59,13 +59,13 @@
 		</contributor>
 	</contributors>
 
-	<licenses>
-		<license>
-			<name>The Apache Software License, Version 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
+    <licenses>
+        <license>
+            <name>Educational Community License, Version 2.0</name>
+            <url>http://www.osedu.org/licenses/ECL-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 	
 	<repositories>
 		<repository>
@@ -344,4 +344,57 @@
         </pluginRepository>
     </pluginRepositories>
     
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.mycila.maven-license-plugin</groupId>
+                <artifactId>maven-license-plugin</artifactId>
+                <version>1.5.0</version>
+                <configuration>
+                    <basedir>${basedir}</basedir>
+                    <header>https://source.sakaiproject.org/svn/sakai/trunk/ECLv2-header-template.txt</header>
+                    <quiet>false</quiet>
+                    <failIfMissing>true</failIfMissing>
+                    <aggregate>false</aggregate>
+                    <includes>
+                        <include>**/org/sakaiproject/**/*.java</include>
+                        <include>**/org/sakaiproject/**/*.html</include>
+                        <include>**/test/**/*.java</include>
+                        <include>src/webapp/css/profile2-help.css</include>
+                        <include>src/webapp/css/profile2-profile-entity.css</include>
+                        <include>src/webapp/css/profile2.css</include>
+                        <include>src/webapp/javascript/profile2.js</include>
+                    </includes>
+                    <excludes>
+                        <exclude>target/**</exclude>
+                        <exclude>m2-target/**</exclude>
+                        <exclude>**/*.doc</exclude>
+                        <exclude>**/*.properties</exclude>
+                        <exclude>**/*.txt</exclude>
+                        <exclude>**/*.xml</exclude>
+                        <exclude>**/*.sql</exclude>
+                    </excludes>
+                    <useDefaultExcludes>true</useDefaultExcludes>
+                    <useDefaultMapping>true</useDefaultMapping>
+                    <properties>
+                        <year>${project.inceptionYear}-2010</year>
+                        <holder>The Sakai Foundation</holder>
+                    </properties>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+                <!-- Disable: plugin ${year} variable causes build failure if a single year is encountered.  -->
+                <!--
+                <executions>
+                    <execution>
+                        <id>check-headers</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                -->
+            </plugin>
+        </plugins>
+    </build>
 </project>
