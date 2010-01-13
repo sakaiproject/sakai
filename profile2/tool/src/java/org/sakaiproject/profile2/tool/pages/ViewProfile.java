@@ -121,7 +121,7 @@ public class ViewProfile extends BasePage {
 		boolean isAcademicInfoAllowed = profileLogic.isUserXAcademicInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		boolean isPersonalInfoAllowed = profileLogic.isUserXPersonalInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		boolean isFriendsListVisible = profileLogic.isUserXFriendsListVisibleByUserY(userUuid, privacy, currentUserId, friend);
-		boolean isGalleryVisible = profileLogic.isUserXGalleryVisibleByUser(userUuid, privacy, currentUserId, friend);
+		final boolean isGalleryVisible = profileLogic.isUserXGalleryVisibleByUser(userUuid, privacy, currentUserId, friend);
 		boolean isConnectionAllowed = sakaiProxy.isConnectionAllowedBetweenUserTypes(currentUserType, userType);
 		
 		/* IMAGE */
@@ -567,16 +567,18 @@ public class ViewProfile extends BasePage {
 		}
 		
 		/* Gallery feed panel */
-		Panel galleryFeed;
-		if (isGalleryVisible) {
-			galleryFeed = new GalleryFeed("galleryFeed", userUuid, currentUserId);
-		} else {
-			galleryFeed = new EmptyPanel("galleryFeed");
-			galleryFeed.setVisible(false);
-		}
-		
-		galleryFeed.setOutputMarkupId(true);
-		add(galleryFeed);
+		add(new AjaxLazyLoadPanel("galleryFeed") {
+
+			@Override
+			public Component getLazyLoadComponent(String markupId) {
+				if (isGalleryVisible) {
+					return new GalleryFeed(markupId, userUuid, currentUserId)
+							.setOutputMarkupId(true);
+				} else {
+					return new EmptyPanel(markupId).setVisible(false);
+				}
+			}
+		});
 	
 	}
 	

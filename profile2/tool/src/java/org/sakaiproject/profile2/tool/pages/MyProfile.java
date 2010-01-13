@@ -317,9 +317,14 @@ public class MyProfile extends BasePage {
         });
 		
 		/* Gallery feed panel */
-		Panel galleryFeed = new GalleryFeed("galleryFeed", userUuid, userUuid);
-		galleryFeed.setOutputMarkupId(true);
-		add(galleryFeed);
+		add(new AjaxLazyLoadPanel("galleryFeed") {
+
+			@Override
+			public Component getLazyLoadComponent(String markupId) {
+				return new GalleryFeed(markupId, userUuid, userUuid)
+						.setOutputMarkupId(true);
+			}
+		});
 		
 	}
 	
