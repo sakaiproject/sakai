@@ -1965,7 +1965,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 				  if(mapping.getGradeMap() != null)
 				  {
-					  percentage = mapping.getValue(grade);
+				      // standardize the grade mapping
+				      String standardizedGrade = mapping.standardizeInputGrade(grade);
+					  percentage = mapping.getValue(standardizedGrade);
 					  if(percentage == null)
 					  {
 						  throw new IllegalArgumentException("Invalid grade passed to convertInputGradeToPoints");
