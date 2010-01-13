@@ -5,7 +5,7 @@
 
 <hibernate-mapping package="org.sakaiproject.profile2.model">
 
-	<class name="GalleryImage" table="GALLERY_IMAGES_T">
+	<class name="GalleryImage" table="PROFILE_GALLERY_IMAGES_T">
 
 		<id name="id">
 			<column name="ID" not-null="true" length="19" />
@@ -14,7 +14,7 @@
 			</generator>
 	    </id>
 	    
-		<property name="userUuid" column="USER_UUID" length="99" not-null="true" index="GALLERY_IMAGES_USER_UUID_I" />
+		<property name="userUuid" column="USER_UUID" length="99" not-null="true" index="PROFILE_GALLERY_IMAGES_USER_UUID_I" />
 		<property name="mainResource" column="RESOURCE_MAIN" not-null="true" />
 		<property name="thumbnailResource" column="RESOURCE_THUMB" not-null="true" />
 		<property name="displayName" column="DISPLAY_NAME" not-null="true" />
@@ -31,7 +31,7 @@
 	</query>
 	
   	<database-object> 
-		<create>create index GALLERY_IMAGES_USER_UUID_I on GALLERY_IMAGES_T (USER_UUID)</create> 
+		<create>create index PROFILE_GALLERY_IMAGES_USER_UUID_I on PROFILE_GALLERY_IMAGES_T (USER_UUID)</create> 
 		<drop></drop> 
 	</database-object>
 	
