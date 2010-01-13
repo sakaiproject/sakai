@@ -21,7 +21,6 @@ package org.sakaiproject.sitestats.impl.report;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -663,7 +662,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		HSSFWorkbook wb = new HSSFWorkbook();
 		HSSFSheet sheet = wb.createSheet(getFixedExcelSheetName(sheetName));
 		HSSFRow headerRow = sheet.createRow(0);
-
+		
 		// Add the column headers
 		int ix = 0;
 		if(isReportColumnAvailable(report.getReportDefinition().getReportParams(), StatsManager.T_USER)) {
@@ -773,7 +772,23 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				row.createCell(ix++).setCellValue(sv.getTotalUnique());
 			}
 		}
-		return wb.getBytes();
+
+		ByteArrayOutputStream baos = null;
+		try{
+			baos = new ByteArrayOutputStream();
+			wb.write(baos);
+		}catch(IOException e){
+			LOG.error("Error writing Excel bytes from SiteStats report", e);
+		}finally{
+			if(baos != null) {
+				try{ baos.close(); }catch(IOException e){ /* ignore */ }
+			}
+		}
+		if(baos != null) {
+			return baos.toByteArray();
+		}else{
+			return new byte[0];
+		}
 	}
 	
 	private String getFixedExcelSheetName(String sheetName) {

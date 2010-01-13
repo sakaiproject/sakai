@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -19,37 +19,28 @@
 package org.sakaiproject.sitestats.test;
 
 
-import static org.easymock.classextension.EasyMock.*;
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.getCurrentArguments;
+import static org.easymock.classextension.EasyMock.createMock;
+import static org.easymock.classextension.EasyMock.replay;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.easymock.IAnswer;
-import org.hibernate.Hibernate;
 import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.sitestats.api.EventStat;
-import org.sakaiproject.sitestats.api.PrefsData;
-import org.sakaiproject.sitestats.api.ResourceStat;
-import org.sakaiproject.sitestats.api.SiteActivityByTool;
 import org.sakaiproject.sitestats.api.SiteVisits;
-import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
-import org.sakaiproject.sitestats.api.SummaryActivityChartData;
-import org.sakaiproject.sitestats.api.SummaryActivityTotals;
-import org.sakaiproject.sitestats.api.SummaryVisitsChartData;
-import org.sakaiproject.sitestats.api.SummaryVisitsTotals;
-import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
@@ -59,14 +50,11 @@ import org.sakaiproject.sitestats.impl.StatsUpdateManagerImpl;
 import org.sakaiproject.sitestats.impl.report.ReportManagerImpl;
 import org.sakaiproject.sitestats.test.data.FakeData;
 import org.sakaiproject.sitestats.test.mocks.FakeEventRegistryService;
-import org.sakaiproject.sitestats.test.mocks.FakeEventTrackingService;
 import org.sakaiproject.sitestats.test.mocks.FakeServerConfigurationService;
 import org.sakaiproject.sitestats.test.mocks.FakeSite;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
-import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.orm.hibernate3.HibernateTransactionManager;
 import org.springframework.test.annotation.AbstractAnnotationAwareTransactionalTests;
 
 
@@ -766,15 +754,34 @@ public class ReportManagerTest extends AbstractAnnotationAwareTransactionalTests
 		Report report = M_rm.getReport(rd, false);
 		assertNotNull(report);
 		
+		// CSV
 		String csv = M_rm.getReportAsCsv(report);
 		assertNotNull(csv);
 		assertTrue(csv.length() > 0);
 		
-		// Currently disabled due to classloading trouble
-//		byte[] excel = M_rm.getReportAsExcel(report, "sheetname");
-//		assertNotNull(excel);
-//		assertTrue(excel.length > 0);
-//		
+		// EXCEL
+		byte[] excel = M_rm.getReportAsExcel(report, "sheetname");
+		assertNotNull(excel);
+		assertTrue(excel.length > 0);
+		// To verify locally...
+//		File file = new File("d:/sitestats-test.xls");
+//		if(file.exists()) {file.delete();}
+//		FileOutputStream out = null;
+//		try{
+//			out = new FileOutputStream(file);
+//			out.write(excel);
+//			out.flush();
+//		}catch(FileNotFoundException e){
+//			e.printStackTrace();
+//		}catch(IOException e){
+//			e.printStackTrace();
+//		}finally{
+//			if(out != null) {
+//				try{ out.close(); }catch(IOException e){ /* IGNORE */}
+//			}
+//		}
+		
+		// PDF: currently disabled due to classloading trouble
 //		byte[] pdf = M_rm.getReportAsPDF(report);
 //		assertNotNull(pdf);
 //		assertTrue(pdf.length > 0);
