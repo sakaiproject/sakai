@@ -4001,7 +4001,7 @@ public class AssignmentAction extends PagedResourceActionII
 							// for resubmissions
 							// when resubmit, keep the Returned flag on till the instructor grade again.
 							Time now = TimeService.newTime();
-							if (sEdit.getGraded())
+							if (sEdit.getGraded() && sEdit.getReturned() && sEdit.getGradeReleased())
 							{
 								// add the current grade into previous grade histroy
 								String previousGrades = (String) sEdit.getProperties().getProperty(
