@@ -48,8 +48,6 @@ import org.sakaiproject.portal.api.StyleAbleProvider;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 
-import sun.tools.tree.FinallyStatement;
-
 /**
  * A velocity render engine adapter
  * 
