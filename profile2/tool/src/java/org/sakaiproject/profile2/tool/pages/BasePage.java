@@ -57,6 +57,10 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		//set Locale - all pages will inherit this.
 		setUserPreferredLocale();
 		
+		//get currentUserUuid
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		
+		
     	//profile link
     	Link<Void> myProfileLink = new Link<Void>("myProfileLink") {
 			private static final long serialVersionUID = 1L;
@@ -66,6 +70,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		};
 		myProfileLink.add(new Label("myProfileLabel",new ResourceModel("link.my.profile")));
 		add(myProfileLink);
+		
 		
 		//my pictures link
 		Link<Void> myPicturesLink = new Link<Void>("myPicturesLink") {
@@ -77,6 +82,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		myPicturesLink.add(new Label("myPicturesLabel", new ResourceModel("link.my.pictures")));
 		add(myPicturesLink);
 		
+		
 		//my friends link
     	Link<Void> myFriendsLink = new Link<Void>("myFriendsLink") {
 			private static final long serialVersionUID = 1L;
@@ -85,8 +91,16 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			}
 		};
 		myFriendsLink.add(new Label("myFriendsLabel",new ResourceModel("link.my.friends")));
-		add(myFriendsLink);
 		
+		//get count of new connection requests
+		int newRequestsCount = profileLogic.getConnectionRequestsForUserCount(currentUserUuid);
+		Label newRequestsLabel = new Label("newRequestsLabel", new Model<Integer>(newRequestsCount));
+		myFriendsLink.add(newRequestsLabel);
+
+		if(newRequestsCount == 0) {
+			newRequestsLabel.setVisible(false);
+		}
+		add(myFriendsLink);
 		
 		
 		//messages link
@@ -98,18 +112,17 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		};
 		myMessagesLink.add(new Label("myMessagesLabel",new ResourceModel("link.my.messages")));
 		
-		//calculate new messages grouped by thread
-		int count = profileLogic.getThreadsWithUnreadMessagesCount(sakaiProxy.getCurrentUserId());
-		Label unreadMessagesLabel = new Label("unreadMessagesLabel", new Model<Integer>(count));
-		myMessagesLink.add(unreadMessagesLabel);
+		//get count of new messages grouped by thread
+		int newMessagesCount = profileLogic.getThreadsWithUnreadMessagesCount(currentUserUuid);
+		Label newMessagesLabel = new Label("newMessagesLabel", new Model<Integer>(newMessagesCount));
+		myMessagesLink.add(newMessagesLabel);
 
-		if(count == 0) {
-			unreadMessagesLabel.setVisible(false);
+		if(newMessagesCount == 0) {
+			newMessagesLabel.setVisible(false);
 		}
-		
 		add(myMessagesLink);
 		
-	
+
 		//privacy link
     	Link<Void> myPrivacyLink = new Link<Void>("myPrivacyLink") {
 			private static final long serialVersionUID = 1L;
@@ -119,6 +132,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		};
 		myPrivacyLink.add(new Label("myPrivacyLabel",new ResourceModel("link.my.privacy")));
 		add(myPrivacyLink);
+		
 		
 		//search link
     	Link<Void> searchLink = new Link<Void>("searchLink") {
@@ -130,6 +144,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		searchLink.add(new Label("searchLabel",new ResourceModel("link.search")));
 		add(searchLink);
 		
+		
 		//preferences link
     	Link<Void> preferencesLink = new Link<Void>("preferencesLink") {
 			private static final long serialVersionUID = 1L;
@@ -139,7 +154,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		};
 		preferencesLink.add(new Label("preferencesLabel",new ResourceModel("link.preferences")));
 		add(preferencesLink);
-				
+			
+		
 		//rss link
 		/*
 		ContextImage icon = new ContextImage("icon",new Model(ProfileImageManager.RSS_IMG));

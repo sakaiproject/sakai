@@ -76,6 +76,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	private static final String QUERY_GALLERY_IMAGE_RECORDS = "getGalleryImageRecords";
 	private static final String QUERY_GET_GALLERY_RECORD = "getGalleryRecord";
 	private static final String QUERY_GET_FRIEND_REQUESTS_FOR_USER = "getFriendRequestsForUser"; 
+	private static final String QUERY_GET_FRIEND_REQUESTS_FOR_USER_COUNT = "getFriendRequestsForUserCount"; 
 	private static final String QUERY_GET_CONFIRMED_FRIEND_USERIDS_FOR_USER = "getConfirmedFriendUserIdsForUser"; 
 	private static final String QUERY_GET_FRIEND_REQUEST = "getFriendRequest"; 
 	private static final String QUERY_GET_FRIEND_RECORD = "getFriendRecord"; 
@@ -168,6 +169,28 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		
 		return requests;
 	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */	
+	public int getConnectionRequestsForUserCount(final String userId) {
+		int count = 0;
+		
+		//get 
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  		
+	  			Query q = session.getNamedQuery(QUERY_GET_FRIEND_REQUESTS_FOR_USER_COUNT);
+	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setBoolean("false", Boolean.FALSE); 
+	  			return q.uniqueResult();
+	  		}
+	  	};
+	  	
+	  	count = ((Integer)getHibernateTemplate().execute(hcb)).intValue();
+	  	return count;
+	}
+
 
 	
 	/**

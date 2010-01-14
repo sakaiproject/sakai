@@ -31,6 +31,10 @@
 		]]>
 	</sql-query>
 	
+	<query name="getFriendRequestsForUserCount">
+    	<![CDATA[select count(distinct friend.userUuid) from ProfileFriend as friend where friend.friendUuid = :userUuid and friend.confirmed=:false]]>
+	</query>
+	
 	<sql-query name="getConfirmedFriendUserIdsForUser">
 		<return-scalar column="userUuid" type="string" />
     	<![CDATA[

@@ -66,6 +66,14 @@ public interface ProfileLogic {
 	public List<Person> getConnectionRequestsForUser(final String userId);
 	
 	/**
+	 * Gets a count of the number of unconfirmed incoming connection requests
+	 * 
+	 * @param userId		uuid of the user to retrieve the list of connections for
+	 * @return
+	 */
+	public int getConnectionRequestsForUserCount(final String userId);
+	
+	/**
 	 * Gets a subset of the connection list, based on the search string matching the beginning of the displayName
 	 * @param connections	list of connections
 	 * @param search		search string to match on
