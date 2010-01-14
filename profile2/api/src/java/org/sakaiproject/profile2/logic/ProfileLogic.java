@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.model.Message;
-import org.sakaiproject.profile2.model.MessageRecipient;
+import org.sakaiproject.profile2.model.MessageParticipant;
 import org.sakaiproject.profile2.model.MessageThread;
 import org.sakaiproject.profile2.model.NewMessageHelper;
 import org.sakaiproject.profile2.model.Person;
@@ -748,6 +748,7 @@ public interface ProfileLogic {
 	
 	/**
 	 * Gets a MessageThread, first gets the item, then injects the latest Message into it before returning
+	 * TODO This needs to be optimised to get the latest message property in the same query.
 	 * @param id	id of the thread
 	 * @return
 	 */
@@ -804,6 +805,15 @@ public interface ProfileLogic {
 	public boolean sendNewMessage(NewMessageHelper messageHelper);
 	
 	/**
+	 * Sends a reply to a thread
+	 * @param threadId		id of the thread
+	 * @param reply			the message
+	 * @param userId		uuid of user who is sending the message
+	 * @return
+	 */
+	public boolean replyToThread(final long threadId, final String reply, final String userId);
+	
+	/**
 	 * Toggle a single message as read/unread
 	 * @param message	the message
 	 * @param read		boolean if to be toggled as read/unread
@@ -821,10 +831,37 @@ public interface ProfileLogic {
 	public boolean toggleAllMessagesInThreadAsRead(final String threadId, final String userUuid, final boolean read);
 
 	/**
-	 * Get a MessageRecipient record
-	 * @param messageId		message id
-	 * @param userUuid		uuid
+	 * Get a MessageParticipant record
+	 * @param messageId		message id to get the record for
+	 * @param userUuid		uuid to get the record for
 	 * @return
 	 */
-	public MessageRecipient getMessageRecipient(final long messageId, final String userUuid);
+	public MessageParticipant getMessageParticipant(final long messageId, final String userUuid);
+	
+	/**
+	 * Create a new/default MessageParticipant record. If a user is viewing a series of messages and doesn't have a recipient record, one will be created.
+	 * <p>For instance, if an existing thread adds a user to the list, they will not have a record for the previous messages. They need one though, so they can mark them as unread/delete them.
+	 * <p>This is a persistent object</p>
+	 * @param messageId		message id to get the record for
+	 * @param userUuid		uuid to get the record for
+	 * @return
+	 */
+	public MessageParticipant createDefaultMessageParticipantRecord(final long messageId, final String userUuid);
+
+	/**
+	 * Create a default MessageParticipant object for a message and user. Not persisted.
+	 * @see {@link createDefaultMessageParticipantRecord(long, String)}
+	 * @param messageId
+	 * @param userUuid
+	 * @return
+	 */
+	public MessageParticipant getDefaultMessageParticipantRecord(final long messageId, final String userUuid);
+
+	
+	/**
+	 * Get a list of all participants in a thread
+	 * @param threadId		id of the thread
+	 * @return
+	 */
+	public List<String> getThreadParticipants(final long threadId);
 }

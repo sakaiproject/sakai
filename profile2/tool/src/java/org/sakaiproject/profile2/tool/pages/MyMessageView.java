@@ -19,10 +19,12 @@ package org.sakaiproject.profile2.tool.pages;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -35,6 +37,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.model.Message;
+import org.sakaiproject.profile2.model.MessageParticipant;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.MessagesDataProvider;
 import org.sakaiproject.profile2.tool.models.StringModel;
@@ -47,16 +50,13 @@ public class MyMessageView extends BasePage {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(ConfirmedFriends.class);
 	
-	public MyMessageView(final String userUuid, final long threadId, final String threadSubject) {
+	public MyMessageView(final String currentUserUuid, final long threadId, final String threadSubject) {
 		
 		log.debug("MyMessageView()");
 		
 		//get API's
 		sakaiProxy = getSakaiProxy();
 		profileLogic = getProfileLogic();
-		
-		log.error(userUuid);
-		log.error(threadId);
 		
 		//buttons
 		Form<Void> buttonsForm = new Form<Void>("buttonsForm");
@@ -97,29 +97,42 @@ public class MyMessageView extends BasePage {
 		        
 				final Message message = (Message)item.getDefaultModelObject();
 				final String messageFromUuid = message.getFrom();
-								
+				
+				//we need to know if this message has been read or not so we can style it accordingly
+				//we only need this if we didn't send the message
+				MessageParticipant participant = null;
+				
+				boolean messageOwner = false;
+				if(StringUtils.equals(messageFromUuid, currentUserUuid)) {
+					messageOwner = true;
+				}
+				if(!messageOwner) {
+					participant = profileLogic.getMessageParticipant(message.getId(), currentUserUuid);
+				}
+				
+				
 				//friend?
-				boolean friend = profileLogic.isUserXFriendOfUserY(messageFromUuid, userUuid);
+				boolean friend = profileLogic.isUserXFriendOfUserY(messageFromUuid, currentUserUuid);
 				
 				//photo link
-				AjaxLink<Void> photoLink = new AjaxLink<Void>("photoLink") {
+				AjaxLink<String> photoLink = new AjaxLink<String>("photoLink", new Model<String>(messageFromUuid)) {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
-						setResponsePage(new ViewProfile(messageFromUuid));
+						setResponsePage(new ViewProfile(getModelObject()));
 					}
 					
 				};
 				
 				//photo
-				photoLink.add(new ProfileImageRenderer("messagePhoto", messageFromUuid, profileLogic.isUserXProfileImageVisibleByUserY(messageFromUuid, userUuid, friend), ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false));
+				photoLink.add(new ProfileImageRenderer("messagePhoto", messageFromUuid, profileLogic.isUserXProfileImageVisibleByUserY(messageFromUuid, currentUserUuid, friend), ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false));
 				item.add(photoLink);
 				
 				
 				//name link
-				AjaxLink<Void> messageFromLink = new AjaxLink<Void>("messageFromLink") {
+				AjaxLink<String> messageFromLink = new AjaxLink<String>("messageFromLink", new Model<String>(messageFromUuid)) {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
-						setResponsePage(new ViewProfile(messageFromUuid));
+						setResponsePage(new ViewProfile(getModelObject()));
 					}
 					
 				};
@@ -132,13 +145,13 @@ public class MyMessageView extends BasePage {
 				//message body
 				item.add(new Label("messageBody", new Model<String>(message.getMessage())));
 				
-				//is being displayed, so mark it as read
-				//if(!message.isRead()) {
-				//	profileLogic.toggleMessageRead(message, true);
-				//}
+				//highlight if new, then mark it as read
+				if(!messageOwner && !participant.isRead()) {
+					item.add(new AttributeAppender("class", true, new Model<String>("unread-message"), " "));
+					//profileLogic.toggleMessageRead(message, true);
+				}
 				
 				item.setOutputMarkupId(true);
-				
 				
 		    }
 			
@@ -160,6 +173,7 @@ public class MyMessageView extends BasePage {
 		replyForm.add(new Label("replyLabel", new ResourceModel("message.reply")));
 		final TextArea<StringModel> replyField = new TextArea<StringModel>("replyField", new PropertyModel<StringModel>(stringModel, "string"));
 		replyField.setRequired(true);
+		replyField.setOutputMarkupId(true);
 		replyForm.add(replyField);
 		
 		//reply button
@@ -171,10 +185,15 @@ public class MyMessageView extends BasePage {
         		StringModel stringModel = (StringModel) form.getModelObject();
         		String reply = stringModel.getString();
 				
-        		//create a Message object for a reply to this thread
-        		Message message = new Message();
-        		
-        		
+        		//send it
+        		if(profileLogic.replyToThread(threadId, reply, currentUserUuid)) {
+        			//clear this field
+        			replyField.setModelObject(null);
+        			target.addComponent(replyField);
+        			
+        			//repaint the list of messages in this thread
+        			//target.addComponent(messageListContainer);
+        		}
         		
         		// ...
 				
@@ -192,7 +211,6 @@ public class MyMessageView extends BasePage {
 				*/
 				
 				
-				target.addComponent(formFeedback);
             }
 			
 			protected void onError(AjaxRequestTarget target, Form form) {

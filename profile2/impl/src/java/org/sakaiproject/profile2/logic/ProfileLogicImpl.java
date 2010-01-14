@@ -37,7 +37,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.model.Message;
-import org.sakaiproject.profile2.model.MessageRecipient;
+import org.sakaiproject.profile2.model.MessageParticipant;
 import org.sakaiproject.profile2.model.MessageThread;
 import org.sakaiproject.profile2.model.NewMessageHelper;
 import org.sakaiproject.profile2.model.Person;
@@ -104,7 +104,10 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	private static final String QUERY_GET_MESSAGE_THREAD="getMessageThread";
 
 	//from MessageRecipient.hbm.xml
-	private static final String QUERY_GET_MESSAGE_RECIPIENT_FOR_MESSAGE_AND_UUID="getMessageRecipientForMessageAndUuid";
+	private static final String QUERY_GET_MESSAGE_PARTICIPANT_FOR_MESSAGE_AND_UUID="getMessageParticipantForMessageAndUuid";
+	private static final String QUERY_GET_THREAD_PARTICIPANTS="getThreadParticipants";
+
+	
 
 	// Hibernate object fields
 	private static final String USER_UUID = "userUuid";
@@ -112,7 +115,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	private static final String CONFIRMED = "confirmed";
 	private static final String OLDEST_STATUS_DATE = "oldestStatusDate";
 	private static final String SEARCH = "search";
-	private static final String TO = "to";
+	private static final String UUID = "uuid";
 	private static final String ID = "id";
 	private static final String THREAD = "thread";
 	private static final String MESSAGE_ID = "messageId";
@@ -1816,7 +1819,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  			
 	  			Query q = session.getNamedQuery(QUERY_GET_ALL_UNREAD_MESSAGES_COUNT);
-	  			q.setParameter(TO, userId, Hibernate.STRING);
+	  			q.setParameter(UUID, userId, Hibernate.STRING);
 	  			q.setBoolean("false", Boolean.FALSE);
 	  			return q.uniqueResult();
 	  		}
@@ -1839,7 +1842,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  			
 	  			Query q = session.getNamedQuery(QUERY_GET_THREADS_WITH_UNREAD_MESSAGES_COUNT);
-	  			q.setParameter(TO, userId, Hibernate.STRING);
+	  			q.setParameter(UUID, userId, Hibernate.STRING);
 	  			q.setBoolean("false", Boolean.FALSE);
 	  			return q.uniqueResult();
 	  		}
@@ -1876,21 +1879,50 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 			saveNewMessage(message);
 			
 	
-			//create the recipients and save (only able to have one recipient at the moment)
-			MessageRecipient recipient = new MessageRecipient();
-			recipient.setMessageId(message.getId());
-			recipient.setTo(messageHelper.getTo());
-			recipient.setRead(false);
-			recipient.setDeleted(false);
-			saveNewMessageRecipient(recipient);
+			//create the participant record for the person receiving
+			MessageParticipant participant = new MessageParticipant();
+			participant.setMessageId(message.getId());
+			participant.setUuid(messageHelper.getTo());
+			participant.setRead(false);
+			participant.setDeleted(false);
+			saveNewMessageParticipant(participant);
 			
 			return true;
 		} catch (Exception e) {
-			log.error("ProfileLogic.sendNewMessage(): Couldn't save message: " + e.getClass() + " : " + e.getMessage());
+			log.error("ProfileLogic.sendNewMessage(): Couldn't complete: " + e.getClass() + " : " + e.getMessage());
 		}
 		
 		return true;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean replyToThread(final long threadId, final String reply, final String uuidFrom) {
+		
+		try {
 			
+			//create the message and save it
+			Message message = new Message();
+			message.setFrom(uuidFrom);
+			message.setMessage(reply);
+			message.setDatePosted(new Date());
+			message.setThread(threadId);
+			saveNewMessage(message);
+			
+			//get a unique list of participants in this thread, and save a participants record for each participants for this new message
+			List<String> uuids = getThreadParticipants(threadId);
+			for(String uuidTo : uuids) {
+				MessageParticipant participant = getDefaultMessageParticipantRecord(message.getId(), uuidTo);
+				saveNewMessageParticipant(participant);
+			}
+			
+			return true;
+		} catch (Exception e) {
+			log.error("ProfileLogic.replyToThread(): Couldn't save reply: " + e.getClass() + " : " + e.getMessage());
+		}
+		
+		return true;
 	}
 	
 	/**
@@ -1905,7 +1937,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  		
 	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGE_THREADS);
-	  			q.setParameter(TO, userId, Hibernate.STRING);
+	  			q.setParameter(UUID, userId, Hibernate.STRING);
 	  			return q.list();
 	  		}
 	  	};
@@ -1915,6 +1947,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	  	//get latest message for each thread
 	  	for(MessageThread thread : threads) {
 	  		thread.setMostRecentMessage(getLatestMessageInThread(thread.getId()));
+	  		System.out.println("getMessageThreads: " + thread);
 	  	}
 	  	
 	  	return threads;
@@ -1932,7 +1965,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  		
 	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGE_THREADS_COUNT);
-	  			q.setParameter(TO, userId, Hibernate.STRING);
+	  			q.setParameter(UUID, userId, Hibernate.STRING);
 	  			return q.uniqueResult();
 	  		}
 	  	};
@@ -2072,19 +2105,73 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	public MessageRecipient getMessageRecipient(final long messageId, final String userUuid) {
+	public MessageParticipant getMessageParticipant(final long messageId, final String userUuid) {
 		
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGE);
+	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGE_PARTICIPANT_FOR_MESSAGE_AND_UUID);
 	  			q.setParameter(MESSAGE_ID, messageId, Hibernate.LONG);
-	  			q.setParameter(TO, userUuid, Hibernate.STRING);
+	  			q.setParameter(UUID, userUuid, Hibernate.STRING);
 	  			q.setMaxResults(1);
 	  			return q.uniqueResult();
 			}
 		};
 	
-		return (MessageRecipient) getHibernateTemplate().execute(hcb);
+		return (MessageParticipant) getHibernateTemplate().execute(hcb);
+	}
+
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public MessageParticipant createDefaultMessageParticipantRecord(final long messageId, final String userUuid) {
+		
+		MessageParticipant participant = getDefaultMessageParticipantRecord(messageId, userUuid);
+		
+		//save
+		try {
+			getHibernateTemplate().save(participant);
+			log.info("Created default message participant record for user: " + userUuid); 
+			return participant;
+		} catch (Exception e) {
+			log.error("ProfileLogic.createDefaultMessageParticipantRecord() failed. " + e.getClass() + ": " + e.getMessage());  
+			return null;
+		}
+	}
+	
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public MessageParticipant getDefaultMessageParticipantRecord(final long messageId, final String userUuid) {
+		
+		MessageParticipant participant = new MessageParticipant();
+		participant.setMessageId(messageId);
+		participant.setUuid(userUuid);
+		participant.setRead(false);
+		participant.setDeleted(false);
+		
+		return participant;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<String> getThreadParticipants(final long threadId) {
+		
+		List<String> participants = new ArrayList<String>();
+		
+		//get
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			
+	  			Query q = session.getNamedQuery(QUERY_GET_THREAD_PARTICIPANTS);
+	  			q.setParameter(THREAD, threadId, Hibernate.LONG);
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	participants = (List<String>) getHibernateTemplate().executeFind(hcb);
+	  	return participants;
 	}
 
 	
@@ -2480,15 +2567,15 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	}
 	
 	/*
-	 * Save a message recipient, obj now persistent and has id 
+	 * Save a message participant, obj now persistent and has id 
 	 */
-	private void saveNewMessageRecipient(MessageRecipient recipient) {
+	private void saveNewMessageParticipant(MessageParticipant participant) {
 		
 		try {
-			getHibernateTemplate().save(recipient);
-			log.info("MessageRecipient saved with id= " + recipient.getId());  
+			getHibernateTemplate().save(participant);
+			log.info("MessageParticipant saved with id= " + participant.getId());  
 		} catch (Exception e) {
-			log.error("ProfileLogic.saveNewMessageRecipient() failed. " + e.getClass() + ": " + e.getMessage());  
+			log.error("ProfileLogic.saveNewMessageParticipant() failed. " + e.getClass() + ": " + e.getMessage());  
 		}
 	}
 	

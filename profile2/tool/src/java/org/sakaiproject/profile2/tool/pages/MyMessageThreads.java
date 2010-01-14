@@ -24,15 +24,19 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.sakaiproject.profile2.exception.MessageRecipientNotDefinedException;
 import org.sakaiproject.profile2.model.Message;
+import org.sakaiproject.profile2.model.MessageParticipant;
 import org.sakaiproject.profile2.model.MessageThread;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.MessageThreadsDataProvider;
@@ -55,7 +59,7 @@ public class MyMessageThreads extends BasePage {
 		profileLogic = getProfileLogic();
 		
 		//get current user
-		final String userUuid = sakaiProxy.getCurrentUserId();
+		final String currentUserUuid = sakaiProxy.getCurrentUserId();
 		
 		//new message panel
 		final ComposeNewMessage newMessagePanel = new ComposeNewMessage("newMessagePanel");
@@ -71,8 +75,9 @@ public class MyMessageThreads extends BasePage {
 		//new message button
 		Form<Void> form = new Form<Void>("form");
 		IndicatingAjaxButton newMessageButton = new IndicatingAjaxButton("newMessage", form) {
-		
-			public void onSubmit(AjaxRequestTarget target, Form form) {
+			private static final long serialVersionUID = 1L;
+
+			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				//show panel
 				newMessagePanel.setVisible(true);
 				target.addComponent(newMessagePanel);
@@ -86,14 +91,12 @@ public class MyMessageThreads extends BasePage {
 		form.add(newMessageButton);
 		add(form);
 		
-		
-		
 		//container which wraps list
 		final WebMarkupContainer messageThreadListContainer = new WebMarkupContainer("messageThreadListContainer");
 		messageThreadListContainer.setOutputMarkupId(true);
 		
 		//get our list of messages
-		final MessageThreadsDataProvider provider = new MessageThreadsDataProvider(userUuid);
+		final MessageThreadsDataProvider provider = new MessageThreadsDataProvider(currentUserUuid);
 		int numMessages = provider.size();
 		
 		//message list
@@ -102,33 +105,44 @@ public class MyMessageThreads extends BasePage {
 
 			protected void populateItem(final Item<MessageThread> item) {
 		        
-				final MessageThread thread = (MessageThread)item.getDefaultModelObject();
+				MessageThread thread = (MessageThread)item.getDefaultModelObject();
+				Message message = thread.getMostRecentMessage();
+				String messageFromUuid = message.getFrom();
 				
-				final Message message = thread.getMostRecentMessage();
-				final String messageFromUuid = message.getFrom();
+				//we need to know if this message has been read or not so we can style it accordingly
+				//we only need this if we didn't send the message
+				MessageParticipant participant = null;
+				
+				boolean messageOwner = false;
+				if(StringUtils.equals(messageFromUuid, currentUserUuid)) {
+					messageOwner = true;
+				}
+				if(!messageOwner) {
+					participant = profileLogic.getMessageParticipant(message.getId(), currentUserUuid);
+				}
 				
 				//friend?
-				boolean friend = profileLogic.isUserXFriendOfUserY(messageFromUuid, userUuid);
+				boolean friend = profileLogic.isUserXFriendOfUserY(messageFromUuid, currentUserUuid);
 				
 				//photo link
-				AjaxLink<Void> photoLink = new AjaxLink<Void>("photoLink") {
+				AjaxLink<String> photoLink = new AjaxLink<String>("photoLink", new Model<String>(messageFromUuid)) {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
-						setResponsePage(new ViewProfile(messageFromUuid));
+						setResponsePage(new ViewProfile(getModelObject()));
 					}
 					
 				};
 				
 				//photo
-				photoLink.add(new ProfileImageRenderer("messagePhoto", messageFromUuid, profileLogic.isUserXProfileImageVisibleByUserY(messageFromUuid, userUuid, friend), ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false));
+				photoLink.add(new ProfileImageRenderer("messagePhoto", messageFromUuid, profileLogic.isUserXProfileImageVisibleByUserY(messageFromUuid, currentUserUuid, friend), ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false));
 				item.add(photoLink);
 				
 				
 				//name link
-				AjaxLink<Void> messageFromLink = new AjaxLink<Void>("messageFromLink") {
+				AjaxLink<String> messageFromLink = new AjaxLink<String>("messageFromLink", new Model<String>(messageFromUuid)) {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
-						setResponsePage(new ViewProfile(messageFromUuid));
+						setResponsePage(new ViewProfile(getModelObject()));
 					}
 					
 				};
@@ -139,11 +153,11 @@ public class MyMessageThreads extends BasePage {
 				item.add(new Label("messageDate", ProfileUtils.convertDateToString(message.getDatePosted(), ProfileConstants.MESSAGE_DISPLAY_DATE_FORMAT)));
 				
 				//subject link
-				AjaxLink<Void> messageSubjectLink = new AjaxLink<Void>("messageSubjectLink") {
+				AjaxLink<MessageThread> messageSubjectLink = new AjaxLink<MessageThread>("messageSubjectLink", new Model<MessageThread>(thread)) {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
 						//load messageview panel
-						setResponsePage(new MyMessageView(userUuid, message.getThread(), thread.getSubject()));
+						setResponsePage(new MyMessageView(currentUserUuid, getModelObject().getId(), getModelObject().getSubject()));
 					}
 					
 				};
@@ -154,11 +168,10 @@ public class MyMessageThreads extends BasePage {
 				item.add(new Label("messageBody", new Model<String>(StringUtils.abbreviate(message.getMessage(), ProfileConstants.MESSAGE_PREVIEW_MAX_LENGTH))));
 				
 				//highlight if new
-				/*
-				if(!message.isRead()) {
+				if(!messageOwner && !participant.isRead()) {
 					item.add(new AttributeAppender("class", true, new Model<String>("unread-message"), " "));
 				}
-				*/
+				
 				
 				
 				

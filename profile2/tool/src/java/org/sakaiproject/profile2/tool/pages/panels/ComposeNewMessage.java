@@ -155,28 +155,15 @@ public class ComposeNewMessage extends Panel {
 
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
 				
+				//disable button
+				this.setEnabled(false);
+				target.addComponent(this);
+				
 				//get the backing model
 				NewMessageHelper messageHelper = (NewMessageHelper) form.getModelObject();
 				
 				//save it, it will be abstracted into its proper parts
-				
-				//add other info
-				//message.setThread(sakaiProxy.generateUuid());
-				//message.setFrom(userId);	
-				
-				//send the message
-		
 				if(profileLogic.sendNewMessage(messageHelper)) {
-					
-						this.setEnabled(false);
-						target.addComponent(this);
-					
-						try {
-							Thread.sleep(3000);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
 					
 					
 					//post event

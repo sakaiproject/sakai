@@ -28,7 +28,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class MessageRecipient implements Serializable {
+public class MessageParticipant implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -43,9 +43,9 @@ public class MessageRecipient implements Serializable {
 	private long messageId;
 	
 	/**
-	 * receipient uuid
+	 * participant uuid
 	 */
-	private String to;
+	private String uuid;
 	
 	/**
 	 * Has this message been read by the user?
@@ -61,7 +61,7 @@ public class MessageRecipient implements Serializable {
 	/**
 	 * No-arg constructor
 	 */
-	public MessageRecipient() {
+	public MessageParticipant() {
 	}
 	
 	public long getId() {
@@ -76,11 +76,11 @@ public class MessageRecipient implements Serializable {
 	public void setMessageId(long messageId) {
 		this.messageId = messageId;
 	}
-	public String getTo() {
-		return to;
+	public String getUuid() {
+		return uuid;
 	}
-	public void setTo(String to) {
-		this.to = to;
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
 	}
 	public boolean isRead() {
 		return read;
@@ -101,7 +101,7 @@ public class MessageRecipient implements Serializable {
 		return new ToStringBuilder(this).
 			append("id", id).
 			append("messageId", messageId).
-			append("to", to).
+			append("uuid", uuid).
 			append("read", read).
 			append("deleted", deleted).
 			toString();

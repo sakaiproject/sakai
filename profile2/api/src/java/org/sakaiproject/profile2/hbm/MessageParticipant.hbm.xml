@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.sakaiproject.profile2.model">
+
+	<class name="MessageParticipant" table="PROFILE_MESSAGE_PARTICIPANTS_T">
+
+		<id name="id">
+	      <column name="ID" not-null="true" length="19" />
+	      <generator class="native">
+	        <param name="sequence">PROFILE_MESSAGE_PARTICIPANTS_S</param>
+	      </generator>
+	    </id>
+	    
+	   	<property name="messageId" column="MESSAGE_ID" length="19" not-null="true" index="PROFILE_MESSAGE_PARTICIPANT_MESSAGE_ID_I" />
+		<property name="uuid" column="PARTICIPANT_UUID" length="99" not-null="true" index="PROFILE_MESSAGE_PARTICIPANT_UUID_I" />
+	    <property name="read" column="MESSAGE_READ" not-null="true" index="PROFILE_MESSAGE_PARTICIPANT_READ_I" />
+		<property name="deleted" column="MESSAGE_DELETED" not-null="true" index="PROFILE_MESSAGE_PARTICIPANT_DELETED_I" />
+		
+  	</class>
+  	
+
+	<!-- gets the record for a message and uuid -->
+  	<query name="getMessageParticipantForMessageAndUuid">
+    	<![CDATA[from MessageParticipant as participant where participant.messageId = :messageId and participant.uuid = :uuid]]>
+	</query>
+	
+	<!--  gets a list of all participants in a thread -->
+	<sql-query name="getThreadParticipants">
+		<return-scalar column="uuid" type="string" />
+    	<![CDATA[
+		select distinct(participant.PARTICIPANT_UUID) from PROFILE_MESSAGE_PARTICIPANTS_T participant, PROFILE_MESSAGES_T message where message.MESSAGE_THREAD = :thread and message.ID=participant.MESSAGE_ID
+		]]>
+	</sql-query>
+
+	<database-object> 
+		<create>create index PROFILE_MESSAGE_PARTICIPANT_MESSAGE_ID_I on PROFILE_MESSAGE_PARTICIPANTS_T (MESSAGE_ID)</create> 
+		<drop></drop>
+	</database-object>	
+	<database-object> 
+		<create>create index PROFILE_MESSAGE_PARTICIPANT_UUID_I on PROFILE_MESSAGE_PARTICIPANTS_T (PARTICIPANT_UUID)</create> 
+		<drop></drop>
+	</database-object>
+	<database-object> 
+		<create>create index PROFILE_MESSAGE_PARTICIPANT_READ_I on PROFILE_MESSAGE_PARTICIPANTS_T (MESSAGE_READ)</create> 
+		<drop></drop>
+	</database-object>
+	<database-object> 
+		<create>create index PROFILE_MESSAGE_PARTICIPANT_DELETED_I on PROFILE_MESSAGE_PARTICIPANTS_T (MESSAGE_DELETED)</create> 
+		<drop></drop>
+	</database-object>
+	
+</hibernate-mapping>

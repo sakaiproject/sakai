@@ -17,13 +17,12 @@
 package org.sakaiproject.profile2.model;
 
 import java.io.Serializable;
-import java.util.List;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 /**
  * MessageThread.java
  * 
- * An object to represent info about a thread of messages
+ * An object to represent info about a message thread
  * This is a persistent Hibernate model
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
@@ -88,5 +87,14 @@ public class MessageThread implements Serializable {
 			append("message", mostRecentMessage.toString()).
 			toString();
 	}
+	
+	/*
+	public int compareTo(Object other) {
+		Date thisDate = this.getMostRecentMessage().getDatePosted();
+		Date otherDate = ((MessageThread)other).getMostRecentMessage().getDatePosted();
+        int lastCmp = thisDate.compareTo(otherDate);
+        return (lastCmp != 0 ? lastCmp : thisDate.compareTo(otherDate));
+	}
+	*/
 	
 }
