@@ -199,14 +199,12 @@ public class ConfirmedFriends extends Panel {
 		    	/* ACTIONS */
 		    	
 				//REMOVE FRIEND LINK AND WINDOW
-		    	final AjaxLink removeFriendLink = new AjaxLink("removeFriendLink") {
+		    	final AjaxLink<String> removeFriendLink = new AjaxLink<String>("removeFriendLink", new Model<String>(person.getUuid())) {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
 						
 						//get this item, and set content for modalwindow
-						Person person = (Person)getParent().getDefaultModelObject();
-				    	String friendUuid = person.getUuid();
-				    	
+				    	String friendUuid = getModelObject();				    	
 						connectionWindow.setContent(new RemoveFriend(connectionWindow.getContentId(), connectionWindow, friendActionModel, userUuid, friendUuid)); 
 						
 						//modalwindow handler 

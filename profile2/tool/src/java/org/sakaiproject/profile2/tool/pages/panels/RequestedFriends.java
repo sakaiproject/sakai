@@ -147,14 +147,12 @@ public class RequestedFriends extends Panel {
 				item.add(status);
 				
 				//IGNORE FRIEND LINK AND WINDOW
-		    	final AjaxLink ignoreFriendLink = new AjaxLink("ignoreFriendLink") {
+		    	final AjaxLink<String> ignoreFriendLink = new AjaxLink<String>("ignoreFriendLink", new Model<String>(person.getUuid())) {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
 						
 						//get this item, and set content for modalwindow
-						Person person = (Person)getParent().getDefaultModelObject();
-				    	String friendUuid = person.getUuid();
-				    	
+				    	String friendUuid = getModelObject();
 						connectionWindow.setContent(new IgnoreFriend(connectionWindow.getContentId(), connectionWindow, friendActionModel, userUuid, friendUuid)); 
 
 						//modalwindow handler 
@@ -191,14 +189,12 @@ public class RequestedFriends extends Panel {
 				item.add(ignoreFriendLink);
 				
 				//CONFIRM FRIEND LINK AND WINDOW
-		    	final AjaxLink confirmFriendLink = new AjaxLink("confirmFriendLink") {
+		    	final AjaxLink<String> confirmFriendLink = new AjaxLink<String>("confirmFriendLink", new Model<String>(person.getUuid())) {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
 						
 						//get this item, and set content for modalwindow
-						Person person = (Person)getParent().getDefaultModelObject();
-				    	String friendUuid = person.getUuid();
-				    	
+				    	String friendUuid = getModelObject();
 						connectionWindow.setContent(new ConfirmFriend(connectionWindow.getContentId(), connectionWindow, friendActionModel, userUuid, friendUuid)); 
 
 						//modalwindow handler 
