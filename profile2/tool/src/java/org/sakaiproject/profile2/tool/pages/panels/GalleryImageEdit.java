@@ -29,6 +29,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.tool.Locator;
+import org.sakaiproject.profile2.tool.components.FocusOnLoadBehaviour;
 import org.sakaiproject.profile2.tool.components.GalleryImageRenderer;
 import org.sakaiproject.profile2.tool.pages.MyPictures;
 import org.sakaiproject.profile2.tool.pages.MyProfile;
@@ -43,6 +44,9 @@ public class GalleryImageEdit extends Panel {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(GalleryImageEdit.class);
 
+	private final WebMarkupContainer imageOptionsContainer;
+	private final WebMarkupContainer removeConfirmContainer;
+
 	public GalleryImageEdit(String id, final ModalWindow mainImageWindow,
 			final String userId, final GalleryImage image,
 			final int galleryPageIndex) {
@@ -52,25 +56,23 @@ public class GalleryImageEdit extends Panel {
 		log.debug("GalleryImageEdit()");
 
 		// feedback label for user alert in event remove/set actions fail
-		Label formFeedback = new Label("formFeedback");
+		final Label formFeedback = new Label("formFeedback");
 		formFeedback.setOutputMarkupPlaceholderTag(true);
 		add(formFeedback);
 
-		Form imageOptionsForm = new Form("galleryImageOptionsForm");
+		Form imageEditForm = new Form("galleryImageEditForm");
 
-		imageOptionsForm.setOutputMarkupId(true);
-		add(imageOptionsForm);
+		imageEditForm.setOutputMarkupId(true);
+		add(imageEditForm);
 
-		WebMarkupContainer imageOptionsContainer = new WebMarkupContainer(
-				"galleryImageOptionsContainer");
+		imageOptionsContainer = new WebMarkupContainer("galleryImageOptionsContainer");
+		imageOptionsContainer.setOutputMarkupId(true);
+		imageOptionsContainer.setOutputMarkupPlaceholderTag(true);
 
 		imageOptionsContainer.add(new Label("removePictureLabel",
 				new ResourceModel("pictures.removepicture")));
 
-		AjaxFallbackButton removePictureButton = createRemovePictureButton(
-				mainImageWindow, userId, image, galleryPageIndex,
-				imageOptionsForm, formFeedback);
-
+		AjaxFallbackButton removePictureButton = createRemovePictureButton(imageEditForm);
 		imageOptionsContainer.add(removePictureButton);
 
 		imageOptionsContainer.add(new Label("setProfileImageLabel",
@@ -78,14 +80,124 @@ public class GalleryImageEdit extends Panel {
 
 		AjaxFallbackButton setProfileImageButton = createSetProfileImageButton(
 				mainImageWindow, userId, image, galleryPageIndex,
-				imageOptionsForm, formFeedback);
+				imageEditForm, formFeedback);
 
 		imageOptionsContainer.add(setProfileImageButton);
 
-		imageOptionsForm.add(imageOptionsContainer);
+		imageEditForm.add(imageOptionsContainer);
 
-		add(new GalleryImageRenderer("galleryImageMainRenderer", true,
-				image.getMainResource()));
+		removeConfirmContainer = new WebMarkupContainer("galleryRemoveImageConfirmContainer");
+		removeConfirmContainer.setOutputMarkupId(true);
+		removeConfirmContainer.setOutputMarkupPlaceholderTag(true);
+
+		Label removeConfirmLabel = new Label("removePictureConfirmLabel",
+				new ResourceModel("pictures.removepicture.confirm"));
+		removeConfirmContainer.add(removeConfirmLabel);
+
+		AjaxFallbackButton removeConfirmButton = createRemoveConfirmButton(
+				mainImageWindow, userId, image, galleryPageIndex, formFeedback,
+				imageEditForm);
+		removeConfirmButton.add(new FocusOnLoadBehaviour());
+		removeConfirmContainer.add(removeConfirmButton);
+
+		AjaxFallbackButton removeCancelButton = createRemoveCancelButton(imageEditForm);
+		removeConfirmContainer.add(removeCancelButton);
+
+		removeConfirmContainer.setVisible(false);
+		imageEditForm.add(removeConfirmContainer);
+
+		add(new GalleryImageRenderer("galleryImageMainRenderer", true, image
+				.getMainResource()));
+		
+		// make sure remove confirm container not displayed when reopening
+		mainImageWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
+			public void onClose(AjaxRequestTarget target) {
+
+				imageOptionsContainer.setVisible(true);
+				removeConfirmContainer.setVisible(false);
+				target.addComponent(imageOptionsContainer);
+			}
+			
+		});
+	}
+
+	private AjaxFallbackButton createRemoveCancelButton(Form imageEditForm) {
+		AjaxFallbackButton removeCancelButton = new AjaxFallbackButton(
+				"galleryRemoveImageCancelButton", new ResourceModel(
+						"button.cancel"), imageEditForm) {
+
+			@Override
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+				target.prependJavascript("$('#"
+						+ removeConfirmContainer.getMarkupId() + "').hide();");
+
+				imageOptionsContainer.setVisible(true);
+				target.addComponent(imageOptionsContainer);
+
+				target.appendJavascript("setMainFrameHeight(window.name);");
+			}
+
+		};
+		return removeCancelButton;
+	}
+
+	private AjaxFallbackButton createRemoveConfirmButton(
+			final ModalWindow mainImageWindow, final String userId,
+			final GalleryImage image, final int galleryPageIndex,
+			final Label formFeedback, Form imageEditForm) {
+		AjaxFallbackButton removeConfirmButton = new AjaxFallbackButton(
+				"galleryRemoveImageConfirmButton", new ResourceModel(
+						"button.gallery.remove.confirm"), imageEditForm) {
+
+			@Override
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+				if (Locator.getProfileImageService().removeProfileGalleryImage(
+						userId, image)) {
+
+					// close modal window
+					mainImageWindow.close(target);
+
+					if (Locator.getSakaiProxy().isSuperUserAndProxiedToUser(
+							userId)) {
+						setResponsePage(new MyPictures(galleryPageIndex, userId));
+					} else {
+						setResponsePage(new MyPictures(galleryPageIndex));
+					}
+				} else {
+					// user alert
+					formFeedback.setDefaultModel(new ResourceModel(
+							"error.gallery.remove.failed"));
+					formFeedback.add(new AttributeModifier("class", true,
+							new Model("alertMessage")));
+
+					target.addComponent(formFeedback);
+				}
+			}
+		};
+		return removeConfirmButton;
+	}
+
+	private AjaxFallbackButton createRemovePictureButton(Form imageEditForm) {
+		AjaxFallbackButton removePictureButton = new AjaxFallbackButton(
+				"galleryImageRemoveButton", new ResourceModel(
+						"button.gallery.remove"), imageEditForm) {
+
+			@Override
+			protected void onSubmit(AjaxRequestTarget target, Form form) {
+
+				imageOptionsContainer.setVisible(false);
+
+				target.prependJavascript("$('#"
+						+ imageOptionsContainer.getMarkupId() + "').hide();");
+
+				removeConfirmContainer.setVisible(true);
+				target.addComponent(removeConfirmContainer);
+				target.prependJavascript("setMainFrameHeight(window.name);");
+			}
+
+		};
+		return removePictureButton;
 	}
 
 	private AjaxFallbackButton createSetProfileImageButton(
@@ -133,47 +245,6 @@ public class GalleryImageEdit extends Panel {
 			}
 		};
 		return setProfileImageButton;
-	}
-
-	private AjaxFallbackButton createRemovePictureButton(
-			final ModalWindow mainImageWindow, final String userId,
-			final GalleryImage image, final int galleryPageIndex,
-			Form imageOptionsForm, final Label formFeedback) {
-
-		AjaxFallbackButton removePictureButton = new AjaxFallbackButton(
-				"galleryImageRemoveButton", new ResourceModel(
-						"button.gallery.remove"), imageOptionsForm) {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
-
-				if (Locator.getProfileImageService().removeProfileGalleryImage(
-						userId, image)) {
-
-					// close modal window
-					mainImageWindow.close(target);
-
-					if (Locator.getSakaiProxy().isSuperUserAndProxiedToUser(
-							userId)) {
-						setResponsePage(new MyPictures(galleryPageIndex, userId));
-					} else {
-						setResponsePage(new MyPictures(galleryPageIndex));
-					}
-				} else {
-					// user alert
-					formFeedback.setDefaultModel(new ResourceModel(
-							"error.gallery.remove.failed"));
-					formFeedback.add(new AttributeModifier("class", true,
-							new Model("alertMessage")));
-
-					target.addComponent(formFeedback);
-				}
-			}
-
-		};
-		return removePictureButton;
 	}
 
 }

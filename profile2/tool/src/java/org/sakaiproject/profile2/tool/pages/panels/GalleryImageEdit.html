@@ -24,7 +24,7 @@
 <body>
 <wicket:panel>
 	<div wicket:id="formFeedback">[formFeedback]</div>
-	<form wicket:id="galleryImageOptionsForm" class="profileForm">
+	<form wicket:id="galleryImageEditForm" class="profileForm">
 	<table class="profileContent">
 		<tr wicket:id="galleryImageOptionsContainer">
 			<td class="label" wicket:id="removePictureLabel">[removePictureLabel]</td>
@@ -32,6 +32,11 @@
 			<td class="label" wicket:id="setProfileImageLabel">[setProfileImageLabel]</td>
 			<td><input type="submit"
 				wicket:id="galleryImageSetProfileButton" /></td>
+		</tr>
+		<tr wicket:id="galleryRemoveImageConfirmContainer">
+			<td class="label" wicket:id="removePictureConfirmLabel">[removePictureConfirmLabel]</td>
+			<td><input type="submit" wicket:id="galleryRemoveImageConfirmButton" /></td>
+			<td><input type="submit" wicket:id="galleryRemoveImageCancelButton" /></td>
 		</tr>
 	</table>
 	</form>
