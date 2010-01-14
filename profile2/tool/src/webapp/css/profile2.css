@@ -512,14 +512,22 @@ h2 {
 
 
 /* friends feed styles */
-#friendsFeed {
+#friends-feed-wrapper {
 	display: block;
+	text-align: center;
+}
+#friends-feed-wrapper table{
 	border: none;
-	margin: auto;
-	padding:auto;
+	margin: 0 auto;
+}
+#friends-feed-wrapper table td {
+	padding-left: 2px;
+	padding-right: 2px;
+	margin-left: 1px;
+	margin-right: 1px;
 }
 	
-.friendsFeedItem {
+.friends-feed-item {
 	vertical-align: top;
 	width: 55px;
 	max-width: 55px;
@@ -528,7 +536,7 @@ h2 {
 	text-align: center;
 }
 	
-.friendsFeedPhoto img {
+.friends-feed-item-photo img {
 	max-width: 55px;
 	width: expression(Math.min(parseInt(this.offsetWidth), 55 ) + "px"); /* ie6 max-width hack */
 	/* centre the image inside this cell */
@@ -539,7 +547,7 @@ h2 {
 }
 
 
-.friendsFeedCaption {
+.friends-feed-item-caption {
 	margin-top: 0;
 	font-size: 60%;
 	overflow: hidden;
@@ -548,7 +556,7 @@ h2 {
 	/*border: 1px solid green;*/
 }
 
-.friendsFeedItemCaption:hover {
+.friends-feed-item-caption:hover {
 	color: #33f;
 }
 
