@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
@@ -92,10 +91,10 @@ public class MyPrivacy extends BasePage {
 		
 		
 		//create model
-		CompoundPropertyModel privacyModel = new CompoundPropertyModel(profilePrivacy);
+		CompoundPropertyModel<ProfilePrivacy> privacyModel = new CompoundPropertyModel<ProfilePrivacy>(profilePrivacy);
 		
 		//setup form		
-		Form form = new Form("form", privacyModel);
+		Form<ProfilePrivacy> form = new Form<ProfilePrivacy>("form", privacyModel);
 		form.setOutputMarkupId(true);
 		
 		
@@ -299,14 +298,14 @@ public class MyPrivacy extends BasePage {
 				//save() form, show feedback. perhaps redirect back to main page after a short while?
 				if(save(form)){
 					formFeedback.setDefaultModel(new ResourceModel("success.privacy.save.ok"));
-					formFeedback.add(new AttributeModifier("class", true, new Model("success")));
+					formFeedback.add(new AttributeModifier("class", true, new Model<String>("success")));
 					
 					//post update event
 					sakaiProxy.postEvent(ProfileConstants.EVENT_PRIVACY_UPDATE, "/profile/"+userUuid, true);
 
 				} else {
 					formFeedback.setDefaultModel(new ResourceModel("error.privacy.save.failed"));
-					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));	
+					formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));	
 				}
 				target.addComponent(formFeedback);
             }
@@ -352,7 +351,7 @@ public class MyPrivacy extends BasePage {
 	
 	
 	//called when the form is to be saved
-	private boolean save(Form form) {
+	private boolean save(Form<ProfilePrivacy> form) {
 		
 		//get the backing model - its elems have been updated with the form params
 		ProfilePrivacy profilePrivacy = (ProfilePrivacy) form.getModelObject();

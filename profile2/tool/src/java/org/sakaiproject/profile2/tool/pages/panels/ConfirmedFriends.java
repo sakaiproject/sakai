@@ -45,7 +45,6 @@ import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.ConfirmedFriendsDataProvider;
 import org.sakaiproject.profile2.tool.models.FriendAction;
-import org.sakaiproject.profile2.tool.pages.MyProfile;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
 import org.sakaiproject.profile2.tool.pages.windows.RemoveFriend;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -90,9 +89,8 @@ public class ConfirmedFriends extends Panel {
 		numConfirmedFriends = provider.size();
 		
 		//model so we can update the number of friends
-		IModel numConfirmedFriendsModel = new Model() {
+		IModel<Integer> numConfirmedFriendsModel = new Model<Integer>() {
 			private static final long serialVersionUID = 1L;
-
 			public Integer getObject() {
 				return numConfirmedFriends;
 			} 
@@ -146,8 +144,8 @@ public class ConfirmedFriends extends Panel {
 
 			protected void populateItem(final Item<Person> item) {
 		        
-				final Person person = (Person)item.getDefaultModelObject();
-				final String friendUuid = person.getUuid();
+				Person person = (Person)item.getDefaultModelObject();
+				String personUuid = person.getUuid();
 		    			    	
 		    	//setup values
 		    	String displayName = person.getDisplayName();
@@ -157,33 +155,33 @@ public class ConfirmedFriends extends Panel {
 		    	if(ownList) {
 		    		friend = true; //viewing own page of conenctions, must be friend!
 		    	} else {
-		    		friend = profileLogic.isUserXFriendOfUserY(userUuid, friendUuid); //other person viewing, check if they are friends
+		    		friend = profileLogic.isUserXFriendOfUserY(userUuid, personUuid); //other person viewing, check if they are friends
 		    	}
 		    	
 		    	//get privacy record for the friend
-		    	ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(friendUuid);
+		    	ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(personUuid);
 	    		
 		    	//is profile image allowed to be viewed by this user/friend?
-				final boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(friendUuid, privacy, currentUserUuid, friend);
+				final boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(personUuid, privacy, currentUserUuid, friend);
 				
 				//image wrapper, links to profile
-		    	Link friendItem = new Link("friendPhotoWrap") {
+		    	Link<String> friendItem = new Link<String>("friendPhotoWrap", new Model<String>(personUuid)) {
 					private static final long serialVersionUID = 1L;
 					public void onClick() {
-						setResponsePage(new ViewProfile(friendUuid));
+						setResponsePage(new ViewProfile(getModelObject()));
 					}
 				};
 				
 				//image
-				friendItem.add(new ProfileImageRenderer("result-photo", friendUuid, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
+				friendItem.add(new ProfileImageRenderer("result-photo", personUuid, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
 				item.add(friendItem);
 				
 		    	//name and link to profile
-		    	Link profileLink = new Link("result-profileLink") {
+		    	Link<String> profileLink = new Link<String>("result-profileLink", new Model<String>(personUuid)) {
 					private static final long serialVersionUID = 1L;
 
 					public void onClick() {
-						setResponsePage(new ViewProfile(friendUuid));
+						setResponsePage(new ViewProfile(getModelObject()));
 					}
 					
 				};
@@ -191,7 +189,7 @@ public class ConfirmedFriends extends Panel {
 		    	item.add(profileLink);
 		    	
 		    	//status component
-				ProfileStatusRenderer status = new ProfileStatusRenderer("result-status", friendUuid, privacy, currentUserUuid, friend, "friendsListInfoStatusMessage", "friendsListInfoStatusDate");
+				ProfileStatusRenderer status = new ProfileStatusRenderer("result-status", personUuid, privacy, currentUserUuid, friend, "friendsListInfoStatusMessage", "friendsListInfoStatusDate");
 				status.setOutputMarkupId(true);
 				item.add(status);
 		    	
@@ -199,7 +197,7 @@ public class ConfirmedFriends extends Panel {
 		    	/* ACTIONS */
 		    	
 				//REMOVE FRIEND LINK AND WINDOW
-		    	final AjaxLink<String> removeFriendLink = new AjaxLink<String>("removeFriendLink", new Model<String>(person.getUuid())) {
+		    	final AjaxLink<String> removeFriendLink = new AjaxLink<String>("removeFriendLink", new Model<String>(personUuid)) {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
 						
@@ -234,7 +232,7 @@ public class ConfirmedFriends extends Panel {
 						target.appendJavascript("fixWindowVertical();"); 
 					}
 				};
-				ContextImage removeFriendIcon = new ContextImage("removeFriendIcon",new Model(ProfileConstants.DELETE_IMG));
+				ContextImage removeFriendIcon = new ContextImage("removeFriendIcon",new Model<String>(ProfileConstants.DELETE_IMG));
 				removeFriendLink.add(removeFriendIcon);
 				removeFriendLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.removefriend")));
 				item.add(removeFriendLink);

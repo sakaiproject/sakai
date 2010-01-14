@@ -58,7 +58,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		setUserPreferredLocale();
 		
     	//profile link
-    	Link myProfileLink = new Link("myProfileLink") {
+    	Link<Void> myProfileLink = new Link<Void>("myProfileLink") {
+			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				setResponsePage(new MyProfile());
 			}
@@ -67,7 +68,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		add(myProfileLink);
 		
 		//my pictures link
-		Link myPicturesLink = new Link("myPicturesLink") {
+		Link<Void> myPicturesLink = new Link<Void>("myPicturesLink") {
+			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				setResponsePage(new MyPictures());
 			}
@@ -76,7 +78,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		add(myPicturesLink);
 		
 		//my friends link
-    	Link myFriendsLink = new Link("myFriendsLink") {
+    	Link<Void> myFriendsLink = new Link<Void>("myFriendsLink") {
+			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				setResponsePage(new MyFriends());
 			}
@@ -87,7 +90,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		
 		
 		//messages link
-    	Link myMessagesLink = new Link("myMessagesLink") {
+    	Link<Void> myMessagesLink = new Link<Void>("myMessagesLink") {
+			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				setResponsePage(new MyMessageThreads());
 			}
@@ -96,7 +100,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		
 		//calculate new messages grouped by thread
 		int count = profileLogic.getThreadsWithUnreadMessagesCount(sakaiProxy.getCurrentUserId());
-		Label unreadMessagesLabel = new Label("unreadMessagesLabel", new Model(count));
+		Label unreadMessagesLabel = new Label("unreadMessagesLabel", new Model<Integer>(count));
 		myMessagesLink.add(unreadMessagesLabel);
 
 		if(count == 0) {
@@ -105,20 +109,10 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		
 		add(myMessagesLink);
 		
-		/*
-		//photos link
-    	Link myPhotosLink = new Link("myPhotosLink") {
-			public void onClick() {
-				setResponsePage(new MyProfile());
-			}
-		};
-		myPhotosLink.add(new Label("myPhotosLabel",new ResourceModel("link.my.photos")));
-		add(myPhotosLink);
-		myPhotosLink.setVisible(false);
-		*/
 	
 		//privacy link
-    	Link myPrivacyLink = new Link("myPrivacyLink") {
+    	Link<Void> myPrivacyLink = new Link<Void>("myPrivacyLink") {
+			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				setResponsePage(new MyPrivacy());
 			}
@@ -127,7 +121,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		add(myPrivacyLink);
 		
 		//search link
-    	Link searchLink = new Link("searchLink") {
+    	Link<Void> searchLink = new Link<Void>("searchLink") {
+			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				setResponsePage(new MySearch());
 			}
@@ -136,7 +131,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		add(searchLink);
 		
 		//preferences link
-    	Link preferencesLink = new Link("preferencesLink") {
+    	Link<Void> preferencesLink = new Link<Void>("preferencesLink") {
+			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				setResponsePage(new MyPreferences());
 			}

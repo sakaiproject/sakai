@@ -77,7 +77,7 @@ public class RequestedFriends extends Panel {
 		numRequestedFriends = provider.size();
 		
 		//model so we can update the number of requests
-		IModel numRequestedFriendsModel = new Model() {
+		IModel<Integer> numRequestedFriendsModel = new Model<Integer>() {
 			private static final long serialVersionUID = 1L;
 
 			public Integer getObject() {
@@ -105,55 +105,53 @@ public class RequestedFriends extends Panel {
 
 			protected void populateItem(final Item<Person> item) {
 		        
-				final Person person = (Person)item.getDefaultModelObject();
-				final String friendUuid = person.getUuid();
+				Person person = (Person)item.getDefaultModelObject();
+				String personUuid = person.getUuid();
 		    			    	
 		    	//get name
 		    	String displayName = person.getDisplayName();
 		    	
 		    	//get privacy record for the friend
-		    	ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(friendUuid);
+		    	ProfilePrivacy privacy = profileLogic.getPrivacyRecordForUser(personUuid);
 		    	
 		    	//is profile image allowed to be viewed by this user/friend?
-				final boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(friendUuid, privacy, userUuid, false);
+				final boolean isProfileImageAllowed = profileLogic.isUserXProfileImageVisibleByUserY(personUuid, privacy, userUuid, false);
 				
 				//image wrapper, links to profile
-		    	Link friendItem = new Link("friendPhotoWrap") {
+		    	Link<String> friendItem = new Link<String>("friendPhotoWrap", new Model<String>(personUuid)) {
 					private static final long serialVersionUID = 1L;
 					public void onClick() {
-						setResponsePage(new ViewProfile(friendUuid));
+						setResponsePage(new ViewProfile(getModelObject()));
 					}
 				};
 				
 				//image
-				friendItem.add(new ProfileImageRenderer("result-photo", friendUuid, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
+				friendItem.add(new ProfileImageRenderer("result-photo", personUuid, isProfileImageAllowed, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
 				item.add(friendItem);
 		    			    	
 		    	//name and link to profile
-		    	Link profileLink = new Link("result-profileLink") {
+		    	Link<String> profileLink = new Link<String>("result-profileLink", new Model<String>(personUuid)) {
 					private static final long serialVersionUID = 1L;
-
 					public void onClick() {
-						setResponsePage(new ViewProfile(friendUuid));
+						setResponsePage(new ViewProfile(getModelObject()));
 					}
-					
 				};
 				profileLink.add(new Label("result-name", displayName));
 		    	item.add(profileLink);
 		    	
 		    	//status component
-				ProfileStatusRenderer status = new ProfileStatusRenderer("result-status", friendUuid, privacy, userUuid, false, "friendsListInfoStatusMessage", "friendsListInfoStatusDate");
+				ProfileStatusRenderer status = new ProfileStatusRenderer("result-status", personUuid, privacy, userUuid, false, "friendsListInfoStatusMessage", "friendsListInfoStatusDate");
 				status.setOutputMarkupId(true);
 				item.add(status);
 				
 				//IGNORE FRIEND LINK AND WINDOW
-		    	final AjaxLink<String> ignoreFriendLink = new AjaxLink<String>("ignoreFriendLink", new Model<String>(person.getUuid())) {
+		    	final AjaxLink<String> ignoreFriendLink = new AjaxLink<String>("ignoreFriendLink", new Model<String>(personUuid)) {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
 						
 						//get this item, and set content for modalwindow
-				    	String friendUuid = getModelObject();
-						connectionWindow.setContent(new IgnoreFriend(connectionWindow.getContentId(), connectionWindow, friendActionModel, userUuid, friendUuid)); 
+				    	String personUuid = getModelObject();
+						connectionWindow.setContent(new IgnoreFriend(connectionWindow.getContentId(), connectionWindow, friendActionModel, userUuid, personUuid)); 
 
 						//modalwindow handler 
 						connectionWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
@@ -183,19 +181,19 @@ public class RequestedFriends extends Panel {
 						target.appendJavascript("fixWindowVertical();"); 
 					}
 				};
-				ContextImage ignoreFriendIcon = new ContextImage("ignoreFriendIcon",new Model(ProfileConstants.CANCEL_IMG));
+				ContextImage ignoreFriendIcon = new ContextImage("ignoreFriendIcon",new Model<String>(ProfileConstants.CANCEL_IMG));
 				ignoreFriendLink.add(ignoreFriendIcon);
 				ignoreFriendLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.ignorefriend")));
 				item.add(ignoreFriendLink);
 				
 				//CONFIRM FRIEND LINK AND WINDOW
-		    	final AjaxLink<String> confirmFriendLink = new AjaxLink<String>("confirmFriendLink", new Model<String>(person.getUuid())) {
+		    	final AjaxLink<String> confirmFriendLink = new AjaxLink<String>("confirmFriendLink", new Model<String>(personUuid)) {
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
 						
 						//get this item, and set content for modalwindow
-				    	String friendUuid = getModelObject();
-						connectionWindow.setContent(new ConfirmFriend(connectionWindow.getContentId(), connectionWindow, friendActionModel, userUuid, friendUuid)); 
+				    	String personUuid = getModelObject();
+						connectionWindow.setContent(new ConfirmFriend(connectionWindow.getContentId(), connectionWindow, friendActionModel, userUuid, personUuid)); 
 
 						//modalwindow handler 
 						connectionWindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
@@ -228,7 +226,7 @@ public class RequestedFriends extends Panel {
 						target.appendJavascript("fixWindowVertical();"); 
 					}
 				};
-				ContextImage confirmFriendIcon = new ContextImage("confirmFriendIcon",new Model(ProfileConstants.ACCEPT_IMG));
+				ContextImage confirmFriendIcon = new ContextImage("confirmFriendIcon",new Model<String>(ProfileConstants.ACCEPT_IMG));
 				confirmFriendLink.add(confirmFriendIcon);
 				confirmFriendLink.add(new AttributeModifier("title", true,new ResourceModel("link.title.confirmfriend")));
 				item.add(confirmFriendLink);

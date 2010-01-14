@@ -34,7 +34,6 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
@@ -497,7 +496,7 @@ public class ViewProfile extends BasePage {
 		final ModalWindow addFriendWindow = new ModalWindow("addFriendWindow");
 
 		//FRIEND LINK/STATUS
-		final AjaxLink addFriendLink = new AjaxLink("addFriendLink") {
+		final AjaxLink<Void> addFriendLink = new AjaxLink<Void>("addFriendLink") {
 			private static final long serialVersionUID = 1L;
 
 			public void onClick(AjaxRequestTarget target) {
@@ -513,18 +512,18 @@ public class ViewProfile extends BasePage {
 		//setup link/label and windows
 		if(friend) {
 			addFriendLabel.setDefaultModel(new ResourceModel("text.friend.confirmed"));
-    		addFriendLink.add(new AttributeModifier("class", true, new Model("instruction")));
+    		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction")));
 			addFriendLink.setEnabled(false);
 		} else if (friendRequestToThisPerson) {
 			addFriendLabel.setDefaultModel(new ResourceModel("text.friend.requested"));
-    		addFriendLink.add(new AttributeModifier("class", true, new Model("instruction")));
+    		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction")));
 			addFriendLink.setEnabled(false);
 		} else if (friendRequestFromThisPerson) {
 			//TODO (confirm pending friend request link)
 			//could be done by setting the content off the addFriendWindow.
 			//will need to rename some links to make more generic and set the onClick and setContent in here for link and window
 			addFriendLabel.setDefaultModel(new ResourceModel("text.friend.pending"));
-    		addFriendLink.add(new AttributeModifier("class", true, new Model("instruction")));
+    		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction")));
 			addFriendLink.setEnabled(false);
 		}  else {
 			addFriendLabel.setDefaultModel(new StringResourceModel("link.friend.add.name", null, new Object[]{ nickname } ));
@@ -541,7 +540,7 @@ public class ViewProfile extends BasePage {
             	if(friendActionModel.isRequested()) { 
             		//friend was successfully requested, update label and link
             		addFriendLabel.setDefaultModel(new ResourceModel("text.friend.requested"));
-            		addFriendLink.add(new AttributeModifier("class", true, new Model("instruction")));
+            		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction")));
             		addFriendLink.setEnabled(false);
             		target.addComponent(addFriendLink);
             	}
@@ -571,7 +570,8 @@ public class ViewProfile extends BasePage {
 		/* FRIENDS FEED PANEL */
 		if(isFriendsListVisible) {
 			add(new AjaxLazyLoadPanel("friendsFeed") {
-	            
+				private static final long serialVersionUID = 1L;
+
 				@Override
 	            public Component getLazyLoadComponent(String id) {
 	            	return new FriendsFeed(id, userUuid, currentUserId);
@@ -582,8 +582,9 @@ public class ViewProfile extends BasePage {
 			add(new EmptyPanel("friendsFeed")).setVisible(false);
 		}
 		
-		/* Gallery feed panel */
+		/* GALLERY FEED PANEL */
 		add(new AjaxLazyLoadPanel("galleryFeed") {
+			private static final long serialVersionUID = 1L;
 
 			@Override
 			public Component getLazyLoadComponent(String markupId) {

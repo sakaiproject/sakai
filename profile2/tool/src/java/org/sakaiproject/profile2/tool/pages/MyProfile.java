@@ -204,7 +204,7 @@ public class MyProfile extends BasePage {
 		add(new ProfileImageRenderer("photo", userUuid, true, ProfileConstants.PROFILE_IMAGE_MAIN, true));
 		
 		//change profile image button
-		AjaxLink changePictureLink = new AjaxLink("changePictureLink") {
+		AjaxLink<Void> changePictureLink = new AjaxLink<Void>("changePictureLink") {
 			private static final long serialVersionUID = 1L;
 
 			public void onClick(AjaxRequestTarget target) {
@@ -242,7 +242,7 @@ public class MyProfile extends BasePage {
 		//ADMIN: LOCK/UNLOCK A PROFILE
 		final Label lockProfileLabel = new Label("lockProfileLabel");
 		
-		final AjaxLink lockProfileLink = new AjaxLink("lockProfileLink") {
+		final AjaxLink<Void> lockProfileLink = new AjaxLink<Void>("lockProfileLink") {
 			private static final long serialVersionUID = 1L;
 
 			public void onClick(AjaxRequestTarget target) {
@@ -324,16 +324,18 @@ public class MyProfile extends BasePage {
 		
 		//friends feed panel for self - lazy loaded
 		add(new AjaxLazyLoadPanel("friendsFeed") {
+			private static final long serialVersionUID = 1L;
 
-            @Override
+			@Override
             public Component getLazyLoadComponent(String id) {
             	return new FriendsFeed(id, userUuid, userUuid);
             }
 
         });
 		
-		/* Gallery feed panel */
+		//gallery feed panel
 		add(new AjaxLazyLoadPanel("galleryFeed") {
+			private static final long serialVersionUID = 1L;
 
 			@Override
 			public Component getLazyLoadComponent(String markupId) {

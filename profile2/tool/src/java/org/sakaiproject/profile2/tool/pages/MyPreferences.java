@@ -40,6 +40,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.profile2.exception.ProfilePreferencesNotDefinedException;
 import org.sakaiproject.profile2.model.ProfilePreferences;
+import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.components.EnablingCheckBox;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
@@ -90,10 +91,10 @@ public class MyPreferences extends BasePage{
 		
 				
 		//create model
-		CompoundPropertyModel preferencesModel = new CompoundPropertyModel(profilePreferences);
+		CompoundPropertyModel<ProfilePreferences> preferencesModel = new CompoundPropertyModel<ProfilePreferences>(profilePreferences);
 		
 		//setup form		
-		Form form = new Form("form", preferencesModel);
+		Form<ProfilePreferences> form = new Form<ProfilePreferences>("form", preferencesModel);
 		form.setOutputMarkupId(true);
 		
 	
@@ -108,9 +109,9 @@ public class MyPreferences extends BasePage{
 		form.add(new Label("prefOff", new ResourceModel("preference.option.off")));
 
 		//request emails
-		final RadioGroup emailRequests = new RadioGroup("requestEmailEnabled", new PropertyModel(preferencesModel, "requestEmailEnabled"));
-		emailRequests.add(new Radio("requestsOn", new Model(new Boolean(true))));
-		emailRequests.add(new Radio("requestsOff", new Model(new Boolean(false))));
+		final RadioGroup<Boolean> emailRequests = new RadioGroup<Boolean>("requestEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "requestEmailEnabled"));
+		emailRequests.add(new Radio<Boolean>("requestsOn", new Model<Boolean>(new Boolean(true))));
+		emailRequests.add(new Radio<Boolean>("requestsOff", new Model<Boolean>(new Boolean(false))));
 		emailRequests.add(new Label("requestsLabel", new ResourceModel("preferences.email.requests")));
 		form.add(emailRequests);
 		
@@ -122,9 +123,9 @@ public class MyPreferences extends BasePage{
         });
 		
 		//confirm emails
-		final RadioGroup emailConfirms = new RadioGroup("confirmEmailEnabled", new PropertyModel(preferencesModel, "confirmEmailEnabled"));
-		emailConfirms.add(new Radio("confirmsOn", new Model(new Boolean(true))));
-		emailConfirms.add(new Radio("confirmsOff", new Model(new Boolean(false))));
+		final RadioGroup<Boolean> emailConfirms = new RadioGroup<Boolean>("confirmEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "confirmEmailEnabled"));
+		emailConfirms.add(new Radio<Boolean>("confirmsOn", new Model<Boolean>(new Boolean(true))));
+		emailConfirms.add(new Radio<Boolean>("confirmsOff", new Model<Boolean>(new Boolean(false))));
 		emailConfirms.add(new Label("confirmsLabel", new ResourceModel("preferences.email.confirms")));
 		form.add(emailConfirms);
 		
@@ -136,9 +137,9 @@ public class MyPreferences extends BasePage{
         });
 		
 		//private message emails
-		final RadioGroup emailPrivateMessage = new RadioGroup("privateMessageEmailEnabled", new PropertyModel(preferencesModel, "privateMessageEmailEnabled"));
-		emailPrivateMessage.add(new Radio("privateMessageOn", new Model(new Boolean(true))));
-		emailPrivateMessage.add(new Radio("privateMessageOff", new Model(new Boolean(false))));
+		final RadioGroup<Boolean> emailPrivateMessage = new RadioGroup<Boolean>("privateMessageEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "privateMessageEmailEnabled"));
+		emailPrivateMessage.add(new Radio<Boolean>("privateMessageOn", new Model<Boolean>(new Boolean(true))));
+		emailPrivateMessage.add(new Radio<Boolean>("privateMessageOff", new Model<Boolean>(new Boolean(false))));
 		emailPrivateMessage.add(new Label("privateMessageLabel", new ResourceModel("preferences.email.privatemessage")));
 		form.add(emailPrivateMessage);
 		
