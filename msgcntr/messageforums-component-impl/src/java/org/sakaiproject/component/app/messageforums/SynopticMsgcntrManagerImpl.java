@@ -1,6 +1,7 @@
 package org.sakaiproject.component.app.messageforums;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -307,15 +308,17 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 	public void resetAllUsersSynopticInfoInSite(String siteId, List<String> users){
 		String NEW_MESSAGE_COUNT_FOR_ALL_USERS_SQL = "SELECT USER_ID, count(*) unread_messages " + 
 														"FROM MFR_PVT_MSG_USR_T message " +									
-														"where READ_STATUS = 0 and CONTEXT_ID = '" + siteId + "' " +
+														"where READ_STATUS = 0 and CONTEXT_ID = ? " +
 														"Group By USER_ID";
 		
 		String RETURN_ALL_FORUMS_AND_TOPICS_SQL = "select forum.ID as FORUM_ID, topic.ID as TOPIC_ID, forum.DRAFT as isForumDraft, topic.DRAFT as isTopicDraft, topic.MODERATED as isTopicModerated, forum.LOCKED as isForumLocked, topic.LOCKED as isTopicLocked, forum.CREATED_BY as forumCreatedBy, topic.CREATED_BY as topicCreatedBy  " +
 														"from MFR_AREA_T area, MFR_OPEN_FORUM_T forum, MFR_TOPIC_T topic " + 
 														"Where area.ID = forum.surrogateKey and forum.ID = topic.of_surrogateKey " +
-														"and area.CONTEXT_ID = '" + siteId + "'";
+														"and area.CONTEXT_ID = ?";
 		Connection clConnection = null;  	
-		Statement statement = null;
+		//Statement statement = null;
+		PreparedStatement newMessageCountForAllUsers = null;
+		PreparedStatement returnAllForumsAndTopics = null;
 		ResultSet forumsAndTopicsRS = null;
 		ResultSet newMessagesCountRS = null;
 		try {
@@ -323,12 +326,17 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 			
 			
 			clConnection = SqlService.borrowConnection();
-			statement = clConnection.createStatement();
+						
+			//setup prepared statements:
+			newMessageCountForAllUsers = clConnection.prepareStatement(NEW_MESSAGE_COUNT_FOR_ALL_USERS_SQL);
+			newMessageCountForAllUsers.setString(1, siteId);
+			returnAllForumsAndTopics = clConnection.prepareStatement(RETURN_ALL_FORUMS_AND_TOPICS_SQL);
+			returnAllForumsAndTopics.setString(1, siteId);
 			
-			forumsAndTopicsRS = statement.executeQuery(RETURN_ALL_FORUMS_AND_TOPICS_SQL);			
+			forumsAndTopicsRS = returnAllForumsAndTopics.executeQuery();			
 			HashMap<Long, DecoratedForumInfo> dfHM = getDecoratedForumsAndTopics(forumsAndTopicsRS);
 			
-			newMessagesCountRS = statement.executeQuery(NEW_MESSAGE_COUNT_FOR_ALL_USERS_SQL);
+			newMessagesCountRS = newMessageCountForAllUsers.executeQuery();
 			HashMap<String, Integer> unreadMessagesHM = getUnreadMessagesHM(newMessagesCountRS);
 						
 			for (Iterator iterator = users.iterator(); iterator.hasNext();) {
@@ -357,12 +365,17 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 				LOG.warn(e);
 			}
 			try {
-				if(statement != null)
-					statement.close();
+				if(newMessageCountForAllUsers != null)
+					newMessageCountForAllUsers.close();
 			} catch (Exception e) {
 				LOG.warn(e);
 			}
-			
+			try {
+				if(returnAllForumsAndTopics != null)
+					returnAllForumsAndTopics.close();
+			} catch (Exception e) {
+				LOG.warn(e);
+			}
 			SqlService.returnConnection(clConnection);
 		}
 		
@@ -386,15 +399,17 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 		String RETURN_ALL_TOPICS_FOR_FORUM_SQL = "select forum.ID as FORUM_ID, topic.ID as TOPIC_ID, forum.DRAFT as isForumDraft, topic.DRAFT as isTopicDraft, topic.MODERATED as isTopicModerated, forum.LOCKED as isForumLocked, topic.LOCKED as isTopicLocked, forum.CREATED_BY as forumCreatedBy, topic.CREATED_BY as topicCreatedBy  " +
 													"from MFR_AREA_T area, MFR_OPEN_FORUM_T forum, MFR_TOPIC_T topic " + 
 													"Where area.ID = forum.surrogateKey and forum.ID = topic.of_surrogateKey " +
-													"and area.CONTEXT_ID = '" + siteId + "' and forum.ID = '" + forumId + "'";
+													"and area.CONTEXT_ID = ? and forum.ID = ?";
 		if(topicId != null){
-			RETURN_ALL_TOPICS_FOR_FORUM_SQL = RETURN_ALL_TOPICS_FOR_FORUM_SQL + " and topic.ID = '" + topicId + "'"; 
+			RETURN_ALL_TOPICS_FOR_FORUM_SQL = RETURN_ALL_TOPICS_FOR_FORUM_SQL + " and topic.ID = ?"; 
 		}
+		
+		
 		
 		List<String> users = new ArrayList<String>();
 		Site site;
 		Connection clConnection = null;  	
-		Statement statement = null;
+		PreparedStatement returnAllTopicsForForum = null;
 		ResultSet forumsAndTopicsRS = null;
 		try {
 			site = getSite(siteId);
@@ -410,9 +425,14 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 			
 			
 			clConnection = SqlService.borrowConnection();
-			statement = clConnection.createStatement();
+			returnAllTopicsForForum = clConnection.prepareStatement(RETURN_ALL_TOPICS_FOR_FORUM_SQL);
+			returnAllTopicsForForum.setString(1, siteId);
+			returnAllTopicsForForum.setString(2, "" +forumId);
+			if(topicId != null)
+				returnAllTopicsForForum.setString(3, "" +topicId);
 			
-			forumsAndTopicsRS = statement.executeQuery(RETURN_ALL_TOPICS_FOR_FORUM_SQL);			
+			
+			forumsAndTopicsRS = returnAllTopicsForForum.executeQuery();			
 			HashMap<Long, DecoratedForumInfo> dfHM = getDecoratedForumsAndTopics(forumsAndTopicsRS);
 			
 			
@@ -435,8 +455,8 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 				LOG.warn(e);
 			}
 			try {
-				if(statement != null)
-					statement.close();
+				if(returnAllTopicsForForum != null)
+					returnAllTopicsForForum.close();
 			} catch (Exception e) {
 				LOG.warn(e);
 			}
@@ -610,16 +630,17 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 	{
 		String NEW_MESSAGE_COUNT_SQL = "SELECT USER_ID, count(*) unread_messages " +
 										"FROM MFR_PVT_MSG_USR_T message " +									
-										"where READ_STATUS = 0 and USER_ID = '" + userId + "' and CONTEXT_ID = '" + siteId + "' " +
+										"where READ_STATUS = 0 and USER_ID = ? and CONTEXT_ID = ? " +
 										"Group By USER_ID";
 		
 		String RETURN_ALL_FORUMS_AND_TOPICS_SQL = "select forum.ID as FORUM_ID, topic.ID as TOPIC_ID, forum.DRAFT as isForumDraft, topic.DRAFT as isTopicDraft, topic.MODERATED as isTopicModerated, forum.LOCKED as isForumLocked, topic.LOCKED as isTopicLocked, forum.CREATED_BY as forumCreatedBy, topic.CREATED_BY as topicCreatedBy  " +
 													"from MFR_AREA_T area, MFR_OPEN_FORUM_T forum, MFR_TOPIC_T topic " + 
 													"Where area.ID = forum.surrogateKey and forum.ID = topic.of_surrogateKey " +
-													"and area.CONTEXT_ID = '" + siteId + "'";
+													"and area.CONTEXT_ID = ?";
 		
 		Connection clConnection = null;  	
-		Statement statement = null;
+		PreparedStatement newMessageCount = null;
+		PreparedStatement returnAllForumsAndTopics = null;
 		ResultSet forumsAndTopicsRS = null;
 		ResultSet newMessagesCountRS = null;
 		
@@ -628,14 +649,18 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 
 		try{
 			clConnection = SqlService.borrowConnection();
-			statement = clConnection.createStatement();
+			newMessageCount = clConnection.prepareStatement(NEW_MESSAGE_COUNT_SQL);
+			newMessageCount.setString(1, userId);
+			newMessageCount.setString(2, siteId);
+			returnAllForumsAndTopics = clConnection.prepareStatement(RETURN_ALL_FORUMS_AND_TOPICS_SQL);			
+			returnAllForumsAndTopics.setString(1, siteId);
 			
 			Site site = getSite(siteId);
 			
-			forumsAndTopicsRS = statement.executeQuery(RETURN_ALL_FORUMS_AND_TOPICS_SQL);			
+			forumsAndTopicsRS = returnAllForumsAndTopics.executeQuery();			
 			HashMap<Long, DecoratedForumInfo> dfHM = getDecoratedForumsAndTopics(forumsAndTopicsRS);
 			
-			newMessagesCountRS = statement.executeQuery(NEW_MESSAGE_COUNT_SQL);
+			newMessagesCountRS = newMessageCount.executeQuery();
 			HashMap<String, Integer> unreadMessagesHM = getUnreadMessagesHM(newMessagesCountRS);
 						
 			return getDMessageStats(userId, siteId, site, dfHM, unreadMessagesHM);
@@ -661,11 +686,18 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 			}
 			
 			try {
-				if(statement != null)
-					statement.close();
+				if(returnAllForumsAndTopics != null)
+					returnAllForumsAndTopics.close();
 			} catch (Exception e) {
 				LOG.warn(e);
-			}		
+			}	
+			
+			try {
+				if(newMessageCount != null)
+					newMessageCount.close();
+			} catch (Exception e) {
+				LOG.warn(e);
+			}
 			
 			SqlService.returnConnection(clConnection);
 		}

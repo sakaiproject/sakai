@@ -1,14 +1,13 @@
 package org.sakaiproject.component.app.messageforums.jobs;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -16,7 +15,6 @@ import org.apache.commons.logging.LogFactory;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.cover.SynopticMsgcntrManagerCover;
@@ -57,7 +55,7 @@ public class UpdateSynopticMessageCounts implements Job{
 																	"Group By q.SITE_ID, q.TITLE";
 	
 	private static final String UNREAD_MESSAGES_QUERY = "SELECT message.USER_ID, message.CONTEXT_ID, count(*) unread_messages " +
-															"FROM ONC.MFR_PVT_MSG_USR_T message " +										
+															"FROM MFR_PVT_MSG_USR_T message " +										
 															"where READ_STATUS = 0 " +
 															"group by message.USER_ID, message.CONTEXT_ID";
 	
@@ -181,30 +179,31 @@ public class UpdateSynopticMessageCounts implements Job{
 	
 	
 	private void updateSynopticToolInfoForAllUsers(String siteId, String siteTitle, Connection clConnection, boolean isMessageForumsPageInSite, boolean isMessagesPageInSite, boolean isForumsPageInSite, HashMap<String, HashMap<String, Integer>> siteAndUserMessageCountHM, HashMap<String, HashMap<Long, DecoratedForumInfo>> allTopicsAndForumsHM) throws Exception
-	{
-		String getAllUsersInSiteQuery = "select USER_ID from sakai_site_user where SITE_ID = '" + siteId + "'";
-
-		
-		Statement statement = clConnection.createStatement();
-		
+	{		
+		PreparedStatement isMessageForumsPageInSiteQuery = null;
+		PreparedStatement isMessagesPageInSiteQuery = null;
+		PreparedStatement isForumsPageInSiteQuery = null;
+		PreparedStatement getAllUsersInSiteQuery = null;
 		if(!runOracleSQL){		
-			String isMessageForumsPageInSiteQuery = "select * from SAKAI_SITE_TOOL where SITE_ID = '" + siteId + "' and REGISTRATION = 'sakai.messagecenter'";
-			String isMessagesPageInSiteQuery = "select * from SAKAI_SITE_TOOL where SITE_ID = '" + siteId + "' and REGISTRATION = 'sakai.messages'";
-			String isForumsPageInSiteQuery = "select * from SAKAI_SITE_TOOL where SITE_ID = '" + siteId + "' and REGISTRATION = 'sakai.forums'";
+			isMessageForumsPageInSiteQuery = clConnection.prepareStatement("select * from SAKAI_SITE_TOOL where SITE_ID = ? and REGISTRATION = 'sakai.messagecenter'");
+			isMessageForumsPageInSiteQuery.setString(1, siteId);
+			isMessagesPageInSiteQuery = clConnection.prepareStatement("select * from SAKAI_SITE_TOOL where SITE_ID = ? and REGISTRATION = 'sakai.messages'");
+			isMessagesPageInSiteQuery.setString(1, siteId);
+			isForumsPageInSiteQuery = clConnection.prepareStatement("select * from SAKAI_SITE_TOOL where SITE_ID = ? and REGISTRATION = 'sakai.forums'");
+			isForumsPageInSiteQuery.setString(1, siteId);
+						
 
-			
-
-			ResultSet rsMessagesForums = statement.executeQuery(isMessageForumsPageInSiteQuery);
+			ResultSet rsMessagesForums = isMessageForumsPageInSiteQuery.executeQuery();
 			while(rsMessagesForums.next()){
 				isMessageForumsPageInSite = true;
 			}
 			
-			ResultSet rsMessages = statement.executeQuery(isMessagesPageInSiteQuery);
+			ResultSet rsMessages = isMessagesPageInSiteQuery.executeQuery();
 			while(rsMessages.next()){
 				isMessagesPageInSite = true;
 			}
 			
-			ResultSet rsForusm = statement.executeQuery(isForumsPageInSiteQuery);
+			ResultSet rsForusm = isForumsPageInSiteQuery.executeQuery();
 			while(rsForusm.next()){
 				isForumsPageInSite = true;
 			}
@@ -229,9 +228,10 @@ public class UpdateSynopticMessageCounts implements Job{
 			}
 		}
 
-
+		getAllUsersInSiteQuery = clConnection.prepareStatement("select USER_ID from sakai_site_user where SITE_ID = ?");
+		getAllUsersInSiteQuery.setString(1, siteId);
 		
-		ResultSet usersMap = statement.executeQuery(getAllUsersInSiteQuery);
+		ResultSet usersMap = getAllUsersInSiteQuery.executeQuery();
 		
 		//loop through all users in site and update their information:
 		HashMap<String, Integer> userHM = null;
@@ -333,9 +333,27 @@ public class UpdateSynopticMessageCounts implements Job{
 			LOG.warn(e);
 		}
 		try{
-			if(statement != null)
-				statement.close();
-		}catch(Exception e){
+			if(getAllUsersInSiteQuery != null)
+				getAllUsersInSiteQuery.close();
+		} catch (Exception e) {
+			LOG.warn(e);
+		}
+		try {
+			if (isForumsPageInSiteQuery != null)
+				isForumsPageInSiteQuery.close();
+		} catch (Exception e) {
+			LOG.warn(e);
+		}
+		try {
+			if (isMessagesPageInSiteQuery != null)
+				isMessagesPageInSiteQuery.close();
+		} catch (Exception e) {
+			LOG.warn(e);
+		}
+		try {
+			if (isMessageForumsPageInSiteQuery != null)
+				isMessageForumsPageInSiteQuery.close();
+		} catch (Exception e) {
 			LOG.warn(e);
 		}
 	}
