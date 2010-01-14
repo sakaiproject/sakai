@@ -84,14 +84,16 @@ public class ComposeNewMessage extends Panel {
 		
 		//close button
 		WebMarkupContainer closeButton = new WebMarkupContainer("closeButton");
-		closeButton.add(new AjaxFallbackLink("link") {
+		closeButton.add(new AjaxFallbackLink<Void>("link") {
+			private static final long serialVersionUID = 1L;
+
 			public void onClick(AjaxRequestTarget target) {
 				if(target != null) {
 					target.prependJavascript("$('#" + thisPanel.getMarkupId() + "').slideUp();");
 					target.appendJavascript("setMainFrameHeight(window.name);");
 				}
 			}
-		}.add(new ContextImage("img",new Model(ProfileConstants.CLOSE_IMAGE))));
+		}.add(new ContextImage("img",new Model<String>(ProfileConstants.CLOSE_IMAGE))));
 		form.add(closeButton);
 		
 		

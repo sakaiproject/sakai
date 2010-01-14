@@ -1859,38 +1859,63 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
  	 */
 	public boolean sendNewMessage(NewMessageHelper messageHelper) {
 		
-		//validate
+		//validate subject
 		if(StringUtils.isBlank(messageHelper.getSubject())) {
 			messageHelper.setSubject(ProfileConstants.DEFAULT_PRIVATE_MESSAGE_SUBJECT);
 		}
+		
+		//setup thread and save
+		MessageThread thread = new MessageThread();
+		thread.setId(ProfileUtils.generateUuid());
+		thread.setSubject(messageHelper.getSubject());
+		saveNewThread(thread);
+		/*
 		try {
-			
-			//create the thread and save it
-			MessageThread thread = new MessageThread();
-			thread.setSubject(messageHelper.getSubject());
 			saveNewThread(thread);
-			
-			//create the message and save it
-			Message message = new Message();
-			message.setFrom(messageHelper.getFrom());
-			message.setMessage(messageHelper.getMessage());
-			message.setDatePosted(new Date());
-			message.setThread(thread.getId());
-			saveNewMessage(message);
-			
-	
-			//create the participant record for the person receiving
-			MessageParticipant participant = new MessageParticipant();
-			participant.setMessageId(message.getId());
-			participant.setUuid(messageHelper.getTo());
-			participant.setRead(false);
-			participant.setDeleted(false);
-			saveNewMessageParticipant(participant);
-			
-			return true;
 		} catch (Exception e) {
-			log.error("ProfileLogic.sendNewMessage(): Couldn't complete: " + e.getClass() + " : " + e.getMessage());
+			//already been logged
 		}
+		*/
+		//setup message and save
+		Message message = new Message();
+		message.setId(ProfileUtils.generateUuid());
+		message.setFrom(messageHelper.getFrom());
+		message.setMessage(messageHelper.getMessage());
+		message.setDatePosted(new Date());
+		message.setThread(thread.getId());
+		saveNewMessage(message);
+		/*
+		try {
+			saveNewMessage(message);
+		} catch (Exception e) {
+			//already been logged, rollback thread
+		}
+		*/
+		
+		//setup participants and save
+		//at present we have one for the receipient and one for sender.
+		//in future we may have multiple recipients and will need to check the existing list of thread participants 
+		List<String> threadParticipants = new ArrayList<String>();
+		threadParticipants.add(messageHelper.getTo());
+		threadParticipants.add(messageHelper.getFrom());
+
+		List<MessageParticipant> participants = new ArrayList<MessageParticipant>();
+		for(String threadParticipant : threadParticipants){
+			MessageParticipant p = new MessageParticipant();
+			p.setMessageId(message.getId());
+			p.setUuid(threadParticipant);
+			if(StringUtils.equals(threadParticipant, message.getFrom())) {
+				p.setRead(true); //sender 
+			} else {
+				p.setRead(false);
+			}
+			p.setDeleted(false);
+			
+			participants.add(p);
+		}
+		saveNewMessageParticipants(participants);
+		//if error, rollback message and thread
+		
 		
 		return true;
 	}
@@ -1898,12 +1923,13 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	public boolean replyToThread(final long threadId, final String reply, final String uuidFrom) {
+	public boolean replyToThread(final String threadId, final String reply, final String uuidFrom) {
 		
 		try {
 			
 			//create the message and save it
 			Message message = new Message();
+			message.setId(ProfileUtils.generateUuid());
 			message.setFrom(uuidFrom);
 			message.setMessage(reply);
 			message.setDatePosted(new Date());
@@ -1914,6 +1940,10 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 			List<String> uuids = getThreadParticipants(threadId);
 			for(String uuidTo : uuids) {
 				MessageParticipant participant = getDefaultMessageParticipantRecord(message.getId(), uuidTo);
+				if(StringUtils.equals(uuidFrom, uuidTo)) {
+					participant.setRead(true); //sender 
+				} 
+				
 				saveNewMessageParticipant(participant);
 			}
 			
@@ -1977,7 +2007,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	public List<Message> getMessagesInThread(final long threadId) {
+	public List<Message> getMessagesInThread(final String threadId) {
 		
 		List<Message> messages = new ArrayList<Message>();
 		
@@ -1986,7 +2016,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  		
 	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGES_IN_THREAD);
-	  			q.setParameter(THREAD, threadId, Hibernate.LONG);
+	  			q.setParameter(THREAD, threadId, Hibernate.STRING);
 	  			return q.list();
 	  		}
 	  	};
@@ -1999,7 +2029,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	public int getMessagesInThreadCount(final long threadId) {
+	public int getMessagesInThreadCount(final String threadId) {
 		
 		int count = 0;
 		
@@ -2008,7 +2038,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  		
 	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGES_IN_THREAD_COUNT);
-	  			q.setParameter(THREAD, threadId, Hibernate.LONG);
+	  			q.setParameter(THREAD, threadId, Hibernate.STRING);
 	  			return q.uniqueResult();
 	  		}
 	  	};
@@ -2022,12 +2052,12 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	public Message getMessage(final long id) {
+	public Message getMessage(final String id) {
 		
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGE);
-	  			q.setParameter(ID, id, Hibernate.LONG);
+	  			q.setParameter(ID, id, Hibernate.STRING);
 	  			q.setMaxResults(1);
 	  			return q.uniqueResult();
 			}
@@ -2039,14 +2069,14 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	public MessageThread getMessageThread(final long threadId) {
+	public MessageThread getMessageThread(final String threadId) {
 		
 		MessageThread thread = null;
 		
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGE_THREAD);
-	  			q.setParameter(ID, threadId, Hibernate.LONG);
+	  			q.setParameter(ID, threadId, Hibernate.STRING);
 	  			q.setMaxResults(1);
 	  			return q.uniqueResult();
 			}
@@ -2066,11 +2096,11 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	public Message getLatestMessageInThread(final long threadId) {
+	public Message getLatestMessageInThread(final String threadId) {
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  			Query q = session.getNamedQuery(QUERY_GET_LATEST_MESSAGE_IN_THREAD);
-	  			q.setParameter(THREAD, threadId, Hibernate.LONG);
+	  			q.setParameter(THREAD, threadId, Hibernate.STRING);
 	  			q.setMaxResults(1);
 	  			return q.uniqueResult();
 			}
@@ -2083,6 +2113,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
+	/*
 	public boolean toggleMessageRead(Message message, final boolean read) {
 		try {
 			//message.setRead(read);
@@ -2093,24 +2124,27 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 			return false;
 		}
 	}
+	*/
 
 	/**
  	 * {@inheritDoc}
  	 */
+	/*
 	public boolean toggleAllMessagesInThreadAsRead(final String threadId, final String userUuid, final boolean read) {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	*/
 	
 	/**
  	 * {@inheritDoc}
  	 */
-	public MessageParticipant getMessageParticipant(final long messageId, final String userUuid) {
+	public MessageParticipant getMessageParticipant(final String messageId, final String userUuid) {
 		
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGE_PARTICIPANT_FOR_MESSAGE_AND_UUID);
-	  			q.setParameter(MESSAGE_ID, messageId, Hibernate.LONG);
+	  			q.setParameter(MESSAGE_ID, messageId, Hibernate.STRING);
 	  			q.setParameter(UUID, userUuid, Hibernate.STRING);
 	  			q.setMaxResults(1);
 	  			return q.uniqueResult();
@@ -2123,7 +2157,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	public MessageParticipant createDefaultMessageParticipantRecord(final long messageId, final String userUuid) {
+	public MessageParticipant createDefaultMessageParticipantRecord(final String messageId, final String userUuid) {
 		
 		MessageParticipant participant = getDefaultMessageParticipantRecord(messageId, userUuid);
 		
@@ -2142,7 +2176,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	public MessageParticipant getDefaultMessageParticipantRecord(final long messageId, final String userUuid) {
+	public MessageParticipant getDefaultMessageParticipantRecord(final String messageId, final String userUuid) {
 		
 		MessageParticipant participant = new MessageParticipant();
 		participant.setMessageId(messageId);
@@ -2156,7 +2190,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	public List<String> getThreadParticipants(final long threadId) {
+	public List<String> getThreadParticipants(final String threadId) {
 		
 		List<String> participants = new ArrayList<String>();
 		
@@ -2165,7 +2199,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  			
 	  			Query q = session.getNamedQuery(QUERY_GET_THREAD_PARTICIPANTS);
-	  			q.setParameter(THREAD, threadId, Hibernate.LONG);
+	  			q.setParameter(THREAD, threadId, Hibernate.STRING);
 	  			return q.list();
 	  		}
 	  	};
@@ -2541,7 +2575,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	
 	
 	/*
-	 * Save a thread, obj now persistent and has id
+	 * Save a thread
 	 */
 	private void saveNewThread(MessageThread thread) {
 		
@@ -2554,12 +2588,12 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	}
 	
 	/*
-	 * Save a message, obj now persistent and has id
+	 * Save a message
 	 */
 	private void saveNewMessage(Message message) {
 		
 		try {
-			getHibernateTemplate().save(message);
+			getHibernateTemplate().save(message);			
 			log.info("Message saved with id= " + message.getId());  
 		} catch (Exception e) {
 			log.error("ProfileLogic.saveNewMessage() failed. " + e.getClass() + ": " + e.getMessage());  
@@ -2567,7 +2601,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	}
 	
 	/*
-	 * Save a message participant, obj now persistent and has id 
+	 * Save a message participant
 	 */
 	private void saveNewMessageParticipant(MessageParticipant participant) {
 		
@@ -2576,6 +2610,22 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 			log.info("MessageParticipant saved with id= " + participant.getId());  
 		} catch (Exception e) {
 			log.error("ProfileLogic.saveNewMessageParticipant() failed. " + e.getClass() + ": " + e.getMessage());  
+		}
+	}
+	
+	/*
+	 * Save a list of message participants
+	 */
+	private void saveNewMessageParticipants(List<MessageParticipant> participants) {
+		
+		for(MessageParticipant participant : participants) {
+		
+			try {
+				getHibernateTemplate().save(participant);
+				log.info("MessageParticipant saved with id= " + participant.getId());  
+			} catch (Exception e) {
+				log.error("ProfileLogic.saveNewMessageParticipant() failed. " + e.getClass() + ": " + e.getMessage());  
+			}
 		}
 	}
 	

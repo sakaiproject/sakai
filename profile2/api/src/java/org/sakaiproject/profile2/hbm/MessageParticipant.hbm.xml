@@ -14,7 +14,7 @@
 	      </generator>
 	    </id>
 	    
-	   	<property name="messageId" column="MESSAGE_ID" length="19" not-null="true" index="PROFILE_MESSAGE_PARTICIPANT_MESSAGE_ID_I" />
+	   	<property name="messageId" column="MESSAGE_ID" length="36" not-null="true" index="PROFILE_MESSAGE_PARTICIPANT_MESSAGE_ID_I" />
 		<property name="uuid" column="PARTICIPANT_UUID" length="99" not-null="true" index="PROFILE_MESSAGE_PARTICIPANT_UUID_I" />
 	    <property name="read" column="MESSAGE_READ" not-null="true" index="PROFILE_MESSAGE_PARTICIPANT_READ_I" />
 		<property name="deleted" column="MESSAGE_DELETED" not-null="true" index="PROFILE_MESSAGE_PARTICIPANT_DELETED_I" />
@@ -31,7 +31,7 @@
 	<sql-query name="getThreadParticipants">
 		<return-scalar column="uuid" type="string" />
     	<![CDATA[
-		select distinct(participant.PARTICIPANT_UUID) from PROFILE_MESSAGE_PARTICIPANTS_T participant, PROFILE_MESSAGES_T message where message.MESSAGE_THREAD = :thread and message.ID=participant.MESSAGE_ID
+		select distinct(participant.PARTICIPANT_UUID) as uuid from PROFILE_MESSAGE_PARTICIPANTS_T participant, PROFILE_MESSAGES_T message where message.MESSAGE_THREAD = :thread and message.ID=participant.MESSAGE_ID
 		]]>
 	</sql-query>
 

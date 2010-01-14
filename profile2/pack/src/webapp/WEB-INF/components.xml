@@ -16,7 +16,6 @@
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
         <property name="sakaiPersonManager" ref="org.sakaiproject.api.common.edu.person.SakaiPersonManager" />
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
-		<property name="idManager" ref="org.sakaiproject.id.api.IdManager" />
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
 		<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />

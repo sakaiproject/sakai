@@ -38,9 +38,9 @@ public class MessageParticipant implements Serializable {
 	private long id;
 	
 	/**
-	 * message Id
+	 * message Id (a uuid)
 	 */
-	private long messageId;
+	private String messageId;
 	
 	/**
 	 * participant uuid
@@ -70,10 +70,10 @@ public class MessageParticipant implements Serializable {
 	public void setId(long id) {
 		this.id = id;
 	}
-	public long getMessageId() {
+	public String getMessageId() {
 		return messageId;
 	}
-	public void setMessageId(long messageId) {
+	public void setMessageId(String messageId) {
 		this.messageId = messageId;
 	}
 	public String getUuid() {

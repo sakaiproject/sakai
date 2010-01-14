@@ -33,7 +33,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
@@ -52,7 +51,6 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.profile2.model.ResourceWrapper;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -438,7 +436,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		path.append(slash);
 		path.append(type);
 		path.append(slash);
-		path.append(idManager.createUuid());
+		path.append(ProfileUtils.generateUuid());
 		
 		return path.toString();
 		
@@ -1020,13 +1018,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return false;
 	}
 	
-	/**
- 	* {@inheritDoc}
- 	*/
-	public String generateUuid() {
-		return idManager.createUuid();
-	}
-	
 	
 	// PRIVATE METHODS FOR SAKAIPROXY
 	
@@ -1238,11 +1229,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 	private ContentHostingService contentHostingService;
 	public void setContentHostingService(ContentHostingService contentHostingService) {
 		this.contentHostingService = contentHostingService;
-	}
-	
-	private IdManager idManager;
-	public void setIdManager(IdManager idManager) {
-		this.idManager = idManager;
 	}
 	
 	private EventTrackingService eventTrackingService;

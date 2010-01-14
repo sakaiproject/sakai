@@ -34,9 +34,9 @@ public class Message implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * autoincrement ID for this message
+	 * message Id (a uuid)
 	 */
-	private long id;
+	private String id;
 		
 	/**
 	 * uuid from
@@ -51,7 +51,7 @@ public class Message implements Serializable {
 	/**
 	 * what thread ID this message is associated with
 	 */
-	private long thread;
+	private String thread;
 	
 	/**
 	 * date this message was posted
@@ -64,10 +64,10 @@ public class Message implements Serializable {
 	public Message() {
 	}
 	
-	public long getId() {
+	public String getId() {
 		return id;
 	}
-	public void setId(long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 	public String getFrom() {
@@ -82,10 +82,10 @@ public class Message implements Serializable {
 	public void setMessage(String message) {
 		this.message = message;
 	}
-	public long getThread() {
+	public String getThread() {
 		return thread;
 	}
-	public void setThread(long thread) {
+	public void setThread(String thread) {
 		this.thread = thread;
 	}
 	public Date getDatePosted() {

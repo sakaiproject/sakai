@@ -472,10 +472,4 @@ public interface SakaiProxy {
 	 */
 	public boolean toggleProfileLocked(String userId, boolean locked);
 	
-	/**
-	 * Get a UUID from the Sakai IdManager
-	 * @return
-	 */
-	public String generateUuid();
-	
 }

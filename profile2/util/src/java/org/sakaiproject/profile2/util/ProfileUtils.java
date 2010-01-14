@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.swing.ImageIcon;
 
@@ -397,6 +398,15 @@ public class ProfileUtils {
 	public static String unescapeHtml(String s){
 		return StringEscapeUtils.unescapeHtml(s);
 	}
+	
+	/**
+	 * Generate a UUID
+	 * @return
+	 */
+	public static String generateUuid() {
+        UUID uuid = UUID.randomUUID();
+        return uuid.toString();
+    }
 	
 	
 	/**

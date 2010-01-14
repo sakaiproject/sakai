@@ -6,13 +6,9 @@
 <hibernate-mapping package="org.sakaiproject.profile2.model">
 
 	<class name="MessageThread" table="PROFILE_MESSAGE_THREADS_T">
-
-		<!--  thread id -->
-	    <id name="id">
-	      <column name="ID" not-null="true" length="19" />
-	      <generator class="native">
-	        <param name="sequence">PROFILE_MESSAGE_THREADS_S</param>
-	      </generator>
+	    
+		<id name="id" column="ID" length="36">
+	    	<generator class="assigned" />
 	    </id>
 	    
 		<property name="subject" column="SUBJECT" length="255" not-null="true" />

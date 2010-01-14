@@ -752,14 +752,14 @@ public interface ProfileLogic {
 	 * @param id	id of the thread
 	 * @return
 	 */
-	public MessageThread getMessageThread(final long threadId);
+	public MessageThread getMessageThread(final String threadId);
 	
 	/**
 	 * Get the latest Message in a MessageThread
 	 * @param threadId 	id of the thread
 	 * @return
 	 */
-	public Message getLatestMessageInThread(final long threadId);
+	public Message getLatestMessageInThread(final String threadId);
 		
 	/**
 	 * Gets a list of MessageThreads with messages to a given user, each containing the most recent messages in each thread
@@ -781,24 +781,25 @@ public interface ProfileLogic {
 	 * @param threadId	id of the thread to get the messages for
 	 * @return
 	 */
-	public List<Message> getMessagesInThread(final long threadId);
+	public List<Message> getMessagesInThread(final String threadId);
 	
 	/**
 	 * Gets the count of the messages in a thread
 	 * @param threadId	thread to get the count for
 	 * @return
 	 */
-	public int getMessagesInThreadCount(final long threadId);
+	public int getMessagesInThreadCount(final String threadId);
 	
 	/**
 	 * Gets a Message from the database
 	 * @param id	id of the message
 	 * @return
 	 */
-	public Message getMessage(final long id);
+	public Message getMessage(final String id);
 	
 	/**
 	 * Send a message
+	 * <p>TODO this should be optimised for foreign key constraints
 	 * @param messageHelper	NewMessageHelper object to send.
 	 * @return
 	 */
@@ -811,7 +812,7 @@ public interface ProfileLogic {
 	 * @param userId		uuid of user who is sending the message
 	 * @return
 	 */
-	public boolean replyToThread(final long threadId, final String reply, final String userId);
+	public boolean replyToThread(final String threadId, final String reply, final String userId);
 	
 	/**
 	 * Toggle a single message as read/unread
@@ -819,7 +820,7 @@ public interface ProfileLogic {
 	 * @param read		boolean if to be toggled as read/unread
 	 * @return
 	 */
-	public boolean toggleMessageRead(Message message, final boolean read);
+	//public boolean toggleMessageReadForUser(Message message, final boolean read);
 	
 	/**
 	 * Toggle all messages in the given thread, that are to the given user, as read/unread
@@ -828,7 +829,7 @@ public interface ProfileLogic {
 	 * @param read			boolean if to be toggled as read/unread
 	 * @return
 	 */
-	public boolean toggleAllMessagesInThreadAsRead(final String threadId, final String userUuid, final boolean read);
+	//public boolean toggleAllMessagesInThreadAsRead(final String threadId, final String userUuid, final boolean read);
 
 	/**
 	 * Get a MessageParticipant record
@@ -836,7 +837,7 @@ public interface ProfileLogic {
 	 * @param userUuid		uuid to get the record for
 	 * @return
 	 */
-	public MessageParticipant getMessageParticipant(final long messageId, final String userUuid);
+	public MessageParticipant getMessageParticipant(final String messageId, final String userUuid);
 	
 	/**
 	 * Create a new/default MessageParticipant record. If a user is viewing a series of messages and doesn't have a recipient record, one will be created.
@@ -846,7 +847,7 @@ public interface ProfileLogic {
 	 * @param userUuid		uuid to get the record for
 	 * @return
 	 */
-	public MessageParticipant createDefaultMessageParticipantRecord(final long messageId, final String userUuid);
+	public MessageParticipant createDefaultMessageParticipantRecord(final String messageId, final String userUuid);
 
 	/**
 	 * Create a default MessageParticipant object for a message and user. Not persisted.
@@ -855,7 +856,7 @@ public interface ProfileLogic {
 	 * @param userUuid
 	 * @return
 	 */
-	public MessageParticipant getDefaultMessageParticipantRecord(final long messageId, final String userUuid);
+	public MessageParticipant getDefaultMessageParticipantRecord(final String messageId, final String userUuid);
 
 	
 	/**
@@ -863,5 +864,5 @@ public interface ProfileLogic {
 	 * @param threadId		id of the thread
 	 * @return
 	 */
-	public List<String> getThreadParticipants(final long threadId);
+	public List<String> getThreadParticipants(final String threadId);
 }

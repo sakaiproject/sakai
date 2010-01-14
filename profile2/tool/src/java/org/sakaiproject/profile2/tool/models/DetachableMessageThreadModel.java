@@ -16,7 +16,6 @@
 
 package org.sakaiproject.profile2.tool.models;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.model.MessageThread;
@@ -31,31 +30,31 @@ import org.sakaiproject.profile2.tool.Locator;
 public class DetachableMessageThreadModel extends LoadableDetachableModel<MessageThread>{
 
 	private static final long serialVersionUID = 1L;
-	private final long threadId;
+	private final String id;
 
 	protected ProfileLogic getProfileLogic(){
 		return Locator.getProfileLogic();
 	}
 	  
 	/**
-	 * @param c
+	 * @param m
 	 */
 	public DetachableMessageThreadModel(MessageThread m){
-		this.threadId = m.getId();
+		this.id = m.getId();
 	}
 	
 	/**
 	 * @param id
 	 */
-	public DetachableMessageThreadModel(long threadId){
-		this.threadId = threadId;
+	public DetachableMessageThreadModel(String id){
+		this.id = id;
 	}
 	
 	/**
 	 * @see java.lang.Object#hashCode()
 	 */
 	public int hashCode() {
-		return new Long(threadId).hashCode();
+		return id.hashCode();
 	}
 	
 	/**
@@ -73,7 +72,7 @@ public class DetachableMessageThreadModel extends LoadableDetachableModel<Messag
 		}
 		else if (obj instanceof DetachableMessageModel) {
 			DetachableMessageThreadModel other = (DetachableMessageThreadModel)obj;
-			return other.threadId == threadId;
+			return other.id == id;
 		}
 		return false;
 	}
@@ -82,6 +81,6 @@ public class DetachableMessageThreadModel extends LoadableDetachableModel<Messag
 	 * @see org.apache.wicket.model.LoadableDetachableModel#load()
 	 */
 	protected MessageThread load(){
-		return getProfileLogic().getMessageThread(threadId);
+		return getProfileLogic().getMessageThread(id);
 	}
 }

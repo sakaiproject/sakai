@@ -50,7 +50,7 @@ public class MyMessageView extends BasePage {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(ConfirmedFriends.class);
 	
-	public MyMessageView(final String currentUserUuid, final long threadId, final String threadSubject) {
+	public MyMessageView(final String currentUserUuid, final String threadId, final String threadSubject) {
 		
 		log.debug("MyMessageView()");
 		
@@ -192,7 +192,11 @@ public class MyMessageView extends BasePage {
         			target.addComponent(replyField);
         			
         			//repaint the list of messages in this thread
-        			//target.addComponent(messageListContainer);
+        			target.addComponent(messageListContainer);
+        			
+        			//resize
+    				target.appendJavascript("setMainFrameHeight(window.name);");
+
         		}
         		
         		// ...

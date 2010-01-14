@@ -16,6 +16,7 @@
 
 package org.sakaiproject.profile2.tool.models;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.model.Message;
@@ -30,14 +31,14 @@ import org.sakaiproject.profile2.tool.Locator;
 public class DetachableMessageModel extends LoadableDetachableModel<Message>{
 
 	private static final long serialVersionUID = 1L;
-	private final long id;
+	private final String id;
 
 	protected ProfileLogic getProfileLogic(){
 		return Locator.getProfileLogic();
 	}
 	  
 	/**
-	 * @param c
+	 * @param m
 	 */
 	public DetachableMessageModel(Message m){
 		this.id = m.getId();
@@ -46,10 +47,7 @@ public class DetachableMessageModel extends LoadableDetachableModel<Message>{
 	/**
 	 * @param id
 	 */
-	public DetachableMessageModel(long id){
-		if (id == 0) {
-			throw new IllegalArgumentException();
-		}
+	public DetachableMessageModel(String id){
 		this.id = id;
 	}
 	
@@ -57,7 +55,7 @@ public class DetachableMessageModel extends LoadableDetachableModel<Message>{
 	 * @see java.lang.Object#hashCode()
 	 */
 	public int hashCode() {
-		return Long.valueOf(id).hashCode();
+		return id.hashCode();
 	}
 	
 	/**
