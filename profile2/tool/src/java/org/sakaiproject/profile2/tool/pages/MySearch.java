@@ -146,10 +146,10 @@ public class MySearch extends BasePage {
 		final ModalWindow connectionWindow = new ModalWindow("connectionWindow");
 		
 		//search results
-		ListView resultsListView = new ListView("results-list", resultsModel) {
+		ListView<SearchResult> resultsListView = new ListView<SearchResult>("results-list", resultsModel) {
 			private static final long serialVersionUID = 1L;
 
-			protected void populateItem(final ListItem item) {
+			protected void populateItem(final ListItem<SearchResult> item) {
 		        
 		    	//get SearchResult object
 		    	//this contains info like if they are a friend and if their profile is visible etc
@@ -232,13 +232,12 @@ public class MySearch extends BasePage {
 			    	final Label connectionLabel = new Label("connectionLabel");
 					connectionLabel.setOutputMarkupId(true);
 					
-			    	final AjaxLink connectionLink = new AjaxLink("connectionLink") {
+			    	final AjaxLink connectionLink = new AjaxLink("connectionLink", new Model(searchResult.getUserUuid())) {
 						private static final long serialVersionUID = 1L;
 						public void onClick(AjaxRequestTarget target) {
 							
 							//get this item, reinit some values and set content for modal
-					    	SearchResult this_searchResult = (SearchResult)getParent().getParent().getDefaultModelObject();
-					    	final String userUuid = this_searchResult.getUserUuid();
+					    	final String userUuid = (String)getModelObject();
 					    	connectionWindow.setContent(new AddFriend(connectionWindow.getContentId(), connectionWindow, friendActionModel, currentUserUuid, userUuid)); 
 							
 					    	// connection modal window handler 
