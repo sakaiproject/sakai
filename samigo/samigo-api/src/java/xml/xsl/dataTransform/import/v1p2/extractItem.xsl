@@ -127,7 +127,7 @@
   <xsl:for-each select="//presentation//response_lid/render_choice/response_label/material/mattext" >
       <itemAnswer type="list"><xsl:apply-templates mode="itemRichText" /></itemAnswer>
   </xsl:for-each>
-  <xsl:for-each select="//respcondition/conditionvar/or/varequalc" >
+  <xsl:for-each select="//respcondition/conditionvar/or/varequal" >
 	<xsl:choose>
     	<xsl:when test="./*">
       		<itemFibAnswer type="list"><xsl:copy-of select="./*"/></itemFibAnswer>
