@@ -627,10 +627,18 @@ public class SiteAddParticipantHandler {
 			targettedMessageList.addMessage(new TargettedMessage("java.allusers", null, TargettedMessage.SEVERITY_INFO));
 		}
     		
-		// time to reset user inputs
-		reset();
-		
-        return "done";
+		if (targettedMessageList.size() == 0)
+		{
+			// time to reset user inputs
+			reset();
+			
+	        return "done";
+		}
+		else
+		{
+			// there is error
+			return "errorWithAddingParticipants";
+		}
     }
     
     /**
@@ -885,20 +893,26 @@ public class SiteAddParticipantHandler {
 							
 							if (u == null) {
 							
-							// if the nonOfficialAccount user is not in the system
-							// yet
-							participant.name = userEid;
-							participant.uniqname = userEid; // TODO:
-							// what
-							// would
-							// the
-							// UDS
-							// case
-							// this
-							// name
-							// to?
-							// -ggolden
-							participant.active = true;
+								// if the nonOfficialAccount user is not in the system
+								// yet
+								participant.name = userEid;
+								participant.uniqname = userEid; // TODO:
+								// what
+								// would
+								// the
+								// UDS
+								// case
+								// this
+								// name
+								// to?
+								// -ggolden
+								participant.active = true;
+								
+								if (!userDirectoryService.allowAddUser())
+								{
+									targettedMessageList.addMessage(new TargettedMessage("java.haveadd",new Object[] { userEid }, TargettedMessage.SEVERITY_ERROR));
+									M_log.warn(this + ".checkAddParticipant: user" + userDirectoryService.getCurrentUser()!= null ? userDirectoryService.getCurrentUser().getEid():"" + " don't have permission to add " + userEid);
+								}
 							} else  {
 								M_log.debug("adding: " + u.getDisplayName() + ", " + u.getEid());
 								participant.name = u.getDisplayName();
