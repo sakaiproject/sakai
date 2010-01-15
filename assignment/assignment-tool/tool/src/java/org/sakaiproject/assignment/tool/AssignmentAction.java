@@ -12242,7 +12242,7 @@ public class AssignmentAction extends PagedResourceActionII
 						
 						// add attachment
 						enableSecurityAdvisor();
-						ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, getToolTitle(), contentType, fileContentStream, props);
+						ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, "Assignments", contentType, fileContentStream, props);
 						disableSecurityAdvisors();
 						
 						try
