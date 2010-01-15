@@ -2096,7 +2096,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 					  // taking care of rationale
 					  if (!addRationale && (typeId.equals(TypeIfc.MULTIPLE_CHOICE) || typeId.equals(TypeIfc.MULTIPLE_CORRECT) || typeId.equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION) || typeId.equals(TypeIfc.TRUE_FALSE))) {
 						  log.debug("MULTIPLE_CHOICE or MULTIPLE_CORRECT or MULTIPLE_CORRECT_SINGLE_SELECTION or TRUE_FALSE");
-						  if (publishedItemData.getHasRationale()) {
+						  if (publishedItemData.getHasRationale() != null && publishedItemData.getHasRationale() ) { 
 							  addRationale = true;
 							  rationale = grade.getRationale();
 							  if (rationale == null) {
