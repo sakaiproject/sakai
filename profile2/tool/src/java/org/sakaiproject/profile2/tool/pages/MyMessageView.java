@@ -39,6 +39,7 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.util.string.JavascriptUtils;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageParticipant;
 import org.sakaiproject.profile2.model.MessageThread;
@@ -56,6 +57,7 @@ public class MyMessageView extends BasePage {
 	
 	private DataView<Message> messageList = null;
 	private WebMarkupContainer messageListContainer = null;
+	private String scrollToId = null;
 	
 	/**
 	 * Constructor for an incoming link with a threadId as part of the PageParameters
@@ -126,9 +128,9 @@ public class MyMessageView extends BasePage {
 		messageListContainer = new WebMarkupContainer("messageListContainer");
 		messageListContainer.setOutputMarkupId(true);
 		
-		
 		//get our list of messages
 		final MessagesDataProvider provider = new MessagesDataProvider(threadId);
+		
 		
 		messageList = new DataView<Message>("messageList", provider) {
 			private static final long serialVersionUID = 1L;
@@ -189,16 +191,30 @@ public class MyMessageView extends BasePage {
 				if(!messageOwner && !participant.isRead()) {
 					item.add(new AttributeAppender("class", true, new Model<String>("unread-message"), " "));
 					//profileLogic.toggleMessageRead(message, true);
+					
+					//update scrollToId for the first unread message
+					if(StringUtils.isBlank(scrollToId)) {
+						scrollToId = item.getMarkupId();
+					}
+					
 				}
 				
 				item.setOutputMarkupId(true);
 				
 		    }
 			
+			protected void onBeforeRender() {
+				super.onBeforeRender();
+				//JavascriptUtils.writeJavascript(getResponse(), "$.scrollTo( '#"+scrollToId + "', 800);");
+				//JavascriptUtils.writeJavascript(getResponse(), "alert('hello: " + scrollToId + "');");
+
+			}
+			
 		};
 		messageList.setOutputMarkupId(true);
 		messageListContainer.add(messageList);
 		add(messageListContainer);
+		
 		
 		//reply form
 		StringModel stringModel = new StringModel();
