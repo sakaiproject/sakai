@@ -54,6 +54,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.TemplateBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.IndexBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener;
+import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.FormattedText;
 
 /**
@@ -88,7 +89,7 @@ public class TemplateUpdateListener
 
 
     
-    String tempName = FormattedText.convertPlaintextToFormattedText(templateBean.getTemplateName());
+    String tempName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, templateBean.getTemplateName());
     AssessmentService assessmentService = new AssessmentService();
 
     boolean isUnique = assessmentService.assessmentTitleIsUnique(templateBean.getIdString(),tempName,true);
@@ -185,10 +186,10 @@ public class TemplateUpdateListener
           (delegate.getAssessmentTemplate(templateIdString)).getData();
       }
 
-      template.setTitle(ContextUtil.processFormattedText(log, templateBean.getTemplateName()));
+      template.setTitle(templateBean.getTemplateName());
       if (templateBean.getTemplateAuthor() != null)
         templateBean.getValueMap().put
-          ("author", ContextUtil.processFormattedText(log, templateBean.getTemplateAuthor()));
+          ("author", TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, templateBean.getTemplateAuthor()));
       template.setDescription(templateBean.getTemplateDescription());
 
       // Assessment Access Control

@@ -71,7 +71,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.tool.assessment.util.TextFormat;
 
 /**
  * <p>Title: Samigo</p>2
@@ -181,7 +181,7 @@ implements ActionListener
 			error=true;
 		}
 		else {
-			assessmentName = FormattedText.convertPlaintextToFormattedText(assessmentName.trim());
+			assessmentName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentName.trim());
 			// check if name is unique 
 			if(!assessmentService.publishedAssessmentTitleIsUnique(assessmentSettings.getAssessmentId().toString(), assessmentName)){
 				String nameUnique_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
@@ -268,7 +268,7 @@ implements ActionListener
 	// Check if title has been changed. If yes, update it.
 	private boolean isTitleChanged(PublishedAssessmentSettingsBean assessmentSettings, PublishedAssessmentFacade assessment) {
 		if (assessment.getTitle() != null && assessmentSettings.getTitle() != null) {
-			String assessmentTitle = FormattedText.convertPlaintextToFormattedText(assessmentSettings.getTitle().trim());
+			String assessmentTitle = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getTitle().trim());
 				if (!assessment.getTitle().trim().equals(assessmentTitle)) {
 					assessment.setTitle(assessmentTitle);
 					return true;
@@ -364,13 +364,13 @@ implements ActionListener
 		// e. set Submission Messages
 	    control.setSubmissionMessage(assessmentSettings.getSubmissionMessage());
 	    // f. set username
-	    control.setUsername(FormattedText.convertPlaintextToFormattedText(assessmentSettings.getUsername()));
+	    control.setUsername(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getUsername()));
 	    // g. set password
-	    control.setPassword(FormattedText.convertPlaintextToFormattedText(assessmentSettings.getPassword()));
+	    control.setPassword(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getPassword()));
 	    // h. set finalPageUrl
 	    String finalPageUrl = "";
 	    if (assessmentSettings.getFinalPageUrl() != null) {
-	    	finalPageUrl = FormattedText.convertPlaintextToFormattedText(assessmentSettings.getFinalPageUrl().trim());
+	    	finalPageUrl = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getFinalPageUrl().trim());
 	    	if (finalPageUrl.length() != 0 && !finalPageUrl.toLowerCase().startsWith("http")) {
 	    		finalPageUrl = "http://" + finalPageUrl;
 	    	}
@@ -430,13 +430,13 @@ implements ActionListener
 		saveAssessmentSettings.updateMetaWithValueMap(assessment, h);
 		
 		// i. set Graphics
-		assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGCOLOR, FormattedText.convertPlaintextToFormattedText(assessmentSettings.getBgColor()));
-		assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGIMAGE, FormattedText.convertPlaintextToFormattedText(assessmentSettings.getBgImage()));
+		assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGCOLOR, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getBgColor()));
+		assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGIMAGE, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getBgImage()));
 
 	    // j. set objectives,rubrics,keywords
-		assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.KEYWORDS, FormattedText.convertPlaintextToFormattedText(assessmentSettings.getKeywords()));
-	    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.OBJECTIVES, FormattedText.convertPlaintextToFormattedText(assessmentSettings.getObjectives()));
-	    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.RUBRICS, FormattedText.convertPlaintextToFormattedText(assessmentSettings.getRubrics()));
+		assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.KEYWORDS, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getKeywords()));
+	    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.OBJECTIVES, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getObjectives()));
+	    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.RUBRICS, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getRubrics()));
 	}
 
 	public boolean checkScore(PublishedAssessmentSettingsBean assessmentSettings, PublishedAssessmentFacade assessment, FacesContext context) {

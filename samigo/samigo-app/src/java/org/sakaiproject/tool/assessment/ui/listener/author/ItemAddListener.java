@@ -74,6 +74,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.MatchItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolDataBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.FormattedText;
 
 /**
@@ -1431,18 +1432,20 @@ public class ItemAddListener
   
   protected HashSet prepareMetaData(ItemFacade item, ItemBean bean) {
 		HashSet set = new HashSet();
+		
 		if (bean.getKeyword() != null) {
 			set.add(new ItemMetaData(item.getData(),
-					ItemMetaDataIfc.KEYWORD, ContextUtil.processFormattedText(log, bean.getKeyword())));
+					ItemMetaDataIfc.KEYWORD, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, bean.getKeyword())));
 		}
 		if (bean.getRubric() != null) {
 			set.add(new ItemMetaData(item.getData(),
-					ItemMetaDataIfc.RUBRIC, ContextUtil.processFormattedText(log, bean.getRubric())));
+					ItemMetaDataIfc.RUBRIC, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, bean.getRubric())));
 		}
 		if (bean.getObjective() != null) {
 			set.add(new ItemMetaData(item.getData(),
-					ItemMetaDataIfc.OBJECTIVE, ContextUtil.processFormattedText(log, bean.getObjective())));
+					ItemMetaDataIfc.OBJECTIVE, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, bean.getObjective())));
 		}
+		
 		// Randomize property got left out, added in metadata
 		if (bean.getRandomized() != null) {
 		set.add(new ItemMetaData(item.getData(),
@@ -1516,13 +1519,13 @@ public class ItemAddListener
 	  while (iter.hasNext()) {
 		  ItemMetaDataIfc itemMetaData = (ItemMetaDataIfc) iter.next();
 		  if (itemMetaData.getLabel().equals(ItemMetaDataIfc.KEYWORD)){
-			  itemMetaData.setEntry(ContextUtil.processFormattedText(log, bean.getKeyword()));
+			  itemMetaData.setEntry(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, bean.getKeyword()));
 		  }
 		  else if (itemMetaData.getLabel().equals(ItemMetaDataIfc.RUBRIC)){
-			  itemMetaData.setEntry(ContextUtil.processFormattedText(log, bean.getKeyword()));
+			  itemMetaData.setEntry(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, bean.getKeyword()));
 		  }
 		  else if (itemMetaData.getLabel().equals(ItemMetaDataIfc.OBJECTIVE)){
-			  itemMetaData.setEntry(ContextUtil.processFormattedText(log, bean.getObjective()));
+			  itemMetaData.setEntry(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, bean.getObjective()));
 		  }
 		  else if (itemMetaData.getLabel().equals(ItemMetaDataIfc.RANDOMIZE)){
 			  itemMetaData.setEntry(bean.getRandomized());
@@ -1574,7 +1577,7 @@ public class ItemAddListener
         if (afteropen.length>1) {
 // must have text in between {}
           String[] lastpart = afteropen[1].split("\\}");
-          String answer = FormattedText.escapeHtml(FormattedText.convertFormattedTextToPlaintext(lastpart[0].replaceAll("&lt;.*?&gt;", "")), false);
+          String answer = lastpart[0].replaceAll("&lt;.*?&gt;", "");
           list.add(answer);
         }
     }
@@ -1583,17 +1586,17 @@ public class ItemAddListener
       if (i == 0) {
         String[] firstpart = tokens[i].split("\\{");
 	  if (firstpart.length>1) {
-		String answer = FormattedText.escapeHtml(FormattedText.convertFormattedTextToPlaintext(firstpart[1].replaceAll("&lt;.*?&gt;", "")), false);
+		String answer = firstpart[1].replaceAll("&lt;.*?&gt;", "");
           list.add(answer);
         }
       }
       else if (i == (tokens.length - 1)) {
         String[] lastpart = tokens[i].split("\\}");
-        String answer = FormattedText.escapeHtml(FormattedText.convertFormattedTextToPlaintext(lastpart[0].replaceAll("&lt;.*?&gt;", "")), false);
+        String answer = lastpart[0].replaceAll("&lt;.*?&gt;", "");
         list.add(answer);
       }
       else {
-    	String answer = FormattedText.escapeHtml(FormattedText.convertFormattedTextToPlaintext(tokens[i].replaceAll("&lt;.*?&gt;", "")), false);
+    	String answer = tokens[i].replaceAll("&lt;.*?&gt;", "");
         list.add(answer);
       }
       }

@@ -267,7 +267,7 @@ public class SamigoEmailService {
 			//msg.addHeaderLine("Subject: " + subject);
 			msg.setSubject(subject, "UTF-8");
 			msg.addHeaderLine("To: no-reply@coursework.stanford.edu");
-			msg.setText(message, "ISO-8859-1");
+			msg.setText(message, "UTF-8");
 			msg.addHeaderLine("Content-Type: text/html");
 
 			ArrayList<InternetAddress> toIAList = new ArrayList<InternetAddress>();

@@ -43,8 +43,7 @@ import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAttachmentData;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.tool.assessment.util.TextFormat;
 
 /**
  * <p>
@@ -90,7 +89,7 @@ public class ShowAttachmentMediaServlet extends HttpServlet
 	String mimeType = req.getParameter("mimeType");
 	String filename = req.getParameter("filename");
 
-	String cleanedFilename = FormattedText.processFormattedText(filename, new StringBuilder());
+	String cleanedFilename = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, filename);
 	
     res.setHeader("Content-Disposition", "inline;filename=\"" + cleanedFilename +"\";");
     log.debug("resourceId = " + resourceId);

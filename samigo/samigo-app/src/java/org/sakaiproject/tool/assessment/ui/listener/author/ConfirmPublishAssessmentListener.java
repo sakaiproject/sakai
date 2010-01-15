@@ -52,6 +52,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.FormattedText;
 
 /**
@@ -95,7 +96,7 @@ public class ConfirmPublishAssessmentListener
     //#2a - look for error: check if core assessment title is unique
     boolean error=false;
 
-    String assessmentName=FormattedText.convertPlaintextToFormattedText(assessmentSettings.getTitle());
+    String assessmentName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getTitle());
     if(assessmentName!=null &&(assessmentName.trim()).equals("")){
      	String nameEmpty_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_empty");
 	context.addMessage(null,new FacesMessage(nameEmpty_err));
@@ -236,7 +237,7 @@ public class ConfirmPublishAssessmentListener
 
     //#3 now u can proceed to save core assessment
     assessment = s.save(assessmentSettings);
-    //unEscape the FormattedText.convertPlaintextToFormattedText in s.save()
+    //unEscape the TextFormat.convertPlaintextToFormattedTextNoHighUnicode in s.save()
     assessment.setTitle(FormattedText.convertFormattedTextToPlaintext(assessment.getTitle()));
     assessmentSettings.setAssessment(assessment);
 

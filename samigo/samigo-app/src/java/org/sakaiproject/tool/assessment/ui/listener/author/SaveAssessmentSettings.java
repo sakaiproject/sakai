@@ -60,9 +60,9 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.TextFormat;
 
 /**
  * <p>Title: Samigo</p>2
@@ -90,10 +90,10 @@ public class SaveAssessmentSettings
     AssessmentFacade assessment = assessmentService.getAssessment(
         assessmentId.toString());
     //log.info("** assessment = "+assessment);
-    assessment.setTitle(FormattedText.convertPlaintextToFormattedText(assessmentSettings.getTitle()));
+    assessment.setTitle(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getTitle()));
     //assessment.setTitle(assessmentSettings.getTitle());
-    assessment.setDescription(assessmentSettings.getDescription()); // No need to call processFormattedText() because this is done in RichTextEditArea.java
-    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.AUTHORS, FormattedText.convertPlaintextToFormattedText(assessmentSettings.getAuthors()));
+    assessment.setDescription(assessmentSettings.getDescription());
+    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.AUTHORS, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getAuthors()));
 
     // #2 - set AssessmentAccessControl
     AssessmentAccessControl control = (AssessmentAccessControl)assessment.getAssessmentAccessControl();
@@ -175,14 +175,14 @@ public class SaveAssessmentSettings
     // e. set Submission Messages
     control.setSubmissionMessage(assessmentSettings.getSubmissionMessage());
     // f. set username
-    control.setUsername(FormattedText.convertPlaintextToFormattedText(assessmentSettings.getUsername()));
+    control.setUsername(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getUsername()));
     // g. set password
-    control.setPassword(FormattedText.convertPlaintextToFormattedText(assessmentSettings.getPassword()));
+    control.setPassword(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getPassword()));
     // h. set finalPageUrl
 
     String finalPageUrl = "";
     if (assessmentSettings.getFinalPageUrl() != null) {
-    	finalPageUrl = FormattedText.convertPlaintextToFormattedText(assessmentSettings.getFinalPageUrl().trim());
+    	finalPageUrl = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getFinalPageUrl().trim());
     	if (finalPageUrl.length() != 0 && !finalPageUrl.toLowerCase().startsWith("http")) {
     		finalPageUrl = "http://" + finalPageUrl;
     	}
@@ -247,13 +247,13 @@ public class SaveAssessmentSettings
     updateMetaWithValueMap(assessment, h);
 
     // i. set Graphics
-    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGCOLOR, FormattedText.convertPlaintextToFormattedText(assessmentSettings.getBgColor()));
-    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGIMAGE, FormattedText.convertPlaintextToFormattedText(assessmentSettings.getBgImage()));
+    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGCOLOR, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getBgColor()));
+    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGIMAGE, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getBgImage()));
 
     // j. set objectives,rubrics,keywords
-    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.KEYWORDS, FormattedText.convertPlaintextToFormattedText(assessmentSettings.getKeywords()));
-    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.OBJECTIVES, FormattedText.convertPlaintextToFormattedText(assessmentSettings.getObjectives()));
-    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.RUBRICS, FormattedText.convertPlaintextToFormattedText(assessmentSettings.getRubrics()));
+    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.KEYWORDS, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getKeywords()));
+    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.OBJECTIVES, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getObjectives()));
+    assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.RUBRICS, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getRubrics()));
 
     // jj. save assessment first, then deal with ip
     assessmentService.saveAssessment(assessment);

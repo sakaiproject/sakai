@@ -17,6 +17,7 @@ import org.sakaiproject.tool.assessment.samlite.api.SamLiteService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.w3c.dom.Document;
@@ -55,9 +56,9 @@ public class SamLiteBean implements Serializable {
 	}
 	
 	public void parse() {
-		questionGroup = samLiteService.parse(FormattedText.convertPlaintextToFormattedText(name), 
-				FormattedText.convertPlaintextToFormattedText(description), 
-				FormattedText.convertPlaintextToFormattedText(data));
+		questionGroup = samLiteService.parse(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, name), 
+				TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, description), 
+				TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, data));
 	}
 	
 	public Document createDocument() {

@@ -78,6 +78,7 @@ import org.sakaiproject.tool.assessment.qti.util.Iso8601TimeInterval;
 import org.sakaiproject.tool.assessment.qti.util.XmlMapper;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -950,7 +951,7 @@ public class ExtractionHelper
 //        "CONSIDER_USERID"); //
     String userId = assessment.getAssessmentMetaDataByLabel("USERID");
     String password = assessment.getAssessmentMetaDataByLabel("PASSWORD");
-    String finalPageUrl = XmlUtil.processFormattedText(log, assessment.getAssessmentMetaDataByLabel("FINISH_URL"));
+    String finalPageUrl = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessment.getAssessmentMetaDataByLabel("FINISH_URL"));
 
     if (//"TRUE".equalsIgnoreCase(considerUserId) &&
         notNullOrEmpty(userId) && notNullOrEmpty(password))
@@ -1296,7 +1297,7 @@ public class ExtractionHelper
    */
   public void updateSection(SectionFacade section, Map sectionMap)
   {
-    section.setTitle(XmlUtil.processFormattedText(log, (String) sectionMap.get("title")));
+    section.setTitle(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, (String) sectionMap.get("title")));
     section.setDescription(XmlUtil.processFormattedText(log, makeFCKAttachment((String) sectionMap.get("description"))));
   }
 
@@ -2037,7 +2038,7 @@ public class ExtractionHelper
     for (int a = 0; a < answerList.size(); a++)
     {
       Answer answer = new Answer();
-      String answerText = processUnicode(XmlUtil.processFormattedText(log, (String) answerList.get(a)));
+      String answerText = XmlUtil.processFormattedText(log, (String) answerList.get(a));
       // these are not supposed to be empty
       if (notNullOrEmpty(answerText))
       {
@@ -2581,42 +2582,5 @@ public class ExtractionHelper
   public void setUnzipLocation(String unzipLocation)
   {
     this.unzipLocation = unzipLocation;
-  }
-
-  private String processUnicode(String value)
-  {
-	  if (value == null) return "";
-
-	  try
-	  {
-		  StringBuilder buf = new StringBuilder();
-		  final int len = value.length();
-		  for (int i = 0; i < len; i++)
-		  {
-			  char c = value.charAt(i);
-			  {
-				  if (c < 128)
-				  {
-					  if (buf != null) buf.append(c);
-				  }
-				  else
-				  {
-					  // escape higher Unicode characters using an
-					  // HTML numeric character entity reference like "&#15672;"
-					  if (buf == null) buf = new StringBuilder(value.substring(0, i));
-					  buf.append("&#");
-					  buf.append(Integer.toString((int) c));
-					  buf.append(";");
-				  }
-			  }
-		  }
-
-		  return (buf == null) ? value : buf.toString();
-	  }
-	  catch (Exception e)
-	  {
-		  log.warn("processUnicode: ", e);
-		  return "";
-	  }
   }
 }

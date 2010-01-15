@@ -336,4 +336,68 @@ public class TextFormat
 
     log.debug(String.valueOf(System.identityHashCode(tf)));
   }
+  
+  public static String convertPlaintextToFormattedTextNoHighUnicode(Log log, String value) {
+	  if (value == null) return "";
+
+	  try
+	  {
+		  StringBuilder buf = new StringBuilder();
+		  final int len = value.length();
+		  for (int i = 0; i < len; i++)
+		  {
+			  char c = value.charAt(i);
+			  switch (c)
+			  {
+			  case '<':
+			  {
+				  if (buf == null) buf = new StringBuilder(value.substring(0, i));
+				  buf.append("&lt;");
+			  }
+			  break;
+
+			  case '>':
+			  {
+				  if (buf == null) buf = new StringBuilder(value.substring(0, i));
+				  buf.append("&gt;");
+			  }
+			  break;
+
+			  case '&':
+			  {
+				  if (buf == null) buf = new StringBuilder(value.substring(0, i));
+				  buf.append("&amp;");
+			  }
+			  break;
+
+			  case '"':
+			  {
+				  if (buf == null) buf = new StringBuilder(value.substring(0, i));
+				  buf.append("&quot;");
+			  }
+			  break;
+			  case '\n':
+			  {
+				  if (buf == null) buf = new StringBuilder(value.substring(0, i));
+				  buf.append("<br />\n");
+			  }
+			  break;
+			  default:
+			  {
+				  if (buf != null) buf.append(c);
+			  }
+			  break;
+			  }
+		  } // for
+
+		  return (buf == null) ? value : buf.toString();
+	  }
+	  catch (Exception e)
+	  {
+		  log.warn("convertPlaintextToFormattedTextNoHighUnicode: ", e);
+		  return "";
+	  }
+
+  } // convertPlaintextToFormattedTextNoHighUnicode
+
 }

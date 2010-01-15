@@ -72,6 +72,7 @@ import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -501,7 +502,7 @@ public class AuthoringHelper
       Assessment assessmentXml = new Assessment(document);
       Map assessmentMap = exHelper.mapAssessment(assessmentXml, isRespondus);
       String description = XmlUtil.processFormattedText(log, (String) assessmentMap.get("description"));
-      String title = XmlUtil.processFormattedText(log, (String) assessmentMap.get("title"));
+      String title = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, (String) assessmentMap.get("title"));
       assessment = assessmentService.createAssessmentWithoutDefaultSection(
         title, exHelper.makeFCKAttachment(description), null, templateId);
 

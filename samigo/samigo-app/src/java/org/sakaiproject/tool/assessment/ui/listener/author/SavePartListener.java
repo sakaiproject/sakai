@@ -59,6 +59,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.FormattedText;
 
 /**
@@ -93,7 +94,7 @@ public class SavePartListener
     // create an assessment based on the title entered and the assessment
     // template selected
     // #1 - read from form editpart.jsp
-    String title = FormattedText.convertPlaintextToFormattedText(sectionBean.getSectionTitle()).trim();
+    String title = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, sectionBean.getSectionTitle()).trim();
     if(title == null || title.equals("")){
     	String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "empty_part_title_error");
     	context.addMessage(null, new FacesMessage(err));
@@ -187,13 +188,13 @@ public class SavePartListener
 
     if (isEditPendingAssessmentFlow) {
     	if (!("".equals(sectionBean.getKeyword())))
-    		section.addSectionMetaData(SectionMetaDataIfc.KEYWORDS, FormattedText.convertPlaintextToFormattedText(sectionBean.getKeyword()));
+    		section.addSectionMetaData(SectionMetaDataIfc.KEYWORDS, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, sectionBean.getKeyword()));
 
     	if (!("".equals(sectionBean.getObjective())))
-    		section.addSectionMetaData(SectionMetaDataIfc.OBJECTIVES, FormattedText.convertPlaintextToFormattedText(sectionBean.getObjective()));
+    		section.addSectionMetaData(SectionMetaDataIfc.OBJECTIVES, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, sectionBean.getObjective()));
 
     	if (!("".equals(sectionBean.getRubric())))
-    		section.addSectionMetaData(SectionMetaDataIfc.RUBRICS, FormattedText.convertPlaintextToFormattedText(sectionBean.getRubric()));
+    		section.addSectionMetaData(SectionMetaDataIfc.RUBRICS, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, sectionBean.getRubric()));
 
     	if (!("".equals(sectionBean.getQuestionOrdering())))
     		section.addSectionMetaData(SectionDataIfc.QUESTIONS_ORDERING, sectionBean.getQuestionOrdering());

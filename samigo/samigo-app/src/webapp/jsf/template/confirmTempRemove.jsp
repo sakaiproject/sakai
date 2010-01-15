@@ -43,7 +43,7 @@
      <div class="validation tier1">
        <h:outputText value="#{templateMessages.remove_fer_sure}" />
        <h:outputText value=" \"" />
-       <h:outputText value="#{template.templateName}"/>
+       <h:outputText value="#{template.templateName}" escape="false"/>
        <h:outputText value=" \"?" />
 
        </div>

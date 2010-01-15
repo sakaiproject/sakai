@@ -98,7 +98,7 @@ public class AuthorSettingsListener implements ActionListener
     assessmentSettings.setNoGroupSelectedError(false);
     assessmentSettings.setBlockDivs("");
     
-    // To convertFormattedTextToPlaintext for the fields that have been through convertPlaintextToFormattedText
+    // To convertFormattedTextToPlaintext for the fields that have been through convertPlaintextToFormattedTextNoHighUnicode
     assessmentSettings.setTitle(FormattedText.convertFormattedTextToPlaintext(assessment.getTitle()));
     assessmentSettings.setAuthors(FormattedText.convertFormattedTextToPlaintext(assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.AUTHORS)));
     assessmentSettings.setFinalPageUrl(FormattedText.convertFormattedTextToPlaintext(assessment.getAssessmentAccessControl().getFinalPageUrl()));

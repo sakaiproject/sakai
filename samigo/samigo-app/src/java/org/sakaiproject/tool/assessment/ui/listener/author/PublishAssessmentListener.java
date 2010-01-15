@@ -62,7 +62,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificat
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.SamigoEmailService;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -202,7 +202,7 @@ public class PublishAssessmentListener
       error=true;
     }
     
-    if (!assessmentService.assessmentTitleIsUnique(assessmentId, FormattedText.convertPlaintextToFormattedText(assessmentName), false)){
+    if (!assessmentService.assessmentTitleIsUnique(assessmentId, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentName), false)){
       error=true;
       String nameUnique_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
       FacesContext.getCurrentInstance().addMessage(null,new FacesMessage(nameUnique_err));
@@ -271,14 +271,14 @@ public class PublishAssessmentListener
 		  (!prePopulateText.trim().equals(rl.getString("pre_populate_text_publish")) && 
 		   !prePopulateText.trim().equals(rl.getString("pre_populate_text_republish")) && 
 		   !prePopulateText.trim().equals(rl.getString("pre_populate_text_regrade_republish")))) {
-		  message.append(FormattedText.convertPlaintextToFormattedText(prePopulateText));
+		  message.append(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, prePopulateText));
 		  message.append(newline);
 		  message.append(newline);
 	  }
 
 	  message.append("\"");
 	  message.append(bold_open);
-	  message.append(FormattedText.convertPlaintextToFormattedText(title));
+	  message.append(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, title));
 	  message.append(bold_close);
 	  message.append("\"");
 	  message.append(" ");

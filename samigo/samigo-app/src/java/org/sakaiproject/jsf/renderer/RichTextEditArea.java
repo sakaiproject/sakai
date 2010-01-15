@@ -37,6 +37,8 @@ import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.cover.ToolManager; 
 import org.sakaiproject.util.EditorConfiguration;
 import org.sakaiproject.util.FormattedText;
@@ -587,7 +589,7 @@ public class RichTextEditArea extends Renderer
     
     // if use hid the FCK editor, we treat it as text editor
 	if ("firsttime".equals(current_status) || "collapsed".equals(current_status)) {
-		finalValue = FormattedText.convertPlaintextToFormattedText(newValue);
+		finalValue = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, newValue);
 	}
 	else {
 		StringBuilder alertMsg = new StringBuilder();
