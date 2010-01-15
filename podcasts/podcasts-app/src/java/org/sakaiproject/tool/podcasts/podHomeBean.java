@@ -1251,7 +1251,14 @@ public class podHomeBean {
 				return "podcastAdd";
 
 			}
-
+			finally {
+				try {
+					if (fileAsStream != null)
+						fileAsStream.close();
+				} catch (IOException ioe) {
+					LOG.warn("IOException error while closing the stream:" + ioe);
+				}
+			}
 			try {
 				Date displayDate = null;
 
@@ -1292,8 +1299,20 @@ public class podHomeBean {
 				date = null;
 				description = "";
 				filename = "";
-				fileAsStream = null;
-
+				try {
+					fileAsStream = null;	
+				} catch (Exception e){
+					LOG.warn("Exception error while setting the stream to null: " + e);
+				}
+				finally {
+					try {
+						if (fileAsStream != null)
+							fileAsStream.close();
+					} catch (IOException ioe) {
+						LOG.warn("IOException error while closing the stream:" + ioe);
+					}
+				}
+				
 				// back to main page
 				whereToGo = "cancel";
 
@@ -1365,7 +1384,19 @@ public class podHomeBean {
 		date = null;
 		title = "";
 		description = "";
-		fileAsStream = null;
+		try {
+			fileAsStream = null;	
+		} catch (Exception e){
+			LOG.warn("Exception error while setting the stream to null: " + e);
+		}
+		finally {
+			try {
+				if (fileAsStream != null)
+					fileAsStream.close();
+			} catch (IOException ioe) {
+				LOG.warn("IOException error while closing the stream:" + ioe);
+			}
+		}
 		filename = "";
 		displayNoFileErrMsg = false;
 		displayNoDateErrMsg = false;
@@ -1427,6 +1458,14 @@ public class podHomeBean {
 					setErrorMessage(IO_ALERT);
 					return "podcastRevise";
 					
+				}
+				finally {
+					try {
+						if (fileAsStream != null)
+							fileAsStream.close();
+					} catch (IOException ioe) {
+						LOG.warn("IOException error while closing the stream:" + ioe);
+					}
 				}
 			}
 		}
@@ -1542,7 +1581,19 @@ public class podHomeBean {
 		date = null;
 		title = "";
 		description = "";
-		fileAsStream = null;
+		try {
+			fileAsStream = null;	
+		} catch (Exception e){
+			LOG.warn("Exception error while setting the stream to null: " + e);
+		}
+		finally {
+			try {
+				if (fileAsStream != null)
+					fileAsStream.close();
+			} catch (IOException ioe) {
+				LOG.warn("IOException error while closing the stream:" + ioe);
+			}
+		}
 		filename = "";
 		displayNoTitleErrMsg = false;
 
@@ -1557,7 +1608,19 @@ public class podHomeBean {
 		date = null;
 		title = "";
 		description = "";
-		fileAsStream = null;
+		try {
+			fileAsStream = null;	
+		} catch (Exception e){
+			LOG.warn("Exception error while setting the stream to null: " + e);
+		}
+		finally {
+			try {
+				if (fileAsStream != null)
+					fileAsStream.close();
+			} catch (IOException ioe) {
+				LOG.warn("IOException error while closing the stream:" + ioe);
+			}
+		}
 		filename = "";
 		displayInvalidDateErrMsg = false;
 		displayNoTitleErrMsg = false;
