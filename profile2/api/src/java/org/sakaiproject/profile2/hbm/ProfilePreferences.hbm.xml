@@ -17,7 +17,8 @@
 		they are also set by default if no record exists. -->
 		<property name="requestEmailEnabled" column="EMAIL_REQUEST" not-null="true" />
 		<property name="confirmEmailEnabled" column="EMAIL_CONFIRM" not-null="true" />	
-		<property name="privateMessageEmailEnabled" column="EMAIL_PRIVATE_MESSAGE" not-null="true" />
+		<property name="messageNewEmailEnabled" column="EMAIL_MESSAGE_NEW" not-null="true" />
+		<property name="messageReplyEmailEnabled" column="EMAIL_MESSAGE_REPLY" not-null="true" />
 		<property name="twitterEnabled" column="TWITTER_ENABLED" not-null="true"/>
 	    <property name="twitterUsername" column="TWITTER_USERNAME" not-null="false" />
 		<property name="twitterPasswordEncrypted" column="TWITTER_PASSWORD" not-null="false" />

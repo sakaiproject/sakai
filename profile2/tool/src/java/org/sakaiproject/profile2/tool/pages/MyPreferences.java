@@ -40,7 +40,6 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.profile2.exception.ProfilePreferencesNotDefinedException;
 import org.sakaiproject.profile2.model.ProfilePreferences;
-import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.components.EnablingCheckBox;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
@@ -117,7 +116,8 @@ public class MyPreferences extends BasePage{
 		
 		//updater
 		emailRequests.add(new AjaxFormChoiceComponentUpdatingBehavior() {
-            protected void onUpdate(AjaxRequestTarget target) {
+			private static final long serialVersionUID = 1L;
+			protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
@@ -131,21 +131,38 @@ public class MyPreferences extends BasePage{
 		
 		//updater
 		emailConfirms.add(new AjaxFormChoiceComponentUpdatingBehavior() {
-            protected void onUpdate(AjaxRequestTarget target) {
+			private static final long serialVersionUID = 1L;
+			protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		
-		//private message emails
-		final RadioGroup<Boolean> emailPrivateMessage = new RadioGroup<Boolean>("privateMessageEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "privateMessageEmailEnabled"));
-		emailPrivateMessage.add(new Radio<Boolean>("privateMessageOn", new Model<Boolean>(new Boolean(true))));
-		emailPrivateMessage.add(new Radio<Boolean>("privateMessageOff", new Model<Boolean>(new Boolean(false))));
-		emailPrivateMessage.add(new Label("privateMessageLabel", new ResourceModel("preferences.email.privatemessage")));
-		form.add(emailPrivateMessage);
+		//new message emails
+		final RadioGroup<Boolean> emailNewMessage = new RadioGroup<Boolean>("messageNewEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "messageNewEmailEnabled"));
+		emailNewMessage.add(new Radio<Boolean>("messageNewOn", new Model<Boolean>(new Boolean(true))));
+		emailNewMessage.add(new Radio<Boolean>("messageNewOff", new Model<Boolean>(new Boolean(false))));
+		emailNewMessage.add(new Label("messageNewLabel", new ResourceModel("preferences.email.message.new")));
+		form.add(emailNewMessage);
 		
 		//updater
-		emailPrivateMessage.add(new AjaxFormChoiceComponentUpdatingBehavior() {
-            protected void onUpdate(AjaxRequestTarget target) {
+		emailNewMessage.add(new AjaxFormChoiceComponentUpdatingBehavior() {
+			private static final long serialVersionUID = 1L;
+			protected void onUpdate(AjaxRequestTarget target) {
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
+		
+		//message reply emails
+		final RadioGroup<Boolean> emailReplyMessage = new RadioGroup<Boolean>("messageReplyEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "messageReplyEmailEnabled"));
+		emailReplyMessage.add(new Radio<Boolean>("messageReplyOn", new Model<Boolean>(new Boolean(true))));
+		emailReplyMessage.add(new Radio<Boolean>("messageReplyOff", new Model<Boolean>(new Boolean(false))));
+		emailReplyMessage.add(new Label("messageReplyLabel", new ResourceModel("preferences.email.message.reply")));
+		form.add(emailReplyMessage);
+		
+		//updater
+		emailReplyMessage.add(new AjaxFormChoiceComponentUpdatingBehavior() {
+			private static final long serialVersionUID = 1L;
+			protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
@@ -162,14 +179,15 @@ public class MyPreferences extends BasePage{
 		//username
 		WebMarkupContainer twitterUsernameContainer = new WebMarkupContainer("twitterUsernameContainer");
 		twitterUsernameContainer.add(new Label("twitterUsernameLabel", new ResourceModel("twitter.username")));
-		final TextField twitterUsername = new TextField("twitterUsername", new PropertyModel(preferencesModel, "twitterUsername"));        
+		final TextField<String> twitterUsername = new TextField<String>("twitterUsername", new PropertyModel<String>(preferencesModel, "twitterUsername"));        
 		twitterUsername.setOutputMarkupId(true);
 		twitterUsername.setRequired(false);
 		twitterUsernameContainer.add(twitterUsername);
 			
 		//updater
 		twitterUsername.add(new AjaxFormComponentUpdatingBehavior("onchange") {
-            protected void onUpdate(AjaxRequestTarget target) {
+			private static final long serialVersionUID = 1L;
+			protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
@@ -179,7 +197,7 @@ public class MyPreferences extends BasePage{
 		//password (already decrypted in the object)
 		WebMarkupContainer twitterPasswordContainer = new WebMarkupContainer("twitterPasswordContainer");
 		twitterPasswordContainer.add(new Label("twitterPasswordLabel", new ResourceModel("twitter.password")));
-		final PasswordTextField twitterPassword = new PasswordTextField("twitterPassword", new PropertyModel(preferencesModel, "twitterPasswordDecrypted"));        
+		final PasswordTextField twitterPassword = new PasswordTextField("twitterPassword", new PropertyModel<String>(preferencesModel, "twitterPasswordDecrypted"));        
 		twitterPassword.setOutputMarkupId(true);
 		twitterPassword.setRequired(false);
 		twitterPassword.setResetPassword(false);
@@ -187,7 +205,8 @@ public class MyPreferences extends BasePage{
 				
 		//updater
 		twitterPassword.add(new AjaxFormComponentUpdatingBehavior("onchange") {
-            protected void onUpdate(AjaxRequestTarget target) {
+			private static final long serialVersionUID = 1L;
+			protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
@@ -197,7 +216,9 @@ public class MyPreferences extends BasePage{
 		//checkbox (needs to update above components)
 		WebMarkupContainer twitterEnabledContainer = new WebMarkupContainer("twitterEnabledContainer");
 		twitterEnabledContainer.add(new Label("twitterEnabledLabel", new ResourceModel("twitter.enabled")));
-		final EnablingCheckBox twitterEnabled = new EnablingCheckBox("twitterEnabled", new PropertyModel(preferencesModel, "twitterEnabled")) {
+		final EnablingCheckBox twitterEnabled = new EnablingCheckBox("twitterEnabled", new PropertyModel<Boolean>(preferencesModel, "twitterEnabled")) {
+			private static final long serialVersionUID = 1L;
+
 			protected void onUpdate(AjaxRequestTarget target) { 
 				if(isChecked()) {
 					//enable fields
@@ -229,7 +250,8 @@ public class MyPreferences extends BasePage{
 
 		//updater
 		twitterEnabled.add(new AjaxFormComponentUpdatingBehavior("onchange") {
-            protected void onUpdate(AjaxRequestTarget target) {
+			private static final long serialVersionUID = 1L;
+			protected void onUpdate(AjaxRequestTarget target) {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
@@ -260,13 +282,14 @@ public class MyPreferences extends BasePage{
 		
 		//submit button
 		IndicatingAjaxButton submitButton = new IndicatingAjaxButton("submit", form) {
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
+			private static final long serialVersionUID = 1L;
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				
 				//get the backing model
 				ProfilePreferences profilePreferences = (ProfilePreferences) form.getModelObject();
 				
 				formFeedback.setDefaultModel(new ResourceModel("success.preferences.save.ok"));
-				formFeedback.add(new AttributeModifier("class", true, new Model("success")));
+				formFeedback.add(new AttributeModifier("class", true, new Model<String>("success")));
 				
 				//special case. if twitterEnabled is disabled, make sure the model fields are cleared and the form fields updated as well
 				if(!profilePreferences.isTwitterEnabled()) {
@@ -287,7 +310,7 @@ public class MyPreferences extends BasePage{
 					twitterPassword.validate();
 					if(!twitterUsername.isValid() || !twitterPassword.isValid()) {
 						formFeedback.setDefaultModel(new ResourceModel("error.twitter.details.required"));
-						formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));	
+						formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));	
 						target.addComponent(formFeedback);
 						return;
 					}
@@ -298,7 +321,7 @@ public class MyPreferences extends BasePage{
 
 					if(!profileLogic.validateTwitterCredentials(twitterUsernameEntered, twitterPasswordEntered)) {
 						formFeedback.setDefaultModel(new ResourceModel("error.twitter.details.invalid"));
-						formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));	
+						formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));	
 						target.addComponent(formFeedback);
 						return;
 					}
@@ -312,7 +335,7 @@ public class MyPreferences extends BasePage{
 				if(profileLogic.savePreferencesRecord(profilePreferences)) {
 					log.info("Saved ProfilePreferences for: " + profilePreferences.getUserUuid());
 					formFeedback.setDefaultModel(new ResourceModel("success.preferences.save.ok"));
-					formFeedback.add(new AttributeModifier("class", true, new Model("success")));
+					formFeedback.add(new AttributeModifier("class", true, new Model<String>("success")));
 					
 					//post update event
 					sakaiProxy.postEvent(ProfileConstants.EVENT_PREFERENCES_UPDATE, "/profile/"+userUuid, true);
@@ -321,7 +344,7 @@ public class MyPreferences extends BasePage{
 				} else {
 					log.info("Couldn't save ProfilePreferences for: " + profilePreferences.getUserUuid());
 					formFeedback.setDefaultModel(new ResourceModel("error.preferences.save.failed"));
-					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));	
+					formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));	
 				}
 				
 				

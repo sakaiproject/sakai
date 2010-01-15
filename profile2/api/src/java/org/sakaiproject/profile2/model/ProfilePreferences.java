@@ -39,7 +39,8 @@ public class ProfilePreferences implements Serializable {
 	private String twitterUsername;
 	private String twitterPasswordEncrypted; //this is persisted
 	private String twitterPasswordDecrypted; //this is used for display. When updating, it is encrypted and set into the encrypted field
-	private boolean privateMessageEmailEnabled;
+	private boolean messageNewEmailEnabled;
+	private boolean messageReplyEmailEnabled;
 
 	
 	/** 
@@ -51,11 +52,12 @@ public class ProfilePreferences implements Serializable {
 	/**
 	 * Basic constructor for creating default records
 	 */
-	public ProfilePreferences(String userUuid, boolean requestEmailEnabled, boolean confirmEmailEnabled, boolean privateMessageEmailEnabled, boolean twitterEnabled){
+	public ProfilePreferences(String userUuid, boolean requestEmailEnabled, boolean confirmEmailEnabled, boolean messageNewEmailEnabled, boolean messageReplyEmailEnabled, boolean twitterEnabled){
 		this.userUuid=userUuid;
 		this.requestEmailEnabled=requestEmailEnabled;
 		this.confirmEmailEnabled=confirmEmailEnabled;
-		this.privateMessageEmailEnabled=privateMessageEmailEnabled;
+		this.messageNewEmailEnabled=messageNewEmailEnabled;
+		this.messageReplyEmailEnabled=messageReplyEmailEnabled;
 		this.twitterEnabled=twitterEnabled;
 	}
 	
@@ -84,13 +86,19 @@ public class ProfilePreferences implements Serializable {
 	public boolean isConfirmEmailEnabled() {
 		return confirmEmailEnabled;
 	}
-	
-	public boolean isPrivateMessageEmailEnabled() {
-		return privateMessageEmailEnabled;
+	public void setMessageNewEmailEnabled(boolean messageNewEmailEnabled) {
+		this.messageNewEmailEnabled = messageNewEmailEnabled;
 	}
 
-	public void setPrivateMessageEmailEnabled(boolean privateMessageEmailEnabled) {
-		this.privateMessageEmailEnabled = privateMessageEmailEnabled;
+	public boolean isMessageNewEmailEnabled() {
+		return messageNewEmailEnabled;
+	}
+	public void setMessageReplyEmailEnabled(boolean messageReplyEmailEnabled) {
+		this.messageReplyEmailEnabled = messageReplyEmailEnabled;
+	}
+	
+	public boolean isMessageReplyEmailEnabled() {
+		return messageReplyEmailEnabled;
 	}
 
 	public boolean isTwitterEnabled() {
