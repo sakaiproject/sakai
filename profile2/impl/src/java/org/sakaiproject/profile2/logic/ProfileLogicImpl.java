@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -39,7 +40,6 @@ import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageParticipant;
 import org.sakaiproject.profile2.model.MessageThread;
-import org.sakaiproject.profile2.model.NewMessageHelper;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileFriend;
 import org.sakaiproject.profile2.model.ProfileImage;
@@ -130,7 +130,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		
 		List<User> users = new ArrayList<User>();
 		List<Person> connections = new ArrayList<Person>();
-		users = UserDirectoryService.getUsers(getConfirmedConnectionUserIdsForUser(userId));
+		users = sakaiProxy.getUsers(getConfirmedConnectionUserIdsForUser(userId));
 		
 		for(User u: users) {
 			Person p = new Person();
@@ -1431,7 +1431,8 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 				userId,
 				ProfileConstants.DEFAULT_EMAIL_REQUEST_SETTING,
 				ProfileConstants.DEFAULT_EMAIL_CONFIRM_SETTING,
-				ProfileConstants.DEFAULT_EMAIL_PRIVATE_MESSAGE_SETTING,
+				ProfileConstants.DEFAULT_EMAIL_MESSAGE_NEW_SETTING,
+				ProfileConstants.DEFAULT_EMAIL_MESSAGE_REPLY_SETTING,
 				ProfileConstants.DEFAULT_TWITTER_SETTING);
 		
 			return prefs;
@@ -1653,8 +1654,13 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
     		return true;
     	}
     	
-    	//if its a private message and private messages enabled, true
-    	if(messageType == ProfileConstants.EMAIL_NOTIFICATION_PRIVATE_MESSAGE && profilePreferences.isPrivateMessageEmailEnabled()) {
+    	//if its a new message and new messages enabled, true
+    	if(messageType == ProfileConstants.EMAIL_NOTIFICATION_MESSAGE_NEW && profilePreferences.isMessageNewEmailEnabled()) {
+    		return true;
+    	}
+    	
+    	//if its a reply to a message message and replies enabled, true
+    	if(messageType == ProfileConstants.EMAIL_NOTIFICATION_MESSAGE_REPLY && profilePreferences.isMessageReplyEmailEnabled()) {
     		return true;
     	}
     	
@@ -1857,47 +1863,34 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	public boolean sendNewMessage(NewMessageHelper messageHelper) {
+	public boolean sendNewMessage(final String uuidTo, final String uuidFrom, final String threadId, final String subject, final String messageStr, final String messageLink) {
 		
-		//validate subject
-		if(StringUtils.isBlank(messageHelper.getSubject())) {
-			messageHelper.setSubject(ProfileConstants.DEFAULT_PRIVATE_MESSAGE_SUBJECT);
-		}
-		
-		//setup thread and save
+		//setup thread
 		MessageThread thread = new MessageThread();
-		thread.setId(ProfileUtils.generateUuid());
-		thread.setSubject(messageHelper.getSubject());
-		saveNewThread(thread);
-		/*
-		try {
-			saveNewThread(thread);
-		} catch (Exception e) {
-			//already been logged
+		thread.setId(threadId);
+		
+		if(StringUtils.isBlank(subject)) {
+			thread.setSubject(ProfileConstants.DEFAULT_PRIVATE_MESSAGE_SUBJECT);
+		} else {
+			thread.setSubject(subject);
 		}
-		*/
-		//setup message and save
+		
+		//setup message
 		Message message = new Message();
 		message.setId(ProfileUtils.generateUuid());
-		message.setFrom(messageHelper.getFrom());
-		message.setMessage(messageHelper.getMessage());
+		message.setFrom(uuidFrom);
+		message.setMessage(messageStr);
 		message.setDatePosted(new Date());
 		message.setThread(thread.getId());
 		saveNewMessage(message);
-		/*
-		try {
-			saveNewMessage(message);
-		} catch (Exception e) {
-			//already been logged, rollback thread
-		}
-		*/
 		
-		//setup participants and save
+		
+		//setup participants
 		//at present we have one for the receipient and one for sender.
 		//in future we may have multiple recipients and will need to check the existing list of thread participants 
 		List<String> threadParticipants = new ArrayList<String>();
-		threadParticipants.add(messageHelper.getTo());
-		threadParticipants.add(messageHelper.getFrom());
+		threadParticipants.add(uuidTo);
+		threadParticipants.add(uuidFrom);
 
 		List<MessageParticipant> participants = new ArrayList<MessageParticipant>();
 		for(String threadParticipant : threadParticipants){
@@ -1913,17 +1906,19 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 			
 			participants.add(p);
 		}
-		saveNewMessageParticipants(participants);
-		//if error, rollback message and thread
 		
-		
-		return true;
+		if(saveAllNewMessageParts(thread, message, participants)) {
+			sendEmailNotification(threadParticipants, uuidFrom, subject, messageStr, messageLink, ProfileConstants.EMAIL_NOTIFICATION_MESSAGE_NEW);
+			
+			return true;
+		}
+		return false;
 	}
 	
 	/**
  	 * {@inheritDoc}
  	 */
-	public boolean replyToThread(final String threadId, final String reply, final String uuidFrom) {
+	public Message replyToThread(final String threadId, final String reply, final String uuidFrom) {
 		
 		try {
 			
@@ -1936,7 +1931,10 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 			message.setThread(threadId);
 			saveNewMessage(message);
 			
-			//get a unique list of participants in this thread, and save a participants record for each participants for this new message
+			//get the thread subject
+			String subject = getMessageThread(threadId).getSubject();
+			
+			//get a unique list of participants in this thread, and save a record for each participant for this new message
 			List<String> uuids = getThreadParticipants(threadId);
 			for(String uuidTo : uuids) {
 				MessageParticipant participant = getDefaultMessageParticipantRecord(message.getId(), uuidTo);
@@ -1947,12 +1945,15 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 				saveNewMessageParticipant(participant);
 			}
 			
-			return true;
+			//send email notifications
+			sendEmailNotification(uuids, uuidFrom, subject, reply, "empty", ProfileConstants.EMAIL_NOTIFICATION_MESSAGE_REPLY);
+			
+			return message;
 		} catch (Exception e) {
-			log.error("ProfileLogic.replyToThread(): Couldn't save reply: " + e.getClass() + " : " + e.getMessage());
+			log.error("ProfileLogic.replyToThread(): Couldn't send reply: " + e.getClass() + " : " + e.getMessage());
 		}
 		
-		return true;
+		return null;
 	}
 	
 	/**
@@ -1977,7 +1978,6 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	  	//get latest message for each thread
 	  	for(MessageThread thread : threads) {
 	  		thread.setMostRecentMessage(getLatestMessageInThread(thread.getId()));
-	  		System.out.println("getMessageThreads: " + thread);
 	  	}
 	  	
 	  	return threads;
@@ -2207,6 +2207,104 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	  	participants = (List<String>) getHibernateTemplate().executeFind(hcb);
 	  	return participants;
 	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean isThreadParticipant(final String threadId, final String userId) {
+		return getThreadParticipants(threadId).contains(userId);
+	}
+
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public void sendEmailNotification(final List<String> toUuids, final String fromUuid, final String subject, final String messageStr, final String messageLink, final int messageType) {
+		
+		//is email notification enabled for this message type? Reformat the recipient list
+		for(Iterator<String> it = toUuids.iterator(); it.hasNext();) {
+			if(!isEmailEnabledForThisMessageType(it.next(), messageType)) {
+				it.remove();
+			}
+		}
+		
+		//the sender is a message participant but we don't want email confirmations for them, so remove
+		toUuids.remove(fromUuid);
+		
+		//new message
+		if(messageType == ProfileConstants.EMAIL_NOTIFICATION_MESSAGE_NEW) {
+			
+			String emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_MESSAGE_NEW;
+			
+			//create the map of replacement values for this email template
+			Map<String,String> replacementValues = new HashMap<String,String>();
+			replacementValues.put("senderDisplayName", sakaiProxy.getUserDisplayName(fromUuid));
+			replacementValues.put("localSakaiName", sakaiProxy.getServiceName());
+			replacementValues.put("messageSubject", subject);
+			replacementValues.put("messageBody", messageStr);
+			replacementValues.put("messageLink", messageLink);
+			replacementValues.put("localSakaiUrl", sakaiProxy.getPortalUrl());
+			replacementValues.put("toolName", sakaiProxy.getCurrentToolTitle());
+
+			sakaiProxy.sendEmail(toUuids, emailTemplateKey, replacementValues);
+			return;
+		} 
+		
+		//reply
+		if (messageType == ProfileConstants.EMAIL_NOTIFICATION_MESSAGE_REPLY) {
+				
+			String emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_MESSAGE_REPLY;
+			
+			//create the map of replacement values for this email template
+			Map<String,String> replacementValues = new HashMap<String,String>();
+			replacementValues.put("senderDisplayName", sakaiProxy.getUserDisplayName(fromUuid));
+			replacementValues.put("localSakaiName", sakaiProxy.getServiceName());
+			replacementValues.put("messageSubject", subject);
+			replacementValues.put("messageBody", messageStr);
+			replacementValues.put("messageLink", messageLink);
+			replacementValues.put("localSakaiUrl", sakaiProxy.getPortalUrl());
+			replacementValues.put("toolName", sakaiProxy.getCurrentToolTitle());
+
+			sakaiProxy.sendEmail(toUuids, emailTemplateKey, replacementValues);
+			return;
+		}
+		
+		
+	}
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	
 	/**
@@ -2571,6 +2669,17 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		}
 		
 		return results;
+	}
+	
+	/*
+	 * helper method to save a message once all parts have been created. takes care of rollbacks incase of failure (TODO)
+	 */
+	private boolean saveAllNewMessageParts(MessageThread thread, Message message, List<MessageParticipant> participants) {
+		saveNewThread(thread);
+		saveNewMessage(message);
+		saveNewMessageParticipants(participants);
+
+		return true;
 	}
 	
 	

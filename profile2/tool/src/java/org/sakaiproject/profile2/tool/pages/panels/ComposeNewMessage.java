@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
+import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
@@ -38,12 +39,13 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
-import org.sakaiproject.profile2.model.Message;
-import org.sakaiproject.profile2.model.NewMessageHelper;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.ResourceReferences;
+import org.sakaiproject.profile2.tool.models.NewMessageModel;
+import org.sakaiproject.profile2.tool.pages.MyMessageView;
 import org.sakaiproject.profile2.util.ProfileConstants;
+import org.sakaiproject.profile2.util.ProfileUtils;
 import org.wicketstuff.objectautocomplete.AutoCompletionChoicesProvider;
 import org.wicketstuff.objectautocomplete.ObjectAutoCompleteBuilder;
 import org.wicketstuff.objectautocomplete.ObjectAutoCompleteField;
@@ -70,8 +72,8 @@ public class ComposeNewMessage extends Panel {
 		final String userId = sakaiProxy.getCurrentUserId();
 		
 		//setup model
-		NewMessageHelper messageHelper = new NewMessageHelper();
-		messageHelper.setFrom(userId);
+		NewMessageModel newMessage = new NewMessageModel();
+		newMessage.setFrom(userId);
 		
 		//feedback for form submit action
 		final Label formFeedback = new Label("formFeedback");
@@ -80,7 +82,7 @@ public class ComposeNewMessage extends Panel {
 		
 		
 		//setup form	
-		final Form<NewMessageHelper> form = new Form<NewMessageHelper>("form", new Model<NewMessageHelper>(messageHelper));
+		final Form<NewMessageModel> form = new Form<NewMessageModel>("form", new Model<NewMessageModel>(newMessage));
 		
 		//close button
 		WebMarkupContainer closeButton = new WebMarkupContainer("closeButton");
@@ -132,7 +134,7 @@ public class ComposeNewMessage extends Panel {
 		builder.searchLinkImage(ResourceReferences.CROSS_IMG_LOCAL);
 		
 		//autocompletefield
-		ObjectAutoCompleteField<Person, String> autocompleteField = builder.build("toField", new PropertyModel<String>(messageHelper, "to"));
+		ObjectAutoCompleteField<Person, String> autocompleteField = builder.build("toField", new PropertyModel<String>(newMessage, "to"));
 		final TextField<String> toField = autocompleteField.getSearchTextField();
 		toField.add(new AttributeModifier("class", true, new Model<String>("formInputField")));
 		toField.setRequired(true);
@@ -141,12 +143,12 @@ public class ComposeNewMessage extends Panel {
 		
 		//subject
 		form.add(new Label("subjectLabel", new ResourceModel("message.subject")));
-		TextField<String> subjectField = new TextField<String>("subjectField", new PropertyModel<String>(messageHelper, "subject"));
+		final TextField<String> subjectField = new TextField<String>("subjectField", new PropertyModel<String>(newMessage, "subject"));
 		form.add(subjectField);
 		
 		//body
 		form.add(new Label("messageLabel", new ResourceModel("message.message")));
-		final TextArea<String> messageField = new TextArea<String>("messageField", new PropertyModel<String>(messageHelper, "message"));
+		final TextArea<String> messageField = new TextArea<String>("messageField", new PropertyModel<String>(newMessage, "message"));
 		messageField.setRequired(true);
 		form.add(messageField);
 		
@@ -156,27 +158,21 @@ public class ComposeNewMessage extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
-				
-				//disable button
-				this.setEnabled(false);
-				target.addComponent(this);
-				
+								
 				//get the backing model
-				NewMessageHelper messageHelper = (NewMessageHelper) form.getModelObject();
+				NewMessageModel newMessage = (NewMessageModel) form.getModelObject();
 				
-				//save it, it will be abstracted into its proper parts
-				if(profileLogic.sendNewMessage(messageHelper)) {
-					
+				//generate the thread id
+				String threadId = ProfileUtils.generateUuid();
+				
+				//create a direct link to view this message thread
+		        String messageLink = sakaiProxy.getDirectUrlToUserProfile(newMessage.getTo(), urlFor(MyMessageView.class, new PageParameters("thread=" + threadId)).toString());
+				
+				//save it, it will be abstracted into its proper parts and email notifications sent
+				if(profileLogic.sendNewMessage(newMessage.getTo(), newMessage.getFrom(), threadId, newMessage.getSubject(), newMessage.getMessage(), messageLink)) {
 					
 					//post event
-					sakaiProxy.postEvent(ProfileConstants.EVENT_MESSAGE_SENT, "/profile/"+messageHelper.getFrom(), true);
-					
-					//if email is enabled for this message type, send email
-					/*
-					if(profileLogic.isEmailEnabledForThisMessageType(message.getTo(), ProfileConstants.EMAIL_NOTIFICATION_PRIVATE_MESSAGE)) {
-						//message sending goes here, use the ETS
-					}
-					*/
+					sakaiProxy.postEvent(ProfileConstants.EVENT_MESSAGE_SENT, "/profile/" + newMessage.getFrom(), true);
 					
 					//success
 					formFeedback.setDefaultModel(new ResourceModel("success.message.send.ok"));

@@ -137,7 +137,8 @@
 	<bean id="org.sakaiproject.profile2.emailtemplates.List" class="java.util.ArrayList">
 		<constructor-arg>
       		<list>
-        		<value>org/sakaiproject/profile2/emailtemplates/template-privateMessage.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-messageNew.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-messageReply.xml</value>
         		<value>org/sakaiproject/profile2/emailtemplates/template-connectionRequest.xml</value>
         		<value>org/sakaiproject/profile2/emailtemplates/template-connectionConfirm.xml</value>
       		</list>      

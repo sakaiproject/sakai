@@ -90,16 +90,17 @@ public class ProfileConstants {
 	 * PREFERENCES
 	 */
 	
-	//types of messages
+	//types of email messages
 	public static final int EMAIL_NOTIFICATION_REQUEST = 1;
 	public static final int EMAIL_NOTIFICATION_CONFIRM = 2;
-	public static final int EMAIL_NOTIFICATION_PRIVATE_MESSAGE = 3;
-
-
-	//these values are used when creating a default privacy record for a user
+	public static final int EMAIL_NOTIFICATION_MESSAGE_NEW = 3;
+	public static final int EMAIL_NOTIFICATION_MESSAGE_REPLY = 4;
+	
+	//these values are used when creating a default preferences record for a user
 	public static final boolean DEFAULT_EMAIL_REQUEST_SETTING = true;
 	public static final boolean DEFAULT_EMAIL_CONFIRM_SETTING = true;
-	public static final boolean DEFAULT_EMAIL_PRIVATE_MESSAGE_SETTING = true;
+	public static final boolean DEFAULT_EMAIL_MESSAGE_NEW_SETTING = true;
+	public static final boolean DEFAULT_EMAIL_MESSAGE_REPLY_SETTING = true;
 	public static final boolean DEFAULT_TWITTER_SETTING = false;
 
 	//if no record, this is the default for sending email messages
@@ -258,5 +259,13 @@ public class ProfileConstants {
 	public static final String ENTITY_CSS_PROFILE = "/profile2-tool/css/profile2-profile-entity.css";
 	
 	
+	/*
+	 * EMAIL TEMPLATING
+	 */
+	public static final String EMAIL_TEMPLATE_KEY_MESSAGE_NEW = "profile2.messageNew";
+	public static final String EMAIL_TEMPLATE_KEY_MESSAGE_REPLY = "profile2.messageReply";
+	public static final String EMAIL_TEMPLATE_KEY_CONNECTION_REQUEST = "profile2.connectionRequest";
+	public static final String EMAIL_TEMPLATE_KEY_CONNECTION_CONFIRM = "profile2.connectionConfirm";
+
 	
 }

@@ -22,6 +22,7 @@ import org.apache.wicket.protocol.http.WebApplication;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.service.ProfileImageService;
+import org.sakaiproject.profile2.tool.pages.MyMessageView;
 import org.sakaiproject.profile2.tool.pages.errors.InternalErrorPage;
 import org.sakaiproject.profile2.tool.pages.errors.SessionExpiredPage;
 

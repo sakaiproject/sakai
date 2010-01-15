@@ -18,6 +18,7 @@ package org.sakaiproject.profile2.logic;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.model.ResourceWrapper;
@@ -129,6 +130,11 @@ public interface SakaiProxy {
 	 */
 	public String getCurrentToolTitle();
 
+	/**
+	 * Get a list of Users for the given userIds
+	 * @return
+	 */
+	public List<User> getUsers(List<String> userIds);
 	
 	/**
 	 * Get a SakaiPerson for a user
@@ -269,8 +275,16 @@ public interface SakaiProxy {
 	 * @param subject	subject of message
 	 * @param message	complete with newlines and any links.
 	 */
-	public void sendEmail(String userId, String subject,String message);
+	public void sendEmail(String userId, String subject, String message);
 	
+	/**
+	 * Sends an email to a list of users using the email template and replacement values supplied
+	 * @param users			list of userIds to send to - already cleaned up for their email preferences
+	 * @param emailTemplateKey	the email template
+	 * @parem replacementValues	Map of values that are substituted into the placeholders in the email template.
+	 */
+	public void sendEmail(List<String> userIds, String emailTemplateKey, Map<String,String> replacementValues);
+
 	
 	/**
 	 * Get the name of this Sakai installation (ie Sakai@Lancs)

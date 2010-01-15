@@ -17,12 +17,12 @@
 package org.sakaiproject.profile2.logic;
 
 import java.util.List;
+import java.util.Map;
 
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageParticipant;
 import org.sakaiproject.profile2.model.MessageThread;
-import org.sakaiproject.profile2.model.NewMessageHelper;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileImageExternal;
 import org.sakaiproject.profile2.model.ProfilePreferences;
@@ -799,20 +799,25 @@ public interface ProfileLogic {
 	
 	/**
 	 * Send a message
-	 * <p>TODO this should be optimised for foreign key constraints
-	 * @param messageHelper	NewMessageHelper object to send.
+	 * <p>TODO this should be optimised for foreign key constraints</p>
+	 * @param uuidTo		uuid of recipient
+	 * @param uuidFrom		uuid of sender
+	 * @param threadId		threadId, a uuid that should be generated via {@link ProfileUtils.generateUuid()}
+	 * @param subject		message subject
+	 * @param messageStr	message body
+	 * @param messageLink	link to view the message
 	 * @return
 	 */
-	public boolean sendNewMessage(NewMessageHelper messageHelper);
+	public boolean sendNewMessage(final String uuidTo, final String uuidFrom, final String threadId, final String subject, final String messageStr, final String messageLink);
 	
 	/**
-	 * Sends a reply to a thread
+	 * Sends a reply to a thread, returns the Message just sent
 	 * @param threadId		id of the thread
 	 * @param reply			the message
 	 * @param userId		uuid of user who is sending the message
 	 * @return
 	 */
-	public boolean replyToThread(final String threadId, final String reply, final String userId);
+	public Message replyToThread(final String threadId, final String reply, final String userId);
 	
 	/**
 	 * Toggle a single message as read/unread
@@ -865,4 +870,23 @@ public interface ProfileLogic {
 	 * @return
 	 */
 	public List<String> getThreadParticipants(final String threadId);
+	
+	/**
+	 * Is the user a participant in this thread?
+	 * @param threadId		id of the thread
+	 * @param userId		id of the user
+	 * @return
+	 */
+	public boolean isThreadParticipant(final String threadId, final String userId);
+	
+	/**
+	 * Sends an email notification to the users. This formats the data and calls {@link SakaiProxy.sendEmail(List<String> userIds, String emailTemplateKey, Map<String,String> replacementValues)}
+	 * @param toUuids		list of users to send the message to - this will be formatted depending on their email preferences for this message type so it is safe to pass all users you need
+	 * @param fromUuid		uuid from
+	 * @param subject		subject of message
+	 * @param messageStr	body of message
+	 * @param messageLink	link to view the message
+	 * @param messageType	the message type to send from ProfileConstants. Retrieves the emailTemplateKey based on this value
+	 */
+	public void sendEmailNotification(final List<String> toUuids, final String fromUuid, final String subject, final String messageStr, final String messageLink, final int messageType);
 }

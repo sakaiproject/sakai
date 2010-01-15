@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.profile2.model;
+package org.sakaiproject.profile2.tool.models;
 
 import java.io.Serializable;
 
@@ -23,9 +23,9 @@ import java.io.Serializable;
  * This is not persisted - it is separated out into its constituent parts instead.
  * 
  * 
- * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
+ * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  */
-public class NewMessageHelper implements Serializable {
+public class NewMessageModel implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private String to;
@@ -36,7 +36,7 @@ public class NewMessageHelper implements Serializable {
 	/**
 	 * No arg constructor
 	 */
-	public NewMessageHelper() {
+	public NewMessageModel() {
 	}
 
 	public String getTo() {

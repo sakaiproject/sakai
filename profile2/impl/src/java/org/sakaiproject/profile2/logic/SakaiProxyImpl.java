@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -44,6 +45,7 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
+import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -249,6 +251,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public String getCurrentToolTitle() {
 		return toolManager.getCurrentTool().getTitle();
 	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public List<User> getUsers(List<String> userIds) {
+		return userDirectoryService.getUsers(userIds);
+	}
+
 	
 	/**
  	* {@inheritDoc}
@@ -644,7 +654,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 					
 					//do it
 					emailService.sendToUsers(receivers, getHeaders(user.getEmail(), subject), formatMessage(subject, message));
-
 					
 					log.info("Email sent to: " + userId);
 				} catch (Exception e) {
@@ -719,6 +728,35 @@ public class SakaiProxyImpl implements SakaiProxy {
 		
 		//instantiate class to format, then send the mail
 		new EmailSender(userId, subject, message);
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public void sendEmail(List<String> userIds, String emailTemplateKey, Map<String,String> replacementValues) {
+		
+		//get list of Users
+		List<User> users = new ArrayList<User>(getUsers(userIds));
+		RenderedTemplate template = null;
+		
+		//get the rendered template for each user
+		for(User user : users) {
+			log.error("SakaiProxy.sendEmail() attempting to send email to: " + user.getId());
+			try { 
+				template = emailTemplateService.getRenderedTemplateForUser(emailTemplateKey, user.getReference(), replacementValues); 
+				if (template == null) {
+					log.error("SakaiProxy.sendEmail() no template with key: " + emailTemplateKey);
+					return;	//no template
+				}
+			}
+			catch (Exception e) {
+				log.error("SakaiProxy.sendEmail() error retrieving template for user: " + user.getId() + " with key: " + emailTemplateKey + " : " + e.getClass() + " : " + e.getMessage());
+				continue; //try next user
+			}
+			
+			//send
+			sendEmail(user.getId(), template.getRenderedSubject(), template.getRenderedHtmlMessage());
+		}
 	}
 
 	
@@ -1078,6 +1116,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		
 		final String ELEM_SUBJECT = "subject";
 		final String ELEM_MESSAGE = "message";
+		final String ELEM_HTML = "html";
 		final String ELEM_LOCALE = "locale";
 		final String ELEM_VERSION = "version";
 		final String ELEM_OWNER = "owner";
@@ -1104,6 +1143,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 				    //message
 				    if(StringUtils.equals(element, ELEM_MESSAGE)) {
 				    	template.setMessage(staxXmlReader.getElementText());
+				    }
+				    //message
+				    if(StringUtils.equals(element, ELEM_HTML)) {
+				    	template.setHtmlMessage(staxXmlReader.getElementText());
 				    }
 				    //locale
 				    if(StringUtils.equals(element, ELEM_LOCALE)) {

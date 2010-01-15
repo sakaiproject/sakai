@@ -22,6 +22,9 @@ import java.io.ObjectInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
+import org.apache.wicket.PageParameters;
+import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.AttributeAppender;
@@ -38,6 +41,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageParticipant;
+import org.sakaiproject.profile2.model.MessageThread;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.MessagesDataProvider;
 import org.sakaiproject.profile2.tool.models.StringModel;
@@ -50,14 +54,50 @@ public class MyMessageView extends BasePage {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(ConfirmedFriends.class);
 	
+	private DataView<Message> messageList = null;
+	private WebMarkupContainer messageListContainer = null;
+	
+	/**
+	 * Constructor for an incoming link with a threadId as part of the PageParameters
+	 * @param parameters
+	 */
+	public MyMessageView(PageParameters parameters) {
+		log.debug("MyMessageView(" + parameters.toString() +")");
+
+		MessageThread thread = profileLogic.getMessageThread(parameters.getString("thread"));
+		
+		//check user is a thread participant
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if(!profileLogic.isThreadParticipant(thread.getId(), currentUserUuid)) {
+			//this would only ever happen if the user has access to the other user's workspace because the link is a direct link to their site
+			//so they won't even reach this part if they don't have access - so it would need to be a very special case.
+			log.error("MyMessageView: user " + currentUserUuid + " attempted to access restricted thread: " + thread.getId());
+			throw new RestartResponseException(new MyMessageThreads());
+		}
+		
+		renderMyMessagesView(sakaiProxy.getCurrentUserId(), thread.getId(), thread.getSubject());
+	}
+	
+	/**
+	 * Constructor for normal viewing
+	 * @param currentUserUuid
+	 * @param threadId
+	 * @param threadSubject
+	 */
 	public MyMessageView(final String currentUserUuid, final String threadId, final String threadSubject) {
+		log.debug("MyMessageView(" + currentUserUuid + ", " + threadId + ", " + threadSubject +")");
 		
-		log.debug("MyMessageView()");
-		
-		//get API's
-		sakaiProxy = getSakaiProxy();
-		profileLogic = getProfileLogic();
-		
+		renderMyMessagesView(currentUserUuid, threadId, threadSubject);
+	}
+	
+	/**
+	 * Does the actual rendering of the page
+	 * @param currentUserUuid
+	 * @param threadId
+	 * @param threadSubject
+	 */
+	private void renderMyMessagesView(final String currentUserUuid, final String threadId, final String threadSubject) {
+				
 		//buttons
 		Form<Void> buttonsForm = new Form<Void>("buttonsForm");
 		
@@ -83,14 +123,14 @@ public class MyMessageView extends BasePage {
 		add(messageDetailsContainer);
 		
 		//list container
-		final WebMarkupContainer messageListContainer = new WebMarkupContainer("messageListContainer");
+		messageListContainer = new WebMarkupContainer("messageListContainer");
 		messageListContainer.setOutputMarkupId(true);
 		
 		
 		//get our list of messages
 		final MessagesDataProvider provider = new MessagesDataProvider(threadId);
 		
-		DataView<Message> messageList = new DataView<Message>("messageList", provider) {
+		messageList = new DataView<Message>("messageList", provider) {
 			private static final long serialVersionUID = 1L;
 
 			protected void populateItem(final Item<Message> item) {
@@ -185,36 +225,31 @@ public class MyMessageView extends BasePage {
         		StringModel stringModel = (StringModel) form.getModelObject();
         		String reply = stringModel.getString();
 				
-        		//send it
-        		if(profileLogic.replyToThread(threadId, reply, currentUserUuid)) {
+        		//create a direct link to view this message thread
+		        //String messageLink = sakaiProxy.getDirectUrlToUserProfile(newMessage.getTo(), urlFor(MyMessageView.class, new PageParameters("thread=" + threadId)).toString());
+        		
+        		//send it, get Message back so we can add it to the list
+        		Message message = profileLogic.replyToThread(threadId, reply, currentUserUuid);
+        		if(message != null) {
         			//clear this field
         			replyField.setModelObject(null);
         			target.addComponent(replyField);
         			
+        			//create new item and add it to the list
+        			//do we need to register this with the listview?
+        			Component item = buildItem(message);
+        			target.prependJavascript(String.format(
+                                    "var item=document.createElement('%s');item.id='%s';Wicket.$('%s').appendChild(item);",
+                                    "tr", item.getMarkupId(), messageListContainer.getMarkupId()));
+        			target.addComponent(item);
+
         			//repaint the list of messages in this thread
-        			target.addComponent(messageListContainer);
+        			//target.addComponent(messageListContainer);
         			
         			//resize
     				target.appendJavascript("setMainFrameHeight(window.name);");
-
         		}
         		
-        		// ...
-				
-				
-				/*
-				if(true) {
-					//success
-					formFeedback.setDefaultModel(new ResourceModel("success.message.send.ok"));
-					formFeedback.add(new AttributeModifier("class", true, new Model<String>("success")));
-				} else {
-					//error
-					formFeedback.setDefaultModel(new ResourceModel("error.message.send.failed"));
-					formFeedback.add(new AttributeModifier("class", true, new Model<String>("alert")));
-				}
-				*/
-				
-				
             }
 			
 			protected void onError(AjaxRequestTarget target, Form form) {
@@ -237,6 +272,37 @@ public class MyMessageView extends BasePage {
 		
 	}
 	
+	//build a single item in the list so we can add it to the end
+	private Component buildItem(Message message){
+        WebMarkupContainer item = new WebMarkupContainer(messageList.newChildId());
+        item.setOutputMarkupId(true);
+        messageList.add(item);
+       
+        //photo and link
+		item.add(new AjaxLink<String>("photoLink", new Model<String>(message.getFrom())) {
+			private static final long serialVersionUID = 1L;
+			public void onClick(AjaxRequestTarget target) {
+				setResponsePage(new ViewProfile(getModelObject()));
+			}
+			
+		}.add(new ProfileImageRenderer("messagePhoto", message.getFrom(), true, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false)));
+		
+		//name link
+		item.add(new AjaxLink<String>("messageFromLink", new Model<String>(message.getFrom())) {
+			private static final long serialVersionUID = 1L;
+			public void onClick(AjaxRequestTarget target) {
+				setResponsePage(new ViewProfile(getModelObject()));
+			}
+		}.add(new Label("messageFromName", new Model<String>(sakaiProxy.getUserDisplayName(message.getFrom())))));
+	
+		//date
+		item.add(new Label("messageDate", ProfileUtils.convertDateToString(message.getDatePosted(), ProfileConstants.MESSAGE_DISPLAY_DATE_FORMAT)));
+		
+		//message body
+		item.add(new Label("messageBody", new Model<String>(message.getMessage())));
+		
+        return item;
+    }
 	
 
 

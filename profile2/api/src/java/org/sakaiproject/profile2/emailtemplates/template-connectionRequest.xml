@@ -1,16 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <emailTemplate>
 	<subject>${senderDisplayName} added you as a connection on ${localSakaiName}</subject>
-	<message>
-${senderDisplayName} added you as a connection on ${localSakaiName}
+	<message>${senderDisplayName} added you as a connection on ${localSakaiName}
 
-To confirm {senderDisplayName}'s connection request, follow the url below:
+To confirm ${senderDisplayName}'s connection request, follow the url below:
 ${connectionLink}
 
 ---
-This automatic notification message was sent by {localSakaiName} ({localSakaiUrl})
-Control what email notifications you receive from connections at My Workspace > {toolName} > Preferences
-	</message>
+This automatic notification message was sent by ${localSakaiName} (${localSakaiUrl})
+Control what email notifications you receive from connections at My Workspace > ${toolName} > Preferences
+</message>
+	<html>${senderDisplayName} confirmed your connection request on ${localSakaiName}
+&lt;p&gt;
+To confirm ${senderDisplayName}&apos;s connection request, follow the url below:
+&lt;br /&gt;${connectionLink}
+&lt;/p&gt;
+&lt;p&gt;
+---
+&lt;br /&gt;This automatic notification message was sent by ${localSakaiName} (${localSakaiUrl})
+&lt;br /&gt;Control what email notifications you receive from connections at My Workspace &gt; ${toolName} &gt; Preferences
+&lt;/p&gt;
+	</html>
 	<locale>en</locale>
 	<version>1</version>
 	<owner>admin</owner>

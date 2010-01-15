@@ -29,8 +29,8 @@ import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Message;
-import org.sakaiproject.profile2.model.NewMessageHelper;
 import org.sakaiproject.profile2.tool.Locator;
+import org.sakaiproject.profile2.tool.models.NewMessageModel;
 
 /**
  * ModalWindow panel used when we know who we want to send the message to, ie when link is clicked from a user's profile or connection list
@@ -60,7 +60,7 @@ public class QuickMessageTo extends Panel {
 		final String userId = sakaiProxy.getCurrentUserId();
 		
 		//setup model
-		NewMessageHelper messageHelper = new NewMessageHelper();
+		NewMessageModel messageHelper = new NewMessageModel();
 		messageHelper.setTo(uuidTo);
 		messageHelper.setFrom(userId);
 		
