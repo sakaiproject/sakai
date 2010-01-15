@@ -500,9 +500,10 @@ public class IMSBLTIPortlet extends GenericPortlet {
 	if ( imsTIPageTitle != null && imsTIPageTitle.trim().length() > 0 ) {
        		try {
        			ToolConfiguration toolConfig = SiteService.findTool(placement.getId());
-       			Site site = SiteService.getSite(context);
+       			Site site = SiteService.getSite(toolConfig.getSiteId());
        			SitePage page = site.getPage(toolConfig.getPageId());
 			page.setTitle(imsTIPageTitle);
+			page.setTitleCustom(true);
 			SiteService.save(site);
         	} catch (Exception e) {
                		setErrorMessage(request, rb.getString("error.page.title"));
