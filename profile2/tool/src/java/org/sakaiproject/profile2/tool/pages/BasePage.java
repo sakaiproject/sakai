@@ -227,10 +227,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		//wicketstuff TinyMCE
 		response.renderJavascriptReference(TinyMCESettings.javaScriptReference());
 		
-		//localscroll
-		response.renderJavascriptReference("javascript/jquery.scrollTo-min.js");
-		response.renderJavascriptReference("javascript/jquery.localscroll-min.js");
-
 		//Tool additions (at end so we can override if required)
 		response.renderString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");
 		response.renderCSSReference("css/profile2.css");
