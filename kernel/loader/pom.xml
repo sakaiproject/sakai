@@ -4,13 +4,13 @@
   <parent>
     <artifactId>kernel</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>1.1.0-beta08</version>
+    <version>1.1.0-beta09-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Loader Project</name>
   <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>loader</artifactId>
-  <version>1.1.0-beta08</version>
+  <version>1.1.0-beta09-SNAPSHOT</version>
   <packaging>war</packaging>
   <dependencies>
     <dependency>
