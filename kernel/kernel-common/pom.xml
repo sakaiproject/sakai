@@ -4,13 +4,13 @@
   <parent>
     <artifactId>kernel</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>1.1.0-beta08-SNAPSHOT</version>
+    <version>1.1.0-beta08</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Kernel Common </name>
   <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>sakai-kernel-common</artifactId>
-  <version>1.1.0-beta08-SNAPSHOT</version>
+  <version>1.1.0-beta08</version>
   <organization>
     <name>Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>
