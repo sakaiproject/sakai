@@ -224,8 +224,8 @@ public class SamLiteServiceImpl implements SamLiteService {
 			boolean isMC = multipleChoiceMatcher.find();
 			Matcher fillInMatcher = correctFillInPattern.matcher(line);
 			boolean isFI = fillInMatcher.find();
-			boolean isTrue = correctTruePattern.matcher(line).find();
-			boolean isFalse = correctFalsePattern.matcher(line).find();
+			boolean isTrue = correctTruePattern.matcher(line.replace("<br />", "")).find();
+			boolean isFalse = correctFalsePattern.matcher(line.replace("<br />", "")).find();
 			
 			if (isMC) {
 				String earlierCorrectAnswer = question.getCorrectAnswer();
