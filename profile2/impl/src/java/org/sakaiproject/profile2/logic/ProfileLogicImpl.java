@@ -1863,7 +1863,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	public boolean sendNewMessage(final String uuidTo, final String uuidFrom, final String threadId, final String subject, final String messageStr, final String messageLink) {
+	public boolean sendNewMessage(final String uuidTo, final String uuidFrom, final String threadId, final String subject, final String messageStr) {
 		
 		//setup thread
 		MessageThread thread = new MessageThread();
@@ -1908,7 +1908,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		}
 		
 		if(saveAllNewMessageParts(thread, message, participants)) {
-			sendEmailNotification(threadParticipants, uuidFrom, subject, messageStr, messageLink, ProfileConstants.EMAIL_NOTIFICATION_MESSAGE_NEW);
+			sendEmailNotification(threadParticipants, uuidFrom, threadId, subject, messageStr, ProfileConstants.EMAIL_NOTIFICATION_MESSAGE_NEW);
 			
 			return true;
 		}
@@ -1946,7 +1946,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 			}
 			
 			//send email notifications
-			sendEmailNotification(uuids, uuidFrom, subject, reply, "empty", ProfileConstants.EMAIL_NOTIFICATION_MESSAGE_REPLY);
+			sendEmailNotification(uuids, uuidFrom, threadId, subject, reply, ProfileConstants.EMAIL_NOTIFICATION_MESSAGE_REPLY);
 			
 			return message;
 		} catch (Exception e) {
@@ -2219,7 +2219,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	public void sendEmailNotification(final List<String> toUuids, final String fromUuid, final String subject, final String messageStr, final String messageLink, final int messageType) {
+	public void sendEmailNotification(final List<String> toUuids, final String fromUuid, final String directId, final String subject, final String messageStr, final int messageType) {
 		
 		//is email notification enabled for this message type? Reformat the recipient list
 		for(Iterator<String> it = toUuids.iterator(); it.hasNext();) {
@@ -2242,7 +2242,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 			replacementValues.put("localSakaiName", sakaiProxy.getServiceName());
 			replacementValues.put("messageSubject", subject);
 			replacementValues.put("messageBody", messageStr);
-			replacementValues.put("messageLink", messageLink);
+			replacementValues.put("messageLink", getEntityLinkToProfileMessages(directId));
 			replacementValues.put("localSakaiUrl", sakaiProxy.getPortalUrl());
 			replacementValues.put("toolName", sakaiProxy.getCurrentToolTitle());
 
@@ -2261,7 +2261,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 			replacementValues.put("localSakaiName", sakaiProxy.getServiceName());
 			replacementValues.put("messageSubject", subject);
 			replacementValues.put("messageBody", messageStr);
-			replacementValues.put("messageLink", messageLink);
+			replacementValues.put("messageLink", getEntityLinkToProfileMessages(directId));
 			replacementValues.put("localSakaiUrl", sakaiProxy.getPortalUrl());
 			replacementValues.put("toolName", sakaiProxy.getCurrentToolTitle());
 
@@ -2269,13 +2269,55 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 			return;
 		}
 		
-		
 	}
 
 	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public String getEntityLinkToProfileHome() {
+		StringBuilder url = new StringBuilder();
+		url.append(getEntityLinkBase());
+		url.append(ProfileConstants.LINK_ENTITY_PROFILE);
+		return url.toString();
+	}
 	
 	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public String getEntityLinkToProfileMessages(final String threadId) {
+		StringBuilder url = new StringBuilder();
+		url.append(getEntityLinkBase());
+		url.append(ProfileConstants.LINK_ENTITY_MESSAGES);
+		if(StringUtils.isNotBlank(threadId)) {
+			url.append("/");
+			url.append(threadId);
+		}
+		return url.toString();
+	}
 	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public String getEntityLinkToProfileConnections() {
+		StringBuilder url = new StringBuilder();
+		url.append(getEntityLinkBase());
+		url.append(ProfileConstants.LINK_ENTITY_CONNECTIONS);
+		return url.toString();
+	}
+	
+	/**
+	 * Helper method to create the link base. We then append more onto it to get the full link.
+	 * @return
+	 */
+	private String getEntityLinkBase() {
+		StringBuilder base = new StringBuilder();
+		base.append(sakaiProxy.getServerUrl());
+		base.append(ProfileConstants.ENTITY_BROKER_PREFIX);
+		base.append(ProfileConstants.LINK_ENTITY_PREFIX);
+		return base.toString();
+	}
 	
 	
 	

@@ -268,4 +268,15 @@ public class ProfileConstants {
 	public static final String EMAIL_TEMPLATE_KEY_CONNECTION_CONFIRM = "profile2.connectionConfirm";
 
 	
+	/*
+	 * DIRECT LINKS
+	 */
+	public static final String ENTITY_BROKER_PREFIX = "/direct";
+	public static final String LINK_ENTITY_PREFIX = "/my";
+	public static final String LINK_ENTITY_PROFILE = "/profile";
+	public static final String LINK_ENTITY_MESSAGES = "/messages";
+	public static final String LINK_ENTITY_CONNECTIONS = "/connections";
+
+
+	
 }

@@ -75,6 +75,10 @@
 	<bean id="org.sakaiproject.profile2.service.ProfileImageService" 
 		class="org.sakaiproject.profile2.service.ProfileImageServiceImpl"
 		parent="org.sakaiproject.profile2.service.BaseProfileService" />
+		
+	<bean id="org.sakaiproject.profile2.service.ProfileLinkService" 
+		class="org.sakaiproject.profile2.service.ProfileLinkServiceImpl"
+		parent="org.sakaiproject.profile2.service.BaseProfileService" />
     
     
     <!-- EntityBroker beans -->
@@ -93,6 +97,9 @@
 	
 	<bean id="org.sakaiproject.profile2.entity.ProfileStatusEntityProvider" class="org.sakaiproject.profile2.entity.ProfileStatusEntityProviderImpl">
 		<property name="statusService" ref="org.sakaiproject.profile2.service.ProfileStatusService" />
+	</bean>
+	<bean id="org.sakaiproject.profile2.entity.ProfileLinkEntityProvider" class="org.sakaiproject.profile2.entity.ProfileLinkEntityProviderImpl">
+		<property name="linkService" ref="org.sakaiproject.profile2.service.ProfileLinkService" />
 	</bean>
 	
 

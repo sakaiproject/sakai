@@ -294,12 +294,13 @@ public interface SakaiProxy {
 	
 	/**
 	 * Gets the portalUrl configuration parameter (ie http://sakai.lancs.ac.uk/portal)
+	 * Will not work outside of /portal context (ie won't work from an entityprovider)
 	 * @return
 	 */
 	public String getPortalUrl();
 	
 	/**
-	 * Gets the serverUrl configuration parameter
+	 * Gets the serverUrl configuration parameter (http://sakai.lancs.ac.uk:8080)
 	 * @return
 	 */
 	public String getServerUrl();
@@ -309,6 +310,25 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public String getServerName();
+	
+	/**
+	 * Get the URL to the current user's my workspace
+	 * @return
+	 */
+	public String getUserHomeUrl();
+	
+	/**
+	 * Gets the portal path, generally /portal unless override in sakai.properties
+	 * @return
+	 */
+	public String getPortalPath();
+	
+	/**
+	 * Gets the full portal url by adding getServerUrl() and getPortalPath() together
+	 * This WILL work outside the portal context so safe to use from an entityprovider
+	 * @return
+	 */
+	public String getFullPortalUrl();
 	
 	/**
 	 * Updates a user's email address
@@ -334,7 +354,8 @@ public interface SakaiProxy {
 	/**
 	 * Creates a direct URL to a user's profile page on their My Workspace
 	 * Any other parameters supplied in string are appended and encoded.
-	 * @param toolString
+	 * @param userId		uuid of the user
+	 * @param extraParams	any extra params to add to the query string
 	 * @return
 	 */
 	public String getDirectUrlToUserProfile(String userId, String extraParams);

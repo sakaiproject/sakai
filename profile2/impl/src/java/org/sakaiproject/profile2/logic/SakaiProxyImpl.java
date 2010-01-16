@@ -767,13 +767,41 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return serverConfigurationService.getServerName();
 	}
 	
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public String getPortalUrl() {
 		return serverConfigurationService.getPortalUrl();
 	}
 	
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public String getServerUrl() {
 		return serverConfigurationService.getServerUrl();
 	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public String getFullPortalUrl() {
+		return getServerUrl() + getPortalPath(); 
+	}
+
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public String getPortalPath() {
+		return serverConfigurationService.getString("portalPath", "/portal");
+	}
+
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public String getUserHomeUrl() {
+		return serverConfigurationService.getUserHomeUrl();
+	}
+
 	
 	/**
  	* {@inheritDoc}
@@ -823,13 +851,12 @@ public class SakaiProxyImpl implements SakaiProxy {
  	* {@inheritDoc}
  	*/
 	public String getDirectUrlToUserProfile(final String userId, final String extraParams) {
-		String portalUrl = getPortalUrl();
-		
+		String portalUrl = getFullPortalUrl();
 		String siteId = getUserMyWorkspace(userId);
 		
 		ToolConfiguration toolConfig = getFirstInstanceOfTool(siteId, ProfileConstants.TOOL_ID);
 		if(toolConfig == null) {
-			//if the user doesn't have the profile2 tool installed in their My Workspace,
+			//if the user doesn't have the Profile2 tool installed in their My Workspace,
 			log.warn("SakaiProxy.getDirectUrlToUserProfile() failed to find " + ProfileConstants.TOOL_ID + " installed in My Workspace for userId: " + userId);
 			
 			//just return a link to their My Workspace
@@ -851,10 +878,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 			url.append(siteId);
 			url.append("/page/");
 			url.append(pageId);
-			url.append("?toolstate-");
-			url.append(placementId);
-			url.append("=");
-			url.append(URLEncoder.encode(extraParams,"UTF-8"));
+			//only if we have params to add
+			if(StringUtils.isNotBlank(extraParams)) {
+				url.append("?toolstate-");
+				url.append(placementId);
+				url.append("=");
+				url.append(URLEncoder.encode(extraParams,"UTF-8"));
+			}
 		
 			return url.toString();
 		}
@@ -1301,4 +1331,5 @@ public class SakaiProxyImpl implements SakaiProxy {
 		this.emailTemplates = emailTemplates;
 	}
 
+	
 }

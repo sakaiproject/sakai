@@ -805,10 +805,9 @@ public interface ProfileLogic {
 	 * @param threadId		threadId, a uuid that should be generated via {@link ProfileUtils.generateUuid()}
 	 * @param subject		message subject
 	 * @param messageStr	message body
-	 * @param messageLink	link to view the message
 	 * @return
 	 */
-	public boolean sendNewMessage(final String uuidTo, final String uuidFrom, final String threadId, final String subject, final String messageStr, final String messageLink);
+	public boolean sendNewMessage(final String uuidTo, final String uuidFrom, final String threadId, final String subject, final String messageStr);
 	
 	/**
 	 * Sends a reply to a thread, returns the Message just sent
@@ -883,10 +882,38 @@ public interface ProfileLogic {
 	 * Sends an email notification to the users. This formats the data and calls {@link SakaiProxy.sendEmail(List<String> userIds, String emailTemplateKey, Map<String,String> replacementValues)}
 	 * @param toUuids		list of users to send the message to - this will be formatted depending on their email preferences for this message type so it is safe to pass all users you need
 	 * @param fromUuid		uuid from
+	 * @param directId		the id of the item, used for direct links back to this item, if required.
 	 * @param subject		subject of message
 	 * @param messageStr	body of message
-	 * @param messageLink	link to view the message
 	 * @param messageType	the message type to send from ProfileConstants. Retrieves the emailTemplateKey based on this value
 	 */
-	public void sendEmailNotification(final List<String> toUuids, final String fromUuid, final String subject, final String messageStr, final String messageLink, final int messageType);
+	public void sendEmailNotification(final List<String> toUuids, final String fromUuid, final String directId, final String subject, final String messageStr, final int messageType);
+	
+	/**
+	 * Creates a RESTful link to the Profile2 home page for any currently logged in user.
+	 * When followed, will pass through the ProfileLinkEntityProvider and be resolved into the real link
+	 * 
+	 * <p>This is used for url shortening and also to avoid generating the personalised link for each user for when sending out multiple emails.
+	 * @return
+	 */
+	public String getEntityLinkToProfileHome();
+
+	/**
+	 * Creates a RESTful link to the Profile2 message page (and optionally directly to a thread) for any currently logged in user.
+	 * When followed, will pass through the ProfileLinkEntityProvider and be resolved into the real link.
+	 * 
+	 * Note: If that person is not a thread participant, this will be handled in the tool and just put to their message list page.
+	 * 
+	 * @param threadId	optionally, add the threadId to the URL
+	 * @return
+	 */
+	public String getEntityLinkToProfileMessages(final String threadId);
+	
+	/**
+	 * Creates a RESTful link to the Profile2 conenctions page for any currently logged in user.
+	 * When followed, will pass through the ProfileLinkEntityProvider and be resolved into the real link.
+	 * 
+	 * @return
+	 */
+	public String getEntityLinkToProfileConnections();
 }
