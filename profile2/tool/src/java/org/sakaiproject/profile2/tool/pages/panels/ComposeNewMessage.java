@@ -165,11 +165,8 @@ public class ComposeNewMessage extends Panel {
 				//generate the thread id
 				String threadId = ProfileUtils.generateUuid();
 				
-				//create a direct link to view this message thread
-		        String messageLink = sakaiProxy.getDirectUrlToUserProfile(newMessage.getTo(), urlFor(MyMessageView.class, new PageParameters("thread=" + threadId)).toString());
-				
 				//save it, it will be abstracted into its proper parts and email notifications sent
-				if(profileLogic.sendNewMessage(newMessage.getTo(), newMessage.getFrom(), threadId, newMessage.getSubject(), newMessage.getMessage(), messageLink)) {
+				if(profileLogic.sendNewMessage(newMessage.getTo(), newMessage.getFrom(), threadId, newMessage.getSubject(), newMessage.getMessage())) {
 					
 					//post event
 					sakaiProxy.postEvent(ProfileConstants.EVENT_MESSAGE_SENT, "/profile/" + newMessage.getFrom(), true);
