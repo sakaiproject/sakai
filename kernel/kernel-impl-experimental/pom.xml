@@ -10,6 +10,16 @@
   <name>Kernel Experimental Implementation Project</name>
   <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>kernel-impl-experimental</artifactId>
+  <scm>
+    <connection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl-experimental
+    </connection>
+    <developerConnection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl-experimental
+    </developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl-experimental</url>
+  </scm>
+
   <packaging>pom</packaging>
   <modules>
     <module>content</module>

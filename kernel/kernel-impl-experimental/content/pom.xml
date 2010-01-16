@@ -10,6 +10,15 @@
   <name>Sakai Experimental Content Projects</name>
   <groupId>org.sakaiproject.kernel.impl-experimental</groupId>
   <artifactId>content</artifactId>
+  <scm>
+    <connection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl-experimental/content
+    </connection>
+    <developerConnection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl-experimental/content
+    </developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl-experimental/content</url>
+  </scm>
   <packaging>pom</packaging>
   <modules>
 <!--

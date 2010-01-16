@@ -10,6 +10,16 @@
   <name>Sakai Content Migration Component</name>
   <groupId>org.sakaiproject.kernel.impl.content</groupId>
   <artifactId>migration</artifactId>
+  <scm>
+    <connection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl-experimental/content/migration
+    </connection>
+    <developerConnection>
+      scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl-experimental/content/migration
+    </developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl-experimental/content/migration</url>
+  </scm>
+
   <packaging>pom</packaging>
   <modules>
     <module>sakai-content-jcr-migration-api</module>
