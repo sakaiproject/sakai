@@ -7,7 +7,7 @@
 	<artifactId>profile2</artifactId>
 		
 	<packaging>pom</packaging>
-	<version>1.4.0-preview-01</version>
+	<version>1.4-SNAPSHOT</version>
 	
 	<parent>
 		<groupId>org.sakaiproject.purepoms</groupId>
@@ -326,9 +326,9 @@
     </issueManagement>
     
     <scm>
-    	<connection>scm:svn:https://source.sakaiproject.org/svn/profile2/tags/profile2-1.4.0-preview-01</connection>
-    	<developerConnection>scm:svn:https://source.sakaiproject.org/svn/profile2/tags/profile2-1.4.0-preview-01</developerConnection>
-    	<url>https://source.sakaiproject.org/svn/profile2/tags/profile2-1.4.0-preview-01</url>
+    	<connection>scm:svn:https://source.sakaiproject.org/svn/profile2/trunk</connection>
+    	<developerConnection>scm:svn:https://source.sakaiproject.org/svn/profile2/trunk</developerConnection>
+    	<url>https://source.sakaiproject.org/svn/profile2/trunk</url>
   	</scm>
     
     <pluginRepositories>
