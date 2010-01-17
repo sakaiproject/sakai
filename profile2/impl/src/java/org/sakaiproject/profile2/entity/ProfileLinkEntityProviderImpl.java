@@ -26,9 +26,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEnt
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
-import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.profile2.service.ProfileLinkService;
-import org.sakaiproject.profile2.util.ProfileConstants;
 
 public class ProfileLinkEntityProviderImpl implements ProfileLinkEntityProvider, CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
 
