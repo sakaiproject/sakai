@@ -19,8 +19,6 @@ package org.sakaiproject.profile2.entity;
 import java.util.List;
 import java.util.Map;
 
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityURLRedirect;
@@ -29,6 +27,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.profile2.service.ProfileLinkService;
+import org.sakaiproject.profile2.util.ProfileConstants;
 
 public class ProfileLinkEntityProviderImpl implements ProfileLinkEntityProvider, CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
 
@@ -49,32 +48,24 @@ public class ProfileLinkEntityProviderImpl implements ProfileLinkEntityProvider,
 	}
 	
 	
-	@EntityURLRedirect("/{prefix}/anything")
-	public String redirectSample(Map<String,String> vars) {
-		return "/takemesomewhere";
-	}
-	
 	@EntityURLRedirect("/{prefix}/profile")
 	public String redirectToMyProfile() {
 		return linkService.getInternalDirectUrlToUserProfile();
 	}
 	
-	@EntityURLRedirect("/{prefix}/messages")
-	public String redirectToMyMessages() {
-		//return linkService.getInternalDirectUrlToUserProfile();
-		return "/takemesomewhere";
+	@EntityURLRedirect("/{prefix}/messages/{threadId}")
+	public String redirectToMyMessageThread(String[] vars) {
+		return linkService.getInternalDirectUrlToUserMessages(vars[2]);
 	}
 	
-	@EntityURLRedirect("/{prefix}/messages/messageId")
-	public String redirectToMyMessageThread() {
-		//return linkService.getInternalDirectUrlToUserProfile();
-		return "/takemesomewhere";
-	}
+	@EntityURLRedirect("/{prefix}/messages")
+	public String redirectToMyMessages() {
+		return linkService.getInternalDirectUrlToUserMessages(null);
+	}	
 	
 	@EntityURLRedirect("/{prefix}/connections")
 	public String redirectToMyConnections() {
-		//return linkService.getInternalDirectUrlToUserProfile();
-		return "/takemesomewhere";
+		return linkService.getInternalDirectUrlToUserConnections();
 	}
 	
 	
