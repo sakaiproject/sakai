@@ -277,6 +277,11 @@ public class ProfileConstants {
 	public static final String LINK_ENTITY_MESSAGES = "/messages";
 	public static final String LINK_ENTITY_CONNECTIONS = "/connections";
 
+	//full class names for Wicket pages used when we translate a shortened URL back into the full one
+	//and need to go directly to a page
+	public static final String WICKET_PAGE_CONNECTIONS = "org.sakaiproject.profile2.tool.pages.MyFriends";
+	public static final String WICKET_PAGE_MESSAGE_LIST = "org.sakaiproject.profile2.tool.pages.MyMessageThreads";
+	public static final String WICKET_PAGE_MESSAGE_VIEW = "org.sakaiproject.profile2.tool.pages.MyMessageView";
+	public static final String WICKET_PARAM_THREAD = "thread";
 
-	
 }

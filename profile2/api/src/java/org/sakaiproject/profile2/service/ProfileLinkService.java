@@ -34,10 +34,36 @@ public interface ProfileLinkService {
 	 * If you need to generate a URL to a user's profile tool, see {@link generateUrlToUserProfile}
 	 * </p>
 	 * 
-	 * @param userUuid
 	 * @return the url or null if they don't have the tool installed.
 	 */
 	public String getInternalDirectUrlToUserProfile();
+	
+	/**
+	 * Creates a full URL to the messages page (and optionally directly to a message view) of the currently logged in user's
+	 * profile page on their My Workspace.
+	 * 
+	 * <p>
+	 * This should only be used internally by Profile2 as the URL is long and ugly.
+	 * If you need to generate a URL to a user's profile tool, see {@link getUrlToUserMessages}
+	 * </p>
+	 * 
+	 * @param threadId	optional param if we want to link direct to a message thread view
+	 * @return the url or null if they don't have the tool installed.
+	 */
+	public String getInternalDirectUrlToUserMessages(final String threadId);
+	
+	/**
+	 * Creates a full URL to the connections page of the currently logged in user's
+	 * profile page on their My Workspace.
+	 * 
+	 * <p>
+	 * This should only be used internally by Profile2 as the URL is long and ugly.
+	 * If you need to generate a URL to a user's profile tool, see {@link getUrlToUserConnections}
+	 * </p>
+	 * 
+	 * @return the url or null if they don't have the tool installed.
+	 */
+	public String getInternalDirectUrlToUserConnections();
 	
 	
 	/**
