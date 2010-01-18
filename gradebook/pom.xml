@@ -10,6 +10,7 @@
   <name>Sakai Gradebook Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>gradebook-base</artifactId>
+  <version>2.8-SNAPSHOT</version>
   <packaging>pom</packaging>
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/gradebook/trunk</connection>
@@ -28,12 +29,12 @@
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-gradebook-app-ui</artifactId>
-        <version>${sakai.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-gradebook-app-business</artifactId>
-        <version>${sakai.version}</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.edu-services.gradebook</groupId>
@@ -48,7 +49,7 @@
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-gradebook-service</artifactId>
-        <version>${sakai.version}</version>
+        <version>${project.version}</version>
         <type>pom</type>
       </dependency>
 <!-- other sakai dependencies-->
