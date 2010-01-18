@@ -151,5 +151,19 @@
       		</list>      
     	</constructor-arg>
   	</bean>
+  	
+  	<!-- jobs -->
+	<bean id="org.sakaiproject.profile2.job.KudosJob"
+		class="org.sakaiproject.profile2.job.KudosJob"
+		init-method="init">
+		
+	</bean>
+	<bean id="org.sakaiproject.profile2.job.KudosJobBeanWrapper"
+		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+		singleton="true" init-method="init">
+		<property name="jobName" value="Profile2 Kudos Calculator" />
+		<property name="beanId" value="org.sakaiproject.profile2.job.KudosJob" />
+		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+	</bean>
 
 </beans>

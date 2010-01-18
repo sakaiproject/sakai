@@ -159,6 +159,7 @@
     	<legacy.profile.api.version>2.7.0-b01</legacy.profile.api.version>
     	<!--  <sakai.ets.version>0.5-SNAPSHOT</sakai.ets.version>-->
     	<sakai.ets.version>0.4.0</sakai.ets.version>
+    	<quartz.version>1.5.2</quartz.version>
 		<url.localsite>scp://source.sakaiproject.org/var/www/html/release/profile2/${project.version}</url.localsite>
 	</properties>
     
@@ -225,6 +226,12 @@
 				<groupId>com.ibm.icu</groupId>
 				<artifactId>icu4j</artifactId>
 				<version>${icu4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>quartz</groupId>
+				<artifactId>quartz</artifactId>
+				<version>${quartz.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			
 			<!-- StAX is bundled with JDK1.6, need this for 1.5 though (impl/pom.xml as well) -->
