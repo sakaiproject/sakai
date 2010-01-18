@@ -31,10 +31,14 @@
 	<div class="mainSectionContentForm">
 	<div wicket:id="galleryHeading" class="itemHeader pictures-icon">[galleryHeading]</div>
 	<form wicket:id="galleryForm" class="gallery-form">
-	<span wicket:id="navigator">[dataview�navigator]</span>
+	<span wicket:id="navigator">[dataview navigator]</span>
 	<table cellspacing="5" �cellpadding="5" �border="5">
 		<tr wicket:id="rows">
-			<td wicket:id="cols"><span wicket:id="galleryImage">[galleryImage]</span></td>
+			<td wicket:id="cols">
+				<div class="gallery-item" wicket:id="galleryItem">
+				<div wicket:id="galleryImage">[galleryImage]</div>
+				</div>
+			</td>
 		</tr>
 	</table>
 	</form>

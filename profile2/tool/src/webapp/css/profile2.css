@@ -1072,8 +1072,13 @@ div.wicket-aa ul li.selected {
 	position: relative;
 }
 
+.gallery-item {
+	position: relative;
+}
+
 .gallery-image-panel {
 	position: relative;
+	cursor: pointer;
 }
 
 .gallery-main-image-form {
@@ -1124,6 +1129,7 @@ div.wicket-aa ul li.selected {
 	overflow: hidden;
 	margin: 1px;
 	text-align: center;
+	cursor: pointer;
 }
 
 .gallery-feed-picture img {

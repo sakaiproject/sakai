@@ -22,8 +22,8 @@ import java.io.ObjectInputStream;
 import org.apache.log4j.Logger;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.GridView;
@@ -32,7 +32,6 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.tool.Locator;
-import org.sakaiproject.profile2.tool.components.GalleryImageRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.GalleryImageDataProvider;
 import org.sakaiproject.profile2.tool.pages.MyPictures;
 import org.sakaiproject.profile2.tool.pages.ViewPictures;
@@ -50,7 +49,7 @@ public class GalleryFeed extends Panel {
 	@SuppressWarnings("unchecked")
 	public GalleryFeed(String id, final String ownerUserId,
 			final String viewingUserId) {
-		
+
 		super(id);
 
 		log.debug("GalleryFeed()");
@@ -64,9 +63,8 @@ public class GalleryFeed extends Panel {
 					"heading.feed.view.pictures", null, new Object[] { Locator
 							.getSakaiProxy().getUserDisplayName(ownerUserId) }));
 		}
-
 		add(heading);
-
+		
 		IDataProvider dataProvider = new GalleryImageDataProvider(ownerUserId);
 
 		GridView dataView = new GridView("rows", dataProvider) {
@@ -75,26 +73,37 @@ public class GalleryFeed extends Panel {
 
 			@Override
 			protected void populateEmptyItem(Item item) {
+				// TODO make "fake" clickable
+				Link emptyImageLink = new Link("galleryFeedItem") {
+					public void onClick() {
+					}
 
-				WebMarkupContainer galleryFeedItem = new WebMarkupContainer("galleryFeedItem");
+				};
+
 				Label galleryFeedPicture = new Label("galleryFeedPicture", "");
-				galleryFeedItem.add(galleryFeedPicture);
-				
-				item.add(galleryFeedItem);
+				emptyImageLink.add(galleryFeedPicture);
+
+				item.add(emptyImageLink);
 			}
 
 			@Override
 			protected void populateItem(Item item) {
 
-				WebMarkupContainer galleryFeedItem = new WebMarkupContainer(
-						"galleryFeedItem");
-
 				GalleryImage image = (GalleryImage) item.getModelObject();
 
-				galleryFeedItem.add(new GalleryImageRenderer(
-						"galleryFeedPicture", true, image
-								.getThumbnailResource()));
+				// view-only (i.e. no edit functionality)
+				final GalleryImagePanel imagePanel = new GalleryImagePanel(
+						"galleryFeedPicture", ownerUserId, false, true, image, 0);
 				
+				AjaxLink galleryFeedItem = new AjaxLink("galleryFeedItem") {
+
+							@Override
+							public void onClick(AjaxRequestTarget target) {
+								imagePanel.displayGalleryImage(target);	
+							}
+				};
+				galleryFeedItem.add(imagePanel);
+
 				item.add(galleryFeedItem);
 
 			}
@@ -105,7 +114,7 @@ public class GalleryFeed extends Panel {
 		dataView.setRows(2);
 
 		add(dataView);
-	
+
 		AjaxLink viewPicturesLink = new AjaxLink("viewPicturesLink") {
 
 			private static final long serialVersionUID = 1L;
@@ -116,7 +125,7 @@ public class GalleryFeed extends Panel {
 				if (Locator.getSakaiProxy().isSuperUserAndProxiedToUser(
 						ownerUserId)) {
 					setResponsePage(new MyPictures(ownerUserId));
-				} else if (viewingUserId.equals(ownerUserId)) {					
+				} else if (viewingUserId.equals(ownerUserId)) {
 					setResponsePage(new MyPictures());
 				} else {
 					setResponsePage(new ViewPictures(ownerUserId));
@@ -127,24 +136,25 @@ public class GalleryFeed extends Panel {
 
 		Label numPicturesLabel = new Label("numPicturesLabel");
 		add(numPicturesLabel);
-		
+
 		Label viewPicturesLabel;
-		
+
 		if (dataView.getItemCount() == 0) {
-			numPicturesLabel.setDefaultModel(new ResourceModel("text.gallery.feed.num.none"));
+			numPicturesLabel.setDefaultModel(new ResourceModel(
+					"text.gallery.feed.num.none"));
 			viewPicturesLabel = new Label("viewPicturesLabel",
 					new ResourceModel("link.gallery.feed.addnew"));
-			
+
 			if (!viewingUserId.equals(ownerUserId)) {
 				viewPicturesLink.setVisible(false);
 			}
-			
+
 		} else {
 			numPicturesLabel.setVisible(false);
 			viewPicturesLabel = new Label("viewPicturesLabel",
 					new ResourceModel("link.gallery.feed.view"));
 		}
-		
+
 		viewPicturesLink.add(viewPicturesLabel);
 
 		add(viewPicturesLink);

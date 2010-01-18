@@ -17,9 +17,12 @@
 package org.sakaiproject.profile2.tool.pages;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.repeater.Item;
@@ -78,17 +81,37 @@ public class ViewPictures extends BasePage {
 
 			@Override
 			protected void populateItem(Item item) {
-				
+
 				GalleryImage image = (GalleryImage) item.getModelObject();
-				
-				item.add(new GalleryImagePanel("galleryImage", userUuid, false,
-						true, image, gridView.getCurrentPage()));
+
+				final GalleryImagePanel imagePanel = new GalleryImagePanel(
+						"galleryImage", userUuid, false, true, image, gridView
+								.getCurrentPage());
+
+				AjaxLink galleryImageLink = new AjaxLink("galleryItem") {
+
+					public void onClick(AjaxRequestTarget target) {
+						imagePanel.displayGalleryImage(target);
+					}
+
+				};
+				galleryImageLink.add(imagePanel);
+
+				item.add(galleryImageLink);
 			}
 
 			@Override
 			protected void populateEmptyItem(Item item) {
-				
-				item.add(new Label("galleryImage"));
+
+				Link galleryImageLink = new Link("galleryItem") {
+					@Override
+					public void onClick() {
+
+					}
+				};
+
+				galleryImageLink.add(new Label("galleryImage"));
+				item.add(galleryImageLink);
 			}
 		};
 

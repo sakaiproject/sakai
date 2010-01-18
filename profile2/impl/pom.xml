@@ -52,20 +52,14 @@
       		<groupId>commons-lang</groupId>
       		<artifactId>commons-lang</artifactId>
       		<scope>provided</scope>
-   		</dependency>
-   		<!--  
+   		</dependency> 
 		<dependency>
-			<groupId>javax.xml.stream</groupId>
+			<groupId>stax</groupId>
 			<artifactId>stax-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>stax</groupId>
 			<artifactId>stax</artifactId>
-		</dependency>
-		-->
-		<dependency>
-			<groupId>org.codehaus.woodstox</groupId>
-			<artifactId>stax2-api</artifactId>
 		</dependency>
    		<!-- 
 		<dependency>
