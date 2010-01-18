@@ -42,7 +42,7 @@ public class KudosJob implements StatefulJob {
 		}
 	};
 	
-	@Override
+	//@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		
 		//abort if already running on THIS server node (cannot check other nodes)
