@@ -1,6 +1,7 @@
 package org.sakaiproject.profile2.job;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,10 +35,73 @@ public class KudosJob implements StatefulJob {
 	 */
 	private final HashMap<String,BigDecimal> RULES = new HashMap<String,BigDecimal>() {
 		{
+			//points for profile completeness
 			put("email", new BigDecimal(1));
 			put("nickname", new BigDecimal(1));
 			put("birthday", new BigDecimal(0.5));
-			put("birthYear", new BigDecimal(0.5));
+			
+			put("homePage", new BigDecimal(1));
+			put("workPhone", new BigDecimal(1));
+			put("homePhone", new BigDecimal(1));
+			put("mobilePhone", new BigDecimal(1));
+			
+			put("position", new BigDecimal(0.5));
+			put("department", new BigDecimal(0.5));
+			put("school", new BigDecimal(0.5));
+			put("room", new BigDecimal(0.5));
+			put("degree", new BigDecimal(0.5));
+			put("subjects", new BigDecimal(0.5));
+
+			put("favouriteBooks", new BigDecimal(0.25));
+			put("favouriteTvShows", new BigDecimal(0.25));
+			put("favouriteMovies", new BigDecimal(0.25));
+			put("favouriteQuotes", new BigDecimal(0.25));
+			put("other", new BigDecimal(2));
+
+			//points for usage - more points for the heavier usage
+			put("hasImage", new BigDecimal(5));
+			put("hasOneConnection", new BigDecimal(2));
+			put("hasMoreThanTenConnections", new BigDecimal(3));
+
+			put("hasOneSentMessage", new BigDecimal(2));
+			put("hasMoreThanTenSentMessages", new BigDecimal(3));
+			
+			put("hasOneStatusUpdate", new BigDecimal(0.25));
+			put("hasMoreThanTenStatusUpdates", new BigDecimal(1));
+			put("hasMoreThanOneHundredStatusUpdates", new BigDecimal(2));
+
+			put("twitterEnabled", new BigDecimal(2));
+
+			put("hasOnePicture", new BigDecimal(0.25));
+			put("hasMoreThanTenPictures", new BigDecimal(1));
+
+			//points for openness in privacy
+			put("connectionsProfileImage", new BigDecimal(0.05));
+			put("allProfileImage", new BigDecimal(0.10));
+			put("connectionsBasicInfo", new BigDecimal(0.05));
+			put("allBasicInfo", new BigDecimal(0.10));
+			put("connectionsContactInfo", new BigDecimal(0.05));
+			put("allContactInfo", new BigDecimal(0.10));
+			put("connectionsAcademicInfo", new BigDecimal(0.05));
+			put("allAcademicInfo", new BigDecimal(0.10));
+			put("connectionsPersonalInfo", new BigDecimal(0.05));
+			put("allPersonalInfo", new BigDecimal(0.10));
+			put("connectionsSearch", new BigDecimal(0.05));
+			put("allSearch", new BigDecimal(0.10));
+			put("connectionsViewConnections", new BigDecimal(0.05));
+			put("allViewConnections", new BigDecimal(0.10));
+			put("connectionsViewStatus", new BigDecimal(0.05));
+			put("allViewStatus", new BigDecimal(0.10));
+			put("connectionsViewPictures", new BigDecimal(0.05));
+			put("allViewPictures", new BigDecimal(0.10));
+
+			put("showBirthYear", new BigDecimal(0.1));
+
+			//points for others viewing their profile
+			//put("hasMoreThanOneVisitor", new BigDecimal(0.05));
+			//put("hasMoreThanTenUniqueVisitors", new BigDecimal(2));
+			//put("hasMoreThanOneHundredUniqueVisitors", new BigDecimal(3));
+
 
 		}
 	};
@@ -109,12 +173,12 @@ public class KudosJob implements StatefulJob {
 	}
 	
 	/**
-	 * Gets the total as a percentage
+	 * Gets the total as a percentage, two decimal precision
 	 * @param map
 	 * @return
 	 */
 	public BigDecimal getTotalAsPercentage(BigDecimal total) {
-		return total.divide(new BigDecimal(RULES.size())).multiply(new BigDecimal(100));
+		return total.divide(new BigDecimal(RULES.size())).setScale(2, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
 	}
 	
 	
