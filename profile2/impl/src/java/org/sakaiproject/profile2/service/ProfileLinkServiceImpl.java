@@ -23,6 +23,28 @@ public class ProfileLinkServiceImpl implements ProfileLinkService {
 		return sakaiProxy.getDirectUrlToUserProfile(currentUserUuid, null);
 	}
 
+	
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public String getInternalDirectUrlToUserProfile(final String userUuid) {
+		String currentUserUuid = sakaiProxy.getCurrentUserId();
+		if(currentUserUuid == null) {
+			throw new SecurityException("Must be logged in.");
+		}
+		
+		//link direct to ViewProfile page and add in the user param
+		String extraParams = null;
+		Map<String,String> vars = new HashMap<String,String>();
+		vars.put(ProfileConstants.WICKET_PARAM_USERID, userUuid);
+		extraParams = getFormattedStateParamForWicketTool(ProfileConstants.WICKET_PAGE_PROFILE_VIEW, vars);
+		
+		return sakaiProxy.getDirectUrlToUserProfile(currentUserUuid, extraParams);
+	}
+
+	
+	
 	/**
  	* {@inheritDoc}
  	*/
@@ -67,8 +89,8 @@ public class ProfileLinkServiceImpl implements ProfileLinkService {
 	/**
  	* {@inheritDoc}
  	*/
-	public String getUrlToUserProfile() {
-		return profileLogic.getEntityLinkToProfileHome();
+	public String getUrlToUserProfile(final String userUuid) {
+		return profileLogic.getEntityLinkToProfileHome(userUuid);
 	}
 	
 	/**

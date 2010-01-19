@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -758,6 +759,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 			sendEmail(user.getId(), template.getRenderedSubject(), template.getRenderedHtmlMessage());
 		}
 	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public void sendEmail(String userId, String emailTemplateKey, Map<String,String> replacementValues) {
+		sendEmail(Collections.singletonList(userId), emailTemplateKey, replacementValues);
+	}
+
 
 	
 	/**

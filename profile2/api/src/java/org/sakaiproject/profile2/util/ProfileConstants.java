@@ -283,6 +283,9 @@ public class ProfileConstants {
 	public static final String WICKET_PAGE_CONNECTIONS = "org.sakaiproject.profile2.tool.pages.MyFriends";
 	public static final String WICKET_PAGE_MESSAGE_LIST = "org.sakaiproject.profile2.tool.pages.MyMessageThreads";
 	public static final String WICKET_PAGE_MESSAGE_VIEW = "org.sakaiproject.profile2.tool.pages.MyMessageView";
+	public static final String WICKET_PAGE_PROFILE_VIEW = "org.sakaiproject.profile2.tool.pages.ViewProfile";
 	public static final String WICKET_PARAM_THREAD = "thread";
+	public static final String WICKET_PARAM_USERID = "id";
+
 
 }

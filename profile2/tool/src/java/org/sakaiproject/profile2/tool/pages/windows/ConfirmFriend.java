@@ -110,55 +110,6 @@ public class ConfirmFriend extends Panel {
 					//post event
 					sakaiProxy.postEvent(ProfileConstants.EVENT_FRIEND_CONFIRM, "/profile/"+userY, true);
 					
-					//if email is enabled for this message type, send email
-					if(profileLogic.isEmailEnabledForThisMessageType(userY, ProfileConstants.EMAIL_NOTIFICATION_CONFIRM)) {
-						
-										       
-						final String currentUserName = sakaiProxy.getUserDisplayName(userX);
-				        final String serviceName = sakaiProxy.getServiceName();
-				        final String portalUrl = sakaiProxy.getPortalUrl();
-				        
-						//subject
-						final String subject = new StringResourceModel("email.friend.confirm.subject", null, new Object[]{ currentUserName, serviceName } ).getObject().toString();
-						
-						//email newline
-						final String newline = ProfileConstants.EMAIL_NEWLINE;
-						
-						//message
-						StringBuilder message = new StringBuilder();
-						message.append(new StringResourceModel("email.friend.confirm.message", null, new Object[]{ currentUserName, serviceName }).getObject().toString());
-						
-						//url needs to go to userY's (ie other user) myworkspace and then Wicket takes them to their ViewProfile page for userX
-				        String url = sakaiProxy.getDirectUrlToUserProfile(userY, urlFor(ViewProfile.class, new PageParameters("id=" + userX)).toString());
-				        
-				        //tinyurl
-				       // final String tinyUrl = profileLogic.generateTinyUrl(url);
-				        
-				        //toolName
-				        final String toolName = sakaiProxy.getCurrentToolTitle();
-				        
-				        message.append(newline);
-						message.append(newline);
-				        message.append(new StringResourceModel("email.friend.confirm.link", null, new Object[]{ currentUserName} ).getObject().toString());
-				        message.append(newline);
-						message.append(new StringResourceModel("email.friend.confirm.link.href", null, new Object[]{ url }).getObject().toString());
-						
-						//standard footer
-						message.append(newline);
-						message.append(newline);
-						message.append(new StringResourceModel("email.footer.1", this, null).getString());
-						message.append(newline);
-						message.append(new StringResourceModel("email.footer.2", null, new Object[]{ serviceName, portalUrl } ).getObject().toString());
-						message.append(newline);
-						message.append(new StringResourceModel("email.footer.3", null, new Object[]{ toolName }).getObject().toString());
-						
-						//send email
-						sakaiProxy.sendEmail(userY, subject, message.toString());
-					
-					}
-						
-					
-					
 					window.close(target);
 				} else {
 					text.setDefaultModel(new StringResourceModel("error.friend.confirm.failed", null, new Object[]{ friendName } ));

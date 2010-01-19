@@ -284,6 +284,14 @@ public interface SakaiProxy {
 	 * @parem replacementValues	Map of values that are substituted into the placeholders in the email template.
 	 */
 	public void sendEmail(List<String> userIds, String emailTemplateKey, Map<String,String> replacementValues);
+	
+	/**
+	 * Sends an email to a single user using the email template and replacement values supplied
+	 * @param user			userId to send to - already cleaned up for their email preferences
+	 * @param emailTemplateKey	the email template
+	 * @parem replacementValues	Map of values that are substituted into the placeholders in the email template.
+	 */
+	public void sendEmail(String userId, String emailTemplateKey, Map<String,String> replacementValues);
 
 	
 	/**

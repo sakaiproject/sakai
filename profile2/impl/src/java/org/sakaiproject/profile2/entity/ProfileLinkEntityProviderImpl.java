@@ -47,6 +47,11 @@ public class ProfileLinkEntityProviderImpl implements ProfileLinkEntityProvider,
 	}
 	
 	
+	@EntityURLRedirect("/{prefix}/profile/{userUuid}")
+	public String redirectToUserProfile(Map<String,String> vars) {
+		return linkService.getInternalDirectUrlToUserProfile(vars.get("userUuid"));
+	}
+	
 	@EntityURLRedirect("/{prefix}/profile")
 	public String redirectToMyProfile() {
 		return linkService.getInternalDirectUrlToUserProfile();

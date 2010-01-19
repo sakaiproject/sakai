@@ -31,7 +31,7 @@ public interface ProfileLinkService {
 	 * 
 	 * <p>
 	 * This should only be used internally by Profile2 as the URL is long and ugly.
-	 * If you need to generate a URL to a user's profile tool, see {@link generateUrlToUserProfile}
+	 * If you need to generate a URL to a user's profile, see {@link generateUrlToUserProfile}
 	 * </p>
 	 * 
 	 * @return the url or null if they don't have the tool installed.
@@ -39,12 +39,25 @@ public interface ProfileLinkService {
 	public String getInternalDirectUrlToUserProfile();
 	
 	/**
+	 * Creates a full URL to the given user's profile page viewed from within the currently logged in
+	 * user's ViewProfile page in Profile2 on their My Workspace
+	 * 
+	 * <p>
+	 * This should only be used internally by Profile2 as the URL is long and ugly.
+	 * If you need to generate a URL to a user's profile, see {@link generateUrlToUserProfile}
+	 * </p>
+	 * 
+	 * @return the url or null if they don't have the tool installed.
+	 */
+	public String getInternalDirectUrlToUserProfile(final String userUuid);
+	
+	/**
 	 * Creates a full URL to the messages page (and optionally directly to a message view) of the currently logged in user's
 	 * profile page on their My Workspace.
 	 * 
 	 * <p>
 	 * This should only be used internally by Profile2 as the URL is long and ugly.
-	 * If you need to generate a URL to a user's profile tool, see {@link getUrlToUserMessages}
+	 * If you need to generate a URL to a user's profile, see {@link getUrlToUserMessages}
 	 * </p>
 	 * 
 	 * @param threadId	optional param if we want to link direct to a message thread view
@@ -58,7 +71,7 @@ public interface ProfileLinkService {
 	 * 
 	 * <p>
 	 * This should only be used internally by Profile2 as the URL is long and ugly.
-	 * If you need to generate a URL to a user's profile tool, see {@link getUrlToUserConnections}
+	 * If you need to generate a URL to a user's profile, see {@link getUrlToUserConnections}
 	 * </p>
 	 * 
 	 * @return the url or null if they don't have the tool installed.
@@ -67,14 +80,15 @@ public interface ProfileLinkService {
 	
 	
 	/**
-	 * Creates a RESTful link to the Profile2 home page for any currently logged in user.
+	 * Creates a RESTful link to the Profile2 home page for either the currently logged in user (if null param) or the given user.
 	 * When followed, will pass through the ProfileLinkEntityProvider and be resolved into the real link
 	 * 
-	 * <p>The URL is of the form: http://server.com/direct/my/profile</p>
+	 * <p>The URL is of the form: http://server.com/direct/my/profile/{userUuid}</p>
 	 * 
+	 * @param userUuid	optional if you want to link to the profile view of another person
 	 * @return
 	 */
-	public String getUrlToUserProfile();
+	public String getUrlToUserProfile(final String userUuid);
 	
 	/**
 	 * Creates a RESTful link to the Profile2 message page for any currently logged in user.

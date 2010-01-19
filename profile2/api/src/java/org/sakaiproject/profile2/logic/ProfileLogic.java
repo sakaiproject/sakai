@@ -879,7 +879,7 @@ public interface ProfileLogic {
 	public boolean isThreadParticipant(final String threadId, final String userId);
 	
 	/**
-	 * Sends an email notification to the users. This formats the data and calls {@link SakaiProxy.sendEmail(List<String> userIds, String emailTemplateKey, Map<String,String> replacementValues)}
+	 * Sends an email notification to the users. Used for messages. This formats the data and calls {@link SakaiProxy.sendEmail(List<String> userIds, String emailTemplateKey, Map<String,String> replacementValues)}
 	 * @param toUuids		list of users to send the message to - this will be formatted depending on their email preferences for this message type so it is safe to pass all users you need
 	 * @param fromUuid		uuid from
 	 * @param directId		the id of the item, used for direct links back to this item, if required.
@@ -887,16 +887,27 @@ public interface ProfileLogic {
 	 * @param messageStr	body of message
 	 * @param messageType	the message type to send from ProfileConstants. Retrieves the emailTemplateKey based on this value
 	 */
-	public void sendEmailNotification(final List<String> toUuids, final String fromUuid, final String directId, final String subject, final String messageStr, final int messageType);
+	public void sendMessageEmailNotification(final List<String> toUuids, final String fromUuid, final String directId, final String subject, final String messageStr, final int messageType);
 	
 	/**
-	 * Creates a RESTful link to the Profile2 home page for any currently logged in user.
+	 * Sends an email notification to the users. Used for connections. This formats the data and calls {@link SakaiProxy.sendEmail(String userId, String emailTemplateKey, Map<String,String> replacementValues)}
+	 * @param toUuid		user to send the message to - this will be formatted depending on their email preferences for this message type so it is safe to pass any users you need
+	 * @param fromUuid		uuid from
+	 * @param messageType	the message type to send from ProfileConstants. Retrieves the emailTemplateKey based on this value
+	 */
+	public void sendConnectionEmailNotification(String toUuid, final String fromUuid, final int messageType);
+	
+	
+	/**
+	 * Creates a RESTful link to the Profile2 home page for either the currently logged in user (if null param) or the given user.
 	 * When followed, will pass through the ProfileLinkEntityProvider and be resolved into the real link
 	 * 
 	 * <p>This is used for url shortening and also to avoid generating the personalised link for each user for when sending out multiple emails.
+
+	 * @param userUuid	optional if you want to link to the profile view of another person
 	 * @return
 	 */
-	public String getEntityLinkToProfileHome();
+	public String getEntityLinkToProfileHome(final String userUuid);
 
 	/**
 	 * Creates a RESTful link to the Profile2 message page (and optionally directly to a thread) for any currently logged in user.

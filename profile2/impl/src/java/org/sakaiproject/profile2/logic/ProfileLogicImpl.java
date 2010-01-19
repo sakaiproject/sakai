@@ -24,6 +24,7 @@ import java.net.URLConnection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -230,12 +231,16 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 			ProfileFriend profileFriend = new ProfileFriend(userId, friendId, ProfileConstants.RELATIONSHIP_FRIEND);
 			getHibernateTemplate().save(profileFriend);
 			log.info("User: " + userId + " requested friend: " + friendId);  
+			
+			//send email notification
+			sendConnectionEmailNotification(friendId, userId, ProfileConstants.EMAIL_NOTIFICATION_REQUEST);
 			return true;
+			
 		} catch (Exception e) {
 			log.error("ProfileLogic.requestFriend() failed. " + e.getClass() + ": " + e.getMessage());  
 			return false;
 		}
-	
+		
 	}
 	
 	/**
@@ -278,7 +283,11 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		//save
 		try {
 			getHibernateTemplate().update(profileFriend);
-			log.info("User: " + fromUser + " confirmed friend request from: " + toUser);  
+			log.info("User: " + fromUser + " confirmed friend request from: " + toUser); 
+			
+			//send email notification
+			sendConnectionEmailNotification(fromUser, toUser, ProfileConstants.EMAIL_NOTIFICATION_CONFIRM);
+			
 			return true;
 		} catch (Exception e) {
 			log.error("ProfileLogic.confirmFriendRequest() failed. " + e.getClass() + ": " + e.getMessage());  
@@ -1908,7 +1917,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		}
 		
 		if(saveAllNewMessageParts(thread, message, participants)) {
-			sendEmailNotification(threadParticipants, uuidFrom, threadId, subject, messageStr, ProfileConstants.EMAIL_NOTIFICATION_MESSAGE_NEW);
+			sendMessageEmailNotification(threadParticipants, uuidFrom, threadId, subject, messageStr, ProfileConstants.EMAIL_NOTIFICATION_MESSAGE_NEW);
 			
 			return true;
 		}
@@ -1946,7 +1955,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 			}
 			
 			//send email notifications
-			sendEmailNotification(uuids, uuidFrom, threadId, subject, reply, ProfileConstants.EMAIL_NOTIFICATION_MESSAGE_REPLY);
+			sendMessageEmailNotification(uuids, uuidFrom, threadId, subject, reply, ProfileConstants.EMAIL_NOTIFICATION_MESSAGE_REPLY);
 			
 			return message;
 		} catch (Exception e) {
@@ -2219,7 +2228,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	public void sendEmailNotification(final List<String> toUuids, final String fromUuid, final String directId, final String subject, final String messageStr, final int messageType) {
+	public void sendMessageEmailNotification(final List<String> toUuids, final String fromUuid, final String directId, final String subject, final String messageStr, final int messageType) {
 		
 		//is email notification enabled for this message type? Reformat the recipient list
 		for(Iterator<String> it = toUuids.iterator(); it.hasNext();) {
@@ -2268,17 +2277,66 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 			sakaiProxy.sendEmail(toUuids, emailTemplateKey, replacementValues);
 			return;
 		}
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public void sendConnectionEmailNotification(String toUuid, final String fromUuid, final int messageType) {
+		//check if email preference enabled
+		if(!isEmailEnabledForThisMessageType(toUuid, messageType)) {
+			return;
+		}
+		
+		//request
+		if(messageType == ProfileConstants.EMAIL_NOTIFICATION_REQUEST) {
+			
+			String emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_CONNECTION_REQUEST;
+			
+			//create the map of replacement values for this email template
+			Map<String,String> replacementValues = new HashMap<String,String>();
+			replacementValues.put("senderDisplayName", sakaiProxy.getUserDisplayName(fromUuid));
+			replacementValues.put("localSakaiName", sakaiProxy.getServiceName());
+			replacementValues.put("connectionLink", getEntityLinkToProfileConnections());
+			replacementValues.put("localSakaiUrl", sakaiProxy.getPortalUrl());
+			replacementValues.put("toolName", sakaiProxy.getCurrentToolTitle());
+
+			sakaiProxy.sendEmail(toUuid, emailTemplateKey, replacementValues);
+			return;
+		}
+		
+		//confirm
+		if(messageType == ProfileConstants.EMAIL_NOTIFICATION_CONFIRM) {
+			
+			String emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_CONNECTION_CONFIRM;
+			
+			//create the map of replacement values for this email template
+			Map<String,String> replacementValues = new HashMap<String,String>();
+			replacementValues.put("senderDisplayName", sakaiProxy.getUserDisplayName(fromUuid));
+			replacementValues.put("localSakaiName", sakaiProxy.getServiceName());
+			replacementValues.put("connectionLink", getEntityLinkToProfileHome(fromUuid));
+			replacementValues.put("localSakaiUrl", sakaiProxy.getPortalUrl());
+			replacementValues.put("toolName", sakaiProxy.getCurrentToolTitle());
+
+			sakaiProxy.sendEmail(toUuid, emailTemplateKey, replacementValues);
+			return;
+		}
 		
 	}
+
 
 	
 	/**
  	 * {@inheritDoc}
  	 */
-	public String getEntityLinkToProfileHome() {
+	public String getEntityLinkToProfileHome(final String userUuid) {
 		StringBuilder url = new StringBuilder();
 		url.append(getEntityLinkBase());
 		url.append(ProfileConstants.LINK_ENTITY_PROFILE);
+		if(StringUtils.isNotBlank(userUuid)) {
+			url.append("/");
+			url.append(userUuid);
+		}
 		return url.toString();
 	}
 	
