@@ -86,6 +86,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	/** the logger for this class */
 	 private static final Log logger = LogFactory.getLog(ResourcesHelperAction.class);
 	 
+	 private static final ResourceConditionsHelper conditionsHelper = new ResourceConditionsHelper();
+	 
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("types");
 	
@@ -384,6 +386,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		ResourcesAction.copyrightChoicesIntoContext(state, context);
 		ResourcesAction.publicDisplayChoicesIntoContext(state, context);
+		ResourceConditionsHelper.buildConditionContext(context, state);
 		
 		int requestStateId = ResourcesAction.preserveRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST});
 		context.put("requestStateId", requestStateId);
@@ -442,6 +445,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		}	
 
 		ResourcesAction.publicDisplayChoicesIntoContext(state, context);
+		ResourceConditionsHelper.buildConditionContext(context, state);
 
 		int requestStateId = ResourcesAction.preserveRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST});
 		context.put("requestStateId", requestStateId);
@@ -649,6 +653,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		}
 
 		context.put("defaultCopyrightStatus", defaultCopyrightStatus);
+		
+		ResourceConditionsHelper.buildConditionContext(context, state);
 	
 		int requestStateId = ResourcesAction.preserveRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST});
 		context.put("requestStateId", requestStateId);
@@ -911,8 +917,18 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 			// capture properties
 			newFolder.captureProperties(params, ListItem.DOT + i);
+			if (newFolder.numberFieldIsInvalid) {
+				addAlert(state, rb.getString("invalid.condition.argument"));
+				return;
+			}
+			if (newFolder.numberFieldIsOutOfRange) {
+				addAlert(state, rb.getString("invalid.condition.argument.outside.range") + " " + newFolder.getConditionAssignmentPoints() + ".");
+				return;
+			}
 
 			fp.setRevisedListItem(newFolder);
+			
+			ResourceConditionsHelper.saveCondition(newFolder, params, state, i);
 			
 			actualCount++;
 		}
@@ -1159,6 +1175,14 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			
 			// capture properties
 			newFile.captureProperties(params, ListItem.DOT + i);
+			if (newFile.numberFieldIsInvalid) {
+				addAlert(state, rb.getString("invalid.condition.argument"));
+				return;
+			}
+			if (newFile.numberFieldIsOutOfRange) {
+				addAlert(state, rb.getString("invalid.condition.argument.outside.range") + " " + newFile.getConditionAssignmentPoints() + ".");
+				return;
+			}
 			// notification
 			int noti = determineNotificationPriority(params, newFile.isDropbox, newFile.userIsMaintainer());
 			newFile.setNotification(noti);

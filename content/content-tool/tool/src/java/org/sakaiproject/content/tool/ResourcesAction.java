@@ -87,8 +87,13 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.event.api.Notification;
+import org.sakaiproject.event.api.NotificationEdit;
+import org.sakaiproject.event.api.NotificationLockedException;
+import org.sakaiproject.event.api.NotificationNotDefinedException;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdInvalidException;
@@ -455,6 +460,8 @@ public class ResourcesAction
     private static ResourceLoader rrb = new ResourceLoader("right");
 	
 	static final Log logger = LogFactory.getLog(ResourcesAction.class);
+	
+	static final ResourceConditionsHelper conditionsHelper = new ResourceConditionsHelper();
 
 	public static final String PREFIX = "resources.";
 	public static final String SYS = "sys.";
@@ -1234,6 +1241,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					resourceProperties.addProperty(pname, pvalue);
 				}
 				ContentHostingService.commitCollection(edit);
+				conditionsHelper.notifyCondition(edit);
 				new_collections.add(edit);
 			}
 			catch (PermissionException e)
@@ -4170,6 +4178,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
 			context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
 			context.put("PUBLIC_ACCESS", PUBLIC_ACCESS);
+			
+			conditionsHelper.buildConditionContext(context, state);
 		}
 		return template;
 	}
@@ -5138,6 +5148,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			context.put("showMountPointProperty", Boolean.TRUE.toString());
 		}
+		conditionsHelper.buildConditionContext(context, state);
 		
 		return TEMPLATE_REVISE_METADATA;
 	}
@@ -5640,6 +5651,14 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		if(user_action.equals("save"))
 		{
 			item.captureProperties(params, ListItem.DOT + "0");
+			if (item.numberFieldIsInvalid) {
+				addAlert(state, rb.getString("invalid.condition.argument"));
+				return;
+			}
+			if (item.numberFieldIsOutOfRange) {
+				addAlert(state, rb.getString("invalid.condition.argument.outside.range") + " " + item.getConditionAssignmentPoints() + ".");
+				return;
+			}
 			String name = params.getString("name" + ListItem.DOT + "0");
 			if(name == null)
 			{
@@ -5704,7 +5723,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 				
 				resource.setResourceType(resourceType);
-				
+				item.setId(resource.getId());
+				conditionsHelper.saveCondition(item, params, state, 0);
 				item.updateContentResourceEdit(resource);
 				
 				extractContent(pipe, resource);
@@ -6093,6 +6113,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 
 			startHelper(data.getRequest(), iAction.getHelperId());
+			conditionsHelper.loadConditionData(state);
 		}
 		else if(action instanceof ServiceLevelAction)
 		{
@@ -6154,6 +6175,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					state.setAttribute (STATE_MODE, MODE_REVISE_METADATA);
 					ListItem item = getListItem(state);
 					state.setAttribute(STATE_REVISE_PROPERTIES_ITEM, item);
+					conditionsHelper.loadConditionData(state);
 					// sAction.finalizeAction(reference);
 					break;
 				case CUSTOM_TOOL_ACTION:
@@ -6867,6 +6889,14 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				
 			}
 			item.captureProperties(params, ListItem.DOT + "0");
+			if (item.numberFieldIsInvalid) {
+				addAlert(state, rb.getString("invalid.condition.argument"));
+				return;
+			}
+			if (item.numberFieldIsOutOfRange) {
+				addAlert(state, rb.getString("invalid.condition.argument.outside.range") + " " + item.getConditionAssignmentPoints() + ".");
+				return;
+			}
 			
 			// notification
 			int noti = NotificationService.NOTI_NONE;
@@ -6921,20 +6951,24 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				try 
 				{
+					conditionsHelper.saveCondition(item, params, state, 0);
+					
+					Entity entity = null;
 					if(item.isCollection())
 					{
-						ContentCollectionEdit entity = ContentHostingService.editCollection(entityId);
-						item.updateContentCollectionEdit(entity);
+						entity = ContentHostingService.editCollection(entityId);
+						item.updateContentCollectionEdit((ContentCollectionEdit)entity);
 						
-						ContentHostingService.commitCollection(entity);
+						ContentHostingService.commitCollection((ContentCollectionEdit)entity);
 					}
 					else
 					{
-						ContentResourceEdit entity = ContentHostingService.editResource(entityId);
-						item.updateContentResourceEdit(entity);
-						ContentHostingService.commitResource(entity, noti);
+						entity = ContentHostingService.editResource(entityId);
+						item.updateContentResourceEdit((ContentResourceEdit)entity);
+						ContentHostingService.commitResource((ContentResourceEdit)entity, noti);
 					}
 
+					conditionsHelper.notifyCondition(entity);
 					state.setAttribute(STATE_MODE, MODE_LIST);
 				} 
 				catch (IdUnusedException e) 
@@ -8464,6 +8498,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				if(obj != null && obj instanceof ListItem)
 				{
 					displayName = ((ListItem) obj).getName();
+					List<String> alerts = ((ListItem)obj).checkRequiredProperties();
+					for (String alert : alerts) {
+						addAlert(state, alert);
+					}
 				}
 				if(displayName == null || displayName.trim().equals(""))
 				{

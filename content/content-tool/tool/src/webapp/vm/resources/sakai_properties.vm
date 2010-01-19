@@ -359,6 +359,78 @@
 						#resources_timeSelectionWidget("retract" "$i" $model.retractDate)
 					</td>
 				</tr>
+				#if($conditions_enabled)
+				<tr>
+					<td>
+					</td>
+					<td>
+					#if($resourceSelections.size() == 0)
+						<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" type="checkbox" disabled>
+					#else
+						#if($item.useConditionalRelease())
+							<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" type="checkbox" checked="checked">
+						#else
+							<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" type="checkbox">
+						#end
+					#end	
+					</td>
+					<td colspan="3">
+						<label for="cbCondition${DOT}$i">
+							Only if the following condition is met:
+						</label>
+					</td>
+				</tr>
+				#end
+			</table>
+			#if($conditions_enabled)					
+			<table>
+				<tr>
+					<td>
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					</td>
+					<td>
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					</td>
+					<td colspan="3">
+						#if($resourceSelections.size() == 0)
+							$tlang.getString("no.gradebook.assignments")
+						#else						
+							Gradebook 
+							<select name="selectResource${DOT}$i" id="selectResource${DOT}$i">
+							#foreach ($key in $resourceSelections.keySet())
+								#if($key.equals($item.getSubmittedResourceFilter()) && $item.useConditionalRelease())
+									<option value="${key}" selected="selected">${resourceSelections.get(${key})}</option>
+								#else
+									<option value="${key}">${resourceSelections.get(${key})}</option>
+								#end
+							
+							#end
+							</select>
+							<select name="selectCondition${DOT}$i"
+							  id="selectCondition${DOT}$i"
+							  onchange="changeCondition(this.options[this.selectedIndex].value, '${DOT}$i');">
+							#foreach ($key in $conditionSelections.keySet())							
+								#if($key.equals($item.getSelectedConditionKey()) && $item.useConditionalRelease())
+									<option value="${key}" selected="selected">${conditionSelections.get(${key})}</option>							
+								#else
+									<option value="${key}">${conditionSelections.get(${key})}</option>							
+								#end
+							#end
+							</select>
+							#if($item.getSelectedConditionKey().startsWith("9") || $item.getSelectedConditionKey().startsWith("10"))
+							<span id="grade_argument_span${DOT}$i" style="display:inline;">
+								<input type="text" size="3" name="assignment_grade${DOT}$i" id="assignment_grade${DOT}$i" value="$item.getConditionArgument()" />
+							#else
+							<span id="grade_argument_span${DOT}$i" style="display:none;">
+								<input type="text" size="3" name="assignment_grade${DOT}$i" id="assignment_grade${DOT}$i" />
+							#end
+							</span>
+						#end
+					</td>
+				</tr>
+			</table>
+			#end
+			<table>
 				<tr>
 					<td>
 						<input type="radio" name="hidden${DOT}$i" id="hidden_true${DOT}$i" value="true" #if($model.isHidden())checked="checked" #end/>
