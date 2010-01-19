@@ -259,7 +259,7 @@ public class CollectionAccessFormatter
 			}
 
 		}
-		catch (Throwable e)
+		catch (Exception e)
 		{
 			M_log.warn("Problem formatting HTML for collection: "+ x.getId(), e);
 		}
