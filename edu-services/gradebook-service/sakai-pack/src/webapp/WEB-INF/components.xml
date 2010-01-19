@@ -61,6 +61,7 @@
 		<property name="authn">
 			<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
 		</property>
+		<property name="eventTrackingService" ref="org_sakaiproject_tool_gradebook_facades_EventTrackingService" />
 	</bean>
 
 	<bean id="org_sakaiproject_service_gradebook_GradebookServiceTarget"
@@ -155,7 +156,14 @@
 			</list>
 		</property>
 	</bean>
-	
+
+	<bean id="org_sakaiproject_service_gradebook_ConditionsProvider"
+		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.GradebookConditionsProvider"
+		init-method="init">
+		<property name="conditionService" ref="org.sakaiproject.conditions.api.ConditionService" />
+		<property name="gradebookService" ref="org_sakaiproject_service_gradebook_GradebookService" />
+	</bean>
+
 	<!-- Gradebook Permission Service -->
 	<bean id="org_sakaiproject_service_gradebook_GradebookPermissionService"
 		name="org.sakaiproject.service.gradebook.GradebookPermissionService"
