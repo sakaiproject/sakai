@@ -35,6 +35,7 @@ import org.sakaiproject.event.api.NotificationAction;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.user.api.User;
 
 /**
  * <p>
@@ -85,7 +86,7 @@ public class SiteEmailNotification extends EmailNotification
 	/**
 	 * @inheritDoc
 	 */
-	protected List getRecipients(Event event)
+	protected List<User> getRecipients(Event event)
 	{
 		// get the resource reference
 		Reference ref = EntityManager.newReference(event.getResource());
@@ -105,12 +106,12 @@ public class SiteEmailNotification extends EmailNotification
 			}
 
 			// get the list of users who can do the right kind of visit
-			List users = SecurityService.unlockUsers(ability, ref.getReference());
+			List<User> users = SecurityService.unlockUsers(ability, ref.getReference());
 
 			// get the list of users who have the appropriate access to the resource
 			if (getResourceAbility() != null)
 			{
-				List users2 = SecurityService.unlockUsers(getResourceAbility(), ref.getReference());
+				List<User> users2 = SecurityService.unlockUsers(getResourceAbility(), ref.getReference());
 
 				// find intersection of users and user2
 				users.retainAll(users2);
@@ -123,7 +124,7 @@ public class SiteEmailNotification extends EmailNotification
 		}
 		catch (Exception any)
 		{
-			return new Vector();
+			return new Vector<User>();
 		}
 	}
 
@@ -135,7 +136,7 @@ public class SiteEmailNotification extends EmailNotification
 	 * @param ref
 	 *        The entity reference.
 	 */
-	protected void addSpecialRecipients(List users, Reference ref)
+	protected void addSpecialRecipients(List<User> users, Reference ref)
 	{
 	}
 
@@ -225,7 +226,7 @@ public class SiteEmailNotification extends EmailNotification
 			EntityManager.newReference(channel);
 	
 			// find the alias for this site's mail channel
-			List all = AliasService.getAliases(channel);
+			List<Alias> all = AliasService.getAliases(channel);
 			if (!all.isEmpty()) email = ((Alias) all.get(0)).getId();
 		}
 		catch (Exception ignore)

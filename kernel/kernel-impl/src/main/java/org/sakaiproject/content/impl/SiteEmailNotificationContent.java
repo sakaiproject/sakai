@@ -21,35 +21,26 @@
 
 package org.sakaiproject.content.impl;
 
-import java.text.MessageFormat;
 import java.util.List;
-// import java.util.ResourceBundle;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
-import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.EmailNotification;
-import org.sakaiproject.util.SiteEmailNotification;
-import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.SiteEmailNotification;
+import org.sakaiproject.util.StringUtil;
 
 /**
  * <p>
@@ -60,7 +51,6 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class SiteEmailNotificationContent extends SiteEmailNotification
 {
-	private static Log log = LogFactory.getLog(SiteEmailNotificationContent.class);
 	
 	/* property bundles */
 	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.SiteemaconProperties";
@@ -150,7 +140,7 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 		if ( doHtml ) 
 		{
 			title = FormattedText.escapeHtmlFormattedTextarea(title);
-			subject = FormattedText.escapeHtmlFormattedTextarea(subject);
+			//subject = FormattedText.escapeHtmlFormattedTextarea(subject);
 			resourceName = FormattedText.escapeHtmlFormattedTextarea(resourceName);
 			description = FormattedText.escapeHtmlFormattedTextarea(description);
 			blankLine = "\n</p><p>\n";
@@ -301,18 +291,18 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 		if (parts.length > 4)
 		{
 			// grow this collection id as we descend into the collections
-			String root = Entity.SEPARATOR + parts[2] + Entity.SEPARATOR + parts[3] + Entity.SEPARATOR;
+			StringBuilder root = new StringBuilder(Entity.SEPARATOR + parts[2] + Entity.SEPARATOR + parts[3] + Entity.SEPARATOR);
 
 			// take all the collection parts
 			for (int i = 4; i < parts.length - 1; i++)
 			{
 				buf.append(" > ");
 				String collectionId = parts[i];
-				root = root + collectionId + Entity.SEPARATOR;
+				root.append(collectionId + Entity.SEPARATOR);
 				try
 				{
 					// get the display name
-					ContentCollection collection = ContentHostingService.getCollection(root);
+					ContentCollection collection = ContentHostingService.getCollection(root.toString());
 					buf.append(collection.getProperties().getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME));
 				}
 				catch (Exception any)
@@ -336,7 +326,6 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 	protected String getSubject(Event event)
 	{
 		Reference ref = EntityManager.newReference(event.getResource());
-		Entity r = ref.getEntity();
 		ResourceProperties props = ref.getProperties();
 
 		// get the function
@@ -371,18 +360,18 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 	 * @param ref
 	 *        The entity reference.
 	 */
-	protected void addSpecialRecipients(List users, Reference ref)
+	protected void addSpecialRecipients(List<User> users, Reference ref)
 	{
 		// include any users who have AnnouncementService.SECURE_ALL_GROUPS and getResourceAbility() in the context
 		String contextRef = SiteService.siteReference(ref.getContext());
 
 		// get the list of users who have SECURE_ALL_GROUPS
-		List allGroupUsers = SecurityService.unlockUsers(ContentHostingService.AUTH_RESOURCE_ALL_GROUPS, contextRef);
+		List<User> allGroupUsers = SecurityService.unlockUsers(ContentHostingService.AUTH_RESOURCE_ALL_GROUPS, contextRef);
 
 		// filter down by the permission
 		if (getResourceAbility() != null)
 		{
-			List allGroupUsers2 = SecurityService.unlockUsers(getResourceAbility(), contextRef);
+			List<User> allGroupUsers2 = SecurityService.unlockUsers(getResourceAbility(), contextRef);
 			allGroupUsers.retainAll(allGroupUsers2);
 		}
 
