@@ -4575,7 +4575,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 		// Should use copyIntoFolder if possible
 		boolean isCollection = false;
-		boolean isRootCollection = false;
 		ContentResource thisResource = null;
 
 		if (M_log.isDebugEnabled()) M_log.debug("copy(" + id + "," + new_id + ")");
@@ -4594,20 +4593,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
         {
             thisCollection = null;
         }
-        catch (PermissionException e)
+        if (thisCollection == null)
         {
-            return null;
-        }
-		if (thisCollection == null)
-		{
-            try
-            {
-                thisResource = getResource(id);
-            }
-            catch (PermissionException e)
-            {
-                return null;
-            }
+        	thisResource = getResource(id);
+
         }
 		else
 		{
