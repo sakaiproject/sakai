@@ -75,11 +75,18 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		//my pictures link
 		Link<Void> myPicturesLink = new Link<Void>("myPicturesLink") {
 			private static final long serialVersionUID = 1L;
+
 			public void onClick() {
 				setResponsePage(new MyPictures());
 			}
 		};
-		myPicturesLink.add(new Label("myPicturesLabel", new ResourceModel("link.my.pictures")));
+		myPicturesLink.add(new Label("myPicturesLabel", new ResourceModel(
+				"link.my.pictures")));
+
+		if (!sakaiProxy.isProfileGalleryEnabledGlobally()) {
+			myPicturesLink.setVisible(false);
+		}
+
 		add(myPicturesLink);
 		
 		

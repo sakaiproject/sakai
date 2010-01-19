@@ -937,6 +937,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
  	* {@inheritDoc}
  	*/
+	public boolean isProfileGalleryEnabledGlobally() {
+		return serverConfigurationService.getBoolean("profile2.gallery.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_GALLERY_ENABLED);
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public boolean isProfilePictureChangeEnabled() {
 		return serverConfigurationService.getBoolean("profile2.picture.change.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_PICTURE_CHANGE_ENABLED);
 	}

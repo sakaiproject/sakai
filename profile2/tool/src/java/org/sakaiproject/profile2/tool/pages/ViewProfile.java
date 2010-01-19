@@ -34,6 +34,7 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
@@ -588,7 +589,7 @@ public class ViewProfile extends BasePage {
 
 			@Override
 			public Component getLazyLoadComponent(String markupId) {
-				if (isGalleryVisible) {
+				if (sakaiProxy.isProfileGalleryEnabledGlobally() && isGalleryVisible) {
 					return new GalleryFeed(markupId, userUuid, currentUserId)
 							.setOutputMarkupId(true);
 				} else {

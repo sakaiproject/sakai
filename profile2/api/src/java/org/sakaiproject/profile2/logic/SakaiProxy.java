@@ -406,10 +406,19 @@ public interface SakaiProxy {
 	public String getTwitterSource();
 	
 	/**
+	 * Is the profile2.gallery.enabled flag set in sakai.properties?
+	 * If not set, default to <code>true</code>.
+	 * 
+	 * @return the status of the profile2.gallery.enabled flag in sakai.properties.
+	 * Returns <code>true</code> by default.
+	 */
+	public boolean isProfileGalleryEnabledGlobally();
+	
+	/**
 	 * Is the profile2.picture.change.enabled flag set in sakai.properties?
 	 * If not set, defaults to true
 	 * 
-	 * <p>Depending on this setting, usesr will be able to upload thier own image. 
+	 * <p>Depending on this setting, users will be able to upload their own image. 
 	 * This can be useful to disable for institutions which may provide official photos for students.</p>
 	 * 
 	 * @return

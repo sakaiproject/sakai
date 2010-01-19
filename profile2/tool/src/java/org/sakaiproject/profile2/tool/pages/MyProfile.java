@@ -339,8 +339,12 @@ public class MyProfile extends BasePage {
 
 			@Override
 			public Component getLazyLoadComponent(String markupId) {
-				return new GalleryFeed(markupId, userUuid, userUuid)
-						.setOutputMarkupId(true);
+				if (sakaiProxy.isProfileGalleryEnabledGlobally()) {
+					return new GalleryFeed(markupId, userUuid, userUuid)
+							.setOutputMarkupId(true);
+				} else {
+					return new EmptyPanel(markupId);
+				}
 			}
 		});
 		
