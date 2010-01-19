@@ -249,7 +249,7 @@ public class CollectionAccessFormatter
 								+ "</a>" + desc + "</li>");
 					}
 				}
-				catch (Throwable ignore)
+				catch (Exception ignore)
 				{
 					// TODO - what types of failures are being caught here?
 
