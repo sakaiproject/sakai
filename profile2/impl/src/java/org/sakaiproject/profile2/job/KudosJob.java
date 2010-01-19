@@ -12,6 +12,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.SchedulerException;
 import org.quartz.StatefulJob;
+import org.sakaiproject.profile2.model.Person;
 
 /**
  * This is the Kudos calculation job.
@@ -127,9 +128,11 @@ public class KudosJob implements StatefulJob {
 		log.error("result:" + RULES.get("birthday"));
 		log.error("result:" + RULES.get("birthYear"));
 		
+		BigDecimal score = getTotal();
+		
 		BigDecimal total = getTotal();
 		log.error("total:" + total);
-		log.error("percent:" + getTotalAsPercentage(total));
+		log.error("percent:" + getTotalAsPercentage(score, total));
 
 		
 	}
@@ -156,6 +159,16 @@ public class KudosJob implements StatefulJob {
 	}
 	
 	/**
+	 * Calculate the score for this person
+	 * @param person	Person object
+	 * @return
+	 */
+	public BigDecimal getScore(Person person) {
+		return new BigDecimal(25);
+
+	}
+	
+	/**
 	 * Gets the total of all BigDecimals in the RULES map
 	 * @param map
 	 * @return
@@ -177,8 +190,8 @@ public class KudosJob implements StatefulJob {
 	 * @param map
 	 * @return
 	 */
-	public BigDecimal getTotalAsPercentage(BigDecimal total) {
-		return total.divide(new BigDecimal(RULES.size())).setScale(2, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
+	public BigDecimal getTotalAsPercentage(BigDecimal score, BigDecimal total) {
+		return score.divide(total).setScale(2, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
 	}
 	
 	

@@ -2307,6 +2307,29 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		return url.toString();
 	}
 	
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public List<Person> getAllFullPersons(int start, int count) {
+		
+		List<Person> persons = new ArrayList<Person>();
+		
+		// get fields directly from the sakaiperson table and use Transformers.aliasToBean to transform into pojo
+		
+		
+		return persons;
+		
+		
+	}
+	
+	
+	
+	
+	
+	
+	
+	
 	/**
 	 * Helper method to create the link base. We then append more onto it to get the full link.
 	 * @return
