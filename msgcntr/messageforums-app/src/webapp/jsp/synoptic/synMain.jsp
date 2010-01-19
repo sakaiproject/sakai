@@ -123,9 +123,12 @@
 	<%-- *** Display this if Message & Forums or either piece is not part of site *** --%>
 	<h:outputText value="#{msgs.syn_no_mc}" rendered="#{(! mfSynopticBean.myWorkspace) && (! mfSynopticBean.anyMFToolInSite)}" />
 
+	<%-- *** Display this if the user accessing the site isn't logged in *** --%>
+	<h:outputText value="#{msgs.syn_anon}" rendered="#{(not mfSynopticBean.loggedIn)}" />
+
 	<%-- *** Display this if Message Center is part of site *** --%>
 	<h:panelGrid columns="2" styleClass="listHier lines nolines"
-		rendered="#{(! mfSynopticBean.myWorkspace) && mfSynopticBean.anyMFToolInSite}" >
+		rendered="#{(! mfSynopticBean.myWorkspace) && mfSynopticBean.anyMFToolInSite && mfSynopticBean.loggedIn}" >
 		
 		<h:panelGroup rendered="#{mfSynopticBean.messageForumsPageInSite || mfSynopticBean.messagesPageInSite}" >
 			<h:outputText value="#{msgs.syn_tool_link_begin}#{mfSynopticBean.siteInfo.privateMessagesUrl}';\">#{msgs.syn_private_heading}</a>"

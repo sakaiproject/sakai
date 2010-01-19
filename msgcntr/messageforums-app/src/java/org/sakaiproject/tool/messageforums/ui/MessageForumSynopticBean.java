@@ -1795,4 +1795,12 @@ public class MessageForumSynopticBean {
 		return -1;
 	}
 
+	/**
+	 * Is a user logged in.
+	 * @return <code>true</code> if the current request is being made by a logged in user. 
+	 */
+	public boolean isLoggedIn() {
+		return SessionManager.getCurrentSessionUserId() != null;
+	}
+
 }
