@@ -397,6 +397,7 @@ public class ResourcesAction
 		 */
 		public boolean equals(Object obj)
 		{
+			
 			MetadataGroup mg = (MetadataGroup) obj;
 			boolean rv = (obj != null) && (m_name.equals(mg));
 			return rv;
@@ -968,7 +969,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				// find out about pubview
 				boolean pubview = ContentHostingService.isInheritingPubView(entityId);
 				if (!pubview) pubview = ContentHostingService.isPubView(entityId);
-				context.put("pubview", new Boolean(pubview));
+				context.put("pubview",  Boolean.valueOf(pubview));
 			}
 
 		}
@@ -1224,8 +1225,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				{
 					resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
 				}
-				Map values = pipe.getRevisedResourceProperties(); 	 
-				Iterator valueIt = values.keySet().iterator(); 	 
+				Map<String, String> values = pipe.getRevisedResourceProperties(); 	 
+				Iterator<String> valueIt = values.keySet().iterator(); 	 
 				while(valueIt.hasNext()) 	 
 				{ 	 
 					String pname = (String) valueIt.next(); 	 
@@ -1278,7 +1279,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	public static List<ContentResource> createResources(ResourceToolActionPipe pipe)
 	{
 		logger.debug("ResourcesAction.createResources()");
-		ToolSession toolSession = null;
 		boolean item_added = false;
 		String collectionId = null;
 		List<ContentResource> new_resources = new ArrayList<ContentResource>();
@@ -1357,8 +1357,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				{
 					resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
 				}
-				Map values = pipe.getRevisedResourceProperties(); 	 
-				Iterator valueIt = values.keySet().iterator(); 	 
+				Map<String, String> values = pipe.getRevisedResourceProperties(); 	 
+				Iterator<String> valueIt = values.keySet().iterator(); 	 
 				while(valueIt.hasNext()) 	 
 				{ 	 
 					String pname = (String) valueIt.next(); 	 
@@ -1492,11 +1492,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			initCopyContext(state);
 		}
 
-		List items = (List) state.getAttribute(STATE_MOVED_IDS);
+		List<String> items = (List<String>) state.getAttribute(STATE_MOVED_IDS);
 
 		String collectionId = params.getString ("collectionId");
 
-		Iterator itemIter = items.iterator();
+		Iterator<String> itemIter = items.iterator();
 		while (itemIter.hasNext())
 		{
 			// get the copied item to be pasted
@@ -3865,7 +3865,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				// test to see if the input validates as a URL.
 				// Checks string for format only.
-				URL u = new URL(url);
+				new URL(url);
 			}
 			catch (MalformedURLException e1)
 			{
@@ -3877,7 +3877,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					{
 						// if URL has "unknown" protocol, check remaider with
 						// "http" protocol and accept input if that validates.
-						URL test = new URL("http://" + matcher.group(2));
+						new URL("http://" + matcher.group(2));
 					}
 					else
 					{
@@ -4771,7 +4771,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		
 		// place if notification is enabled and current site is not of My Workspace type
 		boolean isUserSite = SiteService.isUserSite(ToolManager.getCurrentPlacement().getContext());
-		context.put("notification", new Boolean(!isUserSite && notificationEnabled(state)));
+		context.put("notification", Boolean.valueOf(!isUserSite && notificationEnabled(state)));
 		// get the mode
 		String mode = (String) state.getAttribute (STATE_MODE);
 		if (mode.equals (MODE_LIST))
@@ -6217,7 +6217,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 		int dropboxHighlight = params.getInt("dropboxHighlight", 1);
 		
-		state.setAttribute(STATE_DROPBOX_HIGHLIGHT, new Integer(dropboxHighlight));
+		state.setAttribute(STATE_DROPBOX_HIGHLIGHT, Integer.valueOf(dropboxHighlight));
 	}
 
 	/**
@@ -6365,7 +6365,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		boolean isCollection = false;
 		for (int j=maxDepth; j>0; j--)
 		{
-			List v = (List) deleteItems.get(new Integer(j));
+			List v = (List) deleteItems.get(Integer.valueOf(j));
 			if (v==null)
 			{
 				v = new ArrayList();
@@ -7013,7 +7013,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					{
 						String memberId = (String) it.next();
 						int position = params.getInt("position_" + Validator.escapeUrl(memberId));
-						priorities.put(memberId, new Integer(position));
+						priorities.put(memberId, Integer.valueOf(position));
 					}
 					collection.setPriorityMap(priorities);
 					
@@ -7340,7 +7340,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			if(typeDef instanceof SiteSpecificResourceType)
 			{
-				statusMap.put(typeDef.getId(), new Boolean(enabledTypes.contains(typeDef.getId())));
+				statusMap.put(typeDef.getId(), Boolean.valueOf(enabledTypes.contains(typeDef.getId())));
 			}
 		}
 		registry.setMapOfResourceTypesForContext(siteId, statusMap);
@@ -7609,7 +7609,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			else if(uploadMax == null)
 			{
-				state.setAttribute(STATE_FILE_UPLOAD_MAX_SIZE, uploadMax);
+				state.setAttribute(STATE_FILE_UPLOAD_MAX_SIZE, null);
 			}
 			else
 			{
@@ -7775,7 +7775,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
 		state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, new HashMap());
 		
-		state.setAttribute(STATE_DROPBOX_HIGHLIGHT, new Integer(1));
+		state.setAttribute(STATE_DROPBOX_HIGHLIGHT, Integer.valueOf(1));
 		
 		if(state.getAttribute(STATE_USING_CREATIVE_COMMONS) == null)
 		{
@@ -7995,7 +7995,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				{
 					slAction.cancelAction(ref);
 				}
-				logger.warn(ref.getReference(), e);
+				if (ref != null) {
+					logger.warn(ref.getReference(), e);
+				} else {
+					logger.warn("exception pasting item: ", e);
+				}
 			}
 		}
 		// if no errors

@@ -1583,7 +1583,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			}
 			else if(uploadMax == null)
 			{
-				state.setAttribute(STATE_FILE_UPLOAD_MAX_SIZE, uploadMax);
+				state.setAttribute(STATE_FILE_UPLOAD_MAX_SIZE, null);
 			}
 			else
 			{
