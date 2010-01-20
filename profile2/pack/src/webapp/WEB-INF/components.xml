@@ -156,8 +156,10 @@
 	<bean id="org.sakaiproject.profile2.job.KudosJob"
 		class="org.sakaiproject.profile2.job.KudosJob"
 		init-method="init">
-		
+		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 	</bean>
+	
 	<bean id="org.sakaiproject.profile2.job.KudosJobBeanWrapper"
 		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
 		singleton="true" init-method="init">

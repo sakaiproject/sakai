@@ -12,7 +12,10 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.SchedulerException;
 import org.quartz.StatefulJob;
+import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.model.Person;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 
 /**
  * This is the Kudos calculation job.
@@ -123,6 +126,9 @@ public class KudosJob implements StatefulJob {
 		
 		log.error("KudosJob run");
 		
+		//start a session and set it to admin
+		
+		
 		log.error("result:" + RULES.get("email"));
 		log.error("result:" + RULES.get("nickname"));
 		log.error("result:" + RULES.get("birthday"));
@@ -134,6 +140,10 @@ public class KudosJob implements StatefulJob {
 		log.error("total:" + total);
 		log.error("percent:" + getTotalAsPercentage(score, total));
 
+		List<Person> persons = profileLogic.getListOfFullPersons(0, 20);
+		for(Person person: persons) {
+			log.error("out: " + person.getDisplayName());
+		}
 		
 	}
 	
@@ -197,6 +207,17 @@ public class KudosJob implements StatefulJob {
 	
 	public void init(){
 		log.info("KudosJob.init()");		
+	}
+	
+	
+	private ProfileLogic profileLogic;
+	public void setProfileLogic(ProfileLogic profileLogic) {
+		this.profileLogic = profileLogic;
+	}
+	
+	private SessionManager sessionManager;
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
 	}
 	
 }
