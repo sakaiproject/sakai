@@ -2324,7 +2324,7 @@ public class DbContentService extends BaseContentService
 		protected boolean putResourceBodyFilesystem(ContentResourceEdit resource, byte[] body)
 		{
 			// Do not create the files for resources with zero length bodies
-			if ((body == null) || (body.length == 0)) return true;
+			if (body == null) return true;
 
 			// form the file name
 			File file = new File(externalResourceFileName(resource));
@@ -2774,7 +2774,7 @@ public class DbContentService extends BaseContentService
 					if (edit.getContentLength() == 0)
 					{
 						M_log.warn("convertToFile(): zero length body : " + id);
-						return null;
+						
 					}
 					
 					id = edit.getId();
@@ -2794,7 +2794,6 @@ public class DbContentService extends BaseContentService
 					{
 						// not found
 						M_log.warn("convertToFile(): body not found in source : " + id);
-						return null;
 					}
 
 					// get the creation date (or modified date, or now)
