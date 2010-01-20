@@ -34,9 +34,42 @@
     	<![CDATA[select sp.agentUuid from org.sakaiproject.component.common.edu.person.SakaiPersonImpl as sp where sp.favouriteBooks like :search or sp.favouriteTvShows like :search or sp.favouriteMovies like :search or sp.favouriteQuotes like :search or sp.notes like :search]]>
   	</query>
   	
-  	<query name="listAllSakaiPersons">
+  	<query name="getAllSakaiPersonIds">
     	<![CDATA[select sp.agentUuid from org.sakaiproject.component.common.edu.person.SakaiPersonImpl as sp]]>
   	</query>
+  	
+  	<!--  this is a native query to get only the files that Profile2 currently uses, it is then transformed into a UserProfile object.
+  	This should be chunked in the Hibernate call so as to only get a set of records at a time, say 100 -->
+  	<sql-query name="getAllSakaiPersons">
+  		<!--  <return-scalar column="userUuid" type="string" />-->
+    	<![CDATA[
+    	select 
+    		sp.AGENT_UUID as userUuid,
+    		sp.NICKNAME as nickname,
+    		sp.dateOfBirth as dateOfBirth,
+    		sp.TITLE as title,
+    		sp.OU as department,
+    		sp.CAMPUS as school,
+    		sp.ROOM_NUMBER as room,
+    		sp.LABELED_URI as homepage,
+    		sp.TELEPHONE_NUMBER as workphone,
+    		sp.HOME_PHONE as homephone,
+    		sp.MOBILE as mobile,
+    		sp.FAX_NUMBER as facsimile,
+    		sp.FAVOURITE_BOOKS as favouriteBooks,
+    		sp.FAVOURITE_TV_SHOWS as favouriteTvShows,
+    		sp.FAVOURITE_MOVIES as favouriteMovies,
+    		sp.FAVOURITE_QUOTES as favouriteQuotes,
+    		sp.NOTES as otherInformation,
+    		sp.EDUCATION_COURSE as educationCourse,
+    		sp.EDUCATION_SUBJECTS as educationSubjects,
+    		sp.LOCKED as locked
+    	from 
+    		SAKAI_PERSON_T sp
+    	]]>
+  	</sql-query>
+  	
+		
   	
   	<!-- add indexes, bug in Hibernate with MySQL doesn't create them automatically. Will create for all dialects -->
   	<database-object> 

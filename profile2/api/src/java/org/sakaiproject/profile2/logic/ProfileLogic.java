@@ -258,11 +258,11 @@ public interface ProfileLogic {
 	
 	
 	/**
-	 * Get a list of all SakaiPerson's (ie list of all people with profile records)
+	 * Get a list of all SakaiPerson's userIds (ie list of all people with profile records)
 	 *
 	 * @return	List of Sakai userId's 
 	 */
-	public List<String> listAllSakaiPersons();
+	public List<String> getAllSakaiPersonIds();
 	
 	
 	/**
@@ -951,6 +951,6 @@ public interface ProfileLogic {
 	 * @param count
 	 * @return
 	 */
-	public List<Person> getAllFullPersons(int start, int count);
+	public List<Person> getListOfFullPersons(int start, int count);
 	
 }

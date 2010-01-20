@@ -24,7 +24,6 @@ import java.net.URLConnection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,10 +32,12 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.hibernate.CacheMode;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.transform.Transformers;
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageParticipant;
@@ -50,6 +51,7 @@ import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
 import org.sakaiproject.profile2.model.ResourceWrapper;
 import org.sakaiproject.profile2.model.SearchResult;
+import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.user.api.User;
@@ -87,9 +89,10 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	private static final String QUERY_OTHER_PROFILE_IMAGE_RECORDS = "getOtherProfileImageRecords"; 
 	private static final String QUERY_FIND_SAKAI_PERSONS_BY_NAME_OR_EMAIL = "findSakaiPersonsByNameOrEmail"; 
 	private static final String QUERY_FIND_SAKAI_PERSONS_BY_INTEREST = "findSakaiPersonsByInterest"; 
-	private static final String QUERY_LIST_ALL_SAKAI_PERSONS = "listAllSakaiPersons"; 
+	private static final String QUERY_GET_ALL_SAKAI_PERSON_IDS = "getAllSakaiPersonIds"; 
 	private static final String QUERY_GET_PREFERENCES_RECORD = "getPreferencesRecord"; 
 	private static final String QUERY_GET_EXTERNAL_IMAGE_RECORD = "getProfileImageExternalRecord"; 
+	private static final String QUERY_GET_ALL_SAKAI_PERSONS = "getAllSakaiPersons";
 	
 	// from Message.hbm.xml
 	private static final String QUERY_GET_ALL_UNREAD_MESSAGES_COUNT = "getAllUnreadMessagesCount";
@@ -729,7 +732,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	public List<String> listAllSakaiPersons() {
+	public List<String> getAllSakaiPersonIds() {
 		
 		List<String> userUuids = new ArrayList<String>();
 		
@@ -737,7 +740,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  			
-	  			Query q = session.getNamedQuery(QUERY_LIST_ALL_SAKAI_PERSONS);
+	  			Query q = session.getNamedQuery(QUERY_GET_ALL_SAKAI_PERSON_IDS);
 	  			return q.list();
 	  		}
 	  	};
@@ -2394,16 +2397,62 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	public List<Person> getAllFullPersons(int start, int count) {
+	public List<Person> getListOfFullPersons(final int start, final int count) {
 		
 		List<Person> persons = new ArrayList<Person>();
 		
+		//restrict to admin user
+		//if(!sakaiProxy.isAdminUser()) {
+		//	return persons;
+		//}
+		
+		List<UserProfile> profiles = new ArrayList<UserProfile>();
+
 		// get fields directly from the sakaiperson table and use Transformers.aliasToBean to transform into pojo
+		//the idea is we dont want a SakaiPerson object
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  		
+	  			Query q = session.getNamedQuery(QUERY_GET_ALL_SAKAI_PERSONS);
+
+	  			//NEED SCALARS IN THE HBM FOR THIS QUERY
+	  			
+	  			
+	  			q.setFirstResult(start);
+	  			q.setMaxResults(count);
+	  			q.setResultTransformer(Transformers.aliasToBean(UserProfile.class));
+	  			q.setCacheMode(CacheMode.GET);
+	  			return q.list();
+	  		}
+	  	};
+	  	
+	  	profiles = (List<UserProfile>) getHibernateTemplate().executeFind(hcb);
 		
-		
+	  	//foreach UserProfile returned, build our person object
+	  	for(UserProfile profile: profiles) {
+	  		
+	  		//check person really exists
+	  		User u = sakaiProxy.getUserQuietly(profile.getUserUuid());
+	  		if(u == null) {
+	  			continue;
+	  		}
+	  		
+	  		Person p = new Person();
+	  		p.setUuid(profile.getUserUuid());
+	  		p.setDisplayName(u.getDisplayName());
+	  		p.setType(u.getType());
+	  		p.setProfile(profile);
+	  		
+	  		//add privacy record
+	  		p.setPrivacy(getPrivacyRecordForUser(profile.getUserUuid()));
+	  	
+	  		//add preferences record
+	  		p.setPreferences(getPreferencesRecordForUser(profile.getUserUuid()));
+	  		
+	  		persons.add(p);
+	  	}
+	  	
 		return persons;
-		
-		
 	}
 	
 	
@@ -2908,7 +2957,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		log.info("Profile2: ==============================="); 
 
 		//get list of users
-		List<String> allUsers = new ArrayList<String>(listAllSakaiPersons());
+		List<String> allUsers = new ArrayList<String>(getAllSakaiPersonIds());
 		
 		if(allUsers.isEmpty()){
 			log.info("Profile2 conversion util: No SakaiPersons to process.");
