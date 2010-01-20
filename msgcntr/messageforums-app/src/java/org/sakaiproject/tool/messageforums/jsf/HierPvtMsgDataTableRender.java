@@ -201,8 +201,6 @@ public class HierPvtMsgDataTableRender extends HtmlBasicRenderer {
 
 	public void encodeChildren(FacesContext context, UIComponent component)
 			throws IOException {
-		MessageForumsMessageManager messageManager = (MessageForumsMessageManager) ComponentManager
-				.get("org.sakaiproject.api.app.messageforums.MessageForumsMessageManager");
 
 		if ((context == null) || (component == null)) {
 			throw new NullPointerException(

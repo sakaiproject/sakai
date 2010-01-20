@@ -413,149 +413,152 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 					Long fromForumId = fromForum.getId();
 
 					DiscussionForum newForum = forumManager.createDiscussionForum();
-					newForum.setTitle(fromForum.getTitle());
-
-					if (fromForum.getShortDescription() != null && fromForum.getShortDescription().length() > 0) 
-						newForum.setShortDescription(fromForum.getShortDescription());
-
-					if (fromForum.getExtendedDescription() != null && fromForum.getExtendedDescription().length() > 0) 
-						newForum.setExtendedDescription(fromForum.getExtendedDescription());
-
-					newForum.setDraft(fromForum.getDraft());
-					newForum.setLocked(fromForum.getLocked());
-					newForum.setModerated(fromForum.getModerated());
-					newForum.setAutoMarkThreadsRead(fromForum.getAutoMarkThreadsRead());
+					if(newForum != null){
 					
-					// set the forum order. any existing forums will be first
-					// if the "from" forum has a 0 sort index, there is no sort order
-					Integer fromSortIndex = fromForum.getSortIndex();
-					if (fromSortIndex != null && fromSortIndex.intValue() > 0) {
-						newForum.setSortIndex(new Integer(fromForum.getSortIndex().intValue() + numExistingForums));
-					}
+						newForum.setTitle(fromForum.getTitle());
 
-					// get permissions for "from" site
-					Set membershipItemSet = fromForum.getMembershipItemSet();
-					List allowedPermNames = this.getSiteRolesAndGroups(toContext);
+						if (fromForum.getShortDescription() != null && fromForum.getShortDescription().length() > 0) 
+							newForum.setShortDescription(fromForum.getShortDescription());
 
-					if (membershipItemSet != null && !membershipItemSet.isEmpty() && allowedPermNames != null && !allowedPermNames.isEmpty()) {
-						Iterator membershipIter = membershipItemSet.iterator();
-						while (membershipIter.hasNext()) {
-							DBMembershipItem oldItem = (DBMembershipItem)membershipIter.next();
-							if(allowedPermNames.contains(oldItem.getName())) {
+						if (fromForum.getExtendedDescription() != null && fromForum.getExtendedDescription().length() > 0) 
+							newForum.setExtendedDescription(fromForum.getExtendedDescription());
 
-								DBMembershipItem newItem = getMembershipItemCopy(oldItem);
-								if (newItem != null) {
-									permissionManager.saveDBMembershipItem(newItem);
-									newForum.addMembershipItem(newItem);
-								}
-							}
+						newForum.setDraft(fromForum.getDraft());
+						newForum.setLocked(fromForum.getLocked());
+						newForum.setModerated(fromForum.getModerated());
+						newForum.setAutoMarkThreadsRead(fromForum.getAutoMarkThreadsRead());
+
+						// set the forum order. any existing forums will be first
+						// if the "from" forum has a 0 sort index, there is no sort order
+						Integer fromSortIndex = fromForum.getSortIndex();
+						if (fromSortIndex != null && fromSortIndex.intValue() > 0) {
+							newForum.setSortIndex(new Integer(fromForum.getSortIndex().intValue() + numExistingForums));
 						}
-					}
 
-					// get/add the forum's attachments
-					List fromAttach = forumManager.getForumById(true, fromForumId).getAttachments();
-					if (fromAttach != null && !fromAttach.isEmpty()) {
-						for (int currAttach=0; currAttach < fromAttach.size(); currAttach++) {                   			
-							Attachment thisAttach = (Attachment)fromAttach.get(currAttach);
-							Attachment newAttachment = copyAttachment(thisAttach.getAttachmentId(), toContext);
-							if (newForum != null && newAttachment != null)
-								newForum.addAttachment(newAttachment);
-						}
-					}   
-								
-					// get/add the gradebook assignment associated with the forum settings
-					GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService) 
-			        ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-                    String gradebookUid = null;
-                    // if this code is called from a quartz job, like SIS, then getCurrentPlacement() will return null.
-                    // so just use the fromContext which gives the site id.
-                    if (ToolManager.getCurrentPlacement() != null)
-                       gradebookUid = ToolManager.getCurrentPlacement().getContext();
-                    else
-                       gradebookUid = fromContext;
-					
-					
-					if (gradebookService.isGradebookDefined(gradebookUid))
-					{
-						String fromAssignmentTitle = fromForum.getDefaultAssignName();
-						if (gradebookService.isAssignmentDefined(gradebookUid, fromAssignmentTitle))
-						{
-							newForum.setDefaultAssignName(fromAssignmentTitle);
-						}
-					}
+						// get permissions for "from" site
+						Set membershipItemSet = fromForum.getMembershipItemSet();
+						List allowedPermNames = this.getSiteRolesAndGroups(toContext);
 
-					// save the forum
-					Area area = areaManager.getDiscussionArea(toContext);
-					newForum.setArea(area);
-					
-					if ("false".equalsIgnoreCase(ServerConfigurationService.getString("import.importAsDraft")))
-					{
-						forumManager.saveDiscussionForum(newForum, newForum.getDraft().booleanValue());
-					}
-					else
-					{
-						newForum.setDraft(new Boolean("true"));
-						forumManager.saveDiscussionForum(newForum, true);
-					}
+						if (membershipItemSet != null && !membershipItemSet.isEmpty() && allowedPermNames != null && !allowedPermNames.isEmpty()) {
+							Iterator membershipIter = membershipItemSet.iterator();
+							while (membershipIter.hasNext()) {
+								DBMembershipItem oldItem = (DBMembershipItem)membershipIter.next();
+								if(allowedPermNames.contains(oldItem.getName())) {
 
-					// get/add the topics
-					List topicList = dfManager.getTopicsByIdWithMessagesMembershipAndAttachments(fromForumId);
-					if (topicList != null && !topicList.isEmpty()) {
-						for (int currTopic = 0; currTopic < topicList.size(); currTopic++) {
-							DiscussionTopic fromTopic = (DiscussionTopic)topicList.get(currTopic);
-							Long fromTopicId = fromTopic.getId();
-
-							DiscussionTopic newTopic = forumManager.createDiscussionForumTopic(newForum);
-
-							newTopic.setTitle(fromTopic.getTitle());
-							if (fromTopic.getShortDescription() != null && fromTopic.getShortDescription().length() > 0)
-								newTopic.setShortDescription(fromTopic.getShortDescription());
-							if (fromTopic.getExtendedDescription() != null && fromTopic.getExtendedDescription().length() > 0)
-								newTopic.setExtendedDescription(fromTopic.getExtendedDescription());
-							newTopic.setLocked(fromTopic.getLocked());
-							newTopic.setDraft(fromTopic.getDraft());
-							newTopic.setModerated(fromTopic.getModerated());
-							newTopic.setSortIndex(fromTopic.getSortIndex());
-							newTopic.setAutoMarkThreadsRead(fromTopic.getAutoMarkThreadsRead());
-
-							// Get/set the topic's permissions
-							Set topicMembershipItemSet = fromTopic.getMembershipItemSet();
-
-							if (topicMembershipItemSet != null && !topicMembershipItemSet.isEmpty() && allowedPermNames != null && !allowedPermNames.isEmpty()) {
-								Iterator membershipIter = topicMembershipItemSet.iterator();
-								while (membershipIter.hasNext()) {
-									DBMembershipItem oldItem = (DBMembershipItem)membershipIter.next();
-									if(allowedPermNames.contains(oldItem.getName())) {
-										DBMembershipItem newItem = getMembershipItemCopy(oldItem);
-										if (newItem != null) {
-											permissionManager.saveDBMembershipItem(newItem);
-											newTopic.addMembershipItem(newItem);
-										}
+									DBMembershipItem newItem = getMembershipItemCopy(oldItem);
+									if (newItem != null) {
+										permissionManager.saveDBMembershipItem(newItem);
+										newForum.addMembershipItem(newItem);
 									}
 								}
 							}
-							// Add the attachments
-							List fromTopicAttach = forumManager.getTopicByIdWithAttachments(fromTopicId).getAttachments();
-							if (fromTopicAttach != null && !fromTopicAttach.isEmpty()) {
-								for (int topicAttach=0; topicAttach < fromTopicAttach.size(); topicAttach++) {                   			
-									Attachment thisAttach = (Attachment)fromTopicAttach.get(topicAttach);
-									Attachment newAttachment = copyAttachment(thisAttach.getAttachmentId(), toContext);
-									if (newTopic != null && newAttachment != null)
-										newTopic.addAttachment(newAttachment);
-								}			
-							}
-							
-							// get/add the gradebook assignment associated with the topic	
-							if (gradebookService.isGradebookDefined(gradebookUid))
-							{
-								String fromAssignmentTitle = fromTopic.getDefaultAssignName();
-								if (gradebookService.isAssignmentDefined(gradebookUid, fromAssignmentTitle))
-								{
-									newTopic.setDefaultAssignName(fromAssignmentTitle);
-								}
-							}
+						}
 
-							forumManager.saveDiscussionForumTopic(newTopic, newForum.getDraft().booleanValue());
+						// get/add the forum's attachments
+						List fromAttach = forumManager.getForumById(true, fromForumId).getAttachments();
+						if (fromAttach != null && !fromAttach.isEmpty()) {
+							for (int currAttach=0; currAttach < fromAttach.size(); currAttach++) {                   			
+								Attachment thisAttach = (Attachment)fromAttach.get(currAttach);
+								Attachment newAttachment = copyAttachment(thisAttach.getAttachmentId(), toContext);
+								if (newAttachment != null)
+									newForum.addAttachment(newAttachment);
+							}
+						}   
+
+						// get/add the gradebook assignment associated with the forum settings
+						GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService) 
+						ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+						String gradebookUid = null;
+						// if this code is called from a quartz job, like SIS, then getCurrentPlacement() will return null.
+						// so just use the fromContext which gives the site id.
+						if (ToolManager.getCurrentPlacement() != null)
+							gradebookUid = ToolManager.getCurrentPlacement().getContext();
+						else
+							gradebookUid = fromContext;
+
+
+						if (gradebookService.isGradebookDefined(gradebookUid))
+						{
+							String fromAssignmentTitle = fromForum.getDefaultAssignName();
+							if (gradebookService.isAssignmentDefined(gradebookUid, fromAssignmentTitle))
+							{
+								newForum.setDefaultAssignName(fromAssignmentTitle);
+							}
+						}
+
+						// save the forum
+						Area area = areaManager.getDiscussionArea(toContext);
+						newForum.setArea(area);
+
+						if ("false".equalsIgnoreCase(ServerConfigurationService.getString("import.importAsDraft")))
+						{
+							forumManager.saveDiscussionForum(newForum, newForum.getDraft().booleanValue());
+						}
+						else
+						{
+							newForum.setDraft(new Boolean("true"));
+							forumManager.saveDiscussionForum(newForum, true);
+						}
+
+						// get/add the topics
+						List topicList = dfManager.getTopicsByIdWithMessagesMembershipAndAttachments(fromForumId);
+						if (topicList != null && !topicList.isEmpty()) {
+							for (int currTopic = 0; currTopic < topicList.size(); currTopic++) {
+								DiscussionTopic fromTopic = (DiscussionTopic)topicList.get(currTopic);
+								Long fromTopicId = fromTopic.getId();
+
+								DiscussionTopic newTopic = forumManager.createDiscussionForumTopic(newForum);
+
+								newTopic.setTitle(fromTopic.getTitle());
+								if (fromTopic.getShortDescription() != null && fromTopic.getShortDescription().length() > 0)
+									newTopic.setShortDescription(fromTopic.getShortDescription());
+								if (fromTopic.getExtendedDescription() != null && fromTopic.getExtendedDescription().length() > 0)
+									newTopic.setExtendedDescription(fromTopic.getExtendedDescription());
+								newTopic.setLocked(fromTopic.getLocked());
+								newTopic.setDraft(fromTopic.getDraft());
+								newTopic.setModerated(fromTopic.getModerated());
+								newTopic.setSortIndex(fromTopic.getSortIndex());
+								newTopic.setAutoMarkThreadsRead(fromTopic.getAutoMarkThreadsRead());
+
+								// Get/set the topic's permissions
+								Set topicMembershipItemSet = fromTopic.getMembershipItemSet();
+
+								if (topicMembershipItemSet != null && !topicMembershipItemSet.isEmpty() && allowedPermNames != null && !allowedPermNames.isEmpty()) {
+									Iterator membershipIter = topicMembershipItemSet.iterator();
+									while (membershipIter.hasNext()) {
+										DBMembershipItem oldItem = (DBMembershipItem)membershipIter.next();
+										if(allowedPermNames.contains(oldItem.getName())) {
+											DBMembershipItem newItem = getMembershipItemCopy(oldItem);
+											if (newItem != null) {
+												permissionManager.saveDBMembershipItem(newItem);
+												newTopic.addMembershipItem(newItem);
+											}
+										}
+									}
+								}
+								// Add the attachments
+								List fromTopicAttach = forumManager.getTopicByIdWithAttachments(fromTopicId).getAttachments();
+								if (fromTopicAttach != null && !fromTopicAttach.isEmpty()) {
+									for (int topicAttach=0; topicAttach < fromTopicAttach.size(); topicAttach++) {                   			
+										Attachment thisAttach = (Attachment)fromTopicAttach.get(topicAttach);
+										Attachment newAttachment = copyAttachment(thisAttach.getAttachmentId(), toContext);
+										if (newTopic != null && newAttachment != null)
+											newTopic.addAttachment(newAttachment);
+									}			
+								}
+
+								// get/add the gradebook assignment associated with the topic	
+								if (gradebookService.isGradebookDefined(gradebookUid))
+								{
+									String fromAssignmentTitle = fromTopic.getDefaultAssignName();
+									if (gradebookService.isAssignmentDefined(gradebookUid, fromAssignmentTitle))
+									{
+										newTopic.setDefaultAssignName(fromAssignmentTitle);
+									}
+								}
+
+								forumManager.saveDiscussionForumTopic(newTopic, newForum.getDraft().booleanValue());
+							}
 						}
 					}	
 				}

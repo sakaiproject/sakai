@@ -185,176 +185,190 @@ public class UpdateSynopticMessageCounts implements Job{
 		PreparedStatement isForumsPageInSiteQuery = null;
 		PreparedStatement getAllUsersInSiteQuery = null;
 		if(!runOracleSQL){		
-			isMessageForumsPageInSiteQuery = clConnection.prepareStatement("select * from SAKAI_SITE_TOOL where SITE_ID = ? and REGISTRATION = 'sakai.messagecenter'");
-			isMessageForumsPageInSiteQuery.setString(1, siteId);
-			isMessagesPageInSiteQuery = clConnection.prepareStatement("select * from SAKAI_SITE_TOOL where SITE_ID = ? and REGISTRATION = 'sakai.messages'");
-			isMessagesPageInSiteQuery.setString(1, siteId);
-			isForumsPageInSiteQuery = clConnection.prepareStatement("select * from SAKAI_SITE_TOOL where SITE_ID = ? and REGISTRATION = 'sakai.forums'");
-			isForumsPageInSiteQuery.setString(1, siteId);
-						
-
-			ResultSet rsMessagesForums = isMessageForumsPageInSiteQuery.executeQuery();
-			while(rsMessagesForums.next()){
-				isMessageForumsPageInSite = true;
-			}
-			
-			ResultSet rsMessages = isMessagesPageInSiteQuery.executeQuery();
-			while(rsMessages.next()){
-				isMessagesPageInSite = true;
-			}
-			
-			ResultSet rsForusm = isForumsPageInSiteQuery.executeQuery();
-			while(rsForusm.next()){
-				isForumsPageInSite = true;
-			}
-
+			ResultSet rsMessagesForums = null;
+			ResultSet rsMessages = null;
+			ResultSet rsForusm = null;
 			try{
-				if(rsMessagesForums != null)
-					rsMessagesForums.close();
+				isMessageForumsPageInSiteQuery = clConnection.prepareStatement("select * from SAKAI_SITE_TOOL where SITE_ID = ? and REGISTRATION = 'sakai.messagecenter'");
+				isMessageForumsPageInSiteQuery.setString(1, siteId);
+				isMessagesPageInSiteQuery = clConnection.prepareStatement("select * from SAKAI_SITE_TOOL where SITE_ID = ? and REGISTRATION = 'sakai.messages'");
+				isMessagesPageInSiteQuery.setString(1, siteId);
+				isForumsPageInSiteQuery = clConnection.prepareStatement("select * from SAKAI_SITE_TOOL where SITE_ID = ? and REGISTRATION = 'sakai.forums'");
+				isForumsPageInSiteQuery.setString(1, siteId);
+
+
+				rsMessagesForums = isMessageForumsPageInSiteQuery.executeQuery();
+				while(rsMessagesForums.next()){
+					isMessageForumsPageInSite = true;
+				}
+
+				rsMessages = isMessagesPageInSiteQuery.executeQuery();
+				while(rsMessages.next()){
+					isMessagesPageInSite = true;
+				}
+
+				rsForusm = isForumsPageInSiteQuery.executeQuery();
+				while(rsForusm.next()){
+					isForumsPageInSite = true;
+				}
 			}catch (Exception e){
 				LOG.warn(e);
-			}
-			try{
-				if(rsMessages != null)
-					rsMessages.close();
-			}catch (Exception e){
-				LOG.warn(e);
-			}
-			try{
-				if(rsForusm != null)
-					rsForusm.close();
-			}catch (Exception e){
-				LOG.warn(e);
-			}
-		}
-
-		getAllUsersInSiteQuery = clConnection.prepareStatement("select USER_ID from sakai_site_user where SITE_ID = ?");
-		getAllUsersInSiteQuery.setString(1, siteId);
-		
-		ResultSet usersMap = getAllUsersInSiteQuery.executeQuery();
-		
-		//loop through all users in site and update their information:
-		HashMap<String, Integer> userHM = null;
-		Integer count = null;
-		while(usersMap.next()){
-			int unreadPrivate = 0;
-			int unreadForum = 0;
-			
-			String userId = usersMap.getString("USER_ID");
-			
-			//message count:			
-			if (isMessageForumsPageInSite || isMessagesPageInSite) 
-			{
-				userHM = siteAndUserMessageCountHM.get(siteId);
-				if(userHM != null){
-					count = userHM.get(userId);
-					if(count != null){
-						unreadPrivate = count.intValue();
-					}					
+			}finally{
+				try{
+					if(rsMessagesForums != null)
+						rsMessagesForums.close();
+				}catch (Exception e){
+					LOG.warn(e);
+				}
+				try{
+					if(rsMessages != null)
+						rsMessages.close();
+				}catch (Exception e){
+					LOG.warn(e);
+				}
+				try{
+					if(rsForusm != null)
+						rsForusm.close();
+				}catch (Exception e){
+					LOG.warn(e);
 				}
 			}
-			
-			boolean isSuperUser = SecurityService.isSuperUser(userId); 
+		}
+		
+		ResultSet usersMap = null;
 
-			//forums count:
-			HashMap<Long, DecoratedForumInfo> dfHM = null;
-			Set<Long> dfKeySet = null;
-			if (isMessageForumsPageInSite || isForumsPageInSite){			
-				dfHM = allTopicsAndForumsHM.get(siteId);
-				if(dfHM != null){
-					//site has forums added to the tool
-					dfKeySet = dfHM.keySet();
+		try{
+			getAllUsersInSiteQuery = clConnection.prepareStatement("select USER_ID from sakai_site_user where SITE_ID = ?");
+			getAllUsersInSiteQuery.setString(1, siteId);
+
+			usersMap = getAllUsersInSiteQuery.executeQuery();
+
+			//loop through all users in site and update their information:
+			HashMap<String, Integer> userHM = null;
+			Integer count = null;
+			while(usersMap.next()){
+				int unreadPrivate = 0;
+				int unreadForum = 0;
+
+				String userId = usersMap.getString("USER_ID");
+
+				//message count:			
+				if (isMessageForumsPageInSite || isMessagesPageInSite) 
+				{
+					userHM = siteAndUserMessageCountHM.get(siteId);
+					if(userHM != null){
+						count = userHM.get(userId);
+						if(count != null){
+							unreadPrivate = count.intValue();
+						}					
+					}
+				}
+
+				boolean isSuperUser = SecurityService.isSuperUser(userId); 
+
+				//forums count:
+				HashMap<Long, DecoratedForumInfo> dfHM = null;
+				Set<Long> dfKeySet = null;
+				if (isMessageForumsPageInSite || isForumsPageInSite){			
+					dfHM = allTopicsAndForumsHM.get(siteId);
+					if(dfHM != null){
+						//site has forums added to the tool
+						dfKeySet = dfHM.keySet();
 
 
-					for (Iterator iterator = dfKeySet.iterator(); iterator.hasNext();) {
-						Long dfId = (Long) iterator.next();
+						for (Iterator iterator = dfKeySet.iterator(); iterator.hasNext();) {
+							Long dfId = (Long) iterator.next();
 
-						DecoratedForumInfo dForum = dfHM.get(dfId);
-						boolean isInstructor = getForumManager().isInstructor(userId, "/site/" + siteId);
+							DecoratedForumInfo dForum = dfHM.get(dfId);
+							boolean isInstructor = getForumManager().isInstructor(userId, "/site/" + siteId);
 
-						// Only count unread messages for forums the user can view:
-						if (dForum.getIsDraft().equals(Boolean.FALSE)
-								||isInstructor
-								|| isSuperUser
-								||forumManager.isForumOwner(dfId, dForum.getCreator(), userId, "/site/" + siteId))
-						{ 
+							// Only count unread messages for forums the user can view:
+							if (dForum.getIsDraft().equals(Boolean.FALSE)
+									||isInstructor
+									|| isSuperUser
+									||forumManager.isForumOwner(dfId, dForum.getCreator(), userId, "/site/" + siteId))
+							{ 
 
 
-							final Iterator<DecoratedTopicsInfo> topicIter = dForum.getTopics().iterator();
+								final Iterator<DecoratedTopicsInfo> topicIter = dForum.getTopics().iterator();
 
-							while (topicIter.hasNext()) 
-							{
-								DecoratedTopicsInfo topic = (DecoratedTopicsInfo) topicIter.next();
+								while (topicIter.hasNext()) 
+								{
+									DecoratedTopicsInfo topic = (DecoratedTopicsInfo) topicIter.next();
 
-								Long topicId = topic.getTopicId();
-								Boolean isTopicDraft = topic.getIsDraft();
-								Boolean isTopicModerated = topic.getIsModerated();
-								Boolean isTopicLocked = topic.getIsLocked();
-								String topicOwner = topic.getCreator();
+									Long topicId = topic.getTopicId();
+									Boolean isTopicDraft = topic.getIsDraft();
+									Boolean isTopicModerated = topic.getIsModerated();
+									Boolean isTopicLocked = topic.getIsLocked();
+									String topicOwner = topic.getCreator();
 
-								//Only count unread messages for topics the user can view:
-								if (isTopicDraft.equals(Boolean.FALSE)
-										|| isInstructor
-										|| isSuperUser
-										||forumManager.isTopicOwner(topicId, topicOwner, userId, "/site/" + siteId)){ 
+									//Only count unread messages for topics the user can view:
+									if (isTopicDraft.equals(Boolean.FALSE)
+											|| isInstructor
+											|| isSuperUser
+											||forumManager.isTopicOwner(topicId, topicOwner, userId, "/site/" + siteId)){ 
 
-									if (getUiPermissionsManager().isRead(topicId, isTopicDraft, dForum.getIsDraft(), userId, siteId))
-									{
-										if (!isTopicModerated.booleanValue() || (isTopicModerated.booleanValue() && 
-												getUiPermissionsManager().isModeratePostings(topicId, dForum.getIsLocked(), dForum.getIsDraft(), isTopicLocked, isTopicDraft, userId, siteId)))
+										if (getUiPermissionsManager().isRead(topicId, isTopicDraft, dForum.getIsDraft(), userId, siteId))
 										{
-											unreadForum += getMessageManager().findUnreadMessageCountByTopicIdByUserId(topicId, userId);
-										}
-										else
-										{	
-											// b/c topic is moderated and user does not have mod perm, user may only
-											// see approved msgs or pending/denied msgs authored by user
-											unreadForum += getMessageManager().findUnreadViewableMessageCountByTopicIdByUserId(topicId, userId);
+											if (!isTopicModerated.booleanValue() || (isTopicModerated.booleanValue() && 
+													getUiPermissionsManager().isModeratePostings(topicId, dForum.getIsLocked(), dForum.getIsDraft(), isTopicLocked, isTopicDraft, userId, siteId)))
+											{
+												unreadForum += getMessageManager().findUnreadMessageCountByTopicIdByUserId(topicId, userId);
+											}
+											else
+											{	
+												// b/c topic is moderated and user does not have mod perm, user may only
+												// see approved msgs or pending/denied msgs authored by user
+												unreadForum += getMessageManager().findUnreadViewableMessageCountByTopicIdByUserId(topicId, userId);
 
+											}
 										}
 									}
 								}
 							}
 						}
-					}
-				}		
+					}		
+				}
+
+				//update synoptic tool info:
+				if(unreadPrivate != 0 || unreadForum != 0){
+					SynopticMsgcntrManagerCover.createOrUpdateSynopticToolInfo(userId, siteId, siteTitle, unreadPrivate, unreadForum);
+				}
 			}
-			
-			//update synoptic tool info:
-			if(unreadPrivate != 0 || unreadForum != 0){
-				SynopticMsgcntrManagerCover.createOrUpdateSynopticToolInfo(userId, siteId, siteTitle, unreadPrivate, unreadForum);
+		}catch (Exception e){
+			LOG.warn(e);
+		}finally{
+
+			try{
+				if(usersMap != null)
+					usersMap.close();
+			}catch(Exception e){
+				LOG.warn(e);
 			}
-		}
-		
-		try{
-			if(usersMap != null)
-				usersMap.close();
-		}catch(Exception e){
-			LOG.warn(e);
-		}
-		try{
-			if(getAllUsersInSiteQuery != null)
-				getAllUsersInSiteQuery.close();
-		} catch (Exception e) {
-			LOG.warn(e);
-		}
-		try {
-			if (isForumsPageInSiteQuery != null)
-				isForumsPageInSiteQuery.close();
-		} catch (Exception e) {
-			LOG.warn(e);
-		}
-		try {
-			if (isMessagesPageInSiteQuery != null)
-				isMessagesPageInSiteQuery.close();
-		} catch (Exception e) {
-			LOG.warn(e);
-		}
-		try {
-			if (isMessageForumsPageInSiteQuery != null)
-				isMessageForumsPageInSiteQuery.close();
-		} catch (Exception e) {
-			LOG.warn(e);
+			try{
+				if(getAllUsersInSiteQuery != null)
+					getAllUsersInSiteQuery.close();
+			} catch (Exception e) {
+				LOG.warn(e);
+			}
+			try {
+				if (isForumsPageInSiteQuery != null)
+					isForumsPageInSiteQuery.close();
+			} catch (Exception e) {
+				LOG.warn(e);
+			}
+			try {
+				if (isMessagesPageInSiteQuery != null)
+					isMessagesPageInSiteQuery.close();
+			} catch (Exception e) {
+				LOG.warn(e);
+			}
+			try {
+				if (isMessageForumsPageInSiteQuery != null)
+					isMessageForumsPageInSiteQuery.close();
+			} catch (Exception e) {
+				LOG.warn(e);
+			}
 		}
 	}
 	

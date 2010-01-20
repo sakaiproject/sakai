@@ -1625,7 +1625,6 @@ private   int   getNum(char letter,   String   a)
 	    {
 	    String msgCClistStringwithoutAuthor = msgCClistString;	   
 	    
-	    List ccauther = new ArrayList();
 	    String currentUserasAuther = getUserName();
 	    char letter=';';
 	    int  n=getNum(letter,msgCClistStringwithoutAuthor);
@@ -2127,8 +2126,7 @@ private   int   getNum(char letter,   String   a)
     
     if(currentMsgPosition > -2  && currentMsgPosition < (tempMsgs.size()-1))
     {
-      PrivateMessageDecoratedBean thisDmb = (PrivateMessageDecoratedBean)tempMsgs.get(currentMsgPosition+1);
-      PrivateMessage message= (PrivateMessage) prtMsgManager.getMessageById(thisDmb.getMsg().getId()); 
+      PrivateMessageDecoratedBean thisDmb = (PrivateMessageDecoratedBean)tempMsgs.get(currentMsgPosition+1); 
       //get attachments
       prtMsgManager.markMessageAsReadForUser(thisDmb.getMsg());
       
@@ -2630,13 +2628,6 @@ private   int   getNum(char letter,   String   a)
     	String sendToString="";
     	String sendToHiddenString="";
 
-    	String sendReplyAllstring1="";
-    	String sendReplyAllstring2="";
-    	sendReplyAllstring2=getDetailMsg().getVisibleRecipientsAsText();
-
-    	sendReplyAllstring1=getDetailMsg().getRecipientsAsText();
-
-
     	//Add attachments
     	for(int i=0; i<allAttachments.size(); i++)
     	{
@@ -2645,12 +2636,10 @@ private   int   getNum(char letter,   String   a)
 
 
     	Set returnSetreplyall = new HashSet();
-    	Set returnSetreplyall2 = new HashSet();
 
     	returnSetreplyall=getRecipients();
 //  	1
-    	List returnSetreplyall22=null;
-    	returnSetreplyall22=currentMessage.getRecipients();//
+    	
     	User autheruser=null;
     	try {
     		autheruser = UserDirectoryService.getUser(currentMessage.getCreatedBy());
@@ -2667,7 +2656,7 @@ private   int   getNum(char letter,   String   a)
     	}
 
     	List tmpRecipList = currentMessage.getRecipients();
-    	List replyalllist=new ArrayList();
+    	
     	Set returnSet = new HashSet();
     	String sendToStringreplyall="";
 
@@ -2777,10 +2766,7 @@ private   int   getNum(char letter,   String   a)
 	 }
 	 
 	 Iterator iter = list.iterator();
-	 	
-	 List tmplist=new ArrayList();
-	   
-	 
+	 	 
 	   User tmpuser=null;
 	   while(iter.hasNext()){
 
@@ -3187,7 +3173,6 @@ private   int   getNum(char letter,   String   a)
         }
       }
       
-      ContentResource cr = contentHostingService.getResource(id);
       prtMsgManager.removePvtMsgAttachment(sa);
       if(id.toLowerCase().startsWith("/attachment"))
         contentHostingService.removeResource(id);
