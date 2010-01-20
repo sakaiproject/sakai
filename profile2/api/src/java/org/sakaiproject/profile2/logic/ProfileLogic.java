@@ -501,8 +501,22 @@ public interface ProfileLogic {
 	 * @return <code>true</code> if the has user allowed viewing of their
 	 * gallery pictures in their profile, otherwise returns <code>false</code>.
 	 */
-	public boolean isUserXGalleryVisibleByUser(String userX,
-			ProfilePrivacy profilePrivacy, String userY, boolean friend);
+	public boolean isUserXGalleryVisibleByUser(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend);
+	
+	/**
+	 * Has the user allowed messaging from the given user?
+	 * 
+	 * @param userX			the uuid of the user we are querying
+	 * @param profilePrivacy	the privacy record of userX
+	 * @param userY			current user uuid
+	 * @param friend 		if the current user is a friend of the user we are querying
+	 * @return boolean
+	 *
+	 * NOTE: userY is currently not used because the friend status between userX and userY has already
+	 * been determined, but it is in now in case later we allow blocking/opening up of info to specific users.
+	 * 
+	 */
+	public boolean isUserXMessagingEnabledForUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend);
 	
 	/**
 	 * Has the user allowed viewing of their status by the given user?

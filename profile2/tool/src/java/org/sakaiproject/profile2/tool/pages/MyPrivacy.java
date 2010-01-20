@@ -292,6 +292,21 @@ public class MyPrivacy extends BasePage {
             }
         });
 		
+		// messages privacy
+		WebMarkupContainer messagesContainer = new WebMarkupContainer("messagesContainer");
+		messagesContainer.add(new Label("messagesLabel", new ResourceModel("privacy.messages")));
+		DropDownChoice messagesChoice = new DropDownChoice("messages", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));             
+		messagesChoice.setOutputMarkupId(true);
+		messagesContainer.add(messagesChoice);
+		messagesContainer.add(new IconWithClueTip("messagesToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.messages.tooltip")));
+		form.add(messagesContainer);
+
+		messagesChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+            protected void onUpdate(AjaxRequestTarget target) {
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
+		
 		//submit button
 		IndicatingAjaxButton submitButton = new IndicatingAjaxButton("submit", form) {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
@@ -339,6 +354,7 @@ public class MyPrivacy extends BasePage {
 			myFriendsChoice.setEnabled(false);
 			myStatusChoice.setEnabled(false);
 			myPicturesChoice.setEnabled(false);
+			messagesChoice.setEnabled(false);
 			
 			submitButton.setEnabled(false);
 			submitButton.setVisible(false);

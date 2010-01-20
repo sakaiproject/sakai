@@ -497,19 +497,20 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		HashMap<String, Object> props = sakaiProxy.getOverriddenPrivacySettings();	
 		
 		//using the props, set them into the ProfilePrivacy object
-		ProfilePrivacy profilePrivacy = new ProfilePrivacy(
-				userId,
-				(Integer)props.get("profileImage"),
-				(Integer)props.get("basicInfo"),
-				(Integer)props.get("contactInfo"),
-				(Integer)props.get("academicInfo"),
-				(Integer)props.get("personalInfo"),
-				(Boolean)props.get("birthYear"),
-				(Integer)props.get("search"),
-				(Integer)props.get("myFriends"),
-				(Integer)props.get("myStatus"),
-				(Integer)props.get("myPictures")
-		);
+		ProfilePrivacy profilePrivacy = new ProfilePrivacy();
+		profilePrivacy.setUserUuid(userId);
+		profilePrivacy.setProfileImage((Integer)props.get("profileImage"));
+		profilePrivacy.setBasicInfo((Integer)props.get("basicInfo"));
+		profilePrivacy.setContactInfo((Integer)props.get("contactInfo"));
+		profilePrivacy.setAcademicInfo((Integer)props.get("academicInfo"));
+		profilePrivacy.setPersonalInfo((Integer)props.get("personalInfo"));
+		profilePrivacy.setShowBirthYear((Boolean)props.get("birthYear"));
+		profilePrivacy.setSearch((Integer)props.get("search"));
+		profilePrivacy.setMyFriends((Integer)props.get("myFriends"));
+		profilePrivacy.setMyStatus((Integer)props.get("myStatus"));
+		profilePrivacy.setMyPictures((Integer)props.get("myPictures"));
+		profilePrivacy.setMessages((Integer)props.get("messages"));
+
 		
 		return profilePrivacy;
 	}
@@ -1209,8 +1210,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	public boolean isUserXGalleryVisibleByUser(String userX,
-			ProfilePrivacy profilePrivacy, String userY, boolean friend) {
+	public boolean isUserXGalleryVisibleByUser(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend) {
 		
 		// current user
     	if(userY.equals(userX)) {
@@ -1229,6 +1229,31 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
     		return false;
     	}
 	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean isUserXMessagingEnabledForUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend) {
+		
+		// current user
+    	if(userY.equals(userX)) {
+    		return true;
+    	}
+    	
+    	// friend and friends allowed
+    	if (friend && profilePrivacy.getMessages() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+    		return true;
+    	}
+    	
+    	// everyone else
+    	if(profilePrivacy.getMessages() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
+    		return true;
+    	} else {
+    		return false;
+    	}
+	}
+
+	
 	
 	/**
  	 * {@inheritDoc}

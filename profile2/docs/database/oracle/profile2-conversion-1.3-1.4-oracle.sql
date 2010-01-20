@@ -10,3 +10,6 @@ alter table PROFILE_PREFERENCES_T add (EMAIL_MESSAGE_REPLY number(1,0) default 0
 
 /* add the new gallery column (PRFL-171)*/
 alter table PROFILE_PRIVACY_T add MY_PICTURES number(1,0) default 0;
+
+/* add the new gallery column (PRFL-194)*/
+alter table PROFILE_PRIVACY_T add MESSAGES number(1,0) default 0;

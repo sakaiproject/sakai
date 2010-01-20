@@ -131,6 +131,7 @@ public class ProfileConstants {
 	public static final int DEFAULT_PRIVACY_OPTION_MYFRIENDS = PRIVACY_OPTION_EVERYONE; 
 	public static final int DEFAULT_PRIVACY_OPTION_MYSTATUS = PRIVACY_OPTION_EVERYONE; 
 	public static final int DEFAULT_PRIVACY_OPTION_MYPICTURES = PRIVACY_OPTION_EVERYONE;
+	public static final int DEFAULT_PRIVACY_OPTION_MESSAGES = PRIVACY_OPTION_EVERYONE;
 	
 	//if they have no privacy record, ie have not turned explicitly turned searches on or off
 	public static final boolean DEFAULT_SEARCH_VISIBILITY = true;

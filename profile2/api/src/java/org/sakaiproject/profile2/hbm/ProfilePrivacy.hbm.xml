@@ -22,6 +22,7 @@
 		<property name="myFriends" column="MY_FRIENDS" not-null="true" />
 		<property name="myStatus" column="MY_STATUS" not-null="true" />
 		<property name="myPictures" column="MY_PICTURES" not-null="true" />
+		<property name="messages" column="MESSAGES" not-null="true" />
   	</class>
 
 	<query name="getPrivacyRecord">
