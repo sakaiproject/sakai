@@ -12,8 +12,6 @@ import org.sakaiproject.content.api.ContentHostingHandlerResolver;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.impl.BaseContentService.Storage;
-import org.sakaiproject.content.impl.DbContentService.DbStorage;
-import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.util.StorageUser;
 

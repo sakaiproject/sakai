@@ -106,7 +106,7 @@ public class LockManagerImpl extends HibernateDaoSupport implements LockManager
 
 	}
 
-	protected Object safePopList(List list)
+	protected Object safePopList(List<?> list)
 	{
 		if (list == null) return null;
 		if (list.size() == 0) return null;
@@ -123,9 +123,10 @@ public class LockManagerImpl extends HibernateDaoSupport implements LockManager
 	 * 
 	 * @see org.sakaiproject.component.legacy.content.LockManagerIntf#getLocks(java.lang.String)
 	 */
-	public Collection getLocks(String assetId)
+	@SuppressWarnings("unchecked")
+	public Collection<Lock> getLocks(String assetId)
 	{
-		Collection locks = null;
+		Collection<Lock> locks = null;
 		if (logger.isDebugEnabled())
 		{
 			logger.debug("getLocks(" + assetId + ")");
@@ -153,7 +154,7 @@ public class LockManagerImpl extends HibernateDaoSupport implements LockManager
 	 */
 	public boolean isLocked(String assetId)
 	{
-		Collection c = getLocks(assetId);
+		Collection<Lock> c = getLocks(assetId);
 		if (c == null) return false;
 		return true;
 	}
@@ -165,16 +166,16 @@ public class LockManagerImpl extends HibernateDaoSupport implements LockManager
 	 */
 	public void removeAllLocks(String qualifier)
 	{
-		Collection locks = getQualifierLocks(qualifier);
+		Collection<Lock> locks = getQualifierLocks(qualifier);
 		if (locks != null)
 		{
 			getHibernateTemplate().deleteAll(locks);
 		}
 	}
-
-	protected Collection getQualifierLocks(String qualifier)
+	@SuppressWarnings("unchecked")
+	protected Collection<Lock> getQualifierLocks(String qualifier)
 	{
-		Collection locks = null;
+		Collection<Lock> locks = null;
 		if (logger.isDebugEnabled())
 		{
 			logger.debug("getLocks(" + qualifier + ")");

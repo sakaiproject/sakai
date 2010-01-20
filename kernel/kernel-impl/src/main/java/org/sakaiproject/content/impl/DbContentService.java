@@ -54,6 +54,7 @@ import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.Lock;
 import org.sakaiproject.content.api.LockManager;
 import org.sakaiproject.content.impl.serialize.impl.conversion.Type1BlobCollectionConversionHandler;
 import org.sakaiproject.db.api.SqlReader;
@@ -2609,9 +2610,10 @@ public class DbContentService extends BaseContentService
 		return m_bodyPath + ((BaseResourceEdit) resource).m_filePath;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Map<String, Long> getMostRecentUpdate(String id) 
 	{
-		Map<String, Long> map = new HashMap();
+		Map<String, Long> map = new HashMap<String, Long>();
 		
 		String sql = contentServiceSql.getSiteDropboxChangeSql();
 		
@@ -2921,7 +2923,7 @@ public class DbContentService extends BaseContentService
 		public int value = 0;
 	}
 
-	public Collection getLocks(String id)
+	public Collection<Lock> getLocks(String id)
 	{
 		return m_lockManager.getLocks(id);
 	}

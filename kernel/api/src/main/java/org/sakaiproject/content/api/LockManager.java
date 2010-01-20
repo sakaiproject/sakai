@@ -37,7 +37,7 @@ public interface LockManager
 	 *        the asset to check
 	 * @return - a non-empty Collection of active Locks, or null
 	 */
-	Collection getLocks(String assetId);
+	Collection<Lock> getLocks(String assetId);
 
 	boolean isLocked(String assetId);
 

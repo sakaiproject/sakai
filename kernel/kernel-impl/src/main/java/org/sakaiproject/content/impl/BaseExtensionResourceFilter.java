@@ -27,7 +27,6 @@ import java.util.List;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceFilter;
 import org.sakaiproject.content.api.ResourceToolAction;
-import org.sakaiproject.entity.api.ResourceProperties;
 
 /**
  * This class implements the typical mime type and extension filter. This will be a registered bean with the component manager that application components can extend to control the list of mime types and the list of acceptable extentions.

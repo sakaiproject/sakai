@@ -2273,9 +2273,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	 *        A collection id.
 	 * @return a List of the ContentResource objects.
 	 */
-	public List getAllResources(String id)
+	public List<ContentResource> getAllResources(String id)
 	{
-		List rv = new ArrayList();
+		List<ContentResource> rv = new ArrayList<ContentResource>();
 
 		// get the collection members
 		try
@@ -6025,13 +6025,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	 * 
 	 * @return Map of worksite resource root id (String) to worksite title (String)
 	 */
-	public Map getCollectionMap()
+	public Map<String, String> getCollectionMap()
 	{
 		// the return map
-		Map rv = new HashMap();
+		Map<String, String> rv = new HashMap<String, String>();
 
 		// get the sites the user has access to
-		List mySites = m_siteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, null, null,
+		List<Site> mySites = m_siteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, null, null,
 				org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null);
 
 		// add in the user's myworkspace site, if we can find it and if the user
@@ -6049,7 +6049,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		}
 
 		// check each one for dropbox and resources
-		for (Iterator i = mySites.iterator(); i.hasNext();)
+		for (Iterator<Site> i = mySites.iterator(); i.hasNext();)
 		{
 			Site site = (Site) i.next();
 
@@ -8671,7 +8671,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	/**
 	 * {@inheritDoc}
 	 */
-	public List findResources(String type, String primaryMimeType, String subMimeType,  Set<String> contextIds)
+	public List<ContentResource> findResources(String type, String primaryMimeType, String subMimeType,  Set<String> contextIds)
 	{
 		List globalList = new ArrayList();
 
@@ -8689,7 +8689,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	/**
 	 * {@inheritDoc}
 	 */
-	public List findResources(String type, String primaryMimeType, String subMimeType)
+	public List<ContentResource> findResources(String type, String primaryMimeType, String subMimeType)
 	{
 		List globalList = new ArrayList();
 
