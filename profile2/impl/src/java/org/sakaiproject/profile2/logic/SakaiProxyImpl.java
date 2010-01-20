@@ -215,6 +215,15 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
  	* {@inheritDoc}
  	*/
+	public boolean isAdminUser() {
+		return StringUtils.equals(sessionManager.getCurrentSessionUserId(), UserDirectoryService.ADMIN_ID);
+	}
+
+	
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public boolean isSuperUserAndProxiedToUser(String userId) {
 		return (isSuperUser() && !StringUtils.equals(userId, getCurrentUserId()));
 	}

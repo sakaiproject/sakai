@@ -97,10 +97,16 @@ public interface SakaiProxy {
 	public boolean checkForUserByEid(String eid);
 	
 	/**
-	 * Is the current user a superUser?
+	 * Is the current user a superUser? (anyone in admin realm)
 	 * @return
 	 */
 	public boolean isSuperUser();
+	
+	/**
+	 * Is the current user the admin user? (ie 'admin')
+	 * @return
+	 */
+	public boolean isAdminUser();
 	
 	/**
 	 * Is the current user a superUser and are they performing an action on another user's profile?
