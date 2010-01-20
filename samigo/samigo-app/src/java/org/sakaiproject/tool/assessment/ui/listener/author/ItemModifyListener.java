@@ -357,8 +357,10 @@ public class ItemModifyListener implements ActionListener
 
        }
        for (int i=0; i<answerArray.length; i++) {
-	 replaced = orig.replaceFirst("\\{\\}", "{"+answerArray[i]+"}");
-         orig = replaced;
+    	   	// due to http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6325587  
+    	   	// we need to call Matcher.quoteReplacement()
+    	   replaced = orig.replaceFirst("\\{\\}", java.util.regex.Matcher.quoteReplacement("{"+answerArray[i]+"}"));
+    	   orig = replaced;
        }
 
        bean.setItemText(replaced);
