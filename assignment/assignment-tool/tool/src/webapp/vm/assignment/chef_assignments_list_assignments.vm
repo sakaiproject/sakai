@@ -289,10 +289,7 @@ function allowClick(object)
 						#set($submitTime=false)
 						#set ($submitTime = $submission.getTimeSubmitted())
 					#end
-					## who can see the assignment?
-					## for instructor(one can add or update assignment), show all non-draft assignment, plus those draft assignment he can update
-					## for student(one cann't add nor update assignment, but can submit to an assignment), show all non-draft, pass-open-date assignment
-					#if ((($!allowAddAssignment || $!allowUpdateAssignment) && ((!$assignment.draft) || ($assignment.draft && $!allowUpdateAssignment))) || (!$!allowAddAssignment && !$!allowUpdateAssignment && $allowGetAssignment && !$assignment.draft && $currentTime.after($!assignment.getOpenTime())))
+					## no need to do permission check again, since it was done when the list was constructed
 						#set ($assignmentCount = $assignmentCount + 1)
 						<tr> 
 							<td headers="attachments" class="attach">
@@ -317,16 +314,16 @@ function allowClick(object)
 									#if (($!allowAddAssignment || $!allowUpdateAssignment || $!service.allowGradeSubmission($assignment.getReference())) && $!view.equals('lisofass1'))
 										<h4>
 											## normal instructor view
-											#if ($assignment.draft && $!allowUpdateAssignment )
+											#if ($!allowUpdateAssignment )
 												<a href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">
-													<span class="highlight">$tlang.getString("gen.dra2") </span>
-														$validator.escapeHtml($validator.limit($!assignment.getTitle(), 64))
-												</a>
 											#else
 												<a href="#toolLinkParam("$action" "doView_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">
-													$validator.escapeHtml($validator.limit($!assignment.getTitle(), 64))
-												</a>
 											#end
+											#if ($!assignment.draft)
+												<span class="highlight">$tlang.getString("gen.dra2") </span>
+											#end
+												$validator.escapeHtml($validator.limit($!assignment.getTitle(), 64))
+											</a>
 										</h4>
 										<div class="itemAction">
 											#set($prevAction=false)
@@ -545,7 +542,6 @@ function allowClick(object)
 								</td>
 							#end
 						</tr>
-					#end
 				#end
 			</table>
 			#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
