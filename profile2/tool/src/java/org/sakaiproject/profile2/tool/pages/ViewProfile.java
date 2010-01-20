@@ -456,7 +456,7 @@ public class ViewProfile extends BasePage {
 		//favourite quotes
 		WebMarkupContainer otherContainer = new WebMarkupContainer("otherContainer");
 		otherContainer.add(new Label("otherLabel", new ResourceModel("profile.other")));
-		otherContainer.add(new Label("otherInformation", otherInformation));
+		otherContainer.add(new Label("otherInformation", ProfileUtils.escapeHtmlForDisplay(otherInformation)).setEscapeModelStrings(false));
 		personalInfoContainer.add(otherContainer);
 		if(StringUtils.isBlank(otherInformation)) {
 			otherContainer.setVisible(false);
