@@ -13,3 +13,6 @@ alter table PROFILE_PRIVACY_T add MY_PICTURES number(1,0) default 0;
 
 /* add the new gallery column (PRFL-194)*/
 alter table PROFILE_PRIVACY_T add MESSAGES number(1,0) default 0;
+
+/* add the new businessInfo column (PRFL-210)*/
+alter table PROFILE_PRIVACY_T add BUSINESS_INFO number(1,0) default 0;

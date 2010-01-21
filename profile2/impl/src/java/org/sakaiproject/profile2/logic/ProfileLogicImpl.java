@@ -513,7 +513,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		profilePrivacy.setMyStatus((Integer)props.get("myStatus"));
 		profilePrivacy.setMyPictures((Integer)props.get("myPictures"));
 		profilePrivacy.setMessages((Integer)props.get("messages"));
-
+		profilePrivacy.setBusinessInfo((Integer)props.get("businessInfo"));
 		
 		return profilePrivacy;
 	}

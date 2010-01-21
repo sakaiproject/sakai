@@ -14,3 +14,6 @@ alter table PROFILE_PRIVACY_T add MY_PICTURES int not null DEFAULT 0;
 /* add the new gallery column (PRFL-194)*/
 alter table PROFILE_PRIVACY_T add MESSAGES int not null DEFAULT 0;
 
+/* add the new businessInfo column (PRFL-210)*/
+alter table PROFILE_PRIVACY_T add BUSINESS_INFO int not null DEFAULT 0;
+
