@@ -11,8 +11,8 @@
     <name>BasicLTI Tomcat overlay assembly (basiclti-assembly)</name>
     <groupId>org.sakaiproject.basiclti</groupId>
     <artifactId>basiclti-assembly</artifactId>
-    <organization>
-        <name>University of Michigan</name>
+   <organization>
+        <name>Sakai Project</name>
         <url>http://sakaiproject.org/</url>
     </organization>
     <inceptionYear>2009</inceptionYear>

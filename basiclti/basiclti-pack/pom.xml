@@ -12,7 +12,7 @@
     <groupId>org.sakaiproject.basiclti</groupId>
     <artifactId>basiclti-pack</artifactId>
     <organization>
-        <name>University of Michigan</name>
+        <name>Sakai Project</name>
         <url>http://sakaiproject.org/</url>
     </organization>
     <inceptionYear>2009</inceptionYear>
