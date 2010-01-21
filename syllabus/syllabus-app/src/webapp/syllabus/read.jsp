@@ -11,6 +11,7 @@
 
 	<sakai:view_container title="#{msgs.title_edit}">
 		<sakai:view_content>
+			<h:outputText value="#{SyllabusTool.alertMessage}" styleClass="alertMessage" rendered="#{SyllabusTool.alertMessage != null}" />
 			<h:form>
 		  	<sakai:tool_bar_message value="#{msgs.editNotice}" /> 
 				<sakai:doc_section>
@@ -25,7 +26,7 @@
 					<h:outputLabel for="title">
 						<h:outputText value="#{msgs.syllabus_title}"/>
 					</h:outputLabel>
-					<h:inputText value="#{SyllabusTool.entry.entry.title}" id="title"/>
+					<h:inputText value="#{SyllabusTool.syllabusDataTitle}" id="title"/>
 					<h:outputText value="#{msgs.empty_title_validate}" styleClass="alertMessage" 
 									rendered="#{SyllabusTool.displayTitleErroMsg}"/>
 				</h:panelGroup>
@@ -35,10 +36,10 @@
 				<label for=""> <%-- outputLabel needed here instead but there is no target to id --%>
 					<h:outputText value="#{msgs.syllabus_content}"/>
 				</label>		
-				<sakai:rich_text_area value="#{SyllabusTool.entry.entry.asset}"   rows="17" columns="70"/>
+				<sakai:rich_text_area value="#{SyllabusTool.syllabusDataAsset}"   rows="17" columns="70"/>
 			</p>	
 			<div class="checkbox">
-				<h:selectOneRadio value="#{SyllabusTool.entry.entry.view}"  layout="pageDirection" title="#{msgs.publicPrivate}">
+				<h:selectOneRadio value="#{SyllabusTool.syllabusDataView}"  layout="pageDirection" title="#{msgs.publicPrivate}">
 					<f:selectItem itemValue="no" itemLabel="#{msgs.noPrivate}"/>
 					<f:selectItem itemValue="yes" itemLabel="#{msgs.yesPublic}"/>
 				</h:selectOneRadio>
@@ -117,7 +118,7 @@
 							<h:outputLabel for="list1">
 								<h:outputText value="#{msgs.email_notify}"/>
 							</h:outputLabel>
-							<h:selectOneListbox size = "1"  id = "list1" value="#{SyllabusTool.entry.entry.emailNotification}">
+							<h:selectOneListbox size = "1"  id = "list1" value="#{SyllabusTool.syllabusDataEmailNotification}">
 								<f:selectItem itemLabel="#{msgs.notifyNone}" itemValue="none"/>
 								<f:selectItem itemLabel="#{msgs.notifyHigh}" itemValue="high"/>
 								<f:selectItem itemLabel="#{msgs.notifyLow}" itemValue="low"/>

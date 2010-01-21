@@ -64,6 +64,8 @@ import com.sun.faces.util.MessageFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.api.Event;
 
+import org.sakaiproject.util.ResourceLoader;
+
 //sakai2 - no need to import org.sakaiproject.jsf.ToolBean here as sakai does.
 
 /**
@@ -227,6 +229,18 @@ public class SyllabusTool
   
   private ContentHostingService contentHostingService;
   
+  private ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.syllabus.bundle.Messages");
+  
+  private String alertMessage = null;
+  
+  public String getAlertMessage() {
+	return (alertMessage == null || alertMessage.length() == 0) ? null:alertMessage;
+  }
+	
+  public void setAlertMessage(String alertMessage) {
+	  this.alertMessage = alertMessage;
+  }
+
   public SyllabusTool()
   {
   }
@@ -1849,5 +1863,184 @@ public class SyllabusTool
 	  return ServerConfigurationService.getToolUrl() + Entity.SEPARATOR
 		+ ToolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "printFriendly";
 
+  }
+  
+  /**
+   * get title attribute of syllabus
+   * @return
+   */
+  public String getSyllabusDataTitle()
+  {
+	  String rv = "";
+	  DecoratedSyllabusEntry entry = getEntry();
+	  boolean alert = true;
+	  if (entry != null)
+	  {
+		  SyllabusData syllabusData = entry.getEntry();
+		  if (syllabusData != null)
+		  {
+			  rv = syllabusData.getTitle();
+			  alert = false;
+		  }
+	  }
+	  
+	  if (alert)
+	  {
+		  setAlertMessage(rb.getString("refresh"));
+	  }
+	  
+	  return rv;
+  }
+  
+  /**
+   * set the title for saving
+   * @param title
+   */
+  public void setSyllabusDataTitle(String title)
+  {
+      DecoratedSyllabusEntry entry = getEntry();
+      if (entry != null)
+      {
+              SyllabusData syllabusData = entry.getEntry();
+              if (syllabusData != null)
+              {
+                      syllabusData.setTitle(title);
+              }
+      }
+  }
+  
+  /**
+   * get Asset attribute of Syllabus
+   * @return
+   */
+  public String getSyllabusDataAsset()
+  {
+	  String rv = "";
+	  DecoratedSyllabusEntry entry = getEntry();
+	  boolean alert = true;
+	  
+	  if (entry != null)
+	  {
+		  SyllabusData syllabusData = entry.getEntry();
+		  if (syllabusData != null)
+		  {
+			  rv = syllabusData.getAsset();
+			  alert = false;
+		  }
+	  }
+	  
+	  if (alert)
+	  {
+		  setAlertMessage(rb.getString("refresh"));
+	  }
+	  
+	  return rv;
+  }
+  
+  /**
+   * set the asset for saving
+   * @param asset
+   */
+  public void setSyllabusDataAsset(String asset)
+  {
+      DecoratedSyllabusEntry entry = getEntry();
+      if (entry != null)
+      {
+              SyllabusData syllabusData = entry.getEntry();
+              if (syllabusData != null)
+              {
+                      syllabusData.setAsset(asset);
+              }
+      }
+  }
+  
+  /**
+   * get view attribute of syllabus attribute
+   * @return
+   */
+  public String getSyllabusDataView()
+  {
+	  String rv = "";
+	  DecoratedSyllabusEntry entry = getEntry();
+	  boolean alert = true;
+	  
+	  if (entry != null)
+	  {
+		  SyllabusData syllabusData = entry.getEntry();
+		  if (syllabusData != null)
+		  {
+			  rv = syllabusData.getView();
+			  alert = false;
+		  }
+	  }
+	  
+	  if (alert)
+	  {
+		  setAlertMessage(rb.getString("refresh"));
+	  }
+	  
+	  return rv;
+  }
+  
+  /**
+   * set the view for saving
+   * @param view
+   */
+  public void setSyllabusDataView(String view)
+  {
+      DecoratedSyllabusEntry entry = getEntry();
+      if (entry != null)
+      {
+              SyllabusData syllabusData = entry.getEntry();
+              if (syllabusData != null)
+              {
+                      syllabusData.setView(view);
+              }
+      }
+  }
+  
+  /**
+   * get view emailNotification of syllabus attribute
+   * @return
+   */
+  public String getSyllabusDataEmailNotification()
+  {
+	  String rv = "";
+	  DecoratedSyllabusEntry entry = getEntry();
+	  boolean alert = true;
+	  
+	  if (entry != null)
+	  {
+		  SyllabusData syllabusData = entry.getEntry();
+		  if (syllabusData != null)
+		  {
+			  rv = syllabusData.getEmailNotification();
+			  alert = false;
+		  }
+	  }
+	  
+	  if (alert)
+	  {
+		  setAlertMessage(rb.getString("refresh"));
+	  }
+	  
+	  return rv;
+  }
+  
+  /**
+   * set the email notification setting for saving
+   * @param emailNotification
+   */
+  public void setSyllabusDataEmailNotification(String emailNotification)
+  {
+      DecoratedSyllabusEntry entry = getEntry();
+      if (entry != null)
+      {
+              SyllabusData syllabusData = entry.getEntry();
+              if (syllabusData != null)
+              {
+                      syllabusData.setEmailNotification(emailNotification);
+              }
+      }
   }
 }

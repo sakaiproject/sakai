@@ -11,11 +11,12 @@
 
 	<sakai:view_container>
 		<sakai:view_content>
+			<h:outputText value="#{SyllabusTool.alertMessage}" styleClass="alertMessage" rendered="#{SyllabusTool.alertMessage != null}" />
 			<h:form>
 		  	<sakai:tool_bar_message value="#{msgs.previewNotice}" /> 
-				<h4><h:outputText value="#{SyllabusTool.entry.entry.title}"/></h4>
+				<h4><h:outputText value="#{SyllabusTool.syllabusDataTitle}"/></h4>
 				<div class="indnt1">
-					<syllabus:syllabus_htmlShowArea value="#{SyllabusTool.entry.entry.asset}" />
+					<syllabus:syllabus_htmlShowArea value="#{SyllabusTool.syllabusDataAsset}" />
 				</div>	
 					<h:dataTable value="#{SyllabusTool.attachments}" var="eachAttach">
 					  <h:column>
