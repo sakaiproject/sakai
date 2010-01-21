@@ -49,6 +49,7 @@ import org.sakaiproject.tool.assessment.qti.constants.QTIConstantStrings;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.helper.QTIHelperFactory;
 import org.sakaiproject.tool.assessment.qti.helper.item.ItemHelperIfc;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * <p>Copyright: Copyright (c) 2004</p>
@@ -134,7 +135,7 @@ public class Section extends ASIBaseClass
   {
     // identity
     setIdent("" + section.getSectionId());
-    setTitle(section.getTitle());
+    setTitle(FormattedText.convertFormattedTextToPlaintext(section.getTitle()));
     // metadata
     // Where the heck do these come from?  Looks like not being used.
     // If required we could extract keywords by weighting, and
