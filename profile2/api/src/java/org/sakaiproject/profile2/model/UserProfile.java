@@ -54,6 +54,8 @@ public class UserProfile implements Serializable {
 	private String otherInformation;
 	private String course;
 	private String subjects;
+	// TODO business-related fields
+	private String company;
 	private boolean locked;
 	
 	
@@ -263,6 +265,14 @@ public class UserProfile implements Serializable {
 		this.subjects = subjects;
 	}
 
+	public String getCompany() {
+		return company;
+	}
+	
+	public void setCompany(String company) {
+		this.company = company;
+	}
+	
 	public void setLocked(boolean locked) {
 		this.locked = locked;
 	}

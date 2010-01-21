@@ -135,6 +135,7 @@ public class ViewProfile extends BasePage {
 		boolean isBasicInfoAllowed = profileLogic.isUserXBasicInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		boolean isContactInfoAllowed = profileLogic.isUserXContactInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		boolean isAcademicInfoAllowed = profileLogic.isUserXAcademicInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isBusinessInfoAllowed = profileLogic.isUserXBusinessInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		boolean isPersonalInfoAllowed = profileLogic.isUserXPersonalInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		boolean isFriendsListVisible = profileLogic.isUserXFriendsListVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		final boolean isGalleryVisible = profileLogic.isUserXGalleryVisibleByUser(userUuid, privacy, currentUserId, friend);
@@ -391,7 +392,25 @@ public class ViewProfile extends BasePage {
 			visibleContainerCount++;
 		}
 		
+		/* BUSINESS INFO*/
+		WebMarkupContainer businessInfoContainer = new WebMarkupContainer("mainSectionContainer_business");
+		businessInfoContainer.setOutputMarkupId(true);
 		
+		// TODO get info etc.
+		// String company = sakaiPerson.getBusinessCompany();
+		int visibleFieldCount_business = 0;
+		
+		//heading
+		businessInfoContainer.add(new Label("mainSectionHeading_business", new ResourceModel("heading.business")));
+		
+		add(businessInfoContainer);
+		
+		//if nothing/not allowed, hide whole panel
+		if(visibleFieldCount_business == 0 || !isBusinessInfoAllowed) {
+			businessInfoContainer.setVisible(false);
+		} else {
+			visibleContainerCount++;
+		}
 		
 		
 		/* PERSONAL INFO */

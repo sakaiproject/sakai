@@ -42,6 +42,7 @@ import org.sakaiproject.profile2.tool.pages.panels.ChangeProfilePictureUrl;
 import org.sakaiproject.profile2.tool.pages.panels.FriendsFeed;
 import org.sakaiproject.profile2.tool.pages.panels.GalleryFeed;
 import org.sakaiproject.profile2.tool.pages.panels.MyAcademicDisplay;
+import org.sakaiproject.profile2.tool.pages.panels.MyBusinessDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyContactDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyInfoDisplay;
 import org.sakaiproject.profile2.tool.pages.panels.MyInterestsDisplay;
@@ -313,6 +314,13 @@ public class MyProfile extends BasePage {
 		Panel myAcademicDisplay = new MyAcademicDisplay("myAcademic", userProfile);
 		myAcademicDisplay.setOutputMarkupId(true);
 		add(myAcademicDisplay);
+		
+		//business panel - load the display version by default
+		Panel myBusinessDisplay = new MyBusinessDisplay("myBusiness", userProfile);
+		myBusinessDisplay.setOutputMarkupId(true);
+		add(myBusinessDisplay);
+		// TODO remove this comment when working
+		myBusinessDisplay.setVisible(false);
 		
 		//interests panel - load the display version by default
 		Panel myInterestsDisplay = new MyInterestsDisplay("myInterests", userProfile);
