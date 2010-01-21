@@ -163,6 +163,12 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
       dao.save(template);
       log.info("saved template: " + template.getId());
    }
+   
+   public void updateTemplate(EmailTemplate template) {
+	   template.setLastModified(new Date());
+	   dao.update(template);
+	   log.info("updated template: " + template.getId());
+	}
 
    protected Locale getUserLocale(String userId) {
       Locale loc = null;

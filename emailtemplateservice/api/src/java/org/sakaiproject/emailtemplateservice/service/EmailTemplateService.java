@@ -99,6 +99,12 @@ public interface EmailTemplateService {
    public void saveTemplate(EmailTemplate emailTemplate);
 
    /**
+    * update a template
+    * @param emailTemplate an email template, cannot be null
+    */
+   public void updateTemplate(EmailTemplate emailTemplate);
+   
+   /**
     * INTERNAL USE: get an email template by the unique id
     */
    public EmailTemplate getEmailTemplateById(Long id);
@@ -119,5 +125,6 @@ public interface EmailTemplateService {
     * @param replacementValues
     */
    public void sendRenderedMessages(String key, List<String> userReferences, Map<String, String> replacementValues, String from, String fromName);
+   
    
 }

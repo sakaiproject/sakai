@@ -38,5 +38,9 @@
         </property>
         <!-- identifies this email template as a default template and indicates the type (reminder, available, etc.), use constants -->
         <property name="defaultType" type="java.lang.String" unique="false" length="255" />
+        
+        <!--  version of this template, used for comparison (optional) -->
+        <property name="version" column="VERSION" not-null="false" />
+        
 	</class>
 </hibernate-mapping>
