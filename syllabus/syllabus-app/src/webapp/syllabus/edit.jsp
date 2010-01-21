@@ -29,7 +29,7 @@
  					</h:outputLabel>
  					<h:inputText value="#{SyllabusTool.syllabusDataTitle}" id="title"/>
  				</h:panelGroup>
- 				<h:outputText value="#{msgs.empty_title_validate}" styleClass="alertMessageInLine"
+ 				<h:outputText value="#{msgs.empty_title_validate}" styleClass="alertMessage"
  				 					rendered="#{SyllabusTool.displayTitleErroMsg}"/>
  					
  			</h:panelGrid>
