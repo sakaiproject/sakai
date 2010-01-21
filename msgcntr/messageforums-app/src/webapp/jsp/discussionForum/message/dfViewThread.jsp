@@ -7,7 +7,7 @@
 </jsp:useBean>
 
 <f:view>
-<sakai:view toolCssHref="/sakai-messageforums-tool/css/msgcntr.css">
+<sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
 	<span class="skip" id="firstPendingItemTitleHolder"><h:outputText value="#{msgs.cdfm_gotofirstpendingtitle}" /></span>
 	<span class="skip" id="nextPendingItemTitleHolder"><h:outputText value="#{msgs.cdfm_gotopendtitle}" /></span>
 	<span class="skip" id="lastPendingItemTitleHolder"><h:outputText value="#{msgs.cdfm_lastpendtitle}" /></span>
@@ -18,12 +18,12 @@
 
 		<!--jsp/discussionForum/message/dfViewThread.jsp-->
        		<script type="text/javascript" src="/library/js/jquery.js"></script>
-       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
-		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
+       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
+		<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 		
 	<%--//
 		//plugin required below
-		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/pxToEm.js"/>
+		<sakai:script contextBase="/messageforums-tool" path="/js/pxToEm.js"/>
 
 		/*
 		gsilver: get a value representing max indents

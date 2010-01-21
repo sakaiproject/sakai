@@ -29,8 +29,8 @@
 <!--jsp/privateMsg/pvtMsg.jsp-->
 		<h:form id="prefs_pvt_form">
 		       		<script type="text/javascript" src="/library/js/jquery.js"></script>
-       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
-			<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>		
+       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
+			<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>		
 			
 			<sakai:tool_bar>
        			<sakai:tool_bar_item value="#{msgs.pvt_compose}" action="#{PrivateMessagesTool.processPvtMsgCompose}" />
@@ -54,7 +54,7 @@
 		    <f:facet name="header">
  					<h:commandLink action="#{PrivateMessagesTool.processCheckAll}" value="#{msgs.cdfm_checkall}" 
  					               title="#{msgs.cdfm_checkall}" />
-		     <%--<h:commandButton alt="SelectAll" image="/sakai-messageforums-tool/images/checkbox.gif" action="#{PrivateMessagesTool.processSelectAllJobs}"/>--%>
+		     <%--<h:commandButton alt="SelectAll" image="/messageforums-tool/images/checkbox.gif" action="#{PrivateMessagesTool.processSelectAllJobs}"/>--%>
 		    </f:facet>
 				<h:selectBooleanCheckbox value="#{rcvdItems.isSelected}" onclick="updateCount(this.checked); toggleBulkOperations(anyChecked(), 'prefs_pvt_form');" />
 		  </h:column>
@@ -178,7 +178,7 @@
 		    <f:facet name="header">
  					<h:commandLink action="#{PrivateMessagesTool.processCheckAll}" value="#{msgs.cdfm_checkall}" 
  					               title="#{msgs.cdfm_checkall}"/>
-		     <%--<h:commandButton alt="SelectAll" image="/sakai-messageforums-tool/images/checkbox.gif" action="#{PrivateMessagesTool.processSelectAllJobs}"/>--%>
+		     <%--<h:commandButton alt="SelectAll" image="/messageforums-tool/images/checkbox.gif" action="#{PrivateMessagesTool.processSelectAllJobs}"/>--%>
 		    </f:facet>
 				<h:selectBooleanCheckbox value="#{rcvdItems.isSelected}" onclick="updateCount(this.checked); toggleBulkOperations(anyChecked(), 'prefs_pvt_form');" />
 		  </h:column>

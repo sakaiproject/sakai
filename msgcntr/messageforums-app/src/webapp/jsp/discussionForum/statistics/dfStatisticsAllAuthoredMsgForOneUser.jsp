@@ -10,8 +10,8 @@
   	<h:form id="dfStatisticsForm">
   	<!-- discussionForum/statistics/dfStatisticsAllAuthoredMsgForOneUser.jsp-->
   	       	<script type="text/javascript" src="/library/js/jquery.js"></script>
-       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
-       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
+       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
+       		<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
   	
   			<sakai:tool_bar>
   				<h:outputLink id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyAllAuthoredMsg}');" title="#{msgs.cdfm_print}">

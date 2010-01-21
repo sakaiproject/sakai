@@ -7,12 +7,12 @@
 </jsp:useBean>
 
 <f:view>
-	<sakai:view title="#{msgs.cdfm_container_title}" toolCssHref="/sakai-messageforums-tool/css/msgcntr.css">
+	<sakai:view title="#{msgs.cdfm_container_title}" toolCssHref="/messageforums-tool/css/msgcntr.css">
   <!--jsp/dfCompose.jsp-->
     <h:form id="dfCompose">
            		<script type="text/javascript" src="/library/js/jquery.js"></script>
-       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
-       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
+       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
+       		<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 			<script type="text/javascript">
 				$(document).ready(function() {
 					$('#openLinkBlock').hide();

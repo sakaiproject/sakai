@@ -1502,17 +1502,17 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    			String fileType = decoAttach.getAttachment().getAttachmentType();
 	    			String imageUrl = null;
 	    			if (fileType.equalsIgnoreCase("application/vnd.ms-excel"))
-	    				imageUrl = "/sakai-messageforums-tool/images/excel.gif";
+	    				imageUrl = "/messageforums-tool/images/excel.gif";
 	    			else if (fileType.equalsIgnoreCase("text/html"))
-	    				imageUrl = "/sakai-messageforums-tool/images/html.gif";
+	    				imageUrl = "/messageforums-tool/images/html.gif";
 	    			else if (fileType.equalsIgnoreCase("application/pdf"))
-	    				imageUrl = "/sakai-messageforums-tool/images/pdf.gif";
+	    				imageUrl = "/messageforums-tool/images/pdf.gif";
 	    			else if (fileType.equalsIgnoreCase("application/vnd.ms-powerpoint"))
-	    				imageUrl = "/sakai-messageforums-tool/images/ppt.gif";
+	    				imageUrl = "/messageforums-tool/images/ppt.gif";
 	    			else if (fileType.equalsIgnoreCase("text/plain"))
-	    				imageUrl = "/sakai-messageforums-tool/images/text.gif";
+	    				imageUrl = "/messageforums-tool/images/text.gif";
 	    			else if (fileType.equalsIgnoreCase("application/msword"))
-	    				imageUrl = "/sakai-messageforums-tool/images/word.gif";
+	    				imageUrl = "/messageforums-tool/images/word.gif";
 	    			
 	    			if (imageUrl != null) {
 	    				forwardedText.append("<img alt=\"\" src=\"" + imageUrl + "\" />");

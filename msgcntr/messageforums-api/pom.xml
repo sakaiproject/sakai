@@ -6,7 +6,7 @@
 		<groupId>org.sakaiproject.msgcntr</groupId>
 		<version>2.8-SNAPSHOT</version>
 	</parent>
-	<name>Sakai MessageForums API</name>
+	<name>Sakai Message Forums API</name>
 	<groupId>org.sakaiproject.msgcntr</groupId>
 	<artifactId>messageforums-api</artifactId>
 	<organization>

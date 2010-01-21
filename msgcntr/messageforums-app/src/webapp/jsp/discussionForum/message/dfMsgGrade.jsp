@@ -7,9 +7,9 @@
 </jsp:useBean>
 
 <f:view>
-	<sakai:view toolCssHref="/sakai-messageforums-tool/css/msgcntr.css">
+	<sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
        		<script type="text/javascript" src="/library/js/jquery.js"></script>
-       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
+       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
   <h:form id="msgForum">
 <!--jsp\discussionForum\message\dfMsgGrade.jsp-->
       <h3><h:outputText value="#{msgs.cdfm_grade_msg}" /></h3>

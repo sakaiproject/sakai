@@ -9,12 +9,12 @@
 </jsp:useBean>
 
 <f:view>
-   <sakai:view title="#{msgs.cdfm_default_template_settings}" toolCssHref="/sakai-messageforums-tool/css/msgcntr.css">           
+   <sakai:view title="#{msgs.cdfm_default_template_settings}" toolCssHref="/messageforums-tool/css/msgcntr.css">           
       <h:form id="revise">
              		<script type="text/javascript" src="/library/js/jquery.js"></script>
-       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
-		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/permissions_header.js"/>
-		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
+       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
+		<sakai:script contextBase="/messageforums-tool" path="/js/permissions_header.js"/>
+		<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 
 
 <!--jsp/discussionForum/area/dfTemplateSettings.jsp-->

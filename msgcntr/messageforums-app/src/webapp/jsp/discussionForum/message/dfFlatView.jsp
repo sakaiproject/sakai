@@ -7,18 +7,18 @@
 </jsp:useBean>
 
 <f:view>
-<sakai:view toolCssHref="/sakai-messageforums-tool/css/msgcntr.css">
+<sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
 
 	<h:form id="msgForum" styleClass="specialLink">
 
 	<!--jsp/discussionForum/message/dfFlatView.jsp-->
   		<script type="text/javascript" src="/library/js/jquery.js"></script>
-  		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
-		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
+  		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
+		<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 
 	<%--//
 		//plugin required below
-		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/pxToEm.js"/>
+		<sakai:script contextBase="/messageforums-tool" path="/js/pxToEm.js"/>
 
 		/*
 		gsilver: get a value representing max indents

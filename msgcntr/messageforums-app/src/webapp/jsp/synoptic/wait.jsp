@@ -172,9 +172,9 @@
 
 <f:view>
   <sakai:view>
-  	  <sakai:script contextBase="/sakai-messageforums-tool" path="/js/jquery.tablesorter.js"/>
-	  <sakai:script contextBase="/sakai-messageforums-tool" path="/js/synopticLite.js"/>
-  	  <sakai:script contextBase="/sakai-messageforums-tool" path="/js/popupscripts.js"/>
+  	  <sakai:script contextBase="/messageforums-tool" path="/js/jquery.tablesorter.js"/>
+	  <sakai:script contextBase="/messageforums-tool" path="/js/synopticLite.js"/>
+  	  <sakai:script contextBase="/messageforums-tool" path="/js/popupscripts.js"/>
   	  <script type="text/javascript">
 
 //this function (setupTableParsers) setting has to be in the jsp page b/c of the msgs.syn_no_messages string.

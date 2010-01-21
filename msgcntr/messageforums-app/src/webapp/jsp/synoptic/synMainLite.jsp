@@ -14,7 +14,7 @@
 <f:view>
   <sakai:view id="synopticView">
 <script type="text/javascript" src="/library/js/jquery.js"></script>
-<sakai:script contextBase="/sakai-messageforums-tool" path="/js/jquery.tablesorter.js"/>
+<sakai:script contextBase="/messageforums-tool" path="/js/jquery.tablesorter.js"/>
 <f:verbatim>
  <%
   	String thisId = request.getParameter("panel");
@@ -219,7 +219,7 @@ function mySetMainFrameHeightViewCell(id)
  
  
  </f:verbatim>
-<sakai:script contextBase="/sakai-messageforums-tool" path="/js/synopticLite.js"/>
+<sakai:script contextBase="/messageforums-tool" path="/js/synopticLite.js"/>
 <link rel="stylesheet" type="text/css" href="css/TableSorter.css" />
 
 	<h:form id="synopticForm">

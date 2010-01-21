@@ -8,9 +8,9 @@
 %>
 <%--
        		<script type="text/javascript" src="/library/js/jquery.js"></script>
-       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
-<sakai:script contextBase="/sakai-messageforums-tool" path="/js/permissions_header.js"/>
-<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
+       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
+<sakai:script contextBase="/messageforums-tool" path="/js/permissions_header.js"/>
+<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 --%>
 <!--jsp/discussionForum/permissions/permissions_include.jsp-->
 <mf:forumHideDivision title="#{msgs.cdfm_permissions}" id="cntrl_perm" hideByDefault="false" >
@@ -149,5 +149,5 @@
   	    </h:selectOneMenu>
   	  </h:panelGroup>
   </h:panelGrid>
-  <sakai:script contextBase="/sakai-messageforums-tool" path="/js/permissions_footer.js"/>	 	
+  <sakai:script contextBase="/messageforums-tool" path="/js/permissions_footer.js"/>	 	
 </mf:forumHideDivision>

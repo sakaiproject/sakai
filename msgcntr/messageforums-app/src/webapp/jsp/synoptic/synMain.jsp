@@ -31,9 +31,9 @@
 </jsp:useBean>
 
 <f:view>
-		<sakai:view toolCssHref="/sakai-messageforums-tool/css/msgcntr.css">
+		<sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
 			<h:form styleClass="specialLink">
-	  <sakai:script contextBase="/sakai-messageforums-tool" path="/js/popupscripts.js"/>
+	  <sakai:script contextBase="/messageforums-tool" path="/js/popupscripts.js"/>
 
 	  <h:panelGroup rendered="#{mfSynopticBean.myWorkspace}" > 
 		<h:outputText value="#{msgs.syn_no_sites}" rendered="#{! mfSynopticBean.sitesToView}" />
@@ -171,7 +171,7 @@
 								<h:outputText value="#{msgs.syn_tool_link_begin}#{mfSynopticBean.siteInfo.mcPageURL}';\">Read</a>" 
 							escape="false" title="#{msgs.syn_goto_forums}" rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt > 0}"/>
 									<%--
-									<h:graphicImage url="/sakai-messageforums-tool/images/12-em-check.png" rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt > 0}" />
+									<h:graphicImage url="/messageforums-tool/images/12-em-check.png" rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt > 0}" />
 									--%>
 		</h:panelGroup>
 						</h:panelGroup>

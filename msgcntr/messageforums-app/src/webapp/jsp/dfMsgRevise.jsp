@@ -11,11 +11,11 @@
 <!--jsp/dfMsgRevise.jsp-->
 	<h:form id="dfCompose">
 			<style type="text/css">
-				@import url("/sakai-messageforums-tool/css/msgcntr.css");
+				@import url("/messageforums-tool/css/msgcntr.css");
 			</style>
 	       		<script type="text/javascript" src="/library/js/jquery.js"></script>
-       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
-       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
+       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
+       		<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 			<script type="text/javascript">
 				$(document).ready(function() {
 					$('#countme').click(function(e){

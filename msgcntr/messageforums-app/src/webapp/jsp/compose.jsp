@@ -11,7 +11,7 @@
 <!--Y:\msgcntr\messageforums-app\src\webapp\jsp\compose.jsp-->
     <h:form id="compose">
            		<script type="text/javascript" src="/library/js/jquery.js"></script>
-       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
+       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 		<!-- compose.jsp -->
   			<div class="breadCrumb specialLink">
 				<h3>	

@@ -53,7 +53,7 @@ public class HierDataTableRender extends HtmlBasicRenderer
 {
 	protected static Log log = LogFactory.getLog(HierDataTableRender.class);
 
-	private static final String RESOURCE_PATH = "/" + "sakai-messageforums-tool";
+	private static final String RESOURCE_PATH = "/" + "/messageforums-tool";
 	private static final String BARIMG = RESOURCE_PATH + "/" + "images/collapse.gif";
 	private static final String CURSOR = "cursor:pointer";
 

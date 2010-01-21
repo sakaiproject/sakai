@@ -9,10 +9,10 @@
 </jsp:useBean>
 
 <f:view>
-   <sakai:view title="#{msgs.watch_forums_options}" toolCssHref="/sakai-messageforums-tool/css/msgcntr.css">           
+   <sakai:view title="#{msgs.watch_forums_options}" toolCssHref="/messageforums-tool/css/msgcntr.css">           
       <h:form id="revise">
         		<script type="text/javascript" src="/library/js/jquery.js"></script>
-       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
+       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 <!--jsp/discussionForum/area/dfWatchSettings.jsp-->
         <sakai:tool_bar_message value="#{msgs.watch_forums_options}" />
 

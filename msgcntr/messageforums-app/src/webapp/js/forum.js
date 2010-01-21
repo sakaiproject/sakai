@@ -358,7 +358,7 @@ function toggleExtendedDescription(hideShowEl, parent, element) {
 js = document.createElement('script');
 js.setAttribute('language', 'javascript');
 js.setAttribute('type', 'text/javascript');
-js.setAttribute('src','/sakai-messageforums-tool/js/sak-10625.js');
+js.setAttribute('src','/messageforums-tool/js/sak-10625.js');
 document.getElementsByTagName('head').item(0).appendChild(js);*/
 
 // open print preview in another browser window so can size approx what actual

@@ -8,7 +8,7 @@
 	<sakai:view_content>
 		<h:form enctype="multipart/form-data">
 		       		<script type="text/javascript" src="/library/js/jquery.js"></script>
-       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
+       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 		  <sakai:tool_bar>
 		  	<sakai:tool_bar_message value="Attachment from a Local File" /> 
 		  </sakai:tool_bar>

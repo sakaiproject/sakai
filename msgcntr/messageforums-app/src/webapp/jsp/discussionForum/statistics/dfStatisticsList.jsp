@@ -10,7 +10,7 @@
   	<h:form id="dfStatisticsForm">
 <!-- discussionForum/statistics/dfStatisticsList.jsp-->
        		<script type="text/javascript" src="/library/js/jquery.js"></script>
-       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
+       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
   		<h:panelGrid columns="1" summary="layout" width="100%" styleClass="navPanel  specialLink">
           <h:panelGroup>
           	 <f:verbatim><h3></f:verbatim>

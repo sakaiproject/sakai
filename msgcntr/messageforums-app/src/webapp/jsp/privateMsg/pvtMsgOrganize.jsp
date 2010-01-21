@@ -8,7 +8,7 @@
 <!--jsp/privateMsg/pvtMsgOrganize.jsp-->
 			<h:form id="pvtMsgOrganize">
 			       		<script type="text/javascript" src="/library/js/jquery.js"></script>
-       		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
+       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 				<hr />
 				<sakai:tool_bar_message 	value="#{msgs.pvt_msgs_label} #{msgs.pvt_organize}" />
 				<hr />

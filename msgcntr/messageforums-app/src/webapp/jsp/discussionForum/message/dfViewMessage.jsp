@@ -7,10 +7,10 @@
 </jsp:useBean>
 
 <f:view>
-	<sakai:view toolCssHref="/sakai-messageforums-tool/css/msgcntr.css">
+	<sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
 		<h:form id="msgForum" styleClass="specialLink">
 			<script type="text/javascript" src="/library/js/jquery.js"></script>
-			<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
+			<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 			<!--jsp/discussionForum/message/dfViewMessage.jsp-->
 			<script type="text/javascript">
 				$(document).ready(function() {

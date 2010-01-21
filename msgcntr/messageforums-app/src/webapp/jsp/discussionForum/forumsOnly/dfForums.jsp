@@ -16,10 +16,10 @@ org.sakaiproject.tool.cover.SessionManager.getCurrentToolSession().
 
 
 <f:view>
-  <sakai:view title="#{msgs.cdfm_discussion_forums}" toolCssHref="/sakai-messageforums-tool/css/msgcntr.css">
+  <sakai:view title="#{msgs.cdfm_discussion_forums}" toolCssHref="/messageforums-tool/css/msgcntr.css">
   		<script type="text/javascript" src="/library/js/jquery.js"></script>
-  		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/sak-10625.js"/>
-		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
+  		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
+		<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 
 	<h:form id="msgForum">
   <sakai:tool_bar separator="#{msgs.cdfm_toolbar_separator}" rendered="#{ForumTool.newForum || ForumTool.instructor || ForumTool.displayPendingMsgQueue}">

@@ -60,7 +60,7 @@ public class HierPvtMsgDataTableRender extends HtmlBasicRenderer {
 	private static final String CURSOR;
 
 	static {
-		RESOURCE_PATH = "/" + "sakai-messageforums-tool";
+		RESOURCE_PATH = "/" + "/messageforums-tool";
 		BARIMG = RESOURCE_PATH + "/" + "images/collapse.gif";
 		CURSOR = "cursor:pointer";
 	}
