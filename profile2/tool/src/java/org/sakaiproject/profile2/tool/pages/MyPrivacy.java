@@ -196,6 +196,25 @@ public class MyPrivacy extends BasePage {
             }
         });
 		
+		//businesInfo privacy
+		WebMarkupContainer businessInfoContainer = new WebMarkupContainer("businessInfoContainer");
+		businessInfoContainer.add(new Label("businessInfoLabel", new ResourceModel("privacy.businessinfo")));
+		DropDownChoice businessInfoChoice = new DropDownChoice("businessInfo", dropDownModelStrict, new HashMapChoiceRenderer(privacySettingsStrict));
+		businessInfoChoice.setOutputMarkupId(true);
+		businessInfoContainer.add(businessInfoChoice);
+		//tooltip
+		businessInfoContainer.add(new IconWithClueTip("businessInfoToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.businessinfo.tooltip")));
+		form.add(businessInfoContainer);
+		//updater
+		businessInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+            protected void onUpdate(AjaxRequestTarget target) {
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
+		
+		// TODO remove this line when PRFL-206 fixed.
+		businessInfoContainer.setVisible(false);
+		
 		//personalInfo privacy
 		WebMarkupContainer personalInfoContainer = new WebMarkupContainer("personalInfoContainer");
 		personalInfoContainer.add(new Label("personalInfoLabel", new ResourceModel("privacy.personalinfo")));
@@ -348,6 +367,7 @@ public class MyPrivacy extends BasePage {
 			basicInfoChoice.setEnabled(false);
 			contactInfoChoice.setEnabled(false);
 			academicInfoChoice.setEnabled(false);
+			businessInfoChoice.setEnabled(false);
 			personalInfoChoice.setEnabled(false);
 			birthYearCheckbox.setEnabled(false);
 			searchChoice.setEnabled(false);
