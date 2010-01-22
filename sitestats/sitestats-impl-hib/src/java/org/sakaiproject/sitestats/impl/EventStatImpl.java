@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -175,6 +175,7 @@ public class EventStatImpl implements EventStat, Serializable {
 				&& siteId.equals(other.getSiteId())
 				&& userId.equals(other.getUserId())
 				&& eventId.equals(other.getEventId())
+				&& ((toolId != null && toolId.equals(other.getToolId())) || (toolId == null && other.getToolId() == null))
 				&& count == other.getCount()
 				&& date.equals(other.getDate());
 	}
@@ -189,6 +190,8 @@ public class EventStatImpl implements EventStat, Serializable {
 						 || (userId != null && other.getUserId() != null && userId.equals(other.getUserId())) )
 				&& ( (eventId == null && other.getEventId() == null)
 						 || (eventId != null && other.getEventId() != null && eventId.equals(other.getEventId())) )
+				&& ( (toolId == null && other.getToolId() == toolId)
+						 || (toolId != null && other.getToolId() != null && toolId.equals(other.getToolId())) )
 				&& ( (date == null && other.getDate() == null)
 						 || (date != null && other.getDate() != null && date.equals(other.getDate())) );
 	}
@@ -200,12 +203,13 @@ public class EventStatImpl implements EventStat, Serializable {
 				+ this.getUserId().hashCode()
 				+ this.getSiteId().hashCode()
 				+ this.getEventId().hashCode()
+				+ (this.getToolId() != null ? this.getToolId().hashCode() : 0)
 				+ count
 				+ this.getDate().hashCode();
 		return hashStr.hashCode();
 	}
 	
 	public String toString(){
-		return siteId + " : " + userId + " : " + eventId + " : " + count + " : " + date;
+		return siteId + " : " + userId + " : " + eventId + " : " + toolId + " : " + count + " : " + date;
 	}
 }

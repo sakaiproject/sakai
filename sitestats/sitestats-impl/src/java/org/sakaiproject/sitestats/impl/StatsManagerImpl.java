@@ -1222,36 +1222,17 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				if(records.size() > 0){
 					Calendar cal = Calendar.getInstance();
 					Map<String,ToolInfo> eventIdToolMap = M_ers.getEventIdToolMap();
-					Map<String,Integer> toolIdEventStatIxMap = new HashMap<String,Integer>();
 					boolean groupByTool = columnMap.containsKey(StatsSqlBuilder.C_TOOL) && !columnMap.containsKey(StatsSqlBuilder.C_EVENT);
 					boolean hasVisitsData = columnMap.containsKey(StatsSqlBuilder.C_VISITS);
 					for(Iterator<Object[]> iter = records.iterator(); iter.hasNext();) {
 						if(!inverseUserSelection){
 							Object[] s = iter.next();
 							Stat c = null;
-							int eventStatListIndex = -1;
 							String toolId = null;
-							if(!groupByTool) {
-								if(!hasVisitsData) {
-									c = new EventStatImpl();
-								}else{
-									c = new SiteVisitsImpl();
-								}
+							if(!hasVisitsData) {
+								c = new EventStatImpl();
 							}else{
-								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_TOOL);
-								ToolInfo ti = eventIdToolMap.get((String)s[ix]);
-								toolId = ti != null? ti.getToolId() : (String)s[ix];
-								Integer esIx = toolIdEventStatIxMap.get(toolId); 
-								if(esIx == null) {
-									if(!hasVisitsData) {
-										c = new EventStatImpl();
-									}else{
-										c = new SiteVisitsImpl();
-									}
-								}else{
-									eventStatListIndex = esIx.intValue();
-									c = results.get(eventStatListIndex);
-								}
+								c = new SiteVisitsImpl();
 							}
 							if(columnMap.containsKey(StatsSqlBuilder.C_SITE)) {
 								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_SITE);
@@ -1269,6 +1250,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 								((EventStat) c).setToolId(toolId);	
 							}
 							if(columnMap.containsKey(StatsSqlBuilder.C_TOOL) && !hasVisitsData) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_TOOL);
+								ToolInfo ti = eventIdToolMap.get((String)s[ix]);
+								toolId = ti != null? ti.getToolId() : (String)s[ix];
+								//
 								((EventStat) c).setToolId(toolId);							
 							}
 							if(columnMap.containsKey(StatsSqlBuilder.C_DATE)) {
@@ -1321,11 +1306,23 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 									((SiteVisits) c).setTotalUnique(((Integer)s[ix]).intValue());
 								}
 							}
-							if(eventStatListIndex == -1) {
+							if(!groupByTool) {
 								results.add(c);
-								toolIdEventStatIxMap.put(toolId, results.size()-1);
 							}else{
-								results.set(eventStatListIndex, c);
+								// Special case:
+								//  - group by tool (& event not part of grouping)
+								boolean toolAggregated = false;
+								for(Stat s_ : results) {
+									EventStat es_ = (EventStat) s_;
+									if(es_.equalExceptForCount(c)) {
+										es_.setCount(es_.getCount() + c.getCount());
+										toolAggregated = true;
+										break;
+									}
+								}
+								if(!toolAggregated) {
+									results.add(c);
+								}
 							}
 						}else{
 							if(siteUserIds != null) {

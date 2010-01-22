@@ -935,7 +935,7 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		assertEquals(3, stats.size());
 		statsCount = M_sm.getEventStatsRowCount(null, null,
 				null, null, null, false, Arrays.asList(StatsManager.T_SITE, StatsManager.T_TOOL));
-		assertEquals(5, statsCount);
+		assertEquals(5, statsCount); // is not 3 because count has not (manually) aggregated by tool
 		stats = M_sm.getEventStats(null, null, 
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_SITE), null, false, 0);
@@ -961,7 +961,16 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		assertEquals(2, stats.size());
 		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CONTENTNEW, FakeData.EVENT_CONTENTDEL, FakeData.EVENT_CHATNEW),
 				null, null, null, false, Arrays.asList(StatsManager.T_TOOL));
-		assertEquals(3, statsCount);
+		assertEquals(3, statsCount);  // is not 2 because count has not (manually) aggregated by tool
+		// group by: tool and user (previously, getting wrong results due to STAT-221)
+		stats = M_sm.getEventStats(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CONTENTNEW, FakeData.EVENT_CONTENTDEL, FakeData.EVENT_CHATNEW), 
+				null, null, null, false, null, 
+				Arrays.asList(StatsManager.T_USER, StatsManager.T_TOOL), null, false, 0);
+		assertNotNull(stats);
+		assertEquals(4, stats.size()); // before STAT-221 was 2 (wrong)
+		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CONTENTNEW, FakeData.EVENT_CONTENTDEL, FakeData.EVENT_CHATNEW),
+				null, null, null, false, Arrays.asList(StatsManager.T_USER, StatsManager.T_TOOL));
+		assertEquals(4, statsCount);
 		// group by: event
 		stats = M_sm.getEventStats(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CONTENTNEW, FakeData.EVENT_CONTENTDEL, FakeData.EVENT_CHATNEW),
 				null, null, null, false, null, 
