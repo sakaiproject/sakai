@@ -28,6 +28,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.AbstractBehavior;
 import org.apache.wicket.extensions.ajax.markup.html.AjaxLazyLoadPanel;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
@@ -38,7 +39,7 @@ import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.exception.ProfileNotDefinedException;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
-import org.sakaiproject.profile2.tool.components.ResizingAjaxLazyLoadPanel;
+import org.sakaiproject.profile2.tool.components.NotifyingAjaxLazyLoadPanel;
 import org.sakaiproject.profile2.tool.pages.panels.ChangeProfilePictureUpload;
 import org.sakaiproject.profile2.tool.pages.panels.ChangeProfilePictureUrl;
 import org.sakaiproject.profile2.tool.pages.panels.FriendsFeed;
@@ -327,12 +328,6 @@ public class MyProfile extends BasePage {
 		//interests panel - load the display version by default
 		Panel myInterestsDisplay = new MyInterestsDisplay("myInterests", userProfile);
 		myInterestsDisplay.setOutputMarkupId(true);
-		
-		myInterestsDisplay.add(new AbstractBehavior() {
-			
-			
-		});
-		
 		add(myInterestsDisplay);
 
 		
@@ -340,18 +335,23 @@ public class MyProfile extends BasePage {
 		
 		
 		//friends feed panel for self - lazy loaded
-		add(new ResizingAjaxLazyLoadPanel("friendsFeed") {
+		add(new NotifyingAjaxLazyLoadPanel("friendsFeed") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
             public Component getLazyLoadComponent(String markupId) {
             	return new FriendsFeed(markupId, userUuid, userUuid);
             }
+
+			@Override
+			public void renderHead(IHeaderResponse response) {
+				response.renderOnDomReadyJavascript("setMainFrameHeight(window.name);");
+			}
         });
         	
         	
 		//gallery feed panel
-		add(new ResizingAjaxLazyLoadPanel("galleryFeed") {
+		add(new NotifyingAjaxLazyLoadPanel("galleryFeed") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -362,6 +362,11 @@ public class MyProfile extends BasePage {
 				} else {
 					return new EmptyPanel(markupId);
 				}
+			}
+
+			@Override
+			public void renderHead(IHeaderResponse response) {
+				response.renderOnDomReadyJavascript("setMainFrameHeight(window.name);");
 			}
 			
 		});

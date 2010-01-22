@@ -233,18 +233,18 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		
 		//wicketstuff TinyMCE
 		response.renderJavascriptReference(TinyMCESettings.javaScriptReference());
-		
-		//Tool additions (at end so we can override if required)
-		response.renderString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");
-		response.renderCSSReference("css/profile2.css");
-		response.renderJavascriptReference("javascript/profile2.js");
-		
+
 		//response.renderJavascriptReference("javascript/iframe.js");
 		//resize the iframe to fit the contents
 		//response.renderOnLoadJavascript("setMainFrameHeight(window.name);");
 		
 		//add live plugin to listen for markup added after the DOM is ready
 		//response.renderJavascriptReference("javascript/jquery.livequery.js");
+		
+		//Tool additions (at end so we can override if required)
+		response.renderString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");
+		response.renderCSSReference("css/profile2.css");
+		response.renderJavascriptReference("javascript/profile2.js");
 		
 	}
 	
