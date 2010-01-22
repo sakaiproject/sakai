@@ -44,18 +44,14 @@
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>javax.portlet</groupId>
             <artifactId>portlet-api</artifactId>
-            <version>1.0</version>
-            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
         </dependency>
     </dependencies>
 
@@ -72,14 +68,13 @@
                             <goal>add-source</goal>
                             <!--
                                 Uncomment the add-resource goal if
-                                theres profile specific resources, you
+                                there are profile specific resources.  You
                                 also need to add a <resources> section
                                 in the <configuration>
                                 <goal>add-resource</goal>
                             -->
                         </goals>
                         <configuration>
-                            <!-- Source directory for textbook -->
                             <sources>
                                 <source>${source.profile}</source>
                             </sources>
