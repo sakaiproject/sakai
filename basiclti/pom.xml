@@ -46,9 +46,9 @@
     </modules>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/contrib/ims/basiclti/branches/basiclti-0.5.x</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/ims/basiclti/branches/basiclti-0.5.x</developerConnection>
-        <url>https://source.sakaiproject.org/contrib/ims/basiclti/branches/basiclti-0.5.x</url>
+        <connection>scm:svn:https://source.sakaiproject.org/contrib/ims/basiclti/branches/basiclti-1.0.x</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/ims/basiclti/branches/basiclti-1.0.x</developerConnection>
+        <url>https://source.sakaiproject.org/contrib/ims/basiclti/branches/basiclti-1.0.x</url>
     </scm>
 
     <distributionManagement>
