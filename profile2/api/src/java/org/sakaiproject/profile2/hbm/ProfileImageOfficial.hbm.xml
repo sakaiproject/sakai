@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.sakaiproject.profile2.model">
+
+	<class name="ProfileImageOfficial" table="PROFILE_IMAGES_OFFICIAL_T">
+
+		<!--  use the userUuid as the primary key directly since there will only ever be one record per user -->
+	    <id name="userUuid" column="USER_UUID" length="99">
+	    	<generator class="assigned" />
+	    </id>
+	    
+		<property name="url" column="URL" length="4000" not-null="true" />
+
+  	</class>
+  	
+  	<!-- get the ProfileImageOfficial record for a user -->
+	<query name="getProfileImageOfficialRecord">
+    	<![CDATA[from ProfileImageOfficial official WHERE official.userUuid = :userUuid]]>
+	</query>
+	
+</hibernate-mapping>

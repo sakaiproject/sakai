@@ -28,6 +28,7 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.Radio;
@@ -262,9 +263,7 @@ public class MyPreferences extends BasePage{
 			profilePreferences.setTwitterEnabled(false); //set the model false to clear data as well (doesnt really need to do this but we do it to keep things in sync)
 			tc.setVisible(false);
 		}
-		
-		
-		//add twitter container
+	
 		form.add(tc);
 		
 		// set initial required/enabled states on the twitter fields
@@ -279,6 +278,33 @@ public class MyPreferences extends BasePage{
 			twitterUsername.setRequired(false);
 			twitterPassword.setRequired(false);
 		}
+		
+		
+		
+		// TWITTER SECTION
+		WebMarkupContainer is = new WebMarkupContainer("imageSettingsContainer");
+		is.setOutputMarkupId(true);
+				
+		//official photo settings
+		is.add(new Label("imageSettingsHeading", new ResourceModel("heading.section.image")));
+		is.add(new Label("imageSettingsText", new ResourceModel("preferences.image.message")));
+
+		//checkbox
+		WebMarkupContainer officialImageContainer = new WebMarkupContainer("officialImageContainer");
+		officialImageContainer.add(new Label("officialImageLabel", new ResourceModel("preferences.image.official")));
+		CheckBox officialImage = new CheckBox("officialImage", new PropertyModel<Boolean>(preferencesModel, "useOfficialImage"));
+		officialImageContainer.add(officialImage);
+
+		//updater
+		officialImage.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+			private static final long serialVersionUID = 1L;
+			protected void onUpdate(AjaxRequestTarget target) {
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
+		is.add(officialImageContainer);
+		form.add(is);
+
 		
 		//submit button
 		IndicatingAjaxButton submitButton = new IndicatingAjaxButton("submit", form) {
@@ -333,16 +359,13 @@ public class MyPreferences extends BasePage{
 				
 				
 				if(profileLogic.savePreferencesRecord(profilePreferences)) {
-					log.info("Saved ProfilePreferences for: " + profilePreferences.getUserUuid());
 					formFeedback.setDefaultModel(new ResourceModel("success.preferences.save.ok"));
 					formFeedback.add(new AttributeModifier("class", true, new Model<String>("success")));
 					
 					//post update event
 					sakaiProxy.postEvent(ProfileConstants.EVENT_PREFERENCES_UPDATE, "/profile/"+userUuid, true);
 					
-					
 				} else {
-					log.info("Couldn't save ProfilePreferences for: " + profilePreferences.getUserUuid());
 					formFeedback.setDefaultModel(new ResourceModel("error.preferences.save.failed"));
 					formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));	
 				}

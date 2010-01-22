@@ -46,6 +46,7 @@ import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileFriend;
 import org.sakaiproject.profile2.model.ProfileImage;
 import org.sakaiproject.profile2.model.ProfileImageExternal;
+import org.sakaiproject.profile2.model.ProfileImageOfficial;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.ProfileStatus;
@@ -93,6 +94,10 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	private static final String QUERY_GET_PREFERENCES_RECORD = "getPreferencesRecord"; 
 	private static final String QUERY_GET_EXTERNAL_IMAGE_RECORD = "getProfileImageExternalRecord"; 
 	private static final String QUERY_GET_ALL_SAKAI_PERSONS = "getAllSakaiPersons";
+	
+	//ProfileImageOfficial
+	private static final String QUERY_GET_OFFICIAL_IMAGE_RECORD = "getProfileImageOfficialRecord"; 
+
 	
 	// from Message.hbm.xml
 	private static final String QUERY_GET_ALL_UNREAD_MESSAGES_COUNT = "getAllUnreadMessagesCount";
@@ -1500,14 +1505,15 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
  	 */
 	public ProfilePreferences getDefaultPreferencesRecord(final String userId) {
 		
-		ProfilePreferences prefs = new ProfilePreferences(
-				userId,
-				ProfileConstants.DEFAULT_EMAIL_REQUEST_SETTING,
-				ProfileConstants.DEFAULT_EMAIL_CONFIRM_SETTING,
-				ProfileConstants.DEFAULT_EMAIL_MESSAGE_NEW_SETTING,
-				ProfileConstants.DEFAULT_EMAIL_MESSAGE_REPLY_SETTING,
-				ProfileConstants.DEFAULT_TWITTER_SETTING);
-		
+		ProfilePreferences prefs = new ProfilePreferences();
+				prefs.setUserUuid(userId);
+				prefs.setRequestEmailEnabled(ProfileConstants.DEFAULT_EMAIL_REQUEST_SETTING);
+				prefs.setConfirmEmailEnabled(ProfileConstants.DEFAULT_EMAIL_CONFIRM_SETTING);
+				prefs.setMessageNewEmailEnabled(ProfileConstants.DEFAULT_EMAIL_MESSAGE_NEW_SETTING);
+				prefs.setMessageReplyEmailEnabled(ProfileConstants.DEFAULT_EMAIL_MESSAGE_REPLY_SETTING);
+				prefs.setTwitterEnabled(ProfileConstants.DEFAULT_TWITTER_SETTING);
+				prefs.setUseOfficialImage(ProfileConstants.DEFAULT_OFFICIAL_IMAGE_SETTING);
+				
 			return prefs;
 	}
 	
@@ -1802,7 +1808,7 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
     		return url;
     	}
     	
-    	//no notification for this message type, return false 	
+    	//no url	
     	log.error("ProfileLogic.getExternalImageUrl. No URL for userId: " + userId + ", imageType: " + imageType);  
 
     	return null;
@@ -2489,7 +2495,63 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	  	}
 	  	
 		return persons;
+	}	
+		
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public String getOfficialImageUrl(final String userUuid) {
+		//get external image record for this user
+		ProfileImageOfficial official = getOfficialImageRecordForUser(userUuid);
+		
+		//if none, return null
+    	if(official == null) {
+    		return null;
+    	}
+    	
+    	if(StringUtils.isBlank(official.getUrl())) {
+        	log.error("ProfileLogic.getOfficialImageUrl. No URL for userUuid: " + userUuid);  
+			return null;
+		}
+    	
+    	return official.getUrl();
 	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean saveOfficialImageUrl(final String userUuid, final String url) {
+		
+		//make an object out of the params
+		ProfileImageOfficial official = new ProfileImageOfficial(userUuid, url);
+		
+		try {
+			getHibernateTemplate().saveOrUpdate(official);
+			log.info("Updated official image record for user: " + official.getUserUuid()); 
+			return true;
+		} catch (Exception e) {
+			log.error("ProfileLogic.saveOfficialImageUrl() failed. " + e.getClass() + ": " + e.getMessage());  
+			return false;
+		}
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean isOfficialImagePreferred(final String userUuid) {
+		
+		//get preferences record for this user
+    	ProfilePreferences prefs = getPreferencesRecordForUser(userUuid);
+    	
+    	//if none, return whatever the flag is set as by default
+    	if(prefs == null) {
+    		return ProfileConstants.DEFAULT_OFFICIAL_IMAGE_SETTING;
+    	}
+    	
+    	//return value
+    	return prefs.isUseOfficialImage();
+	}
+	
 	
 	
 	
@@ -2970,6 +3032,30 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 			}
 		}
 	}
+	
+	
+	/*
+	 * Gets a ProfileImageOfficial record for the given user
+	 */
+	private ProfileImageOfficial getOfficialImageRecordForUser(final String userUuid) {
+		
+		if(userUuid == null){
+	  		throw new IllegalArgumentException("Null Argument in ProfileLogic.getOfficialImageRecordForUser"); 
+	  	}
+		
+		HibernateCallback hcb = new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	  			Query q = session.getNamedQuery(QUERY_GET_OFFICIAL_IMAGE_RECORD);
+	  			q.setParameter(USER_UUID, userUuid, Hibernate.STRING);
+	  			q.setMaxResults(1);
+	  			return q.uniqueResult();
+			}
+		};
+	
+		return (ProfileImageOfficial) getHibernateTemplate().execute(hcb);
+	}
+	
+	
 	
 	
 	

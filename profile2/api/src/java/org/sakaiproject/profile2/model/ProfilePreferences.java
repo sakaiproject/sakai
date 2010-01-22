@@ -41,24 +41,13 @@ public class ProfilePreferences implements Serializable {
 	private String twitterPasswordDecrypted; //this is used for display. When updating, it is encrypted and set into the encrypted field
 	private boolean messageNewEmailEnabled;
 	private boolean messageReplyEmailEnabled;
+	private boolean useOfficialImage;
 
 	
 	/** 
 	 * Empty constructor
 	 */
 	public ProfilePreferences(){
-	}
-	
-	/**
-	 * Basic constructor for creating default records
-	 */
-	public ProfilePreferences(String userUuid, boolean requestEmailEnabled, boolean confirmEmailEnabled, boolean messageNewEmailEnabled, boolean messageReplyEmailEnabled, boolean twitterEnabled){
-		this.userUuid=userUuid;
-		this.requestEmailEnabled=requestEmailEnabled;
-		this.confirmEmailEnabled=confirmEmailEnabled;
-		this.messageNewEmailEnabled=messageNewEmailEnabled;
-		this.messageReplyEmailEnabled=messageReplyEmailEnabled;
-		this.twitterEnabled=twitterEnabled;
 	}
 	
 	
@@ -132,6 +121,15 @@ public class ProfilePreferences implements Serializable {
 
 	public void setTwitterPasswordDecrypted(String twitterPasswordDecrypted) {
 		this.twitterPasswordDecrypted = twitterPasswordDecrypted;
+	}
+
+
+	public boolean isUseOfficialImage() {
+		return useOfficialImage;
+	}
+
+	public void setUseOfficialImage(boolean useOfficialImage) {
+		this.useOfficialImage = useOfficialImage;
 	}
 
 	

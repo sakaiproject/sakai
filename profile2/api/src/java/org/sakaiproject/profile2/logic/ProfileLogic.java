@@ -960,4 +960,28 @@ public interface ProfileLogic {
 	 */
 	public List<Person> getListOfFullPersons(int start, int count);
 	
+	/**
+	 * Get the URL to a user's official profile image
+	 * @param userUuid		uuid of user
+	 * 
+	 * @return url or null if none
+	 */
+	public String getOfficialImageUrl(final String userUuid);
+	
+	/**
+	 * Save the official image url that users can set.
+	 * @param userUuid		uuid of the user
+	 * @param url			url to image
+	 * @return
+	 */
+	public boolean saveOfficialImageUrl(final String userUuid, final String url);
+	
+	/**
+	 * Has this user set the official image as their preferred image?
+	 * @param userUuid		uuid of the user
+	 * @return
+	 */
+	public boolean isOfficialImagePreferred(final String userUuid);
+
+	
 }

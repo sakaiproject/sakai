@@ -101,6 +101,19 @@
 						</table>
 					</div>
 					
+					<!-- Image settings -->
+					<div wicket:id="imageSettingsContainer">
+						<div class="formSectionHeading" wicket:id="imageSettingsHeading">[profile image settings]</div>
+						<div class="formSectionText" wicket:id="imageSettingsText">[imageSettingsText]</div>
+						
+						<table class="preferencesContent">
+							<tr wicket:id="officialImageContainer">
+								<td class="label" wicket:id="officialImageLabel">[officialImageLabel]</td>
+								<td class="content"><input wicket:id="officialImage" type="checkbox"></input></td>
+							</tr>
+						</table>
+					</div>
+					
 					<div class="pageFormButtons">
 						<input type="submit" wicket:id="submit" value="Save" />
 					</div>

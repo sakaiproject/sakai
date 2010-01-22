@@ -23,6 +23,9 @@
 	    <property name="twitterUsername" column="TWITTER_USERNAME" not-null="false" />
 		<property name="twitterPasswordEncrypted" column="TWITTER_PASSWORD" not-null="false" />
 	   
+	   	<property name="useOfficialImage" column="USE_OFFICIAL_IMAGE" not-null="true" />
+	   
+	   
   	</class>
 
 	<query name="getPreferencesRecord">
