@@ -39,7 +39,6 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.util.string.JavascriptUtils;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageParticipant;
 import org.sakaiproject.profile2.model.MessageThread;
@@ -57,7 +56,7 @@ public class MyMessageView extends BasePage {
 	
 	private DataView<Message> messageList = null;
 	private WebMarkupContainer messageListContainer = null;
-	private String scrollToId = null;
+	private boolean lastUnreadSet = false;
 	
 	/**
 	 * Constructor for an incoming link with a threadId as part of the PageParameters
@@ -190,11 +189,12 @@ public class MyMessageView extends BasePage {
 				//highlight if new, then mark it as read
 				if(!messageOwner && !participant.isRead()) {
 					item.add(new AttributeAppender("class", true, new Model<String>("unread-message"), " "));
-					//profileLogic.toggleMessageRead(message, true);
+					profileLogic.toggleMessageRead(participant, true);
 					
-					//update scrollToId for the first unread message
-					if(StringUtils.isBlank(scrollToId)) {
-						scrollToId = item.getMarkupId();
+					//set param for first unread message in the thread
+					if(!lastUnreadSet) {
+						lastUnreadSet=true;
+						item.add(new AttributeModifier("rel", true, new Model<String>("lastUnread")));
 					}
 					
 				}
@@ -202,13 +202,6 @@ public class MyMessageView extends BasePage {
 				item.setOutputMarkupId(true);
 				
 		    }
-			
-			protected void onBeforeRender() {
-				super.onBeforeRender();
-				//JavascriptUtils.writeJavascript(getResponse(), "$.scrollTo( '#"+scrollToId + "', 800);");
-				//JavascriptUtils.writeJavascript(getResponse(), "alert('hello: " + scrollToId + "');");
-
-			}
 			
 		};
 		messageList.setOutputMarkupId(true);

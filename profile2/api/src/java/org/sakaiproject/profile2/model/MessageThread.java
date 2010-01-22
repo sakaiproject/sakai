@@ -17,6 +17,7 @@
 package org.sakaiproject.profile2.model;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 /**
@@ -28,7 +29,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class MessageThread implements Serializable {
+public class MessageThread implements Serializable, Comparable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -88,13 +89,13 @@ public class MessageThread implements Serializable {
 			toString();
 	}
 	
-	/*
-	public int compareTo(Object other) {
+	
+	public int compareTo(Object o) {
 		Date thisDate = this.getMostRecentMessage().getDatePosted();
-		Date otherDate = ((MessageThread)other).getMostRecentMessage().getDatePosted();
+		Date otherDate = ((MessageThread)o).getMostRecentMessage().getDatePosted();
         int lastCmp = thisDate.compareTo(otherDate);
         return (lastCmp != 0 ? lastCmp : thisDate.compareTo(otherDate));
 	}
-	*/
+	
 	
 }

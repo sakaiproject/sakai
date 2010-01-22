@@ -850,21 +850,12 @@ public interface ProfileLogic {
 	
 	/**
 	 * Toggle a single message as read/unread
-	 * @param message	the message
+	 * @param participant	the MessageParticipant record as this is the item that stores read/unread status
 	 * @param read		boolean if to be toggled as read/unread
 	 * @return
 	 */
-	//public boolean toggleMessageReadForUser(Message message, final boolean read);
+	public boolean toggleMessageRead(MessageParticipant participant, final boolean read);
 	
-	/**
-	 * Toggle all messages in the given thread, that are to the given user, as read/unread
-	 * @param threadId		id of the message thread
-	 * @param userUuid		user to mark the messages read for
-	 * @param read			boolean if to be toggled as read/unread
-	 * @return
-	 */
-	//public boolean toggleAllMessagesInThreadAsRead(final String threadId, final String userUuid, final boolean read);
-
 	/**
 	 * Get a MessageParticipant record
 	 * @param messageId		message id to get the record for

@@ -2186,18 +2186,18 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 	/**
  	 * {@inheritDoc}
  	 */
-	/*
-	public boolean toggleMessageRead(Message message, final boolean read) {
+	
+	public boolean toggleMessageRead(MessageParticipant participant, final boolean read) {
 		try {
-			//message.setRead(read);
-			getHibernateTemplate().saveOrUpdate(message);
+			participant.setRead(read);
+			getHibernateTemplate().saveOrUpdate(participant);
 			return true;
 		} catch (Exception e) {
 			log.error("ProfileLogic.toggleMessageRead() failed. " + e.getClass() + ": " + e.getMessage());
 			return false;
 		}
 	}
-	*/
+	
 
 	/**
  	 * {@inheritDoc}
