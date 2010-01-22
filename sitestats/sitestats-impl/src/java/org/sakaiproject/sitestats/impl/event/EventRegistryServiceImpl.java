@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,7 +45,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 
 
-public class EventRegistryServiceImpl implements EventRegistry, EventRegistryService {
+public class EventRegistryServiceImpl implements EventRegistry, EventRegistryService, Observer {
 	/** Static fields */
 	private static Log					LOG							= LogFactory.getLog(EventRegistryServiceImpl.class);
 	private static final String			CACHENAME					= EventRegistryServiceImpl.class.getName();
@@ -90,6 +92,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 
 	public void setEntityBrokerEventRegistry(EntityBrokerEventRegistry ebEventRegistry) {
 		this.entityBrokerEventRegistry = ebEventRegistry;
+		this.entityBrokerEventRegistry.addObserver(this);
 	}
 	
 	public void setCheckLocalEventNamesFirst(boolean checkLocalEventNamesFirst) {
@@ -341,9 +344,9 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	// Utility Methods
 	// ################################################################
 	/** Get the merged Event Registry. */
+	@SuppressWarnings("unchecked")
 	private List<ToolInfo> getMergedEventRegistry() {
-		if(eventRegistryCache.containsKey(CACHENAME_EVENTREGISTRY)
-				&& !areEventRegistriesExpired()) {
+		if(eventRegistryCache.containsKey(CACHENAME_EVENTREGISTRY)) {
 			return (List<ToolInfo>) eventRegistryCache.get(CACHENAME_EVENTREGISTRY);
 		}else{
 			// First:  use file Event Registry
@@ -361,10 +364,15 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 		}
 	}
 	
-	/** Check if any of the entity registries has expired. */
-	private boolean areEventRegistriesExpired() {
-		return fileEventRegistry.isEventRegistryExpired()
-			|| entityBrokerEventRegistry.isEventRegistryExpired();
+	/** Process event registry expired notifications */
+	public void update(Observable obs, Object obj) {
+		if(NOTIF_EVENT_REGISTRY_EXPIRED.equals(obj)) {
+			eventRegistryCache.remove(CACHENAME_EVENTREGISTRY);
+			eventIdToolMap = null;
+			toolEventIds = null;
+			anonymousToolEventIds = null;
+			LOG.debug("EventRegistry expired. Reloading...");
+		}
 	}
 
 }

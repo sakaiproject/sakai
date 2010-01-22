@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -26,6 +26,7 @@ import org.sakaiproject.sitestats.api.parser.ToolFactory;
 
 
 public interface EventRegistryService {
+	public final String		NOTIF_EVENT_REGISTRY_EXPIRED	= "SiteStats-EventRegistry_expired";
 	
 	/**
 	 * Get all statisticable tool events.

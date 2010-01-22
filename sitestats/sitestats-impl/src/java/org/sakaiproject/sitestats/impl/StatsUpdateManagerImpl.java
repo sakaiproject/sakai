@@ -101,8 +101,6 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	private Map<String, SiteVisits>			visitsMap							= Collections.synchronizedMap(new HashMap<String, SiteVisits>());
 	private Map<UniqueVisitsKey, Integer>	uniqueVisitsMap						= Collections.synchronizedMap(new HashMap<UniqueVisitsKey, Integer>());
 
-	private Collection<String>				registeredEvents					= null;
-	private Map<String, ToolInfo>			eventIdToolMap						= null;
 	private boolean							initialized 						= false;
 	
 	private final ReentrantLock				lock								= new ReentrantLock();
@@ -193,14 +191,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		this.M_uss = uss;
 	}
 	
-	public void init(){
-		// get all registered events
-		registeredEvents = M_ers.getEventIds();
-		// add site visit event
-		registeredEvents.add(StatsManager.SITEVISIT_EVENTID);
-		// get eventId -> ToolInfo map
-		eventIdToolMap = M_ers.getEventIdToolMap();
-		
+	public void init(){		
 		StringBuilder buff = new StringBuilder();
 		buff.append("init(): collect thread enabled: ");
 		buff.append(collectThreadEnabled);
@@ -533,7 +524,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		totalEventsProcessed++;
 		String userId = e.getUserId();
 		e = fixMalFormedEvents(e);
-		if(registeredEvents.contains(e.getEvent()) && isValidEvent(e)){
+		if(getRegisteredEvents().contains(e.getEvent()) && isValidEvent(e)){
 			
 			// site check
 			String siteId = parseSiteId(e);
@@ -581,7 +572,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		if(eventId == null)
 			return;
 		// update		
-		if(registeredEvents.contains(eventId)){
+		if(getRegisteredEvents().contains(eventId)){
 			// add to eventStatMap
 			String key = userId+siteId+eventId+date;
 			synchronized(eventStatMap){
@@ -1069,7 +1060,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 
 				}else{
 					// use <eventParserTip>
-					ToolInfo toolInfo = eventIdToolMap.get(eventId);
+					ToolInfo toolInfo = getEventIdToolMap().get(eventId);
 					EventParserTip parserTip = toolInfo.getEventParserTip();
 					if(parserTip != null && parserTip.getFor().equals(StatsManager.PARSERTIP_FOR_CONTEXTID)){
 						int index = Integer.parseInt(parserTip.getIndex());
@@ -1114,6 +1105,22 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		}
 		return site;
 	}
+	
+	/** Get all registered events */
+	private Collection<String> getRegisteredEvents() {
+		// get all registered events
+		List<String> registeredEvents = M_ers.getEventIds();
+		// add site visit event
+		registeredEvents.add(StatsManager.SITEVISIT_EVENTID);
+		
+		return registeredEvents;
+	}
+	
+	/** Get eventId -> ToolInfo map */
+	private Map<String, ToolInfo> getEventIdToolMap() {
+		return M_ers.getEventIdToolMap();
+	}
+	
 	
 	private Date getToday() {
 		Calendar c = Calendar.getInstance();
