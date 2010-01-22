@@ -89,13 +89,16 @@ public class MessageThread implements Serializable, Comparable {
 			toString();
 	}
 	
-	
+	/**
+	 * Natural sort by order
+	 */
 	public int compareTo(Object o) {
 		Date thisDate = this.getMostRecentMessage().getDatePosted();
 		Date otherDate = ((MessageThread)o).getMostRecentMessage().getDatePosted();
         int lastCmp = thisDate.compareTo(otherDate);
         return (lastCmp != 0 ? lastCmp : thisDate.compareTo(otherDate));
 	}
+	
 	
 	
 }

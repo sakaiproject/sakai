@@ -48,7 +48,8 @@ public class MessageThreadsDataProvider implements IDataProvider<MessageThread> 
 	}
 
 	/**
-	 * retrieves threads from database, gets the sublist and returns an iterator for that sublist
+	 * retrieve a sublist from the database, for paging
+	 * TODO make it retrieve only the sublist from the DB, this just gets the lot and then returns a sublist.
 	 * 
 	 * @see org.apache.wicket.markup.repeater.data.IDataProvider#iterator(int, int)
 	 */
@@ -56,6 +57,7 @@ public class MessageThreadsDataProvider implements IDataProvider<MessageThread> 
 		
 		try {
 			List<MessageThread> slice = getProfileLogic().getMessageThreads(userUuid).subList(first, first + count);
+			Collections.sort(slice, Collections.reverseOrder());
 			return slice.iterator();
 		}
 		catch (Exception e) {
