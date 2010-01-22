@@ -109,9 +109,9 @@
     
     <!-- Source code repository location -->
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/contrib/ufp/sitestats/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/ufp/sitestats/trunk</developerConnection>
-        <url>http://source.sakaiproject.org/viewsvn/ufp/sitestats/trunk</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/sitestats/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/sitestats/trunk</developerConnection>
+        <url>http://source.sakaiproject.org/viewsvn/sitestats/trunk</url>
     </scm>
     
     <!-- Distribution Management -->
