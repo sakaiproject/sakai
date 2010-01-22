@@ -3323,8 +3323,23 @@ public class AssignmentAction extends PagedResourceActionII
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		ParameterParser params = data.getParameters();
-		// String assignmentId = params.getString(assignmentId);
-		state.setAttribute(PREVIEW_SUBMISSION_ASSIGNMENT_REFERENCE, state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE));
+		String aReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
+		state.setAttribute(PREVIEW_SUBMISSION_ASSIGNMENT_REFERENCE, aReference);
+		Assignment a = null;
+		try
+		{
+			a = AssignmentService.getAssignment(aReference);
+		}
+		catch (IdUnusedException e)
+		{
+			addAlert(state, rb.getString("cannotfin2"));
+			M_log.warn(this + ":doPreview_submission " + e.getMessage());
+		}
+		catch (PermissionException e)
+		{
+			addAlert(state, rb.getString("youarenot14"));
+			M_log.warn(this + ":doPreview_submission " + e.getMessage());
+		}
 
 		// retrieve the submission text (as formatted text)
 		boolean checkForFormattingErrors = true; // the student is submitting something - so check for errors
@@ -3341,8 +3356,11 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		state.setAttribute(PREVIEW_SUBMISSION_HONOR_PLEDGE_YES, honor_pledge_yes);
 		state.setAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES, honor_pledge_yes);
-		
+
+		// get attachment input and generate alert message according to assignment submission type
+		checkSubmissionTextAttachmentInput(data, state, a, text);
 		state.setAttribute(PREVIEW_SUBMISSION_ATTACHMENTS, state.getAttribute(ATTACHMENTS));
+		
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
 			state.setAttribute(STATE_MODE, MODE_STUDENT_PREVIEW_SUBMISSION);
@@ -3926,46 +3944,9 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 					state.setAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES, honorPledgeYes);
 				}
-
-				// check the submission inputs based on the submission type
-				int submissionType = a.getContent().getTypeOfSubmission();
-				if (submissionType == 1)
-				{
-					// for the inline only submission
-					if (text.length() == 0)
-					{
-						addAlert(state, rb.getString("youmust7"));
-					}
-				}
-				else if (submissionType == 2)
-				{
-					// dealing with single file uplaod
-					doAttachUpload(data, false);
-					
-					// for the attachment only submission
-					Vector v = (Vector) state.getAttribute(ATTACHMENTS);
-					if ((v == null) || (v.size() == 0))
-					{
-						addAlert(state, rb.getString("youmust1"));
-					}
-				}
-				else if (submissionType == 3)
-				{
-					// dealing with single file uplaod
-					doAttachUpload(data, false);
-					
-					// for the inline and attachment submission
-					Vector v = (Vector) state.getAttribute(ATTACHMENTS);
-					if ((text.length() == 0 || "<br/>".equals(text)) && ((v == null) || (v.size() == 0)))
-					{
-						addAlert(state, rb.getString("youmust2"));
-					}
-				}
-				else if (submissionType == Assignment.SINGLE_ATTACHMENT_SUBMISSION)
-				{
-					// dealing with single file uplaod
-					doAttachUpload(data, true);
-				}
+				
+				// get attachment input and generate alert message according to assignment submission type
+				checkSubmissionTextAttachmentInput(data, state, a, text);
 			}
 	
 			if ((state.getAttribute(STATE_MESSAGE) == null) && (a != null))
@@ -4194,6 +4175,53 @@ public class AssignmentAction extends PagedResourceActionII
 		}	// if
 
 	} // post_save_submission
+
+
+	private void checkSubmissionTextAttachmentInput(RunData data,
+			SessionState state, Assignment a, String text) {
+		if (a != null)
+		{
+			// check the submission inputs based on the submission type
+			int submissionType = a.getContent().getTypeOfSubmission();
+			if (submissionType == 1)
+			{
+				// for the inline only submission
+				if (text.length() == 0)
+				{
+					addAlert(state, rb.getString("youmust7"));
+				}
+			}
+			else if (submissionType == 2)
+			{
+				// dealing with single file uplaod
+				doAttachUpload(data, false);
+				
+				// for the attachment only submission
+				Vector v = (Vector) state.getAttribute(ATTACHMENTS);
+				if ((v == null) || (v.size() == 0))
+				{
+					addAlert(state, rb.getString("youmust1"));
+				}
+			}
+			else if (submissionType == 3)
+			{
+				// dealing with single file uplaod
+				doAttachUpload(data, false);
+				
+				// for the inline and attachment submission
+				Vector v = (Vector) state.getAttribute(ATTACHMENTS);
+				if ((text.length() == 0 || "<br/>".equals(text)) && ((v == null) || (v.size() == 0)))
+				{
+					addAlert(state, rb.getString("youmust2"));
+				}
+			}
+			else if (submissionType == Assignment.SINGLE_ATTACHMENT_SUBMISSION)
+			{
+				// dealing with single file uplaod
+				doAttachUpload(data, true);
+			}
+		}
+	}
 	
 	/**
 	 * Action is to confirm the submission and return to list view
@@ -12187,7 +12215,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		
 		// construct the state variable for attachment list
-		List attachments = EntityManager.newReferenceList();
+		List attachments = state.getAttribute(ATTACHMENTS) != null? (List) state.getAttribute(ATTACHMENTS) : EntityManager.newReferenceList();
 		
 		for (int i = 0; i<submissionFileCount; i++)
 		{
