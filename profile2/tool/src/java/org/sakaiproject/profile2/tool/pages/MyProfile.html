@@ -46,7 +46,7 @@
 	    	
 	    </div>
 		
-		<div id="mainPanel">
+		<div id="mainPanel" >
 			
 			<!--  heading/status panel -->
 			<div wicket:id="myStatusPanel">[my status panel]</div>
@@ -83,6 +83,7 @@
 		//init
 		$(document).ready(function(){ 
 			//resize iframe
+			//alert('resizing');
 			setMainFrameHeight(window.name);
 
 			//hide edit buttons
@@ -105,8 +106,21 @@
 				$("#editImagePanel").slideToggle();
 			});
 			*/
+
+			//bind to elements that are added after the DOM has rendered so we can update the iframe size
+			$("div.sideBox").livequery('load', function(event) { 
+		    	setMainFrameHeight(window.name);
+		    	return false;
+		    });
+
+		
 			
 		});
+
+		$(window).load(function () {
+			
+		});
+		
 
 	</script>
 	

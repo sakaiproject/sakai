@@ -22,8 +22,9 @@ public abstract class ResizingAjaxLazyLoadPanel extends AjaxLazyLoadPanel implem
 	}
 
 	public void renderHead(IHeaderResponse response){
-		//why won't this resize the iframe base on its contents?
-		response.renderOnDomReadyJavascript("setMainFrameHeight(window.name);");
+		//why won't this resize the iframe base on its contents? argh.
+		//response.renderOnDomReadyJavascript("setMainFrameHeight(window.name);");
+		
 	}
 
 	public abstract Component getLazyLoadComponent(String markupId);

@@ -241,7 +241,10 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		
 		//response.renderJavascriptReference("javascript/iframe.js");
 		//resize the iframe to fit the contents
-		response.renderOnLoadJavascript("setMainFrameHeight(window.name);");
+		//response.renderOnLoadJavascript("setMainFrameHeight(window.name);");
+		
+		//add live plugin to listen for markup added after the DOM is ready
+		//response.renderJavascriptReference("javascript/jquery.livequery.js");
 		
 	}
 	
