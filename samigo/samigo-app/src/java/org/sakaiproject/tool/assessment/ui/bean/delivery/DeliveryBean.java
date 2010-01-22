@@ -232,6 +232,7 @@ public class DeliveryBean
   
   private boolean fromTableOfContents;
   private float fileUploadSizeMax;
+  private boolean studentRichText;
   
   /**
    * Creates a new DeliveryBean object.
@@ -3092,4 +3093,12 @@ public class DeliveryBean
 	  {
 	      return fileUploadSizeMax;
 	  }	  
+
+	  public boolean getStudentRichText()
+	  {
+	      String studentRichText = ServerConfigurationService.getString("samigo.studentRichText", "true");
+		  return Boolean.parseBoolean(studentRichText);
+	  } 
+
 }
+

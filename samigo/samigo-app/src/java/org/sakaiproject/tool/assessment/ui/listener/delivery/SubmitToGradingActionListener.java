@@ -415,7 +415,8 @@ public class SubmitToGradingActionListener implements ActionListener {
 				String oldRationale = oldItem.getRationale();
 				String newRationale = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, newItem.getRationale());
 				String oldAnswerText = oldItem.getAnswerText();
-				String newAnswerText = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, newItem.getAnswerText());
+				// Change to allow student submissions in rich-text [SAK-17021]
+				String newAnswerText = ContextUtil.stringWYSIWYG(newItem.getAnswerText());
 				if ((oldReview != null && !oldReview.equals(newReview))
 				    || (newReview!=null && !newReview.equals(oldReview))
 						|| (oldAnswerId != null && !oldAnswerId
@@ -583,7 +584,8 @@ public class SubmitToGradingActionListener implements ActionListener {
 					adds.addAll(grading);
 					break;
 				} else if (itemgrading.getAnswerText() != null && !itemgrading.getAnswerText().equals("")) {
-					itemgrading.setAnswerText(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, itemgrading.getAnswerText()));
+					// Change to allow student submissions in rich-text [SAK-17021]
+					itemgrading.setAnswerText(ContextUtil.stringWYSIWYG(itemgrading.getAnswerText()));
 					adds.addAll(grading);
 					break;
 				}
@@ -606,7 +608,8 @@ public class SubmitToGradingActionListener implements ActionListener {
 				} else if (itemgrading.getAnswerText() != null && !itemgrading.getAnswerText().equals("")) {
 					String s = itemgrading.getAnswerText();
 					log.debug("s = " + s);
-					itemgrading.setAnswerText(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, s));
+					// Change to allow student submissions in rich-text [SAK-17021]
+					itemgrading.setAnswerText(ContextUtil.stringWYSIWYG(s));
 					adds.addAll(grading);
 					if (!addedToAdds) {
 						adds.addAll(grading);

@@ -36,9 +36,20 @@ should be included in file importing DeliveryMessages
 <h:outputText value="#{deliveryMessages.maxSAText}"/>
 </h:panelGroup> 
 <f:verbatim><br/></f:verbatim>
+
+<%-- If studentRichText is true, show the rich text answer option --%>
+<h:panelGrid rendered="#{delivery.actionString!='reviewAssessment'
+            && delivery.actionString!='gradeAssessment' && delivery.studentRichText}">
+	<samigo:wysiwyg rows="140" value="#{question.responseText}" hasToggle="yes">
+	    <f:validateLength maximum="4000"/>
+	</samigo:wysiwyg>
+</h:panelGrid>
+
+<%-- Otherwise, show old-style non-rich text answer input --%>
+
 <h:inputTextarea rows="20" cols="80" value="#{question.responseText}" 
    rendered="#{delivery.actionString!='reviewAssessment'
-            && delivery.actionString!='gradeAssessment'}" >
+            && delivery.actionString!='gradeAssessment' && !delivery.studentRichText}">
 <f:validateLength maximum="4000"/>
 </h:inputTextarea>
 <h:outputText value="#{question.responseTextForDisplay}" 

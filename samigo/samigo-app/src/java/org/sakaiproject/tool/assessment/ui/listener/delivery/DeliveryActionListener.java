@@ -1418,7 +1418,9 @@ public class DeliveryActionListener
     else if (item.getTypeId().equals(TypeIfc.ESSAY_QUESTION)) 
     {
       String responseText = itemBean.getResponseText();
-      itemBean.setResponseText(FormattedText.convertFormattedTextToPlaintext(responseText));
+      // SAK-17021
+      // itemBean.setResponseText(FormattedText.convertFormattedTextToPlaintext(responseText));
+      itemBean.setResponseText(ContextUtil.stringWYSIWYG(responseText));
     }
     else if (item.getTypeId().equals(TypeIfc.TRUE_FALSE) || 
     		item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE) ||
