@@ -26,6 +26,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.behavior.AbstractBehavior;
 import org.apache.wicket.extensions.ajax.markup.html.AjaxLazyLoadPanel;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -37,6 +38,7 @@ import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.exception.ProfileNotDefinedException;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
+import org.sakaiproject.profile2.tool.components.ResizingAjaxLazyLoadPanel;
 import org.sakaiproject.profile2.tool.pages.panels.ChangeProfilePictureUpload;
 import org.sakaiproject.profile2.tool.pages.panels.ChangeProfilePictureUrl;
 import org.sakaiproject.profile2.tool.pages.panels.FriendsFeed;
@@ -325,24 +327,31 @@ public class MyProfile extends BasePage {
 		//interests panel - load the display version by default
 		Panel myInterestsDisplay = new MyInterestsDisplay("myInterests", userProfile);
 		myInterestsDisplay.setOutputMarkupId(true);
+		
+		myInterestsDisplay.add(new AbstractBehavior() {
+			
+			
+		});
+		
 		add(myInterestsDisplay);
+
 		
 		//my quick links panel
 		
 		
 		//friends feed panel for self - lazy loaded
-		add(new AjaxLazyLoadPanel("friendsFeed") {
+		add(new ResizingAjaxLazyLoadPanel("friendsFeed") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-            public Component getLazyLoadComponent(String id) {
-            	return new FriendsFeed(id, userUuid, userUuid);
+            public Component getLazyLoadComponent(String markupId) {
+            	return new FriendsFeed(markupId, userUuid, userUuid);
             }
-
         });
-		
+        	
+        	
 		//gallery feed panel
-		add(new AjaxLazyLoadPanel("galleryFeed") {
+		add(new ResizingAjaxLazyLoadPanel("galleryFeed") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -354,12 +363,12 @@ public class MyProfile extends BasePage {
 					return new EmptyPanel(markupId);
 				}
 			}
+			
 		});
+		
 		
 	}
 	
-	
-		
 	
 	/* reinit for deserialisation (ie back button) */
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {

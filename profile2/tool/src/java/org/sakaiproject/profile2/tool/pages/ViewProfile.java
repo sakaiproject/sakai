@@ -593,8 +593,8 @@ public class ViewProfile extends BasePage {
 				private static final long serialVersionUID = 1L;
 
 				@Override
-	            public Component getLazyLoadComponent(String id) {
-	            	return new FriendsFeed(id, userUuid, currentUserId);
+	            public Component getLazyLoadComponent(String markupId) {
+	            	return new FriendsFeed(markupId, userUuid, currentUserId);
 	            }
 				
 	        });

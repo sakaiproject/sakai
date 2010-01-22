@@ -239,6 +239,10 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		response.renderCSSReference("css/profile2.css");
 		response.renderJavascriptReference("javascript/profile2.js");
 		
+		//response.renderJavascriptReference("javascript/iframe.js");
+		//resize the iframe to fit the contents
+		response.renderOnLoadJavascript("setMainFrameHeight(window.name);");
+		
 	}
 	
 	protected String getToolSkinCSS(String skinRepo) {

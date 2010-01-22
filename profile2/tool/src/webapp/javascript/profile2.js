@@ -36,5 +36,23 @@ function fixWindowVertical() {
 	return false;
 } 
 	
+/*
+function resizeIframe(iframeID) { 
 	
+	//Checks that page is in iframe
+	if(self==parent) {
+		return false;
+	}
+	// Checks for IE5+. 
+	else if(document.getElementById&&document.all)  {
+
+	var FramePageHeight = framePage.scrollHeight + 10; 
+	// framePage 
+	is the ID of the framed page's BODY tag. The added 10 pixels prevent an 
+	unnecessary scrollbar. 
+
+	parent.document.getElementById(iframeID).style.height=FramePageHeight; 
+	// "iframeID" is the ID of the inline frame in the parent page. 
+	} 
+	*/
 	
