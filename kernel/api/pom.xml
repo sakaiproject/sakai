@@ -17,9 +17,9 @@
   </organization>
   <inceptionYear>2003</inceptionYear>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/api</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/api</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/trunk/api</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.1.x/api</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.1.x/api</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/branches/kernel-1.1.x/api</url>
   </scm>
   <packaging>jar</packaging>
   <properties>
