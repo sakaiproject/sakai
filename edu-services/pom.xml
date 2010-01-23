@@ -20,6 +20,7 @@
         -->
         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/edu-services/${project.version}</url.localsite>
 
+        <sakai.common.version>1.0.0-b02</sakai.common.version>
         <sakai.spring.groupId>org.springframework</sakai.spring.groupId>
         <sakai.spring.artifactId>spring</sakai.spring.artifactId>
         <sakai.spring.version>2.5.6.SEC01</sakai.spring.version>
@@ -147,19 +148,20 @@
                 <groupId>org.sakaiproject.edu-services.sections</groupId>
                 <artifactId>sections-api</artifactId>
                 <version>${project.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.edu-services.course-management</groupId>
                 <artifactId>coursemanagement-api</artifactId>
                 <version>${project.version}</version>
+                <scope>provided</scope>
             </dependency>
-
             <dependency>
                 <groupId>org.sakaiproject.common</groupId>
                 <artifactId>archive-api</artifactId>
-                <version>1.0.0-beta01</version>
+                <version>${sakai.common.version}</version>
+                <scope>provided</scope>
             </dependency>
-
             <!-- Used only for test data. -->
             <dependency>
                 <groupId>org.sakaiproject.edu-services.sections</groupId>
