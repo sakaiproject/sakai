@@ -685,7 +685,7 @@ public class RequestFilter implements Filter
 				}
 				catch (ServletException se)
 				{
-					M_log.warn("", se);
+					M_log.warn(se.getMessage(), se);
 					throw se;
 				}
 				finally
