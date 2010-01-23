@@ -98,10 +98,10 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 	protected List m_digestQueue = new Vector();
 
 	/** The thread I run my periodic clean and report on. */
-//	protected Thread m_thread = null;
+	//	protected Thread m_thread = null;
 
 	/** My thread's quit flag. */
-//	protected boolean m_threadStop = false;
+	//	protected boolean m_threadStop = false;
 
 	/** How long to wait between digest checks (seconds) */
 	private int DIGEST_PERIOD = 3600;
@@ -116,6 +116,8 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 	public void setDIGEST_DELAY(int digest_delay) {
 		DIGEST_DELAY = digest_delay;
 	}
+
+	protected boolean m_debugBypass = false;
 
 	/** True if we are in the mode of sending out digests, false if we are waiting. */
 	protected boolean m_sendDigests = true;
@@ -134,87 +136,89 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 	 * are digests that need to be sent (they are always only sent once per day), default=3600
 	 */
 	public static final String EMAIL_DIGEST_CHECK_PERIOD_PROPERTY = "email.digest.check.period";
-   
-	/**
-    * This is the name of the sakai.properties property for the DIGEST_DELAY,
-    * this is how long (in seconds) the digest service will wait after starting up
-    * before it does the first check for sending out digests, default=300
-    */
-   public static final String EMAIL_DIGEST_START_DELAY_PROPERTY = "email.digest.start.delay";
 
-   /**********************************************************************************************************************************************************************************************************************************************************
+	/**
+	 * This is the name of the sakai.properties property for the DIGEST_DELAY,
+	 * this is how long (in seconds) the digest service will wait after starting up
+	 * before it does the first check for sending out digests, default=300
+	 */
+	public static final String EMAIL_DIGEST_START_DELAY_PROPERTY = "email.digest.start.delay";
+
+	public static final String BY_PASS_FOR_DEBUG = "digest.email.bypass.for.debug";
+
+	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Runnable
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
 	 * Start the clean and report thread.
 	 */
-//	protected void start()
-//	{
-//		m_threadStop = false;
-//
-//		m_thread = new Thread(this, getClass().getName());
-//		m_thread.start();
-//	}
+	//	protected void start()
+	//	{
+	//		m_threadStop = false;
+	//
+	//		m_thread = new Thread(this, getClass().getName());
+	//		m_thread.start();
+	//	}
 
 	/**
 	 * Stop the clean and report thread.
 	 */
-//	protected void stop()
-//	{
-//		if (m_thread == null) return;
-//
-//		// signal the thread to stop
-//		m_threadStop = true;
-//
-//		// wake up the thread
-//		m_thread.interrupt();
-//
-//		m_thread = null;
-//	}
+	//	protected void stop()
+	//	{
+	//		if (m_thread == null) return;
+	//
+	//		// signal the thread to stop
+	//		m_threadStop = true;
+	//
+	//		// wake up the thread
+	//		m_thread.interrupt();
+	//
+	//		m_thread = null;
+	//	}
 
 	/**
 	 * Run the clean and report thread.
 	 */
-//	public void run()
-//	{
-//		// since we might be running while the component manager is still being created and populated, such as at server
-//		// startup, wait here for a complete component manager
-//		ComponentManager.waitTillConfigured();
-//
-//		// loop till told to stop
-//		while ((!m_threadStop) && (!Thread.currentThread().isInterrupted()))
-//		{
-//			try
-//			{
-//				// process the queue of digest requests
-//				processQueue();
-//
-//				// check for a digest mailing time
-//				sendDigests();
-//			}
-//			catch (Throwable e)
-//			{
-//				M_log.warn(": exception: ", e);
-//			}
-//
-//			// take a small nap
-//			try
-//			{
-//				Thread.sleep(PERIOD);
-//			}
-//			catch (Throwable ignore)
-//			{
-//			}
-//		}
-//	}
+	//	public void run()
+	//	{
+	//		// since we might be running while the component manager is still being created and populated, such as at server
+	//		// startup, wait here for a complete component manager
+	//		ComponentManager.waitTillConfigured();
+	//
+	//		// loop till told to stop
+	//		while ((!m_threadStop) && (!Thread.currentThread().isInterrupted()))
+	//		{
+	//			try
+	//			{
+	//				// process the queue of digest requests
+	//				processQueue();
+	//
+	//				// check for a digest mailing time
+	//				sendDigests();
+	//			}
+	//			catch (Throwable e)
+	//			{
+	//				M_log.warn(": exception: ", e);
+	//			}
+	//
+	//			// take a small nap
+	//			try
+	//			{
+	//				Thread.sleep(PERIOD);
+	//			}
+	//			catch (Throwable ignore)
+	//			{
+	//			}
+	//		}
+	//	}
 
 	/**
 	 * Attempt to process all the queued digest requests. Ones that cannot be processed now will be returned to the queue.
 	 */
 	protected void processQueue()
 	{
-	   M_log.debug("Processing mail digest queue...");
+		M_log.debug("Processing mail digest queue...");
 
 		// setup a re-try queue
 		List retry = new Vector();
@@ -239,7 +243,7 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 			}
 			catch (InUseException e)
 			{
-            M_log.warn("digest in use, will try send again at next digest attempt: " + e.getMessage());
+				M_log.warn("digest in use, will try send again at next digest attempt: " + e.getMessage());
 				// retry next time
 				retry.add(message);
 			}
@@ -260,13 +264,13 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 	 */
 	protected void sendDigests()
 	{
-      if (M_log.isDebugEnabled()) M_log.debug("checking for sending digests");
+		if (M_log.isDebugEnabled()) M_log.debug("checking for sending digests");
 
-      // compute the current period
+		// compute the current period
 		String curPeriod = computeRange(timeService.newTime()).toString();
 
 		// if we are in a new period, start sending again
-		if (!curPeriod.equals(m_lastSendPeriod))
+		if (!curPeriod.equals(m_lastSendPeriod) || m_debugBypass)
 		{
 			m_sendDigests = true;
 
@@ -296,14 +300,14 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 			for (Iterator iPeriods = periods.iterator(); iPeriods.hasNext();)
 			{
 				String period = (String) iPeriods.next();
-				if (!curPeriod.equals(period))
+				if (!curPeriod.equals(period) || m_debugBypass)
 				{
 					found = true;
 					break;
 				}
 			}
 			if (!found) {
-			   continue;
+				continue;
 			}
 
 			// this digest is a send candidate
@@ -322,7 +326,7 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 					String period = (String) iPeriods.next();
 
 					// process if it's not the current period
-					if (!curPeriod.equals(period))
+					if (!curPeriod.equals(period) || m_debugBypass)
 					{
 						TimeRange periodRange = timeService.newTimeRange(period);
 						Time timeInPeriod = periodRange.firstTime();
@@ -408,7 +412,7 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 
 			String from = "postmaster@" + serverConfigurationService.getServerName();
 			String subject = serverConfigurationService.getString("ui.service", "Sakai") + " " + rb.getString("notif") + " "
-					+ period.firstTime().toStringLocalDate();
+			+ period.firstTime().toStringLocalDate();
 
 			StringBuilder body = new StringBuilder();
 			body.append(subject);
@@ -455,7 +459,7 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 
 			emailService.send(from, to, subject, body.toString(), to, null, null);
 		}
-		catch (Throwable any)
+		catch (Exception any)
 		{
 			M_log.warn(".send: digest to: " + id + " not sent: " + any.toString());
 		}
@@ -632,21 +636,22 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 
 		// setup the queue
 		m_digestQueue.clear();
-		
+
 		// Resource Bundle
 		String resourceClass = serverConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
 		String resourceBundle = serverConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
 		rb = new Resource().getLoader(resourceClass, resourceBundle);
-		
+
 		// USE A TIMER INSTEAD OF CREATING A NEW THREAD -AZ
 		// start();
 		int digestPeriod = serverConfigurationService.getInt(EMAIL_DIGEST_CHECK_PERIOD_PROPERTY, DIGEST_PERIOD);
 		int digestDelay = serverConfigurationService.getInt(EMAIL_DIGEST_START_DELAY_PROPERTY, DIGEST_DELAY);
+		m_debugBypass = serverConfigurationService.getBoolean(BY_PASS_FOR_DEBUG, false);
 		digestDelay += new Random().nextInt(60); // add some random delay to get the servers out of sync
 		digestTimer.schedule(new DigestTimerTask(), (digestDelay * 1000), (digestPeriod * 1000) );
 
 		M_log.info("init(): email digests will be checked in " + digestDelay + " seconds and then every " 
-		      + digestPeriod + " seconds while the server is running" );
+				+ digestPeriod + " seconds while the server is running" );
 	}
 
 	/**
@@ -655,18 +660,18 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 	 * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
 	 */
 	private class DigestTimerTask extends TimerTask {
-	   @Override
-	   public void run() {
-	      try {
-	         M_log.debug("running timer task");
-	         // process the queue of digest requests
-	         processQueue();
-	         // check for a digest mailing time
-	         sendDigests();
-	      } catch (Exception e) {
-	         M_log.error("Digest failure: " + e.getMessage(), e);
-	      }
-	   }
+		@Override
+		public void run() {
+			try {
+				M_log.debug("running timer task");
+				// process the queue of digest requests
+				processQueue();
+				// check for a digest mailing time
+				sendDigests();
+			} catch (Exception e) {
+				M_log.error("Digest failure: " + e.getMessage(), e);
+			}
+		}
 	}
 
 	/**
@@ -674,8 +679,8 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 	 */
 	public void destroy()
 	{
-//		stop();
-	   digestTimer.cancel();
+		//		stop();
+		digestTimer.cancel();
 
 		m_storage.close();
 		m_storage = null;
@@ -1132,23 +1137,23 @@ public abstract class BaseDigestService implements DigestService, StorageUser //
 				 */
 				List msgs = (List) m_ranges.get(range);
 				if (msgs == null) {
-				   // nothing found so go through all ranges and hack the range strings
-               SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmm");
-				   for (Iterator iterator = m_ranges.keySet().iterator(); iterator.hasNext();) {
-                  String rangeKey = (String) iterator.next();
-                  Date startDate;
-                  try {
-                     startDate = formatter.parse( range.substring(0, 12) );
-                     long difference = Math.abs( period.getTime() - startDate.getTime() );
-                     if (difference < (12 * 60 * 60 * 1000)) {
-                        // within 12 hours of the correct period so use this one
-                        msgs = (List) m_ranges.get(rangeKey);
-                        break;
-                     }
-                  } catch (ParseException e) {
-                     M_log.warn("Failed to parse first 12 chars from '"+rangeKey+"' into a date, aborting the attempt to find close data matches", e);
-                  }
-               }
+					// nothing found so go through all ranges and hack the range strings
+					SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmm");
+					for (Iterator<String> iterator = m_ranges.keySet().iterator(); iterator.hasNext();) {
+						String rangeKey = (String) iterator.next();
+						Date startDate;
+						try {
+							startDate = formatter.parse( range.substring(0, 12) );
+							long difference = Math.abs( period.getTime() - startDate.getTime() );
+							if (difference < (12 * 60 * 60 * 1000)) {
+								// within 12 hours of the correct period so use this one
+								msgs = (List) m_ranges.get(rangeKey);
+								break;
+							}
+						} catch (ParseException e) {
+							M_log.warn("Failed to parse first 12 chars from '"+rangeKey+"' into a date, aborting the attempt to find close data matches", e);
+						}
+					}
 				}
 
 				List rv = new Vector();
