@@ -930,6 +930,11 @@ font-weight: bold;
 	border: 1px solid #000000;
 	padding: 0.5em;
 }
+/*span surrounding folder icons - used to decorate them (new in dropbox, locked, etc.)
+a fake border makes the icon and the title align for IE8*/
+span.nil{
+	border:0px solid transparent
+}
 
 /*any list (ul) of messages in a synoptic list view*/
 .synopticList{
