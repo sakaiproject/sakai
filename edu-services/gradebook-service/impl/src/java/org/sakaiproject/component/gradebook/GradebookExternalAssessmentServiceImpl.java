@@ -48,7 +48,7 @@ import org.sakaiproject.tool.gradebook.Gradebook;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
-import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.tool.gradebook.facades.EventTrackingService;
 
 public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager implements GradebookExternalAssessmentService {
 	private static final Log log = LogFactory.getLog(GradebookExternalAssessmentServiceImpl.class);
@@ -136,7 +136,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
             throw new RuntimeException("ExternalId, and title must not be empty");
         }
 
-        eventTrackingService.post(eventTrackingService.newEvent("gradebook.updateItemScore","/gradebook/"+gradebookUid+"/"+asn.getName()+"/"+title+"/"+points+"/student",true));
+        eventTrackingService.postEvent("gradebook.updateItemScore","/gradebook/"+gradebookUid+"/"+asn.getName()+"/"+title+"/"+points+"/student");
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
                 asn.setExternalInstructorLink(externalUrl);
