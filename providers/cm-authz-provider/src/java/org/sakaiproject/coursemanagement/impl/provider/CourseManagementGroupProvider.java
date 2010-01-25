@@ -139,7 +139,7 @@ public class CourseManagementGroupProvider implements GroupProvider {
 
 			// Only add the section eids if they aren't already in the map or if the new role has a higher preference.
 			for(Iterator<String> rrRoleIter = rrGroupRoleMap.keySet().iterator(); rrRoleIter.hasNext();) {
-				String sectionEid = rrRoleIter.next();
+				String sectionEid = rrRoleIter.next().toUpperCase();
 				String existingRole = groupRoleMap.get(sectionEid);
 				String rrRole = rrGroupRoleMap.get(sectionEid);
 
