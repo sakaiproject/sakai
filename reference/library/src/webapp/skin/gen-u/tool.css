@@ -70,7 +70,24 @@ table.calendar td a:hover{
 tr.selectedMove a:link,tr.selectedMove a:visited{
 	color: silver;
 }
+/*used as background class for recent items in dropbox, anywhere*/
+.recentItem{
+	padding:2px;
+	background: url(images/new_item_back.gif) top right no-repeat;
+	_display:inline-block;
+	_margin-left:-1.5em;
+	white-space: nowrap;
+	border:0px solid #fff;
+}	
+.recentItemInstruction{
+	padding:0 5px;
+	background: url(images/new_item_back_inst.png) center left no-repeat;
+}	
 
+.recentItem a:link{
+  	border:0px solid #fff;
+     text-decoration:none !important;
+}
 /*links associated with an item in alist*/
 /*see links below announcement title in ann list*/
 .itemAction  a,.itemAction  a:link{
