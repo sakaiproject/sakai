@@ -95,6 +95,15 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
      * @return
      */
     private Poll getPollById(String id) {
+	System.out.println("Get pollById(" + id);
+	if (true) {
+	    try {
+		 throw new NullPointerException("this is it");
+		 }
+	    catch (Exception e) {
+		e.printStackTrace();
+	    }
+	}
         Long pollId;
         try {
             pollId = Long.valueOf(id);
@@ -168,6 +177,7 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
     }
 
     public Object getEntity(EntityReference ref) {
+	System.out.println("Get Entity: "+ ref);
         String id = ref.getId();
         if (id == null) {
             return new Poll();
@@ -185,6 +195,7 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
                 throw new SecurityException("User must be logged in in order to access poll data: " + ref);
             } else {
                 String userReference = developerHelperService.getCurrentUserReference();
+		System.out.println("access from : " + userReference);
                 allowedManage = developerHelperService.isUserAllowedInEntityReference(userReference, PollListManager.PERMISSION_ADD, "/site/" + poll.getSiteId());
                 boolean allowedVote = developerHelperService.isUserAllowedInEntityReference(userReference, PollListManager.PERMISSION_VOTE, "/site/" + poll.getSiteId());
                 if (!allowedManage && !allowedVote) {
@@ -192,6 +203,7 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
                 }
             }
         }
+	System.out.println("Here we are!");
         Boolean includeVotes = requestStorage.getStoredValueAsType(Boolean.class, "includeVotes");
         if (includeVotes == null) { includeVotes = false; }
         if (includeVotes) {
@@ -236,6 +248,7 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
     }
 
     public List<?> getEntities(EntityReference ref, Search search) {
+	System.out.println("get entities");
         // get the setting which indicates if we are getting polls we can admin or polls we can take
         boolean adminControl = false;
         Restriction adminRes = search.getRestrictionByProperty("admin");
