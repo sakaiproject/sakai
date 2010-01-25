@@ -226,6 +226,17 @@
                 </picUrl>
             </properties>
         </developer>
+        <developer>
+            <name>Zach Thomas</name>
+            <email>zach@aeroplanesoftware.com</email>
+            <organization>Aeroplane Software</organization>
+            <organizationUrl>http://www.aeroplanesoftware.com</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-5</timezone>
+            <properties />
+        </developer>
     </developers>
     <contributors>
         <contributor>
@@ -334,17 +345,6 @@
             <timezone>-5</timezone>
             <properties />
         </contributor>
-        <contributor>
-            <name>Zach Thomas</name>
-            <email>zach@aeroplanesoftware.com</email>
-            <organization>Aeroplane Software</organization>
-            <organizationUrl>http://www.aeroplanesoftware.com</organizationUrl>
-            <roles>
-                <role>developer</role>
-            </roles>
-            <timezone>-5</timezone>
-            <properties />
-        </contributor>
     </contributors>
 	<scm>
 		<connection>
@@ -440,7 +440,7 @@
 		</repository>
         -->
 		<!--  contains the javax.mail artefacts -->
-		<repository>
+		<!-- <repository>
 			<id>maven2-repository.dev.java.net</id>
 			<name>Java.net Repository for Maven</name>
 			<url>http://download.java.net/maven/2/</url>
@@ -448,7 +448,7 @@
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
-		</repository>
+		</repository> -->
 	</repositories>
 	<dependencyManagement>
 		<dependencies>
@@ -508,7 +508,7 @@
 			<dependency>
 				<groupId>log4j</groupId>
 				<artifactId>log4j</artifactId>
-				<version>1.2.12</version>
+				<version>1.2.15</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
