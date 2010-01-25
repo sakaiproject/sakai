@@ -50,6 +50,7 @@ import org.sakaiproject.poll.model.PollRolePerms;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.tool.cover.ToolManager;
 
 public class ExternalLogicImpl implements ExternalLogic {
 
@@ -127,15 +128,18 @@ public class ExternalLogicImpl implements ExternalLogic {
 	} 
 	
 	public String getCurrentLocationReference() {
-		return developerHelperService.getCurrentLocationReference();
+		log.debug("getCurrentLocationReference");
+        return developerHelperService.getCurrentLocationReference();
 	}
 
 	public boolean isAllowedInLocation(String permission, String locationReference, String userReference) {
+		log.debug("isAllowed in location( " + permission + " , " + locationReference + " , " + userReference);
 		return developerHelperService.isUserAllowedInEntityReference(userReference, permission, locationReference);
 	}
 
 	public boolean isAllowedInLocation(String permission,
 			String locationReference) {
+		log.debug("isAllowed in location( " + permission + " , " + locationReference);
 		return isAllowedInLocation(permission, locationReference, developerHelperService.getCurrentUserReference());
 	}
 

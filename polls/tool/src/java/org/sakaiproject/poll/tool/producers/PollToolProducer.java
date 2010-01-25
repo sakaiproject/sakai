@@ -289,7 +289,7 @@ DefaultView,NavigationCaseReporter {
 		if (externalLogic.isUserAdmin())
 			return true;
 
-		if (externalLogic.isAllowedInLocation(PollListManager.PERMISSION_ADD, externalLogic.getCurrentLocationId()))
+		if (externalLogic.isAllowedInLocation(PollListManager.PERMISSION_ADD, externalLogic.getCurrentLocationReference()))
 			return true;
 
 		return false;
@@ -298,14 +298,14 @@ DefaultView,NavigationCaseReporter {
 	private boolean isSiteOwner(){
 		if (externalLogic.isUserAdmin())
 			return true;
-		else if (externalLogic.isAllowedInLocation("site.upd", externalLogic.getCurrentLocationId()))
+		else if (externalLogic.isAllowedInLocation("site.upd", externalLogic.getCurrentLocationReference()))
 			return true;
 		else
 			return false;
 	}
 
-	public List reportNavigationCases() {
-		List togo = new ArrayList(); // Always navigate back to this view.
+	public List<NavigationCase> reportNavigationCases() {
+		List<NavigationCase> togo = new ArrayList<NavigationCase>(); // Always navigate back to this view.
 		togo.add(new NavigationCase(null, new SimpleViewParameters(VIEW_ID)));
 		return togo;
 	}
