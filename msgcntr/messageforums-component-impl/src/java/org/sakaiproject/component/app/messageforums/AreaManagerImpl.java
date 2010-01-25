@@ -38,7 +38,6 @@ import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
-import org.sakaiproject.api.app.messageforums.UserPermissionManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl;
 import org.sakaiproject.exception.IdUnusedException;
@@ -71,7 +70,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 
     private MessageForumsTypeManager typeManager;
 
-    private UserPermissionManager userPermissionManager;
+
 
     private ServerConfigurationService serverConfigurationService;
     private Boolean DEFAULT_AUTO_MARK_READ = false;    
@@ -92,9 +91,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
        DEFAULT_AUTO_MARK_READ = serverConfigurationService.getBoolean("msgcntr.forums.default.auto.mark.threads.read", false);
     }
 
-    public UserPermissionManager getUserPermissionManager() {
-        return userPermissionManager;
-    }
+
 
     public MessageForumsTypeManager getTypeManager() {
         return typeManager;
