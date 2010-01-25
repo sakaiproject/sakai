@@ -32,8 +32,10 @@ import org.sakaiproject.site.api.Group;
 
 public class CourseSectionUtil {
 	public static final CourseSection decorateGroupWithCmSection(Group group, Section officialSection) {
-		CourseSectionImpl section = new CourseSectionImpl(group);
 		
+		if (group != null && officialSection != null)
+		{
+		CourseSectionImpl section = new CourseSectionImpl(group);
 		section.setTitle(officialSection.getTitle());
 		section.setDescription(officialSection.getDescription());
 		section.setCategory(officialSection.getCategory());
@@ -54,8 +56,9 @@ public class CourseSectionUtil {
 		// Ensure that the group is decorated properly, so the group properties are
 		// persisted with the correct section metadata
 		section.decorateGroup(group);
-		
 		return section;
+	}
+		return null;
 	}
 
 }
