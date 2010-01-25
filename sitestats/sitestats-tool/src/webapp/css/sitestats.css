@@ -72,7 +72,7 @@
 }
 .widget .header .bottom a {
     font-size: 10px;
-    color: #777;
+    /*color: #777;*//* STAT-224 */
     text-decoration: none !important;
     outline: none !important;
 }
@@ -133,11 +133,11 @@
 .widget .ministat .label {
     font-size: 12px;
     font-style:normal;
-    color: #777;
+    /*color: #777;*//* STAT-224 */
 }
 .widget .ministat a {
     text-decoration: none !important;
-    color: #777;
+    /*color: #777;*//* STAT-224 */
     line-height: 13px !important;
 }
 .widget .ministat a.extlink,
