@@ -1671,7 +1671,7 @@ private   int   getNum(char letter,   String   a)
 						    	
 						    }
 						    String tmp1=new String(ccSS[numberofAuther-1]);
-						    String tmp2=new String(currentUserasAuther);
+						    String tmp2= String.valueOf(currentUserasAuther);
 						    boolean b = ccSS[numberofAuther-1].equals(currentUserasAuther);
 						    boolean a = tmp1.equals(tmp2);
 						    
