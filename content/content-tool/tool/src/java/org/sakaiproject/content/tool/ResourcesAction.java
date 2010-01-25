@@ -107,6 +107,7 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
@@ -402,10 +403,12 @@ public class ResourcesAction
 		 */
 		public boolean equals(Object obj)
 		{
-			
-			MetadataGroup mg = (MetadataGroup) obj;
-			boolean rv = (obj != null) && (m_name.equals(mg));
-			return rv;
+			if (obj instanceof MetadataGroup) {
+				MetadataGroup mg = (MetadataGroup) obj;
+				boolean rv = (obj != null) && (m_name.equals(mg.getName()));
+				return rv;
+			}
+			return false;
 		}
 
 		/**
@@ -574,7 +577,7 @@ public class ResourcesAction
 	
 	/** Modes. */
 	private static final String MODE_LIST = "list";
-	private static final String MODE_MORE = "more";
+	
 
 	private static final String MODE_PROPERTIES = "properties";
 	
@@ -582,7 +585,7 @@ public class ResourcesAction
 	
 	protected static final String MODE_REVISE_METADATA = "revise_metadata";
 
-	private static final String STATE_NEW_COPYRIGHT_INPUT = PREFIX + REQUEST + "new_copyright_input";
+	
 
 	/** The null/empty string */
 	private static final String NULL_STRING = "";
@@ -614,9 +617,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	
 	/** The collection id path */
 	private static final String STATE_COLLECTION_PATH = PREFIX + REQUEST + "collection_path";
-	
-	/** The name of the state attribute containing BrowseItems for all content collections the user has access to */
-	private static final String STATE_COLLECTION_ROOTS = PREFIX + REQUEST + "collection_rootie_tooties";
 	
 	public static final String STATE_COLUMN_ITEM_ID = PREFIX + REQUEST + "state_column_item_id";
 
@@ -716,10 +716,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	/** The more id */
 	private static final String STATE_MORE_ID = PREFIX + REQUEST + "more_id";
 	
-	private static final String STATE_MORE_ACTION = PREFIX + REQUEST + "more_action";
-	
-	private static final String STATE_MORE_ITEM = PREFIX + REQUEST + "more_item";
-	
 	/** The move flag */
 	private static final String STATE_MOVE_FLAG = PREFIX + REQUEST + "move_flag";
 	
@@ -773,8 +769,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	public static final String STATE_SHOW_ALL_SITES = PREFIX + SYS + "allow_user_to_see_all_sites";
 	
 	protected static final String STATE_SHOW_COPY_ACTION = PREFIX + REQUEST + "show_copy_action";
-	
-	private static final String STATE_SHOW_FORM_ITEMS = PREFIX + SYS + "show_form_items";
 	
 	protected static final String STATE_SHOW_MOVE_ACTION = PREFIX + REQUEST + "show_move_action";
 
@@ -952,7 +946,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
-			context.put("notExistFlag", new Boolean(false));
+			context.put("notExistFlag", Boolean.valueOf(false));
 		}
 		
 		if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
@@ -987,124 +981,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	}	// buildMoreContext
 
-	//	/**
-//	 * Retrieve values for one or more items from create context.  Create context contains up to ten items at a time
-//	 * all of the same type (folder, file, text document, structured-artifact, etc).  This method retrieves the data
-//	 * apppropriate to the type and updates the values of the ResourcesEditItem objects stored as the STATE_STACK_CREATE_ITEMS
-//	 * attribute in state. If the third parameter is "true", missing/incorrect user inputs will generate error messages
-//	 * and attach flags to the input elements.
-//	 * @param state
-//	 * @param params
-//	 * @param markMissing Should this method generate error messages and add flags for missing/incorrect user inputs?
-//	 */
-//	protected static void captureMultipleValues(SessionState state, ParameterParser params, boolean markMissing)
-//	{
-//		Map current_stack_frame = peekAtStack(state);
-//		Integer number = (Integer) current_stack_frame.get(STATE_STACK_CREATE_NUMBER);
-//		if(number == null)
-//		{
-//			number = (Integer) state.getAttribute(STATE_CREATE_NUMBER);
-//			current_stack_frame.put(STATE_STACK_CREATE_NUMBER, number);
-//		}
-//		if(number == null)
-//		{
-//			number = new Integer(1);
-//			current_stack_frame.put(STATE_STACK_CREATE_NUMBER, number);
-//		}
-//
-//		List new_items = (List) current_stack_frame.get(STATE_STACK_CREATE_ITEMS);
-//		if(new_items == null)
-//		{
-//			String collectionId = params.getString("collectionId");
-//			String defaultCopyrightStatus = (String) state.getAttribute(DEFAULT_COPYRIGHT);
-//			if(defaultCopyrightStatus == null || defaultCopyrightStatus.trim().equals(""))
-//			{
-//				defaultCopyrightStatus = ServerConfigurationService.getString("default.copyright");
-//				state.setAttribute(DEFAULT_COPYRIGHT, defaultCopyrightStatus);
-//			}
-//
-//			
-//			String encoding = (String) state.getAttribute(STATE_ENCODING);
-//
-//			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
-//
-//			Time defaultRetractDate = (Time) state.getAttribute(STATE_DEFAULT_RETRACT_TIME);
-//			if(defaultRetractDate == null)
-//			{
-//				defaultRetractDate = TimeService.newTime();
-//				state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractDate);
-//			}
-//
-//		}
-//
-//		Set alerts = (Set) state.getAttribute(STATE_CREATE_ALERTS);
-//		if(alerts == null)
-//		{
-//			alerts = new HashSet();
-//			state.setAttribute(STATE_CREATE_ALERTS, alerts);
-//		}
-//		int actualCount = 0;
-//		Set first_item_alerts = null;
-//
-//		String max_file_size_mb = (String) state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
-//		int max_bytes = 1024 * 1024;
-//		try
-//		{
-//			max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
-//		}
-//		catch(Exception e)
-//		{
-//			// if unable to parse an integer from the value
-//			// in the properties file, use 1 MB as a default
-//			max_file_size_mb = "1";
-//			max_bytes = 1024 * 1024;
-//		}
-//
-//		/*
-//		// params.getContentLength() returns m_req.getContentLength()
-//		if(params.getContentLength() > max_bytes)
-//		{
-//			alerts.add(rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
-//			state.setAttribute(STATE_CREATE_ALERTS, alerts);
-//
-//			return;
-//		}
-//		*/
-//		for(int i = 0; i < number.intValue(); i++)
-//		{
-//			ResourcesEditItem item = (ResourcesEditItem) new_items.get(i);
-//			Set item_alerts = captureValues(item, i, state, params, markMissing);
-//			if(i == 0)
-//			{
-//				first_item_alerts = item_alerts;
-//			}
-//			else if(item.isBlank())
-//			{
-//				item.clearMissing();
-//			}
-//			if(! item.isBlank())
-//			{
-//				alerts.addAll(item_alerts);
-//				actualCount ++;
-//			}
-//		}
-//		if(actualCount > 0)
-//		{
-//			ResourcesEditItem item = (ResourcesEditItem) new_items.get(0);
-//			if(item.isBlank())
-//			{
-//				item.clearMissing();
-//			}
-//		}
-//		else if(markMissing)
-//		{
-//			alerts.addAll(first_item_alerts);
-//		}
-//		state.setAttribute(STATE_CREATE_ALERTS, alerts);
-//		current_stack_frame.put(STATE_STACK_CREATE_ACTUAL_COUNT, Integer.toString(actualCount));
-//
-//	}	// captureMultipleValues
-//
 	/**
 	 *
 	 * put copyright info into context
@@ -1118,25 +994,25 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			
 			String ccOwnershipLabel = rrb.getString("creative.ownershipLabel");
-			List ccOwnershipList = new ArrayList(Arrays.asList(rrb.getStrings("creative.ownership")));
+			List<String> ccOwnershipList = new ArrayList<String>(Arrays.asList(rrb.getStrings("creative.ownership")));
 						
 			String ccMyGrantLabel = rrb.getString("creative.myGrantLabel");
-			List ccMyGrantOptions = new ArrayList(Arrays.asList(rrb.getStrings("creative.myGrant")));
+			List<String> ccMyGrantOptions = new ArrayList<String>(Arrays.asList(rrb.getStrings("creative.myGrant")));
 			
 			String ccCommercialLabel = rrb.getString("creative.commercialLabel");
-			List ccCommercialList = new ArrayList(Arrays.asList(rrb.getStrings("creative.commercial")));
+			List<String> ccCommercialList = new ArrayList<String>(Arrays.asList(rrb.getStrings("creative.commercial")));
 			
 			String ccModificationLabel = rrb.getString("creative.modificationLabel");
-			List ccModificationList = new ArrayList(Arrays.asList(rrb.getStrings("creative.modification")));
+			List<String> ccModificationList = new ArrayList<String>(Arrays.asList(rrb.getStrings("creative.modification")));
 			
 			String ccOtherGrantLabel = rrb.getString("creative.otherGrantLabel");
-			List ccOtherGrantList = new ArrayList(Arrays.asList(rrb.getStrings("creative.otherGrant")));
+			List<String> ccOtherGrantList = new ArrayList<String>(Arrays.asList(rrb.getStrings("creative.otherGrant")));
 			
 			String ccRightsYear = rrb.getString("creative.rightsYear");
 			String ccRightsOwner = rrb.getString("creative.rightsOwner");
 			
 			String ccAcknowledgeLabel = rrb.getString("creative.acknowledgeLabel");
-			List ccAcknowledgeList = new ArrayList(Arrays.asList(rrb.getStrings("creative.acknowledge")));
+			List<String> ccAcknowledgeList = new ArrayList<String>(Arrays.asList(rrb.getStrings("creative.acknowledge")));
 						
 			String ccInfoUrl = "";
 			
@@ -1169,7 +1045,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			
 			context.put("newcopyrightinput", rrb.getString("newcopyrightinput"));
 			
-			List copyrightTypes = new ArrayList(Arrays.asList(rrb.getStrings("copyrighttype")));
+			List<String> copyrightTypes = new ArrayList<String>(Arrays.asList(rrb.getStrings("copyrighttype")));
 			context.put("copyrightTypes", copyrightTypes);
 			context.put("copyrightTypesSize", rrb.getString("copyrighttype.count"));
 			context.put("USE_THIS_COPYRIGHT", copyrightTypes.get(copyrightTypes.size() - 1));
@@ -1323,23 +1199,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				ContentResourceEdit resource = ContentHostingService.addResource(collectionId,Validator.escapeResourceName(basename),Validator.escapeResourceName(extension),MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 				
 				extractContent(fp, resource);
-//			    byte[] content = fp.getRevisedContent();
-//			    if(content == null)
-//			    {
-//			    	InputStream stream = fp.getRevisedContentStream();
-//			    	if(stream == null)
-//			    	{
-//			    		logger.debug("pipe with null content and null stream: " + pipe.getFileName());
-//			    	}
-//			    	else
-//			    	{
-//			    		resource.setContent(stream);
-//			    	}
-//			    }
-//			    else
-//			    {
-//			    	resource.setContent(content);
-//			    }
 
 				resource.setContentType(fp.getRevisedMimeType());
 				resource.setResourceType(pipe.getAction().getTypeId());
@@ -1627,11 +1486,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 
-		List items = (List) state.getAttribute(STATE_COPIED_IDS);
+		List<String> items = (List<String>) state.getAttribute(STATE_COPIED_IDS);
 
 		String collectionId = params.getString ("collectionId");
 
-		Iterator itemIter = items.iterator();
+		Iterator<String> itemIter = items.iterator();
 		while (itemIter.hasNext())
 		{
 			// get the copied item to be pasted
@@ -2119,12 +1978,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		    	// if item is collection and user has content.new for item, user may be able to create new items in the collection 
 		    	{
 		    		// iterate over resource-types and get all the registered types and find actions requiring "content.new" permission
-		    		Collection types = registry.getTypes(ref.getContext());
+		    		Collection<ResourceType> types = registry.getTypes(ref.getContext());
 		    		Iterator<ActionType> actionTypeIt = CONTENT_NEW_ACTIONS.iterator();
 		    		while(actionTypeIt.hasNext())
 		    		{
 		    			ActionType actionType = actionTypeIt.next();
-		    			Iterator typeIt = types.iterator();
+		    			Iterator<ResourceType> typeIt = types.iterator();
 		    			while(typeIt.hasNext())
 		    			{
 		    				ResourceType type = (ResourceType) typeIt.next();
@@ -2388,35 +2247,14 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			
 			Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-			Collection site_groups = site.getGroups();
+			Collection<Group> site_groups = site.getGroups();
 			item.setAllSiteGroups(site_groups);
 			
 			List access_groups = new ArrayList(((GroupAwareEntity) entity).getGroups());
 			item.setEntityGroupRefs(access_groups);
-//			if(access_groups != null)
-//			{
-//				
-//				Iterator it = access_groups.iterator();
-//				while(it.hasNext())
-//				{
-//					String groupRef = (String) it.next();
-//					Group group = site.getGroup(groupRef);
-//					item.addGroup(group.getId());
-//				}
-//			}
 
 			List inherited_access_groups = new ArrayList(((GroupAwareEntity) entity).getInheritedGroups());
 			item.setInheritedGroupRefs(inherited_access_groups);
-//			if(inherited_access_groups != null)
-//			{
-//				Iterator it = inherited_access_groups.iterator();
-//				while(it.hasNext())
-//				{
-//					String groupRef = (String) it.next();
-//					Group group = site.getGroup(groupRef);
-//					item.addInheritedGroup(group.getId());
-//				}
-//			}
 			
 			Collection allowedRemoveGroups = null;
 			if(AccessMode.GROUPED == access)
@@ -2641,46 +2479,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				item.setCopyrightAlert(false);
 			}
 			
-//			Map metadata = new HashMap();
-//			List groups = (List) state.getAttribute(ListItem.STATE_METADATA_GROUPS);
-//			if(groups != null && ! groups.isEmpty())
-//			{
-//				Iterator it = groups.iterator();
-//				while(it.hasNext())
-//				{
-//					MetadataGroup group = (MetadataGroup) it.next();
-//					Iterator propIt = group.iterator();
-//					while(propIt.hasNext())
-//					{
-//						ResourcesMetadata prop = (ResourcesMetadata) propIt.next();
-//						String name = prop.getFullname();
-//						String widget = prop.getWidget();
-//						if(widget.equals(ResourcesMetadata.WIDGET_DATE) || widget.equals(ResourcesMetadata.WIDGET_DATETIME) || widget.equals(ResourcesMetadata.WIDGET_TIME))
-//						{
-//							Time time = TimeService.newTime();
-//							try
-//							{
-//								time = properties.getTimeProperty(name);
-//							}
-//							catch(Exception ignore)
-//							{
-//								// use "now" as default in that case
-//							}
-//							metadata.put(name, time);
-//						}
-//						else
-//						{
-//							String value = properties.getPropertyFormatted(name);
-//							metadata.put(name, value);
-//						}
-//					}
-//				}
-//				item.setMetadata(metadata);
-//			}
-//			else
-//			{
-//				item.setMetadata(new HashMap());
-//			}
 			// for collections only
 			if(item.isFolder())
 			{
@@ -3487,7 +3285,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		//Collection possibleGroups = ContentHostingService.getGroupsWithReadAccess(collectionId);
 		boolean isInDropbox = ContentHostingService.isInDropbox(collectionId);
 		
-		Collection possibleGroups = ContentHostingService.getGroupsWithAddPermission(collectionId);
+		
 		Site site = null;
 		Collection site_groups = null;
 		
@@ -3519,14 +3317,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 
 		Collection allowedAddGroups = ContentHostingService.getGroupsWithAddPermission(collectionId); // null;
-//		if(AccessMode.GROUPED == inheritedAccess)
-//		{
-//			allowedAddGroups = ContentHostingService.getGroupsWithAddPermission(collectionId);
-//		}
-//		else
-//		{
-//			allowedAddGroups = ContentHostingService.getGroupsWithAddPermission(ContentHostingService.getSiteCollection(site.getId()));
-//		}
 		if(allowedAddGroups == null)
 		{
 			allowedAddGroups = new ArrayList();

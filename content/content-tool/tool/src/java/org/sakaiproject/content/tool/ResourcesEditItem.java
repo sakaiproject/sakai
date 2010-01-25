@@ -158,10 +158,10 @@ public class ResourcesEditItem
 		return this.m_hidden;
 	}
 
-	public SortedSet convertToRefs(Collection groupIds) 
+	public SortedSet<String> convertToRefs(Collection<String> groupIds) 
 	{
-		SortedSet groupRefs = new TreeSet();
-		Iterator it = groupIds.iterator();
+		SortedSet<String> groupRefs = new TreeSet<String>();
+		Iterator<String> it = groupIds.iterator();
 		while(it.hasNext())
 		{
 			String groupId = (String) it.next();
