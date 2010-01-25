@@ -201,6 +201,7 @@ public class Widget extends Panel {
 				
 				// Label
 				Label label = new Label("label", ms.getLabel());
+				label.setRenderBodyOnly(true);
 				link.add(label);
 			}
 		};
