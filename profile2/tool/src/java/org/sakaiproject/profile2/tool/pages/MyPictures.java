@@ -16,6 +16,13 @@
 
 package org.sakaiproject.profile2.tool.pages;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -25,15 +32,21 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
-import org.apache.wicket.markup.html.form.upload.FileUploadField;
+import org.apache.wicket.markup.html.form.upload.MultiFileUploadField;
 import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.GridView;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.util.file.Files;
+import org.apache.wicket.util.file.Folder;
+import org.apache.wicket.util.lang.Bytes;
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
@@ -49,7 +62,10 @@ public class MyPictures extends BasePage {
 
 	private static final Logger log = Logger.getLogger(MyPictures.class);
 
-	private FileUploadField addPictureField;
+	private List<File> addPictureFiles = new ArrayList<File>();
+	private FileListView addPictureListView;
+	private Folder addPictureUploadFolder;
+
 	private GridView gridView;
 
 	/**
@@ -91,63 +107,11 @@ public class MyPictures extends BasePage {
 
 	private void createAddPictureForm(final String userUuid) {
 
-		Form addPictureForm = new Form("addPictureForm") {
+		addPictureUploadFolder = new Folder(System
+				.getProperty("java.io.tmpdir"), "addPicturesUploadFolder");
+		addPictureUploadFolder.mkdirs();
 
-			private static final long serialVersionUID = 1L;
-
-			// handle the file upload
-			public void onSubmit() {
-
-				FileUpload upload = addPictureField.getFileUpload();
-
-				if (upload == null) {
-					log.error("Profile.MyPictures: upload was null.");
-					error(new StringResourceModel("error.no.file.uploaded",
-							this, null).getString());
-					return;
-				} else if (upload.getSize() == 0) {
-					log.error("Profile.MyPictures.onSubmit: upload was empty.");
-					error(new StringResourceModel("error.empty.file.uploaded",
-							this, null).getString());
-					return;
-				} else if (!ProfileUtils.checkContentTypeForProfileImage(upload
-						.getContentType())) {
-					log
-							.error("Profile.MyPictures.onSubmit: invalid file type uploaded for gallery");
-					error(new StringResourceModel("error.invalid.image.type",
-							this, null).getString());
-					return;
-				} else {
-
-					byte[] imageBytes = upload.getBytes();
-
-					if (Locator.getProfileImageService()
-							.addProfileGalleryImage(userUuid, imageBytes,
-									upload.getContentType(),
-									upload.getClientFileName())) {
-
-						// post upload event
-						getSakaiProxy().postEvent(
-								ProfileConstants.EVENT_GALLERY_IMAGE_UPLOAD,
-								"/profile/" + sakaiProxy.getCurrentUserId(),
-								true);
-
-						if (sakaiProxy.isSuperUserAndProxiedToUser(userUuid)) {
-							setResponsePage(new MyPictures(gridView
-									.getPageCount() - 1, userUuid));
-						} else {
-							setResponsePage(new MyPictures(gridView
-									.getPageCount() - 1));
-						}
-
-					} else {
-						error(new StringResourceModel("error.file.save.failed",
-								this, null).getString());
-						return;
-					}
-				}
-			}
-		};
+		Form addPictureForm = new FileUploadForm("addPictureForm", userUuid);
 
 		addPictureForm.setOutputMarkupId(true);
 		add(addPictureForm);
@@ -156,12 +120,21 @@ public class MyPictures extends BasePage {
 				"addPictureContainer");
 		addPictureContainer.add(new Label("addPictureLabel", new ResourceModel(
 				"pictures.addpicture")));
-		addPictureField = new FileUploadField("choosePicture");
-		addPictureContainer.add(addPictureField);
+
+		addPictureContainer.add(new MultiFileUploadField("choosePicture",
+				new PropertyModel<Collection<FileUpload>>(addPictureForm,
+						"uploads"), ProfileConstants.MAX_GALLERY_FILE_UPLOADS));
+
 		Button submitButton = new Button("submitPicture", new ResourceModel(
 				"button.gallery.upload"));
 		addPictureContainer.add(submitButton);
+
 		addPictureForm.add(addPictureContainer);
+
+		addPictureFiles.addAll(Arrays
+				.asList(addPictureUploadFolder.listFiles()));
+		addPictureListView = new FileListView("fileList", addPictureFiles);
+		addPictureForm.add(addPictureListView);
 	}
 
 	private void createGalleryForm(final String userUuid, int pageToDisplay) {
@@ -170,14 +143,10 @@ public class MyPictures extends BasePage {
 				"heading.pictures.my.pictures"));
 		add(galleryHeading);
 
-		Form galleryForm = new Form("galleryForm") {
-
-			private static final long serialVersionUID = 1L;
-		};
+		Form galleryForm = new Form("galleryForm");
 		galleryForm.setOutputMarkupId(true);
 
 		populateGallery(galleryForm, userUuid, pageToDisplay);
-
 		add(galleryForm);
 
 		Label addPictureHeading = new Label("addPictureHeading",
@@ -248,20 +217,120 @@ public class MyPictures extends BasePage {
 		// set page to display
 		if (pageToDisplay > -1 && pageToDisplay < gridView.getPageCount()) {
 			gridView.setCurrentPage(pageToDisplay);
+		} else {
+			// default to last page for add/remove operations
+			gridView.setCurrentPage(gridView.getPageCount() - 1);
 		}
 	}
 
 	private void configureFeedback() {
 
 		// activate feedback panel
-		final FeedbackPanel feedback = new FeedbackPanel("feedback");
-		feedback.setOutputMarkupId(true);
-		add(feedback);
+		final FeedbackPanel feedbackPanel = new FeedbackPanel("feedback");
+		feedbackPanel.setOutputMarkupId(true);
+		feedbackPanel.setVisible(false);
+		
+		add(feedbackPanel);
 
 		// don't show filtered feedback errors in feedback panel
 		int[] filteredErrorLevels = new int[] { FeedbackMessage.ERROR };
-		feedback.setFilter(new ErrorLevelsFeedbackMessageFilter(
+		feedbackPanel.setFilter(new ErrorLevelsFeedbackMessageFilter(
 				filteredErrorLevels));
 	}
 
+	private class FileListView extends ListView<File> {
+
+		private static final long serialVersionUID = 1L;
+
+		public FileListView(String name, final List<File> files) {
+			super(name, files);
+		}
+
+		protected void populateItem(ListItem<File> listItem) {
+			final File file = (File) listItem.getModelObject();
+			listItem.add(new Label("file", file.getName()));
+			listItem.add(new Link("delete") {
+				public void onClick() {
+					Files.remove(file);
+				}
+			});
+		}
+	}
+
+	private class FileUploadForm extends Form {
+
+		private static final long serialVersionUID = 1L;
+
+		private final Collection<FileUpload> uploads = new ArrayList<FileUpload>();
+
+		private final String userUuid;
+
+		public FileUploadForm(String id, String userUuid) {
+			super(id);
+
+			this.userUuid = userUuid;
+
+			// set form to multipart mode
+			setMultiPart(true);
+
+			setMaxSize(Bytes
+					.kilobytes(ProfileConstants.MAX_GALLERY_IMAGE_UPLOAD_SIZE));
+		}
+
+		public Collection<FileUpload> getUploads() {
+			return uploads;
+		}
+
+		protected void onSubmit() {
+			
+			Iterator<FileUpload> filesToUpload = uploads.iterator();
+			while (filesToUpload.hasNext()) {
+				final FileUpload upload = filesToUpload.next();
+
+				if (upload == null) {
+					log.error("Profile.MyPictures: upload was null.");
+					error(new StringResourceModel("error.no.file.uploaded",
+							this, null).getString());
+					return;
+				} else if (upload.getSize() == 0) {
+					log.error("Profile.MyPictures.onSubmit: upload was empty.");
+					error(new StringResourceModel("error.empty.file.uploaded",
+							this, null).getString());
+					return;
+				} else if (!ProfileUtils.checkContentTypeForProfileImage(upload
+						.getContentType())) {
+					log.error("Profile.MyPictures.onSubmit: invalid file type uploaded for gallery");
+					error(new StringResourceModel("error.invalid.image.type",
+							this, null).getString());
+					return;
+				}
+
+				byte[] imageBytes = upload.getBytes();
+
+				if (!Locator.getProfileImageService().addProfileGalleryImage(
+						userUuid, imageBytes, upload.getContentType(),
+						upload.getClientFileName())) {
+
+					error(new StringResourceModel("error.file.save.failed",
+							this, null).getString());
+					return;
+				}
+
+				// post upload event
+				getSakaiProxy().postEvent(
+						ProfileConstants.EVENT_GALLERY_IMAGE_UPLOAD,
+						"/profile/" + sakaiProxy.getCurrentUserId(), true);
+
+				if (sakaiProxy.isSuperUserAndProxiedToUser(userUuid)) {
+					setResponsePage(new MyPictures(gridView.getPageCount(),
+							userUuid));
+				} else {
+					setResponsePage(new MyPictures(gridView.getPageCount()));
+				}
+
+			}
+
+		}
+
+	}
 }

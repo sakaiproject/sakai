@@ -49,12 +49,17 @@
 	<table class="profileContent">
 		<tr wicket:id="addPictureContainer">
 			<td class="label" wicket:id="addPictureLabel">[addPictureLabel]</td>
-			<td><input type="file" wicket:id="choosePicture" size="15" /></td>
-			<td><input type="submit" wicket:id="submitPicture"
-				value="Upload" /></td>
-			<!--  <td class="toolTip"><span wicket:id="addPictureToolTip">[addPictureToolTip]</span></td> -->
+			<td class="profileContent" wicket:id="choosePicture" />
+			<td class="content"><input type="submit" wicket:id="submitPicture"
+				value="Upload"></input></td>
+		</tr>
+		<tr wicket:id="fileList">
+			<td class="label">Files</td>
+			<td width="200"><span wicket:id="file">(file)</span></td>
+			<td><a href="#" wicket:id="delete"></a></td>
 		</tr>
 	</table>
+
 	</form>
 	</div>
 	</div>
