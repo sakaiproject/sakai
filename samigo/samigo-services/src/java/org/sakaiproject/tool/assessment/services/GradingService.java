@@ -1517,6 +1517,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       float totalOverrideScore = adata.getTotalOverrideScore().floatValue();
       while (iter.hasNext()){
         ItemGradingIfc i = (ItemGradingIfc)iter.next();
+        if (i.getAssessmentGradingId() == null)
+        	i.setAssessmentGradingId(adata.getAssessmentGradingId());
         if (i.getAutoScore()!=null)
           totalAutoScore += i.getAutoScore().floatValue();
         }
