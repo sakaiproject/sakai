@@ -1335,7 +1335,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     for (Iterator iter = decoratedPvtMsgs.iterator(); iter.hasNext();)
     {
       PrivateMessageDecoratedBean dMsg= (PrivateMessageDecoratedBean) iter.next();
-      if (dMsg.getMsg().getId().equals(new Long(msgId)))
+      if (dMsg.getMsg().getId().equals(Long.valueOf(msgId)))
       {
         this.setDetailMsg(dMsg); 
         setDetailMsgCount++;
@@ -1638,7 +1638,7 @@ private   int   getNum(char letter,   String   a)
 	    String[] ccSS = new String[numberofAuther];
 	    ccSS=msgCClistStringwithoutAuthor.split(";");
 	  
-	    String tmpCC=new String();
+	    String tmpCC="";
 	    
 			if((numberofAuther>0)&&(numberofAuther<=msgCClistStringwithoutAuthor.length()))
 					      {
@@ -1828,7 +1828,7 @@ private   int   getNum(char letter,   String   a)
 
     EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_ADD, getEventMessage(pMsg), false));
 
-    if(fromMainOrHp != null && !fromMainOrHp.equals(""))
+    if(fromMainOrHp != null && !"".equals(fromMainOrHp))
     {
     	String tmpBackPage = fromMainOrHp;
     	fromMainOrHp = "";
@@ -2336,7 +2336,7 @@ private   int   getNum(char letter,   String   a)
     if(msgId!=null)
     {
       PrivateMessageDecoratedBean dbean=null;
-      PrivateMessage msg = (PrivateMessage) prtMsgManager.getMessageById(new Long(msgId)) ;
+      PrivateMessage msg = (PrivateMessage) prtMsgManager.getMessageById(Long.valueOf(msgId)) ;
       if(msg != null)
       {
     	  if (dbean == null)
@@ -2975,7 +2975,7 @@ private   int   getNum(char letter,   String   a)
               ref.getId(), ref.getProperties().getProperty(ref.getProperties().getNamePropDisplayName()));
           
           //TODO - remove this as being set for test only  
-          //thisAttach.setPvtMsgAttachId(new Long(1));
+          //thisAttach.setPvtMsgAttachId(Long.valueOf(1));
           
           attachments.add(new DecoratedAttachment(thisAttach));
           
@@ -3006,7 +3006,7 @@ private   int   getNum(char letter,   String   a)
               ref.getId(), ref.getProperties().getProperty(ref.getProperties().getNamePropDisplayName()));
           
           //TODO - remove this as being set for test only
-          //thisAttach.setPvtMsgAttachId(new Long(1));
+          //thisAttach.setPvtMsgAttachId(Long.valueOf(1));
           allAttachments.add(new DecoratedAttachment(thisAttach));
         }
       }
@@ -3038,9 +3038,9 @@ private   int   getNum(char letter,   String   a)
   
   public ArrayList getPrepareRemoveAttach()
   {
-    if((removeAttachId != null) && (!removeAttachId.equals("")))
+    if((removeAttachId != null) && (!"".equals(removeAttachId)))
     {
-      prepareRemoveAttach.add(prtMsgManager.getPvtMsgAttachment(new Long(removeAttachId)));
+      prepareRemoveAttach.add(prtMsgManager.getPvtMsgAttachment(Long.valueOf(removeAttachId)));
     }
     
     return prepareRemoveAttach;
@@ -3094,7 +3094,7 @@ private   int   getNum(char letter,   String   a)
       }
     }
     
-    if ((attachId != null) && (!attachId.equals("")))
+    if ((attachId != null) && (!"".equals(attachId)))
     {
       for (int i = 0; i < attachments.size(); i++)
       {
@@ -3137,7 +3137,7 @@ private   int   getNum(char letter,   String   a)
       }
     }
     
-    if ((attachId != null) && (!attachId.equals("")))
+    if ((attachId != null) && (!"".equals(attachId)))
     {
       for (int i = 0; i < allAttachments.size(); i++)
       {
@@ -3160,7 +3160,7 @@ private   int   getNum(char letter,   String   a)
     
     try
     {
-      Attachment sa = prtMsgManager.getPvtMsgAttachment(new Long(removeAttachId));
+      Attachment sa = prtMsgManager.getPvtMsgAttachment(Long.valueOf(removeAttachId));
       String id = sa.getAttachmentId();
       
       for(int i=0; i<attachments.size(); i++)

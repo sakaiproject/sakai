@@ -178,13 +178,13 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
 //            cp.setResponseToResponse(permissions.getResponseToResponse());
 //            cp.setPostToGradebook(permissions.getPostToGradebook());
 //        }
-        cp.setChangeSettings(new Boolean(defaultPermissionsManager.isChangeSettings(role)));
-        cp.setMovePostings(new Boolean(defaultPermissionsManager.isMovePostings(role)));
-        cp.setNewForum(new Boolean(defaultPermissionsManager.isNewForum(role)));
-        cp.setNewResponse(new Boolean(defaultPermissionsManager.isNewResponse(role)));
-        cp.setNewTopic(new Boolean(defaultPermissionsManager.isNewTopic(role)));
-        cp.setResponseToResponse(new Boolean(defaultPermissionsManager.isResponseToResponse(role)));
-        cp.setPostToGradebook(new Boolean(defaultPermissionsManager.isPostToGradebook(role)));
+        cp.setChangeSettings(Boolean.valueOf(defaultPermissionsManager.isChangeSettings(role)));
+        cp.setMovePostings(Boolean.valueOf(defaultPermissionsManager.isMovePostings(role)));
+        cp.setNewForum(Boolean.valueOf(defaultPermissionsManager.isNewForum(role)));
+        cp.setNewResponse(Boolean.valueOf(defaultPermissionsManager.isNewResponse(role)));
+        cp.setNewTopic(Boolean.valueOf(defaultPermissionsManager.isNewTopic(role)));
+        cp.setResponseToResponse(Boolean.valueOf(defaultPermissionsManager.isResponseToResponse(role)));
+        cp.setPostToGradebook(Boolean.valueOf(defaultPermissionsManager.isPostToGradebook(role)));
         cp.setRole(role);
         return cp;
     }
@@ -475,7 +475,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
                 Query q = session.getNamedQuery(QUERY_CP_BY_ROLE);
                 q.setParameter("roleId", roleId, Hibernate.STRING);
                 q.setParameter("areaId", area.getId().toString(), Hibernate.STRING);
-                q.setParameter("defaultValue", new Boolean(defaultValue), Hibernate.BOOLEAN);
+                q.setParameter("defaultValue", Boolean.valueOf(defaultValue), Hibernate.BOOLEAN);
                 return q.uniqueResult();
             }
         };
@@ -490,7 +490,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
                 Query q = session.getNamedQuery(queryString);
                 q.setParameter("roleId", roleId, Hibernate.STRING);
                 q.setParameter(key, value, Hibernate.STRING);
-                q.setParameter("defaultValue", new Boolean(defaultValue), Hibernate.BOOLEAN);
+                q.setParameter("defaultValue", Boolean.valueOf(defaultValue), Hibernate.BOOLEAN);
                 return q.uniqueResult();
             }
         };
@@ -505,7 +505,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
                 Query q = session.getNamedQuery(queryString);
                 q.setParameter("roleId", roleId, Hibernate.STRING);
                 q.setParameter(key, value, Hibernate.STRING);
-                q.setParameter("defaultValue", new Boolean(defaultValue), Hibernate.BOOLEAN);
+                q.setParameter("defaultValue", Boolean.valueOf(defaultValue), Hibernate.BOOLEAN);
                 return q.uniqueResult();
             }
         };
@@ -570,13 +570,13 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
 //            mp.setMarkAsRead(permissions.getMarkAsRead());
 //        }
         mp.setRole(role);        
-        mp.setDeleteAny(new Boolean(defaultPermissionsManager.isDeleteAny(role)));
-        mp.setDeleteOwn(new Boolean(defaultPermissionsManager.isDeleteOwn(role)));
-        mp.setRead(new Boolean(defaultPermissionsManager.isRead(role)));
-        mp.setReadDrafts(new Boolean(false));
-        mp.setReviseAny(new Boolean(defaultPermissionsManager.isReviseAny(role)));
-        mp.setReviseOwn(new Boolean(defaultPermissionsManager.isReviseOwn(role)));
-        mp.setMarkAsRead(new Boolean(defaultPermissionsManager.isMarkAsRead(role)));      
+        mp.setDeleteAny(Boolean.valueOf(defaultPermissionsManager.isDeleteAny(role)));
+        mp.setDeleteOwn(Boolean.valueOf(defaultPermissionsManager.isDeleteOwn(role)));
+        mp.setRead(Boolean.valueOf(defaultPermissionsManager.isRead(role)));
+        mp.setReadDrafts(Boolean.valueOf(false));
+        mp.setReviseAny(Boolean.valueOf(defaultPermissionsManager.isReviseAny(role)));
+        mp.setReviseOwn(Boolean.valueOf(defaultPermissionsManager.isReviseOwn(role)));
+        mp.setMarkAsRead(Boolean.valueOf(defaultPermissionsManager.isMarkAsRead(role)));      
         return mp;
     }
 
@@ -940,7 +940,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
                 Query q = session.getNamedQuery(QUERY_MP_BY_ROLE);
                 q.setParameter("roleId", roleId, Hibernate.STRING);
                 q.setParameter("areaId", area.getId().toString(), Hibernate.STRING);
-                q.setParameter("defaultValue", new Boolean(defaultValue), Hibernate.BOOLEAN);
+                q.setParameter("defaultValue", Boolean.valueOf(defaultValue), Hibernate.BOOLEAN);
                 return q.uniqueResult();
             }
         };

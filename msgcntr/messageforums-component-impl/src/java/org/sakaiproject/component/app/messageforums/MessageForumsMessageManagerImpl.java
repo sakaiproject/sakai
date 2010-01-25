@@ -794,7 +794,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         status.setTopicId(topicId);
         status.setMessageId(messageId);
         status.setUserId(userId);
-        status.setRead(new Boolean(read));
+        status.setRead(Boolean.valueOf(read));
 
         Message message = (Message) getMessageById(messageId);
         boolean isMessageFromForums = isMessageFromForums(message);
@@ -803,8 +803,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         	//increment the message count
         	Integer nr = message.getNumReaders();
         	if (nr == null)
-        		nr = new Integer(0);
-        	nr = new Integer(nr.intValue() + 1);
+        		nr = Integer.valueOf(0);
+        	nr = Integer.valueOf(nr.intValue() + 1);
         	message.setNumReaders(nr);
         	LOG.debug("set Message readers count to: " + nr);
         	//baseForum is probably null
@@ -1212,7 +1212,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         LOG.debug("markMessageApproval executing with messageId: " + messageId);
         
         Message message = (Message) getMessageById(messageId);
-        message.setApproved(new Boolean(approved));
+        message.setApproved(Boolean.valueOf(approved));
         
         getHibernateTemplate().saveOrUpdate(message);
     }
@@ -1407,7 +1407,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     
     private Integer convertBooleanToInteger(boolean value) {
        Integer retVal = (Boolean.TRUE.equals(value)) ? 1 : 0;
-       return new Integer(retVal);
+       return Integer.valueOf(retVal);
     }
     
     private String getContextId() {

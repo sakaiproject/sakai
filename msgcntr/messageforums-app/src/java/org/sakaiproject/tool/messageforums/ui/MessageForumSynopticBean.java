@@ -392,7 +392,7 @@ public class MessageForumSynopticBean {
 
 				if (((String) currentValues[1]).equals(removeValues[1])) {
 					resultValues[0] = currentValues[0];
-					resultValues[2] = new Integer( ((Integer) currentValues[2]).intValue() - 
+					resultValues[2] = Integer.valueOf( ((Integer) currentValues[2]).intValue() - 
 													((Integer) removeValues[2]).intValue() );
 				}
 				
@@ -731,7 +731,7 @@ public class MessageForumSynopticBean {
 				if (nonMIReadCount != null)
 			{
 				// Need to subtract int values, not Integer
-				nonMIcount[1] = new Integer(((Integer) nonMIcount[1]).intValue() - nonMIReadCount.intValue());
+				nonMIcount[1] = Integer.valueOf(((Integer) nonMIcount[1]).intValue() - nonMIReadCount.intValue());
 			}
 		}
 		
@@ -840,8 +840,8 @@ public class MessageForumSynopticBean {
 			Object [] currentUnreadCount = compiledCountsMap.get((String) nonMIcount[0]);
 	
 			if (currentUnreadCount != null) {
-				currentUnreadCount[1] = new Integer((Integer) currentUnreadCount[1]).intValue() +
-										new Integer((Integer) nonMIcount[1]).intValue();
+				currentUnreadCount[1] = Integer.valueOf((Integer) currentUnreadCount[1]).intValue() +
+										Integer.valueOf((Integer) nonMIcount[1]).intValue();
 			}
 			else
 			{
@@ -1334,7 +1334,7 @@ public class MessageForumSynopticBean {
 			if (pos != -1) {
 				final Object [] dfReadMessageCountForASite = (Object []) readMessages.get(pos);
 				
-				siteDFInfo[1] = new Integer(((Integer) dfMessageCountForASite[2]).intValue()
+				siteDFInfo[1] = Integer.valueOf(((Integer) dfMessageCountForASite[2]).intValue()
 												- ((Integer) dfReadMessageCountForASite[2]).intValue());
 				
 				// done with it, remove from list

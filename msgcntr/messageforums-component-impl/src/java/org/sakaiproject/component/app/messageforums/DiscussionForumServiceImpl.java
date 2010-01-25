@@ -432,7 +432,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 						// if the "from" forum has a 0 sort index, there is no sort order
 						Integer fromSortIndex = fromForum.getSortIndex();
 						if (fromSortIndex != null && fromSortIndex.intValue() > 0) {
-							newForum.setSortIndex(new Integer(fromForum.getSortIndex().intValue() + numExistingForums));
+							newForum.setSortIndex(Integer.valueOf(fromForum.getSortIndex().intValue() + numExistingForums));
 						}
 
 						// get permissions for "from" site
@@ -496,7 +496,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 						}
 						else
 						{
-							newForum.setDraft(new Boolean("true"));
+							newForum.setDraft(Boolean.valueOf("true"));
 							forumManager.saveDiscussionForum(newForum, true);
 						}
 
@@ -609,16 +609,16 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 
 										String forumDraft = forumElement.getAttribute(DRAFT);
 										if(forumDraft != null && forumDraft.length() >0)
-											dfForum.setDraft(new Boolean(forumDraft));
+											dfForum.setDraft(Boolean.valueOf(forumDraft));
 
 										String forumLocked = forumElement.getAttribute(LOCKED);
 										if(forumLocked != null && forumLocked.length() >0)
-											dfForum.setLocked(new Boolean(forumLocked));
+											dfForum.setLocked(Boolean.valueOf(forumLocked));
 										
 										String forumModerated = forumElement.getAttribute(MODERATED);
 										if(forumModerated != null && forumModerated.length() >0)
 										{
-											dfForum.setModerated(new Boolean(forumModerated));
+											dfForum.setModerated(Boolean.valueOf(forumModerated));
 										}
 										else
 										{
@@ -628,8 +628,8 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 										String forumSortIndex = forumElement.getAttribute(SORT_INDEX);
 										if(forumSortIndex != null && forumSortIndex.length() > 0) {
 											try {
-												Integer sortIndex = new Integer(forumSortIndex);
-												sortIndex = new Integer(sortIndex.intValue() + numExistingForums);
+												Integer sortIndex = Integer.valueOf(forumSortIndex);
+												sortIndex = Integer.valueOf(sortIndex.intValue() + numExistingForums);
 												dfForum.setSortIndex(sortIndex);
 											} catch (NumberFormatException nfe) {
 												// do nothing b/c invalid
@@ -727,22 +727,22 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 
 													String topicDraft = forumChildElement.getAttribute(DRAFT);
 													if(topicDraft != null && topicDraft.length() >0)
-														dfTopic.setDraft(new Boolean(topicDraft));
+														dfTopic.setDraft(Boolean.valueOf(topicDraft));
 
 													String topicLocked = forumChildElement.getAttribute(LOCKED);
 													if(topicLocked != null && topicLocked.length() >0)
-														dfTopic.setLocked(new Boolean(topicLocked));
+														dfTopic.setLocked(Boolean.valueOf(topicLocked));
 													
 													String topicModerated = forumChildElement.getAttribute(MODERATED);
 													if(topicModerated != null && topicModerated.length() >0)
-														dfTopic.setModerated(new Boolean(topicModerated));
+														dfTopic.setModerated(Boolean.valueOf(topicModerated));
 													else
 														dfTopic.setModerated(Boolean.FALSE);
 													
 													String sortIndex = forumChildElement.getAttribute(SORT_INDEX);
 													if (sortIndex != null) {
 														try {
-															Integer sortIndexAsInt = new Integer(sortIndex);
+															Integer sortIndexAsInt = Integer.valueOf(sortIndex);
 															dfTopic.setSortIndex(sortIndexAsInt);
 														} catch (NumberFormatException nfe) {
 															dfTopic.setSortIndex(null);
@@ -871,7 +871,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 														}
 														else
 														{
-															dfForum.setDraft(new Boolean("true"));
+															dfForum.setDraft(Boolean.valueOf("true"));
 															forumManager.saveDiscussionForum(dfForum, true);
 														}
 													}
@@ -892,7 +892,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 											}
 											else
 											{
-												dfForum.setDraft(new Boolean("true"));
+												dfForum.setDraft(Boolean.valueOf("true"));
 												forumManager.saveDiscussionForum(dfForum, true);
 											}
 										}
@@ -1057,7 +1057,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 							if (allowedPermNames != null && allowedPermLevels != null && allowedPermNames.contains(permissionName) && allowedPermLevels.contains(permissionLevelName))
 							{
 
-								Integer permissionType = new Integer(permissionElement.getAttribute(PERMISSION_TYPE));
+								Integer permissionType = Integer.valueOf(permissionElement.getAttribute(PERMISSION_TYPE));
 								DBMembershipItem membershipItem = permissionManager.createDBMembershipItem(permissionName, permissionLevelName, permissionType);
 
 								if (PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM.equals(membershipItem.getPermissionLevelName())){
@@ -1073,7 +1073,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 												List customPermList = permissionManager.getCustomPermissions();
 												for (int c=0; c < customPermList.size(); c++) {
 													String customPermName = (String) customPermList.get(c);
-													Boolean hasPermission = new Boolean(customPermElement.getAttribute(customPermName));
+													Boolean hasPermission = Boolean.valueOf(customPermElement.getAttribute(customPermName));
 													mask.put(customPermName, hasPermission);
 												}
 

@@ -63,8 +63,8 @@ public class PrivateTopicImpl extends TopicImpl implements PrivateTopic {
 //            title1 = ((Topic) topic).getTitle();
 //            title2 = ((Topic) otherTopic).getTitle();
 //            
-//            index1 = new Integer(lookupOrderList.indexOf(title1));
-//            index2 = new Integer(lookupOrderList.indexOf(title2));            
+//            index1 = Integer.valueOf(lookupOrderList.indexOf(title1));
+//            index2 = Integer.valueOf(lookupOrderList.indexOf(title2));            
 //                                    
 //            /** expecting elements to exist in lookupOrderedList */
 //            return index1.compareTo(index2);

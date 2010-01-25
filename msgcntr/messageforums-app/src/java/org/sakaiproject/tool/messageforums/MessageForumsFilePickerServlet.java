@@ -314,11 +314,11 @@ public class MessageForumsFilePickerServlet extends JsfTool  implements HttpServ
         if (initComplete && parts.length > 2) {
             String context = "";
             if ("forum_topic".equals(parts[1]))
-              context = forumManager.getContextForTopicById(new Long(parts[2]));
+              context = forumManager.getContextForTopicById(Long.valueOf(parts[2]));
             else if ("forum".equals(parts[1]))
-              context = forumManager.getContextForForumById(new Long(parts[2]));
+              context = forumManager.getContextForForumById(Long.valueOf(parts[2]));
             else if ("forum_message".equals(parts[1]))
-              context = forumManager.getContextForMessageById(new Long(parts[2]));
+              context = forumManager.getContextForMessageById(Long.valueOf(parts[2]));
 
             String placementId = "";
             String target = "";
@@ -358,8 +358,8 @@ public class MessageForumsFilePickerServlet extends JsfTool  implements HttpServ
             else if ("forum_message".equals(parts[1])) {
                 target = "/jsp/discussionForum/message/dfViewMessageDirect.jsf?messageId="
                        + parts[2] + "&placementId=" + placementId + "&topicId="
-                       + forumManager.getMessageById(new Long(parts[2])).getTopic().getId()
-                       + "&forumId=" + forumManager.ForumIdForMessage(new Long(parts[2]));
+                       + forumManager.getMessageById(Long.valueOf(parts[2])).getTopic().getId()
+                       + "&forumId=" + forumManager.ForumIdForMessage(Long.valueOf(parts[2]));
             }
 
             // dispatch to the target

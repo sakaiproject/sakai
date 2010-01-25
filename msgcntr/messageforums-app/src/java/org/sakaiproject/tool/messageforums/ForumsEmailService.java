@@ -103,7 +103,7 @@ public class ForumsEmailService {
 
 			// check for testMode@org.sakaiproject.email.api.EmailService
 			// Server
-			if (smtpServer == null || smtpServer.equals("")) {
+			if (smtpServer == null || "".equals(smtpServer)) {
 				log
 						.info("smtp@org.sakaiproject.email.api.EmailService is not set");
 				log
@@ -218,7 +218,7 @@ public class ForumsEmailService {
 			ArrayList<File> fileList = new ArrayList<File>();
 			ArrayList<String> fileNameList = new ArrayList<String>();
 			if (attachmentList != null) {
-				if (prefixedPath == null || prefixedPath.equals("")) {
+				if (prefixedPath == null || "".equals(prefixedPath)) {
 					log.error("forum.email.prefixedPath is not set");
 					return;
 				}
@@ -284,7 +284,7 @@ public class ForumsEmailService {
 			return;
 		} finally {
 			if (attachmentList != null) {
-				if (prefixedPath != null && !prefixedPath.equals("")) {
+				if (prefixedPath != null && !"".equals(prefixedPath)) {
 					StringBuilder sbPrefixedPath;
 					Iterator<Attachment> iter = attachmentList.iterator();
 					while (iter.hasNext()) {
@@ -370,7 +370,7 @@ public class ForumsEmailService {
 		
 		// TODO: Use a generic Sakai utility class (when a suitable one exists)
 		
-		if (email == null || email.equals(""))
+		if (email == null || "".equals(email))
 			return false;
 		
 		email = email.trim();

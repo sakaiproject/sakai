@@ -82,7 +82,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     a1.setCreatedBy("admin");
     a1.setModified(new Date());
     a1.setModifiedBy("admin");
-    a1.setId(new Long(1));
+    a1.setId(Long.valueOf(1));
     a1.setUuid("1");
     //a1.setPrivateForums(getPrivateForums());
     return a1;
@@ -96,7 +96,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     pfm1.setCreated(new Date());
     pfm1.setCreatedBy("admin");
     pfm1.setExtendedDescription("extended description");
-    pfm1.setId(new Long(9));
+    pfm1.setId(Long.valueOf(9));
     pfm1.setUuid("9");
     pfm1.setModified(new Date());
     pfm1.setModifiedBy("the moderator");
@@ -107,7 +107,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     pfm1.setAutoForward(Boolean.TRUE);
     pfm1.setAutoForwardEmail("fish@indiana.edu");
     pfm1.setPreviewPaneEnabled(Boolean.TRUE);
-    pfm1.setSortIndex(new Integer(2));
+    pfm1.setSortIndex(Integer.valueOf(2));
     pfm1.setTopics(getPrivateTopics());
 
     privateForums.add(pfm1);
@@ -126,7 +126,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm.setCreatedBy("admin");
     dtm.setDateRestrictions(getDateRestrictions());
     dtm.setExtendedDescription("the extended description");
-    dtm.setId(new Long(12));
+    dtm.setId(Long.valueOf(12));
     dtm.setUuid("12");
     dtm.setLabels(getLabels());
     dtm.setLocked(Boolean.TRUE);
@@ -138,7 +138,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm.setConfidentialResponses(Boolean.TRUE);
     dtm.setTypeUuid(typeMgr.getReceivedPrivateMessageType());
     dtm.setMutable(Boolean.FALSE);
-    dtm.setSortIndex(new Integer(2));
+    dtm.setSortIndex(Integer.valueOf(2));
     dtm.setMessages(getReceivedPrivateMessages());
 
     DiscussionTopic dtm1 = new DiscussionTopicImpl();
@@ -148,7 +148,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setCreatedBy("admin");
     dtm1.setDateRestrictions(getDateRestrictions());
     dtm1.setExtendedDescription("the extended description");
-    dtm1.setId(new Long(1211));
+    dtm1.setId(Long.valueOf(1211));
     dtm1.setUuid("1211");
     dtm1.setLabels(getLabels());
     dtm1.setLocked(Boolean.TRUE);
@@ -160,7 +160,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setConfidentialResponses(Boolean.TRUE);
     dtm1.setMutable(Boolean.FALSE);
     dtm.setTypeUuid(typeMgr.getSentPrivateMessageType());
-    dtm1.setSortIndex(new Integer(222));
+    dtm1.setSortIndex(Integer.valueOf(222));
     dtm1.setMessages(getSentPrivateMessages());
 
     DiscussionTopic dtm2 = new DiscussionTopicImpl();
@@ -170,7 +170,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm2.setCreatedBy("admin");
     dtm2.setDateRestrictions(getDateRestrictions());
     dtm2.setExtendedDescription("the extended description");
-    dtm2.setId(new Long(1233));
+    dtm2.setId(Long.valueOf(1233));
     dtm2.setUuid("1233");
     dtm2.setLabels(getLabels());
     dtm2.setLocked(Boolean.TRUE);
@@ -182,7 +182,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm.setTypeUuid(typeMgr.getDeletedPrivateMessageType());
     dtm2.setConfidentialResponses(Boolean.TRUE);
     dtm2.setMutable(Boolean.FALSE);
-    dtm2.setSortIndex(new Integer(2222));
+    dtm2.setSortIndex(Integer.valueOf(2222));
     dtm2.setMessages(getDeletedPrivateMessages());
 
     DiscussionTopic dtm3 = new DiscussionTopicImpl();
@@ -192,7 +192,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm3.setCreatedBy("admin");
     dtm3.setDateRestrictions(getDateRestrictions());
     dtm3.setExtendedDescription("the extended description");
-    dtm3.setId(new Long(123));
+    dtm3.setId(Long.valueOf(123));
     dtm3.setUuid("123");
     dtm3.setLabels(getLabels());
     dtm3.setLocked(Boolean.TRUE);
@@ -204,7 +204,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm.setTypeUuid(typeMgr.getDraftPrivateMessageType());
     dtm3.setConfidentialResponses(Boolean.TRUE);
     dtm3.setMutable(Boolean.FALSE);
-    dtm3.setSortIndex(new Integer(2));
+    dtm3.setSortIndex(Integer.valueOf(2));
     dtm3.setMessages(getDraftedPrivateMessages());
  
     DiscussionTopic dtm13 = new DiscussionTopicImpl();
@@ -214,7 +214,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm13.setCreatedBy("admin");
     dtm13.setDateRestrictions(getDateRestrictions());
     dtm13.setExtendedDescription("the extended description");
-    dtm13.setId(new Long(132));
+    dtm13.setId(Long.valueOf(132));
     dtm13.setUuid("132");
     dtm13.setLabels(getLabels());
     dtm13.setLocked(Boolean.TRUE);
@@ -225,7 +225,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm13.setTitle("Personal Folders");
     dtm13.setConfidentialResponses(Boolean.TRUE);
     dtm13.setMutable(Boolean.TRUE);
-    dtm13.setSortIndex(new Integer(2));
+    dtm13.setSortIndex(Integer.valueOf(2));
     dtm13.setMessages(null);
  
     discussionTopics.add(dtm);
@@ -249,7 +249,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm1.setCreatedBy("john smith");
     pmm1.setGradebook("gb1");
     pmm1.setGradebookAssignment("asst1");
-    pmm1.setId(new Long(3));
+    pmm1.setId(Long.valueOf(3));
     pmm1.setInReplyTo(null);
     pmm1.setLabel("Normal");
     pmm1.setModified(new Date());
@@ -269,7 +269,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm2.setCreatedBy("john smith");
     pmm2.setGradebook("gb1");
     pmm2.setGradebookAssignment("asst1");
-    pmm2.setId(new Long(42));
+    pmm2.setId(Long.valueOf(42));
     pmm2.setInReplyTo(pmm1);
     pmm2.setLabel("Normal");
     pmm2.setModified(new Date());
@@ -297,7 +297,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm1.setCreatedBy("john smith");
     pmm1.setGradebook("gb1");
     pmm1.setGradebookAssignment("asst1");
-    pmm1.setId(new Long(1213));
+    pmm1.setId(Long.valueOf(1213));
     pmm1.setInReplyTo(null);
     pmm1.setLabel("Normal");
     pmm1.setModified(new Date());
@@ -317,7 +317,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm2.setCreatedBy("john smith");
     pmm2.setGradebook("gb1");
     pmm2.setGradebookAssignment("asst1");
-    pmm2.setId(new Long(1214));
+    pmm2.setId(Long.valueOf(1214));
     pmm2.setInReplyTo(pmm1);
     pmm2.setLabel("getDeletedPrivateMessages Normal");
     pmm2.setModified(new Date());
@@ -345,7 +345,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm1.setCreatedBy("john smith");
     pmm1.setGradebook("gb1");
     pmm1.setGradebookAssignment("asst1");
-    pmm1.setId(new Long(13));
+    pmm1.setId(Long.valueOf(13));
     pmm1.setInReplyTo(null);
     pmm1.setLabel("Normal");
     pmm1.setModified(new Date());
@@ -365,7 +365,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm2.setCreatedBy("john smith");
     pmm2.setGradebook("gb1");
     pmm2.setGradebookAssignment("asst1");
-    pmm2.setId(new Long(4));
+    pmm2.setId(Long.valueOf(4));
     pmm2.setInReplyTo(pmm1);
     pmm2.setLabel("Normal");
     pmm2.setModified(new Date());
@@ -393,7 +393,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm1.setCreatedBy("john smith");
     pmm1.setGradebook("gb1");
     pmm1.setGradebookAssignment("asst1");
-    pmm1.setId(new Long(13));
+    pmm1.setId(Long.valueOf(13));
     pmm1.setInReplyTo(null);
     pmm1.setLabel("Normal");
     pmm1.setModified(new Date());
@@ -413,7 +413,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     pmm2.setCreatedBy("john smith");
     pmm2.setGradebook("gb1");
     pmm2.setGradebookAssignment("asst1");
-    pmm2.setId(new Long(4));
+    pmm2.setId(Long.valueOf(4));
     pmm2.setInReplyTo(pmm1);
     pmm2.setLabel("Normal");
     pmm2.setModified(new Date());
@@ -439,7 +439,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     a2.setCreatedBy("john doe");
     a2.setModified(new Date());
     a2.setModifiedBy("mary jane");
-    a2.setId(new Long(2));
+    a2.setId(Long.valueOf(2));
     a2.setUuid("2");
     //a2.setDiscussionForums(getDiscussionForums());
     return a2;
@@ -463,7 +463,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dfm1.setDateRestrictions(getDateRestrictions());
     dfm1
         .setExtendedDescription("This forum is used to discuss assigned case studies. You should follow the case study preparation instructions before posting.");
-    dfm1.setId(new Long(5));
+    dfm1.setId(Long.valueOf(5));
     dfm1.setUuid("5");
     dfm1.setLabels(getLabels());
     dfm1.setLocked(Boolean.FALSE);
@@ -486,7 +486,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dfm2.setCreatedBy("jim johnson");
     dfm2.setDateRestrictions(getDateRestrictions());
     dfm2.setExtendedDescription("the extended description 2");
-    dfm2.setId(new Long(6));
+    dfm2.setId(Long.valueOf(6));
     dfm2.setUuid("6");
     dfm2.setLabels(getLabels());
     dfm2.setLocked(Boolean.TRUE);
@@ -517,7 +517,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     mm1.setCreatedBy("john smith");
     mm1.setGradebook("gb1");
     mm1.setGradebookAssignment("asst1");
-    mm1.setId(new Long(3));
+    mm1.setId(Long.valueOf(3));
     mm1.setInReplyTo(null);
     mm1.setLabel("Normal");
     mm1.setModified(new Date());
@@ -537,7 +537,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     mm2.setCreatedBy("john smith");
     mm2.setGradebook("gb1");
     mm2.setGradebookAssignment("asst1");
-    mm2.setId(new Long(4));
+    mm2.setId(Long.valueOf(4));
     mm2.setInReplyTo(getMessageByID3());
     mm2.setLabel("Normal");
     mm2.setModified(new Date());
@@ -567,7 +567,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setDateRestrictions(getDateRestrictions());
     dtm1
         .setExtendedDescription("Extended: The case requires at lease two decisions in setting your strategy to advance the project: 1. Which customer groups to include in the project scope? 2. Should Customs be included as a development partner?");
-    dtm1.setId(new Long(11));
+    dtm1.setId(Long.valueOf(11));
     dtm1.setUuid("11");
     dtm1.setLabels(getLabels());
     dtm1.setLocked(Boolean.FALSE);
@@ -580,10 +580,10 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setConfidentialResponses(Boolean.TRUE);
     dtm1.setGradebook("gb2-1");
     dtm1.setGradebookAssignment("asst2");
-    dtm1.setHourBeforeResponsesVisible(new Integer(2));
+    dtm1.setHourBeforeResponsesVisible(Integer.valueOf(2));
     dtm1.setMustRespondBeforeReading(Boolean.TRUE);
     dtm1.setMutable(Boolean.TRUE);
-    dtm1.setSortIndex(new Integer(1));
+    dtm1.setSortIndex(Integer.valueOf(1));
     dtm1.setMessages(getForumMessages());
     return dtm1;
   }
@@ -600,7 +600,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setDateRestrictions(getDateRestrictions());
     dtm1
         .setExtendedDescription("Extended: The case requires at lease two decisions in setting your strategy to advance the project: 1. Which customer groups to include in the project scope? 2. Should Customs be included as a development partner?");
-    dtm1.setId(new Long(11));
+    dtm1.setId(Long.valueOf(11));
     dtm1.setUuid("511");
     dtm1.setLabels(getLabels());
     dtm1.setLocked(Boolean.FALSE);
@@ -613,10 +613,10 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setConfidentialResponses(Boolean.TRUE);
     dtm1.setGradebook("gb2-1");
     dtm1.setGradebookAssignment("asst2");
-    dtm1.setHourBeforeResponsesVisible(new Integer(2));
+    dtm1.setHourBeforeResponsesVisible(Integer.valueOf(2));
     dtm1.setMustRespondBeforeReading(Boolean.TRUE);
     dtm1.setMutable(Boolean.TRUE);
-    dtm1.setSortIndex(new Integer(1));
+    dtm1.setSortIndex(Integer.valueOf(1));
     dtm1.setMessages(getForumMessages());
     return dtm1;
   }
@@ -633,7 +633,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setDateRestrictions(getDateRestrictions());
     dtm1
         .setExtendedDescription("Extended: The case requires at lease two decisions in setting your strategy to advance the project: 1. Which customer groups to include in the project scope? 2. Should Customs be included as a development partner?");
-    dtm1.setId(new Long(11));
+    dtm1.setId(Long.valueOf(11));
     dtm1.setUuid("521");
     dtm1.setLabels(getLabels());
     dtm1.setLocked(Boolean.FALSE);
@@ -646,10 +646,10 @@ public class DummyDataHelper implements DummyDataHelperApi
     dtm1.setConfidentialResponses(Boolean.TRUE);
     dtm1.setGradebook("gb2-1");
     dtm1.setGradebookAssignment("asst2");
-    dtm1.setHourBeforeResponsesVisible(new Integer(2));
+    dtm1.setHourBeforeResponsesVisible(Integer.valueOf(2));
     dtm1.setMustRespondBeforeReading(Boolean.TRUE);
     dtm1.setMutable(Boolean.TRUE);
-    dtm1.setSortIndex(new Integer(1));
+    dtm1.setSortIndex(Integer.valueOf(1));
     dtm1.setMessages(getForumMessages());
      return dtm1;
   }
@@ -703,7 +703,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     apm.setAccessors(new ArrayList());
     apm.setContributors(new ArrayList());
     apm.setModerators(new ArrayList());
-    apm.setId(new Long(123));
+    apm.setId(Long.valueOf(123));
     return null;
   }
 
@@ -711,7 +711,7 @@ public class DummyDataHelper implements DummyDataHelperApi
   {
     ControlPermissions cpm = new ControlPermissionsImpl();
     cpm.setChangeSettings(Boolean.TRUE);
-    cpm.setId(new Long(234));
+    cpm.setId(Long.valueOf(234));
     cpm.setMovePostings(Boolean.TRUE);
     cpm.setNewResponse(Boolean.TRUE);
     cpm.setNewTopic(Boolean.TRUE);
@@ -725,7 +725,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     DateRestrictions drm = new DateRestrictionsImpl();
     drm.setHidden(new Date());
     drm.setHiddenPostOnSchedule(Boolean.TRUE);
-    drm.setId(new Long(22));
+    drm.setId(Long.valueOf(22));
     drm.setPostingAllowed(new Date());
     drm.setPostingAllowedPostOnSchedule(Boolean.TRUE);
     drm.setReadOnly(new Date());
@@ -740,7 +740,7 @@ public class DummyDataHelper implements DummyDataHelperApi
     MessagePermissions mpm = new MessagePermissionsImpl();
     mpm.setDeleteAny(Boolean.TRUE);
     mpm.setDeleteOwn(Boolean.TRUE);
-    mpm.setId(new Long(22));
+    mpm.setId(Long.valueOf(22));
     mpm.setRead(Boolean.TRUE);
     mpm.setReadDrafts(Boolean.TRUE);
     mpm.setReviseAny(Boolean.TRUE);
@@ -772,7 +772,7 @@ public class DummyDataHelper implements DummyDataHelperApi
 
   public DiscussionForum getForumById(Long forumId)
   {
-    if (forumId != null && forumId.equals(new Long(5)))
+    if (forumId != null && forumId.equals(Long.valueOf(5)))
     {
 
       return getDiscussionForumByID5();
@@ -791,11 +791,11 @@ public class DummyDataHelper implements DummyDataHelperApi
 
   public DiscussionTopic getTopicById(Long topicId)
   {
-    if(topicId.equals(new Long(511)))
+    if(topicId.equals(Long.valueOf(511)))
     {
       return getDiscussionTopicByID511();
     }
-    if(topicId.equals(new Long(521)))
+    if(topicId.equals(Long.valueOf(521)))
     {
       return getDiscussionTopicByID521();
     }
@@ -856,7 +856,7 @@ public class DummyDataHelper implements DummyDataHelperApi
 
   public Message getMessageById(Long id)
   {
-    if(id.equals(new Long(3)))
+    if(id.equals(Long.valueOf(3)))
       return getMessageByID3();
     else
       return getMessageByID4();

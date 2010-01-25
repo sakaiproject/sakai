@@ -582,7 +582,7 @@ public class MessageForumStatisticsBean {
 
 		if(selectedMsgId != null){
 			try{
-				Long msgId = new Long(selectedMsgId);			
+				Long msgId = Long.valueOf(selectedMsgId);			
 
 				Message mesWithAttach = (Message)messageManager.getMessageByIdWithAttachments(msgId);
 				Topic t = forumManager.getTopicById(mesWithAttach.getTopic().getId());

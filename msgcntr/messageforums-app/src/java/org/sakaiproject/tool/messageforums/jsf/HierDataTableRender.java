@@ -131,7 +131,7 @@ public class HierDataTableRender extends HtmlBasicRenderer
 			while (columns.hasNext()) {
 				UIColumn column = (UIColumn) columns.next();
 				// write column for arrows... only if last column did not specify arrows
-				if (column.getId().endsWith("_msg_subject") && !oldColumn.getId().endsWith("_toggle") && !noArrows.equals("true")) {
+				if (column.getId().endsWith("_msg_subject") && !oldColumn.getId().endsWith("_toggle") && !"true".equals(noArrows)) {
 					writer.startElement("th", null);
 					writer.writeAttribute("scope", "col", null);
 					writer.endElement("th");

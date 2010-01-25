@@ -105,7 +105,7 @@ public class HideDivisionRenderer extends Renderer
 
     String title = (String) RendererUtil.getAttribute(context, component, "title");
     Object tmpFoldStr = RendererUtil.getAttribute(context, component, "hideByDefault");
-    boolean foldDiv = tmpFoldStr != null && tmpFoldStr.equals("true");
+    boolean foldDiv = tmpFoldStr != null && "true".equals(tmpFoldStr);
     String foldImage = foldDiv ? FOLD_IMG_HIDE : FOLD_IMG_SHOW;
     writer.write("<" + BARTAG + " class=\"" + BARSTYLE + "\">");
     writer.write("<table style=\"width: 100%;\" class=\"discTria\" cellpadding=\"0\" cellspacing=\"0\" summary=\"layout\">");

@@ -27,7 +27,7 @@ public class ForumTopicEntityProviderImpl implements ForumTopicEntityProvider,
   public boolean entityExists(String id) {
     Topic topic = null;
     try {
-      topic = forumManager.getTopicById(new Long(id));
+      topic = forumManager.getTopicById(Long.valueOf(id));
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -58,7 +58,7 @@ public class ForumTopicEntityProviderImpl implements ForumTopicEntityProvider,
 
       // TODO: need a way to generate the url with out having siteId in search
       if (forumId != null && userId != null) {
-        DiscussionForum forum = forumManager.getForumByIdWithTopics(new Long(forumId));
+        DiscussionForum forum = forumManager.getForumByIdWithTopics(Long.valueOf(forumId));
         List<Topic> topics = forum.getTopics();
         for (int i = 0; i < topics.size(); i++) {
           // TODO: authz is way too basic, someone more hip to message center please improve...
@@ -89,7 +89,7 @@ public class ForumTopicEntityProviderImpl implements ForumTopicEntityProvider,
   public Map<String, String> getProperties(String reference) {
     Map<String, String> props = new HashMap<String, String>();
     Topic topic =
-      forumManager.getTopicById(new Long(reference.substring(reference.lastIndexOf("/") + 1)));
+      forumManager.getTopicById(Long.valueOf(reference.substring(reference.lastIndexOf("/") + 1)));
 
     props.put("title", topic.getTitle());
     props.put("author", topic.getCreatedBy());

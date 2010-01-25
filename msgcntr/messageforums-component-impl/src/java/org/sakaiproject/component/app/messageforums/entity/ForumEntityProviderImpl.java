@@ -26,7 +26,7 @@ public class ForumEntityProviderImpl implements ForumEntityProvider, AutoRegiste
   public boolean entityExists(String id) {
     DiscussionForum forum = null;
     try {
-      forum = forumManager.getForumById(new Long(id));
+      forum = forumManager.getForumById(Long.valueOf(id));
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -69,7 +69,7 @@ public class ForumEntityProviderImpl implements ForumEntityProvider, AutoRegiste
   public Map<String, String> getProperties(String reference) {
     Map<String, String> props = new HashMap<String, String>();
     DiscussionForum forum =
-      forumManager.getForumById(new Long(reference.substring(reference.lastIndexOf("/") + 1)));
+      forumManager.getForumById(Long.valueOf(reference.substring(reference.lastIndexOf("/") + 1)));
 
     props.put("title", forum.getTitle());
     props.put("author", forum.getCreatedBy());

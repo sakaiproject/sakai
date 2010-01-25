@@ -1517,6 +1517,6 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
   	ThreadLocalManager.set("message_center_membership_area", areaItems);
   	ThreadLocalManager.set("message_center_membership_forum", forumItems);
   	ThreadLocalManager.set("message_center_membership_topic", topicItems);
-	ThreadLocalManager.set("message_center_permission_set", new Boolean(true));
+	ThreadLocalManager.set("message_center_permission_set", Boolean.valueOf(true));
   }
 }

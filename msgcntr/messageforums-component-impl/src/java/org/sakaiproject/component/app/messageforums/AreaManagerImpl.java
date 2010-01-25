@@ -269,7 +269,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
            if(someForumHasZeroSortIndex) {
               for(Iterator i = area.getOpenForums().iterator(); i.hasNext(); ) {
                  BaseForum forum = (BaseForum)i.next();
-                 forum.setSortIndex(new Integer(forum.getSortIndex().intValue() + 1));
+                 forum.setSortIndex(Integer.valueOf(forum.getSortIndex().intValue() + 1));
               }
            }
         }

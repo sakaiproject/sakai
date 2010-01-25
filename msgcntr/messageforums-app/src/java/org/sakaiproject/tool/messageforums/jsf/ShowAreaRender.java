@@ -47,7 +47,7 @@ public class ShowAreaRender extends Renderer
     String hideBorder = (String) component.getAttributes().get("hideBorder");
     String showInputTextArea = (String) component.getAttributes().get(
         "showInputTextArea");
-    if ((value != null) && (!value.equals("")))
+    if ((value != null) && (!"".equals(value)))
     {
       int pos;
       // writer.write("<div>");
@@ -59,7 +59,7 @@ public class ShowAreaRender extends Renderer
       value = value.replaceAll("<a title=", "<a target=\"_new\" title=");
  //     value = value.replaceAll("<a href=",
  //         "<a title=\"Open a new window\" target=\"_new\" href=");
-      if (hideBorder != null && hideBorder.equals("true"))
+      if (hideBorder != null && "true".equals(hideBorder))
       {
         writer
             .write("<div class=\"textPanel\">");
@@ -69,7 +69,7 @@ public class ShowAreaRender extends Renderer
         writer.write("</div>");
       }
       else
-        if (showInputTextArea != null && showInputTextArea.equals("true"))
+        if (showInputTextArea != null && "true".equals(showInputTextArea))
         {
           writer.write("<textarea id=\"msgForum:forums:1:forum_extended_description\" name=\"msgForum:forums:1:forum_extended_description\" cols=\"100\" rows=\"5\" disabled=\"disabled\">");
           writer.write(value);           
@@ -94,7 +94,7 @@ public class ShowAreaRender extends Renderer
 
     String value = (String) component.getAttributes().get("value");
 
-    if ((value != null) && (!value.equals("")))
+    if ((value != null) && (!"".equals(value)))
     {
     }
   }

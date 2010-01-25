@@ -107,7 +107,7 @@ public class PermissionBean {
   public void setChangeSettings(boolean changeSettings)
   {
     this.item.getPermissionLevel().setChangeSettings(
-        new Boolean(changeSettings));
+        Boolean.valueOf(changeSettings));
   }
 
   public boolean getDeleteAny()
@@ -121,7 +121,7 @@ public class PermissionBean {
 
   public void setDeleteAny(boolean deleteAny)
   {
-    this.item.getPermissionLevel().setDeleteAny(new Boolean(deleteAny));
+    this.item.getPermissionLevel().setDeleteAny(Boolean.valueOf(deleteAny));
   }
 
   public boolean getDeleteOwn()
@@ -136,7 +136,7 @@ public class PermissionBean {
 
   public void setDeleteOwn(boolean deleteOwn)
   {
-    this.item.getPermissionLevel().setDeleteOwn(new Boolean(deleteOwn));
+    this.item.getPermissionLevel().setDeleteOwn(Boolean.valueOf(deleteOwn));
   }
 
   public boolean getMarkAsRead()
@@ -150,7 +150,7 @@ public class PermissionBean {
 
   public void setMarkAsRead(boolean markAsRead)
   {
-    this.item.getPermissionLevel().setMarkAsRead(new Boolean(markAsRead));
+    this.item.getPermissionLevel().setMarkAsRead(Boolean.valueOf(markAsRead));
   }
 
   public boolean getModeratePostings()
@@ -165,7 +165,7 @@ public class PermissionBean {
   public void setModeratePostings(boolean moderatePostings)
   {
     this.item.getPermissionLevel().setModeratePostings(
-        new Boolean(moderatePostings));
+        Boolean.valueOf(moderatePostings));
   }
 
   public boolean getMovePosting()
@@ -179,7 +179,7 @@ public class PermissionBean {
 
   public void setMovePosting(boolean movePosting)
   {
-    this.item.getPermissionLevel().setMovePosting(new Boolean(movePosting));
+    this.item.getPermissionLevel().setMovePosting(Boolean.valueOf(movePosting));
   }
 
   public boolean getNewForum()
@@ -193,7 +193,7 @@ public class PermissionBean {
 
   public void setNewForum(boolean newForum)
   {
-    this.item.getPermissionLevel().setNewForum(new Boolean(newForum));
+    this.item.getPermissionLevel().setNewForum(Boolean.valueOf(newForum));
   }
 
   public boolean getNewResponse()
@@ -207,7 +207,7 @@ public class PermissionBean {
 
   public void setNewResponse(boolean newResponse)
   {
-    this.item.getPermissionLevel().setNewResponse(new Boolean(newResponse));
+    this.item.getPermissionLevel().setNewResponse(Boolean.valueOf(newResponse));
   }
 
   public boolean getNewTopic()
@@ -221,7 +221,7 @@ public class PermissionBean {
 
   public void setNewTopic(boolean newTopic)
   {
-    this.item.getPermissionLevel().setNewTopic(new Boolean(newTopic));
+    this.item.getPermissionLevel().setNewTopic(Boolean.valueOf(newTopic));
   }
 
   public boolean getPostToGradebook()
@@ -235,7 +235,7 @@ public class PermissionBean {
 
   public void setPostToGradebook(boolean postGrades)
   {
-    this.item.getPermissionLevel().setPostToGradebook(new Boolean(postGrades));
+    this.item.getPermissionLevel().setPostToGradebook(Boolean.valueOf(postGrades));
   }
 
   public boolean getRead()
@@ -249,7 +249,7 @@ public class PermissionBean {
 
   public void setRead(boolean read)
   {
-    this.item.getPermissionLevel().setRead(new Boolean(read));
+    this.item.getPermissionLevel().setRead(Boolean.valueOf(read));
   }
 
   public boolean getResponseToResponse()
@@ -264,7 +264,7 @@ public class PermissionBean {
   public void setResponseToResponse(boolean responseToResponse)
   {
     this.item.getPermissionLevel().setNewResponseToResponse(
-        new Boolean(responseToResponse));
+        Boolean.valueOf(responseToResponse));
   }
 
   public boolean getReviseAny()
@@ -278,7 +278,7 @@ public class PermissionBean {
 
   public void setReviseAny(boolean reviseAny)
   {
-    this.item.getPermissionLevel().setReviseAny(new Boolean(reviseAny));
+    this.item.getPermissionLevel().setReviseAny(Boolean.valueOf(reviseAny));
   }
 
   public boolean getReviseOwn()
@@ -292,7 +292,7 @@ public class PermissionBean {
 
   public void setReviseOwn(boolean reviseOwn)
   {
-    this.item.getPermissionLevel().setReviseOwn(new Boolean(reviseOwn));
+    this.item.getPermissionLevel().setReviseOwn(Boolean.valueOf(reviseOwn));
   }
 
   /**

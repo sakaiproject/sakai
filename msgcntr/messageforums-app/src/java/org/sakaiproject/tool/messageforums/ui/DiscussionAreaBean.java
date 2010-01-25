@@ -72,11 +72,11 @@ public class DiscussionAreaBean
 		  LOG.debug("setModerated()");
 		  if (moderated.equals(Boolean.TRUE.toString()))
 		  {
-			  area.setModerated(new Boolean(true));
+			  area.setModerated(Boolean.valueOf(true));
 		  }
 		  else
 		  {
-			  area.setModerated(new Boolean(false));
+			  area.setModerated(Boolean.valueOf(false));
 		  }
 	  }
 	  
@@ -102,11 +102,11 @@ public class DiscussionAreaBean
 		  LOG.debug("setMarkThreadsRead(String)");
 		  if (autoMarkThreadsRead.equals(Boolean.TRUE.toString()))
 		  {
-			  area.setAutoMarkThreadsRead(new Boolean(true));
+			  area.setAutoMarkThreadsRead(Boolean.valueOf(true));
 		  }
 		  else
 		  {
-			  area.setAutoMarkThreadsRead(new Boolean(false));
+			  area.setAutoMarkThreadsRead(Boolean.valueOf(false));
 		  }
 	  }
 	  

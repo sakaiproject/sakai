@@ -338,14 +338,14 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       attach.setAttachmentName(name);
 
       ContentResource cr = contentHostingService.getResource(attachId);
-      attach.setAttachmentSize((new Long(cr.getContentLength())).toString());
+      attach.setAttachmentSize((Long.valueOf(cr.getContentLength())).toString());
       attach.setCreatedBy(cr.getProperties().getProperty(
           cr.getProperties().getNamePropCreator()));
       attach.setModifiedBy(cr.getProperties().getProperty(
           cr.getProperties().getNamePropModifiedBy()));
       attach.setAttachmentType(cr.getContentType());
       String tempString = cr.getUrl();
-      String newString = new String();
+      String newString = "";
       char[] oneChar = new char[1];
       for (int i = 0; i < tempString.length(); i++)
       {

@@ -238,7 +238,7 @@ public class HierPvtMsgDataTableTag extends UIComponentTag
 				ValueBinding vb = Util.getValueBinding(first);
 				data.setValueBinding("first", vb);
 			} else {
-				int _first = new Integer(first).intValue();
+				int _first = Integer.valueOf(first).intValue();
 				data.setFirst(_first);
 			}
 		}
@@ -247,7 +247,7 @@ public class HierPvtMsgDataTableTag extends UIComponentTag
 				ValueBinding vb = Util.getValueBinding(rows);
 				data.setValueBinding("rows", vb);
 			} else {
-				int _rows = new Integer(rows).intValue();
+				int _rows = Integer.valueOf(rows).intValue();
 				data.setRows(_rows);
 			}
 		}
@@ -273,9 +273,9 @@ public class HierPvtMsgDataTableTag extends UIComponentTag
 				ValueBinding vb = Util.getValueBinding(border);
 				data.setValueBinding("border", vb);
 			} else {
-				int _border = new Integer(border).intValue();
+				int _border = Integer.valueOf(border).intValue();
 				if (_border != Integer.MIN_VALUE) {
-					data.getAttributes().put("border", new Integer(_border));
+					data.getAttributes().put("border", Integer.valueOf(_border));
 				}
 			}
 		}

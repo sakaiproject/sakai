@@ -158,7 +158,7 @@ public class MessageForumsEntityContentProducer implements
 	
 	public boolean canRead(String reference) {
 		String msgId = EntityReference.getIdFromRefByKey(reference, "Message");
-		Message m = messageForumsMessageManager.getMessageById(new Long(msgId));
+		Message m = messageForumsMessageManager.getMessageById(Long.valueOf(msgId));
 		Topic topic = m.getTopic();
 		boolean canRead = false;
 		DiscussionTopic dt = discussionForumManager.getTopicById(topic.getId());
@@ -197,7 +197,7 @@ public class MessageForumsEntityContentProducer implements
 	public String getContent(String reference) {
 		log.debug("getting content for " + reference);
 		String msgId = EntityReference.getIdFromRefByKey(reference, "Message");
-		Message m = messageForumsMessageManager.getMessageById(new Long(msgId));
+		Message m = messageForumsMessageManager.getMessageById(Long.valueOf(msgId));
 		StringBuilder sb = new StringBuilder();
 		if (m != null) {
 			sb.append("author: " + m.getAuthor());
@@ -287,7 +287,7 @@ public class MessageForumsEntityContentProducer implements
 		log.debug("getTitle: " + reference);
 		String msgId = EntityReference.getIdFromRefByKey(reference, "Message");
 		
-		Message m = messageForumsMessageManager.getMessageById(new Long(msgId));
+		Message m = messageForumsMessageManager.getMessageById(Long.valueOf(msgId));
 		if (m !=null)
 			return m.getTitle();
 		
@@ -309,7 +309,7 @@ public class MessageForumsEntityContentProducer implements
 		
 		Map<String, String> params = new HashMap<String, String>();
 		String msgId = EntityReference.getIdFromRefByKey(reference, "Message");
-		Message m = messageForumsMessageManager.getMessageById(new Long(msgId));
+		Message m = messageForumsMessageManager.getMessageById(Long.valueOf(msgId));
 		params.put("messageId", msgId);
 		params.put("topicId", m.getTopic().getId().toString());
 		log.debug("got topic: " + m.getTopic().getId().toString());
@@ -336,7 +336,7 @@ public class MessageForumsEntityContentProducer implements
 
 	public boolean isForIndex(String reference) {
 		String msgId = EntityReference.getIdFromRefByKey(reference, "Message");
-		Message m = messageForumsMessageManager.getMessageById(new Long(msgId));
+		Message m = messageForumsMessageManager.getMessageById(Long.valueOf(msgId));
 		if (m != null && !m.getDeleted()) {
 			log.debug("we will index " + reference);
 			return true;

@@ -799,120 +799,120 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	
 	private PermissionsMask getDefaultOwnerPermissionsMask() {
 		PermissionsMask mask = new PermissionsMask();                
-		  mask.put(PermissionLevel.NEW_FORUM, new Boolean(true)); 
-		  mask.put(PermissionLevel.NEW_TOPIC, new Boolean(true));
-		  mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(true));
-		  mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(true));
-		  mask.put(PermissionLevel.MOVE_POSTING, new Boolean(true));
-		  mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(true));
-		  mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(true));
-		  mask.put(PermissionLevel.READ, new Boolean(true));
-		  mask.put(PermissionLevel.MARK_AS_READ,new Boolean(true));
-		  mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(true));
-		  mask.put(PermissionLevel.DELETE_OWN, new Boolean(false));
-		  mask.put(PermissionLevel.DELETE_ANY, new Boolean(true));
-		  mask.put(PermissionLevel.REVISE_OWN, new Boolean(false));
-		  mask.put(PermissionLevel.REVISE_ANY, new Boolean(true));
+		  mask.put(PermissionLevel.NEW_FORUM, Boolean.valueOf(true)); 
+		  mask.put(PermissionLevel.NEW_TOPIC, Boolean.valueOf(true));
+		  mask.put(PermissionLevel.NEW_RESPONSE, Boolean.valueOf(true));
+		  mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, Boolean.valueOf(true));
+		  mask.put(PermissionLevel.MOVE_POSTING, Boolean.valueOf(true));
+		  mask.put(PermissionLevel.CHANGE_SETTINGS,Boolean.valueOf(true));
+		  mask.put(PermissionLevel.POST_TO_GRADEBOOK, Boolean.valueOf(true));
+		  mask.put(PermissionLevel.READ, Boolean.valueOf(true));
+		  mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(true));
+		  mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(true));
+		  mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(true));
+		  mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.REVISE_ANY, Boolean.valueOf(true));
 		  
 		  return mask;
 	}
 	
 	private PermissionsMask getDefaultAuthorPermissionsMask() {
 		PermissionsMask mask = new PermissionsMask();                
-		  mask.put(PermissionLevel.NEW_FORUM, new Boolean(true)); 
-		  mask.put(PermissionLevel.NEW_TOPIC, new Boolean(true));
-		  mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(true));
-		  mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(true));
-		  mask.put(PermissionLevel.MOVE_POSTING, new Boolean(true));
-		  mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(true));
-		  mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(true));
-		  mask.put(PermissionLevel.READ, new Boolean(true));
-		  mask.put(PermissionLevel.MARK_AS_READ,new Boolean(true));
-		  mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(false));
-		  mask.put(PermissionLevel.DELETE_OWN, new Boolean(true));
-		  mask.put(PermissionLevel.DELETE_ANY, new Boolean(false));
-		  mask.put(PermissionLevel.REVISE_OWN, new Boolean(true));
-		  mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
+		  mask.put(PermissionLevel.NEW_FORUM, Boolean.valueOf(true)); 
+		  mask.put(PermissionLevel.NEW_TOPIC, Boolean.valueOf(true));
+		  mask.put(PermissionLevel.NEW_RESPONSE, Boolean.valueOf(true));
+		  mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, Boolean.valueOf(true));
+		  mask.put(PermissionLevel.MOVE_POSTING, Boolean.valueOf(true));
+		  mask.put(PermissionLevel.CHANGE_SETTINGS,Boolean.valueOf(true));
+		  mask.put(PermissionLevel.POST_TO_GRADEBOOK, Boolean.valueOf(true));
+		  mask.put(PermissionLevel.READ, Boolean.valueOf(true));
+		  mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(true));
+		  mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(true));
+		  mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(true));
+		  mask.put(PermissionLevel.REVISE_ANY, Boolean.valueOf(false));
 		  
 		  return mask;
 	}
 	
 	private PermissionsMask getDefaultContributorPermissionsMask() {
 		PermissionsMask mask = new PermissionsMask();                
-		  mask.put(PermissionLevel.NEW_FORUM, new Boolean(false)); 
-		  mask.put(PermissionLevel.NEW_TOPIC, new Boolean(false));
-		  mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(true));
-		  mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(true));
-		  mask.put(PermissionLevel.MOVE_POSTING, new Boolean(false));
-		  mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(false));
-		  mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(false));
-		  mask.put(PermissionLevel.READ, new Boolean(true));
-		  mask.put(PermissionLevel.MARK_AS_READ,new Boolean(true));
-		  mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(false));
-		  mask.put(PermissionLevel.DELETE_OWN, new Boolean(false));
-		  mask.put(PermissionLevel.DELETE_ANY, new Boolean(false));
-		  mask.put(PermissionLevel.REVISE_OWN, new Boolean(false));
-		  mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
+		  mask.put(PermissionLevel.NEW_FORUM, Boolean.valueOf(false)); 
+		  mask.put(PermissionLevel.NEW_TOPIC, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.NEW_RESPONSE, Boolean.valueOf(true));
+		  mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, Boolean.valueOf(true));
+		  mask.put(PermissionLevel.MOVE_POSTING, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.CHANGE_SETTINGS,Boolean.valueOf(false));
+		  mask.put(PermissionLevel.POST_TO_GRADEBOOK, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.READ, Boolean.valueOf(true));
+		  mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(true));
+		  mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.REVISE_ANY, Boolean.valueOf(false));
 		  
 		  return mask;
 	}
 	
 	private PermissionsMask getDefaultNoneditingAuthorPermissionsMask() {
 		PermissionsMask mask = new PermissionsMask();                
-		  mask.put(PermissionLevel.NEW_FORUM, new Boolean(true)); 
-		  mask.put(PermissionLevel.NEW_TOPIC, new Boolean(true));
-		  mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(true));
-		  mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(true));
-		  mask.put(PermissionLevel.MOVE_POSTING, new Boolean(false));
-		  mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(true));
-		  mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(true));
-		  mask.put(PermissionLevel.READ, new Boolean(true));
-		  mask.put(PermissionLevel.MARK_AS_READ,new Boolean(true));
-		  mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(false));
-		  mask.put(PermissionLevel.DELETE_OWN, new Boolean(false));
-		  mask.put(PermissionLevel.DELETE_ANY, new Boolean(false));
-		  mask.put(PermissionLevel.REVISE_OWN, new Boolean(true));
-		  mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
+		  mask.put(PermissionLevel.NEW_FORUM, Boolean.valueOf(true)); 
+		  mask.put(PermissionLevel.NEW_TOPIC, Boolean.valueOf(true));
+		  mask.put(PermissionLevel.NEW_RESPONSE, Boolean.valueOf(true));
+		  mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, Boolean.valueOf(true));
+		  mask.put(PermissionLevel.MOVE_POSTING, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.CHANGE_SETTINGS,Boolean.valueOf(true));
+		  mask.put(PermissionLevel.POST_TO_GRADEBOOK, Boolean.valueOf(true));
+		  mask.put(PermissionLevel.READ, Boolean.valueOf(true));
+		  mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(true));
+		  mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(true));
+		  mask.put(PermissionLevel.REVISE_ANY, Boolean.valueOf(false));
 		  
 		  return mask;
 	}
 	
 	private PermissionsMask getDefaultNonePermissionsMask() {
 		  PermissionsMask mask = new PermissionsMask();                
-		  mask.put(PermissionLevel.NEW_FORUM, new Boolean(false)); 
-		  mask.put(PermissionLevel.NEW_TOPIC, new Boolean(false));
-		  mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(false));
-		  mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(false));
-		  mask.put(PermissionLevel.MOVE_POSTING, new Boolean(false));
-		  mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(false));
-		  mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(false));
-		  mask.put(PermissionLevel.READ, new Boolean(false));
-		  mask.put(PermissionLevel.MARK_AS_READ,new Boolean(false));
-		  mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(false));
-		  mask.put(PermissionLevel.DELETE_OWN, new Boolean(false));
-		  mask.put(PermissionLevel.DELETE_ANY, new Boolean(false));
-		  mask.put(PermissionLevel.REVISE_OWN, new Boolean(false));
-		  mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
+		  mask.put(PermissionLevel.NEW_FORUM, Boolean.valueOf(false)); 
+		  mask.put(PermissionLevel.NEW_TOPIC, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.NEW_RESPONSE, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.MOVE_POSTING, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.CHANGE_SETTINGS,Boolean.valueOf(false));
+		  mask.put(PermissionLevel.POST_TO_GRADEBOOK, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.READ, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(false));
+		  mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.REVISE_ANY, Boolean.valueOf(false));
 		  
 		  return mask;
 	}
 	
 	private PermissionsMask getDefaultReviewerPermissionsMask() {
 		PermissionsMask mask = new PermissionsMask();                
-		  mask.put(PermissionLevel.NEW_FORUM, new Boolean(false)); 
-		  mask.put(PermissionLevel.NEW_TOPIC, new Boolean(false));
-		  mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(false));
-		  mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(false));
-		  mask.put(PermissionLevel.MOVE_POSTING, new Boolean(false));
-		  mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(false));
-		  mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(false));
-		  mask.put(PermissionLevel.READ, new Boolean(true));
-		  mask.put(PermissionLevel.MARK_AS_READ,new Boolean(true));
-		  mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(false));
-		  mask.put(PermissionLevel.DELETE_OWN, new Boolean(false));
-		  mask.put(PermissionLevel.DELETE_ANY, new Boolean(false));
-		  mask.put(PermissionLevel.REVISE_OWN, new Boolean(false));
-		  mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
+		  mask.put(PermissionLevel.NEW_FORUM, Boolean.valueOf(false)); 
+		  mask.put(PermissionLevel.NEW_TOPIC, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.NEW_RESPONSE, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.MOVE_POSTING, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.CHANGE_SETTINGS,Boolean.valueOf(false));
+		  mask.put(PermissionLevel.POST_TO_GRADEBOOK, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.READ, Boolean.valueOf(true));
+		  mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(true));
+		  mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(false));
+		  mask.put(PermissionLevel.REVISE_ANY, Boolean.valueOf(false));
 		  
 		  return mask;
 	}

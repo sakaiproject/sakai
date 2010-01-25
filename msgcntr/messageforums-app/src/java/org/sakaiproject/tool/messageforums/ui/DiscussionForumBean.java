@@ -104,7 +104,7 @@ public class DiscussionForumBean
 
      List retSort = new ArrayList();
      for(int i = 1; i <= num; i++) {
-        Integer index = new Integer(i);
+        Integer index = Integer.valueOf(i);
         retSort.add(new SelectItem(index, index.toString()));
      }
      
@@ -138,7 +138,7 @@ public class DiscussionForumBean
   public String getLocked()
   {
     LOG.debug("getLocked()");
-    if (locked == null || locked.equals("")){
+    if (locked == null || "".equals(locked)){
 	    if (forum == null || forum.getLocked() == null
 	        || forum.getLocked().booleanValue() == false)
 	    {
@@ -161,11 +161,11 @@ public class DiscussionForumBean
     LOG.debug("setLocked(String"+ locked+")");
     if (locked.equals(Boolean.TRUE.toString()))
     {
-      forum.setLocked(new Boolean(true));
+      forum.setLocked(Boolean.valueOf(true));
     }
     else
     {
-      forum.setLocked(new Boolean(false));
+      forum.setLocked(Boolean.valueOf(false));
     }
   }
   
@@ -200,11 +200,11 @@ public class DiscussionForumBean
 	  LOG.debug("setModerated()");
 	  if (moderated.equals(Boolean.TRUE.toString()))
 	  {
-		  forum.setModerated(new Boolean(true));
+		  forum.setModerated(Boolean.valueOf(true));
 	  }
 	  else
 	  {
-		  forum.setModerated(new Boolean(false));
+		  forum.setModerated(Boolean.valueOf(false));
 	  }
   }
   

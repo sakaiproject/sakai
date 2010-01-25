@@ -26,7 +26,7 @@ public class ForumMessageEntityProviderImpl implements ForumMessageEntityProvide
   public boolean entityExists(String id) {
     Topic topic = null;
     try {
-      topic = forumManager.getTopicById(new Long(id));
+      topic = forumManager.getTopicById(Long.valueOf(id));
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -60,7 +60,7 @@ public class ForumMessageEntityProviderImpl implements ForumMessageEntityProvide
       // TODO: support search by something other then topic id...
       if (topicId != null) {
         List<Message> messages =
-          forumManager.getTopicByIdWithMessagesAndAttachments(new Long(topicId)).getMessages();
+          forumManager.getTopicByIdWithMessagesAndAttachments(Long.valueOf(topicId)).getMessages();
         for (int i = 0; i < messages.size(); i++) {
           // TODO: authz is way too basic, someone more hip to message center please improve...
           //This should also allow people with read access to an item to link to it
@@ -78,7 +78,7 @@ public class ForumMessageEntityProviderImpl implements ForumMessageEntityProvide
   public Map<String, String> getProperties(String reference) {
     Map<String, String> props = new HashMap<String, String>();
     Message message =
-      forumManager.getMessageById(new Long(reference.substring(reference.lastIndexOf("/") + 1)));
+      forumManager.getMessageById(Long.valueOf(reference.substring(reference.lastIndexOf("/") + 1)));
 
     props.put("title", message.getTitle());
     props.put("author", message.getCreatedBy());

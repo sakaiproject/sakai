@@ -115,7 +115,7 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
            int x = 1;
            for(Iterator i = topics.iterator(); i.hasNext(); x++) {
               Topic topic = (Topic)i.next();
-              topic.setSortIndex(new Integer(x));
+              topic.setSortIndex(Integer.valueOf(x));
            }
         }
         return topics;

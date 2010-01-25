@@ -318,11 +318,11 @@ public class DiscussionTopicBean
     }
     if (mustRespondBeforeReading.equals(Boolean.TRUE.toString()))
     {
-      topic.setMustRespondBeforeReading(new Boolean(true));
+      topic.setMustRespondBeforeReading(Boolean.valueOf(true));
     }
     else
     {
-      topic.setMustRespondBeforeReading(new Boolean(false));
+      topic.setMustRespondBeforeReading(Boolean.valueOf(false));
     }
   }
 
@@ -358,11 +358,11 @@ public class DiscussionTopicBean
     }
     if (locked.equals(Boolean.TRUE.toString()))
     {
-      topic.setLocked(new Boolean(true));
+      topic.setLocked(Boolean.valueOf(true));
     }
     else
     {
-      topic.setLocked(new Boolean(false));
+      topic.setLocked(Boolean.valueOf(false));
     }
   }
   
@@ -407,11 +407,11 @@ public class DiscussionTopicBean
     }
     if (moderated.equals(Boolean.TRUE.toString()))
     {
-      topic.setModerated(new Boolean(true));
+      topic.setModerated(Boolean.valueOf(true));
     }
     else
     {
-      topic.setModerated(new Boolean(false));
+      topic.setModerated(Boolean.valueOf(false));
     }
   }
   
