@@ -935,6 +935,9 @@ a fake border makes the icon and the title align for IE8*/
 span.nil{
 	border:0px solid transparent
 }
+span.nil a{
+	border:0px solid transparent
+}
 
 /*any list (ul) of messages in a synoptic list view*/
 .synopticList{
