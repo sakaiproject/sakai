@@ -104,78 +104,79 @@ public class MessageForumSynopticBeanLite {
 			
 			myContents = new ArrayList<DecoratedSynopticMsgcntrItem>();
 
-			boolean isAdmin = SecurityService.isSuperUser();
+			/**
+			 * This sites query needs to be the same as what the portal calls... this is to take advantage of query caching.
+			 * In theory sorting by TITLE_ASC seems like it would be slower, but that actually allows the query cache to find
+			 * it. If this is causing a slow down, check to see if portal changed it's getSites query.
+			 */
+			List<Site> sites = SiteService.getSites(
+					org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, null,
+					null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null);
+			
 
 			for (SynopticMsgcntrItem synopticMsgcntrItem : synItems) {
-				try {
-
-					if(isAdmin){
-						//remove any extra sites that the admin may have picked up
-						if(AuthzGroupService.getUserRole(SessionManager.getCurrentSessionUserId(), "/site/" + synopticMsgcntrItem.getSiteId()) == null){
-							//admin is not a member, so delete this user
-							getSynopticMsgcntrManager().deleteSynopticMsgcntrItem(synopticMsgcntrItem);
-							continue;
+				boolean deleteSite = false;
+				boolean resetSynopticInfo = false;
+				Site site = null;
+				String synopticSiteId = synopticMsgcntrItem.getSiteId();
+				if(synopticSiteId != null && !"".equals(synopticSiteId)){
+					for (Site itrSite : sites) {
+						if(synopticSiteId.equals(itrSite.getId())){
+							site = itrSite;
+							break;
 						}
-					}
-					
-					if(!PERFORMANCE_2.equals(performance)){
-						 Site site;
-						//only add if the site exists:
-						site = SiteService.getSite(synopticMsgcntrItem.getSiteId());
-
-						if(!site.isPublished()){
-							//remove this item since the site has been unpublished:
-							getSynopticMsgcntrManager().deleteSynopticMsgcntrItem(synopticMsgcntrItem);
-						}else if(!SecurityService.unlock(synopticMsgcntrItem.getUserId(), SiteService.SITE_VISIT, "/site/" + site.getId())){
-							//user is no longer a member of the site, remove synoptic info:
-							getSynopticMsgcntrManager().deleteSynopticMsgcntrItem(synopticMsgcntrItem);
-						}else{
-
-
+					}				
+					//only add if the site exists:
+					if(site != null){
+						//check if the site title has changed:
+						if(synopticMsgcntrItem.getSiteTitle() != null && !synopticMsgcntrItem.getSiteTitle().equals(site.getTitle())){
+							//update all site titles in table
+							getSynopticMsgcntrManager().updateAllSiteTitles(synopticMsgcntrItem.getSiteId(), site.getTitle());
+							//set the current synoptic item's site title to the correct title
+							synopticMsgcntrItem.setSiteTitle(site.getTitle());
+						}
+						
+						if(!PERFORMANCE_2.equals(performance)){							
+							
 							DecoratedSynopticMsgcntrItem dSynopticItem = new DecoratedSynopticMsgcntrItem(synopticMsgcntrItem, site);
 							//this covers the case when a tool had unread messages but then the tool was 
 							//removed from the site
 							boolean isMessageForumsPageInSite = isMessageForumsPageInSite(site);
 							if(!isDisableMessages() && !isMessageForumsPageInSite && !isMessagesPageInSite(site) && dSynopticItem.getNewMessagesCount() != 0){
-								//update synoptic item since it the db is out of sync:
-								getSynopticMsgcntrManager()
-								.resetMessagesAndForumSynopticInfo(
-										synopticMsgcntrItem.getUserId(),
-										synopticMsgcntrItem.getSiteId());
+								//update synoptic item since the db is out of sync:
+								resetSynopticInfo = true;
 							}else if(!isDisableForums() && !isMessageForumsPageInSite && !isForumsPageInSite(site) && dSynopticItem.getNewForumCount() != 0){
 								//update synoptic item since it the db is out of sync:
-								getSynopticMsgcntrManager()
-								.resetMessagesAndForumSynopticInfo(
-										synopticMsgcntrItem.getUserId(),
-										synopticMsgcntrItem.getSiteId());
+								resetSynopticInfo = true;
 							}else{
-								//check if the site title has changed:
-								if(dSynopticItem.getSynopticMsgcntrItem().getSiteTitle() != null && !dSynopticItem.getSynopticMsgcntrItem().getSiteTitle().equals(site.getTitle())){
-									//update all site titles in table
-									getSynopticMsgcntrManager().updateAllSiteTitles(synopticMsgcntrItem.getSiteId(), site.getTitle());
-									//set the current synoptic item's site title to the correct title
-									dSynopticItem.getSynopticMsgcntrItem().setSiteTitle(site.getTitle());
-								}
-
 								//everything checks out, so add it to the list
 								myContents.add(dSynopticItem);
 							}
-
-						}
-					}else{
-						if(!SecurityService.unlock(synopticMsgcntrItem.getUserId(), SiteService.SITE_VISIT, "/site/" + synopticMsgcntrItem.getSiteId())){
-							//user is no longer a member of the site, remove synoptic info:
-							getSynopticMsgcntrManager().deleteSynopticMsgcntrItem(synopticMsgcntrItem);
 						}else{
 							DecoratedSynopticMsgcntrItem dSynopticItem = new DecoratedSynopticMsgcntrItem(synopticMsgcntrItem, null);
-							myContents.add(dSynopticItem);
+							myContents.add(dSynopticItem);						
 						}
+					}else{
+						//site is null (could not find site is access list)
+						deleteSite = true;
 					}
-				} catch (IdUnusedException e) {
-					//we not longer need this record so delete it
+				}else{
+					//site Id is null or ""
+					deleteSite = true;
+				}
+
+
+				if(deleteSite){
+					//synoptic item for site needs to be delete
 					getSynopticMsgcntrManager().deleteSynopticMsgcntrItem(synopticMsgcntrItem);
-					e.printStackTrace();
-				}				
+				}
+				if(resetSynopticInfo){
+					//update synoptic item since the db is out of sync:
+					getSynopticMsgcntrManager()
+					.resetMessagesAndForumSynopticInfo(
+							synopticMsgcntrItem.getUserId(),
+							synopticMsgcntrItem.getSiteId());
+				}		
 			}
 			
 			myContentsSize = myContents.size();
