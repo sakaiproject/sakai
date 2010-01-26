@@ -52,7 +52,7 @@ function showHideDivBlock(hideDivisionNo, context)
 			}
 			else
 			{
-				var clientH = document.body.clientHeight + 30;
+				var clientH = document.body.clientHeight + 90;
 			}
 			$( frame ).height( clientH );
 		}
