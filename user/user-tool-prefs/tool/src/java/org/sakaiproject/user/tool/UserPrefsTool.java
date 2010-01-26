@@ -1285,31 +1285,34 @@ public class UserPrefsTool
 		// user editing is required as commit() disable isActive() flag
 		setUserEditingOn();
 		// move the stuff from m_stuff into the edit
-		for (Iterator i = m_stuff.iterator(); i.hasNext();)
+		if (m_stuff != null)
 		{
-			KeyNameValue knv = (KeyNameValue) i.next();
-			// find the original to remove (unless this one was new)
-			if (!knv.getOrigKey().equals(""))
+			for (Iterator i = m_stuff.iterator(); i.hasNext();)
 			{
-				ResourcePropertiesEdit props = m_edit.getPropertiesEdit(knv.getOrigKey());
-				props.removeProperty(knv.getOrigName());
-			}
-			// add the new if we have a key and name and value
-			if ((!knv.getKey().equals("")) && (!knv.getName().equals("")) && (!knv.getValue().equals("")))
-			{
-				ResourcePropertiesEdit props = m_edit.getPropertiesEdit(knv.getKey());
-				if (knv.isList())
+				KeyNameValue knv = (KeyNameValue) i.next();
+				// find the original to remove (unless this one was new)
+				if (!knv.getOrigKey().equals(""))
 				{
-					// split by ", "
-					String[] parts = knv.getValue().split(", ");
-					for (int p = 0; p < parts.length; p++)
-					{
-						props.addPropertyToList(knv.getName(), parts[p]);
-					}
+					ResourcePropertiesEdit props = m_edit.getPropertiesEdit(knv.getOrigKey());
+					props.removeProperty(knv.getOrigName());
 				}
-				else
+				// add the new if we have a key and name and value
+				if ((!knv.getKey().equals("")) && (!knv.getName().equals("")) && (!knv.getValue().equals("")))
 				{
-					props.addProperty(knv.getName(), knv.getValue());
+					ResourcePropertiesEdit props = m_edit.getPropertiesEdit(knv.getKey());
+					if (knv.isList())
+					{
+						// split by ", "
+						String[] parts = knv.getValue().split(", ");
+						for (int p = 0; p < parts.length; p++)
+						{
+							props.addPropertyToList(knv.getName(), parts[p]);
+						}
+					}
+					else
+					{
+						props.addProperty(knv.getName(), knv.getValue());
+					}
 				}
 			}
 		}
