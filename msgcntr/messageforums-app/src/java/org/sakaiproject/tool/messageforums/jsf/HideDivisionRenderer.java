@@ -46,7 +46,7 @@ public class HideDivisionRenderer extends Renderer
   private static final String CURSOR;
 
   static {
-  	RESOURCE_PATH = "/" + "/messageforums-tool";
+  	RESOURCE_PATH = "/messageforums-tool";
     FOLD_IMG_HIDE = RESOURCE_PATH + "/images/right_arrow.gif";
     FOLD_IMG_SHOW = RESOURCE_PATH + "/images/down_arrow.gif";
     CURSOR = "cursor:pointer";
