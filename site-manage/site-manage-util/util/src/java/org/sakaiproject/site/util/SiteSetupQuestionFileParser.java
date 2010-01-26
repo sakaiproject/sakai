@@ -194,7 +194,7 @@ public class SiteSetupQuestionFileParser
 	    		{
 	    			m_log.info("exists(): cannot find resource " + reference.getId() + ee.toString());
 	    		}
-	    		clearSecurityAdvisor();
+	    		popSecurityAdvisor();
 
 	        return (resource != null);
 	    	}
@@ -223,12 +223,12 @@ public class SiteSetupQuestionFileParser
 	}
 
 	/**
-	* clear security advisors
+	* remove recent SecurityAdvisor
 	*/
-	protected static void clearSecurityAdvisor()
+	protected static void popSecurityAdvisor()
 	{
-		/// clear the security advisors
-		SecurityService.clearAdvisors();
+		// remove recent the security advisor
+		SecurityService.popAdvisor();
 	}
 	
 	  /**
@@ -314,8 +314,8 @@ public class SiteSetupQuestionFileParser
 	        		m_log.warn("SiteSetupQuestionMap.updateConfig: Problem of removing resource " + ref.getId() + ee.getMessage());
 	        	} 
 	        }
-	        // clear the security advisor
-	        clearSecurityAdvisor();
+	        // remove recent the security advisor
+	        popSecurityAdvisor();
 	      }
 	      catch (PermissionException e)
 	      {
