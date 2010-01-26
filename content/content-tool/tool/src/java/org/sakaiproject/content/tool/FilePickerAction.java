@@ -964,6 +964,9 @@ public class FilePickerAction extends PagedResourceHelperAction
 		while(attachmentIt.hasNext())
 		{
 			Reference ref = attachmentIt.next();
+			String containerId = null;
+			String typeId = null;
+			String contentType = null;
 			try
             {
 				ContentResource res = (ContentResource) ref.getEntity();
@@ -971,23 +974,23 @@ public class FilePickerAction extends PagedResourceHelperAction
 				String accessUrl = null;
 				if(res == null)
 				{
-				    // NOTE: the statement below throws exceptions if the ref.id is invalid
+				    // NOTE: some of the values bellow may be null if res is null
 	                props = contentService.getProperties(ref.getId());
 	                accessUrl = contentService.getUrl(ref.getId());
+	                
 	 			}
 				else
 				{
 					props = res.getProperties();
 					accessUrl = res.getUrl();
+					contentService.getContainingCollectionId (res.getId());
+					typeId = res.getResourceType();
+					contentType = res.getContentType();
 				}
 
-				// FIXME this logic is confusing because res could be null still, the logic that relies on res not being null should be moved up to the null check above
 				String displayName = props.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
-				String containerId = contentService.getContainingCollectionId (res.getId());
-	
 				AttachItem item = new AttachItem(ref.getId(), displayName, containerId, accessUrl);
-				item.setContentType(res.getContentType());
-				String typeId = res.getResourceType();
+				item.setContentType(contentType);
 				item.setResourceType(typeId);
 				ResourceType typedef = registry.getType(typeId);
 				item.setHoverText(typedef.getLocalizedHoverText(res));
