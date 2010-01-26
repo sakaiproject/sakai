@@ -1,11 +1,11 @@
-
 --////////////////////////////////////////////////////
 --// SAK-11740
 --// Email notification of new posts to forum
 --////////////////////////////////////////////////////
 
-DROP TABLE MFR_EMAIL_NOTIFICATION_T;
-drop sequence MFR_EMAIL_NOTIFICATION_S;
+--You may need to run these drop commands if this table still exists in your db
+--DROP TABLE MFR_EMAIL_NOTIFICATION_TIF EXISTS ;
+--drop sequence MFR_EMAIL_NOTIFICATION_S;
 
 CREATE TABLE  "MFR_EMAIL_NOTIFICATION_T"
    (    "ID" NUMBER(19,0) NOT NULL ENABLE,
@@ -30,9 +30,9 @@ create sequence MFR_EMAIL_NOTIFICATION_S;
 --// update cafe versions to 2.7.0-SNAPSHOT
 --////////////////////////////////////////////////////
 
-alter table MFR_MESSAGE_T add column THREADID bigint(20);
-alter table MFR_MESSAGE_T add column LASTTHREADATE datetime;
-alter table MFR_MESSAGE_T add column LASTTHREAPOST bigint(20);
+alter table MFR_MESSAGE_T add THREADID NUMBER(20);
+alter table MFR_MESSAGE_T add LASTTHREADATE TIMESTAMP;
+alter table MFR_MESSAGE_T add LASTTHREAPOST NUMBER(20);
 
 update MFR_MESSAGE_T set THREADID=IN_REPLY_TO,LASTTHREADATE=CREATED;
 
@@ -66,8 +66,9 @@ alter table MFR_TOPIC_T modify (AUTO_MARK_THREADS_READ NUMBER(1,0) not null);
 --// View who has read a message
 --////////////////////////////////////////////////////
 
-alter table MFR_MESSAGE_T add NUM_READERS int;
-update MFR_MESSAGE_T set NUM_READERS = 0;
+--if MFR_MESSAGE_T is missing NUM_READERS, run alter and update commands
+--alter table MFR_MESSAGE_T add NUM_READERS int;
+--update MFR_MESSAGE_T set NUM_READERS = 0;
 
 
 --////////////////////////////////////////////////////
@@ -88,7 +89,5 @@ FORUM_LAST_VISIT_DT timestamp,
 HIDE_ITEM NUMBER(1,0),
 primary key (SYNOPTIC_ITEM_ID),
 unique (USER_ID, SITE_ID));
-
-create index MFR_SYN_STU_I on MFR_SYNOPTIC_ITEM (USER_ID, SITE_ID);
 
 create index MRF_SYN_USER on MFR_SYNOPTIC_ITEM (USER_ID);
