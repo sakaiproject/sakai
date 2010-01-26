@@ -2609,7 +2609,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 			// get the collection
 			collection = contentService.getCollection(collectionId);
-			if(need_to_expand_all || expandedCollections.contains(collectionId))
+			if(need_to_expand_all || (expandedCollections != null && expandedCollections.contains(collectionId)))
 			{
 				Comparator comparator = null;
 				if(userSelectedSort != null)
