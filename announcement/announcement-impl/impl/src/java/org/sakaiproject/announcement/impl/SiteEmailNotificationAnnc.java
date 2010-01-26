@@ -440,7 +440,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		// message within the super class, can't remove the
 		// SecurityAdvisor until this point
 		// done with access, need to remove from stack
-		SecurityService.clearAdvisors();
+		disableSecurityAdvisor();
 	}
 
 	/**
@@ -456,6 +456,13 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 				return SecurityAdvice.ALLOWED;
 			}
 		});
+	}
+	
+	/**
+	 * remove recent add SecurityAdvisor from stack
+	 */
+	protected void disableSecurityAdvisor() {
+		SecurityService.popAdvisor();
 	}
 
 
