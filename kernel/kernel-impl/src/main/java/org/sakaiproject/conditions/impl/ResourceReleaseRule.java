@@ -36,6 +36,7 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.conditions.api.Condition;
 import org.sakaiproject.conditions.api.Rule;
 import org.sakaiproject.content.api.ContentCollectionEdit;
@@ -69,7 +70,7 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 	private List<Condition> predicates;
 	private Conjunction conj;
 	
-	private ContentHostingService chs;
+	private ContentHostingService chs = (ContentHostingService)ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
 	public void setContentHostingService(ContentHostingService chs) {
 		this.chs = chs;
 	}
