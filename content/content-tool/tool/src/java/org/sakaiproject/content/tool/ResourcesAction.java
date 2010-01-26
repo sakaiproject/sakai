@@ -5351,24 +5351,28 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					if(reference != null)
 					{
 						ContentEntity entity = (ContentEntity) reference.getEntity();
-						String typeId = entity.getResourceType();
-						ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
-						if(typeId != null && registry != null)
+						//its possible that the contentEntity is null
+						if (entity != null)
 						{
-							ResourceType typeDef = registry.getType(typeId);
-							if(typeDef != null && typeDef.isExpandable())
+							String typeId = entity.getResourceType();
+							ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+							if(typeId != null && registry != null)
 							{
-								ServiceLevelAction collapseAction = ((ExpandableResourceType) typeDef).getCollapseAction();
-								if(collapseAction != null && collapseAction.available(entity))
+								ResourceType typeDef = registry.getType(typeId);
+								if(typeDef != null && typeDef.isExpandable())
 								{
-									collapseAction.initializeAction(reference);
-									
-									collapseAction.finalizeAction(reference);
-									
-									folderSortMap.remove(id);
+									ServiceLevelAction collapseAction = ((ExpandableResourceType) typeDef).getCollapseAction();
+									if(collapseAction != null && collapseAction.available(entity))
+									{
+										collapseAction.initializeAction(reference);
 
-									// add this folder id into the set to be event-observed
-									addObservingPattern(id, state);
+										collapseAction.finalizeAction(reference);
+
+										folderSortMap.remove(id);
+
+										// add this folder id into the set to be event-observed
+										addObservingPattern(id, state);
+									}
 								}
 							}
 						}
