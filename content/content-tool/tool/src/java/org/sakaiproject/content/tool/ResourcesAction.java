@@ -87,13 +87,8 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
-import org.sakaiproject.event.api.Notification;
-import org.sakaiproject.event.api.NotificationEdit;
-import org.sakaiproject.event.api.NotificationLockedException;
-import org.sakaiproject.event.api.NotificationNotDefinedException;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.api.UsageSession;
-import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdInvalidException;
@@ -137,6 +132,10 @@ import org.w3c.dom.Element;
 public class ResourcesAction 
 	extends PagedResourceHelperAction // VelocityPortletPaneledAction
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	public static final String PIPE_INIT_ID = "pipe-init-id";
 
 	/**
