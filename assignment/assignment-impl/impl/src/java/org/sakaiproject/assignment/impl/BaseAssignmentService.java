@@ -9328,7 +9328,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						}
 					}
 					
-					disableSecurityAdvisors();
+					disableSecurityAdvisor();
 				}
 			}
 			return m_grade;
@@ -11767,7 +11767,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					}
 				}
 				
-				disableSecurityAdvisors();
+				disableSecurityAdvisor();
 			}
 			transferCopyEntities(fromContext, toContext, ids);
 		}
@@ -11832,12 +11832,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	}
 	
     /**
-     * remove all security advisors
+     * remove the recent added security advisor
      */
-    protected void disableSecurityAdvisors()
+    protected void disableSecurityAdvisor()
     {
-    	// remove all security advisors
-    	SecurityService.clearAdvisors();
+    	// remove the recent added security advisor
+    	SecurityService.popAdvisor();
     }
 
     /**
