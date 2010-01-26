@@ -4916,9 +4916,13 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		item.metadataGroupsIntoContext(context);
 		context.put("item", item);
 		
-		String chhbeanname = item.entity.getProperties().getProperty(
-				ContentHostingHandlerResolver.CHH_BEAN_NAME);
-		if (chhbeanname == null || chhbeanname.equals("")) chhbeanname = "";
+		String chhbeanname = "";
+		if (item.entity != null && item.entity.getProperties() != null)
+		{
+			chhbeanname = item.entity.getProperties().getProperty(
+					ContentHostingHandlerResolver.CHH_BEAN_NAME);
+			if (chhbeanname == null) chhbeanname = "";
+		}
 		context.put("CHHmountpoint", chhbeanname);
 		
 
