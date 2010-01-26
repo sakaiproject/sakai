@@ -184,7 +184,7 @@ function saveTime()
                  || delivery.actionString=='takeAssessment'
 				 || delivery.actionString=='takeAssessmentViaUrl')
               && delivery.navigation eq '1'}"  
-    onclick="pauseTiming='false'; disableSave();" onkeypress="pauseTiming='false'" 
+    onclick="pauseTiming='false'; disableCancel();" onkeypress="pauseTiming='false'" 
     disabled="#{delivery.actionString=='previewAssessment'}" />
 
 <!-- DONE BUTTON FOR PREVIEW -->

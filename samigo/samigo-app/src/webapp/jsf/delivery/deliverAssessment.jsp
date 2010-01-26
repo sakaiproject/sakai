@@ -378,7 +378,7 @@ String.prototype.endsWith = function(txt)
   <%-- SUBMIT FOR GRADE --%>
   <h:commandButton id="submitForGrade" type="submit" value="#{deliveryMessages.button_submit_grading}"
     action="#{delivery.confirmSubmit}" styleClass="active"
-    rendered="#{(delivery.actionString=='takeAssessment' || delivery.actionString=='previewAssessment') 
+    rendered="#{(delivery.actionString=='takeAssessment' ||delivery.actionString=='takeAssessmentViaUrl' || delivery.actionString=='previewAssessment') 
              && delivery.navigation ne '1' 
              && !delivery.continue}"
     onclick="disableSubmitForGrade()" onkeypress=""/>
@@ -386,7 +386,7 @@ String.prototype.endsWith = function(txt)
   <%-- SUBMIT FOR GRADE DURING PAU --%>
   <h:commandButton type="submit" value="#{deliveryMessages.button_submit}"
     action="#{delivery.confirmSubmit}"  id="submitForm1" styleClass="active"
-    rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
+    rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.continue}"
     onclick="pauseTiming='false'; disableSubmit1();" onkeypress="pauseTiming='false'"/>
 
   <%-- SUBMIT FOR GRADE FOR LINEAR ACCESS --%>
@@ -398,11 +398,6 @@ String.prototype.endsWith = function(txt)
 				   && delivery.navigation eq '1' && !delivery.continue}" 
       onclick="pauseTiming='false'; disableSubmit()" onkeypress="pauseTiming='false'"/>
 
-  <%-- SUBMIT FOR GRADE DURING PAU --%>
-  <h:commandButton type="submit" value="#{deliveryMessages.button_submit}"
-    action="#{delivery.confirmSubmit}"  id="submitForm2" styleClass="active"
-    rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.continue}"
-    onclick="pauseTiming='false'; disableSubmit2();" onkeypress="pauseTiming='false'"/>
   </h:panelGrid>
 </h:panelGrid>
 
