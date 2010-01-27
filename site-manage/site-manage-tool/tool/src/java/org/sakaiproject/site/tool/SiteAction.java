@@ -8385,7 +8385,7 @@ public class SiteAction extends PagedResourceActionII {
 					boolean hasAnyParentToolId = chosenListClone.removeAll(parentToolList);
 					
 					//first check whether the parent tool is available in site but its parent tool is no longer selected
-					if (pageHasToolId(toolList, homeToolId) && !hasAnyParentToolId)
+					if (pageHasToolId(toolList, homeToolId) && !hasAnyParentToolId && !SiteService.isUserSite(site.getId()))
 					{
 						for (ListIterator iToolList = toolList.listIterator(); iToolList.hasNext();) 
 						{
