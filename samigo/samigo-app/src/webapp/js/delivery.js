@@ -315,7 +315,6 @@ function disableSubmitForGrade(){
   }
   else{ // any subsequent click disable button & action
     if (document.forms[0].elements['takeAssessmentForm:submitForGrade']) {
-	alert('there!');
       document.forms[0].elements['takeAssessmentForm:submitForGrade'].disabled=true;
 }
   }
