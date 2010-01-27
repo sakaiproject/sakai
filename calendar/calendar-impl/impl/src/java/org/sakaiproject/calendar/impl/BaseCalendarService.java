@@ -6418,8 +6418,23 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			icalEvent.getProperty(Property.DTSTART).getParameters().add(tzId);
 			icalEvent.getProperty(Property.DTSTART).getParameters().add(Value.DATE_TIME);
 			icalEvent.getProperties().add(new Uid(event.getId()));
+			// build the description, adding links to attachments if necessary
+			StringBuffer description = new StringBuffer("");
 			if ( event.getDescription() != null && !event.getDescription().equals("") )
-				icalEvent.getProperties().add(new Description(event.getDescription()));
+				description.append(event.getDescription());
+			
+			List attachments = event.getAttachments();
+			if(attachments != null){
+				for (Iterator iter = attachments.iterator(); iter.hasNext();) {
+					Reference attachment = (Reference) iter.next();
+					description.append("\n");
+					description.append(attachment.getUrl());
+					description.append("\n");					
+				}
+			}
+			if(description.length() > 0)
+				icalEvent.getProperties().add(new Description(description.toString()));			
+			
 			if ( event.getLocation() != null && !event.getLocation().equals("") )
             icalEvent.getProperties().add(new Location(event.getLocation()));
 			
