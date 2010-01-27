@@ -60,6 +60,7 @@ public class AttachmentHelper {
 		try {
 			if (mimeType.equalsIgnoreCase("text/url")) {
 				content = filename.getBytes();
+				filename = filename.replaceAll("http://","http:__");
 			}
 			else {
 				file = new File(fullFilePath);
