@@ -353,3 +353,126 @@ alter table QRTZ_TRIGGERS add column PRIORITY int;
 alter table QRTZ_FIRED_TRIGGERS add column PRIORITY int;
 
 
+-- START SiteStats 2.1 (SAK-17773)
+-- IMPORTANT: Installations with previous (contrib) versions of SiteStats deployed should
+--            comment out lines below and consult this url for possible conversion upgrades:
+--            https://source.sakaiproject.org/svn/sitestats/trunk/updating/
+-- NOTE:      There is no DB conversion required from SiteStats 2.0 -> 2.1
+create table SST_EVENTS (ID bigint not null auto_increment, USER_ID varchar(99) not null, SITE_ID varchar(99) not null, EVENT_ID varchar(32) not null, EVENT_DATE date not null, EVENT_COUNT bigint not null, primary key (ID));
+create table SST_JOB_RUN (ID bigint not null auto_increment, JOB_START_DATE datetime, JOB_END_DATE datetime, START_EVENT_ID bigint, END_EVENT_ID bigint, LAST_EVENT_DATE datetime, primary key (ID));
+create table SST_PREFERENCES (ID bigint not null auto_increment, SITE_ID varchar(99) not null unique, PREFS text not null, primary key (ID));
+create table SST_REPORTS (ID bigint not null auto_increment, SITE_ID varchar(99), TITLE varchar(255) not null, DESCRIPTION longtext, HIDDEN bit, REPORT_DEF text not null, CREATED_BY varchar(99) not null, CREATED_ON datetime not null, MODIFIED_BY varchar(99), MODIFIED_ON datetime, primary key (ID));
+create table SST_RESOURCES (ID bigint not null auto_increment, USER_ID varchar(99) not null, SITE_ID varchar(99) not null, RESOURCE_REF varchar(255) not null, RESOURCE_ACTION varchar(12) not null, RESOURCE_DATE date not null, RESOURCE_COUNT bigint not null, primary key (ID));
+create table SST_SITEACTIVITY (ID bigint not null auto_increment, SITE_ID varchar(99) not null, ACTIVITY_DATE date not null, EVENT_ID varchar(32) not null, ACTIVITY_COUNT bigint not null, primary key (ID));
+create table SST_SITEVISITS (ID bigint not null auto_increment, SITE_ID varchar(99) not null, VISITS_DATE date not null, TOTAL_VISITS bigint not null, TOTAL_UNIQUE bigint not null, primary key (ID));
+create index SST_EVENTS_SITE_ID_IX on SST_EVENTS (SITE_ID);
+create index SST_EVENTS_USER_ID_IX on SST_EVENTS (USER_ID);
+create index SST_EVENTS_EVENT_ID_IX on SST_EVENTS (EVENT_ID);
+create index SST_EVENTS_DATE_IX on SST_EVENTS (EVENT_DATE);
+create index SST_PREFERENCES_SITE_ID_IX on SST_PREFERENCES (SITE_ID);
+create index SST_REPORTS_SITE_ID_IX on SST_REPORTS (SITE_ID);
+create index SST_RESOURCES_DATE_IX on SST_RESOURCES (RESOURCE_DATE);
+create index SST_RESOURCES_RES_ACT_IDX on SST_RESOURCES (RESOURCE_ACTION);
+create index SST_RESOURCES_USER_ID_IX on SST_RESOURCES (USER_ID);
+create index SST_RESOURCES_SITE_ID_IX on SST_RESOURCES (SITE_ID);
+create index SST_SITEACTIVITY_DATE_IX on SST_SITEACTIVITY (ACTIVITY_DATE);
+create index SST_SITEACTIVITY_EVENT_ID_IX on SST_SITEACTIVITY (EVENT_ID);
+create index SST_SITEACTIVITY_SITE_ID_IX on SST_SITEACTIVITY (SITE_ID);
+create index SST_SITEVISITS_SITE_ID_IX on SST_SITEVISITS (SITE_ID);
+create index SST_SITEVISITS_DATE_IX on SST_SITEVISITS (VISITS_DATE);
+create index SST_EVENTS_SITEEVENTUSER_ID_IX on SST_EVENTS (SITE_ID,EVENT_ID,USER_ID);
+
+-- OPTIONAL: Preload with default reports (STAT-35)
+--   0) Activity total (Show activity in site, with totals per event.)
+insert  into `SST_REPORTS`(`SITE_ID`,`TITLE`,`DESCRIPTION`,`HIDDEN`,`REPORT_DEF`,`CREATED_BY`,`CREATED_ON`,`MODIFIED_BY`,`MODIFIED_ON`) values (NULL,'${predefined_report0_title}','${predefined_report0_description}',0,'<?xml version=\'1.0\' ?><ReportParams><howChartCategorySource>none</howChartCategorySource><howChartSeriesSource>total</howChartSeriesSource><howChartSource>event</howChartSource><howChartType>pie</howChartType><howLimitedMaxResults>false</howLimitedMaxResults><howMaxResults>0</howMaxResults><howPresentationMode>how-presentation-both</howPresentationMode><howSort>true</howSort><howSortAscending>true</howSortAscending><howSortBy>event</howSortBy><howTotalsBy><howTotalsBy>event</howTotalsBy></howTotalsBy><siteId/><what>what-events</what><whatEventIds/><whatEventSelType>what-events-bytool</whatEventSelType><whatLimitedAction>false</whatLimitedAction><whatLimitedResourceIds>false</whatLimitedResourceIds><whatResourceAction>new</whatResourceAction><whatResourceIds/><whatToolIds><whatToolIds>all</whatToolIds></whatToolIds><when>when-all</when><whenFrom/><whenTo/><who>who-all</who><whoGroupId/><whoRoleId>access</whoRoleId><whoUserIds/></ReportParams>','preload',now(),'preload',now());
+--   1) Most accessed files (Show top 10 most accessed files.)
+insert  into `SST_REPORTS`(`SITE_ID`,`TITLE`,`DESCRIPTION`,`HIDDEN`,`REPORT_DEF`,`CREATED_BY`,`CREATED_ON`,`MODIFIED_BY`,`MODIFIED_ON`) values (NULL,'${predefined_report1_title}','${predefined_report1_description}',0,'<?xml version=\'1.0\' ?><ReportParams><howChartCategorySource>none</howChartCategorySource><howChartSeriesSource>total</howChartSeriesSource><howChartSource>resource</howChartSource><howChartType>pie</howChartType><howLimitedMaxResults>true</howLimitedMaxResults><howMaxResults>10</howMaxResults><howPresentationMode>how-presentation-both</howPresentationMode><howSort>true</howSort><howSortAscending>false</howSortAscending><howSortBy>total</howSortBy><howTotalsBy><howTotalsBy>resource</howTotalsBy></howTotalsBy><siteId/><what>what-resources</what><whatEventIds/><whatEventSelType>what-events-bytool</whatEventSelType><whatLimitedAction>true</whatLimitedAction><whatLimitedResourceIds>false</whatLimitedResourceIds><whatResourceAction>read</whatResourceAction><whatResourceIds/><whatToolIds><whatToolIds>all</whatToolIds></whatToolIds><when>when-all</when><whenFrom/><whenTo/><who>who-all</who><whoGroupId/><whoRoleId>access</whoRoleId><whoUserIds/></ReportParams>','preload',now(),'preload',now());
+--   2) Most active users (Show top 10 users with most activity in site.)
+insert  into `SST_REPORTS`(`SITE_ID`,`TITLE`,`DESCRIPTION`,`HIDDEN`,`REPORT_DEF`,`CREATED_BY`,`CREATED_ON`,`MODIFIED_BY`,`MODIFIED_ON`) values (NULL,'${predefined_report2_title}','${predefined_report2_description}',0,'<?xml version=\'1.0\' ?><ReportParams><howChartCategorySource>none</howChartCategorySource><howChartSeriesSource>total</howChartSeriesSource><howChartSource>user</howChartSource><howChartType>pie</howChartType><howLimitedMaxResults>true</howLimitedMaxResults><howMaxResults>10</howMaxResults><howPresentationMode>how-presentation-both</howPresentationMode><howSort>true</howSort><howSortAscending>false</howSortAscending><howSortBy>total</howSortBy><howTotalsBy><howTotalsBy>user</howTotalsBy></howTotalsBy><siteId/><what>what-events</what><whatEventIds/><whatEventSelType>what-events-bytool</whatEventSelType><whatLimitedAction>false</whatLimitedAction><whatLimitedResourceIds>false</whatLimitedResourceIds><whatResourceAction>new</whatResourceAction><whatResourceIds/><whatToolIds><whatToolIds>all</whatToolIds></whatToolIds><when>when-all</when><whenFrom/><whenTo/><who>who-all</who><whoGroupId/><whoRoleId>access</whoRoleId><whoUserIds/></ReportParams>','preload',now(),'preload',now());
+--   3) Less active users (Show top 10 users with less activity in site.)
+insert  into `SST_REPORTS`(`SITE_ID`,`TITLE`,`DESCRIPTION`,`HIDDEN`,`REPORT_DEF`,`CREATED_BY`,`CREATED_ON`,`MODIFIED_BY`,`MODIFIED_ON`) values (NULL,'${predefined_report3_title}','${predefined_report3_description}',0,'<?xml version=\'1.0\' ?><ReportParams><howChartCategorySource>none</howChartCategorySource><howChartSeriesSource>total</howChartSeriesSource><howChartSource>user</howChartSource><howChartType>bar</howChartType><howLimitedMaxResults>false</howLimitedMaxResults><howMaxResults>0</howMaxResults><howPresentationMode>how-presentation-both</howPresentationMode><howSort>true</howSort><howSortAscending>true</howSortAscending><howSortBy>total</howSortBy><howTotalsBy><howTotalsBy>user</howTotalsBy></howTotalsBy><siteId/><what>what-events</what><whatEventIds/><whatEventSelType>what-events-bytool</whatEventSelType><whatLimitedAction>false</whatLimitedAction><whatLimitedResourceIds>false</whatLimitedResourceIds><whatResourceAction>new</whatResourceAction><whatResourceIds/><whatToolIds><whatToolIds>all</whatToolIds></whatToolIds><when>when-all</when><whenFrom/><whenTo/><who>who-all</who><whoGroupId/><whoRoleId>access</whoRoleId><whoUserIds/></ReportParams>','preload',now(),'preload',now());
+--   4) Users with more visits (Show top 10 users who have most visited the site.)
+insert  into `SST_REPORTS`(`SITE_ID`,`TITLE`,`DESCRIPTION`,`HIDDEN`,`REPORT_DEF`,`CREATED_BY`,`CREATED_ON`,`MODIFIED_BY`,`MODIFIED_ON`) values (NULL,'${predefined_report4_title}','${predefined_report4_description}',0,'<?xml version=\'1.0\' ?><ReportParams><howChartCategorySource>none</howChartCategorySource><howChartSeriesSource>total</howChartSeriesSource><howChartSource>user</howChartSource><howChartType>bar</howChartType><howLimitedMaxResults>false</howLimitedMaxResults><howMaxResults>0</howMaxResults><howPresentationMode>how-presentation-both</howPresentationMode><howSort>true</howSort><howSortAscending>false</howSortAscending><howSortBy>total</howSortBy><howTotalsBy><howTotalsBy>user</howTotalsBy></howTotalsBy><siteId/><what>what-visits</what><whatEventIds/><whatEventSelType>what-events-bytool</whatEventSelType><whatLimitedAction>false</whatLimitedAction><whatLimitedResourceIds>false</whatLimitedResourceIds><whatResourceAction>new</whatResourceAction><whatResourceIds/><whatToolIds><whatToolIds>all</whatToolIds></whatToolIds><when>when-all</when><whenFrom/><whenTo/><who>who-all</who><whoGroupId/><whoRoleId>access</whoRoleId><whoUserIds/></ReportParams>','preload',now(),'preload',now());
+--   5) Users with no visits (Show users who have never visited the site.)
+insert  into `SST_REPORTS`(`SITE_ID`,`TITLE`,`DESCRIPTION`,`HIDDEN`,`REPORT_DEF`,`CREATED_BY`,`CREATED_ON`,`MODIFIED_BY`,`MODIFIED_ON`) values (NULL,'${predefined_report5_title}','${predefined_report5_description}',0,'<?xml version=\'1.0\' ?><ReportParams><howChartCategorySource>none</howChartCategorySource><howChartSeriesSource>total</howChartSeriesSource><howChartSource>event</howChartSource><howChartType>bar</howChartType><howLimitedMaxResults>false</howLimitedMaxResults><howMaxResults>0</howMaxResults><howPresentationMode>how-presentation-table</howPresentationMode><howSort>false</howSort><howSortAscending>false</howSortAscending><howSortBy>default</howSortBy><howTotalsBy><howTotalsBy>user</howTotalsBy></howTotalsBy><siteId/><what>what-visits</what><whatEventIds/><whatEventSelType>what-events-bytool</whatEventSelType><whatLimitedAction>false</whatLimitedAction><whatLimitedResourceIds>false</whatLimitedResourceIds><whatResourceAction>new</whatResourceAction><whatResourceIds/><whatToolIds><whatToolIds>all</whatToolIds></whatToolIds><when>when-all</when><whenFrom/><whenTo/><who>who-none</who><whoGroupId/><whoRoleId>access</whoRoleId><whoUserIds/></ReportParams>','preload',now(),'preload',now());
+--   6) Users with no activity (Show users with no activity in site.)
+insert  into `SST_REPORTS`(`SITE_ID`,`TITLE`,`DESCRIPTION`,`HIDDEN`,`REPORT_DEF`,`CREATED_BY`,`CREATED_ON`,`MODIFIED_BY`,`MODIFIED_ON`) values (NULL,'${predefined_report6_title}','${predefined_report6_description}',0,'<?xml version=\'1.0\' ?><ReportParams><howChartCategorySource>none</howChartCategorySource><howChartSeriesPeriod>byday</howChartSeriesPeriod><howChartSeriesSource>total</howChartSeriesSource><howChartSource>event</howChartSource><howChartType>bar</howChartType><howLimitedMaxResults>false</howLimitedMaxResults><howMaxResults>0</howMaxResults><howPresentationMode>how-presentation-table</howPresentationMode><howSort>false</howSort><howSortAscending>true</howSortAscending><howSortBy>default</howSortBy><howTotalsBy><howTotalsBy>user</howTotalsBy></howTotalsBy><siteId/><what>what-events</what><whatEventIds/><whatEventSelType>what-events-bytool</whatEventSelType><whatLimitedAction>false</whatLimitedAction><whatLimitedResourceIds>false</whatLimitedResourceIds><whatResourceAction>new</whatResourceAction><whatResourceIds/><whatToolIds><whatToolIds>all</whatToolIds></whatToolIds><when>when-all</when><whenFrom/><whenTo/><who>who-none</who><whoGroupId/><whoRoleId>access</whoRoleId><whoUserIds/></ReportParams>','preload',now(),'preload',now());
+
+-- END SiteStats 2.1 (SAK-17773)
+
+
+-- START Profile2 1.3 (SAK-17773)
+-- IMPORTANT: Installations with previous (contrib) versions of Profile2 deployed should
+--            comment out lines below and consult this url for possible conversion upgrades:
+--            https://source.sakaiproject.org/svn//profile2/branches/profile2-1.3.x/docs/database/mysql/
+create table PROFILE_FRIENDS_T (
+    ID bigint not null auto_increment,
+    USER_UUID varchar(99) not null,
+    FRIEND_UUID varchar(99) not null,
+    RELATIONSHIP integer not null,
+    REQUESTED_DATE datetime not null,
+    CONFIRMED bit not null,
+    CONFIRMED_DATE datetime,
+    primary key (ID)
+);
+create table PROFILE_IMAGES_EXTERNAL_T (
+    USER_UUID varchar(99) not null,
+    URL_MAIN text not null,
+    URL_THUMB text,
+    primary key (USER_UUID)
+);
+create table PROFILE_IMAGES_T (
+    ID bigint not null auto_increment,
+    USER_UUID varchar(99) not null,
+    RESOURCE_MAIN varchar(255) not null,
+    RESOURCE_THUMB varchar(255) not null,
+    IS_CURRENT bit not null,
+    primary key (ID)
+);
+create table PROFILE_PREFERENCES_T (
+    USER_UUID varchar(99) not null,
+    EMAIL_REQUEST bit not null,
+    EMAIL_CONFIRM bit not null,
+    TWITTER_ENABLED bit not null,
+    TWITTER_USERNAME varchar(255),
+    TWITTER_PASSWORD varchar(255),
+    primary key (USER_UUID)
+);
+create table PROFILE_PRIVACY_T (
+    USER_UUID varchar(99) not null,
+    PROFILE_IMAGE integer not null,
+    BASIC_INFO integer not null,
+    CONTACT_INFO integer not null,
+    ACADEMIC_INFO integer not null,
+    PERSONAL_INFO integer not null,
+    BIRTH_YEAR bit not null,
+    SEARCH integer not null,
+    MY_FRIENDS integer not null,
+    MY_STATUS integer not null,
+    primary key (USER_UUID)
+);
+create table PROFILE_STATUS_T (
+    USER_UUID varchar(99) not null,
+    MESSAGE varchar(255) not null,
+    DATE_ADDED datetime not null,
+    primary key (USER_UUID)
+);
+create table SAKAI_PERSON_META_T (
+    ID bigint not null auto_increment,
+    USER_UUID varchar(99) not null,
+    PROPERTY varchar(255) not null,
+    VALUE varchar(255) not null,
+    primary key (ID)
+);
+create index PROFILE_FRIENDS_FRIEND_UUID_I on PROFILE_FRIENDS_T (FRIEND_UUID);
+create index PROFILE_FRIENDS_USER_UUID_I on PROFILE_FRIENDS_T (USER_UUID);
+create index PROFILE_IMAGES_USER_UUID_I on PROFILE_IMAGES_T (USER_UUID);
+create index PROFILE_IMAGES_IS_CURRENT_I on PROFILE_IMAGES_T (IS_CURRENT);
+create index PROFILE_FRIENDS_USER_UUID_I on PROFILE_FRIENDS_T (USER_UUID);
+create index PROFILE_FRIENDS_FRIEND_UUID_I on PROFILE_FRIENDS_T (FRIEND_UUID);
+create index PROFILE_IMAGES_USER_UUID_I on PROFILE_IMAGES_T (USER_UUID);
+create index PROFILE_IMAGES_IS_CURRENT_I on PROFILE_IMAGES_T (IS_CURRENT);
+create index SAKAI_PERSON_META_USER_UUID_I on SAKAI_PERSON_META_T (USER_UUID);
+create index SAKAI_PERSON_META_PROPERTY_I on SAKAI_PERSON_META_T (PROPERTY);
+-- END Profile2 1.3 (SAK-17773)
+

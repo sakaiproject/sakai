@@ -350,3 +350,138 @@ drop table tmp_workflow_guid_map;
 -- SAK-16835 columns for new quartz version
 alter table QRTZ_TRIGGERS add PRIORITY number(2);
 alter table QRTZ_FIRED_TRIGGERS add PRIORITY number(2);
+
+
+-- START SiteStats 2.1 (SAK-17773)
+-- IMPORTANT: Installations with previous (contrib) versions of SiteStats deployed should
+--            comment out lines below and consult this url for possible conversion upgrades:
+--            https://source.sakaiproject.org/svn/sitestats/trunk/updating/
+-- NOTE:      There is no DB conversion required from SiteStats 2.0 -> 2.1
+create table SST_EVENTS (ID number(19,0) not null, USER_ID varchar2(99 char) not null, SITE_ID varchar2(99 char) not null, EVENT_ID varchar2(32 char) not null, EVENT_DATE date not null, EVENT_COUNT number(19,0) not null, primary key (ID));
+create table SST_JOB_RUN (ID number(19,0) not null, JOB_START_DATE timestamp, JOB_END_DATE timestamp, START_EVENT_ID number(19,0), END_EVENT_ID number(19,0), LAST_EVENT_DATE timestamp, primary key (ID));
+create table SST_PREFERENCES (ID number(19,0) not null, SITE_ID varchar2(99 char) not null unique, PREFS clob not null, primary key (ID));
+create table SST_REPORTS (ID number(19,0) not null, SITE_ID varchar2(99 char), TITLE varchar2(255 char) not null, DESCRIPTION clob, HIDDEN number(1,0), REPORT_DEF clob not null, CREATED_BY varchar2(99 char) not null, CREATED_ON timestamp not null, MODIFIED_BY varchar2(99 char), MODIFIED_ON timestamp, primary key (ID));
+create table SST_RESOURCES (ID number(19,0) not null, USER_ID varchar2(99 char) not null, SITE_ID varchar2(99 char) not null, RESOURCE_REF varchar2(255 char) not null, RESOURCE_ACTION varchar2(12 char) not null, RESOURCE_DATE date not null, RESOURCE_COUNT number(19,0) not null, primary key (ID));
+create table SST_SITEACTIVITY (ID number(19,0) not null, SITE_ID varchar2(99 char) not null, ACTIVITY_DATE date not null, EVENT_ID varchar2(32 char) not null, ACTIVITY_COUNT number(19,0) not null, primary key (ID));
+create table SST_SITEVISITS (ID number(19,0) not null, SITE_ID varchar2(99 char) not null, VISITS_DATE date not null, TOTAL_VISITS number(19,0) not null, TOTAL_UNIQUE number(19,0) not null, primary key (ID));
+create index SST_EVENTS_SITE_ID_IX on SST_EVENTS (SITE_ID);
+create index SST_EVENTS_USER_ID_IX on SST_EVENTS (USER_ID);
+create index SST_EVENTS_EVENT_ID_IX on SST_EVENTS (EVENT_ID);
+create index SST_EVENTS_DATE_IX on SST_EVENTS (EVENT_DATE);
+create index SST_PREFERENCES_SITE_ID_IX on SST_PREFERENCES (SITE_ID);
+create index SST_REPORTS_SITE_ID_IX on SST_REPORTS (SITE_ID);
+create index SST_RESOURCES_DATE_IX on SST_RESOURCES (RESOURCE_DATE);
+create index SST_RESOURCES_RES_ACT_IDX on SST_RESOURCES (RESOURCE_ACTION);
+create index SST_RESOURCES_USER_ID_IX on SST_RESOURCES (USER_ID);
+create index SST_RESOURCES_SITE_ID_IX on SST_RESOURCES (SITE_ID);
+create index SST_SITEACTIVITY_DATE_IX on SST_SITEACTIVITY (ACTIVITY_DATE);
+create index SST_SITEACTIVITY_EVENT_ID_IX on SST_SITEACTIVITY (EVENT_ID);
+create index SST_SITEACTIVITY_SITE_ID_IX on SST_SITEACTIVITY (SITE_ID);
+create index SST_SITEVISITS_SITE_ID_IX on SST_SITEVISITS (SITE_ID);
+create index SST_SITEVISITS_DATE_IX on SST_SITEVISITS (VISITS_DATE);
+create index SST_EVENTS_SITEEVENTUSER_ID_IX on SST_EVENTS (SITE_ID,EVENT_ID,USER_ID);
+create sequence SST_EVENTS_ID;
+create sequence SST_JOB_RUN_ID;
+create sequence SST_PREFERENCES_ID;
+create sequence SST_REPORTS_ID;
+create sequence SST_RESOURCES_ID;
+create sequence SST_SITEACTIVITY_ID;
+create sequence SST_SITEVISITS_ID;
+
+-- OPTIONAL: Preload with default reports (STAT-35)
+--   0) Activity total (Show activity in site, with totals per event.)
+insert into SST_REPORTS (ID,SITE_ID,TITLE,DESCRIPTION,HIDDEN,REPORT_DEF,CREATED_BY,CREATED_ON,MODIFIED_BY,MODIFIED_ON) values (SST_REPORTS_ID.NEXTVAL,NULL,'${predefined_report0_title}','${predefined_report0_description}',0,'<?xml version=''1.0'' ?><ReportParams><howChartCategorySource>none</howChartCategorySource><howChartSeriesSource>total</howChartSeriesSource><howChartSource>event</howChartSource><howChartType>pie</howChartType><howLimitedMaxResults>false</howLimitedMaxResults><howMaxResults>0</howMaxResults><howPresentationMode>how-presentation-both</howPresentationMode><howSort>true</howSort><howSortAscending>true</howSortAscending><howSortBy>event</howSortBy><howTotalsBy><howTotalsBy>event</howTotalsBy></howTotalsBy><siteId/><what>what-events</what><whatEventIds/><whatEventSelType>what-events-bytool</whatEventSelType><whatLimitedAction>false</whatLimitedAction><whatLimitedResourceIds>false</whatLimitedResourceIds><whatResourceAction>new</whatResourceAction><whatResourceIds/><whatToolIds><whatToolIds>all</whatToolIds></whatToolIds><when>when-all</when><whenFrom/><whenTo/><who>who-all</who><whoGroupId/><whoRoleId>access</whoRoleId><whoUserIds/></ReportParams>','preload',(SELECT current_date FROM dual),'preload',(SELECT current_date FROM dual));
+--   1) Most accessed files (Show top 10 most accessed files.)
+insert into SST_REPORTS (ID,SITE_ID,TITLE,DESCRIPTION,HIDDEN,REPORT_DEF,CREATED_BY,CREATED_ON,MODIFIED_BY,MODIFIED_ON) values (SST_REPORTS_ID.NEXTVAL,NULL,'${predefined_report1_title}','${predefined_report1_description}',0,'<?xml version=''1.0'' ?><ReportParams><howChartCategorySource>none</howChartCategorySource><howChartSeriesSource>total</howChartSeriesSource><howChartSource>resource</howChartSource><howChartType>pie</howChartType><howLimitedMaxResults>true</howLimitedMaxResults><howMaxResults>10</howMaxResults><howPresentationMode>how-presentation-both</howPresentationMode><howSort>true</howSort><howSortAscending>false</howSortAscending><howSortBy>total</howSortBy><howTotalsBy><howTotalsBy>resource</howTotalsBy></howTotalsBy><siteId/><what>what-resources</what><whatEventIds/><whatEventSelType>what-events-bytool</whatEventSelType><whatLimitedAction>true</whatLimitedAction><whatLimitedResourceIds>false</whatLimitedResourceIds><whatResourceAction>read</whatResourceAction><whatResourceIds/><whatToolIds><whatToolIds>all</whatToolIds></whatToolIds><when>when-all</when><whenFrom/><whenTo/><who>who-all</who><whoGroupId/><whoRoleId>access</whoRoleId><whoUserIds/></ReportParams>','preload',(SELECT current_date FROM dual),'preload',(SELECT current_date FROM dual));
+--   2) Most active users (Show top 10 users with most activity in site.)
+insert into SST_REPORTS (ID,SITE_ID,TITLE,DESCRIPTION,HIDDEN,REPORT_DEF,CREATED_BY,CREATED_ON,MODIFIED_BY,MODIFIED_ON) values (SST_REPORTS_ID.NEXTVAL,NULL,'${predefined_report2_title}','${predefined_report2_description}',0,'<?xml version=''1.0'' ?><ReportParams><howChartCategorySource>none</howChartCategorySource><howChartSeriesSource>total</howChartSeriesSource><howChartSource>user</howChartSource><howChartType>pie</howChartType><howLimitedMaxResults>true</howLimitedMaxResults><howMaxResults>10</howMaxResults><howPresentationMode>how-presentation-both</howPresentationMode><howSort>true</howSort><howSortAscending>false</howSortAscending><howSortBy>total</howSortBy><howTotalsBy><howTotalsBy>user</howTotalsBy></howTotalsBy><siteId/><what>what-events</what><whatEventIds/><whatEventSelType>what-events-bytool</whatEventSelType><whatLimitedAction>false</whatLimitedAction><whatLimitedResourceIds>false</whatLimitedResourceIds><whatResourceAction>new</whatResourceAction><whatResourceIds/><whatToolIds><whatToolIds>all</whatToolIds></whatToolIds><when>when-all</when><whenFrom/><whenTo/><who>who-all</who><whoGroupId/><whoRoleId>access</whoRoleId><whoUserIds/></ReportParams>','preload',(SELECT current_date FROM dual),'preload',(SELECT current_date FROM dual));
+--   3) Less active users (Show top 10 users with less activity in site.)
+insert into SST_REPORTS (ID,SITE_ID,TITLE,DESCRIPTION,HIDDEN,REPORT_DEF,CREATED_BY,CREATED_ON,MODIFIED_BY,MODIFIED_ON) values (SST_REPORTS_ID.NEXTVAL,NULL,'${predefined_report3_title}','${predefined_report3_description}',0,'<?xml version=''1.0'' ?><ReportParams><howChartCategorySource>none</howChartCategorySource><howChartSeriesSource>total</howChartSeriesSource><howChartSource>user</howChartSource><howChartType>bar</howChartType><howLimitedMaxResults>false</howLimitedMaxResults><howMaxResults>0</howMaxResults><howPresentationMode>how-presentation-both</howPresentationMode><howSort>true</howSort><howSortAscending>true</howSortAscending><howSortBy>total</howSortBy><howTotalsBy><howTotalsBy>user</howTotalsBy></howTotalsBy><siteId/><what>what-events</what><whatEventIds/><whatEventSelType>what-events-bytool</whatEventSelType><whatLimitedAction>false</whatLimitedAction><whatLimitedResourceIds>false</whatLimitedResourceIds><whatResourceAction>new</whatResourceAction><whatResourceIds/><whatToolIds><whatToolIds>all</whatToolIds></whatToolIds><when>when-all</when><whenFrom/><whenTo/><who>who-all</who><whoGroupId/><whoRoleId>access</whoRoleId><whoUserIds/></ReportParams>','preload',(SELECT current_date FROM dual),'preload',(SELECT current_date FROM dual));
+--   4) Users with more visits (Show top 10 users who have most visited the site.)
+insert into SST_REPORTS (ID,SITE_ID,TITLE,DESCRIPTION,HIDDEN,REPORT_DEF,CREATED_BY,CREATED_ON,MODIFIED_BY,MODIFIED_ON) values (SST_REPORTS_ID.NEXTVAL,NULL,'${predefined_report4_title}','${predefined_report4_description}',0,'<?xml version=''1.0'' ?><ReportParams><howChartCategorySource>none</howChartCategorySource><howChartSeriesSource>total</howChartSeriesSource><howChartSource>user</howChartSource><howChartType>bar</howChartType><howLimitedMaxResults>false</howLimitedMaxResults><howMaxResults>0</howMaxResults><howPresentationMode>how-presentation-both</howPresentationMode><howSort>true</howSort><howSortAscending>false</howSortAscending><howSortBy>total</howSortBy><howTotalsBy><howTotalsBy>user</howTotalsBy></howTotalsBy><siteId/><what>what-visits</what><whatEventIds/><whatEventSelType>what-events-bytool</whatEventSelType><whatLimitedAction>false</whatLimitedAction><whatLimitedResourceIds>false</whatLimitedResourceIds><whatResourceAction>new</whatResourceAction><whatResourceIds/><whatToolIds><whatToolIds>all</whatToolIds></whatToolIds><when>when-all</when><whenFrom/><whenTo/><who>who-all</who><whoGroupId/><whoRoleId>access</whoRoleId><whoUserIds/></ReportParams>','preload',(SELECT current_date FROM dual),'preload',(SELECT current_date FROM dual));
+--   5) Users with no visits (Show users who have never visited the site.)
+insert into SST_REPORTS (ID,SITE_ID,TITLE,DESCRIPTION,HIDDEN,REPORT_DEF,CREATED_BY,CREATED_ON,MODIFIED_BY,MODIFIED_ON) values (SST_REPORTS_ID.NEXTVAL,NULL,'${predefined_report5_title}','${predefined_report5_description}',0,'<?xml version=''1.0'' ?><ReportParams><howChartCategorySource>none</howChartCategorySource><howChartSeriesSource>total</howChartSeriesSource><howChartSource>event</howChartSource><howChartType>bar</howChartType><howLimitedMaxResults>false</howLimitedMaxResults><howMaxResults>0</howMaxResults><howPresentationMode>how-presentation-table</howPresentationMode><howSort>false</howSort><howSortAscending>false</howSortAscending><howSortBy>default</howSortBy><howTotalsBy><howTotalsBy>user</howTotalsBy></howTotalsBy><siteId/><what>what-visits</what><whatEventIds/><whatEventSelType>what-events-bytool</whatEventSelType><whatLimitedAction>false</whatLimitedAction><whatLimitedResourceIds>false</whatLimitedResourceIds><whatResourceAction>new</whatResourceAction><whatResourceIds/><whatToolIds><whatToolIds>all</whatToolIds></whatToolIds><when>when-all</when><whenFrom/><whenTo/><who>who-none</who><whoGroupId/><whoRoleId>access</whoRoleId><whoUserIds/></ReportParams>','preload',(SELECT current_date FROM dual),'preload',(SELECT current_date FROM dual));
+--   6) Users with no activity (Show users with no activity in site.)
+insert into SST_REPORTS (ID,SITE_ID,TITLE,DESCRIPTION,HIDDEN,REPORT_DEF,CREATED_BY,CREATED_ON,MODIFIED_BY,MODIFIED_ON) values (SST_REPORTS_ID.NEXTVAL,NULL,'${predefined_report6_title}','${predefined_report6_description}',0,'<?xml version=''1.0'' ?><ReportParams><howChartCategorySource>none</howChartCategorySource><howChartSeriesPeriod>byday</howChartSeriesPeriod><howChartSeriesSource>total</howChartSeriesSource><howChartSource>event</howChartSource><howChartType>bar</howChartType><howLimitedMaxResults>false</howLimitedMaxResults><howMaxResults>0</howMaxResults><howPresentationMode>how-presentation-table</howPresentationMode><howSort>false</howSort><howSortAscending>true</howSortAscending><howSortBy>default</howSortBy><howTotalsBy><howTotalsBy>user</howTotalsBy></howTotalsBy><siteId/><what>what-events</what><whatEventIds/><whatEventSelType>what-events-bytool</whatEventSelType><whatLimitedAction>false</whatLimitedAction><whatLimitedResourceIds>false</whatLimitedResourceIds><whatResourceAction>new</whatResourceAction><whatResourceIds/><whatToolIds><whatToolIds>all</whatToolIds></whatToolIds><when>when-all</when><whenFrom/><whenTo/><who>who-none</who><whoGroupId/><whoRoleId>access</whoRoleId><whoUserIds/></ReportParams>','preload',(SELECT current_date FROM dual),'preload',(SELECT current_date FROM dual));
+
+-- END SiteStats 2.1 (SAK-17773)
+
+
+-- START Profile2 1.3 (SAK-17773)
+-- IMPORTANT: Installations with previous (contrib) versions of Profile2 deployed should
+--            comment out lines below and consult this url for possible conversion upgrades:
+--            https://source.sakaiproject.org/svn//profile2/branches/profile2-1.3.x/docs/database/oracle/
+create table PROFILE_FRIENDS_T (
+    ID number(19,0) not null,
+    USER_UUID varchar2(99) not null,
+    FRIEND_UUID varchar2(99) not null,
+    RELATIONSHIP number(10,0) not null,
+    REQUESTED_DATE date not null,
+    CONFIRMED number(1,0) not null,
+    CONFIRMED_DATE date,
+    primary key (ID)
+);
+create table PROFILE_IMAGES_EXTERNAL_T (
+    USER_UUID varchar2(99) not null,
+    URL_MAIN varchar2(4000) not null,
+    URL_THUMB varchar2(4000),
+    primary key (USER_UUID)
+);
+create table PROFILE_IMAGES_T (
+    ID number(19,0) not null,
+    USER_UUID varchar2(99) not null,
+    RESOURCE_MAIN varchar2(255) not null,
+    RESOURCE_THUMB varchar2(255) not null,
+    IS_CURRENT number(1,0) not null,
+    primary key (ID)
+);
+create table PROFILE_PREFERENCES_T (
+    USER_UUID varchar2(99) not null,
+    EMAIL_REQUEST number(1,0) not null,
+    EMAIL_CONFIRM number(1,0) not null,
+    TWITTER_ENABLED number(1,0) not null,
+    TWITTER_USERNAME varchar2(255),
+    TWITTER_PASSWORD varchar2(255),
+    primary key (USER_UUID)
+);
+create table PROFILE_PRIVACY_T (
+    USER_UUID varchar2(99) not null,
+    PROFILE_IMAGE number(10,0) not null,
+    BASIC_INFO number(10,0) not null,
+    CONTACT_INFO number(10,0) not null,
+    ACADEMIC_INFO number(10,0) not null,
+    PERSONAL_INFO number(10,0) not null,
+    BIRTH_YEAR number(1,0) not null,
+    SEARCH number(10,0) not null,
+    MY_FRIENDS number(10,0) not null,
+    MY_STATUS number(10,0) not null,
+    primary key (USER_UUID)
+);
+create table PROFILE_STATUS_T (
+    USER_UUID varchar2(99) not null,
+    MESSAGE varchar2(255) not null,
+    DATE_ADDED date not null,
+    primary key (USER_UUID)
+);
+create table SAKAI_PERSON_META_T (
+    ID number(19,0) not null,
+    USER_UUID varchar2(99) not null,
+    PROPERTY varchar2(255) not null,
+    VALUE varchar2(255) not null,
+    primary key (ID)
+);
+create index PROFILE_FRIENDS_FRIEND_UUID_I on PROFILE_FRIENDS_T (FRIEND_UUID);
+create index PROFILE_FRIENDS_USER_UUID_I on PROFILE_FRIENDS_T (USER_UUID);
+create index PROFILE_IMAGES_USER_UUID_I on PROFILE_IMAGES_T (USER_UUID);
+create index PROFILE_IMAGES_IS_CURRENT_I on PROFILE_IMAGES_T (IS_CURRENT);
+create sequence PROFILE_FRIENDS_S;
+create sequence PROFILE_IMAGES_S;
+create sequence SAKAI_PERSON_META_S;
+create index PROFILE_FRIENDS_USER_UUID_I on PROFILE_FRIENDS_T (USER_UUID);
+create index PROFILE_FRIENDS_FRIEND_UUID_I on PROFILE_FRIENDS_T (FRIEND_UUID);
+create index PROFILE_IMAGES_USER_UUID_I on PROFILE_IMAGES_T (USER_UUID);
+create index PROFILE_IMAGES_IS_CURRENT_I on PROFILE_IMAGES_T (IS_CURRENT);
+create index SAKAI_PERSON_META_USER_UUID_I on SAKAI_PERSON_META_T (USER_UUID);
+create index SAKAI_PERSON_META_PROPERTY_I on SAKAI_PERSON_META_T (PROPERTY);
+-- END Profile2 1.3 (SAK-17773)
+
