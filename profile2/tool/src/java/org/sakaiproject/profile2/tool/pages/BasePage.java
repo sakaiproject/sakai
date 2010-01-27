@@ -19,6 +19,7 @@ package org.sakaiproject.profile2.tool.pages;
 import java.util.Locale;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebPage;
@@ -69,6 +70,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			}
 		};
 		myProfileLink.add(new Label("myProfileLabel",new ResourceModel("link.my.profile")));
+		myProfileLink.add(new AttributeModifier("title", true, new ResourceModel("link.my.profile.tooltip")));
 		add(myProfileLink);
 		
 		
@@ -80,8 +82,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 				setResponsePage(new MyPictures());
 			}
 		};
-		myPicturesLink.add(new Label("myPicturesLabel", new ResourceModel(
-				"link.my.pictures")));
+		myPicturesLink.add(new Label("myPicturesLabel", new ResourceModel("link.my.pictures")));
+		myPicturesLink.add(new AttributeModifier("title", true, new ResourceModel("link.my.pictures.tooltip")));
 
 		if (!sakaiProxy.isProfileGalleryEnabledGlobally()) {
 			myPicturesLink.setVisible(false);
@@ -98,6 +100,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			}
 		};
 		myFriendsLink.add(new Label("myFriendsLabel",new ResourceModel("link.my.friends")));
+		myFriendsLink.add(new AttributeModifier("title", true, new ResourceModel("link.my.friends.tooltip")));
 		
 		//get count of new connection requests
 		int newRequestsCount = profileLogic.getConnectionRequestsForUserCount(currentUserUuid);
@@ -118,6 +121,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			}
 		};
 		myMessagesLink.add(new Label("myMessagesLabel",new ResourceModel("link.my.messages")));
+		myMessagesLink.add(new AttributeModifier("title", true, new ResourceModel("link.my.messages.tooltip")));
 		
 		//get count of new messages grouped by thread
 		int newMessagesCount = profileLogic.getThreadsWithUnreadMessagesCount(currentUserUuid);
@@ -138,6 +142,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			}
 		};
 		myPrivacyLink.add(new Label("myPrivacyLabel",new ResourceModel("link.my.privacy")));
+		myPrivacyLink.add(new AttributeModifier("title", true, new ResourceModel("link.my.privacy.tooltip")));
 		add(myPrivacyLink);
 		
 		
@@ -148,7 +153,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 				setResponsePage(new MySearch());
 			}
 		};
-		searchLink.add(new Label("searchLabel",new ResourceModel("link.search")));
+		searchLink.add(new Label("searchLabel",new ResourceModel("link.my.search")));
+		searchLink.add(new AttributeModifier("title", true, new ResourceModel("link.my.search.tooltip")));
 		add(searchLink);
 		
 		
@@ -159,7 +165,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 				setResponsePage(new MyPreferences());
 			}
 		};
-		preferencesLink.add(new Label("preferencesLabel",new ResourceModel("link.preferences")));
+		preferencesLink.add(new Label("preferencesLabel",new ResourceModel("link.my.preferences")));
+		preferencesLink.add(new AttributeModifier("title", true, new ResourceModel("link.my.preferences.tooltip")));
 		add(preferencesLink);
 			
 		
