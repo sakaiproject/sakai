@@ -188,7 +188,7 @@ FCKConfig.Keystrokes = [
 	[ CTRL + 9 /*TAB*/, 'Source' ]
 ] ;
 
-FCKConfig.ContextMenu = ['Generic','Link','Anchor','Image','Flash','Select','Textarea','Checkbox','Radio','TextField','HiddenField','ImageButton','Button','BulletedList','NumberedList','Table','Form'] ;
+FCKConfig.ContextMenu = ['Generic','Link','Anchor','Image','Movie','Flash','Select','Textarea','Checkbox','Radio','TextField','HiddenField','ImageButton','Button','BulletedList','NumberedList','Table','Form'] ;
 FCKConfig.BrowserContextMenuOnCtrl = false ;
 
 FCKConfig.EnableMoreFontColors = true ;

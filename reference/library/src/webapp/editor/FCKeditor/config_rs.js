@@ -104,7 +104,7 @@ FCKConfig.ToolbarSets["Default"] = [
         ['OrderedList','UnorderedList','Outdent','Indent'],
         ['JustifyLeft','JustifyCenter','JustifyRight','JustifyFull','TextColor','BGColor'],
         ['Link','Unlink','Anchor'],
-        ['ResourceSearch','Image','Flash','Table','Rule','Smiley','SpecialChar'],['Style'],
+        ['ResourceSearch','Image','Movie','Flash','Table','Rule','Smiley','SpecialChar'],['Style'],
         ['FontFormat','FontName','FontSize'],
         ['About']
 ] ;
@@ -117,7 +117,7 @@ FCKConfig.ToolbarSets["large"] = [
         ['OrderedList','UnorderedList','Outdent','Indent'],
         ['JustifyLeft','JustifyCenter','JustifyRight','JustifyFull','TextColor','BGColor'],
         ['Link','Unlink','Anchor'],
-        ['Image','Flash','Table','Rule','Smiley','SpecialChar'],['Style'],
+        ['Image','Movie','Flash','Table','Rule','Smiley','SpecialChar'],['Style'],
         ['FontFormat','FontName','FontSize'],
 ] ;
 
@@ -127,7 +127,7 @@ FCKConfig.ToolbarSets["largecompressed"] = [
         ['Bold','Italic','Underline','StrikeThrough','Subscript','Superscript'],
         ['OrderedList','UnorderedList','Outdent','Indent','JustifyLeft','JustifyCenter','JustifyRight','JustifyFull'],
         ['TextColor','BGColor','Link','Unlink','Anchor'],
-        ['Image','Flash','Table','Rule','Smiley','SpecialChar'],
+        ['Image','Movie','Flash','Table','Rule','Smiley','SpecialChar'],
         ['FontFormat','FontName'],['Style','FontSize'],
 ] ;
 
@@ -152,7 +152,7 @@ FCKConfig.ToolbarSets["Attachments"] = [
    ['OrderedList','UnorderedList','Outdent','Indent'],
    ['JustifyLeft','JustifyCenter','JustifyRight','JustifyFull','TextColor','BGColor'],
    ['Link','Unlink','Anchor'],
-   ['ResourceSearch','Image','Flash','Table','Rule','Smiley','SpecialChar'],['Style'],
+   ['ResourceSearch','Image','Movie','Flash','Table','Rule','Smiley','SpecialChar'],['Style'],
    ['FontFormat','FontName','FontSize'],
    ['About'],
    '/',
@@ -188,7 +188,7 @@ FCKConfig.Keystrokes = [
 	[ CTRL + 9 /*TAB*/, 'Source' ]
 ] ;
 
-FCKConfig.ContextMenu = ['Generic','Link','Anchor','Image','Flash','Select','Textarea','Checkbox','Radio','TextField','HiddenField','ImageButton','Button','BulletedList','NumberedList','Table','Form'] ;
+FCKConfig.ContextMenu = ['Generic','Link','Anchor','Image','Movie','Flash','Select','Textarea','Checkbox','Radio','TextField','HiddenField','ImageButton','Button','BulletedList','NumberedList','Table','Form'] ;
 FCKConfig.BrowserContextMenuOnCtrl = false ;
 
 FCKConfig.EnableMoreFontColors = true ;
