@@ -87,6 +87,19 @@ create table SITEASSOC_CONTEXT_ASSOCIATION (
 		primary key (FROM_CONTEXT, TO_CONTEXT)
 	);
 
+CREATE TABLE TAGGABLE_LINK ( 
+    LINK_ID           	VARCHAR2(36) NOT NULL,
+    VERSION      	NUMBER(10,0) NOT NULL,
+    ACTIVITY_REF 	VARCHAR2(255) NOT NULL,
+    TAG_CRITERIA_REF      	VARCHAR2(255) NOT NULL,
+    RUBRIC       	CLOB NULL,
+    RATIONALE    	CLOB NULL,
+    EXPORT_STRING	NUMBER(10,0) NOT NULL,
+    VISIBLE      	NUMBER(1,0) NOT NULL,
+    LOCKED       	NUMBER(1,0) DEFAULT 0 NULL,
+    CONSTRAINT TAGGABLE_LINK_PK PRIMARY KEY(LINK_ID)
+);
+
 alter table osp_wizard_page_def add (type varchar2(1) default '0');
 
 update osp_wizard_page_def set type = '0' where id in (
