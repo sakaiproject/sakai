@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Locale;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -87,15 +88,9 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
         replacementValues.put("newPassword", "");
         replacementValues.put("productionSiteName", "");
         
-		if (emailTemplateService.getRenderedTemplateForUser(NOTIFY_ADDED_PARTICIPANT, "/user/admin", replacementValues) == null) 
-			loadAddedParticipantMail();
-		else 
-			M_log.info("templates for " + NOTIFY_ADDED_PARTICIPANT + " exist");
-		
-		if (emailTemplateService.getRenderedTemplateForUser(NOTIFY_NEW_USER, "/user/admin", replacementValues) == null) 
-			loadNewUserMail();
-		else 
-			M_log.info("templates for " + NOTIFY_NEW_USER + " exist");
+        loadAddedParticipantMail();
+        
+        loadNewUserMail();
 			
 	}
 	
@@ -290,17 +285,39 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		String subject = xmlTemplate.getChildText("subject");
 		String body = xmlTemplate.getChildText("message");
 		String locale = xmlTemplate.getChildText("locale");
-		M_log.info("subject: " + subject);
+		String versionString = xmlTemplate.getChildText("version");
 		
-		EmailTemplate template = new EmailTemplate();
-		template.setSubject(subject);
-		template.setMessage(body);
-		template.setLocale(locale);
-		template.setKey(key);
-		template.setOwner("admin");
-		template.setLastModified(new Date());
-		
-		this.emailTemplateService.saveTemplate(template);
+		EmailTemplate existingTemplate = this.emailTemplateService.getEmailTemplate(key, new Locale(locale));
+		if (existingTemplate == null)
+		{
+			EmailTemplate template = new EmailTemplate();
+			template.setSubject(subject);
+			template.setMessage(body);
+			template.setLocale(locale);
+			template.setKey(key);
+			template.setVersion(Integer.valueOf(1));//setVersion(versionString != null ? Integer.valueOf(versionString) : Integer.valueOf(0));	// set version
+			template.setOwner("admin");
+			template.setLastModified(new Date());
+			this.emailTemplateService.saveTemplate(template);
+			M_log.info(this + " user notification tempalte " + key + " added");
+		}
+		else
+		{
+			String oVersionString = existingTemplate.getVersion() != null ? existingTemplate.getVersion().toString():null;
+			if ((oVersionString == null && versionString != null) || (oVersionString != null && versionString != null && !oVersionString.equals(versionString)))
+			{
+				existingTemplate.setSubject(subject);
+				existingTemplate.setMessage(body);
+				existingTemplate.setLocale(locale);
+				existingTemplate.setKey(key);
+				existingTemplate.setVersion(versionString != null ? Integer.valueOf(versionString) : Integer.valueOf(0));	// set version
+				existingTemplate.setOwner("admin");
+				existingTemplate.setLastModified(new Date());
+				this.emailTemplateService.updateTemplate(existingTemplate);
+			M_log.info(this + " user notification tempalte " + key + " updated to newer version");
+			}
+		}
+			
 	}
 
 	private String getCurrentUserEmailAddress() {
