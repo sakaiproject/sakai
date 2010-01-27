@@ -599,7 +599,7 @@ public class ViewProfile extends BasePage {
 				
 	        });
 		} else {
-			add(new EmptyPanel("friendsFeed")).setVisible(false);
+			add(new EmptyPanel("friendsFeed"));
 		}
 		
 		/* GALLERY FEED PANEL */
