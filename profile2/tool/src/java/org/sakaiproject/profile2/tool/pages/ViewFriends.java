@@ -40,10 +40,12 @@ public class ViewFriends extends BasePage {
 		//double check they are friends
 		boolean friend = profileLogic.isUserXFriendOfUserY(userUuid, currentUserUuid);
 		
-		//double check person viewing this page (currentuserId) is allowed to view userId's friends
-		boolean isFriendsListVisible = profileLogic.isUserXFriendsListVisibleByUserY(userUuid, currentUserUuid, friend);
-		if(!isFriendsListVisible) {
-			throw new ProfileFriendsIllegalAccessException("User: " + currentUserUuid + " is not allowed to view the friends list for: " + userUuid);
+		//double check person viewing this page (currentuserId) is allowed to view userId's friends - unless admin
+		if(!sakaiProxy.isSuperUser()){
+			boolean isFriendsListVisible = profileLogic.isUserXFriendsListVisibleByUserY(userUuid, currentUserUuid, friend);
+			if(!isFriendsListVisible) {
+				throw new ProfileFriendsIllegalAccessException("User: " + currentUserUuid + " is not allowed to view the friends list for: " + userUuid);
+			}
 		}
 		
 		//show confirmed friends panel for the given user
