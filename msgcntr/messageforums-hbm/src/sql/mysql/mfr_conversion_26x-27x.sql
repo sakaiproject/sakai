@@ -88,4 +88,34 @@ CREATE UNIQUE INDEX USER_ID
     ON MFR_SYNOPTIC_ITEM(USER_ID, SITE_ID);
 
 
+--////////////////////////////////////////////////////
+--// MSGCNTR-177
+--// MyWorkspace/Home does now show the Messages & Forums Notifications by default
+--////////////////////////////////////////////////////
 
+    
+update SAKAI_SITE_TOOL
+Set TITLE = 'Unread Messages and Forums'
+Where REGISTRATION = 'sakai.synoptic.messagecenter'; 
+
+INSERT INTO SAKAI_SITE_TOOL VALUES('!user-145', '!user-100', '!user', 'sakai.synoptic.messagecenter', 2, 'Unread Messages and Forums', '1,1' );
+
+create table MSGCNTR_TMP(
+    PAGE_ID VARCHAR(99),
+    SITE_ID VARCHAR(99)
+);
+
+insert into MSGCNTR_TMP
+(   
+    Select PAGE_ID, SITE_ID 
+    from SAKAI_SITE_PAGE 
+    where SITE_ID like '~%' 
+    and TITLE = 'Home'
+    and PAGE_ID not in (Select PAGE_ID from SAKAI_SITE_TOOL where REGISTRATION = 'sakai.synoptic.messagecenter')
+);
+
+insert into SAKAI_SITE_TOOL
+(select uuid(), PAGE_ID, SITE_ID, 'sakai.synoptic.messagecenter', 2, 'Unread Messages and Forums', '1,1' from MSGCNTR_TMP);
+
+drop table MSGCNTR_TMP;
+    
