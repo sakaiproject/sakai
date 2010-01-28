@@ -11,7 +11,7 @@ import org.sakaiproject.api.app.scheduler.DelayedInvocation;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationCommand;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlReaderFinishedException;
 import org.sakaiproject.db.api.SqlService;
@@ -33,6 +33,8 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 	private ScheduledInvocationManager schedInvocMgr;
 	private UserDirectoryService userDirectoryService;
 	private EventTrackingService eventService;
+	private SecurityService securityService;
+	
 
 	/** contains a map of the database dependent handler. */
 	protected Map<String, BaseEventDelayHandlerSql> databaseBeans;
@@ -72,7 +74,11 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 	{
 		this.sqlService = sqlService;
 	}
-
+	
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
+	}
+	
 	public void setSchedInvocMgr(ScheduledInvocationManager schedInvocMgr)
 	{
 		this.schedInvocMgr = schedInvocMgr;
@@ -298,9 +304,9 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 			{
 				User user = userDirectoryService.getUser(event.getUserId());
 	
-				SecurityService.pushAdvisor(new SecurityAdvisor() {
+				securityService.pushAdvisor(new SecurityAdvisor() {
 				    public SecurityAdvice isAllowed(String userId, String function, String reference) {
-				            if (SecurityService.unlock(event.getUserId(), function, reference)) {
+				            if (securityService.unlock(event.getUserId(), function, reference)) {
 				                return SecurityAdvice.ALLOWED;
 				             }
 				            return SecurityAdvice.PASS;
@@ -315,7 +321,7 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 				eventService.post(event);
 			} finally {
 				// Clear security advisor
-				SecurityService.popAdvisor();
+				securityService.popAdvisor();
 			}
 		} else {
 			LOG.warn("Delayed event not found [" + opaqueContext + "]");

@@ -40,6 +40,7 @@
 		<property name="schedInvocMgr" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager" />
 		<property name="eventService" ref="org.sakaiproject.event.api.EventTrackingService" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
 		<property name="databaseBeans">
            <map>
               <entry key="default"><ref bean="org.sakaiproject.content.providers.BaseEventDelayHandlerSqlDefault"/></entry>
