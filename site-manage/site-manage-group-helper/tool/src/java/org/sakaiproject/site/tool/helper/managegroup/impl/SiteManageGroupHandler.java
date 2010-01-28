@@ -412,11 +412,14 @@ public class SiteManageGroupHandler {
 				if (group.getUserRole(memberId) == null) {
 					Role r = site.getUserRole(memberId);
 					Member m = site.getMember(memberId);
+					Role memberRole = m != null ? m.getRole() : null;
 					// for every member added through the "Manage
 					// Groups" interface, he should be defined as
 					// non-provided
+					// get role first from site definition. 
+					// However, if the user is inactive, getUserRole would return null; then use member role instead
 					group.addMember(memberId, r != null ? r.getId()
-							: "", m != null ? m.isActive() : true,
+							: memberRole != null? memberRole.getId() : "", m != null ? m.isActive() : true,
 							false);
 				}
 			}
