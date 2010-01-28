@@ -6136,8 +6136,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	public void doFinalizeDelete( RunData data)
 	{
 		logger.debug(this + ".doFinalizeDelete()");
+		
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 
+		String oldCollectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
+		
 		// cancel copy if there is one in progress
 		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
 		{
@@ -6197,6 +6200,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				{
 					if (item.isCollection())
 					{
+						if (oldCollectionId.equals(item.getId())) {
+							state.setAttribute(STATE_COLLECTION_ID, item.getParent().getId());
+							logger.debug("set current collection to parent: " + item.getParent().getId());
+						}
 						ContentHostingService.removeCollection(item.getId());
 					}
 					else
@@ -6210,6 +6217,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 				catch (IdUnusedException e)
 				{
+					
 					addAlert(state,rb.getString("notexist1"));
 				}
 				catch (TypeException e)
