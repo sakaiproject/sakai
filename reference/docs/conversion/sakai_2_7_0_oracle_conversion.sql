@@ -602,6 +602,8 @@ HIDE_ITEM NUMBER(1,0),
 primary key (SYNOPTIC_ITEM_ID),
 unique (USER_ID, SITE_ID));
 
+create sequence MFR_SYNOPTIC_ITEM_S;
+
 create index MRF_SYN_USER on MFR_SYNOPTIC_ITEM (USER_ID);
 
 
