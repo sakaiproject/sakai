@@ -141,6 +141,7 @@ public class AuthorAssessmentListener
 
     // #3a - goto editAssessment.jsp, so prepare assessmentBean
     assessmentBean.setAssessment(assessment);
+    EditAssessmentListener.showPrintLink(assessmentBean);
     // #3b - reset the following
     author.setAssessTitle("");
     author.setAssessmentDescription("");

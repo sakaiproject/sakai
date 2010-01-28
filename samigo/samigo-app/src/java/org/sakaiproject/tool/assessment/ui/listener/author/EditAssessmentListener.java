@@ -194,6 +194,8 @@ public class EditAssessmentListener
 		// initalize the itemtype
 		itemauthorBean.setItemType("");
 		itemauthorBean.setItemTypeString("");
+		
+		showPrintLink(assessmentBean);
   }
   
   public boolean passAuthz(FacesContext context, String ownerId){
@@ -218,7 +220,7 @@ public class EditAssessmentListener
     return isOwner;
   }
   
-  private void showPrintLink(AssessmentBean assessmentBean) {
+  public static void showPrintLink(AssessmentBean assessmentBean) {
 	  log.debug("first condition = " + (ToolManager.getTool("sakai.questionbank.printout") != null));
 	  log.debug("second conditon = " + !ServerConfigurationService.getString("stealthTools@org.sakaiproject.tool.api.ActiveToolManager").contains("sakai.questionbank.printout"));
 	  log.debug("third condition = " + !ServerConfigurationService.getString("hiddenTools@org.sakaiproject.tool.api.ActiveToolManager").contains("sakai.questionbank.printout"));
