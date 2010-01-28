@@ -706,13 +706,13 @@ public class UserPrefsTool
 		//Tab order configuration
 		String defaultPreference="prefs_tab_title, prefs_noti_title, prefs_timezone_title, prefs_lang_title";
 
-		if (ServerConfigurationService.getString("preference.pages")==null)
+		if (ServerConfigurationService.getString("preference.pages")== null || ServerConfigurationService.getString("preference.pages").length() == 0)
 		{
-			LOG.warn("The preference.pages is not specified in sakai.properties, hence the default option of 'prefs_tab_title, prefs_noti_title, prefs_timezone_title, prefs_lang_title' is considered");
+			LOG.info("The preference.pages is not specified in sakai.properties, hence the default option of 'prefs_tab_title, prefs_noti_title, prefs_timezone_title, prefs_lang_title' is considered");
 		}
 		else
 		{
-			LOG.info("Setting preference.pages as "+ ServerConfigurationService.getString("preference.pages"));
+			LOG.debug("Setting preference.pages as "+ ServerConfigurationService.getString("preference.pages"));
 		}
 		
 		//To indicate that it is in the refresh mode
