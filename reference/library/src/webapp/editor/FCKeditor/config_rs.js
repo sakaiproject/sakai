@@ -49,6 +49,7 @@ FCKConfig.PluginsPath = FCKConfig.BasePath + 'plugins/' ;
 
 FCKConfig.Plugins.Add( 'attachments' ) ;
 FCKConfig.Plugins.Add( 'resourcesearch', 'en' ) ;
+FCKConfig.Plugins.Add( 'movieplayer', 'en,pt' ) ;
 
 // FCKConfig.Plugins.Add( 'autogrow' ) ;
 // FCKConfig.Plugins.Add( 'dragresizetable' );
