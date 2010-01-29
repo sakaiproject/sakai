@@ -132,10 +132,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
     }
 
     public Object getEntity(EntityReference ref) {
-        String id = ref.getId();
-        if (id == null) {
-            return new Vote();
-        }
+    	String id = ref.getId();
         String currentUser = developerHelperService.getCurrentUserReference();
         if (currentUser == null) {
             throw new SecurityException("Anonymous users cannot view specific votes: " + ref);
@@ -153,6 +150,11 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
             // not allowed to view
             throw new SecurityException("User ("+currentUser+") cannot view vote ("+ref+")");
         }
+        
+        if (id == null) {
+            return new Vote();
+        }
+        
         return vote;
     }
 
