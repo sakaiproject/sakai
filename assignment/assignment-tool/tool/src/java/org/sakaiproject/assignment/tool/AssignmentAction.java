@@ -2253,9 +2253,11 @@ public class AssignmentAction extends PagedResourceActionII
 	}
 	
 	/**
-	 * Responding to the request of going to next submission
+	 * Responding to the request of submission navigation
+	 * @param rundata
+	 * @param option
 	 */
-	public void doNext_submission(RunData rundata)
+	public void doPrev_back_next_submission(RunData rundata, String option)
 	{
 		SessionState state = ((JetspeedRunData) rundata).getPortletSessionState(((JetspeedRunData) rundata).getJs_peid());
 		// save the instructor input
@@ -2264,12 +2266,24 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			grade_submission_option(rundata, "save");
 		}
-		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_SUBMISSION);
 		
 		if (state.getAttribute(STATE_MESSAGE) == null)
-			navigateToSubmission(rundata, "nextSubmissionId");
+		{
+			if ("next".equals(option))
+			{
+				navigateToSubmission(rundata, "nextSubmissionId");
+			}
+			else if ("prev".equals(option))
+			{
+				navigateToSubmission(rundata, "prevSubmissionId");
+			}
+			else if ("back".equals(option))
+			{
+				state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_ASSIGNMENT);
+			}
+		}
 
-	} // doNext_submission
+	} // doPrev_back_next_submission
 
 
 	private void navigateToSubmission(RunData rundata, String paramString) {
@@ -2283,25 +2297,6 @@ public class AssignmentAction extends PagedResourceActionII
 			putSubmissionInfoIntoState(state, assignmentId, submissionId);
 		}
 	}
-
-	/**
-	 * Responding to the request of going to previous submission
-	 */
-	public void doPrev_submission(RunData rundata)
-	{
-		SessionState state = ((JetspeedRunData) rundata).getPortletSessionState(((JetspeedRunData) rundata).getJs_peid());
-		// save the instructor input
-		boolean hasChange = readGradeForm(rundata, state, "save");
-		if (state.getAttribute(STATE_MESSAGE) == null && hasChange)
-		{
-			grade_submission_option(rundata, "save");
-		}
-		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_SUBMISSION);
-		
-		if (state.getAttribute(STATE_MESSAGE) == null)
-			navigateToSubmission(rundata, "prevSubmissionId");
-
-	} // doPrev_submission
 
 	/**
 	 * Parse time value and put corresponding values into state
@@ -3513,17 +3508,6 @@ public class AssignmentAction extends PagedResourceActionII
 		putSubmissionInfoIntoState(state, assignmentId, sId);
 		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_SUBMISSION);
 	} // doCancel_grade_submission
-	
-	/**
-	 * back to the submission list view
-	 * @param data
-	 */
-	public void doBack_to_submission_list(RunData data)
-	{
-		// put submission information into state
-		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_ASSIGNMENT);
-	} // doBack_to_submission_list
 
 	/**
 	 * clean the state variables related to grading page
@@ -7594,17 +7578,17 @@ public class AssignmentAction extends PagedResourceActionII
 			else if ("prevsubmission".equals(option))
 			{
 				// save and navigate to previous submission
-				doPrev_submission(data);
+				doPrev_back_next_submission(data, "prev");
 			}
 			else if ("nextsubmission".equals(option))
 			{
 				// save and navigate to previous submission
-				doNext_submission(data);
+				doPrev_back_next_submission(data, "next");
 			}
 			else if ("cancelgradesubmission".equals(option))
 			{
 				// back to the list view
-				doBack_to_submission_list(data);
+				doPrev_back_next_submission(data, "back");
 			}
 			else if ("reorderNavigation".equals(option))
 			{
