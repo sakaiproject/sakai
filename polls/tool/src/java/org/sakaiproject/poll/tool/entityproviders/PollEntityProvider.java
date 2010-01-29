@@ -95,15 +95,6 @@ public class PollEntityProvider extends AbstractEntityProvider implements CoreEn
      * @return
      */
     private Poll getPollById(String id) {
-	System.out.println("Get pollById(" + id);
-	if (true) {
-	    try {
-		 throw new NullPointerException("this is it");
-		 }
-	    catch (Exception e) {
-		e.printStackTrace();
-	    }
-	}
         Long pollId;
         try {
             pollId = Long.valueOf(id);
