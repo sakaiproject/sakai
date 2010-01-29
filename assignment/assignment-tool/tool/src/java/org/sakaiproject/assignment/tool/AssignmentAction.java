@@ -7893,6 +7893,8 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				resetAllowResubmitParams(state);
 			}
+			// record whether the resubmission options has been changed or not
+			hasChange = hasChange || change_resubmit_option(state, submission);
 		}
 		catch (IdUnusedException e)
 		{
