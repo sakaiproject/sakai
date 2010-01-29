@@ -599,24 +599,22 @@ public class ViewProfile extends BasePage {
 				
 	        });
 		} else {
-			add(new EmptyPanel("friendsFeed"));
+			add(new EmptyPanel("friendsFeed").setVisible(false));
 		}
 		
 		/* GALLERY FEED PANEL */
-		add(new AjaxLazyLoadPanel("galleryFeed") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public Component getLazyLoadComponent(String markupId) {
-				if (sakaiProxy.isProfileGalleryEnabledGlobally() && isGalleryVisible) {
-					return new GalleryFeed(markupId, userUuid, currentUserId)
-							.setOutputMarkupId(true);
-				} else {
-					return new EmptyPanel(markupId).setVisible(false);
-				}
-			}
-		});
+		if (sakaiProxy.isProfileGalleryEnabledGlobally() && isGalleryVisible) {
+			add(new AjaxLazyLoadPanel("galleryFeed") {
+				private static final long serialVersionUID = 1L;
 	
+				@Override
+				public Component getLazyLoadComponent(String markupId) {
+					return new GalleryFeed(markupId, userUuid, currentUserId).setOutputMarkupId(true);
+				}
+			});
+		} else {
+			add(new EmptyPanel("galleryFeed").setVisible(false));
+		}
 	}
 	
 	/**
