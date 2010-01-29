@@ -590,8 +590,10 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
         }
         for (Member member : members) {
             EntityUser eu = userEntityProvider.getUserById(member.getUserId());
-            EntityMember em = new EntityMember(member, sg.locationReference, eu);
-            l.add(em);
+            if (eu != null) {
+            	EntityMember em = new EntityMember(member, sg.locationReference, eu);
+            	l.add(em);
+            }
         }
         return l;
     }
