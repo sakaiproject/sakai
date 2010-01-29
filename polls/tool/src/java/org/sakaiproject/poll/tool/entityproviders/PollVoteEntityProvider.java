@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
@@ -56,6 +58,7 @@ import org.sakaiproject.poll.model.Vote;
 public class PollVoteEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, 
     Createable, CollectionResolvable, Outputable, Inputable, Describeable, ActionsExecutable, Redirectable {
 
+	private static Log log = LogFactory.getLog(PollVoteEntityProvider.class);
     private PollListManager pollListManager;
     public void setPollListManager(final PollListManager pollListManager) {
         this.pollListManager = pollListManager;
@@ -134,7 +137,8 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
     public Object getEntity(EntityReference ref) {
     	String id = ref.getId();
         String currentUser = developerHelperService.getCurrentUserReference();
-        if (currentUser == null) {
+        log.debug("current user is: "  + currentUser);
+        if (currentUser == null || currentUser.length() == 0) {
             throw new SecurityException("Anonymous users cannot view specific votes: " + ref);
         }
         Vote vote = getVoteById(id);
