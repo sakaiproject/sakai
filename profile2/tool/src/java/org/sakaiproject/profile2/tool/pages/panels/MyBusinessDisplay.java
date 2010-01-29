@@ -46,14 +46,14 @@ public class MyBusinessDisplay extends Panel {
 		// heading
 		add(new Label("heading", new ResourceModel("heading.business")));
 
-		// company
-		WebMarkupContainer companyContainer = new WebMarkupContainer("companyContainer");
-		companyContainer.add(new Label("companyLabel", new ResourceModel("profile.company")));
-		companyContainer.add(new Label("company", userProfile.getCompany()));
-		add(companyContainer);
+		// business biography
+		WebMarkupContainer businessBiographyContainer = new WebMarkupContainer("businessBiographyContainer");
+		businessBiographyContainer.add(new Label("businessBiographyLabel", new ResourceModel("profile.business.bio")));
+		businessBiographyContainer.add(new Label("businessBiography", userProfile.getBusinessBiography()));
+		add(businessBiographyContainer);
 		
-		if (StringUtils.isBlank(userProfile.getCompany())) {
-			companyContainer.setVisible(false);
+		if (StringUtils.isBlank(userProfile.getBusinessBiography())) {
+			businessBiographyContainer.setVisible(false);
 		} else {
 			visibleFieldCount++;
 		}

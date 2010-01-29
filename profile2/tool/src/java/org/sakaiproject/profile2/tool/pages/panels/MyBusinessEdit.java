@@ -68,12 +68,12 @@ public class MyBusinessEdit extends Panel {
 		}
 		form.add(editWarning);
 		
-		//company
-		WebMarkupContainer companyContainer = new WebMarkupContainer("companyContainer");
-		companyContainer.add(new Label("companyLabel", new ResourceModel("profile.company")));
-		TextField company = new TextField("company", new PropertyModel(userProfile, "company"));
-		companyContainer.add(company);
-		form.add(companyContainer);
+		// business biography
+		WebMarkupContainer businessBiographyContainer = new WebMarkupContainer("businessBiographyContainer");
+		businessBiographyContainer.add(new Label("businessBiographyLabel", new ResourceModel("profile.business.bio")));
+		TextField businessBiography = new TextField("businessBiography", new PropertyModel(userProfile, "businessBiography"));
+		businessBiographyContainer.add(businessBiography);
+		form.add(businessBiographyContainer);
 		
 		//submit button
 		AjaxFallbackButton submitButton = new AjaxFallbackButton("submit", new ResourceModel("button.save.changes"), form) {
