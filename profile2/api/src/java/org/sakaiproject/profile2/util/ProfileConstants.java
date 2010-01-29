@@ -60,6 +60,7 @@ public class ProfileConstants {
 	public static final String GALLERY_IMAGE_THUMBNAILS = "thumbnails";
 	public static final String EVENT_GALLERY_IMAGE_UPLOAD = "gallery.image.upload";
 	public static final String GALLERY_IMAGE_DEFAULT_DESCRIPTION = "Gallery image";
+	public static final int MAX_GALLERY_IMAGE_XY = 800;
 	public static final int MAX_GALLERY_THUMBNAIL_IMAGE_XY = 125;
 	public static final int MAX_GALLERY_IMAGE_UPLOAD_SIZE = 2048; // 2MB
 	public static final int MAX_GALLERY_FILE_UPLOADS = 10;

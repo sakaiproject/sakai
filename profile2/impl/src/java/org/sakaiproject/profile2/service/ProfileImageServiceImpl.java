@@ -65,9 +65,12 @@ public class ProfileImageServiceImpl implements ProfileImageService {
 		String mainResourcePath = sakaiProxy.getProfileGalleryImagePath(userUuid,
 				imageId);
 
+		byte[] scaledImageBytes = ProfileUtils.scaleImage(
+				imageBytes, ProfileConstants.MAX_GALLERY_IMAGE_XY);
+		
 		// save image
 		if (!sakaiProxy.saveFile(mainResourcePath, userId, fileName, mimeType,
-				imageBytes)) {
+				scaledImageBytes)) {
 
 			log.error("Couldn't add gallery image to CHS. Aborting.");
 			return false;
