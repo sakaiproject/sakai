@@ -834,7 +834,8 @@ span.wicket-ajax-indicator img {
 	vertical-align: middle;
 }
 
-.editOtherWarning {
+/* warning message style for hen editing another person's profile */
+.edit-other-warning {
 	display:block;
 	border: 2px solid #ffcc33;
 	background-color: #fff9e6 !important;
@@ -847,6 +848,24 @@ span.wicket-ajax-indicator img {
     background-repeat: no-repeat;
     color: #5D5D5D;
 }
+
+/* warning message style for hen editing another person's profile */
+.save-failed-error {
+	display:block;
+	border: 2px solid #ff0000;
+	background-color: #FFE8E8 !important;
+	background-image: url(/library/image/silk/cancel.png) !important;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	padding-right: 10px;
+	padding-left: 24px;
+	background-position: 4px center;
+    background-repeat: no-repeat;
+    color: #5D5D5D;
+}
+
+
+
 
 /* autocomplete styling */
 div.wicket-aa {

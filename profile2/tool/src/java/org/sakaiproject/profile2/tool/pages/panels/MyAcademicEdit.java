@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
@@ -64,6 +65,11 @@ public class MyAcademicEdit extends Panel {
 		//setup form		
 		Form form = new Form("form", new Model(userProfile));
 		form.setOutputMarkupId(true);
+		
+		//form submit feedback
+		final Label formFeedback = new Label("formFeedback");
+		formFeedback.setOutputMarkupPlaceholderTag(true);
+		form.add(formFeedback);
 		
 		//add warning message if superUser and not editing own profile
 		Label editWarning = new Label("editWarning");
@@ -147,8 +153,12 @@ public class MyAcademicEdit extends Panel {
 					}
 				
 				} else {
-					String js = "alert('Failed to save information. Contact your system administrator.');";
-					target.prependJavascript(js);
+					//String js = "alert('Failed to save information. Contact your system administrator.');";
+					//target.prependJavascript(js);
+					
+					formFeedback.setDefaultModel(new ResourceModel("error.profile.save.academic.failed"));
+					formFeedback.add(new AttributeModifier("class", true, new Model<String>("save-failed-error")));	
+					target.addComponent(formFeedback);
 				}
             }
 		};
