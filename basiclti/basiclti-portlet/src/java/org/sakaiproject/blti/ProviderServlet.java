@@ -121,6 +121,9 @@ public class ProviderServlet extends HttpServlet {
                             String s, String message, Exception e)
 		throws java.io.IOException
 	{
+		if (e != null) {
+			M_log.error(e.getLocalizedMessage(), e);
+		}
 		M_log.info(rb.getString(s));
 		String return_url = request.getParameter("launch_presentation_return_url");
                 if ( return_url != null && return_url.length() > 1 ) {
@@ -221,6 +224,7 @@ public class ProviderServlet extends HttpServlet {
 		try {
 			base_string = OAuthSignatureMethod.getBaseString(oam);
 		} catch (Exception e) {
+			M_log.error(e.getLocalizedMessage(), e);
 			base_string = null;
 		}
 
@@ -228,7 +232,7 @@ public class ProviderServlet extends HttpServlet {
 			oav.validateMessage(oam,acc);
 		} catch(Exception e) {
 			M_log.warn("Provider failed to validate message");
-			M_log.warn(e.getMessage());
+			M_log.warn(e.getLocalizedMessage(), e);
 			if ( base_string != null ) M_log.warn(base_string);
 			doError(request, response,"launch.no.validate", context_id, null);
 			return;
@@ -271,6 +275,7 @@ public class ProviderServlet extends HttpServlet {
                         	user = UserDirectoryService.getUserByEid(eid);
                 	}
                 	catch(Exception e) {
+                		M_log.error(e.getLocalizedMessage(), e);
                         	user = null;
                 	}
 
@@ -282,7 +287,7 @@ public class ProviderServlet extends HttpServlet {
                                 	user = UserDirectoryService.getUserByEid(eid);
                         	}
                         	catch(Exception e) {
-					doError(request, response,"launch.create.user", "context="+context_id+" user="+user_id, null);
+					doError(request, response,"launch.create.user", "context="+context_id+" user="+user_id, e);
 					return;
                         	}
 
@@ -302,6 +307,7 @@ public class ProviderServlet extends HttpServlet {
 			thesite = SiteService.getSite(context_id);
 		}
 		catch (Exception e) {  
+			M_log.error(e.getLocalizedMessage(), e);
 			thesite = null;
 		}
 
@@ -341,7 +347,7 @@ public class ProviderServlet extends HttpServlet {
 				if ( ! saved ) return;
 			}
 			catch (Exception e) {  
-				doError(request, response,"launch.create.site", context_id, null);
+				doError(request, response,"launch.create.site", context_id, e);
 				return;
 			}
   		}
@@ -408,7 +414,7 @@ public class ProviderServlet extends HttpServlet {
 			}
 		} catch(Exception e) {
 			M_log.warn("Could not add user to site role="+userrole+" user="+user_id+" site="+context_id);
-			M_log.warn("Exception: "+e);
+			M_log.warn(e.getLocalizedMessage(), e);
 			doError(request, response,"launch.join.site", context_id, e);
 			return;
 		}
