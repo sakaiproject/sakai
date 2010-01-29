@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.Iterator;
 
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -14,10 +15,12 @@ import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 
 public class AssessmentEntityProducer implements EntityTransferrer,
 		EntityProducer {
@@ -95,8 +98,33 @@ public class AssessmentEntityProducer implements EntityTransferrer,
 		return false;
 	}
 
+	 
 	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
 	{	
-		//TODO
+		try
+		{
+			if(cleanup == true)
+			{
+				log.debug("deleting assessments from " + toContext);
+				AssessmentService service = new AssessmentService();
+				List assessmentList = service.getAllActiveAssessmentsbyAgent(toContext);
+				log.debug("found " + assessmentList.size() + " assessments in site: " + toContext);
+				Iterator iter =assessmentList.iterator();
+				while (iter.hasNext()) {
+					AssessmentData oneassessment = (AssessmentData) iter.next();
+					log.debug("removing assessemnt id = " +oneassessment.getAssessmentId() );
+					service.removeAssessment(oneassessment.getAssessmentId().toString());
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			log.debug("transferCopyEntities: End removing Assessment data");
+		}
+		transferCopyEntities(fromContext, toContext, ids);
+
 	}
+
+	
 }
