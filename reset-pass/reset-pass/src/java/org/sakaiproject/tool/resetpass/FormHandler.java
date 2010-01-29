@@ -1,13 +1,11 @@
 package org.sakaiproject.tool.resetpass;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -124,7 +122,7 @@ public class FormHandler {
 			}
 			catch (Exception e) {
 				e.printStackTrace();
-				securityService.clearAdvisors();
+				securityService.popAdvisor();
 				return null;
 			}
 		

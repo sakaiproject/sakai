@@ -1,19 +1,17 @@
 package org.sakaiproject.tool.resetpass;
 
-import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.component.api.ServerConfigurationService;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Arrays;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.springframework.validation.Errors;
+import org.springframework.validation.Validator;
 
 public class UserValidator implements Validator {
 

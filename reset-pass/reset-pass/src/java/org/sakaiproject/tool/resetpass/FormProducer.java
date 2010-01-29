@@ -4,7 +4,6 @@
 package org.sakaiproject.tool.resetpass;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -13,20 +12,20 @@ import org.sakaiproject.tool.api.ToolManager;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessageList;
+import uk.org.ponder.rsf.components.UIBranchContainer;
+import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
+import uk.org.ponder.rsf.components.UIForm;
+import uk.org.ponder.rsf.components.UIInput;
+import uk.org.ponder.rsf.components.UIMessage;
+import uk.org.ponder.rsf.components.UIVerbatim;
+import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
+import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.DefaultView;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
-import uk.org.ponder.rsf.components.UIBranchContainer;
-import uk.org.ponder.rsf.components.UIForm;
-import uk.org.ponder.rsf.components.UIMessage;
-import uk.org.ponder.rsf.components.UIInput;
-import uk.org.ponder.rsf.components.UICommand;
-import uk.org.ponder.rsf.components.UIVerbatim;
-import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
-import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 
 
 /**
@@ -35,7 +34,7 @@ import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
  */
 public class FormProducer implements ViewComponentProducer, DefaultView,NavigationCaseReporter {
 
-	private static final String VIEW_ID = "form";
+	public static final String VIEW_ID = "form";
 	
 	/* (non-Javadoc)
 	 * @see uk.org.ponder.rsf.view.ViewComponentProducer#getViewID()
@@ -105,8 +104,8 @@ public class FormProducer implements ViewComponentProducer, DefaultView,Navigati
 	}
 
 	
-	  public List reportNavigationCases() {
-		    List togo = new ArrayList(); // Always navigate back to this view.
+	  public List<NavigationCase> reportNavigationCases() {
+		    List<NavigationCase> togo = new ArrayList<NavigationCase>(); // Always navigate back to this view.
 		    togo.add(new NavigationCase(null, new SimpleViewParameters(VIEW_ID)));
 		    togo.add(new NavigationCase("Success", new SimpleViewParameters(ConfirmProducer.VIEW_ID)));
 		    return togo;

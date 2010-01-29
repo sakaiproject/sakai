@@ -1,16 +1,14 @@
 package org.sakaiproject.tool.resetpass;
 
 
+import org.sakaiproject.component.api.ServerConfigurationService;
+
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UILink;
 import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
-import uk.org.ponder.rsf.components.UIOutput;
-
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.tool.resetpass.RetUser;
 
 public class ConfirmProducer implements ViewComponentProducer {
 	public static final String VIEW_ID = "confirm";
