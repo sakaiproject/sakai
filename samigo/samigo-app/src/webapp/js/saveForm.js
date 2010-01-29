@@ -1,3 +1,4 @@
+
 // If the user hits a button while we are waiting for an update
 // we get a data discrepancy, because he will submit it with an
 // old value of the time. So we disable the buttons while doing an
@@ -7,6 +8,10 @@
 // It doesn't include anything that was already disabled.
 
 var disabledButtons = [];
+
+// confirm box needs to disable autosave temporarily
+
+var doautosave = true;
 
 //    Links are more difficult, as there isn't a disabled
 // attribute for them. Currently I clear onmouseup and onclick.
@@ -74,16 +79,13 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
     var method = "POST";
     var async = true;
     var payload;
-    if (counter > 1) {
-	payload = GetFormContent(formId, buttonName);
-    }
     function onready_callback() {
-        var state = request.readyState;
-        if (state!=4) {
-            // ignore intermediate states
-            return;
-        }
-	// This is an Ajax response. It isn't normally processed.
+	var state = request.readyState;
+	if (state!=4) {
+	    // ignore intermediate states
+	    return;
+	}
+	    // This is an Ajax response. It isn't normally processed.
 	// So if we need anything from it we have to get it.
 	// Get new date from response and update the form variable
 
@@ -139,13 +141,14 @@ function SaveFormContentAsync(toUrl, formId, buttonName, updateVar, updateVar2, 
 
         // when the request is done the scope of the function can be garbage collected...
     }
-    request.open(method, toUrl, async);
-    request.onreadystatechange = onready_callback;
-    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    if (counter > 1){
+    if (doautosave && counter > 1) {
+	payload = GetFormContent(formId, buttonName);
+	request.open(method, toUrl, async);
+	request.onreadystatechange = onready_callback;
+	request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	//alert("about to send");
 	window.status = "Saving...";
-    request.send(payload);
+	request.send(payload);
     } else {
 	//alert("first time" + 	    document.forms[0].elements['takeAssessmentForm:lastSubmittedDate1'].value);
         var onTimeout = TimeOutAction(toUrl, formId, buttonName, updateVar, updateVar2, repeatMilliseconds);
@@ -175,3 +178,4 @@ function initXMLHTTPRequest() {
         }
         return result;
 }
+
