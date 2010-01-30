@@ -133,4 +133,34 @@
       </property>
    </bean>
    <!-- sample bean job -->
+   
+   
+   <!-- Conditions Job -->
+   		<!--  simple job that fires a Datetime event -->   
+	   <bean id="datetimeJob"
+	   		class="org.sakaiproject.conditions.impl.job.DatetimeEventJob">
+	   	</bean>
+	   	
+	   	<bean id="org.sakaiproject.conditions.impl.ResourceReleaseRule"
+	   		class="org.sakaiproject.conditions.impl.ResourceReleaseRule">
+	   		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+	   	</bean>
+
+	   <!-- this is the helper that will register the above bean with the job scheduler -->
+	   <!--
+	   <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.DatetimeEventJob"
+	      class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+	      singleton="true" init-method="init">
+	      <property name="beanId">
+	         <value>datetimeJob</value>
+	      </property>
+	      <property name="jobName">
+	         <value>Conditional Release Datetime Job</value>
+	      </property>
+	      <property name="schedulerManager">
+	         <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+	      </property>
+	   </bean>
+	   -->
+   
 </beans>
