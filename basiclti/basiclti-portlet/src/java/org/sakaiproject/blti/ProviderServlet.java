@@ -21,13 +21,11 @@ package org.sakaiproject.blti;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-
 import java.net.URLEncoder;
-import java.util.Enumeration;
-import java.util.Set;
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -35,37 +33,33 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import net.oauth.OAuth;
-import net.oauth.OAuthMessage;
-import net.oauth.OAuthConsumer;
 import net.oauth.OAuthAccessor;
+import net.oauth.OAuthConsumer;
+import net.oauth.OAuthMessage;
 import net.oauth.OAuthValidator;
 import net.oauth.SimpleOAuthValidator;
-import net.oauth.signature.OAuthSignatureMethod;
-import net.oauth.server.HttpRequestMessage;
 import net.oauth.server.OAuthServlet;
 import net.oauth.signature.OAuthSignatureMethod;
 
-import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.id.cover.IdManager;
-import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * Notes:
