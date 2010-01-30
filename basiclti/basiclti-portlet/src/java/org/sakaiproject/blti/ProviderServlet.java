@@ -197,6 +197,7 @@ public class ProviderServlet extends HttpServlet {
 		if (context_id == null)
 			context_id = "res:" + resource_link_id;
 		context_id = oauth_consumer_key + ":" + context_id;
+		context_id = UrlUtility.encodeUrl(context_id);
 
 		// Lookup the secret
 		String configPrefix = "imsblti.provider." + oauth_consumer_key + ".";
