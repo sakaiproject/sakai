@@ -36,7 +36,7 @@ should be included in file importing DeliveryMessages
         </h:column>
         <h:column>
          <h:outputText value="#{evaluationMessages.open_bracket}"/>
-         	<h:outputText value="#{media.fileSizeKBFormat} kb"/>
+         	<h:outputText value="#{media.fileSizeKBFormat} #{generalMessages.kb}"/>
          <h:outputText value="#{evaluationMessages.close_bracket}"/>
         </h:column>
       </h:dataTable>

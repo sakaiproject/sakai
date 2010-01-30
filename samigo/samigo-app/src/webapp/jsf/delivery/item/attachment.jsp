@@ -39,7 +39,7 @@
     </h:column>
     <h:column>
       <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-      <h:outputText escape="false" value="#{attach.fileSize} kb" rendered="#{!attach.isLink && !attach.isMedia}"/>
+      <h:outputText escape="false" value="#{attach.fileSize} #{generalMessages.kb}" rendered="#{!attach.isLink && !attach.isMedia}"/>
     </h:column>
   </h:dataTable>
   

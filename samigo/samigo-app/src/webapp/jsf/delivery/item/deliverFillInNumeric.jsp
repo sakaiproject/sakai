@@ -98,7 +98,7 @@ should be included in file importing DeliveryMessages
         </h:column>
         <h:column>
           <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-          <h:outputText escape="false" value="(#{attach.fileSize}kb)" rendered="#{!attach.isLink}"/>
+          <h:outputText escape="false" value="(#{attach.fileSize} #{generalMessages.kb})" rendered="#{!attach.isLink}"/>
         </h:column>
       </h:dataTable>
     </h:panelGroup>

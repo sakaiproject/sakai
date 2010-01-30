@@ -74,7 +74,7 @@ should be included in file importing DeliveryMessages
         </h:column>
         <h:column>
          <h:outputText value="#{deliveryMessages.open_bracket}"/>
-         	<h:outputText value="#{media.fileSizeKBFormat} KB"/>
+         	<h:outputText value="#{media.fileSizeKBFormat} #{generalMessages.kb}"/>
          <h:outputText value="#{deliveryMessages.close_bracket}"/>
         </h:column>
         <h:column rendered="#{delivery.actionString=='takeAssessment' 
@@ -130,7 +130,7 @@ should be included in file importing DeliveryMessages
         </h:column>
         <h:column>
           <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-          <h:outputText escape="false" value="(#{attach.fileSize} kb)" rendered="#{!attach.isLink}"/>
+          <h:outputText escape="false" value="(#{attach.fileSize} #{generalMessages.kb})" rendered="#{!attach.isLink}"/>
         </h:column>
       </h:dataTable>
     </h:panelGroup>
