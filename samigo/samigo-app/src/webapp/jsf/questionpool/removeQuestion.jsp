@@ -55,7 +55,7 @@
     action="#{questionpool.removeQuestionsFromPool}" >
   </h:commandButton>
 
-<h:commandButton id="cancel" accesskey="#{questionPoolMessages.a_cancel}" style="act" value="#{questionPoolMessages.cancel}" action="poolList"/>
+<h:commandButton id="cancel" accesskey="#{questionPoolMessages.a_cancel}" style="act" value="#{questionPoolMessages.cancel}" action="editPool"/>
 
      </h:panelGrid>
    </h:panelGrid>

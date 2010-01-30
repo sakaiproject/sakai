@@ -61,7 +61,7 @@ public class StartRemoveItemsListener implements ActionListener
     QuestionPoolBean  qpoolbean= (QuestionPoolBean) cu.lookupBean("questionpool");
     if (!startRemoveItems(qpoolbean))
     {
-      throw new RuntimeException("failed to populateItemBean.");
+      throw new RuntimeException("failed to startRemoveItems.");
     }
 
   }
