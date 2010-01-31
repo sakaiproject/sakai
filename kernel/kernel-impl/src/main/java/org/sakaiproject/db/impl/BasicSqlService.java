@@ -1514,7 +1514,7 @@ public abstract class BasicSqlService implements SqlService
 					{
 						conn.setAutoCommit(autoCommit);
 					}
-					returnConnection(conn);
+					
 				}
 			}
 			catch (Exception e)
@@ -1522,6 +1522,12 @@ public abstract class BasicSqlService implements SqlService
 				LOG.warn("Sql.dbInsert(): " + e);
 				throw new RuntimeException("SqlService.dbInsert failure", e);
 			}
+			//make sure we return the connection even if the rollback etc above
+			if (conn != null)
+			{
+				returnConnection(conn);
+			}
+			
 		}
 
 		if (m_showSql) debug("Sql.dbWrite(): len: " + "  time: " + connectionTime + " /  " + (System.currentTimeMillis() - start), sql, fields);
@@ -1746,13 +1752,16 @@ public abstract class BasicSqlService implements SqlService
 					// just in case we got a lock
 					conn.rollback();
 					if (resetAutoCommit) conn.setAutoCommit(autoCommit);
-					returnConnection(conn);
-					conn = null;
+					
 				}
 			}
 			catch (Exception e)
 			{
 				LOG.warn("Sql.dbReadLock(): " + e);
+			}
+			if (conn != null)
+			{
+				returnConnection(conn);
 			}
 		}
 
@@ -1845,13 +1854,16 @@ public abstract class BasicSqlService implements SqlService
 					// just in case we got a lock
 					conn.rollback();
 					if (resetAutoCommit) conn.setAutoCommit(autoCommit);
-					returnConnection(conn);
-					conn = null;
+					
 				}
 			}
 			catch (Exception e)
 			{
 				LOG.warn("Sql.dbReadLock(): " + e);
+			}
+			if (conn != null) 
+			{
+				returnConnection(conn);
 			}
 		}
 

@@ -39,7 +39,6 @@ import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.util.StringUtil;
 
 /**

@@ -842,7 +842,7 @@ public abstract class DbAliasService extends BaseAliasService
 
 						return null;
 					}
-					catch (Throwable ignore)
+					catch (Exception ignore)
 					{
 						return null;
 					}
@@ -853,7 +853,7 @@ public abstract class DbAliasService extends BaseAliasService
 			connection.setAutoCommit(wasCommit);
 			sqlService().returnConnection(connection);
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			M_log.warn("convertOld: failed: " + t);
 		}

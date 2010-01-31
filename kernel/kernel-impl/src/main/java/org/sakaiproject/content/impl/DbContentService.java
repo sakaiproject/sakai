@@ -713,11 +713,11 @@ public class DbContentService extends BaseContentService
 
 	protected void setUuidInternal(String id, String uuid)
 	{
+		// get a connection for the updates
+		Connection connection = null;
+
 		try
 		{
-			// get a connection for the updates
-			Connection connection;
-
 			connection = m_sqlService.borrowConnection();
 
 			boolean wasCommit = connection.getAutoCommit();
@@ -738,9 +738,15 @@ public class DbContentService extends BaseContentService
 
 			connection.commit();
 			connection.setAutoCommit(wasCommit);
-			m_sqlService.returnConnection(connection);
+			
 		} catch (SQLException e) {
 			M_log.warn("setUuid: failed: " + e);
+		}
+		finally {
+			if (connection != null)
+			{
+				m_sqlService.returnConnection(connection);
+			}
 		}
 	}
 
