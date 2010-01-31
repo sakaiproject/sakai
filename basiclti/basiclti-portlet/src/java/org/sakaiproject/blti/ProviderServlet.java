@@ -77,6 +77,13 @@ import org.sakaiproject.util.ResourceLoader;
  * - This servlet makes use of security advisors - once an advisor has been
  * added, it must be removed - often in a finally. Also the code below only adds
  * the advisor for very short segments of code to allow for easier review.
+ * 
+ * Implemented using a SHA-1 hash of the effective context_id and then stores
+ * the original context_id in a site.property "lti_context_id" which will be
+ * useful for later reference. Since SHA-1 hashes to 40 chars, that would leave
+ * us 59 chars (i.e. 58 + ":") to use for LTI key. This also means that the new
+ * maximum supported size of an effective context_id is the maximum message size
+ * of SHA-1: maximum length of (264 ? 1) bits.
  */
 
 public class ProviderServlet extends HttpServlet {
