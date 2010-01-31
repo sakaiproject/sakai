@@ -154,10 +154,10 @@
     	<entitybroker.version>1.3.7</entitybroker.version>
     	<wicketstuff.tinymce.version>1.4.1</wicketstuff.tinymce.version>
     	<wicketstuff.objectautocomplete.version>1.4.1</wicketstuff.objectautocomplete.version>
-    	<sakai.common.version>1.0.0-b02</sakai.common.version>
+    	<wicketstuff.htmlvalidator.version>1.3.1</wicketstuff.htmlvalidator.version>
+    	<sakai.common.version>1.1-SNAPSHOT</sakai.common.version>
     	<legacy.profile.api.version>2.7.0-b01</legacy.profile.api.version>
-    	<!--  <sakai.ets.version>0.5-SNAPSHOT</sakai.ets.version>-->
-    	<sakai.ets.version>0.4.0</sakai.ets.version>
+    	<sakai.ets.version>0.5-SNAPSHOT</sakai.ets.version>
     	<quartz.version>1.5.2</quartz.version>
 		<url.localsite>scp://source.sakaiproject.org/var/www/html/release/profile2/${project.version}</url.localsite>
 	</properties>
@@ -211,6 +211,11 @@
   				<artifactId>tinymce</artifactId>
   				<version>${wicketstuff.tinymce.version}</version>
   			</dependency>
+  			<dependency>
+			    <groupId>org.wicketstuff</groupId>
+			    <artifactId>htmlvalidator</artifactId>
+			    <version>${wicketstuff.htmlvalidator.version}</version>
+			</dependency>
   			<dependency>
 	    		<groupId>org.wicketstuff</groupId>
   				<artifactId>objectautocomplete</artifactId>
@@ -302,6 +307,9 @@
   				<version>${legacy.profile.api.version}</version>
 		      	<scope>provided</scope>
 		    </dependency>
+		    
+		    <!--  testing dependencies -->
+		    
 		    
   	
     	</dependencies>
