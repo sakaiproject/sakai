@@ -194,10 +194,11 @@ public class ProviderServlet extends HttpServlet {
 		// Contextualize the context_id with the OAuth consumer key
 		// Also use the resource_link_id for the context_id if we did not
 		// get a context_id
-		if (context_id == null)
+		if (context_id == null) {
 			context_id = "res:" + resource_link_id;
-		context_id = oauth_consumer_key + ":" + context_id;
-		context_id = UrlUtility.encodeUrl(context_id);
+		}
+		String siteId = oauth_consumer_key + ":" + context_id;
+		siteId = ShaUtil.sha1Hash(siteId);
 
 		// Lookup the secret
 		String configPrefix = "imsblti.provider." + oauth_consumer_key + ".";
@@ -304,7 +305,7 @@ public class ProviderServlet extends HttpServlet {
 		// Load the site based on the context_id if it exists
 		Site thesite = null;
 		try {
-			thesite = SiteService.getSite(context_id);
+			thesite = SiteService.getSite(siteId);
 		} catch (Exception e) {
 			M_log.error(e.getLocalizedMessage(), e);
 			thesite = null;
@@ -323,7 +324,7 @@ public class ProviderServlet extends HttpServlet {
 			try {
 
 				Site siteEdit = null;
-				siteEdit = SiteService.addSite(context_id, sakai_type);
+				siteEdit = SiteService.addSite(siteId, sakai_type);
 				if (context_title != null)
 					siteEdit.setTitle(context_title);
 				if (context_label != null)
@@ -332,31 +333,34 @@ public class ProviderServlet extends HttpServlet {
 				siteEdit.setPublished(true);
 				siteEdit.setPubView(false);
 				siteEdit.setType(sakai_type);
+				// record the original context_id to a site property
+				siteEdit.getPropertiesEdit().addProperty("lti_context_id",
+						context_id);
 				saved = false;
 				pushAdvisor();
 				try {
 					SiteService.save(siteEdit);
-					M_log.info("Created  site=" + context_id + " label="
+					M_log.info("Created  site=" + siteId + " label="
 							+ context_label + " type=" + sakai_type + " title="
 							+ context_title);
 					saved = true;
 				} catch (Exception e) {
 					doError(request, response, "launch.site.save", "site="
-							+ context_id + " tool=" + tool_id, e);
+							+ siteId + " tool=" + tool_id, e);
 				} finally {
 					popAdvisor();
 				}
 				if (!saved)
 					return;
 			} catch (Exception e) {
-				doError(request, response, "launch.create.site", context_id, e);
+				doError(request, response, "launch.create.site", siteId, e);
 				return;
 			}
 		}
 
 		// Add the current user to the site with the proper role
 		try {
-			thesite = SiteService.getSite(context_id);
+			thesite = SiteService.getSite(siteId);
 			Set<Role> roles = thesite.getRoles();
 			String maintainRole = thesite.getMaintainRole();
 			String joinerRole = thesite.getJoinerRole();
@@ -383,9 +387,8 @@ public class ProviderServlet extends HttpServlet {
 
 			if (newRole == null) {
 				M_log.warn("Could not find Sakai role role=" + userrole
-						+ " user=" + user_id + " site=" + context_id);
-				doError(request, response, "launch.role.missing", context_id,
-						null);
+						+ " user=" + user_id + " site=" + siteId);
+				doError(request, response, "launch.role.missing", siteId, null);
 				return;
 			}
 
@@ -401,11 +404,11 @@ public class ProviderServlet extends HttpServlet {
 				thesite.addMember(theuser.getId(), newRole, true, false);
 				if (currentRole == null) {
 					M_log.info("Added role=" + newRole + " user=" + user_id
-							+ " site=" + context_id + " LMS Role=" + userrole);
+							+ " site=" + siteId + " LMS Role=" + userrole);
 				} else {
 					M_log.info("Old role=" + currentRole + " New role="
-							+ newRole + " user=" + user_id + " site="
-							+ context_id + " LMS Role=" + userrole);
+							+ newRole + " user=" + user_id + " site=" + siteId
+							+ " LMS Role=" + userrole);
 				}
 
 				saved = false;
@@ -413,11 +416,11 @@ public class ProviderServlet extends HttpServlet {
 				try {
 					SiteService.save(thesite);
 					M_log.info("Site saved role=" + newRole + " user="
-							+ user_id + " site=" + context_id);
+							+ user_id + " site=" + siteId);
 					saved = true;
 				} catch (Exception e) {
 					doError(request, response, "launch.site.save", "site="
-							+ context_id + " tool=" + tool_id, e);
+							+ siteId + " tool=" + tool_id, e);
 				} finally {
 					popAdvisor();
 				}
@@ -426,9 +429,9 @@ public class ProviderServlet extends HttpServlet {
 			}
 		} catch (Exception e) {
 			M_log.warn("Could not add user to site role=" + userrole + " user="
-					+ user_id + " site=" + context_id);
+					+ user_id + " site=" + siteId);
 			M_log.warn(e.getLocalizedMessage(), e);
-			doError(request, response, "launch.join.site", context_id, e);
+			doError(request, response, "launch.join.site", siteId, e);
 			return;
 		}
 
@@ -458,8 +461,8 @@ public class ProviderServlet extends HttpServlet {
 			}
 
 		} catch (Exception e) {
-			doError(request, response, "launch.tool.search", "site:"
-					+ context_id + " tool=" + tool_id, e);
+			doError(request, response, "launch.tool.search", "site:" + siteId
+					+ " tool=" + tool_id, e);
 			return;
 		}
 
@@ -480,12 +483,12 @@ public class ProviderServlet extends HttpServlet {
 				saved = false;
 				try {
 					SiteService.save(thesite);
-					M_log.info("Tool added site=" + context_id + " tool_id="
+					M_log.info("Tool added site=" + siteId + " tool_id="
 							+ tool_id);
 					saved = true;
 				} catch (Exception e) {
 					doError(request, response, "launch.site.save", "site:"
-							+ context_id + " tool=" + tool_id, e);
+							+ siteId + " tool=" + tool_id, e);
 				} finally {
 					popAdvisor();
 				}
@@ -493,8 +496,8 @@ public class ProviderServlet extends HttpServlet {
 					return;
 				placement_id = tool.getId();
 			} catch (Exception e) {
-				doError(request, response, "launch.tool.add", "site:"
-						+ context_id + " tool=" + tool_id, e);
+				doError(request, response, "launch.tool.add", "site:" + siteId
+						+ " tool=" + tool_id, e);
 				return;
 			}
 		}
