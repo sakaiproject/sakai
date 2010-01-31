@@ -128,7 +128,14 @@
             
             <property name="educationCourse" column="EDUCATION_COURSE" length="4000" />
             <property name="educationSubjects" column="EDUCATION_SUBJECTS" length="4000" />
+            
             <property name="normalizedMobile" column="NORMALIZEDMOBILE" />
+            
+			<property name="staffProfile" column="STAFF_PROFILE" length="4000" />
+			<property name="universityProfileUrl" column="UNIVERSITY_PROFILE_URL" length="4000" />
+			<property name="academicProfileUrl" column="ACADEMIC_PROFILE_URL" length="4000" />
+			<property name="publications" column="PUBLICATIONS" length="4000" />
+			<property name="businessBiography" column="BUSINESS_BIOGRAPHY" length="4000" />
             
           </subclass>
         </subclass>

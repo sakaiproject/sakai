@@ -261,4 +261,51 @@ public class SakaiPersonImpl extends EduPersonImpl implements Person, Organizati
 	public void setNormalizedMobile(String number) {
 		normalizedMobile = number;
 	}
+
+	private String staffProfile;
+	public String getStaffProfile() {
+		return staffProfile;
+	}
+	
+	public void setStaffProfile(String staffProfile) {
+		this.staffProfile = staffProfile;
+	}
+	
+	private String universityProfileUrl;
+	public String getUniversityProfileUrl() {
+		return universityProfileUrl;
+	}
+	
+	public void setUniversityProfileUrl(String universityProfileUrl) {
+		this.universityProfileUrl = universityProfileUrl;
+	}
+
+	private String academicProfileUrl;
+	public String getAcademicProfileUrl() {
+		return academicProfileUrl;
+	}
+	
+	public void setAcademicProfileUrl(String academicProfileUrl) {
+		this.academicProfileUrl = academicProfileUrl;
+	}
+
+	private String publications;
+	public String getPublications() {
+		return publications;
+	}
+
+	public void setPublications(String publications) {
+		this.publications = publications;
+	}
+
+	private String businessBiography;
+	public String getBusinessBiography() {
+		return businessBiography;
+	}
+
+	public void setBusinessBiography(String businessBiography) {
+		this.businessBiography = businessBiography;
+	}
+
+	
 }

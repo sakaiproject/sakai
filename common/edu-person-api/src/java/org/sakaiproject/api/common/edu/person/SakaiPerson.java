@@ -250,5 +250,68 @@ public interface SakaiPerson extends EduPerson
 	 *  @param the number
 	 */
 	public void setNormalizedMobile(String Number);
+	
+	
+	/**
+	 * Set staff profile info
+	 * @param staffProfile
+	 */
+	public void setStaffProfile(String staffProfile);
+	
+	/**
+	 * Get staff profile info
+	 * @return
+	 */
+	public String getStaffProfile();
+	
+	/**
+	 * Set external profile url
+	 * @param universityProfileUrl
+	 */
+	public void setUniversityProfileUrl(String universityProfileUrl);
+	
+	/**
+	 * Get external profile url
+	 * @return
+	 */
+	public String getUniversityProfileUrl();
+	
+	/**
+	 * Set academic profile url
+	 * @param academicProfileUrl
+	 */
+	public void setAcademicProfileUrl(String academicProfileUrl);
+	
+	/**
+	 * Get academic profile url
+	 * @return
+	 */
+	public String getAcademicProfileUrl();
+	
+	/**
+	 * Set publications
+	 * @param publications
+	 */
+	public void setPublications(String publications);
+	
+	/**
+	 * Get publications
+	 * @return
+	 */
+	public String getPublications();
+	
+	/**
+	 * Set business bio
+	 * @param businessBiography
+	 */
+	public void setBusinessBiography(String businessBiography);
+	
+	/**
+	 * Get business bio
+	 * @return
+	 */
+	public String getBusinessBiography();
+
+	
 
 }
