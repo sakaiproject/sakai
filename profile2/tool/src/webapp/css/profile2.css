@@ -1088,6 +1088,11 @@ div.wicket-aa ul li.selected {
 	background-image: url(/library/image/silk/picture_add.png);
 }
 
+.add-form-item {
+	vertical-align: top;
+	margin-top: 10px;
+}
+
 .gallery-form {
 	position: relative;
 }
@@ -1105,8 +1110,7 @@ div.wicket-aa ul li.selected {
 }
 
 /* spacing between gallery images in grid */
-.gallery-form table, th, td
-{
+.gallery-form table, th, td {
 	border: 5px;
 	border-spacing: 5px;
 	padding: 5px;
