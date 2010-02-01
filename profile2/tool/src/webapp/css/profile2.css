@@ -1090,7 +1090,11 @@ div.wicket-aa ul li.selected {
 
 .add-form-item {
 	vertical-align: top;
-	margin-top: 10px;
+}
+
+.add-form-warning {
+	text-align: right;
+	padding-right: 10px;
 }
 
 .gallery-form {

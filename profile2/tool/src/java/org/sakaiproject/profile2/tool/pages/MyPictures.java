@@ -66,7 +66,8 @@ public class MyPictures extends BasePage {
 	private List<File> addPictureFiles = new ArrayList<File>();
 	private FileListView addPictureListView;
 	private Folder addPictureUploadFolder;
-
+	private Label uploadWarningLabel;
+	
 	private GridView gridView;
 
 	/**
@@ -134,7 +135,12 @@ public class MyPictures extends BasePage {
 				ProfileConstants.INFO_IMAGE, new ResourceModel("text.gallery.upload.tooltip")));
 		
 		addPictureForm.add(addPictureContainer);
-
+		
+		uploadWarningLabel = new Label("uploadWarningLabel", new ResourceModel("error.gallery.upload.warning"));
+		uploadWarningLabel.setOutputMarkupPlaceholderTag(true);
+		uploadWarningLabel.setVisible(false);
+		addPictureForm.add(uploadWarningLabel);
+		
 		addPictureFiles.addAll(Arrays
 				.asList(addPictureUploadFolder.listFiles()));
 		addPictureListView = new FileListView("fileList", addPictureFiles);
@@ -292,7 +298,13 @@ public class MyPictures extends BasePage {
 
 		protected void onSubmit() {
 			
+			if (uploads.size() == 0) {
+				uploadWarningLabel.setVisible(true);
+				return;
+			}
+			
 			Iterator<FileUpload> filesToUpload = uploads.iterator();
+			
 			while (filesToUpload.hasNext()) {
 				final FileUpload upload = filesToUpload.next();
 
