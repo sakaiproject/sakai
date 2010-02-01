@@ -1093,11 +1093,10 @@ div.wicket-aa ul li.selected {
 }
 
 .gallery-item {
-	position: relative;
+	
 }
 
 .gallery-image-panel {
-	position: relative;
 	cursor: pointer;
 }
 
