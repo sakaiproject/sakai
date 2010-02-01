@@ -219,11 +219,16 @@ public class MyPictures extends BasePage {
 		}
 
 		// set page to display
-		if (pageToDisplay > -1 && pageToDisplay < gridView.getPageCount()) {
-			gridView.setCurrentPage(pageToDisplay);
+		if (pageToDisplay > 0) {
+			if (pageToDisplay < gridView.getPageCount()) {
+				gridView.setCurrentPage(pageToDisplay);
+			}
+			else {
+				// default to last page for add/remove operations
+				gridView.setCurrentPage(gridView.getPageCount() - 1);
+			}
 		} else {
-			// default to last page for add/remove operations
-			gridView.setCurrentPage(gridView.getPageCount() - 1);
+			gridView.setCurrentPage(0);
 		}
 	}
 
