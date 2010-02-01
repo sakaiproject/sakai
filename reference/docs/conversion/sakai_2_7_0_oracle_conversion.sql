@@ -642,6 +642,13 @@ insert into SAKAI_SITE_TOOL
 
 drop table MSGCNTR_TMP;
 
+--////////////////////////////////////////////////////
+--//  MSGCNTR-25
+--//  .UIPermissionsManagerImpl - query did not return a unique result: 4 Error in catalina.out
+--////////////////////////////////////////////////////
+
+alter table MFR_AREA_T add constraint MFR_AREA_CONTEXT_UUID_UNIQUE unique (CONTEXT_ID, TYPE_UUID);
+
 --///////////////////////////////////
 --///////////////////////////////////
 --///////////////////////////////////
