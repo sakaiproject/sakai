@@ -40,18 +40,6 @@ public class MyFriends extends BasePage {
 				
 		//get current user
 		final String userId = sakaiProxy.getCurrentUserId();
-
-		//friend search
-		Panel searchFriends = new Panel("searchFriends");
-    	AjaxLink searchFriendsLink = new AjaxLink("searchFriendsLink") {
-			private static final long serialVersionUID = 1L;
-
-			public void onClick(AjaxRequestTarget target) {
-				setResponsePage(new MySearch());
-			}
-    	};
-    	searchFriends.add(searchFriendsLink);
-    	add(searchFriends);
 		
 		//friend requests panel
 		requestedFriends = new RequestedFriends("requestedFriends", userId);
