@@ -45,6 +45,7 @@ import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.ConfirmedFriendsDataProvider;
 import org.sakaiproject.profile2.tool.models.FriendAction;
+import org.sakaiproject.profile2.tool.pages.MySearch;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
 import org.sakaiproject.profile2.tool.pages.windows.RemoveFriend;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -111,6 +112,21 @@ public class ConfirmedFriends extends Panel {
 		confirmedFriendsHeading.setOutputMarkupId(true);
 		add(confirmedFriendsHeading);
 		
+		//search for friends
+		WebMarkupContainer searchFriends = new WebMarkupContainer("searchFriends");
+    	AjaxLink searchFriendsLink = new AjaxLink("searchFriendsLink") {
+			private static final long serialVersionUID = 1L;
+
+			public void onClick(AjaxRequestTarget target) {
+				setResponsePage(new MySearch());
+			}
+    	};
+		Label searchFriendsLabel = new Label("searchFriendsLabel",
+				new ResourceModel("link.my.friends.search"));
+		searchFriendsLink.add(searchFriendsLabel);
+    	searchFriends.add(searchFriendsLink);
+    	add(searchFriends);
+    	
 		//no friends message (only show if viewing own list)
 		/*
 		final WebMarkupContainer noFriendsContainer = new WebMarkupContainer("noFriendsContainer");
