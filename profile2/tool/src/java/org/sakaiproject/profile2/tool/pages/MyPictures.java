@@ -50,6 +50,7 @@ import org.apache.wicket.util.lang.Bytes;
 import org.sakaiproject.profile2.model.GalleryImage;
 import org.sakaiproject.profile2.tool.Locator;
 import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
+import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.tool.dataproviders.GalleryImageDataProvider;
 import org.sakaiproject.profile2.tool.pages.panels.GalleryImagePanel;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -129,6 +130,9 @@ public class MyPictures extends BasePage {
 				"button.gallery.upload"));
 		addPictureContainer.add(submitButton);
 
+		addPictureContainer.add(new IconWithClueTip("galleryImageUploadToolTip",
+				ProfileConstants.INFO_IMAGE, new ResourceModel("text.gallery.upload.tooltip")));
+		
 		addPictureForm.add(addPictureContainer);
 
 		addPictureFiles.addAll(Arrays
