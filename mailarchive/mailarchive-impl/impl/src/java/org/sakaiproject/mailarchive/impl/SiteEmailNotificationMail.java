@@ -21,18 +21,16 @@
 
 package org.sakaiproject.mailarchive.impl;
 
-import java.util.ArrayList;
+import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.text.MessageFormat;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.event.api.NotificationAction;
 import org.sakaiproject.mailarchive.api.MailArchiveMessage;
 import org.sakaiproject.mailarchive.api.MailArchiveMessageHeader;
 import org.sakaiproject.mailarchive.api.MailArchiveService;
@@ -41,7 +39,6 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.util.EmailNotification;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.SiteEmailNotification;
-import org.sakaiproject.util.Web;
 
 /**
  * <p>

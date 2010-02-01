@@ -29,7 +29,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
-import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.javax.Filter;
+import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.message.api.Message;
 import org.sakaiproject.message.api.MessageChannel;
 import org.sakaiproject.message.api.MessageChannelEdit;
@@ -37,17 +38,11 @@ import org.sakaiproject.message.api.MessageEdit;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.util.BaseDbDoubleStorage;
 import org.sakaiproject.util.StorageUser;
+import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Xml;
+import org.sakaiproject.util.commonscodec.CommonsCodecBase64;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import org.sakaiproject.util.commonscodec.CommonsCodecBase64;
-
-import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.javax.Filter;
-import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.util.StringUtil;
-import org.sakaiproject.mailarchive.api.MailArchiveMessage;
 
 /**
  * <p>
@@ -123,7 +118,7 @@ public class DbMailArchiveService extends BaseMailArchiveService
 	 */
 	public void setLocksInDb(String value)
 	{
-		m_locksInDb = new Boolean(value).booleanValue();
+		m_locksInDb = Boolean.valueOf(value).booleanValue();
 	}
 
 	/** Set if we are to run the to-draft/owner conversion. */
@@ -137,7 +132,7 @@ public class DbMailArchiveService extends BaseMailArchiveService
 	 */
 	public void setConvertDraft(String value)
 	{
-		m_convertToDraft = new Boolean(value).booleanValue();
+		m_convertToDraft = Boolean.valueOf(value).booleanValue();
 	}
 
 	/** Configuration: to run the ddl on init or not. */
@@ -151,7 +146,7 @@ public class DbMailArchiveService extends BaseMailArchiveService
 	 */
 	public void setAutoDdl(String value)
 	{
-		m_autoDdl = new Boolean(value).booleanValue();
+		m_autoDdl = Boolean.valueOf(value).booleanValue();
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -474,7 +469,7 @@ public class DbMailArchiveService extends BaseMailArchiveService
 			connection.setAutoCommit(wasCommit);
 			m_sqlService.returnConnection(connection);
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			M_log.warn("convertToDraft: failed: " + t);
 		}

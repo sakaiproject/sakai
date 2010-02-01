@@ -176,7 +176,7 @@ public class ExtractXMLToColumns implements SchemaConversionHandler
 			}
 			else
 			{
-				System.out.println("getValidateSource(" + id + ") blob == " + blob );
+				System.out.println("getValidateSource(" + id + ") blob ==  null" );
 			}
 			break;
 		case Types.CLOB:
