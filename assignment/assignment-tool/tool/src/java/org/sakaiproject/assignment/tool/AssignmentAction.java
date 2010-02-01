@@ -2016,6 +2016,7 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		Vector assignments = new Vector();
 		Vector assignmentIds = (Vector) state.getAttribute(DELETE_ASSIGNMENT_IDS);
+		Hashtable<String, Integer> submissionCountTable = new Hashtable<String, Integer>();
 		for (int i = 0; i < assignmentIds.size(); i++)
 		{
 			try
@@ -2023,12 +2024,23 @@ public class AssignmentAction extends PagedResourceActionII
 				Assignment a = AssignmentService.getAssignment((String) assignmentIds.get(i));
 
 				Iterator submissions = AssignmentService.getSubmissions(a).iterator();
-				if (submissions.hasNext())
+				int submittedCount = 0;
+				while (submissions.hasNext())
+				{
+					AssignmentSubmission s = (AssignmentSubmission) submissions.next();
+					if (s.getSubmitted() && s.getTimeSubmitted() != null)
+					{
+						submittedCount++;
+					}
+				}
+				if (submittedCount > 0)
 				{
 					// if there is submission to the assignment, show the alert
 					addAlert(state, rb.getString("areyousur") + " \"" + a.getTitle() + "\" " + rb.getString("whihassub") + "\n");
 				}
 				assignments.add(a);
+				submissionCountTable.put(a.getReference(), Integer.valueOf(submittedCount));
+				
 			}
 			catch (IdUnusedException e)
 			{
@@ -2044,6 +2056,7 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("assignments", assignments);
 		context.put("service", AssignmentService.getInstance());
 		context.put("currentTime", TimeService.newTime());
+		context.put("submissionCountTable", submissionCountTable);
 
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_INSTRUCTOR_DELETE_ASSIGNMENT;

@@ -49,13 +49,7 @@
 							  #end
 						</td>
 						<td headers="submissions">
-							#set($count=0)
-							#foreach ($sub in $service.getSubmissions($assignment))
-								#if ($sub.getSubmitted())
-									#set($count=$count+1)
-								#end
-							#end
-							$count
+							$submissionCountTable.get($assignment.Reference)
 						</td>
 					</tr>
 				#end
