@@ -22,6 +22,7 @@
 package org.sakaiproject.provider.authzGroup;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -432,13 +433,27 @@ public class SampleGroupProvider implements GroupProvider
 
 		if (m_xFile != null)
 		{
+			FileInputStream fis = null;
 			try
 			{
-				m_usersx.load(new FileInputStream(m_xFile));
+				fis = new FileInputStream(m_xFile);
+				m_usersx.load(fis);
 			}
 			catch (Exception e)
 			{
 				M_log.warn("update: reading users.properties file: " + m_xFile + " : " + e);
+			}
+			finally
+			{
+				if (fis != null)
+				{
+					try {
+						fis.close();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 			}
 		}
 	}
