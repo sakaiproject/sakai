@@ -433,6 +433,10 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String STATE_JOINABLE = "state_joinable";
 
 	private static final String STATE_JOINERROLE = "state_joinerRole";
+	
+	private static final String STATE_SITE_ACCESS_PUBLISH = "state_site_access_publish";
+	
+	private static final String STATE_SITE_ACCESS_INCLUDE = "state_site_access_include";
 
 	/** the list of selected user */
 	private static final String STATE_SELECTED_USER_LIST = "state_selected_user_list";
@@ -2248,7 +2252,8 @@ public class SiteAction extends PagedResourceActionII {
 				} else {
 					context.put("publicChangeable", Boolean.FALSE);
 				}
-				context.put("include", Boolean.valueOf(site.isPubView()));
+				context.put("published", state.getAttribute(STATE_SITE_ACCESS_PUBLISH));
+				context.put("include", state.getAttribute(STATE_SITE_ACCESS_INCLUDE));
 
 				if (siteType != null && !unJoinableSiteTypes.contains(siteType)) {
 					// site can be set as joinable
@@ -2256,13 +2261,6 @@ public class SiteAction extends PagedResourceActionII {
 					if (state.getAttribute(STATE_JOINABLE) == null) {
 						state.setAttribute(STATE_JOINABLE, Boolean.valueOf(site
 								.isJoinable()));
-					}
-					if (state.getAttribute(STATE_JOINERROLE) == null
-							|| state.getAttribute(STATE_JOINABLE) != null
-							&& ((Boolean) state.getAttribute(STATE_JOINABLE))
-									.booleanValue()) {
-						state.setAttribute(STATE_JOINERROLE, site
-								.getJoinerRole());
 					}
 
 					if (state.getAttribute(STATE_JOINABLE) != null) {
@@ -6260,6 +6258,24 @@ public class SiteAction extends PagedResourceActionII {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
+		try {
+			Site site = getStateSite(state);
+			state.setAttribute(STATE_SITE_ACCESS_PUBLISH, Boolean.valueOf(site.isPublished()));
+			boolean joinable = site.isJoinable();
+			state.setAttribute(STATE_JOINABLE, Boolean.valueOf(joinable));
+			if (joinable)
+			{
+				state.setAttribute(STATE_JOINERROLE, site.getJoinerRole());
+			}
+			else
+			{
+				state.removeAttribute(STATE_JOINERROLE);
+			}
+		}
+		catch (Exception e)
+		{
+			M_log.warn(this + " doMenu_edit_site_access problem of getting site");
+		}
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			state.setAttribute(STATE_TEMPLATE_INDEX, "18");
 		}
@@ -6737,41 +6753,24 @@ public class SiteAction extends PagedResourceActionII {
 		Site sEdit = getStateSite(state);
 
 		ParameterParser params = data.getParameters();
-		String publishUnpublish = params.getString("publishunpublish");
-		String include = params.getString("include");
+		
+		// get all form inputs
+		readInputAndUpdateStateVariable(state, params, "publishunpublish", STATE_SITE_ACCESS_PUBLISH, true);
+		readInputAndUpdateStateVariable(state, params, "include", STATE_SITE_ACCESS_INCLUDE, true);
+		readInputAndUpdateStateVariable(state, params, "joinable", STATE_JOINABLE, true);
+		readInputAndUpdateStateVariable(state, params, "joinerRole", STATE_JOINERROLE, false);
+		
+		boolean publishUnpublish = state.getAttribute(STATE_SITE_ACCESS_PUBLISH) != null ? ((Boolean) state.getAttribute(STATE_SITE_ACCESS_PUBLISH)).booleanValue() : false;
+		
+		boolean include = state.getAttribute(STATE_SITE_ACCESS_INCLUDE) != null ? ((Boolean) state.getAttribute(STATE_SITE_ACCESS_INCLUDE)).booleanValue() : false;
 
 		if (sEdit != null) {
 			// editing existing site
 			// publish site or not
-			if (publishUnpublish != null
-					&& publishUnpublish.equalsIgnoreCase("publish")) {
-				sEdit.setPublished(true);
-			} else {
-				sEdit.setPublished(false);
-			}
+			sEdit.setPublished(publishUnpublish);
 
 			// site public choice
-			if (include != null) {
-				// if there is pubview input, use it
-				sEdit.setPubView(include.equalsIgnoreCase("true") ? true
-						: false);
-			} else if (state.getAttribute(STATE_SITE_TYPE) != null) {
-				String type = (String) state.getAttribute(STATE_SITE_TYPE);
-				List publicSiteTypes = (List) state
-						.getAttribute(STATE_PUBLIC_SITE_TYPES);
-				List privateSiteTypes = (List) state
-						.getAttribute(STATE_PRIVATE_SITE_TYPES);
-
-				if (publicSiteTypes.contains(type)) {
-					// sites are always public
-					sEdit.setPubView(true);
-				} else if (privateSiteTypes.contains(type)) {
-					// site are always private
-					sEdit.setPubView(false);
-				}
-			} else {
-				sEdit.setPubView(false);
-			}
+			sEdit.setPubView(include);
 
 			doUpdate_site_access_joinable(data, state, params, sEdit);
 
@@ -6793,44 +6792,20 @@ public class SiteAction extends PagedResourceActionII {
 				SiteInfo siteInfo = (SiteInfo) state
 						.getAttribute(STATE_SITE_INFO);
 
-				if (publishUnpublish != null
-						&& publishUnpublish.equalsIgnoreCase("publish")) {
-					siteInfo.published = true;
-				} else {
-					siteInfo.published = false;
-				}
+				siteInfo.published = publishUnpublish;
 
 				// site public choice
-				if (include != null) {
-					siteInfo.include = include.equalsIgnoreCase("true") ? true
-							: false;
-				} else if (StringUtil.trimToNull(siteInfo.site_type) != null) {
-					String type = StringUtil.trimToNull(siteInfo.site_type);
-					List publicSiteTypes = (List) state
-							.getAttribute(STATE_PUBLIC_SITE_TYPES);
-					List privateSiteTypes = (List) state
-							.getAttribute(STATE_PRIVATE_SITE_TYPES);
-
-					if (publicSiteTypes.contains(type)) {
-						// sites are always public
-						siteInfo.include = true;
-					} else if (privateSiteTypes.contains(type)) {
-						// site are always private
-						siteInfo.include = false;
-					}
-				} else {
-					siteInfo.include = false;
-				}
+				siteInfo.include = include;
 
 				// joinable site or not
-				String joinable = params.getString("joinable");
-				if (joinable != null && joinable.equalsIgnoreCase("true")) {
+				boolean joinable = state.getAttribute(STATE_JOINABLE) != null ? ((Boolean) state.getAttribute(STATE_JOINABLE)).booleanValue() : null;
+				if (joinable) {
 					siteInfo.joinable = true;
-					String joinerRole = StringUtil.trimToNull(params
-							.getString("joinerRole"));
+					String joinerRole = state.getAttribute(STATE_JOINERROLE) != null ? (String) state.getAttribute(STATE_JOINERROLE) : null;
 					if (joinerRole != null) {
 						siteInfo.joinerRole = joinerRole;
 					} else {
+						siteInfo.joinerRole = null;
 						addAlert(state, rb.getString("java.joinsite") + " ");
 					}
 				} else {
@@ -6847,7 +6822,24 @@ public class SiteAction extends PagedResourceActionII {
 		}
 
 	} // doUpdate_site_access
-
+	
+	private void readInputAndUpdateStateVariable(SessionState state, ParameterParser params, String paramName, String stateAttributeName, boolean isBoolean)
+	{
+		String paramValue = StringUtil.trimToNull(params.getString(paramName));
+		if (paramValue != null) {
+			if (isBoolean)
+			{
+				state.setAttribute(stateAttributeName, Boolean.valueOf(paramValue));
+			}
+			else
+			{
+				state.setAttribute(stateAttributeName, paramValue);
+			}
+		} else {
+			state.removeAttribute(stateAttributeName);
+		}
+	}
+	
 	/**
 	 * Apply requested changes to a site's joinability. Only relevant for
 	 * site edits, not new site creation.
@@ -6872,25 +6864,22 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	void doUpdate_site_access_joinable(RunData data,
 			SessionState state, ParameterParser params, Site sEdit) {
-		
-		String joinable = params.getString("joinable");
-		
-		if (joinable != null && joinable.equalsIgnoreCase("true")) {
-			state.setAttribute(STATE_JOINABLE, Boolean.TRUE);
+		boolean joinable = state.getAttribute(STATE_JOINABLE) != null ? ((Boolean) state.getAttribute(STATE_JOINABLE)).booleanValue() : null;
+		if (!sEdit.isPublished())
+		{
+			// reset joinable role if the site is not published
+			sEdit.setJoinable(false);
+			sEdit.setJoinerRole(null);
+		} else if (joinable) {
 			sEdit.setJoinable(true);
-			String joinerRole = StringUtil.trimToNull(params
-					.getString("joinerRole"));
+			String joinerRole = state.getAttribute(STATE_JOINERROLE) != null ? (String) state.getAttribute(STATE_JOINERROLE) : null;
 			if (joinerRole != null) {
-				state.setAttribute(STATE_JOINERROLE, joinerRole);
 				sEdit.setJoinerRole(joinerRole);
 			} else {
-				state.setAttribute(STATE_JOINERROLE, "");
 				addAlert(state, rb.getString("java.joinsite") + " ");
 			}
-		} else if ( (joinable != null && !(joinable.equalsIgnoreCase("true"))) || 
-				(joinable == null && ServerConfigurationService.getBoolean(CONVERT_NULL_JOINABLE_TO_UNJOINABLE, true))) {
-			state.setAttribute(STATE_JOINABLE, Boolean.FALSE);
-			state.removeAttribute(STATE_JOINERROLE);
+		} else if ( !joinable || 
+				(!joinable && ServerConfigurationService.getBoolean(CONVERT_NULL_JOINABLE_TO_UNJOINABLE, true))) {
 			sEdit.setJoinable(false);
 			sEdit.setJoinerRole(null);
 		} // else just leave joinability alone
@@ -7932,32 +7921,7 @@ public class SiteAction extends PagedResourceActionII {
 		} else if (option.equalsIgnoreCase("cancel")) {
 			doCancel(data);
 		}
-	} // doSiteinfo_edit_globalAccess
-
-	/**
-	 * dispatch function for changing site global access
-	 */
-	public void doSiteinfo_edit_globalAccess(RunData data) {
-		SessionState state = ((JetspeedRunData) data)
-				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		ParameterParser params = data.getParameters();
-
-		String option = params.getString("option");
-
-		// dispatch
-		if (option.equalsIgnoreCase("joinable")) {
-			state.setAttribute("form_joinable", Boolean.TRUE);
-			state.setAttribute("form_joinerRole", getStateSite(state)
-					.getJoinerRole());
-		} else if (option.equalsIgnoreCase("unjoinable")) {
-			state.setAttribute("form_joinable", Boolean.FALSE);
-			state.removeAttribute("form_joinerRole");
-		} else if (option.equalsIgnoreCase("continue")) {
-			doContinue(data);
-		} else if (option.equalsIgnoreCase("cancel")) {
-			doCancel(data);
-		}
-	} // doSiteinfo_edit_globalAccess
+	} // doSiteinfo_edit_role
 
 	/**
 	 * save changes to site global access

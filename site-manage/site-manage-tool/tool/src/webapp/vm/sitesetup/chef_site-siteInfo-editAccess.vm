@@ -1,5 +1,48 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess.vm,v 1.3 2005/05/15 17:05:00 gsilver.umich.edu Exp $ -->
 ## Site list Sites list on worksite setup home page
+<script type="text/javascript" src="/library/js/jquery/jquery-ui/js/jquery.js"></script>
+<script type="text/javascript" src="/library/js/jquery/jquery-ui/js/jquery-ui.js"></script>
+<link type="text/css" href="/library/js/jquery/jquery-ui/css/smoothness/jquery-ui.css" rel="stylesheet" media="screen" />
+<script type="text/javascript" src="/sakai-site-manage-tool/js/site-manage.js"></script>
+<script type="text/javascript">
+<!-- hide from non-JS browsers
+	function checkPublish(checked)
+	{
+		if (checked)
+		{
+			if (document.getElementById('publicChangeableOption').value=='true') 
+			{
+				document.getElementById('publicChangeableDiv').style.display = 'block';
+				document.getElementById('publicChangeableNoDiv').style.display = 'none';
+				document.getElementById('publicChangeableNoUnpublishDiv').style.display = 'none';
+			}
+			else
+			{
+				document.getElementById('publicChangeableDiv').style.display = 'none';
+				document.getElementById('publicChangeableNoDiv').style.display = 'block';
+				document.getElementById('publicChangeableNoUnpublishDiv').style.display = 'none';
+			}
+			document.getElementById('globalAccessDiv').style.display = 'block';
+			document.getElementById('globalAccessNoDiv').style.display = 'none';
+			utils.resizeFrame('grow');
+		}
+	}
+	
+	function checkUnpublish(checked)
+	{
+		if (checked) 
+		{ 
+			document.getElementById('publicChangeableDiv').style.display = 'none';
+			document.getElementById('publicChangeableNoDiv').style.display = 'none';
+			document.getElementById('publicChangeableNoUnpublishDiv').style.display = 'block';
+			document.getElementById('globalAccessDiv').style.display = 'none';
+			document.getElementById('globalAccessNoDiv').style.display = 'block';
+			utils.resizeFrame('shrink');
+		}
+	}
+// -->	
+</script>
+<link type="text/css" href="/sakai-site-manage-tool/css/site-manage.css" rel="stylesheet" media="screen" />
 <div class ="portletBody">
 	#if($menu)#toolbar($menu)#end
 	#if ($!site)
@@ -29,6 +72,9 @@
 		<div class="clear"></div>
 	#end
 	<form name="editParticipantForm" action="#toolForm("SiteAction")" method="post">
+		<input name="publicChangeableOption" id="publicChangeableOption" type="hidden" #if($!publicChangeable) value="true" #else value="false" #end />
+		<input name="publishedOption" id="publishedOption" type="hidden" #if($published) value="true" #else value="false" #end />
+		## site status
 		<h4>
 			$tlang.getString("ediacc.sitsta")
 		</h4>
@@ -36,33 +82,41 @@
 			$tlang.getString("ediacc.pubyousit")
 		</p>
 		<p class="checkbox indnt1">
-			#if ($!site)
-				<input type="checkbox" name="publishunpublish" id="publishunpublish" value="publish" #if ($site.isPublished())checked="checked"#end />	
-			#else
-				<input type="checkbox" name="publishunpublish" id="publishunpublish" value="publish" #if ($!published)checked="checked"#end />	
-			#end
-			<label for="publishunpublish">
+			<input type="radio" name="publishunpublish" id="publish" value="true" #if($published) checked="checked"#end onchange="checkPublish(this.checked);" />
+			<label for="publish">
 				$tlang.getString("ediacc.pubsit")
 			</label>
-		</p>	
-		<h4>
-			$tlang.getString("ediacc.gloacc")
-		</h4>
-		<p class="instruction">
-			$tlang.getString("ediacc.gloacc1")
-			#if(!$!site)$tlang.getString("ediacc.gloacc2")#end
-			<br />
 		</p>
-		#if (!$!disableJoinable || $!publicChangeable)
-			<p class="instruction">
-				$tlang.getString("ediacc.yousitcan")
-			</p>
-		#else
-			<p class="instruction">
-				$tlang.getString("ediacc.notallow")
-			</p>
+		<p class="checkbox indnt1">
+			<input type="radio" name="publishunpublish" id="unpublish" value="false" #if(!$published) checked="checked"#end onchange="checkUnpublish(this.checked);" />
+			<label for="unpublish">
+				$tlang.getString("ediacc.unpubsit")
+			</label>
+		</p>
+		## site visibility
+		<h4>
+			$tlang.getString("ediacc.vis")
+		</h4>
+		#if ($!publicChangeable && $published) 
+			#set($publicChangeableDivDisplay='style="display:block"')
+			#set($publicChangeableNoDivDisplay='style="display:none"')
+			#set($publicChangeableNoUnpublishedDivDisplay='style="display:none"')
+		#else 
+			#set($publicChangeableDivDisplay='style="display:none"')
+			## show different divs for unpublished site or unchangeable site
+			#if (!$published)
+				#set($publicChangeableNoUnpublishDivDisplay='style="display:block"')
+				#set($publicChangeableNoDivDisplay='style="display:none"')
+			#else
+				#set($publicChangeableNoUnpublishDivDisplay='style="display:none"')
+				#set($publicChangeableNoDivDisplay='style="display:block"')
+			#end
 		#end
-		#if ($!publicChangeable)
+		<div id="publicChangeableDiv" $publicChangeableDivDisplay >
+			<p class="instruction">
+				$tlang.getString("ediacc.vis.instr")
+				#if(!$!site)$tlang.getString("ediacc.gloacc2")#end
+			</p>
 			<p class="checkbox indnt1">
 				<input type="radio" name="include" id="access_private" value="false" #if(!$!include)checked="checked"#end />
 				<label for="access_private">
@@ -75,51 +129,87 @@
 				<label for="access_public">
 					$tlang.getString("ediacc.dismysit")
 				</label>
-	##			<tr>
-	##				<td>
-	##					<input type="radio" name="publicChoice" id="access" value="all" />
-	##				</td>
-	##				<td>
-	##					Public - All Materials Shared
-	##				</td>
-	##			</tr>
 			</p>
+		</div>
+		<div id="publicChangeableNoDiv" $publicChangeableNoDivDisplay>
+			<p class="instruction">
+				## the site should be public
+				$tlang.getString("ediacc.dismysit")
+			</p>
+			<p />
+		</div>
+		<div id="publicChangeableNoUnpublishDiv" $publicChangeableNoUnpublishDivDisplay>
+			<p class="instruction">
+				## not changeable due to this is a draft site
+				$tlang.getString("ediacc.disdraft")
+			</p>
+			<p />
+		</div>
+		<h4>
+			$tlang.getString("ediacc.gloacc")
+		</h4>
+		#if (!$!disableJoinable && $published)
+			#set($globalAccessDivDisplay='style="display:block"')
+			#set($globalAccessNoDivDisplay='style="display:none"')
 		#else
-				$tlang.getString("ediacc.dismysit") <p />
-		#end
-		#if (!$!disableJoinable)
+			#set($globalAccessDivDisplay='style="display:none"')
+			#set($globalAccessNoDivDisplay='style="display:block"')
+		#end 
+		<div id="globalAccessDiv" $globalAccessDivDisplay>
+			<p class="instruction">
+				$tlang.getString("ediacc.gloacc1")
+				#if(!$!site)$tlang.getString("ediacc.gloacc2")#end
+				<br />
+			</p>
+			<p class="instruction">
+				$tlang.getString("ediacc.yousitcan")
+			</p>
 			## set site joinable and joiner role
-			<p class="checkbox indnt1">
-				<input type="checkbox" name="joinable" id="joinable" value="true" #if ($joinable) checked="checked"#end 
-				onchange="this.checked ? document.getElementById('joinreqStar').style.visibility='visible':  document.getElementById('joinreqStar').style.visibility='hidden'"
+			<p class="radio indnt1">
+				<input type="radio" name="joinable" id="unjoinable" value="false" #if (!$joinable) checked="checked"#end 
+				onchange="this.checked ? document.getElementById('joinerrole').style.visibility='hidden':  document.getElementById('joinerrole').style.visibility='visible'"
+				/>
+				<label for="unjoinable">
+					$tlang.getString("ediacc.cannotbejoi")
+				</label>
+			</p>
+			<p class="radio indnt1">
+				<input type="radio" name="joinable" id="joinable" value="true" #if ($joinable) checked="checked"#end 
+				onchange="this.checked ? document.getElementById('joinerrole').style.visibility='visible':  document.getElementById('joinerrole').style.visibility='hidden'"
 				/>
 				<label for="joinable">
 					$tlang.getString("ediacc.canbejoi")
 				</label>
 			</p>
-			<p class="checkbox indnt3">
-				<label for="joinerRole">
-						<span class="reqStar"   #if ($joinable) style="visibility:visible" #else style="visibility:hidden"  #end id="joinreqStar">*</span>
-						#if ($alertMessage)<span class="highlight"> $tlang.getString("ediacc.rolforpep")</span> #else  $tlang.getString("ediacc.rolforpep") #end
-				</label>
-				<select name="joinerRole" id="joinerRole">
-					<option value="">$tlang.getString("ediacc.plesel")</option>
-					#foreach($r in $roles)
-						#if (!$r.isProviderOnly())
-							<option value ="$r.Id"
-								#if($r.Id == $joinerRole)
-									selected="selected"
-								#end
-							>
-								$r.Id
-							</option>
+			<div id="joinerrole" #if ($joinable) style="visibility:visible" #else  style="visibility:hidden" #end>
+				<p class="checkbox indnt3">
+					<label for="joinerRole">
+							<span class="reqStar" id="joinreqStar">*</span>
+							#if ($alertMessage)<span class="highlight"> $tlang.getString("ediacc.rolforpep")</span> #else  $tlang.getString("ediacc.rolforpep") #end
+					</label>
+					<select name="joinerRole" id="joinerRole">
+						<option value="">$tlang.getString("ediacc.plesel")</option>
+						#foreach($r in $roles)
+							#if (!$r.isProviderOnly())
+								<option value ="$r.Id"
+									#if($r.Id == $joinerRole)
+										selected="selected"
+									#end
+								>
+									$r.Id
+								</option>
+							#end
 						#end
-					#end
-				</select>
+					</select>
+				</p>
+			</div>
+		</div>
+		<div id="globalAccessNoDiv" $globalAccessNoDivDisplay>
+			<p class="instruction">
+				$tlang.getString("ediacc.other.setsitacc"): $tlang.getString("sitegen.siteinfolist.sitepar")
 			</p>
-		#else
-			$tlang.getString("ediacc.other.setsitacc"): $tlang.getString("sitegen.siteinfolist.sitepar")<p />
-		#end
+			<p/>
+		</div>
 		<input type="hidden" name="continue" value="$!continue" />
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />
