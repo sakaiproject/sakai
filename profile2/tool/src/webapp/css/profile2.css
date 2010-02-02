@@ -635,7 +635,9 @@ h2 {
 	color: #5D5D5D;
 }
 
-
+.searchFriends {
+	margin-bottom: 10px;
+}
 
 
 /* search result styles */
