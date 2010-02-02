@@ -35,6 +35,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
@@ -1202,7 +1203,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 				    if(StringUtils.equals(element, ELEM_MESSAGE)) {
 				    	template.setMessage(staxXmlReader.getElementText());
 				    }
-				    //message
+				    //html
 				    if(StringUtils.equals(element, ELEM_HTML)) {
 				    	template.setHtmlMessage(staxXmlReader.getElementText());
 				    }
@@ -1211,12 +1212,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 				    	template.setLocale(staxXmlReader.getElementText());
 				    }
 				    //version - SAK-17637
-				    //(uncomment when SAK-17679 is resolved and use 0.5-SNAPSHOT version ETS)
-				    /*
 				    if(StringUtils.equals(element, ELEM_VERSION)) {
-				    	template.setVersion(NumberUtils.toInt(staxXmlReader.getElementText(), 0));
+				    	//set as integer version of value, or default to 0
+				    	template.setVersion(Integer.valueOf(NumberUtils.toInt(staxXmlReader.getElementText(), 0)));
 				    }
-				    */
+				    
 				    //owner
 				    if(StringUtils.equals(element, ELEM_OWNER)) {
 				    	template.setOwner(staxXmlReader.getElementText());
@@ -1256,12 +1256,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 			return;
 		} 
 		
-		//check version, if local one is newer, update it. (uncomment when SAK-17679 is resolved and use 0.5-SNAPSHOT version ETS)
-		/*
-		if(template.getVersion() != null && template.getVersion() > existingTemplate.getVersion()) {
+		//check version, if local one newer than persisted, update it - SAK-17679
+		int existingTemplateVersion = existingTemplate.getVersion() != null ? existingTemplate.getVersion().intValue() : 0;
+		if(template.getVersion() > existingTemplateVersion) {
 
 			existingTemplate.setSubject(template.getSubject());
 			existingTemplate.setMessage(template.getMessage());
+			existingTemplate.setHtmlMessage(template.getHtmlMessage());
 			existingTemplate.setVersion(template.getVersion());
 			existingTemplate.setOwner(template.getOwner());
 
@@ -1273,7 +1274,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 			sakaiSession.setUserId(null);
 			log.info("Updated email template: " + template.getKey() + " with locale: " + template.getLocale());
 		}
-		*/
+		
 		
 	}
 	
