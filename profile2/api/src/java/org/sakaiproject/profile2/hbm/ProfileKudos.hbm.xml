@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.sakaiproject.profile2.model">
+
+	<class name="ProfileKudos" table="PROFILE_KUDOS_T">
+
+	    <id name="userUuid" column="USER_UUID" length="99">
+	    	<generator class="assigned" />
+	    </id>
+
+		<property name="kudos" column="KUDOS" not-null="true" />
+		<property name="dateAdded" column="DATE_ADDED" not-null="true" />
+  	</class>
+
+</hibernate-mapping>
