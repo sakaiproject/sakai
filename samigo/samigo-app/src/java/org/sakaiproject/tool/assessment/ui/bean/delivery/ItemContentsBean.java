@@ -881,7 +881,6 @@ public class ItemContentsBean implements Serializable {
 			// for MCSC
 			if (data.getItemGradingId() == null) {
 				// this is a new answer , now we just need to set the rationale
-
 				data.setRationale(newRationale);
 
 			} else {
@@ -911,7 +910,7 @@ public class ItemContentsBean implements Serializable {
 		if (count > 0) {
 			ItemGradingData data = (ItemGradingData) getItemGradingDataArray()
 					.toArray()[count - 1];
-			rationale = data.getRationale();
+			rationale = FormattedText.convertFormattedTextToPlaintext(data.getRationale());
 		}
 		return Validator.check(rationale, "");
 	}
@@ -921,7 +920,7 @@ public class ItemContentsBean implements Serializable {
 		if (count > 0) {
 			ItemGradingData data = (ItemGradingData) getItemGradingDataArray()
 					.toArray()[count - 1];
-			rationale = data.getRationale().replaceAll("(\r\n|\r)", "<br/>");
+			rationale = FormattedText.convertFormattedTextToPlaintext(data.getRationale()).replaceAll("(\r\n|\r)", "<br/>");
 		}
 		return Validator.check(rationale, "");
 	}
