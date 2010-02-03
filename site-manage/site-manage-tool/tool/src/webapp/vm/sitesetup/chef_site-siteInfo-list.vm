@@ -205,16 +205,16 @@ function printPreview(target){
 		#if ($!groupsWithMember.size() > 0)
 		<div id="accordion">
 		<h4 class="toggleAnchor specialLink">
-			<span  style="padding-left:1.5em">$tlang.getString("sinfo.list.groups")</span>
+			<span  style="padding-left:1.5em">#if ($!viewRoster) $tlang.getString("sinfo.list.groups")#else $tlang.getString("sinfo.list.groups.student") #end</span>
 		</h4>		
 		<div class="toggledContent">
-		<dl style="margin:0;padding:0"  id="accordion">
+		<dl class="defList" id="accordion">
 			#foreach ($g in $!groupsWithMember)
 				#set ($gdesc = "")
 				<dt>
-					<span id ="group$g.Id">$g.Title</span><span class="itemAction"> ( <a href="#" class="moreInfoGroups" id ="$g.Id">$tlang.getString("sinfo.list.groups.memb")</a>)</span>
+					<span id ="group$g.Id">$g.Title</span>#if ($!viewRoster) <span class="itemAction"> ( <a href="#" class="moreInfoGroups" id ="$g.Id">$tlang.getString("sinfo.list.groups.memb")</a>)</span>#end
 				</dt>
-				<dd>
+				<dd class="textPanelFooter instruction">
 					#if ($g.Description)
 						$g.Description
 					#end					

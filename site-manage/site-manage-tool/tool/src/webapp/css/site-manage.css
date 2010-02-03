@@ -15,7 +15,7 @@ toggler needs
     margin: 0;
     border: 2px solid #cef;
     border-top: none;
-    padding: 1em
+    padding: .5em
 }
 #templateSettings, #siteTypeList{
 	padding:.5em;
@@ -28,4 +28,13 @@ toggler needs
 	border:none;
 	padding:.1em 0;
 	margin:5px !important
+}
+dl.defList{
+	margin:0;padding:0;
+}
+dl.defList dt, dl.defList dd{
+	padding:5px 0
+}
+dl.defList dd{
+	padding:5px 1em
 }
