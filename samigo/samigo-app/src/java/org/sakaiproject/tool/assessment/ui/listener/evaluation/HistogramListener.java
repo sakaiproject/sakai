@@ -201,12 +201,12 @@ public class HistogramListener
 			  scores.addAll(allscores);
 		  }
 		  else {
+			  useridMap = totalScores.getUserIdMap(callerName);
 			  Iterator allscores_iter = allscores.iterator();
 			  while (allscores_iter.hasNext())
 			  {
 				  AssessmentGradingData data = (AssessmentGradingData) allscores_iter.next();
-				  String agentid =  data.getAgentId();
-				  useridMap = totalScores.getUserIdMap(callerName); 
+				  String agentid =  data.getAgentId();				   
 				  if (useridMap.containsKey(agentid)) {
 					  scores.add(data);
 				  }
