@@ -36,6 +36,7 @@ import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -55,6 +56,8 @@ import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
 
 /**
  * <p>
@@ -72,7 +75,12 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 public class IFrameAction extends VelocityPortletPaneledAction
 {
 
-
+	/** Event for accessing the web-content tool */
+	protected final static String EVENT_ACCESS_WEB_CONTENT = "webcontent.read";
+	
+	/** Event for modifying the web-content tool configuration */
+	protected final static String EVENT_REVISE_WEB_CONTENT = "webcontent.revise";
+	
 	/** Resource bundle using current language locale */
 	protected static ResourceLoader rb = new ResourceLoader("iframe");
 
@@ -180,6 +188,9 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		}
 	}
 	
+	/** For tracking event */
+	private static EventTrackingService m_eventTrackingService = null;
+	
 	/**
 	 * Populate the state with configuration settings
 	 */
@@ -279,6 +290,11 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		{
 			SitePage p = SiteService.findPage(getCurrentSitePageId());
 			state.setAttribute(STATE_PAGE_TITLE, p.getTitle());
+		}
+		
+		if (m_eventTrackingService == null)
+		{
+			m_eventTrackingService = (EventTrackingService) ComponentManager.get("org.sakaiproject.event.api.EventTrackingService");
 		}
 		
 	}
@@ -663,7 +679,9 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		// if we rely on state (like all the other tools), we won't pick up any changes others make to the configuration till we are refreshed... -ggolden
 
 		// set our configuration into the context for the vm
-		context.put(URL, (String) state.getAttribute(URL));
+		String url = (String) state.getAttribute(URL);
+		String special = (String) state.getAttribute(SPECIAL);
+		context.put(URL, url);
 		context.put(HEIGHT, state.getAttribute(HEIGHT));
 
 		// set the resource bundle with our strings
@@ -683,6 +701,23 @@ public class IFrameAction extends VelocityPortletPaneledAction
 			context.put("options_title", ToolManager.getCurrentPlacement().getTitle() + " " + rb.getString("gen.options"));
 		}
 	
+		// tracking event
+		if (special == null)
+		{
+			String siteId = "";
+			try
+			{
+				Site s = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+				siteId = s.getId();
+			}
+			catch (Throwable e)
+			{
+				
+			}
+			
+			// this is a Web Content tool
+			m_eventTrackingService.post(m_eventTrackingService.newEvent(EVENT_ACCESS_WEB_CONTENT, url, siteId, false, NotificationService.NOTI_NONE));
+		}
 
 		return (String) getContext(rundata).get("template");
 	}
@@ -694,9 +729,11 @@ public class IFrameAction extends VelocityPortletPaneledAction
 	{
 		// provide the source, and let the user edit, if not special
 		String special = (String) state.getAttribute(SPECIAL);
+		String source = "";
+		String siteId = "";
 		if (special == null)
 		{
-			String source = (String) state.getAttribute(SOURCE);
+			source = (String) state.getAttribute(SOURCE);
 			if (source == null) source = "";
 			context.put(SOURCE, source);
 			context.put("heading", rb.getString("gen.custom"));
@@ -723,6 +760,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 				try
 				{
 					Site s = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+					siteId = s.getId();
 
 					String infoUrl = StringUtil.trimToNull(s.getInfoUrl());
 					if (infoUrl != null)
@@ -782,6 +820,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 			try
 			{
 				Site site = SiteService.getSite(toolConfig.getSiteId());
+				siteId = site.getId();
 				SitePage page = site.getPage(toolConfig.getPageId());
 
 				// if this is the only tool on that page, update the page's title also
@@ -812,6 +851,13 @@ public class IFrameAction extends VelocityPortletPaneledAction
 			template = template + "-customize";
 		}
 
+		// tracking event
+		if (special == null)
+		{
+			// this is a Web Content tool
+			m_eventTrackingService.post(m_eventTrackingService.newEvent(EVENT_REVISE_WEB_CONTENT, source, siteId, true, NotificationService.NOTI_NONE));
+		}
+		
 		return template;
 	}
 
