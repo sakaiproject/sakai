@@ -1841,15 +1841,12 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			if (userId == null) return;
 
 			String sql = dbAuthzGroupSql.getSelectRealmRoleGroup3Sql();
-			String sqlParam = "";
-			StringBuilder sqlBuf = null;
-			StringBuilder sqlParamBuf = null;
 
 			// read this user's grants from all realms
 			Object[] fields = new Object[1];
 			fields[0] = userId;
 
-			List grants = m_sql.dbRead(sql, fields, new SqlReader()
+			List<RealmAndRole> grants = m_sql.dbRead(sql, fields, new SqlReader()
 			{
 				public Object readSqlResultRecord(ResultSet result)
 				{
@@ -1870,12 +1867,12 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 
 			// make a map, realm id -> role granted, each for provider and non-provider (or inactive)
 			Map<Integer, String> existing = new HashMap<Integer, String>();
+			Map<Integer, String> providedInactive = new HashMap<Integer, String>();
 			Map<Integer, String> nonProvider = new HashMap<Integer, String>();
-			for (Iterator i = grants.iterator(); i.hasNext();)
+			for (RealmAndRole rar : grants)
 			{
-				RealmAndRole rar = (RealmAndRole) i.next();
 				// active and provided are the currently stored provider grants
-				if (rar.active && rar.provided)
+				if (rar.provided)
 				{
 					if (existing.containsKey(rar.realmId))
 					{
@@ -1884,6 +1881,11 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 					else
 					{
 						existing.put(rar.realmId, rar.role);
+						
+						// Record inactive status
+						if (!rar.active) {
+							providedInactive.put(rar.realmId, rar.role);
+						}
 					}
 				}
 
@@ -1924,7 +1926,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 					String providerId = (String) f.next();
 					fieldsx[pos++] = providerId;
 				}
-				List realms = m_sql.dbRead(sql, fieldsx, new SqlReader()
+				List<RealmAndProvider> realms = m_sql.dbRead(sql, fieldsx, new SqlReader()
 				{
 					public Object readSqlResultRecord(ResultSet result)
 					{
@@ -1943,9 +1945,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 
 				if ((realms != null) && (realms.size() > 0))
 				{
-					for (Iterator r = realms.iterator(); r.hasNext();)
+					for (RealmAndProvider rp : realms)
 					{
-						RealmAndProvider rp = (RealmAndProvider) r.next();
 						String role = (String) providerGrants.get(rp.providerId);
 						if (role != null)
 						{
@@ -1964,9 +1965,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 
 			// compute the records we need to delete: every existing not in target or not matching target's role
 			List<Integer> toDelete = new Vector<Integer>();
-			for (Iterator i = existing.entrySet().iterator(); i.hasNext();)
+			for (Map.Entry<Integer, String> entry : existing.entrySet())
 			{
-				Map.Entry entry = (Map.Entry) i.next();
 				Integer realmId = (Integer) entry.getKey();
 				String role = (String) entry.getValue();
 
@@ -1980,17 +1980,21 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			// compute the records we need to add: every target not in existing, or not matching's existing's role
 			// we don't insert target grants that would override internal grants
 			List<RealmAndRole> toInsert = new Vector<RealmAndRole>();
-			for (Iterator i = target.entrySet().iterator(); i.hasNext();)
+			for (Map.Entry<Integer, String> entry : target.entrySet())
 			{
-				Map.Entry entry = (Map.Entry) i.next();
-				Integer realmId = (Integer) entry.getKey();
-				String role = (String) entry.getValue();
+				Integer realmId = entry.getKey();
+				String role = entry.getValue();
 
 				String existingRole = (String) existing.get(realmId);
 				String nonProviderRole = (String) nonProvider.get(realmId);
 				if ((nonProviderRole == null) && ((existingRole == null) || (!existingRole.equals(role))))
 				{
-					toInsert.add(new RealmAndRole(realmId, role, true, true));
+					boolean active = true;
+					if (providedInactive.get(userId) != null) {
+						active = false;
+					}
+				
+					toInsert.add(new RealmAndRole(realmId, role, active, true));
 				}
 			}
 
@@ -2004,9 +2008,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				sql = dbAuthzGroupSql.getDeleteRealmRoleGroup3Sql();
 				fields = new Object[2];
 				fields[1] = userId;
-				for (Iterator i = toDelete.iterator(); i.hasNext();)
+				for (Integer realmId : toDelete)
 				{
-					Integer realmId = (Integer) i.next();
 					fields[0] = realmId;
 					m_sql.dbWrite(sql, fields);
 				}
@@ -2015,9 +2018,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				sql = dbAuthzGroupSql.getInsertRealmRoleGroup2Sql();
 				fields = new Object[3];
 				fields[1] = userId;
-				for (Iterator i = toInsert.iterator(); i.hasNext();)
+				for (RealmAndRole rar : toInsert)
 				{
-					RealmAndRole rar = (RealmAndRole) i.next();
 					fields[0] = rar.realmId;
 					fields[2] = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleGroup2_1Sql(), rar.role);
 
@@ -2035,19 +2037,18 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			if ((realm == null) || (m_provider == null)) return;
 
 			String sql = "";
-			StringBuilder sqlBuf = null;
 
 			// Note: the realm is still lazy - we have the realm id but don't need to worry about changing grants
 
 			// get the latest userEid -> role name map from the provider
-			Map target = m_provider.getUserRolesForGroup(realm.getProviderGroupId());
+			Map<String,String> target = m_provider.getUserRolesForGroup(realm.getProviderGroupId());
 
 			// read the realm's grants
 			sql = dbAuthzGroupSql.getSelectRealmRoleGroup4Sql();
 			Object[] fields = new Object[1];
 			fields[0] = caseId(realm.getId());
 
-			List grants = m_sql.dbRead(sql, fields, new SqlReader()
+			List<UserAndRole> grants = m_sql.dbRead(sql, fields, new SqlReader()
 			{
 				public Object readSqlResultRecord(ResultSet result)
 				{
@@ -2068,13 +2069,12 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 
 			// make a map, user id -> role granted, each for provider and non-provider (or inactive)
 			Map<String, String> existing = new HashMap<String, String>();
+			Map<String, String> providedInactive = new HashMap<String, String>();
 			Map<String, String> nonProvider = new HashMap<String, String>();
-			for (Iterator i = grants.iterator(); i.hasNext();)
+			for (UserAndRole uar : grants)
 			{
-				UserAndRole uar = (UserAndRole) i.next();
-
 				// active and provided are the currently stored provider grants
-				if (uar.active && uar.provided)
+				if (uar.provided)
 				{
 					if (existing.containsKey(uar.userId))
 					{
@@ -2083,6 +2083,11 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 					else
 					{
 						existing.put(uar.userId, uar.role);
+						
+						// Record inactive status
+						if (!uar.active) {
+							providedInactive.put(uar.userId, uar.role);
+						}
 					}
 				}
 
@@ -2102,11 +2107,10 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 
 			// compute the records we need to delete: every existing not in target or not matching target's role
 			List<String> toDelete = new Vector<String>();
-			for (Iterator i = existing.entrySet().iterator(); i.hasNext();)
+			for (Map.Entry<String,String> entry : existing.entrySet())
 			{
-				Map.Entry entry = (Map.Entry) i.next();
-				String userId = (String) entry.getKey();
-				String role = (String) entry.getValue();
+				String userId = entry.getKey();
+				String role = entry.getValue();
 
 				try
 				{
@@ -2126,21 +2130,26 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			// compute the records we need to add: every target not in existing, or not matching's existing's role
 			// we don't insert target grants that would override internal grants
 			List<UserAndRole> toInsert = new Vector<UserAndRole>();
-			for (Iterator i = target.entrySet().iterator(); i.hasNext();)
+			for (Map.Entry<String,String> entry : target.entrySet())
 			{
-				Map.Entry entry = (Map.Entry) i.next();
-				String userEid = (String) entry.getKey();
+				String userEid = entry.getKey();
 				try
 				{
 					String userId = userDirectoryService().getUserId(userEid);
 
-					String role = (String) entry.getValue();
+					String role = entry.getValue();
 
 					String existingRole = (String) existing.get(userId);
 					String nonProviderRole = (String) nonProvider.get(userId);
 					if ((nonProviderRole == null) && ((existingRole == null) || (!existingRole.equals(role))))
 					{
-						toInsert.add(new UserAndRole(userId, role, true, true));
+						// Check whether this user was inactive in the site previously, if so preserve status
+						boolean active = true;
+						if (providedInactive.get(userId) != null) {
+							active = false;
+						}
+						
+						toInsert.add(new UserAndRole(userId, role, active, true));
 					}
 				}
 				catch (UserNotDefinedException e)
@@ -2159,9 +2168,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				sql = dbAuthzGroupSql.getDeleteRealmRoleGroup4Sql();
 				fields = new Object[2];
 				fields[0] = caseId(realm.getId());
-				for (Iterator i = toDelete.iterator(); i.hasNext();)
+				for (String userId : toDelete)
 				{
-					String userId = (String) i.next();
 					fields[1] = userId;
 					m_sql.dbWrite(sql, fields);
 				}
@@ -2171,9 +2179,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				fields = new Object[3];
 				fields[0] = caseId(realm.getId());
 				fields[0] = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleGroup3_1Sql(), fields[0]);
-				for (Iterator i = toInsert.iterator(); i.hasNext();)
+				for (UserAndRole uar : toInsert)
 				{
-					UserAndRole uar = (UserAndRole) i.next();
 					fields[1] = uar.userId;
 					fields[2] = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleGroup3_2Sql(), uar.role);
 
