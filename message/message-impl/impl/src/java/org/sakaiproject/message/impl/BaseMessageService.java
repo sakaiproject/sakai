@@ -3266,13 +3266,18 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 						User currentUsr=null;
 						try {
 							currentUsr = m_userDirectoryService.getUser(m_sessionManager.getCurrentSessionUserId());
-							
+
 						} catch (UserNotDefinedException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
 						
-					if (currentUsr.getId().equals(header.getFrom().getId())){						
+						String context = m_siteService.siteReference(m_entityManager.newReference(msg1.getReference()).getContext());
+						boolean isViewingAs = (m_securityService.getUserEffectiveRole(context) != null);
+						
+						//convert it into draft, if the associated group is deleted
+						//do not convert it into draft when you are switching from and to view as mode
+						if (currentUsr.getId().equals(header.getFrom().getId())  && !isViewingAs){						
 							header.setDraft(true);
 							try {
 								header.clearGroupAccess();
