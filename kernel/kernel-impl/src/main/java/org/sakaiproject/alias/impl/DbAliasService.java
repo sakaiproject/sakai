@@ -21,7 +21,6 @@
 
 package org.sakaiproject.alias.impl;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
@@ -44,9 +43,6 @@ import org.sakaiproject.util.BaseDbFlatStorage;
 import org.sakaiproject.util.BaseDbSingleStorage;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
-import org.sakaiproject.util.Xml;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * <p>
@@ -161,20 +157,13 @@ public abstract class DbAliasService extends BaseAliasService
 
 			M_log.info("init(): table: " + m_tableName + " external locks: " + m_useExternalLocks + " checkOld: " + m_checkOld);
 
-			// convert?
-			if (m_convertOld)
-			{
-				m_convertOld = false;
-				convertOld();
-			}
-
 			// do a count which might find no old records so we can ignore old!
 			if (m_checkOld)
 			{
 				m_storage.count();
 			}
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			M_log.warn("init(): ", t);
 		}
@@ -778,87 +767,5 @@ public abstract class DbAliasService extends BaseAliasService
 		}
 	}
 
-	/**
-	 * Create a new table record for all old table records found, and delete the old.
-	 */
-	protected void convertOld()
-	{
-		M_log.info("convertOld");
-
-		try
-		{
-			// get a connection
-			final Connection connection = sqlService().borrowConnection();
-			boolean wasCommit = connection.getAutoCommit();
-			connection.setAutoCommit(false);
-
-			// read all alias ids
-			String sql = "select ALIAS_ID, XML from CHEF_ALIAS";
-			sqlService().dbRead(connection, sql, null, new SqlReader()
-			{
-				private int count = 0;
-
-				public Object readSqlResultRecord(ResultSet result)
-				{
-					try
-					{
-						// create the Resource from the db xml
-						String id = result.getString(1);
-						String xml = result.getString(2);
-
-						// read the xml
-						Document doc = Xml.readDocumentFromString(xml);
-
-						// verify the root element
-						Element root = doc.getDocumentElement();
-						if (!root.getTagName().equals("alias"))
-						{
-							M_log.warn("convertOld: XML root element not alias: " + root.getTagName());
-							return null;
-						}
-						AliasEdit a = new BaseAliasEdit(root);
-
-						// pick up the fields
-						Object[] fields = ((DbStorage) m_storage).fields(id, a, false);
-
-						// insert the record
-						boolean ok = ((DbStorage) m_storage).insertResource(id, fields, connection);
-						if (!ok)
-						{
-							M_log.warn("convertOld: failed to insert: " + id);
-						}
-
-						// delete the old record
-						String statement = "delete from CHEF_ALIAS where ALIAS_ID = ?";
-						fields = new Object[1];
-						fields[0] = id;
-						ok = sqlService().dbWrite(connection, statement, fields);
-						if (!ok)
-						{
-							M_log.warn("convertOld: failed to delete: " + id);
-						}
-
-						// m_logger.info(" ** alias converted: " + id);
-
-						return null;
-					}
-					catch (Exception ignore)
-					{
-						return null;
-					}
-				}
-			});
-
-			connection.commit();
-			connection.setAutoCommit(wasCommit);
-			sqlService().returnConnection(connection);
-		}
-		catch (Exception t)
-		{
-			M_log.warn("convertOld: failed: " + t);
-		}
-
-		M_log.info("convertOld: done");
-	}
 
 }
