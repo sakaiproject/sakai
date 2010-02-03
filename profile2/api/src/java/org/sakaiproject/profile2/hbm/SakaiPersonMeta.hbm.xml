@@ -38,10 +38,28 @@
     	<![CDATA[select sp.agentUuid from org.sakaiproject.component.common.edu.person.SakaiPersonImpl as sp]]>
   	</query>
   	
-  	<!--  this is a native query to get only the files that Profile2 currently uses, it is then transformed into a UserProfile object.
+  	<!--  this is a native query to get only the fields that Profile2 currently uses, it is then transformed into a UserProfile object.
   	This should be chunked in the Hibernate call so as to only get a set of records at a time, say 100 -->
   	<sql-query name="getAllSakaiPersons">
-  		<!--  <return-scalar column="userUuid" type="string" />-->
+  		<return-scalar column="userUuid" type="string" />
+  		<return-scalar column="nickname" type="string" />
+  		<return-scalar column="dateOfBirth" type="date" />
+  		<return-scalar column="department" type="string" />
+  		<return-scalar column="school" type="string" />
+  		<return-scalar column="room" type="string" />
+  		<return-scalar column="homepage" type="string" />
+  		<return-scalar column="workphone" type="string" />
+  		<return-scalar column="homephone" type="string" />
+  		<return-scalar column="mobilephone" type="string" />
+  		<return-scalar column="facsimile" type="string" />
+  		<return-scalar column="favouriteBooks" type="string" />
+  		<return-scalar column="favouriteTvShows" type="string" />
+  		<return-scalar column="favouriteMovies" type="string" />
+  		<return-scalar column="otherInformation" type="string" />
+  		<return-scalar column="course" type="string" />
+  		<return-scalar column="subjects" type="string" />
+  		<return-scalar column="locked" type="boolean" />
+  		
     	<![CDATA[
     	select 
     		sp.AGENT_UUID as userUuid,
@@ -54,15 +72,15 @@
     		sp.LABELED_URI as homepage,
     		sp.TELEPHONE_NUMBER as workphone,
     		sp.HOME_PHONE as homephone,
-    		sp.MOBILE as mobile,
+    		sp.MOBILE as mobilephone,
     		sp.FAX_NUMBER as facsimile,
     		sp.FAVOURITE_BOOKS as favouriteBooks,
     		sp.FAVOURITE_TV_SHOWS as favouriteTvShows,
     		sp.FAVOURITE_MOVIES as favouriteMovies,
     		sp.FAVOURITE_QUOTES as favouriteQuotes,
     		sp.NOTES as otherInformation,
-    		sp.EDUCATION_COURSE as educationCourse,
-    		sp.EDUCATION_SUBJECTS as educationSubjects,
+    		sp.EDUCATION_COURSE as course,
+    		sp.EDUCATION_SUBJECTS as subjects,
     		sp.LOCKED as locked
     	from 
     		SAKAI_PERSON_T sp

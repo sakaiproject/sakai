@@ -132,7 +132,6 @@ public class KudosJob implements StatefulJob {
 		log.error("result:" + RULES.get("email"));
 		log.error("result:" + RULES.get("nickname"));
 		log.error("result:" + RULES.get("birthday"));
-		log.error("result:" + RULES.get("birthYear"));
 		
 		BigDecimal score = getTotal();
 		

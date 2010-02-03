@@ -2450,15 +2450,14 @@ public class ProfileLogicImpl extends HibernateDaoSupport implements ProfileLogi
 		
 		List<UserProfile> profiles = new ArrayList<UserProfile>();
 
-		// get fields directly from the sakaiperson table and use Transformers.aliasToBean to transform into pojo
-		//the idea is we dont want a SakaiPerson object
+		//get fields directly from the sakaiperson table and use Transformers.aliasToBean to transform into UserProfile pojo
+		//the idea is we *dont* want a SakaiPerson object
 		HibernateCallback hcb = new HibernateCallback() {
 	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	  		
 	  			Query q = session.getNamedQuery(QUERY_GET_ALL_SAKAI_PERSONS);
 
-	  			//NEED SCALARS IN THE HBM FOR THIS QUERY
-	  			
+	  			//see scalars in the hbm
 	  			
 	  			q.setFirstResult(start);
 	  			q.setMaxResults(count);
