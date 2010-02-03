@@ -2158,6 +2158,38 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				}
 			}
 
+			// compute the records we want to promote from non-provided to provider:
+			// every non-provided user with an equivalent provided entry with the same role
+			for (Map.Entry<String,String> entry : nonProvider.entrySet())
+			{
+				String userId = entry.getKey();
+				String role = entry.getValue();
+				try
+				{
+					String userEid = userDirectoryService().getUserEid(userId);
+					String targetRole = (String) target.get(userEid);
+
+					if (role.equals(targetRole))
+					{
+						// remove from non-provided and add as provided
+						toDelete.add(userId);
+						
+						// Check whether this user was inactive in the site previously, if so preserve status
+						boolean active = true;
+						if (providedInactive.get(userId) != null) {
+							active = false;
+						}
+						
+						toInsert.add(new UserAndRole(userId, role, active, true));
+					}
+				}
+				catch (UserNotDefinedException e)
+				{
+					M_log.warn("refreshAuthzGroup: cannot find eid for user: " + userId);
+				}
+
+			}
+			
 			// if any, do it
 			if ((toDelete.size() > 0) || (toInsert.size() > 0))
 			{
