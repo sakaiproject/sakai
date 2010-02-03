@@ -2296,7 +2296,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					&& StringUtil.trimToNull(s.getGrade()) == null && StringUtil.trimToNull(s.getFeedbackText()) == null && StringUtil.trimToNull(s.getFeedbackComment()) == null && s.getFeedbackAttachments().isEmpty() )
 				{
 					// auto add submission for those not submitted
-					EventTrackingService.post(EventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION, submissionRef, true));
+					//EventTrackingService.post(EventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION, submissionRef, true));
 				}
 				else
 				{
