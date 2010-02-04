@@ -931,16 +931,6 @@
 			<groupId>org.codehaus.mojo</groupId>
 			<artifactId>dashboard-maven-plugin</artifactId>
 		</plugin>
-		<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-changelog-plugin</artifactId>
-			<configuration>
-				<type>range</type>
-				<range>30</range>
-				<headingDateFormat>yyyy-MM-dd</headingDateFormat>
-				<aggregate>true</aggregate>
-			</configuration>
-		</plugin>
 	</plugins>
 </reporting>
 	<build>
