@@ -168,7 +168,7 @@ public class AssignmentActivityProducerImpl implements
 			AssignmentSubmission submission = assignmentService.getSubmission(
 					assignment.getReference(), userDirectoryService
 							.getUser(userId));
-			if (submission != null && submission.getSubmitted()) {
+			if (submission != null && submission.getSubmitted() && submission.getTimeSubmitted() != null) {
 				TaggableItem item = new AssignmentItemImpl(submission, userId,
 						activity);
 				returned.add(item);
@@ -193,7 +193,7 @@ public class AssignmentActivityProducerImpl implements
 			for (Iterator<AssignmentSubmission> i = assignmentService
 					.getSubmissions(assignment).iterator(); i.hasNext();) {
 				AssignmentSubmission submission = i.next();
-				if (submission != null && submission.getSubmitted()) {
+				if (submission != null && submission.getSubmitted() && submission.getTimeSubmitted() != null) {
 					for (Object submitterId : submission.getSubmitterIds()) {
 						items.add(new AssignmentItemImpl(submission,
 								(String) submitterId, activity));
