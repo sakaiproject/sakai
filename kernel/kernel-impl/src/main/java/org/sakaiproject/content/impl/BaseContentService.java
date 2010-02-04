@@ -9718,7 +9718,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		{
 			boolean available = !m_hidden;
 
-			if(available && (this.m_releaseDate != null || this.m_retractDate != null))
+			if(available && (this.m_releaseDate != null || this.m_retractDate != null || isConditionallyReleased()))
 			{
 				Time now = TimeService.newTime();
 				if(this.m_releaseDate != null)
@@ -9728,6 +9728,22 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 				if(available && this.m_retractDate != null)
 				{
 					available = this.m_retractDate.after(now);
+				}
+				if(available && isConditionallyReleased())
+				{
+					// first check for global rule satisfaction
+					String satisfiesRule = this.m_properties.getProperty("resource.satisfies.rule");
+					if (satisfiesRule == null) {
+						Collection acl = (Collection)this.m_properties.get("conditional_access_list");
+						if (acl == null) {
+							available = false;
+						} else {
+							// acl acts as a white list for availability
+							available = acl.contains(SessionManager.getCurrentSessionUserId());
+						}
+					} else {
+						available = Boolean.parseBoolean(satisfiesRule);
+					}
 				}
 			}
 			if(!available)
@@ -9878,7 +9894,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		{
 			m_resourceType = type;
 		}
-
 
 		public boolean isConditionallyReleased() {
 			try {
