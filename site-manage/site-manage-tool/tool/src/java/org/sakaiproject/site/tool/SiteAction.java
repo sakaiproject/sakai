@@ -1991,6 +1991,20 @@ public class SiteAction extends PagedResourceActionII {
 				} else {
 					context.put("isCourseSite", Boolean.FALSE);
 				}
+				
+				if ((allowUpdateSite || allowUpdateGroupMembership) 
+						&& (!isMyWorkspace
+							&& (ServerConfigurationService.getString("wsetup.group.support") == "" 
+							|| ServerConfigurationService.getString("wsetup.group.support").equalsIgnoreCase(Boolean.TRUE.toString())))) 
+				{
+					// show all site groups
+					context.put("groups", site.getGroups());
+				}
+				else
+				{
+					// show groups that the current user is member of
+					context.put("groups", site.getGroupsWithMember(UserDirectoryService.getCurrentUser().getId()));
+				}
 			} catch (Exception e) {
 				M_log.warn(this + " buildContextForTemplate chef_site-siteInfo-list.vm ", e);
 			}
@@ -2007,9 +2021,6 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("activeInactiveUser", Boolean.FALSE);
 			}
 
-			context.put("groupsWithMember", site
-					.getGroupsWithMember(UserDirectoryService.getCurrentUser()
-							.getId()));
 			return (String) getContext(data).get("template") + TEMPLATE[12];
 
 		case 13:
