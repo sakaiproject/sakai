@@ -318,6 +318,7 @@ INSERT INTO SAKAI_SITE_PAGE VALUES('!user-100', '!user', 'Home', '0', 1, '0' );
 INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!user', '!user-100', 'is_home_page', 'true' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!user-110', '!user-100', '!user', 'sakai.motd', 1, 'Message of the Day', NULL );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!user-120', '!user-100', '!user', 'sakai.iframe.myworkspace', 2, 'My Workspace Information', NULL );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!user-145', '!user-100', '!user', 'sakai.synoptic.messagecenter', 2, 'Unread Messages and Forums', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('!user-150', '!user', 'Profile', '0', 2, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!user-165', '!user-150', '!user', 'sakai.profile2', 1, 'Profile', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('!user-200', '!user', 'Membership', '0', 3, '0' );
