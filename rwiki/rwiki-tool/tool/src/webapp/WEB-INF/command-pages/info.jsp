@@ -545,7 +545,7 @@
 				<input type="submit" name="updatePermissions" value="${rlb.jsp_button_save}"/>
 				<input type="hidden" name="realm" value="${currentRWikiObject.realm }"/>
 				<c:if test="${realmBean.siteUpdateAllowed}">
-				  <c:out value="${rlb.jsp_edit_page_permissions_msg1}"/><c:out value=" "/><a href="${realmBean.editRealmUrl}"><c:out value="${rlb.jsp_edit_page_permissions_msg2}"/></a>
+				  <c:out value="${rlb.jsp_edit_page_permissions_msg1}"/><c:out value=" "/><a href="${realmBean.editRealmUrl}"><c:out value="${rlb.jsp_edit_site_permissions2}"/></a>
 				</c:if>
 			      </p>
 			    </div>

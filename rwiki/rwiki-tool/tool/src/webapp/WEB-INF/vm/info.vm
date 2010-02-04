@@ -303,7 +303,7 @@
 				       <input type="submit" name="updatePermissions" value="${rlb.jsp_button_save}" />
 				       <input type="hidden" name="realm" value="${currentRWikiObject.realm}" />
 				       #if (${realmBean.siteUpdateAllowed})
-				         ${rlb.jsp_edit_page_permissions_msg1} <a href="${util.escapeHtml(${realmBean.editRealmUrl})}" >${rlb.jsp_edit_page_permissions_msg2}</a>
+				         ${rlb.jsp_edit_page_permissions_msg1} <a href="${util.escapeHtml(${realmBean.editRealmUrl})}" >${rlb.jsp_edit_site_permissions2}</a>
 				       #end
 				     </p>
 
