@@ -2729,9 +2729,15 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	HibernateCallback hc = new HibernateCallback() {
     		public Object doInHibernate(Session session) throws HibernateException {
     			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
+    			
+    			// check for an existing gb item with this name. trim off trailing whitespace
+    			String trimmedName = name;
+    			if (name != null) {
+    			    trimmedName = name.trim();
+    			}
     			List conflictList = ((List)session.createQuery(
     					"select go from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
-    					setString(0, name).
+    					setString(0, trimmedName).
     					setEntity(1, gb).list());
     			int numNameConflicts = conflictList.size();
     			if(numNameConflicts > 0) {
@@ -2740,7 +2746,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 
     			Assignment asn = new Assignment();
     			asn.setGradebook(gb);
-    			asn.setName(name.trim());
+    			asn.setName(trimmedName);
     			asn.setPointsPossible(points);
     			asn.setDueDate(dueDate);
     			asn.setUngraded(false);
@@ -2755,7 +2761,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     			/** synchronize from external application */
     			if (synchronizer != null && !synchronizer.isProjectSite())
     			{
-    				synchronizer.addLegacyAssignment(name);
+    				synchronizer.addLegacyAssignment(trimmedName);
     			}
     			
     			// Save the new assignment
@@ -2780,9 +2786,16 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		public Object doInHibernate(Session session) throws HibernateException {
     			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
     			Category cat = (Category)session.load(Category.class, categoryId);
+    			
+    			// check for an existing gb item with the same name
+    			String trimmedName = name;
+    			if (name != null) {
+    			    trimmedName = name.trim();
+    			}
+    			
     			List conflictList = ((List)session.createQuery(
     			"select go from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
-    			setString(0, name).
+    			setString(0, trimmedName).
     			setEntity(1, gb).list());
     			int numNameConflicts = conflictList.size();
     			if(numNameConflicts > 0) {
@@ -2792,7 +2805,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     			Assignment asn = new Assignment();
     			asn.setGradebook(gb);
     			asn.setCategory(cat);
-    			asn.setName(name.trim());
+    			asn.setName(trimmedName);
     			asn.setPointsPossible(points);
     			asn.setDueDate(dueDate);
     			asn.setUngraded(false);
@@ -2807,7 +2820,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     			/** synchronize from external application */
     			if (synchronizer != null && !synchronizer.isProjectSite())
     			{
-    				synchronizer.addLegacyAssignment(name);
+    				synchronizer.addLegacyAssignment(trimmedName);
     			}  
 
     			Long id = (Long)session.save(asn);

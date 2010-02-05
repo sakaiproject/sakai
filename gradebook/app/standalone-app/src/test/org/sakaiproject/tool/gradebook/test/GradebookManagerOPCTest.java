@@ -20,6 +20,7 @@ import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.section.api.facade.Role;
+import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 
@@ -3124,6 +3125,66 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 
 	}
 	
+	public void testCreateAssignment() throws Exception
+	{
+	    Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
+        
+	    String A1_NAME = "test testCreateAssignment1";
+	    String A2_NAME = "test testCreateAssignment2";
+        
+        gradebookManager.createAssignment(persistentGradebook.getId(), A1_NAME, 10D,
+                null, true, true);
+        
+        gradebookManager.createAssignment(persistentGradebook.getId(), A2_NAME, 10D,
+                null, true, true);
+        
+        // now try to create another assignment with the same name
+        try {
+            gradebookManager.createAssignment(persistentGradebook.getId(), A1_NAME, 10D,
+                    null, true, true);
+            fail("Did not catch attempt to create assignments with the same name");
+        } catch (ConflictingAssignmentNameException cane) {}
+
+        // try to create an assignment with the same name but with trailing spaces
+        try {
+            gradebookManager.createAssignment(persistentGradebook.getId(), " " + A1_NAME + " ", 10D,
+                    null, true, true);
+            fail("Did not catch attempt to create assignments with the same name with trailing spaces");
+        } catch (ConflictingAssignmentNameException cane) {}
+
+        
+	}
+	
+	public void testCreateAssignmentForCategory() throws Exception
+    {
+        Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
+        
+        String A1_NAME = "test testCreateAssignment1";
+        String A2_NAME = "test testCreateAssignment2";
+        
+        gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long, 
+                A1_NAME, 10D, null, true, true);
+        
+        gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long,
+                A2_NAME, 10D, null, true, true);
+        
+        // now try to create another assignment with the same name
+        try {
+            gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long,
+                    A1_NAME, 10D, null, true, true);
+            fail("Did not catch attempt to create assignments with the same name");
+        } catch (ConflictingAssignmentNameException cane) {}
+
+        // try to create an assignment with the same name but with trailing spaces
+        try {
+            gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long,
+                    " " + A1_NAME + " ", 10D, null, true, true);
+            fail("Did not catch attempt to create assignments with the same name with trailing spaces");
+        } catch (ConflictingAssignmentNameException cane) {}
+
+        
+    }
+	
 	public void testCreateAssignments() throws Exception
 	{
 		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
@@ -3170,6 +3231,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		{
 			Assert.assertTrue(originalSize == gradebookManager.getAssignments(persistentGradebook.getId()).size());
 		}
+		
 	}
 	
 	public void testGetFixedGrade() throws Exception
