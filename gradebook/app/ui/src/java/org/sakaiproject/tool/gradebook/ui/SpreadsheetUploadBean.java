@@ -1217,8 +1217,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     /**
      * Returns TRUE if specific value imported from spreadsheet is valid
      * 
-     * @return false if the spreadsheet contains a invalid points possible or
-     * score value, else return true
+     * @return false if the spreadsheet contains a invalid points possible, an invalid
+     * score value, more than one column for the same gb item, more than one row for the same student
      */
     private boolean verifyImportedData(LetterGradePercentMapping lgpm) {
     	if (studentRows == null || studentRows.isEmpty()) {
@@ -1235,11 +1235,45 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     	if (assignmentHeaders != null && !assignmentHeaders.isEmpty()) {
     		// add one b/c assignmentHeaders does not include the username col but studentRows does
     		indexOfCumColumn = assignmentHeaders.indexOf(getLocalizedString(CUMULATIVE_GRADE_STRING)) + 1;
+    		
+    		// we need to double check that there aren't any duplicate assignments
+    		// in the spreadsheet. the first column is the student name, so skip
+    		List<String> assignmentNames = new ArrayList<String>();
+    		if (assignmentHeaders.size() > 1) {
+    		    for (int i=1; i < assignmentHeaders.size(); i++) {
+    		        if (i==indexOfCumColumn) {
+    		            continue;
+    		        }
+    		        
+    		        String header = (String)assignmentHeaders.get(i);
+    		        String [] parsedAssignmentName = header.split(" \\[");
+    	            String assignmentName = parsedAssignmentName[0].trim();
+    	            if (assignmentNames.contains(assignmentName)) {
+    	                FacesUtil.addErrorMessage(getLocalizedString("import_assignment_duplicate_titles", new String[] {assignmentName}));
+    	                return false;
+    	            }
+    	            
+    	            assignmentNames.add(assignmentName);
+    		    }
+    		}
     	}
+    	
+    	List<String> uploadedStudents = new ArrayList<String>();
 
     	for (int row=0; row < studentRows.size(); row++) {
     		SpreadsheetRow scoreRow = (SpreadsheetRow) studentRows.get(row);
     		List studentScores = scoreRow.getRowcontent();
+    		
+    		// verify that a student doesn't appear more than once in the ss
+    		String username = (String)studentScores.get(0);
+    		if (username != null) {
+    		    if (uploadedStudents.contains(username)) {
+    		        FacesUtil.addErrorMessage(getLocalizedString("import_assignment_duplicate_student", new String[] {username}));
+                    return false;
+    		    }
+    		    
+    		    uploadedStudents.add(username);
+    		}
 
     		// start with col 2 b/c the first two are eid and name
     		if (studentScores != null && studentScores.size() > 2) {
