@@ -338,10 +338,10 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
 				Assert.assertTrue(gotSecurityException);
 
 				Assert.assertTrue(gradebookService.isUserAbleToGradeItemForStudent(GRADEBOOK_UID, assignment.getId(), STUDENT_IN_SECTION_UID));
-				Double score = new Double(gradebookService.getAssignmentScoreString(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID));
-				Assert.assertTrue(score == null);
+				String scoreAsString = gradebookService.getAssignmentScoreString(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID);
+				Assert.assertTrue(scoreAsString == null);
 				gradebookService.setAssignmentScoreString(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID, new String("39"), "Service Test");
-				score = new Double(gradebookService.getAssignmentScoreString(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID));
+				Double score = new Double(gradebookService.getAssignmentScoreString(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID));
 				Assert.assertTrue(score.doubleValue() == 39.0);
 				
 				// Make sure a record was made in the history log.
