@@ -117,9 +117,14 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     
     /**
      * Property set via sakai.properties to limit the file size allowed for spreadsheet
-     * uploads. This property is in bytes and defaults to 1000000 bytes (1 MB).
+     * uploads. This property is in MB and defaults to 1 MB.
      */
     public static final String PROPERTY_FILE_SIZE_MAX = "gradebook.upload.max";
+    
+    /**
+     * The default max file size, in MB, for a spreadsheet upload.
+     */
+    public static final int FILE_SIZE_DEFAULT = 1;
     
     /**
      * If an upload contains more than the number of students in the class plus
@@ -547,8 +552,15 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     	InputStream inputStream = null;
     	String fileName = null;
 	    List contents = null;
-	    int maxUploadSize = ServerConfigurationService.getInt(PROPERTY_FILE_SIZE_MAX, 1000000);
-	    int maxUploadSizeInMB = maxUploadSize / 1000000;
+	    
+	    int maxFileSizeInMB;
+	    try {
+	        maxFileSizeInMB = ServerConfigurationService.getInt(PROPERTY_FILE_SIZE_MAX, FILE_SIZE_DEFAULT);
+	    } catch (NumberFormatException nfe) {
+	        if (logger.isDebugEnabled()) logger.debug("Invalid property set for gradebook max file size");
+	        maxFileSizeInMB = FILE_SIZE_DEFAULT;
+	    }
+        long maxFileSizeInBytes = 1024L * 1024L * maxFileSizeInMB;
 
         if (upFile != null) {
 	        if (upFile != null && logger.isDebugEnabled()) {
@@ -562,8 +574,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 	            return null;
 	        }
 	        
-	        if (upFile.getSize() > maxUploadSize) {
-	            FacesUtil.addErrorMessage(getLocalizedString("upload_view_filesize_error",new String[] {maxUploadSizeInMB + ""}));
+	        if (upFile.getSize() > maxFileSizeInBytes) {
+	            FacesUtil.addErrorMessage(getLocalizedString("upload_view_filesize_error",new String[] {maxFileSizeInMB + ""}));
                 return null;
 	        }
 	        
@@ -586,8 +598,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 		        ContentResource resource = getPickedContentResource();
 		        if (resource != null) {
 		            // double check the file size does not exceed our limit
-		            if (resource.getContentLength() > maxUploadSize) {
-		                FacesUtil.addErrorMessage(getLocalizedString("upload_view_filesize_error", new String[] {maxUploadSizeInMB + ""}));
+		            if (resource.getContentLength() > maxFileSizeInBytes) {
+		                FacesUtil.addErrorMessage(getLocalizedString("upload_view_filesize_error", new String[] {maxFileSizeInMB + ""}));
 		                return null;
 		            }
 		        }
@@ -731,8 +743,14 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     	String fileName = null;
 	    List contents = null;
 	    
-	    int maxUploadSize = ServerConfigurationService.getInt(PROPERTY_FILE_SIZE_MAX, 1000000);
-	    int maxUploadInMB = maxUploadSize / 1000000;
+	    int maxFileSizeInMB;
+        try {
+            maxFileSizeInMB = ServerConfigurationService.getInt(PROPERTY_FILE_SIZE_MAX, FILE_SIZE_DEFAULT);
+        } catch (NumberFormatException nfe) {
+            if (logger.isDebugEnabled()) logger.debug("Invalid property set for gradebook max file size");
+            maxFileSizeInMB = FILE_SIZE_DEFAULT;
+        }
+        long maxFileSizeInBytes = 1024L * 1024L * maxFileSizeInMB;
 
 	    if (upFile != null) {
 	        if (upFile != null && logger.isDebugEnabled()) {
@@ -746,8 +764,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 	            return null;
 	        }
 	        
-	        if (upFile.getSize() > maxUploadSize) {
-                FacesUtil.addErrorMessage(getLocalizedString("upload_view_filesize_error",new String[] {maxUploadInMB + ""}));
+	        if (upFile.getSize() > maxFileSizeInBytes) {
+                FacesUtil.addErrorMessage(getLocalizedString("upload_view_filesize_error",new String[] {maxFileSizeInMB + ""}));
                 return null;
             }
 	        
@@ -770,8 +788,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 		        ContentResource resource = getPickedContentResource();
                 if (resource != null) {
                     // double check the file size does not exceed our limit
-                    if (resource.getContentLength() > maxUploadSize) {
-                        FacesUtil.addErrorMessage(getLocalizedString("upload_view_filesize_error", new String[] {maxUploadInMB + ""}));
+                    if (resource.getContentLength() > maxFileSizeInBytes) {
+                        FacesUtil.addErrorMessage(getLocalizedString("upload_view_filesize_error", new String[] {maxFileSizeInMB + ""}));
                         return null;
                     }
                 }
