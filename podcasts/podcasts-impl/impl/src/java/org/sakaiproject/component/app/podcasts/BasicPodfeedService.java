@@ -165,7 +165,7 @@ public class BasicPodfeedService implements PodfeedService {
 			
 		}
 		finally {
-			securityService.clearAdvisors();
+			securityService.popAdvisor();
 		}
 
 		return rp;
@@ -578,9 +578,9 @@ public class BasicPodfeedService implements PodfeedService {
 				podEntries = podcastService.getPodcasts(siteId);
 			
 				// remove any that user cannot access
-				// need to clearAdvisors since now group aware neet to
+				// need to popAdvisor since now group aware need to
 				// check if need to filter podcasts based on group membership
-				securityService.clearAdvisors();
+				securityService.popAdvisor();
 				podEntries = podcastService.filterPodcasts(podEntries, siteId);
 			}
 		} 
@@ -594,7 +594,7 @@ public class BasicPodfeedService implements PodfeedService {
 			throw new Error(e);
 		} 
 		finally {
-			securityService.clearAdvisors();
+			securityService.popAdvisor();
 		}
 
 		if (podEntries != null) {
@@ -640,7 +640,7 @@ public class BasicPodfeedService implements PodfeedService {
 						String fileUrl = podcastService.getPodcastFileURL(podcastResource.getId());
 						podcastMap.put("guid", fileUrl);
 						final String podcastFolderId = podcastService.retrievePodcastFolderId(siteId);
-						securityService.clearAdvisors();
+						securityService.popAdvisor();
 						
 						// if site Display to Site, need to access actual podcasts thru Dav servlet
 						// so change item URLs to do so
@@ -675,7 +675,7 @@ public class BasicPodfeedService implements PodfeedService {
 
 		}
 
-		securityService.clearAdvisors();
+		securityService.popAdvisor();
 
 		return entries;
 
@@ -858,7 +858,7 @@ public class BasicPodfeedService implements PodfeedService {
 							+ "while generating feed for site " + siteId + e.getMessage(), e);
 		}
 		finally {
-			securityService.clearAdvisors();
+			securityService.popAdvisor();
 									
 		}
 		

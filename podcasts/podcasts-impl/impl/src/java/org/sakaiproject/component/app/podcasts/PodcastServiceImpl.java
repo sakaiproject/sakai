@@ -372,7 +372,7 @@ public class PodcastServiceImpl implements PodcastService {
 		// need to clear advisors so doesn't blindly return true
 		boolean hadAdvisor = false;
 		if (SecurityService.hasAdvisors())  {
-			SecurityService.clearAdvisors();
+			SecurityService.popAdvisor();
 			hadAdvisor = true;
 		}
 		final boolean canUpdateSite = podcastPermissionsService.canUpdateSite(siteId);
@@ -437,7 +437,7 @@ public class PodcastServiceImpl implements PodcastService {
 			}
 
 			boolean result = podcastPermissionsService.isResourceHidden(podcastFolder, tempDate);
-			SecurityService.clearAdvisors();
+			SecurityService.popAdvisor();
 		
 			if (result) {
 			// a student/access user is attempting to access and the folder is 'hidden' so just log the
@@ -517,7 +517,7 @@ public class PodcastServiceImpl implements PodcastService {
 			}
 		}
 		finally {
-			SecurityService.clearAdvisors();
+			SecurityService.popAdvisor();
 		}
 		
 		return null;
@@ -648,7 +648,7 @@ public class PodcastServiceImpl implements PodcastService {
 			return null;
 		}
 		finally{
-			SecurityService.clearAdvisors();
+			SecurityService.popAdvisor();
 		}
 
 		return crEdit;
@@ -1044,7 +1044,7 @@ public class PodcastServiceImpl implements PodcastService {
 
 			}
 			finally {
-				SecurityService.clearAdvisors();
+				SecurityService.popAdvisor();
 			}
 
 			// aResource values properly set, so add to list
@@ -1426,7 +1426,7 @@ public class PodcastServiceImpl implements PodcastService {
 		}
 
 		boolean result = podcastPermissionsService.isResourceHidden(podcastFolder, tempDate);
-		SecurityService.clearAdvisors();
+		SecurityService.popAdvisor();
 		return result;
 	}
 	
