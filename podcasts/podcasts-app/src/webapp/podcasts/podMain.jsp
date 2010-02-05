@@ -79,10 +79,10 @@
     	        <h:panelGroup>
 	 	           <%--  Download link --%>
 	 				<h:outputLink value="#{eachPodcast.fileURL}" styleClass="active" target="#{eachPodcast.newWindow}">
-			 			 <h:outputText value="#{msgs.download} " />
+			 			 <h:outputText value="#{msgs.download}" />
 					</h:outputLink>
  
-	              <h:outputText value=" #{msgs.open_paren}#{eachPodcast.size} #{eachPodcast.type} #{msgs.close_paren} " />
+	              <h:outputText value=" #{msgs.open_paren}#{eachPodcast.size} #{eachPodcast.type}#{msgs.close_paren}" />
 
 	              <%--  go to Revise page --%>
         	      <h:outputText value=" #{msgs.spacer_bar}" rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasReviseAnyPerm || (podHomeBean.hasReviseOwnPerm && eachPodcast.author == podHomeBean.userName)}" />
@@ -92,7 +92,7 @@
     	          </h:commandLink>
                  
 	              <%--  go to Delete page --%> 
-    	          <h:outputText value="#{msgs.spacer_bar}" rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasDelAnyPerm || (podHomeBean.hasDelOwnPerm && eachPodcast.author == podHomeBean.userName)}" />
+    	          <h:outputText value=" #{msgs.spacer_bar}" rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasDelAnyPerm || (podHomeBean.hasDelOwnPerm && eachPodcast.author == podHomeBean.userName)}" />
         	      <h:commandLink action="podcastDelete" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.delete}" styleClass="active" 
             	        rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasDelAnyPerm || (podHomeBean.hasDelOwnPerm && eachPodcast.author == podHomeBean.userName)}" >
                 	<f:param name="resourceId" value="#{eachPodcast.resourceId}" />
