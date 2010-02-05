@@ -1009,7 +1009,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             		 points = "";
             	 }
              }catch(NumberFormatException e){
-                 if(logger.isDebugEnabled())logger.error(e);
+                 if(logger.isDebugEnabled())logger.debug(e);
                  points = "";
              }
              if(logger.isDebugEnabled())logger.debug("user "+user + " userid " + userid +" points "+points);
@@ -1871,22 +1871,34 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             rowcontent = new ArrayList();
             CSV csv = new CSV();
             rowcontent = csv.parse(source);
-
-            try {
-                if(logger.isDebugEnabled()) logger.debug("getuser name for "+ rowcontent.get(0));
-                //userDisplayName = getUserDirectoryService().getUserDisplayName(tokens[0]);
-                userId = ((String) rowcontent.get(0)).toLowerCase();
+            
+            // derive the user information
+            String userContent = (String) rowcontent.get(0);
+            if (userContent != null) {
+                userId = userContent.toLowerCase();
                 
-               	userDisplayName = ((User)rosterMap.get(userId)).getDisplayName();
-               	userUid = ((User)rosterMap.get(userId)).getUserUid();
-               	isKnown  = true;
-               	if(logger.isDebugEnabled())logger.debug("get userid "+ rowcontent.get(0) + "username is "+userDisplayName);
-            } catch (NullPointerException e) {
-              	logger.error("User " + rowcontent.get(0) + " is unknown to this gradebook: " + e);
-               	userDisplayName = "unknown student";
-               	userId = (String) rowcontent.get(0);
-               	userUid = null;
-               	isKnown = false;
+                // check to see if this student is in the roster
+                if (rosterMap.containsKey(userId)) {
+                    isKnown = true;
+                    User user = (User)rosterMap.get(userId);
+                    userDisplayName = user.getDisplayName();
+                    userUid = user.getUserUid();
+                    
+                    if(logger.isDebugEnabled())logger.debug("get userid "+ userId + "username is "+userDisplayName);
+                } else {
+                    isKnown = false;
+                    userDisplayName = getLocalizedString("import_preview_unknown_name");
+                    userUid = null;
+                    
+                    if (logger.isDebugEnabled()) logger.debug("User " + userId + " is unknown to this gradebook");
+                }
+            } else {
+                isKnown = false;
+                userDisplayName = getLocalizedString("import_preview_unknown_name");
+                userUid = null;
+                userId = null;
+                
+                if(logger.isDebugEnabled())logger.debug("Null userId in spreadsheet");
             }
 
         }
