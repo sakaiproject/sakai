@@ -255,18 +255,20 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
                 Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
-                List conflictList = ((List)session.createQuery(
-                        "select go from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
-                        setString(0, name).
-                        setEntity(1, gb).list());
-            		int numNameConflicts = conflictList.size();
-                if(numNameConflicts > 0) {
-                    throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
+                
+                // trim the name before checking validation
+                String trimmedName = name;
+                if (name != null) {
+                    trimmedName = name.trim();
+                }
+                
+                if (assignmentNameExists(session, trimmedName, gb)) {
+                    throw new ConflictingAssignmentNameException("You cannot save multiple assignments in a gradebook with the same name");
                 }
 
                    Assignment asn = new Assignment();
                    asn.setGradebook(gb);
-                   asn.setName(name.trim());
+                   asn.setName(trimmedName);
                    asn.setPointsPossible(points);
                    asn.setDueDate(dueDate);
              			 asn.setUngraded(false);
@@ -466,19 +468,21 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     		public Object doInHibernate(Session session) throws HibernateException {
     			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
     			Category cat = (Category)session.load(Category.class, categoryId);
-    			List conflictList = ((List)session.createQuery(
-    					"select go from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
-    					setString(0, name).
-    					setEntity(1, gb).list());
-    			int numNameConflicts = conflictList.size();
-    			if(numNameConflicts > 0) {
+    			
+    			// trim the assignment name before we validate
+    			String trimmedName = name;
+    			if (name != null) {
+    			    trimmedName = name.trim();
+    			}
+
+    			if(assignmentNameExists(session, trimmedName, gb)) {
     				throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
     			}
 
     			Assignment asn = new Assignment();
     			asn.setGradebook(gb);
     			asn.setCategory(cat);
-    			asn.setName(name.trim());
+    			asn.setName(trimmedName);
     			asn.setPointsPossible(points);
     			asn.setDueDate(dueDate);
     			asn.setUngraded(false);
@@ -857,18 +861,20 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	HibernateCallback hc = new HibernateCallback() {
     		public Object doInHibernate(Session session) throws HibernateException {
     			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
-    			List conflictList = ((List)session.createQuery(
-    			"select go from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
-    			setString(0, name).
-    			setEntity(1, gb).list());
-    			int numNameConflicts = conflictList.size();
-    			if(numNameConflicts > 0) {
+    			
+    			// trim the name before validation
+    			String trimmedName = name;
+    			if (name != null) {
+    			    trimmedName = name.trim();
+    			}
+
+    			if(assignmentNameExists(session, trimmedName, gb)) {
     				throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
     			}
 
     			Assignment asn = new Assignment();
     			asn.setGradebook(gb);
-    			asn.setName(name.trim());
+    			asn.setName(trimmedName);
     			asn.setDueDate(dueDate);
     			asn.setUngraded(true);
     			if (isNotCounted != null) {
@@ -900,19 +906,21 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     		public Object doInHibernate(Session session) throws HibernateException {
     			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
     			Category cat = (Category)session.load(Category.class, categoryId);
-    			List conflictList = ((List)session.createQuery(
-    			"select go from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
-    			setString(0, name).
-    			setEntity(1, gb).list());
-    			int numNameConflicts = conflictList.size();
-    			if(numNameConflicts > 0) {
+    			
+    			// trim the name before the validation
+    			String trimmedName = name;
+    			if (name != null) {
+    			    trimmedName = name.trim();
+    			}
+
+    			if(assignmentNameExists(session, trimmedName, gb)) {
     				throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
     			}
 
     			Assignment asn = new Assignment();
     			asn.setGradebook(gb);
     			asn.setCategory(cat);
-    			asn.setName(name.trim());
+    			asn.setName(trimmedName);
     			asn.setDueDate(dueDate);
     			asn.setUngraded(true);
     			if (isNotCounted != null) {
@@ -1381,5 +1389,31 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     			return null;
     		}
     	});
+    }
+    
+    /**
+     * 
+     * @param session
+     * @param name
+     * @param gradebook
+     * @return true if an assignment with the given name already exists in this gradebook. Does
+     * not trim the name
+     */
+    private boolean assignmentNameExists(Session session, String name, Gradebook gradebook) {
+        boolean nameExists;
+        
+        List conflictList = ((List)session.createQuery(
+            "select go from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
+            setString(0, name).
+            setEntity(1, gradebook).list());
+        
+        int numNameConflicts = conflictList.size();
+        if(numNameConflicts == 0) {
+            nameExists = false; 
+        } else {
+            nameExists = true;
+        }
+        
+        return nameExists;
     }
 }
