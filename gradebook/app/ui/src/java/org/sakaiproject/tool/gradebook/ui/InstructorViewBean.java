@@ -322,6 +322,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 									(originalScore == null && newScore != null) ) {
 								gradeRecord.setPointsEarned(newScore);
 								updatedGradeRecords.add(gradeRecord);
+								getGradebookBean().getEventTrackingService().postEvent("gradebook.updateItemScore","/gradebook/"+getGradebookUid()+"/"+gradeRecord.getAssignment().getName()+"/"+gradeRecord.getStudentId()+"/"+gradeRecord.getPointsEarned()+"/"+getAuthzLevel());
 							}
 						} else if(getGradeEntryByPercent()) {
 							Double originalScore = null;
