@@ -266,11 +266,11 @@ sorting actions for table:
       </h:panelGroup>
       </f:facet>
 
-	<h:outputText value="#{reviewable.assessmentTitle}" styleClass="currentSort" rendered="#{(reviewable.feedback != 'true' || reviewable.isAssessmentRetractForEdit) && reviewable.recordedAssessment}" escape="false"/>
-	<h:outputText value="#{reviewable.assessmentTitle}" rendered="#{(reviewable.feedback != 'true' || reviewable.isAssessmentRetractForEdit) && !reviewable.recordedAssessment}" escape="false"/>
+	<h:outputText value="#{reviewable.assessmentTitle}" styleClass="currentSort" rendered="#{(reviewable.feedback != 'true' || reviewable.isAssessmentRetractForEdit || reviewable.feedbackComponentOption == '1') && reviewable.recordedAssessment}" escape="false"/>
+	<h:outputText value="#{reviewable.assessmentTitle}" rendered="#{(reviewable.feedback != 'true' || reviewable.isAssessmentRetractForEdit || reviewable.feedbackComponentOption == '1') && !reviewable.recordedAssessment}" escape="false"/>
 
     <h:commandLink title="#{selectIndexMessages.t_reviewAssessment}" action="#{delivery.getOutcome}" immediate="true"  
-        rendered="#{reviewable.feedback == 'true' && !reviewable.isAssessmentRetractForEdit}" onmouseup="disableLinks(this);">
+        rendered="#{reviewable.feedback == 'true' && reviewable.feedbackComponentOption == '2' && !reviewable.isAssessmentRetractForEdit}" onmouseup="disableLinks(this);">
         <f:param name="publishedId" value="#{reviewable.assessmentId}" />
         <f:param name="assessmentGradingId" value="#{reviewable.assessmentGradingId}" />
         <f:param name="nofeedback" value="false"/>
@@ -374,10 +374,10 @@ sorting actions for table:
         </h:panelGroup>
       </f:facet>
 
-	  <h:outputText value="#{reviewable.roundedRawScore} " styleClass="currentSort" rendered="#{(reviewable.showScore eq 'true' && !reviewable.isAssessmentRetractForEdit) && reviewable.recordedAssessment}" />
-	  <h:outputText value="#{reviewable.roundedRawScore} " rendered="#{(reviewable.showScore eq 'true' && !reviewable.isAssessmentRetractForEdit) && !reviewable.recordedAssessment}" />
+	  <h:outputText value="#{reviewable.roundedRawScore} " styleClass="currentSort" rendered="#{(reviewable.showScore eq 'true'  && !reviewable.isAssessmentRetractForEdit) && reviewable.recordedAssessment}" />
+	  <h:outputText value="#{reviewable.roundedRawScore} " rendered="#{(reviewable.showScore eq 'true'  && !reviewable.isAssessmentRetractForEdit) && !reviewable.recordedAssessment}" />
 	      
-	  <h:outputText value="#{selectIndexMessages.not_applicable}" styleClass="currentSort" rendered="#{(reviewable.showScore eq 'false' || reviewable.isAssessmentRetractForEdit) && reviewable.recordedAssessment}" />
+	  <h:outputText value="#{selectIndexMessages.not_applicable}" styleClass="currentSort" rendered="#{(reviewable.showScore eq 'false'  || reviewable.isAssessmentRetractForEdit) && reviewable.recordedAssessment}" />
 	  <h:outputText value="#{selectIndexMessages.not_applicable}" rendered="#{(reviewable.showScore eq 'false' || reviewable.isAssessmentRetractForEdit) && !reviewable.recordedAssessment}" />
 	
 	  <h:outputText value="#{selectIndexMessages.asterisk}" styleClass="currentSort" rendered="#{reviewable.multipleSubmissions eq 'true' && reviewable.scoringOption eq '1' && reviewable.recordedAssessment}"/>

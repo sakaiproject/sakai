@@ -583,6 +583,14 @@ public class ExtractionHelper
     {
       feedback.setFeedbackDelivery(feedback.NO_FEEDBACK);
     }
+    
+    if ("SELECT_COMPONENTS".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel("FEEDBACK_COMPONENT_OPTION")))
+    {
+    	feedback.setFeedbackComponentOption(feedback.SELECT_COMPONENTS);
+    }
+    else {
+    	feedback.setFeedbackComponentOption(feedback.SHOW_TOTALSCORE_ONLY);
+    }
 
  if (
         "QUESTION".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(

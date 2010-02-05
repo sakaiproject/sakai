@@ -88,6 +88,7 @@ public class PublishedAssessmentFacade
   private Integer submissionsAllowed;
   private Integer scoringType;
   private Integer feedbackDelivery;
+  private Integer feedbackComponentOption;
   private Integer feedbackAuthoring;
   private Date feedbackDate;
   private String ownerSiteName;
@@ -154,36 +155,36 @@ public class PublishedAssessmentFacade
   // constructor that whole min. info, used for listing
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
                                  Date startDate, Date dueDate, Date retractDate,
-                                 Date feedbackDate, Integer feedbackDelivery, Integer feedbackAuthoring,
+                                 Date feedbackDate, Integer feedbackDelivery, Integer feedbackComponentOption, Integer feedbackAuthoring,
                                  Integer lateHandling, Boolean unlimitedSubmissions,
                                  Integer submissionsAllowed){
     
 	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
-			  feedbackDelivery, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, null, null, null);  
+			  feedbackDelivery, feedbackComponentOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, null, null, null);  
   }
   
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
           Date startDate, Date dueDate, Date retractDate,
-          Date feedbackDate, Integer feedbackDelivery, Integer feedbackAuthoring,
+          Date feedbackDate, Integer feedbackDelivery,  Integer feedbackComponentOption,Integer feedbackAuthoring,
           Integer lateHandling, Boolean unlimitedSubmissions,
           Integer submissionsAllowed, Integer scoringType){
 
 	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
-			  feedbackDelivery, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, null, null);  
+			  feedbackDelivery, feedbackComponentOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, null, null);  
   }
   
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
 			Date startDate, Date dueDate, Date retractDate, Date feedbackDate,
-			Integer feedbackDelivery, Integer feedbackAuthoring,
+			Integer feedbackDelivery, Integer feedbackComponentOption, Integer feedbackAuthoring,
 			Integer lateHandling, Boolean unlimitedSubmissions,
 			Integer submissionsAllowed, Integer scoringType, Integer status) {
 	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
-			  feedbackDelivery, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, status, null);  
+			  feedbackDelivery,feedbackComponentOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, status, null);  
 	  
   }
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
 			Date startDate, Date dueDate, Date retractDate, Date feedbackDate,
-			Integer feedbackDelivery, Integer feedbackAuthoring,
+			Integer feedbackDelivery,  Integer feedbackComponentOption,Integer feedbackAuthoring,
 			Integer lateHandling, Boolean unlimitedSubmissions,
 			Integer submissionsAllowed, Integer scoringType, Integer status, Date lastModifiedDate) {
 		this.publishedAssessmentId = id;
@@ -193,6 +194,7 @@ public class PublishedAssessmentFacade
 		this.dueDate = dueDate;
 		this.retractDate = retractDate;
 		this.feedbackDelivery = feedbackDelivery; // =publishedFeedback.feedbackDelivery
+		this.feedbackComponentOption = feedbackComponentOption;
 		this.feedbackAuthoring = feedbackAuthoring; // =publishedFeedback.feedbackAuthoring
 		this.feedbackDate = feedbackDate;
 		this.lateHandling = lateHandling;
@@ -640,6 +642,10 @@ public class PublishedAssessmentFacade
     return feedbackDelivery;
   }
 
+  public Integer getFeedbackComponentOption()
+  {
+    return feedbackComponentOption;
+  }
  public Integer getFeedbackAuthoring()
   {
     return feedbackAuthoring;

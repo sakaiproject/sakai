@@ -390,6 +390,9 @@ implements ActionListener
 		// Feedback delivery
 		if (assessmentSettings.getFeedbackDelivery()!=null)
 			feedback.setFeedbackDelivery(new Integer(assessmentSettings.getFeedbackDelivery()));
+		if (assessmentSettings.getFeedbackComponentOption()!=null)
+		    feedback.setFeedbackComponentOption(new Integer(assessmentSettings.getFeedbackComponentOption()));
+
 		control.setFeedbackDate(assessmentSettings.getFeedbackDate());
 		// Feedback Components Students Can See
 		feedback.setShowStudentResponse(Boolean.valueOf(assessmentSettings.getShowStudentResponse()));

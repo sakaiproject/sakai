@@ -266,6 +266,8 @@ public class SelectActionListener
         delivery.setAssessmentTitle(g.getPublishedAssessmentTitle());
         delivery.setFeedbackDelivery(getFeedbackDelivery(g.getPublishedAssessmentId(),
                                                  publishedAssessmentHash));
+        delivery.setFeedbackComponentOption(getFeedbackComponentOption(g.getPublishedAssessmentId(),
+                                                 publishedAssessmentHash));
         delivery.setFeedbackDate(getFeedbackDate(g.getPublishedAssessmentId(),
                                                  publishedAssessmentHash));
         if (g.getFinalScore() != null) {
@@ -653,7 +655,7 @@ public class SelectActionListener
     // must meet 2 conditions: hasFeedback==true && feedback.getShowStudentScore()==true
     AssessmentFeedbackIfc f= (AssessmentFeedbackIfc)feedbackHash.get(a.getPublishedAssessmentId());
     if (f!=null){
-      if ( (Boolean.TRUE).equals(f.getShowStudentScore()) &&
+      if ( ((Boolean.TRUE).equals(f.getShowStudentScore()) || f.getFeedbackComponentOption().equals(new Integer(1)) ) &&
     		  "true".equals(hasFeedback))
         showScore = "true";
     }
@@ -700,6 +702,15 @@ public class SelectActionListener
     else
       return null;
   }
+  
+  private String getFeedbackComponentOption(Long publishedAssessmentId, HashMap publishedAssessmentHash){
+	    PublishedAssessmentFacade p = (PublishedAssessmentFacade)publishedAssessmentHash.
+	        get(publishedAssessmentId);
+	    if (p!=null)
+	      return p.getFeedbackComponentOption().toString();
+	    else
+	      return null;
+	  }
   
   private boolean getHasAssessmentBeenModified(SelectAssessmentBean select, AssessmentGradingFacade g, HashMap publishedAssessmentHash){
 	    PublishedAssessmentFacade p = (PublishedAssessmentFacade)publishedAssessmentHash.

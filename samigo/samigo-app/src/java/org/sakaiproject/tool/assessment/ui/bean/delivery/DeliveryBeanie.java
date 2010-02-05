@@ -70,6 +70,7 @@ private static Log log = LogFactory.getLog(DeliveryBeanie.class);
   private String rawScore;
   private java.util.Date feedbackDate;
   private String feedbackDelivery;
+  private String feedbackComponentOption;
   private String showScore;
   private String submissionHours; 
   private String submissionMinutes; 
@@ -277,6 +278,16 @@ private static Log log = LogFactory.getLog(DeliveryBeanie.class);
   public void setFeedbackDelivery(String feedbackDelivery)
   {
     this.feedbackDelivery = feedbackDelivery;
+  }
+
+  public String getFeedbackComponentOption()
+  {
+    return feedbackComponentOption;
+  }
+
+  public void setFeedbackComponentOption(String feedbackComponentOption)
+  {
+    this.feedbackComponentOption = feedbackComponentOption;
   }
 
   public String getShowScore()

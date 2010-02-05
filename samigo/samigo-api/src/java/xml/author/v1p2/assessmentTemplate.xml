@@ -338,6 +338,12 @@
       </qtimetadatafield>
       <!--Possible Values -->
       <!-- IMMEDIATE, DATED, NONE-->
+     <qtimetadatafield>
+        <fieldlabel>FEEDBACK_COMPONENT_OPTION</fieldlabel>
+        <fieldentry>NONE</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!-- SELECT_COMPONENTS, SHOW_TOTALSCORE_ONLY-->
 
       <qtimetadatafield>
         <fieldlabel>FEEDBACK_AUTHORING</fieldlabel>

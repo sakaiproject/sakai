@@ -153,7 +153,9 @@ public class AssessmentSettingsBean
 
   // properties of AssesmentFeedback
   private String feedbackDelivery; // immediate, on specific date , no feedback
-  //private String editComponents; // 0 = cannot
+  private String feedbackComponentOption; // 2 = select options, 1 = total scores only 
+
+//private String editComponents; // 0 = cannot
   private boolean showQuestionText = true;
   private boolean showStudentResponse = false;
   private boolean showCorrectResponse = false;
@@ -349,6 +351,10 @@ public class AssessmentSettingsBean
       if (feedback != null) {
         if (feedback.getFeedbackDelivery()!=null)
           this.feedbackDelivery = feedback.getFeedbackDelivery().toString();
+        
+        if (feedback.getFeedbackComponentOption()!=null)
+            this.feedbackComponentOption = feedback.getFeedbackComponentOption().toString();
+
         if (feedback.getFeedbackAuthoring()!=null)
           this.feedbackAuthoring = feedback.getFeedbackAuthoring().toString();
         
@@ -782,6 +788,14 @@ public class AssessmentSettingsBean
     this.feedbackDelivery = feedbackDelivery;
   }
 
+  public String getFeedbackComponentOption() {
+		return feedbackComponentOption;
+  }
+
+  public void setFeedbackComponentOption(String feedbackComponentOption) {
+		this.feedbackComponentOption = feedbackComponentOption;
+  }
+	
   public boolean getShowQuestionText() {
     return showQuestionText;
   }

@@ -1975,7 +1975,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			return null;
 		}
 		AssessmentFeedback newFeedback = new AssessmentFeedback(a
-				.getFeedbackDelivery(), a.getFeedbackAuthoring(), a
+				.getFeedbackDelivery(), a.getFeedbackComponentOption(),a.getFeedbackAuthoring(), a
 				.getEditComponents(), a.getShowQuestionText(), a
 				.getShowStudentResponse(), a.getShowCorrectResponse(), a
 				.getShowStudentScore(), a.getShowStudentQuestionScore(), a

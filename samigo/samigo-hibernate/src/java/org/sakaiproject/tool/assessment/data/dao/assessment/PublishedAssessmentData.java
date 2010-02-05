@@ -77,6 +77,7 @@ public class PublishedAssessmentData
   private Boolean unlimitedSubmissions;
   private Integer submissionsAllowed;
   private Integer feedbackDelivery;
+  private Integer feedbackComponentOption;
   private Integer feedbackAuthoring;
   private Date feedbackDate;
   //private String ownerSiteName;
@@ -214,36 +215,36 @@ public class PublishedAssessmentData
   
   public PublishedAssessmentData(Long id, String title, String releaseTo,
           Date startDate, Date dueDate, Date retractDate,
-          Date feedbackDate, Integer feedbackDelivery,  Integer feedbackAuthoring,
+          Date feedbackDate, Integer feedbackDelivery, Integer feedbackComponentOption,  Integer feedbackAuthoring,
           Integer lateHandling,
           Boolean unlimitedSubmissions,
           Integer submissionsAllowed) {
 	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
-			  feedbackDelivery, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, null, null, null);
+			  feedbackDelivery,feedbackComponentOption,  feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, null, null, null);
   }
   
   public PublishedAssessmentData(Long id, String title, String releaseTo,
           Date startDate, Date dueDate, Date retractDate,
-          Date feedbackDate, Integer feedbackDelivery,  Integer feedbackAuthoring,
+          Date feedbackDate, Integer feedbackDelivery, Integer feedbackComponentOption, Integer feedbackAuthoring,
           Integer lateHandling,
           Boolean unlimitedSubmissions,
           Integer submissionsAllowed, Integer scoringType) {
 	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
-			  feedbackDelivery, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, null, null);
+			  feedbackDelivery, feedbackComponentOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, null, null);
   }
 
   public PublishedAssessmentData(Long id, String title, String releaseTo,
           Date startDate, Date dueDate, Date retractDate,
-          Date feedbackDate, Integer feedbackDelivery,  Integer feedbackAuthoring,
+          Date feedbackDate, Integer feedbackDelivery, Integer feedbackComponentOption, Integer feedbackAuthoring,
           Integer lateHandling,
           Boolean unlimitedSubmissions,
           Integer submissionsAllowed, Integer scoringType, Integer status) {
 	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
-			  feedbackDelivery, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, status, null);
+			  feedbackDelivery,feedbackComponentOption, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, scoringType, status, null);
   }
   public PublishedAssessmentData(Long id, String title, String releaseTo,
                                  Date startDate, Date dueDate, Date retractDate,
-                                 Date feedbackDate, Integer feedbackDelivery,  Integer feedbackAuthoring,
+                                 Date feedbackDate, Integer feedbackDelivery,  Integer feedbackComponentOption,Integer feedbackAuthoring,
                                  Integer lateHandling,
                                  Boolean unlimitedSubmissions,
                                  Integer submissionsAllowed, Integer scoringType, Integer status, Date lastModifiedDate) {
@@ -254,6 +255,7 @@ public class PublishedAssessmentData
     this.dueDate = dueDate;
     this.retractDate = retractDate;
     this.feedbackDelivery = feedbackDelivery; //=publishedFeedback.feedbackDelivery
+    this.feedbackComponentOption = feedbackComponentOption;
     this.feedbackAuthoring = feedbackAuthoring; //=publishedFeedback.feedbackAuthoring
     this.feedbackDate = feedbackDate;
     this.lateHandling = lateHandling;
@@ -646,6 +648,11 @@ public class PublishedAssessmentData
   public Integer getFeedbackDelivery()
   {
     return feedbackDelivery;
+  }
+  
+  public Integer getFeedbackComponentOption()
+  {
+    return feedbackComponentOption;
   }
 
   public Integer getFeedbackAuthoring()

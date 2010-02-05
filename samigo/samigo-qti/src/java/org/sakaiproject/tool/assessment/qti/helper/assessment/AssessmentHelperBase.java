@@ -128,6 +128,16 @@ public abstract class AssessmentHelperBase
     {
       assessmentXml.setFieldentry("FEEDBACK_DELIVERY", "NONE");
     }
+    
+    Integer feedbackComponentOption = feedback.getFeedbackComponentOption();
+    if (feedback.SELECT_COMPONENTS.equals(feedbackComponentOption))
+    {
+    	assessmentXml.setFieldentry("FEEDBACK_COMPONENT_OPTION", "SELECT_COMPONENTS");
+    }
+    else 
+    {
+    	assessmentXml.setFieldentry("FEEDBACK_COMPONENT_OPTION", "SHOW_TOTALSCORE_ONLY");
+    }
 
     Integer feedbackAuthoring = feedback.getFeedbackAuthoring();
     if (feedback.QUESTIONLEVEL_FEEDBACK.equals(feedbackAuthoring))

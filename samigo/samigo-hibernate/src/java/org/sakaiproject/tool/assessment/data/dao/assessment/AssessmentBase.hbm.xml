@@ -164,6 +164,7 @@
       class="org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentBaseData"
       constrained="true" cascade="all" />
     <property name="feedbackDelivery" type="integer" column="FEEDBACKDELIVERY" not-null="false" />
+    <property name="feedbackComponentOption" type="integer" column="FEEDBACKCOMPONENTOPTION" not-null="false" />
     <property name="feedbackAuthoring" type="integer" column="FEEDBACKAUTHORING" not-null="false" />
     <property name="editComponents" type="integer" column="EDITCOMPONENTS" not-null="false" />
     <property name="showQuestionText" type="boolean" column="SHOWQUESTIONTEXT" not-null="false" />

@@ -262,7 +262,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			return null;
 		}
 		PublishedFeedback publishedFeedback = new PublishedFeedback(a
-				.getFeedbackDelivery(), a.getFeedbackAuthoring(), a
+				.getFeedbackDelivery(), a.getFeedbackComponentOption(),a.getFeedbackAuthoring(), a
 				.getEditComponents(), a.getShowQuestionText(), a
 				.getShowStudentResponse(), a.getShowCorrectResponse(), a
 				.getShowStudentScore(), a.getShowStudentQuestionScore(), a
@@ -1386,7 +1386,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		if (groupIds.size() > 0) {
 			query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
 				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, "
-				+ " c.feedbackDate, f.feedbackDelivery,  f.feedbackAuthoring, c.lateHandling, "
+				+ " c.feedbackDate, f.feedbackDelivery, f.feedbackComponentOption, f.feedbackAuthoring, c.lateHandling, "
 				+ " c.unlimitedSubmissions, c.submissionsAllowed, em.scoringType, p.status, p.lastModifiedDate) "
 				+ " from PublishedAssessmentData as p, PublishedAccessControl as c,"
 				+ " PublishedFeedback as f, AuthorizationData as az, PublishedEvaluationModel as em"
@@ -1400,7 +1400,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		else {
 			query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
 				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, "
-				+ " c.feedbackDate, f.feedbackDelivery,  f.feedbackAuthoring, c.lateHandling, "
+				+ " c.feedbackDate, f.feedbackDelivery, f.feedbackComponentOption, f.feedbackAuthoring, c.lateHandling, "
 				+ " c.unlimitedSubmissions, c.submissionsAllowed, em.scoringType, p.status) "
 				+ " from PublishedAssessmentData as p, PublishedAccessControl as c,"
 				+ " PublishedFeedback as f, AuthorizationData as az, PublishedEvaluationModel as em"
@@ -1449,7 +1449,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 					.getPublishedAssessmentId(), p.getTitle(),
 					p.getReleaseTo(), p.getStartDate(), p.getDueDate(), p
 							.getRetractDate(), p.getFeedbackDate(), p
-							.getFeedbackDelivery(), p.getFeedbackAuthoring(), p
+							.getFeedbackDelivery(), p.getFeedbackComponentOption(), p.getFeedbackAuthoring(), p
 							.getLateHandling(), p.getUnlimitedSubmissions(), p
 							.getSubmissionsAllowed(), p.getScoringType(), p.getStatus(), p.getLastModifiedDate());
 			pubList.add(f);
@@ -1697,7 +1697,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		HashMap h = new HashMap();
 		String query = "select new PublishedFeedback("
 				+ " p.assessment.publishedAssessmentId,"
-				+ " p.feedbackDelivery,  p.feedbackAuthoring, p.editComponents, p.showQuestionText,"
+				+ " p.feedbackDelivery,p.feedbackComponentOption,  p.feedbackAuthoring, p.editComponents, p.showQuestionText,"
 				+ " p.showStudentResponse, p.showCorrectResponse,"
 				+ " p.showStudentScore," + " p.showStudentQuestionScore,"
 				+ " p.showQuestionLevelFeedback, p.showSelectionLevelFeedback,"
@@ -2338,7 +2338,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			final Long publishedId) {
 		String query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
 				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, "
-				+ " c.feedbackDate, f.feedbackDelivery,  f.feedbackAuthoring, c.lateHandling, "
+				+ " c.feedbackDate, f.feedbackDelivery, f.feedbackComponentOption, f.feedbackAuthoring, c.lateHandling, "
 				+ " c.unlimitedSubmissions, c.submissionsAllowed) "
 				+ " from PublishedAssessmentData as p, PublishedAccessControl as c,"
 				+ " PublishedFeedback as f"

@@ -198,6 +198,8 @@ public class SaveAssessmentSettings
     }
     if (assessmentSettings.getFeedbackDelivery()!=null)
      feedback.setFeedbackDelivery(new Integer(assessmentSettings.getFeedbackDelivery()));
+    if (assessmentSettings.getFeedbackComponentOption()!=null)
+        feedback.setFeedbackComponentOption(new Integer(assessmentSettings.getFeedbackComponentOption()));
     if (assessmentSettings.getFeedbackAuthoring()!=null)
      feedback.setFeedbackAuthoring(new Integer(assessmentSettings.getFeedbackAuthoring()));
     feedback.setShowQuestionText(Boolean.valueOf(assessmentSettings.getShowQuestionText()));

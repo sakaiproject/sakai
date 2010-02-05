@@ -1,4 +1,4 @@
-package org.sakaiproject.tool.assessment.ui.bean.evaluation;
+package test.org.sakaiproject.tool.assessment.ui.bean.evaluation;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -8,6 +8,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.apache.poi.ss.usermodel.Workbook;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.ExportResponsesBean;
 
 /**
  * Tests for the spreadsheet export, SAK-16560

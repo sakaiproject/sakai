@@ -35,6 +35,7 @@ public class PublishedFeedback
 private Long id;
   private AssessmentIfc assessment;
   private Integer feedbackDelivery; // 0 = cannot edit, 1=immediate, 2=on specific date , 3= no feedback
+  private Integer feedbackComponentOption; // total scores only, or select components 
   private Integer feedbackAuthoring; // 0 = cannot edit, 1=questionlevel, 2=sectionlevel, 3= both feedback
   private Integer editComponents; // 0 = cannot
   private Boolean showQuestionText;
@@ -62,12 +63,13 @@ private Long id;
     setShowStudentScore(Boolean.FALSE);
     setShowStudentQuestionScore(Boolean.FALSE);
     setFeedbackDelivery(AssessmentFeedbackIfc.NO_FEEDBACK);
+    setFeedbackComponentOption(AssessmentFeedbackIfc.SELECT_COMPONENTS);
     setFeedbackAuthoring(AssessmentFeedbackIfc.QUESTIONLEVEL_FEEDBACK);
   }
 
   public PublishedFeedback(
       Long assessmentId,
-      Integer feedbackDelivery,Integer feedbackAuthoring, Integer editComponents, Boolean showQuestionText,
+      Integer feedbackDelivery, Integer feedbackComponentOption, Integer feedbackAuthoring, Integer editComponents, Boolean showQuestionText,
       Boolean showStudentResponse, Boolean showCorrectResponse,
       Boolean showStudentScore,  Boolean showStudentQuestionScore, 
       Boolean showQuestionLevelFeedback, Boolean showSelectionLevelFeedback,
@@ -75,6 +77,7 @@ private Long id;
   {
     this.assessmentId = assessmentId;
     this.feedbackDelivery = feedbackDelivery;
+    this.feedbackComponentOption = feedbackComponentOption;
     this.feedbackAuthoring = feedbackAuthoring;
     this.editComponents = editComponents;
     this.showQuestionText = showQuestionText;
@@ -89,13 +92,14 @@ private Long id;
   }
 
   public PublishedFeedback(
-      Integer feedbackDelivery,Integer feedbackAuthoring, Integer editComponents, Boolean showQuestionText,
+      Integer feedbackDelivery,Integer feedbackComponentOption, Integer feedbackAuthoring, Integer editComponents, Boolean showQuestionText,
       Boolean showStudentResponse, Boolean showCorrectResponse,
       Boolean showStudentScore,  Boolean showStudentQuestionScore,
       Boolean showQuestionLevelFeedback, Boolean showSelectionLevelFeedback,
       Boolean showGraderComments, Boolean showStatistics)
   {
     this.feedbackDelivery = feedbackDelivery;
+    this.feedbackComponentOption = feedbackComponentOption;
     this.feedbackAuthoring = feedbackAuthoring;
     this.editComponents = editComponents;
     this.showQuestionText = showQuestionText;
@@ -111,7 +115,7 @@ private Long id;
 
   public Object clone() throws CloneNotSupportedException{
     Object cloned = new PublishedFeedback(
-        this.getFeedbackDelivery(),  this.getFeedbackAuthoring(), this.getEditComponents(),
+        this.getFeedbackDelivery(), this.getFeedbackComponentOption(), this.getFeedbackAuthoring(), this.getEditComponents(),
         this.getShowQuestionText(),
         this.getShowStudentResponse(), this.getShowCorrectResponse(),
         this.getShowStudentScore(),   this.getShowStudentQuestionScore(), 
@@ -276,5 +280,14 @@ private Long id;
   public void setAssessmentId(Long assessmentId) {
     this.assessmentId = assessmentId;
   }
+
+public Integer getFeedbackComponentOption() {
+	return feedbackComponentOption;
+}
+
+public void setFeedbackComponentOption(Integer feedbackComponentOption) {
+	this.feedbackComponentOption = feedbackComponentOption;
+	
+}
 
 }

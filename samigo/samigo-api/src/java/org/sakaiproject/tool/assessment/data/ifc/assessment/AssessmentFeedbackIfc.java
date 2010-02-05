@@ -35,6 +35,8 @@ public interface AssessmentFeedbackIfc
   public static Integer QUESTIONLEVEL_FEEDBACK = Integer.valueOf(1);
   public static Integer SECTIONLEVEL_FEEDBACK = Integer.valueOf(2);
   public static Integer BOTH_FEEDBACK = Integer.valueOf(3);
+  public static Integer SELECT_COMPONENTS = Integer.valueOf(2);  // select feedback components 
+  public static Integer SHOW_TOTALSCORE_ONLY = Integer.valueOf(1);  // select feedback components 
 
   Long getId();
 
@@ -91,4 +93,9 @@ public interface AssessmentFeedbackIfc
   Boolean getShowStatistics();
 
   void setShowStatistics(Boolean showStatistics);
+
+  Integer getFeedbackComponentOption();
+
+  void setFeedbackComponentOption(Integer feedbackComponentOption);
+
 }

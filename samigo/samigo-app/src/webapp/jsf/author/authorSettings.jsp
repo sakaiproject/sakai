@@ -75,6 +75,7 @@ function submitForm()
 
 // By convention we start all feedback JSF ids with "feedback".
 var feedbackIdFlag = "assessmentSettingsAction:feedback";
+var feedbackComponentOptionFlag = "assessmentSettingsAction:feedbackComponentOption";
 var noFeedback = "3";
 
 // If we select "No Feedback will be displayed to the student"
@@ -99,6 +100,11 @@ function disableAllFeedbackCheck(feedbackType)
           feedbacks[i].value = "";
           feedbacks[i].disabled = true;
         }
+        else if ((feedbacks[i].type == 'radio') && (feedbacks[i].name.indexOf(feedbackComponentOptionFlag)==0))
+        {
+            feedbacks[i].value = 2; 
+   
+        }
       }
       else
       {
@@ -110,6 +116,29 @@ function disableAllFeedbackCheck(feedbackType)
   document.forms[0].onsubmit();
   document.forms[0].submit();
 }
+
+
+function disableOtherFeedbackComponentOption(field)
+{
+  var fieldname = field.getAttribute("name");
+  var feedbacks = document.getElementsByTagName('INPUT');
+   var feedbackComponentIdFlag = "assessmentSettingsAction:feedbackCheckbox";
+  for (i=0; i<feedbacks.length; i++)
+  {
+    if (feedbacks[i].name.indexOf(feedbackComponentIdFlag)==0)
+    {
+         if (feedbacks[i].type == 'checkbox')
+        {
+          feedbacks[i].checked = false;
+          feedbacks[i].disabled = true;
+        }
+     }
+  }
+
+  document.forms[0].onsubmit();
+  document.forms[0].submit();
+}
+
 
 function checkTimeSelect(){
   var autoSubmitId;
@@ -732,47 +761,58 @@ function setBlockDivs()
 
     <!-- FEEDBACK COMPONENTS -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackComponents_isInstructorEditable==true}">
-     <f:verbatim> <div class="longtext"> </f:verbatim>  <h:outputLabel value="#{templateMessages.feedback_components_sub}" /> <f:verbatim> </div> <div class="tier3"></f:verbatim>
+     <f:verbatim> <div class="longtext"> </f:verbatim>  
+     
+       <h:panelGrid columns="2"  >
+        <h:selectOneRadio id="feedbackComponentOption" value="#{assessmentSettings.feedbackComponentOption}" 
+        onclick="setBlockDivs();disableOtherFeedbackComponentOption(this);" layout="pageDirection">
+          <f:selectItem itemValue="1" itemLabel="#{templateMessages.feedback_components_totalscore_only}"/>
+          <f:selectItem itemValue="2" itemLabel="#{templateMessages.feedback_components_select}"/>
+        </h:selectOneRadio>
+      </h:panelGrid>
+  
+
+     <f:verbatim> </div> <div class="tier3"></f:verbatim>
       <h:panelGrid columns="2"  >
 
         <h:panelGroup>
           <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentResponse}" id="feedbackCheckbox1"
-            disabled="#{assessmentSettings.feedbackDelivery==3}" />
+            disabled="#{assessmentSettings.feedbackDelivery==3 || assessmentSettings.feedbackComponentOption ==1}" />
           <h:outputText value="#{assessmentSettingsMessages.student_response}" />
         </h:panelGroup>
         <h:panelGroup>
           <h:selectBooleanCheckbox value="#{assessmentSettings.showQuestionLevelFeedback}" id="feedbackCheckbox2"
-            disabled="#{assessmentSettings.feedbackDelivery==3}" />
+            disabled="#{assessmentSettings.feedbackDelivery==3 || assessmentSettings.feedbackComponentOption ==1}" />
           <h:outputText value="#{assessmentSettingsMessages.question_level_feedback}" />
         </h:panelGroup>
         <h:panelGroup>
           <h:selectBooleanCheckbox value="#{assessmentSettings.showCorrectResponse}" id="feedbackCheckbox3"
-            disabled="#{assessmentSettings.feedbackDelivery==3}" />
+            disabled="#{assessmentSettings.feedbackDelivery==3 || assessmentSettings.feedbackComponentOption ==1}" />
           <h:outputText value="#{assessmentSettingsMessages.correct_response}" />
         </h:panelGroup>
         <h:panelGroup>
           <h:selectBooleanCheckbox value="#{assessmentSettings.showSelectionLevelFeedback}" id="feedbackCheckbox4"
-            disabled="#{assessmentSettings.feedbackDelivery==3}" />
+            disabled="#{assessmentSettings.feedbackDelivery==3 || assessmentSettings.feedbackComponentOption ==1}" />
           <h:outputText value="#{assessmentSettingsMessages.selection_level_feedback}" />
         </h:panelGroup>
         <h:panelGroup>
           <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentScore}" id="feedbackCheckbox5"
-            disabled="#{assessmentSettings.feedbackDelivery==3}" />
+            disabled="#{assessmentSettings.feedbackDelivery==3 || assessmentSettings.feedbackComponentOption ==1}" />
           <h:outputText value="#{assessmentSettingsMessages.student_assessment_score}" />
         </h:panelGroup>
         <h:panelGroup>
           <h:selectBooleanCheckbox value="#{assessmentSettings.showGraderComments}" id="feedbackCheckbox6"
-            disabled="#{assessmentSettings.feedbackDelivery==3}" />
+            disabled="#{assessmentSettings.feedbackDelivery==3 || assessmentSettings.feedbackComponentOption ==1}" />
           <h:outputText value="#{assessmentSettingsMessages.grader_comments}" />
         </h:panelGroup>
         <h:panelGroup>
           <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentQuestionScore}" id="feedbackCheckbox7"
-            disabled="#{assessmentSettings.feedbackDelivery==3}" />
+            disabled="#{assessmentSettings.feedbackDelivery==3 || assessmentSettings.feedbackComponentOption ==1}" />
           <h:outputText value="#{assessmentSettingsMessages.student_question_score}" />
         </h:panelGroup>
         <h:panelGroup>
           <h:selectBooleanCheckbox value="#{assessmentSettings.showStatistics}" id="feedbackCheckbox8"
-            disabled="#{assessmentSettings.feedbackDelivery==3}" />
+            disabled="#{assessmentSettings.feedbackDelivery==3 || assessmentSettings.feedbackComponentOption ==1}" />
           <h:outputText value="#{assessmentSettingsMessages.statistics_and_histogram}" />
         </h:panelGroup>
 
