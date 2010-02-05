@@ -1,5 +1,5 @@
 ##<textarea id="debugger" rows="50" cols="100"></textarea>
-<script type="text/javascript" src="#libraryLink('js/jquery-1.1.2.js')">
+<script type="text/javascript" src="#libraryLink('js/jquery.js')">
 </script>
 <script type="text/javascript" language="JavaScript">
 	<!--
@@ -1135,7 +1135,7 @@
 		}
 	}
 
-	//this function needs jquery 1.1.2 or later - it resizes the parent iframe without bringing the scroll to the top
+	//this function needs jquery  - it resizes the parent iframe without bringing the scroll to the top
 	function resizeFrame(updown) 
 	{
 		var frame = parent.document.getElementById( window.name );
