@@ -82,6 +82,7 @@ public class JLDAPDirectoryProviderTest extends MockObjectTestCase {
 		searchResults = (LDAPSearchResults) mockSearchResults.proxy();
 		mockEntry = mock(LDAPEntry.class);
 		entry = (LDAPEntry)mockEntry.proxy();
+		provider.setMemoryService(new TestMemoryService());
 		
 		mockConnManager.expects(once()).method("setConfig").with(same(provider));
 		mockConnManager.expects(once()).method("init");

@@ -7,6 +7,10 @@
 		class="edu.amc.sakai.user.JLDAPDirectoryProvider" init-method="init"
 		destroy-method="destroy" singleton="true">
 		
+		<property name="memoryService">
+			<ref bean="org.sakaiproject.memory.api.MemoryService"/>
+		</property>
+		
 		<!-- Required. Host name or address of your LDAP server -->
 		<property name="ldapHost">
 			<value>ldap.university.edu</value>
