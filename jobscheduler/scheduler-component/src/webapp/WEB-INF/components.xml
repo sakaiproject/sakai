@@ -141,10 +141,6 @@
 	   		class="org.sakaiproject.conditions.job.DatetimeEventJob">
 	   	</bean>
 	   	
-	   	<bean id="org.sakaiproject.conditions.impl.ResourceReleaseRule"
-	   		class="org.sakaiproject.conditions.impl.ResourceReleaseRule">
-	   		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
-	   	</bean>
 
 	   <!-- this is the helper that will register the above bean with the job scheduler -->
 	   <!--
