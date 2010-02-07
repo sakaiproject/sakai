@@ -42,6 +42,7 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.TransformerHandler;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xalan.templates.OutputProperties;
@@ -515,7 +516,11 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 				.replaceAll("]]>", "]]>]]&gt;<![CDATA["); //$NON-NLS-1$ //$NON-NLS-2$
 		String cdataContentDigest = contentDigest.replaceAll("]]>", "]]>]]&gt;<![CDATA["); //$NON-NLS-1$ //$NON-NLS-2$
 
-		renderedPage = "<content><rendered>" + renderedPage //$NON-NLS-1$
+        /* http://jira.sakaiproject.org/browse/SAK-13281
+         * ensure all page content is escaped or double escaped before it goes into the parser,
+         * if this is not done then the parser will unescape html entities during processing
+         */
+        renderedPage = "<content><rendered>" + StringEscapeUtils.escapeXml(renderedPage) //$NON-NLS-1$
 				+ "</rendered><rendered-cdata><![CDATA[" + cdataEscapedRendered + "]]></rendered-cdata><contentdigest><![CDATA[" + cdataContentDigest //$NON-NLS-1$ //$NON-NLS-2$
 				+ "]]></contentdigest></content>"; //$NON-NLS-1$
 
