@@ -138,7 +138,7 @@
    <!-- Conditions Job -->
    		<!--  simple job that fires a Datetime event -->   
 	   <bean id="datetimeJob"
-	   		class="org.sakaiproject.conditions.impl.job.DatetimeEventJob">
+	   		class="org.sakaiproject.conditions.job.DatetimeEventJob">
 	   	</bean>
 	   	
 	   	<bean id="org.sakaiproject.conditions.impl.ResourceReleaseRule"

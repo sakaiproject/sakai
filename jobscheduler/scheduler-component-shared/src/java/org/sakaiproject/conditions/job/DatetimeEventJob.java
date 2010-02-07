@@ -18,7 +18,7 @@
  * limitations under the License.
  *
  **********************************************************************************/
-package org.sakaiproject.conditions.impl.job;
+package org.sakaiproject.conditions.job;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
