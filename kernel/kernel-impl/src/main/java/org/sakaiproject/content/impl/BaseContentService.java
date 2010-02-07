@@ -4774,7 +4774,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			displayName = name;
 		}
 
-		if (M_log.isDebugEnabled()) M_log.debug("copyCollection adding colletion=" + new_folder_id + " name=" + name);
+		if (M_log.isDebugEnabled()) M_log.debug("moveSCollection adding colletion=" + new_folder_id + " name=" + name);
 
 		String base_id = new_folder_id + "-";
 		boolean still_trying = true;
@@ -4800,6 +4800,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 					{
 						props.addProperty(ResourceProperties.PROP_CREATION_DATE, created);
 					}
+					
+					if 	(isPubView(thisCollection.getId()))
+					{
+						collection.setPublicAccess();
+					}
+					collection.setAvailability(thisCollection.isHidden(), thisCollection.getReleaseDate(), thisCollection.getReleaseDate());
 					m_storage.commitCollection(collection);
 
 					if (M_log.isDebugEnabled()) M_log.debug("moveCollection successful");
@@ -5036,7 +5042,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	{
 		// Should use copyIntoFolder if possible
 		boolean isCollection = false;
-		boolean isRootCollection = false;
+		
 		ContentResource thisResource = null;
 
 		if (M_log.isDebugEnabled()) M_log.debug("copy(" + id + "," + new_id + ")");
@@ -5083,35 +5089,16 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 		if (properties == null) return resourceProperties;
 
-		// If there is a distinct display name, we keep it
-		// If the display name is the "file name" we pitch it and let the name change
-		String displayName = properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
-		String resourceName = isolateName(id);
-		if (displayName == null) displayName = resourceName;
-		if (displayName.length() == 0) displayName = resourceName;
 
-		// loop throuh the properties
-		Iterator propertyNames = properties.getPropertyNames();
+		// loop through the properties
+		Iterator<String> propertyNames = properties.getPropertyNames();
 		while (propertyNames.hasNext())
 		{
 			String propertyName = (String) propertyNames.next();
-			resourceProperties.addProperty(propertyName, properties.getProperty(propertyName));
-			/*
-			if (!properties.isLiveProperty(propertyName))
-			{
-				if (propertyName.equals(ResourceProperties.PROP_DISPLAY_NAME))
-				{
-					if (!displayName.equals(resourceName))
-					{
-						resourceProperties.addProperty(propertyName, displayName);
-					}
-				}
-				else
-				{
-					resourceProperties.addProperty(propertyName, properties.getProperty(propertyName));
-				} // if-else
-			} // if
-			 */
+			String propertyValue = properties.getProperty(propertyName);
+			M_log.debug("copying: " + propertyName + " with value " + propertyValue);
+			resourceProperties.addProperty(propertyName, propertyValue);
+			
 		} // while
 		return resourceProperties;
 
@@ -5143,6 +5130,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	public String copyResource(ContentResource resource, String new_id) throws PermissionException, IdUnusedException,
 	TypeException, InUseException, OverQuotaException, IdUsedException, ServerOverloadException
 	{
+		if (M_log.isDebugEnabled())
+		{
+			M_log.debug("copyResource: " + resource.getId() + " to " + new_id);
+		}
+		
         if (StringUtils.isBlank(new_id)) {
             throw new IllegalArgumentException("new_id must not be null");
         }
@@ -5279,10 +5271,15 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		newProps.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
 
 		if (M_log.isDebugEnabled()) M_log.debug("copyCollection adding colletion=" + new_id + " name=" + name);
-
+		boolean isHidden = false;
+		if (isPubView(thisCollection.getId()))
+		{
+			isHidden = true;
+		}
 		try
 		{
-			ContentCollection newCollection = addCollection(new_id, newProps);
+			ContentCollection newCollection = addCollection(new_id, newProps, null, isHidden, null, null);
+			
 			if (M_log.isDebugEnabled()) M_log.debug("copyCollection successful");
 		}
 		catch (InconsistentException e)
@@ -5335,7 +5332,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			newProps.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
 		}
 
-		if (M_log.isDebugEnabled()) M_log.debug("copyCollection adding colletion=" + new_folder_id + " name=" + name);
+		if (M_log.isDebugEnabled()) M_log.debug("deepCopyCollection adding colletion=" + new_folder_id + " name=" + name);
 
 		String base_id = new_folder_id + "-";
 		boolean still_trying = true;
@@ -5346,8 +5343,16 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			try
 			{
 				newCollection = addCollection(new_folder_id, newProps);
-
-				if (M_log.isDebugEnabled()) M_log.debug("moveCollection successful");
+				// use the creator and creation-date of the original instead of the copy
+				BaseCollectionEdit collection = (BaseCollectionEdit) m_storage.editCollection(newCollection.getId());
+				if 	(isPubView(thisCollection.getId()))
+				{
+					collection.setPublicAccess();
+				}
+				collection.setAvailability(thisCollection.isHidden(), thisCollection.getReleaseDate(), thisCollection.getReleaseDate());
+				m_storage.commitCollection(collection);
+				
+				if (M_log.isDebugEnabled()) M_log.debug("deepCopyCollection  top level created successful");
 				still_trying = false;
 			}
 			catch (IdUsedException e)
@@ -5380,6 +5385,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 					try
 					{
 						newCollection = addCollection(new_folder_id, newProps);
+						BaseCollectionEdit collection = (BaseCollectionEdit) m_storage.editCollection(newCollection.getId());
+						if 	(isPubView(thisCollection.getId()))
+						{
+							collection.setPublicAccess();
+						}
+						collection.setAvailability(thisCollection.isHidden(), thisCollection.getReleaseDate(), thisCollection.getReleaseDate());
+						m_storage.commitCollection(collection);
 						still_trying = false;
 					}
 					catch (IdUsedException inner_e)
@@ -5389,11 +5401,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 				}
 			}
 
-			List members = thisCollection.getMembers();
+			List<String> members = thisCollection.getMembers();
 
-			if (M_log.isDebugEnabled()) M_log.debug("moveCollection size=" + members.size());
+			if (M_log.isDebugEnabled()) M_log.debug("deepCopyCollection size=" + members.size());
 
-			Iterator memberIt = members.iterator();
+			Iterator<String> memberIt = members.iterator();
 			while (memberIt.hasNext())
 			{
 				String member_id = (String) memberIt.next();

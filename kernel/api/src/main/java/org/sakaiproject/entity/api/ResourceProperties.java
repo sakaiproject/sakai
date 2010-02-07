@@ -176,7 +176,7 @@ public interface ResourceProperties extends Serializable
 	 * 
 	 * @return An iterator on the names of the defined properties (Strings) (may be empty).
 	 */
-	Iterator getPropertyNames();
+	Iterator<String> getPropertyNames();
 
 	/**
 	 * Access a named property as a string (won't find multi-valued ones.)
@@ -194,7 +194,7 @@ public interface ResourceProperties extends Serializable
 	 *        The property name.
 	 * @return the property value, or null if not found.
 	 */
-	List getPropertyList(String name);
+	List<String> getPropertyList(String name);
 
 	/**
 	 * Access a named property; as a String if it's single valued, or a List of (String) if it's multi-valued (or null if it's not defined).
