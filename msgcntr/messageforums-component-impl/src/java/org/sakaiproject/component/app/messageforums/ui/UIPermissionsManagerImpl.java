@@ -1485,7 +1485,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 		{
 			return;
 		}
-		Area dfa = forumManager.getDiscussionForumArea("/site/" + siteId);
+		Area dfa = forumManager.getDiscussionForumArea(siteId);
     Set areaItems = dfa.getMembershipItemSet();
   	List forumItemsList = permissionLevelManager.getAllMembershipItemsForForumsForSite(dfa.getId());
   	List topicItemsList = permissionLevelManager.getAllMembershipItemsForTopicsForSite(dfa.getId());
