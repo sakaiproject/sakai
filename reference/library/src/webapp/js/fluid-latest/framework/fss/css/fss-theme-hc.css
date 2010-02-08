@@ -1,0 +1,35 @@
+.fl-theme-hc :focus,.fl-theme-hc .selectable{outline:.2em solid #F00;}
+.fl-theme-hc{color:#000!important;background-color:#fff!important;}
+.fl-theme-hc div,.fl-theme-hc input{color:#000;background-color:#fff;border-color:#000;}
+.fl-theme-hc .fl-knockout{background:transparent!important;color:#000;}
+.fl-theme-hc a{color:#000!important;font-weight:bold;background-color:#fff!important;}
+.fl-theme-hc a:hover{color:#fff!important;background-color:#000!important;}
+.fl-theme-hc a:hover *{color:#fff!important;background-color:#000!important;}
+.fl-theme-hc h1,.fl-theme-hc h2,.fl-theme-hc h3,.fl-theme-hc h4,.fl-theme-hc h5,.fl-theme-hc h6{color:#000!important;background-color:#fff!important;border-color:#000!important;border-bottom:.1em dashed #000!important;}
+.fl-theme-hc th{border:.1em solid #000;background-color:#000!important;color:#fff!important;}
+.fl-theme-hc td{border:.1em solid #000;}
+.fl-theme-hc .fl-inlineEdit-edit{background-color:#000!important;color:#fff!important;border:.1em solid #fff;padding:.1em;margin:-0.1em;}
+.fl-theme-hc .fl-tabs{border-bottom-color:#000;}
+.fl-theme-hc .fl-tabs li,.fl-theme-hc .fl-tabs li *{border-color:#000;border-bottom-color:#000;}
+.fl-theme-hc .fl-tabs li{background-color:#000;}
+.fl-theme-hc .fl-tabs li *{color:#fff!important;font-weight:bold;background-color:#000!important;text-decoration:none;}
+.fl-theme-hc .fl-tabs li:hover,.fl-theme-hc .fl-tabs li:hover *,.fl-theme-hc .fl-tabs li a:hover{color:#000!important;background-color:#fff!important;}
+.fl-theme-hc .fl-tabs li.fl-tabs-active,.fl-theme-hc .fl-tabs li.fl-tabs-active a,.fl-theme-hc .fl-tabs li.fl-tabs-active a:hover,.fl-theme-hc .fl-tabs li.fl-activeTab,.fl-theme-hc .fl-tabs li.fl-activeTab:hover,.fl-theme-hc .fl-tabs li.fl-activeTab a,.fl-theme-hc .fl-tabs li.fl-activeTab a:hover{background-color:#fff!important;border-bottom-color:#fff;color:#000!important;}
+.fl-theme-hc .fl-tab-content{background-color:#fff;color:#000;}
+.fl-theme-hc .fl-listmenu{border:1px solid #000;border-bottom-width:2px;background-color:#fff;}
+.fl-theme-hc .fl-listmenu li,.fl-theme-hc .fl-listmenu li a{font-weight:bold;color:#000;background-color:#fff;border-color:#000;text-decoration:none;}
+.fl-theme-hc .fl-listmenu a:hover{background-color:#fff;color:#fff;}
+.fl-theme-hc .fl-listmenu .fl-activemenu,.fl-theme-hc .fl-listmenu .fl-activemenu:hover{background-color:#fff;border-bottom-color:#fff;color:#508cc9;}
+.fl-theme-hc .fl-button-right,.fl-theme-hc .fl-button-left,.fl-theme-hc .fl-button-inner{padding:0;}
+.fl-theme-hc .fl-widget{background-color:#000;border:1px solid #fff;}
+.fl-theme-hc .fl-widget h2{color:#fff;}
+.fl-theme-hc .fl-widget a{color:#000;}
+.fl-theme-hc .fl-widget .fl-icon{color:#000;background-image:none;background-color:#fff;text-indent:0;width:auto;height:auto;margin-left:0;padding:0 2px;display:inline;font-weight:bold;}
+.fl-theme-hc .fl-widget .fl-widget-titlebar{margin-bottom:3px;}
+.fl-theme-hc .fl-widget .fl-widget-options{padding:0;}
+.fl-theme-hc .fl-widget .fl-widget-options li{border-left:1px solid #fff;}
+.fl-theme-hc .fl-widget .fl-widget-options a{color:#fff;}
+.fl-theme-hc .fl-widget .fl-widget-content{background-color:#fff;}
+.fl-theme-hc .fl-progress-bounds{border-color:#000;background-color:#fff;}
+.fl-theme-hc .fl-progress-fill{color:#fff;background-color:#000;}
+.fl-theme-hc .fl-reorderer-dropMarker{background-color:#f00!important;}
