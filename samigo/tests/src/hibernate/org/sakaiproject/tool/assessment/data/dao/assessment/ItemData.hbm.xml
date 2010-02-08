@@ -88,7 +88,7 @@
       <column name="SEQUENCE" not-null="true" sql-type="integer" />
     </property>
     <property name="text">
-      <column name="TEXT" not-null="false" sql-type="varchar(4000)" />
+ 	<column name="TEXT" not-null="false" sql-type="text" />
     </property>
     <set name="answerSet" table="SAM_ANSWER_T" cascade="all" inverse="true" lazy="false" order-by="sequence asc">
        <key column="ITEMTEXTID"/>

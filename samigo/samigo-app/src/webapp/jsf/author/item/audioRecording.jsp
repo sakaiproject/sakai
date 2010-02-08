@@ -90,7 +90,7 @@
 
   <h:panelGrid>
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes">
-     <f:validateLength maximum="4000"/>
+     <f:validateLength maximum="60000"/>
    </samigo:wysiwyg>
   </h:panelGrid>
   </div>

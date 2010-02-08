@@ -17,7 +17,7 @@
     <property name="submittedDate" type="timestamp" column="SUBMITTEDDATE" not-null="false" />
     <property name="publishedAnswerId" type="long" column="PUBLISHEDANSWERID" not-null="false" index="SAM_ITEMGRADING_PUBANS_I" />
     <property name="rationale" type="string" length="4000" column="RATIONALE" not-null="false" />
-    <property name="answerText" type="string" length="4000" column="ANSWERTEXT" not-null="false" />
+    <property name="answerText" type="text" column="ANSWERTEXT" not-null="false" />
     <property name="autoScore" type="float" column="AUTOSCORE" not-null="false" />
     <property name="overrideScore" type="float" column="OVERRIDESCORE" not-null="false" />
     <property name="comments" type="string" length="4000" column="COMMENTS" not-null="false" />

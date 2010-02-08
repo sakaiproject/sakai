@@ -29,7 +29,7 @@
       <column name="RATIONALE" not-null="false" sql-type="varchar(4000)" />
     </property>
     <property name="answerText">
-      <column name="ANSWERTEXT" not-null="false" sql-type="varchar(4000)" />
+ 	<column name="ANSWERTEXT" not-null="false" sql-type="text" />
     </property>
     <property name="autoScore">
       <column name="AUTOSCORE" not-null="false" sql-type="float" />

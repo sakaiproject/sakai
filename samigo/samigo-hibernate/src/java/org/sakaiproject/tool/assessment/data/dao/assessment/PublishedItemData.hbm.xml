@@ -59,7 +59,7 @@
     <many-to-one name="item" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData"
       column="ITEMID" not-null="true" index="SAM_PUBITEMTEXT_ITEM_I" />
     <property name="sequence" type="long" column="SEQUENCE" not-null="true" />
-    <property name="text" type="string" length="4000" column="TEXT" not-null="false" />
+    <property name="text" type="text" column="TEXT" not-null="false" />
     <set name="answerSet" table="SAM_PUBLISHEDANSWER_T" cascade="all" inverse="true" lazy="false">
        <key column="ITEMTEXTID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer"/>
