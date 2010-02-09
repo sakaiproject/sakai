@@ -71,7 +71,7 @@ public class SearchListImpl implements SearchList
 	public SearchListImpl(TopDocs topDocs, Query query, int start, int end,
 			Analyzer analyzer, SearchItemFilter filter,  SearchIndexBuilder searchIndexBuilder, SearchService searchService, IndexSearcher indexSearcher)
 	{
-		this.topDoc = topDoc;
+		this.topDoc = topDocs;
 		this.query = query;
 		this.start = start;
 		this.end = end;
