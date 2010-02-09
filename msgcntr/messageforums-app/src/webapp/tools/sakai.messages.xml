@@ -5,7 +5,7 @@
 	<tool
 		id="sakai.messages"
 		title="Messages"
-		description="Display messages to/from users of a particular site">
+		description="Send messages to individuals, groups and/or roles within a site. ">
 		<category name="course" />
 		<category name="project" />	
 
