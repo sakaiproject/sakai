@@ -680,83 +680,16 @@ public class ListItem
 				size = typeDef.getSizeLabel(entity);
 				sizzle = typeDef.getLongSizeLabel(entity);
 			}
-			if((size == null || sizzle == null) && props.getProperty(ResourceProperties.PROP_CONTENT_LENGTH) != null)
+			if(props.getProperty(ResourceProperties.PROP_CONTENT_LENGTH) != null)
 			{
-				long size_long = 0;
-                try
-                {
-	                size_long = props.getLongProperty(ResourceProperties.PROP_CONTENT_LENGTH);
-                }
-                catch (EntityPropertyNotDefinedException e)
-                {
-	                // TODO Auto-generated catch block
-	                logger.warn("EntityPropertyNotDefinedException for size of " + this.id);
-                }
-                catch (EntityPropertyTypeException e)
-                {
-	                size = props.getProperty(ResourceProperties.PROP_CONTENT_LENGTH);
-                }
-				NumberFormat formatter = NumberFormat.getInstance(rb.getLocale());
-				formatter.setMaximumFractionDigits(1);
-				if(size_long > 700000000L)
+				if (size == null)
 				{
-					if(size == null)
-					{
-						String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L * 1024L)) };
-						size = rb.getFormattedMessage("size.gb", args);
-					}
-					if(sizzle == null)
-					{
-						String[] argyles = { formatter.format(1.0 * size_long / (1024L * 1024L * 1024L)), formatter.format(size_long) };
-						sizzle = rb.getFormattedMessage("size.gbytes", argyles);
-					}
+					size = getSizeLabel(entity);
 				}
-				else if(size_long > 700000L)
+				if (sizzle == null)
 				{
-					if(size == null)
-					{
-						String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L)) };
-						size = rb.getFormattedMessage("size.mb", args);
-					}
-					if(sizzle == null)
-					{
-						String[] argyles = { formatter.format(1.0 * size_long / (1024L * 1024L)), formatter.format(size_long) };
-						sizzle = rb.getFormattedMessage("size.mbytes", argyles);
-					}
+					sizzle = getLongSizeLabel(entity);
 				}
-				else if(size_long > 700L)
-				{
-					if(size == null)
-					{
-						String[] args = { formatter.format(1.0 * size_long / 1024L) };
-						size = rb.getFormattedMessage("size.kb", args);
-					}
-					if(sizzle == null)
-					{
-						String[] argyles = { formatter.format(1.0 * size_long / 1024L), formatter.format(size_long) };
-						sizzle = rb.getFormattedMessage("size.kbytes", argyles);
-					}
-				}
-				else 
-				{
-					String[] args = { formatter.format(size_long) };
-					if(size == null)
-					{
-						size = rb.getFormattedMessage("size.bytes", args);
-					}
-					if(sizzle == null)
-					{
-						sizzle = rb.getFormattedMessage("size.bytes", args);
-					}
-				}
-			}
-			if(size == null)
-			{
-				size = "";
-			}
-			if(sizzle == null)
-			{
-				sizzle = "";
 			}
 			setSize(size);
 			setSizzle(sizzle);
@@ -3835,6 +3768,121 @@ public class ListItem
 	public void setCourseSite(boolean isCourseSite) 
 	{
 		this.isCourseSite = isCourseSite;
+	}
+	
+	/**
+	 * This code was refactored out of {@link ListItem#set(ContentEntity)}with the idea that it would end up
+	 * in a ResourceType class and that the resource type registry would handle the builtin types as well 
+	 * (ContentCollection & ContentResource) rather than handling some stuff in the registry and some in the tool.
+	 * @see #getSizeLabel(ContentEntity)
+	 */
+	protected String getLongSizeLabel(ContentEntity entity) {
+		String sizzle = "";
+		ResourceProperties props = entity.getProperties();
+		try
+		{
+			long size_long = props.getLongProperty(ResourceProperties.PROP_CONTENT_LENGTH);
+			sizzle = formatLongSize(size_long);
+		}
+		catch (EntityPropertyNotDefinedException e)
+		{
+			logger.info("EntityPropertyNotDefinedException for size of " + entity.getId());
+		}
+		catch(EntityPropertyTypeException e)
+		{
+			logger.info("EntityPropertyTypeException not long of " + entity.getId());
+		}
+		return sizzle;
+	}
+
+	/**
+	 * Utility method to get a verbose filesize string.
+	 * @param size_long The size to be displayed (bytes).
+	 * @return A long human readable filesize.
+	 */
+	public static String formatLongSize(long size_long) {
+		// This method needs to be moved somewhere more sensible.
+		String sizzle = "";
+		NumberFormat formatter = NumberFormat.getInstance(rb.getLocale());
+		formatter.setMaximumFractionDigits(1);
+		if(size_long > 700000000L)
+		{
+			String[] argyles = { formatter.format(1.0 * size_long / (1024L * 1024L * 1024L)), formatter.format(size_long) };
+			sizzle = rb.getFormattedMessage("size.gbytes", argyles);
+		}
+		else if(size_long > 700000L)
+		{
+			String[] argyles = { formatter.format(1.0 * size_long / (1024L * 1024L)), formatter.format(size_long) };
+			sizzle = rb.getFormattedMessage("size.mbytes", argyles);
+		}
+		else if(size_long > 700L)
+		{
+			String[] argyles = { formatter.format(1.0 * size_long / 1024L), formatter.format(size_long) };
+			sizzle = rb.getFormattedMessage("size.kbytes", argyles);
+		}
+		else 
+		{
+			String[] args = { formatter.format(size_long) };
+			sizzle = rb.getFormattedMessage("size.bytes", args);
+		}
+		return sizzle;
+	}
+
+
+	/**
+	 * @see #getLongSizeLabel(ContentEntity)
+	 */
+	protected String getSizeLabel(ContentEntity entity) {
+		String size = "";
+		ResourceProperties props = entity.getProperties();
+		long size_long = 0;
+		try
+		{
+			size_long = props.getLongProperty(ResourceProperties.PROP_CONTENT_LENGTH);
+			size = formatSize(size_long);
+		}
+		catch (EntityPropertyNotDefinedException e)
+		{
+			logger.warn("EntityPropertyNotDefinedException for size of " + entity.getId());
+		}
+		catch (EntityPropertyTypeException e)
+		{
+			size = props.getProperty(ResourceProperties.PROP_CONTENT_LENGTH);
+		}
+		return size;
+	}
+
+	/**
+	 * Utility method to get a nice short filesize string.
+	 * @param size_long The size to be displayed (bytes).
+	 * @return A short human readable filesize.
+	 */
+	public static String formatSize(long size_long) {
+		// This method needs to be moved somewhere more sensible.
+		String size = "";
+		NumberFormat formatter = NumberFormat.getInstance(rb.getLocale());
+		formatter.setMaximumFractionDigits(1);
+		if(size_long > 700000000L)
+		{
+			String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L * 1024L)) };
+			size = rb.getFormattedMessage("size.gb", args);
+		}
+		else if(size_long > 700000L)
+		{
+			String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L)) };
+			size = rb.getFormattedMessage("size.mb", args);
+
+		}
+		else if(size_long > 700L)
+		{		String[] args = { formatter.format(1.0 * size_long / 1024L) };
+		size = rb.getFormattedMessage("size.kb", args);
+		}
+		else 
+		{
+			String[] args = { formatter.format(size_long) };
+			size = rb.getFormattedMessage("size.bytes", args);
+		}
+		return size;
 	}
 	
 }
