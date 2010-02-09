@@ -633,6 +633,17 @@ drop table MSGCNTR_TMP;
 
 alter table MFR_AREA_T add constraint MFR_AREA_CONTEXT_UUID_UNIQUE unique (CONTEXT_ID, TYPE_UUID);
 
+
+--////////////////////////////////////////////////////
+--//  MSGCNTR-148
+--//  Unique constraint not created on MFR_PRIVATE_FORUM_T
+--////////////////////////////////////////////////////
+
+--If this alter query fails, use this select query to find duplicates and remove the duplicate:
+--select OWNER, surrogateKey, COUNT(OWNER) FROM MFR_PRIVATE_FORUM_T GROUP BY OWNER, surrogateKey HAVING COUNT(OWNER)>1;
+ 
+CREATE UNIQUE INDEX MFR_PVT_FRM_OWNER ON MFR_PRIVATE_FORUM_T(OWNER, surrogateKey);
+
 --/////////////////////////////////////////////////
 --/////////////////////////////////////////////////    
 --/////////////////////////////////////////////////
