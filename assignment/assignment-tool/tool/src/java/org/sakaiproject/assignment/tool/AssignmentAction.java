@@ -1603,16 +1603,18 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("name_CheckAddHonorPledge", NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
 
 		// set the values
-		String assignmentId = "";
 		Assignment a = null;
-		try
+		String assignmentRef = (String) state.getAttribute(EDIT_ASSIGNMENT_ID);
+		if (assignmentRef != null)
 		{
-			a = AssignmentService.getAssignment((String) state.getAttribute(EDIT_ASSIGNMENT_ID));
-			assignmentId = a.getId();
-		}
-		catch (Exception ee)
-		{
-			M_log.warn(this + ":setAssignmentFormContext " + ee.getMessage());
+			try
+			{
+				a = AssignmentService.getAssignment(assignmentRef);
+			}
+			catch (Exception ee)
+			{
+				M_log.warn(this + ":setAssignmentFormContext " + ee.getMessage());
+			}
 		}
 		
 		// put the re-submission info into context
@@ -8104,17 +8106,17 @@ public class AssignmentAction extends PagedResourceActionII
 						catch (IdUnusedException e)
 						{
 							state.removeAttribute(CALENDAR);
-							M_log.warn(this + ":initState No calendar found for site " + siteId + e.getMessage());
+							M_log.info(this + ":initState No calendar found for site " + siteId  + " " + e.getMessage());
 						}
 						catch (PermissionException e)
 						{
 							state.removeAttribute(CALENDAR);
-							M_log.warn(this + ":initState No permission to get the calender. " + e.getMessage());
+							M_log.info(this + ":initState No permission to get the calender. " + e.getMessage());
 						}
 						catch (Exception ex)
 						{
 							state.removeAttribute(CALENDAR);
-							M_log.warn(this + ":initState Assignment : Action : init state : calendar exception : " + ex.getMessage());
+							M_log.info(this + ":initState Assignment : Action : init state : calendar exception : " + ex.getMessage());
 							
 						}
 					}
