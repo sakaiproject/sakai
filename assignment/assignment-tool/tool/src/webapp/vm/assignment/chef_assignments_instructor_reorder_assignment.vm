@@ -98,7 +98,7 @@
 					</a>
 				</td>
 				<td headers="title">
-					<h4>$!assignment.getTitle()</h4>
+					<h4>$validator.escapeHtml($!assignment.getTitle())</h4>
 				</td>
 				<td headers="open">
 					$!assignment.openTime.toStringLocalFull()

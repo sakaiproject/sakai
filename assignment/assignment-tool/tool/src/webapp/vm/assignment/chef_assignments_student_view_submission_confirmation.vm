@@ -43,7 +43,7 @@
 					$tlang.getString('confirm.submission.label.classsite')
 				</th>
 				<td>
-					$!site_title
+					$validator.escapeHtml($!site_title)
 				</td>
 			</tr>
 			##assignment title
@@ -52,7 +52,7 @@
 					$tlang.getString('confirm.submission.label.assignment')
 				</th>
 				<td>
-					$!assignment_title
+					$validator.escapeHtml($!assignment_title)
 				</td>
 			</tr>
 			##submission id

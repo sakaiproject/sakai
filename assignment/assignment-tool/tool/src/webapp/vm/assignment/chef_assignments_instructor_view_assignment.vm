@@ -230,7 +230,7 @@
 			<p class="discTria">
 				<a href="#" onclick="location='#toolLink("AssignmentAction" "doHide_view_student_view")'; return false;">
 				<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("gen.opecli")" border="0" width="13" height="13" align="top" /></a>
-				$tlang.getString("gen.stuvieof") "$assignment.title"
+				$tlang.getString("gen.stuvieof") "$validator.escapeHtml($assignment.title)"
 			</p>
 			<div class="inopPanel">
 				<table class ="itemSummary" cellspacing="0" cellpadding ="0" summary="$tlang.getString("gen.viewasstablesummary")">
@@ -400,7 +400,7 @@
 			<p class="discTria">
 				<a href="#" onclick="location='#toolLink("AssignmentAction" "doShow_view_student_view")'; return false;">
 				<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("gen.opecli")" border="0" width="13" height="13" align="top" /></a>
-				$tlang.getString("gen.stuvieof") "$assignment.title"
+				$tlang.getString("gen.stuvieof") "$validator.escapeHtml($assignment.title)"
 			</p>	
 
 		#end

@@ -30,7 +30,7 @@
 			</li>	
 		#end
 	</ul>
-		<h3>$tlang.getString("gen.pre") $tlang.getString("gen.instrcomment") 	$tlang.getString("gen.to") 				$tlang.getString("gen.openquote")$assignment.title$tlang.getString("gen.closequote")</h3>
+		<h3>$tlang.getString("gen.pre") $tlang.getString("gen.instrcomment") 	$tlang.getString("gen.to") 				$tlang.getString("gen.openquote")$validator.escapeHtml($assignment.title)$tlang.getString("gen.closequote")</h3>
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end		
 		<form action="#toolForm("AssignmentAction")" method="post" >   
 			<table class="itemSummary" summary="layout">
