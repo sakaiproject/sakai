@@ -1277,7 +1277,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		if ( ! aliasList.isEmpty() )
 		{
 			String alias[] = ((Alias)aliasList.get(0)).getId().split("\\.");
-			context.put("rssAlias", alias[0] );
+			context.put("rssAlias", FormattedText.escapeHtmlFormattedTextSupressNewlines(alias[0]) );
 		}
 
 		// Add Announcement RSS URL
@@ -4375,6 +4375,17 @@ public class AnnouncementAction extends PagedResourceActionII
 		try
 		{
 			String alias = StringUtil.trimToNull(runData.getParameters().getString("rssAlias"));
+			
+			// SAK-17786 Check for XSS
+			StringBuilder alertMsg = new StringBuilder();
+			alias = FormattedText.processFormattedText(alias, alertMsg);
+			if (alertMsg.length() > 0) 
+			{
+				addAlert(sstate, alertMsg.toString());
+				state.setStatus(OPTIONS_STATUS);
+				return;
+			}
+			
 			Reference anncRef = AnnouncementService.getAnnouncementReference(ToolManager.getCurrentPlacement().getContext());
 		
 			List aliasList =	AliasService.getAliases( anncRef.getReference() );
