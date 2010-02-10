@@ -2,6 +2,8 @@ package org.sakaiproject.content.impl.test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 import junit.extensions.TestSetup;
 import junit.framework.Test;
@@ -9,6 +11,8 @@ import junit.framework.TestSuite;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.derby.iapi.util.CheapDateFormatter;
+import org.apache.derby.impl.sql.compile.CreateAliasNode;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -180,12 +184,19 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 		String utf8Folder = String.valueOf("\u6c92\u6709\u5df2\u9078\u8981\u522a\u9664\u7684\u9644\u4ef6");
 		String utfId = "/admin/" + utf8Folder + "/";
 		String resId = null;
+		String fileName = "someFile";
+		String fileExtension = ".txt";
 		try {
-			ContentResourceEdit cre = ch.addResource(utfId, "someFile", ".txt", 10);
+			ContentResourceEdit cre = ch.addResource(utfId, fileName, fileExtension, 10);
 			ch.commitResource(cre);
 			resId = cre.getId();
 			log.info("saved: " + cre.getId());
 			log.info("url is: " + cre.getUrl());
+			log.info("relative url:" + cre.getUrl(true));
+			String urlDecode = URLDecoder.decode(cre.getUrl(true), "utf8");
+			log.info("decoded url: " + urlDecode);
+			String url = "/access/content" + utfId + fileName + fileExtension;
+			assertEquals(url, urlDecode);
 		} catch (PermissionException e) {
 			e.printStackTrace();
 			fail();
@@ -207,6 +218,9 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 		} catch (ServerOverloadException e) {
 			e.printStackTrace();
 			fail();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
 		//now lets try retrieve it
