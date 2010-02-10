@@ -1757,6 +1757,7 @@ public class CharonPortal extends HttpServlet
 		String serviceVersion = ServerConfigurationService.getString("version.service",
 				"?");
 		String sakaiVersion = ServerConfigurationService.getString("version.sakai", "?");
+		String kernelVersion = ServerConfigurationService.getString("version.kernel", "?");
 		String server = ServerConfigurationService.getServerId();
 		String[] bottomNav = ServerConfigurationService.getStrings("bottomnav");
 		String[] poweredByUrl = ServerConfigurationService.getStrings("powered.url");
@@ -1803,7 +1804,7 @@ public class CharonPortal extends HttpServlet
 		out.println("	</div>");
 		out.println("		<div class=\"sakaiCopyrightInfo\">" + copyright + "<br />");
 		out.println("		" + service + " - " + serviceVersion + " - Sakai " + sakaiVersion
-				+ " - Server \"" + server + "\"</div>");
+				+ " (kernel: " + kernelVersion + ") - Server \"" + server + "\"</div>");
 		out.println("	</div>");
 		out.println("</div>");
 		out.println("</div>");
