@@ -117,12 +117,6 @@
           <include>**/*</include>
         </includes>
       </testResource>
-      <testResource>
-        <directory>${basedir}/../pack/src/webapp/</directory>
-        <includes>
-          <include>**/*.*</include>
-        </includes>
-      </testResource>
     </testResources>
   </build>
 </project>
