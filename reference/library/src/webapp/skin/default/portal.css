@@ -1124,6 +1124,12 @@ background-image: url(../../image/silk/comment.png);
 	background-image: url(../../image/silk/user_add.png); 
 } 
 
+.icon-sakai-iframe-service {
+	background-image: url(../../image/silk/house.png);
+}
+.icon-sakai-iframe-myworkspace {
+	background-image: url(../../image/silk/house.png);
+}
 
 
 
