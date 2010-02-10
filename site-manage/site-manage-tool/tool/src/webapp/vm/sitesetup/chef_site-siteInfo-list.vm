@@ -212,11 +212,11 @@ function printPreview(target){
 			#foreach ($g in $!groups)
 				#set ($gdesc = "")
 				<dt>
-					<span id ="group$g.Id">$g.Title</span>#if ($!viewRoster) <span class="itemAction"> ( <a href="#" class="moreInfoGroups" id ="$g.Id">$tlang.getString("sinfo.list.groups.memb")</a>)</span>#end
+					<span id ="group$g.Id">$validator.escapeHtml($g.Title)</span>#if ($!viewRoster) <span class="itemAction"> ( <a href="#" class="moreInfoGroups" id ="$g.Id">$tlang.getString("sinfo.list.groups.memb")</a>)</span>#end
 				</dt>
 				<dd class="textPanelFooter instruction">
 					#if ($g.Description)
-						$g.Description
+						$validator.escapeHtml($g.Description)
 					#end					
 				</dd>				
 			#end

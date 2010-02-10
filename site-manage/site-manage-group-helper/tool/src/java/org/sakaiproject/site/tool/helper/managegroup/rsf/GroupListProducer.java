@@ -18,6 +18,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.Validator;
 
 import uk.ac.cam.caret.sakai.rsf.producers.FrameAdjustingProducer;
 import uk.ac.cam.caret.sakai.rsf.util.SakaiURLUtil;
@@ -118,14 +119,16 @@ public class GroupListProducer
             	String groupId = group.getId();
                 UIBranchContainer grouprow = UIBranchContainer.make(deleteForm, "group-row:", group.getId());
                 
-                UIOutput.make(grouprow, "group-title-label", group.getTitle());
+				String groupTitle = Validator.escapeHtml(group.getTitle());
+				
+                UIOutput.make(grouprow, "group-title-label", groupTitle);
                 UIInput name = 
-                    UIInput.make(grouprow, "group-name-input", "#{SitegroupEditHandler.nil}", group.getTitle());
+                    UIInput.make(grouprow, "group-name-input", "#{SitegroupEditHandler.nil}", groupTitle);
                 UIOutput nameLabel = 
                     UIOutput.make(grouprow, "group-name-label", messageLocator.getMessage("group.title"));
                 
                 nameLabel.decorate(new UILabelTargetDecorator(name));
-    			UIOutput.make(grouprow,"group-title",group.getTitle());
+    			UIOutput.make(grouprow,"group-title", groupTitle);
     			int size = 0;
     			try
     			{
@@ -160,11 +163,11 @@ public class GroupListProducer
 
     			UIInternalLink editLink = UIInternalLink.make(grouprow,"group-revise",messageLocator.getMessage("editgroup.revise"),  
     						new GroupEditViewParameters(GroupEditProducer.VIEW_ID, groupId));
-    			editLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("group.sorttitleasc")+ ":" + group.getTitle()));
+    			editLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("group.sorttitleasc")+ ":" + groupTitle));
     			deletable.add(group.getId());
 				UISelectChoice delete =  UISelectChoice.make(grouprow, "group-select", deleteselect.getFullID(), (deletable.size()-1));
-				delete.decorators = new DecoratorList(new UITooltipDecorator(UIMessage.make("delete_group_tooltip", new String[] {group.getTitle()})));
-				UIMessage message = UIMessage.make(grouprow,"delete-label","delete_group_tooltip", new String[] {group.getTitle()});
+				delete.decorators = new DecoratorList(new UITooltipDecorator(UIMessage.make("delete_group_tooltip", new String[] {groupTitle})));
+				UIMessage message = UIMessage.make(grouprow,"delete-label","delete_group_tooltip", new String[] {groupTitle});
 				UILabelTargetDecorator.targetLabel(message,delete);
             }
 			

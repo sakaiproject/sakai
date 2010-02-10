@@ -57,7 +57,7 @@ sakai.getGroupInfo = function(trigger, dialogTarget, memberstr, printstr, tables
 	$('.' + trigger).click(function(e){
 		
         var id = $(this).attr('id');
-        var title = $('#group' + id).text();
+        var title = $('#group' + id).html();
         var groupURL = '/direct/membership/group/' + id + '.json';
         var list = "";
         var count = 1;
