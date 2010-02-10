@@ -130,11 +130,6 @@
                 <type>pom</type>
             </dependency>
             <dependency>
-                <groupId>org.sakaiproject.edu-services.gradebook</groupId>
-                <artifactId>gradebook-service-api</artifactId>
-                <version>${sakai.edu-services.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.sakaiproject.common</groupId>
                 <artifactId>sakai-privacy-api</artifactId>
                 <version>${sakai.common.version}</version>

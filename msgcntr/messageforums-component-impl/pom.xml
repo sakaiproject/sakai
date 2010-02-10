@@ -56,8 +56,9 @@
       <artifactId>entitybroker-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.edu-services.gradebook</groupId>
-      <artifactId>gradebook-service-api</artifactId>
+        <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+        <artifactId>gradebook-service-api</artifactId>
+        <version>${sakai.edu-services.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-beanutils</groupId>
