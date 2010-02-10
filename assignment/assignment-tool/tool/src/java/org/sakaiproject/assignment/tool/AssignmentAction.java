@@ -3978,6 +3978,11 @@ public class AssignmentAction extends PagedResourceActionII
 
 							ResourcePropertiesEdit sPropertiesEdit = sEdit.getPropertiesEdit();
 							
+							sEdit.setSubmittedText(text);
+							sEdit.setHonorPledgeFlag(Boolean.valueOf(honorPledgeYes).booleanValue());
+							sEdit.setTimeSubmitted(TimeService.newTime());
+							sEdit.setSubmitted(post);
+							
 							// decrease the allow_resubmit_number, if this submission has been submitted.
 							if (sEdit.getSubmitted() && sEdit.getTimeSubmitted() != null && sPropertiesEdit.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null)
 							{
@@ -3988,11 +3993,6 @@ public class AssignmentAction extends PagedResourceActionII
 									sPropertiesEdit.addProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, String.valueOf(number-1));
 								}
 							}
-							
-							sEdit.setSubmittedText(text);
-							sEdit.setHonorPledgeFlag(Boolean.valueOf(honorPledgeYes).booleanValue());
-							sEdit.setTimeSubmitted(TimeService.newTime());
-							sEdit.setSubmitted(post);
 	
 							// for resubmissions
 							// when resubmit, keep the Returned flag on till the instructor grade again.

@@ -5729,6 +5729,43 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			
 			submission = getSubmission(a.getReference(), u);
 			
+			// check for allow resubmission or not first
+			// return true if resubmission is allowed and current time is before resubmission close time
+			// get the resubmit settings from submission object first
+			String allowResubmitNumString = submission != null?submission.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER):null;
+			if (allowResubmitNumString != null)
+			{
+				try
+				{
+					int allowResubmitNumber = Integer.parseInt(allowResubmitNumString);
+					String allowResubmitCloseTime = submission != null ? (String) submission.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME):null;
+					Time resubmitCloseTime = null;
+					if (allowResubmitNumber == -1)
+					{
+						// unlimitted resubmission
+						return true;
+					}
+					else if (allowResubmitNumber > 0)
+					{
+						if (allowResubmitCloseTime != null)
+						{
+							// see if a resubmission close time is set on submission level
+							resubmitCloseTime = TimeService.newTime(Long.parseLong(allowResubmitCloseTime));
+						}
+						else
+						{
+							// otherwise, use assignment close time as the resubmission close time
+							resubmitCloseTime = a.getCloseTime();
+						}
+						return allowResubmitNumber != 0 && resubmitCloseTime != null && currentTime.before(resubmitCloseTime);
+					}
+				}
+				catch (NumberFormatException e)
+				{
+					M_log.warn(this + " canSubmit(String, Assignment) " + e.getMessage() + " allowResubmitNumString=" + allowResubmitNumString);
+				}
+			}
+			
 			if (submission == null || (submission != null && submission.getTimeSubmitted() == null))
 			{
 				// if there is no submission yet
@@ -5749,28 +5786,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					return true;
 				}
 				else
-				{
-					// return true if resubmission is allowed and current time is before resubmission close time
-					// get the resubmit settings from submission object first
-					int allowResubmitNumber = submission.getResubmissionNum();
-					Time resubmitCloseTime = null;
-					if (allowResubmitNumber != 0)
-					{
-						ResourceProperties submissionProperties = submission.getProperties();
-						String property = (String) submissionProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
-						if (submissionProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME) != null)
-						{
-							// see if a resubmission close time is set on submission level
-							resubmitCloseTime = TimeService.newTime(submissionProperties.getLongProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME));
-						}
-						else
-						{
-							// otherwise, use assignment close time as the resubmission close time
-							resubmitCloseTime = a.getCloseTime();
-						}
-					}
-					return allowResubmitNumber != 0 && resubmitCloseTime != null && currentTime.before(resubmitCloseTime);
-				}
+					return false;
 			}
 		}
 		catch (UserNotDefinedException e)
@@ -5778,15 +5794,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// cannot find user
 			M_log.warn(this + " canSubmit(String, Assignment) " + e.getMessage() + " assignment ref=" + a.getReference());
 			return false;
-		} catch (EntityPropertyNotDefinedException e) {
-			// Property not defined
-			M_log.warn(this + " canSubmit(String, Assignment) " + e.getMessage() + " assignment ref=" + a.getReference());
-			return false;
-		} catch (EntityPropertyTypeException e) {
-			// entity property type exception
-			M_log.warn(this + " canSubmit(String, Assignment) " + e.getMessage() + " assignment ref=" + a.getReference());
-			return false;
 		}
+		
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
