@@ -509,6 +509,7 @@ function handleEnterKeyPress(ev)
 *#
 						#if ($withGrade)
 							<div class="highlightPanel" style="width:80%">
+							#if ($allowToGrade)
 								#set ($gradeType = $assignment.getContent().TypeOfGrade)
 								#if ($gradeType == 1)
 									<p class="shorttext">
@@ -546,6 +547,13 @@ function handleEnterKeyPress(ev)
 											<input name="$name_grade" type="checkbox" value="Checked" #if ($!value_grade.equals("Checked"))checked="checked"#end id="gradeChecked"  /> <label for="gradeChecked">$tlang.getString("gen.gra2") $tlang.getString("gen.checked")</label>
 									</p>	
 								#end
+							#else
+								## if not allowed to grade, show the current grade instead
+								<input name="$name_grade" type="hidden" value="$!value_grade" />
+								<div class="alertMessage">$!notAllowedToGradeWarning</div>
+								<label for="grade">$tlang.getString("gen.gra2")</label>
+								$!value_grade
+							#end
 							</div>	
 							## the previous grades
 								#set ($previousGrades =  $submission.Properties.getProperty($submission.Properties.getNamePropSubmissionScaledPreviousGrades()))

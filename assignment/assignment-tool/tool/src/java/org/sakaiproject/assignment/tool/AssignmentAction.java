@@ -2088,6 +2088,22 @@ public class AssignmentAction extends PagedResourceActionII
 				gradeType = a.getContent().getTypeOfGrade();
 				context.put("value_SubmissionType", gradeType);
 			}
+			boolean allowToGrade=true;
+			String associateGradebookAssignment = StringUtil.trimToNull(a.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+			if (associateGradebookAssignment != null)
+			{
+				GradebookService g = (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+				String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
+				if (g != null && g.isGradebookDefined(gradebookUid))
+				{
+					if (!g.currentUserHasGradingPerm(gradebookUid))
+					{
+						context.put("notAllowedToGradeWarning", rb.getString("not_allowed_to_grade_in_gradebook"));
+						allowToGrade=false;
+					}
+				}
+			}
+			context.put("allowToGrade", Boolean.valueOf(allowToGrade));
 		}
 		catch (IdUnusedException e)
 		{
@@ -2991,7 +3007,7 @@ public class AssignmentAction extends PagedResourceActionII
 		GradebookExternalAssessmentService gExternal = (GradebookExternalAssessmentService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
 		
 		String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
-		if (g.isGradebookDefined(gradebookUid))
+		if (g.isGradebookDefined(gradebookUid) && g.currentUserHasGradingPerm(gradebookUid))
 		{
 			boolean isExternalAssignmentDefined=gExternal.isExternalAssignmentDefined(gradebookUid, assignmentRef);
 			boolean isExternalAssociateAssignmentDefined = gExternal.isExternalAssignmentDefined(gradebookUid, associateGradebookAssignment);
