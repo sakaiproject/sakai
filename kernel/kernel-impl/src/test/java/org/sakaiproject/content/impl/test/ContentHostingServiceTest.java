@@ -15,10 +15,14 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.IdLengthException;
+import org.sakaiproject.exception.IdUniquenessException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InconsistentException;
+import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.tool.api.Session;
@@ -166,4 +170,59 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 		}
 		
 	}
+	
+	/**
+	 * See SAK-17308 test for cases if resources saved in tf8 folders
+	 */
+	public void testUtfFolders() {
+		//lets test saving a utf8
+		ContentHostingService ch = org.sakaiproject.content.cover.ContentHostingService.getInstance();
+		String utf8Folder = String.valueOf("\u6c92\u6709\u5df2\u9078\u8981\u522a\u9664\u7684\u9644\u4ef6");
+		String utfId = "/admin/" + utf8Folder + "/";
+		String resId = null;
+		try {
+			ContentResourceEdit cre = ch.addResource(utfId, "someFile", ".txt", 10);
+			ch.commitResource(cre);
+			resId = cre.getId();
+			log.info("saved: " + cre.getId());
+			log.info("url is: " + cre.getUrl());
+		} catch (PermissionException e) {
+			e.printStackTrace();
+			fail();
+		} catch (IdUniquenessException e) {
+			e.printStackTrace();
+			fail();
+		} catch (IdLengthException e) {
+			e.printStackTrace();
+			fail();
+		} catch (IdInvalidException e) {
+			e.printStackTrace();
+			fail();
+		} catch (IdUnusedException e) {
+			e.printStackTrace();
+			fail();
+		} catch (OverQuotaException e) {
+			e.printStackTrace();
+			fail();
+		} catch (ServerOverloadException e) {
+			e.printStackTrace();
+			fail();
+		}
+		
+		//now lets try retrieve it
+		try {
+			ContentResource res = ch.getResource(resId);
+			assertNotNull(res);
+		} catch (PermissionException e) {
+			e.printStackTrace();
+			fail();
+		} catch (IdUnusedException e) {
+			e.printStackTrace();
+			fail();
+		} catch (TypeException e) {
+			e.printStackTrace();
+			fail();
+		}
+	}
+	
 }
