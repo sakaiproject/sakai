@@ -750,9 +750,13 @@
       <from-outcome>samLiteValidation</from-outcome>
       <to-view-id>/jsf/samlite/samLiteValidation.jsp</to-view-id>
     </navigation-case>
-	  <navigation-case>
+    <navigation-case>
       <from-outcome>chooseExportType</from-outcome>
       <to-view-id>/jsf/qti/chooseExportType.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>exportDenied</from-outcome>
+      <to-view-id>/jsf/qti/exportDenied.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>editAssessmentSettings</from-outcome>

@@ -55,7 +55,7 @@
      </h:selectOneRadio>
    </h:panelGrid>
   <p class="act">
-    <h:commandButton value="#{authorImportExport.export_action}" type="submit" action="xmlDisplay"
+    <h:commandButton value="#{authorImportExport.export_action}" type="submit" action="#{xml.getOutcome}"
         immediate="true" >
         <f:param name="assessmentId" value="lastModifiedDate"/>
 

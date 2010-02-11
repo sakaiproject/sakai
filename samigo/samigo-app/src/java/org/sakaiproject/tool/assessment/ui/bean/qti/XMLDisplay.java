@@ -38,11 +38,12 @@ public class XMLDisplay implements Serializable
 	 * 
 	 */
 	private static final long serialVersionUID = 40775142933316177L;
-private String name;
+  private String name;
   private String description;
   private String xml;
   private String id;
-
+  private String outcome;
+  
   public XMLDisplay()
   {
   }
@@ -87,6 +88,14 @@ private String name;
     this.id = id;
   }
 
+  public String getOutcome()
+  {
+    return outcome;
+  }
 
-
+  public void setOutcome(String outcome)
+  {
+    this.outcome = outcome;
+  }
+  
 }

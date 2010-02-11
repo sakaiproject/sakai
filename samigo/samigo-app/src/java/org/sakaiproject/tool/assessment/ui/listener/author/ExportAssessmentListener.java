@@ -29,7 +29,11 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.qti.XMLController;
+import org.sakaiproject.tool.assessment.ui.bean.qti.XMLDisplay;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
@@ -49,10 +53,13 @@ public class ExportAssessmentListener implements ActionListener
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    //log.info("ExportAssessmentListener");
-    //log.info("ExportAssessmentListener processAction");
     String assessmentId = (String) ContextUtil.lookupParam("assessmentId");
+    XMLDisplay xmlDisp = (XMLDisplay) ContextUtil.lookupBean("xml");
     log.info("ExportAssessmentListener assessmentId="+assessmentId);
+    if (!passAuthz(assessmentId)) {
+    	xmlDisp.setOutcome("exportDenied");
+    	return;
+    }
     XMLController xmlController = (XMLController) ContextUtil.lookupBean(
                                           "xmlController");
     //log.info("ExportAssessmentListener xmlController.setId(assessmentId)");
@@ -64,6 +71,26 @@ public class ExportAssessmentListener implements ActionListener
     //log.info("ExportAssessmentListener xmlController.displayAssessmentXml");
     xmlController.displayAssessmentXml();
     //log.info("ExportAssessmentListener processAction done");
+    xmlDisp.setOutcome("xmlDisplay");
   }
 
+  private boolean passAuthz(String assessmentId){
+	  AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+	  boolean hasPrivilege_any = authzBean.getEditAnyAssessment();
+	  boolean hasPrivilege_own0 = authzBean.getEditOwnAssessment();
+	  boolean hasPrivilege_own = (hasPrivilege_own0 && isOwner(assessmentId));
+	  boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
+	  
+	  return hasPrivilege;
+  }
+
+  private boolean isOwner(String assessmentId){
+	  boolean isOwner = false;
+	  String agentId = AgentFacade.getAgentString();
+	  AssessmentService assessmentService = new AssessmentService();
+	  String ownerId = assessmentService.getAssessmentCreatedBy(assessmentId);
+	  isOwner = agentId.equals(ownerId);
+	  log.debug("***isOwner="+isOwner);
+	  return isOwner;
+  }
 }
