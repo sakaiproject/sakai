@@ -43,25 +43,31 @@
 	
   <!-- item text -->
   <itemText type="list">
-	<xsl:for-each select="//presentation/material/mattext">
-	  <xsl:value-of select="."/>
-	</xsl:for-each>
-  </itemText>
-
-
   <xsl:for-each select="//presentation/material/*">
-    <itemTextRespondus type="list">
-	  <xsl:choose>
-		<xsl:when test="name()='mattext'">mattext:::<xsl:value-of select="." /></xsl:when>
-	    <xsl:when test="name()='matimage'">matimage:::<xsl:value-of select="@imagtype" />:::<xsl:value-of select="@uri" /></xsl:when>
-      </xsl:choose>
-    </itemTextRespondus>
+	<xsl:if test="name()='mattext'">
+		<xsl:value-of select="." />
+	</xsl:if>
+	<xsl:if test="name()='matimage'">
+		<xsl:variable name="mimage" select="@uri" />
+		<img alt="" src="{$mimage}"/>
+	</xsl:if>
   </xsl:for-each>
+  </itemText>
   
 
   <!-- answers -->
   <xsl:for-each select="//presentation/response_lid/render_choice/response_label" >
-    <itemAnswer type="list"><xsl:value-of select="@ident"/>:::<xsl:value-of select="material/mattext"/></itemAnswer>
+    <itemAnswer type="list">
+	  <xsl:value-of select="@ident"/>:::<xsl:for-each select="./material/*">
+		<xsl:if test="name()='mattext'">
+			<xsl:value-of select="." />
+		</xsl:if>
+		<xsl:if test="name()='matimage'">
+			<xsl:variable name="mimage" select="@uri" />
+			<img alt="" src="{$mimage}"/>
+		</xsl:if>
+	  </xsl:for-each>
+	</itemAnswer>
   </xsl:for-each>
 
   <xsl:for-each select="//resprocessing/respcondition/conditionvar/varequal" >
@@ -70,7 +76,15 @@
 
   <xsl:for-each select="//presentation/response_lid">
     <itemMatchSourceText type="list">
-	  <xsl:value-of select="@ident"/>:::<xsl:value-of select="material/mattext"/>
+	  <xsl:value-of select="@ident"/>:::<xsl:for-each select="./material/*">
+		<xsl:if test="name()='mattext'">
+			<xsl:value-of select="." />
+		</xsl:if>
+		<xsl:if test="name()='matimage'">
+			<xsl:variable name="mimage" select="@uri" />
+			<img alt="" src="{$mimage}"/>
+		</xsl:if>
+	  </xsl:for-each>
 	</itemMatchSourceText>
   </xsl:for-each>
 
@@ -92,8 +106,57 @@
   </xsl:for-each>
 
   <!-- feedback -->
-  <xsl:for-each select="//itemfeedback/material/*">
+  <xsl:for-each select="//itemfeedback">
+    <xsl:if test="contains(@ident, '_ALL')">
+      <allFeedback>
+        <xsl:for-each select="./material/*">
+	      <xsl:if test="name()='mattext'">
+		    <xsl:value-of select="." />
+	      </xsl:if>
+	      <xsl:if test="name()='matimage'">
+		    <xsl:variable name="mimage" select="@uri" />
+		    <img alt="" src="{$mimage}"/>
+	      </xsl:if>
+        </xsl:for-each>
+      </allFeedback>
+    </xsl:if>
+  </xsl:for-each>
+
+  <xsl:for-each select="//itemfeedback">
+    <xsl:if test="contains(@ident, '_C')">
+      <correctFeedback>
+        <xsl:for-each select="./material/*">
+	      <xsl:if test="name()='mattext'">
+		    <xsl:value-of select="." />
+	      </xsl:if>
+	      <xsl:if test="name()='matimage'">
+		    <xsl:variable name="mimage" select="@uri" />
+		    <img alt="" src="{$mimage}"/>
+	      </xsl:if>
+        </xsl:for-each>
+      </correctFeedback>
+    </xsl:if>
+  </xsl:for-each>
+
+  <xsl:for-each select="//itemfeedback">
+    <xsl:if test="contains(@ident, '_IC')">
+      <incorrectFeedback>
+        <xsl:for-each select="./material/*">
+	      <xsl:if test="name()='mattext'">
+		    <xsl:value-of select="." />
+	      </xsl:if>
+	      <xsl:if test="name()='matimage'">
+		    <xsl:variable name="mimage" select="@uri" />
+		    <img alt="" src="{$mimage}"/>
+	      </xsl:if>
+        </xsl:for-each>
+      </incorrectFeedback>
+    </xsl:if>
+  </xsl:for-each>
+  
+<xsl:for-each select="//itemfeedback/material/*">
     <allFeedbacks type="list">
+	
 		<xsl:choose>
 			<xsl:when test="name()='mattext'"><xsl:value-of select="../../@ident"/>:::mattext:::<xsl:value-of select="." /></xsl:when>
 		    <xsl:when test="name()='matimage'"><xsl:value-of select="../../@ident"/>:::matimage:::<xsl:value-of select="@imagtype" />:::<xsl:value-of select="@uri" /></xsl:when>

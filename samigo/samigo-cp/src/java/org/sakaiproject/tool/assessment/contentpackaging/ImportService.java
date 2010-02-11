@@ -36,9 +36,15 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * <p>Copyright: Copyright (c) 2007 Sakai</p>
@@ -78,6 +84,9 @@ public class ImportService {
 			Set dirsMade = new TreeSet();
 			zipStream = new ZipInputStream(new ByteArrayInputStream(data));
 			entry = (ZipEntry) zipStream.getNextEntry();
+			// Get the name of the imported zip file name. The value of "filename" has timestamp append to it.
+			String tmpName = filename.substring(filename.lastIndexOf("/") + 1);
+			qtiFilename = tmpName.substring(0, tmpName.lastIndexOf("_")) + ".xml";
 			while (entry != null) {
 				String zipName = entry.getName();
 				int ix = zipName.lastIndexOf('/');
@@ -95,11 +104,7 @@ public class ImportService {
 						}
 					}
 				}
-				else {
-					if(!"imsmanifest.xml".equals(zipName)) {
-						qtiFilename = zipName;
-					}
-				}
+				
 				File zipEntryFile = new File(dir.getPath() + "/" + entry.getName());
 				if (!zipEntryFile.isDirectory()) {
 					ofile = new FileOutputStream(zipEntryFile);
@@ -107,6 +112,21 @@ public class ImportService {
 					int bytesRead;
 					while ((bytesRead = zipStream.read(buffer)) != -1) {
 						ofile.write(buffer, 0, bytesRead);
+					}
+				}
+				if ("imsmanifest.xml".equals(entry.getName())) {
+					DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+					try {
+					  DocumentBuilder db = dbf.newDocumentBuilder();
+					  Document doc = db.parse(zipEntryFile);
+					  doc.getDocumentElement().normalize();
+					  NodeList nodeLst = doc.getElementsByTagName("resource");
+					  Node fstNode = nodeLst.item(0);
+					  NamedNodeMap namedNodeMap= fstNode.getAttributes();
+					  qtiFilename = namedNodeMap.getNamedItem("href").getNodeValue();
+					}
+					catch (Exception e) {
+						log.error("error parsing imsmanifest.xml");
 					}
 				}
 				zipStream.closeEntry();
@@ -143,6 +163,10 @@ public class ImportService {
 		return unzipLocation.toString();
 	}
 
+	public String setQTIFilename() {
+		return qtiFilename;
+	}
+	
 	public String getQTIFilename() {
 		return qtiFilename;
 	}

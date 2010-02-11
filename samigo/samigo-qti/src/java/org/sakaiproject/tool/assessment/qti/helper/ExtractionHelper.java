@@ -37,12 +37,12 @@ import java.util.StringTokenizer;
 import java.util.Map.Entry;
 
 import javax.activation.MimetypesFileTypeMap;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jdom.input.DOMBuilder;
+import org.jdom.output.XMLOutputter;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
@@ -284,6 +284,12 @@ public class ExtractionHelper
       Document transform = getTransformDocument(transformType, isRespondus);
       Document xml = asi.getDocument();
       Document model = XmlUtil.transformDocument(xml, transform);
+      DOMBuilder in = new DOMBuilder(); 
+      org.jdom.Document jdomDoc = in.build(model); 
+      XMLOutputter  printer = new XMLOutputter();
+      printer.output(jdomDoc, System.out);
+
+      
       map = XmlMapper.map(model);
     }
     catch (IOException ex)
@@ -446,7 +452,7 @@ public class ExtractionHelper
     log.debug("duration: " + duration);
 
     makeAccessControl(assessment, duration);
-    String submissionMsg = XmlUtil.processFormattedText(log, metadataList.getSubmissionMessage());
+    String submissionMsg = metadataList.getSubmissionMessage();
     updateSubmissionMessage(assessment,submissionMsg);
 
     // evaluation model control
@@ -1144,9 +1150,13 @@ public class ExtractionHelper
    * @param assessment
    */
   public String makeFCKAttachment(String text) {
-	  // if unzipLocation is null, there is no assessment attachment - no action is needed
-	  if (unzipLocation == null || text == null || text.equals("")) {
+	  if (text == null) {
 		  return text;
+	  }
+	  String processedText = XmlUtil.processFormattedText(log, text);
+	  // if unzipLocation is null, there is no assessment attachment - no action is needed
+	  if (unzipLocation == null || processedText.equals("")) {
+		  return processedText;
 	  }
 
 	  String accessURL = ServerConfigurationService.getAccessUrl();
@@ -1156,12 +1166,11 @@ public class ExtractionHelper
 	  ContentResource contentResource = null;
 	  AttachmentHelper attachmentHelper = new AttachmentHelper();
 	  String resourceId = null;
-	 
-		  String importedPrependString = getImportedPrependString(text);
+		  String importedPrependString = getImportedPrependString(processedText);
 		  if (importedPrependString == null) {
-			  return text;
+			  return processedText;
 		  }
-		  String[] splittedString = text.split(importedPrependString);
+		  String[] splittedString = processedText.split(importedPrependString);
 		  int endIndex = 0;
 		  String filename = null;
 		  String contentType = null;
@@ -1201,7 +1210,59 @@ public class ExtractionHelper
 		  }
 		  return updatedText.toString();	  
   }
+  
+  public String makeFCKAttachmentFromRespondus(String text) {  
+	  if (text == null) {
+		  return text;
+	  }
+	  String processedText = XmlUtil.processFormattedText(log, text);
+	  // if unzipLocation is null, there is no assessment attachment - no action is needed
+	  if (unzipLocation == null || text.equals("")) {
+		  return processedText;
+	  }
+	  String finalText = "";
+	  // There are two spaces between alt="" and src=". This is to match the outcome from processFormattedText.
+	  String splitDelimiter = "<img alt=\"\"  src=\"";
+	  String accessURL = ServerConfigurationService.getAccessUrl();
+	  String referenceRoot = AssessmentService.getContentHostingService().REFERENCE_ROOT;
+	  String prependString = splitDelimiter + accessURL + referenceRoot;
+	  ContentResource contentResource = null;
+	  AttachmentHelper attachmentHelper = new AttachmentHelper();
+	  String resourceId = null;
 
+	  String contentType = "";
+	  String filename = "";
+	  StringBuffer fullFilePath = null;
+
+	  String itemText = "";
+	  String formattedText = "";
+	  String[] splittedString = processedText.split(splitDelimiter);
+	  StringBuffer updatedText = new StringBuffer(splittedString[0]);
+	  int endIndex = 0;
+	  for (int i = 1; i < splittedString.length; i++) {
+		  endIndex = splittedString[i].indexOf("\"");
+		  filename = splittedString[i].substring(0, endIndex);
+		  fullFilePath = new StringBuffer(unzipLocation);
+		  fullFilePath.append("/");
+		  fullFilePath.append(filename);
+		  MimetypesFileTypeMap mimetypesFileTypeMap = new MimetypesFileTypeMap();
+		  contentType = mimetypesFileTypeMap.getContentType(filename);
+		  contentResource = attachmentHelper.createContentResource(fullFilePath.toString(), filename, contentType);
+
+		  if (contentResource != null) {
+			  resourceId = contentResource.getId();
+			  updatedText.append(prependString);
+			  updatedText.append(resourceId);
+			  updatedText.append(splittedString[i].substring(endIndex));
+		  }
+		  else {
+			  throw new RuntimeException("resourceId is null");
+		  }
+
+	  }
+	  return updatedText.toString();
+  }
+  
   public String makeFCKAttachment(List respondueTextList) {
 	  // if unzipLocation is null, there is no assessment attachment - no action is needed
 	  if (respondueTextList == null || respondueTextList.size() == 0) {
@@ -1306,7 +1367,7 @@ public class ExtractionHelper
   public void updateSection(SectionFacade section, Map sectionMap)
   {
     section.setTitle(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, (String) sectionMap.get("title")));
-    section.setDescription(XmlUtil.processFormattedText(log, makeFCKAttachment((String) sectionMap.get("description"))));
+    section.setDescription(makeFCKAttachment((String) sectionMap.get("description")));
   }
 
   /**
@@ -1356,7 +1417,7 @@ public class ExtractionHelper
     // feedback
     // correct, incorrect, general
     HashMap<String, String> varequalLinkrefidMap = null;
-    HashMap<String, ArrayList> allFeedbacksMap = null;
+    HashMap<String, String> feedbacksMap = new HashMap();
     
     if (isRespondus) {
       List varequalLinkrefidMappingList = (List) itemMap.get("varequalLinkrefidMapping");
@@ -1369,7 +1430,7 @@ public class ExtractionHelper
     	  varequalLinkrefidMap.put(vl[0], vl[1]);
         }
       }
-    
+    /*
       List allFeedbackList = (List) itemMap.get("allFeedbacks");
       allFeedbacksMap = new HashMap();
       if (allFeedbackList != null) {
@@ -1418,7 +1479,13 @@ public class ExtractionHelper
         }
       }
       */
-      addRespondusFeedback(item, allFeedbacksMap, typeId);
+      String allFeedback = (String) itemMap.get("allFeedback");
+      feedbacksMap.put("All", allFeedback);
+      String correctFeedback = (String) itemMap.get("correctFeedback");
+      feedbacksMap.put("C", correctFeedback);
+      String incorrectFeedback = (String) itemMap.get("incorrectFeedback");
+      feedbacksMap.put("IC", incorrectFeedback);
+      addRespondusFeedbacks(item, feedbacksMap, typeId);
     }
     else {
       addFeedback(item, itemMap, typeId);
@@ -1451,10 +1518,10 @@ public class ExtractionHelper
     else
     {
     	if (isRespondus) {
-    		addResponseTextAndAnswers(item, itemMap, varequalLinkrefidMap, allFeedbacksMap);
+    		addRespondusTextAndAnswers(item, itemMap, varequalLinkrefidMap, feedbacksMap);
     	}
     	else {
-    		addTextAndAnswers(item, itemMap, varequalLinkrefidMap);
+    		addTextAndAnswers(item, itemMap);
     	}
     }
 
@@ -1586,11 +1653,44 @@ public class ExtractionHelper
 			  correctItemFeedback = generalItemFeedback;
 			  incorrectItemFeedback = generalItemFeedback;
 		  }
-	  
+	  /*
 	  setFeedbacks(item, typeId, 
 			  XmlUtil.processFormattedText(log, correctItemFeedback),
 			  XmlUtil.processFormattedText(log, incorrectItemFeedback),
 			  XmlUtil.processFormattedText(log, generalItemFeedback));
+			  */
+  }
+  
+  private void addRespondusFeedbacks(ItemFacade item, Map<String, String> map, Long typeId)
+  {
+	  String type = null;
+	  String correctItemFeedback = "";
+	  String incorrectItemFeedback = "";
+	  String generalItemFeedback = "";
+		  for (Entry<String, String> af : map.entrySet()) {
+			  type = af.getKey();
+			  if (type.equals("All")) {
+				  generalItemFeedback = makeFCKAttachmentFromRespondus((String) af.getValue());
+			  }
+			  else if (type.equals("C")) {
+				  correctItemFeedback = makeFCKAttachmentFromRespondus((String) af.getValue());
+			  }
+			  else if (type.equals("IC")) {
+				  incorrectItemFeedback = makeFCKAttachmentFromRespondus((String) af.getValue());
+			  }
+		  }
+
+		  if (typeId.equals(TypeIfc.ESSAY_QUESTION)) {
+			  generalItemFeedback = "";
+		  }
+		  else {
+			  correctItemFeedback = generalItemFeedback + correctItemFeedback;
+			  incorrectItemFeedback = generalItemFeedback + incorrectItemFeedback;
+		  }
+
+		  item.setGeneralItemFeedback(generalItemFeedback);
+		  item.setCorrectItemFeedback(correctItemFeedback);
+		  item.setInCorrectItemFeedback(incorrectItemFeedback);
   }
 
   private void addFeedback(ItemFacade item, Map<String, String> map, Long typeId)
@@ -1599,13 +1699,6 @@ public class ExtractionHelper
 	  String incorrectItemFeedback = (String) map.get("incorrectItemFeedback");
 	  String generalItemFeedback = (String) map.get("generalItemFeedback");
 
-	  setFeedbacks(item, typeId, 
-			  XmlUtil.processFormattedText(log, correctItemFeedback),
-			  XmlUtil.processFormattedText(log, incorrectItemFeedback),
-			  XmlUtil.processFormattedText(log, generalItemFeedback));
-  }
-  
-  private void setFeedbacks(ItemFacade item, Long typeId, String correctItemFeedback, String incorrectItemFeedback, String generalItemFeedback) {
 	  if (generalItemFeedback==null) generalItemFeedback = "";
 	  if (TypeIfc.AUDIO_RECORDING.longValue() == typeId.longValue() ||
 			  TypeIfc.FILE_UPLOAD.longValue() == typeId.longValue() ||
@@ -1633,14 +1726,13 @@ public class ExtractionHelper
 	  {
 		  item.setGeneralItemFeedback(makeFCKAttachment(generalItemFeedback));
 	  }
-
   }
   
   /**
    * @param item
    * @param itemMap
    */
-  private void addTextAndAnswers(ItemFacade item, Map itemMap, HashMap<String, String> varequalLinkrefidMap)
+  private void addTextAndAnswers(ItemFacade item, Map itemMap)
   {
 	  List itemTextList = (List) itemMap.get("itemText");
 	  HashSet itemTextSet = new HashSet();
@@ -1659,7 +1751,7 @@ public class ExtractionHelper
 	  {
 		  ItemText itemText = new ItemText();
 
-		  String text = XmlUtil.processFormattedText(log, (String) itemTextList.get(i));
+		  String text = (String) itemTextList.get(i);
 		  // should be allow this or, continue??
 		  // for now, empty string OK, setting to empty string if null
 		  if (text == null)
@@ -1767,8 +1859,8 @@ public class ExtractionHelper
 	  item.setItemTextSet(itemTextSet);
   }
 
-  private void addResponseTextAndAnswers(ItemFacade item, Map itemMap, HashMap<String, String> varequalLinkrefidMap, 
-		  HashMap<String, ArrayList> allFeedbacksMap)
+  private void addRespondusTextAndAnswers(ItemFacade item, Map itemMap, HashMap<String, String> varequalLinkrefidMap, 
+		  HashMap<String, String> feedbacksMap)
   {
 	  List itemTextList = (List) itemMap.get("itemText");
 	  HashSet itemTextSet = new HashSet();
@@ -1784,28 +1876,13 @@ public class ExtractionHelper
 	  answerList = aList == null ? answerList : aList;
 
 	  if (item.getTypeId().equals(TypeIfc.ESSAY_QUESTION) ) {
-		  answerList.add(allFeedbacksMap);
+		  answerList.add(feedbacksMap);
 	  }
 
 	  for (int i = 0; i < itemTextList.size(); i++)
 	  {
 		  ItemText itemText = new ItemText();
-		  if (unzipLocation != null) {
-			  List itemTextRespondueList = (List) itemMap.get("itemTextRespondus");  
-			  itemText.setText(makeFCKAttachment(itemTextRespondueList));
-		  }
-		  else {
-			  String text = XmlUtil.processFormattedText(log, (String) itemTextList.get(i));
-			  // should be allow this or, continue??
-			  // for now, empty string OK, setting to empty string if null
-			  if (text == null)
-			  {
-				  text = "";
-			  }
-			  text=text.replaceAll("\\?\\?"," ");//SAK-2298
-			  log.debug("text: " + text);
-			  itemText.setText(makeFCKAttachment(text));
-		  }
+		  itemText.setText(makeFCKAttachmentFromRespondus((String) itemTextList.get(i)));
 		  itemText.setItem(item.getData());
 		  itemText.setSequence( Long.valueOf(i + 1));
 
@@ -1818,14 +1895,14 @@ public class ExtractionHelper
 		  {
 			  Answer answer = new Answer();
 			  if (item.getTypeId().equals(TypeIfc.ESSAY_QUESTION) ) {
-				  for (Entry<String, ArrayList> entrySet : allFeedbacksMap.entrySet()) {
-					  ArrayList allFeedbacksList = (ArrayList) entrySet.getValue();
-					  answer.setText(makeFCKAttachment(allFeedbacksList));
+				  for (Entry<String, String> entrySet : feedbacksMap.entrySet()) {
+					  String allFeedback = (String) entrySet.getValue();
+					  answer.setText(this.makeFCKAttachmentFromRespondus(allFeedback));
 				  }
 				  answer.setIsCorrect(Boolean.TRUE);
 			  }
 			  else {
-				  String answerText = XmlUtil.processFormattedText(log, (String) answerList.get(a));
+				  String answerText = (String) answerList.get(a);
 				  if (notNullOrEmpty(answerText)) {
 					  String [] data = answerText.split(":::");
 					  String ident = data[0];
@@ -1835,14 +1912,16 @@ public class ExtractionHelper
 					  }
 
 					  answerText = data[1];
-					  answerText=answerText.replaceAll("\\?\\?"," ");//SAK-2298
 					  // normalize all true/false questions
 					  if (item.getTypeId().equals(TypeIfc.TRUE_FALSE))
 					  {
 						  if (answerText.equalsIgnoreCase("true")) answerText = "true";
 						  if (answerText.equalsIgnoreCase("false")) answerText = "false";
+						  answer.setText(answerText);
 					  }
-					  answer.setText(makeFCKAttachment(answerText));
+					  else {
+						  answer.setText(makeFCKAttachmentFromRespondus(answerText));
+					  }
 					  // prepare answer feedback - daisyf added this on 2/21/05
 					  // need to check if this works for question type other than
 					  // MC
@@ -1854,11 +1933,11 @@ public class ExtractionHelper
 						  if (varequalLinkrefidMap.get(ident) != null) {
 							  String linkrefid = (String) varequalLinkrefidMap.get(ident);
 							  if (linkrefid.endsWith("_C") || linkrefid.endsWith("_IC")) {
-								  if (allFeedbacksMap.get(linkrefid) != null) {
-									  answerFeedback.setText(makeFCKAttachment((ArrayList) allFeedbacksMap.get(linkrefid)));
-									  set.add(answerFeedback);
-									  answer.setAnswerFeedbackSet(set);
-								  }
+								  //if (allFeedbacksMap.get(linkrefid) != null) {
+									  //answerFeedback.setText(makeFCKAttachment((ArrayList) allFeedbacksMap.get(linkrefid)));
+									  //set.add(answerFeedback);
+									  //answer.setAnswerFeedbackSet(set);
+								  //}
 							  }
 						  }
 
@@ -2046,7 +2125,7 @@ public class ExtractionHelper
     for (int a = 0; a < answerList.size(); a++)
     {
       Answer answer = new Answer();
-      String answerText = XmlUtil.processFormattedText(log, (String) answerList.get(a));
+      String answerText = (String) answerList.get(a);
       // these are not supposed to be empty
       if (notNullOrEmpty(answerText))
       {
@@ -2083,8 +2162,7 @@ public class ExtractionHelper
           answerFeedback.setTypeId(AnswerFeedbackIfc.GENERAL_FEEDBACK);
           if (answerFeedbackList.get(sequence - 1) != null)
           {
-            answerFeedback.setText(makeFCKAttachment(XmlUtil.processFormattedText(log, (String) answerFeedbackList.get(
-                sequence - 1))));
+            answerFeedback.setText(makeFCKAttachment((String) answerFeedbackList.get(sequence - 1)));
             set.add(answerFeedback);
             answer.setAnswerFeedbackSet(set);
           }
@@ -2133,7 +2211,7 @@ public class ExtractionHelper
 	  StringBuilder answerTextStringbuf = new StringBuilder();
 	  for (int a = 0; a < answerList.size(); a++)
 	  {
-		  String answerText = XmlUtil.processFormattedText(log, (String) answerList.get(a));
+		  String answerText = (String) answerList.get(a);
 		  if (notNullOrEmpty(answerText))
 		  {
 			  answerText=answerText.replaceAll("\\?\\?"," ");
@@ -2236,7 +2314,7 @@ public class ExtractionHelper
     for (int i = 0; i < sourceList.size(); i++)
     {
       // create the entry for the matching item (source)
-      String sourceText = XmlUtil.processFormattedText(log, (String) sourceList.get(i));
+      String sourceText = (String) sourceList.get(i);
       if (sourceText == null) sourceText="";
       sourceText=sourceText.replaceAll("\\?\\?"," ");//SAK-2298
       log.debug("sourceText: " + sourceText);
@@ -2282,13 +2360,13 @@ public class ExtractionHelper
 
         if (correctMatchFeedbackList.size() > i)
         {
-          String fb = XmlUtil.processFormattedText(log, (String) correctMatchFeedbackList.get(i));
+          String fb = (String) correctMatchFeedbackList.get(i);
           answerFeedbackSet.add( new AnswerFeedback(
             target, AnswerFeedbackIfc.CORRECT_FEEDBACK, fb));
         }
         if (incorrectMatchFeedbackList.size() > i)
         {
-          String fb = XmlUtil.processFormattedText(log, (String) incorrectMatchFeedbackList.get(i));
+          String fb = (String) incorrectMatchFeedbackList.get(i);
           log.debug("setting incorrect fb="+fb);
           answerFeedbackSet.add( new AnswerFeedback(
             target, AnswerFeedbackIfc.INCORRECT_FEEDBACK, fb));
@@ -2334,7 +2412,7 @@ public class ExtractionHelper
           String targetFeedback = "";
           if (answerFeedbackList.size()>0)
           {
-            targetFeedback = XmlUtil.processFormattedText(log, (String) answerFeedbackList.get(targetIndex));
+            targetFeedback = (String) answerFeedbackList.get(targetIndex);
           }
           if (targetFeedback.length()>0)
           {
@@ -2415,13 +2493,13 @@ public class ExtractionHelper
 	  int itemSequence = 1;
 	  for (Entry<String, String> source : sourceMap.entrySet()) {
 		  char answerLabel = 'A';
-		  sourceText = XmlUtil.processFormattedText(log, source.getValue());
+		  sourceText = source.getValue();
 		  if (sourceText == null) sourceText = "";
 		  sourceText = sourceText.replaceAll("\\?\\?"," ");//SAK-2298
 		  log.debug("sourceText: " + sourceText);
 
 		  ItemText sourceItemText = new ItemText();
-		  sourceItemText.setText(makeFCKAttachment(sourceText));
+		  sourceItemText.setText(makeFCKAttachmentFromRespondus(sourceText));
 		  sourceItemText.setItem(item.getData());
 		  sourceItemText.setSequence(Long.valueOf(itemSequence++)); 
 
@@ -2429,7 +2507,7 @@ public class ExtractionHelper
 		  HashSet targetSet = new HashSet();
 		  for (Entry<String, String> target : targetMap.entrySet()) {
 
-			  targetText = XmlUtil.processFormattedText(log, target.getValue());
+			  targetText = target.getValue();
 			  if (targetText == null) targetText = "";
 			  targetText = targetText.replaceAll("\\?\\?"," ");
 			  log.debug("targetText: " + targetText);
@@ -2438,7 +2516,7 @@ public class ExtractionHelper
 
 			  String label = "" + answerLabel++;
 			  answer.setLabel(label); // up to 26, is this a problem?
-			  answer.setText(makeFCKAttachment(targetText));
+			  answer.setText(makeFCKAttachmentFromRespondus(targetText));
 			  answer.setItemText(sourceItemText);
 			  answer.setItem(item.getData());
 			  answer.setSequence( Long.valueOf(answerSequence++));

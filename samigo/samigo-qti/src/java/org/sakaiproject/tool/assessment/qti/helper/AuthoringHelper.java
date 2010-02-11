@@ -502,7 +502,7 @@ public class AuthoringHelper
       ItemService itemService = new ItemService();
       Assessment assessmentXml = new Assessment(document);
       Map assessmentMap = exHelper.mapAssessment(assessmentXml, isRespondus);
-      String description = XmlUtil.processFormattedText(log, (String) assessmentMap.get("description"));
+      String description = (String) assessmentMap.get("description");
       String title = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, (String) assessmentMap.get("title"));
       assessment = assessmentService.createAssessmentWithoutDefaultSection(
         title, exHelper.makeFCKAttachment(description), null, templateId);
