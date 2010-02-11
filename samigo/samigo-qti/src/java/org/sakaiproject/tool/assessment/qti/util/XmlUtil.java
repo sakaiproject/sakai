@@ -236,8 +236,7 @@ public final class XmlUtil
     }
     catch (MalformedURLException e1)
     {
-      // TODO Auto-generated catch block
-      e1.printStackTrace();
+    	log.debug(e1.getMessage(), e1);    
     }
     DocumentBuilderFactory builderFactory =
       DocumentBuilderFactory.newInstance();
@@ -331,6 +330,7 @@ public final class XmlUtil
     }
     catch(ParserConfigurationException e)
     {
+    	log.debug(e.getMessage(), e);
       throw(e);
     }
     catch(SAXException e)
@@ -350,14 +350,14 @@ public final class XmlUtil
     			inputStream.close();
     		}
     		catch (IOException e) {
-    			// tried
+    			log.debug(e.getMessage(), e);// tried
     		}
     	}
     	if (in !=null){
     		try {
     			in.close();
     		} catch (Exception e1) {
-    			e1.printStackTrace();
+    			log.debug(e1.getMessage(), e1);
     		}
     	} 
 
