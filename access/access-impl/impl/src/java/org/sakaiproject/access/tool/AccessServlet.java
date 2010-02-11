@@ -261,7 +261,7 @@ public class AccessServlet extends VmServlet
 				}
 			});
 			ResourceProperties props = aRef.getProperties();
-			SecurityService.clearAdvisors();
+			SecurityService.popAdvisor();
 
 			// send the copyright agreement interface
 			if (props == null)
