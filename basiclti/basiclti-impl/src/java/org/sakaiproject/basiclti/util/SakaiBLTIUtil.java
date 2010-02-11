@@ -138,12 +138,17 @@ public class SakaiBLTIUtil {
                 
 	User user = UserDirectoryService.getCurrentUser();
 
-	// Start setting the Basici LTI parameters
-	setProperty(props,"resource_link_id",placementId);
-
 	// Get the placement to see if we are to release information
         ToolConfiguration placement = SiteService.findTool(placementId);
 	Properties config = placement.getConfig();
+
+	// Start setting the Basici LTI parameters
+	setProperty(props,"resource_link_id",placementId);
+        String pagetitle = toNull(config.getProperty("imsti.pagetitle", null));
+	if ( pagetitle != null ) setProperty(props,"resource_link_title",pagetitle);
+        String tooltitle = toNull(config.getProperty("imsti.tooltitle", null));
+	if ( tooltitle != null ) setProperty(props,"resource_link_description",tooltitle);
+
         String releasename = toNull(config.getProperty("imsti.releasename", null));
         String releaseemail = toNull(config.getProperty("imsti.releaseemail", null));
 
