@@ -23,6 +23,7 @@
 package org.sakaiproject.tool.assessment.ui.bean.qti;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -34,6 +35,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -57,6 +59,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
  
 /**
@@ -144,12 +147,12 @@ public class XMLImportBean implements Serializable
     catch (Exception ex)
     {
       ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
-      FacesMessage message = new FacesMessage( rb.getString("import_err") + ex );
+      FacesMessage message = new FacesMessage( rb.getString("import_err") );
       FacesContext.getCurrentInstance().addMessage(null, message);
     }
     finally {
       // remove unsuccessful file
-      log.debug("****remove unsuccessful filename="+filename);
+      log.debug("****Clean up file: "+filename);
       File f1 = new File(filename);
       f1.delete();
       if (isCP) {
@@ -219,7 +222,7 @@ public class XMLImportBean implements Serializable
     this.importType = importType;
   }
 
-  private void processFile(String fileName, boolean isRespondus)
+  private void processFile(String fileName, boolean isRespondus) throws Exception
   {
     itemAuthorBean.setTarget(ItemAuthorBean.FROM_ASSESSMENT); // save to assessment
 
@@ -291,17 +294,19 @@ public class XMLImportBean implements Serializable
    * Create assessment from uploaded QTI XML
    * @param fullFileName file name and path
    * @param qti QTI version
+   * @param isRespondus true/false
    * @return
    */
-  private AssessmentFacade createImportedAssessment(String fullFileName, int qti)
-  {
-	  return createImportedAssessment(fullFileName, qti, false);
-  }
   
-  private AssessmentFacade createImportedAssessment(String fullFileName, int qti, boolean isRespondus)
+  private AssessmentFacade createImportedAssessment(String fullFileName, int qti, boolean isRespondus) throws Exception
   {
     //trim = true so that xml processing instruction at top line, even if not.
-    Document document = XmlUtil.readDocument(fullFileName, true);
+    Document document = null;
+	try {
+		document = XmlUtil.readDocument(fullFileName, true);
+	} catch (Exception e) {
+		throw(e);
+	}
     QTIService qtiService = new QTIService();
     if (isCP) {
     	return qtiService.createImportedAssessment(document, qti, fullFileName.substring(0, fullFileName.lastIndexOf("/")), isRespondus);
@@ -356,7 +361,7 @@ public class XMLImportBean implements Serializable
     catch (Exception ex)
     {
       ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
-      FacesMessage message = new FacesMessage( rb.getString("import_err") + ex );
+      FacesMessage message = new FacesMessage( rb.getString("import_err") );
       FacesContext.getCurrentInstance().addMessage(null, message);
     }
   }
@@ -365,8 +370,9 @@ public class XMLImportBean implements Serializable
   /**
    * Process uploaded QTI XML 
    * assessment as question pool
+ * @throws Exception 
    */
-  private void processAsPoolFile(String uploadFile)
+  private void processAsPoolFile(String uploadFile) throws Exception
   {
     itemAuthorBean.setTarget(ItemAuthorBean.FROM_QUESTIONPOOL); // save to questionpool
 
@@ -392,11 +398,17 @@ public class XMLImportBean implements Serializable
    * @param fullFileName file name and path
    * @param qti QTI version
    * @return
+ * @throws Exception 
    */
-  private QuestionPoolFacade createImportedQuestionPool(String fullFileName, int qti)
+  private QuestionPoolFacade createImportedQuestionPool(String fullFileName, int qti) throws Exception
   {
     //trim = true so that xml processing instruction at top line, even if not.
-    Document document = XmlUtil.readDocument(fullFileName, true);
+    Document document;
+	try {
+		document = XmlUtil.readDocument(fullFileName, true);
+	} catch (Exception e) {
+		throw(e);
+	}
     QTIService qtiService = new QTIService();
     return qtiService.createImportedQuestionPool(document, qti);
   }  
