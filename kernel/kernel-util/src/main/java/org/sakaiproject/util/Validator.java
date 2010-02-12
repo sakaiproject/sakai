@@ -179,13 +179,38 @@ public class Validator
 	public static String escapeUrl(String id)
 	{
 
+		System.out.println("got given id of " + id);
 		String ret = null;
-		try {
-			ret = URLEncoder.encode(id, "utf8");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-			return id;
+		
+		//this may be a url so we need to split on "/"
+		if (id.contains("/")) {
+			String[] split = id.split("/");
+			System.out.println("Got these parts" + split.length);
+			StringBuilder sb = new StringBuilder();
+			if (id.indexOf("/") == 0) {
+				sb.append("/");
+			}
+			for (int i = 1; i < split.length; i++) {
+				try {
+					System.out.println("got split " + split[i] + " at index " + i);
+					sb.append(URLEncoder.encode(split[i], "utf8"));
+					if (i < (split.length -1)) {
+						sb.append("/");
+					}
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
+				
+			}
+			return sb.toString();
+		} else {
+			try {
+				ret = URLEncoder.encode(id, "utf8");
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+				return id;
 
+			}
 		}
 		return ret;
 
