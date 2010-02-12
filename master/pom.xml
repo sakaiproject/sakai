@@ -534,12 +534,6 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>javax.jcr</groupId>
-                <artifactId>jcr</artifactId>
-                <version>1.0</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
                 <groupId>jdbc</groupId>
                 <artifactId>jdbc2_0-stdext</artifactId>
                 <version>h2.1.8</version>
