@@ -50,6 +50,7 @@ import org.sakaiproject.entity.api.EntityNotDefinedException;
 import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationEdit;
@@ -1443,7 +1444,17 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 					EntityAccessOverloadException, 
 					EntityCopyrightException
 
-			{
+					{
+
+				// Check for session in request parameter
+				String sessionId = req.getParameter("session");
+				if (sessionId != null )
+				{
+					Session session = sessionManager.getSession( sessionId );
+					if ( session != null )
+						sessionManager.setCurrentSession( session );
+				}
+				
 				try
 				{
 					checkReference(ref);
