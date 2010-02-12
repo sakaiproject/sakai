@@ -66,6 +66,7 @@ import org.sakaiproject.tool.gradebook.Comment;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
+import org.sakaiproject.util.Validator;
 
 public class SpreadsheetUploadBean extends GradebookDependentBean implements Serializable {
 
@@ -1175,7 +1176,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         		if (! assignment.getPointsPossible().toString().equals(pointsPossibleAsString)) {
         			if (assignment.isExternallyMaintained()) {
         				externallyMaintainedImportMsg.append(getLocalizedString("import_assignment_externally_maintained_settings",
-        						new String[] {assignment.getName(), assignment.getExternalAppName()}) + "<br />");
+        						new String[] {Validator.escapeHtml(assignment.getName()), Validator.escapeHtml(assignment.getExternalAppName())}) + "<br />");
         			} else if (pointsPossibleAsString != null) {
         				assignment.setPointsPossible(new Double(pointsPossibleAsString));
         				getGradebookManager().updateAssignment(assignment);
@@ -1470,7 +1471,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 		
 		if (updatingExternalGrade)
 			externallyMaintainedImportMsg.append(getLocalizedString("import_assignment_externally_maintained_grades",
-					new String[] {assignment.getName(), assignment.getExternalAppName()}) + "<br/>");
+					new String[] {Validator.escapeHtml(assignment.getName()), Validator.escapeHtml(assignment.getExternalAppName())}) + "<br/>");
 		
 		return updatedGradeRecords;
     }
