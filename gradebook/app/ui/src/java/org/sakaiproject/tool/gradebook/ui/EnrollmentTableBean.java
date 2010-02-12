@@ -23,6 +23,7 @@
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -62,7 +63,7 @@ public abstract class EnrollmentTableBean
      */
     static final Comparator<EnrollmentRecord> ENROLLMENT_NAME_COMPARATOR = new Comparator<EnrollmentRecord>() {
 		public int compare(EnrollmentRecord o1, EnrollmentRecord o2) {
-            return o1.getUser().getSortName().compareToIgnoreCase(o2.getUser().getSortName());
+		    return Collator.getInstance().compare(o1.getUser().getSortName(), o2.getUser().getSortName());
 		}
 	};
 
