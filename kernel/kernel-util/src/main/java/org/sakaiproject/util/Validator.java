@@ -174,47 +174,20 @@ public class Validator
 	 * @param id
 	 *        The string to escape.
 	 * @return id fully escaped using URL rules.
-	 * @deprecated use java.net.URLEncode.encode()
+	 * @deprecated use java.net.URLEncode.encode(url, encoding)
 	 */
 	public static String escapeUrl(String id)
 	{
-		if (id == null) return "";
-		id = id.trim();
-		try
-		{
-			// convert the string to bytes in UTF-8
-			byte[] bytes = id.getBytes("UTF-8");
 
-			StringBuilder buf = new StringBuilder();
-			for (int i = 0; i < bytes.length; i++)
-			{
-				byte b = bytes[i];
-				// escape ascii control characters, ascii high bits, specials
-				if (ESCAPE_URL_SPECIAL.indexOf((char) b) != -1)
-				{
-					buf.append("^^x"); // special funky way to encode bad URL characters 
-					buf.append(toHex(b));
-					buf.append('^');
-				}
-				else if ((ESCAPE_URL.indexOf((char) b) != -1) || (b <= 0x1F) || (b == 0x7F) || (b >= 0x80))
-				{
-					buf.append("%");
-					buf.append(toHex(b));
-				}
-				else
-				{
-					buf.append((char) b);
-				}
-			}
+		String ret = null;
+		try {
+			ret = URLEncoder.encode(id, "utf8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			return id;
 
-			String rv = buf.toString();
-			return rv;
 		}
-		catch (UnsupportedEncodingException e)
-		{
-			M_log.warn("Validator.escapeUrl: ", e);
-			return "";
-		}
+		return ret;
 
 	} // escapeUrl
 
