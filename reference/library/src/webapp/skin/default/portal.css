@@ -1022,6 +1022,10 @@ below they are contextually defined depending on the column as an example,as you
 	background-image: url(../../image/silk/chart_bar.png);
 }
 
+.icon-sakai-sitestats-admin {
+        background-image: url(../../image/silk/chart_line.png);
+}
+
 .icon-sakai-presentation {
 	background-image: url(../../image/silk/monitor.png);
 }
