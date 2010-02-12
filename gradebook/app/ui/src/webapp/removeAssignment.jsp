@@ -12,8 +12,7 @@
 		<div class="instruction"><h:outputText value="#{msgs.remove_assignment_instruction}" escape="false"/></div>
 
 		<p>
-			<h:outputFormat value="#{msgs.remove_assignment_confirmation_question}"
-				escape="false">
+			<h:outputFormat value="#{msgs.remove_assignment_confirmation_question}">
 				<f:param value="#{removeAssignmentBean.assignment.name}"/>
 			</h:outputFormat>
 		</p>
