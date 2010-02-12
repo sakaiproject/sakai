@@ -346,6 +346,41 @@ public class DiscussionForumTool
     showForumLinksInNav = ServerConfigurationService.getBoolean("mc.showForumLinksInNav", true);
   }
 
+  // Is Gradebook defined for the site?
+  protected boolean isGradebookDefined()
+  {
+	  boolean rv = false;
+	  try
+	  {
+		  Object og = ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+		  if (!(og instanceof GradebookService)) {
+			LOG.info("Error getting gradebook service from component manager. CM returns:" + og.getClass().getName());
+			return false;
+		  }
+			
+		  GradebookService g = (GradebookService) og;
+		  String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
+		  if (g.isGradebookDefined(gradebookUid) && (g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)))
+		  {
+			  rv = true;
+		  }
+	  }
+	  catch (Exception e)
+	  {
+		  LOG.info(this + "isGradebookDefined " + e.getMessage());
+	  }
+
+	  return rv;
+
+  } // isGradebookDefined()
+
+  protected GradebookService getGradebookService() {
+	if (isGradebookDefined()) {
+		return (GradebookService)  ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+	}
+	return null;
+  }
+
   /**
    * @param forumManager
    */
@@ -528,8 +563,11 @@ public class DiscussionForumTool
 	       assignments = new ArrayList<SelectItem>();
 	       assignments.add(new SelectItem(DEFAULT_GB_ITEM, getResourceBundleString(SELECT_ASSIGN)));
 	 
-	       GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService)
-	       ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+	       //Code to get the gradebook service from ComponentManager
+
+	       GradebookService gradebookService = getGradebookService();
+	       LOG.error(gradebookService);
+
 	       if(getGradebookExist()) {
 	         List gradeAssignmentsBeforeFilter = gradebookService.getAssignments(ToolManager.getCurrentPlacement().getContext());
 	         for(int i=0; i<gradeAssignmentsBeforeFilter.size(); i++) {
@@ -3622,8 +3660,8 @@ public class DiscussionForumTool
   }
   
   private void setUpGradeInformation(String gradebookUid, String selAssignmentName, String studentId) {
-	  GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService) 
-	  ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService"); 
+	  GradebookService gradebookService = getGradebookService();
+	  if (gradebookService == null) return;
 	  // first, check to see if user is authorized to view or grade this item in the gradebook
 	  String function = gradebookService.getGradeViewFunctionForUserForStudentForItem(gradebookUid, selAssignmentName, studentId);
 	  if (function == null) {
@@ -5408,6 +5446,12 @@ public class DiscussionForumTool
   
   public String processDfGradeSubmit() 
   { 
+	GradebookService gradebookService = getGradebookService();
+	if (gradebookService == null) {
+//		Maybe print an error message if it's possible to get into this state
+//		setErrorMessage(getResourceBundleString(STATE_INCONSISTENT));
+		return null;
+	}
 	  if(selectedMessageCount != 0 ) {
 			setErrorMessage(getResourceBundleString(STATE_INCONSISTENT));
 			return null;
@@ -5453,8 +5497,6 @@ public class DiscussionForumTool
     
     try 
     {   
-        GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService) 
-        ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService"); 
         String selectedAssignName = ((SelectItem)assignments.get((Integer.valueOf(selectedAssign)).intValue())).getLabel();
         String gradebookUuid = ToolManager.getCurrentPlacement().getContext();
         String studentUid = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();
@@ -6683,8 +6725,9 @@ public class DiscussionForumTool
 			{
 		 	    try 
 			    { 
-		 	    	GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService) 
-		 	    	ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+				
+				GradebookService gradebookService = getGradebookService();
+				if (gradebookService == null) return false;
 		 	    	gradebookExist = gradebookService.isGradebookDefined(ToolManager.getCurrentPlacement().getContext());
 		 	    	gradebookExistChecked = true;
 		 	    	return gradebookExist;
