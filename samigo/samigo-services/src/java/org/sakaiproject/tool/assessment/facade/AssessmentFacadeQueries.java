@@ -1494,13 +1494,14 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			AssessmentFacade assessment) {
 		int retryCount = PersistenceService.getInstance().getRetryCount()
 				.intValue();
-		assessment.setLastModifiedBy(AgentFacade.getAgentString());
-		assessment.setLastModifiedDate(new Date());
+		AssessmentData data = (AssessmentData) assessment.getData();
+		data.setLastModifiedBy(AgentFacade.getAgentString());
+		data.setLastModifiedDate(new Date());
 		retryCount = PersistenceService.getInstance().getRetryCount()
 				.intValue();
 		while (retryCount > 0) {
 			try {
-				getHibernateTemplate().update(assessment);
+				getHibernateTemplate().update(data);
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem update assessment: " + e.getMessage());
