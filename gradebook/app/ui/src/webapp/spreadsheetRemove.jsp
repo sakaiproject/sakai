@@ -33,8 +33,7 @@
 		<div class="instruction"><h:outputText value="#{msgs.remove_spreadsheet_instruction}" escape="false"/></div>
 
 		<p>
-			<h:outputFormat value="#{msgs.remove_spreadsheet_confirmation_question}"
-				escape="false">
+			<h:outputFormat value="#{msgs.remove_spreadsheet_confirmation_question}">
 				<f:param value="#{spreadsheetRemoveBean.spreadsheet.name}"/>
 			</h:outputFormat>
 		</p>
