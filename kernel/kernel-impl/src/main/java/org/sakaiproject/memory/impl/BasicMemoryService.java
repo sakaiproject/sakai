@@ -297,10 +297,6 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 			ehcache.clearStatistics();
 		}
 
-		// run the garbage collector now
-		System.runFinalization();
-		System.gc();
-
 		M_log.info("doReset():  Low Memory Recovery to: " + Runtime.getRuntime().freeMemory());
 
 	} // doReset
