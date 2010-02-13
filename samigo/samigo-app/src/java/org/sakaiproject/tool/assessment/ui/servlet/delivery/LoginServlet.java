@@ -88,6 +88,12 @@ public class LoginServlet
   public void doPost(HttpServletRequest req, HttpServletResponse res)
       throws ServletException, IOException
   {
+	String alias = req.getParameter("id");
+	if ((alias==null) ||("").equals(alias)){
+		log.warn("The published URL you have entered is incorrect. id is missing. Please check in Published Settings.");
+		return;
+	}
+
     HttpSession httpSession = req.getSession(true);
     httpSession.setMaxInactiveInterval(3600); // one hour
     PersonBean person = (PersonBean) ContextUtil.lookupBeanFromExternalServlet(
@@ -112,7 +118,7 @@ public class LoginServlet
     // set path
     delivery.setContextPath(req.getContextPath());
 
-    String alias = req.getParameter("id");
+
     // 1. get publishedAssessment and check if anonymous is allowed
     // 2. If so, goto welcome.faces
     // 3. If not, goto login.faces
@@ -120,6 +126,10 @@ public class LoginServlet
     PublishedAssessmentService service = new PublishedAssessmentService();
     PublishedAssessmentFacade pub = service.getPublishedAssessmentIdByAlias(alias);
 
+    if (pub==null){
+		log.warn("The published URL you have entered is incorrect. Please check in Published Settings.");
+    	return;
+    }
     delivery.setAssessmentId(pub.getPublishedAssessmentId().toString());
     delivery.setAssessmentTitle(pub.getTitle());
     delivery.setPublishedAssessment(pub);
