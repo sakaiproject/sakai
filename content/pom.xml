@@ -38,8 +38,7 @@
         <module>content-impl-providers/impl</module>
         <module>content-impl-providers/pack</module>
         <module>content-tool/tool</module>
-        <module>contentmultiplex-impl/impl</module>
-      </modules>
+       </modules>
     </profile>
     <profile>
       <id>full</id>
