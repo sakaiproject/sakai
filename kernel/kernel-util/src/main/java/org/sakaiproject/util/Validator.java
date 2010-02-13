@@ -39,6 +39,8 @@ import org.sakaiproject.exception.IdInvalidException;
  */
 public class Validator
 {
+	private static final String URL_ESCAPE_CHAR = "/";
+
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(Validator.class);
 
@@ -178,24 +180,20 @@ public class Validator
 	 */
 	public static String escapeUrl(String id)
 	{
-
-		System.out.println("got given id of " + id);
 		String ret = null;
 		
 		//this may be a url so we need to split on "/"
-		if (id.contains("/")) {
-			String[] split = id.split("/");
-			System.out.println("Got these parts" + split.length);
+		if (id.contains(URL_ESCAPE_CHAR)) {
+			String[] split = id.split(URL_ESCAPE_CHAR);
 			StringBuilder sb = new StringBuilder();
-			if (id.indexOf("/") == 0) {
-				sb.append("/");
+			if (id.indexOf(URL_ESCAPE_CHAR) == 0) {
+				sb.append(URL_ESCAPE_CHAR);
 			}
 			for (int i = 1; i < split.length; i++) {
 				try {
-					System.out.println("got split " + split[i] + " at index " + i);
 					sb.append(URLEncoder.encode(split[i], "utf8"));
 					if (i < (split.length -1)) {
-						sb.append("/");
+						sb.append(URL_ESCAPE_CHAR);
 					}
 				} catch (UnsupportedEncodingException e) {
 					e.printStackTrace();
