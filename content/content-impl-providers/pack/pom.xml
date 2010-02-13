@@ -2,14 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>content-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+    <artifactId>content</artifactId>
+    <groupId>org.sakaiproject.content</groupId>
     <version>2.8-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
-  <name>sakai-content-providers-pack</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-content-providers-pack</artifactId>
+  <name>content-providers-pack</name>
+  <groupId>org.sakaiproject.content</groupId>
+  <artifactId>content-providers-pack</artifactId>
   <organization>
     <name>University of Michigan</name>
     <url>http://sakaiproject.org/</url>
@@ -21,8 +21,8 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-content-providers-impl</artifactId>
+      <groupId>org.sakaiproject.content</groupId>
+      <artifactId>content-providers-impl</artifactId>
     </dependency>
   </dependencies>
   <build>
