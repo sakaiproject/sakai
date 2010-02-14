@@ -374,7 +374,12 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 			MessageService service = (MessageService) state.getAttribute(STATE_SERVICE);
 			String channelRef = (String) state.getAttribute(STATE_CHANNEL_REF);
 			Time afterDate = (Time) state.getAttribute(STATE_AFTER_DATE);
-			int items = ((Integer) state.getAttribute(STATE_ITEMS)).intValue();
+			int items = 3;
+			// read the items parameter
+			if (state.getAttribute(STATE_ITEMS) != null)
+			{
+				items = ((Integer) state.getAttribute(STATE_ITEMS)).intValue();
+			}
 
 			String serviceName = (String) state.getAttribute(STATE_SERVICE_NAME);
 
