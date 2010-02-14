@@ -22,7 +22,6 @@
 package org.sakaiproject.presence.impl;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -212,71 +211,5 @@ public class ClusterPresenceService extends BasePresenceService
 
 			return locs;
 		}
-		
-		// UFP: Start
-		/**
-		 * {@inheritDoc}
-		 */
-		public String getLocationDescription(String location)
-		{
-			// form the SQL query
-			String presenceSuffix = "-presence";
-			String chatPrefix = "_chat_channel_";
-			String chatSuffix = "_main";
-			String chatExp = "_chat_channel_(.)*_main";
-			String idleExp = "[0-9]*-[0-9].[0-9]*";
-			String statement;
-			if(location.endsWith(presenceSuffix))
-			{
-				// match site presence ("-presence")
-				String siteId = location.substring(0, location.length() - presenceSuffix.length());
-				statement =
-					"select TITLE from SAKAI_SITE where SITE_ID='" + siteId + "'";
-				List locDesc = m_sqlService.dbRead(statement);
-				Object desc = null;
-				return (locDesc != null && !locDesc.isEmpty() && (desc=locDesc.get(0)) != null )? (String) desc : location;
-			}else if(Pattern.matches(chatExp, location))
-			{
-				// match main chat room ("_chat_channel_" +(...)+ "_main")
-				String siteId = location.substring(chatPrefix.length(), location.length() - chatSuffix.length());
-				statement =
-					"select TITLE from SAKAI_SITE where SITE_ID='" + siteId + "'";
-				List locDesc = m_sqlService.dbRead(statement);
-				Object desc = null;
-				return (locDesc != null && !locDesc.isEmpty() && (desc=locDesc.get(0)) != null )? (String) desc + " (Chat Room: main)" : location;
-			}else if(Pattern.matches(idleExp, location))
-			{
-				// match idle(??) presence entries like [0-9]*-[0-9].[0-9]*
-				return "(Idle)";
-			}else{
-				// match tool ids
-				statement =
-					"select TITLE from SAKAI_SITE_TOOL where TOOL_ID='" + location + "'";
-				List locDesc = m_sqlService.dbRead(statement);
-				Object desc = null;
-				if(locDesc != null && !locDesc.isEmpty() && (desc=locDesc.get(0)) != null ) {
-					return (String) desc;
-				} else {
-					// match other chat rooms (sakai chat channel id)
-					statement =
-						"select context from CHAT2_CHANNEL where CHANNEL_ID='" + location + "'";
-					List chatDescList = m_sqlService.dbRead(statement);
-					Object chatContext = null;
-					if(chatDescList != null && !chatDescList.isEmpty() && (chatContext=chatDescList.get(0)) != null) {
-						statement =
-							"select title from CHAT2_CHANNEL where CHANNEL_ID='" + location + "'";
-						List sL1 = m_sqlService.dbRead(statement);
-						String chatRoom = (String) sL1.get(0);
-						statement =
-							"select TITLE from SAKAI_SITE where SITE_ID='" + chatContext + "'";
-						List sL2 = m_sqlService.dbRead(statement);
-						String siteTitle = (String) sL2.get(0);
-						return (String) siteTitle + " (Chat Room: "+chatRoom+")";						
-					}
-				}
-			}
-			return location;
-		}	// getLocationDescription
-		// UFP: End
 	}
 }
