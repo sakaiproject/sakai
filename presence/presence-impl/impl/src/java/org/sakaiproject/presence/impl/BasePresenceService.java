@@ -471,8 +471,9 @@ public abstract class BasePresenceService implements PresenceService
 	 */
 	public String getLocationDescription(String location)
 	{
-		// TODO: get a description for a placement!
-		return "location: " + location;
+		// UFP: Start
+		return "location: " + m_storage.getLocationDescription(location);
+		// UFP: End
 	}
 
 	/**
@@ -610,6 +611,16 @@ public abstract class BasePresenceService implements PresenceService
 		 * @return The List (String) of all known locations.
 		 */
 		List<String> getLocations();
+
+
+		// UFP: Start                                                                           
+		/**                                                                                     
+		 * Form a description for the location.                                                 
+		 * @param location The presence location.                                               
+		 * @return A description for the location.                                              
+		 */                                                                                     
+		String getLocationDescription(String location);                                         
+		// UFP: End
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
