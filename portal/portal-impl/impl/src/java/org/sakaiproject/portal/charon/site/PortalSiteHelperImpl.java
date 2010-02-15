@@ -539,14 +539,15 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				boolean hidden = false;
 				if (pTools != null && pTools.size() > 0) {
 					firstTool = pTools.get(0);
+					hidden = true; // Only set the page to hidden when we have tools that might un-hide it.
 					Iterator<ToolConfiguration> tools = pTools.iterator();
 					//get the tool descriptions for this page, typically only one per page, execpt for the Home page
 					int tCount = 0;
 					while(tools.hasNext()){
 						ToolConfiguration t = tools.next();
-						if (!hidden && isHidden(t))
+						if (hidden && !isHidden(t))
 						{
-							hidden = true;
+							hidden = false;
 						}
 						if (tCount > 0){
 							desc.append(" | ");
