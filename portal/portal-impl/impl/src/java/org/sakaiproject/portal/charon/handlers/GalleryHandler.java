@@ -35,7 +35,8 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
 
 /**
- * Handler for the gallery parts of the portal
+ * The Gallery is effecively the main portal without the header.
+ * This means that things like the banners and login/logout are missing. 
  * 
  * @author ieb
  * @since Sakai 2.4
