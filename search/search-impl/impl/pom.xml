@@ -30,7 +30,7 @@
 			<properties>
 				<deploy.target />
 				<maven.test.jvmargs />
-				<poi.version>3.5-FINAL</poi.version>
+				<poi.version>3.6</poi.version>
 				<lucene.version>2.9.1</lucene.version>
 				<bouncycastle.artifact.version>jdk15</bouncycastle.artifact.version>
 			</properties>
@@ -52,7 +52,7 @@
 			<properties>
 				<deploy.target />
 				<maven.test.jvmargs />
-				<poi.version>3.5-FINAL</poi.version>
+				<poi.version>3.6</poi.version>
 				<lucene.version>2.9.1</lucene.version>
 				<bouncycastle.artifact>bcprov-jdk16</bouncycastle.artifact>
 			</properties>
