@@ -21,6 +21,9 @@
 
 package org.sakaiproject.taggable.api;
 
+import java.util.List;
+import java.util.Map;
+
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.exception.PermissionException;
 
@@ -54,6 +57,18 @@ public interface TaggingProvider {
 	 *         user doesn't have permission to access the helper.
 	 */
 	TaggingHelperInfo getActivityHelperInfo(String activityRef);
+	
+	/**
+	 * Method to get the necessary data to invoke a helper tool for tagging the
+	 * activity identified by the given ref.
+	 * 
+	 * @param activityRef
+	 *            The reference to the activity that is to be tagged.
+	 * @return An object containing the data to invoke the appropriate helper
+	 *         tool. Returns null if this is not supported or if the current
+	 *         user doesn't have permission to access the helper.
+	 */
+	Map<String, TaggingHelperInfo> getActivityHelperInfo(String context, List<String> activityRefs);
 
 	/**
 	 * Method to get the necessary data to invoke a helper tool for tagging
