@@ -23,6 +23,7 @@ package org.sakaiproject.portal.charon;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -91,4 +92,17 @@ public class ToolHelperImpl
 		return false;
 	}
 
+	/**
+	 * Check if the placement is hidden.
+	 * @param placement
+	 * @return <code>true</code> if the current placement is hidden.
+	 */
+	public boolean isHidden(Placement placement)
+	{
+		if (placement == null) return true;
+		String requiredPermissionsString = StringUtils.trimToNull(placement.getConfig().getProperty(TOOLCONFIG_REQUIRED_PERMISSIONS));
+		if (requiredPermissionsString == null)
+			return false;
+		return requiredPermissionsString.contains("site.upd");
+	}
 }

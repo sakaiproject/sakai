@@ -512,12 +512,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			// check if current user has permission to see page
 			// we will draw page button if it have permission to see at least
 			// one tool on the page
-			List pTools = p.getTools();
+			List<ToolConfiguration> pTools = p.getTools();
 			ToolConfiguration firstTool = null;
-			if (pTools != null && pTools.size() > 0)
-			{
-				firstTool = (ToolConfiguration) pTools.get(0);
-			}
 			String toolsOnPage = null;
 
 			boolean current = (page != null && p.getId().equals(page.getId()) && !p
@@ -539,24 +535,32 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				m.put("pageRefUrl", pagerefUrl);
 
                 StringBuffer desc = new StringBuffer();
-				if (pTools != null) {
-    				Iterator tools = pTools.iterator();
-    				//get the tool descriptions for this page, typically only one per page, execpt for the Home page
-    				int tCount = 0;
-    				while(tools.hasNext()){
-    					ToolConfiguration t = (ToolConfiguration)tools.next();
-    					if (tCount > 0){
-    						desc.append(" | ");
-    					}
-    					if ( t.getTool() == null ) continue;
-    					desc.append(t.getTool().getDescription());
-    					tCount++;
-    				}
+
+				boolean hidden = false;
+				if (pTools != null && pTools.size() > 0) {
+					firstTool = pTools.get(0);
+					Iterator<ToolConfiguration> tools = pTools.iterator();
+					//get the tool descriptions for this page, typically only one per page, execpt for the Home page
+					int tCount = 0;
+					while(tools.hasNext()){
+						ToolConfiguration t = tools.next();
+						if (!hidden && isHidden(t))
+						{
+							hidden = true;
+						}
+						if (tCount > 0){
+							desc.append(" | ");
+						}
+						if ( t.getTool() == null ) continue;
+						desc.append(t.getTool().getDescription());
+						tCount++;
+					}
 				}
 				
 				// Just make sure no double quotes...
 				String description = desc.toString().replace('"','-');
 				m.put("description", desc.toString());
+				m.put("hidden", Boolean.valueOf(hidden));
 				// toolsOnPage is always null
 				//if (toolsOnPage != null) m.put("toolsOnPage", toolsOnPage);
 				if (includeSummary) summarizePage(m, site, p);
@@ -1101,6 +1105,14 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		return toolHelper.allowTool(site, placement);
 	}
 
+	/**
+	 * Check to see if a tool placement is hidden.
+	 * Can be used to check is a page should be hidden.
+	 */
+	public boolean isHidden(Placement placement)
+	{
+		return toolHelper.isHidden(placement);
+	}
 	/*
 	 * (non-Javadoc)
 	 * 

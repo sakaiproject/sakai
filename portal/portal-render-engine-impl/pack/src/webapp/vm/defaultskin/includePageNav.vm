@@ -24,18 +24,18 @@
 			#foreach( $page in $sitePages.pageNavTools )
 		  		#if (${page.current})
 						<li class="selectedTool">
-						<span class="${page.menuClass}" >${page.pageTitle}</span>
+						<span class="${page.menuClass} #if(${page.hidden})hidden#end" >${page.pageTitle}</span>
 						</li>
 		  		#else
 		  			 #if (${page.ispopup})
 						<li>
-							<a class="${page.menuClass}" href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageId}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
+							<a class="${page.menuClass} #if(${page.hidden})hidden#end" href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
 							<span>${page.pageTitle}</span>
 							</a>
 						</li>
 		   			#else
 						<li>
-							<a class="${page.menuClass}" href="${page.pageRefUrl}" title="${page.description}" ><span>${page.pageTitle}</span></a>
+							<a class="${page.menuClass} #if(${page.hidden})hidden#end" href="${page.pageRefUrl}" title="${page.description}"><span>${page.pageTitle}</span></a>
 						</li>
 		   			#end
 		  		#end
