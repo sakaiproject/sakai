@@ -30,9 +30,8 @@ import java.util.ListIterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TopDocs;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.PortalUrlEnabledProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
@@ -49,7 +48,7 @@ public class SearchListImpl implements SearchList
 
 	private static Log dlog = LogFactory.getLog(SearchListImpl.class);
 
-	private TopDocs topDoc;
+	private Hits h;
 
 	private Query query;
 
@@ -64,14 +63,12 @@ public class SearchListImpl implements SearchList
 	private SearchIndexBuilder searchIndexBuilder;
 
 	private SearchService searchService;
-	
-	private IndexSearcher indexSearcher;
 
 
-	public SearchListImpl(TopDocs topDocs, Query query, int start, int end,
-			Analyzer analyzer, SearchItemFilter filter,  SearchIndexBuilder searchIndexBuilder, SearchService searchService, IndexSearcher indexSearcher)
+	public SearchListImpl(Hits h, Query query, int start, int end,
+			Analyzer analyzer, SearchItemFilter filter,  SearchIndexBuilder searchIndexBuilder, SearchService searchService)
 	{
-		this.topDoc = topDocs;
+		this.h = h;
 		this.query = query;
 		this.start = start;
 		this.end = end;
@@ -79,7 +76,6 @@ public class SearchListImpl implements SearchList
 		this.filter = filter;
 		this.searchIndexBuilder = searchIndexBuilder;
 		this.searchService = searchService;
-		this.indexSearcher = indexSearcher;
 
 
 	}
@@ -95,7 +91,7 @@ public class SearchListImpl implements SearchList
 
 			public boolean hasNext()
 			{
-				return counter < Math.min(topDoc.scoreDocs.length, end);
+				return counter < Math.min(h.length(), end);
 			}
 
 			public SearchResult next()
@@ -105,8 +101,8 @@ public class SearchListImpl implements SearchList
 				{
 					final int thisHit = counter;
 					counter++;
-					SearchResult result =  new SearchResultImpl(topDoc, thisHit,
-							query, analyzer,searchIndexBuilder,searchService, indexSearcher);
+					SearchResult result =  new SearchResultImpl(h, thisHit,
+							query, analyzer,searchIndexBuilder,searchService);
 					String url = checkUrl(result.getReference());
 					if (url != null)
 						result.setUrl(url);
@@ -149,12 +145,12 @@ public class SearchListImpl implements SearchList
 
 	public int size()
 	{
-		return Math.min(topDoc.scoreDocs.length, end - start);
+		return Math.min(h.length(), end - start);
 	}
 
 	public int getFullSize()
 	{
-		return topDoc.scoreDocs.length;
+		return h.length();
 	}
 
 	public boolean isEmpty()
@@ -181,8 +177,8 @@ public class SearchListImpl implements SearchList
 			for (int i = 0; i < o.length; i++)
 			{
 
-				o[i + start] = filter.filter(new SearchResultImpl(topDoc, i + start,
-						query, analyzer,searchIndexBuilder,searchService, indexSearcher));
+				o[i + start] = filter.filter(new SearchResultImpl(h, i + start,
+						query, analyzer,searchIndexBuilder,searchService));
 			}
 		}
 		catch (IOException e)
@@ -246,7 +242,7 @@ public class SearchListImpl implements SearchList
 		try
 		{
 			return filter
-					.filter(new SearchResultImpl(topDoc, arg0, query, analyzer,searchIndexBuilder,searchService, indexSearcher));
+					.filter(new SearchResultImpl(h, arg0, query, analyzer,searchIndexBuilder,searchService));
 		}
 		catch (IOException e)
 		{
