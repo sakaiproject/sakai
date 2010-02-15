@@ -347,6 +347,9 @@ public class MessageForumsEntityContentProducer implements
 	}
 
 	public boolean matches(String reference) {
+		if (reference == null) {
+			return false;
+		}
 		String prefix = EntityReference.getPrefix(reference);
 		log.debug("checkin if " + prefix + " matches");
 		if (toolName.equals(prefix))
