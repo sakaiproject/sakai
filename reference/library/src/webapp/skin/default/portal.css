@@ -621,6 +621,12 @@ also hide if are going to be using icon links (as background of <a> nad <li>
 	cursor: text;
 }
 
+#toolMenu .hidden { 
+	font-style: italic;
+	filter: alpha(opacity=70); /* opacity for IE */
+	opacity: 0.7; /* CSS3 standard */
+} 
+
 /** Portal Timeout **/
 #timeout_alert_body {
     position: absolute;
