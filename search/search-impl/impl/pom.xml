@@ -234,12 +234,12 @@
     <dependency>
 	<groupId>org.apache.tika</groupId>
 	<artifactId>tika-core</artifactId>
-	<version>0.5</version>
+	<version>0.6</version>
 	</dependency>
     <dependency>
 	<groupId>org.apache.tika</groupId>
 	<artifactId>tika-parsers</artifactId>
-	<version>0.5</version>
+	<version>0.6</version>
 	</dependency>
     <dependency>
       <groupId>commons-codec</groupId>
