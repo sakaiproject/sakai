@@ -759,6 +759,7 @@ $(document).ready(function() {
 		#else
 			<ul class="attachList indnt1">
 				#foreach ($attachment in $attachments) 
+					<input type="hidden" name="attachments" id="attachments" value="$attachment.Reference" />
 					#set ($props = false)
 					#set ($props = $attachment.Properties) 
 					#if ($!props)
