@@ -72,8 +72,8 @@
 				</div>
 			#end
 			</div>
+			<a id="tocontent" class="skip" name="tocontent"></a>
 			<h1 class="skip">${rloader.sit_contentshead}</h1>
-			<a id="tocontent" class="skip" name="tocontent" href="#"></a>
 		<!-- end includePageNav -->
 		<!-- end page nav -->
 <!-- END from includePageNav.vm -->
