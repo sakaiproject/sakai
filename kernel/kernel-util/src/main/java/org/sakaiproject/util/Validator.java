@@ -180,6 +180,11 @@ public class Validator
 	 */
 	public static String escapeUrl(String id)
 	{
+		
+		if (id == null) {
+			return "";
+		}
+		
 		String ret = null;
 		
 		//this may be a url so we need to split on "/"
