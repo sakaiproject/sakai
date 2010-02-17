@@ -23,6 +23,7 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
+import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -58,6 +59,10 @@ public class ExportAssessmentListener implements ActionListener
     log.info("ExportAssessmentListener assessmentId="+assessmentId);
     if (!passAuthz(assessmentId)) {
     	xmlDisp.setOutcome("exportDenied");
+    	String thisIp = ( (javax.servlet.http.HttpServletRequest) FacesContext.
+                getCurrentInstance().getExternalContext().getRequest()).
+ getRemoteAddr();
+    	log.warn("Found a potential hacker with IP : " + thisIp);   // logging IP , as requested in SAK-17984
     	return;
     }
     XMLController xmlController = (XMLController) ContextUtil.lookupBean(
