@@ -201,7 +201,7 @@ public class RoleGroupEventWatcher implements Observer
 		        
 				try
 				{
-					String realmId = ref.getId();
+					String realmId = ref.getReference();
 					String siteId = realmId.replace(SiteService.REFERENCE_ROOT + "/", "");
 					AuthzGroup r = m_authzGroupService.getAuthzGroup(realmId);
 					Site site = m_siteService.getSite(siteId);

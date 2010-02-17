@@ -574,7 +574,7 @@ public class SiteManageGroupSectionRoleHandler {
             boolean found = false;
             // remove those no longer included in the group
 			Set members = group.getMembers();
-			String[] membersSelected = memberList.split(",");
+			String[] membersSelected = (memberList != null && memberList.length() > 0) ? memberList.split(","):new String[0];
 			for (Iterator iMembers = members.iterator(); iMembers
 					.hasNext();) {
 				found = false;
