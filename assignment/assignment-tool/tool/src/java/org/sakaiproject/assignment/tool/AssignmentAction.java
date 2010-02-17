@@ -29,6 +29,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.Collator;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -41,6 +44,7 @@ import java.util.HashSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
@@ -10297,8 +10301,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 	/**
 	 * valid grade for point based type
+	 * returns a double value in a string from the localized input
 	 */
-	private void validPointGrade(SessionState state, String grade)
+	private String validPointGrade(SessionState state, String grade)
 	{
 		if (grade != null && !"".equals(grade))
 		{
@@ -10309,58 +10314,91 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			else
 			{
-				int index = grade.indexOf(".");
-				if (index != -1)
-				{
-					// when there is decimal points inside the grade, scale the number by 10
-					// but only one decimal place is supported
-					// for example, change 100.0 to 1000
-					if (!".".equals(grade))
+				// get localized number format
+				NumberFormat nbFormat = NumberFormat.getInstance();				
+				try {
+					Locale locale = null;
+					ResourceLoader rb = new ResourceLoader();
+					locale = rb.getLocale();
+					nbFormat = NumberFormat.getNumberInstance(locale);
+				}				
+				catch (Exception e) {
+					M_log.warn("Error while retrieving local number format, using default ", e);
+				}
+				DecimalFormat dcFormat = (DecimalFormat) nbFormat;
+				String decSeparator = dcFormat.getDecimalFormatSymbols().getDecimalSeparator() + "";
+				
+				// only the right decimal separator is allowed and no other grouping separator
+				if ((",".equals(decSeparator) && grade.indexOf(".") != -1) ||
+						(".".equals(decSeparator) && grade.indexOf(",") != -1) ||
+						grade.indexOf(" ") != -1) {
+					addAlert(state, rb.getString("plesuse1"));
+					return grade;
+				}
+				
+				// parse grade from localized number format
+				try {
+					Double dblGrade = new Double (nbFormat.parse(grade).doubleValue());
+					grade = dblGrade.toString();
+					
+					int index = grade.indexOf(".");
+					if (index != -1)
 					{
-						if (grade.length() > index + 2)
+						// when there is decimal points inside the grade, scale the number by 10
+						// but only one decimal place is supported
+						// for example, change 100.0 to 1000
+						if (!grade.equals("."))
 						{
-							// if there are more than one decimal point
-							addAlert(state, rb.getString("plesuse2"));
+							if (grade.length() > index + 2)
+							{
+								// if there are more than one decimal point
+								addAlert(state, rb.getString("plesuse2"));
+							}
+							else
+							{
+								// decimal points is the only allowed character inside grade
+								// replace it with '1', and try to parse the new String into int
+								String gradeString = (grade.endsWith(".")) ? grade.substring(0, index).concat("0") : grade.substring(0,
+										index).concat(grade.substring(index + 1));
+								try
+								{
+									Integer.parseInt(gradeString);
+								}
+								catch (NumberFormatException e)
+								{
+									M_log.warn(this + ":validPointGrade " + e.getMessage());
+									alertInvalidPoint(state, gradeString);
+								}
+							}
 						}
 						else
 						{
-							// decimal points is the only allowed character inside grade
-							// replace it with '1', and try to parse the new String into int
-							String gradeString = (grade.endsWith(".")) ? grade.substring(0, index).concat("0") : grade.substring(0,
-									index).concat(grade.substring(index + 1));
-							try
-							{
-								Integer.parseInt(gradeString);
-							}
-							catch (NumberFormatException e)
-							{
-								M_log.warn(this + ":validPointGrade " + e.getMessage());
-								alertInvalidPoint(state, gradeString);
-							}
+							// grade is "."
+							addAlert(state, rb.getString("plesuse1"));
 						}
 					}
 					else
 					{
-						// grade is "."
-						addAlert(state, rb.getString("plesuse1"));
+						// There is no decimal point; should be int number
+						String gradeString = grade + "0";
+						try
+						{
+							Integer.parseInt(gradeString);
+						}
+						catch (NumberFormatException e)
+						{
+							M_log.warn(this + ":validPointGrade " + e.getMessage());
+							alertInvalidPoint(state, gradeString);
+						}
 					}
 				}
-				else
-				{
-					// There is no decimal point; should be int number
-					String gradeString = grade + "0";
-					try
-					{
-						Integer.parseInt(gradeString);
-					}
-					catch (NumberFormatException e)
-					{
-						M_log.warn(this + ":validPointGrade " + e.getMessage());
-						alertInvalidPoint(state, gradeString);
-					}
+				catch (ParseException e) {
+					// grade does not meet the number format and could not be parsed
+					addAlert(state, rb.getString("plesuse1"));
 				}
 			}
 		}
+		return grade;
 
 	} // validPointGrade
 	
@@ -10425,6 +10463,29 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			if (grade != null && (grade.length() >= 1))
 			{
+				// get localized number format
+				NumberFormat nbFormat = NumberFormat.getInstance();				
+				try {
+					Locale locale = null;
+					ResourceLoader rb = new ResourceLoader();
+		            		locale = rb.getLocale();
+		           		nbFormat = NumberFormat.getNumberInstance(locale);
+				}				
+				catch (Exception e) {
+					M_log.warn("Error while retrieving local number format, using default ", e);
+				}
+				nbFormat.setMaximumFractionDigits(1);
+				nbFormat.setMinimumFractionDigits(1);
+				nbFormat.setGroupingUsed(false);
+				
+				// check if grade uses a comma as separator because of number format and change to a point
+				// remove group separator
+				DecimalFormat dcformat = (DecimalFormat) nbFormat;
+				String decSeparator = dcformat.getDecimalFormatSymbols().getDecimalSeparator() + "";
+				if (",".equals(decSeparator) && grade.indexOf(decSeparator) != -1) {
+					grade = grade.replace(",", ".");
+				}
+				
 				if (grade.indexOf(".") != -1)
 				{
 					if (grade.startsWith("."))
@@ -10449,6 +10510,16 @@ public class AssignmentAction extends PagedResourceActionII
 						alertInvalidPoint(state, grade);
 						M_log.warn(this + ":displayGrade cannot parse grade into integer grade = " + grade + e.getMessage());
 					}
+				}			
+				try {
+					// show grade in localized number format
+					Double dblGrade = new Double(grade);
+					grade = nbFormat.format(dblGrade);
+				}
+				catch (Exception e) {
+					// alert
+					alertInvalidPoint(state, grade);
+					M_log.warn(this + ":displayGrade cannot parse grade into integer grade = " + grade + e.getMessage());
 				}
 			}
 			else
@@ -10465,7 +10536,7 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	private String scalePointGrade(SessionState state, String point)
 	{
-		validPointGrade(state, point);
+		point = validPointGrade(state, point);
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
 			if (point != null && (point.length() >= 1))

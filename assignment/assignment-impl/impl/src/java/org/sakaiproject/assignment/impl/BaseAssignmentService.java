@@ -29,11 +29,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -7729,6 +7733,24 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			// formated to show one decimal place, for example, 1000 to 100.0
 			String one_decimal_maxGradePoint = m_maxGradePoint / 10 + "." + (m_maxGradePoint % 10);
+			// get localized number format
+			NumberFormat nbFormat = NumberFormat.getInstance();				
+			try {
+				Locale locale = null;
+				ResourceLoader rb = new ResourceLoader();
+	            		locale = rb.getLocale();
+	            		nbFormat = NumberFormat.getNumberInstance(locale);
+			}				
+			catch (Exception e) {
+				M_log.warn("Error while retrieving local number format, using default ", e);
+			}
+			nbFormat.setMaximumFractionDigits(1);
+			nbFormat.setMinimumFractionDigits(1);
+			nbFormat.setGroupingUsed(false);
+			// show grade in localized number format
+			Double dblGrade = new Double(one_decimal_maxGradePoint);
+			one_decimal_maxGradePoint = nbFormat.format(dblGrade);
+			
 			return one_decimal_maxGradePoint;
 		}
 
@@ -9356,16 +9378,45 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			{
 				if (grade != null && grade.length() > 0 && !"0".equals(grade))
 				{
+					String one_decimal_gradePoint = "";
 					try
 					{
 						Integer.parseInt(grade);
 						// if point grade, display the grade with one decimal place
-						return grade.substring(0, grade.length() - 1) + "." + grade.substring(grade.length() - 1);
+						one_decimal_gradePoint =  grade.substring(0, grade.length() - 1) + "." + grade.substring(grade.length() - 1);
 					}
-					catch (Exception e)
-					{
+					catch (NumberFormatException e) {
+						try {
+							Float.parseFloat(grade);
+							one_decimal_gradePoint = grade;
+						}
+						catch (Exception e1) {
+							return grade;
+						}
+					}
+					// get localized number format
+					NumberFormat nbFormat = NumberFormat.getInstance();				
+					try {
+						Locale locale = null;
+						ResourceLoader rb = new ResourceLoader();
+			            		locale = rb.getLocale();
+			            		nbFormat = NumberFormat.getNumberInstance(locale);
+					}				
+					catch (Exception e) {
+						M_log.warn("Error while retrieving local number format, using default ", e);
+					}
+					nbFormat.setMaximumFractionDigits(1);
+					nbFormat.setMinimumFractionDigits(1);
+					nbFormat.setGroupingUsed(false);
+					// show grade in localized number format
+					try {
+						Double dblGrade = new Double(one_decimal_gradePoint);
+						one_decimal_gradePoint = nbFormat.format(dblGrade);
+					}
+					catch (Exception e) {
 						return grade;
 					}
+					return one_decimal_gradePoint;
 				}
 				else
 				{
