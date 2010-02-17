@@ -1296,16 +1296,16 @@ public class DeliveryBean
     SessionUtil.setSessionTimeout(FacesContext.getCurrentInstance(), this, false);
     
     SubmitToGradingActionListener listener = new SubmitToGradingActionListener();
+    // submission remaining and totalSubmissionPerAssessmentHash is updated inside 
+    // SubmitToGradingListener
+    listener.processAction(null);
+    
     // We don't need to call completeItemGradingData to create new ItemGradingData for linear access
     // because each ItemGradingData is created when it is viewed/answered 
     if (!"1".equals(navigation)) {
     	GradingService gradingService = new GradingService();
     	gradingService.completeItemGradingData(adata);
     }
-
-    // submission remaining and totalSubmissionPerAssessmentHash is updated inside 
-    // SubmitToGradingListener
-    listener.processAction(null);
     
     syncTimeElapsedWithServer();
 
