@@ -46,16 +46,19 @@
 		<dependency>
 			<groupId>org.sakaiproject.entitybroker</groupId>
 			<artifactId>entitybroker-api</artifactId>
+            <scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.edu-services.gradebook</groupId>
 			<artifactId>gradebook-service-api</artifactId>
-            <version>${sakai.edu-services.version}</version>
+            <version>[1.0.0-b02,1.1)</version>
+            <scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.edu-services.sections</groupId>
 			<artifactId>sections-api</artifactId>
-            <version>${sakai.edu-services.version}</version>
+            <version>[1.0.0-b02,1.1)</version>
+            <scope>provided</scope>
 		</dependency>
 		<dependency>
             <groupId>commons-lang</groupId>

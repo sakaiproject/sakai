@@ -30,12 +30,14 @@
 		<dependency>
 			<groupId>org.sakaiproject.common</groupId>
 			<artifactId>archive-api</artifactId>
-            <version>${sakai.common.version}</version>
+            <version>[1.0.0-b02,1.1)</version>
+            <scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.common</groupId>
 			<artifactId>import-impl</artifactId>
-            <version>${sakai.common.version}</version>
+            <version>[1.0.0-b02,1.1)</version>
+            <scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
