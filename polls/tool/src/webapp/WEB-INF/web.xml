@@ -4,7 +4,7 @@
   xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee 
 	  http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
   version="2.4">
-	<display-name>sakai-poll-tool</display-name>
+	<display-name>polls-tool</display-name>
 	<description>Sakai Poll Tool</description>
 
 <!-- CONFIG This is the name of the "punch-through" URL which will access the
@@ -16,7 +16,7 @@
     -->
   <context-param>
     <param-name>resourceurlbase</param-name>
-    <param-value>/sakai-poll-tool/</param-value>
+    <param-value>/polls-tool/</param-value>
   </context-param>
 
  <!-- Configure standard Spring application contexts. Be sure to mention
