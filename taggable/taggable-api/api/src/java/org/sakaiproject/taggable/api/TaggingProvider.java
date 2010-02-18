@@ -125,6 +125,18 @@ public interface TaggingProvider {
 	 * @return
 	 */
 	String getSimpleTextLabel();
+	
+	/**
+	 * Method to get a label for some help text
+	 * @return
+	 */
+	String getHelpLabel();
+
+	/**
+	 * Method to get some descriptive help text
+	 * @return
+	 */
+	String getHelpDescription();
 
 	/**
 	 * Method to remove all tags from this activity. This method should check
