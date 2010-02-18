@@ -1110,7 +1110,7 @@ public class DeliveryActionListener
     		  }
     		   
     	}
-    	if ((item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) )|| (item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION) )|| (item.getTypeId().equals(TypeIfc.MATCHING) )){
+    	if ((item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) )|| (item.getTypeId().equals(TypeIfc.MATCHING) )){
     		if (mcmc_match_counter==correctAnswers){
     			haswronganswer=false;
     		}
