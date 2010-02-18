@@ -53,7 +53,7 @@ ul.makeMenu li {
 		}
 	//-->
 </script>
-<script type ="text/javascript" src ="/library/js/jquery.js"></script>
+<script type ="text/javascript" src ="/library/js/jquery.js"> </script>
 <script  type ="text/javascript">
 $(document).ready(function() {
 	jQuery('.portletBody').click(function(e) { 
