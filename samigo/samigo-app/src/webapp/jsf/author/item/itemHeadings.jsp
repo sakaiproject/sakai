@@ -56,21 +56,33 @@ document.links[newindex].onclick();
 <h:inputHidden value="#{itemauthor.currentItem.incorrFeedback}" />
 <h:inputHidden value="#{itemauthor.currentItem.generalFeedback}" />
 <%-- --%>
-<p class="navIntraTool">
+
+<f:verbatim><ul class="navIntraTool actionToolbar" role="menu">
+<li role="menuitem" class="firstToolBarItem"><span></f:verbatim>
+
     <h:commandLink title="#{generalMessages.t_assessment}" action="author" immediate="true">
       <h:outputText value="#{generalMessages.assessment}" />
     </h:commandLink>
-    <h:outputText value="#{generalMessages.separator} " />
+
+<f:verbatim></span></li>
+<li role="menuitem" ><span></f:verbatim>
+
     <h:commandLink title="#{generalMessages.t_template}" action="template" immediate="true">
       <h:outputText value="#{generalMessages.template}" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
     </h:commandLink>
-    <h:outputText value="#{generalMessages.separator} " />
+
+<f:verbatim></span></li>
+<li role="menuitem" ><span></f:verbatim>
+
     <h:commandLink title="#{generalMessages.t_questionPool}" action="poolList" immediate="true">
       <h:outputText value="#{generalMessages.questionPool}" />
     </h:commandLink>
-</p>
-<br/>
+
+<f:verbatim></span></li>
+</ul>
+<br/></f:verbatim>
+
 <!-- breadcrumb-->
 <div>
     <h:commandLink title="#{authorMessages.t_assessment}" rendered="#{itemauthor.target == 'assessment'}" action="author" immediate="true">

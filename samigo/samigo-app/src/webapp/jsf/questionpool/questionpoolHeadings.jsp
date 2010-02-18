@@ -19,27 +19,34 @@
 **********************************************************************************/
 --%>
 -->
-<p class="navIntraTool">
 <h:panelGroup rendered="#{authorization.adminAssessment or authorization.adminTemplate}">
 
+<f:verbatim><ul class="navIntraTool actionToolbar" role="menu">
+<li role="menuitem" class="firstToolBarItem"><span></f:verbatim>
+
 <h:commandLink accesskey="#{generalMessages.a_assessment}" title="#{generalMessages.t_assessment}" action="author" id="authorlink" immediate="true" rendered="#{authorization.adminAssessment}">
-  <h:outputText id="myassessment" value="#{generalMessages.assessment}"/>
+  <h:outputText value="#{generalMessages.assessment}"/>
   <f:actionListener
     type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
 </h:commandLink>
 
-
-<h:outputText value=" #{generalMessages.separator} " rendered="#{authorization.adminAssessment}"/>
-
+<f:verbatim></span></li>
+<li role="menuitem" ><span></f:verbatim>
 
     <h:commandLink accesskey="#{generalMessages.a_template}" title="#{generalMessages.t_template}" action="template" immediate="true" rendered="#{authorization.adminQuestionPool}">
       <h:outputText value="#{generalMessages.template}" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
     </h:commandLink>
-    <h:outputText value=" #{generalMessages.separator} " rendered="#{authorization.adminQuestionPool}"/>
+
+<f:verbatim></span></li>
+<li role="menuitem" ><span></f:verbatim>
+
     <h:commandLink accesskey="#{generalMessages.a_pool}" title=" #{generalMessages.t_questionPool} " action="poolList" immediate="true">
       <h:outputText value="#{generalMessages.questionPool}" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener" />
     </h:commandLink>
+
+<f:verbatim></span></li>
+</ul></f:verbatim>
+
 </h:panelGroup>
-</p>

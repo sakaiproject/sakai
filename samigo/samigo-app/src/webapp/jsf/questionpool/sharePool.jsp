@@ -78,16 +78,16 @@
 <!-- content... -->
 <h:form id="questionpoolshare">
 
-
-<p class="navIntraTool">
-
+<f:verbatim><ul class="navIntraTool actionToolbar" role="menu">
+<li role="menuitem" class="firstToolBarItem"><span></f:verbatim>
    	<h:commandLink title="#{generalMessages.t_assessment}" action="author"  immediate="true">
    		<h:outputText value="#{generalMessages.assessment}"/>
        	<f:actionListener
          	type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
    	</h:commandLink>
-
-	<h:outputText value=" #{generalMessages.separator} " />
+       
+<f:verbatim></span></li>
+<li role="menuitem"><span></f:verbatim>
 
    	<h:commandLink title="#{generalMessages.t_template}" action="template" immediate="true">
         <h:outputText value="#{generalMessages.template}"/>
@@ -95,9 +95,12 @@
       		type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
    	</h:commandLink>
 
-	<h:outputText value=" #{generalMessages.separator} " />
+<f:verbatim></span></li>
+<li role="menuitem"><span></f:verbatim>
+
    	<h:outputText value="#{questionPoolMessages.qps}"/>
-</p>
+<f:verbatim></span></li>
+</ul></f:verbatim>
 
 
  <h3><h:outputText value="#{questionPoolMessages.share_pool}"/></h3>
