@@ -52,7 +52,8 @@ font-size:1.2em
         background-image: url(../images/circle.gif);
         vertical-align: middle;
         background-repeat: no-repeat;
-        padding-left: 5px;
+        padding-left: 7px;
+        padding-right: 2px;
         height: 32px;
         width: 32px;
         float: left;
