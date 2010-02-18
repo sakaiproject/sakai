@@ -201,44 +201,47 @@ public class RoleGroupEventWatcher implements Observer
 		        
 				try
 				{
-					String realmId = ref.getReference();
-					String siteId = realmId.replace(SiteService.REFERENCE_ROOT + "/", "");
-					AuthzGroup r = m_authzGroupService.getAuthzGroup(realmId);
-					Site site = m_siteService.getSite(siteId);
-					
-					// whether saving site is needed because some groups need updates
-					boolean needSave = false;
-					
-					for (Object g : site.getGroups())
+					String realmId = ref.getId();
+					if (realmId.indexOf(SiteService.GROUP_SUBTYPE) == -1 && realmId.startsWith("/" + SiteService.SITE_SUBTYPE + "/"))
 					{
-						ResourceProperties properties = ((Group) g).getProperties();
-						if (properties.getProperty(SiteConstants.GROUP_PROP_WSETUP_CREATED) != null && properties.getProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID) != null)
+						// not for group realm update, only for site realm updates
+						String siteId = realmId.replace(SiteService.REFERENCE_ROOT + "/", "");
+						AuthzGroup r = m_authzGroupService.getAuthzGroup(realmId);
+						Site site = m_siteService.getSite(siteId);
+						
+						// whether saving site is needed because some groups need updates
+						boolean needSave = false;
+						
+						for (Object g : site.getGroups())
 						{
-							needSave = true;
-							
-							// this is a role provided group, need to sync with realm user now.
-							String role = properties.getProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID);
-							
-							// clean the group list first
-							((Group) g).removeMembers();
-							
-							// update the group member with current realm users
-							Set roleUserSet = r.getUsersHasRole(role);
-							if (roleUserSet != null)
+							ResourceProperties properties = ((Group) g).getProperties();
+							if (properties.getProperty(SiteConstants.GROUP_PROP_WSETUP_CREATED) != null && properties.getProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID) != null)
 							{
-								for(Object userId:roleUserSet)
+								needSave = true;
+								
+								// this is a role provided group, need to sync with realm user now.
+								String role = properties.getProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID);
+								
+								// clean the group list first
+								((Group) g).removeMembers();
+								
+								// update the group member with current realm users
+								Set roleUserSet = r.getUsersHasRole(role);
+								if (roleUserSet != null)
 								{
-									((Group) g).addMember((String) userId, role, true, false);
+									for(Object userId:roleUserSet)
+									{
+										((Group) g).addMember((String) userId, role, true, false);
+									}
 								}
-							}
-						}	
+							}	
+						}
+						if (needSave)
+						{
+							// Save only site group membership updates to this site
+							m_siteService.saveGroupMembership(site);
+						}
 					}
-					if (needSave)
-					{
-						// Save only site group membership updates to this site
-						m_siteService.saveGroupMembership(site);
-					}
-					
 				}
 				catch (Exception e)
 				{
