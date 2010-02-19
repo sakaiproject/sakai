@@ -72,9 +72,9 @@ public class MacroListMacro extends BaseLocaleMacro
 		{
 			Macro macro = (Macro) iterator.next();
 			writer.write(macro.getName());
-			writer.write(Messages.getString("MacroListMacro.4")); //$NON-NLS-1$
+			writer.write(Messages.getString("|")); //$NON-NLS-1$
 			writer.write(macro.getDescription());
-			writer.write(Messages.getString("MacroListMacro.5")); //$NON-NLS-1$
+			writer.write(Messages.getString("|")); //$NON-NLS-1$
 			String[] params = macro.getParamDescription();
 			if (params.length == 0)
 			{
@@ -85,7 +85,7 @@ public class MacroListMacro extends BaseLocaleMacro
 				for (int i = 0; i < params.length; i++)
 				{
 					String description = params[i];
-					if (description.startsWith(Messages.getString("MacroListMacro.7"))) //$NON-NLS-1$
+					if (description.startsWith("?")) //$NON-NLS-1$
 					{
 						writer.write(description.substring(1));
 						writer.write(" (optional)"); //$NON-NLS-1$
@@ -94,10 +94,10 @@ public class MacroListMacro extends BaseLocaleMacro
 					{
 						writer.write(params[i]);
 					}
-					writer.write(Messages.getString("MacroListMacro.9")); //$NON-NLS-1$
+					writer.write("\\\\"); //$NON-NLS-1$
 				}
 			}
-			writer.write(Messages.getString("MacroListMacro.10")); //$NON-NLS-1$
+			writer.write("\n"); //$NON-NLS-1$
 		}
 		writer.write(Messages.getString("MacroListMacro.11")); //$NON-NLS-1$
 		return writer;
