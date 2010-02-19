@@ -2213,12 +2213,12 @@ public class DiscussionForumTool
 
     String messageId = getExternalParameterByKey(MESSAGE_ID);
     String topicId = getExternalParameterByKey(TOPIC_ID);
-    if (messageId == null)
+    if (messageId == null || "".equals(messageId))
     {
       setErrorMessage(getResourceBundleString(MESSAGE_REFERENCE_NOT_FOUND));
       return gotoMain();
     }
-    if (topicId == null)
+    if (topicId == null || "".equals(topicId))
     {
       setErrorMessage(getResourceBundleString(TOPC_REFERENCE_NOT_FOUND));
       return gotoMain();
