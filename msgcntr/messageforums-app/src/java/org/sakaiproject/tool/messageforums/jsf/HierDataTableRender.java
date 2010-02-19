@@ -247,6 +247,8 @@ public class HierDataTableRender extends HtmlBasicRenderer
 			Message tmpMsg = dmb.getMessage();
 			while (tmpMsg.getInReplyTo() != null) {
 				tmpMsg = tmpMsg.getInReplyTo();
+			} else {
+				continue;
 			}
 
 			checkExpanded = false;
