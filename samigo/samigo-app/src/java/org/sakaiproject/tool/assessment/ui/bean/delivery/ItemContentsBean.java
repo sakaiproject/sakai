@@ -369,28 +369,47 @@ public class ItemContentsBean implements Serializable {
 	 * @return
 	 */
 	public boolean isUnanswered() {
-		if (getItemGradingDataArray().isEmpty()) {
+		ArrayList itemgradingdataArray = getItemGradingDataArray();
+		if (itemgradingdataArray.isEmpty()) {
 			return true;
 		}
-		Iterator iter = getItemGradingDataArray().iterator();
+		Iterator iter = itemgradingdataArray.iterator();
+		int itemgradingsize =itemgradingdataArray.size();
+		int publishedanswer_notnull = 0;
+		if (getItemData().getTypeId().toString().equals("9")) 
+			// SAM-776: Every choice has to be filled in before a question is considered answered 
+		{
+			while (iter.hasNext()) {
+				ItemGradingData data = (ItemGradingData) iter.next();
+				if (data.getPublishedAnswerId() != null){
+					publishedanswer_notnull ++;
+				}
+			}
+			if (publishedanswer_notnull == itemgradingsize) {
+				return false;
+			}
+			else {
+				return true;
+			}
+		}
+		else {
 		while (iter.hasNext()) {
 			ItemGradingData data = (ItemGradingData) iter.next();
 			if (getItemData().getTypeId().toString().equals("8")
-					|| getItemData().getTypeId().toString().equals("11")) // fix
-																			// for
-																			// bug
-																			// sam-330
+					|| getItemData().getTypeId().toString().equals("11")) // SAM-330
 			{
 				if (data.getAnswerText() != null
 						&& !data.getAnswerText().equals("")) {
 					return false;
 				}
-			} else {
+			} 
+			else {
 				if (data.getPublishedAnswerId() != null
 						|| data.getAnswerText() != null) {
 					return false;
 				}
 			}
+		}
 		}
 		return true;
 	}
