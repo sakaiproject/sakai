@@ -7902,7 +7902,7 @@ public class AssignmentAction extends PagedResourceActionII
 										if (state.getAttribute(GRADE_GREATER_THAN_MAX_ALERT) == null)
 										{
 											// alert user first when he enters grade bigger than max scale
-											addAlert(state, rb.getString("grad2"));
+											addAlert(state, rb.getFormattedMessage("grad2", new Object[]{grade, displayGrade(state, String.valueOf(maxGrade))}));
 											state.setAttribute(GRADE_GREATER_THAN_MAX_ALERT, Boolean.TRUE);
 										}
 										else
@@ -10934,7 +10934,7 @@ public class AssignmentAction extends PagedResourceActionII
 							if (state.getAttribute(GRADE_GREATER_THAN_MAX_ALERT) == null)
 							{
 								// alert user first when he enters grade bigger than max scale
-								addAlert(state, rb.getString("grad2"));
+								addAlert(state, rb.getFormattedMessage("grad2", new Object[]{grade, displayGrade(state, String.valueOf(maxGrade))}));
 								state.setAttribute(GRADE_GREATER_THAN_MAX_ALERT, Boolean.TRUE);
 							}
 							else
@@ -11025,7 +11025,7 @@ public class AssignmentAction extends PagedResourceActionII
 							if (state.getAttribute(GRADE_GREATER_THAN_MAX_ALERT) == null)
 							{
 								// alert user first when he enters grade bigger than max scale
-								addAlert(state, rb.getString("grad2"));
+								addAlert(state, rb.getFormattedMessage("grad2", new Object[]{grade, displayGrade(state, String.valueOf(maxGrade))}));
 								state.setAttribute(GRADE_GREATER_THAN_MAX_ALERT, Boolean.TRUE);
 							}
 							else
