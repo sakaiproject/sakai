@@ -34,6 +34,7 @@ import org.sakaiproject.taggable.api.TagList;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.taggable.api.TagColumn;
+import org.sakaiproject.util.Validator;
 
 public class TagImpl implements Tag
 {
@@ -73,7 +74,7 @@ public class TagImpl implements Tag
 			try
 			{
 				Site site = siteService.getSite(ref.getContext());
-				field = site.getTitle();
+				field = Validator.escapeHtml(site.getTitle());
 			}
 			catch (IdUnusedException e)
 			{
@@ -84,7 +85,7 @@ public class TagImpl implements Tag
 		} else if (TagList.PARENT.equals(column)) {
 			//field = link.getTagCriteria().getParentTitle();
 			//field = ">>>>PARENT TITLE SHOULD GO HERE<<<<";
-			field = (String)entity.getProperties().get(TagList.PARENT);
+			field = Validator.escapeHtml((String)entity.getProperties().get(TagList.PARENT));
 		} else if (TagList.CRITERIA.equals(column)) {
 			//field = link.getTagCriteria().getTitle();
 			//field = ">>>>CRITERIA SHOULD GO HERE<<<<";
@@ -94,22 +95,22 @@ public class TagImpl implements Tag
 				
 				field = (String)entity.getProperties().get(TagList.THICKBOX_INCLUDE);
 				field +="<a href=\"" + url + "\" class=\"thickbox\">";
-				field += (String)entity.getProperties().get(TagList.CRITERIA);
+				field += Validator.escapeHtml((String)entity.getProperties().get(TagList.CRITERIA));
 				field += "</a>";
 			}
 			else
-				field = (String)entity.getProperties().get(TagList.CRITERIA);
+				field = Validator.escapeHtml((String)entity.getProperties().get(TagList.CRITERIA));
 			
 		} else if (TagList.RUBRIC.equals(column)) {
-			field = link.getRubric();
+			field = Validator.escapeHtml(link.getRubric());
 		} else if (TagList.RATIONALE.equals(column)) {
-			field = link.getRationale();
+			field = Validator.escapeHtml(link.getRationale());
 		} else if (TagList.VISIBLE.equals(column)) {
-			field = String.valueOf(link.isVisible());
+			field = Validator.escapeHtml(String.valueOf(link.isVisible()));
 		} else if (TagList.EXPORTABLE.equals(column)) {
-			field = String.valueOf(link.isExportable());
+			field = Validator.escapeHtml(String.valueOf(link.isExportable()));
 		} else {
-			field = TagListImpl.NA;
+			field = Validator.escapeHtml(TagListImpl.NA);
 		}
 		return field;
 	}
