@@ -278,7 +278,10 @@ public class HistogramListener
 				  itemScores.putAll(itemScoresMap);
 			  }
 			  else {
-				  
+				  if (useridMap == null) {
+					  useridMap = totalScores.getUserIdMap(callerName); 
+				  }
+
 				  for (Iterator it = itemScoresMap.entrySet().iterator(); it.hasNext();) {
 					  Map.Entry entry = (Map.Entry) it.next();
 					  Long itemId = (Long) entry.getKey();
@@ -288,12 +291,10 @@ public class HistogramListener
 					  Iterator itemScoresIter = itemScoresList.iterator();
 					  // get the Map of all users(keyed on userid) belong to the
 					  // selected sections
+					  
 					  while (itemScoresIter.hasNext()) {
 						  ItemGradingData idata = (ItemGradingData) itemScoresIter.next();
 						  String agentid = idata.getAgentId();
-						  if (useridMap == null) {
-							  useridMap = totalScores.getUserIdMap(callerName); 
-						  }
 						  if (useridMap.containsKey(agentid)) {
 							  filteredItemScoresList.add(idata);
 						  }
