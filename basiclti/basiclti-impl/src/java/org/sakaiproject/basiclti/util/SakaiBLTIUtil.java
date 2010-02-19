@@ -201,15 +201,15 @@ public class SakaiBLTIUtil {
                 String sessionid = s.getId();
                 if (sessionid != null) {
                         sessionid = LinkToolUtil.encrypt(sessionid);
-                        setProperty(props,"sakai_session",sessionid);
+                        setProperty(props,"ext_sakai_session",sessionid);
                 }
         }
 
 	// We pass this along in the Sakai world - it might
 	// might be useful to the external tool
 	String serverId = ServerConfigurationService.getServerId();
-	setProperty(props,"sakai_serverid",serverId);
-        setProperty(props,"sakai_server",getOurServerUrl());
+	setProperty(props,"ext_sakai_serverid",serverId);
+        setProperty(props,"ext_sakai_server",getOurServerUrl());
 
 	// Get the organizational information
 	setProperty(props,"tool_consmer_instance_guid", ServerConfigurationService.getString("basiclti.consumer_instance_guid",null));
