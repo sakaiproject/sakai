@@ -149,9 +149,11 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 			return formatDebugPropertiesString( key );
 			
 		String pattern = (String) get(key);
-		M_log.debug("getFormattedMessage(key,args) bundle name=" +
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("getFormattedMessage(key,args) bundle name=" +
 			this.baseName + ", locale=" + getLocale().toString() +
 			", key=" + key + ", pattern=" + pattern);
+		}
 			
 		return (new MessageFormat(pattern, getLocale())).format(args, new StringBuffer(), null).toString();
 	}
@@ -189,6 +191,9 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	 **	 Last: return system default locale
 	 **
 	 ** @return user's Locale object
+	**
+	** @author Sugiura, Tatsuki (University of Nagoya)
+	** @author Jean-Francois Leveque (Universite Pierre et Marie Curie - Paris 6)
 	 **/
 	public Locale getLocale()
 	{			 
@@ -196,11 +201,9 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		 try
 		 {
 			 // check if locale is requested for specific user
-			 if ( userId != null )
+			 if ( this.userId != null )
 			 {
-				 loc = getLocale( userId );
-				 if ( loc == null )
-					 loc = Locale.getDefault();
+				 loc = getLocale( this.userId );
 			 }
 			 
 			 else
@@ -215,10 +218,19 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		 }
 		 catch(NullPointerException e) 
 		 {
+			if (M_log.isWarnEnabled()) {
+				M_log.warn("getLocale() swallowing NPE");
+				e.printStackTrace();
+			}
 			 // The locale is not in the session. 
 			 // Look for it and set in session
 			 loc = setContextLocale(null);
 		 } 
+
+		if (loc == null) {
+			M_log.info("getLocale() Locale not found in preferences or session, returning default");
+			loc = Locale.getDefault();
+		}
 
 		 return loc;
 	}
@@ -268,6 +280,9 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	 **	 Last: sets system default locale
 	 **
 	 ** @return user's Locale object
+	**
+	** @author Sugiura, Tatsuki (University of Nagoya)
+	** @author Jean-Francois Leveque (Universite Pierre et Marie Curie - Paris 6)
 	 **/
 	public Locale setContextLocale(Locale loc)
 	{		 
@@ -280,6 +295,10 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 			}
 			catch (Exception e)
 			{
+				if (M_log.isWarnEnabled()) {
+					M_log.warn("setContextLocale(Locale) swallowing Exception");
+					e.printStackTrace();
+				}
 			} // ignore and continue
 		}
 			  
@@ -292,6 +311,10 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 			}
 			catch (NullPointerException e)
 			{
+				if (M_log.isWarnEnabled()) {
+					M_log.warn("setContextLocale(Locale) swallowing NPE");
+					e.printStackTrace();
+				}
 			} // ignore and continue
 		}
 
@@ -300,11 +323,17 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		{
 			// fallback to default.
 			loc = Locale.getDefault();
+			if (M_log.isDebugEnabled()) {
+				M_log.debug("setContextLocale(Locale), default locale");
+			}
 		}
-		else if (!Locale.getDefault().getLanguage().equals("en") && loc.getLanguage().equals("en"))
+		else if (!Locale.getDefault().getLanguage().equals("en") && loc.getLanguage().equals("en") && !loc.toString().equals(DEBUG_LOCALE))
 		{
 			// Tweak for English: en is default locale. It has no suffix in filename.
 			loc = new Locale("");
+			if (M_log.isDebugEnabled()) {
+				M_log.debug("setContextLocale(Locale), Tweak for English");
+			}
 		}
 
 		//Write the sakai locale in the session	
@@ -316,6 +345,10 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		}
 		catch (Exception e) 
 		{
+			if (M_log.isWarnEnabled()) {
+				M_log.warn("setContextLocale(Locale) swallowing Exception");
+				e.printStackTrace();
+			}
 		} //Ignore and continue
 		 
 		return loc;		  
@@ -356,16 +389,20 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		try
 		{
 			String value = getBundle().getString(key);
-			M_log.debug("getString(key) bundle name=" + this.baseName +
+			if (M_log.isDebugEnabled()) {
+				M_log.debug("getString(key) bundle name=" + this.baseName +
 					", locale=" + getLocale().toString() + ", key=" +
 					key + ", value=" + value);
+			}
 			return value;
 
 		}
 		catch (MissingResourceException e)
 		{
-			M_log.warn("bundle \'"+baseName +"\'  missing key: \'" + key 
+			if (M_log.isWarnEnabled()) {
+				M_log.warn("bundle \'"+baseName +"\'  missing key: \'" + key 
 						+ "\'  from: " + e.getStackTrace()[3] ); // 3-deep gets us out of ResourceLoader
+			}
 			return "[missing key: " + baseName + " " + key + "]";
 		}
 	}
@@ -400,6 +437,10 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	 * @param key
 	 *        property key to look up in current ResourceBundle
 	 * @return The property value with this name, or the null if not found.
+	 *
+	 * @author Sugiura, Tatsuki (University of Nagoya)
+	 * @author Jean-Francois Leveque (Universite Pierre et Marie Curie - Paris 6)
+	 *
 	 */
 	public String[] getStrings(String key)
 	{
@@ -420,6 +461,10 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 				}
 				catch (MissingResourceException e)
 				{
+					if (M_log.isWarnEnabled()) {
+						M_log.warn("getStrings(" + key + ") swallowing MissingResourceException for String " + i);
+						e.printStackTrace();
+					}
 					// ignore the exception
 				}
 				rv[i - 1] = value;
@@ -456,7 +501,9 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	 */
 	public void setBaseName(String name)
 	{
-		M_log.debug("set baseName=" + name);
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("set baseName=" + name);
+		}
 		this.baseName = name;
 	}
 
@@ -479,7 +526,9 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		ResourceBundle bundle = (ResourceBundle) this.bundles.get(loc);
 		if (bundle == null)
 		{
-			M_log.debug("Load bundle name=" + this.baseName + ", locale=" + getLocale().toString());
+			if (M_log.isDebugEnabled()) {
+				M_log.debug("Load bundle name=" + this.baseName + ", locale=" + getLocale().toString());
+			}
 			bundle = loadBundle(loc);
 		}
 		return bundle;
@@ -521,7 +570,9 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		}
 		catch (Exception e)
 		{
-			M_log.warn("loadBundle "+baseName+" "+loc.toString(), e );
+			if (M_log.isWarnEnabled()) {
+				M_log.warn("loadBundle "+baseName+" "+loc.toString(), e );
+			}
 			throw new MissingResourceException("ResourceLoader.loadBundle failed",
 														  "", "" );
 		}
