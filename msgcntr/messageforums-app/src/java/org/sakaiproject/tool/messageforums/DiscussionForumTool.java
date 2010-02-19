@@ -7299,6 +7299,10 @@ public class DiscussionForumTool
 		String path = "/discussionForum/message/dfViewMessageDirect";
 		
 		Map<String, String> params = new HashMap<String, String>();
+		if (getSelectedMessage() == null || getSelectedMessage().getMessage() == null) {
+			return null;
+		}
+		
 		String msgId = getSelectedMessage().getMessage().getId().toString();
 		String topicId = getSelectedTopic().getTopic().getId().toString();
 		String forumId = getSelectedTopic().getTopic().getOpenForum().getId().toString();
