@@ -200,7 +200,7 @@ public class StudentScoreUpdateListener
               log.debug("****4 itemGradingId="+data.getItemGradingId());
               log.debug("****5 set points = " + data.getAutoScore() + ", comments to " + data.getComments());
             }
-            data.setAnswerText(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, data.getAnswerText()));
+		data.setAnswerText(ContextUtil.stringWYSIWYG(data.getAnswerText()));
             itemGradingSet.add(data);
           }
         }
