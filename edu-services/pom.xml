@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.purepoms</groupId>
         <artifactId>sakai-standard-tool</artifactId>
-        <version>2.7.0-build04</version>
+        <version>2.8-SNAPSHOT</version>
     </parent>
 
     <name>Sakai educational Services Project</name>
@@ -15,12 +15,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <!--
-            <url.localsite>dav:http://source.sakaiproject.org/release/kernel/${project.version}</url.localsite>
-        -->
         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/edu-services/${project.version}</url.localsite>
-
-        <sakai.common.version>1.0.0-b02</sakai.common.version>
         <sakai.spring.groupId>org.springframework</sakai.spring.groupId>
         <sakai.spring.artifactId>spring</sakai.spring.artifactId>
         <sakai.spring.version>2.5.6.SEC01</sakai.spring.version>
@@ -159,7 +154,7 @@
             <dependency>
                 <groupId>org.sakaiproject.common</groupId>
                 <artifactId>archive-api</artifactId>
-                <version>${sakai.common.version}</version>
+                <version>1.1-SNAPSHOT</version>
                 <scope>provided</scope>
             </dependency>
             <!-- Used only for test data. -->
