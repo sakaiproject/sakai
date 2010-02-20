@@ -1,194 +1,196 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>sakai-standard-tool</artifactId>
-    <groupId>org.sakaiproject.purepoms</groupId>
-    <version>2.7.0-build03</version>
-  </parent>
-  <name>Sakai Common Project</name>
-  <groupId>org.sakaiproject.common</groupId>
-  <version>1.1-SNAPSHOT</version>
-  <artifactId>common</artifactId>
-  <packaging>pom</packaging>
-	<properties>
-		<!--<url.localsite>dav:http://source.sakaiproject.org/release/kernel/${project.version}</url.localsite>-->
-		<url.localsite>scp://source.sakaiproject.org/var/www/html/release/common/${project.version}</url.localsite>
-	</properties>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/common/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/common/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/common/trunk</url>
-  </scm>
-  <modules>
-    <module>pack</module>
-    <module>common-composite-component</module>
-    <module>impl</module>
-    <module>edu-person-api</module>
-    <module>manager-api</module>
-    <module>type-api</module>
-    <module>common-assembly</module>
-    <module>privacy-api</module>
-    <module>privacy-comp-impl</module>
-    <module>privacy-components</module>
-    <module>privacy-hbm</module>
-    <module>privacy-integration-test</module>
-    <!-- archive and import -->
-    <module>archive-api</module>
-    <module>archive-impl/impl2</module>
-    <module>archive-impl/impl</module>
-    <module>archive-impl/pack</module>
-    <module>import-impl</module>
-    <module>archive-assembly</module>
-    <module>import-handlers/content-handlers</module>
-    <module>import-pack</module>
-    <module>import-parsers/common-cartridge</module>
-    <module>import-parsers/sakai-archive</module>
-    
-  </modules>
-  	<distributionManagement>
-	  <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
-		<snapshotRepository>
-			<uniqueVersion>false</uniqueVersion>
-			<id>sakai-maven-snapshots-scp</id>
-			<name>Sakai snapshot Repo</name>
-			<url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
-			<layout>default</layout>
-		</snapshotRepository>
-		<repository>
-		    <uniqueVersion>false</uniqueVersion>
-		    <id>sakai-maven2-scp</id>
-		    <name>Sakai maven2 repository</name>
-		    <url>scp://source.sakaiproject.org/var/www/html/maven2</url>
-		    <layout>default</layout>
-		 </repository>
-		<site>
-			<id>sakai-site</id>
-			<name>Sakai release Site</name>
-			<url>${url.localsite}</url>
-		</site>
-	</distributionManagement>
-  <repositories>
-		<repository>
-			<id>sakai-maven</id>
-			<name>Sakai Maven Repo</name>
-			<layout>default</layout>
-			<url>http://source.sakaiproject.org/maven2</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-<repository>
-			<id>sakai-maven-snapshots</id>
-			<name>Sakai Maven Repo</name>
-			<layout>default</layout>
-			<url>http://source.sakaiproject.org/maven2-snapshots</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-  </repositories>
-  
-   <dependencyManagement>
-    <dependencies>
-      
-      <!-- internal dependencies -->
-      <dependency>
-        <groupId>org.sakaiproject.common</groupId>
-        <artifactId>sakai-common-composite-component</artifactId>
-        <version>1.1-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.common</groupId>
-        <artifactId>sakai-common-manager-api</artifactId>
-        <version>1.1-SNAPSHOT</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.common</groupId>
-        <artifactId>sakai-common-type-api</artifactId>
-        <version>1.1-SNAPSHOT</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.common</groupId>
-        <artifactId>sakai-common-edu-person-api</artifactId>
-        <version>1.1-SNAPSHOT</version>
-        <scope>provided</scope>
-      </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.common</groupId>
-      <artifactId>sakai-common-composite-component-data</artifactId>
-      <version>1.1-SNAPSHOT</version>
-      <scope>provided</scope>
-    </dependency>
-    
-     <dependency>
-        <groupId>org.sakaiproject.common</groupId>
-        <artifactId>sakai-privacy-hbm</artifactId>
-        <version>1.1-SNAPSHOT</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.common</groupId>
-        <artifactId>sakai-privacy-api</artifactId>
-        <version>1.1-SNAPSHOT</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.common</groupId>
-        <artifactId>sakai-privacy-impl</artifactId>
-        <version>1.1-SNAPSHOT</version>
-      </dependency>
-	<dependency>
-		<groupId>org.sakaiproject.common</groupId>
-		<artifactId>archive-api</artifactId>
-		<version>1.1-SNAPSHOT</version>
-		<scope>provided</scope>
-	</dependency>
-	<dependency>
-		<groupId>org.sakaiproject.common</groupId>
-		<artifactId>archive-impl2</artifactId>
-		<version>1.1-SNAPSHOT</version>
-	</dependency>
-	<dependency>
-		<groupId>org.sakaiproject.common</groupId>
-		<artifactId>archive-impl</artifactId>
-		<version>1.1-SNAPSHOT</version>
-	</dependency>
-	<dependency>
-		<groupId>org.sakaiproject.common</groupId>
-		<artifactId>import-impl</artifactId>
-		<version>1.1-SNAPSHOT</version>
-	</dependency>
-	<dependency>
-		<groupId>org.sakaiproject.common</groupId>
-		<artifactId>sakai-import-content</artifactId>
-		<version>1.1-SNAPSHOT</version>
-	</dependency>
-	<dependency>
-		<groupId>org.sakaiproject.common</groupId>
-		<artifactId>common-cartridge</artifactId>
-		<version>1.1-SNAPSHOT</version>
-	</dependency>
-	<dependency>
-		<groupId>org.sakaiproject.common</groupId>
-		<artifactId>sakai-archive-import</artifactId>
-		<version>1.1-SNAPSHOT</version>
-	</dependency>
-	
-      <!-- external dependencies -->
-      <dependency>
-      	<groupId>commons-beanutils</groupId>
-      	<artifactId>commons-beanutils</artifactId>
-      	<version>1.7.0</version>
-      </dependency>
-      <!-- defined by master 
-      <dependency>
-      	<groupId>commons-logging</groupId>
-      	<artifactId>commons-logging</artifactId>
-      	<version>1.0.4</version>
-      </dependency>
-      -->
-    </dependencies>
-  </dependencyManagement>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>sakai-standard-tool</artifactId>
+        <groupId>org.sakaiproject.purepoms</groupId>
+        <version>2.8-SNAPSHOT</version>
+    </parent>
+
+    <name>Sakai Common Project</name>
+    <groupId>org.sakaiproject.common</groupId>
+    <version>1.1-SNAPSHOT</version>
+    <artifactId>common</artifactId>
+    <packaging>pom</packaging>
+
+    <properties>
+        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/common/${project.version}</url.localsite>
+    </properties>
+
+    <scm>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/common/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/common/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/common/trunk</url>
+    </scm>
+
+    <modules>
+        <module>pack</module>
+        <module>common-composite-component</module>
+        <module>impl</module>
+        <module>edu-person-api</module>
+        <module>manager-api</module>
+        <module>type-api</module>
+        <module>common-assembly</module>
+        <module>privacy-api</module>
+        <module>privacy-comp-impl</module>
+        <module>privacy-components</module>
+        <module>privacy-hbm</module>
+        <module>privacy-integration-test</module>
+        <!-- archive and import -->
+        <module>archive-api</module>
+        <module>archive-impl/impl2</module>
+        <module>archive-impl/impl</module>
+        <module>archive-impl/pack</module>
+        <module>import-impl</module>
+        <module>archive-assembly</module>
+        <module>import-handlers/content-handlers</module>
+        <module>import-pack</module>
+        <module>import-parsers/common-cartridge</module>
+        <module>import-parsers/sakai-archive</module>
+
+    </modules>
+    <distributionManagement>
+        <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
+        <snapshotRepository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>sakai-maven-snapshots-scp</id>
+            <name>Sakai snapshot Repo</name>
+            <url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
+            <layout>default</layout>
+        </snapshotRepository>
+        <repository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>sakai-maven2-scp</id>
+            <name>Sakai maven2 repository</name>
+            <url>scp://source.sakaiproject.org/var/www/html/maven2</url>
+            <layout>default</layout>
+        </repository>
+        <site>
+            <id>sakai-site</id>
+            <name>Sakai release Site</name>
+            <url>${url.localsite}</url>
+        </site>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>sakai-maven</id>
+            <name>Sakai Maven Repo</name>
+            <layout>default</layout>
+            <url>http://source.sakaiproject.org/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>sakai-maven-snapshots</id>
+            <name>Sakai Maven Repo</name>
+            <layout>default</layout>
+            <url>http://source.sakaiproject.org/maven2-snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.sakaiproject.common</groupId>
+                <artifactId>sakai-common-composite-component</artifactId>
+                <version>1.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.common</groupId>
+                <artifactId>sakai-common-manager-api</artifactId>
+                <version>1.1-SNAPSHOT</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.common</groupId>
+                <artifactId>sakai-common-type-api</artifactId>
+                <version>1.1-SNAPSHOT</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.common</groupId>
+                <artifactId>sakai-common-edu-person-api</artifactId>
+                <version>1.1-SNAPSHOT</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.common</groupId>
+                <artifactId>sakai-common-composite-component-data</artifactId>
+                <version>1.1-SNAPSHOT</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.common</groupId>
+                <artifactId>sakai-privacy-hbm</artifactId>
+                <version>1.1-SNAPSHOT</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.common</groupId>
+                <artifactId>sakai-privacy-api</artifactId>
+                <version>1.1-SNAPSHOT</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.common</groupId>
+                <artifactId>sakai-privacy-impl</artifactId>
+                <version>1.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.common</groupId>
+                <artifactId>archive-api</artifactId>
+                <version>1.1-SNAPSHOT</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.common</groupId>
+                <artifactId>archive-impl2</artifactId>
+                <version>1.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.common</groupId>
+                <artifactId>archive-impl</artifactId>
+                <version>1.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.common</groupId>
+                <artifactId>import-impl</artifactId>
+                <version>1.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.common</groupId>
+                <artifactId>sakai-import-content</artifactId>
+                <version>1.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.common</groupId>
+                <artifactId>common-cartridge</artifactId>
+                <version>1.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.common</groupId>
+                <artifactId>sakai-archive-import</artifactId>
+                <version>1.1-SNAPSHOT</version>
+            </dependency>
+
+            <!-- external dependencies -->
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>1.7.0</version>
+            </dependency>
+            <!--
+                defined by master <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>1.0.4</version> </dependency>
+            -->
+        </dependencies>
+    </dependencyManagement>
 </project>
