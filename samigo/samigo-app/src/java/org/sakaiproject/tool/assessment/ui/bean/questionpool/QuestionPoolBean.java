@@ -1183,8 +1183,6 @@ public String getAddOrEdit()
 	// in order to use copyPool, we need to set up a valid pool context.
 	// that's what most of this is. The only actual work is setting sourcePart
 	public String startCopyFromAssessment() {
-		System.out.println("startcopyfromassessment");
-
 		// find the first pool, and set it up
 		QuestionPoolService delegate = new QuestionPoolService();
 		ArrayList pools = delegate.getBasicInfoOfAllPools(AgentFacade

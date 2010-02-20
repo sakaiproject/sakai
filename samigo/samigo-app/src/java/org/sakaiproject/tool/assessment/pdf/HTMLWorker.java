@@ -107,7 +107,6 @@ public class HTMLWorker extends org.sakaiproject.tool.assessment.pdf.itext.HTMLW
 
 				}
 				catch (Exception e) {
-					System.out.println("Something went very wrong " + e);
 					e.printStackTrace();
 				}
 

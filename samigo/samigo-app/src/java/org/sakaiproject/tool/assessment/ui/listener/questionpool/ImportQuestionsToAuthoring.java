@@ -192,7 +192,6 @@ public class ImportQuestionsToAuthoring implements ActionListener
     for (int i=0; i<attachmentList.size();i++){
       AttachmentIfc attach = (AttachmentIfc) attachmentList.get(i);
       String url = ContextUtil.getRelativePath(attach.getLocation());
-      System.out.println("***attachemnt url ="+url);
       attach.setLocation(url);
     }
   }

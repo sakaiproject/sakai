@@ -844,7 +844,7 @@ function setBlockDivs()
 </h:panelGroup>
     <!-- GRADEBOOK OPTIONS -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.toGradebook_isInstructorEditable==true && assessmentSettings.gradebookExists==true}">
-     <f:verbatim>  <div class="longtext">  </f:verbatim> <h:outputLabel for="toDefaultGradebook" value="#{assessmentSettingsMessages.gradebook_options}" /><f:verbatim></div> <div class="tier3"> </f:verbatim>
+     <f:verbatim>  <div class="longtext">  </f:verbatim> <h:outputLabel value="#{assessmentSettingsMessages.gradebook_options}" /><f:verbatim></div> <div class="tier3"> </f:verbatim>
       <h:panelGrid columns="2" rendered="#{assessmentSettings.firstTargetSelected != 'Anonymous Users'}">
         <h:selectOneRadio id="toDefaultGradebook1" value="#{assessmentSettings.toDefaultGradebook}"  layout="pageDirection">
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.to_no_gradebook}"/>
