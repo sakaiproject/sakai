@@ -51,6 +51,7 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.user.api.User;
@@ -771,6 +772,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 					String description = StringUtil.trimToNull(s.getDescription());
 					if (description != null)
 					{
+	                    description = FormattedText.escapeHtmlFormattedTextarea(description);
 						context.put("description", description);
 					}
 				}
