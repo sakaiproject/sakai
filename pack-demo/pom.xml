@@ -48,7 +48,11 @@
 									src="${settings.localRepository}/tomcat/tomcat/tomcat/${sakai.tomcat.version}/tomcat-${sakai.tomcat.version}.zip"
 									dest="${basedir}/target/unpack" 
 									overwrite="true" />
-								
+
+                                <!-- cleanup up webapps for security - http://jira.sakaiproject.org/browse/SAK-17844 -->
+                                <delete dir="${basedir}/target/unpack/apache-tomcat-${sakai.tomcat.version}/webapps" />
+                                <mkdir dir="${basedir}/target/unpack/apache-tomcat-${sakai.tomcat.version}/webapps/ROOT" />
+                                
 								<!-- BIN artifact generation restored; don't move Tomcat yet -->
 								<!--
 								<move
@@ -60,19 +64,22 @@
 								-->
 								
 								<echo>
-									Executing cd ../;mvn
-									-Dmaven.tomcat.home=${basedir}/target/pack
-									-Dmaven.test.skip=true clean install
-									sakai:deploy
+									Executing cd ../;mvn clean
 								</echo>
-								
+                                <exec dir="../" executable="mvn" failonerror="true">
+                                    <arg value="-Dmaven.tomcat.home=${basedir}/target/pack" />
+                                    <arg value="clean" />
+                                </exec>
+
+                                <echo>
+                                    Executing cd ../;mvn -Dmaven.tomcat.home=${basedir}/target/pack -Dmaven.test.skip=true install sakai:deploy
+                                </echo>
 								<exec dir="../" executable="mvn" failonerror="true">
 									<arg value="-Dmaven.tomcat.home=${basedir}/target/pack" />
 									<arg value="-Dmaven.test.skip=true" />
 									<arg value="-Dkeystore=${keystore}" />
 									<arg value="-Dalias=${alias}" />
 									<arg value="-Dstorepass=${storepass}" />
-									<arg value="clean" />
 									<arg value="install" />
 									<arg value="sakai:deploy" />
 								</exec>
