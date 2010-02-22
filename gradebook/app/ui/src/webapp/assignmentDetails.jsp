@@ -131,7 +131,7 @@
 			<%@include file="/inc/filterPaging.jspf"%>
 		</t:aliasBean>
 		
-		<div class="act gbButtonBar">
+		<div id="buttonDiv1" class="act gbButtonBar">
 			<h:commandButton
 				id="saveButton1"
 				styleClass="active"
@@ -141,7 +141,8 @@
 				rendered="#{!assignmentDetailsBean.emptyEnrollments}"
 				accesskey="s"
 				tabindex="9998"
-				title="#{msgs.assignment_details_submit}"/>
+				title="#{msgs.assignment_details_submit}"
+				onclick="disableButton('buttonDiv1', this)"/>
 			<h:commandButton
 				id="cancelButton1"
 				value="#{msgs.assignment_details_cancel}"
@@ -151,8 +152,8 @@
 				accesskey="c"
 				immediate="true"
 				tabindex="9999"
-				title="#{msgs.assignment_details_cancel}">
-					<f:param name="breadcrumbPage" value="#{assignmentDetailsBean.breadcrumbPage}" />
+				title="#{msgs.assignment_details_cancel}" onclick="disableButton('buttonDiv1', this)">
+					<f:param name="breadcrumbPage" value="#{assignmentDetailsBean.breadcrumbPage}"/>
 			</h:commandButton>
 		</div>
 
@@ -276,7 +277,7 @@
 			<h:outputText value="#{msgs.assignment_details_no_enrollments}" rendered="#{assignmentDetailsBean.emptyEnrollments}" />
 		</p>
 		
-		<div class="act gbButtonBar">
+		<div id="buttonDiv2" class="act gbButtonBar">
 			<h:commandButton
 				id="saveButton2"
 				styleClass="active"
@@ -285,7 +286,8 @@
 				disabled="#{assignmentDetailsBean.assignment.externallyMaintained || assignmentDetailsBean.allStudentsViewOnly}"
 				rendered="#{!assignmentDetailsBean.emptyEnrollments}"
 				tabindex="9998"
-				title="#{msgs.assignment_details_submit}"/>
+				title="#{msgs.assignment_details_submit}"
+				onclick="disableButton('buttonDiv2', this)"/>
 			<h:commandButton
 				id="cancelButton2"
 				value="#{msgs.assignment_details_cancel}"
@@ -294,8 +296,9 @@
 				disabled="#{assignmentDetailsBean.assignment.externallyMaintained || assignmentDetailsBean.allStudentsViewOnly}"
 				rendered="#{!assignmentDetailsBean.emptyEnrollments}"
 				tabindex="9999"
-				title="#{msgs.assignment_details_cancel}">
-					<f:param name="breadcrumbPage" value="#{assignmentDetailsBean.breadcrumbPage}" />
+				title="#{msgs.assignment_details_cancel}"
+				onclick="disableButton('buttonDiv2', this)">
+					<f:param name="breadcrumbPage" value="#{assignmentDetailsBean.breadcrumbPage}"/>
 			</h:commandButton>
 		</div>
 
