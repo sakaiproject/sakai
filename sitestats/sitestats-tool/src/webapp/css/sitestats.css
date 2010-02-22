@@ -129,6 +129,8 @@
 }
 .widget .ministat em {
     line-height: 13px !important;
+    font-size: 12px;
+    font-style: normal;
 }
 .widget .ministat .label {
     font-size: 12px;
