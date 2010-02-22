@@ -3007,7 +3007,8 @@ public class DeliveryBean
 					  item.setUnanswered(true);
 					  for (int k=0; k<item.getSelectionArray().size(); k++) {
 						  SelectionBean selection = (SelectionBean)item.getSelectionArray().get(k);
-						  selection.setResponse(false);
+						  //selection.setResponse(false);
+						  selection.setResponseRromCleanRadioButton();
 					  }
 					  
 					  ArrayList itemGradingData = new ArrayList();
@@ -3017,12 +3018,12 @@ public class DeliveryBean
 						  ItemGradingData itemgrading = (ItemGradingData) iter.next();
 						  if (itemgrading.getItemGradingId() != null
 									&& itemgrading.getItemGradingId().intValue() > 0) {
-							  //itemGradingData.add(itemgrading);
+							  itemGradingData.add(itemgrading);
 							  itemgrading.setPublishedAnswerId(null);
 
 						  }
 					  }
-					  //item.setItemGradingDataArray(itemGradingData);
+					  item.setItemGradingDataArray(itemGradingData);
 				  }
 
 				  if (item.getItemData().getTypeId().longValue() == TypeIfc.TRUE_FALSE.longValue()) {

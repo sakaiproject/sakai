@@ -909,7 +909,6 @@ public class ItemContentsBean implements Serializable {
 				// SubmitForGradingListener doesn't recognize that this is a
 				// modified answer
 				// unless the itemgradingid = null
-
 				ItemGradingData newdata = new ItemGradingData();
 				newdata.setPublishedItemId(data.getPublishedItemId());
 				newdata.setPublishedItemTextId(data.getPublishedItemTextId());
@@ -920,8 +919,6 @@ public class ItemContentsBean implements Serializable {
 				setItemGradingDataArray(items);
 			}
 		}
-
-
 	}
 
 	public String getRationale() {
