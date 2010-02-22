@@ -122,6 +122,10 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	 * dependency The base name of the xslt file, relative to context root.
 	 */
 	private String xslt = null;
+	/**
+	 * Control whether the xml is escaped for this handler
+	 */
+	private boolean escaped = true;
 
 	/**
 	 * dependency The default strack trace message to use if all else fails
@@ -370,12 +374,17 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 			ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_XMLPROPERTIES,
 					SchemaNames.EL_NSXMLPROPERTIES);
 
+			/* http://jira.sakaiproject.org/browse/SAK-13281
+			 * escapeXML is controlled via config settings
+			 */
+			
 			if (!rwe.isContainer())
 			{
 				RWikiObject rwo = rwe.getRWikiObject();
 				ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_RENDEREDCONTENT,
 						SchemaNames.EL_NSRENDEREDCONTENT, dummyAttributes);
-				renderToXML(rwo, ch, withBreadcrumbs);
+				
+				renderToXML(rwo, ch, withBreadcrumbs, this.escaped);
 				ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_RENDEREDCONTENT,
 						SchemaNames.EL_NSRENDEREDCONTENT);
 			}
@@ -403,7 +412,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 
 				ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_RENDEREDCONTENT,
 						SchemaNames.EL_NSRENDEREDCONTENT, dummyAttributes);
-				renderToXML(sbrwo, ch, withBreadcrumbs);
+				renderToXML(sbrwo, ch, withBreadcrumbs, this.escaped);
 				ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_RENDEREDCONTENT,
 						SchemaNames.EL_NSRENDEREDCONTENT);
 
@@ -484,7 +493,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	 * @param ch
 	 * @param withBreadCrumb 
 	 */
-	public void renderToXML(RWikiObject rwo, final ContentHandler ch, boolean withBreadCrumb)
+	public void renderToXML(RWikiObject rwo, final ContentHandler ch, boolean withBreadCrumb, boolean escapeXML)
 			throws SAXException, IOException
 	{
 
@@ -519,8 +528,8 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
         /* http://jira.sakaiproject.org/browse/SAK-13281
          * ensure all page content is escaped or double escaped before it goes into the parser,
          * if this is not done then the parser will unescape html entities during processing
-         */
-        renderedPage = "<content><rendered>" + StringEscapeUtils.escapeXml(renderedPage) //$NON-NLS-1$
+         */		
+        renderedPage = "<content><rendered>" + (escapeXML ? StringEscapeUtils.escapeXml(renderedPage) : renderedPage) //$NON-NLS-1$
 				+ "</rendered><rendered-cdata><![CDATA[" + cdataEscapedRendered + "]]></rendered-cdata><contentdigest><![CDATA[" + cdataContentDigest //$NON-NLS-1$ //$NON-NLS-2$
 				+ "]]></contentdigest></content>"; //$NON-NLS-1$
 
@@ -1239,7 +1248,13 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	{
 		this.xalan270ContentHandler = xalan270ContentHandler;
 	}
-	
-	
+    
+    public boolean isEscaped() {
+        return escaped;
+    }
+    
+    public void setEscaped(boolean escaped) {
+        this.escaped = escaped;
+    }
 	
 }

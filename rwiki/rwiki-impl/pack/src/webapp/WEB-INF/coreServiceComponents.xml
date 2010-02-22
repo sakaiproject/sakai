@@ -153,6 +153,7 @@
       <!-- The transformer use on the stream -->
      <property name="xslt"><value>/uk/ac/cam/caret/sakai/rwiki/component/service/impl/tohtml.xslt</value></property>
     <property name="minorType"><value>html</value></property>    
+    <property name="escaped"><value>true</value></property>
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
@@ -194,6 +195,7 @@
     <!-- The transformer use on the stream -->
     <property name="xslt"><value>/uk/ac/cam/caret/sakai/rwiki/component/service/impl/xhtml2fo.xslt</value></property>
     <property name="minorType"><value>pdf</value></property>    
+    <property name="escaped"><value>false</value></property>
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
@@ -225,6 +227,7 @@
     <!-- The transformer use on the stream -->
     <property name="xslt"><value>/uk/ac/cam/caret/sakai/rwiki/component/service/impl/xhtml2fo.xslt</value></property>
     <property name="minorType"><value>rtf</value></property>    
+    <property name="escaped"><value>false</value></property>
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
@@ -256,6 +259,7 @@
     <!-- The transformer use on the stream -->
     <property name="xslt"><value>/uk/ac/cam/caret/sakai/rwiki/component/service/impl/xhtml2fo.xslt</value></property>
     <property name="minorType"><value>fop</value></property>    
+    <property name="escaped"><value>false</value></property>
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
