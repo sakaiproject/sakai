@@ -16,6 +16,10 @@
   </organization>
   <inceptionYear>2003</inceptionYear>
   <packaging>war</packaging>
+  <properties>
+    <!-- SAK-14526 Disable tests as they might be testing another system -->
+    <maven.test.skip>true</maven.test.skip>
+  </properties>
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
