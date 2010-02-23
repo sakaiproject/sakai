@@ -62,7 +62,7 @@ public class ExportAssessmentListener implements ActionListener
     	String thisIp = ( (javax.servlet.http.HttpServletRequest) FacesContext.
                 getCurrentInstance().getExternalContext().getRequest()).
  getRemoteAddr();
-    	log.warn("Found a potential hacker with IP : " + thisIp);   // logging IP , as requested in SAK-17984
+    	log.warn("Unauthorized attempt to access /samigo-app/jsf/qti/exportAssessment.xml?exportAssessmentId=" +  assessmentId + " from IP : " + thisIp);   // logging IP , as requested in SAK-17984
     	return;
     }
     XMLController xmlController = (XMLController) ContextUtil.lookupBean(
