@@ -89,7 +89,7 @@
 	width:32px;
 }
 /*put non site links to the right*/
-#pda-portlet-menu li.loginLink, #pda-portlet-menu li.logoutLink, #pda-portlet-menu li.helpLink  {
+#pda-portlet-menu li.loginLink, #pda-portlet-menu li.logoutLink, #pda-portlet-menu li.helpLink,#pda-portlet-menu li.usersPresentLink  {
 	background: none;
 	float:left;
 }
@@ -192,3 +192,15 @@
 	float: right;
 }
 
+#presdiv {
+	position:absolute;
+	top:25px;right:5px;
+	height:75px;
+	width:150px;
+}
+#presenceIframePDA{
+	border:1px solid #000;
+	height:75px;
+	width:150px;
+	overflow:auto;
+}

@@ -874,6 +874,9 @@ width:auto !important
 /*SECTION 12 PORTAL THINGS*/
 
 /*below for "presence in chat" functionality*/
+.presenceBody{
+	background:#fff
+}
 .presenceList{
 	font-size: .8em;
 	list-style: none;

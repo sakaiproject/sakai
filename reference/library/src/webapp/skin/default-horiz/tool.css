@@ -1010,6 +1010,9 @@ width:auto !important
 }
 
 /*below for "presence in chat" functionality*/
+.presenceBody{
+	background:#fff
+}
 .presenceList{
 	font-size: .8em;
 	list-style: none;
