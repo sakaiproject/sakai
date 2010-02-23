@@ -25,6 +25,7 @@ body{
 	height:100%;
 }
 #headerMin{
+	overflow:hidden;
 	border-bottom:2px solid #09C
 }
 
