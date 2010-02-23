@@ -24,12 +24,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-
-## <!-- this caises problems for layout nneds investihating -->
-##     <link href="/portal/styles/portalstyles.css" type="text/css" rel="stylesheet" media="all" />
-## <!--[if gte IE 5]><![if lt IE 7]>
-##     <link href="/portal/styles/portalstyles-ie5.css" type="text/css" rel="stylesheet" media="all" />
-## <![endif]><![endif]-->
 	 <link href="${pageSkinRepo}/${pageSkin}/pda.css" type="text/css" rel="stylesheet" media="all" /> 
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <meta name="viewport" content="width=device-width, user-scalable=yes,  initial-scale=1.0, maximum-scale=2.0"/>
@@ -45,7 +39,7 @@ ${responseHead}
 ## portalscripts.js seems to only apply to the main portal and the dhthml "More" capability
 ## It depends on jquery - so we either have to include both jquery and portalscripts or neither
 ## and since we don't use any of this in pda.vm - we don't include either one
-## <script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery.js"></script>
+   <script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery-latest.min.js"></script>
 ## <script type="text/javascript" language="JavaScript" src="/portal/scripts/portalscripts.js"></script>
 ## These may someday be needed for styleable - if so - move them into styleable below
 
@@ -130,20 +124,21 @@ ${responseHead}
   #end
   <!-- End WURFL Small Display -->
 #else
-  <li class="portletpresencebutton" >
+
 	  #if (${currentSite.sitePages.pageNavShowPresenceLoggedIn})
 	    #if ($currentSite)
 	      #if ( ! $currentSite.isMyWorkspace )
-	        <a href="#" onclick="hidePresence();" onmouseover="showPresence();" onmouseout="hidePresence();">Users Present</a> | 
+	          <li class="usersPresentLink"><span><a id="usersPresentLink" href="#">Users Present</a></span></li>		  
 	      #end
 	    #end
 	  #end
+
 	  #if ( $loggedIn ) 
 			## need to get string from bundle
-	    <a href="${portalTopUrl}?force.logout=yes">Log Out</a>
+	    <li class="logoutLink"><span><a href="${portalTopUrl}?force.logout=yes">Log Out</a></span></li>
 	  #else
 			## need to get string from bundle
-	    <a href="${portalTopUrl}?force.login=yes">Log In</a>
+	    <li class="loginLink"><span><a href="${portalTopUrl}?force.login=yes">Log In</a></span></li>
 	  #end
   </li>
 #end
@@ -234,35 +229,25 @@ ${responseBody}
   #end
 #end
 #if ($currentSite )
-  #if ( ! ${wurflSmallDisplay} ) 
+#if ( ! ${wurflSmallDisplay} ) 
     #if (${currentSite.sitePages.pageNavShowPresenceLoggedIn})
 	<script type="text/javascript" language="JavaScript">
-	function showPresence()
-	{
-		window.document.getElementById('presdiv').style.position = 'absolute';
-		window.document.getElementById('presdiv').style.top = '20px';
-		window.document.getElementById('presdiv').style.right = '5px';
-		window.document.getElementById('presdiv').style.left = 'auto';
-	}
+		$(document).ready(function(){
+			$('#usersPresentLink').click(function(e){
+				e.preventDefault();
+					$('#presdiv').toggle();
+			});
+		});
 
-	function hidePresence()
-	{
-		window.document.getElementById('presdiv').style.position = 'absolute';
-		window.document.getElementById('presdiv').style.top = '20px';
-		window.document.getElementById('presdiv').style.right = 'auto';
-		window.document.getElementById('presdiv').style.left = '-4000px';
-	}
 	</script>
-	<div class="portletpresence" id="presdiv" >
-		<div class="portletpresencewrapper" id="portletpresencewrapper">
-			<iframe name="presenceIframe" id="presenceIframe" 
-				frameborder="0" marginwidth="0" marginheight="0" scrolling="auto" 
-				src="${currentSite.sitePages.pageNavPresenceUrl}" >
-			</iframe>
-		</div>
+	<div class="portletpresence" id="presdiv" style="display:none">
+		<iframe name="presenceIframe" id="presenceIframePDA" 
+			frameborder="1" marginwidth="0" marginheight="0" scrolling="auto" 
+			src="${currentSite.sitePages.pageNavPresenceUrl}" >
+		</iframe>
 	</div>
     #end
-  #end
+#end
 #end
 </div>
 <!-- end pda.vm -->
