@@ -3008,7 +3008,7 @@ public class DeliveryBean
 					  for (int k=0; k<item.getSelectionArray().size(); k++) {
 						  SelectionBean selection = (SelectionBean)item.getSelectionArray().get(k);
 						  //selection.setResponse(false);
-						  selection.setResponseRromCleanRadioButton();
+						  selection.setResponseFromCleanRadioButton();
 					  }
 					  
 					  ArrayList itemGradingData = new ArrayList();

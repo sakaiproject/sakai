@@ -91,7 +91,7 @@ public class SelectionBean {
 			data.setPublishedAnswerId(null);
 	}
 
-	public void setResponseRromCleanRadioButton() {
+	public void setResponseFromCleanRadioButton() {
 		response = false;
 		data = null;
 	}
