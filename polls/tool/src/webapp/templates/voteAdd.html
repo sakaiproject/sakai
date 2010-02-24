@@ -24,9 +24,9 @@
 <table>
 	<tr>
 		<td><span class="reqStarInline">*</span> <label
-			rsf:id="new-poll-question-label">Question</label></td>
+			rsf:id="new-poll-question-label" for="">Question</label></td>
 		<td><input name="Question" type="text" size="50"
-			rsf:id="new-poll-text" /></td>
+			rsf:id="new-poll-text" id="pollName"/></td>
 	</tr>
 	<tr>
 		<td colspan="2"><label rsf:id="new-poll-descr-label">Additional
@@ -42,7 +42,7 @@
 <table>
 	<tr>
 		<td><span class="reqStarInline">*</span> <label
-			rsf:id="new-poll-open-label">Opening</label></td>
+			rsf:id="msg=new_poll_open_label" for="openDate:1:date-field">Opening</label></td>
 		<td><span rsf:id="openDate:"> <input type="text"
 			id="start_date_dummy" name="start_date_dummy" value="MM/DD/YYYY"
 			size="12" maxlength="10" /> <img src="../images/calendar.gif"
@@ -50,7 +50,7 @@
 	</tr>
 	<tr>
 		<td><span class="reqStarInline">*</span> <label
-			rsf:id="new-poll-close-label">Closing Date</label></td>
+			rsf:id="msg=new_poll_close_label" for ="closeDate:1:date-field">Closing Date</label></td>
 		<td><span rsf:id="closeDate:"> <input type="text"
 			id="start_date_dummy" name="start_date_dummy" value="MM/DD/YYYY"
 			size="12" maxlength="10" /> <img src="../images/calendar.gif"
@@ -80,9 +80,9 @@
 <table>
 	<tr>
 		<td><span class="reqStarInline">*</span> <label
-			rsf:id="new-poll-min-limits">What is the minimum number of
+			rsf:id="msg=new_poll_min_limits" for="min-votes-selection">What is the minimum number of
 		Answer Options that can be selected?</label></td>
-		<td><select name="minOptions" rsf:id="min-votes">
+		<td><select name="minOptions" rsf:id="min-votes" id="min-votes">
 			<option value="0">0</option>
 			<option value="1">1</option>
 			<option value="2">2</option>
@@ -103,9 +103,9 @@
 	</tr>
 	<tr>
 		<td><span class="reqStarInline">*</span> <label
-			rsf:id="new-poll-max-limits">What is the maximum number of
+			rsf:id="msg=new_poll_max_limits" for="max-votes-selection">What is the maximum number of
 		Answer Options that can be selected?</label></td>
-		<td><select name="maxOptions" rsf:id="max-votes">
+		<td><select name="maxOptions" rsf:id="max-votes" id="max-votes">
 			<option value="1">1</option>
 			<option value="2">2</option>
 			<option value="3">3</option>
@@ -129,7 +129,7 @@
 </p>
 
 <span rsf:id="release-select" />
-<div rsf:id="releaserow:"><input type="radio" rsf:id="release" />
+<div rsf:id="releaserow:"><input type="radio" rsf:id="release" id="release-id" />
 <label rsf:id="releaseLabel">Open</label></div>
 
 <!--<input name="immediately" type="radio" value="" checked="checked" rsf:id="" /> Immediately--><br />

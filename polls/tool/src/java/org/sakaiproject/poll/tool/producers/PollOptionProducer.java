@@ -152,7 +152,7 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 		UIOutput.make(tofill,"poll-question",messageLocator.getMessage("new_poll_question"));
 		UIForm form = UIForm.make(tofill,"opt-form");
 
-		UIOutput.make(form,"option-label",messageLocator.getMessage("new_poll_option"));
+		//UIOutput.make(form,"option-label",messageLocator.getMessage("new_poll_option"));
 
 
 		if (option.getOptionText() == null)
