@@ -310,11 +310,15 @@ public class SakaiMailet extends GenericMailet
 					bodyBuf[0] = new StringBuilder();
 					bodyBuf[1] = new StringBuilder();
 					List attachments = attachments = EntityManager.newReferenceList();
+					String siteId = null;
+					if (SiteService.siteExists(channel.getContext())) {
+						siteId = channel.getContext();
+					}
 					
 					try
 					{
 						StringBuilder bodyContentType = new StringBuilder();
-						Integer embedCount = parseParts(msg, id, bodyBuf, bodyContentType, attachments, new Integer(-1));
+						Integer embedCount = parseParts(siteId, msg, id, bodyBuf, bodyContentType, attachments, new Integer(-1));
 						
 						if (bodyContentType.length() > 0)
 						{
@@ -445,7 +449,7 @@ public class SakaiMailet extends GenericMailet
 	/**
 	 * Create an attachment, adding it to the list of attachments.
 	 */
-	protected Reference createAttachment(List attachments, String type, String fileName, byte[] body, String id)
+	protected Reference createAttachment(String siteId, List attachments, String type, String fileName, byte[] body, String id)
 	{
 		// we just want the file name part - strip off any drive and path stuff
 		String name = Validator.getFileName(fileName);
@@ -459,7 +463,13 @@ public class SakaiMailet extends GenericMailet
 		// make an attachment resource for this URL
 		try
 		{
-			ContentResource attachment = ContentHostingService.addAttachmentResource(resourceName, type, body, props);
+			ContentResource attachment;
+			if (siteId == null) {
+				attachment = ContentHostingService.addAttachmentResource(resourceName, type, body, props);
+			} else {
+				attachment = ContentHostingService.addAttachmentResource(
+						resourceName, siteId, null, type, body, props);
+			}
 
 			// add a dereferencer for this to the attachments
 			Reference ref = EntityManager.newReference(attachment.getReference());
@@ -511,6 +521,8 @@ public class SakaiMailet extends GenericMailet
 	/**
 	 * Breaks email messages into parts which can be saved as files (saves as attachments) or viewed as plain text (added to body of message).
 	 * 
+	 * @param siteId
+	 *        Site associated with attachments, if any
 	 * @param p
 	 *        The message-part embedded in a message..
 	 * @param id
@@ -525,7 +537,7 @@ public class SakaiMailet extends GenericMailet
 	 *        An Integer that counts embedded messages (outer message is zero).
 	 * @return Value of embedCount (updated if this call processed any embedded messages).
 	 */
-	protected Integer parseParts(Part p, String id, StringBuilder bodyBuf[], 
+	protected Integer parseParts(String siteId, Part p, String id, StringBuilder bodyBuf[], 
 										  StringBuilder bodyContentType, List attachments,	Integer embedCount) 
 			throws MessagingException, IOException
 	{
@@ -652,7 +664,7 @@ public class SakaiMailet extends GenericMailet
 			int count = mp.getCount();
 			for (int i = 0; i < count; i++)
 			{
-				embedCount = parseParts(mp.getBodyPart(i), id, bodyBuf, bodyContentType, attachments, embedCount);
+				embedCount = parseParts(siteId, mp.getBodyPart(i), id, bodyBuf, bodyContentType, attachments, embedCount);
 			}
 		}
 		
@@ -747,7 +759,7 @@ public class SakaiMailet extends GenericMailet
 			if ((bodyBytes != null) && (bodyBytes.length > 0))
 			{
 				// can we ignore the attachment it it's just whitespace chars??
-				Reference attachment = createAttachment(attachments, cType.getBaseType(), name, bodyBytes, id);
+				Reference attachment = createAttachment(siteId, attachments, cType.getBaseType(), name, bodyBytes, id);
 
 				// add plain/text attachment reference (if plain/text message)
 				if (attachment != null && bodyBuf[0].length() > 0)
