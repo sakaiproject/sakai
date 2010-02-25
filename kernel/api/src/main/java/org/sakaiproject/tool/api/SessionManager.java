@@ -60,7 +60,7 @@ public interface SessionManager
 	/**
 	 * Start a new session.
 	 * 
-	 * @return The new UsageSession.
+	 * @return The new Session.
 	 */
 	Session startSession();
 
@@ -69,7 +69,7 @@ public interface SessionManager
 	 * 
 	 * @param id
 	 *        The session Id to use.
-	 * @return The new UsageSession.
+	 * @return The new Session.
 	 */
 	Session startSession(String id);
 
