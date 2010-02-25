@@ -305,6 +305,7 @@ public class ReportsEditPage extends BasePage {
 				super.onSubmit();
 			}
 		};
+		back.setDefaultFormProcessing(false);
 		form.add(back);
 	}
 
