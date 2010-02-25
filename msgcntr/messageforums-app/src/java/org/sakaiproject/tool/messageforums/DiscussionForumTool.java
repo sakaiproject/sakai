@@ -947,6 +947,12 @@ public class DiscussionForumTool
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_DELETE_FORUM));
       return gotoMain();
     }
+    //in case XSS was slipped in, make sure we remove it:
+    StringBuilder alertMsg = new StringBuilder();
+    selectedForum.getForum().setExtendedDescription(FormattedText.processFormattedText(selectedForum.getForum().getExtendedDescription(), alertMsg));
+    selectedForum.getForum().setTitle(FormattedText.processFormattedText(selectedForum.getForum().getTitle(), alertMsg));
+    selectedForum.getForum().setShortDescription(FormattedText.processFormattedText(selectedForum.getForum().getShortDescription(), alertMsg));
+    
     selectedForum.setMarkForDeletion(true);
     return FORUM_SETTING;
   }
@@ -1720,6 +1726,11 @@ public class DiscussionForumTool
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_NEW_TOPIC));
       return gotoMain();
     }
+    //in case XSS was slipped in, make sure we remove it:
+    StringBuilder alertMsg = new StringBuilder();
+    selectedTopic.getTopic().setExtendedDescription(FormattedText.processFormattedText(selectedTopic.getTopic().getExtendedDescription(), alertMsg));
+    selectedTopic.getTopic().setTitle(FormattedText.processFormattedText(selectedTopic.getTopic().getTitle(), alertMsg));
+    selectedTopic.getTopic().setShortDescription(FormattedText.processFormattedText(selectedTopic.getTopic().getShortDescription(), alertMsg));
     selectedTopic.setMarkForDeletion(true);
     return TOPIC_SETTING;
   }
