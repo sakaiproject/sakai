@@ -7176,10 +7176,28 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		}
 		catch(IdUnusedException e)
 		{
+			ContentCollectionEdit toCollectionEdit = null;
+			
 			// not such collection yet, add one
 			try
 			{
-				toCollection = addCollection(toContext);
+				toCollectionEdit = addCollection(toContext);
+				m_storage.commitCollection(toCollectionEdit);
+				((BaseCollectionEdit) toCollectionEdit).closeEdit();
+				
+				//try this again now to get an activated collection
+				try
+				{
+					toCollection = getCollection(toContext);
+				}
+				catch (IdUnusedException eee)
+				{
+					M_log.warn(this + toContext, eee);
+				}
+				catch (TypeException eee)
+				{
+					M_log.warn(this + toContext, eee);
+				}
 			}
 			catch(IdUsedException ee)
 			{
@@ -7196,6 +7214,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			catch (InconsistentException ee)
 			{
 				M_log.warn(this + toContext, ee);
+			}
+			finally
+			{
+				//safety first!
+				if (toCollectionEdit != null && toCollectionEdit.isActiveEdit()) {
+					((BaseCollectionEdit) toCollectionEdit).closeEdit();
+				}
 			}
 		}
 		catch (TypeException e)
