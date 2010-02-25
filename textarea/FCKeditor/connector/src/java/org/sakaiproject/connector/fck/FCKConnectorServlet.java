@@ -234,7 +234,7 @@ public class FCKConnectorServlet extends HttpServlet {
           }
           
           if (advisor != null) {
-               securityService.clearAdvisors();
+               securityService.popAdvisor();
           }
      }
      
@@ -371,7 +371,7 @@ public class FCKConnectorServlet extends HttpServlet {
           }
           
           if (advisor != null) {
-               securityService.clearAdvisors();
+               securityService.popAdvisor();
           }
      }
 
