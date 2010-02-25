@@ -214,7 +214,7 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
 			return false;
 		}
 		if(index >=sa.length) {
-			log.warn("Can not get " + index + " index from string " + complexString);
+			log.debug("Can not get " + index + " index from string " + complexString);
 			return false;
 		}
 		return Boolean.parseBoolean(sa[index]);
