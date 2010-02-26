@@ -218,7 +218,7 @@
 			    <jsp:attribute name="onclick">
 			    	return confirm('<c:out value="${rlb.jsp_history_version_msg1}"/><c:out value="${historyObject.revision}" /> <c:out value="${rlb.jsp_history_version_msg2}"/>');
 			    </jsp:attribute>
-			    Revert to this version
+			     <c:out value="${rlb.jsp_history_revert_this_version}"/>Revert to this version
 			  </jsp:element>
 			</c:when>
 			<c:otherwise>
