@@ -22,8 +22,10 @@ package org.sakaiproject.blti;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -161,6 +163,11 @@ public class ProviderServlet extends HttpServlet {
 		}
 
 		boolean saved = false;
+		
+		Map<String,String[]> params = (Map<String,String[]>)request.getParameterMap();
+		for (Map.Entry<String,String[]> param : params.entrySet()) {
+			M_log.debug(param.getKey() + ":" + param.getValue()[0]);
+		}
 
 		String oauth_consumer_key = request.getParameter("oauth_consumer_key");
 		String user_id = request.getParameter("user_id");
