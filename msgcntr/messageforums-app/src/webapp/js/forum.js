@@ -389,9 +389,10 @@ function countStuff() {
 	return textInfo;
 }
 
-function InsertHTML() { 
+function InsertHTML(header) { 
 	// These lines will write to the original textarea and makes the quoting work when FCK is not present
-	var finalhtml = '<b><i>Original Message:</i></b><br/><b><i><h:outputText value="#{msgs.cdfm_from}" /></i></b> <i><h:outputText value="#{ForumTool.selectedMessage.message.author}" /><h:outputText value=" #{msgs.cdfm_openb}" /><h:outputText value="#{ForumTool.selectedMessage.message.created}" ><f:convertDateTime pattern="#{msgs.date_format}" /></h:outputText><h:outputText value="#{msgs.cdfm_closeb}" /></i><br/><b><i><h:outputText value="#{msgs.cdfm_subject}" /></i></b> <i>' + titletext + '</i><br/><br/><i>' + messagetext + '</i><br/><br/>';
+	var finalhtml = header + ' <i>' + titletext + '</i><br/><br/><i>' + messagetext + '</i><br/><br/>';
+
 	document.forms['dfCompose'].elements[rteId].value = finalhtml;
 	// Get the editor instance that we want to interact with.
 	var oEditor = FCKeditorAPI.GetInstance(rteId);
