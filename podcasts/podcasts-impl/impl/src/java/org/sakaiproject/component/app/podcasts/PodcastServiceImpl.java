@@ -736,6 +736,8 @@ public class PodcastServiceImpl implements PodcastService {
 		resourceProperties.addProperty(DISPLAY_DATE, formatter
 				.format(displayDate));
 
+		cr.setReleaseDate(TimeService.newTime(displayDate.getTime()));
+		
 		resourceProperties.addProperty(ResourceProperties.PROP_CONTENT_LENGTH,
 				new Integer(body.length).toString());
 
