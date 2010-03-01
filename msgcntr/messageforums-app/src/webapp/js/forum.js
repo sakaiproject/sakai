@@ -376,13 +376,19 @@ function countStuff() {
 	var oDOM = oEditor.EditorDocument ;
 	if ( document.all ) // If Internet Explorer.
 	{
-		 wordCount=oDOM.body.innerText.split(" ").length;
+		wordCount = 0;
+		if(oDOM.body.innerText.length > 0){
+			wordCount=oDOM.body.innerText.split(" ").length;
+		}
 	}
 	else // If Gecko.
 	{
 		var r = oDOM.createRange();	
 		r.selectNodeContents(oDOM.body);
-		wordCount = r.toString().split(" ").length;
+		wordCount = 0;
+		if(r.toString().length > 0){
+			wordCount = r.toString().split(" ").length;
+		}
 	}
 	msgupdatecounts = $('.msg-updatecount').text();
 	textInfo =  "(" + wordCount + ")";
