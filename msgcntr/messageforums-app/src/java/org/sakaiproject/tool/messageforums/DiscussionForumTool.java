@@ -1149,13 +1149,15 @@ public class DiscussionForumTool
     	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
     	return FORUM_SETTING_REVISE;
     }
-    
     if(selectedForum !=null && selectedForum.getForum()!=null &&
-    		(selectedForum.getForum().getShortDescription()!=null) && 
-    		(selectedForum.getForum().getShortDescription().length() > 255))
+    		(selectedForum.getForum().getShortDescription()!=null))
     {
-    	setErrorMessage(getResourceBundleString(SHORT_DESC_TOO_LONG));
-    	return null;
+    	StringBuilder alertMsg = new StringBuilder();
+    	String formattedShortDesc = FormattedText.processFormattedText(selectedForum.getForum().getShortDescription(), alertMsg);
+    	if(formattedShortDesc.length() > 255){
+    		setErrorMessage(getResourceBundleString(SHORT_DESC_TOO_LONG));
+    		return null;
+    	}
     }
 
     if(selectedForum!=null && selectedForum.getForum()!=null && 
@@ -1207,13 +1209,16 @@ public class DiscussionForumTool
     	return FORUM_SETTING_REVISE;
     }
     if(selectedForum !=null && selectedForum.getForum()!=null &&
-    		(selectedForum.getForum().getShortDescription()!=null) && 
-    		(selectedForum.getForum().getShortDescription().length() > 255))
+    		(selectedForum.getForum().getShortDescription()!=null))
     {
-    	setErrorMessage(getResourceBundleString(SHORT_DESC_TOO_LONG));
-    	return null;
-    }
-    
+    	StringBuilder alertMsg = new StringBuilder();
+    	String formattedShortDesc = FormattedText.processFormattedText(selectedForum.getForum().getShortDescription(), alertMsg);
+    	if(formattedShortDesc.length() > 255){
+    		setErrorMessage(getResourceBundleString(SHORT_DESC_TOO_LONG));
+    		return null;
+    	}
+    }    
+	
     if (selectedForum == null)
 		throw new IllegalStateException("selectedForum == null");
     if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
@@ -1247,11 +1252,14 @@ public class DiscussionForumTool
     }
     
     if(selectedForum !=null && selectedForum.getForum()!=null &&
-    		(selectedForum.getForum().getShortDescription()!=null) && 
-    		(selectedForum.getForum().getShortDescription().length() > 255))
+    		(selectedForum.getForum().getShortDescription()!=null))
     {
-    	setErrorMessage(getResourceBundleString(SHORT_DESC_TOO_LONG));
-    	return null;
+    	StringBuilder alertMsg = new StringBuilder();
+    	String formattedShortDesc = FormattedText.processFormattedText(selectedForum.getForum().getShortDescription(), alertMsg);
+    	if(formattedShortDesc.length() > 255){
+    		setErrorMessage(getResourceBundleString(SHORT_DESC_TOO_LONG));
+    		return null;
+    	}
     }
 
     if (selectedForum == null)
@@ -1301,7 +1309,11 @@ public class DiscussionForumTool
     StringBuilder alertMsg = new StringBuilder();
     forum.setExtendedDescription(FormattedText.processFormattedText(forum.getExtendedDescription(), alertMsg));
     forum.setTitle(FormattedText.processFormattedText(forum.getTitle(), alertMsg));
-    forum.setShortDescription(FormattedText.processFormattedText(forum.getShortDescription(), alertMsg));
+    String shortDescFormatted = FormattedText.processFormattedText(forum.getShortDescription(), alertMsg);
+	if(shortDescFormatted.length() > 255){
+		shortDescFormatted = shortDescFormatted.substring(0, 255);
+	}
+    forum.setShortDescription(shortDescFormatted);
     
     if (forum.getExtendedDescription().equals("<br/>"))
 	{
@@ -1466,12 +1478,15 @@ public class DiscussionForumTool
     	return TOPIC_SETTING_REVISE;
     }
     if(selectedTopic!=null && selectedTopic.getTopic()!=null &&
-    		(selectedTopic.getTopic().getShortDescription()!=null) && 
-    		(selectedTopic.getTopic().getShortDescription().length() > 255))
+    		(selectedTopic.getTopic().getShortDescription()!=null))
     {
-    	setErrorMessage(getResourceBundleString(SHORT_DESC_TOO_LONG));
-    	return null;
-    }    
+    	StringBuilder alertMsg = new StringBuilder();
+    	String formattedShortDesc = FormattedText.processFormattedText(selectedTopic.getTopic().getShortDescription(), alertMsg);
+    	if(formattedShortDesc.length() > 255){
+    		setErrorMessage(getResourceBundleString(SHORT_DESC_TOO_LONG));
+    		return null;
+    	}
+    }
     
     setPermissionMode(PERMISSION_MODE_TOPIC);
     if(selectedTopic!=null && selectedTopic.getTopic()!=null && 
@@ -1524,11 +1539,14 @@ public class DiscussionForumTool
     }
     
     if(selectedTopic!=null && selectedTopic.getTopic()!=null &&
-    		(selectedTopic.getTopic().getShortDescription()!=null) && 
-    		(selectedTopic.getTopic().getShortDescription().length() > 255))
+    		(selectedTopic.getTopic().getShortDescription()!=null))
     {
-    	setErrorMessage(getResourceBundleString(SHORT_DESC_TOO_LONG));
-    	return null;
+    	StringBuilder alertMsg = new StringBuilder();
+    	String formattedShortDesc = FormattedText.processFormattedText(selectedTopic.getTopic().getShortDescription(), alertMsg);
+    	if(formattedShortDesc.length() > 255){
+    		setErrorMessage(getResourceBundleString(SHORT_DESC_TOO_LONG));
+    		return null;
+    	}
     }
     
     setPermissionMode(PERMISSION_MODE_TOPIC);
@@ -1586,13 +1604,16 @@ public class DiscussionForumTool
     	return TOPIC_SETTING_REVISE;
     }
     if(selectedTopic!=null && selectedTopic.getTopic()!=null &&
-    		(selectedTopic.getTopic().getShortDescription()!=null) && 
-    		(selectedTopic.getTopic().getShortDescription().length() > 255))
+    		(selectedTopic.getTopic().getShortDescription()!=null))
     {
-    	setErrorMessage(getResourceBundleString(SHORT_DESC_TOO_LONG));
-    	return null;
+    	StringBuilder alertMsg = new StringBuilder();
+    	String formattedShortDesc = FormattedText.processFormattedText(selectedTopic.getTopic().getShortDescription(), alertMsg);
+    	if(formattedShortDesc.length() > 255){
+    		setErrorMessage(getResourceBundleString(SHORT_DESC_TOO_LONG));
+    		return null;
+    	}
     }
-    
+        
     setPermissionMode(PERMISSION_MODE_TOPIC);
     if(selectedTopic!=null && selectedTopic.getTopic()!=null && 
         (selectedTopic.getTopic().getTitle()==null 
@@ -1634,7 +1655,11 @@ public class DiscussionForumTool
 
     	StringBuilder alertMsg = new StringBuilder();
     	topic.setTitle(FormattedText.processFormattedText(topic.getTitle(), alertMsg));
-    	topic.setShortDescription(FormattedText.processFormattedText(topic.getShortDescription(), alertMsg));
+    	String shortDescFormatted = FormattedText.processFormattedText(topic.getShortDescription(), alertMsg);
+    	if(shortDescFormatted.length() > 255){
+    		shortDescFormatted = shortDescFormatted.substring(0, 255);
+    	}
+    	topic.setShortDescription(shortDescFormatted);
     	topic.setExtendedDescription(FormattedText.processFormattedText(topic.getExtendedDescription(), alertMsg));
     	
     	if (topic.getExtendedDescription().equals("<br/>"))
