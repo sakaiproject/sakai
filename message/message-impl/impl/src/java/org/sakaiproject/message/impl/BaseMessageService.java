@@ -51,7 +51,6 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.Summary;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
 import org.sakaiproject.entity.api.EntityPermissionException;
@@ -59,6 +58,7 @@ import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entity.api.Summary;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
@@ -100,7 +100,6 @@ import org.sakaiproject.util.EntityCollections;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.Validator;
-import org.sakaiproject.util.StringUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -2941,14 +2940,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			// check for closed edit
 			if (!message.isActiveEdit())
 			{
-				try
-				{
-					throw new Exception();
-				}
-				catch (Exception e)
-				{
-					M_log.warn("removeMessage(): closed MessageEdit", e);
-				}
+				M_log.warn("removeMessage(): message is not in active edit, unable to remove");
 				return;
 			}
 
