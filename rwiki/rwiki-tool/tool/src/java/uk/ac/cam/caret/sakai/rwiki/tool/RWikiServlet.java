@@ -157,7 +157,7 @@ public class RWikiServlet extends HttpServlet
 			query= queryString.split("&");
 		}
 				
-		if (targetURL != null && targetURL.trim().length() > 0 && !(query[0].equals("action=search")||query[0].equals("action=full_search")))
+		if (targetURL != null && targetURL.trim().length() > 0 && !(targetURL.contains("action=comment") || query[0].equals("action=search")||query[0].equals("action=full_search")))
 		{
 			response.sendRedirect(targetURL);
 			return;
