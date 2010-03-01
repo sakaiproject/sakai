@@ -833,15 +833,16 @@ public class DiscussionForumTool
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_ORGANIZE));
       return gotoMain();
     }
-    
-    for(Iterator i = forums.iterator(); i.hasNext(); ) {
-       DiscussionForumBean forum = (DiscussionForumBean)i.next();
-       
-       // because there is no straight up save forum function we need to retain the draft status
-       if(forum.getForum().getDraft().booleanValue())
-          forumManager.saveForumAsDraft(forum.getForum());
-       else
-          forumManager.saveForum(forum.getForum());
+    if(forums != null){
+    	for(Iterator i = forums.iterator(); i.hasNext(); ) {
+    		DiscussionForumBean forum = (DiscussionForumBean)i.next();
+
+    		// because there is no straight up save forum function we need to retain the draft status
+    		if(forum.getForum().getDraft().booleanValue())
+    			forumManager.saveForumAsDraft(forum.getForum());
+    		else
+    			forumManager.saveForum(forum.getForum());
+    	}
     }
     
     //reload the forums so they change position in the list
