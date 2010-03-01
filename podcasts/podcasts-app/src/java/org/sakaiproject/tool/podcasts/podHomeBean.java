@@ -1162,10 +1162,10 @@ public class podHomeBean {
 		Object oldValue = event.getOldValue();
 		PhaseId phaseId = event.getPhaseId();
 		Object source = event.getSource();
-		System.out.println("processFileUpload() event: " + event
-				+ " component: " + component + " newValue: " + newValue
-				+ " oldValue: " + oldValue + " phaseId: " + phaseId
-				+ " source: " + source);
+//		System.out.println("processFileUpload() event: " + event
+//				+ " component: " + component + " newValue: " + newValue
+//				+ " oldValue: " + oldValue + " phaseId: " + phaseId
+//				+ " source: " + source);
 
 		if (newValue instanceof String)
 			return;
@@ -1177,9 +1177,9 @@ public class podHomeBean {
 		filename = Validator.getFileName(item.getName());
 		fileSize = item.getSize();
 		fileContentType = item.getContentType();
-		System.out.println("processFileUpload(): item: " + item
-				+ " fieldname: " + fieldName + " filename: " + filename
-				+ " length: " + fileSize);
+//		System.out.println("processFileUpload(): item: " + item
+//				+ " fieldname: " + fieldName + " filename: " + filename
+//				+ " length: " + fileSize);
 
 		// Read the file as a stream (may be more memory-efficient)
 		try {
