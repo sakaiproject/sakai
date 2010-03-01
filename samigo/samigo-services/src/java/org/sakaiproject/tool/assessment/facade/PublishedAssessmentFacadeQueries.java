@@ -640,7 +640,12 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		a.setSectionSet(getSectionSetForAssessment(a));
 		String releaseToGroups = "";
 		if (withGroupsInfo) {
-			TreeMap groupsForSite = getGroupsForSite();
+			//TreeMap groupsForSite = getGroupsForSite();
+			
+			// SAM-799
+            String siteId = getPublishedAssessmentSiteId(assessmentId.toString());
+            TreeMap groupsForSite = getGroupsForSite(siteId);
+             
 			releaseToGroups = getReleaseToGroupsAsString(groupsForSite, assessmentId);
 		}
 		
