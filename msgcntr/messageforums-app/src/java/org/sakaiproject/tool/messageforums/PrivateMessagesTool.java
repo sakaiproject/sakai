@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
@@ -299,6 +301,8 @@ public class PrivateMessagesTool
   public static final String SORT_ATTACHMENT_DESC = "attachment_desc";
   
   private boolean selectedComposedlistequalCurrentuser=false;
+  //simplified RFC 2822 standard for email address.
+  private static final Pattern VALID_EMAIL_PATTERN_MATCH = Pattern.compile("[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?");
   
   
   /** sort member */
@@ -3295,7 +3299,8 @@ private   int   getNum(char letter,   String   a)
     String sendEmailOut=getSendEmailOut();
     String activate=getActivatePvtMsg() ;
     String forward=getForwardPvtMsg() ;
-    if (email != null && (!SET_AS_NO.equals(forward)) && (!email.matches(".+@.+\\..+"))){
+    Matcher emailMatcher = VALID_EMAIL_PATTERN_MATCH.matcher(email);
+    if (email != null && (!SET_AS_NO.equals(forward)) && (!emailMatcher.matches())){
       setValidEmail(false);
       setErrorMessage(getResourceBundleString(PROVIDE_VALID_EMAIL));
       setActivatePvtMsg(activate);
