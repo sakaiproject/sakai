@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.cover.SessionManager;
 
 /**
  * <p>
@@ -325,9 +326,16 @@ public class Web
 	 */
 	public static void sendAutoUpdate(PrintWriter out, HttpServletRequest req, String placementId, int updateTime)
 	{
+		String sessionId = SessionManager.getCurrentSession().getId();
+		StringBuilder url = new StringBuilder(serverUrl(req));
+		url.append("/courier/");
+		url.append(placementId);
+		url.append("?sessionId=");
+		url.append(sessionId);
+		
 		out.println("<script type=\"text/javascript\" language=\"JavaScript\">");
 		out.println("updateTime = " + updateTime + "000;");
-		out.println("updateUrl = \"" + serverUrl(req) + "/courier/" + placementId + "\";");
+		out.println("updateUrl = \"" + url.toString() + "\";");
 		out.println("scheduleUpdate();");
 		out.println("</script>");
 	}
