@@ -22,9 +22,12 @@ package org.sakaiproject.entitybroker.providers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.Map;
 
 import org.azeckoski.reflectutils.ReflectUtils;
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -134,6 +137,34 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
         return eg;
     }
 
+    @EntityCustomAction(action="userPerms", viewKey=EntityView.VIEW_SHOW)
+    public Set<String> handleUserPerms(EntityView view) {
+        // expects site/siteId/userPerms[/:PREFIX:]
+        String prefix = view.getPathSegment(3);
+
+        String userId = developerHelperService.getCurrentUserId();
+
+		if(userId == null)
+			throw new SecurityException("This action (userPerms) is not accessible to anon and there is no current user.");
+
+        String siteId = view.getEntityReference().getId();
+        Site site = getSiteById(siteId);
+		Role currentUserRole = site.getUserRole(userId);
+		Set<String> functions = currentUserRole.getAllowedFunctions();
+
+		Set<String> filteredFunctions = new TreeSet<String>();
+
+		if(prefix != null) {
+			for(String function : functions) {
+				if(function.startsWith(prefix))
+					filteredFunctions.add(function);
+			}
+		}
+		else
+			filteredFunctions = functions;
+		
+        return filteredFunctions;
+    }
 
     /**
      * @param site the site to check perms in
