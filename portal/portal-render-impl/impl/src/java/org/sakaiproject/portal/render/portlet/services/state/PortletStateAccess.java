@@ -27,6 +27,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.sakaiproject.tool.cover.SessionManager;
+
 /**
  * Manages access to the current portlet states associated with the given
  * session.
@@ -48,8 +50,17 @@ public class PortletStateAccess
 	 */
 	public static PortletState getPortletState(HttpServletRequest request, String windowId)
 	{
-		HttpSession session = request.getSession(true);
-		return getContainer(session).get(windowId);
+		// Force this to be the Sakai session - not "webapp" session
+		HttpSession session = (HttpSession) SessionManager.getCurrentSession();
+          
+		PortletStateContainer theContainer = getContainer(session);
+		PortletState theState = theContainer.get(windowId);
+		if ( theState == null ) 
+		{
+			theState = new PortletState(windowId);
+			theContainer.add(theState);
+		}
+		return theState;
 	}
 
 	/**
@@ -60,7 +71,8 @@ public class PortletStateAccess
 	 */
 	public static void setPortletState(HttpServletRequest request, PortletState state)
 	{
-		HttpSession session = request.getSession(true);
+		// Force this to be the Sakai session - not "webapp" session
+		HttpSession session = (HttpSession) SessionManager.getCurrentSession();
 		getContainer(session).add(state);
 	}
 
