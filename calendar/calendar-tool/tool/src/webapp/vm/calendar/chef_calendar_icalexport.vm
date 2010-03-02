@@ -24,14 +24,10 @@
 		$tlang.getString("ical.title")
 	</h3>
 	
-	<p class="instruction">
-#if ($enable_export == "true")
-		$tlang.getString("ical.help")	<a href="$!icalUrl" target="_new_">$icalUrl</a>
-#else      
+	<p class="messageInformation">
 		$tlang.getString("ical.info")<br/>
-#end
 	</p>
-   
+	
    <p/>
 
 #if ($allow_export == "true")
@@ -44,12 +40,21 @@
 		</p>
 		
 		<p class="shorttext indnt2">
-			<label for ="$form-alias">
+			<label for ="$form-ical-enable">
 				$tlang.getString("ical.option")
 			</label>
 			<input type="checkbox" name="$form-ical-enable" id="$form-ical-enable" 
 					#if ($enable_export == "true") checked #end />
 		</p>
+
+		#if ($enable_export == "true")
+		<p class="shorttext indnt2">
+			<label for ="this-ical-url">
+				$tlang.getString("ical.url")
+			</label>
+		<a id="this-ical-url" href="$!icalUrl" target="_new_">$icalUrl</a>
+		</p>
+		#end
       
 		<p class="act">
 			<input type="submit" accesskey="s" class="active" name="$form-submit" value="$tlang.getString("gen.save")" />
