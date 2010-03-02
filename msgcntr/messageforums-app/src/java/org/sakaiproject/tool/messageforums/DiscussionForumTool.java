@@ -566,7 +566,6 @@ public class DiscussionForumTool
 	       //Code to get the gradebook service from ComponentManager
 
 	       GradebookService gradebookService = getGradebookService();
-	       LOG.error(gradebookService);
 
 	       if(getGradebookExist()) {
 	         List gradeAssignmentsBeforeFilter = gradebookService.getAssignments(ToolManager.getCurrentPlacement().getContext());
