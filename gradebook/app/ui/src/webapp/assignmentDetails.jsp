@@ -50,7 +50,7 @@
 			columns="2"
 			columnClasses="itemName"
 			styleClass="itemSummary"
- 			summary="Table contains information on assignment properties"
+ 			summary="#{msgs.assignment_details_table_summary}"
 			border="0">
 				<h:outputText id="titleLabel" value="#{msgs.assignment_details_title}"/>
 				<h:outputText id="title" value="#{assignmentDetailsBean.assignment.name}"/>
@@ -200,7 +200,7 @@
 				<h:outputLink value="#"
 					rendered="#{not empty scoreRow.eventRows}"
 					onclick="javascript:dhtmlPopupToggle('#{scoreRowIndex}', event);return false;">
-					<h:graphicImage value="images/log.png" alt="Show log"/>
+					<h:graphicImage value="images/log.png" alt="#{msgs.inst_view_log_alt}"/>
 				</h:outputLink>
 			</h:column>
 

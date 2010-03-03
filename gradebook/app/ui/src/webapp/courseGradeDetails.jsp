@@ -110,7 +110,7 @@
 				<h:outputLink value="#"
 					rendered="#{not empty scoreRow.eventRows}"
 					onclick="javascript:dhtmlPopupToggle('#{scoreRowIndex}', event);return false;">
-					<h:graphicImage value="images/log.png" alt="Show log"/>
+					<h:graphicImage value="images/log.png" alt="#{msgs.inst_view_log_alt}"/>
 				</h:outputLink>
 			</h:column>
 			<h:column>
