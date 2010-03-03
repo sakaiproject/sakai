@@ -533,7 +533,7 @@ public class FormattedText
 		{
 			href = href.replaceAll("\"", "");
 			href = href.replaceAll(">", "");
-			href = href.replaceFirst("http", "\"http");
+			href = href.replaceFirst("href=", "href=\"");
 			newAnchor = "<a " + href + "\" target=\"_blank\">";
 		}
 		else
