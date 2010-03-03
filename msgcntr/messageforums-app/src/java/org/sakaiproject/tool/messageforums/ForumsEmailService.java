@@ -60,6 +60,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.messageforums.ui.DiscussionMessageBean;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.api.app.messageforums.Message;
 
 /**
@@ -208,7 +209,7 @@ public class ForumsEmailService {
 			content.append(DiscussionForumTool
 					.getResourceBundleString("email.body.msgposted")
 					+ " " + reply.getCreated().toString());
-			content.append(newline);
+			content.append(newline);			
 			content.append(reply.getBody());
 			content.append(newline);
 			content.append(newline);
@@ -234,7 +235,8 @@ public class ForumsEmailService {
 
 			Multipart multipart = new MimeMultipart();
 			MimeBodyPart messageBodyPart = new MimeBodyPart();
-			messageBodyPart.setContent(content.toString(), "text/html");
+			StringBuilder alertMsg = new StringBuilder();
+			messageBodyPart.setContent(FormattedText.processFormattedText(content.toString(),alertMsg), "text/html");
 			messageBodyPart.addHeader("Content-Transfer-Encoding", "quoted-printable");
             multipart.addBodyPart(messageBodyPart);
 			msg.setContent(multipart);
