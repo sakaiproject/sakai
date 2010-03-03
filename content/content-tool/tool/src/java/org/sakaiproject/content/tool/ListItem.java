@@ -1562,7 +1562,7 @@ public class ListItem
 	}
 
 	protected void captureHtmlInline(ParameterParser params, String index) {
-		logger.info("got allow inline of " + params.getBoolean("allowHtmlInline" + index));
+		logger.debug("got allow inline of " + params.getBoolean("allowHtmlInline" + index));
 		this.allowHtmlInline = params.getBoolean("allowHtmlInline" + index);
 	}
 
@@ -2926,7 +2926,7 @@ public class ListItem
 
 	public void updateContentCollectionEdit(ContentCollectionEdit edit) 
 	{
-		logger.info("updateContentCollectionEdit()");
+		logger.debug("updateContentCollectionEdit()");
 		ResourcePropertiesEdit props = edit.getPropertiesEdit();
 		setDisplayNameOnEntity(props);
 		setDescriptionOnEntity(props);
