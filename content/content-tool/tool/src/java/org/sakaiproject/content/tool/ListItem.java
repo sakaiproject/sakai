@@ -2985,12 +2985,20 @@ public class ListItem
 		}
 	}
 	
+
+	/**
+	 * Set a property on a resource and all its children
+	 * @param resourceId
+	 * @param property
+	 * @param value
+	 */
+	
 	private void setPropertyOnFolderRecursively(String resourceId, String property, String value) {
 		
 
 		
 		try {
-			if (resourceId.endsWith("/")) {
+			if (ContentHostingService.isAttachmentResource(resourceId)) {
 				// collection
 				ContentCollectionEdit col = ContentHostingService.editCollection(resourceId);
 
@@ -3011,10 +3019,8 @@ public class ListItem
 			} else {
 				// resource
 				ContentResourceEdit res = ContentHostingService.editResource(resourceId);
-
 				ResourcePropertiesEdit resourceProperties = res.getPropertiesEdit();
 				resourceProperties.addProperty(property, Boolean.valueOf(value).toString());
-
 				ContentHostingService.commitResource(res, NotificationService.NOTI_NONE);				
 			}
 		} catch (PermissionException pe) {
