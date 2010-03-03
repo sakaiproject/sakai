@@ -179,6 +179,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 	protected static final Pattern contextPattern = Pattern.compile("\\A/(group/|user/|~)(.+?)/");
 
+	/** sakai.properties setting to enable secure inline html (true by default) */
+	protected static final String SECURE_INLINE_HTML = "content.html.secure";
+	
 	private static final String PROP_AVAIL_NOTI = "availableNotified";
 
 	/** MIME multipart separation string */
@@ -6195,9 +6198,40 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 				if (Validator.letBrowserInline(contentType))
 				{
-					disposition = "inline; filename=\"" + fileName + "\"";
+					// if this is an html file we have more checks
+					if ("text/html".equalsIgnoreCase(contentType) && 
+							m_serverConfigurationService.getBoolean(SECURE_INLINE_HTML, true)) {
+						ResourceProperties rp = resource.getProperties();
+
+						boolean fileInline = false;
+						boolean folderInline = false;
+
+						try {
+							fileInline = rp.getBooleanProperty(ResourceProperties.PROP_ALLOW_INLINE);
+						}
+						catch (EntityPropertyNotDefinedException e) {
+							// we expect this so nothing to do!
+						}
+
+						if (!fileInline) 
+						try
+						{
+							folderInline = resource.getContainingCollection().getProperties().getBooleanProperty(ResourceProperties.PROP_ALLOW_INLINE);
+						}
+						catch (EntityPropertyNotDefinedException e) {
+							// we expect this so nothing to do!
+						}		
+						
+						if (fileInline || folderInline) {
+							disposition = "inline; filename=\"" + fileName + "\"";
+						}
+					} else {
+						disposition = "inline; filename=\"" + fileName + "\"";
+					}
 				}
-				else
+				
+				// drop through to attachment
+				if (disposition == null)
 				{
 					disposition = "attachment; filename=\"" + fileName + "\"";
 				}

@@ -172,6 +172,14 @@ public interface ResourceProperties extends Serializable
 	static final String PROP_RESOURCE_TYPE = "SAKAI:resource_type";
 
 	/**
+	 * Property name on a Resource or Collection which will allow resources with
+	 * a text/html content type to be output with an inline content-disposition
+	 * (implies this resource is trusted not to include malicious javascript or
+	 * other unwanted html elements) [Boolean]
+	 */
+	public static final String PROP_ALLOW_INLINE = "SAKAI:allow_inline";
+
+	/**
 	 * Access an iterator on the names of the defined properties (Strings).
 	 * 
 	 * @return An iterator on the names of the defined properties (Strings) (may be empty).
