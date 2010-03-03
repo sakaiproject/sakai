@@ -21,16 +21,13 @@
 
 package org.sakaiproject.content.tool;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -38,14 +35,9 @@ import java.util.Vector;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.cover.ContentHostingService;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.site.api.Group;
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.Validator;
 
 /**
  * Internal class that encapsulates all information about a resource that is needed in the browse mode.

@@ -96,6 +96,7 @@ public class ResourcesEditItem
 	protected boolean m_useReleaseDate;
 	protected boolean m_useRetractDate;
 	private boolean m_isInUserSite;
+	protected boolean m_isAdmin;;
 
 	/**
 	 * @param id
@@ -118,6 +119,7 @@ public class ResourcesEditItem
 		m_notification = NotificationService.NOTI_NONE;
 		m_hasQuota = false;
 		m_canSetQuota = false;
+		m_canSelect = true;
 		m_formtype = "";
 		m_rootname = "";
 		m_missingInformation = new HashSet();
@@ -686,7 +688,25 @@ public class ResourcesEditItem
 		 m_canSetQuota = canSetQuota;
 	 }
 
+	 
+	  
 	 /**
+	  * Can the user set admin properties?
+	  * @return
+	  */
+	 public boolean isAdmin() {
+		return m_isAdmin;
+	}
+
+	 /**
+	  * 
+	  * @param canSetAdminProps
+	  */
+	public void setIsAdmin(boolean canSetAdminProps) {
+		m_isAdmin = canSetAdminProps;
+	}
+
+	/**
 	  * @return Returns the hasQuota.
 	  */
 	 public boolean hasQuota() 

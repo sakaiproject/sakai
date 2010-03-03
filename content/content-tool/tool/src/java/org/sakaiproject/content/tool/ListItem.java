@@ -423,6 +423,10 @@ public class ListItem
 	protected boolean isSiteCollection = false;
 	protected boolean hasQuota = false;
 	protected boolean canSetQuota = false;
+	private boolean isAdmin = false;
+	private Boolean allowHtmlInline;
+	
+
 	protected String quota;
 
 	protected boolean nameIsMissing = false;
@@ -636,9 +640,21 @@ public class ListItem
 			{
 				setIsTooBig(true);
 			}
+			
+			//does this collection allow inlineHTML?
+			try {
+				setAllowHtmlInline(collection.getProperties().getBooleanProperty(ResourceProperties.PROP_ALLOW_INLINE));
+			} catch (EntityPropertyNotDefinedException e) {
+				setAllowHtmlInline(false);
+			} catch (EntityPropertyTypeException e) {
+				setAllowHtmlInline(false);
+			}
+			
+			
 			// setup for quota - ADMIN only, site-root collection only
 			if (SecurityService.isSuperUser())
 			{
+				setIsAdmin(true);
 				String siteCollectionId = contentService.getSiteCollection(m_reference.getContext());
 				if(siteCollectionId.equals(entity.getId()))
 				{
@@ -1524,6 +1540,9 @@ public class ListItem
 		captureCopyright(params, index);
 		captureAccess(params, index);
 		captureAvailability(params, index);
+		if (isAdmin) {
+			captureHtmlInline(params, index);
+		}
 		if(this.canSetQuota)
 		{
 			captureQuota(params, index);
@@ -1536,6 +1555,11 @@ public class ListItem
 		{
 			this.captureOptionalPropertyValues(params, index);
 		}
+	}
+
+	protected void captureHtmlInline(ParameterParser params, String index) {
+		logger.info("got allow inline of " + params.getBoolean("allowHtmlInline" + index));
+		this.allowHtmlInline = params.getBoolean("allowHtmlInline" + index);
 	}
 
 	protected void captureMimetypeChange(ParameterParser params, String index) 
@@ -1579,6 +1603,7 @@ public class ListItem
 				this.quota = null;
 			}		
 		}
+							
 	}
 
 	protected void captureDisplayName(ParameterParser params, String index) 
@@ -2897,6 +2922,7 @@ public class ListItem
 
 	public void updateContentCollectionEdit(ContentCollectionEdit edit) 
 	{
+		logger.info("updateContentCollectionEdit()");
 		ResourcePropertiesEdit props = edit.getPropertiesEdit();
 		setDisplayNameOnEntity(props);
 		setDescriptionOnEntity(props);
@@ -2905,6 +2931,8 @@ public class ListItem
 		setAccessOnEntity(edit);
 		setAvailabilityOnEntity(edit);
 		setQuotaOnEntity(props);
+		setHtmlInlineOnEntity(props);
+		
 		if(isOptionalPropertiesEnabled())
 		{
 			this.setMetadataPropertiesOnEntity(props);
@@ -2932,6 +2960,26 @@ public class ListItem
 		}
 	}
 
+	
+	private void setHtmlInlineOnEntity(ResourcePropertiesEdit props) 
+	{
+		logger.info("setHtmlInlineOnEntity() with allowHtmlInline: " + allowHtmlInline);
+		if(SecurityService.isSuperUser())
+		{
+			if(allowHtmlInline != null)
+			{
+				props.addProperty(ResourceProperties.PROP_ALLOW_INLINE, this.allowHtmlInline.toString());
+				
+			}
+			else
+			{
+				props.removeProperty(ResourceProperties.PROP_ALLOW_INLINE);
+			}
+		}
+	}
+	
+	
+	
 	protected void setAvailabilityOnEntity(GroupAwareEdit edit)
 	{
 		edit.setAvailability(hidden, releaseDate, retractDate);
@@ -3036,6 +3084,7 @@ public class ListItem
 		setCopyrightOnEntity(props);
 		setAccessOnEntity(edit);
 		setAvailabilityOnEntity(edit);
+		
 		if(! isUrl() && ! isCollection() && this.mimetype != null)
 		{
 			setMimetypeOnEntity(edit, props);
@@ -3082,7 +3131,18 @@ public class ListItem
 	{
 		return canSetQuota;
 	}
-
+	
+	
+	
+	public boolean isAdmin() {
+		return isAdmin;
+	}
+	
+	public void setIsAdmin(boolean admin) {
+		isAdmin = admin;
+	}
+	
+	
 	public boolean hasQuota() 
 	{
 		return hasQuota;
@@ -3885,5 +3945,12 @@ public class ListItem
 		return size;
 	}
 	
+	public boolean isAllowHtmlInline() {
+		return allowHtmlInline;
+	}
+
+	public void setAllowHtmlInline(boolean allowHtmlInline) {
+		this.allowHtmlInline = allowHtmlInline;
+	}
 }
 

@@ -83,6 +83,7 @@
 		</label>
 		<textarea id="description${DOT}$i" name="description${DOT}$i" rows="5" cols="80" wrap="virtual">$!{model.description}</textarea>
 	</p>
+	
 	#if($model.canSetQuota())
 		<p class="shorttext">
 			<label for="hasQuota${DOT}$i">
@@ -95,6 +96,18 @@
 			</span>
 		</p>	
 	#end
+	
+	#if ($model.isAdmin())
+		<p class="shorttext">
+			<label for="allowHtmlInline${DOT}$i">
+				$tlang.getString("edit.renderHtml")
+			</label>
+			<span>
+				<input type="checkbox" name="allowHtmlInline${DOT}$i" id="allowHtmlInline${DOT}$i" value="true"#if ($model.isAllowHtmlInline()) checked="checked" #end style="border:none" />
+			</span>
+		</p>
+	#end
+	
 	#if($model.resourceTypeDef.hasRightsDialog()) 
 		#if ($!copyrightTypes)
 			<p class="shorttext">
