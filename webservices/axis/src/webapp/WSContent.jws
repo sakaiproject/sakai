@@ -18,6 +18,8 @@ import org.apache.axis.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.List;
+
 public class WSContent {
 
 	private static Log log = LogFactory.getLog("org.sakaiproject.axis.WSContent");
@@ -40,25 +42,25 @@ public class WSContent {
 		if (!SecurityService.isSuperUser()) {
 			throw new AxisFault(
 					"Non-admin user trying to set resource property: "
-							+ session.getUserId());
+					+ session.getUserId());
 		}
 	}
 
 	private ContentHostingService getContentHostingService() {
 		if (contentHostingService == null) {
 			contentHostingService = (ContentHostingService) ComponentManager
-					.get(ContentHostingService.class.getName());
+			.get(ContentHostingService.class.getName());
 		}
 		return contentHostingService;
 	}
-	
+
 	public String setCustomProperty(String sessionid, String resourceId,
-			String property, Boolean value) {
+			String property, Boolean value, Boolean recursive) {
 
 		log.info("setting property for " + resourceId + ": " + property + " = " + value);
-	
+
 		ContentHostingService chs = getContentHostingService();
-		
+
 		try {
 			checkSecurity(sessionid);
 		} catch (AxisFault e) {
@@ -73,8 +75,18 @@ public class WSContent {
 
 				ResourcePropertiesEdit resourceProperties = col.getPropertiesEdit();
 				resourceProperties.addProperty(property, Boolean.valueOf(value).toString());
+				chs.commitCollection(col);
+				if (recursive) {
+					List<String> children = col.getMembers();
+					for (int i = 0; i < children.size(); i++) {
+						String resId = children.get(i);
+						if (resId.endsWith("/")) {
+							setCustomProperty(sessionid, resId, property, value, true);
+						}
+					}
+				}
 
-				chs.commitCollection(col);				
+								
 			} else {
 				// resource
 				ContentResourceEdit res = chs.editResource(resourceId);
@@ -95,5 +107,13 @@ public class WSContent {
 		}
 		return "success";
 	}
+	
+	
+	public String setCustomProperty(String sessionid, String resourceId,
+			String property, Boolean value) {
+		return setCustomProperty(sessionid, resourceId, property, value, false);
+	}
+
+	
 
 }
