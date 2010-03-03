@@ -151,8 +151,7 @@ public class ListItem
 	public static ListItem getListItem(ContentEntity entity, ListItem parent, ResourceTypeRegistry registry, boolean expandAll, Set<String> expandedFolders, List<String> items_to_be_moved, List<String> items_to_be_copied, int depth, Comparator userSelectedSort, boolean preventPublicDisplay, ContentResourceFilter addFilter)
 	{
 		ListItem item = null;
-		boolean isCollection = entity.isCollection();
-		
+			
 		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) ComponentManager.get(org.sakaiproject.content.api.ContentHostingService.class);
 		
 		boolean isAvailabilityEnabled = contentService.isAvailabilityEnabled();
@@ -160,12 +159,15 @@ public class ListItem
         if(entity == null)
         {
         	item = new ListItem("");
+        	return item;
         }
         else
         {
         	item = new ListItem(entity);
             //item.m_reference = EntityManager.newReference(entity.getReference());
         }
+        
+        boolean isCollection = entity.isCollection();
         
         item.setPubviewPossible(! preventPublicDisplay);
         item.setDepth(depth);
