@@ -2297,7 +2297,7 @@ public String addNewToolToAllWorkspaces(String sessionid, String toolid, String 
 /**
  * Copies a role from one authzgroup to another. Useful for mass population/synchronisation 
  *
- * The sessionid argument must be a valid session for the admin user ONLY otherwise it will fail.
+ * The sessionid argument must be a valid session for a super user ONLY otherwise it will fail.
  * The authzgroup arguments for sites should start with /site/SITEID, likewise for site groups etc
  * 
  * @param	sessionid		the sessionid of a valid session for the admin user
@@ -2306,8 +2306,7 @@ public String addNewToolToAllWorkspaces(String sessionid, String toolid, String 
  * @param	roleid			the id of the role you want to copy
  * @param	description		the description of the new role
  * @return					success or AxisFault
- * @throws	AxisFault		if not admin user, if new role cannot be created, if functions differ after the new role is made
- *
+ * @throws	AxisFault		if not a super user, if new role cannot be created, if functions differ after the new role is made
  *
  */
 
@@ -2323,10 +2322,10 @@ public String copyRole( String sessionid, String authzgroupid1, String authzgrou
 	boolean createRole = false;
 	Role role2;
 	
-	//check only admin
-	if(!session.getUserId().equals(UserDirectoryService.ADMIN_ID)) {
-		LOG.warn("WS copyRole(): Permission denied. Restricted to admin user.");
-		throw new AxisFault("WS copyRole(): Permission denied. Restricted to admin user.");
+	//check that ONLY super user's are accessing this	
+	if(!SecurityService.isSuperUser(session.getUserId())) {
+		LOG.warn("WS copyRole(): Permission denied. Restricted to super users.");
+		throw new AxisFault("WS copyRole(): Permission denied. Restricted to super users.");
 	}
 
 	try {
