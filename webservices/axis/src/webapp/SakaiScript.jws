@@ -2524,8 +2524,8 @@ public String getSessionForUser(String sessionid, String userid) throws AxisFaul
 	
 	//check that ONLY super user's are accessing this	
 	if(!SecurityService.isSuperUser(session.getUserId())) {
-		LOG.warn("WS copyRole(): Permission denied. Restricted to super users.");
-		throw new AxisFault("WS copyRole(): Permission denied. Restricted to super users.");
+		LOG.warn("WS getSessionForUser(): Permission denied. Restricted to super users.");
+		throw new AxisFault("WS getSessionForUser(): Permission denied. Restricted to super users.");
 	}
 	
 	try {
