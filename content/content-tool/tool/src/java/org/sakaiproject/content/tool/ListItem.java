@@ -39,6 +39,7 @@ import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -73,8 +74,11 @@ import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.InconsistentException;
+import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -2931,7 +2935,7 @@ public class ListItem
 		setAccessOnEntity(edit);
 		setAvailabilityOnEntity(edit);
 		setQuotaOnEntity(props);
-		setHtmlInlineOnEntity(props);
+		setHtmlInlineOnEntity(props, edit);
 		
 		if(isOptionalPropertiesEnabled())
 		{
@@ -2961,9 +2965,9 @@ public class ListItem
 	}
 
 	
-	private void setHtmlInlineOnEntity(ResourcePropertiesEdit props) 
+	private void setHtmlInlineOnEntity(ResourcePropertiesEdit props, ContentCollectionEdit topFolder) 
 	{
-		logger.info("setHtmlInlineOnEntity() with allowHtmlInline: " + allowHtmlInline);
+		logger.debug("setHtmlInlineOnEntity() with allowHtmlInline: " + allowHtmlInline);
 		if(SecurityService.isSuperUser())
 		{
 			if(allowHtmlInline != null)
@@ -2971,13 +2975,72 @@ public class ListItem
 				props.addProperty(ResourceProperties.PROP_ALLOW_INLINE, this.allowHtmlInline.toString());
 				
 			}
-			else
-			{
-				props.removeProperty(ResourceProperties.PROP_ALLOW_INLINE);
+			List<String> children = topFolder.getMembers();
+			for (int i = 0; i < children.size(); i++) {
+				String resId = children.get(i);
+				if (resId.endsWith("/")) {
+					setPropertyOnFolderRecursively(resId, ResourceProperties.PROP_ALLOW_INLINE, allowHtmlInline.toString());
+				}
 			}
 		}
 	}
 	
+	private void setPropertyOnFolderRecursively(String resourceId, String property, String value) {
+		
+
+		
+		try {
+			if (resourceId.endsWith("/")) {
+				// collection
+				ContentCollectionEdit col = ContentHostingService.editCollection(resourceId);
+
+				ResourcePropertiesEdit resourceProperties = col.getPropertiesEdit();
+				resourceProperties.addProperty(property, Boolean.valueOf(value).toString());
+				ContentHostingService.commitCollection(col);
+
+				List<String> children = col.getMembers();
+				for (int i = 0; i < children.size(); i++) {
+					String resId = children.get(i);
+					if (resId.endsWith("/")) {
+						setPropertyOnFolderRecursively(resId, property, value);
+					}
+				}
+
+
+								
+			} else {
+				// resource
+				ContentResourceEdit res = ContentHostingService.editResource(resourceId);
+
+				ResourcePropertiesEdit resourceProperties = res.getPropertiesEdit();
+				resourceProperties.addProperty(property, Boolean.valueOf(value).toString());
+
+				ContentHostingService.commitResource(res, NotificationService.NOTI_NONE);				
+			}
+		} catch (PermissionException pe) {
+			pe.printStackTrace();
+			
+		} catch (IdUnusedException iue) {
+			iue.printStackTrace();
+		
+		} catch (TypeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InUseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (VirusFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (OverQuotaException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ServerOverloadException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		
+	}
 	
 	
 	protected void setAvailabilityOnEntity(GroupAwareEdit edit)
