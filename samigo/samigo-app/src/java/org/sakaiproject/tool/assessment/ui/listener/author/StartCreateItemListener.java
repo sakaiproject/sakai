@@ -58,7 +58,7 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
   //private static ContextUtil cu;
   //private String scalename;  // used for multiple choice Survey
 
-
+  String currsection = null;
   // both actionListener and valueChangeListener methods are used,
   // for authoring asseessments and qpools
 
@@ -80,10 +80,12 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
 
     boolean update = false;
     String curritemid = null;
+    
     // check if it is coming from Item Modify page.
     ItemBean curritem = itemauthorbean.getCurrentItem();
     if (curritem!=null) {
       curritemid = curritem.getItemId();
+      currsection = curritem.getSelectedSection();
       update = true;
 
       log.debug("change question type , itemid is not null");
@@ -247,11 +249,8 @@ log.debug("after getting item.getItemType() ");
           item.setSelectedSection(sectionid);
         }
         else {
-         // do not set section here, sections are set by the form
-       // for adding an item, add to the last section, sequence = 1
-          //SectionDataIfc section = assessment.getDefaultSection();
-          //String sectionid = section.getSectionId().toString();
-          //item.setSelectedSection(sectionid);
+        	// modify items, change type, will take you here.
+        	item.setSelectedSection(currsection);
         }
 
 	    // reset insertToSection to null;
