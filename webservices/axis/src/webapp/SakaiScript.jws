@@ -2505,15 +2505,15 @@ public String getAllUsers(String sessionid) throws AxisFault
 /**
  * Creates and returns the session ID for a given user. 
  *
- * The sessionid argument must be a valid session for the admin user ONLY otherwise it will fail.
+ * The sessionid argument must be a valid session for a super user ONLY otherwise it will fail.
  * The userid argument must be the EID (ie jsmith) of a valid user.
  * This new sessionid can then be used with getSitesUserCanAccess() to get the sites for the given user.
  * 
- * @param	sessionid	the sessionid of a valid session for the admin user
+ * @param	sessionid	the sessionid of a valid session for a super user
  * @param	userid		the eid of the user you want to create a session for
  * @return				the sessionid for the user specified
  * @throws	AxisFault	if any data is missing,
- * 						not admin user initially, 
+ * 						not super user, 
  * 						or session cannot be established
  */
 
@@ -2522,10 +2522,10 @@ public String getSessionForUser(String sessionid, String userid) throws AxisFaul
 
 	Session session = establishSession(sessionid);
 	
-	//check that ONLY admin is accessing this	
-	if(!session.getUserId().equals(UserDirectoryService.ADMIN_ID)) {
-		LOG.warn("WS getSessionForUser() failed. Restricted to admin user.");
-		throw new AxisFault("WS failed. Restricted to admin user.");
+	//check that ONLY super user's are accessing this	
+	if(!SecurityService.isSuperUser(session.getUserId())) {
+		LOG.warn("WS copyRole(): Permission denied. Restricted to super users.");
+		throw new AxisFault("WS copyRole(): Permission denied. Restricted to super users.");
 	}
 	
 	try {
