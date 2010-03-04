@@ -179,19 +179,19 @@
     <h:column id="col5">
      <f:facet name="header">
       <h:panelGroup>
-       <h:commandLink title="#{questionPoolMessages.t_sortSubpools}" id="sortBySubPool" immediate="true"  rendered="#{questionpool.sortMovePoolProperty !='subPoolSize'}" action="#{questionpool.sortMovePoolByColumnHeader}">
+       <h:commandLink title="#{questionPoolMessages.subps}" id="sortBySubPool" immediate="true"  rendered="#{questionpool.sortMovePoolProperty !='subPoolSize'}" action="#{questionpool.sortMovePoolByColumnHeader}">
           <f:param name="movePoolOrderBy" value="subPoolSize"/>
           <f:param name="movePoolAscending" value="true"/>
           <h:outputText  value="#{questionPoolMessages.subps}"  rendered="#{questionpool.sortMovePoolProperty !='subPoolSize'}" />
        </h:commandLink>
        
-       <h:commandLink title="#{questionPoolMessages.t_sortSubpools}" immediate="true" rendered="#{questionpool.sortMovePoolProperty =='subPoolSize' && questionpool.sortMovePoolAscending }"  action="#{questionpool.sortMovePoolByColumnHeader}">
+       <h:commandLink title="#{questionPoolMessages.subps}" immediate="true" rendered="#{questionpool.sortMovePoolProperty =='subPoolSize' && questionpool.sortMovePoolAscending }"  action="#{questionpool.sortMovePoolByColumnHeader}">
           <h:outputText  value="#{questionPoolMessages.subps}" styleClass="currentSort" rendered="#{questionpool.sortMovePoolProperty =='subPoolSize'}" />
           <f:param name="movePoolOrderBy" value="subPoolSize"/>
           <f:param name="movePoolAscending" value="false" />
           <h:graphicImage alt="#{questionPoolMessages.alt_sortNumSubpoolsDescending}" rendered="#{questionpool.sortMovePoolAscending}" url="/images/sortascending.gif"/>
       </h:commandLink>
-      <h:commandLink title="#{questionPoolMessages.t_sortSubpools}" immediate="true" rendered="#{questionpool.sortMovePoolProperty =='subPoolSize' && !questionpool.sortMovePoolAscending }"  action="#{questionpool.sortMovePoolByColumnHeader}">
+      <h:commandLink title="#{questionPoolMessages.subps}" immediate="true" rendered="#{questionpool.sortMovePoolProperty =='subPoolSize' && !questionpool.sortMovePoolAscending }"  action="#{questionpool.sortMovePoolByColumnHeader}">
           <h:outputText  value="#{questionPoolMessages.subps}" styleClass="currentSort" rendered="#{questionpool.sortMovePoolProperty =='subPoolSize'}" />
           <f:param name="movePoolOrderBy" value="subPoolSize"/>
           <f:param name="movePoolAscending" value="true" />
