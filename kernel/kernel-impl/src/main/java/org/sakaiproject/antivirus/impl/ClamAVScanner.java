@@ -180,7 +180,7 @@ public class ClamAVScanner implements VirusScanner {
 			logger.error("Exception caught calling CLAMD on " + socket.getInetAddress() + ": " + ex.getMessage(), ex);
 			throw new VirusScanIncompleteException(SCAN_INCOMPLETE_MSG);
 		} finally {
-
+			
 			if(reader != null) {
 				try {
 					reader.close();
