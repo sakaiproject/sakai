@@ -1124,7 +1124,7 @@ public class RealmsAction extends PagedResourceActionII
 		catch (UserNotDefinedException e)
 		{
 			Log.warn("chef", this + "doEdit_user(): user not found: " + id);
-			state.setAttribute("message", "internal error: user not found.");
+			addAlert(state, rb.getString("realm.user.notfound"));
 		}
 
 	} // doEdit_user
