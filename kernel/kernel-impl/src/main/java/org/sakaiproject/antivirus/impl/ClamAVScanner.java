@@ -97,7 +97,7 @@ public class ClamAVScanner implements VirusScanner {
 			logger.debug("Virus scanning not enabled.  Skipping scan");
 			return;
 		}
-		
+
 		doScan(inputStream);
 	}
 
@@ -108,7 +108,7 @@ public class ClamAVScanner implements VirusScanner {
 		long start = System.currentTimeMillis();
 		//this could be a null or zero lenght stream
 		if (in == null) {
-		    return;
+			return;
 		}
 
 		try {
@@ -174,30 +174,37 @@ public class ClamAVScanner implements VirusScanner {
 					break;
 				}
 			}
-			reader.close();
-			writer.close();
 			long finish = System.currentTimeMillis();
 			logger.info("Content scanned in " + (finish - start));
 		} catch (Exception ex) {
 			logger.error("Exception caught calling CLAMD on " + socket.getInetAddress() + ": " + ex.getMessage(), ex);
 			throw new VirusScanIncompleteException(SCAN_INCOMPLETE_MSG);
 		} finally {
-			try {
-				if(reader != null)
+
+			if(reader != null) {
+				try {
 					reader.close();
-			} catch (Throwable t) { }
-			try {
-				if(writer != null)
-					writer.close();
-			} catch (Throwable t) { }
-			try {
-				if(streamSocket != null)
+				} catch (IOException e) {
+				}
+			}
+			if(writer != null) {
+				writer.close();
+			}
+			if(streamSocket != null) {
+				try {
 					streamSocket.close();
-			} catch (Throwable t) { }
-			try {
-				if(socket != null)
+				} catch (IOException e) {
+
+				}
+			}
+			if(socket != null) {
+				try {
 					socket.close();
-			} catch (Throwable t) { }
+				} catch (IOException e) {
+
+				}
+			}
+
 		}
 		if(virusFound) {
 			logger.info("Virus detected!: " + virus);
@@ -207,9 +214,9 @@ public class ClamAVScanner implements VirusScanner {
 	}
 
 	protected void doScan(byte[] bytesIn) throws VirusScanIncompleteException, VirusFoundException {
-	    if (bytesIn == null) {
-		return;
-	    }
+		if (bytesIn == null) {
+			return;
+		}
 		doScan(new ByteArrayInputStream(bytesIn));
 	}
 
