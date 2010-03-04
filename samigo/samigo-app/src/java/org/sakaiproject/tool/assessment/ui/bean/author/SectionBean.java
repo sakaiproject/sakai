@@ -30,6 +30,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.text.Collator;
 
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -400,7 +401,8 @@ private List attachmentList;
 	  public int compare(Object o1, Object o2) {
 		  SelectItem i1 = (SelectItem)o1;
 		  SelectItem i2 = (SelectItem)o2;
-		  return i1.getLabel().compareToIgnoreCase(i2.getLabel());
+		  return Collator.getInstance().compare(i1.getLabel(),i2.getLabel());
+
 	  }
   }
 

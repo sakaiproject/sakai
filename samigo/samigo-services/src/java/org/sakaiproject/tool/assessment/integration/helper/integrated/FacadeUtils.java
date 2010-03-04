@@ -23,7 +23,8 @@
 package org.sakaiproject.tool.assessment.integration.helper.integrated;
 
 import java.util.*;
-
+import java.text.Collator;
+ 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
@@ -43,7 +44,7 @@ public class FacadeUtils {
      */
     public static final Comparator ENROLLMENT_NAME_COMPARATOR = new Comparator() {
 		public int compare(Object o1, Object o2) {
-            return ((EnrollmentRecord)o1).getUser().getSortName().compareToIgnoreCase(((EnrollmentRecord)o2).getUser().getSortName());
+			return Collator.getInstance().compare(((EnrollmentRecord)o1).getUser().getSortName(),((EnrollmentRecord)o2).getUser().getSortName());
 		}
 	};
 
@@ -53,7 +54,7 @@ public class FacadeUtils {
      */
     public static final Comparator ENROLLMENT_DISPLAY_UID_COMPARATOR = new Comparator() {
         public int compare(Object o1, Object o2) {
-            return ((EnrollmentRecord)o1).getUser().getDisplayId().compareToIgnoreCase(((EnrollmentRecord)o2).getUser().getDisplayId());
+		return Collator.getInstance().compare(((EnrollmentRecord)o1).getUser().getDisplayId(),((EnrollmentRecord)o2).getUser().getDisplayId());
         }
     };
 
