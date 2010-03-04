@@ -31,7 +31,7 @@
 				<deploy.target />
 				<maven.test.jvmargs />
 				<poi.version>3.6</poi.version>
-				<lucene.version>2.9.1</lucene.version>
+				<lucene.version>2.9.2</lucene.version>
 				<bouncycastle.artifact.version>jdk15</bouncycastle.artifact.version>
 			</properties>
 
