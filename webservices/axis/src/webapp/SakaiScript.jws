@@ -358,7 +358,7 @@ public String changeUserPassword( String sessionid, String eid, String password)
  * Get a user's email address based on their session id
  *
  * @param	sessionid		the session id of the user who's email address you wish to retrieve
- * @return		        	their email address
+ * @return		        	the email address for the user
  * @throws	AxisFault
  *
  */
@@ -377,7 +377,7 @@ public String getUserEmail( String sessionid ) throws AxisFault
  * 
  * @param	sessionid	the id of a valid session
  * @param	userid		the login username (ie jsmith26) of the user you want the email address for
- * @return				the display name for the user
+ * @return				the email address for the user
  * @throws	AxisFault	
  *
  */
