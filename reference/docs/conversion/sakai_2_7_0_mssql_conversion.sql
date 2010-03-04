@@ -35,3 +35,5 @@ alter table QRTZ_TRIGGERS add PRIORITY int;
 alter table QRTZ_FIRED_TRIGGERS add PRIORITY int; 
 
 
+-- SAK-17679/SAK-18116
+alter table EMAIL_TEMPLATE_ITEM add column VERSION int;
