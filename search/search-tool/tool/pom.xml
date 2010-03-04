@@ -65,25 +65,11 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
-<!--
-      This has been relocated to sakai-kernel-util
-      org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
       <groupId>org.sakaiproject.search</groupId>
       <artifactId>search-api</artifactId>
       <type>jar</type>
     </dependency>
-<!--org.sakaiprojectsakai-tool-api${sakai.version}jar-->
-<!--org.sakaiprojectsakai-site-api${sakai.version}jar-->
-<!--org.sakaiprojectsakai-authz-api${sakai.version}jar-->
-<!--org.sakaiprojectsakai-entity-api${sakai.version}jar-->
-<!--org.sakaiprojectsakai-component${sakai.version}jar-->
-<!--org.sakaiprojectsakai-util-api${sakai.version}jar-->
-<!--org.sakaiprojectsakai-util${sakai.version}jar-->
-<!--org.sakaiprojectsakai-component-api${sakai.version}jar-->
-<!--org.sakaiprojectsakai-user-api${sakai.version}jar-->
-<!--${sakai.spring.groupId}${sakai.spring.artifactId}${sakai.spring.version}jar-->
-<!--javax.servletservlet-api${sakai.servletapi.version}jar-->
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
