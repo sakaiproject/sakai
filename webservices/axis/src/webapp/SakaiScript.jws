@@ -1343,9 +1343,6 @@ public boolean checkForMemberInAuthzGroupWithRole(String sessionid, String eid, 
  * Return XML document listing all sites user has read or write access based on their session id.
  *
  * @param 	sessionid 		the session id of a user who's list of sites you want to retrieve
- * @param 	eid 			the login username (ie jsmith26) of the user to check for
- * @param 	authzgroupid 	the id of the authzgroup to check in. If this is a site it should be of the form /site/SITEID
- * @param 	role 			the id of the role for the user in the site
  * @return					xml or an empty list <list/>. The return XML format is below:
  *<list>
  *	<item>
