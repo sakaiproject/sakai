@@ -2615,7 +2615,32 @@ public String addNewPageToSite(String sessionid, String siteid, String pagetitle
 	return "success";
 }
 
-
+/**
+ * Gets the user ID for a given eid.
+ *
+ * @param	sessionid	the sessionid of a valid session for a super user or the sessionid for the user making the request for their own user ID
+ * @param	eid			the login username (ie jsmith26) of the user you want the user ID for
+ * @return				the user ID (generally a UUID) for the user specified or an empty string ""
+ * @throws	AxisFault	if not a super user and the eid supplied does not match the eid of the session, if user does not exist
+ *
+ */ 
+public String getUserId(String sessionid, String eid) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	//if eids don't match and we aren't a super user, abort	
+	if(!StringUtils.equals(eid, session.getUserEid()) && !SecurityService.isSuperUser(session.getUserId())) {
+		LOG.warn("WS getUserId(): Permission denied. Restricted to super users or own user.");
+		throw new AxisFault("WS getUserId(): Permission denied. Restricted to super users or own user.");
+	}
+	
+	try {
+		return UserDirectoryService.getUserId(eid);
+	} catch (Exception e) {  
+	 	LOG.warn("WS getUserId() failed for user: " + eid);
+		return "";
+	}
+}
 
 
 }
