@@ -6064,37 +6064,38 @@ public class DiscussionForumTool
     permissions=new ArrayList();
     
     Set membershipItems = null;
-    
-    if (PERMISSION_MODE_TEMPLATE.equals(getPermissionMode())){
-    	//membershipItems = forumManager.getDiscussionForumArea().getMembershipItemSet();
-    	membershipItems = uiPermissionsManager.getAreaItemsSet(forumManager.getDiscussionForumArea());
-    }
-    else if (PERMISSION_MODE_FORUM.equals(getPermissionMode())){    	
-    	if (selectedForum != null && selectedForum.getForum() != null)
-    	{
-    		membershipItems = uiPermissionsManager.getForumItemsSet(selectedForum.getForum());
-        	if (membershipItems == null || membershipItems.size() == 0)
-        	{
-        		membershipItems = uiPermissionsManager.getAreaItemsSet(forumManager.getDiscussionForumArea());
-        	}
-    	}
-    	else
-    	{
+    if(uiPermissionsManager != null){
+    	if (PERMISSION_MODE_TEMPLATE.equals(getPermissionMode())){
+    		//membershipItems = forumManager.getDiscussionForumArea().getMembershipItemSet();
     		membershipItems = uiPermissionsManager.getAreaItemsSet(forumManager.getDiscussionForumArea());
     	}
-    }
-    else if (PERMISSION_MODE_TOPIC.equals(getPermissionMode())){    	
-    	if (selectedTopic != null && selectedTopic.getTopic() != null)
-    	{
-    		membershipItems = uiPermissionsManager.getTopicItemsSet(selectedTopic.getTopic());
-    	}
-    	if ((membershipItems == null || membershipItems.size() == 0)
-					&& (selectedForum != null && selectedForum.getForum() != null)
-					&& uiPermissionsManager != null)
-			{
+    	else if (PERMISSION_MODE_FORUM.equals(getPermissionMode())){    	
+    		if (selectedForum != null && selectedForum.getForum() != null)
+    		{
     			membershipItems = uiPermissionsManager.getForumItemsSet(selectedForum.getForum());
+    			if (membershipItems == null || membershipItems.size() == 0)
+    			{
+    				membershipItems = uiPermissionsManager.getAreaItemsSet(forumManager.getDiscussionForumArea());
+    			}
+    		}
+    		else
+    		{
+    			membershipItems = uiPermissionsManager.getAreaItemsSet(forumManager.getDiscussionForumArea());
+    		}
     	}
-    } 
+    	else if (PERMISSION_MODE_TOPIC.equals(getPermissionMode())){    	
+    		if (selectedTopic != null && selectedTopic.getTopic() != null)
+    		{
+    			membershipItems = uiPermissionsManager.getTopicItemsSet(selectedTopic.getTopic());
+    		}
+    		if ((membershipItems == null || membershipItems.size() == 0)
+    				&& (selectedForum != null && selectedForum.getForum() != null)
+    				&& uiPermissionsManager != null)
+    		{
+    			membershipItems = uiPermissionsManager.getForumItemsSet(selectedForum.getForum());
+    		}
+    	} 
+    }
     	            
     siteMembers=new ArrayList(); 
     // get Roles     
