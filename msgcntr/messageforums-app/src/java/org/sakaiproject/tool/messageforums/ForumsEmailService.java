@@ -198,6 +198,7 @@ public class ForumsEmailService {
 					+ topictitle
 					+ " > " + threadtitle);
 			content.append(newline);
+			content.append(newline);
 			content.append(DiscussionForumTool
 					.getResourceBundleString("email.body.author")
 					+ " " + reply.getAuthor());
@@ -209,7 +210,8 @@ public class ForumsEmailService {
 			content.append(DiscussionForumTool
 					.getResourceBundleString("email.body.msgposted")
 					+ " " + reply.getCreated().toString());
-			content.append(newline);			
+			content.append(newline);
+			content.append(newline);
 			content.append(reply.getBody());
 			content.append(newline);
 			content.append(newline);
