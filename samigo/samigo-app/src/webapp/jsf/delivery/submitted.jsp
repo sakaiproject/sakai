@@ -86,7 +86,7 @@ document.links[newindex].onclick();
 
     <h:outputLabel value="#{deliveryMessages.number_of_sub_remain}" />
     <h:panelGroup>
-      <h:outputText value="#{delivery.submissionsRemaining} out of #{delivery.settings.maxAttempts}"
+	<h:outputText value="#{delivery.submissionsRemaining} #{deliveryMessages.text_out_of} #{delivery.settings.maxAttempts}"
           rendered="#{!delivery.settings.unlimitedAttempts}"/>
       <h:outputText value="#{deliveryMessages.unlimited_}"
           rendered="#{delivery.settings.unlimitedAttempts}"/>

@@ -34,7 +34,7 @@ should be included in file importing DeliveryMessages
 
   <h:outputText escape="false" value="#{authorMessages.number_of_tries}: " />
   <h:panelGroup rendered="#{question.itemData.triesAllowed > 10}">
-    <h:outputText escape="false" value="Unlimited" />
+    <h:outputText escape="false" value="#{authorMessages.unlimited}" />
   </h:panelGroup>
   <h:panelGroup rendered="#{question.itemData.triesAllowed <= 10}">
     <h:outputText escape="false" value="#{question.itemData.triesAllowed}" />

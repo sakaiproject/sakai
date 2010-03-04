@@ -97,7 +97,7 @@ return;
   <h3>
     <h:outputText value="#{evaluationMessages.title_total}"/>
     <h:outputText value="#{evaluationMessages.column} "/>
-    <h:outputText value="#{totalScores.assessmentName} " escape="fasel"/> 
+    <h:outputText value="#{totalScores.assessmentName} " escape="false"/> 
   </h3>
 
   <div class="textBelowHeader">

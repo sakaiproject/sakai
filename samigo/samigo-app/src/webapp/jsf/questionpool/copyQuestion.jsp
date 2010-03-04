@@ -35,10 +35,9 @@
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
 <div class="portletBody">
-<div class="heading">Copy Question</div>
+<div class="heading"><h:outputText value="#{questionPoolMessages.copy_q}"/></div>
 
-
-<h2>Question Text:</h2>
+<h2><h:outputText value="#{questionPoolMessages.q_text}"/>:</h2>
 <br>
 <logic:iterate id="qpool" collection='<%=session.getAttribute("selectedItems")%>'>
 <bean:write name="qpool" property="itemText" />
