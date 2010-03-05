@@ -5072,7 +5072,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		String webdav_doc = webdav_instructions.substring(0,extIndex).trim();
 		String locale = new ResourceLoader().getLocale().getLanguage();
 
-		if (locale.equalsIgnoreCase("en") || (locale == null) || (locale.trim().length()==0)){
+		if ((locale == null) || locale.equalsIgnoreCase("en") || (locale.trim().length()==0)){
 			webdav_instructions = ServerConfigurationService.getString("webdav.instructions.url");
 		}else{
 			webdav_instructions = webdav_doc + "_" + locale + ".html";
