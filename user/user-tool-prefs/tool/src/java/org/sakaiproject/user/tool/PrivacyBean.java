@@ -159,10 +159,10 @@ public class PrivacyBean {
 		}
 
 		if (privacyManager.isViewable(curSite, getUserId())) {
-			return getMessageBundleString(VISIBLE);
+			return VISIBLE;//getMessageBundleString(VISIBLE);
 		} 
 		else {
-			return getMessageBundleString(HIDDEN);
+			return HIDDEN;//getMessageBundleString(HIDDEN);
 		}
 	}
 
