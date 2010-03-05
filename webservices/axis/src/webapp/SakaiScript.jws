@@ -3,71 +3,66 @@
  *
  */
  
-import java.util.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Iterator;
-import java.util.Set;
-import java.util.Collection;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.exception.IdUnusedException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.lang.StringUtils;
-
-import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.SitePage;
-import org.sakaiproject.user.api.UserEdit;
-import org.sakaiproject.authz.cover.AuthzGroupService;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.site.api.SiteService.SelectionType;
-import org.sakaiproject.site.api.SiteService.SortType;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-
-import org.sakaiproject.calendar.cover.CalendarService; 
-import org.sakaiproject.calendar.api.Calendar; 
-import org.sakaiproject.calendar.api.CalendarEdit; 
-import org.sakaiproject.calendar.api.CalendarEvent; 
-import org.sakaiproject.calendar.api.CalendarEventEdit; 
-import org.sakaiproject.time.api.TimeService; 
-
+import java.util.List;
 import java.util.Properties;
-import org.apache.axis.AxisFault;
+import java.util.Set;
 
+import org.apache.axis.AxisFault;
 import org.apache.axis.Constants;
 import org.apache.axis.MessageContext;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.calendar.api.Calendar;
+import org.sakaiproject.calendar.api.CalendarEdit;
+import org.sakaiproject.calendar.api.CalendarEvent;
+import org.sakaiproject.calendar.api.CalendarEventEdit;
+import org.sakaiproject.calendar.cover.CalendarService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.UsageSession;
-import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.event.cover.EventTrackingService;
-
+import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.api.SiteService.SelectionType;
+import org.sakaiproject.site.api.SiteService.SortType;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserEdit;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.Xml;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class SakaiScript {
 	
 private static final Log LOG = LogFactory.getLog(SakaiScript.class);
+
+private static final String TOOL_CONFIG_FUNCTIONS = "functions.require";
 	
 private Session establishSession(String id) throws AxisFault 
 {
 	Session s = SessionManager.getSession(id);
-	
+
 	if (s == null)
 	{
 		throw new AxisFault("Session "+id+" is not active");
@@ -78,7 +73,9 @@ private Session establishSession(String id) throws AxisFault
 }
 
 public String checkSession(String id) {
+	
 	Session s = SessionManager.getSession(id);
+	
 	if (s == null)
 	{
 		return "null";
@@ -2637,6 +2634,175 @@ public String getUserId(String sessionid, String eid) throws AxisFault
 	 	LOG.warn("WS getUserId() failed for user: " + eid);
 		return "";
 	}
+}
+
+/**
+ * Return XML document listing all pages and tools in those pages for a given site.
+ * The session id must be of a valid, active user in that site, or a super user, or it will throw an exception.
+ * If a page is hidden in a site, the page and all tools in that page will be skipped from the returned document, as they are in the portal.
+ * Super user's can request any site to retrieve the full list.
+ *
+ * @param 	sessionid 		the session id of a user in a site, or a super user
+ * @param 	siteid 			the site to retrieve the information for
+ * @return					xml or an empty list <site/>. The return XML format is below:
+ *<site id="9ec48d9e-b690-4090-a300-10a44ed7656e">
+ *	<pages>
+ *		<page id="ec1b0ab8-90e8-4d4d-bf64-1e586035f08f">
+ *			<page-title>Home</page-title>
+ *			<tools>
+ *				<tool id="dafd2a4d-8d3f-4f4c-8e12-171968b259cd">
+ *					<tool-id>sakai.iframe.site</tool-id>
+ *					<tool-title>Site Information Display</tool-title>
+ *				</tool>
+ *				...
+ *			</tools>
+ *		</page>
+ *		<page>
+ *			...
+ *		</page>
+ *		...
+ *  </pages>
+ *</site>
+ *
+ * @throws	AxisFault	if not a super user and the user attached to the session is not in the site, if site does not exist
+ *
+ */
+public String getPagesAndToolsForSite(String sessionid, String siteid) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	//check if site exists
+	Site site;
+	try {
+		site = SiteService.getSite(siteid);
+	} catch (Exception e) {
+		LOG.warn("WS getPagesAndToolsForSite(): Error looking up site: " + siteid + ":" + e.getClass().getName() + " : " + e.getMessage());
+		throw new AxisFault("WS getPagesAndToolsForSite(): Error looking up site: " + siteid + ":" + e.getClass().getName() + " : " + e.getMessage());
+	}
+	
+	String userId = session.getUserId();
+	
+	//check if super user
+	boolean isSuperUser = false;
+	if(SecurityService.isSuperUser(userId)) {
+		isSuperUser = true;
+	}
+	
+	//if not super user, check user is a member of the site, and get their Role
+	Role role;
+	if(!isSuperUser) {
+		Member member = site.getMember(userId);
+		if(member == null || !member.isActive()) {
+			LOG.warn("WS getPagesAndToolsForSite(): User: " + userId + " does not exist in site : " + siteid);
+			throw new AxisFault("WS getPagesAndToolsForSite(): User: " + userId + " does not exist in site : " + siteid);
+		}
+		role = member.getRole();
+	}
+	
+	
+	
+	//get list of pages in the site, if none, return empty list
+	List<SitePage> pages = site.getPages();
+	if(pages.isEmpty()) {
+		return "<site id=\"" + site.getId() + "\"/>";
+	}
+	
+	//site node
+	Document dom = Xml.createDocument();
+	Element siteNode = dom.createElement("site");
+	Attr siteIdAttr = dom.createAttribute("id");
+	siteIdAttr.setNodeValue(site.getId());
+	siteNode.setAttributeNode(siteIdAttr);
+	
+	//pages node
+	Element pagesNode = dom.createElement("pages");
+	
+	for(SitePage page: pages) {
+		
+		//page node
+		Element pageNode = dom.createElement("page");
+		Attr pageIdAttr = dom.createAttribute("id");
+		pageIdAttr.setNodeValue(page.getId());
+		pageNode.setAttributeNode(pageIdAttr);
+		
+		//pageTitle
+		Element pageTitleNode = dom.createElement("page-title");
+		pageTitleNode.appendChild(dom.createTextNode(page.getTitle()));
+		
+		//get tools in page
+		List<ToolConfiguration> tools = page.getTools();
+		
+		Element toolsNode = dom.createElement("tools");
+		
+		boolean includePage = true;
+		for(ToolConfiguration toolConfig: tools) {
+			//if we not a superAdmin, check the page properties
+			//if any tool on this page is hidden, ie it requires site.upd, skip the rest of the tools and
+			//exclude this page from the output
+			//this is consistent with the portal, but may change, see http://jira.sakaiproject.org/browse/SAK-18126
+			
+			//if not superUser, process  tool function requirements
+			if(!isSuperUser) {
+			
+				//skip processing tool if we've skipped tools previously on this page
+				//this may change, see http://jira.sakaiproject.org/browse/SAK-18126
+				if(!includePage) {
+					continue;
+				}
+			
+				//get required permissions for the tool
+				String toolFunctionsStr = toolConfig.getPlacementConfig().getProperty(TOOL_CONFIG_FUNCTIONS);
+				
+				//no special functions needed, so we can show the tool
+				if(StringUtils.isBlank(toolFunctionsStr)) {
+					continue;
+				}
+				
+				//The list of functions is of the form "a,b|c", where a and b must both be present in order
+				//to grant access, or they could have just c and this be granted access.
+				//this may be rolled into a kernel service, see: http://jira.sakaiproject.org/browse/KNL-428
+				String[] toolFunctionsSet = StringUtils.split(toolFunctionsStr, '|');
+				for (int i = 0; i < toolFunctionsSet.length; i++){
+					String[] requiredPermissions = StringUtils.split(toolFunctionsSet[i], ',');
+					boolean allowed = true;
+					for (int j = 0; j < requiredPermissions.length; j++) {
+						//if we are missing just one of the entire set, denied access to entire page
+						if (!SecurityService.unlock(requiredPermissions[j].trim(), site.getReference())){
+							includePage = false;
+							break;
+						}
+					}
+				}
+			}
+			
+			//if we got this far, add the details about the tool to the document
+			Element toolNode = dom.createElement("tool");
+			
+			Element toolIdNode = dom.createElement("tool-id");
+			toolIdNode.appendChild(dom.createTextNode(toolConfig.getToolId()));
+			toolNode.appendChild(toolIdNode);
+			
+			Element toolTitleNode = dom.createElement("tool-title");
+			toolTitleNode.appendChild(dom.createTextNode(toolConfig.getTitle()));
+			toolNode.appendChild(toolTitleNode);
+	
+			toolsNode.appendChild(toolNode);
+			
+		}
+		
+		//if the page is not hidden, add the elements
+		if(includePage) {
+			pageNode.appendChild(pageTitleNode);
+			pageNode.appendChild(toolsNode);
+			pagesNode.appendChild(pageNode);
+		}
+	}
+	
+	//add the main nodes
+	siteNode.appendChild(pagesNode);
+	dom.appendChild(siteNode);
+	
+	return Xml.writeDocumentToString(dom);
 }
 
 
