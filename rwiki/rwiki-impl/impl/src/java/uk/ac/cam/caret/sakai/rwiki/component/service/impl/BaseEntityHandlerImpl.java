@@ -23,11 +23,16 @@ package uk.ac.cam.caret.sakai.rwiki.component.service.impl;
 
 import java.text.MessageFormat;
 
+import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.SiteService;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.EntityHandler;
+import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 
 /**
  * Provides a regex base entity handler where the matching uses MessageFormats
@@ -54,12 +59,44 @@ public abstract class BaseEntityHandlerImpl implements EntityHandler
 	 */
 	private String feedFormat;
 
+	/** Configuration: allow use of alias for site id in references. */
+	protected boolean m_siteAlias = true;
+	
 	private boolean experimental = false;
 
 	private boolean setup = false;
 
 	private boolean available = true;
 
+	
+	/** Dependency: AliasService. */
+	protected AliasService m_aliasService = null;
+
+	/**
+	 * Dependency: AliasService.
+	 * 
+	 * @param service
+	 *        The AliasService.
+	 */
+	public void setAliasService(AliasService service)
+	{
+		m_aliasService = service;
+	}
+
+	/** Dependency: SiteService. */
+	protected SiteService m_siteService = null;
+
+	/**
+	 * Dependency: SiteService.
+	 * 
+	 * @param service
+	 *        The SiteService.
+	 */
+	public void setSiteService(SiteService service)
+	{
+		m_siteService = service;
+	}
+	
 	/**
 	 * {@inheritDoc} 
 	 */
@@ -140,7 +177,54 @@ public abstract class BaseEntityHandlerImpl implements EntityHandler
 			{
 				nextslash = firstslash;
 			}
-			decoded.setContext(s.substring(0, nextslash));
+			
+			String siteContext = s.substring(0, nextslash);
+			String context;
+			int slashIndex = siteContext.indexOf(Entity.SEPARATOR, 1);
+			if (slashIndex == -1) {
+				context = "";
+			} else {
+				context = s.substring (slashIndex + 1, siteContext.length());
+			}
+
+			// recognize alias for site id - but if a site id exists that matches the requested site id, that's what we will use
+			if ((context != null) && (context.length() > 0))
+			{
+				if (m_siteAlias && (m_aliasService != null) && (m_siteService != null) 
+						&& (!m_siteService.siteExists(context)))
+				{
+					try
+					{
+						String target = m_aliasService.getTarget(context);
+
+						// the code is taken and adapted from 
+						// org.sakaiproject.content.impl.BaseContentService
+						// public boolean parseEntityReference(String reference, Reference ref)
+						Reference targetRef = EntityManager.newReference(target);
+
+						// for a site reference
+						if (SiteService.APPLICATION_ID.equals(targetRef.getType()))
+						{
+							// use the ref's id, i.e. the site id
+							context = targetRef.getId();
+						}
+
+						// for mail archive reference
+						// TODO: taken from MailArchiveService.APPLICATION_ID to (fake) reduce a dependency -ggolden
+						else if ("sakai:mailarchive".equals(targetRef.getType()))
+						{
+							// use the ref's context as the site id
+							context = targetRef.getContext();
+						}
+					}
+					catch (IdUnusedException noAlias)
+					{
+					}
+				}
+				siteContext = "/site/" + context;
+			}
+			
+			decoded.setContext(siteContext);
 			if (nextslash == lastslash)
 			{
 				decoded.setContainer(Entity.SEPARATOR);
@@ -226,8 +310,27 @@ public abstract class BaseEntityHandlerImpl implements EntityHandler
 		if (isAvailable())
 		{
 			if (feedFormat == null) return null;
+			
+			String url = e.getUrl();
+			
+			// remove the "/access" prefix
+			if ( url.startsWith("/access") ) {
+				url = url.substring("/access".length());
+			}
+			
+			if (m_siteAlias && url.startsWith ("/wiki/site/")) {
+				// the url format: /wiki/site/siteID/page
+				int slashIndex = url.indexOf (Entity.SEPARATOR, "/wiki/site/".length());
+				if (slashIndex != -1) {
+					String siteId = url.substring ("/wiki/site/".length(), slashIndex);
+					String pageURL = url.substring (slashIndex);
+					String localSpace = "/site/" + siteId;
+					url = "/wiki" + NameHelper.aliasSpace (localSpace) + pageURL;
+				}
+			}
+			
 			return MessageFormat
-					.format(feedFormat, new Object[] { e.getUrl() });
+					.format(feedFormat, new Object[] { url });
 		}
 		return null;
 	}

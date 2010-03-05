@@ -647,15 +647,15 @@ public class XSLTEntityHandlerTest extends TestCase
 
 		XSLTEntityHandler xeh = new XSLTEntityHandler();
 		xeh.setAccessURLStart("/wiki/");
-		xeh.setAnchorLinkFormat("/access/wiki{0}.html#{1}");
+		xeh.setAnchorLinkFormat("/wiki{0}.html#{1}");
 		xeh.setXslt(transform);
 		xeh.setMinorType("rtf");
 		xeh.setDefaultStackTrace("Failed To generate Stack Trace : {0}");
 		xeh
 				.setErrorFormat("Error encounvered performing transform : {0} \n {1}");
 		xeh.setAuthZPrefix("/wiki");
-		xeh.setAnchorLinkFormat("/access/wiki{0}.html#{1}");
-		xeh.setStandardLinkFormat("/access/wiki{0}.html");
+		xeh.setAnchorLinkFormat("/wiki{0}.html#{1}");
+		xeh.setStandardLinkFormat("/wiki{0}.html");
 		xeh.setHrefTagFormat("<a href=\"{0}\" >{1}</a>");
 		xeh.setAccessURLStart("/wiki/");
 		xeh
@@ -719,15 +719,15 @@ public class XSLTEntityHandlerTest extends TestCase
 
 		XSLTEntityHandler xeh = new XSLTEntityHandler();
 		xeh.setAccessURLStart("/wiki/");
-		xeh.setAnchorLinkFormat("/access/wiki{0}.html#{1}");
+		xeh.setAnchorLinkFormat("/wiki{0}.html#{1}");
 		xeh.setXslt(transform);
 		xeh.setMinorType("pdf");
 		xeh.setDefaultStackTrace("Failed To generate Stack Trace : {0}");
 		xeh
 				.setErrorFormat("Error encounvered performing transform : {0} \n {1}");
 		xeh.setAuthZPrefix("/wiki");
-		xeh.setAnchorLinkFormat("/access/wiki{0}.html#{1}");
-		xeh.setStandardLinkFormat("/access/wiki{0}.html");
+		xeh.setAnchorLinkFormat("/wiki{0}.html#{1}");
+		xeh.setStandardLinkFormat("/wiki{0}.html");
 		xeh.setHrefTagFormat("<a href=\"{0}\" >{1}</a>");
 		xeh.setAccessURLStart("/wiki/");
 		xeh
@@ -791,15 +791,15 @@ public class XSLTEntityHandlerTest extends TestCase
 
 		XSLTEntityHandler xeh = new XSLTEntityHandler();
 		xeh.setAccessURLStart("/wiki/");
-		xeh.setAnchorLinkFormat("/access/wiki{0}.html#{1}");
+		xeh.setAnchorLinkFormat("/wiki{0}.html#{1}");
 		xeh.setXslt(transform);
 		xeh.setMinorType("pdf");
 		xeh.setDefaultStackTrace("Failed To generate Stack Trace : {0}");
 		xeh
 				.setErrorFormat("Error encounvered performing transform : {0} \n {1}");
 		xeh.setAuthZPrefix("/wiki");
-		xeh.setAnchorLinkFormat("/access/wiki{0}.html#{1}");
-		xeh.setStandardLinkFormat("/access/wiki{0}.html");
+		xeh.setAnchorLinkFormat("/wiki{0}.html#{1}");
+		xeh.setStandardLinkFormat("/wiki{0}.html");
 		xeh.setHrefTagFormat("<a href=\"{0}\" >{1}</a>");
 		xeh.setAccessURLStart("/wiki/");
 		xeh
@@ -861,15 +861,15 @@ public class XSLTEntityHandlerTest extends TestCase
 
 		XSLTEntityHandler xeh = new XSLTEntityHandler();
 		xeh.setAccessURLStart("/wiki/");
-		xeh.setAnchorLinkFormat("/access/wiki{0}.html#{1}");
+		xeh.setAnchorLinkFormat("/wiki{0}.html#{1}");
 		xeh.setXslt(transform);
 		xeh.setMinorType("pdf");
 		xeh.setDefaultStackTrace("Failed To generate Stack Trace : {0}");
 		xeh
 				.setErrorFormat("Error encounvered performing transform : {0} \n {1}");
 		xeh.setAuthZPrefix("/wiki");
-		xeh.setAnchorLinkFormat("/access/wiki{0}.html#{1}");
-		xeh.setStandardLinkFormat("/access/wiki{0}.html");
+		xeh.setAnchorLinkFormat("/wiki{0}.html#{1}");
+		xeh.setStandardLinkFormat("/wiki{0}.html");
 		xeh.setHrefTagFormat("<a href=\"{0}\" >{1}</a>");
 		xeh.setAccessURLStart("/wiki/");
 		xeh

@@ -45,13 +45,13 @@
                 <items>
                     <rdf:Seq>
                         <xsl:for-each select="/entity-service/entity/changes/change">
-                            <rdf:li rdf:resource="{concat($baseurl,'/access/wiki',@name,'.html')}"/>
+                            <rdf:li rdf:resource="{concat($baseurl,'/wiki',@name,'.html')}"/>
                         </xsl:for-each>
                     </rdf:Seq>
                 </items>
             </channel>
             <xsl:for-each select="/entity-service/entity/changes/change">
-                <item rdf:about="{concat($baseurl,'/access/wiki',@name,'.html')}">
+                <item rdf:about="{concat($baseurl,'/wiki',@name,'.html')}">
                     <dc:format>text/html</dc:format>
                     <dc:source>
                         <xsl:value-of select="$baseurl"/>
@@ -60,7 +60,7 @@
                         <xsl:value-of select="@local-name"/> (Revision <xsl:value-of select="@revision"/>)
                     </title>
                     <link>
-                        <xsl:value-of select="concat($baseurl,'/access/wiki',@name,'.html')"/>
+                        <xsl:value-of select="concat($baseurl,'/wiki',@name,'.html')"/>
                     </link>
                     <description>
 			  Last edited by <xsl:value-of select="@user-display"/> at <xsl:value-of select="@last-modified"/>&lt;hr/&gt;

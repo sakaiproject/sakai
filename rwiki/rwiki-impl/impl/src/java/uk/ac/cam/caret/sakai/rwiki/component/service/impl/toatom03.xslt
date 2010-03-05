@@ -44,7 +44,7 @@
                         <xsl:value-of select="@local-name"/> (Revision <xsl:value-of select="@revision"/>)
                     </title>
                     <link rel="alternate" type="text/html"
-                        href="{concat($baseurl, '/access/wiki', @name, '.html')}"/>
+                        href="{concat($baseurl, '/wiki', @name, '.html')}"/>
                     <created>
                         <xsl:value-of select="@last-modified"/>
                     </created>
@@ -56,7 +56,7 @@
                     </modified>
                     <id>
                         <xsl:value-of
-                            select="concat($baseurl, '/access/wiki', @name, '.html')"/>
+                            select="concat($baseurl, '/wiki', @name, '.html')"/>
                     </id>
                     <summary>Last edited by <xsl:value-of select="@user-display"/> at <xsl:value-of select="@last-modified"/>&lt;hr/&gt;
                     <xsl:copy-of select="content/rendered-cdata/node()"/></summary>

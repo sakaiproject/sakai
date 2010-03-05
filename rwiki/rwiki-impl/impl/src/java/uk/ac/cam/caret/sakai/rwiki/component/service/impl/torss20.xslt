@@ -36,7 +36,7 @@
                 <xsl:for-each select="/entity-service/entity/changes/change">
                     <item>
                         <title><xsl:value-of select="@local-name"/> (Revision <xsl:value-of select="@revision"/>)</title>
-                        <link><xsl:value-of select="concat($baseurl,'/access/wiki',@name,'.html')"/></link>
+                        <link><xsl:value-of select="concat($baseurl,'/wiki',@name,'.html')"/></link>
                         <description>
 			  Last edited by <xsl:value-of select="@user-display"/> at <xsl:value-of select="@last-modified"/>&lt;hr/&gt;
                             <xsl:copy-of select="content/rendered-cdata/node()"/>

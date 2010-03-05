@@ -45,7 +45,6 @@ import javax.xml.transform.sax.TransformerHandler;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.xalan.templates.OutputProperties;
 import org.apache.xml.serializer.OutputPropertiesFactory;
 import org.apache.xml.serializer.Serializer;
 import org.apache.xml.serializer.SerializerFactory;
@@ -167,6 +166,10 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 
 	private String breadCrumbParameterFormat = "?breadcrumb=0";
 
+	/** Configuration: allow use of alias for site id in references. */
+	protected boolean m_siteAlias = true;
+	
+	
 	private Object load(ComponentManager cm, String name)
 	{
 		Object o = cm.get(name);
@@ -674,7 +677,18 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	public String render(RWikiObject rwo, boolean withBreadCrumb)
 	{
 		String localSpace = NameHelper.localizeSpace(rwo.getName(), rwo.getRealm());
-		ComponentPageLinkRenderImpl plr = new ComponentPageLinkRenderImpl(localSpace,withBreadCrumb);
+
+ 		// use site alias / mail archive alias here to render links with short URL
+ 		// localSpace pattern: /site/siteId
+ 		String localAliasSpace;
+ 		if (m_siteAlias) {
+ 			localAliasSpace = NameHelper.aliasSpace(localSpace);
+ 		} else {
+ 			localAliasSpace = localSpace;			
+ 		}
+ 		
+ 		ComponentPageLinkRenderImpl plr = new ComponentPageLinkRenderImpl(localAliasSpace, withBreadCrumb);
+ 
 
 		plr.setAnchorURLFormat(anchorLinkFormat);
 		plr.setStandardURLFormat(standardLinkFormat);

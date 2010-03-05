@@ -22,9 +22,16 @@
 package uk.ac.cam.caret.sakai.rwiki.utils;
 
 import java.nio.CharBuffer;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.alias.api.AliasEdit;
+import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.util.StringUtil;
+
 
 public class NameHelper
 {
@@ -298,10 +305,50 @@ public class NameHelper
 		int index = globalName.lastIndexOf(SPACE_SEPARATOR);
 		return globalName.substring(0, index);
 	}
+	
 	public static String localizeSpace(final String globalPageName)
 	{
 		int index = globalPageName.lastIndexOf(SPACE_SEPARATOR);
 		return globalPageName.substring(0, index);
 	}
 
+	/**
+	 * @param localSpace with format "/site/siteId"
+	 * @return aliasSpace if available with format "/siteAliasName". Otherwise, return "/site/siteId"
+	 */
+	public static String aliasSpace (final String localSpace)
+	{
+		String localAliasSpace = localSpace;
+		
+		String parts[] = StringUtil.split (localSpace, Entity.SEPARATOR);
+		
+		String siteId = parts[2];
+		// recognize alias for site id - but if a site id exists that matches the requested site id, that's what we will use
+		if ((siteId != null) && (siteId.length() > 0))
+		{
+			// get site alias first
+			List target = AliasService.getAliases(
+					"/site/" + siteId);
+
+			// get mail archive alias, if site alias is not available
+			if (target.isEmpty()) {
+				target = AliasService.getAliases(
+						"/mailarchive/channel/" + siteId + "/main");
+			}
+			
+			if (!target.isEmpty()) {
+				// take the first alias only
+				AliasEdit alias = (AliasEdit) target.get(0);
+				siteId = alias.getId();
+
+				// if there is no a site id exists that matches the alias name
+				if (!SiteService.siteExists(siteId))
+				{
+					localAliasSpace = "/" + siteId;
+				}
+			}
+		}			
+		
+		return localAliasSpace;
+	}
 }

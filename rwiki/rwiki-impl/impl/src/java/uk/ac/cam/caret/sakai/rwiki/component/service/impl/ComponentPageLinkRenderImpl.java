@@ -58,12 +58,12 @@ public class ComponentPageLinkRenderImpl implements PageLinkRenderer
 	/**
 	 * format String used to generate a standard URL, no anchor
 	 */
-	private String standardURLFormat = "/access/wiki{0}.html{1}";
+	private String standardURLFormat = "/wiki{0}.html{1}";
 
 	/**
 	 * Format string used to generate a URL with anchor
 	 */
-	private String anchorURLFormat = "/access/wiki{0}.html{2}#{1}";
+	private String anchorURLFormat = "/wiki{0}.html{2}#{1}";
 
 	/**
 	 * HTML markup pattern

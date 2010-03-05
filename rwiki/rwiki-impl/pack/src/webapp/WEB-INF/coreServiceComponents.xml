@@ -124,8 +124,8 @@
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
-    <property name="anchorLinkFormat" ><value>/access/wiki{0}.{2}#{1}</value></property>
-    <property name="standardLinkFormat" ><value>/access/wiki{0}.{1}</value></property>
+    <property name="anchorLinkFormat" ><value>/wiki{0}.{2}#{1}</value></property>
+    <property name="standardLinkFormat" ><value>/wiki{0}.{1}</value></property>
     <property name="breadCrumbParameterFormat" ><value>?breadcrumb=0</value></property>
     <property name="breadCrumbParameter" ><value>breadcrumb</value></property>
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
@@ -157,8 +157,8 @@
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
-    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html{2}#{1}</value></property>
-    <property name="standardLinkFormat" ><value>/access/wiki{0}.html{1}</value></property>
+    <property name="anchorLinkFormat" ><value>/wiki{0}.html{2}#{1}</value></property>
+    <property name="standardLinkFormat" ><value>/wiki{0}.html{1}</value></property>
     <property name="breadCrumbParameterFormat" ><value>?breadcrumb=0</value></property>
     <property name="breadCrumbParameter" ><value>breadcrumb</value></property>
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
@@ -185,6 +185,8 @@
         <entry key="{http://xml.apache.org/xalan}omit-meta-tag"><value>no</value></entry> 
       </map>     
     </property>
+    <property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService"/></property>
+    <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>      
   </bean>
   <bean id="rwikiPDFHandler" 
     class="uk.ac.cam.caret.sakai.rwiki.component.service.impl.XSLTEntityHandler"  
@@ -199,8 +201,8 @@
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
-    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html{2}#{1}</value></property>
-    <property name="standardLinkFormat" ><value>/access/wiki{0}.html{1}</value></property>
+    <property name="anchorLinkFormat" ><value>/wiki{0}.html{2}#{1}</value></property>
+    <property name="standardLinkFormat" ><value>/wiki{0}.html{1}</value></property>
     <property name="breadCrumbParameterFormat" ><value>?breadcrumb=0</value></property>
     <property name="breadCrumbParameter" ><value>breadcrumb</value></property>
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
@@ -216,6 +218,8 @@
         <entry key="{http://xml.apache.org/xalan}content-handler"><value>uk.ac.cam.caret.sakai.rwiki.component.service.impl.FOP2PDFSerializer</value></entry>
       </map>     
     </property>
+    <property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService"/></property>
+	<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>      
   </bean>
   
   <bean id="rwikiRTFHandler" 
@@ -231,8 +235,8 @@
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
-    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html{2}#{1}</value></property>
-    <property name="standardLinkFormat" ><value>/access/wiki{0}.html{1}</value></property>
+    <property name="anchorLinkFormat" ><value>/wiki{0}.html{2}#{1}</value></property>
+    <property name="standardLinkFormat" ><value>/wiki{0}.html{1}</value></property>
     <property name="breadCrumbParameterFormat" ><value>?breadcrumb=0</value></property>
     <property name="breadCrumbParameter" ><value>breadcrumb</value></property>
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
@@ -248,6 +252,8 @@
      <entry key="{http://xml.apache.org/xalan}content-handler"><value>uk.ac.cam.caret.sakai.rwiki.component.service.impl.FOP2RTFSerializer</value></entry>
       </map>     
     </property>
+    <property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService"/></property>
+    <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>      
   </bean>
   <bean id="rwikiFOPHandler" 
     class="uk.ac.cam.caret.sakai.rwiki.component.service.impl.XSLTEntityHandler"  
@@ -263,8 +269,8 @@
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
-    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html{2}#{1}</value></property>
-    <property name="standardLinkFormat" ><value>/access/wiki{0}.html{1}</value></property>
+    <property name="anchorLinkFormat" ><value>/wiki{0}.html{2}#{1}</value></property>
+    <property name="standardLinkFormat" ><value>/wiki{0}.html{1}</value></property>
     <property name="breadCrumbParameterFormat" ><value>?breadcrumb=0</value></property>
     <property name="breadCrumbParameter" ><value>breadcrumb</value></property>
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
@@ -299,8 +305,8 @@ DISABLED
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
-    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html{2}#{1}</value></property>
-    <property name="standardLinkFormat" ><value>/access/wiki{0}.html{1}</value></property>
+    <property name="anchorLinkFormat" ><value>/wiki{0}.html{2}#{1}</value></property>
+    <property name="standardLinkFormat" ><value>/wiki{0}.html{1}</value></property>
     <property name="breadCrumbParameterFormat" ><value>?breadcrumb=0</value></property>
     <property name="breadCrumbParameter" ><value>breadcrumb</value></property>
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
@@ -318,14 +324,15 @@ DISABLED
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
-    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html{2}#{1}</value></property>
-    <property name="standardLinkFormat" ><value>/access/wiki{0}.html{1}</value></property>
+    <property name="anchorLinkFormat" ><value>/wiki{0}.html{2}#{1}</value></property>
+    <property name="standardLinkFormat" ><value>/wiki{0}.html{1}</value></property>
     <property name="breadCrumbParameterFormat" ><value>?breadcrumb=0</value></property>
     <property name="breadCrumbParameter" ><value>breadcrumb</value></property>
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
     <property name="rwikiObjectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService" /></property>
     <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService" /></property>
+    <property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService"/></property>
     <!--  <property name="feedFormat"><value>&lt;a href="{0}10.rss" target="feeds"&gt;&lt;img src="/sakai-rwiki-tool/images/rss10.gif" border="0"  alt="RSS 1.0" /&gt;&lt;/a&gt;</value></property>-->
     <property name="responseHeaders">
       <map>
@@ -350,14 +357,15 @@ DISABLED
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
-    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html{2}#{1}</value></property>
-    <property name="standardLinkFormat" ><value>/access/wiki{0}.html{1}</value></property>
+    <property name="anchorLinkFormat" ><value>/wiki{0}.html{2}#{1}</value></property>
+    <property name="standardLinkFormat" ><value>/wiki{0}.html{1}</value></property>
     <property name="breadCrumbParameterFormat" ><value>?breadcrumb=0</value></property>
     <property name="breadCrumbParameter" ><value>breadcrumb</value></property>
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
     <property name="rwikiObjectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService" /></property>
     <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService" /></property>
+    <property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService"/></property>
     <property name="feedFormat"><value>&lt;a href="{0}10.rss" target="feeds"&gt;&lt;img src="/sakai-rwiki-tool/images/rss10.gif" border="0"  alt="RSS 1.0" /&gt;&lt;/a&gt;</value></property>
     <property name="responseHeaders">
       <map>
@@ -372,7 +380,6 @@ DISABLED
         <entry key="{http://xml.apache.org/xalan}indent-amount"><value>2</value></entry> 
       </map>     
     </property>
-    
   </bean>
   <bean id="rwiki09RSSHandler"
     class="uk.ac.cam.caret.sakai.rwiki.component.service.impl.XLSTChangesHandler"  
@@ -382,14 +389,15 @@ DISABLED
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
-    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html{2}#{1}</value></property>
-    <property name="standardLinkFormat" ><value>/access/wiki{0}.html{1}</value></property>
+    <property name="anchorLinkFormat" ><value>/wiki{0}.html{2}#{1}</value></property>
+    <property name="standardLinkFormat" ><value>/wiki{0}.html{1}</value></property>
     <property name="breadCrumbParameterFormat" ><value>?breadcrumb=0</value></property>
     <property name="breadCrumbParameter" ><value>breadcrumb</value></property>
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
     <property name="rwikiObjectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService" /></property>
     <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService" /></property>
+    <property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService"/></property>
     <property name="feedFormat"><value>&lt;a href="{0}09.rss" target="feeds"&gt;&lt;img src="/sakai-rwiki-tool/images/rss091.gif" border="0"  alt="RSS 0.91" /&gt;&lt;/a&gt;</value></property>
     <property name="responseHeaders">
       <map>
@@ -404,7 +412,6 @@ DISABLED
         <entry key="{http://xml.apache.org/xalan}indent-amount"><value>2</value></entry> 
       </map>     
     </property>
-    
   </bean>
   <bean id="rwiki20RSSHandler"
     class="uk.ac.cam.caret.sakai.rwiki.component.service.impl.XLSTChangesHandler"  
@@ -414,14 +421,15 @@ DISABLED
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
-    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html{2}#{1}</value></property>
-    <property name="standardLinkFormat" ><value>/access/wiki{0}.html{1}</value></property>
+    <property name="anchorLinkFormat" ><value>/wiki{0}.html{2}#{1}</value></property>
+    <property name="standardLinkFormat" ><value>/wiki{0}.html{1}</value></property>
     <property name="breadCrumbParameterFormat" ><value>?breadcrumb=0</value></property>
     <property name="breadCrumbParameter" ><value>breadcrumb</value></property>
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
     <property name="rwikiObjectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService" /></property>
     <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService" /></property>
+    <property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService"/></property>
     <property name="feedFormat"><value>&lt;a href="{0}20.rss" target="feeds"&gt;&lt;img src="/sakai-rwiki-tool/images/rss20.gif" border="0"  alt="RSS 2.0"/&gt;&lt;/a&gt;</value></property>
     <property name="responseHeaders">
       <map>
@@ -436,7 +444,6 @@ DISABLED
         <entry key="{http://xml.apache.org/xalan}indent-amount"><value>2</value></entry> 
       </map>     
     </property>
-    
   </bean>
   <bean id="rwikiAtomHandler"
     class="uk.ac.cam.caret.sakai.rwiki.component.service.impl.XLSTChangesHandler"  
@@ -446,14 +453,15 @@ DISABLED
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
-    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html{2}#{1}</value></property>
-    <property name="standardLinkFormat" ><value>/access/wiki{0}.html{1}</value></property>
+    <property name="anchorLinkFormat" ><value>/wiki{0}.html{2}#{1}</value></property>
+    <property name="standardLinkFormat" ><value>/wiki{0}.html{1}</value></property>
     <property name="breadCrumbParameterFormat" ><value>?breadcrumb=0</value></property>
     <property name="breadCrumbParameter" ><value>breadcrumb</value></property>
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
     <property name="rwikiObjectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService" /></property>
     <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService" /></property>
+    <property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService"/></property>
     <property name="feedFormat"><value>&lt;a href="{0}atom" target="feeds"&gt;&lt;img src="/sakai-rwiki-tool/images/atom03.gif" border="0" alt="Atom 0.3" /&gt;&lt;/a&gt;</value></property>
     <property name="responseHeaders">
       <map>
@@ -468,7 +476,6 @@ DISABLED
         <entry key="{http://xml.apache.org/xalan}indent-amount"><value>2</value></entry> 
       </map>     
     </property>
-    
   </bean>
   
 </beans>

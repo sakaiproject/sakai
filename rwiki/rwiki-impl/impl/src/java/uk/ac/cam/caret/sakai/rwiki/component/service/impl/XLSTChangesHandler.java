@@ -65,8 +65,6 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 
 	private RWikiObjectService rwikiObjectService = null;
 
-	private SiteService siteService;
-	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -166,7 +164,7 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 			}
 			addPropertyElement("_handler", " XSLTEntity Handler", ch); //$NON-NLS-1$ //$NON-NLS-2$
 
-			Site site = (Site) siteService.getEntity(EntityManager.newReference(decodedReference.getContext()));
+			Site site = (Site) m_siteService.getEntity(EntityManager.newReference(decodedReference.getContext()));
 			String title;
 			if (site != null) {
 				title = site.getTitle();
@@ -282,18 +280,78 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 			throws Exception
 	{
 		if (!isAvailable()) return;
+		
+		String name = rwo.getName();
+		String localSpace = NameHelper.localizeSpace(name);
+		String aliasSpace;
+		
+		// use alias if available
+		if (m_siteAlias) {
+			aliasSpace = NameHelper.aliasSpace(localSpace);
+		} else {
+			aliasSpace = localSpace;
+		}
+		
+		// output current version as well
+		AttributesImpl propA = new AttributesImpl();
+		propA.addAttribute("", SchemaNames.ATTR_ID, SchemaNames.ATTR_ID, //$NON-NLS-1$
+				"string", rwo.getId()); //$NON-NLS-1$
+
+		String pageName = NameHelper.localizeName(name, localSpace);
+		name = aliasSpace + "/" + pageName;
+		// FIXME why do we know about "@" here?!
+		propA.addAttribute("", SchemaNames.ATTR_NAME, //$NON-NLS-1$
+				SchemaNames.ATTR_NAME, "string", name + "@" //$NON-NLS-1$ //$NON-NLS-2$
+						+ rwo.getRevision());
+		propA.addAttribute("", SchemaNames.ATTR_LOCAL_NAME, //$NON-NLS-1$
+				SchemaNames.ATTR_LOCAL_NAME, "string", NameHelper //$NON-NLS-1$
+						.localizeName(rwo.getName(), rwo.getRealm()));
+		propA.addAttribute("", SchemaNames.ATTR_OWNER, //$NON-NLS-1$
+				SchemaNames.ATTR_OWNER, "string", rwo.getOwner()); //$NON-NLS-1$
+		propA.addAttribute("", SchemaNames.ATTR_OWNER, //$NON-NLS-1$
+				SchemaNames.ATTR_REALM, "string", rwo.getRealm()); //$NON-NLS-1$
+		propA.addAttribute("", SchemaNames.ATTR_REFERENCED, //$NON-NLS-1$
+						SchemaNames.ATTR_REFERENCED, "string", rwo //$NON-NLS-1$
+								.getReferenced());
+		propA.addAttribute("", SchemaNames.ATTR_SHA1, //$NON-NLS-1$
+				SchemaNames.ATTR_SHA1, "string", rwo.getSha1()); //$NON-NLS-1$
+		propA.addAttribute("", SchemaNames.ATTR_USER, //$NON-NLS-1$
+				SchemaNames.ATTR_USER, "string", rwo.getUser()); //$NON-NLS-1$
+		propA.addAttribute("", SchemaNames.ATTR_DISPLAY_USER, //$NON-NLS-1$
+				SchemaNames.ATTR_DISPLAY_USER, "string", UserDisplayHelper //$NON-NLS-1$
+						.formatDisplayName(rwo.getUser(), rwo.getRealm()));
+		propA.addAttribute("", SchemaNames.ATTR_REVISION, //$NON-NLS-1$
+				SchemaNames.ATTR_REVISION, "string", String.valueOf(rwo //$NON-NLS-1$
+						.getRevision()));
+		SimpleDateFormat sd = new SimpleDateFormat(RFC822DATE);
+		propA.addAttribute("", SchemaNames.ATTR_LAST_CHANGE, //$NON-NLS-1$
+				SchemaNames.ATTR_LAST_CHANGE, "string", sd.format(rwo //$NON-NLS-1$
+						.getVersion()));
+
+		ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_CHANGE,
+				SchemaNames.EL_NSCHANGE, propA);
+		renderToXML(rwo, ch,true,true);
+		ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_CHANGE,
+				SchemaNames.EL_NSCHANGE);
+		// end of output current version
+
 
 		List changes = rwikiObjectService.findRWikiHistoryObjectsInReverse(rwo);
 		if (changes == null) return;
 		for (Iterator i = changes.iterator(); i.hasNext();)
 		{
 			RWikiHistoryObject rwco = (RWikiHistoryObject) i.next();
-			AttributesImpl propA = new AttributesImpl();
+			propA = new AttributesImpl();
 			propA.addAttribute("", SchemaNames.ATTR_ID, SchemaNames.ATTR_ID, //$NON-NLS-1$
 					"string", rwco.getId()); //$NON-NLS-1$
+
+			name = rwco.getName();
+
+			pageName = NameHelper.localizeName(name, localSpace);
+			name = aliasSpace + "/" + pageName;
 			// FIXME why do we know about "@" here?!
 			propA.addAttribute("", SchemaNames.ATTR_NAME, //$NON-NLS-1$
-					SchemaNames.ATTR_NAME, "string", rwco.getName() + "@" //$NON-NLS-1$ //$NON-NLS-2$
+					SchemaNames.ATTR_NAME, "string", name + "@" //$NON-NLS-1$ //$NON-NLS-2$
 							+ rwco.getRevision());
 			propA.addAttribute("", SchemaNames.ATTR_LOCAL_NAME, //$NON-NLS-1$
 					SchemaNames.ATTR_LOCAL_NAME, "string", NameHelper //$NON-NLS-1$
@@ -302,8 +360,7 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 					SchemaNames.ATTR_OWNER, "string", rwco.getOwner()); //$NON-NLS-1$
 			propA.addAttribute("", SchemaNames.ATTR_OWNER, //$NON-NLS-1$
 					SchemaNames.ATTR_REALM, "string", rwco.getRealm()); //$NON-NLS-1$
-			propA
-					.addAttribute("", SchemaNames.ATTR_REFERENCED, //$NON-NLS-1$
+			propA.addAttribute("", SchemaNames.ATTR_REFERENCED, //$NON-NLS-1$
 							SchemaNames.ATTR_REFERENCED, "string", rwco //$NON-NLS-1$
 									.getReferenced());
 			propA.addAttribute("", SchemaNames.ATTR_SHA1, //$NON-NLS-1$
@@ -316,7 +373,6 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 			propA.addAttribute("", SchemaNames.ATTR_REVISION, //$NON-NLS-1$
 					SchemaNames.ATTR_REVISION, "string", String.valueOf(rwco //$NON-NLS-1$
 							.getRevision()));
-			SimpleDateFormat sd = new SimpleDateFormat(RFC822DATE);
 			propA.addAttribute("", SchemaNames.ATTR_LAST_CHANGE, //$NON-NLS-1$
 					SchemaNames.ATTR_LAST_CHANGE, "string", sd.format(rwco //$NON-NLS-1$
 							.getVersion()));
@@ -406,9 +462,4 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 		this.rwikiObjectService = rwikiObjectService;
 	}
 
-	public void setSiteService(SiteService siteService) 
-	{
-		this.siteService = siteService;
-	}
-	
 }
