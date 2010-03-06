@@ -45,6 +45,7 @@ import org.apache.pluto.descriptors.portlet.PortletDD;
 import org.apache.pluto.descriptors.portlet.SupportsDD;
 import org.apache.pluto.spi.PortalCallbackService;
 import org.apache.pluto.spi.PortletURLProvider;
+import org.sakaiproject.util.Web;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.render.api.RenderResult;
@@ -308,8 +309,8 @@ public class PortletToolRenderService implements ToolRenderService
 		public String getTitle() throws ToolRenderException
 		{
 			renderResponse();
-			return PortletStateAccess.getPortletState(req, window.getId().getStringId())
-					.getTitle();
+			return Web.escapeHtml(PortletStateAccess.getPortletState(req, window.getId().getStringId())
+					.getTitle());
 		}
 
 		public String getJSR168EditUrl()
