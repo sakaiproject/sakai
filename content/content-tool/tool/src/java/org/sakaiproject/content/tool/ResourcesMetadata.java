@@ -84,7 +84,7 @@ public class ResourcesMetadata
 	public static final String NAMESPACE_XSD = "http://www.w3.org/2001/XMLSchema#";
 	public static final String NAMESPACE_XSD_ABBREV = "xs:";
 
-	protected static Integer NamespaceNumber = new Integer(0);
+	protected static Integer NamespaceNumber = Integer.valueOf(0);
 	
 	public static final String PROPERTY_NAME_DC_TITLE = "title";
 	public static final String PROPERTY_LABEL_DC_TITLE = rb.getString("label.dc_title");
@@ -1005,7 +1005,7 @@ public class ResourcesMetadata
 		synchronized(NamespaceNumber)
 		{
 			abbrev = "s" + NamespaceNumber;
-			NamespaceNumber = new Integer(NamespaceNumber.byteValue() + 1);
+			NamespaceNumber = Integer.valueOf(NamespaceNumber.byteValue() + 1);
 		}
 		setNamespaceAbbrev(namespace, abbrev);
 		return abbrev;
@@ -1025,7 +1025,7 @@ public class ResourcesMetadata
 	 */
 	public Integer getCount() 
 	{
-		return new Integer(this.getCurrentCount());
+		return Integer.valueOf(this.getCurrentCount());
 	}
 	
 	public void setValue(String name, Object value)
@@ -1033,7 +1033,7 @@ public class ResourcesMetadata
 		if(name.startsWith(this.getDottedname()))
 		{
 			String localname = name.substring(name.length());
-			if(localname == null || localname.equals(""))
+			if(localname == null || "".equals(localname))
 			{
 				if(this.m_currentValues == null)
 				{

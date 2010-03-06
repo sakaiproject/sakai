@@ -2883,7 +2883,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			Integer expansionLimit = (Integer) state.getAttribute(STATE_EXPANDABLE_FOLDER_SIZE_LIMIT);
 			if(expansionLimit == null)
 			{
-				expansionLimit = new Integer(EXPANDABLE_FOLDER_SIZE_LIMIT);
+				expansionLimit = Integer.valueOf(EXPANDABLE_FOLDER_SIZE_LIMIT);
 			}
 			folder.setIsTooBig(collection_size > expansionLimit.intValue());
 				
@@ -5529,7 +5529,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			user_action = pipe.getAction().getId();
 		}
 		
-		if(user_action.equals("save"))
+		if("save".equals(user_action))
 		{
 			item.captureProperties(params, ListItem.DOT + "0");
 			if (item.numberFieldIsInvalid) {
@@ -5772,7 +5772,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
             }
 			
 		}
-		else if(user_action.equals("cancel"))
+		else if("cancel".equals(user_action))
 		{
 			if(pipe != null)
 			{
@@ -6259,13 +6259,13 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				maxDepth = depth;
 			}
-			List v = (List) deleteItems.get(new Integer(depth));
+			List v = (List) deleteItems.get(Integer.valueOf(depth));
 			if(v == null)
 			{
 				v = new ArrayList();
 			}
 			v.add(item);
-			deleteItems.put(new Integer(depth), v);
+			deleteItems.put(Integer.valueOf(depth), v);
 		}
 
 		boolean isCollection = false;
@@ -6767,7 +6767,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		
 		String user_action = params.getString("user_action");
 		
-		if(user_action.equals("save"))
+		if("save".equals(user_action))
 		{
 			String entityId = (String) state.getAttribute(STATE_REVISE_PROPERTIES_ENTITY_ID);
 			ListItem item = (ListItem) state.getAttribute(STATE_REVISE_PROPERTIES_ITEM);
@@ -6896,7 +6896,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			
 		}
-		else if(user_action.equals("cancel"))
+		else if("cancel".equals(user_action))
 		{
 			state.setAttribute(STATE_MODE, MODE_LIST);
 		}
@@ -7141,7 +7141,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			criteria = ResourceProperties.PROP_MODIFIED_DATE;
 		}
-		else if (criteria.equals("priority") && ContentHostingService.isSortByPriorityEnabled())
+		else if ("priority".equals(criteria) && ContentHostingService.isSortByPriorityEnabled())
 		{
 			// if error, use title sort
 			criteria = ResourceProperties.PROP_CONTENT_PRIORITY;
@@ -7580,16 +7580,16 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		PortletConfig config = portlet.getPortletConfig();
 		try
 		{
-			Integer size = new Integer(config.getInitParameter(PARAM_PAGESIZE));
+			Integer size = Integer.valueOf(config.getInitParameter(PARAM_PAGESIZE));
 			if(size == null || size.intValue() < 1)
 			{
-				size = new Integer(DEFAULT_PAGE_SIZE);
+				size = Integer.valueOf(DEFAULT_PAGE_SIZE);
 			}
 			state.setAttribute(STATE_PAGESIZE, size);
 		}
 		catch(Exception any)
 		{
-			state.setAttribute(STATE_PAGESIZE, new Integer(DEFAULT_PAGE_SIZE));
+			state.setAttribute(STATE_PAGESIZE, Integer.valueOf(DEFAULT_PAGE_SIZE));
 		}
 
 		// state.setAttribute(STATE_TOP_PAGE_MESSAGE_ID, "");
@@ -7648,7 +7648,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		
 		/** set attribute for the maximum size at which the resources tool will expand a collection. */
 		int expandableFolderSizeLimit = ServerConfigurationService.getInt("resources.expanded_folder_size_limit", EXPANDABLE_FOLDER_SIZE_LIMIT);
-		state.setAttribute(STATE_EXPANDABLE_FOLDER_SIZE_LIMIT, new Integer(expandableFolderSizeLimit));
+		state.setAttribute(STATE_EXPANDABLE_FOLDER_SIZE_LIMIT, Integer.valueOf(expandableFolderSizeLimit));
 		
 		/** This attribute indicates whether "Other Sites" twiggle should show */
 		state.setAttribute(STATE_SHOW_ALL_SITES, Boolean.toString(show_other_sites));
@@ -8015,7 +8015,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 
 		// save the number of messges
-		state.setAttribute(STATE_NUM_MESSAGES, new Integer(numMessages));
+		state.setAttribute(STATE_NUM_MESSAGES, Integer.valueOf(numMessages));
 
 		// find the position of the message that is the top first on the page
 		int posStart = 0;
@@ -8089,7 +8089,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		// save which message is at the top of the page
 		ListItem itemAtTheTopOfThePage = (ListItem) allMessages.get(posStart);
 		state.setAttribute(STATE_TOP_PAGE_MESSAGE_ID, itemAtTheTopOfThePage.getId());
-		state.setAttribute(STATE_TOP_MESSAGE_INDEX, new Integer(posStart));
+		state.setAttribute(STATE_TOP_MESSAGE_INDEX, Integer.valueOf(posStart));
 
 
 		// which message starts the next page (if any)

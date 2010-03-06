@@ -879,7 +879,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		for(int i = 0; i <= lastIndex && actualCount < count; i++)
 		{
 			String exists = params.getString("exists" + ListItem.DOT + i);
-			if(exists == null || exists.equals(""))
+			if(exists == null || "".equals(exists))
 			{
 				continue;
 			}
@@ -1133,7 +1133,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		for(int i = 0; i <= lastIndex && actualCount < count; i++)
 		{
 			String exists = params.getString("exists" + ListItem.DOT + i);
-			if(exists == null || exists.equals(""))
+			if(exists == null || "".equals(exists))
 			{
 				continue;
 			}
@@ -1376,7 +1376,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		for(int i = 0, c = 0; i <= lastIndex && c < count; i++)
 		{
 			String exists = params.getString("exists" + ListItem.DOT + i);
-			if(exists == null || exists.equals(""))
+			if(exists == null || "".equals(exists))
 			{
 				continue;
 			}
@@ -1518,11 +1518,11 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			{
 				logger.warn("No files uploaded; upload.status == null");
 			}
-			else if(status.equals("ok"))
+			else if("ok".equals(status))
 			{
 				logger.warn("No files uploaded; upload.status == ok");
 			}
-			else if(status.equals("size_limit_exceeded"))
+			else if("size_limit_exceeded".equals(status))
 			{
 				String max_file_size_mb = (String) state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
 				int max_bytes = 1024 * 1024;
@@ -1542,7 +1542,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				
 				addAlert(state, rb.getFormattedMessage("size.exceeded", new Object[]{ max_bytes_string }));
 			}
-			else if(status.equals("exception"))
+			else if("exception".equals(status))
 			{
 				logger.warn("No files uploaded; upload.status == exception");
 				addAlert(state, rb.getString("choosefile7"));

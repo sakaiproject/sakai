@@ -441,7 +441,7 @@ public class ResourcesEditItem
 
 	 public String getMimeCategory()
 	 {
-		 if(this.m_mimetype == null || this.m_mimetype.equals(""))
+		 if(this.m_mimetype == null || "".equals(this.m_mimetype))
 		 {
 			 return "";
 		 }
@@ -455,7 +455,7 @@ public class ResourcesEditItem
 
 	 public String getMimeSubtype()
 	 {
-		 if(this.m_mimetype == null || this.m_mimetype.equals(""))
+		 if(this.m_mimetype == null || "".equals(this.m_mimetype))
 		 {
 			 return "";
 		 }

@@ -68,7 +68,7 @@ public class ResourceConditionsHelper extends VelocityPortletPaneledAction {
 		Object argument = null;
 		if ((selectedIndex == 9) || (selectedIndex == 10)) {
 			try {
-				argument = new Double(params.get("assignment_grade" + ListItem.DOT + index));
+				argument = Double.valueOf(params.get("assignment_grade" + ListItem.DOT + index));
 			} catch (NumberFormatException e) {
 				return;
 			}

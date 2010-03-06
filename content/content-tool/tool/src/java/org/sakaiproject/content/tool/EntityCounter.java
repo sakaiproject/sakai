@@ -36,11 +36,11 @@ public class EntityCounter
 		Integer val = values.get(key);
 		if(val == null)
 		{
-			values.put(key, new Integer(-1));
+			values.put(key, Integer.valueOf(-1));
 		}
 		else
 		{
-			values.put(key, new Integer(val.intValue() - 1));
+			values.put(key, Integer.valueOf(val.intValue() - 1));
 		}
 	}
 	
@@ -49,7 +49,7 @@ public class EntityCounter
 		Integer val = values.get(key);
 		if(val == null)
 		{
-			val = new Integer(0);
+			val = Integer.valueOf(0);
 		}
 		return val.intValue();
 	}
@@ -59,11 +59,11 @@ public class EntityCounter
 		Integer val = values.get(key);
 		if(val == null)
 		{
-			values.put(key, new Integer(1));
+			values.put(key, Integer.valueOf(1));
 		}
 		else
 		{
-			values.put(key, new Integer(val.intValue() + 1));
+			values.put(key, Integer.valueOf(val.intValue() + 1));
 		}
 	}
 }

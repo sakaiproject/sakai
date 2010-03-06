@@ -48,7 +48,7 @@ public class ResourcesBrowseItem
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("content");
 
-	protected static Integer seqnum = new Integer(0);
+	protected static Integer seqnum = Integer.valueOf(0);
 	private String m_itemnum;
 
 	// attributes of all resources
@@ -127,7 +127,7 @@ public class ResourcesBrowseItem
 		 synchronized(seqnum)
 		 {
 			 snum = seqnum;
-			 seqnum = new Integer((seqnum.intValue() + 1) % 10000);
+			 seqnum = Integer.valueOf((seqnum.intValue() + 1) % 10000);
 		 }
 		 m_itemnum = "Item00000000".substring(0,10 - snum.toString().length()) + snum.toString();
 

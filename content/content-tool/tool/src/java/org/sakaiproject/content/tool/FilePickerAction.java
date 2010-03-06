@@ -511,7 +511,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			toolSession.setAttribute(STATE_ADDED_ITEMS, new_items);
 		}
 		context.put("attached", new_items);
-		context.put("last", new Integer(new_items.size() - 1));
+		context.put("last", Integer.valueOf(new_items.size() - 1));
 
 		Integer max_cardinality = (Integer) toolSession.getAttribute(STATE_ATTACH_CARDINALITY);
 		if(max_cardinality == null)
@@ -1950,7 +1950,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 		{
 			
 		}
-		else if(user_action.equals("save"))
+		else if("save".equals(user_action))
 		{
 			
 			item.captureProperties(params, ListItem.DOT + "0");
@@ -2115,7 +2115,7 @@ public class FilePickerAction extends PagedResourceHelperAction
             }
 			
 		}
-		else if(user_action.equals("cancel"))
+		else if("cancel".equals(user_action))
 		{
 			if(pipe != null)
 			{
@@ -2803,7 +2803,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 		}
 
 		// save the number of messges
-		toolSession.setAttribute(STATE_NUM_MESSAGES, new Integer(numMessages));
+		toolSession.setAttribute(STATE_NUM_MESSAGES, Integer.valueOf(numMessages));
 
 		// find the position of the message that is the top first on the page
 		int posStart = 0;
@@ -2876,7 +2876,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 		// save which message is at the top of the page
 		ListItem itemAtTheTopOfThePage = (ListItem) allMessages.get(posStart);
 		toolSession.setAttribute(STATE_TOP_PAGE_MESSAGE_ID, itemAtTheTopOfThePage.getId());
-		toolSession.setAttribute(STATE_TOP_MESSAGE_INDEX, new Integer(posStart));
+		toolSession.setAttribute(STATE_TOP_MESSAGE_INDEX, Integer.valueOf(posStart));
 
 
 		// which message starts the next page (if any)

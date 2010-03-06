@@ -208,8 +208,8 @@ public class AttachmentAction
 		buildMenu(portlet, context, rundata, state, true, (attachments.size() > 0));
 
 		// for toolbar
-		context.put("enabled", new Boolean(true));
-		context.put("anyattachment", new Boolean(attachments.size() > 0));
+		context.put("enabled", Boolean.valueOf(true));
+		context.put("anyattachment", Boolean.valueOf(attachments.size() > 0));
 		context.put("has_attachment_before", state.getAttribute(STATE_HAS_ATTACHMENT_BEFORE));
 
 		return TEMPLATE_MAIN;
@@ -258,7 +258,7 @@ public class AttachmentAction
 
 		context.put("collectionDisplayName", collectionDisplayName);
 		context.put("collectionMembers", members);
-		context.put("includeUp", new Boolean(!id.equals(state.getAttribute(STATE_HOME_COLLECTION_ID))));
+		context.put("includeUp", Boolean.valueOf(!id.equals(state.getAttribute(STATE_HOME_COLLECTION_ID))));
 
 		// place the attribute vector (of References) into the context
 		context.put("attachments", state.getAttribute(STATE_ATTACHMENTS));
@@ -268,8 +268,8 @@ public class AttachmentAction
 
 		// the menu
 		buildMenu(portlet, context, rundata, state, false, false);
-		context.put("enabled", new Boolean(false));
-		context.put("anyattachment", new Boolean(false));
+		context.put("enabled", Boolean.valueOf(false));
+		context.put("anyattachment", Boolean.valueOf(false));
 
 		return TEMPLATE_BROWSE;
 
@@ -286,8 +286,8 @@ public class AttachmentAction
 		// the menu
 		buildMenu(portlet, context, rundata, state, false, false);
 		// for toolbar
-		context.put("enabled", new Boolean(false));
-		context.put("anyattachment", new Boolean(false));
+		context.put("enabled", Boolean.valueOf(false));
+		context.put("anyattachment", Boolean.valueOf(false));
 
 		return TEMPLATE_UPLOAD;
 
@@ -304,8 +304,8 @@ public class AttachmentAction
 		// the menu
 		buildMenu(portlet, context, rundata, state, false, false);
 		// for toolbar
-		context.put("enabled", new Boolean(false));
-		context.put("anyattachment", new Boolean(false));
+		context.put("enabled", Boolean.valueOf(false));
+		context.put("anyattachment", Boolean.valueOf(false));
 
 		return TEMPLATE_URL;
 
@@ -642,7 +642,7 @@ public class AttachmentAction
 
 		// which option was choosen?
 		String option = data.getParameters().getString("option");
-		if (option.equals("cancel"))
+		if ("cancel".equals(option))
 		{
 			doCancel_add(data);
 		}
@@ -665,7 +665,7 @@ public class AttachmentAction
 				state.setAttribute(STATE_HAS_ATTACHMENT_BEFORE, Boolean.TRUE);
 			}
 
-			if (option.equals("up"))
+			if ("up".equals(option))
 			{
 				// get the current collection
 				String id = (String) state.getAttribute(STATE_BROWSE_COLLECTION_ID);
@@ -690,7 +690,7 @@ public class AttachmentAction
 				state.setAttribute(STATE_MODE, MODE_BROWSE);
 			}
 
-			else if (option.equals("down"))
+			else if ("down".equals(option))
 			{
 				// get the collection id to move to
 				String id = data.getParameters().getString("itemId");
