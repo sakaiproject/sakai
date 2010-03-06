@@ -359,35 +359,6 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 	/**
 	 * @inheritDoc
 	 */
-	public UsageSession setSessionActive(boolean auto)
-	{
-		throw new UnsupportedOperationException();
-		// BaseUsageSession session = (BaseUsageSession) getSession();
-		// if (session == null) return null;
-		//
-		// if (session.isClosed()) return session;
-		//
-		// if (auto)
-		// {
-		// // do not mark the current session as having user activity
-		// // but close it if it's timed out from no user activity
-		// if (session.isInactive())
-		// {
-		// session.close();
-		// }
-		// }
-		// else
-		// {
-		// // mark the current session as having user activity
-		// session.setActivity();
-		// }
-		//
-		// return session;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
 	public UsageSession getSession(String id)
 	{
 		UsageSession rv = m_storage.getSession(id);

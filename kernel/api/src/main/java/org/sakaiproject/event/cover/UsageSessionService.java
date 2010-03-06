@@ -102,14 +102,6 @@ public class UsageSessionService
 		return service.getSessionState(param0);
 	}
 
-	public static org.sakaiproject.event.api.UsageSession setSessionActive(boolean param0)
-	{
-		org.sakaiproject.event.api.UsageSessionService service = getInstance();
-		if (service == null) return null;
-
-		return service.setSessionActive(param0);
-	}
-
 	public static java.util.List getSessions(java.lang.String joinTable, java.lang.String joinAlias, java.lang.String joinColumn, java.lang.String joinCriteria, java.lang.Object[] values)
 	{
 		org.sakaiproject.event.api.UsageSessionService service = getInstance();

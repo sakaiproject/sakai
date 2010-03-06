@@ -86,15 +86,6 @@ public interface UsageSessionService
 	SessionState getSessionState(String key);
 
 	/**
-	 * Indicate recent user activity on the current usage session - user initiated or auto. Maintains the initiated activity timeout mechanism.
-	 * 
-	 * @param auto
-	 *        if true, activity from an automatic event, otherwise from a user initiated event.
-	 * @return The current usage session (may be just closed).
-	 */
-	UsageSession setSessionActive(boolean auto);
-
-	/**
 	 * Access a usage session (may be other than the current one) by id.
 	 * 
 	 * @param id
@@ -109,6 +100,7 @@ public interface UsageSessionService
 	 * @param ids
 	 *        the List (String) of Session ids.
 	 * @return The List (UsageSession) of UsageSession object for these ids.
+	 * @deprecated not used will be removed in 1.3
 	 */
 	List<UsageSession> getSessions(List<String> ids);
 
@@ -133,6 +125,7 @@ public interface UsageSessionService
 	 * Access the time (seconds) we will wait for any user generated request from a session before we consider the session inactive.
 	 * 
 	 * @return the time (seconds) used for session inactivity detection.
+	 * @deprecated not used will be removed in 1.3
 	 */
 	int getSessionInactiveTimeout();
 
@@ -140,6 +133,7 @@ public interface UsageSessionService
 	 * Access the time (seconds) we will wait for hearing anyting from a session before we consider the session lost.
 	 * 
 	 * @return the time (seconds) used for lost session detection.
+	 * @deprecated not used will be removed in 1.3
 	 */
 	int getSessionLostTimeout();
 
@@ -147,6 +141,7 @@ public interface UsageSessionService
 	 * Access a list of all open sessions.
 	 * 
 	 * @return a List (UsageSession) of all open sessions, ordered by server, then by start (asc)
+	 * @deprecated - not used will be removed in 1.3
 	 */
 	List<UsageSession> getOpenSessions();
 
