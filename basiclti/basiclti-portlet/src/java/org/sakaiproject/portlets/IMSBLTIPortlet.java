@@ -21,7 +21,6 @@ package org.sakaiproject.portlets;
 
 import org.imsglobal.basiclti.BasicLTIUtil;
 
-
 import java.lang.Integer;
 
 import java.io.PrintWriter;
@@ -86,7 +85,6 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationService;
 //import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.basiclti.LocalEventTrackingService;
-
 
 // For Rutgers Security
 import java.security.*;
@@ -325,7 +323,6 @@ public class IMSBLTIPortlet extends GenericPortlet {
 	String url = (String) pSession.getAttribute("sakai.url");
 	dPrint("sakai.url="+url);
 
-
 	String view = (String) pSession.getAttribute("sakai.view");
 	dPrint("sakai.view="+view);
 	if ( "edit.reset".equals(view) ) {
@@ -488,6 +485,26 @@ public class IMSBLTIPortlet extends GenericPortlet {
 	} else if ( imsTIUrl == null ) {
 		setErrorMessage(request, rb.getString("error.no.input") );
 		return;
+        } else {
+                try {
+			URL testUrl = new URL(imsTIUrl);
+                } 
+		catch(Exception e) {
+			setErrorMessage(request, rb.getString("error.bad.url") );
+			return;
+		}
+        }
+
+	String imsTIHeight  = getFormParameter(request,sakaiProperties,"frameheight");
+        if ( imsTIHeight != null && imsTIHeight.trim().length() < 1 ) imsTIHeight = null;
+        if ( imsTIHeight != null ) {
+                try {
+                        int x = Integer.parseInt(imsTIHeight);
+                }
+                catch(Exception e) {
+			setErrorMessage(request, rb.getString("error.bad.height") );
+			return;
+                }
         }
 
 	// Passed the sanity checks - time to save it all!

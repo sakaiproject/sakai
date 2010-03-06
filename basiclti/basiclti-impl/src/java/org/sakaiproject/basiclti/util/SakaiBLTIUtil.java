@@ -51,6 +51,7 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Web;
 
 /**
  * Some Sakai Utility code for IMS Basic LTI
@@ -342,9 +343,11 @@ public class SakaiBLTIUtil {
         return rb.getString(key, def);
     }
 
+    // To make absolutely sure we never send an XSS, we clean these values
     public static void setProperty(Properties props, String key, String value)
     {
         if ( value == null ) return;
+        value = Web.cleanHtml(value);
         if ( value.trim().length() < 1 ) return;
         props.setProperty(key, value);
     }
