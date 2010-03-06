@@ -1,87 +1,104 @@
-import java.util.Date;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.apache.axis.AxisFault;
 import org.apache.axis.Constants;
 import org.apache.axis.MessageContext;
-
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.event.api.UsageSession;
-import org.sakaiproject.event.cover.UsageSessionService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserDirectoryService;
 
 /**
- * class to support Sakai Login headers sent in request as a string array
+ *   SakaiLogin.jws 
+ *   
+ *   The main authentication web service, performs remote login and logout functions for Sakai.
+ * 
  */
-public class SakaiLogin 
-{
+public class SakaiLogin {
 
     private static final Log LOG = LogFactory.getLog("org.sakaiproject.axis.SakaiLogin");
 
-    public String login(String id,String pw) 
-	throws AxisFault
-    {
-	MessageContext messageContext = MessageContext.getCurrentContext(); 
-	String ipAddress = messageContext.getStrProp(Constants.MC_REMOTE_ADDR);
+    private ServerConfigurationService serverConfigurationService;
+    private SessionManager sessionManager;
+    private UsageSessionService usageSessionService;
+    private UserDirectoryService userDirectoryService;
+    
+    public SakaiLogin() {
+    	serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class.getName());
+    	sessionManager = (SessionManager) ComponentManager.get(SessionManager.class.getName());
+    	usageSessionService = (UsageSessionService) ComponentManager.get(UsageSessionService.class.getName());
+    	userDirectoryService = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class.getName());
+    }
+    /**
+     * Login with the supplied credentials and return the session string which can be used in subsequent web service calls, ie via SakaiScript
+     * @param id	eid, eg jsmith26
+     * @param pw	password for the user
+     * @return		session string
+     * @throws AxisFault
+     */
+    public String login(String id,String pw) throws AxisFault {
+    	
+    	MessageContext messageContext = MessageContext.getCurrentContext(); 
+    	String ipAddress = messageContext.getStrProp(Constants.MC_REMOTE_ADDR);
 
-	boolean allowLogin = ServerConfigurationService.getBoolean("webservices.allowlogin", false);
+    	boolean allowLogin = serverConfigurationService.getBoolean("webservices.allowlogin", false);
 
-	if ( ! allowLogin ) {
-		throw new AxisFault("Web Services Login Disabled");
-	}
+		if ( ! allowLogin ) {
+			throw new AxisFault("Web Services Login Disabled");
+		}
 
-        User user = UserDirectoryService.authenticate(id,pw);
-	if ( user != null ) {
-                Session s = SessionManager.startSession();
-                SessionManager.setCurrentSession(s);
-                if (s == null)
-                {
-        		LOG.warn("Web Services Login failed to establish session for id="+id+" ip="+ipAddress);
-                        throw new AxisFault("Unable to establish session");
+        User user = userDirectoryService.authenticate(id,pw);
+        if ( user != null ) {
+                Session s = sessionManager.startSession();
+                sessionManager.setCurrentSession(s);
+                if (s == null) {
+                	LOG.warn("Web Services Login failed to establish session for id="+id+" ip="+ipAddress);
+                	throw new AxisFault("Unable to establish session");
+                } else {
+
+                	// We do not care too much on the off-chance that this fails - folks simply won't show up in presense
+                	// and events won't be trackable back to people / IP Addresses - but if it fails - there is nothing
+                	// we can do anyways.
+
+                	usageSessionService.login(user.getId(), id, ipAddress, "SakaiLogin.jws", UsageSessionService.EVENT_LOGIN_WS);
+
+                	if (LOG.isDebugEnabled()) {
+                		LOG.debug("Sakai Web Services Login id="+id+" ip="+ipAddress+" session="+s.getId());
+                	}
+                	return s.getId();
                 }
-                else
-                {
-
-			// We do not care too much on the off-chance that this fails - folks simply won't show up in presense
-			// and events won't be trackable back to people / IP Addresses - but if it fails - there is nothing
-			// we can do anyways.
-
-			UsageSessionService.login(user.getId(), id, ipAddress, "SakaiLogin.jws", UsageSessionService.EVENT_LOGIN_WS);
-
-                	if ( LOG.isDebugEnabled() ) LOG.debug("Sakai Web Services Login id="+id+" ip="+ipAddress+" session="+s.getId());
-			return s.getId();
-                }
-	}
+        }
         LOG.warn("Failed Web Services Login id="+id+" ip="+ipAddress);
         throw new AxisFault("Unable to login");
     }
 
-    public String loginToServer(String id,String pw)
-        throws AxisFault
-    {
-	return login(id, pw) + "," + 
- 	  ServerConfigurationService.getString("webservices.directurl", ServerConfigurationService.getString("serverUrl"));
+   
+	/**
+	 * Logout of the given session
+	 * @param sessionid		sessionid to logout
+	 * @return
+	 * @throws AxisFault
+	 * @throws InterruptedException
+	 */
+	public boolean logout(String sessionid) throws AxisFault, InterruptedException {
+    	
+		Session s = sessionManager.getSession(sessionid);
+
+    	if (s == null) {
+    		throw new AxisFault("Session "+sessionid+" is not active");
+    	}
+    	
+        sessionManager.setCurrentSession(s);
+        usageSessionService.logout();
+
+        return true;
+	}
+    
+	public String loginToServer(String id,String pw) throws AxisFault {
+    	return login(id, pw) + "," + serverConfigurationService.getString("webservices.directurl", serverConfigurationService.getString("serverUrl"));
     }
-
-    public boolean logout(String id) 
-	throws AxisFault, InterruptedException
-    {
-	 Session s = SessionManager.getSession(id);
-
-         if (s == null)
-           {
-              throw new AxisFault("Session "+id+" is not active");
-           }
-        SessionManager.setCurrentSession(s);
-
-	UsageSessionService.logout();
-
-	return true;
-   }
 }
 

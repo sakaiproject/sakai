@@ -17,6 +17,10 @@
   <inceptionYear>2005</inceptionYear>
   <packaging>war</packaging>
   <dependencies>
+  	<dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-util</artifactId>

@@ -1,8 +1,3 @@
-/*
- *   SakaiScript.jws - updated for Sakai 2.7
- *
- */
- 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -19,19 +14,20 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.cover.AuthzGroupService;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEdit;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
-import org.sakaiproject.calendar.cover.CalendarService;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.calendar.api.CalendarService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.UsageSession;
-import org.sakaiproject.event.cover.EventTrackingService;
-import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -39,42 +35,76 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserEdit;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+/**
+ *   SakaiScript.jws 
+ *   
+ *   A set of administrative web services for Sakai
+ * 
+ */
+ 
 public class SakaiScript {
 	
 private static final Log LOG = LogFactory.getLog(SakaiScript.class);
 
 private static final String TOOL_CONFIG_FUNCTIONS = "functions.require";
+
+private AuthzGroupService authzGroupService;
+private CalendarService calendarService;
+private EventTrackingService eventTrackingService;
+private SecurityService securityService;
+private ServerConfigurationService serverConfigurationService;
+private SessionManager sessionManager;
+private SiteService siteService;
+private ToolManager toolManager;
+private UsageSessionService usageSessionService;
+private UserDirectoryService userDirectoryService;
+
+/**
+ * Setup dependencies
+ */
+public SakaiScript() {
+	authzGroupService = (AuthzGroupService) ComponentManager.get(AuthzGroupService.class.getName());
+	calendarService = (CalendarService) ComponentManager.get(CalendarService.class.getName());
+	eventTrackingService = (EventTrackingService) ComponentManager.get(EventTrackingService.class.getName());
+	securityService = (SecurityService) ComponentManager.get(SecurityService.class.getName());
+	serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class.getName());
+	sessionManager = (SessionManager) ComponentManager.get(SessionManager.class.getName());
+	siteService = (SiteService) ComponentManager.get(SiteService.class.getName());
+	toolManager = (ToolManager) ComponentManager.get(ToolManager.class.getName());
+	usageSessionService = (UsageSessionService) ComponentManager.get(UsageSessionService.class.getName());
+	userDirectoryService = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class.getName());
+}
 	
-private Session establishSession(String id) throws AxisFault 
+private Session establishSession(String sessionid) throws AxisFault 
 {
-	Session s = SessionManager.getSession(id);
+	Session s = sessionManager.getSession(sessionid);
 
 	if (s == null)
 	{
-		throw new AxisFault("Session "+id+" is not active");
+		throw new AxisFault("Session "+sessionid+" is not active");
 	}
 	s.setActive();
-	SessionManager.setCurrentSession(s);
+	sessionManager.setCurrentSession(s);
 	return s;
 }
 
-public String checkSession(String id) {
+public String checkSession(String sessionid) {
 	
-	Session s = SessionManager.getSession(id);
+	Session s = sessionManager.getSession(sessionid);
 	
 	if (s == null)
 	{
@@ -82,7 +112,7 @@ public String checkSession(String id) {
 	}
 	else
 	{
-		return id;
+		return sessionid;
 	}
 }
 
@@ -106,7 +136,7 @@ public String addNewUser( String sessionid, String eid, String firstname, String
 {
 	Session session = establishSession(sessionid);
 	
-	if (!SecurityService.isSuperUser())
+	if (!securityService.isSuperUser())
 	{
 		LOG.warn("NonSuperUser trying to add accounts: " + session.getUserId());
         throw new AxisFault("NonSuperUser trying to add accounts: " + session.getUserId());
@@ -114,7 +144,7 @@ public String addNewUser( String sessionid, String eid, String firstname, String
 	try {
 
 		User addeduser = null;
-		addeduser = UserDirectoryService.addUser(null, eid, firstname, lastname, email, password, type, null);
+		addeduser = userDirectoryService.addUser(null, eid, firstname, lastname, email, password, type, null);
 	
 	}
 	catch (Exception e) {  
@@ -145,7 +175,7 @@ public String addNewUser( String sessionid, String id ,String eid, String firstn
 {
 	Session session = establishSession(sessionid);
 	
-	if (!SecurityService.isSuperUser())
+	if (!securityService.isSuperUser())
 	{
 		LOG.warn("NonSuperUser trying to add accounts: " + session.getUserId());
         throw new AxisFault("NonSuperUser trying to add accounts: " + session.getUserId());
@@ -153,7 +183,7 @@ public String addNewUser( String sessionid, String id ,String eid, String firstn
 	try {
 
 		User addeduser = null;
-		addeduser = UserDirectoryService.addUser(id, eid, firstname, lastname, email, password, type, null);
+		addeduser = userDirectoryService.addUser(id, eid, firstname, lastname, email, password, type, null);
 	
 	}
 	catch (Exception e) {  
@@ -179,9 +209,9 @@ public String removeUser( String sessionid, String eid) throws AxisFault
 	try {
 
 		UserEdit userEdit = null;
-		String userid = UserDirectoryService.getUserByEid(eid).getId();
-		userEdit = UserDirectoryService.editUser(userid);
-		UserDirectoryService.removeUser(userEdit);
+		String userid = userDirectoryService.getUserByEid(eid).getId();
+		userEdit = userDirectoryService.editUser(userid);
+		userDirectoryService.removeUser(userEdit);
 	
 	}
 	catch (Exception e) {  
@@ -214,14 +244,14 @@ public String changeUserInfo( String sessionid, String eid, String firstname, St
 	try {
 
 		UserEdit userEdit = null;
-		String userid = UserDirectoryService.getUserByEid(eid).getId();
-		userEdit = UserDirectoryService.editUser(userid);
+		String userid = userDirectoryService.getUserByEid(eid).getId();
+		userEdit = userDirectoryService.editUser(userid);
 		userEdit.setFirstName(firstname);
 		userEdit.setLastName(lastname);
 		userEdit.setEmail(email);
 		userEdit.setType(type);
 		userEdit.setPassword(password);
-		UserDirectoryService.commitEdit(userEdit);
+		userDirectoryService.commitEdit(userEdit);
 	
 	}
 	catch (Exception e) { 
@@ -249,11 +279,11 @@ public String changeUserName( String sessionid, String eid, String firstname, St
 	try {
 
 		UserEdit userEdit = null;
-		String userid = UserDirectoryService.getUserByEid(eid).getId();
-		userEdit = UserDirectoryService.editUser(userid);
+		String userid = userDirectoryService.getUserByEid(eid).getId();
+		userEdit = userDirectoryService.editUser(userid);
 		userEdit.setFirstName(firstname);
 		userEdit.setLastName(lastname);
-		UserDirectoryService.commitEdit(userEdit);
+		userDirectoryService.commitEdit(userEdit);
 	}
 	catch (Exception e) { 
 		LOG.error("WS changeUserName(): " + e.getClass().getName() + " : " + e.getMessage());
@@ -279,10 +309,10 @@ public String changeUserEmail( String sessionid, String eid, String email) throw
 	try {
 
 		UserEdit userEdit = null;
-		String userid = UserDirectoryService.getUserByEid(eid).getId();
-		userEdit = UserDirectoryService.editUser(userid);
+		String userid = userDirectoryService.getUserByEid(eid).getId();
+		userEdit = userDirectoryService.editUser(userid);
 		userEdit.setEmail(email);
-		UserDirectoryService.commitEdit(userEdit);
+		userDirectoryService.commitEdit(userEdit);
 	
 	}
 	catch (Exception e) { 
@@ -308,10 +338,10 @@ public String changeUserType( String sessionid, String eid, String type) throws 
 	
 	try {
 		UserEdit userEdit = null;
-		String userid = UserDirectoryService.getUserByEid(eid).getId();
-		userEdit = UserDirectoryService.editUser(userid);
+		String userid = userDirectoryService.getUserByEid(eid).getId();
+		userEdit = userDirectoryService.editUser(userid);
 		userEdit.setType(type);
-		UserDirectoryService.commitEdit(userEdit);
+		userDirectoryService.commitEdit(userEdit);
 	
 	}
 	catch (Exception e) { 
@@ -338,10 +368,10 @@ public String changeUserPassword( String sessionid, String eid, String password)
 	try {
 
 		UserEdit userEdit = null;
-		String userid = UserDirectoryService.getUserByEid(eid).getId();
-		userEdit = UserDirectoryService.editUser(userid);
+		String userid = userDirectoryService.getUserByEid(eid).getId();
+		userEdit = userDirectoryService.editUser(userid);
 		userEdit.setPassword(password);
-		UserDirectoryService.commitEdit(userEdit);
+		userDirectoryService.commitEdit(userEdit);
 	
 	}
 	catch (Exception e) {
@@ -362,7 +392,7 @@ public String changeUserPassword( String sessionid, String eid, String password)
 public String getUserEmail( String sessionid ) throws AxisFault
 {
 	Session session = establishSession(sessionid);
-	User user = UserDirectoryService.getCurrentUser();
+	User user = userDirectoryService.getCurrentUser();
 	return user.getEmail();
 }
 
@@ -382,7 +412,7 @@ public String getUserEmail( String sessionid, String userid ) throws AxisFault
 {
 	Session session = establishSession(sessionid);
 	try {
-		User user = UserDirectoryService.getUserByEid(userid);
+		User user = userDirectoryService.getUserByEid(userid);
 		return user.getEmail();
 	} catch (Exception e) {  
 		LOG.error("WS getUserEmail() failed for user: " + userid + " : " + e.getClass().getName() + " : " + e.getMessage());
@@ -401,7 +431,7 @@ public String getUserEmail( String sessionid, String userid ) throws AxisFault
 public String getUserDisplayName( String sessionid ) throws AxisFault
 {
 	Session session = establishSession(sessionid);
-	User user = UserDirectoryService.getCurrentUser();
+	User user = userDirectoryService.getCurrentUser();
 	return user.getDisplayName();
 }
 
@@ -421,7 +451,7 @@ public String getUserDisplayName( String sessionid, String userid ) throws AxisF
 {
 	Session session = establishSession(sessionid);
 	try {
-		User user = UserDirectoryService.getUserByEid(userid);
+		User user = userDirectoryService.getUserByEid(userid);
 		return user.getDisplayName();
 	} catch (Exception e) {  
 	 	LOG.error("WS getUserDisplayName() failed for user: " + userid + " : " + e.getClass().getName() + " : " + e.getMessage());
@@ -445,13 +475,13 @@ public String addGroupToSite( String sessionid, String siteid, String grouptitle
 	Session session = establishSession(sessionid);
 	try
 	{
-		Site site = SiteService.getSite(siteid);
+		Site site = siteService.getSite(siteid);
 		Group group = site.addGroup();
 		group.setTitle(grouptitle);
 		group.setDescription(groupdesc);
 		group.getProperties().addProperty(GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
 
-		SiteService.save(site);
+		siteService.save(site);
 		return group.getId();
 	}
 	catch (Exception e)
@@ -478,7 +508,7 @@ public boolean addMemberToGroup( String sessionid, String siteid, String groupid
 	Session session = establishSession(sessionid);
 	try
 	{
-		Site site = SiteService.getSite(siteid);
+		Site site = siteService.getSite(siteid);
 		Group group = site.getGroup(groupid);
 		if ( group == null )
 			return false;
@@ -486,7 +516,7 @@ public boolean addMemberToGroup( String sessionid, String siteid, String groupid
 		Role r = site.getUserRole(userid);
 		Member m = site.getMember(userid);
 		group.addMember(userid, r != null ? r.getId() : "", m != null ? m.isActive() : true,	false);
-		SiteService.save(site);
+		siteService.save(site);
 		return true;
 	}
 	catch (Exception e)
@@ -511,7 +541,7 @@ public String getGroupsInSite(String sessionid, String siteid) throws AxisFault 
 		
 	try {
 		
-		Site site = SiteService.getSite(siteid);
+		Site site = siteService.getSite(siteid);
 	
 		Document dom = Xml.createDocument();
 		Node list = dom.createElement("list");
@@ -563,8 +593,8 @@ public String addNewAuthzGroup(String sessionid, String authzgroupid) throws Axi
 	try {
 
 		AuthzGroup authzgroup = null;
-		authzgroup = AuthzGroupService.addAuthzGroup(authzgroupid);
-		AuthzGroupService.save(authzgroup);
+		authzgroup = authzGroupService.addAuthzGroup(authzgroupid);
+		authzGroupService.save(authzgroup);
 	
 	}
 	catch (Exception e) {  
@@ -588,8 +618,8 @@ public String removeAuthzGroup( String sessionid, String authzgroupid) throws Ax
 	
 	try {
 
-		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
-		AuthzGroupService.removeAuthzGroup(authzgroup);
+		AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
+		authzGroupService.removeAuthzGroup(authzgroup);
 	
 	}
 	catch (Exception e) {  
@@ -615,10 +645,10 @@ public String addNewRoleToAuthzGroup( String sessionid, String authzgroupid, Str
 	
 	try {
 
-		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
 		Role role = authzgroup.addRole(roleid);
 		role.setDescription(description);
-		AuthzGroupService.save(authzgroup);
+		authzGroupService.save(authzgroup);
 	
 	}
 	catch (Exception e) {  
@@ -642,9 +672,9 @@ public String addNewRoleToAuthzGroup( String sessionid, String authzgroupid, Str
 	
 	try {
 
-		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
 		authzgroup.removeRoles();
-		AuthzGroupService.save(authzgroup);
+		authzGroupService.save(authzgroup);
 	
 	}
 	catch (Exception e) {  
@@ -670,7 +700,7 @@ public String removeRoleFromAuthzGroup( String sessionid, String authzgroupid, S
 	
 	try {
 
-		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
 		//check Role exists
 		Role role = authzgroup.getRole(roleid);
 		if(role == null) {
@@ -678,7 +708,7 @@ public String removeRoleFromAuthzGroup( String sessionid, String authzgroupid, S
 			LOG.warn("WS removeRoleFromAuthzGroup(): authzgroup: " + authzgroupid + " does not contain role: " + roleid);
 		}
 		authzgroup.removeRole(roleid);
-		AuthzGroupService.save(authzgroup);
+		authzGroupService.save(authzgroup);
 	
 	}
 	catch (Exception e) {  
@@ -705,10 +735,10 @@ public String allowFunctionForRole( String sessionid, String authzgroupid, Strin
 	
 	try {
 
-		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
 		Role role = authzgroup.getRole(roleid);
 		role.allowFunction(functionname);
-		AuthzGroupService.save(authzgroup);
+		authzGroupService.save(authzgroup);
 	
 	}
 	catch (Exception e) {  
@@ -733,10 +763,10 @@ public String disallowAllFunctionsForRole( String sessionid, String authzgroupid
 	
 	try {
 
-		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
 		Role role = authzgroup.getRole(roleid);
 		role.disallowAll();
-		AuthzGroupService.save(authzgroup);
+		authzGroupService.save(authzgroup);
 	
 	}
 	catch (Exception e) {  
@@ -763,10 +793,10 @@ public String disallowFunctionForRole( String sessionid, String authzgroupid, St
 	
 	try {
 
-		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
 		Role role = authzgroup.getRole(roleid);
 		role.disallowFunction(functionname);
-		AuthzGroupService.save(authzgroup);
+		authzGroupService.save(authzgroup);
 	
 	}
 	catch (Exception e) {  
@@ -792,10 +822,10 @@ public String setRoleDescription( String sessionid, String authzgroupid, String 
 	
 	try {
 
-		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
 		Role role = authzgroup.getRole(roleid);
 		role.setDescription(description);
-		AuthzGroupService.save(authzgroup);
+		authzGroupService.save(authzgroup);
 	
 	}
 	catch (Exception e) {  
@@ -822,7 +852,7 @@ public String addMemberToAuthzGroupWithRole( String sessionid, String eid, Strin
 	
 	try {
 
-		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
 		//check Role exists
 		Role role = authzgroup.getRole(roleid);
 		if(role == null) {
@@ -831,9 +861,9 @@ public String addMemberToAuthzGroupWithRole( String sessionid, String eid, Strin
 			return "WS addMemberToAuthzGroupWithRole(): authzgroup: " + authzgroupid + " does not contain role: " + roleid;
 		}
 		
-		String userid = UserDirectoryService.getUserByEid(eid).getId();
+		String userid = userDirectoryService.getUserByEid(eid).getId();
 		authzgroup.addMember(userid,roleid,true,false);
-		AuthzGroupService.save(authzgroup);
+		authzGroupService.save(authzgroup);
 	
 	}
 	catch (Exception e) {  
@@ -858,10 +888,10 @@ public String addMemberToAuthzGroupWithRole( String sessionid, String eid, Strin
 	
 	try {
 
-		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
-		String userid = UserDirectoryService.getUserByEid(eid).getId();
+		AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
+		String userid = userDirectoryService.getUserByEid(eid).getId();
 		authzgroup.removeMember(userid);
-		AuthzGroupService.save(authzgroup);
+		authzGroupService.save(authzgroup);
 	
 	}
 	catch (Exception e) {  
@@ -885,9 +915,9 @@ public String addMemberToAuthzGroupWithRole( String sessionid, String eid, Strin
 	
 	try {
 
-		AuthzGroup realmEdit = AuthzGroupService.getAuthzGroup(authzgroupid);
+		AuthzGroup realmEdit = authzGroupService.getAuthzGroup(authzgroupid);
 		realmEdit.removeMembers();
-		AuthzGroupService.save(realmEdit);
+		authzGroupService.save(realmEdit);
 	
 	}
 	catch (Exception e) {  
@@ -913,7 +943,7 @@ public String addMemberToAuthzGroupWithRole( String sessionid, String eid, Strin
 	
 	try {
 
-		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
 		
 		//check Role exists
 		Role role = authzgroup.getRole(roleid);
@@ -923,7 +953,7 @@ public String addMemberToAuthzGroupWithRole( String sessionid, String eid, Strin
 		}
 		
 		authzgroup.setMaintainRole(roleid);
-		AuthzGroupService.save(authzgroup);
+		authzGroupService.save(authzgroup);
 	
 	}
 	catch (Exception e) {  
@@ -949,10 +979,10 @@ public String addMemberToSiteWithRole(String sessionid, String siteid, String ei
 	Session session = establishSession(sessionid);
 	
 	try {
-		Site site = SiteService.getSite(siteid);
-		String userid = UserDirectoryService.getUserByEid(eid).getId();
+		Site site = siteService.getSite(siteid);
+		String userid = userDirectoryService.getUserByEid(eid).getId();
 		site.addMember(userid,roleid,true,false);
-		SiteService.save(site);
+		siteService.save(site);
 	}
 	catch (Exception e) {  
 		LOG.error("WS addMemberToSiteWithRole(): " + e.getClass().getName() + " : " + e.getMessage());
@@ -989,7 +1019,7 @@ public String addNewSite( String sessionid, String siteid, String title, String 
 	try {
 
 		Site siteEdit = null;
-		siteEdit = SiteService.addSite(siteid, type);
+		siteEdit = siteService.addSite(siteid, type);
 		siteEdit.setTitle(title);
 		siteEdit.setDescription(description);
 		siteEdit.setShortDescription(shortdesc);
@@ -1001,7 +1031,7 @@ public String addNewSite( String sessionid, String siteid, String title, String 
 		siteEdit.setPubView(publicview);
 		siteEdit.setSkin(skin);
 		siteEdit.setType(type);
-		SiteService.save(siteEdit);
+		siteService.save(siteEdit);
 	
 	}
 	catch (Exception e) {  
@@ -1026,8 +1056,8 @@ public String removeSite( String sessionid, String siteid) throws AxisFault
 	try {
 
 		Site siteEdit = null;
-		siteEdit = SiteService.getSite(siteid);
-		SiteService.removeSite(siteEdit);
+		siteEdit = siteService.getSite(siteid);
+		siteService.removeSite(siteEdit);
 	
 	}
 	catch (Exception e) {  
@@ -1063,8 +1093,8 @@ public String copySite( String sessionid, String siteidtocopy, String newsiteid,
 	
 	try {
 
-		Site site = SiteService.getSite(siteidtocopy);
-		Site siteEdit = SiteService.addSite(newsiteid, site);
+		Site site = siteService.getSite(siteidtocopy);
+		Site siteEdit = siteService.addSite(newsiteid, site);
 		siteEdit.setTitle(title);
 		siteEdit.setDescription(description);
 		siteEdit.setShortDescription(shortdesc);
@@ -1076,7 +1106,7 @@ public String copySite( String sessionid, String siteidtocopy, String newsiteid,
 		siteEdit.setPubView(publicview);
 		siteEdit.setSkin(skin);
 		siteEdit.setType(type);
-		SiteService.save(siteEdit);
+		siteService.save(siteEdit);
 	
 	}
 	catch (Exception e) {  
@@ -1104,11 +1134,11 @@ public String addNewPageToSite( String sessionid, String siteid, String pagetitl
 
 		Site siteEdit = null;
 		SitePage sitePageEdit = null;
-		siteEdit = SiteService.getSite(siteid);
+		siteEdit = siteService.getSite(siteid);
 		sitePageEdit = siteEdit.addPage();
 		sitePageEdit.setTitle(pagetitle);
 		sitePageEdit.setLayout(pagelayout);
-		SiteService.save(siteEdit);
+		siteService.save(siteEdit);
 	
 	}
 	catch (Exception e) {  
@@ -1136,7 +1166,7 @@ public String removePageFromSite( String sessionid, String siteid, String pageti
 	try {
 
 		Site siteEdit = null;
-		siteEdit = SiteService.getSite(siteid);
+		siteEdit = siteService.getSite(siteid);
 		List pageEdits = siteEdit.getPages();
 		for (Iterator i = pageEdits.iterator(); i.hasNext();)
 		{
@@ -1144,7 +1174,7 @@ public String removePageFromSite( String sessionid, String siteid, String pageti
 			if (pageEdit.getTitle().equals(pagetitle))
 				siteEdit.removePage(pageEdit);
 		}
-		SiteService.save(siteEdit);
+		siteService.save(siteEdit);
 	
 	}
 	catch (Exception e) {  
@@ -1174,7 +1204,7 @@ public String addNewToolToPage( String sessionid, String siteid, String pagetitl
 	
 	try {
 
-		Site siteEdit = SiteService.getSite(siteid);
+		Site siteEdit = siteService.getSite(siteid);
 		List pageEdits = siteEdit.getPages();
 		for (Iterator i = pageEdits.iterator(); i.hasNext();)
 		{
@@ -1184,14 +1214,14 @@ public String addNewToolToPage( String sessionid, String siteid, String pagetitl
 				ToolConfiguration tool = pageEdit.addTool();
 				Tool t = tool.getTool();
 				
-				tool.setTool(toolid, ToolManager.getTool(toolid));
+				tool.setTool(toolid, toolManager.getTool(toolid));
 				tool.setTitle(tooltitle);
 				//toolEdit.setTitle(tooltitle);
 				//toolEdit.setToolId(toolid);
 				tool.setLayoutHints(layouthints);
 			}
 		}
-		SiteService.save(siteEdit);
+		siteService.save(siteEdit);
 	
 	}
 	catch (Exception e) {  
@@ -1221,7 +1251,7 @@ public String addConfigPropertyToTool( String sessionid, String siteid, String p
 	
 	try {
 
-		Site siteEdit = SiteService.getSite(siteid);
+		Site siteEdit = siteService.getSite(siteid);
 		List pageEdits = siteEdit.getPages();
 		for (Iterator i = pageEdits.iterator(); i.hasNext();)
 		{
@@ -1241,7 +1271,7 @@ public String addConfigPropertyToTool( String sessionid, String siteid, String p
 				}
 			}
 		}
-		SiteService.save(siteEdit);
+		siteService.save(siteEdit);
 	
 	}
 	catch (Exception e) {  
@@ -1265,8 +1295,8 @@ public boolean checkForUser(String sessionid, String eid) throws AxisFault
 	
 	try {
 		User u = null;
-		String userid = UserDirectoryService.getUserByEid(eid).getId();
-		u = UserDirectoryService.getUser(userid);
+		String userid = userDirectoryService.getUserByEid(eid).getId();
+		u = userDirectoryService.getUser(userid);
 		if (u != null) {
 			return true;
 		} else {
@@ -1293,7 +1323,7 @@ public boolean checkForUser(String sessionid, String eid) throws AxisFault
 	
 	try {
 		Site site = null;
-		site = SiteService.getSite(siteid);
+		site = siteService.getSite(siteid);
 		if (site != null) {
 			return true;
 		} else {
@@ -1322,11 +1352,11 @@ public boolean checkForMemberInAuthzGroupWithRole(String sessionid, String eid, 
 	
 	try {
 		AuthzGroup authzgroup = null; 
-		authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
 		if (authzgroup == null) {
 			return false;
 		} else {
-			String userid = UserDirectoryService.getUserByEid(eid).getId();
+			String userid = userDirectoryService.getUserByEid(eid).getId();
 			return authzgroup.hasRole(userid, role);
 		}
 	}
@@ -1359,9 +1389,9 @@ public String getSitesUserCanAccess(String sessionid) throws AxisFault
 	
 	try 
 	{
-		List allSites = SiteService.getSites(SelectionType.ACCESS, null, null,
+		List allSites = siteService.getSites(SelectionType.ACCESS, null, null,
 														  null, SortType.TITLE_ASC, null);
-		List moreSites = SiteService.getSites(SelectionType.UPDATE, null, null,
+		List moreSites = siteService.getSites(SelectionType.UPDATE, null, null,
 															null, SortType.TITLE_ASC, null);
 		
 		if ((allSites == null || moreSites == null) || (allSites.size() == 0 && moreSites.size() == 0)) {
@@ -1415,7 +1445,7 @@ public String getSiteTitle(String sessionid, String siteid) throws AxisFault {
 	String siteTitle = ""; 
 
 	try { 
-		Site site = SiteService.getSite(siteid); 
+		Site site = siteService.getSite(siteid); 
 		siteTitle = site.getTitle(); 
 	} 
 	catch (Exception e) { 
@@ -1442,7 +1472,7 @@ public String getSiteDescription(String sessionid, String siteid) throws AxisFau
 	String siteDescription = ""; 
 	
 	try { 
-		Site site = SiteService.getSite(siteid); 
+		Site site = siteService.getSite(siteid); 
 		siteDescription = site.getDescription(); 
 	} 
 	catch (Exception e) { 
@@ -1470,7 +1500,7 @@ public String getSiteSkin(String sessionid, String siteid) throws AxisFault {
 	String siteSkin = ""; 
 	
 	try { 
-		Site site = SiteService.getSite(siteid); 
+		Site site = siteService.getSite(siteid); 
 		siteSkin = site.getSkin(); 
 	} 
 	catch (Exception e) { 
@@ -1495,7 +1525,7 @@ public boolean isSiteJoinable(String sessionid, String siteid) throws AxisFault 
 	Session s = establishSession(sessionid);
 	
 	try {
-		Site site = SiteService.getSite(siteid);
+		Site site = siteService.getSite(siteid);
 		if(site.isJoinable()) {
 			return true;
 		} else {
@@ -1526,9 +1556,9 @@ public String changeSiteTitle(String sessionid, String siteid, String title) thr
 	try {
 
 		Site siteEdit = null;
-		siteEdit = SiteService.getSite(siteid);
+		siteEdit = siteService.getSite(siteid);
 		siteEdit.setTitle(title);
-		SiteService.save(siteEdit);
+		siteService.save(siteEdit);
 	
 	}
 	catch (Exception e) {  
@@ -1555,9 +1585,9 @@ public String changeSiteSkin(String sessionid, String siteid, String skin) throw
 	try {
 
 		Site siteEdit = null;
-		siteEdit = SiteService.getSite(siteid);
+		siteEdit = siteService.getSite(siteid);
 		siteEdit.setSkin(skin);
-		SiteService.save(siteEdit);
+		siteService.save(siteEdit);
 	
 	}
 	catch (Exception e) {  
@@ -1586,11 +1616,11 @@ public String changeSiteJoinable(String sessionid, String siteid, boolean joinab
 	try {
 
 		Site siteEdit = null;
-		siteEdit = SiteService.getSite(siteid);
+		siteEdit = siteService.getSite(siteid);
 		siteEdit.setJoinable(joinable);
 		siteEdit.setJoinerRole(joinerrole);
 		siteEdit.setPubView(publicview);
-		SiteService.save(siteEdit);
+		siteService.save(siteEdit);
 	
 	}
 	catch (Exception e) {  
@@ -1618,9 +1648,9 @@ public String changeSiteIconUrl(String sessionid, String siteid, String iconurl)
 	try {
 
 		Site siteEdit = null;
-		siteEdit = SiteService.getSite(siteid);
+		siteEdit = siteService.getSite(siteid);
 		siteEdit.setIconUrl(iconurl);
-		SiteService.save(siteEdit);
+		siteService.save(siteEdit);
 	
 	}
 	catch (Exception e) { 
@@ -1648,9 +1678,9 @@ public String changeSiteDescription( String sessionid, String siteid, String des
 	try {
 
 		Site siteEdit = null;
-		siteEdit = SiteService.getSite(siteid);
+		siteEdit = siteService.getSite(siteid);
 		siteEdit.setDescription(description);
-		SiteService.save(siteEdit);
+		siteService.save(siteEdit);
 	
 	}
 	catch (Exception e) {  
@@ -1677,7 +1707,7 @@ public String getSiteProperty(String sessionid, String siteid, String propname) 
 	
 	try {
 		//get site handle
-		Site site = SiteService.getSite(siteid);
+		Site site = siteService.getSite(siteid);
 		
 		//get list of properties for this site
 		ResourceProperties props = site.getProperties();
@@ -1712,7 +1742,7 @@ public String setSiteProperty(String sessionid, String siteid, String propname, 
 	
 	try {
 		//get site handle
-		Site site = SiteService.getSite(siteid);
+		Site site = siteService.getSite(siteid);
 		
 		//get properties in edit mode
 		ResourcePropertiesEdit props = site.getPropertiesEdit();
@@ -1721,7 +1751,7 @@ public String setSiteProperty(String sessionid, String siteid, String propname, 
 		props.addProperty(propname, propvalue);
 		
 		//save site
-		SiteService.save(site);
+		siteService.save(site);
 	
 	}
 	catch (Exception e) {
@@ -1748,7 +1778,7 @@ public String removeSiteProperty( String sessionid, String siteid, String propna
 	
 	try {
 		//get site handle
-		Site site = SiteService.getSite(siteid);
+		Site site = siteService.getSite(siteid);
 		
 		//get properties in edit mode
 		ResourcePropertiesEdit props = site.getPropertiesEdit();
@@ -1758,7 +1788,7 @@ public String removeSiteProperty( String sessionid, String siteid, String propna
 		props.removeProperty(propname);
 		
 		//save site
-		SiteService.save(site);
+		siteService.save(site);
 	
 	}
 	catch (Exception e) {
@@ -1785,7 +1815,7 @@ public boolean checkForRoleInAuthzGroup(String sessionid, String authzgroupid, S
 	
 	try {
 		//open authzgroup
-		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
 		
 		//see if we can get the role in this authzgroup. will either return the Role, or null
 		Role role = authzgroup.getRole(roleid);
@@ -1809,7 +1839,7 @@ public boolean checkForRoleInAuthzGroup(String sessionid, String authzgroupid, S
  * nor limiting the returned results (ie first and last are ignored)
  *
  * This web service is returning everything it receives correctly though, so when
- * UserDirectoryService.searchUsers() is amended, this will be even more complete.
+ * userDirectoryService.searchUsers() is amended, this will be even more complete.
  *
  * See: SAK-6792 and SAK-14268 for the releavnt Jira's tickets.
  *
@@ -1839,7 +1869,7 @@ public String searchForUsers(String sessionid, String criteria, int first, int l
 			return "<exception/>";
 		}
 	
-		List users = UserDirectoryService.searchUsers(criteria, first, last);
+		List users = userDirectoryService.searchUsers(criteria, first, last);
 				
 		Document dom = Xml.createDocument();
 		Node list = dom.createElement("list");
@@ -1911,7 +1941,7 @@ public boolean checkForAuthzGroup(String sessionid, String authzgroupid) throws 
 	try {
 
 		AuthzGroup authzgroup = null;
-		authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
 		if (authzgroup != null) {
 			return true;
 		} else {
@@ -1939,10 +1969,10 @@ public String removeMemberFromSite(String sessionid, String siteid, String eid) 
     Session session = establishSession(sessionid);
 
     try {
-        Site site = SiteService.getSite(siteid);
-        String userid = UserDirectoryService.getUserByEid(eid).getId();
+        Site site = siteService.getSite(siteid);
+        String userid = userDirectoryService.getUserByEid(eid).getId();
         site.removeMember(userid);
-        SiteService.save(site);
+        siteService.save(site);
     } catch (Exception e) {
     	LOG.error("WS removeMemberFromSite(): " + e.getClass().getName() + " : " + e.getMessage());
         return e.getClass().getName() + " : " + e.getMessage();
@@ -1966,10 +1996,10 @@ public boolean checkForUserInAuthzGroup(String sessionid, String authzgroupid, S
 	Session s = establishSession(sessionid);
 	
 	try {		
-		AuthzGroup azg = AuthzGroupService.getAuthzGroup(authzgroupid);
+		AuthzGroup azg = authzGroupService.getAuthzGroup(authzgroupid);
 		for (Iterator i = azg.getUsers().iterator(); i.hasNext(); ) {
 			String id = (String) i.next();
-			User user = UserDirectoryService.getUser(id);
+			User user = userDirectoryService.getUser(id);
 			if(user.getEid().equals(eid)) {
 				return true;
 			}
@@ -1999,7 +2029,7 @@ public String getUsersInAuthzGroupWithRole(String sessionid, String authzgroupid
 		
 	try {
 		
-		AuthzGroup azg = AuthzGroupService.getAuthzGroup(authzgroupid);
+		AuthzGroup azg = authzGroupService.getAuthzGroup(authzgroupid);
 		
 		Document dom = Xml.createDocument();
 		Node list = dom.createElement("list");
@@ -2022,7 +2052,7 @@ public String getUsersInAuthzGroupWithRole(String sessionid, String authzgroupid
 				String id = (String) k.next();
 	
 				try {
-					User user = UserDirectoryService.getUser(id);				
+					User user = userDirectoryService.getUser(id);				
 					Node userNode = dom.createElement("user");
 					Node userId = dom.createElement("id");
 					userId.appendChild(dom.createTextNode(user.getEid()));
@@ -2069,7 +2099,7 @@ public String getUsersInAuthzGroup(String sessionid, String authzgroupid) throws
 	
 	try {
 		
-		AuthzGroup azg = AuthzGroupService.getAuthzGroup(authzgroupid);
+		AuthzGroup azg = authzGroupService.getAuthzGroup(authzgroupid);
 		
 		Document dom = Xml.createDocument();
 		Node list = dom.createElement("list");
@@ -2078,7 +2108,7 @@ public String getUsersInAuthzGroup(String sessionid, String authzgroupid) throws
 		for (Iterator i = azg.getUsers().iterator(); i.hasNext(); ) {
 			String id = (String) i.next();
 			try {
-				User user = UserDirectoryService.getUser(id);
+				User user = userDirectoryService.getUser(id);
 				
 				//wrapping user node
 				Node userNode = dom.createElement("user");
@@ -2139,8 +2169,8 @@ public String copyCalendarEvents(String sessionid, String sourceSiteId, String t
 	
 	try { 
 		//get calendars
-		Calendar calendar1 = CalendarService.getCalendar(calId1); 
-		CalendarEdit calendar2 = CalendarService.editCalendar(calId2); 
+		Calendar calendar1 = calendarService.getCalendar(calId1); 
+		CalendarEdit calendar2 = calendarService.editCalendar(calId2); 
 	
 		//for every event in calendar1, add it to calendar2
 		List eventsList = calendar1.getEvents(null, null); 
@@ -2159,7 +2189,7 @@ public String copyCalendarEvents(String sessionid, String sourceSiteId, String t
 			//LOG.warn(cEvent.getDisplayName()); 
 		}
 		//save calendar 2
-		CalendarService.commitCalendar(calendar2); 
+		calendarService.commitCalendar(calendar2); 
 		
 	} catch (Exception e) { 
 		LOG.error("WS copyCalendarEvents(): error " + e.getClass().getName() + " : " + e.getMessage()); 
@@ -2181,7 +2211,7 @@ public String getUserType( String sessionid, String userid ) throws AxisFault
 {
 	Session session = establishSession(sessionid);
 	try {
-		User user = UserDirectoryService.getUserByEid(userid);
+		User user = userDirectoryService.getUserByEid(userid);
 		return user.getType();
 	} catch (Exception e) {  
 	 	LOG.warn("WS getUserType() failed for user: " + userid);
@@ -2215,7 +2245,7 @@ public String addNewToolToAllWorkspaces(String sessionid, String toolid, String 
 	Session session = establishSession(sessionid);
 	
 	//check that ONLY admin is accessing this	
-	if(!session.getUserId().equals(UserDirectoryService.ADMIN_ID)) {
+	if(!session.getUserId().equals(userDirectoryService.ADMIN_ID)) {
 		LOG.warn("WS addNewToolToAllWorkspaces() failed. Restricted to admin user.");
 		throw new AxisFault("WS failed. Restricted to admin user.");
 	}
@@ -2223,13 +2253,13 @@ public String addNewToolToAllWorkspaces(String sessionid, String toolid, String 
 	try {
 	
 		//get special users
-		String config = ServerConfigurationService.getString("webservice.specialUsers", "admin,postmaster");
+		String config = serverConfigurationService.getString("webservice.specialUsers", "admin,postmaster");
 		String[] items = StringUtils.split(config, ',');
 		List<String> specialUsers = Arrays.asList(items);
 		
 		//now get all users
 		List<String> allUsers = new ArrayList<String>();
-		List<User> users = UserDirectoryService.getUsers();
+		List<User> users = userDirectoryService.getUsers();
 		for (Iterator i = users.iterator(); i.hasNext();) { 
 			User user = (User) i.next();
 			allUsers.add(user.getId());
@@ -2244,13 +2274,13 @@ public String addNewToolToAllWorkspaces(String sessionid, String toolid, String 
 			
 			LOG.info("Processing user:" + userid);
 		
-			String myWorkspaceId = SiteService.getUserSiteId(userid);
+			String myWorkspaceId = siteService.getUserSiteId(userid);
 		
 			Site siteEdit = null;
 			SitePage sitePageEdit = null;
 			
 			try {
-				siteEdit = SiteService.getSite(myWorkspaceId);
+				siteEdit = siteService.getSite(myWorkspaceId);
 			} catch (IdUnusedException e) {
 				LOG.error("No workspace for user: " + myWorkspaceId + ", skipping...");
 				continue;
@@ -2273,10 +2303,10 @@ public String addNewToolToAllWorkspaces(String sessionid, String toolid, String 
 			ToolConfiguration tool = sitePageEdit.addTool();
 			Tool t = tool.getTool();
 			
-			tool.setTool(toolid, ToolManager.getTool(toolid));
+			tool.setTool(toolid, toolManager.getTool(toolid));
 			tool.setTitle(tooltitle);
 			
-			SiteService.save(siteEdit);
+			siteService.save(siteEdit);
 			LOG.info("Page added for user:" + userid);
 
 		}
@@ -2317,14 +2347,14 @@ public String copyRole( String sessionid, String authzgroupid1, String authzgrou
 	Role role2;
 	
 	//check that ONLY super user's are accessing this	
-	if(!SecurityService.isSuperUser(session.getUserId())) {
+	if(!securityService.isSuperUser(session.getUserId())) {
 		LOG.warn("WS copyRole(): Permission denied. Restricted to super users.");
 		throw new AxisFault("WS copyRole(): Permission denied. Restricted to super users.");
 	}
 
 	try {
 		//open authzgroup1
-		AuthzGroup authzgroup1 = AuthzGroupService.getAuthzGroup(authzgroupid1);
+		AuthzGroup authzgroup1 = authzGroupService.getAuthzGroup(authzgroupid1);
 		//get role that we want to copy
 		Role role1 = authzgroup1.getRole(roleid);
 		//get functions that are in this role
@@ -2333,7 +2363,7 @@ public String copyRole( String sessionid, String authzgroupid1, String authzgrou
 		LOG.warn("WS copyRole(): existing functions in role " + roleid + " in " + authzgroupid1 + ": " + new ArrayList(existingfunctions).toString());
 		
 		//open authzgroup2
-		AuthzGroup authzgroup2 = AuthzGroupService.getAuthzGroup(authzgroupid2);
+		AuthzGroup authzgroup2 = authzGroupService.getAuthzGroup(authzgroupid2);
 		//get roles in authzgroup2
 		existingroles = authzgroup2.getRoles();
 		
@@ -2356,10 +2386,10 @@ public String copyRole( String sessionid, String authzgroupid1, String authzgrou
 			//create this role in authzgroup2
 			role2 = authzgroup2.addRole(roleid);
 			//save authzgroup change
-			AuthzGroupService.save(authzgroup2);
+			authzGroupService.save(authzgroup2);
 			
 			//reopen authzgroup2 for checking
-			authzgroup2 = AuthzGroupService.getAuthzGroup(authzgroupid2);
+			authzgroup2 = authzGroupService.getAuthzGroup(authzgroupid2);
 			
 			//check the role was actually created by getting set again and iterating
 			existingroles = authzgroup2.getRoles();
@@ -2394,10 +2424,10 @@ public String copyRole( String sessionid, String authzgroupid1, String authzgrou
 		role2.setDescription(description);
 		
 		//save authzgroup change
-		AuthzGroupService.save(authzgroup2);
+		authzGroupService.save(authzgroup2);
 		
 		//reopen authzgroup2 for checking
-		authzgroup2 = AuthzGroupService.getAuthzGroup(authzgroupid2);
+		authzgroup2 = authzGroupService.getAuthzGroup(authzgroupid2);
 		
 		//get role we want to check
 		role2 = authzgroup2.getRole(roleid);
@@ -2437,7 +2467,7 @@ public String getAllUsers(String sessionid) throws AxisFault
 	Session session = establishSession(sessionid);
 	
 	//check that ONLY admin is accessing this	
-	if(!session.getUserId().equals(UserDirectoryService.ADMIN_ID)) {
+	if(!session.getUserId().equals(userDirectoryService.ADMIN_ID)) {
 		LOG.warn("WS getAllUsers() failed. Restricted to admin user.");
 		throw new AxisFault("WS failed. Restricted to admin user.");
 	}
@@ -2445,12 +2475,12 @@ public String getAllUsers(String sessionid) throws AxisFault
 	try {
 	
 		//get special users
-		String config = ServerConfigurationService.getString("webservice.specialUsers", "admin,postmaster");
+		String config = serverConfigurationService.getString("webservice.specialUsers", "admin,postmaster");
 		String[] items = StringUtils.split(config, ',');
 		List<String> specialUsers = Arrays.asList(items);
 		
 		//get all users
-		List<User> allUsers = UserDirectoryService.getUsers();
+		List<User> allUsers = userDirectoryService.getUsers();
 		
 		//check size
 		if(allUsers == null || allUsers.size() == 0) {
@@ -2516,7 +2546,7 @@ public String getSessionForUser(String sessionid, String userid) throws AxisFaul
 	Session session = establishSession(sessionid);
 	
 	//check that ONLY super user's are accessing this	
-	if(!SecurityService.isSuperUser(session.getUserId())) {
+	if(!securityService.isSuperUser(session.getUserId())) {
 		LOG.warn("WS getSessionForUser(): Permission denied. Restricted to super users.");
 		throw new AxisFault("WS getSessionForUser(): Permission denied. Restricted to super users.");
 	}
@@ -2534,22 +2564,22 @@ public String getSessionForUser(String sessionid, String userid) throws AxisFaul
 		String ipAddress = messageContext.getStrProp(Constants.MC_REMOTE_ADDR);
 		
 		//start a new session
-		Session newsession = SessionManager.startSession();
-        SessionManager.setCurrentSession(newsession);
+		Session newsession = sessionManager.startSession();
+        sessionManager.setCurrentSession(newsession);
 		
 		//inject this session with new user values
-		User user = UserDirectoryService.getUserByEid(userid);
+		User user = userDirectoryService.getUserByEid(userid);
 		newsession.setUserEid(userid);
 		newsession.setUserId(user.getId());
 		
 		//register the session with presence
-        UsageSession usagesession = UsageSessionService.startSession(user.getId(),ipAddress,"SakaiScript.jws getSessionForUser()");
+        UsageSession usagesession = usageSessionService.startSession(user.getId(),ipAddress,"SakaiScript.jws getSessionForUser()");
         
         // update the user's externally provided realm definitions
-        AuthzGroupService.refreshUser(user.getId());
+        authzGroupService.refreshUser(user.getId());
 
         // post the login event
-        EventTrackingService.post(EventTrackingService.newEvent("user.login", null, true));
+        eventTrackingService.post(eventTrackingService.newEvent("user.login", null, true));
 		
 		if (newsession == null){
 			LOG.warn("WS getSessionForUser() failed. Unable to establish session for userid=" + userid + ", ipAddress=" + ipAddress);
@@ -2586,7 +2616,7 @@ public String addNewPageToSite(String sessionid, String siteid, String pagetitle
 
 		Site siteEdit = null;
 		SitePage sitePageEdit = null;
-		siteEdit = SiteService.getSite(siteid);
+		siteEdit = siteService.getSite(siteid);
 		sitePageEdit = siteEdit.addPage();
 		sitePageEdit.setTitle(pagetitle);
 		sitePageEdit.setLayout(pagelayout);
@@ -2600,7 +2630,7 @@ public String addNewPageToSite(String sessionid, String siteid, String pagetitle
 		
 		sitePageEdit.setPosition(position);
 		sitePageEdit.setPopup(popup);
-		SiteService.save(siteEdit);
+		siteService.save(siteEdit);
 	
 	}
 	catch (Exception e) {  
@@ -2623,13 +2653,13 @@ public String getUserId(String sessionid, String eid) throws AxisFault
 	Session session = establishSession(sessionid);
 	
 	//if eids don't match and we aren't a super user, abort	
-	if(!StringUtils.equals(eid, session.getUserEid()) && !SecurityService.isSuperUser(session.getUserId())) {
+	if(!StringUtils.equals(eid, session.getUserEid()) && !securityService.isSuperUser(session.getUserId())) {
 		LOG.warn("WS getUserId(): Permission denied. Restricted to super users or own user.");
 		throw new AxisFault("WS getUserId(): Permission denied. Restricted to super users or own user.");
 	}
 	
 	try {
-		return UserDirectoryService.getUserId(eid);
+		return userDirectoryService.getUserId(eid);
 	} catch (Exception e) {  
 	 	LOG.warn("WS getUserId() failed for user: " + eid);
 		return "";
@@ -2674,7 +2704,7 @@ public String getPagesAndToolsForSite(String sessionid, String siteid) throws Ax
 	//check if site exists
 	Site site;
 	try {
-		site = SiteService.getSite(siteid);
+		site = siteService.getSite(siteid);
 	} catch (Exception e) {
 		LOG.warn("WS getPagesAndToolsForSite(): Error looking up site: " + siteid + ":" + e.getClass().getName() + " : " + e.getMessage());
 		throw new AxisFault("WS getPagesAndToolsForSite(): Error looking up site: " + siteid + ":" + e.getClass().getName() + " : " + e.getMessage());
@@ -2684,7 +2714,7 @@ public String getPagesAndToolsForSite(String sessionid, String siteid) throws Ax
 	
 	//check if super user
 	boolean isSuperUser = false;
-	if(SecurityService.isSuperUser(userId)) {
+	if(securityService.isSuperUser(userId)) {
 		isSuperUser = true;
 	}
 	
@@ -2767,7 +2797,7 @@ public String getPagesAndToolsForSite(String sessionid, String siteid) throws Ax
 					boolean allowed = true;
 					for (int j = 0; j < requiredPermissions.length; j++) {
 						//if we are missing just one of the entire set, denied access to entire page
-						if (!SecurityService.unlock(requiredPermissions[j].trim(), site.getReference())){
+						if (!securityService.unlock(requiredPermissions[j].trim(), site.getReference())){
 							includePage = false;
 							break;
 						}
