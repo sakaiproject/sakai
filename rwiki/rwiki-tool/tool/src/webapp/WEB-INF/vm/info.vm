@@ -148,7 +148,7 @@
 		  <tbody>
 		    <tr id="permissions">
 		    	<th scope="col"><a href="#" class="rwiki_help_popup_link" name="permissionshelp" title="${rlb.jsp_page_perms_help_title}">${rlb.jsp_page_perms_by_role}</a></th>
-		    	<th scope="col"><a href="#" class="rwiki_help_popup_link" name="createhelp" title="${rlb.jsp_page_perms_help_title}">${rlb.jsp_permission_create}</a></th
+		    	<th scope="col"><a href="#" class="rwiki_help_popup_link" name="createhelp" title="${rlb.jsp_page_perms_help_title}">${rlb.jsp_permission_create}</a></th>
 		    	<th scope="col"><a href="#" class="rwiki_help_popup_link" name="readhelp"  title="${rlb.jsp_page_perms_help_title}">${rlb.jsp_permission_read}</a></th>
 		    	<th scope="col"><a href="#" class="rwiki_help_popup_link" name="updatehelp"  title="${rlb.jsp_page_perms_help_title}">${rlb.jsp_permission_edit}</a></th>
 		    	<!--<td><a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'deletehelp'); return false;"

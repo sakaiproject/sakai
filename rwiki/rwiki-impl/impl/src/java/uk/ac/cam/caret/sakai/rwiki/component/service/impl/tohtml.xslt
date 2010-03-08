@@ -33,17 +33,14 @@
 				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/stateswitcher.js">
 					<xsl:text>// non-empty script node ensures non-minimized tag is produced (SAK-14388)</xsl:text>
 				</script>
-				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/ajaxpopup.js">
-					<xsl:text>// non-empty script node ensures non-minimized tag is produced (SAK-14388)</xsl:text>
-				</script>
-				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/asyncload.js">
+				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/asyncload.js">e
 					<xsl:text>// non-empty script node ensures non-minimized tag is produced (SAK-14388)</xsl:text>
 				</script>
 				<script type="text/javascript" src="/sakai-rwiki-tool/scripts/logger.js">
 					<xsl:text>// non-empty script node ensures non-minimized tag is produced (SAK-14388)</xsl:text>
 				</script>
-				<link type="application/rss+xml" href="/wiki{/entity-service/entity/properties/property[@name='realm']}/-.10.rss" title="Sakai Wiki RSS" rel="alternate"/>
-               
+                <link type="application/rss+xml" href="/wiki{/entity-service/entity/properties/property[@name='realm']}/-.10.rss" title="Sakai Wiki RSS" rel="alternate"/>
+                
 				<link href="{/entity-service/request-properties/request-attributes/request-attribute[@name='sakai.skin.repo']/value}/tool_base.css" type="text/css" rel="stylesheet"
 					media="all"/>
 				<link href="{/entity-service/request-properties/request-attributes/request-attribute[@name='sakai.skin.repo']/value}/{/entity-service/request-properties/request-attributes/request-attribute[@name='sakai.skin']/value}/tool.css" type="text/css" rel="stylesheet"
@@ -62,8 +59,13 @@
 				]]>
 				</xsl:text>
             </head>
-            <body>
-              <div class="publicview" >
+            <body onload="callAllLoaders()">
+             
+             
+                <script type="text/javascript" language="JavaScript" src="/library/jsMath/jsMath.js">
+                    <xsl:text>// sss non-empty script node ensures non-minimized tag is produced (SAK-14388)</xsl:text>
+                </script>
+                <div class="publicview">
                 <div id="rwiki_container">
                     <div class="portletBody">
                     
@@ -117,6 +119,7 @@
                     
                 </div>
                 </div>
+                <script type="text/javascript" >if (typeof(jsMath) == "undefined" ) {} else { if  (jsMath.Process) { jsMath.Process(); }}</script>
             </body>
         </html>
     </xsl:template>

@@ -100,9 +100,10 @@ LOG-LOG-LOG-LOG-LOG
     <script type="text/javascript" >${request.getAttribute("footerScript")}</script>
     #end
     #if ( ${requestScope.removeAutoSave} )
-	  <script type="text/javascript" >
-		WikiAutoSave_autoSaveClear('${requestScope.currentDefaultRealm}','${requestScope.currentPageName}');
-	  </script>
+        #set ($curPageName = ${util.escapeHtml($requestScope.currentPageName)})
+			<script type="text/javascript" >
+				WikiAutoSave_autoSaveClear('${requestScope.currentDefaultRealm}','$curPageName');
+			</script>
 	  #end
     </body>
 </html>
