@@ -313,12 +313,7 @@ function getAbsolutePos(el) {
 
 function showPopupHere(el,divid) {
 		var onRight;
-        var targetdiv;
-        if ( document.all ) {
-            targetdiv = document.all[divid];
-		} else {
-		    targetdiv = document.getElementById(divid);
-		}
+        var targetdiv = document.getElementById(divid);
 		if ( targetdiv != null ) {
 			var pos = getAbsolutePos(el);
 			var width =  el.offsetWidth;
@@ -349,12 +344,7 @@ function showPopupHere(el,divid) {
 		}
 }
 function hidePopup(divid) {
-    var targetdiv;
-        if ( document.all ) {
-            targetdiv = document.all[divid];
-		} else {
-		    targetdiv = document.getElementById(divid);
-		}    
+    var targetdiv =  document.getElementById(divid);
 	if ( targetdiv != null ) {
         targetdiv.style.visibility = "hidden";		
      }
