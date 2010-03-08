@@ -5286,21 +5286,25 @@ public class AssignmentAction extends PagedResourceActionII
 					state.setAttribute(ATTACHMENTS, EntityManager.newReferenceList());
 					resetAssignment(state);
 					
-					// add the due date to schedule if the schedule exists
-					integrateWithCalendar(state, a, title, dueTime, checkAddDueTime, oldDueTime, aPropertiesEdit);
-
-					// the open date been announced
-					integrateWithAnnouncement(state, aOldTitle, a, title, openTime, checkAutoAnnounce, oldOpenTime);
-
-					// integrate with Gradebook
-					try
+					// integrate with other tools only if the assignment is posted
+					if (post)
 					{
-						initIntegrateWithGradebook(state, siteId, aOldTitle, oAssociateGradebookAssignment, a, title, dueTime, gradeType, gradePoints, addtoGradebook, associateGradebookAssignment, range, category);
-					}
-					catch (AssignmentHasIllegalPointsException e)
-					{
-						addAlert(state, rb.getString("addtogradebook.illegalPoints"));
-						M_log.warn(this + ":post_save_assignment " + e.getMessage());
+						// add the due date to schedule if the schedule exists
+						integrateWithCalendar(state, a, title, dueTime, checkAddDueTime, oldDueTime, aPropertiesEdit);
+	
+						// the open date been announced
+						integrateWithAnnouncement(state, aOldTitle, a, title, openTime, checkAutoAnnounce, oldOpenTime);
+	
+						// integrate with Gradebook
+						try
+						{
+							initIntegrateWithGradebook(state, siteId, aOldTitle, oAssociateGradebookAssignment, a, title, dueTime, gradeType, gradePoints, addtoGradebook, associateGradebookAssignment, range, category);
+						}
+						catch (AssignmentHasIllegalPointsException e)
+						{
+							addAlert(state, rb.getString("addtogradebook.illegalPoints"));
+							M_log.warn(this + ":post_save_assignment " + e.getMessage());
+						}
 					}
 				}
 
