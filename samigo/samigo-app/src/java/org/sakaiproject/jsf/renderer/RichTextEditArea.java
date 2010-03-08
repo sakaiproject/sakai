@@ -457,7 +457,12 @@ public class RichTextEditArea extends Renderer
     writer.write("\n\t\tstatus.value = \"collapsed\";");
     writer.write("\n\t\tcollapseMenu(client_id);\n\t}");    
     writer.write("\n");
-    writer.write("\n\tsetMainFrameHeight('Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId().replace("-","x") + "');");
+    if (org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement() != null) {
+    	writer.write("\n\tsetMainFrameHeight('Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId().replace("-","x") + "');");
+    } else {
+         writer.write("\n\tsetMainFrameHeight('Main" + "');");
+    }
+
     writer.write("\n}\n");
     
     writer.write("function encodeHTML(text){\n");
@@ -500,6 +505,10 @@ public class RichTextEditArea extends Renderer
     if ( (justArea != null) && (justArea.equals("yes")))
     {
       writer.write("\n\toFCKeditor.ToolbarSet = \"plain\";");
+    }
+    else if (ToolManager.getCurrentPlacement() == null) 
+    {
+      writer.write("\n\toFCKeditor.ToolbarSet = \"Basic\";");
     }
     else
     {
