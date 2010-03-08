@@ -88,16 +88,25 @@ public class BalanceTest extends TestCase
 	 */
 	private String getSAK12828Pattern() throws IOException
 	{
-		InputStreamReader in = new InputStreamReader(this.getClass().getResourceAsStream(
-				"SAK12828.html"));
-		char[] b = new char[4096];
+		InputStreamReader in = null;
 		StringBuilder sb = new StringBuilder();
-		int i = 0;
-		while ((i = in.read(b)) > 0)
-		{
-			sb.append(b, 0, i);
+		try {
+			in = new InputStreamReader(this.getClass().getResourceAsStream(
+			"SAK12828.html"));
+			char[] b = new char[4096];
+			
+			int i = 0;
+			while ((i = in.read(b)) > 0)
+			{
+				sb.append(b, 0, i);
+			}
 		}
-		in.close();
+		catch (IOException e) {
+			throw e;
+		}
+		finally {
+			in.close();
+		}
 		return sb.toString();
 	}
 

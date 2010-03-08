@@ -22,6 +22,7 @@
 package org.radeox.test.filter;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
 import junit.framework.Test;
@@ -73,9 +74,10 @@ public class XHTMLFilterTest extends FilterTestSupport
 
 	private String getTestPattern(String path)
 	{
+		BufferedReader bis = null;
 		try
 		{
-			BufferedReader bis = new BufferedReader(new InputStreamReader(
+			bis = new BufferedReader(new InputStreamReader(
 					getClass().getResourceAsStream(path)));
 			StringBuffer sb = new StringBuffer();
 			String line = bis.readLine();
@@ -89,6 +91,16 @@ public class XHTMLFilterTest extends FilterTestSupport
 		catch (Exception ex)
 		{
 
+		}
+		finally {
+			if (bis != null) {
+				try {
+					bis.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 		return null;
 	}

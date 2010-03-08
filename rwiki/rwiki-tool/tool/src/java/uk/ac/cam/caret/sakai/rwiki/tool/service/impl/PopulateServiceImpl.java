@@ -79,18 +79,24 @@ public class PopulateServiceImpl implements PopulateService
 			}
 			else
 			{
-				BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(seed.getSource()),
-						"UTF-8"));
-				char[] c = new char[2048];
+				BufferedReader br = null;
 				StringBuffer sb = new StringBuffer();
-				for (int ic = br.read(c); ic >= 0; ic = br.read(c))
-				{
-					if (ic == 0)
-						Thread.yield();
-					else
-						sb.append(c, 0, ic);
+				try {
+					br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(seed.getSource()),
+					"UTF-8"));
+					char[] c = new char[2048];
+					
+					for (int ic = br.read(c); ic >= 0; ic = br.read(c))
+					{
+						if (ic == 0)
+							Thread.yield();
+						else
+							sb.append(c, 0, ic);
+					}
 				}
-				br.close();
+				finally {
+					br.close();
+				}
 				seed.setContent(sb.toString());
 			}
 		}
