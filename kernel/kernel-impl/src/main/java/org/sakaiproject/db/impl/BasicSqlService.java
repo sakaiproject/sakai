@@ -572,7 +572,7 @@ public abstract class BasicSqlService implements SqlService
 						}
 					}
 				}
-				catch (Throwable t)
+				catch (Exception t)
 				{
 					LOG.warn("Sql.dbRead: unable to read a result from sql: " + sql + debugFields(fields) + " row: " + result.getRow());
 				}
@@ -842,36 +842,37 @@ public abstract class BasicSqlService implements SqlService
 			// ONLY if we didn't make the rv - else let the rv hold these OPEN!
 			if (rv == null)
 			{
-				try
-				{
-					if (null != result) result.close();
-					if (null != pstmt) pstmt.close();
+					if (null != result)
+						try {
+							result.close();
+						} catch (SQLException e) {
+							LOG.warn("Sql.dbReadBinary(): " + e);
+						}
+					if (null != pstmt)
+						try {
+							pstmt.close();
+						} catch (SQLException e) {
+							LOG.warn("Sql.dbReadBinary(): " + e);
+						}
 					if (null != conn)
 					{
 						// if we commit on read
 						if (m_commitAfterRead)
 						{
-							conn.commit();
+							try {
+								conn.commit();
+							} catch (SQLException e) {
+								LOG.warn("Sql.dbReadBinary(): " + e);
+							}
 						}
 
-						// return to the proper pool!
-						if (big)
-						{
-							returnConnection(conn);
-						}
-						else
-						{
-							returnConnection(conn);
-						}
+						returnConnection(conn);
 					}
 				}
-				catch (Exception e)
-				{
-					LOG.warn("Sql.dbReadBinary(): " + e);
-				}
-			}
+			
+			//LOG.warn("Sql.dbReadBinary(): " + e);
 		}
-
+		
 		if (m_showSql)
 			debug("sql read binary: len: " + lenRead + "  time: " + connectionTime + " / " + (System.currentTimeMillis() - start), sql, fields);
 
@@ -1740,25 +1741,39 @@ public abstract class BasicSqlService implements SqlService
 
 		finally
 		{
-			try
-			{
 				// close the result and statement
-				if (null != result) result.close();
-				if (null != stmt) stmt.close();
+				if (null != result)
+					try {
+						result.close();
+					} catch (SQLException e) {
+						LOG.warn("Sql.dbReadBinary(): " + e);
+					}
+				if (null != stmt)
+					try {
+						stmt.close();
+					} catch (SQLException e) {
+						LOG.warn("Sql.dbReadBinary(): " + e);
+					}
 
 				// if we are failing, restore and release the connectoin
 				if ((closeConn) && (conn != null))
 				{
 					// just in case we got a lock
-					conn.rollback();
-					if (resetAutoCommit) conn.setAutoCommit(autoCommit);
+					try {
+						conn.rollback();
+					} catch (SQLException e) {
+						LOG.warn("Sql.dbReadBinary(): " + e);
+					}
+					if (resetAutoCommit)
+						try {
+							conn.setAutoCommit(autoCommit);
+						} catch (SQLException e) {
+							LOG.warn("Sql.dbReadBinary(): " + e);
+						}
 					
 				}
-			}
-			catch (Exception e)
-			{
-				LOG.warn("Sql.dbReadLock(): " + e);
-			}
+
+
 			if (conn != null)
 			{
 				returnConnection(conn);
@@ -1842,25 +1857,39 @@ public abstract class BasicSqlService implements SqlService
 
 		finally
 		{
-			try
-			{
 				// close the result and statement
-				if (null != result) result.close();
-				if (null != stmt) stmt.close();
+				if (null != result)
+					try {
+						result.close();
+					} catch (SQLException e) {
+						LOG.warn("Sql.dbReadBinary(): " + e);
+					}
+				if (null != stmt)
+					try {
+						stmt.close();
+					} catch (SQLException e) {
+						LOG.warn("Sql.dbReadBinary(): " + e);
+					}
 
 				// if we are failing, restore and release the connectoin
 				if ((closeConn) && (conn != null))
 				{
 					// just in case we got a lock
-					conn.rollback();
-					if (resetAutoCommit) conn.setAutoCommit(autoCommit);
+					try {
+						conn.rollback();
+					} catch (SQLException e) {
+						LOG.warn("Sql.dbReadBinary(): " + e);
+					}
+					if (resetAutoCommit)
+						try {
+							conn.setAutoCommit(autoCommit);
+						} catch (SQLException e) {
+							LOG.warn("Sql.dbReadBinary(): " + e);
+						}
 					
 				}
-			}
-			catch (Exception e)
-			{
-				LOG.warn("Sql.dbReadLock(): " + e);
-			}
+			//	LOG.warn("Sql.dbReadLock(): " + e);
+
 			if (conn != null) 
 			{
 				returnConnection(conn);
