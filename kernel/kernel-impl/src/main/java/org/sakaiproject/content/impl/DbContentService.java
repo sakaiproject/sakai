@@ -1996,16 +1996,12 @@ public class DbContentService extends BaseContentService
 			File file = new File(externalResourceFileName(resource));
 
 			// read the new
+			FileInputStream in = null;
 			try
 			{
 				byte[] body = new byte[(int) ((BaseResourceEdit) resource).m_contentLength];
-				FileInputStream in;
 				in = new FileInputStream(file);
-
-
 				in.read(body);
-				in.close();
-
 				return body;
 			} catch (FileNotFoundException e) {
 				// If there is not supposed to be data in the file - simply return zero length byte array
@@ -2028,6 +2024,15 @@ public class DbContentService extends BaseContentService
 				// If we have a non-zero body length and reading failed, it is an error worth of note
 				M_log.warn(": failed to read resource: " + resource.getId() + " len: " + ((BaseResourceEdit) resource).m_contentLength + " : " + e);
 				throw new ServerOverloadException("failed to read resource");
+			}
+			finally {
+				if (in != null) {
+					try {
+						in.close();
+					} catch (IOException e) {
+						
+					}
+				}
 			}
 
 		}
