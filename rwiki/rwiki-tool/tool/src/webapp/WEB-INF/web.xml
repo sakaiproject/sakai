@@ -122,9 +122,9 @@
 			<param-value></param-value>
 			<!-- 
 			-->
-			<!-- Uncomment this if you want jsmath	-->
-			<param-value>/library/jsMath/easy/load.js</param-value>
-		
+			<!-- Uncomment this if you want jsmath
+			<param-value>/library/jsMath/jsMath.js</param-value>
+			-->
 		</init-param>
 		<init-param>
 			
@@ -132,9 +132,9 @@
 			<!--
 			-->
 			<param-value> </param-value>
-			<!-- Uncomment this if you want jsmath -->
+			<!-- Uncomment this if you want jsmath
 			<param-value>if (typeof(jsMath) == "undefined" ) { alert("Maths support has been enabled, \nbut I cant find the jsMath javascript library.\n Please check web.xml "); } else { if  (jsMath.Process) { jsMath.Process(); }}</param-value>
-
+			-->
 			
 		</init-param>
 	
