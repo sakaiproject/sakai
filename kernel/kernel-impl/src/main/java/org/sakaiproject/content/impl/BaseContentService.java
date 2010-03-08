@@ -3223,7 +3223,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 				throw new InconsistentException(id);
 			}
 
-			SortedSet siblings = new TreeSet();
+			SortedSet<String> siblings = new TreeSet<String>();
 			try
 			{
 				ContentCollection collection = findCollection(collectionId);
@@ -3366,7 +3366,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			}
 			catch(IdUsedException e)
 			{
-				SortedSet siblings = new TreeSet();
+				SortedSet<String> siblings = new TreeSet<String>();
 				try
 				{
 					ContentCollection collection = findCollection(collectionId);
@@ -3376,8 +3376,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 				{
 					throw new IdUnusedException(collectionId);
 				}
-
-				boolean trying = true;
 
 				// see end of loop for condition that enforces attempts <= limit)
 				do
@@ -3650,7 +3648,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 				throw new InconsistentException(id);
 			}
 
-			SortedSet siblings = new TreeSet();
+			SortedSet<String> siblings = new TreeSet<String>();
 			try
 			{
 				ContentCollection collection = findCollection(collectionId);
@@ -4373,13 +4371,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	{
 		String id = edit.getId();
 		String content_type = edit.getContentType();
-		byte[] content = null;
+
 
 		// KNL-245 do not read the resource body, as this is not subsequently written out
 		
 		ResourceProperties properties = edit.getProperties();
 
-		ContentResource newResource = addDeleteResource(id, content_type, content, properties, uuid, userId,
+		addDeleteResource(id, content_type, null, properties, uuid, userId,
 				NotificationService.NOTI_OPTIONAL);
 	}
 
@@ -4482,7 +4480,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		unlock(AUTH_RESOURCE_ADD, new_id);
 
 		boolean isCollection = false;
-		boolean isRootCollection = false;
 		ContentResourceEdit thisResource = null;
 		ContentCollectionEdit thisCollection = null;
 
@@ -4700,7 +4697,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		unlock(AUTH_RESOURCE_ADD, new_id);
 
 		boolean isCollection = false;
-		boolean isRootCollection = false;
 		ContentResourceEdit thisResource = null;
 		ContentCollectionEdit thisCollection = null;
 
@@ -4818,7 +4814,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 				{
 					try
 					{
-						ContentCollection test_for_exists = getCollection(new_folder_id);
+						getCollection(new_folder_id);
 					}
 					catch (Exception ee)
 					{
@@ -4835,11 +4831,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 				}
 			}
 
-			List members = thisCollection.getMembers();
+			List<String> members = thisCollection.getMembers();
 
 			if (M_log.isDebugEnabled()) M_log.debug("moveCollection size=" + members.size());
 
-			Iterator memberIt = members.iterator();
+			Iterator<String> memberIt = members.iterator();
 			while (memberIt.hasNext())
 			{
 				String member_id = (String) memberIt.next();
@@ -4997,7 +4993,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			{
 				try
 				{
-					ContentResource test_for_exists = getResource(new_id);
+					getResource(new_id);
 				}
 				catch (Exception ee)
 				{
@@ -5215,7 +5211,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			{
 				try
 				{
-					ContentResource test_for_exists = getResource(new_id);
+					getResource(new_id);
 				}
 				catch (Exception ee)
 				{
@@ -5281,7 +5277,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		}
 		try
 		{
-			ContentCollection newCollection = addCollection(new_id, newProps, null, isHidden, null, null);
+			addCollection(new_id, newProps, null, isHidden, null, null);
 			
 			if (M_log.isDebugEnabled()) M_log.debug("copyCollection successful");
 		}
@@ -5371,7 +5367,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			}
 			String containerId = this.isolateContainingId(new_folder_id);
 			ContentCollection containingCollection = findCollection(containerId);
-			SortedSet siblings = new TreeSet();
+			SortedSet<String> siblings = new TreeSet<String>();
 			siblings.addAll(containingCollection.getMembers());
 
 			while (still_trying)
@@ -5558,9 +5554,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	 * @param groupRef The string group reference to find.
 	 * @return true if found, false if not.
 	 */
-	protected boolean groupCollectionContainsRefString(Collection groups, String groupRef)
+	protected boolean groupCollectionContainsRefString(Collection<Group> groups, String groupRef)
 	{
-		for (Iterator i = groups.iterator(); i.hasNext();)
+		for (Iterator<Group> i = groups.iterator(); i.hasNext();)
 		{
 			Group group = (Group) i.next();
 			if (group.getReference().equals(groupRef)) return true;
@@ -5896,7 +5892,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		{
 			// TODO: Can this be done without a security check??
 			// findResource(id).getProperties().getProperty(...) ??
-			alternateRoot = StringUtil.trimToNull(getProperties(id).getProperty(rootProperty));
+			alternateRoot = StringUtils.trimToNull(getProperties(id).getProperty(rootProperty));
 		}
 		catch (PermissionException e)
 		{
@@ -7025,7 +7021,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 					// from the relative id form a full id for the target site,
 					// updating the xml element
-					String relId = StringUtil.trimToNull(element.getAttribute("rel-id"));
+					String relId = StringUtils.trimToNull(element.getAttribute("rel-id"));
 					if (relId == null)
 					{
 						// Note: the site's root collection will have a "" rel-id, which will be null.
@@ -7112,8 +7108,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 
 						// from the relative id form a full id for the target site,
 						// updating the xml element
-						String id = StringUtil.trimToNull(element.getAttribute("id"));
-						String relId = StringUtil.trimToNull(element.getAttribute("rel-id"));
+						String id = StringUtils.trimToNull(element.getAttribute("id"));
+						String relId = StringUtils.trimToNull(element.getAttribute("rel-id"));
 
 						// escape the invalid characters
 						id = Validator.escapeQuestionMark(id);
@@ -7149,7 +7145,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 						ContentResource r = null;
 
 						// if the body-location attribute points at another file for the body, get this
-						String bodyLocation = StringUtil.trimToNull(element.getAttribute("body-location"));
+						String bodyLocation = StringUtils.trimToNull(element.getAttribute("body-location"));
 						if (bodyLocation != null)
 						{
 							// the file name is relative to the archive file
@@ -12838,6 +12834,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 				in = content.streamContent();
 			} catch (ServerOverloadException se) {
 				exception = new IOException("ServerOverloadException reported getting inputstream");
+				throw exception;
 			}
 			
             InputStream istream =
