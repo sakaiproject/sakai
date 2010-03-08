@@ -104,6 +104,7 @@ public class SchemaConversionController
 		if(createErrorTable != null && errorReportSql != null && verifyErrorTable != null)
 		{
 			PreparedStatement verifyTable = null;
+			PreparedStatement createTable = null;
 			ResultSet rs = null;
 			try 
 			{
@@ -115,24 +116,16 @@ public class SchemaConversionController
 				if(!tableExists)
 				{
 					
-					PreparedStatement createTable = connection.prepareStatement(createErrorTable);
+					createTable = connection.prepareStatement(createErrorTable);
 					createTable.execute();
 				}
 				reportErrorsInTable = true;
 			} 
 			catch (SQLException e) 
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			finally {
-				if (verifyTable != null)  {
-					try {
-						verifyTable.close();
-					} catch (SQLException e) {
-					}
-				}
-				
 				if (rs != null) {
 					try {
 						rs.close();
@@ -140,8 +133,22 @@ public class SchemaConversionController
 					}
 				}
 				
-			}
-		}
+				if (verifyTable != null)  {
+					try {
+						verifyTable.close();
+					} catch (SQLException e) {
+					}
+				}
+				
+				if (createTable != null) {
+					try {
+						createTable.close();
+					} catch (SQLException e) {
+						
+					}
+				}
+			} //END Finally
+		} //END if
 	}
 
 	public boolean migrate(DataSource datasource, SchemaConversionHandler convert,
