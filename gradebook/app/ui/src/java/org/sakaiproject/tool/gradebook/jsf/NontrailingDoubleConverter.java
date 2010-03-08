@@ -28,6 +28,8 @@ import javax.faces.convert.NumberConverter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.util.ResourceLoader;
+
 /**
  * The standard JSF NumberConverter handles output formatting of double
  * numbers nicely by printing them as an integer if there's nothing past
@@ -43,6 +45,8 @@ public class NontrailingDoubleConverter extends NumberConverter {
 
 	public NontrailingDoubleConverter() {
 		setType("number");
+		ResourceLoader rl = new ResourceLoader();
+		setLocale(rl.getLocale());
 	}
 
 	/**
