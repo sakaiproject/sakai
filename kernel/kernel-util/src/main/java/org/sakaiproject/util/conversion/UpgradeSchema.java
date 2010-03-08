@@ -236,8 +236,9 @@ public class UpgradeSchema
 			File sakaiPropertiesFile = new File(sakaiPropertiesPath);
 			if (sakaiPropertiesFile.exists())
 			{
+				FileInputStream sakaiPropertiesInput = null;
 				try {
-					FileInputStream sakaiPropertiesInput = new FileInputStream(sakaiPropertiesFile);
+					sakaiPropertiesInput = new FileInputStream(sakaiPropertiesFile);
 					Properties sakaiProperties = new Properties();
 					sakaiProperties.load(sakaiPropertiesInput);
 					sakaiPropertiesInput.close();
@@ -247,6 +248,14 @@ public class UpgradeSchema
 					dbPassword = sakaiProperties.getProperty("password@javax.sql.BaseDataSource");
 				} catch (IOException e) {
 					log.info("Error loading properties from " + sakaiPropertiesFile.getAbsolutePath());
+				}
+				finally {
+					if (sakaiPropertiesInput != null) {
+						try {
+							sakaiPropertiesInput.close();
+						} catch (IOException e) {
+						}
+					}
 				}
 			}
 		}

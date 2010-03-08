@@ -266,7 +266,7 @@ public class SchemaConversionController
 						}
 						rs.close();
 					}
-					catch(Exception e)
+					catch(SQLException e)
 					{
 						String msg = "  --> Failure converting or validating item " + id + " [" + count + " of " + l.size() + "] \n";
 						insertErrorReport(reportError, id, driver.getHandler(), "Exception while updating, converting or verifying item");
