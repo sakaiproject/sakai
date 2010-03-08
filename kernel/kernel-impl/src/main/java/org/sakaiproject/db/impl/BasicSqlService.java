@@ -1703,7 +1703,7 @@ public abstract class BasicSqlService implements SqlService
 
 		try
 		{
-			// get a new conncetion
+			// get a new connection
 			conn = borrowConnection();
 
 			// adjust to turn off auto commit - we need a transaction
@@ -1739,16 +1739,9 @@ public abstract class BasicSqlService implements SqlService
 		catch (SQLException e)
 		{
 			// Note: ORA-00054 gives an e.getErrorCode() of 54, if anyone cares...
-			// LOG.warn("Sql.dbUpdateLock(): " + e.getErrorCode() + " - " + e);
+			LOG.warn("Sql.dbUpdateLock(): " + e.getErrorCode() + " - " + e);
 			closeConn = true;
 		}
-
-		catch (Exception e)
-		{
-			LOG.warn("Sql.dbReadLock(): " + e);
-			closeConn = true;
-		}
-
 		finally
 		{
 				// close the result and statement
@@ -1858,9 +1851,7 @@ public abstract class BasicSqlService implements SqlService
 			// LOG.warn("Sql.dbUpdateLock(): " + e.getErrorCode() + " - " + e);
 			closeConn = true;
 		}
-
-		catch (Exception e)
-		{
+		catch (SqlReaderFinishedException e) {
 			LOG.warn("Sql.dbReadLock(): " + e);
 			closeConn = true;
 		}
@@ -1949,15 +1940,17 @@ public abstract class BasicSqlService implements SqlService
 			}
 
 			// run the SQL statement
-			int result = pstmt.executeUpdate();
+			pstmt.executeUpdate();
 			pstmt.close();
 			pstmt = null;
 
 			// commit
 			conn.commit();
 		}
-		catch (Exception e)
+		catch (SQLException e)
 		{
+			LOG.warn("Sql.dbUpdateCommit(): " + e);
+		} catch (UnsupportedEncodingException e) {
 			LOG.warn("Sql.dbUpdateCommit(): " + e);
 		}
 		finally
