@@ -493,14 +493,23 @@ public abstract class ToolComponent implements ToolManager
 
 		//	Load the Properties file.
 		Properties props = new Properties ();
+		InputStream in = null;
 		try {
-			InputStream in = new FileInputStream(file);
+			in = new FileInputStream(file);
 			props.load(in);
-			in.close();
 		}
 		catch (IOException ex) {
 			M_log.warn ("Unable to load "+filename+" as a tool localizaton resource in tool "+tool.getId());
 			props = null;
+		}
+		finally {
+			if (in != null) {
+				try {
+					in.close();
+				} catch (IOException e) {
+					
+				}
+			}
 		}
 
 		//	Add the properties set to the resource bundle.
