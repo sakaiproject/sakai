@@ -24,6 +24,7 @@ package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -43,6 +44,7 @@ import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.service.gradebook.shared.MultipleAssignmentSavingException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 
@@ -199,8 +201,12 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 					resultString = "failure";
 				}
 				else {
-					try {
-						double dblPointsPossible = new Double(bulkAssignDecoBean.getPointsPossible()).doubleValue();
+				    try {
+				        // Check if PointsPossible uses local number format
+				        String strPointsPossible = bulkAssignDecoBean.getPointsPossible();
+				        NumberFormat nf = NumberFormat.getInstance(new ResourceLoader().getLocale()); 
+
+				        double dblPointsPossible = new Double (nf.parse(strPointsPossible).doubleValue());
 
 						// Added per SAK-13459: did not validate if point value was valid (> zero)
 						if (dblPointsPossible > 0) {

@@ -88,10 +88,14 @@
 					<h:outputText value="#{msgs.feedback_options_percent_header}"/>
 				</f:facet>
 				<h:outputText value="#{gradeRow.mappingValue}"
-					rendered="#{!gradeRow.gradeEditable}"/>
+					rendered="#{!gradeRow.gradeEditable}">
+            <f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
+        </h:outputText>
 				<h:inputText id="mappingValue" value="#{gradeRow.mappingValue}"
 					rendered="#{gradeRow.gradeEditable}"
-					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
+					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+            <f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
+        </h:inputText>
 				<h:message for="mappingValue" styleClass="validationEmbedded" />
 			</h:column>
 		</t:dataTable>

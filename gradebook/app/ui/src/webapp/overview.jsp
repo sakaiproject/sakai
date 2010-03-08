@@ -145,7 +145,7 @@
 		    </f:facet>
 
 				<h:outputText value="#{gradebookItem.weight}" rendered="#{gradebookItem.isCategory}">
-					<f:convertNumber type="percent" maxFractionDigits="2" />
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.PRECISE_PERCENTAGE" />
 				</h:outputText>
 			</h:column>
 			

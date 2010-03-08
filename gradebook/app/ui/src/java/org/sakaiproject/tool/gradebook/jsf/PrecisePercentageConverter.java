@@ -35,15 +35,20 @@ import org.sakaiproject.util.ResourceLoader;
  * The standard JSF number formatters only round values. We generally need
  * them truncated.
  * This converter truncates the input value (probably a double) to four
- * decimal places, and then returns it as a percentage with a maxium of two
- * decimal places.
+ * decimal places, and then returns it as a percentage with a maximum of two
+ * decimal places. Be careful when using this converter. It will truncate your input
+ * at 4 decimals before it is converted to a percentage. Then, the percentage is rounded 
+ * at 2 decimal places. So if you pass .12349, it will first get truncated to .1234 and
+ * then converted to a percentage like 12.34%.  You may not want to use this with
+ * decimals with more than 4 decimal places prior to conversion to %.
+ * 
  */
 public class PrecisePercentageConverter extends NumberConverter {
 	private static final Log log = LogFactory.getLog(PrecisePercentageConverter.class);
 
 	public PrecisePercentageConverter() {
 		setType("percent");
-		// setMaxFractionDigits(2); remove this b/c actually rounding to 2 digits
+		setMaxFractionDigits(2); // beware because this rounds at 2 decimals
 		ResourceLoader rl = new ResourceLoader();
 		setLocale(rl.getLocale());
 	}

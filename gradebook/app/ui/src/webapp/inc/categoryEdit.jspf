@@ -65,13 +65,17 @@
 			<h:panelGrid columns="2" styleClass="indnt10" rendered="#{gradebookSetupBean.displayWeighting}">
 				<h:outputText value="#{msgs.running_total}" styleClass="courseGrade"/>
 				<h:panelGroup id="runningTotal" styleClass="courseGrade #{gradebookSetupBean.runningTotalStyle}">
-					<h:outputText id="runningTotalVal" value="#{gradebookSetupBean.runningTotal}" />
+					<h:outputText id="runningTotalVal" value="#{gradebookSetupBean.runningTotal}">
+					    <f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
+					</h:outputText>
 					<h:outputText value="#{msgs.cat_percent}" />
 				</h:panelGroup>
 
 				<h:outputText value="#{msgs.needed_total}"/>
 				<h:panelGroup>
-					<h:outputText id="neededTotalVal" value="#{gradebookSetupBean.neededTotal}" />
+					<h:outputText id="neededTotalVal" value="#{gradebookSetupBean.neededTotal}" >
+					    <f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
+                    </h:outputText>
 					<h:outputText value="#{msgs.cat_percent}"/>
 				</h:panelGroup>
 			</h:panelGrid>

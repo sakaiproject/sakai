@@ -66,6 +66,7 @@ import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.jsf.AssignmentPointsConverter;
 import org.sakaiproject.tool.gradebook.jsf.CategoryPointsConverter;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * Backing bean for the visible list of assignments in the gradebook.
@@ -201,6 +202,9 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 			}	
 		}
 		
+		// make sure the numeric display is locale-aware
+		NumberFormat nf = NumberFormat.getInstance(new ResourceLoader().getLocale());
+		
 		List<Category> categories = new ArrayList<Category>();
         List<Assignment> allAssignments = new ArrayList<Assignment>();
 
@@ -237,7 +241,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 					if(getWeightingEnabled()){
 						//if weighting is enabled, then add "(weight)" to column
 						Double value = (Double) ((Number)cat.getWeight());
-						name = name + " (" +  NumberFormat.getNumberInstance().format(value * 100.0) + "%)";
+						name = name + " (" +  nf.format(value * 100.0) + "%)";
 						//name = name + " (" + Integer.toString(cat.getWeight() * 100) + "%)";
 					}
 					categoryColumn.setName(name);
