@@ -44,14 +44,15 @@ public class ZipContentUtil {
 	public void compressFolder(Reference reference) { 
 		File temp = null;
 		FileInputStream fis = null;
+		ZipOutputStream out = null;
 		try {
 			// Create the compressed archive in the filesystem
 			temp = File.createTempFile("sakai_content-", ".tmp");
 			temp.deleteOnExit(); 
 			ContentCollection collection = ContentHostingService.getCollection(reference.getId());
-			ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(temp),BUFFER_SIZE));			
+			out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(temp),BUFFER_SIZE));			
 			storeContentCollection(reference.getId(),collection,out);        		
-			out.close();
+			
 			
 			// Store the compressed archive in the repository
 			String resourceId = reference.getId().substring(0,reference.getId().lastIndexOf(Entity.SEPARATOR))+ZIP_EXTENSION;
@@ -77,6 +78,12 @@ public class ZipContentUtil {
 			if (temp != null && temp.exists()) { 
 				if (!temp.delete()) {
 					LOG.warn("failed to remove temp file");
+				}
+			}
+			if (out != null) {
+				try {
+					out.close();
+				} catch (IOException e) {
 				}
 			}
 		}

@@ -2498,7 +2498,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	 */
 	protected boolean allowRemove(String id)
 	{
-		String ref = getReference(id);
+		
 		String currentUser = SessionManager.getCurrentSessionUserId();
 		String owner = "";
 
@@ -7907,8 +7907,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 				out.write(chunk, 0, lenRead);
 			}
 		}
-		catch (Exception e)
+		catch (IOException e)
 		{
+			M_log.warn("archiveResource(): while writing body for: " + resource.getId() + " : " + e);
+		} catch (ServerOverloadException e) {
 			M_log.warn("archiveResource(): while writing body for: " + resource.getId() + " : " + e);
 		}
 		finally

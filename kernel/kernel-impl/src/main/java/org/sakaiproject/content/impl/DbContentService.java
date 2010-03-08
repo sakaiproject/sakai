@@ -2302,7 +2302,6 @@ public class DbContentService extends BaseContentService
 					}
 					catch (IOException e)
 					{
-						// TODO Auto-generated catch block
 						M_log.warn("IOException ", e);
 					}
 				}
@@ -2315,7 +2314,6 @@ public class DbContentService extends BaseContentService
 					}
 					catch (IOException e)
 					{
-						// TODO Auto-generated catch block
 						M_log.warn("IOException ", e);
 					}
 				}
