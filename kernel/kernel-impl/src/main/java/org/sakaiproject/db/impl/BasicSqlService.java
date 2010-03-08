@@ -572,13 +572,17 @@ public abstract class BasicSqlService implements SqlService
 						}
 					}
 				}
-				catch (Exception t)
+				catch (SQLException t)
 				{
 					LOG.warn("Sql.dbRead: unable to read a result from sql: " + sql + debugFields(fields) + " row: " + result.getRow());
 				}
 			}
 		}
-		catch (Exception e)
+		catch (SQLException e)
+		{
+			LOG.warn("Sql.dbRead: sql: " + sql + debugFields(fields), e);
+		}
+		catch (UnsupportedEncodingException e)
 		{
 			LOG.warn("Sql.dbRead: sql: " + sql + debugFields(fields), e);
 		}
@@ -833,7 +837,11 @@ public abstract class BasicSqlService implements SqlService
 		{
 			throw e;
 		}
-		catch (Exception e)
+		catch (SQLException e)
+		{
+			LOG.warn("Sql.dbReadBinary(): " + e);
+		}
+		catch (UnsupportedEncodingException e)
 		{
 			LOG.warn("Sql.dbReadBinary(): " + e);
 		}
@@ -1613,10 +1621,12 @@ public abstract class BasicSqlService implements SqlService
 				catch (InvocationTargetException ex)
 				{
 					LOG.warn("Oracle driver error: " + ex);
+				} catch (IOException e) {
+					LOG.warn("Oracle driver error: " + e);
 				}
 			}
 		}
-		catch (Exception e)
+		catch (SQLException e)
 		{
 			LOG.warn("Sql.dbReadBlobAndUpdate(): " + e);
 		}
