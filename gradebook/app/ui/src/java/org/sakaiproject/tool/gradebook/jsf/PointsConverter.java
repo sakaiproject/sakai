@@ -29,6 +29,8 @@ import javax.faces.convert.NumberConverter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.util.ResourceLoader;
+
 /**
  * The standard JSF number formatters only round values. We generally need
  * them truncated.
@@ -40,6 +42,8 @@ public class PointsConverter extends NumberConverter {
 
 	public PointsConverter() {
 		setType("number");
+		ResourceLoader rl = new ResourceLoader();
+		setLocale(rl.getLocale());
 	}
 
 	public String getAsString(FacesContext context, UIComponent component, Object value) {

@@ -29,6 +29,8 @@ import javax.faces.convert.NumberConverter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.util.ResourceLoader;
+
 /**
  * The standard JSF number formatters only round values. We generally need
  * them truncated.
@@ -41,7 +43,9 @@ public class PrecisePercentageConverter extends NumberConverter {
 
 	public PrecisePercentageConverter() {
 		setType("percent");
-		// setMaxFractionDigits(2); remove this b/c actually rounding to 2 digits 
+		// setMaxFractionDigits(2); remove this b/c actually rounding to 2 digits
+		ResourceLoader rl = new ResourceLoader();
+		setLocale(rl.getLocale());
 	}
 
 	public String getAsString(FacesContext context, UIComponent component, Object value) {
