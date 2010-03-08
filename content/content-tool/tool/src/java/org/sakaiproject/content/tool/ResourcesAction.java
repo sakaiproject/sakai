@@ -7125,19 +7125,19 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 		String criteria = params.getString ("criteria");
 
-		if (criteria.equals ("title"))
+		if ("title".equals(criteria))
 		{
 			criteria = ResourceProperties.PROP_DISPLAY_NAME;
 		}
-		else if (criteria.equals ("size"))
+		else if ("size".equals(criteria))
 		{
 			criteria = ResourceProperties.PROP_CONTENT_LENGTH;
 		}
-		else if (criteria.equals ("created by"))
+		else if ("created by".equals(criteria))
 		{
 			criteria = ResourceProperties.PROP_CREATOR;
 		}
-		else if (criteria.equals ("last modified"))
+		else if ("last modified".equals(criteria))
 		{
 			criteria = ResourceProperties.PROP_MODIFIED_DATE;
 		}
