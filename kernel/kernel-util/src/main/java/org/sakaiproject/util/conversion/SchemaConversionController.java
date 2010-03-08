@@ -103,11 +103,13 @@ public class SchemaConversionController
 		
 		if(createErrorTable != null && errorReportSql != null && verifyErrorTable != null)
 		{
+			PreparedStatement verifyTable = null;
+			ResultSet rs = null;
 			try 
 			{
 				// reportErrorsInTable should be true if table already exists or is created 
-				PreparedStatement verifyTable = connection.prepareStatement(verifyErrorTable);
-				ResultSet rs = verifyTable.executeQuery();
+				verifyTable = connection.prepareStatement(verifyErrorTable);
+				rs = verifyTable.executeQuery();
 				boolean tableExists = rs.next();
 				
 				if(!tableExists)
@@ -122,6 +124,22 @@ public class SchemaConversionController
 			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}
+			finally {
+				if (verifyTable != null)  {
+					try {
+						verifyTable.close();
+					} catch (SQLException e) {
+					}
+				}
+				
+				if (rs != null) {
+					try {
+						rs.close();
+					} catch (SQLException e) {
+					}
+				}
+				
 			}
 		}
 	}
