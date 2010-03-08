@@ -94,7 +94,7 @@ public class ObjectsManager {
     
     private static String getWurflFileLocation() {
 	String param,param2;
-	FileInputStream fis;
+	FileInputStream fis = null;
 	
 	//have a look at the wurfl.properties file. It may exist
 	Properties locations = new Properties(); 
@@ -103,13 +103,22 @@ public class ObjectsManager {
 	    try {
 		fis = new FileInputStream("wurfl.properties"); 
 		locations.load(fis);
-		fis.close();
+		
 	    } 
 	    catch (IOException ioe) {
 		System.err.println("problems with wurfl.properties");
 		ioe.printStackTrace();
 		throw new WurflException("Problems with wurfl.properties");
 	    } 
+	    finally {
+	    	if (fis !=null) {
+	    		try {
+	    			fis.close();
+	    		} catch (IOException e) {
+
+	    		}
+	    	}
+	    }
 	    
 	    param = locations.getProperty("wurflpath");
 	    if (param == null) {

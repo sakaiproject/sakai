@@ -347,14 +347,33 @@ class Wurfl {
      * @param patch
      */
     Wurfl(File wurflFile, File patchFile) {
-        try   {
-            InputStream wurfl = new FileInputStream(wurflFile);
-            InputStream patch = new FileInputStream(patchFile);
-            init(wurfl,patch);
-        } catch(Exception e) {
-            log.info(e.getMessage());
-	    throw new WurflException(e.getMessage());
-        }
+    	InputStream wurfl = null;
+    	InputStream patch = null;
+    	try   {
+    		wurfl = new FileInputStream(wurflFile);
+    		patch = new FileInputStream(patchFile);
+    		init(wurfl,patch);
+    	} catch(IOException e) {
+    		log.info(e.getMessage());
+    		throw new WurflException(e.getMessage());
+    	}
+    	finally {
+    		if (wurfl != null) {
+    			try {
+    				wurfl.close();
+    			} catch (IOException e) {
+    			}
+    		}
+
+    		if (patch != null) {
+    			try {
+    				patch.close();
+    			} catch (IOException e) {
+
+    			}
+    		}
+    	}
+        
     }
     
     /**
@@ -364,36 +383,54 @@ class Wurfl {
      *
      */
     Wurfl(String fileName, String patchfile) {
-        try {
-	    //in case patchfile is empty, have a look if wurfl_patch.xml
-	    //is in the same directory as wurfl.xml
-	    if (patchfile == null || patchfile.equals("")) {
-		log.info("trying to see if we can figure out the patch file");
-		if (fileName.matches("(.*)wurfl\\.xml$")) {
-		    int fc = fileName.indexOf("wurfl.xml");
-		    String dir = fileName.substring(0, fc);
-		    String _patchfile = dir + "wurfl_patch.xml";
-		    
-		    File f = new File(_patchfile);
-		    if(f.exists() && f.canRead()) {
-			log.info("potential patchfile: " + _patchfile);
-			patchfile = _patchfile;
-		    } else {
-			log.info("potential patchfile: " + _patchfile +" does not exist, or is not readable");
-		    }
-		}
-	    }
-	    InputStream wurfl = new FileInputStream(new File(fileName));
-	    InputStream patch = null;
-	    if( patchfile != null && !patchfile.equals("")) {
-		patch = new FileInputStream(new File(patchfile));
-	    }		    
-	    init(wurfl,patch);
-	    
-	} catch(Exception e) {
-	    log.info(e.getMessage());
-	    log.info("Unable to prepare WURFL");
-	}
+    	InputStream wurfl = null;
+    	InputStream patch = null;
+    	try {
+    		//in case patchfile is empty, have a look if wurfl_patch.xml
+    		//is in the same directory as wurfl.xml
+    		if (patchfile == null || patchfile.equals("")) {
+    			log.info("trying to see if we can figure out the patch file");
+    			if (fileName.matches("(.*)wurfl\\.xml$")) {
+    				int fc = fileName.indexOf("wurfl.xml");
+    				String dir = fileName.substring(0, fc);
+    				String _patchfile = dir + "wurfl_patch.xml";
+
+    				File f = new File(_patchfile);
+    				if(f.exists() && f.canRead()) {
+    					log.info("potential patchfile: " + _patchfile);
+    					patchfile = _patchfile;
+    				} else {
+    					log.info("potential patchfile: " + _patchfile +" does not exist, or is not readable");
+    				}
+    			}
+    		}
+    		wurfl = new FileInputStream(new File(fileName));
+    		patch = null;
+    		if( patchfile != null && !patchfile.equals("")) {
+    			patch = new FileInputStream(new File(patchfile));
+    		}		    
+    		init(wurfl,patch);
+
+    	} catch(IOException e) {
+    		log.info(e.getMessage());
+    		log.info("Unable to prepare WURFL");
+    	}
+    	finally {
+    		if (wurfl != null) {
+    			try {
+					wurfl.close();
+				} catch (IOException e) {
+					
+				}
+    		}
+    		if (patch != null) {
+    			try {
+					patch.close();
+				} catch (IOException e) {
+				}
+    		}
+    	}
+
     }
 
 	
