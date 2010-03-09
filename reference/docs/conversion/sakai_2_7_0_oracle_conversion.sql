@@ -798,7 +798,7 @@ SORT_ORDER number(10,0)
 ); 
 
 -- SAK-17679/SAK-18116
-alter table EMAIL_TEMPLATE_ITEM add column VERSION number(10,0) DEFAULT NULL;
+alter table EMAIL_TEMPLATE_ITEM add VERSION number(10,0) DEFAULT NULL;
 
 
 -- Samigo
