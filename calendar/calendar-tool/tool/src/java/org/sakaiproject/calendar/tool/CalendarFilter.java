@@ -101,12 +101,12 @@ class CalendarFilter
 	private Time startingListViewDate;
 	private Time endingListViewDate;
 	
-	private int LIST_VIEW_ENDING_DAY = 31;
-	private int LIST_VIEW_ENDING_MONTH = 12;
+	private final static int LIST_VIEW_ENDING_DAY = 31;
+	private final static int LIST_VIEW_ENDING_MONTH = 12;
 
 	// Default start/end dates for the list view.
-	private int LIST_VIEW_STARTING_DAY = 1;
-	private int LIST_VIEW_STARTING_MONTH = 1;
+	private final static int LIST_VIEW_STARTING_DAY = 1;
+	private final static int LIST_VIEW_STARTING_MONTH = 1;
 	private boolean listViewDatesCustomized = false;
 
 	// Default to showing all events within the default range.
@@ -145,7 +145,7 @@ class CalendarFilter
 	/**
 	 * Get a string representing the end date.
 	 */
-	public String getEndingListViewDateString()
+	synchronized public String getEndingListViewDateString()
 	{
 		return LIST_VIEW_DATE_FORMAT.format(
 			new Date(endingListViewDate.getTime()));
@@ -199,7 +199,7 @@ class CalendarFilter
 	/**
 	 * Get a string representing the start date.
 	 */
-	public String getStartingListViewDateString()
+	synchronized public String getStartingListViewDateString()
 	{
 		return LIST_VIEW_DATE_FORMAT.format(
 			new Date(startingListViewDate.getTime()));
@@ -406,7 +406,7 @@ class CalendarFilter
 	/**
 	 * Set the start/end dates from strings.  Format an error message and return false if there is a problem.
 	 */
-	public boolean setStartAndEndListViewDates(
+	synchronized public boolean setStartAndEndListViewDates(
 		String startingDateStr,
 		String endingDateStr,
 		StringBuilder errorMessage)
