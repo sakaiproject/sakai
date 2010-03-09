@@ -597,8 +597,7 @@ public class AttachmentAction
 		Vector attachments = (Vector) state.getAttribute(STATE_ATTACHMENTS);
 
 		// read the form to figure out which %%% attachment from the vector to edit.
-		Reference attachment = null;
-		state.setAttribute(STATE_ATTACHMENT, attachment);
+		state.setAttribute(STATE_ATTACHMENT, null);
 
 		// end up in properties mode
 		state.setAttribute(STATE_MODE, MODE_PROPERTIES);

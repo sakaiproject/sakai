@@ -964,7 +964,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 		while(attachmentIt.hasNext())
 		{
 			Reference ref = attachmentIt.next();
-			String containerId = null;
 			String typeId = null;
 			String contentType = null;
 			try
@@ -989,7 +988,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 				}
 
 				String displayName = props.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
-				AttachItem item = new AttachItem(ref.getId(), displayName, containerId, accessUrl);
+				AttachItem item = new AttachItem(ref.getId(), displayName, null, accessUrl);
 				item.setContentType(contentType);
 				item.setResourceType(typeId);
 				ResourceType typedef = registry.getType(typeId);

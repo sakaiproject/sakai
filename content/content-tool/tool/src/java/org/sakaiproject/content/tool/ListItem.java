@@ -1424,6 +1424,8 @@ public class ListItem
 				argument = Double.valueOf(this.conditionArgument);
 			} catch (NumberFormatException nfe) {
 				this.numberFieldIsInvalid = true;
+				//Not much we can do if its not a number
+				return;
 			}
 			
 			String submittedResourceFilter = params.get("selectResource" + index);
