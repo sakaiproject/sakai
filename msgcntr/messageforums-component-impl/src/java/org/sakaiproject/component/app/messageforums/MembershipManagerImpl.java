@@ -50,8 +50,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
-import org.sakaiproject.util.ResourceLoader;
-
 public class MembershipManagerImpl implements MembershipManager{
 
   private static final Log LOG = LogFactory.getLog(MembershipManagerImpl.class);
@@ -62,10 +60,6 @@ public class MembershipManagerImpl implements MembershipManager{
   private ToolManager toolManager;
   private SecurityService securityService;
   private PrivacyManager privacyManager;
-  
-  private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
-  private ResourceLoader rl = new ResourceLoader(MESSAGECENTER_BUNDLE);
-  
 
   public void init() {
      LOG.info("init()");
@@ -191,9 +185,7 @@ public class MembershipManagerImpl implements MembershipManager{
     if (includeAllParticipantsMember){
       MembershipItem memberAll = MembershipItem.getInstance();
       memberAll.setType(MembershipItem.TYPE_ALL_PARTICIPANTS);
-      //memberAll.setName(MembershipItem.ALL_PARTICIPANTS_DESC);
-      memberAll.setName(rl.getString("all_participants_desc"));
-
+      memberAll.setName(MembershipItem.ALL_PARTICIPANTS_DESC);
       returnMap.put(memberAll.getId(), memberAll);
     }
  
@@ -221,8 +213,7 @@ public class MembershipManagerImpl implements MembershipManager{
       Group currentGroup = (Group) groupIterator.next();      
       MembershipItem member = MembershipItem.getInstance();
       member.setType(MembershipItem.TYPE_GROUP);
-      //member.setName(currentGroup.getTitle() + " Group");
-      member.setName(rl.getFormattedMessage("participants_group_desc",new Object[]{currentGroup.getTitle()}));
+      member.setName(currentGroup.getTitle() + " Group");
       member.setGroup(currentGroup);
       returnMap.put(member.getId(), member);
     }
@@ -238,8 +229,7 @@ public class MembershipManagerImpl implements MembershipManager{
         if (roleId != null && roleId.length() > 0){
           roleId = roleId.substring(0,1).toUpperCase() + roleId.substring(1); 
         }
-//        member.setName(roleId + " Role");
-        member.setName(rl.getFormattedMessage("participants_role_desc",new Object[]{roleId}));        
+        member.setName(roleId + " Role");
         member.setRole(role);
         returnMap.put(member.getId(), member);
       }
