@@ -50,10 +50,12 @@ public class RoleSwitchHandler extends BasePortalHandler
         	catch(IdUnusedException ie)
             {
         		log.error(ie.getMessage(), ie);
+        		throw new IllegalStateException("Site doesn't exist!");
             }
             catch(PermissionException pe)
             {
             	log.error(pe.getMessage(), pe);
+            	throw new IllegalStateException("No permission to visit site!");
             }
 			
             Set<Role> roles = activeSite.getRoles(); // all the roles in our site

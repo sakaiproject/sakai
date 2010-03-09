@@ -473,10 +473,12 @@ public class SiteHandler extends WorksiteHandler
             	catch(IdUnusedException ie)
 	            {
             		log.error(ie.getMessage(), ie);
+            		throw new IllegalStateException("Site doesn't exist!");
 	            }
 	            catch(PermissionException pe)
 	            {
 	            	log.error(pe.getMessage(), pe);
+	            	throw new IllegalStateException("No permission to view site!");
 	            }
 	            // this block of code will check to see if the student role exists in the site.  It will be used to determine if we need to display any student view component
 	            boolean roleInSite = false;
