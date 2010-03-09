@@ -29,6 +29,7 @@ import org.sakaiproject.sitestats.api.event.EventRegistryService;
 
 public interface StatsManager {
 	public final static String			SITESTATS_WEBAPP			= "/sitestats-tool";
+	public final static String			SILK_ICONS_DIR				= "/library/image/silk/";
 	
 	public final static int				PREFS_OVERVIEW_PAGE			= 0;
 	public final static int				PREFS_EVENTS_PAGE			= 1;

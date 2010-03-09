@@ -124,7 +124,7 @@ public class EventRegistryTree extends Panel {
 				navCollapse.add(new AttributeModifier("style", true, new Model("display: none")));
 								
 				// image, label, checkbox
-				listItem.add(new ExternalImage("image", "images/silk/icons/application_side_boxes.png"));
+				listItem.add(new ExternalImage("image", StatsManager.SILK_ICONS_DIR + "application_side_boxes.png"));
 				String toolName = Locator.getFacade().getEventRegistryService().getToolName(ti.getToolId());
 				listItem.add(new Label("label", new Model(toolName)));
 				CheckBox toolCheckBox = new CheckBox("checkbox", new PropertyModel(ti, "selected"));
@@ -144,7 +144,7 @@ public class EventRegistryTree extends Panel {
                 
 				listItem.add(new ExternalImage("navCollapse", "images/line-last.gif"));
 				listItem.add(new ExternalImage("navExpand", "images/nav-plus.gif").setVisible(false));
-				listItem.add(new ExternalImage("image", "images/silk/icons/bullet_feed.png"));
+				listItem.add(new ExternalImage("image", StatsManager.SILK_ICONS_DIR + "bullet_feed.png"));
 				String eventName = Locator.getFacade().getEventRegistryService().getEventName(ei.getEventId());
 				listItem.add(new Label("label", new Model(eventName)));
 				CheckBox eventCheckBox = new CheckBox("checkbox", new PropertyModel(ei, "selected"));
@@ -159,7 +159,7 @@ public class EventRegistryTree extends Panel {
 				listItem.setVisible(false);
 				listItem.add(new ExternalImage("navCollapse", "images/line-last.gif"));
 				listItem.add(new ExternalImage("navExpand", "images/nav-plus.gif").setVisible(false));
-				listItem.add(new ExternalImage("image", "images/silk/icons/bullet_feed.png").setVisible(false));
+				listItem.add(new ExternalImage("image", StatsManager.SILK_ICONS_DIR + "bullet_feed.png").setVisible(false));
 				listItem.add(new Label("label").setVisible(false));
 				listItem.add(new CheckBox("checkbox", new Model(Boolean.FALSE)).setVisible(false));
 				

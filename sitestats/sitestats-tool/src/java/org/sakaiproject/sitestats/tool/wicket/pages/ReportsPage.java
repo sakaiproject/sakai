@@ -201,7 +201,7 @@ public class ReportsPage extends BasePage {
 			// icon
 			WebMarkupContainer icon = new WebMarkupContainer("icon");
 			if(mode == ReportDefsProvider.MODE_PREDEFINED_REPORTS) {
-				icon.add(new AttributeModifier("src", true, new Model("images/silk/icons/report.png")));
+				icon.add(new AttributeModifier("src", true, new Model(StatsManager.SILK_ICONS_DIR + "report.png")));
 			}
 			add(icon);
 			

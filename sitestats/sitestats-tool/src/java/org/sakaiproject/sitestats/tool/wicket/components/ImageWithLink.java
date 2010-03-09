@@ -50,7 +50,7 @@ public class ImageWithLink extends Panel {
 			b.append(lnkLabel);
 			b.append(' ');
 			b.append(((String) new ResourceModel("resource_unknown").getObject()));
-			add( new ExternalImage("image", StatsManager.SITESTATS_WEBAPP+"/images/silk/icons/cross.png").setVisible(true) );
+			add( new ExternalImage("image", StatsManager.SILK_ICONS_DIR + "cross.png").setVisible(true) );
 			lnk = new ExternalLink("link", lnkUrl, b.toString());
 			lnk.setEnabled(false);
 		}
