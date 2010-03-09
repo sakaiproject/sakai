@@ -88,7 +88,7 @@ public class StoredStateImpl implements StoredState
 		}
 		else
 		{
-			this.toolContextPath = toolContextPath;
+			this.toolContextPath = null;
 		}
 	}
 
