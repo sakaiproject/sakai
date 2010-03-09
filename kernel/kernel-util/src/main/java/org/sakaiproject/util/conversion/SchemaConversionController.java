@@ -112,10 +112,10 @@ public class SchemaConversionController
 				verifyTable = connection.prepareStatement(verifyErrorTable);
 				rs = verifyTable.executeQuery();
 				boolean tableExists = rs.next();
-				
+
 				if(!tableExists)
 				{
-					
+
 					createTable = connection.prepareStatement(createErrorTable);
 					createTable.execute();
 				}
@@ -126,25 +126,36 @@ public class SchemaConversionController
 				e.printStackTrace();
 			}
 			finally {
-				if (rs != null) {
-					try {
+				if (rs != null)
+				{
+					try
+					{
 						rs.close();
-					} catch (SQLException e) {
+					}
+					catch (SQLException e)
+					{
 					}
 				}
-				
-				if (verifyTable != null)  {
-					try {
+
+				if (verifyTable != null)
+				{
+					try
+					{
 						verifyTable.close();
-					} catch (SQLException e) {
+					}
+					catch (SQLException e)
+					{
 					}
 				}
-				
-				if (createTable != null) {
-					try {
+
+				if (createTable != null)
+				{
+					try
+					{
 						createTable.close();
-					} catch (SQLException e) {
-						
+					}
+					catch (SQLException e)
+					{
 					}
 				}
 			} //END Finally
