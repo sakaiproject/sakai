@@ -124,8 +124,7 @@ public class Type1BaseContentResourceSerializer implements EntitySerializer
 					+ " as it is not a SerializableResourceAccess ");
 		}
 		SerializableResourceAccess sc = (SerializableResourceAccess) se;
-		String id = null;
-
+		
 		try
 		{
 
@@ -153,7 +152,7 @@ public class Type1BaseContentResourceSerializer implements EntitySerializer
 		}
 		catch (Exception ex)
 		{
-			throw new EntityParseException("Failed to parse entity ["+id+"]", ex);
+			throw new EntityParseException("Failed to parse entity ", ex);
 		}
 	}
 

@@ -2784,7 +2784,7 @@ public class DbContentService extends BaseContentService
 					// zero length?
 					if (edit.getContentLength() == 0)
 					{
-						M_log.warn("convertToFile(): zero length body : " + id);
+						M_log.warn("convertToFile(): zero length body ");
 						
 					}
 					
