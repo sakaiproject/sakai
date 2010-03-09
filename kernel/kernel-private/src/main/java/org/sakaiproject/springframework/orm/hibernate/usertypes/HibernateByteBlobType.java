@@ -73,8 +73,7 @@ public class HibernateByteBlobType
                 statement.setBinaryStream(index, null, 0);
             }
             catch (SQLException exception) {
-                Blob nullBlob = null;
-                statement.setBlob(index, nullBlob);
+                statement.setBlob(index, null);
             }
         } else {
             statement.setBinaryStream(index, new ByteArrayInputStream(bytes), bytes.length);
