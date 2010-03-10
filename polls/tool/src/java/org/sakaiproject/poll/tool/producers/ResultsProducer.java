@@ -37,6 +37,8 @@ import org.sakaiproject.poll.tool.params.PollViewParameters;
 
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.messageutil.TargettedMessage;
+import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
@@ -102,6 +104,11 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
     public void setExternalLogic(ExternalLogic externalLogic) {
 		this.externalLogic = externalLogic;
 	}
+    
+	private TargettedMessageList tml;
+	public void setTargettedMessageList(TargettedMessageList tml) {
+		this.tml = tml;
+	}
 
 	
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams,
@@ -113,7 +120,14 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 		LOG.debug("got id of " + strId);
 		Poll poll = pollListManager.getPollById(Long.valueOf(strId));
 
-
+		if (!pollListManager.isAllowedViewResults(poll, externalLogic.getCurrentUserId())) {
+			tml.addMessage(new TargettedMessage("poll.noviewresult", new Object[]{}, TargettedMessage.SEVERITY_ERROR));
+			return;
+			
+		}
+		
+		
+		
 		//get the number of votes
 		int voters = pollVoteManager.getDisctinctVotersForPoll(poll);
 		//Object[] args = new Object[] { Integer.valueOf(voters).toString()};
@@ -127,7 +141,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 		List<Option> pollOptions = poll.getPollOptions();
 
 		LOG.debug("got a list of " + pollOptions.size() + " options");
-		//appeng an option for no votes
+		//Append an option for no votes
 		if (poll.getMinOptions()==0) {
 			Option noVote = new Option(Long.valueOf(0));
 			noVote.setOptionText(messageLocator.getMessage("result_novote"));

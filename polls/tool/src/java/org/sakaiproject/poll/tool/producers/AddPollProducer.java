@@ -38,6 +38,7 @@ import org.sakaiproject.poll.tool.params.VoteBean;
 import org.sakaiproject.util.FormattedText;
 
 import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
@@ -147,8 +148,11 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		Poll poll = null;
 		boolean isNew = true;
 
-		UIForm newPoll = UIForm.make(tofill, "add-poll-form");
 
+		
+
+		
+		UIForm newPoll = UIForm.make(tofill, "add-poll-form");
 		LOG.debug("Poll of id: " + ecvp.id);
 		if (ecvp.id == null || "New 0".equals(ecvp.id)) {
 			UIMessage.make(tofill,"new_poll_title","new_poll_title");
@@ -167,7 +171,13 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 
 			isNew = false;
 		}
-
+		
+		
+		if (!externalLogic.isUserAdmin() && !externalLogic.isAllowedInLocation(PollListManager.PERMISSION_ADD, externalLogic.getCurrentLocationReference()),
+				externalLogic.getCurrentuserReference())) {
+			tml.addMessage(new TargettedMessage("new_poll_noperms"));
+			return;
+		}		
 
 		//only display for exisiting polls
 		if (!isNew) {
@@ -326,7 +336,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		LOG.debug("actionReturn is of type " + actionReturn.getClass());
 
 		Poll poll = null;
-
+		
 		if(actionReturn instanceof org.sakaiproject.poll.model.Poll) {
 			poll = (Poll) actionReturn;
 		}

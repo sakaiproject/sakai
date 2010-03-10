@@ -126,6 +126,7 @@
 			ref="org.sakaiproject.tool.poll.api.PollVoteManager" />
 		<property name="localeGetter" ref="requestLocaleProxy" />
 		<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
+		<property name="targettedMessageList" ref="targettedMessageList" />
 	</bean>
 
 	<bean id="voteCollection"
