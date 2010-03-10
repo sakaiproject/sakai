@@ -95,40 +95,54 @@
 <div class="navPanel">
   <div style="float:left; display:inline; width: auto; padding-top: 0.5em;">
     <%-- Mark All As Read --%>
-  	<h:commandLink action="#{PrivateMessagesTool.processActionMarkCheckedAsRead}" id="markAsread" title="#{msgs.cdfm_mark_check_as_read}" >
+  	<h:commandLink action="#{PrivateMessagesTool.processActionMarkCheckedAsRead}" id="markAsread" styleClass="ToggleBulk" title="#{msgs.cdfm_mark_check_as_read}" >
  		<h:graphicImage value="/../../library/image/silk/email_open.png" />
  		<h:outputText value=" #{msgs.cdfm_mark_check_as_read}" />
 	</h:commandLink> 	
-
+	<span class="ToggleBulkDisabled" style="color:grey">
+		<h:graphicImage value="/../../library/image/silk/email_open.png" />
+ 		<h:outputText value=" #{msgs.cdfm_mark_check_as_read}" />
+	</span>
     <%-- Mark Checked As Unread --%>
 	<h:outputText value="  | " /><h:outputText value=" " />
   	
-  	<h:commandLink action="#{PrivateMessagesTool.processActionMarkCheckedAsUnread}" id="markAsUnread" title="#{msgs.cdfm_mark_check_as_unread}" >
+  	<h:commandLink action="#{PrivateMessagesTool.processActionMarkCheckedAsUnread}" id="markAsUnread" styleClass="ToggleBulk" title="#{msgs.cdfm_mark_check_as_unread}" >
   		<h:graphicImage value="/../../library/image/silk/email.png" />
 		<h:outputText value=" #{msgs.cdfm_mark_check_as_unread}" />		
  	</h:commandLink>
- 	
+ 	<span class="ToggleBulkDisabled" style="color:grey">
+		<h:graphicImage value="/../../library/image/silk/email.png" />
+		<h:outputText value=" #{msgs.cdfm_mark_check_as_unread}" />	
+	</span>
 	<%-- Delete Checked 
 			first link renders on non-Deleted folders and moves to Deleted folder
 			second link renders on Deleted folder page and does the 'actual' delete --%>
 	<h:outputText value="  | " /><h:outputText value=" " />
-	<h:commandLink action="#{PrivateMessagesTool.processActionDeleteChecked}" id="deleteMarked"
+	<h:commandLink action="#{PrivateMessagesTool.processActionDeleteChecked}" id="deleteMarked" styleClass="ToggleBulk"
 				title="#{msgs.cdfm_mark_check_as_delete}" rendered="#{PrivateMessagesTool.msgNavMode != 'pvt_deleted'}" >
 		<h:graphicImage value="/../../library/image/silk/email_delete.png" />
 		<h:outputText value=" #{msgs.cdfm_mark_check_as_delete}" />
 	</h:commandLink>
- 	<h:commandLink id="deleteChecked" action="#{PrivateMessagesTool.processPvtMsgEmptyDelete}" rendered="#{PrivateMessagesTool.msgNavMode == 'pvt_deleted'}" 
+ 	<h:commandLink id="deleteChecked" styleClass="ToggleBulk" action="#{PrivateMessagesTool.processPvtMsgEmptyDelete}" rendered="#{PrivateMessagesTool.msgNavMode == 'pvt_deleted'}" 
  				 onkeypress="document.forms[0].submit;" accesskey="x" >
  		<h:graphicImage value="/../../library/image/silk/email_delete.png" />
 		<h:outputText value=" #{msgs.cdfm_mark_check_as_delete}" />
   	</h:commandLink>
+  	<span class="ToggleBulkDisabled" style="color:grey">
+		<h:graphicImage value="/../../library/image/silk/email_delete.png" />
+		<h:outputText value=" #{msgs.cdfm_mark_check_as_delete}" />
+	</span>
  	  
 	<%-- Move Checked To Folder --%>
 	<h:outputText value="  | " /><h:outputText value=" " />
-	<h:commandLink action="#{PrivateMessagesTool.processActionMoveCheckedToFolder}" id="moveCheckedToFolder" title="#{msgs.cdfm_mark_check_move_to_folder}" >
+	<h:commandLink action="#{PrivateMessagesTool.processActionMoveCheckedToFolder}" id="moveCheckedToFolder" styleClass="ToggleBulk" title="#{msgs.cdfm_mark_check_move_to_folder}" >
 		<h:graphicImage value="/images/page_move.png" alt="#{msgs.msg_is_unread}"  />
 		<h:outputText value=" #{msgs.cdfm_mark_check_move_to_folder}" />
 	</h:commandLink>
+	<span class="ToggleBulkDisabled" style="color:grey">
+		<h:graphicImage value="/images/page_move.png" alt="#{msgs.msg_is_unread}"  />
+		<h:outputText value=" #{msgs.cdfm_mark_check_move_to_folder}" />
+	</span>
 	</div>
 
   <div style="float:right; display:inline; width:33%;"></div>
