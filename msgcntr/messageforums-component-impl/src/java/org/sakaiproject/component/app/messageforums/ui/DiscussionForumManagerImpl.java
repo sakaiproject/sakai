@@ -709,6 +709,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       for (Iterator iter = forum.getTopics().iterator(); iter.hasNext();)
       {
+    	  try{
         DiscussionTopic t = (DiscussionTopic) iter.next();
         if (next && getTopicAccess(t))
         {
@@ -721,6 +722,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
             next = true;
           }
         }
+    	  }catch (Exception e) {
+    		  LOG.error(e.getMessage());
+		}
       }
     }
 
