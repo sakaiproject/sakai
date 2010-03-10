@@ -586,16 +586,24 @@ public class ProviderServlet extends HttpServlet {
 		String[] toolPermissionsSets = toolPermissionsStr.split("\\|");
 		for (int i = 0; i < toolPermissionsSets.length; i++){
 			String[] requiredPermissions = toolPermissionsSets[i].split(","); 
+			boolean allowed = true;
 			for (int j = 0; j < requiredPermissions.length; j++) {
-				//since all in a set are required, if we are missing just one permission, deny access
+				//since all in a set are required, if we are missing just one permission, set false, break and continue to check next set
+				//as that set may override and allow access
 				if (!SecurityService.unlock(requiredPermissions[j].trim(), site.getReference())){
+					allowed = false;
 					return false;
 				}
 			}
+			//if allowed, we have matched the entire set so are satisfied
+			//otherwise we will check the next set
+			if(allowed) {
+				return true;
+			}
 		}
 		
-		//have checked all permissions, all are satisfied, so allow access
-		return true;
+		//no sets were completely matched
+		return false;
 	}
 
 }
