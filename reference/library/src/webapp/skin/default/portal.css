@@ -537,7 +537,7 @@ html>body .dhtml_more_tabs {
 
 /*PART 5 - SITE TOOL LINKS  - children of #toolMenuWrap	*/
 /*wrapper for ul that lists the links to tools*/
-#toolMenu{
+#toolMenu, #subSites{
 	width: 11em;
 	padding: 0;
 	margin: 1em 0 0 0;
@@ -545,7 +545,7 @@ html>body .dhtml_more_tabs {
 	background: inherit;
 }
 
-#toolMenu ul{
+#toolMenu ul, #subSites ul{
 	width:auto;
 	list-style: none;
 	margin: 0;
@@ -553,7 +553,7 @@ html>body .dhtml_more_tabs {
 	padding-left: 0;
 }
 
-#toolMenu li{
+#toolMenu li, #subSites li{
 
 	margin: 0;
 	width: auto;
@@ -583,12 +583,13 @@ also hide if are going to be using icon links (as background of <a> nad <li>
 	 
 }
 
-#toolMenu li span{
+#toolMenu li span, #subSites li span{
 
 }
 
 
-#toolMenu li a:link,#toolMenu li a{
+#toolMenu li a:link,#toolMenu li a,
+#subSites li a:link,#subSites li a{
 	display: block;
 	text-decoration: underline;
 	color: #09c;
@@ -604,18 +605,21 @@ also hide if are going to be using icon links (as background of <a> nad <li>
     
 
 }
-#toolMenu li a:hover{
+#toolMenu li a:hover,
+#subSites li a:hover{
 	text-decoration: none;
 	color: #09c;
 }
 
-#toolMenu li a.selected{
+#toolMenu li a.selected,
+#subSites li a:selected{
 	text-decoration: none;
 	color: #000;
 	cursor: text;
 }
 
-#toolMenu li a.selected:hover{
+#toolMenu li a.selected:hover,
+#subSites li a:selected:hover{
 	text-decoration: none;
 	color: #000;
 	cursor: text;
@@ -1133,6 +1137,9 @@ background-image: url(../../image/silk/comment.png);
 .icon-sakai-createuser { 
 	background-image: url(../../image/silk/user_add.png); 
 } 
+.icon-sakai-subsite { 
+	background-image: url(../../image/silk/chart_organisation.png); 
+}
 
 .icon-sakai-iframe-service {
 	background-image: url(../../image/silk/house.png);
