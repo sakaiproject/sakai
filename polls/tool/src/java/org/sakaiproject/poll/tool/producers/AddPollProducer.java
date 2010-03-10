@@ -173,7 +173,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		}
 		
 		
-		if (!externalLogic.isUserAdmin() && !externalLogic.isAllowedInLocation(PollListManager.PERMISSION_ADD, externalLogic.getCurrentLocationReference()),
+		if (!externalLogic.isUserAdmin() && !externalLogic.isAllowedInLocation(PollListManager.PERMISSION_ADD, externalLogic.getCurrentLocationReference(),
 				externalLogic.getCurrentuserReference())) {
 			tml.addMessage(new TargettedMessage("new_poll_noperms"));
 			return;

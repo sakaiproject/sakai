@@ -28,6 +28,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Option;
@@ -36,7 +37,9 @@ import org.sakaiproject.poll.model.VoteCollection;
 import org.sakaiproject.poll.tool.params.PollViewParameters;
 import org.sakaiproject.poll.tool.params.VoteCollectionViewParameters;
 
+import sun.util.logging.resources.logging;
 import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
@@ -91,6 +94,10 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 		this.pollListManager = pollListManager;
 	}
 
+	private ExternalLogic externalLogic;
+	public void setExternalLogic(ExternalLogic externalLogic) {
+		this.externalLogic = externalLogic;
+	}
 
 
 	public void setTargettedMessageList(TargettedMessageList tml) {
@@ -99,127 +106,104 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
 
-
-
-		if (tml.size() > 0) {
-			for (int i = 0; i < tml.size(); i ++ ) {
-				UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:");
-				String output;
-				if (tml.messageAt(i).args != null ) {	    		
-					output = messageLocator.getMessage(tml.messageAt(i).acquireMessageCode(),tml.messageAt(i).args[0]);
-				} else {
-					output = messageLocator.getMessage(tml.messageAt(i).acquireMessageCode());
-				}
-				UIOutput.make(errorRow,"error", output);
-			}
-		}
-
-
-
-
-
-
 		UIOutput.make(tofill, "poll-vote-title", messageLocator.getMessage("poll_vote_title"));
 
+		PollViewParameters ecvp = (PollViewParameters) viewparams;
 
 
+		String strId = ecvp.id;
+		LOG.debug("got id of " + strId);
+		Poll poll = pollListManager.getPollById(Long.valueOf(strId));
 
-		try {
-
-			PollViewParameters ecvp = (PollViewParameters) viewparams;
-
-
-			String strId = ecvp.id;
-			LOG.debug("got id of " + strId);
-			Poll poll = pollListManager.getPollById(Long.valueOf(strId));
-
-			LOG.debug("got poll " + poll.getText());
-
-
-			//check if they can vote
-			if (poll.getLimitVoting() && pollVoteManager.userHasVoted(poll.getPollId())) {
-				LOG.warn("This user has already voted!");
-				UIOutput.make(tofill, "hasErrors",messageLocator.getMessage("vote_hasvoted"));
-				return;
-			}
-
-			UIOutput.make(tofill,"poll-text",poll.getText());
-			if (poll.getDetails() != null)
-			{
-				UIVerbatim.make(tofill,"poll-description",poll.getDetails());
-			}
-
-			LOG.debug("this poll has " + poll.getPollOptions().size()+ " options");
-
-			UIForm voteForm = UIForm.make(tofill,"options-form",""); 
-
-			List<Option> pollOptions = poll.getPollOptions();
-			//build the options + label lists
-			String[] values= new String[pollOptions.size()];
-			for (int i = 0;i <pollOptions.size(); i++ ) {
-				Option po = (Option)pollOptions.get(i);
-				values[i]= po.getOptionId().toString();
-			}
-
-
-			String[] labels = new String[pollOptions.size()];
-			for (int i = 0;i<  pollOptions.size(); i++ ) {
-				Option po = (Option)pollOptions.get(i);
-				if (po.getOptionText() != null ) {
-					labels[i]= po.getOptionText();
-				} else {
-					LOG.warn("Option text is null!");
-					labels[i]="null option!";
-				}
-			}
-
-			//we need to deside is this a single or multiple?
-			//poll.getMaxOptions()
-			boolean isMultiple = false;
-			if (poll.getMaxOptions()>1)
-				isMultiple = true;
-
-
-			UISelect radio;
-			if (isMultiple)
-				radio = UISelect.makeMultiple(voteForm,"optionform",values,"#{voteCollection.optionsSelected}",new String[]{});
-			else
-				radio = UISelect.make(voteForm,"optionform",values,"#{voteCollection.option}","");
-
-			radio.optionnames = UIOutputMany.make(labels);
-			String selectID = radio.getFullID();
-			for (int i = 0;i < pollOptions.size(); i++ ) {
-				Option po = (Option)pollOptions.get(i);
-				LOG.debug("got option " + po.getOptionText() + " with id of  " + po.getId());
-				UIBranchContainer radioRow = UIBranchContainer.make(voteForm,
-						isMultiple ? "option:select"
-								: "option:radio"						 
-									,Integer.toString(i));
-				UISelectChoice.make(radioRow,"option-radio",selectID,i);
-				//UISelectLabel.make(radioRow,"option-label",selectID,i);
-				UIVerbatim.make(radioRow,"option-label",labels[i]);
-			}
-			//bind some parameters
-			voteForm.parameters.add(new UIELBinding("#{voteCollection.pollId}", poll.getPollId()));
-
-			UICommand sub = UICommand.make(voteForm, "submit-new-vote",messageLocator.getMessage("vote_vote"),
-			"#{pollToolBean.processActionVote}");
-			sub.parameters.add(new UIELBinding("#{voteCollection.submissionStatus}", "sub"));
-			UICommand cancel = UICommand.make(voteForm, "cancel",messageLocator.getMessage("vote_cancel"),"#{pollToolBean.cancel}");
-			cancel.parameters.add(new UIELBinding("#{voteCollection.submissionStatus}", "cancel"));
-
-			//o9nly show reset in !(min=max=1)
-			if(!(poll.getMaxOptions()==1 && poll.getMinOptions()==1))
-				UIOutput.make(voteForm, "reset", messageLocator.getMessage("vote_reset"));
-
-		} 
-		catch (Exception e)
-		{
-			LOG.error("Error: " + e);
-			e.printStackTrace();
+		if (!externalLogic.isAllowedInLocation(PollListManager.PERMISSION_VOTE, externalLogic.getCurrentLocationReference(), externalLogic.getCurrentUserId())){
+			tml.addMessage(new TargettedMessage("vote_noperm"));
+			return;
+		} else {
+			LOG.info("user: " + externalLogic.getCurrentUserId() + " can vote on poll: " + poll.getPollId());
 		}
+
+		LOG.debug("got poll " + poll.getText());
+
+
+		//check if they can vote
+		if (poll.getLimitVoting() && pollVoteManager.userHasVoted(poll.getPollId())) {
+			LOG.warn("This user has already voted!");
+			UIOutput.make(tofill, "hasErrors",messageLocator.getMessage("vote_hasvoted"));
+			return;
+		}
+
+		UIOutput.make(tofill,"poll-text",poll.getText());
+		if (poll.getDetails() != null)
+		{
+			UIVerbatim.make(tofill,"poll-description",poll.getDetails());
+		}
+
+		LOG.debug("this poll has " + poll.getPollOptions().size()+ " options");
+
+		UIForm voteForm = UIForm.make(tofill,"options-form",""); 
+
+		List<Option> pollOptions = poll.getPollOptions();
+		//build the options + label lists
+		String[] values= new String[pollOptions.size()];
+		for (int i = 0;i <pollOptions.size(); i++ ) {
+			Option po = (Option)pollOptions.get(i);
+			values[i]= po.getOptionId().toString();
+		}
+
+
+		String[] labels = new String[pollOptions.size()];
+		for (int i = 0;i<  pollOptions.size(); i++ ) {
+			Option po = (Option)pollOptions.get(i);
+			if (po.getOptionText() != null ) {
+				labels[i]= po.getOptionText();
+			} else {
+				LOG.warn("Option text is null!");
+				labels[i]="null option!";
+			}
+		}
+
+		//we need to deside is this a single or multiple?
+		//poll.getMaxOptions()
+		boolean isMultiple = false;
+		if (poll.getMaxOptions()>1)
+			isMultiple = true;
+
+
+		UISelect radio;
+		if (isMultiple)
+			radio = UISelect.makeMultiple(voteForm,"optionform",values,"#{voteCollection.optionsSelected}",new String[]{});
+		else
+			radio = UISelect.make(voteForm,"optionform",values,"#{voteCollection.option}","");
+
+		radio.optionnames = UIOutputMany.make(labels);
+		String selectID = radio.getFullID();
+		for (int i = 0;i < pollOptions.size(); i++ ) {
+			Option po = (Option)pollOptions.get(i);
+			LOG.debug("got option " + po.getOptionText() + " with id of  " + po.getId());
+			UIBranchContainer radioRow = UIBranchContainer.make(voteForm,
+					isMultiple ? "option:select"
+							: "option:radio"						 
+								,Integer.toString(i));
+			UISelectChoice.make(radioRow,"option-radio",selectID,i);
+			//UISelectLabel.make(radioRow,"option-label",selectID,i);
+			UIVerbatim.make(radioRow,"option-label",labels[i]);
+		}
+		//bind some parameters
+		voteForm.parameters.add(new UIELBinding("#{voteCollection.pollId}", poll.getPollId()));
+
+		UICommand sub = UICommand.make(voteForm, "submit-new-vote",messageLocator.getMessage("vote_vote"),
+		"#{pollToolBean.processActionVote}");
+		sub.parameters.add(new UIELBinding("#{voteCollection.submissionStatus}", "sub"));
+		UICommand cancel = UICommand.make(voteForm, "cancel",messageLocator.getMessage("vote_cancel"),"#{pollToolBean.cancel}");
+		cancel.parameters.add(new UIELBinding("#{voteCollection.submissionStatus}", "cancel"));
+
+		//o9nly show reset in !(min=max=1)
+		if(!(poll.getMaxOptions()==1 && poll.getMinOptions()==1))
+			UIOutput.make(voteForm, "reset", messageLocator.getMessage("vote_reset"));
+
+
 	}
-	
+
 	public ViewParameters getViewParameters() {
 		return new PollViewParameters();
 
@@ -240,7 +224,7 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 
 		if (actionReturn instanceof VoteCollection) {
 			VoteCollection votes = (VoteCollection) actionReturn;
-			
+
 			if (votes.getId() != null) {
 				LOG.debug("got a voteCollection with id: " + votes.getId());
 				result.resultingView = new VoteCollectionViewParameters(ConfirmProducer.VIEW_ID, votes.getId());
@@ -248,7 +232,7 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 				LOG.warn("no id in vote collection!");
 			}
 		}
-		
-		
+
+
 	}
 }
