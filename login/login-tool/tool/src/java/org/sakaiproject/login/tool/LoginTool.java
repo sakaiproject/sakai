@@ -210,8 +210,7 @@ public class LoginTool extends HttpServlet
 				+ "    <title>UI.SERVICE</title>"
 				+ "    <script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>"
 				+ "  </head>"
-				+ "  <body onload=\" setFocus(focus_path);parent.updCourier(doubleDeep, ignoreCourier);\" class=\"servletBody\">"
-				+ "<script type=\"text/javascript\" language=\"JavaScript\">" + "  focus_path = [\"eid\"];" + "</script>";
+				+ "  <body onload=\"if ((document.getElementById('pw').passwordfocus != true)) document.getElementById('eid').focus() ;parent.updCourier(doubleDeep, ignoreCourier);\" class=\"servletBody\">";
 
 		final String tailHtml = "</body></html>";
 
@@ -223,7 +222,7 @@ public class LoginTool extends HttpServlet
 				+ "								<tr>" + "									<td>" + "										<label for=\"eid\">EID</label>" + "									</td>"
 				+ "									<td class=\"shorttext\">" + "										<input name=\"eid\" id=\"eid\"  type=\"text\" size=\"15\"/>" + "									</td>"
 				+ "								</tr>" + "								<tr>" + "									<td>" + "										<label for=\"pw\">PW</label>" + "									</td>"
-				+ "									<td class=\"shorttext\">" + "										<input name=\"pw\" id=\"pw\"  type=\"password\" size=\"15\"/>" + "									</td>"
+				+ "									<td class=\"shorttext\">" + "										<input name=\"pw\" id=\"pw\"  type=\"password\" size=\"15\" onFocus=\"this.passwordfocus = true; \" />" + "									</td>"
 				+ "								</tr>" + "								<tr>" + "									<td colspan=\"2\">"
 				+ "										<input name=\"submit\" type=\"submit\" id=\"submit\" value=\"LoginSubmit\"/>" + "									</td>"
 				+ "								</tr>" + "							</table>" + "						</form>" + "					</td>" + "				</tr>" + "			</table>";
