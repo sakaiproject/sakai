@@ -22,7 +22,6 @@ package org.sakaiproject.blti;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -481,12 +480,13 @@ public class ProviderServlet extends HttpServlet {
 		}
 
 		// If the tool is not in the site, add the tool
+		ToolConfiguration tool = null;
 		if (placement_id == null) {
 			try {
 				SitePage sitePageEdit = null;
 				sitePageEdit = thesite.addPage();
 				sitePageEdit.setTitle(tool_id);
-				ToolConfiguration tool = sitePageEdit.addTool();
+				tool = sitePageEdit.addTool();
 				Tool t = tool.getTool();
 
 				tool.setTool(tool_id, ToolManager.getTool(tool_id));
@@ -514,6 +514,19 @@ public class ProviderServlet extends HttpServlet {
 						+ " tool=" + tool_id, e);
 				return;
 			}
+		}
+	
+		
+		// Get ToolConfiguration for tool if not already setup
+		if(tool == null){
+			tool =  thesite.getToolForCommonId(tool_id);
+		}
+		
+		// Check user has access to this tool in this site
+		// This will be incorporated into KNL-428 but is here until then.
+		if(!isToolVisible(thesite, tool)) {
+			doError(request, response, "launch.site.tool.denied", "user_id=" + user_id + " site="+ siteId + " tool=" + tool_id, null);
+			return;
 		}
 
 		String toolLink = ServerConfigurationService.getPortalUrl()
@@ -544,6 +557,45 @@ public class ProviderServlet extends HttpServlet {
 
 	public void destroy() {
 
+	}
+	
+	/**
+	 * Method to check if a tool is visible for a user in a site, based on KNL-428
+	 * @param site
+	 * @param toolConfig
+	 * @return
+	 */
+	private boolean isToolVisible(Site site, ToolConfiguration toolConfig) {
+		
+		//no way to check, so allow access. It's then up to the tool to control permissions
+		if(site == null || toolConfig == null) {
+			return true;
+		}
+		
+		String toolPermissionsStr = toolConfig.getConfig().getProperty("functions.require");
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("tool: " + toolConfig.getToolId() + ", permissions: " + toolPermissionsStr);
+		}
+
+		//no special permissions required, it's visible
+		if (toolPermissionsStr == null || toolPermissionsStr.trim().length() == 0) {
+			return true; 
+		}
+		
+		//check each set, if multiple permissions in the set, must have all.
+		String[] toolPermissionsSets = toolPermissionsStr.split("\\|");
+		for (int i = 0; i < toolPermissionsSets.length; i++){
+			String[] requiredPermissions = toolPermissionsSets[i].split(","); 
+			for (int j = 0; j < requiredPermissions.length; j++) {
+				//since all in a set are required, if we are missing just one permission, deny access
+				if (!SecurityService.unlock(requiredPermissions[j].trim(), site.getReference())){
+					return false;
+				}
+			}
+		}
+		
+		//have checked all permissions, all are satisfied, so allow access
+		return true;
 	}
 
 }
