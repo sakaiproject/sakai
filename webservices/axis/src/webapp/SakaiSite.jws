@@ -81,9 +81,15 @@ public class SakaiSite {
       return siteList;
    }
    
+   /**
+	 * @deprecated see http://jira.sakaiproject.org/browse/SAK-18136
+	 */
    public String joinAllSites(String id)
       throws AxisFault 
    {
+	   
+   	LOG.warn("SakaiSite.joinAllSites is deprecated and will be relocated in Sakai 2.8. See SAK-18136.");
+
       Session s = establishSession(id);
       
       List openSites = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.JOINABLE,
@@ -116,15 +122,25 @@ public class SakaiSite {
       
    }
    
+   /**
+	 * @deprecated see http://jira.sakaiproject.org/browse/SAK-18136
+	 */
    public String getSitesDom(String id, String search, int first, int last) 
       throws AxisFault 
    {
+	   	LOG.warn("SakaiSite.getSitesDom is deprecated and will be relocated in Sakai 2.8. See SAK-18136.");
+
       return getSitesDom(id, search,first, last, false);
    }
    
+   /**
+	 * @deprecated see http://jira.sakaiproject.org/browse/SAK-18136
+	 */
    public String getToolsDom(String id, String search, int first, int last) 
       throws AxisFault 
    {
+	   	LOG.warn("SakaiSite.getToolsDom is deprecated and will be relocated in Sakai 2.8. See SAK-18136.");
+
       return getSitesDom(id, search,first, last, true);
       
    }
@@ -268,8 +284,15 @@ public class SakaiSite {
       
    }
    
+   /**
+	 * @deprecated see http://jira.sakaiproject.org/browse/SAK-18136
+	 */
    public String getSingleSiteDom(String sessionId, String siteId) throws AxisFault {
-      establishSession(sessionId);
+      
+	   	LOG.warn("SakaiSite.getSingleSiteDom is deprecated and will be relocated in Sakai 2.8. See SAK-18136.");
+
+	   
+	   establishSession(sessionId);
       Document dom = Xml.createDocument();
       Node siteNode = dom.createElement("site");
       dom.appendChild(siteNode);

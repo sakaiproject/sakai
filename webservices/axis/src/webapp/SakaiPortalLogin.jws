@@ -40,10 +40,15 @@ public class SakaiPortalLogin {
 	return user;
     }
 
+    /**
+	 * @deprecated see http://jira.sakaiproject.org/browse/SAK-18136
+	 */
     public String loginAndCreate(String id, String pw, String firstName, String lastName, String eMail)
         throws AxisFault
     {
 
+    	LOG.warn("SakaiPortalLogin.loginAndCreate is deprecated and will be relocated in Sakai 2.8. See SAK-18136.");
+    	
 	MessageContext messageContext = MessageContext.getCurrentContext(); 
 	String ipAddress = messageContext.getStrProp(Constants.MC_REMOTE_ADDR);
 
@@ -120,9 +125,14 @@ public class SakaiPortalLogin {
         throw new AxisFault("Failed login");
     }
 
+    /**
+	 * @deprecated see http://jira.sakaiproject.org/browse/SAK-18136
+	 */
     public String login(String id,String pw) 
         throws AxisFault
     {
+    	LOG.warn("login is deprecated and will be relocated in Sakai 2.8. See SAK-18136.");
+
 	LOG.debug("SakaiPortalLogin.login()");
 	return loginAndCreate(id, pw, null, null, null);
     }

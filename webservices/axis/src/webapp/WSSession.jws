@@ -1,39 +1,12 @@
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Iterator;
-import java.util.Collection;
-import java.util.Properties;
-import java.util.Set;
-import java.util.Stack;
-import java.util.Vector;
-
 import org.apache.axis.AxisFault;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserEdit;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.presence.cover.PresenceService;
-import org.sakaiproject.event.api.UsageSession;
-import org.sakaiproject.event.cover.UsageSessionService;
-import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.util.Xml;
 
 public class WSSession {
+
+	private static final Log log = LogFactory.getLog(WSSession.class);
 
 	private Session establishSession(String id) throws AxisFault 
 	{
@@ -47,9 +20,14 @@ public class WSSession {
 		return s;
 	}
 	
-	
+	/**
+	 * @deprecated see http://jira.sakaiproject.org/browse/SAK-18136
+	 */
 	public int getActiveUserCount(String sessionId, int elapsed)
 	{
+		
+	   	log.warn("WSSession.getActiveUserCount is deprecated and will be relocated in Sakai 2.8. See SAK-18136.");
+
 		try {
 			Session s = establishSession(sessionId);
 			return SessionManager.getActiveUserCount(elapsed);

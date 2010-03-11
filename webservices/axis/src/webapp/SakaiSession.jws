@@ -13,8 +13,14 @@ public class SakaiSession {
 
  	private static final Log LOG = LogFactory.getLog("org.sakaiproject.axis.SakaiSession");
 
+ 	/**
+	 * @deprecated see http://jira.sakaiproject.org/browse/SAK-18136
+	 */
     public String checkSession(String id) {
-		LOG.debug("session id="+id);
+    	
+    	LOG.warn("SakaiSession.checkSession is deprecated and will be relocated in Sakai 2.8. See SAK-18136.");
+		
+    	LOG.debug("session id="+id);
         Session s = SessionManager.getSession(id);
         if (s == null)
         {
@@ -34,7 +40,13 @@ public class SakaiSession {
         }
     }
 
+    /**
+	 * @deprecated see http://jira.sakaiproject.org/browse/SAK-18136
+	 */
     public String getSessionUser(String id) {
+    	
+    	LOG.warn("SakaiSession.getSessionUser is deprecated and will be relocated in Sakai 2.8. See SAK-18136.");
+
         Session s = SessionManager.getSession(id);
         if (s == null)
         {

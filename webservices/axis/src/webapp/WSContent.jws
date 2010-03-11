@@ -54,9 +54,14 @@ public class WSContent {
 		return contentHostingService;
 	}
 
+	/**
+	 * @deprecated see http://jira.sakaiproject.org/browse/SAK-18136
+	 */
 	public String setCustomProperty(String sessionid, String resourceId,
 			String property, Boolean value, Boolean recursive) {
 
+	   	log.warn("WSContent.setCustomProperty is deprecated and will be relocated in Sakai 2.8. See SAK-18136.");
+		
 		log.info("setting property for " + resourceId + ": " + property + " = " + value);
 
 		ContentHostingService chs = getContentHostingService();
@@ -108,7 +113,9 @@ public class WSContent {
 		return "success";
 	}
 	
-	
+	/**
+	 * @deprecated see http://jira.sakaiproject.org/browse/SAK-18136
+	 */
 	public String setCustomProperty(String sessionid, String resourceId,
 			String property, Boolean value) {
 		return setCustomProperty(sessionid, resourceId, property, value, false);
