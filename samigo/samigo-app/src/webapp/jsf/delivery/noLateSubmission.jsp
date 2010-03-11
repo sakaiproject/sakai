@@ -50,7 +50,7 @@
  <h:form id="noLateSubmission">
  <p class="act">
        <h:commandButton accesskey="#{deliveryMessages.a_return}" value="#{deliveryMessages.button_return}" type="submit"
-         styleClass="active" action="select" rendered="#{delivery.actionString!='takeAssessmentViaUrl'">
+         styleClass="active" action="select" rendered="#{delivery.actionString!='takeAssessmentViaUrl'}">
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
        </h:commandButton>
