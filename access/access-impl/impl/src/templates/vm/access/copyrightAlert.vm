@@ -1,6 +1,13 @@
-## $Header: /cvs/sakai2/legacy/access/src/webapp/vm/access/copyrightAlert.vm,v 1.2 2005/05/19 19:49:04 jimeng.umich.edu Exp $ 
-<div style="text-align:center">
-<div style="text-align:left;width:60%;margin-top:4em;margin-left:auto;margin-right:auto;padding:.5em;background-color:silver;border:1px solid gray;font-family:Verdana,Arial,Helvetica,sans-serif;font-size:.8em">
+## $Header: /cvs/sakai2/legacy/access/src/webapp/vm/access/copyrightAlert.vm,v 1.2 2005/05/19 19:49:04 jimeng.umich.edu Exp $
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<title>$tlang.getString("gen.copyright") : $validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</title>
+	</head>
+<body> 
+<div align="center" style="width:60%;margin-top:1em;margin-left:auto;margin-right:auto;padding:.5em;background-color:silver;border:1px solid gray;font-family:Verdana,Arial,Helvetica,sans-serif;font-size:.8em">
 #if($sample)
 	$tlang.getString("gen.sample")
 #else
@@ -60,3 +67,5 @@
 	</div>		
 #end
 </div>
+</body>
+</html>
