@@ -1570,17 +1570,23 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	            if( CitationService.allowRemoveCitationList( temporaryResourceId ) )
 	            {
 	            	// setup a SecurityAdvisor
-		            SecurityService.pushAdvisor( new CitationListSecurityAdviser(
+	            	CitationListSecurityAdviser advisor = new CitationListSecurityAdviser(
 		            		SessionManager.getCurrentSessionUserId(),
 		            		ContentHostingService.AUTH_RESOURCE_REMOVE_ANY,
-		            		tempResource.getReference() ) );
+		            		tempResource.getReference() );
 
-		            // remove temp resource
-		            contentService.removeResource(temporaryResourceId);
-
-		            // clear advisors
-		            SecurityService.clearAdvisors();
-
+	            	try {
+	            		SecurityService.pushAdvisor(advisor);
+	            		
+			            // remove temp resource
+			            contentService.removeResource(temporaryResourceId);
+	            	} catch(Exception e) {
+	            		logger.warn("Exception removing temporary resource for a citation list: " + temporaryResourceId + " --> " + e);
+	            	} finally {
+			            // pop advisor
+			            SecurityService.popAdvisor();
+	            	}
+	            	
 		            tempResource = null;
 	            }
             }
@@ -1599,16 +1605,21 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	            // TODO Auto-generated catch block
 	            logger.warn("TypeException ", e);
             }
-            catch (InUseException e)
-            {
-	            // TODO Auto-generated catch block
-	            logger.warn("InUseException ", e);
-            }
+//          catch (InUseException e)
+//          {
+//	            // TODO Auto-generated catch block
+//	            logger.warn("InUseException ", e);
+//          }
             catch (ServerOverloadException e)
             {
 	            // TODO Auto-generated catch block
 	            logger.warn("ServerOverloadException ", e);
             }
+	        catch (Exception e)
+	        {
+		        // TODO Auto-generated catch block
+		        logger.warn("Exception ", e);
+	        }
 		}
 
 		// set content (mime) type
