@@ -73,7 +73,9 @@ public class HibernateByteBlobType
                 statement.setBinaryStream(index, null, 0);
             }
             catch (SQLException exception) {
-                statement.setBlob(index, null);
+            	//FB doesn't like this but is needed to avoid method ambiguity in java 1.6
+            	Blob nullBlob = null;
+                statement.setBlob(index, nullBlob);
             }
         } else {
             statement.setBinaryStream(index, new ByteArrayInputStream(bytes), bytes.length);
