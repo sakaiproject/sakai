@@ -165,7 +165,7 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 		// synchronize this part??? %%%%%%
 		if (!m_storage.containsKey(source))
 		{
-			BasicNewsChannel channel = new BasicNewsChannel(source);
+			BasicNewsChannel channel = new BasicNewsChannel(source, getUserAgent());
 			m_storage.put(source, channel, DEFAULT_EXPIRATION);
 		}
 
@@ -723,5 +723,13 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 			M_log.info("News transferCopyEntities Error" + e);
 		}
 		transferCopyEntities(fromContext, toContext, ids);
+	}
+	
+	/**
+	 * Get the user agent to use for web requests.
+	 */
+	protected String getUserAgent()
+	{
+		return "Sakai/"+ ServerConfigurationService.getString("version.sakai")+ " ("+ TOOL_ID+ ")";
 	}
 }
