@@ -137,7 +137,7 @@
   <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true" >
     <f:validateDoubleRange />
   </h:inputText>
-  <f:verbatim> <script type="text/javascript">
+  <f:verbatim> <script type="text/javascript" defer='defer'>
         var discDiv=document.getElementById('discountDiv');
         var toggleDiv=document.getElementById('itemForm:partialCreadit_NegativeMarking');
         if( typeof(toggleDiv) != 'undefined' && toggleDiv != null){
