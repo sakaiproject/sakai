@@ -23,6 +23,7 @@ package org.sakaiproject.umem.tool.ui;
 
 import java.io.Serializable;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -315,7 +316,7 @@ public class UserListBean {
 				if(searching || filtering){
 					sql += " WHERE ";
 					if(searching)
-						sql += " (EID LIKE '%"+searchKeyword+"%' OR SAKAI_USER.USER_ID LIKE '%"+searchKeyword+"%' OR FIRST_NAME LIKE '%"+searchKeyword+"%' OR LAST_NAME LIKE '%"+searchKeyword+"%' OR EMAIL LIKE '%"+searchKeyword+"%') ";
+						sql += " (EID LIKE ? OR SAKAI_USER.USER_ID LIKE ? OR FIRST_NAME LIKE ? OR LAST_NAME LIKE ? OR EMAIL LIKE ?) ";
 					if(filtering && searching)
 						sql += " AND ";
 					if(filtering){
@@ -323,20 +324,31 @@ public class UserListBean {
 							sql += " (TYPE='' or TYPE IS NULL) ";
 						else{
 							if(selectedUserType.indexOf(",") == -1)
-								sql += " (TYPE='"+selectedUserType+"') ";
+								sql += " (TYPE=?) ";
 							else
-								sql += " (TYPE in ("+selectedUserType+") ) ";
+								sql += " (TYPE in (?) ) ";
 						}
 					}
 				}		
 
 				Connection c = null;
-				Statement st = null;
+				PreparedStatement pst = null;
 				ResultSet rs = null;
 				try{
 					c = M_sql.borrowConnection();
-					st = c.createStatement();
-					rs = st.executeQuery(sql);
+					pst = c.prepareStatement(sql);
+					if(searching || filtering){
+						int i = 1;
+						if(searching) {
+							for(i=1; i<=5; i++) {
+								pst.setString(i, "%"+searchKeyword+"%");
+							}
+						}
+						if(filtering && !selectedUserType.equals(USER_TYPE_NONE)) {
+							pst.setString(i++, selectedUserType);
+						}
+					}
+					rs = pst.executeQuery();
 					while (rs.next()){
 						String id = rs.getString("USER_ID");
 						String eid = rs.getString("EID");
@@ -361,8 +373,8 @@ public class UserListBean {
 							rs.close();
 					}finally{
 						try{
-							if(st != null)
-								st.close();
+							if(pst != null)
+								pst.close();
 						}finally{
 							if(c != null)
 								M_sql.returnConnection(c);
