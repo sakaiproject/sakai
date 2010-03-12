@@ -5498,8 +5498,12 @@ public abstract class BaseCitationService implements CitationService
 					String wrappedRef = reference.substring(REFERENCE_ROOT.length(), reference
 					        .length());
 					Reference wrapped = m_entityManager.newReference(wrappedRef);
-					ref.set(APPLICATION_ID, REF_TYPE_VIEW_LIST, wrapped.getId(), wrapped
-					        .getContainer(), wrapped.getContext());
+					if(ref == null) {
+						M_log.warn("CitationService.parseEntityReference called with null Reference object", new Throwable());
+					} else {
+						ref.set(APPLICATION_ID, REF_TYPE_VIEW_LIST, wrapped.getId(), wrapped
+						        .getContainer(), wrapped.getContext());
+					}
 				}
 				else
 				{
