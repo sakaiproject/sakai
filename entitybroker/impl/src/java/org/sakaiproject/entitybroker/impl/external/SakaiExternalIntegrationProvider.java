@@ -202,6 +202,7 @@ public class SakaiExternalIntegrationProvider implements ExternalIntegrationProv
             }
         }
         String errorMessage = subject + ":" + body;
+        log.error(errorMessage + "\n" + stacktrace);
         return errorMessage;
     }
 

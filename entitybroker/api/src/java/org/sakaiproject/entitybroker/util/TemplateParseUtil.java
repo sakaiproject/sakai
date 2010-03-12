@@ -71,6 +71,25 @@ public class TemplateParseUtil {
    public static final String DIRECT_PREFIX = EntityView.DIRECT_PREFIX;
    public static final String DIRECT_PREFIX_SLASH = DIRECT_PREFIX + SEPARATOR;
 
+
+   /**
+    * Defines the valid chars for a replacement variable
+    */
+   public static final String VALID_VAR_CHARS = "[A-Za-z0-9\\\\(\\\\)\\+\\*\\.\\-_=,:;!~@%]";
+   /**
+    * Defines the valid chars for a parser input (e.g. entity reference)
+    */
+   public static final String VALID_INPUT_CHARS = "[A-Za-z0-9\\\\(\\\\)\\+\\*\\.\\-_=,:;!~@% "+SEPARATOR+"]";
+   /**
+    * Defines the valid chars for a template
+    */
+   public static final String VALID_TEMPLATE_CHARS = "[A-Za-z0-9\\\\(\\\\)\\+\\*\\.\\-_=,:;&!~@%"+SEPARATOR+"\\{\\}]";
+   /**
+    * Defines the valid template chars for an outgoing template (allows ?)
+    */
+   public static final String VALID_TEMPLATE_CHARS_OUTGOING = "[A-Za-z0-9\\\\(\\\\)\\+\\*\\.\\-_=,:;&!~@%"+SEPARATOR+"\\{\\}\\?]";
+
+
    /**
     * Defines the parse template for the "list" operation,
     * return a list of all records,
@@ -114,24 +133,6 @@ public class TemplateParseUtil {
       TEMPLATE_SHOW,
       TEMPLATE_LIST
    };
-
-
-   /**
-    * Defines the valid chars for a replacement variable
-    */
-   public static final String VALID_VAR_CHARS = "[A-Za-z0-9\\\\(\\\\)\\+\\*\\.\\-_=,:;!~@%]";
-   /**
-    * Defines the valid chars for a parser input (e.g. entity reference)
-    */
-   public static final String VALID_INPUT_CHARS = "[A-Za-z0-9\\\\(\\\\)\\+\\*\\.\\-_=,:;!~@% "+SEPARATOR+"]";
-   /**
-    * Defines the valid chars for a template
-    */
-   public static final String VALID_TEMPLATE_CHARS = "[A-Za-z0-9\\\\(\\\\)\\+\\*\\.\\-_=,:;&!~@%"+SEPARATOR+"\\{\\}]";
-   /**
-    * Defines the valid template chars for an outgoing template (allows ?)
-    */
-   public static final String VALID_TEMPLATE_CHARS_OUTGOING = "[A-Za-z0-9\\\\(\\\\)\\+\\*\\.\\-_=,:;&!~@%"+SEPARATOR+"\\{\\}\\?]";
 
    /**
     * Stores the preloaded default templates

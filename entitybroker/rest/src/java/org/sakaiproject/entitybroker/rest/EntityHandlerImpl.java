@@ -335,7 +335,7 @@ public class EntityHandlerImpl implements EntityRequestHandler {
                         // cleanup the entity reference, this has to be done because otherwise the custom action
                         // on collections appears to be the id of an entity in the collection
                         EntityReference cRef = view.getEntityReference();
-                        if (cRef.getId().equals(customAction.action)) {
+                        if (cRef.getId() != null && cRef.getId().equalsIgnoreCase(customAction.action)) {
                             view.setEntityReference( new EntityReference(prefix, "") );
                         }
                     }

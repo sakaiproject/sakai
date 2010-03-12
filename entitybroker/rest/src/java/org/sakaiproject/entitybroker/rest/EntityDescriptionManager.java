@@ -606,7 +606,7 @@ public class EntityDescriptionManager {
                             +entityProperties.getProperty(DESCRIBE, "describe.entity.may.be.invalid", locale)+"]:</h4>\n");
                     sb.append("      <div style='padding-left:1em;padding-bottom:1em;'>\n");
                     if (caps.contains(CollectionResolvable.class)) {
-                        url = ev.getEntityURL(EntityView.VIEW_LIST, null);
+                        url = makeEntityURL(ev, EntityView.VIEW_LIST);
                         sb.append("        <div>\n");
                         sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.collection.url", locale)
                                 +": GET <a href='"+ servletUrl+url +"'>"+url+"</a>"
@@ -620,7 +620,7 @@ public class EntityDescriptionManager {
                         sb.append("        </div>\n");
                     }
                     if (caps.contains(Createable.class)) {
-                        url = ev.getEntityURL(EntityView.VIEW_NEW, null);
+                        url = makeEntityURL(ev, EntityView.VIEW_NEW);
                         sb.append("        <div>\n");
                         sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.create.url", locale)
                                 +": POST <a href='"+ servletUrl+url +"'>"+url+"</a>"
@@ -635,7 +635,7 @@ public class EntityDescriptionManager {
                     }
 
                     if (caps.contains(CoreEntityProvider.class) || caps.contains(Resolvable.class)) {
-                        url = ev.getEntityURL(EntityView.VIEW_SHOW, null);
+                        url = makeEntityURL(ev, EntityView.VIEW_SHOW);
                         sb.append("        <div>\n");
                         sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.show.url", locale)
                                 +": GET <a href='"+ servletUrl+url +"'>"+url+"</a>"
@@ -650,7 +650,7 @@ public class EntityDescriptionManager {
                     }
 
                     if (caps.contains(Updateable.class)) {
-                        url = ev.getEntityURL(EntityView.VIEW_EDIT, null);
+                        url = makeEntityURL(ev, EntityView.VIEW_EDIT);
                         sb.append("        <div>\n");
                         sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.update.url", locale)
                                 +": PUT <a href='"+ servletUrl+url +"'>"+url+"</a>"
@@ -664,7 +664,7 @@ public class EntityDescriptionManager {
                         sb.append("        </div>\n");
                     }
                     if (caps.contains(Deleteable.class)) {
-                        url = ev.getEntityURL(EntityView.VIEW_DELETE, null);
+                        url = makeEntityURL(ev, EntityView.VIEW_DELETE);
                         sb.append("        <div>\n");
                         sb.append("          <div>"+entityProperties.getProperty(DESCRIBE, "describe.entity.delete.url", locale)
                                 +": DELETE <a href='"+ servletUrl+url +"'>"+url+"</a>"
@@ -957,17 +957,36 @@ public class EntityDescriptionManager {
     }
 
     /**
-     * @param customAction
+     * @param ev the entity view
+     * @param customAction the custom action
      * @return a URL for triggering the custom action (without http://server/direct)
      */
     protected String makeActionURL(EntityView ev, CustomAction customAction) {
         // switched to this since it is more correct
         String URL = EntityView.SEPARATOR + ev.getEntityReference().getPrefix() + EntityView.SEPARATOR + customAction.action;
         String viewKey = customAction.viewKey;
-        if (viewKey != null || EntityView.VIEW_SHOW.equals(viewKey)) {
-            URL = ev.getEntityURL(viewKey, null) + EntityView.SEPARATOR + customAction.action;
+        if (viewKey != null 
+                && (EntityView.VIEW_SHOW.equals(viewKey) || EntityView.VIEW_EDIT.equals(viewKey) || EntityView.VIEW_DELETE.equals(viewKey))) {
+            URL = ev.getEntityURL(EntityView.VIEW_SHOW, null) + EntityView.SEPARATOR + customAction.action;
         }
         return URL;
+    }
+
+    /**
+     * @param ev entity view
+     * @param viewType the type of view
+     * @return a URL for triggering the entity action (without http://server/direct)
+     */
+    protected String makeEntityURL(EntityView ev, String viewType) {
+        if (viewType == null) {
+            viewType = EntityView.VIEW_LIST;
+        }
+        if (! EntityView.VIEW_LIST.equals(viewType) && ! EntityView.VIEW_NEW.equals(viewType)) {
+            viewType = EntityView.VIEW_SHOW;
+        } else {
+            viewType = EntityView.VIEW_LIST;
+        }
+        return ev.getEntityURL(viewType, null);
     }
 
     /**
