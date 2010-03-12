@@ -39,8 +39,6 @@ import org.sakaiproject.exception.IdInvalidException;
  */
 public class Validator
 {
-	private static final String URL_ESCAPE_CHAR = "/";
-
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(Validator.class);
 
@@ -176,46 +174,47 @@ public class Validator
 	 * @param id
 	 *        The string to escape.
 	 * @return id fully escaped using URL rules.
-	 * @deprecated use java.net.URLEncode.encode(url, encoding)
+	 * @deprecated use java.net.URLEncode.encode()
 	 */
 	public static String escapeUrl(String id)
 	{
-		
-		if (id == null) {
+		if (id == null) return "";
+		id = id.trim();
+		try
+		{
+			// convert the string to bytes in UTF-8
+			byte[] bytes = id.getBytes("UTF-8");
+
+			StringBuilder buf = new StringBuilder();
+			for (int i = 0; i < bytes.length; i++)
+			{
+				byte b = bytes[i];
+				// escape ascii control characters, ascii high bits, specials
+				if (ESCAPE_URL_SPECIAL.indexOf((char) b) != -1)
+				{
+					buf.append("^^x"); // special funky way to encode bad URL characters 
+					buf.append(toHex(b));
+					buf.append('^');
+				}
+				else if ((ESCAPE_URL.indexOf((char) b) != -1) || (b <= 0x1F) || (b == 0x7F) || (b >= 0x80))
+				{
+					buf.append("%");
+					buf.append(toHex(b));
+				}
+				else
+				{
+					buf.append((char) b);
+				}
+			}
+
+			String rv = buf.toString();
+			return rv;
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			M_log.warn("Validator.escapeUrl: ", e);
 			return "";
 		}
-		
-		String ret = null;
-		
-		//this may be a url so we need to split on "/"
-		if (id.contains(URL_ESCAPE_CHAR)) {
-			String[] split = id.split(URL_ESCAPE_CHAR);
-			StringBuilder sb = new StringBuilder();
-			if (id.indexOf(URL_ESCAPE_CHAR) == 0) {
-				sb.append(URL_ESCAPE_CHAR);
-			}
-			for (int i = 1; i < split.length; i++) {
-				try {
-					sb.append(URLEncoder.encode(split[i], "utf8"));
-					if (i < (split.length -1)) {
-						sb.append(URL_ESCAPE_CHAR);
-					}
-				} catch (UnsupportedEncodingException e) {
-					e.printStackTrace();
-				}
-				
-			}
-			return sb.toString();
-		} else {
-			try {
-				ret = URLEncoder.encode(id, "utf8");
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-				return id;
-
-			}
-		}
-		return ret;
 
 	} // escapeUrl
 
