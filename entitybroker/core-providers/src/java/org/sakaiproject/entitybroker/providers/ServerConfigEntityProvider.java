@@ -94,7 +94,6 @@ public class ServerConfigEntityProvider extends AbstractEntityProvider implement
     }
 
     @EntityCustomAction(action="servers",viewKey=EntityView.VIEW_LIST)
-    @SuppressWarnings("unchecked")
     public Object getClusterServers(EntityReference ref) {
         List<String> servers = clusterService.getServers();
         // wrapped the data in an EntityData object so it is encoded as is
