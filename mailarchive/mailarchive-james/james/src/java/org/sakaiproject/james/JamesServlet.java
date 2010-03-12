@@ -40,6 +40,18 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.StringUtil;
 
+import org.sakaiproject.util.Xml;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathException;
+
 /**
  * <p>
  * JamesServlet starts James.
@@ -82,11 +94,10 @@ public class JamesServlet extends HttpServlet
 			// start James / Avalon running in this VM.
 			try
 			{
-				// set the phoenix log in our log area (logs in sakai.home)
-				String sakaiHome = System.getProperty("sakai.home");
+				// Set the log directory for the phoenix log
 				String[] args = new String[2];
 				args[0] = "-l";
-				args[1] = sakaiHome + "logs/phoenix.log";
+				args[1] = JamesServlet.getLogDirectory() + "phoenix.log";
 
 				int exitCode = PhoenixLauncherMain.startup(args, new HashMap(), true);
 				M_log.info("run: James service stopped: " + exitCode);
@@ -138,21 +149,62 @@ public class JamesServlet extends HttpServlet
 		super.destroy();
 	}
 
+	protected static String getLogDirectory()
+	{
+		String logDir = StringUtil.trimToNull(ServerConfigurationService.getString("smtp.logdir"));
+
+		if(logDir == null) {
+			M_log.info("init(): smtp.logdir not set, defaulting to {sakai.home}/logs/");
+			logDir = System.getProperty("sakai.home");
+			if(!logDir.endsWith("/")) {
+				logDir += "/";
+			}
+			logDir += "logs/";
+		} else {
+			if(!logDir.endsWith("/")) {
+				logDir += "/";
+			}
+
+			if(!logDir.startsWith("/")) {
+				// if the path is relative work from catalina.base/catalina.home
+				String catalinaDir = System.getProperty("catalina.base");
+				if(catalinaDir == null) {
+					catalinaDir = System.getProperty("catalina.home");
+				}
+
+				if(!catalinaDir.endsWith("/")) {
+					catalinaDir += "/";
+				}
+
+				logDir = catalinaDir + logDir;
+			}
+		}
+
+		M_log.debug("init(): using " + logDir + " as James log directory");
+		return logDir;
+	}
+
+
+	public class JamesConfigurationException extends Exception {}
+
+
 	protected void startJames(ServletConfig config)
 	{
 		// get config info
+		String logDir = JamesServlet.getLogDirectory();
 		String host = ServerConfigurationService.getServerName();
 		String dns1 = StringUtil.trimToNull(ServerConfigurationService.getString("smtp.dns.1"));
 		String dns2 = StringUtil.trimToNull(ServerConfigurationService.getString("smtp.dns.2"));
 		String smtpPort = StringUtil.trimToNull(ServerConfigurationService.getString("smtp.port"));
 		boolean enabled = ServerConfigurationService.getBoolean("smtp.enabled", false);
 
-		M_log.info("init(): host: " + host + " enabled: " + enabled + " dns1: " + dns1 + " dns2: " + dns2 + " smtp.port: "
-				+ smtpPort);
+		M_log.debug("init(): host: " + host + " enabled: " + enabled + " dns1: " + dns1 + " dns2: "
+			    + dns2 + " smtp.port: " + smtpPort + " logdir: " + logDir);
 
 		// if not enabled, don't start james
 		if (!enabled)
 		{
+			M_log.debug("init(): James not enabled, aborting");
 			return;
 		}
 
@@ -167,155 +219,80 @@ public class JamesServlet extends HttpServlet
 		// expand to real path
 		m_phoenixHome = getServletContext().getRealPath(homeRelative);
 
-		customizeConfig(host, dns1, dns2, smtpPort);
+		try {
+			customizeConfig(host, dns1, dns2, smtpPort, logDir);
+		} catch(JamesConfigurationException e) {
+			M_log.error("init(): James could not be configured, aborting");
+			return;
+		}
 
 		// start the James thread
 		m_runner = new JamesRunner();
 	}
 
-	/**
-	 * This method is a disaster, it could have many exceptions but none of them are handled and nothing
-	 * is logged -AZ
-	 */
-	protected void customizeConfig(String host, String dns1, String dns2, String smtpPort)
+	protected void customizeConfig(String host, String dns1, String dns2, String smtpPort, String logDir)
+	    throws JamesConfigurationException
 	{
-        StringBuilder contents = new StringBuilder();
+		String configPath = m_phoenixHome + "/apps/james/SAR-INF/config.xml";
+		String environmentPath = m_phoenixHome + "/apps/james/SAR-INF/environment.xml";
 
-        // read the config file
-	    try {
-            File f = new File(m_phoenixHome + "/apps/james/SAR-INF/config.xml");
-            BufferedReader input = new BufferedReader(new FileReader(f));
-            try {
-                String line = null;
-                while ((line = input.readLine()) != null)
-                {
-                    contents.append(line);
-                    contents.append(System.getProperty("line.separator"));
-                }
-            } finally {
-                input.close();
-            }
+		XPath xpath = XPathFactory.newInstance().newXPath();
+		Document doc;
 
-            // modify [HOST], [DNS1], [DNS2] and [SMTP.PORT]
-            int pos = -1;
-            String target = "[HOST]";
-            while ((pos = contents.indexOf(target)) != -1)
-            {
-                contents.replace(pos, pos + target.length(), host);
-            }
+		try {
+			// process config.xml first
+			doc = Xml.readDocument(configPath);
+			if(doc == null) {
+				M_log.error("init(): James config file " + configPath + "could not be found.");
+				throw new JamesConfigurationException();
+			}
 
-            target = "<server>[DNS1]</server>";
-            pos = contents.indexOf(target);
-            if (pos != -1)
-            {
-                if ((dns1 != null) && (dns1.length() > 0))
-                {
-                    contents.replace(pos, pos + target.length(), "<server>" + dns1 + "</server>");
-                }
-                else
-                {
-                    contents.replace(pos, pos + target.length(), "");
-                }
-            }
+			// build a hashmap of node paths and values to set
+			HashMap<String, String> nodeValues = new HashMap<String, String>();
 
-            target = "<server>[DNS2]</server>";
-            pos = contents.indexOf(target);
-            if (pos != -1)
-            {
-                if ((dns2 != null) && (dns2.length() > 0))
-                {
-                    contents.replace(pos, pos + target.length(), "<server>" + dns2 + "</server>");
-                }
-                else
-                {
-                    contents.replace(pos, pos + target.length(), "");
-                }
-            }
+			// WARNING!! in XPath, node-set indexes begin with 1, and NOT 0
+			nodeValues.put("/config/James/servernames/servername[1]", host);
+			nodeValues.put("/config/dnsserver/servers/server[2]", dns1);
+			nodeValues.put("/config/dnsserver/servers/server[3]", dns2);
+			nodeValues.put("/config/James/postmaster", "postmaster@" + host);
+			nodeValues.put("/config/smtpserver/port", smtpPort);
 
-            target = "<port>[SMTP.PORT]</port>";
-            pos = contents.indexOf(target);
-            if (pos != -1)
-            {
-                if ((smtpPort == null) || (smtpPort.length() == 0))
-                {
-                    smtpPort = "25";
-                }
-                contents.replace(pos, pos + target.length(), "<port>" + smtpPort + "</port>");
-            }
+			// loop through the hashmap, setting each value, or failing if one can't be found
+			for(String nodePath : nodeValues.keySet()) {
+				if(!(Boolean)xpath.evaluate(nodePath, doc, XPathConstants.BOOLEAN)) {
+					M_log.error("init(): Could not find XPath '" + nodePath + "' in " + configPath + ".");
+					throw new JamesConfigurationException();
+				}
+				((Node)xpath.evaluate(nodePath, doc, XPathConstants.NODE)).setTextContent(nodeValues.get(nodePath));
+			}
 
-            // write it back
-            Writer output = null;
-            try
-            {
-                output = new BufferedWriter(new FileWriter(f));
-                output.write(contents.toString());
-            } catch (IOException e) {
-                // TODO it was empty before
-            }
-            finally
-            {
-                if (output != null) {
-                    try {
-                        output.close();
-                    } catch (IOException e) {
-                        // tried
-                    }
-                }
-            }
-        } catch (FileNotFoundException e) {
-            // TODO it was empty before
-        } catch (IOException e) {
-            // TODO empty
-        }
+			M_log.debug("init(): writing James configuration to " + configPath);
+			Xml.writeDocument(doc, configPath);
 
-        contents = new StringBuilder();
 
-        // read the environment file
-        File environmentFile = new File(m_phoenixHome + "/apps/james/SAR-INF/environment.xml");
-        try {
-            BufferedReader environmentInput = new BufferedReader(new FileReader(environmentFile));
-            try {
-                String line = null;
-                while ((line = environmentInput.readLine()) != null)
-                {
-                    contents.append(line);
-                    contents.append(System.getProperty("line.separator"));
-                }
-            } finally {
-                environmentInput.close();
-            }
+			// now handle environment.xml
+			doc = Xml.readDocument(environmentPath);
+			if(doc == null) {
+				M_log.error("init(): James config file " + environmentPath + "could not be found.");
+				throw new JamesConfigurationException();
+			}
 
-            // modify [SAKAI.HOME]
-            int pos2 = -1;
-            String target2 = "[SAKAI.HOME]";
-            while ((pos2 = contents.indexOf(target2)) != -1)
-            {
-                contents.replace(pos2, pos2 + target2.length(), System.getProperty("sakai.home"));
-            }
+			String nodePath = "/server/logs/targets/file/filename";
+			String nodeValue = logDir + "james";
 
-            // write it back
-            Writer output2 = null;
-            try
-            {
-                output2 = new BufferedWriter(new FileWriter(environmentFile));
-                output2.write(contents.toString());
-            } catch (IOException e) {
-                // TODO empty before
-            } finally {
-                if (output2 != null) {
-                    try {
-                        output2.close();
-                    } catch (IOException e) {
-                        // tried
-                    }
-                }
-            }
-        } catch (FileNotFoundException e) {
-            // TODO empty before
-        } catch (IOException e) {
-            // TODO empty before
-        }
+			if(!(Boolean)xpath.evaluate(nodePath, doc, XPathConstants.BOOLEAN)) {
+				M_log.error("init(): Could not find XPath '" + nodePath + "' in " + environmentPath + ".");
+				throw new JamesConfigurationException();
+			}
+			((Node)xpath.evaluate(nodePath, doc, XPathConstants.NODE)).setTextContent(nodeValue);
 
+			M_log.debug("init(): writing James configuration to " + environmentPath);
+			Xml.writeDocument(doc, environmentPath);
+		} catch(JamesConfigurationException e) {
+			throw e;
+		} catch(Exception e) {
+			M_log.warn("init(): An unhandled exception was encountered while configuring James: " + e.getMessage());
+		}
 	}
 
 }
