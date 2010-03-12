@@ -57,21 +57,23 @@ public interface TaggingProvider {
 	
 	/**
 	 * Method to check if current user is allowed to look at a particular item
+	 * @param itemRef Reference of the activity to which the item belongs
 	 * @param itemRef Reference of the item
 	 * @param userId Current user
 	 * @param taggedItem Reference of the related item that can be used for additional permission checking
 	 * @return
 	 */
-	boolean allowGetItem(String itemRef, String userId, String taggedItem);
+	boolean allowGetItem(String activityRef, String itemRef, String userId, String taggedItem);
 	
 	/**
 	 * Method to check if current user is allowed to look at a particular list of items
-	 * @param itemRefs List of references for a bunch of items
+	 * @param itemRef Reference of the activity to which the items belong
+	 * @param itemRefs List of references for a bunch of items (all items should belong to the same activity)
 	 * @param userId Current user
 	 * @param taggedItem Reference of the related item that can be used for additional permission checking
 	 * @return
 	 */
-	boolean allowGetItems(String[] itemRefs, String userId, String taggedItem);
+	boolean allowGetItems(String activityRef, String[] itemRefs, String userId, String taggedItem);
 
 	/**
 	 * Method to get the necessary data to invoke a helper tool for tagging the
