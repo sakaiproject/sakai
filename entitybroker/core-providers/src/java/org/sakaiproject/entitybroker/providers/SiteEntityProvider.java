@@ -22,6 +22,7 @@ package org.sakaiproject.entitybroker.providers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -130,6 +131,38 @@ public class SiteEntityProvider extends AbstractEntityProvider implements CoreEn
             throw new SecurityException("User not allowed to update role " + roleId + " in site "
                     + siteId);
         }
+    }
+
+    @EntityCustomAction(action = "perms", viewKey = EntityView.VIEW_SHOW)
+    public Map<String, Set<String>> handlePerms(EntityView view) {
+        // expects site/siteId/perms[/:PREFIX:]
+        String prefix = view.getPathSegment(3);
+
+        String userId = developerHelperService.getCurrentUserId();
+        if (userId == null) {
+            throw new SecurityException(
+                    "This action (perms) is not accessible to anon and there is no current user.");
+        }
+
+        String siteId = view.getEntityReference().getId();
+        Site site = getSiteById(siteId);
+        Set<Role> roles = site.getRoles();
+        Map<String, Set<String>> perms = new HashMap<String, Set<String>>();
+        for (Role role : roles) {
+            Set<String> functions = role.getAllowedFunctions();
+            Set<String> filteredFunctions = new TreeSet<String>();
+            if (prefix != null) {
+                for (String function : functions) {
+                    if (function.startsWith(prefix)) {
+                        filteredFunctions.add(function);
+                    }
+                }
+            } else {
+                filteredFunctions = functions;
+            }
+            perms.put(role.getId(), filteredFunctions);
+        }
+        return perms;
     }
 
     @EntityCustomAction(action = "group", viewKey = "")
